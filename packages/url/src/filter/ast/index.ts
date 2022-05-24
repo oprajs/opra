@@ -1,7 +1,6 @@
 export * from './abstract/ast';
 export * from './abstract/expression';
 export * from './abstract/literal';
-export * from './abstract/parenthesized';
 export * from './abstract/term';
 
 export * from './expressions/arithmetic-expression';

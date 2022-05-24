@@ -1,4 +1,4 @@
-import {quoteString} from '../../../utils/string-utils';
+import {quoteFilterString} from '../../../utils/string-utils';
 import {Literal} from '../abstract/literal';
 
 export class StringLiteral extends Literal {
@@ -8,7 +8,7 @@ export class StringLiteral extends Literal {
   }
 
   toString(): string {
-    return quoteString(this.value);
+    return quoteFilterString(this.value);
   }
 
 }

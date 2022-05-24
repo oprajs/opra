@@ -1,5 +1,6 @@
 import {CharStreams, CommonTokenStream} from 'antlr4ts';
 import {AbstractParseTreeVisitor} from 'antlr4ts/tree';
+import {SyntaxError} from '../errors';
 import {OWOFilterLexer} from './antlr/OWOFilterLexer';
 import {OWOFilterParser,} from './antlr/OWOFilterParser';
 import {ErrorListener} from './error-listener';
@@ -25,10 +26,10 @@ export function parseFilter(text: string, visitor?: AbstractParseTreeVisitor<any
   if (errors.length) {
     const errMsgs: any[] = [];
     for (const err of errors) {
-      errMsgs.push(err.msg +
+      errMsgs.push(err.message +
         ' at (' + 'line: ' + err.line + ' column: ' + err.charPositionInLine + ')');
     }
-    const e = new Error(errMsgs.join('\n'));
+    const e = new SyntaxError(errMsgs.join('\n'));
     (e as any).errors = errors;
     throw e;
   }

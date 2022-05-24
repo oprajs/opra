@@ -1,5 +1,4 @@
 import {Expression} from '../abstract/expression';
-import {Parenthesized} from '../abstract/parenthesized';
 
 export type ArithmeticOperator = '+' | '-' | '*' | '/';
 
@@ -10,7 +9,7 @@ export class ArithmeticExpression extends Expression {
     super();
   }
 
-  addItem(op: ArithmeticOperator, expression: Expression): this {
+  append(op: ArithmeticOperator, expression: Expression): this {
     this.items.push(new ArithmeticExpressionItem({
       op,
       expression
@@ -21,9 +20,7 @@ export class ArithmeticExpression extends Expression {
   toString(): string {
     return this.items.map(
       (child, i) =>
-        (child.expression instanceof Parenthesized ? '(' : '') +
-        (i > 0 ? child.op : '') + child.expression +
-        (child.expression instanceof Parenthesized ? ')' : '')
+        (i > 0 ? child.op : '') + child.expression
     ).join('');
   }
 

@@ -2,7 +2,7 @@ import {ValidationError} from '../../../errors';
 import {Literal} from '../abstract/literal';
 
 export class NumberLiteral extends Literal {
-  value: number | bigint = 0;
+  value: number | bigint;
 
   constructor(value: number | bigint | string) {
     super(0);
@@ -10,17 +10,21 @@ export class NumberLiteral extends Literal {
       this.value = value;
       return;
     }
-    // noinspection SuspiciousTypeOfGuard
-    if (typeof value === 'string') {
-      if (value.includes('.')) {
-        this.value = parseFloat(value);
+    try {
+      // noinspection SuspiciousTypeOfGuard
+      if (typeof value === 'string') {
+        if (value.includes('.')) {
+          this.value = parseFloat(value);
+          return;
+        }
+        const n = Number(value);
+        if ('' + n === value)
+          this.value = n;
+        else this.value = BigInt(value);
         return;
       }
-      const n = BigInt(value);
-      if (n < Number.MAX_SAFE_INTEGER)
-        this.value = Number(n);
-      else this.value = n;
-      return;
+    } catch {
+      //
     }
     throw new ValidationError(`Invalid number literal ${value}`);
   }

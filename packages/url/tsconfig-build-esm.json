@@ -6,6 +6,6 @@
     "outDir": "../../build/url/esm",
     "sourceMap": false,
     "noEmit": false,
-    "declaration": false
+    "declaration": true
   }
 }

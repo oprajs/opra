@@ -1,9 +1,9 @@
 import {EventEmitter} from 'events';
 import {nodeInspectCustom, ResourceKey} from './types';
-import {encodePathComponent} from './utils/path-utils';
+import {encodePathComponent} from './utils/url-utils';
 
 export class OwoURLPath extends EventEmitter {
-  private _entries: OwoUrlPathComponent[] = [];
+  private _entries: OwoURLPathComponent[] = [];
 
   constructor() {
     super();
@@ -13,8 +13,15 @@ export class OwoURLPath extends EventEmitter {
     return this._entries.length;
   }
 
-  add(name: string, key?: ResourceKey): void {
-    this._entries.push(new OwoUrlPathComponent(name, key));
+  add(component: OwoURLPathComponent | { resource: string; key?: ResourceKey }): void
+  add(name: string, key?: ResourceKey): void
+  add(component: any, key?: ResourceKey): void {
+    if (component instanceof OwoURLPathComponent) {
+      this._entries.push(component);
+    } else if (typeof component === 'object')
+      this._entries.push(new OwoURLPathComponent(component.resource, component.key));
+    else
+      this._entries.push(new OwoURLPathComponent(component, key));
     this.emit('change');
   }
 
@@ -23,7 +30,7 @@ export class OwoURLPath extends EventEmitter {
     this.emit('change');
   }
 
-  get(index: number): OwoUrlPathComponent {
+  get(index: number): OwoURLPathComponent {
     return this._entries[index];
   }
 
@@ -52,31 +59,38 @@ export class OwoURLPath extends EventEmitter {
   }
 
   toString(): string {
-    return this._entries.map(
-      ({resource, key}) => encodePathComponent(resource, key)
-    ).join('/');
+    return this._entries.map(x => '' + x).join('/');
   }
 
   [Symbol.iterator](): IterableIterator<[string, any]> {
     return this.entries();
   }
 
+  /* istanbul ignore next */
   [nodeInspectCustom]() {
-    return this.toString();
+    return this._entries;
   }
 
 }
 
-export class OwoUrlPathComponent {
-  constructor(public resource, public key?: ResourceKey) {
+export class OwoURLPathComponent {
+  constructor(public resource: string, public key?: ResourceKey) {
   }
 
   toString() {
-    encodePathComponent(this.resource, this.key);
+    const obj = encodePathComponent(this.resource, this.key);
+    if (obj)
+      Object.setPrototypeOf(obj, OwoURLPathComponent.prototype);
+    return obj;
   }
 
+  /* istanbul ignore next */
   [nodeInspectCustom]() {
-    return this.toString();
+    const out: any = {
+      resource: this.resource,
+    };
+    if (this.key != null)
+      out.key = this.key;
+    return out;
   }
 }
-

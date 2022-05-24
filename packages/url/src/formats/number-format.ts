@@ -1,39 +1,37 @@
 import {ValidationError} from '../errors';
-import {Nullable} from '../types';
-import {ArrayFormat, ArrayFormatOptions} from './format';
+import {Format} from './format';
 
-export interface NumberValueParserOptions extends ArrayFormatOptions {
+export interface NumberFormatOptions {
   max?: number;
   min?: number;
 }
 
-export class NumberFormat extends ArrayFormat {
+export class NumberFormat extends Format {
   max?: number;
   min?: number;
 
-  constructor(options?: NumberValueParserOptions) {
-    super(options);
+  constructor(options?: NumberFormatOptions) {
+    super();
     this.max = options?.max;
     this.min = options?.min;
   }
 
-  protected _parseItem(value: string, key: string, index: number): Nullable<number> {
-    if (value == null)
-      return null;
-    const v = parseFloat(value);
+  parse(value: string): number {
+    // noinspection SuspiciousTypeOfGuard
+    const v = typeof value === 'number' ? value : parseFloat(value);
     if (isNaN(v))
-      throw new ValidationError(`Invalid number value in "${key}[${index}]"`);
+      throw new ValidationError(`"${value}" is not a valid number`);
 
     if (this.min != null && v < this.min)
-      throw new ValidationError(`Value of "${key}[${index}]" must be ${this.min} or greater.`);
+      throw new ValidationError(`Value must be ${this.min} or greater.`);
 
-    if (this.max != null && value.length > this.max)
-      throw new ValidationError(`Value of "${key}[${index}]" must be ${this.max} or less.`);
+    if (this.max != null && v > this.max)
+      throw new ValidationError(`Value must be ${this.max} or less.`);
 
     return v;
   }
 
-  protected _stringifyItem(value: any): string {
-    return '' + value;
+  stringify(value: any): string {
+    return typeof value === 'number' ? '' + value : '';
   }
 }

@@ -1,7 +1,6 @@
 import {AbstractParseTreeVisitor} from 'antlr4ts/tree';
-import {TerminalNode} from 'antlr4ts/tree/TerminalNode';
 import {SyntaxError} from '../errors';
-import {unquoteString} from '../utils/string-utils';
+import {unquoteFilterString} from '../utils/string-utils';
 import {
   ArithmeticExpressionContext, ArrayExpressionContext,
   BooleanLiteralContext,
@@ -11,7 +10,6 @@ import {
   ExpressionContext,
   ExternalConstantTermContext,
   IdentifierContext,
-  InfinityLiteralContext,
   LogicalExpressionContext,
   NumberLiteralContext, ParenthesizedExpressionContext,
   PolarityExpressionContext,
@@ -27,11 +25,12 @@ import {
   BooleanLiteral, ComparisonExpression, ComparisonOperator,
   DateLiteral, LogicalExpression, LogicalOperator,
   NullLiteral,
-  NumberLiteral, ParenthesesExpression, Parenthesized,
+  NumberLiteral, ParenthesesExpression,
   QualifiedIdentifier,
   StringLiteral,
   TimeLiteral
 } from './ast';
+import {ExternalConstant} from './ast/terms/external-constant';
 
 export class FilterTreeVisitor extends AbstractParseTreeVisitor<any> implements OWOFilterVisitor<any> {
   private _timeZone?: string;
@@ -55,10 +54,6 @@ export class FilterTreeVisitor extends AbstractParseTreeVisitor<any> implements 
     return ctx.text;
   }
 
-  visitTerminal(node: TerminalNode) {
-    return node.text;
-  }
-
   visitNullLiteral() {
     return new NullLiteral();
   }
@@ -72,23 +67,23 @@ export class FilterTreeVisitor extends AbstractParseTreeVisitor<any> implements 
   }
 
   visitStringLiteral(ctx: StringLiteralContext) {
-    return new StringLiteral(unquoteString(ctx.text));
+    return new StringLiteral(unquoteFilterString(ctx.text));
   }
 
-  visitInfinityLiteral(ctx: InfinityLiteralContext) {
-    return new NumberLiteral(ctx.text);
+  visitInfinityLiteral() {
+    return new NumberLiteral(Infinity);
   }
 
   visitDateLiteral(ctx: DateLiteralContext) {
-    return new DateLiteral(unquoteString(ctx.text));
+    return new DateLiteral(unquoteFilterString(ctx.text));
   }
 
   visitDateTimeLiteral(ctx: DateTimeLiteralContext) {
-    return new DateLiteral(unquoteString(ctx.text));
+    return new DateLiteral(unquoteFilterString(ctx.text));
   }
 
   visitTimeLiteral(ctx: TimeLiteralContext) {
-    return new TimeLiteral(unquoteString(ctx.text));
+    return new TimeLiteral(unquoteFilterString(ctx.text));
   }
 
   visitQualifiedIdentifierTerm(ctx: QualifiedIdentifierTermContext) {
@@ -106,16 +101,11 @@ export class FilterTreeVisitor extends AbstractParseTreeVisitor<any> implements 
   }
 
   visitExternalConstantTerm(ctx: ExternalConstantTermContext) {
-    return {
-      type: 'ExternalConstantTerm',
-      text: unquoteString(ctx.externalConstant().text.substring(1))
-    }
+    return new ExternalConstant(ctx.externalConstant().text.substring(1));
   }
 
   visitParenthesizedExpression(ctx: ParenthesizedExpressionContext) {
     const expression = this.visit(ctx.expression());
-    if (expression instanceof Parenthesized)
-      return expression;
     return new ParenthesesExpression(expression);
   }
 
@@ -160,7 +150,7 @@ export class FilterTreeVisitor extends AbstractParseTreeVisitor<any> implements 
           continue;
         }
         const value = this.visit(child);
-        exp.addItem(op as ArithmeticOperator || '+', value);
+        exp.append(op as ArithmeticOperator || '+', value);
       }
     }
     wrapChildren(ctx.expression(), ctx.arthOp().text);

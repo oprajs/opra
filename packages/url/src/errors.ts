@@ -1,10 +1,10 @@
 import {Recognizer} from 'antlr4ts';
 import {RecognitionException} from 'antlr4ts/RecognitionException';
 
-export class SyntaxError extends Error {
+export class SyntaxError extends TypeError {
 }
 
-export class ValidationError extends Error {
+export class ValidationError extends TypeError {
 
 }
 

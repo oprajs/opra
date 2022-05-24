@@ -1,7 +1,8 @@
 export abstract class Ast {
+  readonly type: string;
 
-  get type(): string {
-    return Object.getPrototypeOf(this).constructor.name;
+  protected constructor() {
+    this.type = Object.getPrototypeOf(this).constructor.name;
   }
 
   abstract toString(): string;

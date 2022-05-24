@@ -2,6 +2,21 @@ import {OwoURLSearchParams} from '../src';
 
 describe('OwoURLSearchParams', function () {
 
+  it('Should parse query part', () => {
+    const u = new OwoURLSearchParams();
+    u.parse('prm1&prm2=1');
+    expect(u.size).toStrictEqual(2);
+    expect(u.toString()).toStrictEqual('prm1&prm2=1');
+  })
+
+  it('Should parse array parameters', () => {
+    const u = new OwoURLSearchParams();
+    u.parse('prm1=a%26b|a%23b');
+    expect(u.size).toStrictEqual(1);
+    expect(u.get('prm1')).toStrictEqual(["a&b", "a#b"]);
+    expect(u.toString()).toStrictEqual('prm1=a%26b|a%23b');
+  })
+
   it('Should append entry', () => {
     const u = new OwoURLSearchParams();
     u.append('prm1');
@@ -21,6 +36,14 @@ describe('OwoURLSearchParams', function () {
     u.set('prm2', 2);
     expect(u.size).toStrictEqual(2);
     expect(u.toString()).toStrictEqual('prm1=1&prm2=2');
+  })
+
+  it('Should stringify to percent encoded', () => {
+    const u = new OwoURLSearchParams();
+    u.set('prm1', 'a#b');
+    expect(u.toString()).toStrictEqual('prm1=a%23b');
+    u.set('prm1', ['a&b', 'a#b']);
+    expect(u.toString()).toStrictEqual('prm1=a%26b|a%23b');
   })
 
   it('Should clear', () => {
@@ -84,7 +107,7 @@ describe('OwoURLSearchParams', function () {
   })
 
   it('Should iterate entries using "forEach()"', () => {
-    const entries: any[][] = [['prm1'], ['prm1', 2], ['prm1', 3], ['prm2', 1]];
+    const entries: any[][] = [['prm1', ''], ['prm1', 2], ['prm1', 3], ['prm2', 1]];
     const u = new OwoURLSearchParams();
     entries.forEach(x => u.append(x[0], x[1]));
     let i = 0;
@@ -96,7 +119,7 @@ describe('OwoURLSearchParams', function () {
   })
 
   it('Should iterate entries', () => {
-    const entries: any[][] = [['prm1'], ['prm1', 2], ['prm1', 3], ['prm2', 1]];
+    const entries: any[][] = [['prm1', ''], ['prm1', 2], ['prm1', 3], ['prm2', 1]];
     const u = new OwoURLSearchParams();
     entries.forEach(x => u.append(x[0], x[1]));
     let i = 0;
@@ -108,7 +131,7 @@ describe('OwoURLSearchParams', function () {
   })
 
   it('Should iterate entries using "entries()"', () => {
-    const entries: any[][] = [['prm1'], ['prm1', 2], ['prm1', 3], ['prm2', 1]];
+    const entries: any[][] = [['prm1', ''], ['prm1', 2], ['prm1', 3], ['prm2', 1]];
     const u = new OwoURLSearchParams();
     entries.forEach(x => u.append(x[0], x[1]));
     let i = 0;
@@ -120,7 +143,7 @@ describe('OwoURLSearchParams', function () {
   })
 
   it('Should iterate values', () => {
-    const entries: any[][] = [['prm1'], ['prm1', 2], ['prm1', 3], ['prm2', 1]];
+    const entries: any[][] = [['prm1', ''], ['prm1', 2], ['prm1', 3], ['prm2', 1]];
     const u = new OwoURLSearchParams();
     entries.forEach(x => u.append(x[0], x[1]));
     let i = 0;
@@ -131,7 +154,7 @@ describe('OwoURLSearchParams', function () {
   })
 
   it('Should iterate keys', () => {
-    const entries: any[][] = [['prm1'], ['prm2', 2], ['prm3', 3], ['prm4', 1]];
+    const entries: any[][] = [['prm1', ''], ['prm2', 2], ['prm3', 3], ['prm4', 1]];
     const u = new OwoURLSearchParams();
     entries.forEach(x => u.append(x[0], x[1]));
     let i = 0;
@@ -149,7 +172,6 @@ describe('OwoURLSearchParams', function () {
     expect(u.size).toStrictEqual(3);
     expect(u.toString()).toStrictEqual('prm1&prm2=x y z&prm2=+123');
   })
-
 
 });
 

@@ -10,6 +10,9 @@
   "workspaces": [
     "packages/**"
   ],
+  "dependencies": {
+    "fast-tokenizer": "^0.1.1"
+  },
   "devDependencies": {
     "@babel/eslint-parser": "^7.17.0",
     "@tsconfig/recommended": "^1.0.1",
@@ -41,9 +44,9 @@
     "typescript-esm": "^2.0.0"
   },
   "scripts": {
-    "test": "jest",
+    "test": "jest --passWithNoTests",
     "precoverage": "rimraf coverage",
-    "coverage": "jest --collect-coverage",
+    "coverage": "jest --collect-coverage --passWithNoTests",
     "preclean": "rimraf coverage"
   }
 }

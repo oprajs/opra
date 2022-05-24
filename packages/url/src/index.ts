@@ -5,7 +5,6 @@ export * from './url-search-params';
 export * from './types';
 export * from './errors';
 
-export * from './formats/format';
 export * from './formats/boolean-format';
 export * from './formats/filter-format';
 export * from './formats/integer-format';
@@ -19,4 +18,4 @@ export * from './filter/error-listener';
 export * from './filter/filter-tree-visitor';
 
 export * from './utils/string-utils';
-export * from './utils/path-utils';
+export * from './utils/url-utils';

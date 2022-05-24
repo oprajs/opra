@@ -1,42 +1,39 @@
 import {ValidationError} from '../errors';
-import {quoteString, unquoteString} from '../utils/string-utils';
-import {ArrayFormat, ArrayFormatOptions} from './format';
+import {Format} from './format';
 
-export interface StringValueParserOptions extends ArrayFormatOptions {
+export interface StringFormatOptions {
   maxLength?: number;
   minLength?: number;
   enum?: string[];
 }
 
-export class StringFormat extends ArrayFormat {
+export class StringFormat extends Format {
   maxLength?: number;
   minLength?: number;
   enum?: string[];
 
-  constructor(options?: StringValueParserOptions) {
-    super(options);
+  constructor(options?: StringFormatOptions) {
+    super();
     this.maxLength = options?.maxLength;
     this.minLength = options?.minLength;
     this.enum = options?.enum;
   }
 
-  protected _parseItem(value: string, key: string, index: number): string {
-    const v = unquoteString(value == null ? '' : '' + value);
+  parse(value: string): string {
+    if (this.minLength != null && value.length < this.minLength)
+      throw new ValidationError(`Value must be at least ${this.minLength} character${this.minLength > 1 ? 's' : ''} long.`);
 
-    if (this.minLength != null && v.length < this.minLength)
-      throw new ValidationError(`"${key}[${index}]" must be at least ${this.minLength} character${this.minLength > 1 ? 's' : ''} long.`);
+    if (this.maxLength != null && value.length > this.maxLength)
+      throw new ValidationError(`Value can be up to ${this.maxLength} character${this.maxLength > 1 ? 's' : ''} long.`);
 
-    if (this.maxLength != null && v.length > this.maxLength)
-      throw new ValidationError(`"${key}[${index}]" can be up to ${this.maxLength} character${this.maxLength > 1 ? 's' : ''} long.`);
+    if (this.enum && !this.enum.includes(value))
+      throw new ValidationError(`"${value}" is not one of allowed enum values (${this.enum}).`);
 
-    if (this.enum && !this.enum.includes(v))
-      throw new ValidationError(`"${key}[${index}]" (${value}) is not a valid enumerated value. Allowed values are (${this.enum}).`);
-
-    return v;
+    return value;
   }
 
-  protected _stringifyItem(value: any): string {
-    return '' + quoteString(value);
+  stringify(value: any): string {
+    return value == null ? '' : '' + value;
   }
 
 }

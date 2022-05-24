@@ -7,17 +7,21 @@ const falseValues = ['false', 'f', 'no', 'n', '0'];
 
 export class BooleanFormat extends Format {
 
-  parse(value: string, key: string): Nullable<boolean> {
-    if (value == null || value === '')
-      return undefined;
+  parse(value: string): Nullable<boolean> {
+    if (value === '')
+      return true;
+    // noinspection SuspiciousTypeOfGuard
+    if (typeof value === 'boolean')
+      return value;
     if (trueValues.includes(value.toLowerCase()))
       return true;
     if (falseValues.includes(value.toLowerCase()))
       return false;
-    throw new ValidationError(`Invalid boolean value in "${key}"`);
+    throw new ValidationError(`"${value}" is not a valid boolean`);
   }
 
   stringify(value: any): string {
-    return value ? 'true' : 'false';
+    return typeof value === 'boolean' ?
+      (value ? 'true' : 'false') : '';
   }
 }

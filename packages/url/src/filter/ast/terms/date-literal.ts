@@ -1,6 +1,6 @@
 import {DateTime} from 'luxon';
 import {ValidationError} from '../../../errors';
-import {quoteString} from '../../../utils/string-utils';
+import {quoteFilterString} from '../../../utils/string-utils';
 import {Literal} from '../abstract/literal';
 
 const DATE_PATTERN = /^(\d{4})-(0[1-9]|1[012])-([123]0|[012][1-9]|31)/;
@@ -23,7 +23,7 @@ export class DateLiteral extends Literal {
   }
 
   toString(): string {
-    return quoteString(this.value);
+    return quoteFilterString(this.value);
   }
 
 }

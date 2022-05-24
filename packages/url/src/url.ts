@@ -1,17 +1,11 @@
-import {URL} from 'url';
-import {BooleanFormat} from './formats/boolean-format';
-import {FilterFormat} from './formats/filter-format';
-import {Format} from './formats/format';
+import {splitString, tokenize} from 'fast-tokenizer';
 import {IntegerFormat} from './formats/integer-format';
-import {NumberFormat} from './formats/number-format';
-import {StringFormat} from './formats/string-format';
-import {InternalFormatName, nodeInspectCustom, ResourceKey} from './types';
+import {nodeInspectCustom, ResourceKey} from './types';
 import {OwoURLPath} from './url-path';
-import {OwoURLSearchParams} from './url-search-params';
-import {decodePathComponent, normalizePath} from './utils/path-utils';
-import {splitString, tokenize} from './utils/tokenizer';
+import {OwoURLSearchParams, QueryItemMetadata} from './url-search-params';
+import {decodePathComponent, normalizePath} from './utils/url-utils';
 
-const urlRegEx = /^((?:[A-Z][A-Z+-.]+:)+)\/\/([^/]+)(\/.*)?$/i;
+const urlRegEx = /^(?:((?:[A-Z][A-Z+-.]+:)+)\/\/([^/]+))?(\/.*)?$/i;
 const schemeRegEx = /^([A-Z][A-Z+-.]+:?)+$/i;
 const hostRegEx = /^([^/:]+)(?::(\d+))?$/;
 const hostnameRegEx = /^([^/:]+)$/;
@@ -19,17 +13,9 @@ const hostnameRegEx = /^([^/:]+)$/;
 const CONTEXT_KEY = Symbol.for('owo.url.context');
 const PATH_KEY = Symbol.for('owo.url.path');
 const SEARCHPARAMS_KEY = Symbol.for('owo.url.searchparams');
-const QUERYMETADATA_KEY = Symbol.for('owo.url.querymetadata');
-
-export interface QueryItemMetadata {
-  name: string;
-  format: Format;
-}
 
 export class OwoURL {
-  static formats: Record<string, Format> = {};
   protected [CONTEXT_KEY]: {
-    baseUrl: URL;
     protocol: string;
     username: string;
     password: string;
@@ -43,7 +29,6 @@ export class OwoURL {
   }
   protected [PATH_KEY]: OwoURLPath;
   protected [SEARCHPARAMS_KEY]: OwoURLSearchParams;
-  protected [QUERYMETADATA_KEY]: Record<string, QueryItemMetadata>;
 
   constructor(input?: string, prefix?: string) {
     Object.defineProperty(this, CONTEXT_KEY, {
@@ -62,41 +47,40 @@ export class OwoURL {
       writable: true,
       configurable: true,
       enumerable: false,
-      value: new OwoURLSearchParams('', (v: string, name) => {
-        const queryItems = this[QUERYMETADATA_KEY];
-        const qm = queryItems && queryItems[name.toLowerCase()];
-        return qm ? qm.format.parse(v, name) : v;
-      })
+      value: new OwoURLSearchParams()
     });
-    this.defineQueryItem('_filter', new FilterFormat());
-    this.defineQueryItem('_limit', new NumberFormat({min: 0}));
-    this.defineQueryItem('_skip', new NumberFormat({min: 0}));
-    this.defineQueryItem('_elements', new StringFormat({maxOccurs: Infinity}));
-    this.defineQueryItem('_exclude', new StringFormat({maxOccurs: Infinity}));
-    this.defineQueryItem('_include', new StringFormat({maxOccurs: Infinity}));
-    this.defineQueryItem('_distinct', new BooleanFormat());
-    this.defineQueryItem('_total', new BooleanFormat());
-    this.path.on('change', () => this._invalidate());
+    this.defineSearchParam('_filter', {format: 'filter'});
+    this.defineSearchParam('_limit', {format: new IntegerFormat({min: 0})});
+    this.defineSearchParam('_skip', {format: new IntegerFormat({min: 0})});
+    this.defineSearchParam('_elements', {format: 'string', array: true});
+    this.defineSearchParam('_exclude', {format: 'string', array: true});
+    this.defineSearchParam('_include', {format: 'string', array: true});
+    this.defineSearchParam('_distinct', {format: 'boolean'});
+    this.defineSearchParam('_total', {format: 'boolean'});
     this.searchParams.on('change', () => this._invalidate());
+    this.path.on('change', () => this._invalidate());
     if (prefix)
       this.setPrefix(prefix);
-    this.parse(input || 'http://tempuri.org');
+    if (input)
+      this.parse(input);
   }
 
   get href(): string {
     this._update();
-    return this.protocol + '//' +
-      (this.username || this.password
-        ? (
-          (this.username ? encodeURIComponent(this.username) : '') +
-          (this.password ? ':' + encodeURIComponent(this.password) : '') + '@'
-        )
-        : '') +
-      this.host + this.prefix + this.pathname + this.search + this.hash;
+    return (this.hostname ? (
+          this.protocol + '//' +
+          (this.username || this.password
+            ? (
+              (this.username ? encodeURIComponent(this.username) : '') +
+              (this.password ? ':' + encodeURIComponent(this.password) : '') + '@'
+            )
+            : '') + this.host) : ''
+      ) +
+      this.prefix + this.pathname + this.search + this.hash;
   }
 
   get protocol(): string {
-    return this[CONTEXT_KEY].protocol;
+    return this[CONTEXT_KEY].protocol || 'http:';
   }
 
   set protocol(v: string) {
@@ -109,7 +93,7 @@ export class OwoURL {
   }
 
   get username(): string {
-    return this[CONTEXT_KEY].username;
+    return this[CONTEXT_KEY].username || '';
   }
 
   set username(v: string) {
@@ -117,7 +101,7 @@ export class OwoURL {
   }
 
   get password(): string {
-    return this[CONTEXT_KEY].password;
+    return this[CONTEXT_KEY].password || '';
   }
 
   set password(v: string) {
@@ -125,7 +109,7 @@ export class OwoURL {
   }
 
   get host(): string {
-    return this[CONTEXT_KEY].hostname + (this[CONTEXT_KEY].port ? ':' + this[CONTEXT_KEY].port : '');
+    return this.hostname ? (this.hostname + (this.port ? ':' + this.port : '')) : '';
   }
 
   set host(v: string) {
@@ -140,7 +124,7 @@ export class OwoURL {
   }
 
   get hostname(): string {
-    return this[CONTEXT_KEY].hostname;
+    return this[CONTEXT_KEY].hostname || '';
   }
 
   set hostname(v: string) {
@@ -172,7 +156,7 @@ export class OwoURL {
   }
 
   get origin(): string {
-    return this[CONTEXT_KEY].protocol + this[CONTEXT_KEY].hostname;
+    return this.hostname ? (this.protocol + '//' + this.hostname) : '';
   }
 
   get prefix(): string {
@@ -185,18 +169,21 @@ export class OwoURL {
       return;
     }
     v = tokenize(v, {delimiters: '#?', quotes: true, brackets: true}).next() || '';
-    this[CONTEXT_KEY].prefix = normalizePath(v);
+    this[CONTEXT_KEY].prefix = '/' + normalizePath(v, true);
+  }
+
+  get path(): OwoURLPath {
+    return this[PATH_KEY];
   }
 
   get pathname(): string {
     this._update();
-    return this[CONTEXT_KEY].pathname;
+    return this[CONTEXT_KEY].pathname || '';
   }
 
   set pathname(v: string) {
     this._setPathname(v, false);
   }
-
 
   get searchParams(): OwoURLSearchParams {
     return this[SEARCHPARAMS_KEY];
@@ -210,14 +197,9 @@ export class OwoURL {
     this[CONTEXT_KEY].hash = v ? (v.startsWith('#') ? v : '#' + v) : '';
   }
 
-  get path(): OwoURLPath {
-    return this[PATH_KEY];
-  }
-
-
   get search(): string {
     this._update();
-    return this[CONTEXT_KEY].search;
+    return this[CONTEXT_KEY].search || '';
   }
 
   set search(v: string) {
@@ -239,8 +221,28 @@ export class OwoURL {
     return this;
   }
 
+  setHostname(v: string): this {
+    this.hostname = v;
+    return this;
+  }
+
+  setProtocol(v: string): this {
+    this.protocol = v;
+    return this;
+  }
+
+  setPort(v: number | null): this {
+    this.port = v;
+    return this;
+  }
+
   setPrefix(v: string): this {
     this.prefix = v;
+    return this;
+  }
+
+  setPathname(v: string): this {
+    this.pathname = v;
     return this;
   }
 
@@ -249,33 +251,72 @@ export class OwoURL {
     return this;
   }
 
+  setSearch(v: string): this {
+    this.search = v;
+    return this;
+  }
+
   setSearchParam(name: string, value?: any): this {
     this.searchParams.set(name, value);
     return this;
   }
 
-  setLimit(v: number | undefined): this {
-    this.searchParams.set('_limit', v);
+  setLimit(v?: number | null): this {
+    if (v == null)
+      this.searchParams.delete('_limit');
+    else
+      this.searchParams.set('_limit', v);
     return this;
   }
 
-  defineQueryItem(name: string, format: Format | InternalFormatName | string): this {
-    const queryItems = this[QUERYMETADATA_KEY] = this[QUERYMETADATA_KEY] || {};
-    const key = name.toLowerCase();
-    let fmt: Format;
-    if (typeof format === 'string') {
-      const formats = Object.getPrototypeOf(this).constructor.formats;
-      const intlFormat: any = formats[format];
-      if (!intlFormat)
-        throw new Error(`Unknown format "${format}"`);
-      fmt = intlFormat;
-    } else fmt = format;
-    queryItems[key] = {
-      name,
-      format: fmt
-    }
+  setSkip(v?: number | null): this {
+    if (v == null)
+      this.searchParams.delete('_skip');
+    else
+      this.searchParams.set('_skip', v);
     return this;
   }
+
+  setElements(...v: string[]): this {
+    if (!v.length)
+      this.searchParams.delete('_elements');
+    else
+      this.searchParams.set('_elements', v);
+    return this;
+  }
+
+  setExclude(...v: string[]): this {
+    if (!v.length)
+      this.searchParams.delete('_exclude');
+    else
+      this.searchParams.set('_exclude', v);
+    return this;
+  }
+
+  setInclude(...v: string[]): this {
+    if (!v.length)
+      this.searchParams.delete('_include');
+    else
+      this.searchParams.set('_include', v);
+    return this;
+  }
+
+  setDistinct(v?: boolean | null): this {
+    if (v == null)
+      this.searchParams.delete('_distinct');
+    else
+      this.searchParams.set('_distinct', v);
+    return this;
+  }
+
+  setTotal(v?: boolean | null): this {
+    if (v == null)
+      this.searchParams.delete('_total');
+    else
+      this.searchParams.set('_total', v);
+    return this;
+  }
+
 
   parse(input: string): this {
     const m = urlRegEx.exec(input);
@@ -284,14 +325,17 @@ export class OwoURL {
         input,
         code: 'ERR_INVALID_URL'
       });
-    this.protocol = m[1];
-    let tokens = splitString(m[2], {delimiters: '@'});
-    if (tokens.length > 1) {
-      this.host = tokens[1];
-      tokens = splitString(tokens[0], {delimiters: ':'});
-      this.username = tokens[0] ? decodeURIComponent(tokens[0]) : '';
-      this.password = tokens[1] ? decodeURIComponent(tokens[1]) : '';
-    } else this.host = tokens[0];
+    if (m[1])
+      this.protocol = m[1];
+    if (m[2]) {
+      let tokens = splitString(m[2], {delimiters: '@'});
+      if (tokens.length > 1) {
+        this.host = tokens[1];
+        tokens = splitString(tokens[0], {delimiters: ':'});
+        this.username = tokens[0] ? decodeURIComponent(tokens[0]) : '';
+        this.password = tokens[1] ? decodeURIComponent(tokens[1]) : '';
+      } else this.host = tokens[0];
+    }
     input = m[3] || '';
     let tokenizer = tokenize(input, {delimiters: '#', quotes: true, brackets: true});
     input = tokenizer.next() || '';
@@ -303,10 +347,16 @@ export class OwoURL {
     return this;
   }
 
+  defineSearchParam(name: string, options?: Omit<QueryItemMetadata, 'name'>): this {
+    this.searchParams.defineParam(name, options);
+    return this;
+  }
+
   toString() {
     return this.href
   }
 
+  /* istanbul ignore next */
   [nodeInspectCustom]() {
     this._update();
     return {
@@ -340,15 +390,14 @@ export class OwoURL {
   }
 
   protected _setPathname(v: string, inclSvcRoot?: boolean) {
-    if (!v) {
-      this.path.clear();
+    this.path.clear();
+    if (!v)
       return;
-    }
-    const pathTokenizer = tokenize(normalizePath(v), {
+    const pathTokenizer = tokenize(normalizePath(v, true), {
       delimiters: '/', quotes: true, brackets: true,
     });
     if (inclSvcRoot && this.prefix) {
-      const prefixTokenizer = tokenize(normalizePath(this.prefix), {
+      const prefixTokenizer = tokenize(normalizePath(this.prefix, true), {
         delimiters: '/', quotes: true, brackets: true,
       });
       for (const x of prefixTokenizer) {
@@ -358,21 +407,8 @@ export class OwoURL {
       }
     }
     for (const x of pathTokenizer) {
-      const r = decodePathComponent(x);
-      this.path.add(r.resource, r.key);
+      this.path.add(decodePathComponent(x));
     }
   }
 
-  static registerFormat(name: string, format: Format) {
-    this.formats[name] = format;
-  }
 }
-
-OwoURL.registerFormat('integer', new IntegerFormat());
-OwoURL.registerFormat('integer[]', new IntegerFormat({maxOccurs: Infinity}));
-OwoURL.registerFormat('number', new NumberFormat());
-OwoURL.registerFormat('number[]', new NumberFormat({maxOccurs: Infinity}));
-OwoURL.registerFormat('string', new StringFormat());
-OwoURL.registerFormat('string[]', new StringFormat({maxOccurs: Infinity}));
-OwoURL.registerFormat('boolean', new BooleanFormat());
-OwoURL.registerFormat('filter', new FilterFormat());

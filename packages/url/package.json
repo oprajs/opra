@@ -6,7 +6,8 @@
   "license": "UNLICENSED",
   "repository": {
     "type": "git",
-    "url": "https://github.com/panates/owo.git"
+    "url": "https://github.com/panates/owo.git",
+    "directory": "packages/url"
   },
   "scripts": {
     "compile": "tsc",

@@ -1,15 +1,47 @@
 import {EventEmitter} from 'events';
-import {nodeInspectCustom, QueryParseFunction} from './types';
-import {tokenize} from './utils/tokenizer';
+import {splitString, tokenize} from 'fast-tokenizer';
+import {BooleanFormat} from './formats/boolean-format';
+import {DateFormat} from './formats/date-format';
+import {FilterFormat} from './formats/filter-format';
+import {Format} from './formats/format';
+import {IntegerFormat} from './formats/integer-format';
+import {NumberFormat} from './formats/number-format';
+import {StringFormat} from './formats/string-format';
+import {nodeInspectCustom} from './types';
+import {encodeQueryComponent} from './utils/url-utils';
+
+const QUERYMETADATA_KEY = Symbol.for('owo.url.querymetadata');
+const internalFormats = {
+  'integer': new IntegerFormat(),
+  'number': new NumberFormat(),
+  'string': new StringFormat(),
+  'boolean': new BooleanFormat(),
+  'date': new DateFormat(),
+  'filter': new FilterFormat()
+}
+
+export interface QueryItemMetadata {
+  name: string;
+  format: Format | string;
+  array?: boolean;
+  minArrayItems?: number;
+  maxArrayItems?: number;
+  maxOccurs?: number;
+}
 
 export class OwoURLSearchParams extends EventEmitter {
+  protected [QUERYMETADATA_KEY]: Record<string, QueryItemMetadata>;
   private _entries: Record<string, any[]> = {};
   private _size = 0;
-  public parser?: QueryParseFunction;
 
-  constructor(init?: (string | URLSearchParams | OwoURLSearchParams), parser?: QueryParseFunction) {
+  constructor(init?: (string | URLSearchParams | OwoURLSearchParams)) {
     super();
-    this.parser = parser;
+    Object.defineProperty(this, QUERYMETADATA_KEY, {
+      enumerable: false,
+      writable: true,
+      configurable: true,
+      value: {}
+    });
     if (init && typeof init === 'string') {
       this.parse(init);
     } else if ((init instanceof URLSearchParams) || (init instanceof OwoURLSearchParams)) {
@@ -21,6 +53,22 @@ export class OwoURLSearchParams extends EventEmitter {
 
   get size(): number {
     return this._size;
+  }
+
+  defineParam(name: string, options?: Omit<QueryItemMetadata, 'name'>): this {
+    if (!name)
+      throw new Error('Parameter name required');
+    const meta: QueryItemMetadata = {
+      ...options,
+      name,
+      format: options?.format || 'string'
+    }
+    if (typeof meta.format === 'string' && !internalFormats[meta.format])
+      throw new Error(`Unknown data format "${meta.format}"`);
+    const key = meta.name.toLowerCase();
+    meta.format = meta.format || 'string';
+    this[QUERYMETADATA_KEY][key] = meta;
+    return this;
   }
 
   append(name: string, value?: any): void {
@@ -59,7 +107,8 @@ export class OwoURLSearchParams extends EventEmitter {
   }
 
   get(name: string, index?: number): any | null {
-    const v = this._entries[name][index || 0];
+    const entry = this._entries[name];
+    const v = entry && entry[index || 0];
     return v == null ? null : v;
   }
 
@@ -78,13 +127,11 @@ export class OwoURLSearchParams extends EventEmitter {
   }
 
   set(name: string, value?: any): void {
+    name = name.toLowerCase();
     const a = this._entries[name];
     if (a) this._size -= a.length;
-    if (value != null) {
-      this._size++;
-      this._entries[name] = [value];
-      this.emit('change');
-    }
+    delete this._entries[name];
+    this._add(name, value);
   }
 
   sort(compareFn?: (a: string, b: string) => number): void {
@@ -102,21 +149,22 @@ export class OwoURLSearchParams extends EventEmitter {
   }
 
   parse(input: string): void {
+    this.clear();
     if (input && input.startsWith('?'))
       input = input.substring(1);
     if (!input)
       return;
-    const tokenizer = tokenize(input, {delimiters: '&', quotes: true, brackets: true});
+    const tokenizer = tokenize(input, {delimiters: '&', quotes: false, brackets: false});
     for (const token of tokenizer) {
       const itemTokenizer = tokenize(token, {
         delimiters: '=',
-        quotes: true,
-        brackets: true,
+        quotes: false,
+        brackets: false,
       });
-      const k = decodeQueryComponent(itemTokenizer.next() || '');
-      const t = decodeQueryComponent(itemTokenizer.join('=') || '');
-      const v = this.parser ? this.parser(t, k) : t;
-      this._add(k, v);
+      const k = decodeURIComponent(itemTokenizer.next() || '');
+      const values = splitString(itemTokenizer.join('='), {delimiters: '|', brackets: false, quotes: false})
+        .map(decodeURIComponent);
+      this._add(k, values.length > 1 ? values : values[0] || '');
     }
     this.emit('change');
   }
@@ -124,10 +172,17 @@ export class OwoURLSearchParams extends EventEmitter {
   toString(): string {
     let searchString: string = '';
     this.forEach((value: string, name: string) => {
-      name = encodeQueryComponent(name);
-      value = encodeQueryComponent(value);
-      if (searchString.length > 0) searchString += '&';
-      searchString += name + (!value ? '' : '=' + value);
+      const qi = this[QUERYMETADATA_KEY][name.toLowerCase()];
+      const format = qi
+        ? (typeof qi.format === 'string' ? internalFormats[qi.format] : qi.format)
+        : undefined;
+      const stringify = (x) => format ? format.stringify(x, name) : (x == null ? '' : '' + x);
+      const v = Array.isArray(value) ? value.map(stringify) : stringify(value);
+      const x = encodeQueryComponent(name, v);
+      if (x) {
+        if (searchString.length > 0) searchString += '&';
+        searchString += x;
+      }
     });
     return searchString;
   }
@@ -141,58 +196,18 @@ export class OwoURLSearchParams extends EventEmitter {
   }
 
   protected _add(name: string, value: any): void {
+    const qi = this[QUERYMETADATA_KEY][name];
+    const format = qi ?
+      (typeof qi.format === 'string' ? internalFormats[qi.format] : qi.format) : undefined;
+    const fn = (x) => format ? format.parse(x, name) : x;
+    const v = Array.isArray(value) ? value.map(fn) : fn(value);
     if (name in this._entries)
-      this._entries[name].push(value);
+      this._entries[name].push(v);
     else
-      this._entries[name] = [value];
+      this._entries[name] = [v];
     this._size++;
+    this.emit('change');
   }
 
-}
 
-const invalidCharRegEx = /[#&]/g;
-const encodeQueryComponentReplaces = (c) => {
-  return '%' + c.charCodeAt(0).toString(16);
-}
-
-function encodeQueryComponent(it: string): string {
-  if (it == null || it === '')
-    return '';
-  const tokenizer = tokenize(it, {
-    delimiters: '',
-    quotes: true,
-    brackets: true,
-    keepQuotes: true,
-    keepBrackets: true,
-    keepDelimiters: true
-  })
-  let out = '';
-  for (const x of tokenizer) {
-    if ('(['.includes(x.charAt(0)) || '"\'`'.includes(x.charAt(0)))
-      out += x;
-    else
-      out += x.replace(invalidCharRegEx, encodeQueryComponentReplaces)
-  }
-  return out;
-}
-
-function decodeQueryComponent(it: string): string {
-  if (it == null || it === '')
-    return '';
-  const tokenizer = tokenize(it, {
-    delimiters: '',
-    quotes: true,
-    brackets: true,
-    keepQuotes: true,
-    keepBrackets: true,
-    keepDelimiters: true
-  })
-  let out = '';
-  for (const x of tokenizer) {
-    if ('(['.includes(x.charAt(0)) || '"\'`'.includes(x.charAt(0)))
-      out += x;
-    else
-      out += decodeURIComponent(x)
-  }
-  return out;
 }

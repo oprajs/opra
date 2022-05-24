@@ -4,8 +4,6 @@
   "compilerOptions": {
     "experimentalDecorators": true,
     "emitDecoratorMetadata": true,
-    "strictNullChecks": false,
-    "strict": false,
     "noEmit": true,
     "sourceMap": true,
     "noEmitOnError": false

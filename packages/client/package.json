@@ -1,0 +1,66 @@
+{
+  "name": "@owo/client",
+  "version": "0.0.1",
+  "description": "OWO (aka Open Web Objects) client",
+  "author": "Panates",
+  "license": "UNLICENSED",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/panates/owo.git"
+  },
+  "scripts": {
+    "compile": "tsc",
+    "prebuild": "npm run check | npm run lint | npm run clean",
+    "build": "npm run build:cjs && npm run build:esm",
+    "build:cjs": "tsc -b tsconfig-build-cjs.json",
+    "build:esm": "tsc -b tsconfig-build-esm.json && tsc-esm -p tsconfig-build-esm.json",
+    "postbuild": "copyfiles README.md package.json ../../LICENSE ../../build/client | cp ../../package.cjs.json ../../build/client/cjs/package.json",
+    "lint": "eslint \"{src,test}/**/*.ts\" --no-error-on-unmatched-pattern",
+    "test": "jest",
+    "cover": "jest --collect-coverage",
+    "check": "dpdm src/** --exit-code circular:1 --tree false --warning -T false",
+    "clean": "npm run clean:src | npm run clean:dist | npm run clean:cover",
+    "clean:src": "ts-cleanup -s src --all",
+    "clean:dist": "rimraf ../../build/client",
+    "clean:cover": "rimraf ../../coverage/client"
+  },
+  "dependencies": {
+    "antlr4": "^4.10.1",
+    "luxon": "^2.3.2",
+    "split-string": "^6.1.0",
+    "@owo/url": "*"
+  },
+  "devDependencies": {
+    "antlr4ts-cli": "^0.5.0-alpha.4",
+    "@types/luxon": "^2.3.1"
+  },
+  "type": "module",
+  "main": "cjs/index.js",
+  "module": "esm/index.mjs",
+  "types": "esm/index.d.ts",
+  "exports": {
+    ".": "./cjs/index.js",
+    "./cjs": "./cjs/index.js",
+    "./esm": "./esm/index.mjs"
+  },
+  "engines": {
+    "node": ">=14.0",
+    "npm": ">=7.0.0"
+  },
+  "files": [
+    "bin/",
+    "cjs/",
+    "esm/",
+    "LICENSE",
+    "README.md"
+  ],
+  "keywords": [
+    "owo",
+    "url",
+    "query",
+    "parser",
+    "builder",
+    "http",
+    "web"
+  ]
+}
