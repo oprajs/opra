@@ -1,4 +1,4 @@
-grammar OWOFilter;
+grammar OpraFilter;
 
 root
     : expression EOF
@@ -25,7 +25,7 @@ expression
 * Terms
 *
 * The term production rule defines the syntax for
-* core expression terms within OWO filter
+* core expression terms within Opra filter
 *****************************************************************/
 
 term

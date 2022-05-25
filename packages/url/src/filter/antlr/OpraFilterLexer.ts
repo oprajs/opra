@@ -1,4 +1,4 @@
-// Generated from src/filter/antlr/OWOFilter.g4 by ANTLR 4.9.0-SNAPSHOT
+// Generated from src/filter/antlr/OpraFilter.g4 by ANTLR 4.9.0-SNAPSHOT
 // noinspection ES6UnusedImports
 
 
@@ -16,7 +16,7 @@ import { VocabularyImpl } from "antlr4ts/VocabularyImpl";
 import * as Utils from "antlr4ts/misc/Utils";
 
 
-export class OWOFilterLexer extends Lexer {
+export class OpraFilterLexer extends Lexer {
 	public static readonly T__0 = 1;
 	public static readonly T__1 = 2;
 	public static readonly T__2 = 3;
@@ -116,35 +116,35 @@ export class OWOFilterLexer extends Lexer {
 		"TIME", "IDENTIFIER", "STRING", "NUMBER", "INTEGER", "WHITESPACE", "COMMENT",
 		"LINE_COMMENT",
 	];
-	public static readonly VOCABULARY: Vocabulary = new VocabularyImpl(OWOFilterLexer._LITERAL_NAMES, OWOFilterLexer._SYMBOLIC_NAMES, []);
+	public static readonly VOCABULARY: Vocabulary = new VocabularyImpl(OpraFilterLexer._LITERAL_NAMES, OpraFilterLexer._SYMBOLIC_NAMES, []);
 
 	// @Override
 	// @NotNull
 	public get vocabulary(): Vocabulary {
-		return OWOFilterLexer.VOCABULARY;
+		return OpraFilterLexer.VOCABULARY;
 	}
 	// tslint:enable:no-trailing-whitespace
 
 
 	constructor(input: CharStream) {
 		super(input);
-		this._interp = new LexerATNSimulator(OWOFilterLexer._ATN, this);
+		this._interp = new LexerATNSimulator(OpraFilterLexer._ATN, this);
 	}
 
 	// @Override
-	public get grammarFileName(): string { return "OWOFilter.g4"; }
+	public get grammarFileName(): string { return "OpraFilter.g4"; }
 
 	// @Override
-	public get ruleNames(): string[] { return OWOFilterLexer.ruleNames; }
+	public get ruleNames(): string[] { return OpraFilterLexer.ruleNames; }
 
 	// @Override
-	public get serializedATN(): string { return OWOFilterLexer._serializedATN; }
+	public get serializedATN(): string { return OpraFilterLexer._serializedATN; }
 
 	// @Override
-	public get channelNames(): string[] { return OWOFilterLexer.channelNames; }
+	public get channelNames(): string[] { return OpraFilterLexer.channelNames; }
 
 	// @Override
-	public get modeNames(): string[] { return OWOFilterLexer.modeNames; }
+	public get modeNames(): string[] { return OpraFilterLexer.modeNames; }
 
 	public static readonly _serializedATN: string =
 		"\x03\uC91D\uCABA\u058D\uAFBA\u4F53\u0607\uEA8B\uC241\x02:\u021A\b\x01" +
@@ -397,11 +397,11 @@ export class OWOFilterLexer extends Lexer {
 		"\x02\x03\x02";
 	public static __ATN: ATN;
 	public static get _ATN(): ATN {
-		if (!OWOFilterLexer.__ATN) {
-			OWOFilterLexer.__ATN = new ATNDeserializer().deserialize(Utils.toCharArray(OWOFilterLexer._serializedATN));
+		if (!OpraFilterLexer.__ATN) {
+			OpraFilterLexer.__ATN = new ATNDeserializer().deserialize(Utils.toCharArray(OpraFilterLexer._serializedATN));
 		}
 
-		return OWOFilterLexer.__ATN;
+		return OpraFilterLexer.__ATN;
 	}
 
 }

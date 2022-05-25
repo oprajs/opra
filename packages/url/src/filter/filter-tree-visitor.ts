@@ -17,8 +17,8 @@ import {
   RootContext,
   StringLiteralContext,
   TimeLiteralContext,
-} from './antlr/OWOFilterParser';
-import {OWOFilterVisitor} from './antlr/OWOFilterVisitor';
+} from './antlr/OpraFilterParser';
+import {OpraFilterVisitor} from './antlr/OpraFilterVisitor';
 import {
   ArithmeticExpression, ArithmeticOperator,
   ArrayExpression,
@@ -32,7 +32,7 @@ import {
 } from './ast';
 import {ExternalConstant} from './ast/terms/external-constant';
 
-export class FilterTreeVisitor extends AbstractParseTreeVisitor<any> implements OWOFilterVisitor<any> {
+export class FilterTreeVisitor extends AbstractParseTreeVisitor<any> implements OpraFilterVisitor<any> {
   private _timeZone?: string;
 
   constructor(options?: {

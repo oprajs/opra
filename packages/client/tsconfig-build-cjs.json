@@ -5,7 +5,7 @@
     "rootDir": "src",
     "outDir": "../../build/client/cjs",
     "paths": {
-      "owo/url": ["../../build/url"]
+      "opra/url": ["../../build/url"]
     },
     "sourceMap": false,
     "noEmit": false,

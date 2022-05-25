@@ -1,4 +1,4 @@
-// Generated from src/filter/antlr/OWOFilter.g4 by ANTLR 4.9.0-SNAPSHOT
+// Generated from src/filter/antlr/OpraFilter.g4 by ANTLR 4.9.0-SNAPSHOT
 // noinspection ES6UnusedImports,ExceptionCaughtLocallyJS
 
 
@@ -24,10 +24,10 @@ import { VocabularyImpl } from "antlr4ts/VocabularyImpl";
 
 import * as Utils from "antlr4ts/misc/Utils";
 
-import { OWOFilterVisitor } from "./OWOFilterVisitor";
+import { OpraFilterVisitor } from "./OpraFilterVisitor";
 
 
-export class OWOFilterParser extends Parser {
+export class OpraFilterParser extends Parser {
 	public static readonly T__0 = 1;
 	public static readonly T__1 = 2;
 	public static readonly T__2 = 3;
@@ -134,23 +134,23 @@ export class OWOFilterParser extends Parser {
 		"TIME", "IDENTIFIER", "STRING", "NUMBER", "INTEGER", "WHITESPACE", "COMMENT",
 		"LINE_COMMENT",
 	];
-	public static readonly VOCABULARY: Vocabulary = new VocabularyImpl(OWOFilterParser._LITERAL_NAMES, OWOFilterParser._SYMBOLIC_NAMES, []);
+	public static readonly VOCABULARY: Vocabulary = new VocabularyImpl(OpraFilterParser._LITERAL_NAMES, OpraFilterParser._SYMBOLIC_NAMES, []);
 
 	// @Override
 	// @NotNull
 	public get vocabulary(): Vocabulary {
-		return OWOFilterParser.VOCABULARY;
+		return OpraFilterParser.VOCABULARY;
 	}
 	// tslint:enable:no-trailing-whitespace
 
 	// @Override
-	public get grammarFileName(): string { return "OWOFilter.g4"; }
+	public get grammarFileName(): string { return "OpraFilter.g4"; }
 
 	// @Override
-	public get ruleNames(): string[] { return OWOFilterParser.ruleNames; }
+	public get ruleNames(): string[] { return OpraFilterParser.ruleNames; }
 
 	// @Override
-	public get serializedATN(): string { return OWOFilterParser._serializedATN; }
+	public get serializedATN(): string { return OpraFilterParser._serializedATN; }
 
 	protected createFailedPredicateException(predicate?: string, message?: string): FailedPredicateException {
 		return new FailedPredicateException(this, predicate, message);
@@ -158,19 +158,19 @@ export class OWOFilterParser extends Parser {
 
 	constructor(input: TokenStream) {
 		super(input);
-		this._interp = new ParserATNSimulator(OWOFilterParser._ATN, this);
+		this._interp = new ParserATNSimulator(OpraFilterParser._ATN, this);
 	}
 	// @RuleVersion(0)
 	public root(): RootContext {
 		let _localctx: RootContext = new RootContext(this._ctx, this.state);
-		this.enterRule(_localctx, 0, OWOFilterParser.RULE_root);
+		this.enterRule(_localctx, 0, OpraFilterParser.RULE_root);
 		try {
 			this.enterOuterAlt(_localctx, 1);
 			{
 			this.state = 44;
 			this.expression(0);
 			this.state = 45;
-			this.match(OWOFilterParser.EOF);
+			this.match(OpraFilterParser.EOF);
 			}
 		}
 		catch (re) {
@@ -201,7 +201,7 @@ export class OWOFilterParser extends Parser {
 		let _localctx: ExpressionContext = new ExpressionContext(this._ctx, _parentState);
 		let _prevctx: ExpressionContext = _localctx;
 		let _startState: number = 2;
-		this.enterRecursionRule(_localctx, 2, OWOFilterParser.RULE_expression, _p);
+		this.enterRecursionRule(_localctx, 2, OpraFilterParser.RULE_expression, _p);
 		let _la: number;
 		try {
 			let _alt: number;
@@ -210,18 +210,18 @@ export class OWOFilterParser extends Parser {
 			this.state = 67;
 			this._errHandler.sync(this);
 			switch (this._input.LA(1)) {
-			case OWOFilterParser.T__22:
-			case OWOFilterParser.T__41:
-			case OWOFilterParser.T__42:
-			case OWOFilterParser.T__43:
-			case OWOFilterParser.T__44:
-			case OWOFilterParser.T__45:
-			case OWOFilterParser.DATE:
-			case OWOFilterParser.DATETIME:
-			case OWOFilterParser.TIME:
-			case OWOFilterParser.IDENTIFIER:
-			case OWOFilterParser.STRING:
-			case OWOFilterParser.NUMBER:
+			case OpraFilterParser.T__22:
+			case OpraFilterParser.T__41:
+			case OpraFilterParser.T__42:
+			case OpraFilterParser.T__43:
+			case OpraFilterParser.T__44:
+			case OpraFilterParser.T__45:
+			case OpraFilterParser.DATE:
+			case OpraFilterParser.DATETIME:
+			case OpraFilterParser.TIME:
+			case OpraFilterParser.IDENTIFIER:
+			case OpraFilterParser.STRING:
+			case OpraFilterParser.NUMBER:
 				{
 				_localctx = new TermExpressionContext(_localctx);
 				this._ctx = _localctx;
@@ -231,8 +231,8 @@ export class OWOFilterParser extends Parser {
 				this.term();
 				}
 				break;
-			case OWOFilterParser.T__35:
-			case OWOFilterParser.T__36:
+			case OpraFilterParser.T__35:
+			case OpraFilterParser.T__36:
 				{
 				_localctx = new PolarityExpressionContext(_localctx);
 				this._ctx = _localctx;
@@ -243,36 +243,36 @@ export class OWOFilterParser extends Parser {
 				this.expression(6);
 				}
 				break;
-			case OWOFilterParser.T__0:
+			case OpraFilterParser.T__0:
 				{
 				_localctx = new ParenthesizedExpressionContext(_localctx);
 				this._ctx = _localctx;
 				_prevctx = _localctx;
 				this.state = 52;
-				this.match(OWOFilterParser.T__0);
+				this.match(OpraFilterParser.T__0);
 				this.state = 53;
 				this.expression(0);
 				this.state = 54;
-				this.match(OWOFilterParser.T__1);
+				this.match(OpraFilterParser.T__1);
 				}
 				break;
-			case OWOFilterParser.T__2:
+			case OpraFilterParser.T__2:
 				{
 				_localctx = new ArrayExpressionContext(_localctx);
 				this._ctx = _localctx;
 				_prevctx = _localctx;
 				this.state = 56;
-				this.match(OWOFilterParser.T__2);
+				this.match(OpraFilterParser.T__2);
 				this.state = 57;
 				this.expression(0);
 				this.state = 62;
 				this._errHandler.sync(this);
 				_la = this._input.LA(1);
-				while (_la === OWOFilterParser.T__3) {
+				while (_la === OpraFilterParser.T__3) {
 					{
 					{
 					this.state = 58;
-					this.match(OWOFilterParser.T__3);
+					this.match(OpraFilterParser.T__3);
 					this.state = 59;
 					this.expression(0);
 					}
@@ -282,7 +282,7 @@ export class OWOFilterParser extends Parser {
 					_la = this._input.LA(1);
 				}
 				this.state = 65;
-				this.match(OWOFilterParser.T__4);
+				this.match(OpraFilterParser.T__4);
 				}
 				break;
 			default:
@@ -305,7 +305,7 @@ export class OWOFilterParser extends Parser {
 					case 1:
 						{
 						_localctx = new ArithmeticExpressionContext(new ExpressionContext(_parentctx, _parentState));
-						this.pushNewRecursionContext(_localctx, _startState, OWOFilterParser.RULE_expression);
+						this.pushNewRecursionContext(_localctx, _startState, OpraFilterParser.RULE_expression);
 						this.state = 69;
 						if (!(this.precpred(this._ctx, 5))) {
 							throw this.createFailedPredicateException("this.precpred(this._ctx, 5)");
@@ -320,7 +320,7 @@ export class OWOFilterParser extends Parser {
 					case 2:
 						{
 						_localctx = new ComparisonExpressionContext(new ExpressionContext(_parentctx, _parentState));
-						this.pushNewRecursionContext(_localctx, _startState, OWOFilterParser.RULE_expression);
+						this.pushNewRecursionContext(_localctx, _startState, OpraFilterParser.RULE_expression);
 						this.state = 73;
 						if (!(this.precpred(this._ctx, 4))) {
 							throw this.createFailedPredicateException("this.precpred(this._ctx, 4)");
@@ -335,7 +335,7 @@ export class OWOFilterParser extends Parser {
 					case 3:
 						{
 						_localctx = new LogicalExpressionContext(new ExpressionContext(_parentctx, _parentState));
-						this.pushNewRecursionContext(_localctx, _startState, OWOFilterParser.RULE_expression);
+						this.pushNewRecursionContext(_localctx, _startState, OpraFilterParser.RULE_expression);
 						this.state = 77;
 						if (!(this.precpred(this._ctx, 3))) {
 							throw this.createFailedPredicateException("this.precpred(this._ctx, 3)");
@@ -372,21 +372,21 @@ export class OWOFilterParser extends Parser {
 	// @RuleVersion(0)
 	public term(): TermContext {
 		let _localctx: TermContext = new TermContext(this._ctx, this.state);
-		this.enterRule(_localctx, 4, OWOFilterParser.RULE_term);
+		this.enterRule(_localctx, 4, OpraFilterParser.RULE_term);
 		try {
 			this.state = 89;
 			this._errHandler.sync(this);
 			switch (this._input.LA(1)) {
-			case OWOFilterParser.T__41:
-			case OWOFilterParser.T__42:
-			case OWOFilterParser.T__43:
-			case OWOFilterParser.T__44:
-			case OWOFilterParser.T__45:
-			case OWOFilterParser.DATE:
-			case OWOFilterParser.DATETIME:
-			case OWOFilterParser.TIME:
-			case OWOFilterParser.STRING:
-			case OWOFilterParser.NUMBER:
+			case OpraFilterParser.T__41:
+			case OpraFilterParser.T__42:
+			case OpraFilterParser.T__43:
+			case OpraFilterParser.T__44:
+			case OpraFilterParser.T__45:
+			case OpraFilterParser.DATE:
+			case OpraFilterParser.DATETIME:
+			case OpraFilterParser.TIME:
+			case OpraFilterParser.STRING:
+			case OpraFilterParser.NUMBER:
 				_localctx = new LiteralTermContext(_localctx);
 				this.enterOuterAlt(_localctx, 1);
 				{
@@ -394,7 +394,7 @@ export class OWOFilterParser extends Parser {
 				this.literal();
 				}
 				break;
-			case OWOFilterParser.IDENTIFIER:
+			case OpraFilterParser.IDENTIFIER:
 				_localctx = new QualifiedIdentifierTermContext(_localctx);
 				this.enterOuterAlt(_localctx, 2);
 				{
@@ -402,7 +402,7 @@ export class OWOFilterParser extends Parser {
 				this.qualifiedIdentifier();
 				}
 				break;
-			case OWOFilterParser.T__22:
+			case OpraFilterParser.T__22:
 				_localctx = new ExternalConstantTermContext(_localctx);
 				this.enterOuterAlt(_localctx, 3);
 				{
@@ -431,7 +431,7 @@ export class OWOFilterParser extends Parser {
 	// @RuleVersion(0)
 	public invocable(): InvocableContext {
 		let _localctx: InvocableContext = new InvocableContext(this._ctx, this.state);
-		this.enterRule(_localctx, 6, OWOFilterParser.RULE_invocable);
+		this.enterRule(_localctx, 6, OpraFilterParser.RULE_invocable);
 		try {
 			this.enterOuterAlt(_localctx, 1);
 			{
@@ -456,7 +456,7 @@ export class OWOFilterParser extends Parser {
 	// @RuleVersion(0)
 	public invocation(): InvocationContext {
 		let _localctx: InvocationContext = new InvocationContext(this._ctx, this.state);
-		this.enterRule(_localctx, 8, OWOFilterParser.RULE_invocation);
+		this.enterRule(_localctx, 8, OpraFilterParser.RULE_invocation);
 		try {
 			_localctx = new MemberInvocationContext(_localctx);
 			this.enterOuterAlt(_localctx, 1);
@@ -482,12 +482,12 @@ export class OWOFilterParser extends Parser {
 	// @RuleVersion(0)
 	public indexer(): IndexerContext {
 		let _localctx: IndexerContext = new IndexerContext(this._ctx, this.state);
-		this.enterRule(_localctx, 10, OWOFilterParser.RULE_indexer);
+		this.enterRule(_localctx, 10, OpraFilterParser.RULE_indexer);
 		try {
 			this.state = 97;
 			this._errHandler.sync(this);
 			switch (this._input.LA(1)) {
-			case OWOFilterParser.IDENTIFIER:
+			case OpraFilterParser.IDENTIFIER:
 				_localctx = new MemberIndexContext(_localctx);
 				this.enterOuterAlt(_localctx, 1);
 				{
@@ -495,12 +495,12 @@ export class OWOFilterParser extends Parser {
 				this.identifier();
 				}
 				break;
-			case OWOFilterParser.INTEGER:
+			case OpraFilterParser.INTEGER:
 				_localctx = new NumberIndexContext(_localctx);
 				this.enterOuterAlt(_localctx, 2);
 				{
 				this.state = 96;
-				this.match(OWOFilterParser.INTEGER);
+				this.match(OpraFilterParser.INTEGER);
 				}
 				break;
 			default:
@@ -524,7 +524,7 @@ export class OWOFilterParser extends Parser {
 	// @RuleVersion(0)
 	public function(): FunctionContext {
 		let _localctx: FunctionContext = new FunctionContext(this._ctx, this.state);
-		this.enterRule(_localctx, 12, OWOFilterParser.RULE_function);
+		this.enterRule(_localctx, 12, OpraFilterParser.RULE_function);
 		let _la: number;
 		try {
 			this.enterOuterAlt(_localctx, 1);
@@ -532,11 +532,11 @@ export class OWOFilterParser extends Parser {
 			this.state = 99;
 			this.identifier();
 			this.state = 100;
-			this.match(OWOFilterParser.T__0);
+			this.match(OpraFilterParser.T__0);
 			this.state = 102;
 			this._errHandler.sync(this);
 			_la = this._input.LA(1);
-			if ((((_la) & ~0x1F) === 0 && ((1 << _la) & ((1 << OWOFilterParser.T__0) | (1 << OWOFilterParser.T__2) | (1 << OWOFilterParser.T__22))) !== 0) || ((((_la - 36)) & ~0x1F) === 0 && ((1 << (_la - 36)) & ((1 << (OWOFilterParser.T__35 - 36)) | (1 << (OWOFilterParser.T__36 - 36)) | (1 << (OWOFilterParser.T__41 - 36)) | (1 << (OWOFilterParser.T__42 - 36)) | (1 << (OWOFilterParser.T__43 - 36)) | (1 << (OWOFilterParser.T__44 - 36)) | (1 << (OWOFilterParser.T__45 - 36)) | (1 << (OWOFilterParser.DATE - 36)) | (1 << (OWOFilterParser.DATETIME - 36)) | (1 << (OWOFilterParser.TIME - 36)) | (1 << (OWOFilterParser.IDENTIFIER - 36)) | (1 << (OWOFilterParser.STRING - 36)) | (1 << (OWOFilterParser.NUMBER - 36)))) !== 0)) {
+			if ((((_la) & ~0x1F) === 0 && ((1 << _la) & ((1 << OpraFilterParser.T__0) | (1 << OpraFilterParser.T__2) | (1 << OpraFilterParser.T__22))) !== 0) || ((((_la - 36)) & ~0x1F) === 0 && ((1 << (_la - 36)) & ((1 << (OpraFilterParser.T__35 - 36)) | (1 << (OpraFilterParser.T__36 - 36)) | (1 << (OpraFilterParser.T__41 - 36)) | (1 << (OpraFilterParser.T__42 - 36)) | (1 << (OpraFilterParser.T__43 - 36)) | (1 << (OpraFilterParser.T__44 - 36)) | (1 << (OpraFilterParser.T__45 - 36)) | (1 << (OpraFilterParser.DATE - 36)) | (1 << (OpraFilterParser.DATETIME - 36)) | (1 << (OpraFilterParser.TIME - 36)) | (1 << (OpraFilterParser.IDENTIFIER - 36)) | (1 << (OpraFilterParser.STRING - 36)) | (1 << (OpraFilterParser.NUMBER - 36)))) !== 0)) {
 				{
 				this.state = 101;
 				this.paramList();
@@ -544,7 +544,7 @@ export class OWOFilterParser extends Parser {
 			}
 
 			this.state = 104;
-			this.match(OWOFilterParser.T__1);
+			this.match(OpraFilterParser.T__1);
 			}
 		}
 		catch (re) {
@@ -564,7 +564,7 @@ export class OWOFilterParser extends Parser {
 	// @RuleVersion(0)
 	public paramList(): ParamListContext {
 		let _localctx: ParamListContext = new ParamListContext(this._ctx, this.state);
-		this.enterRule(_localctx, 14, OWOFilterParser.RULE_paramList);
+		this.enterRule(_localctx, 14, OpraFilterParser.RULE_paramList);
 		let _la: number;
 		try {
 			this.enterOuterAlt(_localctx, 1);
@@ -574,11 +574,11 @@ export class OWOFilterParser extends Parser {
 			this.state = 111;
 			this._errHandler.sync(this);
 			_la = this._input.LA(1);
-			while (_la === OWOFilterParser.T__3) {
+			while (_la === OpraFilterParser.T__3) {
 				{
 				{
 				this.state = 107;
-				this.match(OWOFilterParser.T__3);
+				this.match(OpraFilterParser.T__3);
 				this.state = 108;
 				this.expression(0);
 				}
@@ -606,44 +606,44 @@ export class OWOFilterParser extends Parser {
 	// @RuleVersion(0)
 	public unit(): UnitContext {
 		let _localctx: UnitContext = new UnitContext(this._ctx, this.state);
-		this.enterRule(_localctx, 16, OWOFilterParser.RULE_unit);
+		this.enterRule(_localctx, 16, OpraFilterParser.RULE_unit);
 		try {
 			this.state = 117;
 			this._errHandler.sync(this);
 			switch (this._input.LA(1)) {
-			case OWOFilterParser.T__5:
-			case OWOFilterParser.T__6:
-			case OWOFilterParser.T__7:
-			case OWOFilterParser.T__8:
-			case OWOFilterParser.T__9:
-			case OWOFilterParser.T__10:
-			case OWOFilterParser.T__11:
-			case OWOFilterParser.T__12:
+			case OpraFilterParser.T__5:
+			case OpraFilterParser.T__6:
+			case OpraFilterParser.T__7:
+			case OpraFilterParser.T__8:
+			case OpraFilterParser.T__9:
+			case OpraFilterParser.T__10:
+			case OpraFilterParser.T__11:
+			case OpraFilterParser.T__12:
 				this.enterOuterAlt(_localctx, 1);
 				{
 				this.state = 114;
 				this.dateTimePrecision();
 				}
 				break;
-			case OWOFilterParser.T__13:
-			case OWOFilterParser.T__14:
-			case OWOFilterParser.T__15:
-			case OWOFilterParser.T__16:
-			case OWOFilterParser.T__17:
-			case OWOFilterParser.T__18:
-			case OWOFilterParser.T__19:
-			case OWOFilterParser.T__20:
+			case OpraFilterParser.T__13:
+			case OpraFilterParser.T__14:
+			case OpraFilterParser.T__15:
+			case OpraFilterParser.T__16:
+			case OpraFilterParser.T__17:
+			case OpraFilterParser.T__18:
+			case OpraFilterParser.T__19:
+			case OpraFilterParser.T__20:
 				this.enterOuterAlt(_localctx, 2);
 				{
 				this.state = 115;
 				this.pluralDateTimePrecision();
 				}
 				break;
-			case OWOFilterParser.STRING:
+			case OpraFilterParser.STRING:
 				this.enterOuterAlt(_localctx, 3);
 				{
 				this.state = 116;
-				this.match(OWOFilterParser.STRING);
+				this.match(OpraFilterParser.STRING);
 				}
 				break;
 			default:
@@ -667,14 +667,14 @@ export class OWOFilterParser extends Parser {
 	// @RuleVersion(0)
 	public dateTimePrecision(): DateTimePrecisionContext {
 		let _localctx: DateTimePrecisionContext = new DateTimePrecisionContext(this._ctx, this.state);
-		this.enterRule(_localctx, 18, OWOFilterParser.RULE_dateTimePrecision);
+		this.enterRule(_localctx, 18, OpraFilterParser.RULE_dateTimePrecision);
 		let _la: number;
 		try {
 			this.enterOuterAlt(_localctx, 1);
 			{
 			this.state = 119;
 			_la = this._input.LA(1);
-			if (!((((_la) & ~0x1F) === 0 && ((1 << _la) & ((1 << OWOFilterParser.T__5) | (1 << OWOFilterParser.T__6) | (1 << OWOFilterParser.T__7) | (1 << OWOFilterParser.T__8) | (1 << OWOFilterParser.T__9) | (1 << OWOFilterParser.T__10) | (1 << OWOFilterParser.T__11) | (1 << OWOFilterParser.T__12))) !== 0))) {
+			if (!((((_la) & ~0x1F) === 0 && ((1 << _la) & ((1 << OpraFilterParser.T__5) | (1 << OpraFilterParser.T__6) | (1 << OpraFilterParser.T__7) | (1 << OpraFilterParser.T__8) | (1 << OpraFilterParser.T__9) | (1 << OpraFilterParser.T__10) | (1 << OpraFilterParser.T__11) | (1 << OpraFilterParser.T__12))) !== 0))) {
 			this._errHandler.recoverInline(this);
 			} else {
 				if (this._input.LA(1) === Token.EOF) {
@@ -703,14 +703,14 @@ export class OWOFilterParser extends Parser {
 	// @RuleVersion(0)
 	public pluralDateTimePrecision(): PluralDateTimePrecisionContext {
 		let _localctx: PluralDateTimePrecisionContext = new PluralDateTimePrecisionContext(this._ctx, this.state);
-		this.enterRule(_localctx, 20, OWOFilterParser.RULE_pluralDateTimePrecision);
+		this.enterRule(_localctx, 20, OpraFilterParser.RULE_pluralDateTimePrecision);
 		let _la: number;
 		try {
 			this.enterOuterAlt(_localctx, 1);
 			{
 			this.state = 121;
 			_la = this._input.LA(1);
-			if (!((((_la) & ~0x1F) === 0 && ((1 << _la) & ((1 << OWOFilterParser.T__13) | (1 << OWOFilterParser.T__14) | (1 << OWOFilterParser.T__15) | (1 << OWOFilterParser.T__16) | (1 << OWOFilterParser.T__17) | (1 << OWOFilterParser.T__18) | (1 << OWOFilterParser.T__19) | (1 << OWOFilterParser.T__20))) !== 0))) {
+			if (!((((_la) & ~0x1F) === 0 && ((1 << _la) & ((1 << OpraFilterParser.T__13) | (1 << OpraFilterParser.T__14) | (1 << OpraFilterParser.T__15) | (1 << OpraFilterParser.T__16) | (1 << OpraFilterParser.T__17) | (1 << OpraFilterParser.T__18) | (1 << OpraFilterParser.T__19) | (1 << OpraFilterParser.T__20))) !== 0))) {
 			this._errHandler.recoverInline(this);
 			} else {
 				if (this._input.LA(1) === Token.EOF) {
@@ -739,7 +739,7 @@ export class OWOFilterParser extends Parser {
 	// @RuleVersion(0)
 	public qualifiedIdentifier(): QualifiedIdentifierContext {
 		let _localctx: QualifiedIdentifierContext = new QualifiedIdentifierContext(this._ctx, this.state);
-		this.enterRule(_localctx, 22, OWOFilterParser.RULE_qualifiedIdentifier);
+		this.enterRule(_localctx, 22, OpraFilterParser.RULE_qualifiedIdentifier);
 		try {
 			let _alt: number;
 			this.enterOuterAlt(_localctx, 1);
@@ -754,7 +754,7 @@ export class OWOFilterParser extends Parser {
 					this.state = 123;
 					this.identifier();
 					this.state = 124;
-					this.match(OWOFilterParser.T__21);
+					this.match(OpraFilterParser.T__21);
 					}
 					}
 				}
@@ -783,16 +783,16 @@ export class OWOFilterParser extends Parser {
 	// @RuleVersion(0)
 	public externalConstant(): ExternalConstantContext {
 		let _localctx: ExternalConstantContext = new ExternalConstantContext(this._ctx, this.state);
-		this.enterRule(_localctx, 24, OWOFilterParser.RULE_externalConstant);
+		this.enterRule(_localctx, 24, OpraFilterParser.RULE_externalConstant);
 		let _la: number;
 		try {
 			this.enterOuterAlt(_localctx, 1);
 			{
 			this.state = 133;
-			this.match(OWOFilterParser.T__22);
+			this.match(OpraFilterParser.T__22);
 			this.state = 134;
 			_la = this._input.LA(1);
-			if (!(_la === OWOFilterParser.IDENTIFIER || _la === OWOFilterParser.STRING)) {
+			if (!(_la === OpraFilterParser.IDENTIFIER || _la === OpraFilterParser.STRING)) {
 			this._errHandler.recoverInline(this);
 			} else {
 				if (this._input.LA(1) === Token.EOF) {
@@ -821,12 +821,12 @@ export class OWOFilterParser extends Parser {
 	// @RuleVersion(0)
 	public identifier(): IdentifierContext {
 		let _localctx: IdentifierContext = new IdentifierContext(this._ctx, this.state);
-		this.enterRule(_localctx, 26, OWOFilterParser.RULE_identifier);
+		this.enterRule(_localctx, 26, OpraFilterParser.RULE_identifier);
 		try {
 			this.enterOuterAlt(_localctx, 1);
 			{
 			this.state = 136;
-			this.match(OWOFilterParser.IDENTIFIER);
+			this.match(OpraFilterParser.IDENTIFIER);
 			}
 		}
 		catch (re) {
@@ -846,21 +846,21 @@ export class OWOFilterParser extends Parser {
 	// @RuleVersion(0)
 	public literal(): LiteralContext {
 		let _localctx: LiteralContext = new LiteralContext(this._ctx, this.state);
-		this.enterRule(_localctx, 28, OWOFilterParser.RULE_literal);
+		this.enterRule(_localctx, 28, OpraFilterParser.RULE_literal);
 		try {
 			this.state = 146;
 			this._errHandler.sync(this);
 			switch (this._input.LA(1)) {
-			case OWOFilterParser.NUMBER:
+			case OpraFilterParser.NUMBER:
 				_localctx = new NumberLiteralContext(_localctx);
 				this.enterOuterAlt(_localctx, 1);
 				{
 				this.state = 138;
-				this.match(OWOFilterParser.NUMBER);
+				this.match(OpraFilterParser.NUMBER);
 				}
 				break;
-			case OWOFilterParser.T__44:
-			case OWOFilterParser.T__45:
+			case OpraFilterParser.T__44:
+			case OpraFilterParser.T__45:
 				_localctx = new InfinityLiteralContext(_localctx);
 				this.enterOuterAlt(_localctx, 2);
 				{
@@ -868,8 +868,8 @@ export class OWOFilterParser extends Parser {
 				this.infinity();
 				}
 				break;
-			case OWOFilterParser.T__41:
-			case OWOFilterParser.T__42:
+			case OpraFilterParser.T__41:
+			case OpraFilterParser.T__42:
 				_localctx = new BooleanLiteralContext(_localctx);
 				this.enterOuterAlt(_localctx, 3);
 				{
@@ -877,7 +877,7 @@ export class OWOFilterParser extends Parser {
 				this.boolean();
 				}
 				break;
-			case OWOFilterParser.T__43:
+			case OpraFilterParser.T__43:
 				_localctx = new NullLiteralContext(_localctx);
 				this.enterOuterAlt(_localctx, 4);
 				{
@@ -885,36 +885,36 @@ export class OWOFilterParser extends Parser {
 				this.null();
 				}
 				break;
-			case OWOFilterParser.DATE:
+			case OpraFilterParser.DATE:
 				_localctx = new DateLiteralContext(_localctx);
 				this.enterOuterAlt(_localctx, 5);
 				{
 				this.state = 142;
-				this.match(OWOFilterParser.DATE);
+				this.match(OpraFilterParser.DATE);
 				}
 				break;
-			case OWOFilterParser.DATETIME:
+			case OpraFilterParser.DATETIME:
 				_localctx = new DateTimeLiteralContext(_localctx);
 				this.enterOuterAlt(_localctx, 6);
 				{
 				this.state = 143;
-				this.match(OWOFilterParser.DATETIME);
+				this.match(OpraFilterParser.DATETIME);
 				}
 				break;
-			case OWOFilterParser.TIME:
+			case OpraFilterParser.TIME:
 				_localctx = new TimeLiteralContext(_localctx);
 				this.enterOuterAlt(_localctx, 7);
 				{
 				this.state = 144;
-				this.match(OWOFilterParser.TIME);
+				this.match(OpraFilterParser.TIME);
 				}
 				break;
-			case OWOFilterParser.STRING:
+			case OpraFilterParser.STRING:
 				_localctx = new StringLiteralContext(_localctx);
 				this.enterOuterAlt(_localctx, 8);
 				{
 				this.state = 145;
-				this.match(OWOFilterParser.STRING);
+				this.match(OpraFilterParser.STRING);
 				}
 				break;
 			default:
@@ -938,14 +938,14 @@ export class OWOFilterParser extends Parser {
 	// @RuleVersion(0)
 	public compOp(): CompOpContext {
 		let _localctx: CompOpContext = new CompOpContext(this._ctx, this.state);
-		this.enterRule(_localctx, 30, OWOFilterParser.RULE_compOp);
+		this.enterRule(_localctx, 30, OpraFilterParser.RULE_compOp);
 		let _la: number;
 		try {
 			this.enterOuterAlt(_localctx, 1);
 			{
 			this.state = 148;
 			_la = this._input.LA(1);
-			if (!(((((_la - 24)) & ~0x1F) === 0 && ((1 << (_la - 24)) & ((1 << (OWOFilterParser.T__23 - 24)) | (1 << (OWOFilterParser.T__24 - 24)) | (1 << (OWOFilterParser.T__25 - 24)) | (1 << (OWOFilterParser.T__26 - 24)) | (1 << (OWOFilterParser.T__27 - 24)) | (1 << (OWOFilterParser.T__28 - 24)) | (1 << (OWOFilterParser.T__29 - 24)) | (1 << (OWOFilterParser.T__30 - 24)) | (1 << (OWOFilterParser.T__31 - 24)) | (1 << (OWOFilterParser.T__32 - 24)) | (1 << (OWOFilterParser.T__33 - 24)) | (1 << (OWOFilterParser.T__34 - 24)))) !== 0))) {
+			if (!(((((_la - 24)) & ~0x1F) === 0 && ((1 << (_la - 24)) & ((1 << (OpraFilterParser.T__23 - 24)) | (1 << (OpraFilterParser.T__24 - 24)) | (1 << (OpraFilterParser.T__25 - 24)) | (1 << (OpraFilterParser.T__26 - 24)) | (1 << (OpraFilterParser.T__27 - 24)) | (1 << (OpraFilterParser.T__28 - 24)) | (1 << (OpraFilterParser.T__29 - 24)) | (1 << (OpraFilterParser.T__30 - 24)) | (1 << (OpraFilterParser.T__31 - 24)) | (1 << (OpraFilterParser.T__32 - 24)) | (1 << (OpraFilterParser.T__33 - 24)) | (1 << (OpraFilterParser.T__34 - 24)))) !== 0))) {
 			this._errHandler.recoverInline(this);
 			} else {
 				if (this._input.LA(1) === Token.EOF) {
@@ -974,14 +974,14 @@ export class OWOFilterParser extends Parser {
 	// @RuleVersion(0)
 	public arthOp(): ArthOpContext {
 		let _localctx: ArthOpContext = new ArthOpContext(this._ctx, this.state);
-		this.enterRule(_localctx, 32, OWOFilterParser.RULE_arthOp);
+		this.enterRule(_localctx, 32, OpraFilterParser.RULE_arthOp);
 		let _la: number;
 		try {
 			this.enterOuterAlt(_localctx, 1);
 			{
 			this.state = 150;
 			_la = this._input.LA(1);
-			if (!(((((_la - 36)) & ~0x1F) === 0 && ((1 << (_la - 36)) & ((1 << (OWOFilterParser.T__35 - 36)) | (1 << (OWOFilterParser.T__36 - 36)) | (1 << (OWOFilterParser.T__37 - 36)) | (1 << (OWOFilterParser.T__38 - 36)))) !== 0))) {
+			if (!(((((_la - 36)) & ~0x1F) === 0 && ((1 << (_la - 36)) & ((1 << (OpraFilterParser.T__35 - 36)) | (1 << (OpraFilterParser.T__36 - 36)) | (1 << (OpraFilterParser.T__37 - 36)) | (1 << (OpraFilterParser.T__38 - 36)))) !== 0))) {
 			this._errHandler.recoverInline(this);
 			} else {
 				if (this._input.LA(1) === Token.EOF) {
@@ -1010,14 +1010,14 @@ export class OWOFilterParser extends Parser {
 	// @RuleVersion(0)
 	public polarOp(): PolarOpContext {
 		let _localctx: PolarOpContext = new PolarOpContext(this._ctx, this.state);
-		this.enterRule(_localctx, 34, OWOFilterParser.RULE_polarOp);
+		this.enterRule(_localctx, 34, OpraFilterParser.RULE_polarOp);
 		let _la: number;
 		try {
 			this.enterOuterAlt(_localctx, 1);
 			{
 			this.state = 152;
 			_la = this._input.LA(1);
-			if (!(_la === OWOFilterParser.T__35 || _la === OWOFilterParser.T__36)) {
+			if (!(_la === OpraFilterParser.T__35 || _la === OpraFilterParser.T__36)) {
 			this._errHandler.recoverInline(this);
 			} else {
 				if (this._input.LA(1) === Token.EOF) {
@@ -1046,14 +1046,14 @@ export class OWOFilterParser extends Parser {
 	// @RuleVersion(0)
 	public logOp(): LogOpContext {
 		let _localctx: LogOpContext = new LogOpContext(this._ctx, this.state);
-		this.enterRule(_localctx, 36, OWOFilterParser.RULE_logOp);
+		this.enterRule(_localctx, 36, OpraFilterParser.RULE_logOp);
 		let _la: number;
 		try {
 			this.enterOuterAlt(_localctx, 1);
 			{
 			this.state = 154;
 			_la = this._input.LA(1);
-			if (!(_la === OWOFilterParser.T__39 || _la === OWOFilterParser.T__40)) {
+			if (!(_la === OpraFilterParser.T__39 || _la === OpraFilterParser.T__40)) {
 			this._errHandler.recoverInline(this);
 			} else {
 				if (this._input.LA(1) === Token.EOF) {
@@ -1082,14 +1082,14 @@ export class OWOFilterParser extends Parser {
 	// @RuleVersion(0)
 	public boolean(): BooleanContext {
 		let _localctx: BooleanContext = new BooleanContext(this._ctx, this.state);
-		this.enterRule(_localctx, 38, OWOFilterParser.RULE_boolean);
+		this.enterRule(_localctx, 38, OpraFilterParser.RULE_boolean);
 		let _la: number;
 		try {
 			this.enterOuterAlt(_localctx, 1);
 			{
 			this.state = 156;
 			_la = this._input.LA(1);
-			if (!(_la === OWOFilterParser.T__41 || _la === OWOFilterParser.T__42)) {
+			if (!(_la === OpraFilterParser.T__41 || _la === OpraFilterParser.T__42)) {
 			this._errHandler.recoverInline(this);
 			} else {
 				if (this._input.LA(1) === Token.EOF) {
@@ -1118,12 +1118,12 @@ export class OWOFilterParser extends Parser {
 	// @RuleVersion(0)
 	public null(): NullContext {
 		let _localctx: NullContext = new NullContext(this._ctx, this.state);
-		this.enterRule(_localctx, 40, OWOFilterParser.RULE_null);
+		this.enterRule(_localctx, 40, OpraFilterParser.RULE_null);
 		try {
 			this.enterOuterAlt(_localctx, 1);
 			{
 			this.state = 158;
-			this.match(OWOFilterParser.T__43);
+			this.match(OpraFilterParser.T__43);
 			}
 		}
 		catch (re) {
@@ -1143,14 +1143,14 @@ export class OWOFilterParser extends Parser {
 	// @RuleVersion(0)
 	public infinity(): InfinityContext {
 		let _localctx: InfinityContext = new InfinityContext(this._ctx, this.state);
-		this.enterRule(_localctx, 42, OWOFilterParser.RULE_infinity);
+		this.enterRule(_localctx, 42, OpraFilterParser.RULE_infinity);
 		let _la: number;
 		try {
 			this.enterOuterAlt(_localctx, 1);
 			{
 			this.state = 160;
 			_la = this._input.LA(1);
-			if (!(_la === OWOFilterParser.T__44 || _la === OWOFilterParser.T__45)) {
+			if (!(_la === OpraFilterParser.T__44 || _la === OpraFilterParser.T__45)) {
 			this._errHandler.recoverInline(this);
 			} else {
 				if (this._input.LA(1) === Token.EOF) {
@@ -1268,11 +1268,11 @@ export class OWOFilterParser extends Parser {
 		"\x02\x02\r@ESU[chqw\x82\x94";
 	public static __ATN: ATN;
 	public static get _ATN(): ATN {
-		if (!OWOFilterParser.__ATN) {
-			OWOFilterParser.__ATN = new ATNDeserializer().deserialize(Utils.toCharArray(OWOFilterParser._serializedATN));
+		if (!OpraFilterParser.__ATN) {
+			OpraFilterParser.__ATN = new ATNDeserializer().deserialize(Utils.toCharArray(OpraFilterParser._serializedATN));
 		}
 
-		return OWOFilterParser.__ATN;
+		return OpraFilterParser.__ATN;
 	}
 
 }
@@ -1281,14 +1281,14 @@ export class RootContext extends ParserRuleContext {
 	public expression(): ExpressionContext {
 		return this.getRuleContext(0, ExpressionContext);
 	}
-	public EOF(): TerminalNode { return this.getToken(OWOFilterParser.EOF, 0); }
+	public EOF(): TerminalNode { return this.getToken(OpraFilterParser.EOF, 0); }
 	constructor(parent: ParserRuleContext | undefined, invokingState: number) {
 		super(parent, invokingState);
 	}
 	// @Override
-	public get ruleIndex(): number { return OWOFilterParser.RULE_root; }
+	public get ruleIndex(): number { return OpraFilterParser.RULE_root; }
 	// @Override
-	public accept<Result>(visitor: OWOFilterVisitor<Result>): Result {
+	public accept<Result>(visitor: OpraFilterVisitor<Result>): Result {
 		if (visitor.visitRoot) {
 			return visitor.visitRoot(this);
 		} else {
@@ -1303,7 +1303,7 @@ export class ExpressionContext extends ParserRuleContext {
 		super(parent, invokingState);
 	}
 	// @Override
-	public get ruleIndex(): number { return OWOFilterParser.RULE_expression; }
+	public get ruleIndex(): number { return OpraFilterParser.RULE_expression; }
 	public copyFrom(ctx: ExpressionContext): void {
 		super.copyFrom(ctx);
 	}
@@ -1317,7 +1317,7 @@ export class TermExpressionContext extends ExpressionContext {
 		this.copyFrom(ctx);
 	}
 	// @Override
-	public accept<Result>(visitor: OWOFilterVisitor<Result>): Result {
+	public accept<Result>(visitor: OpraFilterVisitor<Result>): Result {
 		if (visitor.visitTermExpression) {
 			return visitor.visitTermExpression(this);
 		} else {
@@ -1337,7 +1337,7 @@ export class PolarityExpressionContext extends ExpressionContext {
 		this.copyFrom(ctx);
 	}
 	// @Override
-	public accept<Result>(visitor: OWOFilterVisitor<Result>): Result {
+	public accept<Result>(visitor: OpraFilterVisitor<Result>): Result {
 		if (visitor.visitPolarityExpression) {
 			return visitor.visitPolarityExpression(this);
 		} else {
@@ -1363,7 +1363,7 @@ export class ArithmeticExpressionContext extends ExpressionContext {
 		this.copyFrom(ctx);
 	}
 	// @Override
-	public accept<Result>(visitor: OWOFilterVisitor<Result>): Result {
+	public accept<Result>(visitor: OpraFilterVisitor<Result>): Result {
 		if (visitor.visitArithmeticExpression) {
 			return visitor.visitArithmeticExpression(this);
 		} else {
@@ -1389,7 +1389,7 @@ export class ComparisonExpressionContext extends ExpressionContext {
 		this.copyFrom(ctx);
 	}
 	// @Override
-	public accept<Result>(visitor: OWOFilterVisitor<Result>): Result {
+	public accept<Result>(visitor: OpraFilterVisitor<Result>): Result {
 		if (visitor.visitComparisonExpression) {
 			return visitor.visitComparisonExpression(this);
 		} else {
@@ -1415,7 +1415,7 @@ export class LogicalExpressionContext extends ExpressionContext {
 		this.copyFrom(ctx);
 	}
 	// @Override
-	public accept<Result>(visitor: OWOFilterVisitor<Result>): Result {
+	public accept<Result>(visitor: OpraFilterVisitor<Result>): Result {
 		if (visitor.visitLogicalExpression) {
 			return visitor.visitLogicalExpression(this);
 		} else {
@@ -1432,7 +1432,7 @@ export class ParenthesizedExpressionContext extends ExpressionContext {
 		this.copyFrom(ctx);
 	}
 	// @Override
-	public accept<Result>(visitor: OWOFilterVisitor<Result>): Result {
+	public accept<Result>(visitor: OpraFilterVisitor<Result>): Result {
 		if (visitor.visitParenthesizedExpression) {
 			return visitor.visitParenthesizedExpression(this);
 		} else {
@@ -1455,7 +1455,7 @@ export class ArrayExpressionContext extends ExpressionContext {
 		this.copyFrom(ctx);
 	}
 	// @Override
-	public accept<Result>(visitor: OWOFilterVisitor<Result>): Result {
+	public accept<Result>(visitor: OpraFilterVisitor<Result>): Result {
 		if (visitor.visitArrayExpression) {
 			return visitor.visitArrayExpression(this);
 		} else {
@@ -1470,7 +1470,7 @@ export class TermContext extends ParserRuleContext {
 		super(parent, invokingState);
 	}
 	// @Override
-	public get ruleIndex(): number { return OWOFilterParser.RULE_term; }
+	public get ruleIndex(): number { return OpraFilterParser.RULE_term; }
 	public copyFrom(ctx: TermContext): void {
 		super.copyFrom(ctx);
 	}
@@ -1484,7 +1484,7 @@ export class LiteralTermContext extends TermContext {
 		this.copyFrom(ctx);
 	}
 	// @Override
-	public accept<Result>(visitor: OWOFilterVisitor<Result>): Result {
+	public accept<Result>(visitor: OpraFilterVisitor<Result>): Result {
 		if (visitor.visitLiteralTerm) {
 			return visitor.visitLiteralTerm(this);
 		} else {
@@ -1501,7 +1501,7 @@ export class QualifiedIdentifierTermContext extends TermContext {
 		this.copyFrom(ctx);
 	}
 	// @Override
-	public accept<Result>(visitor: OWOFilterVisitor<Result>): Result {
+	public accept<Result>(visitor: OpraFilterVisitor<Result>): Result {
 		if (visitor.visitQualifiedIdentifierTerm) {
 			return visitor.visitQualifiedIdentifierTerm(this);
 		} else {
@@ -1518,7 +1518,7 @@ export class ExternalConstantTermContext extends TermContext {
 		this.copyFrom(ctx);
 	}
 	// @Override
-	public accept<Result>(visitor: OWOFilterVisitor<Result>): Result {
+	public accept<Result>(visitor: OpraFilterVisitor<Result>): Result {
 		if (visitor.visitExternalConstantTerm) {
 			return visitor.visitExternalConstantTerm(this);
 		} else {
@@ -1536,9 +1536,9 @@ export class InvocableContext extends ParserRuleContext {
 		super(parent, invokingState);
 	}
 	// @Override
-	public get ruleIndex(): number { return OWOFilterParser.RULE_invocable; }
+	public get ruleIndex(): number { return OpraFilterParser.RULE_invocable; }
 	// @Override
-	public accept<Result>(visitor: OWOFilterVisitor<Result>): Result {
+	public accept<Result>(visitor: OpraFilterVisitor<Result>): Result {
 		if (visitor.visitInvocable) {
 			return visitor.visitInvocable(this);
 		} else {
@@ -1553,7 +1553,7 @@ export class InvocationContext extends ParserRuleContext {
 		super(parent, invokingState);
 	}
 	// @Override
-	public get ruleIndex(): number { return OWOFilterParser.RULE_invocation; }
+	public get ruleIndex(): number { return OpraFilterParser.RULE_invocation; }
 	public copyFrom(ctx: InvocationContext): void {
 		super.copyFrom(ctx);
 	}
@@ -1567,7 +1567,7 @@ export class MemberInvocationContext extends InvocationContext {
 		this.copyFrom(ctx);
 	}
 	// @Override
-	public accept<Result>(visitor: OWOFilterVisitor<Result>): Result {
+	public accept<Result>(visitor: OpraFilterVisitor<Result>): Result {
 		if (visitor.visitMemberInvocation) {
 			return visitor.visitMemberInvocation(this);
 		} else {
@@ -1582,7 +1582,7 @@ export class IndexerContext extends ParserRuleContext {
 		super(parent, invokingState);
 	}
 	// @Override
-	public get ruleIndex(): number { return OWOFilterParser.RULE_indexer; }
+	public get ruleIndex(): number { return OpraFilterParser.RULE_indexer; }
 	public copyFrom(ctx: IndexerContext): void {
 		super.copyFrom(ctx);
 	}
@@ -1596,7 +1596,7 @@ export class MemberIndexContext extends IndexerContext {
 		this.copyFrom(ctx);
 	}
 	// @Override
-	public accept<Result>(visitor: OWOFilterVisitor<Result>): Result {
+	public accept<Result>(visitor: OpraFilterVisitor<Result>): Result {
 		if (visitor.visitMemberIndex) {
 			return visitor.visitMemberIndex(this);
 		} else {
@@ -1605,13 +1605,13 @@ export class MemberIndexContext extends IndexerContext {
 	}
 }
 export class NumberIndexContext extends IndexerContext {
-	public INTEGER(): TerminalNode { return this.getToken(OWOFilterParser.INTEGER, 0); }
+	public INTEGER(): TerminalNode { return this.getToken(OpraFilterParser.INTEGER, 0); }
 	constructor(ctx: IndexerContext) {
 		super(ctx.parent, ctx.invokingState);
 		this.copyFrom(ctx);
 	}
 	// @Override
-	public accept<Result>(visitor: OWOFilterVisitor<Result>): Result {
+	public accept<Result>(visitor: OpraFilterVisitor<Result>): Result {
 		if (visitor.visitNumberIndex) {
 			return visitor.visitNumberIndex(this);
 		} else {
@@ -1632,9 +1632,9 @@ export class FunctionContext extends ParserRuleContext {
 		super(parent, invokingState);
 	}
 	// @Override
-	public get ruleIndex(): number { return OWOFilterParser.RULE_function; }
+	public get ruleIndex(): number { return OpraFilterParser.RULE_function; }
 	// @Override
-	public accept<Result>(visitor: OWOFilterVisitor<Result>): Result {
+	public accept<Result>(visitor: OpraFilterVisitor<Result>): Result {
 		if (visitor.visitFunction) {
 			return visitor.visitFunction(this);
 		} else {
@@ -1658,9 +1658,9 @@ export class ParamListContext extends ParserRuleContext {
 		super(parent, invokingState);
 	}
 	// @Override
-	public get ruleIndex(): number { return OWOFilterParser.RULE_paramList; }
+	public get ruleIndex(): number { return OpraFilterParser.RULE_paramList; }
 	// @Override
-	public accept<Result>(visitor: OWOFilterVisitor<Result>): Result {
+	public accept<Result>(visitor: OpraFilterVisitor<Result>): Result {
 		if (visitor.visitParamList) {
 			return visitor.visitParamList(this);
 		} else {
@@ -1677,14 +1677,14 @@ export class UnitContext extends ParserRuleContext {
 	public pluralDateTimePrecision(): PluralDateTimePrecisionContext | undefined {
 		return this.tryGetRuleContext(0, PluralDateTimePrecisionContext);
 	}
-	public STRING(): TerminalNode | undefined { return this.tryGetToken(OWOFilterParser.STRING, 0); }
+	public STRING(): TerminalNode | undefined { return this.tryGetToken(OpraFilterParser.STRING, 0); }
 	constructor(parent: ParserRuleContext | undefined, invokingState: number) {
 		super(parent, invokingState);
 	}
 	// @Override
-	public get ruleIndex(): number { return OWOFilterParser.RULE_unit; }
+	public get ruleIndex(): number { return OpraFilterParser.RULE_unit; }
 	// @Override
-	public accept<Result>(visitor: OWOFilterVisitor<Result>): Result {
+	public accept<Result>(visitor: OpraFilterVisitor<Result>): Result {
 		if (visitor.visitUnit) {
 			return visitor.visitUnit(this);
 		} else {
@@ -1699,9 +1699,9 @@ export class DateTimePrecisionContext extends ParserRuleContext {
 		super(parent, invokingState);
 	}
 	// @Override
-	public get ruleIndex(): number { return OWOFilterParser.RULE_dateTimePrecision; }
+	public get ruleIndex(): number { return OpraFilterParser.RULE_dateTimePrecision; }
 	// @Override
-	public accept<Result>(visitor: OWOFilterVisitor<Result>): Result {
+	public accept<Result>(visitor: OpraFilterVisitor<Result>): Result {
 		if (visitor.visitDateTimePrecision) {
 			return visitor.visitDateTimePrecision(this);
 		} else {
@@ -1716,9 +1716,9 @@ export class PluralDateTimePrecisionContext extends ParserRuleContext {
 		super(parent, invokingState);
 	}
 	// @Override
-	public get ruleIndex(): number { return OWOFilterParser.RULE_pluralDateTimePrecision; }
+	public get ruleIndex(): number { return OpraFilterParser.RULE_pluralDateTimePrecision; }
 	// @Override
-	public accept<Result>(visitor: OWOFilterVisitor<Result>): Result {
+	public accept<Result>(visitor: OpraFilterVisitor<Result>): Result {
 		if (visitor.visitPluralDateTimePrecision) {
 			return visitor.visitPluralDateTimePrecision(this);
 		} else {
@@ -1742,9 +1742,9 @@ export class QualifiedIdentifierContext extends ParserRuleContext {
 		super(parent, invokingState);
 	}
 	// @Override
-	public get ruleIndex(): number { return OWOFilterParser.RULE_qualifiedIdentifier; }
+	public get ruleIndex(): number { return OpraFilterParser.RULE_qualifiedIdentifier; }
 	// @Override
-	public accept<Result>(visitor: OWOFilterVisitor<Result>): Result {
+	public accept<Result>(visitor: OpraFilterVisitor<Result>): Result {
 		if (visitor.visitQualifiedIdentifier) {
 			return visitor.visitQualifiedIdentifier(this);
 		} else {
@@ -1755,15 +1755,15 @@ export class QualifiedIdentifierContext extends ParserRuleContext {
 
 
 export class ExternalConstantContext extends ParserRuleContext {
-	public IDENTIFIER(): TerminalNode | undefined { return this.tryGetToken(OWOFilterParser.IDENTIFIER, 0); }
-	public STRING(): TerminalNode | undefined { return this.tryGetToken(OWOFilterParser.STRING, 0); }
+	public IDENTIFIER(): TerminalNode | undefined { return this.tryGetToken(OpraFilterParser.IDENTIFIER, 0); }
+	public STRING(): TerminalNode | undefined { return this.tryGetToken(OpraFilterParser.STRING, 0); }
 	constructor(parent: ParserRuleContext | undefined, invokingState: number) {
 		super(parent, invokingState);
 	}
 	// @Override
-	public get ruleIndex(): number { return OWOFilterParser.RULE_externalConstant; }
+	public get ruleIndex(): number { return OpraFilterParser.RULE_externalConstant; }
 	// @Override
-	public accept<Result>(visitor: OWOFilterVisitor<Result>): Result {
+	public accept<Result>(visitor: OpraFilterVisitor<Result>): Result {
 		if (visitor.visitExternalConstant) {
 			return visitor.visitExternalConstant(this);
 		} else {
@@ -1774,14 +1774,14 @@ export class ExternalConstantContext extends ParserRuleContext {
 
 
 export class IdentifierContext extends ParserRuleContext {
-	public IDENTIFIER(): TerminalNode { return this.getToken(OWOFilterParser.IDENTIFIER, 0); }
+	public IDENTIFIER(): TerminalNode { return this.getToken(OpraFilterParser.IDENTIFIER, 0); }
 	constructor(parent: ParserRuleContext | undefined, invokingState: number) {
 		super(parent, invokingState);
 	}
 	// @Override
-	public get ruleIndex(): number { return OWOFilterParser.RULE_identifier; }
+	public get ruleIndex(): number { return OpraFilterParser.RULE_identifier; }
 	// @Override
-	public accept<Result>(visitor: OWOFilterVisitor<Result>): Result {
+	public accept<Result>(visitor: OpraFilterVisitor<Result>): Result {
 		if (visitor.visitIdentifier) {
 			return visitor.visitIdentifier(this);
 		} else {
@@ -1796,19 +1796,19 @@ export class LiteralContext extends ParserRuleContext {
 		super(parent, invokingState);
 	}
 	// @Override
-	public get ruleIndex(): number { return OWOFilterParser.RULE_literal; }
+	public get ruleIndex(): number { return OpraFilterParser.RULE_literal; }
 	public copyFrom(ctx: LiteralContext): void {
 		super.copyFrom(ctx);
 	}
 }
 export class NumberLiteralContext extends LiteralContext {
-	public NUMBER(): TerminalNode { return this.getToken(OWOFilterParser.NUMBER, 0); }
+	public NUMBER(): TerminalNode { return this.getToken(OpraFilterParser.NUMBER, 0); }
 	constructor(ctx: LiteralContext) {
 		super(ctx.parent, ctx.invokingState);
 		this.copyFrom(ctx);
 	}
 	// @Override
-	public accept<Result>(visitor: OWOFilterVisitor<Result>): Result {
+	public accept<Result>(visitor: OpraFilterVisitor<Result>): Result {
 		if (visitor.visitNumberLiteral) {
 			return visitor.visitNumberLiteral(this);
 		} else {
@@ -1825,7 +1825,7 @@ export class InfinityLiteralContext extends LiteralContext {
 		this.copyFrom(ctx);
 	}
 	// @Override
-	public accept<Result>(visitor: OWOFilterVisitor<Result>): Result {
+	public accept<Result>(visitor: OpraFilterVisitor<Result>): Result {
 		if (visitor.visitInfinityLiteral) {
 			return visitor.visitInfinityLiteral(this);
 		} else {
@@ -1842,7 +1842,7 @@ export class BooleanLiteralContext extends LiteralContext {
 		this.copyFrom(ctx);
 	}
 	// @Override
-	public accept<Result>(visitor: OWOFilterVisitor<Result>): Result {
+	public accept<Result>(visitor: OpraFilterVisitor<Result>): Result {
 		if (visitor.visitBooleanLiteral) {
 			return visitor.visitBooleanLiteral(this);
 		} else {
@@ -1859,7 +1859,7 @@ export class NullLiteralContext extends LiteralContext {
 		this.copyFrom(ctx);
 	}
 	// @Override
-	public accept<Result>(visitor: OWOFilterVisitor<Result>): Result {
+	public accept<Result>(visitor: OpraFilterVisitor<Result>): Result {
 		if (visitor.visitNullLiteral) {
 			return visitor.visitNullLiteral(this);
 		} else {
@@ -1868,13 +1868,13 @@ export class NullLiteralContext extends LiteralContext {
 	}
 }
 export class DateLiteralContext extends LiteralContext {
-	public DATE(): TerminalNode { return this.getToken(OWOFilterParser.DATE, 0); }
+	public DATE(): TerminalNode { return this.getToken(OpraFilterParser.DATE, 0); }
 	constructor(ctx: LiteralContext) {
 		super(ctx.parent, ctx.invokingState);
 		this.copyFrom(ctx);
 	}
 	// @Override
-	public accept<Result>(visitor: OWOFilterVisitor<Result>): Result {
+	public accept<Result>(visitor: OpraFilterVisitor<Result>): Result {
 		if (visitor.visitDateLiteral) {
 			return visitor.visitDateLiteral(this);
 		} else {
@@ -1883,13 +1883,13 @@ export class DateLiteralContext extends LiteralContext {
 	}
 }
 export class DateTimeLiteralContext extends LiteralContext {
-	public DATETIME(): TerminalNode { return this.getToken(OWOFilterParser.DATETIME, 0); }
+	public DATETIME(): TerminalNode { return this.getToken(OpraFilterParser.DATETIME, 0); }
 	constructor(ctx: LiteralContext) {
 		super(ctx.parent, ctx.invokingState);
 		this.copyFrom(ctx);
 	}
 	// @Override
-	public accept<Result>(visitor: OWOFilterVisitor<Result>): Result {
+	public accept<Result>(visitor: OpraFilterVisitor<Result>): Result {
 		if (visitor.visitDateTimeLiteral) {
 			return visitor.visitDateTimeLiteral(this);
 		} else {
@@ -1898,13 +1898,13 @@ export class DateTimeLiteralContext extends LiteralContext {
 	}
 }
 export class TimeLiteralContext extends LiteralContext {
-	public TIME(): TerminalNode { return this.getToken(OWOFilterParser.TIME, 0); }
+	public TIME(): TerminalNode { return this.getToken(OpraFilterParser.TIME, 0); }
 	constructor(ctx: LiteralContext) {
 		super(ctx.parent, ctx.invokingState);
 		this.copyFrom(ctx);
 	}
 	// @Override
-	public accept<Result>(visitor: OWOFilterVisitor<Result>): Result {
+	public accept<Result>(visitor: OpraFilterVisitor<Result>): Result {
 		if (visitor.visitTimeLiteral) {
 			return visitor.visitTimeLiteral(this);
 		} else {
@@ -1913,13 +1913,13 @@ export class TimeLiteralContext extends LiteralContext {
 	}
 }
 export class StringLiteralContext extends LiteralContext {
-	public STRING(): TerminalNode { return this.getToken(OWOFilterParser.STRING, 0); }
+	public STRING(): TerminalNode { return this.getToken(OpraFilterParser.STRING, 0); }
 	constructor(ctx: LiteralContext) {
 		super(ctx.parent, ctx.invokingState);
 		this.copyFrom(ctx);
 	}
 	// @Override
-	public accept<Result>(visitor: OWOFilterVisitor<Result>): Result {
+	public accept<Result>(visitor: OpraFilterVisitor<Result>): Result {
 		if (visitor.visitStringLiteral) {
 			return visitor.visitStringLiteral(this);
 		} else {
@@ -1934,9 +1934,9 @@ export class CompOpContext extends ParserRuleContext {
 		super(parent, invokingState);
 	}
 	// @Override
-	public get ruleIndex(): number { return OWOFilterParser.RULE_compOp; }
+	public get ruleIndex(): number { return OpraFilterParser.RULE_compOp; }
 	// @Override
-	public accept<Result>(visitor: OWOFilterVisitor<Result>): Result {
+	public accept<Result>(visitor: OpraFilterVisitor<Result>): Result {
 		if (visitor.visitCompOp) {
 			return visitor.visitCompOp(this);
 		} else {
@@ -1951,9 +1951,9 @@ export class ArthOpContext extends ParserRuleContext {
 		super(parent, invokingState);
 	}
 	// @Override
-	public get ruleIndex(): number { return OWOFilterParser.RULE_arthOp; }
+	public get ruleIndex(): number { return OpraFilterParser.RULE_arthOp; }
 	// @Override
-	public accept<Result>(visitor: OWOFilterVisitor<Result>): Result {
+	public accept<Result>(visitor: OpraFilterVisitor<Result>): Result {
 		if (visitor.visitArthOp) {
 			return visitor.visitArthOp(this);
 		} else {
@@ -1968,9 +1968,9 @@ export class PolarOpContext extends ParserRuleContext {
 		super(parent, invokingState);
 	}
 	// @Override
-	public get ruleIndex(): number { return OWOFilterParser.RULE_polarOp; }
+	public get ruleIndex(): number { return OpraFilterParser.RULE_polarOp; }
 	// @Override
-	public accept<Result>(visitor: OWOFilterVisitor<Result>): Result {
+	public accept<Result>(visitor: OpraFilterVisitor<Result>): Result {
 		if (visitor.visitPolarOp) {
 			return visitor.visitPolarOp(this);
 		} else {
@@ -1985,9 +1985,9 @@ export class LogOpContext extends ParserRuleContext {
 		super(parent, invokingState);
 	}
 	// @Override
-	public get ruleIndex(): number { return OWOFilterParser.RULE_logOp; }
+	public get ruleIndex(): number { return OpraFilterParser.RULE_logOp; }
 	// @Override
-	public accept<Result>(visitor: OWOFilterVisitor<Result>): Result {
+	public accept<Result>(visitor: OpraFilterVisitor<Result>): Result {
 		if (visitor.visitLogOp) {
 			return visitor.visitLogOp(this);
 		} else {
@@ -2002,9 +2002,9 @@ export class BooleanContext extends ParserRuleContext {
 		super(parent, invokingState);
 	}
 	// @Override
-	public get ruleIndex(): number { return OWOFilterParser.RULE_boolean; }
+	public get ruleIndex(): number { return OpraFilterParser.RULE_boolean; }
 	// @Override
-	public accept<Result>(visitor: OWOFilterVisitor<Result>): Result {
+	public accept<Result>(visitor: OpraFilterVisitor<Result>): Result {
 		if (visitor.visitBoolean) {
 			return visitor.visitBoolean(this);
 		} else {
@@ -2019,9 +2019,9 @@ export class NullContext extends ParserRuleContext {
 		super(parent, invokingState);
 	}
 	// @Override
-	public get ruleIndex(): number { return OWOFilterParser.RULE_null; }
+	public get ruleIndex(): number { return OpraFilterParser.RULE_null; }
 	// @Override
-	public accept<Result>(visitor: OWOFilterVisitor<Result>): Result {
+	public accept<Result>(visitor: OpraFilterVisitor<Result>): Result {
 		if (visitor.visitNull) {
 			return visitor.visitNull(this);
 		} else {
@@ -2036,9 +2036,9 @@ export class InfinityContext extends ParserRuleContext {
 		super(parent, invokingState);
 	}
 	// @Override
-	public get ruleIndex(): number { return OWOFilterParser.RULE_infinity; }
+	public get ruleIndex(): number { return OpraFilterParser.RULE_infinity; }
 	// @Override
-	public accept<Result>(visitor: OWOFilterVisitor<Result>): Result {
+	public accept<Result>(visitor: OpraFilterVisitor<Result>): Result {
 		if (visitor.visitInfinity) {
 			return visitor.visitInfinity(this);
 		} else {

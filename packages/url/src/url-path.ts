@@ -2,8 +2,8 @@ import {EventEmitter} from 'events';
 import {nodeInspectCustom, ResourceKey} from './types';
 import {encodePathComponent} from './utils/url-utils';
 
-export class OwoURLPath extends EventEmitter {
-  private _entries: OwoURLPathComponent[] = [];
+export class OpraURLPath extends EventEmitter {
+  private _entries: OpraURLPathComponent[] = [];
 
   constructor() {
     super();
@@ -13,15 +13,15 @@ export class OwoURLPath extends EventEmitter {
     return this._entries.length;
   }
 
-  add(component: OwoURLPathComponent | { resource: string; key?: ResourceKey }): void
+  add(component: OpraURLPathComponent | { resource: string; key?: ResourceKey }): void
   add(name: string, key?: ResourceKey): void
   add(component: any, key?: ResourceKey): void {
-    if (component instanceof OwoURLPathComponent) {
+    if (component instanceof OpraURLPathComponent) {
       this._entries.push(component);
     } else if (typeof component === 'object')
-      this._entries.push(new OwoURLPathComponent(component.resource, component.key));
+      this._entries.push(new OpraURLPathComponent(component.resource, component.key));
     else
-      this._entries.push(new OwoURLPathComponent(component, key));
+      this._entries.push(new OpraURLPathComponent(component, key));
     this.emit('change');
   }
 
@@ -30,7 +30,7 @@ export class OwoURLPath extends EventEmitter {
     this.emit('change');
   }
 
-  get(index: number): OwoURLPathComponent {
+  get(index: number): OpraURLPathComponent {
     return this._entries[index];
   }
 
@@ -73,14 +73,14 @@ export class OwoURLPath extends EventEmitter {
 
 }
 
-export class OwoURLPathComponent {
+export class OpraURLPathComponent {
   constructor(public resource: string, public key?: ResourceKey) {
   }
 
   toString() {
     const obj = encodePathComponent(this.resource, this.key);
     if (obj)
-      Object.setPrototypeOf(obj, OwoURLPathComponent.prototype);
+      Object.setPrototypeOf(obj, OpraURLPathComponent.prototype);
     return obj;
   }
 

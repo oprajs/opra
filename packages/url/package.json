@@ -1,12 +1,12 @@
 {
-  "name": "@owo/url",
+  "name": "@opra/url",
   "version": "0.0.1",
-  "description": "OWO (Open Web Objects) URL parser/builder",
+  "description": "Opra URL parser/builder",
   "author": "Panates",
   "license": "UNLICENSED",
   "repository": {
     "type": "git",
-    "url": "https://github.com/panates/owo.git",
+    "url": "https://github.com/panates/opra.git",
     "directory": "packages/url"
   },
   "scripts": {
@@ -24,7 +24,7 @@
     "clean:src": "ts-cleanup -s src --all",
     "clean:dist": "rimraf ../../build/url",
     "clean:cover": "rimraf ../../coverage/url",
-    "antlr": "antlr4ts -visitor -no-listener src/filter/antlr/OWOFilter.g4"
+    "antlr": "antlr4ts -visitor -no-listener src/filter/antlr/OpraFilter.g4"
   },
   "dependencies": {
     "antlr4": "^4.10.1",
@@ -55,7 +55,7 @@
     "README.md"
   ],
   "keywords": [
-    "owo",
+    "opra",
     "url",
     "query",
     "parser",

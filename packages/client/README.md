@@ -1,2 +1,2 @@
-# owo
-Open Web Objects
+# OPRA
+Open Protocol for Restful Api

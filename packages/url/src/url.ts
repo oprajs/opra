@@ -1,8 +1,8 @@
 import {splitString, tokenize} from 'fast-tokenizer';
 import {IntegerFormat} from './formats/integer-format';
 import {nodeInspectCustom, ResourceKey} from './types';
-import {OwoURLPath} from './url-path';
-import {OwoURLSearchParams, QueryItemMetadata} from './url-search-params';
+import {OpraURLPath} from './url-path';
+import {OpraURLSearchParams, QueryItemMetadata} from './url-search-params';
 import {decodePathComponent, normalizePath} from './utils/url-utils';
 
 const urlRegEx = /^(?:((?:[A-Z][A-Z+-.]+:)+)\/\/([^/]+))?(\/.*)?$/i;
@@ -10,11 +10,11 @@ const schemeRegEx = /^([A-Z][A-Z+-.]+:?)+$/i;
 const hostRegEx = /^([^/:]+)(?::(\d+))?$/;
 const hostnameRegEx = /^([^/:]+)$/;
 
-const CONTEXT_KEY = Symbol.for('owo.url.context');
-const PATH_KEY = Symbol.for('owo.url.path');
-const SEARCHPARAMS_KEY = Symbol.for('owo.url.searchparams');
+const CONTEXT_KEY = Symbol.for('opra.url.context');
+const PATH_KEY = Symbol.for('opra.url.path');
+const SEARCHPARAMS_KEY = Symbol.for('opra.url.searchparams');
 
-export class OwoURL {
+export class OpraURL {
   protected [CONTEXT_KEY]: {
     protocol: string;
     username: string;
@@ -27,8 +27,8 @@ export class OwoURL {
     search: string;
     needUpdate: boolean;
   }
-  protected [PATH_KEY]: OwoURLPath;
-  protected [SEARCHPARAMS_KEY]: OwoURLSearchParams;
+  protected [PATH_KEY]: OpraURLPath;
+  protected [SEARCHPARAMS_KEY]: OpraURLSearchParams;
 
   constructor(input?: string, prefix?: string) {
     Object.defineProperty(this, CONTEXT_KEY, {
@@ -41,13 +41,13 @@ export class OwoURL {
       writable: true,
       configurable: true,
       enumerable: false,
-      value: new OwoURLPath()
+      value: new OpraURLPath()
     })
     Object.defineProperty(this, SEARCHPARAMS_KEY, {
       writable: true,
       configurable: true,
       enumerable: false,
-      value: new OwoURLSearchParams()
+      value: new OpraURLSearchParams()
     });
     this.defineSearchParam('_filter', {format: 'filter'});
     this.defineSearchParam('_limit', {format: new IntegerFormat({min: 0})});
@@ -172,7 +172,7 @@ export class OwoURL {
     this[CONTEXT_KEY].prefix = '/' + normalizePath(v, true);
   }
 
-  get path(): OwoURLPath {
+  get path(): OpraURLPath {
     return this[PATH_KEY];
   }
 
@@ -185,7 +185,7 @@ export class OwoURL {
     this._setPathname(v, false);
   }
 
-  get searchParams(): OwoURLSearchParams {
+  get searchParams(): OpraURLSearchParams {
     return this[SEARCHPARAMS_KEY];
   }
 

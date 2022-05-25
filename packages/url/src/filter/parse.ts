@@ -1,16 +1,16 @@
 import {CharStreams, CommonTokenStream} from 'antlr4ts';
 import {AbstractParseTreeVisitor} from 'antlr4ts/tree';
 import {SyntaxError} from '../errors';
-import {OWOFilterLexer} from './antlr/OWOFilterLexer';
-import {OWOFilterParser,} from './antlr/OWOFilterParser';
+import {OpraFilterLexer} from './antlr/OpraFilterLexer';
+import {OpraFilterParser} from './antlr/OpraFilterParser';
 import {ErrorListener} from './error-listener';
 import {FilterTreeVisitor} from './filter-tree-visitor';
 
 export function parseFilter(text: string, visitor?: AbstractParseTreeVisitor<any>) {
   const inputStream = CharStreams.fromString(text);
-  const lexer = new OWOFilterLexer(inputStream);
+  const lexer = new OpraFilterLexer(inputStream);
   const tokenStream = new CommonTokenStream(lexer);
-  const parser = new OWOFilterParser(tokenStream);
+  const parser = new OpraFilterParser(tokenStream);
   parser.buildParseTree = true;
 
   const errors: any[] = [];

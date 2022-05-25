@@ -1,2 +1,4 @@
-# owo
-Open Web Objects
+# @opra/url
+
+Open Protocol for Restful Api (aka OPRA)
+

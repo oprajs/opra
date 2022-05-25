@@ -1,9 +1,9 @@
-import {OwoURL} from '../src';
+import {OpraURL} from '../src';
 
 describe('URL build', () => {
 
   it('Should set hostname', () => {
-    const u = new OwoURL()
+    const u = new OpraURL()
       .setHostname('www.anyuri.com');
     expect(u.href).toStrictEqual('http://www.anyuri.com');
     u.hostname = 'www.anyurl.org';
@@ -11,12 +11,12 @@ describe('URL build', () => {
   })
 
   it('Should validate hostname', () => {
-    const u = new OwoURL();
+    const u = new OpraURL();
     expect(() => u.hostname = 'anyurl/').toThrow('Invalid');
   })
 
   it('Should set protocol', () => {
-    const u = new OwoURL();
+    const u = new OpraURL();
     u.protocol = 'http';
     expect(u.protocol).toStrictEqual('http:');
     u.protocol = 'git-ssh';
@@ -29,12 +29,12 @@ describe('URL build', () => {
   })
 
   it('Should validate protocol', () => {
-    const u = new OwoURL();
+    const u = new OpraURL();
     expect(() => u.protocol = 'https:/').toThrow('Invalid');
   })
 
   it('Should set port', () => {
-    const u = new OwoURL()
+    const u = new OpraURL()
       .setHostname('www.anyuri.com')
       .setPort(81);
     expect(u.href).toStrictEqual('http://www.anyuri.com:81');
@@ -45,7 +45,7 @@ describe('URL build', () => {
   })
 
   it('Should validate port', () => {
-    const u = new OwoURL();
+    const u = new OpraURL();
     expect(() => u.port = -1).toThrow('Invalid');
     expect(() => u.port = 35536).toThrow('Invalid');
     expect(() => u.port = 1.2).toThrow('Invalid');
@@ -53,7 +53,7 @@ describe('URL build', () => {
   })
 
   it('Should set host', () => {
-    const u = new OwoURL()
+    const u = new OpraURL()
       .setHost('www.anyuri.com:81');
     expect(u.href).toStrictEqual('http://www.anyuri.com:81');
     u.host = 'www.anyurl.org:82';
@@ -65,12 +65,12 @@ describe('URL build', () => {
   })
 
   it('Should validate host', () => {
-    const u = new OwoURL();
+    const u = new OpraURL();
     expect(() => u.setHost('htp:invalidUrl')).toThrow('Invalid host');
   })
 
   it('Should set prefix', () => {
-    const u = new OwoURL()
+    const u = new OpraURL()
       .setPrefix('/api/v1');
     expect(u.href).toStrictEqual('/api/v1');
     u.prefix = 'api/v2/';
@@ -82,7 +82,7 @@ describe('URL build', () => {
   })
 
   it('Should normalize prefix', () => {
-    const u = new OwoURL();
+    const u = new OpraURL();
     u.prefix = 'api/v1/?a=1';
     expect(u.prefix).toStrictEqual('/api/v1');
     u.prefix = 'api/v1#hash';
@@ -90,7 +90,7 @@ describe('URL build', () => {
   })
 
   it('Should set pathname', () => {
-    const u = new OwoURL()
+    const u = new OpraURL()
       .setPrefix('api/v1')
       .setPathname('Person');
     expect(u.href).toStrictEqual('/api/v1/Person');
@@ -99,14 +99,14 @@ describe('URL build', () => {
   })
 
   it('Should add resource to path', () => {
-    const u = new OwoURL()
+    const u = new OpraURL()
       .addPath('Person')
       .addPath('address');
     expect(u.pathname).toStrictEqual('/Person/address');
   })
 
   it('Should add resource and key', () => {
-    const u = new OwoURL()
+    const u = new OpraURL()
       .addPath('Person', '1234');
     expect(u.path.get(0)).toEqual({resource: 'Person', key: '1234'});
     expect(u.path.toString()).toEqual('Person|1234');
@@ -114,7 +114,7 @@ describe('URL build', () => {
   })
 
   it('Should add resource and object key', () => {
-    const u = new OwoURL()
+    const u = new OpraURL()
       .addPath('Person', {a: '1234', b: 'xyz'});
     expect(u.path.get(0)).toEqual({resource: 'Person', key: {a: '1234', b: 'xyz'}});
     expect(u.path.toString()).toEqual('Person|a=1234;b=xyz');
@@ -122,13 +122,13 @@ describe('URL build', () => {
   })
 
   it('Should set search', () => {
-    const u = new OwoURL()
+    const u = new OpraURL()
       .setSearch('prm1=&prm2=2');
     expect(u.search).toStrictEqual('?prm1&prm2=2');
   })
 
   it('Should add search param', () => {
-    const u = new OwoURL()
+    const u = new OpraURL()
       .addSearchParam('prm1')
       .addSearchParam('prm2', 2);
     expect(u.searchParams.get('prm1')).toStrictEqual(null);
@@ -137,7 +137,7 @@ describe('URL build', () => {
   })
 
   it('Should set search param', () => {
-    const u = new OwoURL()
+    const u = new OpraURL()
       .addSearchParam('prm1')
       .setSearchParam('prm1', 2);
     expect(u.searchParams.get('prm1')).toStrictEqual(2);
@@ -145,14 +145,14 @@ describe('URL build', () => {
   })
 
   it('Should set hash', () => {
-    const u = new OwoURL()
+    const u = new OpraURL()
       .setHash('hash')
       .setHostname('www.anyuri.com');
     expect(u.href).toStrictEqual('http://www.anyuri.com#hash');
   })
 
   it('Should set _limit query param', () => {
-    const u = new OwoURL()
+    const u = new OpraURL()
       .setHostname('localhost')
       .setLimit(5);
     expect(u.href).toStrictEqual('http://localhost?_limit=5');
@@ -161,7 +161,7 @@ describe('URL build', () => {
   })
 
   it('Should set _skip query param', () => {
-    const u = new OwoURL()
+    const u = new OpraURL()
       .setHostname('localhost')
       .setSkip(5);
     expect(u.href).toStrictEqual('http://localhost?_skip=5');
@@ -170,7 +170,7 @@ describe('URL build', () => {
   })
 
   it('Should set _elements query param', () => {
-    const u = new OwoURL()
+    const u = new OpraURL()
       .setHostname('localhost')
       .setElements('id', 'name');
     expect(u.href).toStrictEqual('http://localhost?_elements=id|name');
@@ -179,7 +179,7 @@ describe('URL build', () => {
   })
 
   it('Should set _exclude query param', () => {
-    const u = new OwoURL()
+    const u = new OpraURL()
       .setHostname('localhost')
       .setExclude('id', 'name');
     expect(u.href).toStrictEqual('http://localhost?_exclude=id|name');
@@ -188,7 +188,7 @@ describe('URL build', () => {
   })
 
   it('Should set _include query param', () => {
-    const u = new OwoURL()
+    const u = new OpraURL()
       .setHostname('localhost')
       .setInclude('id', 'name');
     expect(u.href).toStrictEqual('http://localhost?_include=id|name');
@@ -197,7 +197,7 @@ describe('URL build', () => {
   })
 
   it('Should set _distinct query param', () => {
-    const u = new OwoURL()
+    const u = new OpraURL()
       .setHostname('localhost')
       .setDistinct(true);
     expect(u.href).toStrictEqual('http://localhost?_distinct=true');
@@ -206,7 +206,7 @@ describe('URL build', () => {
   })
 
   it('Should set _total query param', () => {
-    const u = new OwoURL()
+    const u = new OpraURL()
       .setHostname('localhost')
       .setTotal(true);
     expect(u.href).toStrictEqual('http://localhost?_total=true');

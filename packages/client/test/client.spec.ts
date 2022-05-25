@@ -1,8 +1,8 @@
 
-describe('OwoClient', function () {
+describe('OpraClient', function () {
 
   it('Create client', () => {
-    // const client = new OwoClient({baseUrl: ''});
+    //
   })
 
 });

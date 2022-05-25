@@ -10,7 +10,7 @@ import {StringFormat} from './formats/string-format';
 import {nodeInspectCustom} from './types';
 import {encodeQueryComponent} from './utils/url-utils';
 
-const QUERYMETADATA_KEY = Symbol.for('owo.url.querymetadata');
+const QUERYMETADATA_KEY = Symbol.for('opra.url.querymetadata');
 const internalFormats = {
   'integer': new IntegerFormat(),
   'number': new NumberFormat(),
@@ -29,12 +29,12 @@ export interface QueryItemMetadata {
   maxOccurs?: number;
 }
 
-export class OwoURLSearchParams extends EventEmitter {
+export class OpraURLSearchParams extends EventEmitter {
   protected [QUERYMETADATA_KEY]: Record<string, QueryItemMetadata>;
   private _entries: Record<string, any[]> = {};
   private _size = 0;
 
-  constructor(init?: (string | URLSearchParams | OwoURLSearchParams)) {
+  constructor(init?: (string | URLSearchParams | OpraURLSearchParams)) {
     super();
     Object.defineProperty(this, QUERYMETADATA_KEY, {
       enumerable: false,
@@ -44,7 +44,7 @@ export class OwoURLSearchParams extends EventEmitter {
     });
     if (init && typeof init === 'string') {
       this.parse(init);
-    } else if ((init instanceof URLSearchParams) || (init instanceof OwoURLSearchParams)) {
+    } else if ((init instanceof URLSearchParams) || (init instanceof OpraURLSearchParams)) {
       init.forEach((value: string, name: string) => {
         this.append(name, value);
       });

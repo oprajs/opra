@@ -1,12 +1,13 @@
 {
-  "name": "@owo/client",
+  "name": "@opra/client",
   "version": "0.0.1",
-  "description": "OWO (aka Open Web Objects) client",
+  "description": "Opra rest client",
   "author": "Panates",
   "license": "UNLICENSED",
   "repository": {
     "type": "git",
-    "url": "https://github.com/panates/owo.git"
+    "url": "https://github.com/panates/opra.git",
+    "directory": "packages/client"
   },
   "scripts": {
     "compile": "tsc",
@@ -25,14 +26,8 @@
     "clean:cover": "rimraf ../../coverage/client"
   },
   "dependencies": {
-    "antlr4": "^4.10.1",
-    "luxon": "^2.3.2",
-    "split-string": "^6.1.0",
-    "@owo/url": "*"
   },
   "devDependencies": {
-    "antlr4ts-cli": "^0.5.0-alpha.4",
-    "@types/luxon": "^2.3.1"
   },
   "type": "module",
   "main": "cjs/index.js",
@@ -55,7 +50,7 @@
     "README.md"
   ],
   "keywords": [
-    "owo",
+    "opra",
     "url",
     "query",
     "parser",

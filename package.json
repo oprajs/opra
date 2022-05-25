@@ -1,11 +1,12 @@
 {
-  "name": "owo",
+  "name": "opra",
+  "description": "Open Protocol for Restful Api",
   "private": true,
   "version": "1.0.0",
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "https://github.com/panates/owo.git"
+    "url": "https://github.com/panates/opra.git"
   },
   "workspaces": [
     "packages/**"
