@@ -19,7 +19,7 @@
     "lint": "eslint \"{src,test}/**/*.ts\" --no-error-on-unmatched-pattern",
     "test": "jest",
     "cover": "jest --collect-coverage",
-    "check": "dpdm src/** --exit-code circular:1 --tree false --warning -T false",
+    "check": "madge --circular src/**/*",
     "clean": "npm run clean:src | npm run clean:dist | npm run clean:cover",
     "clean:src": "ts-cleanup -s src --all",
     "clean:dist": "rimraf ../../build/url",

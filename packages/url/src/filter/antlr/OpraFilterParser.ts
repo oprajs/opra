@@ -24,7 +24,7 @@ import { VocabularyImpl } from "antlr4ts/VocabularyImpl";
 
 import * as Utils from "antlr4ts/misc/Utils";
 
-import { OpraFilterVisitor } from "./OpraFilterVisitor";
+import type { OpraFilterVisitor } from "./OpraFilterVisitor";
 
 
 export class OpraFilterParser extends Parser {
