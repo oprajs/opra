@@ -1,14 +1,14 @@
 {
   "extends": "./tsconfig.json",
   "compilerOptions": {
-    "module": "ESNext",
+    "module": "CommonJS",
     "rootDir": "src",
-    "outDir": "../../build/client/esm",
+    "outDir": "../../build/nestjs/cjs",
     "paths": {
       "opra/url": ["../../build/url"]
     },
     "sourceMap": false,
     "noEmit": false,
-    "declaration": false
+    "declaration": false,
   }
 }
