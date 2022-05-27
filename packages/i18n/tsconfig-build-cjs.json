@@ -1,0 +1,14 @@
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "module": "CommonJS",
+    "rootDir": "src",
+    "outDir": "../../build/i18n/cjs",
+    "paths": {
+      "opra/url": ["../../build/url"]
+    },
+    "sourceMap": false,
+    "noEmit": false,
+    "declaration": false,
+  }
+}
