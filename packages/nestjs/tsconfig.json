@@ -2,9 +2,9 @@
   "extends": "../../tsconfig-base.json",
   "compilerOptions": {
     "baseUrl": "./",
-    "rootDir": "src",
     "paths": {
-      "opra/url": ["../url/src"]
+      "@opra/url": ["../url/src"],
+      "@opra/i18n": ["../i18n/src"]
     }
   },
   "include": ["src"],

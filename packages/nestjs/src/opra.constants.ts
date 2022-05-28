@@ -1,0 +1,2 @@
+export const OPRA_MODULE_OPTIONS = Symbol('OPRA_MODULE_OPTIONS');
+export const OPRA_MODULE_TOKEN = Symbol('OPRA_MODULE_TOKEN');

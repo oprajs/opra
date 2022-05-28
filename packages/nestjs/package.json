@@ -20,15 +20,24 @@
     "lint": "eslint \"{src,test}/**/*.ts\" --no-error-on-unmatched-pattern",
     "test": "jest",
     "cover": "jest --collect-coverage",
-    "check": "dpdm src/** --exit-code circular:1 --tree false --warning -T false",
+    "check": "madge --circular src/**/*",
     "clean": "npm run clean:src | npm run clean:dist | npm run clean:cover",
     "clean:src": "ts-cleanup -s src --all",
     "clean:dist": "rimraf ../../build/nestjs",
     "clean:cover": "rimraf ../../coverage/nestjs"
   },
   "dependencies": {
+    "i18next": ">=21.0.0",
+    "@opra/url": "^0.x.x",
+    "@opra/i18n": "^0.x.x"
+  },
+  "peerDependencies": {
+    "@nestjs/common": "^8.x.x"
   },
   "devDependencies": {
+    "@nestjs/testing": "^8.4.5",
+    "supertest": "^6.2.3",
+    "@nestjs/platform-express": "^8.4.5"
   },
   "type": "module",
   "main": "cjs/index.js",

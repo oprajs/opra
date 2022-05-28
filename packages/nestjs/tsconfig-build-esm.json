@@ -5,7 +5,8 @@
     "rootDir": "src",
     "outDir": "../../build/nestjs/esm",
     "paths": {
-      "opra/url": ["../../build/url"]
+      "opra/url": ["../../build/url"],
+      "opra/i18n": ["../../build/i18n"]
     },
     "sourceMap": false,
     "noEmit": false,
