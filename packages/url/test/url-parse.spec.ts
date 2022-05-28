@@ -51,44 +51,44 @@ describe('Parse url string', () => {
   })
 
   it('Should parse path (percent encoded resource)', () => {
-    const u = new OpraURL('https://anyuri.com/Hello%20World|%22%20%22');
+    const u = new OpraURL('https://anyuri.com/Hello%20World@%22%20%22');
     expect(u.path.get(0)).toEqual({resource: 'Hello World', key: '" "'});
-    expect(u.href).toStrictEqual('https://anyuri.com/Hello%20World|%22%20%22');
+    expect(u.href).toStrictEqual('https://anyuri.com/Hello%20World@%22%20%22');
   })
 
   it('Should parse path with resource key', () => {
-    const u = new OpraURL('/Person|123');
+    const u = new OpraURL('/Person@123');
     expect(u.path.get(0)).toEqual({resource: 'Person', key: '123'});
-    expect(u.href).toStrictEqual('/Person|123');
+    expect(u.href).toStrictEqual('/Person@123');
   })
 
   it('Should parse path with named resource key', () => {
-    const u = new OpraURL('/Person|id=123');
+    const u = new OpraURL('/Person@id=123');
     expect(u.path.get(0)).toEqual({resource: 'Person', key: {id: '123'}});
-    expect(u.href).toStrictEqual('/Person|id=123');
+    expect(u.href).toStrictEqual('/Person@id=123');
   })
 
   it('Should parse path with multiple named resource key', () => {
-    const u = new OpraURL('/Person|mrn=123;y=2000');
+    const u = new OpraURL('/Person@mrn=123;y=2000');
     expect(u.path.get(0)).toEqual({resource: 'Person', key: {mrn: '123', y: '2000'}});
-    expect(u.href).toStrictEqual('/Person|mrn=123;y=2000');
+    expect(u.href).toStrictEqual('/Person@mrn=123;y=2000');
   })
 
   it('Should parse if resource key contains special chars', () => {
-    const u = new OpraURL('/Person|id=' + encodeURIComponent('abc=/\\?# x'));
+    const u = new OpraURL('/Person@id=' + encodeURIComponent('abc=/\\?# x'));
     expect(u.path.get(0)).toEqual({resource: 'Person', key: {id: 'abc=/\\?# x'}});
-    expect(u.href).toStrictEqual('/Person|id=' + encodeURIComponent('abc=/\\?# x'));
+    expect(u.href).toStrictEqual('/Person@id=' + encodeURIComponent('abc=/\\?# x'));
   })
 
   it('Should throw if url is invalid', () => {
-    expect(() => new OpraURL('Person|id=1;2')).toThrow('Invalid URL');
-    expect(() => new OpraURL('http:Person|id=1;2')).toThrow('Invalid URL');
+    expect(() => new OpraURL('Person@id=1;2')).toThrow('Invalid URL');
+    expect(() => new OpraURL('http:Person@id=1;2')).toThrow('Invalid URL');
   })
 
   it('Should throw if mixing key:value keys and simple keys', () => {
-    expect(() => new OpraURL('/Person|id=1;2')).toThrow('name:value pair required');
-    expect(() => new OpraURL('/Person|1;id=1')).toThrow('name:value pair required');
-    expect(() => new OpraURL('/Person|1;2')).toThrow('name:value pair required');
+    expect(() => new OpraURL('/Person@id=1;2')).toThrow('name:value pair required');
+    expect(() => new OpraURL('/Person@1;id=1')).toThrow('name:value pair required');
+    expect(() => new OpraURL('/Person@1;2')).toThrow('name:value pair required');
   })
 
   it('Should parse query part', () => {
@@ -126,7 +126,7 @@ describe('Parse url string', () => {
   })
 
   it('Should set parse "_elements" as string array if has multiple values', () => {
-    const u = new OpraURL('/Person?_elements=id|name|age');
+    const u = new OpraURL('/Person?_elements=id,name,age');
     expect(u.searchParams.get('_elements')).toStrictEqual(['id', 'name', 'age']);
   })
 
@@ -136,7 +136,7 @@ describe('Parse url string', () => {
   })
 
   it('Should set parse "_exclude" as string array if has multiple values', () => {
-    const u = new OpraURL('/Person?_exclude=id|name|age');
+    const u = new OpraURL('/Person?_exclude=id,name,age');
     expect(u.searchParams.get('_exclude')).toStrictEqual(['id', 'name', 'age']);
   })
 
@@ -146,7 +146,7 @@ describe('Parse url string', () => {
   })
 
   it('Should set parse "_include" as string array if has multiple values', () => {
-    const u = new OpraURL('/Person?_include=id|name|age');
+    const u = new OpraURL('/Person?_include=id,name,age');
     expect(u.searchParams.get('_include')).toStrictEqual(['id', 'name', 'age']);
   })
 

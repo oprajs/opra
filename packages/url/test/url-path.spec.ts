@@ -14,15 +14,15 @@ describe('OpraURLPath', () => {
       const path = new OpraURLPath();
       path.add('Person', '1');
       expect(path.get(0)).toEqual({resource: 'Person', key: '1'});
-      expect(path.toString()).toStrictEqual('Person|1');
+      expect(path.toString()).toStrictEqual('Person@1');
       path.clear();
       path.add('Person', {a: '1', b: '2'});
       expect(path.get(0)).toEqual({resource: 'Person', key: {a: '1', b: '2'}});
-      expect(path.toString()).toStrictEqual('Person|a=1;b=2');
+      expect(path.toString()).toStrictEqual('Person@a=1;b=2');
       path.clear();
       path.add(new OpraURLPathComponent('Person', '1'));
       expect(path.get(0)).toEqual({resource: 'Person', key: '1'});
-      expect(path.toString()).toStrictEqual('Person|1');
+      expect(path.toString()).toStrictEqual('Person@1');
       path.clear();
     })
 

@@ -109,16 +109,16 @@ describe('URL build', () => {
     const u = new OpraURL()
       .addPath('Person', '1234');
     expect(u.path.get(0)).toEqual({resource: 'Person', key: '1234'});
-    expect(u.path.toString()).toEqual('Person|1234');
-    expect(u.pathname).toStrictEqual('/Person|1234')
+    expect(u.path.toString()).toEqual('Person@1234');
+    expect(u.pathname).toStrictEqual('/Person@1234')
   })
 
   it('Should add resource and object key', () => {
     const u = new OpraURL()
       .addPath('Person', {a: '1234', b: 'xyz'});
     expect(u.path.get(0)).toEqual({resource: 'Person', key: {a: '1234', b: 'xyz'}});
-    expect(u.path.toString()).toEqual('Person|a=1234;b=xyz');
-    expect(u.pathname).toStrictEqual('/Person|a=1234;b=xyz')
+    expect(u.path.toString()).toEqual('Person@a=1234;b=xyz');
+    expect(u.pathname).toStrictEqual('/Person@a=1234;b=xyz')
   })
 
   it('Should set search', () => {
@@ -184,7 +184,8 @@ describe('URL build', () => {
     const u = new OpraURL()
       .setHostname('localhost')
       .setElements('id', 'name');
-    expect(u.href).toStrictEqual('http://localhost?_elements=id|name');
+    expect(u.searchParams.get('_elements')).toStrictEqual(['id', 'name']);
+    expect(u.href).toStrictEqual('http://localhost?_elements=id,name');
     u.setElements();
     expect(u.href).toStrictEqual('http://localhost');
   })
@@ -193,7 +194,8 @@ describe('URL build', () => {
     const u = new OpraURL()
       .setHostname('localhost')
       .setExclude('id', 'name');
-    expect(u.href).toStrictEqual('http://localhost?_exclude=id|name');
+    expect(u.searchParams.get('_exclude')).toStrictEqual(['id', 'name']);
+    expect(u.href).toStrictEqual('http://localhost?_exclude=id,name');
     u.setExclude();
     expect(u.href).toStrictEqual('http://localhost');
   })
@@ -202,7 +204,8 @@ describe('URL build', () => {
     const u = new OpraURL()
       .setHostname('localhost')
       .setInclude('id', 'name');
-    expect(u.href).toStrictEqual('http://localhost?_include=id|name');
+    expect(u.searchParams.get('_include')).toStrictEqual(['id', 'name']);
+    expect(u.href).toStrictEqual('http://localhost?_include=id,name');
     u.setInclude();
     expect(u.href).toStrictEqual('http://localhost');
   })
