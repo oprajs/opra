@@ -8,6 +8,7 @@ import {IntegerFormat} from './formats/integer-format';
 import {NumberFormat} from './formats/number-format';
 import {StringFormat} from './formats/string-format';
 import {nodeInspectCustom} from './types';
+import {unquoteQueryString} from './utils/string-utils';
 import {encodeQueryComponent} from './utils/url-utils';
 
 const QUERYMETADATA_KEY = Symbol.for('opra.url.querymetadata');
@@ -154,16 +155,16 @@ export class OpraURLSearchParams extends EventEmitter {
       input = input.substring(1);
     if (!input)
       return;
-    const tokenizer = tokenize(input, {delimiters: '&', quotes: false, brackets: false});
+    const tokenizer = tokenize(input, {delimiters: '&', quotes: true, brackets: true});
     for (const token of tokenizer) {
       const itemTokenizer = tokenize(token, {
         delimiters: '=',
-        quotes: false,
-        brackets: false,
+        quotes: true,
+        brackets: true,
       });
       const k = decodeURIComponent(itemTokenizer.next() || '');
-      const values = splitString(itemTokenizer.join('='), {delimiters: '|', brackets: false, quotes: false})
-        .map(decodeURIComponent);
+      const values = splitString(itemTokenizer.join('='), {delimiters: ',', brackets: true, quotes: true})
+        .map((x) => unquoteQueryString(decodeURIComponent(x)));
       this._add(k, values.length > 1 ? values : values[0] || '');
     }
     this.emit('change');

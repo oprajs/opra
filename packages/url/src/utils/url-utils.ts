@@ -1,5 +1,6 @@
 import {splitString} from 'fast-tokenizer';
 import {ResourceKey} from '../types';
+import {quoteQueryString} from './string-utils';
 
 export function joinPath(...p: string[]) {
   const out: string[] = [];
@@ -23,9 +24,9 @@ export function normalizePath(p: string, noLeadingSlash?: boolean): string {
 }
 
 
-const pathComponentRegEx = /^([^|/?#]+)(?:\|(.*))?$/;
+const pathComponentRegEx = /^([^/?#@]+)(?:@(.*))?$/;
 
-export function decodePathComponent(input: string): {resource: string, key?: ResourceKey} {
+export function decodePathComponent(input: string): { resource: string, key?: ResourceKey } {
   const m = pathComponentRegEx.exec(input);
   if (!m)
     throw Object.assign(
@@ -75,7 +76,7 @@ export function encodePathComponent(resource: string, key?: ResourceKey): string
       keyString = arr.join(';');
     } else keyString = encodeURIComponent('' + key);
   }
-  return encodeURIComponent(resource) + (keyString ? '|' + keyString : '');
+  return encodeURIComponent(resource) + (keyString ? '@' + keyString : '');
 }
 
 const invalidQueryCharsRegEx = /[#&%|\\\n\r\t]/g;
@@ -86,12 +87,12 @@ const encodeQueryComponentReplaces = (c) => {
 export function encodeQueryComponent(name: string, value?: string | string[]): string {
   if (name == null || name === '')
     return '';
-  let out = ('' + name).replace(invalidQueryCharsRegEx, encodeQueryComponentReplaces);
+  let out = quoteQueryString(('' + name).replace(invalidQueryCharsRegEx, encodeQueryComponentReplaces));
   if (value) {
     out += '=' +
       (Array.isArray(value) ? value : [value]).map(
-        x => ('' + x).replace(invalidQueryCharsRegEx, encodeQueryComponentReplaces)
-      ).join('|');
+        x => quoteQueryString(('' + x).replace(invalidQueryCharsRegEx, encodeQueryComponentReplaces))
+      ).join(',');
   }
   return out;
 }

@@ -11,10 +11,12 @@ describe('OpraURLSearchParams', function () {
 
   it('Should parse array parameters', () => {
     const u = new OpraURLSearchParams();
-    u.parse('prm1=a%26b|a%23b');
-    expect(u.size).toStrictEqual(1);
+    u.parse('prm1=a%26b,a%23b');
     expect(u.get('prm1')).toStrictEqual(["a&b", "a#b"]);
-    expect(u.toString()).toStrictEqual('prm1=a%26b|a%23b');
+    expect(u.toString()).toStrictEqual('prm1=a%26b,a%23b');
+    u.parse('prm1=a,\'a,b\'');
+    expect(u.get('prm1')).toStrictEqual(["a", "a,b"]);
+    expect(u.toString()).toStrictEqual('prm1=a,\'a,b\'');
   })
 
   it('Should append entry', () => {
@@ -43,7 +45,7 @@ describe('OpraURLSearchParams', function () {
     u.set('prm1', 'a#b');
     expect(u.toString()).toStrictEqual('prm1=a%23b');
     u.set('prm1', ['a&b', 'a#b']);
-    expect(u.toString()).toStrictEqual('prm1=a%26b|a%23b');
+    expect(u.toString()).toStrictEqual('prm1=a%26b,a%23b');
   })
 
   it('Should clear', () => {

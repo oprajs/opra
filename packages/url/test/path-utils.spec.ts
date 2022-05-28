@@ -44,20 +44,20 @@ describe('Path utils', function () {
     })
 
     it('Should decode path component with key', () => {
-      expect(decodePathComponent('Person|abc')).toEqual({resource: 'Person', key: 'abc'});
+      expect(decodePathComponent('Person@abc')).toEqual({resource: 'Person', key: 'abc'});
     })
 
     it('Should decode path component with object key', () => {
-      expect(decodePathComponent('Person|a=1;b=2')).toEqual({resource: 'Person', key: {a: '1', b: '2'}});
+      expect(decodePathComponent('Person@a=1;b=2')).toEqual({resource: 'Person', key: {a: '1', b: '2'}});
     })
 
     it('Should decode percent encoded value', () => {
-      expect(decodePathComponent('Person|' + encodeURIComponent('a&b&c')))
+      expect(decodePathComponent('Person@' + encodeURIComponent('a&b&c')))
         .toEqual({resource: 'Person', key: 'a&b&c'});
     })
 
     it('Should validate', () => {
-      expect(() => decodePathComponent('/Person|a')).toThrow('Invalid');
+      expect(() => decodePathComponent('/Person@a')).toThrow('Invalid');
     })
   })
 
@@ -79,7 +79,7 @@ describe('Path utils', function () {
     })
 
     it('Should encode object value', () => {
-      expect(encodePathComponent('Person', {a: '1', b: 'abc'})).toStrictEqual('Person|a=1;b=abc');
+      expect(encodePathComponent('Person', {a: '1', b: 'abc'})).toStrictEqual('Person@a=1;b=abc');
     })
 
   })
