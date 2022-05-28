@@ -1,26 +1,31 @@
 import '../src';
 import i18next from 'i18next';
+import path from 'path';
 
 describe('I18next module augmentation', function () {
 
-  beforeAll(async () => await i18next.init({
-    defaultNS: 'translate',
-    lng: 'en',
-    resources: {
-      en: {
-        translate: {
-          'HELLO': 'Hello {{name}}',
-          'ok': 'ok',
-          'OK': 'OK',
+  beforeAll(async () => {
+    i18next.registerLocaleDir(path.join(__dirname, '_support/locale'));
+    await i18next.init({
+      defaultNS: 'translate',
+      lng: 'en',
+      resources: {
+        en: {
+          translate: {
+            'HELLO': 'Hello {{name}}',
+            'ok': 'ok',
+            'OK': 'OK',
+          }
+        },
+        fr: {
+          translate: {
+            'HELLO': 'Bonjour {{name}}'
+          }
         }
       },
-      fr: {
-        translate: {
-          'HELLO': 'Bonjour {{name}}'
-        }
-      }
-    }
-  }));
+      resourceDirs: [path.join(__dirname, '_support/locale2')]
+    })
+  });
 
   it('Should add "deep" method to i18next', async () => {
     expect(i18next.deep).toBeInstanceOf(Function);
@@ -67,6 +72,16 @@ describe('I18next module augmentation', function () {
 
   it('Should add "upperFirst" formatter', async () => {
     expect(i18next.deep('$t(ok, upperFirst)')).toStrictEqual('Ok');
+  })
+
+  it('Should load global registered locale directories', async () => {
+    await i18next.changeLanguage('tr');
+    expect(i18next.t('HELLO', {name: 'John'})).toStrictEqual('Merhaba John');
+  })
+
+  it('Should load given locale directories', async () => {
+    await i18next.changeLanguage('tr');
+    expect(i18next.t('OK')).toStrictEqual('TAMAM');
   })
 
 });
