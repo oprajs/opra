@@ -5,6 +5,8 @@ import {Translating} from '../src';
 
 describe('I18next module augmentation', function () {
 
+  afterEach(() => i18next.changeLanguage('en'));
+
   beforeAll(async () => {
     i18next.registerLocaleDir(path.join(__dirname, '_support/locale'));
     await i18next.init({
@@ -61,11 +63,18 @@ describe('I18next module augmentation', function () {
       .toStrictEqual({a: 'Hello Jena', b: 'Hello Mike', c: null, d: 1});
   })
 
-  it('Should "deep" ignore built-in objects', async () => {
+  it('Should "deep" method ignore built-in objects', async () => {
     const input = [Buffer.from(''), () => 0, Symbol('x'), /a/,
       new Map(), new Set(), new WeakMap(), new WeakSet()];
     expect(i18next.deep(input))
       .toStrictEqual(input);
+  })
+
+  it('Should "deep" method ignore using custom function', async () => {
+    const input = ['ok', 'OK'];
+    await i18next.changeLanguage('tr');
+    expect(i18next.deep(input, {ignore: (v) => v === 'OK'}))
+      .toStrictEqual(['tamam', 'OK']);
   })
 
   it('Should handle circular referenced objects', async () => {
@@ -101,6 +110,7 @@ describe('I18next module augmentation', function () {
   it('Should load given locale directories', async () => {
     await i18next.changeLanguage('tr');
     expect(i18next.t('OK')).toStrictEqual('TAMAM');
+
   })
 
 });

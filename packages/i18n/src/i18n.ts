@@ -123,7 +123,7 @@ function deepTranslate(inst: i18n, input: any, objectStack: WeakMap<object, any>
   if (input == null)
     return input;
 
-  if (options?.ignore && !options.ignore(input, inst))
+  if (options?.ignore && options.ignore(input, inst))
     return input;
 
   if (typeof input === 'object' && objectStack.has(input))
