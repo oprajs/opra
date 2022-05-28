@@ -199,9 +199,9 @@ describe('Parse url string', () => {
     expect(u.searchParams.get('_prm1')).toStrictEqual(5);
   })
 
-  it('Should initialize with uri and prefix', () => {
+  it('Should initialize with uri and pathPrefix', () => {
     const u = new OpraURL('http://anyuri.com/service', '/service');
-    expect(u.prefix).toStrictEqual('/service');
+    expect(u.pathPrefix).toStrictEqual('/service');
   })
 
   it('Should get origin', () => {

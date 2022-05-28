@@ -20,7 +20,7 @@ export class OpraURL {
     username: string;
     password: string;
     hostname: string;
-    prefix: string;
+    pathPrefix: string;
     port: number | null;
     hash: string;
     pathname: string;
@@ -30,7 +30,7 @@ export class OpraURL {
   protected [PATH_KEY]: OpraURLPath;
   protected [SEARCHPARAMS_KEY]: OpraURLSearchParams;
 
-  constructor(input?: string, prefix?: string) {
+  constructor(input?: string, pathPrefix?: string) {
     Object.defineProperty(this, CONTEXT_KEY, {
       writable: true,
       configurable: true,
@@ -59,8 +59,8 @@ export class OpraURL {
     this.defineSearchParam('_total', {format: 'boolean'});
     this.searchParams.on('change', () => this._invalidate());
     this.path.on('change', () => this._invalidate());
-    if (prefix)
-      this.setPrefix(prefix);
+    if (pathPrefix)
+      this.setPrefix(pathPrefix);
     if (input)
       this.parse(input);
   }
@@ -76,7 +76,7 @@ export class OpraURL {
             )
             : '') + this.host) : ''
       ) +
-      this.prefix + this.pathname + this.search + this.hash;
+      this.pathPrefix + this.pathname + this.search + this.hash;
   }
 
   get protocol(): string {
@@ -159,17 +159,17 @@ export class OpraURL {
     return this.hostname ? (this.protocol + '//' + this.hostname) : '';
   }
 
-  get prefix(): string {
-    return this[CONTEXT_KEY].prefix || '';
+  get pathPrefix(): string {
+    return this[CONTEXT_KEY].pathPrefix || '';
   }
 
-  set prefix(v: string) {
+  set pathPrefix(v: string) {
     if (!v) {
-      this[CONTEXT_KEY].prefix = '';
+      this[CONTEXT_KEY].pathPrefix = '';
       return;
     }
     v = tokenize(v, {delimiters: '#?', quotes: true, brackets: true}).next() || '';
-    this[CONTEXT_KEY].prefix = '/' + normalizePath(v, true);
+    this[CONTEXT_KEY].pathPrefix = '/' + normalizePath(v, true);
   }
 
   get path(): OpraURLPath {
@@ -237,7 +237,7 @@ export class OpraURL {
   }
 
   setPrefix(v: string): this {
-    this.prefix = v;
+    this.pathPrefix = v;
     return this;
   }
 
@@ -366,7 +366,7 @@ export class OpraURL {
       host: this.host,
       hostname: this.hostname,
       origin: this.origin,
-      prefix: this.prefix,
+      pathPrefix: this.pathPrefix,
       path: this.path,
       pathname: this.pathname,
       search: this.search,
@@ -396,13 +396,13 @@ export class OpraURL {
     const pathTokenizer = tokenize(normalizePath(v, true), {
       delimiters: '/', quotes: true, brackets: true,
     });
-    if (inclSvcRoot && this.prefix) {
-      const prefixTokenizer = tokenize(normalizePath(this.prefix, true), {
+    if (inclSvcRoot && this.pathPrefix) {
+      const prefixTokenizer = tokenize(normalizePath(this.pathPrefix, true), {
         delimiters: '/', quotes: true, brackets: true,
       });
       for (const x of prefixTokenizer) {
         if (x !== pathTokenizer.next())
-          throw Object.assign(new Error('Invalid URL path. Prefix does not match'),
+          throw Object.assign(new Error('Invalid URL path. pathPrefix does not match'),
             {path: v, code: 'ERR_INVALID_URL_PATH'});
       }
     }

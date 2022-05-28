@@ -69,24 +69,24 @@ describe('URL build', () => {
     expect(() => u.setHost('htp:invalidUrl')).toThrow('Invalid host');
   })
 
-  it('Should set prefix', () => {
+  it('Should set pathPrefix', () => {
     const u = new OpraURL()
       .setPrefix('/api/v1');
     expect(u.href).toStrictEqual('/api/v1');
-    u.prefix = 'api/v2/';
-    expect(u.prefix).toStrictEqual('/api/v2');
-    u.prefix = 'api/v1(a:"?")/';
-    expect(u.prefix).toStrictEqual('/api/v1(a:"?")');
-    u.prefix = '';
-    expect(u.prefix).toStrictEqual('');
+    u.pathPrefix = 'api/v2/';
+    expect(u.pathPrefix).toStrictEqual('/api/v2');
+    u.pathPrefix = 'api/v1(a:"?")/';
+    expect(u.pathPrefix).toStrictEqual('/api/v1(a:"?")');
+    u.pathPrefix = '';
+    expect(u.pathPrefix).toStrictEqual('');
   })
 
-  it('Should normalize prefix', () => {
+  it('Should normalize pathPrefix', () => {
     const u = new OpraURL();
-    u.prefix = 'api/v1/?a=1';
-    expect(u.prefix).toStrictEqual('/api/v1');
-    u.prefix = 'api/v1#hash';
-    expect(u.prefix).toStrictEqual('/api/v1');
+    u.pathPrefix = 'api/v1/?a=1';
+    expect(u.pathPrefix).toStrictEqual('/api/v1');
+    u.pathPrefix = 'api/v1#hash';
+    expect(u.pathPrefix).toStrictEqual('/api/v1');
   })
 
   it('Should set pathname', () => {
