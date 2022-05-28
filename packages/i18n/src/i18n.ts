@@ -1,9 +1,12 @@
 import i18next, {Callback, Formatter, i18n, InitOptions, TOptions} from 'i18next';
 import {isTranslation} from './translated-string';
 
+export type DeepOptions = TOptions & { ignore?: (input: any, inst: i18n) => boolean };
+
 declare module 'i18next' {
+
   interface i18n {
-    deep(input: any, options?: TOptions): any;
+    deep(input: any, options?: DeepOptions): any;
 
     loadResourceBundle(lng: string, ns: string, filePath: string,
                        deep?: boolean, overwrite?: boolean): Promise<void>;
@@ -82,6 +85,7 @@ function applyMixin(inst: i18n) {
     const fs = await import('fs/promises');
     const path = await import('path');
     for (const dirname of Array.isArray(dirnames) ? dirnames : [dirnames]) {
+      /* istanbul ignore next */
       if (!(await fs.stat(dirname)).isDirectory()) {
         // eslint-disable-next-line no-console
         console.warn(`Locale directory does not exists. (${dirname})`);
@@ -93,13 +97,11 @@ function applyMixin(inst: i18n) {
         if ((await fs.stat(langDir)).isDirectory()) {
           const nsDirs = await fs.readdir(langDir);
           for (const nsfile of nsDirs) {
-            const nsFile = path.join(langDir, nsfile);
+            const nsFilePath = path.join(langDir, nsfile);
             const ext = path.extname(nsfile);
-            const ns = path.basename(nsfile, ext);
-            if (ext === '.json' && (await fs.stat(nsFile)).isFile()) {
-              const content = await fs.readFile(nsFile, 'utf8');
-              const obj = JSON.parse(content);
-              i18next.addResourceBundle(lang, ns, obj, deep, overwrite);
+            if (ext === '.json' && (await fs.stat(nsFilePath)).isFile()) {
+              const ns = path.basename(nsfile, ext);
+              await inst.loadResourceBundle(lang, ns, nsFilePath, deep, overwrite);
             }
           }
         }
@@ -117,8 +119,11 @@ i18next.createInstance = function (options?: InitOptions, callback?: Callback): 
   return inst;
 }
 
-function deepTranslate(inst: i18n, input: any, objectStack: WeakMap<object, any>, options?: TOptions): any {
+function deepTranslate(inst: i18n, input: any, objectStack: WeakMap<object, any>, options?: DeepOptions): any {
   if (input == null)
+    return input;
+
+  if (options?.ignore && !options.ignore(input, inst))
     return input;
 
   if (typeof input === 'object' && objectStack.has(input))
@@ -138,6 +143,13 @@ function deepTranslate(inst: i18n, input: any, objectStack: WeakMap<object, any>
   }
 
   if (typeof input === 'object') {
+    if (Buffer.isBuffer(input))
+      return input;
+    if (Buffer.isBuffer(input) || input instanceof Symbol ||
+      input instanceof RegExp || input instanceof Map || input instanceof Set ||
+      input instanceof WeakMap || input instanceof WeakSet
+    ) return input;
+
     if (isTranslation(input)) {
       return inst.t(input.key, {...options, ...input.options});
     }

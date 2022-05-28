@@ -48,10 +48,10 @@
     "preclean": "rimraf build coverage",
     "clean": "rman run clean",
     "build": "rman build",
-    "test": "jest --passWithNoTests",
+    "test": "jest --passWithNoTests --detectOpenHandles",
     "precover": "rimraf coverage",
-    "cover": "jest --coverage -passWithNoTests",
+    "cover": "jest --passWithNoTests --detectOpenHandles --coverage",
     "precitest": "rimraf coverage",
-    "citest": "jest --coverage --coverageReporters=lcov"
+    "citest": "jest --passWithNoTests --detectOpenHandles --coverage --coverageReporters=lcov"
   }
 }

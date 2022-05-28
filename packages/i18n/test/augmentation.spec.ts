@@ -1,6 +1,7 @@
 import '../src';
 import i18next from 'i18next';
 import path from 'path';
+import {Translating} from '../src';
 
 describe('I18next module augmentation', function () {
 
@@ -33,6 +34,7 @@ describe('I18next module augmentation', function () {
 
   it('Should translate key using "deep" method', async () => {
     expect(i18next.deep('HELLO', {name: 'John'})).toStrictEqual('Hello John');
+    expect(i18next.deep(null)).toStrictEqual(null);
   })
 
   it('Should translate text using "deep" method', async () => {
@@ -47,6 +49,23 @@ describe('I18next module augmentation', function () {
   it('Should translate object using "deep" method', async () => {
     expect(i18next.deep({a: 'HELLO', b: '$t(HELLO). How are you'}, {name: 'John'}))
       .toStrictEqual({a: 'Hello John', b: 'Hello John. How are you'});
+  })
+
+  it('Should "deep" method translate Translating object within an object', async () => {
+    expect(i18next.deep({
+      a: Translating('$t(HELLO)', {name: 'Jena'}),
+      b: Translating('$t(HELLO)', {name: 'Mike'}),
+      c: null,
+      d: 1
+    }))
+      .toStrictEqual({a: 'Hello Jena', b: 'Hello Mike', c: null, d: 1});
+  })
+
+  it('Should "deep" ignore built-in objects', async () => {
+    const input = [Buffer.from(''), () => 0, Symbol('x'), /a/,
+      new Map(), new Set(), new WeakMap(), new WeakSet()];
+    expect(i18next.deep(input))
+      .toStrictEqual(input);
   })
 
   it('Should handle circular referenced objects', async () => {
