@@ -17,7 +17,8 @@ export interface TranslatingConstructor {
   (key: string | string[], options?: TOptions<Record<string, any>>): Translating;
 
   readonly prototype: Translating;
-  setI18n(inst: i18n):void;
+
+  setI18n(inst: i18n): void;
 }
 
 export const TranslatingConstructor = function (key, options) {
@@ -35,15 +36,16 @@ TranslatingConstructor.setI18n = function (inst: i18n) {
   currentInstance = inst;
 }
 
-
 TranslatingConstructor.prototype.toString = function () {
   return currentInstance.t(this.key, this.options);
 }
 
+/* istanbul ignore next */
 TranslatingConstructor.prototype.toJSON = function () {
   return this.toString();
 }
 
+/* istanbul ignore next */
 TranslatingConstructor.prototype[nodeInspectCustom] = function () {
   return this.toString();
 }
