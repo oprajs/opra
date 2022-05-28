@@ -1,4 +1,4 @@
-import {OpraURL} from '../src';
+import {OpraURL, parseFilter} from '../src';
 
 describe('URL build', () => {
 
@@ -149,6 +149,17 @@ describe('URL build', () => {
       .setHash('hash')
       .setHostname('www.anyuri.com');
     expect(u.href).toStrictEqual('http://www.anyuri.com#hash');
+  })
+
+  it('Should set _filter query param', () => {
+    const u = new OpraURL()
+      .setHostname('localhost')
+      .setFilter('a=1');
+    expect(u.href).toStrictEqual('http://localhost?_filter=a=1');
+    u.setFilter(parseFilter('a=1'));
+    expect(u.href).toStrictEqual('http://localhost?_filter=a=1');
+    u.setFilter();
+    expect(u.href).toStrictEqual('http://localhost');
   })
 
   it('Should set _limit query param', () => {

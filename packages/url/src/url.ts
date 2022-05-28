@@ -1,4 +1,5 @@
 import {splitString, tokenize} from 'fast-tokenizer';
+import {Expression} from './filter/ast';
 import {IntegerFormat} from './formats/integer-format';
 import {nodeInspectCustom, ResourceKey} from './types';
 import {OpraURLPath} from './url-path';
@@ -258,6 +259,15 @@ export class OpraURL {
 
   setSearchParam(name: string, value?: any): this {
     this.searchParams.set(name, value);
+    return this;
+  }
+
+  setFilter(v?: string | Expression): this {
+    if (v == null)
+      this.searchParams.delete('_filter');
+    else {
+      this.searchParams.set('_filter', v);
+    }
     return this;
   }
 
