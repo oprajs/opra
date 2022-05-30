@@ -53,5 +53,11 @@ export interface I18nInitOptions {
 
 
 export interface OpraModuleOptions {
+  servicePrefix?: string;
   i18n?: I18nInitOptions;
+}
+
+export interface OpraServiceConfig {
+  path?: string;
+  module: Type;
 }

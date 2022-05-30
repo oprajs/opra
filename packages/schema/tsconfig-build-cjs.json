@@ -3,7 +3,7 @@
   "compilerOptions": {
     "module": "CommonJS",
     "rootDir": "src",
-    "outDir": "../../build/i18n/cjs",
+    "outDir": "../../build/schema/cjs",
     "sourceMap": false,
     "noEmit": false,
     "declaration": false,

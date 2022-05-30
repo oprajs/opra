@@ -1,10 +1,10 @@
 import i18next from 'i18next';
 import {Test} from '@nestjs/testing';
-import {ApplicationModule} from './_support/photo-app/app.module';
-import {AsyncApplicationModule} from './_support/photo-app/app-async.module';
-import {AsyncOptionsClassModule} from './_support/photo-app/async-class-options.module';
-import {AsyncOptionsExistingModule} from './_support/photo-app/async-existing-options.module';
-import {AsyncOptionsFactoryModule} from './_support/photo-app/async-factory.module';
+import {ApplicationModule} from './_support/test-app/app.module';
+import {AsyncApplicationModule} from './_support/test-app/app-async.module';
+import {AsyncOptionsClassModule} from './_support/test-app/async-class-options.module';
+import {AsyncOptionsExistingModule} from './_support/test-app/async-existing-options.module';
+import {AsyncOptionsFactoryModule} from './_support/test-app/async-factory.module';
 
 describe('OpraModule', function () {
 

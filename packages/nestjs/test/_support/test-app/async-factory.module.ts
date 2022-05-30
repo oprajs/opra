@@ -1,13 +1,14 @@
 import {Module} from '@nestjs/common';
 import {OpraModule} from '@opra/nestjs';
-import {PhotoModule} from './photo/photo.module';
+import options from './opra-options';
+import {AirportsModule} from './svc1/airports/airports.module';
 
 @Module({
   imports: [
     OpraModule.forRootAsync({
-      useFactory: async () => ({}),
+      useFactory: async () => options,
     }),
-    PhotoModule,
+    AirportsModule,
   ],
 })
 export class AsyncOptionsFactoryModule {
