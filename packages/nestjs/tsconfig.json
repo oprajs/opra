@@ -4,9 +4,10 @@
     "baseUrl": "./",
     "paths": {
       "@opra/url": ["../url/src"],
-      "@opra/i18n": ["../i18n/src"]
+      "@opra/i18n": ["../i18n/src"],
+      "@opra/schema": ["../i18n/schema"]
     }
   },
   "include": ["src"],
-  "exclude": ["node_modules", "dist", "test", "bin"]
+  "exclude": ["node_modules", "dist", "bin"]
 }

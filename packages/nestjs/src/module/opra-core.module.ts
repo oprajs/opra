@@ -1,30 +1,38 @@
 import * as crypto from 'crypto';
 import i18next from 'i18next';
 import {DynamicModule, Global, Module, Provider} from '@nestjs/common';
-import {initI18n} from './init/init-i18n';
+import {APP_INTERCEPTOR} from '@nestjs/core';
+import {initI18n} from './init-i18n';
 import {OPRA_MODULE_OPTIONS, OPRA_MODULE_TOKEN} from './opra.constants';
+import {OpraInterceptor} from './opra.interceptor';
 import {I18n, OpraModuleAsyncOptions, OpraModuleOptions, OpraModuleOptionsFactory} from './opra.interface';
 
 @Global()
 @Module({})
 export class OpraCoreModule {
 
-  static forRoot(options?: OpraModuleOptions): DynamicModule {
+  static forRoot(options: OpraModuleOptions): DynamicModule {
     const optionsProvider: Provider = {
       provide: OPRA_MODULE_OPTIONS,
       useValue: options
     };
+    const interceptorProvider: Provider = {
+      provide: APP_INTERCEPTOR,
+      useClass: OpraInterceptor
+    };
     const i18nProvider: Provider = {
       provide: I18n,
       useFactory: async () => {
-        await initI18n(options?.i18n);
+        await initI18n(options.i18n);
         return i18next;
       }
     };
+
     return {
       module: OpraCoreModule,
-      providers: [optionsProvider, i18nProvider],
-      exports: [i18nProvider]
+      providers: [optionsProvider, interceptorProvider, i18nProvider],
+      exports: [i18nProvider, optionsProvider],
+      global: true
     };
   }
 
@@ -37,6 +45,10 @@ export class OpraCoreModule {
         return i18next;
       }
     };
+    const interceptorProvider: Provider = {
+      provide: APP_INTERCEPTOR,
+      useClass: OpraInterceptor
+    };
 
     const asyncProviders = this.createAsyncProviders(asyncOptions);
     return {
@@ -44,13 +56,15 @@ export class OpraCoreModule {
       imports: asyncOptions?.imports,
       providers: [
         ...asyncProviders,
+        interceptorProvider,
         i18nProvider,
         {
           provide: OPRA_MODULE_TOKEN,
           useValue: crypto.randomUUID()
         }
       ],
-      exports: [i18nProvider]
+      exports: [i18nProvider],
+      global: true
     };
   }
 

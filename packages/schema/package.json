@@ -1,14 +1,13 @@
 {
-  "name": "@opra/nestjs",
+  "name": "@opra/schema",
   "version": "0.0.1",
-  "description": "Opra NestJS module",
+  "description": "Opra schema package",
   "author": "Panates",
   "license": "MIT",
-  "private": true,
   "repository": {
     "type": "git",
     "url": "https://github.com/panates/opra.git",
-    "directory": "packages/nestjs"
+    "directory": "packages/schema"
   },
   "scripts": {
     "compile": "tsc",
@@ -16,32 +15,19 @@
     "build": "npm run build:cjs && npm run build:esm",
     "build:cjs": "tsc -b tsconfig-build-cjs.json",
     "build:esm": "tsc -b tsconfig-build-esm.json && tsc-esm -p tsconfig-build-esm.json",
-    "postbuild": "copyfiles README.md package.json ../../LICENSE ../../build/nestjs | cp ../../package.cjs.json ../../build/nestjs/cjs/package.json",
+    "postbuild": "copyfiles README.md package.json ../../LICENSE ../../build/schema | cp ../../package.cjs.json ../../build/schema/cjs/package.json",
     "lint": "eslint \"{src,test}/**/*.ts\" --no-error-on-unmatched-pattern",
     "test": "jest",
     "cover": "jest --collect-coverage",
     "check": "madge --circular src/**/*",
     "clean": "npm run clean:src | npm run clean:dist | npm run clean:cover",
     "clean:src": "ts-cleanup -s src --all",
-    "clean:dist": "rimraf ../../build/nestjs",
-    "clean:cover": "rimraf ../../coverage/nestjs"
+    "clean:dist": "rimraf ../../build/schema",
+    "clean:cover": "rimraf ../../coverage/schema"
   },
   "dependencies": {
-    "reflect-metadata": "^0.1.13",
-    "i18next": ">=21.0.0",
-    "@opra/url": "^0.x.x",
-    "@opra/i18n": "^0.x.x"
   },
   "peerDependencies": {
-    "@nestjs/common": "^8.x.x"
-  },
-  "devDependencies": {
-    "@nestjs/testing": "^8.4.5",
-    "@nestjs/platform-express": "^8.4.5",
-    "@types/underscore": "^1.11.4",
-    "filedirname": "^2.7.0",
-    "supertest": "^6.2.3",
-    "underscore": "^1.13.3"
   },
   "type": "module",
   "main": "cjs/index.js",
@@ -65,11 +51,6 @@
   ],
   "keywords": [
     "opra",
-    "url",
-    "query",
-    "parser",
-    "builder",
-    "http",
-    "web"
+    "schema"
   ]
 }

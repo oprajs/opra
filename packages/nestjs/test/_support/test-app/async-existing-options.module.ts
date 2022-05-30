@@ -4,11 +4,12 @@ import {
   OpraModuleOptions,
   OpraModuleOptionsFactory,
 } from '@opra/nestjs';
-import {PhotoModule} from './photo/photo.module';
+import options from './opra-options';
+import {AirportsModule} from './svc1/airports/airports.module';
 
 class ConfigService implements OpraModuleOptionsFactory {
   createOptions(): OpraModuleOptions {
-    return {};
+    return options;
   }
 }
 
@@ -25,7 +26,7 @@ class ConfigModule {
       imports: [ConfigModule],
       useExisting: ConfigService,
     }),
-    PhotoModule,
+    AirportsModule,
   ]
 })
 export class AsyncOptionsExistingModule {

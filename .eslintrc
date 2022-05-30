@@ -8,7 +8,9 @@
     {
       "files": [
         "**/*.ts",
-        "**/*.tsx"
+        "**/*.tsx",
+        "**/*.mts",
+        "**/*.cts"
       ],
       "extends": [
         "plugin:@typescript-eslint/recommended",
@@ -16,7 +18,7 @@
       ],
       "parser": "@typescript-eslint/parser",
       "parserOptions": {
-        "ecmaVersion": 2018,
+        "ecmaVersion": 2020,
         "project": "tsconfig.json",
         "sourceType": "module"
       },
@@ -145,7 +147,9 @@
     },
     {
       "files": [
-        "**/*.js"
+        "**/*.js",
+        "**/*.mjs",
+        "**/*.cjs"
       ],
       "env": {
         "node": true,

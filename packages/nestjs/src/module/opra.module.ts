@@ -4,17 +4,17 @@ import {OpraCoreModule} from './opra-core.module';
 
 @Module({})
 export class OpraModule {
-  static forRoot(options?: OpraModuleOptions): DynamicModule {
+  static forRoot(options: OpraModuleOptions): DynamicModule {
     return {
       module: OpraModule,
       imports: [OpraCoreModule.forRoot(options)]
     };
   }
 
-  static forRootAsync(options: OpraModuleAsyncOptions): DynamicModule {
+  static forRootAsync(asyncOptions: OpraModuleAsyncOptions): DynamicModule {
     return {
       module: OpraModule,
-      imports: [OpraCoreModule.forRootAsync(options)]
+      imports: [OpraCoreModule.forRootAsync(asyncOptions)]
     };
   }
 }

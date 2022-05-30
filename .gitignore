@@ -9,7 +9,9 @@ packages/*/node_modules
 env-dev.ts
 
 # Debug
-**/src/_debug.ts
+**/_debug.ts
+**/_debug.js
+support/esloader.mjs
 
 # Logs
 logs
