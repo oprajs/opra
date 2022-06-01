@@ -1,17 +1,11 @@
-import filedirname from 'filedirname'
-import path from 'path';
 import {Module} from '@nestjs/common';
 import {OpraModule} from '../../../src';
+import config from './opra-config.js';
 import {Service1RootModule} from './svc1/service-root.module';
 
 @Module({
   imports: [
-    OpraModule.forRoot({
-      servicePrefix: 'res',
-      i18n: {
-        resourceDirs: [path.join(filedirname()[1], 'locale')]
-      }
-    }),
+    OpraModule.forRoot(config),
     Service1RootModule,
   ]
 })
