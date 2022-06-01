@@ -1,6 +1,6 @@
 import * as I18next from 'i18next';
 import i18next, {FallbackLng} from 'i18next';
-import {Type} from '@nestjs/common';
+import {ExecutionContext, Type} from '@nestjs/common';
 import {ModuleMetadata} from '@nestjs/common/interfaces';
 
 export interface OpraModuleOptionsFactory {
@@ -55,6 +55,7 @@ export interface I18nInitOptions {
 export interface OpraModuleOptions {
   servicePrefix?: string;
   i18n?: I18nInitOptions;
+  context?: object | ((executionContext: ExecutionContext) => object | Promise<object>);
 }
 
 export interface OpraServiceConfig {

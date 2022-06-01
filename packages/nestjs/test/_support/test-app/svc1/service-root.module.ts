@@ -1,9 +1,9 @@
 import {Module} from '@nestjs/common';
-import {AirportsModule} from './airports/airports.module';
-import {CitiesModule} from './cities/cities.module';
+import {CustomerModule} from './customer/customer.module.js';
+import {CountryModule} from './country/country.module.js';
 
 @Module({
-  imports: [AirportsModule, CitiesModule],
+  imports: [CustomerModule, CountryModule],
 })
 export class Service1RootModule {
 }

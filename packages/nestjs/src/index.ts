@@ -1,16 +1,7 @@
-export * from './constants';
-export * from './common/request';
+export * from './constants.js';
+export * from './common/request-node.js';
+export * from './module/opra.interface.js';
+export * from './module/opra.module.js';
 
-export * from './decorators/api/controller.decorator';
-export * from './decorators/api/list.decorator';
-export * from './decorators/api/request.decorator';
+export * as api from './decorators/api.ns';
 
-export * from './module/opra.interface';
-export * from './module/opra.module';
-
-import * as _Api from './decorators/api';
-
-export namespace Opra {
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  export import Api = _Api;
-}
