@@ -4,55 +4,79 @@ export const nodeInspectCustom = Symbol.for('nodejs.util.inspect.custom');
 
 let currentInstance: i18n = i18next;
 
-interface Translating {
+interface Translation {
   key: string | string[];
+  defaultText?: string;
   options?: TOptions<Record<string, any>>;
+
+  toString(): string;
 
   toJSON(): string;
 }
 
-export interface TranslatingConstructor {
-  new(key: string | string[], options?: TOptions<Record<string, any>>): Translating;
+interface TranslationConstructor {
+  key: string | string[];
+  defaultText?: string;
+  options?: TOptions<Record<string, any>>;
 
-  (key: string | string[], options?: TOptions<Record<string, any>>): Translating;
+  new(key: string | string[], options?: TOptions<Record<string, any>>): Translation;
 
-  readonly prototype: Translating;
+  new(key: string | string[], defaultText: string, options?: TOptions<Record<string, any>>): Translation;
+
+  (key: string | string[], options?: TOptions<Record<string, any>>): Translation;
+
+  (key: string | string[], defaultText: string, options?: TOptions<Record<string, any>>): Translation;
+
+  readonly prototype: Translation;
 
   setI18n(inst: i18n): void;
+
+  toString(): string;
+
+  toJSON(): string;
 }
 
-export const TranslatingConstructor = function (key, options) {
+const TranslationConstructor = function (key: string, ...args: any[]) {
   // @ts-ignore
-  if (!(this instanceof Translating))
+  if (!(this instanceof Translation))
     // @ts-ignore
-    return new Translating(key, options) as void;
+    return new Translation(key, ...args) as void;
   // @ts-ignore
-  this.key = key;
-  // @ts-ignore
-  this.options = options;
-} as TranslatingConstructor;
+  const _this: Translation = this;
+  _this.key = key;
+  _this.defaultText = typeof args[0] === 'string' ? args[0] : undefined;
+  _this.options = typeof args[0] === 'object' ? args[0] : args[1];
+} as TranslationConstructor;
 
-TranslatingConstructor.setI18n = function (inst: i18n) {
+TranslationConstructor.setI18n = function (inst: i18n) {
   currentInstance = inst;
 }
 
-TranslatingConstructor.prototype.toString = function () {
-  return currentInstance.t(this.key, this.options);
+TranslationConstructor.prototype.toString = function () {
+  const keys = Array.isArray(this.key)
+    ? [...this.key, this.defaultText || '']
+    : [this.key, this.defaultText || ''];
+  return currentInstance.t(keys, this.options);
 }
 
 /* istanbul ignore next */
-TranslatingConstructor.prototype.toJSON = function () {
+TranslationConstructor.prototype.toJSON = function () {
   return this.toString();
 }
 
 /* istanbul ignore next */
-TranslatingConstructor.prototype[nodeInspectCustom] = function () {
+TranslationConstructor.prototype[nodeInspectCustom] = function () {
   return this.toString();
 }
 
-export const Translating = TranslatingConstructor;
+const Translation = TranslationConstructor;
+Object.defineProperty(Translation, 'name', {
+  value: 'Translation'
+});
 
-export function isTranslation(obj: any): obj is Translating {
-  return obj && (obj instanceof Translating ||
-    Object.getPrototypeOf(obj).constructor.name === 'Translating');
+export {Translation};
+
+export function isTranslation(obj: any): obj is Translation {
+  return obj && (obj instanceof Translation ||
+    Object.getPrototypeOf(obj).constructor.name === 'Translation');
 }
