@@ -5,7 +5,6 @@ const packageName = packageJson.name;
 
 module.exports = {
   ...base,
-  name: packageName,
   displayName: packageName,
   coveragePathIgnorePatterns: [
     ...base.coveragePathIgnorePatterns,

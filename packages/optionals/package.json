@@ -1,0 +1,56 @@
+{
+  "name": "@opra/optionals",
+  "version": "0.0.1",
+  "description": "Optional dependency imports",
+  "author": "Panates",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/panates/opra.git",
+    "directory": "packages/optionals"
+  },
+  "scripts": {
+    "prebuild": "npm run lint | npm run clean",
+    "build": "cp lib ../../build/optionals",
+    "postbuild": "copyfiles README.md package.json ../../LICENSE ../../build/i18n | cp lib ../../build/optionals",
+    "lint": "eslint \"{src,test}/**/*.ts\" --no-error-on-unmatched-pattern",
+    "test": "jest",
+    "cover": "jest --collect-coverage",
+    "check": "madge --circular src/**/*",
+    "clean": "npm run clean:dist | npm run clean:cover",
+    "clean:dist": "rimraf ../../build/optionals",
+    "clean:cover": "rimraf ../../coverage/optionals"
+  },
+  "dependencies": {
+  },
+  "devDependencies": {
+    "class-validator": "^0.13.2",
+    "@nestjs/common": "^8.4.7"
+  },
+  "type": "module",
+  "main": "cjs/index.js",
+  "module": "esm/index.mjs",
+  "types": "esm/index.d.ts",
+  "exports": {
+    ".": {
+      "require":  "./cjs/index.js",
+      "default": "./esm/index.mjs"
+    },
+    "./cjs": "./cjs/index.js",
+    "./esm": "./esm/index.mjs"
+  },
+  "engines": {
+    "node": ">=14.0",
+    "npm": ">=7.0.0"
+  },
+  "files": [
+    "cjs/",
+    "esm/",
+    "LICENSE",
+    "README.md"
+  ],
+  "keywords": [
+    "opra",
+    "dependencies"
+  ]
+}

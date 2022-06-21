@@ -9,7 +9,7 @@ export class OpraURLPath extends EventEmitter {
     super();
   }
 
-  get length(): number {
+  get size(): number {
     return this._entries.length;
   }
 
@@ -34,12 +34,38 @@ export class OpraURLPath extends EventEmitter {
     return this._entries[index];
   }
 
-  entries(): IterableIterator<[string, ResourceKey]> {
-    const items: [string, ResourceKey | undefined][] = [];
-    this.forEach((name: string, key: ResourceKey) => {
-      items.push([name, key]);
-    });
-    return items.values();
+  entries(): IterableIterator<[OpraURLPathComponent, number]> {
+    let i = -1;
+    const arr = [...this._entries];
+    return {
+      [Symbol.iterator]() {
+        return this;
+      },
+      next() {
+        i++;
+        return {
+          done: i >= arr.length,
+          value: [arr[i], i]
+        }
+      }
+    };
+  }
+
+  values(): IterableIterator<OpraURLPathComponent> {
+    let i = -1;
+    const arr = [...this._entries];
+    return {
+      [Symbol.iterator]() {
+        return this;
+      },
+      next() {
+        i++;
+        return {
+          done: i >= arr.length,
+          value: arr[i]
+        }
+      }
+    };
   }
 
   forEach(callback: (name: string, key: ResourceKey, _this: this) => void) {
@@ -62,7 +88,7 @@ export class OpraURLPath extends EventEmitter {
     return this._entries.map(x => '' + x).join('/');
   }
 
-  [Symbol.iterator](): IterableIterator<[string, any]> {
+  [Symbol.iterator](): IterableIterator<[OpraURLPathComponent, number]> {
     return this.entries();
   }
 

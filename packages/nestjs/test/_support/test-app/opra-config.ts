@@ -3,7 +3,8 @@ import path from 'path';
 import {OpraModuleOptions} from '../../../src/index.js';
 
 const config: OpraModuleOptions = {
-  servicePrefix: 'res',
+  prefix: '',
+  name: '',
   i18n: {
     resourceDirs: [path.join(filedirname()[1], 'locale')]
   },

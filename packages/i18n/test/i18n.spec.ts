@@ -29,35 +29,30 @@ describe('I18n', function () {
   });
 
   it('Should translate nested text', async () => {
-    expect(i18n.any(translate('HELLO', {name: 'John'}))).toStrictEqual('Hello John');
-    expect(i18n.any(null)).toStrictEqual(null);
+    expect(i18n.deep(translate('HELLO', {name: 'John'}))).toStrictEqual('Hello John');
+    expect(i18n.deep(null)).toStrictEqual(null);
   })
 
   it('Should translate to fallback string if key not found', async () => {
-    expect(i18n.any(translate('HI', {name: 'John'}, 'Hi (there)'))).toStrictEqual('Hi (there)');
+    expect(i18n.deep(translate('HI', {name: 'John'}, 'Hi (there)'))).toStrictEqual('Hi (there)');
   })
 
-  it('Should translate key using "any" method', async () => {
-    expect(i18n.any('$t(HELLO)', {name: 'John'})).toStrictEqual('Hello John');
-    expect(i18n.any(null)).toStrictEqual(null);
+  it('Should translate text using "deep" method', async () => {
+    expect(i18n.deep('$t(HELLO). How are you', {name: 'John'})).toStrictEqual('Hello John. How are you');
   })
 
-  it('Should translate text using "any" method', async () => {
-    expect(i18n.any('$t(HELLO). How are you', {name: 'John'})).toStrictEqual('Hello John. How are you');
-  })
-
-  it('Should translate array using "any" method', async () => {
-    expect(i18n.any(['HELLO', '$t(HELLO). How are you'], {name: 'John'}))
+  it('Should translate array using "deep" method', async () => {
+    expect(i18n.deep(['HELLO', '$t(HELLO). How are you'], {name: 'John'}))
       .toStrictEqual(['HELLO', 'Hello John. How are you']);
   })
 
-  it('Should translate object using "any" method', async () => {
-    expect(i18n.any({a: 'HELLO', b: '$t(HELLO). How are you'}, {name: 'John'}))
+  it('Should translate object using "deep" method', async () => {
+    expect(i18n.deep({a: 'HELLO', b: '$t(HELLO). How are you'}, {name: 'John'}))
       .toStrictEqual({a: 'HELLO', b: 'Hello John. How are you'});
   })
 
-  it('Should "any" method translate Translating object within an object', async () => {
-    expect(i18n.any({
+  it('Should "deep" method translate Translating object within an object', async () => {
+    expect(i18n.deep({
       a: translate('HELLO', {name: 'Jena'}),
       b: translate('HELLO', {name: 'Mike'}),
       c: null,
@@ -66,17 +61,17 @@ describe('I18n', function () {
       .toStrictEqual({a: 'Hello Jena', b: 'Hello Mike', c: null, d: 1});
   })
 
-  it('Should "any" method ignore built-in objects', async () => {
+  it('Should "deep" method ignore built-in objects', async () => {
     const input = [Buffer.from(''), () => 0, Symbol('x'), /a/,
       new Map(), new Set(), new WeakMap(), new WeakSet()];
-    expect(i18n.any(input))
+    expect(i18n.deep(input))
       .toStrictEqual(input);
   })
 
-  it('Should "any" method ignore key using custom function', async () => {
+  it('Should "deep" method ignore key using custom function', async () => {
     const input = ['$t(ok)', '$t(OK)'];
     await i18n.changeLanguage('tr');
-    expect(i18n.any(input, {ignore: (v) => v === '$t(OK)'}))
+    expect(i18n.deep(input, {ignore: (v) => v === '$t(OK)'}))
       .toStrictEqual(['tamam', '$t(OK)']);
   })
 
@@ -89,20 +84,20 @@ describe('I18n', function () {
     const dst2: any = {b: 'Hello John. How are you'};
     dst1.b = dst2;
     dst2.a = dst1;
-    expect(i18n.any(src1, {name: 'John'}))
+    expect(i18n.deep(src1, {name: 'John'}))
       .toStrictEqual(dst1);
   })
 
   it('Should add "lowercase" formatter', async () => {
-    expect(i18n.any('$t(OK, lowercase)')).toStrictEqual('ok');
+    expect(i18n.deep('$t(OK, lowercase)')).toStrictEqual('ok');
   })
 
   it('Should add "uppercase" formatter', async () => {
-    expect(i18n.any('$t(ok, uppercase)')).toStrictEqual('OK');
+    expect(i18n.deep('$t(ok, uppercase)')).toStrictEqual('OK');
   })
 
   it('Should add "upperFirst" formatter', async () => {
-    expect(i18n.any('$t(ok, upperFirst)')).toStrictEqual('Ok');
+    expect(i18n.deep('$t(ok, upperFirst)')).toStrictEqual('Ok');
   })
 
   it('Should load global registered locale directories', async () => {

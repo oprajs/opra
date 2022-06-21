@@ -1,0 +1,16 @@
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "module": "ESNext",
+    "rootDir": "src",
+    "outDir": "../../build/core/esm",
+    "paths": {
+      "@opra/i18n": ["../../build/i18n"],
+      "@opra/common": ["../../build/common"],
+      "@opra/url": ["../../build/url"]
+    },
+    "sourceMap": false,
+    "noEmit": false,
+    "declaration": false
+  }
+}

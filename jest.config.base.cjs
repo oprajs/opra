@@ -1,8 +1,8 @@
 module.exports = {
   preset: 'ts-jest',
   testEnvironment: 'node',
-  "verbose": true,
-  "forceExit": true,
+  'verbose': true,
+  'forceExit': true,
   coveragePathIgnorePatterns: [
     '<rootDir>/build/',
     '<rootDir>/dist/',
@@ -11,12 +11,14 @@ module.exports = {
   ],
   coverageReporters: ['lcov', 'text'],
   globals: {
-    "ts-jest": {
-      "isolatedModules": false,
-      "tsconfig": '<rootDir>/test/tsconfig.json'
+    'ts-jest': {
+      'isolatedModules': false,
+      'preferTsExts': true,
+      'tsconfig': '<rootDir>/test/tsconfig.json'
     }
   },
   moduleNameMapper: {
-    '^@opra/(.*)$': ['<rootDir>/../$1/src']
-  },
+    '^@opra/(.*)$': ['<rootDir>/../$1/src'],
+    "(\\..+)\\.js": "$1"
+  }
 };

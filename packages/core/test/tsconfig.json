@@ -1,0 +1,12 @@
+{
+  "extends": "../../../tsconfig-base.json",
+  "include": ["**/*.ts"],
+  "compilerOptions": {
+    "strict": false,
+    "noEmit": true,
+    "baseUrl": "./",
+    "paths": {
+      "@opra/*": ["../../*/src"],
+    }
+  }
+}

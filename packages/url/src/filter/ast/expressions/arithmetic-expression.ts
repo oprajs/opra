@@ -30,7 +30,7 @@ export class ArithmeticExpressionItem {
   op!: ArithmeticOperator;
   expression!: Expression;
 
-  constructor(o: Omit<ArithmeticExpressionItem, 'type'>) {
+  constructor(o: ArithmeticExpressionItem) {
     Object.assign(this, o);
   }
 
