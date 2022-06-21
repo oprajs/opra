@@ -47,6 +47,7 @@ describe('Parse url string', () => {
   it('Should parse path without domain', () => {
     const u = new OpraURL('/Person');
     expect(u.path.get(0)).toEqual({resource: 'Person'});
+    expect(u.pathname).toStrictEqual('/Person');
     expect(u.href).toStrictEqual('/Person');
   })
 

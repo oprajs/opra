@@ -3,9 +3,10 @@
   "compilerOptions": {
     "baseUrl": "./",
     "paths": {
-      "@opra/url": ["../url/src"],
       "@opra/i18n": ["../i18n/src"],
-      "@opra/schema": ["../i18n/schema"]
+      "@opra/url": ["../url/src"],
+      "@opra/common": ["../common/src"],
+      "@opra/core": ["../core/src"]
     }
   },
   "include": ["src"],

@@ -1,0 +1,69 @@
+{
+  "name": "@opra/core",
+  "version": "0.0.1",
+  "description": "Opra schema package",
+  "author": "Panates",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/panates/opra.git",
+    "directory": "packages/core"
+  },
+  "scripts": {
+    "compile": "tsc",
+    "prebuild": "npm run check | npm run lint | npm run clean",
+    "build": "npm run build:cjs && npm run build:esm",
+    "build:cjs": "tsc -b tsconfig-build-cjs.json",
+    "build:esm": "tsc -b tsconfig-build-esm.json && tsc-esm -p tsconfig-build-esm.json",
+    "postbuild": "copyfiles README.md package.json ../../LICENSE ../../build/core | cp ../../package.cjs.json ../../build/core/cjs/package.json",
+    "lint": "eslint \"{src,test}/**/*.ts\" --no-error-on-unmatched-pattern",
+    "test": "jest",
+    "cover": "jest --collect-coverage",
+    "check": "madge --circular src/**/*",
+    "clean": "npm run clean:src | npm run clean:dist | npm run clean:cover",
+    "clean:src": "ts-cleanup -s src --all",
+    "clean:dist": "rimraf ../../build/core",
+    "clean:cover": "rimraf ../../coverage/core"
+  },
+  "dependencies": {
+    "@opra/i18n": "0.x.x",
+    "@opra/common": "0.x.x",
+    "ts-gems": "^2.1.0",
+    "class-transformer": "^0.5.1",
+    "class-validator": "^0.13.2",
+    "lodash": "^4.17.21",
+    "putil-isplainobject": "^1.1.4"
+  },
+  "devDependencies": {
+    "@types/express": "^4.17.13"
+  },
+  "peerDependencies": {
+  },
+  "type": "module",
+  "main": "cjs/index.js",
+  "module": "esm/index.mjs",
+  "types": "esm/index.d.ts",
+  "exports": {
+    ".": {
+      "require":  "./cjs/index.js",
+      "default": "./esm/index.mjs"
+    },
+    "./cjs": "./cjs/index.js",
+    "./esm": "./esm/index.mjs"
+  },
+  "engines": {
+    "node": ">=14.0",
+    "npm": ">=7.0.0"
+  },
+  "files": [
+    "bin/",
+    "cjs/",
+    "esm/",
+    "LICENSE",
+    "README.md"
+  ],
+  "keywords": [
+    "opra",
+    "schema"
+  ]
+}

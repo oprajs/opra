@@ -27,10 +27,13 @@
     "clean:cover": "rimraf ../../coverage/nestjs"
   },
   "dependencies": {
-    "reflect-metadata": "^0.1.13",
-    "i18next": ">=21.0.0",
     "@opra/url": "^0.x.x",
-    "@opra/i18n": "^0.x.x"
+    "@opra/i18n": "^0.x.x",
+    "@opra/core": "^0.x.x",
+    "@opra/common": "^0.x.x",
+    "lodash": "^4.17.21",
+    "i18next": ">=21.0.0",
+    "reflect-metadata": "^0.1.13"
   },
   "peerDependencies": {
     "@nestjs/common": "^8.x.x"
@@ -38,17 +41,19 @@
   "devDependencies": {
     "@nestjs/testing": "^8.4.5",
     "@nestjs/platform-express": "^8.4.5",
-    "@types/underscore": "^1.11.4",
+    "@types/lodash": "^4.14.182",
     "filedirname": "^2.7.0",
-    "supertest": "^6.2.3",
-    "underscore": "^1.13.3"
+    "supertest": "^6.2.3"
   },
   "type": "module",
   "main": "cjs/index.js",
   "module": "esm/index.mjs",
   "types": "esm/index.d.ts",
   "exports": {
-    ".": "./cjs/index.js",
+    ".": {
+      "require":  "./cjs/index.js",
+      "default": "./esm/index.mjs"
+    },
     "./cjs": "./cjs/index.js",
     "./esm": "./esm/index.mjs"
   },

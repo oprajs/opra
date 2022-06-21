@@ -1,7 +1,8 @@
-export * from './constants.js';
-export * from './common/request-node.js';
-export * from './module/opra.interface.js';
-export * from './module/opra.module.js';
+import 'reflect-metadata';
 
-export * as api from './decorators/api.ns';
+export * from './interfaces/opra-module-options.interface.js';
+export * from './opra.module.js';
+
+
+// export * as Api from './decorators/api.ns.js';
 

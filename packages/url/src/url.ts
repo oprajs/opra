@@ -75,7 +75,8 @@ export class OpraURL {
               (this.username ? encodeURIComponent(this.username) : '') +
               (this.password ? ':' + encodeURIComponent(this.password) : '') + '@'
             )
-            : '') + this.host) : ''
+            : '') + this.host
+        ) : ''
       ) +
       this.pathPrefix + this.pathname + this.search + this.hash;
   }
@@ -169,8 +170,8 @@ export class OpraURL {
       this[CONTEXT_KEY].pathPrefix = '';
       return;
     }
-    v = tokenize(v, {delimiters: '#?', quotes: true, brackets: true}).next() || '';
-    this[CONTEXT_KEY].pathPrefix = '/' + normalizePath(v, true);
+    v = normalizePath(tokenize(v, {delimiters: '#?', quotes: true, brackets: true}).next() || '', true);
+    this[CONTEXT_KEY].pathPrefix = v ? '/' + v : '';
   }
 
   get path(): OpraURLPath {

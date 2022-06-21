@@ -13,7 +13,7 @@ export function joinPath(...p: string[]) {
   return out.join('/');
 }
 
-export function normalizePath(p: string, noLeadingSlash?: boolean): string {
+export function normalizePath(p?: string, noLeadingSlash?: boolean): string {
   if (!p)
     return '';
   while (noLeadingSlash && p.startsWith('/'))

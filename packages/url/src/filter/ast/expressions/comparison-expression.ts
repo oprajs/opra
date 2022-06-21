@@ -1,3 +1,4 @@
+import {StrictOmit} from 'ts-gems';
 import {Expression} from '../abstract/expression';
 
 export type ComparisonOperator = '<=' | '<' | '>' | '>=' | '=' | '!='
@@ -9,7 +10,7 @@ export class ComparisonExpression extends Expression {
   left!: Expression;
   right!: Expression;
 
-  constructor(o: Omit<ComparisonExpression, 'type'>) {
+  constructor(o: StrictOmit<ComparisonExpression, 'type'>) {
     super();
     Object.assign(this, o);
   }

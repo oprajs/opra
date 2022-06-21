@@ -5,9 +5,10 @@
     "rootDir": "src",
     "outDir": "../../build/nestjs/cjs",
     "paths": {
-      "@opra/url": ["../../build/url"],
       "@opra/i18n": ["../../build/i18n"],
-      "@opra/schema": ["../../build/schema"]
+      "@opra/url": ["../../build/url"],
+      "@opra/common": ["../../build/schema"],
+      "@opra/core": ["../../build/core"]
     },
     "sourceMap": false,
     "noEmit": false,

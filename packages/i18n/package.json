@@ -26,7 +26,7 @@
     "clean:cover": "rimraf ../../coverage/i18n"
   },
   "dependencies": {
-    "ts-gems": "^2.0.0",
+    "ts-gems": "^2.1.0",
     "fast-tokenizer": "^1.1.0"
   },
   "peerDependencies": {
@@ -37,7 +37,10 @@
   "module": "esm/index.mjs",
   "types": "esm/index.d.ts",
   "exports": {
-    ".": "./cjs/index.js",
+    ".": {
+      "require":  "./cjs/index.js",
+      "default": "./esm/index.mjs"
+    },
     "./cjs": "./cjs/index.js",
     "./esm": "./esm/index.mjs"
   },

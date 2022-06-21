@@ -1,7 +1,7 @@
 import {Literal} from '../abstract/literal';
 
 export class BooleanLiteral extends Literal {
-  value!: boolean;
+  declare value: boolean;
 
   constructor(value: boolean) {
     super(value);

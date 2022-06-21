@@ -1,7 +1,7 @@
 import {Term} from './term';
 
 export abstract class Literal extends Term {
-  value: any;
+  declare value: any;
 
   protected constructor(value: any) {
     super();
