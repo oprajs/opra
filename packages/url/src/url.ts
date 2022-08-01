@@ -1,10 +1,10 @@
-import {splitString, tokenize} from 'fast-tokenizer';
-import {Expression} from './filter/ast';
-import {IntegerFormat} from './formats/integer-format';
-import {nodeInspectCustom, ResourceKey} from './types';
-import {OpraURLPath} from './url-path';
-import {OpraURLSearchParams, QueryItemMetadata} from './url-search-params';
-import {decodePathComponent, normalizePath} from './utils/url-utils';
+import { splitString, tokenize } from 'fast-tokenizer';
+import { Expression } from './filter/ast';
+import { IntegerFormat } from './formats/integer-format';
+import { nodeInspectCustom, ResourceKey } from './types';
+import { OpraURLPath } from './url-path';
+import { OpraURLSearchParams, QueryItemMetadata } from './url-search-params';
+import { decodePathComponent, normalizePath } from './utils/url-utils';
 
 const urlRegEx = /^(?:((?:[A-Z][A-Z+-.]+:)+)\/\/([^/]+))?(\/.*)?$/i;
 const schemeRegEx = /^([A-Z][A-Z+-.]+:?)+$/i;
@@ -69,16 +69,16 @@ export class OpraURL {
   get href(): string {
     this._update();
     return (this.hostname ? (
-          this.protocol + '//' +
-          (this.username || this.password
-            ? (
-              (this.username ? encodeURIComponent(this.username) : '') +
-              (this.password ? ':' + encodeURIComponent(this.password) : '') + '@'
-            )
-            : '') + this.host
-        ) : ''
-      ) +
-      this.pathPrefix + this.pathname + this.search + this.hash;
+                this.protocol + '//' +
+                (this.username || this.password
+                    ? (
+                        (this.username ? encodeURIComponent(this.username) : '') +
+                        (this.password ? ':' + encodeURIComponent(this.password) : '') + '@'
+                    )
+                    : '') + this.host
+            ) : ''
+        ) +
+        this.pathPrefix + this.pathname + this.search + this.hash;
   }
 
   get protocol(): string {
@@ -414,11 +414,14 @@ export class OpraURL {
       for (const x of prefixTokenizer) {
         if (x !== pathTokenizer.next())
           throw Object.assign(new Error('Invalid URL path. pathPrefix does not match'),
-            {path: v, code: 'ERR_INVALID_URL_PATH'});
+              {path: v, code: 'ERR_INVALID_URL_PATH'});
       }
     }
+    let i = 0;
     for (const x of pathTokenizer) {
-      this.path.add(decodePathComponent(x));
+      const p = decodePathComponent(x);
+      this.path.add(p);
+      i++;
     }
   }
 

@@ -5,7 +5,7 @@ import {
   OpraModuleOptionsFactory,
 } from '@opra/nestjs';
 import config from './opra-config.js';
-import {CustomerModule} from './svc1/customer/customer.module.js';
+import {CustomerModule} from './svc/customer/customer.module.js';
 
 class ConfigService implements OpraModuleOptionsFactory {
   createOptions(): OpraModuleOptions {

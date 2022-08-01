@@ -1,5 +1,6 @@
 import {ModuleMetadata, Type} from '@nestjs/common';
 import {FallbackLng, LanguageResource} from '@opra/i18n';
+import { OpraSchema } from '@opra/common';
 
 export type Enhancer = 'guards' | 'interceptors' | 'filters';
 
@@ -9,8 +10,7 @@ export interface OpraModuleOptions {
    */
   useGlobalPrefix?: boolean;
   prefix: string;
-  name: string;
-  description?: string;
+  info: OpraSchema.DocumentInfo,
   i18n?: I18nInitOptions;
 
   context?: object | ((request: any, platformName: string) => object | Promise<object>);

@@ -27,7 +27,7 @@ export class OpraCoreModule implements OnModuleInit, OnModuleDestroy {
     private readonly httpAdapterHost: HttpAdapterHost,
     protected readonly modulesContainer: ModulesContainer,
     @Inject(OPRA_MODULE_OPTIONS) private readonly options: OpraModuleOptions,
-    @Inject(OPRA_INITIALIZER) private readonly opraDriver: OpraServiceLoader,
+    @Inject(OPRA_INITIALIZER) private readonly opraServiceLoader: OpraServiceLoader,
   ) {
   }
 
@@ -139,12 +139,12 @@ export class OpraCoreModule implements OnModuleInit, OnModuleDestroy {
       }
     })();
     if (opraModule) {
-      await this.opraDriver.initialize(opraModule);
+      await this.opraServiceLoader.initialize(opraModule);
     }
   }
 
   async onModuleDestroy() {
-    await this.opraDriver.stop();
+    await this.opraServiceLoader.stop();
   }
 
 }

@@ -1,5 +1,5 @@
 import {Expression, OpraURL} from '@opra/url';
-import {Customer} from './_support/test-app/svc1/customer/customer.dto.js';
+import {Customer} from './_support/test-app/svc/customer/customer.dto.js';
 import {OpraHttpContextHost} from '../src/index.js';
 
 

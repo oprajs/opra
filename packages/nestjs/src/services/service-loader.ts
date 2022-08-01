@@ -1,8 +1,7 @@
 import { Inject, Logger } from '@nestjs/common';
 import { ApplicationConfig, HttpAdapterHost } from '@nestjs/core';
 import { Module } from '@nestjs/core/injector/module.js';
-import { OpraServiceDef } from '@opra/common';
-import { OpraAdapter, OpraExpressAdapter } from '@opra/core';
+import { OpraAdapter, OpraExpressAdapter, OpraService } from '@opra/core';
 import { I18n } from '@opra/i18n';
 import { joinPath, normalizePath } from '@opra/url';
 import { ServiceFactory } from '../factories/service.factory.js';
@@ -45,7 +44,7 @@ export class OpraServiceLoader {
     }
 
     try {
-      const serviceHost = this.opraFactory.generateServiceHost(rootModule, options);
+      const serviceHost = this.opraFactory.generateService(rootModule, options);
       if (!Object.keys(serviceHost.resources).length) {
         this.logger.warn(`No resources found (${name})`);
         return;
@@ -72,12 +71,15 @@ export class OpraServiceLoader {
     //
   }
 
-  protected async registerExpress(serviceConfiguration: OpraServiceDef) {
+  protected async registerExpress(service: OpraService) {
     const httpAdapter = this.httpAdapterHost.httpAdapter;
     if (!httpAdapter)
       return;
     const app = httpAdapter.getInstance();
-    return await OpraExpressAdapter.create(app, serviceConfiguration, {i18n: this.i18n});
+    return await OpraExpressAdapter.init(app, service, {
+      i18n: this.i18n,
+      prefix: this.opraModuleOptions.prefix
+    });
   }
 
 }
