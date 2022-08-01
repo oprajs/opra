@@ -32,18 +32,17 @@
     "@opra/core": "^0.x.x",
     "@opra/common": "^0.x.x",
     "lodash": "^4.17.21",
-    "i18next": ">=21.0.0",
     "reflect-metadata": "^0.1.13"
   },
   "peerDependencies": {
-    "@nestjs/common": "^8.x.x"
+    "@nestjs/common": "^8.x.x || ^9.x.x"
   },
   "devDependencies": {
-    "@nestjs/testing": "^8.4.5",
-    "@nestjs/platform-express": "^8.4.5",
+    "@nestjs/testing": "^9.0.5",
+    "@nestjs/platform-express": "^9.0.5",
     "@types/lodash": "^4.14.182",
     "filedirname": "^2.7.0",
-    "supertest": "^6.2.3"
+    "supertest": "^6.2.4"
   },
   "type": "module",
   "main": "cjs/index.js",

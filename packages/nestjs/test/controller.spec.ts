@@ -4,7 +4,7 @@ import {INestApplication} from '@nestjs/common';
 import {Test} from '@nestjs/testing';
 import {Api, OpraModule} from '@opra/nestjs';
 import {OpraURL} from '@opra/url';
-import {Customer} from './_support/test-app/svc1/customer/customer.dto.js';
+import {Customer} from './_support/test-app/svc/customer/customer.dto.js';
 
 describe('Controller', function () {
 

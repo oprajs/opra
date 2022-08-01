@@ -1,4 +1,4 @@
-import {ComparisonExpression, IntegerFormat, OpraURL} from '../src';
+import { ComparisonExpression, IntegerFormat, OpraURL } from '../src';
 
 describe('Parse url string', () => {
 
@@ -195,8 +195,8 @@ describe('Parse url string', () => {
 
   it('Should set register custom parameter', () => {
     const u = new OpraURL()
-      .defineSearchParam('_prm1', {format: new IntegerFormat()})
-      .parse('/Person?_prm1=5');
+        .defineSearchParam('_prm1', {format: new IntegerFormat()})
+        .parse('/Person?_prm1=5');
     expect(u.searchParams.get('_prm1')).toStrictEqual(5);
   })
 

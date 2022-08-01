@@ -1,23 +1,11 @@
-import { ApiException } from '@opra/common';
-import { Type } from 'ts-gems';
+import { ExecutionQuery } from './execution-query.interface';
+import { OpraService } from './opra-service.interface';
 
 export interface ExecutionContext {
-  errors?: ApiException[];
-}
-
-export type AnyPathNode = CollectionPathNode;
-
-export interface PathNode {
-  parent?: PathNode;
-  resolverType: any;
-  properties?: Record<string, AnyPathNode>;
-}
-
-export interface CollectionPathNode extends PathNode {
-  resource: string;
-}
-
-export interface InstancePathNode extends PathNode {
-  resource: string;
-  keyValue: any;
+  readonly service: OpraService;
+  readonly query: ExecutionQuery;
+  readonly returnPath?: string;
+  response: any;
+  userContext?: any;
+  errors?: any[];
 }
