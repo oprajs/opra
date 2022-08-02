@@ -1,16 +1,13 @@
 /* eslint-disable no-console */
 import express from 'express';
 import * as util from 'util';
-import { OpraExpressAdapter } from '../../../src';
-import { OpraServiceFactory } from '../../../src/implementation/service-factory';
+import { OpraExpressAdapter, OpraService } from '../../../src';
 import { Customer } from '../dto/customer.dto';
 import { customerResource } from './customer.resource';
 import { CustomerAddressResource } from './customer-address.resource';
 
-// import { OpraExpressAdapter } from '../../../src';
-
 async function run() {
-  const service = await OpraServiceFactory.create({
+  const service = await OpraService.create({
     info: {
       title: 'TestApi',
       version: 'v1',

@@ -1,6 +1,6 @@
-import { DataType } from '../implementation/data-type/data-type.js';
-import { OperationKind } from '../types.js';
-import { OpraService } from './opra-service.interface';
+import type { DataType } from '../implementation/data-type/data-type.js';
+import type { OpraService } from '../implementation/opra-service';
+import type { OperationKind } from '../types.js';
 
 export interface ExecutionQuery {
   readonly service: OpraService;

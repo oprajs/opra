@@ -1,7 +1,7 @@
-import { Writable } from 'ts-gems';
-import { ExecutionContext } from '../interfaces/execution-context.interface';
-import { ExecutionQuery } from '../interfaces/execution-query.interface';
-import { OpraService } from '../interfaces/opra-service.interface';
+import type { Writable } from 'ts-gems';
+import type { ExecutionContext } from '../interfaces/execution-context.interface';
+import type { ExecutionQuery } from '../interfaces/execution-query.interface';
+import type { OpraService } from './opra-service';
 
 export type ExecutionContextArgs = Writable<ExecutionContext>;
 

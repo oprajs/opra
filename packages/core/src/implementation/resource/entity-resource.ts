@@ -9,10 +9,10 @@ export type EntityResourceArgs = StrictOmit<OpraSchema.EntityResource, 'kind'> &
   dataType: ComplexType;
 }
 
-export class EntityResource<T> extends Resource {
+export class EntityResource extends Resource {
   declare protected readonly _args: OpraSchema.EntityResource;
   readonly dataType: ComplexType;
-  read: (ctx: any) => PartialOutput<T>;
+  read: (ctx: any) => PartialOutput<any>;
 
   constructor(args: EntityResourceArgs) {
     super({

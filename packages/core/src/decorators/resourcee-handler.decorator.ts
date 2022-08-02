@@ -2,38 +2,14 @@ import "reflect-metadata";
 import _ from 'lodash';
 import { StrictOmit } from 'ts-gems';
 import {
-  RESOURCE_METADATA, RESOURCE_OPERATION,
+  RESOURCE_OPERATION,
   RESOURCE_OPERATION_METHODS,
 } from '../constants';
 import {
-  EntityResourceMetadata,
   ResourceListOperationMetadata,
   ResourceReadOperationMetadata
 } from '../interfaces/opra-schema.metadata';
-import { TypeThunkAsync } from '../types';
 
-const NESTJS_INJECTABLE_WATERMARK = '__injectable__';
-
-export function EntityResource(
-    entityFunc: TypeThunkAsync,
-    args?: StrictOmit<EntityResourceMetadata, 'kind' | 'type' | 'primaryKey'> & {
-      key?: string | string[]
-    }
-) {
-  return function (target: Function) {
-    const meta: EntityResourceMetadata = {
-      kind: 'EntityResource',
-      type: entityFunc,
-      primaryKey: args?.key || 'id',
-      name: args?.name,
-    };
-    Object.assign(meta, _.omit(args, Object.keys(meta)));
-    Reflect.defineMetadata(RESOURCE_METADATA, meta, target);
-
-    /* Define Injectable metadata for NestJS support*/
-    Reflect.defineMetadata(NESTJS_INJECTABLE_WATERMARK, true, target);
-  }
-}
 
 export function ReadHandler(args?: StrictOmit<ResourceReadOperationMetadata, 'handle'>) {
   return createResourceOperationDecorator('read', args);
@@ -72,6 +48,7 @@ function createResourceOperationDecorator(
     Reflect.defineMetadata(RESOURCE_OPERATION_METHODS, operationMethods, target);
 
     const meta = {
+      kind: 'ResourceOperation',
       ...args,
       operation
     };
