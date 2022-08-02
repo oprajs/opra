@@ -1,12 +1,14 @@
-import { EntityResource, ReadHandler } from '../../../src/decorators/resource.decorator';
+import { Api } from '../../../src';
 import { Address } from '../dto/address.dto';
 
-@EntityResource(Address, {key: 'id'})
+@Api.Entity(Address, {
+  primaryKey: 'id',
+  description: 'Customer address resource'
+})
 export class CustomerAddressResource {
 
-  @ReadHandler()
-  read(ctx) {
+  @Api.ReadHandler()
+  read() {
     // eslint-disable-next-line no-console
-    console.log(ctx);
   }
 }

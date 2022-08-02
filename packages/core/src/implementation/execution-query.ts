@@ -2,12 +2,12 @@ import { StrictOmit, Writable } from 'ts-gems';
 import { ExecutionQuery } from '../interfaces/execution-query.interface';
 import type { OperationKind } from '../types';
 import type { DataType } from './data-type/data-type';
-import type { OpraServiceHost } from './service-host';
+import type { OpraService } from './opra-service';
 
 export type ExecutionQueryArgs = Writable<StrictOmit<ExecutionQuery, 'isPropertyExposed'>>
 
 export class ExecutionQueryHost implements ExecutionQuery {
-  service: OpraServiceHost;
+  service: OpraService;
   operation: OperationKind;
   resource: string;
   key?: any;

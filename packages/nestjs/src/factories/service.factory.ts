@@ -9,14 +9,13 @@ import { InternalCoreModule } from '@nestjs/core/injector/internal-core-module';
 import { Module } from '@nestjs/core/injector/module.js';
 import { REQUEST_CONTEXT_ID } from '@nestjs/core/router/request/request-constants';
 import { OpraSchema } from '@opra/common';
+import { OpraService,OpraFactory } from '@opra/core';
 import { OpraParamType } from '../enums/opra-paramtype.enum.js';
 import { OpraModuleOptions } from '../interfaces/opra-module-options.interface.js';
 import { ExplorerService } from '../services/explorer.service.js';
 import { OpraContextType } from '../services/opra-execution-context.js';
 import { getNumberOfArguments } from '../utils/function-utils.js';
 import { OpraParamsFactory } from './params.factory';
-import { OpraService } from '@opra/core/src/interfaces/opra-service.interface';
-import { OpraServiceFactory, OpraServiceHost } from '@opra/core';
 
 @Injectable()
 export class ServiceFactory {
@@ -30,7 +29,7 @@ export class ServiceFactory {
   private readonly explorerService: ExplorerService;
 
   generateService(rootModule: Module, moduleOptions: OpraModuleOptions): OpraService {
-    const service: OpraServiceFactory.CreateServiceArgs = {
+    const service: OpraFactory.CreateServiceArgs = {
       info: moduleOptions.info,
       types: [],
       resources: [],

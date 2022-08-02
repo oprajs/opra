@@ -1,4 +1,2 @@
-export const DTO_METADATA = 'opra:dto.metadata';
-export const DTO_PROPERTIES = 'opra:dto.properties';
-export const DTO_ENTITY_KEY = 'opra:dto.entity-key';
-export const DTO_ENTITY_UNIQUE_KEYS= 'opra:dto.entity-unique-keys';
+export const DATATYPE_METADATA = 'opra:data_type.metadata';
+export const DATATYPE_PROPERTIES = 'opra:data_type.properties';

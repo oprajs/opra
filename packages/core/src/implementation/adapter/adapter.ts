@@ -1,8 +1,8 @@
 import { I18n } from '@opra/i18n';
 import { ApiException } from '../../exceptions';
-import { OpraAdapterOptions } from '../../interfaces/adapter';
-import { ExecutionContext } from '../../interfaces/execution-context.interface';
-import { OpraService } from '../../interfaces/opra-service.interface';
+import type { OpraAdapterOptions } from '../../interfaces/adapter';
+import type { ExecutionContext } from '../../interfaces/execution-context.interface';
+import type { OpraService } from '../opra-service';
 
 export abstract class OpraAdapter<TAdapterContext = any> {
   i18n: I18n;
