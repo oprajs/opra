@@ -1,4 +1,4 @@
-import {OpraURLSearchParams} from '../src';
+import { OpraURLSearchParams } from '../src';
 
 describe('OpraURLSearchParams', function () {
 
@@ -7,16 +7,6 @@ describe('OpraURLSearchParams', function () {
     u.parse('prm1&prm2=1');
     expect(u.size).toStrictEqual(2);
     expect(u.toString()).toStrictEqual('prm1&prm2=1');
-  })
-
-  it('Should parse array parameters', () => {
-    const u = new OpraURLSearchParams();
-    u.parse('prm1=a%26b,a%23b');
-    expect(u.get('prm1')).toStrictEqual(["a&b", "a#b"]);
-    expect(u.toString()).toStrictEqual('prm1=a%26b,a%23b');
-    u.parse('prm1=a,\'a,b\'');
-    expect(u.get('prm1')).toStrictEqual(["a", "a,b"]);
-    expect(u.toString()).toStrictEqual('prm1=a,\'a,b\'');
   })
 
   it('Should append entry', () => {
@@ -38,6 +28,47 @@ describe('OpraURLSearchParams', function () {
     u.set('prm2', 2);
     expect(u.size).toStrictEqual(2);
     expect(u.toString()).toStrictEqual('prm1=1&prm2=2');
+  })
+
+  it('Should parse array parameters', () => {
+    const u = new OpraURLSearchParams();
+    u.defineParam('prm1', {array: true});
+    u.parse('prm1=a%26b');
+    expect(u.get('prm1')).toStrictEqual("a&b");
+    u.parse('prm1=a%26b,a%23b');
+    expect(u.get('prm1')).toStrictEqual(["a&b", "a#b"]);
+    expect(u.toString()).toStrictEqual('prm1=a%26b,a%23b');
+    u.parse('prm1=a,\'a,b\'');
+    expect(u.get('prm1')).toStrictEqual(["a", "a,b"]);
+    expect(u.toString()).toStrictEqual('prm1=a,\'a,b\'');
+  })
+
+  it('Should parse strict array parameters', () => {
+    const u = new OpraURLSearchParams();
+    u.defineParam('prm1', {array: 'strict'});
+    u.parse('prm1=a');
+    expect(u.get('prm1')).toStrictEqual(["a"]);
+    u.parse('prm1=a,b');
+    expect(u.get('prm1')).toStrictEqual(["a", "b"]);
+  })
+
+  it('Should validate minArrayItems', () => {
+    const u = new OpraURLSearchParams();
+    u.defineParam('prm1', {array: 'strict', minArrayItems: 2});
+    expect(() => u.parse('prm1=a')).toThrow('at least');
+  })
+
+  it('Should validate maxArrayItems', () => {
+    const u = new OpraURLSearchParams();
+    u.defineParam('prm1', {array: 'strict', maxArrayItems: 2});
+    expect(() => u.parse('prm1=a,b,c')).toThrow('up to');
+  })
+
+  it('Should set array delimiter', () => {
+    const u = new OpraURLSearchParams();
+    u.defineParam('prm1', {array: 'strict', arrayDelimiter: '|'});
+    u.parse('prm1=a|b');
+    expect(u.get('prm1')).toStrictEqual(["a", "b"]);
   })
 
   it('Should stringify to percent encoded', () => {
