@@ -50,14 +50,15 @@ export class OpraURL {
       enumerable: false,
       value: new OpraURLSearchParams()
     });
-    this.defineSearchParam('_filter', {format: 'filter'});
-    this.defineSearchParam('_limit', {format: new IntegerFormat({min: 0})});
-    this.defineSearchParam('_skip', {format: new IntegerFormat({min: 0})});
-    this.defineSearchParam('_elements', {format: 'string', array: true});
-    this.defineSearchParam('_exclude', {format: 'string', array: true});
-    this.defineSearchParam('_include', {format: 'string', array: true});
-    this.defineSearchParam('_distinct', {format: 'boolean'});
-    this.defineSearchParam('_total', {format: 'boolean'});
+    this.defineSearchParam('filter', {format: 'filter'});
+    this.defineSearchParam('limit', {format: new IntegerFormat({min: 0})});
+    this.defineSearchParam('skip', {format: new IntegerFormat({min: 0})});
+    this.defineSearchParam('elements', {format: 'string', array: true});
+    this.defineSearchParam('exclude', {format: 'string', array: true});
+    this.defineSearchParam('include', {format: 'string', array: true});
+    this.defineSearchParam('sort', {format: 'string', array: true});
+    this.defineSearchParam('distinct', {format: 'boolean'});
+    this.defineSearchParam('total', {format: 'boolean'});
     this.searchParams.on('change', () => this._invalidate());
     this.path.on('change', () => this._invalidate());
     if (pathPrefix)
@@ -265,66 +266,66 @@ export class OpraURL {
 
   setFilter(v?: string | Expression): this {
     if (v == null)
-      this.searchParams.delete('_filter');
+      this.searchParams.delete('filter');
     else {
-      this.searchParams.set('_filter', v);
+      this.searchParams.set('filter', v);
     }
     return this;
   }
 
   setLimit(v?: number | null): this {
     if (v == null)
-      this.searchParams.delete('_limit');
+      this.searchParams.delete('limit');
     else
-      this.searchParams.set('_limit', v);
+      this.searchParams.set('limit', v);
     return this;
   }
 
   setSkip(v?: number | null): this {
     if (v == null)
-      this.searchParams.delete('_skip');
+      this.searchParams.delete('skip');
     else
-      this.searchParams.set('_skip', v);
+      this.searchParams.set('skip', v);
     return this;
   }
 
   setElements(...v: string[]): this {
     if (!v.length)
-      this.searchParams.delete('_elements');
+      this.searchParams.delete('elements');
     else
-      this.searchParams.set('_elements', v);
+      this.searchParams.set('elements', v);
     return this;
   }
 
   setExclude(...v: string[]): this {
     if (!v.length)
-      this.searchParams.delete('_exclude');
+      this.searchParams.delete('exclude');
     else
-      this.searchParams.set('_exclude', v);
+      this.searchParams.set('exclude', v);
     return this;
   }
 
   setInclude(...v: string[]): this {
     if (!v.length)
-      this.searchParams.delete('_include');
+      this.searchParams.delete('include');
     else
-      this.searchParams.set('_include', v);
+      this.searchParams.set('include', v);
     return this;
   }
 
   setDistinct(v?: boolean | null): this {
     if (v == null)
-      this.searchParams.delete('_distinct');
+      this.searchParams.delete('distinct');
     else
-      this.searchParams.set('_distinct', v);
+      this.searchParams.set('distinct', v);
     return this;
   }
 
   setTotal(v?: boolean | null): this {
     if (v == null)
-      this.searchParams.delete('_total');
+      this.searchParams.delete('total');
     else
-      this.searchParams.set('_total', v);
+      this.searchParams.set('total', v);
     return this;
   }
 

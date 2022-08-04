@@ -1,15 +1,16 @@
-import {EventEmitter} from 'events';
-import {splitString, tokenize} from 'fast-tokenizer';
-import {BooleanFormat} from './formats/boolean-format';
-import {DateFormat} from './formats/date-format';
-import {FilterFormat} from './formats/filter-format';
-import {Format} from './formats/format';
-import {IntegerFormat} from './formats/integer-format';
-import {NumberFormat} from './formats/number-format';
-import {StringFormat} from './formats/string-format';
-import {nodeInspectCustom} from './types';
-import {unquoteQueryString} from './utils/string-utils';
-import {encodeQueryComponent} from './utils/url-utils';
+import { EventEmitter } from 'events';
+import { splitString, tokenize } from 'fast-tokenizer';
+import { StrictOmit } from 'ts-gems';
+import { BooleanFormat } from './formats/boolean-format';
+import { DateFormat } from './formats/date-format';
+import { FilterFormat } from './formats/filter-format';
+import { Format } from './formats/format';
+import { IntegerFormat } from './formats/integer-format';
+import { NumberFormat } from './formats/number-format';
+import { StringFormat } from './formats/string-format';
+import { nodeInspectCustom } from './types';
+import { unquoteQueryString } from './utils/string-utils';
+import { encodeQueryComponent } from './utils/url-utils';
 
 const QUERYMETADATA_KEY = Symbol.for('opra.url.querymetadata');
 const internalFormats = {
@@ -23,11 +24,11 @@ const internalFormats = {
 
 export interface QueryItemMetadata {
   name: string;
-  format: Format | string;
-  array?: boolean;
+  format?: Format | string;
+  array?: boolean | 'strict';
+  arrayDelimiter?: string;
   minArrayItems?: number;
   maxArrayItems?: number;
-  maxOccurs?: number;
 }
 
 export class OpraURLSearchParams extends EventEmitter {
@@ -56,7 +57,7 @@ export class OpraURLSearchParams extends EventEmitter {
     return this._size;
   }
 
-  defineParam(name: string, options?: Omit<QueryItemMetadata, 'name'>): this {
+  defineParam(name: string, options?: StrictOmit<QueryItemMetadata, 'name'>): this {
     if (!name)
       throw new Error('Parameter name required');
     const meta: QueryItemMetadata = {
@@ -115,8 +116,8 @@ export class OpraURLSearchParams extends EventEmitter {
 
   getAll(name: string): any[] {
     return (name in this._entries)
-      ? this._entries[name].slice(0)
-      : [];
+        ? this._entries[name].slice(0)
+        : [];
   }
 
   has(name: string): boolean {
@@ -163,9 +164,26 @@ export class OpraURLSearchParams extends EventEmitter {
         brackets: true,
       });
       const k = decodeURIComponent(itemTokenizer.next() || '');
-      const values = splitString(itemTokenizer.join('='), {delimiters: ',', brackets: true, quotes: true})
-        .map((x) => unquoteQueryString(decodeURIComponent(x)));
-      this._add(k, values.length > 1 ? values : values[0] || '');
+      const v = itemTokenizer.join('=');
+      const meta = this[QUERYMETADATA_KEY][k];
+      if (meta?.array) {
+        const values = splitString(v, {
+          delimiters: meta?.arrayDelimiter || ',',
+          brackets: true,
+          quotes: true
+        }).map((x) => unquoteQueryString(decodeURIComponent(x)));
+        if (meta.minArrayItems && values.length < meta.minArrayItems)
+          throw new Error(`"${k}" parameter requires at least ${meta.minArrayItems} values`);
+        if (meta.maxArrayItems && values.length > meta.maxArrayItems)
+          throw new Error(`"${k}" parameter accepts up to ${meta.maxArrayItems} values`);
+        if (meta.array === 'strict')
+          this._add(k, values);
+        else
+          this._add(k, values.length > 1 ? values : values[0] || '');
+      } else {
+        this._add(k, unquoteQueryString(decodeURIComponent(v)));
+      }
+
     }
     this.emit('change');
   }
@@ -175,8 +193,8 @@ export class OpraURLSearchParams extends EventEmitter {
     this.forEach((value: string, name: string) => {
       const qi = this[QUERYMETADATA_KEY][name.toLowerCase()];
       const format = qi
-        ? (typeof qi.format === 'string' ? internalFormats[qi.format] : qi.format)
-        : undefined;
+          ? (typeof qi.format === 'string' ? internalFormats[qi.format] : qi.format)
+          : undefined;
       const stringify = (x) => format ? format.stringify(x, name) : (x == null ? '' : '' + x);
       const v = Array.isArray(value) ? value.map(stringify) : stringify(value);
       const x = encodeQueryComponent(name, v);
@@ -199,7 +217,7 @@ export class OpraURLSearchParams extends EventEmitter {
   protected _add(name: string, value: any): void {
     const qi = this[QUERYMETADATA_KEY][name];
     const format = qi ?
-      (typeof qi.format === 'string' ? internalFormats[qi.format] : qi.format) : undefined;
+        (typeof qi.format === 'string' ? internalFormats[qi.format] : qi.format) : undefined;
     const fn = (x) => format ? format.parse(x, name) : x;
     const v = Array.isArray(value) ? value.map(fn) : fn(value);
     if (name in this._entries)
