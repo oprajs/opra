@@ -1,6 +1,6 @@
 import { StrictOmit } from 'ts-gems';
 import { OpraSchema } from '@opra/common';
-import { CaseInsensitiveObject } from '../helpers/case-insensitive-object';
+import { Responsive } from '../helpers/responsive-object';
 import { ComplexType } from './data-type/complex-type';
 import { OpraDocument } from './opra-document';
 import { EntityResource } from './resource/entity-resource';
@@ -11,7 +11,7 @@ export type OpraServiceArgs = StrictOmit<OpraSchema.Service, 'version' | 'types'
 
 export class OpraService extends OpraDocument {
   protected declare readonly _args: OpraServiceArgs;
-  protected _resources: Record<string, Resource> = CaseInsensitiveObject({});
+  protected _resources: Record<string, Resource> = Responsive({});
 
   constructor(schema: OpraSchema.Service) {
     super(schema);
@@ -30,7 +30,7 @@ export class OpraService extends OpraDocument {
   getResource<T extends Resource>(name: string): T {
     const t = this.resources[name];
     if (!t)
-      throw new Error(`Resource "${name}" not found`);
+      throw new Error(`Resource "${name}" does not exists`);
     return t as T;
   }
 
@@ -55,7 +55,7 @@ export class OpraService extends OpraDocument {
     }
 
     // Sort data types by name
-    const newResources = CaseInsensitiveObject({});
+    const newResources = Responsive({});
     Object.keys(this.resources).sort()
         .forEach(name => newResources[name] = this.resources[name]);
     this._resources = newResources;

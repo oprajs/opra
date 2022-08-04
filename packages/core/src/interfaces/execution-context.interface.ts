@@ -1,5 +1,5 @@
+import type { ExecutionQuery } from '../implementation/execution-query';
 import type { OpraService } from '../implementation/opra-service';
-import type { ExecutionQuery } from './execution-query.interface';
 
 export interface ExecutionContext {
   readonly service: OpraService;

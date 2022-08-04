@@ -1,4 +1,3 @@
-import util from 'util';
 import { OpraURL } from '@opra/url';
 import { HttpStatus } from '../../enums';
 import { ApiException, BadRequestError, NotFoundError } from '../../exceptions';
@@ -8,9 +7,10 @@ import { ExecutionContext } from '../../interfaces/execution-context.interface';
 import { OperationKind } from '../../types';
 import { ComplexType } from '../data-type/complex-type';
 import { ExecutionContextHost } from '../execution-context';
-import { ExecutionQueryHost } from '../execution-query';
+import { ExecutionQuery } from '../execution-query';
 import { EntityResource } from '../resource/entity-resource.js';
 import { OpraAdapter } from './adapter.js';
+import { generateProjection } from './utils/generate-projection';
 
 export interface HttpAdapterContext {
   request: HttpRequest;
@@ -74,9 +74,10 @@ export class OpraHttpAdapter<TAdapterContext extends HttpAdapterContext> extends
   }
 
   protected buildQuery(url: OpraURL, method: string): {
-    query: ExecutionQueryHost;
+    query: ExecutionQuery;
     returnPath: string;
   } {
+    method = method.toUpperCase();
     const rootPath = url.path.get(0);
     const rootResource = this.service.resources[rootPath.resource];
     if (!rootResource)
@@ -85,7 +86,11 @@ export class OpraHttpAdapter<TAdapterContext extends HttpAdapterContext> extends
       });
     if (rootResource instanceof EntityResource) {
       if (!rootPath.key && url.path.size > 1)
-        throw new BadRequestError({message: `Invalid URL`});
+        throw new BadRequestError({message: `You can't request collection of sub-properties`});
+      if (method !== 'GET' && url.path.size > 1)
+        throw new BadRequestError({message: `You can't send update/delete request for for sub-properties`});
+      if (rootPath.key && !rootResource.primaryKey)
+        throw new BadRequestError({message: `Primary key is not assigned for resource "${rootResource.name}"`});
 
       let operation: OperationKind;
       switch (method) {
@@ -111,21 +116,32 @@ export class OpraHttpAdapter<TAdapterContext extends HttpAdapterContext> extends
       }
 
       let fullPath = '';
-      const root = new ExecutionQueryHost({
+      const root = new ExecutionQuery({
         service: this.service,
         operation,
-        resource: rootPath.resource,
-        key: rootPath.key,
+        resource: rootResource,
+        keyValues: undefined,
+        collection: !rootPath.key,
         path: '',
+        fullPath,
         resultType: rootResource.dataType,
       });
 
-      if (rootResource.primaryKey) {
-        root.elements = root.elements || {};
+      if (rootPath.key) {
+        root.keyValues = {};
+        root.projection = root.projection || {};
+
         (Array.isArray(rootResource.primaryKey) ? rootResource.primaryKey : [rootResource.primaryKey])
-            .forEach(k => {
+            .forEach((k, i) => {
+              if (typeof rootPath.key === 'object') {
+                root.keyValues[k] = rootPath.key[k];
+              } else if (i === 0)
+                root.keyValues[k] = rootPath.key;
+              else throw new BadRequestError({
+                  message: `You must provide all primary key values (${rootResource.primaryKey})`
+                });
               // eslint-disable-next-line
-              root.elements![k] = false
+              root.projection![k] = false
             });
       }
 
@@ -143,43 +159,34 @@ export class OpraHttpAdapter<TAdapterContext extends HttpAdapterContext> extends
             message: `"${node.resultType.name}" has no property named "${p.resource}".`
           });
         fullPath += (fullPath ? '.' : '') + prop.name;
-        const subNode = new ExecutionQueryHost({
+        const subNode = new ExecutionQuery({
           service: this.service,
+          resource: rootResource,
           operation: root.operation,
-          resource: p.resource,
-          key: prop.name,
+          collection: !!prop.isArray,
           resultType: this.service.getDataType(prop.type || 'string'),
-          path: fullPath
+          path: prop.name,
+          fullPath
         });
-        node.elements = node.elements || {};
-        node.elements[prop.name] = subNode;
+        node.nodes = node.nodes || {};
+        node.nodes[prop.name] = subNode;
         node = subNode;
         returnPath += (returnPath ? '.' : '') + prop.name;
       }
 
       if (node.resultType instanceof ComplexType) {
-        const exposedList = url.searchParams.get('_elements') ||
-            (node.resultType.properties && Object.keys(node.resultType.properties));
-        if (exposedList) {
-          const elements = node.elements || {};
-          for (const elName of exposedList) {
-            const el = elements[elName];
-            if (el != null) {
-              if (typeof el === 'object') {
-                (el as ExecutionQueryHost).expose = true;
-              } else elements[elName] = true;
-              continue;
-            }
-            const prop = node.resultType.properties?.[elName];
-            if (prop)
-              elements[prop.name] = true;
-          }
-          node.elements = elements;
-        }
+        generateProjection(
+            node,
+            url.searchParams.get('$elements'),
+            url.searchParams.get('$exclude'),
+            url.searchParams.get('$include'));
+        node.filter = url.searchParams.get('$filter');
+        node.limit = url.searchParams.get('$limit');
+        node.skip = url.searchParams.get('$skip');
+        node.sort = url.searchParams.get('$sort');
+        node.distinct = url.searchParams.get('$distinct');
+        node.total = url.searchParams.get('$total');
       }
-
-      // eslint-disable-next-line
-      console.log(util.inspect(root, {depth: 10, colors: true}));
 
       return {
         query: root,

@@ -1,19 +1,22 @@
+import { Api } from '@opra/core';
 import { Customer } from './customer.dto.js';
 import { CustomerService } from './customer.service.js';
 
-@CollectionResource(Customer)
+@Api.Entity(Customer, {
+  primaryKey: 'id',
+  description: 'Customer resource'
+})
 export class CustomerResource {
-  constructor(public customerService: CustomerService) {
+
+  public customerService: CustomerService;
+
+  constructor() {
+    //
   }
 
-  @CollectionResource.Read()
+  @Api.ReadHandler()
   read(query) {
-    return this.customerService.get(query);
-  }
-
-  @CollectionResource.List()
-  search(query) {
-    return this.customerService.findAll(query);
+    // return this.customerService.get(query);
   }
 
 }

@@ -1,4 +1,8 @@
-export function CaseInsensitiveObject<T extends Record<string | symbol, any>>(wrapped: T): T {
+import { Opaque } from 'ts-gems';
+
+export type ResponsiveObject<T> = Opaque<Record<string, T>, 'ResponsiveObject'>;
+
+export function Responsive<T>(wrapped: Record<string, T>): ResponsiveObject<T> {
 
   const keyMap: Record<string, string> = {};
   Object.keys(wrapped).forEach(k => keyMap[k.toLowerCase()] = k);
@@ -58,5 +62,5 @@ export function CaseInsensitiveObject<T extends Record<string | symbol, any>>(wr
       return Reflect.has(target, wrapKey(prop));
     }
 
-  }) as T;
+  }) as ResponsiveObject<T>;
 }

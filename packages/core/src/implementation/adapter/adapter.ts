@@ -21,7 +21,7 @@ export abstract class OpraAdapter<TAdapterContext = any> {
       const data = await this.executeQuery(adapterContext, executionContext);
       if (data != null)
         executionContext.response.value = data;
-      else if (!executionContext.query.key) executionContext.response.value = [];
+      else if (!executionContext.query.keyValues) executionContext.response.value = [];
     } catch (e) {
       executionContext.errors = executionContext.errors || [];
       executionContext.errors.unshift(e);

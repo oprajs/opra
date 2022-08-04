@@ -50,15 +50,15 @@ export class OpraURL {
       enumerable: false,
       value: new OpraURLSearchParams()
     });
-    this.defineSearchParam('filter', {format: 'filter'});
-    this.defineSearchParam('limit', {format: new IntegerFormat({min: 0})});
-    this.defineSearchParam('skip', {format: new IntegerFormat({min: 0})});
-    this.defineSearchParam('elements', {format: 'string', array: true});
-    this.defineSearchParam('exclude', {format: 'string', array: true});
-    this.defineSearchParam('include', {format: 'string', array: true});
-    this.defineSearchParam('sort', {format: 'string', array: true});
-    this.defineSearchParam('distinct', {format: 'boolean'});
-    this.defineSearchParam('total', {format: 'boolean'});
+    this.defineSearchParam('$filter', {format: 'filter'});
+    this.defineSearchParam('$limit', {format: new IntegerFormat({min: 0})});
+    this.defineSearchParam('$skip', {format: new IntegerFormat({min: 0})});
+    this.defineSearchParam('$elements', {format: 'string', array: 'strict'});
+    this.defineSearchParam('$exclude', {format: 'string', array: 'strict'});
+    this.defineSearchParam('$include', {format: 'string', array: 'strict'});
+    this.defineSearchParam('$sort', {format: 'string', array: 'strict'});
+    this.defineSearchParam('$distinct', {format: 'boolean'});
+    this.defineSearchParam('$total', {format: 'boolean'});
     this.searchParams.on('change', () => this._invalidate());
     this.path.on('change', () => this._invalidate());
     if (pathPrefix)

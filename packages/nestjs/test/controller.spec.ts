@@ -75,7 +75,7 @@ describe('Controller', function () {
   });
 
   it('Should handle collection request with options', async function () {
-    const url = new OpraURL('/Customer?_limit=5&_skip=2');
+    const url = new OpraURL('/Customer?limit=5&skip=2');
     const res = await request(server).get(url.toString());
     expect(res).toBeDefined();
     expect(res.status).toStrictEqual(200);

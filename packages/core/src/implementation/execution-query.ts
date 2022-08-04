@@ -1,30 +1,34 @@
-import { StrictOmit, Writable } from 'ts-gems';
-import { ExecutionQuery } from '../interfaces/execution-query.interface';
+import type { StrictOmit, Writable } from 'ts-gems';
+import type { Expression } from '@opra/url';
 import type { OperationKind } from '../types';
 import type { DataType } from './data-type/data-type';
 import type { OpraService } from './opra-service';
+import type { Resource } from './resource/resource';
 
-export type ExecutionQueryArgs = Writable<StrictOmit<ExecutionQuery, 'isPropertyExposed'>>
+export type ExecutionQueryArgs = Writable<ExecutionQuery>
 
-export class ExecutionQueryHost implements ExecutionQuery {
+export type ExecutionQueryProjection = Record<string, boolean | ExecutionQuery>;
+
+export class ExecutionQuery {
   service: OpraService;
   operation: OperationKind;
-  resource: string;
-  key?: any;
-  path?: string;
+  resource: Resource;
+  keyValues?: any;
+  path: string;
+  fullPath: string;
+  collection: boolean;
   resultType?: DataType;
-  elements?: Record<string, ExecutionQuery | boolean>;
-  expose?: boolean;
+  projection?: Record<string, boolean | ExecutionQuery>;
+  nodes?: Record<string, ExecutionQuery>;
+  filter?: Expression;
+  sort?: string[];
+  limit?: number;
+  skip?: number;
+  distinct?: boolean;
+  total?: boolean;
 
   constructor(args: ExecutionQueryArgs) {
     Object.assign(this, args);
-  }
-
-  isPropertyExposed(propertyName: string): boolean {
-    const prop = this.elements && this.elements[propertyName];
-    if (typeof prop === 'object')
-      return prop.expose === true || prop.expose == null;
-    return !!prop || prop == null;
   }
 
 }
