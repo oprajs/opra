@@ -1,8 +1,8 @@
 import _ from 'lodash';
 import { StrictOmit } from 'ts-gems';
 import { OpraSchema } from '@opra/common';
-import { CaseInsensitiveObject } from '../helpers/case-insensitive-object';
 import { internalDataTypes } from '../helpers/internal-data-types';
+import { Responsive, ResponsiveObject } from '../helpers/responsive-object';
 import { colorFgMagenta, colorFgYellow, colorReset, nodeInspectCustom } from '../helpers/terminal-utils';
 import { ComplexType } from './data-type/complex-type';
 import { DataType } from './data-type/data-type';
@@ -13,7 +13,7 @@ export type OpraDocumentArgs = StrictOmit<OpraSchema.Document, 'version' | 'type
 
 export class OpraDocument {
   protected readonly _args: OpraDocumentArgs;
-  protected _types: Record<string, DataType> = CaseInsensitiveObject({});
+  protected _types: ResponsiveObject<DataType> = Responsive<DataType>({});
 
   constructor(schema: OpraSchema.Document) {
     this._args = _.omit(schema, 'types');
@@ -33,14 +33,10 @@ export class OpraDocument {
     return this._types;
   }
 
-  getDataTypes(): DataType[] {
-    return Array.from(Object.values(this.types));
-  }
-
   getDataType(name: string): DataType {
     const t = this.types[name];
     if (!t)
-      throw new Error(`Date type "${name}" not found`);
+      throw new Error(`Data type "${name}" does not exists`);
     return t;
   }
 
@@ -96,11 +92,10 @@ export class OpraDocument {
     dataTypes.forEach(dataType => processDataType(dataType));
 
     // Sort data types by name
-    const newTypes = CaseInsensitiveObject({});
+    const newTypes = Responsive<DataType>({});
     Object.keys(this.types).sort()
         .forEach(name => newTypes[name] = this.types[name]);
     this._types = newTypes;
-
   }
 
 }
