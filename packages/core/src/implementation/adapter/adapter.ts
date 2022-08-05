@@ -1,8 +1,9 @@
 import { I18n } from '@opra/i18n';
 import { ApiException } from '../../exceptions';
-import type { OpraAdapterOptions } from '../../interfaces/adapter';
+import type { OpraAdapterOptions } from '../../interfaces/adapter-options.interface';
 import type { ExecutionContext } from '../../interfaces/execution-context.interface';
 import type { OpraService } from '../opra-service';
+import { EntityResource } from '../resource/entity-resource';
 
 export abstract class OpraAdapter<TAdapterContext = any> {
   i18n: I18n;
@@ -32,13 +33,12 @@ export abstract class OpraAdapter<TAdapterContext = any> {
   }
 
   protected async executeQuery(adapterContext: TAdapterContext, executionContext: ExecutionContext): Promise<any> {
-    /*
-    const resourceDef = this.service.getResource(executionContext.request.resourceName);
-    if (isCollectionResourceDef(resourceDef)) {
-      const opDef: OpraBaseOperationDefinition = resourceDef.operations[executionContext.request.operation];
-      if (opDef.resolver)
-        return await opDef.resolver(executionContext);
-    }*/
+    const resource = executionContext.query.resource;
+    if (resource instanceof EntityResource) {
+      const fn = resource[executionContext.query.operation];
+      if (typeof fn === 'function')
+        return fn(executionContext);
+    }
   }
 
   protected transformErrors(adapterContext: TAdapterContext, error: any): ApiException[] {

@@ -26,7 +26,9 @@ export class Customer extends Person {
   @Property({type: 'integer'})
   vip: number;
 
-  @Property()
+  @Property({
+    exclusive: true
+  })
   address?: Address;
 
 }

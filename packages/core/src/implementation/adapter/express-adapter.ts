@@ -1,11 +1,11 @@
 import type { Application, Request, Response } from 'express';
 import { normalizePath } from '@opra/url';
-import type { HttpRequest, HttpResponse } from '../../interfaces/adapter';
-import { OpraHttpAdapterOptions } from '../../interfaces/adapter';
-import { HttpAdapterContext, OpraHttpAdapter } from './http-adapter';
+import type { OpraHttpAdapterOptions } from '../../interfaces/adapter-options.interface';
+import type { HttpContext, HttpRequest, HttpResponse } from '../../interfaces/http-context.interface';
 import type { OpraService } from '../opra-service';
+import { OpraHttpAdapter } from './http-adapter';
 
-export class OpraExpressAdapter extends OpraHttpAdapter<HttpAdapterContext> {
+export class OpraExpressAdapter extends OpraHttpAdapter<HttpContext> {
   static init(
       app: Application,
       service: OpraService,
@@ -14,9 +14,11 @@ export class OpraExpressAdapter extends OpraHttpAdapter<HttpAdapterContext> {
     const adapter = new OpraExpressAdapter(service, options);
     const prefix = '/' + normalizePath(options?.prefix, true);
     app.use(prefix, (request, response, next) => {
-      const adapterContext: HttpAdapterContext = {
-        request: new ExpressRequestWrapper(request),
-        response: new ExpressResponseWrapper(response)
+      const req = new ExpressRequestWrapper(request);
+      const res = new ExpressResponseWrapper(response);
+      const adapterContext: HttpContext = {
+        getRequest: () => req,
+        getResponse: () => res
       }
       adapter.processRequest(adapterContext)
           .catch(e => next(e));

@@ -15,8 +15,11 @@ export function Property(args?: Partial<PropertyMetadata>): PropertyDecorator {
     if (typeof propertyKey !== 'string')
       throw new TypeError(`Symbol properties can't be used as Property`);
 
+    const designType = Reflect.getMetadata('design:type', target, propertyKey);
+
     const metadata: PropertyMetadata = {
-      name: propertyKey
+      name: propertyKey,
+      type: args?.type || designType
     }
     Object.assign(metadata, _.omit(args, Object.keys(metadata)));
 

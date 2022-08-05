@@ -9,6 +9,7 @@ export namespace OpraSchema {
       'EntityResource' |
       'SingletonResource';
   export type DataTypeKind = 'SimpleType' | 'ComplexType';
+
   //#endregion Common
 
   export interface Service extends Document {
@@ -91,13 +92,20 @@ export namespace OpraSchema {
     name: string;
     type?: string;
     description?: string;
-    format?: string;
     isArray?: boolean;
+    format?: string;
     default?: any;
     fixed?: string | number;
     enum?: string | string[] | Record<string, string>;
     examples?: any[] | Record<string, any>;
     deprecated?: boolean | string;
+
+    /**
+     * If true, this property will not be included in results by default.
+     * The client side should include the property name in the "include" query parameter.
+     */
+    exclusive?: boolean;
+
     // rules
     nullable?: boolean;
     readOnly?: boolean;

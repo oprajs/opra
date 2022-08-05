@@ -2,26 +2,21 @@ import { OpraURL } from '@opra/url';
 import { HttpStatus } from '../../enums';
 import { ApiException, BadRequestError, NotFoundError } from '../../exceptions';
 import { InternalServerError } from '../../exceptions/errors/internal-server.error.js';
-import { HttpRequest, HttpResponse } from '../../interfaces/adapter';
-import { ExecutionContext } from '../../interfaces/execution-context.interface';
-import { OperationKind } from '../../types';
-import { ComplexType } from '../data-type/complex-type';
-import { ExecutionContextHost } from '../execution-context';
-import { ExecutionQuery } from '../execution-query';
+import { ExecutionContext } from '../../interfaces/execution-context.interface.js';
+import { HttpContext } from '../../interfaces/http-context.interface';
+import { OperationKind } from '../../types.js';
+import { ComplexType } from '../data-type/complex-type.js';
+import { ExecutionQuery } from '../execution-query.js';
 import { EntityResource } from '../resource/entity-resource.js';
 import { OpraAdapter } from './adapter.js';
+import { HttpExecutionContextHost } from './execution-context-host';
 import { generateProjection } from './utils/generate-projection';
 
-export interface HttpAdapterContext {
-  request: HttpRequest;
-  response: HttpResponse;
-}
-
-export class OpraHttpAdapter<TAdapterContext extends HttpAdapterContext> extends OpraAdapter<HttpAdapterContext> {
+export class OpraHttpAdapter<TAdapterContext extends HttpContext> extends OpraAdapter<HttpContext> {
 
   protected async sendResponse(adapterContext: TAdapterContext, executionContext: ExecutionContext) {
     const {query, response, errors} = executionContext;
-    let status = response.status;
+    let status = response?.status;
 
     if (!status) {
       status = query.operation === 'create' ? HttpStatus.CREATED : HttpStatus.OK;
@@ -34,14 +29,8 @@ export class OpraHttpAdapter<TAdapterContext extends HttpAdapterContext> extends
       }
     }
 
-    if (response.headers) {
-      for (const [k, v] of Object.entries(response.headers)) {
-        // adapterContext.response.setHeader(k, v);
-      }
-    }
-
     const body = {
-      // '@resource': request.resourceName,
+      '@resource': query.resource.name,
       value: response.value,
       etag: response.etag,
       total: response.etag,
@@ -49,13 +38,13 @@ export class OpraHttpAdapter<TAdapterContext extends HttpAdapterContext> extends
     };
     // Object.assign(body, _.omit(response.additional, Object.keys(body)));
 
-    adapterContext.response.setStatus(status)
+    adapterContext.getResponse().setStatus(status)
         .setHeader('Content-Type', 'application/json')
         .send(JSON.stringify(body));
   }
 
   protected buildExecutionContext(adapterContext: TAdapterContext): ExecutionContext {
-    const req = adapterContext.request;
+    const req = adapterContext.getRequest();
     const url = new OpraURL(req.url);
     if (!url.path.size)
       throw new BadRequestError();
@@ -63,12 +52,13 @@ export class OpraHttpAdapter<TAdapterContext extends HttpAdapterContext> extends
       throw new BadRequestError();
 
     const {query, returnPath} = this.buildQuery(url, req.method);
-    const out = new ExecutionContextHost({
-      service: this.service,
-      query,
-      returnPath,
-      response: {}
-    });
+    const out = new HttpExecutionContextHost(adapterContext,
+        {
+          service: this.service,
+          query,
+          returnPath,
+          response: {}
+        });
 
     return out;
   }

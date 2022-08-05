@@ -1,5 +1,6 @@
 import type { ExecutionQuery } from '../implementation/execution-query';
 import type { OpraService } from '../implementation/opra-service';
+import { HttpContext } from './http-context.interface';
 
 export interface ExecutionContext {
   readonly service: OpraService;
@@ -8,4 +9,6 @@ export interface ExecutionContext {
   response: any;
   userContext?: any;
   errors?: any[];
+
+  switchToHttp(): HttpContext;
 }

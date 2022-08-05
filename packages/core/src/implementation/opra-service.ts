@@ -55,7 +55,7 @@ export class OpraService extends OpraDocument {
     }
 
     // Sort data types by name
-    const newResources = Responsive({});
+    const newResources = Responsive<Resource>({});
     Object.keys(this.resources).sort()
         .forEach(name => newResources[name] = this.resources[name]);
     this._resources = newResources;
