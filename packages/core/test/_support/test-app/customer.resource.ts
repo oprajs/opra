@@ -1,4 +1,5 @@
 import { OpraSchema } from '@opra/common';
+import { ExecutionContext } from '../../../src';
 
 export const customerResource: OpraSchema.EntityResource = {
   kind: 'EntityResource',
@@ -7,7 +8,7 @@ export const customerResource: OpraSchema.EntityResource = {
   primaryKey: 'id',
   sortFields: ['id'],
   read: {
-    handle: (ctx) => {
+    handle: (ctx: ExecutionContext) => {
       // eslint-disable-next-line no-console
       console.log(ctx);
     }

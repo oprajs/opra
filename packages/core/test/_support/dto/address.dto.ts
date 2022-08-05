@@ -1,4 +1,5 @@
 import { ComplexType, Property } from '@opra/common';
+import { Country } from './country.dto';
 
 @ComplexType({
   description: 'Address information'
@@ -9,7 +10,7 @@ export class Address {
   city: string;
 
   @Property()
-  country: string;
+  country: Country;
 
   @Property()
   street: string;
