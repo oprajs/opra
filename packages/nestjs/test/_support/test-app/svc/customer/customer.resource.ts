@@ -2,7 +2,7 @@ import { Api } from '@opra/core';
 import { Customer } from './customer.dto.js';
 import { CustomerService } from './customer.service.js';
 
-@Api.Entity(Customer, {
+@Api.EntityResource(Customer, {
   primaryKey: 'id',
   description: 'Customer resource'
 })

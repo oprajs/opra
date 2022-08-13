@@ -13,7 +13,7 @@ describe('Api decorators', function () {
       class AnimalResource {
       }
 
-      Api.Entity(Address, opts)(AnimalResource);
+      Api.EntityResource(Address, opts)(AnimalResource);
 
       const metadata = Reflect.getMetadata(RESOURCE_METADATA, AnimalResource);
       expect(metadata).toStrictEqual({

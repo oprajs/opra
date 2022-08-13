@@ -11,7 +11,7 @@ export type OpraServiceArgs = StrictOmit<OpraSchema.Service, 'version' | 'types'
 
 export class OpraService extends OpraDocument {
   protected declare readonly _args: OpraServiceArgs;
-  protected _resources: Record<string, Resource> = Responsive({});
+  protected _resources = Responsive<Resource>();
 
   constructor(schema: OpraSchema.Service) {
     super(schema);
@@ -55,7 +55,7 @@ export class OpraService extends OpraDocument {
     }
 
     // Sort data types by name
-    const newResources = Responsive<Resource>({});
+    const newResources = Responsive<Resource>();
     Object.keys(this.resources).sort()
         .forEach(name => newResources[name] = this.resources[name]);
     this._resources = newResources;

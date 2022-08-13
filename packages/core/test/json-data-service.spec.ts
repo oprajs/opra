@@ -1,10 +1,10 @@
-import { JsonResourceService } from '../src';
+import { JsonDataService } from '../src';
 import { Customer } from './_support/dto/customer.dto.js';
-import customerData from './_support/test-app/customers.data.js';
+import customerData from './_support/data/customers.data';
 
 describe('JsonDataService', function () {
 
-  const customerService = new JsonResourceService<Customer>(Customer, customerData);
+  const customerService = new JsonDataService<Customer>(Customer, customerData);
   const commonQuery = {
     resourceName: 'Customer',
     path: '',
@@ -20,10 +20,10 @@ describe('JsonDataService', function () {
     expect(v).toBeDefined();
     expect(v.id).toStrictEqual(1);
   })
-  it('Should list records', async () => {
+  it('Should search records', async () => {
     const v = customerService.findAll({
       ...commonQuery,
-      operation: 'list'
+      operation: 'search'
     });
     expect(v).toBeDefined();
     expect(Array.isArray(v)).toStrictEqual(true);

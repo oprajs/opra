@@ -1,14 +1,12 @@
 import "reflect-metadata";
-import * as Api from './api.namespace.js';
 
-export { Api };
+export * from './api.namespace.js';
 export * from './constants.js';
 export * from './types.js';
 
 export * from './enums/index.js';
-export * from './exceptions/index.js';
+export * from './exception/index.js';
 
-export * from './interfaces/adapter-options.interface.js';
 export * from './interfaces/execution-context.interface.js';
 export * from './interfaces/http-context.interface.js';
 
@@ -24,7 +22,7 @@ export * from './implementation/resource/entity-resource.js';
 
 export * from './implementation/opra-document.js';
 export * from './implementation/opra-service.js';
-export * from './implementation/execution-query.js';
+export * from './implementation/execution-query';
 export * from './implementation/schema-generator.js';
 
-export * from './services/json-resource-service.js';
+export * from './services/json-data-service';

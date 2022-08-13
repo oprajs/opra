@@ -1,57 +1,72 @@
+import { isPromise } from 'util/types';
 import { I18n } from '@opra/i18n';
-import { ApiException } from '../../exceptions';
-import type { OpraAdapterOptions } from '../../interfaces/adapter-options.interface';
-import type { ExecutionContext } from '../../interfaces/execution-context.interface';
+import { ApiException, FailedDependencyError } from '../../exception';
+import { ExecutionContext } from '../../interfaces/execution-context.interface';
 import type { OpraService } from '../opra-service';
-import { EntityResource } from '../resource/entity-resource';
 
-export abstract class OpraAdapter<TAdapterContext = any> {
+export namespace OpraAdapter {
+  export interface Options {
+    i18n?: I18n;
+  }
+}
+
+export abstract class OpraAdapter<TAdapterContext = any, TOptions extends OpraAdapter.Options = OpraAdapter.Options> {
   i18n: I18n;
 
-  protected constructor(readonly service: OpraService, options?: OpraAdapterOptions) {
+  protected constructor(readonly service: OpraService, options?: TOptions) {
     this.i18n = options?.i18n || I18n.defaultInstance;
   }
 
-  protected abstract buildExecutionContext(adapterContext: TAdapterContext): ExecutionContext;
+  protected abstract prepareExecutionContexts(adapterContext: TAdapterContext): ExecutionContext[];
 
-  protected abstract sendResponse(adapterContext: TAdapterContext, executionContext: ExecutionContext): Promise<void>;
+  protected abstract sendResponse(adapterContext: TAdapterContext, executionContexts: ExecutionContext[]): Promise<void>;
 
-  protected async processRequest(adapterContext: TAdapterContext): Promise<void> {
-    const executionContext = this.buildExecutionContext(adapterContext);
-    try {
-      const data = await this.executeQuery(adapterContext, executionContext);
-      if (data != null)
-        executionContext.response.value = data;
-      else if (!executionContext.query.keyValues) executionContext.response.value = [];
-    } catch (e) {
-      executionContext.errors = executionContext.errors || [];
-      executionContext.errors.unshift(e);
+  protected async handler(adapterContext: TAdapterContext): Promise<void> {
+    const executionContexts = this.prepareExecutionContexts(adapterContext);
+    let stop = false;
+    // Read requests can be executed simultaneously, write request should be executed one by one
+    let promises: Promise<void>[] | undefined;
+    let exclusive = false;
+    for (const ctx of executionContexts) {
+      const request = ctx.request;
+      const response = ctx.response;
+      exclusive = exclusive || request.query.operationMethod !== 'read';
+      try {
+        // Wait previous read requests before executing update request
+        if (exclusive && promises) {
+          await Promise.all(promises);
+          promises = undefined;
+        }
+        // If previous request in bucket had an error and executed an update
+        // we do not execute next requests
+        if (stop) {
+          response.errors.push(new FailedDependencyError());
+        } else {
+          const v = ctx.resource.execute(ctx);
+          if (!exclusive) {
+            if (isPromise(v)) {
+              promises = promises || [];
+              promises.push(v);
+            }
+          }
+        }
+      } catch (e: any) {
+        response.errors.unshift(ApiException.wrap(e));
+      }
+      if (response.errors && response.errors.length) {
+        // noinspection SuspiciousTypeOfGuard
+        response.errors = response.errors.map(e => ApiException.wrap(e))
+        if (exclusive)
+          stop = stop || !!response.errors.find(
+              e => !(e.response.severity === 'warning' || e.response.severity === 'info')
+          );
+      }
     }
-    if (executionContext.errors)
-      executionContext.errors = this.transformErrors(adapterContext, executionContext.errors);
-    await this.sendResponse(adapterContext, executionContext);
-  }
 
-  protected async executeQuery(adapterContext: TAdapterContext, executionContext: ExecutionContext): Promise<any> {
-    const resource = executionContext.query.resource;
-    if (resource instanceof EntityResource) {
-      const fn = resource[executionContext.query.operation];
-      if (typeof fn === 'function')
-        return fn(executionContext);
-    }
-  }
+    if (promises)
+      await Promise.all(promises);
 
-  protected transformErrors(adapterContext: TAdapterContext, error: any): ApiException[] {
-    const errors = Array.isArray(error) ? error : [error];
-    return errors.reduce((arr, err) => {
-      const e = this.transformError(adapterContext, err);
-      if (e) arr.push(e);
-      return arr;
-    }, []);
-  }
-
-  protected transformError(adapterContext: TAdapterContext, error: any): ApiException {
-    return error instanceof ApiException ? error : new ApiException(error);
+    await this.sendResponse(adapterContext, executionContexts);
   }
 
 }

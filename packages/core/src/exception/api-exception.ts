@@ -51,10 +51,6 @@ export class ApiException extends Error {
     this._initResponse(response);
   }
 
-  getStatus(): number {
-    return this.status;
-  }
-
   setStatus(status: number | HttpStatus): this {
     this.status = status;
     return this;
@@ -89,4 +85,9 @@ export class ApiException extends Error {
     if (!this.response.severity)
       this.response.severity = !this.status || this.status >= 500 ? 'error' : 'fatal'
   }
+
+  static wrap(response: string | ErrorResponse | Error, status?: number): ApiException {
+    return response instanceof ApiException ? response : new ApiException(response, status);
+  }
+
 }

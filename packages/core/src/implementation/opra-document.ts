@@ -13,7 +13,7 @@ export type OpraDocumentArgs = StrictOmit<OpraSchema.Document, 'version' | 'type
 
 export class OpraDocument {
   protected readonly _args: OpraDocumentArgs;
-  protected _types: ResponsiveObject<DataType> = Responsive<DataType>({});
+  protected _types: ResponsiveObject<DataType> = Responsive<DataType>();
 
   constructor(schema: OpraSchema.Document) {
     this._args = _.omit(schema, 'types');
@@ -37,6 +37,13 @@ export class OpraDocument {
     const t = this.types[name];
     if (!t)
       throw new Error(`Data type "${name}" does not exists`);
+    return t;
+  }
+
+  getComplexDataType(name: string): ComplexType {
+    const t = this.getDataType(name);
+    if (!(t instanceof ComplexType))
+      throw new Error(`Data type "${name}" is not a complex type`);
     return t;
   }
 
@@ -78,11 +85,11 @@ export class OpraDocument {
       if (OpraSchema.isSimpleType(schema)) {
         if (baseType && !(baseType instanceof SimpleType))
           throw new TypeError(`Can't extend a SimpleType (${schema.name}) from a ComplexType "${baseType.name}"`);
-        dataType = new SimpleType(schema, baseType);
+        dataType = new SimpleType(this, schema, baseType);
       } else {
         if (baseType && !(baseType instanceof ComplexType))
           throw new TypeError(`Can't extend a ComplexType (${schema.name}) from a SimpleType "${baseType.name}"`);
-        dataType = new ComplexType(schema, baseType);
+        dataType = new ComplexType(this, schema, baseType);
       }
       nameSet.delete(schema.name);
       this.types[dataType.name] = dataType;
@@ -92,7 +99,7 @@ export class OpraDocument {
     dataTypes.forEach(dataType => processDataType(dataType));
 
     // Sort data types by name
-    const newTypes = Responsive<DataType>({});
+    const newTypes = Responsive<DataType>();
     Object.keys(this.types).sort()
         .forEach(name => newTypes[name] = this.types[name]);
     this._types = newTypes;

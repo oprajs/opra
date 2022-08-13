@@ -1,34 +1,63 @@
 import "reflect-metadata";
 import _ from 'lodash';
-import { StrictOmit } from 'ts-gems';
 import {
   RESOURCE_OPERATION,
-  RESOURCE_OPERATION_METHODS,
+  RESOURCE_OPERATION_METHODS, RESOURCE_OPERATION_TYPE,
 } from '../constants';
 import {
-  ResourceListOperationMetadata,
-  ResourceReadOperationMetadata
+  ResourceCreateOperationMetadata,
+  ResourceDeleteOperationMetadata,
+  ResourceExecuteOperationMetadata,
+  ResourcePatchOperationMetadata,
+  ResourceReadOperationMetadata,
+  ResourceSearchOperationMetadata,
+  ResourceUpdateOperationMetadata
 } from '../interfaces/opra-schema.metadata';
 
 
-export function ReadHandler(args?: StrictOmit<ResourceReadOperationMetadata, 'handle'>) {
+export type ReadOperationOptions = ResourceReadOperationMetadata;
+export type SearchOperationOptions = ResourceSearchOperationMetadata;
+export type CreateOperationOptions = ResourceCreateOperationMetadata;
+export type UpdateOperationOptions = ResourceUpdateOperationMetadata;
+export type PatchOperationOptions = ResourcePatchOperationMetadata;
+export type DeleteOperationOptions = ResourceDeleteOperationMetadata;
+export type ExecuteOperationOptions = ResourceExecuteOperationMetadata;
+
+export function ReadOperation(args?: ReadOperationOptions) {
   return createResourceOperationDecorator('read', args);
 }
 
-export function ListHandler(args?: StrictOmit<ResourceListOperationMetadata, 'handle'>) {
-  return createResourceOperationDecorator('list', args);
+export function SearchOperation(args?: SearchOperationOptions) {
+  return createResourceOperationDecorator('search', args);
+}
+
+export function CreateOperation(args?: CreateOperationOptions) {
+  return createResourceOperationDecorator('create', args);
+}
+
+export function UpdateOperation(args?: UpdateOperationOptions) {
+  return createResourceOperationDecorator('update', args);
+}
+
+export function PatchOperation(args?: PatchOperationOptions) {
+  return createResourceOperationDecorator('patch', args);
+}
+
+export function DeleteOperation(args?: DeleteOperationOptions) {
+  return createResourceOperationDecorator('delete', args);
+}
+
+export function ExecuteOperation(args?: ExecuteOperationOptions) {
+  return createResourceOperationDecorator('execute', args);
 }
 
 
-function createResourceOperationDecorator(
-    operation: string,
-    args?: StrictOmit<ResourceListOperationMetadata, 'handle'>) {
+function createResourceOperationDecorator<TMetadata>(operationType: string, args: TMetadata) {
 
   return function (target: Object,
                    propertyKey: string | symbol,
                    descriptor?: TypedPropertyDescriptor<any>
   ): TypedPropertyDescriptor<any> | void {
-    /* istanbul ignore next */
     if (typeof propertyKey !== 'string')
       throw new TypeError('Symbol properties can not be used as api method');
 
@@ -43,17 +72,19 @@ function createResourceOperationDecorator(
         writable: true
       });
 
-    const operationMethods = Reflect.getMetadata(RESOURCE_OPERATION_METHODS, target) || [];
-    operationMethods.push(propertyKey);
-    Reflect.defineMetadata(RESOURCE_OPERATION_METHODS, operationMethods, target);
+    Reflect.defineMetadata(RESOURCE_OPERATION_TYPE, operationType, target, propertyKey);
 
-    const meta = {
-      kind: 'ResourceOperation',
+    const meta: TMetadata = {
       ...args,
-      operation
     };
-    Object.assign(meta, _.omit(args, Object.keys(meta)));
+    Object.assign(meta, _.omit(args as any, Object.keys(meta)));
     Reflect.defineMetadata(RESOURCE_OPERATION, meta, target, propertyKey);
+
+    const operationMethods: string[] = Reflect.getMetadata(RESOURCE_OPERATION_METHODS, target) || [];
+    if (!operationMethods.includes(propertyKey))
+      operationMethods.push(propertyKey);
+    Reflect.defineMetadata(RESOURCE_OPERATION_METHODS, operationMethods, target, propertyKey);
+
   }
 }
 
