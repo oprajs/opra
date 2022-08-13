@@ -1,6 +1,11 @@
 import { StrictOmit, Type } from 'ts-gems';
 import { DATATYPE_METADATA, DATATYPE_PROPERTIES, OpraSchema, PropertyMetadata } from '@opra/common';
-import { RESOURCE_METADATA, RESOURCE_OPERATION, RESOURCE_OPERATION_METHODS } from '../constants';
+import {
+  RESOURCE_METADATA,
+  RESOURCE_OPERATION,
+  RESOURCE_OPERATION_METHODS,
+  RESOURCE_OPERATION_TYPE
+} from '../constants';
 import { isConstructor, resolveClassAsync } from '../helpers/class-utils';
 import { builtinClassMap, internalDataTypes, primitiveDataTypeNames } from '../helpers/internal-data-types';
 import { ThunkAsync } from '../types';
@@ -110,6 +115,7 @@ export class SchemaGenerator {
     const ctor = proto.constructor;
     const metadata = Reflect.getMetadata(RESOURCE_METADATA, ctor);
 
+    let resourceSchema: OpraSchema.EntityResource;
     if (metadata) {
       const name = metadata.name || ctor.name.replace(/Resource$/, '');
       const t = typeof metadata.type === 'function'
@@ -119,7 +125,7 @@ export class SchemaGenerator {
           ? (await this.addDataType(t)).name
           : t;
 
-      thunk = {
+      resourceSchema = {
         ...metadata,
         type,
         name
@@ -128,25 +134,25 @@ export class SchemaGenerator {
       const operationMethods = Reflect.getMetadata(RESOURCE_OPERATION_METHODS, proto);
       if (operationMethods) {
         for (const methodName of operationMethods) {
-          const method = proto[methodName];
+          const fn = proto[methodName];
+          const operationType =  Reflect.getMetadata(RESOURCE_OPERATION_TYPE, proto);
           const operationMetadata = Reflect.getMetadata(RESOURCE_OPERATION, proto, methodName);
           /* istanbul ignore next */
-          if (!(method && operationMetadata))
+          if (!(fn && operationMetadata && operationType))
             continue;
-          const opr = thunk[operationMetadata.operation] = {...operationMetadata, handle: method.bind(thunk)};
-          delete opr.operation;
+          resourceSchema[operationType] = {...operationMetadata, handler: fn.bind(thunk)};
         }
       }
-    }
+    } else resourceSchema = thunk;
 
-    if (OpraSchema.isResource(thunk)) {
-      if (OpraSchema.isEntityResource(thunk)) {
-        const t = this._dataTypes[thunk.type];
+    if (OpraSchema.isResource(resourceSchema)) {
+      if (OpraSchema.isEntityResource(resourceSchema)) {
+        const t = this._dataTypes[resourceSchema.type];
         if (!t)
-          throw new Error(`Resource registration error. Type "${thunk.type}" not found.`);
-        if (this._resources[thunk.name])
-          throw new Error(`An other instance of "${thunk.name}" resource previously defined`);
-        this._resources[thunk.name] = thunk;
+          throw new Error(`Resource registration error. Type "${resourceSchema.type}" not found.`);
+        if (this._resources[resourceSchema.name])
+          throw new Error(`An other instance of "${resourceSchema.name}" resource previously defined`);
+        this._resources[resourceSchema.name] = resourceSchema;
         return;
       }
       throw new Error(`Invalid resource metadata`);

@@ -1,19 +1,24 @@
 const dotPattern = /^([^.]+)\.(.*)$/;
 
-export function stringPathToObjectTree(arr: string[]): object | undefined {
+export interface ObjectTree {
+  [key: string]: boolean | ObjectTree
+}
+
+export function stringPathToObjectTree(arr: string[]): ObjectTree | undefined {
   if (!arr.length)
     return;
   return _stringPathToObjectTree(arr, {});
 }
 
-function _stringPathToObjectTree(arr: string[], target: object): object {
+function _stringPathToObjectTree(arr: string[], target: ObjectTree): ObjectTree {
   for (const k of arr) {
     const m = dotPattern.exec(k);
     if (m) {
-      if (target[m[1]] === true)
+      const key = m[1];
+      if (target[key] === true)
         continue;
-      target[m[1]] = target[m[1]] || {};
-      _stringPathToObjectTree([m[2]], target[m[1]]);
+      const sub: ObjectTree = target[key] = {};
+      _stringPathToObjectTree([m[2]], sub);
     } else {
       target[k] = true;
     }

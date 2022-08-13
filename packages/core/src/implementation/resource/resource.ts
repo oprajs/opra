@@ -1,10 +1,13 @@
 import { OpraSchema } from '@opra/common';
 import { colorFgMagenta, colorFgYellow, colorReset, nodeInspectCustom } from '../../helpers/terminal-utils';
+import { ExecutionContext } from '../../interfaces/execution-context.interface';
+import { ComplexType } from '../data-type/complex-type';
 
 export abstract class Resource {
-  protected readonly _args: any;
+  protected readonly _args: OpraSchema.Resource;
+  readonly dataType: ComplexType;
 
-  protected constructor(args: OpraSchema.BaseResource) {
+  protected constructor(args: OpraSchema.Resource) {
     this._args = args;
   }
 
@@ -19,6 +22,8 @@ export abstract class Resource {
   toString(): string {
     return `[${Object.getPrototypeOf(this).constructor.name} ${this.name}]`;
   }
+
+  abstract execute(ctx: ExecutionContext): Promise<void>;
 
   [nodeInspectCustom](): string {
     return `[${colorFgYellow + Object.getPrototypeOf(this).constructor.name + colorReset}` +

@@ -1,46 +1,67 @@
 import type { Application, Request, Response } from 'express';
 import { normalizePath } from '@opra/url';
-import type { OpraHttpAdapterOptions } from '../../interfaces/adapter-options.interface';
-import type { HttpContext, HttpRequest, HttpResponse } from '../../interfaces/http-context.interface';
+import type { HttpAdapterContext, HttpRequest, HttpResponse } from '../../interfaces/http-context.interface';
 import type { OpraService } from '../opra-service';
 import { OpraHttpAdapter } from './http-adapter';
 
-export class OpraExpressAdapter extends OpraHttpAdapter<HttpContext> {
+export namespace OpraExpressAdapter {
+  export interface Options extends OpraHttpAdapter.Options {
+    userContext?: (request: Request) => object | Promise<object>;
+  }
+
+}
+
+export class OpraExpressAdapter extends OpraHttpAdapter<HttpAdapterContext, OpraExpressAdapter.Options> {
+
   static init(
       app: Application,
       service: OpraService,
-      options?: OpraHttpAdapterOptions
+      options?: OpraExpressAdapter.Options
   ): void {
     const adapter = new OpraExpressAdapter(service, options);
     const prefix = '/' + normalizePath(options?.prefix, true);
+    const userContextResolver = options?.userContext;
     app.use(prefix, (request, response, next) => {
-      const req = new ExpressRequestWrapper(request);
-      const res = new ExpressResponseWrapper(response);
-      const adapterContext: HttpContext = {
-        getRequest: () => req,
-        getResponse: () => res
-      }
-      adapter.processRequest(adapterContext)
-          .catch(e => next(e));
+      (async () => {
+        const userContext = userContextResolver && await userContextResolver(request);
+        const req = new ExpressRequestWrapper(request);
+        const res = new ExpressResponseWrapper(response);
+        const adapterContext: HttpAdapterContext = {
+          getRequest: () => req,
+          getResponse: () => res,
+          getUserContext: () => userContext
+        }
+        await adapter.handler(adapterContext);
+      })().catch(e => next(e));
     });
   }
+
 }
 
 class ExpressRequestWrapper implements HttpRequest {
   constructor(readonly instance: Request) {
   }
 
-  get method(): string {
+  getMethod(): string {
     return this.instance.method;
   }
 
-  get url(): string {
+  getUrl(): string {
     return this.instance.url;
   }
 
   getHeader(name: string): string | undefined {
     return this.instance.get(name);
   }
+
+  getHeaderNames(): string[] {
+    return this.instance.rawHeaders;
+  }
+
+  getHeaders(): Record<string, any> {
+    return this.instance.headers;
+  }
+
 }
 
 
@@ -56,6 +77,7 @@ class ExpressResponseWrapper implements HttpResponse {
     this.instance.setHeader(name, value);
     return this;
   }
+
 
   setStatus(value: number): this {
     // noinspection SuspiciousTypeOfGuard

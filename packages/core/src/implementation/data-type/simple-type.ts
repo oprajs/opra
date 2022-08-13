@@ -1,14 +1,15 @@
 import { StrictOmit } from 'ts-gems';
 import { OpraSchema } from '@opra/common';
 import { colorFgMagenta, colorFgYellow, colorReset, nodeInspectCustom } from '../../helpers/terminal-utils';
+import type { OpraDocument } from '../opra-document';
 import { DataType } from './data-type';
 
 export class SimpleType extends DataType {
   declare protected readonly _args: OpraSchema.SimpleType;
   declare readonly base?: SimpleType;
 
-  constructor(args: StrictOmit<OpraSchema.SimpleType, 'kind'>, base?: SimpleType) {
-    super({
+  constructor(owner: OpraDocument, args: StrictOmit<OpraSchema.SimpleType, 'kind'>, base?: SimpleType) {
+    super(owner, {
       kind: 'SimpleType',
       ...args
     }, base);

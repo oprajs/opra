@@ -149,10 +149,15 @@ export namespace OpraSchema {
     kind: 'EntityResource',
     type: string;
     primaryKey: string | string[];
-    sortFields?: string[];
-    defaultSort?: string[];
-    list?: ResourceListOperation;
+    create?: ResourceReadOperation;
+    search?: ResourceSearchOperation;
     read?: ResourceReadOperation;
+    update?: ResourceReadOperation;
+    // updateMany?: ResourceReadOperation;
+    patch?: ResourceReadOperation;
+    // patchMany?: ResourceReadOperation;
+    delete?: ResourceReadOperation;
+    // deleteMany: ResourceReadOperation;
   }
 
   export interface SingletonResource extends BaseResource {
@@ -161,16 +166,35 @@ export namespace OpraSchema {
   }
 
   //#region # Operations
+
   export type ResourceOperation = Extensible & {
-    handle?: Function;
+    handler?: Function;
   }
 
-  export type ResourceListOperation = ResourceOperation & {
+  export type ResourceReadOperation = ResourceOperation & {
+  }
+
+  export type ResourceSearchOperation = ResourceOperation & {
     defaultLimit?: number;
     maxLimit?: number;
+    sortPaths?: string[];
+    defaultSortPaths?: string[];
   }
 
-  export type ResourceReadOperation = ResourceOperation & {}
+  export type ResourceCreateOperation = ResourceOperation & {
+  }
+
+  export type ResourceUpdateOperation = ResourceOperation & {
+  }
+
+  export type ResourcePatchOperation = ResourceOperation & {
+  }
+
+  export type ResourceDeleteOperation = ResourceOperation & {
+  }
+
+  export type ResourceExecuteOperation = ResourceOperation & {
+  }
 
 
   export function isResource(obj: any): obj is Resource {

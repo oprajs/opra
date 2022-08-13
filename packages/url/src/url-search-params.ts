@@ -31,12 +31,12 @@ export interface QueryItemMetadata {
   maxArrayItems?: number;
 }
 
-export class OpraURLSearchParams extends EventEmitter {
+export class SearchParams extends EventEmitter {
   protected [QUERYMETADATA_KEY]: Record<string, QueryItemMetadata>;
   private _entries: Record<string, any[]> = {};
   private _size = 0;
 
-  constructor(init?: (string | URLSearchParams | OpraURLSearchParams)) {
+  constructor(init?: (string | URLSearchParams | SearchParams)) {
     super();
     Object.defineProperty(this, QUERYMETADATA_KEY, {
       enumerable: false,
@@ -44,13 +44,7 @@ export class OpraURLSearchParams extends EventEmitter {
       configurable: true,
       value: {}
     });
-    if (init && typeof init === 'string') {
-      this.parse(init);
-    } else if ((init instanceof URLSearchParams) || (init instanceof OpraURLSearchParams)) {
-      init.forEach((value: string, name: string) => {
-        this.append(name, value);
-      });
-    }
+    this._init(init);
   }
 
   get size(): number {
@@ -214,6 +208,18 @@ export class OpraURLSearchParams extends EventEmitter {
     return this._entries;
   }
 
+  protected _init(init?: (string | URLSearchParams | SearchParams)) {
+    if (init instanceof SearchParams)
+      this._entries = {...init._entries};
+    if (init && typeof init === 'string')
+      this.parse(init);
+    if ((init instanceof URLSearchParams) || (init instanceof SearchParams)) {
+      init.forEach((value: string, name: string) => {
+        this.append(name, value);
+      });
+    }
+  }
+
   protected _add(name: string, value: any): void {
     const qi = this[QUERYMETADATA_KEY][name];
     const format = qi ?
@@ -228,5 +234,20 @@ export class OpraURLSearchParams extends EventEmitter {
     this.emit('change');
   }
 
+}
 
+export class OpraURLSearchParams extends SearchParams {
+  constructor(init?: (string | URLSearchParams | SearchParams)) {
+    super();
+    this.defineParam('$filter', {format: 'filter'});
+    this.defineParam('$limit', {format: new IntegerFormat({min: 0})});
+    this.defineParam('$skip', {format: new IntegerFormat({min: 0})});
+    this.defineParam('$elements', {format: 'string', array: 'strict'});
+    this.defineParam('$exclude', {format: 'string', array: 'strict'});
+    this.defineParam('$include', {format: 'string', array: 'strict'});
+    this.defineParam('$sort', {format: 'string', array: 'strict'});
+    this.defineParam('$distinct', {format: 'boolean'});
+    this.defineParam('$total', {format: 'boolean'});
+    this._init(init);
+  }
 }

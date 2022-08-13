@@ -4,8 +4,8 @@ import { ExecutionQuery, OpraService } from '../../src';
 import { OpraHttpAdapter } from '../../src/implementation/adapter/http-adapter';
 import { Address } from '../_support/dto/address.dto';
 import { Customer } from '../_support/dto/customer.dto';
-import { customerResource } from '../_support/test-app/customer.resource';
-import { CustomerAddressResource } from '../_support/test-app/customer-address.resource';
+import { customersResource } from '../_support/test-app/customers.resource';
+import { CustomerAddressesResource } from '../_support/test-app/customer-addresses.resource';
 
 class TestHttpAdapter extends OpraHttpAdapter<any> {
   constructor(service: OpraService) {
@@ -14,7 +14,7 @@ class TestHttpAdapter extends OpraHttpAdapter<any> {
 
   buildQuery(url: OpraURL, method: string): {
     query: ExecutionQuery;
-    returnPath: string;
+    resultPath: string;
   } {
     return super.buildQuery(url, method);
   }
@@ -31,7 +31,7 @@ describe('OpraHttpAdapter', function () {
         version: 'v1',
       },
       types: [Customer, Address],
-      resources: [customerResource, new CustomerAddressResource()]
+      resources: [customersResource, new CustomerAddressesResource()]
     });
   });
 
@@ -54,7 +54,7 @@ describe('OpraHttpAdapter', function () {
         expect(query.path).toStrictEqual('');
         expect(query.fullPath).toStrictEqual('');
         expect(query.keyValues).toStrictEqual({id: '1'});
-        expect(query.resultType).toStrictEqual(service.getDataType('Customer'));
+        expect(query.outputType).toStrictEqual(service.getDataType('Customer'));
       })
 
       it('Should generate "read" query for collection of Resources', async () => {
@@ -72,7 +72,7 @@ describe('OpraHttpAdapter', function () {
         expect(query.path).toStrictEqual('');
         expect(query.fullPath).toStrictEqual('');
         expect(query.keyValues).toStrictEqual(undefined);
-        expect(query.resultType).toStrictEqual(service.getDataType('Customer'));
+        expect(query.outputType).toStrictEqual(service.getDataType('Customer'));
       })
 
       it('Should build list of all properties to be exposed', async () => {

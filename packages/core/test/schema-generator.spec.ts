@@ -2,8 +2,8 @@ import 'reflect-metadata';
 import { SchemaGenerator } from '../src';
 import { Address } from './_support/dto/address.dto';
 import { Customer } from './_support/dto/customer.dto';
-import { customerResource } from './_support/test-app/customer.resource';
-import { CustomerAddressResource } from './_support/test-app/customer-address.resource';
+import { customersResource } from './_support/test-app/customers.resource';
+import { CustomerAddressesResource } from './_support/test-app/customer-addresses.resource';
 
 describe('SchemaGenerator', function () {
 
@@ -83,7 +83,7 @@ describe('SchemaGenerator', function () {
           description: 'Test api description'
         },
         types: [Customer, Address],
-        resources: [customerResource, new CustomerAddressResource()]
+        resources: [customersResource, new CustomerAddressesResource()]
       };
       const schema = await SchemaGenerator.generateServiceSchema(input);
       expect(schema.resources[0]).toBeDefined();

@@ -3,6 +3,7 @@ import { OpraSchema } from '@opra/common';
 import { Responsive, ResponsiveObject } from '../../helpers/responsive-object';
 import { colorFgMagenta, colorFgYellow, colorReset, nodeInspectCustom } from '../../helpers/terminal-utils';
 import { DataType } from './data-type';
+import type { OpraDocument } from '../opra-document';
 
 export type ComplexTypeArgs = StrictOmit<OpraSchema.ComplexType, 'kind'>;
 
@@ -11,8 +12,8 @@ export class ComplexType extends DataType {
   readonly ownProperties?: ResponsiveObject<OpraSchema.Property>;
   readonly properties?: ResponsiveObject<OpraSchema.Property>;
 
-  constructor(args: ComplexTypeArgs, base?: ComplexType) {
-    super({
+  constructor(owner: OpraDocument, args: ComplexTypeArgs, base?: ComplexType) {
+    super(owner, {
       kind: 'ComplexType',
       ...args
     }, base);
