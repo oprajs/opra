@@ -3,7 +3,7 @@ import _ from 'lodash';
 import {
   RESOURCE_OPERATION,
   RESOURCE_OPERATION_METHODS, RESOURCE_OPERATION_TYPE,
-} from '../constants';
+} from '../constants.js';
 import {
   ResourceCreateOperationMetadata,
   ResourceDeleteOperationMetadata,
@@ -12,7 +12,7 @@ import {
   ResourceReadOperationMetadata,
   ResourceSearchOperationMetadata,
   ResourceUpdateOperationMetadata
-} from '../interfaces/opra-schema.metadata';
+} from '../interfaces/opra-schema.metadata.js';
 
 
 export type ReadOperationOptions = ResourceReadOperationMetadata;

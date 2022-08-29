@@ -1,7 +1,7 @@
 import _ from 'lodash';
 import { StrictOmit } from 'ts-gems';
 import { OpraSchema } from '@opra/common';
-import { ExecutionContext } from '../../interfaces/execution-context.interface';
+import { ExecutionContext } from '../execution-context';
 import { ComplexType } from '../data-type/complex-type';
 import { Resource } from './resource';
 

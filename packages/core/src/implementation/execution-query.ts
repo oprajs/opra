@@ -1,13 +1,13 @@
 import { Maybe } from 'ts-gems';
 import { OpraSchema } from '@opra/common';
-import type { OperationLevel, OperationMethod, OperationType } from '../types';
-import { ComplexType } from './data-type/complex-type';
-import type { DataType } from './data-type/data-type';
-import { OpraService } from './opra-service';
-import { EntityResource } from './resource/entity-resource';
+import type { OperationLevel, OperationMethod, OperationType } from '../types.js';
+import { ComplexType } from './data-type/complex-type.js';
+import type { DataType } from './data-type/data-type.js';
+import { OpraService } from './opra-service.js';
+import { EntityResource } from './resource/entity-resource.js';
 import Property = OpraSchema.Property;
-import { Responsive, ResponsiveObject } from '../helpers/responsive-object';
-import { ObjectTree, stringPathToObjectTree } from './adapter/utils/string-path-to-object-tree';
+import { Responsive, ResponsiveObject } from '../helpers/responsive-object.js';
+import { ObjectTree, stringPathToObjectTree } from './adapter/utils/string-path-to-object-tree.js';
 
 export type ExecutionQueryProjection = ResponsiveObject<ExecutionQuery | boolean>;
 

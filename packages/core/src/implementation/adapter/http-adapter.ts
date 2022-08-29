@@ -9,15 +9,15 @@ import {
   NotFoundError,
 } from '../../exception/index.js';
 import { Headers, HeadersObject } from '../../helpers/headers.js';
+import { HttpAdapterContext } from '../../interfaces/http-context.interface.js';
+import { OperationMethod } from '../../types.js';
+import { ComplexType } from '../data-type/complex-type.js';
 import {
   ExecutionContext,
   ExecutionRequest,
   ExecutionResponse
-} from '../../interfaces/execution-context.interface.js';
-import { HttpAdapterContext } from '../../interfaces/http-context.interface';
-import { OperationMethod } from '../../types.js';
-import { ComplexType } from '../data-type/complex-type.js';
-import { ExecutionQuery } from '../execution-query';
+} from '../execution-context.js';
+import { ExecutionQuery } from '../execution-query.js';
 import { EntityResource } from '../resource/entity-resource.js';
 import { Resource } from '../resource/resource.js';
 import { OpraAdapter } from './adapter.js';
@@ -59,25 +59,22 @@ export class OpraHttpAdapter<TAdapterContext extends HttpAdapterContext,
     if (method !== 'GET' && url.path.size > 1)
       throw new BadRequestError();
     const {query, resource, resultPath} = this.buildQuery(url, method);
-    const request: ExecutionRequest = {
+    const request = new ExecutionRequest({
       headers,
       params: url.searchParams,
-      query
-    }
-    const response: ExecutionResponse = {
-      headers: Headers.create(),
-      errors: []
-    }
+      query,
+      resultPath,
+    });
+    const response = new ExecutionResponse();
     // noinspection UnnecessaryLocalVariableJS
-    const executionContext: ExecutionContext = {
+    const executionContext = new ExecutionContext({
       service: this.service,
       resource,
       request,
       response,
-      resultPath,
       userContext,
       continueOnError: request.query.operationMethod === 'read'
-    }
+    })
     return executionContext;
   }
 
@@ -235,15 +232,15 @@ export class OpraHttpAdapter<TAdapterContext extends HttpAdapterContext,
 
     // Move to sub property if result path defined
     let value = ctx.response.value;
-    if (ctx.resultPath) {
-      const pathArray = ctx.resultPath.split('.');
+    if (ctx.request.resultPath) {
+      const pathArray = ctx.request.resultPath.split('.');
       for (const property of pathArray) {
         value = value && typeof value === 'object' && value[property];
       }
     }
 
     const body: any = {
-      '@origin': ctx.resource.name + (ctx.resultPath ? '.' + ctx.resultPath : ''),
+      '@origin': ctx.resource.name + (ctx.request.resultPath ? '.' + ctx.request.resultPath : ''),
       value,
       total: Array.isArray(value) && ctx.response.total
     };

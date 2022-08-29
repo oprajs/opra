@@ -1,8 +1,8 @@
 import { isPromise } from 'util/types';
 import { I18n } from '@opra/i18n';
-import { ApiException, FailedDependencyError } from '../../exception';
-import { ExecutionContext } from '../../interfaces/execution-context.interface';
-import type { OpraService } from '../opra-service';
+import { ApiException, FailedDependencyError } from '../../exception/index.js';
+import { ExecutionContext } from '../execution-context';
+import type { OpraService } from '../opra-service.js';
 
 export namespace OpraAdapter {
   export interface Options {

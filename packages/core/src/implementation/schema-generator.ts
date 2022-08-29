@@ -5,10 +5,10 @@ import {
   RESOURCE_OPERATION,
   RESOURCE_OPERATION_METHODS,
   RESOURCE_OPERATION_TYPE
-} from '../constants';
-import { isConstructor, resolveClassAsync } from '../helpers/class-utils';
-import { builtinClassMap, internalDataTypes, primitiveDataTypeNames } from '../helpers/internal-data-types';
-import { ThunkAsync } from '../types';
+} from '../constants.js';
+import { isConstructor, resolveClassAsync } from '../helpers/class-utils.js';
+import { builtinClassMap, internalDataTypes, primitiveDataTypeNames } from '../helpers/internal-data-types.js';
+import { ThunkAsync } from '../types.js';
 
 export namespace SchemaGenerator {
 

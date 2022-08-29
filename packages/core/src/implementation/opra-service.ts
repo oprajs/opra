@@ -1,11 +1,11 @@
 import { StrictOmit } from 'ts-gems';
 import { OpraSchema } from '@opra/common';
-import { Responsive } from '../helpers/responsive-object';
-import { ComplexType } from './data-type/complex-type';
-import { OpraDocument } from './opra-document';
-import { EntityResource } from './resource/entity-resource';
-import type { Resource } from './resource/resource';
-import { SchemaGenerator } from './schema-generator';
+import { Responsive } from '../helpers/responsive-object.js';
+import { ComplexType } from './data-type/complex-type.js';
+import { OpraDocument } from './opra-document.js';
+import { EntityResource } from './resource/entity-resource.js';
+import type { Resource } from './resource/resource.js';
+import { SchemaGenerator } from './schema-generator.js';
 
 export type OpraServiceArgs = StrictOmit<OpraSchema.Service, 'version' | 'types' | 'resources'>;
 

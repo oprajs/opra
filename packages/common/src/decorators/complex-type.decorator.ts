@@ -1,7 +1,7 @@
 import _ from 'lodash';
 import { StrictOmit } from 'ts-gems';
-import { DATATYPE_METADATA } from '../constants';
-import { OpraSchema } from '../interfaces/opra-schema';
+import { DATATYPE_METADATA } from '../constants.js';
+import { OpraSchema } from '../interfaces/opra-schema.js';
 
 export type ComplexTypeMetadata =
     StrictOmit<OpraSchema.ComplexType, 'base' | 'ctor' | 'properties'>;

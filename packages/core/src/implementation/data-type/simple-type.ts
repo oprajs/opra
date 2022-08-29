@@ -1,8 +1,8 @@
 import { StrictOmit } from 'ts-gems';
 import { OpraSchema } from '@opra/common';
-import { colorFgMagenta, colorFgYellow, colorReset, nodeInspectCustom } from '../../helpers/terminal-utils';
-import type { OpraDocument } from '../opra-document';
-import { DataType } from './data-type';
+import { colorFgMagenta, colorFgYellow, colorReset, nodeInspectCustom } from '../../helpers/terminal-utils.js';
+import type { OpraDocument } from '../opra-document.js';
+import { DataType } from './data-type.js';
 
 export class SimpleType extends DataType {
   declare protected readonly _args: OpraSchema.SimpleType;

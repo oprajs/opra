@@ -1,4 +1,4 @@
-export * from './api-exception';
+export * from './api-exception.js';
 
 export * from './errors/bad-request.error.js';
 export * from './errors/failed-dependency.error.js';

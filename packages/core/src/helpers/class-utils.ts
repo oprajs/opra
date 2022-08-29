@@ -1,5 +1,5 @@
 import { Type } from 'ts-gems';
-import { TypeThunk, TypeThunkAsync } from '../types';
+import { TypeThunk, TypeThunkAsync } from '../types.js';
 
 const knownInternalClasses = [String, Number, Boolean, Date];
 

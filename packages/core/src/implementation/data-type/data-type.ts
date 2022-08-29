@@ -1,6 +1,6 @@
 import { Type } from 'ts-gems';
 import { OpraSchema } from '@opra/common';
-import type { OpraDocument } from '../opra-document';
+import type { OpraDocument } from '../opra-document.js';
 
 export abstract class DataType {
   protected _owner: OpraDocument;

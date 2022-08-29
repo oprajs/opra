@@ -9,18 +9,18 @@ export const countriesResource: OpraSchema.EntityResource = {
   primaryKey: 'code',
   read: {
     handler: (ctx: ExecutionContext) => {
-      return countriesData;
       // eslint-disable-next-line no-console
       console.log(ctx);
+      return countriesData;
     }
   },
   search: {
     sortPaths: ['id'],
     defaultSortPaths: ['id'],
     handler: (ctx: ExecutionContext) => {
-      return countriesData;
       // eslint-disable-next-line no-console
       console.log(ctx);
+      return countriesData;
     }
   }
 

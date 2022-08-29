@@ -1,8 +1,8 @@
 import "reflect-metadata";
 import _ from 'lodash';
-import { RESOURCE_METADATA } from '../constants';
-import { EntityResourceMetadata } from '../interfaces/opra-schema.metadata';
-import { TypeThunkAsync } from '../types';
+import { RESOURCE_METADATA } from '../constants.js';
+import { EntityResourceMetadata } from '../interfaces/opra-schema.metadata.js';
+import { TypeThunkAsync } from '../types.js';
 
 const NESTJS_INJECTABLE_WATERMARK = '__injectable__';
 

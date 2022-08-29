@@ -1,6 +1,6 @@
 import { OpraSchema } from '@opra/common';
 import { colorFgMagenta, colorFgYellow, colorReset, nodeInspectCustom } from '../../helpers/terminal-utils';
-import { ExecutionContext } from '../../interfaces/execution-context.interface';
+import { ExecutionContext } from '../execution-context';
 import { ComplexType } from '../data-type/complex-type';
 
 export abstract class Resource {

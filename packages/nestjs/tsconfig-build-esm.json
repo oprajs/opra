@@ -13,5 +13,6 @@
     "sourceMap": false,
     "noEmit": false,
     "declaration": false
-  }
+  },
+  "include": ["src"]
 }

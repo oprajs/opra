@@ -1,13 +1,13 @@
 import _ from 'lodash';
 import { StrictOmit } from 'ts-gems';
 import { OpraSchema } from '@opra/common';
-import { internalDataTypes } from '../helpers/internal-data-types';
-import { Responsive, ResponsiveObject } from '../helpers/responsive-object';
-import { colorFgMagenta, colorFgYellow, colorReset, nodeInspectCustom } from '../helpers/terminal-utils';
-import { ComplexType } from './data-type/complex-type';
-import { DataType } from './data-type/data-type';
-import { SimpleType } from './data-type/simple-type';
-import { SchemaGenerator } from './schema-generator';
+import { internalDataTypes } from '../helpers/internal-data-types.js';
+import { Responsive, ResponsiveObject } from '../helpers/responsive-object.js';
+import { colorFgMagenta, colorFgYellow, colorReset, nodeInspectCustom } from '../helpers/terminal-utils.js';
+import { ComplexType } from './data-type/complex-type.js';
+import { DataType } from './data-type/data-type.js';
+import { SimpleType } from './data-type/simple-type.js';
+import { SchemaGenerator } from './schema-generator.js';
 
 export type OpraDocumentArgs = StrictOmit<OpraSchema.Document, 'version' | 'types'>;
 
