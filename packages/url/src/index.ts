@@ -6,7 +6,9 @@ export * from './types.js';
 export * from './errors.js';
 
 export * from './formats/boolean-format.js';
+export * from './formats/date-format.js';
 export * from './formats/filter-format.js';
+export * from './formats/format.js';
 export * from './formats/integer-format.js';
 export * from './formats/number-format.js';
 export * from './formats/string-format.js';

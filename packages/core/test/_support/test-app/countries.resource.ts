@@ -1,6 +1,6 @@
 import { OpraSchema } from '@opra/common';
-import { ExecutionContext } from '../../../src';
-import countriesData from '../data/countries.data';
+import { ExecutionContext } from '../../../src/index.js';
+import countriesData from '../data/countries.data.js';
 
 export const countriesResource: OpraSchema.EntityResource = {
   kind: 'EntityResource',

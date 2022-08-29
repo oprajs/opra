@@ -1,4 +1,4 @@
-import {OpraURLPath, OpraURLPathComponent} from '../src';
+import { OpraURLPath, OpraURLPathComponent } from '../src/index.js';
 
 describe('OpraURLPath', () => {
 

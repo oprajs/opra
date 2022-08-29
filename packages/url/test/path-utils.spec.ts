@@ -1,4 +1,4 @@
-import {decodePathComponent, encodePathComponent, joinPath, normalizePath} from '../src';
+import {decodePathComponent, encodePathComponent, joinPath, normalizePath} from '../src/index.js';
 
 describe('Path utils', function () {
 
