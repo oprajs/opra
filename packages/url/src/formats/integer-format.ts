@@ -1,5 +1,5 @@
-import {ValidationError} from '../errors';
-import {NumberFormat, NumberFormatOptions} from './number-format';
+import {ValidationError} from '../errors.js';
+import {NumberFormat, NumberFormatOptions} from './number-format.js';
 
 export interface IntegerFormatOptions extends NumberFormatOptions {
   enum?: number[];

@@ -1,6 +1,6 @@
 import {EventEmitter} from 'events';
-import {nodeInspectCustom, ResourceKey} from './types';
-import {encodePathComponent} from './utils/url-utils';
+import {nodeInspectCustom, ResourceKey} from './types.js';
+import {encodePathComponent} from './utils/url-utils.js';
 
 export class OpraURLPath extends EventEmitter {
   private _entries: OpraURLPathComponent[] = [];

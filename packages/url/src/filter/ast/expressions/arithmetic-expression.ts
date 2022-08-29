@@ -1,4 +1,4 @@
-import {Expression} from '../abstract/expression';
+import {Expression} from '../abstract/expression.js';
 
 export type ArithmeticOperator = '+' | '-' | '*' | '/';
 

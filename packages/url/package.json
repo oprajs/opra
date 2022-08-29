@@ -1,6 +1,6 @@
 {
   "name": "@opra/url",
-  "version": "0.0.2",
+  "version": "0.0.4",
   "description": "Opra URL parser/builder",
   "author": "Panates",
   "license": "MIT",
@@ -11,15 +11,14 @@
   },
   "scripts": {
     "compile": "tsc",
-    "prebuild": "npm run check | npm run lint | npm run clean",
-    "build": "npm run build:cjs && npm run build:esm",
+    "prebuild": "npm run lint | npm run clean",
+    "build": "npm run build:esm && npm run build:cjs",
+    "build:esm": "tsc -b tsconfig-build-esm.json",
     "build:cjs": "tsc -b tsconfig-build-cjs.json",
-    "build:esm": "tsc -b tsconfig-build-esm.json && tsc-esm -p tsconfig-build-esm.json",
-    "postbuild": "copyfiles README.md package.json ../../LICENSE ../../build/url | cp ../../package.cjs.json ../../build/url/cjs/package.json",
-    "lint": "eslint \"{src,test}/**/*.ts\" --no-error-on-unmatched-pattern",
+    "postbuild": "copyfiles README.md package.json ../../LICENSE ../../build/url | copyfiles ../../package.cjs.json ../../build/url/cjs/package.json",
+    "lint": "eslint src/**/*.ts --no-error-on-unmatched-pattern",
     "test": "jest",
     "cover": "jest --collect-coverage",
-    "check": "madge --circular src/**/*",
     "clean": "npm run clean:src | npm run clean:dist | npm run clean:cover",
     "clean:src": "ts-cleanup -s src --all",
     "clean:dist": "rimraf ../../build/url",
@@ -28,7 +27,7 @@
   },
   "dependencies": {
     "antlr4": "^4.10.1",
-    "luxon": "^3.0.1",
+    "luxon": "^3.0.2",
     "fast-tokenizer": "^1.1.0"
   },
   "devDependencies": {
@@ -37,15 +36,15 @@
   },
   "type": "module",
   "main": "cjs/index.js",
-  "module": "esm/index.mjs",
+  "module": "esm/index.js",
   "types": "esm/index.d.ts",
   "exports": {
     ".": "./cjs/index.js",
     "./cjs": "./cjs/index.js",
-    "./esm": "./esm/index.mjs"
+    "./esm": "./esm/index.js"
   },
   "engines": {
-    "node": ">=14.0",
+    "node": ">=16.0",
     "npm": ">=7.0.0"
   },
   "files": [

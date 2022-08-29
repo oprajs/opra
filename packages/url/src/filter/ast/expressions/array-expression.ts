@@ -1,5 +1,5 @@
-import {Expression} from '../abstract/expression';
-import {Term} from '../abstract/term';
+import {Expression} from '../abstract/expression.js';
+import {Term} from '../abstract/term.js';
 
 export class ArrayExpression extends Term {
 

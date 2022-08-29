@@ -1,6 +1,6 @@
-import {ValidationError} from '../../../errors';
-import {quoteFilterString} from '../../../utils/string-utils';
-import {Literal} from '../abstract/literal';
+import {ValidationError} from '../../../errors.js';
+import {quoteFilterString} from '../../../utils/string-utils.js';
+import {Literal} from '../abstract/literal.js';
 
 const TIME_PATTERN = /^([01]\d|2[0-3]):([0-5]\d)(:[0-5]\d)?(\.(\d+))?$/;
 

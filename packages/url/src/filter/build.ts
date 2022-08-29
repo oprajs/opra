@@ -6,14 +6,13 @@ import {
   ComparisonOperator,
   DateLiteral,
   Expression,
+  LogicalExpression,
   NullLiteral,
   NumberLiteral, ParenthesesExpression,
   QualifiedIdentifier,
   StringLiteral,
-  TimeLiteral
-} from './ast';
-import {LogicalExpression} from './ast';
-import {parseFilter} from './parse';
+  TimeLiteral} from './ast/index.js';
+import {parseFilter} from './parse.js';
 
 type _EntryValue = Expression | string | number | bigint | boolean | null | Date;
 export type EntryValue = _EntryValue | _EntryValue[];

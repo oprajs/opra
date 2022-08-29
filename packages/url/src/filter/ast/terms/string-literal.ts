@@ -1,5 +1,5 @@
-import {quoteFilterString} from '../../../utils/string-utils';
-import {Literal} from '../abstract/literal';
+import {quoteFilterString} from '../../../utils/string-utils.js';
+import {Literal} from '../abstract/literal.js';
 
 export class StringLiteral extends Literal {
 

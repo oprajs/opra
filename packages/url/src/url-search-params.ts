@@ -1,16 +1,16 @@
 import { EventEmitter } from 'events';
 import { splitString, tokenize } from 'fast-tokenizer';
 import { StrictOmit } from 'ts-gems';
-import { BooleanFormat } from './formats/boolean-format';
-import { DateFormat } from './formats/date-format';
-import { FilterFormat } from './formats/filter-format';
-import { Format } from './formats/format';
-import { IntegerFormat } from './formats/integer-format';
-import { NumberFormat } from './formats/number-format';
-import { StringFormat } from './formats/string-format';
-import { nodeInspectCustom } from './types';
-import { unquoteQueryString } from './utils/string-utils';
-import { encodeQueryComponent } from './utils/url-utils';
+import { BooleanFormat } from './formats/boolean-format.js';
+import { DateFormat } from './formats/date-format.js';
+import { FilterFormat } from './formats/filter-format.js';
+import { Format } from './formats/format.js';
+import { IntegerFormat } from './formats/integer-format.js';
+import { NumberFormat } from './formats/number-format.js';
+import { StringFormat } from './formats/string-format.js';
+import { nodeInspectCustom } from './types.js';
+import { unquoteQueryString } from './utils/string-utils.js';
+import { encodeQueryComponent } from './utils/url-utils.js';
 
 const QUERYMETADATA_KEY = Symbol.for('opra.url.querymetadata');
 const internalFormats = {
@@ -239,6 +239,7 @@ export class SearchParams extends EventEmitter {
 export class OpraURLSearchParams extends SearchParams {
   constructor(init?: (string | URLSearchParams | SearchParams)) {
     super();
+    this.defineParam('$search', {format: 'string'});
     this.defineParam('$filter', {format: 'filter'});
     this.defineParam('$limit', {format: new IntegerFormat({min: 0})});
     this.defineParam('$skip', {format: new IntegerFormat({min: 0})});

@@ -1,10 +1,10 @@
 import {CharStreams, CommonTokenStream} from 'antlr4ts';
 import {AbstractParseTreeVisitor} from 'antlr4ts/tree';
-import {SyntaxError} from '../errors';
-import {OpraFilterLexer} from './antlr/OpraFilterLexer';
-import {OpraFilterParser} from './antlr/OpraFilterParser';
-import {ErrorListener} from './error-listener';
-import {FilterTreeVisitor} from './filter-tree-visitor';
+import {SyntaxError} from '../errors.js';
+import {OpraFilterLexer} from './antlr/OpraFilterLexer.js';
+import {OpraFilterParser} from './antlr/OpraFilterParser.js';
+import {ErrorListener} from './error-listener.js';
+import {FilterTreeVisitor} from './filter-tree-visitor.js';
 
 export function parseFilter(text: string, visitor?: AbstractParseTreeVisitor<any>) {
   const inputStream = CharStreams.fromString(text);

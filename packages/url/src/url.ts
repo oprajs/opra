@@ -1,10 +1,9 @@
 import { splitString, tokenize } from 'fast-tokenizer';
-import { Expression } from './filter/ast';
-import { IntegerFormat } from './formats/integer-format';
-import { nodeInspectCustom, ResourceKey } from './types';
-import { OpraURLPath } from './url-path';
-import { OpraURLSearchParams, QueryItemMetadata } from './url-search-params';
-import { decodePathComponent, normalizePath } from './utils/url-utils';
+import { Expression } from './filter/ast/index.js';
+import { nodeInspectCustom, ResourceKey } from './types.js';
+import { OpraURLPath } from './url-path.js';
+import { OpraURLSearchParams, QueryItemMetadata } from './url-search-params.js';
+import { decodePathComponent, normalizePath } from './utils/url-utils.js';
 
 const urlRegEx = /^(?:((?:[A-Z][A-Z+-.]+:)+)\/\/([^/]+))?(\/.*)?$/i;
 const schemeRegEx = /^([A-Z][A-Z+-.]+:?)+$/i;
@@ -409,11 +408,9 @@ export class OpraURL {
               {path: v, code: 'ERR_INVALID_URL_PATH'});
       }
     }
-    let i = 0;
     for (const x of pathTokenizer) {
       const p = decodePathComponent(x);
       this.path.add(p);
-      i++;
     }
   }
 

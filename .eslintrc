@@ -32,8 +32,9 @@
         "security"
       ],
       "rules": {
-        "import/no-cycle": 2,
-        "import/no-unresolved": "off",
+        "import/no-cycle": "error",
+        "import/no-unresolved": ["off", {"commonjs": true, "amd": true}],
+        "import/extensions": ["error", "ignorePackages"],
         "@typescript-eslint/array-type": "error",
         "@typescript-eslint/explicit-member-accessibility": [
           "off",
@@ -139,11 +140,20 @@
         "prefer-arrow/prefer-arrow-functions": "off",
         "radix": "error",
         "space-before-function-paren": "off",
-        "spaced-comment": [ "error", "always", {
-          "line": {
-            "markers": ["#region", "#endregion", "region", "endregion"]
+        "spaced-comment": [
+          "error",
+          "always",
+          {
+            "line": {
+              "markers": [
+                "#region",
+                "#endregion",
+                "region",
+                "endregion"
+              ]
+            }
           }
-        }],
+        ],
         "use-isnan": "error",
         "valid-typeof": "off",
         "prefer-rest-params": "off"

@@ -30,7 +30,7 @@
     "ts-gems": "^2.2.0",
     "lodash": "^4.17.21"
   },
-  "peerDependencies": {
+  "devDependencies": {
     "@types/lodash": "^4.14.182",
     "@types/reflect-metadata": "^0.1.0"
   },

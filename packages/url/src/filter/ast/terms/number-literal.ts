@@ -1,5 +1,5 @@
-import {ValidationError} from '../../../errors';
-import {Literal} from '../abstract/literal';
+import {ValidationError} from '../../../errors.js';
+import {Literal} from '../abstract/literal.js';
 
 export class NumberLiteral extends Literal {
   value: number | bigint;
