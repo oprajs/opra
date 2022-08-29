@@ -16,7 +16,7 @@
     "build:esm": "tsc -b tsconfig-build-esm.json",
     "build:cjs": "tsc -b tsconfig-build-cjs.json",
     "postbuild": "copyfiles README.md package.json ../../LICENSE ../../build/url | copyfiles ../../package.cjs.json ../../build/url/cjs/package.json",
-    "lint": "eslint src/**/*.ts --no-error-on-unmatched-pattern",
+    "lint": "eslint {src,test}/**/*.ts --no-error-on-unmatched-pattern",
     "test": "jest",
     "cover": "jest --collect-coverage",
     "clean": "npm run clean:src | npm run clean:dist | npm run clean:cover",

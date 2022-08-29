@@ -4,6 +4,7 @@
   "private": true,
   "version": "1.0.0",
   "license": "MIT",
+  "type": "module",
   "repository": {
     "type": "git",
     "url": "https://github.com/panates/opra.git"

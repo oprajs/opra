@@ -1,6 +1,6 @@
 import { StrictOmit } from 'ts-gems';
 import { OpraSchema } from '@opra/common';
-import { TypeThunkAsync } from '../types';
+import { TypeThunkAsync } from '../types.js';
 
 export type EntityResourceMetadata = StrictOmit<OpraSchema.EntityResource, 'type' | 'name'> & {
   type: TypeThunkAsync | string;

@@ -1,8 +1,8 @@
 import type { Application, Request, Response } from 'express';
 import { normalizePath } from '@opra/url';
-import type { HttpAdapterContext, HttpRequest, HttpResponse } from '../../interfaces/http-context.interface';
-import type { OpraService } from '../opra-service';
-import { OpraHttpAdapter } from './http-adapter';
+import type { HttpAdapterContext, HttpRequest, HttpResponse } from '../../interfaces/http-context.interface.js';
+import type { OpraService } from '../opra-service.js';
+import { OpraHttpAdapter } from './http-adapter.js';
 
 export namespace OpraExpressAdapter {
   export interface Options extends OpraHttpAdapter.Options {

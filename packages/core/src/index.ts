@@ -7,7 +7,7 @@ export * from './types.js';
 export * from './enums/index.js';
 export * from './exception/index.js';
 
-export * from './interfaces/execution-context.interface.js';
+export * from './implementation/execution-context';
 export * from './interfaces/http-context.interface.js';
 
 export * from './implementation/adapter/adapter.js';
@@ -22,7 +22,7 @@ export * from './implementation/resource/entity-resource.js';
 
 export * from './implementation/opra-document.js';
 export * from './implementation/opra-service.js';
-export * from './implementation/execution-query';
+export * from './implementation/execution-query.js';
 export * from './implementation/schema-generator.js';
 
-export * from './services/json-data-service';
+export * from './services/json-data-service.js';

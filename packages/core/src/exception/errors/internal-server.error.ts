@@ -1,6 +1,6 @@
 import { translate } from '@opra/i18n';
-import { HttpStatus } from '../../enums';
-import { ApiException, ErrorResponse } from '../api-exception';
+import { HttpStatus } from '../../enums/index.js';
+import { ApiException, ErrorResponse } from '../api-exception.js';
 
 /**
  * 500 Internal Server Error

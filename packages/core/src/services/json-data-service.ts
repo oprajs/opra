@@ -1,9 +1,9 @@
 import _ from 'lodash';
 import ruleJudgment from 'rule-judgment'
 import { Type } from 'ts-gems';
-import { DataService } from './data-service';
 import { OpraSchema } from '@opra/common';
-import { OpraDocument } from '../implementation/opra-document';
+import { OpraDocument } from '../implementation/opra-document.js';
+import { DataService } from './data-service.js';
 
 // Fix invalid importing (with ESM) of rule-judgment package
 const toArrayFilter = typeof (ruleJudgment as any) === 'function' ? (ruleJudgment as any) : (ruleJudgment as any).default;

@@ -1,8 +1,8 @@
 import { StrictOmit } from 'ts-gems';
 import { OpraSchema } from '@opra/common';
-import { Responsive, ResponsiveObject } from '../../helpers/responsive-object';
-import { colorFgMagenta, colorFgYellow, colorReset, nodeInspectCustom } from '../../helpers/terminal-utils';
-import { DataType } from './data-type';
+import { Responsive, ResponsiveObject } from '../../helpers/responsive-object.js';
+import { colorFgMagenta, colorFgYellow, colorReset, nodeInspectCustom } from '../../helpers/terminal-utils.js';
+import { DataType } from './data-type.js';
 import type { OpraDocument } from '../opra-document';
 
 export type ComplexTypeArgs = StrictOmit<OpraSchema.ComplexType, 'kind'>;

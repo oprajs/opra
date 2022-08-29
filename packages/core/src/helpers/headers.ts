@@ -1,5 +1,5 @@
 import { Opaque } from 'ts-gems';
-import { HttpHeaders } from '../enums';
+import { HttpHeaders } from '../enums/index.js';
 
 export type HeadersObject = Opaque<Record<string, any>, 'HeadersObject'>;
 

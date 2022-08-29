@@ -1,4 +1,4 @@
-import { HttpStatus } from '../enums';
+import { HttpStatus } from '../enums/index.js';
 
 const nodeEnv = process.env.NODE_ENV || '';
 export type IssueSeverity = 'error' | 'fatal' | 'warning' | 'info';

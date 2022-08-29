@@ -1,8 +1,8 @@
 import _ from 'lodash';
 import { StrictOmit } from 'ts-gems';
-import { DATATYPE_PROPERTIES } from '../constants';
-import { OpraSchema } from '../interfaces/opra-schema';
-import { TypeThunkAsync } from '../types';
+import { DATATYPE_PROPERTIES } from '../constants.js';
+import { OpraSchema } from '../interfaces/opra-schema.js';
+import { TypeThunkAsync } from '../types.js';
 
 export type PropertyMetadata =
     StrictOmit<OpraSchema.Property, 'type'> &
