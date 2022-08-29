@@ -1,4 +1,4 @@
-import { ComparisonExpression, IntegerFormat, OpraURL } from '../src';
+import { ComparisonExpression, IntegerFormat, OpraURL } from '../src/index.js';
 
 describe('Parse url string', () => {
 

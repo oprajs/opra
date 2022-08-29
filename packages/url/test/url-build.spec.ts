@@ -1,4 +1,4 @@
-import {OpraURL, parseFilter} from '../src';
+import {OpraURL, parseFilter} from '../src/index.js';
 
 describe('URL build', () => {
 

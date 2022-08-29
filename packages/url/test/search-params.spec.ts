@@ -1,4 +1,4 @@
-import { OpraURLSearchParams } from '../src';
+import { OpraURLSearchParams } from '../src/index.js';
 
 describe('OpraURLSearchParams', function () {
 

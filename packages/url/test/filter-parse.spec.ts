@@ -2,7 +2,7 @@ import {
   BooleanLiteral,
   DateLiteral, NullLiteral, NumberLiteral,
   parseFilter, TimeLiteral
-} from '../src';
+} from '../src/index.js';
 
 describe('Parsing Filter', function () {
 

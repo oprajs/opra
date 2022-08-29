@@ -3,7 +3,7 @@ import {
   $array, $date,
   $eq, $field, $gt, $gte, $ilike, $in, $like,
   $lt, $lte, $ne, $notILike, $notIn, $notLike, $number, $or, $paren, $parse, $time, Expression
-} from '../src';
+} from '../src/index.js';
 
 describe('Building Filter', function () {
 

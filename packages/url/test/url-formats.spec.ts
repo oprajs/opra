@@ -1,5 +1,7 @@
-import {$eq, $field, BooleanFormat, Expression, FilterFormat, IntegerFormat, NumberFormat, StringFormat} from '../src';
-import {DateFormat} from '../src/formats/date-format';
+import {
+  $eq, $field, BooleanFormat, DateFormat, Expression,
+  FilterFormat, IntegerFormat, NumberFormat, StringFormat
+} from '../src/index.js';
 
 describe('URL search param formats', () => {
 
