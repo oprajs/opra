@@ -1,6 +1,6 @@
-import {Ast, Expression} from '../filter/ast';
-import {parseFilter} from '../filter/parse';
-import {Format} from './format';
+import {Ast, Expression} from '../filter/ast/index.js';
+import {parseFilter} from '../filter/parse.js';
+import {Format} from './format.js';
 
 export class FilterFormat extends Format {
 

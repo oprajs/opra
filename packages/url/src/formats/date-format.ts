@@ -1,6 +1,6 @@
 /* eslint-disable max-len */
-import {ValidationError} from '../errors';
-import {Format} from './format';
+import {ValidationError} from '../errors.js';
+import {Format} from './format.js';
 
 // noinspection RegExpUnnecessaryNonCapturingGroup
 const DATE_FORMAT_PATTERN = /^(\d{4})(?:-?(0[1-9]|1[012])(?:-?([123]0|[012][1-9]|31))?)?(?:[T ]?([01][0-9]|2[0-3]):?([0-5][0-9]):?([0-5][0-9])?(?:\.(\d+))?(?:(Z)|(?:([+-])([01]?[0-9]|2[0-3]):?([0-5][0-9])?))?)?$/;

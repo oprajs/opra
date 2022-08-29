@@ -1,6 +1,6 @@
 import {ANTLRErrorListener, Recognizer} from 'antlr4ts';
 import {RecognitionException} from 'antlr4ts/RecognitionException';
-import {FilterParseError} from '../errors';
+import {FilterParseError} from '../errors.js';
 
 export class ErrorListener implements ANTLRErrorListener<any> {
 

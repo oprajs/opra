@@ -1,6 +1,6 @@
 import {splitString} from 'fast-tokenizer';
-import {ResourceKey} from '../types';
-import {quoteQueryString} from './string-utils';
+import {ResourceKey} from '../types.js';
+import {quoteQueryString} from './string-utils.js';
 
 export function joinPath(...p: string[]) {
   const out: string[] = [];

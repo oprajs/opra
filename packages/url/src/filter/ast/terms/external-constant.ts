@@ -1,4 +1,4 @@
-import {Literal} from '../abstract/literal';
+import {Literal} from '../abstract/literal.js';
 
 export class ExternalConstant extends Literal {
   constructor(value: string) {

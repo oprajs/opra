@@ -1,4 +1,4 @@
-import {Ast} from './ast';
+import {Ast} from './ast.js';
 
 export abstract class Expression extends Ast {
 

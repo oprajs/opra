@@ -1,6 +1,6 @@
-import {AbstractParseTreeVisitor} from 'antlr4ts/tree';
-import {SyntaxError} from '../errors';
-import {unquoteFilterString} from '../utils/string-utils';
+import { AbstractParseTreeVisitor } from 'antlr4ts/tree';
+import { SyntaxError } from '../errors.js';
+import { unquoteFilterString } from '../utils/string-utils.js';
 import {
   ArithmeticExpressionContext, ArrayExpressionContext,
   BooleanLiteralContext,
@@ -17,8 +17,8 @@ import {
   RootContext,
   StringLiteralContext,
   TimeLiteralContext,
-} from './antlr/OpraFilterParser';
-import {OpraFilterVisitor} from './antlr/OpraFilterVisitor';
+} from './antlr/OpraFilterParser.js';
+import { OpraFilterVisitor } from './antlr/OpraFilterVisitor.js';
 import {
   ArithmeticExpression, ArithmeticOperator,
   ArrayExpression,
@@ -29,8 +29,8 @@ import {
   QualifiedIdentifier,
   StringLiteral,
   TimeLiteral
-} from './ast';
-import {ExternalConstant} from './ast/terms/external-constant';
+} from './ast/index.js';
+import { ExternalConstant } from './ast/terms/external-constant.js';
 
 export class FilterTreeVisitor extends AbstractParseTreeVisitor<any> implements OpraFilterVisitor<any> {
   private _timeZone?: string;

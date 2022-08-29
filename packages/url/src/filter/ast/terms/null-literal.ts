@@ -1,4 +1,4 @@
-import {Literal} from '../abstract/literal';
+import {Literal} from '../abstract/literal.js';
 
 export class NullLiteral extends Literal {
   value: null = null;

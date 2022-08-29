@@ -1,5 +1,5 @@
 import {StrictOmit} from 'ts-gems';
-import {Expression} from '../abstract/expression';
+import {Expression} from '../abstract/expression.js';
 
 export type ComparisonOperator = '<=' | '<' | '>' | '>=' | '=' | '!='
   | 'in' | '!in' | 'like' | '!like' | 'ilike' | '!ilike';

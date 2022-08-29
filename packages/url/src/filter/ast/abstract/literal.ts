@@ -1,4 +1,4 @@
-import {Term} from './term';
+import {Term} from './term.js';
 
 export abstract class Literal extends Term {
   declare value: any;

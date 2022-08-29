@@ -1,5 +1,5 @@
-import {ValidationError} from '../errors';
-import {Format} from './format';
+import {ValidationError} from '../errors.js';
+import {Format} from './format.js';
 
 export interface StringFormatOptions {
   maxLength?: number;

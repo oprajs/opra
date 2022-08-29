@@ -1,6 +1,6 @@
-import {ValidationError} from '../errors';
-import {Nullable} from '../types';
-import {Format} from './format';
+import {ValidationError} from '../errors.js';
+import {Nullable} from '../types.js';
+import {Format} from './format.js';
 
 const trueValues = ['true', 't', 'yes', 'y', '1'];
 const falseValues = ['false', 'f', 'no', 'n', '0'];

@@ -1,7 +1,7 @@
 import {DateTime} from 'luxon';
-import {ValidationError} from '../../../errors';
-import {quoteFilterString} from '../../../utils/string-utils';
-import {Literal} from '../abstract/literal';
+import {ValidationError} from '../../../errors.js';
+import {quoteFilterString} from '../../../utils/string-utils.js';
+import {Literal} from '../abstract/literal.js';
 
 const DATE_PATTERN = /^(\d{4})-(0[1-9]|1[012])-([123]0|[012][1-9]|31)/;
 

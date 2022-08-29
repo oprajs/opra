@@ -1,4 +1,4 @@
-import {Literal} from '../abstract/literal';
+import {Literal} from '../abstract/literal.js';
 
 export class BooleanLiteral extends Literal {
   declare value: boolean;
