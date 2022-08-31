@@ -1,26 +1,34 @@
+/*
+
 import { Maybe } from 'ts-gems';
 import { OpraSchema } from '@opra/common';
-import type { OperationLevel, OperationMethod, OperationType } from '../types.js';
+import { SearchParams } from '@opra/url';
+import { Responsive, ResponsiveObject } from '../helpers/responsive-object.js';
+import type { OperationScope, OperationMethod, OperationType } from '../types.js';
+import { ObjectTree, stringPathToObjectTree } from './adapter/utils/string-path-to-object-tree.js';
 import { ComplexType } from './data-type/complex-type.js';
 import type { DataType } from './data-type/data-type.js';
 import { OpraService } from './opra-service.js';
-import { EntityResource } from './resource/entity-resource.js';
-import Property = OpraSchema.Property;
-import { Responsive, ResponsiveObject } from '../helpers/responsive-object.js';
-import { ObjectTree, stringPathToObjectTree } from './adapter/utils/string-path-to-object-tree.js';
+import { EntityResourceController } from './resource/entity-resource-controller.js';
+
 
 export type ExecutionQueryProjection = ResponsiveObject<ExecutionQuery | boolean>;
+const DOT_NOTATION_PATTERN = /^([^.]+)(\..*)?$/;
 
-export class ExecutionQuery {
+
+export class ExecutionQuery_ {
   protected _parent?: ExecutionQuery;
   protected _service: OpraService;
-  protected _operationType: OperationType;
   protected _operationMethod: OperationMethod;
-  protected _operationLevel: OperationLevel;
+  protected _operationType: OperationType;
+  protected _operationLevel: OperationScope;
   protected _subject: string;
   protected _key?: any;
-  protected _dataType: DataType;
-  protected _property?: Property;
+  protected _dataType: ComplexType;
+  protected _property?: OpraSchema.Property;
+
+  protected _pickFields?: string[];
+  protected _omitFields?: string[];
   protected _projection: ExecutionQueryProjection = Responsive<ExecutionQuery | boolean>();
   protected _limit?: number;
   protected _skip?: number;
@@ -37,15 +45,15 @@ export class ExecutionQuery {
     return this._service;
   }
 
-  get operationType(): OperationType {
-    return this._operationType;
-  }
-
   get operationMethod(): OperationMethod {
     return this._operationMethod;
   }
 
-  get operationLevel(): OperationLevel {
+  get operationType(): OperationType {
+    return this._operationType;
+  }
+
+  get operationLevel(): OperationScope {
     return this._operationLevel;
   }
 
@@ -113,6 +121,67 @@ export class ExecutionQuery {
     this._total = v;
   }
 
+  get pickFields(): string[] {
+    return Array.from(this._pick);
+  }
+
+  pickField(...fields: string[]): this {
+    this._addToFieldSet(this._pick, fields);
+    return this;
+  }
+
+  omitField(...fields: string[]): this {
+    this._addToFieldSet(this._omit, fields);
+    return this;
+  }
+
+  protected _addToFieldSet(set: Set<string>, fields: string[]) {
+    for (let field of fields) {
+      field = this._normalizeFieldPath(this.dataType, field);
+      const _field = field.toLowerCase();
+      let _skip = false;
+
+      for (let x of set) {
+        x = x.toLowerCase();
+        if (x === _field || _field.startsWith(x + '.')) {
+          _skip = true;
+          continue;
+        }
+        if (x.startsWith(_field + '.')) {
+          set.delete(x);
+        }
+      }
+      if (!_skip)
+        set.add(field);
+    }
+  }
+
+  protected _normalizeFieldPath(dataType: DataType, path: string): string {
+    if (!(dataType instanceof ComplexType))
+      throw new TypeError(`"${this.path}" is not a ComplexType and have no properties`);
+
+    const m = DOT_NOTATION_PATTERN.exec(path);
+    /* istanbul ignore next: impossible to occur * /
+    if (!m)
+      throw new Error(`Invalid path`);
+
+    let left = m[1];
+    let right = m[2];
+    const prop = dataType.properties?.[left];
+    if (!prop) {
+      if (dataType.additionalProperties)
+        return path;
+      throw new Error(`Unknown property (${m[0]})`);
+    }
+    left = prop.name;
+
+    if (right) {
+      const propType = this.service.getDataType(prop.type || 'string');
+      right = this._normalizeFieldPath(propType, right);
+    }
+    return left + (right ? '.' + right : '');
+  }
+
   addProperty(propertyName: string): ExecutionQuery | string {
     if (!(this.dataType instanceof ComplexType))
       throw new TypeError(`"${this.path}" is not a ComplexType and have no properties`);
@@ -137,31 +206,52 @@ export class ExecutionQuery {
     }
   }
 
-  setProjection(elements?: string[], exclude?: string[], include?: string[]): void {
-    const _elementsTree = elements && stringPathToObjectTree(elements);
+  setProjection(fields?: string[], exclude?: string[], include?: string[]): void {
+    const _fieldsTree = fields && stringPathToObjectTree(fields);
     const _excludeTree = exclude && stringPathToObjectTree(exclude);
     const _includeTree = include && stringPathToObjectTree(include);
-    this._setProjectionFor(this, _elementsTree, _includeTree, _excludeTree);
+    this._setProjectionFor(this, _fieldsTree, _includeTree, _excludeTree);
+  }
+
+  getProjectionFields(): string[] {
+    const out: string[] = [];
+    const processTree = (path: string, node: ExecutionQuery) => {
+      const keys = Object.keys(node.projection);
+      for (const k of keys) {
+        const v = this.projection[k];
+        const subPath = path ? (path + '.' + k) : k;
+        if (v instanceof ExecutionQuery) {
+          const l = out.length;
+          processTree(subPath, v);
+          if (l === out.length)
+            out.push(subPath);
+          continue;
+        }
+        out.push(subPath);
+      }
+    }
+    processTree('', this);
+    return out;
   }
 
   protected _setProjectionFor(
       node: ExecutionQuery,
-      elementsTree?: ObjectTree,
+      fieldsTree?: ObjectTree,
       includeTree?: ObjectTree,
       excludeTree?: ObjectTree,
   ): void {
     const dataType = node._dataType;
-    /* istanbul ignore next */
+    /* istanbul ignore next * /
     if (!(dataType instanceof ComplexType))
       throw new TypeError(`${dataType?.name} is not a ComplexType`);
 
-    let treeNode = elementsTree;
+    let treeNode = fieldsTree;
     if (!treeNode) {
       if (dataType.properties)
         treeNode = stringPathToObjectTree(Object.keys(dataType.properties)) as ObjectTree;
       else return;
     }
-    elementsTree = elementsTree || {};
+    fieldsTree = fieldsTree || {};
     includeTree = includeTree || {};
     excludeTree = excludeTree || {};
 
@@ -171,13 +261,13 @@ export class ExecutionQuery {
         continue;
 
       const prop = dataType.properties?.[k];
-      if (prop?.exclusive && !(elementsTree[k] || includeTree[k]))
+      if (prop?.exclusive && !(fieldsTree[k] || includeTree[k]))
         continue;
 
       const sub = this.addProperty(k);
       if (sub instanceof ExecutionQuery) {
         this._setProjectionFor(sub,
-            typeof elementsTree[k] === 'object' ? elementsTree[k] as ObjectTree : undefined,
+            typeof fieldsTree[k] === 'object' ? fieldsTree[k] as ObjectTree : undefined,
             typeof excludeTree[k] === 'object' ? excludeTree?.[k] as ObjectTree : undefined,
             typeof includeTree[k] === 'object' ? includeTree?.[k] as ObjectTree : undefined
         );
@@ -190,46 +280,47 @@ export class ExecutionQuery {
   }
 
   static createForCollection(parent: OpraService | ExecutionQuery,
-                             operationMethod: OperationMethod,
-                             resourceName: string): ExecutionQuery {
+                             operationType: OperationType,
+                             resourceName: string
+  ): ExecutionQuery {
     const query = new ExecutionQuery(parent, resourceName);
-    query._operationMethod = operationMethod;
+    query._operationType = operationType;
     query._operationLevel = 'collection';
     const resource = query.service.getResource(resourceName);
     query._dataType = resource.dataType;
-    switch (operationMethod) {
+    switch (operationType) {
       case 'read':
-        query._operationType = 'search';
+        query._operationMethod = 'search';
         break;
       case 'create':
-        query._operationType = 'create';
+        query._operationMethod = 'create';
         break;
       case 'update':
-        query._operationType = 'update-many';
+        query._operationMethod = 'updateMany';
         break;
       case 'patch':
-        query._operationType = 'patch-many';
+        query._operationMethod = 'patchMany';
         break;
       case 'delete':
-        query._operationType = 'delete-many';
+        query._operationMethod = 'deleteMany';
         break;
       default:
-        /* istanbul ignore next */
-        throw new TypeError(`Invalid operation method (${operationMethod}) for ${query.operationLevel} level query`);
+        /* istanbul ignore next * /
+        throw new TypeError(`Invalid operation type (${operationType}) for ${query.operationLevel} level query`);
     }
     return query;
   }
 
   static createForInstance(parent: OpraService | ExecutionQuery,
-                           operationMethod: OperationMethod,
+                           operationType: OperationType,
                            resourceName: string,
                            key: any): ExecutionQuery {
     const query = new ExecutionQuery(parent, resourceName);
-    query._operationMethod = operationMethod;
+    query._operationType = operationType;
     query._operationLevel = 'instance';
     const resource = query.service.getResource(resourceName);
     query._dataType = resource.dataType;
-    if (resource instanceof EntityResource) {
+    if (resource instanceof EntityResourceController) {
       if (!resource.primaryKey)
         throw new Error(`"${resource.name}" resource doesn't support instance level queries`);
       query._key = {};
@@ -243,25 +334,25 @@ export class ExecutionQuery {
           });
     } else
       throw new TypeError(`"${resource.name}" resource does not support instance level queries`);
-    switch (operationMethod) {
+    switch (operationType) {
       case 'read':
-        query._operationType = 'get';
+        query._operationMethod = 'read';
         break;
       case 'update':
-        query._operationType = 'update';
+        query._operationMethod = 'update';
         break;
       case 'patch':
-        query._operationType = 'patch';
+        query._operationMethod = 'patch';
         break;
       case 'delete':
-        query._operationType = 'delete';
+        query._operationMethod = 'delete';
         break;
       case 'execute':
-        query._operationType = 'execute';
+        query._operationMethod = 'execute';
         break;
       default:
-        /* istanbul ignore next */
-        throw new TypeError(`Invalid operation method (${operationMethod}) for ${query.operationLevel} level query`);
+        /* istanbul ignore next * /
+        throw new TypeError(`Invalid operation type (${operationType}) for ${query.operationLevel} level query`);
     }
     return query;
   }
@@ -270,18 +361,19 @@ export class ExecutionQuery {
                            property: OpraSchema.Property) {
     if (!(parent.dataType instanceof ComplexType))
       throw new Error(`"${parent.subject}" is not a ComplexType and has no properties.`);
-    if (parent.operationMethod !== 'read')
-      throw new Error(`You can't add sub query into "${parent.operationType}" operation query.`);
+    if (parent.operationType !== 'read')
+      throw new Error(`You can't add sub query into "${parent.operationMethod}" operation query.`);
     const prop = parent.dataType.properties?.[property.name];
     if (!prop)
       throw new Error(`"${parent.path}" has no property named "${property}".`);
     const query = new ExecutionQuery(parent, property.name);
-    query._operationMethod = 'read';
+    query._operationType = 'read';
     query._operationLevel = 'property';
-    query._operationType = 'get';
+    query._operationMethod = 'read';
     query._property = {...property};
     query._dataType = query.service.getDataType(property.type || 'string');
     return query;
   }
 
 }
+*/

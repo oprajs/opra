@@ -5,7 +5,7 @@ export namespace OpraSchema {
   //#region # Common
   export type Extensible<T = any> = { [key: `$${string}`]: T };
   export type ResourceKind =
-      'NsResource' |
+      'ContainerResource' |
       'EntityResource' |
       'SingletonResource';
   export type DataTypeKind = 'SimpleType' | 'ComplexType';
@@ -132,17 +132,12 @@ export namespace OpraSchema {
 
 
   //#region # Resources
-  export type Resource = EntityResource | SingletonResource;
+  export type Resource = ContainerResource | EntityResource | SingletonResource;
 
   export interface BaseResource {
     kind: ResourceKind;
     name: string;
     description?: string;
-  }
-
-  export interface NsResource extends BaseResource {
-    kind: 'NsResource';
-    resources: Resource[];
   }
 
   export interface EntityResource extends BaseResource {
@@ -163,6 +158,11 @@ export namespace OpraSchema {
   export interface SingletonResource extends BaseResource {
     kind: 'SingletonResource',
     read?: ResourceOperation;
+  }
+
+  export interface ContainerResource extends BaseResource {
+    kind: 'ContainerResource',
+    resources: Resource[];
   }
 
   //#region # Operations
@@ -199,10 +199,9 @@ export namespace OpraSchema {
 
   export function isResource(obj: any): obj is Resource {
     return obj && typeof obj === 'object' &&
+        obj.kind === 'ContainerResource' ||
         obj.kind === 'EntityResource' ||
-        obj.kind === 'SingletonResource' ||
-        obj.kind === 'FunctionResource' ||
-        obj.kind === 'ActionResource';
+        obj.kind === 'SingletonResource';
   }
 
   export function isEntityResource(obj: any): obj is EntityResource {
@@ -211,6 +210,10 @@ export namespace OpraSchema {
 
   export function isSingletonResource(obj: any): obj is EntityResource {
     return obj && typeof obj === 'object' && obj.kind === 'SingletonResource';
+  }
+
+  export function isContainerResource(obj: any): obj is ContainerResource {
+    return obj && typeof obj === 'object' && obj.kind === 'ContainerResource';
   }
 
 

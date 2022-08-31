@@ -5,11 +5,12 @@ export type ThunkAsync<T> = T | (() => T) | (() => Promise<T>);
 export type TypeThunk<T = any> = Thunk<Type<T>>;
 export type TypeThunkAsync<T = any> = ThunkAsync<Type<T>>;
 
-export type OperationType = 'search' | 'get' | 'create' | 'update' | 'update-many' |
-    'patch' | 'patch-many' | 'delete' | 'delete-many' | 'execute';
-export type OperationMethod = 'create' | 'read' | 'update' | 'patch' | 'delete' | 'execute';
-export type OperationLevel = 'collection' | 'instance' | 'property';
+export type QueryScope = 'collection' | 'instance' | 'property';
+export type QueryType = 'create' | 'read' | 'update' | 'patch' | 'delete' | 'execute' |
+    'search' | 'updateMany' | 'patchMany'  | 'deleteMany';
+export type OperationType = 'create' | 'read' | 'update' | 'patch' | 'delete' | 'execute';
 
+export type KeyValue = string | number | boolean | object;
 
 export declare type PartialInput<T> = DeepPartial<DeepPickWritable<DeepPickJson<T>>>;
 export declare type PartialOutput<T> = DeepPartial<DeepPickJson<T>>;

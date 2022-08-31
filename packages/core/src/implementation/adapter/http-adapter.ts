@@ -9,17 +9,18 @@ import {
   NotFoundError,
 } from '../../exception/index.js';
 import { Headers, HeadersObject } from '../../helpers/headers.js';
+import { ExecutionQuery, PropertyQuery } from '../../interfaces/execution-query.interface.js';
 import { HttpAdapterContext } from '../../interfaces/http-context.interface.js';
-import { OperationMethod } from '../../types.js';
+import { ResourceContainer } from '../../interfaces/resource-container.interface.js';
+import { KeyValue, QueryScope } from '../../types.js';
 import { ComplexType } from '../data-type/complex-type.js';
 import {
   ExecutionContext,
   ExecutionRequest,
   ExecutionResponse
 } from '../execution-context.js';
-import { ExecutionQuery } from '../execution-query.js';
-import { EntityResource } from '../resource/entity-resource.js';
-import { Resource } from '../resource/resource.js';
+import { ContainerResourceController } from '../resource/container-resource-controller.js';
+import { EntityResourceController } from '../resource/entity-resource-controller.js';
 import { OpraAdapter } from './adapter.js';
 
 export namespace OpraHttpAdapter {
@@ -58,114 +59,110 @@ export class OpraHttpAdapter<TAdapterContext extends HttpAdapterContext,
       throw new BadRequestError();
     if (method !== 'GET' && url.path.size > 1)
       throw new BadRequestError();
-    const {query, resource, resultPath} = this.buildQuery(url, method);
+    const query = this.buildQuery(url, method);
     const request = new ExecutionRequest({
+      query,
       headers,
       params: url.searchParams,
-      query,
-      resultPath,
     });
     const response = new ExecutionResponse();
     // noinspection UnnecessaryLocalVariableJS
     const executionContext = new ExecutionContext({
       service: this.service,
-      resource,
       request,
       response,
       userContext,
-      continueOnError: request.query.operationMethod === 'read'
+      continueOnError: request.query.operationType === 'read'
     })
     return executionContext;
   }
 
-  protected buildQuery(url: OpraURL, method: string): {
-    query: ExecutionQuery;
-    resource: Resource,
-    resultPath: string
-  } {
-    method = method.toUpperCase();
-    const rootPath = url.path.get(0);
-    const resource = this.service.resources[rootPath.resource];
-    if (!resource)
-      throw new NotFoundError({
-        message: `Resource "${rootPath.resource}" not found`
-      });
-    if (resource instanceof EntityResource) {
-      if (!rootPath.key && url.path.size > 1)
-        throw new BadRequestError({message: `You can't request collection of sub-properties`});
-      if (method !== 'GET' && url.path.size > 1)
-        throw new BadRequestError({message: `You can't send update/delete request for for sub-properties`});
-      if (rootPath.key && !resource.primaryKey)
-        throw new BadRequestError({message: `Primary key is not assigned for resource "${resource.name}"`});
+  protected buildQuery(url: OpraURL, method: string): ExecutionQuery {
+    let container: ResourceContainer = this.service;
+    try {
+      let pathIndex = 0;
+      const pathLen = url.path.size;
+      while (pathIndex < pathLen) {
+        let p = url.path.get(pathIndex++);
+        const resource = container.getResource(p.resource);
 
-      let operationMethod: OperationMethod;
-      switch (method) {
-        case 'GET':
-          operationMethod = 'read';
-          break;
-        case 'DELETE':
-          operationMethod = 'delete';
-          break;
-        case 'POST':
-          operationMethod = 'create';
-          break;
-        case 'PUT':
-          operationMethod = 'update';
-          break;
-        case 'PATCH':
-          operationMethod = 'patch';
-          break;
-        default:
-          throw new MethodNotAllowedError({
-            message: `Method "${method}" is not allowed by target resource`
-          });
-      }
+        // Move through path directories (containers)
+        if (resource instanceof ContainerResourceController) {
+          container = resource;
+        } else {
+          method = method.toUpperCase();
+          if (resource instanceof EntityResourceController) {
+            const scope: QueryScope = p.key ? 'collection' : 'instance';
 
-      try {
-        let node: any = rootPath.key
-            ? ExecutionQuery.createForInstance(this.service, operationMethod, rootPath.resource, rootPath.key)
-            : ExecutionQuery.createForCollection(this.service, operationMethod, rootPath.resource);
+            if (pathIndex < pathLen && !(method === 'GET' && scope === 'instance'))
+              throw new MethodNotAllowedError();
 
-        const resultPath: string[] = [];
-        for (let i = 1; i < url.path.size - 1; i++) {
-          if (!(node instanceof ExecutionQuery))
-            throw new TypeError(`"${resultPath.join('.')}" is not a ComplexType and have no properties`);
-          const p = url.path.get(i);
-          node = node.addProperty(p.resource);
-          if (node instanceof ExecutionQuery)
-            resultPath.push(node.path);
-          else resultPath.push(node);
-        }
+            let query: ExecutionQuery;
+            switch (method) {
+              case 'GET':
+                if (scope === 'collection') {
+                  query = ExecutionQuery.forSearch(resource, {
+                    limit: url.searchParams.get('$limit'),
+                    skip: url.searchParams.get('$skip'),
+                    distinct: url.searchParams.get('$distinct'),
+                    total: url.searchParams.get('$total'),
+                    sort: url.searchParams.get('$sort'),
+                    pick: url.searchParams.get('$pick'),
+                    omit: url.searchParams.get('$omit'),
+                  });
 
-        if (node.dataType instanceof ComplexType) {
-          node.setProjection(
-              url.searchParams.get('$elements'),
-              url.searchParams.get('$exclude'),
-              url.searchParams.get('$include'));
-          if (node.operationType === 'search') {
-            // node.filter = url.searchParams.get('$filter');
-            node.setLimit(url.searchParams.get('$limit'));
-            node.setSkip(url.searchParams.get('$skip'));
-            node.setDistinct(url.searchParams.get('$distinct'));
-            node.setTotal(url.searchParams.get('$total'));
-            node.setSort(url.searchParams.get('$sort'));
+                } else {
+                  query = ExecutionQuery.forRead(resource, p.key as KeyValue, {
+                    pick: url.searchParams.get('$pick'),
+                    omit: url.searchParams.get('$omit')
+                  });
+
+                  // Move through properties
+                  let nested: PropertyQuery | undefined;
+                  let path = resource.name;
+                  while (pathIndex < pathLen) {
+                    const dataType = nested
+                        ? this.service.getDataType(nested.property.type || 'string')
+                        : query.resource.dataType;
+                    if (!(dataType instanceof ComplexType))
+                      throw new Error(`"${path}" is not a ComplexType and has no properties.`);
+                    p = url.path.get(pathIndex++);
+                    path += '.' + p.resource;
+                    const prop = dataType.properties?.[p.resource];
+                    if (!prop)
+                      throw new NotFoundError({message: `Invalid or unknown resource path (${path})`});
+                    const q = ExecutionQuery.forProperty(prop);
+                    if (nested) {
+                      nested.nested = q;
+                    } else {
+                      query.nested = q;
+                    }
+                    nested = q;
+                  }
+                }
+                break;
+              case 'DELETE':
+                if (scope === 'collection') {
+                  query = ExecutionQuery.forDeleteMany(resource, {});
+                } else {
+                  query = ExecutionQuery.forDelete(resource, p.key as KeyValue);
+                }
+                break;
+              default:
+                throw new MethodNotAllowedError({
+                  message: `Method "${method}" is not allowed by target resource`
+                });
+            }
+            return query;
           }
         }
-
-        return {
-          query: node,
-          resource,
-          resultPath: resultPath.join('.')
-        };
-
-      } catch (e: any) {
-        if (e instanceof ApiException)
-          throw e;
-        throw new BadRequestError({message: e.message});
       }
-
+      throw new InternalServerError();
+    } catch (e: any) {
+      if (e instanceof ApiException)
+        throw e;
+      throw new BadRequestError({message: e.message});
     }
-    throw new InternalServerError();
   }
 
   protected async sendResponse(adapterContext: TAdapterContext, executionContexts: ExecutionContext[]) {
@@ -228,7 +225,7 @@ export class OpraHttpAdapter<TAdapterContext extends HttpAdapterContext,
           status = HttpStatus.INTERNAL_SERVER_ERROR;
       }
     } else
-      status = status || (query.operationMethod === 'create' ? HttpStatus.CREATED : HttpStatus.OK);
+      status = status || (query.operationType === 'create' ? HttpStatus.CREATED : HttpStatus.OK);
 
     // Move to sub property if result path defined
     let value = ctx.response.value;
@@ -240,7 +237,7 @@ export class OpraHttpAdapter<TAdapterContext extends HttpAdapterContext,
     }
 
     const body: any = {
-      '@origin': ctx.resource.name + (ctx.request.resultPath ? '.' + ctx.request.resultPath : ''),
+      // '@origin': ctx.resource.name + (ctx.request.resultPath ? '.' + ctx.request.resultPath : ''),
       value,
       total: Array.isArray(value) && ctx.response.total
     };

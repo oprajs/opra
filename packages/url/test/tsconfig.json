@@ -6,6 +6,9 @@
     "emitDecoratorMetadata": true,
     "noEmit": true,
     "sourceMap": true,
-    "noEmitOnError": false
+    "baseUrl": "./",
+    "paths": {
+      "@opra/*": ["../../*/src"],
+    }
   }
 }

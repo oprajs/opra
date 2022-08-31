@@ -1,5 +1,5 @@
 import 'reflect-metadata';
-import { ComplexType, ComplexTypeDecoratorOptions, DATATYPE_METADATA } from '../src';
+import { ComplexType, ComplexTypeDecoratorOptions, DATATYPE_METADATA } from '../src/index.js';
 
 describe('ComplexType() decorator', function () {
 

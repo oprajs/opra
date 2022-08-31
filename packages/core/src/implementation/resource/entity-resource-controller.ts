@@ -1,19 +1,19 @@
 import _ from 'lodash';
 import { StrictOmit } from 'ts-gems';
 import { OpraSchema } from '@opra/common';
-import { ExecutionContext } from '../execution-context';
-import { ComplexType } from '../data-type/complex-type';
-import { Resource } from './resource';
+import { ComplexType } from '../data-type/complex-type.js';
+import { ExecutionContext } from '../execution-context.js';
+import { ResourceController } from './resource-controller.js';
 
-export type EntityResourceArgs = StrictOmit<OpraSchema.EntityResource, 'kind'> & {
+export type EntityResourceControllerArgs = StrictOmit<OpraSchema.EntityResource, 'kind'> & {
   dataType: ComplexType;
 }
 
-export class EntityResource extends Resource {
+export class EntityResourceController extends ResourceController {
   declare protected readonly _args: OpraSchema.EntityResource;
   readonly dataType: ComplexType;
 
-  constructor(args: EntityResourceArgs) {
+  constructor(args: EntityResourceControllerArgs) {
     super({
       kind: 'EntityResource',
       ..._.omit(args, 'dataType')
@@ -47,13 +47,13 @@ export class EntityResource extends Resource {
 
   async execute(ctx: ExecutionContext): Promise<void> {
     const {query} = ctx.request;
-    const fn = this._args[query.operationType]?.handler;
+    const fn = this._args[query.queryType]?.handler;
     const data = typeof fn === 'function' ? (await fn(ctx)) : undefined;
     if (data != null) {
-      ctx.response.value = query.operationType === 'search'
+      ctx.response.value = query.queryType === 'search'
           ? (Array.isArray(data) ? data : [data])
           : (Array.isArray(data) ? data[0] : data);
-    } else if (query.operationType === 'search')
+    } else if (query.queryType === 'search')
       ctx.response.value = [];
   }
 

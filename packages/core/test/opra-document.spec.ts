@@ -1,7 +1,7 @@
 import 'reflect-metadata';
 import { ComplexType, OpraDocument, SchemaGenerator, } from '../src';
-import { Address } from './_support/dto/address.dto';
-import { Customer } from './_support/dto/customer.dto';
+import { Address } from './_support/test-app/dto/address.dto';
+import { Customer } from './_support/test-app/dto/customer.dto';
 
 describe('OpraDocument', function () {
 

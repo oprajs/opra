@@ -3,8 +3,8 @@ import { DATATYPE_METADATA, DATATYPE_PROPERTIES, OpraSchema, PropertyMetadata } 
 import {
   RESOURCE_METADATA,
   RESOURCE_OPERATION,
-  RESOURCE_OPERATION_METHODS,
-  RESOURCE_OPERATION_TYPE
+  RESOURCE_OPERATION_FUNCTIONS,
+  RESOURCE_OPERATION_METHOD
 } from '../constants.js';
 import { isConstructor, resolveClassAsync } from '../helpers/class-utils.js';
 import { builtinClassMap, internalDataTypes, primitiveDataTypeNames } from '../helpers/internal-data-types.js';
@@ -111,6 +111,8 @@ export class SchemaGenerator {
   }
 
   async addResource(thunk: any): Promise<void> {
+    if (isConstructor(thunk))
+      throw new Error(`You should provide Resource instance instead of Resource class`);
     const proto = Object.getPrototypeOf(thunk);
     const ctor = proto.constructor;
     const metadata = Reflect.getMetadata(RESOURCE_METADATA, ctor);
@@ -131,16 +133,16 @@ export class SchemaGenerator {
         name
       }
 
-      const operationMethods = Reflect.getMetadata(RESOURCE_OPERATION_METHODS, proto);
+      const operationMethods = Reflect.getMetadata(RESOURCE_OPERATION_FUNCTIONS, proto);
       if (operationMethods) {
         for (const methodName of operationMethods) {
           const fn = proto[methodName];
-          const operationType =  Reflect.getMetadata(RESOURCE_OPERATION_TYPE, proto);
+          const operationMethod = Reflect.getMetadata(RESOURCE_OPERATION_METHOD, proto);
           const operationMetadata = Reflect.getMetadata(RESOURCE_OPERATION, proto, methodName);
           /* istanbul ignore next */
-          if (!(fn && operationMetadata && operationType))
+          if (!(fn && operationMetadata && operationMethod))
             continue;
-          resourceSchema[operationType] = {...operationMetadata, handler: fn.bind(thunk)};
+          resourceSchema[operationMethod] = {...operationMetadata, handler: fn.bind(thunk)};
         }
       }
     } else resourceSchema = thunk;

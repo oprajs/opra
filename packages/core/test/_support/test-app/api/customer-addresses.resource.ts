@@ -1,4 +1,4 @@
-import { Api, ExecutionContext } from '../../../src';
+import { Api, ExecutionContext } from '../../../../src';
 import { Address } from '../dto/address.dto';
 
 @Api.EntityResource(Address, {

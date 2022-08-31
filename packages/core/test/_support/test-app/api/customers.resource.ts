@@ -1,6 +1,6 @@
-import { Api, ExecutionContext, JsonDataService } from '../../../src';
-import { Customer } from '../dto/customer.dto';
-import customersData from '../data/customers.data';
+import { Api, ExecutionContext, JsonDataService } from '../../../../src/index.js';
+import customersData from '../data/customers.data.js';
+import { Customer } from '../dto/customer.dto.js';
 
 @Api.EntityResource(Customer, {
   primaryKey: 'id',

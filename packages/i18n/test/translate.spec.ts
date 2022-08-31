@@ -1,4 +1,4 @@
-import {translate} from '../src';
+import {translate} from '../src/index.js';
 
 describe('translate()', function () {
 

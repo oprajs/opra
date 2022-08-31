@@ -32,18 +32,18 @@
   },
   "type": "module",
   "main": "cjs/index.js",
-  "module": "esm/index.mjs",
+  "module": "esm/index.js",
   "types": "esm/index.d.ts",
   "exports": {
     ".": {
       "require":  "./cjs/index.js",
-      "default": "./esm/index.mjs"
+      "default": "./esm/index.js"
     },
     "./cjs": "./cjs/index.js",
-    "./esm": "./esm/index.mjs"
+    "./esm": "./esm/index.js"
   },
   "engines": {
-    "node": ">=14.0",
+    "node": ">=16.0",
     "npm": ">=7.0.0"
   },
   "files": [
@@ -55,11 +55,8 @@
   ],
   "keywords": [
     "opra",
-    "url",
-    "query",
-    "parser",
-    "builder",
-    "http",
-    "web"
+    "i18n",
+    "internationalization",
+    "language"
   ]
 }

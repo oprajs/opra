@@ -2,7 +2,7 @@ import "reflect-metadata";
 import _ from 'lodash';
 import {
   RESOURCE_OPERATION,
-  RESOURCE_OPERATION_METHODS, RESOURCE_OPERATION_TYPE,
+  RESOURCE_OPERATION_FUNCTIONS, RESOURCE_OPERATION_METHOD,
 } from '../constants.js';
 import {
   ResourceCreateOperationMetadata,
@@ -52,7 +52,7 @@ export function ExecuteOperation(args?: ExecuteOperationOptions) {
 }
 
 
-function createResourceOperationDecorator<TMetadata>(operationType: string, args: TMetadata) {
+function createResourceOperationDecorator<TMetadata>(operationMethod: string, args: TMetadata) {
 
   return function (target: Object,
                    propertyKey: string | symbol,
@@ -72,7 +72,7 @@ function createResourceOperationDecorator<TMetadata>(operationType: string, args
         writable: true
       });
 
-    Reflect.defineMetadata(RESOURCE_OPERATION_TYPE, operationType, target, propertyKey);
+    Reflect.defineMetadata(RESOURCE_OPERATION_METHOD, operationMethod, target, propertyKey);
 
     const meta: TMetadata = {
       ...args,
@@ -80,10 +80,10 @@ function createResourceOperationDecorator<TMetadata>(operationType: string, args
     Object.assign(meta, _.omit(args as any, Object.keys(meta)));
     Reflect.defineMetadata(RESOURCE_OPERATION, meta, target, propertyKey);
 
-    const operationMethods: string[] = Reflect.getMetadata(RESOURCE_OPERATION_METHODS, target) || [];
-    if (!operationMethods.includes(propertyKey))
-      operationMethods.push(propertyKey);
-    Reflect.defineMetadata(RESOURCE_OPERATION_METHODS, operationMethods, target, propertyKey);
+    const operationFunctions: string[] = Reflect.getMetadata(RESOURCE_OPERATION_FUNCTIONS, target) || [];
+    if (!operationFunctions.includes(propertyKey))
+      operationFunctions.push(propertyKey);
+    Reflect.defineMetadata(RESOURCE_OPERATION_FUNCTIONS, operationFunctions, target, propertyKey);
 
   }
 }

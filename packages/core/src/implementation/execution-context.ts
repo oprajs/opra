@@ -1,18 +1,15 @@
-import type { SearchParams } from '@opra/url';
-import type { HttpStatus } from '../enums';
-import type { ApiException } from '../exception';
-import type { HeadersObject } from '../helpers/headers';
-import { Headers } from '../helpers/headers.js';
-import type { ExecutionQuery } from './execution-query';
-import type { OpraService } from './opra-service';
-import type { Resource } from './resource/resource';
+import { OpraURLSearchParams, SearchParams } from '@opra/url';
+import { HttpStatus } from '../enums/index.js';
+import { ApiException } from '../exception/index.js';
+import { Headers, HeadersObject } from '../helpers/headers.js';
+import { ExecutionQuery } from '../interfaces/execution-query.interface.js';
+import { OpraService } from './opra-service.js';
 
-export type ExecutionContextArgs = Pick<ExecutionContext, 'service' | 'resource' |
+export type ExecutionContextArgs = Pick<ExecutionContext, 'service' |
     'request' | 'response' | 'userContext' | 'continueOnError'>;
 
 export class ExecutionContext {
   readonly service: OpraService;
-  readonly resource: Resource;
   readonly request: ExecutionRequest;
   readonly response: ExecutionResponse;
   userContext?: any;
@@ -23,8 +20,11 @@ export class ExecutionContext {
   }
 }
 
-export type ExecutionRequestArgs = Pick<ExecutionRequest, 'query' | 'params' | 'headers' |
-    'parentValue' | 'resultPath'>
+export type ExecutionRequestArgs = Pick<ExecutionRequest, 'query' | 'parentValue'> & {
+  params?: SearchParams;
+  headers?: HeadersObject;
+  resultPath?: string;
+}
 
 export class ExecutionRequest {
   readonly query: ExecutionQuery;
@@ -35,6 +35,9 @@ export class ExecutionRequest {
 
   constructor(args: ExecutionRequestArgs) {
     Object.assign(this, args);
+    this.params = this.params || new OpraURLSearchParams();
+    this.headers = this.headers || Headers.create();
+    this.resultPath = this.resultPath || '';
   }
 }
 

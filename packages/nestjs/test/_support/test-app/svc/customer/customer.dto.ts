@@ -1,42 +1,42 @@
-import { ComplexDto } from '@opra/common';
+import { ComplexType } from '@opra/common';
 
-@ComplexDto()
+@ComplexType()
 export class Customer {
 
-  @ComplexDto.Property()
-  @ComplexDto.PrimaryKey()
+  @ComplexType.Property()
+  @ComplexType.PrimaryKey()
   id: number;
 
-  @ComplexDto.Property()
+  @ComplexType.Property()
   givenName: string;
 
-  @ComplexDto.Property()
+  @ComplexType.Property()
   familyName: string;
 
-  @ComplexDto.Property()
+  @ComplexType.Property()
   gender: string;
 
-  @ComplexDto.Property()
+  @ComplexType.Property()
   birthDate: string;
 
-  @ComplexDto.Property()
+  @ComplexType.Property()
   city: string;
 
-  @ComplexDto.Property()
+  @ComplexType.Property()
   countryCode: string;
 
-  @ComplexDto.Property()
+  @ComplexType.Property()
   active: boolean;
 
-  @ComplexDto.Property()
+  @ComplexType.Property()
   vip: boolean;
 
-  @ComplexDto.Property()
+  @ComplexType.Property()
   addressCity: string;
 
-  @ComplexDto.Property()
+  @ComplexType.Property()
   addressStreet: string;
 
-  @ComplexDto.Property()
+  @ComplexType.Property()
   zipCode: string;
 }
