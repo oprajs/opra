@@ -1,5 +1,5 @@
 import path from 'path';
-import {i18n, translate} from '../src';
+import {i18n, translate} from '../src/index.js';
 
 describe('I18n', function () {
 

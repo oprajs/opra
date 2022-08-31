@@ -9,8 +9,8 @@ import i18next, {
 } from 'i18next';
 import * as I18next from 'i18next';
 import {Type} from 'ts-gems';
-import {unescapeString} from './string-utils';
-import {isTranslation} from './translated-string';
+import {unescapeString} from './string-utils.js';
+import {isTranslation} from './translated-string.js';
 
 export type BaseI18n = Type<I18next.i18n>;
 export const BaseI18n = Object.getPrototypeOf(i18next).constructor as BaseI18n;

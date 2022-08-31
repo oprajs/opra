@@ -1,4 +1,4 @@
-import { DATATYPE_PROPERTIES, Property } from '../src';
+import { DATATYPE_PROPERTIES, Property } from '../src/index.js';
 
 describe('Property() decorator', function () {
 

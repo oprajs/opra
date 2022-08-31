@@ -1,11 +1,11 @@
 /* eslint-disable no-console */
 import express from 'express';
 import * as util from 'util';
-import { CustomerResource } from '@opra/nestjs/test/_support/test-app/svc/customer/customer.resource';
-import { OpraExpressAdapter, OpraService } from '../../../src';
-import { Customer } from '../dto/customer.dto';
-import { countriesResource } from './countries.resource';
-import { CustomerAddressesResource } from './customer-addresses.resource';
+import { OpraExpressAdapter, OpraService } from '../../../src/index.js';
+import { countriesResource } from './api/countries.resource.js';
+import { CustomerAddressesResource } from './api/customer-addresses.resource.js';
+import { CustomersResource } from './api/customers.resource.js';
+import { Customer } from './dto/customer.dto.js';
 
 async function run() {
   const service = await OpraService.create({
@@ -14,7 +14,7 @@ async function run() {
       version: 'v1',
     },
     types: [Customer],
-    resources: [countriesResource, new CustomerResource(), new CustomerAddressesResource()]
+    resources: [countriesResource, new CustomersResource(), new CustomerAddressesResource()]
   });
   console.log(util.inspect(service, {depth: 10, colors: true}));
 

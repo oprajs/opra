@@ -10,7 +10,7 @@ import { ApiException, ErrorResponse } from '../api-exception.js';
 export class MethodNotAllowedError extends ApiException {
   constructor(response?: ErrorResponse) {
     super({
-      message: translate('error:METHOD_NOT_ALLOWED', 'Method not allowed'),
+      message: translate('error:METHOD_NOT_ALLOWED', 'Method Not Allowed'),
       severity: 'error',
       code: 'METHOD_NOT_ALLOWED',
       ...response

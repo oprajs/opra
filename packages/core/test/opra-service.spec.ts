@@ -1,12 +1,12 @@
 import 'reflect-metadata';
 import {
-  EntityResource,
-  OpraService, Resource,
+  EntityResourceController,
+  OpraService, ResourceController,
   SchemaGenerator,
 } from '../src';
-import { Customer } from './_support/dto/customer.dto';
-import { customersResource } from './_support/test-app/customers.resource';
-import { CustomerAddressesResource } from './_support/test-app/customer-addresses.resource';
+import { Customer } from './_support/test-app/dto/customer.dto';
+import { customersResource } from './_support/test-app/api/customers.resource';
+import { CustomerAddressesResource } from './_support/test-app/api/customer-addresses.resource';
 
 describe('OpraService', function () {
 
@@ -78,7 +78,7 @@ describe('OpraService', function () {
       expect(service.getResource('CustomerAddress')).toBeDefined();
       const resource = service.getEntityResource('customeraddress');
       expect(resource).toBeDefined();
-      expect(resource).toBeInstanceOf(EntityResource);
+      expect(resource).toBeInstanceOf(EntityResourceController);
       expect(resource.name).toStrictEqual('CustomerAddress');
       expect(resource.primaryKey).toStrictEqual('id');
       expect(resource.description).toStrictEqual('Customer address resource');
@@ -108,8 +108,8 @@ describe('OpraService', function () {
         resources: [new CustomerAddressesResource()]
       };
       const service = await OpraService.create(args);
-      expect(service.getResource('CustomerAddress')).toBeInstanceOf(Resource);
-      expect(service.getResource('customeraddress')).toBeInstanceOf(Resource);
+      expect(service.getResource('CustomerAddress')).toBeInstanceOf(ResourceController);
+      expect(service.getResource('customeraddress')).toBeInstanceOf(ResourceController);
     })
 
     it('Should getResource() throw error if resource does not exists', async () => {

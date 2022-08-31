@@ -1,6 +1,6 @@
 import { JsonDataService } from '../src';
-import { Customer } from './_support/dto/customer.dto.js';
-import customerData from './_support/data/customers.data';
+import { Customer } from './_support/test-app/dto/customer.dto.js';
+import customerData from './_support/test-app/data/customers.data';
 
 describe('JsonDataService', function () {
 

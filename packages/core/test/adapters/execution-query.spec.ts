@@ -1,10 +1,10 @@
 import 'reflect-metadata';
 import assert from 'node:assert';
 import { ExecutionQuery, OpraService } from '../../src';
-import { Address } from '../_support/dto/address.dto';
-import { Customer } from '../_support/dto/customer.dto';
-import { customersResource } from '../_support/test-app/customers.resource';
-import { CustomerAddressesResource } from '../_support/test-app/customer-addresses.resource';
+import { Address } from '../_support/test-app/dto/address.dto';
+import { Customer } from '../_support/test-app/dto/customer.dto';
+import { customersResource } from '../_support/test-app/api/customers.resource';
+import { CustomerAddressesResource } from '../_support/test-app/api/customer-addresses.resource';
 
 describe('ExecutionQuery', function () {
   let service: OpraService;

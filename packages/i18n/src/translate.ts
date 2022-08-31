@@ -1,5 +1,5 @@
 import {TOptions} from 'i18next';
-import {escapeString} from './string-utils';
+import {escapeString} from './string-utils.js';
 
 const bracketRegEx = /(\))/g
 

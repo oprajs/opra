@@ -2,8 +2,10 @@
   "extends": "../../../tsconfig-base.json",
   "include": ["**/*.ts"],
   "compilerOptions": {
-    "strict": false,
+    "experimentalDecorators": true,
+    "emitDecoratorMetadata": true,
     "noEmit": true,
+    "sourceMap": true,
     "baseUrl": "./",
     "paths": {
       "@opra/*": ["../../*/src"],

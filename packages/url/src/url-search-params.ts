@@ -243,9 +243,8 @@ export class OpraURLSearchParams extends SearchParams {
     this.defineParam('$filter', {format: 'filter'});
     this.defineParam('$limit', {format: new IntegerFormat({min: 0})});
     this.defineParam('$skip', {format: new IntegerFormat({min: 0})});
-    this.defineParam('$elements', {format: 'string', array: 'strict'});
-    this.defineParam('$exclude', {format: 'string', array: 'strict'});
-    this.defineParam('$include', {format: 'string', array: 'strict'});
+    this.defineParam('$pick', {format: 'string', array: 'strict'});
+    this.defineParam('$omit', {format: 'string', array: 'strict'});
     this.defineParam('$sort', {format: 'string', array: 'strict'});
     this.defineParam('$distinct', {format: 'boolean'});
     this.defineParam('$total', {format: 'boolean'});

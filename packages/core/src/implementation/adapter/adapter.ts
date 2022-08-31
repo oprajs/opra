@@ -1,8 +1,8 @@
 import { isPromise } from 'util/types';
 import { I18n } from '@opra/i18n';
 import { ApiException, FailedDependencyError } from '../../exception/index.js';
-import { ExecutionContext } from '../execution-context';
-import type { OpraService } from '../opra-service.js';
+import { ExecutionContext } from '../execution-context.js';
+import { OpraService } from '../opra-service.js';
 
 export namespace OpraAdapter {
   export interface Options {
@@ -30,7 +30,7 @@ export abstract class OpraAdapter<TAdapterContext = any, TOptions extends OpraAd
     for (const ctx of executionContexts) {
       const request = ctx.request;
       const response = ctx.response;
-      exclusive = exclusive || request.query.operationMethod !== 'read';
+      exclusive = exclusive || request.query.operationType !== 'read';
       try {
         // Wait previous read requests before executing update request
         if (exclusive && promises) {
@@ -42,13 +42,15 @@ export abstract class OpraAdapter<TAdapterContext = any, TOptions extends OpraAd
         if (stop) {
           response.errors.push(new FailedDependencyError());
         } else {
-          const v = ctx.resource.execute(ctx);
+          const resource = ctx.request.query.resource;
+          const v = resource.execute(ctx);
           if (!exclusive) {
             if (isPromise(v)) {
               promises = promises || [];
               promises.push(v);
             }
           }
+          // todo execute sub property queries
         }
       } catch (e: any) {
         response.errors.unshift(ApiException.wrap(e));

@@ -1,7 +1,7 @@
 import 'reflect-metadata';
 import { Api } from '../../src';
-import { RESOURCE_METADATA, RESOURCE_OPERATION, RESOURCE_OPERATION_METHODS } from '../../src/constants';
-import { Address } from '../_support/dto/address.dto';
+import { RESOURCE_METADATA, RESOURCE_OPERATION, RESOURCE_OPERATION_FUNCTIONS } from '../../src/constants';
+import { Address } from '../_support/test-app/dto/address.dto';
 
 describe('Api decorators', function () {
 
@@ -36,7 +36,7 @@ describe('Api decorators', function () {
         }
       }
 
-      const methods = Reflect.getMetadata(RESOURCE_OPERATION_METHODS, AnimalResource.prototype);
+      const methods = Reflect.getMetadata(RESOURCE_OPERATION_FUNCTIONS, AnimalResource.prototype);
       expect(methods).toStrictEqual(['read']);
       for (const method of methods) {
         const metadata = Reflect.getMetadata(RESOURCE_OPERATION, AnimalResource.prototype, method);
