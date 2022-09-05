@@ -4,6 +4,11 @@
     "module": "CommonJS",
     "rootDir": "src",
     "outDir": "../../build/i18n/cjs",
+    "paths": {
+      "@opra/core": ["../../build/core"],
+      "@opra/url": ["../../build/url"],
+      "@opra/optionals": ["../../build/optionals"]
+    },
     "sourceMap": false,
     "noEmit": false,
     "declaration": false,

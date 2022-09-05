@@ -1,10 +1,10 @@
-import { DATATYPE_PROPERTIES, Property } from '../src/index.js';
+import { DATATYPE_PROPERTIES, ApiProperty } from '../src/index.js';
 
 describe('Property() decorator', function () {
 
   it('Should define property metadata', async () => {
     class Animal {
-      @Property({
+      @ApiProperty({
         description: 'description',
         enum: ['a', 'b']
       })
@@ -25,14 +25,14 @@ describe('Property() decorator', function () {
 
   it('Should set design type if "type" is not defined', async () => {
     class Country {
-      @Property()
+      @ApiProperty()
       id: number;
-      @Property()
+      @ApiProperty()
       name: string;
     }
 
     class Person {
-      @Property()
+      @ApiProperty()
       country: Country;
     }
 
@@ -52,7 +52,7 @@ describe('Property() decorator', function () {
     class Person {
     }
 
-    expect(() => Property({})(Person.prototype, sym)).toThrow('can\'t be used')
+    expect(() => ApiProperty({})(Person.prototype, sym)).toThrow('can\'t be used')
 
   })
 

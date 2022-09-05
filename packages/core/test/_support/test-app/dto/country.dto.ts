@@ -1,17 +1,17 @@
-import { ComplexType, Property } from '@opra/common';
+import { ApiComplexType, ApiProperty } from '@opra/common';
 
-@ComplexType({
+@ApiComplexType({
   description: 'Country information'
 })
 export class Country {
 
-  @Property()
+  @ApiProperty()
   code: string;
 
-  @Property()
+  @ApiProperty()
   name: string;
 
-  @Property()
+  @ApiProperty()
   phoneCode: string;
 
 }

@@ -6,6 +6,7 @@ import { Responsive, ResponsiveObject } from '../helpers/responsive-object.js';
 import { colorFgMagenta, colorFgYellow, colorReset, nodeInspectCustom } from '../helpers/terminal-utils.js';
 import { ComplexType } from './data-type/complex-type.js';
 import { DataType } from './data-type/data-type.js';
+import { EntityType } from './data-type/entity-type.js';
 import { SimpleType } from './data-type/simple-type.js';
 import { SchemaGenerator } from './schema-generator.js';
 
@@ -43,7 +44,21 @@ export class OpraDocument {
   getComplexDataType(name: string): ComplexType {
     const t = this.getDataType(name);
     if (!(t instanceof ComplexType))
-      throw new Error(`Data type "${name}" is not a complex type`);
+      throw new Error(`Data type "${name}" is not a ComplexType`);
+    return t;
+  }
+
+  getEntityDataType(name: string): EntityType {
+    const t = this.getDataType(name);
+    if (!(t instanceof EntityType))
+      throw new Error(`Data type "${name}" is not an EntityType`);
+    return t;
+  }
+
+  getSimpleDataType(name: string): SimpleType {
+    const t = this.getDataType(name);
+    if (!(t instanceof SimpleType))
+      throw new Error(`Data type "${name}" is not a SimpleType`);
     return t;
   }
 
@@ -86,11 +101,16 @@ export class OpraDocument {
         if (baseType && !(baseType instanceof SimpleType))
           throw new TypeError(`Can't extend a SimpleType (${schema.name}) from a ComplexType "${baseType.name}"`);
         dataType = new SimpleType(this, schema, baseType);
-      } else {
+      } else if (OpraSchema.isComplexType(schema)) {
         if (baseType && !(baseType instanceof ComplexType))
           throw new TypeError(`Can't extend a ComplexType (${schema.name}) from a SimpleType "${baseType.name}"`);
         dataType = new ComplexType(this, schema, baseType);
-      }
+      } else if (OpraSchema.isEntityType(schema)) {
+        if (baseType && !(baseType instanceof ComplexType))
+          throw new TypeError(`Can't extend an EntityType (${schema.name}) from a SimpleType "${baseType.name}"`);
+        dataType = new EntityType(this, schema, baseType);
+      } else
+        throw new TypeError(`Invalid data type schema`);
       nameSet.delete(schema.name);
       this.types[dataType.name] = dataType;
       recursiveSet.delete(schema.name);

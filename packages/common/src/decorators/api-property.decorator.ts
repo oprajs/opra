@@ -10,7 +10,7 @@ export type PropertyMetadata =
       type?: string | TypeThunkAsync;
     }
 
-export function Property(args?: Partial<PropertyMetadata>): PropertyDecorator {
+export function ApiProperty(args?: Partial<PropertyMetadata>): PropertyDecorator {
   return (target: Object, propertyKey: string | symbol): void => {
     if (typeof propertyKey !== 'string')
       throw new TypeError(`Symbol properties can't be used as Property`);

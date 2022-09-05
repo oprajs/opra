@@ -67,7 +67,7 @@ export class SchemaGenerator {
         base = baseSchema.name;
       }
 
-      if (OpraSchema.isComplexType(metadata)) {
+      if (OpraSchema.isComplexType(metadata) || OpraSchema.isEntityType(metadata)) {
         schema = {
           ...metadata,
           ctor,

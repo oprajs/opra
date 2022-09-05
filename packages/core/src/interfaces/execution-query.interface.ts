@@ -1,6 +1,7 @@
 import _ from 'lodash';
 import { StrictOmit } from 'ts-gems';
 import { OpraSchema } from '@opra/common';
+import { Expression } from '@opra/url';
 import { EntityResourceController } from '../implementation/resource/entity-resource-controller.js';
 import { KeyValue, OperationType, QueryScope, QueryType } from '../types.js';
 
@@ -52,7 +53,7 @@ export interface DeleteManyQuery extends BaseQuery {
   scope: 'collection';
   operationType: 'delete';
   resource: EntityResourceController;
-  filter: any;
+  filter?: string | Expression;
 }
 
 export interface SearchQuery extends BaseQuery {
@@ -62,6 +63,8 @@ export interface SearchQuery extends BaseQuery {
   resource: EntityResourceController;
   pick?: string[];
   omit?: string[];
+  include?: string[];
+  filter?: string | Expression;
   limit?: number;
   skip?: number;
   distinct?: boolean;
@@ -127,14 +130,18 @@ export namespace ExecutionQuery {
     }
   }
 
-  export function forDeleteMany(resource: EntityResourceController, filter: KeyValue): DeleteManyQuery {
-    return {
+  export function forDeleteMany(
+      resource: EntityResourceController,
+      options?: StrictOmit<DeleteManyQuery, 'queryType' | 'scope' | 'operationType' | 'resource'>
+  ): DeleteManyQuery {
+    const out: DeleteManyQuery = {
       queryType: 'deleteMany',
       scope: 'collection',
       operationType: 'delete',
       resource,
-      filter
     }
+    Object.assign(out, _.omit(options, Object.keys(out)));
+    return out;
   }
 
   export function isCreateQuery(q: any): q is CreateQuery {

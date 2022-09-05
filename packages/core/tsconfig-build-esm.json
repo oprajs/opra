@@ -7,11 +7,12 @@
     "paths": {
       "@opra/i18n": ["../../build/i18n"],
       "@opra/common": ["../../build/common"],
-      "@opra/url": ["../../build/url"]
+      "@opra/url": ["../../build/url"],
+      "@opra/optionals": ["../../build/optionals"]
     },
     "sourceMap": false,
     "noEmit": false,
-    "declaration": false
+    "declaration": true
   },
   "include": ["src"]
 }

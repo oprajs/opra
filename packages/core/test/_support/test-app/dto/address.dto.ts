@@ -1,21 +1,21 @@
-import { ComplexType, Property } from '@opra/common';
+import { ApiComplexType, ApiProperty } from '@opra/common';
 import { Country } from './country.dto';
 
-@ComplexType({
+@ApiComplexType({
   description: 'Address information'
 })
 export class Address {
 
-  @Property()
+  @ApiProperty()
   city: string;
 
-  @Property()
+  @ApiProperty()
   country: Country;
 
-  @Property()
+  @ApiProperty()
   street: string;
 
-  @Property()
+  @ApiProperty()
   zipCode: string;
 
 }

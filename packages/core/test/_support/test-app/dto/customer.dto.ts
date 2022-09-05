@@ -1,32 +1,32 @@
-import { ComplexType, Property } from '@opra/common';
+import { ApiComplexType, ApiProperty } from '@opra/common';
 import { Address } from './address.dto';
 import { Person } from './person.dto';
 
-@ComplexType()
+@ApiComplexType()
 export class Customer extends Person {
 
-  @Property({type: 'integer'})
+  @ApiProperty({type: 'integer'})
   id: number;
 
-  @Property()
+  @ApiProperty()
   cid: string;
 
-  @Property()
+  @ApiProperty()
   identity: string;
 
-  @Property()
+  @ApiProperty()
   city: string;
 
-  @Property()
+  @ApiProperty()
   countryCode: string;
 
-  @Property()
+  @ApiProperty()
   active: boolean;
 
-  @Property({type: 'integer'})
+  @ApiProperty({type: 'integer'})
   vip: number;
 
-  @Property({
+  @ApiProperty({
     exclusive: true
   })
   address?: Address;

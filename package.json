@@ -12,6 +12,16 @@
   "workspaces": [
     "packages/**"
   ],
+  "scripts": {
+    "preclean": "rimraf build coverage",
+    "clean": "rman run clean",
+    "build": "rman build",
+    "test": "jest --passWithNoTests --detectOpenHandles",
+    "precover": "rimraf coverage",
+    "cover": "jest --passWithNoTests --detectOpenHandles --coverage",
+    "precitest": "rimraf coverage",
+    "citest": "jest --passWithNoTests --detectOpenHandles --coverage --coverageReporters=lcov"
+  },
   "dependencies": {
   },
   "devDependencies": {
@@ -22,8 +32,6 @@
     "@typescript-eslint/eslint-plugin": "^5.31.0",
     "@typescript-eslint/parser": "^5.31.0",
     "antlr4ts": "^0.5.0-alpha.4",
-    "copyfiles": "^2.4.1",
-    "cross-env": "^7.0.3",
     "eslint": "^8.20.0",
     "eslint-config-google": "^0.14.0",
     "eslint-plugin-import": "^2.26.0",
@@ -42,17 +50,6 @@
     "ts-node": "^10.9.1",
     "tsconfig-paths": "^4.0.0",
     "tslib": "^2.4.0",
-    "typescript": "^4.7.4",
-    "typescript-esm": "^2.0.0"
-  },
-  "scripts": {
-    "preclean": "rimraf build coverage",
-    "clean": "rman run clean",
-    "build": "rman build",
-    "test": "jest --passWithNoTests --detectOpenHandles",
-    "precover": "rimraf coverage",
-    "cover": "jest --passWithNoTests --detectOpenHandles --coverage",
-    "precitest": "rimraf coverage",
-    "citest": "jest --passWithNoTests --detectOpenHandles --coverage --coverageReporters=lcov"
+    "typescript": "^4.7.4"
   }
 }

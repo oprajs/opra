@@ -8,7 +8,7 @@
     },
     "sourceMap": false,
     "noEmit": false,
-    "declaration": false
+    "declaration": true
   },
   "include": ["src"]
 }

@@ -1,30 +1,30 @@
-import { ComplexType, Property } from '@opra/common';
+import { ApiEntity, ApiProperty } from '@opra/common';
 import { Column, Entity, PrimaryKey } from '@sqb/connect';
-import { Shelf } from './shelf.entity.js';
+import { Writer } from './writer.entity.js';
 
-@ComplexType()
+@ApiEntity()
 @Entity('books')
 export class Book {
 
   @PrimaryKey()
   @Column()
-  @Property({type: 'integer'})
+  @ApiProperty({type: 'integer'})
   id: number;
 
   @Column()
-  @Property()
+  @ApiProperty()
   name: string;
 
   @Column()
-  @Property()
+  @ApiProperty()
   totalPages: number;
 
   @Column()
-  @Property()
-  shelfId: number;
+  @ApiProperty()
+  writerId: number;
 
   @Column()
-  @Property()
-  shelf: Shelf;
+  @ApiProperty()
+  writer: Writer;
 
 }

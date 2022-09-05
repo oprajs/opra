@@ -2,16 +2,17 @@ import _ from 'lodash';
 import { StrictOmit } from 'ts-gems';
 import { OpraSchema } from '@opra/common';
 import { ComplexType } from '../data-type/complex-type.js';
+import { EntityType } from '../data-type/entity-type.js';
 import { ExecutionContext } from '../execution-context.js';
 import { ResourceController } from './resource-controller.js';
 
 export type EntityResourceControllerArgs = StrictOmit<OpraSchema.EntityResource, 'kind'> & {
-  dataType: ComplexType;
+  dataType: EntityType;
 }
 
 export class EntityResourceController extends ResourceController {
   declare protected readonly _args: OpraSchema.EntityResource;
-  readonly dataType: ComplexType;
+  readonly dataType: EntityType;
 
   constructor(args: EntityResourceControllerArgs) {
     super({
@@ -19,6 +20,9 @@ export class EntityResourceController extends ResourceController {
       ..._.omit(args, 'dataType')
     });
     this.dataType = args.dataType;
+    // noinspection SuspiciousTypeOfGuard
+    if (!(args.dataType instanceof EntityType))
+      throw new TypeError(`You should provide an EntityType for EntityResourceController`);
   }
 
   get primaryKey(): string | string[] {

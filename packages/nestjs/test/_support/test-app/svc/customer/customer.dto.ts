@@ -1,42 +1,42 @@
-import { ComplexType } from '@opra/common';
+import { ApiComplexType } from '@opra/common';
 
-@ComplexType()
+@ApiComplexType()
 export class Customer {
 
-  @ComplexType.Property()
-  @ComplexType.PrimaryKey()
+  @ApiComplexType.Property()
+  @ApiComplexType.PrimaryKey()
   id: number;
 
-  @ComplexType.Property()
+  @ApiComplexType.Property()
   givenName: string;
 
-  @ComplexType.Property()
+  @ApiComplexType.Property()
   familyName: string;
 
-  @ComplexType.Property()
+  @ApiComplexType.Property()
   gender: string;
 
-  @ComplexType.Property()
+  @ApiComplexType.Property()
   birthDate: string;
 
-  @ComplexType.Property()
+  @ApiComplexType.Property()
   city: string;
 
-  @ComplexType.Property()
+  @ApiComplexType.Property()
   countryCode: string;
 
-  @ComplexType.Property()
+  @ApiComplexType.Property()
   active: boolean;
 
-  @ComplexType.Property()
+  @ApiComplexType.Property()
   vip: boolean;
 
-  @ComplexType.Property()
+  @ApiComplexType.Property()
   addressCity: string;
 
-  @ComplexType.Property()
+  @ApiComplexType.Property()
   addressStreet: string;
 
-  @ComplexType.Property()
+  @ApiComplexType.Property()
   zipCode: string;
 }

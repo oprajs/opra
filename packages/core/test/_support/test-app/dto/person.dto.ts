@@ -1,20 +1,20 @@
-import { ComplexType, Property } from '@opra/common';
+import { ApiComplexType, ApiProperty } from '@opra/common';
 
-@ComplexType({
+@ApiComplexType({
   description: 'Person information'
 })
 export class Person {
 
-  @Property()
+  @ApiProperty()
   givenName: string;
 
-  @Property()
+  @ApiProperty()
   familyName: string;
 
-  @Property()
+  @ApiProperty()
   gender: string;
 
-  @Property()
+  @ApiProperty()
   birthDate: string;
 
 }

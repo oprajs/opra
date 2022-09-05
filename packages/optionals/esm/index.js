@@ -8,8 +8,10 @@ async function tryImport(module) {
 
 const ClassValidator = await tryImport('class-validator');
 const NestJSCommon = await tryImport('@nestjs/common');
+const SqbConnect = await tryImport('@sqb/connect');
 
 export {
   ClassValidator,
-  NestJSCommon
+  NestJSCommon,
+  SqbConnect
 };

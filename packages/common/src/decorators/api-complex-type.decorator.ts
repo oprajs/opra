@@ -8,7 +8,7 @@ export type ComplexTypeMetadata =
 
 export type ComplexTypeDecoratorOptions = Partial<StrictOmit<ComplexTypeMetadata, 'kind'>>;
 
-export function ComplexType(args?: ComplexTypeDecoratorOptions): ClassDecorator {
+export function ApiComplexType(args?: ComplexTypeDecoratorOptions): ClassDecorator {
   return (target: Function): void => {
     const meta: ComplexTypeMetadata = {
       kind: 'ComplexType',
