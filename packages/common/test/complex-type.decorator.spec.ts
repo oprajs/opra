@@ -1,5 +1,5 @@
 import 'reflect-metadata';
-import { ComplexType, ComplexTypeDecoratorOptions, DATATYPE_METADATA } from '../src/index.js';
+import { ApiComplexType, ComplexTypeDecoratorOptions, DATATYPE_METADATA } from '../src/index.js';
 
 describe('ComplexType() decorator', function () {
 
@@ -12,7 +12,7 @@ describe('ComplexType() decorator', function () {
     const Animal = class {
       id: string;
     }
-    ComplexType(opts)(Animal);
+    ApiComplexType(opts)(Animal);
 
     const schema = Reflect.getMetadata(DATATYPE_METADATA, Animal);
     expect(schema).toStrictEqual({kind: 'ComplexType', name: 'Animal', ...opts});
@@ -22,7 +22,7 @@ describe('ComplexType() decorator', function () {
     const Animal = class {
       id: string;
     }
-    ComplexType({description: 'Animal schema', name: 'Cat'})(Animal);
+    ApiComplexType({description: 'Animal schema', name: 'Cat'})(Animal);
 
     const schema = Reflect.getMetadata(DATATYPE_METADATA, Animal);
     expect(schema.name).toStrictEqual('Cat');
@@ -32,12 +32,12 @@ describe('ComplexType() decorator', function () {
     const Animal = class {
       id: string;
     }
-    ComplexType({description: 'Animal schema'})(Animal);
+    ApiComplexType({description: 'Animal schema'})(Animal);
 
     const Cat = class extends Animal {
       name: string;
     }
-    ComplexType()(Cat);
+    ApiComplexType()(Cat);
 
     const animalSchema = Reflect.getMetadata(DATATYPE_METADATA, Animal);
     const catSchema = Reflect.getMetadata(DATATYPE_METADATA, Cat);

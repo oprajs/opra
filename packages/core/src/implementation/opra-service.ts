@@ -2,7 +2,7 @@ import { StrictOmit } from 'ts-gems';
 import { OpraSchema } from '@opra/common';
 import { Responsive } from '../helpers/responsive-object.js';
 import { ResourceContainer } from '../interfaces/resource-container.interface.js';
-import { ComplexType } from './data-type/complex-type.js';
+import { EntityType } from './data-type/entity-type.js';
 import { OpraDocument } from './opra-document.js';
 import { EntityResourceController } from './resource/entity-resource-controller.js';
 import { ResourceController } from './resource/resource-controller.js';
@@ -48,8 +48,8 @@ export class OpraService extends OpraDocument implements ResourceContainer {
         const dataType = this.getDataType(r.type);
         if (!dataType)
           throw new TypeError(`Datatype "${r.type}" declared in EntityResource (${r.name}) does not exists`);
-        if (!(dataType instanceof ComplexType))
-          throw new TypeError(`${r.type} is not an ComplexType`);
+        if (!(dataType instanceof EntityType))
+          throw new TypeError(`${r.type} is not an EntityType`);
         this.resources[r.name] = new EntityResourceController({...r, dataType});
       } else
         throw new TypeError(`Unknown resource kind (${r.kind})`);

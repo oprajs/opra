@@ -7,6 +7,7 @@ import { BooksResource } from './_support/book.resource.js';
 describe('SQBAdapter', function () {
   let service: OpraService;
   let _client: SqbClient;
+
   beforeAll(async () => {
     _client = new SqbClient({
       dialect: 'sqlite'
@@ -35,78 +36,74 @@ describe('SQBAdapter', function () {
     return client as unknown as SqbClient;
   }
 
-  describe('"search" api method', function () {
-    const items = [{a: 1}];
+  it('Should "search" api execute Repository.findAll', async () => {
+    const value = [{a: 1}];
+    let args;
+    const conn = getMockClient({
+      findAll: (opts) => {
+        args = opts;
+        return value;
+      }
+    });
+    const query = ExecutionQuery.forSearch(service.getResource('Books'), {limit: 5});
+    const request = new ExecutionRequest({query});
+    const result = await SQBAdapter.execute(conn, request).catch();
+    expect(args).toStrictEqual({limit: 5});
+    expect(result).toStrictEqual({value});
+  })
 
-    it('Should execute Repository.findAll', async () => {
-      const conn = getMockClient({
-        findAll: () => items
-      });
-      const query = ExecutionQuery.forSearch(service.getResource('Books'));
-      const request = new ExecutionRequest({query});
-      const result = await SQBAdapter.execute(conn, request).catch();
-      expect(result).toStrictEqual({items});
-    })
+  it('Should "read" api execute Repository.findOne', async () => {
+    const value = {a: 1};
+    let args;
+    const conn = getMockClient({
+      findOne: (_args) => {
+        args = _args;
+        return value;
+      }
+    });
+    const query = ExecutionQuery.forRead(service.getResource('Books'), 1, {pick: ['id', 'name']});
+    const request = new ExecutionRequest({query});
+    const result = await SQBAdapter.execute(conn, request).catch();
+    expect({...args, filter: undefined}).toStrictEqual({pick: ['id', 'name'], filter: undefined});
+    expect(args.filter).toBeDefined();
+    expect(args.filter._operatorType).toStrictEqual('eq');
+    expect(args.filter._left._field).toStrictEqual('id');
+    expect(args.filter._right).toStrictEqual(1);
+    expect(result).toStrictEqual({value});
+  })
 
-    it('Should execute Repository.findAll with "limit" option', async () => {
-      let opts;
-      const conn = getMockClient({
-        findAll: (options) => opts = options
-      });
-      const query = ExecutionQuery.forSearch(service.getEntityResource('Books'), {limit: 5});
-      const request = new ExecutionRequest({query});
-      await SQBAdapter.execute(conn, request);
-      expect(opts).toStrictEqual({limit: 5});
-    })
+  it('Should "delete" api execute Repository.destroy', async () => {
+    let args;
+    const conn = getMockClient({
+      destroy: (_args) => {
+        args = _args;
+        return true;
+      }
+    });
+    const query = ExecutionQuery.forDelete(service.getResource('Books'), 1);
+    const request = new ExecutionRequest({query});
+    const result = await SQBAdapter.execute(conn, request).catch();
+    expect(args.filter).toBeDefined();
+    expect(args.filter._operatorType).toStrictEqual('eq');
+    expect(args.filter._left._field).toStrictEqual('id');
+    expect(args.filter._right).toStrictEqual(1);
+    expect(result).toStrictEqual({affected: 1});
+  })
 
-    it('Should execute Repository.findAll with "offset" option', async () => {
-      let opts;
-      const conn = getMockClient({
-        findAll: (options) => opts = options
-      });
-      const query = ExecutionQuery.forSearch(service.getEntityResource('Books'), {skip: 5});
-      const request = new ExecutionRequest({query});
-      await SQBAdapter.execute(conn, request);
-      expect(opts).toStrictEqual({offset: 5});
-
-    })
-
-    it('Should execute Repository.findAll with "distinct" option', async () => {
-      let opts;
-      const conn = getMockClient({
-        findAll: (options) => opts = options
-      });
-      const query = ExecutionQuery.forSearch(service.getEntityResource('Books'), {distinct: true});
-      const request = new ExecutionRequest({query});
-      await SQBAdapter.execute(conn, request);
-      expect(opts).toStrictEqual({distinct: true});
-    })
-
-    it('Should execute Repository.findAll with "total" option', async () => {
-      const conn = getMockClient({
-        findAll: () => items,
-        count: () => 10
-      });
-      const query = ExecutionQuery.forSearch(service.getEntityResource('Books'), {total: true});
-      const request = new ExecutionRequest({query});
-      const result = await SQBAdapter.execute(conn, request).catch();
-      expect(result).toStrictEqual({total: 10, items});
-    })
-
-    it('Should execute Repository.findAll with "pick" option', async () => {
-      let opts;
-      const conn = getMockClient({
-        findAll: (options) => opts = options
-      });
-      const query = ExecutionQuery.forSearch(service.getEntityResource('Books'), {
-        pick: ['id', 'name', 'shelf.name']
-      });
-      const request = new ExecutionRequest({query});
-      await SQBAdapter.execute(conn, request);
-      expect(opts).toStrictEqual({elements: ['id', 'name', 'shelf.name']});
-    })
-
-  });
+  it('Should "deleteMany" api execute Repository.destroyAll', async () => {
+    let args;
+    const conn = getMockClient({
+      destroyAll: (opts) => {
+        args = opts;
+        return 2;
+      }
+    });
+    const query = ExecutionQuery.forDeleteMany(service.getResource('Books'), {filter: 'page=1'});
+    const request = new ExecutionRequest({query});
+    const result = await SQBAdapter.execute(conn, request).catch();
+    expect(args.filter).toBeDefined();
+    expect(result).toStrictEqual({affected: 2});
+  })
 
 });
 

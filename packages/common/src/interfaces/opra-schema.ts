@@ -1,4 +1,4 @@
-import { Type } from 'ts-gems';
+import { StrictOmit, Type } from 'ts-gems';
 
 export namespace OpraSchema {
 
@@ -8,7 +8,7 @@ export namespace OpraSchema {
       'ContainerResource' |
       'EntityResource' |
       'SingletonResource';
-  export type DataTypeKind = 'SimpleType' | 'ComplexType';
+  export type DataTypeKind = 'SimpleType' | 'ComplexType' | 'EntityType';
 
   //#endregion Common
 
@@ -60,7 +60,7 @@ export namespace OpraSchema {
 
 
   //#region # DataType
-  export type DataType = SimpleType | ComplexType;
+  export type DataType = ComplexType | EntityType | SimpleType;
 
   export type BaseDataType = {
     kind: DataTypeKind;
@@ -86,6 +86,11 @@ export namespace OpraSchema {
     abstract?: boolean;
     properties?: Record<string, Property>;
     additionalProperties?: boolean | string | Pick<Property, 'type' | 'format' | 'isArray' | 'enum'>;
+  }
+
+  export interface EntityType extends StrictOmit<ComplexType, 'kind'> {
+    kind: 'EntityType';
+    primaryKey: string;
   }
 
   export type Property = Extensible & {
@@ -116,12 +121,15 @@ export namespace OpraSchema {
 
   export function isDataType(obj: any): obj is ComplexType {
     return obj && typeof obj === 'object' &&
-        (obj.kind === 'SimpleType' || obj.kind === 'ComplexType');
+        (obj.kind === 'ComplexType' || obj.kind === 'EntityType' || obj.kind === 'SimpleType');
   }
 
   export function isComplexType(obj: any): obj is ComplexType {
-    return obj && typeof obj === 'object' &&
-        (obj.kind === 'ComplexType' || obj.kind === 'EntityType');
+    return obj && typeof obj === 'object' && obj.kind === 'ComplexType';
+  }
+
+  export function isEntityType(obj: any): obj is EntityType {
+    return obj && typeof obj === 'object' && obj.kind === 'EntityType'
   }
 
   export function isSimpleType(obj: any): obj is SimpleType {
@@ -171,8 +179,7 @@ export namespace OpraSchema {
     handler?: Function;
   }
 
-  export type ResourceReadOperation = ResourceOperation & {
-  }
+  export type ResourceReadOperation = ResourceOperation & {}
 
   export type ResourceSearchOperation = ResourceOperation & {
     defaultLimit?: number;
@@ -181,20 +188,15 @@ export namespace OpraSchema {
     defaultSortPaths?: string[];
   }
 
-  export type ResourceCreateOperation = ResourceOperation & {
-  }
+  export type ResourceCreateOperation = ResourceOperation & {}
 
-  export type ResourceUpdateOperation = ResourceOperation & {
-  }
+  export type ResourceUpdateOperation = ResourceOperation & {}
 
-  export type ResourcePatchOperation = ResourceOperation & {
-  }
+  export type ResourcePatchOperation = ResourceOperation & {}
 
-  export type ResourceDeleteOperation = ResourceOperation & {
-  }
+  export type ResourceDeleteOperation = ResourceOperation & {}
 
-  export type ResourceExecuteOperation = ResourceOperation & {
-  }
+  export type ResourceExecuteOperation = ResourceOperation & {}
 
 
   export function isResource(obj: any): obj is Resource {
