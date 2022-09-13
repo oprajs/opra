@@ -25,7 +25,7 @@
   },
   "devDependencies": {
     "class-validator": "^0.13.2",
-    "@nestjs/common": "^9.0.5"
+    "@nestjs/common": "^9.0.11"
   },
   "type": "module",
   "main": "cjs/index.js",

@@ -26,12 +26,12 @@
     "antlr": "antlr4ts -visitor -no-listener src/filter/antlr/OpraFilter.g4"
   },
   "dependencies": {
-    "antlr4": "^4.10.1",
-    "luxon": "^3.0.2",
+    "antlr4": "^4.11.0",
+    "luxon": "^3.0.3",
     "fast-tokenizer": "^1.1.0"
   },
   "devDependencies": {
-    "@types/luxon": "^3.0.0",
+    "@types/luxon": "^3.0.1",
     "antlr4ts-cli": "^0.5.0-alpha.4"
   },
   "type": "module",
