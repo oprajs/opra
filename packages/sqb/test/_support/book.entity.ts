@@ -1,4 +1,4 @@
-import { ApiEntityType, ApiProperty } from '@opra/common';
+import { ApiEntityType, ApiProperty } from '@opra/schema';
 import { Column, Entity, Link, PrimaryKey } from '@sqb/connect';
 import { Writer } from './writer.entity.js';
 

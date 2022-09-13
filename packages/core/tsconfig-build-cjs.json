@@ -7,7 +7,7 @@
     "outDir": "../../build/core/cjs",
     "paths": {
       "@opra/i18n": ["../../build/i18n"],
-      "@opra/common": ["../../build/common"],
+      "@opra/schema": ["../../build/schema"],
       "@opra/url": ["../../build/url"],
       "@opra/optionals": ["../../build/optionals"]
     },

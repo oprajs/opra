@@ -1,6 +1,6 @@
 import { StrictOmit, Type } from 'ts-gems';
 import { isPromise } from 'util/types';
-import { DATATYPE_METADATA, DATATYPE_PROPERTIES, OpraSchema, PropertyMetadata } from '@opra/common';
+import { DATATYPE_METADATA, DATATYPE_PROPERTIES, OpraSchema, PropertyMetadata } from '@opra/schema';
 import { RESOURCE_METADATA } from '../constants.js';
 import { ThunkAsync } from '../types.js';
 import { isConstructor, resolveClassAsync } from '../utils/class-utils.js';

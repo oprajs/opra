@@ -1,4 +1,4 @@
-import { ApiComplexType, ApiProperty } from '@opra/common';
+import { ApiComplexType, ApiProperty } from '@opra/schema';
 
 @ApiComplexType({
   description: 'Person information'

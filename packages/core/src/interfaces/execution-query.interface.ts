@@ -1,6 +1,6 @@
 import _ from 'lodash';
 import { StrictOmit } from 'ts-gems';
-import { OpraSchema } from '@opra/common';
+import { OpraSchema } from '@opra/schema';
 import { Expression } from '@opra/url';
 import { ComplexType } from '../implementation/data-type/complex-type.js';
 import { OpraService } from '../implementation/opra-service.js';

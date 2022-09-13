@@ -1,6 +1,6 @@
 import { ModuleMetadata, Type } from '@nestjs/common';
-import { OpraSchema } from '@opra/common';
 import { FallbackLng, LanguageResource } from '@opra/i18n';
+import { OpraSchema } from '@opra/schema';
 
 export type OpraModuleOptions = {
   /**

@@ -29,7 +29,7 @@
     "@opra/url": "^0.x.x",
     "@opra/i18n": "^0.x.x",
     "@opra/core": "^0.x.x",
-    "@opra/common": "^0.x.x",
+    "@opra/schema": "^0.x.x",
     "fast-tokenizer": "^1.1.0",
     "lodash": "^4.17.21",
     "reflect-metadata": "^0.1.13"

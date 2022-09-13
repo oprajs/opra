@@ -1,7 +1,5 @@
-import { Observable } from 'rxjs';
 import {
   CanActivate,
-  ExecutionContext,
   Inject,
   Injectable,
   Scope,
@@ -16,9 +14,7 @@ export class Guard implements CanActivate {
     Guard.COUNTER++;
   }
 
-  canActivate(
-      context: ExecutionContext,
-  ): boolean | Promise<boolean> | Observable<boolean> {
+  canActivate() {
     Guard.REQUEST_SCOPED_DATA.push(this.requestId);
     return true;
   }

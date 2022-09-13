@@ -1,6 +1,6 @@
 import { StrictOmit } from 'ts-gems';
-import { OpraSchema } from '@opra/common';
 import { SqbConnect } from '@opra/optionals';
+import { OpraSchema } from '@opra/schema';
 import { OpraDocument } from '../opra-document.js';
 import { ComplexType } from './complex-type.js';
 

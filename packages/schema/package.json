@@ -1,5 +1,5 @@
 {
-  "name": "@opra/common",
+  "name": "@opra/schema",
   "version": "0.0.1",
   "description": "Opra internationalization package",
   "author": "Panates",
@@ -7,7 +7,7 @@
   "repository": {
     "type": "git",
     "url": "https://github.com/panates/opra.git",
-    "directory": "packages/common"
+    "directory": "packages/schema"
   },
   "scripts": {
     "compile": "tsc",
@@ -15,7 +15,7 @@
     "build": "npm run build:cjs && npm run build:esm",
     "build:cjs": "tsc -b tsconfig-build-cjs.json",
     "build:esm": "tsc -b tsconfig-build-esm.json",
-    "postbuild": "cp README.md package.json ../../LICENSE ../../build/common && cp ../../package.cjs.json ../../build/common/cjs/package.json",
+    "postbuild": "cp README.md package.json ../../LICENSE ../../build/schema && cp ../../package.cjs.json ../../build/schema/cjs/package.json",
     "lint": "eslint .",
     "test": "jest",
     "cover": "jest --collect-coverage",
@@ -58,6 +58,6 @@
   ],
   "keywords": [
     "opra",
-    "common"
+    "schema"
   ]
 }

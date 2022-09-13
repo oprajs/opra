@@ -1,4 +1,4 @@
-import { ApiEntityType, ApiProperty } from '@opra/common';
+import { ApiEntityType, ApiProperty } from '@opra/schema';
 import { Country } from './country.dto.js';
 
 @ApiEntityType({
