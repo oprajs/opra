@@ -1,4 +1,4 @@
-import { ApiEntityType, ApiProperty } from '@opra/common';
+import { ApiEntityType, ApiProperty } from '@opra/schema';
 import { Address } from './address.dto.js';
 import { Notes } from './notes.dto.js';
 import { Person } from './person.dto.js';

@@ -4,7 +4,7 @@
     "baseUrl": "./",
     "paths": {
       "@opra/i18n": ["../i18n/src"],
-      "@opra/common": ["../common/src"],
+      "@opra/schema": ["../schema/src"],
       "@opra/url": ["../url/src"],
       "@opra/optionals": ["../optionals"]
     }

@@ -5,7 +5,7 @@
     "paths": {
       "@opra/i18n": ["../i18n/src"],
       "@opra/url": ["../url/src"],
-      "@opra/common": ["../common/src"],
+      "@opra/schema": ["../schema/src"],
       "@opra/core": ["../core/src"]
     }
   },

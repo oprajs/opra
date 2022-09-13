@@ -1,6 +1,6 @@
 import _ from 'lodash';
 import { Maybe, StrictOmit } from 'ts-gems';
-import { OpraSchema } from '@opra/common';
+import { OpraSchema } from '@opra/schema';
 import { EntityType } from '../data-type/entity-type.js';
 import { ExecutionContext } from '../execution-context.js';
 import { OpraService } from '../opra-service.js';

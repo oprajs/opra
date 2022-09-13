@@ -2,7 +2,7 @@
 import _ from 'lodash';
 import ruleJudgment from 'rule-judgment'
 import { Type } from 'ts-gems';
-import { OpraSchema } from '@opra/common';
+import { OpraSchema } from '@opra/schema';
 import { OpraDocument } from '../implementation/opra-document.js';
 import { DataService } from './data-service.js';
 

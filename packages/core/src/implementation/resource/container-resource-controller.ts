@@ -1,5 +1,5 @@
 import { StrictOmit } from 'ts-gems';
-import { OpraSchema } from '@opra/common';
+import { OpraSchema } from '@opra/schema';
 import { IResourceContainer } from '../../interfaces/resource-container.interface.js';
 import { EntityResourceInfo } from './entity-resource-info.js';
 import { ResourceInfo } from './resource-info.js';

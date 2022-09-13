@@ -1,5 +1,5 @@
 import { StrictOmit } from 'ts-gems';
-import { OpraSchema } from '@opra/common';
+import { OpraSchema } from '@opra/schema';
 import { Responsive, ResponsiveObject } from '../../utils/responsive-object.js';
 import { colorFgMagenta, colorFgYellow, colorReset, nodeInspectCustom } from '../../utils/terminal-utils.js';
 import type { OpraDocument } from '../opra-document.js';

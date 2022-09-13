@@ -8,8 +8,8 @@ import { ContextId, InstanceWrapper } from '@nestjs/core/injector/instance-wrapp
 import { InternalCoreModule } from '@nestjs/core/injector/internal-core-module';
 import { Module } from '@nestjs/core/injector/module.js';
 import { REQUEST_CONTEXT_ID } from '@nestjs/core/router/request/request-constants';
-import { OpraSchema } from '@opra/common';
 import { ExecutionContext as OpraExecutionContext, OpraService, RESOURCE_METADATA, SchemaGenerator } from '@opra/core';
+import { OpraSchema } from '@opra/schema';
 import { PARAM_ARGS_METADATA } from '../constants.js';
 import { HandlerParamType } from '../enums/handler-paramtype.enum.js';
 import { OpraModuleOptions } from '../interfaces/opra-module-options.interface.js';

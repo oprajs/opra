@@ -1,5 +1,5 @@
 import 'reflect-metadata';
-import { ApiEntityDecoratorOptions } from '@opra/common/src/index.js';
+import { ApiEntityDecoratorOptions } from '@opra/schema/src/index.js';
 import { RESOURCE_METADATA } from '../../src/constants.js';
 import { ApiEntityResource } from '../../src/index.js';
 import { Address } from '../_support/test-app/dto/address.dto.js';

@@ -1,4 +1,4 @@
-import { OpraSchema } from '@opra/common';
+import { OpraSchema } from '@opra/schema';
 
 export const builtinClassMap = new Map();
 builtinClassMap.set(Boolean, 'boolean');

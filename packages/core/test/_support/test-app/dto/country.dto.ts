@@ -1,4 +1,4 @@
-import { ApiEntityType, ApiProperty } from '@opra/common';
+import { ApiEntityType, ApiProperty } from '@opra/schema';
 
 @ApiEntityType({
   description: 'Country information',

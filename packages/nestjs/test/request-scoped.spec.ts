@@ -40,7 +40,7 @@ describe('Request scope', () => {
           request(server)
               .get('/Cats@1')
               .expect(200)
-              .end((err, res) => {
+              .end((err) => {
                 if (err) return end(err);
                 end();
               });

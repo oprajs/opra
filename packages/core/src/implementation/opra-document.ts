@@ -1,6 +1,6 @@
 import _ from 'lodash';
 import { StrictOmit } from 'ts-gems';
-import { OpraSchema } from '@opra/common';
+import { OpraSchema } from '@opra/schema';
 import { internalDataTypes } from '../utils/internal-data-types.js';
 import { Responsive, ResponsiveObject } from '../utils/responsive-object.js';
 import { colorFgMagenta, colorFgYellow, colorReset, nodeInspectCustom } from '../utils/terminal-utils.js';

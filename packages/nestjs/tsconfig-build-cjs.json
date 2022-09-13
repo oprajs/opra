@@ -8,7 +8,7 @@
     "paths": {
       "@opra/i18n": ["../../build/i18n"],
       "@opra/url": ["../../build/url"],
-      "@opra/common": ["../../build/schema"],
+      "@opra/schema": ["../../build/schema"],
       "@opra/core": ["../../build/core"]
     },
     "sourceMap": false,

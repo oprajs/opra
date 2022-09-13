@@ -1,5 +1,5 @@
 import { Type } from 'ts-gems';
-import { OpraSchema } from '@opra/common';
+import { OpraSchema } from '@opra/schema';
 import type { OpraDocument } from '../opra-document.js';
 
 export abstract class DataType {
