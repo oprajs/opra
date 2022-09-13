@@ -1,6 +1,6 @@
 {
   "name": "@opra/sqb",
-  "version": "0.0.1",
+  "version": "0.0.5",
   "description": "Opra SQB adapter package",
   "author": "Panates",
   "license": "MIT",
