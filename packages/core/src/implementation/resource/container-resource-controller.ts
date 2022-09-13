@@ -1,12 +1,12 @@
 import { StrictOmit } from 'ts-gems';
 import { OpraSchema } from '@opra/common';
-import { ResourceContainer } from '../../interfaces/resource-container.interface.js';
+import { IResourceContainer } from '../../interfaces/resource-container.interface.js';
 import { EntityResourceInfo } from './entity-resource-info.js';
 import { ResourceInfo } from './resource-info.js';
 
 export type ContainerResourceControllerArgs = StrictOmit<OpraSchema.ContainerResource, 'kind'> & {}
 
-export class ContainerResourceController extends ResourceInfo implements ResourceContainer {
+export class ContainerResourceController extends ResourceInfo implements IResourceContainer {
   declare protected readonly _args: OpraSchema.ContainerResource;
 
   constructor(args: ContainerResourceControllerArgs) {

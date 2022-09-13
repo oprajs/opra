@@ -2,7 +2,7 @@ import { OpraURLSearchParams, SearchParams } from '@opra/url';
 import { HttpStatus } from '../enums/index.js';
 import { ApiException } from '../exception/index.js';
 import { ExecutionQuery } from '../interfaces/execution-query.interface.js';
-import { HttpAdapterContext } from '../interfaces/http-context.interface.js';
+import { IHttpAdapterContext } from '../interfaces/http-context.interface.js';
 import { Headers, HeadersObject } from '../utils/headers.js';
 import { OpraService } from './opra-service.js';
 
@@ -25,7 +25,7 @@ export class ExecutionContext {
     Object.assign(this, args);
   }
 
-  switchToHttp(): HttpAdapterContext {
+  switchToHttp(): IHttpAdapterContext {
     if (this.type !== 'http')
       throw new Error(`You can't access http context within an ${this.type} context`);
     return this.adapterContext;

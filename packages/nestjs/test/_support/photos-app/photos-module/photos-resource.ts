@@ -3,7 +3,7 @@ import {
   ApiEntityResource,
   CreateQuery,
   DeleteManyQuery,
-  DeleteQuery, EntityResourceInterface,
+  DeleteQuery, IEntityResource,
   ReadQuery,
   SearchQuery, UpdateManyQuery,
   UpdateQuery
@@ -16,7 +16,7 @@ import { PhotosService } from './photos.service.js';
 @ApiEntityResource(Customer, {
   description: 'Photos resource'
 })
-export class PhotosResource implements EntityResourceInterface {
+export class PhotosResource implements IEntityResource {
 
   constructor(public photosService: PhotosService) {
   }

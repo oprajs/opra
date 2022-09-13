@@ -4,7 +4,7 @@
     "moduleResolution": "Node",
     "module": "CommonJS",
     "rootDir": "src",
-    "outDir": "../../build/i18n/cjs",
+    "outDir": "../../build/sqb/cjs",
     "paths": {
       "@opra/core": ["../../build/core"],
       "@opra/url": ["../../build/url"],

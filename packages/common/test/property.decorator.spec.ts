@@ -1,4 +1,4 @@
-import { DATATYPE_PROPERTIES, ApiProperty } from '../src/index.js';
+import { ApiProperty, DATATYPE_PROPERTIES } from '../src/index.js';
 
 describe('Property() decorator', function () {
 

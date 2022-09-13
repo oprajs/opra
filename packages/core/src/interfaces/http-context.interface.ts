@@ -1,10 +1,10 @@
-export interface HttpAdapterContext {
-  getRequest(): HttpRequest;
+export interface IHttpAdapterContext {
+  getRequest(): IHttpRequest;
 
-  getResponse(): HttpResponse;
+  getResponse(): IHttpResponse;
 }
 
-export interface HttpRequest {
+export interface IHttpRequest {
 
   getInstance(): any;
 
@@ -21,7 +21,7 @@ export interface HttpRequest {
   getBody(): any;
 }
 
-export interface HttpResponse {
+export interface IHttpResponse {
 
   getInstance(): any;
 

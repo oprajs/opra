@@ -11,12 +11,9 @@
   },
   "scripts": {
     "prebuild": "npm run lint | npm run clean",
-    "build": "cp lib ../../build/optionals",
-    "postbuild": "copyfiles README.md package.json ../../LICENSE ../../build/i18n | cp lib ../../build/optionals",
+    "build": "mkdir -p ../../build/optionals && cp -R ./ ../../build/optionals",
+    "postbuild": "cp ../../LICENSE ../../build/optionals && cp ../../package.cjs.json ../../build/optionals/cjs/package.json",
     "lint": "eslint \"{src,test}/**/*.ts\" --no-error-on-unmatched-pattern",
-    "test": "jest",
-    "cover": "jest --collect-coverage",
-    "check": "madge --circular src/**/*",
     "clean": "npm run clean:dist | npm run clean:cover",
     "clean:dist": "rimraf ../../build/optionals",
     "clean:cover": "rimraf ../../coverage/optionals"
