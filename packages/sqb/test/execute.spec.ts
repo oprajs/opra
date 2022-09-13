@@ -4,7 +4,7 @@ import { Repository, SqbClient } from '@sqb/connect';
 import { SQBAdapter } from '../src/index.js';
 import { BooksResource } from './_support/book.resource.js';
 
-describe('SQBAdapter', function () {
+describe('SQBAdapter.execute', function () {
   let service: OpraService;
   let _client: SqbClient;
 
@@ -36,27 +36,11 @@ describe('SQBAdapter', function () {
     return client as unknown as SqbClient;
   }
 
-  it('Should "search" api execute Repository.findAll', async () => {
-    const value = [{a: 1}];
-    let args;
-    const conn = getMockClient({
-      findAll: (opts) => {
-        args = opts;
-        return value;
-      }
-    });
-    const query = ExecutionQuery.forSearch(service.getResource('Books'), {limit: 5});
-    const request = new ExecutionRequest({query});
-    const result = await SQBAdapter.execute(conn, request).catch();
-    expect(args).toStrictEqual({limit: 5});
-    expect(result).toStrictEqual({value});
-  })
-
-  it('Should "read" api execute Repository.findOne', async () => {
+  it('Should "read" api execute Repository.findByPk', async () => {
     const value = {a: 1};
-    let args;
+    let args: any;
     const conn = getMockClient({
-      findOne: (_args) => {
+      findByPk: (..._args) => {
         args = _args;
         return value;
       }
@@ -64,18 +48,73 @@ describe('SQBAdapter', function () {
     const query = ExecutionQuery.forRead(service.getResource('Books'), 1, {pick: ['id', 'name']});
     const request = new ExecutionRequest({query});
     const result = await SQBAdapter.execute(conn, request).catch();
-    expect({...args, filter: undefined}).toStrictEqual({pick: ['id', 'name'], filter: undefined});
-    expect(args.filter).toBeDefined();
-    expect(args.filter._operatorType).toStrictEqual('eq');
-    expect(args.filter._left._field).toStrictEqual('id');
-    expect(args.filter._right).toStrictEqual(1);
+    expect(args).toBeDefined();
+    expect(args.length).toStrictEqual(2);
+    expect(args[0]).toStrictEqual(1);
+    expect(args[1].pick).toStrictEqual(['id', 'name']);
     expect(result).toStrictEqual({value});
+  })
+
+  it('Should "search" api execute Repository.findAll', async () => {
+    const value = [{a: 1}];
+    let args;
+    const conn = getMockClient({
+      findAll: (..._args) => {
+        args = _args;
+        return value;
+      }
+    });
+    const query = ExecutionQuery.forSearch(service.getResource('Books'), {limit: 5});
+    const request = new ExecutionRequest({query});
+    const result = await SQBAdapter.execute(conn, request).catch();
+    expect(args).toBeDefined();
+    expect(args.length).toStrictEqual(1);
+    expect(args[0]).toStrictEqual({limit: 5});
+    expect(result).toStrictEqual({value});
+  })
+
+  it('Should "update" api execute Repository.update', async () => {
+    let args;
+    const value = {a: 1};
+    const conn = getMockClient({
+      update: (..._args) => {
+        args = _args;
+        return value;
+      }
+    });
+    const query = ExecutionQuery.forUpdate(service.getResource('Books'), 1, value);
+    const request = new ExecutionRequest({query});
+    const result = await SQBAdapter.execute(conn, request).catch();
+    expect(args).toBeDefined();
+    expect(args.length).toStrictEqual(3);
+    expect(args[0]).toStrictEqual(1);
+    expect(args[1]).toStrictEqual(value);
+    expect(result).toStrictEqual({value});
+  })
+
+  it('Should "updateMany" api execute Repository.updateAll', async () => {
+    let args;
+    const value = {a: 1};
+    const conn = getMockClient({
+      updateAll: (..._args) => {
+        args = _args;
+        return 2;
+      }
+    });
+    const query = ExecutionQuery.forUpdateMany(service.getResource('Books'), value, {filter: 'page=1'});
+    const request = new ExecutionRequest({query});
+    const result = await SQBAdapter.execute(conn, request).catch();
+    expect(args).toBeDefined();
+    expect(args.length).toStrictEqual(2);
+    expect(args[0]).toStrictEqual(value);
+    expect(args[1].filter).toBeDefined();
+    expect(result).toStrictEqual({affected: 2});
   })
 
   it('Should "delete" api execute Repository.destroy', async () => {
     let args;
     const conn = getMockClient({
-      destroy: (_args) => {
+      destroy: (..._args) => {
         args = _args;
         return true;
       }
@@ -83,25 +122,26 @@ describe('SQBAdapter', function () {
     const query = ExecutionQuery.forDelete(service.getResource('Books'), 1);
     const request = new ExecutionRequest({query});
     const result = await SQBAdapter.execute(conn, request).catch();
-    expect(args.filter).toBeDefined();
-    expect(args.filter._operatorType).toStrictEqual('eq');
-    expect(args.filter._left._field).toStrictEqual('id');
-    expect(args.filter._right).toStrictEqual(1);
+    expect(args).toBeDefined();
+    expect(args.length).toStrictEqual(2);
+    expect(args[0]).toStrictEqual(1);
     expect(result).toStrictEqual({affected: 1});
   })
 
   it('Should "deleteMany" api execute Repository.destroyAll', async () => {
     let args;
     const conn = getMockClient({
-      destroyAll: (opts) => {
-        args = opts;
+      destroyAll: (..._args) => {
+        args = _args;
         return 2;
       }
     });
     const query = ExecutionQuery.forDeleteMany(service.getResource('Books'), {filter: 'page=1'});
     const request = new ExecutionRequest({query});
     const result = await SQBAdapter.execute(conn, request).catch();
-    expect(args.filter).toBeDefined();
+    expect(args).toBeDefined();
+    expect(args.length).toStrictEqual(1);
+    expect(args[0].filter).toBeDefined();
     expect(result).toStrictEqual({affected: 2});
   })
 

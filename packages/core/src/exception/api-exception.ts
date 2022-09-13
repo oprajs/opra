@@ -74,20 +74,24 @@ export class ApiException extends Error {
       this.response = {
         message: x.message || x.details || ('' + init),
       }
-      if (init instanceof Error && nodeEnv === 'dev' || nodeEnv === 'development')
-        this.response.diagnostics = init.stack;
-      Object.assign(this.response, init);
+      if (init instanceof Error) {
+        if (nodeEnv === 'dev' || nodeEnv === 'development')
+          this.response.diagnostics = init.stack;
+      } else
+        Object.assign(this.response, init);
     } else {
       this.response = {
         message: '' + init,
       }
     }
     if (!this.response.severity)
-      this.response.severity = !this.status || this.status >= 500 ? 'error' : 'fatal'
+      if (this.status >= 500)
+        this.response.severity = 'fatal'
+      else this.response.severity = 'error';
   }
 
   static wrap(response: string | ErrorResponse | Error, status?: number): ApiException {
-    return response instanceof ApiException ? response : new ApiException(response, status);
+    return response instanceof ApiException ? response : new this(response, status);
   }
 
 }

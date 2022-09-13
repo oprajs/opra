@@ -3,7 +3,7 @@ import express from 'express';
 import * as util from 'util';
 import { OpraExpressAdapter, OpraService } from '../../../src/index.js';
 import { countriesResource } from './api/countries.resource.js';
-import { CustomerAddressesResource } from './api/customer-addresses.resource.js';
+import { CustomerAddressesesResource } from './api/customer-addresseses.resource.js';
 import { CustomersResource } from './api/customers.resource.js';
 import { Customer } from './dto/customer.dto.js';
 
@@ -14,7 +14,7 @@ async function run() {
       version: 'v1',
     },
     types: [Customer],
-    resources: [countriesResource, new CustomersResource(), new CustomerAddressesResource()]
+    resources: [countriesResource, new CustomersResource(), new CustomerAddressesesResource()]
   });
   console.log(util.inspect(service, {depth: 10, colors: true}));
 

@@ -1,5 +1,5 @@
 import _ from 'lodash';
-import { Inject, Injectable } from '@nestjs/common';
+import { ContextType, Inject, Injectable } from '@nestjs/common';
 import { ContextIdFactory, createContextId, ModulesContainer, REQUEST } from '@nestjs/core';
 import { ExternalContextCreator } from '@nestjs/core/helpers/external-context-creator';
 import { ParamMetadata } from '@nestjs/core/helpers/interfaces/params-metadata.interface';
@@ -9,13 +9,16 @@ import { InternalCoreModule } from '@nestjs/core/injector/internal-core-module';
 import { Module } from '@nestjs/core/injector/module.js';
 import { REQUEST_CONTEXT_ID } from '@nestjs/core/router/request/request-constants';
 import { OpraSchema } from '@opra/common';
-import { OpraService,OpraFactory } from '@opra/core';
-import { OpraParamType } from '../enums/opra-paramtype.enum.js';
+import { ExecutionContext as OpraExecutionContext, OpraService, RESOURCE_METADATA, SchemaGenerator } from '@opra/core';
+import { PARAM_ARGS_METADATA } from '../constants.js';
+import { HandlerParamType } from '../enums/handler-paramtype.enum.js';
 import { OpraModuleOptions } from '../interfaces/opra-module-options.interface.js';
-import { ExplorerService } from '../services/explorer.service.js';
-import { OpraContextType } from '../services/opra-execution-context.js';
-import { getNumberOfArguments } from '../utils/function-utils.js';
-import { OpraParamsFactory } from './params.factory';
+import { NestExplorer } from '../services/nest-explorer.js';
+import { getNumberOfArguments } from '../utils/function.utils.js';
+import { OpraParamsFactory } from './params.factory.js';
+
+const entityHandlers = ['search', 'create', 'read', 'update', 'updateMany', 'delete', 'deleteMany'];
+const noOpFunction = () => void 0;
 
 @Injectable()
 export class ServiceFactory {
@@ -26,11 +29,14 @@ export class ServiceFactory {
   @Inject()
   private readonly externalContextCreator: ExternalContextCreator;
   @Inject()
-  private readonly explorerService: ExplorerService;
+  private readonly explorerService: NestExplorer;
 
-  generateService(rootModule: Module, moduleOptions: OpraModuleOptions): OpraService {
-    const service: OpraFactory.CreateServiceArgs = {
-      info: moduleOptions.info,
+  async generateService(rootModule: Module, moduleOptions: OpraModuleOptions, contextType: ContextType): Promise<OpraService> {
+    const info: OpraSchema.DocumentInfo = {title: '', version: '', ...moduleOptions.info};
+    info.title = info.title || 'Untitled service';
+    info.version = info.version || '1';
+    const serviceArgs: SchemaGenerator.GenerateServiceArgs = {
+      info,
       types: [],
       resources: [],
     };
@@ -38,42 +44,56 @@ export class ServiceFactory {
     const wrappers = this.explorerService.exploreResourceWrappers(rootModule);
     for (const wrapper of wrappers) {
       const instance = wrapper.instance;
-      const resourceDef = service.resources.push(instance);
+      const resourceDef = Reflect.getMetadata(RESOURCE_METADATA, instance.constructor);
       /* istanbul ignore next */
       if (!resourceDef)
         continue;
+
+      serviceArgs.resources.push(instance);
 
       /* Wrap resolver functions */
       const prototype = Object.getPrototypeOf(instance);
       const isRequestScoped = !wrapper.isDependencyTreeStatic();
       if (OpraSchema.isEntityResource(resourceDef)) {
-        for (const operationKind of Object.keys(resourceDef.operations)) {
-          const resolverDef: OpraSchema.ResourceOperation = resourceDef.operations[operationKind];
-          if (!resolverDef)
-            continue;
-          const methodName = resolverDef.resolver.name || operationKind;
-          const newFn = this._createContextCallback(
-              instance,
-              prototype,
-              wrapper,
-              rootModule,
-              methodName,
-              isRequestScoped,
-              undefined,
-          );
-          resolverDef.resolver = newFn;
-          if (methodName && newFn.name !== methodName)
-            Object.defineProperty(newFn, 'name', {
-              configurable: false,
-              writable: false,
-              enumerable: true,
-              value: methodName
-            });
+        for (const x of entityHandlers) {
+          const fn = instance[x];
+          if (typeof fn === 'function') {
+            const methodName = fn.name || x;
+            const callback = this._createContextCallback(
+                instance,
+                prototype,
+                wrapper,
+                rootModule,
+                methodName,
+                isRequestScoped,
+                undefined,
+                contextType
+            );
+            const newFn = instance[x] = (ctx: OpraExecutionContext) => {
+              switch (ctx.type) {
+                case 'http':
+                  const http = ctx.switchToHttp();
+                  return callback(
+                      http.getRequest().getInstance(),
+                      http.getResponse().getInstance(),
+                      noOpFunction,
+                      ctx);
+                default:
+                  throw new Error(`"${ctx.type}" context type is not implemented yet`)
+              }
+            };
+            if (methodName && newFn.name !== methodName)
+              Object.defineProperty(newFn, 'name', {
+                configurable: false,
+                writable: false,
+                enumerable: true,
+                value: methodName
+              });
+          }
         }
       }
     }
-
-    return service;
+    return await OpraService.create(serviceArgs);
   }
 
   private _createContextCallback(
@@ -84,14 +104,15 @@ export class ServiceFactory {
       methodName: string,
       isRequestScoped: boolean,
       transform: Function = _.identity,
+      contextType: ContextType
   ) {
     const paramsFactory = this.paramsFactory;
 
     if (isRequestScoped) {
       return async (...args: any[]) => {
-        const gqlContext = paramsFactory.exchangeKeyForValue(OpraParamType.CONTEXT, args);
-        const contextId = this.getContextId(gqlContext);
-        this.registerContextProvider(gqlContext, contextId);
+        const opraContext: OpraExecutionContext = paramsFactory.exchangeKeyForValue(HandlerParamType.CONTEXT, undefined, args);
+        const contextId = this.getContextId(opraContext);
+        this.registerContextProvider(opraContext, contextId);
         const contextInstance = await this.injector.loadPerContext(
             instance,
             moduleRef,
@@ -107,12 +128,12 @@ export class ServiceFactory {
             contextId,
             wrapper.id,
             undefined, // contextOptions
-            'opra',
+            opraContext.type,
         );
         return callback(...args);
       };
     }
-    return this.externalContextCreator.create<Record<number, ParamMetadata>, OpraContextType>(
+    return this.externalContextCreator.create<Record<number, ParamMetadata>, ContextType>(
         instance,
         prototype[methodName],
         methodName,
@@ -121,7 +142,7 @@ export class ServiceFactory {
         undefined,
         undefined,
         undefined, // contextOptions
-        'opra',
+        contextType,
     );
   }
 

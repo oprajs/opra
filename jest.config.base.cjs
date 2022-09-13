@@ -1,5 +1,4 @@
 module.exports = {
-  preset: 'ts-jest',
   testEnvironment: 'node',
   'verbose': true,
   'forceExit': true,
@@ -10,17 +9,15 @@ module.exports = {
     '_support'
   ],
   coverageReporters: ['lcov', 'text'],
-  globals: {
-    'ts-jest': {
-      'isolatedModules': false,
-      'preferTsExts': true,
+  transform: {
+    '^.+.ts?$': ['ts-jest', {
       'tsconfig': '<rootDir>/test/tsconfig.json'
-    }
+    }]
   },
   moduleNameMapper: {
     '^@opra/optionals$': ['<rootDir>/../optionals'],
     '^@opra/(.*)$': ['<rootDir>/../$1/src'],
-    '(\\..+)\\.js': '$1'
+    '^(\\..+)\\.js$': '$1'
   }
 
 };

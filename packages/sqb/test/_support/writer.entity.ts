@@ -1,7 +1,7 @@
-import { ApiComplexType, ApiProperty } from '@opra/common';
+import { ApiEntityType, ApiProperty } from '@opra/common';
 import { Column, Entity, PrimaryKey } from '@sqb/connect';
 
-@ApiComplexType()
+@ApiEntityType()
 @Entity('writers')
 export class Writer {
 

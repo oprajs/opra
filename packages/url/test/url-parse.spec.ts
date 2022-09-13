@@ -128,12 +128,18 @@ describe('Parse url string', () => {
     expect(u.searchParams.get('$pick')).toStrictEqual(['id']);
   })
 
-
   it('Should set parse "$omit" as string array if has multiple values', () => {
     let u = new OpraURL('/Person?$omit=id,name,age');
     expect(u.searchParams.get('$omit')).toStrictEqual(['id', 'name', 'age']);
     u = new OpraURL('/Person?$omit=id');
     expect(u.searchParams.get('$omit')).toStrictEqual(['id']);
+  })
+
+  it('Should set parse "$include" as string array if has multiple values', () => {
+    let u = new OpraURL('/Person?$include=id,name,age');
+    expect(u.searchParams.get('$include')).toStrictEqual(['id', 'name', 'age']);
+    u = new OpraURL('/Person?$include=id');
+    expect(u.searchParams.get('$include')).toStrictEqual(['id']);
   })
 
   it('Should set parse "$distinct" as boolean', () => {

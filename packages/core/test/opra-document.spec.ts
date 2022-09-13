@@ -1,7 +1,7 @@
 import 'reflect-metadata';
-import { ComplexType, OpraDocument, SchemaGenerator, } from '../src';
-import { Address } from './_support/test-app/dto/address.dto';
-import { Customer } from './_support/test-app/dto/customer.dto';
+import { ComplexType, OpraDocument, SchemaGenerator, } from '../src/index.js';
+import { Address } from './_support/test-app/dto/address.dto.js';
+import { Customer } from './_support/test-app/dto/customer.dto.js';
 
 describe('OpraDocument', function () {
 
@@ -34,7 +34,7 @@ describe('OpraDocument', function () {
       expect(doc.getDataType('Customer')).toBeDefined();
       const customerType = doc.getDataType('customer');
       expect(customerType).toBeDefined();
-      expect(customerType.kind).toStrictEqual('ComplexType');
+      expect(customerType.kind).toStrictEqual('EntityType');
       expect(customerType.name).toStrictEqual('Customer');
     })
 
@@ -68,6 +68,5 @@ describe('OpraDocument', function () {
     })
 
   })
-
 
 });

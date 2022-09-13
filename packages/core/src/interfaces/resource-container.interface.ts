@@ -1,7 +1,7 @@
-import { EntityResourceController } from '../implementation/resource/entity-resource-controller.js';
-import { ResourceController } from '../implementation/resource/resource-controller.js';
+import { EntityResourceInfo } from '../implementation/resource/entity-resource-info.js';
+import { ResourceInfo } from '../implementation/resource/resource-info.js';
 
 export interface ResourceContainer {
-  getResource<T extends ResourceController>(name: string): T;
-  getEntityResource(name: string): EntityResourceController;
+  getResource<T extends ResourceInfo>(name: string): T;
+  getEntityResource(name: string): EntityResourceInfo;
 }

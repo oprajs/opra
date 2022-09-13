@@ -27,7 +27,7 @@
   "dependencies": {
     "ts-gems": "^2.2.0",
     "fast-tokenizer": "^1.1.0",
-    "i18next": "^21.8.14"
+    "i18next": "^21.9.1"
   },
   "type": "module",
   "main": "cjs/index.js",

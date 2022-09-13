@@ -1,8 +1,8 @@
-import { ApiEntity, ApiProperty } from '@opra/common';
-import { Column, Entity, PrimaryKey } from '@sqb/connect';
+import { ApiEntityType, ApiProperty } from '@opra/common';
+import { Column, Entity, Link, PrimaryKey } from '@sqb/connect';
 import { Writer } from './writer.entity.js';
 
-@ApiEntity()
+@ApiEntityType()
 @Entity('books')
 export class Book {
 
@@ -23,7 +23,7 @@ export class Book {
   @ApiProperty()
   writerId: number;
 
-  @Column()
+  @Link()
   @ApiProperty()
   writer: Writer;
 

@@ -6,22 +6,18 @@ export const countriesResource: OpraSchema.EntityResource = {
   kind: 'EntityResource',
   name: 'Countries',
   type: 'Country',
-  primaryKey: 'code',
-  read: {
-    handler: (ctx: ExecutionContext) => {
-      // eslint-disable-next-line no-console
-      console.log(ctx);
-      return countriesData;
-    }
+
+  search: (ctx: ExecutionContext) => {
+    // eslint-disable-next-line no-console
+    console.log(ctx);
+    return countriesData;
   },
-  search: {
-    sortPaths: ['id'],
-    defaultSortPaths: ['id'],
-    handler: (ctx: ExecutionContext) => {
-      // eslint-disable-next-line no-console
-      console.log(ctx);
-      return countriesData;
-    }
+
+  read: (ctx: ExecutionContext) => {
+    // eslint-disable-next-line no-console
+    console.log(ctx);
+    return countriesData;
+
   }
 
 }

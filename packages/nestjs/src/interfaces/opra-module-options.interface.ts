@@ -1,16 +1,14 @@
-import {ModuleMetadata, Type} from '@nestjs/common';
-import {FallbackLng, LanguageResource} from '@opra/i18n';
+import { ModuleMetadata, Type } from '@nestjs/common';
 import { OpraSchema } from '@opra/common';
+import { FallbackLng, LanguageResource } from '@opra/i18n';
 
-export type Enhancer = 'guards' | 'interceptors' | 'filters';
-
-export interface OpraModuleOptions {
+export type OpraModuleOptions = {
   /**
    * @default true
    */
   useGlobalPrefix?: boolean;
-  prefix: string;
-  info: OpraSchema.DocumentInfo,
+  prefix?: string;
+  info?: OpraSchema.DocumentInfo,
   i18n?: I18nInitOptions;
 
   context?: object | ((request: any, platformName: string) => object | Promise<object>);
@@ -54,7 +52,7 @@ export interface OpraModuleOptionsFactory {
 }
 
 export interface OpraModuleAsyncOptions
-  extends Pick<ModuleMetadata, 'imports'> {
+    extends Pick<ModuleMetadata, 'imports' | 'providers'> {
   useExisting?: Type<OpraModuleOptionsFactory>;
   useClass?: Type<OpraModuleOptionsFactory>;
   useFactory?: (...args: any[]) => Promise<OpraModuleOptions> | OpraModuleOptions;

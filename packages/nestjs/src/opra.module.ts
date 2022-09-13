@@ -1,21 +1,20 @@
-import {DynamicModule, Module} from '@nestjs/common';
-import {OpraModuleAsyncOptions, OpraModuleOptions} from './interfaces/opra-module-options.interface.js';
-import {OpraCoreModule} from './opra-core.module.js';
-import {ModuleThunk} from './types';
+import { DynamicModule, Module } from '@nestjs/common';
+import { OpraModuleAsyncOptions, OpraModuleOptions } from './interfaces/opra-module-options.interface.js';
+import { OpraCoreModule } from './opra-core.module.js';
 
 @Module({})
 export class OpraModule {
-  static forRoot(serviceModule: ModuleThunk, options: OpraModuleOptions): DynamicModule {
+  static forRoot(options: OpraModuleOptions & Pick<DynamicModule, 'imports' | 'providers' | 'exports'>): DynamicModule {
     return {
       module: OpraModule,
-      imports: [OpraCoreModule.forRoot(serviceModule, options)]
+      imports: [OpraCoreModule.forRoot(options)]
     };
   }
 
-  static forRootAsync(serviceModule: ModuleThunk, asyncOptions: OpraModuleAsyncOptions): DynamicModule {
+  static forRootAsync(asyncOptions: OpraModuleAsyncOptions): DynamicModule {
     return {
       module: OpraModule,
-      imports: [OpraCoreModule.forRootAsync(serviceModule, asyncOptions)]
+      imports: [OpraCoreModule.forRootAsync(asyncOptions)]
     };
   }
 }

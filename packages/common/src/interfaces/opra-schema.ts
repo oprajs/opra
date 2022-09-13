@@ -151,21 +151,28 @@ export namespace OpraSchema {
   export interface EntityResource extends BaseResource {
     kind: 'EntityResource',
     type: string;
-    primaryKey: string | string[];
-    create?: ResourceReadOperation;
+    search?: Function;
+    create?: Function;
+    read?: Function;
+    update?: Function;
+    updateMany?: Function;
+    delete?: Function;
+    deleteMany?: Function;
+    /*
     search?: ResourceSearchOperation;
+    create?: ResourceReadOperation;
     read?: ResourceReadOperation;
     update?: ResourceReadOperation;
-    // updateMany?: ResourceReadOperation;
-    patch?: ResourceReadOperation;
+    updateMany?: ResourceReadOperation;
+    // patch?: ResourceReadOperation;
     // patchMany?: ResourceReadOperation;
     delete?: ResourceReadOperation;
-    // deleteMany: ResourceReadOperation;
+    deleteMany?: ResourceReadOperation;*/
   }
 
   export interface SingletonResource extends BaseResource {
     kind: 'SingletonResource',
-    read?: ResourceOperation;
+    type: string;
   }
 
   export interface ContainerResource extends BaseResource {
@@ -184,19 +191,23 @@ export namespace OpraSchema {
   export type ResourceSearchOperation = ResourceOperation & {
     defaultLimit?: number;
     maxLimit?: number;
-    sortPaths?: string[];
-    defaultSortPaths?: string[];
+    sortFields?: string[];
+    defaultSort?: string[];
   }
 
-  export type ResourceCreateOperation = ResourceOperation & {}
+  export type ResourceCreateOperation = ResourceOperation & {};
 
-  export type ResourceUpdateOperation = ResourceOperation & {}
+  export type ResourceUpdateOperation = ResourceOperation & {};
 
-  export type ResourcePatchOperation = ResourceOperation & {}
+  export type ResourceUpdateManyOperation = ResourceOperation & {};
 
-  export type ResourceDeleteOperation = ResourceOperation & {}
+  export type ResourcePatchOperation = ResourceOperation & {};
 
-  export type ResourceExecuteOperation = ResourceOperation & {}
+  export type ResourceDeleteOperation = ResourceOperation & {};
+
+  export type ResourceDeleteManyOperation = ResourceOperation & {};
+
+  export type ResourceExecuteOperation = ResourceOperation & {};
 
 
   export function isResource(obj: any): obj is Resource {

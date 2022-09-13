@@ -1,18 +1,18 @@
 import { StrictOmit } from 'ts-gems';
 import { OpraSchema } from '@opra/common';
-import { Responsive } from '../helpers/responsive-object.js';
 import { ResourceContainer } from '../interfaces/resource-container.interface.js';
+import { Responsive } from '../utils/responsive-object.js';
 import { EntityType } from './data-type/entity-type.js';
 import { OpraDocument } from './opra-document.js';
-import { EntityResourceController } from './resource/entity-resource-controller.js';
-import { ResourceController } from './resource/resource-controller.js';
+import { EntityResourceInfo } from './resource/entity-resource-info.js';
+import { ResourceInfo } from './resource/resource-info.js';
 import { SchemaGenerator } from './schema-generator.js';
 
 export type OpraServiceArgs = StrictOmit<OpraSchema.Service, 'version' | 'types' | 'resources'>;
 
 export class OpraService extends OpraDocument implements ResourceContainer {
   protected declare readonly _args: OpraServiceArgs;
-  protected _resources = Responsive<ResourceController>();
+  protected _resources = Responsive<ResourceInfo>();
 
   constructor(schema: OpraSchema.Service) {
     super(schema);
@@ -20,7 +20,7 @@ export class OpraService extends OpraDocument implements ResourceContainer {
       this._addResources(schema.resources);
   }
 
-  get resources(): Record<string, ResourceController> {
+  get resources(): Record<string, ResourceInfo> {
     return this._resources;
   }
 
@@ -28,16 +28,16 @@ export class OpraService extends OpraDocument implements ResourceContainer {
     return this._args.servers;
   }
 
-  getResource<T extends ResourceController>(name: string): T {
+  getResource<T extends ResourceInfo>(name: string): T {
     const t = this.resources[name];
     if (!t)
       throw new Error(`Resource "${name}" does not exists`);
     return t as T;
   }
 
-  getEntityResource(name: string): EntityResourceController {
+  getEntityResource(name: string): EntityResourceInfo {
     const t = this.getResource(name);
-    if (!(t instanceof EntityResourceController))
+    if (!(t instanceof EntityResourceInfo))
       throw new Error(`"${name}" is not an EntityResource`);
     return t;
   }
@@ -50,13 +50,13 @@ export class OpraService extends OpraDocument implements ResourceContainer {
           throw new TypeError(`Datatype "${r.type}" declared in EntityResource (${r.name}) does not exists`);
         if (!(dataType instanceof EntityType))
           throw new TypeError(`${r.type} is not an EntityType`);
-        this.resources[r.name] = new EntityResourceController({...r, dataType});
+        this.resources[r.name] = new EntityResourceInfo({...r, service: this, dataType});
       } else
         throw new TypeError(`Unknown resource kind (${r.kind})`);
     }
 
     // Sort data types by name
-    const newResources = Responsive<ResourceController>();
+    const newResources = Responsive<ResourceInfo>();
     Object.keys(this.resources).sort()
         .forEach(name => newResources[name] = this.resources[name]);
     this._resources = newResources;

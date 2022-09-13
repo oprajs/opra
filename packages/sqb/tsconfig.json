@@ -5,7 +5,7 @@
     "paths": {
       "@opra/core": ["../core/src"],
       "@opra/url": ["../url/src"],
-      "@opra/optionals": ["../optionals/src"]
+      "@opra/optionals": ["../optionals"]
     }
   },
   "include": ["src", "test"],

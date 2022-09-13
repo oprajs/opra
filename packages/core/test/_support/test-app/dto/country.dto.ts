@@ -1,7 +1,8 @@
-import { ApiComplexType, ApiProperty } from '@opra/common';
+import { ApiEntityType, ApiProperty } from '@opra/common';
 
-@ApiComplexType({
-  description: 'Country information'
+@ApiEntityType({
+  description: 'Country information',
+  primaryKey: 'code'
 })
 export class Country {
 

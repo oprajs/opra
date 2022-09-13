@@ -4,9 +4,9 @@ import { Module } from '@nestjs/core/injector/module.js';
 import { OpraAdapter, OpraExpressAdapter, OpraService } from '@opra/core';
 import { I18n } from '@opra/i18n';
 import { joinPath, normalizePath } from '@opra/url';
+import { OPRA_MODULE_OPTIONS } from '../constants.js';
 import { ServiceFactory } from '../factories/service.factory.js';
 import { OpraModuleOptions } from '../interfaces/opra-module-options.interface.js';
-import { OPRA_MODULE_OPTIONS } from '../opra.constants';
 
 export class OpraServiceLoader {
   private readonly logger = new Logger(OpraServiceLoader.name, {timestamp: true});
@@ -34,17 +34,16 @@ export class OpraServiceLoader {
     const moduleOptions = this.opraModuleOptions;
 
     const prefix = '/' + normalizePath(joinPath(
-        (moduleOptions.useGlobalPrefix !== false ? globalPrefix : ''), moduleOptions.prefix), true);
-    const name = moduleOptions.name || 'service';
+        (moduleOptions.useGlobalPrefix !== false ? globalPrefix : ''), moduleOptions.prefix || ''), true);
+    const name = moduleOptions.info?.title || 'untitled service';
 
     const options: OpraModuleOptions = {
       ...moduleOptions,
-      prefix,
-      name,
+      prefix
     }
 
     try {
-      const serviceHost = this.opraFactory.generateService(rootModule, options);
+      const serviceHost = await this.opraFactory.generateService(rootModule, options, 'http');
       if (!Object.keys(serviceHost.resources).length) {
         this.logger.warn(`No resources found (${name})`);
         return;
@@ -52,7 +51,7 @@ export class OpraServiceLoader {
       // serviceConfiguration.i18n = this.i18n;
 
       if (platformName === 'express') {
-        this.adapter = await this.registerExpress(serviceHost);
+        this.adapter = await this.registerExpress(serviceHost, options);
         // else if (platformName === 'fastify')
         // await this.registerFastify();
       } else { // noinspection ExceptionCaughtLocallyJS
@@ -71,14 +70,14 @@ export class OpraServiceLoader {
     //
   }
 
-  protected async registerExpress(service: OpraService) {
+  protected async registerExpress(service: OpraService, moduleOptions: OpraModuleOptions) {
     const httpAdapter = this.httpAdapterHost.httpAdapter;
     if (!httpAdapter)
       return;
     const app = httpAdapter.getInstance();
-    return await OpraExpressAdapter.init(app, service, {
+    return OpraExpressAdapter.init(app, service, {
       i18n: this.i18n,
-      prefix: this.opraModuleOptions.prefix
+      prefix: moduleOptions.prefix
     });
   }
 

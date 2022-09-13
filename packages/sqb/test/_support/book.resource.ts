@@ -1,19 +1,9 @@
-import { EntityResource, ExecutionContext, ReadOperation, SearchOperation } from '@opra/core';
+import { ApiEntityResource } from '@opra/core';
 import { Book } from './book.entity.js';
 
-@EntityResource(Book, {
-  primaryKey: 'id',
-  description: 'Book resource',
+@ApiEntityResource(Book, {
+  description: 'Book resource'
 })
 export class BooksResource {
 
-  @ReadOperation()
-  read(ctx: ExecutionContext) {
-    //
-  }
-
-  @SearchOperation()
-  search(ctx: ExecutionContext) {
-    //
-  }
 }
