@@ -1,6 +1,6 @@
 {
   "name": "@opra/i18n",
-  "version": "0.0.1",
+  "version": "0.0.5",
   "description": "Opra internationalization package",
   "author": "Panates",
   "license": "MIT",
@@ -35,7 +35,7 @@
   "types": "esm/index.d.ts",
   "exports": {
     ".": {
-      "require":  "./cjs/index.js",
+      "require": "./cjs/index.js",
       "default": "./esm/index.js"
     },
     "./cjs": "./cjs/index.js",
