@@ -1,24 +1,19 @@
 import 'reflect-metadata';
 import { OpraURL } from '@opra/url';
-import { ExecutionQuery, OpraService } from '../../src';
-import { OpraHttpAdapter } from '../../src/implementation/adapter/http-adapter';
-import { Address } from '../_support/test-app/dto/address.dto';
-import { Customer } from '../_support/test-app/dto/customer.dto';
-import { customersResource } from '../_support/test-app/api/customers.resource';
-import { CustomerAddressesResource } from '../_support/test-app/api/customer-addresses.resource';
+import { OpraHttpAdapter } from '../../src/implementation/adapter/http-adapter.js';
+import {
+  CreateQuery, DeleteManyQuery,
+  DeleteQuery,
+  OpraService,
+  ReadQuery,
+  SearchQuery, UpdateManyQuery,
+  UpdateQuery
+} from '../../src/index.js';
+import { CustomerAddressesesResource } from '../_support/test-app/api/customer-addresseses.resource.js';
+import { CustomersResource } from '../_support/test-app/api/customers.resource.js';
+import { Address } from '../_support/test-app/dto/address.dto.js';
+import { Customer } from '../_support/test-app/dto/customer.dto.js';
 
-class TestHttpAdapter extends OpraHttpAdapter<any> {
-  constructor(service: OpraService) {
-    super(service);
-  }
-
-  buildQuery(url: OpraURL, method: string): {
-    query: ExecutionQuery;
-    resultPath: string;
-  } {
-    return super.buildQuery(url, method);
-  }
-}
 
 describe('OpraHttpAdapter', function () {
 
@@ -31,7 +26,7 @@ describe('OpraHttpAdapter', function () {
         version: 'v1',
       },
       types: [Customer, Address],
-      resources: [customersResource, new CustomerAddressesResource()]
+      resources: [new CustomersResource(), new CustomerAddressesesResource()]
     });
   });
 
@@ -39,113 +34,102 @@ describe('OpraHttpAdapter', function () {
 
     describe('EntityResource', function () {
 
-      it('Should generate "read" query for single Resource instance', async () => {
-        const adapter = new TestHttpAdapter(service);
-        const url = new OpraURL('/Customer@1');
-        const result = adapter.buildQuery(url, 'GET');
-        expect(result).toBeDefined();
-        const {query} = result;
-        const resource = service.getEntityResource('Customer');
+      it('Should generate "search" query', async () => {
+        const adapter = new OpraHttpAdapter(service);
+        const url = new OpraURL('/Customers?$limit=1&$skip=2&$total=false&$distinct=true&$filter=id=1' +
+            '&$pick=id&$omit=gender&$include=address&$sort=id');
+        const query = adapter.buildQuery(url, 'GET') as SearchQuery;
         expect(query).toBeDefined();
-        expect(query.service).toStrictEqual(service);
-        expect(query.resource).toStrictEqual(resource);
-        expect(query.operation).toStrictEqual('read');
-        expect(query.collection).toStrictEqual(false);
-        expect(query.path).toStrictEqual('');
-        expect(query.fullPath).toStrictEqual('');
-        expect(query.keyValues).toStrictEqual({id: '1'});
-        expect(query.outputType).toStrictEqual(service.getDataType('Customer'));
-      })
-
-      it('Should generate "read" query for collection of Resources', async () => {
-        const adapter = new TestHttpAdapter(service);
-        const url = new OpraURL('/Customer');
-        const result = adapter.buildQuery(url, 'GET');
-        expect(result).toBeDefined();
-        const {query} = result;
-        const resource = service.getEntityResource('Customer');
+        const resource = service.getEntityResource('Customers');
         expect(query).toBeDefined();
-        expect(query.service).toStrictEqual(service);
         expect(query.resource).toStrictEqual(resource);
-        expect(query.operation).toStrictEqual('read');
-        expect(query.collection).toStrictEqual(true);
-        expect(query.path).toStrictEqual('');
-        expect(query.fullPath).toStrictEqual('');
-        expect(query.keyValues).toStrictEqual(undefined);
-        expect(query.outputType).toStrictEqual(service.getDataType('Customer'));
-      })
-
-      it('Should build list of all properties to be exposed', async () => {
-        const adapter = new TestHttpAdapter(service);
-        const url = new OpraURL('/Customer');
-        const {query} = adapter.buildQuery(url, 'GET');
-        const customerType = service.getEntityResource('Customer').dataType;
-        const elements = Object.keys(customerType.properties!).reduce((o, k) => {
-          o[k] = true;
-          return o;
-        }, {});
-        expect(query.projection).toStrictEqual(elements);
-      })
-
-      it('Should parse $elements parameter', async () => {
-        const adapter = new TestHttpAdapter(service);
-        const url = new OpraURL('/Customer@1?$elements=givenName,gender,address.city,address.street');
-        const {query} = adapter.buildQuery(url, 'GET');
-        expect(query.projection).toStrictEqual({
-          id: false, gender: true, givenName: true,
-          address: {city: true}
-        });
-      })
-
-      it('Should validate properties while parsing $elements parameter', async () => {
-        const adapter = new TestHttpAdapter(service);
-        const url = new OpraURL('/Customer@1?$elements=prm1,gender');
-        expect(() => adapter.buildQuery(url, 'GET')).toThrow(`"Customer" entity does not have a property named "prm1"`);
-      })
-
-      it('Should parse $limit parameter', async () => {
-        const adapter = new TestHttpAdapter(service);
-        const url = new OpraURL('/Customer@1?$limit=5');
-        const {query} = adapter.buildQuery(url, 'GET');
-        expect(query.limit).toStrictEqual(5);
-      })
-
-      it('Should parse $skip parameter', async () => {
-        const adapter = new TestHttpAdapter(service);
-        const url = new OpraURL('/Customer@1?$skip=5');
-        const {query} = adapter.buildQuery(url, 'GET');
-        expect(query.skip).toStrictEqual(5);
-      })
-
-      it('Should parse $filter parameter', async () => {
-        const adapter = new TestHttpAdapter(service);
-        const url = new OpraURL('/Customer@1?$filter=gender="M"');
-        const {query} = adapter.buildQuery(url, 'GET');
-        expect(query.filter).toBeDefined();
-      })
-
-      it('Should parse $sort parameter', async () => {
-        const adapter = new TestHttpAdapter(service);
-        let url = new OpraURL('/Customer@1?$sort=id');
-        let r = adapter.buildQuery(url, 'GET');
-        expect(r.query.sort).toStrictEqual(['id']);
-        url = new OpraURL('/Customer@1?$sort=id,givenname');
-        r = adapter.buildQuery(url, 'GET');
-        expect(r.query.sort).toStrictEqual(['id', 'givenname']);
-      })
-
-      it('Should parse $distinct parameter', async () => {
-        const adapter = new TestHttpAdapter(service);
-        const url = new OpraURL('/Customer@1?$distinct=false');
-        const {query} = adapter.buildQuery(url, 'GET');
-        expect(query.distinct).toStrictEqual(false);
-      })
-
-      it('Should parse $total parameter', async () => {
-        const adapter = new TestHttpAdapter(service);
-        const url = new OpraURL('/Customer@1?$total=false');
-        const {query} = adapter.buildQuery(url, 'GET');
+        expect(query.queryType).toStrictEqual('search');
+        expect(query.limit).toStrictEqual(1);
+        expect(query.skip).toStrictEqual(2);
         expect(query.total).toStrictEqual(false);
+        expect(query.distinct).toStrictEqual(true);
+        expect(query.filter).toBeDefined();
+        expect(query.pick).toStrictEqual(['id']);
+        expect(query.omit).toStrictEqual(['gender']);
+        expect(query.include).toStrictEqual(['address']);
+        expect(query.sort).toStrictEqual(['id']);
+      })
+
+      it('Should generate "read" query', async () => {
+        const adapter = new OpraHttpAdapter(service);
+        const url = new OpraURL('/Customers@1?&$pick=id&$omit=gender&$include=address');
+        const query = adapter.buildQuery(url, 'GET') as ReadQuery;
+        expect(query).toBeDefined();
+        const resource = service.getEntityResource('Customers');
+        expect(query).toBeDefined();
+        expect(query.resource).toStrictEqual(resource);
+        expect(query.queryType).toStrictEqual('read');
+        expect(query.keyValue).toStrictEqual('1');
+        expect(query.pick).toStrictEqual(['id']);
+        expect(query.omit).toStrictEqual(['gender']);
+        expect(query.include).toStrictEqual(['address']);
+      })
+
+      it('Should generate "create" query', async () => {
+        const adapter = new OpraHttpAdapter(service);
+        const url = new OpraURL('/Customers');
+        const query = adapter.buildQuery(url, 'POST', {id: 1}) as CreateQuery;
+        expect(query).toBeDefined();
+        const resource = service.getEntityResource('Customers');
+        expect(query).toBeDefined();
+        expect(query.resource).toStrictEqual(resource);
+        expect(query.queryType).toStrictEqual('create');
+        expect(query.data).toStrictEqual({id: 1});
+      })
+
+      it('Should generate "update" query', async () => {
+        const adapter = new OpraHttpAdapter(service);
+        const url = new OpraURL('/Customers@1');
+        const query = adapter.buildQuery(url, 'PATCH', {id: 1}) as UpdateQuery;
+        expect(query).toBeDefined();
+        const resource = service.getEntityResource('Customers');
+        expect(query).toBeDefined();
+        expect(query.resource).toStrictEqual(resource);
+        expect(query.queryType).toStrictEqual('update');
+        expect(query.keyValue).toStrictEqual('1');
+        expect(query.data).toStrictEqual({id: 1});
+      })
+
+      it('Should generate "updateMany" query', async () => {
+        const adapter = new OpraHttpAdapter(service);
+        const url = new OpraURL('/Customers?$filter=id<10');
+        const query = adapter.buildQuery(url, 'PATCH', {id: 1}) as UpdateManyQuery;
+        expect(query).toBeDefined();
+        const resource = service.getEntityResource('Customers');
+        expect(query).toBeDefined();
+        expect(query.resource).toStrictEqual(resource);
+        expect(query.queryType).toStrictEqual('updateMany');
+        expect(query.filter).toBeDefined();
+        expect(query.data).toStrictEqual({id: 1});
+      })
+
+      it('Should generate "delete" query', async () => {
+        const adapter = new OpraHttpAdapter(service);
+        const url = new OpraURL('/Customers@1');
+        const query = adapter.buildQuery(url, 'DELETE') as DeleteQuery;
+        expect(query).toBeDefined();
+        const resource = service.getEntityResource('Customers');
+        expect(query).toBeDefined();
+        expect(query.resource).toStrictEqual(resource);
+        expect(query.queryType).toStrictEqual('delete');
+        expect(query.keyValue).toStrictEqual('1');
+      })
+
+      it('Should generate "deleteMany" query', async () => {
+        const adapter = new OpraHttpAdapter(service);
+        const url = new OpraURL('/Customers?$filter=id<10');
+        const query = adapter.buildQuery(url, 'DELETE') as DeleteManyQuery;
+        expect(query).toBeDefined();
+        const resource = service.getEntityResource('Customers');
+        expect(query).toBeDefined();
+        expect(query.resource).toStrictEqual(resource);
+        expect(query.queryType).toStrictEqual('deleteMany');
+        expect(query.filter).toBeDefined()
       })
 
     });

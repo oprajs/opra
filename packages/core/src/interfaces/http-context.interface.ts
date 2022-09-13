@@ -1,33 +1,37 @@
-
 export interface HttpAdapterContext {
   getRequest(): HttpRequest;
 
   getResponse(): HttpResponse;
-
-  getUserContext(): object | undefined;
-
 }
 
 export interface HttpRequest {
+
+  getInstance(): any;
 
   getUrl(): string;
 
   getMethod(): string;
 
-  getHeader(name: string): string | undefined;
-
   getHeaderNames(): string[];
 
-  getHeaders(): Record<string, any>;
+  getHeader(name: string): string | undefined;
 
   getHeaders(): Record<string, any>;
+
+  getBody(): any;
 }
 
 export interface HttpResponse {
 
-  statusCode: number | undefined;
+  getInstance(): any;
+
+  getStatus(): number | undefined;
 
   setStatus(value: number): this;
+
+  getHeaderNames(name: string): string[];
+
+  getHeader(name: string): string | undefined;
 
   setHeader(name: string, value: string): this;
 

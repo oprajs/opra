@@ -8,7 +8,6 @@ export namespace OpraExpressAdapter {
   export interface Options extends OpraHttpAdapter.Options {
     userContext?: (request: Request) => object | Promise<object>;
   }
-
 }
 
 export class OpraExpressAdapter extends OpraHttpAdapter<HttpAdapterContext, OpraExpressAdapter.Options> {
@@ -17,7 +16,7 @@ export class OpraExpressAdapter extends OpraHttpAdapter<HttpAdapterContext, Opra
       app: Application,
       service: OpraService,
       options?: OpraExpressAdapter.Options
-  ): void {
+  ): OpraExpressAdapter {
     const adapter = new OpraExpressAdapter(service, options);
     const prefix = '/' + normalizePath(options?.prefix, true);
     const userContextResolver = options?.userContext;
@@ -28,18 +27,22 @@ export class OpraExpressAdapter extends OpraHttpAdapter<HttpAdapterContext, Opra
         const res = new ExpressResponseWrapper(response);
         const adapterContext: HttpAdapterContext = {
           getRequest: () => req,
-          getResponse: () => res,
-          getUserContext: () => userContext
+          getResponse: () => res
         }
-        await adapter.handler(adapterContext);
+        await adapter.handler(adapterContext, userContext);
       })().catch(e => next(e));
     });
+    return adapter;
   }
 
 }
 
 class ExpressRequestWrapper implements HttpRequest {
   constructor(readonly instance: Request) {
+  }
+
+  getInstance(): any {
+    return this.instance;
   }
 
   getMethod(): string {
@@ -50,16 +53,20 @@ class ExpressRequestWrapper implements HttpRequest {
     return this.instance.url;
   }
 
+  getHeaderNames(): string[] {
+    return Object.keys(this.instance.headers);
+  }
+
   getHeader(name: string): string | undefined {
     return this.instance.get(name);
   }
 
-  getHeaderNames(): string[] {
-    return this.instance.rawHeaders;
-  }
-
   getHeaders(): Record<string, any> {
     return this.instance.headers;
+  }
+
+  getBody(): any {
+    return this.instance.body;
   }
 
 }
@@ -69,8 +76,16 @@ class ExpressResponseWrapper implements HttpResponse {
   constructor(readonly instance: Response) {
   }
 
-  get statusCode(): number | undefined {
-    return this.instance.statusCode;
+  getInstance(): any {
+    return this.instance;
+  }
+
+  getHeaderNames(): string[] {
+    return this.instance.getHeaderNames();
+  }
+
+  getHeader(name: string): string | undefined {
+    return this.instance.get(name);
   }
 
   setHeader(name: string, value: string): this {
@@ -78,6 +93,9 @@ class ExpressResponseWrapper implements HttpResponse {
     return this;
   }
 
+  getStatus(): number | undefined {
+    return this.instance.statusCode;
+  }
 
   setStatus(value: number): this {
     // noinspection SuspiciousTypeOfGuard

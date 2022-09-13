@@ -1,9 +1,9 @@
 import 'reflect-metadata';
-import { SchemaGenerator } from '../src';
-import { Address } from './_support/test-app/dto/address.dto';
-import { Customer } from './_support/test-app/dto/customer.dto';
-import { customersResource } from './_support/test-app/api/customers.resource';
-import { CustomerAddressesResource } from './_support/test-app/api/customer-addresses.resource';
+import { SchemaGenerator } from '../src/index.js';
+import { CustomerAddressesesResource } from './_support/test-app/api/customer-addresseses.resource.js';
+import { CustomersResource } from './_support/test-app/api/customers.resource.js';
+import { Address } from './_support/test-app/dto/address.dto.js';
+import { Customer } from './_support/test-app/dto/customer.dto.js';
 
 describe('SchemaGenerator', function () {
 
@@ -33,10 +33,10 @@ describe('SchemaGenerator', function () {
         types: [Customer, Address]
       };
       const schema = await SchemaGenerator.generateDocumentSchema(input);
-      expect(schema.types[0]).toBeDefined();
-      expect(schema.types[0].name).toStrictEqual('Address');
-      expect(schema.types[1]).toBeDefined();
-      expect(schema.types[1].name).toStrictEqual('Customer');
+      expect(schema.types.length).toBeGreaterThan(0)
+      expect(schema.types.find(x => x.name === 'Address')).toBeDefined();
+      expect(schema.types.find(x => x.name === 'Country')).toBeDefined();
+      expect(schema.types.find(x => x.name === 'Customer')).toBeDefined();
     })
 
   });
@@ -69,10 +69,10 @@ describe('SchemaGenerator', function () {
         resources: []
       };
       const schema = await SchemaGenerator.generateServiceSchema(input);
-      expect(schema.types[0]).toBeDefined();
-      expect(schema.types[0].name).toStrictEqual('Address');
-      expect(schema.types[1]).toBeDefined();
-      expect(schema.types[1].name).toStrictEqual('Customer');
+      expect(schema.types.length).toBeGreaterThan(0);
+      expect(schema.types.find(x => x.name === 'Address')).toBeDefined();
+      expect(schema.types.find(x => x.name === 'Country')).toBeDefined();
+      expect(schema.types.find(x => x.name === 'Customer')).toBeDefined();
     })
 
     it('Should generate resource schemas', async () => {
@@ -83,13 +83,12 @@ describe('SchemaGenerator', function () {
           description: 'Test api description'
         },
         types: [Customer, Address],
-        resources: [customersResource, new CustomerAddressesResource()]
+        resources: [new CustomersResource(), new CustomerAddressesesResource()]
       };
       const schema = await SchemaGenerator.generateServiceSchema(input);
-      expect(schema.resources[0]).toBeDefined();
-      expect(schema.resources[0].name).toStrictEqual('Customer');
-      expect(schema.resources[1]).toBeDefined();
-      expect(schema.resources[1].name).toStrictEqual('CustomerAddress');
+      expect(schema.types.length).toBeGreaterThan(0)
+      expect(schema.resources.find(x => x.name === 'Customers')).toBeDefined();
+      expect(schema.resources.find(x => x.name === 'CustomerAddresseses')).toBeDefined();
     })
 
   });

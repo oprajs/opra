@@ -1,10 +1,14 @@
-import { ApiComplexType, ApiProperty } from '@opra/common';
-import { Country } from './country.dto';
+import { ApiEntityType, ApiProperty } from '@opra/common';
+import { Country } from './country.dto.js';
 
-@ApiComplexType({
-  description: 'Address information'
+@ApiEntityType({
+  description: 'Address information',
+  primaryKey: 'id'
 })
 export class Address {
+
+  @ApiProperty()
+  id: string;
 
   @ApiProperty()
   city: string;

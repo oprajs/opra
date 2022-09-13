@@ -6,13 +6,11 @@ import { TypeThunkAsync } from '../types.js';
 
 const NESTJS_INJECTABLE_WATERMARK = '__injectable__';
 
-export type EntityResourceOptions = Pick<EntityResourceMetadata, 'name' | 'description'> & {
-  primaryKey?: string | string[]
-}
+export type EntityResourceOptions = Pick<EntityResourceMetadata, 'name' | 'description'> & {};
 
 const NAME_PATTERN = /^(.*)Resource$/;
 
-export function EntityResource(
+export function ApiEntityResource(
     entityFunc: TypeThunkAsync,
     options?: EntityResourceOptions
 ) {
@@ -21,7 +19,6 @@ export function EntityResource(
     const meta: EntityResourceMetadata = {
       kind: 'EntityResource',
       type: entityFunc,
-      primaryKey: options?.primaryKey || 'id',
       name
     };
     Object.assign(meta, _.omit(options, Object.keys(meta)));

@@ -9,7 +9,7 @@ export type ApiEntityMetadata =
 
 export type ApiEntityDecoratorOptions = Partial<StrictOmit<ApiEntityMetadata, 'kind'>>;
 
-export function ApiEntity(args?: ApiEntityDecoratorOptions): ClassDecorator {
+export function ApiEntityType(args?: ApiEntityDecoratorOptions): ClassDecorator {
   return (target: Function): void => {
     const meta: ApiEntityMetadata = {
       kind: 'EntityType',

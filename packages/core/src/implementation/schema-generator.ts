@@ -1,14 +1,10 @@
 import { StrictOmit, Type } from 'ts-gems';
+import { isPromise } from 'util/types';
 import { DATATYPE_METADATA, DATATYPE_PROPERTIES, OpraSchema, PropertyMetadata } from '@opra/common';
-import {
-  RESOURCE_METADATA,
-  RESOURCE_OPERATION,
-  RESOURCE_OPERATION_FUNCTIONS,
-  RESOURCE_OPERATION_METHOD
-} from '../constants.js';
-import { isConstructor, resolveClassAsync } from '../helpers/class-utils.js';
-import { builtinClassMap, internalDataTypes, primitiveDataTypeNames } from '../helpers/internal-data-types.js';
+import { RESOURCE_METADATA } from '../constants.js';
 import { ThunkAsync } from '../types.js';
+import { isConstructor, resolveClassAsync } from '../utils/class-utils.js';
+import { builtinClassMap, internalDataTypes, primitiveDataTypeNames } from '../utils/internal-data-types.js';
 
 export namespace SchemaGenerator {
 
@@ -23,6 +19,8 @@ export namespace SchemaGenerator {
 
 }
 
+const entityMethods = ['search', 'create', 'read', 'update', 'updateMany', 'delete', 'deleteMany'];
+
 export class SchemaGenerator {
   protected _dataTypes: Record<string, OpraSchema.DataType> = {};
   protected _resources: Record<string, OpraSchema.Resource> = {};
@@ -34,7 +32,7 @@ export class SchemaGenerator {
   protected async addDataType(thunk: ThunkAsync<Type | OpraSchema.DataType>): Promise<OpraSchema.DataType> {
     let schema: OpraSchema.DataType | undefined;
 
-    thunk = await thunk;
+    thunk = isPromise(thunk) ? await thunk : thunk;
     if (typeof thunk === 'function' && !isConstructor(thunk))
       thunk = await thunk();
 
@@ -110,14 +108,14 @@ export class SchemaGenerator {
     return schema;
   }
 
-  async addResource(thunk: any): Promise<void> {
-    if (isConstructor(thunk))
+  async addResource(instance: any): Promise<void> {
+    if (isConstructor(instance))
       throw new Error(`You should provide Resource instance instead of Resource class`);
-    const proto = Object.getPrototypeOf(thunk);
+    const proto = Object.getPrototypeOf(instance);
     const ctor = proto.constructor;
     const metadata = Reflect.getMetadata(RESOURCE_METADATA, ctor);
 
-    let resourceSchema: OpraSchema.EntityResource;
+    let resourceSchema: OpraSchema.Resource;
     if (metadata) {
       const name = metadata.name || ctor.name.replace(/Resource$/, '');
       const t = typeof metadata.type === 'function'
@@ -133,19 +131,15 @@ export class SchemaGenerator {
         name
       }
 
-      const operationMethods = Reflect.getMetadata(RESOURCE_OPERATION_FUNCTIONS, proto);
-      if (operationMethods) {
-        for (const methodName of operationMethods) {
-          const fn = proto[methodName];
-          const operationMethod = Reflect.getMetadata(RESOURCE_OPERATION_METHOD, proto);
-          const operationMetadata = Reflect.getMetadata(RESOURCE_OPERATION, proto, methodName);
-          /* istanbul ignore next */
-          if (!(fn && operationMetadata && operationMethod))
-            continue;
-          resourceSchema[operationMethod] = {...operationMetadata, handler: fn.bind(thunk)};
+      if (OpraSchema.isEntityResource(resourceSchema)) {
+        for (const methodName of entityMethods) {
+          const fn = instance[methodName];
+          if (typeof fn === 'function') {
+            resourceSchema[methodName] = fn.bind(instance);
+          }
         }
       }
-    } else resourceSchema = thunk;
+    } else resourceSchema = instance;
 
     if (OpraSchema.isResource(resourceSchema)) {
       if (OpraSchema.isEntityResource(resourceSchema)) {

@@ -16,5 +16,4 @@ export class Person {
 
   @ApiProperty()
   birthDate: string;
-
 }

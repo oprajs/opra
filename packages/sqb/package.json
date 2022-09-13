@@ -28,6 +28,9 @@
     "lodash": "^4.17.x",
     "ts-gems": "^2.2.0"
   },
+  "devDependencies": {
+    "@sqb/connect": "^4.5.0"
+  },
   "peerDependencies": {
     "@opra/core": "0.x.x",
     "@opra/url": "0.x.x",

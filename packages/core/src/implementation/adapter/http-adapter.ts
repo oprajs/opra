@@ -8,11 +8,11 @@ import {
   MethodNotAllowedError,
   NotFoundError,
 } from '../../exception/index.js';
-import { Headers, HeadersObject } from '../../helpers/headers.js';
 import { ExecutionQuery, PropertyQuery } from '../../interfaces/execution-query.interface.js';
 import { HttpAdapterContext } from '../../interfaces/http-context.interface.js';
 import { ResourceContainer } from '../../interfaces/resource-container.interface.js';
 import { KeyValue, QueryScope } from '../../types.js';
+import { Headers, HeadersObject } from '../../utils/headers.js';
 import { ComplexType } from '../data-type/complex-type.js';
 import {
   ExecutionContext,
@@ -20,7 +20,7 @@ import {
   ExecutionResponse
 } from '../execution-context.js';
 import { ContainerResourceController } from '../resource/container-resource-controller.js';
-import { EntityResourceController } from '../resource/entity-resource-controller.js';
+import { EntityResourceInfo } from '../resource/entity-resource-info.js';
 import { OpraAdapter } from './adapter.js';
 
 export namespace OpraHttpAdapter {
@@ -38,28 +38,39 @@ interface PreparedOutput {
 export class OpraHttpAdapter<TAdapterContext extends HttpAdapterContext,
     TOptions extends OpraHttpAdapter.Options = OpraHttpAdapter.Options> extends OpraAdapter<HttpAdapterContext, TOptions> {
 
-  protected prepareExecutionContexts(adapterContext: TAdapterContext): ExecutionContext[] {
-    const userContext = adapterContext.getUserContext();
+  protected prepareExecutionContexts(adapterContext: TAdapterContext, userContext: any): ExecutionContext[] {
     const req = adapterContext.getRequest();
     // todo implement batch requests
     if (this.isBatch(adapterContext)) {
       throw new Error('not implemented yet');
     }
     const url = new OpraURL(req.getUrl());
-    return [this.prepareExecutionContext(url, req.getMethod(), Headers.from(req.getHeaders()), userContext)];
+    return [this.prepareExecutionContext(
+        adapterContext,
+        url,
+        req.getMethod(),
+        Headers.from(req.getHeaders()),
+        req.getBody(),
+        userContext)];
   }
 
-  protected prepareExecutionContext(
+  prepareExecutionContext(
+      adapterContext: any,
       url: OpraURL,
       method: string,
       headers: HeadersObject,
+      body?: any,
       userContext?: any
   ): ExecutionContext {
     if (!url.path.size)
       throw new BadRequestError();
     if (method !== 'GET' && url.path.size > 1)
       throw new BadRequestError();
-    const query = this.buildQuery(url, method);
+    const query = this.buildQuery(url, method, body);
+    if (!query)
+      throw new MethodNotAllowedError({
+        message: `Method "${method}" is not allowed by target resource`
+      });
     const request = new ExecutionRequest({
       query,
       headers,
@@ -68,16 +79,18 @@ export class OpraHttpAdapter<TAdapterContext extends HttpAdapterContext,
     const response = new ExecutionResponse();
     // noinspection UnnecessaryLocalVariableJS
     const executionContext = new ExecutionContext({
+      type: 'http',
       service: this.service,
       request,
       response,
+      adapterContext,
       userContext,
       continueOnError: request.query.operationType === 'read'
     })
     return executionContext;
   }
 
-  protected buildQuery(url: OpraURL, method: string): ExecutionQuery {
+  buildQuery(url: OpraURL, method: string, body?: any): ExecutionQuery | undefined {
     let container: ResourceContainer = this.service;
     try {
       let pathIndex = 0;
@@ -91,17 +104,21 @@ export class OpraHttpAdapter<TAdapterContext extends HttpAdapterContext,
           container = resource;
         } else {
           method = method.toUpperCase();
-          if (resource instanceof EntityResourceController) {
-            const scope: QueryScope = p.key ? 'collection' : 'instance';
+
+          if (resource instanceof EntityResourceInfo) {
+            const scope: QueryScope = p.key ? 'instance' : 'collection';
 
             if (pathIndex < pathLen && !(method === 'GET' && scope === 'instance'))
-              throw new MethodNotAllowedError();
+              return;
 
-            let query: ExecutionQuery;
+            let query: ExecutionQuery | undefined;
+
             switch (method) {
-              case 'GET':
+
+              case 'GET': {
                 if (scope === 'collection') {
                   query = ExecutionQuery.forSearch(resource, {
+                    filter: url.searchParams.get('$filter'),
                     limit: url.searchParams.get('$limit'),
                     skip: url.searchParams.get('$skip'),
                     distinct: url.searchParams.get('$distinct'),
@@ -109,12 +126,14 @@ export class OpraHttpAdapter<TAdapterContext extends HttpAdapterContext,
                     sort: url.searchParams.get('$sort'),
                     pick: url.searchParams.get('$pick'),
                     omit: url.searchParams.get('$omit'),
+                    include: url.searchParams.get('$include'),
                   });
 
                 } else {
                   query = ExecutionQuery.forRead(resource, p.key as KeyValue, {
                     pick: url.searchParams.get('$pick'),
-                    omit: url.searchParams.get('$omit')
+                    omit: url.searchParams.get('$omit'),
+                    include: url.searchParams.get('$include')
                   });
 
                   // Move through properties
@@ -141,18 +160,47 @@ export class OpraHttpAdapter<TAdapterContext extends HttpAdapterContext,
                   }
                 }
                 break;
-              case 'DELETE':
+              }
+
+              case 'DELETE': {
                 if (scope === 'collection') {
-                  query = ExecutionQuery.forDeleteMany(resource, {});
+                  query = ExecutionQuery.forDeleteMany(resource, {
+                    filter: url.searchParams.get('$filter'),
+                  });
                 } else {
                   query = ExecutionQuery.forDelete(resource, p.key as KeyValue);
                 }
                 break;
-              default:
-                throw new MethodNotAllowedError({
-                  message: `Method "${method}" is not allowed by target resource`
-                });
+              }
+
+              case 'POST': {
+                if (scope === 'collection') {
+                  query = ExecutionQuery.forCreate(resource, body, {
+                    pick: url.searchParams.get('$pick'),
+                    omit: url.searchParams.get('$omit'),
+                    include: url.searchParams.get('$include')
+                  });
+                }
+                break;
+              }
+
+              case 'PATCH': {
+                if (scope === 'collection') {
+                  query = ExecutionQuery.forUpdateMany(resource, body, {
+                    filter: url.searchParams.get('$filter')
+                  });
+                } else {
+                  query = ExecutionQuery.forUpdate(resource, p.key as KeyValue, body, {
+                    pick: url.searchParams.get('$pick'),
+                    omit: url.searchParams.get('$omit'),
+                    include: url.searchParams.get('$include')
+                  });
+                }
+                break;
+              }
+
             }
+
             return query;
           }
         }
@@ -206,12 +254,13 @@ export class OpraHttpAdapter<TAdapterContext extends HttpAdapterContext,
     resp.send(JSON.stringify(out.body));
   }
 
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   protected isBatch(adapterContext): boolean {
     return false;
   }
 
   protected createOutput(ctx: ExecutionContext): PreparedOutput {
-    const query = ctx.request.query;
+    const {query} = ctx.request;
 
     // Determine response status
     let status = ctx.response.status;
@@ -227,22 +276,29 @@ export class OpraHttpAdapter<TAdapterContext extends HttpAdapterContext,
     } else
       status = status || (query.operationType === 'create' ? HttpStatus.CREATED : HttpStatus.OK);
 
-    // Move to sub property if result path defined
+    let body;
     let value = ctx.response.value;
-    if (ctx.request.resultPath) {
-      const pathArray = ctx.request.resultPath.split('.');
-      for (const property of pathArray) {
-        value = value && typeof value === 'object' && value[property];
+    if (query.queryType === 'search') {
+      body = {
+        // '@origin': ctx.resource.name + (ctx.request.resultPath ? '.' + ctx.request.resultPath : ''),
+        items: ctx.response.value,
+        total: ctx.response.total
+      };
+    } else {
+      // Move to sub property if result path defined
+      if (value && ctx.request.resultPath) {
+        const pathArray = ctx.request.resultPath.split('.');
+        for (const property of pathArray) {
+          value = value && typeof value === 'object' && value[property];
+        }
       }
+      body = value;
     }
 
-    const body: any = {
-      // '@origin': ctx.resource.name + (ctx.request.resultPath ? '.' + ctx.request.resultPath : ''),
-      value,
-      total: Array.isArray(value) && ctx.response.total
-    };
-    if (ctx.response.errors.length)
+    if (ctx.response.errors?.length) {
+      body = body || {};
       body.errors = ctx.response.errors.map(e => e.response);
+    }
 
     return {
       status,
@@ -250,6 +306,17 @@ export class OpraHttpAdapter<TAdapterContext extends HttpAdapterContext,
       body
     }
 
+  }
+
+  protected async sendError(adapterContext: TAdapterContext, error: ApiException) {
+    const resp = adapterContext.getResponse();
+    resp.setStatus(error.status || 500);
+    resp.setHeader(HttpHeaders.Content_Type, 'application/json');
+    resp.setHeader(HttpHeaders.Cache_Control, 'no-cache');
+    resp.setHeader(HttpHeaders.Pragma, 'no-cache');
+    resp.setHeader(HttpHeaders.Expires, '-1');
+    resp.setHeader(HttpHeaders.X_Opra_Version, OpraVersion);
+    resp.send(JSON.stringify(error.response));
   }
 
 

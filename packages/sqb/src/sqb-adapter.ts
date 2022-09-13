@@ -2,18 +2,48 @@ import _ from 'lodash';
 import { ExecutionRequest } from '@opra/core'
 import { Repository, SqbClient, SqbConnection } from '@sqb/connect';
 import { convertFilter } from './convert-filter.js';
-import { covertKey } from './covert-key.js';
 
 export namespace SQBAdapter {
 
   export function prepare(request: ExecutionRequest): {
-    method: string;
-    args: any;
+    method: 'create' | 'findByPk' | 'findAll' | 'update' | 'updateAll' | 'destroy' | 'destroyAll';
+    options: any,
+    keyValue?: any;
+    values?: any;
+    args: any[]
   } {
     const {query} = request;
     switch (query.queryType) {
+      case 'create': {
+        const options: Repository.CreateOptions = _.omitBy({
+          pick: query.pick?.length ? query.pick : undefined,
+          omit: query.omit?.length ? query.omit : undefined,
+          include: query.include?.length ? query.include : undefined,
+        }, _.isNil);
+        const {data} = query;
+        return {
+          method: 'create',
+          values: data,
+          options,
+          args: [data, options]
+        };
+      }
+      case 'read': {
+        const options: Repository.FindOneOptions = _.omitBy({
+          pick: query.pick?.length ? query.pick : undefined,
+          omit: query.omit?.length ? query.omit : undefined,
+          include: query.include?.length ? query.include : undefined,
+        }, _.isNil);
+        const keyValue = query.keyValue;
+        return {
+          method: 'findByPk',
+          keyValue,
+          options,
+          args: [keyValue, options]
+        };
+      }
       case 'search': {
-        const args: Repository.FindAllOptions & { total?: boolean } = {
+        const options: Repository.FindAllOptions & { total?: boolean } = _.omitBy({
           pick: query.pick?.length ? query.pick : undefined,
           omit: query.omit?.length ? query.omit : undefined,
           include: query.include?.length ? query.include : undefined,
@@ -23,45 +53,62 @@ export namespace SQBAdapter {
           distinct: query.distinct,
           total: query.total,
           filter: convertFilter(query.filter)
-        };
+        }, _.isNil)
         return {
           method: 'findAll',
-          args: _.omitBy(args, _.isNil)
+          options,
+          args: [options]
         };
       }
-      case 'read': {
-        const filter = covertKey(query.resource.dataType, query.key);
-        const args: Repository.FindOneOptions = {
+      case 'update': {
+        const options: Repository.UpdateOptions = _.omitBy({
           pick: query.pick?.length ? query.pick : undefined,
           omit: query.omit?.length ? query.omit : undefined,
-          filter
-        };
+          include: query.include?.length ? query.include : undefined,
+        }, _.isNil);
+        const {data} = query;
+        const keyValue = query.keyValue;
         return {
-          method: 'findOne',
-          args: _.omitBy(args, _.isNil)
+          method: 'update',
+          keyValue: query.keyValue,
+          values: data,
+          options,
+          args: [keyValue, data, options]
+        };
+      }
+      case 'updateMany': {
+        const options: Repository.DestroyOptions = _.omitBy({
+          filter: convertFilter(query.filter)
+        }, _.isNil);
+        const {data} = query;
+        return {
+          method: 'updateAll',
+          options,
+          args: [data, options]
         };
       }
       case 'delete': {
-        const filter = covertKey(query.resource.dataType, query.key);
-        const args: Repository.FindOneOptions = {
-          filter
-        };
+        const options = {};
+        const keyValue = query.keyValue;
         return {
           method: 'destroy',
-          args: _.omitBy(args, _.isNil)
+          keyValue,
+          options,
+          args: [keyValue, options]
         };
       }
       case 'deleteMany': {
-        const args: Repository.FindOneOptions = {
+        const options: Repository.DestroyOptions = _.omitBy({
           filter: convertFilter(query.filter)
-        };
+        }, _.isNil)
         return {
           method: 'destroyAll',
-          args: _.omitBy(args, _.isNil)
+          options,
+          args: [options]
         };
       }
       default:
-        throw new Error(`Unimplemented query type "${query.queryType}"`);
+        throw new Error(`Unimplemented query type "${(query as any).queryType}"`);
     }
   }
 
@@ -73,20 +120,19 @@ export namespace SQBAdapter {
     const repo = connection.getRepository(query.resource.dataType.ctor);
     const prepared = prepare(request);
     const out: any = {};
-    const value = await repo[prepared.method](prepared.args);
+    // @ts-ignore
+    const value = await repo[prepared.method](...prepared.args);
     if (value && typeof value === 'object')
       out.value = value;
     if (query.queryType === 'search') {
       if (query.total) {
-        out.count = await repo.count(prepared.args);
+        out.count = await repo.count(prepared.options);
       }
     }
-    if (query.queryType === 'delete') {
+    if (prepared.method === 'destroy')
       out.affected = value ? 1 : 0;
-    }
-    if (query.queryType === 'deleteMany') {
+    else if (prepared.method === 'destroyAll' || prepared.method === 'updateAll')
       out.affected = value;
-    }
     return out;
   }
 

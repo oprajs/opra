@@ -1,8 +1,11 @@
-import { ApiComplexType, ApiProperty } from '@opra/common';
-import { Address } from './address.dto';
-import { Person } from './person.dto';
+import { ApiEntityType, ApiProperty } from '@opra/common';
+import { Address } from './address.dto.js';
+import { Notes } from './notes.dto.js';
+import { Person } from './person.dto.js';
 
-@ApiComplexType()
+@ApiEntityType({
+  primaryKey: 'id'
+})
 export class Customer extends Person {
 
   @ApiProperty({type: 'integer'})
@@ -30,5 +33,10 @@ export class Customer extends Person {
     exclusive: true
   })
   address?: Address;
+
+  @ApiProperty({
+    exclusive: true
+  })
+  notes?: Notes;
 
 }

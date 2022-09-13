@@ -1,22 +1,34 @@
 import { OpraURLSearchParams, SearchParams } from '@opra/url';
 import { HttpStatus } from '../enums/index.js';
 import { ApiException } from '../exception/index.js';
-import { Headers, HeadersObject } from '../helpers/headers.js';
 import { ExecutionQuery } from '../interfaces/execution-query.interface.js';
+import { HttpAdapterContext } from '../interfaces/http-context.interface.js';
+import { Headers, HeadersObject } from '../utils/headers.js';
 import { OpraService } from './opra-service.js';
 
-export type ExecutionContextArgs = Pick<ExecutionContext, 'service' |
-    'request' | 'response' | 'userContext' | 'continueOnError'>;
+export type ContextType = 'http' | 'ws' | 'rpc';
+
+export type ExecutionContextArgs = Pick<ExecutionContext,
+    'type' | 'service' | 'request' | 'response' |
+    'adapterContext' | 'userContext' | 'continueOnError'>;
 
 export class ExecutionContext {
+  readonly type: ContextType;
   readonly service: OpraService;
   readonly request: ExecutionRequest;
   readonly response: ExecutionResponse;
+  readonly adapterContext: any;
   userContext?: any;
   continueOnError?: boolean;
 
   constructor(args: ExecutionContextArgs) {
     Object.assign(this, args);
+  }
+
+  switchToHttp(): HttpAdapterContext {
+    if (this.type !== 'http')
+      throw new Error(`You can't access http context within an ${this.type} context`);
+    return this.adapterContext;
   }
 }
 

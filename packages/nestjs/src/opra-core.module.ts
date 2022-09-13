@@ -1,41 +1,48 @@
 import * as crypto from 'crypto';
-import {DynamicModule, Inject, Module, OnModuleDestroy, OnModuleInit, Provider} from '@nestjs/common';
-import {HttpAdapterHost, ModulesContainer} from '@nestjs/core';
-import {MetadataScanner} from '@nestjs/core/metadata-scanner';
-import {I18n, InitOptions} from '@opra/i18n';
-import {ServiceFactory} from './factories/service.factory.js';
+import {
+  DynamicModule,
+  Inject,
+  Module,
+  OnModuleDestroy,
+  OnModuleInit,
+  Provider
+} from '@nestjs/common';
+import { HttpAdapterHost, ModulesContainer } from '@nestjs/core';
+import { MetadataScanner } from '@nestjs/core/metadata-scanner';
+import { I18n, InitOptions } from '@opra/i18n';
+import { OPRA_INITIALIZER, OPRA_MODULE_ID, OPRA_MODULE_OPTIONS } from './constants.js';
+import { ServiceFactory } from './factories/service.factory.js';
 import {
   OpraModuleAsyncOptions,
   OpraModuleOptions,
   OpraModuleOptionsFactory
 } from './interfaces/opra-module-options.interface.js';
-import {OPRA_INITIALIZER, OPRA_MODULE_ID, OPRA_MODULE_OPTIONS} from './opra.constants.js';
-import {ExplorerService} from './services/explorer.service.js';
-import {OpraServiceLoader} from './services/service-loader.js';
-import {ModuleThunk} from './types';
+import { NestExplorer } from './services/nest-explorer';
+import { OpraServiceLoader } from './services/service-loader.js';
 
 @Module({
   providers: [
     ServiceFactory,
     MetadataScanner,
-    ExplorerService
+    NestExplorer
   ]
 })
 export class OpraCoreModule implements OnModuleInit, OnModuleDestroy {
 
   constructor(
-    private readonly httpAdapterHost: HttpAdapterHost,
-    protected readonly modulesContainer: ModulesContainer,
-    @Inject(OPRA_MODULE_OPTIONS) private readonly options: OpraModuleOptions,
-    @Inject(OPRA_INITIALIZER) private readonly opraServiceLoader: OpraServiceLoader,
+      private readonly httpAdapterHost: HttpAdapterHost,
+      protected readonly modulesContainer: ModulesContainer,
+      @Inject(OPRA_MODULE_OPTIONS) private readonly options: OpraModuleOptions,
+      @Inject(OPRA_INITIALIZER) private readonly opraServiceLoader: OpraServiceLoader,
   ) {
   }
 
-  static forRoot(serviceModule: ModuleThunk, options: OpraModuleOptions): DynamicModule {
+  static forRoot(options: OpraModuleOptions & Pick<DynamicModule, 'imports' | 'providers' | 'exports'>): DynamicModule {
     return {
       module: OpraCoreModule,
-      imports: [serviceModule],
+      imports: [...(options.imports || [])],
       providers: [
+        ...(options.providers || []),
         {
           provide: OPRA_MODULE_OPTIONS,
           useValue: options,
@@ -45,15 +52,17 @@ export class OpraCoreModule implements OnModuleInit, OnModuleDestroy {
           useClass: OpraServiceLoader
         },
         this.createI18nProvider()
-      ]
+      ],
+      exports: [...(options.exports || [])]
     };
   }
 
-  static forRootAsync(serviceModule: ModuleThunk, asyncOptions: OpraModuleAsyncOptions): DynamicModule {
+  static forRootAsync(asyncOptions: OpraModuleAsyncOptions): DynamicModule {
     return {
       module: OpraCoreModule,
-      imports: [serviceModule, ...(asyncOptions?.imports || [])],
+      imports: [...(asyncOptions.imports || [])],
       providers: [
+        ...(asyncOptions.providers || []),
         {
           provide: OPRA_MODULE_ID,
           useValue: crypto.randomUUID()
@@ -117,7 +126,7 @@ export class OpraCoreModule implements OnModuleInit, OnModuleDestroy {
       return {
         provide: OPRA_MODULE_OPTIONS,
         useFactory: (optionsFactory: OpraModuleOptionsFactory) =>
-          optionsFactory.createOptions(),
+            optionsFactory.createOptions(),
         inject: [useClass]
       };
     }

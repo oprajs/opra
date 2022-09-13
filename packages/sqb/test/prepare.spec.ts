@@ -4,7 +4,7 @@ import { OperatorType, SerializationType } from '@sqb/builder';
 import { SQBAdapter } from '../src/index.js';
 import { BooksResource } from './_support/book.resource.js';
 
-describe('SQBAdapter', function () {
+describe('SQBAdapter.prepare', function () {
   let service: OpraService;
 
   beforeAll(async () => {
@@ -17,162 +17,315 @@ describe('SQBAdapter', function () {
     });
   })
 
-  describe('"search" query', function () {
+  describe('"create" query', function () {
+    it('Should prepare', async () => {
+      const values = {a: 1};
+      const query = ExecutionQuery.forCreate(service.getResource('Books'), values);
+      const request = new ExecutionRequest({query});
+      const o = SQBAdapter.prepare(request);
+      expect(o.method).toStrictEqual('create');
+      expect(o.values).toStrictEqual(values);
+      expect(o.options).toBeDefined();
+      expect(o.args).toStrictEqual([o.values, o.options]);
+    });
 
-    it('Should prepare for Repository.findAll', async () => {
+    it('Should prepare with "pick" option', async () => {
+      const values = {a: 1};
+      const query = ExecutionQuery.forCreate(service.getEntityResource('Books'), values, {
+        pick: ['id', 'name', 'writer.name']
+      });
+      const request = new ExecutionRequest({query});
+      const o = SQBAdapter.prepare(request);
+      expect(o.method).toStrictEqual('create');
+      expect(o.values).toStrictEqual(values);
+      expect(o.options).toBeDefined();
+      expect(o.options.pick).toStrictEqual(['id', 'name', 'writer.name']);
+    });
+
+    it('Should prepare "omit" option', async () => {
+      const values = {a: 1};
+      const query = ExecutionQuery.forCreate(service.getEntityResource('Books'), values, {
+        omit: ['id', 'name', 'writer.name']
+      });
+      const request = new ExecutionRequest({query});
+      const o = SQBAdapter.prepare(request);
+      expect(o.method).toStrictEqual('create');
+      expect(o.values).toStrictEqual(values);
+      expect(o.options).toBeDefined();
+      expect(o.options.omit).toStrictEqual(['id', 'name', 'writer.name']);
+      expect(o.args).toStrictEqual([o.values, o.options]);
+    });
+
+    it('Should prepare "include" option', async () => {
+      const values = {a: 1};
+      const query = ExecutionQuery.forCreate(service.getEntityResource('Books'), values, {
+        include: ['id', 'name', 'writer.name']
+      });
+      const request = new ExecutionRequest({query});
+      const o = SQBAdapter.prepare(request);
+      expect(o.method).toStrictEqual('create');
+      expect(o.values).toStrictEqual(values);
+      expect(o.options).toBeDefined();
+      expect(o.options.include).toStrictEqual(['id', 'name', 'writer.name']);
+      expect(o.args).toStrictEqual([o.values, o.options]);
+    });
+  });
+
+
+  describe('"read" query', function () {
+    it('Should prepare', async () => {
+      const query = ExecutionQuery.forRead(service.getResource('Books'), 1);
+      const request = new ExecutionRequest({query});
+      const o = SQBAdapter.prepare(request);
+      expect(o.method).toStrictEqual('findByPk');
+      expect(o.keyValue).toStrictEqual(1);
+    });
+
+    it('Should prepare with "pick" option', async () => {
+      const query = ExecutionQuery.forRead(service.getEntityResource('Books'), 1, {
+        pick: ['id', 'name', 'writer.name']
+      });
+      const request = new ExecutionRequest({query});
+      const o = SQBAdapter.prepare(request);
+      expect(o.method).toStrictEqual('findByPk');
+      expect(o.keyValue).toStrictEqual(1);
+      expect(o.options).toBeDefined();
+      expect(o.options.pick).toStrictEqual(['id', 'name', 'writer.name']);
+    });
+
+    it('Should prepare with "omit" option', async () => {
+      const query = ExecutionQuery.forRead(service.getEntityResource('Books'), 1, {
+        omit: ['id', 'name', 'writer.name']
+      });
+      const request = new ExecutionRequest({query});
+      const o = SQBAdapter.prepare(request);
+      expect(o.method).toStrictEqual('findByPk');
+      expect(o.keyValue).toStrictEqual(1);
+      expect(o.options).toBeDefined();
+      expect(o.options.omit).toStrictEqual(['id', 'name', 'writer.name']);
+    });
+
+    it('Should prepare with "include" option', async () => {
+      const query = ExecutionQuery.forRead(service.getEntityResource('Books'), 1, {
+        include: ['id', 'name', 'writer.name']
+      });
+      const request = new ExecutionRequest({query});
+      const o = SQBAdapter.prepare(request);
+      expect(o.method).toStrictEqual('findByPk');
+      expect(o.keyValue).toStrictEqual(1);
+      expect(o.options).toBeDefined();
+      expect(o.options.include).toStrictEqual(['id', 'name', 'writer.name']);
+    });
+  });
+
+  describe('"search" query', function () {
+    it('Should prepare', async () => {
       const query = ExecutionQuery.forSearch(service.getResource('Books'));
       const request = new ExecutionRequest({query});
       const o = SQBAdapter.prepare(request);
-      expect(o).toStrictEqual({
-        method: 'findAll',
-        args: {}
-      });
+      expect(o.method).toStrictEqual('findAll');
+      expect(o.options).toStrictEqual({});
+      expect(o.args).toStrictEqual([o.options]);
     })
 
-    it('Should prepare for Repository.findAll with "limit" option', async () => {
+    it('Should prepare "limit" option', async () => {
       const query = ExecutionQuery.forSearch(service.getEntityResource('Books'), {limit: 5});
       const request = new ExecutionRequest({query});
       const o = SQBAdapter.prepare(request);
-      expect(o).toStrictEqual({
-        method: 'findAll',
-        args: {limit: 5}
-      });
+      expect(o.method).toStrictEqual('findAll');
+      expect(o.options).toStrictEqual({limit: 5});
+      expect(o.args).toStrictEqual([o.options]);
     })
 
-    it('Should prepare for Repository.findAll with "offset" option', async () => {
+    it('Should prepare "offset" option', async () => {
       const query = ExecutionQuery.forSearch(service.getEntityResource('Books'), {skip: 5});
       const request = new ExecutionRequest({query});
       const o = SQBAdapter.prepare(request);
-      expect(o).toStrictEqual({
-        method: 'findAll',
-        args: {offset: 5}
-      });
+      expect(o.method).toStrictEqual('findAll');
+      expect(o.options).toStrictEqual({offset: 5});
+      expect(o.args).toStrictEqual([o.options]);
     });
 
-    it('Should prepare for Repository.findAll with "distinct" option', async () => {
+    it('Should prepare "distinct" option', async () => {
       const query = ExecutionQuery.forSearch(service.getEntityResource('Books'), {distinct: true});
       const request = new ExecutionRequest({query});
       const o = SQBAdapter.prepare(request);
+      const options = {distinct: true};
       expect(o).toStrictEqual({
         method: 'findAll',
-        args: {distinct: true}
+        options,
+        args: [options]
       });
     })
 
-    it('Should prepare for Repository.findAll with "total" option', async () => {
+    it('Should prepare "total" option', async () => {
       const query = ExecutionQuery.forSearch(service.getEntityResource('Books'), {total: true});
       const request = new ExecutionRequest({query});
       const o = SQBAdapter.prepare(request);
-      expect(o).toStrictEqual({
-        method: 'findAll',
-        args: {total: true}
-      });
+      expect(o.method).toStrictEqual('findAll');
+      expect(o.options).toStrictEqual({total: true});
+      expect(o.args).toStrictEqual([o.options]);
     });
 
-    it('Should prepare for Repository.findAll with "pick" option', async () => {
+    it('Should prepare with "pick" option', async () => {
       const query = ExecutionQuery.forSearch(service.getEntityResource('Books'), {
-        pick: ['id', 'name', 'shelf.name']
+        pick: ['id', 'name', 'writer.name']
       });
       const request = new ExecutionRequest({query});
       const o = SQBAdapter.prepare(request);
-      expect(o).toStrictEqual({
-        method: 'findAll',
-        args: {pick: ['id', 'name', 'shelf.name']}
-      });
+      expect(o.method).toStrictEqual('findAll');
+      expect(o.options).toStrictEqual({pick: ['id', 'name', 'writer.name']});
+      expect(o.args).toStrictEqual([o.options]);
     });
 
-    it('Should prepare for Repository.findAll with "omit" option', async () => {
+    it('Should prepare with "omit" option', async () => {
       const query = ExecutionQuery.forSearch(service.getEntityResource('Books'), {
-        omit: ['id', 'name', 'shelf.name']
+        omit: ['id', 'name', 'writer.name']
       });
       const request = new ExecutionRequest({query});
       const o = SQBAdapter.prepare(request);
-      expect(o).toStrictEqual({
-        method: 'findAll',
-        args: {omit: ['id', 'name', 'shelf.name']}
-      });
+      expect(o.method).toStrictEqual('findAll');
+      expect(o.options).toStrictEqual({omit: ['id', 'name', 'writer.name']});
+      expect(o.args).toStrictEqual([o.options]);
     });
 
-    it('Should prepare for Repository.findAll with "include" option', async () => {
+    it('Should prepare with "include" option', async () => {
       const query = ExecutionQuery.forSearch(service.getEntityResource('Books'), {
-        include: ['id', 'name', 'shelf.name']
+        include: ['id', 'name', 'writer.name']
       });
       const request = new ExecutionRequest({query});
       const o = SQBAdapter.prepare(request);
-      expect(o).toStrictEqual({
-        method: 'findAll',
-        args: {include: ['id', 'name', 'shelf.name']}
-      });
+      expect(o.method).toStrictEqual('findAll');
+      expect(o.options).toStrictEqual({include: ['id', 'name', 'writer.name']});
+      expect(o.args).toStrictEqual([o.options]);
     });
 
-    it('Should prepare for Repository.findAll with "filter" option', async () => {
+    it('Should prepare with "filter" option', async () => {
       const query = ExecutionQuery.forSearch(service.getEntityResource('Books'), {
         filter: 'name=Demons'
       });
       const request = new ExecutionRequest({query});
       const o = SQBAdapter.prepare(request);
       expect(o.method).toStrictEqual('findAll');
-      expect(o.args).toBeDefined();
-      expect(o.args.filter).toBeDefined();
+      expect(o.options.filter).toBeDefined();
+      expect(o.args).toStrictEqual([o.options]);
     });
   });
 
-  describe('"read" query', function () {
+  describe('"update" query', function () {
 
-    it('Should prepare for Repository.findOne', async () => {
-      const query = ExecutionQuery.forRead(service.getResource('Books'), 1);
+    it('Should prepare', async () => {
+      const values = {a: 2};
+      const query = ExecutionQuery.forUpdate(service.getResource('Books'), 1, values);
       const request = new ExecutionRequest({query});
       const o = SQBAdapter.prepare(request);
-      expect(o.method).toStrictEqual('findOne');
-      expect(o.args).toBeDefined();
-      expect(o.args.filter).toBeDefined();
-      expect(o.args.filter._left).toStrictEqual('id');
-      expect(o.args.filter._right).toStrictEqual(1);
-      expect(o.args.filter._operatorType).toStrictEqual('eq');
-    })
+      expect(o.method).toStrictEqual('update');
+      expect(o.keyValue).toStrictEqual(1);
+      expect(o.values).toStrictEqual(values);
+      expect(o.options).toBeDefined();
+    });
+
+    it('Should prepare with "pick" option', async () => {
+      const values = {a: 2};
+      const query = ExecutionQuery.forUpdate(service.getResource('Books'), 1, values, {
+        pick: ['id', 'name', 'writer.name']
+      });
+      const request = new ExecutionRequest({query});
+      const o = SQBAdapter.prepare(request);
+      expect(o.method).toStrictEqual('update');
+      expect(o.options).toBeDefined();
+      expect(o.options.pick).toStrictEqual(['id', 'name', 'writer.name']);
+    });
+
+    it('Should prepare with "omit" option', async () => {
+      const values = {a: 2};
+      const query = ExecutionQuery.forUpdate(service.getResource('Books'), 1, values, {
+        omit: ['id', 'name', 'writer.name']
+      });
+      const request = new ExecutionRequest({query});
+      const o = SQBAdapter.prepare(request);
+      expect(o.method).toStrictEqual('update');
+      expect(o.options).toBeDefined();
+      expect(o.options.omit).toStrictEqual(['id', 'name', 'writer.name']);
+    });
+
+    it('Should prepare with "include" option', async () => {
+      const values = {a: 2};
+      const query = ExecutionQuery.forUpdate(service.getResource('Books'), 1, values, {
+        include: ['id', 'name', 'writer.name']
+      });
+      const request = new ExecutionRequest({query});
+      const o = SQBAdapter.prepare(request);
+      expect(o.method).toStrictEqual('update');
+      expect(o.options).toBeDefined();
+      expect(o.options.include).toStrictEqual(['id', 'name', 'writer.name']);
+    });
 
   });
 
-  describe('"delete" query', function () {
+  describe('"update-many" query', function () {
+    it('Should prepare', async () => {
+      const values = {a: 2};
+      const query = ExecutionQuery.forUpdateMany(service.getResource('Books'), values);
+      const request = new ExecutionRequest({query});
+      const o = SQBAdapter.prepare(request);
+      expect(o.method).toStrictEqual('updateAll');
+      expect(o.options).toBeDefined();
+    })
 
-    it('Should prepare for Repository.destroy', async () => {
+    it('Should prepare with "filter" option', async () => {
+      const values = {a: 2};
+      const query = ExecutionQuery.forUpdateMany(service.getResource('Books'), values, {
+        filter: 'name=Demons'
+      });
+      const request = new ExecutionRequest({query});
+      const o = SQBAdapter.prepare(request);
+      expect(o.method).toStrictEqual('updateAll');
+      expect(o.options).toBeDefined();
+      expect(o.options.filter).toBeDefined();
+    })
+  });
+
+  describe('"delete" query', function () {
+    it('Should prepare', async () => {
       const query = ExecutionQuery.forDelete(service.getResource('Books'), 1);
       const request = new ExecutionRequest({query});
       const o = SQBAdapter.prepare(request);
       expect(o.method).toStrictEqual('destroy');
-      expect(o.args).toBeDefined();
-      expect(o.args.filter).toBeDefined();
-      expect(o.args.filter._left).toStrictEqual('id');
-      expect(o.args.filter._right).toStrictEqual(1);
-      expect(o.args.filter._operatorType).toStrictEqual('eq');
-    })
+      expect(o.keyValue).toStrictEqual(1);
+    });
 
   });
 
   describe('"delete-many" query', function () {
+    it('Should prepare', async () => {
+      const query = ExecutionQuery.forDeleteMany(service.getResource('Books'));
+      const request = new ExecutionRequest({query});
+      const o = SQBAdapter.prepare(request);
+      expect(o.method).toStrictEqual('destroyAll');
+      expect(o.options).toBeDefined();
+    })
 
-    it('Should prepare for Repository.destroyAll', async () => {
+    it('Should prepare with "filter" option', async () => {
       const query = ExecutionQuery.forDeleteMany(service.getResource('Books'), {
         filter: 'name=Demons'
       });
       const request = new ExecutionRequest({query});
       const o = SQBAdapter.prepare(request);
       expect(o.method).toStrictEqual('destroyAll');
-      expect(o.args).toBeDefined();
-      expect(o.args.filter).toBeDefined();
+      expect(o.options).toBeDefined();
+      expect(o.options.filter).toBeDefined();
     })
-
   });
 
   describe('Convert filter ast to SQB', function () {
-
     it('Should convert StringLiteral', async () => {
       const query = ExecutionQuery.forSearch(service.getEntityResource('Books'), {
         filter: 'name="Demons"'
       });
       const request = new ExecutionRequest({query});
       const o = SQBAdapter.prepare(request);
-      expect(o.args.filter._right).toStrictEqual('Demons');
+      expect(o.options.filter._right).toStrictEqual('Demons');
     });
 
     it('Should convert NumberLiteral', async () => {
@@ -181,7 +334,7 @@ describe('SQBAdapter', function () {
       });
       const request = new ExecutionRequest({query});
       const o = SQBAdapter.prepare(request);
-      expect(o.args.filter._right).toStrictEqual(10);
+      expect(o.options.filter._right).toStrictEqual(10);
     });
 
     it('Should convert BooleanLiteral', async () => {
@@ -190,7 +343,7 @@ describe('SQBAdapter', function () {
       });
       const request = new ExecutionRequest({query});
       const o = SQBAdapter.prepare(request);
-      expect(o.args.filter._right).toStrictEqual(true);
+      expect(o.options.filter._right).toStrictEqual(true);
     });
 
     it('Should convert NullLiteral', async () => {
@@ -199,7 +352,7 @@ describe('SQBAdapter', function () {
       });
       const request = new ExecutionRequest({query});
       const o = SQBAdapter.prepare(request);
-      expect(o.args.filter._right).toStrictEqual(null);
+      expect(o.options.filter._right).toStrictEqual(null);
     });
 
     it('Should convert DateLiteral', async () => {
@@ -208,7 +361,7 @@ describe('SQBAdapter', function () {
       });
       const request = new ExecutionRequest({query});
       const o = SQBAdapter.prepare(request);
-      expect(o.args.filter._right).toStrictEqual('2020-06-11T12:30:15');
+      expect(o.options.filter._right).toStrictEqual('2020-06-11T12:30:15');
     });
 
     it('Should convert TimeLiteral', async () => {
@@ -217,7 +370,7 @@ describe('SQBAdapter', function () {
       });
       const request = new ExecutionRequest({query});
       const o = SQBAdapter.prepare(request);
-      expect(o.args.filter._right).toStrictEqual('12:30:15');
+      expect(o.options.filter._right).toStrictEqual('12:30:15');
     });
 
     it('Should convert ComparisonExpression(=)', async () => {
@@ -227,12 +380,12 @@ describe('SQBAdapter', function () {
       const request = new ExecutionRequest({query});
       const o = SQBAdapter.prepare(request);
       expect(o.method).toStrictEqual('findAll');
-      expect(o.args).toBeDefined();
-      expect(o.args.filter._type).toStrictEqual(SerializationType.COMPARISON_EXPRESSION);
-      expect(typeof o.args.filter._left).toStrictEqual('object');
-      expect(o.args.filter._left._field).toStrictEqual('name');
-      expect(o.args.filter._right).toStrictEqual('Demons');
-      expect(o.args.filter._operatorType).toStrictEqual(OperatorType.eq);
+      expect(o.options).toBeDefined();
+      expect(o.options.filter._type).toStrictEqual(SerializationType.COMPARISON_EXPRESSION);
+      expect(typeof o.options.filter._left).toStrictEqual('object');
+      expect(o.options.filter._left._field).toStrictEqual('name');
+      expect(o.options.filter._right).toStrictEqual('Demons');
+      expect(o.options.filter._operatorType).toStrictEqual(OperatorType.eq);
     });
 
     it('Should convert ComparisonExpression(!=)', async () => {
@@ -242,12 +395,12 @@ describe('SQBAdapter', function () {
       const request = new ExecutionRequest({query});
       const o = SQBAdapter.prepare(request);
       expect(o.method).toStrictEqual('findAll');
-      expect(o.args).toBeDefined();
-      expect(o.args.filter._type).toStrictEqual(SerializationType.COMPARISON_EXPRESSION);
-      expect(typeof o.args.filter._left).toStrictEqual('object');
-      expect(o.args.filter._left._field).toStrictEqual('name');
-      expect(o.args.filter._right).toStrictEqual('Demons');
-      expect(o.args.filter._operatorType).toStrictEqual(OperatorType.ne);
+      expect(o.options).toBeDefined();
+      expect(o.options.filter._type).toStrictEqual(SerializationType.COMPARISON_EXPRESSION);
+      expect(typeof o.options.filter._left).toStrictEqual('object');
+      expect(o.options.filter._left._field).toStrictEqual('name');
+      expect(o.options.filter._right).toStrictEqual('Demons');
+      expect(o.options.filter._operatorType).toStrictEqual(OperatorType.ne);
     });
 
     it('Should convert ComparisonExpression(>)', async () => {
@@ -257,12 +410,12 @@ describe('SQBAdapter', function () {
       const request = new ExecutionRequest({query});
       const o = SQBAdapter.prepare(request);
       expect(o.method).toStrictEqual('findAll');
-      expect(o.args).toBeDefined();
-      expect(o.args.filter._type).toStrictEqual(SerializationType.COMPARISON_EXPRESSION);
-      expect(typeof o.args.filter._left).toStrictEqual('object');
-      expect(o.args.filter._left._field).toStrictEqual('pages');
-      expect(o.args.filter._right).toStrictEqual(5);
-      expect(o.args.filter._operatorType).toStrictEqual(OperatorType.gt);
+      expect(o.options).toBeDefined();
+      expect(o.options.filter._type).toStrictEqual(SerializationType.COMPARISON_EXPRESSION);
+      expect(typeof o.options.filter._left).toStrictEqual('object');
+      expect(o.options.filter._left._field).toStrictEqual('pages');
+      expect(o.options.filter._right).toStrictEqual(5);
+      expect(o.options.filter._operatorType).toStrictEqual(OperatorType.gt);
     });
 
     it('Should convert ComparisonExpression(>=)', async () => {
@@ -272,12 +425,12 @@ describe('SQBAdapter', function () {
       const request = new ExecutionRequest({query});
       const o = SQBAdapter.prepare(request);
       expect(o.method).toStrictEqual('findAll');
-      expect(o.args).toBeDefined();
-      expect(o.args.filter._type).toStrictEqual(SerializationType.COMPARISON_EXPRESSION);
-      expect(typeof o.args.filter._left).toStrictEqual('object');
-      expect(o.args.filter._left._field).toStrictEqual('pages');
-      expect(o.args.filter._right).toStrictEqual(5);
-      expect(o.args.filter._operatorType).toStrictEqual(OperatorType.gte);
+      expect(o.options).toBeDefined();
+      expect(o.options.filter._type).toStrictEqual(SerializationType.COMPARISON_EXPRESSION);
+      expect(typeof o.options.filter._left).toStrictEqual('object');
+      expect(o.options.filter._left._field).toStrictEqual('pages');
+      expect(o.options.filter._right).toStrictEqual(5);
+      expect(o.options.filter._operatorType).toStrictEqual(OperatorType.gte);
     });
 
     it('Should convert ComparisonExpression(<)', async () => {
@@ -287,12 +440,12 @@ describe('SQBAdapter', function () {
       const request = new ExecutionRequest({query});
       const o = SQBAdapter.prepare(request);
       expect(o.method).toStrictEqual('findAll');
-      expect(o.args).toBeDefined();
-      expect(o.args.filter._type).toStrictEqual(SerializationType.COMPARISON_EXPRESSION);
-      expect(typeof o.args.filter._left).toStrictEqual('object');
-      expect(o.args.filter._left._field).toStrictEqual('pages');
-      expect(o.args.filter._right).toStrictEqual(5);
-      expect(o.args.filter._operatorType).toStrictEqual(OperatorType.lt);
+      expect(o.options).toBeDefined();
+      expect(o.options.filter._type).toStrictEqual(SerializationType.COMPARISON_EXPRESSION);
+      expect(typeof o.options.filter._left).toStrictEqual('object');
+      expect(o.options.filter._left._field).toStrictEqual('pages');
+      expect(o.options.filter._right).toStrictEqual(5);
+      expect(o.options.filter._operatorType).toStrictEqual(OperatorType.lt);
     });
 
     it('Should convert ComparisonExpression(<=)', async () => {
@@ -302,12 +455,12 @@ describe('SQBAdapter', function () {
       const request = new ExecutionRequest({query});
       const o = SQBAdapter.prepare(request);
       expect(o.method).toStrictEqual('findAll');
-      expect(o.args).toBeDefined();
-      expect(o.args.filter._type).toStrictEqual(SerializationType.COMPARISON_EXPRESSION);
-      expect(typeof o.args.filter._left).toStrictEqual('object');
-      expect(o.args.filter._left._field).toStrictEqual('pages');
-      expect(o.args.filter._right).toStrictEqual(5);
-      expect(o.args.filter._operatorType).toStrictEqual(OperatorType.lte);
+      expect(o.options).toBeDefined();
+      expect(o.options.filter._type).toStrictEqual(SerializationType.COMPARISON_EXPRESSION);
+      expect(typeof o.options.filter._left).toStrictEqual('object');
+      expect(o.options.filter._left._field).toStrictEqual('pages');
+      expect(o.options.filter._right).toStrictEqual(5);
+      expect(o.options.filter._operatorType).toStrictEqual(OperatorType.lte);
     });
 
     it('Should convert ComparisonExpression(in)', async () => {
@@ -317,12 +470,12 @@ describe('SQBAdapter', function () {
       const request = new ExecutionRequest({query});
       const o = SQBAdapter.prepare(request);
       expect(o.method).toStrictEqual('findAll');
-      expect(o.args).toBeDefined();
-      expect(o.args.filter._type).toStrictEqual(SerializationType.COMPARISON_EXPRESSION);
-      expect(typeof o.args.filter._left).toStrictEqual('object');
-      expect(o.args.filter._left._field).toStrictEqual('pages');
-      expect(o.args.filter._right).toStrictEqual([5, 6]);
-      expect(o.args.filter._operatorType).toStrictEqual(OperatorType.in);
+      expect(o.options).toBeDefined();
+      expect(o.options.filter._type).toStrictEqual(SerializationType.COMPARISON_EXPRESSION);
+      expect(typeof o.options.filter._left).toStrictEqual('object');
+      expect(o.options.filter._left._field).toStrictEqual('pages');
+      expect(o.options.filter._right).toStrictEqual([5, 6]);
+      expect(o.options.filter._operatorType).toStrictEqual(OperatorType.in);
     });
 
     it('Should convert ComparisonExpression(!in)', async () => {
@@ -332,12 +485,12 @@ describe('SQBAdapter', function () {
       const request = new ExecutionRequest({query});
       const o = SQBAdapter.prepare(request);
       expect(o.method).toStrictEqual('findAll');
-      expect(o.args).toBeDefined();
-      expect(o.args.filter._type).toStrictEqual(SerializationType.COMPARISON_EXPRESSION);
-      expect(typeof o.args.filter._left).toStrictEqual('object');
-      expect(o.args.filter._left._field).toStrictEqual('pages');
-      expect(o.args.filter._right).toStrictEqual([5, 6]);
-      expect(o.args.filter._operatorType).toStrictEqual(OperatorType.notIn);
+      expect(o.options).toBeDefined();
+      expect(o.options.filter._type).toStrictEqual(SerializationType.COMPARISON_EXPRESSION);
+      expect(typeof o.options.filter._left).toStrictEqual('object');
+      expect(o.options.filter._left._field).toStrictEqual('pages');
+      expect(o.options.filter._right).toStrictEqual([5, 6]);
+      expect(o.options.filter._operatorType).toStrictEqual(OperatorType.notIn);
     });
 
     it('Should convert ComparisonExpression(like)', async () => {
@@ -347,12 +500,12 @@ describe('SQBAdapter', function () {
       const request = new ExecutionRequest({query});
       const o = SQBAdapter.prepare(request);
       expect(o.method).toStrictEqual('findAll');
-      expect(o.args).toBeDefined();
-      expect(o.args.filter._type).toStrictEqual(SerializationType.COMPARISON_EXPRESSION);
-      expect(typeof o.args.filter._left).toStrictEqual('object');
-      expect(o.args.filter._left._field).toStrictEqual('name');
-      expect(o.args.filter._right).toStrictEqual('Demons');
-      expect(o.args.filter._operatorType).toStrictEqual(OperatorType.like);
+      expect(o.options).toBeDefined();
+      expect(o.options.filter._type).toStrictEqual(SerializationType.COMPARISON_EXPRESSION);
+      expect(typeof o.options.filter._left).toStrictEqual('object');
+      expect(o.options.filter._left._field).toStrictEqual('name');
+      expect(o.options.filter._right).toStrictEqual('Demons');
+      expect(o.options.filter._operatorType).toStrictEqual(OperatorType.like);
     });
 
     it('Should convert ComparisonExpression(ilike)', async () => {
@@ -362,12 +515,12 @@ describe('SQBAdapter', function () {
       const request = new ExecutionRequest({query});
       const o = SQBAdapter.prepare(request);
       expect(o.method).toStrictEqual('findAll');
-      expect(o.args).toBeDefined();
-      expect(o.args.filter._type).toStrictEqual(SerializationType.COMPARISON_EXPRESSION);
-      expect(typeof o.args.filter._left).toStrictEqual('object');
-      expect(o.args.filter._left._field).toStrictEqual('name');
-      expect(o.args.filter._right).toStrictEqual('Demons');
-      expect(o.args.filter._operatorType).toStrictEqual(OperatorType.iLike);
+      expect(o.options).toBeDefined();
+      expect(o.options.filter._type).toStrictEqual(SerializationType.COMPARISON_EXPRESSION);
+      expect(typeof o.options.filter._left).toStrictEqual('object');
+      expect(o.options.filter._left._field).toStrictEqual('name');
+      expect(o.options.filter._right).toStrictEqual('Demons');
+      expect(o.options.filter._operatorType).toStrictEqual(OperatorType.iLike);
     });
 
     it('Should convert ComparisonExpression(!like)', async () => {
@@ -377,12 +530,12 @@ describe('SQBAdapter', function () {
       const request = new ExecutionRequest({query});
       const o = SQBAdapter.prepare(request);
       expect(o.method).toStrictEqual('findAll');
-      expect(o.args).toBeDefined();
-      expect(o.args.filter._type).toStrictEqual(SerializationType.COMPARISON_EXPRESSION);
-      expect(typeof o.args.filter._left).toStrictEqual('object');
-      expect(o.args.filter._left._field).toStrictEqual('name');
-      expect(o.args.filter._right).toStrictEqual('Demons');
-      expect(o.args.filter._operatorType).toStrictEqual(OperatorType.notLike);
+      expect(o.options).toBeDefined();
+      expect(o.options.filter._type).toStrictEqual(SerializationType.COMPARISON_EXPRESSION);
+      expect(typeof o.options.filter._left).toStrictEqual('object');
+      expect(o.options.filter._left._field).toStrictEqual('name');
+      expect(o.options.filter._right).toStrictEqual('Demons');
+      expect(o.options.filter._operatorType).toStrictEqual(OperatorType.notLike);
     });
 
     it('Should convert ComparisonExpression(!like)', async () => {
@@ -392,12 +545,12 @@ describe('SQBAdapter', function () {
       const request = new ExecutionRequest({query});
       const o = SQBAdapter.prepare(request);
       expect(o.method).toStrictEqual('findAll');
-      expect(o.args).toBeDefined();
-      expect(o.args.filter._type).toStrictEqual(SerializationType.COMPARISON_EXPRESSION);
-      expect(typeof o.args.filter._left).toStrictEqual('object');
-      expect(o.args.filter._left._field).toStrictEqual('name');
-      expect(o.args.filter._right).toStrictEqual('Demons');
-      expect(o.args.filter._operatorType).toStrictEqual(OperatorType.notILike);
+      expect(o.options).toBeDefined();
+      expect(o.options.filter._type).toStrictEqual(SerializationType.COMPARISON_EXPRESSION);
+      expect(typeof o.options.filter._left).toStrictEqual('object');
+      expect(o.options.filter._left._field).toStrictEqual('name');
+      expect(o.options.filter._right).toStrictEqual('Demons');
+      expect(o.options.filter._operatorType).toStrictEqual(OperatorType.notILike);
     });
 
     it('Should convert LogicalExpression(or)', async () => {
@@ -407,10 +560,10 @@ describe('SQBAdapter', function () {
       const request = new ExecutionRequest({query});
       const o = SQBAdapter.prepare(request);
       expect(o.method).toStrictEqual('findAll');
-      expect(o.args).toBeDefined();
-      expect(o.args.filter._type).toStrictEqual(SerializationType.LOGICAL_EXPRESSION);
-      expect(o.args.filter._operatorType).toStrictEqual(OperatorType.or);
-      expect(o.args.filter._items[0]._type).toStrictEqual(SerializationType.COMPARISON_EXPRESSION);
+      expect(o.options).toBeDefined();
+      expect(o.options.filter._type).toStrictEqual(SerializationType.LOGICAL_EXPRESSION);
+      expect(o.options.filter._operatorType).toStrictEqual(OperatorType.or);
+      expect(o.options.filter._items[0]._type).toStrictEqual(SerializationType.COMPARISON_EXPRESSION);
     });
 
     it('Should convert LogicalExpression(and)', async () => {
@@ -420,10 +573,10 @@ describe('SQBAdapter', function () {
       const request = new ExecutionRequest({query});
       const o = SQBAdapter.prepare(request);
       expect(o.method).toStrictEqual('findAll');
-      expect(o.args).toBeDefined();
-      expect(o.args.filter._type).toStrictEqual(SerializationType.LOGICAL_EXPRESSION);
-      expect(o.args.filter._operatorType).toStrictEqual(OperatorType.and);
-      expect(o.args.filter._items[0]._type).toStrictEqual(SerializationType.COMPARISON_EXPRESSION);
+      expect(o.options).toBeDefined();
+      expect(o.options.filter._type).toStrictEqual(SerializationType.LOGICAL_EXPRESSION);
+      expect(o.options.filter._operatorType).toStrictEqual(OperatorType.and);
+      expect(o.options.filter._items[0]._type).toStrictEqual(SerializationType.COMPARISON_EXPRESSION);
     });
 
     it('Should convert ParenthesesExpression', async () => {
@@ -433,14 +586,13 @@ describe('SQBAdapter', function () {
       const request = new ExecutionRequest({query});
       const o = SQBAdapter.prepare(request);
       expect(o.method).toStrictEqual('findAll');
-      expect(o.args).toBeDefined();
-      expect(o.args.filter._type).toStrictEqual(SerializationType.LOGICAL_EXPRESSION);
-      expect(o.args.filter._operatorType).toStrictEqual(OperatorType.and);
-      expect(o.args.filter._items[0]._type).toStrictEqual(SerializationType.LOGICAL_EXPRESSION);
-      expect(o.args.filter._items[0]._operatorType).toStrictEqual(OperatorType.or);
-      expect(o.args.filter._items[1]._type).toStrictEqual(SerializationType.COMPARISON_EXPRESSION);
+      expect(o.options).toBeDefined();
+      expect(o.options.filter._type).toStrictEqual(SerializationType.LOGICAL_EXPRESSION);
+      expect(o.options.filter._operatorType).toStrictEqual(OperatorType.and);
+      expect(o.options.filter._items[0]._type).toStrictEqual(SerializationType.LOGICAL_EXPRESSION);
+      expect(o.options.filter._items[0]._operatorType).toStrictEqual(OperatorType.or);
+      expect(o.options.filter._items[1]._type).toStrictEqual(SerializationType.COMPARISON_EXPRESSION);
     });
-
   });
 
 });
