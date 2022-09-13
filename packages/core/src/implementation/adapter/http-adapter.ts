@@ -9,8 +9,8 @@ import {
   NotFoundError,
 } from '../../exception/index.js';
 import { ExecutionQuery, PropertyQuery } from '../../interfaces/execution-query.interface.js';
-import { HttpAdapterContext } from '../../interfaces/http-context.interface.js';
-import { ResourceContainer } from '../../interfaces/resource-container.interface.js';
+import { IHttpAdapterContext } from '../../interfaces/http-context.interface.js';
+import { IResourceContainer } from '../../interfaces/resource-container.interface.js';
 import { KeyValue, QueryScope } from '../../types.js';
 import { Headers, HeadersObject } from '../../utils/headers.js';
 import { ComplexType } from '../data-type/complex-type.js';
@@ -35,8 +35,8 @@ interface PreparedOutput {
   body?: any;
 }
 
-export class OpraHttpAdapter<TAdapterContext extends HttpAdapterContext,
-    TOptions extends OpraHttpAdapter.Options = OpraHttpAdapter.Options> extends OpraAdapter<HttpAdapterContext, TOptions> {
+export class OpraHttpAdapter<TAdapterContext extends IHttpAdapterContext,
+    TOptions extends OpraHttpAdapter.Options = OpraHttpAdapter.Options> extends OpraAdapter<IHttpAdapterContext, TOptions> {
 
   protected prepareExecutionContexts(adapterContext: TAdapterContext, userContext: any): ExecutionContext[] {
     const req = adapterContext.getRequest();
@@ -91,7 +91,7 @@ export class OpraHttpAdapter<TAdapterContext extends HttpAdapterContext,
   }
 
   buildQuery(url: OpraURL, method: string, body?: any): ExecutionQuery | undefined {
-    let container: ResourceContainer = this.service;
+    let container: IResourceContainer = this.service;
     try {
       let pathIndex = 0;
       const pathLen = url.path.size;

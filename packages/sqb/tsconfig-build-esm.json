@@ -3,7 +3,7 @@
   "compilerOptions": {
     "module": "ESNext",
     "rootDir": "src",
-    "outDir": "../../build/i18n/esm",
+    "outDir": "../../build/sqb/esm",
     "paths": {
       "@opra/core": ["../../build/core"],
       "@opra/url": ["../../build/url"],

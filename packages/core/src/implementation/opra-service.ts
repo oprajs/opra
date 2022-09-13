@@ -1,6 +1,6 @@
 import { StrictOmit } from 'ts-gems';
 import { OpraSchema } from '@opra/common';
-import { ResourceContainer } from '../interfaces/resource-container.interface.js';
+import { IResourceContainer } from '../interfaces/resource-container.interface.js';
 import { Responsive } from '../utils/responsive-object.js';
 import { EntityType } from './data-type/entity-type.js';
 import { OpraDocument } from './opra-document.js';
@@ -10,7 +10,7 @@ import { SchemaGenerator } from './schema-generator.js';
 
 export type OpraServiceArgs = StrictOmit<OpraSchema.Service, 'version' | 'types' | 'resources'>;
 
-export class OpraService extends OpraDocument implements ResourceContainer {
+export class OpraService extends OpraDocument implements IResourceContainer {
   protected declare readonly _args: OpraServiceArgs;
   protected _resources = Responsive<ResourceInfo>();
 

@@ -3,9 +3,9 @@ import request from 'supertest';
 import { INestApplication, Module } from '@nestjs/common';
 import { Test } from '@nestjs/testing';
 import { OpraModule, OpraModuleOptions, OpraModuleOptionsFactory } from '../src/index.js';
-import config from './_support/photos-app/config';
+import config from './_support/photos-app/config.js';
 import photosData from './_support/photos-app/photos-module/photos.data.js';
-import { Service1RootModule } from './_support/photos-app/service-root.module';
+import { Service1RootModule } from './_support/photos-app/service-root.module.js';
 
 class ConfigService implements OpraModuleOptionsFactory {
   createOptions(): OpraModuleOptions {

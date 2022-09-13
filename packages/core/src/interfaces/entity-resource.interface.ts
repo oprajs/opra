@@ -1,4 +1,4 @@
-export interface EntityResourceInterface {
+export interface IEntityResource {
 
   search?(...args: any[]): any;
 

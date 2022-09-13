@@ -17,7 +17,7 @@ import {
   OpraModuleOptions,
   OpraModuleOptionsFactory
 } from './interfaces/opra-module-options.interface.js';
-import { NestExplorer } from './services/nest-explorer';
+import { NestExplorer } from './services/nest-explorer.js';
 import { OpraServiceLoader } from './services/service-loader.js';
 
 @Module({

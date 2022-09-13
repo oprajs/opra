@@ -1,6 +1,6 @@
 import type { Application, Request, Response } from 'express';
 import { normalizePath } from '@opra/url';
-import type { HttpAdapterContext, HttpRequest, HttpResponse } from '../../interfaces/http-context.interface.js';
+import type { IHttpAdapterContext, IHttpRequest, IHttpResponse } from '../../interfaces/http-context.interface.js';
 import type { OpraService } from '../opra-service.js';
 import { OpraHttpAdapter } from './http-adapter.js';
 
@@ -10,7 +10,7 @@ export namespace OpraExpressAdapter {
   }
 }
 
-export class OpraExpressAdapter extends OpraHttpAdapter<HttpAdapterContext, OpraExpressAdapter.Options> {
+export class OpraExpressAdapter extends OpraHttpAdapter<IHttpAdapterContext, OpraExpressAdapter.Options> {
 
   static init(
       app: Application,
@@ -25,7 +25,7 @@ export class OpraExpressAdapter extends OpraHttpAdapter<HttpAdapterContext, Opra
         const userContext = userContextResolver && await userContextResolver(request);
         const req = new ExpressRequestWrapper(request);
         const res = new ExpressResponseWrapper(response);
-        const adapterContext: HttpAdapterContext = {
+        const adapterContext: IHttpAdapterContext = {
           getRequest: () => req,
           getResponse: () => res
         }
@@ -37,7 +37,7 @@ export class OpraExpressAdapter extends OpraHttpAdapter<HttpAdapterContext, Opra
 
 }
 
-class ExpressRequestWrapper implements HttpRequest {
+class ExpressRequestWrapper implements IHttpRequest {
   constructor(readonly instance: Request) {
   }
 
@@ -72,7 +72,7 @@ class ExpressRequestWrapper implements HttpRequest {
 }
 
 
-class ExpressResponseWrapper implements HttpResponse {
+class ExpressResponseWrapper implements IHttpResponse {
   constructor(readonly instance: Response) {
   }
 
