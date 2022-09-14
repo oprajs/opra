@@ -21,8 +21,8 @@
     "cover": "jest --collect-coverage",
     "clean": "npm run clean:src && npm run clean:dist && npm run clean:cover",
     "clean:src": "ts-cleanup -s src --all",
-    "clean:dist": "rimraf ../../build/optionals",
-    "clean:cover": "rimraf ../../coverage/optionals"
+    "clean:dist": "rimraf ../../build/schema",
+    "clean:cover": "rimraf ../../coverage/schema"
   },
   "dependencies": {
     "reflect-metadata": "^0.1.13",
