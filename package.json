@@ -43,7 +43,7 @@
     "npm-run-path": "^5.1.0",
     "putil-varhelpers": "^1.6.4",
     "rimraf": "^3.0.2",
-    "rman": "^0.16.1",
+    "rman": "^0.18.0",
     "supertest": "^6.2.4",
     "ts-cleanup": "^0.2.5",
     "ts-jest": "^29.0.0",

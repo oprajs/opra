@@ -10,10 +10,9 @@
     "directory": "packages/optionals"
   },
   "scripts": {
-    "prebuild": "npm run lint | npm run clean",
+    "prebuild": "npm run clean",
     "build": "mkdir -p ../../build/optionals && cp -R ./ ../../build/optionals",
     "postbuild": "cp ../../LICENSE ../../build/optionals && cp ../../package.cjs.json ../../build/optionals/cjs/package.json",
-    "lint": "eslint \"{src,test}/**/*.ts\" --no-error-on-unmatched-pattern",
     "clean": "npm run clean:dist | npm run clean:cover",
     "clean:dist": "rimraf ../../build/optionals",
     "clean:cover": "rimraf ../../coverage/optionals"
