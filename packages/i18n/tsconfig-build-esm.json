@@ -6,7 +6,7 @@
     "outDir": "../../build/i18n/esm",
     "sourceMap": false,
     "noEmit": false,
-    "declaration": false
+    "declaration": true
   },
   "include": ["src"]
 }

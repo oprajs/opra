@@ -35,8 +35,7 @@ interface PreparedOutput {
   body?: any;
 }
 
-export class OpraHttpAdapter<TAdapterContext extends IHttpAdapterContext,
-    TOptions extends OpraHttpAdapter.Options = OpraHttpAdapter.Options> extends OpraAdapter<IHttpAdapterContext, TOptions> {
+export class OpraHttpAdapter<TAdapterContext extends IHttpAdapterContext> extends OpraAdapter<IHttpAdapterContext> {
 
   protected prepareExecutionContexts(adapterContext: TAdapterContext, userContext: any): ExecutionContext[] {
     const req = adapterContext.getRequest();
@@ -255,7 +254,7 @@ export class OpraHttpAdapter<TAdapterContext extends IHttpAdapterContext,
   }
 
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  protected isBatch(adapterContext): boolean {
+  protected isBatch(adapterContext: TAdapterContext): boolean {
     return false;
   }
 

@@ -20,7 +20,7 @@ async function run() {
 
   const app = express();
   const port = 3001;
-  OpraExpressAdapter.init(app, service, {prefix: '/svc1'});
+  await OpraExpressAdapter.init(app, service, {prefix: '/svc1'});
   app.listen(port, () => {
     console.log(`Listening on port ${port}`)
   })

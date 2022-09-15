@@ -6,30 +6,31 @@ import { OpraHttpAdapter } from './http-adapter.js';
 
 export namespace OpraExpressAdapter {
   export interface Options extends OpraHttpAdapter.Options {
-    userContext?: (request: Request) => object | Promise<object>;
   }
 }
 
-export class OpraExpressAdapter extends OpraHttpAdapter<IHttpAdapterContext, OpraExpressAdapter.Options> {
+export class OpraExpressAdapter extends OpraHttpAdapter<IHttpAdapterContext> {
 
-  static init(
+  static async init(
       app: Application,
       service: OpraService,
       options?: OpraExpressAdapter.Options
-  ): OpraExpressAdapter {
-    const adapter = new OpraExpressAdapter(service, options);
+  ): Promise<OpraExpressAdapter> {
+    const i18n = await this.initI18n(options);
+    const adapter = new OpraExpressAdapter(service, i18n);
     const prefix = '/' + normalizePath(options?.prefix, true);
     const userContextResolver = options?.userContext;
     app.use(prefix, (request, response, next) => {
       (async () => {
-        const userContext = userContextResolver && await userContextResolver(request);
         const req = new ExpressRequestWrapper(request);
         const res = new ExpressResponseWrapper(response);
         const adapterContext: IHttpAdapterContext = {
           getRequest: () => req,
           getResponse: () => res
         }
-        await adapter.handler(adapterContext, userContext);
+        await adapter.handler(adapterContext, (isBatch: boolean) =>
+            userContextResolver && userContextResolver(request, {platform: 'express', isBatch})
+        );
       })().catch(e => next(e));
     });
     return adapter;

@@ -8,7 +8,7 @@ const config: OpraModuleOptions = {
   i18n: {
     resourceDirs: [path.join(filedirname()[1], 'locale')]
   },
-  context: () => {
+  userContext: () => {
     return {
       user: {
         id: 1,
