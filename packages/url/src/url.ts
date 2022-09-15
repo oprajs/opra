@@ -5,7 +5,7 @@ import { OpraURLPath } from './url-path.js';
 import { OpraURLSearchParams, QueryItemMetadata } from './url-search-params.js';
 import { decodePathComponent, normalizePath } from './utils/url-utils.js';
 
-const urlRegEx = /^(?:((?:[A-Z][A-Z+-.]+:)+)\/\/([^/]+))?(\/.*)?$/i;
+const urlRegEx = /^(?:((?:[A-Z][A-Z+-.]+:)+)\/\/([^/?]+))?(.*)?$/i;
 const schemeRegEx = /^([A-Z][A-Z+-.]+:?)+$/i;
 const hostRegEx = /^([^/:]+)(?::(\d+))?$/;
 const hostnameRegEx = /^([^/:]+)$/;
