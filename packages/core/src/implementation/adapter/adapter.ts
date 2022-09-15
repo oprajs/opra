@@ -1,20 +1,54 @@
 import { isPromise } from 'util/types';
-import { I18n } from '@opra/i18n';
+import { FallbackLng, I18n, LanguageResource } from '@opra/i18n';
 import { ApiException, FailedDependencyError, InternalServerError } from '../../exception/index.js';
 import { ExecutionContext } from '../execution-context.js';
 import { OpraService } from '../opra-service.js';
 
 export namespace OpraAdapter {
   export interface Options {
-    i18n?: I18n;
+    i18n?: I18n | I18nOptions | (() => Promise<I18n>);
+    userContext?: (request: any, options: { platform: string, isBatch: boolean }) => object | Promise<object>;
   }
+
+  export interface I18nOptions {
+    /**
+     * Language to use
+     * @default undefined
+     */
+    lng?: string;
+
+    /**
+     * Language to use if translations in user language are not available.
+     * @default 'dev'
+     */
+    fallbackLng?: false | FallbackLng;
+
+    /**
+     * Default namespace used if not passed to translation function
+     * @default 'translation'
+     */
+    defaultNS?: string;
+
+    /**
+     * Resources to initialize with
+     * @default undefined
+     */
+    resources?: LanguageResource;
+
+    /**
+     * Resource directories to initialize with (if not using loading or not appending using addResourceBundle)
+     * @default undefined
+     */
+    resourceDirs?: string[];
+  }
+
 }
 
-export abstract class OpraAdapter<TAdapterContext = any, TOptions extends OpraAdapter.Options = OpraAdapter.Options> {
-  i18n: I18n;
+export abstract class OpraAdapter<TAdapterContext = any> {
+  readonly i18n: I18n;
 
-  constructor(readonly service: OpraService, options?: TOptions) {
-    this.i18n = options?.i18n || I18n.defaultInstance;
+  constructor(readonly service: OpraService, i18n?: I18n) {
+    this.i18n = i18n || I18n.defaultInstance;
   }
 
   protected abstract prepareExecutionContexts(adapterContext: TAdapterContext, userContext: any): ExecutionContext[];
@@ -23,9 +57,16 @@ export abstract class OpraAdapter<TAdapterContext = any, TOptions extends OpraAd
 
   protected abstract sendError(adapterContext: TAdapterContext, error: ApiException): Promise<void>;
 
-  protected async handler(adapterContext: TAdapterContext, userContext: any): Promise<void> {
+  protected abstract isBatch(adapterContext: TAdapterContext): boolean;
+
+  protected async handler(
+      adapterContext: TAdapterContext,
+      getUserContext: (isBatch: boolean) => any
+  ): Promise<void> {
     let executionContexts: ExecutionContext[];
+    let userContext: any;
     try {
+      userContext = getUserContext(this.isBatch(adapterContext));
       executionContexts = this.prepareExecutionContexts(adapterContext, userContext);
     } catch (e: any) {
       const error = InternalServerError.wrap(e);
@@ -80,7 +121,29 @@ export abstract class OpraAdapter<TAdapterContext = any, TOptions extends OpraAd
     if (promises)
       await Promise.all(promises);
 
+    if (userContext && typeof userContext.onRequestFinish === 'function') {
+      try {
+        const hasError = !!executionContexts.find(ctx => ctx.response.errors?.length);
+        await userContext.onRequestFinish(hasError);
+      } catch (e: any) {
+        await this.sendError(adapterContext, InternalServerError.wrap(e));
+        return;
+      }
+    }
+
     await this.sendResponse(adapterContext, executionContexts);
+  }
+
+  protected static async initI18n(options?: OpraAdapter.Options): Promise<I18n> {
+    if (!options?.i18n)
+      return I18n.defaultInstance;
+    if (options.i18n instanceof I18n)
+      return options.i18n;
+    if (typeof options.i18n === 'function')
+      return options.i18n();
+    const instance = I18n.createInstance();
+    await instance.init(options.i18n);
+    return instance;
   }
 
 }

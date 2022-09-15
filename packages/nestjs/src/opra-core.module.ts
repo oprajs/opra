@@ -9,7 +9,6 @@ import {
 } from '@nestjs/common';
 import { HttpAdapterHost, ModulesContainer } from '@nestjs/core';
 import { MetadataScanner } from '@nestjs/core/metadata-scanner';
-import { I18n, InitOptions } from '@opra/i18n';
 import { OPRA_INITIALIZER, OPRA_MODULE_ID, OPRA_MODULE_OPTIONS } from './constants.js';
 import { ServiceFactory } from './factories/service.factory.js';
 import {
@@ -50,8 +49,7 @@ export class OpraCoreModule implements OnModuleInit, OnModuleDestroy {
         {
           provide: OPRA_INITIALIZER,
           useClass: OpraServiceLoader
-        },
-        this.createI18nProvider()
+        }
       ],
       exports: [...(options.exports || [])]
     };
@@ -71,31 +69,11 @@ export class OpraCoreModule implements OnModuleInit, OnModuleDestroy {
           provide: OPRA_INITIALIZER,
           useClass: OpraServiceLoader
         },
-        ...this.createAsyncProviders(asyncOptions),
-        this.createI18nProvider(),
+        ...this.createAsyncProviders(asyncOptions)
       ]
     };
   }
 
-  private static createI18nProvider(): Provider {
-    return {
-      provide: I18n,
-      inject: [OPRA_MODULE_OPTIONS],
-      useFactory: async (options: OpraModuleOptions) => {
-        const opts = options.i18n;
-        const initOptions: InitOptions = {
-          lng: opts?.lng,
-          fallbackLng: opts?.fallbackLng,
-          defaultNS: opts?.defaultNS,
-          resources: opts?.resources,
-          resourceDirs: opts?.resourceDirs
-        }
-        const instance = I18n.createInstance();
-        await instance.init(initOptions);
-        return instance;
-      }
-    }
-  }
 
   private static createAsyncProviders(asyncOptions: OpraModuleAsyncOptions): Provider[] {
     if (asyncOptions.useExisting || asyncOptions.useFactory)

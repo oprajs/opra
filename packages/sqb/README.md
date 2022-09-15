@@ -1,3 +1,3 @@
-# @opra/I18n
+# @opra/sqb
 
-OPRA i18n package.
+OPRA SQB package.

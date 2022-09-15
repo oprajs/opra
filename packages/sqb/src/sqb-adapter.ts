@@ -1,6 +1,7 @@
 import _ from 'lodash';
 import { ExecutionRequest } from '@opra/core'
 import { Repository, SqbClient, SqbConnection } from '@sqb/connect';
+import type { BaseEntityService } from './base-entity-service';
 import { convertFilter } from './convert-filter.js';
 
 export namespace SQBAdapter {
@@ -43,7 +44,7 @@ export namespace SQBAdapter {
         };
       }
       case 'search': {
-        const options: Repository.FindAllOptions & { total?: boolean } = _.omitBy({
+        const options: BaseEntityService.FindAllOptions = _.omitBy({
           pick: query.pick?.length ? query.pick : undefined,
           omit: query.omit?.length ? query.omit : undefined,
           include: query.include?.length ? query.include : undefined,
@@ -112,10 +113,7 @@ export namespace SQBAdapter {
     }
   }
 
-  export async function execute(connection: SqbClient | SqbConnection, request: ExecutionRequest): Promise<{
-    total?: number;
-    items?: any[];
-  }> {
+  export async function execute(connection: SqbClient | SqbConnection, request: ExecutionRequest): Promise<any> {
     const {query} = request;
     const repo = connection.getRepository(query.resource.dataType.ctor);
     const prepared = prepare(request);
@@ -126,7 +124,7 @@ export namespace SQBAdapter {
       out.value = value;
     if (query.queryType === 'search') {
       if (query.total) {
-        out.count = await repo.count(prepared.options);
+        out.total = await repo.count(prepared.options);
       }
     }
     if (prepared.method === 'destroy')

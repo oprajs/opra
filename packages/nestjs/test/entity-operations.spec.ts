@@ -89,8 +89,8 @@ describe('Entity operations', function () {
     const resp = await request(server)
         .delete('/api/svc1/Photos?$filter=id>=16');
     expect(resp.status).toStrictEqual(200);
-    expect(resp.body).toStrictEqual({affected: 2});
-    expect(photosData.find(x => x && (x.id === 16 || x.id === 17))).toStrictEqual(undefined);
+    expect(resp.body.affected).toBeGreaterThan(1);
+    expect(photosData.find(x => x && x.id >= 16)).toStrictEqual(undefined);
   });
 
 });

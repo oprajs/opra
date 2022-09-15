@@ -118,6 +118,13 @@ export namespace OpraSchema {
     required?: boolean;
   }
 
+  export interface EntitySearchResult {
+    value: any[];
+    offset: number;
+    total?: number;
+    distinct?: boolean;
+  }
+
 
   export function isDataType(obj: any): obj is ComplexType {
     return obj && typeof obj === 'object' &&

@@ -29,7 +29,7 @@
     "ts-gems": "^2.2.0"
   },
   "devDependencies": {
-    "@sqb/connect": "^4.5.0"
+    "@sqb/connect": "^4.5.1"
   },
   "peerDependencies": {
     "@opra/core": "0.x.x",
