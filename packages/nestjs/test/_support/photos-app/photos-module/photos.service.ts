@@ -54,7 +54,7 @@ export class PhotosService {
   protected _find(filter?: any): any[] {
     return photosData.filter(x => {
       if (!(x && filter))
-        return;
+        return photosData;
       switch (filter.op) {
         case '=': {
           return x.id === filter.right.value
