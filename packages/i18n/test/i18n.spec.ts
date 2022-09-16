@@ -35,6 +35,7 @@ describe('I18n', function () {
 
   it('Should translate to fallback string if key not found', async () => {
     expect(i18n.deep(translate('HI', {name: 'John'}, 'Hi (there)'))).toStrictEqual('Hi (there)');
+    expect(i18n.deep('$t(error:INTERNAL_SERVER_ERROR?Internal server error)')).toStrictEqual('Internal server error');
   })
 
   it('Should translate text using "deep" method', async () => {
@@ -108,7 +109,6 @@ describe('I18n', function () {
   it('Should load given locale directories', async () => {
     await i18n.changeLanguage('tr');
     expect(i18n.t('OK')).toStrictEqual('TAMAM');
-
   })
 
 });

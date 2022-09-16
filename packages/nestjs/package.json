@@ -25,20 +25,20 @@
     "clean:cover": "rimraf ../../coverage/nestjs"
   },
   "dependencies": {
-    "@opra/url": "^0.x.x",
-    "@opra/i18n": "^0.x.x",
-    "@opra/core": "^0.x.x",
-    "@opra/schema": "^0.x.x",
+    "@opra/core": "^0.0.5",
+    "@opra/i18n": "^0.0.5",
+    "@opra/schema": "^0.0.5",
+    "@opra/url": "^0.0.6",
     "fast-tokenizer": "^1.1.0",
     "lodash": "^4.17.21",
     "reflect-metadata": "^0.1.13"
   },
   "peerDependencies": {
-    "@nestjs/common": "^8.x.x || ^9.x.x"
+    "@nestjs/common": "^9.0.11"
   },
   "devDependencies": {
-    "@nestjs/testing": "^9.0.11",
     "@nestjs/platform-express": "^9.0.11",
+    "@nestjs/testing": "^9.0.11",
     "@types/lodash": "^4.14.185",
     "filedirname": "^2.7.0",
     "supertest": "^6.2.4"

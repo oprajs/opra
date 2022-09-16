@@ -13,7 +13,7 @@ export const countriesResource: OpraSchema.EntityResource = {
     return countriesData;
   },
 
-  read: (ctx: ExecutionContext) => {
+  get: (ctx: ExecutionContext) => {
     // eslint-disable-next-line no-console
     console.log(ctx);
     return countriesData;

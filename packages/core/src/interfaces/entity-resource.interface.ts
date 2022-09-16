@@ -1,17 +1,28 @@
-export interface IEntityResource {
+import { OpraSchema } from '@opra/schema';
+import { ExecutionContext } from '../implementation/execution-context.js';
 
-  search?(...args: any[]): any;
+export interface IEntityResource<T = any> {
 
-  read?(...args: any[]): any;
+  search?(...args: any[]): Promise<OpraSchema.EntitySearchResult<T>>;
 
-  create?(...args: any[]): any;
+  get?(...args: any[]): Promise<OpraSchema.EntityGetResult<T>>;
 
-  update?(...args: any[]): any;
+  create?(...args: any[]): Promise<OpraSchema.EntityCreateResult<T>>;
 
-  updateMany?(...args: any[]): any;
+  update?(...args: any[]): Promise<OpraSchema.EntityUpdateResult<T>>;
 
-  delete?(...args: any[]): any;
+  updateMany?(...args: any[]): Promise<OpraSchema.EntityUpdateManyResult>;
 
-  deleteMany?(...args: any[]): any;
+  delete?(...args: any[]): Promise<OpraSchema.EntityDeleteResult>;
+
+  deleteMany?(...args: any[]): Promise<OpraSchema.EntityDeleteManyResult>;
+
+  getService?(ctx: ExecutionContext): IEntityService | Promise<IEntityService>;
+
+}
+
+export interface IEntityService {
+
+  processRequest(ctx: ExecutionContext): any;
 
 }

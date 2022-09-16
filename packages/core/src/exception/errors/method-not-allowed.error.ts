@@ -8,12 +8,13 @@ import { ApiException, ErrorResponse } from '../api-exception.js';
  * For example, an API may not allow calling DELETE to remove a resource.
  */
 export class MethodNotAllowedError extends ApiException {
-  constructor(response?: ErrorResponse) {
+  constructor(response?: ErrorResponse, cause?: Error) {
     super({
       message: translate('error:METHOD_NOT_ALLOWED', 'Method Not Allowed'),
       severity: 'error',
       code: 'METHOD_NOT_ALLOWED',
       ...response
-    }, HttpStatus.METHOD_NOT_ALLOWED);
+    }, cause);
+    this.status = HttpStatus.METHOD_NOT_ALLOWED;
   }
 }

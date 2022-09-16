@@ -9,12 +9,13 @@ import { ApiException, ErrorResponse } from '../api-exception.js';
  * the client's identity is known to the server.
  */
 export class ForbiddenError extends ApiException {
-  constructor(response?: ErrorResponse) {
+  constructor(response?: ErrorResponse, cause?: Error) {
     super({
       message: translate('error:FORBIDDEN', 'Forbidden'),
       severity: 'error',
       code: 'FORBIDDEN',
       ...response
-    }, HttpStatus.FORBIDDEN);
+    }, cause);
+    this.status = HttpStatus.FORBIDDEN;
   }
 }

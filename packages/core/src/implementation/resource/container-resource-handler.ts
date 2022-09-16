@@ -1,12 +1,12 @@
 import { StrictOmit } from 'ts-gems';
 import { OpraSchema } from '@opra/schema';
 import { IResourceContainer } from '../../interfaces/resource-container.interface.js';
-import { EntityResourceInfo } from './entity-resource-info.js';
-import { ResourceInfo } from './resource-info.js';
+import { EntityResourceHandler } from './entity-resource-handler.js';
+import { ResourceHandler } from './resource-handler.js';
 
 export type ContainerResourceControllerArgs = StrictOmit<OpraSchema.ContainerResource, 'kind'> & {}
 
-export class ContainerResourceController extends ResourceInfo implements IResourceContainer {
+export class ContainerResourceHandler extends ResourceHandler implements IResourceContainer {
   declare protected readonly _args: OpraSchema.ContainerResource;
 
   constructor(args: ContainerResourceControllerArgs) {
@@ -16,16 +16,16 @@ export class ContainerResourceController extends ResourceInfo implements IResour
     });
   }
 
-  getResource<T extends ResourceInfo>(name: string): T {
+  getResource<T extends ResourceHandler>(name: string): T {
     const t = this._args.resources[name];
     if (!t)
       throw new Error(`Resource "${name}" does not exists`);
     return t as T;
   }
 
-  getEntityResource(name: string): EntityResourceInfo {
+  getEntityResource(name: string): EntityResourceHandler {
     const t = this.getResource(name);
-    if (!(t instanceof EntityResourceInfo))
+    if (!(t instanceof EntityResourceHandler))
       throw new Error(`"${name}" is not an EntityResource`);
     return t;
   }

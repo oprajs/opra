@@ -19,8 +19,8 @@ import {
   ExecutionRequest,
   ExecutionResponse
 } from '../execution-context.js';
-import { ContainerResourceController } from '../resource/container-resource-controller.js';
-import { EntityResourceInfo } from '../resource/entity-resource-info.js';
+import { ContainerResourceHandler } from '../resource/container-resource-handler.js';
+import { EntityResourceHandler } from '../resource/entity-resource-handler.js';
 import { OpraAdapter } from './adapter.js';
 
 export namespace OpraHttpAdapter {
@@ -37,7 +37,10 @@ interface PreparedOutput {
 
 export class OpraHttpAdapter<TAdapterContext extends IHttpAdapterContext> extends OpraAdapter<IHttpAdapterContext> {
 
-  protected prepareExecutionContexts(adapterContext: TAdapterContext, userContext: any): ExecutionContext[] {
+  protected prepareExecutionContexts(
+      adapterContext: TAdapterContext,
+      userContextResolver?: OpraAdapter.UserContextResolver
+  ): ExecutionContext[] {
     const req = adapterContext.getRequest();
     // todo implement batch requests
     if (this.isBatch(adapterContext)) {
@@ -50,7 +53,7 @@ export class OpraHttpAdapter<TAdapterContext extends IHttpAdapterContext> extend
         req.getMethod(),
         Headers.from(req.getHeaders()),
         req.getBody(),
-        userContext)];
+        userContextResolver)];
   }
 
   prepareExecutionContext(
@@ -99,12 +102,12 @@ export class OpraHttpAdapter<TAdapterContext extends IHttpAdapterContext> extend
         const resource = container.getResource(p.resource);
 
         // Move through path directories (containers)
-        if (resource instanceof ContainerResourceController) {
+        if (resource instanceof ContainerResourceHandler) {
           container = resource;
         } else {
           method = method.toUpperCase();
 
-          if (resource instanceof EntityResourceInfo) {
+          if (resource instanceof EntityResourceHandler) {
             const scope: QueryScope = p.key ? 'instance' : 'collection';
 
             if (pathIndex < pathLen && !(method === 'GET' && scope === 'instance'))
@@ -129,7 +132,7 @@ export class OpraHttpAdapter<TAdapterContext extends IHttpAdapterContext> extend
                   });
 
                 } else {
-                  query = ExecutionQuery.forRead(resource, p.key as KeyValue, {
+                  query = ExecutionQuery.forGet(resource, p.key as KeyValue, {
                     pick: url.searchParams.get('$pick'),
                     omit: url.searchParams.get('$omit'),
                     include: url.searchParams.get('$include')
@@ -149,7 +152,7 @@ export class OpraHttpAdapter<TAdapterContext extends IHttpAdapterContext> extend
                     const prop = dataType.properties?.[p.resource];
                     if (!prop)
                       throw new NotFoundError({message: `Invalid or unknown resource path (${path})`});
-                    const q = ExecutionQuery.forProperty(prop);
+                    const q = ExecutionQuery.forGetProperty(prop);
                     if (nested) {
                       nested.nested = q;
                     } else {
@@ -298,6 +301,8 @@ export class OpraHttpAdapter<TAdapterContext extends IHttpAdapterContext> extend
       body = body || {};
       body.errors = ctx.response.errors.map(e => e.response);
     }
+
+    body = this.i18n.deep(body);
 
     return {
       status,

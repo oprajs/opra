@@ -74,7 +74,7 @@ describe('SQBAdapter.prepare', function () {
 
   describe('"read" query', function () {
     it('Should prepare', async () => {
-      const query = ExecutionQuery.forRead(service.getResource('Books'), 1);
+      const query = ExecutionQuery.forGet(service.getResource('Books'), 1);
       const request = new ExecutionRequest({query});
       const o = SQBAdapter.prepare(request);
       expect(o.method).toStrictEqual('findByPk');
@@ -82,7 +82,7 @@ describe('SQBAdapter.prepare', function () {
     });
 
     it('Should prepare with "pick" option', async () => {
-      const query = ExecutionQuery.forRead(service.getEntityResource('Books'), 1, {
+      const query = ExecutionQuery.forGet(service.getEntityResource('Books'), 1, {
         pick: ['id', 'name', 'writer.name']
       });
       const request = new ExecutionRequest({query});
@@ -94,7 +94,7 @@ describe('SQBAdapter.prepare', function () {
     });
 
     it('Should prepare with "omit" option', async () => {
-      const query = ExecutionQuery.forRead(service.getEntityResource('Books'), 1, {
+      const query = ExecutionQuery.forGet(service.getEntityResource('Books'), 1, {
         omit: ['id', 'name', 'writer.name']
       });
       const request = new ExecutionRequest({query});
@@ -106,7 +106,7 @@ describe('SQBAdapter.prepare', function () {
     });
 
     it('Should prepare with "include" option', async () => {
-      const query = ExecutionQuery.forRead(service.getEntityResource('Books'), 1, {
+      const query = ExecutionQuery.forGet(service.getEntityResource('Books'), 1, {
         include: ['id', 'name', 'writer.name']
       });
       const request = new ExecutionRequest({query});

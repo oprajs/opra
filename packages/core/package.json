@@ -25,21 +25,20 @@
     "clean:cover": "rimraf ../../coverage/core"
   },
   "dependencies": {
-    "@opra/url": "0.x.x",
-    "@opra/i18n": "0.x.x",
-    "@opra/schema": "0.x.x",
-    "@opra/optionals": "0.x.x",
-    "ts-gems": "^2.2.0",
+    "@opra/i18n": "^0.0.5",
+    "@opra/optionals": "^0.0.5",
+    "@opra/schema": "^0.0.5",
+    "@opra/url": "^0.0.6",
     "lodash": "^4.17.21",
     "putil-isplainobject": "^1.1.4",
     "putil-varhelpers": "^1.6.4",
-    "rule-judgment": "^1.1.5"
+    "rule-judgment": "^1.1.5",
+    "ts-gems": "^2.2.0"
   },
   "devDependencies": {
-    "@types/express": "^4.17.13",
+    "@types/express": "^4.17.14",
     "express": "^4.18.1"
   },
-  "peerDependencies": {},
   "type": "module",
   "main": "cjs/index.js",
   "module": "esm/index.js",

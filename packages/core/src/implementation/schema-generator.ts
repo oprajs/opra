@@ -128,7 +128,8 @@ export class SchemaGenerator {
       resourceSchema = {
         ...metadata,
         type,
-        name
+        name,
+        instance
       }
 
       if (OpraSchema.isEntityResource(resourceSchema)) {

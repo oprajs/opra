@@ -7,12 +7,13 @@ import { ApiException, ErrorResponse } from '../api-exception.js';
  * The server has encountered a situation it does not know how to handle.
  */
 export class InternalServerError extends ApiException {
-  constructor(response?: ErrorResponse) {
+  constructor(response?: ErrorResponse, cause?: Error) {
     super({
       message: translate('error:INTERNAL_SERVER_ERROR', 'Internal server error'),
       severity: 'error',
       code: 'INTERNAL_SERVER_ERROR',
       ...response
-    }, HttpStatus.INTERNAL_SERVER_ERROR);
+    }, cause);
+    this.status = HttpStatus.INTERNAL_SERVER_ERROR;
   }
 }

@@ -7,12 +7,13 @@ import { ApiException, ErrorResponse } from '../api-exception.js';
  * The request failed due to failure of a previous request.
  */
 export class FailedDependencyError extends ApiException {
-  constructor(response?: ErrorResponse) {
+  constructor(response?: ErrorResponse, cause?: Error) {
     super({
       message: translate('error:FAILED_DEPENDENCY', 'The request failed due to failure of a previous request.'),
       severity: 'error',
       code: 'FAILED_DEPENDENCY',
       ...response
-    }, HttpStatus.FAILED_DEPENDENCY);
+    }, cause);
+    this.status = HttpStatus.FAILED_DEPENDENCY;
   }
 }

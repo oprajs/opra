@@ -25,18 +25,18 @@
     "clean:cover": "rimraf ../../coverage/sqb"
   },
   "dependencies": {
-    "lodash": "^4.17.x",
+    "lodash": "^4.17.21",
     "ts-gems": "^2.2.0"
   },
   "devDependencies": {
     "@sqb/connect": "^4.5.1"
   },
   "peerDependencies": {
-    "@opra/core": "0.x.x",
-    "@opra/url": "0.x.x",
-    "@opra/optionals": "0.x.x",
+    "@opra/core": "^0.0.5",
+    "@opra/optionals": "^0.0.5",
+    "@opra/url": "^0.0.6",
     "@sqb/connect": ">= 4.5.0",
-    "@sqb/sqljs": ">= 4.5.0"
+    "@sqb/sqljs": "^4.5.1"
   },
   "type": "module",
   "main": "cjs/index.js",

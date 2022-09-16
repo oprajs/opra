@@ -6,4 +6,4 @@ command:
   run:
     parallel: lint,clean
 
-logLevel: verbose
+logLevel: info

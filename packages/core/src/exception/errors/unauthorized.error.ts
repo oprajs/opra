@@ -8,12 +8,13 @@ import { ApiException, ErrorResponse } from '../api-exception.js';
  * That is, the client must authenticate itself to get the requested response.
  */
 export class UnauthorizedError extends ApiException {
-  constructor(response?: ErrorResponse) {
+  constructor(response?: ErrorResponse, cause?: Error) {
     super({
       message: translate('error:UNAUTHORIZED', 'Unauthorized'),
       severity: 'error',
       code: 'UNAUTHORIZED',
       ...response
-    }, HttpStatus.UNAUTHORIZED);
+    }, cause);
+    this.status = HttpStatus.UNAUTHORIZED;
   }
 }

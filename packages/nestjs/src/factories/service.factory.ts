@@ -55,21 +55,22 @@ export class ServiceFactory {
       const prototype = Object.getPrototypeOf(instance);
       const isRequestScoped = !wrapper.isDependencyTreeStatic();
       if (OpraSchema.isEntityResource(resourceDef)) {
-        for (const x of entityHandlers) {
-          const fn = instance[x];
+        for (const methodName of entityHandlers) {
+          const fn = instance[methodName];
           if (typeof fn === 'function') {
-            const methodName = fn.name || x;
+            const newFnName = 'pre_' + methodName;
+            prototype[newFnName] = () => void 0;
             const callback = this._createContextCallback(
                 instance,
                 prototype,
                 wrapper,
                 rootModule,
-                methodName,
+                newFnName,
                 isRequestScoped,
                 undefined,
                 contextType
             );
-            const newFn = instance[x] = (ctx: OpraExecutionContext) => {
+            const newFn = instance[newFnName] = (ctx: OpraExecutionContext) => {
               switch (ctx.type) {
                 case 'http':
                   const http = ctx.switchToHttp();
@@ -82,13 +83,12 @@ export class ServiceFactory {
                   throw new Error(`"${ctx.type}" context type is not implemented yet`)
               }
             };
-            if (methodName && newFn.name !== methodName)
-              Object.defineProperty(newFn, 'name', {
-                configurable: false,
-                writable: false,
-                enumerable: true,
-                value: methodName
-              });
+            Object.defineProperty(newFn, 'name', {
+              configurable: false,
+              writable: false,
+              enumerable: true,
+              value: newFnName
+            });
           }
         }
       }

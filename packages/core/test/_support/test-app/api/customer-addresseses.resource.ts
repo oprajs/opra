@@ -8,7 +8,7 @@ import { Address } from '../dto/address.dto.js';
 })
 export class CustomerAddressesesResource {
 
-  read(ctx: ExecutionContext) {
+  get(ctx: ExecutionContext) {
     // eslint-disable-next-line no-console
     console.log(ctx);
   }

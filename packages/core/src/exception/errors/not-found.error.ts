@@ -11,12 +11,13 @@ import { ApiException, ErrorResponse } from '../api-exception.js';
  * frequent occurrence on the web.
  */
 export class NotFoundError extends ApiException {
-  constructor(response?: ErrorResponse) {
+  constructor(response?: ErrorResponse, cause?: Error) {
     super({
       message: translate('error:NOT_FOUND', 'Not found'),
       severity: 'error',
       code: 'NOT_FOUND',
       ...response
-    }, HttpStatus.NOT_FOUND);
+    }, cause);
+    this.status = HttpStatus.NOT_FOUND;
   }
 }

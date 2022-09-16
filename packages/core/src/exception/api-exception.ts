@@ -1,6 +1,5 @@
 import { HttpStatus } from '../enums/index.js';
 
-const nodeEnv = process.env.NODE_ENV || '';
 export type IssueSeverity = 'error' | 'fatal' | 'warning' | 'info';
 
 export interface ErrorResponse {
@@ -28,7 +27,7 @@ export interface ErrorResponse {
   /**
    * Additional diagnostic information about the issue. Error stack etc.
    */
-  diagnostics?: string;
+  diagnostics?: string | string[];
 
   [index: string]: any;
 }
@@ -38,14 +37,21 @@ export interface ErrorResponse {
  */
 export class ApiException extends Error {
 
+  static stackAsDiagnostics: boolean = false;
+
   readonly originalError?: Error;
   response: ErrorResponse;
   status: number;
+  cause?: Error;
 
-  constructor(response: string | ErrorResponse | Error, status?: number) {
-    super();
+  constructor(response: string | ErrorResponse | Error, cause?: Error) {
+    super('');
     this._initName();
-    this.setStatus(status || HttpStatus.INTERNAL_SERVER_ERROR);
+    if (cause)
+      this.cause = cause;
+    else if (response instanceof Error)
+      this.cause = response;
+    this.status = HttpStatus.INTERNAL_SERVER_ERROR;
     if (response instanceof Error)
       this.originalError = response;
     this._initResponse(response);
@@ -74,24 +80,28 @@ export class ApiException extends Error {
       this.response = {
         message: x.message || x.details || ('' + init),
       }
-      if (init instanceof Error) {
-        if (nodeEnv === 'dev' || nodeEnv === 'development')
-          this.response.diagnostics = init.stack;
-      } else
+      if (!(init instanceof Error))
         Object.assign(this.response, init);
     } else {
       this.response = {
         message: '' + init,
       }
     }
+
+    if (this.cause instanceof Error && ApiException.stackAsDiagnostics && this.cause.stack) {
+      this.response.diagnostics = this.cause.stack.split('\n');
+    }
+
     if (!this.response.severity)
       if (this.status >= 500)
         this.response.severity = 'fatal'
       else this.response.severity = 'error';
   }
 
-  static wrap(response: string | ErrorResponse | Error, status?: number): ApiException {
-    return response instanceof ApiException ? response : new this(response, status);
+  static wrap(response: string | ErrorResponse | Error): ApiException {
+    return response instanceof ApiException
+        ? response
+        : new this(response, response instanceof Error ? response : undefined);
   }
 
 }
