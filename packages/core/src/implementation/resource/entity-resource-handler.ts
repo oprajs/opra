@@ -1,17 +1,18 @@
 import _ from 'lodash';
-import { Maybe, StrictOmit } from 'ts-gems';
+import { StrictOmit } from 'ts-gems';
 import { OpraSchema } from '@opra/schema';
+import { IEntityResource } from '../../interfaces/entity-resource.interface.js';
 import { EntityType } from '../data-type/entity-type.js';
 import { ExecutionContext } from '../execution-context.js';
 import { OpraService } from '../opra-service.js';
-import { ResourceInfo } from './resource-info.js';
+import { ResourceHandler } from './resource-handler.js';
 
 export type EntityResourceControllerArgs = StrictOmit<OpraSchema.EntityResource, 'kind'> & {
   service: OpraService;
   dataType: EntityType;
 }
 
-export class EntityResourceInfo extends ResourceInfo {
+export class EntityResourceHandler extends ResourceHandler {
   declare protected readonly _args: OpraSchema.EntityResource;
   readonly service: OpraService;
   readonly dataType: EntityType;
@@ -28,37 +29,19 @@ export class EntityResourceInfo extends ResourceInfo {
       throw new TypeError(`You should provide an EntityType for EntityResourceController`);
   }
 
-  get search(): Maybe<Function> {
-    return this._args.search;
-  }
-
-  get create(): Maybe<Function> {
-    return this._args.create;
-  }
-
-  get read(): Maybe<Function> {
-    return this._args.read;
-  }
-
-  get update(): Maybe<Function> {
-    return this._args.update;
-  }
-
-  get updateAll(): Maybe<Function> {
-    return this._args.updateMany;
-  }
-
-  get delete(): Maybe<Function> {
-    return this._args.delete;
-  }
-
-  get deleteMany(): Maybe<Function> {
-    return this._args.deleteMany;
-  }
-
   async execute(ctx: ExecutionContext): Promise<void> {
     const {query} = ctx.request;
-    const fn = this._args[query.queryType];
+    let fn = this._args[query.queryType];
+    if (!fn && this._args.instance) {
+      const getService = (this._args.instance as IEntityResource).getService;
+      if (typeof getService === 'function') {
+        const service = await getService.call(this._args.instance, ctx);
+        if (service) {
+          fn = service.processRequest.bind(service);
+        }
+      }
+    }
+
     const result = typeof fn === 'function' ? (await fn(ctx)) : undefined;
     if (query.queryType === 'search') {
       ctx.response.value = Array.isArray(result)

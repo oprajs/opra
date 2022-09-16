@@ -45,7 +45,7 @@ describe('SQBAdapter.execute', function () {
         return value;
       }
     });
-    const query = ExecutionQuery.forRead(service.getResource('Books'), 1, {pick: ['id', 'name']});
+    const query = ExecutionQuery.forGet(service.getResource('Books'), 1, {pick: ['id', 'name']});
     const request = new ExecutionRequest({query});
     const result = await SQBAdapter.execute(conn, request).catch();
     expect(args).toBeDefined();

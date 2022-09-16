@@ -162,7 +162,7 @@ export class I18n extends BaseI18n {
           }
           const k = keys.length > 1 ? '$t(' + keys.join(',') + ')' : keys[0];
           s += fallback
-            ? this.t([k, fallback], {...options, ...opts})
+            ? this.t(k, fallback, {...options, ...opts})
             : this.t(k, {...options, ...opts});
           continue;
         }

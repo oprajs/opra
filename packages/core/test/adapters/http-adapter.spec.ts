@@ -55,7 +55,7 @@ describe('OpraHttpAdapter', function () {
         expect(query.sort).toStrictEqual(['id']);
       })
 
-      it('Should generate "read" query', async () => {
+      it('Should generate "get" query', async () => {
         const adapter = new OpraHttpAdapter(service);
         const url = new OpraURL('/Customers@1?&$pick=id&$omit=gender&$include=address');
         const query = adapter.buildQuery(url, 'GET') as ReadQuery;
@@ -63,7 +63,7 @@ describe('OpraHttpAdapter', function () {
         const resource = service.getEntityResource('Customers');
         expect(query).toBeDefined();
         expect(query.resource).toStrictEqual(resource);
-        expect(query.queryType).toStrictEqual('read');
+        expect(query.queryType).toStrictEqual('get');
         expect(query.keyValue).toStrictEqual('1');
         expect(query.pick).toStrictEqual(['id']);
         expect(query.omit).toStrictEqual(['gender']);

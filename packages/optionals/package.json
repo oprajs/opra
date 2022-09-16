@@ -17,10 +17,9 @@
     "clean:dist": "rimraf ../../build/optionals",
     "clean:cover": "rimraf ../../coverage/optionals"
   },
-  "dependencies": {},
   "devDependencies": {
-    "class-validator": "^0.13.2",
-    "@nestjs/common": "^9.0.11"
+    "@nestjs/common": "^9.0.11",
+    "class-validator": "^0.13.2"
   },
   "type": "module",
   "main": "cjs/index.js",

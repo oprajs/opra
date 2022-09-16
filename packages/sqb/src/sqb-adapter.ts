@@ -29,7 +29,7 @@ export namespace SQBAdapter {
           args: [data, options]
         };
       }
-      case 'read': {
+      case 'get': {
         const options: Repository.FindOneOptions = _.omitBy({
           pick: query.pick?.length ? query.pick : undefined,
           omit: query.omit?.length ? query.omit : undefined,

@@ -1,7 +1,7 @@
 import { OpraSchema } from '@opra/schema';
 import { colorFgMagenta, colorFgYellow, colorReset, nodeInspectCustom } from '../../utils/terminal-utils.js';
 
-export abstract class ResourceInfo {
+export abstract class ResourceHandler {
   protected readonly _args: OpraSchema.Resource;
 
   protected constructor(args: OpraSchema.Resource) {

@@ -1,4 +1,5 @@
-import { StrictOmit, Type } from 'ts-gems';
+import { Maybe, StrictOmit, Type } from 'ts-gems';
+import { EntityOutput } from '@sqb/connect';
 
 export namespace OpraSchema {
 
@@ -118,11 +119,27 @@ export namespace OpraSchema {
     required?: boolean;
   }
 
-  export interface EntitySearchResult {
-    value: any[];
+  export interface EntitySearchResult<T = any> {
+    items: T[];
     offset: number;
     total?: number;
     distinct?: boolean;
+  }
+
+  export type EntityGetResult<T> = Maybe<EntityOutput<T>>;
+  export type EntityCreateResult<T> = Maybe<EntityOutput<T>>;
+  export type EntityUpdateResult<T> = Maybe<EntityOutput<T>>;
+
+  export interface EntityUpdateManyResult {
+    affectedRecords: number;
+  }
+
+  export interface EntityDeleteResult {
+    affectedRecords: number;
+  }
+
+  export interface EntityDeleteManyResult {
+    affectedRecords: number;
   }
 
 
@@ -153,6 +170,7 @@ export namespace OpraSchema {
     kind: ResourceKind;
     name: string;
     description?: string;
+    instance?: {};
   }
 
   export interface EntityResource extends BaseResource {

@@ -42,6 +42,8 @@ export namespace OpraAdapter {
     resourceDirs?: string[];
   }
 
+  export type UserContextResolver = (isBatch: boolean) => any | Promise<any>;
+
 }
 
 export abstract class OpraAdapter<TAdapterContext = any> {
@@ -51,7 +53,10 @@ export abstract class OpraAdapter<TAdapterContext = any> {
     this.i18n = i18n || I18n.defaultInstance;
   }
 
-  protected abstract prepareExecutionContexts(adapterContext: TAdapterContext, userContext: any): ExecutionContext[];
+  protected abstract prepareExecutionContexts(
+      adapterContext: TAdapterContext,
+      userContextResolver?: OpraAdapter.UserContextResolver
+  ): ExecutionContext[];
 
   protected abstract sendResponse(adapterContext: TAdapterContext, executionContexts: ExecutionContext[]): Promise<void>;
 
@@ -61,13 +66,15 @@ export abstract class OpraAdapter<TAdapterContext = any> {
 
   protected async handler(
       adapterContext: TAdapterContext,
-      getUserContext: (isBatch: boolean) => any
+      userContextResolver?: OpraAdapter.UserContextResolver
   ): Promise<void> {
+    if (!this.i18n.isInitialized)
+      await this.i18n.init();
+
     let executionContexts: ExecutionContext[];
     let userContext: any;
     try {
-      userContext = getUserContext(this.isBatch(adapterContext));
-      executionContexts = this.prepareExecutionContexts(adapterContext, userContext);
+      executionContexts = this.prepareExecutionContexts(adapterContext, userContextResolver);
     } catch (e: any) {
       const error = InternalServerError.wrap(e);
       await this.sendError(adapterContext, error);
@@ -85,7 +92,7 @@ export abstract class OpraAdapter<TAdapterContext = any> {
       try {
         // Wait previous read requests before executing update request
         if (exclusive && promises) {
-          await Promise.all(promises);
+          await Promise.allSettled(promises);
           promises = undefined;
         }
         // If previous request in bucket had an error and executed an update
@@ -96,6 +103,9 @@ export abstract class OpraAdapter<TAdapterContext = any> {
           const resource = ctx.request.query.resource;
           const v = resource.execute(ctx);
           if (isPromise(v)) {
+            v.catch(e => {
+              ctx.response.errors.push(InternalServerError.wrap(e));
+            })
             if (exclusive)
               await v;
             else {
@@ -106,11 +116,11 @@ export abstract class OpraAdapter<TAdapterContext = any> {
           // todo execute sub property queries
         }
       } catch (e: any) {
-        response.errors.unshift(ApiException.wrap(e));
+        response.errors.unshift(InternalServerError.wrap(e));
       }
       if (response.errors && response.errors.length) {
         // noinspection SuspiciousTypeOfGuard
-        response.errors = response.errors.map(e => ApiException.wrap(e))
+        response.errors = response.errors.map(e => InternalServerError.wrap(e))
         if (exclusive)
           stop = stop || !!response.errors.find(
               e => !(e.response.severity === 'warning' || e.response.severity === 'info')
@@ -119,7 +129,7 @@ export abstract class OpraAdapter<TAdapterContext = any> {
     }
 
     if (promises)
-      await Promise.all(promises);
+      await Promise.allSettled(promises);
 
     if (userContext && typeof userContext.onRequestFinish === 'function') {
       try {
@@ -135,14 +145,12 @@ export abstract class OpraAdapter<TAdapterContext = any> {
   }
 
   protected static async initI18n(options?: OpraAdapter.Options): Promise<I18n> {
-    if (!options?.i18n)
-      return I18n.defaultInstance;
-    if (options.i18n instanceof I18n)
+    if (options?.i18n instanceof I18n)
       return options.i18n;
-    if (typeof options.i18n === 'function')
+    if (typeof options?.i18n === 'function')
       return options.i18n();
-    const instance = I18n.createInstance();
-    await instance.init(options.i18n);
+    const instance = I18n.createInstance(options?.i18n);
+    await instance.init();
     return instance;
   }
 

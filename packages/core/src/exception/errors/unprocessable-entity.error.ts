@@ -7,12 +7,13 @@ import { ApiException, ErrorResponse } from '../api-exception.js';
  * The request was well-formed but was unable to be followed due to semantic errors.
  */
 export class UnprocessableEntityError extends ApiException {
-  constructor(response?: ErrorResponse) {
+  constructor(response?: ErrorResponse, cause?: Error) {
     super({
       message: translate('error:UNPROCESSABLE_ENTITY', 'Unprocessable entity'),
       severity: 'error',
       code: 'UNPROCESSABLE_ENTITY',
       ...response
-    }, HttpStatus.UNPROCESSABLE_ENTITY);
+    }, cause);
+    this.status = HttpStatus.UNPROCESSABLE_ENTITY;
   }
 }

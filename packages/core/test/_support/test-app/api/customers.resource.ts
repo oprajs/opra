@@ -18,7 +18,7 @@ export class CustomersResource {
     //
   }
 
-  read(ctx: ExecutionContext) {
+  get(ctx: ExecutionContext) {
     // eslint-disable-next-line no-console
     console.log(ctx);
   }

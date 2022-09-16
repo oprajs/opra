@@ -4,7 +4,7 @@ import { OpraSchema } from '@opra/schema';
 import { Expression } from '@opra/url';
 import { ComplexType } from '../implementation/data-type/complex-type.js';
 import { OpraService } from '../implementation/opra-service.js';
-import { EntityResourceInfo } from '../implementation/resource/entity-resource-info.js';
+import { EntityResourceHandler } from '../implementation/resource/entity-resource-handler.js';
 import { KeyValue, OperationType, QueryScope, QueryType } from '../types.js';
 import { ObjectTree, stringPathToObjectTree } from '../utils/string-path-to-object-tree.js';
 
@@ -21,7 +21,7 @@ export interface CreateQuery extends BaseQuery {
   queryType: 'create';
   scope: 'collection';
   operationType: 'create';
-  resource: EntityResourceInfo;
+  resource: EntityResourceHandler;
   data: {};
   pick?: string[];
   omit?: string[];
@@ -29,10 +29,10 @@ export interface CreateQuery extends BaseQuery {
 }
 
 export interface ReadQuery extends BaseQuery {
-  queryType: 'read';
+  queryType: 'get';
   scope: 'instance';
   operationType: 'read';
-  resource: EntityResourceInfo;
+  resource: EntityResourceHandler;
   keyValue: KeyValue;
   pick?: string[];
   omit?: string[];
@@ -41,7 +41,7 @@ export interface ReadQuery extends BaseQuery {
 }
 
 export interface PropertyQuery extends BaseQuery {
-  queryType: 'read';
+  queryType: 'get';
   scope: 'property';
   operationType: 'read';
   property: OpraSchema.Property;
@@ -52,7 +52,7 @@ export interface UpdateQuery extends BaseQuery {
   queryType: 'update';
   scope: 'instance';
   operationType: 'update';
-  resource: EntityResourceInfo;
+  resource: EntityResourceHandler;
   keyValue: KeyValue;
   data: {};
   pick?: string[];
@@ -64,7 +64,7 @@ export interface UpdateManyQuery extends BaseQuery {
   queryType: 'updateMany';
   scope: 'collection';
   operationType: 'update';
-  resource: EntityResourceInfo;
+  resource: EntityResourceHandler;
   filter?: string | Expression;
   data: {};
 }
@@ -73,7 +73,7 @@ export interface DeleteQuery extends BaseQuery {
   queryType: 'delete';
   scope: 'instance';
   operationType: 'delete';
-  resource: EntityResourceInfo;
+  resource: EntityResourceHandler;
   keyValue: KeyValue;
 }
 
@@ -81,7 +81,7 @@ export interface DeleteManyQuery extends BaseQuery {
   queryType: 'deleteMany';
   scope: 'collection';
   operationType: 'delete';
-  resource: EntityResourceInfo;
+  resource: EntityResourceHandler;
   filter?: string | Expression;
 }
 
@@ -89,7 +89,7 @@ export interface SearchQuery extends BaseQuery {
   queryType: 'search';
   scope: 'collection';
   operationType: 'read';
-  resource: EntityResourceInfo;
+  resource: EntityResourceHandler;
   pick?: string[];
   omit?: string[];
   include?: string[];
@@ -104,7 +104,7 @@ export interface SearchQuery extends BaseQuery {
 export namespace ExecutionQuery {
 
   export function forCreate(
-      resource: EntityResourceInfo,
+      resource: EntityResourceHandler,
       values: {},
       options?: StrictOmit<CreateQuery, 'queryType' | 'scope' | 'operationType' | 'resource' | 'data'>
   ): CreateQuery {
@@ -126,8 +126,8 @@ export namespace ExecutionQuery {
     return out;
   }
 
-  export function forRead(
-      resource: EntityResourceInfo,
+  export function forGet(
+      resource: EntityResourceHandler,
       key: KeyValue,
       options?: StrictOmit<ReadQuery, 'queryType' | 'scope' | 'operationType' | 'resource' | 'keyValue'>
   ): ReadQuery {
@@ -140,7 +140,7 @@ export namespace ExecutionQuery {
 
     checkKeyFields(resource, key);
     const out: ReadQuery = {
-      queryType: 'read',
+      queryType: 'get',
       scope: 'instance',
       operationType: 'read',
       resource,
@@ -151,7 +151,7 @@ export namespace ExecutionQuery {
   }
 
   export function forSearch(
-      resource: EntityResourceInfo,
+      resource: EntityResourceHandler,
       options?: StrictOmit<SearchQuery, 'queryType' | 'scope' | 'operationType' | 'resource'>
   ): SearchQuery {
     if (options?.pick)
@@ -173,12 +173,12 @@ export namespace ExecutionQuery {
     return out;
   }
 
-  export function forProperty(
+  export function forGetProperty(
       property: OpraSchema.Property,
       options?: StrictOmit<PropertyQuery, 'queryType' | 'scope' | 'operationType' | 'property'>
   ): PropertyQuery {
     const out: PropertyQuery = {
-      queryType: 'read',
+      queryType: 'get',
       scope: 'property',
       operationType: 'read',
       property
@@ -188,7 +188,7 @@ export namespace ExecutionQuery {
   }
 
   export function forUpdate(
-      resource: EntityResourceInfo,
+      resource: EntityResourceHandler,
       keyValue: KeyValue,
       values: any,
       options?: StrictOmit<UpdateQuery, 'queryType' | 'scope' | 'operationType' | 'resource' | 'keyValue' | 'data'>
@@ -214,7 +214,7 @@ export namespace ExecutionQuery {
   }
 
   export function forUpdateMany(
-      resource: EntityResourceInfo,
+      resource: EntityResourceHandler,
       values: any,
       options?: StrictOmit<UpdateManyQuery, 'queryType' | 'scope' | 'operationType' | 'resource' | 'data'>
   ): UpdateManyQuery {
@@ -229,7 +229,7 @@ export namespace ExecutionQuery {
     return out;
   }
 
-  export function forDelete(resource: EntityResourceInfo, key: KeyValue): DeleteQuery {
+  export function forDelete(resource: EntityResourceHandler, key: KeyValue): DeleteQuery {
     checkKeyFields(resource, key);
     return {
       queryType: 'delete',
@@ -241,7 +241,7 @@ export namespace ExecutionQuery {
   }
 
   export function forDeleteMany(
-      resource: EntityResourceInfo,
+      resource: EntityResourceHandler,
       options?: StrictOmit<DeleteManyQuery, 'queryType' | 'scope' | 'operationType' | 'resource'>
   ): DeleteManyQuery {
     const out: DeleteManyQuery = {
@@ -273,13 +273,13 @@ export namespace ExecutionQuery {
 }
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
-function checkKeyFields(resource: EntityResourceInfo, key: KeyValue) {
+function checkKeyFields(resource: EntityResourceHandler, key: KeyValue) {
   if (!resource.dataType.primaryKey)
     throw new Error(`"${resource.name}" has no primary key`);
 }
 
 function normalizePick(
-    resource: EntityResourceInfo,
+    resource: EntityResourceHandler,
     fields: string[]
 ) {
   const fieldsTree = stringPathToObjectTree(fields) || {};
@@ -292,7 +292,7 @@ function normalizePick(
 function _normalizeFieldsList(
     target: string[],
     service: OpraService,
-    resource: EntityResourceInfo,
+    resource: EntityResourceHandler,
     dataType: ComplexType | undefined,
     node: ObjectTree,
     parentPath: string = '',

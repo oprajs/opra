@@ -8,12 +8,13 @@ import { ApiException, ErrorResponse } from '../api-exception.js';
  * (e.g., malformed request syntax, invalid request message framing, or deceptive request routing).
  */
 export class BadRequestError extends ApiException {
-  constructor(response?: ErrorResponse) {
+  constructor(response?: ErrorResponse, cause?: Error) {
     super({
       message: translate('error:BAD_REQUEST', 'Bad request'),
       severity: 'error',
       code: 'BAD_REQUEST',
       ...response
-    }, HttpStatus.BAD_REQUEST);
+    }, cause);
+    this.status = HttpStatus.BAD_REQUEST;
   }
 }

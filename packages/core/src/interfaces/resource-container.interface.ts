@@ -1,7 +1,7 @@
-import { EntityResourceInfo } from '../implementation/resource/entity-resource-info.js';
-import { ResourceInfo } from '../implementation/resource/resource-info.js';
+import { EntityResourceHandler } from '../implementation/resource/entity-resource-handler.js';
+import { ResourceHandler } from '../implementation/resource/resource-handler.js';
 
 export interface IResourceContainer {
-  getResource<T extends ResourceInfo>(name: string): T;
-  getEntityResource(name: string): EntityResourceInfo;
+  getResource<T extends ResourceHandler>(name: string): T;
+  getEntityResource(name: string): EntityResourceHandler;
 }
