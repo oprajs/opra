@@ -1,6 +1,6 @@
 {
   "name": "@opra/optionals",
-  "version": "0.0.5",
+  "version": "0.0.7",
   "description": "Optional dependency imports",
   "author": "Panates",
   "license": "MIT",
