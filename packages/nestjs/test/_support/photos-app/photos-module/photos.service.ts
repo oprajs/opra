@@ -9,16 +9,20 @@ export class PhotosService {
     return v;
   }
 
+  count(filter?: any) {
+    return this._find(filter).length;
+  }
+
   search(filter?: any) {
     return this._find(filter);
   }
 
-  read(id: any) {
-    return photosData.find(x => '' + x.id === '' + id);
+  get(id: any) {
+    return photosData.find(x => x && '' + x.id === '' + id);
   }
 
   update(id: any, values: any) {
-    const data = photosData.find(x => '' + x.id === '' + id);
+    const data = photosData.find(x => x && '' + x.id === '' + id);
     if (data) {
       delete values.id;
       Object.assign(data, values);
@@ -35,11 +39,12 @@ export class PhotosService {
   }
 
   delete(id: any) {
-    const i = photosData.findIndex(x => '' + x.id === '' + id);
+    const i = photosData.findIndex(x => x && '' + x.id === '' + id);
     if (i >= 0) {
       photosData[i] = undefined;
       return true;
     }
+    return false;
   }
 
   deleteMany(filter: any) {

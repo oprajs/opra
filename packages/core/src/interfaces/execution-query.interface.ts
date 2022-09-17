@@ -97,7 +97,7 @@ export interface SearchQuery extends BaseQuery {
   limit?: number;
   skip?: number;
   distinct?: boolean;
-  total?: boolean;
+  count?: boolean;
   sort?: string[];
 }
 

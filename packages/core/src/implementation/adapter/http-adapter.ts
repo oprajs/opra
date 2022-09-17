@@ -8,6 +8,7 @@ import {
   MethodNotAllowedError,
   NotFoundError,
 } from '../../exception/index.js';
+import { wrapError } from '../../exception/wrap-error.js';
 import { ExecutionQuery, PropertyQuery } from '../../interfaces/execution-query.interface.js';
 import { IHttpAdapterContext } from '../../interfaces/http-context.interface.js';
 import { IResourceContainer } from '../../interfaces/resource-container.interface.js';
@@ -37,33 +38,30 @@ interface PreparedOutput {
 
 export class OpraHttpAdapter<TAdapterContext extends IHttpAdapterContext> extends OpraAdapter<IHttpAdapterContext> {
 
-  protected prepareExecutionContexts(
-      adapterContext: TAdapterContext,
-      userContextResolver?: OpraAdapter.UserContextResolver
-  ): ExecutionContext[] {
+  protected prepareRequests(adapterContext: TAdapterContext): ExecutionRequest[] {
     const req = adapterContext.getRequest();
     // todo implement batch requests
     if (this.isBatch(adapterContext)) {
       throw new Error('not implemented yet');
     }
     const url = new OpraURL(req.getUrl());
-    return [this.prepareExecutionContext(
-        adapterContext,
-        url,
-        req.getMethod(),
-        Headers.from(req.getHeaders()),
-        req.getBody(),
-        userContextResolver)];
+    return [
+      this.prepareRequest(
+          adapterContext,
+          url,
+          req.getMethod(),
+          Headers.from(req.getHeaders()),
+          req.getBody())
+    ];
   }
 
-  prepareExecutionContext(
+  prepareRequest(
       adapterContext: any,
       url: OpraURL,
       method: string,
       headers: HeadersObject,
-      body?: any,
-      userContext?: any
-  ): ExecutionContext {
+      body?: any
+  ): ExecutionRequest {
     if (!url.path.size)
       throw new BadRequestError();
     if (method !== 'GET' && url.path.size > 1)
@@ -73,23 +71,22 @@ export class OpraHttpAdapter<TAdapterContext extends IHttpAdapterContext> extend
       throw new MethodNotAllowedError({
         message: `Method "${method}" is not allowed by target resource`
       });
-    const request = new ExecutionRequest({
+    return new ExecutionRequest({
       query,
       headers,
       params: url.searchParams,
     });
-    const response = new ExecutionResponse();
-    // noinspection UnnecessaryLocalVariableJS
-    const executionContext = new ExecutionContext({
+  }
+
+  createExecutionContext(adapterContext: any, request: ExecutionRequest): ExecutionContext {
+    return new ExecutionContext({
       type: 'http',
       service: this.service,
       request,
-      response,
+      response: new ExecutionResponse(),
       adapterContext,
-      userContext,
       continueOnError: request.query.operationType === 'read'
-    })
-    return executionContext;
+    });
   }
 
   buildQuery(url: OpraURL, method: string, body?: any): ExecutionQuery | undefined {
@@ -124,7 +121,7 @@ export class OpraHttpAdapter<TAdapterContext extends IHttpAdapterContext> extend
                     limit: url.searchParams.get('$limit'),
                     skip: url.searchParams.get('$skip'),
                     distinct: url.searchParams.get('$distinct'),
-                    total: url.searchParams.get('$total'),
+                    count: url.searchParams.get('$count'),
                     sort: url.searchParams.get('$sort'),
                     pick: url.searchParams.get('$pick'),
                     omit: url.searchParams.get('$omit'),
@@ -263,47 +260,27 @@ export class OpraHttpAdapter<TAdapterContext extends IHttpAdapterContext> extend
 
   protected createOutput(ctx: ExecutionContext): PreparedOutput {
     const {query} = ctx.request;
-
-    // Determine response status
     let status = ctx.response.status;
-    if (ctx.response.errors.length) {
+    let body = ctx.response.value || {};
+
+    const errors = ctx.response.errors?.map(e => wrapError(e));
+
+    if (errors && errors.length) {
       if (!status || status < 400) {
         status = 0;
-        for (const e of ctx.response.errors) {
+        for (const e of errors) {
           status = Math.max(status, e.status || status);
         }
         if (status < HttpStatus.BAD_REQUEST)
           status = HttpStatus.INTERNAL_SERVER_ERROR;
       }
-    } else
-      status = status || (query.operationType === 'create' ? HttpStatus.CREATED : HttpStatus.OK);
-
-    let body;
-    let value = ctx.response.value;
-    if (query.queryType === 'search') {
-      body = {
-        // '@origin': ctx.resource.name + (ctx.request.resultPath ? '.' + ctx.request.resultPath : ''),
-        items: ctx.response.value,
-        total: ctx.response.total
-      };
+      body.errors = errors.map(e => e.response);
     } else {
-      // Move to sub property if result path defined
-      if (value && ctx.request.resultPath) {
-        const pathArray = ctx.request.resultPath.split('.');
-        for (const property of pathArray) {
-          value = value && typeof value === 'object' && value[property];
-        }
-      }
-      body = value;
-    }
-
-    if (ctx.response.errors?.length) {
-      body = body || {};
-      body.errors = ctx.response.errors.map(e => e.response);
+      delete body.errors;
+      status = status || (query.operationType === 'create' ? HttpStatus.CREATED : HttpStatus.OK);
     }
 
     body = this.i18n.deep(body);
-
     return {
       status,
       headers: ctx.response.headers,

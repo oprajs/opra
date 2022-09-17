@@ -19,7 +19,7 @@ export class CatsResource {
 
   @UseGuards(Guard)
   @UseInterceptors(Interceptor)
-  read(): any[] {
+  get(): any[] {
     return this.catsService.getCats();
   }
 }

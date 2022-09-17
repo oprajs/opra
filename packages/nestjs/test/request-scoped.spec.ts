@@ -49,7 +49,7 @@ describe('Request scope', () => {
       await new Promise((resolve) => performHttpCall(resolve));
     });
 
-    it(`should create resolver for each request`, async () => {
+    it(`should create resource controller for each request`, async () => {
       expect(CatsResource.COUNTER).toEqual(3);
     });
 

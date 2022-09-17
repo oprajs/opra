@@ -163,25 +163,25 @@ describe('Parse url string', () => {
     expect(u.searchParams.get('$distinct')).toStrictEqual(false);
   })
 
-  it('Should set parse "$total" as boolean', () => {
-    let u = new OpraURL('/Person?$total');
-    expect(u.searchParams.get('$total')).toStrictEqual(true);
-    u = new OpraURL('/Person?$total=t');
-    expect(u.searchParams.get('$total')).toStrictEqual(true);
-    u = new OpraURL('/Person?$total=1');
-    expect(u.searchParams.get('$total')).toStrictEqual(true);
-    u = new OpraURL('/Person?$total=yes');
-    expect(u.searchParams.get('$total')).toStrictEqual(true);
-    u = new OpraURL('/Person?$total=y');
-    expect(u.searchParams.get('$total')).toStrictEqual(true);
-    u = new OpraURL('/Person?$total=false');
-    expect(u.searchParams.get('$total')).toStrictEqual(false);
-    u = new OpraURL('/Person?$total=f');
-    expect(u.searchParams.get('$total')).toStrictEqual(false);
-    u = new OpraURL('/Person?$total=0');
-    expect(u.searchParams.get('$total')).toStrictEqual(false);
-    u = new OpraURL('/Person?$total=n');
-    expect(u.searchParams.get('$total')).toStrictEqual(false);
+  it('Should set parse "$count" as boolean', () => {
+    let u = new OpraURL('/Person?$count');
+    expect(u.searchParams.get('$count')).toStrictEqual(true);
+    u = new OpraURL('/Person?$count=t');
+    expect(u.searchParams.get('$count')).toStrictEqual(true);
+    u = new OpraURL('/Person?$count=1');
+    expect(u.searchParams.get('$count')).toStrictEqual(true);
+    u = new OpraURL('/Person?$count=yes');
+    expect(u.searchParams.get('$count')).toStrictEqual(true);
+    u = new OpraURL('/Person?$count=y');
+    expect(u.searchParams.get('$count')).toStrictEqual(true);
+    u = new OpraURL('/Person?$count=false');
+    expect(u.searchParams.get('$count')).toStrictEqual(false);
+    u = new OpraURL('/Person?$count=f');
+    expect(u.searchParams.get('$count')).toStrictEqual(false);
+    u = new OpraURL('/Person?$count=0');
+    expect(u.searchParams.get('$count')).toStrictEqual(false);
+    u = new OpraURL('/Person?$count=n');
+    expect(u.searchParams.get('$count')).toStrictEqual(false);
   })
 
   it('Should set register custom parameter', () => {

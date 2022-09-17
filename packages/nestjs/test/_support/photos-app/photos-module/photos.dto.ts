@@ -3,7 +3,7 @@ import { ApiEntityType, ApiProperty } from '@opra/schema';
 @ApiEntityType({
   primaryKey: 'id'
 })
-export class Customer {
+export class Photos {
 
   @ApiProperty()
   id: number;

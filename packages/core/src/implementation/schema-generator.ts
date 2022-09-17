@@ -19,7 +19,7 @@ export namespace SchemaGenerator {
 
 }
 
-const entityMethods = ['search', 'create', 'read', 'update', 'updateMany', 'delete', 'deleteMany'];
+const entityMethods = ['search', 'count', 'create', 'get', 'update', 'updateMany', 'delete', 'deleteMany'];
 
 export class SchemaGenerator {
   protected _dataTypes: Record<string, OpraSchema.DataType> = {};
@@ -134,10 +134,12 @@ export class SchemaGenerator {
 
       if (OpraSchema.isEntityResource(resourceSchema)) {
         for (const methodName of entityMethods) {
-          const fn = instance[methodName];
-          if (typeof fn === 'function') {
+          let fn = instance['pre_' + methodName];
+          if (typeof fn === 'function')
+            resourceSchema['pre_' + methodName] = fn.bind(instance);
+          fn = instance[methodName];
+          if (typeof fn === 'function')
             resourceSchema[methodName] = fn.bind(instance);
-          }
         }
       }
     } else resourceSchema = instance;

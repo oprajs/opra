@@ -62,13 +62,13 @@ describe('ExecutionQuery', function () {
 
     it('Should set "total" option', async () => {
       const resource = service.getEntityResource('Customers');
-      const query = ExecutionQuery.forSearch(resource, {total: true}) as SearchQuery;
+      const query = ExecutionQuery.forSearch(resource, {count: true}) as SearchQuery;
       expect(query).toBeDefined();
       expect(query.resource).toStrictEqual(resource);
       expect(query.queryType).toStrictEqual('search');
       expect(query.operationType).toStrictEqual('read');
       expect(query.scope).toStrictEqual('collection');
-      expect(query.total).toStrictEqual(true);
+      expect(query.count).toStrictEqual(true);
     })
 
     it('Should set "distinct" option', async () => {

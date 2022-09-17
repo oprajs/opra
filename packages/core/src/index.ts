@@ -10,7 +10,6 @@ export * from './decorators/entity-resource.decorator.js';
 
 export * from './interfaces/http-context.interface.js';
 export * from './interfaces/execution-query.interface.js';
-export * from './interfaces/entity-resource.interface.js';
 export * from './interfaces/resource-container.interface.js';
 export * from './interfaces/user-context.interface.js';
 
@@ -27,4 +26,5 @@ export * from './implementation/data-type/simple-type.js';
 export * from './implementation/resource/resource-handler.js';
 export * from './implementation/resource/entity-resource-handler.js';
 
+export * from './services/entity-resource-controller.js';
 export * from './services/json-data-service.js';
