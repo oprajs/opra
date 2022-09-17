@@ -1,7 +1,7 @@
-import { isPromise } from 'util/types';
 import { FallbackLng, I18n, LanguageResource } from '@opra/i18n';
-import { ApiException, FailedDependencyError, InternalServerError } from '../../exception/index.js';
-import { ExecutionContext } from '../execution-context.js';
+import { ApiException, FailedDependencyError } from '../../exception/index.js';
+import { wrapError } from '../../exception/wrap-error.js';
+import { ExecutionContext, ExecutionRequest } from '../execution-context.js';
 import { OpraService } from '../opra-service.js';
 
 export namespace OpraAdapter {
@@ -53,10 +53,9 @@ export abstract class OpraAdapter<TAdapterContext = any> {
     this.i18n = i18n || I18n.defaultInstance;
   }
 
-  protected abstract prepareExecutionContexts(
-      adapterContext: TAdapterContext,
-      userContextResolver?: OpraAdapter.UserContextResolver
-  ): ExecutionContext[];
+  protected abstract prepareRequests(adapterContext: TAdapterContext): ExecutionRequest[];
+
+  protected abstract createExecutionContext(adapterContext: any, request: ExecutionRequest): ExecutionContext;
 
   protected abstract sendResponse(adapterContext: TAdapterContext, executionContexts: ExecutionContext[]): Promise<void>;
 
@@ -71,77 +70,89 @@ export abstract class OpraAdapter<TAdapterContext = any> {
     if (!this.i18n.isInitialized)
       await this.i18n.init();
 
-    let executionContexts: ExecutionContext[];
+    const executionContexts: ExecutionContext[] = [];
+    let requests: ExecutionRequest[];
     let userContext: any;
     try {
-      executionContexts = this.prepareExecutionContexts(adapterContext, userContextResolver);
-    } catch (e: any) {
-      const error = InternalServerError.wrap(e);
-      await this.sendError(adapterContext, error);
-      return;
-    }
+      requests = this.prepareRequests(adapterContext);
 
-    let stop = false;
-    // Read requests can be executed simultaneously, write request should be executed one by one
-    let promises: Promise<void>[] | undefined;
-    let exclusive = false;
-    for (const ctx of executionContexts) {
-      const request = ctx.request;
-      const response = ctx.response;
-      exclusive = exclusive || request.query.operationType !== 'read';
-      try {
+
+      let stop = false;
+      // Read requests can be executed simultaneously, write request should be executed one by one
+      let promises: Promise<void>[] | undefined;
+      let exclusive = false;
+      for (const request of requests) {
+        exclusive = exclusive || request.query.operationType !== 'read';
+
         // Wait previous read requests before executing update request
         if (exclusive && promises) {
           await Promise.allSettled(promises);
           promises = undefined;
         }
+
+        const resource = request.query.resource;
+        const context = this.createExecutionContext(adapterContext, request);
+        executionContexts.push(context);
+
         // If previous request in bucket had an error and executed an update
         // we do not execute next requests
         if (stop) {
-          response.errors.push(new FailedDependencyError());
-        } else {
-          const resource = ctx.request.query.resource;
-          const v = resource.execute(ctx);
-          if (isPromise(v)) {
-            v.catch(e => {
-              ctx.response.errors.push(InternalServerError.wrap(e));
-            })
-            if (exclusive)
-              await v;
-            else {
-              promises = promises || [];
-              promises.push(v);
-            }
-          }
-          // todo execute sub property queries
+          context.response.errors.push(new FailedDependencyError());
+          continue;
         }
-      } catch (e: any) {
-        response.errors.unshift(InternalServerError.wrap(e));
+
+        try {
+          const promise = (async () => {
+            await resource.prepare(context);
+            if (userContextResolver && !userContext)
+              userContext = userContextResolver(this.isBatch(adapterContext));
+            context.userContext = userContext;
+            await resource.execute(context);
+          })().catch(e => {
+            context.response.errors.push(e);
+          });
+
+          if (exclusive)
+            await promise;
+          else {
+            promises = promises || [];
+            promises.push(promise);
+          }
+
+          // todo execute sub property queries
+        } catch (e: any) {
+          context.response.errors.unshift(e);
+        }
+
+        if (context.response.errors.length) {
+          // noinspection SuspiciousTypeOfGuard
+          context.response.errors = context.response.errors.map(e => wrapError(e))
+          if (exclusive)
+            stop = stop || !!context.response.errors.find(
+                e => !(e.response.severity === 'warning' || e.response.severity === 'info')
+            );
+        }
       }
-      if (response.errors && response.errors.length) {
-        // noinspection SuspiciousTypeOfGuard
-        response.errors = response.errors.map(e => InternalServerError.wrap(e))
-        if (exclusive)
-          stop = stop || !!response.errors.find(
-              e => !(e.response.severity === 'warning' || e.response.severity === 'info')
-          );
+
+      if (promises)
+        await Promise.allSettled(promises);
+
+      if (userContext && typeof userContext.onRequestFinish === 'function') {
+        try {
+          const hasError = !!executionContexts.find(ctx => ctx.response.errors?.length);
+          await userContext.onRequestFinish(hasError);
+        } catch (e: any) {
+          await this.sendError(adapterContext, wrapError(e));
+          return;
+        }
       }
+      await this.sendResponse(adapterContext, executionContexts);
+
+    } catch (e: any) {
+      const error = wrapError(e);
+      await this.sendError(adapterContext, error);
+      return;
     }
-
-    if (promises)
-      await Promise.allSettled(promises);
-
-    if (userContext && typeof userContext.onRequestFinish === 'function') {
-      try {
-        const hasError = !!executionContexts.find(ctx => ctx.response.errors?.length);
-        await userContext.onRequestFinish(hasError);
-      } catch (e: any) {
-        await this.sendError(adapterContext, InternalServerError.wrap(e));
-        return;
-      }
-    }
-
-    await this.sendResponse(adapterContext, executionContexts);
   }
 
   protected static async initI18n(options?: OpraAdapter.Options): Promise<I18n> {

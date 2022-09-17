@@ -39,7 +39,6 @@ export class ApiException extends Error {
 
   static stackAsDiagnostics: boolean = false;
 
-  readonly originalError?: Error;
   response: ErrorResponse;
   status: number;
   cause?: Error;
@@ -48,12 +47,11 @@ export class ApiException extends Error {
     super('');
     this._initName();
     if (cause)
-      this.cause = cause;
+      Object.defineProperty(this, 'cause', {enumerable: false, configurable: true, writable: true, value: cause});
     else if (response instanceof Error)
-      this.cause = response;
+      Object.defineProperty(this, 'cause', {enumerable: false, configurable: true, writable: true, value: response});
+
     this.status = HttpStatus.INTERNAL_SERVER_ERROR;
-    if (response instanceof Error)
-      this.originalError = response;
     this._initResponse(response);
   }
 
@@ -88,8 +86,10 @@ export class ApiException extends Error {
       }
     }
 
-    if (this.cause instanceof Error && ApiException.stackAsDiagnostics && this.cause.stack) {
-      this.response.diagnostics = this.cause.stack.split('\n');
+    if (this.cause instanceof Error && this.cause.stack) {
+      if (ApiException.stackAsDiagnostics)
+        this.response.diagnostics = this.cause.stack.split('\n');
+      this.stack = this.cause.stack;
     }
 
     if (!this.response.severity)
@@ -99,9 +99,12 @@ export class ApiException extends Error {
   }
 
   static wrap(response: string | ErrorResponse | Error): ApiException {
-    return response instanceof ApiException
-        ? response
-        : new this(response, response instanceof Error ? response : undefined);
+    if (response instanceof ApiException)
+      return response;
+    const out = new this(response, response instanceof Error ? response : undefined);
+    if (response instanceof Error)
+      out.stack = response.stack;
+    return out;
   }
 
 }

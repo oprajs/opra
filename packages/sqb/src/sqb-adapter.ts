@@ -52,7 +52,7 @@ export namespace SQBAdapter {
           limit: query.limit,
           offset: query.skip,
           distinct: query.distinct,
-          total: query.total,
+          total: query.count,
           filter: convertFilter(query.filter)
         }, _.isNil)
         return {
@@ -123,7 +123,7 @@ export namespace SQBAdapter {
     if (value && typeof value === 'object')
       out.value = value;
     if (query.queryType === 'search') {
-      if (query.total) {
+      if (query.count) {
         out.total = await repo.count(prepared.options);
       }
     }

@@ -36,7 +36,7 @@ describe('OpraHttpAdapter', function () {
 
       it('Should generate "search" query', async () => {
         const adapter = new OpraHttpAdapter(service);
-        const url = new OpraURL('/Customers?$limit=1&$skip=2&$total=false&$distinct=true&$filter=id=1' +
+        const url = new OpraURL('/Customers?$limit=1&$skip=2&$count=false&$distinct=true&$filter=id=1' +
             '&$pick=id&$omit=gender&$include=address&$sort=id');
         const query = adapter.buildQuery(url, 'GET') as SearchQuery;
         expect(query).toBeDefined();
@@ -46,7 +46,7 @@ describe('OpraHttpAdapter', function () {
         expect(query.queryType).toStrictEqual('search');
         expect(query.limit).toStrictEqual(1);
         expect(query.skip).toStrictEqual(2);
-        expect(query.total).toStrictEqual(false);
+        expect(query.count).toStrictEqual(false);
         expect(query.distinct).toStrictEqual(true);
         expect(query.filter).toBeDefined();
         expect(query.pick).toStrictEqual(['id']);

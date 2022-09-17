@@ -248,7 +248,7 @@ export class OpraURLSearchParams extends SearchParams {
     this.defineParam('$include', {format: 'string', array: 'strict'});
     this.defineParam('$sort', {format: 'string', array: 'strict'});
     this.defineParam('$distinct', {format: 'boolean'});
-    this.defineParam('$total', {format: 'boolean'});
+    this.defineParam('$count', {format: 'boolean'});
     this._init(init);
   }
 }

@@ -8,22 +8,25 @@ import {
   SearchQuery, UpdateManyQuery,
   UpdateQuery
 } from '@opra/core';
-import { OpraSchema } from '@opra/schema/src/index';
 import { Query } from '../../../../src/index.js';
 import { AuthGuard } from '../guards/auth.guard.js';
-import { Customer } from './photos.dto.js';
+import { Photos } from './photos.dto.js';
 import { PhotosService } from './photos.service.js';
 
-@ApiEntityResource(Customer, {
+@ApiEntityResource(Photos, {
   description: 'Photos resource'
 })
-export class PhotosResource implements IEntityResource {
+export class PhotosResource implements IEntityResource<Photos> {
 
   constructor(public photosService: PhotosService) {
   }
 
-  async search(@Query query: SearchQuery): Promise<OpraSchema.EntitySearchResult> {
-    return {items: this.photosService.search(query.filter), offset: 0};
+  async search(@Query query: SearchQuery) {
+    return this.photosService.search(query.filter);
+  }
+
+  async count(@Query query: SearchQuery) {
+    return this.photosService.count(query.filter);
   }
 
   @UseGuards(AuthGuard)
@@ -31,8 +34,8 @@ export class PhotosResource implements IEntityResource {
     return this.photosService.create(query.data);
   }
 
-  read(@Query query: ReadQuery) {
-    return this.photosService.read(query.keyValue);
+  get(@Query query: ReadQuery) {
+    return this.photosService.get(query.keyValue);
   }
 
   update(@Query query: UpdateQuery) {
@@ -40,15 +43,15 @@ export class PhotosResource implements IEntityResource {
   }
 
   async updateMany(@Query query: UpdateManyQuery) {
-    return {affectedRecords: this.photosService.updateMany(query.data, query.filter)};
+    return this.photosService.updateMany(query.data, query.filter);
   }
 
   async delete(@Query query: DeleteQuery) {
-    return {affectedRecords: this.photosService.delete(query.keyValue) ? 1 : 0};
+    return this.photosService.delete(query.keyValue);
   }
 
   async deleteMany(@Query query: DeleteManyQuery) {
-    return {affectedRecords: this.photosService.deleteMany(query.filter)};
+    return this.photosService.deleteMany(query.filter);
   }
 
 }

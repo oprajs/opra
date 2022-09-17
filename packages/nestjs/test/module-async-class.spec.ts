@@ -53,9 +53,10 @@ describe('OpraModule (async existing)', function () {
   });
 
   it('Should return query result', async function () {
-    return request(server)
-        .get('/svc1/Photos@1')
-        .expect(200, photosData[0]);
+    const r = await request(server)
+        .get('/svc1/Photos@1');
+    expect(r.status).toStrictEqual(200);
+    expect(r.body).toStrictEqual(photosData[0]);
   });
 
 });

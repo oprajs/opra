@@ -159,7 +159,7 @@ describe('SQBAdapter.prepare', function () {
     })
 
     it('Should prepare "total" option', async () => {
-      const query = ExecutionQuery.forSearch(service.getEntityResource('Books'), {total: true});
+      const query = ExecutionQuery.forSearch(service.getEntityResource('Books'), {count: true});
       const request = new ExecutionRequest({query});
       const o = SQBAdapter.prepare(request);
       expect(o.method).toStrictEqual('findAll');

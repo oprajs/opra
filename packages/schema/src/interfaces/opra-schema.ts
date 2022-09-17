@@ -119,30 +119,6 @@ export namespace OpraSchema {
     required?: boolean;
   }
 
-  export interface EntitySearchResult<T = any> {
-    items: T[];
-    offset: number;
-    total?: number;
-    distinct?: boolean;
-  }
-
-  export type EntityGetResult<T> = Maybe<EntityOutput<T>>;
-  export type EntityCreateResult<T> = Maybe<EntityOutput<T>>;
-  export type EntityUpdateResult<T> = Maybe<EntityOutput<T>>;
-
-  export interface EntityUpdateManyResult {
-    affectedRecords: number;
-  }
-
-  export interface EntityDeleteResult {
-    affectedRecords: number;
-  }
-
-  export interface EntityDeleteManyResult {
-    affectedRecords: number;
-  }
-
-
   export function isDataType(obj: any): obj is ComplexType {
     return obj && typeof obj === 'object' &&
         (obj.kind === 'ComplexType' || obj.kind === 'EntityType' || obj.kind === 'SimpleType');

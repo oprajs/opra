@@ -1,11 +1,12 @@
 import _ from 'lodash';
 import { StrictOmit } from 'ts-gems';
 import { OpraSchema } from '@opra/schema';
-import { IEntityResource } from '../../interfaces/entity-resource.interface.js';
+import { ExecutionQuery } from '../../interfaces/execution-query.interface.js';
 import { EntityType } from '../data-type/entity-type.js';
 import { ExecutionContext } from '../execution-context.js';
 import { OpraService } from '../opra-service.js';
 import { ResourceHandler } from './resource-handler.js';
+import isSearchQuery = ExecutionQuery.isSearchQuery;
 
 export type EntityResourceControllerArgs = StrictOmit<OpraSchema.EntityResource, 'kind'> & {
   service: OpraService;
@@ -31,36 +32,58 @@ export class EntityResourceHandler extends ResourceHandler {
 
   async execute(ctx: ExecutionContext): Promise<void> {
     const {query} = ctx.request;
-    let fn = this._args[query.queryType];
-    if (!fn && this._args.instance) {
-      const getService = (this._args.instance as IEntityResource).getService;
-      if (typeof getService === 'function') {
-        const service = await getService.call(this._args.instance, ctx);
-        if (service) {
-          fn = service.processRequest.bind(service);
-        }
+    if (isSearchQuery(query)) {
+      const promises: Promise<any>[] = [];
+      let search: any;
+      let count: any;
+      promises.push(
+          this._executeFn(ctx, query.queryType)
+              .then(v => search = v)
+      );
+      if (query.count) {
+        promises.push(this._executeFn(ctx, 'count')
+            .then(v => count = v));
       }
+      await Promise.all(promises);
+      ctx.response.value = {
+        ...search,
+        ...count
+      }
+      return;
+    }
+    ctx.response.value = await this._executeFn(ctx, query.queryType);
+  }
+
+  async _executeFn(ctx: ExecutionContext, fnName: string): Promise<any> {
+    const fn = this._args[fnName];
+    let result = typeof fn === 'function' ? (await fn(ctx)) : undefined;
+    switch (fnName) {
+      case 'search':
+        return {items: Array.isArray(result) ? result : (ctx.response.value ? [result] : [])};
+      case 'count':
+        return {count: result || 0};
+      case 'delete':
+      case 'deleteMany':
+      case 'updateMany':
+        let affectedRecords;
+        if (typeof result === 'number')
+          affectedRecords = result;
+        if (typeof result === 'boolean')
+          affectedRecords = result ? 1 : 0;
+        if (typeof result === 'object')
+          affectedRecords = result.affectedRows || result.affectedRecords;
+        return {affectedRecords};
+      default:
+        result = Array.isArray(result) ? result[0] : result;
+        if (result && ctx.request.resultPath) {
+          const pathArray = ctx.request.resultPath.split('.');
+          for (const property of pathArray) {
+            result = result && typeof result === 'object' && result[property];
+          }
+        }
+        return result;
     }
 
-    const result = typeof fn === 'function' ? (await fn(ctx)) : undefined;
-    if (query.queryType === 'search') {
-      ctx.response.value = Array.isArray(result)
-          ? result
-          : (ctx.response.value ? [result] : []);
-    } else if (query.queryType === 'delete' ||
-        query.queryType === 'deleteMany' ||
-        query.queryType === 'updateMany'
-    ) {
-      let affected = result;
-      if (affected && typeof affected === 'object')
-        affected = result.affected || result.affectedRows;
-      affected = typeof affected === 'number' ? affected :
-          (affected === false ? 0 : (affected ? 1 : 0));
-      ctx.response.value = {
-        affected
-      }
-    } else
-      ctx.response.value = Array.isArray(result) ? result[0] : result;
   }
 
 }
