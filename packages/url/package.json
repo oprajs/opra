@@ -1,6 +1,6 @@
 {
   "name": "@opra/url",
-  "version": "0.0.7",
+  "version": "0.0.8",
   "description": "Opra URL parser/builder",
   "author": "Panates",
   "license": "MIT",
