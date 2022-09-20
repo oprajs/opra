@@ -28,6 +28,7 @@
     "@opra/core": "^0.0.9",
     "@opra/url": "^0.0.9",
     "lodash": "^4.17.21",
+    "rule-judgment": "^1.1.5",
     "supertest": "^6.2.4"
   },
   "devDependencies": {

@@ -16,7 +16,7 @@ export class InternalServerError extends ApiException {
 
   protected _initResponse(response: Partial<ErrorResponse>) {
     super._initResponse({
-      message: translate('error:INTERNAL_SERVER_ERROR', 'Internal server error'),
+      message: translate('error:INTERNAL_SERVER_ERROR'),
       severity: 'error',
       code: 'INTERNAL_SERVER_ERROR',
       ..._.omitBy(response, _.isNil)

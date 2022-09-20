@@ -3,23 +3,22 @@ import { HttpStatus } from '../../enums/index.js';
 import { ApiException, ErrorResponse } from '../api-exception.js';
 
 /**
- * 403 Forbidden
- * The client does not have access rights to the content; that is, it is unauthorized,
- * so the server is refusing to give the requested resource. Unlike 401 Unauthorized,
- * the client's identity is known to the server.
+ * 400 Bad Request
+ * The server cannot or will not process the request due to something that is perceived to be a client error
+ * (e.g., malformed request syntax, invalid request message framing, or deceptive request routing).
  */
-export class ForbiddenError extends ApiException {
+export class BadRequestError extends ApiException {
 
   constructor(response?: string | ErrorResponse | Error, cause?: Error) {
     super(response, cause);
-    this.status = HttpStatus.FORBIDDEN;
+    this.status = HttpStatus.BAD_REQUEST;
   }
 
   protected _initResponse(response: Partial<ErrorResponse>) {
     super._initResponse({
-      message: translate('error:FORBIDDEN', 'Forbidden'),
+      message: translate('error:BAD_REQUEST'),
       severity: 'error',
-      code: 'FORBIDDEN',
+      code: 'BAD_REQUEST',
       ...response
     })
   }

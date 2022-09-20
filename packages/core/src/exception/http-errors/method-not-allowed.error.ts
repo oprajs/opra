@@ -3,21 +3,22 @@ import { HttpStatus } from '../../enums/index.js';
 import { ApiException, ErrorResponse } from '../api-exception.js';
 
 /**
- * 424 Failed Dependency
- * The request failed due to failure of a previous request.
+ * 405 Method Not Allowed
+ * The request method is known by the server but is not supported by the target resource.
+ * For example, an API may not allow calling DELETE to remove a resource.
  */
-export class FailedDependencyError extends ApiException {
+export class MethodNotAllowedError extends ApiException {
 
   constructor(response?: string | ErrorResponse | Error, cause?: Error) {
     super(response, cause);
-    this.status = HttpStatus.FAILED_DEPENDENCY;
+    this.status = HttpStatus.METHOD_NOT_ALLOWED;
   }
 
   protected _initResponse(response: Partial<ErrorResponse>) {
     super._initResponse({
-      message: translate('error:FAILED_DEPENDENCY', 'The request failed due to failure of a previous request.'),
+      message: translate('error:METHOD_NOT_ALLOWED'),
       severity: 'error',
-      code: 'FAILED_DEPENDENCY',
+      code: 'METHOD_NOT_ALLOWED',
       ...response
     })
   }

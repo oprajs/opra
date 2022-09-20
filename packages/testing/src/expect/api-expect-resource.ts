@@ -11,7 +11,7 @@ export class ApiExpectResource extends ApiExpectBody {
     return this;
   }
 
-  toMatchObject<T extends {}>(value: T): this {
+  toMatch<T extends {}>(value: T): this {
     return this._toMatchObject([this._body], value);
   }
 

@@ -1,9 +1,12 @@
 export * from './api-exception.js';
 
-export * from './errors/bad-request.error.js';
-export * from './errors/failed-dependency.error.js';
-export * from './errors/internal-server.error.js';
-export * from './errors/method-not-allowed.error.js';
-export * from './errors/not-found.error.js';
-export * from './errors/unauthorized.error.js';
-export * from './errors/unprocessable-entity.error.js';
+export * from './http-errors/bad-request.error.js';
+export * from './http-errors/failed-dependency.error.js';
+export * from './http-errors/forbidden.error.js';
+export * from './http-errors/internal-server.error.js';
+export * from './http-errors/method-not-allowed.error.js';
+export * from './http-errors/not-found.error.js';
+export * from './http-errors/unauthorized.error.js';
+export * from './http-errors/unprocessable-entity.error.js';
+
+export * from './resource-errors/resource-conflict.error.js';

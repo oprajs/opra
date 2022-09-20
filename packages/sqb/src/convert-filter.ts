@@ -16,7 +16,8 @@ export function convertFilter(str: string | Expression | undefined): any {
     return;
 
   if (ast instanceof ComparisonExpression) {
-    const left = convertFilter(ast.left);
+    const left = ast.left instanceof QualifiedIdentifier
+        ? ast.left.value : convertFilter(ast.left);
     const right = convertFilter(ast.right);
 
     switch (ast.op) {

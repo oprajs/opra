@@ -1,0 +1,12 @@
+{
+  "BAD_REQUEST": "Bad request",
+  "FAILED_DEPENDENCY": "The request failed due to failure of a previous request",
+  "FORBIDDEN": "You are not authorized to perform this action",
+  "INTERNAL_SERVER_ERROR": "Internal server error",
+  "METHOD_NOT_ALLOWED": "Method Not Allowed",
+  "NOT_FOUND": "Not found",
+  "UNAUTHORIZED": "You have not been authenticated to perform this action",
+  "UNPROCESSABLE_ENTITY": "Unprocessable entity",
+
+  "RESOURCE_CONFLICT": "There is already an other {{resource}} resource with same field values ({{fields}})"
+}

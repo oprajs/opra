@@ -52,12 +52,6 @@ export class ApiException extends Error {
     if (cause)
       Object.defineProperty(this, 'cause', {enumerable: false, configurable: true, writable: true, value: cause});
 
-    if (this.cause instanceof Error && this.cause.stack) {
-      if (ApiException.stackAsDiagnostics)
-        this.response.diagnostics = this.cause.stack.split('\n');
-      this.stack = this.cause.stack;
-    }
-
     if (response instanceof Error)
       this._initErrorInstance(response);
     else if (typeof response === 'string')
@@ -68,6 +62,12 @@ export class ApiException extends Error {
       if (this.status >= 500)
         this.response.severity = 'fatal'
       else this.response.severity = 'error';
+
+    if (this.cause instanceof Error && this.cause.stack) {
+      if (ApiException.stackAsDiagnostics)
+        this.response.diagnostics = this.cause.stack.split('\n');
+      this.stack = this.cause.stack;
+    }
   }
 
   setStatus(status: number | HttpStatus): this {

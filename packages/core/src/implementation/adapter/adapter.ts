@@ -3,6 +3,7 @@ import { FallbackLng, I18n, LanguageResource } from '@opra/i18n';
 import { ApiException, FailedDependencyError } from '../../exception/index.js';
 import { wrapError } from '../../exception/wrap-error.js';
 import { IExecutionContext } from '../../interfaces/execution-context.interface.js';
+import { createI18n } from '../../utils/create-i18n.js';
 import { OpraService } from '../opra-service.js';
 import { QueryContext } from '../query-context.js';
 
@@ -167,9 +168,7 @@ export abstract class OpraAdapter<TExecutionContext extends IExecutionContext> {
       return options.i18n;
     if (typeof options?.i18n === 'function')
       return options.i18n();
-    const instance = I18n.createInstance(options?.i18n);
-    await instance.init();
-    return instance;
+    return createI18n(options?.i18n);
   }
 
 }

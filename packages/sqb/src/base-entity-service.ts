@@ -5,7 +5,7 @@ import { SQBAdapter } from './sqb-adapter.js';
 
 export namespace BaseEntityService {
   export type FindAllOptions = Repository.FindAllOptions & { total?: boolean };
-  export type FindOneOptions = Repository.FindOneOptions;
+  export type GetOptions = Repository.GetOptions;
   export type CreateOptions = Repository.CreateOptions;
   export type UpdateOptions = Repository.UpdateOptions;
   export type UpdateManyOptions = Repository.UpdateAllOptions;
@@ -47,12 +47,18 @@ export abstract class BaseEntityService<T> implements IEntityService {
 
   async get(
       keyValue: any,
-      options?: BaseEntityService.FindOneOptions,
+      options?: BaseEntityService.GetOptions,
       userContext?: any
   ): Promise<Maybe<EntityOutput<T>>> {
     const conn = await this.getConnection(userContext);
     const repo = conn.getRepository(this.resourceType);
-    let out = await repo.findByPk(keyValue, options);
+    let out;
+    try {
+      out = await repo.findByPk(keyValue, options);
+    } catch (e: any) {
+      await this._onError(e);
+      throw new BadRequestError(e);
+    }
     if (out && this.onTransformRow)
       out = this.onTransformRow(out, userContext, 'findByPk');
     return out;
@@ -64,7 +70,12 @@ export abstract class BaseEntityService<T> implements IEntityService {
   ): Promise<Maybe<number>> {
     const conn = await this.getConnection(userContext);
     const repo = conn.getRepository(this.resourceType);
-    return await repo.count(options);
+    try {
+      return await repo.count(options);
+    } catch (e: any) {
+      await this._onError(e);
+      throw new BadRequestError(e);
+    }
   }
 
   async search(
@@ -73,7 +84,14 @@ export abstract class BaseEntityService<T> implements IEntityService {
   ): Promise<Maybe<EntityOutput<T>>[]> {
     const conn = await this.getConnection(userContext);
     const repo = conn.getRepository(this.resourceType);
-    const items = await repo.findAll(options);
+    let items: any[];
+    try {
+      items = await repo.findAll(options);
+    } catch (e: any) {
+      await this._onError(e);
+      throw new BadRequestError(e);
+    }
+
     if (items.length && this.onTransformRow) {
       const newItems: any[] = [];
       for (const item of items) {
@@ -97,6 +115,7 @@ export abstract class BaseEntityService<T> implements IEntityService {
     try {
       out = await repo.create(data, options);
     } catch (e: any) {
+      await this._onError(e);
       throw new BadRequestError(e);
     }
     if (out && this.onTransformRow)
@@ -116,6 +135,7 @@ export abstract class BaseEntityService<T> implements IEntityService {
     try {
       out = await repo.update(keyValue, data, options);
     } catch (e: any) {
+      await this._onError(e);
       throw new BadRequestError(e);
     }
     if (out && this.onTransformRow)
@@ -133,6 +153,7 @@ export abstract class BaseEntityService<T> implements IEntityService {
     try {
       return await repo.updateAll(data, options);
     } catch (e: any) {
+      await this._onError(e);
       throw new BadRequestError(e);
     }
   }
@@ -147,6 +168,7 @@ export abstract class BaseEntityService<T> implements IEntityService {
     try {
       return await repo.destroy(keyValue, options);
     } catch (e: any) {
+      await this._onError(e);
       throw new BadRequestError(e);
     }
   }
@@ -160,11 +182,19 @@ export abstract class BaseEntityService<T> implements IEntityService {
     try {
       return await repo.destroyAll(options);
     } catch (e: any) {
+      await this._onError(e);
       throw new BadRequestError(e);
     }
   }
 
+  private async _onError(e: unknown): Promise<void> {
+    if (this.onError)
+      await this.onError(e);
+  }
+
   protected abstract getConnection(userContext?: any): SqbConnection | SqbClient | Promise<SqbConnection | SqbClient>;
+
+  protected onError?(e: unknown): void | Promise<void>;
 
   protected onTransformRow?(row: EntityOutput<T>, userContext: any, method: string): EntityOutput<T>;
 
