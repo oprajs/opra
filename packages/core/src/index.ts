@@ -8,10 +8,9 @@ export * from './exception/index.js';
 
 export * from './decorators/entity-resource.decorator.js';
 
-export * from './interfaces/adapter-context.interface.js';
-export * from './interfaces/execution-query.interface.js';
+export * from './interfaces/execution-context.interface.js';
+export * from './interfaces/query.interface.js';
 export * from './interfaces/resource-container.interface.js';
-export * from './interfaces/user-context.interface.js';
 
 export * from './implementation/query-context.js';
 export * from './implementation/opra-document.js';

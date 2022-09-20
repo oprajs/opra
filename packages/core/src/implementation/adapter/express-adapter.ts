@@ -1,11 +1,12 @@
 import type { Application, Request, Response } from 'express';
+import { AsyncEventEmitter } from 'strict-typed-events';
 import { normalizePath } from '@opra/url';
 import type {
   ContextType,
-  IHttpAdapterContext,
-  IHttpRequest,
-  IHttpResponse, PlatformType
-} from '../../interfaces/adapter-context.interface';
+  IHttpExecutionContext,
+  IHttpRequestWrapper,
+  IHttpResponseWrapper, PlatformType
+} from '../../interfaces/execution-context.interface';
 import type { OpraService } from '../opra-service.js';
 import { OpraHttpAdapter } from './http-adapter.js';
 
@@ -14,7 +15,7 @@ export namespace OpraExpressAdapter {
   }
 }
 
-export class OpraExpressAdapter extends OpraHttpAdapter<IHttpAdapterContext> {
+export class OpraExpressAdapter extends OpraHttpAdapter<IHttpExecutionContext> {
 
   static async init(
       app: Application,
@@ -29,8 +30,8 @@ export class OpraExpressAdapter extends OpraHttpAdapter<IHttpAdapterContext> {
     const prefix = '/' + normalizePath(options?.prefix, true);
     app.use(prefix, (request, response, next) => {
       (async () => {
-        const adapterContext = new ExpressAdapterContext(request, response);
-        await adapter.handler(adapterContext);
+        const executionContext = new ExpressExecutionContext(request, response);
+        await adapter.handler(executionContext);
       })().catch(e => next(e));
     });
     return adapter;
@@ -38,11 +39,12 @@ export class OpraExpressAdapter extends OpraHttpAdapter<IHttpAdapterContext> {
 
 }
 
-class ExpressAdapterContext implements IHttpAdapterContext {
-  private readonly _request: IHttpRequest;
-  private readonly _response: IHttpResponse;
+class ExpressExecutionContext extends AsyncEventEmitter implements IHttpExecutionContext {
+  private readonly _request: IHttpRequestWrapper;
+  private readonly _response: IHttpResponseWrapper;
 
   constructor(request: Request, response: Response) {
+    super();
     this._request = new ExpressRequestWrapper(request);
     this._response = new ExpressResponseWrapper(response);
   }
@@ -55,20 +57,33 @@ class ExpressAdapterContext implements IHttpAdapterContext {
     return 'express'
   }
 
-  switchToHttp(): IHttpAdapterContext {
+  switchToHttp(): IHttpExecutionContext {
     return this;
   }
 
-  getRequest(): IHttpRequest {
+  getRequest(): any {
+    return this._request.getInstance();
+  }
+
+  getResponse(): any {
+    return this._response.getInstance();
+  }
+
+  getRequestWrapper(): IHttpRequestWrapper {
     return this._request;
   }
 
-  getResponse(): IHttpResponse {
+  getResponseWrapper(): IHttpResponseWrapper {
     return this._response;
   }
+
+  onFinish(fn: (...args: any[]) => (void | Promise<void>)) {
+    this.on('finish', fn);
+  }
+
 }
 
-class ExpressRequestWrapper implements IHttpRequest {
+class ExpressRequestWrapper implements IHttpRequestWrapper {
   constructor(readonly instance: Request) {
   }
 
@@ -103,7 +118,7 @@ class ExpressRequestWrapper implements IHttpRequest {
 }
 
 
-class ExpressResponseWrapper implements IHttpResponse {
+class ExpressResponseWrapper implements IHttpResponseWrapper {
   constructor(readonly instance: Response) {
   }
 

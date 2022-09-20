@@ -1,24 +1,28 @@
 import { OpraURLSearchParams, SearchParams } from '@opra/url';
 import { HttpStatus } from '../enums/index.js';
 import { ApiException } from '../exception/index.js';
-import { ContextType, IAdapterContext, IHttpAdapterContext } from '../interfaces/adapter-context.interface.js';
-import { OpraQuery } from '../interfaces/execution-query.interface.js';
+import {
+  ContextType,
+  IExecutionContext,
+  IHttpExecutionContext
+} from '../interfaces/execution-context.interface.js';
+import { OpraQuery } from '../interfaces/query.interface.js';
 import { Headers, HeadersObject } from '../utils/headers.js';
 import { OpraService } from './opra-service.js';
 
 export type QueryContextArgs = Pick<QueryContext,
-    'service' | 'query' | 'parentValue' | 'headers' | 'params' |
-    'adapterContext' | 'userContext' | 'continueOnError'>;
+    'service' | 'executionContext' | 'query' | 'params' | 'headers' |
+    'userContext' | 'parentValue' | 'continueOnError'>;
 
 export class QueryContext {
   readonly service: OpraService;
+  readonly executionContext: IExecutionContext;
   readonly query: OpraQuery;
   readonly params: SearchParams;
   readonly headers: HeadersObject;
   readonly parentValue?: any;
   readonly resultPath: string;
   readonly response: QueryResponse;
-  readonly adapterContext: IAdapterContext;
   userContext?: any;
   continueOnError?: boolean;
 
@@ -31,13 +35,13 @@ export class QueryContext {
   }
 
   get type(): ContextType {
-    return this.adapterContext.getType();
+    return this.executionContext.getType();
   }
 
-  switchToHttp(): IHttpAdapterContext {
+  switchToHttp(): IHttpExecutionContext {
     if (this.type !== 'http')
       throw new Error(`You can't access http context within an ${this.type} context`);
-    return this.adapterContext as IHttpAdapterContext;
+    return this.executionContext as IHttpExecutionContext;
   }
 }
 

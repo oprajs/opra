@@ -1,21 +1,35 @@
 export type ContextType = 'http' | 'ws' | 'rpc';
 export type PlatformType = 'express';
 
-export interface IAdapterContext {
+export namespace IExecutionContext {
+  export type OnFinishArgs = {
+    userContext: any;
+    failed: boolean;
+  }
+}
+
+export interface IExecutionContext {
   getType(): ContextType;
 
   getPlatform(): PlatformType;
 
-  switchToHttp(): IHttpAdapterContext;
+  switchToHttp(): IHttpExecutionContext;
+
+  onFinish(fn: (args: IExecutionContext.OnFinishArgs) => void | Promise<void>);
+
 }
 
-export interface IHttpAdapterContext extends IAdapterContext {
-  getRequest(): IHttpRequest;
+export interface IHttpExecutionContext extends IExecutionContext {
+  getRequest(): any;
 
-  getResponse(): IHttpResponse;
+  getResponse(): any;
+
+  getRequestWrapper(): IHttpRequestWrapper;
+
+  getResponseWrapper(): IHttpResponseWrapper;
 }
 
-export interface IHttpRequest {
+export interface IHttpRequestWrapper {
 
   getInstance(): any;
 
@@ -32,7 +46,7 @@ export interface IHttpRequest {
   getBody(): any;
 }
 
-export interface IHttpResponse {
+export interface IHttpResponseWrapper {
 
   getInstance(): any;
 

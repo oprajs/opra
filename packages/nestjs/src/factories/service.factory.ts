@@ -80,8 +80,8 @@ export class ServiceFactory {
           switch (ctx.type) {
             case 'http':
               const http = ctx.switchToHttp();
-              const req = http.getRequest().getInstance();
-              const res = http.getResponse().getInstance();
+              const req = http.getRequestWrapper().getInstance();
+              const res = http.getResponseWrapper().getInstance();
               return preCallback(req, res, noOpFunction, ctx);
             default:
               throw new Error(`"${ctx.type}" context type is not implemented yet`)
@@ -114,8 +114,8 @@ export class ServiceFactory {
           switch (ctx.type) {
             case 'http':
               const http = ctx.switchToHttp();
-              const req = http.getRequest().getInstance();
-              const res = http.getResponse().getInstance();
+              const req = http.getRequestWrapper().getInstance();
+              const res = http.getResponseWrapper().getInstance();
               return callback(req, res, noOpFunction, ctx);
             default:
               throw new Error(`"${ctx.type}" context type is not implemented yet`)

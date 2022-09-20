@@ -5,8 +5,8 @@ import {
   OpraCreateQuery, OpraDeleteManyQuery,
   OpraDeleteQuery,
   OpraGetQuery,
-  OpraService,
-  OpraSearchQuery, OpraUpdateManyQuery,
+  OpraSearchQuery, OpraService,
+  OpraUpdateManyQuery,
   OpraUpdateQuery
 } from '../../src/index.js';
 import { CustomerAddressesesResource } from '../_support/test-app/api/customer-addresseses.resource.js';

@@ -9,8 +9,8 @@ import {
   NotFoundError,
 } from '../../exception/index.js';
 import { wrapError } from '../../exception/wrap-error.js';
-import { IHttpAdapterContext } from '../../interfaces/adapter-context.interface.js';
-import { OpraPropertyQuery, OpraQuery } from '../../interfaces/execution-query.interface.js';
+import { IHttpExecutionContext } from '../../interfaces/execution-context.interface.js';
+import { OpraPropertyQuery, OpraQuery } from '../../interfaces/query.interface.js';
 import { IResourceContainer } from '../../interfaces/resource-container.interface.js';
 import { KeyValue, QueryScope } from '../../types.js';
 import { Headers, HeadersObject } from '../../utils/headers.js';
@@ -32,18 +32,18 @@ interface PreparedOutput {
   body?: any;
 }
 
-export class OpraHttpAdapter<TAdapterContext extends IHttpAdapterContext> extends OpraAdapter<IHttpAdapterContext> {
+export class OpraHttpAdapter<TExecutionContext extends IHttpExecutionContext> extends OpraAdapter<IHttpExecutionContext> {
 
-  protected prepareRequests(adapterContext: TAdapterContext): QueryContext[] {
-    const req = adapterContext.getRequest();
+  protected prepareRequests(executionContext: TExecutionContext): QueryContext[] {
+    const req = executionContext.getRequestWrapper();
     // todo implement batch requests
-    if (this.isBatch(adapterContext)) {
+    if (this.isBatch(executionContext)) {
       throw new Error('not implemented yet');
     }
     const url = new OpraURL(req.getUrl());
     return [
       this.prepareRequest(
-          adapterContext,
+          executionContext,
           url,
           req.getMethod(),
           Headers.from(req.getHeaders()),
@@ -52,7 +52,7 @@ export class OpraHttpAdapter<TAdapterContext extends IHttpAdapterContext> extend
   }
 
   prepareRequest(
-      adapterContext: IHttpAdapterContext,
+      executionContext: IHttpExecutionContext,
       url: OpraURL,
       method: string,
       headers: HeadersObject,
@@ -69,7 +69,7 @@ export class OpraHttpAdapter<TAdapterContext extends IHttpAdapterContext> extend
       });
     return new QueryContext({
       service: this.service,
-      adapterContext,
+      executionContext,
       query,
       headers,
       params: url.searchParams,
@@ -200,7 +200,7 @@ export class OpraHttpAdapter<TAdapterContext extends IHttpAdapterContext> extend
     }
   }
 
-  protected async sendResponse(adapterContext: TAdapterContext, queryContexts: QueryContext[]) {
+  protected async sendResponse(executionContext: TExecutionContext, queryContexts: QueryContext[]) {
 
     const outputPackets: PreparedOutput[] = [];
     for (const ctx of queryContexts) {
@@ -208,7 +208,7 @@ export class OpraHttpAdapter<TAdapterContext extends IHttpAdapterContext> extend
       outputPackets.push(v);
     }
 
-    if (this.isBatch(adapterContext)) {
+    if (this.isBatch(executionContext)) {
       // this.writeError([], new InternalServerError({message: 'Not implemented yet'}));
       return;
     }
@@ -225,7 +225,7 @@ export class OpraHttpAdapter<TAdapterContext extends IHttpAdapterContext> extend
     }
 
     const out = outputPackets[0];
-    const resp = adapterContext.getResponse();
+    const resp = executionContext.getResponseWrapper();
 
     resp.setStatus(out.status);
     resp.setHeader(HttpHeaders.Content_Type, 'application/json');
@@ -242,7 +242,7 @@ export class OpraHttpAdapter<TAdapterContext extends IHttpAdapterContext> extend
   }
 
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  protected isBatch(adapterContext: TAdapterContext): boolean {
+  protected isBatch(executionContext: TExecutionContext): boolean {
     return false;
   }
 
@@ -277,8 +277,8 @@ export class OpraHttpAdapter<TAdapterContext extends IHttpAdapterContext> extend
 
   }
 
-  protected async sendError(adapterContext: TAdapterContext, error: ApiException) {
-    const resp = adapterContext.getResponse();
+  protected async sendError(executionContext: TExecutionContext, error: ApiException) {
+    const resp = executionContext.getResponseWrapper();
     resp.setStatus(error.status || 500);
     resp.setHeader(HttpHeaders.Content_Type, 'application/json');
     resp.setHeader(HttpHeaders.Cache_Control, 'no-cache');
