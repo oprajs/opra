@@ -1,6 +1,6 @@
 import { OpraSchema } from '@opra/schema';
 import { colorFgMagenta, colorFgYellow, colorReset, nodeInspectCustom } from '../../utils/terminal-utils.js';
-import { QueryContext } from '../query-context';
+import { QueryContext } from '../query-context.js';
 
 export abstract class ResourceHandler {
   protected readonly _args: OpraSchema.Resource & { prepare?: Function };

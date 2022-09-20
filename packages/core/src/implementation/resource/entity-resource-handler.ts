@@ -1,7 +1,7 @@
 import _ from 'lodash';
 import { StrictOmit } from 'ts-gems';
 import { OpraSchema } from '@opra/schema';
-import { OpraQuery } from '../../interfaces/execution-query.interface.js';
+import { OpraQuery } from '../../interfaces/query.interface.js';
 import { EntityType } from '../data-type/entity-type.js';
 import { OpraService } from '../opra-service.js';
 import { QueryContext } from '../query-context.js';
