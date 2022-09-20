@@ -1,5 +1,5 @@
 import {
-  ApiEntityResource, ExecutionContext
+  ApiEntityResource, QueryContext
 } from '../../../../src/index.js';
 import { Address } from '../dto/address.dto.js';
 
@@ -8,12 +8,12 @@ import { Address } from '../dto/address.dto.js';
 })
 export class CustomerAddressesesResource {
 
-  get(ctx: ExecutionContext) {
+  get(ctx: QueryContext) {
     // eslint-disable-next-line no-console
     console.log(ctx);
   }
 
-  search(ctx: ExecutionContext) {
+  search(ctx: QueryContext) {
     // eslint-disable-next-line no-console
     console.log(ctx);
   }

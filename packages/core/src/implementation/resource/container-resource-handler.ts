@@ -1,7 +1,7 @@
 import { StrictOmit } from 'ts-gems';
 import { OpraSchema } from '@opra/schema';
 import { IResourceContainer } from '../../interfaces/resource-container.interface.js';
-import { ExecutionContext } from '../execution-context.js';
+import { QueryContext } from '../query-context.js';
 import { EntityResourceHandler } from './entity-resource-handler.js';
 import { ResourceHandler } from './resource-handler.js';
 
@@ -32,7 +32,7 @@ export class ContainerResourceHandler extends ResourceHandler implements IResour
   }
 
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  execute(ctx: ExecutionContext): Promise<void> {
+  execute(ctx: QueryContext): Promise<void> {
     return Promise.resolve(undefined);
   }
 

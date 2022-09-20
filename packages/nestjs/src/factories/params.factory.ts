@@ -1,5 +1,5 @@
 import { ParamsFactory } from '@nestjs/core/helpers/external-context-creator.js';
-import { ExecutionContext } from '@opra/core';
+import { QueryContext } from '@opra/core';
 import { HandlerParamType } from '../enums/handler-paramtype.enum.js';
 
 export class OpraParamsFactory implements ParamsFactory {
@@ -12,13 +12,13 @@ export class OpraParamsFactory implements ParamsFactory {
       case HandlerParamType.CONTEXT:
         return args[3];
       case HandlerParamType.SERVICE:
-        return (args[3] as ExecutionContext).service;
+        return (args[3] as QueryContext).service;
       case HandlerParamType.QUERY:
-        return (args[3] as ExecutionContext).query;
+        return (args[3] as QueryContext).query;
       case HandlerParamType.RESPONSE:
-        return (args[3] as ExecutionContext).response;
+        return (args[3] as QueryContext).response;
       case HandlerParamType.USER_CONTEXT:
-        return (args[3] as ExecutionContext).userContext;
+        return (args[3] as QueryContext).userContext;
       default:
         return null;
     }

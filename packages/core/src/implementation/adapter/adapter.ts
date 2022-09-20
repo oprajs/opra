@@ -2,8 +2,8 @@ import { FallbackLng, I18n, LanguageResource } from '@opra/i18n';
 import { ApiException, FailedDependencyError } from '../../exception/index.js';
 import { wrapError } from '../../exception/wrap-error.js';
 import { IAdapterContext } from '../../interfaces/adapter-context.interface.js';
-import { ExecutionContext } from '../execution-context.js';
 import { OpraService } from '../opra-service.js';
+import { QueryContext } from '../query-context.js';
 
 export namespace OpraAdapter {
   export type UserContextResolver = (
@@ -69,9 +69,9 @@ export abstract class OpraAdapter<TAdapterContext extends IAdapterContext> {
     this.onRequestFinish = options?.onRequestFinish;
   }
 
-  protected abstract prepareRequests(adapterContext: TAdapterContext): ExecutionContext[];
+  protected abstract prepareRequests(adapterContext: TAdapterContext): QueryContext[];
 
-  protected abstract sendResponse(adapterContext: TAdapterContext, executionContexts: ExecutionContext[]): Promise<void>;
+  protected abstract sendResponse(adapterContext: TAdapterContext, queryContexts: QueryContext[]): Promise<void>;
 
   protected abstract sendError(adapterContext: TAdapterContext, error: ApiException): Promise<void>;
 
@@ -81,17 +81,17 @@ export abstract class OpraAdapter<TAdapterContext extends IAdapterContext> {
     if (!this.i18n.isInitialized)
       await this.i18n.init();
 
-    let executionContexts: ExecutionContext[] | undefined;
+    let queryContexts: QueryContext[] | undefined;
     let userContext: any;
     let failed = false;
     try {
-      executionContexts = this.prepareRequests(adapterContext);
+      queryContexts = this.prepareRequests(adapterContext);
 
       let stop = false;
       // Read requests can be executed simultaneously, write request should be executed one by one
       let promises: Promise<void>[] | undefined;
       let exclusive = false;
-      for (const context of executionContexts) {
+      for (const context of queryContexts) {
         exclusive = exclusive || context.query.operationType !== 'read';
 
         // Wait previous read requests before executing update request
@@ -146,13 +146,13 @@ export abstract class OpraAdapter<TAdapterContext extends IAdapterContext> {
 
       if (userContext && typeof userContext.onRequestFinish === 'function') {
         try {
-          failed = !!executionContexts.find(ctx => ctx.response.errors?.length);
+          failed = !!queryContexts.find(ctx => ctx.response.errors?.length);
         } catch (e: any) {
           await this.sendError(adapterContext, wrapError(e));
           return;
         }
       }
-      await this.sendResponse(adapterContext, executionContexts);
+      await this.sendResponse(adapterContext, queryContexts);
 
     } catch (e: any) {
       failed = true;

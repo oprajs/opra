@@ -1,19 +1,18 @@
 import _ from 'lodash';
-import { ExecutionRequest } from '@opra/core'
-import { Repository, SqbClient, SqbConnection } from '@sqb/connect';
+import { OpraQuery } from '@opra/core'
+import { Repository } from '@sqb/connect';
 import type { BaseEntityService } from './base-entity-service';
 import { convertFilter } from './convert-filter.js';
 
 export namespace SQBAdapter {
 
-  export function prepare(request: ExecutionRequest): {
+  export function prepare(query: OpraQuery): {
     method: 'create' | 'findByPk' | 'findAll' | 'update' | 'updateAll' | 'destroy' | 'destroyAll';
     options: any,
     keyValue?: any;
     values?: any;
     args: any[]
   } {
-    const {query} = request;
     switch (query.queryType) {
       case 'create': {
         const options: Repository.CreateOptions = _.omitBy({
@@ -111,27 +110,6 @@ export namespace SQBAdapter {
       default:
         throw new Error(`Unimplemented query type "${(query as any).queryType}"`);
     }
-  }
-
-  export async function execute(connection: SqbClient | SqbConnection, request: ExecutionRequest): Promise<any> {
-    const {query} = request;
-    const repo = connection.getRepository(query.resource.dataType.ctor);
-    const prepared = prepare(request);
-    const out: any = {};
-    // @ts-ignore
-    const value = await repo[prepared.method](...prepared.args);
-    if (value && typeof value === 'object')
-      out.value = value;
-    if (query.queryType === 'search') {
-      if (query.count) {
-        out.total = await repo.count(prepared.options);
-      }
-    }
-    if (prepared.method === 'destroy')
-      out.affected = value ? 1 : 0;
-    else if (prepared.method === 'destroyAll' || prepared.method === 'updateAll')
-      out.affected = value;
-    return out;
   }
 
 }

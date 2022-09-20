@@ -1,44 +1,44 @@
 import { Maybe } from 'ts-gems';
 import { EntityOutput } from '@sqb/connect';
-import { ExecutionContext } from '../implementation/execution-context.js';
+import { QueryContext } from '../implementation/query-context.js';
 
 export interface IEntityService {
-  processRequest(ctx: ExecutionContext): any;
+  processRequest(ctx: QueryContext): any;
 }
 
 export abstract class EntityResourceController<T> {
 
-  async search(ctx: ExecutionContext): Promise<Maybe<EntityOutput<T>>[]> {
+  async search(ctx: QueryContext): Promise<Maybe<EntityOutput<T>>[]> {
     return (await this.getService(ctx)).processRequest(ctx);
   }
 
-  async get(ctx: ExecutionContext): Promise<Maybe<EntityOutput<T>>> {
+  async get(ctx: QueryContext): Promise<Maybe<EntityOutput<T>>> {
     return (await this.getService(ctx)).processRequest(ctx);
   }
 
-  async count(ctx: ExecutionContext): Promise<Maybe<number>> {
+  async count(ctx: QueryContext): Promise<Maybe<number>> {
     return (await this.getService(ctx)).processRequest(ctx);
   }
 
-  async create(ctx: ExecutionContext): Promise<Maybe<EntityOutput<T>>> {
+  async create(ctx: QueryContext): Promise<Maybe<EntityOutput<T>>> {
     return (await this.getService(ctx)).processRequest(ctx);
   }
 
-  async update(ctx: ExecutionContext): Promise<Maybe<EntityOutput<T>>> {
+  async update(ctx: QueryContext): Promise<Maybe<EntityOutput<T>>> {
     return (await this.getService(ctx)).processRequest(ctx);
   }
 
-  async updateMany(ctx: ExecutionContext): Promise<Maybe<number>> {
+  async updateMany(ctx: QueryContext): Promise<Maybe<number>> {
     return (await this.getService(ctx)).processRequest(ctx);
   }
 
-  async delete(ctx: ExecutionContext): Promise<Maybe<boolean | number>> {
+  async delete(ctx: QueryContext): Promise<Maybe<boolean | number>> {
     return (await this.getService(ctx)).processRequest(ctx);
   }
 
-  async deleteMany(ctx: ExecutionContext): Promise<Maybe<number>> {
+  async deleteMany(ctx: QueryContext): Promise<Maybe<number>> {
     return (await this.getService(ctx)).processRequest(ctx);
   }
 
-  abstract getService(ctx: ExecutionContext): IEntityService | Promise<IEntityService>;
+  abstract getService(ctx: QueryContext): IEntityService | Promise<IEntityService>;
 }

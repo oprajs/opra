@@ -1,6 +1,6 @@
 import {
   ApiEntityResource,
-  ExecutionContext
+  QueryContext
 } from '../../../../src/index.js';
 import { Customer } from '../dto/customer.dto.js';
 
@@ -18,12 +18,12 @@ export class CustomersResource {
     //
   }
 
-  get(ctx: ExecutionContext) {
+  get(ctx: QueryContext) {
     // eslint-disable-next-line no-console
     console.log(ctx);
   }
 
-  search(ctx: ExecutionContext) {
+  search(ctx: QueryContext) {
     // eslint-disable-next-line no-console
     console.log(ctx);
   }
