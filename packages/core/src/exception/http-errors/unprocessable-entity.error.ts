@@ -15,7 +15,7 @@ export class UnprocessableEntityError extends ApiException {
 
   protected _initResponse(response: Partial<ErrorResponse>) {
     super._initResponse({
-      message: translate('error:UNPROCESSABLE_ENTITY', 'Unprocessable entity'),
+      message: translate('error:UNPROCESSABLE_ENTITY'),
       severity: 'error',
       code: 'UNPROCESSABLE_ENTITY',
       ...response

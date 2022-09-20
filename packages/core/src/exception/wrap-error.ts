@@ -1,5 +1,5 @@
 import { ApiException, ErrorResponse } from './api-exception.js';
-import { InternalServerError } from './errors/internal-server.error.js';
+import { InternalServerError } from './http-errors/internal-server.error.js';
 
 export function wrapError(response: string | ErrorResponse | Error): ApiException {
   if (response instanceof ApiException)

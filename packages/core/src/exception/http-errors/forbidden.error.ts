@@ -3,22 +3,23 @@ import { HttpStatus } from '../../enums/index.js';
 import { ApiException, ErrorResponse } from '../api-exception.js';
 
 /**
- * 405 Method Not Allowed
- * The request method is known by the server but is not supported by the target resource.
- * For example, an API may not allow calling DELETE to remove a resource.
+ * 403 Forbidden
+ * The client does not have access rights to the content; that is, it is unauthorized,
+ * so the server is refusing to give the requested resource. Unlike 401 Unauthorized,
+ * the client's identity is known to the server.
  */
-export class MethodNotAllowedError extends ApiException {
+export class ForbiddenError extends ApiException {
 
   constructor(response?: string | ErrorResponse | Error, cause?: Error) {
     super(response, cause);
-    this.status = HttpStatus.METHOD_NOT_ALLOWED;
+    this.status = HttpStatus.FORBIDDEN;
   }
 
   protected _initResponse(response: Partial<ErrorResponse>) {
     super._initResponse({
-      message: translate('error:METHOD_NOT_ALLOWED', 'Method Not Allowed'),
+      message: translate('error:FORBIDDEN'),
       severity: 'error',
-      code: 'METHOD_NOT_ALLOWED',
+      code: 'FORBIDDEN',
       ...response
     })
   }
