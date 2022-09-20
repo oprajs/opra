@@ -5,6 +5,7 @@ import { RESOURCE_METADATA } from '../constants.js';
 import { ThunkAsync } from '../types.js';
 import { isConstructor, resolveClassAsync } from '../utils/class-utils.js';
 import { builtinClassMap, internalDataTypes, primitiveDataTypeNames } from '../utils/internal-data-types.js';
+import isDataType = OpraSchema.isDataType;
 
 export namespace SchemaGenerator {
 
@@ -30,29 +31,19 @@ export class SchemaGenerator {
   }
 
   protected async addDataType(thunk: ThunkAsync<Type | OpraSchema.DataType>): Promise<OpraSchema.DataType> {
-    let schema: OpraSchema.DataType | undefined;
 
     thunk = isPromise(thunk) ? await thunk : thunk;
-    if (typeof thunk === 'function' && !isConstructor(thunk))
-      thunk = await thunk();
+    if (typeof thunk === 'function') {
+      if (!isConstructor(thunk))
+        return this.addDataType(await thunk());
 
-    if (!isConstructor(thunk) || OpraSchema.isDataType(thunk))
-      throw new TypeError(`Function must return a type class or type schema`);
+      if (builtinClassMap.has(thunk))
+        return this.addDataType(builtinClassMap.get(thunk) as OpraSchema.DataType);
 
-    if (isConstructor(thunk)) {
       const ctor = thunk;
       const metadata = Reflect.getOwnMetadata(DATATYPE_METADATA, ctor);
       if (!metadata)
         throw new TypeError(`Class "${ctor}" has no type metadata`);
-
-      schema = this._dataTypes[metadata.name];
-      if (schema) {
-        if (schema.kind !== metadata.kind ||
-            (OpraSchema.isComplexType(schema) && schema.ctor !== ctor)
-        )
-          throw new Error(`An other instance of "${schema.name}" data type previously defined`);
-        return schema;
-      }
 
       // Add base data type
       let base: string | undefined;
@@ -65,47 +56,48 @@ export class SchemaGenerator {
         base = baseSchema.name;
       }
 
-      if (OpraSchema.isComplexType(metadata) || OpraSchema.isEntityType(metadata)) {
-        schema = {
-          ...metadata,
-          ctor,
-          base
-        };
+      const schema = {
+        ...metadata,
+        ctor,
+        base
+      } as OpraSchema.ComplexType;
 
-        const properties: Record<string, PropertyMetadata> = Reflect.getMetadata(DATATYPE_PROPERTIES, ctor.prototype);
-        if (properties) {
-          for (const [k, p] of Object.entries(properties)) {
-            let type: string;
-            if (isConstructor(p.type) && builtinClassMap.has(p.type))
-              type = builtinClassMap.get(p.type);
-            else if (typeof p.type === 'function' || typeof p.type === 'object') {
-              const t = await this.addDataType(p.type);
-              type = t.name;
-            } else type = p.type || 'string';
-            if (internalDataTypes.has(type) && !this._dataTypes[type])
-              this._dataTypes[type] = internalDataTypes.get(type.toLowerCase()) as OpraSchema.DataType;
-            schema.properties = schema.properties || {};
-            schema.properties[k] = {...p, type};
+      const properties: Record<string, PropertyMetadata> = Reflect.getMetadata(DATATYPE_PROPERTIES, ctor.prototype);
+      if (properties) {
+        for (const [k, p] of Object.entries(properties)) {
+          let type = p.type || 'string';
+          if (typeof type !== 'string') {
+            const propSchema = await this.addDataType(type);
+            type = propSchema.name;
+          } else {
+            if (internalDataTypes.has(type))
+              await this.addDataType(internalDataTypes.get(type) as any);
           }
+          schema.properties = schema.properties || {};
+          schema.properties[k] = {...p, type};
         }
+      }
 
-      } else if (OpraSchema.isSimpleType(metadata)) {
-        if (!primitiveDataTypeNames.includes(metadata.type))
-          throw new Error(`"type" of SimpleType schema must be one of enumerated value (${primitiveDataTypeNames})`);
-        schema = {
-          ...metadata
-        }
-      } else
-          /* istanbul ignore next */
-        throw new TypeError(`Invalid metadata`);
+      return this.addDataType(schema);
+    }
 
-    } else if (OpraSchema.isDataType(thunk)) {
-      schema = thunk;
-    } else
+    if (!isDataType(thunk))
       throw new TypeError(`Invalid data type schema`);
 
-    this._dataTypes[schema.name] = schema;
-    return schema;
+    // Check if datatype previously added
+    const currentSchema = this._dataTypes[thunk.name];
+    if (currentSchema) {
+      if (!(currentSchema.kind === thunk.kind && currentSchema.ctor && currentSchema.ctor === thunk.ctor))
+        throw new Error(`An other instance of "${currentSchema.name}" data type previously defined`);
+      return currentSchema;
+    }
+
+    if (OpraSchema.isSimpleType(thunk) && !primitiveDataTypeNames.includes(thunk.type))
+      throw new Error(`"type" of SimpleType schema must be one of enumerated value (${primitiveDataTypeNames})`);
+
+    return this._dataTypes[thunk.name] = {
+      ...thunk
+    };
   }
 
   async addResource(instance: any): Promise<void> {

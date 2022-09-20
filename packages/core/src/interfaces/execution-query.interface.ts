@@ -8,7 +8,7 @@ import { EntityResourceHandler } from '../implementation/resource/entity-resourc
 import { KeyValue, OperationType, QueryScope, QueryType } from '../types.js';
 import { ObjectTree, stringPathToObjectTree } from '../utils/string-path-to-object-tree.js';
 
-export type ExecutionQuery = CreateQuery | ReadQuery | SearchQuery |
+export type ExecutionQuery = CreateQuery | GetQuery | SearchQuery |
     UpdateQuery | UpdateManyQuery | DeleteQuery | DeleteManyQuery;
 
 interface BaseQuery {
@@ -28,7 +28,7 @@ export interface CreateQuery extends BaseQuery {
   include?: string[];
 }
 
-export interface ReadQuery extends BaseQuery {
+export interface GetQuery extends BaseQuery {
   queryType: 'get';
   scope: 'instance';
   operationType: 'read';
@@ -101,12 +101,19 @@ export interface SearchQuery extends BaseQuery {
   sort?: string[];
 }
 
+export type CreateQueryOptions = StrictOmit<CreateQuery, 'queryType' | 'scope' | 'operationType' | 'resource' | 'data'>;
+export type GetQueryOptions = StrictOmit<GetQuery, 'queryType' | 'scope' | 'operationType' | 'resource' | 'keyValue'>;
+export type SearchQueryOptions = StrictOmit<SearchQuery, 'queryType' | 'scope' | 'operationType' | 'resource'>;
+export type UpdateQueryOptions = StrictOmit<UpdateQuery, 'queryType' | 'scope' | 'operationType' | 'resource' | 'keyValue' | 'data'>;
+export type UpdateManyQueryOptions = StrictOmit<UpdateManyQuery, 'queryType' | 'scope' | 'operationType' | 'resource' | 'data'>;
+export type DeleteManyQueryOption = StrictOmit<DeleteManyQuery, 'queryType' | 'scope' | 'operationType' | 'resource'>;
+
 export namespace ExecutionQuery {
 
   export function forCreate(
       resource: EntityResourceHandler,
       values: {},
-      options?: StrictOmit<CreateQuery, 'queryType' | 'scope' | 'operationType' | 'resource' | 'data'>
+      options?: CreateQueryOptions
   ): CreateQuery {
     if (options?.pick)
       options.pick = normalizePick(resource, options.pick);
@@ -129,8 +136,8 @@ export namespace ExecutionQuery {
   export function forGet(
       resource: EntityResourceHandler,
       key: KeyValue,
-      options?: StrictOmit<ReadQuery, 'queryType' | 'scope' | 'operationType' | 'resource' | 'keyValue'>
-  ): ReadQuery {
+      options?: GetQueryOptions
+  ): GetQuery {
     if (options?.pick)
       options.pick = normalizePick(resource, options.pick);
     if (options?.omit)
@@ -139,7 +146,7 @@ export namespace ExecutionQuery {
       options.include = normalizePick(resource, options.include);
 
     checkKeyFields(resource, key);
-    const out: ReadQuery = {
+    const out: GetQuery = {
       queryType: 'get',
       scope: 'instance',
       operationType: 'read',
@@ -152,7 +159,7 @@ export namespace ExecutionQuery {
 
   export function forSearch(
       resource: EntityResourceHandler,
-      options?: StrictOmit<SearchQuery, 'queryType' | 'scope' | 'operationType' | 'resource'>
+      options?: SearchQueryOptions
   ): SearchQuery {
     if (options?.pick)
       options.pick = normalizePick(resource, options.pick);
@@ -191,7 +198,7 @@ export namespace ExecutionQuery {
       resource: EntityResourceHandler,
       keyValue: KeyValue,
       values: any,
-      options?: StrictOmit<UpdateQuery, 'queryType' | 'scope' | 'operationType' | 'resource' | 'keyValue' | 'data'>
+      options?: UpdateQueryOptions
   ): UpdateQuery {
     if (options?.pick)
       options.pick = normalizePick(resource, options.pick);
@@ -216,7 +223,7 @@ export namespace ExecutionQuery {
   export function forUpdateMany(
       resource: EntityResourceHandler,
       values: any,
-      options?: StrictOmit<UpdateManyQuery, 'queryType' | 'scope' | 'operationType' | 'resource' | 'data'>
+      options?: UpdateManyQueryOptions
   ): UpdateManyQuery {
     const out: UpdateManyQuery = {
       queryType: 'updateMany',
@@ -242,7 +249,7 @@ export namespace ExecutionQuery {
 
   export function forDeleteMany(
       resource: EntityResourceHandler,
-      options?: StrictOmit<DeleteManyQuery, 'queryType' | 'scope' | 'operationType' | 'resource'>
+      options?: DeleteManyQueryOption
   ): DeleteManyQuery {
     const out: DeleteManyQuery = {
       queryType: 'deleteMany',
@@ -262,7 +269,7 @@ export namespace ExecutionQuery {
     return q && typeof q === 'object' && q.scope === 'collection' && q.queryType === 'search';
   }
 
-  export function isReadQuery(q: any): q is ReadQuery {
+  export function isReadQuery(q: any): q is GetQuery {
     return q && typeof q === 'object' && q.scope === 'instance' && q.queryType === 'read';
   }
 

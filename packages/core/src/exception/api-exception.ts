@@ -43,16 +43,31 @@ export class ApiException extends Error {
   status: number;
   cause?: Error;
 
-  constructor(response: string | ErrorResponse | Error, cause?: Error) {
+  constructor(response?: string | ErrorResponse | Error, cause?: Error) {
     super('');
     this._initName();
+    this.status = HttpStatus.INTERNAL_SERVER_ERROR;
+
+    cause = cause || (response instanceof Error ? response : undefined);
     if (cause)
       Object.defineProperty(this, 'cause', {enumerable: false, configurable: true, writable: true, value: cause});
-    else if (response instanceof Error)
-      Object.defineProperty(this, 'cause', {enumerable: false, configurable: true, writable: true, value: response});
 
-    this.status = HttpStatus.INTERNAL_SERVER_ERROR;
-    this._initResponse(response);
+    if (this.cause instanceof Error && this.cause.stack) {
+      if (ApiException.stackAsDiagnostics)
+        this.response.diagnostics = this.cause.stack.split('\n');
+      this.stack = this.cause.stack;
+    }
+
+    if (response instanceof Error)
+      this._initErrorInstance(response);
+    else if (typeof response === 'string')
+      this._initResponse({message: response});
+    else this._initResponse(response);
+
+    if (!this.response.severity)
+      if (this.status >= 500)
+        this.response.severity = 'fatal'
+      else this.response.severity = 'error';
   }
 
   setStatus(status: number | HttpStatus): this {
@@ -64,38 +79,21 @@ export class ApiException extends Error {
     this.name = this.constructor.name;
   }
 
-  protected _initResponse(init: string | ErrorResponse | Error) {
-    if (init && typeof init === 'object') {
-      const x = init as any;
-      if (typeof x.status === 'number')
-        this.setStatus(x.status);
-      else if (typeof x.getStatus === 'function')
-        this.setStatus(x.getStatus());
-    }
+  protected _initErrorInstance(init: Error) {
+    this._initResponse({
+      message: init.message
+    });
+    if (typeof (init as any).status === 'number')
+      this.setStatus((init as any).status);
+    else if (typeof (init as any).getStatus === 'function')
+      this.setStatus((init as any).getStatus());
+  }
 
-    if (typeof init === 'object') {
-      const x = init as any;
-      this.response = {
-        message: x.message || x.details || ('' + init),
-      }
-      if (!(init instanceof Error))
-        Object.assign(this.response, init);
-    } else {
-      this.response = {
-        message: '' + init,
-      }
-    }
-
-    if (this.cause instanceof Error && this.cause.stack) {
-      if (ApiException.stackAsDiagnostics)
-        this.response.diagnostics = this.cause.stack.split('\n');
-      this.stack = this.cause.stack;
-    }
-
-    if (!this.response.severity)
-      if (this.status >= 500)
-        this.response.severity = 'fatal'
-      else this.response.severity = 'error';
+  protected _initResponse(response?: Partial<ErrorResponse>) {
+    this.response = {
+      message: 'Unknown error',
+      ...response
+    };
   }
 
   static wrap(response: string | ErrorResponse | Error): ApiException {

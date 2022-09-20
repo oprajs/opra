@@ -3,8 +3,7 @@ import {
   ApiEntityResource,
   CreateQuery,
   DeleteManyQuery,
-  DeleteQuery, IEntityResource,
-  ReadQuery,
+  DeleteQuery, GetQuery,
   SearchQuery, UpdateManyQuery,
   UpdateQuery
 } from '@opra/core';
@@ -16,7 +15,7 @@ import { PhotosService } from './photos.service.js';
 @ApiEntityResource(Photos, {
   description: 'Photos resource'
 })
-export class PhotosResource implements IEntityResource<Photos> {
+export class PhotosResource {
 
   constructor(public photosService: PhotosService) {
   }
@@ -34,7 +33,7 @@ export class PhotosResource implements IEntityResource<Photos> {
     return this.photosService.create(query.data);
   }
 
-  get(@Query query: ReadQuery) {
+  get(@Query query: GetQuery) {
     return this.photosService.get(query.keyValue);
   }
 

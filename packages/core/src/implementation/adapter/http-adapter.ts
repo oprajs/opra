@@ -9,8 +9,8 @@ import {
   NotFoundError,
 } from '../../exception/index.js';
 import { wrapError } from '../../exception/wrap-error.js';
+import { IHttpAdapterContext } from '../../interfaces/adapter-context.interface.js';
 import { ExecutionQuery, PropertyQuery } from '../../interfaces/execution-query.interface.js';
-import { IHttpAdapterContext } from '../../interfaces/http-context.interface.js';
 import { IResourceContainer } from '../../interfaces/resource-container.interface.js';
 import { KeyValue, QueryScope } from '../../types.js';
 import { Headers, HeadersObject } from '../../utils/headers.js';

@@ -1,6 +1,11 @@
 import type { Application, Request, Response } from 'express';
 import { normalizePath } from '@opra/url';
-import type { IHttpAdapterContext, IHttpRequest, IHttpResponse } from '../../interfaces/http-context.interface.js';
+import type {
+  ContextType,
+  IHttpAdapterContext,
+  IHttpRequest,
+  IHttpResponse, PlatformType
+} from '../../interfaces/adapter-context.interface';
 import type { OpraService } from '../opra-service.js';
 import { OpraHttpAdapter } from './http-adapter.js';
 
@@ -17,25 +22,50 @@ export class OpraExpressAdapter extends OpraHttpAdapter<IHttpAdapterContext> {
       options?: OpraExpressAdapter.Options
   ): Promise<OpraExpressAdapter> {
     const i18n = await this.initI18n(options);
-    const adapter = new OpraExpressAdapter(service, i18n);
+    const adapter = new OpraExpressAdapter(service, {
+      ...options,
+      i18n
+    });
     const prefix = '/' + normalizePath(options?.prefix, true);
-    const userContextResolver = options?.userContext;
     app.use(prefix, (request, response, next) => {
       (async () => {
-        const req = new ExpressRequestWrapper(request);
-        const res = new ExpressResponseWrapper(response);
-        const adapterContext: IHttpAdapterContext = {
-          getRequest: () => req,
-          getResponse: () => res
-        }
-        await adapter.handler(adapterContext, (isBatch: boolean) =>
-            userContextResolver && userContextResolver(request, {platform: 'express', isBatch})
-        );
+        const adapterContext = new ExpressAdapterContext(request, response);
+        await adapter.handler(adapterContext);
       })().catch(e => next(e));
     });
     return adapter;
   }
 
+}
+
+class ExpressAdapterContext implements IHttpAdapterContext {
+  private readonly _request: IHttpRequest;
+  private readonly _response: IHttpResponse;
+
+  constructor(request: Request, response: Response) {
+    this._request = new ExpressRequestWrapper(request);
+    this._response = new ExpressResponseWrapper(response);
+  }
+
+  getType(): ContextType {
+    return 'http';
+  }
+
+  getPlatform(): PlatformType {
+    return 'express'
+  }
+
+  switchToHttp(): IHttpAdapterContext {
+    return this;
+  }
+
+  getRequest(): IHttpRequest {
+    return this._request;
+  }
+
+  getResponse(): IHttpResponse {
+    return this._response;
+  }
 }
 
 class ExpressRequestWrapper implements IHttpRequest {

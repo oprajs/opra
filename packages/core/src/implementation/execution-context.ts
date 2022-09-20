@@ -1,12 +1,10 @@
 import { OpraURLSearchParams, SearchParams } from '@opra/url';
 import { HttpStatus } from '../enums/index.js';
 import { ApiException } from '../exception/index.js';
+import { ContextType, IHttpAdapterContext } from '../interfaces/adapter-context.interface.js';
 import { ExecutionQuery } from '../interfaces/execution-query.interface.js';
-import { IHttpAdapterContext } from '../interfaces/http-context.interface.js';
 import { Headers, HeadersObject } from '../utils/headers.js';
 import { OpraService } from './opra-service.js';
-
-export type ContextType = 'http' | 'ws' | 'rpc';
 
 export type ExecutionContextArgs = Pick<ExecutionContext,
     'type' | 'service' | 'request' | 'response' |

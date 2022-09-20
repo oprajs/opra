@@ -7,6 +7,7 @@ import { ExecutionContext } from '../execution-context.js';
 import { OpraService } from '../opra-service.js';
 import { ResourceHandler } from './resource-handler.js';
 import isSearchQuery = ExecutionQuery.isSearchQuery;
+import { UnprocessableEntityError } from '../../exception/index.js';
 
 export type EntityResourceControllerArgs = StrictOmit<OpraSchema.EntityResource, 'kind'> & {
   service: OpraService;
@@ -73,17 +74,25 @@ export class EntityResourceHandler extends ResourceHandler {
         if (typeof result === 'object')
           affectedRecords = result.affectedRows || result.affectedRecords;
         return {affectedRecords};
-      default:
-        result = Array.isArray(result) ? result[0] : result;
-        if (result && ctx.request.resultPath) {
-          const pathArray = ctx.request.resultPath.split('.');
-          for (const property of pathArray) {
-            result = result && typeof result === 'object' && result[property];
-          }
-        }
-        return result;
+
     }
 
+    result = Array.isArray(result) ? result[0] : result;
+
+    if (!result)
+      throw new UnprocessableEntityError();
+
+    if (ctx.request.resultPath) {
+      const pathArray = ctx.request.resultPath.split('.');
+      for (const property of pathArray) {
+        result = result && typeof result === 'object' && result[property];
+      }
+    }
+
+    if (fnName === 'create')
+      ctx.response.status = 201;
+
+    return result;
   }
 
 }

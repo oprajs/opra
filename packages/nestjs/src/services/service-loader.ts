@@ -9,7 +9,7 @@ import { OpraModuleOptions } from '../interfaces/opra-module-options.interface.j
 
 export class OpraServiceLoader {
   private readonly logger = new Logger(OpraServiceLoader.name, {timestamp: true});
-  private adapter: OpraAdapter | undefined;
+  private adapter: OpraAdapter<any> | undefined;
 
   @Inject()
   protected readonly httpAdapterHost: HttpAdapterHost;
