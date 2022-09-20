@@ -95,10 +95,13 @@ export class ServiceFactory {
         });
 
         if (!Reflect.hasMetadata(METHOD_PATCHED, fn)) {
-          Reflect.defineMetadata(METHOD_PATCHED, true, fn);
-          const patchedFn = prototype[methodName] = function (req, res, next, ctx) {
-            return fn.call(this, ctx);
+          const hasParamsArgs = Reflect.hasMetadata(PARAM_ARGS_METADATA, instance.constructor, methodName);
+          const patchedFn = prototype[methodName] = function (...args: any[]) {
+            if (hasParamsArgs)
+              return fn.apply(this, args);
+            return fn.call(this, args[3]);
           }
+          Reflect.defineMetadata(METHOD_PATCHED, true, patchedFn);
           Reflect.getMetadataKeys(fn).forEach(k => {
             const metadata = Reflect.getMetadata(k, fn);
             Reflect.defineMetadata(k, metadata, patchedFn);

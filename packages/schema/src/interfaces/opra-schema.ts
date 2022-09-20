@@ -1,5 +1,4 @@
-import { Maybe, StrictOmit, Type } from 'ts-gems';
-import { EntityOutput } from '@sqb/connect';
+import { StrictOmit, Type } from 'ts-gems';
 
 export namespace OpraSchema {
 
@@ -68,6 +67,7 @@ export namespace OpraSchema {
     name: string;
     description?: string;
     base?: string;
+    ctor?: Type;
   }
 
   export interface SimpleType extends BaseDataType {
@@ -82,7 +82,6 @@ export namespace OpraSchema {
   export interface ComplexType extends BaseDataType {
     kind: 'ComplexType';
     name: string;
-    ctor?: Type;
     description?: string;
     abstract?: boolean;
     properties?: Record<string, Property>;
@@ -119,7 +118,7 @@ export namespace OpraSchema {
     required?: boolean;
   }
 
-  export function isDataType(obj: any): obj is ComplexType {
+  export function isDataType(obj: any): obj is DataType {
     return obj && typeof obj === 'object' &&
         (obj.kind === 'ComplexType' || obj.kind === 'EntityType' || obj.kind === 'SimpleType');
   }

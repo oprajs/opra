@@ -3,8 +3,8 @@ import {
   CreateQuery, DeleteManyQuery,
   DeleteQuery,
   ExecutionQuery,
+  GetQuery,
   OpraService,
-  ReadQuery,
   SearchQuery, UpdateManyQuery,
   UpdateQuery
 } from '../../src/index.js';
@@ -300,7 +300,7 @@ describe('ExecutionQuery', function () {
     const id = 123;
     it('Should create ReadQuery', async () => {
       const resource = service.getEntityResource('Customers');
-      const query = ExecutionQuery.forGet(resource, id) as ReadQuery;
+      const query = ExecutionQuery.forGet(resource, id) as GetQuery;
       expect(query).toBeDefined();
       expect(query.resource).toStrictEqual(resource);
       expect(query.queryType).toStrictEqual('get');
@@ -311,7 +311,7 @@ describe('ExecutionQuery', function () {
 
     it('Should set "pick" option', async () => {
       const resource = service.getEntityResource('Customers');
-      const query = ExecutionQuery.forGet(resource, id, {pick: ['givenName', 'gender', 'address.city']}) as ReadQuery;
+      const query = ExecutionQuery.forGet(resource, id, {pick: ['givenName', 'gender', 'address.city']}) as GetQuery;
       expect(query).toBeDefined();
       expect(query.resource).toStrictEqual(resource);
       expect(query.queryType).toStrictEqual('get');
@@ -320,7 +320,7 @@ describe('ExecutionQuery', function () {
 
     it('Should normalize field names in "pick" option', async () => {
       const resource = service.getEntityResource('Customers');
-      let query = ExecutionQuery.forGet(resource, id, {pick: ['givenname', 'GENDER', 'AdDRess.CIty']}) as ReadQuery;
+      let query = ExecutionQuery.forGet(resource, id, {pick: ['givenname', 'GENDER', 'AdDRess.CIty']}) as GetQuery;
       expect(query.pick).toStrictEqual(['givenName', 'gender', 'address.city']);
       query = ExecutionQuery.forGet(resource, id, {pick: ['address', 'address.city']});
       expect(query.pick).toStrictEqual(['address']);
@@ -330,7 +330,7 @@ describe('ExecutionQuery', function () {
 
     it('Should set "omit" option', async () => {
       const resource = service.getEntityResource('Customers');
-      const query = ExecutionQuery.forGet(resource, id, {omit: ['givenName', 'gender', 'address.city']}) as ReadQuery;
+      const query = ExecutionQuery.forGet(resource, id, {omit: ['givenName', 'gender', 'address.city']}) as GetQuery;
       expect(query).toBeDefined();
       expect(query.resource).toStrictEqual(resource);
       expect(query.queryType).toStrictEqual('get');
@@ -339,7 +339,7 @@ describe('ExecutionQuery', function () {
 
     it('Should normalize field names in "omit" option', async () => {
       const resource = service.getEntityResource('Customers');
-      let query = ExecutionQuery.forGet(resource, id, {omit: ['givenname', 'GENDER', 'AdDRess.CIty']}) as ReadQuery;
+      let query = ExecutionQuery.forGet(resource, id, {omit: ['givenname', 'GENDER', 'AdDRess.CIty']}) as GetQuery;
       expect(query.omit).toStrictEqual(['givenName', 'gender', 'address.city']);
       query = ExecutionQuery.forGet(resource, id, {omit: ['address', 'address.city']});
       expect(query.omit).toStrictEqual(['address']);
@@ -349,7 +349,7 @@ describe('ExecutionQuery', function () {
 
     it('Should set "include" option', async () => {
       const resource = service.getEntityResource('Customers');
-      const query = ExecutionQuery.forGet(resource, id, {include: ['givenName', 'gender', 'address.city']}) as ReadQuery;
+      const query = ExecutionQuery.forGet(resource, id, {include: ['givenName', 'gender', 'address.city']}) as GetQuery;
       expect(query).toBeDefined();
       expect(query.resource).toStrictEqual(resource);
       expect(query.queryType).toStrictEqual('get');
@@ -358,7 +358,7 @@ describe('ExecutionQuery', function () {
 
     it('Should normalize field names in "include" option', async () => {
       const resource = service.getEntityResource('Customers');
-      let query = ExecutionQuery.forGet(resource, id, {include: ['givenname', 'GENDER', 'AdDRess.CIty']}) as ReadQuery;
+      let query = ExecutionQuery.forGet(resource, id, {include: ['givenname', 'GENDER', 'AdDRess.CIty']}) as GetQuery;
       expect(query.include).toStrictEqual(['givenName', 'gender', 'address.city']);
       query = ExecutionQuery.forGet(resource, id, {include: ['address', 'address.city']});
       expect(query.include).toStrictEqual(['address']);

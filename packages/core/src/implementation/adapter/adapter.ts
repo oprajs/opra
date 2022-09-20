@@ -1,13 +1,27 @@
 import { FallbackLng, I18n, LanguageResource } from '@opra/i18n';
 import { ApiException, FailedDependencyError } from '../../exception/index.js';
 import { wrapError } from '../../exception/wrap-error.js';
+import { IAdapterContext } from '../../interfaces/adapter-context.interface.js';
 import { ExecutionContext, ExecutionRequest } from '../execution-context.js';
 import { OpraService } from '../opra-service.js';
 
 export namespace OpraAdapter {
+  export type UserContextResolver = (
+      args: {
+        adapterContext: IAdapterContext;
+        isBatch: boolean;
+      }
+  ) => object | Promise<object>;
+  export type RequestFinishEvent = (args: {
+    adapterContext: IAdapterContext;
+    userContext?: any;
+    failed: boolean;
+  }) => Promise<void>;
+
   export interface Options {
     i18n?: I18n | I18nOptions | (() => Promise<I18n>);
-    userContext?: (request: any, options: { platform: string, isBatch: boolean }) => object | Promise<object>;
+    userContext?: UserContextResolver;
+    onRequestFinish?: RequestFinishEvent;
   }
 
   export interface I18nOptions {
@@ -42,15 +56,17 @@ export namespace OpraAdapter {
     resourceDirs?: string[];
   }
 
-  export type UserContextResolver = (isBatch: boolean) => any | Promise<any>;
-
 }
 
-export abstract class OpraAdapter<TAdapterContext = any> {
+export abstract class OpraAdapter<TAdapterContext extends IAdapterContext> {
   readonly i18n: I18n;
+  readonly userContextResolver?: OpraAdapter.UserContextResolver;
+  readonly onRequestFinish?: OpraAdapter.RequestFinishEvent;
 
-  constructor(readonly service: OpraService, i18n?: I18n) {
-    this.i18n = i18n || I18n.defaultInstance;
+  constructor(readonly service: OpraService, options?: Omit<OpraAdapter.Options, 'i18n'> & { i18n: I18n }) {
+    this.i18n = options?.i18n || I18n.defaultInstance;
+    this.userContextResolver = options?.userContext;
+    this.onRequestFinish = options?.onRequestFinish;
   }
 
   protected abstract prepareRequests(adapterContext: TAdapterContext): ExecutionRequest[];
@@ -63,19 +79,16 @@ export abstract class OpraAdapter<TAdapterContext = any> {
 
   protected abstract isBatch(adapterContext: TAdapterContext): boolean;
 
-  protected async handler(
-      adapterContext: TAdapterContext,
-      userContextResolver?: OpraAdapter.UserContextResolver
-  ): Promise<void> {
+  protected async handler(adapterContext: TAdapterContext): Promise<void> {
     if (!this.i18n.isInitialized)
       await this.i18n.init();
 
     const executionContexts: ExecutionContext[] = [];
     let requests: ExecutionRequest[];
     let userContext: any;
+    let failed = false;
     try {
       requests = this.prepareRequests(adapterContext);
-
 
       let stop = false;
       // Read requests can be executed simultaneously, write request should be executed one by one
@@ -104,8 +117,8 @@ export abstract class OpraAdapter<TAdapterContext = any> {
         try {
           const promise = (async () => {
             await resource.prepare(context);
-            if (userContextResolver && !userContext)
-              userContext = userContextResolver(this.isBatch(adapterContext));
+            if (this.userContextResolver && !userContext)
+              userContext = this.userContextResolver({adapterContext, isBatch: this.isBatch(adapterContext)});
             context.userContext = userContext;
             await resource.execute(context);
           })().catch(e => {
@@ -139,8 +152,7 @@ export abstract class OpraAdapter<TAdapterContext = any> {
 
       if (userContext && typeof userContext.onRequestFinish === 'function') {
         try {
-          const hasError = !!executionContexts.find(ctx => ctx.response.errors?.length);
-          await userContext.onRequestFinish(hasError);
+          failed = !!executionContexts.find(ctx => ctx.response.errors?.length);
         } catch (e: any) {
           await this.sendError(adapterContext, wrapError(e));
           return;
@@ -149,9 +161,16 @@ export abstract class OpraAdapter<TAdapterContext = any> {
       await this.sendResponse(adapterContext, executionContexts);
 
     } catch (e: any) {
+      failed = true;
       const error = wrapError(e);
       await this.sendError(adapterContext, error);
-      return;
+    } finally {
+      if (this.onRequestFinish)
+        (await this.onRequestFinish({
+          adapterContext,
+          userContext,
+          failed
+        }).catch());
     }
   }
 

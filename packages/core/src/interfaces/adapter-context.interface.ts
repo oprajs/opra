@@ -1,4 +1,15 @@
-export interface IHttpAdapterContext {
+export type ContextType = 'http' | 'ws' | 'rpc';
+export type PlatformType = 'express';
+
+export interface IAdapterContext {
+  getType(): ContextType;
+
+  getPlatform(): PlatformType;
+
+  switchToHttp(): IHttpAdapterContext;
+}
+
+export interface IHttpAdapterContext extends IAdapterContext {
   getRequest(): IHttpRequest;
 
   getResponse(): IHttpResponse;

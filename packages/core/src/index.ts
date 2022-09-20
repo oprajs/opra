@@ -8,7 +8,7 @@ export * from './exception/index.js';
 
 export * from './decorators/entity-resource.decorator.js';
 
-export * from './interfaces/http-context.interface.js';
+export * from './interfaces/adapter-context.interface.js';
 export * from './interfaces/execution-query.interface.js';
 export * from './interfaces/resource-container.interface.js';
 export * from './interfaces/user-context.interface.js';

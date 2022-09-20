@@ -1,5 +1,5 @@
 import { Maybe, Type } from 'ts-gems';
-import { ExecutionContext, IEntityService } from '@opra/core';
+import { BadRequestError, ExecutionContext, IEntityService } from '@opra/core';
 import { EntityInput, EntityMetadata, EntityOutput, Repository, SqbClient, SqbConnection } from '@sqb/connect';
 import { SQBAdapter } from './sqb-adapter.js';
 
@@ -26,10 +26,20 @@ export abstract class BaseEntityService<T> implements IEntityService {
   async processRequest(ctx: ExecutionContext) {
     const prepared = SQBAdapter.prepare(ctx.request);
     switch (prepared.method) {
+      case 'create':
+        return this.create(prepared.values, prepared.options, ctx.userContext);
+      case 'destroy':
+        return this.delete(prepared.keyValue, prepared.options, ctx.userContext);
+      case 'destroyAll':
+        return this.deleteMany(prepared.options, ctx.userContext);
       case 'findAll':
         return this.search(prepared.options, ctx.userContext);
       case 'findByPk':
         return this.get(ctx, prepared.options);
+      case 'update':
+        return this.update(prepared.keyValue, prepared.values, prepared.options, ctx.userContext);
+      case 'updateAll':
+        return this.updateMany(prepared.values, prepared.options, ctx.userContext);
       default:
         throw new TypeError(`Unimplemented method (${prepared.method})`)
     }
@@ -83,7 +93,12 @@ export abstract class BaseEntityService<T> implements IEntityService {
   ): Promise<Maybe<EntityOutput<T>>> {
     const conn = await this.getConnection(userContext);
     const repo = conn.getRepository(this.resourceType);
-    let out = await repo.create(data, options);
+    let out;
+    try {
+      out = await repo.create(data, options);
+    } catch (e: any) {
+      throw new BadRequestError(e);
+    }
     if (out && this.onTransformRow)
       out = this.onTransformRow(out, userContext, 'create');
     return out;
@@ -97,7 +112,12 @@ export abstract class BaseEntityService<T> implements IEntityService {
   ): Promise<Maybe<EntityOutput<T>>> {
     const conn = await this.getConnection(userContext);
     const repo = conn.getRepository(this.resourceType);
-    let out = await repo.update(keyValue, data, options);
+    let out;
+    try {
+      out = await repo.update(keyValue, data, options);
+    } catch (e: any) {
+      throw new BadRequestError(e);
+    }
     if (out && this.onTransformRow)
       out = this.onTransformRow(out, userContext, 'create');
     return out;
@@ -110,7 +130,11 @@ export abstract class BaseEntityService<T> implements IEntityService {
   ): Promise<Maybe<number>> {
     const conn = await this.getConnection(userContext);
     const repo = conn.getRepository(this.resourceType);
-    return await repo.updateAll(data, options);
+    try {
+      return await repo.updateAll(data, options);
+    } catch (e: any) {
+      throw new BadRequestError(e);
+    }
   }
 
   async delete(
@@ -120,7 +144,11 @@ export abstract class BaseEntityService<T> implements IEntityService {
   ): Promise<boolean> {
     const conn = await this.getConnection(userContext);
     const repo = conn.getRepository(this.resourceType);
-    return await repo.destroy(keyValue, options);
+    try {
+      return await repo.destroy(keyValue, options);
+    } catch (e: any) {
+      throw new BadRequestError(e);
+    }
   }
 
   async deleteMany(
@@ -129,7 +157,11 @@ export abstract class BaseEntityService<T> implements IEntityService {
   ): Promise<number> {
     const conn = await this.getConnection(userContext);
     const repo = conn.getRepository(this.resourceType);
-    return await repo.destroyAll(options);
+    try {
+      return await repo.destroyAll(options);
+    } catch (e: any) {
+      throw new BadRequestError(e);
+    }
   }
 
   protected abstract getConnection(userContext?: any): SqbConnection | SqbClient | Promise<SqbConnection | SqbClient>;
