@@ -1,5 +1,5 @@
 import '@sqb/sqljs';
-import { ExecutionQuery, ExecutionRequest, OpraService } from '@opra/core';
+import { OpraQuery, OpraService } from '@opra/core';
 import { OperatorType, SerializationType } from '@sqb/builder';
 import { SQBAdapter } from '../src/index.js';
 import { BooksResource } from './_support/book.resource.js';
@@ -20,9 +20,8 @@ describe('SQBAdapter.prepare', function () {
   describe('"create" query', function () {
     it('Should prepare', async () => {
       const values = {a: 1};
-      const query = ExecutionQuery.forCreate(service.getResource('Books'), values);
-      const request = new ExecutionRequest({query});
-      const o = SQBAdapter.prepare(request);
+      const query = OpraQuery.forCreate(service.getResource('Books'), values);
+      const o = SQBAdapter.prepare(query);
       expect(o.method).toStrictEqual('create');
       expect(o.values).toStrictEqual(values);
       expect(o.options).toBeDefined();
@@ -31,11 +30,10 @@ describe('SQBAdapter.prepare', function () {
 
     it('Should prepare with "pick" option', async () => {
       const values = {a: 1};
-      const query = ExecutionQuery.forCreate(service.getEntityResource('Books'), values, {
+      const query = OpraQuery.forCreate(service.getEntityResource('Books'), values, {
         pick: ['id', 'name', 'writer.name']
       });
-      const request = new ExecutionRequest({query});
-      const o = SQBAdapter.prepare(request);
+      const o = SQBAdapter.prepare(query);
       expect(o.method).toStrictEqual('create');
       expect(o.values).toStrictEqual(values);
       expect(o.options).toBeDefined();
@@ -44,11 +42,10 @@ describe('SQBAdapter.prepare', function () {
 
     it('Should prepare "omit" option', async () => {
       const values = {a: 1};
-      const query = ExecutionQuery.forCreate(service.getEntityResource('Books'), values, {
+      const query = OpraQuery.forCreate(service.getEntityResource('Books'), values, {
         omit: ['id', 'name', 'writer.name']
       });
-      const request = new ExecutionRequest({query});
-      const o = SQBAdapter.prepare(request);
+      const o = SQBAdapter.prepare(query);
       expect(o.method).toStrictEqual('create');
       expect(o.values).toStrictEqual(values);
       expect(o.options).toBeDefined();
@@ -58,11 +55,10 @@ describe('SQBAdapter.prepare', function () {
 
     it('Should prepare "include" option', async () => {
       const values = {a: 1};
-      const query = ExecutionQuery.forCreate(service.getEntityResource('Books'), values, {
+      const query = OpraQuery.forCreate(service.getEntityResource('Books'), values, {
         include: ['id', 'name', 'writer.name']
       });
-      const request = new ExecutionRequest({query});
-      const o = SQBAdapter.prepare(request);
+      const o = SQBAdapter.prepare(query);
       expect(o.method).toStrictEqual('create');
       expect(o.values).toStrictEqual(values);
       expect(o.options).toBeDefined();
@@ -74,19 +70,17 @@ describe('SQBAdapter.prepare', function () {
 
   describe('"read" query', function () {
     it('Should prepare', async () => {
-      const query = ExecutionQuery.forGet(service.getResource('Books'), 1);
-      const request = new ExecutionRequest({query});
-      const o = SQBAdapter.prepare(request);
+      const query = OpraQuery.forGet(service.getResource('Books'), 1);
+      const o = SQBAdapter.prepare(query);
       expect(o.method).toStrictEqual('findByPk');
       expect(o.keyValue).toStrictEqual(1);
     });
 
     it('Should prepare with "pick" option', async () => {
-      const query = ExecutionQuery.forGet(service.getEntityResource('Books'), 1, {
+      const query = OpraQuery.forGet(service.getEntityResource('Books'), 1, {
         pick: ['id', 'name', 'writer.name']
       });
-      const request = new ExecutionRequest({query});
-      const o = SQBAdapter.prepare(request);
+      const o = SQBAdapter.prepare(query);
       expect(o.method).toStrictEqual('findByPk');
       expect(o.keyValue).toStrictEqual(1);
       expect(o.options).toBeDefined();
@@ -94,11 +88,10 @@ describe('SQBAdapter.prepare', function () {
     });
 
     it('Should prepare with "omit" option', async () => {
-      const query = ExecutionQuery.forGet(service.getEntityResource('Books'), 1, {
+      const query = OpraQuery.forGet(service.getEntityResource('Books'), 1, {
         omit: ['id', 'name', 'writer.name']
       });
-      const request = new ExecutionRequest({query});
-      const o = SQBAdapter.prepare(request);
+      const o = SQBAdapter.prepare(query);
       expect(o.method).toStrictEqual('findByPk');
       expect(o.keyValue).toStrictEqual(1);
       expect(o.options).toBeDefined();
@@ -106,11 +99,10 @@ describe('SQBAdapter.prepare', function () {
     });
 
     it('Should prepare with "include" option', async () => {
-      const query = ExecutionQuery.forGet(service.getEntityResource('Books'), 1, {
+      const query = OpraQuery.forGet(service.getEntityResource('Books'), 1, {
         include: ['id', 'name', 'writer.name']
       });
-      const request = new ExecutionRequest({query});
-      const o = SQBAdapter.prepare(request);
+      const o = SQBAdapter.prepare(query);
       expect(o.method).toStrictEqual('findByPk');
       expect(o.keyValue).toStrictEqual(1);
       expect(o.options).toBeDefined();
@@ -120,36 +112,32 @@ describe('SQBAdapter.prepare', function () {
 
   describe('"search" query', function () {
     it('Should prepare', async () => {
-      const query = ExecutionQuery.forSearch(service.getResource('Books'));
-      const request = new ExecutionRequest({query});
-      const o = SQBAdapter.prepare(request);
+      const query = OpraQuery.forSearch(service.getResource('Books'));
+      const o = SQBAdapter.prepare(query);
       expect(o.method).toStrictEqual('findAll');
       expect(o.options).toStrictEqual({});
       expect(o.args).toStrictEqual([o.options]);
     })
 
     it('Should prepare "limit" option', async () => {
-      const query = ExecutionQuery.forSearch(service.getEntityResource('Books'), {limit: 5});
-      const request = new ExecutionRequest({query});
-      const o = SQBAdapter.prepare(request);
+      const query = OpraQuery.forSearch(service.getEntityResource('Books'), {limit: 5});
+      const o = SQBAdapter.prepare(query);
       expect(o.method).toStrictEqual('findAll');
       expect(o.options).toStrictEqual({limit: 5});
       expect(o.args).toStrictEqual([o.options]);
     })
 
     it('Should prepare "offset" option', async () => {
-      const query = ExecutionQuery.forSearch(service.getEntityResource('Books'), {skip: 5});
-      const request = new ExecutionRequest({query});
-      const o = SQBAdapter.prepare(request);
+      const query = OpraQuery.forSearch(service.getEntityResource('Books'), {skip: 5});
+      const o = SQBAdapter.prepare(query);
       expect(o.method).toStrictEqual('findAll');
       expect(o.options).toStrictEqual({offset: 5});
       expect(o.args).toStrictEqual([o.options]);
     });
 
     it('Should prepare "distinct" option', async () => {
-      const query = ExecutionQuery.forSearch(service.getEntityResource('Books'), {distinct: true});
-      const request = new ExecutionRequest({query});
-      const o = SQBAdapter.prepare(request);
+      const query = OpraQuery.forSearch(service.getEntityResource('Books'), {distinct: true});
+      const o = SQBAdapter.prepare(query);
       const options = {distinct: true};
       expect(o).toStrictEqual({
         method: 'findAll',
@@ -159,53 +147,48 @@ describe('SQBAdapter.prepare', function () {
     })
 
     it('Should prepare "total" option', async () => {
-      const query = ExecutionQuery.forSearch(service.getEntityResource('Books'), {count: true});
-      const request = new ExecutionRequest({query});
-      const o = SQBAdapter.prepare(request);
+      const query = OpraQuery.forSearch(service.getEntityResource('Books'), {count: true});
+      const o = SQBAdapter.prepare(query);
       expect(o.method).toStrictEqual('findAll');
       expect(o.options).toStrictEqual({total: true});
       expect(o.args).toStrictEqual([o.options]);
     });
 
     it('Should prepare with "pick" option', async () => {
-      const query = ExecutionQuery.forSearch(service.getEntityResource('Books'), {
+      const query = OpraQuery.forSearch(service.getEntityResource('Books'), {
         pick: ['id', 'name', 'writer.name']
       });
-      const request = new ExecutionRequest({query});
-      const o = SQBAdapter.prepare(request);
+      const o = SQBAdapter.prepare(query);
       expect(o.method).toStrictEqual('findAll');
       expect(o.options).toStrictEqual({pick: ['id', 'name', 'writer.name']});
       expect(o.args).toStrictEqual([o.options]);
     });
 
     it('Should prepare with "omit" option', async () => {
-      const query = ExecutionQuery.forSearch(service.getEntityResource('Books'), {
+      const query = OpraQuery.forSearch(service.getEntityResource('Books'), {
         omit: ['id', 'name', 'writer.name']
       });
-      const request = new ExecutionRequest({query});
-      const o = SQBAdapter.prepare(request);
+      const o = SQBAdapter.prepare(query);
       expect(o.method).toStrictEqual('findAll');
       expect(o.options).toStrictEqual({omit: ['id', 'name', 'writer.name']});
       expect(o.args).toStrictEqual([o.options]);
     });
 
     it('Should prepare with "include" option', async () => {
-      const query = ExecutionQuery.forSearch(service.getEntityResource('Books'), {
+      const query = OpraQuery.forSearch(service.getEntityResource('Books'), {
         include: ['id', 'name', 'writer.name']
       });
-      const request = new ExecutionRequest({query});
-      const o = SQBAdapter.prepare(request);
+      const o = SQBAdapter.prepare(query);
       expect(o.method).toStrictEqual('findAll');
       expect(o.options).toStrictEqual({include: ['id', 'name', 'writer.name']});
       expect(o.args).toStrictEqual([o.options]);
     });
 
     it('Should prepare with "filter" option', async () => {
-      const query = ExecutionQuery.forSearch(service.getEntityResource('Books'), {
+      const query = OpraQuery.forSearch(service.getEntityResource('Books'), {
         filter: 'name=Demons'
       });
-      const request = new ExecutionRequest({query});
-      const o = SQBAdapter.prepare(request);
+      const o = SQBAdapter.prepare(query);
       expect(o.method).toStrictEqual('findAll');
       expect(o.options.filter).toBeDefined();
       expect(o.args).toStrictEqual([o.options]);
@@ -216,9 +199,8 @@ describe('SQBAdapter.prepare', function () {
 
     it('Should prepare', async () => {
       const values = {a: 2};
-      const query = ExecutionQuery.forUpdate(service.getResource('Books'), 1, values);
-      const request = new ExecutionRequest({query});
-      const o = SQBAdapter.prepare(request);
+      const query = OpraQuery.forUpdate(service.getResource('Books'), 1, values);
+      const o = SQBAdapter.prepare(query);
       expect(o.method).toStrictEqual('update');
       expect(o.keyValue).toStrictEqual(1);
       expect(o.values).toStrictEqual(values);
@@ -227,11 +209,10 @@ describe('SQBAdapter.prepare', function () {
 
     it('Should prepare with "pick" option', async () => {
       const values = {a: 2};
-      const query = ExecutionQuery.forUpdate(service.getResource('Books'), 1, values, {
+      const query = OpraQuery.forUpdate(service.getResource('Books'), 1, values, {
         pick: ['id', 'name', 'writer.name']
       });
-      const request = new ExecutionRequest({query});
-      const o = SQBAdapter.prepare(request);
+      const o = SQBAdapter.prepare(query);
       expect(o.method).toStrictEqual('update');
       expect(o.options).toBeDefined();
       expect(o.options.pick).toStrictEqual(['id', 'name', 'writer.name']);
@@ -239,11 +220,10 @@ describe('SQBAdapter.prepare', function () {
 
     it('Should prepare with "omit" option', async () => {
       const values = {a: 2};
-      const query = ExecutionQuery.forUpdate(service.getResource('Books'), 1, values, {
+      const query = OpraQuery.forUpdate(service.getResource('Books'), 1, values, {
         omit: ['id', 'name', 'writer.name']
       });
-      const request = new ExecutionRequest({query});
-      const o = SQBAdapter.prepare(request);
+      const o = SQBAdapter.prepare(query);
       expect(o.method).toStrictEqual('update');
       expect(o.options).toBeDefined();
       expect(o.options.omit).toStrictEqual(['id', 'name', 'writer.name']);
@@ -251,11 +231,10 @@ describe('SQBAdapter.prepare', function () {
 
     it('Should prepare with "include" option', async () => {
       const values = {a: 2};
-      const query = ExecutionQuery.forUpdate(service.getResource('Books'), 1, values, {
+      const query = OpraQuery.forUpdate(service.getResource('Books'), 1, values, {
         include: ['id', 'name', 'writer.name']
       });
-      const request = new ExecutionRequest({query});
-      const o = SQBAdapter.prepare(request);
+      const o = SQBAdapter.prepare(query);
       expect(o.method).toStrictEqual('update');
       expect(o.options).toBeDefined();
       expect(o.options.include).toStrictEqual(['id', 'name', 'writer.name']);
@@ -266,20 +245,18 @@ describe('SQBAdapter.prepare', function () {
   describe('"update-many" query', function () {
     it('Should prepare', async () => {
       const values = {a: 2};
-      const query = ExecutionQuery.forUpdateMany(service.getResource('Books'), values);
-      const request = new ExecutionRequest({query});
-      const o = SQBAdapter.prepare(request);
+      const query = OpraQuery.forUpdateMany(service.getResource('Books'), values);
+      const o = SQBAdapter.prepare(query);
       expect(o.method).toStrictEqual('updateAll');
       expect(o.options).toBeDefined();
     })
 
     it('Should prepare with "filter" option', async () => {
       const values = {a: 2};
-      const query = ExecutionQuery.forUpdateMany(service.getResource('Books'), values, {
+      const query = OpraQuery.forUpdateMany(service.getResource('Books'), values, {
         filter: 'name=Demons'
       });
-      const request = new ExecutionRequest({query});
-      const o = SQBAdapter.prepare(request);
+      const o = SQBAdapter.prepare(query);
       expect(o.method).toStrictEqual('updateAll');
       expect(o.options).toBeDefined();
       expect(o.options.filter).toBeDefined();
@@ -288,9 +265,8 @@ describe('SQBAdapter.prepare', function () {
 
   describe('"delete" query', function () {
     it('Should prepare', async () => {
-      const query = ExecutionQuery.forDelete(service.getResource('Books'), 1);
-      const request = new ExecutionRequest({query});
-      const o = SQBAdapter.prepare(request);
+      const query = OpraQuery.forDelete(service.getResource('Books'), 1);
+      const o = SQBAdapter.prepare(query);
       expect(o.method).toStrictEqual('destroy');
       expect(o.keyValue).toStrictEqual(1);
     });
@@ -299,19 +275,17 @@ describe('SQBAdapter.prepare', function () {
 
   describe('"delete-many" query', function () {
     it('Should prepare', async () => {
-      const query = ExecutionQuery.forDeleteMany(service.getResource('Books'));
-      const request = new ExecutionRequest({query});
-      const o = SQBAdapter.prepare(request);
+      const query = OpraQuery.forDeleteMany(service.getResource('Books'));
+      const o = SQBAdapter.prepare(query);
       expect(o.method).toStrictEqual('destroyAll');
       expect(o.options).toBeDefined();
     })
 
     it('Should prepare with "filter" option', async () => {
-      const query = ExecutionQuery.forDeleteMany(service.getResource('Books'), {
+      const query = OpraQuery.forDeleteMany(service.getResource('Books'), {
         filter: 'name=Demons'
       });
-      const request = new ExecutionRequest({query});
-      const o = SQBAdapter.prepare(request);
+      const o = SQBAdapter.prepare(query);
       expect(o.method).toStrictEqual('destroyAll');
       expect(o.options).toBeDefined();
       expect(o.options.filter).toBeDefined();
@@ -320,65 +294,58 @@ describe('SQBAdapter.prepare', function () {
 
   describe('Convert filter ast to SQB', function () {
     it('Should convert StringLiteral', async () => {
-      const query = ExecutionQuery.forSearch(service.getEntityResource('Books'), {
+      const query = OpraQuery.forSearch(service.getEntityResource('Books'), {
         filter: 'name="Demons"'
       });
-      const request = new ExecutionRequest({query});
-      const o = SQBAdapter.prepare(request);
+      const o = SQBAdapter.prepare(query);
       expect(o.options.filter._right).toStrictEqual('Demons');
     });
 
     it('Should convert NumberLiteral', async () => {
-      const query = ExecutionQuery.forSearch(service.getEntityResource('Books'), {
+      const query = OpraQuery.forSearch(service.getEntityResource('Books'), {
         filter: 'name=10'
       });
-      const request = new ExecutionRequest({query});
-      const o = SQBAdapter.prepare(request);
+      const o = SQBAdapter.prepare(query);
       expect(o.options.filter._right).toStrictEqual(10);
     });
 
     it('Should convert BooleanLiteral', async () => {
-      const query = ExecutionQuery.forSearch(service.getEntityResource('Books'), {
+      const query = OpraQuery.forSearch(service.getEntityResource('Books'), {
         filter: 'name=true'
       });
-      const request = new ExecutionRequest({query});
-      const o = SQBAdapter.prepare(request);
+      const o = SQBAdapter.prepare(query);
       expect(o.options.filter._right).toStrictEqual(true);
     });
 
     it('Should convert NullLiteral', async () => {
-      const query = ExecutionQuery.forSearch(service.getEntityResource('Books'), {
+      const query = OpraQuery.forSearch(service.getEntityResource('Books'), {
         filter: 'name=null'
       });
-      const request = new ExecutionRequest({query});
-      const o = SQBAdapter.prepare(request);
+      const o = SQBAdapter.prepare(query);
       expect(o.options.filter._right).toStrictEqual(null);
     });
 
     it('Should convert DateLiteral', async () => {
-      const query = ExecutionQuery.forSearch(service.getEntityResource('Books'), {
+      const query = OpraQuery.forSearch(service.getEntityResource('Books'), {
         filter: 'name="2020-06-11T12:30:15"'
       });
-      const request = new ExecutionRequest({query});
-      const o = SQBAdapter.prepare(request);
+      const o = SQBAdapter.prepare(query);
       expect(o.options.filter._right).toStrictEqual('2020-06-11T12:30:15');
     });
 
     it('Should convert TimeLiteral', async () => {
-      const query = ExecutionQuery.forSearch(service.getEntityResource('Books'), {
+      const query = OpraQuery.forSearch(service.getEntityResource('Books'), {
         filter: 'name="12:30:15"'
       });
-      const request = new ExecutionRequest({query});
-      const o = SQBAdapter.prepare(request);
+      const o = SQBAdapter.prepare(query);
       expect(o.options.filter._right).toStrictEqual('12:30:15');
     });
 
     it('Should convert ComparisonExpression(=)', async () => {
-      const query = ExecutionQuery.forSearch(service.getEntityResource('Books'), {
+      const query = OpraQuery.forSearch(service.getEntityResource('Books'), {
         filter: 'name="Demons"'
       });
-      const request = new ExecutionRequest({query});
-      const o = SQBAdapter.prepare(request);
+      const o = SQBAdapter.prepare(query);
       expect(o.method).toStrictEqual('findAll');
       expect(o.options).toBeDefined();
       expect(o.options.filter._type).toStrictEqual(SerializationType.COMPARISON_EXPRESSION);
@@ -389,11 +356,10 @@ describe('SQBAdapter.prepare', function () {
     });
 
     it('Should convert ComparisonExpression(!=)', async () => {
-      const query = ExecutionQuery.forSearch(service.getEntityResource('Books'), {
+      const query = OpraQuery.forSearch(service.getEntityResource('Books'), {
         filter: 'name!="Demons"'
       });
-      const request = new ExecutionRequest({query});
-      const o = SQBAdapter.prepare(request);
+      const o = SQBAdapter.prepare(query);
       expect(o.method).toStrictEqual('findAll');
       expect(o.options).toBeDefined();
       expect(o.options.filter._type).toStrictEqual(SerializationType.COMPARISON_EXPRESSION);
@@ -404,11 +370,10 @@ describe('SQBAdapter.prepare', function () {
     });
 
     it('Should convert ComparisonExpression(>)', async () => {
-      const query = ExecutionQuery.forSearch(service.getEntityResource('Books'), {
+      const query = OpraQuery.forSearch(service.getEntityResource('Books'), {
         filter: 'pages>5'
       });
-      const request = new ExecutionRequest({query});
-      const o = SQBAdapter.prepare(request);
+      const o = SQBAdapter.prepare(query);
       expect(o.method).toStrictEqual('findAll');
       expect(o.options).toBeDefined();
       expect(o.options.filter._type).toStrictEqual(SerializationType.COMPARISON_EXPRESSION);
@@ -419,11 +384,10 @@ describe('SQBAdapter.prepare', function () {
     });
 
     it('Should convert ComparisonExpression(>=)', async () => {
-      const query = ExecutionQuery.forSearch(service.getEntityResource('Books'), {
+      const query = OpraQuery.forSearch(service.getEntityResource('Books'), {
         filter: 'pages>=5'
       });
-      const request = new ExecutionRequest({query});
-      const o = SQBAdapter.prepare(request);
+      const o = SQBAdapter.prepare(query);
       expect(o.method).toStrictEqual('findAll');
       expect(o.options).toBeDefined();
       expect(o.options.filter._type).toStrictEqual(SerializationType.COMPARISON_EXPRESSION);
@@ -434,11 +398,10 @@ describe('SQBAdapter.prepare', function () {
     });
 
     it('Should convert ComparisonExpression(<)', async () => {
-      const query = ExecutionQuery.forSearch(service.getEntityResource('Books'), {
+      const query = OpraQuery.forSearch(service.getEntityResource('Books'), {
         filter: 'pages<5'
       });
-      const request = new ExecutionRequest({query});
-      const o = SQBAdapter.prepare(request);
+      const o = SQBAdapter.prepare(query);
       expect(o.method).toStrictEqual('findAll');
       expect(o.options).toBeDefined();
       expect(o.options.filter._type).toStrictEqual(SerializationType.COMPARISON_EXPRESSION);
@@ -449,11 +412,10 @@ describe('SQBAdapter.prepare', function () {
     });
 
     it('Should convert ComparisonExpression(<=)', async () => {
-      const query = ExecutionQuery.forSearch(service.getEntityResource('Books'), {
+      const query = OpraQuery.forSearch(service.getEntityResource('Books'), {
         filter: 'pages<=5'
       });
-      const request = new ExecutionRequest({query});
-      const o = SQBAdapter.prepare(request);
+      const o = SQBAdapter.prepare(query);
       expect(o.method).toStrictEqual('findAll');
       expect(o.options).toBeDefined();
       expect(o.options.filter._type).toStrictEqual(SerializationType.COMPARISON_EXPRESSION);
@@ -464,11 +426,10 @@ describe('SQBAdapter.prepare', function () {
     });
 
     it('Should convert ComparisonExpression(in)', async () => {
-      const query = ExecutionQuery.forSearch(service.getEntityResource('Books'), {
+      const query = OpraQuery.forSearch(service.getEntityResource('Books'), {
         filter: 'pages in [5,6]'
       });
-      const request = new ExecutionRequest({query});
-      const o = SQBAdapter.prepare(request);
+      const o = SQBAdapter.prepare(query);
       expect(o.method).toStrictEqual('findAll');
       expect(o.options).toBeDefined();
       expect(o.options.filter._type).toStrictEqual(SerializationType.COMPARISON_EXPRESSION);
@@ -479,11 +440,10 @@ describe('SQBAdapter.prepare', function () {
     });
 
     it('Should convert ComparisonExpression(!in)', async () => {
-      const query = ExecutionQuery.forSearch(service.getEntityResource('Books'), {
+      const query = OpraQuery.forSearch(service.getEntityResource('Books'), {
         filter: 'pages !in [5,6]'
       });
-      const request = new ExecutionRequest({query});
-      const o = SQBAdapter.prepare(request);
+      const o = SQBAdapter.prepare(query);
       expect(o.method).toStrictEqual('findAll');
       expect(o.options).toBeDefined();
       expect(o.options.filter._type).toStrictEqual(SerializationType.COMPARISON_EXPRESSION);
@@ -494,11 +454,10 @@ describe('SQBAdapter.prepare', function () {
     });
 
     it('Should convert ComparisonExpression(like)', async () => {
-      const query = ExecutionQuery.forSearch(service.getEntityResource('Books'), {
+      const query = OpraQuery.forSearch(service.getEntityResource('Books'), {
         filter: 'name like "Demons"'
       });
-      const request = new ExecutionRequest({query});
-      const o = SQBAdapter.prepare(request);
+      const o = SQBAdapter.prepare(query);
       expect(o.method).toStrictEqual('findAll');
       expect(o.options).toBeDefined();
       expect(o.options.filter._type).toStrictEqual(SerializationType.COMPARISON_EXPRESSION);
@@ -509,11 +468,10 @@ describe('SQBAdapter.prepare', function () {
     });
 
     it('Should convert ComparisonExpression(ilike)', async () => {
-      const query = ExecutionQuery.forSearch(service.getEntityResource('Books'), {
+      const query = OpraQuery.forSearch(service.getEntityResource('Books'), {
         filter: 'name ilike "Demons"'
       });
-      const request = new ExecutionRequest({query});
-      const o = SQBAdapter.prepare(request);
+      const o = SQBAdapter.prepare(query);
       expect(o.method).toStrictEqual('findAll');
       expect(o.options).toBeDefined();
       expect(o.options.filter._type).toStrictEqual(SerializationType.COMPARISON_EXPRESSION);
@@ -524,11 +482,10 @@ describe('SQBAdapter.prepare', function () {
     });
 
     it('Should convert ComparisonExpression(!like)', async () => {
-      const query = ExecutionQuery.forSearch(service.getEntityResource('Books'), {
+      const query = OpraQuery.forSearch(service.getEntityResource('Books'), {
         filter: 'name !like "Demons"'
       });
-      const request = new ExecutionRequest({query});
-      const o = SQBAdapter.prepare(request);
+      const o = SQBAdapter.prepare(query);
       expect(o.method).toStrictEqual('findAll');
       expect(o.options).toBeDefined();
       expect(o.options.filter._type).toStrictEqual(SerializationType.COMPARISON_EXPRESSION);
@@ -539,11 +496,10 @@ describe('SQBAdapter.prepare', function () {
     });
 
     it('Should convert ComparisonExpression(!like)', async () => {
-      const query = ExecutionQuery.forSearch(service.getEntityResource('Books'), {
+      const query = OpraQuery.forSearch(service.getEntityResource('Books'), {
         filter: 'name !ilike "Demons"'
       });
-      const request = new ExecutionRequest({query});
-      const o = SQBAdapter.prepare(request);
+      const o = SQBAdapter.prepare(query);
       expect(o.method).toStrictEqual('findAll');
       expect(o.options).toBeDefined();
       expect(o.options.filter._type).toStrictEqual(SerializationType.COMPARISON_EXPRESSION);
@@ -554,11 +510,10 @@ describe('SQBAdapter.prepare', function () {
     });
 
     it('Should convert LogicalExpression(or)', async () => {
-      const query = ExecutionQuery.forSearch(service.getEntityResource('Books'), {
+      const query = OpraQuery.forSearch(service.getEntityResource('Books'), {
         filter: 'page=1 or page=2'
       });
-      const request = new ExecutionRequest({query});
-      const o = SQBAdapter.prepare(request);
+      const o = SQBAdapter.prepare(query);
       expect(o.method).toStrictEqual('findAll');
       expect(o.options).toBeDefined();
       expect(o.options.filter._type).toStrictEqual(SerializationType.LOGICAL_EXPRESSION);
@@ -567,11 +522,10 @@ describe('SQBAdapter.prepare', function () {
     });
 
     it('Should convert LogicalExpression(and)', async () => {
-      const query = ExecutionQuery.forSearch(service.getEntityResource('Books'), {
+      const query = OpraQuery.forSearch(service.getEntityResource('Books'), {
         filter: 'page=1 and name = "Demons"'
       });
-      const request = new ExecutionRequest({query});
-      const o = SQBAdapter.prepare(request);
+      const o = SQBAdapter.prepare(query);
       expect(o.method).toStrictEqual('findAll');
       expect(o.options).toBeDefined();
       expect(o.options.filter._type).toStrictEqual(SerializationType.LOGICAL_EXPRESSION);
@@ -580,11 +534,10 @@ describe('SQBAdapter.prepare', function () {
     });
 
     it('Should convert ParenthesesExpression', async () => {
-      const query = ExecutionQuery.forSearch(service.getEntityResource('Books'), {
+      const query = OpraQuery.forSearch(service.getEntityResource('Books'), {
         filter: '(page=1 or page=2) and name = "Demons"'
       });
-      const request = new ExecutionRequest({query});
-      const o = SQBAdapter.prepare(request);
+      const o = SQBAdapter.prepare(query);
       expect(o.method).toStrictEqual('findAll');
       expect(o.options).toBeDefined();
       expect(o.options.filter._type).toStrictEqual(SerializationType.LOGICAL_EXPRESSION);

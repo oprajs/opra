@@ -8,7 +8,7 @@ import { ContextId, InstanceWrapper } from '@nestjs/core/injector/instance-wrapp
 import { InternalCoreModule } from '@nestjs/core/injector/internal-core-module';
 import { Module } from '@nestjs/core/injector/module.js';
 import { REQUEST_CONTEXT_ID } from '@nestjs/core/router/request/request-constants';
-import { ExecutionContext as OpraExecutionContext, OpraService, RESOURCE_METADATA, SchemaGenerator } from '@opra/core';
+import { OpraService, QueryContext, RESOURCE_METADATA, SchemaGenerator } from '@opra/core';
 import { OpraSchema } from '@opra/schema';
 import { PARAM_ARGS_METADATA } from '../constants.js';
 import { HandlerParamType } from '../enums/handler-paramtype.enum.js';
@@ -76,7 +76,7 @@ export class ServiceFactory {
         const preCallback = this._createContextCallback(instance, prototype, wrapper,
             rootModule, methodName, isRequestScoped, undefined, contextType, true
         );
-        const newPreFn = instance['pre_' + methodName] = function (ctx: OpraExecutionContext) {
+        const newPreFn = instance['pre_' + methodName] = function (ctx: QueryContext) {
           switch (ctx.type) {
             case 'http':
               const http = ctx.switchToHttp();
@@ -110,7 +110,7 @@ export class ServiceFactory {
 
         const callback = this._createContextCallback(instance, prototype, wrapper,
             rootModule, methodName, isRequestScoped, undefined, contextType, false);
-        const newFn = instance[methodName] = function (ctx: OpraExecutionContext) {
+        const newFn = instance[methodName] = function (ctx: QueryContext) {
           switch (ctx.type) {
             case 'http':
               const http = ctx.switchToHttp();
@@ -151,7 +151,7 @@ export class ServiceFactory {
 
     if (isRequestScoped) {
       return async (...args: any[]) => {
-        const opraContext: OpraExecutionContext = paramsFactory.exchangeKeyForValue(HandlerParamType.CONTEXT, undefined, args);
+        const opraContext: QueryContext = paramsFactory.exchangeKeyForValue(HandlerParamType.CONTEXT, undefined, args);
         const contextId = this.getContextId(opraContext);
         this.registerContextProvider(opraContext, contextId);
         const contextInstance = await this.injector.loadPerContext(

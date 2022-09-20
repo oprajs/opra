@@ -1,12 +1,12 @@
 import _ from 'lodash';
 import { StrictOmit } from 'ts-gems';
 import { OpraSchema } from '@opra/schema';
-import { ExecutionQuery } from '../../interfaces/execution-query.interface.js';
+import { OpraQuery } from '../../interfaces/execution-query.interface.js';
 import { EntityType } from '../data-type/entity-type.js';
-import { ExecutionContext } from '../execution-context.js';
 import { OpraService } from '../opra-service.js';
+import { QueryContext } from '../query-context.js';
 import { ResourceHandler } from './resource-handler.js';
-import isSearchQuery = ExecutionQuery.isSearchQuery;
+import isSearchQuery = OpraQuery.isSearchQuery;
 import { UnprocessableEntityError } from '../../exception/index.js';
 
 export type EntityResourceControllerArgs = StrictOmit<OpraSchema.EntityResource, 'kind'> & {
@@ -31,7 +31,7 @@ export class EntityResourceHandler extends ResourceHandler {
       throw new TypeError(`You should provide an EntityType for EntityResourceController`);
   }
 
-  async execute(ctx: ExecutionContext): Promise<void> {
+  async execute(ctx: QueryContext): Promise<void> {
     const {query} = ctx;
     if (isSearchQuery(query)) {
       const promises: Promise<any>[] = [];
@@ -55,7 +55,7 @@ export class EntityResourceHandler extends ResourceHandler {
     ctx.response.value = await this._executeFn(ctx, query.queryType);
   }
 
-  async _executeFn(ctx: ExecutionContext, fnName: string): Promise<any> {
+  async _executeFn(ctx: QueryContext, fnName: string): Promise<any> {
     const fn = this._args[fnName];
     let result = typeof fn === 'function' ? (await fn(ctx)) : undefined;
     switch (fnName) {

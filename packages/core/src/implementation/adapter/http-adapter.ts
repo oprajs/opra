@@ -10,12 +10,12 @@ import {
 } from '../../exception/index.js';
 import { wrapError } from '../../exception/wrap-error.js';
 import { IHttpAdapterContext } from '../../interfaces/adapter-context.interface.js';
-import { ExecutionQuery, PropertyQuery } from '../../interfaces/execution-query.interface.js';
+import { OpraPropertyQuery, OpraQuery } from '../../interfaces/execution-query.interface.js';
 import { IResourceContainer } from '../../interfaces/resource-container.interface.js';
 import { KeyValue, QueryScope } from '../../types.js';
 import { Headers, HeadersObject } from '../../utils/headers.js';
 import { ComplexType } from '../data-type/complex-type.js';
-import { ExecutionContext } from '../execution-context.js';
+import { QueryContext } from '../query-context.js';
 import { ContainerResourceHandler } from '../resource/container-resource-handler.js';
 import { EntityResourceHandler } from '../resource/entity-resource-handler.js';
 import { OpraAdapter } from './adapter.js';
@@ -34,7 +34,7 @@ interface PreparedOutput {
 
 export class OpraHttpAdapter<TAdapterContext extends IHttpAdapterContext> extends OpraAdapter<IHttpAdapterContext> {
 
-  protected prepareRequests(adapterContext: TAdapterContext): ExecutionContext[] {
+  protected prepareRequests(adapterContext: TAdapterContext): QueryContext[] {
     const req = adapterContext.getRequest();
     // todo implement batch requests
     if (this.isBatch(adapterContext)) {
@@ -57,7 +57,7 @@ export class OpraHttpAdapter<TAdapterContext extends IHttpAdapterContext> extend
       method: string,
       headers: HeadersObject,
       body?: any
-  ): ExecutionContext {
+  ): QueryContext {
     if (!url.path.size)
       throw new BadRequestError();
     if (method !== 'GET' && url.path.size > 1)
@@ -67,7 +67,7 @@ export class OpraHttpAdapter<TAdapterContext extends IHttpAdapterContext> extend
       throw new MethodNotAllowedError({
         message: `Method "${method}" is not allowed by target resource`
       });
-    return new ExecutionContext({
+    return new QueryContext({
       service: this.service,
       adapterContext,
       query,
@@ -77,7 +77,7 @@ export class OpraHttpAdapter<TAdapterContext extends IHttpAdapterContext> extend
     });
   }
 
-  buildQuery(url: OpraURL, method: string, body?: any): ExecutionQuery | undefined {
+  buildQuery(url: OpraURL, method: string, body?: any): OpraQuery | undefined {
     let container: IResourceContainer = this.service;
     try {
       let pathIndex = 0;
@@ -98,13 +98,13 @@ export class OpraHttpAdapter<TAdapterContext extends IHttpAdapterContext> extend
             if (pathIndex < pathLen && !(method === 'GET' && scope === 'instance'))
               return;
 
-            let query: ExecutionQuery | undefined;
+            let query: OpraQuery | undefined;
 
             switch (method) {
 
               case 'GET': {
                 if (scope === 'collection') {
-                  query = ExecutionQuery.forSearch(resource, {
+                  query = OpraQuery.forSearch(resource, {
                     filter: url.searchParams.get('$filter'),
                     limit: url.searchParams.get('$limit'),
                     skip: url.searchParams.get('$skip'),
@@ -117,14 +117,14 @@ export class OpraHttpAdapter<TAdapterContext extends IHttpAdapterContext> extend
                   });
 
                 } else {
-                  query = ExecutionQuery.forGet(resource, p.key as KeyValue, {
+                  query = OpraQuery.forGet(resource, p.key as KeyValue, {
                     pick: url.searchParams.get('$pick'),
                     omit: url.searchParams.get('$omit'),
                     include: url.searchParams.get('$include')
                   });
 
                   // Move through properties
-                  let nested: PropertyQuery | undefined;
+                  let nested: OpraPropertyQuery | undefined;
                   let path = resource.name;
                   while (pathIndex < pathLen) {
                     const dataType = nested
@@ -137,7 +137,7 @@ export class OpraHttpAdapter<TAdapterContext extends IHttpAdapterContext> extend
                     const prop = dataType.properties?.[p.resource];
                     if (!prop)
                       throw new NotFoundError({message: `Invalid or unknown resource path (${path})`});
-                    const q = ExecutionQuery.forGetProperty(prop);
+                    const q = OpraQuery.forGetProperty(prop);
                     if (nested) {
                       nested.nested = q;
                     } else {
@@ -151,18 +151,18 @@ export class OpraHttpAdapter<TAdapterContext extends IHttpAdapterContext> extend
 
               case 'DELETE': {
                 if (scope === 'collection') {
-                  query = ExecutionQuery.forDeleteMany(resource, {
+                  query = OpraQuery.forDeleteMany(resource, {
                     filter: url.searchParams.get('$filter'),
                   });
                 } else {
-                  query = ExecutionQuery.forDelete(resource, p.key as KeyValue);
+                  query = OpraQuery.forDelete(resource, p.key as KeyValue);
                 }
                 break;
               }
 
               case 'POST': {
                 if (scope === 'collection') {
-                  query = ExecutionQuery.forCreate(resource, body, {
+                  query = OpraQuery.forCreate(resource, body, {
                     pick: url.searchParams.get('$pick'),
                     omit: url.searchParams.get('$omit'),
                     include: url.searchParams.get('$include')
@@ -173,11 +173,11 @@ export class OpraHttpAdapter<TAdapterContext extends IHttpAdapterContext> extend
 
               case 'PATCH': {
                 if (scope === 'collection') {
-                  query = ExecutionQuery.forUpdateMany(resource, body, {
+                  query = OpraQuery.forUpdateMany(resource, body, {
                     filter: url.searchParams.get('$filter')
                   });
                 } else {
-                  query = ExecutionQuery.forUpdate(resource, p.key as KeyValue, body, {
+                  query = OpraQuery.forUpdate(resource, p.key as KeyValue, body, {
                     pick: url.searchParams.get('$pick'),
                     omit: url.searchParams.get('$omit'),
                     include: url.searchParams.get('$include')
@@ -200,10 +200,10 @@ export class OpraHttpAdapter<TAdapterContext extends IHttpAdapterContext> extend
     }
   }
 
-  protected async sendResponse(adapterContext: TAdapterContext, executionContexts: ExecutionContext[]) {
+  protected async sendResponse(adapterContext: TAdapterContext, queryContexts: QueryContext[]) {
 
     const outputPackets: PreparedOutput[] = [];
-    for (const ctx of executionContexts) {
+    for (const ctx of queryContexts) {
       const v = this.createOutput(ctx);
       outputPackets.push(v);
     }
@@ -246,7 +246,7 @@ export class OpraHttpAdapter<TAdapterContext extends IHttpAdapterContext> extend
     return false;
   }
 
-  protected createOutput(ctx: ExecutionContext): PreparedOutput {
+  protected createOutput(ctx: QueryContext): PreparedOutput {
     const {query} = ctx;
     let status = ctx.response.status;
     let body = ctx.response.value || {};

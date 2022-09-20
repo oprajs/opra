@@ -1,6 +1,6 @@
 import { OpraSchema } from '@opra/schema';
 import { colorFgMagenta, colorFgYellow, colorReset, nodeInspectCustom } from '../../utils/terminal-utils.js';
-import { ExecutionContext } from '../execution-context.js';
+import { QueryContext } from '../query-context';
 
 export abstract class ResourceHandler {
   protected readonly _args: OpraSchema.Resource & { prepare?: Function };
@@ -21,7 +21,7 @@ export abstract class ResourceHandler {
     return `[${Object.getPrototypeOf(this).constructor.name} ${this.name}]`;
   }
 
-  async prepare(ctx: ExecutionContext): Promise<void> {
+  async prepare(ctx: QueryContext): Promise<void> {
     const {query} = ctx;
     const fn = this._args['pre_' + query.queryType];
     if (fn && typeof fn === 'function') {
@@ -29,7 +29,7 @@ export abstract class ResourceHandler {
     }
   }
 
-  abstract execute(ctx: ExecutionContext): Promise<void>;
+  abstract execute(ctx: QueryContext): Promise<void>;
 
   [nodeInspectCustom](): string {
     return `[${colorFgYellow + Object.getPrototypeOf(this).constructor.name + colorReset}` +

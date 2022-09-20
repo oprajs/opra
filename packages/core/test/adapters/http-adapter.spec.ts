@@ -2,12 +2,12 @@ import 'reflect-metadata';
 import { OpraURL } from '@opra/url';
 import { OpraHttpAdapter } from '../../src/implementation/adapter/http-adapter.js';
 import {
-  CreateQuery, DeleteManyQuery,
-  DeleteQuery,
-  GetQuery,
+  OpraCreateQuery, OpraDeleteManyQuery,
+  OpraDeleteQuery,
+  OpraGetQuery,
   OpraService,
-  SearchQuery, UpdateManyQuery,
-  UpdateQuery
+  OpraSearchQuery, OpraUpdateManyQuery,
+  OpraUpdateQuery
 } from '../../src/index.js';
 import { CustomerAddressesesResource } from '../_support/test-app/api/customer-addresseses.resource.js';
 import { CustomersResource } from '../_support/test-app/api/customers.resource.js';
@@ -38,7 +38,7 @@ describe('OpraHttpAdapter', function () {
         const adapter = new OpraHttpAdapter(service);
         const url = new OpraURL('/Customers?$limit=1&$skip=2&$count=false&$distinct=true&$filter=id=1' +
             '&$pick=id&$omit=gender&$include=address&$sort=id');
-        const query = adapter.buildQuery(url, 'GET') as SearchQuery;
+        const query = adapter.buildQuery(url, 'GET') as OpraSearchQuery;
         expect(query).toBeDefined();
         const resource = service.getEntityResource('Customers');
         expect(query).toBeDefined();
@@ -58,7 +58,7 @@ describe('OpraHttpAdapter', function () {
       it('Should generate "get" query', async () => {
         const adapter = new OpraHttpAdapter(service);
         const url = new OpraURL('/Customers@1?&$pick=id&$omit=gender&$include=address');
-        const query = adapter.buildQuery(url, 'GET') as GetQuery;
+        const query = adapter.buildQuery(url, 'GET') as OpraGetQuery;
         expect(query).toBeDefined();
         const resource = service.getEntityResource('Customers');
         expect(query).toBeDefined();
@@ -73,7 +73,7 @@ describe('OpraHttpAdapter', function () {
       it('Should generate "create" query', async () => {
         const adapter = new OpraHttpAdapter(service);
         const url = new OpraURL('/Customers');
-        const query = adapter.buildQuery(url, 'POST', {id: 1}) as CreateQuery;
+        const query = adapter.buildQuery(url, 'POST', {id: 1}) as OpraCreateQuery;
         expect(query).toBeDefined();
         const resource = service.getEntityResource('Customers');
         expect(query).toBeDefined();
@@ -85,7 +85,7 @@ describe('OpraHttpAdapter', function () {
       it('Should generate "update" query', async () => {
         const adapter = new OpraHttpAdapter(service);
         const url = new OpraURL('/Customers@1');
-        const query = adapter.buildQuery(url, 'PATCH', {id: 1}) as UpdateQuery;
+        const query = adapter.buildQuery(url, 'PATCH', {id: 1}) as OpraUpdateQuery;
         expect(query).toBeDefined();
         const resource = service.getEntityResource('Customers');
         expect(query).toBeDefined();
@@ -98,7 +98,7 @@ describe('OpraHttpAdapter', function () {
       it('Should generate "updateMany" query', async () => {
         const adapter = new OpraHttpAdapter(service);
         const url = new OpraURL('/Customers?$filter=id<10');
-        const query = adapter.buildQuery(url, 'PATCH', {id: 1}) as UpdateManyQuery;
+        const query = adapter.buildQuery(url, 'PATCH', {id: 1}) as OpraUpdateManyQuery;
         expect(query).toBeDefined();
         const resource = service.getEntityResource('Customers');
         expect(query).toBeDefined();
@@ -111,7 +111,7 @@ describe('OpraHttpAdapter', function () {
       it('Should generate "delete" query', async () => {
         const adapter = new OpraHttpAdapter(service);
         const url = new OpraURL('/Customers@1');
-        const query = adapter.buildQuery(url, 'DELETE') as DeleteQuery;
+        const query = adapter.buildQuery(url, 'DELETE') as OpraDeleteQuery;
         expect(query).toBeDefined();
         const resource = service.getEntityResource('Customers');
         expect(query).toBeDefined();
@@ -123,7 +123,7 @@ describe('OpraHttpAdapter', function () {
       it('Should generate "deleteMany" query', async () => {
         const adapter = new OpraHttpAdapter(service);
         const url = new OpraURL('/Customers?$filter=id<10');
-        const query = adapter.buildQuery(url, 'DELETE') as DeleteManyQuery;
+        const query = adapter.buildQuery(url, 'DELETE') as OpraDeleteManyQuery;
         expect(query).toBeDefined();
         const resource = service.getEntityResource('Customers');
         expect(query).toBeDefined();

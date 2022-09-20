@@ -1,5 +1,5 @@
 import { Maybe, Type } from 'ts-gems';
-import { BadRequestError, ExecutionContext, IEntityService } from '@opra/core';
+import { BadRequestError, IEntityService, QueryContext } from '@opra/core';
 import { EntityInput, EntityMetadata, EntityOutput, Repository, SqbClient, SqbConnection } from '@sqb/connect';
 import { SQBAdapter } from './sqb-adapter.js';
 
@@ -23,8 +23,8 @@ export abstract class BaseEntityService<T> implements IEntityService {
     this._metadata = metadata;
   }
 
-  async processRequest(ctx: ExecutionContext) {
-    const prepared = SQBAdapter.prepare(ctx.request);
+  async processRequest(ctx: QueryContext) {
+    const prepared = SQBAdapter.prepare(ctx.query);
     switch (prepared.method) {
       case 'create':
         return this.create(prepared.values, prepared.options, ctx.userContext);

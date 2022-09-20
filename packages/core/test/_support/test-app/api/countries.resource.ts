@@ -1,5 +1,5 @@
 import { OpraSchema } from '@opra/schema';
-import { ExecutionContext } from '../../../../src/index.js';
+import { QueryContext } from '../../../../src/index.js';
 import countriesData from '../data/countries.data.js';
 
 export const countriesResource: OpraSchema.EntityResource = {
@@ -7,13 +7,13 @@ export const countriesResource: OpraSchema.EntityResource = {
   name: 'Countries',
   type: 'Country',
 
-  search: (ctx: ExecutionContext) => {
+  search: (ctx: QueryContext) => {
     // eslint-disable-next-line no-console
     console.log(ctx);
     return countriesData;
   },
 
-  get: (ctx: ExecutionContext) => {
+  get: (ctx: QueryContext) => {
     // eslint-disable-next-line no-console
     console.log(ctx);
     return countriesData;

@@ -13,7 +13,7 @@ export * from './interfaces/execution-query.interface.js';
 export * from './interfaces/resource-container.interface.js';
 export * from './interfaces/user-context.interface.js';
 
-export * from './implementation/execution-context.js';
+export * from './implementation/query-context.js';
 export * from './implementation/opra-document.js';
 export * from './implementation/opra-service.js';
 export * from './implementation/schema-generator.js';
