@@ -15,11 +15,7 @@ import { IResourceContainer } from '../../interfaces/resource-container.interfac
 import { KeyValue, QueryScope } from '../../types.js';
 import { Headers, HeadersObject } from '../../utils/headers.js';
 import { ComplexType } from '../data-type/complex-type.js';
-import {
-  ExecutionContext,
-  ExecutionRequest,
-  ExecutionResponse
-} from '../execution-context.js';
+import { ExecutionContext } from '../execution-context.js';
 import { ContainerResourceHandler } from '../resource/container-resource-handler.js';
 import { EntityResourceHandler } from '../resource/entity-resource-handler.js';
 import { OpraAdapter } from './adapter.js';
@@ -38,7 +34,7 @@ interface PreparedOutput {
 
 export class OpraHttpAdapter<TAdapterContext extends IHttpAdapterContext> extends OpraAdapter<IHttpAdapterContext> {
 
-  protected prepareRequests(adapterContext: TAdapterContext): ExecutionRequest[] {
+  protected prepareRequests(adapterContext: TAdapterContext): ExecutionContext[] {
     const req = adapterContext.getRequest();
     // todo implement batch requests
     if (this.isBatch(adapterContext)) {
@@ -56,12 +52,12 @@ export class OpraHttpAdapter<TAdapterContext extends IHttpAdapterContext> extend
   }
 
   prepareRequest(
-      adapterContext: any,
+      adapterContext: IHttpAdapterContext,
       url: OpraURL,
       method: string,
       headers: HeadersObject,
       body?: any
-  ): ExecutionRequest {
+  ): ExecutionContext {
     if (!url.path.size)
       throw new BadRequestError();
     if (method !== 'GET' && url.path.size > 1)
@@ -71,21 +67,13 @@ export class OpraHttpAdapter<TAdapterContext extends IHttpAdapterContext> extend
       throw new MethodNotAllowedError({
         message: `Method "${method}" is not allowed by target resource`
       });
-    return new ExecutionRequest({
+    return new ExecutionContext({
+      service: this.service,
+      adapterContext,
       query,
       headers,
       params: url.searchParams,
-    });
-  }
-
-  createExecutionContext(adapterContext: any, request: ExecutionRequest): ExecutionContext {
-    return new ExecutionContext({
-      type: 'http',
-      service: this.service,
-      request,
-      response: new ExecutionResponse(),
-      adapterContext,
-      continueOnError: request.query.operationType === 'read'
+      continueOnError: query.operationType === 'read'
     });
   }
 
@@ -259,7 +247,7 @@ export class OpraHttpAdapter<TAdapterContext extends IHttpAdapterContext> extend
   }
 
   protected createOutput(ctx: ExecutionContext): PreparedOutput {
-    const {query} = ctx.request;
+    const {query} = ctx;
     let status = ctx.response.status;
     let body = ctx.response.value || {};
 

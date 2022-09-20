@@ -13,10 +13,8 @@ export class OpraParamsFactory implements ParamsFactory {
         return args[3];
       case HandlerParamType.SERVICE:
         return (args[3] as ExecutionContext).service;
-      case HandlerParamType.REQUEST:
-        return (args[3] as ExecutionContext).request;
       case HandlerParamType.QUERY:
-        return (args[3] as ExecutionContext).request.query;
+        return (args[3] as ExecutionContext).query;
       case HandlerParamType.RESPONSE:
         return (args[3] as ExecutionContext).response;
       case HandlerParamType.USER_CONTEXT:

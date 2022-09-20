@@ -22,7 +22,7 @@ export abstract class ResourceHandler {
   }
 
   async prepare(ctx: ExecutionContext): Promise<void> {
-    const {query} = ctx.request;
+    const {query} = ctx;
     const fn = this._args['pre_' + query.queryType];
     if (fn && typeof fn === 'function') {
       await fn(ctx);

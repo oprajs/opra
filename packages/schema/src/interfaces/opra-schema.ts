@@ -153,7 +153,7 @@ export namespace OpraSchema {
     type: string;
     search?: Function;
     create?: Function;
-    read?: Function;
+    get?: Function;
     update?: Function;
     updateMany?: Function;
     delete?: Function;

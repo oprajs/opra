@@ -17,7 +17,6 @@ export const countriesResource: OpraSchema.EntityResource = {
     // eslint-disable-next-line no-console
     console.log(ctx);
     return countriesData;
-
   }
 
 }

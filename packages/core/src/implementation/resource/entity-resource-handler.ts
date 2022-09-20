@@ -32,7 +32,7 @@ export class EntityResourceHandler extends ResourceHandler {
   }
 
   async execute(ctx: ExecutionContext): Promise<void> {
-    const {query} = ctx.request;
+    const {query} = ctx;
     if (isSearchQuery(query)) {
       const promises: Promise<any>[] = [];
       let search: any;
@@ -82,8 +82,8 @@ export class EntityResourceHandler extends ResourceHandler {
     if (!result)
       throw new UnprocessableEntityError();
 
-    if (ctx.request.resultPath) {
-      const pathArray = ctx.request.resultPath.split('.');
+    if (ctx.resultPath) {
+      const pathArray = ctx.resultPath.split('.');
       for (const property of pathArray) {
         result = result && typeof result === 'object' && result[property];
       }
