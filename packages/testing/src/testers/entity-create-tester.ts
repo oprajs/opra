@@ -35,6 +35,7 @@ export class OpraEntityCreateTester extends BaseOperationTester {
     this._params.options.include = fields.flat();
     return this;
   }
+
   protected async _send(): Promise<Response> {
     const url = new OpraURL(this._params.path);
     url.pathPrefix = this._params.prefix;

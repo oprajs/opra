@@ -1,19 +1,19 @@
 import request, { Response } from 'supertest';
-import { CreateQueryOptions } from '@opra/core';
+import { UpdateQueryOptions } from '@opra/core';
 import { OpraURL, ResourceKey } from '@opra/url';
 import { BaseOperationTester } from './base-operation-tester.js';
 import type { OpraEntityTesterParams } from './entity-tester.js';
 
-export type OpraEntityCreateTesterParams = OpraEntityTesterParams & {
-  data: {};
+export type OpraEntityUpdateTesterParams = OpraEntityTesterParams & {
   keyValue: ResourceKey;
-  options: CreateQueryOptions;
+  data: {};
+  options: UpdateQueryOptions;
 }
 
 export class OpraEntityUpdateTester extends BaseOperationTester {
-  protected declare readonly _params: OpraEntityCreateTesterParams;
+  protected declare readonly _params: OpraEntityUpdateTesterParams;
 
-  constructor(params: OpraEntityCreateTesterParams) {
+  constructor(params: OpraEntityUpdateTesterParams) {
     super(params);
   }
 
@@ -48,7 +48,7 @@ export class OpraEntityUpdateTester extends BaseOperationTester {
     if (this._params.options.omit)
       url.searchParams.set('$omit', this._params.options.omit);
     const req = request(this._params.app);
-    const test = req.post(url.toString());
+    const test = req.patch(url.toString());
     this._prepare(test);
     return test.send(this._params.data);
   }

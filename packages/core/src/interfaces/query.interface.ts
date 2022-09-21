@@ -106,6 +106,7 @@ export type GetQueryOptions = StrictOmit<OpraGetQuery, 'queryType' | 'scope' | '
 export type SearchQueryOptions = StrictOmit<OpraSearchQuery, 'queryType' | 'scope' | 'operation' | 'resource'>;
 export type UpdateQueryOptions = StrictOmit<OpraUpdateQuery, 'queryType' | 'scope' | 'operation' | 'resource' | 'keyValue' | 'data'>;
 export type UpdateManyQueryOptions = StrictOmit<OpraUpdateManyQuery, 'queryType' | 'scope' | 'operation' | 'resource' | 'data'>;
+export type DeleteQueryOptions = StrictOmit<OpraDeleteQuery, 'queryType' | 'scope' | 'operation' | 'resource' | 'keyValue'>;
 export type DeleteManyQueryOption = StrictOmit<OpraDeleteManyQuery, 'queryType' | 'scope' | 'operation' | 'resource'>;
 
 export namespace OpraQuery {
