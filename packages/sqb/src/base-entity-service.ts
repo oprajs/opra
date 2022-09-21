@@ -35,7 +35,7 @@ export abstract class BaseEntityService<T> implements IEntityService {
       case 'findAll':
         return this.search(prepared.options, ctx.userContext);
       case 'findByPk':
-        return this.get(ctx, prepared.options);
+        return this.get(prepared.keyValue, prepared.options, ctx.userContext);
       case 'update':
         return this.update(prepared.keyValue, prepared.values, prepared.options, ctx.userContext);
       case 'updateAll':
