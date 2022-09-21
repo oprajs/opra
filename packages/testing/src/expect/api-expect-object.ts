@@ -1,6 +1,6 @@
 import { ApiExpectBody } from './api-expect-body.js';
 
-export class ApiExpectResource extends ApiExpectBody {
+export class ApiExpectObject extends ApiExpectBody {
 
   constructor(protected _body: any) {
     super();

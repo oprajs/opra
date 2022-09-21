@@ -1,9 +1,18 @@
-import { CreateQueryOptions, GetQueryOptions, UpdateQueryOptions } from '@opra/core';
+import {
+  CreateQueryOptions,
+  DeleteManyQueryOption,
+  DeleteQueryOptions,
+  GetQueryOptions, UpdateManyQueryOptions,
+  UpdateQueryOptions
+} from '@opra/core';
 import { ResourceKey } from '@opra/url';
 import { BaseTester, OpraTesterParams } from './base-tester.js';
 import { OpraEntityCreateTester } from './entity-create-tester.js';
+import { OpraEntityDeleteManyTester } from './entity-delete-many-tester.js';
+import { OpraEntityDeleteTester } from './entity-delete-tester.js';
 import { OpraEntityGetTester } from './entity-get-tester.js';
 import { OpraEntitySearchTester } from './entity-search-tester.js';
+import { OpraEntityUpdateManyTester } from './entity-update-many-tester.js';
 import { OpraEntityUpdateTester } from './entity-update-tester.js';
 
 export type OpraEntityTesterParams = OpraTesterParams & {
@@ -50,6 +59,32 @@ export class OpraEntityTester extends BaseTester {
       keyValue,
       headers: {...this._params.headers},
       data,
+      options
+    });
+  }
+
+  updateMany(data: {}, options: UpdateManyQueryOptions = {}): OpraEntityUpdateManyTester {
+    return new OpraEntityUpdateManyTester({
+      ...this._params,
+      headers: {...this._params.headers},
+      data,
+      options
+    });
+  }
+
+  delete(keyValue: ResourceKey, options: DeleteQueryOptions = {}): OpraEntityDeleteTester {
+    return new OpraEntityDeleteTester({
+      ...this._params,
+      keyValue,
+      headers: {...this._params.headers},
+      options
+    });
+  }
+
+  deleteMany(options: DeleteManyQueryOption = {}): OpraEntityDeleteManyTester {
+    return new OpraEntityDeleteManyTester({
+      ...this._params,
+      headers: {...this._params.headers},
       options
     });
   }

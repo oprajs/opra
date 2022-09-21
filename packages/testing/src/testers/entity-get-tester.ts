@@ -5,8 +5,8 @@ import { BaseOperationTester } from './base-operation-tester.js';
 import type { OpraEntityTesterParams } from './entity-tester';
 
 export type OpraEntityGetTesterParams = OpraEntityTesterParams & {
-  keyValue: ResourceKey,
-  options: GetQueryOptions
+  keyValue: ResourceKey;
+  options: GetQueryOptions;
 }
 
 export class OpraEntityGetTester extends BaseOperationTester {
