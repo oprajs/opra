@@ -91,7 +91,7 @@ export abstract class OpraAdapter<TExecutionContext extends IExecutionContext> {
       let promises: Promise<void>[] | undefined;
       let exclusive = false;
       for (const context of queryContexts) {
-        exclusive = exclusive || context.query.operationType !== 'read';
+        exclusive = exclusive || context.query.operation !== 'read';
 
         // Wait previous read requests before executing update request
         if (exclusive && promises) {

@@ -6,7 +6,7 @@ export interface OpraTesterParams {
   headers: Record<string, string>;
 }
 
-export class BaseTester {
+export abstract class BaseTester {
   protected readonly _params: OpraTesterParams;
 
   constructor(params: OpraTesterParams) {

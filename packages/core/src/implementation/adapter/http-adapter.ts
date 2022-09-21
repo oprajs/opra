@@ -73,7 +73,7 @@ export class OpraHttpAdapter<TExecutionContext extends IHttpExecutionContext> ex
       query,
       headers,
       params: url.searchParams,
-      continueOnError: query.operationType === 'read'
+      continueOnError: query.operation === 'read'
     });
   }
 
@@ -265,7 +265,7 @@ export class OpraHttpAdapter<TExecutionContext extends IHttpExecutionContext> ex
       body.errors = errors.map(e => e.response);
     } else {
       delete body.errors;
-      status = status || (query.operationType === 'create' ? HttpStatus.CREATED : HttpStatus.OK);
+      status = status || (query.operation === 'create' ? HttpStatus.CREATED : HttpStatus.OK);
     }
 
     body = this.i18n.deep(body);
