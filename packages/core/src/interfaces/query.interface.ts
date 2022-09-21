@@ -14,13 +14,13 @@ export type OpraQuery = OpraCreateQuery | OpraGetQuery | OpraSearchQuery |
 interface BaseOpraQuery {
   queryType: QueryType;
   scope: QueryScope;
-  operationType: OperationType;
+  operation: OperationType;
 }
 
 export interface OpraCreateQuery extends BaseOpraQuery {
   queryType: 'create';
   scope: 'collection';
-  operationType: 'create';
+  operation: 'create';
   resource: EntityResourceHandler;
   data: {};
   pick?: string[];
@@ -31,7 +31,7 @@ export interface OpraCreateQuery extends BaseOpraQuery {
 export interface OpraGetQuery extends BaseOpraQuery {
   queryType: 'get';
   scope: 'instance';
-  operationType: 'read';
+  operation: 'read';
   resource: EntityResourceHandler;
   keyValue: KeyValue;
   pick?: string[];
@@ -43,7 +43,7 @@ export interface OpraGetQuery extends BaseOpraQuery {
 export interface OpraPropertyQuery extends BaseOpraQuery {
   queryType: 'get';
   scope: 'property';
-  operationType: 'read';
+  operation: 'read';
   property: OpraSchema.Property;
   nested?: OpraPropertyQuery;
 }
@@ -51,7 +51,7 @@ export interface OpraPropertyQuery extends BaseOpraQuery {
 export interface OpraUpdateQuery extends BaseOpraQuery {
   queryType: 'update';
   scope: 'instance';
-  operationType: 'update';
+  operation: 'update';
   resource: EntityResourceHandler;
   keyValue: KeyValue;
   data: {};
@@ -63,7 +63,7 @@ export interface OpraUpdateQuery extends BaseOpraQuery {
 export interface OpraUpdateManyQuery extends BaseOpraQuery {
   queryType: 'updateMany';
   scope: 'collection';
-  operationType: 'update';
+  operation: 'update';
   resource: EntityResourceHandler;
   filter?: string | Expression;
   data: {};
@@ -72,7 +72,7 @@ export interface OpraUpdateManyQuery extends BaseOpraQuery {
 export interface OpraDeleteQuery extends BaseOpraQuery {
   queryType: 'delete';
   scope: 'instance';
-  operationType: 'delete';
+  operation: 'delete';
   resource: EntityResourceHandler;
   keyValue: KeyValue;
 }
@@ -80,7 +80,7 @@ export interface OpraDeleteQuery extends BaseOpraQuery {
 export interface OpraDeleteManyQuery extends BaseOpraQuery {
   queryType: 'deleteMany';
   scope: 'collection';
-  operationType: 'delete';
+  operation: 'delete';
   resource: EntityResourceHandler;
   filter?: string | Expression;
 }
@@ -88,7 +88,7 @@ export interface OpraDeleteManyQuery extends BaseOpraQuery {
 export interface OpraSearchQuery extends BaseOpraQuery {
   queryType: 'search';
   scope: 'collection';
-  operationType: 'read';
+  operation: 'read';
   resource: EntityResourceHandler;
   pick?: string[];
   omit?: string[];
@@ -101,12 +101,12 @@ export interface OpraSearchQuery extends BaseOpraQuery {
   sort?: string[];
 }
 
-export type CreateQueryOptions = StrictOmit<OpraCreateQuery, 'queryType' | 'scope' | 'operationType' | 'resource' | 'data'>;
-export type GetQueryOptions = StrictOmit<OpraGetQuery, 'queryType' | 'scope' | 'operationType' | 'resource' | 'keyValue'>;
-export type SearchQueryOptions = StrictOmit<OpraSearchQuery, 'queryType' | 'scope' | 'operationType' | 'resource'>;
-export type UpdateQueryOptions = StrictOmit<OpraUpdateQuery, 'queryType' | 'scope' | 'operationType' | 'resource' | 'keyValue' | 'data'>;
-export type UpdateManyQueryOptions = StrictOmit<OpraUpdateManyQuery, 'queryType' | 'scope' | 'operationType' | 'resource' | 'data'>;
-export type DeleteManyQueryOption = StrictOmit<OpraDeleteManyQuery, 'queryType' | 'scope' | 'operationType' | 'resource'>;
+export type CreateQueryOptions = StrictOmit<OpraCreateQuery, 'queryType' | 'scope' | 'operation' | 'resource' | 'data'>;
+export type GetQueryOptions = StrictOmit<OpraGetQuery, 'queryType' | 'scope' | 'operation' | 'resource' | 'keyValue'>;
+export type SearchQueryOptions = StrictOmit<OpraSearchQuery, 'queryType' | 'scope' | 'operation' | 'resource'>;
+export type UpdateQueryOptions = StrictOmit<OpraUpdateQuery, 'queryType' | 'scope' | 'operation' | 'resource' | 'keyValue' | 'data'>;
+export type UpdateManyQueryOptions = StrictOmit<OpraUpdateManyQuery, 'queryType' | 'scope' | 'operation' | 'resource' | 'data'>;
+export type DeleteManyQueryOption = StrictOmit<OpraDeleteManyQuery, 'queryType' | 'scope' | 'operation' | 'resource'>;
 
 export namespace OpraQuery {
 
@@ -125,7 +125,7 @@ export namespace OpraQuery {
     const out: OpraCreateQuery = {
       queryType: 'create',
       scope: 'collection',
-      operationType: 'create',
+      operation: 'create',
       resource,
       data: values
     }
@@ -149,7 +149,7 @@ export namespace OpraQuery {
     const out: OpraGetQuery = {
       queryType: 'get',
       scope: 'instance',
-      operationType: 'read',
+      operation: 'read',
       resource,
       keyValue: key
     }
@@ -173,7 +173,7 @@ export namespace OpraQuery {
     const out: OpraSearchQuery = {
       queryType: 'search',
       scope: 'collection',
-      operationType: 'read',
+      operation: 'read',
       resource
     }
     Object.assign(out, _.omit(options, Object.keys(out)));
@@ -182,12 +182,12 @@ export namespace OpraQuery {
 
   export function forGetProperty(
       property: OpraSchema.Property,
-      options?: StrictOmit<OpraPropertyQuery, 'queryType' | 'scope' | 'operationType' | 'property'>
+      options?: StrictOmit<OpraPropertyQuery, 'queryType' | 'scope' | 'operation' | 'property'>
   ): OpraPropertyQuery {
     const out: OpraPropertyQuery = {
       queryType: 'get',
       scope: 'property',
-      operationType: 'read',
+      operation: 'read',
       property
     }
     Object.assign(out, _.omit(options, Object.keys(out)));
@@ -211,7 +211,7 @@ export namespace OpraQuery {
     const out: OpraUpdateQuery = {
       queryType: 'update',
       scope: 'instance',
-      operationType: 'update',
+      operation: 'update',
       resource,
       keyValue,
       data: values
@@ -228,7 +228,7 @@ export namespace OpraQuery {
     const out: OpraUpdateManyQuery = {
       queryType: 'updateMany',
       scope: 'collection',
-      operationType: 'update',
+      operation: 'update',
       resource,
       data: values
     }
@@ -241,7 +241,7 @@ export namespace OpraQuery {
     return {
       queryType: 'delete',
       scope: 'instance',
-      operationType: 'delete',
+      operation: 'delete',
       resource,
       keyValue: key
     }
@@ -254,7 +254,7 @@ export namespace OpraQuery {
     const out: OpraDeleteManyQuery = {
       queryType: 'deleteMany',
       scope: 'collection',
-      operationType: 'delete',
+      operation: 'delete',
       resource,
     }
     Object.assign(out, _.omit(options, Object.keys(out)));

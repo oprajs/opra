@@ -34,7 +34,7 @@ describe('OpraQuery', function () {
       expect(query).toBeDefined();
       expect(query.resource).toStrictEqual(resource);
       expect(query.queryType).toStrictEqual('search');
-      expect(query.operationType).toStrictEqual('read');
+      expect(query.operation).toStrictEqual('read');
       expect(query.scope).toStrictEqual('collection');
     })
 
@@ -44,7 +44,7 @@ describe('OpraQuery', function () {
       expect(query).toBeDefined();
       expect(query.resource).toStrictEqual(resource);
       expect(query.queryType).toStrictEqual('search');
-      expect(query.operationType).toStrictEqual('read');
+      expect(query.operation).toStrictEqual('read');
       expect(query.scope).toStrictEqual('collection');
       expect(query.limit).toStrictEqual(5);
     })
@@ -55,7 +55,7 @@ describe('OpraQuery', function () {
       expect(query).toBeDefined();
       expect(query.resource).toStrictEqual(resource);
       expect(query.queryType).toStrictEqual('search');
-      expect(query.operationType).toStrictEqual('read');
+      expect(query.operation).toStrictEqual('read');
       expect(query.scope).toStrictEqual('collection');
       expect(query.skip).toStrictEqual(5);
     })
@@ -66,7 +66,7 @@ describe('OpraQuery', function () {
       expect(query).toBeDefined();
       expect(query.resource).toStrictEqual(resource);
       expect(query.queryType).toStrictEqual('search');
-      expect(query.operationType).toStrictEqual('read');
+      expect(query.operation).toStrictEqual('read');
       expect(query.scope).toStrictEqual('collection');
       expect(query.count).toStrictEqual(true);
     })
@@ -77,7 +77,7 @@ describe('OpraQuery', function () {
       expect(query).toBeDefined();
       expect(query.resource).toStrictEqual(resource);
       expect(query.queryType).toStrictEqual('search');
-      expect(query.operationType).toStrictEqual('read');
+      expect(query.operation).toStrictEqual('read');
       expect(query.scope).toStrictEqual('collection');
       expect(query.distinct).toStrictEqual(true);
     })
@@ -88,7 +88,7 @@ describe('OpraQuery', function () {
       expect(query).toBeDefined();
       expect(query.resource).toStrictEqual(resource);
       expect(query.queryType).toStrictEqual('search');
-      expect(query.operationType).toStrictEqual('read');
+      expect(query.operation).toStrictEqual('read');
       expect(query.scope).toStrictEqual('collection');
       expect(query.pick).toStrictEqual(['givenName', 'gender', 'address.city']);
     })
@@ -125,7 +125,7 @@ describe('OpraQuery', function () {
       expect(query).toBeDefined();
       expect(query.resource).toStrictEqual(resource);
       expect(query.queryType).toStrictEqual('search');
-      expect(query.operationType).toStrictEqual('read');
+      expect(query.operation).toStrictEqual('read');
       expect(query.scope).toStrictEqual('collection');
       expect(query.omit).toStrictEqual(['givenName', 'gender', 'address.city']);
     })
@@ -162,7 +162,7 @@ describe('OpraQuery', function () {
       expect(query).toBeDefined();
       expect(query.resource).toStrictEqual(resource);
       expect(query.queryType).toStrictEqual('search');
-      expect(query.operationType).toStrictEqual('read');
+      expect(query.operation).toStrictEqual('read');
       expect(query.scope).toStrictEqual('collection');
       expect(query.include).toStrictEqual(['givenName', 'gender', 'address.city']);
     })
@@ -199,7 +199,7 @@ describe('OpraQuery', function () {
       expect(query).toBeDefined();
       expect(query.resource).toStrictEqual(resource);
       expect(query.queryType).toStrictEqual('search');
-      expect(query.operationType).toStrictEqual('read');
+      expect(query.operation).toStrictEqual('read');
       expect(query.scope).toStrictEqual('collection');
       expect(query.sort).toStrictEqual(['givenName', 'gender', 'address.city']);
     })
@@ -233,7 +233,7 @@ describe('OpraQuery', function () {
       expect(query).toBeDefined();
       expect(query.resource).toStrictEqual(resource);
       expect(query.queryType).toStrictEqual('create');
-      expect(query.operationType).toStrictEqual('create');
+      expect(query.operation).toStrictEqual('create');
       expect(query.scope).toStrictEqual('collection');
       expect(query.data).toStrictEqual({name: 'x'});
     })
@@ -304,7 +304,7 @@ describe('OpraQuery', function () {
       expect(query).toBeDefined();
       expect(query.resource).toStrictEqual(resource);
       expect(query.queryType).toStrictEqual('get');
-      expect(query.operationType).toStrictEqual('read');
+      expect(query.operation).toStrictEqual('read');
       expect(query.scope).toStrictEqual('instance');
       expect(query.keyValue).toStrictEqual(id);
     })
@@ -376,7 +376,7 @@ describe('OpraQuery', function () {
       expect(query).toBeDefined();
       expect(query.resource).toStrictEqual(resource);
       expect(query.queryType).toStrictEqual('update');
-      expect(query.operationType).toStrictEqual('update');
+      expect(query.operation).toStrictEqual('update');
       expect(query.scope).toStrictEqual('instance');
       expect(query.keyValue).toStrictEqual(id);
       expect(query.data).toStrictEqual({name: 'x'});
@@ -449,7 +449,7 @@ describe('OpraQuery', function () {
       expect(query).toBeDefined();
       expect(query.resource).toStrictEqual(resource);
       expect(query.queryType).toStrictEqual('updateMany');
-      expect(query.operationType).toStrictEqual('update');
+      expect(query.operation).toStrictEqual('update');
       expect(query.scope).toStrictEqual('collection');
       expect(query.data).toStrictEqual(data);
       expect(query.filter).toStrictEqual('id=1');
@@ -465,7 +465,7 @@ describe('OpraQuery', function () {
       expect(query).toBeDefined();
       expect(query.resource).toStrictEqual(resource);
       expect(query.queryType).toStrictEqual('delete');
-      expect(query.operationType).toStrictEqual('delete');
+      expect(query.operation).toStrictEqual('delete');
       expect(query.scope).toStrictEqual('instance');
       expect(query.keyValue).toStrictEqual(id);
     })
@@ -478,7 +478,7 @@ describe('OpraQuery', function () {
       expect(query).toBeDefined();
       expect(query.resource).toStrictEqual(resource);
       expect(query.queryType).toStrictEqual('deleteMany');
-      expect(query.operationType).toStrictEqual('delete');
+      expect(query.operation).toStrictEqual('delete');
       expect(query.scope).toStrictEqual('collection');
       expect(query.filter).toStrictEqual('id=1');
     })
