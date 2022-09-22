@@ -8,13 +8,12 @@ describe('Api decorators', function () {
 
   describe('@ApiEntityResource() decorator', function () {
 
-    it('Should define entity resource metadata', async () => {
+    it('Should define entity resource metadata', async function () {
       const opts: ApiEntityDecoratorOptions = {primaryKey: 'id'};
 
+      @ApiEntityResource(AnimalResource)
       class AnimalResource {
       }
-
-      ApiEntityResource(Address, opts)(AnimalResource);
 
       const metadata = Reflect.getMetadata(RESOURCE_METADATA, AnimalResource);
       expect(metadata).toStrictEqual({

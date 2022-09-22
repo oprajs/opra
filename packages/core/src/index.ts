@@ -6,7 +6,7 @@ export * from './enums/index.js';
 
 export * from './exception/index.js';
 
-export * from './decorators/entity-resource.decorator.js';
+export * from './decorators/api-entity-resource.decorator.js';
 
 export * from './interfaces/execution-context.interface.js';
 export * from './interfaces/query.interface.js';
