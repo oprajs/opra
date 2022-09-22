@@ -4,9 +4,12 @@
   "FORBIDDEN": "You are not authorized to perform this action",
   "INTERNAL_SERVER_ERROR": "Internal server error",
   "METHOD_NOT_ALLOWED": "Method Not Allowed",
+  "NOT_ACCEPTABLE": "Not Acceptable",
   "NOT_FOUND": "Not found",
   "UNAUTHORIZED": "You have not been authenticated to perform this action",
   "UNPROCESSABLE_ENTITY": "Unprocessable entity",
 
+  "RESOLVER_FORBIDDEN": "The resource endpoint does not accept '{{queryType}}' operations",
+  "RESOURCE_NOT_FOUND": "The resource '{{resource}}' could not be found",
   "RESOURCE_CONFLICT": "There is already an other {{resource}} resource with same field values ({{fields}})"
 }

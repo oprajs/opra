@@ -3,7 +3,7 @@ import {
   ApiEntityResource,
   OpraCreateQuery,
   OpraDeleteManyQuery,
-  OpraDeleteQuery, OpraGetQuery,
+  OpraDeleteQuery, OpraGetEntityQuery,
   OpraSearchQuery, OpraUpdateManyQuery,
   OpraUpdateQuery
 } from '@opra/core';
@@ -33,7 +33,7 @@ export class PhotosResource {
     return this.photosService.create(query.data);
   }
 
-  get(@Query query: OpraGetQuery) {
+  get(@Query query: OpraGetEntityQuery) {
     return this.photosService.get(query.keyValue);
   }
 

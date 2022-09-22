@@ -1,9 +1,11 @@
+import merge from 'putil-merge';
 import { OpraSchema } from '@opra/schema';
 import { colorFgMagenta, colorFgYellow, colorReset, nodeInspectCustom } from '../../utils/terminal-utils.js';
 import { QueryContext } from '../query-context.js';
 
 export abstract class ResourceHandler {
-  protected readonly _args: OpraSchema.Resource & { prepare?: Function };
+  protected readonly _args: OpraSchema.Resource;
+  protected path: string;
 
   protected constructor(args: OpraSchema.Resource) {
     this._args = args;
@@ -27,6 +29,18 @@ export abstract class ResourceHandler {
     if (fn && typeof fn === 'function') {
       await fn(ctx);
     }
+  }
+
+  getMetadata(): any {
+    return merge({}, {
+      ...this._args,
+      instance: undefined,
+    }, {
+      deep: true,
+      filter: (source: object, key: string) => {
+        return (key !== 'instance' && typeof source[key] !== 'function' && source[key] != null)
+      }
+    });
   }
 
   abstract execute(ctx: QueryContext): Promise<void>;

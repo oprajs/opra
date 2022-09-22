@@ -1,11 +1,10 @@
 import { StrictOmit, Type } from 'ts-gems';
 import { isPromise } from 'util/types';
 import { DATATYPE_METADATA, DATATYPE_PROPERTIES, OpraSchema, PropertyMetadata } from '@opra/schema';
-import { RESOURCE_METADATA } from '../constants.js';
+import { RESOLVER_METADATA, RESOURCE_METADATA } from '../constants.js';
 import { ThunkAsync } from '../types.js';
 import { isConstructor, resolveClassAsync } from '../utils/class-utils.js';
 import { builtinClassMap, internalDataTypes, primitiveDataTypeNames } from '../utils/internal-data-types.js';
-import isDataType = OpraSchema.isDataType;
 
 export namespace SchemaGenerator {
 
@@ -81,7 +80,7 @@ export class SchemaGenerator {
       return this.addDataType(schema);
     }
 
-    if (!isDataType(thunk))
+    if (!OpraSchema.isDataType(thunk))
       throw new TypeError(`Invalid data type schema`);
 
     // Check if datatype previously added
@@ -121,17 +120,24 @@ export class SchemaGenerator {
         ...metadata,
         type,
         name,
-        instance
+        instance,
+        resolvers: {}
       }
 
       if (OpraSchema.isEntityResource(resourceSchema)) {
         for (const methodName of entityMethods) {
-          let fn = instance['pre_' + methodName];
-          if (typeof fn === 'function')
-            resourceSchema['pre_' + methodName] = fn.bind(instance);
-          fn = instance[methodName];
-          if (typeof fn === 'function')
-            resourceSchema[methodName] = fn.bind(instance);
+          let fn = instance[methodName];
+          if (typeof fn === 'function') {
+            const info: OpraSchema.ResolverInfo = resourceSchema.resolvers[methodName] = {
+              ...Reflect.getMetadata(RESOLVER_METADATA, proto, methodName)
+            };
+            if (!info.forbidden) {
+              info.handler = fn.bind(instance);
+              fn = instance['pre_' + methodName];
+              if (typeof fn === 'function')
+                resourceSchema['pre_' + methodName] = fn.bind(instance);
+            }
+          } else resourceSchema.resolvers[methodName] = {forbidden: true};
         }
       }
     } else resourceSchema = instance;
@@ -182,8 +188,21 @@ export class SchemaGenerator {
       }
     }
 
-    const types = Object.keys(generator._dataTypes).sort()
-        .map(name => generator._dataTypes[name]);
+    const types = Object.keys(generator._dataTypes)
+        .map(name => generator._dataTypes[name])
+        .sort((a, b) => {
+          if (a.kind !== b.kind) {
+            if (a.kind === 'SimpleType')
+              return -1;
+            if (b.kind === 'SimpleType')
+              return 1;
+            if (a.kind === 'ComplexType')
+              return -1;
+            if (b.kind === 'ComplexType')
+              return 1;
+          }
+          return (a.name < b.name ? -1 : 1);
+        })
 
     const resources = Object.keys(generator._resources).sort()
         .map(name => generator._resources[name]);

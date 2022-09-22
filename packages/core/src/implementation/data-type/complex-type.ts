@@ -1,3 +1,4 @@
+import merge from 'putil-merge';
 import { StrictOmit } from 'ts-gems';
 import { OpraSchema } from '@opra/schema';
 import { Responsive, ResponsiveObject } from '../../utils/responsive-object.js';
@@ -35,6 +36,19 @@ export class ComplexType extends DataType {
     if (!t)
       throw new Error(`"${this.name}" type has no property named "${name}"`);
     return t;
+  }
+
+  getMetadata(): OpraSchema.ComplexTypeMetadata {
+    const out = super.getMetadata() as OpraSchema.ComplexTypeMetadata;
+    if (this.additionalProperties)
+      out.additionalProperties = this.additionalProperties;
+    if (this.ownProperties) {
+      out.properties = {};
+      for (const [k, prop] of Object.entries(this.ownProperties)) {
+        out.properties[k] = merge({}, prop as any, {deep: true}) as any;
+      }
+    }
+    return out;
   }
 
   toString(): string {

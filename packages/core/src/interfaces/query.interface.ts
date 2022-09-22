@@ -8,13 +8,21 @@ import { EntityResourceHandler } from '../implementation/resource/entity-resourc
 import { KeyValue, OperationType, QueryScope, QueryType } from '../types.js';
 import { ObjectTree, stringPathToObjectTree } from '../utils/string-path-to-object-tree.js';
 
-export type OpraQuery = OpraCreateQuery | OpraGetQuery | OpraSearchQuery |
+export type OpraQuery = OpraMetadataQuery |
+    OpraCreateQuery | OpraGetEntityQuery | OpraSearchQuery |
     OpraUpdateQuery | OpraUpdateManyQuery | OpraDeleteQuery | OpraDeleteManyQuery;
 
 interface BaseOpraQuery {
   queryType: QueryType;
   scope: QueryScope;
   operation: OperationType;
+}
+
+export interface OpraMetadataQuery extends BaseOpraQuery {
+  queryType: 'metadata';
+  scope: QueryScope;
+  operation: 'read';
+  resourcePath: string[];
 }
 
 export interface OpraCreateQuery extends BaseOpraQuery {
@@ -28,7 +36,7 @@ export interface OpraCreateQuery extends BaseOpraQuery {
   include?: string[];
 }
 
-export interface OpraGetQuery extends BaseOpraQuery {
+export interface OpraGetEntityQuery extends BaseOpraQuery {
   queryType: 'get';
   scope: 'instance';
   operation: 'read';
@@ -102,7 +110,7 @@ export interface OpraSearchQuery extends BaseOpraQuery {
 }
 
 export type CreateQueryOptions = StrictOmit<OpraCreateQuery, 'queryType' | 'scope' | 'operation' | 'resource' | 'data'>;
-export type GetQueryOptions = StrictOmit<OpraGetQuery, 'queryType' | 'scope' | 'operation' | 'resource' | 'keyValue'>;
+export type GetEntityQueryOptions = StrictOmit<OpraGetEntityQuery, 'queryType' | 'scope' | 'operation' | 'resource' | 'keyValue'>;
 export type SearchQueryOptions = StrictOmit<OpraSearchQuery, 'queryType' | 'scope' | 'operation' | 'resource'>;
 export type UpdateQueryOptions = StrictOmit<OpraUpdateQuery, 'queryType' | 'scope' | 'operation' | 'resource' | 'keyValue' | 'data'>;
 export type UpdateManyQueryOptions = StrictOmit<OpraUpdateManyQuery, 'queryType' | 'scope' | 'operation' | 'resource' | 'data'>;
@@ -134,11 +142,32 @@ export namespace OpraQuery {
     return out;
   }
 
-  export function forGet(
+  export function forGetMetadata(
+      resourcePath: string[],
+      options?: GetEntityQueryOptions
+  ): OpraMetadataQuery {
+    // if (options?.pick)
+    //   options.pick = normalizePick(resource, options.pick);
+    // if (options?.omit)
+    //   options.omit = normalizePick(resource, options.omit);
+    // if (options?.include)
+    //   options.include = normalizePick(resource, options.include);
+
+    const out: OpraMetadataQuery = {
+      queryType: 'metadata',
+      scope: 'instance',
+      resourcePath,
+      operation: 'read',
+    }
+    Object.assign(out, _.omit(options, Object.keys(out)));
+    return out;
+  }
+
+  export function forGetEntity(
       resource: EntityResourceHandler,
       key: KeyValue,
-      options?: GetQueryOptions
-  ): OpraGetQuery {
+      options?: GetEntityQueryOptions
+  ): OpraGetEntityQuery {
     if (options?.pick)
       options.pick = normalizePick(resource, options.pick);
     if (options?.omit)
@@ -147,7 +176,7 @@ export namespace OpraQuery {
       options.include = normalizePick(resource, options.include);
 
     checkKeyFields(resource, key);
-    const out: OpraGetQuery = {
+    const out: OpraGetEntityQuery = {
       queryType: 'get',
       scope: 'instance',
       operation: 'read',
@@ -270,7 +299,7 @@ export namespace OpraQuery {
     return q && typeof q === 'object' && q.scope === 'collection' && q.queryType === 'search';
   }
 
-  export function isReadQuery(q: any): q is OpraGetQuery {
+  export function isReadQuery(q: any): q is OpraGetEntityQuery {
     return q && typeof q === 'object' && q.scope === 'instance' && q.queryType === 'read';
   }
 

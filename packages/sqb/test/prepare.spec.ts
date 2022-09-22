@@ -70,14 +70,14 @@ describe('SQBAdapter.prepare', function () {
 
   describe('"read" query', function () {
     it('Should prepare', async () => {
-      const query = OpraQuery.forGet(service.getResource('Books'), 1);
+      const query = OpraQuery.forGetEntity(service.getResource('Books'), 1);
       const o = SQBAdapter.prepare(query);
       expect(o.method).toStrictEqual('findByPk');
       expect(o.keyValue).toStrictEqual(1);
     });
 
     it('Should prepare with "pick" option', async () => {
-      const query = OpraQuery.forGet(service.getEntityResource('Books'), 1, {
+      const query = OpraQuery.forGetEntity(service.getEntityResource('Books'), 1, {
         pick: ['id', 'name', 'writer.name']
       });
       const o = SQBAdapter.prepare(query);
@@ -88,7 +88,7 @@ describe('SQBAdapter.prepare', function () {
     });
 
     it('Should prepare with "omit" option', async () => {
-      const query = OpraQuery.forGet(service.getEntityResource('Books'), 1, {
+      const query = OpraQuery.forGetEntity(service.getEntityResource('Books'), 1, {
         omit: ['id', 'name', 'writer.name']
       });
       const o = SQBAdapter.prepare(query);
@@ -99,7 +99,7 @@ describe('SQBAdapter.prepare', function () {
     });
 
     it('Should prepare with "include" option', async () => {
-      const query = OpraQuery.forGet(service.getEntityResource('Books'), 1, {
+      const query = OpraQuery.forGetEntity(service.getEntityResource('Books'), 1, {
         include: ['id', 'name', 'writer.name']
       });
       const o = SQBAdapter.prepare(query);

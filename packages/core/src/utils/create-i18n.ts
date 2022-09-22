@@ -6,8 +6,8 @@ import { getCallerFile } from './get-caller-file.util.js';
 export async function createI18n(options?: OpraAdapter.I18nOptions): Promise<I18n> {
   const opts: OpraAdapter.I18nOptions = {
     ...options,
-    resourceDirs: undefined
   }
+  delete opts.resourceDirs;
   const instance = I18n.createInstance(opts);
   await instance.init();
   await instance.loadResourceDir(path.resolve(getCallerFile(), '../../../i18n'));

@@ -10,11 +10,12 @@ import {
 } from '../../exception/index.js';
 import { wrapError } from '../../exception/wrap-error.js';
 import { IHttpExecutionContext } from '../../interfaces/execution-context.interface.js';
-import { OpraPropertyQuery, OpraQuery } from '../../interfaces/query.interface.js';
+import { OpraMetadataQuery, OpraPropertyQuery, OpraQuery } from '../../interfaces/query.interface.js';
 import { IResourceContainer } from '../../interfaces/resource-container.interface.js';
 import { KeyValue, QueryScope } from '../../types.js';
 import { Headers, HeadersObject } from '../../utils/headers.js';
 import { ComplexType } from '../data-type/complex-type.js';
+import { DataType } from '../data-type/data-type.js';
 import { QueryContext } from '../query-context.js';
 import { ContainerResourceHandler } from '../resource/container-resource-handler.js';
 import { EntityResourceHandler } from '../resource/entity-resource-handler.js';
@@ -65,7 +66,7 @@ export class OpraHttpAdapter<TExecutionContext extends IHttpExecutionContext> ex
     const query = this.buildQuery(url, method, body);
     if (!query)
       throw new MethodNotAllowedError({
-        message: `Method "${method}" is not allowed by target resource`
+        message: `Method "${method}" is not allowed by target endpoint`
       });
     return new QueryContext({
       service: this.service,
@@ -77,126 +78,157 @@ export class OpraHttpAdapter<TExecutionContext extends IHttpExecutionContext> ex
     });
   }
 
+  buildMetadataQuery(url: OpraURL): OpraMetadataQuery {
+    const pathLen = url.path.size;
+    const resourcePath: string[] = [];
+    let pathIndex = 0;
+    while (pathIndex < pathLen) {
+      const p = url.path.get(pathIndex++);
+      if (p.key)
+        throw new BadRequestError();
+      if (p.resource !== '$metadata') {
+        if (pathIndex === 1)
+          resourcePath.push('resources');
+        resourcePath.push(p.resource);
+      }
+    }
+    const opts = {
+      pick: url.searchParams.get('$pick'),
+      omit: url.searchParams.get('$omit'),
+      include: url.searchParams.get('$include'),
+    }
+    return OpraQuery.forGetMetadata(resourcePath, opts);
+  }
+
   buildQuery(url: OpraURL, method: string, body?: any): OpraQuery | undefined {
     let container: IResourceContainer = this.service;
     try {
-      let pathIndex = 0;
       const pathLen = url.path.size;
+
+      // Check if requesting metadata
+      for (let i = 0; i < pathLen; i++) {
+        const p = url.path.get(i);
+        if (p.resource === '$metadata') {
+          if (method !== 'GET')
+            return;
+          return this.buildMetadataQuery(url);
+        }
+      }
+
+      let pathIndex = 0;
       while (pathIndex < pathLen) {
         let p = url.path.get(pathIndex++);
         const resource = container.getResource(p.resource);
-
         // Move through path directories (containers)
         if (resource instanceof ContainerResourceHandler) {
           container = resource;
-        } else {
-          method = method.toUpperCase();
+          continue;
+        }
 
-          if (resource instanceof EntityResourceHandler) {
-            const scope: QueryScope = p.key ? 'instance' : 'collection';
+        method = method.toUpperCase();
 
-            if (pathIndex < pathLen && !(method === 'GET' && scope === 'instance'))
-              return;
+        if (resource instanceof EntityResourceHandler) {
+          const scope: QueryScope = p.key ? 'instance' : 'collection';
 
-            let query: OpraQuery | undefined;
+          if (pathIndex < pathLen && !(method === 'GET' && scope === 'instance'))
+            return;
 
-            switch (method) {
+          let query: OpraQuery | undefined;
 
-              case 'GET': {
-                if (scope === 'collection') {
-                  query = OpraQuery.forSearch(resource, {
-                    filter: url.searchParams.get('$filter'),
-                    limit: url.searchParams.get('$limit'),
-                    skip: url.searchParams.get('$skip'),
-                    distinct: url.searchParams.get('$distinct'),
-                    count: url.searchParams.get('$count'),
-                    sort: url.searchParams.get('$sort'),
-                    pick: url.searchParams.get('$pick'),
-                    omit: url.searchParams.get('$omit'),
-                    include: url.searchParams.get('$include'),
-                  });
+          switch (method) {
 
-                } else {
-                  query = OpraQuery.forGet(resource, p.key as KeyValue, {
-                    pick: url.searchParams.get('$pick'),
-                    omit: url.searchParams.get('$omit'),
-                    include: url.searchParams.get('$include')
-                  });
+            case 'GET': {
+              if (scope === 'collection') {
+                query = OpraQuery.forSearch(resource, {
+                  filter: url.searchParams.get('$filter'),
+                  limit: url.searchParams.get('$limit'),
+                  skip: url.searchParams.get('$skip'),
+                  distinct: url.searchParams.get('$distinct'),
+                  count: url.searchParams.get('$count'),
+                  sort: url.searchParams.get('$sort'),
+                  pick: url.searchParams.get('$pick'),
+                  omit: url.searchParams.get('$omit'),
+                  include: url.searchParams.get('$include'),
+                });
 
-                  // Move through properties
-                  let nested: OpraPropertyQuery | undefined;
-                  let path = resource.name;
-                  while (pathIndex < pathLen) {
-                    const dataType = nested
-                        ? this.service.getDataType(nested.property.type || 'string')
-                        : query.resource.dataType;
-                    if (!(dataType instanceof ComplexType))
-                      throw new Error(`"${path}" is not a ComplexType and has no properties.`);
-                    p = url.path.get(pathIndex++);
-                    path += '.' + p.resource;
-                    const prop = dataType.properties?.[p.resource];
-                    if (!prop)
-                      throw new NotFoundError({message: `Invalid or unknown resource path (${path})`});
-                    const q = OpraQuery.forGetProperty(prop);
-                    if (nested) {
-                      nested.nested = q;
-                    } else {
-                      query.nested = q;
-                    }
-                    nested = q;
+              } else {
+                query = OpraQuery.forGetEntity(resource, p.key as KeyValue, {
+                  pick: url.searchParams.get('$pick'),
+                  omit: url.searchParams.get('$omit'),
+                  include: url.searchParams.get('$include')
+                });
+
+                // Move through properties
+                let nested: OpraPropertyQuery | undefined;
+                let path = resource.name;
+                while (pathIndex < pathLen) {
+                  const dataType = nested
+                      ? this.service.getDataType(nested.property.type || 'string')
+                      : query.resource.dataType;
+                  if (!(dataType instanceof ComplexType))
+                    throw new Error(`"${path}" is not a ComplexType and has no properties.`);
+                  p = url.path.get(pathIndex++);
+                  path += '.' + p.resource;
+                  const prop = dataType.properties?.[p.resource];
+                  if (!prop)
+                    throw new NotFoundError({message: `Invalid or unknown resource path (${path})`});
+                  const q = OpraQuery.forGetProperty(prop);
+                  if (nested) {
+                    nested.nested = q;
+                  } else {
+                    query.nested = q;
                   }
+                  nested = q;
                 }
-                break;
               }
-
-              case 'DELETE': {
-                if (scope === 'collection') {
-                  query = OpraQuery.forDeleteMany(resource, {
-                    filter: url.searchParams.get('$filter'),
-                  });
-                } else {
-                  query = OpraQuery.forDelete(resource, p.key as KeyValue);
-                }
-                break;
-              }
-
-              case 'POST': {
-                if (scope === 'collection') {
-                  query = OpraQuery.forCreate(resource, body, {
-                    pick: url.searchParams.get('$pick'),
-                    omit: url.searchParams.get('$omit'),
-                    include: url.searchParams.get('$include')
-                  });
-                }
-                break;
-              }
-
-              case 'PATCH': {
-                if (scope === 'collection') {
-                  query = OpraQuery.forUpdateMany(resource, body, {
-                    filter: url.searchParams.get('$filter')
-                  });
-                } else {
-                  query = OpraQuery.forUpdate(resource, p.key as KeyValue, body, {
-                    pick: url.searchParams.get('$pick'),
-                    omit: url.searchParams.get('$omit'),
-                    include: url.searchParams.get('$include')
-                  });
-                }
-                break;
-              }
-
+              break;
             }
 
-            return query;
+            case 'DELETE': {
+              if (scope === 'collection') {
+                query = OpraQuery.forDeleteMany(resource, {
+                  filter: url.searchParams.get('$filter'),
+                });
+              } else {
+                query = OpraQuery.forDelete(resource, p.key as KeyValue);
+              }
+              break;
+            }
+
+            case 'POST': {
+              if (scope === 'collection') {
+                query = OpraQuery.forCreate(resource, body, {
+                  pick: url.searchParams.get('$pick'),
+                  omit: url.searchParams.get('$omit'),
+                  include: url.searchParams.get('$include')
+                });
+              }
+              break;
+            }
+
+            case 'PATCH': {
+              if (scope === 'collection') {
+                query = OpraQuery.forUpdateMany(resource, body, {
+                  filter: url.searchParams.get('$filter')
+                });
+              } else {
+                query = OpraQuery.forUpdate(resource, p.key as KeyValue, body, {
+                  pick: url.searchParams.get('$pick'),
+                  omit: url.searchParams.get('$omit'),
+                  include: url.searchParams.get('$include')
+                });
+              }
+              break;
+            }
+
           }
+
+          return query;
         }
       }
       throw new InternalServerError();
     } catch (e: any) {
-      if (e instanceof ApiException)
-        throw e;
-      throw new BadRequestError({message: e.message});
+      throw BadRequestError.wrap(e);
     }
   }
 

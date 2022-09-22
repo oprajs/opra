@@ -43,7 +43,7 @@ export namespace SQBAdapter {
         };
       }
       case 'search': {
-        const options: BaseEntityService.FindAllOptions = _.omitBy({
+        const options: BaseEntityService.SearchOptions = _.omitBy({
           pick: query.pick?.length ? query.pick : undefined,
           omit: query.omit?.length ? query.omit : undefined,
           include: query.include?.length ? query.include : undefined,

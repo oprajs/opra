@@ -1,4 +1,4 @@
-import {splitString, tokenize} from 'fast-tokenizer';
+import { splitString, tokenize } from 'fast-tokenizer';
 import i18next, {
   FallbackLng,
   Formatter as I18nextFormatter,
@@ -8,9 +8,9 @@ import i18next, {
   TOptions
 } from 'i18next';
 import * as I18next from 'i18next';
-import {Type} from 'ts-gems';
-import {unescapeString} from './string-utils.js';
-import {isTranslation} from './translated-string.js';
+import { Type } from 'ts-gems';
+import { unescapeString } from './string-utils.js';
+import { isTranslation } from './translated-string.js';
 
 export type BaseI18n = Type<I18next.i18n>;
 export const BaseI18n = Object.getPrototypeOf(i18next).constructor as BaseI18n;
@@ -19,7 +19,7 @@ export type InitCallback = I18next.Callback;
 export type TranslateFunction = I18nextTFunction;
 export type Formatter = I18nextFormatter;
 export type LanguageResource = I18nextResource;
-export {FallbackLng};
+export { FallbackLng };
 
 export interface InitOptions extends I18nextInitOptions {
   resourceDirs?: string[];
@@ -44,10 +44,11 @@ export class I18n extends BaseI18n {
       formatter.add('upperFirst', (value, lng) => value.charAt(0).toLocaleUpperCase(lng) + value.substring(1));
 
       // Load globally registered resources
-      await this.loadResourceDir(globalLocaleDirs, false, true);
+      if (globalLocaleDirs.length)
+        await this.loadResourceDir(globalLocaleDirs, false, true);
 
       // Load resource dirs and overwrite existing
-      if (options?.resourceDirs) {
+      if (options?.resourceDirs?.length) {
         await this.loadResourceDir(options.resourceDirs, false, true);
       }
       // overwrite existing resources with options.resources
@@ -81,8 +82,8 @@ export class I18n extends BaseI18n {
   }
 
   async loadResourceBundle(
-    lang: string, ns: string, filePath: string,
-    deep?: boolean, overwrite?: boolean
+      lang: string, ns: string, filePath: string,
+      deep?: boolean, overwrite?: boolean
   ): Promise<void> {
     const fs = await import('fs/promises');
     const content = await fs.readFile(filePath, 'utf8');
@@ -162,8 +163,8 @@ export class I18n extends BaseI18n {
           }
           const k = keys.length > 1 ? '$t(' + keys.join(',') + ')' : keys[0];
           s += fallback
-            ? this.t(k, fallback, {...options, ...opts})
-            : this.t(k, {...options, ...opts});
+              ? this.t(k, fallback, {...options, ...opts})
+              : this.t(k, {...options, ...opts});
           continue;
         }
         s += token;
@@ -185,8 +186,8 @@ export class I18n extends BaseI18n {
       if (Buffer.isBuffer(input))
         return input;
       if (Buffer.isBuffer(input) || input instanceof Symbol ||
-        input instanceof RegExp || input instanceof Map || input instanceof Set ||
-        input instanceof WeakMap || input instanceof WeakSet
+          input instanceof RegExp || input instanceof Map || input instanceof Set ||
+          input instanceof WeakMap || input instanceof WeakSet
       ) return input;
 
       if (isTranslation(input)) {

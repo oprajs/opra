@@ -1,5 +1,5 @@
 import { StrictOmit } from 'ts-gems';
-import { SqbConnect } from '@opra/optionals';
+import * as Optionals from '@opra/optionals';
 import { OpraSchema } from '@opra/schema';
 import { OpraDocument } from '../opra-document.js';
 import { ComplexType } from './complex-type.js';
@@ -16,8 +16,8 @@ export class EntityType extends ComplexType {
     (this._args as any).kind = 'EntityType';
 
     // Try to determine primary key info from SQB
-    if (args.ctor) {
-      const sqbEntity = SqbConnect.EntityMetadata.get(args.ctor);
+    if (Optionals.SqbConnect && args.ctor) {
+      const sqbEntity = Optionals.SqbConnect.EntityMetadata.get(args.ctor);
       if (sqbEntity?.indexes) {
         const primaryIndex = sqbEntity.indexes.find(x => x.primary);
         if (primaryIndex) {

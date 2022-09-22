@@ -4,7 +4,8 @@ import { Notes } from './notes.dto.js';
 import { Person } from './person.dto.js';
 
 @ApiEntityType({
-  primaryKey: 'id'
+  primaryKey: 'id',
+  description: 'Customer information'
 })
 export class Customer extends Person {
 

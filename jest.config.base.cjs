@@ -15,7 +15,7 @@ module.exports = {
     }]
   },
   moduleNameMapper: {
-    '^@opra/optionals$': ['<rootDir>/../optionals'],
+    '^@opra/optionals$': ['<rootDir>/../optionals/cjs'],
     '^@opra/(.*)$': ['<rootDir>/../$1/src'],
     '^(\\..+)\\.js$': '$1'
   }

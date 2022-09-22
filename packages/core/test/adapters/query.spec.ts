@@ -2,7 +2,7 @@ import 'reflect-metadata';
 import {
   OpraCreateQuery, OpraDeleteManyQuery,
   OpraDeleteQuery,
-  OpraGetQuery,
+  OpraGetEntityQuery,
   OpraQuery,
   OpraSearchQuery, OpraService,
   OpraUpdateManyQuery,
@@ -300,7 +300,7 @@ describe('OpraQuery', function () {
     const id = 123;
     it('Should create ReadQuery', async () => {
       const resource = service.getEntityResource('Customers');
-      const query = OpraQuery.forGet(resource, id) as OpraGetQuery;
+      const query = OpraQuery.forGetEntity(resource, id) as OpraGetEntityQuery;
       expect(query).toBeDefined();
       expect(query.resource).toStrictEqual(resource);
       expect(query.queryType).toStrictEqual('get');
@@ -311,7 +311,7 @@ describe('OpraQuery', function () {
 
     it('Should set "pick" option', async () => {
       const resource = service.getEntityResource('Customers');
-      const query = OpraQuery.forGet(resource, id, {pick: ['givenName', 'gender', 'address.city']}) as OpraGetQuery;
+      const query = OpraQuery.forGetEntity(resource, id, {pick: ['givenName', 'gender', 'address.city']}) as OpraGetEntityQuery;
       expect(query).toBeDefined();
       expect(query.resource).toStrictEqual(resource);
       expect(query.queryType).toStrictEqual('get');
@@ -320,17 +320,17 @@ describe('OpraQuery', function () {
 
     it('Should normalize field names in "pick" option', async () => {
       const resource = service.getEntityResource('Customers');
-      let query = OpraQuery.forGet(resource, id, {pick: ['givenname', 'GENDER', 'AdDRess.CIty']}) as OpraGetQuery;
+      let query = OpraQuery.forGetEntity(resource, id, {pick: ['givenname', 'GENDER', 'AdDRess.CIty']}) as OpraGetEntityQuery;
       expect(query.pick).toStrictEqual(['givenName', 'gender', 'address.city']);
-      query = OpraQuery.forGet(resource, id, {pick: ['address', 'address.city']});
+      query = OpraQuery.forGetEntity(resource, id, {pick: ['address', 'address.city']});
       expect(query.pick).toStrictEqual(['address']);
-      query = OpraQuery.forGet(resource, id, {pick: ['address.city', 'address']});
+      query = OpraQuery.forGetEntity(resource, id, {pick: ['address.city', 'address']});
       expect(query.pick).toStrictEqual(['address']);
     })
 
     it('Should set "omit" option', async () => {
       const resource = service.getEntityResource('Customers');
-      const query = OpraQuery.forGet(resource, id, {omit: ['givenName', 'gender', 'address.city']}) as OpraGetQuery;
+      const query = OpraQuery.forGetEntity(resource, id, {omit: ['givenName', 'gender', 'address.city']}) as OpraGetEntityQuery;
       expect(query).toBeDefined();
       expect(query.resource).toStrictEqual(resource);
       expect(query.queryType).toStrictEqual('get');
@@ -339,17 +339,17 @@ describe('OpraQuery', function () {
 
     it('Should normalize field names in "omit" option', async () => {
       const resource = service.getEntityResource('Customers');
-      let query = OpraQuery.forGet(resource, id, {omit: ['givenname', 'GENDER', 'AdDRess.CIty']}) as OpraGetQuery;
+      let query = OpraQuery.forGetEntity(resource, id, {omit: ['givenname', 'GENDER', 'AdDRess.CIty']}) as OpraGetEntityQuery;
       expect(query.omit).toStrictEqual(['givenName', 'gender', 'address.city']);
-      query = OpraQuery.forGet(resource, id, {omit: ['address', 'address.city']});
+      query = OpraQuery.forGetEntity(resource, id, {omit: ['address', 'address.city']});
       expect(query.omit).toStrictEqual(['address']);
-      query = OpraQuery.forGet(resource, id, {omit: ['address.city', 'address']});
+      query = OpraQuery.forGetEntity(resource, id, {omit: ['address.city', 'address']});
       expect(query.omit).toStrictEqual(['address']);
     })
 
     it('Should set "include" option', async () => {
       const resource = service.getEntityResource('Customers');
-      const query = OpraQuery.forGet(resource, id, {include: ['givenName', 'gender', 'address.city']}) as OpraGetQuery;
+      const query = OpraQuery.forGetEntity(resource, id, {include: ['givenName', 'gender', 'address.city']}) as OpraGetEntityQuery;
       expect(query).toBeDefined();
       expect(query.resource).toStrictEqual(resource);
       expect(query.queryType).toStrictEqual('get');
@@ -358,11 +358,11 @@ describe('OpraQuery', function () {
 
     it('Should normalize field names in "include" option', async () => {
       const resource = service.getEntityResource('Customers');
-      let query = OpraQuery.forGet(resource, id, {include: ['givenname', 'GENDER', 'AdDRess.CIty']}) as OpraGetQuery;
+      let query = OpraQuery.forGetEntity(resource, id, {include: ['givenname', 'GENDER', 'AdDRess.CIty']}) as OpraGetEntityQuery;
       expect(query.include).toStrictEqual(['givenName', 'gender', 'address.city']);
-      query = OpraQuery.forGet(resource, id, {include: ['address', 'address.city']});
+      query = OpraQuery.forGetEntity(resource, id, {include: ['address', 'address.city']});
       expect(query.include).toStrictEqual(['address']);
-      query = OpraQuery.forGet(resource, id, {include: ['address.city', 'address']});
+      query = OpraQuery.forGetEntity(resource, id, {include: ['address.city', 'address']});
       expect(query.include).toStrictEqual(['address']);
     })
   });

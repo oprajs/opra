@@ -4,6 +4,8 @@ export namespace OpraSchema {
 
   //#region # Common
   export type Extensible<T = any> = { [key: `$${string}`]: T };
+  export type MetadataTags<T = any> = { [key: `@opra:${string}`]: T };
+
   export type ResourceKind =
       'ContainerResource' |
       'EntityResource' |
@@ -16,6 +18,8 @@ export namespace OpraSchema {
     resources: Resource[];
     servers?: ServerInfo[];
   }
+
+  export type ServiceMetadata = Service & Extensible & MetadataTags;
 
   //#region # Service Document specific types
   export interface Document {
@@ -88,6 +92,8 @@ export namespace OpraSchema {
     additionalProperties?: boolean | string | Pick<Property, 'type' | 'format' | 'isArray' | 'enum'>;
   }
 
+  export type ComplexTypeMetadata = ComplexType & Extensible & MetadataTags;
+
   export interface EntityType extends StrictOmit<ComplexType, 'kind'> {
     kind: 'EntityType';
     primaryKey: string;
@@ -148,26 +154,13 @@ export namespace OpraSchema {
     instance?: {};
   }
 
+  export type EntityResolverType = 'search' | 'get' | 'create' |
+      'update' | 'updateMany' | 'delete' | 'deleteMany';
+
   export interface EntityResource extends BaseResource {
     kind: 'EntityResource',
     type: string;
-    search?: Function;
-    create?: Function;
-    get?: Function;
-    update?: Function;
-    updateMany?: Function;
-    delete?: Function;
-    deleteMany?: Function;
-    /*
-    search?: ResourceSearchOperation;
-    create?: ResourceReadOperation;
-    read?: ResourceReadOperation;
-    update?: ResourceReadOperation;
-    updateMany?: ResourceReadOperation;
-    // patch?: ResourceReadOperation;
-    // patchMany?: ResourceReadOperation;
-    delete?: ResourceReadOperation;
-    deleteMany?: ResourceReadOperation;*/
+    resolvers: Partial<Record<EntityResolverType, ResolverInfo>>;
   }
 
   export interface SingletonResource extends BaseResource {
@@ -180,35 +173,11 @@ export namespace OpraSchema {
     resources: Resource[];
   }
 
-  //#region # Operations
 
-  export type ResourceOperation = Extensible & {
+  export type ResolverInfo = Extensible & {
     handler?: Function;
+    [key: string]: any;
   }
-
-  export type ResourceReadOperation = ResourceOperation & {}
-
-  export type ResourceSearchOperation = ResourceOperation & {
-    defaultLimit?: number;
-    maxLimit?: number;
-    sortFields?: string[];
-    defaultSort?: string[];
-  }
-
-  export type ResourceCreateOperation = ResourceOperation & {};
-
-  export type ResourceUpdateOperation = ResourceOperation & {};
-
-  export type ResourceUpdateManyOperation = ResourceOperation & {};
-
-  export type ResourcePatchOperation = ResourceOperation & {};
-
-  export type ResourceDeleteOperation = ResourceOperation & {};
-
-  export type ResourceDeleteManyOperation = ResourceOperation & {};
-
-  export type ResourceExecuteOperation = ResourceOperation & {};
-
 
   export function isResource(obj: any): obj is Resource {
     return obj && typeof obj === 'object' &&
