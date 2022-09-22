@@ -4,7 +4,7 @@ import { OpraHttpAdapter } from '../../src/implementation/adapter/http-adapter.j
 import {
   OpraCreateQuery, OpraDeleteManyQuery,
   OpraDeleteQuery,
-  OpraGetQuery,
+  OpraGetEntityQuery,
   OpraSearchQuery, OpraService,
   OpraUpdateManyQuery,
   OpraUpdateQuery
@@ -58,7 +58,7 @@ describe('OpraHttpAdapter', function () {
       it('Should generate "get" query', async () => {
         const adapter = new OpraHttpAdapter(service);
         const url = new OpraURL('/Customers@1?&$pick=id&$omit=gender&$include=address');
-        const query = adapter.buildQuery(url, 'GET') as OpraGetQuery;
+        const query = adapter.buildQuery(url, 'GET') as OpraGetEntityQuery;
         expect(query).toBeDefined();
         const resource = service.getEntityResource('Customers');
         expect(query).toBeDefined();

@@ -88,7 +88,8 @@ export class OpraDocument {
       recursiveSet.add(schema.name);
       let baseType: DataType | undefined;
       if (schema.base) {
-        if (!this.types[schema.base]) {
+        baseType = this.types[schema.base];
+        if (!baseType) {
           const baseSchema = dataTypes.find(dt => dt.name.toLowerCase() === schema.base?.toLowerCase()) ||
               internalDataTypes.get(schema.base.toLowerCase());
           if (!baseSchema)
@@ -117,12 +118,6 @@ export class OpraDocument {
       return dataType;
     }
     dataTypes.forEach(dataType => processDataType(dataType));
-
-    // Sort data types by name
-    const newTypes = Responsive<DataType>();
-    Object.keys(this.types).sort()
-        .forEach(name => newTypes[name] = this.types[name]);
-    this._types = newTypes;
   }
 
 }

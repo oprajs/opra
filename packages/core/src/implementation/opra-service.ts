@@ -1,6 +1,9 @@
+import merge from 'putil-merge';
 import { StrictOmit } from 'ts-gems';
 import { OpraSchema } from '@opra/schema';
+import { OpraVersion } from '../constants.js';
 import { IResourceContainer } from '../interfaces/resource-container.interface.js';
+import { internalDataTypes } from '../utils/internal-data-types.js';
 import { Responsive } from '../utils/responsive-object.js';
 import { EntityType } from './data-type/entity-type.js';
 import { OpraDocument } from './opra-document.js';
@@ -40,6 +43,25 @@ export class OpraService extends OpraDocument implements IResourceContainer {
     if (!(t instanceof EntityResourceHandler))
       throw new Error(`"${name}" is not an EntityResource`);
     return t;
+  }
+
+  getMetadata() {
+    const out: OpraSchema.ServiceMetadata = {
+      '@opra:metadata': '/$metadata',
+      version: OpraVersion,
+      servers: this.servers?.map(x => merge({}, x, {deep: true})) as any,
+      info: merge({}, this.info, {deep: true}) as any,
+      types: [],
+      resources: []
+    };
+    for (const [k, dataType] of Object.entries(this.types)) {
+      if (!internalDataTypes.has(k))
+        out.types.push(dataType.getMetadata());
+    }
+    for (const resource of Object.values(this.resources)) {
+      out.resources.push(resource.getMetadata());
+    }
+    return out;
   }
 
   protected _addResources(resources: OpraSchema.Resource[]): void {

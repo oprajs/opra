@@ -1,12 +1,12 @@
 import request, { Response } from 'supertest';
-import { GetQueryOptions } from '@opra/core';
+import { GetEntityQueryOptions } from '@opra/core';
 import { OpraURL, ResourceKey } from '@opra/url';
 import { BaseOperationTester } from './base-operation-tester.js';
 import type { OpraEntityTesterParams } from './entity-tester';
 
 export type OpraEntityGetTesterParams = OpraEntityTesterParams & {
   keyValue: ResourceKey;
-  options: GetQueryOptions;
+  options: GetEntityQueryOptions;
 }
 
 export class OpraEntityGetTester extends BaseOperationTester {

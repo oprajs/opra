@@ -4,7 +4,7 @@ import { EntityInput, EntityMetadata, EntityOutput, Repository, SqbClient, SqbCo
 import { SQBAdapter } from './sqb-adapter.js';
 
 export namespace BaseEntityService {
-  export type FindAllOptions = Repository.FindAllOptions & { total?: boolean };
+  export type SearchOptions = Repository.FindAllOptions & { total?: boolean };
   export type GetOptions = Repository.GetOptions;
   export type CreateOptions = Repository.CreateOptions;
   export type UpdateOptions = Repository.UpdateOptions;
@@ -65,7 +65,7 @@ export abstract class BaseEntityService<T> implements IEntityService {
   }
 
   async count(
-      options?: BaseEntityService.FindAllOptions,
+      options?: BaseEntityService.SearchOptions,
       userContext?: any
   ): Promise<Maybe<number>> {
     const conn = await this.getConnection(userContext);
@@ -79,7 +79,7 @@ export abstract class BaseEntityService<T> implements IEntityService {
   }
 
   async search(
-      options?: BaseEntityService.FindAllOptions,
+      options?: BaseEntityService.SearchOptions,
       userContext?: any
   ): Promise<Maybe<EntityOutput<T>>[]> {
     const conn = await this.getConnection(userContext);
@@ -108,7 +108,7 @@ export abstract class BaseEntityService<T> implements IEntityService {
       data: EntityInput<T>,
       options?: BaseEntityService.CreateOptions,
       userContext?: any
-  ): Promise<Maybe<EntityOutput<T>>> {
+  ): Promise<EntityOutput<T>> {
     const conn = await this.getConnection(userContext);
     const repo = conn.getRepository(this.resourceType);
     let out;
@@ -147,7 +147,7 @@ export abstract class BaseEntityService<T> implements IEntityService {
       data: EntityInput<T>,
       options?: BaseEntityService.UpdateManyOptions,
       userContext?: any
-  ): Promise<Maybe<number>> {
+  ): Promise<number> {
     const conn = await this.getConnection(userContext);
     const repo = conn.getRepository(this.resourceType);
     try {

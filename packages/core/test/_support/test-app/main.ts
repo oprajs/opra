@@ -1,28 +1,17 @@
 /* eslint-disable no-console */
 import express from 'express';
 import * as util from 'util';
-import { OpraExpressAdapter, OpraService } from '../../../src/index.js';
-import { countriesResource } from './api/countries.resource.js';
-import { CustomerAddressesesResource } from './api/customer-addresseses.resource.js';
-import { CustomersResource } from './api/customers.resource.js';
-import { Customer } from './dto/customer.dto.js';
+import { OpraExpressAdapter } from '../../../src/index.js';
+import { createTestService } from './create-service.js';
 
 async function run() {
-  const service = await OpraService.create({
-    info: {
-      title: 'TestApi',
-      version: 'v1',
-    },
-    types: [Customer],
-    resources: [countriesResource, new CustomersResource(), new CustomerAddressesesResource()]
-  });
+  const service = await createTestService();
   console.log(util.inspect(service, {depth: 10, colors: true}));
-
   const app = express();
-  const port = 3001;
   await OpraExpressAdapter.init(app, service, {prefix: '/svc1'});
+  const port = 3001;
   app.listen(port, () => {
-    console.log(`Listening on port ${port}`)
+    console.log(`Server running on http://localhost:${port}/svc1`)
   })
 
 }

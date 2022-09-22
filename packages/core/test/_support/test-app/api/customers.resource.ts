@@ -1,30 +1,22 @@
 import {
-  ApiEntityResource,
-  QueryContext
+  ApiEntityResource, EntityResourceController, IEntityService, JsonDataService
 } from '../../../../src/index.js';
+import customersData from '../data/customers.data.js';
 import { Customer } from '../dto/customer.dto.js';
 
 @ApiEntityResource(Customer, {
   description: 'Customer resource',
 })
-export class CustomersResource {
-  /*
-    customersService = new JsonDataService({
-      data: customersData,
-      primaryKey: 'id'
-    });*/
+export class CustomersResource extends EntityResourceController<Customer> {
 
-  constructor() {
-    //
+  customersService = new JsonDataService({
+    resourceName: 'Customers',
+    data: customersData,
+    primaryKey: 'id'
+  });
+
+  getService(): IEntityService {
+    return this.customersService;
   }
 
-  get(ctx: QueryContext) {
-    // eslint-disable-next-line no-console
-    console.log(ctx);
-  }
-
-  search(ctx: QueryContext) {
-    // eslint-disable-next-line no-console
-    console.log(ctx);
-  }
 }

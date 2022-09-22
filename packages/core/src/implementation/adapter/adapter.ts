@@ -1,8 +1,14 @@
 import { AsyncEventEmitter } from 'strict-typed-events';
 import { FallbackLng, I18n, LanguageResource } from '@opra/i18n';
-import { ApiException, FailedDependencyError } from '../../exception/index.js';
+import {
+  ApiException, BadRequestError,
+  FailedDependencyError,
+  InternalServerError,
+  NotFoundError
+} from '../../exception/index.js';
 import { wrapError } from '../../exception/wrap-error.js';
 import { IExecutionContext } from '../../interfaces/execution-context.interface.js';
+import { OpraMetadataQuery } from '../../interfaces/query.interface.js';
 import { createI18n } from '../../utils/create-i18n.js';
 import { OpraService } from '../opra-service.js';
 import { QueryContext } from '../query-context.js';
@@ -14,11 +20,6 @@ export namespace OpraAdapter {
         isBatch: boolean;
       }
   ) => object | Promise<object>;
-  export type RequestFinishEvent = (args: {
-    executionContext: IExecutionContext;
-    userContext?: any;
-    failed: boolean;
-  }) => Promise<void>;
 
   export interface Options {
     i18n?: I18n | I18nOptions | (() => Promise<I18n>);
@@ -107,8 +108,12 @@ export abstract class OpraAdapter<TExecutionContext extends IExecutionContext> {
         }
 
         try {
-          const resource = context.query.resource;
           const promise = (async () => {
+            if (context.query.queryType === 'metadata') {
+              await this._metadataExecute(context);
+              return;
+            }
+            const resource = context.query.resource;
             await resource.prepare(context);
             if (this.userContextResolver && !userContext)
               userContext = this.userContextResolver({
@@ -161,6 +166,36 @@ export abstract class OpraAdapter<TExecutionContext extends IExecutionContext> {
             }).catch();
       }
     }
+  }
+
+  protected async _metadataExecute(ctx: QueryContext): Promise<void> {
+    const query = ctx.query as OpraMetadataQuery;
+    let out: any;
+
+    if (query.resourcePath.length > 2)
+      throw new BadRequestError();
+
+    if (query.resourcePath?.length) {
+      if (query.resourcePath[0] === 'resources') {
+        const resource = this.service.getResource(query.resourcePath[1]);
+        out = resource.getMetadata();
+        query.resourcePath[1] = resource.name;
+
+      } else if (query.resourcePath[0] === 'types') {
+        const dataType = this.service.getDataType(query.resourcePath[1]);
+        out = dataType.getMetadata();
+        query.resourcePath[1] = dataType.name;
+      } else
+        throw new BadRequestError();
+
+      ctx.response.value = {
+        '@opra:metadata': '/$metadata/' + query.resourcePath.join('/'),
+        ...out
+      };
+      return;
+    }
+
+    ctx.response.value = this.service.getMetadata();
   }
 
   protected static async initI18n(options?: OpraAdapter.Options): Promise<I18n> {

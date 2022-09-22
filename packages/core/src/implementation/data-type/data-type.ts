@@ -32,12 +32,26 @@ export abstract class DataType {
     return this._args.description;
   }
 
+  get abstract(): boolean {
+    return !!this._args.abstract;
+  }
+
   get ctor(): Type {
     return this._args.ctor;
   }
 
   is(typeName: string): boolean {
     return this.name === typeName || !!(this.base && this.base.is(typeName));
+  }
+
+  getMetadata(): any {
+    return {
+      kind: this.kind,
+      base: this.base?.name,
+      abstract: this.abstract ? true : undefined,
+      name: this.name,
+      description: this.description,
+    }
   }
 
 }

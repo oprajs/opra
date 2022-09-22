@@ -2,7 +2,7 @@ import {
   CreateQueryOptions,
   DeleteManyQueryOption,
   DeleteQueryOptions,
-  GetQueryOptions, UpdateManyQueryOptions,
+  GetEntityQueryOptions, UpdateManyQueryOptions,
   UpdateQueryOptions
 } from '@opra/core';
 import { ResourceKey } from '@opra/url';
@@ -36,7 +36,7 @@ export class OpraEntityTester extends BaseTester {
     });
   }
 
-  get(keyValue: ResourceKey, options: GetQueryOptions = {}): OpraEntityGetTester {
+  get(keyValue: ResourceKey, options: GetEntityQueryOptions = {}): OpraEntityGetTester {
     return new OpraEntityGetTester({
       ...this._params,
       headers: {...this._params.headers},
@@ -45,7 +45,7 @@ export class OpraEntityTester extends BaseTester {
     });
   }
 
-  search(options: GetQueryOptions = {}): OpraEntitySearchTester {
+  search(options: GetEntityQueryOptions = {}): OpraEntitySearchTester {
     return new OpraEntitySearchTester({
       ...this._params,
       headers: {...this._params.headers},
