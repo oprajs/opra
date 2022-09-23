@@ -17,7 +17,7 @@ import { EntityInput, EntityOutput, QueryType } from '../types.js';
 import { IEntityService } from './entity-resource-controller.js';
 
 // Fix invalid importing (with ESM) of rule-judgment package
-const toArrayFilter = typeof (ruleJudgment as any) === 'function'
+const createFilterFn = typeof (ruleJudgment as any) === 'function'
     ? (ruleJudgment as any)
     : (ruleJudgment as any).default;
 
@@ -41,7 +41,7 @@ export namespace JsonDataService {
     skip?: number;
     distinct?: boolean;
     total?: boolean;
-    filter?: string | Expression;
+    filter?: string | Expression | {};
   }
   export type CreateOptions = {
     pick?: string[];
@@ -54,10 +54,10 @@ export namespace JsonDataService {
     include?: string[];
   }
   export type UpdateManyOptions = {
-    filter?: string | Expression;
+    filter?: string | Expression | {};
   }
   export type DeleteManyOptions = {
-    filter?: string | Expression;
+    filter?: string | Expression | {};
   }
 }
 
@@ -94,8 +94,9 @@ export class JsonDataService<T, TOutput = EntityOutput<T>> implements IEntitySer
   search(options?: JsonDataService.SearchOptions): Maybe<TOutput>[] {
     let out: any[];
     if (options?.filter) {
-      const filter = toArrayFilter(JsonDataService.convertFilter(options.filter));
-      out = this.data.filter(filter);
+      const filter = JsonDataService.convertFilter(options.filter);
+      const filterFn = createFilterFn(filter);
+      out = this.data.filter(filterFn);
     } else out = this.data;
     return out.map(v => JsonDataService.filterProperties(v, options?.pick, options?.omit, options?.include));
   }
@@ -257,10 +258,12 @@ export class JsonDataService<T, TOutput = EntityOutput<T>> implements IEntitySer
     }
   }
 
-  static convertFilter(str: string | Expression | undefined): any {
-    const ast = typeof str === 'string' ? $parse(str) : str;
-    if (!ast)
-      return;
+  static convertFilter(str: string | Expression | undefined | {}): any {
+    const ast = typeof str === 'string'
+        ? $parse(str)
+        : str;
+    if (!ast || !(ast instanceof Expression))
+      return ast;
 
     if (ast instanceof ComparisonExpression) {
       const left = JsonDataService.convertFilter(ast.left);
