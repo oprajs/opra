@@ -3,7 +3,7 @@ import { StrictOmit } from 'ts-gems';
 import { OpraSchema } from '@opra/schema';
 import { OpraVersion } from '../constants.js';
 import { IResourceContainer } from '../interfaces/resource-container.interface.js';
-import { Responsive } from '../utils/responsive-object.js';
+import { ResponsiveMap } from '../utils/responsive-map.js';
 import { EntityType } from './data-type/entity-type.js';
 import { internalDataTypes } from './data-type/internal-data-types.js';
 import { OpraDocument } from './opra-document.js';
@@ -15,7 +15,7 @@ export type OpraServiceArgs = StrictOmit<OpraSchema.Service, 'version' | 'types'
 
 export class OpraService extends OpraDocument implements IResourceContainer {
   protected declare readonly _args: OpraServiceArgs;
-  protected _resources = Responsive<BaseControllerWrapper>();
+  protected _resources = new ResponsiveMap<string, BaseControllerWrapper>();
 
   constructor(schema: OpraSchema.Service) {
     super(schema);
@@ -23,7 +23,7 @@ export class OpraService extends OpraDocument implements IResourceContainer {
       this._addResources(schema.resources);
   }
 
-  get resources(): Record<string, BaseControllerWrapper> {
+  get resources(): Map<string, BaseControllerWrapper> {
     return this._resources;
   }
 
@@ -32,7 +32,7 @@ export class OpraService extends OpraDocument implements IResourceContainer {
   }
 
   getResource<T extends BaseControllerWrapper>(name: string): T {
-    const t = this.resources[name];
+    const t = this.resources.get(name);
     if (!t)
       throw new Error(`Resource "${name}" does not exists`);
     return t as T;
@@ -72,16 +72,10 @@ export class OpraService extends OpraDocument implements IResourceContainer {
           throw new TypeError(`Datatype "${r.type}" declared in EntityResource (${r.name}) does not exists`);
         if (!(dataType instanceof EntityType))
           throw new TypeError(`${r.type} is not an EntityType`);
-        this.resources[r.name] = new EntityControllerWrapper(this, dataType, r);
+        this.resources.set(r.name, new EntityControllerWrapper(this, dataType, r));
       } else
         throw new TypeError(`Unknown resource kind (${r.kind})`);
     }
-
-    // Sort data types by name
-    const newResources = Responsive<BaseControllerWrapper>();
-    Object.keys(this.resources).sort()
-        .forEach(name => newResources[name] = this.resources[name]);
-    this._resources = newResources;
   }
 
   static async create(args: SchemaGenerator.GenerateServiceArgs): Promise<OpraService> {
