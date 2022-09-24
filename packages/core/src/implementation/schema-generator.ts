@@ -4,7 +4,7 @@ import { DATATYPE_METADATA, DATATYPE_PROPERTIES, OpraSchema, PropertyMetadata } 
 import { IGNORE_RESOLVER_METHOD, RESOLVER_METADATA, RESOURCE_METADATA } from '../constants.js';
 import { ThunkAsync } from '../types.js';
 import { isConstructor, resolveClassAsync } from '../utils/class-utils.js';
-import { builtinClassMap, internalDataTypes, primitiveDataTypeNames } from '../utils/internal-data-types.js';
+import { builtinClassMap, internalDataTypes, primitiveDataTypeNames } from './data-type/internal-data-types.js';
 
 export namespace SchemaGenerator {
 

@@ -85,7 +85,6 @@ export namespace OpraSchema {
 
   export interface ComplexType extends BaseDataType {
     kind: 'ComplexType';
-    name: string;
     description?: string;
     abstract?: boolean;
     properties?: Record<string, Property>;
