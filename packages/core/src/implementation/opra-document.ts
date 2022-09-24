@@ -1,7 +1,10 @@
 import _ from 'lodash';
 import { StrictOmit } from 'ts-gems';
 import { OpraSchema } from '@opra/schema';
-import { Responsive, ResponsiveObject } from '../utils/responsive-object.js';
+import { OpraVersion } from '../constants.js';
+import { cloneObject } from '../utils/clone-object.util.js';
+import { ResponsiveMap } from '../utils/responsive-map.js';
+import { stringCompare } from '../utils/string-compare.util.js';
 import { colorFgMagenta, colorFgYellow, colorReset, nodeInspectCustom } from '../utils/terminal-utils.js';
 import { ComplexType } from './data-type/complex-type.js';
 import { DataType } from './data-type/data-type.js';
@@ -14,7 +17,7 @@ export type OpraDocumentArgs = StrictOmit<OpraSchema.Document, 'version' | 'type
 
 export class OpraDocument {
   protected readonly _args: OpraDocumentArgs;
-  protected _types: ResponsiveObject<DataType> = Responsive<DataType>();
+  protected _types = new ResponsiveMap<string, DataType>();
 
   constructor(schema: OpraSchema.Document) {
     this._args = _.omit(schema, 'types');
@@ -30,12 +33,12 @@ export class OpraDocument {
     return this._args.info;
   }
 
-  get types(): Record<string, DataType> {
+  get types(): Map<string, DataType> {
     return this._types;
   }
 
   getDataType(name: string): DataType {
-    const t = this.types[name];
+    const t = this.types.get(name);
     if (!t)
       throw new Error(`Data type "${name}" does not exists`);
     return t;
@@ -62,6 +65,22 @@ export class OpraDocument {
     return t;
   }
 
+  getMetadata(jsonOnly?: boolean) {
+    const out: OpraSchema.Document & OpraSchema.MetadataTags = {
+      '@opra:schema': 'http://www.oprajs.com/reference/v1/schema#Document',
+      version: OpraVersion,
+      info: cloneObject(this.info),
+      types: [],
+    };
+    const sortedTypesArray = Array.from(this.types.values())
+        .sort((a, b) => stringCompare(a.name, b.name));
+    for (const dataType of sortedTypesArray) {
+      if (!internalDataTypes.has(dataType.name))
+        out.types.push(dataType.getMetadata(jsonOnly));
+    }
+    return out;
+  }
+
   toString(): string {
     return `[${Object.getPrototypeOf(this).constructor.name} ${this.name}]`;
   }
@@ -81,14 +100,14 @@ export class OpraDocument {
     const nameSet = new Set(dataTypes.map(x => x.name));
 
     const processDataType = (schema: OpraSchema.DataType) => {
-      if ((!internalDataTypes.has(schema.name) && !nameSet.has(schema.name)) || this.types[schema.name])
+      if ((!internalDataTypes.has(schema.name) && !nameSet.has(schema.name)) || this.types.get(schema.name))
         return;
       if (recursiveSet.has(schema.name))
         throw new TypeError(`Recursive dependency detected. ${Array.from(recursiveSet).join('>')}`);
       recursiveSet.add(schema.name);
       let baseType: DataType | undefined;
       if (schema.base) {
-        baseType = this.types[schema.base];
+        baseType = this.types.get(schema.base);
         if (!baseType) {
           const baseSchema = dataTypes.find(dt => dt.name.toLowerCase() === schema.base?.toLowerCase()) ||
               internalDataTypes.get(schema.base);
@@ -113,7 +132,7 @@ export class OpraDocument {
       } else
         throw new TypeError(`Invalid data type schema`);
       nameSet.delete(schema.name);
-      this.types[dataType.name] = dataType;
+      this.types.set(dataType.name, dataType);
       recursiveSet.delete(schema.name);
       return dataType;
     }

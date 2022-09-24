@@ -99,7 +99,7 @@ export class EntityControllerWrapper extends BaseControllerWrapper {
       const pathArray = ctx.resultPath.split('.');
       for (const property of pathArray) {
         const prop = dataType instanceof ComplexType ? dataType.properties?.[property] : undefined;
-        dataType = prop && prop.type ? this.service.types[prop.type || 'string'] : undefined;
+        dataType = prop && prop.type ? this.service.types.get(prop.type) : undefined;
         result = result && typeof result === 'object' && result[property];
       }
     }

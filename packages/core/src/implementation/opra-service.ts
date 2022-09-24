@@ -1,12 +1,9 @@
-import merge from 'putil-merge';
 import { StrictOmit } from 'ts-gems';
 import { OpraSchema } from '@opra/schema';
-import { OpraVersion } from '../constants.js';
 import { IResourceContainer } from '../interfaces/resource-container.interface.js';
 import { ResponsiveMap } from '../utils/responsive-map.js';
 import { stringCompare } from '../utils/string-compare.util.js';
 import { EntityType } from './data-type/entity-type.js';
-import { internalDataTypes } from './data-type/internal-data-types.js';
 import { OpraDocument } from './opra-document.js';
 import { BaseControllerWrapper } from './resource/base-controller-wrapper.js';
 import { EntityControllerWrapper } from './resource/entity-controller-wrapper.js';
@@ -47,18 +44,11 @@ export class OpraService extends OpraDocument implements IResourceContainer {
   }
 
   getMetadata(jsonOnly?: boolean) {
-    const out: OpraSchema.ServiceMetadata = {
-      '@opra:schema': 'http://www.oprajs.com/reference/v1/schema',
-      version: OpraVersion,
-      servers: this.servers?.map(x => merge({}, x, {deep: true})) as any,
-      info: merge({}, this.info, {deep: true}) as any,
-      types: [],
+    const out: OpraSchema.Service & OpraSchema.MetadataTags = {
+      ...super.getMetadata(jsonOnly),
+      '@opra:schema': 'http://www.oprajs.com/reference/v1/schema#Service',
       resources: []
     };
-    for (const [k, dataType] of Object.entries(this.types)) {
-      if (!internalDataTypes.has(k))
-        out.types.push(dataType.getMetadata(jsonOnly));
-    }
     const sortedResourcesArray = Array.from(this.resources.values())
         .sort((a, b) => stringCompare(a.name, b.name));
     for (const resource of sortedResourcesArray) {
