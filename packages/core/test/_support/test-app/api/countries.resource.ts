@@ -6,7 +6,7 @@ export const countriesResource: OpraSchema.EntityResource = {
   kind: 'EntityResource',
   name: 'Countries',
   type: 'Country',
-  resolvers: {
+  methods: {
     search: {
       handler: (ctx: QueryContext) => {
         // eslint-disable-next-line no-console

@@ -1,22 +1,25 @@
-import merge from 'putil-merge';
 import { OpraSchema } from '@opra/schema';
+import { cloneObject } from '../../utils/clone-object.util.js';
 import { colorFgMagenta, colorFgYellow, colorReset, nodeInspectCustom } from '../../utils/terminal-utils.js';
+import { OpraService } from '../opra-service.js';
 import { QueryContext } from '../query-context.js';
 
-export abstract class ResourceHandler {
-  protected readonly _args: OpraSchema.Resource;
+export abstract class BaseControllerWrapper {
+  protected readonly _metadata: OpraSchema.Resource;
+  readonly service: OpraService;
   protected path: string;
 
-  protected constructor(args: OpraSchema.Resource) {
-    this._args = args;
+  protected constructor(service: OpraService, metadata: OpraSchema.Resource) {
+    this.service = service;
+    this._metadata = metadata;
   }
 
   get name(): string {
-    return this._args.name;
+    return this._metadata.name;
   }
 
   get description(): string | undefined {
-    return this._args.description;
+    return this._metadata.description;
   }
 
   toString(): string {
@@ -25,22 +28,14 @@ export abstract class ResourceHandler {
 
   async prepare(ctx: QueryContext): Promise<void> {
     const {query} = ctx;
-    const fn = this._args['pre_' + query.queryType];
+    const fn = this._metadata['pre_' + query.queryType];
     if (fn && typeof fn === 'function') {
       await fn(ctx);
     }
   }
 
-  getMetadata(): any {
-    return merge({}, {
-      ...this._args,
-      instance: undefined,
-    }, {
-      deep: true,
-      filter: (source: object, key: string) => {
-        return (key !== 'instance' && typeof source[key] !== 'function' && source[key] != null)
-      }
-    });
+  getMetadata(jsonOnly?: boolean): OpraSchema.Resource {
+    return cloneObject(this._metadata, jsonOnly);
   }
 
   abstract execute(ctx: QueryContext): Promise<void>;

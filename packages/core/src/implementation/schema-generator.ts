@@ -1,7 +1,7 @@
 import { StrictOmit, Type } from 'ts-gems';
 import { isPromise } from 'util/types';
 import { DATATYPE_METADATA, DATATYPE_PROPERTIES, OpraSchema, PropertyMetadata } from '@opra/schema';
-import { RESOLVER_METADATA, RESOURCE_METADATA } from '../constants.js';
+import { IGNORE_RESOLVER_METHOD, RESOLVER_METADATA, RESOURCE_METADATA } from '../constants.js';
 import { ThunkAsync } from '../types.js';
 import { isConstructor, resolveClassAsync } from '../utils/class-utils.js';
 import { builtinClassMap, internalDataTypes, primitiveDataTypeNames } from '../utils/internal-data-types.js';
@@ -120,24 +120,23 @@ export class SchemaGenerator {
         ...metadata,
         type,
         name,
-        instance,
-        resolvers: {}
+        methods: {}
       }
 
       if (OpraSchema.isEntityResource(resourceSchema)) {
         for (const methodName of entityMethods) {
           let fn = instance[methodName];
           if (typeof fn === 'function') {
-            const info: OpraSchema.ResolverInfo = resourceSchema.resolvers[methodName] = {
+            const info: OpraSchema.EntityResourceMethod = resourceSchema.methods[methodName] = {
               ...Reflect.getMetadata(RESOLVER_METADATA, proto, methodName)
             };
-            if (!info.forbidden) {
+            if (!Reflect.hasMetadata(IGNORE_RESOLVER_METHOD, proto.constructor, methodName)) {
               info.handler = fn.bind(instance);
               fn = instance['pre_' + methodName];
               if (typeof fn === 'function')
                 resourceSchema['pre_' + methodName] = fn.bind(instance);
             }
-          } else resourceSchema.resolvers[methodName] = {forbidden: true};
+          }
         }
       }
     } else resourceSchema = instance;

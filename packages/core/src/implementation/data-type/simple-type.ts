@@ -5,7 +5,7 @@ import type { OpraDocument } from '../opra-document.js';
 import { DataType } from './data-type.js';
 
 export class SimpleType extends DataType {
-  declare protected readonly _args: OpraSchema.SimpleType;
+  declare protected readonly _metadata: OpraSchema.SimpleType;
   declare readonly base?: SimpleType;
 
   constructor(owner: OpraDocument, args: StrictOmit<OpraSchema.SimpleType, 'kind'>, base?: SimpleType) {
@@ -16,15 +16,15 @@ export class SimpleType extends DataType {
   }
 
   get type(): 'boolean' | 'number' | 'integer' | 'string' {
-    return this._args.type;
+    return this._metadata.type;
   }
 
   get format(): string | undefined {
-    return this._args.format;
+    return this._metadata.format;
   }
 
   get default(): boolean | number | string | undefined {
-    return this._args.default;
+    return this._metadata.default;
   }
 
   toString(): string {

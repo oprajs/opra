@@ -7,15 +7,15 @@ import { internalDataTypes } from '../utils/internal-data-types.js';
 import { Responsive } from '../utils/responsive-object.js';
 import { EntityType } from './data-type/entity-type.js';
 import { OpraDocument } from './opra-document.js';
-import { EntityResourceHandler } from './resource/entity-resource-handler.js';
-import { ResourceHandler } from './resource/resource-handler.js';
+import { BaseControllerWrapper } from './resource/base-controller-wrapper.js';
+import { EntityControllerWrapper } from './resource/entity-controller-wrapper.js';
 import { SchemaGenerator } from './schema-generator.js';
 
 export type OpraServiceArgs = StrictOmit<OpraSchema.Service, 'version' | 'types' | 'resources'>;
 
 export class OpraService extends OpraDocument implements IResourceContainer {
   protected declare readonly _args: OpraServiceArgs;
-  protected _resources = Responsive<ResourceHandler>();
+  protected _resources = Responsive<BaseControllerWrapper>();
 
   constructor(schema: OpraSchema.Service) {
     super(schema);
@@ -23,7 +23,7 @@ export class OpraService extends OpraDocument implements IResourceContainer {
       this._addResources(schema.resources);
   }
 
-  get resources(): Record<string, ResourceHandler> {
+  get resources(): Record<string, BaseControllerWrapper> {
     return this._resources;
   }
 
@@ -31,23 +31,23 @@ export class OpraService extends OpraDocument implements IResourceContainer {
     return this._args.servers;
   }
 
-  getResource<T extends ResourceHandler>(name: string): T {
+  getResource<T extends BaseControllerWrapper>(name: string): T {
     const t = this.resources[name];
     if (!t)
       throw new Error(`Resource "${name}" does not exists`);
     return t as T;
   }
 
-  getEntityResource(name: string): EntityResourceHandler {
+  getEntityResource(name: string): EntityControllerWrapper {
     const t = this.getResource(name);
-    if (!(t instanceof EntityResourceHandler))
+    if (!(t instanceof EntityControllerWrapper))
       throw new Error(`"${name}" is not an EntityResource`);
     return t;
   }
 
-  getMetadata() {
+  getMetadata(jsonOnly?: boolean) {
     const out: OpraSchema.ServiceMetadata = {
-      '@opra:metadata': '/$metadata',
+      '@opra:schema': 'http://www.oprajs.com/reference/v1/schema',
       version: OpraVersion,
       servers: this.servers?.map(x => merge({}, x, {deep: true})) as any,
       info: merge({}, this.info, {deep: true}) as any,
@@ -56,10 +56,10 @@ export class OpraService extends OpraDocument implements IResourceContainer {
     };
     for (const [k, dataType] of Object.entries(this.types)) {
       if (!internalDataTypes.has(k))
-        out.types.push(dataType.getMetadata());
+        out.types.push(dataType.getMetadata(jsonOnly));
     }
     for (const resource of Object.values(this.resources)) {
-      out.resources.push(resource.getMetadata());
+      out.resources.push(resource.getMetadata(jsonOnly));
     }
     return out;
   }
@@ -72,13 +72,13 @@ export class OpraService extends OpraDocument implements IResourceContainer {
           throw new TypeError(`Datatype "${r.type}" declared in EntityResource (${r.name}) does not exists`);
         if (!(dataType instanceof EntityType))
           throw new TypeError(`${r.type} is not an EntityType`);
-        this.resources[r.name] = new EntityResourceHandler({...r, service: this, dataType});
+        this.resources[r.name] = new EntityControllerWrapper(this, dataType, r);
       } else
         throw new TypeError(`Unknown resource kind (${r.kind})`);
     }
 
     // Sort data types by name
-    const newResources = Responsive<ResourceHandler>();
+    const newResources = Responsive<BaseControllerWrapper>();
     Object.keys(this.resources).sort()
         .forEach(name => newResources[name] = this.resources[name]);
     this._resources = newResources;

@@ -1,7 +1,8 @@
 import 'reflect-metadata';
 import {
-  EntityResourceHandler,
-  OpraService, ResourceHandler,
+  BaseControllerWrapper,
+  EntityControllerWrapper,
+  OpraService,
   SchemaGenerator,
 } from '../src/index.js';
 import { CustomerAddressesesResource } from './_support/test-app/api/customer-addresseses.resource.js';
@@ -78,7 +79,7 @@ describe('OpraService', function () {
       expect(service.getResource('CustomerAddresseses')).toBeDefined();
       const resource = service.getEntityResource('customeraddresseses');
       expect(resource).toBeDefined();
-      expect(resource).toBeInstanceOf(EntityResourceHandler);
+      expect(resource).toBeInstanceOf(EntityControllerWrapper);
       expect(resource.name).toStrictEqual('CustomerAddresseses');
       expect(resource.description).toStrictEqual('Customer address resource');
     })
@@ -107,8 +108,8 @@ describe('OpraService', function () {
         resources: [new CustomerAddressesesResource()]
       };
       const service = await OpraService.create(args);
-      expect(service.getResource('CustomerAddresseses')).toBeInstanceOf(ResourceHandler);
-      expect(service.getResource('customeraddresseses')).toBeInstanceOf(ResourceHandler);
+      expect(service.getResource('CustomerAddresseses')).toBeInstanceOf(BaseControllerWrapper);
+      expect(service.getResource('customeraddresseses')).toBeInstanceOf(BaseControllerWrapper);
     })
 
     it('Should getResource() throw error if resource does not exists', async () => {

@@ -7,13 +7,14 @@ import { ComplexType } from './complex-type.js';
 export type EntityTypeArgs = StrictOmit<OpraSchema.EntityType, 'kind'>;
 
 export class EntityType extends ComplexType {
-  declare protected readonly _args: StrictOmit<EntityTypeArgs, 'properties'>;
+  // @ts-ignore
+  declare protected readonly _metadata: OpraSchema.EntityType;
 
-  constructor(owner: OpraDocument, args: EntityTypeArgs, base?: ComplexType | EntityType) {
+  constructor(owner: OpraDocument, args: EntityTypeArgs, base?: ComplexType) {
     super(owner, {
       ...args
     }, base);
-    (this._args as any).kind = 'EntityType';
+    (this._metadata as any).kind = 'EntityType';
 
     // Try to determine primary key info from SQB
     if (Optionals.SqbConnect && args.ctor) {
@@ -23,7 +24,7 @@ export class EntityType extends ComplexType {
         if (primaryIndex) {
           if (primaryIndex.columns.length > 1)
             throw new TypeError(`Multi-key indexes is not implemented yet`);
-          this._args.primaryKey = primaryIndex.columns[0];
+          this._metadata.primaryKey = primaryIndex.columns[0];
         }
       }
     }
@@ -34,7 +35,7 @@ export class EntityType extends ComplexType {
   }
 
   get primaryKey(): string {
-    return this._args.primaryKey;
+    return this._metadata.primaryKey;
   }
 
 }
