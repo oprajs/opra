@@ -19,8 +19,6 @@ export namespace OpraSchema {
     servers?: ServerInfo[];
   }
 
-  export type ServiceMetadata = Service & Extensible & MetadataTags;
-
   //#region # Service Document specific types
   export interface Document {
     version: string; // Spec version = 1.0
