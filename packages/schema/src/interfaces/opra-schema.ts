@@ -151,16 +151,19 @@ export namespace OpraSchema {
     kind: ResourceKind;
     name: string;
     description?: string;
-    instance?: {};
   }
 
-  export type EntityResolverType = 'search' | 'get' | 'create' |
+  export type EntityMethodType = 'search' | 'get' | 'create' |
       'update' | 'updateMany' | 'delete' | 'deleteMany';
 
   export interface EntityResource extends BaseResource {
     kind: 'EntityResource',
     type: string;
-    resolvers: Partial<Record<EntityResolverType, ResolverInfo>>;
+    methods: Partial<Record<EntityMethodType, true | EntityResourceMethod>>;
+  }
+
+  export type EntityResourceMethod = {
+    handler?: Function;
   }
 
   export interface SingletonResource extends BaseResource {
@@ -173,11 +176,6 @@ export namespace OpraSchema {
     resources: Resource[];
   }
 
-
-  export type ResolverInfo = Extensible & {
-    handler?: Function;
-    [key: string]: any;
-  }
 
   export function isResource(obj: any): obj is Resource {
     return obj && typeof obj === 'object' &&

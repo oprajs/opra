@@ -143,8 +143,11 @@ export class JsonDataService<T, TOutput = EntityOutput<T>> implements IEntitySer
 
   static filterProperties(
       obj: any,
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
       pick: string[] | undefined,
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
       omit: string[] | undefined,
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
       include: string[] | undefined,
   ): any {
     if (!obj)

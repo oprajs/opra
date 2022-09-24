@@ -1,7 +1,8 @@
-import { EntityResourceHandler } from '../implementation/resource/entity-resource-handler.js';
-import { ResourceHandler } from '../implementation/resource/resource-handler.js';
+import { BaseControllerWrapper } from '../implementation/resource/base-controller-wrapper.js';
+import { EntityControllerWrapper } from '../implementation/resource/entity-controller-wrapper.js';
 
 export interface IResourceContainer {
-  getResource<T extends ResourceHandler>(name: string): T;
-  getEntityResource(name: string): EntityResourceHandler;
+  getResource<T extends BaseControllerWrapper>(name: string): T;
+
+  getEntityResource(name: string): EntityControllerWrapper;
 }

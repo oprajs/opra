@@ -22,8 +22,8 @@ export * from './implementation/adapter/express-adapter.js';
 export * from './implementation/data-type/data-type.js';
 export * from './implementation/data-type/complex-type.js';
 export * from './implementation/data-type/simple-type.js';
-export * from './implementation/resource/resource-handler.js';
-export * from './implementation/resource/entity-resource-handler.js';
+export * from './implementation/resource/base-controller-wrapper.js';
+export * from './implementation/resource/entity-controller-wrapper.js';
 
 export * from './services/entity-resource-controller.js';
 export * from './services/json-data-service.js';

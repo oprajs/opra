@@ -15,10 +15,9 @@ import { IResourceContainer } from '../../interfaces/resource-container.interfac
 import { KeyValue, QueryScope } from '../../types.js';
 import { Headers, HeadersObject } from '../../utils/headers.js';
 import { ComplexType } from '../data-type/complex-type.js';
-import { DataType } from '../data-type/data-type.js';
 import { QueryContext } from '../query-context.js';
-import { ContainerResourceHandler } from '../resource/container-resource-handler.js';
-import { EntityResourceHandler } from '../resource/entity-resource-handler.js';
+import { ContainerResourceWrapper } from '../resource/container-resource-wrapper.js';
+import { EntityControllerWrapper } from '../resource/entity-controller-wrapper.js';
 import { OpraAdapter } from './adapter.js';
 
 export namespace OpraHttpAdapter {
@@ -120,14 +119,14 @@ export class OpraHttpAdapter<TExecutionContext extends IHttpExecutionContext> ex
         let p = url.path.get(pathIndex++);
         const resource = container.getResource(p.resource);
         // Move through path directories (containers)
-        if (resource instanceof ContainerResourceHandler) {
+        if (resource instanceof ContainerResourceWrapper) {
           container = resource;
           continue;
         }
 
         method = method.toUpperCase();
 
-        if (resource instanceof EntityResourceHandler) {
+        if (resource instanceof EntityControllerWrapper) {
           const scope: QueryScope = p.key ? 'instance' : 'collection';
 
           if (pathIndex < pathLen && !(method === 'GET' && scope === 'instance'))

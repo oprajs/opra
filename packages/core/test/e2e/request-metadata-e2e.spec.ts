@@ -20,7 +20,7 @@ describe('Requesting Metadata', function () {
     expect(resp.status).toStrictEqual(200);
     expect(resp.body).toBeDefined();
     expect(resp.body).toMatchObject({
-      "@opra:metadata": "/$metadata",
+      "@opra:schema": "/$metadata",
       "version": "1.0",
       "info": {
         "title": "TestApi",
@@ -34,7 +34,7 @@ describe('Requesting Metadata', function () {
     expect(resp.status).toStrictEqual(200);
     expect(resp.body).toBeDefined();
     expect(resp.body).toMatchObject({
-      "@opra:metadata": "/$metadata/resources/Customers",
+      "@opra:schema": "/$metadata/resources/Customers",
       "kind": "EntityResource",
       "type": "Customer",
       "name": "Customers"
@@ -46,7 +46,7 @@ describe('Requesting Metadata', function () {
     expect(resp.status).toStrictEqual(200);
     expect(resp.body).toBeDefined();
     expect(resp.body).toMatchObject({
-      "@opra:metadata": "/$metadata/resources/Customers",
+      "@opra:schema": "/$metadata/resources/Customers",
       "kind": "EntityResource",
       "type": "Customer",
       "name": "Customers"
@@ -58,7 +58,7 @@ describe('Requesting Metadata', function () {
     expect(resp.status).toStrictEqual(200);
     expect(resp.body).toBeDefined();
     expect(resp.body).toMatchObject({
-      "@opra:metadata": "/$metadata/types/Address",
+      "@opra:schema": "/$metadata/types/Address",
       "kind": "EntityType",
       "name": "Address"
     })

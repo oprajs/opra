@@ -8,7 +8,7 @@ export type TypeThunk<T = any> = Thunk<Type<T>>;
 export type TypeThunkAsync<T = any> = ThunkAsync<Type<T>>;
 
 export type QueryScope = 'collection' | 'instance' | 'property';
-export type QueryType = OpraSchema.EntityResolverType | 'metadata' | 'execute';
+export type QueryType = OpraSchema.EntityMethodType | 'metadata' | 'execute';
 export type OperationType = 'create' | 'read' | 'update' | 'patch' | 'delete' | 'execute';
 
 export type KeyValue = string | number | boolean | object;

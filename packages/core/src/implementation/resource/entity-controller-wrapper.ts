@@ -1,13 +1,8 @@
-import _ from 'lodash';
-import { StrictOmit } from 'ts-gems';
 import { translate } from '@opra/i18n';
 import { OpraSchema } from '@opra/schema';
 import {
   ForbiddenError,
-  NotAcceptableError,
-  NotFoundError,
-  ResourceNotFoundError,
-  UnprocessableEntityError
+  ResourceNotFoundError
 } from '../../exception/index.js';
 import { OpraGetEntityQuery, OpraQuery } from '../../interfaces/query.interface.js';
 import { ComplexType } from '../data-type/complex-type.js';
@@ -15,28 +10,22 @@ import { DataType } from '../data-type/data-type.js';
 import { EntityType } from '../data-type/entity-type.js';
 import { OpraService } from '../opra-service.js';
 import { QueryContext } from '../query-context.js';
-import { ResourceHandler } from './resource-handler.js';
+import { BaseControllerWrapper } from './base-controller-wrapper.js';
 
-export type EntityResourceControllerArgs = StrictOmit<OpraSchema.EntityResource, 'kind'> & {
-  service: OpraService;
-  dataType: EntityType;
-}
-
-export class EntityResourceHandler extends ResourceHandler {
-  declare protected readonly _args: OpraSchema.EntityResource;
-  readonly service: OpraService;
+export class EntityControllerWrapper extends BaseControllerWrapper {
+  declare protected readonly _metadata: OpraSchema.EntityResource;
   readonly dataType: EntityType;
 
-  constructor(args: EntityResourceControllerArgs) {
-    super({
-      kind: 'EntityResource',
-      ..._.omit(args, ['dataType', 'service'])
-    });
-    this.dataType = args.dataType;
-    this.service = args.service;
+  constructor(
+      service: OpraService,
+      dataType: EntityType,
+      metadata: OpraSchema.EntityResource
+  ) {
     // noinspection SuspiciousTypeOfGuard
-    if (!(args.dataType instanceof EntityType))
-      throw new TypeError(`You should provide an EntityType for EntityResourceController`);
+    if (!(dataType instanceof EntityType))
+      throw new TypeError(`You should provide an EntityType for EntityController`);
+    super(service, metadata);
+    this.dataType = dataType;
   }
 
   async execute(ctx: QueryContext): Promise<void> {
@@ -64,8 +53,8 @@ export class EntityResourceHandler extends ResourceHandler {
   }
 
   async _executeFn(ctx: QueryContext, queryType: string): Promise<any> {
-    const resolverInfo = this._args.resolvers?.[queryType];
-    if (resolverInfo.forbidden || !resolverInfo.handler)
+    const resolverInfo = this._metadata.methods?.[queryType];
+    if (!resolverInfo.handler)
       throw new ForbiddenError({
         message: translate('RESOLVER_FORBIDDEN', {queryType}),
         severity: 'error',
@@ -75,7 +64,7 @@ export class EntityResourceHandler extends ResourceHandler {
     switch (queryType) {
       case 'search':
         return {
-          '@opra:metadata': '/$metadata/types/' + this.dataType.name,
+          '@opra:schema': '/$metadata/types/' + this.dataType.name,
           items: Array.isArray(result) ? result : (ctx.response.value ? [result] : [])
         };
       case 'get':
@@ -119,9 +108,21 @@ export class EntityResourceHandler extends ResourceHandler {
       ctx.response.status = 201;
 
     return {
-      '@opra:metadata': dataType ? '/$metadata/types/' + dataType.name : '__unknown__',
+      '@opra:schema': dataType ? '/$metadata/types/' + dataType.name : '__unknown__',
       ...result
     };
   }
+
+  getMetadata(jsonOnly?: boolean): OpraSchema.EntityResource {
+    const out = super.getMetadata(jsonOnly) as OpraSchema.EntityResource;
+    if (out.methods) {
+      for (const k of Object.keys(out.methods)) {
+        if (typeof out.methods[k] === 'object' && !Object.keys(out.methods[k]).length)
+          out.methods[k] = true;
+      }
+    }
+    return out;
+  }
+
 
 }

@@ -26,7 +26,7 @@ describe('Entity Resource Operations', function () {
           .toSuccess()
           .toReturnObject(obj => {
             obj.toMatch({
-              "@opra:metadata": "/$metadata/types/Customer",
+              "@opra:schema": "/$metadata/types/Customer",
               "id": 1
             })
           })
