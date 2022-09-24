@@ -10,18 +10,17 @@ export class ResponsiveMap<K, V> extends Map<K, V> {
   }
 
   get(key: K): V | undefined {
-    const k = this._wrapKey(key);
-    return super.get(k);
+    const orgKey = this._getOriginalKey(key);
+    return super.get(orgKey as K);
   }
 
   has(key: K): boolean {
-    const k = this._wrapKey(key);
-    return super.has(k);
+    return this._keyMap.has(this._getLowerKey(key));
   }
 
   set(key: K, value: V): this {
-    const k = this._wrapKey(key);
-    this._keyMap.set(k, key);
+    key = this._getOriginalKey(key);
+    this._keyMap.set(this._getLowerKey(key), key);
     return super.set(key, value);
   }
 
@@ -30,12 +29,18 @@ export class ResponsiveMap<K, V> extends Map<K, V> {
   }
 
   delete(key: K): boolean {
-    const k = this._wrapKey(key);
+    const k = this._getLowerKey(key);
     this._keyMap.delete(k);
-    return super.delete(key);
+    return super.delete(this._getOriginalKey(key));
   }
 
-  protected _wrapKey(key: K): K {
+  protected _getOriginalKey(key: K): K {
+    if (typeof key === 'string')
+      return this._keyMap.get(key.toLowerCase() as K) ?? key;
+    return key;
+  }
+
+  protected _getLowerKey(key: K): K {
     if (typeof key === 'string')
       return key.toLowerCase() as K;
     return key;
