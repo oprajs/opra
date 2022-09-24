@@ -4,6 +4,7 @@ import { OpraSchema } from '@opra/schema';
 import { OpraVersion } from '../constants.js';
 import { IResourceContainer } from '../interfaces/resource-container.interface.js';
 import { ResponsiveMap } from '../utils/responsive-map.js';
+import { stringCompare } from '../utils/string-compare.util.js';
 import { EntityType } from './data-type/entity-type.js';
 import { internalDataTypes } from './data-type/internal-data-types.js';
 import { OpraDocument } from './opra-document.js';
@@ -58,7 +59,9 @@ export class OpraService extends OpraDocument implements IResourceContainer {
       if (!internalDataTypes.has(k))
         out.types.push(dataType.getMetadata(jsonOnly));
     }
-    for (const resource of Object.values(this.resources)) {
+    const sortedResourcesArray = Array.from(this.resources.values())
+        .sort((a, b) => stringCompare(a.name, b.name));
+    for (const resource of sortedResourcesArray) {
       out.resources.push(resource.getMetadata(jsonOnly));
     }
     return out;
