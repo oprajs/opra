@@ -1,12 +1,12 @@
 import _ from 'lodash';
 import { StrictOmit } from 'ts-gems';
 import { OpraSchema } from '@opra/schema';
-import { internalDataTypes } from '../utils/internal-data-types.js';
 import { Responsive, ResponsiveObject } from '../utils/responsive-object.js';
 import { colorFgMagenta, colorFgYellow, colorReset, nodeInspectCustom } from '../utils/terminal-utils.js';
 import { ComplexType } from './data-type/complex-type.js';
 import { DataType } from './data-type/data-type.js';
 import { EntityType } from './data-type/entity-type.js';
+import { internalDataTypes } from './data-type/internal-data-types.js';
 import { SimpleType } from './data-type/simple-type.js';
 import { SchemaGenerator } from './schema-generator.js';
 
@@ -91,7 +91,7 @@ export class OpraDocument {
         baseType = this.types[schema.base];
         if (!baseType) {
           const baseSchema = dataTypes.find(dt => dt.name.toLowerCase() === schema.base?.toLowerCase()) ||
-              internalDataTypes.get(schema.base.toLowerCase());
+              internalDataTypes.get(schema.base);
           if (!baseSchema)
             throw new TypeError(`Base schema (${schema.base}) of data type "${schema.name}" does not exists`);
           baseType = processDataType(baseSchema);

@@ -1,9 +1,6 @@
 import { Type } from 'ts-gems';
 import { OpraSchema } from '@opra/schema';
-
-export const primitiveDataTypeNames = ['boolean', 'number', 'string', 'null'];
-export const builtinClassMap = new Map<Type, OpraSchema.DataType>();
-export const internalDataTypes = new Map<string, OpraSchema.DataType>();
+import { ResponsiveMap } from '../../utils/responsive-map.js';
 
 const internalDataTypeArray: OpraSchema.DataType[] = [
   {
@@ -77,8 +74,13 @@ const internalDataTypeArray: OpraSchema.DataType[] = [
   }
 ];
 
+export const primitiveDataTypeNames = ['boolean', 'number', 'string', 'null'];
+export const builtinClassMap = new Map<Type, OpraSchema.DataType>();
+export const internalDataTypes = new ResponsiveMap<string, OpraSchema.DataType>();
+
 internalDataTypeArray.forEach(sch => {
   internalDataTypes.set(sch.name, sch);
   if (sch.ctor && !builtinClassMap.has(sch.ctor))
     builtinClassMap.set(sch.ctor, sch);
 });
+

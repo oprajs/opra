@@ -20,7 +20,7 @@ describe('Requesting Metadata', function () {
     expect(resp.status).toStrictEqual(200);
     expect(resp.body).toBeDefined();
     expect(resp.body).toMatchObject({
-      "@opra:schema": "/$metadata",
+      "@opra:schema": "http://www.oprajs.com/reference/v1/schema",
       "version": "1.0",
       "info": {
         "title": "TestApi",
