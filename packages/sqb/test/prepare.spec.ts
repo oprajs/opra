@@ -1,5 +1,6 @@
 import '@sqb/sqljs';
-import { OpraQuery, OpraService } from '@opra/core';
+import { OpraQuery } from '@opra/core';
+import { OpraService } from '@opra/schema';
 import { OperatorType, SerializationType } from '@sqb/builder';
 import { SQBAdapter } from '../src/index.js';
 import { BooksResource } from './_support/book.resource.js';
@@ -349,8 +350,7 @@ describe('SQBAdapter.prepare', function () {
       expect(o.method).toStrictEqual('findAll');
       expect(o.options).toBeDefined();
       expect(o.options.filter._type).toStrictEqual(SerializationType.COMPARISON_EXPRESSION);
-      expect(typeof o.options.filter._left).toStrictEqual('object');
-      expect(o.options.filter._left._field).toStrictEqual('name');
+      expect(o.options.filter._left).toStrictEqual('name');
       expect(o.options.filter._right).toStrictEqual('Demons');
       expect(o.options.filter._operatorType).toStrictEqual(OperatorType.eq);
     });
@@ -363,8 +363,7 @@ describe('SQBAdapter.prepare', function () {
       expect(o.method).toStrictEqual('findAll');
       expect(o.options).toBeDefined();
       expect(o.options.filter._type).toStrictEqual(SerializationType.COMPARISON_EXPRESSION);
-      expect(typeof o.options.filter._left).toStrictEqual('object');
-      expect(o.options.filter._left._field).toStrictEqual('name');
+      expect(o.options.filter._left).toStrictEqual('name');
       expect(o.options.filter._right).toStrictEqual('Demons');
       expect(o.options.filter._operatorType).toStrictEqual(OperatorType.ne);
     });
@@ -377,8 +376,7 @@ describe('SQBAdapter.prepare', function () {
       expect(o.method).toStrictEqual('findAll');
       expect(o.options).toBeDefined();
       expect(o.options.filter._type).toStrictEqual(SerializationType.COMPARISON_EXPRESSION);
-      expect(typeof o.options.filter._left).toStrictEqual('object');
-      expect(o.options.filter._left._field).toStrictEqual('pages');
+      expect(o.options.filter._left).toStrictEqual('pages');
       expect(o.options.filter._right).toStrictEqual(5);
       expect(o.options.filter._operatorType).toStrictEqual(OperatorType.gt);
     });
@@ -391,8 +389,7 @@ describe('SQBAdapter.prepare', function () {
       expect(o.method).toStrictEqual('findAll');
       expect(o.options).toBeDefined();
       expect(o.options.filter._type).toStrictEqual(SerializationType.COMPARISON_EXPRESSION);
-      expect(typeof o.options.filter._left).toStrictEqual('object');
-      expect(o.options.filter._left._field).toStrictEqual('pages');
+      expect(o.options.filter._left).toStrictEqual('pages');
       expect(o.options.filter._right).toStrictEqual(5);
       expect(o.options.filter._operatorType).toStrictEqual(OperatorType.gte);
     });
@@ -405,8 +402,7 @@ describe('SQBAdapter.prepare', function () {
       expect(o.method).toStrictEqual('findAll');
       expect(o.options).toBeDefined();
       expect(o.options.filter._type).toStrictEqual(SerializationType.COMPARISON_EXPRESSION);
-      expect(typeof o.options.filter._left).toStrictEqual('object');
-      expect(o.options.filter._left._field).toStrictEqual('pages');
+      expect(o.options.filter._left).toStrictEqual('pages');
       expect(o.options.filter._right).toStrictEqual(5);
       expect(o.options.filter._operatorType).toStrictEqual(OperatorType.lt);
     });
@@ -419,8 +415,7 @@ describe('SQBAdapter.prepare', function () {
       expect(o.method).toStrictEqual('findAll');
       expect(o.options).toBeDefined();
       expect(o.options.filter._type).toStrictEqual(SerializationType.COMPARISON_EXPRESSION);
-      expect(typeof o.options.filter._left).toStrictEqual('object');
-      expect(o.options.filter._left._field).toStrictEqual('pages');
+      expect(o.options.filter._left).toStrictEqual('pages');
       expect(o.options.filter._right).toStrictEqual(5);
       expect(o.options.filter._operatorType).toStrictEqual(OperatorType.lte);
     });
@@ -433,8 +428,7 @@ describe('SQBAdapter.prepare', function () {
       expect(o.method).toStrictEqual('findAll');
       expect(o.options).toBeDefined();
       expect(o.options.filter._type).toStrictEqual(SerializationType.COMPARISON_EXPRESSION);
-      expect(typeof o.options.filter._left).toStrictEqual('object');
-      expect(o.options.filter._left._field).toStrictEqual('pages');
+      expect(o.options.filter._left).toStrictEqual('pages');
       expect(o.options.filter._right).toStrictEqual([5, 6]);
       expect(o.options.filter._operatorType).toStrictEqual(OperatorType.in);
     });
@@ -447,8 +441,7 @@ describe('SQBAdapter.prepare', function () {
       expect(o.method).toStrictEqual('findAll');
       expect(o.options).toBeDefined();
       expect(o.options.filter._type).toStrictEqual(SerializationType.COMPARISON_EXPRESSION);
-      expect(typeof o.options.filter._left).toStrictEqual('object');
-      expect(o.options.filter._left._field).toStrictEqual('pages');
+      expect(o.options.filter._left).toStrictEqual('pages');
       expect(o.options.filter._right).toStrictEqual([5, 6]);
       expect(o.options.filter._operatorType).toStrictEqual(OperatorType.notIn);
     });
@@ -461,8 +454,7 @@ describe('SQBAdapter.prepare', function () {
       expect(o.method).toStrictEqual('findAll');
       expect(o.options).toBeDefined();
       expect(o.options.filter._type).toStrictEqual(SerializationType.COMPARISON_EXPRESSION);
-      expect(typeof o.options.filter._left).toStrictEqual('object');
-      expect(o.options.filter._left._field).toStrictEqual('name');
+      expect(o.options.filter._left).toStrictEqual('name');
       expect(o.options.filter._right).toStrictEqual('Demons');
       expect(o.options.filter._operatorType).toStrictEqual(OperatorType.like);
     });
@@ -475,8 +467,7 @@ describe('SQBAdapter.prepare', function () {
       expect(o.method).toStrictEqual('findAll');
       expect(o.options).toBeDefined();
       expect(o.options.filter._type).toStrictEqual(SerializationType.COMPARISON_EXPRESSION);
-      expect(typeof o.options.filter._left).toStrictEqual('object');
-      expect(o.options.filter._left._field).toStrictEqual('name');
+      expect(o.options.filter._left).toStrictEqual('name');
       expect(o.options.filter._right).toStrictEqual('Demons');
       expect(o.options.filter._operatorType).toStrictEqual(OperatorType.iLike);
     });
@@ -489,8 +480,7 @@ describe('SQBAdapter.prepare', function () {
       expect(o.method).toStrictEqual('findAll');
       expect(o.options).toBeDefined();
       expect(o.options.filter._type).toStrictEqual(SerializationType.COMPARISON_EXPRESSION);
-      expect(typeof o.options.filter._left).toStrictEqual('object');
-      expect(o.options.filter._left._field).toStrictEqual('name');
+      expect(o.options.filter._left).toStrictEqual('name');
       expect(o.options.filter._right).toStrictEqual('Demons');
       expect(o.options.filter._operatorType).toStrictEqual(OperatorType.notLike);
     });
@@ -503,8 +493,7 @@ describe('SQBAdapter.prepare', function () {
       expect(o.method).toStrictEqual('findAll');
       expect(o.options).toBeDefined();
       expect(o.options.filter._type).toStrictEqual(SerializationType.COMPARISON_EXPRESSION);
-      expect(typeof o.options.filter._left).toStrictEqual('object');
-      expect(o.options.filter._left._field).toStrictEqual('name');
+      expect(o.options.filter._left).toStrictEqual('name');
       expect(o.options.filter._right).toStrictEqual('Demons');
       expect(o.options.filter._operatorType).toStrictEqual(OperatorType.notILike);
     });

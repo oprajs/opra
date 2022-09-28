@@ -12,9 +12,9 @@ import {
 } from '@opra/url';
 import { ResourceConflictError } from '../exception/index.js';
 import { QueryContext } from '../implementation/query-context.js';
+import { IEntityService } from '../interfaces/entity-service.interface.js';
 import { OpraQuery } from '../interfaces/query.interface.js';
 import { EntityInput, EntityOutput, QueryType } from '../types.js';
-import { IEntityService } from './entity-resource-controller.js';
 
 // Fix invalid importing (with ESM) of rule-judgment package
 const createFilterFn = typeof (ruleJudgment as any) === 'function'
@@ -83,7 +83,7 @@ export class JsonDataService<T, TOutput = EntityOutput<T>> implements IEntitySer
   get(keyValue: any, options?: JsonDataService.GetOptions): Maybe<TOutput> {
     const primaryKey = this.primaryKey;
     let v = this.data.find(x => '' + x[primaryKey] === '' + keyValue) as TOutput;
-    v = JsonDataService.filterProperties(v, options?.pick, options?.omit, options?.include);
+    v = JsonDataService.filterFields(v, options?.pick, options?.omit, options?.include);
     return v;
   }
 
@@ -98,14 +98,14 @@ export class JsonDataService<T, TOutput = EntityOutput<T>> implements IEntitySer
       const filterFn = createFilterFn(filter);
       out = this.data.filter(filterFn);
     } else out = this.data;
-    return out.map(v => JsonDataService.filterProperties(v, options?.pick, options?.omit, options?.include));
+    return out.map(v => JsonDataService.filterFields(v, options?.pick, options?.omit, options?.include));
   }
 
   create(data: EntityInput<T>, options?: JsonDataService.CreateOptions): TOutput {
     if (this.get(data[this.primaryKey]))
       throw new ResourceConflictError(this.resourceName, this.primaryKey);
     this.data.push(data as T);
-    return JsonDataService.filterProperties(data, options?.pick, options?.omit, options?.include);
+    return JsonDataService.filterFields(data, options?.pick, options?.omit, options?.include);
   }
 
   update(keyValue: any, data: EntityInput<T>, options?: JsonDataService.UpdateOptions): Maybe<TOutput> {
@@ -113,7 +113,7 @@ export class JsonDataService<T, TOutput = EntityOutput<T>> implements IEntitySer
     const i = this.data.findIndex(x => '' + x[primaryKey] === '' + keyValue);
     if (i >= 0) {
       data = Object.assign(this.data[i] as any, data);
-      return JsonDataService.filterProperties(data, options?.pick, options?.omit, options?.include);
+      return JsonDataService.filterFields(data, options?.pick, options?.omit, options?.include);
     }
   }
 
@@ -141,7 +141,7 @@ export class JsonDataService<T, TOutput = EntityOutput<T>> implements IEntitySer
     return items.length;
   }
 
-  static filterProperties(
+  static filterFields(
       obj: any,
       // eslint-disable-next-line @typescript-eslint/no-unused-vars
       pick: string[] | undefined,

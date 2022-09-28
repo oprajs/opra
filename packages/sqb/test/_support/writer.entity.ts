@@ -1,17 +1,17 @@
-import { ApiEntityType, ApiProperty } from '@opra/schema';
+import { OprEntity, OprField } from '@opra/schema';
 import { Column, Entity, PrimaryKey } from '@sqb/connect';
 
-@ApiEntityType()
+@OprEntity()
 @Entity('writers')
 export class Writer {
 
   @PrimaryKey()
   @Column()
-  @ApiProperty({type: 'integer'})
+  @OprField({type: 'integer'})
   id: number;
 
   @Column()
-  @ApiProperty()
+  @OprField()
   name: string;
 
 }

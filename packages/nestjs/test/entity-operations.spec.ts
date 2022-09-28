@@ -30,6 +30,8 @@ describe('Entity operations', function () {
         .get('/api/svc1/Photos@1');
     expect(resp.body).toStrictEqual(photosData[0]);
     expect(resp.status).toStrictEqual(200);
+    expect(resp.headers['x-opra-schema']).toStrictEqual('/$schema/types/Photos');
+
   });
 
   it('Should search from entity collection', async function () {

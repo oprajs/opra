@@ -1,7 +1,31 @@
 import 'reflect-metadata';
-export * from './constants.js';
-export * from './interfaces/opra-schema.js';
 
-export * from './decorators/api-complex-type.decorator.js';
-export * from './decorators/api-property.decorator.js';
-export * from './decorators/api-entity.decorator.js';
+export * from './constants.js';
+
+export * from './decorators/opr-complex-type.decorator.js';
+export * from './decorators/opr-field.decorator.js';
+export * from './decorators/opr-entity.decorator.js';
+export * from './decorators/opr-entity-resource.decorator.js';
+
+export * from './helpers/responsive-map.js';
+
+export * from './interfaces/opra-schema.interface.js';
+export * from './interfaces/resource-container.interface.js';
+
+export * from './implementation/schema-generator.js';
+export * from './implementation/opra-document.js';
+export * from './implementation/opra-service.js';
+export * from './implementation/data-type/data-type.js';
+export * from './implementation/data-type/complex-type.js';
+export * from './implementation/data-type/entity-type.js';
+export * from './implementation/data-type/simple-type.js';
+export * from './implementation/resource/base-resource.js';
+export * from './implementation/resource/container-resource.js';
+export * from './implementation/resource/entity-resource.js';
+
+export * from './type-helpers/mixin-type.helper.js';
+export * from './type-helpers/extend-type.helper.js';
+
+export * from './utils/class.utils.js';
+export * from './utils/extract-metadata.util.js';
+

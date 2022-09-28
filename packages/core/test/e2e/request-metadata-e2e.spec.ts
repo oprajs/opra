@@ -1,7 +1,7 @@
-import 'reflect-metadata';
 import express from 'express';
 import request from 'supertest';
-import { OpraExpressAdapter, OpraService } from '../../src/index.js';
+import { OpraService } from '@opra/schema';
+import { OpraExpressAdapter } from '../../src/index.js';
 import { createTestService } from '../_support/test-app/create-service.js';
 
 describe('Requesting Metadata', function () {
@@ -15,59 +15,59 @@ describe('Requesting Metadata', function () {
     await OpraExpressAdapter.init(app, service);
   });
 
-  it('Should /$metadata return service metadata', async () => {
-    const resp = await request(app).get('/$metadata');
+  it('Should /$schema return service metadata', async () => {
+    const resp = await request(app).get('/$schema');
     expect(resp.status).toStrictEqual(200);
     expect(resp.body).toBeDefined();
     expect(resp.body).toMatchObject({
-      "@opra:schema": "http://www.oprajs.com/reference/v1/schema",
       "version": "1.0",
       "info": {
         "title": "TestApi",
         "version": "v1"
       }
     })
+    expect(resp.headers['x-opra-schema']).toStrictEqual('http://www.oprajs.com/reference/v1/schema')
   })
 
-  it('Should /$metadata/resources/(Resource) return resource metadata', async () => {
-    const resp = await request(app).get('/$metadata/resources/Customers');
+  it('Should /$schema/resources/(Resource) return resource metadata', async () => {
+    const resp = await request(app).get('/$schema/resources/Customers');
     expect(resp.status).toStrictEqual(200);
     expect(resp.body).toBeDefined();
     expect(resp.body).toMatchObject({
-      "@opra:schema": "/$metadata/resources/Customers",
       "kind": "EntityResource",
       "type": "Customer",
       "name": "Customers"
     })
+    expect(resp.headers['x-opra-schema']).toStrictEqual('http://www.oprajs.com/reference/v1/schema#EntityResource')
   })
 
-  it('Should /(Resource)/$metadata return resource metadata', async () => {
-    const resp = await request(app).get('/$metadata/resources/Customers');
+  it('Should /(Resource)/$schema return resource metadata', async () => {
+    const resp = await request(app).get('/$schema/resources/Customers');
     expect(resp.status).toStrictEqual(200);
     expect(resp.body).toBeDefined();
     expect(resp.body).toMatchObject({
-      "@opra:schema": "/$metadata/resources/Customers",
       "kind": "EntityResource",
       "type": "Customer",
       "name": "Customers"
     })
+    expect(resp.headers['x-opra-schema']).toStrictEqual('http://www.oprajs.com/reference/v1/schema#EntityResource')
   })
 
-  it('Should /$metadata/types/(DataType) return data type metadata', async () => {
-    const resp = await request(app).get('/$metadata/types/Address');
+  it('Should /$schema/types/(DataType) return data type metadata', async () => {
+    const resp = await request(app).get('/$schema/types/Address');
     expect(resp.status).toStrictEqual(200);
     expect(resp.body).toBeDefined();
     expect(resp.body).toMatchObject({
-      "@opra:schema": "/$metadata/types/Address",
-      "kind": "EntityType",
+      "kind": "ComplexType",
       "name": "Address"
     })
+    expect(resp.headers['x-opra-schema']).toStrictEqual('http://www.oprajs.com/reference/v1/schema#ComplexType')
   })
 
   it('Should throw if url is not acceptable', async () => {
-    let resp = await request(app).get('/$metadata/types/Address/id');
+    let resp = await request(app).get('/$schema/types/Address/id');
     expect(resp.status).toStrictEqual(400);
-    resp = await request(app).get('/$metadata/resources/Customers/id');
+    resp = await request(app).get('/$schema/resources/Customers/id');
     expect(resp.status).toStrictEqual(400);
   })
 

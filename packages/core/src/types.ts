@@ -1,15 +1,7 @@
-import type { Type } from 'ts-gems';
 import { Builtin, DeepPickWritable } from 'ts-gems';
 import { OpraSchema } from '@opra/schema';
 
-export type Thunk<T> = T | (() => T);
-export type ThunkAsync<T> = T | Promise<T> | (() => T) | (() => Promise<T>);
-export type TypeThunk<T = any> = Thunk<Type<T>>;
-export type TypeThunkAsync<T = any> = ThunkAsync<Type<T>>;
-
-export type QueryScope = 'collection' | 'instance' | 'property';
-export type QueryType = OpraSchema.EntityMethodType | 'metadata' | 'execute';
-export type OperationType = 'create' | 'read' | 'update' | 'patch' | 'delete' | 'execute';
+export type QueryType = OpraSchema.EntityMethodType | 'schema' | 'execute';
 
 export type KeyValue = string | number | boolean | object;
 
