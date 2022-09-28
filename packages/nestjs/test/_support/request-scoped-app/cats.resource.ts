@@ -1,12 +1,12 @@
 import { UseGuards, UseInterceptors } from '@nestjs/common';
-import { ApiEntityResource } from '@opra/core';
+import { OprEntityResource } from '@opra/schema';
 import { Cat } from './cat.dto.js';
 import { CatsService } from './cats.service.js';
 import { Interceptor } from './logging.interceptor.js';
 import { Guard } from './request-scoped.guard.js';
 import { UsersService } from './users.service.js';
 
-@ApiEntityResource(Cat)
+@OprEntityResource(Cat)
 export class CatsResource {
   static COUNTER = 0;
 

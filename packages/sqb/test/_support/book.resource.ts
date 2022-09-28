@@ -1,7 +1,7 @@
-import { ApiEntityResource } from '@opra/core';
+import { OprEntityResource } from '@opra/schema';
 import { Book } from './book.entity.js';
 
-@ApiEntityResource(Book, {
+@OprEntityResource(Book, {
   description: 'Book resource'
 })
 export class BooksResource {

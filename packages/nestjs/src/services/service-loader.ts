@@ -1,7 +1,8 @@
 import { Inject, Logger } from '@nestjs/common';
 import { ApplicationConfig, HttpAdapterHost } from '@nestjs/core';
 import { Module } from '@nestjs/core/injector/module.js';
-import { OpraAdapter, OpraExpressAdapter, OpraService } from '@opra/core';
+import { OpraAdapter, OpraExpressAdapter } from '@opra/core';
+import { OpraService } from '@opra/schema';
 import { joinPath, normalizePath } from '@opra/url';
 import { OPRA_MODULE_OPTIONS } from '../constants.js';
 import { ServiceFactory } from '../factories/service.factory.js';

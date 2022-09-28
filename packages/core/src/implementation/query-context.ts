@@ -1,5 +1,6 @@
+import { OpraService, ResponsiveMap } from '@opra/schema';
 import { OpraURLSearchParams, SearchParams } from '@opra/url';
-import { HttpStatus } from '../enums/index.js';
+import { HttpHeaders, HttpStatus } from '../enums/index.js';
 import { ApiException } from '../exception/index.js';
 import {
   ContextType,
@@ -7,8 +8,6 @@ import {
   IHttpExecutionContext
 } from '../interfaces/execution-context.interface.js';
 import { OpraQuery } from '../interfaces/query.interface.js';
-import { Headers, HeadersObject } from '../utils/headers.js';
-import { OpraService } from './opra-service.js';
 
 export type QueryContextArgs = Pick<QueryContext,
     'service' | 'executionContext' | 'query' | 'params' | 'headers' |
@@ -19,7 +18,7 @@ export class QueryContext {
   readonly executionContext: IExecutionContext;
   readonly query: OpraQuery;
   readonly params: SearchParams;
-  readonly headers: HeadersObject;
+  readonly headers: Map<string, string>;
   readonly parentValue?: any;
   readonly resultPath: string;
   readonly response: QueryResponse;
@@ -30,7 +29,7 @@ export class QueryContext {
     Object.assign(this, args);
     this.response = new QueryResponse();
     this.params = this.params || new OpraURLSearchParams();
-    this.headers = this.headers || Headers.create();
+    this.headers = this.headers || new ResponsiveMap();
     this.resultPath = this.resultPath || '';
   }
 
@@ -48,7 +47,7 @@ export class QueryContext {
 export type QueryResponseArgs = Pick<QueryResponse, 'status' | 'value' | 'total'>
 
 export class QueryResponse {
-  headers: HeadersObject = Headers.create();
+  headers: ResponsiveMap<string, string>;
   errors: ApiException[] = [];
   status?: HttpStatus;
   value?: any;
@@ -57,5 +56,6 @@ export class QueryResponse {
   constructor(args?: QueryResponseArgs) {
     if (args)
       Object.assign(this, args);
+    this.headers = new ResponsiveMap(undefined, Array.from(Object.values(HttpHeaders)));
   }
 }

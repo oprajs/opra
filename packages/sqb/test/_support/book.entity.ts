@@ -1,30 +1,30 @@
-import { ApiEntityType, ApiProperty } from '@opra/schema';
+import { OprEntity, OprField } from '@opra/schema';
 import { Column, Entity, Link, PrimaryKey } from '@sqb/connect';
 import { Writer } from './writer.entity.js';
 
-@ApiEntityType()
+@OprEntity()
 @Entity('books')
 export class Book {
 
   @PrimaryKey()
   @Column()
-  @ApiProperty({type: 'integer'})
+  @OprField({type: 'integer'})
   id: number;
 
   @Column()
-  @ApiProperty()
+  @OprField()
   name: string;
 
   @Column()
-  @ApiProperty()
+  @OprField()
   totalPages: number;
 
   @Column()
-  @ApiProperty()
+  @OprField()
   writerId: number;
 
   @Link()
-  @ApiProperty()
+  @OprField()
   writer: Writer;
 
 }

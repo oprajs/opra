@@ -1,8 +1,8 @@
-import { OpraService } from '../../../src/index.js';
-import { countriesResource } from './api/countries.resource.js';
-import { CustomerAddressesesResource } from './api/customer-addresseses.resource.js';
-import { CustomersResource } from './api/customers.resource.js';
-import { Customer } from './dto/customer.dto.js';
+import { OpraService } from '@opra/schema';
+import { Country } from './entities/country.entity.js';
+import { countriesResource } from './resource/countries.resource.js';
+import { CustomerAddressesResource } from './resource/customer-addresses.resource.js';
+import { CustomersResource } from './resource/customers.resource.js';
 
 export async function createTestService() {
   return OpraService.create({
@@ -10,7 +10,7 @@ export async function createTestService() {
       title: 'TestApi',
       version: 'v1',
     },
-    types: [Customer],
-    resources: [countriesResource, new CustomersResource(), new CustomerAddressesesResource()]
+    types: [Country],
+    resources: [countriesResource, new CustomersResource(), new CustomerAddressesResource()]
   });
 }

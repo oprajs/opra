@@ -1,27 +1,23 @@
 import _ from 'lodash';
 import { StrictOmit } from 'ts-gems';
-import { OpraSchema } from '@opra/schema';
+import { ComplexType, EntityResource, EntityType, OpraSchema, OpraService } from '@opra/schema';
 import { Expression } from '@opra/url';
-import { ComplexType } from '../implementation/data-type/complex-type.js';
-import { EntityType } from '../implementation/data-type/entity-type.js';
-import { OpraService } from '../implementation/opra-service.js';
-import { EntityControllerWrapper } from '../implementation/resource/entity-controller-wrapper.js';
-import { KeyValue, OperationType, QueryScope, QueryType } from '../types.js';
-import { ObjectTree, stringPathToObjectTree } from '../utils/string-path-to-object-tree.js';
+import { KeyValue, QueryType } from '../types.js';
+import { ObjectTree, pathToTree } from '../utils/path-to-tree.js';
 
-export type OpraQuery = OpraMetadataQuery |
+export type OpraQuery = OpraGetSchemaQuery |
     OpraCreateQuery | OpraGetEntityQuery | OpraSearchQuery |
     OpraUpdateQuery | OpraUpdateManyQuery | OpraDeleteQuery | OpraDeleteManyQuery;
 
 interface BaseOpraQuery {
   queryType: QueryType;
-  scope: QueryScope;
-  operation: OperationType;
+  scope: OpraSchema.QueryScope;
+  operation: OpraSchema.OperationType;
 }
 
-export interface OpraMetadataQuery extends BaseOpraQuery {
-  queryType: 'metadata';
-  scope: QueryScope;
+export interface OpraGetSchemaQuery extends BaseOpraQuery {
+  queryType: 'schema';
+  scope: OpraSchema.QueryScope;
   operation: 'read';
   resourcePath: string[];
 }
@@ -30,7 +26,7 @@ export interface OpraCreateQuery extends BaseOpraQuery {
   queryType: 'create';
   scope: 'collection';
   operation: 'create';
-  resource: EntityControllerWrapper;
+  resource: EntityResource;
   data: {};
   pick?: string[];
   omit?: string[];
@@ -41,7 +37,7 @@ export interface OpraGetEntityQuery extends BaseOpraQuery {
   queryType: 'get';
   scope: 'instance';
   operation: 'read';
-  resource: EntityControllerWrapper;
+  resource: EntityResource;
   keyValue: KeyValue;
   pick?: string[];
   omit?: string[];
@@ -53,7 +49,7 @@ export interface OpraPropertyQuery extends BaseOpraQuery {
   queryType: 'get';
   scope: 'property';
   operation: 'read';
-  property: OpraSchema.Property;
+  property: OpraSchema.Field;
   nested?: OpraPropertyQuery;
 }
 
@@ -61,7 +57,7 @@ export interface OpraUpdateQuery extends BaseOpraQuery {
   queryType: 'update';
   scope: 'instance';
   operation: 'update';
-  resource: EntityControllerWrapper;
+  resource: EntityResource;
   keyValue: KeyValue;
   data: {};
   pick?: string[];
@@ -73,7 +69,7 @@ export interface OpraUpdateManyQuery extends BaseOpraQuery {
   queryType: 'updateMany';
   scope: 'collection';
   operation: 'update';
-  resource: EntityControllerWrapper;
+  resource: EntityResource;
   filter?: string | Expression;
   data: {};
 }
@@ -82,7 +78,7 @@ export interface OpraDeleteQuery extends BaseOpraQuery {
   queryType: 'delete';
   scope: 'instance';
   operation: 'delete';
-  resource: EntityControllerWrapper;
+  resource: EntityResource;
   keyValue: KeyValue;
 }
 
@@ -90,7 +86,7 @@ export interface OpraDeleteManyQuery extends BaseOpraQuery {
   queryType: 'deleteMany';
   scope: 'collection';
   operation: 'delete';
-  resource: EntityControllerWrapper;
+  resource: EntityResource;
   filter?: string | Expression;
 }
 
@@ -98,7 +94,7 @@ export interface OpraSearchQuery extends BaseOpraQuery {
   queryType: 'search';
   scope: 'collection';
   operation: 'read';
-  resource: EntityControllerWrapper;
+  resource: EntityResource;
   pick?: string[];
   omit?: string[];
   include?: string[];
@@ -121,7 +117,7 @@ export type DeleteManyQueryOption = StrictOmit<OpraDeleteManyQuery, 'queryType' 
 export namespace OpraQuery {
 
   export function forCreate(
-      resource: EntityControllerWrapper,
+      resource: EntityResource,
       values: {},
       options?: CreateQueryOptions
   ): OpraCreateQuery {
@@ -143,10 +139,10 @@ export namespace OpraQuery {
     return out;
   }
 
-  export function forGetMetadata(
+  export function forGetSchema(
       resourcePath: string[],
       options?: GetEntityQueryOptions
-  ): OpraMetadataQuery {
+  ): OpraGetSchemaQuery {
     // if (options?.pick)
     //   options.pick = normalizePick(resource, options.pick);
     // if (options?.omit)
@@ -154,8 +150,8 @@ export namespace OpraQuery {
     // if (options?.include)
     //   options.include = normalizePick(resource, options.include);
 
-    const out: OpraMetadataQuery = {
-      queryType: 'metadata',
+    const out: OpraGetSchemaQuery = {
+      queryType: 'schema',
       scope: 'instance',
       resourcePath,
       operation: 'read',
@@ -165,7 +161,7 @@ export namespace OpraQuery {
   }
 
   export function forGetEntity(
-      resource: EntityControllerWrapper,
+      resource: EntityResource,
       key: KeyValue,
       options?: GetEntityQueryOptions
   ): OpraGetEntityQuery {
@@ -189,7 +185,7 @@ export namespace OpraQuery {
   }
 
   export function forSearch(
-      resource: EntityControllerWrapper,
+      resource: EntityResource,
       options?: SearchQueryOptions
   ): OpraSearchQuery {
     if (options?.pick)
@@ -212,7 +208,7 @@ export namespace OpraQuery {
   }
 
   export function forGetProperty(
-      property: OpraSchema.Property,
+      property: OpraSchema.Field,
       options?: StrictOmit<OpraPropertyQuery, 'queryType' | 'scope' | 'operation' | 'property'>
   ): OpraPropertyQuery {
     const out: OpraPropertyQuery = {
@@ -226,7 +222,7 @@ export namespace OpraQuery {
   }
 
   export function forUpdate(
-      resource: EntityControllerWrapper,
+      resource: EntityResource,
       keyValue: KeyValue,
       values: any,
       options?: UpdateQueryOptions
@@ -252,7 +248,7 @@ export namespace OpraQuery {
   }
 
   export function forUpdateMany(
-      resource: EntityControllerWrapper,
+      resource: EntityResource,
       values: any,
       options?: UpdateManyQueryOptions
   ): OpraUpdateManyQuery {
@@ -267,7 +263,7 @@ export namespace OpraQuery {
     return out;
   }
 
-  export function forDelete(resource: EntityControllerWrapper, key: KeyValue): OpraDeleteQuery {
+  export function forDelete(resource: EntityResource, key: KeyValue): OpraDeleteQuery {
     checkKeyFields(resource, key);
     return {
       queryType: 'delete',
@@ -279,7 +275,7 @@ export namespace OpraQuery {
   }
 
   export function forDeleteMany(
-      resource: EntityControllerWrapper,
+      resource: EntityResource,
       options?: DeleteManyQueryOption
   ): OpraDeleteManyQuery {
     const out: OpraDeleteManyQuery = {
@@ -311,41 +307,41 @@ export namespace OpraQuery {
 }
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
-function checkKeyFields(resource: EntityControllerWrapper, key: KeyValue) {
+function checkKeyFields(resource: EntityResource, key: KeyValue) {
   if (!resource.dataType.primaryKey)
     throw new Error(`"${resource.name}" has no primary key`);
 }
 
 function normalizePick(
-    resource: EntityControllerWrapper,
+    resource: EntityResource,
     fields: string[]
 ) {
-  const fieldsTree = stringPathToObjectTree(fields) || {};
+  const fieldsTree = pathToTree(fields) || {};
   return _normalizeFieldsList([], resource.service, resource, resource.dataType, fieldsTree, '',
       {
-        additionalProperties: true
+        additionalFields: true
       });
 }
 
 function _normalizeFieldsList(
     target: string[],
     service: OpraService,
-    resource: EntityControllerWrapper,
+    resource: EntityResource,
     dataType: ComplexType | EntityType | undefined,
     node: ObjectTree,
     parentPath: string = '',
     options?: {
-      additionalProperties?: boolean;
+      additionalFields?: boolean;
     }
 ): string[] {
   let curPath = '';
   for (const k of Object.keys(node)) {
     const nodeVal = node[k];
 
-    const prop = dataType?.properties?.[k];
+    const prop = dataType?.fields.get(k);
     if (!prop) {
       curPath = parentPath ? parentPath + '.' + k : k;
-      if (!options?.additionalProperties || (dataType && !dataType.additionalProperties))
+      if (!options?.additionalFields || (dataType && !dataType.additionalFields))
         throw new TypeError(`Unknown field path "${resource.name + '.' + curPath}"`);
       if (typeof nodeVal === 'object')
         _normalizeFieldsList(target, service, resource, undefined, nodeVal, curPath, options);
@@ -357,7 +353,7 @@ function _normalizeFieldsList(
     const propType = service.getDataType(prop.type || 'string');
 
     if (typeof nodeVal === 'object') {
-      if (!(propType instanceof ComplexType))
+      if (!(propType && propType instanceof ComplexType))
         throw new TypeError(`"${curPath}" is not a complex type and has no sub fields`);
       if (target.findIndex(x => x === parentPath) >= 0)
         continue;

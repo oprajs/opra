@@ -1,19 +1,19 @@
-import { ApiEntityType, ApiProperty } from '@opra/schema';
+import { OprEntity, OprField } from '@opra/schema';
 
-@ApiEntityType({
+@OprEntity({
   primaryKey: 'id'
 })
 export class Photos {
 
-  @ApiProperty()
+  @OprField()
   id: number;
 
-  @ApiProperty()
+  @OprField()
   name: string;
 
-  @ApiProperty()
+  @OprField()
   description: string;
 
-  @ApiProperty()
+  @OprField()
   views: number;
 }

@@ -34,7 +34,7 @@
     "lodash": "^4.17.21",
     "putil-isplainobject": "^1.1.4",
     "putil-varhelpers": "^1.6.4",
-    "putil-merge": "^3.8.0",
+    "putil-merge": "^3.9.0",
     "rule-judgment": "^1.1.5",
     "strict-typed-events": "^2.2.0",
     "ts-gems": "^2.2.0"

@@ -1,6 +1,6 @@
 import path from 'path';
 import { I18n } from '@opra/i18n';
-import { OpraAdapter } from '../implementation/adapter/adapter.js';
+import { OpraAdapter } from '../implementation/adapter.js';
 import { getCallerFile } from './get-caller-file.util.js';
 
 export async function createI18n(options?: OpraAdapter.I18nOptions): Promise<I18n> {

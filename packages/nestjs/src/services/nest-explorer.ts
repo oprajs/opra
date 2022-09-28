@@ -1,6 +1,6 @@
 import { InstanceWrapper } from '@nestjs/core/injector/instance-wrapper';
 import { Module } from '@nestjs/core/injector/module';
-import { RESOURCE_METADATA } from '@opra/core';
+import { RESOURCE_METADATA } from '@opra/schema';
 
 export class NestExplorer {
 

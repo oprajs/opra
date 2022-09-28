@@ -1,10 +1,10 @@
-import 'reflect-metadata';
 import express from 'express';
+import { OpraService } from '@opra/schema';
 import { apiExpect, opraTest, OpraTester } from '@opra/testing';
-import { OpraExpressAdapter, OpraService } from '../../src/index.js';
+import { OpraExpressAdapter } from '../../src/index.js';
 import { createTestService } from '../_support/test-app/create-service.js';
 
-describe('Entity Resource Operations', function () {
+describe('Entity Resource e2e', function () {
 
   let service: OpraService;
   let app;
@@ -26,7 +26,6 @@ describe('Entity Resource Operations', function () {
           .toSuccess()
           .toReturnObject(obj => {
             obj.toMatch({
-              "@opra:schema": "/$metadata/types/Customer",
               "id": 1
             })
           })

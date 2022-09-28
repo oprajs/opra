@@ -1,16 +1,16 @@
-import { ApiEntityType, ApiProperty } from '@opra/schema';
+import { OprEntity, OprField } from '@opra/schema';
 
-@ApiEntityType({
+@OprEntity({
   primaryKey: 'id'
 })
 export class Cat {
 
-  @ApiProperty()
+  @OprField()
   id: number;
 
-  @ApiProperty()
+  @OprField()
   name: string;
 
-  @ApiProperty()
+  @OprField()
   age: number;
 }

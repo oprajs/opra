@@ -1,18 +1,18 @@
 import { UseGuards } from '@nestjs/common';
 import {
-  ApiEntityResource,
   OpraCreateQuery,
   OpraDeleteManyQuery,
   OpraDeleteQuery, OpraGetEntityQuery,
   OpraSearchQuery, OpraUpdateManyQuery,
   OpraUpdateQuery
 } from '@opra/core';
+import { OprEntityResource } from '@opra/schema';
 import { Query } from '../../../../src/index.js';
 import { AuthGuard } from '../guards/auth.guard.js';
 import { Photos } from './photos.dto.js';
 import { PhotosService } from './photos.service.js';
 
-@ApiEntityResource(Photos, {
+@OprEntityResource(Photos, {
   description: 'Photos resource'
 })
 export class PhotosResource {
