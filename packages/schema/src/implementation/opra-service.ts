@@ -1,8 +1,8 @@
 import { StrictOmit } from 'ts-gems';
-import { stringCompare } from '../../../schema/src/utils/string-compare.util.js';
 import { ResponsiveMap } from '../helpers/responsive-map.js';
 import { OpraSchema } from '../interfaces/opra-schema.interface.js';
 import { IResourceContainer } from '../interfaces/resource-container.interface.js';
+import { stringCompare } from '../utils/string-compare.util.js';
 import { EntityType } from './data-type/entity-type.js';
 import { OpraDocument } from './opra-document.js';
 import { BaseResource } from './resource/base-resource.js';
