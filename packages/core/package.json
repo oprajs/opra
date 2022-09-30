@@ -1,6 +1,6 @@
 {
   "name": "@opra/core",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Opra schema package",
   "author": "Panates",
   "license": "MIT",
@@ -27,10 +27,10 @@
     "clean:cover": "rimraf ../../coverage/core"
   },
   "dependencies": {
-    "@opra/i18n": "^0.1.0",
-    "@opra/optionals": "^0.1.0",
-    "@opra/schema": "^0.1.0",
-    "@opra/url": "^0.1.0",
+    "@opra/i18n": "^0.1.1",
+    "@opra/optionals": "^0.1.1",
+    "@opra/schema": "^0.1.1",
+    "@opra/url": "^0.1.1",
     "lodash": "^4.17.21",
     "putil-isplainobject": "^1.1.4",
     "putil-varhelpers": "^1.6.4",
