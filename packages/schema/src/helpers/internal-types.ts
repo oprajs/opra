@@ -1,5 +1,5 @@
 import { Type } from 'ts-gems';
-import { OpraSchema } from '../interfaces/opra-schema.interface.js';
+import { OpraSchema } from '../opra-schema.js';
 import { ResponsiveMap } from './responsive-map.js';
 
 const internalDataTypeArray: OpraSchema.DataType[] = [

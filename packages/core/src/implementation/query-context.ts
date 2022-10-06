@@ -1,13 +1,12 @@
-import { OpraService, ResponsiveMap } from '@opra/schema';
+import { OpraException } from '@opra/exception';
+import { OpraAnyQuery, OpraService, ResponsiveMap } from '@opra/schema';
 import { OpraURLSearchParams, SearchParams } from '@opra/url';
 import { HttpHeaders, HttpStatus } from '../enums/index.js';
-import { ApiException } from '../exception/index.js';
 import {
   ContextType,
   IExecutionContext,
   IHttpExecutionContext
 } from '../interfaces/execution-context.interface.js';
-import { OpraQuery } from '../interfaces/query.interface.js';
 
 export type QueryContextArgs = Pick<QueryContext,
     'service' | 'executionContext' | 'query' | 'params' | 'headers' |
@@ -16,7 +15,7 @@ export type QueryContextArgs = Pick<QueryContext,
 export class QueryContext {
   readonly service: OpraService;
   readonly executionContext: IExecutionContext;
-  readonly query: OpraQuery;
+  readonly query: OpraAnyQuery;
   readonly params: SearchParams;
   readonly headers: Map<string, string>;
   readonly parentValue?: any;
@@ -48,7 +47,7 @@ export type QueryResponseArgs = Pick<QueryResponse, 'status' | 'value' | 'total'
 
 export class QueryResponse {
   headers: ResponsiveMap<string, string>;
-  errors: ApiException[] = [];
+  errors: OpraException[] = [];
   status?: HttpStatus;
   value?: any;
   total?: number;

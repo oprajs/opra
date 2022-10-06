@@ -1,12 +1,12 @@
 import request, { Response } from 'supertest';
-import { UpdateManyQueryOptions } from '@opra/core';
+import { UpdateCollectionQueryOptions } from '@opra/schema';
 import { OpraURL } from '@opra/url';
 import { BaseOperationTester } from './base-operation-tester.js';
 import type { OpraEntityTesterParams } from './entity-tester.js';
 
 export type OpraEntityUpdateManyTesterParams = OpraEntityTesterParams & {
   data: {};
-  options: UpdateManyQueryOptions;
+  options: UpdateCollectionQueryOptions;
 }
 
 export class OpraEntityUpdateManyTester extends BaseOperationTester {

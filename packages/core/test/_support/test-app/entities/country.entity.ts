@@ -1,11 +1,10 @@
 import { OprEntity, OprField } from '@opra/schema';
-import { Record } from './record.entity.js';
 
 @OprEntity({
   description: 'Country information',
   primaryKey: 'code'
 })
-export class Country extends Record {
+export class Country {
 
   @OprField()
   code: string;
@@ -14,6 +13,6 @@ export class Country extends Record {
   name: string;
 
   @OprField()
-  phoneCode: string;
+  phoneCode?: string;
 
 }

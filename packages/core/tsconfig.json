@@ -3,10 +3,11 @@
   "compilerOptions": {
     "baseUrl": "./",
     "paths": {
+      "@opra/exception": ["../exception/src"],
       "@opra/i18n": ["../i18n/src"],
+      "@opra/optionals": ["../optionals"],
       "@opra/schema": ["../schema/src"],
-      "@opra/url": ["../url/src"],
-      "@opra/optionals": ["../optionals"]
+      "@opra/url": ["../url/src"]
     }
   },
   "include": ["src", "test"],

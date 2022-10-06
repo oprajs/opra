@@ -1,44 +1,61 @@
+import { ForbiddenError, ResourceNotFoundError } from '@opra/exception';
 import { translate } from '@opra/i18n';
-import { ComplexType, DataType, EntityResource, OpraService } from '@opra/schema';
+import {
+  ComplexType,
+  DataType,
+  EntityResource,
+  OpraCountCollectionQuery,
+  OpraService,
+  OpraUpdateInstanceQuery
+} from '@opra/schema';
 import { HttpHeaders } from '../../enums/index.js';
-import { ForbiddenError, ResourceNotFoundError } from '../../exception/index.js';
-import { OpraGetEntityQuery, OpraQuery } from '../../interfaces/query.interface.js';
-import { QueryContext } from '../query-context.js';
+import { QueryContext, QueryResponse } from '../query-context.js';
 
 export async function entityResourceExecute(service: OpraService, resource: EntityResource, context: QueryContext) {
   const {query} = context;
-  if (OpraQuery.isSearchQuery(query)) {
+  if (query.kind === 'SearchCollectionQuery') {
     const promises: Promise<any>[] = [];
     let search: any;
     let count: any;
     promises.push(
-        executeFn(service, resource, context, query.queryType)
+        executeFn(service, resource, context)
             .then(v => search = v)
     );
-    if (query.count) {
-      promises.push(executeFn(service, resource, context, 'count')
+    if (query.count && resource.metadata.methods.count) {
+      const ctx = {
+        query: new OpraCountCollectionQuery(query.resource, {filter: query.filter}),
+        response: new QueryResponse()
+      } as QueryContext;
+      Object.setPrototypeOf(ctx, context);
+      promises.push(executeFn(service, resource, ctx)
           .then(v => count = v));
     }
     await Promise.all(promises);
     context.response.value = {
+      ...count,
       ...search,
-      ...count
     }
     return;
   }
-  context.response.value = await executeFn(service, resource, context, query.queryType);
+  context.response.value = await executeFn(service, resource, context);
 }
 
-async function executeFn(service: OpraService, resource: EntityResource, context: QueryContext, queryType: string): Promise<any> {
-  const resolverInfo = resource.metadata.methods?.[queryType];
-  if (!resolverInfo.handler)
+async function executeFn(
+    service: OpraService,
+    resource: EntityResource,
+    context: QueryContext,
+): Promise<any> {
+  const method = context.query.method;
+  const resolverInfo = resource.metadata.methods?.[method];
+  if (!(resolverInfo && resolverInfo.handler))
     throw new ForbiddenError({
-      message: translate('RESOLVER_FORBIDDEN', {queryType}),
+      message: translate('RESOLVER_FORBIDDEN', {method},
+          `The resource endpoint does not accept '{{method}}' operations`),
       severity: 'error',
       code: 'RESOLVER_FORBIDDEN'
     });
   let result = await resolverInfo.handler(context);
-  switch (queryType) {
+  switch (method) {
     case 'search':
       context.response.headers.set(HttpHeaders.X_Opra_Schema, '/$schema/types/' + resource.dataType.name);
       return {
@@ -47,7 +64,7 @@ async function executeFn(service: OpraService, resource: EntityResource, context
     case 'get':
     case 'update':
       if (!result) {
-        const query = context.query as OpraGetEntityQuery;
+        const query = context.query as OpraUpdateInstanceQuery;
         throw new ResourceNotFoundError(resource.name, query.keyValue);
       }
       break;
@@ -81,7 +98,7 @@ async function executeFn(service: OpraService, resource: EntityResource, context
     }
   }
 
-  if (queryType === 'create')
+  if (method === 'create')
     context.response.status = 201;
 
   if (dataType)

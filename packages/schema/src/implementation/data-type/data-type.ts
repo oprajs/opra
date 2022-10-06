@@ -1,5 +1,5 @@
 import { Type } from 'ts-gems';
-import { OpraSchema } from '../../interfaces/opra-schema.interface.js';
+import { OpraSchema } from '../../opra-schema.js';
 import { cloneObject } from '../../utils/clone-object.util.js';
 import { OpraDocument } from '../opra-document.js';
 import { builtinClassMap, internalDataTypes, primitiveDataTypeNames } from './internal-data-types.js';
@@ -31,6 +31,10 @@ export abstract class DataType {
 
   get ctor(): Type | undefined {
     return this._metadata.ctor;
+  }
+
+  parse<T>(value: any): T {
+    return this._metadata.parse ? this._metadata.parse(value) : value as T;
   }
 
   getSchema(jsonOnly?: boolean): any {

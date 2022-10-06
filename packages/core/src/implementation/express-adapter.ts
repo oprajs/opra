@@ -1,3 +1,4 @@
+import bodyParser from 'body-parser';
 import type { Application, Request, Response } from 'express';
 import { AsyncEventEmitter } from 'strict-typed-events';
 import { OpraService } from '@opra/schema';
@@ -28,6 +29,7 @@ export class OpraExpressAdapter extends OpraHttpAdapter<IHttpExecutionContext> {
       i18n
     });
     const prefix = '/' + normalizePath(options?.prefix, true);
+    app.use(prefix, bodyParser.json());
     app.use(prefix, (request, response, next) => {
       (async () => {
         const executionContext = new ExpressExecutionContext(request, response);

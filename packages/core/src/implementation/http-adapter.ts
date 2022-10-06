@@ -1,22 +1,25 @@
 import {
-  ComplexType,
-  ContainerResource,
-  EntityResource,
-  IResourceContainer, OpraSchema, ResponsiveMap
-} from '@opra/schema';
-import { OpraURL } from '@opra/url';
-import { HttpHeaders, HttpStatus } from '../enums/index.js';
-import {
-  ApiException,
   BadRequestError,
   InternalServerError,
   MethodNotAllowedError,
   NotFoundError,
-} from '../exception/index.js';
-import { wrapError } from '../exception/wrap-error.js';
+  OpraException,
+} from '@opra/exception';
+import {
+  ComplexType,
+  ContainerResource,
+  DataType, EntityResource,
+  IResourceContainer,
+  OpraAnyQuery, OpraCreateInstanceQuery, OpraDeleteCollectionQuery, OpraDeleteInstanceQuery,
+  OpraGetFieldQuery,
+  OpraGetInstanceQuery, OpraGetSchemaQuery,
+  OpraSchema,
+  OpraSearchCollectionQuery, OpraUpdateCollectionQuery, OpraUpdateInstanceQuery,
+  ResponsiveMap
+} from '@opra/schema';
+import { OpraURL } from '@opra/url';
+import { HttpHeaders, HttpStatus } from '../enums/index.js';
 import { IHttpExecutionContext } from '../interfaces/execution-context.interface.js';
-import { OpraGetSchemaQuery, OpraPropertyQuery, OpraQuery } from '../interfaces/query.interface.js';
-import { KeyValue } from '../types.js';
 import { OpraAdapter } from './adapter.js';
 import { QueryContext } from './query-context.js';
 
@@ -95,11 +98,12 @@ export class OpraHttpAdapter<TExecutionContext extends IHttpExecutionContext> ex
       pick: url.searchParams.get('$pick'),
       omit: url.searchParams.get('$omit'),
       include: url.searchParams.get('$include'),
+      resourcePath
     }
-    return OpraQuery.forGetSchema(resourcePath, opts);
+    return new OpraGetSchemaQuery(opts);
   }
 
-  buildQuery(url: OpraURL, method: string, body?: any): OpraQuery | undefined {
+  buildQuery(url: OpraURL, method: string, body?: any): OpraAnyQuery | undefined {
     let container: IResourceContainer = this.service;
     try {
       const pathLen = url.path.size;
@@ -132,13 +136,13 @@ export class OpraHttpAdapter<TExecutionContext extends IHttpExecutionContext> ex
           if (pathIndex < pathLen && !(method === 'GET' && scope === 'instance'))
             return;
 
-          let query: OpraQuery | undefined;
+          let query: OpraAnyQuery | undefined;
 
           switch (method) {
 
             case 'GET': {
               if (scope === 'collection') {
-                query = OpraQuery.forSearch(resource, {
+                query = new OpraSearchCollectionQuery(resource, {
                   filter: url.searchParams.get('$filter'),
                   limit: url.searchParams.get('$limit'),
                   skip: url.searchParams.get('$skip'),
@@ -151,52 +155,42 @@ export class OpraHttpAdapter<TExecutionContext extends IHttpExecutionContext> ex
                 });
 
               } else {
-                query = OpraQuery.forGetEntity(resource, p.key as KeyValue, {
+                query = new OpraGetInstanceQuery(resource, p.key, {
                   pick: url.searchParams.get('$pick'),
                   omit: url.searchParams.get('$omit'),
                   include: url.searchParams.get('$include')
                 });
 
                 // Move through properties
-                let nested: OpraPropertyQuery | undefined;
-                let path = resource.name;
+                let dataType: DataType = resource.dataType;
+                const curPath: string[] = [];
+                let parent: OpraGetInstanceQuery | OpraGetFieldQuery = query;
                 while (pathIndex < pathLen) {
-                  const dataType = nested
-                      ? this.service.getDataType(nested.property.type || 'string')
-                      : query.resource.dataType;
                   if (!(dataType instanceof ComplexType))
-                    throw new Error(`"${path}" is not a ComplexType and has no fields.`);
+                    throw new TypeError(`"${resource.name}.${curPath.join()}" is not a ComplexType and has no fields.`);
                   p = url.path.get(pathIndex++);
-                  path += '.' + p.resource;
-                  const prop = dataType.fields.get(p.resource);
-                  if (!prop)
-                    throw new NotFoundError({message: `Invalid or unknown resource path (${path})`});
-                  const q = OpraQuery.forGetProperty(prop);
-                  if (nested) {
-                    nested.nested = q;
-                  } else {
-                    query.nested = q;
-                  }
-                  nested = q;
+                  curPath.push(p.resource);
+                  const field = dataType.getField(p.resource);
+                  parent.nested = new OpraGetFieldQuery(parent, field.name);
+                  parent = parent.nested;
+                  dataType = parent.dataType;
                 }
               }
               break;
             }
 
             case 'DELETE': {
-              if (scope === 'collection') {
-                query = OpraQuery.forDeleteMany(resource, {
-                  filter: url.searchParams.get('$filter'),
-                });
-              } else {
-                query = OpraQuery.forDelete(resource, p.key as KeyValue);
-              }
+              query = scope === 'collection'
+                  ? new OpraDeleteCollectionQuery(resource, {
+                    filter: url.searchParams.get('$filter'),
+                  })
+                  : new OpraDeleteInstanceQuery(resource, p.key);
               break;
             }
 
             case 'POST': {
               if (scope === 'collection') {
-                query = OpraQuery.forCreate(resource, body, {
+                query = new OpraCreateInstanceQuery(resource, body, {
                   pick: url.searchParams.get('$pick'),
                   omit: url.searchParams.get('$omit'),
                   include: url.searchParams.get('$include')
@@ -206,20 +200,17 @@ export class OpraHttpAdapter<TExecutionContext extends IHttpExecutionContext> ex
             }
 
             case 'PATCH': {
-              if (scope === 'collection') {
-                query = OpraQuery.forUpdateMany(resource, body, {
-                  filter: url.searchParams.get('$filter')
-                });
-              } else {
-                query = OpraQuery.forUpdate(resource, p.key as KeyValue, body, {
-                  pick: url.searchParams.get('$pick'),
-                  omit: url.searchParams.get('$omit'),
-                  include: url.searchParams.get('$include')
-                });
-              }
+              query = scope === 'collection'
+                  ? new OpraUpdateCollectionQuery(resource, body, {
+                    filter: url.searchParams.get('$filter')
+                  })
+                  : new OpraUpdateInstanceQuery(resource, p.key, body, {
+                    pick: url.searchParams.get('$pick'),
+                    omit: url.searchParams.get('$omit'),
+                    include: url.searchParams.get('$include')
+                  });
               break;
             }
-
           }
 
           return query;
@@ -282,7 +273,7 @@ export class OpraHttpAdapter<TExecutionContext extends IHttpExecutionContext> ex
     let status = ctx.response.status;
     let body = ctx.response.value || {};
 
-    const errors = ctx.response.errors?.map(e => wrapError(e));
+    const errors = ctx.response.errors?.map(e => OpraException.wrap(e));
 
     if (errors && errors.length) {
       if (!status || status < 400) {
@@ -314,7 +305,7 @@ export class OpraHttpAdapter<TExecutionContext extends IHttpExecutionContext> ex
     }
   }
 
-  protected async sendError(executionContext: TExecutionContext, error: ApiException) {
+  protected async sendError(executionContext: TExecutionContext, error: OpraException) {
     const resp = executionContext.getResponseWrapper();
     resp.setStatus(error.status || 500);
     resp.setHeader(HttpHeaders.Content_Type, 'application/json');
@@ -322,7 +313,8 @@ export class OpraHttpAdapter<TExecutionContext extends IHttpExecutionContext> ex
     resp.setHeader(HttpHeaders.Pragma, 'no-cache');
     resp.setHeader(HttpHeaders.Expires, '-1');
     resp.setHeader(HttpHeaders.X_Opra_Version, OpraSchema.Version);
-    resp.send(JSON.stringify(error.response));
+    const body = {errors: [this.i18n.deep(error.response)]};
+    resp.send(JSON.stringify(body));
   }
 
 

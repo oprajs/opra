@@ -1,6 +1,7 @@
+import { toBoolean, toDate, toInt, toNumber, toString } from 'putil-varhelpers';
 import { Type } from 'ts-gems';
 import { ResponsiveMap } from '../../helpers/responsive-map.js';
-import { OpraSchema } from '../../interfaces/opra-schema.interface.js';
+import { OpraSchema } from '../../opra-schema.js';
 
 const internalDataTypeArray: OpraSchema.DataType[] = [
   {
@@ -8,28 +9,32 @@ const internalDataTypeArray: OpraSchema.DataType[] = [
     name: 'boolean',
     type: 'boolean',
     description: 'Simple true/false value',
-    ctor: Boolean
+    ctor: Boolean,
+    parse: (v) => toBoolean(v)
   },
   {
     kind: 'SimpleType',
     name: 'string',
     type: 'string',
     description: 'A sequence of characters',
-    ctor: String
+    ctor: String,
+    parse: (v) => toString(v)
   },
   {
     kind: 'SimpleType',
     name: 'number',
     type: 'number',
     description: 'Both Integer as well as Floating-Point numbers',
-    ctor: Number
+    ctor: Number,
+    parse: (v) => toNumber(v)
   },
   {
     kind: 'SimpleType',
     name: 'integer',
     type: 'number',
     description: 'Integer number',
-    ctor: Number
+    ctor: Number,
+    parse: (v) => toInt(v)
   },
   {
     kind: 'ComplexType',
@@ -45,7 +50,8 @@ const internalDataTypeArray: OpraSchema.DataType[] = [
     type: 'string',
     description: 'Date',
     format: 'date',
-    ctor: Date
+    ctor: Date,
+    parse: (v) => toDate(v)
   },
   {
     kind: 'SimpleType',
@@ -53,7 +59,8 @@ const internalDataTypeArray: OpraSchema.DataType[] = [
     type: 'string',
     description: 'Date time value',
     format: 'date-time',
-    ctor: Date
+    ctor: Date,
+    parse: (v) => toDate(v)
   },
   {
     kind: 'SimpleType',
@@ -61,7 +68,8 @@ const internalDataTypeArray: OpraSchema.DataType[] = [
     type: 'string',
     description: 'Time value',
     format: 'time',
-    ctor: String
+    ctor: String,
+    parse: (v) => toString(v)
   },
   {
     kind: 'SimpleType',
@@ -69,7 +77,8 @@ const internalDataTypeArray: OpraSchema.DataType[] = [
     type: 'string',
     description: 'Buffer value',
     format: 'base64',
-    ctor: Buffer
+    ctor: Buffer,
+    parse: (v) => Buffer.from(v)
   }
 ];
 

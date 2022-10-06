@@ -1,11 +1,11 @@
 import request, { Response } from 'supertest';
-import { SearchQueryOptions } from '@opra/core';
+import { SearchCollectionQueryOptions } from '@opra/schema';
 import { Expression, OpraURL } from '@opra/url';
 import { BaseOperationTester } from './base-operation-tester.js';
 import type { OpraEntityTesterParams } from './entity-tester';
 
 export type OpraEntitySearchTesterParams = OpraEntityTesterParams & {
-  options: SearchQueryOptions
+  options: SearchCollectionQueryOptions
 }
 
 export class OpraEntitySearchTester extends BaseOperationTester {

@@ -1,6 +1,6 @@
 import { StrictOmit, Type } from 'ts-gems';
+import { OpraSchema } from '../../opra-schema.js';
 import { TypeThunkAsync } from '../../types.js';
-import { OpraSchema } from '../opra-schema.interface.js';
 
 export type ComplexTypeMetadata = StrictOmit<OpraSchema.ComplexType, 'fields' | 'extends'> & {
   extends?: ComplexTypeExtendingMetadata[];

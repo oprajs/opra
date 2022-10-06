@@ -1,14 +1,13 @@
 import { AsyncEventEmitter } from 'strict-typed-events';
-import { FallbackLng, I18n, LanguageResource } from '@opra/i18n';
-import { OpraService } from '@opra/schema';
-import { HttpHeaders } from '../enums/index.js';
 import {
-  ApiException, BadRequestError,
-  FailedDependencyError
-} from '../exception/index.js';
-import { wrapError } from '../exception/wrap-error.js';
+  BadRequestError,
+  FailedDependencyError,
+  OpraException
+} from '@opra/exception';
+import { FallbackLng, I18n, LanguageResource } from '@opra/i18n';
+import { OpraGetSchemaQuery, OpraService } from '@opra/schema';
+import { HttpHeaders } from '../enums/index.js';
 import { IExecutionContext } from '../interfaces/execution-context.interface.js';
-import { OpraGetSchemaQuery } from '../interfaces/query.interface.js';
 import { createI18n } from '../utils/create-i18n.js';
 import { resourceExecute } from './adapter-utils/resource-execute.util.js';
 import { resourcePrepare } from './adapter-utils/resource-prepare.util.js';
@@ -74,7 +73,7 @@ export abstract class OpraAdapter<TExecutionContext extends IExecutionContext> {
 
   protected abstract sendResponse(executionContext: TExecutionContext, queryContexts: QueryContext[]): Promise<void>;
 
-  protected abstract sendError(executionContext: TExecutionContext, error: ApiException): Promise<void>;
+  protected abstract sendError(executionContext: TExecutionContext, error: OpraException): Promise<void>;
 
   protected abstract isBatch(executionContext: TExecutionContext): boolean;
 
@@ -110,7 +109,7 @@ export abstract class OpraAdapter<TExecutionContext extends IExecutionContext> {
 
         try {
           const promise = (async () => {
-            if (context.query.queryType === 'schema') {
+            if (context.query.method === 'schema') {
               await this._getSchemaExecute(context);
               return;
             }
@@ -141,7 +140,7 @@ export abstract class OpraAdapter<TExecutionContext extends IExecutionContext> {
 
         if (context.response.errors.length) {
           // noinspection SuspiciousTypeOfGuard
-          context.response.errors = context.response.errors.map(e => wrapError(e))
+          context.response.errors = context.response.errors.map(e => OpraException.wrap(e))
           if (exclusive)
             stop = stop || !!context.response.errors.find(
                 e => !(e.response.severity === 'warning' || e.response.severity === 'info')
@@ -156,7 +155,7 @@ export abstract class OpraAdapter<TExecutionContext extends IExecutionContext> {
 
     } catch (e: any) {
       failed = true;
-      const error = wrapError(e);
+      const error = OpraException.wrap(e);
       await this.sendError(executionContext, error);
     } finally {
       if (executionContext as unknown instanceof AsyncEventEmitter) {
@@ -173,7 +172,7 @@ export abstract class OpraAdapter<TExecutionContext extends IExecutionContext> {
     const query = ctx.query as OpraGetSchemaQuery;
     let out: any;
 
-    if (query.resourcePath.length > 2)
+    if (query.resourcePath && query.resourcePath.length > 2)
       throw new BadRequestError();
 
     if (query.resourcePath?.length) {

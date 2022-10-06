@@ -1,5 +1,5 @@
 import request, { Response } from 'supertest';
-import { UpdateQueryOptions } from '@opra/core';
+import { UpdateInstanceQueryOptions } from '@opra/schema';
 import { OpraURL, ResourceKey } from '@opra/url';
 import { BaseOperationTester } from './base-operation-tester.js';
 import type { OpraEntityTesterParams } from './entity-tester.js';
@@ -7,7 +7,7 @@ import type { OpraEntityTesterParams } from './entity-tester.js';
 export type OpraEntityUpdateTesterParams = OpraEntityTesterParams & {
   keyValue: ResourceKey;
   data: {};
-  options: UpdateQueryOptions;
+  options: UpdateInstanceQueryOptions;
 }
 
 export class OpraEntityUpdateTester extends BaseOperationTester {

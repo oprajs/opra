@@ -1,19 +1,19 @@
 import _ from 'lodash';
-import { OpraQuery } from '@opra/core'
+import { OpraAnyQuery } from '@opra/schema';
 import { Repository } from '@sqb/connect';
 import type { BaseEntityService } from './base-entity-service';
 import { convertFilter } from './convert-filter.js';
 
 export namespace SQBAdapter {
 
-  export function prepare(query: OpraQuery): {
+  export function prepare(query: OpraAnyQuery): {
     method: 'create' | 'findByPk' | 'findAll' | 'update' | 'updateAll' | 'destroy' | 'destroyAll';
     options: any,
     keyValue?: any;
     values?: any;
     args: any[]
   } {
-    switch (query.queryType) {
+    switch (query.method) {
       case 'create': {
         const options: Repository.CreateOptions = _.omitBy({
           pick: query.pick?.length ? query.pick : undefined,
@@ -29,18 +29,21 @@ export namespace SQBAdapter {
         };
       }
       case 'get': {
-        const options: Repository.FindOneOptions = _.omitBy({
-          pick: query.pick?.length ? query.pick : undefined,
-          omit: query.omit?.length ? query.omit : undefined,
-          include: query.include?.length ? query.include : undefined,
-        }, _.isNil);
-        const keyValue = query.keyValue;
-        return {
-          method: 'findByPk',
-          keyValue,
-          options,
-          args: [keyValue, options]
-        };
+        if (query.kind === 'GetInstanceQuery') {
+          const options: Repository.FindOneOptions = _.omitBy({
+            pick: query.pick?.length ? query.pick : undefined,
+            omit: query.omit?.length ? query.omit : undefined,
+            include: query.include?.length ? query.include : undefined,
+          }, _.isNil);
+          const keyValue = query.keyValue;
+          return {
+            method: 'findByPk',
+            keyValue,
+            options,
+            args: [keyValue, options]
+          };
+        }
+        break;
       }
       case 'search': {
         const options: BaseEntityService.SearchOptions = _.omitBy({
@@ -107,9 +110,8 @@ export namespace SQBAdapter {
           args: [options]
         };
       }
-      default:
-        throw new Error(`Unimplemented query type "${(query as any).queryType}"`);
     }
+    throw new Error(`Unimplemented query method "${(query as any).method}"`);
   }
 
 }

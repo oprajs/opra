@@ -1,6 +1,6 @@
 import { StrictOmit } from 'ts-gems';
 import { ResponsiveMap } from '../../helpers/responsive-map.js';
-import { OpraSchema } from '../../interfaces/opra-schema.interface.js';
+import { OpraSchema } from '../../opra-schema.js';
 import { cloneObject } from '../../utils/clone-object.util.js';
 import { colorFgMagenta, colorFgYellow, colorReset, nodeInspectCustom } from '../../utils/inspect-utils.js';
 import type { OpraDocument } from '../opra-document.js';
@@ -10,8 +10,8 @@ export type ComplexTypeArgs = StrictOmit<OpraSchema.ComplexType, 'kind'>;
 
 export class ComplexType extends DataType {
   declare protected readonly _metadata: OpraSchema.ComplexType;
-  readonly ownFields = new ResponsiveMap<string, DataField>();
-  readonly fields = new ResponsiveMap<string, DataField>();
+  readonly ownFields = new ResponsiveMap<string, Field>();
+  readonly fields = new ResponsiveMap<string, Field>();
 
   constructor(owner: OpraDocument, metadata: ComplexTypeArgs) {
     super(owner, {
@@ -24,15 +24,16 @@ export class ComplexType extends DataType {
         if (!(baseType instanceof ComplexType))
           throw new TypeError(`Cannot extend ${metadata.name} from a "${baseType.kind}"`);
         for (const [k, prop] of baseType.fields) {
-          const f = cloneObject(prop) as DataField;
+          const f = cloneObject(prop) as Field;
           f.name = k;
+          f.parent = this;
           this.fields.set(k, f);
         }
       }
     }
     if (metadata.fields) {
       for (const [k, prop] of Object.entries(metadata.fields)) {
-        const f = cloneObject(prop) as DataField;
+        const f = cloneObject(prop) as Field;
         f.name = k;
         this.fields.set(k, f);
         this.ownFields.set(k, f);
@@ -48,14 +49,30 @@ export class ComplexType extends DataType {
     return this._metadata.additionalFields;
   }
 
-  getField(name: string): OpraSchema.Field {
-    const t = this.fields.get(name);
+  getField(fieldName: string): Field {
+    if (fieldName.includes('.')) {
+      let dt: DataType = this;
+      const arr = fieldName.split('.');
+      let field: Field;
+      for (const a of arr) {
+        field = (dt as ComplexType).getField(a);
+        dt = dt.owner.getDataType(field.type || 'string');
+      }
+      // @ts-ignore
+      return field;
+    }
+    const t = this.fields.get(fieldName);
     if (!t)
-      throw new Error(`"${this.name}" type doesn't have a field named "${name}"`);
+      throw new Error(`"${this.name}" type doesn't have a field named "${fieldName}"`);
     return t;
   }
 
-  getOwnField(name: string): OpraSchema.Field {
+  getFieldType(fieldName: string): DataType {
+    const field = this.getField(fieldName);
+    return this.owner.getDataType(field.type || 'string');
+  }
+
+  getOwnField(name: string): Field {
     const t = this.ownFields.get(name);
     if (!t)
       throw new Error(`"${this.name}" type doesn't have an own field named "${name}"`);
@@ -87,6 +104,7 @@ export class ComplexType extends DataType {
 
 }
 
-export interface DataField extends OpraSchema.Field {
+export interface Field extends OpraSchema.Field {
   name: string;
+  parent: ComplexType;
 }

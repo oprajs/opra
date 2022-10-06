@@ -2,10 +2,8 @@ import "reflect-metadata";
 
 export * from './types.js';
 export * from './enums/index.js';
-export * from './exception/index.js';
 
 export * from './interfaces/execution-context.interface.js';
-export * from './interfaces/query.interface.js';
 export * from './interfaces/entity-service.interface.js';
 
 export * from './implementation/query-context.js';

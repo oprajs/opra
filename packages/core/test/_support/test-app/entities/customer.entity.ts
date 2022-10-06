@@ -2,6 +2,7 @@ import { MixinType, OprEntity, OprField } from '@opra/schema';
 import { Address } from '../types/address.type.js';
 import { Note } from '../types/note.type.js';
 import { Person } from '../types/person.type.js';
+import { CustomerNotes } from './customer-notes.entity.js';
 import { Record } from './record.entity.js';
 
 @OprEntity({
@@ -34,8 +35,10 @@ export class Customer extends MixinType(Record, Person) {
   address?: Address;
 
   @OprField({
-    exclusive: true
+    exclusive: true,
+    type: Note,
+    isArray: true
   })
-  notes?: Note;
+  notes?: CustomerNotes[];
 
 }

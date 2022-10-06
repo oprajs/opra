@@ -4,6 +4,7 @@
     "baseUrl": "./",
     "paths": {
       "@opra/core": ["../core/src"],
+      "@opra/schema": ["../schema/src"],
       "@opra/url": ["../url/src"],
     }
   },

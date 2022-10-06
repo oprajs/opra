@@ -1,0 +1,11 @@
+{
+  "extends": "../../tsconfig-base.json",
+  "compilerOptions": {
+    "baseUrl": "./",
+    "paths": {
+      "@opra/i18n": ["../i18n/src"]
+    }
+  },
+  "include": ["src", "test"],
+  "exclude": ["node_modules", "dist", "bin"]
+}

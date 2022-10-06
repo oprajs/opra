@@ -25,7 +25,7 @@
     "clean:cover": "rimraf ../../coverage/testing"
   },
   "dependencies": {
-    "@opra/core": "^0.1.1",
+    "@opra/schema": "^0.1.1",
     "@opra/url": "^0.1.1",
     "lodash": "^4.17.21",
     "rule-judgment": "^1.1.5",
