@@ -1,4 +1,4 @@
-import { OprEntityResource } from '../../../src/index.js';
+import { OprEntityResource, OprSearchResolver } from '../../../src/index.js';
 import { Customer } from '../entities/customer.entity.js';
 
 @OprEntityResource(Customer, {
@@ -6,5 +6,11 @@ import { Customer } from '../entities/customer.entity.js';
 })
 export class CustomersResource {
 
+  @OprSearchResolver({
+    sortFields: ['id', 'givenName', 'familyName', 'gender', 'address.city']
+  })
+  search() {
+    //
+  }
 
 }

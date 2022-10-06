@@ -1,8 +1,8 @@
-import {StrictOmit} from 'ts-gems';
-import {Expression} from '../abstract/expression.js';
+import { StrictOmit } from 'ts-gems';
+import { Expression } from '../abstract/expression.js';
 
 export type ComparisonOperator = '<=' | '<' | '>' | '>=' | '=' | '!='
-  | 'in' | '!in' | 'like' | '!like' | 'ilike' | '!ilike';
+    | 'in' | '!in' | 'like' | '!like' | 'ilike' | '!ilike';
 const WORD_PATTERN = /\w/;
 
 export class ComparisonExpression extends Expression {
@@ -10,7 +10,7 @@ export class ComparisonExpression extends Expression {
   left!: Expression;
   right!: Expression;
 
-  constructor(o: StrictOmit<ComparisonExpression, 'type'>) {
+  constructor(o: StrictOmit<ComparisonExpression, 'kind'>) {
     super();
     Object.assign(this, o);
   }

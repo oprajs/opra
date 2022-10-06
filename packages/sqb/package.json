@@ -33,6 +33,7 @@
   },
   "peerDependencies": {
     "@opra/core": "^0.1.1",
+    "@opra/exception": "^0.1.1",
     "@opra/optionals": "^0.1.1",
     "@opra/url": "^0.1.1",
     "@sqb/connect": ">= 4.5.0",

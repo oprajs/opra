@@ -2,7 +2,7 @@ import { StrictOmit, Type } from 'ts-gems';
 import { isPromise } from 'util/types';
 import { IGNORE_RESOLVER_METHOD, RESOLVER_METADATA, RESOURCE_METADATA } from '../constants.js';
 import { builtinClassMap, primitiveDataTypeNames } from '../helpers/internal-types.js';
-import { OpraSchema } from '../interfaces/opra-schema.interface.js';
+import { OpraSchema } from '../opra-schema.js';
 import { ThunkAsync } from '../types.js';
 import { isConstructor, resolveClassAsync } from '../utils/class.utils.js';
 import { extractComplexTypeMetadata } from '../utils/extract-metadata.util.js';
@@ -85,7 +85,8 @@ export class SchemaGenerator {
 
   async addResource(instance: any): Promise<void> {
     if (isConstructor(instance))
-      throw new Error(`You should provide Resource instance instead of Resource class`);
+      instance = new instance();
+
     const proto = Object.getPrototypeOf(instance);
     const ctor = proto.constructor;
     const metadata = Reflect.getMetadata(RESOURCE_METADATA, ctor);
@@ -102,24 +103,37 @@ export class SchemaGenerator {
 
       resourceSchema = {
         ...metadata,
+        instance,
         type,
         name,
         methods: {}
       }
 
       if (OpraSchema.isEntityResource(resourceSchema)) {
-        for (const methodName of entityMethods) {
-          let fn = instance[methodName];
-          if (typeof fn === 'function') {
-            const info: OpraSchema.MethodResolver = resourceSchema.methods[methodName] = {
-              ...Reflect.getMetadata(RESOLVER_METADATA, proto, methodName)
-            };
-            if (!Reflect.hasMetadata(IGNORE_RESOLVER_METHOD, proto.constructor, methodName)) {
-              info.handler = fn.bind(instance);
-              fn = instance['pre_' + methodName];
-              if (typeof fn === 'function')
-                resourceSchema['pre_' + methodName] = fn.bind(instance);
+        let methodMetadata;
+        let fn;
+        const locateFn = (inst, methodName: string) => {
+          fn = inst[methodName];
+          methodMetadata = Reflect.getMetadata(RESOLVER_METADATA, inst, methodName);
+          if (fn == null) {
+            if (methodMetadata) {
+              inst = Object.getPrototypeOf(inst);
+              fn = inst[methodName];
             }
+          }
+        }
+        for (const methodName of entityMethods) {
+          locateFn(instance, methodName);
+          if (typeof fn !== 'function')
+            continue;
+          const info: OpraSchema.MethodResolver = resourceSchema.methods[methodName] = {
+            ...methodMetadata
+          };
+          if (!Reflect.hasMetadata(IGNORE_RESOLVER_METHOD, proto.constructor, methodName)) {
+            info.handler = fn.bind(instance);
+            fn = instance['pre_' + methodName];
+            if (typeof fn === 'function')
+              resourceSchema['pre_' + methodName] = fn.bind(instance);
           }
         }
       }

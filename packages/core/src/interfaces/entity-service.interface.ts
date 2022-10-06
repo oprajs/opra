@@ -1,4 +1,5 @@
 import { Maybe } from 'ts-gems';
+import { IResource, OpraResource } from '@opra/schema';
 import { EntityOutput } from '@sqb/connect';
 import { QueryContext } from '../implementation/query-context.js';
 
@@ -6,25 +7,25 @@ export interface IEntityService {
   processRequest(ctx: QueryContext): any;
 }
 
-export abstract class EntityResourceController<T> {
+export abstract class EntityResourceController<T, TOutput = EntityOutput<T>> implements IResource {
 
-  async search(ctx: QueryContext): Promise<Maybe<EntityOutput<T>>[]> {
+  async search(ctx: QueryContext): Promise<TOutput[]> {
     return (await this.getService(ctx)).processRequest(ctx);
   }
 
-  async get(ctx: QueryContext): Promise<Maybe<EntityOutput<T>>> {
+  async get(ctx: QueryContext): Promise<Maybe<TOutput>> {
     return (await this.getService(ctx)).processRequest(ctx);
   }
 
-  async count(ctx: QueryContext): Promise<Maybe<number>> {
+  async count(ctx: QueryContext): Promise<number> {
     return (await this.getService(ctx)).processRequest(ctx);
   }
 
-  async create(ctx: QueryContext): Promise<Maybe<EntityOutput<T>>> {
+  async create(ctx: QueryContext): Promise<TOutput> {
     return (await this.getService(ctx)).processRequest(ctx);
   }
 
-  async update(ctx: QueryContext): Promise<Maybe<EntityOutput<T>>> {
+  async update(ctx: QueryContext): Promise<Maybe<TOutput>> {
     return (await this.getService(ctx)).processRequest(ctx);
   }
 
@@ -40,5 +41,8 @@ export abstract class EntityResourceController<T> {
     return (await this.getService(ctx)).processRequest(ctx);
   }
 
+  abstract init(service: OpraResource): void | Promise<void>;
+
   abstract getService(ctx: QueryContext): IEntityService | Promise<IEntityService>;
+
 }

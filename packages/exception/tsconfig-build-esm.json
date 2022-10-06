@@ -1,0 +1,15 @@
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "module": "ESNext",
+    "rootDir": "src",
+    "outDir": "../../build/exception/esm",
+    "paths": {
+      "@opra/i18n": ["../../build/i18n"],
+    },
+    "sourceMap": false,
+    "noEmit": false,
+    "declaration": true
+  },
+  "include": ["src"]
+}

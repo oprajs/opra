@@ -92,7 +92,7 @@ export class FilterTreeVisitor extends AbstractParseTreeVisitor<any> implements 
 
   visitPolarityExpression(ctx: PolarityExpressionContext) {
     const x = this.visit(ctx.expression());
-    if (x.type === 'NumberLiteral') {
+    if (x.kind === 'NumberLiteral') {
       if (ctx.polarOp().text === '-')
         x.value *= -1;
       return x;

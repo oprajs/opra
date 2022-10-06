@@ -6,7 +6,7 @@ export class LogicalExpression extends Expression {
   op!: LogicalOperator;
   items!: Expression[];
 
-  constructor(o: Omit<LogicalExpression, 'type'>) {
+  constructor(o: Omit<LogicalExpression, 'kind'>) {
     super();
     Object.assign(this, o);
   }

@@ -10,7 +10,7 @@ export function cloneObject<T extends {}>(obj: T, jsonOnly?: boolean): T {
       return v != null &&
           !jsonOnly || (
               typeof v !== 'function' &&
-              (typeof v !== 'object' || isPlainObject(v))
+              (typeof v !== 'object' || isPlainObject(v) || Array.isArray(v))
           )
     }
   }) as T;

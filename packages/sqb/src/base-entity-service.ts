@@ -1,5 +1,6 @@
 import { Maybe, Type } from 'ts-gems';
-import { BadRequestError, IEntityService, QueryContext } from '@opra/core';
+import { IEntityService, QueryContext } from '@opra/core';
+import { BadRequestError } from '@opra/exception';
 import { EntityInput, EntityMetadata, EntityOutput, Repository, SqbClient, SqbConnection } from '@sqb/connect';
 import { SQBAdapter } from './sqb-adapter.js';
 

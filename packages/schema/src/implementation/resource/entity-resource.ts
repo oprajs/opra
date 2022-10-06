@@ -1,9 +1,10 @@
-import { OpraSchema } from '../../interfaces/opra-schema.interface.js';
+import { OpraSchema } from '../../opra-schema.js';
+import { normalizeFieldArray } from '../../utils/normalize-field-array.util.js';
 import { EntityType } from '../data-type/entity-type.js';
 import { OpraService } from '../opra-service.js';
-import { BaseResource } from './base-resource.js';
+import { OpraResource } from './base-resource.js';
 
-export class EntityResource extends BaseResource {
+export class EntityResource extends OpraResource {
   declare readonly metadata: OpraSchema.EntityResource;
   readonly dataType: EntityType;
 
@@ -16,6 +17,14 @@ export class EntityResource extends BaseResource {
       throw new TypeError(`You should provide an EntityType for EntityController`);
     super(service, metadata);
     this.dataType = dataType;
+    if (metadata.methods.search && metadata.methods.search.sortFields) {
+      metadata.methods.search.sortFields = normalizeFieldArray(service, dataType, metadata.methods.search.sortFields);
+    }
+
+  }
+
+  get methods() {
+    return this.metadata.methods;
   }
 
   getSchema(jsonOnly?: boolean): OpraSchema.EntityResource {

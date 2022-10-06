@@ -1,12 +1,10 @@
 import { UseGuards } from '@nestjs/common';
 import {
-  OpraCreateQuery,
-  OpraDeleteManyQuery,
-  OpraDeleteQuery, OpraGetEntityQuery,
-  OpraSearchQuery, OpraUpdateManyQuery,
-  OpraUpdateQuery
-} from '@opra/core';
-import { OprEntityResource } from '@opra/schema';
+  OpraCountCollectionQuery,
+  OpraCreateInstanceQuery, OpraDeleteCollectionQuery, OpraDeleteInstanceQuery, OpraGetInstanceQuery,
+  OpraSearchCollectionQuery, OpraUpdateCollectionQuery, OpraUpdateInstanceQuery,
+  OprEntityResource
+} from '@opra/schema';
 import { Query } from '../../../../src/index.js';
 import { AuthGuard } from '../guards/auth.guard.js';
 import { Photos } from './photos.dto.js';
@@ -20,36 +18,36 @@ export class PhotosResource {
   constructor(public photosService: PhotosService) {
   }
 
-  async search(@Query query: OpraSearchQuery) {
+  async search(@Query query: OpraSearchCollectionQuery) {
     return this.photosService.search(query.filter);
   }
 
-  async count(@Query query: OpraSearchQuery) {
+  async count(@Query query: OpraCountCollectionQuery) {
     return this.photosService.count(query.filter);
   }
 
   @UseGuards(AuthGuard)
-  create(@Query query: OpraCreateQuery) {
+  create(@Query query: OpraCreateInstanceQuery) {
     return this.photosService.create(query.data);
   }
 
-  get(@Query query: OpraGetEntityQuery) {
+  get(@Query query: OpraGetInstanceQuery) {
     return this.photosService.get(query.keyValue);
   }
 
-  update(@Query query: OpraUpdateQuery) {
+  update(@Query query: OpraUpdateInstanceQuery) {
     return this.photosService.update(query.keyValue, query.data);
   }
 
-  async updateMany(@Query query: OpraUpdateManyQuery) {
+  async updateMany(@Query query: OpraUpdateCollectionQuery) {
     return this.photosService.updateMany(query.data, query.filter);
   }
 
-  async delete(@Query query: OpraDeleteQuery) {
+  async delete(@Query query: OpraDeleteInstanceQuery) {
     return this.photosService.delete(query.keyValue);
   }
 
-  async deleteMany(@Query query: OpraDeleteManyQuery) {
+  async deleteMany(@Query query: OpraDeleteCollectionQuery) {
     return this.photosService.deleteMany(query.filter);
   }
 

@@ -141,5 +141,5 @@ export function convertFilter(str: string | Expression | undefined): any {
   if (ast instanceof ParenthesesExpression) {
     return convertFilter(ast.expression);
   }
-  throw new Error(`${ast.type} is not implemented yet`);
+  throw new Error(`${ast.kind} is not implemented yet`);
 }

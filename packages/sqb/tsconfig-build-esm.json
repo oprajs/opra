@@ -6,6 +6,7 @@
     "outDir": "../../build/sqb/esm",
     "paths": {
       "@opra/core": ["../../build/core"],
+      "@opra/exception": ["../../build/exception"],
       "@opra/url": ["../../build/url"],
       "@opra/schema": ["../../build/schema"],
       "@opra/optionals": ["../../build/optionals"]

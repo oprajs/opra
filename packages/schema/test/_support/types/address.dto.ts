@@ -7,6 +7,9 @@ import { Country } from '../entities/country.entity.js';
 export class Address {
 
   @OprField()
+  code: number;
+
+  @OprField()
   city: string;
 
   @OprField()

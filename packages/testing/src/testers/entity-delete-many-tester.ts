@@ -1,11 +1,11 @@
 import request, { Response } from 'supertest';
-import { DeleteManyQueryOption } from '@opra/core';
+import { DeleteCollectionQueryOption } from '@opra/schema';
 import { OpraURL } from '@opra/url';
 import { BaseOperationTester } from './base-operation-tester.js';
 import type { OpraEntityTesterParams } from './entity-tester.js';
 
 export type OpraEntityDeleteManyTesterParams = OpraEntityTesterParams & {
-  options: DeleteManyQueryOption;
+  options: DeleteCollectionQueryOption;
 }
 
 export class OpraEntityDeleteManyTester extends BaseOperationTester {

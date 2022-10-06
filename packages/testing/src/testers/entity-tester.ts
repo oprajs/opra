@@ -1,10 +1,11 @@
 import {
-  CreateQueryOptions,
-  DeleteManyQueryOption,
-  DeleteQueryOptions,
-  GetEntityQueryOptions, UpdateManyQueryOptions,
-  UpdateQueryOptions
-} from '@opra/core';
+  CreateInstanceQueryOptions,
+  DeleteCollectionQueryOption,
+  DeleteInstanceQueryOptions,
+  GetInstanceQueryOptions,
+  UpdateCollectionQueryOptions,
+  UpdateInstanceQueryOptions
+} from '@opra/schema';
 import { ResourceKey } from '@opra/url';
 import { BaseTester, OpraTesterParams } from './base-tester.js';
 import { OpraEntityCreateTester } from './entity-create-tester.js';
@@ -27,7 +28,7 @@ export class OpraEntityTester extends BaseTester {
   }
 
 
-  create(data: {}, options: CreateQueryOptions = {}): OpraEntityCreateTester {
+  create(data: {}, options: CreateInstanceQueryOptions = {}): OpraEntityCreateTester {
     return new OpraEntityCreateTester({
       ...this._params,
       headers: {...this._params.headers},
@@ -36,7 +37,7 @@ export class OpraEntityTester extends BaseTester {
     });
   }
 
-  get(keyValue: ResourceKey, options: GetEntityQueryOptions = {}): OpraEntityGetTester {
+  get(keyValue: ResourceKey, options: GetInstanceQueryOptions = {}): OpraEntityGetTester {
     return new OpraEntityGetTester({
       ...this._params,
       headers: {...this._params.headers},
@@ -45,7 +46,7 @@ export class OpraEntityTester extends BaseTester {
     });
   }
 
-  search(options: GetEntityQueryOptions = {}): OpraEntitySearchTester {
+  search(options: GetInstanceQueryOptions = {}): OpraEntitySearchTester {
     return new OpraEntitySearchTester({
       ...this._params,
       headers: {...this._params.headers},
@@ -53,7 +54,7 @@ export class OpraEntityTester extends BaseTester {
     });
   }
 
-  update(keyValue: ResourceKey, data: {}, options: UpdateQueryOptions = {}): OpraEntityUpdateTester {
+  update(keyValue: ResourceKey, data: {}, options: UpdateInstanceQueryOptions = {}): OpraEntityUpdateTester {
     return new OpraEntityUpdateTester({
       ...this._params,
       keyValue,
@@ -63,7 +64,7 @@ export class OpraEntityTester extends BaseTester {
     });
   }
 
-  updateMany(data: {}, options: UpdateManyQueryOptions = {}): OpraEntityUpdateManyTester {
+  updateMany(data: {}, options: UpdateCollectionQueryOptions = {}): OpraEntityUpdateManyTester {
     return new OpraEntityUpdateManyTester({
       ...this._params,
       headers: {...this._params.headers},
@@ -72,7 +73,7 @@ export class OpraEntityTester extends BaseTester {
     });
   }
 
-  delete(keyValue: ResourceKey, options: DeleteQueryOptions = {}): OpraEntityDeleteTester {
+  delete(keyValue: ResourceKey, options: DeleteInstanceQueryOptions = {}): OpraEntityDeleteTester {
     return new OpraEntityDeleteTester({
       ...this._params,
       keyValue,
@@ -81,7 +82,7 @@ export class OpraEntityTester extends BaseTester {
     });
   }
 
-  deleteMany(options: DeleteManyQueryOption = {}): OpraEntityDeleteManyTester {
+  deleteMany(options: DeleteCollectionQueryOption = {}): OpraEntityDeleteManyTester {
     return new OpraEntityDeleteManyTester({
       ...this._params,
       headers: {...this._params.headers},

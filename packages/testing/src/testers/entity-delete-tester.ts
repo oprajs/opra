@@ -1,12 +1,12 @@
 import request, { Response } from 'supertest';
-import { CreateQueryOptions } from '@opra/core';
+import { CreateInstanceQueryOptions } from '@opra/schema';
 import { OpraURL, ResourceKey } from '@opra/url';
 import { BaseOperationTester } from './base-operation-tester.js';
 import type { OpraEntityTesterParams } from './entity-tester.js';
 
 export type OpraEntityDeleteTesterParams = OpraEntityTesterParams & {
   keyValue: ResourceKey;
-  options: CreateQueryOptions;
+  options: CreateInstanceQueryOptions;
 }
 
 export class OpraEntityDeleteTester extends BaseOperationTester {

@@ -1,6 +1,16 @@
 import _ from 'lodash';
-import ruleJudgment from 'rule-judgment'
+import merge from 'putil-merge';
 import { Maybe } from 'ts-gems';
+import { nSQL } from "@nano-sql/core";
+import { BadRequestError, MethodNotAllowedError, ResourceConflictError } from '@opra/exception';
+import {
+  ComplexType, DataType,
+  EntityResource,
+  EntityType,
+  OpraAnyEntityQuery,
+  OpraAnyQuery,
+  OpraSchema
+} from '@opra/schema';
 import {
   $parse, ArrayExpression,
   BooleanLiteral,
@@ -10,215 +20,320 @@ import {
   QualifiedIdentifier,
   StringLiteral, TimeLiteral
 } from '@opra/url';
-import { ResourceConflictError } from '../exception/index.js';
 import { QueryContext } from '../implementation/query-context.js';
 import { IEntityService } from '../interfaces/entity-service.interface.js';
-import { OpraQuery } from '../interfaces/query.interface.js';
-import { EntityInput, EntityOutput, QueryType } from '../types.js';
+import { EntityInput, EntityOutput } from '../types.js';
+import { pathToTree } from '../utils/path-to-tree.js';
 
-// Fix invalid importing (with ESM) of rule-judgment package
-const createFilterFn = typeof (ruleJudgment as any) === 'function'
-    ? (ruleJudgment as any)
-    : (ruleJudgment as any).default;
-
-export interface JsonDataServiceAgs<T> {
-  resourceName: string;
-  data: T[];
-  primaryKey: string;
+export interface JsonDataServiceOptions {
+  resourceName?: string;
+  defaultLimit?: number;
+  data?: any[];
 }
 
-export namespace JsonDataService {
-  export type GetOptions = {
-    pick?: string[];
-    omit?: string[];
-    include?: string[];
-  }
-  export type SearchOptions = {
-    pick?: string[];
-    omit?: string[];
-    include?: string[];
-    limit?: number;
-    skip?: number;
-    distinct?: boolean;
-    total?: boolean;
-    filter?: string | Expression | {};
-  }
-  export type CreateOptions = {
-    pick?: string[];
-    omit?: string[];
-    include?: string[];
-  }
-  export type UpdateOptions = {
-    pick?: string[];
-    omit?: string[];
-    include?: string[];
-  }
-  export type UpdateManyOptions = {
-    filter?: string | Expression | {};
-  }
-  export type DeleteManyOptions = {
-    filter?: string | Expression | {};
-  }
-}
+let dbId = 1;
 
 export class JsonDataService<T, TOutput = EntityOutput<T>> implements IEntityService {
-  resourceName: string;
-  data: T[];
-  primaryKey: string;
+  private _status: '' | 'initializing' | 'initialized' | 'error' = '';
+  private _initError: any;
+  private _dbName: string;
+  private _initData?: any[];
+  defaultLimit: number;
 
-  constructor(args: JsonDataServiceAgs<T>) {
-    this.resourceName = args.resourceName;
-    this.data = args.data;
-    this.primaryKey = args.primaryKey;
+  constructor(readonly resource: EntityResource, options?: JsonDataServiceOptions) {
+    this.defaultLimit = options?.defaultLimit ?? 10;
+    this._initData = options?.data;
   }
 
-  processRequest(ctx: QueryContext): any {
-    const prepared = JsonDataService.prepare(ctx.query);
+  get dataType(): EntityType {
+    return this.resource.dataType;
+  }
+
+  get primaryKey(): string {
+    return this.resource.dataType.primaryKey;
+  }
+
+  get resourceName(): string {
+    return this.resource.name;
+  }
+
+  async processRequest(ctx: QueryContext): Promise<any> {
+    const prepared = this._prepare(ctx.query);
     const fn = this[prepared.method];
     if (!fn)
       throw new TypeError(`Unimplemented method (${prepared.method})`)
+    // @ts-ignore
     return fn.apply(this, prepared.args);
   }
 
-  get(keyValue: any, options?: JsonDataService.GetOptions): Maybe<TOutput> {
-    const primaryKey = this.primaryKey;
-    let v = this.data.find(x => '' + x[primaryKey] === '' + keyValue) as TOutput;
-    v = JsonDataService.filterFields(v, options?.pick, options?.omit, options?.include);
-    return v;
+  async get(keyValue: any, options?: JsonDataService.GetOptions): Promise<Maybe<TOutput>> {
+    await this._init();
+    const select = this._convertSelect({
+      pick: options?.pick,
+      omit: options?.omit,
+      include: options?.include,
+    })
+    nSQL().useDatabase(this._dbName);
+    const rows = await nSQL(this.resourceName)
+        .query('select', select)
+        .where([this.primaryKey, '=', keyValue])
+        .exec();
+    return unFlatten(rows[0]) as TOutput;
   }
 
-  count(options?: JsonDataService.SearchOptions): Maybe<number> {
-    return this.search(options).length;
+  async count(options?: JsonDataService.SearchOptions): Promise<number> {
+    await this._init();
+    nSQL().useDatabase(this._dbName);
+    const rows = await nSQL(this.resourceName)
+        .query('select', ['COUNT(*) as count'])
+        .where(options?.filter || [])
+        .exec();
+    return (rows[0]?.count) || 0;
   }
 
-  search(options?: JsonDataService.SearchOptions): Maybe<TOutput>[] {
-    let out: any[];
-    if (options?.filter) {
-      const filter = JsonDataService.convertFilter(options.filter);
-      const filterFn = createFilterFn(filter);
-      out = this.data.filter(filterFn);
-    } else out = this.data;
-    return out.map(v => JsonDataService.filterFields(v, options?.pick, options?.omit, options?.include));
+  async search(options?: JsonDataService.SearchOptions): Promise<TOutput[]> {
+    await this._init();
+    const select = this._convertSelect({
+      pick: options?.pick,
+      omit: options?.omit,
+      include: options?.include,
+    })
+    const filter = JsonDataService._convertFilter(options?.filter);
+    nSQL().useDatabase(this._dbName);
+    const query = nSQL(this.resourceName)
+        .query('select', select)
+        .limit(options?.limit || 10)
+        .offset(options?.skip || 0)
+        .orderBy(options?.sort || [])
+        .where(filter || []);
+    return (await query.exec()).map(x => unFlatten(x)) as TOutput[];
   }
 
-  create(data: EntityInput<T>, options?: JsonDataService.CreateOptions): TOutput {
-    if (this.get(data[this.primaryKey]))
+  async create(data: EntityInput<T>, options?: JsonDataService.CreateOptions): Promise<TOutput> {
+    await this._init();
+    const keyValue = data[this.primaryKey];
+    nSQL().useDatabase(this._dbName);
+    const rows = await nSQL(this._initData).query('select', [this.primaryKey])
+        .where([this.primaryKey, '=', keyValue])
+        .exec();
+    if (rows.length)
       throw new ResourceConflictError(this.resourceName, this.primaryKey);
-    this.data.push(data as T);
-    return JsonDataService.filterFields(data, options?.pick, options?.omit, options?.include);
+    if (!data[this.primaryKey])
+      throw new BadRequestError({
+        message: 'You must provide primary key value'
+      });
+    await nSQL(this._initData).query('upsert', data)
+        .exec();
+    return await this.get(keyValue, options) as TOutput;
   }
 
-  update(keyValue: any, data: EntityInput<T>, options?: JsonDataService.UpdateOptions): Maybe<TOutput> {
-    const primaryKey = this.primaryKey;
-    const i = this.data.findIndex(x => '' + x[primaryKey] === '' + keyValue);
-    if (i >= 0) {
-      data = Object.assign(this.data[i] as any, data);
-      return JsonDataService.filterFields(data, options?.pick, options?.omit, options?.include);
-    }
+  async update(keyValue: any, data: EntityInput<T>, options?: JsonDataService.UpdateOptions): Promise<Maybe<TOutput>> {
+    await this._init();
+    nSQL().useDatabase(this._dbName);
+    await nSQL(this._initData)
+        .query('conform rows', (row) => {
+          const out = merge({}, row, {deep: true, clone: true});
+          merge(out, data as any, {deep: true});
+          return out;
+        })
+        .where([this.primaryKey, '=', keyValue])
+        .exec();
+    return this.get(keyValue, options);
   }
 
-  updateMany(data: EntityInput<T>, options?: JsonDataService.UpdateManyOptions): number {
-    const items = this.search({filter: options?.filter});
-    for (let i = 0; i < items.length; i++) {
-      Object.assign(items[i] as any, data);
-    }
-    return items.length;
+  async updateMany(data: EntityInput<T>, options?: JsonDataService.UpdateManyOptions): Promise<number> {
+    await this._init();
+    const filter = JsonDataService._convertFilter(options?.filter);
+    await this._init();
+    nSQL().useDatabase(this._dbName);
+    let affected = 0;
+    await nSQL(this._initData)
+        .query('conform rows', (row) => {
+          const out = merge({}, row, {deep: true, clone: true});
+          merge(out, data as any, {deep: true});
+          affected++;
+          return out;
+        })
+        .where(filter)
+        .exec();
+    return affected;
   }
 
-  delete(keyValue: any): boolean {
-    const primaryKey = this.primaryKey;
-    const i = this.data.findIndex(x => '' + x[primaryKey] === '' + keyValue);
-    if (i >= 0) {
-      this.data = this.data.slice(i, 1);
-      return true;
-    }
-    return false;
+  async delete(keyValue: any): Promise<boolean> {
+    await this._init();
+    nSQL().useDatabase(this._dbName);
+    const result = await nSQL(this._initData)
+        .query('delete')
+        .where([this.primaryKey, '=', keyValue])
+        .exec();
+    return !!result.length;
   }
 
-  deleteMany(options?: JsonDataService.DeleteManyOptions): number {
-    const items: any[] = this.search({filter: options?.filter});
-    this.data = this.data.filter(x => !items.includes(x));
-    return items.length;
+
+  async deleteMany(options?: JsonDataService.DeleteManyOptions): Promise<number> {
+    const filter = JsonDataService._convertFilter(options?.filter);
+    nSQL().useDatabase(this._dbName);
+    const result = await nSQL(this._initData)
+        .query('delete')
+        .where(filter)
+        .exec();
+    return result.length;
   }
 
-  static filterFields(
-      obj: any,
-      // eslint-disable-next-line @typescript-eslint/no-unused-vars
-      pick: string[] | undefined,
-      // eslint-disable-next-line @typescript-eslint/no-unused-vars
-      omit: string[] | undefined,
-      // eslint-disable-next-line @typescript-eslint/no-unused-vars
-      include: string[] | undefined,
-  ): any {
-    if (!obj)
+  protected async _init() {
+    if (this._status === 'initialized')
       return;
-    return obj;
+    if (this._status === 'initializing') {
+      return new Promise<void>((resolve, reject) => {
+        const reTry = () =>
+            setTimeout(() => {
+              if (this._status === 'error')
+                return reject(this._initError);
+              if (this._status === 'initialized')
+                return resolve();
+              reTry();
+            }, 50).unref();
+        reTry();
+      })
+    }
+    this._status = 'initializing';
+    this._dbName = 'JsonDataService_DB_' + (dbId++);
+    try {
+      const model = {
+        name: this.resourceName,
+        model: {
+          '*:any': {}
+        },
+        indexes: {},
+        primaryKey: this.primaryKey
+      }
+
+      // Add indexes for sort fields
+      const searchMethod = this.resource.metadata.methods.search;
+      if (searchMethod) {
+        if (searchMethod.sortFields) {
+          searchMethod.sortFields.forEach(fieldName => {
+            const f = this.dataType.getField(fieldName);
+            const fieldType = this.resource.owner.getDataType(f.type || 'string');
+            model.indexes[fieldName + ':' + dataTypeToSQLType(fieldType, !!f.isArray)] = {};
+          })
+        }
+        if (searchMethod.filters) {
+          searchMethod.filters.forEach(filter => {
+            const f = this.dataType.getField(filter.field);
+            const fieldType = this.resource.owner.getDataType(f.type || 'string');
+            model.indexes[filter.field + ':' + dataTypeToSQLType(fieldType, !!f.isArray)] = {};
+          })
+        }
+      }
+
+      await nSQL().createDatabase({
+        id: this._dbName,
+        version: 3,
+        tables: [model]
+      });
+      this._status = 'initialized';
+      if (this._initData) {
+        nSQL().useDatabase(this._dbName);
+        await nSQL(this.resourceName)
+            .query('upsert', this._initData)
+            .exec();
+        delete this._initData;
+      }
+    } catch (e: any) {
+      this._initError = e;
+      this._status = 'error';
+    }
   }
 
-  static prepare(query: OpraQuery): {
-    method: QueryType;
+  protected _prepare(query: OpraAnyQuery): {
+    method: OpraSchema.EntityMethod;
     options: any,
     keyValue?: any;
     values?: any;
     args: any[]
   } {
-    switch (query.queryType) {
+    if ((query as any).resource instanceof EntityResource) {
+      if ((query as OpraAnyEntityQuery).dataType !== this.dataType)
+        throw new TypeError(`Query data type (${(query as OpraAnyEntityQuery).dataType.name}) ` +
+            `differs from JsonDataService data type (${this.dataType.name})`);
+    }
+    switch (query.method) {
+      case 'count': {
+        const options: JsonDataService.CountOptions = _.omitBy({
+          filter: JsonDataService._convertFilter(query.filter)
+        }, _.isNil);
+        return {
+          method: query.method,
+          options,
+          args: [options]
+        };
+      }
       case 'create': {
         const options: JsonDataService.CreateOptions = _.omitBy({
-          pick: query.pick?.length ? query.pick : undefined,
-          omit: query.omit?.length ? query.omit : undefined,
-          include: query.include?.length ? query.include : undefined,
+          pick: query.pick,
+          omit: query.omit,
+          include: query.include
         }, _.isNil);
         const {data} = query;
         return {
-          method: query.queryType,
+          method: query.method,
           values: data,
           options,
           args: [data, options]
         };
       }
       case 'get': {
-        const options: JsonDataService.GetOptions = _.omitBy({
-          pick: query.pick?.length ? query.pick : undefined,
-          omit: query.omit?.length ? query.omit : undefined,
-          include: query.include?.length ? query.include : undefined,
-        }, _.isNil);
-        const keyValue = query.keyValue;
-        return {
-          method: query.queryType,
-          keyValue,
-          options,
-          args: [keyValue, options]
-        };
+        if (query.kind === 'GetInstanceQuery') {
+          const options: JsonDataService.GetOptions = _.omitBy({
+            pick: query.pick,
+            omit: query.omit,
+            include: query.include
+          }, _.isNil);
+          const keyValue = query.keyValue;
+          return {
+            method: query.method,
+            keyValue,
+            options,
+            args: [keyValue, options]
+          };
+        }
+        if (query.kind === 'GetFieldQuery') {
+          // todo
+        }
+        break;
       }
       case 'search': {
+        if (query.distinct)
+          throw new MethodNotAllowedError({
+            message: '$distinct parameter is not supported by JsonDataService'
+          })
         const options: JsonDataService.SearchOptions = _.omitBy({
-          pick: query.pick?.length ? query.pick : undefined,
-          omit: query.omit?.length ? query.omit : undefined,
-          include: query.include?.length ? query.include : undefined,
+          pick: query.pick,
+          omit: query.omit,
+          include: query.include,
+          filter: JsonDataService._convertFilter(query.filter),
           sort: query.sort?.length ? query.sort : undefined,
           limit: query.limit,
           offset: query.skip,
-          distinct: query.distinct,
-          total: query.count,
-          filter: JsonDataService.convertFilter(query.filter)
+          count: query.count,
         }, _.isNil)
         return {
-          method: query.queryType,
+          method: query.method,
           options,
           args: [options]
         };
       }
       case 'update': {
         const options: JsonDataService.UpdateOptions = _.omitBy({
-          pick: query.pick?.length ? query.pick : undefined,
-          omit: query.omit?.length ? query.omit : undefined,
-          include: query.include?.length ? query.include : undefined,
+          pick: query.pick,
+          omit: query.omit,
+          include: query.include
         }, _.isNil);
         const {data} = query;
         const keyValue = query.keyValue;
         return {
-          method: query.queryType,
+          method: query.method,
           keyValue: query.keyValue,
           values: data,
           options,
@@ -227,11 +342,11 @@ export class JsonDataService<T, TOutput = EntityOutput<T>> implements IEntitySer
       }
       case 'updateMany': {
         const options: JsonDataService.UpdateManyOptions = _.omitBy({
-          filter: JsonDataService.convertFilter(query.filter)
+          filter: JsonDataService._convertFilter(query.filter)
         }, _.isNil);
         const {data} = query;
         return {
-          method: query.queryType,
+          method: query.method,
           options,
           args: [data, options]
         };
@@ -240,7 +355,7 @@ export class JsonDataService<T, TOutput = EntityOutput<T>> implements IEntitySer
         const options = {};
         const keyValue = query.keyValue;
         return {
-          method: query.queryType,
+          method: query.method,
           keyValue,
           options,
           args: [keyValue, options]
@@ -248,20 +363,57 @@ export class JsonDataService<T, TOutput = EntityOutput<T>> implements IEntitySer
       }
       case 'deleteMany': {
         const options = _.omitBy({
-          filter: JsonDataService.convertFilter(query.filter)
+          filter: JsonDataService._convertFilter(query.filter)
         }, _.isNil)
         return {
-          method: query.queryType,
+          method: query.method,
           options,
           args: [options]
         };
       }
-      default:
-        throw new Error(`Unimplemented query type "${(query as any).queryType}"`);
     }
+    throw new Error(`Unimplemented query type "${(query as any).method}"`);
   }
 
-  static convertFilter(str: string | Expression | undefined | {}): any {
+  protected _convertSelect(args: {
+    pick?: string[],
+    omit?: string[],
+    include?: string[]
+  }): string[] {
+    const result: string[] = [];
+    const document = this.dataType.owner;
+    const processDataType = (dt: ComplexType | EntityType, path: string, pick?: {}, omit?: {}, include?: {}) => {
+      let kl: string;
+      for (const [k, f] of dt.fields) {
+        kl = k.toLowerCase();
+        if (omit?.[kl] === true)
+          continue;
+        if (
+            (((!pick && !f.exclusive) || pick?.[kl])) || include?.[kl]
+        ) {
+          const fieldType = document.getDataType(f.type);
+          const subPath = (path ? path + '.' : '') + f.name;
+          if (fieldType instanceof ComplexType) {
+            processDataType(fieldType, subPath,
+                typeof pick?.[kl] === 'object' ? pick?.[kl] : undefined,
+                typeof omit?.[kl] === 'object' ? omit?.[kl] : undefined,
+                typeof include?.[kl] === 'object' ? include?.[kl] : undefined
+            );
+            continue;
+          }
+          result.push(subPath);
+        }
+      }
+    }
+    processDataType(this.dataType, '',
+        (args.pick ? pathToTree(args.pick, true) : undefined),
+        (args.omit ? pathToTree(args.omit, true) : undefined),
+        (args.include ? pathToTree(args.include, true) : undefined)
+    )
+    return result;
+  }
+
+  protected static _convertFilter(str: string | Expression | undefined | {}): any {
     const ast = typeof str === 'string'
         ? $parse(str)
         : str;
@@ -269,26 +421,30 @@ export class JsonDataService<T, TOutput = EntityOutput<T>> implements IEntitySer
       return ast;
 
     if (ast instanceof ComparisonExpression) {
-      const left = JsonDataService.convertFilter(ast.left);
-      const right = JsonDataService.convertFilter(ast.right);
+      const left = JsonDataService._convertFilter(ast.left);
+      const right = JsonDataService._convertFilter(ast.right);
 
       switch (ast.op) {
         case '=':
-          return {$eq: {[left]: right}};
+          return [left, '=', right];
         case '!=':
-          return {$ne: {[left]: right}};
+          return [left, '!=', right];
         case '>':
-          return {$gt: {[left]: right}};
+          return [left, '>', right];
         case '>=':
-          return {$gte: {[left]: right}};
+          return [left, '>=', right];
         case '<':
-          return {$lt: {[left]: right}};
+          return [left, '<', right];
         case '<=':
-          return {$lte: {[left]: right}};
+          return [left, '<=', right];
+        case 'like':
+          return [left, 'LIKE', right];
+        case '!like':
+          return [left, 'NOT LIKE', right];
         case 'in':
-          return {$in: {[left]: right}};
+          return [left, 'IN', Array.isArray(right) ? right : [right]];
         case '!in':
-          return {$nin: {[left]: right}};
+          return [left, 'NOT IN', Array.isArray(right) ? right : [right]];
         default:
           throw new Error(`ComparisonExpression operator (${ast.op}) not implemented yet`);
       }
@@ -306,20 +462,108 @@ export class JsonDataService<T, TOutput = EntityOutput<T>> implements IEntitySer
       return ast.value;
     }
     if (ast instanceof ArrayExpression) {
-      return ast.items.map(JsonDataService.convertFilter);
+      return ast.items.map(JsonDataService._convertFilter);
     }
     if (ast instanceof LogicalExpression) {
-      if (ast.op === 'or')
-        return {$or: ast.items.map(JsonDataService.convertFilter)};
-      return {$and: ast.items.map(JsonDataService.convertFilter)};
+      return ast.items.map(JsonDataService._convertFilter)
+          .reduce((a, v) => {
+            if (a.length)
+              a.push(ast.op.toUpperCase());
+            a.push(v);
+            return a;
+          }, [] as any[]);
     }
     if (ast instanceof ArrayExpression) {
-      return ast.items.map(JsonDataService.convertFilter);
+      return ast.items.map(JsonDataService._convertFilter);
     }
     if (ast instanceof ParenthesesExpression) {
-      return JsonDataService.convertFilter(ast.expression);
+      return JsonDataService._convertFilter(ast.expression);
     }
-    throw new Error(`${ast.type} is not implemented yet`);
+    throw new Error(`${ast.kind} is not implemented yet`);
   }
 
+}
+
+export namespace JsonDataService {
+  export type CountOptions = {
+    filter?: string | Expression | {};
+  }
+  export type CreateOptions = {
+    pick?: string[];
+    omit?: string[];
+    include?: string[];
+  }
+  export type GetOptions = {
+    pick?: string[];
+    omit?: string[];
+    include?: string[];
+  }
+  export type SearchOptions = {
+    pick?: string[];
+    omit?: string[];
+    include?: string[];
+    filter?: any[];
+    sort?: string[];
+    limit?: number;
+    skip?: number;
+    distinct?: boolean;
+    count?: boolean;
+  }
+  export type UpdateOptions = {
+    pick?: string[];
+    omit?: string[];
+    include?: string[];
+  }
+  export type UpdateManyOptions = {
+    filter?: any[];
+  }
+  export type DeleteManyOptions = {
+    filter?: any[];
+  }
+}
+
+function unFlatten(input: any): any {
+  if (!input)
+    return;
+  const target = {};
+  for (const k of Object.keys(input)) {
+    if (k.includes('.')) {
+      const keys = k.split('.');
+      let o = target;
+      for (let i = 0; i < keys.length - 1; i++) {
+        o = o[keys[i]] = o[keys[i]] || {};
+      }
+      o[keys[keys.length - 1]] = input[k];
+    } else target[k] = input[k];
+  }
+  return target;
+}
+
+function dataTypeToSQLType(dataType: DataType, isArray: boolean): string {
+  let out = 'any';
+  if (dataType.kind !== 'SimpleType')
+    out = 'object';
+  else {
+    switch (dataType.name) {
+      case 'booolean':
+      case 'number':
+      case 'string':
+        out = dataType.name;
+        break;
+      case 'integer':
+        out = 'int';
+        break;
+      case 'date':
+      case 'date-time':
+        out = 'date';
+        break;
+      case 'time':
+        out = 'string';
+        break;
+      case 'uuid':
+        out = 'uuid'
+        break;
+    }
+  }
+  return out + (isArray ? '[]' : '');
 }

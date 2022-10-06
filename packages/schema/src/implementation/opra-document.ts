@@ -1,7 +1,7 @@
 import _ from 'lodash';
 import { StrictOmit } from 'ts-gems';
 import { ResponsiveMap } from '../helpers/responsive-map.js';
-import { OpraSchema } from '../interfaces/opra-schema.interface.js';
+import { OpraSchema } from '../opra-schema.js';
 import { cloneObject } from '../utils/clone-object.util.js';
 import { colorFgMagenta, colorFgYellow, colorReset, nodeInspectCustom } from '../utils/inspect-utils.js';
 import { stringCompare } from '../utils/string-compare.util.js';

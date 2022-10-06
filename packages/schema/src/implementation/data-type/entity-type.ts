@@ -1,6 +1,6 @@
 import { StrictOmit } from 'ts-gems';
 import * as Optionals from '@opra/optionals';
-import { OpraSchema } from '../../interfaces/opra-schema.interface.js';
+import { OpraSchema } from '../../opra-schema.js';
 import { OpraDocument } from '../opra-document.js';
 import { ComplexType } from './complex-type.js';
 

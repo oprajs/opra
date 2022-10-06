@@ -1,11 +1,12 @@
 import { StrictOmit } from 'ts-gems';
 import { ResponsiveMap } from '../helpers/responsive-map.js';
-import { OpraSchema } from '../interfaces/opra-schema.interface.js';
+import { IResource } from '../interfaces/resource.interface.js';
 import { IResourceContainer } from '../interfaces/resource-container.interface.js';
+import { OpraSchema } from '../opra-schema.js';
 import { stringCompare } from '../utils/string-compare.util.js';
 import { EntityType } from './data-type/entity-type.js';
 import { OpraDocument } from './opra-document.js';
-import { BaseResource } from './resource/base-resource.js';
+import { OpraResource } from './resource/base-resource.js';
 import { EntityResource } from './resource/entity-resource.js';
 import { SchemaGenerator } from './schema-generator.js';
 
@@ -13,7 +14,7 @@ export type OpraServiceArgs = StrictOmit<OpraSchema.Service, 'version' | 'types'
 
 export class OpraService extends OpraDocument implements IResourceContainer {
   protected declare readonly _args: OpraServiceArgs;
-  protected _resources = new ResponsiveMap<string, BaseResource>();
+  protected _resources = new ResponsiveMap<string, OpraResource>();
 
   constructor(schema: OpraSchema.Service) {
     super(schema);
@@ -21,7 +22,7 @@ export class OpraService extends OpraDocument implements IResourceContainer {
       this._addResources(schema.resources);
   }
 
-  get resources(): Map<string, BaseResource> {
+  get resources(): Map<string, OpraResource> {
     return this._resources;
   }
 
@@ -29,7 +30,7 @@ export class OpraService extends OpraDocument implements IResourceContainer {
     return this._args.servers;
   }
 
-  getResource<T extends BaseResource>(name: string): T {
+  getResource<T extends OpraResource>(name: string): T {
     const t = this.resources.get(name);
     if (!t)
       throw new Error(`Resource "${name}" does not exists`);
@@ -72,7 +73,16 @@ export class OpraService extends OpraDocument implements IResourceContainer {
 
   static async create(args: SchemaGenerator.GenerateServiceArgs): Promise<OpraService> {
     const schema = await SchemaGenerator.generateServiceSchema(args);
-    return new OpraService(schema);
+    const service = new OpraService(schema);
+    for (const r of service.resources.values()) {
+      if (r.instance) {
+        const init = (r.instance as IResource).init;
+        if (init)
+          await init.call(r.instance, r);
+      }
+    }
+    return service;
   }
-
 }
+
+

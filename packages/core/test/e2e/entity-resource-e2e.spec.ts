@@ -3,6 +3,7 @@ import { OpraService } from '@opra/schema';
 import { apiExpect, opraTest, OpraTester } from '@opra/testing';
 import { OpraExpressAdapter } from '../../src/index.js';
 import { createTestService } from '../_support/test-app/create-service.js';
+import { customersData } from '../_support/test-app/data/customers.data.js';
 
 describe('Entity Resource e2e', function () {
 
@@ -17,7 +18,7 @@ describe('Entity Resource e2e', function () {
     api = opraTest(app);
   });
 
-  describe('"get" requests', function () {
+  describe('GetInstanceQuery requests', function () {
 
     it('Should return object', async () => {
       const resp = await api.entity('Customers')
@@ -32,7 +33,7 @@ describe('Entity Resource e2e', function () {
     })
   })
 
-  describe('"search" search', function () {
+  describe('SearchCollectionQuery requests', function () {
 
     it('Should return list object', async () => {
       const resp = await api.entity('Customers')
@@ -47,13 +48,13 @@ describe('Entity Resource e2e', function () {
     it('Should apply filter', async () => {
       const resp = await api.entity('Customers')
           .search()
-          .filter('countryCode="US"')
+          .filter('countryCode="' + customersData[0].countryCode + '"')
           .send();
       apiExpect(resp)
           .toSuccess()
           .toReturnList(list => {
             list.toHaveMinItems(1);
-            list.toBeFilteredBy('countryCode="US"');
+            list.toBeFilteredBy('countryCode="' + customersData[0].countryCode + '"');
           })
     })
   });

@@ -10,6 +10,11 @@ export class Address {
   city: string;
 
   @OprField()
+  countryCode: string;
+
+  @OprField({
+    exclusive: true
+  })
   country: Country;
 
   @OprField()
