@@ -57,6 +57,18 @@ export class JsonDataService<T, TOutput = EntityOutput<T>> implements IEntitySer
     return this.resource.name;
   }
 
+  async close() {
+    await this._waitInitializing();
+    if (this._status === 'initialized') {
+      this._status = 'initializing';
+      try {
+        await nSQL().disconnect(this._dbName);
+      } finally {
+        this._status = '';
+      }
+    }
+  }
+
   async processRequest(ctx: QueryContext): Promise<any> {
     const prepared = this._prepare(ctx.query);
     const fn = this[prepared.method];
@@ -98,7 +110,7 @@ export class JsonDataService<T, TOutput = EntityOutput<T>> implements IEntitySer
       omit: options?.omit,
       include: options?.include,
     })
-    const filter = JsonDataService._convertFilter(options?.filter);
+    const filter = this._convertFilter(options?.filter);
     nSQL().useDatabase(this._dbName);
     const query = nSQL(this.resourceName)
         .query('select', select)
@@ -110,6 +122,10 @@ export class JsonDataService<T, TOutput = EntityOutput<T>> implements IEntitySer
   }
 
   async create(data: EntityInput<T>, options?: JsonDataService.CreateOptions): Promise<TOutput> {
+    if (!data[this.primaryKey])
+      throw new BadRequestError({
+        message: 'You must provide primary key value'
+      });
     await this._init();
     const keyValue = data[this.primaryKey];
     nSQL().useDatabase(this._dbName);
@@ -118,10 +134,6 @@ export class JsonDataService<T, TOutput = EntityOutput<T>> implements IEntitySer
         .exec();
     if (rows.length)
       throw new ResourceConflictError(this.resourceName, this.primaryKey);
-    if (!data[this.primaryKey])
-      throw new BadRequestError({
-        message: 'You must provide primary key value'
-      });
     await nSQL(this._initData).query('upsert', data)
         .exec();
     return await this.get(keyValue, options) as TOutput;
@@ -138,12 +150,13 @@ export class JsonDataService<T, TOutput = EntityOutput<T>> implements IEntitySer
         })
         .where([this.primaryKey, '=', keyValue])
         .exec();
+    await nSQL(this._initData).query("rebuild indexes").exec();
     return this.get(keyValue, options);
   }
 
   async updateMany(data: EntityInput<T>, options?: JsonDataService.UpdateManyOptions): Promise<number> {
     await this._init();
-    const filter = JsonDataService._convertFilter(options?.filter);
+    const filter = this._convertFilter(options?.filter);
     await this._init();
     nSQL().useDatabase(this._dbName);
     let affected = 0;
@@ -156,6 +169,7 @@ export class JsonDataService<T, TOutput = EntityOutput<T>> implements IEntitySer
         })
         .where(filter)
         .exec();
+    await nSQL(this._initData).query("rebuild indexes").exec();
     return affected;
   }
 
@@ -169,9 +183,9 @@ export class JsonDataService<T, TOutput = EntityOutput<T>> implements IEntitySer
     return !!result.length;
   }
 
-
   async deleteMany(options?: JsonDataService.DeleteManyOptions): Promise<number> {
-    const filter = JsonDataService._convertFilter(options?.filter);
+    await this._init();
+    const filter = this._convertFilter(options?.filter);
     nSQL().useDatabase(this._dbName);
     const result = await nSQL(this._initData)
         .query('delete')
@@ -180,13 +194,13 @@ export class JsonDataService<T, TOutput = EntityOutput<T>> implements IEntitySer
     return result.length;
   }
 
-  protected async _init() {
-    if (this._status === 'initialized')
-      return;
+  private async _waitInitializing() {
     if (this._status === 'initializing') {
       return new Promise<void>((resolve, reject) => {
         const reTry = () =>
             setTimeout(() => {
+              if (this._status === '')
+                return resolve(this._init());
               if (this._status === 'error')
                 return reject(this._initError);
               if (this._status === 'initialized')
@@ -196,6 +210,12 @@ export class JsonDataService<T, TOutput = EntityOutput<T>> implements IEntitySer
         reTry();
       })
     }
+  }
+
+  protected async _init() {
+    await this._waitInitializing();
+    if (this._status === 'initialized')
+      return;
     this._status = 'initializing';
     this._dbName = 'JsonDataService_DB_' + (dbId++);
     try {
@@ -261,7 +281,7 @@ export class JsonDataService<T, TOutput = EntityOutput<T>> implements IEntitySer
     switch (query.method) {
       case 'count': {
         const options: JsonDataService.CountOptions = _.omitBy({
-          filter: JsonDataService._convertFilter(query.filter)
+          filter: this._convertFilter(query.filter)
         }, _.isNil);
         return {
           method: query.method,
@@ -312,8 +332,9 @@ export class JsonDataService<T, TOutput = EntityOutput<T>> implements IEntitySer
           pick: query.pick,
           omit: query.omit,
           include: query.include,
-          filter: JsonDataService._convertFilter(query.filter),
+          filter: this._convertFilter(query.filter),
           sort: query.sort?.length ? query.sort : undefined,
+          skip: query.skip,
           limit: query.limit,
           offset: query.skip,
           count: query.count,
@@ -342,7 +363,7 @@ export class JsonDataService<T, TOutput = EntityOutput<T>> implements IEntitySer
       }
       case 'updateMany': {
         const options: JsonDataService.UpdateManyOptions = _.omitBy({
-          filter: JsonDataService._convertFilter(query.filter)
+          filter: this._convertFilter(query.filter)
         }, _.isNil);
         const {data} = query;
         return {
@@ -363,7 +384,7 @@ export class JsonDataService<T, TOutput = EntityOutput<T>> implements IEntitySer
       }
       case 'deleteMany': {
         const options = _.omitBy({
-          filter: JsonDataService._convertFilter(query.filter)
+          filter: this._convertFilter(query.filter)
         }, _.isNil)
         return {
           method: query.method,
@@ -413,7 +434,7 @@ export class JsonDataService<T, TOutput = EntityOutput<T>> implements IEntitySer
     return result;
   }
 
-  protected static _convertFilter(str: string | Expression | undefined | {}): any {
+  protected _convertFilter(str: string | Expression | undefined | {}): any {
     const ast = typeof str === 'string'
         ? $parse(str)
         : str;
@@ -421,8 +442,8 @@ export class JsonDataService<T, TOutput = EntityOutput<T>> implements IEntitySer
       return ast;
 
     if (ast instanceof ComparisonExpression) {
-      const left = JsonDataService._convertFilter(ast.left);
-      const right = JsonDataService._convertFilter(ast.right);
+      const left = this._convertFilter(ast.left);
+      const right = this._convertFilter(ast.right);
 
       switch (ast.op) {
         case '=':
@@ -462,10 +483,10 @@ export class JsonDataService<T, TOutput = EntityOutput<T>> implements IEntitySer
       return ast.value;
     }
     if (ast instanceof ArrayExpression) {
-      return ast.items.map(JsonDataService._convertFilter);
+      return ast.items.map(item => this._convertFilter(item));
     }
     if (ast instanceof LogicalExpression) {
-      return ast.items.map(JsonDataService._convertFilter)
+      return ast.items.map(item => this._convertFilter(item))
           .reduce((a, v) => {
             if (a.length)
               a.push(ast.op.toUpperCase());
@@ -474,10 +495,10 @@ export class JsonDataService<T, TOutput = EntityOutput<T>> implements IEntitySer
           }, [] as any[]);
     }
     if (ast instanceof ArrayExpression) {
-      return ast.items.map(JsonDataService._convertFilter);
+      return ast.items.map(item => this._convertFilter(item));
     }
     if (ast instanceof ParenthesesExpression) {
-      return JsonDataService._convertFilter(ast.expression);
+      return this._convertFilter(ast.expression);
     }
     throw new Error(`${ast.kind} is not implemented yet`);
   }

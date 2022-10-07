@@ -1,0 +1,70 @@
+import express from 'express';
+import { faker } from '@faker-js/faker';
+import { OpraService } from '@opra/schema';
+import { apiExpect, opraTest, OpraTester } from '@opra/testing';
+import { OpraExpressAdapter } from '../../src/index.js';
+import { createTestService } from '../_support/test-app/create-service.js';
+import { customersData } from '../_support/test-app/data/customers.data.js';
+
+describe('e2e: EntityResource:updateMany', function () {
+
+  let service: OpraService;
+  let app;
+  let api: OpraTester;
+
+  beforeAll(async () => {
+    service = await createTestService();
+    app = express();
+    await OpraExpressAdapter.init(app, service);
+    api = opraTest(app);
+  });
+
+  it('Should update many instances', async () => {
+    const data = {
+      city: faker.address.city()
+    }
+    let resp = await api.entity('Customers')
+        .updateMany(data)
+        .send();
+    apiExpect(resp)
+        .toSuccess()
+        .toReturnObject(obj => {
+          expect(obj.body.affected).toStrictEqual(customersData.length);
+        })
+    resp = await api.entity('Customers')
+        .search()
+        .limit(1000000)
+        .send();
+    apiExpect(resp)
+        .toSuccess()
+        .toReturnList(list => {
+          list.toMatch(data);
+        });
+  })
+
+  it('Should update many instances by filter', async () => {
+    const data = {
+      city: 'x-' + faker.address.city()
+    }
+    let resp = await api.entity('Customers')
+        .updateMany(data)
+        .filter('id<=10')
+        .send();
+    apiExpect(resp)
+        .toSuccess()
+        .toReturnObject(obj => {
+          expect(obj.body.affected).toStrictEqual(10);
+        })
+    resp = await api.entity('Customers')
+        .search()
+        .filter('city="' + data.city + '"')
+        .send();
+    apiExpect(resp)
+        .toSuccess()
+        .toReturnList(list => {
+          list.toMatch(data);
+          list.toHaveExactItems(10);
+        });
+  })
+
+});

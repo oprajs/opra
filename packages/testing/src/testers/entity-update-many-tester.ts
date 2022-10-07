@@ -1,6 +1,6 @@
 import request, { Response } from 'supertest';
 import { UpdateCollectionQueryOptions } from '@opra/schema';
-import { OpraURL } from '@opra/url';
+import { Expression, OpraURL } from '@opra/url';
 import { BaseOperationTester } from './base-operation-tester.js';
 import type { OpraEntityTesterParams } from './entity-tester.js';
 
@@ -18,6 +18,11 @@ export class OpraEntityUpdateManyTester extends BaseOperationTester {
 
   data(data: {}): this {
     this._params.data = data;
+    return this;
+  }
+
+  filter(value: string | Expression): this {
+    this._params.options.filter = value;
     return this;
   }
 

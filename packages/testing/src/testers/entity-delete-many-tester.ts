@@ -1,6 +1,6 @@
 import request, { Response } from 'supertest';
 import { DeleteCollectionQueryOption } from '@opra/schema';
-import { OpraURL } from '@opra/url';
+import { Expression, OpraURL } from '@opra/url';
 import { BaseOperationTester } from './base-operation-tester.js';
 import type { OpraEntityTesterParams } from './entity-tester.js';
 
@@ -13,6 +13,11 @@ export class OpraEntityDeleteManyTester extends BaseOperationTester {
 
   constructor(params: OpraEntityDeleteManyTesterParams) {
     super(params);
+  }
+
+  filter(value: string | Expression): this {
+    this._params.options.filter = value;
+    return this;
   }
 
   protected async _send(): Promise<Response> {

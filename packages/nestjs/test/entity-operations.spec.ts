@@ -81,7 +81,7 @@ describe('Entity operations', function () {
     photosData.push({id: 15});
     const resp = await request(server)
         .delete('/api/svc1/Photos@15');
-    expect(resp.body).toStrictEqual({affectedRecords: 1});
+    expect(resp.body).toStrictEqual({affected: 1});
     expect(resp.status).toStrictEqual(200);
     expect(photosData.find(x => x && x.id === 15)).toStrictEqual(undefined);
   });
@@ -90,7 +90,7 @@ describe('Entity operations', function () {
     photosData.push({id: 16}, {id: 17});
     const resp = await request(server)
         .delete('/api/svc1/Photos?$filter=id>=16');
-    expect(resp.body.affectedRecords).toBeGreaterThan(1);
+    expect(resp.body.affected).toBeGreaterThan(1);
     expect(resp.status).toStrictEqual(200);
     expect(photosData.find(x => x && x.id >= 16)).toStrictEqual(undefined);
   });

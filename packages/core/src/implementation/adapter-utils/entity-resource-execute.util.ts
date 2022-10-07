@@ -73,14 +73,14 @@ async function executeFn(
     case 'delete':
     case 'deleteMany':
     case 'updateMany':
-      let affectedRecords;
+      let affected;
       if (typeof result === 'number')
-        affectedRecords = result;
+        affected = result;
       if (typeof result === 'boolean')
-        affectedRecords = result ? 1 : 0;
+        affected = result ? 1 : 0;
       if (typeof result === 'object')
-        affectedRecords = result.affectedRows || result.affectedRecords;
-      return {affectedRecords};
+        affected = result.affectedRows || result.affected;
+      return {affected};
   }
 
   if (!result)
