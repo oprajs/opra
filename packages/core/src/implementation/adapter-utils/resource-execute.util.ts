@@ -1,4 +1,4 @@
-import { OpraResource, EntityResource, OpraService } from '@opra/schema';
+import { EntityResource, OpraResource, OpraService } from '@opra/schema';
 import { QueryContext } from '../query-context.js';
 import { entityResourceExecute } from './entity-resource-execute.util.js';
 

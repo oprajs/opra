@@ -36,7 +36,7 @@ for (let id = 1; id <= 1000; id++) {
     customer.address = {
       country,
       countryCode: '' + customer.countryCode,
-      city: faker.address.cityName(),
+      city: '' + customer.city,
       street: faker.address.street(),
       zipCode: faker.address.zipCode()
     }

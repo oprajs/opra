@@ -1,33 +1,73 @@
-import { ApiExpectBody } from './api-expect-body.js';
+import _ from 'lodash';
+import { Response } from 'supertest';
 
-export class ApiExpectObject extends ApiExpectBody {
+export class ApiExpectObject {
 
-  constructor(protected _body: any) {
-    super();
+  constructor(readonly response: Response) {
   }
 
-  toBeDefined(): this {
-    expect(this._body).toBeDefined();
+  get body(): any {
+    return this.response.body;
+  }
+
+  toMatch<T extends {}>(expected: T): this {
+    try {
+      const v = _.omitBy(expected, _.isNil);
+      expect(this.response.body).toMatchObject(v);
+    } catch (e: any) {
+      Error.captureStackTrace(e, this.toMatch);
+      throw e;
+    }
     return this;
   }
 
-  toMatch<T extends {}>(value: T): this {
-    return this._toMatchObject([this._body], value);
-  }
-
-  haveKeysOnly(keys: string[]): this {
-    this._haveKeysOnly([this._body], keys);
+  toContainAllKeys(keys: string[]): this {
+    try {
+      expect(this.response.body).toContainAllKeys(keys);
+    } catch (e: any) {
+      Error.captureStackTrace(e, this.toContainAllKeys);
+      throw e;
+    }
     return this;
   }
 
-  haveKeys(keys: string[]): this {
-    this._haveKeys([this._body], keys);
+  toContainKeys(keys: string[]): this {
+    try {
+      expect(this.response.body).toContainKeys(keys);
+    } catch (e: any) {
+      Error.captureStackTrace(e, this.toContainKeys);
+      throw e;
+    }
     return this;
   }
 
-  notHaveKeys(keys: string[]): this {
-    this._notHaveKeys([this._body], keys);
+  notToContainKeys(keys: string[]): this {
+    try {
+      expect(this.response.body).not.toContainKeys(keys);
+    } catch (e: any) {
+      Error.captureStackTrace(e, this.notToContainKeys);
+      throw e;
+    }
     return this;
   }
 
+  toHaveProperty(keyPath, value?): this {
+    try {
+      expect(this.response.body).toHaveProperty(keyPath, value);
+    } catch (e: any) {
+      Error.captureStackTrace(e, this.toContainKeys);
+      throw e;
+    }
+    return this;
+  }
+
+  notToHaveProperty(keyPath, value?): this {
+    try {
+      expect(this.response.body).not.toHaveProperty(keyPath, value);
+    } catch (e: any) {
+      Error.captureStackTrace(e, this.toContainKeys);
+      throw e;
+    }
+    return this;
+  }
 }

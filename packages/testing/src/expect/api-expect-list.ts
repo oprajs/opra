@@ -1,4 +1,6 @@
+import _ from 'lodash';
 import ruleJudgment from 'rule-judgment'
+import { Response } from 'supertest';
 import {
   $parse, ArrayExpression, BooleanLiteral,
   ComparisonExpression, DateLiteral,
@@ -7,57 +9,92 @@ import {
   QualifiedIdentifier,
   StringLiteral, TimeLiteral
 } from '@opra/url';
-import { ApiExpectBody } from './api-expect-body.js';
 
-export class ApiExpectList extends ApiExpectBody {
+export class ApiExpectList {
 
-  constructor(protected _body: any) {
-    super();
+  constructor(readonly response: Response) {
+
   }
 
-  get items() {
-    return this._body.items;
+  get body() {
+    return this.response.body;
   }
 
-  toMatch<T extends {}>(value: T): this {
-    return this._toMatchObject(this._body.items || [], value);
+  get items(): any[] {
+    return this.response.body.items;
   }
 
-  haveKeysOnly(keys: string[]): this {
-    this._haveKeysOnly(this._body.items || [], keys);
+  toMatch<T extends {}>(expected: T): this {
+    try {
+      const v = _.omitBy(expected, _.isNil);
+      for (const item of this.response.body.items) {
+        expect(item).toMatchObject(v);
+      }
+    } catch (e: any) {
+      Error.captureStackTrace(e, this.toMatch);
+      throw e;
+    }
     return this;
   }
 
-  haveKeys(keys: string[]): this {
-    this._haveKeys(this._body.items || [], keys);
+  toContainAllKeys(keys: string[]): this {
+    try {
+      for (const item of this.response.body.items) {
+        expect(item).toContainAllKeys(keys);
+      }
+    } catch (e: any) {
+      Error.captureStackTrace(e, this.toContainAllKeys);
+      throw e;
+    }
     return this;
   }
 
-  notHaveKeys(keys: string[]): this {
-    this._notHaveKeys(this._body.items || [], keys);
+  toContainKeys(keys: string[]): this {
+    try {
+      for (const item of this.response.body.items) {
+        expect(item).toContainKeys(keys);
+      }
+    } catch (e: any) {
+      Error.captureStackTrace(e, this.toContainKeys);
+      throw e;
+    }
+    return this;
+  }
+
+  notToContainKeys(keys: string[]): this {
+    try {
+      for (const item of this.response.body.items) {
+        expect(item).not.toContainKeys(keys);
+      }
+    } catch (e: any) {
+      Error.captureStackTrace(e, this.notToContainKeys);
+      throw e;
+    }
+    return this;
+  }
+
+  toHaveProperty(keyPath, value?): this {
+    try {
+      for (const item of this.response.body.items) {
+        expect(item).toHaveProperty(keyPath, value);
+      }
+
+    } catch (e: any) {
+      Error.captureStackTrace(e, this.toHaveProperty);
+      throw e;
+    }
     return this;
   }
 
   toBeSortedBy(...fields: string[]): this {
-    const fieldsMap = fields.map(x => x.split('.'));
-    const getValue = (obj: any, fieldMap: string[]) => {
-      let v = obj;
-      let i = 0;
-      while (v && i < fieldMap.length) {
-        v = v[fieldMap[i++]];
+    try {
+      for (const item of this.response.body.items) {
+        expect(item).toBeSortedBy(fields);
       }
-      return v;
+    } catch (e: any) {
+      Error.captureStackTrace(e, this.toBeSortedBy);
+      throw e;
     }
-
-    expect(this._body.items).toBeSorted((a, b) => {
-      for (const sortField of fieldsMap) {
-        const l = getValue(a, sortField);
-        const r = getValue(b, sortField);
-        if (l < r) return -1;
-        if (l > r) return 1;
-      }
-      return 0;
-    });
     return this;
   }
 
@@ -65,22 +102,42 @@ export class ApiExpectList extends ApiExpectBody {
     const f = convertFilter(filter);
     if (f) {
       const j = ruleJudgment(f);
-      const filtered = this._body.items.filter(j);
-      expect(this._body.items).toStrictEqual(filtered);
+      const filtered = this.response.body.items.filter(j);
+      try {
+        expect(this.response.body.items).toStrictEqual(filtered);
+      } catch (e: any) {
+        Error.captureStackTrace(e, this.toBeFilteredBy);
+        throw e;
+      }
     }
     return this;
   }
 
   toHaveExactItems(expected: number) {
-    return expect(this._body.items.length).toStrictEqual(expected);
+    try {
+      return expect(this.response.body.items).toHaveLength(expected);
+    } catch (e: any) {
+      Error.captureStackTrace(e, this.toHaveExactItems);
+      throw e;
+    }
   }
 
   toHaveMaxItems(expected: number) {
-    return expect(this._body.items.length).toBeLessThanOrEqual(expected);
+    try {
+      return expect(this.response.body.items.length).toBeLessThanOrEqual(expected);
+    } catch (e: any) {
+      Error.captureStackTrace(e, this.toHaveMaxItems);
+      throw e;
+    }
   }
 
   toHaveMinItems(expected: number) {
-    return expect(this._body.items.length).toBeGreaterThanOrEqual(expected);
+    try {
+      return expect(this.response.body.items.length).toBeGreaterThanOrEqual(expected);
+    } catch (e: any) {
+      Error.captureStackTrace(e, this.toHaveMinItems);
+      throw e;
+    }
   }
 
 }

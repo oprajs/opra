@@ -25,7 +25,7 @@ export class OpraEntitySearchTester extends BaseOperationTester {
     return this;
   }
 
-  count(value: boolean): this {
+  count(value: boolean = true): this {
     this._params.options.count = value;
     return this;
   }
