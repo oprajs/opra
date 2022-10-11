@@ -1,6 +1,6 @@
 import express from 'express';
 import { OpraService } from '@opra/schema';
-import { apiExpect, opraTest, OpraTester } from '@opra/testing';
+import { opraTest, OpraTester } from '@opra/testing';
 import { OpraExpressAdapter } from '../../src/index.js';
 import { createTestService } from '../_support/test-app/create-service.js';
 import { customersData } from '../_support/test-app/data/customers.data.js';
@@ -23,14 +23,13 @@ describe('e2e: EntityResource:deleteMany', function () {
         .deleteMany()
         .filter('id=100')
         .send();
-    apiExpect(resp)
+    resp.expect
         .toSuccess()
-        .toReturnObject(obj => {
-          expect(obj.body.affected).toStrictEqual(1);
-        })
+        .toReturnOperationResult()
+        .toBeAffectedExact(1);
     resp = await api.entity('Customers')
         .get(100).send();
-    apiExpect(resp)
+    resp.expect
         .toFail(404);
   })
 
@@ -38,20 +37,18 @@ describe('e2e: EntityResource:deleteMany', function () {
     let resp = await api.entity('Customers')
         .deleteMany()
         .send();
-    apiExpect(resp)
+    resp.expect
         .toSuccess()
-        .toReturnObject(obj => {
-          expect(obj.body.affected).toStrictEqual(customersData.length - 1);
-        })
+        .toReturnOperationResult()
+        .toBeAffectedExact(customersData.length - 1);
     resp = await api.entity('Customers')
         .search()
         .count()
         .send();
-    apiExpect(resp)
+    resp.expect
         .toSuccess()
-        .toReturnList(list => {
-          expect(list.body.count).toStrictEqual(0);
-        })
+        .toReturnArray();
+    expect(resp.body.length).toStrictEqual(0);
   })
 
 });

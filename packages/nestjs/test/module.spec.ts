@@ -2,6 +2,7 @@ import { Server } from 'http';
 import request from 'supertest';
 import { INestApplication } from '@nestjs/common';
 import { Test } from '@nestjs/testing';
+import { HttpHeaders } from '@opra/core';
 import { ApplicationModule } from './_support/photos-app/app.module.js';
 import photosData from './_support/photos-app/photos-module/photos.data.js';
 

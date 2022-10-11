@@ -1,9 +1,9 @@
 import _ from 'lodash';
-import { Response } from 'supertest';
+import type { ApiResponse } from '../api-response';
 
 export class ApiExpectObject {
 
-  constructor(readonly response: Response) {
+  constructor(readonly response: ApiResponse) {
   }
 
   get body(): any {

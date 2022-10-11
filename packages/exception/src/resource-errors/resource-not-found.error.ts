@@ -9,8 +9,10 @@ export class ResourceNotFoundError extends OpraException {
           `The resource '{{resource}}' could not be found`),
       severity: 'error',
       code: 'RESOURCE_NOT_FOUND',
-      subject: resource,
-      key: keyValue
+      details: {
+        resource,
+        key: keyValue
+      }
     }, cause);
     this.status = 404;
   }

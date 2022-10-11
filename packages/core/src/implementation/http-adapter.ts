@@ -1,26 +1,35 @@
 import {
   BadRequestError,
   InternalServerError,
+  IssueSeverity,
   MethodNotAllowedError,
   NotFoundError,
   OpraException,
+  wrapException
 } from '@opra/exception';
 import {
   ComplexType,
   ContainerResource,
-  DataType, EntityResource,
+  DataType,
+  EntityResource,
   IResourceContainer,
-  OpraAnyQuery, OpraCreateInstanceQuery, OpraDeleteCollectionQuery, OpraDeleteInstanceQuery,
+  OpraAnyQuery,
+  OpraCreateInstanceQuery,
+  OpraDeleteCollectionQuery,
+  OpraDeleteInstanceQuery,
   OpraGetFieldQuery,
-  OpraGetInstanceQuery, OpraGetSchemaQuery,
+  OpraGetInstanceQuery,
+  OpraGetMetadataQuery,
   OpraSchema,
-  OpraSearchCollectionQuery, OpraUpdateCollectionQuery, OpraUpdateInstanceQuery,
-  ResponsiveMap
+  OpraSearchCollectionQuery,
+  OpraUpdateCollectionQuery,
+  OpraUpdateInstanceQuery,
 } from '@opra/schema';
 import { OpraURL } from '@opra/url';
 import { HttpHeaders, HttpStatus } from '../enums/index.js';
 import { IHttpExecutionContext } from '../interfaces/execution-context.interface.js';
 import { OpraAdapter } from './adapter.js';
+import { HeadersMap } from './headers-map.js';
 import { QueryContext } from './query-context.js';
 
 export namespace OpraHttpAdapter {
@@ -31,7 +40,7 @@ export namespace OpraHttpAdapter {
 
 interface PreparedOutput {
   status: number;
-  headers?: Record<string, string>;
+  headers: Record<string, string>;
   body?: any;
 }
 
@@ -49,7 +58,7 @@ export class OpraHttpAdapter<TExecutionContext extends IHttpExecutionContext> ex
           executionContext,
           url,
           req.getMethod(),
-          new ResponsiveMap(req.getHeaders()),
+          new HeadersMap(req.getHeaders()),
           req.getBody())
     ];
   }
@@ -74,13 +83,13 @@ export class OpraHttpAdapter<TExecutionContext extends IHttpExecutionContext> ex
       service: this.service,
       executionContext,
       query,
-      headers,
+      headers: new HeadersMap(),
       params: url.searchParams,
       continueOnError: query.operation === 'read'
     });
   }
 
-  buildGetSchemaQuery(url: OpraURL): OpraGetSchemaQuery {
+  buildGGetMetadataQuery(url: OpraURL): OpraGetMetadataQuery {
     const pathLen = url.path.size;
     const resourcePath: string[] = [];
     let pathIndex = 0;
@@ -88,7 +97,7 @@ export class OpraHttpAdapter<TExecutionContext extends IHttpExecutionContext> ex
       const p = url.path.get(pathIndex++);
       if (p.key)
         throw new BadRequestError();
-      if (p.resource !== '$schema') {
+      if (p.resource !== '$metadata') {
         if (pathIndex === 1)
           resourcePath.push('resources');
         resourcePath.push(p.resource);
@@ -100,7 +109,7 @@ export class OpraHttpAdapter<TExecutionContext extends IHttpExecutionContext> ex
       include: url.searchParams.get('$include'),
       resourcePath
     }
-    return new OpraGetSchemaQuery(opts);
+    return new OpraGetMetadataQuery(opts);
   }
 
   buildQuery(url: OpraURL, method: string, body?: any): OpraAnyQuery | undefined {
@@ -111,10 +120,10 @@ export class OpraHttpAdapter<TExecutionContext extends IHttpExecutionContext> ex
       // Check if requesting metadata
       for (let i = 0; i < pathLen; i++) {
         const p = url.path.get(i);
-        if (p.resource === '$schema') {
+        if (p.resource === '$metadata') {
           if (method !== 'GET')
             return;
-          return this.buildGetSchemaQuery(url);
+          return this.buildGGetMetadataQuery(url);
         }
       }
 
@@ -218,7 +227,9 @@ export class OpraHttpAdapter<TExecutionContext extends IHttpExecutionContext> ex
       }
       throw new InternalServerError();
     } catch (e: any) {
-      throw BadRequestError.wrap(e);
+      if (e instanceof OpraException)
+        throw e;
+      throw new BadRequestError(e);
     }
   }
 
@@ -235,22 +246,14 @@ export class OpraHttpAdapter<TExecutionContext extends IHttpExecutionContext> ex
       return;
     }
 
-    if (!outputPackets.length) {
-      const err = new NotFoundError()
-      outputPackets.push({
-            status: err.status,
-            body: {
-              errors: [err.response]
-            }
-          }
-      )
-    }
+    if (!outputPackets.length)
+      return this.sendError(executionContext, new NotFoundError());
 
     const out = outputPackets[0];
     const resp = executionContext.getResponseWrapper();
 
     resp.setStatus(out.status);
-    resp.setHeader(HttpHeaders.Content_Type, 'application/json');
+    resp.setHeader(HttpHeaders.Content_Type, 'application/opra+json');
     resp.setHeader(HttpHeaders.Cache_Control, 'no-cache');
     resp.setHeader(HttpHeaders.Pragma, 'no-cache');
     resp.setHeader(HttpHeaders.Expires, '-1');
@@ -270,37 +273,37 @@ export class OpraHttpAdapter<TExecutionContext extends IHttpExecutionContext> ex
 
   protected createOutput(ctx: QueryContext): PreparedOutput {
     const {query} = ctx;
-    let status = ctx.response.status;
-    let body = ctx.response.value || {};
+    let body: any;
+    let status = ctx.status || 0;
 
-    const errors = ctx.response.errors?.map(e => OpraException.wrap(e));
+    const errors = ctx.errors.map(e => wrapException(e));
 
     if (errors && errors.length) {
-      if (!status || status < 400) {
-        status = 0;
-        for (const e of errors) {
-          status = Math.max(status, e.status || status);
-        }
+      // Sort errors from fatal to info
+      errors.sort((a, b) => {
+        const i = IssueSeverity.Keys.indexOf(a.issue.severity) - IssueSeverity.Keys.indexOf(b.issue.severity);
+        if (i === 0)
+          return b.status - a.status;
+        return i;
+      });
+      if (!status || status < HttpStatus.BAD_REQUEST) {
+        status = errors[0].status;
         if (status < HttpStatus.BAD_REQUEST)
           status = HttpStatus.INTERNAL_SERVER_ERROR;
       }
-      body.errors = errors.map(e => e.response);
+      body = {
+        operation: ctx.query.method,
+        errors: errors.map(e => e.issue)
+      }
     } else {
-      delete body.errors;
+      body = ctx.response;
       status = status || (query.operation === 'create' ? HttpStatus.CREATED : HttpStatus.OK);
     }
-
-    // Convert headers map to object
-    const headers = Array.from(ctx.response.headers.keys()).map(k => k.toLowerCase()).sort()
-        .reduce((a, k) => {
-          a[k] = ctx.response.headers.get(k);
-          return a;
-        }, {});
 
     body = this.i18n.deep(body);
     return {
       status,
-      headers,
+      headers: ctx.responseHeaders.toObject(),
       body
     }
   }
@@ -313,7 +316,11 @@ export class OpraHttpAdapter<TExecutionContext extends IHttpExecutionContext> ex
     resp.setHeader(HttpHeaders.Pragma, 'no-cache');
     resp.setHeader(HttpHeaders.Expires, '-1');
     resp.setHeader(HttpHeaders.X_Opra_Version, OpraSchema.Version);
-    const body = {errors: [this.i18n.deep(error.response)]};
+    const issue = this.i18n.deep(error.issue);
+    const body = {
+      operation: 'unknown',
+      errors: [issue]
+    };
     resp.send(JSON.stringify(body));
   }
 

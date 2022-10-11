@@ -1,12 +1,13 @@
 import { OpraException } from '@opra/exception';
-import { OpraAnyQuery, OpraService, ResponsiveMap } from '@opra/schema';
+import { OpraAnyQuery, OpraService } from '@opra/schema';
 import { OpraURLSearchParams, SearchParams } from '@opra/url';
-import { HttpHeaders, HttpStatus } from '../enums/index.js';
+import { HttpStatus } from '../enums/index.js';
 import {
   ContextType,
   IExecutionContext,
   IHttpExecutionContext
 } from '../interfaces/execution-context.interface.js';
+import { HeadersMap } from './headers-map.js';
 
 export type QueryContextArgs = Pick<QueryContext,
     'service' | 'executionContext' | 'query' | 'params' | 'headers' |
@@ -17,18 +18,26 @@ export class QueryContext {
   readonly executionContext: IExecutionContext;
   readonly query: OpraAnyQuery;
   readonly params: SearchParams;
-  readonly headers: Map<string, string>;
+  readonly headers: HeadersMap;
   readonly parentValue?: any;
   readonly resultPath: string;
-  readonly response: QueryResponse;
+  readonly responseHeaders: HeadersMap;
+  response?: any;
+  errors: OpraException[] = [];
+  status?: HttpStatus;
   userContext?: any;
   continueOnError?: boolean;
 
   constructor(args: QueryContextArgs) {
-    Object.assign(this, args);
-    this.response = new QueryResponse();
+    // Object.assign(this, args);
+    this.service = args.service;
+    this.executionContext = args.executionContext;
+    this.query = args.query;
+
+    // this.response = new QueryResponse();
     this.params = this.params || new OpraURLSearchParams();
-    this.headers = this.headers || new ResponsiveMap();
+    this.headers = new HeadersMap(args.headers);
+    this.responseHeaders = new HeadersMap();
     this.resultPath = this.resultPath || '';
   }
 
@@ -40,21 +49,5 @@ export class QueryContext {
     if (this.type !== 'http')
       throw new Error(`You can't access http context within an ${this.type} context`);
     return this.executionContext as IHttpExecutionContext;
-  }
-}
-
-export type QueryResponseArgs = Pick<QueryResponse, 'status' | 'value' | 'total'>
-
-export class QueryResponse {
-  headers: ResponsiveMap<string, string>;
-  errors: OpraException[] = [];
-  status?: HttpStatus;
-  value?: any;
-  total?: number;
-
-  constructor(args?: QueryResponseArgs) {
-    if (args)
-      Object.assign(this, args);
-    this.headers = new ResponsiveMap(undefined, Array.from(Object.values(HttpHeaders)));
   }
 }

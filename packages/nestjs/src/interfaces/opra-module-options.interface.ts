@@ -3,12 +3,13 @@ import { OpraHttpAdapter } from '@opra/core';
 import { OpraSchema } from '@opra/schema';
 
 export type OpraModuleOptions = OpraHttpAdapter.Options & {
+  info?: OpraSchema.DocumentInfo,
+
   /**
    * @default true
    */
   useGlobalPrefix?: boolean;
 
-  info?: OpraSchema.DocumentInfo,
 }
 
 

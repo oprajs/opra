@@ -14,6 +14,8 @@ export class OpraEntityGetTester extends BaseOperationTester {
 
   constructor(params: OpraEntityGetTesterParams) {
     super(params);
+    if (!params.keyValue)
+      throw new Error(`You must provide "keyValue"`);
   }
 
   keyValue(value: ResourceKey): this {

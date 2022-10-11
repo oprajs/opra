@@ -15,6 +15,8 @@ export class OpraEntityUpdateTester extends BaseOperationTester {
 
   constructor(params: OpraEntityUpdateTesterParams) {
     super(params);
+    if (!params.keyValue)
+      throw new Error(`You must provide "keyValue"`);
   }
 
   data(data: {}): this {

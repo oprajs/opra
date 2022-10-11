@@ -30,16 +30,13 @@ describe('Entity operations', function () {
         .get('/api/svc1/Photos@1');
     expect(resp.body).toStrictEqual(photosData[0]);
     expect(resp.status).toStrictEqual(200);
-    expect(resp.headers['x-opra-schema']).toStrictEqual('/$schema/types/Photos');
 
   });
 
   it('Should search from entity collection', async function () {
     const resp = await request(server)
         .get('/api/svc1/Photos?$filter=id<=2');
-    expect(resp.body).toStrictEqual({
-      items: photosData.filter(x => x.id <= 2)
-    });
+    expect(resp.body).toStrictEqual(photosData.filter(x => x.id <= 2));
     expect(resp.status).toStrictEqual(200);
   });
 
@@ -81,7 +78,7 @@ describe('Entity operations', function () {
     photosData.push({id: 15});
     const resp = await request(server)
         .delete('/api/svc1/Photos@15');
-    expect(resp.body).toStrictEqual({affected: 1});
+    expect(resp.body).toStrictEqual({operation: 'delete', affected: 1});
     expect(resp.status).toStrictEqual(200);
     expect(photosData.find(x => x && x.id === 15)).toStrictEqual(undefined);
   });

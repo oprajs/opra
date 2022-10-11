@@ -16,7 +16,7 @@
     "preclean": "rimraf build coverage",
     "clean": "rman run clean",
     "build": "rman build",
-    "test": "jest --passWithNoTests --detectOpenHandles",
+    "test": "jest --passWithNoTests",
     "precover": "rimraf coverage",
     "cover": "jest --passWithNoTests --detectOpenHandles --coverage",
     "precitest": "rimraf coverage",

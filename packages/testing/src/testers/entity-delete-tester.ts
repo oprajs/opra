@@ -14,6 +14,8 @@ export class OpraEntityDeleteTester extends BaseOperationTester {
 
   constructor(params: OpraEntityDeleteTesterParams) {
     super(params);
+    if (!params.keyValue)
+      throw new Error(`You must provide "keyValue"`);
   }
 
   protected async _send(): Promise<Response> {

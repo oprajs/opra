@@ -1,4 +1,7 @@
 export * from './opra-exception.js';
+export * from './error-issue.js';
+export * from './wrap-exception.js';
+export * from './enums/issue-severity.enum.js';
 
 export * from './http-errors/bad-request.error.js';
 export * from './http-errors/failed-dependency.error.js';

@@ -6,6 +6,7 @@
     "outDir": "../../build/exception/esm",
     "paths": {
       "@opra/i18n": ["../../build/i18n"],
+      "@opra/schema": ["../../build/schema"]
     },
     "sourceMap": false,
     "noEmit": false,

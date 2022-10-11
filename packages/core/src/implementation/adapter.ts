@@ -2,11 +2,10 @@ import { AsyncEventEmitter } from 'strict-typed-events';
 import {
   BadRequestError,
   FailedDependencyError,
-  OpraException
+  OpraException, wrapException
 } from '@opra/exception';
 import { FallbackLng, I18n, LanguageResource } from '@opra/i18n';
-import { OpraGetSchemaQuery, OpraService } from '@opra/schema';
-import { HttpHeaders } from '../enums/index.js';
+import { OpraGetMetadataQuery, OpraService } from '@opra/schema';
 import { IExecutionContext } from '../interfaces/execution-context.interface.js';
 import { createI18n } from '../utils/create-i18n.js';
 import { resourceExecute } from './adapter-utils/resource-execute.util.js';
@@ -103,13 +102,13 @@ export abstract class OpraAdapter<TExecutionContext extends IExecutionContext> {
         // If previous request in bucket had an error and executed an update
         // we do not execute next requests
         if (stop) {
-          context.response.errors.push(new FailedDependencyError());
+          context.errors.push(new FailedDependencyError());
           continue;
         }
 
         try {
           const promise = (async () => {
-            if (context.query.method === 'schema') {
+            if (context.query.method === 'metadata') {
               await this._getSchemaExecute(context);
               return;
             }
@@ -123,7 +122,7 @@ export abstract class OpraAdapter<TExecutionContext extends IExecutionContext> {
             context.userContext = userContext;
             await resourceExecute(this.service, resource, context);
           })().catch(e => {
-            context.response.errors.push(e);
+            context.errors.push(e);
           });
 
           if (exclusive)
@@ -135,15 +134,15 @@ export abstract class OpraAdapter<TExecutionContext extends IExecutionContext> {
 
           // todo execute sub property queries
         } catch (e: any) {
-          context.response.errors.unshift(e);
+          context.errors.unshift(e);
         }
 
-        if (context.response.errors.length) {
+        if (context.errors.length) {
           // noinspection SuspiciousTypeOfGuard
-          context.response.errors = context.response.errors.map(e => OpraException.wrap(e))
+          context.errors = context.errors.map(e => wrapException(e))
           if (exclusive)
-            stop = stop || !!context.response.errors.find(
-                e => !(e.response.severity === 'warning' || e.response.severity === 'info')
+            stop = stop || !!context.errors.find(
+                e => !(e.issue.severity === 'warning' || e.issue.severity === 'info')
             );
         }
       }
@@ -155,7 +154,7 @@ export abstract class OpraAdapter<TExecutionContext extends IExecutionContext> {
 
     } catch (e: any) {
       failed = true;
-      const error = OpraException.wrap(e);
+      const error = wrapException(e);
       await this.sendError(executionContext, error);
     } finally {
       if (executionContext as unknown instanceof AsyncEventEmitter) {
@@ -169,7 +168,7 @@ export abstract class OpraAdapter<TExecutionContext extends IExecutionContext> {
   }
 
   protected async _getSchemaExecute(ctx: QueryContext): Promise<void> {
-    const query = ctx.query as OpraGetSchemaQuery;
+    const query = ctx.query as OpraGetMetadataQuery;
     let out: any;
 
     if (query.resourcePath && query.resourcePath.length > 2)
@@ -180,22 +179,18 @@ export abstract class OpraAdapter<TExecutionContext extends IExecutionContext> {
         const resource = this.service.getResource(query.resourcePath[1]);
         out = resource.getSchema(true);
         query.resourcePath[1] = resource.name;
-        ctx.response.headers.set(HttpHeaders.X_Opra_Schema, 'http://www.oprajs.com/reference/v1/schema#' + resource.kind);
-
       } else if (query.resourcePath[0] === 'types') {
         const dataType = this.service.getDataType(query.resourcePath[1]);
         out = dataType.getSchema(true);
         query.resourcePath[1] = dataType.name;
-        ctx.response.headers.set(HttpHeaders.X_Opra_Schema, 'http://www.oprajs.com/reference/v1/schema#' + dataType.kind);
       } else
         throw new BadRequestError();
 
-      ctx.response.value = out;
+      ctx.response = out;
       return;
     }
 
-    ctx.response.headers.set(HttpHeaders.X_Opra_Schema, 'http://www.oprajs.com/reference/v1/schema');
-    ctx.response.value = this.service.getSchema(true);
+    ctx.response = this.service.getSchema(true);
   }
 
   protected static async initI18n(options?: OpraAdapter.Options): Promise<I18n> {

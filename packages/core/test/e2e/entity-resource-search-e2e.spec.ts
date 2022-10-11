@@ -1,7 +1,7 @@
 import express from 'express';
 import { OpraService } from '@opra/schema';
-import { apiExpect, opraTest, OpraTester } from '@opra/testing';
-import { OpraExpressAdapter } from '../../src/index.js';
+import { opraTest, OpraTester } from '@opra/testing';
+import { HttpHeaders, OpraExpressAdapter } from '../../src/index.js';
 import { createTestService } from '../_support/test-app/create-service.js';
 import { customersData } from '../_support/test-app/data/customers.data.js';
 
@@ -21,22 +21,20 @@ describe('e2e: EntityResource:search', function () {
   it('Should return list object', async () => {
     const resp = await api.entity('Customers')
         .search().send();
-    apiExpect(resp)
+    resp.expect
         .toSuccess()
-        .toReturnList(list => {
-          list.toHaveMinItems(1);
-        })
+        .toReturnArray()
+        .toHaveMinItems(1);
   })
 
   it('Should not send exclusive fields (unless not included for resolver)', async () => {
     const resp = await api.entity('Customers')
         .search()
         .send();
-    apiExpect(resp)
+    resp.expect
         .toSuccess()
-        .toReturnList(list => {
-          list.notToContainKeys(['address', 'notes']);
-        })
+        .toReturnArray()
+        .notToContainKeys(['address', 'notes']);
   })
 
   it('Should pick fields', async () => {
@@ -44,11 +42,10 @@ describe('e2e: EntityResource:search', function () {
         .search()
         .pick('id', 'givenName')
         .send();
-    apiExpect(resp)
+    resp.expect
         .toSuccess()
-        .toReturnList(list => {
-          list.toContainAllKeys(['id', 'givenName']);
-        })
+        .toReturnArray()
+        .toContainAllKeys(['id', 'givenName']);
   })
 
   it('Should omit fields', async () => {
@@ -56,11 +53,10 @@ describe('e2e: EntityResource:search', function () {
         .search()
         .omit('id', 'givenName')
         .send();
-    apiExpect(resp)
+    resp.expect
         .toSuccess()
-        .toReturnList(list => {
-          list.notToContainKeys(['id', 'givenName']);
-        })
+        .toReturnArray()
+        .notToContainKeys(['id', 'givenName']);
   })
 
   it('Should include exclusive fields if requested (unless not excluded for resolver)', async () => {
@@ -68,11 +64,10 @@ describe('e2e: EntityResource:search', function () {
         .search()
         .include('address')
         .send();
-    apiExpect(resp)
+    resp.expect
         .toSuccess()
-        .toReturnList(list => {
-          list.toContainKeys(['address']);
-        })
+        .toReturnArray()
+        .toContainKeys(['address']);
   })
 
   it('Should apply filter', async () => {
@@ -80,12 +75,11 @@ describe('e2e: EntityResource:search', function () {
         .search()
         .filter('countryCode="' + customersData[0].countryCode + '"')
         .send();
-    apiExpect(resp)
+    resp.expect
         .toSuccess()
-        .toReturnList(list => {
-          list.toHaveMinItems(1);
-          list.toBeFilteredBy('countryCode="' + customersData[0].countryCode + '"');
-        })
+        .toReturnArray()
+        .toHaveMinItems(1)
+        .toBeFilteredBy('countryCode="' + customersData[0].countryCode + '"');
   })
 
   it('Should set item limit to be returned', async () => {
@@ -93,11 +87,10 @@ describe('e2e: EntityResource:search', function () {
         .search()
         .limit(3)
         .send();
-    apiExpect(resp)
+    resp.expect
         .toSuccess()
-        .toReturnList(list => {
-          list.toHaveMaxItems(3);
-        })
+        .toReturnArray()
+        .toHaveMaxItems(3);
   })
 
   it('Should set offset of the list to be returned', async () => {
@@ -105,24 +98,22 @@ describe('e2e: EntityResource:search', function () {
         .search()
         .skip(10)
         .send();
-    apiExpect(resp)
+    resp.expect
         .toSuccess()
-        .toReturnList(list => {
-          list.items.forEach(x =>
-              expect(x.id).toBeGreaterThan(10));
-        })
+        .toReturnArray();
+    resp.body.forEach(x =>
+        expect(x.id).toBeGreaterThan(10));
   })
 
-  it('Should count matched records', async () => {
+  it('Should count matching records', async () => {
     const resp = await api.entity('Customers')
         .search()
         .count()
         .send();
-    apiExpect(resp)
+    resp.expect
         .toSuccess()
-        .toReturnList(list => {
-          expect(list.body.count).toStrictEqual(customersData.length);
-        })
+        .toReturnArray();
+    expect(resp.get(HttpHeaders.X_Opra_Count)).toStrictEqual('' + customersData.length);
   })
 
 });

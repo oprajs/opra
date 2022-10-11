@@ -1,5 +1,5 @@
 import { translate } from '@opra/i18n';
-import { ErrorResponse, OpraException } from '../opra-exception.js';
+import { OpraException } from '../opra-exception.js';
 
 /**
  * 405 Method Not Allowed
@@ -7,18 +7,15 @@ import { ErrorResponse, OpraException } from '../opra-exception.js';
  * For example, an API may not allow calling DELETE to remove a resource.
  */
 export class MethodNotAllowedError extends OpraException {
+  status = 405;
 
-  constructor(response?: string | ErrorResponse | Error, cause?: Error) {
-    super(response, cause);
-    this.status = 405;
-  }
-
-  protected _initResponse(response: Partial<ErrorResponse>) {
-    super._initResponse({
+  setIssue(issue) {
+    super.setIssue({
       message: translate('error:METHOD_NOT_ALLOWED', 'Method not allowed'),
       severity: 'error',
       code: 'METHOD_NOT_ALLOWED',
-      ...response
-    })
+      ...issue
+    });
   }
+
 }

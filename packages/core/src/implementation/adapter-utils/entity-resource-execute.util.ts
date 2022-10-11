@@ -9,14 +9,13 @@ import {
   OpraUpdateInstanceQuery
 } from '@opra/schema';
 import { HttpHeaders } from '../../enums/index.js';
-import { QueryContext, QueryResponse } from '../query-context.js';
+import { QueryContext } from '../query-context.js';
 
 export async function entityResourceExecute(service: OpraService, resource: EntityResource, context: QueryContext) {
   const {query} = context;
   if (query.kind === 'SearchCollectionQuery') {
     const promises: Promise<any>[] = [];
     let search: any;
-    let count: any;
     promises.push(
         executeFn(service, resource, context)
             .then(v => search = v)
@@ -24,20 +23,16 @@ export async function entityResourceExecute(service: OpraService, resource: Enti
     if (query.count && resource.metadata.methods.count) {
       const ctx = {
         query: new OpraCountCollectionQuery(query.resource, {filter: query.filter}),
-        response: new QueryResponse()
+        resultPath: ''
       } as QueryContext;
       Object.setPrototypeOf(ctx, context);
-      promises.push(executeFn(service, resource, ctx)
-          .then(v => count = v));
+      promises.push(executeFn(service, resource, ctx));
     }
     await Promise.all(promises);
-    context.response.value = {
-      ...count,
-      ...search,
-    }
+    context.response = search;
     return;
   }
-  context.response.value = await executeFn(service, resource, context);
+  context.response = await executeFn(service, resource, context);
 }
 
 async function executeFn(
@@ -57,10 +52,9 @@ async function executeFn(
   let result = await resolverInfo.handler(context);
   switch (method) {
     case 'search':
-      context.response.headers.set(HttpHeaders.X_Opra_Schema, '/$schema/types/' + resource.dataType.name);
-      return {
-        items: Array.isArray(result) ? result : (context.response.value ? [result] : [])
-      };
+      const items = Array.isArray(result) ? result : (context.response ? [result] : []);
+      context.responseHeaders.set(HttpHeaders.X_Opra_Schema, resource.dataType.name);
+      return items;
     case 'get':
     case 'update':
       if (!result) {
@@ -69,7 +63,8 @@ async function executeFn(
       }
       break;
     case 'count':
-      return {count: result || 0};
+      context.responseHeaders.set(HttpHeaders.X_Opra_Count, result);
+      return;
     case 'delete':
     case 'deleteMany':
     case 'updateMany':
@@ -80,7 +75,10 @@ async function executeFn(
         affected = result ? 1 : 0;
       if (typeof result === 'object')
         affected = result.affectedRows || result.affected;
-      return {affected};
+      return {
+        operation: context.query.method,
+        affected
+      };
   }
 
   if (!result)
@@ -99,10 +97,8 @@ async function executeFn(
   }
 
   if (method === 'create')
-    context.response.status = 201;
+    context.status = 201;
 
-  if (dataType)
-    context.response.headers.set(HttpHeaders.X_Opra_Schema, '/$schema/types/' + dataType.name);
-
+  context.responseHeaders.set(HttpHeaders.X_Opra_Schema, resource.dataType.name)
   return result;
 }

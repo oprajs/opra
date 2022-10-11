@@ -4,7 +4,7 @@ import { OpraDeleteCollectionQuery } from './delete-collection-query.js';
 import { OpraDeleteInstanceQuery } from './delete-instance-query.js';
 import { OpraGetFieldQuery } from './get-field-query.js';
 import { OpraGetInstanceQuery } from './get-instance-query.js';
-import { OpraGetSchemaQuery } from './get-schema-query.js';
+import { OpraGetMetadataQuery } from './get-schema-query.js';
 import { OpraSearchCollectionQuery } from './search-collection-query.js';
 import { OpraUpdateCollectionQuery } from './update-collection-query.js';
 import { OpraUpdateInstanceQuery } from './update-instance-query.js';
@@ -26,5 +26,5 @@ export type OpraAnyEntityQuery = OpraCreateInstanceQuery | OpraCountCollectionQu
     OpraGetInstanceQuery | OpraGetFieldQuery |
     OpraSearchCollectionQuery | OpraUpdateCollectionQuery | OpraUpdateInstanceQuery;
 
-export type OpraAnyQuery = OpraAnyEntityQuery | OpraGetSchemaQuery;
+export type OpraAnyQuery = OpraAnyEntityQuery | OpraGetMetadataQuery;
 

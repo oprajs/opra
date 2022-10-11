@@ -1,5 +1,5 @@
 import { translate } from '@opra/i18n';
-import { ErrorResponse, OpraException } from '../opra-exception.js';
+import { OpraException } from '../opra-exception.js';
 
 /**
  * 404 Not Found
@@ -10,18 +10,15 @@ import { ErrorResponse, OpraException } from '../opra-exception.js';
  * frequent occurrence on the web.
  */
 export class NotFoundError extends OpraException {
+  status = 404;
 
-  constructor(response?: string | ErrorResponse | Error, cause?: Error) {
-    super(response, cause);
-    this.status = 404;
-  }
-
-  protected _initResponse(response: Partial<ErrorResponse>) {
-    super._initResponse({
+  setIssue(issue) {
+    super.setIssue({
       message: translate('error:NOT_FOUND', 'Not found'),
       severity: 'error',
       code: 'NOT_FOUND',
-      ...response
-    })
+      ...issue
+    });
   }
+
 }

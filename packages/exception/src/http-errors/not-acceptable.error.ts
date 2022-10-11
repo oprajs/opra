@@ -1,5 +1,5 @@
 import { translate } from '@opra/i18n';
-import { ErrorResponse, OpraException } from '../opra-exception.js';
+import { OpraException } from '../opra-exception.js';
 
 /**
  * 406 Not Acceptable
@@ -7,18 +7,15 @@ import { ErrorResponse, OpraException } from '../opra-exception.js';
  * doesn't find any content that conforms to the criteria given by the user agent.
  */
 export class NotAcceptableError extends OpraException {
+  status = 406;
 
-  constructor(response?: string | ErrorResponse | Error, cause?: Error) {
-    super(response, cause);
-    this.status = 406;
-  }
-
-  protected _initResponse(response: Partial<ErrorResponse>) {
-    super._initResponse({
+  setIssue(issue) {
+    super.setIssue({
       message: translate('error:NOT_ACCEPTABLE', 'Not Acceptable'),
       severity: 'error',
       code: 'NOT_ACCEPTABLE',
-      ...response
-    })
+      ...issue
+    });
   }
+  
 }

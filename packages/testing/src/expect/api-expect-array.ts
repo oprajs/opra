@@ -1,6 +1,5 @@
 import _ from 'lodash';
 import ruleJudgment from 'rule-judgment'
-import { Response } from 'supertest';
 import {
   $parse, ArrayExpression, BooleanLiteral,
   ComparisonExpression, DateLiteral,
@@ -9,25 +8,18 @@ import {
   QualifiedIdentifier,
   StringLiteral, TimeLiteral
 } from '@opra/url';
+import type { ApiResponse } from '../api-response';
 
-export class ApiExpectList {
+export class ApiExpectArray {
 
-  constructor(readonly response: Response) {
+  constructor(readonly response: ApiResponse) {
 
-  }
-
-  get body() {
-    return this.response.body;
-  }
-
-  get items(): any[] {
-    return this.response.body.items;
   }
 
   toMatch<T extends {}>(expected: T): this {
     try {
       const v = _.omitBy(expected, _.isNil);
-      for (const item of this.response.body.items) {
+      for (const item of this.response.body) {
         expect(item).toMatchObject(v);
       }
     } catch (e: any) {
@@ -39,7 +31,7 @@ export class ApiExpectList {
 
   toContainAllKeys(keys: string[]): this {
     try {
-      for (const item of this.response.body.items) {
+      for (const item of this.response.body) {
         expect(item).toContainAllKeys(keys);
       }
     } catch (e: any) {
@@ -51,7 +43,7 @@ export class ApiExpectList {
 
   toContainKeys(keys: string[]): this {
     try {
-      for (const item of this.response.body.items) {
+      for (const item of this.response.body) {
         expect(item).toContainKeys(keys);
       }
     } catch (e: any) {
@@ -63,7 +55,7 @@ export class ApiExpectList {
 
   notToContainKeys(keys: string[]): this {
     try {
-      for (const item of this.response.body.items) {
+      for (const item of this.response.body) {
         expect(item).not.toContainKeys(keys);
       }
     } catch (e: any) {
@@ -75,7 +67,7 @@ export class ApiExpectList {
 
   toHaveProperty(keyPath, value?): this {
     try {
-      for (const item of this.response.body.items) {
+      for (const item of this.response.body) {
         expect(item).toHaveProperty(keyPath, value);
       }
 
@@ -88,7 +80,7 @@ export class ApiExpectList {
 
   toBeSortedBy(...fields: string[]): this {
     try {
-      for (const item of this.response.body.items) {
+      for (const item of this.response.body) {
         expect(item).toBeSortedBy(fields);
       }
     } catch (e: any) {
@@ -102,9 +94,9 @@ export class ApiExpectList {
     const f = convertFilter(filter);
     if (f) {
       const j = ruleJudgment(f);
-      const filtered = this.response.body.items.filter(j);
+      const filtered = this.response.body.filter(j);
       try {
-        expect(this.response.body.items).toStrictEqual(filtered);
+        expect(this.response.body).toStrictEqual(filtered);
       } catch (e: any) {
         Error.captureStackTrace(e, this.toBeFilteredBy);
         throw e;
@@ -113,31 +105,34 @@ export class ApiExpectList {
     return this;
   }
 
-  toHaveExactItems(expected: number) {
+  toHaveExactItems(expected: number): this {
     try {
-      return expect(this.response.body.items).toHaveLength(expected);
+      expect(this.response.body).toHaveLength(expected);
     } catch (e: any) {
       Error.captureStackTrace(e, this.toHaveExactItems);
       throw e;
     }
+    return this;
   }
 
-  toHaveMaxItems(expected: number) {
+  toHaveMaxItems(expected: number): this {
     try {
-      return expect(this.response.body.items.length).toBeLessThanOrEqual(expected);
+      expect(this.response.body.length).toBeLessThanOrEqual(expected);
     } catch (e: any) {
       Error.captureStackTrace(e, this.toHaveMaxItems);
       throw e;
     }
+    return this;
   }
 
-  toHaveMinItems(expected: number) {
+  toHaveMinItems(expected: number): this {
     try {
-      return expect(this.response.body.items.length).toBeGreaterThanOrEqual(expected);
+      expect(this.response.body.length).toBeGreaterThanOrEqual(expected);
     } catch (e: any) {
       Error.captureStackTrace(e, this.toHaveMinItems);
       throw e;
     }
+    return this;
   }
 
 }

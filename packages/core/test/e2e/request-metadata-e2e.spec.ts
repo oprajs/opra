@@ -15,8 +15,8 @@ describe('Requesting Metadata', function () {
     await OpraExpressAdapter.init(app, service);
   });
 
-  it('Should /$schema return service metadata', async () => {
-    const resp = await request(app).get('/$schema');
+  it('Should /$metadata return service metadata', async () => {
+    const resp = await request(app).get('/$metadata');
     expect(resp.status).toStrictEqual(200);
     expect(resp.body).toBeDefined();
     expect(resp.body).toMatchObject({
@@ -26,11 +26,10 @@ describe('Requesting Metadata', function () {
         "version": "v1"
       }
     })
-    expect(resp.headers['x-opra-schema']).toStrictEqual('http://www.oprajs.com/reference/v1/schema')
   })
 
-  it('Should /$schema/resources/(Resource) return resource metadata', async () => {
-    const resp = await request(app).get('/$schema/resources/Customers');
+  it('Should /$metadata/resources/(Resource) return resource metadata', async () => {
+    const resp = await request(app).get('/$metadata/resources/Customers');
     expect(resp.status).toStrictEqual(200);
     expect(resp.body).toBeDefined();
     expect(resp.body).toMatchObject({
@@ -38,11 +37,10 @@ describe('Requesting Metadata', function () {
       "type": "Customer",
       "name": "Customers"
     })
-    expect(resp.headers['x-opra-schema']).toStrictEqual('http://www.oprajs.com/reference/v1/schema#EntityResource')
   })
 
-  it('Should /(Resource)/$schema return resource metadata', async () => {
-    const resp = await request(app).get('/$schema/resources/Customers');
+  it('Should /(Resource)/$metadata return resource metadata', async () => {
+    const resp = await request(app).get('/$metadata/resources/Customers');
     expect(resp.status).toStrictEqual(200);
     expect(resp.body).toBeDefined();
     expect(resp.body).toMatchObject({
@@ -50,24 +48,22 @@ describe('Requesting Metadata', function () {
       "type": "Customer",
       "name": "Customers"
     })
-    expect(resp.headers['x-opra-schema']).toStrictEqual('http://www.oprajs.com/reference/v1/schema#EntityResource')
   })
 
-  it('Should /$schema/types/(DataType) return data type metadata', async () => {
-    const resp = await request(app).get('/$schema/types/Address');
+  it('Should /$metadata/types/(DataType) return data type metadata', async () => {
+    const resp = await request(app).get('/$metadata/types/Address');
     expect(resp.status).toStrictEqual(200);
     expect(resp.body).toBeDefined();
     expect(resp.body).toMatchObject({
       "kind": "ComplexType",
       "name": "Address"
     })
-    expect(resp.headers['x-opra-schema']).toStrictEqual('http://www.oprajs.com/reference/v1/schema#ComplexType')
   })
 
   it('Should throw if url is not acceptable', async () => {
-    let resp = await request(app).get('/$schema/types/Address/id');
+    let resp = await request(app).get('/$metadata/types/Address/id');
     expect(resp.status).toStrictEqual(400);
-    resp = await request(app).get('/$schema/resources/Customers/id');
+    resp = await request(app).get('/$metadata/resources/Customers/id');
     expect(resp.status).toStrictEqual(400);
   })
 

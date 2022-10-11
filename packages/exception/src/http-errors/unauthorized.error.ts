@@ -1,5 +1,5 @@
 import { translate } from '@opra/i18n';
-import { ErrorResponse, OpraException } from '../opra-exception.js';
+import { OpraException } from '../opra-exception.js';
 
 /**
  * 401 Unauthorized
@@ -7,18 +7,15 @@ import { ErrorResponse, OpraException } from '../opra-exception.js';
  * That is, the client must authenticate itself to get the requested response.
  */
 export class UnauthorizedError extends OpraException {
+  status = 401;
 
-  constructor(response?: string | ErrorResponse | Error, cause?: Error) {
-    super(response, cause);
-    this.status = 401;
-  }
-
-  protected _initResponse(response: Partial<ErrorResponse>) {
-    super._initResponse({
+  setIssue(issue) {
+    super.setIssue({
       message: translate('error:UNAUTHORIZED', 'You have not been authenticated to perform this action'),
       severity: 'error',
       code: 'UNAUTHORIZED',
-      ...response
-    })
+      ...issue
+    });
   }
+
 }
