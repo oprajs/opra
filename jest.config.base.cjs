@@ -9,6 +9,7 @@ module.exports = {
     '_support'
   ],
   coverageReporters: ['lcov', 'text'],
+  coverageDirectory: "<rootDir>/coverage/",
   transform: {
     '^.+.ts?$': ['ts-jest', {
       'tsconfig': '<rootDir>/test/tsconfig.json'

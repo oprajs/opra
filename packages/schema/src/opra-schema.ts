@@ -20,7 +20,7 @@ export namespace OpraSchema {
   export type OperationType = 'create' | 'read' | 'update' | 'patch' | 'delete' | 'execute';
   export type QueryScope = 'collection' | 'instance' | 'field';
   export type EntityMethod = 'search' | 'count' | 'get' | 'create' | 'update' | 'updateMany' | 'delete' | 'deleteMany';
-  export type QueryMethod = EntityMethod | 'schema' | 'execute';
+  export type QueryMethod = EntityMethod | 'metadata' | 'execute';
   export type KeyValue = string | number | boolean | object;
 
 
@@ -123,11 +123,13 @@ export namespace OpraSchema {
   export type Field = Extensible & {
     type: string;
     description?: string;
+    optional?: boolean;
     isArray?: boolean;
     format?: string;
     default?: any;
     fixed?: string | number;
     enum?: string | string[] | Record<string, string>;
+    enumName?: string;
     examples?: any[] | Record<string, any>;
     deprecated?: boolean | string;
 
@@ -218,7 +220,7 @@ export namespace OpraSchema {
    * *** === Query related === ***
    */
 
-  export type AnyQuery = GetSchemaQuery |
+  export type AnyQuery = GetMetadataQuery |
       CreateInstanceQuery | GetInstanceQuery | UpdateInstanceQuery | DeleteInstanceQuery |
       DeleteCollectionQuery | SearchCollectionQuery | UpdateCollectionQuery;
 
@@ -228,8 +230,8 @@ export namespace OpraSchema {
     operation: OperationType;
   }
 
-  export interface GetSchemaQuery extends BaseQuery {
-    method: 'schema';
+  export interface GetMetadataQuery extends BaseQuery {
+    method: 'metadata';
     scope: QueryScope;
     operation: 'read';
     resourcePath?: string[];
@@ -371,10 +373,10 @@ export namespace OpraSchema {
     return obj && typeof obj === 'object' && obj.kind === 'ContainerResource';
   }
 
-  export function isGetSchemaQuery(q: any): q is GetSchemaQuery {
+  export function isGetMetadataQuery(q: any): q is GetMetadataQuery {
     return q && typeof q === 'object' &&
         q.scope === 'instance' &&
-        q.method === 'schema' &&
+        q.method === 'metadata' &&
         q.operation === 'read';
   }
 

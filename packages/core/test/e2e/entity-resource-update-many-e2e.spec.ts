@@ -1,7 +1,7 @@
 import express from 'express';
 import { faker } from '@faker-js/faker';
 import { OpraService } from '@opra/schema';
-import { apiExpect, opraTest, OpraTester } from '@opra/testing';
+import { opraTest, OpraTester } from '@opra/testing';
 import { OpraExpressAdapter } from '../../src/index.js';
 import { createTestService } from '../_support/test-app/create-service.js';
 import { customersData } from '../_support/test-app/data/customers.data.js';
@@ -26,20 +26,19 @@ describe('e2e: EntityResource:updateMany', function () {
     let resp = await api.entity('Customers')
         .updateMany(data)
         .send();
-    apiExpect(resp)
+    resp.expect
         .toSuccess()
-        .toReturnObject(obj => {
-          expect(obj.body.affected).toStrictEqual(customersData.length);
-        })
+        .toReturnOperationResult()
+        .toBeAffectedExact(customersData.length);
+
     resp = await api.entity('Customers')
         .search()
         .limit(1000000)
         .send();
-    apiExpect(resp)
+    resp.expect
         .toSuccess()
-        .toReturnList(list => {
-          list.toMatch(data);
-        });
+        .toReturnArray()
+        .toMatch(data);
   })
 
   it('Should update many instances by filter', async () => {
@@ -50,21 +49,19 @@ describe('e2e: EntityResource:updateMany', function () {
         .updateMany(data)
         .filter('id<=10')
         .send();
-    apiExpect(resp)
+    resp.expect
         .toSuccess()
-        .toReturnObject(obj => {
-          expect(obj.body.affected).toStrictEqual(10);
-        })
+        .toReturnOperationResult()
+        .toBeAffectedMin(10)
     resp = await api.entity('Customers')
         .search()
         .filter('city="' + data.city + '"')
         .send();
-    apiExpect(resp)
+    resp.expect
         .toSuccess()
-        .toReturnList(list => {
-          list.toMatch(data);
-          list.toHaveExactItems(10);
-        });
+        .toReturnArray()
+        .toHaveExactItems(10)
+        .toMatch(data);
   })
 
 });

@@ -1,6 +1,6 @@
 import express from 'express';
 import { OpraService } from '@opra/schema';
-import { apiExpect, opraTest, OpraTester } from '@opra/testing';
+import { opraTest, OpraTester } from '@opra/testing';
 import { OpraExpressAdapter } from '../../src/index.js';
 import { createTestService } from '../_support/test-app/create-service.js';
 
@@ -20,24 +20,19 @@ describe('e2e: EntityResource:get', function () {
   it('Should return object', async () => {
     const resp = await api.entity('Customers')
         .get('1').send();
-    apiExpect(resp)
+    resp.expect
         .toSuccess()
-        .toReturnObject(obj => {
-          obj.toMatch({
-            "id": 1
-          });
-        })
+        .toReturnObject();
   })
 
   it('Should not send exclusive fields (unless not included for resolver)', async () => {
     const resp = await api.entity('Customers')
         .get('1')
         .send();
-    apiExpect(resp)
+    resp.expect
         .toSuccess()
-        .toReturnObject(obj => {
-          obj.notToContainKeys(['address', 'notes']);
-        })
+        .toReturnObject()
+        .notToContainKeys(['address', 'notes']);
   })
 
   it('Should pick fields to be returned', async () => {
@@ -45,11 +40,10 @@ describe('e2e: EntityResource:get', function () {
         .get('1')
         .pick('id', 'givenName')
         .send();
-    apiExpect(resp)
+    resp.expect
         .toSuccess()
-        .toReturnObject(obj => {
-          obj.toContainKeys(['id', 'givenName']);
-        })
+        .toReturnObject()
+        .toContainKeys(['id', 'givenName']);
   })
 
   it('Should omit fields to be returned', async () => {
@@ -57,11 +51,10 @@ describe('e2e: EntityResource:get', function () {
         .get('1')
         .omit('id', 'givenName')
         .send();
-    apiExpect(resp)
+    resp.expect
         .toSuccess()
-        .toReturnObject(obj => {
-          obj.notToContainKeys(['id', 'givenName']);
-        })
+        .toReturnObject()
+        .notToContainKeys(['id', 'givenName']);
   })
 
   it('Should include exclusive fields if requested', async () => {
@@ -69,11 +62,10 @@ describe('e2e: EntityResource:get', function () {
         .get('1')
         .include('address')
         .send();
-    apiExpect(resp)
+    resp.expect
         .toSuccess()
-        .toReturnObject(obj => {
-          obj.toContainKeys(['address']);
-        })
+        .toReturnObject()
+        .toContainKeys(['address']);
   })
 
 });

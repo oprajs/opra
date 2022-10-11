@@ -1,5 +1,5 @@
 import { translate } from '@opra/i18n';
-import { ErrorResponse, OpraException } from '../opra-exception.js';
+import { OpraException } from '../opra-exception.js';
 
 /**
  * 400 Bad Request
@@ -7,18 +7,14 @@ import { ErrorResponse, OpraException } from '../opra-exception.js';
  * (e.g., malformed request syntax, invalid request message framing, or deceptive request routing).
  */
 export class BadRequestError extends OpraException {
+  status = 400;
 
-  constructor(response?: string | ErrorResponse | Error, cause?: Error) {
-    super(response, cause);
-    this.status = 400;
-  }
-
-  protected _initResponse(response: Partial<ErrorResponse>) {
-    super._initResponse({
+  setIssue(issue) {
+    super.setIssue({
       message: translate('error:BAD_REQUEST', 'Bad request'),
       severity: 'error',
       code: 'BAD_REQUEST',
-      ...response
-    })
+      ...issue
+    });
   }
 }

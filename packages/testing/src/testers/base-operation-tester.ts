@@ -1,23 +1,25 @@
 import { Response } from 'supertest';
-import { ApiExpect } from '../expect/api-expect.js';
+import { ApiResponse } from '../api-response.js';
 import { BaseTester } from './base-tester.js';
 
-export interface OpraTesterParams {
-  app: any;
-  prefix: string;
-  headers: Record<string, string>;
-}
-
 export abstract class BaseOperationTester extends BaseTester {
-  async send(): Promise<Response>
-  async send(fn: (expect) => void): Promise<void>
-  async send(fn?: (expect) => void): Promise<Response | void> {
-    const resp = await this._send();
+  async send(): Promise<ApiResponse>
+  async send(fn: (expect: ApiResponse) => void): Promise<void>
+  async send(fn?: (expect: ApiResponse) => void): Promise<ApiResponse | void> {
+    const response = await this._send();
+    const apiResponse = new ApiResponse({
+      status: response.status,
+      body: response.body,
+      headers: response.headers,
+      rawBody: response.text,
+      contentType: response.type,
+      charset: response.charset
+    });
     if (fn) {
-      fn(new ApiExpect(resp));
+      fn(apiResponse);
       return;
     }
-    return resp;
+    return apiResponse;
   }
 
   protected abstract _send(): Promise<Response>;

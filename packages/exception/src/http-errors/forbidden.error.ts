@@ -1,5 +1,5 @@
 import { translate } from '@opra/i18n';
-import { ErrorResponse, OpraException } from '../opra-exception.js';
+import { OpraException } from '../opra-exception.js';
 
 /**
  * 403 Forbidden
@@ -8,19 +8,16 @@ import { ErrorResponse, OpraException } from '../opra-exception.js';
  * the client's identity is known to the server.
  */
 export class ForbiddenError extends OpraException {
+  status = 403;
 
-  constructor(response?: string | ErrorResponse | Error, cause?: Error) {
-    super(response, cause);
-    this.status = 403;
-  }
-
-  protected _initResponse(response: Partial<ErrorResponse>) {
-    super._initResponse({
+  setIssue(issue) {
+    super.setIssue({
       message: translate('error:FORBIDDEN',
           'You are not authorized to perform this action'),
       severity: 'error',
       code: 'FORBIDDEN',
-      ...response
-    })
+      ...issue
+    });
   }
+
 }

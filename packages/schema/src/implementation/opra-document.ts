@@ -24,10 +24,6 @@ export class OpraDocument {
       this._addDataTypes(schema.types);
   }
 
-  get name(): string {
-    return this._args.info?.title || '';
-  }
-
   get info(): OpraSchema.DocumentInfo {
     return this._args.info;
   }
@@ -80,12 +76,12 @@ export class OpraDocument {
   }
 
   toString(): string {
-    return `[${Object.getPrototypeOf(this).constructor.name} ${this.name}]`;
+    return `[${Object.getPrototypeOf(this).constructor.name} ${this.info.title}]`;
   }
 
   [nodeInspectCustom](): string {
     return `[${colorFgYellow + Object.getPrototypeOf(this).constructor.name + colorReset}` +
-        ` ${colorFgMagenta + this.name + colorReset}]`;
+        ` ${colorFgMagenta + this.info.title + colorReset}]`;
   }
 
   static async create(args: SchemaGenerator.GenerateDocumentArgs): Promise<OpraDocument> {

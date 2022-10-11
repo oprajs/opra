@@ -2,16 +2,14 @@ import { matcherHint, MatcherHintOptions, printExpected, printReceived } from 'j
 
 declare global {
   namespace jest {
-    interface Expect {
-
-      objectMatches(expected: Record<string, any>);
-    }
 
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     interface Matchers<R> {
       toContainKeys(expected: string[]);
 
       toContainAllKeys(expected: string[]);
+
+      toBeArray();
 
       toBeSorted(compareFn?: (a, b) => number);
 
@@ -31,8 +29,6 @@ declare global {
       toContainKeys(expected: string[]);
 
       toContainAllKeys(expected: string[]);
-
-      objectMatches(expected: Record<string, any>);
 
       toBeSorted(compareFn?: (a, b) => number);
 
@@ -80,25 +76,14 @@ expect.extend({
     return {actual: received, pass: true, message: () => ''};
   },
 
-  objectMatches(received, expected: Record<string, any>) {
-    if (typeof received === 'object') {
-      const keys = Object.keys(expected);
-      for (const k of keys) {
-        const v = k.split('.').reduce((a, b) => a[b], received);
-        try {
-          const matching = expected[k];
-          if (typeof matching === 'function')
-            matching(v);
-          else expect(v).toEqual(matching);
-        } catch (e: any) {
-          return {
-            pass: false,
-            message: () => `${k} does not match: ${e.message}`
-          };
-        }
-      }
+  toBeArray(received) {
+    if (Array.isArray(received)) {
+      return {actual: received, pass: true, message: () => ''};
     }
-    return {actual: received, pass: true, message: () => ''};
+    return {
+      pass: false,
+      message: () => 'Value is not an array'
+    };
   },
 
   toBeSorted(received, compareFn?: (a, b) => number) {

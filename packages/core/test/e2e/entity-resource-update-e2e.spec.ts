@@ -1,7 +1,7 @@
 import express from 'express';
 import { faker } from '@faker-js/faker';
 import { OpraService } from '@opra/schema';
-import { apiExpect, opraTest, OpraTester } from '@opra/testing';
+import { opraTest, OpraTester } from '@opra/testing';
 import { OpraExpressAdapter } from '../../src/index.js';
 import { createTestService } from '../_support/test-app/create-service.js';
 
@@ -31,18 +31,17 @@ describe('e2e: EntityResource:update', function () {
 
     resp = await api.entity('Customers')
         .update(oldData.id, data).send();
-    apiExpect(resp)
+    resp.expect
         .toSuccess()
-        .toReturnObject(obj => {
-          obj.toMatch({...oldData, ...data, address: undefined});
-        });
+        .toReturnObject()
+        .toMatch({...oldData, ...data, address: undefined});
+
     resp = await api.entity('Customers')
         .get(oldData.id).send();
-    apiExpect(resp)
+    resp.expect
         .toSuccess()
-        .toReturnObject(obj => {
-          obj.toMatch({...oldData, ...data, address: undefined});
-        });
+        .toReturnObject()
+        .toMatch({...oldData, ...data, address: undefined});
   })
 
   it('Should pick fields to be returned', async () => {
@@ -60,11 +59,10 @@ describe('e2e: EntityResource:update', function () {
         .update(oldData.id, data)
         .pick('id', 'givenName')
         .send();
-    apiExpect(resp)
+    resp.expect
         .toSuccess()
-        .toReturnObject(obj => {
-          obj.toContainAllKeys(['id', 'givenName']);
-        })
+        .toReturnObject()
+        .toContainAllKeys(['id', 'givenName']);
   })
 
   it('Should omit fields to be returned', async () => {
@@ -82,11 +80,11 @@ describe('e2e: EntityResource:update', function () {
         .update(oldData.id, data)
         .omit('id', 'givenName')
         .send();
-    apiExpect(resp)
+    resp.expect
         .toSuccess()
-        .toReturnObject(obj => {
-          obj.notToContainKeys(['id', 'givenName']);
-        })
+        .toSuccess()
+        .toReturnObject()
+        .notToContainKeys(['id', 'givenName']);
   })
 
   it('Should include exclusive fields if requested', async () => {
@@ -104,11 +102,11 @@ describe('e2e: EntityResource:update', function () {
         .update(oldData.id, data)
         .include('address')
         .send();
-    apiExpect(resp)
+    resp.expect
         .toSuccess()
-        .toReturnObject(obj => {
-          obj.toContainKeys(['address']);
-        })
+        .toSuccess()
+        .toReturnObject()
+        .toContainKeys(['address']);
   })
 
 });
