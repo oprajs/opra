@@ -4,7 +4,6 @@
     "baseUrl": "./",
     "paths": {
       "@opra/i18n": ["../i18n/src"],
-      "@opra/schema": ["../schema/src"]
     }
   },
   "include": ["src", "test"],

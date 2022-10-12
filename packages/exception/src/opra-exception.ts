@@ -1,5 +1,5 @@
 import { i18n } from '@opra/i18n';
-import { ErrorIssue, IErrorIssue } from './error-issue.js';
+import { ErrorIssue } from './error-issue.js';
 
 /**
  * Defines the base Opra exception, which is handled by the default Exceptions Handler.
@@ -9,7 +9,7 @@ export class OpraException extends Error {
   status: number = 500;
   cause?: Error;
 
-  constructor(issue?: string | Partial<IErrorIssue>, cause?: Error) {
+  constructor(issue?: string | Partial<ErrorIssue>, cause?: Error) {
     super('');
     this._initName();
 
@@ -28,11 +28,11 @@ export class OpraException extends Error {
   }
 
   setIssue(issue: Partial<ErrorIssue>) {
-    this._issue = new ErrorIssue({
+    this._issue = {
       message: 'Unknown error',
       severity: 'error',
       ...issue,
-    })
+    }
   }
 
   setStatus(status: number): this {
