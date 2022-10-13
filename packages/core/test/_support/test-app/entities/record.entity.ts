@@ -1,9 +1,8 @@
-import { OprEntity, OprField } from '@opra/schema';
+import { OprComplexType, OprField } from '@opra/schema';
 
-@OprEntity({
+@OprComplexType({
   abstract: true,
-  description: 'Customer information',
-  primaryKey: 'id',
+  description: 'Customer information'
 })
 export class Record {
 

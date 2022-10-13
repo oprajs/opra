@@ -2,7 +2,6 @@ import 'reflect-metadata';
 import { Column, Entity } from '@sqb/connect';
 import {
   extractComplexTypeMetadata, OprComplexType,
-  OprEntity,
   OprField
 } from '../../src/index.js';
 import { PickType } from '../../src/type-helpers/extend-type.helper.js';
@@ -24,7 +23,7 @@ describe('PickType() helper', function () {
 
   it('Should create type with picked properties only', async function () {
 
-    @OprEntity({description: 'TestClass schema'})
+    @OprComplexType({description: 'TestClass schema'})
     class TestClass extends PickType(Person, ['givenName', 'familyName']) {
       @OprField()
       @Column()
@@ -33,7 +32,7 @@ describe('PickType() helper', function () {
 
     const meta = extractComplexTypeMetadata(TestClass);
     expect(meta).toStrictEqual({
-      kind: 'EntityType',
+      kind: 'ComplexType',
       name: 'TestClass',
       description: 'TestClass schema',
       ctor: TestClass,
@@ -54,13 +53,13 @@ describe('PickType() helper', function () {
 
   it('Should create from already picked type', async function () {
 
-    @OprEntity({description: 'TestClass schema'})
+    @OprComplexType({description: 'TestClass schema'})
     class Person2 extends PickType(Person, ['givenName', 'familyName']) {
       @OprField()
       sex: string;
     }
 
-    @OprEntity({description: 'TestClass schema'})
+    @OprComplexType({description: 'TestClass schema'})
     class TestClass extends PickType(Person2, ['givenName']) {
       @OprField()
       @Column()
@@ -69,7 +68,7 @@ describe('PickType() helper', function () {
 
     const meta = extractComplexTypeMetadata(TestClass);
     expect(meta).toStrictEqual({
-      kind: 'EntityType',
+      kind: 'ComplexType',
       name: 'TestClass',
       description: 'TestClass schema',
       ctor: TestClass,

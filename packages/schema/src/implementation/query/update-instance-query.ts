@@ -1,7 +1,6 @@
 import { StrictOmit } from 'ts-gems';
 import { OpraSchema } from '../../opra-schema.js';
 import { normalizeFieldArray } from '../../utils/normalize-field-array.util.js';
-import { EntityType } from '../data-type/entity-type.js';
 import { EntityResource } from '../resource/entity-resource.js';
 
 export type UpdateInstanceQueryOptions = StrictOmit<OpraSchema.UpdateInstanceQuery,
@@ -22,7 +21,15 @@ export class OpraUpdateInstanceQuery implements StrictOmit<OpraSchema.UpdateInst
               public data: any,
               options?: UpdateInstanceQueryOptions
   ) {
-    this.keyValue = resource.dataType.getFieldType(resource.dataType.primaryKey).parse(keyValue);
+    if (resource.keyFields.length > 1) {
+      if (typeof keyValue !== 'object')
+        throw new Error(`You must provide an key/value object for all key fields (${resource.keyFields})`);
+      resource.keyFields.reduce((o, k) => {
+        o[k] = keyValue[k];
+        return o;
+      }, {});
+    } else
+      this.keyValue = resource.dataType.getFieldType(resource.keyFields[0]).parse(keyValue);
     if (options?.pick)
       this.pick = normalizeFieldArray(resource.owner, resource.dataType, options.pick);
     if (options?.omit)
@@ -31,7 +38,7 @@ export class OpraUpdateInstanceQuery implements StrictOmit<OpraSchema.UpdateInst
       this.include = normalizeFieldArray(resource.owner, resource.dataType, options.include);
   }
 
-  get dataType(): EntityType {
+  get dataType() {
     return this.resource.dataType;
   }
 }

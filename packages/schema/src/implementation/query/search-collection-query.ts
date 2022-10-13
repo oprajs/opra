@@ -4,7 +4,6 @@ import { translate } from '@opra/i18n';
 import { Expression, parseFilter } from '@opra/url';
 import { OpraSchema } from '../../opra-schema.js';
 import { normalizeFieldArray } from '../../utils/normalize-field-array.util.js';
-import { EntityType } from '../data-type/entity-type.js';
 import { EntityResource } from '../resource/entity-resource.js';
 
 export type SearchCollectionQueryOptions = StrictOmit<OpraSchema.SearchCollectionQuery,
@@ -57,7 +56,7 @@ export class OpraSearchCollectionQuery implements StrictOmit<OpraSchema.SearchCo
     }
   }
 
-  get dataType(): EntityType {
+  get dataType() {
     return this.resource.dataType;
   }
 }

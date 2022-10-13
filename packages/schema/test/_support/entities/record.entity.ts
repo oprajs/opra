@@ -1,9 +1,8 @@
-import { OprEntity, OprField } from '../../../src/index.js';
+import { OprComplexType, OprField } from '../../../src/index.js';
 
-@OprEntity({
+@OprComplexType({
   abstract: true,
-  description: 'Customer information',
-  primaryKey: 'id',
+  description: 'Customer information'
 })
 export class Record {
 

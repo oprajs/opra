@@ -4,7 +4,7 @@ import { IResource } from '../interfaces/resource.interface.js';
 import { IResourceContainer } from '../interfaces/resource-container.interface.js';
 import { OpraSchema } from '../opra-schema.js';
 import { stringCompare } from '../utils/string-compare.util.js';
-import { EntityType } from './data-type/entity-type.js';
+import { ComplexType } from './data-type/complex-type.js';
 import { OpraDocument } from './opra-document.js';
 import { OpraResource } from './resource/base-resource.js';
 import { EntityResource } from './resource/entity-resource.js';
@@ -63,8 +63,8 @@ export class OpraService extends OpraDocument implements IResourceContainer {
         const dataType = this.getDataType(r.type);
         if (!dataType)
           throw new TypeError(`Datatype "${r.type}" declared in EntityResource (${r.name}) does not exists`);
-        if (!(dataType instanceof EntityType))
-          throw new TypeError(`${r.type} is not an EntityType`);
+        if (!(dataType instanceof ComplexType))
+          throw new TypeError(`${r.type} is not an ComplexType`);
         this.resources.set(r.name, new EntityResource(this, dataType, r));
       } else
         throw new TypeError(`Unknown resource kind (${r.kind})`);

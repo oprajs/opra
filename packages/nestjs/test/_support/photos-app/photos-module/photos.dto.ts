@@ -1,8 +1,6 @@
-import { OprEntity, OprField } from '@opra/schema';
+import { OprComplexType, OprField } from '@opra/schema';
 
-@OprEntity({
-  primaryKey: 'id'
-})
+@OprComplexType()
 export class Photos {
 
   @OprField()
