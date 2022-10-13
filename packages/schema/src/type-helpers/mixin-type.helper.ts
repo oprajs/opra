@@ -28,8 +28,8 @@ export function MixinType<A1 extends any[], I1, S1,
   for (const c of clasRefs) {
     const m = Reflect.getOwnMetadata(DATATYPE_METADATA, c);
     if (m) {
-      if (!(m.kind === 'ComplexType' || m.kind === 'EntityType'))
-        throw new TypeError(`Class "${c}" is not a ComplexType or EntityType`);
+      if (!(m.kind === 'ComplexType'))
+        throw new TypeError(`Class "${c}" is not a ComplexType`);
       mappedTypeMetadata.push({
         type: c
       })

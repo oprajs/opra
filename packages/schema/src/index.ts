@@ -5,7 +5,6 @@ export * from './opra-schema.js';
 
 export * from './decorators/opr-complex-type.decorator.js';
 export * from './decorators/opr-field.decorator.js';
-export * from './decorators/opr-entity.decorator.js';
 export * from './decorators/opr-entity-resource.decorator.js';
 export * from './decorators/opr-resolver.decorator.js';
 
@@ -19,7 +18,6 @@ export * from './implementation/opra-document.js';
 export * from './implementation/opra-service.js';
 export * from './implementation/data-type/data-type.js';
 export * from './implementation/data-type/complex-type.js';
-export * from './implementation/data-type/entity-type.js';
 export * from './implementation/data-type/simple-type.js';
 export * from './implementation/resource/base-resource.js';
 export * from './implementation/resource/container-resource.js';

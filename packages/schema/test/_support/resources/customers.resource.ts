@@ -3,6 +3,7 @@ import { Customer } from '../entities/customer.entity.js';
 
 @OprEntityResource(Customer, {
   description: 'Customer resource',
+  keyFields: 'id'
 })
 export class CustomersResource {
 

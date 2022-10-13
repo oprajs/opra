@@ -3,7 +3,6 @@ import { OpraSchema } from '../../opra-schema.js';
 import { normalizeFieldArray } from '../../utils/normalize-field-array.util.js';
 import { ComplexType, Field } from '../data-type/complex-type.js';
 import { DataType } from '../data-type/data-type.js';
-import { EntityType } from '../data-type/entity-type.js';
 import { EntityResource } from '../resource/entity-resource.js';
 import type { OpraGetInstanceQuery } from './get-instance-query.js';
 
@@ -53,8 +52,8 @@ export class OpraGetFieldQuery implements OpraSchema.GetFieldQuery {
     return this.field.name;
   }
 
-  get parentType(): ComplexType | EntityType {
-    return this.parent.dataType as any;
+  get parentType(): ComplexType {
+    return this.parent.dataType as ComplexType;
   }
 
 

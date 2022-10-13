@@ -1,11 +1,10 @@
 import { ComplexType } from '../implementation/data-type/complex-type.js';
-import { EntityType } from '../implementation/data-type/entity-type.js';
 import { OpraDocument } from '../implementation/opra-document.js';
 import { ObjectTree, pathToTree } from './path-to-tree.js';
 
 export function normalizeFieldArray(
     document: OpraDocument,
-    dataType: ComplexType | EntityType | undefined,
+    dataType: ComplexType | undefined,
     fields: string[],
     parentPath: string = '',
 ) {
@@ -19,7 +18,7 @@ export function normalizeFieldArray(
 function _normalizeFieldsList(
     target: string[],
     document: OpraDocument,
-    dataType: ComplexType | EntityType | undefined,
+    dataType: ComplexType | undefined,
     node: ObjectTree,
     parentPath: string = '',
     actualPath: string = '',

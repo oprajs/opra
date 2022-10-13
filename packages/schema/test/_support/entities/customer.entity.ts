@@ -1,11 +1,10 @@
-import { MixinType, OprEntity, OprField } from '../../../src/index.js';
+import { MixinType, OprComplexType, OprField } from '../../../src/index.js';
 import { Address } from '../types/address.dto.js';
 import { Note } from '../types/note.type.js';
 import { Person } from '../types/person.type.js';
 import { Record } from './record.entity.js';
 
-@OprEntity({
-  primaryKey: 'id',
+@OprComplexType({
   description: 'Customer information'
 })
 export class Customer extends MixinType(Record, Person) {

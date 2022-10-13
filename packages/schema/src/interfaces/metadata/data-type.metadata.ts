@@ -7,10 +7,6 @@ export type ComplexTypeMetadata = StrictOmit<OpraSchema.ComplexType, 'fields' | 
   fields?: Record<string, FieldMetadata>
 }
 
-export type EntityTypeMetadata = StrictOmit<OpraSchema.EntityType, 'fields'> & {
-  fields?: Record<string, FieldMetadata>
-}
-
 export type FieldMetadata = StrictOmit<OpraSchema.Field, 'type'> & {
   type?: string | TypeThunkAsync;
 }

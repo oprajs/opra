@@ -1,7 +1,6 @@
 import { StrictOmit } from 'ts-gems';
 import { OpraSchema } from '../../opra-schema.js';
 import { normalizeFieldArray } from '../../utils/normalize-field-array.util.js';
-import { EntityType } from '../data-type/entity-type.js';
 import { EntityResource } from '../resource/entity-resource.js';
 
 export type CreateInstanceQueryOptions = StrictOmit<OpraSchema.CreateInstanceQuery,
@@ -28,7 +27,7 @@ export class OpraCreateInstanceQuery implements StrictOmit<OpraSchema.CreateInst
       this.include = normalizeFieldArray(resource.owner, resource.dataType, options.include);
   }
 
-  get dataType(): EntityType {
+  get dataType() {
     return this.resource.dataType;
   }
 

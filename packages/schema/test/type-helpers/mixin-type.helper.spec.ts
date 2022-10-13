@@ -2,7 +2,6 @@ import 'reflect-metadata';
 import { Column, Entity } from '@sqb/connect';
 import {
   extractComplexTypeMetadata, OprComplexType,
-  OprEntity,
   OprField
 } from '../../src/index.js';
 import { MixinType } from '../../src/type-helpers/mixin-type.helper.js';
@@ -40,7 +39,7 @@ describe('MixinType() helper', function () {
     cancelled: boolean;
   }
 
-  @OprEntity({description: 'PersonRecord schema'})
+  @OprComplexType({description: 'PersonRecord schema'})
   class PersonRecord extends MixinType(Record, Person) {
     @OprField()
     @Column()
@@ -51,7 +50,7 @@ describe('MixinType() helper', function () {
   it('Should create union type', async function () {
     const meta = extractComplexTypeMetadata(PersonRecord);
     expect(meta).toStrictEqual({
-      kind: 'EntityType',
+      kind: 'ComplexType',
       name: 'PersonRecord',
       description: 'PersonRecord schema',
       ctor: PersonRecord,
@@ -73,7 +72,7 @@ describe('MixinType() helper', function () {
 
   it('Should create union type that contains other union type', async function () {
 
-    @OprEntity({description: 'TestClass schema'})
+    @OprComplexType({description: 'TestClass schema'})
     class TestClass extends MixinType(PersonRecord, Cancellable) {
       @OprField()
       @Column()
@@ -82,7 +81,7 @@ describe('MixinType() helper', function () {
 
     const meta = extractComplexTypeMetadata(TestClass);
     expect(meta).toStrictEqual({
-      kind: 'EntityType',
+      kind: 'ComplexType',
       name: 'TestClass',
       description: 'TestClass schema',
       ctor: TestClass,
@@ -103,7 +102,7 @@ describe('MixinType() helper', function () {
   })
 
   it('Should create union type that contains nested union type', async function () {
-    @OprEntity({description: 'TestClass schema'})
+    @OprComplexType({description: 'TestClass schema'})
     class TestClass extends MixinType(MixinType(Record, Person), Cancellable) {
       @OprField()
       @Column()
@@ -112,7 +111,7 @@ describe('MixinType() helper', function () {
 
     const meta = extractComplexTypeMetadata(TestClass);
     expect(meta).toStrictEqual({
-      kind: 'EntityType',
+      kind: 'ComplexType',
       name: 'TestClass',
       description: 'TestClass schema',
       ctor: TestClass,

@@ -82,7 +82,6 @@ describe('e2e: EntityResource:update', function () {
         .send();
     resp.expect
         .toSuccess()
-        .toSuccess()
         .toReturnObject()
         .notToContainKeys(['id', 'givenName']);
   })
@@ -103,7 +102,6 @@ describe('e2e: EntityResource:update', function () {
         .include('address')
         .send();
     resp.expect
-        .toSuccess()
         .toSuccess()
         .toReturnObject()
         .toContainKeys(['address']);

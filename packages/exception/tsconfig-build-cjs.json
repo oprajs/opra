@@ -6,7 +6,7 @@
     "rootDir": "src",
     "outDir": "../../build/exception/cjs",
     "paths": {
-      "@opra/i18n": ["../../build/i18n"]
+      "@opra/*": ["../../build/*"]
     },
     "sourceMap": false,
     "noEmit": false,

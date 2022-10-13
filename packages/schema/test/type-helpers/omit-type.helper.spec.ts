@@ -1,8 +1,8 @@
 import 'reflect-metadata';
 import { Column, Entity } from '@sqb/connect';
 import {
-  extractComplexTypeMetadata, OprComplexType,
-  OprEntity,
+  extractComplexTypeMetadata,
+  OprComplexType,
   OprField
 } from '../../src/index.js';
 import { OmitType } from '../../src/type-helpers/extend-type.helper.js';
@@ -24,7 +24,7 @@ describe('OmitType() helper', function () {
 
   it('Should create type with picked properties only', async function () {
 
-    @OprEntity({description: 'TestClass schema'})
+    @OprComplexType({description: 'TestClass schema'})
     class TestClass extends OmitType(Person, ['gender']) {
       @OprField()
       @Column()
@@ -33,7 +33,7 @@ describe('OmitType() helper', function () {
 
     const meta = extractComplexTypeMetadata(TestClass);
     expect(meta).toStrictEqual({
-      kind: 'EntityType',
+      kind: 'ComplexType',
       name: 'TestClass',
       description: 'TestClass schema',
       ctor: TestClass,
@@ -54,13 +54,13 @@ describe('OmitType() helper', function () {
 
   it('Should create from already picked type', async function () {
 
-    @OprEntity({description: 'TestClass schema'})
+    @OprComplexType({description: 'TestClass schema'})
     class Person2 extends OmitType(Person, ['gender']) {
       @OprField()
       sex: string;
     }
 
-    @OprEntity({description: 'TestClass schema'})
+    @OprComplexType({description: 'TestClass schema'})
     class TestClass extends OmitType(Person2, ['familyName', 'sex']) {
       @OprField()
       @Column()
@@ -69,7 +69,7 @@ describe('OmitType() helper', function () {
 
     const meta = extractComplexTypeMetadata(TestClass);
     expect(meta).toStrictEqual({
-      kind: 'EntityType',
+      kind: 'ComplexType',
       name: 'TestClass',
       description: 'TestClass schema',
       ctor: TestClass,
