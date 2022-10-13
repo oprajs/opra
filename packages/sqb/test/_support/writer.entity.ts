@@ -1,7 +1,7 @@
-import { OprEntity, OprField } from '@opra/schema';
+import { OprComplexType, OprField } from '@opra/schema';
 import { Column, Entity, PrimaryKey } from '@sqb/connect';
 
-@OprEntity()
+@OprComplexType()
 @Entity('writers')
 export class Writer {
 

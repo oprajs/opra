@@ -1,5 +1,6 @@
 import { StrictOmit, Type } from 'ts-gems';
 import { isPromise } from 'util/types';
+import * as Optionals from '@opra/optionals';
 import { IGNORE_RESOLVER_METHOD, RESOLVER_METADATA, RESOURCE_METADATA } from '../constants.js';
 import { builtinClassMap, primitiveDataTypeNames } from '../helpers/internal-types.js';
 import { OpraSchema } from '../opra-schema.js';
@@ -93,7 +94,7 @@ export class SchemaGenerator {
 
     let resourceSchema: OpraSchema.Resource;
     if (metadata) {
-      const name = metadata.name || ctor.name.replace(/Resource$/, '');
+      const name = metadata.name || ctor.name.replace(/(Resource|Controller)$/, '');
       const t = typeof metadata.type === 'function'
           ? await resolveClassAsync(metadata.type)
           : metadata.type;
@@ -110,6 +111,20 @@ export class SchemaGenerator {
       }
 
       if (OpraSchema.isEntityResource(resourceSchema)) {
+        // Determine keyFields if not set
+        if (!resourceSchema.keyFields) {
+          if (Optionals.SqbConnect && ctor) {
+            const sqbEntity = Optionals.SqbConnect.EntityMetadata.get(ctor);
+            if (sqbEntity?.indexes) {
+              const primaryIndex = sqbEntity.indexes.find(x => x.primary);
+              if (primaryIndex) {
+                resourceSchema.keyFields = primaryIndex.columns;
+              }
+            }
+          }
+          if (resourceSchema.keyFields)
+            throw new TypeError(`You must provide keyFields for "${resourceSchema.name}" entity resource`);
+        }
         let methodMetadata;
         let fn;
         const locateFn = (inst, methodName: string) => {
