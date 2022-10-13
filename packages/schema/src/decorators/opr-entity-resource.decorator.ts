@@ -1,12 +1,13 @@
 import "reflect-metadata";
 import _ from 'lodash';
+import { PartialSome, StrictOmit } from 'ts-gems';
 import { RESOURCE_METADATA } from '../constants.js';
 import { EntityResourceMetadata } from '../interfaces/metadata/opra-schema.metadata.js';
 import { TypeThunkAsync } from '../types.js';
 
 const NESTJS_INJECTABLE_WATERMARK = '__injectable__';
 
-export type EntityResourceOptions = Pick<EntityResourceMetadata, 'name' | 'description'> & {};
+export type EntityResourceOptions = PartialSome<StrictOmit<EntityResourceMetadata, 'kind' | 'type'>, 'keyFields'>;
 
 const NAME_PATTERN = /^(.*)Resource$/;
 

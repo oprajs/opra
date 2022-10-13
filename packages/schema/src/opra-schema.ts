@@ -1,4 +1,4 @@
-import { StrictOmit, Type } from 'ts-gems';
+import { Type } from 'ts-gems';
 import { ComparisonOperator, Expression } from '@opra/url';
 
 export namespace OpraSchema {
@@ -16,7 +16,7 @@ export namespace OpraSchema {
 
   export type Extensible<T = any> = { [key: `$${string}`]: T };
   export type ResourceKind = 'ContainerResource' | 'EntityResource' | 'SingletonResource';
-  export type DataTypeKind = 'SimpleType' | 'ComplexType' | 'EntityType';
+  export type DataTypeKind = 'SimpleType' | 'ComplexType';
   export type OperationType = 'create' | 'read' | 'update' | 'patch' | 'delete' | 'execute';
   export type QueryScope = 'collection' | 'instance' | 'field';
   export type EntityMethod = 'search' | 'count' | 'get' | 'create' | 'update' | 'updateMany' | 'delete' | 'deleteMany';
@@ -81,7 +81,7 @@ export namespace OpraSchema {
    * *** === Data Type related === ***
    */
 
-  export type DataType = ComplexType | EntityType | SimpleType;
+  export type DataType = ComplexType | SimpleType;
 
   export type BaseDataType = {
     kind: DataTypeKind;
@@ -113,11 +113,6 @@ export namespace OpraSchema {
     type: 'string';
     pick?: string[];
     omit?: string[];
-  }
-
-  export interface EntityType extends StrictOmit<ComplexType, 'kind'> {
-    kind: 'EntityType';
-    primaryKey: string;
   }
 
   export type Field = Extensible & {
@@ -163,6 +158,7 @@ export namespace OpraSchema {
   export interface EntityResource extends BaseResource {
     kind: 'EntityResource',
     type: string;
+    keyFields: string | string[];
     methods: {
       create?: CreateMethodResolver;
       count?: CountMethodResolver;
@@ -338,15 +334,11 @@ export namespace OpraSchema {
 
   export function isDataType(obj: any): obj is DataType {
     return obj && typeof obj === 'object' &&
-        (obj.kind === 'ComplexType' || obj.kind === 'EntityType' || obj.kind === 'SimpleType');
+        (obj.kind === 'ComplexType' || obj.kind === 'SimpleType');
   }
 
   export function isComplexType(obj: any): obj is ComplexType {
     return obj && typeof obj === 'object' && obj.kind === 'ComplexType';
-  }
-
-  export function isEntityType(obj: any): obj is EntityType {
-    return obj && typeof obj === 'object' && obj.kind === 'EntityType'
   }
 
   export function isSimpleType(obj: any): obj is SimpleType {

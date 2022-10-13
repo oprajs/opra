@@ -34,7 +34,7 @@ describe('OpraDocument', function () {
       expect(doc.getDataType('Customer')).toBeDefined();
       const customerType = doc.getDataType('customer');
       expect(customerType).toBeDefined();
-      expect(customerType.kind).toStrictEqual('EntityType');
+      expect(customerType.kind).toStrictEqual('ComplexType');
       expect(customerType.name).toStrictEqual('Customer');
     })
 

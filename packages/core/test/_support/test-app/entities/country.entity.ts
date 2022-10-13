@@ -1,8 +1,7 @@
-import { OprEntity, OprField } from '@opra/schema';
+import { OprComplexType, OprField } from '@opra/schema';
 
-@OprEntity({
-  description: 'Country information',
-  primaryKey: 'code'
+@OprComplexType({
+  description: 'Country information'
 })
 export class Country {
 

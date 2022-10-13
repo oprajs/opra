@@ -12,4 +12,4 @@ export * from './implementation/http-adapter.js';
 export * from './implementation/express-adapter.js';
 
 export * from './services/data-service.js';
-export * from './services/json-data-service.js';
+export * from './services/json-collection-service.js';

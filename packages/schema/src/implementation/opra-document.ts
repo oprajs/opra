@@ -7,7 +7,6 @@ import { colorFgMagenta, colorFgYellow, colorReset, nodeInspectCustom } from '..
 import { stringCompare } from '../utils/string-compare.util.js';
 import { ComplexType } from './data-type/complex-type.js';
 import { DataType } from './data-type/data-type.js';
-import { EntityType } from './data-type/entity-type.js';
 import { internalDataTypes } from './data-type/internal-data-types.js';
 import { SimpleType } from './data-type/simple-type.js';
 import { SchemaGenerator } from './schema-generator.js';
@@ -43,13 +42,6 @@ export class OpraDocument {
     const t = this.getDataType(name);
     if (!(t instanceof ComplexType))
       throw new Error(`Data type "${name}" is not a ComplexType`);
-    return t;
-  }
-
-  getEntityDataType(name: string): EntityType {
-    const t = this.getDataType(name);
-    if (!(t instanceof EntityType))
-      throw new Error(`Data type "${name}" is not an EntityType`);
     return t;
   }
 
@@ -100,7 +92,7 @@ export class OpraDocument {
         throw new TypeError(`Recursive dependency detected. ${Array.from(recursiveSet).join('>')}`);
       recursiveSet.add(schema.name);
 
-      if ((OpraSchema.isComplexType(schema) || OpraSchema.isEntityType(schema))) {
+      if (OpraSchema.isComplexType(schema)) {
         if (schema.extends) {
           let baseType: DataType | undefined;
           for (const ext of schema.extends) {
@@ -137,8 +129,6 @@ export class OpraDocument {
         dataType = new SimpleType(this, schema);
       else if (OpraSchema.isComplexType(schema))
         dataType = new ComplexType(this, schema);
-      else if (OpraSchema.isEntityType(schema))
-        dataType = new EntityType(this, schema);
       else
         throw new TypeError(`Invalid data type schema`);
       nameSet.delete(schema.name);

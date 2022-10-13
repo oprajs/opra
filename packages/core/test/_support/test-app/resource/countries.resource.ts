@@ -5,6 +5,7 @@ export const countriesResource: OpraSchema.EntityResource = {
   kind: 'EntityResource',
   name: 'Countries',
   type: 'Country',
+  keyFields: 'code',
   methods: {
     search: {
       handler: () => {

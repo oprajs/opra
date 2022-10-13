@@ -2,11 +2,11 @@ import _ from 'lodash';
 import merge from 'putil-merge';
 import { Maybe } from 'ts-gems';
 import { nSQL } from "@nano-sql/core";
+import { InanoSQLTableConfig } from '@nano-sql/core/lib/interfaces';
 import { BadRequestError, MethodNotAllowedError, ResourceConflictError } from '@opra/exception';
 import {
   ComplexType, DataType,
   EntityResource,
-  EntityType,
   OpraAnyEntityQuery,
   OpraAnyQuery,
   OpraSchema
@@ -25,7 +25,7 @@ import { IEntityService } from '../interfaces/entity-service.interface.js';
 import { EntityInput, EntityOutput } from '../types.js';
 import { pathToTree } from '../utils/path-to-tree.js';
 
-export interface JsonDataServiceOptions {
+export interface JsonCollectionServiceOptions {
   resourceName?: string;
   defaultLimit?: number;
   data?: any[];
@@ -33,24 +33,26 @@ export interface JsonDataServiceOptions {
 
 let dbId = 1;
 
-export class JsonDataService<T, TOutput = EntityOutput<T>> implements IEntityService {
+export class JsonCollectionService<T, TOutput = EntityOutput<T>> implements IEntityService {
   private _status: '' | 'initializing' | 'initialized' | 'error' = '';
   private _initError: any;
   private _dbName: string;
   private _initData?: any[];
   defaultLimit: number;
 
-  constructor(readonly resource: EntityResource, options?: JsonDataServiceOptions) {
+  constructor(readonly resource: EntityResource, options?: JsonCollectionServiceOptions) {
+    if (this.resource.keyFields.length > 1)
+      throw new TypeError('JsonDataService currently doesn\'t support multiple primary keys');
     this.defaultLimit = options?.defaultLimit ?? 10;
     this._initData = options?.data;
   }
 
-  get dataType(): EntityType {
+  get dataType(): ComplexType {
     return this.resource.dataType;
   }
 
   get primaryKey(): string {
-    return this.resource.dataType.primaryKey;
+    return this.resource.keyFields[0];
   }
 
   get resourceName(): string {
@@ -78,7 +80,7 @@ export class JsonDataService<T, TOutput = EntityOutput<T>> implements IEntitySer
     return fn.apply(this, prepared.args);
   }
 
-  async get(keyValue: any, options?: JsonDataService.GetOptions): Promise<Maybe<TOutput>> {
+  async get(keyValue: any, options?: JsonCollectionService.GetOptions): Promise<Maybe<TOutput>> {
     await this._init();
     const select = this._convertSelect({
       pick: options?.pick,
@@ -93,7 +95,7 @@ export class JsonDataService<T, TOutput = EntityOutput<T>> implements IEntitySer
     return unFlatten(rows[0]) as TOutput;
   }
 
-  async count(options?: JsonDataService.SearchOptions): Promise<number> {
+  async count(options?: JsonCollectionService.SearchOptions): Promise<number> {
     await this._init();
     nSQL().useDatabase(this._dbName);
     const rows = await nSQL(this.resourceName)
@@ -103,7 +105,7 @@ export class JsonDataService<T, TOutput = EntityOutput<T>> implements IEntitySer
     return (rows[0]?.count) || 0;
   }
 
-  async search(options?: JsonDataService.SearchOptions): Promise<TOutput[]> {
+  async search(options?: JsonCollectionService.SearchOptions): Promise<TOutput[]> {
     await this._init();
     const select = this._convertSelect({
       pick: options?.pick,
@@ -121,7 +123,7 @@ export class JsonDataService<T, TOutput = EntityOutput<T>> implements IEntitySer
     return (await query.exec()).map(x => unFlatten(x)) as TOutput[];
   }
 
-  async create(data: EntityInput<T>, options?: JsonDataService.CreateOptions): Promise<TOutput> {
+  async create(data: EntityInput<T>, options?: JsonCollectionService.CreateOptions): Promise<TOutput> {
     if (!data[this.primaryKey])
       throw new BadRequestError({
         message: 'You must provide primary key value'
@@ -139,7 +141,7 @@ export class JsonDataService<T, TOutput = EntityOutput<T>> implements IEntitySer
     return await this.get(keyValue, options) as TOutput;
   }
 
-  async update(keyValue: any, data: EntityInput<T>, options?: JsonDataService.UpdateOptions): Promise<Maybe<TOutput>> {
+  async update(keyValue: any, data: EntityInput<T>, options?: JsonCollectionService.UpdateOptions): Promise<Maybe<TOutput>> {
     await this._init();
     nSQL().useDatabase(this._dbName);
     await nSQL(this._initData)
@@ -154,7 +156,7 @@ export class JsonDataService<T, TOutput = EntityOutput<T>> implements IEntitySer
     return this.get(keyValue, options);
   }
 
-  async updateMany(data: EntityInput<T>, options?: JsonDataService.UpdateManyOptions): Promise<number> {
+  async updateMany(data: EntityInput<T>, options?: JsonCollectionService.UpdateManyOptions): Promise<number> {
     await this._init();
     const filter = this._convertFilter(options?.filter);
     await this._init();
@@ -183,7 +185,7 @@ export class JsonDataService<T, TOutput = EntityOutput<T>> implements IEntitySer
     return !!result.length;
   }
 
-  async deleteMany(options?: JsonDataService.DeleteManyOptions): Promise<number> {
+  async deleteMany(options?: JsonCollectionService.DeleteManyOptions): Promise<number> {
     await this._init();
     const filter = this._convertFilter(options?.filter);
     nSQL().useDatabase(this._dbName);
@@ -219,14 +221,16 @@ export class JsonDataService<T, TOutput = EntityOutput<T>> implements IEntitySer
     this._status = 'initializing';
     this._dbName = 'JsonDataService_DB_' + (dbId++);
     try {
-      const model = {
+      const model: InanoSQLTableConfig = {
         name: this.resourceName,
         model: {
           '*:any': {}
         },
         indexes: {},
-        primaryKey: this.primaryKey
+        primaryKey: this.primaryKey,
       }
+      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+      const indexes = model.indexes!;
 
       // Add indexes for sort fields
       const searchMethod = this.resource.metadata.methods.search;
@@ -235,14 +239,14 @@ export class JsonDataService<T, TOutput = EntityOutput<T>> implements IEntitySer
           searchMethod.sortFields.forEach(fieldName => {
             const f = this.dataType.getField(fieldName);
             const fieldType = this.resource.owner.getDataType(f.type || 'string');
-            model.indexes[fieldName + ':' + dataTypeToSQLType(fieldType, !!f.isArray)] = {};
+            indexes[fieldName + ':' + dataTypeToSQLType(fieldType, !!f.isArray)] = {};
           })
         }
         if (searchMethod.filters) {
           searchMethod.filters.forEach(filter => {
             const f = this.dataType.getField(filter.field);
             const fieldType = this.resource.owner.getDataType(f.type || 'string');
-            model.indexes[filter.field + ':' + dataTypeToSQLType(fieldType, !!f.isArray)] = {};
+            indexes[filter.field + ':' + dataTypeToSQLType(fieldType, !!f.isArray)] = {};
           })
         }
       }
@@ -280,7 +284,7 @@ export class JsonDataService<T, TOutput = EntityOutput<T>> implements IEntitySer
     }
     switch (query.method) {
       case 'count': {
-        const options: JsonDataService.CountOptions = _.omitBy({
+        const options: JsonCollectionService.CountOptions = _.omitBy({
           filter: this._convertFilter(query.filter)
         }, _.isNil);
         return {
@@ -290,7 +294,7 @@ export class JsonDataService<T, TOutput = EntityOutput<T>> implements IEntitySer
         };
       }
       case 'create': {
-        const options: JsonDataService.CreateOptions = _.omitBy({
+        const options: JsonCollectionService.CreateOptions = _.omitBy({
           pick: query.pick,
           omit: query.omit,
           include: query.include
@@ -305,7 +309,7 @@ export class JsonDataService<T, TOutput = EntityOutput<T>> implements IEntitySer
       }
       case 'get': {
         if (query.kind === 'GetInstanceQuery') {
-          const options: JsonDataService.GetOptions = _.omitBy({
+          const options: JsonCollectionService.GetOptions = _.omitBy({
             pick: query.pick,
             omit: query.omit,
             include: query.include
@@ -328,7 +332,7 @@ export class JsonDataService<T, TOutput = EntityOutput<T>> implements IEntitySer
           throw new MethodNotAllowedError({
             message: '$distinct parameter is not supported by JsonDataService'
           })
-        const options: JsonDataService.SearchOptions = _.omitBy({
+        const options: JsonCollectionService.SearchOptions = _.omitBy({
           pick: query.pick,
           omit: query.omit,
           include: query.include,
@@ -346,7 +350,7 @@ export class JsonDataService<T, TOutput = EntityOutput<T>> implements IEntitySer
         };
       }
       case 'update': {
-        const options: JsonDataService.UpdateOptions = _.omitBy({
+        const options: JsonCollectionService.UpdateOptions = _.omitBy({
           pick: query.pick,
           omit: query.omit,
           include: query.include
@@ -362,7 +366,7 @@ export class JsonDataService<T, TOutput = EntityOutput<T>> implements IEntitySer
         };
       }
       case 'updateMany': {
-        const options: JsonDataService.UpdateManyOptions = _.omitBy({
+        const options: JsonCollectionService.UpdateManyOptions = _.omitBy({
           filter: this._convertFilter(query.filter)
         }, _.isNil);
         const {data} = query;
@@ -403,7 +407,7 @@ export class JsonDataService<T, TOutput = EntityOutput<T>> implements IEntitySer
   }): string[] {
     const result: string[] = [];
     const document = this.dataType.owner;
-    const processDataType = (dt: ComplexType | EntityType, path: string, pick?: {}, omit?: {}, include?: {}) => {
+    const processDataType = (dt: ComplexType, path: string, pick?: {}, omit?: {}, include?: {}) => {
       let kl: string;
       for (const [k, f] of dt.fields) {
         kl = k.toLowerCase();
@@ -505,7 +509,7 @@ export class JsonDataService<T, TOutput = EntityOutput<T>> implements IEntitySer
 
 }
 
-export namespace JsonDataService {
+export namespace JsonCollectionService {
   export type CountOptions = {
     filter?: string | Expression | {};
   }

@@ -6,17 +6,18 @@ import {
   OprSearchResolver
 } from '@opra/schema';
 import {
-  EntityResourceController, IEntityService, JsonDataService
+  EntityResourceController, IEntityService, JsonCollectionService
 } from '../../../../src/index.js';
 import { customersData } from '../data/customers.data.js';
 import { Customer } from '../entities/customer.entity.js';
 
 @OprEntityResource(Customer, {
   description: 'Customer resource',
+  keyFields: 'id'
 })
 export class CustomersResource extends EntityResourceController<Customer> {
 
-  customersService: JsonDataService<Customer>;
+  customersService: JsonCollectionService<Customer>;
 
   @OprSearchResolver({
     sortFields: ['id', 'givenName', 'familyName', 'gender', 'birthDate'],
@@ -34,7 +35,7 @@ export class CustomersResource extends EntityResourceController<Customer> {
   delete;
 
   init(resource: OpraResource) {
-    this.customersService = new JsonDataService<Customer>(resource as EntityResource,
+    this.customersService = new JsonCollectionService<Customer>(resource as EntityResource,
         {resourceName: 'Customers', data: customersData});
   }
 

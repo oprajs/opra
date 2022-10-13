@@ -3,9 +3,9 @@
   "compilerOptions": {
     "baseUrl": "./",
     "paths": {
-      "@opra/i18n": ["../i18n/src"],
+      "@opra/*": ["../*/src"]
     }
   },
-  "include": ["src", "test"],
-  "exclude": ["node_modules", "dist", "bin"]
+  "include": ["src"],
+  "exclude": ["node_modules", "test"]
 }

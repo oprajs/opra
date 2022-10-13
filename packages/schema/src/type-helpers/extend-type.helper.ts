@@ -67,8 +67,8 @@ function ExtendType<T extends any[], I1, S1,
   const mappedTypeMetadata: any[] = [];
   const m = Reflect.getOwnMetadata(DATATYPE_METADATA, classRef);
   if (m) {
-    if (!(m.kind === 'ComplexType' || m.kind === 'EntityType'))
-      throw new TypeError(`Class "${classRef}" is not a ComplexType or EntityType`);
+    if (!(m.kind === 'ComplexType'))
+      throw new TypeError(`Class "${classRef}" is not a ComplexType`);
     const meta: any = {
       type: classRef
     };

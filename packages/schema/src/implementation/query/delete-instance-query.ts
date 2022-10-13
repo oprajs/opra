@@ -1,6 +1,5 @@
 import { StrictOmit } from 'ts-gems';
 import { OpraSchema } from '../../opra-schema.js';
-import { EntityType } from '../data-type/entity-type.js';
 import { EntityResource } from '../resource/entity-resource.js';
 
 export type DeleteInstanceQueryOptions = StrictOmit<OpraSchema.DeleteInstanceQuery,
@@ -18,10 +17,18 @@ export class OpraDeleteInstanceQuery implements StrictOmit<OpraSchema.DeleteInst
               // eslint-disable-next-line @typescript-eslint/no-unused-vars
               options?: DeleteInstanceQueryOptions
   ) {
-    this.keyValue = resource.dataType.getFieldType(resource.dataType.primaryKey).parse(keyValue);
+    if (resource.keyFields.length > 1) {
+      if (typeof keyValue !== 'object')
+        throw new Error(`You must provide an key/value object for all key fields (${resource.keyFields})`);
+      resource.keyFields.reduce((o, k) => {
+        o[k] = keyValue[k];
+        return o;
+      }, {});
+    } else
+      this.keyValue = resource.dataType.getFieldType(resource.keyFields[0]).parse(keyValue);
   }
 
-  get dataType(): EntityType {
+  get dataType() {
     return this.resource.dataType;
   }
 }
