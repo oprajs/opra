@@ -1,7 +1,9 @@
-import { EntityResource, OpraService, SchemaGenerator } from '../../src/index.js';
-import { Customer } from '../_support/entities/customer.entity.js';
-import { CustomerAddressesResource } from '../_support/resources/customer-addresses.resource.js';
-import { CustomersResource } from '../_support/resources/customers.resource.js';
+import { EntityResource, OpraApi, SchemaGenerator } from '../../src/index.js';
+import {
+  Customer,
+  CustomerNotesResource,
+  CustomersResource
+} from '../_support/app-sqb/index.js';
 
 describe('OpraService', function () {
 
@@ -21,11 +23,10 @@ describe('OpraService', function () {
         types: [],
         resources: []
       };
-      const service = await OpraService.create(args);
-
-      expect(service).toBeInstanceOf(OpraService);
-      expect(service.info).toStrictEqual(args.info);
-      expect(service.servers).toStrictEqual(args.servers);
+      const api = await OpraApi.create(args);
+      expect(api).toBeInstanceOf(OpraApi);
+      expect(api.info).toStrictEqual(args.info);
+      expect(api.servers).toStrictEqual(args.servers);
     })
 
     it('Should add data types', async () => {
@@ -37,9 +38,9 @@ describe('OpraService', function () {
         types: [Customer],
         resources: []
       };
-      const service = await OpraService.create(args);
-      expect(service.getDataType('Customer')).toBeDefined();
-      const customerType = service.getDataType('customer');
+      const api = await OpraApi.create(args);
+      expect(api.getDataType('Customer')).toBeDefined();
+      const customerType = api.getDataType('customer');
       expect(customerType).toBeDefined();
       expect(customerType.kind).toStrictEqual('ComplexType');
       expect(customerType.name).toStrictEqual('Customer');
@@ -54,9 +55,9 @@ describe('OpraService', function () {
         types: [],
         resources: [new CustomersResource()]
       };
-      const service = await OpraService.create(args);
-      expect(service.getResource('Customers')).toBeDefined();
-      const resource = service.getResource('customers');
+      const api = await OpraApi.create(args);
+      expect(api.getResource('Customers')).toBeDefined();
+      const resource = api.getResource('customers');
       expect(resource).toBeDefined();
       expect(resource.name).toStrictEqual('Customers');
     })
@@ -67,15 +68,15 @@ describe('OpraService', function () {
           title: 'TestApi',
           version: 'v1',
         },
-        resources: [new CustomerAddressesResource()]
+        resources: [new CustomerNotesResource()]
       };
-      const service = await OpraService.create(doc);
-      expect(service.getResource('CustomerAddresses')).toBeDefined();
-      const resource = service.getEntityResource('CustomerAddresses');
+      const api = await OpraApi.create(doc);
+      expect(api.getResource('CustomerNotes')).toBeDefined();
+      const resource = api.getEntityResource('CustomerNotes');
       expect(resource).toBeDefined();
       expect(resource).toBeInstanceOf(EntityResource);
-      expect(resource.name).toStrictEqual('CustomerAddresses');
-      expect(resource.description).toStrictEqual('Customer address resource');
+      expect(resource.name).toStrictEqual('CustomerNotes');
+      expect(resource.description).toStrictEqual('Customer notes resource');
     })
 
     it('Should automatically add data type while adding resource', async () => {
@@ -84,10 +85,10 @@ describe('OpraService', function () {
           title: 'TestApi',
           version: 'v1',
         },
-        resources: [new CustomerAddressesResource()]
+        resources: [new CustomerNotesResource()]
       };
-      const service = await OpraService.create(doc);
-      expect(service.getDataType('Address')).toBeDefined();
+      const api = await OpraApi.create(doc);
+      expect(api.getDataType('CustomerNotes')).toBeDefined();
     })
   })
 
@@ -99,11 +100,11 @@ describe('OpraService', function () {
           title: 'TestApi',
           version: 'v1',
         },
-        resources: [new CustomerAddressesResource()]
+        resources: [new CustomerNotesResource()]
       };
-      const service = await OpraService.create(args);
-      expect(service.getResource('CustomerAddresses')).toBeInstanceOf(EntityResource);
-      expect(service.getResource('CustomerAddresses')).toBeInstanceOf(EntityResource);
+      const api = await OpraApi.create(args);
+      expect(api.getResource('CustomerNotes')).toBeInstanceOf(EntityResource);
+      expect(api.getResource('CustomerNotes')).toBeInstanceOf(EntityResource);
     })
 
     it('Should getResource() throw error if resource does not exists', async () => {
@@ -112,10 +113,10 @@ describe('OpraService', function () {
           title: 'TestApi',
           version: 'v1',
         },
-        resources: [new CustomerAddressesResource()]
+        resources: [new CustomerNotesResource()]
       };
-      const service = await OpraService.create(args);
-      expect(() => service.getResource('notexistsresource')).toThrow('does not exists');
+      const api = await OpraApi.create(args);
+      expect(() => api.getResource('notexistsresource')).toThrow('does not exists');
     })
 
   })

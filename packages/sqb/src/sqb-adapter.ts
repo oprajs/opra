@@ -7,7 +7,7 @@ import { convertFilter } from './convert-filter.js';
 export namespace SQBAdapter {
 
   export function prepare(query: OpraAnyQuery): {
-    method: 'create' | 'findByPk' | 'findAll' | 'update' | 'updateAll' | 'destroy' | 'destroyAll';
+    method: 'create' | 'count' | 'findByPk' | 'findAll' | 'update' | 'updateAll' | 'destroy' | 'destroyAll';
     options: any,
     keyValue?: any;
     values?: any;
@@ -26,6 +26,16 @@ export namespace SQBAdapter {
           values: data,
           options,
           args: [data, options]
+        };
+      }
+      case 'count': {
+        const options: BaseEntityService.CountOptions = _.omitBy({
+          filter: convertFilter(query.filter)
+        }, _.isNil)
+        return {
+          method: 'count',
+          options,
+          args: [options]
         };
       }
       case 'get': {
@@ -86,6 +96,7 @@ export namespace SQBAdapter {
         const {data} = query;
         return {
           method: 'updateAll',
+          values: data,
           options,
           args: [data, options]
         };

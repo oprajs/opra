@@ -1,12 +1,12 @@
 import express from 'express';
 import request from 'supertest';
-import { OpraService } from '@opra/schema';
+import { OpraApi } from '@opra/schema';
 import { OpraExpressAdapter } from '../../src/index.js';
 import { createTestService } from '../_support/test-app/create-service.js';
 
 describe('Requesting Metadata', function () {
 
-  let service: OpraService;
+  let service: OpraApi;
   let app;
 
   beforeAll(async () => {

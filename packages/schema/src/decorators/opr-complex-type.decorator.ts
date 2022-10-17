@@ -15,10 +15,10 @@ export function OprComplexType(args?: ComplexTypeDecoratorOptions): ClassDecorat
     Object.assign(meta, _.omit(args, Object.keys(meta)));
 
     const base = Object.getPrototypeOf(target);
-    if (Reflect.hasMetadata(DATATYPE_METADATA, base)) {
-      const baseMeta = Reflect.getMetadata(DATATYPE_METADATA, base);
-      if (!baseMeta)
-        throw new TypeError(`Can't extend from "${base}". It doesn't have datatype metadata information`);
+    const baseMeta = Reflect.getMetadata(DATATYPE_METADATA, base);
+    if (baseMeta) {
+      if (baseMeta.additionalFields && meta.additionalFields == null)
+        meta.additionalFields = true;
       meta.extends = [{
         type: base
       }];

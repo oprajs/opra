@@ -1,32 +1,26 @@
-import '@sqb/sqljs';
 import {
-  OpraCreateInstanceQuery, OpraDeleteCollectionQuery, OpraDeleteInstanceQuery,
+  OpraApi,
+  OpraCreateInstanceQuery,
+  OpraDeleteCollectionQuery, OpraDeleteInstanceQuery,
   OpraGetInstanceQuery,
-  OpraSearchCollectionQuery,
-  OpraService, OpraUpdateCollectionQuery,
+  OpraSearchCollectionQuery, OpraUpdateCollectionQuery,
   OpraUpdateInstanceQuery
 } from '@opra/schema';
 import { OperatorType, SerializationType } from '@sqb/builder';
 import { SQBAdapter } from '../src/index.js';
-import { BooksResource } from './_support/book.resource.js';
+import { createApp } from './_support/app/index.js';
 
 describe('SQBAdapter.prepare', function () {
-  let service: OpraService;
+  let api: OpraApi;
 
   beforeAll(async () => {
-    service = await OpraService.create({
-      info: {
-        title: 'TestApi',
-        version: 'v1',
-      },
-      resources: [new BooksResource()]
-    });
+    api = (await createApp()).api;
   })
 
   describe('CreateInstanceQuery', function () {
     it('Should prepare', async () => {
       const values = {a: 1};
-      const query = new OpraCreateInstanceQuery(service.getResource('Books'), values);
+      const query = new OpraCreateInstanceQuery(api.getResource('Customers'), values);
       const o = SQBAdapter.prepare(query);
       expect(o.method).toStrictEqual('create');
       expect(o.values).toStrictEqual(values);
@@ -36,89 +30,88 @@ describe('SQBAdapter.prepare', function () {
 
     it('Should prepare with "pick" option', async () => {
       const values = {a: 1};
-      const query = new OpraCreateInstanceQuery(service.getEntityResource('Books'), values, {
-        pick: ['id', 'name', 'writer.name']
+      const query = new OpraCreateInstanceQuery(api.getEntityResource('Customers'), values, {
+        pick: ['id', 'givenName', 'country.name']
       });
       const o = SQBAdapter.prepare(query);
       expect(o.method).toStrictEqual('create');
       expect(o.values).toStrictEqual(values);
       expect(o.options).toBeDefined();
-      expect(o.options.pick).toStrictEqual(['id', 'name', 'writer.name']);
+      expect(o.options.pick).toStrictEqual(['id', 'givenName', 'country.name']);
     });
 
     it('Should prepare "omit" option', async () => {
       const values = {a: 1};
-      const query = new OpraCreateInstanceQuery(service.getEntityResource('Books'), values, {
-        omit: ['id', 'name', 'writer.name']
+      const query = new OpraCreateInstanceQuery(api.getEntityResource('Customers'), values, {
+        omit: ['id', 'givenName', 'country.name']
       });
       const o = SQBAdapter.prepare(query);
       expect(o.method).toStrictEqual('create');
       expect(o.values).toStrictEqual(values);
       expect(o.options).toBeDefined();
-      expect(o.options.omit).toStrictEqual(['id', 'name', 'writer.name']);
+      expect(o.options.omit).toStrictEqual(['id', 'givenName', 'country.name']);
       expect(o.args).toStrictEqual([o.values, o.options]);
     });
 
     it('Should prepare "include" option', async () => {
       const values = {a: 1};
-      const query = new OpraCreateInstanceQuery(service.getEntityResource('Books'), values, {
-        include: ['id', 'name', 'writer.name']
+      const query = new OpraCreateInstanceQuery(api.getEntityResource('Customers'), values, {
+        include: ['id', 'givenName', 'country.name']
       });
       const o = SQBAdapter.prepare(query);
       expect(o.method).toStrictEqual('create');
       expect(o.values).toStrictEqual(values);
       expect(o.options).toBeDefined();
-      expect(o.options.include).toStrictEqual(['id', 'name', 'writer.name']);
+      expect(o.options.include).toStrictEqual(['id', 'givenName', 'country.name']);
       expect(o.args).toStrictEqual([o.values, o.options]);
     });
   });
 
-
   describe('GetInstanceQuery', function () {
     it('Should prepare', async () => {
-      const query = new OpraGetInstanceQuery(service.getResource('Books'), 1);
+      const query = new OpraGetInstanceQuery(api.getResource('Customers'), 1);
       const o = SQBAdapter.prepare(query);
       expect(o.method).toStrictEqual('findByPk');
       expect(o.keyValue).toStrictEqual(1);
     });
 
     it('Should prepare with "pick" option', async () => {
-      const query = new OpraGetInstanceQuery(service.getEntityResource('Books'), 1, {
-        pick: ['id', 'name', 'writer.name']
+      const query = new OpraGetInstanceQuery(api.getEntityResource('Customers'), 1, {
+        pick: ['id', 'givenName', 'country.name']
       });
       const o = SQBAdapter.prepare(query);
       expect(o.method).toStrictEqual('findByPk');
       expect(o.keyValue).toStrictEqual(1);
       expect(o.options).toBeDefined();
-      expect(o.options.pick).toStrictEqual(['id', 'name', 'writer.name']);
+      expect(o.options.pick).toStrictEqual(['id', 'givenName', 'country.name']);
     });
 
     it('Should prepare with "omit" option', async () => {
-      const query = new OpraGetInstanceQuery(service.getEntityResource('Books'), 1, {
-        omit: ['id', 'name', 'writer.name']
+      const query = new OpraGetInstanceQuery(api.getEntityResource('Customers'), 1, {
+        omit: ['id', 'givenName', 'country.name']
       });
       const o = SQBAdapter.prepare(query);
       expect(o.method).toStrictEqual('findByPk');
       expect(o.keyValue).toStrictEqual(1);
       expect(o.options).toBeDefined();
-      expect(o.options.omit).toStrictEqual(['id', 'name', 'writer.name']);
+      expect(o.options.omit).toStrictEqual(['id', 'givenName', 'country.name']);
     });
 
     it('Should prepare with "include" option', async () => {
-      const query = new OpraGetInstanceQuery(service.getEntityResource('Books'), 1, {
-        include: ['id', 'name', 'writer.name']
+      const query = new OpraGetInstanceQuery(api.getEntityResource('Customers'), 1, {
+        include: ['id', 'givenName', 'country.name']
       });
       const o = SQBAdapter.prepare(query);
       expect(o.method).toStrictEqual('findByPk');
       expect(o.keyValue).toStrictEqual(1);
       expect(o.options).toBeDefined();
-      expect(o.options.include).toStrictEqual(['id', 'name', 'writer.name']);
+      expect(o.options.include).toStrictEqual(['id', 'givenName', 'country.name']);
     });
   });
 
   describe('SearchCollectionQuery', function () {
     it('Should prepare', async () => {
-      const query = new OpraSearchCollectionQuery(service.getResource('Books'));
+      const query = new OpraSearchCollectionQuery(api.getResource('Customers'));
       const o = SQBAdapter.prepare(query);
       expect(o.method).toStrictEqual('findAll');
       expect(o.options).toStrictEqual({});
@@ -126,7 +119,7 @@ describe('SQBAdapter.prepare', function () {
     })
 
     it('Should prepare "limit" option', async () => {
-      const query = new OpraSearchCollectionQuery(service.getEntityResource('Books'), {limit: 5});
+      const query = new OpraSearchCollectionQuery(api.getEntityResource('Customers'), {limit: 5});
       const o = SQBAdapter.prepare(query);
       expect(o.method).toStrictEqual('findAll');
       expect(o.options).toStrictEqual({limit: 5});
@@ -134,7 +127,7 @@ describe('SQBAdapter.prepare', function () {
     })
 
     it('Should prepare "offset" option', async () => {
-      const query = new OpraSearchCollectionQuery(service.getEntityResource('Books'), {skip: 5});
+      const query = new OpraSearchCollectionQuery(api.getEntityResource('Customers'), {skip: 5});
       const o = SQBAdapter.prepare(query);
       expect(o.method).toStrictEqual('findAll');
       expect(o.options).toStrictEqual({offset: 5});
@@ -142,7 +135,7 @@ describe('SQBAdapter.prepare', function () {
     });
 
     it('Should prepare "distinct" option', async () => {
-      const query = new OpraSearchCollectionQuery(service.getEntityResource('Books'), {distinct: true});
+      const query = new OpraSearchCollectionQuery(api.getEntityResource('Customers'), {distinct: true});
       const o = SQBAdapter.prepare(query);
       const options = {distinct: true};
       expect(o).toStrictEqual({
@@ -153,7 +146,7 @@ describe('SQBAdapter.prepare', function () {
     })
 
     it('Should prepare "total" option', async () => {
-      const query = new OpraSearchCollectionQuery(service.getEntityResource('Books'), {count: true});
+      const query = new OpraSearchCollectionQuery(api.getEntityResource('Customers'), {count: true});
       const o = SQBAdapter.prepare(query);
       expect(o.method).toStrictEqual('findAll');
       expect(o.options).toStrictEqual({total: true});
@@ -161,37 +154,37 @@ describe('SQBAdapter.prepare', function () {
     });
 
     it('Should prepare with "pick" option', async () => {
-      const query = new OpraSearchCollectionQuery(service.getEntityResource('Books'), {
-        pick: ['id', 'name', 'writer.name']
+      const query = new OpraSearchCollectionQuery(api.getEntityResource('Customers'), {
+        pick: ['id', 'givenName', 'country.name']
       });
       const o = SQBAdapter.prepare(query);
       expect(o.method).toStrictEqual('findAll');
-      expect(o.options).toStrictEqual({pick: ['id', 'name', 'writer.name']});
+      expect(o.options).toStrictEqual({pick: ['id', 'givenName', 'country.name']});
       expect(o.args).toStrictEqual([o.options]);
     });
 
     it('Should prepare with "omit" option', async () => {
-      const query = new OpraSearchCollectionQuery(service.getEntityResource('Books'), {
-        omit: ['id', 'name', 'writer.name']
+      const query = new OpraSearchCollectionQuery(api.getEntityResource('Customers'), {
+        omit: ['id', 'givenName', 'country.name']
       });
       const o = SQBAdapter.prepare(query);
       expect(o.method).toStrictEqual('findAll');
-      expect(o.options).toStrictEqual({omit: ['id', 'name', 'writer.name']});
+      expect(o.options).toStrictEqual({omit: ['id', 'givenName', 'country.name']});
       expect(o.args).toStrictEqual([o.options]);
     });
 
     it('Should prepare with "include" option', async () => {
-      const query = new OpraSearchCollectionQuery(service.getEntityResource('Books'), {
-        include: ['id', 'name', 'writer.name']
+      const query = new OpraSearchCollectionQuery(api.getEntityResource('Customers'), {
+        include: ['id', 'givenName', 'country.name']
       });
       const o = SQBAdapter.prepare(query);
       expect(o.method).toStrictEqual('findAll');
-      expect(o.options).toStrictEqual({include: ['id', 'name', 'writer.name']});
+      expect(o.options).toStrictEqual({include: ['id', 'givenName', 'country.name']});
       expect(o.args).toStrictEqual([o.options]);
     });
 
     it('Should prepare with "filter" option', async () => {
-      const query = new OpraSearchCollectionQuery(service.getEntityResource('Books'), {
+      const query = new OpraSearchCollectionQuery(api.getEntityResource('Customers'), {
         filter: 'name=Demons'
       });
       const o = SQBAdapter.prepare(query);
@@ -205,7 +198,7 @@ describe('SQBAdapter.prepare', function () {
 
     it('Should prepare', async () => {
       const values = {a: 2};
-      const query = new OpraUpdateInstanceQuery(service.getResource('Books'), 1, values);
+      const query = new OpraUpdateInstanceQuery(api.getResource('Customers'), 1, values);
       const o = SQBAdapter.prepare(query);
       expect(o.method).toStrictEqual('update');
       expect(o.keyValue).toStrictEqual(1);
@@ -215,35 +208,35 @@ describe('SQBAdapter.prepare', function () {
 
     it('Should prepare with "pick" option', async () => {
       const values = {a: 2};
-      const query = new OpraUpdateInstanceQuery(service.getResource('Books'), 1, values, {
-        pick: ['id', 'name', 'writer.name']
+      const query = new OpraUpdateInstanceQuery(api.getResource('Customers'), 1, values, {
+        pick: ['id', 'givenName', 'country.name']
       });
       const o = SQBAdapter.prepare(query);
       expect(o.method).toStrictEqual('update');
       expect(o.options).toBeDefined();
-      expect(o.options.pick).toStrictEqual(['id', 'name', 'writer.name']);
+      expect(o.options.pick).toStrictEqual(['id', 'givenName', 'country.name']);
     });
 
     it('Should prepare with "omit" option', async () => {
       const values = {a: 2};
-      const query = new OpraUpdateInstanceQuery(service.getResource('Books'), 1, values, {
-        omit: ['id', 'name', 'writer.name']
+      const query = new OpraUpdateInstanceQuery(api.getResource('Customers'), 1, values, {
+        omit: ['id', 'givenName', 'country.name']
       });
       const o = SQBAdapter.prepare(query);
       expect(o.method).toStrictEqual('update');
       expect(o.options).toBeDefined();
-      expect(o.options.omit).toStrictEqual(['id', 'name', 'writer.name']);
+      expect(o.options.omit).toStrictEqual(['id', 'givenName', 'country.name']);
     });
 
     it('Should prepare with "include" option', async () => {
       const values = {a: 2};
-      const query = new OpraUpdateInstanceQuery(service.getResource('Books'), 1, values, {
-        include: ['id', 'name', 'writer.name']
+      const query = new OpraUpdateInstanceQuery(api.getResource('Customers'), 1, values, {
+        include: ['id', 'givenName', 'country.name']
       });
       const o = SQBAdapter.prepare(query);
       expect(o.method).toStrictEqual('update');
       expect(o.options).toBeDefined();
-      expect(o.options.include).toStrictEqual(['id', 'name', 'writer.name']);
+      expect(o.options.include).toStrictEqual(['id', 'givenName', 'country.name']);
     });
 
   });
@@ -251,7 +244,7 @@ describe('SQBAdapter.prepare', function () {
   describe('UpdateCollectionQuery', function () {
     it('Should prepare', async () => {
       const values = {a: 2};
-      const query = new OpraUpdateCollectionQuery(service.getResource('Books'), values);
+      const query = new OpraUpdateCollectionQuery(api.getResource('Customers'), values);
       const o = SQBAdapter.prepare(query);
       expect(o.method).toStrictEqual('updateAll');
       expect(o.options).toBeDefined();
@@ -259,7 +252,7 @@ describe('SQBAdapter.prepare', function () {
 
     it('Should prepare with "filter" option', async () => {
       const values = {a: 2};
-      const query = new OpraUpdateCollectionQuery(service.getResource('Books'), values, {
+      const query = new OpraUpdateCollectionQuery(api.getResource('Customers'), values, {
         filter: 'name=Demons'
       });
       const o = SQBAdapter.prepare(query);
@@ -271,7 +264,7 @@ describe('SQBAdapter.prepare', function () {
 
   describe('DeleteInstanceQuery', function () {
     it('Should prepare', async () => {
-      const query = new OpraDeleteInstanceQuery(service.getResource('Books'), 1);
+      const query = new OpraDeleteInstanceQuery(api.getResource('Customers'), 1);
       const o = SQBAdapter.prepare(query);
       expect(o.method).toStrictEqual('destroy');
       expect(o.keyValue).toStrictEqual(1);
@@ -281,14 +274,14 @@ describe('SQBAdapter.prepare', function () {
 
   describe('DeleteCollectionQuery', function () {
     it('Should prepare', async () => {
-      const query = new OpraDeleteCollectionQuery(service.getResource('Books'));
+      const query = new OpraDeleteCollectionQuery(api.getResource('Customers'));
       const o = SQBAdapter.prepare(query);
       expect(o.method).toStrictEqual('destroyAll');
       expect(o.options).toBeDefined();
     })
 
     it('Should prepare with "filter" option', async () => {
-      const query = new OpraDeleteCollectionQuery(service.getResource('Books'), {
+      const query = new OpraDeleteCollectionQuery(api.getResource('Customers'), {
         filter: 'name=Demons'
       });
       const o = SQBAdapter.prepare(query);
@@ -300,7 +293,7 @@ describe('SQBAdapter.prepare', function () {
 
   describe('Convert filter ast to SQB', function () {
     it('Should convert StringLiteral', async () => {
-      const query = new OpraSearchCollectionQuery(service.getEntityResource('Books'), {
+      const query = new OpraSearchCollectionQuery(api.getEntityResource('Customers'), {
         filter: 'name="Demons"'
       });
       const o = SQBAdapter.prepare(query);
@@ -308,7 +301,7 @@ describe('SQBAdapter.prepare', function () {
     });
 
     it('Should convert NumberLiteral', async () => {
-      const query = new OpraSearchCollectionQuery(service.getEntityResource('Books'), {
+      const query = new OpraSearchCollectionQuery(api.getEntityResource('Customers'), {
         filter: 'name=10'
       });
       const o = SQBAdapter.prepare(query);
@@ -316,7 +309,7 @@ describe('SQBAdapter.prepare', function () {
     });
 
     it('Should convert BooleanLiteral', async () => {
-      const query = new OpraSearchCollectionQuery(service.getEntityResource('Books'), {
+      const query = new OpraSearchCollectionQuery(api.getEntityResource('Customers'), {
         filter: 'name=true'
       });
       const o = SQBAdapter.prepare(query);
@@ -324,7 +317,7 @@ describe('SQBAdapter.prepare', function () {
     });
 
     it('Should convert NullLiteral', async () => {
-      const query = new OpraSearchCollectionQuery(service.getEntityResource('Books'), {
+      const query = new OpraSearchCollectionQuery(api.getEntityResource('Customers'), {
         filter: 'name=null'
       });
       const o = SQBAdapter.prepare(query);
@@ -332,7 +325,7 @@ describe('SQBAdapter.prepare', function () {
     });
 
     it('Should convert DateLiteral', async () => {
-      const query = new OpraSearchCollectionQuery(service.getEntityResource('Books'), {
+      const query = new OpraSearchCollectionQuery(api.getEntityResource('Customers'), {
         filter: 'name="2020-06-11T12:30:15"'
       });
       const o = SQBAdapter.prepare(query);
@@ -340,7 +333,7 @@ describe('SQBAdapter.prepare', function () {
     });
 
     it('Should convert TimeLiteral', async () => {
-      const query = new OpraSearchCollectionQuery(service.getEntityResource('Books'), {
+      const query = new OpraSearchCollectionQuery(api.getEntityResource('Customers'), {
         filter: 'name="12:30:15"'
       });
       const o = SQBAdapter.prepare(query);
@@ -348,7 +341,7 @@ describe('SQBAdapter.prepare', function () {
     });
 
     it('Should convert ComparisonExpression(=)', async () => {
-      const query = new OpraSearchCollectionQuery(service.getEntityResource('Books'), {
+      const query = new OpraSearchCollectionQuery(api.getEntityResource('Customers'), {
         filter: 'name="Demons"'
       });
       const o = SQBAdapter.prepare(query);
@@ -361,7 +354,7 @@ describe('SQBAdapter.prepare', function () {
     });
 
     it('Should convert ComparisonExpression(!=)', async () => {
-      const query = new OpraSearchCollectionQuery(service.getEntityResource('Books'), {
+      const query = new OpraSearchCollectionQuery(api.getEntityResource('Customers'), {
         filter: 'name!="Demons"'
       });
       const o = SQBAdapter.prepare(query);
@@ -374,7 +367,7 @@ describe('SQBAdapter.prepare', function () {
     });
 
     it('Should convert ComparisonExpression(>)', async () => {
-      const query = new OpraSearchCollectionQuery(service.getEntityResource('Books'), {
+      const query = new OpraSearchCollectionQuery(api.getEntityResource('Customers'), {
         filter: 'pages>5'
       });
       const o = SQBAdapter.prepare(query);
@@ -387,7 +380,7 @@ describe('SQBAdapter.prepare', function () {
     });
 
     it('Should convert ComparisonExpression(>=)', async () => {
-      const query = new OpraSearchCollectionQuery(service.getEntityResource('Books'), {
+      const query = new OpraSearchCollectionQuery(api.getEntityResource('Customers'), {
         filter: 'pages>=5'
       });
       const o = SQBAdapter.prepare(query);
@@ -400,7 +393,7 @@ describe('SQBAdapter.prepare', function () {
     });
 
     it('Should convert ComparisonExpression(<)', async () => {
-      const query = new OpraSearchCollectionQuery(service.getEntityResource('Books'), {
+      const query = new OpraSearchCollectionQuery(api.getEntityResource('Customers'), {
         filter: 'pages<5'
       });
       const o = SQBAdapter.prepare(query);
@@ -413,7 +406,7 @@ describe('SQBAdapter.prepare', function () {
     });
 
     it('Should convert ComparisonExpression(<=)', async () => {
-      const query = new OpraSearchCollectionQuery(service.getEntityResource('Books'), {
+      const query = new OpraSearchCollectionQuery(api.getEntityResource('Customers'), {
         filter: 'pages<=5'
       });
       const o = SQBAdapter.prepare(query);
@@ -426,7 +419,7 @@ describe('SQBAdapter.prepare', function () {
     });
 
     it('Should convert ComparisonExpression(in)', async () => {
-      const query = new OpraSearchCollectionQuery(service.getEntityResource('Books'), {
+      const query = new OpraSearchCollectionQuery(api.getEntityResource('Customers'), {
         filter: 'pages in [5,6]'
       });
       const o = SQBAdapter.prepare(query);
@@ -439,7 +432,7 @@ describe('SQBAdapter.prepare', function () {
     });
 
     it('Should convert ComparisonExpression(!in)', async () => {
-      const query = new OpraSearchCollectionQuery(service.getEntityResource('Books'), {
+      const query = new OpraSearchCollectionQuery(api.getEntityResource('Customers'), {
         filter: 'pages !in [5,6]'
       });
       const o = SQBAdapter.prepare(query);
@@ -452,7 +445,7 @@ describe('SQBAdapter.prepare', function () {
     });
 
     it('Should convert ComparisonExpression(like)', async () => {
-      const query = new OpraSearchCollectionQuery(service.getEntityResource('Books'), {
+      const query = new OpraSearchCollectionQuery(api.getEntityResource('Customers'), {
         filter: 'name like "Demons"'
       });
       const o = SQBAdapter.prepare(query);
@@ -465,7 +458,7 @@ describe('SQBAdapter.prepare', function () {
     });
 
     it('Should convert ComparisonExpression(ilike)', async () => {
-      const query = new OpraSearchCollectionQuery(service.getEntityResource('Books'), {
+      const query = new OpraSearchCollectionQuery(api.getEntityResource('Customers'), {
         filter: 'name ilike "Demons"'
       });
       const o = SQBAdapter.prepare(query);
@@ -478,7 +471,7 @@ describe('SQBAdapter.prepare', function () {
     });
 
     it('Should convert ComparisonExpression(!like)', async () => {
-      const query = new OpraSearchCollectionQuery(service.getEntityResource('Books'), {
+      const query = new OpraSearchCollectionQuery(api.getEntityResource('Customers'), {
         filter: 'name !like "Demons"'
       });
       const o = SQBAdapter.prepare(query);
@@ -491,7 +484,7 @@ describe('SQBAdapter.prepare', function () {
     });
 
     it('Should convert ComparisonExpression(!like)', async () => {
-      const query = new OpraSearchCollectionQuery(service.getEntityResource('Books'), {
+      const query = new OpraSearchCollectionQuery(api.getEntityResource('Customers'), {
         filter: 'name !ilike "Demons"'
       });
       const o = SQBAdapter.prepare(query);
@@ -504,7 +497,7 @@ describe('SQBAdapter.prepare', function () {
     });
 
     it('Should convert LogicalExpression(or)', async () => {
-      const query = new OpraSearchCollectionQuery(service.getEntityResource('Books'), {
+      const query = new OpraSearchCollectionQuery(api.getEntityResource('Customers'), {
         filter: 'page=1 or page=2'
       });
       const o = SQBAdapter.prepare(query);
@@ -516,7 +509,7 @@ describe('SQBAdapter.prepare', function () {
     });
 
     it('Should convert LogicalExpression(and)', async () => {
-      const query = new OpraSearchCollectionQuery(service.getEntityResource('Books'), {
+      const query = new OpraSearchCollectionQuery(api.getEntityResource('Customers'), {
         filter: 'page=1 and name = "Demons"'
       });
       const o = SQBAdapter.prepare(query);
@@ -528,7 +521,7 @@ describe('SQBAdapter.prepare', function () {
     });
 
     it('Should convert ParenthesesExpression', async () => {
-      const query = new OpraSearchCollectionQuery(service.getEntityResource('Books'), {
+      const query = new OpraSearchCollectionQuery(api.getEntityResource('Customers'), {
         filter: '(page=1 or page=2) and name = "Demons"'
       });
       const o = SQBAdapter.prepare(query);

@@ -6,39 +6,27 @@ import {
   OprField
 } from '../../src/index.js';
 import { OmitType } from '../../src/type-helpers/extend-type.helper.js';
+import { Customer } from '../_support/app-sqb/index.js';
 
 describe('OmitType() helper', function () {
 
-  @OprComplexType({description: 'Person schema'})
-  class Person {
-    @OprField()
-    @Column()
-    givenName: string;
-    @OprField()
-    @Column()
-    familyName: string;
-    @OprField()
-    @Column()
-    gender: string;
-  }
-
-  it('Should create type with picked properties only', async function () {
+  it('Should create type with omitted properties only', async function () {
 
     @OprComplexType({description: 'TestClass schema'})
-    class TestClass extends OmitType(Person, ['gender']) {
+    class TestClass extends OmitType(Customer, ['gender']) {
       @OprField()
       @Column()
       sex: string;
     }
 
-    const meta = extractComplexTypeMetadata(TestClass);
+    const meta = await extractComplexTypeMetadata(TestClass);
     expect(meta).toStrictEqual({
       kind: 'ComplexType',
       name: 'TestClass',
       description: 'TestClass schema',
       ctor: TestClass,
       extends: [
-        {type: Person, omit: ['gender']}
+        {type: Customer, omit: ['gender']}
       ],
       fields: {
         sex: {
@@ -48,14 +36,15 @@ describe('OmitType() helper', function () {
     });
     const sqbMeta = Entity.getMetadata(TestClass);
     expect(sqbMeta).toBeDefined();
-    expect(Object.keys((sqbMeta as any).fields)).toStrictEqual(
-        ['givenname', 'familyname', 'sex']);
+    const keys = Object.keys((sqbMeta as any).fields);
+    expect(keys).toContain('sex');
+    expect(keys).not.toContain('gender');
   })
 
-  it('Should create from already picked type', async function () {
+  it('Should create from already omitted type', async function () {
 
     @OprComplexType({description: 'TestClass schema'})
-    class Person2 extends OmitType(Person, ['gender']) {
+    class Person2 extends OmitType(Customer, ['gender']) {
       @OprField()
       sex: string;
     }
@@ -67,7 +56,7 @@ describe('OmitType() helper', function () {
       sex: number;
     }
 
-    const meta = extractComplexTypeMetadata(TestClass);
+    const meta = await extractComplexTypeMetadata(TestClass);
     expect(meta).toStrictEqual({
       kind: 'ComplexType',
       name: 'TestClass',
@@ -85,8 +74,10 @@ describe('OmitType() helper', function () {
 
     const sqbMeta = Entity.getMetadata(TestClass);
     expect(sqbMeta).toBeDefined();
-    expect(Object.keys((sqbMeta as any).fields)).toStrictEqual(
-        ['givenname', 'sex']);
+    const keys = Object.keys((sqbMeta as any).fields);
+    expect(keys).toContain('sex');
+    expect(keys).not.toContain('gender');
+    expect(keys).not.toContain('familyName');
   })
 
 

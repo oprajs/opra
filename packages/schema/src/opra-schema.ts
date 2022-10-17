@@ -93,7 +93,7 @@ export namespace OpraSchema {
 
   export interface SimpleType extends BaseDataType {
     kind: 'SimpleType';
-    type: 'boolean' | 'number' | 'integer' | 'string';
+    type: 'any' | 'boolean' | 'number' | 'integer' | 'string';
     format?: string;
     default?: boolean | number | string;
     enum?: string[] | Record<string, string>;
@@ -118,7 +118,7 @@ export namespace OpraSchema {
   export type Field = Extensible & {
     type: string;
     description?: string;
-    optional?: boolean;
+    required?: boolean;
     isArray?: boolean;
     format?: string;
     default?: any;

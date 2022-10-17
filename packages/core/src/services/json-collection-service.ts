@@ -32,6 +32,7 @@ export interface JsonCollectionServiceOptions {
 }
 
 let dbId = 1;
+const indexingTypes = ['int', 'float', 'number', 'date', 'string'];
 
 export class JsonCollectionService<T, TOutput = EntityOutput<T>> implements IEntityService {
   private _status: '' | 'initializing' | 'initialized' | 'error' = '';
@@ -88,11 +89,15 @@ export class JsonCollectionService<T, TOutput = EntityOutput<T>> implements IEnt
       include: options?.include,
     })
     nSQL().useDatabase(this._dbName);
-    const rows = await nSQL(this.resourceName)
-        .query('select', select)
-        .where([this.primaryKey, '=', keyValue])
-        .exec();
-    return unFlatten(rows[0]) as TOutput;
+    try {
+      const rows = await nSQL(this.resourceName)
+          .query('select', select)
+          .where([this.primaryKey, '=', keyValue])
+          .exec();
+      return unFlatten(rows[0]) as TOutput;
+    } catch (e) {
+      throw e;
+    }
   }
 
   async count(options?: JsonCollectionService.SearchOptions): Promise<number> {
@@ -131,12 +136,12 @@ export class JsonCollectionService<T, TOutput = EntityOutput<T>> implements IEnt
     await this._init();
     const keyValue = data[this.primaryKey];
     nSQL().useDatabase(this._dbName);
-    const rows = await nSQL(this._initData).query('select', [this.primaryKey])
+    const rows = await nSQL(this.resourceName).query('select', [this.primaryKey])
         .where([this.primaryKey, '=', keyValue])
         .exec();
     if (rows.length)
       throw new ResourceConflictError(this.resourceName, this.primaryKey);
-    await nSQL(this._initData).query('upsert', data)
+    await nSQL(this.resourceName).query('upsert', data)
         .exec();
     return await this.get(keyValue, options) as TOutput;
   }
@@ -144,7 +149,7 @@ export class JsonCollectionService<T, TOutput = EntityOutput<T>> implements IEnt
   async update(keyValue: any, data: EntityInput<T>, options?: JsonCollectionService.UpdateOptions): Promise<Maybe<TOutput>> {
     await this._init();
     nSQL().useDatabase(this._dbName);
-    await nSQL(this._initData)
+    await nSQL(this.resourceName)
         .query('conform rows', (row) => {
           const out = merge({}, row, {deep: true, clone: true});
           merge(out, data as any, {deep: true});
@@ -152,17 +157,16 @@ export class JsonCollectionService<T, TOutput = EntityOutput<T>> implements IEnt
         })
         .where([this.primaryKey, '=', keyValue])
         .exec();
-    await nSQL(this._initData).query("rebuild indexes").exec();
+    // await nSQL(this.resourceName).query("rebuild indexes").exec();
     return this.get(keyValue, options);
   }
 
   async updateMany(data: EntityInput<T>, options?: JsonCollectionService.UpdateManyOptions): Promise<number> {
     await this._init();
     const filter = this._convertFilter(options?.filter);
-    await this._init();
     nSQL().useDatabase(this._dbName);
     let affected = 0;
-    await nSQL(this._initData)
+    await nSQL(this.resourceName)
         .query('conform rows', (row) => {
           const out = merge({}, row, {deep: true, clone: true});
           merge(out, data as any, {deep: true});
@@ -171,14 +175,14 @@ export class JsonCollectionService<T, TOutput = EntityOutput<T>> implements IEnt
         })
         .where(filter)
         .exec();
-    await nSQL(this._initData).query("rebuild indexes").exec();
+    // await nSQL(this.resourceName).query("rebuild indexes").exec();
     return affected;
   }
 
   async delete(keyValue: any): Promise<boolean> {
     await this._init();
     nSQL().useDatabase(this._dbName);
-    const result = await nSQL(this._initData)
+    const result = await nSQL(this.resourceName)
         .query('delete')
         .where([this.primaryKey, '=', keyValue])
         .exec();
@@ -189,7 +193,7 @@ export class JsonCollectionService<T, TOutput = EntityOutput<T>> implements IEnt
     await this._init();
     const filter = this._convertFilter(options?.filter);
     nSQL().useDatabase(this._dbName);
-    const result = await nSQL(this._initData)
+    const result = await nSQL(this.resourceName)
         .query('delete')
         .where(filter)
         .exec();
@@ -221,16 +225,20 @@ export class JsonCollectionService<T, TOutput = EntityOutput<T>> implements IEnt
     this._status = 'initializing';
     this._dbName = 'JsonDataService_DB_' + (dbId++);
     try {
-      const model: InanoSQLTableConfig = {
+      const table: InanoSQLTableConfig = {
         name: this.resourceName,
-        model: {
-          '*:any': {}
-        },
-        indexes: {},
-        primaryKey: this.primaryKey,
+        model: {},
+        indexes: {}
       }
+      for (const [k, f] of this.resource.dataType.fields.entries()) {
+        const fieldType = this.resource.owner.getDataType(f.type || 'string');
+        const o: any = table.model[k + ':' + dataTypeToSQLType(fieldType, !!f.isArray)] = {};
+        if (k === this.primaryKey)
+          o.pk = true;
+      }
+
       // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-      const indexes = model.indexes!;
+      const indexes = table.indexes!;
 
       // Add indexes for sort fields
       const searchMethod = this.resource.metadata.methods.search;
@@ -239,14 +247,18 @@ export class JsonCollectionService<T, TOutput = EntityOutput<T>> implements IEnt
           searchMethod.sortFields.forEach(fieldName => {
             const f = this.dataType.getField(fieldName);
             const fieldType = this.resource.owner.getDataType(f.type || 'string');
-            indexes[fieldName + ':' + dataTypeToSQLType(fieldType, !!f.isArray)] = {};
+            const t = dataTypeToSQLType(fieldType, !!f.isArray);
+            if (indexingTypes.includes(t))
+              indexes[fieldName + ':' + t] = {};
           })
         }
         if (searchMethod.filters) {
           searchMethod.filters.forEach(filter => {
             const f = this.dataType.getField(filter.field);
             const fieldType = this.resource.owner.getDataType(f.type || 'string');
-            indexes[filter.field + ':' + dataTypeToSQLType(fieldType, !!f.isArray)] = {};
+            const t = dataTypeToSQLType(fieldType, !!f.isArray);
+            if (indexingTypes.includes(t))
+              indexes[filter.field + ':' + t] = {};
           })
         }
       }
@@ -254,7 +266,7 @@ export class JsonCollectionService<T, TOutput = EntityOutput<T>> implements IEnt
       await nSQL().createDatabase({
         id: this._dbName,
         version: 3,
-        tables: [model]
+        tables: [table]
       });
       this._status = 'initialized';
       if (this._initData) {
@@ -267,6 +279,7 @@ export class JsonCollectionService<T, TOutput = EntityOutput<T>> implements IEnt
     } catch (e: any) {
       this._initError = e;
       this._status = 'error';
+      throw e;
     }
   }
 
@@ -570,7 +583,7 @@ function dataTypeToSQLType(dataType: DataType, isArray: boolean): string {
     out = 'object';
   else {
     switch (dataType.name) {
-      case 'booolean':
+      case 'boolean':
       case 'number':
       case 'string':
         out = dataType.name;
@@ -578,10 +591,10 @@ function dataTypeToSQLType(dataType: DataType, isArray: boolean): string {
       case 'integer':
         out = 'int';
         break;
-      case 'date':
-      case 'date-time':
-        out = 'date';
-        break;
+        // case 'date': //there is bug in nano-sql.
+        // case 'date-time':
+        //   out = 'date';
+        //   break;
       case 'time':
         out = 'string';
         break;

@@ -1,5 +1,5 @@
 import { OpraException } from '@opra/exception';
-import { OpraAnyQuery, OpraService } from '@opra/schema';
+import { OpraAnyQuery, OpraApi } from '@opra/schema';
 import { OpraURLSearchParams, SearchParams } from '@opra/url';
 import { HttpStatus } from '../enums/index.js';
 import {
@@ -14,7 +14,7 @@ export type QueryContextArgs = Pick<QueryContext,
     'userContext' | 'parentValue' | 'continueOnError'>;
 
 export class QueryContext {
-  readonly service: OpraService;
+  readonly service: OpraApi;
   readonly executionContext: IExecutionContext;
   readonly query: OpraAnyQuery;
   readonly params: SearchParams;

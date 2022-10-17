@@ -1,21 +1,21 @@
 import express from 'express';
 import { faker } from '@faker-js/faker';
-import { OpraService } from '@opra/schema';
-import { opraTest, OpraTester } from '@opra/testing';
+import { OpraApi } from '@opra/schema';
+import { opraTestClient, OpraTester } from '@opra/testing';
 import { OpraExpressAdapter } from '../../src/index.js';
 import { createTestService } from '../_support/test-app/create-service.js';
 
 describe('e2e: EntityResource:update', function () {
 
-  let service: OpraService;
+  let service: OpraApi;
   let app;
-  let api: OpraTester;
+  let client: OpraTester;
 
   beforeAll(async () => {
     service = await createTestService();
     app = express();
     await OpraExpressAdapter.init(app, service);
-    api = opraTest(app);
+    client = opraTestClient(app);
   });
 
   it('Should update instance', async () => {
@@ -25,18 +25,21 @@ describe('e2e: EntityResource:update', function () {
       gender: 'M',
       address: {city: 'Izmir'}
     }
-    let resp = await api.entity('Customers')
+    let resp = await client.entity('Customers')
         .get(100).send();
     const oldData = resp.body;
+    resp.expect
+        .toSuccess()
+        .toReturnObject();
 
-    resp = await api.entity('Customers')
+    resp = await client.entity('Customers')
         .update(oldData.id, data).send();
     resp.expect
         .toSuccess()
         .toReturnObject()
         .toMatch({...oldData, ...data, address: undefined});
 
-    resp = await api.entity('Customers')
+    resp = await client.entity('Customers')
         .get(oldData.id).send();
     resp.expect
         .toSuccess()
@@ -51,11 +54,14 @@ describe('e2e: EntityResource:update', function () {
       gender: 'M',
       address: {city: 'Izmir'}
     }
-    let resp = await api.entity('Customers')
+    let resp = await client.entity('Customers')
         .get(100).send();
     const oldData = resp.body;
+    resp.expect
+        .toSuccess()
+        .toReturnObject();
 
-    resp = await api.entity('Customers')
+    resp = await client.entity('Customers')
         .update(oldData.id, data)
         .pick('id', 'givenName')
         .send();
@@ -72,11 +78,14 @@ describe('e2e: EntityResource:update', function () {
       gender: 'M',
       address: {city: 'Izmir'}
     }
-    let resp = await api.entity('Customers')
+    let resp = await client.entity('Customers')
         .get(100).send();
     const oldData = resp.body;
+    resp.expect
+        .toSuccess()
+        .toReturnObject();
 
-    resp = await api.entity('Customers')
+    resp = await client.entity('Customers')
         .update(oldData.id, data)
         .omit('id', 'givenName')
         .send();
@@ -93,11 +102,14 @@ describe('e2e: EntityResource:update', function () {
       gender: 'M',
       address: {city: 'Izmir'}
     }
-    let resp = await api.entity('Customers')
+    let resp = await client.entity('Customers')
         .get(100).send();
     const oldData = resp.body;
+    resp.expect
+        .toSuccess()
+        .toReturnObject();
 
-    resp = await api.entity('Customers')
+    resp = await client.entity('Customers')
         .update(oldData.id, data)
         .include('address')
         .send();

@@ -1,14 +1,14 @@
 import { OpraSchema } from '../../opra-schema.js';
 import { cloneObject } from '../../utils/clone-object.util.js';
 import { colorFgMagenta, colorFgYellow, colorReset, nodeInspectCustom } from '../../utils/inspect-utils.js';
-import { OpraService } from '../opra-service.js';
+import { OpraApi } from '../opra-api.js';
 
 export abstract class OpraResource {
   readonly metadata: OpraSchema.Resource;
-  readonly owner: OpraService;
+  readonly owner: OpraApi;
   protected path: string;
 
-  protected constructor(owner: OpraService, metadata: OpraSchema.Resource) {
+  protected constructor(owner: OpraApi, metadata: OpraSchema.Resource) {
     this.owner = owner;
     this.metadata = metadata;
   }

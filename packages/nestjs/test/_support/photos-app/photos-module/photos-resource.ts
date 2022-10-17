@@ -11,7 +11,8 @@ import { Photos } from './photos.dto.js';
 import { PhotosService } from './photos.service.js';
 
 @OprEntityResource(Photos, {
-  description: 'Photos resource'
+  description: 'Photos resource',
+  keyFields: 'id'
 })
 export class PhotosResource {
 

@@ -5,7 +5,8 @@ import { EntityInput, EntityMetadata, EntityOutput, Repository, SqbClient, SqbCo
 import { SQBAdapter } from './sqb-adapter.js';
 
 export namespace BaseEntityService {
-  export type SearchOptions = Repository.FindAllOptions & { total?: boolean };
+  export type SearchOptions = Repository.FindAllOptions;
+  export type CountOptions = Repository.CountOptions;
   export type GetOptions = Repository.GetOptions;
   export type CreateOptions = Repository.CreateOptions;
   export type UpdateOptions = Repository.UpdateOptions;
@@ -29,6 +30,8 @@ export abstract class BaseEntityService<T> implements IEntityService {
     switch (prepared.method) {
       case 'create':
         return this.create(prepared.values, prepared.options, ctx.userContext);
+      case 'count':
+        return this.count(prepared.options, ctx.userContext);
       case 'destroy':
         return this.delete(prepared.keyValue, prepared.options, ctx.userContext);
       case 'destroyAll':

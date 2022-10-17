@@ -5,7 +5,7 @@ import {
   OpraException, wrapException
 } from '@opra/exception';
 import { FallbackLng, I18n, LanguageResource } from '@opra/i18n';
-import { OpraGetMetadataQuery, OpraService } from '@opra/schema';
+import { OpraApi, OpraGetMetadataQuery } from '@opra/schema';
 import { IExecutionContext } from '../interfaces/execution-context.interface.js';
 import { createI18n } from '../utils/create-i18n.js';
 import { resourceExecute } from './adapter-utils/resource-execute.util.js';
@@ -63,7 +63,7 @@ export abstract class OpraAdapter<TExecutionContext extends IExecutionContext> {
   readonly i18n: I18n;
   readonly userContextResolver?: OpraAdapter.UserContextResolver;
 
-  constructor(readonly service: OpraService, options?: Omit<OpraAdapter.Options, 'i18n'> & { i18n: I18n }) {
+  constructor(readonly service: OpraApi, options?: Omit<OpraAdapter.Options, 'i18n'> & { i18n: I18n }) {
     this.i18n = options?.i18n || I18n.defaultInstance;
     this.userContextResolver = options?.userContext;
   }

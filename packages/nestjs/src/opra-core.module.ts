@@ -10,18 +10,18 @@ import {
 import { HttpAdapterHost, ModulesContainer } from '@nestjs/core';
 import { MetadataScanner } from '@nestjs/core/metadata-scanner';
 import { OPRA_INITIALIZER, OPRA_MODULE_ID, OPRA_MODULE_OPTIONS } from './constants.js';
-import { ServiceFactory } from './factories/service.factory.js';
+import { OpraApiFactory } from './factories/opra-api.factory.js';
 import {
   OpraModuleAsyncOptions,
   OpraModuleOptions,
   OpraModuleOptionsFactory
 } from './interfaces/opra-module-options.interface.js';
 import { NestExplorer } from './services/nest-explorer.js';
-import { OpraServiceLoader } from './services/service-loader.js';
+import { OpraApiLoader } from './services/opra-api-loader.js';
 
 @Module({
   providers: [
-    ServiceFactory,
+    OpraApiFactory,
     MetadataScanner,
     NestExplorer
   ]
@@ -32,7 +32,7 @@ export class OpraCoreModule implements OnModuleInit, OnModuleDestroy {
       private readonly httpAdapterHost: HttpAdapterHost,
       protected readonly modulesContainer: ModulesContainer,
       @Inject(OPRA_MODULE_OPTIONS) private readonly options: OpraModuleOptions,
-      @Inject(OPRA_INITIALIZER) private readonly opraServiceLoader: OpraServiceLoader,
+      @Inject(OPRA_INITIALIZER) private readonly opraServiceLoader: OpraApiLoader,
   ) {
   }
 
@@ -48,7 +48,7 @@ export class OpraCoreModule implements OnModuleInit, OnModuleDestroy {
         },
         {
           provide: OPRA_INITIALIZER,
-          useClass: OpraServiceLoader
+          useClass: OpraApiLoader
         }
       ],
       exports: [...(options.exports || [])]
@@ -67,7 +67,7 @@ export class OpraCoreModule implements OnModuleInit, OnModuleDestroy {
         },
         {
           provide: OPRA_INITIALIZER,
-          useClass: OpraServiceLoader
+          useClass: OpraApiLoader
         },
         ...this.createAsyncProviders(asyncOptions)
       ]

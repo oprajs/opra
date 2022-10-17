@@ -1,7 +1,7 @@
 import bodyParser from 'body-parser';
 import type { Application, Request, Response } from 'express';
 import { AsyncEventEmitter } from 'strict-typed-events';
-import { OpraService } from '@opra/schema';
+import { OpraApi } from '@opra/schema';
 import { normalizePath } from '@opra/url';
 import type {
   ContextType,
@@ -20,7 +20,7 @@ export class OpraExpressAdapter extends OpraHttpAdapter<IHttpExecutionContext> {
 
   static async init(
       app: Application,
-      service: OpraService,
+      service: OpraApi,
       options?: OpraExpressAdapter.Options
   ): Promise<OpraExpressAdapter> {
     const i18n = await this.initI18n(options);

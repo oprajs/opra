@@ -80,9 +80,7 @@ export class ApiExpectArray {
 
   toBeSortedBy(...fields: string[]): this {
     try {
-      for (const item of this.response.body) {
-        expect(item).toBeSortedBy(fields);
-      }
+      expect(this.response.body).toBeSortedBy(fields);
     } catch (e: any) {
       Error.captureStackTrace(e, this.toBeSortedBy);
       throw e;

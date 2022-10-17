@@ -25,8 +25,8 @@ export class Customer extends MixinType(Record, Person) {
   @OprField()
   active: boolean;
 
-  @OprField({type: 'integer'})
-  vip: number;
+  @OprField()
+  vip: boolean;
 
   @OprField({
     exclusive: true
@@ -35,8 +35,7 @@ export class Customer extends MixinType(Record, Person) {
 
   @OprField({
     exclusive: true,
-    type: Note,
-    isArray: true
+    type: Note
   })
   notes?: CustomerNotes[];
 

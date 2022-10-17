@@ -1,21 +1,21 @@
 import express from 'express';
 import { faker } from '@faker-js/faker';
-import { OpraService } from '@opra/schema';
-import { opraTest, OpraTester } from '@opra/testing';
+import { OpraApi } from '@opra/schema';
+import { opraTestClient, OpraTester } from '@opra/testing';
 import { OpraExpressAdapter } from '../../src/index.js';
 import { createTestService } from '../_support/test-app/create-service.js';
 
 describe('e2e: EntityResource:create', function () {
 
-  let service: OpraService;
+  let service: OpraApi;
   let app;
-  let api: OpraTester;
+  let client: OpraTester;
 
   beforeAll(async () => {
     service = await createTestService();
     app = express();
     await OpraExpressAdapter.init(app, service);
-    api = opraTest(app);
+    client = opraTestClient(app);
   });
 
   it('Should create instance', async () => {
@@ -26,13 +26,13 @@ describe('e2e: EntityResource:create', function () {
       gender: 'M',
       address: {city: 'Izmir'}
     }
-    let resp = await api.entity('Customers')
+    let resp = await client.entity('Customers')
         .create(data).send();
     resp.expect
         .toSuccess(201)
         .toReturnObject()
         .toMatch({...data, address: undefined});
-    resp = await api.entity('Customers')
+    resp = await client.entity('Customers')
         .get(1001).send();
     resp.expect
         .toSuccess()
@@ -48,7 +48,7 @@ describe('e2e: EntityResource:create', function () {
       gender: 'M',
       address: {city: 'Izmir'}
     }
-    const resp = await api.entity('Customers')
+    const resp = await client.entity('Customers')
         .create(data)
         .pick('id', 'givenName')
         .send();
@@ -66,7 +66,7 @@ describe('e2e: EntityResource:create', function () {
       gender: 'M',
       address: {city: 'Izmir'}
     }
-    const resp = await api.entity('Customers')
+    const resp = await client.entity('Customers')
         .create(data)
         .omit('id', 'givenName')
         .send();
@@ -84,7 +84,7 @@ describe('e2e: EntityResource:create', function () {
       gender: 'M',
       address: {city: 'Izmir'}
     }
-    const resp = await api.entity('Customers')
+    const resp = await client.entity('Customers')
         .create(data)
         .include('address')
         .send();

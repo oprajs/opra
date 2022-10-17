@@ -4,14 +4,14 @@ import {
   ComplexType,
   DataType,
   EntityResource,
+  OpraApi,
   OpraCountCollectionQuery,
-  OpraService,
   OpraUpdateInstanceQuery
 } from '@opra/schema';
 import { HttpHeaders } from '../../enums/index.js';
 import { QueryContext } from '../query-context.js';
 
-export async function entityResourceExecute(service: OpraService, resource: EntityResource, context: QueryContext) {
+export async function entityResourceExecute(service: OpraApi, resource: EntityResource, context: QueryContext) {
   const {query} = context;
   if (query.kind === 'SearchCollectionQuery') {
     const promises: Promise<any>[] = [];
@@ -36,7 +36,7 @@ export async function entityResourceExecute(service: OpraService, resource: Enti
 }
 
 async function executeFn(
-    service: OpraService,
+    service: OpraApi,
     resource: EntityResource,
     context: QueryContext,
 ): Promise<any> {

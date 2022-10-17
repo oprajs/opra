@@ -5,39 +5,27 @@ import {
   OprField
 } from '../../src/index.js';
 import { PickType } from '../../src/type-helpers/extend-type.helper.js';
+import { Customer } from '../_support/app-sqb/index.js';
 
 describe('PickType() helper', function () {
-
-  @OprComplexType({description: 'Person schema'})
-  class Person {
-    @OprField()
-    @Column()
-    givenName: string;
-    @OprField()
-    @Column()
-    familyName: string;
-    @OprField()
-    @Column()
-    gender: string;
-  }
 
   it('Should create type with picked properties only', async function () {
 
     @OprComplexType({description: 'TestClass schema'})
-    class TestClass extends PickType(Person, ['givenName', 'familyName']) {
+    class TestClass extends PickType(Customer, ['givenName', 'familyName']) {
       @OprField()
       @Column()
       sex: string;
     }
 
-    const meta = extractComplexTypeMetadata(TestClass);
+    const meta = await extractComplexTypeMetadata(TestClass);
     expect(meta).toStrictEqual({
       kind: 'ComplexType',
       name: 'TestClass',
       description: 'TestClass schema',
       ctor: TestClass,
       extends: [
-        {type: Person, pick: ['givenName', 'familyName']}
+        {type: Customer, pick: ['givenName', 'familyName']}
       ],
       fields: {
         sex: {
@@ -54,26 +42,26 @@ describe('PickType() helper', function () {
   it('Should create from already picked type', async function () {
 
     @OprComplexType({description: 'TestClass schema'})
-    class Person2 extends PickType(Person, ['givenName', 'familyName']) {
+    class Customer2 extends PickType(Customer, ['givenName', 'familyName']) {
       @OprField()
       sex: string;
     }
 
     @OprComplexType({description: 'TestClass schema'})
-    class TestClass extends PickType(Person2, ['givenName']) {
+    class TestClass extends PickType(Customer2, ['givenName']) {
       @OprField()
       @Column()
       sex: number;
     }
 
-    const meta = extractComplexTypeMetadata(TestClass);
+    const meta = await extractComplexTypeMetadata(TestClass);
     expect(meta).toStrictEqual({
       kind: 'ComplexType',
       name: 'TestClass',
       description: 'TestClass schema',
       ctor: TestClass,
       extends: [
-        {type: Person2, pick: ['givenName']}
+        {type: Customer2, pick: ['givenName']}
       ],
       fields: {
         sex: {

@@ -3,7 +3,15 @@ import { Type } from 'ts-gems';
 import { ResponsiveMap } from '../../helpers/responsive-map.js';
 import { OpraSchema } from '../../opra-schema.js';
 
+const BigIntConstructor = Object.getPrototypeOf(BigInt(0)).constructor;
+
 const internalDataTypeArray: OpraSchema.DataType[] = [
+  {
+    kind: 'SimpleType',
+    name: 'any',
+    type: 'any',
+    description: 'Any value'
+  },
   {
     kind: 'SimpleType',
     name: 'boolean',
@@ -22,6 +30,14 @@ const internalDataTypeArray: OpraSchema.DataType[] = [
   },
   {
     kind: 'SimpleType',
+    name: 'guid',
+    type: 'string',
+    description: 'A guid value',
+    ctor: String,
+    parse: (v) => toString(v)
+  },
+  {
+    kind: 'SimpleType',
     name: 'number',
     type: 'number',
     description: 'Both Integer as well as Floating-Point numbers',
@@ -35,6 +51,14 @@ const internalDataTypeArray: OpraSchema.DataType[] = [
     description: 'Integer number',
     ctor: Number,
     parse: (v) => toInt(v)
+  },
+  {
+    kind: 'SimpleType',
+    name: 'bigint',
+    type: 'number',
+    description: 'BigInt number',
+    ctor: BigIntConstructor,
+    parse: (v) => BigInt(v)
   },
   {
     kind: 'ComplexType',
@@ -82,7 +106,7 @@ const internalDataTypeArray: OpraSchema.DataType[] = [
   }
 ];
 
-export const primitiveDataTypeNames = ['boolean', 'number', 'string', 'null'];
+export const primitiveDataTypeNames = ['any', 'boolean', 'number', 'string', 'null'];
 export const builtinClassMap = new Map<Type, OpraSchema.DataType>();
 export const internalDataTypes = new ResponsiveMap<string, OpraSchema.DataType>();
 

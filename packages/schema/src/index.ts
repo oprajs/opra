@@ -15,7 +15,7 @@ export * from './interfaces/resource-container.interface.js';
 
 export * from './implementation/schema-generator.js';
 export * from './implementation/opra-document.js';
-export * from './implementation/opra-service.js';
+export * from './implementation/opra-api.js';
 export * from './implementation/data-type/data-type.js';
 export * from './implementation/data-type/complex-type.js';
 export * from './implementation/data-type/simple-type.js';
