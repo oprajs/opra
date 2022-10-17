@@ -1,6 +1,6 @@
 import { StrictOmit } from 'ts-gems';
 import { OpraSchema } from '../../opra-schema.js';
-import { EntityResource } from '../resource/entity-resource.js';
+import { CollectionResource } from '../resource/collection-resource.js';
 
 export type DeleteInstanceQueryOptions = StrictOmit<OpraSchema.DeleteInstanceQuery,
     'method' | 'scope' | 'operation' | 'resource' | 'keyValue'>;
@@ -12,7 +12,7 @@ export class OpraDeleteInstanceQuery implements StrictOmit<OpraSchema.DeleteInst
   readonly operation = 'delete';
   keyValue: OpraSchema.KeyValue;
 
-  constructor(readonly resource: EntityResource,
+  constructor(readonly resource: CollectionResource,
               keyValue: any,
               // eslint-disable-next-line @typescript-eslint/no-unused-vars
               options?: DeleteInstanceQueryOptions

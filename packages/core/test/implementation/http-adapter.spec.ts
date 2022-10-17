@@ -25,14 +25,14 @@ describe('OpraHttpAdapter', function () {
     });
   });
 
-  describe('buildQuery(EntityResource)', function () {
+  describe('buildQuery(CollectionResource)', function () {
 
     it('Should generate "GetInstanceQuery" query', async () => {
       const adapter = new OpraHttpAdapter(service);
       const url = new OpraURL('/Customers@1?&$pick=id&$omit=gender&$include=address');
       const query = adapter.buildQuery(url, 'GET') as OpraGetInstanceQuery;
       expect(query).toBeDefined();
-      const resource = service.getEntityResource('Customers');
+      const resource = service.getCollectionResource('Customers');
       expect(query).toBeDefined();
       expect(query.resource).toStrictEqual(resource);
       expect(query.method).toStrictEqual('get');
@@ -47,7 +47,7 @@ describe('OpraHttpAdapter', function () {
       const url = new OpraURL('/Customers');
       const query = adapter.buildQuery(url, 'POST', {id: 1}) as OpraCreateInstanceQuery;
       expect(query).toBeDefined();
-      const resource = service.getEntityResource('Customers');
+      const resource = service.getCollectionResource('Customers');
       expect(query).toBeDefined();
       expect(query.resource).toStrictEqual(resource);
       expect(query.method).toStrictEqual('create');
@@ -59,7 +59,7 @@ describe('OpraHttpAdapter', function () {
       const url = new OpraURL('/Customers@1');
       const query = adapter.buildQuery(url, 'PATCH', {id: 1}) as OpraUpdateInstanceQuery;
       expect(query).toBeDefined();
-      const resource = service.getEntityResource('Customers');
+      const resource = service.getCollectionResource('Customers');
       expect(query).toBeDefined();
       expect(query.resource).toStrictEqual(resource);
       expect(query.method).toStrictEqual('update');
@@ -72,7 +72,7 @@ describe('OpraHttpAdapter', function () {
       const url = new OpraURL('/Customers?$filter=id<10');
       const query = adapter.buildQuery(url, 'PATCH', {id: 1}) as OpraUpdateCollectionQuery;
       expect(query).toBeDefined();
-      const resource = service.getEntityResource('Customers');
+      const resource = service.getCollectionResource('Customers');
       expect(query).toBeDefined();
       expect(query.resource).toStrictEqual(resource);
       expect(query.method).toStrictEqual('updateMany');
@@ -85,7 +85,7 @@ describe('OpraHttpAdapter', function () {
       const url = new OpraURL('/Customers@1');
       const query = adapter.buildQuery(url, 'DELETE') as OpraDeleteInstanceQuery;
       expect(query).toBeDefined();
-      const resource = service.getEntityResource('Customers');
+      const resource = service.getCollectionResource('Customers');
       expect(query).toBeDefined();
       expect(query.resource).toStrictEqual(resource);
       expect(query.method).toStrictEqual('delete');
@@ -97,7 +97,7 @@ describe('OpraHttpAdapter', function () {
       const url = new OpraURL('/Customers?$filter=id<10');
       const query = adapter.buildQuery(url, 'DELETE') as OpraDeleteCollectionQuery;
       expect(query).toBeDefined();
-      const resource = service.getEntityResource('Customers');
+      const resource = service.getCollectionResource('Customers');
       expect(query).toBeDefined();
       expect(query.resource).toStrictEqual(resource);
       expect(query.method).toStrictEqual('deleteMany');

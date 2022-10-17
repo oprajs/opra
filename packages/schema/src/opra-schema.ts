@@ -15,7 +15,7 @@ export namespace OpraSchema {
    */
 
   export type Extensible<T = any> = { [key: `$${string}`]: T };
-  export type ResourceKind = 'ContainerResource' | 'EntityResource' | 'SingletonResource';
+  export type ResourceKind = 'ContainerResource' | 'CollectionResource' | 'SingletonResource';
   export type DataTypeKind = 'SimpleType' | 'ComplexType';
   export type OperationType = 'create' | 'read' | 'update' | 'patch' | 'delete' | 'execute';
   export type QueryScope = 'collection' | 'instance' | 'field';
@@ -146,7 +146,7 @@ export namespace OpraSchema {
    * *** === Resource related === ***
    */
 
-  export type Resource = ContainerResource | EntityResource | SingletonResource;
+  export type Resource = ContainerResource | CollectionResource | SingletonResource;
 
   export interface BaseResource {
     kind: ResourceKind;
@@ -155,8 +155,8 @@ export namespace OpraSchema {
     instance?: {};
   }
 
-  export interface EntityResource extends BaseResource {
-    kind: 'EntityResource',
+  export interface CollectionResource extends BaseResource {
+    kind: 'CollectionResource',
     type: string;
     keyFields: string | string[];
     methods: {
@@ -237,7 +237,7 @@ export namespace OpraSchema {
     method: 'create';
     scope: 'collection';
     operation: 'create';
-    resource: EntityResource;
+    resource: CollectionResource;
     data: {};
     pick?: string[];
     omit?: string[];
@@ -248,7 +248,7 @@ export namespace OpraSchema {
     method: 'get';
     scope: 'instance';
     operation: 'read';
-    resource: EntityResource;
+    resource: CollectionResource;
     keyValue: KeyValue;
     pick?: string[];
     omit?: string[];
@@ -271,7 +271,7 @@ export namespace OpraSchema {
     method: 'update';
     scope: 'instance';
     operation: 'update';
-    resource: EntityResource;
+    resource: CollectionResource;
     keyValue: KeyValue;
     data: {};
     pick?: string[];
@@ -283,7 +283,7 @@ export namespace OpraSchema {
     method: 'updateMany';
     scope: 'collection';
     operation: 'update';
-    resource: EntityResource;
+    resource: CollectionResource;
     filter?: string | Expression;
     data: {};
   }
@@ -292,7 +292,7 @@ export namespace OpraSchema {
     method: 'delete';
     scope: 'instance';
     operation: 'delete';
-    resource: EntityResource;
+    resource: CollectionResource;
     keyValue: KeyValue;
   }
 
@@ -300,7 +300,7 @@ export namespace OpraSchema {
     method: 'deleteMany';
     scope: 'collection';
     operation: 'delete';
-    resource: EntityResource;
+    resource: CollectionResource;
     filter?: string | Expression;
   }
 
@@ -308,7 +308,7 @@ export namespace OpraSchema {
     method: 'search';
     scope: 'collection';
     operation: 'read';
-    resource: EntityResource;
+    resource: CollectionResource;
     pick?: string[];
     omit?: string[];
     include?: string[];
@@ -324,7 +324,7 @@ export namespace OpraSchema {
     method: 'count';
     scope: 'collection';
     operation: 'read';
-    resource: EntityResource;
+    resource: CollectionResource;
     filter?: string | Expression;
   }
 
@@ -349,12 +349,12 @@ export namespace OpraSchema {
   export function isResource(obj: any): obj is Resource {
     return obj && typeof obj === 'object' &&
         obj.kind === 'ContainerResource' ||
-        obj.kind === 'EntityResource' ||
+        obj.kind === 'CollectionResource' ||
         obj.kind === 'SingletonResource';
   }
 
-  export function isEntityResource(obj: any): obj is EntityResource {
-    return obj && typeof obj === 'object' && obj.kind === 'EntityResource';
+  export function isCollectionResource(obj: any): obj is CollectionResource {
+    return obj && typeof obj === 'object' && obj.kind === 'CollectionResource';
   }
 
   export function isSingletonResource(obj: any): obj is SingletonResource {

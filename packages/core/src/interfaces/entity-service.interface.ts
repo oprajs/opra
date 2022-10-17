@@ -7,7 +7,7 @@ export interface IEntityService {
   processRequest(ctx: QueryContext): any;
 }
 
-export abstract class EntityResourceController<T, TOutput = EntityOutput<T>> implements IResource {
+export abstract class CollectionResourceController<T, TOutput = EntityOutput<T>> implements IResource {
 
   async search(ctx: QueryContext): Promise<TOutput[]> {
     return (await this.getService(ctx)).processRequest(ctx);

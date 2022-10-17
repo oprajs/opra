@@ -18,7 +18,7 @@ describe('CreateInstanceQuery', function () {
   });
 
   it('Should create query', async () => {
-    const resource = api.getEntityResource('Customers');
+    const resource = api.getCollectionResource('Customers');
     const query = new OpraCreateInstanceQuery(resource, data);
     expect(query.resource).toStrictEqual(resource);
     expect(query.method).toStrictEqual('create');
@@ -30,13 +30,13 @@ describe('CreateInstanceQuery', function () {
 
 
   it('Should create query with "pick" option', async () => {
-    const resource = api.getEntityResource('Customers');
+    const resource = api.getCollectionResource('Customers');
     const query = new OpraCreateInstanceQuery(resource, data, {pick: ['address.city']});
     expect(query.pick).toStrictEqual(['address.city']);
   })
 
   it('Should normalize field names in "pick" option', async () => {
-    const resource = api.getEntityResource('Customers');
+    const resource = api.getCollectionResource('Customers');
     let query = new OpraCreateInstanceQuery(resource, data, {pick: ['givenname', 'GENDER', 'AdDRess.CIty']});
     expect(query.pick).toStrictEqual(['givenName', 'gender', 'address.city']);
     query = new OpraCreateInstanceQuery(resource, data, {pick: ['address', 'address.city']});
@@ -46,25 +46,25 @@ describe('CreateInstanceQuery', function () {
   })
 
   it('Should validate if fields in "pick" option are exist', async () => {
-    const resource = api.getEntityResource('Customers');
+    const resource = api.getCollectionResource('Customers');
     expect(() => new OpraCreateInstanceQuery(resource, data, {pick: ['address.xid']}))
         .toThrow('Unknown field "address.xid"');
   })
 
   it('Should allow unknown fields in "pick" option if additionalFields set to "true"', async () => {
-    const resource = api.getEntityResource('Customers');
+    const resource = api.getCollectionResource('Customers');
     const query = new OpraCreateInstanceQuery(resource, data, {pick: ['notes.add1', 'notes.add2.add3']});
     expect(query.pick).toStrictEqual(['notes.add1', 'notes.add2.add3']);
   })
 
   it('Should create query with "omit" option', async () => {
-    const resource = api.getEntityResource('Customers');
+    const resource = api.getCollectionResource('Customers');
     const query = new OpraCreateInstanceQuery(resource, data, {omit: ['address.city']});
     expect(query.omit).toStrictEqual(['address.city']);
   })
 
   it('Should normalize field names in "omit" option', async () => {
-    const resource = api.getEntityResource('Customers');
+    const resource = api.getCollectionResource('Customers');
     let query = new OpraCreateInstanceQuery(resource, data, {omit: ['givenname', 'GENDER', 'AdDRess.CIty']});
     expect(query.omit).toStrictEqual(['givenName', 'gender', 'address.city']);
     query = new OpraCreateInstanceQuery(resource, data, {omit: ['address', 'address.city']});
@@ -74,25 +74,25 @@ describe('CreateInstanceQuery', function () {
   })
 
   it('Should validate if fields in "omit" option are exist', async () => {
-    const resource = api.getEntityResource('Customers');
+    const resource = api.getCollectionResource('Customers');
     expect(() => new OpraCreateInstanceQuery(resource, data, {omit: ['address.xid']}))
         .toThrow('Unknown field "address.xid"');
   })
 
   it('Should allow unknown fields in "omit" option if additionalFields set to "true"', async () => {
-    const resource = api.getEntityResource('Customers');
+    const resource = api.getCollectionResource('Customers');
     const query = new OpraCreateInstanceQuery(resource, data, {omit: ['notes.add1', 'notes.add2.add3']});
     expect(query.omit).toStrictEqual(['notes.add1', 'notes.add2.add3']);
   })
 
   it('Should create query with "include" option', async () => {
-    const resource = api.getEntityResource('Customers');
+    const resource = api.getCollectionResource('Customers');
     const query = new OpraCreateInstanceQuery(resource, data, {include: ['address.city']});
     expect(query.include).toStrictEqual(['address.city']);
   })
 
   it('Should normalize field names in "include" option', async () => {
-    const resource = api.getEntityResource('Customers');
+    const resource = api.getCollectionResource('Customers');
     let query = new OpraCreateInstanceQuery(resource, data, {include: ['givenname', 'GENDER', 'AdDRess.CIty']});
     expect(query.include).toStrictEqual(['givenName', 'gender', 'address.city']);
     query = new OpraCreateInstanceQuery(resource, data, {include: ['address', 'address.city']});
@@ -102,13 +102,13 @@ describe('CreateInstanceQuery', function () {
   })
 
   it('Should validate if fields in "include" option are exist', async () => {
-    const resource = api.getEntityResource('Customers');
+    const resource = api.getCollectionResource('Customers');
     expect(() => new OpraCreateInstanceQuery(resource, data, {include: ['address.xid']}))
         .toThrow('Unknown field "address.xid"');
   })
 
   it('Should allow unknown fields in "include" option if additionalFields set to "true"', async () => {
-    const resource = api.getEntityResource('Customers');
+    const resource = api.getCollectionResource('Customers');
     const query = new OpraCreateInstanceQuery(resource, data, {include: ['notes.add1', 'notes.add2.add3']});
     expect(query.include).toStrictEqual(['notes.add1', 'notes.add2.add3']);
   })

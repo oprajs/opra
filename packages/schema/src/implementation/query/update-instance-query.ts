@@ -1,7 +1,7 @@
 import { StrictOmit } from 'ts-gems';
 import { OpraSchema } from '../../opra-schema.js';
 import { normalizeFieldArray } from '../../utils/normalize-field-array.util.js';
-import { EntityResource } from '../resource/entity-resource.js';
+import { CollectionResource } from '../resource/collection-resource.js';
 
 export type UpdateInstanceQueryOptions = StrictOmit<OpraSchema.UpdateInstanceQuery,
     'method' | 'scope' | 'operation' | 'resource' | 'keyValue' | 'data'>;
@@ -16,7 +16,7 @@ export class OpraUpdateInstanceQuery implements StrictOmit<OpraSchema.UpdateInst
   omit?: string[];
   include?: string[];
 
-  constructor(readonly resource: EntityResource,
+  constructor(readonly resource: CollectionResource,
               keyValue: any,
               public data: any,
               options?: UpdateInstanceQueryOptions

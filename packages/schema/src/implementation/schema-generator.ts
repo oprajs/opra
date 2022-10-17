@@ -121,7 +121,7 @@ export class SchemaGenerator {
         methods: {}
       }
 
-      if (OpraSchema.isEntityResource(resourceSchema)) {
+      if (OpraSchema.isCollectionResource(resourceSchema)) {
         // Determine keyFields if not set
         if (!resourceSchema.keyFields) {
           const entity = this._dataTypes.get(type);
@@ -170,7 +170,7 @@ export class SchemaGenerator {
     } else resourceSchema = instance;
 
     if (OpraSchema.isResource(resourceSchema)) {
-      if (OpraSchema.isEntityResource(resourceSchema)) {
+      if (OpraSchema.isCollectionResource(resourceSchema)) {
         if (!this._dataTypes.has(resourceSchema.type))
           throw new Error(`Resource registration error. Type "${resourceSchema.type}" not found.`);
         if (this._resources.has(resourceSchema.name))

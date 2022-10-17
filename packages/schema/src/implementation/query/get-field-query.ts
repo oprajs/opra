@@ -3,7 +3,7 @@ import { OpraSchema } from '../../opra-schema.js';
 import { normalizeFieldArray } from '../../utils/normalize-field-array.util.js';
 import { ComplexType, Field } from '../data-type/complex-type.js';
 import { DataType } from '../data-type/data-type.js';
-import { EntityResource } from '../resource/entity-resource.js';
+import { CollectionResource } from '../resource/collection-resource.js';
 import type { OpraGetInstanceQuery } from './get-instance-query.js';
 
 export type OpraGetPropertyQueryOptions = StrictOmit<OpraSchema.GetFieldQuery,
@@ -17,7 +17,7 @@ export class OpraGetFieldQuery implements OpraSchema.GetFieldQuery {
   readonly method = 'get'
   readonly scope = 'field';
   readonly operation = 'read';
-  readonly resource: EntityResource;
+  readonly resource: CollectionResource;
   readonly field: Field;
   readonly path: string;
   readonly dataType: DataType;

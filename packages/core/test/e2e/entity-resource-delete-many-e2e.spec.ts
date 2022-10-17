@@ -5,7 +5,7 @@ import { OpraExpressAdapter } from '../../src/index.js';
 import { createTestService } from '../_support/test-app/create-service.js';
 import { customersData } from '../_support/test-app/data/customers.data.js';
 
-describe('e2e: EntityResource:deleteMany', function () {
+describe('e2e: CollectionResource:deleteMany', function () {
 
   let service: OpraApi;
   let app;

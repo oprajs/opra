@@ -33,7 +33,7 @@ describe('Requesting Metadata', function () {
     expect(resp.status).toStrictEqual(200);
     expect(resp.body).toBeDefined();
     expect(resp.body).toMatchObject({
-      "kind": "EntityResource",
+      "kind": "CollectionResource",
       "type": "Customer",
       "name": "Customers"
     })
@@ -44,7 +44,7 @@ describe('Requesting Metadata', function () {
     expect(resp.status).toStrictEqual(200);
     expect(resp.body).toBeDefined();
     expect(resp.body).toMatchObject({
-      "kind": "EntityResource",
+      "kind": "CollectionResource",
       "type": "Customer",
       "name": "Customers"
     })

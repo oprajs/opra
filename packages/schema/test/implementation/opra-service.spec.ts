@@ -1,4 +1,4 @@
-import { EntityResource, OpraApi, SchemaGenerator } from '../../src/index.js';
+import { CollectionResource, OpraApi, SchemaGenerator } from '../../src/index.js';
 import {
   Customer,
   CustomerNotesResource,
@@ -72,9 +72,9 @@ describe('OpraService', function () {
       };
       const api = await OpraApi.create(doc);
       expect(api.getResource('CustomerNotes')).toBeDefined();
-      const resource = api.getEntityResource('CustomerNotes');
+      const resource = api.getCollectionResource('CustomerNotes');
       expect(resource).toBeDefined();
-      expect(resource).toBeInstanceOf(EntityResource);
+      expect(resource).toBeInstanceOf(CollectionResource);
       expect(resource.name).toStrictEqual('CustomerNotes');
       expect(resource.description).toStrictEqual('Customer notes resource');
     })
@@ -103,8 +103,8 @@ describe('OpraService', function () {
         resources: [new CustomerNotesResource()]
       };
       const api = await OpraApi.create(args);
-      expect(api.getResource('CustomerNotes')).toBeInstanceOf(EntityResource);
-      expect(api.getResource('CustomerNotes')).toBeInstanceOf(EntityResource);
+      expect(api.getResource('CustomerNotes')).toBeInstanceOf(CollectionResource);
+      expect(api.getResource('CustomerNotes')).toBeInstanceOf(CollectionResource);
     })
 
     it('Should getResource() throw error if resource does not exists', async () => {

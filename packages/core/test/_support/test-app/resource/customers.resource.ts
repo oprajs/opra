@@ -1,19 +1,19 @@
 import {
-  EntityResource,
+  CollectionResource,
   OpraResource,
+  OprCollectionResource,
   OprDeleteResolver,
-  OprEntityResource,
   OprSearchResolver
 } from '@opra/schema';
-import { EntityResourceController, IEntityService, JsonCollectionService } from '../../../../src/index.js';
+import { CollectionResourceController, IEntityService, JsonCollectionService } from '../../../../src/index.js';
 import { customersData } from '../data/customers.data.js';
 import { Customer } from '../entities/customer.entity.js';
 
-@OprEntityResource(Customer, {
+@OprCollectionResource(Customer, {
   description: 'Customer resource',
   keyFields: 'id'
 })
-export class CustomersResource extends EntityResourceController<Customer> {
+export class CustomersResource extends CollectionResourceController<Customer> {
 
   customersService: JsonCollectionService<Customer>;
 
@@ -33,7 +33,7 @@ export class CustomersResource extends EntityResourceController<Customer> {
   delete;
 
   init(resource: OpraResource) {
-    this.customersService = new JsonCollectionService<Customer>(resource as EntityResource,
+    this.customersService = new JsonCollectionService<Customer>(resource as CollectionResource,
         {resourceName: 'Customers', data: customersData});
   }
 

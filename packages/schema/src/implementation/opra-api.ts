@@ -7,7 +7,7 @@ import { stringCompare } from '../utils/string-compare.util.js';
 import { ComplexType } from './data-type/complex-type.js';
 import { OpraDocument } from './opra-document.js';
 import { OpraResource } from './resource/base-resource.js';
-import { EntityResource } from './resource/entity-resource.js';
+import { CollectionResource } from './resource/collection-resource.js';
 import { SchemaGenerator } from './schema-generator.js';
 
 export type OpraServiceArgs = StrictOmit<OpraSchema.Service, 'version' | 'types' | 'resources'>;
@@ -37,10 +37,10 @@ export class OpraApi extends OpraDocument implements IResourceContainer {
     return t as T;
   }
 
-  getEntityResource(name: string): EntityResource {
+  getCollectionResource(name: string): CollectionResource {
     const t = this.getResource(name);
-    if (!(t instanceof EntityResource))
-      throw new Error(`"${name}" is not an EntityResource`);
+    if (!(t instanceof CollectionResource))
+      throw new Error(`"${name}" is not a Collection Resource`);
     return t;
   }
 
@@ -59,13 +59,13 @@ export class OpraApi extends OpraDocument implements IResourceContainer {
 
   protected _addResources(resources: OpraSchema.Resource[]): void {
     for (const r of resources) {
-      if (OpraSchema.isEntityResource(r)) {
+      if (OpraSchema.isCollectionResource(r)) {
         const dataType = this.getDataType(r.type);
         if (!dataType)
-          throw new TypeError(`Datatype "${r.type}" declared in EntityResource (${r.name}) does not exists`);
+          throw new TypeError(`Datatype "${r.type}" declared in CollectionResource (${r.name}) does not exists`);
         if (!(dataType instanceof ComplexType))
           throw new TypeError(`${r.type} is not an ComplexType`);
-        this.resources.set(r.name, new EntityResource(this, dataType, r));
+        this.resources.set(r.name, new CollectionResource(this, dataType, r));
       } else
         throw new TypeError(`Unknown resource kind (${r.kind})`);
     }

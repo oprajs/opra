@@ -1,7 +1,7 @@
 import { StrictOmit } from 'ts-gems';
 import { Expression, parseFilter } from '@opra/url';
 import { OpraSchema } from '../../opra-schema.js';
-import { EntityResource } from '../resource/entity-resource.js';
+import { CollectionResource } from '../resource/collection-resource.js';
 
 export type DeleteCollectionQueryOption = StrictOmit<OpraSchema.DeleteCollectionQuery,
     'method' | 'scope' | 'operation' | 'resource'>;
@@ -13,7 +13,7 @@ export class OpraDeleteCollectionQuery implements StrictOmit<OpraSchema.DeleteCo
   readonly operation = 'delete';
   filter?: Expression;
 
-  constructor(readonly resource: EntityResource,
+  constructor(readonly resource: CollectionResource,
               options?: DeleteCollectionQueryOption
   ) {
     this.filter = typeof options?.filter === 'string' ? parseFilter(options.filter) : options?.filter;

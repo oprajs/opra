@@ -1,7 +1,7 @@
 import { StrictOmit } from 'ts-gems';
 import { Expression, parseFilter } from '@opra/url';
 import { OpraSchema } from '../../opra-schema.js';
-import { EntityResource } from '../resource/entity-resource.js';
+import { CollectionResource } from '../resource/collection-resource.js';
 
 export type UpdateCollectionQueryOptions = StrictOmit<OpraSchema.UpdateCollectionQuery,
     'method' | 'scope' | 'operation' | 'resource' | 'data'>;
@@ -13,7 +13,7 @@ export class OpraUpdateCollectionQuery implements StrictOmit<OpraSchema.UpdateCo
   readonly operation = 'update';
   filter?: Expression;
 
-  constructor(readonly resource: EntityResource,
+  constructor(readonly resource: CollectionResource,
               public data: {},
               options?: UpdateCollectionQueryOptions
   ) {
