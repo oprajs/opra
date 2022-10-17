@@ -2,7 +2,7 @@ import { IResourceContainer } from '../../interfaces/resource-container.interfac
 import { OpraSchema } from '../../opra-schema.js';
 import { OpraApi } from '../opra-api.js';
 import { OpraResource } from './base-resource.js';
-import { EntityResource } from './entity-resource.js';
+import { CollectionResource } from './collection-resource.js';
 
 export class ContainerResource extends OpraResource implements IResourceContainer {
   declare readonly metadata: OpraSchema.ContainerResource;
@@ -18,10 +18,10 @@ export class ContainerResource extends OpraResource implements IResourceContaine
     return t as T;
   }
 
-  getEntityResource(name: string): EntityResource {
+  getCollectionResource(name: string): CollectionResource {
     const t = this.getResource(name);
-    if (!(t instanceof EntityResource))
-      throw new Error(`"${name}" is not an EntityResource`);
+    if (!(t instanceof CollectionResource))
+      throw new Error(`"${name}" is not a Collection Resource`);
     return t;
   }
 

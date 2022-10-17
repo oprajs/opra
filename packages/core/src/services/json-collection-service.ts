@@ -5,8 +5,8 @@ import { nSQL } from "@nano-sql/core";
 import { InanoSQLTableConfig } from '@nano-sql/core/lib/interfaces';
 import { BadRequestError, MethodNotAllowedError, ResourceConflictError } from '@opra/exception';
 import {
+  CollectionResource,
   ComplexType, DataType,
-  EntityResource,
   OpraAnyEntityQuery,
   OpraAnyQuery,
   OpraSchema
@@ -41,7 +41,7 @@ export class JsonCollectionService<T, TOutput = EntityOutput<T>> implements IEnt
   private _initData?: any[];
   defaultLimit: number;
 
-  constructor(readonly resource: EntityResource, options?: JsonCollectionServiceOptions) {
+  constructor(readonly resource: CollectionResource, options?: JsonCollectionServiceOptions) {
     if (this.resource.keyFields.length > 1)
       throw new TypeError('JsonDataService currently doesn\'t support multiple primary keys');
     this.defaultLimit = options?.defaultLimit ?? 10;
@@ -290,7 +290,7 @@ export class JsonCollectionService<T, TOutput = EntityOutput<T>> implements IEnt
     values?: any;
     args: any[]
   } {
-    if ((query as any).resource instanceof EntityResource) {
+    if ((query as any).resource instanceof CollectionResource) {
       if ((query as OpraAnyEntityQuery).dataType !== this.dataType)
         throw new TypeError(`Query data type (${(query as OpraAnyEntityQuery).dataType.name}) ` +
             `differs from JsonDataService data type (${this.dataType.name})`);

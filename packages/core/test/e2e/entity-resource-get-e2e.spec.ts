@@ -4,7 +4,7 @@ import { opraTestClient, OpraTester } from '@opra/testing';
 import { OpraExpressAdapter } from '../../src/index.js';
 import { createTestService } from '../_support/test-app/create-service.js';
 
-describe('e2e: EntityResource:get', function () {
+describe('e2e: CollectionResource:get', function () {
 
   let service: OpraApi;
   let app;

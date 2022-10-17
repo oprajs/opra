@@ -19,7 +19,7 @@ describe('DeleteCollectionQuery', function () {
   });
 
   it('Should create query', async () => {
-    const resource = api.getEntityResource('Customers');
+    const resource = api.getCollectionResource('Customers');
     const query = new OpraUpdateCollectionQuery(resource, data);
     expect(query.resource).toStrictEqual(resource);
     expect(query.method).toStrictEqual('updateMany');
@@ -30,7 +30,7 @@ describe('DeleteCollectionQuery', function () {
   })
 
   it('Should create query with "filter" option (string)', async () => {
-    const resource = api.getEntityResource('Customers');
+    const resource = api.getCollectionResource('Customers');
     const query = new OpraUpdateCollectionQuery(resource, data, {filter: 'id=1'});
     expect(query.filter).toBeDefined();
     expect(typeof query.filter).toStrictEqual('object');
@@ -38,7 +38,7 @@ describe('DeleteCollectionQuery', function () {
   })
 
   it('Should create query with "filter" option (Expression)', async () => {
-    const resource = api.getEntityResource('Customers');
+    const resource = api.getCollectionResource('Customers');
     const query = new OpraUpdateCollectionQuery(resource, data, {filter: parseFilter('address.code=1')});
     expect(query.filter).toBeDefined();
     expect(typeof query.filter).toStrictEqual('object');

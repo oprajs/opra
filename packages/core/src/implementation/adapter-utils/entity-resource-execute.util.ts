@@ -1,9 +1,9 @@
 import { ForbiddenError, ResourceNotFoundError } from '@opra/exception';
 import { translate } from '@opra/i18n';
 import {
+  CollectionResource,
   ComplexType,
   DataType,
-  EntityResource,
   OpraApi,
   OpraCountCollectionQuery,
   OpraUpdateInstanceQuery
@@ -11,7 +11,7 @@ import {
 import { HttpHeaders } from '../../enums/index.js';
 import { QueryContext } from '../query-context.js';
 
-export async function entityResourceExecute(service: OpraApi, resource: EntityResource, context: QueryContext) {
+export async function collectionResourceExecute(service: OpraApi, resource: CollectionResource, context: QueryContext) {
   const {query} = context;
   if (query.kind === 'SearchCollectionQuery') {
     const promises: Promise<any>[] = [];
@@ -37,7 +37,7 @@ export async function entityResourceExecute(service: OpraApi, resource: EntityRe
 
 async function executeFn(
     service: OpraApi,
-    resource: EntityResource,
+    resource: CollectionResource,
     context: QueryContext,
 ): Promise<any> {
   const method = context.query.method;

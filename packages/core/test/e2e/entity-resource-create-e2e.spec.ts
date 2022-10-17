@@ -5,16 +5,16 @@ import { opraTestClient, OpraTester } from '@opra/testing';
 import { OpraExpressAdapter } from '../../src/index.js';
 import { createTestService } from '../_support/test-app/create-service.js';
 
-describe('e2e: EntityResource:create', function () {
+describe('e2e: CollectionResource:create', function () {
 
-  let service: OpraApi;
+  let api: OpraApi;
   let app;
   let client: OpraTester;
 
   beforeAll(async () => {
-    service = await createTestService();
+    api = await createTestService();
     app = express();
-    await OpraExpressAdapter.init(app, service);
+    await OpraExpressAdapter.init(app, api);
     client = opraTestClient(app);
   });
 

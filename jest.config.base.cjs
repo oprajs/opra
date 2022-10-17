@@ -1,7 +1,6 @@
 module.exports = {
   testEnvironment: 'node',
-  'verbose': true,
-  'forceExit': true,
+  verbose: true,
   coveragePathIgnorePatterns: [
     '<rootDir>/build/',
     '<rootDir>/dist/',
@@ -12,9 +11,11 @@ module.exports = {
   coverageDirectory: "<rootDir>/coverage/",
   transform: {
     '^.+.ts?$': ['ts-jest', {
-      'tsconfig': '<rootDir>/test/tsconfig.json'
+      tsconfig: '<rootDir>/test/tsconfig.json',
+      isolatedModules: true
     }]
   },
+  maxWorkers: "50%",
   // transform: {
   //   '^.+ts?$': ['@swc-node/jest', {
   //     module: {

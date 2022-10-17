@@ -30,7 +30,7 @@ describe('SQBAdapter.prepare', function () {
 
     it('Should prepare with "pick" option', async () => {
       const values = {a: 1};
-      const query = new OpraCreateInstanceQuery(api.getEntityResource('Customers'), values, {
+      const query = new OpraCreateInstanceQuery(api.getCollectionResource('Customers'), values, {
         pick: ['id', 'givenName', 'country.name']
       });
       const o = SQBAdapter.prepare(query);
@@ -42,7 +42,7 @@ describe('SQBAdapter.prepare', function () {
 
     it('Should prepare "omit" option', async () => {
       const values = {a: 1};
-      const query = new OpraCreateInstanceQuery(api.getEntityResource('Customers'), values, {
+      const query = new OpraCreateInstanceQuery(api.getCollectionResource('Customers'), values, {
         omit: ['id', 'givenName', 'country.name']
       });
       const o = SQBAdapter.prepare(query);
@@ -55,7 +55,7 @@ describe('SQBAdapter.prepare', function () {
 
     it('Should prepare "include" option', async () => {
       const values = {a: 1};
-      const query = new OpraCreateInstanceQuery(api.getEntityResource('Customers'), values, {
+      const query = new OpraCreateInstanceQuery(api.getCollectionResource('Customers'), values, {
         include: ['id', 'givenName', 'country.name']
       });
       const o = SQBAdapter.prepare(query);
@@ -76,7 +76,7 @@ describe('SQBAdapter.prepare', function () {
     });
 
     it('Should prepare with "pick" option', async () => {
-      const query = new OpraGetInstanceQuery(api.getEntityResource('Customers'), 1, {
+      const query = new OpraGetInstanceQuery(api.getCollectionResource('Customers'), 1, {
         pick: ['id', 'givenName', 'country.name']
       });
       const o = SQBAdapter.prepare(query);
@@ -87,7 +87,7 @@ describe('SQBAdapter.prepare', function () {
     });
 
     it('Should prepare with "omit" option', async () => {
-      const query = new OpraGetInstanceQuery(api.getEntityResource('Customers'), 1, {
+      const query = new OpraGetInstanceQuery(api.getCollectionResource('Customers'), 1, {
         omit: ['id', 'givenName', 'country.name']
       });
       const o = SQBAdapter.prepare(query);
@@ -98,7 +98,7 @@ describe('SQBAdapter.prepare', function () {
     });
 
     it('Should prepare with "include" option', async () => {
-      const query = new OpraGetInstanceQuery(api.getEntityResource('Customers'), 1, {
+      const query = new OpraGetInstanceQuery(api.getCollectionResource('Customers'), 1, {
         include: ['id', 'givenName', 'country.name']
       });
       const o = SQBAdapter.prepare(query);
@@ -119,7 +119,7 @@ describe('SQBAdapter.prepare', function () {
     })
 
     it('Should prepare "limit" option', async () => {
-      const query = new OpraSearchCollectionQuery(api.getEntityResource('Customers'), {limit: 5});
+      const query = new OpraSearchCollectionQuery(api.getCollectionResource('Customers'), {limit: 5});
       const o = SQBAdapter.prepare(query);
       expect(o.method).toStrictEqual('findAll');
       expect(o.options).toStrictEqual({limit: 5});
@@ -127,7 +127,7 @@ describe('SQBAdapter.prepare', function () {
     })
 
     it('Should prepare "offset" option', async () => {
-      const query = new OpraSearchCollectionQuery(api.getEntityResource('Customers'), {skip: 5});
+      const query = new OpraSearchCollectionQuery(api.getCollectionResource('Customers'), {skip: 5});
       const o = SQBAdapter.prepare(query);
       expect(o.method).toStrictEqual('findAll');
       expect(o.options).toStrictEqual({offset: 5});
@@ -135,7 +135,7 @@ describe('SQBAdapter.prepare', function () {
     });
 
     it('Should prepare "distinct" option', async () => {
-      const query = new OpraSearchCollectionQuery(api.getEntityResource('Customers'), {distinct: true});
+      const query = new OpraSearchCollectionQuery(api.getCollectionResource('Customers'), {distinct: true});
       const o = SQBAdapter.prepare(query);
       const options = {distinct: true};
       expect(o).toStrictEqual({
@@ -146,7 +146,7 @@ describe('SQBAdapter.prepare', function () {
     })
 
     it('Should prepare "total" option', async () => {
-      const query = new OpraSearchCollectionQuery(api.getEntityResource('Customers'), {count: true});
+      const query = new OpraSearchCollectionQuery(api.getCollectionResource('Customers'), {count: true});
       const o = SQBAdapter.prepare(query);
       expect(o.method).toStrictEqual('findAll');
       expect(o.options).toStrictEqual({total: true});
@@ -154,7 +154,7 @@ describe('SQBAdapter.prepare', function () {
     });
 
     it('Should prepare with "pick" option', async () => {
-      const query = new OpraSearchCollectionQuery(api.getEntityResource('Customers'), {
+      const query = new OpraSearchCollectionQuery(api.getCollectionResource('Customers'), {
         pick: ['id', 'givenName', 'country.name']
       });
       const o = SQBAdapter.prepare(query);
@@ -164,7 +164,7 @@ describe('SQBAdapter.prepare', function () {
     });
 
     it('Should prepare with "omit" option', async () => {
-      const query = new OpraSearchCollectionQuery(api.getEntityResource('Customers'), {
+      const query = new OpraSearchCollectionQuery(api.getCollectionResource('Customers'), {
         omit: ['id', 'givenName', 'country.name']
       });
       const o = SQBAdapter.prepare(query);
@@ -174,7 +174,7 @@ describe('SQBAdapter.prepare', function () {
     });
 
     it('Should prepare with "include" option', async () => {
-      const query = new OpraSearchCollectionQuery(api.getEntityResource('Customers'), {
+      const query = new OpraSearchCollectionQuery(api.getCollectionResource('Customers'), {
         include: ['id', 'givenName', 'country.name']
       });
       const o = SQBAdapter.prepare(query);
@@ -184,7 +184,7 @@ describe('SQBAdapter.prepare', function () {
     });
 
     it('Should prepare with "filter" option', async () => {
-      const query = new OpraSearchCollectionQuery(api.getEntityResource('Customers'), {
+      const query = new OpraSearchCollectionQuery(api.getCollectionResource('Customers'), {
         filter: 'name=Demons'
       });
       const o = SQBAdapter.prepare(query);
@@ -293,7 +293,7 @@ describe('SQBAdapter.prepare', function () {
 
   describe('Convert filter ast to SQB', function () {
     it('Should convert StringLiteral', async () => {
-      const query = new OpraSearchCollectionQuery(api.getEntityResource('Customers'), {
+      const query = new OpraSearchCollectionQuery(api.getCollectionResource('Customers'), {
         filter: 'name="Demons"'
       });
       const o = SQBAdapter.prepare(query);
@@ -301,7 +301,7 @@ describe('SQBAdapter.prepare', function () {
     });
 
     it('Should convert NumberLiteral', async () => {
-      const query = new OpraSearchCollectionQuery(api.getEntityResource('Customers'), {
+      const query = new OpraSearchCollectionQuery(api.getCollectionResource('Customers'), {
         filter: 'name=10'
       });
       const o = SQBAdapter.prepare(query);
@@ -309,7 +309,7 @@ describe('SQBAdapter.prepare', function () {
     });
 
     it('Should convert BooleanLiteral', async () => {
-      const query = new OpraSearchCollectionQuery(api.getEntityResource('Customers'), {
+      const query = new OpraSearchCollectionQuery(api.getCollectionResource('Customers'), {
         filter: 'name=true'
       });
       const o = SQBAdapter.prepare(query);
@@ -317,7 +317,7 @@ describe('SQBAdapter.prepare', function () {
     });
 
     it('Should convert NullLiteral', async () => {
-      const query = new OpraSearchCollectionQuery(api.getEntityResource('Customers'), {
+      const query = new OpraSearchCollectionQuery(api.getCollectionResource('Customers'), {
         filter: 'name=null'
       });
       const o = SQBAdapter.prepare(query);
@@ -325,7 +325,7 @@ describe('SQBAdapter.prepare', function () {
     });
 
     it('Should convert DateLiteral', async () => {
-      const query = new OpraSearchCollectionQuery(api.getEntityResource('Customers'), {
+      const query = new OpraSearchCollectionQuery(api.getCollectionResource('Customers'), {
         filter: 'name="2020-06-11T12:30:15"'
       });
       const o = SQBAdapter.prepare(query);
@@ -333,7 +333,7 @@ describe('SQBAdapter.prepare', function () {
     });
 
     it('Should convert TimeLiteral', async () => {
-      const query = new OpraSearchCollectionQuery(api.getEntityResource('Customers'), {
+      const query = new OpraSearchCollectionQuery(api.getCollectionResource('Customers'), {
         filter: 'name="12:30:15"'
       });
       const o = SQBAdapter.prepare(query);
@@ -341,7 +341,7 @@ describe('SQBAdapter.prepare', function () {
     });
 
     it('Should convert ComparisonExpression(=)', async () => {
-      const query = new OpraSearchCollectionQuery(api.getEntityResource('Customers'), {
+      const query = new OpraSearchCollectionQuery(api.getCollectionResource('Customers'), {
         filter: 'name="Demons"'
       });
       const o = SQBAdapter.prepare(query);
@@ -354,7 +354,7 @@ describe('SQBAdapter.prepare', function () {
     });
 
     it('Should convert ComparisonExpression(!=)', async () => {
-      const query = new OpraSearchCollectionQuery(api.getEntityResource('Customers'), {
+      const query = new OpraSearchCollectionQuery(api.getCollectionResource('Customers'), {
         filter: 'name!="Demons"'
       });
       const o = SQBAdapter.prepare(query);
@@ -367,7 +367,7 @@ describe('SQBAdapter.prepare', function () {
     });
 
     it('Should convert ComparisonExpression(>)', async () => {
-      const query = new OpraSearchCollectionQuery(api.getEntityResource('Customers'), {
+      const query = new OpraSearchCollectionQuery(api.getCollectionResource('Customers'), {
         filter: 'pages>5'
       });
       const o = SQBAdapter.prepare(query);
@@ -380,7 +380,7 @@ describe('SQBAdapter.prepare', function () {
     });
 
     it('Should convert ComparisonExpression(>=)', async () => {
-      const query = new OpraSearchCollectionQuery(api.getEntityResource('Customers'), {
+      const query = new OpraSearchCollectionQuery(api.getCollectionResource('Customers'), {
         filter: 'pages>=5'
       });
       const o = SQBAdapter.prepare(query);
@@ -393,7 +393,7 @@ describe('SQBAdapter.prepare', function () {
     });
 
     it('Should convert ComparisonExpression(<)', async () => {
-      const query = new OpraSearchCollectionQuery(api.getEntityResource('Customers'), {
+      const query = new OpraSearchCollectionQuery(api.getCollectionResource('Customers'), {
         filter: 'pages<5'
       });
       const o = SQBAdapter.prepare(query);
@@ -406,7 +406,7 @@ describe('SQBAdapter.prepare', function () {
     });
 
     it('Should convert ComparisonExpression(<=)', async () => {
-      const query = new OpraSearchCollectionQuery(api.getEntityResource('Customers'), {
+      const query = new OpraSearchCollectionQuery(api.getCollectionResource('Customers'), {
         filter: 'pages<=5'
       });
       const o = SQBAdapter.prepare(query);
@@ -419,7 +419,7 @@ describe('SQBAdapter.prepare', function () {
     });
 
     it('Should convert ComparisonExpression(in)', async () => {
-      const query = new OpraSearchCollectionQuery(api.getEntityResource('Customers'), {
+      const query = new OpraSearchCollectionQuery(api.getCollectionResource('Customers'), {
         filter: 'pages in [5,6]'
       });
       const o = SQBAdapter.prepare(query);
@@ -432,7 +432,7 @@ describe('SQBAdapter.prepare', function () {
     });
 
     it('Should convert ComparisonExpression(!in)', async () => {
-      const query = new OpraSearchCollectionQuery(api.getEntityResource('Customers'), {
+      const query = new OpraSearchCollectionQuery(api.getCollectionResource('Customers'), {
         filter: 'pages !in [5,6]'
       });
       const o = SQBAdapter.prepare(query);
@@ -445,7 +445,7 @@ describe('SQBAdapter.prepare', function () {
     });
 
     it('Should convert ComparisonExpression(like)', async () => {
-      const query = new OpraSearchCollectionQuery(api.getEntityResource('Customers'), {
+      const query = new OpraSearchCollectionQuery(api.getCollectionResource('Customers'), {
         filter: 'name like "Demons"'
       });
       const o = SQBAdapter.prepare(query);
@@ -458,7 +458,7 @@ describe('SQBAdapter.prepare', function () {
     });
 
     it('Should convert ComparisonExpression(ilike)', async () => {
-      const query = new OpraSearchCollectionQuery(api.getEntityResource('Customers'), {
+      const query = new OpraSearchCollectionQuery(api.getCollectionResource('Customers'), {
         filter: 'name ilike "Demons"'
       });
       const o = SQBAdapter.prepare(query);
@@ -471,7 +471,7 @@ describe('SQBAdapter.prepare', function () {
     });
 
     it('Should convert ComparisonExpression(!like)', async () => {
-      const query = new OpraSearchCollectionQuery(api.getEntityResource('Customers'), {
+      const query = new OpraSearchCollectionQuery(api.getCollectionResource('Customers'), {
         filter: 'name !like "Demons"'
       });
       const o = SQBAdapter.prepare(query);
@@ -484,7 +484,7 @@ describe('SQBAdapter.prepare', function () {
     });
 
     it('Should convert ComparisonExpression(!like)', async () => {
-      const query = new OpraSearchCollectionQuery(api.getEntityResource('Customers'), {
+      const query = new OpraSearchCollectionQuery(api.getCollectionResource('Customers'), {
         filter: 'name !ilike "Demons"'
       });
       const o = SQBAdapter.prepare(query);
@@ -497,7 +497,7 @@ describe('SQBAdapter.prepare', function () {
     });
 
     it('Should convert LogicalExpression(or)', async () => {
-      const query = new OpraSearchCollectionQuery(api.getEntityResource('Customers'), {
+      const query = new OpraSearchCollectionQuery(api.getCollectionResource('Customers'), {
         filter: 'page=1 or page=2'
       });
       const o = SQBAdapter.prepare(query);
@@ -509,7 +509,7 @@ describe('SQBAdapter.prepare', function () {
     });
 
     it('Should convert LogicalExpression(and)', async () => {
-      const query = new OpraSearchCollectionQuery(api.getEntityResource('Customers'), {
+      const query = new OpraSearchCollectionQuery(api.getCollectionResource('Customers'), {
         filter: 'page=1 and name = "Demons"'
       });
       const o = SQBAdapter.prepare(query);
@@ -521,7 +521,7 @@ describe('SQBAdapter.prepare', function () {
     });
 
     it('Should convert ParenthesesExpression', async () => {
-      const query = new OpraSearchCollectionQuery(api.getEntityResource('Customers'), {
+      const query = new OpraSearchCollectionQuery(api.getCollectionResource('Customers'), {
         filter: '(page=1 or page=2) and name = "Demons"'
       });
       const o = SQBAdapter.prepare(query);

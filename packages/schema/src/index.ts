@@ -21,7 +21,7 @@ export * from './implementation/data-type/complex-type.js';
 export * from './implementation/data-type/simple-type.js';
 export * from './implementation/resource/base-resource.js';
 export * from './implementation/resource/container-resource.js';
-export * from './implementation/resource/entity-resource.js';
+export * from './implementation/resource/collection-resource.js';
 export * from './implementation/query/index.js';
 
 export * from './type-helpers/mixin-type.helper.js';

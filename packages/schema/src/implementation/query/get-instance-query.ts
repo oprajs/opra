@@ -1,7 +1,7 @@
 import { StrictOmit } from 'ts-gems';
 import { OpraSchema } from '../../opra-schema.js';
 import { normalizeFieldArray } from '../../utils/normalize-field-array.util.js';
-import { EntityResource } from '../resource/entity-resource.js';
+import { CollectionResource } from '../resource/collection-resource.js';
 import { OpraGetFieldQuery } from './get-field-query.js';
 
 export type GetInstanceQueryOptions = StrictOmit<OpraSchema.GetInstanceQuery,
@@ -21,7 +21,7 @@ export class OpraGetInstanceQuery implements StrictOmit<OpraSchema.GetInstanceQu
   include?: string[];
   nested?: OpraGetFieldQuery;
 
-  constructor(readonly resource: EntityResource,
+  constructor(readonly resource: CollectionResource,
               keyValue: any,
               options?: GetInstanceQueryOptions
   ) {

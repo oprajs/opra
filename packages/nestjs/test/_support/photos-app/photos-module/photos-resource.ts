@@ -3,14 +3,14 @@ import {
   OpraCountCollectionQuery,
   OpraCreateInstanceQuery, OpraDeleteCollectionQuery, OpraDeleteInstanceQuery, OpraGetInstanceQuery,
   OpraSearchCollectionQuery, OpraUpdateCollectionQuery, OpraUpdateInstanceQuery,
-  OprEntityResource
+  OprCollectionResource
 } from '@opra/schema';
 import { Query } from '../../../../src/index.js';
 import { AuthGuard } from '../guards/auth.guard.js';
 import { Photos } from './photos.dto.js';
 import { PhotosService } from './photos.service.js';
 
-@OprEntityResource(Photos, {
+@OprCollectionResource(Photos, {
   description: 'Photos resource',
   keyFields: 'id'
 })

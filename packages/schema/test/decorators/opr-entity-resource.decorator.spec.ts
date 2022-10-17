@@ -1,18 +1,18 @@
 import 'reflect-metadata';
-import { EntityResourceOptions, OprEntityResource, RESOURCE_METADATA } from '../../src/index.js';
+import { CollectionResourceOptions, OprCollectionResource, RESOURCE_METADATA } from '../../src/index.js';
 
-describe('@OprEntityResource() decorator', function () {
+describe('@OprCollectionResource() decorator', function () {
 
   it('Should define entity resource metadata', async function () {
-    const opts: EntityResourceOptions = {keyFields: 'id'};
+    const opts: CollectionResourceOptions = {keyFields: 'id'};
 
-    @OprEntityResource(AnimalResource, opts)
+    @OprCollectionResource(AnimalResource, opts)
     class AnimalResource {
     }
 
     const metadata = Reflect.getMetadata(RESOURCE_METADATA, AnimalResource);
     expect(metadata).toStrictEqual({
-      kind: 'EntityResource',
+      kind: 'CollectionResource',
       name: 'Animal',
       type: AnimalResource,
       ...opts

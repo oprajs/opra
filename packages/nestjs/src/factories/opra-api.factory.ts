@@ -56,7 +56,7 @@ export class OpraApiFactory {
       /* Wrap resolver functions */
       const prototype = Object.getPrototypeOf(instance);
       const isRequestScoped = !wrapper.isDependencyTreeStatic();
-      const methodsToWrap = OpraSchema.isEntityResource(resourceDef) ? entityMethods : [];
+      const methodsToWrap = OpraSchema.isCollectionResource(resourceDef) ? entityMethods : [];
 
       for (const methodName of methodsToWrap) {
         const fn = prototype[methodName];

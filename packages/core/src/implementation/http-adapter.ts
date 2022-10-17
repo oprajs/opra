@@ -8,10 +8,10 @@ import {
   wrapException
 } from '@opra/exception';
 import {
+  CollectionResource,
   ComplexType,
   ContainerResource,
   DataType,
-  EntityResource,
   IResourceContainer,
   OpraAnyQuery,
   OpraCreateInstanceQuery,
@@ -139,7 +139,7 @@ export class OpraHttpAdapter<TExecutionContext extends IHttpExecutionContext> ex
 
         method = method.toUpperCase();
 
-        if (resource instanceof EntityResource) {
+        if (resource instanceof CollectionResource) {
           const scope: OpraSchema.QueryScope = p.key ? 'instance' : 'collection';
 
           if (pathIndex < pathLen && !(method === 'GET' && scope === 'instance'))

@@ -4,14 +4,14 @@ import { ComplexType } from '../data-type/complex-type.js';
 import { OpraApi } from '../opra-api.js';
 import { OpraResource } from './base-resource.js';
 
-export class EntityResource extends OpraResource {
-  declare readonly metadata: OpraSchema.EntityResource;
+export class CollectionResource extends OpraResource {
+  declare readonly metadata: OpraSchema.CollectionResource;
   readonly dataType: ComplexType;
 
   constructor(
       service: OpraApi,
       dataType: ComplexType,
-      metadata: OpraSchema.EntityResource
+      metadata: OpraSchema.CollectionResource
   ) {
     // noinspection SuspiciousTypeOfGuard
     if (!(dataType instanceof ComplexType))
@@ -35,8 +35,8 @@ export class EntityResource extends OpraResource {
     return this.metadata.methods;
   }
 
-  getSchema(jsonOnly?: boolean): OpraSchema.EntityResource {
-    const out = super.getSchema(jsonOnly) as OpraSchema.EntityResource;
+  getSchema(jsonOnly?: boolean): OpraSchema.CollectionResource {
+    const out = super.getSchema(jsonOnly) as OpraSchema.CollectionResource;
     if (out.keyFields.length < 2)
       out.keyFields = out.keyFields[0];
     if (out.methods) {

@@ -17,7 +17,7 @@ describe('DeleteInstanceQuery', function () {
   });
 
   it('Should create query', async () => {
-    const resource = api.getEntityResource('Customers');
+    const resource = api.getCollectionResource('Customers');
     const query = new OpraDeleteInstanceQuery(resource, 1);
     expect(query.resource).toStrictEqual(resource);
     expect(query.method).toStrictEqual('delete');
