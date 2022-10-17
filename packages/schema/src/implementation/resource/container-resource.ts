@@ -1,13 +1,13 @@
 import { IResourceContainer } from '../../interfaces/resource-container.interface.js';
 import { OpraSchema } from '../../opra-schema.js';
-import { OpraService } from '../opra-service.js';
+import { OpraApi } from '../opra-api.js';
 import { OpraResource } from './base-resource.js';
 import { EntityResource } from './entity-resource.js';
 
 export class ContainerResource extends OpraResource implements IResourceContainer {
   declare readonly metadata: OpraSchema.ContainerResource;
 
-  constructor(service: OpraService, metadata: OpraSchema.ContainerResource) {
+  constructor(service: OpraApi, metadata: OpraSchema.ContainerResource) {
     super(service, metadata);
   }
 

@@ -1,25 +1,25 @@
 import express from 'express';
-import { OpraService } from '@opra/schema';
-import { opraTest, OpraTester } from '@opra/testing';
+import { OpraApi } from '@opra/schema';
+import { opraTestClient, OpraTester } from '@opra/testing';
 import { HttpHeaders, OpraExpressAdapter } from '../../src/index.js';
 import { createTestService } from '../_support/test-app/create-service.js';
 import { customersData } from '../_support/test-app/data/customers.data.js';
 
 describe('e2e: EntityResource:search', function () {
 
-  let service: OpraService;
+  let service: OpraApi;
   let app;
-  let api: OpraTester;
+  let client: OpraTester;
 
   beforeAll(async () => {
     service = await createTestService();
     app = express();
     await OpraExpressAdapter.init(app, service);
-    api = opraTest(app);
+    client = opraTestClient(app);
   });
 
   it('Should return list object', async () => {
-    const resp = await api.entity('Customers')
+    const resp = await client.entity('Customers')
         .search().send();
     resp.expect
         .toSuccess()
@@ -28,7 +28,7 @@ describe('e2e: EntityResource:search', function () {
   })
 
   it('Should not send exclusive fields (unless not included for resolver)', async () => {
-    const resp = await api.entity('Customers')
+    const resp = await client.entity('Customers')
         .search()
         .send();
     resp.expect
@@ -38,7 +38,7 @@ describe('e2e: EntityResource:search', function () {
   })
 
   it('Should pick fields', async () => {
-    const resp = await api.entity('Customers')
+    const resp = await client.entity('Customers')
         .search()
         .pick('id', 'givenName')
         .send();
@@ -49,7 +49,7 @@ describe('e2e: EntityResource:search', function () {
   })
 
   it('Should omit fields', async () => {
-    const resp = await api.entity('Customers')
+    const resp = await client.entity('Customers')
         .search()
         .omit('id', 'givenName')
         .send();
@@ -60,7 +60,7 @@ describe('e2e: EntityResource:search', function () {
   })
 
   it('Should include exclusive fields if requested (unless not excluded for resolver)', async () => {
-    const resp = await api.entity('Customers')
+    const resp = await client.entity('Customers')
         .search()
         .include('address')
         .send();
@@ -71,7 +71,7 @@ describe('e2e: EntityResource:search', function () {
   })
 
   it('Should apply filter', async () => {
-    const resp = await api.entity('Customers')
+    const resp = await client.entity('Customers')
         .search()
         .filter('countryCode="' + customersData[0].countryCode + '"')
         .send();
@@ -83,7 +83,7 @@ describe('e2e: EntityResource:search', function () {
   })
 
   it('Should set item limit to be returned', async () => {
-    const resp = await api.entity('Customers')
+    const resp = await client.entity('Customers')
         .search()
         .limit(3)
         .send();
@@ -94,7 +94,7 @@ describe('e2e: EntityResource:search', function () {
   })
 
   it('Should set offset of the list to be returned', async () => {
-    const resp = await api.entity('Customers')
+    const resp = await client.entity('Customers')
         .search()
         .skip(10)
         .send();
@@ -106,7 +106,7 @@ describe('e2e: EntityResource:search', function () {
   })
 
   it('Should count matching records', async () => {
-    const resp = await api.entity('Customers')
+    const resp = await client.entity('Customers')
         .search()
         .count()
         .send();

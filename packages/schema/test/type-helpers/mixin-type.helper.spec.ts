@@ -48,7 +48,7 @@ describe('MixinType() helper', function () {
 
 
   it('Should create union type', async function () {
-    const meta = extractComplexTypeMetadata(PersonRecord);
+    const meta = await extractComplexTypeMetadata(PersonRecord);
     expect(meta).toStrictEqual({
       kind: 'ComplexType',
       name: 'PersonRecord',
@@ -79,7 +79,7 @@ describe('MixinType() helper', function () {
       cancelledAt: string;
     }
 
-    const meta = extractComplexTypeMetadata(TestClass);
+    const meta = await extractComplexTypeMetadata(TestClass);
     expect(meta).toStrictEqual({
       kind: 'ComplexType',
       name: 'TestClass',
@@ -101,7 +101,7 @@ describe('MixinType() helper', function () {
         ['id', 'createdat', 'givenname', 'familyname', 'gender', 'notes', 'cancelled', 'cancelledat']);
   })
 
-  it('Should create union type that contains nested union type', async function () {
+  it('Should create mixing type that contains nested mixin type', async function () {
     @OprComplexType({description: 'TestClass schema'})
     class TestClass extends MixinType(MixinType(Record, Person), Cancellable) {
       @OprField()
@@ -109,7 +109,7 @@ describe('MixinType() helper', function () {
       cancelledAt: string;
     }
 
-    const meta = extractComplexTypeMetadata(TestClass);
+    const meta = await extractComplexTypeMetadata(TestClass);
     expect(meta).toStrictEqual({
       kind: 'ComplexType',
       name: 'TestClass',

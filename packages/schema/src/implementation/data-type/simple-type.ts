@@ -15,7 +15,7 @@ export class SimpleType extends DataType {
     });
   }
 
-  get type(): 'boolean' | 'number' | 'integer' | 'string' {
+  get type() {
     return this._metadata.type;
   }
 

@@ -6,7 +6,7 @@ import { Interceptor } from './logging.interceptor.js';
 import { Guard } from './request-scoped.guard.js';
 import { UsersService } from './users.service.js';
 
-@OprEntityResource(Cat)
+@OprEntityResource(Cat, {keyFields: 'id'})
 export class CatsResource {
   static COUNTER = 0;
 

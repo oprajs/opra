@@ -24,10 +24,10 @@ for (let id = 1; id <= 1000; id++) {
     familyName: faker.name.lastName(sex),
     gender,
     active: enumValue([true, false]),
-    birthDate: faker.date.birthdate().toISOString(),
+    birthDate: faker.date.birthdate(),
     countryCode: faker.address.countryCode('alpha-2'),
     deleted: enumValue([true, false]),
-    vip: enumValue([0, 1, 2, 3]),
+    vip: faker.datatype.boolean(),
     city: faker.address.city(),
   }
 

@@ -41,7 +41,7 @@ export abstract class EntityResourceController<T, TOutput = EntityOutput<T>> imp
     return (await this.getService(ctx)).processRequest(ctx);
   }
 
-  abstract init(service: OpraResource): void | Promise<void>;
+  init?(service: OpraResource): void | Promise<void>;
 
   abstract getService(ctx: QueryContext): IEntityService | Promise<IEntityService>;
 

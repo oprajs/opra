@@ -87,10 +87,10 @@ expect.extend({
   },
 
   toBeSorted(received, compareFn?: (a, b) => number) {
-    let pass = Array.isArray(received);
+    let pass = true;
     let message;
     if (pass) {
-      const sorted = [...received];
+      const sorted = [...(received || [])];
       sorted.sort(compareFn);
       try {
         expect(received).toEqual(sorted);
@@ -116,10 +116,10 @@ expect.extend({
       }
       return v;
     }
-    let pass = Array.isArray(received);
+    let pass = true;
     let message;
     if (pass) {
-      const sorted = [...received];
+      const sorted = [...(received || [])];
       sorted.sort((a, b) => {
         for (const sortField of fieldsMap) {
           const l = getValue(a, sortField);

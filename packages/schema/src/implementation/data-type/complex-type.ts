@@ -10,6 +10,7 @@ export type ComplexTypeArgs = StrictOmit<OpraSchema.ComplexType, 'kind'>;
 
 export class ComplexType extends DataType {
   declare protected readonly _metadata: OpraSchema.ComplexType;
+  private _mixinAdditionalFields: boolean;
   readonly ownFields = new ResponsiveMap<string, Field>();
   readonly fields = new ResponsiveMap<string, Field>();
 
@@ -23,6 +24,8 @@ export class ComplexType extends DataType {
         const baseType = owner.getDataType(ext.type);
         if (!(baseType instanceof ComplexType))
           throw new TypeError(`Cannot extend ${metadata.name} from a "${baseType.kind}"`);
+        if (baseType.additionalFields)
+          this._mixinAdditionalFields = true;
         for (const [k, prop] of baseType.fields) {
           const f = cloneObject(prop) as Field;
           f.name = k;
@@ -46,7 +49,7 @@ export class ComplexType extends DataType {
   }
 
   get additionalFields() {
-    return this._metadata.additionalFields;
+    return this._metadata.additionalFields || this._mixinAdditionalFields;
   }
 
   getField(fieldName: string): Field {

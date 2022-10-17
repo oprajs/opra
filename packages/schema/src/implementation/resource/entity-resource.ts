@@ -1,7 +1,7 @@
 import { OpraSchema } from '../../opra-schema.js';
 import { normalizeFieldArray } from '../../utils/normalize-field-array.util.js';
 import { ComplexType } from '../data-type/complex-type.js';
-import { OpraService } from '../opra-service.js';
+import { OpraApi } from '../opra-api.js';
 import { OpraResource } from './base-resource.js';
 
 export class EntityResource extends OpraResource {
@@ -9,7 +9,7 @@ export class EntityResource extends OpraResource {
   readonly dataType: ComplexType;
 
   constructor(
-      service: OpraService,
+      service: OpraApi,
       dataType: ComplexType,
       metadata: OpraSchema.EntityResource
   ) {

@@ -29,6 +29,7 @@
     "@types/node": "^18.7.18",
     "@typescript-eslint/eslint-plugin": "^5.37.0",
     "@typescript-eslint/parser": "^5.37.0",
+    "@swc/jest": "^0.2.23",
     "antlr4ts": "^0.5.0-alpha.4",
     "eslint": "^8.23.1",
     "eslint-config-google": "^0.14.0",

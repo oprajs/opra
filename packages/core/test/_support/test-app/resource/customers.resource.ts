@@ -5,9 +5,7 @@ import {
   OprEntityResource,
   OprSearchResolver
 } from '@opra/schema';
-import {
-  EntityResourceController, IEntityService, JsonCollectionService
-} from '../../../../src/index.js';
+import { EntityResourceController, IEntityService, JsonCollectionService } from '../../../../src/index.js';
 import { customersData } from '../data/customers.data.js';
 import { Customer } from '../entities/customer.entity.js';
 

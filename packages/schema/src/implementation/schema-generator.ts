@@ -2,11 +2,13 @@ import { StrictOmit, Type } from 'ts-gems';
 import { isPromise } from 'util/types';
 import * as Optionals from '@opra/optionals';
 import { IGNORE_RESOLVER_METHOD, RESOLVER_METADATA, RESOURCE_METADATA } from '../constants.js';
-import { builtinClassMap, primitiveDataTypeNames } from '../helpers/internal-types.js';
+import { ResponsiveMap } from '../helpers/responsive-map.js';
+import { ComplexTypeMetadata } from '../interfaces/metadata/data-type.metadata.js';
 import { OpraSchema } from '../opra-schema.js';
 import { ThunkAsync } from '../types.js';
 import { isConstructor, resolveClassAsync } from '../utils/class.utils.js';
 import { extractComplexTypeMetadata } from '../utils/extract-metadata.util.js';
+import { builtinClassMap, primitiveDataTypeNames } from './data-type/internal-data-types.js';
 
 export namespace SchemaGenerator {
 
@@ -24,8 +26,8 @@ export namespace SchemaGenerator {
 const entityMethods = ['search', 'count', 'create', 'get', 'update', 'updateMany', 'delete', 'deleteMany'];
 
 export class SchemaGenerator {
-  protected _dataTypes: Record<string, OpraSchema.DataType> = {};
-  protected _resources: Record<string, OpraSchema.Resource> = {};
+  protected _dataTypes = new ResponsiveMap<string, OpraSchema.DataType>();
+  protected _resources = new ResponsiveMap<string, OpraSchema.Resource>();
 
   protected constructor() {
     //
@@ -38,7 +40,7 @@ export class SchemaGenerator {
       if (!isConstructor(thunk))
         return this.addDataType(await thunk());
 
-      const m = extractComplexTypeMetadata(thunk);
+      let m = await extractComplexTypeMetadata(thunk);
       if (m.extends) {
         for (const imp of m.extends) {
           if (typeof imp.type !== 'string') {
@@ -48,28 +50,35 @@ export class SchemaGenerator {
         }
       }
 
+      const cur = this._dataTypes.get(m.name);
+      m = await this.addDataType(m as OpraSchema.ComplexType) as ComplexTypeMetadata;
+      /* Prevents circular calls */
+      if (cur === m)
+        return cur;
+
       if (m.fields) {
-        for (const prop of Object.values(m.fields)) {
-          if (prop.type && typeof prop.type !== 'string') {
-            const type = isConstructor(prop.type) ? await resolveClassAsync(prop.type) : undefined;
+        for (const field of Object.values(m.fields)) {
+          if (field.type && typeof field.type !== 'string') {
+            const type = isConstructor(field.type) ? await resolveClassAsync(field.type) : undefined;
             const s = type && builtinClassMap.get(type);
             if (s)
-              prop.type = s;
+              field.type = s.name;
             else {
-              const propSchema = await this.addDataType(prop.type);
-              prop.type = propSchema.name;
+              const propSchema = await this.addDataType(field.type);
+              field.type = propSchema.name;
             }
           }
         }
       }
-      return this.addDataType(m as OpraSchema.ComplexType);
+
+      return m as OpraSchema.ComplexType;
     }
 
     if (!OpraSchema.isDataType(thunk))
       throw new TypeError(`Invalid data type schema`);
 
     // Check if datatype previously added
-    const currentSchema = this._dataTypes[thunk.name];
+    const currentSchema = this._dataTypes.get(thunk.name);
     if (currentSchema) {
       if (!(currentSchema.kind === thunk.kind && currentSchema.ctor && currentSchema.ctor === thunk.ctor))
         throw new Error(`An other instance of "${currentSchema.name}" data type previously defined`);
@@ -79,9 +88,11 @@ export class SchemaGenerator {
     if (OpraSchema.isSimpleType(thunk) && !primitiveDataTypeNames.includes(thunk.type))
       throw new Error(`"type" of SimpleType schema must be one of enumerated value (${primitiveDataTypeNames})`);
 
-    return this._dataTypes[thunk.name] = {
+    const out = {
       ...thunk
     };
+    this._dataTypes.set(thunk.name, out);
+    return out;
   }
 
   async addResource(instance: any): Promise<void> {
@@ -113,8 +124,9 @@ export class SchemaGenerator {
       if (OpraSchema.isEntityResource(resourceSchema)) {
         // Determine keyFields if not set
         if (!resourceSchema.keyFields) {
-          if (Optionals.SqbConnect && ctor) {
-            const sqbEntity = Optionals.SqbConnect.EntityMetadata.get(ctor);
+          const entity = this._dataTypes.get(type);
+          if (Optionals.SqbConnect && entity?.ctor) {
+            const sqbEntity = Optionals.SqbConnect.EntityMetadata.get(entity?.ctor);
             if (sqbEntity?.indexes) {
               const primaryIndex = sqbEntity.indexes.find(x => x.primary);
               if (primaryIndex) {
@@ -122,7 +134,10 @@ export class SchemaGenerator {
               }
             }
           }
-          if (resourceSchema.keyFields)
+          resourceSchema.keyFields = Array.isArray(resourceSchema.keyFields)
+              ? (resourceSchema.keyFields.length ? resourceSchema.keyFields : '')
+              : resourceSchema.keyFields;
+          if (!resourceSchema.keyFields)
             throw new TypeError(`You must provide keyFields for "${resourceSchema.name}" entity resource`);
         }
         let methodMetadata;
@@ -156,12 +171,11 @@ export class SchemaGenerator {
 
     if (OpraSchema.isResource(resourceSchema)) {
       if (OpraSchema.isEntityResource(resourceSchema)) {
-        const t = this._dataTypes[resourceSchema.type];
-        if (!t)
+        if (!this._dataTypes.has(resourceSchema.type))
           throw new Error(`Resource registration error. Type "${resourceSchema.type}" not found.`);
-        if (this._resources[resourceSchema.name])
+        if (this._resources.has(resourceSchema.name))
           throw new Error(`An other instance of "${resourceSchema.name}" resource previously defined`);
-        this._resources[resourceSchema.name] = resourceSchema;
+        this._resources.set(resourceSchema.name, resourceSchema);
         return;
       }
       throw new Error(`Invalid resource metadata`);
@@ -177,8 +191,8 @@ export class SchemaGenerator {
       }
     }
 
-    const types = Object.keys(generator._dataTypes).sort()
-        .map(name => generator._dataTypes[name]);
+    const types = Array.from(generator._dataTypes.keys()).sort()
+        .map(name => generator._dataTypes.get(name) as OpraSchema.DataType);
 
     return {
       version: '1',
@@ -200,11 +214,11 @@ export class SchemaGenerator {
       }
     }
 
-    const types = Object.keys(generator._dataTypes).sort()
-        .map(name => generator._dataTypes[name]);
+    const types = Array.from(generator._dataTypes.keys()).sort()
+        .map(name => generator._dataTypes.get(name) as OpraSchema.DataType);
 
-    const resources = Object.keys(generator._resources).sort()
-        .map(name => generator._resources[name]);
+    const resources = Array.from(generator._resources.keys()).sort()
+        .map(name => generator._resources.get(name) as OpraSchema.Resource);
 
     return {
       version: '1',

@@ -1,8 +1,8 @@
 import {
-  OpraCreateInstanceQuery, OpraDeleteCollectionQuery, OpraDeleteInstanceQuery,
+  OpraApi, OpraCreateInstanceQuery, OpraDeleteCollectionQuery, OpraDeleteInstanceQuery,
   OpraGetInstanceQuery,
   OpraSearchCollectionQuery,
-  OpraService, OpraUpdateCollectionQuery,
+  OpraUpdateCollectionQuery,
   OpraUpdateInstanceQuery
 } from '@opra/schema';
 import { OpraURL } from '@opra/url';
@@ -12,10 +12,10 @@ import { CustomersResource } from '../_support/test-app/resource/customers.resou
 
 describe('OpraHttpAdapter', function () {
 
-  let service: OpraService;
+  let service: OpraApi;
 
   beforeAll(async () => {
-    service = await OpraService.create({
+    service = await OpraApi.create({
       info: {
         title: 'TestApi',
         version: 'v1',

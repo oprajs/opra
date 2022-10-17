@@ -5,5 +5,6 @@ const packageName = packageJson.name;
 
 module.exports = {
   ...base,
-  displayName: packageName
+  displayName: packageName,
+  globalSetup: '<rootDir>/test/_support/jest-setup.js'
 };

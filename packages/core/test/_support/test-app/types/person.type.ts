@@ -15,5 +15,5 @@ export class Person {
   gender: string;
 
   @OprField({type: 'date'})
-  birthDate: string;
+  birthDate: Date;
 }

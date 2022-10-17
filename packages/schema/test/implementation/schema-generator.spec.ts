@@ -1,9 +1,10 @@
 import { SchemaGenerator } from '../../src/index.js';
-import { Customer } from '../_support/entities/customer.entity.js';
-import { CustomerAddress } from '../_support/entities/customer-address.entity.js';
-import { CustomerAddressesResource } from '../_support/resources/customer-addresses.resource.js';
-import { CustomersResource } from '../_support/resources/customers.resource.js';
-import { Address } from '../_support/types/address.dto.js';
+import {
+  Address,
+  Customer, CustomerNotes,
+  CustomerNotesResource,
+  CustomersResource
+} from '../_support/app-sqb/index.js';
 
 describe('SchemaGenerator', function () {
 
@@ -35,7 +36,8 @@ describe('SchemaGenerator', function () {
       };
       const schema = await SchemaGenerator.generateDocumentSchema(input);
       expect(schema.types.length).toBeGreaterThan(0)
-      expect(schema.types.map(x => x.name)).toStrictEqual(['Address', 'Country', 'Customer', 'Note', 'Person', 'Record']);
+      expect(schema.types.map(x => x.name)).toStrictEqual([
+          'Address', 'Continent', 'Country', 'Customer', 'CustomerNotes', 'Note', 'Person', 'Record']);
     })
 
   });
@@ -64,13 +66,13 @@ describe('SchemaGenerator', function () {
           version: 'v1',
           description: 'Test api description'
         },
-        types: [Customer, CustomerAddress],
+        types: [Customer, CustomerNotes],
         resources: []
       };
       const schema = await SchemaGenerator.generateServiceSchema(input);
       expect(schema.types.length).toBeGreaterThan(0);
       expect(schema.types.map(x => x.name))
-          .toStrictEqual(['Address', 'Country', 'Customer', 'CustomerAddress', 'Note', 'Person', 'Record']);
+          .toStrictEqual(['Address', 'Continent', 'Country', 'Customer', 'CustomerNotes', 'Note', 'Person', 'Record']);
     })
 
     it('Should add data typed from resources', async () => {
@@ -81,12 +83,12 @@ describe('SchemaGenerator', function () {
           description: 'Test api description'
         },
         types: [],
-        resources: [new CustomersResource(), new CustomerAddressesResource()]
+        resources: [new CustomersResource(), new CustomerNotesResource()]
       };
       const schema = await SchemaGenerator.generateServiceSchema(input);
       expect(schema.types.length).toBeGreaterThan(0);
       expect(schema.types.map(x => x.name))
-          .toStrictEqual(['Address', 'Country', 'Customer', 'CustomerAddress', 'Note', 'Person', 'Record']);
+          .toStrictEqual(['Address', 'Continent', 'Country', 'Customer', 'CustomerNotes', 'Note', 'Person', 'Record']);
     })
 
     it('Should generate resource schemas', async () => {
@@ -97,11 +99,11 @@ describe('SchemaGenerator', function () {
           description: 'Test api description'
         },
         types: [Customer, Address],
-        resources: [new CustomersResource(), new CustomerAddressesResource()]
+        resources: [new CustomersResource(), new CustomerNotesResource()]
       };
       const schema = await SchemaGenerator.generateServiceSchema(input);
       expect(schema.types.length).toBeGreaterThan(0)
-      expect(schema.resources.map(x => x.name)).toStrictEqual(['CustomerAddresses', 'Customers']);
+      expect(schema.resources.map(x => x.name)).toStrictEqual(['CustomerNotes', 'Customers']);
     })
 
   });

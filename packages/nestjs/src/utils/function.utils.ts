@@ -1,21 +1,33 @@
-import { splitString } from 'fast-tokenizer';
-
-const anythingEnclosedInParenthesesRegex = /\((.+)\)/;
+import { splitString, tokenize } from 'fast-tokenizer';
 
 export function getNumberOfArguments(fn: Function): number | undefined {
   const functionAsString = fn.toString();
-  const parametersEnclosedInParentheses = functionAsString.match(anythingEnclosedInParenthesesRegex);
-  if (parametersEnclosedInParentheses) {
-    const matchString = parametersEnclosedInParentheses[1];
-    const argumentsArray = splitString(matchString, {
-      brackets: {
-        '(': ')',
-        '{': '}',
-        '[': ']',
-        '/*': '*/'
-      }, delimiters: ','
-    });
-    return argumentsArray.length;
+  const tokenizer = tokenize(functionAsString, {
+    // keepBrackets: true,
+    keepDelimiters: true,
+    keepQuotes: true,
+    brackets: {}
+  });
+
+  let k = 0;
+  let s = '';
+  for (const token of tokenizer) {
+    if (token.startsWith('(')) {
+      s += token.substring(1);
+      k++;
+    } else if (token.startsWith(')')) {
+      if (k === 1)
+        break;
+    } else if (k) s += token;
   }
-  return 0;
+
+  const x = splitString(s, {
+    brackets: {
+      '{': '}',
+      '(': ')',
+      '[': ']',
+      '/*': '*/'
+    }, delimiters: ','
+  });
+  return x.length > 1 ? x.length : (x[0] ? 1 : 0);
 }

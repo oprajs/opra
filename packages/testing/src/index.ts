@@ -1,7 +1,7 @@
 import { BaseTester, OpraTesterParams } from './testers/base-tester.js';
 import { OpraEntityTester } from './testers/entity-tester.js';
 
-export function opraTest(app: any, options?: Partial<Omit<OpraTesterParams, 'app'>>) {
+export function opraTestClient(app: any, options?: Partial<Omit<OpraTesterParams, 'app'>>) {
   return new OpraTester({
     app,
     ...options,

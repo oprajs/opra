@@ -29,15 +29,19 @@
     "ts-gems": "^2.2.0"
   },
   "devDependencies": {
-    "@sqb/connect": "^4.5.1"
+    "@sqb/builder": "^4.5.3",
+    "@sqb/connect": "^4.5.3",
+    "@faker-js/faker": "^7.5.0",
+    "@sqb/postgres": "^4.5.4",
+    "async-mutex": "^0.4.0",
+    "postgresql-client": "^2.5.1"
   },
   "peerDependencies": {
     "@opra/core": "^0.2.0",
     "@opra/exception": "^0.2.0",
     "@opra/optionals": "^0.2.0",
     "@opra/url": "^0.2.0",
-    "@sqb/connect": ">= 4.5.0",
-    "@sqb/sqljs": "^4.5.1"
+    "@sqb/connect": ">= 4.5.4"
   },
   "type": "module",
   "types": "esm/index.d.ts",
