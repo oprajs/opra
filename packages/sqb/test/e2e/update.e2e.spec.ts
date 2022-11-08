@@ -1,14 +1,14 @@
 import { faker } from '@faker-js/faker';
-import { opraTestClient, OpraTester } from '@opra/testing';
+import { OpraTestClient } from '@opra/testing';
 import { createApp, TestApp } from '../_support/app/index.js';
 
 describe('e2e: update', function () {
   let app: TestApp;
-  let client: OpraTester;
+  let client: OpraTestClient;
 
   beforeAll(async () => {
     app = await createApp();
-    client = opraTestClient(app.server);
+    client = await OpraTestClient.create(app.server);
   });
 
   afterAll(async () => {
@@ -23,22 +23,22 @@ describe('e2e: update', function () {
       gender: 'M',
       address: {city: 'Izmir'}
     }
-    let resp = await client.entity('Customers')
-        .get(100).send();
+    let resp = await client.collection('Customers')
+        .get(85);
     resp.expect
         .toSuccess()
         .toReturnObject();
-    const oldData = resp.body;
+    const oldData = resp.data;
 
-    resp = await client.entity('Customers')
-        .update(oldData.id, data).send();
+    resp = await client.collection('Customers')
+        .update(oldData.id, data);
     resp.expect
         .toSuccess()
         .toReturnObject()
         .toMatch({...oldData, ...data, address: undefined});
 
-    resp = await client.entity('Customers')
-        .get(oldData.id).send();
+    resp = await client.collection('Customers')
+        .get(oldData.id);
     resp.expect
         .toSuccess()
         .toReturnObject()
@@ -52,21 +52,20 @@ describe('e2e: update', function () {
       gender: 'M',
       address: {city: 'Izmir'}
     }
-    let resp = await client.entity('Customers')
-        .get(100).send();
-    const oldData = resp.body;
+    let resp = await client.collection('Customers')
+        .get(100);
+    const oldData = resp.data;
     resp.expect
         .toSuccess()
         .toReturnObject();
 
-    resp = await client.entity('Customers')
+    resp = await client.collection('Customers')
         .update(oldData.id, data)
-        .pick('id', 'givenName')
-        .send();
+        .pick('id', 'givenName');
     resp.expect
         .toSuccess()
         .toReturnObject()
-        .toContainAllKeys(['id', 'givenName']);
+        .toHaveFieldsOnly(['id', 'givenName']);
   })
 
   it('Should omit fields to be returned', async () => {
@@ -76,21 +75,20 @@ describe('e2e: update', function () {
       gender: 'M',
       address: {city: 'Izmir'}
     }
-    let resp = await client.entity('Customers')
-        .get(100).send();
-    const oldData = resp.body;
+    let resp = await client.collection('Customers')
+        .get(100);
+    const oldData = resp.data;
     resp.expect
         .toSuccess()
         .toReturnObject();
 
-    resp = await client.entity('Customers')
+    resp = await client.collection('Customers')
         .update(oldData.id, data)
-        .omit('id', 'givenName')
-        .send();
+        .omit('id', 'givenName');
     resp.expect
         .toSuccess()
         .toReturnObject()
-        .notToContainKeys(['id', 'givenName']);
+        .not.toHaveFields(['id', 'givenName']);
   })
 
   it('Should include exclusive fields if requested', async () => {
@@ -100,21 +98,20 @@ describe('e2e: update', function () {
       gender: 'M',
       address: {city: 'Izmir'}
     }
-    let resp = await client.entity('Customers')
-        .get(100).send();
-    const oldData = resp.body;
+    let resp = await client.collection('Customers')
+        .get(100);
+    const oldData = resp.data;
     resp.expect
         .toSuccess()
         .toReturnObject();
 
-    resp = await client.entity('Customers')
+    resp = await client.collection('Customers')
         .update(oldData.id, data)
-        .include('address')
-        .send();
+        .include('address');
     resp.expect
         .toSuccess()
         .toReturnObject()
-        .toContainKeys(['address']);
+        .toHaveFields(['address']);
   })
 
 });

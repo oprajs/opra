@@ -5,10 +5,9 @@ import { nSQL } from "@nano-sql/core";
 import { InanoSQLTableConfig } from '@nano-sql/core/lib/interfaces';
 import { BadRequestError, MethodNotAllowedError, ResourceConflictError } from '@opra/exception';
 import {
-  CollectionResource,
+  CollectionResourceInfo,
   ComplexType, DataType,
-  OpraAnyEntityQuery,
-  OpraAnyQuery,
+  OpraQuery,
   OpraSchema
 } from '@opra/schema';
 import {
@@ -20,9 +19,8 @@ import {
   QualifiedIdentifier,
   StringLiteral, TimeLiteral
 } from '@opra/url';
-import { QueryContext } from '../implementation/query-context.js';
-import { IEntityService } from '../interfaces/entity-service.interface.js';
-import { EntityInput, EntityOutput } from '../types.js';
+import { QueryContext } from '../adapter/query-context.js';
+import { PartialInput, PartialOutput } from '../types.js';
 import { pathToTree } from '../utils/path-to-tree.js';
 
 export interface JsonCollectionServiceOptions {
@@ -34,14 +32,14 @@ export interface JsonCollectionServiceOptions {
 let dbId = 1;
 const indexingTypes = ['int', 'float', 'number', 'date', 'string'];
 
-export class JsonCollectionService<T, TOutput = EntityOutput<T>> implements IEntityService {
+export class JsonCollectionService<T, TOutput = PartialOutput<T>> {
   private _status: '' | 'initializing' | 'initialized' | 'error' = '';
   private _initError: any;
   private _dbName: string;
   private _initData?: any[];
   defaultLimit: number;
 
-  constructor(readonly resource: CollectionResource, options?: JsonCollectionServiceOptions) {
+  constructor(readonly resource: CollectionResourceInfo, options?: JsonCollectionServiceOptions) {
     if (this.resource.keyFields.length > 1)
       throw new TypeError('JsonDataService currently doesn\'t support multiple primary keys');
     this.defaultLimit = options?.defaultLimit ?? 10;
@@ -128,7 +126,7 @@ export class JsonCollectionService<T, TOutput = EntityOutput<T>> implements IEnt
     return (await query.exec()).map(x => unFlatten(x)) as TOutput[];
   }
 
-  async create(data: EntityInput<T>, options?: JsonCollectionService.CreateOptions): Promise<TOutput> {
+  async create(data: PartialInput<T>, options?: JsonCollectionService.CreateOptions): Promise<TOutput> {
     if (!data[this.primaryKey])
       throw new BadRequestError({
         message: 'You must provide primary key value'
@@ -146,7 +144,7 @@ export class JsonCollectionService<T, TOutput = EntityOutput<T>> implements IEnt
     return await this.get(keyValue, options) as TOutput;
   }
 
-  async update(keyValue: any, data: EntityInput<T>, options?: JsonCollectionService.UpdateOptions): Promise<Maybe<TOutput>> {
+  async update(keyValue: any, data: PartialInput<T>, options?: JsonCollectionService.UpdateOptions): Promise<Maybe<TOutput>> {
     await this._init();
     nSQL().useDatabase(this._dbName);
     await nSQL(this.resourceName)
@@ -161,7 +159,7 @@ export class JsonCollectionService<T, TOutput = EntityOutput<T>> implements IEnt
     return this.get(keyValue, options);
   }
 
-  async updateMany(data: EntityInput<T>, options?: JsonCollectionService.UpdateManyOptions): Promise<number> {
+  async updateMany(data: PartialInput<T>, options?: JsonCollectionService.UpdateManyOptions): Promise<number> {
     await this._init();
     const filter = this._convertFilter(options?.filter);
     nSQL().useDatabase(this._dbName);
@@ -231,7 +229,7 @@ export class JsonCollectionService<T, TOutput = EntityOutput<T>> implements IEnt
         indexes: {}
       }
       for (const [k, f] of this.resource.dataType.fields.entries()) {
-        const fieldType = this.resource.owner.getDataType(f.type || 'string');
+        const fieldType = this.resource.document.getDataType(f.type || 'string');
         const o: any = table.model[k + ':' + dataTypeToSQLType(fieldType, !!f.isArray)] = {};
         if (k === this.primaryKey)
           o.pk = true;
@@ -241,21 +239,21 @@ export class JsonCollectionService<T, TOutput = EntityOutput<T>> implements IEnt
       const indexes = table.indexes!;
 
       // Add indexes for sort fields
-      const searchMethod = this.resource.metadata.methods.search;
-      if (searchMethod) {
-        if (searchMethod.sortFields) {
-          searchMethod.sortFields.forEach(fieldName => {
+      const searchResolver = this.resource.metadata.search;
+      if (searchResolver) {
+        if (searchResolver.sortFields) {
+          searchResolver.sortFields.forEach(fieldName => {
             const f = this.dataType.getField(fieldName);
-            const fieldType = this.resource.owner.getDataType(f.type || 'string');
+            const fieldType = this.resource.document.getDataType(f.type || 'string');
             const t = dataTypeToSQLType(fieldType, !!f.isArray);
             if (indexingTypes.includes(t))
               indexes[fieldName + ':' + t] = {};
           })
         }
-        if (searchMethod.filters) {
-          searchMethod.filters.forEach(filter => {
+        if (searchResolver.filters) {
+          searchResolver.filters.forEach(filter => {
             const f = this.dataType.getField(filter.field);
-            const fieldType = this.resource.owner.getDataType(f.type || 'string');
+            const fieldType = this.resource.document.getDataType(f.type || 'string');
             const t = dataTypeToSQLType(fieldType, !!f.isArray);
             if (indexingTypes.includes(t))
               indexes[filter.field + ':' + t] = {};
@@ -283,17 +281,17 @@ export class JsonCollectionService<T, TOutput = EntityOutput<T>> implements IEnt
     }
   }
 
-  protected _prepare(query: OpraAnyQuery): {
-    method: OpraSchema.EntityMethod;
+  protected _prepare(query: OpraQuery): {
+    method: OpraSchema.CollectionMethod;
     options: any,
     keyValue?: any;
     values?: any;
     args: any[]
   } {
-    if ((query as any).resource instanceof CollectionResource) {
-      if ((query as OpraAnyEntityQuery).dataType !== this.dataType)
-        throw new TypeError(`Query data type (${(query as OpraAnyEntityQuery).dataType.name}) ` +
-            `differs from JsonDataService data type (${this.dataType.name})`);
+    if ((query as any).resource instanceof CollectionResourceInfo) {
+      if (query.dataType !== this.dataType)
+        throw new TypeError(`Query data type (${query.dataType.name}) ` +
+            `differs from JsonCollectionService data type (${this.dataType.name})`);
     }
     switch (query.method) {
       case 'count': {
@@ -321,7 +319,7 @@ export class JsonCollectionService<T, TOutput = EntityOutput<T>> implements IEnt
         };
       }
       case 'get': {
-        if (query.kind === 'GetInstanceQuery') {
+        if (query.kind === 'CollectionGetQuery') {
           const options: JsonCollectionService.GetOptions = _.omitBy({
             pick: query.pick,
             omit: query.omit,
@@ -335,7 +333,7 @@ export class JsonCollectionService<T, TOutput = EntityOutput<T>> implements IEnt
             args: [keyValue, options]
           };
         }
-        if (query.kind === 'GetFieldQuery') {
+        if (query.kind === 'FieldGetQuery') {
           // todo
         }
         break;
@@ -419,7 +417,7 @@ export class JsonCollectionService<T, TOutput = EntityOutput<T>> implements IEnt
     include?: string[]
   }): string[] {
     const result: string[] = [];
-    const document = this.dataType.owner;
+    const document = this.dataType.document;
     const processDataType = (dt: ComplexType, path: string, pick?: {}, omit?: {}, include?: {}) => {
       let kl: string;
       for (const [k, f] of dt.fields) {

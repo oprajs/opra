@@ -25,9 +25,9 @@
     "clean:cover": "rimraf ../../coverage/i18n"
   },
   "dependencies": {
-    "fast-tokenizer": "^1.1.1",
-    "i18next": "^21.9.1",
-    "ts-gems": "^2.2.0"
+    "fast-tokenizer": "^1.2.0",
+    "i18next": "^21.10.0",
+    "ts-gems": "^2.3.0"
   },
   "type": "module",
   "types": "esm/index.d.ts",

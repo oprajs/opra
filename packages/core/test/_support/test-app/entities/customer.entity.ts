@@ -11,22 +11,22 @@ import { Record } from './record.entity.js';
 export class Customer extends MixinType(Record, Person) {
 
   @OprField()
-  cid: string;
+  cid?: string;
 
   @OprField()
-  identity: string;
+  identity?: string;
 
   @OprField()
-  city: string;
+  city?: string;
 
   @OprField()
-  countryCode: string;
+  countryCode?: string;
 
   @OprField()
-  active: boolean;
+  active?: boolean;
 
   @OprField()
-  vip: boolean;
+  vip?: boolean;
 
   @OprField({
     exclusive: true

@@ -1,3 +1,3 @@
 # @opra/schema
 
-OPRA common package.
+OPRA schema package.

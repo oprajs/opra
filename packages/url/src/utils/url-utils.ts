@@ -1,6 +1,6 @@
-import {splitString} from 'fast-tokenizer';
-import {ResourceKey} from '../types.js';
-import {quoteQueryString} from './string-utils.js';
+import { splitString } from 'fast-tokenizer';
+import { ResourceKey } from '../types.js';
+import { quoteQueryString } from './string-utils.js';
 
 export function joinPath(...p: string[]) {
   const out: string[] = [];
@@ -24,16 +24,16 @@ export function normalizePath(p?: string, noLeadingSlash?: boolean): string {
 }
 
 
-const pathComponentRegEx = /^([^/?#@]+)(?:@(.*))?$/;
+const pathComponentRegEx = /^([^/?#:@]+)(?:@([^/?#:]*))?(?:::(.*))?$/;
 
-export function decodePathComponent(input: string): { resource: string, key?: ResourceKey } {
+export function decodePathComponent(input: string): { resource: string, key?: ResourceKey, typeCast?: string } {
   const m = pathComponentRegEx.exec(input);
   if (!m)
     throw Object.assign(
-      new TypeError('Invalid URL path'), {
-        code: 'ERR_INVALID_URL_PATH',
-        input,
-      });
+        new TypeError('Invalid URL path'), {
+          code: 'ERR_INVALID_URL_PATH',
+          input,
+        });
   const resource = decodeURIComponent(m[1]);
   let key: ResourceKey;
   if (m[2]) {
@@ -42,16 +42,16 @@ export function decodePathComponent(input: string): { resource: string, key?: Re
     for (const k of b) {
       const c = splitString(k, {delimiters: '=', quotes: true, escape: false});
       if ((b.length > 1 && c.length < 2) ||
-        (key &&
-          (c.length >= 2 && typeof key !== 'object') ||
-          (c.length < 2 && typeof key === 'object')
-        )
+          (key &&
+              (c.length >= 2 && typeof key !== 'object') ||
+              (c.length < 2 && typeof key === 'object')
+          )
       )
         throw Object.assign(
-          new TypeError('Invalid URL path. name:value pair required for multiple key format'), {
-            pathComponent: input,
-            code: 'ERR_INVALID_URL_PATH'
-          });
+            new TypeError('Invalid URL path. name:value pair required for multiple key format'), {
+              pathComponent: input,
+              code: 'ERR_INVALID_URL_PATH'
+            });
 
       if (c.length >= 2) {
         key = key || {};
@@ -60,10 +60,13 @@ export function decodePathComponent(input: string): { resource: string, key?: Re
         key = c[0];
     }
   }
+  if (m[3]) {
+    return {resource, key, typeCast: m[3]};
+  }
   return {resource, key};
 }
 
-export function encodePathComponent(resource: string, key?: ResourceKey): string {
+export function encodePathComponent(resource: string, key?: ResourceKey, typeCast?: string): string {
   if (resource == null)
     return '';
   let keyString = '';
@@ -76,7 +79,12 @@ export function encodePathComponent(resource: string, key?: ResourceKey): string
       keyString = arr.join(';');
     } else keyString = encodeURIComponent('' + key);
   }
-  return encodeURIComponent(resource) + (keyString ? '@' + keyString : '');
+  if (typeCast)
+    typeCast = encodeURIComponent(typeCast);
+
+  return encodeURIComponent(resource).replace(/%24/, '$') +
+      (keyString ? '@' + keyString : '') +
+      (typeCast ? '::' + typeCast : '')
 }
 
 const invalidQueryCharsRegEx = /[#&%|\\\n\r\t]/g;
@@ -89,10 +97,11 @@ export function encodeQueryComponent(name: string, value?: string | string[]): s
     return '';
   let out = quoteQueryString(('' + name).replace(invalidQueryCharsRegEx, encodeQueryComponentReplaces));
   if (value) {
-    out += '=' +
-      (Array.isArray(value) ? value : [value]).map(
-        x => quoteQueryString(('' + x).replace(invalidQueryCharsRegEx, encodeQueryComponentReplaces))
-      ).join(',');
+    out += '=' + (Array.isArray(value)
+        ? value.map(
+            x => quoteQueryString(('' + x).replace(invalidQueryCharsRegEx, encodeQueryComponentReplaces))
+        ).join(',')
+        : ('' + value).replace(invalidQueryCharsRegEx, encodeQueryComponentReplaces));
   }
   return out;
 }

@@ -4,3 +4,5 @@ export type Thunk<T> = T | (() => T);
 export type ThunkAsync<T> = T | Promise<T> | (() => T) | (() => Promise<T>);
 export type TypeThunk<T = any> = Thunk<Type<T>>;
 export type TypeThunkAsync<T = any> = ThunkAsync<Type<T>>;
+
+export type Named<T> = T & { name: string };

@@ -5,19 +5,16 @@ export const countriesResource: OpraSchema.CollectionResource = {
   name: 'Countries',
   type: 'Country',
   keyFields: 'id',
-  methods: {
-    search: {
-      handler: () => {
+  search: {
+    handler: () => {
       //
-      },
     },
-    get: {
-      handler: () => {
+  },
+  get: {
+    handler: () => {
       //
-      }
     }
   }
-
 
 }
 

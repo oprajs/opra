@@ -1,2 +1,2 @@
 # @OPRA
-Open Protocol for Restful Api
+Object Protocol for Restful APIs

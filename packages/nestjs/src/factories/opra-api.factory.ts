@@ -9,7 +9,7 @@ import { InternalCoreModule } from '@nestjs/core/injector/internal-core-module';
 import { Module } from '@nestjs/core/injector/module.js';
 import { REQUEST_CONTEXT_ID } from '@nestjs/core/router/request/request-constants';
 import { QueryContext } from '@opra/core';
-import { OpraApi, OpraSchema, RESOURCE_METADATA, SchemaGenerator } from '@opra/schema';
+import { collectionMethods, OpraDocument, OpraDocumentArgs, OpraSchema, RESOURCE_METADATA } from '@opra/schema';
 import { PARAM_ARGS_METADATA } from '../constants.js';
 import { HandlerParamType } from '../enums/handler-paramtype.enum.js';
 import { OpraModuleOptions } from '../interfaces/opra-module-options.interface.js';
@@ -18,7 +18,6 @@ import { getNumberOfArguments } from '../utils/function.utils.js';
 import { OpraParamsFactory } from './params.factory.js';
 
 const noOpFunction = () => void 0;
-const entityMethods = ['search', 'count', 'create', 'get', 'update', 'updateMany', 'delete', 'deleteMany'];
 
 const METHOD_PATCHED = 'ServiceFactory.method-patched';
 
@@ -33,14 +32,15 @@ export class OpraApiFactory {
   @Inject()
   private readonly explorerService: NestExplorer;
 
-  async generateService(rootModule: Module, moduleOptions: OpraModuleOptions, contextType: ContextType): Promise<OpraApi> {
+  async generateService(rootModule: Module, moduleOptions: OpraModuleOptions, contextType: ContextType): Promise<OpraDocument> {
     const info: OpraSchema.DocumentInfo = {title: '', version: '', ...moduleOptions.info};
     info.title = info.title || 'Untitled service';
     info.version = info.version || '1';
-    const serviceArgs: SchemaGenerator.GenerateServiceArgs = {
+    const resources: any[] = [];
+    const serviceArgs: OpraDocumentArgs = {
       info,
       types: [],
-      resources: [],
+      resources,
     };
 
     const wrappers = this.explorerService.exploreResourceWrappers(rootModule);
@@ -51,12 +51,12 @@ export class OpraApiFactory {
       if (!resourceDef)
         continue;
 
-      serviceArgs.resources.push(instance);
+      resources.push(instance);
 
       /* Wrap resolver functions */
       const prototype = Object.getPrototypeOf(instance);
       const isRequestScoped = !wrapper.isDependencyTreeStatic();
-      const methodsToWrap = OpraSchema.isCollectionResource(resourceDef) ? entityMethods : [];
+      const methodsToWrap = OpraSchema.isCollectionResource(resourceDef) ? collectionMethods : [];
 
       for (const methodName of methodsToWrap) {
         const fn = prototype[methodName];
@@ -128,7 +128,7 @@ export class OpraApiFactory {
         });
       }
     }
-    return await OpraApi.create(serviceArgs);
+    return await OpraDocument.create(serviceArgs);
   }
 
   private _createContextCallback(

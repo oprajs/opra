@@ -26,13 +26,13 @@
   },
   "dependencies": {
     "lodash": "^4.17.21",
-    "ts-gems": "^2.2.0"
+    "ts-gems": "^2.3.0"
   },
   "devDependencies": {
-    "@sqb/builder": "^4.5.3",
-    "@sqb/connect": "^4.5.3",
-    "@faker-js/faker": "^7.5.0",
-    "@sqb/postgres": "^4.5.4",
+    "@faker-js/faker": "^7.6.0",
+    "@sqb/builder": "^4.5.5",
+    "@sqb/connect": "^4.5.5",
+    "@sqb/postgres": "^4.5.5",
     "async-mutex": "^0.4.0",
     "postgresql-client": "^2.5.1"
   },

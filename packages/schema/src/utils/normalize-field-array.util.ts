@@ -1,6 +1,6 @@
 import { ComplexType } from '../implementation/data-type/complex-type.js';
-import { OpraDocument } from '../implementation/opra-document.js';
-import { ObjectTree, pathToTree } from './path-to-tree.js';
+import type { OpraDocument } from '../implementation/opra-document.js';
+import { ObjectTree, pathToTree } from './path-to-tree.util.js';
 
 export function normalizeFieldArray(
     document: OpraDocument,

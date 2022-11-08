@@ -1,30 +1,18 @@
 import { StrictOmit } from 'ts-gems';
-import { OpraSchema } from '../../opra-schema.js';
-import { colorFgMagenta, colorFgYellow, colorReset, nodeInspectCustom } from '../../utils/inspect-utils.js';
-import type { OpraDocument } from '../opra-document.js';
+import { OpraSchema } from '../../opra-schema.definition.js';
+import { colorFgMagenta, colorFgYellow, colorReset, nodeInspectCustom } from '../../utils/inspect.util.js';
+import type { OpraDocument } from '../opra-document';
 import { DataType } from './data-type.js';
 
 export class SimpleType extends DataType {
   declare protected readonly _metadata: OpraSchema.SimpleType;
   declare readonly base?: SimpleType;
 
-  constructor(owner: OpraDocument, args: StrictOmit<OpraSchema.SimpleType, 'kind'>) {
-    super(owner, {
+  constructor(owner: OpraDocument, name: string, args: StrictOmit<OpraSchema.SimpleType, 'kind'>) {
+    super(owner, name, {
       kind: 'SimpleType',
       ...args
     });
-  }
-
-  get type() {
-    return this._metadata.type;
-  }
-
-  get format(): string | undefined {
-    return this._metadata.format;
-  }
-
-  get default(): boolean | number | string | undefined {
-    return this._metadata.default;
   }
 
   toString(): string {

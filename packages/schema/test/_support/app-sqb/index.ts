@@ -1,6 +1,7 @@
 export * from './resources/countries.resource.js';
 export * from './resources/customers.resource.js';
 export * from './resources/customer-notes.resource.js';
+export * from './resources/settings.resource.js';
 
 export * from './types/address.type.js';
 export * from './types/note.type.js';

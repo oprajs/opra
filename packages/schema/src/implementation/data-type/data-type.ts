@@ -1,20 +1,21 @@
 import { Type } from 'ts-gems';
-import { OpraSchema } from '../../opra-schema.js';
+import { OpraSchema } from '../../opra-schema.definition.js';
 import { cloneObject } from '../../utils/clone-object.util.js';
-import { OpraDocument } from '../opra-document.js';
-import { builtinClassMap, internalDataTypes, primitiveDataTypeNames } from './internal-data-types.js';
+import type { OpraDocument } from '../opra-document';
 
 export abstract class DataType {
-  protected _owner: OpraDocument;
-  protected readonly _metadata: OpraSchema.BaseDataType;
+  protected _document: OpraDocument;
+  protected _metadata: OpraSchema.BaseDataType;
+  protected _name: string;
 
-  protected constructor(owner: OpraDocument, metadata: OpraSchema.DataType) {
-    this._owner = owner;
+  protected constructor(document: OpraDocument, name, metadata: OpraSchema.DataType) {
+    this._document = document;
+    this._name = name;
     this._metadata = metadata;
   }
 
-  get owner(): OpraDocument {
-    return this._owner;
+  get document(): OpraDocument {
+    return this._document;
   }
 
   get kind(): OpraSchema.DataTypeKind {
@@ -22,7 +23,7 @@ export abstract class DataType {
   }
 
   get name(): string {
-    return this._metadata.name;
+    return this._name;
   }
 
   get description(): string | undefined {
@@ -39,20 +40,6 @@ export abstract class DataType {
 
   getSchema(jsonOnly?: boolean): any {
     return cloneObject(this._metadata, jsonOnly);
-  }
-
-  static isInternalType(t: string | Type): boolean {
-    if (typeof t === 'string')
-      return internalDataTypes.has(t.toLowerCase());
-    return builtinClassMap.has(t);
-  }
-
-  static isPrimitiveType(t: string | Type): boolean {
-    if (typeof t === 'function') {
-      const s = builtinClassMap.get(t);
-      return s ? primitiveDataTypeNames.includes(s.name) : false;
-    }
-    return typeof t === 'string' ? primitiveDataTypeNames.includes(t.toLowerCase()) : false;
   }
 
 }

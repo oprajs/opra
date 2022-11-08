@@ -1,14 +1,14 @@
 import { faker } from '@faker-js/faker';
-import { opraTestClient, OpraTester } from '@opra/testing';
+import { OpraTestClient } from '@opra/testing';
 import { createApp, TestApp } from '../_support/app/index.js';
 
 describe('e2e: updateMany', function () {
   let app: TestApp;
-  let client: OpraTester;
+  let client: OpraTestClient;
 
   beforeAll(async () => {
     app = await createApp();
-    client = opraTestClient(app.server);
+    client = await OpraTestClient.create(app.server);
   });
 
   afterAll(async () => {
@@ -19,22 +19,20 @@ describe('e2e: updateMany', function () {
     const data = {
       identity: '' + faker.datatype.number()
     }
-    let resp = await client.entity('Customers')
-        .updateMany(data)
-        .send();
+    let resp = await client.collection('Customers')
+        .updateMany(data);
     resp.expect
         .toSuccess()
         .toReturnOperationResult()
         .toBeAffectedMin(1);
 
-    resp = await client.entity('Customers')
+    resp = await client.collection('Customers')
         .search()
         .filter('identity="' + data.identity + '"')
-        .limit(1000000)
-        .send();
+        .limit(1000000);
     resp.expect
         .toSuccess()
-        .toReturnArray()
+        .toReturnCollection()
         .toMatch(data);
   })
 
@@ -42,21 +40,19 @@ describe('e2e: updateMany', function () {
     const data = {
       identity: '' + faker.datatype.number()
     }
-    let resp = await client.entity('Customers')
+    let resp = await client.collection('Customers')
         .updateMany(data)
-        .filter('id<=10')
-        .send();
+        .filter('id<=10');
     resp.expect
         .toSuccess()
         .toReturnOperationResult()
         .toBeAffectedMin(10)
-    resp = await client.entity('Customers')
+    resp = await client.collection('Customers')
         .search()
-        .filter('identity="' + data.identity + '"')
-        .send();
+        .filter('identity="' + data.identity + '"');
     resp.expect
         .toSuccess()
-        .toReturnArray()
+        .toReturnCollection()
         .toHaveExactItems(10)
         .toMatch(data);
   })

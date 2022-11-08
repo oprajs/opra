@@ -1,7 +1,7 @@
 import _ from 'lodash';
 import { StrictOmit } from 'ts-gems';
 import { COMPLEXTYPE_FIELDS } from '../constants.js';
-import { FieldMetadata } from '../interfaces/metadata/data-type.metadata.js';
+import { FieldMetadata } from '../interfaces/data-type.metadata.js';
 
 export function OprField(args?: Partial<StrictOmit<FieldMetadata, 'isArray'>>): PropertyDecorator {
   return (target: Object, propertyKey: string | symbol): void => {

@@ -1,18 +1,23 @@
 import _ from 'lodash';
 import { StrictOmit } from 'ts-gems';
 import { DATATYPE_METADATA } from '../constants.js';
-import { ComplexTypeMetadata } from '../interfaces/metadata/data-type.metadata.js';
+import { ComplexTypeMetadata } from '../interfaces/data-type.metadata.js';
 
 export type ComplexTypeDecoratorOptions =
-    Partial<StrictOmit<ComplexTypeMetadata, 'kind' | 'ctor' | 'fields' | 'extends'>>;
+    Partial<StrictOmit<ComplexTypeMetadata, 'name' | 'kind' | 'ctor' | 'fields' | 'extends'>> & {
+  name?: string;
+};
 
-export function OprComplexType(args?: ComplexTypeDecoratorOptions): ClassDecorator {
+const NAME_PATTERN = /^(.*)Type$/;
+
+export function OprComplexType(options?: ComplexTypeDecoratorOptions): ClassDecorator {
   return (target: Function): void => {
+    const name = options?.name || target.name.match(NAME_PATTERN)?.[1] || target.name;
     const meta: ComplexTypeMetadata = {
       kind: 'ComplexType',
-      name: args?.name || target.name,
+      name,
     };
-    Object.assign(meta, _.omit(args, Object.keys(meta)));
+    Object.assign(meta, _.omit(options, Object.keys(meta)));
 
     const base = Object.getPrototypeOf(target);
     const baseMeta = Reflect.getMetadata(DATATYPE_METADATA, base);
