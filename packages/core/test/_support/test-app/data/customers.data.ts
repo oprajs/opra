@@ -8,7 +8,7 @@ export function enumValue<T>(enumVal: T[]): T {
   return enumVal[idx];
 }
 
-export const customersData: Partial<Customer>[] = [];
+export const customersData: Customer[] = [];
 export const customerNotes: Partial<CustomerNotes>[] = [];
 
 let noteId = 0;
@@ -16,7 +16,7 @@ let gender: string;
 for (let id = 1; id <= 1000; id++) {
   gender = enumValue(['M', 'F']);
   const sex = gender === 'M' ? 'male' : 'female';
-  const customer: Partial<Customer> = {
+  const customer: Customer = {
     id,
     cid: faker.random.numeric(),
     identity: faker.random.numeric(),

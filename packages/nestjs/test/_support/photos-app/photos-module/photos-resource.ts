@@ -1,7 +1,7 @@
 import { UseGuards } from '@nestjs/common';
 import {
-  OpraCountCollectionQuery,
-  OpraCreateInstanceQuery, OpraDeleteCollectionQuery, OpraDeleteInstanceQuery, OpraGetInstanceQuery,
+  CollectionCountQuery,
+  CollectionCreateQuery, OpraDeleteCollectionQuery, OpraDeleteInstanceQuery, OpraGetInstanceQuery,
   OpraSearchCollectionQuery, OpraUpdateCollectionQuery, OpraUpdateInstanceQuery,
   OprCollectionResource
 } from '@opra/schema';
@@ -23,12 +23,12 @@ export class PhotosResource {
     return this.photosService.search(query.filter);
   }
 
-  async count(@Query query: OpraCountCollectionQuery) {
+  async count(@Query query: CollectionCountQuery) {
     return this.photosService.count(query.filter);
   }
 
   @UseGuards(AuthGuard)
-  create(@Query query: OpraCreateInstanceQuery) {
+  create(@Query query: CollectionCreateQuery) {
     return this.photosService.create(query.data);
   }
 

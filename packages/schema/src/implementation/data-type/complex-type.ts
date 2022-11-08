@@ -1,47 +1,25 @@
 import { StrictOmit } from 'ts-gems';
-import { ResponsiveMap } from '../../helpers/responsive-map.js';
-import { OpraSchema } from '../../opra-schema.js';
+import { ResponsiveMap } from '@opra/common';
+import { OpraSchema } from '../../opra-schema.definition.js';
 import { cloneObject } from '../../utils/clone-object.util.js';
-import { colorFgMagenta, colorFgYellow, colorReset, nodeInspectCustom } from '../../utils/inspect-utils.js';
-import type { OpraDocument } from '../opra-document.js';
+import { colorFgMagenta, colorFgYellow, colorReset, nodeInspectCustom } from '../../utils/inspect.util.js';
+import type { OpraDocument } from '../opra-document';
 import { DataType } from './data-type.js';
 
 export type ComplexTypeArgs = StrictOmit<OpraSchema.ComplexType, 'kind'>;
 
 export class ComplexType extends DataType {
-  declare protected readonly _metadata: OpraSchema.ComplexType;
+  protected _initialized = false;
+  declare protected _metadata: OpraSchema.ComplexType;
   private _mixinAdditionalFields: boolean;
   readonly ownFields = new ResponsiveMap<string, Field>();
   readonly fields = new ResponsiveMap<string, Field>();
 
-  constructor(owner: OpraDocument, metadata: ComplexTypeArgs) {
-    super(owner, {
+  constructor(owner: OpraDocument, name, args: ComplexTypeArgs) {
+    super(owner, name, {
       kind: 'ComplexType',
-      ...metadata
+      ...args
     });
-    if (metadata.extends) {
-      for (const ext of metadata.extends) {
-        const baseType = owner.getDataType(ext.type);
-        if (!(baseType instanceof ComplexType))
-          throw new TypeError(`Cannot extend ${metadata.name} from a "${baseType.kind}"`);
-        if (baseType.additionalFields)
-          this._mixinAdditionalFields = true;
-        for (const [k, prop] of baseType.fields) {
-          const f = cloneObject(prop) as Field;
-          f.name = k;
-          f.parent = this;
-          this.fields.set(k, f);
-        }
-      }
-    }
-    if (metadata.fields) {
-      for (const [k, prop] of Object.entries(metadata.fields)) {
-        const f = cloneObject(prop) as Field;
-        f.name = k;
-        this.fields.set(k, f);
-        this.ownFields.set(k, f);
-      }
-    }
   }
 
   get abstract() {
@@ -52,6 +30,10 @@ export class ComplexType extends DataType {
     return this._metadata.additionalFields || this._mixinAdditionalFields;
   }
 
+  get extends(): OpraSchema.ComplexTypeExtendingInfo[] | undefined {
+    return this._metadata.extends;
+  }
+
   getField(fieldName: string): Field {
     if (fieldName.includes('.')) {
       let dt: DataType = this;
@@ -59,7 +41,7 @@ export class ComplexType extends DataType {
       let field: Field;
       for (const a of arr) {
         field = (dt as ComplexType).getField(a);
-        dt = dt.owner.getDataType(field.type || 'string');
+        dt = dt.document.getDataType(field.type || 'string');
       }
       // @ts-ignore
       return field;
@@ -72,7 +54,7 @@ export class ComplexType extends DataType {
 
   getFieldType(fieldName: string): DataType {
     const field = this.getField(fieldName);
-    return this.owner.getDataType(field.type || 'string');
+    return this.document.getDataType(field.type || 'string');
   }
 
   getOwnField(name: string): Field {
@@ -103,6 +85,43 @@ export class ComplexType extends DataType {
   [nodeInspectCustom](): string {
     return `[${colorFgYellow + Object.getPrototypeOf(this).constructor.name + colorReset}` +
         ` ${colorFgMagenta + this.name + colorReset}]`;
+  }
+
+  init() {
+    if (this._initialized)
+      return;
+    this._initialized = true;
+    const metadata = this._metadata;
+    if (metadata.extends) {
+      for (const ext of metadata.extends) {
+        const baseType = this.document.types.get(ext.type);
+        if (!baseType)
+          throw new TypeError(`Extending schema (${ext.type}) of data type "${this.name}" does not exists`);
+
+        if (!(baseType instanceof ComplexType))
+          throw new TypeError(`Cannot extend ${this.name} from a "${baseType.kind}"`);
+        baseType.init();
+        if (baseType.additionalFields)
+          this._mixinAdditionalFields = true;
+        for (const [k, prop] of baseType.fields) {
+          const f = cloneObject(prop) as Field;
+          f.name = k;
+          f.parent = this;
+          this.fields.set(k, f);
+        }
+      }
+    }
+    if (metadata.fields) {
+      for (const [k, prop] of Object.entries(metadata.fields)) {
+        const t = this.document.types.get(prop.type);
+        if (!t)
+          throw new TypeError(`Type "${prop.type}" defined for "${this.name}.${k}" does not exists`);
+        const f = cloneObject(prop) as Field;
+        f.name = k;
+        this.fields.set(k, f);
+        this.ownFields.set(k, f);
+      }
+    }
   }
 
 }

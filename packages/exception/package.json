@@ -25,8 +25,8 @@
     "clean:cover": "rimraf ../../coverage/exception"
   },
   "dependencies": {
-    "ts-gems": "2.2.0",
-    "@opra/i18n": "^0.3.0"
+    "@opra/i18n": "^0.3.0",
+    "ts-gems": "2.2.0"
   },
   "type": "module",
   "types": "esm/index.d.ts",

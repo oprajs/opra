@@ -1,7 +1,7 @@
 import 'reflect-metadata';
 import { Column, Entity } from '@sqb/connect';
+import { extractDataTypeSchema } from '../../src/implementation/schema-builder/extract-type-metadata.util.js';
 import {
-  extractComplexTypeMetadata,
   OprComplexType,
   OprField
 } from '../../src/index.js';
@@ -19,8 +19,8 @@ describe('OmitType() helper', function () {
       sex: string;
     }
 
-    const meta = await extractComplexTypeMetadata(TestClass);
-    expect(meta).toStrictEqual({
+    const schema = await extractDataTypeSchema(TestClass);
+    expect(schema).toStrictEqual({
       kind: 'ComplexType',
       name: 'TestClass',
       description: 'TestClass schema',
@@ -56,8 +56,8 @@ describe('OmitType() helper', function () {
       sex: number;
     }
 
-    const meta = await extractComplexTypeMetadata(TestClass);
-    expect(meta).toStrictEqual({
+    const schema = await extractDataTypeSchema(TestClass);
+    expect(schema).toStrictEqual({
       kind: 'ComplexType',
       name: 'TestClass',
       description: 'TestClass schema',

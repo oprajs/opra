@@ -1,14 +1,14 @@
 import { faker } from '@faker-js/faker';
-import { opraTestClient, OpraTester } from '@opra/testing';
+import { OpraTestClient } from '@opra/testing';
 import { createApp, TestApp } from '../_support/app/index.js';
 
 describe('e2e: create', function () {
   let app: TestApp;
-  let client: OpraTester;
+  let client: OpraTestClient;
 
   beforeAll(async () => {
     app = await createApp();
-    client = opraTestClient(app.server);
+    client = await OpraTestClient.create(app.server);
   });
 
   afterAll(async () => {
@@ -23,14 +23,14 @@ describe('e2e: create', function () {
       gender: 'M',
       address: {city: 'Izmir'}
     }
-    let resp = await client.entity('Customers')
-        .create(data).send();
+    let resp = await client.collection('Customers')
+        .create(data);
     resp.expect
         .toSuccess(201)
         .toReturnObject()
         .toMatch({...data, address: undefined});
-    resp = await client.entity('Customers')
-        .get(1001).send();
+    resp = await client.collection('Customers')
+        .get(1001);
     resp.expect
         .toSuccess()
         .toReturnObject()
@@ -45,14 +45,13 @@ describe('e2e: create', function () {
       gender: 'M',
       address: {city: 'Izmir'}
     }
-    const resp = await client.entity('Customers')
+    const resp = await client.collection('Customers')
         .create(data)
-        .pick('id', 'givenName')
-        .send();
+        .pick('id', 'givenName');
     resp.expect
         .toSuccess(201)
         .toReturnObject()
-        .toContainAllKeys(['id', 'givenName']);
+        .toHaveFieldsOnly(['id', 'givenName']);
   })
 
   it('Should omit fields to be returned', async () => {
@@ -63,14 +62,13 @@ describe('e2e: create', function () {
       gender: 'M',
       address: {city: 'Izmir'}
     }
-    const resp = await client.entity('Customers')
+    const resp = await client.collection('Customers')
         .create(data)
-        .omit('id', 'givenName')
-        .send();
+        .omit('id', 'givenName');
     resp.expect
         .toSuccess(201)
         .toReturnObject()
-        .notToContainKeys(['id', 'givenName']);
+        .not.toHaveFields(['id', 'givenName']);
   })
 
   it('Should include exclusive fields if requested', async () => {
@@ -82,14 +80,13 @@ describe('e2e: create', function () {
       gender: 'M',
       address: {city: 'Izmir', countryCode: 'TR',}
     }
-    const resp = await client.entity('Customers')
+    const resp = await client.collection('Customers')
         .create(data)
-        .include('address')
-        .send();
+        .include('address');
     resp.expect
         .toSuccess(201)
         .toReturnObject()
-        .toContainKeys(['address']);
+        .toHaveFields(['address']);
   })
 
 });

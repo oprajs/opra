@@ -1,7 +1,8 @@
 import 'reflect-metadata';
 import { Column, Entity } from '@sqb/connect';
+import { extractDataTypeSchema } from '../../src/implementation/schema-builder/extract-type-metadata.util.js';
 import {
-  extractComplexTypeMetadata, OprComplexType,
+  OprComplexType,
   OprField
 } from '../../src/index.js';
 import { MixinType } from '../../src/type-helpers/mixin-type.helper.js';
@@ -46,10 +47,9 @@ describe('MixinType() helper', function () {
     notes: string;
   }
 
-
   it('Should create union type', async function () {
-    const meta = await extractComplexTypeMetadata(PersonRecord);
-    expect(meta).toStrictEqual({
+    const schema = await extractDataTypeSchema(PersonRecord);
+    expect(schema).toStrictEqual({
       kind: 'ComplexType',
       name: 'PersonRecord',
       description: 'PersonRecord schema',
@@ -79,8 +79,8 @@ describe('MixinType() helper', function () {
       cancelledAt: string;
     }
 
-    const meta = await extractComplexTypeMetadata(TestClass);
-    expect(meta).toStrictEqual({
+    const schema = await extractDataTypeSchema(TestClass);
+    expect(schema).toStrictEqual({
       kind: 'ComplexType',
       name: 'TestClass',
       description: 'TestClass schema',
@@ -109,8 +109,8 @@ describe('MixinType() helper', function () {
       cancelledAt: string;
     }
 
-    const meta = await extractComplexTypeMetadata(TestClass);
-    expect(meta).toStrictEqual({
+    const schema = await extractDataTypeSchema(TestClass);
+    expect(schema).toStrictEqual({
       kind: 'ComplexType',
       name: 'TestClass',
       description: 'TestClass schema',

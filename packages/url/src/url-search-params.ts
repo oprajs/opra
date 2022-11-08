@@ -1,6 +1,8 @@
 import { EventEmitter } from 'events';
 import { splitString, tokenize } from 'fast-tokenizer';
 import { StrictOmit } from 'ts-gems';
+import { URLSearchParams } from 'url';
+import { ResponsiveMap } from '@opra/common';
 import { BooleanFormat } from './formats/boolean-format.js';
 import { DateFormat } from './formats/date-format.js';
 import { FilterFormat } from './formats/filter-format.js';
@@ -12,7 +14,6 @@ import { nodeInspectCustom } from './types.js';
 import { unquoteQueryString } from './utils/string-utils.js';
 import { encodeQueryComponent } from './utils/url-utils.js';
 
-const QUERYMETADATA_KEY = Symbol.for('opra.url.querymetadata');
 const internalFormats = {
   'integer': new IntegerFormat(),
   'number': new NumberFormat(),
@@ -31,24 +32,47 @@ export interface QueryItemMetadata {
   maxArrayItems?: number;
 }
 
-export class SearchParams extends EventEmitter {
-  protected [QUERYMETADATA_KEY]: Record<string, QueryItemMetadata>;
-  private _entries: Record<string, any[]> = {};
+export class OpraURLSearchParams extends EventEmitter {
+  protected _params = new ResponsiveMap<string, QueryItemMetadata>();
+  private _entries = new ResponsiveMap<string, any[]>();
   private _size = 0;
 
-  constructor(init?: (string | URLSearchParams | SearchParams)) {
+  constructor(init?: (string | URLSearchParams | OpraURLSearchParams)) {
     super();
-    Object.defineProperty(this, QUERYMETADATA_KEY, {
-      enumerable: false,
-      writable: true,
-      configurable: true,
-      value: {}
-    });
-    this._init(init);
+    if (init) {
+      if (typeof init === 'string')
+        this.parse(init)
+      else
+        this.addAll(init);
+    }
   }
 
   get size(): number {
     return this._size;
+  }
+
+  addAll(values: URLSearchParams | OpraURLSearchParams | Map<string, any>) {
+    if (typeof values.forEach === 'function') {
+      let changed = false;
+      values.forEach((value: any, name: string) => {
+        changed = this._add(name, value) || changed;
+      });
+      if (changed)
+        this.emit('change');
+      return;
+    }
+    throw new TypeError(`Invalid argument`);
+  }
+
+  append(name: string, value?: any): void {
+    if (this._add(name, value))
+      this.emit('change');
+  }
+
+  clear(): void {
+    this._entries.clear();
+    this._size = 0;
+    this.emit('change');
   }
 
   defineParam(name: string, options?: StrictOmit<QueryItemMetadata, 'name'>): this {
@@ -61,28 +85,14 @@ export class SearchParams extends EventEmitter {
     }
     if (typeof meta.format === 'string' && !internalFormats[meta.format])
       throw new Error(`Unknown data format "${meta.format}"`);
-    const key = meta.name.toLowerCase();
     meta.format = meta.format || 'string';
-    this[QUERYMETADATA_KEY][key] = meta;
+    this._params.set(name, meta);
     return this;
   }
 
-  append(name: string, value?: any): void {
-    this._add(name, value);
-    this.emit('change');
-  }
-
-  clear(): void {
-    this._entries = {};
-    this._size = 0;
-    this.emit('change');
-  }
-
   delete(name: string): void {
-    const a = this._entries[name];
-    if (a) this._size -= a.length;
-    delete this._entries[name];
-    this.emit('change');
+    if (this._delete(name))
+      this.emit('change');
   }
 
   entries(): IterableIterator<[string, any]> {
@@ -94,47 +104,40 @@ export class SearchParams extends EventEmitter {
   }
 
   forEach(callback: (value: any, name: string, _this: this) => void) {
-    for (const name of Object.keys(this._entries)) {
-      const items = this._entries[name];
-      for (let i = 0; i < items.length; i++) {
-        callback.call(this, items[i], name, this);
+    for (const [name, entry] of this._entries.entries()) {
+      for (let i = 0; i < entry.length; i++) {
+        callback(entry[i], name, this);
       }
     }
   }
 
   get(name: string, index?: number): any | null {
-    const entry = this._entries[name];
+    const entry = this._entries.get(name);
     const v = entry && entry[index || 0];
     return v == null ? null : v;
   }
 
   getAll(name: string): any[] {
-    return (name in this._entries)
-        ? this._entries[name].slice(0)
-        : [];
+    const entry = this._entries.get(name);
+    return entry ? entry.slice(0) : [];
   }
 
   has(name: string): boolean {
-    return (name in this._entries);
+    return this._entries.has(name);
   }
 
   keys(): IterableIterator<string> {
-    return Object.keys(this._entries).values();
+    return this._entries.keys();
   }
 
   set(name: string, value?: any): void {
-    name = name.toLowerCase();
-    const a = this._entries[name];
-    if (a) this._size -= a.length;
-    delete this._entries[name];
+    this._delete(name);
     this._add(name, value);
+    this.emit('change');
   }
 
   sort(compareFn?: (a: string, b: string) => number): void {
-    const old = this._entries;
-    this._entries = {};
-    const keys = Object.keys(old).sort(compareFn);
-    keys.forEach(k => this._entries[k] = old[k]);
+    this._entries.sort(compareFn);
     this.emit('change');
   }
 
@@ -159,21 +162,14 @@ export class SearchParams extends EventEmitter {
       });
       const k = decodeURIComponent(itemTokenizer.next() || '');
       const v = itemTokenizer.join('=');
-      const meta = this[QUERYMETADATA_KEY][k];
-      if (meta?.array) {
+      const qi = this._params.get(k);
+      if (qi?.array) {
         const values = splitString(v, {
-          delimiters: meta?.arrayDelimiter || ',',
+          delimiters: qi?.arrayDelimiter || ',',
           brackets: true,
           quotes: true
         }).map((x) => unquoteQueryString(decodeURIComponent(x)));
-        if (meta.minArrayItems && values.length < meta.minArrayItems)
-          throw new Error(`"${k}" parameter requires at least ${meta.minArrayItems} values`);
-        if (meta.maxArrayItems && values.length > meta.maxArrayItems)
-          throw new Error(`"${k}" parameter accepts up to ${meta.maxArrayItems} values`);
-        if (meta.array === 'strict')
-          this._add(k, values);
-        else
-          this._add(k, values.length > 1 ? values : values[0] || '');
+        this._add(k, values);
       } else {
         this._add(k, unquoteQueryString(decodeURIComponent(v)));
       }
@@ -185,7 +181,7 @@ export class SearchParams extends EventEmitter {
   toString(): string {
     let searchString: string = '';
     this.forEach((value: string, name: string) => {
-      const qi = this[QUERYMETADATA_KEY][name.toLowerCase()];
+      const qi = this._params.get(name);
       const format = qi
           ? (typeof qi.format === 'string' ? internalFormats[qi.format] : qi.format)
           : undefined;
@@ -200,55 +196,59 @@ export class SearchParams extends EventEmitter {
     return searchString;
   }
 
+  toURLSearchParams(): URLSearchParams {
+    return new URLSearchParams(this);
+  }
+
   [Symbol.iterator](): IterableIterator<[string, any]> {
     return this.entries();
+  }
+
+  get [Symbol.toStringTag]() {
+    return 'URLSearchParams';
   }
 
   [nodeInspectCustom]() {
     return this._entries;
   }
 
-  protected _init(init?: (string | URLSearchParams | SearchParams)) {
-    if (init instanceof SearchParams)
-      this._entries = {...init._entries};
-    if (init && typeof init === 'string')
-      this.parse(init);
-    if ((init instanceof URLSearchParams) || (init instanceof SearchParams)) {
-      init.forEach((value: string, name: string) => {
-        this.append(name, value);
-      });
-    }
+  protected _delete(name: string): boolean {
+    const a = this._entries.get(name);
+    if (!a)
+      return false;
+    this._size -= a.length;
+    this._entries.delete(name);
+    return true;
   }
 
-  protected _add(name: string, value: any): void {
-    const qi = this[QUERYMETADATA_KEY][name];
+  protected _add(name: string, value: any): boolean {
+    const qi = this._params.get(name);
     const format = qi ?
         (typeof qi.format === 'string' ? internalFormats[qi.format] : qi.format) : undefined;
     const fn = (x) => format ? format.parse(x, name) : x;
-    const v = Array.isArray(value) ? value.map(fn) : fn(value);
-    if (name in this._entries)
-      this._entries[name].push(v);
-    else
-      this._entries[name] = [v];
+    let v = Array.isArray(value) ? value.map(fn) : fn(value);
+
+    if (qi) {
+      if (qi.array === 'strict')
+        v = Array.isArray(v) ? v : [v];
+      else if (qi.array)
+        v = Array.isArray(v) && v.length === 1 ? v[0] : v;
+      if (Array.isArray(v)) {
+        if (qi.minArrayItems && v.length < qi.minArrayItems)
+          throw new Error(`"${name}" parameter requires at least ${qi.minArrayItems} values`);
+        if (qi.maxArrayItems && v.length > qi.maxArrayItems)
+          throw new Error(`"${name}" parameter accepts up to ${qi.maxArrayItems} values`);
+      }
+    }
+
+    let entry = this._entries.get(name);
+    if (!entry) {
+      entry = [];
+      this._entries.set(name, entry);
+    }
+    entry.push(v);
     this._size++;
-    this.emit('change');
+    return true;
   }
 
-}
-
-export class OpraURLSearchParams extends SearchParams {
-  constructor(init?: (string | URLSearchParams | SearchParams)) {
-    super();
-    this.defineParam('$search', {format: 'string'});
-    this.defineParam('$filter', {format: 'filter'});
-    this.defineParam('$limit', {format: new IntegerFormat({min: 0})});
-    this.defineParam('$skip', {format: new IntegerFormat({min: 0})});
-    this.defineParam('$pick', {format: 'string', array: 'strict'});
-    this.defineParam('$omit', {format: 'string', array: 'strict'});
-    this.defineParam('$include', {format: 'string', array: 'strict'});
-    this.defineParam('$sort', {format: 'string', array: 'strict'});
-    this.defineParam('$distinct', {format: 'boolean'});
-    this.defineParam('$count', {format: 'boolean'});
-    this._init(init);
-  }
 }

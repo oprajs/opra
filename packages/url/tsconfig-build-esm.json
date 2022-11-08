@@ -4,6 +4,9 @@
     "module": "ESNext",
     "rootDir": "src",
     "outDir": "../../build/url/esm",
+    "paths": {
+      "@opra/*": ["../../build/*"]
+    },
     "sourceMap": false,
     "noEmit": false,
     "declaration": true

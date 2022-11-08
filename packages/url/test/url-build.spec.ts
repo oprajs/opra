@@ -1,4 +1,4 @@
-import {OpraURL, parseFilter} from '../src/index.js';
+import {OpraURL} from '../src/index.js';
 
 describe('URL build', () => {
 
@@ -121,7 +121,7 @@ describe('URL build', () => {
     expect(u.pathname).toStrictEqual('/Person@a=1234;b=xyz')
   })
 
-  it('Should set search', () => {
+  it('Should set query', () => {
     const u = new OpraURL()
       .setSearch('prm1=&prm2=2');
     expect(u.search).toStrictEqual('?prm1&prm2=2');
@@ -150,84 +150,6 @@ describe('URL build', () => {
       .setHostname('www.anyuri.com');
     expect(u.href).toStrictEqual('http://www.anyuri.com#hash');
   })
-
-  it('Should set filter query param', () => {
-    const u = new OpraURL()
-      .setHostname('localhost')
-      .setFilter('a=1');
-    expect(u.href).toStrictEqual('http://localhost?filter=a=1');
-    u.setFilter(parseFilter('a=1'));
-    expect(u.href).toStrictEqual('http://localhost?filter=a=1');
-    u.setFilter();
-    expect(u.href).toStrictEqual('http://localhost');
-  })
-
-  it('Should set limit query param', () => {
-    const u = new OpraURL()
-      .setHostname('localhost')
-      .setLimit(5);
-    expect(u.href).toStrictEqual('http://localhost?limit=5');
-    u.setLimit();
-    expect(u.href).toStrictEqual('http://localhost');
-  })
-
-  it('Should set skip query param', () => {
-    const u = new OpraURL()
-      .setHostname('localhost')
-      .setSkip(5);
-    expect(u.href).toStrictEqual('http://localhost?skip=5');
-    u.setSkip();
-    expect(u.href).toStrictEqual('http://localhost');
-  })
-
-  it('Should set elements query param', () => {
-    const u = new OpraURL()
-      .setHostname('localhost')
-      .setElements('id', 'name');
-    expect(u.searchParams.get('elements')).toStrictEqual(['id', 'name']);
-    expect(u.href).toStrictEqual('http://localhost?elements=id,name');
-    u.setElements();
-    expect(u.href).toStrictEqual('http://localhost');
-  })
-
-  it('Should set exclude query param', () => {
-    const u = new OpraURL()
-      .setHostname('localhost')
-      .setExclude('id', 'name');
-    expect(u.searchParams.get('exclude')).toStrictEqual(['id', 'name']);
-    expect(u.href).toStrictEqual('http://localhost?exclude=id,name');
-    u.setExclude();
-    expect(u.href).toStrictEqual('http://localhost');
-  })
-
-  it('Should set include query param', () => {
-    const u = new OpraURL()
-      .setHostname('localhost')
-      .setInclude('id', 'name');
-    expect(u.searchParams.get('include')).toStrictEqual(['id', 'name']);
-    expect(u.href).toStrictEqual('http://localhost?include=id,name');
-    u.setInclude();
-    expect(u.href).toStrictEqual('http://localhost');
-  })
-
-  it('Should set distinct query param', () => {
-    const u = new OpraURL()
-      .setHostname('localhost')
-      .setDistinct(true);
-    expect(u.href).toStrictEqual('http://localhost?distinct=true');
-    u.setDistinct();
-    expect('' + u).toStrictEqual('http://localhost');
-  })
-
-  it('Should set total query param', () => {
-    const u = new OpraURL()
-      .setHostname('localhost')
-      .setTotal(true);
-    expect(u.href).toStrictEqual('http://localhost?total=true');
-    u.setTotal();
-    expect(u.href).toStrictEqual('http://localhost');
-  })
-
 
 })
 

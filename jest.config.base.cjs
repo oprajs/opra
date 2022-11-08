@@ -1,6 +1,7 @@
 module.exports = {
   testEnvironment: 'node',
   verbose: true,
+  maxWorkers: '50%',
   coveragePathIgnorePatterns: [
     '<rootDir>/build/',
     '<rootDir>/dist/',
@@ -15,7 +16,6 @@ module.exports = {
       isolatedModules: true
     }]
   },
-  maxWorkers: "50%",
   // transform: {
   //   '^.+ts?$': ['@swc-node/jest', {
   //     module: {

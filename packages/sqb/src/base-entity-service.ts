@@ -1,8 +1,7 @@
 import { Maybe, Type } from 'ts-gems';
-import { IEntityService, QueryContext } from '@opra/core';
+import { PartialInput, PartialOutput } from '@opra/core';
 import { BadRequestError } from '@opra/exception';
-import { EntityInput, EntityMetadata, EntityOutput, Repository, SqbClient, SqbConnection } from '@sqb/connect';
-import { SQBAdapter } from './sqb-adapter.js';
+import { EntityInput, EntityMetadata, Repository, SqbClient, SqbConnection } from '@sqb/connect';
 
 export namespace BaseEntityService {
   export type SearchOptions = Repository.FindAllOptions;
@@ -15,7 +14,7 @@ export namespace BaseEntityService {
   export type DeleteManyOptions = Repository.DestroyOptions;
 }
 
-export abstract class BaseEntityService<T> implements IEntityService {
+export abstract class BaseEntityService<T, TOutput = PartialOutput<T>> {
   protected _metadata: EntityMetadata;
 
   protected constructor(readonly resourceType: Type<T>) {
@@ -25,94 +24,11 @@ export abstract class BaseEntityService<T> implements IEntityService {
     this._metadata = metadata;
   }
 
-  async processRequest(ctx: QueryContext) {
-    const prepared = SQBAdapter.prepare(ctx.query);
-    switch (prepared.method) {
-      case 'create':
-        return this.create(prepared.values, prepared.options, ctx.userContext);
-      case 'count':
-        return this.count(prepared.options, ctx.userContext);
-      case 'destroy':
-        return this.delete(prepared.keyValue, prepared.options, ctx.userContext);
-      case 'destroyAll':
-        return this.deleteMany(prepared.options, ctx.userContext);
-      case 'findAll':
-        return this.search(prepared.options, ctx.userContext);
-      case 'findByPk':
-        return this.get(prepared.keyValue, prepared.options, ctx.userContext);
-      case 'update':
-        return this.update(prepared.keyValue, prepared.values, prepared.options, ctx.userContext);
-      case 'updateAll':
-        return this.updateMany(prepared.values, prepared.options, ctx.userContext);
-      default:
-        throw new TypeError(`Unimplemented method (${prepared.method})`)
-    }
-  }
-
-  async get(
-      keyValue: any,
-      options?: BaseEntityService.GetOptions,
-      userContext?: any
-  ): Promise<Maybe<EntityOutput<T>>> {
-    const conn = await this.getConnection(userContext);
-    const repo = conn.getRepository(this.resourceType);
-    let out;
-    try {
-      out = await repo.findByPk(keyValue, options);
-    } catch (e: any) {
-      await this._onError(e);
-      throw new BadRequestError(e);
-    }
-    if (out && this.onTransformRow)
-      out = this.onTransformRow(out, userContext, 'findByPk');
-    return out;
-  }
-
-  async count(
-      options?: BaseEntityService.SearchOptions,
-      userContext?: any
-  ): Promise<Maybe<number>> {
-    const conn = await this.getConnection(userContext);
-    const repo = conn.getRepository(this.resourceType);
-    try {
-      return await repo.count(options);
-    } catch (e: any) {
-      await this._onError(e);
-      throw new BadRequestError(e);
-    }
-  }
-
-  async search(
-      options?: BaseEntityService.SearchOptions,
-      userContext?: any
-  ): Promise<Maybe<EntityOutput<T>>[]> {
-    const conn = await this.getConnection(userContext);
-    const repo = conn.getRepository(this.resourceType);
-    let items: any[];
-    try {
-      items = await repo.findAll(options);
-    } catch (e: any) {
-      await this._onError(e);
-      throw new BadRequestError(e);
-    }
-
-    if (items.length && this.onTransformRow) {
-      const newItems: any[] = [];
-      for (const item of items) {
-        const v = this.onTransformRow(item, userContext, 'search');
-        if (v)
-          newItems.push(v);
-      }
-      return newItems;
-    }
-    return items;
-  }
-
   async create(
-      data: EntityInput<T>,
+      data: PartialInput<T>,
       options?: BaseEntityService.CreateOptions,
       userContext?: any
-  ): Promise<EntityOutput<T>> {
+  ): Promise<TOutput> {
     const conn = await this.getConnection(userContext);
     const repo = conn.getRepository(this.resourceType);
     let out;
@@ -127,40 +43,20 @@ export abstract class BaseEntityService<T> implements IEntityService {
     return out;
   }
 
-  async update(
-      keyValue: any,
-      data: EntityInput<T>,
-      options?: BaseEntityService.UpdateOptions,
-      userContext?: any
-  ): Promise<Maybe<EntityOutput<T>>> {
-    const conn = await this.getConnection(userContext);
-    const repo = conn.getRepository(this.resourceType);
-    let out;
-    try {
-      out = await repo.update(keyValue, data, options);
-    } catch (e: any) {
-      await this._onError(e);
-      throw new BadRequestError(e);
-    }
-    if (out && this.onTransformRow)
-      out = this.onTransformRow(out, userContext, 'create');
-    return out;
-  }
-
-  async updateMany(
-      data: EntityInput<T>,
-      options?: BaseEntityService.UpdateManyOptions,
+  async count(
+      options?: BaseEntityService.SearchOptions,
       userContext?: any
   ): Promise<number> {
     const conn = await this.getConnection(userContext);
     const repo = conn.getRepository(this.resourceType);
     try {
-      return await repo.updateAll(data, options);
+      return await repo.count(options);
     } catch (e: any) {
       await this._onError(e);
       throw new BadRequestError(e);
     }
   }
+
 
   async delete(
       keyValue: any,
@@ -191,6 +87,86 @@ export abstract class BaseEntityService<T> implements IEntityService {
     }
   }
 
+  async get(
+      keyValue: any,
+      options?: BaseEntityService.GetOptions,
+      userContext?: any
+  ): Promise<Maybe<TOutput>> {
+    const conn = await this.getConnection(userContext);
+    const repo = conn.getRepository(this.resourceType);
+    let out;
+    try {
+      out = await repo.findByPk(keyValue, options);
+    } catch (e: any) {
+      await this._onError(e);
+      throw new BadRequestError(e);
+    }
+    if (out && this.onTransformRow)
+      out = this.onTransformRow(out, userContext, 'findByPk');
+    return out;
+  }
+
+  async search(
+      options?: BaseEntityService.SearchOptions,
+      userContext?: any
+  ): Promise<TOutput[]> {
+    const conn = await this.getConnection(userContext);
+    const repo = conn.getRepository(this.resourceType);
+    let items: any[];
+    try {
+      items = await repo.findAll(options);
+    } catch (e: any) {
+      await this._onError(e);
+      throw new BadRequestError(e);
+    }
+
+    if (items.length && this.onTransformRow) {
+      const newItems: any[] = [];
+      for (const item of items) {
+        const v = this.onTransformRow(item, userContext, 'search');
+        if (v)
+          newItems.push(v);
+      }
+      return newItems;
+    }
+    return items;
+  }
+
+  async update(
+      keyValue: any,
+      data: EntityInput<T>,
+      options?: BaseEntityService.UpdateOptions,
+      userContext?: any
+  ): Promise<Maybe<TOutput>> {
+    const conn = await this.getConnection(userContext);
+    const repo = conn.getRepository(this.resourceType);
+    let out;
+    try {
+      out = await repo.update(keyValue, data, options);
+    } catch (e: any) {
+      await this._onError(e);
+      throw new BadRequestError(e);
+    }
+    if (out && this.onTransformRow)
+      out = this.onTransformRow(out, userContext, 'create');
+    return out;
+  }
+
+  async updateMany(
+      data: PartialInput<T>,
+      options?: BaseEntityService.UpdateManyOptions,
+      userContext?: any
+  ): Promise<number> {
+    const conn = await this.getConnection(userContext);
+    const repo = conn.getRepository(this.resourceType);
+    try {
+      return await repo.updateAll(data, options);
+    } catch (e: any) {
+      await this._onError(e);
+      throw new BadRequestError(e);
+    }
+  }
+
   private async _onError(e: unknown): Promise<void> {
     if (this.onError)
       await this.onError(e);
@@ -200,6 +176,6 @@ export abstract class BaseEntityService<T> implements IEntityService {
 
   protected onError?(e: unknown): void | Promise<void>;
 
-  protected onTransformRow?(row: EntityOutput<T>, userContext: any, method: string): EntityOutput<T>;
+  protected onTransformRow?(row: TOutput, userContext: any, method: string): TOutput;
 
 }

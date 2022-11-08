@@ -18,7 +18,7 @@
     "postbuild": "npm run _copyi18n && npm run _copy_pkg_files",
     "_copy_pkg_files": "cp README.md package.json ../../LICENSE ../../build/core && cp ../../package.cjs.json ../../build/core/cjs/package.json",
     "_copyi18n": "cp -R i18n ../../build/core/i18n",
-    "lint": "eslint .",
+    "lint": "eslint . --max-warnings=0",
     "test": "jest",
     "cover": "jest --collect-coverage",
     "clean": "npm run clean:src && npm run clean:dist && npm run clean:cover",
@@ -27,24 +27,26 @@
     "clean:cover": "rimraf ../../coverage/core"
   },
   "dependencies": {
+    "@nano-sql/core": "^2.3.7",
+    "@opra/common": "^0.3.0",
     "@opra/exception": "^0.3.0",
     "@opra/i18n": "^0.3.0",
     "@opra/optionals": "^0.3.0",
     "@opra/schema": "^0.3.0",
     "@opra/url": "^0.3.0",
-    "@nano-sql/core": "^2.3.7",
-    "express": "^4.18.1",
+    "axiosist": "^1.0.0",
     "body-parser": "^1.20.1",
+    "express": "^4.18.2",
     "lodash": "^4.17.21",
     "putil-isplainobject": "^1.1.4",
-    "putil-varhelpers": "^1.6.4",
     "putil-merge": "^3.9.0",
-    "strict-typed-events": "^2.2.0",
-    "ts-gems": "^2.2.0"
+    "putil-varhelpers": "^1.6.4",
+    "strict-typed-events": "^2.3.1",
+    "ts-gems": "^2.3.0"
   },
   "devDependencies": {
-    "@types/express": "^4.17.14",
-    "@faker-js/faker": "^7.5.0"
+    "@faker-js/faker": "^7.6.0",
+    "@types/express": "^4.17.14"
   },
   "type": "module",
   "types": "esm/index.d.ts",

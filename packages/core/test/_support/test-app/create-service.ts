@@ -1,16 +1,15 @@
-import { OpraApi } from '@opra/schema';
-import { Country } from './entities/country.entity.js';
-import { countriesResource } from './resource/countries.resource.js';
+import { OpraDocument } from '@opra/schema';
+import { BestCustomerResource } from './resource/best-customer.resource.js';
+import { CountriesResource } from './resource/countries.resource.js';
 import { CustomerNotesResource } from './resource/customer-notes.resource.js';
 import { CustomersResource } from './resource/customers.resource.js';
 
-export async function createTestService() {
-  return OpraApi.create({
+export async function createTestDocument() {
+  return OpraDocument.create({
     info: {
       title: 'TestApi',
       version: 'v1',
     },
-    types: [Country],
-    resources: [countriesResource, new CustomersResource(), new CustomerNotesResource()]
+    resources: [CountriesResource, CustomersResource, CustomerNotesResource, BestCustomerResource]
   });
 }

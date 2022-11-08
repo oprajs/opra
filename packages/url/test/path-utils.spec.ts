@@ -57,7 +57,7 @@ describe('Path utils', function () {
     })
 
     it('Should validate', () => {
-      expect(() => decodePathComponent('/Person@a')).toThrow('Invalid');
+      expect(() => decodePathComponent('/Person:a')).toThrow('Invalid');
     })
   })
 

@@ -1,4 +1,4 @@
-import { ComparisonExpression, IntegerFormat, OpraURL } from '../src/index.js';
+import { IntegerFormat, OpraURL } from '../src/index.js';
 
 describe('Parse url string', () => {
 
@@ -81,6 +81,18 @@ describe('Parse url string', () => {
     expect(u.href).toStrictEqual('/Person@id=' + encodeURIComponent('abc=/\\?# x'));
   })
 
+  it('Should parse path with type casting', () => {
+    const u = new OpraURL('/Person::CustomerPerson');
+    expect(u.path.get(0)).toEqual({resource: 'Person',typeCast: 'CustomerPerson'});
+    expect(u.href).toStrictEqual('/Person::CustomerPerson');
+  })
+
+  it('Should parse path with key and type casting', () => {
+    const u = new OpraURL('/Person@1::CustomerPerson');
+    expect(u.path.get(0)).toEqual({resource: 'Person', key: '1', typeCast: 'CustomerPerson'});
+    expect(u.href).toStrictEqual('/Person@1::CustomerPerson');
+  })
+
   it('Should throw if url is invalid', () => {
     expect(() => new OpraURL('Person@id=1;2')).toThrow('Invalid URL');
     expect(() => new OpraURL('http:Person@id=1;2')).toThrow('Invalid URL');
@@ -101,87 +113,12 @@ describe('Parse url string', () => {
   })
 
   it('Should parse hash part', () => {
-    const u = new OpraURL('http://anyuri.com/Person#h1#h2');
+    let u = new OpraURL('http://anyuri.com/Person#h1#h2');
     expect(u.hash).toStrictEqual('#h1#h2');
     expect(u.href).toStrictEqual('http://anyuri.com/Person#h1#h2');
-  })
-
-  it('Should set parse "$filter" as Filter', () => {
-    const u = new OpraURL('/Person?$filter=a=1');
-    expect(u.searchParams.get('$filter')).toBeInstanceOf(ComparisonExpression);
-  })
-
-  it('Should set parse "$limit" as number', () => {
-    const u = new OpraURL('/Person?$limit=10');
-    expect(u.searchParams.get('$limit')).toStrictEqual(10);
-  })
-
-  it('Should set parse "$skip" as number', () => {
-    const u = new OpraURL('/Person?$skip=2');
-    expect(u.searchParams.get('$skip')).toStrictEqual(2);
-  })
-
-  it('Should set parse "$pick" as string array if has multiple values', () => {
-    let u = new OpraURL('/Person?$pick=id,name,age');
-    expect(u.searchParams.get('$pick')).toStrictEqual(['id', 'name', 'age']);
-    u = new OpraURL('/Person?$pick=id');
-    expect(u.searchParams.get('$pick')).toStrictEqual(['id']);
-  })
-
-  it('Should set parse "$omit" as string array if has multiple values', () => {
-    let u = new OpraURL('/Person?$omit=id,name,age');
-    expect(u.searchParams.get('$omit')).toStrictEqual(['id', 'name', 'age']);
-    u = new OpraURL('/Person?$omit=id');
-    expect(u.searchParams.get('$omit')).toStrictEqual(['id']);
-  })
-
-  it('Should set parse "$include" as string array if has multiple values', () => {
-    let u = new OpraURL('/Person?$include=id,name,age');
-    expect(u.searchParams.get('$include')).toStrictEqual(['id', 'name', 'age']);
-    u = new OpraURL('/Person?$include=id');
-    expect(u.searchParams.get('$include')).toStrictEqual(['id']);
-  })
-
-  it('Should set parse "$distinct" as boolean', () => {
-    let u = new OpraURL('/Person?$distinct');
-    expect(u.searchParams.get('$distinct')).toStrictEqual(true);
-    u = new OpraURL('/Person?$distinct=t');
-    expect(u.searchParams.get('$distinct')).toStrictEqual(true);
-    u = new OpraURL('/Person?$distinct=1');
-    expect(u.searchParams.get('$distinct')).toStrictEqual(true);
-    u = new OpraURL('/Person?$distinct=yes');
-    expect(u.searchParams.get('$distinct')).toStrictEqual(true);
-    u = new OpraURL('/Person?$distinct=y');
-    expect(u.searchParams.get('$distinct')).toStrictEqual(true);
-    u = new OpraURL('/Person?$distinct=false');
-    expect(u.searchParams.get('$distinct')).toStrictEqual(false);
-    u = new OpraURL('/Person?$distinct=f');
-    expect(u.searchParams.get('$distinct')).toStrictEqual(false);
-    u = new OpraURL('/Person?$distinct=0');
-    expect(u.searchParams.get('$distinct')).toStrictEqual(false);
-    u = new OpraURL('/Person?$distinct=n');
-    expect(u.searchParams.get('$distinct')).toStrictEqual(false);
-  })
-
-  it('Should set parse "$count" as boolean', () => {
-    let u = new OpraURL('/Person?$count');
-    expect(u.searchParams.get('$count')).toStrictEqual(true);
-    u = new OpraURL('/Person?$count=t');
-    expect(u.searchParams.get('$count')).toStrictEqual(true);
-    u = new OpraURL('/Person?$count=1');
-    expect(u.searchParams.get('$count')).toStrictEqual(true);
-    u = new OpraURL('/Person?$count=yes');
-    expect(u.searchParams.get('$count')).toStrictEqual(true);
-    u = new OpraURL('/Person?$count=y');
-    expect(u.searchParams.get('$count')).toStrictEqual(true);
-    u = new OpraURL('/Person?$count=false');
-    expect(u.searchParams.get('$count')).toStrictEqual(false);
-    u = new OpraURL('/Person?$count=f');
-    expect(u.searchParams.get('$count')).toStrictEqual(false);
-    u = new OpraURL('/Person?$count=0');
-    expect(u.searchParams.get('$count')).toStrictEqual(false);
-    u = new OpraURL('/Person?$count=n');
-    expect(u.searchParams.get('$count')).toStrictEqual(false);
+    u = new OpraURL('http://localhost:3001/svc1/$metadata#types[name=\'Address\']');
+    expect(u.hash).toStrictEqual('#types[name=\'Address\']');
+    expect(u.href).toStrictEqual('http://localhost:3001/svc1/$metadata#types[name=\'Address\']');
   })
 
   it('Should set register custom parameter', () => {

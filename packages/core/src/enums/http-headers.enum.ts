@@ -8,7 +8,7 @@ export enum HttpHeaders {
 
   /* *** Custom Headers *** */
   X_Opra_Version = 'X-Opra-Version',
-  X_Opra_Schema = 'X-Opra-Schema',
+  X_Opra_DataType = 'X-Opra-DataType',
   X_Opra_Count = 'X-Opra-Count',
 
 

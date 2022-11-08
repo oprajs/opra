@@ -1,30 +1,42 @@
-import { OpraCountCollectionQuery } from './count-collection-query.js';
-import { OpraCreateInstanceQuery } from './create-instance.query.js';
-import { OpraDeleteCollectionQuery } from './delete-collection-query.js';
-import { OpraDeleteInstanceQuery } from './delete-instance-query.js';
-import { OpraGetFieldQuery } from './get-field-query.js';
-import { OpraGetInstanceQuery } from './get-instance-query.js';
-import { OpraGetMetadataQuery } from './get-schema-query.js';
-import { OpraSearchCollectionQuery } from './search-collection-query.js';
-import { OpraUpdateCollectionQuery } from './update-collection-query.js';
-import { OpraUpdateInstanceQuery } from './update-instance-query.js';
+import { IChildFieldQuery } from '../../interfaces/child-field-query.interface.js';
+import { CollectionCountQuery } from './collection-count-query.js';
+import { CollectionCreateQuery } from './collection-create-query.js';
+import { CollectionDeleteManyQuery } from './collection-delete-many-query.js';
+import { CollectionDeleteQuery } from './collection-delete-query.js';
+import { CollectionGetQuery } from './collection-get-query.js';
+import { CollectionSearchQuery } from './collection-search-query.js';
+import { CollectionUpdateManyQuery } from './collection-update-many-query.js';
+import { CollectionUpdateQuery } from './collection-update-query.js';
+import { FieldGetQuery } from './field-get-query.js';
+import { SingletonGetQuery } from './singleton-get-query.js';
 
-export * from './create-instance.query.js';
-export * from './count-collection-query.js';
-export * from './delete-collection-query.js';
-export * from './delete-instance-query.js';
-export * from './delete-collection-query.js';
-export * from './get-instance-query.js';
-export * from './get-field-query.js';
-export * from './get-schema-query.js';
-export * from './search-collection-query.js';
-export * from './update-collection-query.js';
-export * from './update-instance-query.js';
+export * from './collection-create-query.js';
+export * from './collection-count-query.js';
+export * from './collection-delete-many-query.js';
+export * from './collection-delete-query.js';
+export * from './collection-delete-many-query.js';
+export * from './collection-get-query.js';
+export * from './field-get-query.js';
+export * from './singleton-get-query.js';
+export * from './collection-search-query.js';
+export * from './collection-update-many-query.js';
+export * from './collection-update-query.js';
 
-export type OpraAnyEntityQuery = OpraCreateInstanceQuery | OpraCountCollectionQuery |
-    OpraDeleteInstanceQuery | OpraDeleteCollectionQuery |
-    OpraGetInstanceQuery | OpraGetFieldQuery |
-    OpraSearchCollectionQuery | OpraUpdateCollectionQuery | OpraUpdateInstanceQuery;
+export type CollectionQuery =
+    CollectionCountQuery | CollectionCreateQuery |
+    CollectionDeleteManyQuery | CollectionDeleteQuery |
+    CollectionGetQuery | CollectionSearchQuery |
+    CollectionUpdateManyQuery | CollectionUpdateQuery;
 
-export type OpraAnyQuery = OpraAnyEntityQuery | OpraGetMetadataQuery;
+export type FieldQuery = FieldGetQuery;
 
+export type SingletonQuery = SingletonGetQuery;
+
+export type OpraQuery = CollectionQuery | SingletonQuery | FieldQuery;
+
+export function isChildFieldQuery(query: any): query is IChildFieldQuery {
+  return query &&
+      (query.kind === 'SingletonGetQuery' ||
+          query.kind === 'CollectionGetQuery' ||
+          query.kind === 'FieldGetQuery');
+}

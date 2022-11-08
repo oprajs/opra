@@ -2,7 +2,7 @@ import { Inject, Logger } from '@nestjs/common';
 import { ApplicationConfig, HttpAdapterHost } from '@nestjs/core';
 import { Module } from '@nestjs/core/injector/module.js';
 import { OpraAdapter, OpraExpressAdapter } from '@opra/core';
-import { OpraApi } from '@opra/schema';
+import { OpraDocument } from '@opra/schema';
 import { joinPath, normalizePath } from '@opra/url';
 import { OPRA_MODULE_OPTIONS } from '../constants.js';
 import { OpraApiFactory } from '../factories/opra-api.factory.js';
@@ -66,7 +66,7 @@ export class OpraApiLoader {
     //
   }
 
-  protected async registerExpress(service: OpraApi, moduleOptions: OpraModuleOptions) {
+  protected async registerExpress(service: OpraDocument, moduleOptions: OpraModuleOptions) {
     const httpAdapter = this.httpAdapterHost.httpAdapter;
     if (!httpAdapter)
       return;

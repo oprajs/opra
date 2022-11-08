@@ -5,6 +5,9 @@
     "module": "CommonJS",
     "rootDir": "src",
     "outDir": "../../build/url/cjs",
+    "paths": {
+      "@opra/*": ["../../build/*"]
+    },
     "sourceMap": false,
     "noEmit": false,
     "declaration": false,

@@ -18,7 +18,7 @@
     "clean:cover": "rimraf ../../coverage/optionals"
   },
   "devDependencies": {
-    "@nestjs/common": "^9.0.11",
+    "@nestjs/common": "^9.1.4",
     "class-validator": "^0.13.2"
   },
   "type": "module",

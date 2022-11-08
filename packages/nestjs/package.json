@@ -29,19 +29,19 @@
     "@opra/i18n": "^0.3.0",
     "@opra/schema": "^0.3.0",
     "@opra/url": "^0.3.0",
-    "fast-tokenizer": "^1.1.0",
+    "fast-tokenizer": "^1.2.0",
     "lodash": "^4.17.21",
     "reflect-metadata": "^0.1.13"
   },
   "peerDependencies": {
-    "@nestjs/common": "^9.0.11"
+    "@nestjs/common": "^9.1.4"
   },
   "devDependencies": {
-    "@nestjs/platform-express": "^9.0.11",
-    "@nestjs/testing": "^9.0.11",
-    "@types/lodash": "^4.14.185",
+    "@nestjs/platform-express": "^9.1.4",
+    "@nestjs/testing": "^9.1.4",
+    "@types/lodash": "^4.14.186",
     "filedirname": "^2.7.0",
-    "supertest": "^6.2.4"
+    "supertest": "^6.3.0"
   },
   "type": "module",
   "types": "esm/index.d.ts",

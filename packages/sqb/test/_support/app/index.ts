@@ -1,9 +1,8 @@
 import '@sqb/postgres';
 import express from 'express';
 import { OpraExpressAdapter } from '@opra/core';
-import { OpraApi } from '@opra/schema';
+import { OpraDocument } from '@opra/schema';
 import { SqbClient } from '@sqb/connect';
-import { createTestSchema } from '../create-db.js';
 import { CountriesResource } from './resources/countries.resource.js';
 import { CustomersResource } from './resources/customers.resource.js';
 
@@ -20,17 +19,16 @@ export * from './entities/record.entity.js';
 
 export interface TestApp {
   db: SqbClient;
-  api: OpraApi;
+  api: OpraDocument;
   server: express.Express
 }
 
 export async function createApp(): Promise<TestApp> {
-  await createTestSchema();
   const db = new SqbClient({
     dialect: 'postgres',
     schema: 'opra_test'
   })
-  const api = await OpraApi.create({
+  const api = await OpraDocument.create({
     info: {
       title: 'TestApi',
       version: 'v1',

@@ -1,5 +1,5 @@
 import { splitString, tokenize } from 'fast-tokenizer';
-import { Expression } from './filter/ast/index.js';
+import { IntegerFormat } from './formats/integer-format.js';
 import { nodeInspectCustom, ResourceKey } from './types.js';
 import { OpraURLPath } from './url-path.js';
 import { OpraURLSearchParams, QueryItemMetadata } from './url-search-params.js';
@@ -50,6 +50,15 @@ export class OpraURL {
       value: new OpraURLSearchParams()
     });
     this.searchParams.on('change', () => this._invalidate());
+    this.searchParams.defineParam('$filter', {format: 'filter'});
+    this.searchParams.defineParam('$limit', {format: new IntegerFormat({min: 0})});
+    this.searchParams.defineParam('$skip', {format: new IntegerFormat({min: 0})});
+    this.searchParams.defineParam('$pick', {format: 'string', array: 'strict'});
+    this.searchParams.defineParam('$omit', {format: 'string', array: 'strict'});
+    this.searchParams.defineParam('$include', {format: 'string', array: 'strict'});
+    this.searchParams.defineParam('$sort', {format: 'string', array: 'strict'});
+    this.searchParams.defineParam('$distinct', {format: 'boolean'});
+    this.searchParams.defineParam('$count', {format: 'boolean'});
     this.path.on('change', () => this._invalidate());
     if (pathPrefix)
       this.setPrefix(pathPrefix);
@@ -57,19 +66,23 @@ export class OpraURL {
       this.parse(input);
   }
 
-  get href(): string {
+  get address(): string {
     this._update();
-    return (this.hostname ? (
-                this.protocol + '//' +
-                (this.username || this.password
-                    ? (
-                        (this.username ? encodeURIComponent(this.username) : '') +
-                        (this.password ? ':' + encodeURIComponent(this.password) : '') + '@'
-                    )
-                    : '') + this.host
-            ) : ''
-        ) +
-        this.pathPrefix + this.pathname + this.search + this.hash;
+    let out = '';
+    if (this.hostname) {
+      out += this.protocol + '//' +
+          (this.username || this.password
+              ? (
+                  (this.username ? encodeURIComponent(this.username) : '') +
+                  (this.password ? ':' + encodeURIComponent(this.password) : '') + '@'
+              )
+              : '') + this.host;
+    }
+    return out + this.pathPrefix + this.pathname;
+  }
+
+  get href(): string {
+    return this.address + this.search + this.hash;
   }
 
   get protocol(): string {
@@ -254,72 +267,6 @@ export class OpraURL {
     return this;
   }
 
-  setFilter(v?: string | Expression): this {
-    if (v == null)
-      this.searchParams.delete('filter');
-    else {
-      this.searchParams.set('filter', v);
-    }
-    return this;
-  }
-
-  setLimit(v?: number | null): this {
-    if (v == null)
-      this.searchParams.delete('limit');
-    else
-      this.searchParams.set('limit', v);
-    return this;
-  }
-
-  setSkip(v?: number | null): this {
-    if (v == null)
-      this.searchParams.delete('skip');
-    else
-      this.searchParams.set('skip', v);
-    return this;
-  }
-
-  setElements(...v: string[]): this {
-    if (!v.length)
-      this.searchParams.delete('elements');
-    else
-      this.searchParams.set('elements', v);
-    return this;
-  }
-
-  setExclude(...v: string[]): this {
-    if (!v.length)
-      this.searchParams.delete('exclude');
-    else
-      this.searchParams.set('exclude', v);
-    return this;
-  }
-
-  setInclude(...v: string[]): this {
-    if (!v.length)
-      this.searchParams.delete('include');
-    else
-      this.searchParams.set('include', v);
-    return this;
-  }
-
-  setDistinct(v?: boolean | null): this {
-    if (v == null)
-      this.searchParams.delete('distinct');
-    else
-      this.searchParams.set('distinct', v);
-    return this;
-  }
-
-  setTotal(v?: boolean | null): this {
-    if (v == null)
-      this.searchParams.delete('total');
-    else
-      this.searchParams.set('total', v);
-    return this;
-  }
-
-
   parse(input: string): this {
     const m = urlRegEx.exec(input);
     if (!m)
@@ -344,6 +291,7 @@ export class OpraURL {
     this.hash = tokenizer.join('#');
     tokenizer = tokenize(input, {delimiters: '?', quotes: true, brackets: true});
     this._setPathname(tokenizer.next() || '', true);
+    // this.path.join()
     this.searchParams.clear();
     this.searchParams.parse(tokenizer.join('&'));
     return this;

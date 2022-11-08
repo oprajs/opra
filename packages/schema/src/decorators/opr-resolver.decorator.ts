@@ -1,12 +1,13 @@
 import { RESOLVER_METADATA } from '../constants.js';
 import {
-  ICreateResolverMetadata, IDeleteManyResolverMetadata,
+  ICreateResolverMetadata,
+  IDeleteManyResolverMetadata,
   IDeleteResolverMetadata,
   IGetResolverMetadata,
   ISearchResolverMetadata,
   IUpdateManyResolverMetadata,
   IUpdateResolverMetadata
-} from '../interfaces/metadata/opr-resolver.metadata.js';
+} from '../interfaces/resource.metadata.js';
 
 export function OprCreateResolver(options?: ICreateResolverMetadata) {
   return (target: Object, propertyKey: 'create'): void => {

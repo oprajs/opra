@@ -1,12 +1,12 @@
 import _ from 'lodash';
-import { OpraAnyQuery } from '@opra/schema';
+import { OpraQuery } from '@opra/schema';
 import { Repository } from '@sqb/connect';
 import type { BaseEntityService } from './base-entity-service';
 import { convertFilter } from './convert-filter.js';
 
 export namespace SQBAdapter {
 
-  export function prepare(query: OpraAnyQuery): {
+  export function prepare(query: OpraQuery): {
     method: 'create' | 'count' | 'findByPk' | 'findAll' | 'update' | 'updateAll' | 'destroy' | 'destroyAll';
     options: any,
     keyValue?: any;
@@ -39,7 +39,7 @@ export namespace SQBAdapter {
         };
       }
       case 'get': {
-        if (query.kind === 'GetInstanceQuery') {
+        if (query.kind === 'CollectionGetQuery') {
           const options: Repository.FindOneOptions = _.omitBy({
             pick: query.pick?.length ? query.pick : undefined,
             omit: query.omit?.length ? query.omit : undefined,

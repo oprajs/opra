@@ -1,11 +1,11 @@
-import { CollectionResourceController, IEntityService } from '@opra/core';
 import { OprCollectionResource, OprSearchResolver } from '@opra/schema';
 import { SqbClient } from '@sqb/connect';
+import { BaseEntityResource, BaseEntityService } from '../../../../src/index.js';
 import { Customer } from '../entities/customer.entity.js';
 import { CustomerService } from '../services/customer.service.js';
 
 @OprCollectionResource(Customer)
-export class CustomersResource extends CollectionResourceController<Customer> {
+export class CustomersResource extends BaseEntityResource<Customer> {
   readonly customersService: CustomerService;
 
   constructor(readonly db: SqbClient) {
@@ -18,7 +18,7 @@ export class CustomersResource extends CollectionResourceController<Customer> {
   })
   search;
 
-  getService(): IEntityService {
+  getService(): BaseEntityService<Customer> {
     return this.customersService;
   }
 

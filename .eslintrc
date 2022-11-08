@@ -201,7 +201,8 @@
         "prefer-rest-params": 0,
         "require-jsdoc": 0,
         "quotes": 0,
-        "indent": 0
+        "indent": 0,
+        "new-cap": 0
       }
     }
   ]

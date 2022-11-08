@@ -1,13 +1,13 @@
-import { opraTestClient, OpraTester } from '@opra/testing';
+import { OpraTestClient } from '@opra/testing';
 import { createApp, TestApp } from '../_support/app/index.js';
 
 describe('e2e: get', function () {
   let app: TestApp;
-  let client: OpraTester;
+  let client: OpraTestClient;
 
   beforeAll(async () => {
     app = await createApp();
-    client = opraTestClient(app.server);
+    client = await OpraTestClient.create(app.server);
   });
 
   afterAll(async () => {
@@ -15,9 +15,8 @@ describe('e2e: get', function () {
   })
 
   it('Should return object', async () => {
-    const resp = await client.entity('Customers')
-        .get(1)
-        .send();
+    const resp = await client.collection('Customers')
+        .get(1);
     resp.expect
         .toSuccess()
         .toReturnObject()
@@ -25,8 +24,8 @@ describe('e2e: get', function () {
   });
 
   it('Should return object', async () => {
-    const resp = await client.entity('Customers')
-        .get(1).send();
+    const resp = await client.collection('Customers')
+        .get(1);
     resp.expect
         .toSuccess()
         .toReturnObject()
@@ -34,47 +33,43 @@ describe('e2e: get', function () {
   })
 
   it('Should not send exclusive fields (unless not included for resolver)', async () => {
-    const resp = await client.entity('Customers')
-        .get(1)
-        .send();
+    const resp = await client.collection('Customers')
+        .get(1);
     resp.expect
         .toSuccess()
         .toReturnObject()
-        .notToContainKeys(['address', 'notes']);
+        .not.toHaveFields(['address', 'notes']);
   })
 
   it('Should pick fields to be returned', async () => {
-    const resp = await client.entity('Customers')
+    const resp = await client.collection('Customers')
         .get(1)
-        .pick('id', 'givenName')
-        .send();
+        .pick('id', 'givenName');
     resp.expect
         .toSuccess()
         .toReturnObject()
-        .toContainKeys(['id', 'givenName']);
+        .toHaveFields(['id', 'givenName']);
   })
 
   it('Should omit fields to be returned', async () => {
-    const resp = await client.entity('Customers')
+    const resp = await client.collection('Customers')
         .get(1)
-        .omit('id', 'givenName')
-        .send();
+        .omit('id', 'givenName');
     resp.expect
         .toSuccess()
         .toReturnObject()
-        .notToContainKeys(['id', 'givenName']);
+        .not.toHaveFields(['id', 'givenName']);
   })
 
   it('Should include exclusive fields if requested', async () => {
-    const resp = await client.entity('Customers')
-        .get(1)
-        .include('notes')
-        .send();
+    const resp = await client.collection('Customers')
+        .get(2)
+        .include('notes');
     resp.expect
         .toSuccess()
         .toReturnObject()
-        .toContainKeys(['notes']);
-    expect(resp.body.notes).toBeArray();
+        .toHaveFields(['notes']);
+    expect(resp.data.notes).toBeArray();
   })
 
 });

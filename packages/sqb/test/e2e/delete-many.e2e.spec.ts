@@ -1,13 +1,13 @@
-import { opraTestClient, OpraTester } from '@opra/testing';
+import { OpraTestClient } from '@opra/testing';
 import { createApp, TestApp } from '../_support/app/index.js';
 
 describe('e2e: deleteMany', function () {
   let app: TestApp;
-  let client: OpraTester;
+  let client: OpraTestClient;
 
   beforeAll(async () => {
     app = await createApp();
-    client = opraTestClient(app.server);
+    client = await OpraTestClient.create(app.server);
   });
 
   afterAll(async () => {
@@ -15,16 +15,15 @@ describe('e2e: deleteMany', function () {
   })
 
   it('Should delete many instances by filter', async () => {
-    let resp = await client.entity('Customers')
+    let resp = await client.collection('Customers')
         .deleteMany()
-        .filter('id=102')
-        .send();
+        .filter('id=102');
     resp.expect
         .toSuccess()
         .toReturnOperationResult()
         .toBeAffectedExact(1);
-    resp = await client.entity('Customers')
-        .get(102).send();
+    resp = await client.collection('Customers')
+        .get(102);
     resp.expect
         .toFail(404);
   })

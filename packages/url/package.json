@@ -11,12 +11,13 @@
   },
   "scripts": {
     "compile": "tsc",
-    "prebuild": "npm run lint && npm run clean",
+    "prebuild": "npm run check && npm run lint && npm run clean",
     "build": "npm run build:esm && npm run build:cjs",
     "build:esm": "tsc -b tsconfig-build-esm.json",
     "build:cjs": "tsc -b tsconfig-build-cjs.json",
     "postbuild": "cp README.md package.json ../../LICENSE ../../build/url && cp ../../package.cjs.json ../../build/url/cjs/package.json",
     "lint": "eslint .",
+    "check": "madge --circular src/**",
     "test": "jest",
     "cover": "jest --collect-coverage",
     "clean": "npm run clean:src && npm run clean:dist && npm run clean:cover",
@@ -26,12 +27,13 @@
     "antlr": "antlr4ts -visitor -no-listener src/filter/antlr/OpraFilter.g4"
   },
   "dependencies": {
+    "@opra/common": "^0.3.0",
     "antlr4ts": "^0.5.0-alpha.4",
-    "fast-tokenizer": "^1.1.0",
-    "luxon": "^3.0.3"
+    "fast-tokenizer": "^1.2.0",
+    "luxon": "^3.0.4"
   },
   "devDependencies": {
-    "@types/luxon": "^3.0.1",
+    "@types/luxon": "^3.0.2",
     "antlr4ts-cli": "^0.5.0-alpha.4"
   },
   "type": "module",

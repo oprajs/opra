@@ -1,21 +1,49 @@
 import {
-  CollectionResource,
-  OpraResource,
+  CollectionResourceInfo,
   OprCollectionResource,
-  OprDeleteResolver,
   OprSearchResolver
 } from '@opra/schema';
-import { CollectionResourceController, IEntityService, JsonCollectionService } from '../../../../src/index.js';
+import { JsonCollectionService, QueryContext } from '../../../../src/index.js';
+import { ICollectionResource } from '../../../../src/interfaces/resource.interface.js';
 import { customersData } from '../data/customers.data.js';
 import { Customer } from '../entities/customer.entity.js';
+import { CustomerNotes } from '../entities/customer-notes.entity.js';
 
 @OprCollectionResource(Customer, {
   description: 'Customer resource',
   keyFields: 'id'
 })
-export class CustomersResource extends CollectionResourceController<Customer> {
+export class CustomersResource implements ICollectionResource<CustomerNotes> {
 
-  customersService: JsonCollectionService<Customer>;
+  service: JsonCollectionService<Customer>;
+
+  create(ctx: QueryContext, data, options: any) {
+    return this.service.create(data, options);
+  }
+
+  get(ctx: QueryContext, keyValue, options: any) {
+    return this.service.get(keyValue, options);
+  }
+
+  count(ctx: QueryContext, options: any) {
+    return this.service.count(options);
+  }
+
+  delete(ctx: QueryContext, keyValue: any) {
+    return this.service.delete(keyValue);
+  }
+
+  deleteMany(ctx: QueryContext, options: any) {
+    return this.service.deleteMany(options);
+  }
+
+  update(ctx: QueryContext, keyValue, data, options) {
+    return this.service.update(keyValue, data, options);
+  }
+
+  updateMany(ctx: QueryContext, data, options) {
+    return this.service.updateMany(data, options);
+  }
 
   @OprSearchResolver({
     sortFields: ['id', 'givenName', 'familyName', 'gender', 'birthDate'],
@@ -27,18 +55,14 @@ export class CustomersResource extends CollectionResourceController<Customer> {
       {field: 'vip'},
     ]
   })
-  search;
+  search(ctx: QueryContext, options: any) {
+    return this.service.search(options);
+  }
 
-  @OprDeleteResolver()
-  delete;
-
-  init(resource: OpraResource) {
-    this.customersService = new JsonCollectionService<Customer>(resource as CollectionResource,
+  init(resource: CollectionResourceInfo) {
+    this.service = new JsonCollectionService<Customer>(resource,
         {resourceName: 'Customers', data: customersData});
   }
 
-  getService(): IEntityService {
-    return this.customersService;
-  }
 
 }

@@ -10,7 +10,7 @@ describe('OpraURLPath', () => {
       expect(path.get(0)).toEqual({resource: 'Person'});
     })
 
-    it('Should add path component with key', () => {
+    it('Should add path component with "key"', () => {
       const path = new OpraURLPath();
       path.add('Person', '1');
       expect(path.get(0)).toEqual({resource: 'Person', key: '1'});
@@ -23,7 +23,17 @@ describe('OpraURLPath', () => {
       path.add(new OpraURLPathComponent('Person', '1'));
       expect(path.get(0)).toEqual({resource: 'Person', key: '1'});
       expect(path.toString()).toStrictEqual('Person@1');
+    })
+
+    it('Should add path component with "typeCast"', () => {
+      const path = new OpraURLPath();
+      path.add('Person', undefined, 'RunningPerson');
+      expect(path.get(0)).toEqual({resource: 'Person', key: undefined, typeCast: 'RunningPerson'});
+      expect(path.toString()).toStrictEqual('Person::RunningPerson');
       path.clear();
+      path.add('Person', 1, 'RunningPerson');
+      expect(path.get(0)).toEqual({resource: 'Person', key: 1, typeCast: 'RunningPerson'});
+      expect(path.toString()).toStrictEqual('Person@1::RunningPerson');
     })
 
     it('Should be iterable', () => {

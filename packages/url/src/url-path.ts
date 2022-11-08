@@ -1,6 +1,7 @@
-import {EventEmitter} from 'events';
-import {nodeInspectCustom, ResourceKey} from './types.js';
-import {encodePathComponent} from './utils/url-utils.js';
+import { EventEmitter } from 'events';
+import { tokenize } from 'fast-tokenizer';
+import { nodeInspectCustom, ResourceKey } from './types.js';
+import { decodePathComponent, encodePathComponent, normalizePath } from './utils/url-utils.js';
 
 export class OpraURLPath extends EventEmitter {
   private _entries: OpraURLPathComponent[] = [];
@@ -13,15 +14,15 @@ export class OpraURLPath extends EventEmitter {
     return this._entries.length;
   }
 
-  add(component: OpraURLPathComponent | { resource: string; key?: ResourceKey }): void
-  add(name: string, key?: ResourceKey): void
-  add(component: any, key?: ResourceKey): void {
+  add(component: OpraURLPathComponent | { resource: string; key?: ResourceKey, typeCast?: string }): void
+  add(name: string, key?: ResourceKey, typeCast?: string): void
+  add(component: any, key?: ResourceKey, typeCast?: string): void {
     if (component instanceof OpraURLPathComponent) {
       this._entries.push(component);
     } else if (typeof component === 'object')
-      this._entries.push(new OpraURLPathComponent(component.resource, component.key));
+      this._entries.push(new OpraURLPathComponent(component.resource, component.key, component.typeCast));
     else
-      this._entries.push(new OpraURLPathComponent(component, key));
+      this._entries.push(new OpraURLPathComponent(component, key, typeCast));
     this.emit('change');
   }
 
@@ -32,6 +33,17 @@ export class OpraURLPath extends EventEmitter {
 
   get(index: number): OpraURLPathComponent {
     return this._entries[index];
+  }
+
+  join(pathString: string): this {
+    const pathTokenizer = tokenize(normalizePath(pathString, true), {
+      delimiters: '/', quotes: true, brackets: true,
+    });
+    for (const x of pathTokenizer) {
+      const p = decodePathComponent(x);
+      this.add(p);
+    }
+    return this;
   }
 
   entries(): IterableIterator<[OpraURLPathComponent, number]> {
@@ -100,11 +112,11 @@ export class OpraURLPath extends EventEmitter {
 }
 
 export class OpraURLPathComponent {
-  constructor(public resource: string, public key?: ResourceKey) {
+  constructor(public resource: string, public key?: ResourceKey, public typeCast?: string) {
   }
 
   toString() {
-    const obj = encodePathComponent(this.resource, this.key);
+    const obj = encodePathComponent(this.resource, this.key, this.typeCast);
     if (obj)
       Object.setPrototypeOf(obj, OpraURLPathComponent.prototype);
     return obj;
@@ -117,6 +129,8 @@ export class OpraURLPathComponent {
     };
     if (this.key != null)
       out.key = this.key;
+    if (this.typeCast != null)
+      out.typeCast = this.typeCast;
     return out;
   }
 }
