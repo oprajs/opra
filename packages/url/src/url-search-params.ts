@@ -3,6 +3,7 @@ import { splitString, tokenize } from 'fast-tokenizer';
 import { StrictOmit } from 'ts-gems';
 import { URLSearchParams } from 'url';
 import { ResponsiveMap } from '@opra/common';
+import { nodeInspectCustom } from './constants.js';
 import { BooleanFormat } from './formats/boolean-format.js';
 import { DateFormat } from './formats/date-format.js';
 import { FilterFormat } from './formats/filter-format.js';
@@ -10,7 +11,6 @@ import { Format } from './formats/format.js';
 import { IntegerFormat } from './formats/integer-format.js';
 import { NumberFormat } from './formats/number-format.js';
 import { StringFormat } from './formats/string-format.js';
-import { nodeInspectCustom } from './constants.js';
 import { unquoteQueryString } from './utils/string-utils.js';
 import { encodeQueryComponent } from './utils/url-utils.js';
 
