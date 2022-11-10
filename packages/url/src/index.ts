@@ -2,7 +2,6 @@ export * from './url.js';
 export * from './url-path.js';
 export * from './url-search-params.js';
 
-export * from './types.js';
 export * from './errors.js';
 
 export * from './formats/boolean-format.js';

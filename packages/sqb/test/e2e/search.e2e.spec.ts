@@ -26,8 +26,7 @@ describe('e2e: search', function () {
 
   it('Test "limit" option', async () => {
     const resp = await client.collection('Customers')
-        .search()
-        .limit(3);
+        .search({limit: 3});
     resp.expect
         .toSuccess()
         .toReturnCollection()
@@ -36,8 +35,7 @@ describe('e2e: search', function () {
 
   it('Test "sort" option', async () => {
     const resp = await client.collection('Customers')
-        .search()
-        .sort('givenName');
+        .search({sort: ['givenName']});
     resp.expect
         .toSuccess()
         .toReturnCollection()
@@ -46,9 +44,7 @@ describe('e2e: search', function () {
 
   it('Test "skip" option', async () => {
     const resp = await client.collection('Customers')
-        .search()
-        .skip(10)
-        .sort('id');
+        .search({skip: 10, sort: ['id']});
     resp.expect
         .toSuccess()
         .toReturnCollection()
@@ -58,8 +54,7 @@ describe('e2e: search', function () {
 
   it('Test "pick" option', async () => {
     const resp = await client.collection('Customers')
-        .search()
-        .pick('givenName');
+        .search({pick: ['givenName']});
     resp.expect
         .toSuccess()
         .toReturnCollection()
@@ -68,8 +63,7 @@ describe('e2e: search', function () {
 
   it('Test "omit" option', async () => {
     const resp = await client.collection('Customers')
-        .search()
-        .omit('givenName');
+        .search({omit: ['givenName']});
     resp.expect
         .toSuccess()
         .toReturnCollection()
@@ -78,8 +72,7 @@ describe('e2e: search', function () {
 
   it('Test "filter" option', async () => {
     const resp = await client.collection('Customers')
-        .search()
-        .filter('gender="M"');
+        .search({filter: 'gender="M"'});
     resp.expect
         .toSuccess()
         .toReturnCollection()
@@ -89,8 +82,7 @@ describe('e2e: search', function () {
 
   it('Test "count" option', async () => {
     const resp = await client.collection('Customers')
-        .search()
-        .count();
+        .search({count: true});
     resp.expect
         .toSuccess()
         .toReturnCollection();

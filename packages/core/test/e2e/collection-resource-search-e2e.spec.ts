@@ -38,8 +38,7 @@ describe('e2e: CollectionResource:search', function () {
 
   it('Should include exclusive fields if requested (unless not excluded for resolver)', async () => {
     const resp = await client.collection('Customers')
-        .search()
-        .include('address');
+        .search({include: ['address']});
     resp.expect
         .toSuccess()
         .toReturnCollection()
@@ -48,8 +47,7 @@ describe('e2e: CollectionResource:search', function () {
 
   it('Should pick fields', async () => {
     const resp = await client.collection('Customers')
-        .search()
-        .pick('id', 'givenName');
+        .search({pick: ['id', 'givenName']});
     resp.expect
         .toSuccess()
         .toReturnCollection()
@@ -58,8 +56,7 @@ describe('e2e: CollectionResource:search', function () {
 
   it('Should omit fields', async () => {
     const resp = await client.collection('Customers')
-        .search()
-        .omit('id', 'givenName');
+        .search({omit: ['id', 'givenName']});
     resp.expect
         .toSuccess()
         .toReturnCollection()
@@ -68,8 +65,7 @@ describe('e2e: CollectionResource:search', function () {
 
   it('Should apply filter', async () => {
     const resp = await client.collection('Customers')
-        .search()
-        .filter('countryCode="' + customersData[0].countryCode + '"');
+        .search({filter: 'countryCode="' + customersData[0].countryCode + '"'});
     resp.expect
         .toSuccess()
         .toReturnCollection()
@@ -79,8 +75,7 @@ describe('e2e: CollectionResource:search', function () {
 
   it('Should set item limit to be returned', async () => {
     const resp = await client.collection('Customers')
-        .search()
-        .limit(3);
+        .search({limit: 3});
     resp.expect
         .toSuccess()
         .toReturnCollection()
@@ -89,8 +84,7 @@ describe('e2e: CollectionResource:search', function () {
 
   it('Should set offset of the list to be returned', async () => {
     const resp = await client.collection('Customers')
-        .search()
-        .skip(10);
+        .search({skip: 10});
     resp.expect
         .toSuccess()
         .toReturnCollection()
@@ -99,8 +93,7 @@ describe('e2e: CollectionResource:search', function () {
 
   it('Should count matching records', async () => {
     const resp = await client.collection('Customers')
-        .search()
-        .count();
+        .search({count: true});
     resp.expect
         .toSuccess()
         .toReturnCollection();

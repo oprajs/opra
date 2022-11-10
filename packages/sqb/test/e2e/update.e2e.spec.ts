@@ -60,8 +60,7 @@ describe('e2e: update', function () {
         .toReturnObject();
 
     resp = await client.collection('Customers')
-        .update(oldData.id, data)
-        .pick('id', 'givenName');
+        .update(oldData.id, data, {pick: ['id', 'givenName']});
     resp.expect
         .toSuccess()
         .toReturnObject()
@@ -83,8 +82,7 @@ describe('e2e: update', function () {
         .toReturnObject();
 
     resp = await client.collection('Customers')
-        .update(oldData.id, data)
-        .omit('id', 'givenName');
+        .update(oldData.id, data, {omit: ['id', 'givenName']});
     resp.expect
         .toSuccess()
         .toReturnObject()
@@ -106,8 +104,7 @@ describe('e2e: update', function () {
         .toReturnObject();
 
     resp = await client.collection('Customers')
-        .update(oldData.id, data)
-        .include('address');
+        .update(oldData.id, data, {include: ['address']});
     resp.expect
         .toSuccess()
         .toReturnObject()

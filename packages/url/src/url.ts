@@ -1,6 +1,6 @@
 import { splitString, tokenize } from 'fast-tokenizer';
+import { nodeInspectCustom } from './constants.js';
 import { IntegerFormat } from './formats/integer-format.js';
-import { nodeInspectCustom, ResourceKey } from './types.js';
 import { OpraURLPath } from './url-path.js';
 import { OpraURLSearchParams, QueryItemMetadata } from './url-search-params.js';
 import { decodePathComponent, normalizePath } from './utils/url-utils.js';
@@ -212,7 +212,7 @@ export class OpraURL {
     this.searchParams.parse(v);
   }
 
-  addPath(name: string, key?: ResourceKey): this {
+  addPath(name: string, key?: any): this {
     this.path.add(name, key);
     return this;
   }

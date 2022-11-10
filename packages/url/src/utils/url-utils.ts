@@ -1,5 +1,5 @@
 import { splitString } from 'fast-tokenizer';
-import { ResourceKey } from '../types.js';
+import isPlainObject from 'putil-isplainobject';
 import { quoteQueryString } from './string-utils.js';
 
 export function joinPath(...p: string[]) {
@@ -26,7 +26,7 @@ export function normalizePath(p?: string, noLeadingSlash?: boolean): string {
 
 const pathComponentRegEx = /^([^/?#:@]+)(?:@([^/?#:]*))?(?:::(.*))?$/;
 
-export function decodePathComponent(input: string): { resource: string, key?: ResourceKey, typeCast?: string } {
+export function decodePathComponent(input: string): { resource: string, key?: any, typeCast?: string } {
   const m = pathComponentRegEx.exec(input);
   if (!m)
     throw Object.assign(
@@ -35,7 +35,7 @@ export function decodePathComponent(input: string): { resource: string, key?: Re
           input,
         });
   const resource = decodeURIComponent(m[1]);
-  let key: ResourceKey;
+  let key: any;
   if (m[2]) {
     const s = decodeURIComponent(m[2] || '');
     const b = splitString(s, {delimiters: ';', quotes: true, escape: false})
@@ -66,12 +66,12 @@ export function decodePathComponent(input: string): { resource: string, key?: Re
   return {resource, key};
 }
 
-export function encodePathComponent(resource: string, key?: ResourceKey, typeCast?: string): string {
+export function encodePathComponent(resource: string, key?: any, typeCast?: string): string {
   if (resource == null)
     return '';
   let keyString = '';
   if (key !== '' && key != null) {
-    if (key && typeof key === 'object') {
+    if (isPlainObject(key)) {
       const arr: string[] = [];
       for (const k of Object.keys(key)) {
         arr.push(encodeURIComponent(k) + '=' + encodeURIComponent(key[k]));

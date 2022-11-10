@@ -3,7 +3,6 @@ import { ResponsiveMap } from '@opra/common';
 import { OpraDocument } from '@opra/schema';
 import { joinPath, normalizePath } from '@opra/url';
 import { ClientError } from './client-error.js';
-import { Context } from './interfaces/context.interface.js';
 import { OpraResponse } from './response.js';
 import { CollectionService } from './services/collection-service.js';
 import { SingletonService } from './services/singleton-service.js';
@@ -32,26 +31,38 @@ export class OpraClient {
     return this._metadata;
   }
 
-  collection<T = any, TResponse extends OpraResponse<T> = OpraResponse<T>>(name: string): CollectionService<T, TResponse> {
+  collection<T = any, TResponse extends OpraResponse<T> = OpraResponse<T>>(
+      name: string,
+      options?: CommonRequestOptions
+  ): CollectionService<T, TResponse> {
     const resource = this.metadata.getCollectionResource(name);
-    const ctx: Context<T, TResponse> = {
-      client: this,
-      document: this._metadata,
-      serviceUrl: this.serviceUrl,
-      handler: async (req, options: CommonRequestOptions) => (await this._send(req, options)) as TResponse
+    const commonOptions: CommonRequestOptions = {
+      headers: this.options.defaultHeaders,
+      validateStatus: this.options.validateStatus,
+      ...options,
     }
-    return new CollectionService<T, TResponse>(ctx, resource);
+    return new CollectionService<T, TResponse>(
+        this.serviceUrl,
+        this.metadata,
+        (req) => this._send(req, commonOptions),
+        resource)
   }
 
-  singleton<T = any, TResponse extends OpraResponse<T> = OpraResponse<T>>(name: string): SingletonService<T, TResponse> {
+  singleton<T = any, TResponse extends OpraResponse<T> = OpraResponse<T>>(
+      name: string,
+      options?: CommonRequestOptions
+  ): SingletonService<T, TResponse> {
     const resource = this.metadata.getSingletonResource(name);
-    const ctx: Context<T, TResponse> = {
-      client: this,
-      document: this._metadata,
-      serviceUrl: this.serviceUrl,
-      handler: async (req, options: CommonRequestOptions) => (await this._send(req, options)) as TResponse
+    const commonOptions: CommonRequestOptions = {
+      headers: this.options.defaultHeaders,
+      validateStatus: this.options.validateStatus,
+      ...options,
     }
-    return new SingletonService<T, TResponse>(ctx, resource);
+    return new SingletonService<T, TResponse>(
+        this.serviceUrl,
+        this.metadata,
+        (req) => this._send(req, commonOptions),
+        resource)
   }
 
   protected async _send(req: AxiosRequestConfig, options?: CommonRequestOptions): Promise<OpraResponse> {
