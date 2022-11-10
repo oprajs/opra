@@ -1,35 +1,15 @@
-import { AxiosRequestConfig } from 'axios';
-import { CollectionResourceInfo } from '@opra/schema';
-import { Expression, OpraURL } from '@opra/url';
-import { Context } from '../interfaces/context.interface.js';
-import { OpraResponse } from '../response.js';
-import { CollectionDeleteManyRequestOptions } from '../types.js';
-import { BaseRequest } from './base-request.js';
+import { CollectionDeleteManyQueryOptions } from '@opra/schema';
+import { Expression } from '@opra/url';
 
-export class CollectionDeleteManyRequest<T, TResponse extends OpraResponse<T> = OpraResponse<T>> extends BaseRequest<T, TResponse> {
+export class CollectionDeleteManyRequest {
 
-  constructor(protected context: Context<T, TResponse>,
-              protected _resource: CollectionResourceInfo,
-              protected _options: CollectionDeleteManyRequestOptions = {}
+  constructor(protected _options: CollectionDeleteManyQueryOptions = {}
   ) {
-    super(context, _options);
   }
 
   filter(value: string | Expression): this {
     this._options.filter = value;
     return this;
-  }
-
-  protected _prepare(): AxiosRequestConfig {
-    const url = new OpraURL(this.context.serviceUrl);
-    url.path.join(this._resource.name);
-    if (this._options.filter)
-      url.searchParams.set('$filter', this._options.filter);
-    return {
-      method: 'DELETE',
-      url: url.address,
-      params: url.searchParams
-    }
   }
 
 }

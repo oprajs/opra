@@ -25,47 +25,4 @@ describe('e2e: SingletonResource:get', function () {
         .toMatch({id: 10})
   });
 
-  // it('Should not send exclusive fields (unless not included for resolver)', async () => {
-  //   const resp = await client.collection('Customers')
-  //       .get(1)
-  //   ;
-  //   resp.expect
-  //       .toSuccess()
-  //       .toReturnObject()
-  //       .notToContainKeys(['address', 'notes']);
-  // })
-  //
-  // it('Should pick fields to be returned', async () => {
-  //   const resp = await client.collection('Customers')
-  //       .get(1)
-  //       .pick('id', 'givenName')
-  //   ;
-  //   resp.expect
-  //       .toSuccess()
-  //       .toReturnObject()
-  //       .toContainKeys(['id', 'givenName']);
-  // })
-  //
-  // it('Should omit fields to be returned', async () => {
-  //   const resp = await client.collection('Customers')
-  //       .get(1)
-  //       .omit('id', 'givenName')
-  //   ;
-  //   resp.expect
-  //       .toSuccess()
-  //       .toReturnObject()
-  //       .notToContainKeys(['id', 'givenName']);
-  // })
-  //
-  // it('Should include exclusive fields if requested', async () => {
-  //   const resp = await client.collection('Customers')
-  //       .get('1')
-  //       .include('address')
-  //   ;
-  //   resp.expect
-  //       .toSuccess()
-  //       .toReturnObject()
-  //       .toContainKeys(['address']);
-  // })
-
 });

@@ -31,9 +31,10 @@ describe('e2e: CollectionResource:updateMany', function () {
         .toBeAffectedExact(customersData.length);
 
     resp = await client.collection('Customers')
-        .search()
-        .filter('identity="' + data.identity + '"')
-        .limit(1000000);
+        .search({
+          filter: 'identity="' + data.identity + '"',
+          limit: 1000000
+        });
     resp.expect
         .toSuccess()
         .toReturnCollection()
@@ -45,15 +46,13 @@ describe('e2e: CollectionResource:updateMany', function () {
       identity: '' + faker.datatype.number()
     }
     let resp = await client.collection('Customers')
-        .updateMany(data)
-        .filter('id<=10');
+        .updateMany(data, {filter: 'id<=10'});
     resp.expect
         .toSuccess()
         .toReturnOperationResult()
         .toBeAffectedMin(10)
     resp = await client.collection('Customers')
-        .search()
-        .filter('identity="' + data.identity + '"');
+        .search({filter: 'identity="' + data.identity + '"'});
 
     resp.expect
         .toSuccess()

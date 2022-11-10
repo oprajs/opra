@@ -1,24 +1,9 @@
-import { CollectionResourceInfo } from '@opra/schema';
-import { OpraURL, ResourceKey } from '@opra/url';
-import { Context } from '../interfaces/context.interface.js';
-import { OpraResponse } from '../response.js';
-import { CollectionUpdateRequestOptions, PartialInput, RequestConfig } from '../types.js';
-import { BaseRequest } from './base-request.js';
+import { CollectionUpdateQueryOptions } from '@opra/schema';
 
-export class CollectionUpdateRequest<T, TResponse extends OpraResponse<T> = OpraResponse<T>> extends BaseRequest<T, TResponse> {
+export class CollectionUpdateRequest {
 
-  constructor(protected context: Context<T, TResponse>,
-              protected _resource: CollectionResourceInfo,
-              protected _keyValue: ResourceKey,
-              protected _data: PartialInput<T>,
-              protected _options: CollectionUpdateRequestOptions = {}
+  constructor(protected _options: CollectionUpdateQueryOptions = {}
   ) {
-    super(context, _options);
-  }
-
-  keyValue(value: ResourceKey): this {
-    this._keyValue = value;
-    return this;
   }
 
   omit(...fields: (string | string[])[]): this {
@@ -34,24 +19,6 @@ export class CollectionUpdateRequest<T, TResponse extends OpraResponse<T> = Opra
   include(...fields: (string | string[])[]): this {
     this._options.include = fields.flat();
     return this;
-  }
-
-  protected _prepare(): RequestConfig {
-    const url = new OpraURL(this.context.serviceUrl);
-    url.path.join(this._resource.name);
-    url.path.get(url.path.size - 1).key = this._keyValue;
-    if (this._options.include)
-      url.searchParams.set('$include', this._options.include);
-    if (this._options.pick)
-      url.searchParams.set('$pick', this._options.pick);
-    if (this._options.omit)
-      url.searchParams.set('$omit', this._options.omit);
-    return {
-      method: 'PATCH',
-      url: url.address,
-      data: this._data,
-      params: url.searchParams
-    }
   }
 
 }

@@ -50,27 +50,27 @@ declare global {
 expect.extend({
 
   toHaveFields(received, expected: string[]) {
-    const expectedKeys = Array.isArray(expected) ? expected : Object.keys(expected);
-    const objectKeys = Object.keys(received);
+    const expectedKeys = (Array.isArray(expected) ? expected : Object.keys(expected)).map(x => x.toLowerCase());
+    const objectKeys = Object.keys(received).map(x => x.toLowerCase());
     const filteredKeys = expectedKeys.filter(x => !objectKeys.includes(x));
     const pass = !filteredKeys.length === !this.isNot;
     if (!pass) {
       const message = () =>
-          `Expected keys${this.isNot ? ' not ' : ''} to contain: ${colors.yellow('' + expectedKeys)}\n` +
+          `Expects keys to${this.isNot ? ' not' : ''} contain: ${colors.yellow('' + expectedKeys)}\n` +
           `${this.isNot ? 'Unsolicited' : 'Missing'} fields: ${colors.yellow('' + filteredKeys)}\n`;
-      return {message, pass};
+      return {message, pass: !!this.isNot};
     }
     return {actual: received, pass: !this.isNot, message: () => ''};
   },
 
   toHaveFieldsOnly(received, expected: string[]) {
-    const expectedKeys = Array.isArray(expected) ? expected : Object.keys(expected);
-    const objectKeys = Object.keys(received);
+    const expectedKeys = (Array.isArray(expected) ? expected : Object.keys(expected)).map(x => x.toLowerCase());
+    const objectKeys = Object.keys(received).map(x => x.toLowerCase());
     const filteredKeys = objectKeys.filter(x => !expectedKeys.includes(x));
     const pass = !filteredKeys.length === !this.isNot;
     if (!pass) {
       const message = () =>
-          `${!this.isNot ? 'Not expected' : 'Expected'} additional keys other than: ${colors.yellow('' + expectedKeys)}\n` +
+          `${!this.isNot ? 'Do not expects' : 'Expects'} additional keys other than: ${colors.yellow('' + expectedKeys)}\n` +
           (filteredKeys ? `Additional keys received: ${colors.yellow('' + filteredKeys)}\n` :
               'No additional keys received\n');
       return {message, pass};

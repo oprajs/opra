@@ -10,7 +10,6 @@ declare type Handler = RequestListener | Server
 
 type OpraTestResponse<T = any> = OpraResponse<T> & { expect: ApiExpect };
 
-// @ts-ignore
 export class OpraTestClient extends OpraClient {
 
   // @ts-ignore

@@ -1,5 +1,4 @@
 import {ValidationError} from '../errors.js';
-import {Nullable} from '../types.js';
 import {Format} from './format.js';
 
 const trueValues = ['true', 't', 'yes', 'y', '1'];
@@ -7,7 +6,7 @@ const falseValues = ['false', 'f', 'no', 'n', '0'];
 
 export class BooleanFormat extends Format {
 
-  parse(value: string): Nullable<boolean> {
+  parse(value: string): boolean {
     if (value === '')
       return true;
     // noinspection SuspiciousTypeOfGuard

@@ -16,8 +16,7 @@ describe('e2e: deleteMany', function () {
 
   it('Should delete many instances by filter', async () => {
     let resp = await client.collection('Customers')
-        .deleteMany()
-        .filter('id=102');
+        .deleteMany({filter: 'id=102'});
     resp.expect
         .toSuccess()
         .toReturnOperationResult()

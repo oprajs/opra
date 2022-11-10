@@ -1,6 +1,6 @@
 import { EventEmitter } from 'events';
 import { tokenize } from 'fast-tokenizer';
-import { nodeInspectCustom, ResourceKey } from './types.js';
+import { nodeInspectCustom } from './constants.js';
 import { decodePathComponent, encodePathComponent, normalizePath } from './utils/url-utils.js';
 
 export class OpraURLPath extends EventEmitter {
@@ -14,9 +14,9 @@ export class OpraURLPath extends EventEmitter {
     return this._entries.length;
   }
 
-  add(component: OpraURLPathComponent | { resource: string; key?: ResourceKey, typeCast?: string }): void
-  add(name: string, key?: ResourceKey, typeCast?: string): void
-  add(component: any, key?: ResourceKey, typeCast?: string): void {
+  add(component: OpraURLPathComponent | { resource: string; key?: any, typeCast?: string }): void
+  add(name: string, key?: any, typeCast?: string): void
+  add(component: any, key?: any, typeCast?: string): void {
     if (component instanceof OpraURLPathComponent) {
       this._entries.push(component);
     } else if (typeof component === 'object')
@@ -80,7 +80,7 @@ export class OpraURLPath extends EventEmitter {
     };
   }
 
-  forEach(callback: (name: string, key: ResourceKey, _this: this) => void) {
+  forEach(callback: (name: string, key: any, _this: this) => void) {
     for (const item of this._entries) {
       callback.call(this, item.resource, item.key, this);
     }
@@ -91,7 +91,7 @@ export class OpraURLPath extends EventEmitter {
     return v == null ? undefined : v.resource;
   }
 
-  getKey(index: number): ResourceKey {
+  getKey(index: number): any {
     const v = this._entries[index];
     return v == null ? undefined : v.key;
   }
@@ -112,7 +112,7 @@ export class OpraURLPath extends EventEmitter {
 }
 
 export class OpraURLPathComponent {
-  constructor(public resource: string, public key?: ResourceKey, public typeCast?: string) {
+  constructor(public resource: string, public key?: any, public typeCast?: string) {
   }
 
   toString() {

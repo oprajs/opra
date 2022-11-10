@@ -43,8 +43,7 @@ describe('e2e: get', function () {
 
   it('Should pick fields to be returned', async () => {
     const resp = await client.collection('Customers')
-        .get(1)
-        .pick('id', 'givenName');
+        .get(1, {pick: ['id', 'givenName']});
     resp.expect
         .toSuccess()
         .toReturnObject()
@@ -53,8 +52,7 @@ describe('e2e: get', function () {
 
   it('Should omit fields to be returned', async () => {
     const resp = await client.collection('Customers')
-        .get(1)
-        .omit('id', 'givenName');
+        .get(1, {omit: ['id', 'givenName']});
     resp.expect
         .toSuccess()
         .toReturnObject()
@@ -63,8 +61,7 @@ describe('e2e: get', function () {
 
   it('Should include exclusive fields if requested', async () => {
     const resp = await client.collection('Customers')
-        .get(2)
-        .include('notes');
+        .get(2, {include: ['notes']});
     resp.expect
         .toSuccess()
         .toReturnObject()

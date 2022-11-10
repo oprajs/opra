@@ -46,8 +46,7 @@ describe('e2e: create', function () {
       address: {city: 'Izmir'}
     }
     const resp = await client.collection('Customers')
-        .create(data)
-        .pick('id', 'givenName');
+        .create(data, {pick: ['id', 'givenName']});
     resp.expect
         .toSuccess(201)
         .toReturnObject()
@@ -63,8 +62,7 @@ describe('e2e: create', function () {
       address: {city: 'Izmir'}
     }
     const resp = await client.collection('Customers')
-        .create(data)
-        .omit('id', 'givenName');
+        .create(data, {omit: ['id', 'givenName']});
     resp.expect
         .toSuccess(201)
         .toReturnObject()
@@ -81,8 +79,7 @@ describe('e2e: create', function () {
       address: {city: 'Izmir', countryCode: 'TR',}
     }
     const resp = await client.collection('Customers')
-        .create(data)
-        .include('address');
+        .create(data, {include: ['address']});
     resp.expect
         .toSuccess(201)
         .toReturnObject()
