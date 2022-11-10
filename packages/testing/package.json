@@ -1,6 +1,6 @@
 {
   "name": "@opra/testing",
-  "version": "0.3.0",
+  "version": "0.3.1",
   "description": "Opra testing package",
   "author": "Panates",
   "license": "MIT",
@@ -25,9 +25,9 @@
     "clean:cover": "rimraf ../../coverage/testing"
   },
   "dependencies": {
-    "@opra/schema": "^0.3.0",
-    "@opra/url": "^0.3.0",
-    "@opra/client": "^0.3.0",
+    "@opra/schema": "^0.3.1",
+    "@opra/url": "^0.3.1",
+    "@opra/client": "^0.3.1",
     "ansi-colors": "^4.1.3",
     "lodash": "^4.17.21",
     "rule-judgment": "^1.1.5",

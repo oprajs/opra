@@ -1,6 +1,6 @@
 {
   "name": "@opra/client",
-  "version": "0.3.0",
+  "version": "0.3.1",
   "description": "Opra internationalization package",
   "author": "Panates",
   "license": "MIT",
@@ -26,9 +26,9 @@
     "clean:cover": "rimraf ../../coverage/client"
   },
   "dependencies": {
-    "@opra/url": "^0.3.0",
-    "@opra/exception": "^0.3.0",
-    "@opra/schema": "^0.3.0",
+    "@opra/url": "^0.3.1",
+    "@opra/exception": "^0.3.1",
+    "@opra/schema": "^0.3.1",
     "axios": "^1.1.3",
     "putil-isplainobject": "^1.1.4",
     "rxjs": "^7.5.7",
