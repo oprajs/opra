@@ -1,6 +1,6 @@
 {
   "name": "@opra/common",
-  "version": "0.3.0",
+  "version": "0.3.1",
   "description": "Opra internationalization package",
   "author": "Panates",
   "license": "MIT",
@@ -28,8 +28,7 @@
   "dependencies": {
     "ts-gems": "^2.3.0"
   },
-  "devDependencies": {
-  },
+  "devDependencies": {},
   "type": "module",
   "types": "esm/index.d.ts",
   "exports": {

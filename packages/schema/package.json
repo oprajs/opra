@@ -1,6 +1,6 @@
 {
   "name": "@opra/schema",
-  "version": "0.3.0",
+  "version": "0.3.1",
   "description": "Opra internationalization package",
   "author": "Panates",
   "license": "MIT",
@@ -26,9 +26,9 @@
     "clean:cover": "rimraf ../../coverage/schema"
   },
   "dependencies": {
-    "@opra/exception": "^0.3.0",
-    "@opra/i18n": "^0.3.0",
-    "@opra/url": "^0.3.0",
+    "@opra/exception": "^0.3.1",
+    "@opra/i18n": "^0.3.1",
+    "@opra/url": "^0.3.1",
     "lodash": "^4.17.21",
     "putil-isplainobject": "^1.1.4",
     "putil-merge": "^3.9.0",
