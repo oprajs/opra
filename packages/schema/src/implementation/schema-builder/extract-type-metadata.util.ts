@@ -1,6 +1,5 @@
 import { Type } from 'ts-gems';
 import * as Optionals from '@opra/optionals';
-import { DataType } from '@sqb/builder';
 import { COMPLEXTYPE_FIELDS, DATATYPE_METADATA, MAPPED_TYPE_METADATA } from '../../constants.js';
 import {
   ComplexTypeMetadata,
@@ -70,6 +69,7 @@ async function extractComplexTypeSchema(ctor: Type, metadata: ComplexTypeMetadat
       }
 
       if (sqbField && sqbField.kind === 'column') {
+        const DataType = Optionals.SqbConnect.DataType;
         if (field.type === 'number' || field.type === Number) {
           switch (sqbField.dataType) {
             case DataType.INTEGER:

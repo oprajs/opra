@@ -1,4 +1,4 @@
-import { OpraResponse } from '@opra/client';
+import { ClientResponse } from '@opra/client';
 import { ApiExpectCollection } from './api-expect-collection.js';
 import { ApiExpectError } from './api-expect-error.js';
 import { ApiExpectObject } from './api-expect-object.js';
@@ -6,7 +6,7 @@ import { ApiExpectOperationResult } from './api-expect-operation-result.js';
 
 export class ApiExpect {
 
-  constructor(readonly response: OpraResponse, protected _isNot: boolean = false) {
+  constructor(readonly response: ClientResponse, protected _isNot: boolean = false) {
   }
 
   get not(): ApiExpect {

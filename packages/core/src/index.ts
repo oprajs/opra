@@ -1,7 +1,6 @@
 import "reflect-metadata";
 
 export * from './types.js';
-export * from './enums/index.js';
 
 export * from './interfaces/execution-context.interface.js';
 export * from './interfaces/resource.interface.js';

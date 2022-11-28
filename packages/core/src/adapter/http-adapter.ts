@@ -1,3 +1,4 @@
+import { HeadersMap, HttpHeaders, HttpStatus } from '@opra/common';
 import {
   BadRequestError,
   InternalServerError,
@@ -18,8 +19,6 @@ import {
   OpraSchema, SingletonGetQuery, SingletonResourceInfo, UnionType,
 } from '@opra/schema';
 import { OpraURL } from '@opra/url';
-import { HttpHeaders, HttpStatus } from '../enums/index.js';
-import { HeadersMap } from '../helpers/headers-map.js';
 import { IHttpExecutionContext } from '../interfaces/execution-context.interface.js';
 import { OpraAdapter } from './adapter.js';
 import { QueryContext } from './query-context.js';

@@ -1,1 +1,1 @@
-export type IssueSeverity = 'error' | 'fatal' | 'warning' | 'info';
+export type IssueSeverity = 'error' | 'fatal' | 'warning' | 'info'; // todo

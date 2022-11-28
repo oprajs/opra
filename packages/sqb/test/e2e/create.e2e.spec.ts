@@ -24,13 +24,15 @@ describe('e2e: create', function () {
       address: {city: 'Izmir'}
     }
     let resp = await client.collection('Customers')
-        .create(data);
+        .create(data)
+        .execute();
     resp.expect
         .toSuccess(201)
         .toReturnObject()
         .toMatch({...data, address: undefined});
     resp = await client.collection('Customers')
-        .get(1001);
+        .get(1001)
+        .execute();
     resp.expect
         .toSuccess()
         .toReturnObject()
@@ -46,7 +48,8 @@ describe('e2e: create', function () {
       address: {city: 'Izmir'}
     }
     const resp = await client.collection('Customers')
-        .create(data, {pick: ['id', 'givenName']});
+        .create(data, {pick: ['id', 'givenName']})
+        .execute();
     resp.expect
         .toSuccess(201)
         .toReturnObject()
@@ -62,7 +65,8 @@ describe('e2e: create', function () {
       address: {city: 'Izmir'}
     }
     const resp = await client.collection('Customers')
-        .create(data, {omit: ['id', 'givenName']});
+        .create(data, {omit: ['id', 'givenName']})
+        .execute();
     resp.expect
         .toSuccess(201)
         .toReturnObject()
@@ -79,7 +83,8 @@ describe('e2e: create', function () {
       address: {city: 'Izmir', countryCode: 'TR',}
     }
     const resp = await client.collection('Customers')
-        .create(data, {include: ['address']});
+        .create(data, {include: ['address']})
+        .execute();
     resp.expect
         .toSuccess(201)
         .toReturnObject()

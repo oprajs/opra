@@ -1,5 +1,5 @@
 import { AsyncEventEmitter } from 'strict-typed-events';
-import { ResponsiveMap } from '@opra/common';
+import { HttpHeaders, ResponsiveMap } from '@opra/common';
 import {
   FailedDependencyError, ForbiddenError,
   OpraException, ResourceNotFoundError, wrapException
@@ -15,7 +15,6 @@ import {
   ResourceInfo, SingletonGetQuery,
   SingletonResourceInfo
 } from '@opra/schema';
-import { HttpHeaders } from '../enums/index.js';
 import { IExecutionContext } from '../interfaces/execution-context.interface.js';
 import { IResource } from '../interfaces/resource.interface.js';
 import { createI18n } from '../utils/create-i18n.js';

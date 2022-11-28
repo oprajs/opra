@@ -1,7 +1,7 @@
 /* eslint-disable no-console */
 import express from 'express';
 import { OpraExpressAdapter } from '../../../src/index.js';
-import { createTestDocument } from './create-service.js';
+import { createTestDocument } from './create-document.js';
 
 async function run() {
   const service = await createTestDocument();

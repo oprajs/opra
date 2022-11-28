@@ -1,4 +1,4 @@
-import { ResponsiveMap } from '../src/responsive-map.js';
+import { ResponsiveMap } from '../src/classes/responsive-map.js';
 
 describe('ResponsiveMap', function () {
 
