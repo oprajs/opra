@@ -1,7 +1,7 @@
 import { OpraDocument } from '@opra/schema';
-import { createTestDocument } from '../../core/test/_support/test-app/create-service.js';
+import { createTestDocument } from '../../core/test/_support/test-app/create-document.js';
 import { OpraClient } from '../src/client.js';
-import { CollectionService, SingletonService } from '../src/index.js';
+import { CollectionNode, SingletonNode } from '../src/index.js';
 
 describe('OpraClient', function () {
 
@@ -9,7 +9,7 @@ describe('OpraClient', function () {
   const serviceUrl = 'http://localhost';
 
   class MockClient extends OpraClient {
-    protected async _fetchMetadata(): Promise<void> {
+    protected async init(): Promise<void> {
       this._metadata = document;
     }
   }
@@ -33,13 +33,13 @@ describe('OpraClient', function () {
   it('Should "collection()" create a service for Collection resources', async () => {
     const client = await MockClient.create(serviceUrl);
     expect(client).toBeDefined();
-    expect(client.collection('Customers')).toBeInstanceOf(CollectionService);
+    expect(client.collection('Customers')).toBeInstanceOf(CollectionNode);
   });
 
   it('Should "singleton()" create a service for Singleton resources', async () => {
     const client = await MockClient.create(serviceUrl);
     expect(client).toBeDefined();
-    expect(client.singleton('BestCustomer')).toBeInstanceOf(SingletonService);
+    expect(client.singleton('BestCustomer')).toBeInstanceOf(SingletonNode);
   });
 
   it('Should check if Collection resource exists', async () => {

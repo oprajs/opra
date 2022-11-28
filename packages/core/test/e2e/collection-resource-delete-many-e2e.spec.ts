@@ -2,7 +2,7 @@ import express from 'express';
 import { OpraDocument } from '@opra/schema';
 import { OpraTestClient } from '@opra/testing';
 import { OpraExpressAdapter } from '../../src/index.js';
-import { createTestDocument } from '../_support/test-app/create-service.js';
+import { createTestDocument } from '../_support/test-app/create-document.js';
 import { customersData } from '../_support/test-app/data/customers.data.js';
 
 describe('e2e: CollectionResource:deleteMany', function () {
@@ -20,26 +20,30 @@ describe('e2e: CollectionResource:deleteMany', function () {
 
   it('Should delete many instances by filter', async () => {
     let resp = await client.collection('Customers')
-        .deleteMany({filter: 'id=102'});
+        .deleteMany({filter: 'id=102'})
+        .execute();
     resp.expect
         .toSuccess()
         .toReturnOperationResult()
         .toBeAffectedExact(1);
     resp = await client.collection('Customers')
-        .get(102);
+        .get(102)
+        .execute();
     resp.expect
         .toFail(404);
   })
 
   it('Should delete all', async () => {
     let resp = await client.collection('Customers')
-        .deleteMany();
+        .deleteMany()
+        .execute();
     resp.expect
         .toSuccess()
         .toReturnOperationResult()
         .toBeAffectedExact(customersData.length - 1);
     resp = await client.collection('Customers')
-        .search({count: true});
+        .search({count: true})
+        .execute();
     resp.expect
         .toSuccess()
         .toReturnCollection()

@@ -2,7 +2,7 @@ import express from 'express';
 import request from 'supertest';
 import { OpraDocument } from '@opra/schema';
 import { OpraExpressAdapter } from '../../src/index.js';
-import { createTestDocument } from '../_support/test-app/create-service.js';
+import { createTestDocument } from '../_support/test-app/create-document.js';
 
 describe('Metadata', function () {
 

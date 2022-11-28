@@ -1,5 +1,5 @@
-import { ResponsiveMap } from '@opra/common';
-import { HttpHeaders } from '../enums/index.js';
+import { HttpHeaders } from '../enums/http-headers.enum.js';
+import { ResponsiveMap } from './responsive-map.js';
 
 export class HeadersMap extends ResponsiveMap<string, string> {
   constructor(data?: any) {

@@ -1,11 +1,11 @@
 import matcherUtils from 'jest-matcher-utils';
-import { OpraResponse } from '@opra/client';
+import { ClientResponse } from '@opra/client';
 import { objectMatches } from '../utils/object-matches.util.js';
 import { ApiExpectObject } from './api-expect-object.js';
 
 export class ApiExpectError extends ApiExpectObject {
 
-  constructor(readonly response: OpraResponse) {
+  constructor(readonly response: ClientResponse) {
     super(response);
   }
 

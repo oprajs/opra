@@ -1,126 +1,166 @@
-import axios, { AxiosAdapter, AxiosInstance, AxiosRequestConfig } from 'axios';
+import axios, {
+  AxiosInstance,
+  AxiosInterceptorManager,
+  AxiosRequestConfig, AxiosResponse,
+} from 'axios';
+import { TaskQueue } from 'power-tasks';
+import { Type } from 'ts-gems';
 import { ResponsiveMap } from '@opra/common';
 import { OpraDocument } from '@opra/schema';
-import { joinPath, normalizePath } from '@opra/url';
+import { normalizePath } from '@opra/url';
 import { ClientError } from './client-error.js';
-import { OpraResponse } from './response.js';
-import { CollectionService } from './services/collection-service.js';
-import { SingletonService } from './services/singleton-service.js';
-import { CommonRequestOptions, ResponseHeaders } from './types.js';
+import { OpraClientRequest } from './client-request.js';
+import { BatchRequest } from './requests/batch-request.js';
+import { CollectionNode } from './services/collection-node.js';
+import { SingletonNode } from './services/singleton-node.js';
+import { ClientAdapter, ClientResponse, HttpRequestOptions, ResponseHeaders } from './types.js';
 
 export interface OpraClientOptions {
-  adapter?: AxiosAdapter;
-  resetCache?: boolean;
-  defaultHeaders?: Record<string, string>;
-  validateStatus?: boolean | ((status: number) => boolean);
+  adapter?: ClientAdapter;
+  defaults?: HttpRequestOptions;
+  invalidateCache?: boolean;
+  concurrency?: number;
+  maxQueue?: number;
 }
 
-export class OpraClient {
-  serviceUrl: string;
-  options: OpraClientOptions;
-  protected _metadata!: OpraDocument;
+const documentCache = new Map<string, OpraDocument>();
+const documentCacheResolvers = new Map<string, Promise<any>>();
 
-  protected constructor(
-      serviceUrl: string,
-      options?: OpraClientOptions) {
-    this.options = {...options};
-    this.serviceUrl = normalizePath(serviceUrl);
+export class OpraClient {
+  protected _axios: AxiosInstance;
+  protected _metadata!: OpraDocument;
+  protected _taskQueue: TaskQueue;
+
+  constructor(serviceUrl: string, options?: OpraClientOptions)
+  constructor(serviceUrl: string, metadata: OpraDocument, options?: OpraClientOptions)
+  constructor(serviceUrl: string, arg1, arg2?) {
+    let options: OpraClientOptions | undefined;
+    if (arg1 instanceof OpraDocument) {
+      this._metadata = arg1;
+      options = arg2;
+    } else options = arg1 || arg2;
+
+    this._taskQueue = new TaskQueue({
+      maxQueue: options?.maxQueue,
+      concurrency: options?.concurrency
+    });
+    this._axios = axios.create();
+    this._axios.defaults.baseURL = normalizePath(serviceUrl);
+    this._axios.defaults.adapter = options?.adapter;
+    if (options?.defaults?.headers)
+      this._axios.defaults.headers.common = options.defaults.headers;
+    this._axios.defaults.auth = options?.defaults?.auth;
+    this._axios.defaults.timeout = options?.defaults?.timeout;
+    this._axios.defaults.timeoutErrorMessage = options?.defaults?.timeoutErrorMessage;
+    this._axios.defaults.xsrfCookieName = options?.defaults?.xsrfCookieName;
+    this._axios.defaults.xsrfHeaderName = options?.defaults?.xsrfHeaderName;
+    this._axios.defaults.maxRedirects = options?.defaults?.maxRedirects;
+    this._axios.defaults.maxRate = options?.defaults?.maxRate;
+    this._axios.defaults.httpAgent = options?.defaults?.httpAgent;
+    this._axios.defaults.httpsAgent = options?.defaults?.httpsAgent;
+    this._axios.defaults.proxy = options?.defaults?.proxy;
+    this._axios.defaults.validateStatus = options?.defaults?.validateStatus;
+    const document = documentCache.get(serviceUrl.toLowerCase());
+    if (document)
+      this._metadata = document;
+  }
+
+  get requestInterceptors(): AxiosInterceptorManager<AxiosRequestConfig> {
+    return this._axios.interceptors.request;
+  }
+
+  get responseInterceptors(): AxiosInterceptorManager<AxiosResponse> {
+    return this._axios.interceptors.response;
+  }
+
+  get serviceUrl(): string {
+    return this._axios.defaults.baseURL || '';
+  }
+
+  get initialized(): boolean {
+    return !!this._metadata;
   }
 
   get metadata(): OpraDocument {
+    this._assertMetadata();
     return this._metadata;
   }
 
-  collection<T = any, TResponse extends OpraResponse<T> = OpraResponse<T>>(
-      name: string,
-      options?: CommonRequestOptions
-  ): CollectionService<T, TResponse> {
-    const resource = this.metadata.getCollectionResource(name);
-    const commonOptions: CommonRequestOptions = {
-      headers: this.options.defaultHeaders,
-      validateStatus: this.options.validateStatus,
-      ...options,
+  async init(): Promise<void> {
+    let promise = documentCacheResolvers.get(this.serviceUrl.toLowerCase());
+    if (promise) {
+      await promise;
+      return;
     }
-    return new CollectionService<T, TResponse>(
-        this.serviceUrl,
-        this.metadata,
-        (req) => this._send(req, commonOptions),
-        resource)
-  }
-
-  singleton<T = any, TResponse extends OpraResponse<T> = OpraResponse<T>>(
-      name: string,
-      options?: CommonRequestOptions
-  ): SingletonService<T, TResponse> {
-    const resource = this.metadata.getSingletonResource(name);
-    const commonOptions: CommonRequestOptions = {
-      headers: this.options.defaultHeaders,
-      validateStatus: this.options.validateStatus,
-      ...options,
-    }
-    return new SingletonService<T, TResponse>(
-        this.serviceUrl,
-        this.metadata,
-        (req) => this._send(req, commonOptions),
-        resource)
-  }
-
-  protected async _send(req: AxiosRequestConfig, options?: CommonRequestOptions): Promise<OpraResponse> {
-    const axiosInstance = this._createAxiosInstance(options);
-    const resp = await axiosInstance.request({...req, validateStatus: undefined});
-    const validateStatus = options?.validateStatus
-    if ((validateStatus === true && !(resp.status >= 200 && resp.status < 300)) ||
-        (typeof validateStatus === 'function' && !validateStatus(resp.status))) {
-      throw new ClientError({
-        message: resp.statusText,
-        status: resp.status,
-        issues: resp.data.errors
-      });
-    }
-    const rawHeaders = (typeof resp.headers.toJSON === 'function'
-            ? resp.headers.toJSON()
-            : {...resp.headers}
-    ) as ResponseHeaders;
-    const headers = new ResponsiveMap<string, string | string[]>(rawHeaders);
-    return {
-      status: resp.status,
-      statusText: resp.statusText,
-      data: resp.data,
-      rawHeaders,
-      headers
-    };
-  }
-
-  protected _createAxiosInstance(options?: CommonRequestOptions): AxiosInstance {
-    const axiosInstance = axios.create();
-    axiosInstance.defaults.adapter = this.options.adapter;
-    axiosInstance.defaults.headers.common = {...options?.headers, ...this.options.defaultHeaders};
-    if (options?.validateStatus != null) {
-      if (options.validateStatus === false)
-        axiosInstance.defaults.validateStatus = () => true;
-      else if (typeof options.validateStatus === 'function')
-        axiosInstance.defaults.validateStatus = options.validateStatus;
-    } else if (this.options.validateStatus != null) {
-      if (this.options.validateStatus === false)
-        axiosInstance.defaults.validateStatus = () => true;
-      else if (typeof this.options.validateStatus === 'function')
-        axiosInstance.defaults.validateStatus = this.options.validateStatus;
-    }
-    return axiosInstance;
-  }
-
-  protected async _fetchMetadata(): Promise<void> {
-    const resp = await this._send({
+    promise = this._send({
       method: 'GET',
-      url: joinPath(this.serviceUrl || '/', '$metadata'),
-    }, {validateStatus: true});
-    this._metadata = new OpraDocument(resp.data);
+      url: '/$metadata',
+    });
+    documentCacheResolvers.set(this.serviceUrl.toLowerCase(), promise);
+    try {
+      const resp = await promise;
+      this._metadata = new OpraDocument(resp.data);
+    } finally {
+      documentCacheResolvers.delete(this.serviceUrl.toLowerCase());
+    }
   }
 
-  static async create(serviceUrl: string, options?: OpraClientOptions): Promise<OpraClient> {
+  batch<TResponse extends ClientResponse<any> = ClientResponse<any>>(requests: OpraClientRequest[]): OpraClientRequest<any, TResponse> {
+    this._assertMetadata();
+    return new BatchRequest(this, requests, req => this._send(req));
+  }
+
+  collection<T = any, TResponse extends ClientResponse<T> = ClientResponse<T>>(name: string): CollectionNode<T, TResponse> {
+    this._assertMetadata();
+    const resource = this.metadata.getCollectionResource(name);
+    return new CollectionNode<T, TResponse>(this, resource, req => this._send(req));
+  }
+
+  singleton<T = any, TResponse extends ClientResponse<T> = ClientResponse<T>>(name: string): SingletonNode<T, TResponse> {
+    this._assertMetadata();
+    const resource = this.metadata.getSingletonResource(name);
+    return new SingletonNode<T, TResponse>(this, resource, req => this._send(req))
+  }
+
+  protected async _send<TResponse extends ClientResponse>(req: AxiosRequestConfig): Promise<TResponse> {
+    return this._taskQueue.enqueue<TResponse>(async () => {
+      const resp = await this._axios.request({
+        ...req,
+        validateStatus: () => true
+      });
+      if ((resp.status >= 400 && resp.status < 600) &&
+          (this._axios.defaults.validateStatus && !this._axios.defaults.validateStatus(resp.status))) {
+        throw new ClientError({
+          message: resp.status + ' ' + resp.statusText,
+          status: resp.status,
+          issues: resp.data.errors
+        });
+      }
+      const rawHeaders = (typeof resp.headers.toJSON === 'function'
+              ? resp.headers.toJSON()
+              : {...resp.headers}
+      ) as ResponseHeaders;
+      const headers = new ResponsiveMap<string, string | string[]>(rawHeaders);
+      return {
+        status: resp.status,
+        statusText: resp.statusText,
+        data: resp.data,
+        rawHeaders,
+        headers
+      } as TResponse;
+    }).toPromise();
+  }
+
+  protected _assertMetadata() {
+    if (!this._metadata)
+      throw new Error('You must call init() to before using the client instance');
+  }
+
+  static async create<T extends OpraClient>(this: Type<T>, serviceUrl: string, options?: OpraClientOptions): Promise<T> {
     const client = new this(serviceUrl, options);
-    await client._fetchMetadata();
-    return client;
+    if (!client._metadata)
+      await client.init();
+    return client as T;
   }
 
 }

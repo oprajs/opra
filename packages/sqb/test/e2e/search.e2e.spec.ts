@@ -1,4 +1,4 @@
-import { HttpHeaders } from '@opra/core';
+import { HttpHeaders } from '@opra/common';
 import { OpraTestClient } from '@opra/testing';
 import { createApp, TestApp } from '../_support/app/index.js';
 
@@ -17,7 +17,8 @@ describe('e2e: search', function () {
 
   it('Should return list object', async () => {
     const resp = await client.collection('Customers')
-        .search();
+        .search()
+        .execute();
     resp.expect
         .toSuccess()
         .toReturnCollection()
@@ -26,7 +27,8 @@ describe('e2e: search', function () {
 
   it('Test "limit" option', async () => {
     const resp = await client.collection('Customers')
-        .search({limit: 3});
+        .search({limit: 3})
+        .execute();
     resp.expect
         .toSuccess()
         .toReturnCollection()
@@ -35,7 +37,8 @@ describe('e2e: search', function () {
 
   it('Test "sort" option', async () => {
     const resp = await client.collection('Customers')
-        .search({sort: ['givenName']});
+        .search({sort: ['givenName']})
+        .execute();
     resp.expect
         .toSuccess()
         .toReturnCollection()
@@ -44,7 +47,8 @@ describe('e2e: search', function () {
 
   it('Test "skip" option', async () => {
     const resp = await client.collection('Customers')
-        .search({skip: 10, sort: ['id']});
+        .search({skip: 10, sort: ['id']})
+        .execute();
     resp.expect
         .toSuccess()
         .toReturnCollection()
@@ -54,7 +58,8 @@ describe('e2e: search', function () {
 
   it('Test "pick" option', async () => {
     const resp = await client.collection('Customers')
-        .search({pick: ['givenName']});
+        .search({pick: ['givenName']})
+        .execute();
     resp.expect
         .toSuccess()
         .toReturnCollection()
@@ -63,7 +68,8 @@ describe('e2e: search', function () {
 
   it('Test "omit" option', async () => {
     const resp = await client.collection('Customers')
-        .search({omit: ['givenName']});
+        .search({omit: ['givenName']})
+        .execute();
     resp.expect
         .toSuccess()
         .toReturnCollection()
@@ -72,7 +78,8 @@ describe('e2e: search', function () {
 
   it('Test "filter" option', async () => {
     const resp = await client.collection('Customers')
-        .search({filter: 'gender="M"'});
+        .search({filter: 'gender="M"'})
+        .execute();
     resp.expect
         .toSuccess()
         .toReturnCollection()
@@ -82,7 +89,8 @@ describe('e2e: search', function () {
 
   it('Test "count" option', async () => {
     const resp = await client.collection('Customers')
-        .search({count: true});
+        .search({count: true})
+        .execute();
     resp.expect
         .toSuccess()
         .toReturnCollection();

@@ -1,6 +1,6 @@
 import _ from 'lodash';
 import ruleJudgment from 'rule-judgment'
-import { OpraResponse } from '@opra/client';
+import { ClientResponse } from '@opra/client';
 import {
   $parse, ArrayExpression, BooleanLiteral,
   ComparisonExpression, DateLiteral,
@@ -12,7 +12,7 @@ import {
 
 export class ApiExpectCollection {
 
-  constructor(readonly response: OpraResponse, protected _isNot: boolean = false) {
+  constructor(readonly response: ClientResponse, protected _isNot: boolean = false) {
   }
 
   get not(): ApiExpectCollection {

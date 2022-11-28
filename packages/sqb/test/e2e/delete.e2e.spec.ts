@@ -16,13 +16,15 @@ describe('e2e: delete', function () {
 
   it('Should delete instance', async () => {
     let resp = await client.collection('Customers')
-        .delete(101);
+        .delete(101)
+        .execute();
     resp.expect
         .toSuccess()
         .toReturnOperationResult()
         .toBeAffectedExact(1);
     resp = await client.collection('Customers')
-        .get(101);
+        .get(101)
+        .execute();
     resp.expect
         .toFail(404);
   })

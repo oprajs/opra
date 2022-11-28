@@ -2,7 +2,7 @@ import express from 'express';
 import { OpraDocument } from '@opra/schema';
 import { OpraTestClient } from '@opra/testing';
 import { OpraExpressAdapter } from '../../src/index.js';
-import { createTestDocument } from '../_support/test-app/create-service.js';
+import { createTestDocument } from '../_support/test-app/create-document.js';
 
 describe('e2e: SingletonResource:get', function () {
 
@@ -18,7 +18,9 @@ describe('e2e: SingletonResource:get', function () {
   });
 
   it('Should return object', async () => {
-    const resp = await client.singleton('BestCustomer').get();
+    const resp = await client.singleton('BestCustomer')
+        .get()
+        .execute();
     resp.expect
         .toSuccess()
         .toReturnObject()

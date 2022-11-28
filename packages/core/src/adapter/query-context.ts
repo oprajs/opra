@@ -1,8 +1,7 @@
+import { HeadersMap, HttpStatus } from '@opra/common';
 import { OpraException } from '@opra/exception';
 import { OpraDocument, OpraQuery } from '@opra/schema';
 import { OpraURLSearchParams } from '@opra/url';
-import { HttpStatus } from '../enums/index.js';
-import { HeadersMap } from '../helpers/headers-map.js';
 import {
   ContextType,
   IExecutionContext,

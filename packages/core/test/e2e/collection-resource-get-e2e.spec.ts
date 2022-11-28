@@ -2,7 +2,7 @@ import express from 'express';
 import { OpraDocument } from '@opra/schema';
 import { OpraTestClient } from '@opra/testing';
 import { OpraExpressAdapter } from '../../src/index.js';
-import { createTestDocument } from '../_support/test-app/create-service.js';
+import { createTestDocument } from '../_support/test-app/create-document.js';
 
 describe('e2e: CollectionResource:get', function () {
 
@@ -18,7 +18,9 @@ describe('e2e: CollectionResource:get', function () {
   });
 
   it('Should return object', async () => {
-    const resp = await client.collection('Customers').get(1);
+    const resp = await client.collection('Customers')
+        .get(1)
+        .execute();
     resp.expect
         .toSuccess()
         .toReturnObject()
@@ -27,7 +29,8 @@ describe('e2e: CollectionResource:get', function () {
 
   it('Should not send exclusive fields by default', async () => {
     const resp = await client.collection('Customers')
-        .get(1);
+        .get(1)
+        .execute();
     resp.expect
         .toSuccess()
         .toReturnObject()
@@ -36,7 +39,8 @@ describe('e2e: CollectionResource:get', function () {
 
   it('Should include exclusive fields if requested', async () => {
     const resp = await client.collection('Customers')
-        .get('1', {include: ['address']});
+        .get('1', {include: ['address']})
+        .execute();
     resp.expect
         .toSuccess()
         .toReturnObject()
@@ -45,7 +49,8 @@ describe('e2e: CollectionResource:get', function () {
 
   it('Should pick fields to be returned', async () => {
     const resp = await client.collection('Customers')
-        .get(1, {pick: ['id', 'givenName']});
+        .get(1, {pick: ['id', 'givenName']})
+        .execute();
     resp.expect
         .toSuccess()
         .toReturnObject()
@@ -54,7 +59,8 @@ describe('e2e: CollectionResource:get', function () {
 
   it('Should omit fields to be returned', async () => {
     const resp = await client.collection('Customers')
-        .get(1, {omit: ['id', 'givenName']});
+        .get(1, {omit: ['id', 'givenName']})
+        .execute();
     resp.expect
         .toSuccess()
         .toReturnObject()
