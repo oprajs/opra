@@ -1,5 +1,5 @@
-import { CollectionResourceInfo, OprCollectionResource, ResourceInfo } from '@opra/schema';
-import { JsonCollectionService, QueryContext } from '../../../../src/index.js';
+import { CollectionResourceInfo, OprCollectionResource, ResourceInfo } from '@opra/common';
+import { JsonCollectionService, SingleRequestContext } from '../../../../src/index.js';
 import { ICollectionResource } from '../../../../src/interfaces/resource.interface.js';
 import { CustomerNotes } from '../entities/customer-notes.entity.js';
 
@@ -16,7 +16,7 @@ export class CustomerNotesResource implements ICollectionResource<CustomerNotes>
         {resourceName: 'CustomerNotes', data: []});
   }
 
-  get(ctx: QueryContext, keyValue, options: any) {
+  get(ctx: SingleRequestContext, keyValue, options: any) {
     return this.service.get(keyValue, options);
   }
 

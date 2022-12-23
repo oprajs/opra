@@ -1,4 +1,4 @@
-import { OprComplexType, OprField } from '@opra/schema';
+import { OprComplexType, OprField } from '@opra/common';
 import { Column, DataType } from '@sqb/connect';
 import { Gender } from '../enums/gender.enum.js';
 

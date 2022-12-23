@@ -7,7 +7,7 @@ import {
   parseFilter,
   QualifiedIdentifier,
   StringLiteral, TimeLiteral
-} from '@opra/url';
+} from '@opra/common';
 import * as sqb from '@sqb/builder';
 
 export function convertFilter(str: string | Expression | undefined): any {

@@ -1,4 +1,4 @@
-import { OprCollectionResource, OprSearchResolver } from '@opra/schema';
+import { OprCollectionResource, OprSearchResolver } from '@opra/common';
 import { SqbClient } from '@sqb/connect';
 import { BaseEntityResource, BaseEntityService } from '../../../../src/index.js';
 import { Customer } from '../entities/customer.entity.js';

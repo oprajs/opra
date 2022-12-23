@@ -1,5 +1,5 @@
 import _ from 'lodash';
-import { OpraQuery } from '@opra/schema';
+import { OpraQuery } from '@opra/common';
 import { Repository } from '@sqb/connect';
 import type { BaseEntityService } from './base-entity-service';
 import { convertFilter } from './convert-filter.js';

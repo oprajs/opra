@@ -1,4 +1,4 @@
-import { OprComplexType, OprField } from '@opra/schema';
+import { OprComplexType, OprField } from '@opra/common';
 
 @OprComplexType({
   abstract: true,

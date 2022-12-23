@@ -1,4 +1,4 @@
-import { MixinType, OprComplexType, OprField } from '@opra/schema';
+import { MixinType, OprComplexType, OprField } from '@opra/common';
 import { Column, DataType, Entity, Link } from '@sqb/connect';
 import { Address } from '../types/address.type.js';
 import { Person } from '../types/person.type.js';

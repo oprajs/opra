@@ -1,4 +1,4 @@
-import { ErrorIssue } from '@opra/exception';
+import { ErrorIssue } from '@opra/common';
 
 export class ClientError extends Error {
   public issues: ErrorIssue[];

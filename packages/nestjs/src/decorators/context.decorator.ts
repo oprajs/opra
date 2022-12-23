@@ -3,7 +3,7 @@ import { createOpraParamDecorator } from '../utils/param.utils.js';
 
 /**
  * Handler method parameter decorator. Populates the decorated
- * parameter with the value of `QueryContext`.
+ * parameter with the value of `RequestContext`.
  */
 export const Context = createOpraParamDecorator(HandlerParamType.CONTEXT);
 

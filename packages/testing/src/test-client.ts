@@ -1,45 +1,81 @@
-import { AxiosRequestConfig } from 'axios';
-import * as axiosist from 'axiosist';
-import { IncomingMessage, Server, ServerResponse } from 'http';
+import { createServer, IncomingMessage, Server, ServerResponse } from 'http';
+import { AddressInfo } from 'net';
 import { Type } from 'ts-gems';
-import { ClientResponse, CollectionNode, OpraClient, OpraClientOptions } from '@opra/client';
-import { SingletonNode } from '@opra/client/src/services/singleton-node';
-import { OpraDocument } from '@opra/schema/src/index';
+import { URL } from 'url';
+import {
+  BatchRequest,
+  HttpCollectionService,
+  HttpRequest,
+  HttpResponse,
+  HttpSingletonService,
+  OpraHttpClient,
+  OpraHttpClientOptions,
+} from '@opra/client';
+import { joinPath } from '@opra/common';
 import { ApiExpect } from './api-expect/api-expect.js';
+import { isAbsoluteUrl } from './utils/is-absolute-url.util.js';
 
 declare type RequestListener = (req: IncomingMessage, res: ServerResponse) => void
 declare type Handler = RequestListener | Server
 
-type OpraTestResponse<T = any> = ClientResponse<T> & { expect: ApiExpect };
+export type TestHttpResponse<T = any> = HttpResponse<T> & { expect: ApiExpect };
 
-export class OpraTestClient extends OpraClient {
+export class OpraTestClient extends OpraHttpClient {
+  protected _server: Server;
 
-  constructor(app: Handler, options?: OpraClientOptions)
-  constructor(app: Handler, metadata: OpraDocument, options?: OpraClientOptions)
-  constructor(app: Handler, arg1, arg2?) {
-    super('/', arg1, arg2);
-    this._axios.defaults.adapter = axiosist.createAdapter(app);
-    this._axios.defaults.validateStatus = () => true;
+  constructor(app: Server | RequestListener, options?: OpraHttpClientOptions) {
+    super('/', options);
+    this._server = app instanceof Server ? app : createServer(app);
   }
 
   // @ts-ignore
-  collection<T = any, TResponse extends OpraTestResponse<T> = OpraTestResponse<T>>(name: string): CollectionNode<T, TResponse> {
-    return super.collection<T, TResponse>(name) as unknown as CollectionNode<T, TResponse>;
-  }
+  batch<TResponse extends TestHttpResponse = TestHttpResponse>(requests: HttpRequest[]): BatchRequest<TResponse>;
 
   // @ts-ignore
-  singleton<T = any, TResponse extends OpraTestResponse<T> = OpraTestResponse<T>>(name: string): SingletonNode<T, TResponse> {
-    return super.singleton<T, TResponse>(name) as unknown as SingletonNode<T, TResponse>;
-  }
+  collection<T = any, TResponse extends TestHttpResponse<T> = TestHttpResponse<T>>(name: string): HttpCollectionService<T, TResponse>;
 
   // @ts-ignore
-  protected async _send<TResponse extends OpraTestResponse>(req: AxiosRequestConfig): Promise<TResponse> {
-    const resp = (await super._send(req)) as OpraTestResponse;
+  singleton<T = any, TResponse extends TestHttpResponse<T> = TestHttpResponse<T>>(name: string): HttpSingletonService<T, TResponse>;
+
+  // @ts-ignore
+  protected async _fetch<TResponse extends TestHttpResponse = TestHttpResponse>(urlString: string, req: RequestInit): Promise<TResponse> {
+    const resp = await new Promise<TResponse>((resolve, reject) => {
+      urlString = isAbsoluteUrl(urlString) ? urlString : joinPath('http://opra.test', urlString);
+      const url = new URL(urlString);
+      // Set protocol to HTTP
+      url.protocol = 'http';
+
+      // Apply original host to request header
+      const headers = req.headers = (req.headers || {}) as any;
+      if (url.host !== 'opra.test' && headers?.host == null)
+        headers.host = url.host;
+
+      new Promise<void>((subResolve) => {
+        if (this._server.listening)
+          subResolve()
+        else
+          this._server.listen(0, '127.0.0.1', () => subResolve());
+      }).then(() => {
+        const address = this._server.address() as AddressInfo;
+        url.host = '127.0.0.1';
+        url.port = address.port.toString();
+        return super._fetch(url.toString(), req);
+      }).then(res => {
+        if (!this._server.listening)
+          return resolve(res as TResponse);
+        this._server.close(() => resolve(res as TResponse));
+      }).then()
+          .catch(error => {
+            if (!this._server.listening)
+              return reject(error);
+            this._server.close(() => reject(error));
+          });
+    });
     resp.expect = new ApiExpect(resp);
-    return resp as TResponse;
+    return resp;
   }
 
-  static async create<T extends OpraTestClient>(this: Type<T>, app: Handler, options?: OpraClientOptions): Promise<T> {
+  static async create<T extends OpraTestClient>(this: Type<T>, app: Handler, options?: OpraHttpClientOptions): Promise<T> {
     const client = new this(app, options);
     await client.init();
     return client as T;

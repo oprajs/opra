@@ -4,8 +4,8 @@ import {
   OprDeleteResolver,
   OprSearchResolver,
   ResourceInfo
-} from '@opra/schema';
-import { JsonCollectionService, QueryContext } from '../../../../src/index.js';
+} from '@opra/common';
+import { JsonCollectionService, SingleRequestContext } from '../../../../src/index.js';
 import { ICollectionResource } from '../../../../src/interfaces/resource.interface.js';
 import countriesData from '../data/countries.data.js';
 import { Country } from '../entities/country.entity.js';
@@ -37,7 +37,7 @@ export class CountriesResource implements ICollectionResource<Country> {
         {resourceName: 'Countries', data: countriesData});
   }
 
-  get(ctx: QueryContext, keyValue, options: any) {
+  get(ctx: SingleRequestContext, keyValue, options: any) {
     return this.service.get(keyValue, options);
   }
 

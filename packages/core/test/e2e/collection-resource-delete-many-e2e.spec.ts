@@ -1,5 +1,5 @@
 import express from 'express';
-import { OpraDocument } from '@opra/schema';
+import { OpraDocument } from '@opra/common';
 import { OpraTestClient } from '@opra/testing';
 import { OpraExpressAdapter } from '../../src/index.js';
 import { createTestDocument } from '../_support/test-app/create-document.js';
@@ -7,43 +7,41 @@ import { customersData } from '../_support/test-app/data/customers.data.js';
 
 describe('e2e: CollectionResource:deleteMany', function () {
 
-  let service: OpraDocument;
+  let document: OpraDocument;
   let app;
   let client: OpraTestClient;
 
   beforeAll(async () => {
-    service = await createTestDocument();
+    document = await createTestDocument();
     app = express();
-    await OpraExpressAdapter.init(app, service);
-    client = await OpraTestClient.create(app);
+    await OpraExpressAdapter.init(app, document);
+    client = new OpraTestClient(app, {document});
   });
 
   it('Should delete many instances by filter', async () => {
     let resp = await client.collection('Customers')
         .deleteMany({filter: 'id=102'})
-        .execute();
+        .fetch();
     resp.expect
         .toSuccess()
         .toReturnOperationResult()
         .toBeAffectedExact(1);
-    resp = await client.collection('Customers')
-        .get(102)
-        .execute();
-    resp.expect
-        .toFail(404);
+    await expect(() =>
+        client.collection('Customers').get(102).fetch()
+    ).rejects.toThrow('404');
   })
 
   it('Should delete all', async () => {
     let resp = await client.collection('Customers')
         .deleteMany()
-        .execute();
+        .fetch();
     resp.expect
         .toSuccess()
         .toReturnOperationResult()
         .toBeAffectedExact(customersData.length - 1);
     resp = await client.collection('Customers')
         .search({count: true})
-        .execute();
+        .fetch();
     resp.expect
         .toSuccess()
         .toReturnCollection()

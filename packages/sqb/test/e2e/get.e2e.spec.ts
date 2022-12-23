@@ -17,7 +17,7 @@ describe('e2e: get', function () {
   it('Should return object', async () => {
     const resp = await client.collection('Customers')
         .get(1)
-        .execute();
+        .fetch();
     resp.expect
         .toSuccess()
         .toReturnObject()
@@ -27,17 +27,17 @@ describe('e2e: get', function () {
   it('Should return object', async () => {
     const resp = await client.collection('Customers')
         .get(1)
-        .execute();
+        .fetch();
     resp.expect
         .toSuccess()
         .toReturnObject()
         .toMatch({id: 1})
   })
 
-  it('Should not send exclusive fields (unless not included for resolver)', async () => {
+  it('Should not fetch exclusive fields (unless not included for resolver)', async () => {
     const resp = await client.collection('Customers')
         .get(1)
-        .execute();
+        .fetch();
     resp.expect
         .toSuccess()
         .toReturnObject()
@@ -47,7 +47,7 @@ describe('e2e: get', function () {
   it('Should pick fields to be returned', async () => {
     const resp = await client.collection('Customers')
         .get(1, {pick: ['id', 'givenName']})
-        .execute();
+        .fetch();
     resp.expect
         .toSuccess()
         .toReturnObject()
@@ -57,7 +57,7 @@ describe('e2e: get', function () {
   it('Should omit fields to be returned', async () => {
     const resp = await client.collection('Customers')
         .get(1, {omit: ['id', 'givenName']})
-        .execute();
+        .fetch();
     resp.expect
         .toSuccess()
         .toReturnObject()
@@ -67,7 +67,7 @@ describe('e2e: get', function () {
   it('Should include exclusive fields if requested', async () => {
     const resp = await client.collection('Customers')
         .get(2, {include: ['notes']})
-        .execute();
+        .fetch();
     resp.expect
         .toSuccess()
         .toReturnObject()

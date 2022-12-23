@@ -1,0 +1,12 @@
+{
+  "extends": "../../tsconfig-base.json",
+  "include": ["./test/**/*.ts"],
+//  "types": ["node", "jest"],
+//  "module": "CommonJs",
+  "compilerOptions": {
+    "baseUrl": "./",
+    "paths": {
+      "@opra/*": ["../*/src"],
+    }
+  }
+}

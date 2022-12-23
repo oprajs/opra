@@ -1,10 +1,11 @@
 import _ from 'lodash';
 import {
-  DataType, OpraQuery,
+  DataType,
+  OpraQuery,
   OpraSchema,
   SingletonResourceInfo
-} from '@opra/schema';
-import { QueryContext } from '../adapter/query-context.js';
+} from '@opra/common';
+import { SingleRequestContext } from '../adapter/request-contexts/single-request-context.js';
 import { PartialOutput } from '../types.js';
 
 export interface JsonSingletonServiceOptions<T> {
@@ -19,7 +20,7 @@ export class JsonSingletonService<T, TOutput = PartialOutput<T>> {
     this._data = options?.data;
   }
 
-  async processRequest(ctx: QueryContext): Promise<any> {
+  async processRequest(ctx: SingleRequestContext): Promise<any> {
     const prepared = this._prepare(ctx.query);
     const fn = this[prepared.method];
     if (!fn)

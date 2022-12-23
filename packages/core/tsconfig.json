@@ -3,7 +3,7 @@
   "compilerOptions": {
     "baseUrl": "./",
     "paths": {
-      "@opra/*": ["../*/src"]
+      "@opra/common": ["../common/src"]
     }
   },
   "include": ["src"],

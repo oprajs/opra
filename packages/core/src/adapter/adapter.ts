@@ -1,164 +1,78 @@
+import { Task } from 'power-tasks';
 import { AsyncEventEmitter } from 'strict-typed-events';
-import { HttpHeaders, ResponsiveMap } from '@opra/common';
 import {
-  FailedDependencyError, ForbiddenError,
-  OpraException, ResourceNotFoundError, wrapException
-} from '@opra/exception';
-import { FallbackLng, I18n, LanguageResource, translate } from '@opra/i18n';
-import {
-  CollectionCountQuery, CollectionCreateQuery, CollectionDeleteManyQuery, CollectionDeleteQuery, CollectionGetQuery,
-  CollectionResourceInfo, CollectionSearchQuery, CollectionUpdateManyQuery,
+  CollectionCountQuery,
+  CollectionCreateQuery,
+  CollectionDeleteManyQuery,
+  CollectionDeleteQuery,
+  CollectionGetQuery,
+  CollectionResourceInfo,
+  CollectionSearchQuery,
+  CollectionUpdateManyQuery,
   CollectionUpdateQuery,
   ComplexType,
-  DataType, FieldGetQuery,
+  DataType,
+  FailedDependencyError,
+  FieldGetQuery,
+  ForbiddenError,
+  HttpHeaders,
+  I18n,
+  InternalServerError,
   OpraDocument,
-  ResourceInfo, SingletonGetQuery,
-  SingletonResourceInfo
-} from '@opra/schema';
+  OpraException,
+  ResourceInfo,
+  ResourceNotFoundError,
+  ResponsiveMap,
+  SingletonGetQuery,
+  SingletonResourceInfo,
+  translate,
+  wrapException
+} from '@opra/common';
 import { IExecutionContext } from '../interfaces/execution-context.interface.js';
+import { I18nOptions } from '../interfaces/i18n-options.interface.js';
 import { IResource } from '../interfaces/resource.interface.js';
 import { createI18n } from '../utils/create-i18n.js';
-import { MetadataResource } from './metadata-resource.js';
-import { QueryContext } from './query-context.js';
+import { MetadataResource } from './classes/metadata.resource.js';
+import { BatchRequestContext } from './request-contexts/batch-request-context.js';
+import { RequestContext } from './request-contexts/request-context.js';
+import { SingleRequestContext } from './request-contexts/single-request-context.js';
+
+const noOp = () => void 0;
 
 export namespace OpraAdapter {
-  export type UserContextResolver = (
-      args: {
-        executionContext: IExecutionContext;
-        isBatch: boolean;
-      }
-  ) => object | Promise<object>;
+  export type UserContextResolver = (executionContext: IExecutionContext) => object | Promise<object>;
 
   export interface Options {
     i18n?: I18n | I18nOptions | (() => Promise<I18n>);
     userContext?: UserContextResolver;
   }
 
-  export interface I18nOptions {
-    /**
-     * Language to use
-     * @default undefined
-     */
-    lng?: string;
-
-    /**
-     * Language to use if translations in user language are not available.
-     * @default 'dev'
-     */
-    fallbackLng?: false | FallbackLng;
-
-    /**
-     * Default namespace used if not passed to translation function
-     * @default 'translation'
-     */
-    defaultNS?: string;
-
-    /**
-     * Resources to initialize with
-     * @default undefined
-     */
-    resources?: LanguageResource;
-
-    /**
-     * Resource directories to initialize with (if not using loading or not appending using addResourceBundle)
-     * @default undefined
-     */
-    resourceDirs?: string[];
-  }
-
 }
 
 export abstract class OpraAdapter<TExecutionContext extends IExecutionContext> {
-  protected i18n: I18n;
   protected userContextResolver?: OpraAdapter.UserContextResolver;
-  // protected _metadataResource: SingletonResourceInfo;
   protected _internalResources = new ResponsiveMap<string, ResourceInfo>();
+  i18n: I18n;
 
   constructor(readonly document: OpraDocument) {
-
   }
 
-  protected abstract prepareRequests(executionContext: TExecutionContext): QueryContext[];
+  protected abstract parse(executionContext: TExecutionContext): Promise<RequestContext>;
 
-  protected abstract sendResponse(executionContext: TExecutionContext, queryContexts: QueryContext[]): Promise<void>;
+  protected abstract sendResponse(executionContext: TExecutionContext, requestContext: RequestContext): Promise<void>;
 
   protected abstract sendError(executionContext: TExecutionContext, error: OpraException): Promise<void>;
 
-  protected abstract isBatch(executionContext: TExecutionContext): boolean;
-
   protected async handler(executionContext: TExecutionContext): Promise<void> {
-    let queryContexts: QueryContext[] | undefined;
-    let userContext: any;
+    let requestContext: RequestContext | undefined;
     let failed = false;
     try {
-      queryContexts = this.prepareRequests(executionContext);
-
-      let stop = false;
-      // Read requests can be executed simultaneously, write request should be executed one by one
-      let promises: Promise<void>[] | undefined;
-      let exclusive = false;
-      for (const context of queryContexts) {
-        exclusive = exclusive || context.query.operation !== 'read';
-
-        // Wait previous read requests before executing update request
-        if (exclusive && promises) {
-          await Promise.allSettled(promises);
-          promises = undefined;
-        }
-
-        // If previous request in bucket had an error and executed an update
-        // we do not execute next requests
-        if (stop) {
-          context.errors.push(new FailedDependencyError());
-          continue;
-        }
-
-        try {
-          const promise = (async () => {
-            // if (context.query.method === 'metadata') {
-            //   await this._getSchemaExecute(context); //todo
-            //   return;
-            // }
-            const resource = context.query.resource;
-            await this._resourcePrepare(resource, context);
-            if (this.userContextResolver && !userContext)
-              userContext = this.userContextResolver({
-                executionContext,
-                isBatch: this.isBatch(executionContext)
-              });
-            context.userContext = userContext;
-            await this._resourceExecute(this.document, resource, context);
-          })().catch(e => {
-            context.errors.push(e);
-          });
-
-          if (exclusive)
-            await promise;
-          else {
-            promises = promises || [];
-            promises.push(promise);
-          }
-
-          // todo execute sub property queries
-        } catch (e: any) {
-          context.errors.unshift(e);
-        }
-
-        if (context.errors.length) {
-          // noinspection SuspiciousTypeOfGuard
-          context.errors = context.errors.map(e => wrapException(e))
-          if (exclusive)
-            stop = stop || !!context.errors.find(
-                e => !(e.issue.severity === 'warning' || e.issue.severity === 'info')
-            );
-        }
-      }
-
-      if (promises)
-        await Promise.allSettled(promises);
-
-      await this.sendResponse(executionContext, queryContexts);
-
+      if (this.userContextResolver)
+        executionContext.userContext = this.userContextResolver(executionContext);
+      requestContext = await this.parse(executionContext);
+      const task = this._requestContextToTask(executionContext, requestContext);
+      await task.toPromise().catch(noOp);
+      await this.sendResponse(executionContext, requestContext);
     } catch (e: any) {
       failed = true;
       const error = wrapException(e);
@@ -167,50 +81,52 @@ export abstract class OpraAdapter<TExecutionContext extends IExecutionContext> {
       if (executionContext as unknown instanceof AsyncEventEmitter) {
         await (executionContext as unknown as AsyncEventEmitter)
             .emitAsyncSerial('finish', {
-              userContext,
+              context: executionContext,
               failed
             }).catch();
       }
     }
   }
 
-  protected async _resourcePrepare(resource: ResourceInfo, context: QueryContext) {
-    const {query} = context;
-    const fn = resource.metadata['pre_' + query.method];
-    if (fn && typeof fn === 'function') {
-      await fn(context);
-    }
-  }
-
-  protected async _resourceExecute(document: OpraDocument, resource: ResourceInfo, context: QueryContext) {
-    if (resource instanceof CollectionResourceInfo) {
-      const {query} = context;
-      if (query.kind === 'SearchCollectionQuery') {
-        const promises: Promise<any>[] = [];
-        let search: any;
-        promises.push(
-            this._collectionResourceExecute(document, resource, context)
-                .then(v => search = v)
-        );
-        if (query.count && resource.metadata.count) {
-          const ctx = {
-            query: new CollectionCountQuery(query.resource, {filter: query.filter}),
-            resultPath: ''
-          } as QueryContext;
-          Object.setPrototypeOf(ctx, context);
-          promises.push(this._collectionResourceExecute(document, resource, ctx));
+  protected _requestContextToTask(
+      executionContext: TExecutionContext,
+      requestContext: RequestContext
+  ): Task {
+    if (requestContext instanceof BatchRequestContext) {
+      const children = requestContext.queries.map(q => this._requestContextToTask(executionContext, q));
+      return new Task(children, {bail: true});
+    } else if (requestContext instanceof SingleRequestContext) {
+      const {query} = requestContext;
+      const task = new Task(async () => {
+        if (query.resource) {
+          const {resource} = query;
+          // call pre_xxx method
+          const fn = resource.metadata['pre_' + query.method];
+          if (fn && typeof fn === 'function') {
+            await fn(requestContext);
+          }
+          await this._executeResourceQuery(this.document, resource, requestContext);
+          // todo execute sub property queries
+          return;
         }
-        await Promise.all(promises);
-        context.response = search;
-        return;
-      }
-      context.response = await this._collectionResourceExecute(document, resource, context);
-      return;
-    } else if (resource instanceof SingletonResourceInfo) {
-      context.response = await this._singletonResourceExecute(document, resource, context);
-      return;
+        throw new InternalServerError('Not implemented yet');
+      }, {
+        id: requestContext.contentId,
+        exclusive: query.operation !== 'read'
+      });
+      task.on('finish', () => {
+        if (task.error) {
+          if (task.failedDependencies)
+            requestContext.errors.push(new FailedDependencyError());
+          else
+            requestContext.errors.push(wrapException(task.error));
+          return;
+        }
+      });
+      return task;
     }
-    throw new Error(`Executing "${resource.kind}" has not been implemented yet`);
+    /* istanbul ignore next */
+    throw new TypeError('Invalid request context instance');
   }
 
   protected async _init(options?: OpraAdapter.Options) {
@@ -247,7 +163,42 @@ export abstract class OpraAdapter<TExecutionContext extends IExecutionContext> {
     }
   }
 
-  protected async _collectionResourceExecute(document: OpraDocument, resource: CollectionResourceInfo, context: QueryContext) {
+  protected async _executeResourceQuery(document: OpraDocument, resource: ResourceInfo, context: SingleRequestContext) {
+    if (resource instanceof CollectionResourceInfo) {
+      const {query} = context;
+      if (query instanceof CollectionSearchQuery) {
+        const promises: Promise<any>[] = [];
+        let search: any;
+        promises.push(
+            this._executeCollectionResource(document, resource, context)
+                .then(v => search = v)
+        );
+        if (query.count && resource.metadata.count) {
+          const ctx = {
+            query: new CollectionCountQuery(query.resource, {filter: query.filter}),
+            resultPath: ''
+          } as SingleRequestContext;
+          Object.setPrototypeOf(ctx, context);
+          promises.push(
+              this._executeCollectionResource(document, resource, ctx)
+                  .then(r => {
+                    context.responseHeaders[HttpHeaders.X_Opra_Count] = r;
+                  }));
+        }
+        await Promise.all(promises);
+        context.response = search;
+        return;
+      }
+      context.response = await this._executeCollectionResource(document, resource, context);
+      return;
+    } else if (resource instanceof SingletonResourceInfo) {
+      context.response = await this._executeSingletonResource(document, resource, context);
+      return;
+    }
+    throw new Error(`Executing "${resource.kind}" has not been implemented yet`);
+  }
+
+  protected async _executeCollectionResource(document: OpraDocument, resource: CollectionResourceInfo, context: SingleRequestContext) {
     const method = context.query.method;
     const resolverInfo = resource.metadata[method];
     if (!(resolverInfo && resolverInfo.handler))
@@ -266,13 +217,12 @@ export abstract class OpraAdapter<TExecutionContext extends IExecutionContext> {
         result = Array.isArray(result) ? result[0] : result;
         if (result)
           context.status = 201;
-        context.responseHeaders.set(HttpHeaders.X_Opra_DataType, resource.dataType.name);
+        context.responseHeaders[HttpHeaders.X_Opra_DataType] = resource.dataType.name;
         return result;
       }
       case 'count': {
         const query = context.query as CollectionCountQuery;
         result = await resolverInfo.handler(context, query);
-        context.responseHeaders.set(HttpHeaders.X_Opra_Count, result);
         return result;
       }
       case 'get': {
@@ -285,14 +235,14 @@ export abstract class OpraAdapter<TExecutionContext extends IExecutionContext> {
         if (v.value === undefined)
           throw new ResourceNotFoundError(v.path);
         if (v.dataType)
-          context.responseHeaders.set(HttpHeaders.X_Opra_DataType, v.dataType.name);
+          context.responseHeaders[HttpHeaders.X_Opra_DataType] = v.dataType.name;
         return v.value;
       }
       case 'search': {
         const query = context.query as CollectionSearchQuery;
         result = await resolverInfo.handler(context, query);
         const items = Array.isArray(result) ? result : (context.response ? [result] : []);
-        context.responseHeaders.set(HttpHeaders.X_Opra_DataType, resource.dataType.name);
+        context.responseHeaders[HttpHeaders.X_Opra_DataType] = resource.dataType.name;
         return items;
       }
       case 'update': {
@@ -301,7 +251,7 @@ export abstract class OpraAdapter<TExecutionContext extends IExecutionContext> {
         result = Array.isArray(result) ? result[0] : result;
         if (!result)
           throw new ResourceNotFoundError(resource.name, query.keyValue);
-        context.responseHeaders.set(HttpHeaders.X_Opra_DataType, resource.dataType.name);
+        context.responseHeaders[HttpHeaders.X_Opra_DataType] = resource.dataType.name;
         return result;
       }
       case 'delete':
@@ -339,7 +289,7 @@ export abstract class OpraAdapter<TExecutionContext extends IExecutionContext> {
     }
   }
 
-  protected async _singletonResourceExecute(document: OpraDocument, resource: SingletonResourceInfo, context: QueryContext) {
+  protected async _executeSingletonResource(document: OpraDocument, resource: SingletonResourceInfo, context: SingleRequestContext) {
     const method = context.query.method;
     const resolverInfo = resource.metadata[method];
     if (!(resolverInfo && resolverInfo.handler))
@@ -361,7 +311,7 @@ export abstract class OpraAdapter<TExecutionContext extends IExecutionContext> {
         if (v.value === undefined)
           throw new ResourceNotFoundError(v.path);
         if (v.dataType)
-          context.responseHeaders.set(HttpHeaders.X_Opra_DataType, v.dataType.name);
+          context.responseHeaders[HttpHeaders.X_Opra_DataType] = v.dataType.name;
         return v.value;
       }
     }
@@ -384,7 +334,7 @@ export abstract class OpraAdapter<TExecutionContext extends IExecutionContext> {
     if (method === 'create')
       context.status = 201;
 
-    context.responseHeaders.set(HttpHeaders.X_Opra_DataType, resource.dataType.name)
+    context.responseHeaders[HttpHeaders.X_Opra_DataType] = resource.dataType.name;
     return result;
   }
 

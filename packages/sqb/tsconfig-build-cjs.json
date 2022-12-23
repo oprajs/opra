@@ -6,7 +6,8 @@
     "rootDir": "src",
     "outDir": "../../build/sqb/cjs",
     "paths": {
-      "@opra/*": ["../../build/*"]
+      "@opra/common": ["../../build/common"],
+      "@opra/core": ["../../build/core"]
     },
     "sourceMap": false,
     "noEmit": false,

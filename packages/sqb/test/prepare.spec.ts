@@ -7,7 +7,7 @@ import {
   CollectionUpdateManyQuery,
   CollectionUpdateQuery,
   OpraDocument
-} from '@opra/schema';
+} from '@opra/common';
 import { OperatorType, SerializationType } from '@sqb/builder';
 import { SQBAdapter } from '../src/index.js';
 import { createApp } from './_support/app/index.js';

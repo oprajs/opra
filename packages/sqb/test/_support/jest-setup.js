@@ -153,16 +153,17 @@ async function createTestData(connection, schema) {
         Insert(schema + '.customers', row)
             .generate({dialect: 'postgres'}).sql
     );
-    for (let k = 0; k < Math.round(Math.random() * 3); k++) {
-      lines.push(
-          Insert(schema + '.customer_notes', {
-            // eslint-disable-next-line camelcase
-            customer_id: row.id,
-            title: faker.datatype.string(10),
-            text: faker.datatype.string(20)
-          }).generate({dialect: 'postgres'}).sql
-      );
-    }
+    if (row.id < 10)
+      for (let k = 0; k < 1 + Math.round(Math.random() * 3); k++) {
+        lines.push(
+            Insert(schema + '.customer_notes', {
+              // eslint-disable-next-line camelcase
+              customer_id: row.id,
+              title: faker.datatype.string(10),
+              text: faker.datatype.string(20)
+            }).generate({dialect: 'postgres'}).sql
+        );
+      }
   }
   await connection.execute(lines.join(';\n'));
 }

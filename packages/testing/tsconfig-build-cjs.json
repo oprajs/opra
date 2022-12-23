@@ -6,7 +6,8 @@
     "rootDir": "src",
     "outDir": "../../build/testing/cjs",
     "paths": {
-      "@opra/*": ["../../build/*"]
+      "@opra/client": ["../../build/client"],
+      "@opra/common": ["../../build/common"]
     },
     "sourceMap": false,
     "noEmit": false,

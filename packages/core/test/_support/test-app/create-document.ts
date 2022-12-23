@@ -1,4 +1,4 @@
-import { OpraDocument } from '@opra/schema';
+import { OpraDocument } from '@opra/common';
 import { BestCustomerResource } from './resource/best-customer.resource.js';
 import { CountriesResource } from './resource/countries.resource.js';
 import { CustomerNotesResource } from './resource/customer-notes.resource.js';

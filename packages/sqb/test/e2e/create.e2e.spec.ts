@@ -25,14 +25,14 @@ describe('e2e: create', function () {
     }
     let resp = await client.collection('Customers')
         .create(data)
-        .execute();
+        .fetch();
     resp.expect
         .toSuccess(201)
         .toReturnObject()
         .toMatch({...data, address: undefined});
     resp = await client.collection('Customers')
         .get(1001)
-        .execute();
+        .fetch();
     resp.expect
         .toSuccess()
         .toReturnObject()
@@ -49,7 +49,7 @@ describe('e2e: create', function () {
     }
     const resp = await client.collection('Customers')
         .create(data, {pick: ['id', 'givenName']})
-        .execute();
+        .fetch();
     resp.expect
         .toSuccess(201)
         .toReturnObject()
@@ -66,7 +66,7 @@ describe('e2e: create', function () {
     }
     const resp = await client.collection('Customers')
         .create(data, {omit: ['id', 'givenName']})
-        .execute();
+        .fetch();
     resp.expect
         .toSuccess(201)
         .toReturnObject()
@@ -84,7 +84,7 @@ describe('e2e: create', function () {
     }
     const resp = await client.collection('Customers')
         .create(data, {include: ['address']})
-        .execute();
+        .fetch();
     resp.expect
         .toSuccess(201)
         .toReturnObject()

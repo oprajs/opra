@@ -1,9 +1,9 @@
 import _ from 'lodash';
-import { ClientResponse } from '@opra/client';
+import { OpraClientResponse } from '@opra/client';
 
 export class ApiExpectObject {
 
-  constructor(readonly response: ClientResponse, protected _isNot: boolean = false) {
+  constructor(readonly response: OpraClientResponse, protected _isNot: boolean = false) {
   }
 
   get not(): ApiExpectObject {

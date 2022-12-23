@@ -1,10 +1,14 @@
 import { UseGuards } from '@nestjs/common';
 import {
   CollectionCountQuery,
-  CollectionCreateQuery, OpraDeleteCollectionQuery, OpraDeleteInstanceQuery, OpraGetInstanceQuery,
-  OpraSearchCollectionQuery, OpraUpdateCollectionQuery, OpraUpdateInstanceQuery,
+  CollectionCreateQuery,
+  CollectionDeleteQuery,
+  CollectionGetQuery,
+  CollectionSearchQuery,
+  CollectionUpdateManyQuery,
+  CollectionUpdateQuery,
   OprCollectionResource
-} from '@opra/schema';
+} from '@opra/common';
 import { Query } from '../../../../src/index.js';
 import { AuthGuard } from '../guards/auth.guard.js';
 import { Photos } from './photos.dto.js';
@@ -19,7 +23,7 @@ export class PhotosResource {
   constructor(public photosService: PhotosService) {
   }
 
-  async search(@Query query: OpraSearchCollectionQuery) {
+  async search(@Query query: CollectionSearchQuery) {
     return this.photosService.search(query.filter);
   }
 
@@ -32,23 +36,23 @@ export class PhotosResource {
     return this.photosService.create(query.data);
   }
 
-  get(@Query query: OpraGetInstanceQuery) {
+  get(@Query query: CollectionGetQuery) {
     return this.photosService.get(query.keyValue);
   }
 
-  update(@Query query: OpraUpdateInstanceQuery) {
+  update(@Query query: CollectionUpdateQuery) {
     return this.photosService.update(query.keyValue, query.data);
   }
 
-  async updateMany(@Query query: OpraUpdateCollectionQuery) {
+  async updateMany(@Query query: CollectionUpdateManyQuery) {
     return this.photosService.updateMany(query.data, query.filter);
   }
 
-  async delete(@Query query: OpraDeleteInstanceQuery) {
+  async delete(@Query query: CollectionDeleteQuery) {
     return this.photosService.delete(query.keyValue);
   }
 
-  async deleteMany(@Query query: OpraDeleteCollectionQuery) {
+  async deleteMany(@Query query: CollectionUpdateManyQuery) {
     return this.photosService.deleteMany(query.filter);
   }
 
