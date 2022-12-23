@@ -1,26 +1,26 @@
 import express from 'express';
-import { OpraDocument } from '@opra/schema';
+import { OpraDocument } from '@opra/common';
 import { OpraTestClient } from '@opra/testing';
 import { OpraExpressAdapter } from '../../src/index.js';
 import { createTestDocument } from '../_support/test-app/create-document.js';
 
 describe('e2e: CollectionResource:get', function () {
 
-  let service: OpraDocument;
+  let document: OpraDocument;
   let app;
   let client: OpraTestClient;
 
   beforeAll(async () => {
-    service = await createTestDocument();
+    document = await createTestDocument();
     app = express();
-    await OpraExpressAdapter.init(app, service);
-    client = await OpraTestClient.create(app);
+    await OpraExpressAdapter.init(app, document);
+    client = new OpraTestClient(app, {document});
   });
 
   it('Should return object', async () => {
     const resp = await client.collection('Customers')
         .get(1)
-        .execute();
+        .fetch();
     resp.expect
         .toSuccess()
         .toReturnObject()
@@ -30,7 +30,7 @@ describe('e2e: CollectionResource:get', function () {
   it('Should not send exclusive fields by default', async () => {
     const resp = await client.collection('Customers')
         .get(1)
-        .execute();
+        .fetch();
     resp.expect
         .toSuccess()
         .toReturnObject()
@@ -40,7 +40,7 @@ describe('e2e: CollectionResource:get', function () {
   it('Should include exclusive fields if requested', async () => {
     const resp = await client.collection('Customers')
         .get('1', {include: ['address']})
-        .execute();
+        .fetch();
     resp.expect
         .toSuccess()
         .toReturnObject()
@@ -50,7 +50,7 @@ describe('e2e: CollectionResource:get', function () {
   it('Should pick fields to be returned', async () => {
     const resp = await client.collection('Customers')
         .get(1, {pick: ['id', 'givenName']})
-        .execute();
+        .fetch();
     resp.expect
         .toSuccess()
         .toReturnObject()
@@ -60,7 +60,7 @@ describe('e2e: CollectionResource:get', function () {
   it('Should omit fields to be returned', async () => {
     const resp = await client.collection('Customers')
         .get(1, {omit: ['id', 'givenName']})
-        .execute();
+        .fetch();
     resp.expect
         .toSuccess()
         .toReturnObject()

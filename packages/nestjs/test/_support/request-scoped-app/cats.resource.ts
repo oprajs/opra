@@ -1,5 +1,5 @@
 import { UseGuards, UseInterceptors } from '@nestjs/common';
-import { OprCollectionResource } from '@opra/schema';
+import { OprCollectionResource } from '@opra/common';
 import { Cat } from './cat.dto.js';
 import { CatsService } from './cats.service.js';
 import { Interceptor } from './logging.interceptor.js';

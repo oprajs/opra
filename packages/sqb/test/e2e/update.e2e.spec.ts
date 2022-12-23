@@ -25,7 +25,7 @@ describe('e2e: update', function () {
     }
     let resp = await client.collection('Customers')
         .get(85)
-        .execute();
+        .fetch();
     resp.expect
         .toSuccess()
         .toReturnObject();
@@ -33,7 +33,7 @@ describe('e2e: update', function () {
 
     resp = await client.collection('Customers')
         .update(oldData.id, data)
-        .execute();
+        .fetch();
     resp.expect
         .toSuccess()
         .toReturnObject()
@@ -41,7 +41,7 @@ describe('e2e: update', function () {
 
     resp = await client.collection('Customers')
         .get(oldData.id)
-        .execute();
+        .fetch();
     resp.expect
         .toSuccess()
         .toReturnObject()
@@ -57,7 +57,7 @@ describe('e2e: update', function () {
     }
     let resp = await client.collection('Customers')
         .get(100)
-        .execute();
+        .fetch();
     const oldData = resp.data;
     resp.expect
         .toSuccess()
@@ -65,7 +65,7 @@ describe('e2e: update', function () {
 
     resp = await client.collection('Customers')
         .update(oldData.id, data, {pick: ['id', 'givenName']})
-        .execute();
+        .fetch();
     resp.expect
         .toSuccess()
         .toReturnObject()
@@ -81,7 +81,7 @@ describe('e2e: update', function () {
     }
     let resp = await client.collection('Customers')
         .get(100)
-        .execute();
+        .fetch();
     const oldData = resp.data;
     resp.expect
         .toSuccess()
@@ -89,7 +89,7 @@ describe('e2e: update', function () {
 
     resp = await client.collection('Customers')
         .update(oldData.id, data, {omit: ['id', 'givenName']})
-        .execute();
+        .fetch();
     resp.expect
         .toSuccess()
         .toReturnObject()
@@ -105,7 +105,7 @@ describe('e2e: update', function () {
     }
     let resp = await client.collection('Customers')
         .get(100)
-        .execute();
+        .fetch();
     const oldData = resp.data;
     resp.expect
         .toSuccess()
@@ -113,7 +113,7 @@ describe('e2e: update', function () {
 
     resp = await client.collection('Customers')
         .update(oldData.id, data, {include: ['address']})
-        .execute();
+        .fetch();
     resp.expect
         .toSuccess()
         .toReturnObject()

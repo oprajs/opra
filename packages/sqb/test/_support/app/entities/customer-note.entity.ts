@@ -1,4 +1,4 @@
-import { OprComplexType, OprField } from '@opra/schema';
+import { OprComplexType, OprField } from '@opra/common';
 import { Column, Entity } from '@sqb/connect';
 import { Record } from './record.entity.js';
 

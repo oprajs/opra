@@ -1,22 +1,26 @@
-import * as axiosist from 'axiosist';
 import bodyParser from 'body-parser';
 import express from 'express';
-import type { Customer } from '@opra/core/test/_support/test-app/entities/customer.entity';
-import { OpraDocument } from '@opra/schema';
+import http from 'http';
+import { AddressInfo } from 'net';
+import { OpraDocument } from '@opra/common';
 import { createTestDocument } from '../../core/test/_support/test-app/create-document.js';
-import { OpraClient } from '../src/client.js';
+import type { Customer } from '../../core/test/_support/test-app/entities/customer.entity';
+import { OpraHttpClient } from '../src/index.js';
 
 describe('OpraClient:Collection', function () {
 
   let client: MockClient;
   let document: OpraDocument;
+  let server: http.Server;
   let req;
 
-  class MockClient extends OpraClient {
+  class MockClient extends OpraHttpClient {
     async init(): Promise<void> {
       this._metadata = document;
     }
   }
+
+  afterAll(() => server.close());
 
   beforeAll(async () => {
     document = await createTestDocument();
@@ -24,10 +28,14 @@ describe('OpraClient:Collection', function () {
     app.use(bodyParser.json());
     app.use('*', (_req, _res) => {
       req = _req;
-      _res.end();
-    })
-    client = await MockClient.create('http://localhost', {
-      adapter: axiosist.createAdapter(app)
+      _res.header('Content-Type', 'application/json');
+      _res.end(JSON.stringify({id: 1}));
+    });
+    await new Promise<void>((subResolve) => {
+      server = app.listen(0, '127.0.0.1', () => subResolve());
+    }).then(async () => {
+      const address = server.address() as AddressInfo;
+      client = await MockClient.create('http://127.0.0.1:' + address.port.toString());
     });
   });
 
@@ -36,7 +44,7 @@ describe('OpraClient:Collection', function () {
 
     it('Should send "create" request (promise)', async () => {
       await client.collection<Customer>('Customers')
-          .create(data).execute();
+          .create(data).fetch();
       expect(req).toBeDefined();
       expect(req.method).toStrictEqual('POST');
       expect(req.baseUrl).toStrictEqual('/Customers');
@@ -57,7 +65,7 @@ describe('OpraClient:Collection', function () {
     });
 
     it('Should send "create" request with "$include" param', async () => {
-      await client.collection('Customers').create(data, {include: ['id', 'givenName']}).execute();
+      await client.collection('Customers').create(data, {include: ['id', 'givenName']}).fetch();
       expect(req).toBeDefined();
       expect(req.method).toStrictEqual('POST');
       expect(req.baseUrl).toStrictEqual('/Customers');
@@ -68,7 +76,7 @@ describe('OpraClient:Collection', function () {
 
     it('Should send "create" request with "$pick" param', async () => {
       await client.collection('Customers')
-          .create(data, {pick: ['id', 'givenName']}).execute();
+          .create(data, {pick: ['id', 'givenName']}).fetch();
       expect(req).toBeDefined();
       expect(req.method).toStrictEqual('POST');
       expect(req.baseUrl).toStrictEqual('/Customers');
@@ -79,7 +87,7 @@ describe('OpraClient:Collection', function () {
 
     it('Should send "create" request with "$omit" param', async () => {
       await client.collection('Customers')
-          .create(data, {omit: ['id', 'givenName']}).execute();
+          .create(data, {omit: ['id', 'givenName']}).fetch();
       expect(req).toBeDefined();
       expect(req.method).toStrictEqual('POST');
       expect(req.baseUrl).toStrictEqual('/Customers');
@@ -93,7 +101,7 @@ describe('OpraClient:Collection', function () {
   describe('"delete" request', function () {
     it('Should send "delete" request', async () => {
       await client.collection('Customers')
-          .delete(1).execute();
+          .delete(1).fetch();
       expect(req).toBeDefined();
       expect(req.method).toStrictEqual('DELETE');
       expect(req.baseUrl).toStrictEqual('/Customers@1');
@@ -113,7 +121,7 @@ describe('OpraClient:Collection', function () {
 
     it('Should send "delete" request with multiple keys', async () => {
       await client.collection('Customers')
-          .delete({id: 1, active: true}).execute();
+          .delete({id: 1, active: true}).fetch();
       expect(req).toBeDefined();
       expect(req.method).toStrictEqual('DELETE');
       expect(req.baseUrl).toStrictEqual('/Customers@id=1;active=true');
@@ -126,7 +134,7 @@ describe('OpraClient:Collection', function () {
 
     it('Should send "deleteMany" request', async () => {
       await client.collection('Customers')
-          .deleteMany().execute();
+          .deleteMany().fetch();
       expect(req).toBeDefined();
       expect(req.method).toStrictEqual('DELETE');
       expect(req.baseUrl).toStrictEqual('/Customers');
@@ -146,7 +154,7 @@ describe('OpraClient:Collection', function () {
 
     it('Should send "deleteMany" request with "$filter" param', async () => {
       await client.collection('Customers')
-          .deleteMany({filter: 'id=1'}).execute();
+          .deleteMany({filter: 'id=1'}).fetch();
       expect(req).toBeDefined();
       expect(req.method).toStrictEqual('DELETE');
       expect(req.baseUrl).toStrictEqual('/Customers');
@@ -160,7 +168,7 @@ describe('OpraClient:Collection', function () {
 
     it('Should send "get" request', async () => {
       await client.collection<Customer>('Customers')
-          .get(1).execute();
+          .get(1).fetch();
       expect(req).toBeDefined();
       expect(req.method).toStrictEqual('GET');
       expect(req.baseUrl).toStrictEqual('/Customers@1');
@@ -180,7 +188,7 @@ describe('OpraClient:Collection', function () {
 
     it('Should send "get" request with "$include" param', async () => {
       await client.collection('Customers')
-          .get(1, {include: ['id', 'givenName']}).execute();
+          .get(1, {include: ['id', 'givenName']}).fetch();
       expect(req).toBeDefined();
       expect(req.method).toStrictEqual('GET');
       expect(req.baseUrl).toStrictEqual('/Customers@1');
@@ -190,7 +198,7 @@ describe('OpraClient:Collection', function () {
 
     it('Should send "get" request with "$pick" param', async () => {
       await client.collection('Customers')
-          .get(1, {pick: ['id', 'givenName']}).execute();
+          .get(1, {pick: ['id', 'givenName']}).fetch();
       expect(req).toBeDefined();
       expect(req.method).toStrictEqual('GET');
       expect(req.baseUrl).toStrictEqual('/Customers@1');
@@ -200,7 +208,7 @@ describe('OpraClient:Collection', function () {
 
     it('Should send "get" request with "$omit" param', async () => {
       await client.collection('Customers')
-          .get(1, {omit: ['id', 'givenName']}).execute();
+          .get(1, {omit: ['id', 'givenName']}).fetch();
       expect(req).toBeDefined();
       expect(req.method).toStrictEqual('GET');
       expect(req.baseUrl).toStrictEqual('/Customers@1');
@@ -214,7 +222,7 @@ describe('OpraClient:Collection', function () {
 
     it('Should send "search" request', async () => {
       await client.collection<Customer>('Customers')
-          .search().execute();
+          .search().fetch();
       expect(req).toBeDefined();
       expect(req.method).toStrictEqual('GET');
       expect(req.baseUrl).toStrictEqual('/Customers');
@@ -236,7 +244,7 @@ describe('OpraClient:Collection', function () {
       await client.collection('Customers')
           .search({
             include: ['id', 'givenName']
-          }).execute();
+          }).fetch();
       expect(req).toBeDefined();
       expect(req.method).toStrictEqual('GET');
       expect(req.baseUrl).toStrictEqual('/Customers');
@@ -248,7 +256,7 @@ describe('OpraClient:Collection', function () {
       await client.collection('Customers')
           .search({
             pick: ['id', 'givenName']
-          }).execute();
+          }).fetch();
       expect(req).toBeDefined();
       expect(req.method).toStrictEqual('GET');
       expect(req.baseUrl).toStrictEqual('/Customers');
@@ -260,7 +268,7 @@ describe('OpraClient:Collection', function () {
       await client.collection('Customers')
           .search({
             omit: ['id', 'givenName']
-          }).execute();
+          }).fetch();
       expect(req).toBeDefined();
       expect(req.method).toStrictEqual('GET');
       expect(req.baseUrl).toStrictEqual('/Customers');
@@ -272,7 +280,7 @@ describe('OpraClient:Collection', function () {
       await client.collection('Customers')
           .search({
             sort: ['id', 'givenName']
-          }).execute();
+          }).fetch();
       expect(req).toBeDefined();
       expect(req.method).toStrictEqual('GET');
       expect(req.baseUrl).toStrictEqual('/Customers');
@@ -284,7 +292,7 @@ describe('OpraClient:Collection', function () {
       await client.collection('Customers')
           .search({
             filter: 'id=1'
-          }).execute();
+          }).fetch();
       expect(req).toBeDefined();
       expect(req.method).toStrictEqual('GET');
       expect(req.baseUrl).toStrictEqual('/Customers');
@@ -296,7 +304,7 @@ describe('OpraClient:Collection', function () {
       await client.collection('Customers')
           .search({
             limit: 5
-          }).execute();
+          }).fetch();
       expect(req).toBeDefined();
       expect(req.method).toStrictEqual('GET');
       expect(req.baseUrl).toStrictEqual('/Customers');
@@ -308,7 +316,7 @@ describe('OpraClient:Collection', function () {
       await client.collection('Customers')
           .search({
             skip: 5
-          }).execute();
+          }).fetch();
       expect(req).toBeDefined();
       expect(req.method).toStrictEqual('GET');
       expect(req.baseUrl).toStrictEqual('/Customers');
@@ -322,7 +330,7 @@ describe('OpraClient:Collection', function () {
     const data = {givenName: 'dfd'};
     it('Should send "update" request', async () => {
       await client.collection<Customer>('Customers')
-          .update(1, data).execute();
+          .update(1, data).fetch();
       expect(req).toBeDefined();
       expect(req.method).toStrictEqual('PATCH');
       expect(req.baseUrl).toStrictEqual('/Customers@1');
@@ -343,7 +351,7 @@ describe('OpraClient:Collection', function () {
 
     it('Should send "update" request with "$include" param', async () => {
       await client.collection('Customers')
-          .update(1, data, {include: ['id', 'givenName']}).execute();
+          .update(1, data, {include: ['id', 'givenName']}).fetch();
       expect(req).toBeDefined();
       expect(req.method).toStrictEqual('PATCH');
       expect(req.baseUrl).toStrictEqual('/Customers@1');
@@ -354,7 +362,7 @@ describe('OpraClient:Collection', function () {
 
     it('Should send "update" request with "$pick" param', async () => {
       await client.collection('Customers')
-          .update(1, data, {pick: ['id', 'givenName']}).execute();
+          .update(1, data, {pick: ['id', 'givenName']}).fetch();
       expect(req).toBeDefined();
       expect(req.method).toStrictEqual('PATCH');
       expect(req.baseUrl).toStrictEqual('/Customers@1');
@@ -365,7 +373,7 @@ describe('OpraClient:Collection', function () {
 
     it('Should send "update" request with "$omit" param', async () => {
       await client.collection('Customers')
-          .update(1, data, {omit: ['id', 'givenName']}).execute();
+          .update(1, data, {omit: ['id', 'givenName']}).fetch();
       expect(req).toBeDefined();
       expect(req.method).toStrictEqual('PATCH');
       expect(req.baseUrl).toStrictEqual('/Customers@1');
@@ -383,7 +391,7 @@ describe('OpraClient:Collection', function () {
 
     it('Should send "updateMany" request', async () => {
       await client.collection('Customers')
-          .updateMany(data).execute();
+          .updateMany(data).fetch();
       expect(req).toBeDefined();
       expect(req.method).toStrictEqual('PATCH');
       expect(req.baseUrl).toStrictEqual('/Customers');
@@ -405,7 +413,7 @@ describe('OpraClient:Collection', function () {
 
     it('Should send "updateMany" request with "$filter" param', async () => {
       await client.collection('Customers')
-          .updateMany(data, {filter: 'id=1'}).execute();
+          .updateMany(data, {filter: 'id=1'}).fetch();
       expect(req).toBeDefined();
       expect(req.method).toStrictEqual('PATCH');
       expect(req.baseUrl).toStrictEqual('/Customers');

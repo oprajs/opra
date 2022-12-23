@@ -1,4 +1,4 @@
-import { ClientResponse } from '@opra/client';
+import { HttpResponse } from '@opra/client';
 import { ApiExpectCollection } from './api-expect-collection.js';
 import { ApiExpectError } from './api-expect-error.js';
 import { ApiExpectObject } from './api-expect-object.js';
@@ -6,7 +6,7 @@ import { ApiExpectOperationResult } from './api-expect-operation-result.js';
 
 export class ApiExpect {
 
-  constructor(readonly response: ClientResponse, protected _isNot: boolean = false) {
+  constructor(readonly response: HttpResponse, protected _isNot: boolean = false) {
   }
 
   get not(): ApiExpect {
@@ -70,6 +70,7 @@ export class ApiExpect {
     try {
       msg = '"body" is empty';
       expect(this.response.data).toBeDefined();
+      expect(typeof this.response.data).toStrictEqual('object');
     } catch (e: any) {
       if (msg)
         e.message = msg + '\n\n' + e.message;

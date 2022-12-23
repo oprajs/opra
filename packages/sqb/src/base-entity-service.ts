@@ -1,6 +1,6 @@
 import { Maybe, Type } from 'ts-gems';
+import { BadRequestError } from '@opra/common';
 import { PartialInput, PartialOutput } from '@opra/core';
-import { BadRequestError } from '@opra/exception';
 import { EntityInput, EntityMetadata, Repository, SqbClient, SqbConnection } from '@sqb/connect';
 
 export namespace BaseEntityService {
@@ -57,7 +57,6 @@ export abstract class BaseEntityService<T, TOutput = PartialOutput<T>> {
     }
   }
 
-
   async delete(
       keyValue: any,
       options?: BaseEntityService.DeleteOptions,
@@ -102,7 +101,7 @@ export abstract class BaseEntityService<T, TOutput = PartialOutput<T>> {
       throw new BadRequestError(e);
     }
     if (out && this.onTransformRow)
-      out = this.onTransformRow(out, userContext, 'findByPk');
+      out = this.onTransformRow(out, userContext, 'get');
     return out;
   }
 
@@ -148,7 +147,7 @@ export abstract class BaseEntityService<T, TOutput = PartialOutput<T>> {
       throw new BadRequestError(e);
     }
     if (out && this.onTransformRow)
-      out = this.onTransformRow(out, userContext, 'create');
+      out = this.onTransformRow(out, userContext, 'update');
     return out;
   }
 

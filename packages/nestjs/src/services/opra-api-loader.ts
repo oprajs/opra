@@ -1,9 +1,8 @@
 import { Inject, Logger } from '@nestjs/common';
 import { ApplicationConfig, HttpAdapterHost } from '@nestjs/core';
 import { Module } from '@nestjs/core/injector/module.js';
+import { joinPath, normalizePath, OpraDocument } from '@opra/common';
 import { OpraAdapter, OpraExpressAdapter } from '@opra/core';
-import { OpraDocument } from '@opra/schema';
-import { joinPath, normalizePath } from '@opra/url';
 import { OPRA_MODULE_OPTIONS } from '../constants.js';
 import { OpraApiFactory } from '../factories/opra-api.factory.js';
 import { OpraModuleOptions } from '../interfaces/opra-module-options.interface.js';

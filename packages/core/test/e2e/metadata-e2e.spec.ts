@@ -1,18 +1,18 @@
 import express from 'express';
 import request from 'supertest';
-import { OpraDocument } from '@opra/schema';
+import { OpraDocument } from '@opra/common';
 import { OpraExpressAdapter } from '../../src/index.js';
 import { createTestDocument } from '../_support/test-app/create-document.js';
 
 describe('Metadata', function () {
 
-  let service: OpraDocument;
+  let document: OpraDocument;
   let app;
 
   beforeAll(async () => {
-    service = await createTestDocument();
+    document = await createTestDocument();
     app = express();
-    await OpraExpressAdapter.init(app, service);
+    await OpraExpressAdapter.init(app, document);
   });
 
   it('Should /$metadata return service schema', async () => {

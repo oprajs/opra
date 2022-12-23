@@ -1,18 +1,18 @@
 import _ from 'lodash';
 import ruleJudgment from 'rule-judgment'
-import { ClientResponse } from '@opra/client';
+import { HttpResponse } from '@opra/client';
 import {
-  $parse, ArrayExpression, BooleanLiteral,
+  ArrayExpression, BooleanLiteral,
   ComparisonExpression, DateLiteral,
   Expression, LogicalExpression, NullLiteral,
-  NumberLiteral, ParenthesesExpression,
+  NumberLiteral, ParenthesesExpression, parseFilter,
   QualifiedIdentifier,
   StringLiteral, TimeLiteral
-} from '@opra/url';
+} from '@opra/common';
 
 export class ApiExpectCollection {
 
-  constructor(readonly response: ClientResponse, protected _isNot: boolean = false) {
+  constructor(readonly response: HttpResponse, protected _isNot: boolean = false) {
   }
 
   get not(): ApiExpectCollection {
@@ -139,7 +139,7 @@ export class ApiExpectCollection {
 }
 
 export function convertFilter(str: string | Expression | undefined): any {
-  const ast = typeof str === 'string' ? $parse(str) : str;
+  const ast = typeof str === 'string' ? parseFilter(str) : str;
   if (!ast)
     return;
 

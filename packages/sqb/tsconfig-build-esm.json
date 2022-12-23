@@ -5,7 +5,8 @@
     "rootDir": "src",
     "outDir": "../../build/sqb/esm",
     "paths": {
-      "@opra/*": ["../../build/*"]
+      "@opra/common": ["../../build/common"],
+      "@opra/core": ["../../build/core"]
     },
     "sourceMap": false,
     "noEmit": false,

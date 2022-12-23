@@ -3,25 +3,27 @@ import merge from 'putil-merge';
 import { Maybe } from 'ts-gems';
 import { nSQL } from "@nano-sql/core";
 import { InanoSQLTableConfig } from '@nano-sql/core/lib/interfaces';
-import { BadRequestError, MethodNotAllowedError, ResourceConflictError } from '@opra/exception';
 import {
-  CollectionResourceInfo,
-  ComplexType, DataType,
-  OpraQuery,
-  OpraSchema
-} from '@opra/schema';
-import {
-  $parse, ArrayExpression,
+  ArrayExpression,
+  BadRequestError,
   BooleanLiteral,
-  ComparisonExpression, DateLiteral,
-  Expression, LogicalExpression, NullLiteral,
-  NumberLiteral, ParenthesesExpression,
+  CollectionResourceInfo,
+  ComparisonExpression, ComplexType, DataType,
+  DateLiteral,
+  Expression, LogicalExpression, MethodNotAllowedError,
+  NullLiteral,
+  NumberLiteral,
+  OpraQuery,
+  OpraSchema,
+  ParenthesesExpression,
+  parseFilter,
+  pathToTree,
   QualifiedIdentifier,
+  ResourceConflictError,
   StringLiteral, TimeLiteral
-} from '@opra/url';
-import { QueryContext } from '../adapter/query-context.js';
+} from '@opra/common';
+import { SingleRequestContext } from '../adapter/request-contexts/single-request-context.js';
 import { PartialInput, PartialOutput } from '../types.js';
-import { pathToTree } from '../utils/path-to-tree.js';
 
 export interface JsonCollectionServiceOptions {
   resourceName?: string;
@@ -70,7 +72,7 @@ export class JsonCollectionService<T, TOutput = PartialOutput<T>> {
     }
   }
 
-  async processRequest(ctx: QueryContext): Promise<any> {
+  async processRequest(ctx: SingleRequestContext): Promise<any> {
     const prepared = this._prepare(ctx.query);
     const fn = this[prepared.method];
     if (!fn)
@@ -451,7 +453,7 @@ export class JsonCollectionService<T, TOutput = PartialOutput<T>> {
 
   protected _convertFilter(str: string | Expression | undefined | {}): any {
     const ast = typeof str === 'string'
-        ? $parse(str)
+        ? parseFilter(str)
         : str;
     if (!ast || !(ast instanceof Expression))
       return ast;

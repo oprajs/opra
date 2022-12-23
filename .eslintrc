@@ -141,6 +141,7 @@
           {
             "line": {
               "markers": [
+                "/",
                 "#region",
                 "#endregion",
                 "region",

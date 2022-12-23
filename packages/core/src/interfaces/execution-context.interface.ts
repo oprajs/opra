@@ -1,5 +1,7 @@
+import { IncomingHttpHeaders, OutgoingHttpHeaders } from 'http';
+import { Readable, Writable } from 'stream';
+
 export type ContextType = 'http' | 'ws' | 'rpc';
-export type PlatformType = 'express';
 
 export namespace IExecutionContext {
   export type OnFinishArgs = {
@@ -9,24 +11,22 @@ export namespace IExecutionContext {
 }
 
 export interface IExecutionContext {
+  userContext: any;
+
   getType(): ContextType;
 
-  getPlatform(): PlatformType;
+  getPlatform(): string;
 
   switchToHttp(): IHttpExecutionContext;
 
   onFinish(fn: (args: IExecutionContext.OnFinishArgs) => void | Promise<void>);
-
 }
 
 export interface IHttpExecutionContext extends IExecutionContext {
-  getRequest(): any;
 
-  getResponse(): any;
+  getRequest(): IHttpRequestWrapper;
 
-  getRequestWrapper(): IHttpRequestWrapper;
-
-  getResponseWrapper(): IHttpResponseWrapper;
+  getResponse(): IHttpResponseWrapper;
 }
 
 export interface IHttpRequestWrapper {
@@ -39,28 +39,42 @@ export interface IHttpRequestWrapper {
 
   getHeaderNames(): string[];
 
-  getHeader(name: string): string | undefined;
+  getHeader(name: string): string | string[] | undefined;
 
-  getHeaders(): Record<string, any>;
+  getHeaders(): IncomingHttpHeaders;
 
   getBody(): any;
+
+  isCompleted(): boolean;
+
+  getStream(): Readable;
+
 }
 
 export interface IHttpResponseWrapper {
 
   getInstance(): any;
 
+  getHeader(name: string): number | string | string[] | undefined;
+
+  getHeaders(): OutgoingHttpHeaders;
+
+  getHeaderNames(): string[];
+
+  hasHeader(name: string): boolean;
+
+  removeHeader(name: string): void;
+
+  setHeader(name: string, value: number | string | string[]): this;
+
   getStatus(): number | undefined;
 
   setStatus(value: number): this;
 
-  getHeaderNames(name: string): string[];
-
-  getHeader(name: string): string | undefined;
-
-  setHeader(name: string, value: string): this;
+  getStream(): Writable;
 
   send(body: any): this;
 
   end(): this;
+
 }

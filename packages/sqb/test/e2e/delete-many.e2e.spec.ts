@@ -15,18 +15,17 @@ describe('e2e: deleteMany', function () {
   })
 
   it('Should delete many instances by filter', async () => {
-    let resp = await client.collection('Customers')
+    const resp = await client.collection('Customers')
         .deleteMany({filter: 'id=102'})
-        .execute();
+        .fetch();
     resp.expect
         .toSuccess()
         .toReturnOperationResult()
         .toBeAffectedExact(1);
-    resp = await client.collection('Customers')
+    await expect(() => client.collection('Customers')
         .get(102)
-        .execute();
-    resp.expect
-        .toFail(404);
+        .fetch()
+    ).rejects.toThrow('404');
   })
 });
 

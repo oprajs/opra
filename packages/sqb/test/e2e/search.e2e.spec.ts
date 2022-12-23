@@ -18,7 +18,7 @@ describe('e2e: search', function () {
   it('Should return list object', async () => {
     const resp = await client.collection('Customers')
         .search()
-        .execute();
+        .fetch();
     resp.expect
         .toSuccess()
         .toReturnCollection()
@@ -28,7 +28,7 @@ describe('e2e: search', function () {
   it('Test "limit" option', async () => {
     const resp = await client.collection('Customers')
         .search({limit: 3})
-        .execute();
+        .fetch();
     resp.expect
         .toSuccess()
         .toReturnCollection()
@@ -38,7 +38,7 @@ describe('e2e: search', function () {
   it('Test "sort" option', async () => {
     const resp = await client.collection('Customers')
         .search({sort: ['givenName']})
-        .execute();
+        .fetch();
     resp.expect
         .toSuccess()
         .toReturnCollection()
@@ -48,7 +48,7 @@ describe('e2e: search', function () {
   it('Test "skip" option', async () => {
     const resp = await client.collection('Customers')
         .search({skip: 10, sort: ['id']})
-        .execute();
+        .fetch();
     resp.expect
         .toSuccess()
         .toReturnCollection()
@@ -59,7 +59,7 @@ describe('e2e: search', function () {
   it('Test "pick" option', async () => {
     const resp = await client.collection('Customers')
         .search({pick: ['givenName']})
-        .execute();
+        .fetch();
     resp.expect
         .toSuccess()
         .toReturnCollection()
@@ -69,7 +69,7 @@ describe('e2e: search', function () {
   it('Test "omit" option', async () => {
     const resp = await client.collection('Customers')
         .search({omit: ['givenName']})
-        .execute();
+        .fetch();
     resp.expect
         .toSuccess()
         .toReturnCollection()
@@ -79,7 +79,7 @@ describe('e2e: search', function () {
   it('Test "filter" option', async () => {
     const resp = await client.collection('Customers')
         .search({filter: 'gender="M"'})
-        .execute();
+        .fetch();
     resp.expect
         .toSuccess()
         .toReturnCollection()
@@ -90,7 +90,7 @@ describe('e2e: search', function () {
   it('Test "count" option', async () => {
     const resp = await client.collection('Customers')
         .search({count: true})
-        .execute();
+        .fetch();
     resp.expect
         .toSuccess()
         .toReturnCollection();

@@ -8,8 +8,8 @@ import { ContextId, InstanceWrapper } from '@nestjs/core/injector/instance-wrapp
 import { InternalCoreModule } from '@nestjs/core/injector/internal-core-module';
 import { Module } from '@nestjs/core/injector/module.js';
 import { REQUEST_CONTEXT_ID } from '@nestjs/core/router/request/request-constants';
-import { QueryContext } from '@opra/core';
-import { collectionMethods, OpraDocument, OpraDocumentArgs, OpraSchema, RESOURCE_METADATA } from '@opra/schema';
+import { collectionMethods, OpraDocument, OpraDocumentArgs, OpraSchema, RESOURCE_METADATA } from '@opra/common';
+import { SingleRequestContext } from '@opra/core';
 import { PARAM_ARGS_METADATA } from '../constants.js';
 import { HandlerParamType } from '../enums/handler-paramtype.enum.js';
 import { OpraModuleOptions } from '../interfaces/opra-module-options.interface.js';
@@ -75,12 +75,12 @@ export class OpraApiFactory {
         const preCallback = this._createContextCallback(instance, prototype, wrapper,
             rootModule, methodName, isRequestScoped, undefined, contextType, true
         );
-        const newPreFn = instance['pre_' + methodName] = function (ctx: QueryContext) {
+        const newPreFn = instance['pre_' + methodName] = function (ctx: SingleRequestContext) {
           switch (ctx.type) {
             case 'http':
               const http = ctx.switchToHttp();
-              const req = http.getRequestWrapper().getInstance();
-              const res = http.getResponseWrapper().getInstance();
+              const req = http.getRequest().getInstance();
+              const res = http.getResponse().getInstance();
               return preCallback(req, res, noOpFunction, ctx);
             default:
               throw new Error(`"${ctx.type}" context type is not implemented yet`)
@@ -109,12 +109,12 @@ export class OpraApiFactory {
 
         const callback = this._createContextCallback(instance, prototype, wrapper,
             rootModule, methodName, isRequestScoped, undefined, contextType, false);
-        const newFn = instance[methodName] = function (ctx: QueryContext) {
+        const newFn = instance[methodName] = function (ctx: SingleRequestContext) {
           switch (ctx.type) {
             case 'http':
               const http = ctx.switchToHttp();
-              const req = http.getRequestWrapper().getInstance();
-              const res = http.getResponseWrapper().getInstance();
+              const req = http.getRequest().getInstance();
+              const res = http.getResponse().getInstance();
               return callback(req, res, noOpFunction, ctx);
             default:
               throw new Error(`"${ctx.type}" context type is not implemented yet`)
@@ -150,7 +150,7 @@ export class OpraApiFactory {
 
     if (isRequestScoped) {
       return async (...args: any[]) => {
-        const opraContext: QueryContext = paramsFactory.exchangeKeyForValue(HandlerParamType.CONTEXT, undefined, args);
+        const opraContext: SingleRequestContext = paramsFactory.exchangeKeyForValue(HandlerParamType.CONTEXT, undefined, args);
         const contextId = this.getContextId(opraContext);
         this.registerContextProvider(opraContext, contextId);
         const contextInstance = await this.injector.loadPerContext(

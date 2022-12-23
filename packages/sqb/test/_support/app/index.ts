@@ -1,7 +1,7 @@
 import '@sqb/postgres';
 import express from 'express';
+import { OpraDocument } from '@opra/common';
 import { OpraExpressAdapter } from '@opra/core';
-import { OpraDocument } from '@opra/schema';
 import { SqbClient } from '@sqb/connect';
 import { CountriesResource } from './resources/countries.resource.js';
 import { CustomersResource } from './resources/customers.resource.js';

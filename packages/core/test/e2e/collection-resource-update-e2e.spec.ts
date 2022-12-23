@@ -1,21 +1,21 @@
 import express from 'express';
 import { faker } from '@faker-js/faker';
-import { OpraDocument } from '@opra/schema';
+import { OpraDocument } from '@opra/common';
 import { OpraTestClient } from '@opra/testing';
 import { OpraExpressAdapter } from '../../src/index.js';
 import { createTestDocument } from '../_support/test-app/create-document.js';
 
 describe('e2e: CollectionResource:update', function () {
 
-  let service: OpraDocument;
+  let document: OpraDocument;
   let app;
   let client: OpraTestClient;
 
   beforeAll(async () => {
-    service = await createTestDocument();
+    document = await createTestDocument();
     app = express();
-    await OpraExpressAdapter.init(app, service);
-    client = await OpraTestClient.create(app);
+    await OpraExpressAdapter.init(app, document);
+    client = new OpraTestClient(app, {document});
   });
 
   it('Should update instance', async () => {
@@ -27,7 +27,7 @@ describe('e2e: CollectionResource:update', function () {
     }
     let resp = await client.collection('Customers')
         .get(100)
-        .execute();
+        .fetch();
     const oldData = resp.data;
     resp.expect
         .toSuccess()
@@ -35,7 +35,7 @@ describe('e2e: CollectionResource:update', function () {
 
     resp = await client.collection('Customers')
         .update(oldData.id, data)
-        .execute();
+        .fetch();
     resp.expect
         .toSuccess()
         .toReturnObject()
@@ -43,7 +43,7 @@ describe('e2e: CollectionResource:update', function () {
 
     resp = await client.collection('Customers')
         .get(oldData.id)
-        .execute();
+        .fetch();
     resp.expect
         .toSuccess()
         .toReturnObject()
@@ -59,7 +59,7 @@ describe('e2e: CollectionResource:update', function () {
     }
     let resp = await client.collection('Customers')
         .get(100)
-        .execute();
+        .fetch();
     const oldData = resp.data;
     resp.expect
         .toSuccess()
@@ -67,7 +67,7 @@ describe('e2e: CollectionResource:update', function () {
 
     resp = await client.collection('Customers')
         .update(oldData.id, data, {pick: ['id', 'givenName']})
-        .execute();
+        .fetch();
     resp.expect
         .toSuccess()
         .toReturnObject()
@@ -83,7 +83,7 @@ describe('e2e: CollectionResource:update', function () {
     }
     let resp = await client.collection('Customers')
         .get(100)
-        .execute();
+        .fetch();
     const oldData = resp.data;
     resp.expect
         .toSuccess()
@@ -91,7 +91,7 @@ describe('e2e: CollectionResource:update', function () {
 
     resp = await client.collection('Customers')
         .update(oldData.id, data, {omit: ['id', 'givenName']})
-        .execute();
+        .fetch();
     resp.expect
         .toSuccess()
         .toReturnObject()
@@ -107,7 +107,7 @@ describe('e2e: CollectionResource:update', function () {
     }
     let resp = await client.collection('Customers')
         .get(100)
-        .execute();
+        .fetch();
     const oldData = resp.data;
     resp.expect
         .toSuccess()
@@ -115,7 +115,7 @@ describe('e2e: CollectionResource:update', function () {
 
     resp = await client.collection('Customers')
         .update(oldData.id, data, {include: ['address']})
-        .execute();
+        .fetch();
     resp.expect
         .toSuccess()
         .toReturnObject()

@@ -1,35 +1,33 @@
 import express from 'express';
-import { OpraDocument } from '@opra/schema';
+import { OpraDocument } from '@opra/common';
 import { OpraTestClient } from '@opra/testing';
 import { OpraExpressAdapter } from '../../src/index.js';
 import { createTestDocument } from '../_support/test-app/create-document.js';
 
 describe('e2e: CollectionResource:delete', function () {
 
-  let service: OpraDocument;
+  let document: OpraDocument;
   let app;
   let client: OpraTestClient;
 
   beforeAll(async () => {
-    service = await createTestDocument();
+    document = await createTestDocument();
     app = express();
-    await OpraExpressAdapter.init(app, service);
-    client = await OpraTestClient.create(app);
+    await OpraExpressAdapter.init(app, document);
+    client = new OpraTestClient(app, {document});
   });
 
   it('Should delete instance', async () => {
-    let resp = await client.collection('Customers')
+    const resp = await client.collection('Customers')
         .delete(101)
-        .toPromise();
+        .fetch();
     resp.expect
         .toSuccess()
         .toReturnOperationResult()
         .toBeAffectedExact(1);
-    resp = await client.collection('Customers')
-        .get(101)
-        .toPromise();
-    resp.expect
-        .toFail(404);
+    await expect(() =>
+        client.collection('Customers').get(101).fetch()
+    ).rejects.toThrow('404')
   })
 
 });

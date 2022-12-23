@@ -1,5 +1,5 @@
 import { Maybe } from 'ts-gems';
-import { ResourceInfo } from '@opra/schema';
+import { ResourceInfo } from '@opra/common';
 import { PartialOutput } from '../types.js';
 
 export interface IResource {

@@ -15,18 +15,17 @@ describe('e2e: delete', function () {
   })
 
   it('Should delete instance', async () => {
-    let resp = await client.collection('Customers')
+    const resp = await client.collection('Customers')
         .delete(101)
-        .execute();
+        .fetch();
     resp.expect
         .toSuccess()
         .toReturnOperationResult()
         .toBeAffectedExact(1);
-    resp = await client.collection('Customers')
+    await expect(() => client.collection('Customers')
         .get(101)
-        .execute();
-    resp.expect
-        .toFail(404);
+        .fetch()
+    ).rejects.toThrow('404');
   })
 
 });

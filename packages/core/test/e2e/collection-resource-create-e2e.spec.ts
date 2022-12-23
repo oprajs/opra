@@ -1,21 +1,21 @@
 import express from 'express';
 import { faker } from '@faker-js/faker';
-import { OpraDocument } from '@opra/schema';
+import { OpraDocument } from '@opra/common';
 import { OpraTestClient } from '@opra/testing';
 import { OpraExpressAdapter } from '../../src/index.js';
 import { createTestDocument } from '../_support/test-app/create-document.js';
 
 describe('e2e: CollectionResource:create', function () {
 
-  let api: OpraDocument;
+  let document: OpraDocument;
   let app;
   let client: OpraTestClient;
 
   beforeAll(async () => {
-    api = await createTestDocument();
+    document = await createTestDocument();
     app = express();
-    await OpraExpressAdapter.init(app, api);
-    client = await OpraTestClient.create(app);
+    await OpraExpressAdapter.init(app, document);
+    client = new OpraTestClient(app, {document});
   });
 
   it('Should create instance', async () => {
@@ -28,14 +28,14 @@ describe('e2e: CollectionResource:create', function () {
     }
     let resp = await client.collection('Customers')
         .create(data)
-        .execute();
+        .fetch();
     resp.expect
         .toSuccess(201)
         .toReturnObject()
         .toMatch({...data, address: undefined});
     resp = await client.collection('Customers')
         .get(1001)
-        .execute();
+        .fetch();
     resp.expect
         .toSuccess()
         .toReturnObject()
@@ -52,7 +52,7 @@ describe('e2e: CollectionResource:create', function () {
     }
     const resp = await client.collection('Customers')
         .create(data, {include: ['address']})
-        .execute();
+        .fetch();
     resp.expect
         .toSuccess(201)
         .toReturnObject()
@@ -69,7 +69,7 @@ describe('e2e: CollectionResource:create', function () {
     }
     const resp = await client.collection('Customers')
         .create(data, {pick: ['id', 'givenName']})
-        .execute();
+        .fetch();
     resp.expect
         .toSuccess(201)
         .toReturnObject()
@@ -86,7 +86,7 @@ describe('e2e: CollectionResource:create', function () {
     }
     const resp = await client.collection('Customers')
         .create(data, {omit: ['id', 'givenName']})
-        .execute();
+        .fetch();
     resp.expect
         .toSuccess(201)
         .toReturnObject()

@@ -6,7 +6,6 @@
     "rootDir": "src",
     "outDir": "../../build/common/cjs",
     "paths": {
-      "@opra/*": ["../../build/*"]
     },
     "sourceMap": false,
     "noEmit": false,
