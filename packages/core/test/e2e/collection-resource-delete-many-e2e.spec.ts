@@ -19,7 +19,7 @@ describe('e2e: CollectionResource:deleteMany', function () {
   });
 
   it('Should delete many instances by filter', async () => {
-    let resp = await client.collection('Customers')
+    const resp = await client.collection('Customers')
         .deleteMany({filter: 'id=102'})
         .fetch();
     resp.expect

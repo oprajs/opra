@@ -1,4 +1,4 @@
-import _ from 'lodash';
+import { isNil, omitBy } from 'lodash';
 import {
   DataType,
   OpraQuery,
@@ -48,11 +48,11 @@ export class JsonSingletonService<T, TOutput = PartialOutput<T>> {
     }
     switch (query.method) {
       case 'create': {
-        const options: JsonSingletonService.CreateOptions = _.omitBy({
+        const options: JsonSingletonService.CreateOptions = omitBy({
           pick: query.pick,
           omit: query.omit,
           include: query.include
-        }, _.isNil);
+        }, isNil);
         const {data} = query;
         return {
           method: query.method,
@@ -63,11 +63,11 @@ export class JsonSingletonService<T, TOutput = PartialOutput<T>> {
       }
       case 'get': {
         if (query.kind === 'CollectionGetQuery') {
-          const options: JsonSingletonService.GetOptions = _.omitBy({
+          const options: JsonSingletonService.GetOptions = omitBy({
             pick: query.pick,
             omit: query.omit,
             include: query.include
-          }, _.isNil);
+          }, isNil);
           const keyValue = query.keyValue;
           return {
             method: query.method,
@@ -82,11 +82,11 @@ export class JsonSingletonService<T, TOutput = PartialOutput<T>> {
         break;
       }
       case 'update': {
-        const options: JsonSingletonService.UpdateOptions = _.omitBy({
+        const options: JsonSingletonService.UpdateOptions = omitBy({
           pick: query.pick,
           omit: query.omit,
           include: query.include
-        }, _.isNil);
+        }, isNil);
         const {data} = query;
         const keyValue = query.keyValue;
         return {

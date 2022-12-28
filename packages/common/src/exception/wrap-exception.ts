@@ -1,11 +1,12 @@
-import {
-  BadRequestError,
-  FailedDependencyError,
-  ForbiddenError,
-  MethodNotAllowedError,
-  NotAcceptableError, NotFoundError,
-  OpraException, UnauthorizedError, UnprocessableEntityError
-} from './index.js';
+import { BadRequestError } from './http-errors/bad-request.error.js';
+import { FailedDependencyError } from './http-errors/failed-dependency.error.js';
+import { ForbiddenError } from './http-errors/forbidden.error.js';
+import { MethodNotAllowedError } from './http-errors/method-not-allowed.error.js';
+import { NotAcceptableError } from './http-errors/not-acceptable.error.js';
+import { NotFoundError } from './http-errors/not-found.error.js';
+import { UnauthorizedError } from './http-errors/unauthorized.error.js';
+import { UnprocessableEntityError } from './http-errors/unprocessable-entity.error.js';
+import { OpraException } from './opra-exception.js';
 
 export function wrapException(e: any): OpraException {
   if (e instanceof OpraException)

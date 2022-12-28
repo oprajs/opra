@@ -1,8 +1,8 @@
-import { OpraClientResponse } from '@opra/client';
+import { HttpResponse } from '@opra/client';
 
 export class ApiExpectOperationResult {
 
-  constructor(readonly response: OpraClientResponse, protected _isNot: boolean = false) {
+  constructor(readonly response: HttpResponse, protected _isNot: boolean = false) {
   }
 
   get not(): ApiExpectOperationResult {

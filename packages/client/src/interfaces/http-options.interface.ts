@@ -1,6 +1,6 @@
-import { URLSearchParams } from 'url';
-import { ClientHttpHeaders } from '@opra/common';
-import { OPCBasicCredentials, OPCProxyConfig } from '../types.js';
+import type { URLSearchParams } from 'url';
+import type { ClientHttpHeaders } from '@opra/common';
+import type { OPCBasicCredentials, OPCProxyConfig } from '../types.js';
 
 export type HttpRequestOptions = {
   headers?: ClientHttpHeaders;

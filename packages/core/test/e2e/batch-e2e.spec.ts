@@ -1,8 +1,8 @@
-import express from 'express';
-import { OpraDocument } from '@opra/common';
-import { OpraTestClient } from '@opra/testing';
-import { OpraExpressAdapter } from '../../src/index.js';
-import { createTestDocument } from '../_support/test-app/create-document.js';
+// import express from 'express';
+// import { OpraDocument } from '@opra/common';
+// import { OpraTestClient } from '@opra/testing';
+// import { OpraExpressAdapter } from '../../src/index.js';
+// import { createTestDocument } from '../_support/test-app/create-document.js';
 
 describe('Batch', function () {
   it('Skip', async () => {

@@ -1,7 +1,7 @@
 import Highland from 'highland';
 import { Readable } from 'stream';
 import { uid } from 'uid';
-import { isReadable } from '../../utils/type-guards';
+import { isReadable } from '../../utils/type-guards.js';
 import { HttpHeaders } from '../enums/http-headers.enum.js';
 import { HttpStatus } from '../enums/http-status.enum.js';
 import { normalizeHeaders } from '../utils/normalize-headers.js';

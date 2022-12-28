@@ -1,4 +1,4 @@
-import _ from 'lodash';
+import { omit } from 'lodash';
 import { StrictOmit } from 'ts-gems';
 import { OpraSchema } from '../../opra-schema.definition.js';
 import { colorFgMagenta, colorFgYellow, colorReset, nodeInspectCustom } from '../../utils/inspect.util.js';
@@ -16,7 +16,7 @@ export class UnionType extends DataType {
   readonly hasAdditionalFields: boolean;
 
   constructor(owner: OpraDocument, name: string, args: UnionTypeArgs) {
-    super(owner, name, _.omit({kind: 'UnionType', ...args}, ['types']) as any);
+    super(owner, name, omit({kind: 'UnionType', ...args}, ['types']) as any);
     this.types = args.types;
     this.hasAdditionalFields = name === 'any' ||
         !!this.types.find(t => t instanceof ComplexType && t.additionalFields);

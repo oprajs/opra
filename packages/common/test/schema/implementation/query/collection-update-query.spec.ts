@@ -1,6 +1,6 @@
+import { CollectionUpdateQuery, OpraDocument } from '../../../../src/index.js';
 import { CustomerNotesResource } from '../../_support/app-sqb/resources/customer-notes.resource.js';
 import { CustomersResource } from '../../_support/app-sqb/resources/customers.resource.js';
-import { CollectionUpdateQuery, OpraDocument } from '../../../../src/index.js';
 
 describe('UpdateInstanceQuery', function () {
   let api: OpraDocument;

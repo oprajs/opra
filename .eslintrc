@@ -178,6 +178,11 @@
           "jsx": true,
           "modules": true,
           "experimentalObjectRestSpread": true
+        },
+        "babelOptions": {
+          "plugins": [
+            "@babel/plugin-syntax-import-assertions"
+          ]
         }
       },
       "rules": {

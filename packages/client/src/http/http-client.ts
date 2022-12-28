@@ -115,7 +115,7 @@ export class OpraHttpClient {
   }
 
   protected async _fetch<TResponse extends HttpResponse = HttpResponse>(url: string, req: RequestInit): Promise<TResponse> {
-    const resp = await globalThis.fetch(url, req);
+    const resp = await fetch(url, req);
     let data;
     if (resp.body) {
       if (JSON_CONTENT_TYPE_PATTERN.test(resp.headers.get('Content-Type') || '')) {

@@ -9,6 +9,7 @@ import i18next, {
 } from 'i18next';
 import * as I18next from 'i18next';
 import { Type } from 'ts-gems';
+import { isUrl } from '../utils/index.js';
 import { unescapeString } from './string-utils.js';
 
 export type BaseI18n = Type<I18next.i18n>;
@@ -81,12 +82,19 @@ export class I18n extends BaseI18n {
   }
 
   async loadResourceBundle(
-      lang: string, ns: string, filePath: string,
-      deep?: boolean, overwrite?: boolean
+      lang: string, ns: string,
+      filePath: string,
+      deep?: boolean,
+      overwrite?: boolean
   ): Promise<void> {
-    const fs = await import('fs/promises');
-    const content = await fs.readFile(filePath, 'utf8');
-    const obj = JSON.parse(content);
+    let obj;
+    if (isUrl(filePath)) {
+      obj = (await fetch(filePath, {headers: {accept: 'application/json'}})).json();
+    } else {
+      const fs = await import('fs/promises');
+      const content = await fs.readFile(filePath, 'utf8');
+      obj = JSON.parse(content);
+    }
     this.addResourceBundle(lang, ns, obj, deep, overwrite);
   }
 

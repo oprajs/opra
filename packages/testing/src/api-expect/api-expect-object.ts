@@ -1,9 +1,9 @@
-import _ from 'lodash';
-import { OpraClientResponse } from '@opra/client';
+import { isNil, omitBy } from 'lodash';
+import { HttpResponse } from '@opra/client';
 
 export class ApiExpectObject {
 
-  constructor(readonly response: OpraClientResponse, protected _isNot: boolean = false) {
+  constructor(readonly response: HttpResponse, protected _isNot: boolean = false) {
   }
 
   get not(): ApiExpectObject {
@@ -12,7 +12,7 @@ export class ApiExpectObject {
 
   toMatch<T extends {}>(expected: T): this {
     try {
-      const v = _.omitBy(expected, _.isNil);
+      const v = omitBy(expected, isNil);
       this._expect(this.response.data).toMatchObject(v);
     } catch (e: any) {
       Error.captureStackTrace(e, this.toMatch);

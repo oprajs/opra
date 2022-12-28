@@ -1,5 +1,5 @@
 import "reflect-metadata";
-import _ from 'lodash';
+import { omit } from 'lodash';
 import { PartialSome, StrictOmit } from 'ts-gems';
 import { RESOURCE_METADATA } from '../constants.js';
 import { CollectionResourceMetadata } from '../interfaces/resource.metadata.js';
@@ -27,7 +27,7 @@ export function OprCollectionResource(
       type: entityFunc,
       name
     };
-    Object.assign(meta, _.omit(options, Object.keys(meta)));
+    Object.assign(meta, omit(options, Object.keys(meta)));
     Reflect.defineMetadata(RESOURCE_METADATA, meta, target);
 
     /* Define Injectable metadata for NestJS support*/

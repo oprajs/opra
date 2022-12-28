@@ -1,6 +1,6 @@
-import { URLSearchParams } from 'url';
-import { ClientHttpHeaders } from '@opra/common';
-import { HttpRequestOptions } from './http-options.interface.js';
+import type { URLSearchParams } from 'url';
+import type { ClientHttpHeaders } from '@opra/common';
+import type { HttpRequestOptions } from './http-options.interface.js';
 
 export type HttpRequestConfig = {
   method: string;

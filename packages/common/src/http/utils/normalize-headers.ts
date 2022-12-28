@@ -1,4 +1,4 @@
-import { HttpHeaders } from '../enums/http-headers.enum';
+import { HttpHeaders } from '../enums/http-headers.enum.js';
 
 const knownKeys = Object.keys(HttpHeaders);
 const knownKeysLower = knownKeys.map(x => x.toLowerCase());

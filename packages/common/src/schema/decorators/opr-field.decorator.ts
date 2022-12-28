@@ -1,4 +1,4 @@
-import _ from 'lodash';
+import { omit } from 'lodash';
 import { StrictOmit } from 'ts-gems';
 import { COMPLEXTYPE_FIELDS } from '../constants.js';
 import { FieldMetadata } from '../interfaces/data-type.metadata.js';
@@ -13,7 +13,7 @@ export function OprField(args?: Partial<StrictOmit<FieldMetadata, 'isArray'>>): 
     const metadata: FieldMetadata = {
       type: args?.type
     }
-    Object.assign(metadata, _.omit(args, Object.keys(metadata)));
+    Object.assign(metadata, omit(args, Object.keys(metadata)));
 
     if (designType === Array) {
       metadata.isArray = true;

@@ -1,5 +1,5 @@
+import { isPromise } from 'putil-promisify';
 import { Type } from 'ts-gems';
-import { isPromise } from 'util/types';
 import * as Optionals from '@opra/optionals';
 import { ResponsiveMap } from '../../helpers/responsive-map.js';
 import { OpraSchema } from '../opra-schema.definition.js';
