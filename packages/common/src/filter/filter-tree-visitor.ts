@@ -1,4 +1,4 @@
-import { AbstractParseTreeVisitor } from 'antlr4ts/tree';
+import { AbstractParseTreeVisitor } from 'antlr4ts/tree/index.js';
 import {
   ArithmeticExpressionContext, ArrayExpressionContext,
   BooleanLiteralContext,

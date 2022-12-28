@@ -1,4 +1,4 @@
-import _ from 'lodash';
+import { head, identity } from 'lodash';
 import { ContextType, Inject, Injectable } from '@nestjs/common';
 import { ContextIdFactory, createContextId, ModulesContainer, REQUEST } from '@nestjs/core';
 import { ExternalContextCreator } from '@nestjs/core/helpers/external-context-creator';
@@ -138,7 +138,7 @@ export class OpraApiFactory {
       moduleRef: Module,
       methodName: string,
       isRequestScoped: boolean,
-      transform: Function = _.identity,
+      transform: Function = identity,
       contextType: ContextType,
       forPre: boolean
   ) {
@@ -238,7 +238,7 @@ export class OpraApiFactory {
         // eslint-disable-next-line @typescript-eslint/no-unused-vars
         .map(([key, value]) => value);
 
-    const coreModuleRef = _.head(coreModuleArray);
+    const coreModuleRef = head(coreModuleArray);
     if (!coreModuleRef) {
       return;
     }

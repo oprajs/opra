@@ -12,7 +12,7 @@
   "scripts": {
     "compile": "tsc",
     "prebuild": "npm run check && npm run lint && npm run clean",
-    "build": "npm run build:cjs && npm run build:esm",
+    "build": "npm run build:cjs && npm run build:esm && npm run bundle",
     "build:cjs": "tsc -b tsconfig-build-cjs.json",
     "build:esm": "tsc -b tsconfig-build-esm.json",
     "postbuild": "cp README.md package.json ../../LICENSE ../../build/angular && cp ../../package.cjs.json ../../build/angular/cjs/package.json",
@@ -23,7 +23,8 @@
     "clean": "npm run clean:src && npm run clean:dist && npm run clean:cover",
     "clean:src": "ts-cleanup -s src --all",
     "clean:dist": "rimraf ../../build/angular",
-    "clean:cover": "rimraf ../../coverage/angular"
+    "clean:cover": "rimraf ../../coverage/angular",
+    "bundle": "webpack"
   },
   "dependencies": {
     "@angular/common": "^14.2.12",
@@ -35,24 +36,27 @@
     "@angular/compiler": "^14.2.12",
     "@angular/platform-browser": "^14.2.12",
     "@angular/platform-browser-dynamic": "^14.2.12",
-    "@types/jest": "^29.2.4",
     "cross-fetch": "^3.1.5",
     "core-js": "^3.26.1",
     "express": "^4.18.2",
-    "jest-preset-angular": "^12.2.3",
-    "jest-environment-jsdom": "^29.3.1",
     "zone.js": "^0.12.0"
   },
   "type": "module",
   "types": "esm/index.d.ts",
   "exports": {
     ".": {
-      "require": "./cjs/index.js",
-      "default": "./esm/index.js"
-    },
-    "./cjs": "./cjs/index.js",
-    "./esm": "./esm/index.js"
+      "default": {
+        "default": "./esm/index.js",
+        "require": "./cjs/index.js"
+      },
+      "browser": {
+        "default": "./browser/opra-angular.min.mjs",
+        "require": "./browser/opra-angular.min.cjs"
+      }
+    }
   },
+  "main": "./umd/opra-angular.umd.min.js",
+  "unpkg": "./umd/opra-angular.umd.min.js",
   "engines": {
     "node": ">=16.0",
     "npm": ">=7.0.0"
@@ -61,6 +65,7 @@
     "bin/",
     "cjs/",
     "esm/",
+    "umd/",
     "LICENSE",
     "README.md"
   ],

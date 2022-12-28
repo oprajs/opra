@@ -1,4 +1,4 @@
-import _ from 'lodash';
+import { isNil, omitBy } from 'lodash';
 import merge from 'putil-merge';
 import { Maybe } from 'ts-gems';
 import { nSQL } from "@nano-sql/core";
@@ -297,9 +297,9 @@ export class JsonCollectionService<T, TOutput = PartialOutput<T>> {
     }
     switch (query.method) {
       case 'count': {
-        const options: JsonCollectionService.CountOptions = _.omitBy({
+        const options: JsonCollectionService.CountOptions = omitBy({
           filter: this._convertFilter(query.filter)
-        }, _.isNil);
+        }, isNil);
         return {
           method: query.method,
           options,
@@ -307,11 +307,11 @@ export class JsonCollectionService<T, TOutput = PartialOutput<T>> {
         };
       }
       case 'create': {
-        const options: JsonCollectionService.CreateOptions = _.omitBy({
+        const options: JsonCollectionService.CreateOptions = omitBy({
           pick: query.pick,
           omit: query.omit,
           include: query.include
-        }, _.isNil);
+        }, isNil);
         const {data} = query;
         return {
           method: query.method,
@@ -322,11 +322,11 @@ export class JsonCollectionService<T, TOutput = PartialOutput<T>> {
       }
       case 'get': {
         if (query.kind === 'CollectionGetQuery') {
-          const options: JsonCollectionService.GetOptions = _.omitBy({
+          const options: JsonCollectionService.GetOptions = omitBy({
             pick: query.pick,
             omit: query.omit,
             include: query.include
-          }, _.isNil);
+          }, isNil);
           const keyValue = query.keyValue;
           return {
             method: query.method,
@@ -345,7 +345,7 @@ export class JsonCollectionService<T, TOutput = PartialOutput<T>> {
           throw new MethodNotAllowedError({
             message: '$distinct parameter is not supported by JsonDataService'
           })
-        const options: JsonCollectionService.SearchOptions = _.omitBy({
+        const options: JsonCollectionService.SearchOptions = omitBy({
           pick: query.pick,
           omit: query.omit,
           include: query.include,
@@ -355,7 +355,7 @@ export class JsonCollectionService<T, TOutput = PartialOutput<T>> {
           limit: query.limit,
           offset: query.skip,
           count: query.count,
-        }, _.isNil)
+        }, isNil)
         return {
           method: query.method,
           options,
@@ -363,11 +363,11 @@ export class JsonCollectionService<T, TOutput = PartialOutput<T>> {
         };
       }
       case 'update': {
-        const options: JsonCollectionService.UpdateOptions = _.omitBy({
+        const options: JsonCollectionService.UpdateOptions = omitBy({
           pick: query.pick,
           omit: query.omit,
           include: query.include
-        }, _.isNil);
+        }, isNil);
         const {data} = query;
         const keyValue = query.keyValue;
         return {
@@ -379,9 +379,9 @@ export class JsonCollectionService<T, TOutput = PartialOutput<T>> {
         };
       }
       case 'updateMany': {
-        const options: JsonCollectionService.UpdateManyOptions = _.omitBy({
+        const options: JsonCollectionService.UpdateManyOptions = omitBy({
           filter: this._convertFilter(query.filter)
-        }, _.isNil);
+        }, isNil);
         const {data} = query;
         return {
           method: query.method,
@@ -400,9 +400,9 @@ export class JsonCollectionService<T, TOutput = PartialOutput<T>> {
         };
       }
       case 'deleteMany': {
-        const options = _.omitBy({
+        const options = omitBy({
           filter: this._convertFilter(query.filter)
-        }, _.isNil)
+        }, isNil)
         return {
           method: query.method,
           options,

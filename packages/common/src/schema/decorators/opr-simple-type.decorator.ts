@@ -1,4 +1,4 @@
-import _ from 'lodash';
+import { omit } from 'lodash';
 import { StrictOmit } from 'ts-gems';
 import { DATATYPE_METADATA } from '../constants.js';
 import { SimpleTypeMetadata } from '../interfaces/data-type.metadata.js';
@@ -16,7 +16,7 @@ export function OprSimpleType(options?: SimpleTypeDecoratorOptions): ClassDecora
       kind: 'SimpleType',
       name
     };
-    Object.assign(meta, _.omit(options, Object.keys(meta)));
+    Object.assign(meta, omit(options, Object.keys(meta)));
     Reflect.defineMetadata(DATATYPE_METADATA, meta, target);
   };
 }

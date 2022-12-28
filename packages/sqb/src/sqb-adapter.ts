@@ -1,4 +1,4 @@
-import _ from 'lodash';
+import { isNil, omitBy } from 'lodash';
 import { OpraQuery } from '@opra/common';
 import { Repository } from '@sqb/connect';
 import type { BaseEntityService } from './base-entity-service';
@@ -15,11 +15,11 @@ export namespace SQBAdapter {
   } {
     switch (query.method) {
       case 'create': {
-        const options: Repository.CreateOptions = _.omitBy({
+        const options: Repository.CreateOptions = omitBy({
           pick: query.pick?.length ? query.pick : undefined,
           omit: query.omit?.length ? query.omit : undefined,
           include: query.include?.length ? query.include : undefined,
-        }, _.isNil);
+        }, isNil);
         const {data} = query;
         return {
           method: 'create',
@@ -29,9 +29,9 @@ export namespace SQBAdapter {
         };
       }
       case 'count': {
-        const options: BaseEntityService.CountOptions = _.omitBy({
+        const options: BaseEntityService.CountOptions = omitBy({
           filter: convertFilter(query.filter)
-        }, _.isNil)
+        }, isNil)
         return {
           method: 'count',
           options,
@@ -40,11 +40,11 @@ export namespace SQBAdapter {
       }
       case 'get': {
         if (query.kind === 'CollectionGetQuery') {
-          const options: Repository.FindOneOptions = _.omitBy({
+          const options: Repository.FindOneOptions = omitBy({
             pick: query.pick?.length ? query.pick : undefined,
             omit: query.omit?.length ? query.omit : undefined,
             include: query.include?.length ? query.include : undefined,
-          }, _.isNil);
+          }, isNil);
           const keyValue = query.keyValue;
           return {
             method: 'findByPk',
@@ -56,7 +56,7 @@ export namespace SQBAdapter {
         break;
       }
       case 'search': {
-        const options: BaseEntityService.SearchOptions = _.omitBy({
+        const options: BaseEntityService.SearchOptions = omitBy({
           pick: query.pick?.length ? query.pick : undefined,
           omit: query.omit?.length ? query.omit : undefined,
           include: query.include?.length ? query.include : undefined,
@@ -66,7 +66,7 @@ export namespace SQBAdapter {
           distinct: query.distinct,
           total: query.count,
           filter: convertFilter(query.filter)
-        }, _.isNil)
+        }, isNil)
         return {
           method: 'findAll',
           options,
@@ -74,11 +74,11 @@ export namespace SQBAdapter {
         };
       }
       case 'update': {
-        const options: Repository.UpdateOptions = _.omitBy({
+        const options: Repository.UpdateOptions = omitBy({
           pick: query.pick?.length ? query.pick : undefined,
           omit: query.omit?.length ? query.omit : undefined,
           include: query.include?.length ? query.include : undefined,
-        }, _.isNil);
+        }, isNil);
         const {data} = query;
         const keyValue = query.keyValue;
         return {
@@ -90,9 +90,9 @@ export namespace SQBAdapter {
         };
       }
       case 'updateMany': {
-        const options: Repository.DestroyOptions = _.omitBy({
+        const options: Repository.DestroyOptions = omitBy({
           filter: convertFilter(query.filter)
-        }, _.isNil);
+        }, isNil);
         const {data} = query;
         return {
           method: 'updateAll',
@@ -112,9 +112,9 @@ export namespace SQBAdapter {
         };
       }
       case 'deleteMany': {
-        const options: Repository.DestroyOptions = _.omitBy({
+        const options: Repository.DestroyOptions = omitBy({
           filter: convertFilter(query.filter)
-        }, _.isNil)
+        }, isNil)
         return {
           method: 'destroyAll',
           options,

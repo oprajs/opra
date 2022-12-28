@@ -12,7 +12,7 @@
   "scripts": {
     "compile": "tsc",
     "prebuild": "npm run check && npm run lint && npm run clean",
-    "build": "npm run build:cjs && npm run build:esm",
+    "build": "npm run build:cjs && npm run build:esm && npm run bundle",
     "build:cjs": "tsc -b tsconfig-build-cjs.json",
     "build:esm": "tsc -b tsconfig-build-esm.json",
     "postbuild": "cp README.md package.json ../../LICENSE ../../build/common && cp ../../package.cjs.json ../../build/common/cjs/package.json",
@@ -23,7 +23,8 @@
     "clean": "npm run clean:src && npm run clean:dist && npm run clean:cover",
     "clean:src": "ts-cleanup -s src --all",
     "clean:dist": "rimraf ../../build/common",
-    "clean:cover": "rimraf ../../coverage/common"
+    "clean:cover": "rimraf ../../coverage/common",
+    "bundle": "webpack"
   },
   "dependencies": {
     "@opra/optionals": "^0.5.0",
@@ -35,6 +36,7 @@
     "luxon": "^3.1.1",
     "putil-isplainobject": "^1.1.4",
     "putil-merge": "^3.9.0",
+    "putil-promisify": "^1.8.5",
     "putil-varhelpers": "^1.6.4",
     "reflect-metadata": "^0.1.13",
     "ts-gems": "^2.3.0",
@@ -44,12 +46,18 @@
   "types": "esm/index.d.ts",
   "exports": {
     ".": {
-      "require": "./cjs/index.js",
-      "default": "./esm/index.js"
-    },
-    "./cjs": "./cjs/index.js",
-    "./esm": "./esm/index.js"
+      "default": {
+        "default": "./esm/index.js",
+        "require": "./cjs/index.js"
+      },
+      "browser": {
+        "default": "./browser/opra-common.min.mjs",
+        "require": "./browser/opra-common.min.cjs"
+      }
+    }
   },
+  "main": "./umd/opra-common.umd.min.js",
+  "unpkg": "./umd/opra-common.umd.min.js",
   "engines": {
     "node": ">=16.0",
     "npm": ">=7.0.0"
@@ -58,6 +66,7 @@
     "bin/",
     "cjs/",
     "esm/",
+    "umd/",
     "LICENSE",
     "README.md"
   ],

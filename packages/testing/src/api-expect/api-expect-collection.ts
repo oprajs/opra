@@ -1,4 +1,4 @@
-import _ from 'lodash';
+import { isNil, omitBy } from 'lodash';
 import ruleJudgment from 'rule-judgment'
 import { HttpResponse } from '@opra/client';
 import {
@@ -26,7 +26,7 @@ export class ApiExpectCollection {
 
   toMatch<T extends {}>(expected: T): this {
     try {
-      const v = _.omitBy(expected, _.isNil);
+      const v = omitBy(expected, isNil);
       for (const item of this.response.data) {
         this._expect(item).toMatchObject(v);
       }

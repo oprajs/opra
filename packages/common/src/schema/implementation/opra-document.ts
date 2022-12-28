@@ -1,4 +1,4 @@
-import _ from 'lodash';
+import { omit } from 'lodash';
 import { Type } from 'ts-gems';
 import { ResponsiveMap } from '../../helpers/responsive-map.js';
 import { IResourceContainer } from '../interfaces/resource-container.interface.js';
@@ -34,7 +34,7 @@ export class OpraDocument implements IResourceContainer {
   protected _resources = new ResponsiveMap<string, ResourceInfo>();
 
   constructor(schema: OpraSchema.Document) {
-    this._meta = _.omit(schema, ['types', 'resources']);
+    this._meta = omit(schema, ['types', 'resources']);
     for (const [name, t] of builtInTypes.entries()) {
       this._addDataType(name, t, false);
     }

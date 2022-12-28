@@ -1,4 +1,4 @@
-import _ from 'lodash';
+import { omit } from 'lodash';
 import { StrictOmit } from 'ts-gems';
 import { DATATYPE_METADATA } from '../constants.js';
 import { ComplexTypeMetadata } from '../interfaces/data-type.metadata.js';
@@ -17,7 +17,7 @@ export function OprComplexType(options?: ComplexTypeDecoratorOptions): ClassDeco
       kind: 'ComplexType',
       name,
     };
-    Object.assign(meta, _.omit(options, Object.keys(meta)));
+    Object.assign(meta, omit(options, Object.keys(meta)));
 
     const base = Object.getPrototypeOf(target);
     const baseMeta = Reflect.getMetadata(DATATYPE_METADATA, base);
