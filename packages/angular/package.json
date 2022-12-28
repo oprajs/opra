@@ -1,6 +1,6 @@
 {
   "name": "@opra/angular",
-  "version": "0.6.0",
+  "version": "0.7.0",
   "description": "Opra internationalization package",
   "author": "Panates",
   "license": "MIT",
@@ -29,7 +29,7 @@
   "dependencies": {
     "@angular/common": "^14.2.12",
     "@angular/core": "^14.2.12",
-    "@opra/client": "^0.6.0"
+    "@opra/client": "^0.7.0"
   },
   "devDependencies": {
     "@angular-devkit/build-angular": "^14.2.10",
