@@ -1,6 +1,6 @@
 {
   "name": "@opra/node-client",
-  "version": "0.7.0",
+  "version": "0.8.0",
   "description": "Opra NodeJS client package",
   "author": "Panates",
   "license": "MIT",
@@ -27,7 +27,7 @@
     "bundle": "node support/bundle.cjs"
   },
   "dependencies": {
-    "@opra/common": "^0.7.0",
+    "@opra/common": "^0.8.0",
     "putil-isplainobject": "^1.1.4",
     "rxjs": "^7.6.0"
   },
