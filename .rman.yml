@@ -7,3 +7,8 @@ command:
     parallel: lint,clean,compile
 
 logLevel: info
+
+packages:
+  "@opra/angular":
+    dependencies:
+      - "@opra/node-client"

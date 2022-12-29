@@ -1,14 +1,15 @@
 import { Class, Type } from 'ts-gems';
-import * as Optionals from '@opra/optionals';
 import { DATATYPE_METADATA, MAPPED_TYPE_METADATA } from '../constants.js';
 import { applyMixins, inheritPropertyInitializers } from './mixin.utils.js';
+
+const optionalsSymbol = Symbol.for('opra.optional-lib.sqb-connect');
 
 export function MixinType<A1 extends any[], I1, S1,
     A2 extends any[], I2, S2,
     A3 extends any[], I3, S3,
     A4 extends any[], I4, S4,
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    >(c1: Class<A1, I1, S1>, c2: Class<A2, I2, S2>, c3?: Class<A3, I3, S3>, c4?: Class<A4, I4, S4>
+>(c1: Class<A1, I1, S1>, c2: Class<A2, I2, S2>, c3?: Class<A3, I3, S3>, c4?: Class<A4, I4, S4>
 ): Class<any[], I1 & I2 & I3 & I4, S1 & S2 & S3 & S4> {
   const clasRefs = [...arguments].filter(x => !!x) as [Type];
   if (!clasRefs.length)
@@ -42,8 +43,9 @@ export function MixinType<A1 extends any[], I1, S1,
     applyMixins(MappedClass, c);
   }
 
-  if (Optionals.SqbConnect) {
-    const {Entity} = Optionals.SqbConnect;
+  const SqbConnect = globalThis[optionalsSymbol]?.SqbConnect;
+  if (SqbConnect) {
+    const {Entity} = SqbConnect;
     Entity.mixin(MappedClass, ...clasRefs);
   }
 

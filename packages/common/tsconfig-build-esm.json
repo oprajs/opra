@@ -1,10 +1,10 @@
 {
   "extends": "./tsconfig.json",
   "compilerOptions": {
-    "module": "ESNext",
     "rootDir": "src",
     "outDir": "../../build/common/esm",
     "paths": {
+      "@opra/common": ["../../build/common"]
     },
     "sourceMap": false,
     "noEmit": false,

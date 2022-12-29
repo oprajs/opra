@@ -1,6 +1,5 @@
 import { isPromise } from 'putil-promisify';
 import { Type } from 'ts-gems';
-import * as Optionals from '@opra/optionals';
 import { ResponsiveMap } from '../../helpers/responsive-map.js';
 import { OpraSchema } from '../opra-schema.definition.js';
 import { ThunkAsync } from '../types.js';
@@ -8,6 +7,8 @@ import { isConstructor } from '../utils/class.utils.js';
 import { builtInTypes, primitiveClasses } from './data-type/builtin-data-types.js';
 import { extractResourceSchema } from './schema-builder/extract-resource-metadata.util.js';
 import { extractDataTypeSchema } from './schema-builder/extract-type-metadata.util.js';
+
+const optionalsSymbol = Symbol.for('opra.optional-lib.sqb-connect');
 
 export type DocumentBuilderArgs = Pick<OpraSchema.Document, 'info' | 'servers'>;
 
@@ -108,8 +109,9 @@ export class DocumentBuilder {
       // Determine keyFields if not set
       if (!schema.keyFields) {
         const dataType = this._dataTypes.get(schema.type);
-        if (Optionals.SqbConnect && dataType?.ctor) {
-          const sqbEntity = Optionals.SqbConnect.EntityMetadata.get(dataType?.ctor);
+        const SqbConnect = globalThis[optionalsSymbol]?.SqbConnect;
+        if (SqbConnect && dataType?.ctor) {
+          const sqbEntity = SqbConnect.EntityMetadata.get(dataType?.ctor);
           if (sqbEntity?.indexes) {
             const primaryIndex = sqbEntity.indexes.find(x => x.primary);
             if (primaryIndex) {

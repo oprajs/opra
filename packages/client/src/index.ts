@@ -5,7 +5,6 @@ export * from './http/http-collection-service.js';
 export * from './http/http-singleton-service.js';
 export * from './http/http-types.js';
 
-export * from './types.js';
 export * from './client-error.js';
 
 export * from './http/requests/batch-request.js';

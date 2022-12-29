@@ -1,4 +1,4 @@
-import { HttpResponse } from '@opra/client';
+import { HttpResponse } from '@opra/node-client';
 
 export class ApiExpectOperationResult {
 

@@ -12,10 +12,10 @@
   "scripts": {
     "compile": "tsc",
     "prebuild": "npm run check && npm run lint && npm run clean",
-    "build": "npm run build:cjs && npm run build:esm && npm run bundle",
+    "build": "npm run build:cjs && npm run build:esm",
     "build:cjs": "tsc -b tsconfig-build-cjs.json",
     "build:esm": "tsc -b tsconfig-build-esm.json",
-    "postbuild": "cp README.md package.json ../../LICENSE ../../build/common && cp ../../package.cjs.json ../../build/common/cjs/package.json",
+    "postbuild": "cp package.json ../../LICENSE ../../build/common && cp ../../package.cjs.json ../../build/common/cjs/package.json",
     "lint": "eslint . --max-warnings=0",
     "check": "madge --circular src/**",
     "test": "jest --runInBand --detectOpenHandles",
@@ -23,15 +23,14 @@
     "clean": "npm run clean:src && npm run clean:dist && npm run clean:cover",
     "clean:src": "ts-cleanup -s src --all",
     "clean:dist": "rimraf ../../build/common",
-    "clean:cover": "rimraf ../../coverage/common",
-    "bundle": "webpack"
+    "clean:cover": "rimraf ../../coverage/common"
   },
   "dependencies": {
-    "@opra/optionals": "^0.7.0",
     "antlr4ts": "^0.5.0-alpha.4",
     "fast-tokenizer": "^1.2.0",
     "highland": "^2.13.5",
     "http-parser-js": "^0.5.8",
+    "i18next": "^22.4.6",
     "lodash": "^4.17.21",
     "luxon": "^3.1.1",
     "putil-isplainobject": "^1.1.4",
@@ -39,25 +38,19 @@
     "putil-promisify": "^1.8.5",
     "putil-varhelpers": "^1.6.4",
     "reflect-metadata": "^0.1.13",
-    "ts-gems": "^2.3.0",
     "uid": "^2.0.1"
+  },
+  "devDependencies": {
+    "ts-gems": "^2.3.0"
   },
   "type": "module",
   "types": "esm/index.d.ts",
   "exports": {
     ".": {
-      "default": {
-        "default": "./esm/index.js",
-        "require": "./cjs/index.js"
-      },
-      "browser": {
-        "default": "./browser/opra-common.min.mjs",
-        "require": "./browser/opra-common.min.cjs"
-      }
+      "require": "./browser/opra-common.min.cjs",
+      "default": "./browser/opra-common.min.mjs"
     }
   },
-  "main": "./umd/opra-common.umd.min.js",
-  "unpkg": "./umd/opra-common.umd.min.js",
   "engines": {
     "node": ">=16.0",
     "npm": ">=7.0.0"

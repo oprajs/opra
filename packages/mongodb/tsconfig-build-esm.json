@@ -1,7 +1,6 @@
 {
   "extends": "./tsconfig.json",
   "compilerOptions": {
-    "module": "ESNext",
     "rootDir": "src",
     "outDir": "../../build/mongodb/esm",
     "paths": {

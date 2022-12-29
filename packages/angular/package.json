@@ -12,10 +12,8 @@
   "scripts": {
     "compile": "tsc",
     "prebuild": "npm run check && npm run lint && npm run clean",
-    "build": "npm run build:cjs && npm run build:esm && npm run bundle",
-    "build:cjs": "tsc -b tsconfig-build-cjs.json",
-    "build:esm": "tsc -b tsconfig-build-esm.json",
-    "postbuild": "cp README.md package.json ../../LICENSE ../../build/angular && cp ../../package.cjs.json ../../build/angular/cjs/package.json",
+    "build": "ng build --configuration production",
+    "postbuild": "cp ../../LICENSE ../../build/angular",
     "lint": "eslint . --max-warnings=0",
     "check": "madge --circular src/**",
     "test": "jest --runInBand --detectOpenHandles",
@@ -23,15 +21,15 @@
     "clean": "npm run clean:src && npm run clean:dist && npm run clean:cover",
     "clean:src": "ts-cleanup -s src --all",
     "clean:dist": "rimraf ../../build/angular",
-    "clean:cover": "rimraf ../../coverage/angular",
-    "bundle": "webpack"
+    "clean:cover": "rimraf ../../coverage/angular"
   },
-  "dependencies": {
+  "peerDependencies": {
     "@angular/common": "^14.2.12",
     "@angular/core": "^14.2.12",
     "@opra/client": "^0.7.0"
   },
   "devDependencies": {
+    "@angular/cli": "^15.0.4",
     "@angular-devkit/build-angular": "^14.2.10",
     "@angular/compiler": "^14.2.12",
     "@angular/platform-browser": "^14.2.12",
@@ -41,40 +39,15 @@
     "express": "^4.18.2",
     "zone.js": "^0.12.0"
   },
-  "type": "module",
-  "types": "esm/index.d.ts",
-  "exports": {
-    ".": {
-      "default": {
-        "default": "./esm/index.js",
-        "require": "./cjs/index.js"
-      },
-      "browser": {
-        "default": "./browser/opra-angular.min.mjs",
-        "require": "./browser/opra-angular.min.cjs"
-      }
-    }
-  },
-  "main": "./umd/opra-angular.umd.min.js",
-  "unpkg": "./umd/opra-angular.umd.min.js",
   "engines": {
     "node": ">=16.0",
     "npm": ">=7.0.0"
   },
-  "files": [
-    "bin/",
-    "cjs/",
-    "esm/",
-    "umd/",
-    "LICENSE",
-    "README.md"
-  ],
   "keywords": [
     "opra",
     "client",
     "angular",
     "request",
-    "axios",
     "fetch"
   ]
 }

@@ -1,7 +1,8 @@
 import { Class } from 'ts-gems';
-import * as Optionals from '@opra/optionals';
 import { DATATYPE_METADATA, MAPPED_TYPE_METADATA } from '../constants.js';
 import { applyMixins, inheritPropertyInitializers } from './mixin.utils.js';
+
+const optionalsSymbol = Symbol.for('opra.optional-lib.sqb-connect');
 
 export function PickType<T extends any[], I1, S1, K extends keyof I1>(
     classRef: Class<T, I1, S1>, keys: readonly K[]
@@ -24,7 +25,7 @@ function ExtendType<T extends any[], I1, S1,
     // PartialKey extends keyof I1,
     // ReadonlyKey extends keyof I1,
     // WritableKey extends keyof I1,
-    >(
+>(
     classRef: Class<T, I1, S1>,
     orgClassRef: any,
     options: {
@@ -80,8 +81,9 @@ function ExtendType<T extends any[], I1, S1,
   } else
     throw new TypeError(`Class "${classRef}" doesn't have datatype metadata information`);
 
-  if (Optionals.SqbConnect) {
-    const {Entity, EntityMetadata} = Optionals.SqbConnect;
+  const SqbConnect = globalThis[optionalsSymbol]?.SqbConnect;
+  if (SqbConnect) {
+    const {Entity, EntityMetadata} = SqbConnect;
     const srcMeta = Entity.getMetadata(classRef);
     if (srcMeta) {
       const trgMeta = EntityMetadata.define(MappedClass);

@@ -82,10 +82,10 @@ export class BatchMultipart {
     return this;
   }
 
-  stream() {
+  stream(): NodeJS.ReadableStream {
     const chunks: (Buffer | Readable)[] = [];
     this._build(chunks);
-    return Highland(chunks).flatten();
+    return Highland(chunks).flatten().toNodeStream();
   }
 
   protected _build(target: (Buffer | Readable)[]) {
