@@ -39,7 +39,6 @@
   "peerDependencies": {
     "@opra/core": "^0.7.0",
     "@opra/exception": "^0.5.0",
-    "@opra/optionals": "^0.7.0",
     "@opra/url": "^0.5.0",
     "@sqb/connect": ">= 4.5.4"
   },

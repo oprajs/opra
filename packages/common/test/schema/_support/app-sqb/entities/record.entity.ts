@@ -1,3 +1,4 @@
+import '@opra/sqb';
 import { Column, DataType } from '@sqb/connect';
 import { OprComplexType, OprField } from '../../../../../src/index.js';
 

@@ -37,7 +37,6 @@
   "peerDependencies": {
     "@opra/common": "^0.7.0",
     "@opra/core": "^0.7.0",
-    "@opra/optionals": "^0.7.0",
     "mongodb": ">=4.x.x"
   },
   "type": "module",

@@ -1,3 +1,4 @@
+import '@opra/sqb';
 import { Column, Entity, Link, PrimaryKey } from '@sqb/connect';
 import { OprComplexType, OprField } from '../../../../../src/index.js';
 import type { Country } from './country.entity.js';

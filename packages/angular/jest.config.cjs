@@ -14,7 +14,6 @@ module.exports = {
   setupFilesAfterEnv: ['<rootDir>/test/_support/setup-jest.ts'],
   globalSetup: 'jest-preset-angular/global-setup',
   moduleNameMapper: {
-    '^@opra/optionals$': ['<rootDir>/../optionals/cjs'],
     '^@opra/(.*)$': ['<rootDir>/../$1/src'],
     '^(\\..+)\\.js$': '$1'
   }

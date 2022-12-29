@@ -1,5 +1,4 @@
 import { Type } from 'ts-gems';
-import * as Optionals from '@opra/optionals';
 import { COMPLEXTYPE_FIELDS, DATATYPE_METADATA, MAPPED_TYPE_METADATA } from '../../constants.js';
 import {
   ComplexTypeMetadata,
@@ -9,6 +8,8 @@ import { OpraSchema } from '../../opra-schema.definition.js';
 import { Named } from '../../types.js';
 import { cloneObject } from '../../utils/clone-object.util.js';
 import { primitiveClasses } from '../data-type/builtin-data-types.js';
+
+const optionalsSymbol = Symbol.for('opra.optional-lib.sqb-connect');
 
 export async function extractDataTypeSchema(ctor: Type | Function): Promise<Named<OpraSchema.DataType>> {
   const metadata = Reflect.getMetadata(DATATYPE_METADATA, ctor);
@@ -45,9 +46,10 @@ async function extractComplexTypeSchema(ctor: Type, metadata: ComplexTypeMetadat
         const type = primitiveClasses.get(field.type);
         if (type) field.type = type;
       }
-      let sqbField: Optionals.SqbConnect.AnyFieldMetadata | undefined;
-      if (Optionals.SqbConnect) {
-        const {EntityMetadata, isAssociationField} = Optionals.SqbConnect;
+      const SqbConnect = globalThis[optionalsSymbol]?.SqbConnect;
+      let sqbField;
+      if (SqbConnect) {
+        const {EntityMetadata, isAssociationField} = SqbConnect;
         const meta = EntityMetadata.get(ctor);
         sqbField = meta && EntityMetadata.getField(meta, fieldName);
         if (sqbField) {
@@ -69,7 +71,7 @@ async function extractComplexTypeSchema(ctor: Type, metadata: ComplexTypeMetadat
       }
 
       if (sqbField && sqbField.kind === 'column') {
-        const DataType = Optionals.SqbConnect.DataType;
+        const DataType = SqbConnect.DataType;
         if (field.type === 'number' || field.type === Number) {
           switch (sqbField.dataType) {
             case DataType.INTEGER:

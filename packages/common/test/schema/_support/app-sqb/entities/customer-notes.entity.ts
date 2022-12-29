@@ -1,3 +1,4 @@
+import '@opra/sqb';
 import { Column, Entity } from '@sqb/connect';
 import { MixinType, OprComplexType, OprField } from '../../../../../src/index.js';
 import { Note } from '../types/note.type.js';

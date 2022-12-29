@@ -1,11 +1,11 @@
-import { HttpClient, HttpClientModule } from '@angular/common/http';
+/* eslint-disable import/extensions */
+import { HttpClient } from '@angular/common/http';
 import { APP_INITIALIZER, ModuleWithProviders, NgModule, Provider } from '@angular/core';
 import { OpraHttpClient } from '@opra/client';
-import { OPRA_CLIENT_MODULE_OPTIONS } from './constants.js';
-import { OpraClientModuleAsyncOptions, OpraClientModuleOptions } from './interfaces/module-options.interface.js';
+import { OPRA_CLIENT_MODULE_OPTIONS } from './constants';
+import { OpraClientModuleAsyncOptions, OpraClientModuleOptions } from './interfaces/module-options.interface';
 
 @NgModule({
-  imports: [HttpClientModule],
 })
 export class OpraClientModule {
 

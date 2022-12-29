@@ -1,4 +1,5 @@
 import 'reflect-metadata';
+import '@opra/sqb';
 import { Column, Entity } from '@sqb/connect';
 import { extractDataTypeSchema, OprComplexType, OprField, PickType } from '../../../src/index.js';
 import { Customer } from '../_support/app-sqb/index.js';

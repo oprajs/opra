@@ -1,6 +1,5 @@
 import { isNil, omitBy } from 'lodash';
 import ruleJudgment from 'rule-judgment'
-import { HttpResponse } from '@opra/client';
 import {
   ArrayExpression, BooleanLiteral,
   ComparisonExpression, DateLiteral,
@@ -9,6 +8,7 @@ import {
   QualifiedIdentifier,
   StringLiteral, TimeLiteral
 } from '@opra/common';
+import { HttpResponse } from '@opra/node-client';
 
 export class ApiExpectCollection {
 

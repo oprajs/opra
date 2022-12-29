@@ -1,7 +1,6 @@
 import { EventEmitter } from 'events';
 import { splitString, tokenize } from 'fast-tokenizer';
 import { StrictOmit } from 'ts-gems';
-import { URLSearchParams } from 'url';
 import { ResponsiveMap } from '../helpers/index.js';
 import { BooleanFormat } from './formats/boolean-format.js';
 import { DateFormat } from './formats/date-format.js';

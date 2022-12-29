@@ -4,7 +4,7 @@
     "moduleResolution": "Node",
     "module": "CommonJS",
     "rootDir": "src",
-    "outDir": "../../build/client/cjs",
+    "outDir": "../../build/node-client/cjs",
     "paths": {
       "@opra/common": ["../../build/common"]
     },
