@@ -1,3 +1,3 @@
-# @opra/node-client
+# @opra/client
 
-OPRA NodeJS Client
+OPRA Client
