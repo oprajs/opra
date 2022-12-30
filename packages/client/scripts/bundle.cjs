@@ -3,39 +3,38 @@ const path = require('path');
 const fs = require('fs');
 const webpack = require('webpack');
 const {createWebpackConfig} = require('./create-webpack-config.cjs');
-const srcJson = require(path.join(__dirname, './browser-files/browser.package.json'));
-const depJson = require(path.join(__dirname, '../package.json'));
-const dep2Json = require(path.join(__dirname, '../../common/package.json'));
 
-const buildPath = path.resolve(__dirname, '../../../build');
+const srcRoot = path.resolve(__dirname, '..');
+const buildPath = path.resolve(srcRoot, '../../build');
 const outputPath = path.resolve(buildPath, 'client');
-const includeDeps = [
+const pkgJson = require(path.join(srcRoot, 'package.json'));
+
+const bundleDeps = [
   '@opra/common',
+  '@opra/node-client',
+  'assert',
+  'buffer',
+  'events',
+  'path-browserify',
+  'stream-browserify',
+  'util',
+  'url',
   'antlr4ts',
   'highland',
+  'lodash',
   'http-parser-js',
   'putil-isplainobject',
   'putil-merge',
   'putil-promisify',
-  'putil-varhelpers',
-  'lodash'
+  'putil-varhelpers'
 ];
 
 async function run() {
   // Generate package.json
-  const trgJson = merge({}, srcJson, {deep: true});
-  trgJson.version = depJson.version;
-  trgJson.dependencies = {
-    ...trgJson.dependencies,
-    ...depJson.dependencies,
-    ...dep2Json.dependencies,
-    'lodash': undefined,
-    'lodash-es': '*'
-  };
-  trgJson.devDependencies = {
-    'ts-gems': dep2Json.devDependencies['ts-gems']
-  };
-  includeDeps.forEach(x => delete trgJson.dependencies[x]);
+  const trgJson = merge({}, pkgJson, {deep: true});
+  delete trgJson.scripts;
+  bundleDeps.forEach(x => delete trgJson.dependencies[x]);
+  bundleDeps.forEach(x => delete trgJson.devDependencies[x]);
 
   // Create output directory
   let stat;
@@ -51,8 +50,8 @@ async function run() {
       JSON.stringify(trgJson, null, 2), 'utf-8');
 
   // Copy files
-  for (const f of ['./browser-files/README.md', '../../../LICENSE']) {
-    fs.copyFileSync(path.resolve(__dirname, f),
+  for (const f of ['README.md', '../../LICENSE']) {
+    fs.copyFileSync(path.resolve(srcRoot, f),
         path.resolve(outputPath, path.basename(f)));
   }
 
@@ -78,7 +77,7 @@ async function run() {
       path.resolve(outputPath, 'typings/common')
   );
 
-  const externals = Object.keys(trgJson.dependencies).filter(x => !includeDeps.includes(x));
+  const externals = Object.keys(trgJson.dependencies).filter(x => !bundleDeps.includes(x));
 
   const compiler = webpack([
     createWebpackConfig({

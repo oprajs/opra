@@ -1,3 +1,0 @@
-# @opra/client
-
-OPRA Client

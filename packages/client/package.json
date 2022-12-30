@@ -1,7 +1,7 @@
 {
-  "name": "@opra/node-client",
+  "name": "@opra/client",
   "version": "0.9.0",
-  "description": "Opra NodeJS client package",
+  "description": "Opra Client package",
   "author": "Panates",
   "license": "MIT",
   "repository": {
@@ -11,57 +11,55 @@
   },
   "scripts": {
     "compile": "tsc",
-    "prebuild": "npm run check && npm run lint && npm run clean",
-    "build": "npm run build:cjs && npm run build:esm && npm run bundle",
-    "build:cjs": "tsc -b tsconfig-build-cjs.json",
-    "build:esm": "tsc -b tsconfig-build-esm.json",
-    "postbuild": "cp README.md package.json ../../LICENSE ../../build/node-client && cp ../../package.cjs.json ../../build/node-client/cjs/package.json",
-    "lint": "eslint . --max-warnings=0",
-    "check": "madge --circular src/**",
-    "test": "jest --runInBand --detectOpenHandles",
-    "cover": "jest --collect-coverage",
+    "prebuild": "npm run clean",
+    "build": "node scripts/bundle.cjs",
     "clean": "npm run clean:src && npm run clean:dist && npm run clean:cover",
     "clean:src": "ts-cleanup -s src --all",
     "clean:dist": "rimraf ../../build/node-client ../../build/client",
     "clean:cover": "rimraf ../../coverage/client",
     "bundle": "node support/bundle.cjs"
   },
+  "type": "module",
+  "module": "./esm/main.min.mjs",
+  "main": "./cjs/main.min.cjs",
+  "types": "./typings/index.d.ts",
+  "typings": "./typings/index.d.ts",
+  "exports": {
+    "./package.json": {
+      "default": "./package.json"
+    },
+    ".": {
+      "require": "./cjs/main.min.cjs",
+      "default": "./esm/main.min.mjs"
+    }
+  },
   "dependencies": {
-    "@opra/common": "^0.8.0",
-    "putil-isplainobject": "^1.1.4",
-    "rxjs": "^7.6.0"
+    "@opra/node-client": "^0.8.0",
+    "fast-tokenizer": "^1.2.0",
+    "i18next": "^22.4.6",
+    "lodash-es": "^4.17.21",
+    "luxon": "^3.1.1",
+    "reflect-metadata": "^0.1.13",
+    "rxjs": "^7.6.0",
+    "uid": "^2.0.1"
   },
   "devDependencies": {
-    "@types/highland": "^2.12.14",
-    "@types/lodash": "^4.14.191",
-    "body-parser": "^1.20.1",
-    "express": "^4.18.2",
-    "ts-gems": "^2.3.0",
     "assert": "^2.0.0",
     "buffer": "^6.0.3",
     "events": "^3.3.0",
-    "path": "^0.12.7",
     "path-browserify": "^1.0.1",
     "stream-browserify": "^3.0.0",
     "util": "^0.12.5",
-    "url": "^0.11.0"
+    "url": "^0.11.0",
+    "ts-gems": "^2.3.0"
   },
-  "type": "module",
-  "types": "esm/index.d.ts",
-  "exports": {
-    ".": {
-      "require": "./cjs/index.js",
-      "default": "./esm/index.js"
-    }
-  },
-  "engines": {
-    "node": ">=18.0",
-    "npm": ">=7.0.0"
-  },
+  "sideEffects": false,
   "files": [
-    "bin/",
+    "typings/",
     "cjs/",
     "esm/",
+    "umd/",
+    "typings/",
     "LICENSE",
     "README.md"
   ],
@@ -69,6 +67,7 @@
     "opra",
     "node",
     "client",
+    "browser",
     "http",
     "request",
     "fetch"
