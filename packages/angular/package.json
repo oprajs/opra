@@ -26,7 +26,8 @@
   "peerDependencies": {
     "@angular/common": "^14.2.12",
     "@angular/core": "^14.2.12",
-    "@opra/client": "^0.10.0"
+    "@opra/client": "^0.10.0",
+    "ts-gems": "^2.3.0"
   },
   "devDependencies": {
     "@angular/cli": "^15.0.4",
