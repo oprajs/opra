@@ -56,25 +56,43 @@ async function run() {
   }
 
   // Copy node-client Typings
+  const typingOverwrite = [/['"]@opra\/(common)(\/?.*)['"]/g,
+    /['"](antlr4ts)(\/?.*)['"]/g];
+  const patchImports = (src, dst) => {
+    const rel = path.relative(path.dirname(dst), path.resolve(outputPath, 'typings'));
+    let content = fs.readFileSync(src, 'utf-8');
+    let overwritten = false;
+    for (const reg of typingOverwrite) {
+      content = content.replaceAll(reg, (v, m1, m2) => {
+        v = './' + m1 + (m2 || '');
+        const newPath = (rel ? path.join(rel, v) : v);
+        overwritten = true;
+        return `'${newPath}'`;
+      });
+    }
+    if (overwritten) {
+      fs.writeFileSync(dst, content, 'utf-8');
+      return true;
+    }
+  };
+
   copyTypings(
       path.resolve(buildPath, 'node-client/esm'),
       path.resolve(outputPath, 'typings'),
-      (src, dst) => {
-        let content = fs.readFileSync(src, 'utf-8');
-        if (content.includes('@opra/common')) {
-          const rel = path.relative(path.dirname(dst), path.resolve(outputPath, 'typings'));
-          const newPath = rel ? path.join(rel, './common') : './common';
-          content = content.replaceAll('@opra/common', newPath);
-          fs.writeFileSync(dst, content, 'utf-8');
-          return true;
-        }
-      }
+      patchImports
   );
 
-  // Copy common Typings
+  // Copy @opra/common typings
   copyTypings(
       path.resolve(buildPath, 'common/esm'),
-      path.resolve(outputPath, 'typings/common')
+      path.resolve(outputPath, 'typings/common'),
+      patchImports
+  );
+
+  // Copy antlr4s typings
+  copyTypings(
+      path.dirname(require.resolve('antlr4ts')),
+      path.resolve(outputPath, 'typings/antlr4ts')
   );
 
   const externals = Object.keys(trgJson.dependencies).filter(x => !bundleDeps.includes(x));
