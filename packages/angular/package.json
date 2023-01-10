@@ -1,6 +1,6 @@
 {
   "name": "@opra/angular",
-  "version": "0.11.0",
+  "version": "0.11.5",
   "description": "Opra internationalization package",
   "author": "Panates",
   "license": "MIT",
@@ -11,7 +11,7 @@
   },
   "scripts": {
     "compile": "tsc",
-    "prebuild": "npm run check && npm run lint && npm run clean",
+    "prebuild": "npm run check && npm run lint && npm run clean && npm run fix-json",
     "build": "ng build --configuration production",
     "postbuild": "cp ../../LICENSE ../../build/angular",
     "lint": "eslint . --max-warnings=0",
@@ -21,12 +21,13 @@
     "clean": "npm run clean:src && npm run clean:dist && npm run clean:cover",
     "clean:src": "ts-cleanup -s src --all",
     "clean:dist": "rimraf ../../build/angular",
-    "clean:cover": "rimraf ../../coverage/angular"
+    "clean:cover": "rimraf ../../coverage/angular",
+    "fix-json": "node ./tools/fix-dependencies.mjs"
   },
   "peerDependencies": {
     "@angular/common": "^14.2.12 || 15.x.x",
     "@angular/core": "^14.2.12 || 15.x.x",
-    "@opra/client": "^0.10.0",
+    "@opra/client": "^0.11.5",
     "ts-gems": "^2.3.0"
   },
   "devDependencies": {
@@ -37,6 +38,7 @@
     "@angular/platform-browser-dynamic": "^14.2.12",
     "cross-fetch": "^3.1.5",
     "core-js": "^3.26.1",
+    "ng-packagr": "^14.1.0",
     "express": "^4.18.2",
     "zone.js": "^0.12.0"
   },

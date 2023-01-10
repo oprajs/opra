@@ -1,4 +1,5 @@
-import { AbstractParseTreeVisitor } from 'antlr4ts/tree/index.js';
+import type { ParseTreeVisitor as TParseTreeVisitor} from 'antlr4';
+import antlr4 from 'antlr4';
 import {
   ArithmeticExpressionContext, ArrayExpressionContext,
   BooleanLiteralContext,
@@ -16,7 +17,7 @@ import {
   StringLiteralContext,
   TimeLiteralContext,
 } from './antlr/OpraFilterParser.js';
-import { OpraFilterVisitor } from './antlr/OpraFilterVisitor.js';
+import OpraFilterVisitor from './antlr/OpraFilterVisitor.js';
 import {
   ArithmeticExpression, ArithmeticOperator,
   ArrayExpression,
@@ -32,7 +33,10 @@ import { ExternalConstant } from './ast/terms/external-constant.js';
 import { SyntaxError } from './errors.js';
 import { unquoteFilterString } from './utils.js';
 
-export class FilterTreeVisitor extends AbstractParseTreeVisitor<any> implements OpraFilterVisitor<any> {
+// Fix: antlr4 d.ts files is invalid
+const ParseTreeVisitor = (antlr4 as any).tree.ParseTreeVisitor as typeof TParseTreeVisitor;
+
+export class FilterTreeVisitor extends ParseTreeVisitor<any> implements OpraFilterVisitor<any> {
   private _timeZone?: string;
 
   constructor(options?: {
@@ -51,7 +55,7 @@ export class FilterTreeVisitor extends AbstractParseTreeVisitor<any> implements 
   }
 
   visitIdentifier(ctx: IdentifierContext) {
-    return ctx.text;
+    return ctx.getText();
   }
 
   visitNullLiteral() {
@@ -59,15 +63,15 @@ export class FilterTreeVisitor extends AbstractParseTreeVisitor<any> implements 
   }
 
   visitBooleanLiteral(ctx: BooleanLiteralContext) {
-    return new BooleanLiteral(ctx.text === 'true');
+    return new BooleanLiteral(ctx.getText() === 'true');
   }
 
   visitNumberLiteral(ctx: NumberLiteralContext) {
-    return new NumberLiteral(ctx.text);
+    return new NumberLiteral(ctx.getText());
   }
 
   visitStringLiteral(ctx: StringLiteralContext) {
-    return new StringLiteral(unquoteFilterString(ctx.text));
+    return new StringLiteral(unquoteFilterString(ctx.getText()));
   }
 
   visitInfinityLiteral() {
@@ -75,33 +79,33 @@ export class FilterTreeVisitor extends AbstractParseTreeVisitor<any> implements 
   }
 
   visitDateLiteral(ctx: DateLiteralContext) {
-    return new DateLiteral(unquoteFilterString(ctx.text));
+    return new DateLiteral(unquoteFilterString(ctx.getText()));
   }
 
   visitDateTimeLiteral(ctx: DateTimeLiteralContext) {
-    return new DateLiteral(unquoteFilterString(ctx.text));
+    return new DateLiteral(unquoteFilterString(ctx.getText()));
   }
 
   visitTimeLiteral(ctx: TimeLiteralContext) {
-    return new TimeLiteral(unquoteFilterString(ctx.text));
+    return new TimeLiteral(unquoteFilterString(ctx.getText()));
   }
 
   visitQualifiedIdentifierTerm(ctx: QualifiedIdentifierTermContext) {
-    return new QualifiedIdentifier(ctx.text);
+    return new QualifiedIdentifier(ctx.getText());
   }
 
   visitPolarityExpression(ctx: PolarityExpressionContext) {
     const x = this.visit(ctx.expression());
     if (x.kind === 'NumberLiteral') {
-      if (ctx.polarOp().text === '-')
+      if (ctx.polarOp().getText() === '-')
         x.value *= -1;
       return x;
     }
-    throw new SyntaxError('Unexpected token "' + ctx.text + '"');
+    throw new SyntaxError('Unexpected token "' + ctx.getText() + '"');
   }
 
   visitExternalConstantTerm(ctx: ExternalConstantTermContext) {
-    return new ExternalConstant(ctx.externalConstant().text.substring(1));
+    return new ExternalConstant(ctx.externalConstant().getText().substring(1));
   }
 
   visitParenthesizedExpression(ctx: ParenthesizedExpressionContext) {
@@ -110,12 +114,12 @@ export class FilterTreeVisitor extends AbstractParseTreeVisitor<any> implements 
   }
 
   visitArrayExpression(ctx: ArrayExpressionContext) {
-    return new ArrayExpression(ctx.expression().map(child => this.visit(child)));
+    return new ArrayExpression(ctx.expression_list().map(child => this.visit(child)));
   }
 
   visitComparisonExpression(ctx: ComparisonExpressionContext): any {
     return new ComparisonExpression({
-      op: ctx.compOp().text as ComparisonOperator,
+      op: ctx.compOp().getText() as ComparisonOperator,
       left: this.visit(ctx.expression(0)),
       right: this.visit(ctx.expression(1))
     })
@@ -125,17 +129,17 @@ export class FilterTreeVisitor extends AbstractParseTreeVisitor<any> implements 
     const items: any[] = [];
     const wrapChildren = (arr: ExpressionContext[], op: string) => {
       for (const c of arr) {
-        if (c instanceof LogicalExpressionContext && c.logOp().text === op) {
-          wrapChildren(c.expression(), c.logOp().text);
+        if (c instanceof LogicalExpressionContext && c.logOp().getText() === op) {
+          wrapChildren(c.expression_list(), c.logOp().getText());
           continue;
         }
         const o = this.visit(c);
         items.push(o);
       }
     }
-    wrapChildren(ctx.expression(), ctx.logOp().text);
+    wrapChildren(ctx.expression_list(), ctx.logOp().getText());
     return new LogicalExpression({
-      op: ctx.logOp().text as LogicalOperator,
+      op: ctx.logOp().getText() as LogicalOperator,
       items
     })
   }
@@ -146,17 +150,16 @@ export class FilterTreeVisitor extends AbstractParseTreeVisitor<any> implements 
       for (let i = 0, len = children.length; i < len; i++) {
         const child = children[i];
         if (child instanceof ArithmeticExpressionContext) {
-          wrapChildren(child.expression(), child.arthOp().text);
+          wrapChildren(child.expression_list(), child.arthOp().getText());
           continue;
         }
         const value = this.visit(child);
         exp.append(op as ArithmeticOperator || '+', value);
       }
     }
-    wrapChildren(ctx.expression(), ctx.arthOp().text);
+    wrapChildren(ctx.expression_list(), ctx.arthOp().getText());
     return exp;
   }
-
 
 }
 

@@ -1,4 +1,4 @@
-import { isPromise } from 'putil-promisify';
+import promisify from 'putil-promisify';
 import { Type } from 'ts-gems';
 import { ResponsiveMap } from '../../helpers/responsive-map.js';
 import { OpraSchema } from '../opra-schema.definition.js';
@@ -75,7 +75,7 @@ export class DocumentBuilder {
   }
 
   async addDataTypeClass(thunk: ThunkAsync<Type | Function>): Promise<string> {
-    thunk = isPromise(thunk) ? await thunk : thunk;
+    thunk = promisify.isPromise(thunk) ? await thunk : thunk;
     if (!isConstructor(thunk))
       return this.addDataTypeClass(thunk());
     const internalTypeName = primitiveClasses.get(thunk);
@@ -130,7 +130,7 @@ export class DocumentBuilder {
   }
 
   async addResourceInstance(thunk: ThunkAsync<any>): Promise<string> {
-    thunk = isPromise(thunk) ? await thunk : thunk;
+    thunk = promisify.isPromise(thunk) ? await thunk : thunk;
     let instance: {};
     if (typeof thunk === 'function') {
       if (isConstructor(thunk)) {

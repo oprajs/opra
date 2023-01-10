@@ -1,4 +1,5 @@
 import { splitString, tokenize } from 'fast-tokenizer';
+import fs from 'fs';
 import i18next, {
   FallbackLng,
   Formatter as I18nextFormatter,
@@ -8,6 +9,7 @@ import i18next, {
   TOptions
 } from 'i18next';
 import * as I18next from 'i18next';
+import path from 'path';
 import { Type } from 'ts-gems';
 import { isUrl } from '../utils/index.js';
 import { unescapeString } from './string-utils.js';
@@ -19,7 +21,7 @@ export type InitCallback = I18next.Callback;
 export type TranslateFunction = I18nextTFunction;
 export type Formatter = I18nextFormatter;
 export type LanguageResource = I18nextResource;
-export { FallbackLng };
+export type { FallbackLng };
 
 export interface InitOptions extends I18nextInitOptions {
   resourceDirs?: string[];
@@ -35,7 +37,7 @@ export class I18n extends BaseI18n {
     const options: InitOptions = typeof arg0 === 'object' ? arg0 : {};
     const callback = typeof arg0 === 'function' ? arg0 : arg1;
     try {
-      const t = await super.init(options);
+      const t = await super.init(options, callback);
 
       // Add formatters
       const formatter = this.services.formatter as Formatter;
@@ -91,32 +93,29 @@ export class I18n extends BaseI18n {
     if (isUrl(filePath)) {
       obj = (await fetch(filePath, {headers: {accept: 'application/json'}})).json();
     } else {
-      const fs = await import('fs/promises');
-      const content = await fs.readFile(filePath, 'utf8');
+      const content = fs.readFileSync(filePath, 'utf8');
       obj = JSON.parse(content);
     }
     this.addResourceBundle(lang, ns, obj, deep, overwrite);
   }
 
   async loadResourceDir(dirnames: string | string[], deep?: boolean, overwrite?: boolean): Promise<void> {
-    const fs = await import('fs/promises');
-    const path = await import('path');
     for (const dirname of Array.isArray(dirnames) ? dirnames : [dirnames]) {
       /* istanbul ignore next */
-      if (!(await fs.stat(dirname)).isDirectory()) {
+      if (!(fs.statSync(dirname)).isDirectory()) {
         // eslint-disable-next-line no-console
         console.warn(`Locale directory does not exists. (${dirname})`);
         continue;
       }
-      const languageDirs = await fs.readdir(dirname);
+      const languageDirs = fs.readdirSync(dirname);
       for (const lang of languageDirs) {
         const langDir = path.join(dirname, lang);
-        if ((await fs.stat(langDir)).isDirectory()) {
-          const nsDirs = await fs.readdir(langDir);
+        if ((fs.statSync(langDir)).isDirectory()) {
+          const nsDirs = fs.readdirSync(langDir);
           for (const nsfile of nsDirs) {
             const nsFilePath = path.join(langDir, nsfile);
             const ext = path.extname(nsfile);
-            if (ext === '.json' && (await fs.stat(nsFilePath)).isFile()) {
+            if (ext === '.json' && (fs.statSync(nsFilePath)).isFile()) {
               const ns = path.basename(nsfile, ext);
               await this.loadResourceBundle(lang, ns, nsFilePath, deep, overwrite);
             }

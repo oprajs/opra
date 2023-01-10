@@ -1,4 +1,4 @@
-import { omit } from 'lodash';
+import omit from 'lodash.omit';
 import { StrictOmit } from 'ts-gems';
 import { OpraSchema } from '../../opra-schema.definition.js';
 import { colorFgMagenta, colorFgYellow, colorReset, nodeInspectCustom } from '../../utils/inspect.util.js';

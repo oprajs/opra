@@ -1,20 +1,20 @@
-import { CharStreams, CommonTokenStream } from 'antlr4ts';
-import { AbstractParseTreeVisitor } from 'antlr4ts/tree';
-import { OpraFilterLexer } from './antlr/OpraFilterLexer.js';
-import { OpraFilterParser } from './antlr/OpraFilterParser.js';
-import { ErrorListener } from './error-listener.js';
+import type { ParseTreeVisitor } from 'antlr4';
+import { CharStream, CommonTokenStream } from 'antlr4';
+import OpraFilterLexer from './antlr/OpraFilterLexer.js';
+import OpraFilterParser from './antlr/OpraFilterParser.js';
 import { SyntaxError } from './errors.js';
 import { FilterTreeVisitor } from './filter-tree-visitor.js';
+import { OpraErrorListener } from './opra-error-listener.js';
 
-export function parseFilter(text: string, visitor?: AbstractParseTreeVisitor<any>) {
-  const inputStream = CharStreams.fromString(text);
-  const lexer = new OpraFilterLexer(inputStream);
-  const tokenStream = new CommonTokenStream(lexer);
-  const parser = new OpraFilterParser(tokenStream);
-  parser.buildParseTree = true;
+export function parseFilter(text: string, visitor?: ParseTreeVisitor<any>) {
+  const chars = new CharStream(text);
+  const lexer = new OpraFilterLexer(chars);
+  const tokenStream = new CommonTokenStream(lexer as any);
+  const parser = new OpraFilterParser(tokenStream as any);
+  parser.buildParseTrees = true;
 
   const errors: any[] = [];
-  const errorListener = new ErrorListener(errors);
+  const errorListener = new OpraErrorListener(errors);
   lexer.removeErrorListeners();
   lexer.addErrorListener(errorListener);
   parser.removeErrorListeners();

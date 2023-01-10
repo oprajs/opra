@@ -1,4 +1,4 @@
-import { omit } from 'lodash';
+import omit from 'lodash.omit';
 import { StrictOmit } from 'ts-gems';
 import { COMPLEXTYPE_FIELDS } from '../constants.js';
 import { FieldMetadata } from '../interfaces/data-type.metadata.js';

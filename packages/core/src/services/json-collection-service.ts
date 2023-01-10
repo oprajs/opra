@@ -1,4 +1,5 @@
-import { isNil, omitBy } from 'lodash';
+import isNil from 'lodash.isnil';
+import omitBy from 'lodash.omitby';
 import merge from 'putil-merge';
 import { Maybe } from 'ts-gems';
 import { nSQL } from "@nano-sql/core";

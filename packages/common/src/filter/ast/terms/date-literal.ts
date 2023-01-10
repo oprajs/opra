@@ -1,9 +1,10 @@
-import { DateTime } from 'luxon'; // todo dont use luxon. it has circular deps!
+import { toDateDef } from 'putil-varhelpers';
 import { ValidationError } from '../../errors.js';
 import { quoteFilterString } from '../../utils.js';
 import { Literal } from '../abstract/literal.js';
 
-const DATE_PATTERN = /^(\d{4})-(0[1-9]|1[012])-([123]0|[012][1-9]|31)/;
+// const DATE_PATTERN = /^(\d{4})-(0[1-9]|1[012])-([123]0|[012][1-9]|31)/;
+const NullDate = new Date(0);
 
 export class DateLiteral extends Literal {
   value: string;
@@ -15,7 +16,7 @@ export class DateLiteral extends Literal {
       return;
     }
     // noinspection SuspiciousTypeOfGuard
-    if (typeof value === 'string' && DATE_PATTERN.test(value) && DateTime.fromISO(value).isValid) {
+    if (typeof value === 'string' && toDateDef(value, NullDate) !== NullDate) {
       this.value = value;
       return;
     }

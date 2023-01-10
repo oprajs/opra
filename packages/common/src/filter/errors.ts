@@ -1,5 +1,5 @@
-import {Recognizer} from 'antlr4ts';
-import {RecognitionException} from 'antlr4ts/RecognitionException';
+import { RecognitionException } from 'antlr4';
+import { Recognizer } from 'antlr4/src/antlr4/Recognizer';
 
 export class SyntaxError extends TypeError {
 }
@@ -9,17 +9,15 @@ export class ValidationError extends TypeError {
 }
 
 export class FilterParseError extends Error {
-  recognizer!: Recognizer<any, any>;
+  recognizer!: Recognizer<any>;
   offendingSymbol: any | undefined;
   line!: number;
-  charPositionInLine!: number;
   e: RecognitionException | undefined;
 
   constructor(message: string, args: {
-    recognizer: Recognizer<any, any>;
+    recognizer: Recognizer<any>;
     offendingSymbol: any | undefined;
     line: number;
-    charPositionInLine: number;
     e: RecognitionException | undefined;
   }) {
     super(message);

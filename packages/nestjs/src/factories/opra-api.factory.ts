@@ -1,4 +1,5 @@
-import { head, identity } from 'lodash';
+import head from 'lodash.head';
+import identity from 'lodash.identity';
 import { ContextType, Inject, Injectable } from '@nestjs/common';
 import { ContextIdFactory, createContextId, ModulesContainer, REQUEST } from '@nestjs/core';
 import { ExternalContextCreator } from '@nestjs/core/helpers/external-context-creator';
