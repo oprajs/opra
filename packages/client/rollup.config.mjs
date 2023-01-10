@@ -102,14 +102,20 @@ function runCommands() {
               let overwritten = false;
               content = content.replaceAll(/'i18next'/g, (v) => {
                 overwritten = true;
-                return '\'@browsery/i18next\'';
+                return `'@browsery/i18next'`;
+              }).replaceAll(/['"]antlr4['"]/g, () => {
+                overwritten = true;
+                return `'@browsery/antlr4'`;
+              }).replaceAll(/['"]antlr4\/src\/antlr4\/(.*)['"]/g, (v, g1) => {
+                overwritten = true;
+                return `'@browsery/antlr4/typings/${g1}'`;
               });
               if (overwritten)
                 return fs.writeFile(dst, content, 'utf-8');
               return next();
             }
     ),
-    // Copy common typings
+    // Copy node-client typings
     () => copyFiles(
             path.resolve(buildPath, 'node-client/esm'),
             ['**/*.d.ts', '!node_modules/**'],
@@ -123,7 +129,6 @@ function runCommands() {
               content = content.replaceAll(typingOverwrite, (v, m1, m2) => {
                 v = './' + m1 + (m2 || '');
                 const newPath = (rel ? path.join(rel, v) : v);
-                // console.log(v, '>>>>', newPath);
                 overwritten = true;
                 return `'${newPath}'`;
               });
