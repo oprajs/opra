@@ -1,4 +1,5 @@
-import { isNil, omitBy } from 'lodash';
+import isNil from 'lodash.isnil';
+import omitBy from 'lodash.omitby';
 import { OpraQuery } from '@opra/common';
 import { Repository } from '@sqb/connect';
 import type { BaseEntityService } from './base-entity-service';

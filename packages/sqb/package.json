@@ -25,7 +25,8 @@
     "clean:cover": "rimraf ../../coverage/sqb"
   },
   "dependencies": {
-    "lodash": "^4.17.21",
+    "lodash.isnil": "^4.0.0",
+    "lodash.omitby": "^4.6.0",
     "ts-gems": "^2.3.0"
   },
   "devDependencies": {
@@ -38,8 +39,6 @@
   },
   "peerDependencies": {
     "@opra/core": "^0.10.0",
-    "@opra/exception": "^0.5.0",
-    "@opra/url": "^0.5.0",
     "@sqb/connect": ">= 4.5.4"
   },
   "type": "module",

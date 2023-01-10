@@ -1,4 +1,5 @@
-import { isNil, omitBy } from 'lodash';
+import isNil from 'lodash.isnil';
+import omitBy from 'lodash.omitby';
 import ruleJudgment from 'rule-judgment'
 import {
   ArrayExpression, BooleanLiteral,

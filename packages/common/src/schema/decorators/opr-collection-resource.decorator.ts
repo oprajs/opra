@@ -1,5 +1,5 @@
 import "reflect-metadata";
-import { omit } from 'lodash';
+import omit from 'lodash.omit';
 import { PartialSome, StrictOmit } from 'ts-gems';
 import { RESOURCE_METADATA } from '../constants.js';
 import { CollectionResourceMetadata } from '../interfaces/resource.metadata.js';

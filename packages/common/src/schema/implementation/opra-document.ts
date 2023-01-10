@@ -1,4 +1,4 @@
-import { omit } from 'lodash';
+import omit from 'lodash.omit';
 import { Type } from 'ts-gems';
 import { ResponsiveMap } from '../../helpers/responsive-map.js';
 import { IResourceContainer } from '../interfaces/resource-container.interface.js';

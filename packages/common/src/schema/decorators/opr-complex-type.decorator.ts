@@ -1,4 +1,4 @@
-import { omit } from 'lodash';
+import omit from 'lodash.omit';
 import { StrictOmit } from 'ts-gems';
 import { DATATYPE_METADATA } from '../constants.js';
 import { ComplexTypeMetadata } from '../interfaces/data-type.metadata.js';

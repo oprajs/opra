@@ -31,7 +31,6 @@
   },
   "devDependencies": {
     "@faker-js/faker": "^7.6.0",
-    "@types/mongodb": "^4.0.7",
     "mongodb": "^4.12.1"
   },
   "peerDependencies": {

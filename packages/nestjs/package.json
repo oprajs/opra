@@ -28,7 +28,8 @@
     "@opra/common": "^0.10.0",
     "@opra/core": "^0.10.0",
     "fast-tokenizer": "^1.2.0",
-    "lodash": "^4.17.21",
+    "lodash.head": "^4.0.1",
+    "lodash.identity": "^3.0.0",
     "reflect-metadata": "^0.1.13"
   },
   "peerDependencies": {

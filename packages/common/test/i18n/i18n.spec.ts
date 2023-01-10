@@ -1,12 +1,13 @@
+import {fileURLToPath} from 'node:url';
 import path from 'path';
 import {i18n, translate} from '../../src/index.js';
 
+const dirname = path.dirname(fileURLToPath(import.meta.url));
+
 describe('I18n', function () {
 
-  afterEach(() => i18n.changeLanguage('en'));
-
   beforeAll(async () => {
-    i18n.registerLocaleDir(path.join(__dirname, '_support/locale'));
+    i18n.registerLocaleDir(path.join(dirname, '_support/locale'));
     await i18n.init({
       defaultNS: 'translate',
       lng: 'en',
@@ -24,9 +25,11 @@ describe('I18n', function () {
           }
         }
       },
-      resourceDirs: [path.join(__dirname, '_support/locale2')]
+      resourceDirs: [path.join(dirname, '_support/locale2')]
     })
   });
+
+  beforeEach(() => i18n.changeLanguage('en'));
 
   it('Should translate nested text', async () => {
     expect(i18n.deep(translate('HELLO', {name: 'John'}))).toStrictEqual('Hello John');
@@ -112,4 +115,3 @@ describe('I18n', function () {
   })
 
 });
-

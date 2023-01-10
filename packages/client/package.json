@@ -1,6 +1,6 @@
 {
   "name": "@opra/client",
-  "version": "0.11.0",
+  "version": "0.11.5",
   "description": "Opra Client package",
   "author": "Panates",
   "license": "MIT",
@@ -10,18 +10,13 @@
     "directory": "packages/client"
   },
   "scripts": {
-    "compile": "tsc",
     "prebuild": "npm run clean",
-    "build": "node scripts/bundle.cjs",
-    "clean": "npm run clean:src && npm run clean:dist && npm run clean:cover",
-    "clean:src": "ts-cleanup -s src --all",
-    "clean:dist": "rimraf ../../build/node-client ../../build/client",
-    "clean:cover": "rimraf ../../coverage/client",
-    "bundle": "node support/bundle.cjs"
+    "build": "rollup -c rollup.config.mjs",
+    "clean": "rimraf ../../build/client"
   },
   "type": "module",
-  "module": "./esm/main.min.mjs",
-  "main": "./cjs/main.min.cjs",
+  "module": "./esm/index.min.mjs",
+  "main": "./cjs/index.min.cjs",
   "types": "./typings/index.d.ts",
   "typings": "./typings/index.d.ts",
   "exports": {
@@ -29,36 +24,41 @@
       "default": "./package.json"
     },
     ".": {
-      "require": "./cjs/main.min.cjs",
-      "default": "./esm/main.min.mjs"
+      "require": "./cjs/index.min.cjs",
+      "default": "./esm/index.min.mjs"
     }
   },
   "dependencies": {
-    "@opra/node-client": "^0.10.0",
+    "@browsery/antlr4": "^0.1.0",
+    "@browsery/fs": "^0.1.0",
+    "@browsery/highland": "^0.1.0",
+    "@browsery/http-parser": "^0.1.0",
+    "@browsery/i18next": "^0.1.0",
+    "@browsery/stream": "^0.1.0",
+    "@browsery/util": "^0.1.0",
+    "buffer": "^6.0.3",
+    "events": "^3.3.0",
     "fast-tokenizer": "^1.2.0",
-    "i18next": "^22.4.6",
-    "lodash-es": "^4.17.21",
-    "luxon": "^3.1.1",
+    "lodash.omit": "^4.5.0",
+    "path-browserify": "^1.0.1",
+    "process": "^0.11.10",
+    "rxjs": "^7.8.0",
+    "ts-lib": "^0.0.5",
+    "putil-isplainobject": "^1.1.5",
+    "putil-merge": "^3.10.1",
+    "putil-promisify": "^1.10.0",
+    "putil-varhelpers": "^1.6.5",
     "reflect-metadata": "^0.1.13",
-    "rxjs": "^7.6.0",
     "uid": "^2.0.1"
   },
   "devDependencies": {
-    "assert": "^2.0.0",
-    "buffer": "^6.0.3",
-    "events": "^3.3.0",
-    "path-browserify": "^1.0.1",
-    "stream-browserify": "^3.0.0",
-    "util": "^0.12.5",
-    "url": "^0.11.0",
-    "ts-gems": "^2.3.0"
+    "@opra/node-client": "^0.10.0"
   },
   "sideEffects": false,
   "files": [
     "typings/",
     "cjs/",
     "esm/",
-    "umd/",
     "typings/",
     "LICENSE",
     "README.md"
