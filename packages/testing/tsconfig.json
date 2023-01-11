@@ -3,7 +3,7 @@
   "compilerOptions": {
     "baseUrl": "./",
     "paths": {
-      "@opra/node-client": ["../client/src"],
+      "@opra/node-client": ["../node-client/src"],
       "@opra/common": ["../common/src"]
     }
   },

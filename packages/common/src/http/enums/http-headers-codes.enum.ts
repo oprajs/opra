@@ -4,7 +4,7 @@
  * https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers#controls
  */
 
-export enum HttpHeaders {
+export enum HttpHeaderCodes {
 
   /* *** Custom Headers *** */
   X_Opra_Version = 'X-Opra-Version',

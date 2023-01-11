@@ -1,5 +1,5 @@
 import { IncomingHttpHeaders } from 'http';
-import { HttpStatus, OpraDocument, OpraException, OpraURLSearchParams } from '@opra/common';
+import { HttpStatusCodes, OpraDocument, OpraException, OpraURLSearchParams } from '@opra/common';
 import {
   ContextType,
   IExecutionContext,
@@ -21,7 +21,7 @@ export class RequestContext {
   readonly responseHeaders: IncomingHttpHeaders;
   response?: any;
   errors: OpraException[] = [];
-  status?: HttpStatus;
+  status?: HttpStatusCodes;
   continueOnError?: boolean;
 
   constructor(args: RequestContextArgs) {

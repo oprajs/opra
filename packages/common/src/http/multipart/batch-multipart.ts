@@ -2,8 +2,8 @@ import Highland from 'highland';
 import { Readable } from 'stream';
 import { uid } from 'uid';
 import { isReadable } from '../../utils/type-guards.js';
-import { HttpHeaders } from '../enums/http-headers.enum.js';
-import { HttpStatus } from '../enums/http-status.enum.js';
+import { HttpHeaderCodes } from '../enums/http-headers-codes.enum';
+import { HttpStatusCodes } from '../enums/http-status-codes.enum';
 import { normalizeHeaders } from '../utils/normalize-headers.js';
 import { HttpRequestContent, IHttpRequestContent } from './http-request-content.js';
 import { HttpResponseContent, IHttpResponseContent } from './http-response-content.js';
@@ -31,11 +31,11 @@ export class BatchMultipart {
   }): this {
     const headers: any = {
       ...normalizeHeaders(part?.headers || {}, true),
-      [HttpHeaders.Content_Type]: 'application/http',
-      [HttpHeaders.Content_Transfer_Encoding]: 'binary'
+      [HttpHeaderCodes.Content_Type]: 'application/http',
+      [HttpHeaderCodes.Content_Transfer_Encoding]: 'binary'
     };
     if (part?.contentId)
-      headers[HttpHeaders.Content_ID] = part.contentId;
+      headers[HttpHeaderCodes.Content_ID] = part.contentId;
     this._parts.push({
       headers,
       contentId: part?.contentId,
@@ -50,11 +50,11 @@ export class BatchMultipart {
   }): this {
     const headers: any = {
       ...normalizeHeaders(part?.headers || {}, true),
-      [HttpHeaders.Content_Type]: 'application/http',
-      [HttpHeaders.Content_Transfer_Encoding]: 'binary'
+      [HttpHeaderCodes.Content_Type]: 'application/http',
+      [HttpHeaderCodes.Content_Transfer_Encoding]: 'binary'
     };
     if (part?.contentId)
-      headers[HttpHeaders.Content_ID] = part.contentId;
+      headers[HttpHeaderCodes.Content_ID] = part.contentId;
     this._parts.push({
       headers,
       contentId: part?.contentId,
@@ -69,11 +69,11 @@ export class BatchMultipart {
   }): this {
     const headers: any = {
       ...normalizeHeaders(part?.headers || {}, true),
-      [HttpHeaders.Content_Type]: 'application/http',
-      [HttpHeaders.Content_Transfer_Encoding]: 'binary'
+      [HttpHeaderCodes.Content_Type]: 'application/http',
+      [HttpHeaderCodes.Content_Transfer_Encoding]: 'binary'
     };
     if (part?.contentId)
-      headers[HttpHeaders.Content_ID] = part.contentId;
+      headers[HttpHeaderCodes.Content_ID] = part.contentId;
     this._parts.push({
       headers,
       contentId: part?.contentId,
@@ -143,7 +143,7 @@ export class BatchMultipart {
         if (part.content instanceof HttpRequestContent)
           s += (part.content.method || 'GET').toUpperCase() + ' ' + part.content.url + ' HTTP/1.1' + CRLF;
         else
-          s += 'HTTP/1.1 ' + part.content.status + (HttpStatus[part.content.status] || 'Unknown') + CRLF;
+          s += 'HTTP/1.1 ' + part.content.status + (HttpStatusCodes[part.content.status] || 'Unknown') + CRLF;
         if (part.content.headers) {
           for (const [k, v] of Object.entries(part.content.headers)) {
             if (v === '' || v == null)

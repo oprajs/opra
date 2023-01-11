@@ -22,7 +22,7 @@
     "test": "jest",
     "cover": "jest --collect-coverage",
     "clean": "npm run clean:src && npm run clean:dist && npm run clean:cover",
-    "clean:src": "ts-cleanup -s src --all",
+    "clean:src": "ts-cleanup -s src --all && ts-cleanup -s test --all",
     "clean:dist": "rimraf ../../build/core",
     "clean:cover": "rimraf ../../coverage/core"
   },

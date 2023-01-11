@@ -1,5 +1,5 @@
 import express from 'express';
-import { HttpHeaders, OpraDocument } from '@opra/common';
+import { HttpHeaderCodes, OpraDocument } from '@opra/common';
 import { OpraTestClient } from '@opra/testing';
 import { OpraExpressAdapter } from '../../src/index.js';
 import { createTestDocument } from '../_support/test-app/create-document.js';
@@ -106,8 +106,8 @@ describe('e2e: CollectionResource:search', function () {
     resp.expect
         .toSuccess()
         .toReturnCollection();
-    expect(resp.headers.has(HttpHeaders.X_Opra_Count)).toBeTruthy();
-    expect(resp.headers.get(HttpHeaders.X_Opra_Count)).toStrictEqual('' + customersData.length);
+    expect(resp.headers.has(HttpHeaderCodes.X_Opra_Count)).toBeTruthy();
+    expect(resp.headers.get(HttpHeaderCodes.X_Opra_Count)).toStrictEqual('' + customersData.length);
   })
 
 });

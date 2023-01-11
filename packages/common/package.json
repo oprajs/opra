@@ -21,7 +21,7 @@
     "test": "jest --runInBand --detectOpenHandles",
     "cover": "jest --collect-coverage",
     "clean": "npm run clean:src && npm run clean:dist && npm run clean:cover",
-    "clean:src": "ts-cleanup -s src --all",
+    "clean:src": "ts-cleanup -s src --all && ts-cleanup -s test --all",
     "clean:dist": "rimraf ../../build/common",
     "clean:cover": "rimraf ../../coverage/common",
     "antlr4": "java -jar ./tools/antlr4-4.11.2-SNAPSHOT-complete.jar -Dlanguage=TypeScript ./src/filter/antlr/OpraFilter.g4 -visitor"
@@ -47,8 +47,8 @@
   "types": "esm/index.d.ts",
   "exports": {
     ".": {
-      "require": "./browser/opra-common.min.cjs",
-      "default": "./browser/opra-common.min.mjs"
+      "require": "./cjs/index.js",
+      "default": "./esm/index.js"
     }
   },
   "engines": {

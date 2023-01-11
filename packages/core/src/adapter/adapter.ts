@@ -15,7 +15,7 @@ import {
   FailedDependencyError,
   FieldGetQuery,
   ForbiddenError,
-  HttpHeaders,
+  HttpHeaderCodes,
   I18n,
   InternalServerError,
   OpraDocument,
@@ -182,7 +182,7 @@ export abstract class OpraAdapter<TExecutionContext extends IExecutionContext> {
           promises.push(
               this._executeCollectionResource(document, resource, ctx)
                   .then(r => {
-                    context.responseHeaders[HttpHeaders.X_Opra_Count] = r;
+                    context.responseHeaders[HttpHeaderCodes.X_Opra_Count] = r;
                   }));
         }
         await Promise.all(promises);
@@ -217,7 +217,7 @@ export abstract class OpraAdapter<TExecutionContext extends IExecutionContext> {
         result = Array.isArray(result) ? result[0] : result;
         if (result)
           context.status = 201;
-        context.responseHeaders[HttpHeaders.X_Opra_DataType] = resource.dataType.name;
+        context.responseHeaders[HttpHeaderCodes.X_Opra_DataType] = resource.dataType.name;
         return result;
       }
       case 'count': {
@@ -235,14 +235,14 @@ export abstract class OpraAdapter<TExecutionContext extends IExecutionContext> {
         if (v.value === undefined)
           throw new ResourceNotFoundError(v.path);
         if (v.dataType)
-          context.responseHeaders[HttpHeaders.X_Opra_DataType] = v.dataType.name;
+          context.responseHeaders[HttpHeaderCodes.X_Opra_DataType] = v.dataType.name;
         return v.value;
       }
       case 'search': {
         const query = context.query as CollectionSearchQuery;
         result = await resolverInfo.handler(context, query);
         const items = Array.isArray(result) ? result : (context.response ? [result] : []);
-        context.responseHeaders[HttpHeaders.X_Opra_DataType] = resource.dataType.name;
+        context.responseHeaders[HttpHeaderCodes.X_Opra_DataType] = resource.dataType.name;
         return items;
       }
       case 'update': {
@@ -251,7 +251,7 @@ export abstract class OpraAdapter<TExecutionContext extends IExecutionContext> {
         result = Array.isArray(result) ? result[0] : result;
         if (!result)
           throw new ResourceNotFoundError(resource.name, query.keyValue);
-        context.responseHeaders[HttpHeaders.X_Opra_DataType] = resource.dataType.name;
+        context.responseHeaders[HttpHeaderCodes.X_Opra_DataType] = resource.dataType.name;
         return result;
       }
       case 'delete':
@@ -311,7 +311,7 @@ export abstract class OpraAdapter<TExecutionContext extends IExecutionContext> {
         if (v.value === undefined)
           throw new ResourceNotFoundError(v.path);
         if (v.dataType)
-          context.responseHeaders[HttpHeaders.X_Opra_DataType] = v.dataType.name;
+          context.responseHeaders[HttpHeaderCodes.X_Opra_DataType] = v.dataType.name;
         return v.value;
       }
     }
@@ -334,7 +334,7 @@ export abstract class OpraAdapter<TExecutionContext extends IExecutionContext> {
     if (method === 'create')
       context.status = 201;
 
-    context.responseHeaders[HttpHeaders.X_Opra_DataType] = resource.dataType.name;
+    context.responseHeaders[HttpHeaderCodes.X_Opra_DataType] = resource.dataType.name;
     return result;
   }
 

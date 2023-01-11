@@ -8,8 +8,8 @@ import {
   ContainerResourceInfo,
   DataType,
   FieldGetQuery,
-  HttpHeaders,
-  HttpStatus,
+  HttpHeaderCodes,
+  HttpStatusCodes,
   InternalServerError,
   IResourceContainer, isReadable, IssueSeverity,
   MethodNotAllowedError,
@@ -315,9 +315,9 @@ export class OpraHttpAdapter<TExecutionContext extends IHttpExecutionContext = I
   // protected async sendBatchResponse(executionContext: TExecutionContext, requestContext: BatchRequestContext) {
   //   const resp = executionContext.getResponse();
   //   resp.setStatus(HttpStatus.OK);
-  //   resp.setHeader(HttpHeaders.Cache_Control, 'no-cache');
-  //   resp.setHeader(HttpHeaders.Pragma, 'no-cache');
-  //   resp.setHeader(HttpHeaders.Expires, '-1');
+  //   resp.setHeader(HttpHeaderCodes.Cache_Control, 'no-cache');
+  //   resp.setHeader(HttpHeaderCodes.Pragma, 'no-cache');
+  //   resp.setHeader(HttpHeaderCodes.Expires, '-1');
   //   if (requestContext.headers) {
   //     for (const [k, v] of Object.entries(requestContext.headers)) {
   //       if (v)
@@ -325,8 +325,8 @@ export class OpraHttpAdapter<TExecutionContext extends IHttpExecutionContext = I
   //     }
   //   }
   //   const boundary = 'batch_' + uuid();
-  //   resp.setHeader(HttpHeaders.Content_Type, 'multipart/mixed;boundary=' + boundary);
-  //   resp.setHeader(HttpHeaders.X_Opra_Version, OpraSchema.Version);
+  //   resp.setHeader(HttpHeaderCodes.Content_Type, 'multipart/mixed;boundary=' + boundary);
+  //   resp.setHeader(HttpHeaderCodes.X_Opra_Version, OpraSchema.Version);
   //
   //   const bodyBuilder = new HttpMultipartData();
   //
@@ -408,16 +408,16 @@ export class OpraHttpAdapter<TExecutionContext extends IHttpExecutionContext = I
 
     const resp = executionContext.getResponse();
     resp.setStatus(out.status);
-    resp.setHeader(HttpHeaders.Cache_Control, 'no-cache');
-    resp.setHeader(HttpHeaders.Pragma, 'no-cache');
-    resp.setHeader(HttpHeaders.Expires, '-1');
+    resp.setHeader(HttpHeaderCodes.Cache_Control, 'no-cache');
+    resp.setHeader(HttpHeaderCodes.Pragma, 'no-cache');
+    resp.setHeader(HttpHeaderCodes.Expires, '-1');
     if (out.headers) {
       for (const [k, v] of Object.entries(out.headers)) {
         if (v)
           resp.setHeader(k, v);
       }
     }
-    resp.setHeader(HttpHeaders.X_Opra_Version, OpraSchema.Version);
+    resp.setHeader(HttpHeaderCodes.X_Opra_Version, OpraSchema.Version);
     if (out.body)
       resp.send(out.body);
     resp.end();
@@ -438,10 +438,10 @@ export class OpraHttpAdapter<TExecutionContext extends IHttpExecutionContext = I
           return b.status - a.status;
         return i;
       });
-      if (!status || status < HttpStatus.BAD_REQUEST) {
+      if (!status || status < HttpStatusCodes.BAD_REQUEST) {
         status = errors[0].status;
-        if (status < HttpStatus.BAD_REQUEST)
-          status = HttpStatus.INTERNAL_SERVER_ERROR;
+        if (status < HttpStatusCodes.BAD_REQUEST)
+          status = HttpStatusCodes.INTERNAL_SERVER_ERROR;
       }
       body = this.i18n.deep({
         operation: ctx.query.method,
@@ -455,7 +455,7 @@ export class OpraHttpAdapter<TExecutionContext extends IHttpExecutionContext = I
         body = JSON.stringify(body);
         ctx.responseHeaders['content-type'] = 'application/json; charset=utf-8';
       }
-      status = status || (query.operation === 'create' ? HttpStatus.CREATED : HttpStatus.OK);
+      status = status || (query.operation === 'create' ? HttpStatusCodes.CREATED : HttpStatusCodes.OK);
     }
 
     return {
@@ -468,11 +468,11 @@ export class OpraHttpAdapter<TExecutionContext extends IHttpExecutionContext = I
   protected async sendError(executionContext: TExecutionContext, error: OpraException) {
     const resp = executionContext.getResponse();
     resp.setStatus(error.status || 500);
-    resp.setHeader(HttpHeaders.Content_Type, 'application/json');
-    resp.setHeader(HttpHeaders.Cache_Control, 'no-cache');
-    resp.setHeader(HttpHeaders.Pragma, 'no-cache');
-    resp.setHeader(HttpHeaders.Expires, '-1');
-    resp.setHeader(HttpHeaders.X_Opra_Version, OpraSchema.Version);
+    resp.setHeader(HttpHeaderCodes.Content_Type, 'application/json');
+    resp.setHeader(HttpHeaderCodes.Cache_Control, 'no-cache');
+    resp.setHeader(HttpHeaderCodes.Pragma, 'no-cache');
+    resp.setHeader(HttpHeaderCodes.Expires, '-1');
+    resp.setHeader(HttpHeaderCodes.X_Opra_Version, OpraSchema.Version);
     const issue = this.i18n.deep(error.issue);
     const body = {
       operation: 'unknown',

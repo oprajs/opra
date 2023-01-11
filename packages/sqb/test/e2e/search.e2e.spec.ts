@@ -1,4 +1,4 @@
-import { HttpHeaders } from '@opra/common';
+import { HttpHeaderCodes } from '@opra/common';
 import { OpraTestClient } from '@opra/testing';
 import { createApp, TestApp } from '../_support/app/index.js';
 
@@ -94,7 +94,7 @@ describe('e2e: search', function () {
     resp.expect
         .toSuccess()
         .toReturnCollection();
-    expect(parseFloat('' + resp.headers.get(HttpHeaders.X_Opra_Count))).toBeGreaterThanOrEqual(100);
+    expect(parseFloat('' + resp.headers.get(HttpHeaderCodes.X_Opra_Count))).toBeGreaterThanOrEqual(100);
   })
 
 });

@@ -6,7 +6,7 @@ import { joinPath } from '@opra/common';
 import {
   BatchRequest,
   HttpCollectionService,
-  HttpRequest,
+  HttpRequestBuilder,
   HttpResponse,
   HttpSingletonService,
   OpraHttpClient,
@@ -29,7 +29,7 @@ export class OpraTestClient extends OpraHttpClient {
   }
 
   // @ts-ignore
-  batch<TResponse extends TestHttpResponse = TestHttpResponse>(requests: HttpRequest[]): BatchRequest<TResponse>;
+  batch<TResponse extends TestHttpResponse = TestHttpResponse>(requests: HttpRequestBuilder[]): BatchRequest<TResponse>;
 
   // @ts-ignore
   collection<T = any, TResponse extends TestHttpResponse<T> = TestHttpResponse<T>>(name: string): HttpCollectionService<T, TResponse>;

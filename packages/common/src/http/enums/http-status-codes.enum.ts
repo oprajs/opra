@@ -4,7 +4,7 @@
  * https://developer.mozilla.org/en-US/docs/Web/HTTP/Status#successful_responses
  */
 
-export enum HttpStatus {
+export enum HttpStatusCodes {
 
   /* *** Information responses *** */
 

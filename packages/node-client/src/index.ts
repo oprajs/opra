@@ -1,5 +1,5 @@
 export * from './http/http-client.js';
-export * from './http/http-request.js';
+export * from './http/http-request-builder.js';
 export * from './http/http-response.js';
 export * from './http/http-collection-service.js';
 export * from './http/http-singleton-service.js';

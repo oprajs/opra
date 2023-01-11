@@ -1,6 +1,6 @@
-import { HttpHeaders } from '../enums/http-headers.enum.js';
+import { HttpHeaderCodes } from '../enums/http-headers-codes.enum';
 
-const knownKeys = Object.keys(HttpHeaders);
+const knownKeys = Object.keys(HttpHeaderCodes);
 const knownKeysLower = knownKeys.map(x => x.toLowerCase());
 
 export function normalizeHeaders(headers: any, normalCase?: boolean): Record<string, string | string[]> {
