@@ -7,6 +7,7 @@ const kHeadersCount = Symbol('kHeadersCount');
 const kTrailers = Symbol('kTrailers');
 const kTrailersCount = Symbol('kTrailersCount');
 
+// todo: Check is this class should be in common library
 export class HttpRequest extends Readable {
   httpVersionMajor: number;
   httpVersionMinor: number;

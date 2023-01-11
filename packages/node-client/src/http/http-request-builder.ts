@@ -3,7 +3,7 @@ import { ClientHttpHeaders, uid } from '@opra/common';
 import { HttpResponse } from './http-response.js';
 import { CommonHttpRequestOptions, HttpRequestHandler, RawHttpRequest } from './http-types.js';
 
-export abstract class HttpRequest<TResult = any, TResponse extends HttpResponse<TResult> = HttpResponse<TResult>>
+export abstract class HttpRequestBuilder<TResult = any, TResponse extends HttpResponse<TResult> = HttpResponse<TResult>>
     extends Observable<TResult | TResponse> {
   readonly contentId: string;
   protected _promise?: Promise<TResponse>;

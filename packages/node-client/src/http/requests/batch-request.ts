@@ -1,17 +1,17 @@
 import { BatchMultipart } from '@opra/common';
-import { HttpRequest } from '../http-request.js';
+import { HttpRequestBuilder } from '../http-request-builder.js';
 import { HttpResponse } from '../http-response.js';
 import { CommonHttpRequestOptions, HttpRequestHandler, RawHttpRequest } from '../http-types.js';
 import { mergeRawHttpRequests } from '../utils/merge-raw-http-requests.util.js';
 
-export class BatchRequest extends HttpRequest {
+export class BatchRequest extends HttpRequestBuilder {
 
-  protected _results = new WeakMap<HttpRequest, { error?: Error, response?: HttpResponse }>();
+  protected _results = new WeakMap<HttpRequestBuilder, { error?: Error, response?: HttpResponse }>();
   protected _listeners = new Set<((error: Error | undefined, response?: HttpResponse) => void)>();
 
   constructor(
       protected _handler: HttpRequestHandler,
-      readonly requests: HttpRequest[],
+      readonly requests: HttpRequestBuilder[],
       public options: CommonHttpRequestOptions = {}
   ) {
     super(_handler, options);

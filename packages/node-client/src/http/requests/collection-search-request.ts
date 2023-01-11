@@ -3,12 +3,12 @@ import {
   CollectionSearchQueryOptions,
   OpraURLSearchParams,
 } from '@opra/common';
-import { HttpRequest } from '../http-request.js';
+import { HttpRequestBuilder } from '../http-request-builder.js';
 import { HttpResponse } from '../http-response.js';
 import { CommonHttpRequestOptions, HttpRequestHandler, RawHttpRequest } from '../http-types.js';
 import { mergeRawHttpRequests } from '../utils/merge-raw-http-requests.util.js';
 
-export class CollectionSearchRequest<T, TResponse extends HttpResponse<T> = HttpResponse<T>> extends HttpRequest<T, TResponse> {
+export class CollectionSearchRequest<T, TResponse extends HttpResponse<T> = HttpResponse<T>> extends HttpRequestBuilder<T, TResponse> {
   constructor(
       protected _handler: HttpRequestHandler,
       readonly resource: CollectionResourceInfo,

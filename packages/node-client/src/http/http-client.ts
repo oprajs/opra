@@ -7,7 +7,7 @@ import {
   TEXT_CONTENT_TYPE_PATTERN
 } from '../constants.js';
 import { HttpCollectionService } from './http-collection-service.js';
-import { HttpRequest } from './http-request.js';
+import { HttpRequestBuilder } from './http-request-builder';
 import { HttpResponse } from './http-response.js';
 import { HttpSingletonService } from './http-singleton-service.js';
 import { HttpRequestDefaults, OpraHttpClientOptions, RawHttpRequest } from './http-types.js';
@@ -63,7 +63,7 @@ export class OpraHttpClient {
         .finally(() => documentResolverCaches.delete(cacheName));
   }
 
-  batch(requests: HttpRequest[]): BatchRequest {
+  batch(requests: HttpRequestBuilder[]): BatchRequest {
     this._assertMetadata();
     return new BatchRequest(req => this._handleRequest(req), requests);
   }

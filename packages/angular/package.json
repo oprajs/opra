@@ -19,7 +19,7 @@
     "test": "jest --runInBand --detectOpenHandles",
     "cover": "jest --collect-coverage",
     "clean": "npm run clean:src && npm run clean:dist && npm run clean:cover",
-    "clean:src": "ts-cleanup -s src --all",
+    "clean:src": "ts-cleanup -s src --all && ts-cleanup -s test --all",
     "clean:dist": "rimraf ../../build/angular",
     "clean:cover": "rimraf ../../coverage/angular",
     "fix-json": "node ./tools/fix-dependencies.mjs"
@@ -27,7 +27,7 @@
   "peerDependencies": {
     "@angular/common": "^14.2.12 || 15.x.x",
     "@angular/core": "^14.2.12 || 15.x.x",
-    "@opra/client": "^0.11.5",
+    "@opra/client": "^0.11.6",
     "ts-gems": "^2.3.0"
   },
   "devDependencies": {
