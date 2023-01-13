@@ -28,7 +28,7 @@
   "dependencies": {
     "@opra/common": "^0.10.0",
     "putil-isplainobject": "^1.1.4",
-    "rxjs": "^7.6.0"
+    "rxjs": "^7.x.x || ^8.x.x"
   },
   "devDependencies": {
     "@types/highland": "^2.12.14",

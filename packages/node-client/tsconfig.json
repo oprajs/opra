@@ -2,7 +2,6 @@
   "extends": "../../tsconfig-base.json",
   "compilerOptions": {
     "baseUrl": "./",
-    "lib": ["ES2020", "ES2021"],
     "paths": {
       "@opra/common": ["../common/src"]
     }
