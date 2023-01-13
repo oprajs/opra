@@ -1,130 +1,83 @@
-import { HTTPParser } from 'http-parser-js';
-import { Readable } from 'stream';
+/// <reference lib="dom" />
 
-const crlfBuffer = Buffer.from('\r\n');
-const kHeaders = Symbol('kHeaders');
-const kHeadersCount = Symbol('kHeadersCount');
-const kTrailers = Symbol('kTrailers');
-const kTrailersCount = Symbol('kTrailersCount');
+import { HttpHeaders, HttpHeadersInit } from './http-headers.js';
 
-// todo: Check is this class should be in common library
-export class HttpRequest extends Readable {
-  httpVersionMajor: number;
-  httpVersionMinor: number;
-  httpVersion: string;
-  complete: boolean;
-  rawHeaders: string[];
-  rawTrailers: string[];
-  aborted = false;
-  upgrade: boolean;
-  url: string;
-  originalUrl: string;
-  method: string;
-  shouldKeepAlive: boolean;
-  data?: Buffer;
-  body?: any;
-  [kHeaders]: Record<string, string | string[]>;
-  [kHeadersCount]: number;
-  [kTrailers]: Record<string, string | string[]>;
-  [kTrailersCount]: number;
-
-  get headers(): Record<string, string | string[]> {
-    if (!this[kHeaders])
-      this[kHeaders] = arrayToHeaders(this.rawHeaders);
-    return this[kHeaders];
-  }
-
-  get headersCount(): number {
-    return this[kHeadersCount];
-  }
-
-  get trailers(): Record<string, string | string[]> {
-    if (!this[kTrailers])
-      this[kTrailers] = arrayToHeaders(this.rawTrailers);
-    return this[kTrailers];
-  }
-
-  get trailersCount(): number {
-    return this[kTrailersCount];
-  }
-
-  _read() {
-    if (this.data) {
-      this.push(this.data);
-    }
-    this.push(null);
-  }
-
-  static parse(input: Buffer): HttpRequest {
-    const parser = new HTTPParser(HTTPParser.REQUEST);
-    const out = new HttpRequest();
-    const bodyChunks: Buffer[] = [];
-
-    parser[HTTPParser.kOnHeadersComplete] = function (req) {
-      out.shouldKeepAlive = req.shouldKeepAlive;
-      out.upgrade = req.upgrade;
-      out.method = HTTPParser.methods[req.method];
-      out.url = req.url;
-      out.originalUrl = req.url;
-      out.httpVersionMajor = req.versionMajor;
-      out.httpVersionMinor = req.versionMinor;
-      out.httpVersion = req.versionMajor + '.' + req.versionMinor;
-      out.rawHeaders = req.headers;
-      out[kHeadersCount] = Math.ceil(req.headers.length / 2);
-      out[kTrailersCount] = 0;
-    };
-
-    parser[HTTPParser.kOnBody] = function (chunk, offset, length) {
-      bodyChunks.push(chunk.subarray(offset, offset + length));
-    };
-
-    // This is actually the event for trailers, go figure.
-    parser[HTTPParser.kOnHeaders] = function (t) {
-      out.rawTrailers = t;
-      out[kTrailersCount] = Math.ceil(t.length / 2);
-    };
-
-    parser[HTTPParser.kOnMessageComplete] = function () {
-      out.complete = true;
-    };
-
-    // Since we are sending the entire Buffer at once here all callbacks above happen synchronously.
-    // The parser does not do _anything_ asynchronous.
-    // However, you can of course call execute() multiple times with multiple chunks, e.g. from a stream.
-    // But then you have to refactor the entire logic to be async (e.g. resolve a Promise in kOnMessageComplete and add timeout logic).
-    parser.execute(input);
-    if (!out.complete)
-      parser.execute(crlfBuffer);
-    parser.finish();
-
-    if (!out.complete) {
-      throw new Error('Could not parse request');
-    }
-
-    out.rawTrailers = out.rawTrailers || [];
-    if (bodyChunks.length)
-      out.data = Buffer.concat(bodyChunks);
-    out.resume();
-    return out;
-  }
-
+export interface HttpRequestInit {
+  cache?: RequestCache;
+  credentials?: RequestCredentials;
+  destination?: RequestDestination;
+  headers?: HttpHeadersInit;
+  integrity?: string;
+  keepalive?: boolean;
+  method?: string;
+  mode?: RequestMode;
+  redirect?: RequestRedirect;
+  referrer?: string;
+  referrerPolicy?: ReferrerPolicy;
+  signal?: AbortSignal;
+  url?: string;
 }
 
-function arrayToHeaders(arr: string[]): Record<string, string | string[]> {
-  const headers: Record<string, string | string[]> = {};
-  for (let i = 0; i < arr.length; i++) {
-    const k = arr[i].toLowerCase();
-    const v = arr[++i];
-    const trgV = headers[k];
-    // Array header -- only Set-Cookie at the moment
-    if (trgV && k === 'set-cookie') {
-      const a: string[] = Array.isArray(trgV) ? trgV : [trgV];
-      a.push(v);
-      headers[k] = a;
-    } else if (typeof trgV === 'string') {
-      headers[k] += (k === 'cookie' ? '; ' : ', ') + v;
-    } else
-      headers[k] = v;
+
+export class HttpRequest {
+  /** Returns the cache mode associated with request, which is a string indicating
+   * how the request will interact with the browser's cache when fetching. */
+  readonly cache: RequestCache;
+  /** Returns the credentials mode associated with request, which is a string indicating
+   * whether credentials will be sent with the request always, never,
+   * or only when sent to a same-origin URL. */
+  readonly credentials: RequestCredentials;
+  /** Returns the kind of resource requested by request, e.g., "document" or "script". */
+  readonly destination: RequestDestination;
+  /** Returns a Headers object consisting of the headers associated with request.
+   * Note that headers added in the network layer by the user agent will not be accounted for in this object,
+   * e.g., the "Host" header. */
+  readonly headers: HttpHeaders;
+  /** Returns request's subresource integrity metadata, which is a cryptographic
+   * hash of the resource being fetched.
+   * Its value consists of multiple hashes separated by whitespace. [SRI] */
+  readonly integrity: string ;
+  /** Returns a boolean indicating whether or not request can outlive the global in which it was created. */
+  readonly keepalive: boolean;
+  /** Returns request's HTTP method, which is "GET" by default. */
+  readonly method: string;
+  /** Returns the mode associated with request, which is a string indicating whether the request will use CORS,
+   *  or will be restricted to same-origin URLs. */
+  readonly mode: RequestMode;
+  /** Returns the redirect mode associated with request, which is a string indicating
+   * how redirects for the request will be handled during fetching. A request will follow redirects by default. */
+  readonly redirect: RequestRedirect = 'follow';
+  /** Returns the referrer of request. Its value can be a same-origin URL if explicitly set in init,
+   *  the empty string to indicate no referrer, and "about:client" when defaulting to the global's default.
+   *  This is used during fetching to determine the value of the `Referer` header of the request being made. */
+  readonly referrer: string;
+  /** Returns the referrer policy associated with request. This is used during fetching
+   * to compute the value of the request's referrer. */
+  readonly referrerPolicy: ReferrerPolicy;
+  /** Returns the signal associated with request, which is an AbortSignal object indicating
+   *  whether or not request has been aborted, and its abort event handler. */
+  readonly signal?: AbortSignal;
+  /** Returns the URL of request as a string. */
+  readonly url: string;
+
+  constructor(init?: HttpRequestInit) {
+    this.cache = init?.cache || 'default';
+    this.credentials = init?.credentials || 'same-origin';
+    this.destination = init?.destination || '';
+    this.headers = new HttpHeaders(init?.headers);
+    this.integrity = init?.integrity || '';
+    this.keepalive = init?.keepalive ?? false;
+    this.method = (init?.method || 'GET').toUpperCase();
+    this.mode = init?.mode || 'cors';
+    this.redirect = init?.redirect || 'follow';
+    this.mode = init?.mode || 'cors';
+    this.referrer = init?.referrer || '';
+    this.referrerPolicy = init?.referrerPolicy || '';
+    this.signal = init?.signal || new AbortSignal();
+    this.url = init?.url || '';
   }
-  return headers;
+
+  clone(update?: HttpRequestInit): HttpRequest {
+    return new HttpRequest({...this, ...update});
+  }
 }

@@ -27,7 +27,7 @@
   "dependencies": {
     "@opra/common": "^0.10.0",
     "@opra/core": "^0.10.0",
-    "fast-tokenizer": "^1.2.0",
+    "fast-tokenizer": "^1.2.1",
     "lodash.head": "^4.0.1",
     "lodash.identity": "^3.0.0",
     "reflect-metadata": "^0.1.13"

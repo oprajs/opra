@@ -46,9 +46,10 @@ export class OpraURL {
       writable: true,
       configurable: true,
       enumerable: false,
-      value: new OpraURLSearchParams()
+      value: new OpraURLSearchParams('', {
+        onChange: () => this._invalidate()
+      })
     });
-    this.searchParams.on('change', () => this._invalidate());
     this.path.on('change', () => this._invalidate());
     if (pathPrefix)
       this.setPrefix(pathPrefix);
@@ -201,7 +202,8 @@ export class OpraURL {
   }
 
   set search(v: string) {
-    this.searchParams.parse(v);
+    this.searchParams.clear();
+    this.searchParams.appendAll(v);
   }
 
   addPath(name: string, key?: any): this {
@@ -283,9 +285,8 @@ export class OpraURL {
     this.hash = tokenizer.join('#');
     tokenizer = tokenize(input, {delimiters: '?', quotes: true, brackets: true});
     this._setPathname(tokenizer.next() || '', true);
-    // this.path.join()
     this.searchParams.clear();
-    this.searchParams.parse(tokenizer.join('&'));
+    this.searchParams.appendAll(tokenizer.join('&'));
     return this;
   }
 

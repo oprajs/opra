@@ -48,6 +48,15 @@ export default {
   ],
   external,
   plugins: [
+    {
+      name: 'transform-code',
+      transform(code, id) {
+        if (id === path.join(buildPath, 'node-client/esm/index.js')) {
+          code += `\nexport * from '@opra/common'\n`;
+          return code;
+        }
+      }
+    },
     alias({
       entries: [
         {find: '@opra/common', replacement: path.resolve(buildPath, 'common/esm/index.js')},
@@ -126,6 +135,16 @@ function runCommands() {
               const rel = path.relative(path.dirname(dst), path.resolve(targetPath, 'typings'));
               let content = await fs.readFile(src, 'utf-8');
               let overwritten = false;
+
+              if (!rel && path.basename(dst) === 'index.d.ts') {
+                content += '\n' +
+                        `export * from './common/filter/index.js';\n` +
+                        `export * from './common/url/index.js';\n` +
+                        `export * from './common/schema/index.js';\n` +
+                        `export * from './common/i18n/index.js';\n` +
+                        `export * from './common/utils/index.js';\n`;
+                overwritten = true;
+              }
               content = content.replaceAll(typingOverwrite, (v, m1, m2) => {
                 v = './' + m1 + (m2 || '');
                 const newPath = (rel ? path.join(rel, v) : v);

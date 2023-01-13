@@ -1,22 +1,43 @@
-export class ResponsiveMap<K, V> extends Map<K, V> {
-  private _keyMap = new Map<K, K>();
-  private _keyOrder: K[] = [];
-  private _wellKnownKeyMap = new Map<string, string>();
+export interface ResponsiveMapOptions {
+  wellKnownKeys?: string[];
+  caseSensitive?: boolean;
+}
 
-  constructor(data?: any, wellKnownKeys?: string[]) {
+export type ResponsiveMapInit<K, V> = ResponsiveMap<K, V> | Map<K, V> | Record<any, V>;
+
+function isMap(v): v is Map<any, any> {
+  return v && typeof v.forEach === 'function';
+}
+
+const kKeyMap = Symbol('kKeyMap');
+const kKeyOrder = Symbol('kKeyOrder');
+const kWellKnownKeys = Symbol('kWellKnownKeys');
+const kOptions = Symbol('kOptions');
+
+/**
+ * A Map implementation that supports case-insensitivity and ordered keys
+ */
+export class ResponsiveMap<K, V> extends Map<K, V> {
+  private [kKeyMap] = new Map<K, K>();
+  private [kKeyOrder]: K[] = [];
+  private [kWellKnownKeys] = new Map<string, string>();
+  private [kOptions] = {caseSensitive: false};
+
+  constructor(init?: ResponsiveMapInit<K, V>, options?: ResponsiveMapOptions) {
     super();
-    if (wellKnownKeys)
-      wellKnownKeys.forEach(k => this._wellKnownKeyMap.set(k.toLowerCase(), k));
-    if (typeof data?.forEach === 'function') {
-      data.forEach((v, k) => this.set(k, v));
-    } else if (data && typeof data === 'object')
-      Object.keys(data).forEach(k => this.set(k as K, data[k]));
+    this[kOptions].caseSensitive = !!options?.caseSensitive;
+    if (options?.wellKnownKeys)
+      options.wellKnownKeys.forEach(k => this[kWellKnownKeys].set(k.toLowerCase(), k));
+    if (isMap(init)) {
+      init.forEach((v, k) => this.set(k, v));
+    } else if (init && typeof init === 'object')
+      Object.keys(init).forEach(k => this.set(k as K, init[k]));
   }
 
   clear() {
     super.clear();
-    this._keyMap.clear();
-    this._keyOrder = [];
+    this[kKeyMap].clear();
+    this[kKeyOrder] = [];
   }
 
   get(key: K): V | undefined {
@@ -25,24 +46,24 @@ export class ResponsiveMap<K, V> extends Map<K, V> {
   }
 
   has(key: K): boolean {
-    return this._keyMap.has(this._getLowerKey(key));
+    return this[kKeyMap].has(this._getStoringKey(key));
   }
 
   set(key: K, value: V): this {
     key = this._getOriginalKey(key);
-    this._keyMap.set(this._getLowerKey(key), key);
-    if (!this._keyOrder.includes(key))
-      this._keyOrder.push(key);
+    this[kKeyMap].set(this._getStoringKey(key), key);
+    if (!this[kKeyOrder].includes(key))
+      this[kKeyOrder].push(key);
     return super.set(key, value);
   }
 
   keys(): IterableIterator<K> {
-    return this._keyOrder.values();
+    return this[kKeyOrder].values();
   }
 
   values(): IterableIterator<V> {
     let i = -1;
-    const arr = this._keyOrder;
+    const arr = this[kKeyOrder];
     const map = this;
     return {
       [Symbol.iterator]() {
@@ -60,7 +81,7 @@ export class ResponsiveMap<K, V> extends Map<K, V> {
 
   entries(): IterableIterator<[K, V]> {
     let i = -1;
-    const arr = this._keyOrder;
+    const arr = this[kKeyOrder];
     const map = this;
     return {
       [Symbol.iterator]() {
@@ -78,16 +99,16 @@ export class ResponsiveMap<K, V> extends Map<K, V> {
 
   delete(key: K): boolean {
     const orgKey = this._getOriginalKey(key);
-    const k = this._getLowerKey(key);
-    this._keyMap.delete(k);
-    const i = this._keyOrder.indexOf(orgKey);
+    const k = this._getStoringKey(key);
+    this[kKeyMap].delete(k);
+    const i = this[kKeyOrder].indexOf(orgKey);
     if (i >= 0)
-      this._keyOrder.splice(i, 1);
+      this[kKeyOrder].splice(i, 1);
     return super.delete(orgKey);
   }
 
   sort(compareFn?: (a: K, b: K) => number): this {
-    this._keyOrder.sort(compareFn);
+    this[kKeyOrder].sort(compareFn);
     return this;
   }
 
@@ -96,13 +117,17 @@ export class ResponsiveMap<K, V> extends Map<K, V> {
   }
 
   protected _getOriginalKey(key: K): K {
+    if (this[kOptions].caseSensitive)
+      return key;
     if (typeof key === 'string')
-      return this._keyMap.get(key.toLowerCase() as K) ??
-          (this._wellKnownKeyMap.get(key.toLowerCase()) as K ?? key);
+      return this[kKeyMap].get(key.toLowerCase() as K) ??
+          (this[kWellKnownKeys].get(key.toLowerCase()) as K ?? key);
     return key;
   }
 
-  protected _getLowerKey(key: K): K {
+  protected _getStoringKey(key: K): K {
+    if (this[kOptions].caseSensitive)
+      return key;
     if (typeof key === 'string')
       return key.toLowerCase() as K;
     return key;
