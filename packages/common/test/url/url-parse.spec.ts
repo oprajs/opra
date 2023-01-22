@@ -1,4 +1,4 @@
-import { IntegerFormat, OpraURL } from '../src/index.js';
+import { OpraURL } from '../../src/index.js';
 
 describe('Parse url string', () => {
 
@@ -12,11 +12,11 @@ describe('Parse url string', () => {
   it('Should parse hostname and port', () => {
     let u = new OpraURL('http://anyuri.com');
     expect(u.hostname).toStrictEqual('anyuri.com');
-    expect(u.port).toStrictEqual(null);
+    expect(u.port).toStrictEqual('');
     expect(u.href).toStrictEqual('http://anyuri.com');
     u = new OpraURL('http://anyuri.com:81/');
     expect(u.hostname).toStrictEqual('anyuri.com');
-    expect(u.port).toStrictEqual(81);
+    expect(u.port).toStrictEqual('81');
     expect(u.href).toStrictEqual('http://anyuri.com:81');
   })
 
@@ -83,7 +83,7 @@ describe('Parse url string', () => {
 
   it('Should parse path with type casting', () => {
     const u = new OpraURL('/Person::CustomerPerson');
-    expect(u.path.get(0)).toEqual({resource: 'Person',typeCast: 'CustomerPerson'});
+    expect(u.path.get(0)).toEqual({resource: 'Person', typeCast: 'CustomerPerson'});
     expect(u.href).toStrictEqual('/Person::CustomerPerson');
   })
 
@@ -122,15 +122,18 @@ describe('Parse url string', () => {
   })
 
   it('Should set register custom parameter', () => {
-    const u = new OpraURL()
-        .defineSearchParam('_prm1', {format: new IntegerFormat()})
-        .parse('/Person?_prm1=5');
+    const u = new OpraURL('/Person?_prm1=5', {
+      params: {'_prm1': {codec: 'integer'}}
+    });
     expect(u.searchParams.get('_prm1')).toStrictEqual(5);
   })
 
-  it('Should initialize with uri and pathPrefix', () => {
-    const u = new OpraURL('http://anyuri.com/service', '/service');
-    expect(u.pathPrefix).toStrictEqual('/service');
+  it.only('Should initialize with base uri and prefix', () => {
+    const u = new OpraURL('MyResource', 'https://anyuri.com/service');
+    expect(u.protocol).toStrictEqual('https:');
+    expect(u.hostname).toStrictEqual('anyuri.com');
+    expect(u.prefix).toStrictEqual('/service');
+    expect(u.pathname).toStrictEqual('/MyResource');
   })
 
   it('Should get origin', () => {

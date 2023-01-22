@@ -102,11 +102,8 @@ export class I18n extends BaseI18n {
   async loadResourceDir(dirnames: string | string[], deep?: boolean, overwrite?: boolean): Promise<void> {
     for (const dirname of Array.isArray(dirnames) ? dirnames : [dirnames]) {
       /* istanbul ignore next */
-      if (!(fs.statSync(dirname)).isDirectory()) {
-        // eslint-disable-next-line no-console
-        console.warn(`Locale directory does not exists. (${dirname})`);
+      if (!(fs.existsSync(dirname)))
         continue;
-      }
       const languageDirs = fs.readdirSync(dirname);
       for (const lang of languageDirs) {
         const langDir = path.join(dirname, lang);

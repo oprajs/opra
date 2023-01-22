@@ -1,4 +1,4 @@
-export default [
+module.exports = [
   { "code": "AD", "name": "Andorra" },
   { "code": "AE", "name": "United Arab Emirates" },
   { "code": "AF", "name": "Afghanistan" },

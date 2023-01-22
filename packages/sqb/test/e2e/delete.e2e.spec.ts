@@ -7,7 +7,7 @@ describe('e2e: delete', function () {
 
   beforeAll(async () => {
     app = await createApp();
-    client = await OpraTestClient.create(app.server);
+    client = new OpraTestClient(app.server, {document: app.document});
   });
 
   afterAll(async () => {
@@ -17,7 +17,7 @@ describe('e2e: delete', function () {
   it('Should delete instance', async () => {
     const resp = await client.collection('Customers')
         .delete(101)
-        .fetch();
+        .fetch('response');
     resp.expect
         .toSuccess()
         .toReturnOperationResult()

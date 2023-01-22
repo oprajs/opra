@@ -1,22 +1,20 @@
-import { faker } from '@faker-js/faker';
-import { Customer } from '../entities/customer.entity.js';
-import { CustomerNotes } from '../entities/customer-notes.entity.js';
-import countriesData from './countries.data.js';
+const {faker} = require('@faker-js/faker');
+const countriesData = require('./countries.data.cjs');
 
-export function enumValue<T>(enumVal: T[]): T {
+function enumValue(enumVal) {
   const idx = Math.floor(Math.random() * enumVal.length);
   return enumVal[idx];
 }
 
-export const customersData: Customer[] = [];
-export const customerNotes: Partial<CustomerNotes>[] = [];
+const customers = [];
+const customerNotes = [];
 
 let noteId = 0;
-let gender: string;
+let gender;
 for (let id = 1; id <= 1000; id++) {
   gender = enumValue(['M', 'F']);
   const sex = gender === 'M' ? 'male' : 'female';
-  const customer: Customer = {
+  const customer = {
     id,
     cid: faker.random.numeric(),
     identity: faker.random.numeric(),
@@ -28,8 +26,8 @@ for (let id = 1; id <= 1000; id++) {
     countryCode: faker.address.countryCode('alpha-2'),
     deleted: enumValue([true, false]),
     vip: faker.datatype.boolean(),
-    city: faker.address.city(),
-  }
+    city: faker.address.city()
+  };
 
   const country = countriesData.find(x => x.code === customer.countryCode);
   if (country) {
@@ -39,16 +37,20 @@ for (let id = 1; id <= 1000; id++) {
       city: '' + customer.city,
       street: faker.address.street(),
       zipCode: faker.address.zipCode()
-    }
+    };
   }
 
-  customersData.push(customer);
+  customers.push(customer);
   customerNotes.push({
     id: ++noteId,
     customerId: id,
     title: faker.random.words(3),
     text: faker.random.words(10),
     deleted: enumValue([true, false])
-  })
+  });
 }
 
+module.exports = {
+  customers,
+  customerNotes
+};

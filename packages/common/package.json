@@ -18,7 +18,7 @@
     "postbuild": "cp package.json ../../LICENSE ../../build/common && cp ../../package.cjs.json ../../build/common/cjs/package.json",
     "lint": "eslint . --max-warnings=0",
     "check": "madge --circular src/**",
-    "test": "jest --runInBand --detectOpenHandles",
+    "test": "NODE_OPTIONS=--experimental-vm-modules npx jest",
     "cover": "jest --collect-coverage",
     "clean": "npm run clean:src && npm run clean:dist && npm run clean:cover",
     "clean:src": "ts-cleanup -s src --all && ts-cleanup -s test --all",
@@ -27,7 +27,7 @@
     "antlr4": "java -jar ./tools/antlr4-4.11.2-SNAPSHOT-complete.jar -Dlanguage=TypeScript ./src/filter/antlr/OpraFilter.g4 -visitor"
   },
   "dependencies": {
-    "antlr4": "^4.12.0-beta.3",
+    "@browsery/antlr4": "^0.1.0",
     "fast-tokenizer": "^1.2.1",
     "highland": "^2.13.5",
     "http-parser-js": "^0.5.8",

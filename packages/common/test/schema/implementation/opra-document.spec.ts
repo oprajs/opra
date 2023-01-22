@@ -5,7 +5,7 @@ import {
   Customer,
   CustomerNotes,
   CustomersResource
-} from '../_support/app-sqb/index.js';
+} from '../_support/test-app/index.js';
 
 describe('OpraDocument', function () {
 

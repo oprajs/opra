@@ -6,7 +6,7 @@ import { OpraDocument } from '@opra/common';
 import { createTestDocument } from '../../core/test/_support/test-app/create-document.js';
 import type { Customer } from '../../core/test/_support/test-app/entities/customer.entity.js';
 import { CustomerNotes } from '../../core/test/_support/test-app/entities/customer-notes.entity.js';
-import { HttpRequestBuilder, OpraHttpClient } from '../src/index.js';
+import { HttpRequestHost, OpraHttpClient } from '../src/index.js';
 
 describe('OpraClient:Batch', function () {
 
@@ -42,7 +42,7 @@ describe('OpraClient:Batch', function () {
   beforeEach(() => requests = []);
 
   it('Should send "batch" request', async () => {
-    let customer1req: HttpRequestBuilder;
+    let customer1req: HttpRequestHost;
     await client.batch([
       customer1req = client.collection<Customer>('Customers')
           .get(1, {http: {headers: {'accept': 'application/json'}}}),
@@ -61,7 +61,7 @@ describe('OpraClient:Batch', function () {
   });
 
   it('Should not send sub request even call "subscribe" or "onFinish"', async () => {
-    let customer1req: HttpRequestBuilder;
+    let customer1req: HttpRequestHost;
     await client.batch([
       customer1req = client.collection<Customer>('Customers')
           .get(1, {http: {headers: {'accept': 'application/json'}}})

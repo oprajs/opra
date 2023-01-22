@@ -16,7 +16,7 @@ describe('SQBAdapter.prepare', function () {
   let api: OpraDocument;
 
   beforeAll(async () => {
-    api = (await createApp()).api;
+    api = (await createApp()).document;
   })
 
   describe('CreateInstanceQuery', function () {

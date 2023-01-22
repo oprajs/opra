@@ -1,39 +1,28 @@
 import {
   CollectionGetQueryOptions,
-  CollectionResourceInfo, OpraURLPath, OpraURLSearchParams,
+  CollectionResourceInfo, HttpResponse,
 } from '@opra/common';
-import { HttpRequestBuilder } from '../http-request-builder.js';
-import { HttpResponse } from '../http-response.js';
-import { CommonHttpRequestOptions, HttpRequestHandler, RawHttpRequest } from '../http-types.js';
-import { mergeRawHttpRequests } from '../utils/merge-raw-http-requests.util.js';
+import { HttpRequestHost } from '../http-request-host.js';
+import { CommonHttpRequestOptions, HttpRequestHandler } from '../http-types.js';
 
-export class CollectionGetRequest<T, TResponse extends HttpResponse<T> = HttpResponse<T>> extends HttpRequestBuilder<T, TResponse> {
+export class CollectionGetRequest<T, TType, TResponse extends HttpResponse<TType>> extends HttpRequestHost<T, TType, TResponse> {
+
   constructor(
-      protected _handler: HttpRequestHandler,
+      handler: HttpRequestHandler,
       readonly resource: CollectionResourceInfo,
-      public keyValue: any,
-      public options: CollectionGetQueryOptions & CommonHttpRequestOptions = {}
+      id: any,
+      options?: CollectionGetQueryOptions & CommonHttpRequestOptions
   ) {
-    super(_handler, options);
+    super(handler, options);
+    const request = this[HttpRequestHost.kRequest];
+    request.method = 'GET';
+    request.path.join({resource: this.resource.name, key: id});
+    if (options?.include)
+      request.params.set('$include', options.include);
+    if (options?.pick)
+      request.params.set('$pick', options.pick);
+    if (options?.omit)
+      request.params.set('$omit', options.omit);
   }
 
-  prepare(): RawHttpRequest {
-    if (this.keyValue == null || this.keyValue === '')
-      throw new TypeError('Key value required to perform "get" request');
-    const path = new OpraURLPath({resource: this.resource.name, key: this.keyValue});
-    const searchParams = new OpraURLSearchParams();
-    if (this.options.include)
-      searchParams.set('$include', this.options.include);
-    if (this.options.pick)
-      searchParams.set('$pick', this.options.pick);
-    if (this.options.omit)
-      searchParams.set('$omit', this.options.omit);
-    return mergeRawHttpRequests({
-          method: 'GET',
-          path: path.toString(),
-          params: searchParams
-        },
-        this.options.http
-    );
-  }
 }

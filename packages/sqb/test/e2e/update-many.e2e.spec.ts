@@ -8,7 +8,7 @@ describe('e2e: updateMany', function () {
 
   beforeAll(async () => {
     app = await createApp();
-    client = await OpraTestClient.create(app.server);
+    client = new OpraTestClient(app.server, {document: app.document});
   });
 
   afterAll(async () => {
@@ -21,7 +21,7 @@ describe('e2e: updateMany', function () {
     }
     let resp = await client.collection('Customers')
         .updateMany(data)
-        .fetch();
+        .fetch('response');
     resp.expect
         .toSuccess()
         .toReturnOperationResult()
@@ -32,7 +32,7 @@ describe('e2e: updateMany', function () {
           filter: 'identity="' + data.identity + '"',
           limit: 1000000
         })
-        .fetch();
+        .fetch('response');
     resp.expect
         .toSuccess()
         .toReturnCollection()
@@ -45,14 +45,14 @@ describe('e2e: updateMany', function () {
     }
     let resp = await client.collection('Customers')
         .updateMany(data, {filter: 'id<=10'})
-        .fetch();
+        .fetch('response');
     resp.expect
         .toSuccess()
         .toReturnOperationResult()
         .toBeAffectedMin(10)
     resp = await client.collection('Customers')
         .search({filter: 'identity="' + data.identity + '"'})
-        .fetch();
+        .fetch('response');
     resp.expect
         .toSuccess()
         .toReturnCollection()

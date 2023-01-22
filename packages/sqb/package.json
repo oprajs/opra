@@ -17,7 +17,7 @@
     "build:esm": "tsc -b tsconfig-build-esm.json",
     "postbuild": "cp README.md package.json ../../LICENSE ../../build/sqb && cp ../../package.cjs.json ../../build/sqb/cjs/package.json",
     "lint": "eslint .",
-    "test": "jest",
+    "test": "NODE_OPTIONS=--experimental-vm-modules npx jest",
     "cover": "jest --collect-coverage",
     "clean": "npm run clean:src && npm run clean:dist && npm run clean:cover",
     "clean:src": "ts-cleanup -s src --all && ts-cleanup -s test --all",
@@ -34,7 +34,6 @@
     "@sqb/builder": "^4.5.5",
     "@sqb/connect": "^4.5.5",
     "@sqb/postgres": "^4.5.5",
-    "async-mutex": "^0.4.0",
     "postgresql-client": "^2.5.2"
   },
   "peerDependencies": {

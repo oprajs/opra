@@ -8,7 +8,7 @@ describe('e2e: update', function () {
 
   beforeAll(async () => {
     app = await createApp();
-    client = await OpraTestClient.create(app.server);
+    client = new OpraTestClient(app.server, {document: app.document});
   });
 
   afterAll(async () => {
@@ -25,15 +25,15 @@ describe('e2e: update', function () {
     }
     let resp = await client.collection('Customers')
         .get(85)
-        .fetch();
+        .fetch('response');
     resp.expect
         .toSuccess()
         .toReturnObject();
-    const oldData = resp.data;
+    const oldData = resp.body;
 
     resp = await client.collection('Customers')
         .update(oldData.id, data)
-        .fetch();
+        .fetch('response');
     resp.expect
         .toSuccess()
         .toReturnObject()
@@ -41,7 +41,7 @@ describe('e2e: update', function () {
 
     resp = await client.collection('Customers')
         .get(oldData.id)
-        .fetch();
+        .fetch('response');
     resp.expect
         .toSuccess()
         .toReturnObject()
@@ -57,15 +57,15 @@ describe('e2e: update', function () {
     }
     let resp = await client.collection('Customers')
         .get(100)
-        .fetch();
-    const oldData = resp.data;
+        .fetch('response');
+    const oldData = resp.body;
     resp.expect
         .toSuccess()
         .toReturnObject();
 
     resp = await client.collection('Customers')
         .update(oldData.id, data, {pick: ['id', 'givenName']})
-        .fetch();
+        .fetch('response');
     resp.expect
         .toSuccess()
         .toReturnObject()
@@ -81,15 +81,15 @@ describe('e2e: update', function () {
     }
     let resp = await client.collection('Customers')
         .get(100)
-        .fetch();
-    const oldData = resp.data;
+        .fetch('response');
+    const oldData = resp.body;
     resp.expect
         .toSuccess()
         .toReturnObject();
 
     resp = await client.collection('Customers')
         .update(oldData.id, data, {omit: ['id', 'givenName']})
-        .fetch();
+        .fetch('response');
     resp.expect
         .toSuccess()
         .toReturnObject()
@@ -105,15 +105,15 @@ describe('e2e: update', function () {
     }
     let resp = await client.collection('Customers')
         .get(100)
-        .fetch();
-    const oldData = resp.data;
+        .fetch('response');
+    const oldData = resp.body;
     resp.expect
         .toSuccess()
         .toReturnObject();
 
     resp = await client.collection('Customers')
         .update(oldData.id, data, {include: ['address']})
-        .fetch();
+        .fetch('response');
     resp.expect
         .toSuccess()
         .toReturnObject()

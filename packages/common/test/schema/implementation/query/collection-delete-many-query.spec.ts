@@ -1,6 +1,6 @@
 import { CollectionDeleteManyQuery, OpraDocument, parseFilter } from '../../../../src/index.js';
-import { CustomerNotesResource } from '../../_support/app-sqb/resources/customer-notes.resource.js';
-import { CustomersResource } from '../../_support/app-sqb/resources/customers.resource.js';
+import { CustomerNotesResource } from '../../_support/test-app/resources/customer-notes.resource.js';
+import { CustomersResource } from '../../_support/test-app/resources/customers.resource.js';
 
 describe('CollectionDeleteManyQuery', function () {
   let api: OpraDocument;

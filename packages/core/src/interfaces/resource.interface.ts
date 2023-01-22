@@ -4,6 +4,8 @@ import { PartialOutput } from '../types.js';
 
 export interface IResource {
   init?(resource: ResourceInfo): void | Promise<void>;
+
+  shutDown?(): void | Promise<void>;
 }
 
 export interface ICollectionResource<T, TOutput = PartialOutput<T>> extends IResource {

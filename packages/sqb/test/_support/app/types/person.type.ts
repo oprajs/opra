@@ -6,11 +6,11 @@ import { Gender } from '../enums/gender.enum.js';
 export class Person {
 
   @OprField()
-  @Column({fieldName: 'given_name', notNull: true})
+  @Column({notNull: true})
   givenName: string;
 
   @OprField()
-  @Column({fieldName: 'family_name', notNull: true})
+  @Column({notNull: true})
   familyName: string;
 
   @OprField({enum: Gender})
@@ -18,6 +18,6 @@ export class Person {
   gender: Gender;
 
   @OprField()
-  @Column({fieldName: 'birth_date', dataType: DataType.DATE})
+  @Column({dataType: DataType.DATE})
   birthDate: Date;
 }

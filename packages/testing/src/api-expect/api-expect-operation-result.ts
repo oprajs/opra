@@ -1,4 +1,4 @@
-import { HttpResponse } from '@opra/node-client';
+import { HttpResponse } from '@opra/common';
 
 export class ApiExpectOperationResult {
 
@@ -11,7 +11,7 @@ export class ApiExpectOperationResult {
 
   toBeAffectedExact(expected: number): this {
     try {
-      this._expect(this.response.data.affected).toStrictEqual(expected);
+      this._expect(this.response.body.affected).toStrictEqual(expected);
     } catch (e: any) {
       Error.captureStackTrace(e, this.toBeAffectedExact);
       throw e;
@@ -21,7 +21,7 @@ export class ApiExpectOperationResult {
 
   toBeAffectedMin(expected: number): this {
     try {
-      this._expect(this.response.data.affected).toBeGreaterThanOrEqual(expected);
+      this._expect(this.response.body.affected).toBeGreaterThanOrEqual(expected);
     } catch (e: any) {
       Error.captureStackTrace(e, this.toBeAffectedMin);
       throw e;
@@ -31,7 +31,7 @@ export class ApiExpectOperationResult {
 
   toBeAffectedMax(expected: number): this {
     try {
-      this._expect(this.response.data.affected).toBeLessThanOrEqual(expected);
+      this._expect(this.response.body.affected).toBeLessThanOrEqual(expected);
     } catch (e: any) {
       Error.captureStackTrace(e, this.toBeAffectedMax);
       throw e;

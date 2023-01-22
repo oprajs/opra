@@ -4,11 +4,12 @@ import { HttpHeaderCodes } from './enums/http-headers-codes.enum.js';
 const knownKeys = Object.keys(HttpHeaderCodes);
 const knownKeysLower = knownKeys.map(x => x.toLowerCase());
 
+const nodeInspectCustom = Symbol.for('nodejs.util.inspect.custom');
 const kEntries = Symbol('kEntries');
 const kSize = Symbol('kSize');
 const kOptions = Symbol('kOptions');
-const nodeInspectCustom = Symbol.for('nodejs.util.inspect.custom');
 
+type HeaderValueType = string | number | boolean;
 export type HttpHeadersInit = string | Headers | HttpHeaders | Map<string, any> | Record<string, string | string[]>;
 
 export interface HttpHeadersOptions {
@@ -16,6 +17,10 @@ export interface HttpHeadersOptions {
 }
 
 export class HttpHeaders {
+  protected static kEntries = kEntries;
+  protected static kSize = kSize;
+  protected static kOptions = kOptions;
+
   protected [kEntries] = new ResponsiveMap<string, string[]>();
   protected [kSize] = 0;
   protected [kOptions]: HttpHeadersOptions;
@@ -35,9 +40,9 @@ export class HttpHeaders {
    * Appends a new value to the existing set of values for a header
    * and returns this instance
    */
-  append(name: string, value: string | string[]): this {
+  append(name: string, value: HeaderValueType | HeaderValueType[]): this {
     this._append(name, value);
-    this._changed();
+    this.changed();
     return this;
   }
 
@@ -59,24 +64,29 @@ export class HttpHeaders {
       headers.forEach((value, name) => this._append(name, value))
     else
       Object.keys(headers).forEach(name => this._append(name, headers[name]));
-    this._changed();
+    this.changed();
     return this;
+  }
+
+  changed(): void {
+    if (this[kOptions].onChange)
+      this[kOptions].onChange();
   }
 
   clear(): void {
     if (this[kEntries].size) {
       this[kEntries].clear();
       this[kSize] = 0;
-      this._changed();
+      this.changed();
     }
   }
 
   /**
    * Deletes values for a given header
    */
-  delete(name: string, value?: string | string[]): this {
+  delete(name: string, value?: HeaderValueType | HeaderValueType[]): this {
     if (this._delete(name, value))
-      this._changed();
+      this.changed();
     return this;
   }
 
@@ -85,7 +95,7 @@ export class HttpHeaders {
    */
   entries(): IterableIterator<[string, string]> {
     const iter = this[kEntries].entries();
-    let i = -1;
+    let i = 0;
     let key: string;
     let values: string[] | undefined;
     return {
@@ -96,7 +106,7 @@ export class HttpHeaders {
         if (values) {
           if (i >= values.length) {
             values = undefined;
-            i = -1;
+            i = 0;
           }
         }
         if (!values) {
@@ -109,7 +119,7 @@ export class HttpHeaders {
 
         return {
           done: false,
-          value: [key, values[++i]]
+          value: [key, values[i++]]
         }
       }
     };
@@ -158,19 +168,19 @@ export class HttpHeaders {
    * Sets or modifies a value for a given header.
    * If the header already exists, its value is replaced with the given value
    */
-  set(name: string, value: string | string[]): this {
-    this._set(name, value);
-    this._changed();
+  set(name: string, value: HeaderValueType | HeaderValueType[]): this {
+    this._set(name, String(value));
+    this.changed();
     return this;
   }
 
   sort(compareFn?: (a: string, b: string) => number): this {
     this[kEntries].sort(compareFn);
-    this._changed();
+    this.changed();
     return this;
   }
 
-  protected _append(name: string, value: string | string[]) {
+  protected _append(name: string, value: HeaderValueType | HeaderValueType[]) {
     const i = knownKeysLower.indexOf(name);
     const normalizedName = knownKeys[i] || name;
     let values = this[kEntries].get(normalizedName);
@@ -180,18 +190,18 @@ export class HttpHeaders {
     }
     const oldSize = values.length;
     if (Array.isArray(value))
-      values.push(...value);
-    else values.push(value);
+      values.push(...value.map(x => String(x)));
+    else values.push(String(value));
     this[kSize] = -oldSize + values.length;
   }
 
-  protected _delete(name: string, value?: string | string[]): boolean {
+  protected _delete(name: string, value?: HeaderValueType | HeaderValueType[]): boolean {
     const oldValues = this[kEntries].get(name);
     if (!oldValues)
       return false;
     const oldSize = this[kSize];
     if (value) {
-      const valueToDelete = Array.isArray(value) ? value : [value];
+      const valueToDelete = Array.isArray(value) ? value.map(x => String(x)) : [String(value)];
       const newValues = oldValues.filter(x => !valueToDelete.includes(x));
       this[kEntries].set(name, newValues);
       this[kSize] += -oldValues.length + newValues.length;
@@ -203,17 +213,16 @@ export class HttpHeaders {
   }
 
   protected _set(name: string, value: string | string[]): void {
+    if (value == null) {
+      this._delete(name);
+      return;
+    }
     const oldValues = this[kEntries].get(name);
     const i = knownKeysLower.indexOf(name);
     const normalizedName = knownKeys[i] || name;
     const newValues = Array.isArray(value) ? value : [value];
     this[kEntries].set(normalizedName, newValues);
     this[kSize] += -(oldValues?.length || 0) + newValues.length;
-  }
-
-  protected _changed(): void {
-    if (this[kOptions].onChange)
-      this[kOptions].onChange();
   }
 
   [nodeInspectCustom]() {

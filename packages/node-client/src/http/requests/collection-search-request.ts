@@ -1,48 +1,40 @@
 import {
   CollectionResourceInfo,
   CollectionSearchQueryOptions,
-  OpraURLSearchParams,
+  HttpResponse
 } from '@opra/common';
-import { HttpRequestBuilder } from '../http-request-builder.js';
-import { HttpResponse } from '../http-response.js';
-import { CommonHttpRequestOptions, HttpRequestHandler, RawHttpRequest } from '../http-types.js';
-import { mergeRawHttpRequests } from '../utils/merge-raw-http-requests.util.js';
+import { HttpRequestHost } from '../http-request-host.js';
+import { CommonHttpRequestOptions, HttpRequestHandler } from '../http-types.js';
 
-export class CollectionSearchRequest<T, TResponse extends HttpResponse<T> = HttpResponse<T>> extends HttpRequestBuilder<T, TResponse> {
+export class CollectionSearchRequest<T, TType, TResponse extends HttpResponse<TType>> extends HttpRequestHost<T, TType, TResponse> {
+
   constructor(
-      protected _handler: HttpRequestHandler,
+      handler: HttpRequestHandler,
       readonly resource: CollectionResourceInfo,
-      public options: CollectionSearchQueryOptions & CommonHttpRequestOptions = {}
+      options?: CollectionSearchQueryOptions & CommonHttpRequestOptions
   ) {
-    super(_handler, options);
+    super(handler, options);
+    const request = this[HttpRequestHost.kRequest];
+    request.method = 'GET';
+    request.url = this.resource.name;
+    if (options?.include)
+      request.params.set('$include', options.include);
+    if (options?.pick)
+      request.params.set('$pick', options.pick);
+    if (options?.omit)
+      request.params.set('$omit', options.omit);
+    if (options?.sort)
+      request.params.set('$sort', options.sort);
+    if (options?.filter)
+      request.params.set('$filter', options.filter);
+    if (options?.limit != null)
+      request.params.set('$limit', options.limit);
+    if (options?.skip != null)
+      request.params.set('$skip', options.skip);
+    if (options?.count != null)
+      request.params.set('$count', options.count);
+    if (options?.distinct != null)
+      request.params.set('$distinct', options.distinct);
   }
 
-  prepare(): RawHttpRequest {
-    const searchParams = new OpraURLSearchParams();
-    if (this.options.include)
-      searchParams.set('$include', this.options.include);
-    if (this.options.pick)
-      searchParams.set('$pick', this.options.pick);
-    if (this.options.omit)
-      searchParams.set('$omit', this.options.omit);
-    if (this.options.sort)
-      searchParams.set('$sort', this.options.sort);
-    if (this.options.filter)
-      searchParams.set('$filter', this.options.filter);
-    if (this.options.limit != null)
-      searchParams.set('$limit', this.options.limit);
-    if (this.options.skip != null)
-      searchParams.set('$skip', this.options.skip);
-    if (this.options.count != null)
-      searchParams.set('$count', this.options.count);
-    if (this.options.distinct != null)
-      searchParams.set('$distinct', this.options.distinct);
-    return mergeRawHttpRequests({
-          method: 'GET',
-          path: this.resource.name,
-          params: searchParams
-        },
-        this.options.http
-    );
-  }
 }

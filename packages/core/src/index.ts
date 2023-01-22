@@ -12,5 +12,4 @@ export * from './adapter/http-adapter.js';
 export * from './adapter/express-adapter.js';
 
 export * from './services/data-service.js';
-export * from './services/json-collection-service.js';
 export * from './services/json-singleton-service.js';

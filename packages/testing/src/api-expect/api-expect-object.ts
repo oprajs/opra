@@ -1,6 +1,6 @@
 import isNil from 'lodash.isnil';
 import omitBy from 'lodash.omitby';
-import { HttpResponse } from '@opra/node-client';
+import { HttpResponse } from '@opra/common';
 
 export class ApiExpectObject {
 
@@ -14,7 +14,7 @@ export class ApiExpectObject {
   toMatch<T extends {}>(expected: T): this {
     try {
       const v = omitBy(expected, isNil);
-      this._expect(this.response.data).toMatchObject(v);
+      this._expect(this.response.body).toMatchObject(v);
     } catch (e: any) {
       Error.captureStackTrace(e, this.toMatch);
       throw e;
@@ -24,7 +24,7 @@ export class ApiExpectObject {
 
   toHaveFields(fields: string[]): this {
     try {
-      this._expect(this.response.data).toHaveFields(fields);
+      this._expect(this.response.body).toHaveFields(fields);
     } catch (e: any) {
       Error.captureStackTrace(e, this.toHaveFields);
       throw e;
@@ -34,7 +34,7 @@ export class ApiExpectObject {
 
   toHaveFieldsOnly(fields: string[]): this {
     try {
-      this._expect(this.response.data).toHaveFieldsOnly(fields);
+      this._expect(this.response.body).toHaveFieldsOnly(fields);
     } catch (e: any) {
       Error.captureStackTrace(e, this.toHaveFieldsOnly);
       throw e;

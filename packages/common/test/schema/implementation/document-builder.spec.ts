@@ -5,7 +5,7 @@ import {
   Customer, CustomerNotes,
   CustomerNotesResource,
   Person, Record
-} from '../_support/app-sqb/index.js';
+} from '../_support/test-app/index.js';
 
 describe('DocumentBuilder', function () {
 

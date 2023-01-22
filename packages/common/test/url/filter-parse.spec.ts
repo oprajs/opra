@@ -77,7 +77,7 @@ describe('Parsing Filter', function () {
       const d = new Date();
       x = new DateLiteral(d);
       expect(x.value).toStrictEqual(d.toISOString());
-      expect(() => new DateLiteral('Not a valid date')).toThrow('Invalid date');
+      expect(() => new DateLiteral('Not a valid date')).toThrow('not a valid');
     })
 
     it('Should parse TimeLiteral', () => {
@@ -203,7 +203,7 @@ describe('Parsing Filter', function () {
       } catch (e: any) {
         expect(e.errors).toBeDefined();
         expect(e.errors[0].line).toBeDefined();
-        expect(e.errors[0].charPositionInLine).toBeDefined();
+        expect(e.errors[0].column).toBeDefined();
       }
     })
 

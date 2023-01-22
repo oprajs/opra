@@ -2,13 +2,13 @@ import { faker } from '@faker-js/faker';
 import { OpraTestClient } from '@opra/testing';
 import { createApp, TestApp } from '../_support/app/index.js';
 
-describe('e2e: create', function () {
+describe('e2e:create', function () {
   let app: TestApp;
   let client: OpraTestClient;
 
   beforeAll(async () => {
     app = await createApp();
-    client = await OpraTestClient.create(app.server);
+    client = new OpraTestClient(app.server, {document: app.document});
   });
 
   afterAll(async () => {
@@ -25,14 +25,14 @@ describe('e2e: create', function () {
     }
     let resp = await client.collection('Customers')
         .create(data)
-        .fetch();
+        .fetch('response');
     resp.expect
         .toSuccess(201)
         .toReturnObject()
         .toMatch({...data, address: undefined});
     resp = await client.collection('Customers')
         .get(1001)
-        .fetch();
+        .fetch('response');
     resp.expect
         .toSuccess()
         .toReturnObject()
@@ -49,7 +49,7 @@ describe('e2e: create', function () {
     }
     const resp = await client.collection('Customers')
         .create(data, {pick: ['id', 'givenName']})
-        .fetch();
+        .fetch('response');
     resp.expect
         .toSuccess(201)
         .toReturnObject()
@@ -66,7 +66,7 @@ describe('e2e: create', function () {
     }
     const resp = await client.collection('Customers')
         .create(data, {omit: ['id', 'givenName']})
-        .fetch();
+        .fetch('response');
     resp.expect
         .toSuccess(201)
         .toReturnObject()
@@ -84,7 +84,7 @@ describe('e2e: create', function () {
     }
     const resp = await client.collection('Customers')
         .create(data, {include: ['address']})
-        .fetch();
+        .fetch('response');
     resp.expect
         .toSuccess(201)
         .toReturnObject()

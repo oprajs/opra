@@ -1,4 +1,4 @@
-import { HttpResponse } from '@opra/node-client';
+import { HttpResponse } from '@opra/common';
 import { ApiExpectCollection } from './api-expect-collection.js';
 import { ApiExpectError } from './api-expect-error.js';
 import { ApiExpectObject } from './api-expect-object.js';
@@ -38,8 +38,8 @@ export class ApiExpect {
         expect(this.response.status).toBeLessThanOrEqual(599);
       }
       msg = 'Api did not returned "errors"';
-      expect(this.response.data.errors).toBeArray();
-      expect(this.response.data.errors.length).toBeGreaterThan(0);
+      expect(this.response.body.errors).toBeArray();
+      expect(this.response.body.errors.length).toBeGreaterThan(0);
     } catch (e: any) {
       if (msg)
         e.message = msg + '\n\n' + e.message;
@@ -53,9 +53,9 @@ export class ApiExpect {
     let msg = ''
     try {
       msg = '"body" is empty';
-      expect(this.response.data).toBeDefined();
+      expect(this.response.body).toBeDefined();
       msg = '"operation" property is empty';
-      expect(this.response.data.operation).toBeDefined();
+      expect(this.response.body.operation).toBeDefined();
     } catch (e: any) {
       if (msg)
         e.message = msg + '\n\n' + e.message;
@@ -69,8 +69,8 @@ export class ApiExpect {
     let msg = ''
     try {
       msg = '"body" is empty';
-      expect(this.response.data).toBeDefined();
-      expect(typeof this.response.data).toStrictEqual('object');
+      expect(this.response.body).toBeDefined();
+      expect(typeof this.response.body).toStrictEqual('object');
     } catch (e: any) {
       if (msg)
         e.message = msg + '\n\n' + e.message;
@@ -84,9 +84,9 @@ export class ApiExpect {
     let msg = ''
     try {
       msg = '"body" is empty';
-      expect(this.response.data).toBeDefined();
+      expect(this.response.body).toBeDefined();
       msg = '"body" is not an array';
-      expect(this.response.data).toBeArray();
+      expect(this.response.body).toBeArray();
     } catch (e: any) {
       if (msg)
         e.message = msg + '\n\n' + e.message;

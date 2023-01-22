@@ -13,5 +13,6 @@ module.exports = {
   ],
   projects: [
     '<rootDir>/packages/*/jest.config.cjs'
-  ]
+  ],
+  globalSetup: '<rootDir>/support/test/jest-setup.cjs'
 };

@@ -3,7 +3,7 @@ import {
   OprSingletonResource,
   RESOURCE_METADATA, SingletonResourceOptions
 } from '../../../src/index.js';
-import { Customer } from '../_support/app-sqb/index.js';
+import { Customer } from '../_support/test-app/index.js';
 
 describe('@OprSingletonResource() decorator', function () {
 

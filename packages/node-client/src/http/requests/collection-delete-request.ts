@@ -1,28 +1,19 @@
-import { CollectionResourceInfo, OpraURLPath } from '@opra/common';
-import { HttpRequestBuilder } from '../http-request-builder.js';
-import { HttpResponse } from '../http-response.js';
-import { CommonHttpRequestOptions, HttpRequestHandler, RawHttpRequest } from '../http-types.js';
-import { mergeRawHttpRequests } from '../utils/merge-raw-http-requests.util.js';
+import { CollectionResourceInfo, HttpResponse } from '@opra/common';
+import { HttpRequestHost } from '../http-request-host.js';
+import { CommonHttpRequestOptions, HttpRequestHandler } from '../http-types.js';
 
-export class CollectionDeleteRequest<T, TResponse extends HttpResponse<T> = HttpResponse<T>> extends HttpRequestBuilder<T, TResponse> {
+export class CollectionDeleteRequest<T, TResponse extends HttpResponse<never>> extends HttpRequestHost<T, never, TResponse> {
+
   constructor(
-      protected _handler: HttpRequestHandler,
+      handler: HttpRequestHandler,
       readonly resource: CollectionResourceInfo,
-      public keyValue: any,
-      public options: CommonHttpRequestOptions = {}
+      id: any,
+      options?: CommonHttpRequestOptions
   ) {
-    super(_handler, options);
+    super(handler, options);
+    const request = this[HttpRequestHost.kRequest];
+    request.method = 'DELETE';
+    request.path.join({resource: this.resource.name, key: id});
   }
 
-  prepare(): RawHttpRequest {
-    if (this.keyValue == null || this.keyValue === '')
-      throw new TypeError('Key value required to perform "delete" request');
-    const path = new OpraURLPath({resource: this.resource.name, key: this.keyValue});
-    return mergeRawHttpRequests({
-          method: 'DELETE',
-          path: path.toString(),
-        },
-        this.options.http
-    );
-  }
 }
