@@ -8,6 +8,7 @@ module.exports = {
     }]
     // "^.+\\.(js|jsx)$": "babel-jest",
   },
+  "moduleFileExtensions": ["ts","js"],
   extensionsToTreatAsEsm: ['.ts'],
   moduleNameMapper: {
     '^@opra/(.*)$': ['<rootDir>/../$1/src'],

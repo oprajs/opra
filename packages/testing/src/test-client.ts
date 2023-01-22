@@ -1,26 +1,20 @@
 import { createServer, IncomingMessage, Server, ServerResponse } from 'http';
 import { AddressInfo } from 'net';
-import { Type } from 'ts-gems';
 import { URL } from 'url';
-import { joinPath } from '@opra/common';
+import { HttpResponse, HttpResponseInit, joinPath } from '@opra/common';
 import {
-  BatchRequest,
-  HttpCollectionService,
-  HttpRequestBuilder,
-  HttpResponse,
-  HttpSingletonService,
-  OpraHttpClient,
+  // BatchRequest,
+  OpraHttpClientBase,
   OpraHttpClientOptions,
 } from '@opra/node-client';
 import { ApiExpect } from './api-expect/api-expect.js';
 import { isAbsoluteUrl } from './utils/is-absolute-url.util.js';
 
 declare type RequestListener = (req: IncomingMessage, res: ServerResponse) => void
-declare type Handler = RequestListener | Server
 
-export type TestHttpResponse<T = any> = HttpResponse<T> & { expect: ApiExpect };
+export type ResponseExt = { expect: ApiExpect };
 
-export class OpraTestClient extends OpraHttpClient {
+export class OpraTestClient extends OpraHttpClientBase<ResponseExt> {
   protected _server: Server;
 
   constructor(app: Server | RequestListener, options?: OpraHttpClientOptions) {
@@ -28,18 +22,8 @@ export class OpraTestClient extends OpraHttpClient {
     this._server = app instanceof Server ? app : createServer(app);
   }
 
-  // @ts-ignore
-  batch<TResponse extends TestHttpResponse = TestHttpResponse>(requests: HttpRequestBuilder[]): BatchRequest<TResponse>;
-
-  // @ts-ignore
-  collection<T = any, TResponse extends TestHttpResponse<T> = TestHttpResponse<T>>(name: string): HttpCollectionService<T, TResponse>;
-
-  // @ts-ignore
-  singleton<T = any, TResponse extends TestHttpResponse<T> = TestHttpResponse<T>>(name: string): HttpSingletonService<T, TResponse>;
-
-  // @ts-ignore
-  protected async _fetch<TResponse extends TestHttpResponse = TestHttpResponse>(urlString: string, req: RequestInit): Promise<TResponse> {
-    const resp = await new Promise<TResponse>((resolve, reject) => {
+  protected async _fetch(urlString: string, req: RequestInit = {}): Promise<Response> {
+    return new Promise<Response>((resolve, reject) => {
       urlString = isAbsoluteUrl(urlString) ? urlString : joinPath('http://opra.test', urlString);
       const url = new URL(urlString);
       // Set protocol to HTTP
@@ -62,22 +46,25 @@ export class OpraTestClient extends OpraHttpClient {
         return super._fetch(url.toString(), req);
       }).then(res => {
         if (!this._server.listening)
-          return resolve(res as TResponse);
-        this._server.close(() => resolve(res as TResponse));
+          return resolve(res);
+        this._server.once('close', () => resolve(res));
+        this._server.close();
+        this._server.unref();
       }).then()
           .catch(error => {
             if (!this._server.listening)
               return reject(error);
-            this._server.close(() => reject(error));
+            this._server.once('close', () => reject(error));
+            this._server.close();
+            this._server.unref();
           });
     });
+  }
+
+  protected _createResponse(init?: HttpResponseInit): HttpResponse {
+    const resp = super._createResponse(init) as HttpResponse & ResponseExt;
     resp.expect = new ApiExpect(resp);
     return resp;
   }
 
-  static async create<T extends OpraTestClient>(this: Type<T>, app: Handler, options?: OpraHttpClientOptions): Promise<T> {
-    const client = new this(app, options);
-    await client.init();
-    return client as T;
-  }
 }

@@ -2,7 +2,7 @@ import 'reflect-metadata';
 import '@opra/sqb';
 import { Column, Entity } from '@sqb/connect';
 import { extractDataTypeSchema, OmitType, OprComplexType, OprField } from '../../../src/index.js';
-import { Customer } from '../_support/app-sqb/index.js';
+import { Customer } from '../_support/test-app/index.js';
 
 describe('OmitType() helper', function () {
 

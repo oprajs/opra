@@ -1,5 +1,5 @@
 import matcherUtils from 'jest-matcher-utils';
-import { HttpResponse } from '@opra/node-client';
+import { HttpResponse } from '@opra/common';
 import { objectMatches } from '../utils/object-matches.util.js';
 import { ApiExpectObject } from './api-expect-object.js';
 
@@ -11,8 +11,9 @@ export class ApiExpectError extends ApiExpectObject {
 
   toContainDetail(...matching: any[]) {
     try {
-      expect(this.response.data.issues).toBeDefined();
-      expect(this.response.data.issues).apiErrorDetailToContain(matching);
+      expect(this.response.body).toBeDefined();
+      expect(this.response.body.issues).toBeDefined();
+      expect(this.response.body.issues).apiErrorDetailToContain(matching);
     } catch (e: any) {
       Error.captureStackTrace(e, this.toContainDetail);
       throw e;

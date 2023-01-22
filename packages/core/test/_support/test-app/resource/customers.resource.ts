@@ -3,9 +3,8 @@ import {
   OprCollectionResource,
   OprSearchResolver
 } from '@opra/common';
-import { JsonCollectionService, SingleRequestContext } from '../../../../src/index.js';
+import { SingleRequestContext } from '../../../../src/index.js';
 import { ICollectionResource } from '../../../../src/interfaces/resource.interface.js';
-import { customersData } from '../data/customers.data.js';
 import { Customer } from '../entities/customer.entity.js';
 import { CustomerNotes } from '../entities/customer-notes.entity.js';
 
@@ -14,35 +13,35 @@ import { CustomerNotes } from '../entities/customer-notes.entity.js';
   keyFields: 'id'
 })
 export class CustomersResource implements ICollectionResource<CustomerNotes> {
-
-  service: JsonCollectionService<Customer>;
+  public initialized = false;
+  public closed = false;
 
   create(ctx: SingleRequestContext, data, options: any) {
-    return this.service.create(data, options);
+    return new CustomerNotes();
   }
 
   get(ctx: SingleRequestContext, keyValue, options: any) {
-    return this.service.get(keyValue, options);
+    return new CustomerNotes();
   }
 
   count(ctx: SingleRequestContext, options: any) {
-    return this.service.count(options);
+    return 1;
   }
 
   delete(ctx: SingleRequestContext, keyValue: any) {
-    return this.service.delete(keyValue);
+    return true;
   }
 
   deleteMany(ctx: SingleRequestContext, options: any) {
-    return this.service.deleteMany(options);
+    return 1;
   }
 
   update(ctx: SingleRequestContext, keyValue, data, options) {
-    return this.service.update(keyValue, data, options);
+    return new CustomerNotes();
   }
 
   updateMany(ctx: SingleRequestContext, data, options) {
-    return this.service.updateMany(data, options);
+    return 1;
   }
 
   @OprSearchResolver({
@@ -56,13 +55,15 @@ export class CustomersResource implements ICollectionResource<CustomerNotes> {
     ]
   })
   search(ctx: SingleRequestContext, options: any) {
-    return this.service.search(options);
+    return [new CustomerNotes()];
   }
 
   init(resource: CollectionResourceInfo) {
-    this.service = new JsonCollectionService<Customer>(resource,
-        {resourceName: 'Customers', data: customersData});
+    this.initialized = true;
   }
 
+  shutDown() {
+    this.closed = true;
+  }
 
 }

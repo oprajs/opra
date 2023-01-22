@@ -13,11 +13,11 @@ export class Record {
   id: number;
 
   @OprField()
-  @Column({fieldName: 'created_at'})
+  @Column()
   createdAt: Date;
 
   @OprField()
-  @Column({fieldName: 'updated_at'})
+  @Column()
   updatedAt?: Date;
 
 }

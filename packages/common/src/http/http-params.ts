@@ -55,6 +55,11 @@ export interface HttpParamsOptions extends HttpParamsCodec {
 }
 
 export class HttpParams {
+  protected static kEntries = kEntries;
+  protected static kSize = kSize;
+  protected static kParamDefs = kParamDefs;
+  protected static kOptions = kOptions;
+
   protected [kEntries] = new ResponsiveMap<string, any[]>();
   protected [kSize] = 0;
   protected [kOptions]: HttpParamsOptions;
@@ -64,7 +69,7 @@ export class HttpParams {
     this[kOptions] = {...options, onChange: undefined};
     const defineParams = options?.params;
     if (defineParams)
-      Object.keys(defineParams).forEach(key => this.defineParam(key, defineParams[key]));
+      Object.keys(defineParams).forEach(key => this.define(key, defineParams[key]));
     if (init)
       this.appendAll(init);
     this[kOptions].onChange = options?.onChange;
@@ -80,7 +85,7 @@ export class HttpParams {
    */
   append(name: string, value?: any): this {
     this._append(name, value);
-    this._changed();
+    this.changed();
     return this;
   }
 
@@ -110,11 +115,16 @@ export class HttpParams {
     return this;
   }
 
+  changed(): void {
+    if (this[kOptions].onChange)
+      this[kOptions].onChange();
+  }
+
   clear(): void {
     if (this[kEntries].size) {
       this[kEntries].clear();
       this[kSize] = 0;
-      this._changed();
+      this.changed();
     }
   }
 
@@ -123,7 +133,7 @@ export class HttpParams {
    */
   delete(name: string, value?: any): this {
     if (this._delete(name, value))
-      this._changed();
+      this.changed();
     return this;
   }
 
@@ -174,7 +184,7 @@ export class HttpParams {
   /**
    * Retrieves value of a given parameter at given index
    */
-  get(name: string, index = 0): string | null {
+  get(name: string, index = 0): any {
     const values = this[kEntries].get(name.toLowerCase());
     return values && values.length > index ? values[index] : null;
   }
@@ -195,6 +205,15 @@ export class HttpParams {
   }
 
   /**
+   * Retrieves the names of the parameters.
+   */
+  values(): IterableIterator<any> {
+    const items: string[] = [];
+    this.forEach((value: string) => items.push(value));
+    return items.values();
+  }
+
+  /**
    * Checks for existence of a parameter.
    */
   has(name: string): boolean {
@@ -207,13 +226,13 @@ export class HttpParams {
    */
   set(name: string, value: any): this {
     this._set(name, value);
-    this._changed();
+    this.changed();
     return this;
   }
 
   sort(compareFn?: (a: string, b: string) => number): this {
     this[kEntries].sort(compareFn);
-    this._changed();
+    this.changed();
     return this;
   }
 
@@ -230,7 +249,7 @@ export class HttpParams {
     return out.join('&');
   }
 
-  defineParam(name: string, options?: HttpParamDefinition): this {
+  define(name: string, options?: HttpParamDefinition): this {
     if (!name)
       throw new Error('Parameter name required');
     if (typeof options?.codec === 'string' && !internalCodecs[options.codec])
@@ -306,7 +325,7 @@ export class HttpParams {
       values = [];
       this[kEntries].set(name, values);
     }
-    values.push(value);
+    values.push(value ?? null);
     this[kSize] += 1;
   }
 
@@ -328,6 +347,10 @@ export class HttpParams {
   }
 
   protected _set(name: string, value: any, index?: number): void {
+    if (value == null) {
+      this._delete(name);
+      return;
+    }
     const values = this[kEntries].get(name);
     if (!values) {
       this[kEntries].set(name, [value]);
@@ -344,10 +367,6 @@ export class HttpParams {
     this[kSize] += -oldLen + values.length;
   }
 
-  protected _changed(): void {
-    if (this[kOptions].onChange)
-      this[kOptions].onChange();
-  }
 
   [Symbol.iterator](): IterableIterator<[string, string]> {
     return this.entries();

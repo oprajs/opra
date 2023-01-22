@@ -7,7 +7,7 @@ describe('e2e: get', function () {
 
   beforeAll(async () => {
     app = await createApp();
-    client = await OpraTestClient.create(app.server);
+    client = new OpraTestClient(app.server, {document: app.document});
   });
 
   afterAll(async () => {
@@ -17,7 +17,7 @@ describe('e2e: get', function () {
   it('Should return object', async () => {
     const resp = await client.collection('Customers')
         .get(1)
-        .fetch();
+        .fetch('response');
     resp.expect
         .toSuccess()
         .toReturnObject()
@@ -27,7 +27,7 @@ describe('e2e: get', function () {
   it('Should return object', async () => {
     const resp = await client.collection('Customers')
         .get(1)
-        .fetch();
+        .fetch('response');
     resp.expect
         .toSuccess()
         .toReturnObject()
@@ -37,7 +37,7 @@ describe('e2e: get', function () {
   it('Should not fetch exclusive fields (unless not included for resolver)', async () => {
     const resp = await client.collection('Customers')
         .get(1)
-        .fetch();
+        .fetch('response');
     resp.expect
         .toSuccess()
         .toReturnObject()
@@ -47,7 +47,7 @@ describe('e2e: get', function () {
   it('Should pick fields to be returned', async () => {
     const resp = await client.collection('Customers')
         .get(1, {pick: ['id', 'givenName']})
-        .fetch();
+        .fetch('response');
     resp.expect
         .toSuccess()
         .toReturnObject()
@@ -57,7 +57,7 @@ describe('e2e: get', function () {
   it('Should omit fields to be returned', async () => {
     const resp = await client.collection('Customers')
         .get(1, {omit: ['id', 'givenName']})
-        .fetch();
+        .fetch('response');
     resp.expect
         .toSuccess()
         .toReturnObject()
@@ -67,12 +67,12 @@ describe('e2e: get', function () {
   it('Should include exclusive fields if requested', async () => {
     const resp = await client.collection('Customers')
         .get(2, {include: ['notes']})
-        .fetch();
+        .fetch('response');
     resp.expect
         .toSuccess()
         .toReturnObject()
         .toHaveFields(['notes']);
-    expect(resp.data.notes).toBeArray();
+    expect(resp.body.notes).toBeArray();
   })
 
 });

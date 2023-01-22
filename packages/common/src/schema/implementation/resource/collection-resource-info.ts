@@ -26,6 +26,10 @@ export class CollectionResourceInfo extends ResourceInfo {
     }
   }
 
+  get instance() {
+    return this.metadata.instance;
+  }
+
   get keyFields(): string[] {
     return this.metadata.keyFields as string[];
   }
@@ -60,6 +64,11 @@ export class CollectionResourceInfo extends ResourceInfo {
 
   get search() {
     return this.metadata.search;
+  }
+
+  getHandler(method: string): Function {
+    const r = this.metadata[method];
+    return r && r.handler;
   }
 
   getSchema(jsonOnly?: boolean): OpraSchema.CollectionResource {

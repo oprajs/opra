@@ -19,7 +19,7 @@ export * from './entities/record.entity.js';
 
 export interface TestApp {
   db: SqbClient;
-  api: OpraDocument;
+  document: OpraDocument;
   server: express.Express
 }
 
@@ -28,7 +28,7 @@ export async function createApp(): Promise<TestApp> {
     dialect: 'postgres',
     schema: 'opra_test'
   })
-  const api = await OpraDocument.create({
+  const document = await OpraDocument.create({
     info: {
       title: 'TestApi',
       version: 'v1',
@@ -39,13 +39,12 @@ export async function createApp(): Promise<TestApp> {
     ]
   })
   const server = express();
-  await OpraExpressAdapter.init(server, api);
+  await OpraExpressAdapter.init(server, document);
   return {
     db,
-    api,
+    document,
     server
   }
-
 
 }
 

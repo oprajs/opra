@@ -1,6 +1,7 @@
 {
   "include": [
-    "./packages"
+    "./packages",
+    "./support"
   ],
   "exclude": [
     "node_modules",

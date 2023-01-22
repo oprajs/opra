@@ -1,31 +1,23 @@
 import {
   CollectionDeleteManyQueryOptions,
-  CollectionResourceInfo, OpraURLSearchParams,
+  CollectionResourceInfo, HttpResponse,
 } from '@opra/common';
-import { HttpRequestBuilder } from '../http-request-builder.js';
-import { HttpResponse } from '../http-response.js';
-import { CommonHttpRequestOptions, HttpRequestHandler, RawHttpRequest } from '../http-types.js';
-import { mergeRawHttpRequests } from '../utils/merge-raw-http-requests.util.js';
+import { HttpRequestHost } from '../http-request-host.js';
+import { CommonHttpRequestOptions, HttpRequestHandler, } from '../http-types.js';
 
-export class CollectionDeleteManyRequest<T, TResponse extends HttpResponse<T> = HttpResponse<T>> extends HttpRequestBuilder<T, TResponse> {
+export class CollectionDeleteManyRequest<T, TResponse extends HttpResponse<never>> extends HttpRequestHost<T, never, TResponse> {
+
   constructor(
-      protected _handler: HttpRequestHandler,
+      handler: HttpRequestHandler,
       readonly resource: CollectionResourceInfo,
-      public options: CollectionDeleteManyQueryOptions & CommonHttpRequestOptions = {}
+      options?: CollectionDeleteManyQueryOptions & CommonHttpRequestOptions
   ) {
-    super(_handler, options);
+    super(handler, options);
+    const request = this[HttpRequestHost.kRequest];
+    request.method = 'DELETE';
+    request.url = this.resource.name;
+    if (options?.filter)
+      request.params.set('$filter', options.filter);
   }
 
-  prepare(): RawHttpRequest {
-    const searchParams = new OpraURLSearchParams();
-    if (this.options.filter)
-      searchParams.set('$filter', this.options.filter);
-    return mergeRawHttpRequests({
-          method: 'DELETE',
-          path: this.resource.name,
-          params: searchParams,
-        },
-        this.options.http
-    );
-  }
 }

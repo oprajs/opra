@@ -18,7 +18,7 @@
     "postbuild": "cp README.md package.json ../../LICENSE ../../build/node-client && cp ../../package.cjs.json ../../build/node-client/cjs/package.json",
     "lint": "eslint . --max-warnings=0",
     "check": "madge --circular src/**",
-    "test": "jest --runInBand --detectOpenHandles",
+    "test": "NODE_OPTIONS=--experimental-vm-modules npx jest",
     "cover": "jest --collect-coverage",
     "clean": "npm run clean:src && npm run clean:dist && npm run clean:cover",
     "clean:src": "ts-cleanup -s src --all",

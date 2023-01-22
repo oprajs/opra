@@ -35,7 +35,7 @@ describe('OpraURLSearchParams', function () {
 
   it('Should parse array parameters', () => {
     const u = new OpraURLSearchParams();
-    u.defineParam('prm1', {array: true});
+    u.define('prm1', {array: true});
     u.appendAll('prm1=a%26b');
     expect(u.get('prm1')).toStrictEqual("a&b");
     u.clear();
@@ -50,7 +50,7 @@ describe('OpraURLSearchParams', function () {
 
   it('Should parse strict array parameters', () => {
     const u = new OpraURLSearchParams();
-    u.defineParam('prm1', {array: 'strict'});
+    u.define('prm1', {array: 'strict'});
     u.appendAll('prm1=a');
     expect(u.get('prm1')).toStrictEqual(["a"]);
     u.clear();
@@ -60,13 +60,13 @@ describe('OpraURLSearchParams', function () {
 
   it('Should validate minArrayItems', () => {
     const u = new OpraURLSearchParams();
-    u.defineParam('prm1', {array: 'strict', minArrayItems: 2});
+    u.define('prm1', {array: 'strict', minArrayItems: 2});
     expect(() => u.appendAll('prm1=a')).toThrow('at least');
   })
 
   it('Should validate maxArrayItems', () => {
     const u = new OpraURLSearchParams();
-    u.defineParam('prm1', {array: 'strict', maxArrayItems: 2});
+    u.define('prm1', {array: 'strict', maxArrayItems: 2});
     expect(() => u.appendAll('prm1=a,b,c')).toThrow('up to');
   })
 
@@ -196,7 +196,7 @@ describe('OpraURLSearchParams', function () {
 
   it('Should encode', () => {
     const u = new OpraURLSearchParams();
-    u.defineParam('prm3', {array: true})
+    u.define('prm3', {array: true})
     u.append('prm1');
     u.append('prm2', 'x y z');
     u.append('prm2', '+123');

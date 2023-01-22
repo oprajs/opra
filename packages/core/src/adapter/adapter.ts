@@ -57,6 +57,18 @@ export abstract class OpraAdapter<TExecutionContext extends IExecutionContext> {
   constructor(readonly document: OpraDocument) {
   }
 
+  async close() {
+    const promises: Promise<void>[] = [];
+    for (const r of this.document.resources.values()) {
+      if (r.instance) {
+        const shutDown = (r.instance as IResource).shutDown;
+        if (shutDown)
+          promises.push((async () => shutDown.call(r.instance))());
+      }
+    }
+    await Promise.allSettled(promises);
+  }
+
   protected abstract parse(executionContext: TExecutionContext): Promise<RequestContext>;
 
   protected abstract sendResponse(executionContext: TExecutionContext, requestContext: RequestContext): Promise<void>;
@@ -200,8 +212,8 @@ export abstract class OpraAdapter<TExecutionContext extends IExecutionContext> {
 
   protected async _executeCollectionResource(document: OpraDocument, resource: CollectionResourceInfo, context: SingleRequestContext) {
     const method = context.query.method;
-    const resolverInfo = resource.metadata[method];
-    if (!(resolverInfo && resolverInfo.handler))
+    const handler = resource.getHandler(method);
+    if (!handler)
       throw new ForbiddenError({
         message: translate('RESOLVER_FORBIDDEN', {method},
             `The resource endpoint does not accept '{{method}}' operations`),
@@ -213,7 +225,7 @@ export abstract class OpraAdapter<TExecutionContext extends IExecutionContext> {
     switch (method) {
       case 'create': {
         const query = context.query as CollectionCreateQuery;
-        result = await resolverInfo.handler(context, query.data, query);
+        result = await handler(context, query.data, query);
         result = Array.isArray(result) ? result[0] : result;
         if (result)
           context.status = 201;
@@ -222,12 +234,12 @@ export abstract class OpraAdapter<TExecutionContext extends IExecutionContext> {
       }
       case 'count': {
         const query = context.query as CollectionCountQuery;
-        result = await resolverInfo.handler(context, query);
+        result = await handler(context, query);
         return result;
       }
       case 'get': {
         const query = context.query as CollectionGetQuery;
-        result = await resolverInfo.handler(context, query.keyValue, query);
+        result = await handler(context, query.keyValue, query);
         result = Array.isArray(result) ? result[0] : result;
         if (!result)
           throw new ResourceNotFoundError(resource.name, query.keyValue);
@@ -240,14 +252,14 @@ export abstract class OpraAdapter<TExecutionContext extends IExecutionContext> {
       }
       case 'search': {
         const query = context.query as CollectionSearchQuery;
-        result = await resolverInfo.handler(context, query);
+        result = await handler(context, query);
         const items = Array.isArray(result) ? result : (context.response ? [result] : []);
         context.responseHeaders[HttpHeaderCodes.X_Opra_DataType] = resource.dataType.name;
         return items;
       }
       case 'update': {
         const query = context.query as CollectionUpdateQuery;
-        result = await resolverInfo.handler(context, query.keyValue, query.data, query);
+        result = await handler(context, query.keyValue, query.data, query);
         result = Array.isArray(result) ? result[0] : result;
         if (!result)
           throw new ResourceNotFoundError(resource.name, query.keyValue);
@@ -260,17 +272,17 @@ export abstract class OpraAdapter<TExecutionContext extends IExecutionContext> {
         switch (method) {
           case 'delete': {
             const query = context.query as CollectionDeleteQuery;
-            result = await resolverInfo.handler(context, query.keyValue, query);
+            result = await handler(context, query.keyValue, query);
             break;
           }
           case 'deleteMany': {
             const query = context.query as CollectionDeleteManyQuery;
-            result = await resolverInfo.handler(context, query);
+            result = await handler(context, query);
             break;
           }
           case 'updateMany': {
             const query = context.query as CollectionUpdateManyQuery;
-            result = await resolverInfo.handler(context, query.data, query);
+            result = await handler(context, query.data, query);
             break;
           }
         }

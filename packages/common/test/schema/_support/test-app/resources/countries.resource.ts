@@ -1,4 +1,4 @@
-import { OpraSchema } from '../../../../src/index.js';
+import { OpraSchema } from '../../../../../src/index.js';
 
 export const countriesResource: OpraSchema.CollectionResource = {
   kind: 'CollectionResource',

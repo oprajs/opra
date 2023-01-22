@@ -16,7 +16,7 @@ export class OpraErrorListener extends ErrorListener<any> {
       msg: string,
       e: RecognitionException,
   ): void {
-    this.errors.push(new FilterParseError(msg, {recognizer, offendingSymbol, line, e}));
+    this.errors.push(new FilterParseError(msg, {recognizer, offendingSymbol, line, column, e}));
   }
 
 }

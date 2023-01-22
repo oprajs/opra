@@ -15,7 +15,7 @@ export class Country {
   name: string;
 
   @OprField()
-  @Column({fieldName: 'phone_code'})
+  @Column()
   phoneCode: string;
 
   @OprField()

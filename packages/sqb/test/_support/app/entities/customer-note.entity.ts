@@ -7,7 +7,7 @@ import { Record } from './record.entity.js';
 export class CustomerNote extends Record {
 
   @OprField()
-  @Column({fieldName: 'customer_id'})
+  @Column()
   customerId: number;
 
   @OprField()

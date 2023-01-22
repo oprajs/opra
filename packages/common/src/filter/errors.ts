@@ -9,15 +9,17 @@ export class ValidationError extends TypeError {
 }
 
 export class FilterParseError extends Error {
-  recognizer!: Recognizer<any>;
+  recognizer: Recognizer<any>;
   offendingSymbol: any | undefined;
-  line!: number;
+  line: number;
+  column: number;
   e: RecognitionException | undefined;
 
   constructor(message: string, args: {
     recognizer: Recognizer<any>;
     offendingSymbol: any | undefined;
     line: number;
+    column: number;
     e: RecognitionException | undefined;
   }) {
     super(message);

@@ -23,7 +23,7 @@
       "parser": "@typescript-eslint/parser",
       "parserOptions": {
         "ecmaVersion": 2022,
-        "project": ["./packages/**/tsconfig-lint.json", "tsconfig-lint.json"],
+        "project": ["./packages/**/tsconfig-lint.json", "tsconfig-lint.json", "./support/tsconfig.json"],
         "sourceType": "module"
       },
       "rules": {

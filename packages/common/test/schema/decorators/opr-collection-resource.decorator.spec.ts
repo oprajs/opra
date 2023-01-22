@@ -1,6 +1,6 @@
 import 'reflect-metadata';
 import { CollectionResourceOptions, OprCollectionResource, RESOURCE_METADATA } from '../../../src/index.js';
-import { Customer } from '../_support/app-sqb/index.js';
+import { Customer } from '../_support/test-app/index.js';
 
 describe('@OprCollectionResource() decorator', function () {
 

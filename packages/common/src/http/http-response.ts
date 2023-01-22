@@ -1,33 +1,15 @@
 import { HttpHeaders, HttpHeadersInit } from './http-headers.js';
 
 export interface HttpResponseInit {
-  /**
-   *  Contains the Headers object associated with the response.
-   */
   headers?: HttpHeadersInit;
-
-  /**
-   * Contains the HTTP status codes of the response
-   */
   status?: number;
-
-  /**
-   * Contains the status message corresponding to the HTTP status code in status property
-   */
   statusText?: string;
-
-  /**
-   * Contains the URL of the response
-   */
   url?: string;
-
-  /**
-   * Body contents
-   */
   body?: any;
+  hasBody?: boolean;
 }
 
-export class HttpResponse {
+export class HttpResponse<TBody = any> {
   /**
    *  Contains the Headers object associated with the response.
    */
@@ -51,7 +33,12 @@ export class HttpResponse {
   /**
    * Body contents
    */
-  readonly body: any | null;
+  readonly body: TBody | null;
+
+  /**
+   * Returns true if response has body to be received
+   */
+  readonly hasBody: boolean = false;
 
   constructor(init?: HttpResponseInit) {
     this.headers = new HttpHeaders(init?.headers);
@@ -59,6 +46,8 @@ export class HttpResponse {
     this.statusText = init?.statusText || 'OK';
     this.url = init?.url || null;
     this.ok = this.status >= 200 && this.status < 300;
+    this.body = init?.body;
+    this.hasBody = init?.body != null || !!init?.hasBody;
   }
 
   clone(update?: HttpResponseInit): HttpResponse {

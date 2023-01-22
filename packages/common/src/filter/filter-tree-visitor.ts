@@ -1,5 +1,6 @@
-import type { ParseTreeVisitor as TParseTreeVisitor} from 'antlr4';
+import type { ParseTreeVisitor as TParseTreeVisitor } from 'antlr4';
 import antlr4 from 'antlr4';
+import { RuleNode } from 'antlr4/src/antlr4/tree/RuleNode';
 import {
   ArithmeticExpressionContext, ArrayExpressionContext,
   BooleanLiteralContext,
@@ -33,7 +34,7 @@ import { ExternalConstant } from './ast/terms/external-constant.js';
 import { SyntaxError } from './errors.js';
 import { unquoteFilterString } from './utils.js';
 
-// Fix: antlr4 d.ts files is invalid
+// Fix: antlr4 d.ts files are invalid
 const ParseTreeVisitor = (antlr4 as any).tree.ParseTreeVisitor as typeof TParseTreeVisitor;
 
 export class FilterTreeVisitor extends ParseTreeVisitor<any> implements OpraFilterVisitor<any> {
@@ -44,6 +45,13 @@ export class FilterTreeVisitor extends ParseTreeVisitor<any> implements OpraFilt
   }) {
     super();
     this._timeZone = options?.timeZone;
+  }
+
+  visitChildren(node: RuleNode) {
+    const result = super.visitChildren(node);
+    if (Array.isArray(result) && result.length < 2)
+      return result[0];
+    return result;
   }
 
   protected defaultResult(): any {

@@ -27,7 +27,7 @@ export class Customer extends MixinType(Record, Person) {
   vip: boolean;
 
   @OprField()
-  @Column({fieldName: 'country_code'})
+  @Column()
   countryCode: string;
 
   @OprField()

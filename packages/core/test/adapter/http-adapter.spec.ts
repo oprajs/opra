@@ -10,7 +10,6 @@ import {
 import { HttpExecutionContextHost } from '../../src/adapter/classes/http-execution-context.host.js';
 import { OpraHttpAdapter, SingleRequestContext } from '../../src/index.js';
 import { BestCustomerResource } from '../_support/test-app/resource/best-customer.resource.js';
-import { CustomerNotesResource } from '../_support/test-app/resource/customer-notes.resource.js';
 import { CustomersResource } from '../_support/test-app/resource/customers.resource.js';
 import { createRequestWrapper } from '../_support/utils/create-request-wrapper.js';
 import { createResponseWrapper } from '../_support/utils/create-response-wrapper.js';
@@ -27,7 +26,7 @@ describe('OpraHttpAdapter', function () {
         version: 'v1',
       },
       types: [],
-      resources: [CustomersResource, CustomerNotesResource, BestCustomerResource]
+      resources: [CustomersResource, BestCustomerResource]
     });
     adapter = new OpraHttpAdapter(document);
   });
