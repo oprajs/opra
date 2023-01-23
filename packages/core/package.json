@@ -30,20 +30,20 @@
     "@opra/common": "^0.10.0",
     "lodash.isnil": "^4.0.0",
     "lodash.omitby": "^4.6.0",
-    "power-tasks": "^1.6.1",
-    "putil-isplainobject": "^1.1.4",
-    "putil-merge": "^3.9.0",
-    "putil-varhelpers": "^1.6.4",
+    "power-tasks": "^1.6.4",
+    "putil-isplainobject": "^1.1.5",
+    "putil-merge": "^3.10.1",
+    "putil-varhelpers": "^1.6.5",
     "strict-typed-events": "^2.3.1"
   },
   "peerDependencies": {
-    "express": "^4.x.x || ^5.x.x",
-    "body-parser": ">= 1.0.0"
+    "body-parser": ">= 1.0.0",
+    "express": "^4.x.x || ^5.x.x"
   },
   "devDependencies": {
     "@faker-js/faker": "^7.6.0",
     "@types/dicer": "^0.2.2",
-    "@types/express": "^4.17.14",
+    "@types/express": "^4.17.15",
     "cors": "^2.8.5",
     "ts-gems": "^2.3.0"
   },

@@ -27,23 +27,23 @@
   },
   "dependencies": {
     "@opra/common": "^0.10.0",
-    "putil-isplainobject": "^1.1.4",
-    "rxjs": "^7.x.x || ^8.x.x"
+    "putil-isplainobject": "^1.1.5",
+    "rxjs": "^7.8.0"
   },
   "devDependencies": {
     "@types/highland": "^2.12.14",
     "@types/lodash": "^4.14.191",
-    "body-parser": "^1.20.1",
-    "express": "^4.18.2",
-    "ts-gems": "^2.3.0",
     "assert": "^2.0.0",
+    "body-parser": "^1.20.1",
     "buffer": "^6.0.3",
     "events": "^3.3.0",
+    "express": "^4.18.2",
     "path": "^0.12.7",
     "path-browserify": "^1.0.1",
     "stream-browserify": "^3.0.0",
-    "util": "^0.12.5",
-    "url": "^0.11.0"
+    "ts-gems": "^2.3.0",
+    "url": "^0.11.0",
+    "util": "^0.12.5"
   },
   "type": "module",
   "types": "esm/index.d.ts",
