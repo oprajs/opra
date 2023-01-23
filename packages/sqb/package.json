@@ -1,6 +1,6 @@
 {
   "name": "@opra/sqb",
-  "version": "0.10.0",
+  "version": "0.12.0",
   "description": "Opra SQB adapter package",
   "author": "Panates",
   "license": "MIT",
@@ -37,7 +37,7 @@
     "postgresql-client": "^2.5.2"
   },
   "peerDependencies": {
-    "@opra/core": "^0.10.0",
+    "@opra/core": "^0.12.0",
     "@sqb/connect": ">= 4.5.4"
   },
   "type": "module",

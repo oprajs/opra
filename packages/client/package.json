@@ -1,6 +1,6 @@
 {
   "name": "@opra/client",
-  "version": "0.11.8",
+  "version": "0.12.0",
   "description": "Opra Client package",
   "author": "Panates",
   "license": "MIT",
@@ -52,7 +52,7 @@
     "uid": "^2.0.1"
   },
   "devDependencies": {
-    "@opra/node-client": "^0.10.0"
+    "@opra/node-client": "^0.12.0"
   },
   "sideEffects": false,
   "files": [
