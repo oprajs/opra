@@ -18,7 +18,7 @@
     "postbuild": "cp README.md package.json ../../LICENSE ../../build/nestjs && cp ../../package.cjs.json ../../build/nestjs/cjs/package.json",
     "lint": "eslint .",
     "test": "NODE_OPTIONS=--experimental-vm-modules npx jest",
-    "cover": "jest --collect-coverage",
+    "cover": "NODE_OPTIONS=--experimental-vm-modules npx jest --collect-coverage",
     "clean": "npm run clean:src && npm run clean:dist && npm run clean:cover",
     "clean:src": "ts-cleanup -s src --all && ts-cleanup -s test --all",
     "clean:dist": "rimraf ../../build/nestjs",

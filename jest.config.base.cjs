@@ -4,11 +4,12 @@ module.exports = {
   transform: {
     '^.+\\.tsx?$': ['ts-jest', {
       tsconfig: '<rootDir>/test/tsconfig.json',
+      stringifyContentPathRegex: '\\.html$',
       useESM: true
     }]
     // "^.+\\.(js|jsx)$": "babel-jest",
   },
-  "moduleFileExtensions": ["ts","js"],
+  moduleFileExtensions: ["ts","js"],
   extensionsToTreatAsEsm: ['.ts'],
   moduleNameMapper: {
     '^@opra/(.*)$': ['<rootDir>/../$1/src'],

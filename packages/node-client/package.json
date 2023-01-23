@@ -19,7 +19,7 @@
     "lint": "eslint . --max-warnings=0",
     "check": "madge --circular src/**",
     "test": "NODE_OPTIONS=--experimental-vm-modules npx jest",
-    "cover": "jest --collect-coverage",
+    "cover": "NODE_OPTIONS=--experimental-vm-modules npx jest --collect-coverage",
     "clean": "npm run clean:src && npm run clean:dist && npm run clean:cover",
     "clean:src": "ts-cleanup -s src --all",
     "clean:dist": "rimraf ../../build/node-client ../../build/client",

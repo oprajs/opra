@@ -11,7 +11,7 @@ import {
   ParserRuleContext, PredictionContextCache,
   RecognitionException, RuleContext,
   TerminalNode, Token, TokenStream
-} from 'antlr4';
+} from '@browsery/antlr4';
 import type OpraFilterListener from "./OpraFilterListener.js";
 import type OpraFilterVisitor from "./OpraFilterVisitor.js";
 

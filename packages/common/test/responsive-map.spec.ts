@@ -42,7 +42,7 @@ describe('ResponsiveMap', function () {
   })
 
   it('Should use well-known keys', async () => {
-    const map = new ResponsiveMap(undefined, ['Key1', 'Key2']);
+    const map = new ResponsiveMap(undefined, {wellKnownKeys: ['Key1', 'Key2']});
     map.set('key1', 1);
     map.set('key2', 2);
     expect(Array.from(map.keys())).toStrictEqual(['Key1', 'Key2']);
