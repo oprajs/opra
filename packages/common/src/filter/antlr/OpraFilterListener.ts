@@ -1,5 +1,5 @@
 // Generated from ./src/filter/antlr/OpraFilter.g4 by ANTLR 4.11.2-SNAPSHOT
-import { ParseTreeListener } from "antlr4";
+import { ParseTreeListener } from "@browsery/antlr4";
 import {
   ArithmeticExpressionContext,
   ArrayExpressionContext,

@@ -1,5 +1,5 @@
-import { RecognitionException } from 'antlr4';
-import { Recognizer } from 'antlr4/src/antlr4/Recognizer';
+import { RecognitionException } from '@browsery/antlr4';
+import { Recognizer } from '@browsery/antlr4/typings/Recognizer';
 
 export class SyntaxError extends TypeError {
 }

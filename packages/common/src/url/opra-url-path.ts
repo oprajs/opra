@@ -1,6 +1,6 @@
 import { tokenize } from 'fast-tokenizer';
 import { isURL } from '../utils/index.js';
-import { OpraURL } from './opra-url.js';
+import type { OpraURL } from './opra-url.js';
 import { OpraURLPathComponent, OpraURLPathComponentInit } from './opra-url-path-component.js';
 import { decodePathComponent, encodePathComponent, normalizePath } from './utils/path-utils.js';
 
@@ -156,8 +156,8 @@ export class OpraURLPath {
       target.push(...source[kEntries].map(x => new OpraURLPathComponent(x)));
       return;
     }
-    if (source instanceof OpraURL) {
-      this._join(target, source.path);
+    if (typeof source === 'object' && (source as any).path instanceof OpraURLPath) {
+      this._join(target, (source as any).path);
       return;
     }
     if (isURL(source)) {
@@ -168,14 +168,13 @@ export class OpraURLPath {
       source.forEach(x => this._join(target, x));
       return;
     }
-    target.push(new OpraURLPathComponent(source));
+    target.push(new OpraURLPathComponent(source as OpraURLPathComponentInit));
   }
 
   /* istanbul ignore next */
   [nodeInspectCustom]() {
     return this[kEntries];
   }
-
 
   [Symbol.iterator](): IterableIterator<[OpraURLPathComponent, number]> {
     return this.entries();

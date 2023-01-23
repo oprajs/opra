@@ -34,4 +34,3 @@ export function OprCollectionResource(
     Reflect.defineMetadata(NESTJS_INJECTABLE_WATERMARK, true, target);
   }
 }
-

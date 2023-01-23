@@ -1,5 +1,5 @@
 import { splitString, tokenize } from 'fast-tokenizer';
-import { HttpParamDefinition } from '../http/index.js';
+import type { HttpParamDefinition } from '../http/http-params.js';
 import { OpraURLPath } from './opra-url-path.js';
 import { OpraURLPathComponentInit } from './opra-url-path-component.js';
 import { OpraURLSearchParams } from './opra-url-search-params.js';

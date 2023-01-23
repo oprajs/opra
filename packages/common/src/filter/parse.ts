@@ -1,5 +1,5 @@
-import type { ParseTreeVisitor } from 'antlr4';
-import { CharStream, CommonTokenStream } from 'antlr4';
+import type { ParseTreeVisitor } from '@browsery/antlr4';
+import { CharStream, CommonTokenStream } from '@browsery/antlr4';
 import OpraFilterLexer from './antlr/OpraFilterLexer.js';
 import OpraFilterParser from './antlr/OpraFilterParser.js';
 import { SyntaxError } from './errors.js';

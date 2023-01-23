@@ -1,6 +1,5 @@
-import type { ParseTreeVisitor as TParseTreeVisitor } from 'antlr4';
-import antlr4 from 'antlr4';
-import { RuleNode } from 'antlr4/src/antlr4/tree/RuleNode';
+import type { ParseTreeVisitor as TParseTreeVisitor, RuleNode } from '@browsery/antlr4';
+import antlr4 from '@browsery/antlr4';
 import {
   ArithmeticExpressionContext, ArrayExpressionContext,
   BooleanLiteralContext,

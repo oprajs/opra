@@ -1,6 +1,6 @@
-import { HttpParamCodec } from '../http-param-codec.js';
 import { Ast, Expression } from '../../filter/ast/index.js';
 import { parseFilter } from '../../filter/parse.js';
+import { HttpParamCodec } from '../http-param-codec.js';
 
 export class FilterCodec extends HttpParamCodec {
 

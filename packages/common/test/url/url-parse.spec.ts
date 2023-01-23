@@ -128,7 +128,7 @@ describe('Parse url string', () => {
     expect(u.searchParams.get('_prm1')).toStrictEqual(5);
   })
 
-  it.only('Should initialize with base uri and prefix', () => {
+  it('Should initialize with base uri and prefix', () => {
     const u = new OpraURL('MyResource', 'https://anyuri.com/service');
     expect(u.protocol).toStrictEqual('https:');
     expect(u.hostname).toStrictEqual('anyuri.com');
