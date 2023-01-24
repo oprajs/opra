@@ -70,7 +70,11 @@ export class OpraApiLoader {
     if (!httpAdapter)
       return;
     const app = httpAdapter.getInstance();
-    return OpraExpressAdapter.init(app, service, moduleOptions);
+    const logger = moduleOptions.logger || new Logger(service.info.title);
+    return OpraExpressAdapter.init(app, service, {
+      logger,
+      ...moduleOptions
+    });
   }
 
 }

@@ -1,5 +1,6 @@
 import omit from 'lodash.omit';
 import { Type } from 'ts-gems';
+import { InternalServerError, NotAcceptableError, NotFoundError } from '../../exception/index.js';
 import { ResponsiveMap } from '../../helpers/responsive-map.js';
 import { IResourceContainer } from '../interfaces/resource-container.interface.js';
 import { OpraSchema } from '../opra-schema.definition.js';
@@ -61,28 +62,28 @@ export class OpraDocument implements IResourceContainer {
     const t = this.types.get(name);
     if (t)
       return t;
-    throw new Error(`Data type "${name}" does not exists`);
+    throw new NotFoundError(`Data type "${name}" does not exists`);
   }
 
   getComplexDataType(name: string): ComplexType {
     const t = this.getDataType(name);
     if (t && t instanceof ComplexType)
       return t;
-    throw new Error(`Data type "${name}" is not a ComplexType`);
+    throw new NotAcceptableError(`Data type "${name}" is not a ComplexType`);
   }
 
   getSimpleDataType(name: string): SimpleType {
     const t = this.getDataType(name);
     if (t && t instanceof SimpleType)
       return t;
-    throw new Error(`Data type "${name}" is not a SimpleType`);
+    throw new NotAcceptableError(`Data type "${name}" is not a SimpleType`);
   }
 
   getUnionDataType(name: string): UnionType {
     const t = this.getDataType(name);
     if (t && t instanceof UnionType)
       return t;
-    throw new Error(`Data type "${name}" is not a UnionType`);
+    throw new NotAcceptableError(`Data type "${name}" is not a UnionType`);
   }
 
   get resources(): Map<string, ResourceInfo> {
@@ -96,21 +97,21 @@ export class OpraDocument implements IResourceContainer {
   getResource<T extends ResourceInfo>(name: string): T {
     const t = this.resources.get(name);
     if (!t)
-      throw new Error(`Resource "${name}" does not exists`);
+      throw new NotFoundError(`Resource "${name}" does not exists`);
     return t as T;
   }
 
   getCollectionResource(name: string): CollectionResourceInfo {
     const t = this.getResource(name);
     if (!(t instanceof CollectionResourceInfo))
-      throw new Error(`"${name}" is not a CollectionResource`);
+      throw new NotAcceptableError(`"${name}" is not a CollectionResource`);
     return t;
   }
 
   getSingletonResource(name: string): SingletonResourceInfo {
     const t = this.getResource(name);
     if (!(t instanceof SingletonResourceInfo))
-      throw new Error(`"${name}" is not a SingletonResource`);
+      throw new NotAcceptableError(`"${name}" is not a SingletonResource`);
     return t;
   }
 
@@ -152,7 +153,7 @@ export class OpraDocument implements IResourceContainer {
     } else if (OpraSchema.isUnionTypee(schema)) {
       // todo build types array
       dataType = new UnionType(this, name, {...schema, types: []});
-    } else throw new TypeError(`Invalid data type schema`);
+    } else throw new InternalServerError(`Invalid data type schema`);
 
     this._types.set(name, dataType);
     if (isOwn)
@@ -164,14 +165,14 @@ export class OpraDocument implements IResourceContainer {
     if (OpraSchema.isCollectionResource(schema) || OpraSchema.isSingletonResource(schema)) {
       const dataType = this.getDataType(schema.type);
       if (!dataType)
-        throw new TypeError(`Datatype "${schema.type}" declared in CollectionResource (${name}) does not exists`);
+        throw new InternalServerError(`Datatype "${schema.type}" declared in CollectionResource (${name}) does not exists`);
       if (!(dataType instanceof ComplexType))
-        throw new TypeError(`${schema.type} is not an ComplexType`);
+        throw new InternalServerError(`${schema.type} is not an ComplexType`);
       if (OpraSchema.isCollectionResource(schema))
         this.resources.set(name, new CollectionResourceInfo(this, name, dataType, schema));
       else this.resources.set(name, new SingletonResourceInfo(this, name, dataType, schema));
     } else
-      throw new TypeError(`Unknown resource kind (${schema.kind})`);
+      throw new InternalServerError(`Unknown resource kind (${schema.kind})`);
   }
 
   protected _initTypes() {
@@ -204,5 +205,3 @@ export class OpraDocument implements IResourceContainer {
     return new OpraDocument(schema);
   }
 }
-
-

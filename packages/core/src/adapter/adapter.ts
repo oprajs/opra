@@ -30,6 +30,7 @@ import {
 } from '@opra/common';
 import { IExecutionContext } from '../interfaces/execution-context.interface.js';
 import { I18nOptions } from '../interfaces/i18n-options.interface.js';
+import { ILogger } from '../interfaces/logger.interface.js';
 import { IResource } from '../interfaces/resource.interface.js';
 import { createI18n } from '../utils/create-i18n.js';
 import { MetadataResource } from './classes/metadata.resource.js';
@@ -45,6 +46,7 @@ export namespace OpraAdapter {
   export interface Options {
     i18n?: I18n | I18nOptions | (() => Promise<I18n>);
     userContext?: UserContextResolver;
+    logger?: ILogger;
   }
 
 }
@@ -53,6 +55,7 @@ export abstract class OpraAdapter<TExecutionContext extends IExecutionContext> {
   protected userContextResolver?: OpraAdapter.UserContextResolver;
   protected _internalResources = new ResponsiveMap<string, ResourceInfo>();
   i18n: I18n;
+  logger?: ILogger;
 
   constructor(readonly document: OpraDocument) {
   }
@@ -89,6 +92,12 @@ export abstract class OpraAdapter<TExecutionContext extends IExecutionContext> {
       failed = true;
       const error = wrapException(e);
       await this.sendError(executionContext, error);
+      if (this.logger)
+        try {
+          this.logger.error(e);
+        } catch {
+          // noop
+        }
     } finally {
       if (executionContext as unknown instanceof AsyncEventEmitter) {
         await (executionContext as unknown as AsyncEventEmitter)
@@ -132,6 +141,12 @@ export abstract class OpraAdapter<TExecutionContext extends IExecutionContext> {
             requestContext.errors.push(new FailedDependencyError());
           else
             requestContext.errors.push(wrapException(task.error));
+          if (this.logger)
+            try {
+              this.logger.error(task.error);
+            } catch {
+              // noop
+            }
           return;
         }
       });
@@ -142,6 +157,7 @@ export abstract class OpraAdapter<TExecutionContext extends IExecutionContext> {
   }
 
   protected async _init(options?: OpraAdapter.Options) {
+    this.logger = options?.logger;
     if (options?.i18n instanceof I18n)
       this.i18n = options.i18n;
     else if (typeof options?.i18n === 'function')
