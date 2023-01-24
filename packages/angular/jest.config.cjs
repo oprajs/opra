@@ -24,8 +24,7 @@ module.exports = {
   },
   moduleNameMapper: {
     '^@opra/(.*)$': ['<rootDir>/../$1/src'],
-    '^(\\.{1,2}/.*)\\.js$': '$1',
-    // tslib: 'tslib/tslib.es6.js',
+    '^(\\.{1,2}/.*)\\.js$': '$1'
   },
   transformIgnorePatterns: [
     // '//node_modules'

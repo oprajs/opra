@@ -10,7 +10,7 @@ export function manualChunksResolver({external, exclude}) {
   external = external || [];
   exclude = exclude || [];
   const excludeAll = [...exclude, external];
-  return function manualChunks(id) {
+  return function manualChunks(id, x) {
     if (!i++)
       console.log(chalk.yellow.bold('======= Processed Packages ====='));
     id = trimZeroChars(id);
@@ -29,8 +29,11 @@ export function manualChunksResolver({external, exclude}) {
       }
 
       if (!excludeAll.includes(name)) {
+        // const xx = x.getModuleInfo(id);
         if (!isLogged)
           console.log(chalk.yellowBright('Chunked:'), name);
+        // console.log('importers:', xx.importers);
+        // console.log('dynamicImporters:', xx.importers);
         return name;
       }
       if (!isLogged)
