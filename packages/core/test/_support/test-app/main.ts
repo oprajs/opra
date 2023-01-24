@@ -9,7 +9,10 @@ async function run() {
   // console.log(util.inspect(service, {depth: 10, colors: true}));
   const app = express();
   app.use(cors());
-  await OpraExpressAdapter.init(app, service, {prefix: '/svc1'});
+  await OpraExpressAdapter.init(app, service, {
+    prefix: '/svc1',
+    logger: console
+  });
   const port = 3001;
   app.listen(port, () => {
     console.log(`Server running on http://localhost:${port}/svc1`)
