@@ -8,7 +8,6 @@ import inject from '@rollup/plugin-inject';
 import nodeResolve from '@rollup/plugin-node-resolve';
 import strip from '@rollup/plugin-strip';
 import filesize from 'rollup-plugin-filesize';
-import terser from '@rollup/plugin-terser';
 import command from 'rollup-plugin-command';
 import clean from '@rollup-extras/plugin-clean';
 import {manualChunksResolver} from '../../support/manual-chunks-resolver.mjs';
@@ -22,10 +21,10 @@ const targetPath = path.resolve(buildPath, 'client');
 
 const typingOverwrite = /['"]@opra\/(common)(\/?.*)['"]/g;
 
-const external = Object.keys(pkgJson.dependencies);
+const external = [...Object.keys(pkgJson.dependencies), 'tslib'];
 
 export default {
-  input: ['src/index.mjs'],
+  input: ['../../build/node-client/esm/index.js'],
   output: [{
     dir: path.resolve(targetPath, 'esm'),
     entryFileNames: '[name].min.mjs',
@@ -60,17 +59,16 @@ export default {
     alias({
       entries: [
         {find: '@opra/common', replacement: path.resolve(buildPath, 'common/esm/index.js')},
-        {find: 'antlr4', replacement: '@browsery/antlr4'},
         {find: 'fs', replacement: '@browsery/fs'},
         {find: 'highland', replacement: '@browsery/highland'},
         {find: 'http-parser-js', replacement: '@browsery/http-parser'},
         {find: 'i18next', replacement: '@browsery/i18next'},
         {find: 'stream', replacement: '@browsery/stream'},
+        {find: 'node:stream', replacement: '@browsery/stream'},
         {find: 'path', replacement: 'path-browserify'}
       ]
     }),
     clean(targetPath),
-    terser(),
     commonjs(),
     strip(),
     filesize(),

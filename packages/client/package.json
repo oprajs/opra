@@ -29,13 +29,13 @@
     }
   },
   "dependencies": {
-    "@browsery/antlr4": "^0.1.0",
-    "@browsery/fs": "^0.1.0",
-    "@browsery/highland": "^0.1.0",
-    "@browsery/http-parser": "^0.1.0",
-    "@browsery/i18next": "^0.1.0",
-    "@browsery/stream": "^0.1.0",
-    "@browsery/util": "^0.1.0",
+    "@browsery/antlr4": "^0.2.0",
+    "@browsery/fs": "^0.2.0",
+    "@browsery/highland": "^0.2.0",
+    "@browsery/http-parser": "^0.2.0",
+    "@browsery/i18next": "^0.2.0",
+    "@browsery/stream": "^0.2.0",
+    "@browsery/util": "^0.2.0",
     "buffer": "^6.0.3",
     "events": "^3.3.0",
     "fast-tokenizer": "^1.2.1",
@@ -52,7 +52,7 @@
     "uid": "^2.0.1"
   },
   "devDependencies": {
-    "@opra/node-client": "^0.12.0"
+    "@opra/node-client": "^0.10.0"
   },
   "sideEffects": false,
   "files": [
