@@ -1,0 +1,64 @@
+{
+  "name": "@opra/cli",
+  "version": "0.12.0",
+  "description": "Opra CLI tools",
+  "author": "Panates",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/panates/opra.git",
+    "directory": "packages/client"
+  },
+  "scripts": {
+    "compile": "tsc",
+    "prebuild": "npm run check && npm run lint && npm run clean",
+    "build": "npm run build:cjs && npm run build:esm",
+    "build:cjs": "tsc -b tsconfig-build-cjs.json",
+    "build:esm": "tsc -b tsconfig-build-esm.json",
+    "postbuild": "cp README.md package.json ../../LICENSE ../../build/cli && cp ../../package.cjs.json ../../build/cli/cjs/package.json",
+    "lint": "eslint . --max-warnings=0",
+    "check": "madge --circular src/**",
+    "test": "NODE_OPTIONS=--experimental-vm-modules npx jest",
+    "cover": "NODE_OPTIONS=--experimental-vm-modules npx jest --collect-coverage",
+    "clean": "npm run clean:src && npm run clean:dist && npm run clean:cover",
+    "clean:src": "ts-cleanup -s src --all",
+    "clean:dist": "rimraf ../../build/cli ../../build/client",
+    "clean:cover": "rimraf ../../coverage/client"
+  },
+  "dependencies": {
+    "@opra/node-client": "^0.12.0",
+    "chalk": "^5.2.0",
+    "commander": "^10.0.0",
+    "putil-flattentext": "^2.1.1",
+    "js-string-escape": "^1.0.1"
+  },
+  "devDependencies": {
+  },
+  "type": "module",
+  "types": "esm/index.d.ts",
+  "exports": {
+    ".": {
+      "require": "./cjs/index.js",
+      "default": "./esm/index.js"
+    }
+  },
+  "bin": {
+    "oprimp": "bin/oprimp.mjs"
+  },
+  "engines": {
+    "node": ">=18.0",
+    "npm": ">=7.0.0"
+  },
+  "files": [
+    "src/bin/",
+    "cjs/",
+    "esm/",
+    "LICENSE",
+    "README.md"
+  ],
+  "keywords": [
+    "opra",
+    "cli",
+    "tool"
+  ]
+}
