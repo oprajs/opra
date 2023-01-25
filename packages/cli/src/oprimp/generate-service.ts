@@ -7,11 +7,11 @@ import { OpraHttpClient } from '@opra/node-client';
 import { IFileWriter } from '../interfaces/file-writer.interface.js';
 import { ILogger } from '../interfaces/logger.interface.js';
 import type { ServiceGenerationContext } from '../interfaces/service-generation-context.interface.js';
+import { TsFile } from '../utils/ts-file.js';
 import { deleteFiles } from './delete-files.js';
 import { FileWriter } from './file-writer.js';
 import { processResources } from './process-resoruces.js';
 import { processTypes } from './process-types.js';
-import { TsFile } from '../utils/ts-file';
 
 export interface ServiceGenerateConfig {
   serviceUrl: string;
