@@ -14,9 +14,9 @@ const builtinsMap = {
   date: 'Date'
 }
 
-export async function generateTypes(ctx: ServiceGenerationContext) {
+export async function processTypes(ctx: ServiceGenerationContext) {
   const targetDir = path.join(ctx.absoluteDir, 'types');
-  ctx.logger.log(chalk.yellow('Generating types'));
+  ctx.logger.log(chalk.yellow('Processing types'));
 
   const typesTs = new TsFile();
   typesTs.header = ctx.fileHeader;

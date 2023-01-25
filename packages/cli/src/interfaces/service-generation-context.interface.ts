@@ -5,6 +5,7 @@ import { ILogger } from './logger.interface.js';
 export interface ServiceGenerationContext {
   serviceUrl: string;
   document: OpraDocument;
+  name: string;
   cwd: string;
   logger: ILogger;
   relativeDir: string;

@@ -23,6 +23,7 @@ module.exports = {
     '^.+\\.(ts|js|html|svg)$': 'jest-preset-angular',
   },
   moduleNameMapper: {
+    '^@opra/client$': ['<rootDir>/../node-client/src'],
     '^@opra/(.*)$': ['<rootDir>/../$1/src'],
     '^(\\.{1,2}/.*)\\.js$': '$1'
   },
