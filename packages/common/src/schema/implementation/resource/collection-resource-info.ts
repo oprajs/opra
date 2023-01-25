@@ -5,6 +5,7 @@ import { ComplexType } from '../data-type/complex-type.js';
 import type { OpraDocument } from '../opra-document';
 import { ResourceInfo } from './resource-info.js';
 
+
 export class CollectionResourceInfo extends ResourceInfo {
   declare readonly metadata: OpraSchema.CollectionResource;
   readonly dataType: ComplexType;
@@ -64,6 +65,15 @@ export class CollectionResourceInfo extends ResourceInfo {
 
   get search() {
     return this.metadata.search;
+  }
+
+  getHandlerNames(): string[] {
+    const out: string[] = [];
+    collectionMethods.forEach(m => {
+      if (this.metadata[m])
+        out.push(m);
+    });
+    return out;
   }
 
   getHandler(method: string): Function {

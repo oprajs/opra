@@ -37,6 +37,15 @@ export class SingletonResourceInfo extends ResourceInfo {
     return this.metadata.update;
   }
 
+  getHandlerNames(): string[] {
+    const out: string[] = [];
+    singletonMethods.forEach(m => {
+      if (this.metadata[m])
+        out.push(m);
+    });
+    return out;
+  }
+
   getSchema(jsonOnly?: boolean): OpraSchema.SingletonResource {
     const out = super.getSchema(jsonOnly) as OpraSchema.SingletonResource;
     for (const k of singletonMethods) {

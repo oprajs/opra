@@ -2,7 +2,7 @@
   "extends": "./tsconfig.json",
   "compilerOptions": {
     "rootDir": "src",
-    "outDir": "../../build/clit/esm",
+    "outDir": "../../build/cli/esm",
     "paths": {
       "@opra/common": ["../../build/common"],
       "@opra/node-client": ["../../build/node-client"]

@@ -1,7 +1,7 @@
 import chalk from 'chalk';
 import path from 'path';
 import flattenText from 'putil-flattentext';
-import { ServiceGenerationContext } from '../interfaces/service-generation-context.interface.js';
+import type { ServiceGenerationContext } from '../interfaces/service-generation-context.interface.js';
 
 export class TsFile {
   imports: Record<string, string[]> = {};
@@ -9,16 +9,20 @@ export class TsFile {
   header: string = '';
   content: string = '';
 
-  addImport = (filename: string, imported: string) => {
+  addImport = (filename: string, ...imported: string[]) => {
     this.imports[filename] = this.imports[filename] || [];
-    if (!this.imports[filename].includes(imported))
-      this.imports[filename].push(imported);
+    imported.forEach(x => {
+      if (!this.imports[filename].includes(x))
+        this.imports[filename].push(x);
+    });
   }
 
-  addExport = (filename: string, exported?: string) => {
+  addExport = (filename: string, ...exported: string[]) => {
     this.exports[filename] = this.exports[filename] || [];
-    if (exported && !this.exports[filename].includes(exported))
-      this.exports[filename].push(exported);
+    exported.forEach(x => {
+      if (!this.exports[filename].includes(x))
+        this.exports[filename].push(x);
+    });
   }
 
   generate(): string {

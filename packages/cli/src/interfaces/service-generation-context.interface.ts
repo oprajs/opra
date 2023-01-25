@@ -1,5 +1,4 @@
 import { OpraDocument } from '@opra/common';
-import { TsFile } from '../utils/ts-file.js';
 import { IFileWriter } from './file-writer.interface.js';
 import { ILogger } from './logger.interface.js';
 
@@ -11,7 +10,6 @@ export interface ServiceGenerationContext {
   relativeDir: string;
   absoluteDir: string;
   fileHeader: string;
+  extension?: string;
   writer: IFileWriter;
-  indexTs: TsFile;
-  builtins: any;
 }

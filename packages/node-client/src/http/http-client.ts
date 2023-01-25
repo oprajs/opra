@@ -94,7 +94,10 @@ export abstract class OpraHttpClientBase<TResponseExt = never> {
     promise = this._resolveMetadata();
     documentResolverCaches.set(cacheName, promise);
     return promise
-        .catch(() => void 0)
+        .catch((e) => {
+          // @ts-ignore
+          throw new Error('Unable to fetch metadata from ' + this.serviceUrl, e);
+        })
         .finally(() => documentResolverCaches.delete(cacheName));
   }
 

@@ -6,16 +6,36 @@ import { ServiceGenerationContext } from '../interfaces/service-generation-conte
 import { wrapJSDocString } from '../utils/string-utils.js';
 import { TsFile } from '../utils/ts-file.js';
 
+const builtinsMap = {
+  base64Binary: 'Buffer',
+  dateString: 'string',
+  guid: 'string',
+  integer: 'number',
+  date: 'Date'
+}
+
 export async function generateTypes(ctx: ServiceGenerationContext) {
   const targetDir = path.join(ctx.absoluteDir, 'types');
   ctx.logger.log(chalk.yellow('Generating types'));
+
+  const typesTs = new TsFile();
+  typesTs.header = ctx.fileHeader;
+  let i = 0;
+
+  const builtinsTs = new TsFile();
+  typesTs.header = ctx.fileHeader;
 
   fs.mkdirSync(targetDir, {recursive: true});
   const typeNames = Array.from(ctx.document.types.keys()).sort();
   for (const typeName of typeNames) {
     const dataType = ctx.document.getDataType(typeName);
-    if (dataType.isBuiltin)
+    if (dataType.isBuiltin) {
+      if (!builtinsMap[dataType.name])
+        continue;
+      typesTs.addExport('./types/builtins.js');
+      builtinsTs.content += `export type ${dataType.name} = ${builtinsMap[dataType.name]};\n`;
       continue;
+    }
     const tsFile = new TsFile();
     tsFile.header = ctx.fileHeader;
     tsFile.content = `\n/**\n * ${wrapJSDocString(dataType.description || dataType.name)}
@@ -24,10 +44,18 @@ export async function generateTypes(ctx: ServiceGenerationContext) {
  * @url ${joinPath(ctx.serviceUrl, '$metadata/types/' + dataType.name)}
  */\n`;
 
+    const filename = `./types/${dataType.name}`;
+
     if (dataType instanceof ComplexType) {
       await generateComplexType(ctx, dataType, tsFile);
       await tsFile.writeFile(ctx, path.join(targetDir, dataType.name + '.ts'));
+      typesTs.addExport(`${filename}` + ctx.extension);
+      i++;
     }
+  }
+  await builtinsTs.writeFile(ctx, path.join(targetDir, 'builtins.ts'));
+  if (i) {
+    await typesTs.writeFile(ctx, path.join(ctx.absoluteDir, 'types.ts'));
   }
 }
 
@@ -36,9 +64,6 @@ async function generateComplexType(
     dataType: ComplexType,
     tsFile: TsFile
 ) {
-  const filename = `./types/${dataType.name}`;
-  ctx.indexTs.addExport(`${filename}.js`);
-
   tsFile.header = ctx.fileHeader;
 
   tsFile.content = `
@@ -57,7 +82,7 @@ interface I${dataType.name}`;
   if (dataType.extends) {
     tsFile.content += ' extends ' +
         dataType.extends.map(ex => {
-          tsFile.addImport('./' + ex.type + '.js', ex.type);
+          tsFile.addImport('./' + ex.type + ctx.extension, ex.type);
           let s = '';
           if (ex.omit) s += 'Omit<';
           if (ex.pick) s += 'Pick<';
@@ -70,16 +95,12 @@ interface I${dataType.name}`;
 
   const getTypeName = (dt: DataType): string => {
     if (dt.isBuiltin) {
-      if (dt.name === 'any' || dt.name === 'string' || dt.name === 'number' ||
-          dt.name === 'boolean' || dt.name === 'object')
+      if (!builtinsMap[dt.name])
         return dt.name;
-      if (dt.name === 'date')
-        return 'Date';
-      tsFile.addImport('../builtins.js', dt.name);
-      ctx.builtins[dt.name] = true;
+      tsFile.addImport('./builtins' + ctx.extension, dt.name);
       return dt.name;
     }
-    tsFile.addImport('./' + dt.name + '.js', dt.name);
+    tsFile.addImport('./' + dt.name + ctx.extension, dt.name);
     return dt.name;
   }
 

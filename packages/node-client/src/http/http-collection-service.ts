@@ -19,7 +19,7 @@ import { CollectionSearchRequest } from './requests/collection-search-request.js
 import { CollectionUpdateManyRequest } from './requests/collection-update-many-request.js';
 import { CollectionUpdateRequest } from './requests/collection-update-request.js';
 
-export class HttpCollectionService<TType, TResponseExt> {
+export class HttpCollectionService<TType, TResponseExt = never> {
 
   constructor(
       readonly resource: CollectionResourceInfo,
@@ -100,11 +100,11 @@ export class HttpCollectionService<TType, TResponseExt> {
   search(
       options?: CollectionSearchQueryOptions &
           StrictOmit<CommonHttpRequestOptions, 'observe'> & { observe?: 'body' }
-  ): CollectionSearchRequest<TType, TType, HttpResponse<TType> & TResponseExt>
+  ): CollectionSearchRequest<TType[], TType, HttpResponse<TType> & TResponseExt>
   search(
       options?: CollectionSearchQueryOptions &
           StrictOmit<CommonHttpRequestOptions, 'observe'> & { observe: 'response' }
-  ): CollectionSearchRequest<HttpResponse<TType> & TResponseExt, TType, HttpResponse<TType> & TResponseExt>
+  ): CollectionSearchRequest<HttpResponse<TType[]> & TResponseExt, TType, HttpResponse<TType> & TResponseExt>
   search(
       options?: CollectionSearchQueryOptions &
           StrictOmit<CommonHttpRequestOptions, 'observe'> & { observe: 'events' }
