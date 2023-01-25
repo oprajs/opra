@@ -7,6 +7,6 @@
       "@opra/node-client": ["../node-client/src"]
     }
   },
-  "include": ["src"],
+  "include": ["src", "tmp"],
   "exclude": ["node_modules", "test"]
 }

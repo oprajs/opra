@@ -1,18 +1,22 @@
+import chalk from 'chalk';
+import console from 'console';
 import * as fs from 'fs';
 import path from 'path';
 import * as process from 'process';
-import { OpraDocument } from '@opra/common';
+import { OpraHttpClient } from '@opra/node-client';
 import { IFileWriter } from '../interfaces/file-writer.interface.js';
 import { ILogger } from '../interfaces/logger.interface.js';
 import type { ServiceGenerationContext } from '../interfaces/service-generation-context.interface.js';
+import { deleteFiles } from './delete-files.js';
 import { FileWriter } from './file-writer.js';
-import { generateResources } from './generate-resoruces.js';
-import { generateTypes } from './generate-types.js';
+import { processResources } from './process-resoruces.js';
+import { processTypes } from './process-types.js';
+import { TsFile } from '../utils/ts-file';
 
 export interface ServiceGenerateConfig {
   serviceUrl: string;
-  document: OpraDocument,
   outDir: string,
+  name?: string;
   cwd?: string;
   logger?: ILogger;
   writer?: IFileWriter;
@@ -26,9 +30,22 @@ export async function generateService(
   const cwd = config.cwd || process.cwd();
   const logger = config.logger || console;
 
+  console.log(chalk.yellow('Fetching service metadata from'), chalk.whiteBright(config.serviceUrl));
+  const client = await OpraHttpClient.create(config.serviceUrl);
+  const metadata = client.metadata;
+  console.log(chalk.yellow('Retrieved service info:'),
+      chalk.whiteBright(metadata.info.title), '-',
+      chalk.whiteBright(metadata.info.version));
+  console.log(chalk.yellow('Removing old files..'));
+  deleteFiles(config.outDir);
+
+  let name = (metadata.info.title || 'Service1').replace(/[^\w_$]*/g, '')
+  name = name.charAt(0).toUpperCase() + name.substring(1);
+
   const ctx: ServiceGenerationContext = {
     serviceUrl: config.serviceUrl,
-    document: config.document,
+    document: client.metadata,
+    name,
     logger,
     cwd,
     relativeDir: config.outDir,
@@ -39,7 +56,12 @@ export async function generateService(
   };
 
   fs.mkdirSync(ctx.absoluteDir, {recursive: true});
-  await generateTypes(ctx);
-  await generateResources(ctx);
+  await processTypes(ctx);
+  await processResources(ctx);
 
+  const indexTs = new TsFile();
+  indexTs.header = ctx.fileHeader;
+  indexTs.addExport('./' + ctx.name + ctx.extension);
+  indexTs.addExport('./types' + ctx.extension);
+  await indexTs.writeFile(ctx, path.join(ctx.absoluteDir, 'index.ts'));
 }

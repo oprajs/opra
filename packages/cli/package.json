@@ -32,6 +32,7 @@
     "chalk": "^5.2.0",
     "commander": "^10.0.0",
     "putil-flattentext": "^2.1.1",
+    "putil-varhelpers": "^1.6.5",
     "js-string-escape": "^1.0.1"
   },
   "devDependencies": {},
