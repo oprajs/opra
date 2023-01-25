@@ -81,7 +81,7 @@ async function generateSingletonResource(
   const methods = resource.getHandlerNames().map(x => `'${x}'`).join(' | ');
 
   tsFile.content = `
-export function ${resource.name}(client: OpraHttpClient): Pick<HttpSingletonService<${resource.dataType.name}, never>, ${methods}> {
+export function ${resource.name}(client: OpraHttpClient): Pick<HttpSingletonService<${resource.dataType.name}>, ${methods}> {
   return client.singleton('${resource.name}');
 }
 `;
