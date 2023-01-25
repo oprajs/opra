@@ -32,7 +32,7 @@ export async function processTypes(ctx: ServiceGenerationContext) {
     if (dataType.isBuiltin) {
       if (!builtinsMap[dataType.name])
         continue;
-      typesTs.addExport('./types/builtins.js');
+      typesTs.addExport('./types/builtins' + ctx.extension);
       builtinsTs.content += `export type ${dataType.name} = ${builtinsMap[dataType.name]};\n`;
       continue;
     }
