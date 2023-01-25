@@ -39,7 +39,7 @@ export async function generateService(
     console.log(chalk.yellow('Removing old files..'));
     deleteFiles(config.outDir);
 
-    let name = (metadata.info.title || 'Service1').replace(/[^\w_$]*/g, '')
+    let name = (config.name || metadata.info.title || 'Service1').replace(/[^\w_$]*/g, '')
     name = name.charAt(0).toUpperCase() + name.substring(1);
 
     const ctx: ServiceGenerationContext = {
