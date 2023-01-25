@@ -4,17 +4,10 @@ import * as process from 'process';
 import { OpraDocument } from '@opra/common';
 import { IFileWriter } from '../interfaces/file-writer.interface.js';
 import { ILogger } from '../interfaces/logger.interface.js';
-import { ServiceGenerationContext } from '../interfaces/service-generation-context.interface.js';
-import { TsFile } from '../utils/ts-file.js';
+import type { ServiceGenerationContext } from '../interfaces/service-generation-context.interface.js';
 import { FileWriter } from './file-writer.js';
+import { generateResources } from './generate-resoruces.js';
 import { generateTypes } from './generate-types.js';
-
-const builtinsMap = {
-  base64Binary: 'Buffer',
-  dateString: 'string',
-  guid: 'string',
-  integer: 'number'
-}
 
 export interface ServiceGenerateConfig {
   serviceUrl: string;
@@ -24,6 +17,7 @@ export interface ServiceGenerateConfig {
   logger?: ILogger;
   writer?: IFileWriter;
   fileHeader?: string;
+  extension?: string;
 }
 
 export async function generateService(
@@ -40,25 +34,12 @@ export async function generateService(
     relativeDir: config.outDir,
     absoluteDir: path.resolve(cwd, config.outDir),
     fileHeader: config.fileHeader || '',
-    writer: config.writer || new FileWriter(),
-    indexTs: new TsFile(),
-    builtins: {},
+    extension: config.extension,
+    writer: config.writer || new FileWriter()
   };
 
   fs.mkdirSync(ctx.absoluteDir, {recursive: true});
   await generateTypes(ctx);
+  await generateResources(ctx);
 
-  const builtinsTs = new TsFile();
-  builtinsTs.header = ctx.fileHeader;
-
-  builtinsTs.content = Object.keys(ctx.builtins)
-      .sort((a, b) => a.toLowerCase().localeCompare(b.toLowerCase()))
-      .map(s => `export type ${s} = ${builtinsMap[s] || 'any'};`)
-      .join('\n');
-  if (builtinsTs.content) {
-    await builtinsTs.writeFile(ctx, path.join(ctx.absoluteDir, 'builtins.ts'));
-    ctx.indexTs.addExport('./builtins.js');
-  }
-
-  await ctx.indexTs.writeFile(ctx, path.join(ctx.absoluteDir, 'index.ts'));
 }

@@ -2,6 +2,8 @@ import fs from 'fs';
 import path from 'path';
 
 export function deleteFiles(dirname: string) {
+  if (!fs.existsSync(dirname))
+    return;
   const files = fs.readdirSync(dirname);
   for (const f of files) {
     const filename = path.join(dirname, f);
