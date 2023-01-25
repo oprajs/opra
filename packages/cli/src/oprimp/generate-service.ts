@@ -29,39 +29,43 @@ export async function generateService(
 ): Promise<void> {
   const cwd = config.cwd || process.cwd();
   const logger = config.logger || console;
+  try {
+    console.log(chalk.yellow('Fetching service metadata from'), chalk.whiteBright(config.serviceUrl));
+    const client = await OpraHttpClient.create(config.serviceUrl);
+    const metadata = client.metadata;
+    console.log(chalk.yellow('Retrieved service info:'),
+        chalk.whiteBright(metadata.info.title), '-',
+        chalk.whiteBright(metadata.info.version));
+    console.log(chalk.yellow('Removing old files..'));
+    deleteFiles(config.outDir);
 
-  console.log(chalk.yellow('Fetching service metadata from'), chalk.whiteBright(config.serviceUrl));
-  const client = await OpraHttpClient.create(config.serviceUrl);
-  const metadata = client.metadata;
-  console.log(chalk.yellow('Retrieved service info:'),
-      chalk.whiteBright(metadata.info.title), '-',
-      chalk.whiteBright(metadata.info.version));
-  console.log(chalk.yellow('Removing old files..'));
-  deleteFiles(config.outDir);
+    let name = (metadata.info.title || 'Service1').replace(/[^\w_$]*/g, '')
+    name = name.charAt(0).toUpperCase() + name.substring(1);
 
-  let name = (metadata.info.title || 'Service1').replace(/[^\w_$]*/g, '')
-  name = name.charAt(0).toUpperCase() + name.substring(1);
+    const ctx: ServiceGenerationContext = {
+      serviceUrl: config.serviceUrl,
+      document: client.metadata,
+      name,
+      logger,
+      cwd,
+      relativeDir: config.outDir,
+      absoluteDir: path.resolve(cwd, config.outDir),
+      fileHeader: config.fileHeader || '',
+      extension: config.extension,
+      writer: config.writer || new FileWriter()
+    };
 
-  const ctx: ServiceGenerationContext = {
-    serviceUrl: config.serviceUrl,
-    document: client.metadata,
-    name,
-    logger,
-    cwd,
-    relativeDir: config.outDir,
-    absoluteDir: path.resolve(cwd, config.outDir),
-    fileHeader: config.fileHeader || '',
-    extension: config.extension,
-    writer: config.writer || new FileWriter()
-  };
+    fs.mkdirSync(ctx.absoluteDir, {recursive: true});
+    await processTypes(ctx);
+    await processResources(ctx);
 
-  fs.mkdirSync(ctx.absoluteDir, {recursive: true});
-  await processTypes(ctx);
-  await processResources(ctx);
-
-  const indexTs = new TsFile();
-  indexTs.header = ctx.fileHeader;
-  indexTs.addExport('./' + ctx.name + ctx.extension);
-  indexTs.addExport('./types' + ctx.extension);
-  await indexTs.writeFile(ctx, path.join(ctx.absoluteDir, 'index.ts'));
+    const indexTs = new TsFile();
+    indexTs.header = ctx.fileHeader;
+    indexTs.addExport('./' + ctx.name + ctx.extension);
+    indexTs.addExport('./types' + ctx.extension);
+    await indexTs.writeFile(ctx, path.join(ctx.absoluteDir, 'index.ts'));
+  } catch (error: any) {
+    logger.error(chalk.red(error.message));
+    process.exit(1);
+  }
 }

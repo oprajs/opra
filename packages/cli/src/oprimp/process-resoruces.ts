@@ -36,7 +36,7 @@ export class ${ctx.name} {
 
     if (resource instanceof CollectionResourceInfo) {
       serviceTs.addImport('@opra/client', 'HttpCollectionService');
-      serviceTs.addImport('../types/' + resource.dataType.name + ctx.extension, resource.dataType.name);
+      serviceTs.addImport('./types/' + resource.dataType.name + ctx.extension, resource.dataType.name);
       const methods = resource.getHandlerNames()
           .filter(x => x !== 'count')
           .map(x => `'${x}'`).join(' | ');
@@ -46,7 +46,7 @@ export class ${ctx.name} {
   }\n`;
     } else if (resource instanceof SingletonResourceInfo) {
       serviceTs.addImport('@opra/client', 'HttpSingletonService');
-      serviceTs.addImport('../types/' + resource.dataType.name + ctx.extension, resource.dataType.name);
+      serviceTs.addImport('./types/' + resource.dataType.name + ctx.extension, resource.dataType.name);
       const methods = resource.getHandlerNames()
           .map(x => `'${x}'`).join(' | ');
       serviceTs.content += `
