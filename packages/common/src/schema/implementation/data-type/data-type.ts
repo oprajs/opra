@@ -2,6 +2,7 @@ import { Type } from 'ts-gems';
 import { OpraSchema } from '../../opra-schema.definition.js';
 import { cloneObject } from '../../utils/clone-object.util.js';
 import type { OpraDocument } from '../opra-document';
+import { builtInTypes } from './builtin-data-types.js';
 
 export abstract class DataType {
   protected _document: OpraDocument;
@@ -32,6 +33,10 @@ export abstract class DataType {
 
   get ctor(): Type | undefined {
     return this._metadata.ctor;
+  }
+
+  get isBuiltin(): boolean {
+    return builtInTypes.has(this._name);
   }
 
   parse<T>(value: any): T {
