@@ -109,16 +109,20 @@ interface I${dataType.name}`;
     const fieldType = ctx.document.getDataType(f.type);
 
     // Print JSDoc
-    tsFile.content += `/**\n * ${f.description || f.name}\n`;
+    let jsDoc = '';
+    if (f.description)
+      jsDoc += ` * ${f.description}\n`;
     if (f.default)
-      tsFile.content += ` * @default ` + f.default + '\n';
+      jsDoc += ` * @default ` + f.default + '\n';
     if (f.format)
-      tsFile.content += ` * @format ` + f.format + '\n';
+      jsDoc += ` * @format ` + f.format + '\n';
     if (f.exclusive)
-      tsFile.content += ` * @exclusive\n`;
+      jsDoc += ` * @exclusive\n`;
     if (f.deprecated)
-      tsFile.content += ` * @deprecated ` + (typeof f.deprecated === 'string' ? f.deprecated : '') + '\n';
-    tsFile.content += ` */\n`;
+      jsDoc += ` * @deprecated ` + (typeof f.deprecated === 'string' ? f.deprecated : '') + '\n';
+
+    if (jsDoc)
+      tsFile.content += `/**\n${jsDoc}*/\n`;
     // Print field name
     tsFile.content += `${f.name}${f.required ? '' : '?'}: `;
 
