@@ -1,64 +1,66 @@
+import express from 'express';
+import * as http from 'http';
+import { AddressInfo } from 'net';
 import { OpraDocument } from '@opra/common';
 import { createTestDocument } from '../../core/test/_support/test-app/create-document.js';
-import { HttpCollectionService, HttpSingletonService, OpraHttpClient } from '../src/index.js';
+import { HttpCollectionNode, HttpSingletonNode, OpraHttpClient } from '../src/index.js';
 
 describe('OpraClient', function () {
 
   let document: OpraDocument;
-  const serviceUrl = 'http://localhost';
+  let client: OpraHttpClient;
+  let server: http.Server;
 
-  class MockClient extends OpraHttpClient {
-    async init(): Promise<void> {
-      this._metadata = document;
-    }
-  }
+  afterAll(() => server.close());
 
   beforeAll(async () => {
     document = await createTestDocument();
-  });
-
-  it('Should create new instance', async () => {
-    const client = await MockClient.create(serviceUrl);
-    expect(client).toBeDefined();
-    expect(client.serviceUrl).toStrictEqual(serviceUrl);
+    const app = express();
+    app.use('*', (_req, _res) => {
+      _res.end({});
+    });
+    await new Promise<void>((subResolve) => {
+      server = app.listen(0, '127.0.0.1', () => subResolve());
+    }).then(async () => {
+      const address = server.address() as AddressInfo;
+      client = new OpraHttpClient('http://127.0.0.1:' + address.port.toString(), {document});
+    });
   });
 
   it('Should retrieve metadata', async () => {
-    const client = await MockClient.create(serviceUrl);
-    expect(client).toBeDefined();
-    expect(client.metadata).toBeInstanceOf(OpraDocument);
+    expect(await client.getMetadata()).toBeInstanceOf(OpraDocument);
   });
 
   it('Should "collection()" create a service for Collection resources', async () => {
-    const client = await MockClient.create(serviceUrl);
-    expect(client).toBeDefined();
-    expect(client.collection('Customers')).toBeInstanceOf(HttpCollectionService);
+    expect(client.collection('Customers')).toBeInstanceOf(HttpCollectionNode);
   });
 
   it('Should "singleton()" create a service for Singleton resources', async () => {
-    const client = await MockClient.create(serviceUrl);
-    expect(client).toBeDefined();
-    expect(client.singleton('BestCustomer')).toBeInstanceOf(HttpSingletonService);
+    expect(client.singleton('BestCustomer')).toBeInstanceOf(HttpSingletonNode);
   });
 
   it('Should check if Collection resource exists', async () => {
-    const client = await MockClient.create(serviceUrl);
-    expect(() => client.collection('blabla')).toThrow('does not exists');
+    await expect(
+        () => client.collection('blabla').get(1).fetch()
+    ).rejects.toThrow('does not exists');
   });
 
   it('Should .collection() check if resource is CollectionResource', async () => {
-    const client = await MockClient.create(serviceUrl);
-    expect(() => client.collection('BestCustomer')).toThrow('s not a CollectionResource');
+    await expect(
+        () => client.collection('BestCustomer').get(1).fetch()
+    ).rejects.toThrow('s not a CollectionResource');
   });
 
   it('Should check if Singleton resource exists', async () => {
-    const client = await MockClient.create(serviceUrl);
-    expect(() => client.singleton('blabla')).toThrow('does not exists');
+    await expect(
+        () => client.singleton('blabla').get().fetch()
+    ).rejects.toThrow('does not exists');
   });
 
   it('Should .singleton() check if resource is SingletonResource', async () => {
-    const client = await MockClient.create(serviceUrl);
-    expect(() => client.singleton('Customers')).toThrow('s not a SingletonResource');
+    await expect(
+        () => client.singleton('Customers').get().fetch()
+    ).rejects.toThrow('s not a SingletonResource');
   });
 
 });

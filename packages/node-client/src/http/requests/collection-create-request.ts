@@ -1,23 +1,22 @@
 import {
   CollectionCreateQueryOptions,
-  CollectionResourceInfo, HttpResponse,
+  HttpResponse,
   PartialInput
 } from '@opra/common';
 import { HttpRequestHost } from '../http-request-host.js';
-import { CommonHttpRequestOptions, HttpRequestHandler } from '../http-types.js';
+import { CommonHttpRequestOptions, HttpClientContext } from '../http-types.js';
 
 export class CollectionCreateRequest<T, TType, TResponse extends HttpResponse<TType>> extends HttpRequestHost<T, TType, TResponse> {
 
   constructor(
-      handler: HttpRequestHandler,
-      readonly resource: CollectionResourceInfo,
+      context: HttpClientContext,
       data: PartialInput<TType>,
       options?: CollectionCreateQueryOptions & CommonHttpRequestOptions
   ) {
-    super(handler, options);
+    super(context, options);
     const request = this[HttpRequestHost.kRequest];
     request.method = 'POST';
-    request.url = this.resource.name;
+    request.url = context.resourceName;
     request.body = data;
     if (options?.include)
       request.params.set('$include', options.include);

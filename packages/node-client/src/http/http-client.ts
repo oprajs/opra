@@ -1,12 +1,10 @@
-import { Readable } from 'node:stream';
 import { lastValueFrom, Observable, Subscriber } from 'rxjs';
 import { isReadableStreamLike } from 'rxjs/internal/util/isReadableStreamLike';
 import { StrictOmit, Type } from 'ts-gems';
 import {
-  HttpHeaders, HttpHeadersInit, HttpParams, HttpParamsInit,
-  HttpRequest,
-  HttpResponse, HttpResponseInit, isBlob, isReadable,
-  joinPath,
+  HttpHeaders, HttpParams,
+  HttpRequest, HttpResponse, HttpResponseInit,
+  isBlob, joinPath,
   OpraDocument,
 } from '@opra/common';
 import { ClientError } from '../client-error.js';
@@ -15,16 +13,14 @@ import {
   JSON_CONTENT_TYPE_PATTERN,
   TEXT_CONTENT_TYPE_PATTERN
 } from '../constants.js';
-import { HttpCollectionService } from './http-collection-service.js';
-import { HttpSingletonService } from './http-singleton-service.js';
+import { HttpCollectionNode } from './http-collection-node.js';
+import { HttpSingletonNode } from './http-singleton-node.js';
 import {
+  HttpClientContext,
   HttpEvent,
   HttpHeadersReceivedEvent,
-  HttpRequestDefaults, HttpResponseEvent, ObserveType
+  HttpRequestDefaults, HttpResponseEvent, ObserveType, RequestInterceptor, ResponseInterceptor,
 } from './http-types.js';
-
-const documentCache = new Map<string, OpraDocument>();
-const documentResolverCaches = new Map<string, Promise<any>>();
 
 export interface OpraHttpClientOptions {
   /**
@@ -34,16 +30,22 @@ export interface OpraHttpClientOptions {
   /**
    *
    */
-  defaults?: StrictOmit<HttpRequestDefaults, 'headers' | 'params'> &
-      {
-        headers?: HttpHeadersInit;
-        params?: HttpParamsInit;
-      };
+  defaults?: HttpRequestDefaults;
+  requestInterceptors?: RequestInterceptor[];
+  responseInterceptors?: ResponseInterceptor[];
 }
 
-export abstract class OpraHttpClientBase<TResponseExt = never> {
-  protected _serviceUrl: string;
-  protected _metadata?: OpraDocument;
+const kAssets = Symbol('kAssets');
+
+export class OpraHttpClient {
+  protected static kAssets = kAssets;
+  protected [kAssets]: {
+    serviceUrl: string;
+    metadata?: OpraDocument;
+    metadataPromise?: Promise<any>;
+    requestInterceptors: RequestInterceptor[];
+    responseInterceptors: ResponseInterceptor[];
+  };
 
   defaults: StrictOmit<HttpRequestDefaults, 'headers' | 'params'> &
       {
@@ -52,12 +54,11 @@ export abstract class OpraHttpClientBase<TResponseExt = never> {
       };
 
   constructor(serviceUrl: string, options?: OpraHttpClientOptions) {
-    this._serviceUrl = serviceUrl;
-    this._metadata = options?.document;
-    if (!this._metadata) {
-      const document = documentCache.get(this.serviceUrl.toLowerCase());
-      if (document)
-        this._metadata = document;
+    this[kAssets] = {
+      serviceUrl,
+      metadata: options?.document,
+      requestInterceptors: options?.requestInterceptors || [],
+      responseInterceptors: options?.responseInterceptors || []
     }
     this.defaults = {
       ...options?.defaults,
@@ -69,63 +70,17 @@ export abstract class OpraHttpClientBase<TResponseExt = never> {
   }
 
   get serviceUrl(): string {
-    return this._serviceUrl;
+    return this[kAssets].serviceUrl;
   }
 
-  get initialized(): boolean {
-    return !!this._metadata;
-  }
-
-  get metadata(): OpraDocument {
-    this._assertMetadata();
-    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-    return this._metadata!;
-  }
-
-  async init(forceRefresh?: boolean): Promise<void> {
-    if (!forceRefresh && this.initialized)
-      return;
-    const cacheName = this.serviceUrl.toLowerCase();
-    let promise = documentResolverCaches.get(cacheName);
+  async getMetadata(): Promise<OpraDocument> {
+    if (this[kAssets].metadata)
+      return this[kAssets].metadata;
+    let promise = this[kAssets].metadataPromise;
     if (promise) {
-      await promise;
-      return;
+      return promise;
     }
-    promise = this._resolveMetadata();
-    documentResolverCaches.set(cacheName, promise);
-    return promise
-        .catch((e) => {
-          // @ts-ignore
-          throw new Error('Unable to fetch metadata from ' + this.serviceUrl, e);
-        })
-        .finally(() => documentResolverCaches.delete(cacheName));
-  }
-
-  // batch(requests: HttpRequestHost<any>[]): BatchRequest {
-  // this._assertMetadata();
-  // return new BatchRequest(request => this._sendRequest('response', request, requests);
-  // }
-
-  collection<TType = any>(name: string | Type<TType>): HttpCollectionService<TType, TResponseExt> {
-    this._assertMetadata();
-    // If name argument is a class, we extract name from the class
-    if (typeof name === 'function')
-      name = name.name;
-    const resource = this.metadata.getCollectionResource(name);
-    return new HttpCollectionService<TType, TResponseExt>(resource, this._sendRequest.bind(this));
-  }
-
-  singleton<TType = any>(name: string | Type<TType>): HttpSingletonService<TType, TResponseExt> {
-    this._assertMetadata();
-    // If name argument is a class, we extract name from the class
-    if (typeof name === 'function')
-      name = name.name;
-    const resource = this.metadata.getSingletonResource(name);
-    return new HttpSingletonService<TType, TResponseExt>(resource, this._sendRequest.bind(this));
-  }
-
-  protected async _resolveMetadata(): Promise<void> {
-    const body = await lastValueFrom(
+    this[kAssets].metadataPromise = promise = lastValueFrom(
         this._sendRequest<any>('body',
             new HttpRequest({
               method: 'GET',
@@ -134,20 +89,72 @@ export abstract class OpraHttpClientBase<TResponseExt = never> {
             })
         )
     );
-    this._metadata = new OpraDocument(body);
+    return await promise
+        .then(body => this[kAssets].metadata = new OpraDocument(body))
+        .catch((e) => {
+          e.message = 'Unable to fetch metadata from ' + this.serviceUrl + '. ' + e.message
+          throw e
+        })
+        .finally(() => delete this[kAssets].metadataPromise);
+  }
+
+  // batch(requests: HttpRequestHost<any>[]): BatchRequest {
+  // this._assertMetadata();
+  // return new BatchRequest(request => this._sendRequest('response', request, requests);
+  // }
+
+  collection<TType = any>(resourceName: string | Type<TType>): HttpCollectionNode<TType> {
+    // If name argument is a class, we extract name from the class
+    if (typeof resourceName === 'function')
+      resourceName = resourceName.name;
+    const ctx: HttpClientContext = {
+      client: this,
+      resourceName,
+      send: (observe, request) => this._sendRequest(observe, request, ctx),
+      requestInterceptors: [
+        // Validate resource exists and is a collection resource
+        async () => {
+          const metadata = await this.getMetadata();
+          metadata.getCollectionResource(ctx.resourceName);
+        }
+      ],
+      responseInterceptors: []
+    }
+    return new HttpCollectionNode<TType>(ctx);
+  }
+
+  singleton<TType = any>(resourceName: string | Type<TType>): HttpSingletonNode<TType> {
+    // If name argument is a class, we extract name from the class
+    if (typeof resourceName === 'function')
+      resourceName = resourceName.name;
+    const ctx: HttpClientContext = {
+      client: this,
+      resourceName,
+      send: (observe, request) => this._sendRequest(observe, request, ctx),
+      requestInterceptors: [
+        // Validate resource exists and is a singleton resource
+        async () => {
+          const metadata = await this.getMetadata();
+          metadata.getSingletonResource(ctx.resourceName);
+        }
+      ],
+      responseInterceptors: []
+    }
+    return new HttpSingletonNode<TType>(ctx);
   }
 
   protected _sendRequest<TBody>(
       observe: ObserveType,
-      request: HttpRequest
+      request: HttpRequest,
+      ctx?: HttpClientContext
   ): Observable<HttpResponse<TBody> | TBody | HttpEvent> {
     return new Observable(subscriber => {
-      try {
+      (async () => {
         request.inset(this.defaults);
         const url = request.url.includes('://') ? request.url : joinPath(this.serviceUrl, request.url);
         let body: any;
         if (request.body) {
-          let contentType = request.headers.get('Content-Type');
+          let contentType;
           if (typeof request.body === 'string' || typeof request.body === 'number' || typeof request.body === 'boolean') {
             contentType = 'text/plain;charset=UTF-8"';
             body = String(request.body);
@@ -156,10 +163,6 @@ export abstract class OpraHttpClientBase<TResponseExt = never> {
           } else if (isReadableStreamLike(request.body)) {
             contentType = 'application/octet-stream';
             body = request.body;
-            request.duplex = 'half';
-          } else if (isReadable(request.body)) {
-            contentType = 'application/octet-stream';
-            body = Readable.toWeb(request.body);
             request.duplex = 'half';
           } else if (Buffer.isBuffer(request.body)) {
             contentType = 'application/octet-stream';
@@ -181,14 +184,19 @@ export abstract class OpraHttpClientBase<TResponseExt = never> {
             request.headers.set('Content-Type', contentType);
           request.body = body;
         }
-        this._fetch(url, request)
-            .then(response => this._handleResponse(observe, subscriber, request, response))
-            .catch(error => subscriber.error(error));
+        if (ctx) {
+          const requestInterceptors = [
+            ...this[kAssets].requestInterceptors,
+            ...ctx.requestInterceptors];
+          for (const interceptor of requestInterceptors) {
+            await interceptor(ctx, request);
+          }
+        }
         if (observe === 'events')
           subscriber.next({event: 'sent', request} satisfies HttpEvent);
-      } catch (error) {
-        subscriber.error(error);
-      }
+        const response = await this._fetch(url, request);
+        await this._handleResponse(observe, subscriber, request, response);
+      })().catch(error => subscriber.error(error))
     });
   }
 
@@ -200,12 +208,13 @@ export abstract class OpraHttpClientBase<TResponseExt = never> {
     return new HttpResponse<any>(init);
   }
 
-  protected _handleResponse(
+  protected async _handleResponse(
       observe: ObserveType,
       subscriber: Subscriber<any>,
       request: HttpRequest,
-      fetchResponse: Response
-  ): void {
+      fetchResponse: Response,
+      ctx?: HttpClientContext
+  ): Promise<void> {
     const headers = new HttpHeaders(fetchResponse.headers);
 
     if (observe === 'events') {
@@ -219,72 +228,59 @@ export abstract class OpraHttpClientBase<TResponseExt = never> {
       subscriber.next({event: 'headers-received', request, response} satisfies HttpHeadersReceivedEvent);
     }
 
-    Promise
-        .resolve(fetchResponse.body)
-        .then(async (inputStream) => {
-          if (!inputStream)
-            return;
-          if (JSON_CONTENT_TYPE_PATTERN.test(fetchResponse.headers.get('Content-Type') || '')) {
-            const body = await fetchResponse.json();
-            if (typeof body === 'string')
-              return JSON.parse(body);
-            return body;
-          }
-          if (TEXT_CONTENT_TYPE_PATTERN.test(fetchResponse.headers.get('Content-Type') || ''))
-            return await fetchResponse.text();
-          if (FORMDATA_CONTENT_TYPE_PATTERN.test(fetchResponse.headers.get('Content-Type') || ''))
-            return await fetchResponse.formData();
-          const buf = await fetchResponse.arrayBuffer();
-          return buf.byteLength ? buf : undefined;
-        })
-        .then(body => {
-          if (fetchResponse.status >= 400 && fetchResponse.status < 600) {
-            subscriber.error(new ClientError({
-              message: fetchResponse.status + ' ' + fetchResponse.statusText,
-              status: fetchResponse.status,
-              issues: body?.errors
-            }));
-            subscriber.complete();
-            return;
-          }
-          if (observe === 'body') {
-            subscriber.next(body);
-          } else {
-            const response = this._createResponse({
-              url: fetchResponse.url,
-              headers,
-              status: fetchResponse.status,
-              statusText: fetchResponse.statusText,
-              body
-            });
-            if (observe === 'events')
-              subscriber.next({event: 'response', request, response} satisfies HttpResponseEvent);
-            else
-              subscriber.next(response);
-          }
-          subscriber.complete();
-        })
-        .catch(error => subscriber.error(error))
+    let body;
+    if (fetchResponse.body) {
+      if (JSON_CONTENT_TYPE_PATTERN.test(fetchResponse.headers.get('Content-Type') || '')) {
+        body = await fetchResponse.json();
+        if (typeof body === 'string')
+          body = JSON.parse(body);
+      } else if (TEXT_CONTENT_TYPE_PATTERN.test(fetchResponse.headers.get('Content-Type') || ''))
+        body = await fetchResponse.text();
+      else if (FORMDATA_CONTENT_TYPE_PATTERN.test(fetchResponse.headers.get('Content-Type') || ''))
+        body = await fetchResponse.formData();
+      else {
+        const buf = await fetchResponse.arrayBuffer();
+        if (buf.byteLength)
+          body = buf;
+      }
+    }
+
+    if (fetchResponse.status >= 400 && fetchResponse.status < 600) {
+      subscriber.error(new ClientError({
+        message: fetchResponse.status + ' ' + fetchResponse.statusText,
+        status: fetchResponse.status,
+        issues: body?.errors
+      }));
+      subscriber.complete();
+      return;
+    }
+
+    const response = this._createResponse({
+      url: fetchResponse.url,
+      headers,
+      status: fetchResponse.status,
+      statusText: fetchResponse.statusText,
+      body
+    });
+
+    if (ctx) {
+      const responseInterceptors = [
+        ...this[kAssets].responseInterceptors,
+        ...ctx.responseInterceptors];
+      for (const interceptor of responseInterceptors) {
+        await interceptor(ctx, observe, request);
+      }
+    }
+
+    if (observe === 'body') {
+      subscriber.next(body);
+    } else {
+      if (observe === 'events')
+        subscriber.next({event: 'response', request, response} satisfies HttpResponseEvent);
+      else
+        subscriber.next(response);
+    }
+    subscriber.complete();
   }
-
-  protected _assertMetadata() {
-    if (!this._metadata)
-      throw new Error('You must call init() to before using the client instance');
-  }
-
-  static async create<T extends OpraHttpClient>(
-      this: Type<T>,
-      serviceUrl: string,
-      options?: OpraHttpClientOptions
-  ): Promise<T> {
-    const client = new this(serviceUrl, options);
-    if (!client._metadata)
-      await client.init();
-    return client as T;
-  }
-
-}
-
-export class OpraHttpClient extends OpraHttpClientBase {
 
 }

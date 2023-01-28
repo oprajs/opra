@@ -1,10 +1,12 @@
 import { createServer, IncomingMessage, Server, ServerResponse } from 'http';
 import { AddressInfo } from 'net';
+import { Type } from 'ts-gems';
 import { URL } from 'url';
 import { HttpResponse, HttpResponseInit, joinPath } from '@opra/common';
 import {
+  HttpCollectionNode, HttpSingletonNode,
   // BatchRequest,
-  OpraHttpClientBase,
+  OpraHttpClient,
   OpraHttpClientOptions,
 } from '@opra/node-client';
 import { ApiExpect } from './api-expect/api-expect.js';
@@ -14,12 +16,20 @@ declare type RequestListener = (req: IncomingMessage, res: ServerResponse) => vo
 
 export type ResponseExt = { expect: ApiExpect };
 
-export class OpraTestClient extends OpraHttpClientBase<ResponseExt> {
+export class OpraTestClient extends OpraHttpClient {
   protected _server: Server;
 
   constructor(app: Server | RequestListener, options?: OpraHttpClientOptions) {
     super('/', options);
     this._server = app instanceof Server ? app : createServer(app);
+  }
+
+  collection<TType = any>(resourceName: string | Type<TType>): HttpCollectionNode<TType, ResponseExt> {
+    return super.collection(resourceName);
+  }
+
+  singleton<TType = any>(resourceName: string | Type<TType>): HttpSingletonNode<TType, ResponseExt> {
+    return super.singleton(resourceName);
   }
 
   protected async _fetch(urlString: string, req: RequestInit = {}): Promise<Response> {

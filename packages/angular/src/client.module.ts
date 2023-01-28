@@ -1,96 +1,95 @@
 /* eslint-disable import/extensions */
-import { APP_INITIALIZER, ModuleWithProviders, NgModule, Provider } from '@angular/core';
-import { OpraHttpClient } from '@opra/client';
+import { ModuleWithProviders, NgModule, Provider, Type } from '@angular/core';
+import { HttpServiceBase, OpraHttpClient } from '@opra/client';
 import { OPRA_CLIENT_MODULE_OPTIONS } from './constants';
-import { OpraClientModuleAsyncOptions, OpraClientModuleOptions } from './interfaces/module-options.interface';
+import {
+  OpraClientModuleAsyncOptions,
+  OpraClientModuleOptions
+} from './interfaces/module-options.interface';
 
 @NgModule({})
 export class OpraClientModule {
 
-  public static forRoot(options: OpraClientModuleOptions): ModuleWithProviders<OpraClientModule> {
-    const serviceClass = options.serviceClass;
-    const CLIENT_TOKEN = options.clientToken || OpraHttpClient;
-    const SERVICE_TOKEN = options.serviceToken || serviceClass;
+  public static registerClient(options: OpraClientModuleOptions): ModuleWithProviders<OpraClientModule> {
+    const CLIENT_TOKEN = options.token || OpraHttpClient;
     const client = new OpraHttpClient(options.serviceUrl, options);
-    const serviceProviders: any = [];
-    if (serviceClass)
-      serviceProviders.push({
-        provide: SERVICE_TOKEN,
-        deps: [CLIENT_TOKEN],
-        useFactory: (opraHttpClient: OpraHttpClient) => {
-          return new serviceClass(opraHttpClient);
-        }
-      });
     return {
       ngModule: OpraClientModule,
       providers: [
-        ...serviceProviders,
-        {
-          provide: OPRA_CLIENT_MODULE_OPTIONS,
-          useValue: options,
-        },
         {
           provide: CLIENT_TOKEN,
           useValue: client
-        },
-        {
-          provide: APP_INITIALIZER,
-          useFactory: () => {
-            return () => client.init()
-          },
-          multi: true
-        },
+        }
       ]
     };
   }
 
-  public static forRootAsync(
+  public static registerService<T extends HttpServiceBase>(
+      serviceClass: Type<T>,
+      options: OpraClientModuleOptions
+  ): ModuleWithProviders<OpraClientModule> {
+    const SERVICE_TOKEN = options.token || serviceClass;
+    const client = new OpraHttpClient(options.serviceUrl, options);
+    const service = new serviceClass(client);
+    return {
+      ngModule: OpraClientModule,
+      providers: [
+        {
+          provide: SERVICE_TOKEN,
+          useValue: service
+        }
+      ]
+    };
+  }
+
+  public static registerClientAsync(
       options: OpraClientModuleAsyncOptions
   ): ModuleWithProviders<OpraClientModule> {
-    const serviceClass = options.serviceClass;
-    const CLIENT_TOKEN = options.clientToken || OpraHttpClient;
-    const SERVICE_TOKEN = options.serviceToken || serviceClass;
-    const asyncProviders = this.createAsyncProviders(options);
-    const serviceProviders: any = [];
-    if (serviceClass)
-      serviceProviders.push({
-        provide: SERVICE_TOKEN,
-        deps: [CLIENT_TOKEN],
-        useFactory: (opraHttpClient: OpraHttpClient) => {
-          return new serviceClass(opraHttpClient);
-        }
-      });
-
+    const CLIENT_TOKEN = options.token || OpraHttpClient;
+    const asyncProviders = this._createAsyncProviders(options);
     return {
       ngModule: OpraClientModule,
       providers: [
         ...asyncProviders,
-        ...serviceProviders,
         {
           provide: CLIENT_TOKEN,
           deps: [OPRA_CLIENT_MODULE_OPTIONS],
           useFactory: (opts: OpraClientModuleOptions) =>
               new OpraHttpClient(opts.serviceUrl, opts)
-        },
-        {
-          provide: APP_INITIALIZER,
-          deps: [CLIENT_TOKEN],
-          useFactory: (client: OpraHttpClient) => {
-            return () => client.init()
-          },
-          multi: true
         }
       ]
     };
   }
 
-  private static createAsyncProviders(options: OpraClientModuleAsyncOptions): Provider[] {
+  public static registerServiceAsync<T extends HttpServiceBase>(
+      serviceClass: Type<T>,
+      options: OpraClientModuleAsyncOptions
+  ): ModuleWithProviders<OpraClientModule> {
+    const SERVICE_TOKEN = options.token || serviceClass;
+    const asyncProviders = this._createAsyncProviders(options);
+    return {
+      ngModule: OpraClientModule,
+      providers: [
+        ...asyncProviders,
+        {
+          provide: SERVICE_TOKEN,
+          deps: [OPRA_CLIENT_MODULE_OPTIONS],
+          useFactory: (opts: OpraClientModuleOptions) => {
+            const client = new OpraHttpClient(opts.serviceUrl, opts)
+            return new serviceClass(client);
+          }
+        }
+      ]
+    };
+  }
+
+  private static _createAsyncProviders(options: OpraClientModuleAsyncOptions): Provider[] {
     if (options.useExisting || options.useFactory)
-      return [this.createAsyncOptionsProvider(options)];
+      return [this._createAsyncOptionsProvider(options)];
 
     if (options.useClass)
       return [
-        this.createAsyncOptionsProvider(options),
+        this._createAsyncOptionsProvider(options),
         {
           provide: options.useClass,
           useClass: options.useClass
@@ -100,7 +99,7 @@ export class OpraClientModule {
     throw new Error('Invalid configuration. Must provide useFactory, useClass or useExisting');
   }
 
-  private static createAsyncOptionsProvider(options: OpraClientModuleAsyncOptions): Provider {
+  private static _createAsyncOptionsProvider(options: OpraClientModuleAsyncOptions): Provider {
     if (options.useFactory) {
       return {
         provide: OPRA_CLIENT_MODULE_OPTIONS,
