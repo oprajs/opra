@@ -1,10 +1,11 @@
+export * from './client-error.js';
+
 export * from './http/http-client.js';
 export * from './http/http-request-host.js';
-export * from './http/http-collection-service.js';
-export * from './http/http-singleton-service.js';
+export * from './http/http-collection-node.js';
+export * from './http/http-singleton-node.js';
 export * from './http/http-types.js';
-
-export * from './client-error.js';
+export * from './http/http-service-base.js';
 
 // export * from './http/requests/batch-request.js';
 export * from './http/requests/collection-create-request.js';

@@ -2,18 +2,18 @@ import { StrictOmit } from 'ts-gems';
 import {
   HttpResponse,
   SingletonGetQueryOptions,
-  SingletonResourceInfo
 } from '@opra/common';
-import { CommonHttpRequestOptions, HttpEvent, HttpRequestHandler } from './http-types.js';
+import { kHttpClientContext } from '../constants.js';
+import { CommonHttpRequestOptions, HttpClientContext, HttpEvent } from './http-types.js';
 import { SingletonDeleteRequest } from './requests/singleton-delete-request.js';
 import { SingletonGetRequest } from './requests/singleton-get-request.js';
 
-export class HttpSingletonService<TType, TResponseExt> {
 
-  constructor(
-      readonly resource: SingletonResourceInfo,
-      protected _handler: HttpRequestHandler
-  ) {
+export class HttpSingletonNode<TType, TResponseExt = any> {
+  protected [kHttpClientContext]: HttpClientContext;
+
+  constructor(context: HttpClientContext) {
+    this[kHttpClientContext] = context;
   }
 
   get(
@@ -29,7 +29,7 @@ export class HttpSingletonService<TType, TResponseExt> {
           StrictOmit<CommonHttpRequestOptions, 'observe'> & { observe: 'events' }
   ): SingletonGetRequest<HttpEvent, TType, HttpResponse<TType> & TResponseExt>
   get(options?: SingletonGetQueryOptions & CommonHttpRequestOptions) {
-    return new SingletonGetRequest(this._handler, this.resource, options);
+    return new SingletonGetRequest(this[kHttpClientContext], options);
   }
 
   delete(
@@ -42,7 +42,7 @@ export class HttpSingletonService<TType, TResponseExt> {
       options?: StrictOmit<CommonHttpRequestOptions, 'observe'> & { observe: 'events' }
   ): SingletonDeleteRequest<HttpEvent, HttpResponse<never> & TResponseExt>
   delete(options?: CommonHttpRequestOptions) {
-    return new SingletonDeleteRequest(this._handler, this.resource, options);
+    return new SingletonDeleteRequest(this[kHttpClientContext], options);
   }
 
 }

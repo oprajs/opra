@@ -1,14 +1,13 @@
+import { StrictOmit } from 'ts-gems';
 import { InjectionToken, NgModule, Type } from '@angular/core';
 import { OpraHttpClientOptions } from '@opra/client';
 
 export type OpraClientModuleOptions = OpraHttpClientOptions & {
   serviceUrl: string;
-  clientToken?: string | InjectionToken<any>;
-  serviceToken?: string | InjectionToken<any>;
-  serviceClass?: Type<any>;
+  token?: string | InjectionToken<any>;
 }
 
-type _OpraClientModuleOptions = Omit<OpraClientModuleOptions, 'clientToken' | 'serviceToken' | 'serviceClass'>;
+type _OpraClientModuleOptions = StrictOmit<OpraClientModuleOptions, 'token'>;
 
 export interface OpraModuleOptionsFactory {
   createOptions(): Promise<_OpraClientModuleOptions> | _OpraClientModuleOptions;
@@ -16,9 +15,7 @@ export interface OpraModuleOptionsFactory {
 
 export interface OpraClientModuleAsyncOptions
     extends Pick<NgModule, 'imports' | 'providers'> {
-  clientToken?: string | InjectionToken<any>;
-  serviceToken?: string | InjectionToken<any>;
-  serviceClass?: Type<any>;
+  token?: string | InjectionToken<any>;
   useExisting?: Type<OpraModuleOptionsFactory>;
   useClass?: Type<any>;
   useFactory?: (...args: any[]) => Promise<_OpraClientModuleOptions> | _OpraClientModuleOptions;

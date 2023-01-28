@@ -1,22 +1,21 @@
 import {
   CollectionGetQueryOptions,
-  CollectionResourceInfo, HttpResponse,
+  HttpResponse,
 } from '@opra/common';
 import { HttpRequestHost } from '../http-request-host.js';
-import { CommonHttpRequestOptions, HttpRequestHandler } from '../http-types.js';
+import { CommonHttpRequestOptions, HttpClientContext } from '../http-types.js';
 
 export class CollectionGetRequest<T, TType, TResponse extends HttpResponse<TType>> extends HttpRequestHost<T, TType, TResponse> {
 
   constructor(
-      handler: HttpRequestHandler,
-      readonly resource: CollectionResourceInfo,
+      context: HttpClientContext,
       id: any,
       options?: CollectionGetQueryOptions & CommonHttpRequestOptions
   ) {
-    super(handler, options);
+    super(context, options);
     const request = this[HttpRequestHost.kRequest];
     request.method = 'GET';
-    request.path.join({resource: this.resource.name, key: id});
+    request.path.join({resource: context.resourceName, key: id});
     if (options?.include)
       request.params.set('$include', options.include);
     if (options?.pick)

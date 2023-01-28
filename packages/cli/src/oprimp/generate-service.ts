@@ -31,8 +31,8 @@ export async function generateService(
   const logger = config.logger || console;
   try {
     console.log(chalk.yellow('Fetching service metadata from'), chalk.whiteBright(config.serviceUrl));
-    const client = await OpraHttpClient.create(config.serviceUrl);
-    const metadata = client.metadata;
+    const client = new OpraHttpClient(config.serviceUrl);
+    const metadata = await client.getMetadata();
     console.log(chalk.yellow('Retrieved service info:'),
         chalk.whiteBright(metadata.info.title), '-',
         chalk.whiteBright(metadata.info.version));
@@ -44,7 +44,7 @@ export async function generateService(
 
     const ctx: ServiceGenerationContext = {
       serviceUrl: config.serviceUrl,
-      document: client.metadata,
+      document: metadata,
       name,
       logger,
       cwd,

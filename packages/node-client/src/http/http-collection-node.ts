@@ -3,14 +3,14 @@ import type {
   CollectionCreateQueryOptions,
   CollectionDeleteManyQueryOptions,
   CollectionGetQueryOptions,
-  CollectionResourceInfo,
   CollectionSearchQueryOptions,
   CollectionUpdateManyQueryOptions,
   CollectionUpdateQueryOptions,
   HttpResponse,
   PartialInput
 } from '@opra/common';
-import { CommonHttpRequestOptions, HttpEvent, HttpRequestHandler } from './http-types.js';
+import { kHttpClientContext } from '../constants.js';
+import { CommonHttpRequestOptions, HttpClientContext, HttpEvent } from './http-types.js';
 import { CollectionCreateRequest } from './requests/collection-create-request.js';
 import { CollectionDeleteManyRequest } from './requests/collection-delete-many-request.js';
 import { CollectionDeleteRequest } from './requests/collection-delete-request.js';
@@ -19,12 +19,11 @@ import { CollectionSearchRequest } from './requests/collection-search-request.js
 import { CollectionUpdateManyRequest } from './requests/collection-update-many-request.js';
 import { CollectionUpdateRequest } from './requests/collection-update-request.js';
 
-export class HttpCollectionService<TType, TResponseExt = never> {
+export class HttpCollectionNode<TType, TResponseExt = any> {
+  protected [kHttpClientContext]: HttpClientContext;
 
-  constructor(
-      readonly resource: CollectionResourceInfo,
-      protected _handler: HttpRequestHandler
-  ) {
+  constructor(context: HttpClientContext) {
+    this[kHttpClientContext] = context;
   }
 
   create(
@@ -43,7 +42,7 @@ export class HttpCollectionService<TType, TResponseExt = never> {
           StrictOmit<CommonHttpRequestOptions, 'observe'> & { observe: 'events' }
   ): CollectionCreateRequest<HttpEvent, TType, HttpResponse<TType> & TResponseExt>
   create(data: PartialInput<TType>, options?: CollectionCreateQueryOptions & CommonHttpRequestOptions) {
-    return new CollectionCreateRequest(this._handler, this.resource, data, options);
+    return new CollectionCreateRequest(this[kHttpClientContext], data, options);
   }
 
   delete(
@@ -59,7 +58,7 @@ export class HttpCollectionService<TType, TResponseExt = never> {
       options?: StrictOmit<CommonHttpRequestOptions, 'observe'> & { observe: 'events' }
   ): CollectionDeleteRequest<HttpEvent, HttpResponse<never> & TResponseExt>
   delete(id: any, options?: CommonHttpRequestOptions) {
-    return new CollectionDeleteRequest(this._handler, this.resource, id, options);
+    return new CollectionDeleteRequest(this[kHttpClientContext], id, options);
   }
 
   deleteMany(
@@ -75,7 +74,7 @@ export class HttpCollectionService<TType, TResponseExt = never> {
           StrictOmit<CommonHttpRequestOptions, 'observe'> & { observe: 'events' }
   ): CollectionDeleteManyRequest<HttpEvent, HttpResponse<never> & TResponseExt>
   deleteMany(options?: CollectionDeleteManyQueryOptions & CommonHttpRequestOptions) {
-    return new CollectionDeleteManyRequest(this._handler, this.resource, options);
+    return new CollectionDeleteManyRequest(this[kHttpClientContext], options);
   }
 
   get(
@@ -94,7 +93,7 @@ export class HttpCollectionService<TType, TResponseExt = never> {
           StrictOmit<CommonHttpRequestOptions, 'observe'> & { observe: 'events' }
   ): CollectionGetRequest<HttpEvent, TType, HttpResponse<TType> & TResponseExt>
   get(id: any, options?: CollectionGetQueryOptions & CommonHttpRequestOptions) {
-    return new CollectionGetRequest(this._handler, this.resource, id, options);
+    return new CollectionGetRequest(this[kHttpClientContext], id, options);
   }
 
   search(
@@ -110,7 +109,7 @@ export class HttpCollectionService<TType, TResponseExt = never> {
           StrictOmit<CommonHttpRequestOptions, 'observe'> & { observe: 'events' }
   ): CollectionSearchRequest<HttpEvent, TType, HttpResponse<TType> & TResponseExt>
   search(options?: CollectionSearchQueryOptions & CommonHttpRequestOptions) {
-    return new CollectionSearchRequest(this._handler, this.resource, options);
+    return new CollectionSearchRequest(this[kHttpClientContext], options);
   }
 
   update(
@@ -129,7 +128,7 @@ export class HttpCollectionService<TType, TResponseExt = never> {
           StrictOmit<CommonHttpRequestOptions, 'observe'> & { observe: 'events' }
   ): CollectionSearchRequest<HttpEvent, TType, HttpResponse<TType> & TResponseExt>
   update(id: any, data: PartialInput<TType>, options?: CollectionUpdateQueryOptions & CommonHttpRequestOptions) {
-    return new CollectionUpdateRequest(this._handler, this.resource, id, data, options);
+    return new CollectionUpdateRequest(this[kHttpClientContext], id, data, options);
   }
 
   updateMany(
@@ -148,7 +147,7 @@ export class HttpCollectionService<TType, TResponseExt = never> {
           StrictOmit<CommonHttpRequestOptions, 'observe'> & { observe: 'events' }
   ): CollectionSearchRequest<HttpEvent, TType, HttpResponse<TType> & TResponseExt>
   updateMany(data: PartialInput<TType>, options?: CollectionUpdateManyQueryOptions & CommonHttpRequestOptions) {
-    return new CollectionUpdateManyRequest(this._handler, this.resource, data, options);
+    return new CollectionUpdateManyRequest(this[kHttpClientContext], data, options);
   }
 
 }

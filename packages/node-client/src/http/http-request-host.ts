@@ -4,29 +4,31 @@ import {
   HttpRequest, HttpResponse,
   uid
 } from '@opra/common';
+import { kHttpClientContext } from '../constants.js';
 import {
   CommonHttpRequestOptions,
+  HttpClientContext,
   HttpEvent,
-  HttpRequestHandler, ObserveType
+  ObserveType
 } from './http-types.js';
 
-const kHandler = Symbol('kHandler');
 const kRequest = Symbol('kRequest');
 
 export class HttpRequestHost<T, TBody, TResponse extends HttpResponse<TBody>> extends Observable<T> {
-  protected static kHandler = kHandler;
+  protected static kContext = kHttpClientContext;
   protected static kRequest = kRequest;
   readonly contentId: string;
+  protected [kHttpClientContext]: HttpClientContext;
   protected [kRequest]: HttpRequest;
 
   constructor(
-      handler: HttpRequestHandler,
+      context: HttpClientContext,
       options?: CommonHttpRequestOptions
   ) {
     super((subscriber) => {
-      handler(options?.observe || 'body', this[kRequest]).subscribe((subscriber));
+      context.send(options?.observe || 'body', this[kRequest]).subscribe((subscriber));
     });
-    this[kHandler] = handler;
+    this[kHttpClientContext] = context;
     this[kRequest] = new HttpRequest(options?.http);
     this.contentId = uid(6);
   }
@@ -45,7 +47,7 @@ export class HttpRequestHost<T, TBody, TResponse extends HttpResponse<TBody>> ex
   async fetch(observe: 'body'): Promise<TBody>
   async fetch(observe: 'response'): Promise<TResponse>
   async fetch(observe?: ObserveType): Promise<TBody | TResponse | HttpEvent> {
-    return lastValueFrom(this[kHandler](observe || 'body', this[kRequest]));
+    return lastValueFrom(this[kHttpClientContext].send(observe || 'body', this[kRequest]));
   }
 
   with(cb: (_this: this) => void): this {

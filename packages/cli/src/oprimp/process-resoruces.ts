@@ -11,20 +11,10 @@ export async function processResources(ctx: ServiceGenerationContext) {
 
   const serviceTs = new TsFile();
   serviceTs.header = ctx.fileHeader;
-  serviceTs.addImport('@opra/client', 'OpraHttpClient');
+  serviceTs.addImport('@opra/client', 'HttpServiceBase');
 
-  serviceTs.content = `
-const kClient = Symbol('client');
-  
-export class ${ctx.name} {
-  static kClient = kClient;
-  [kClient]: OpraHttpClient;
-  
-  constructor(client: OpraHttpClient) {
-    this[kClient] = client;
-  }
-  `;
-
+  serviceTs.content = `  
+export class ${ctx.name} extends HttpServiceBase {\n`;
 
   const resourceNames = Array.from(ctx.document.resources.keys()).sort();
 
@@ -35,23 +25,23 @@ export class ${ctx.name} {
  */`;
 
     if (resource instanceof CollectionResourceInfo) {
-      serviceTs.addImport('@opra/client', 'HttpCollectionService');
+      serviceTs.addImport('@opra/client', 'HttpCollectionNode');
       serviceTs.addImport('./types/' + resource.dataType.name + ctx.extension, resource.dataType.name);
       const methods = resource.getHandlerNames()
           .filter(x => x !== 'count')
           .map(x => `'${x}'`).join(' | ');
       serviceTs.content += `
-  get ${resource.name}(): Pick<HttpCollectionService<${resource.dataType.name}, never>, ${methods}> {
-    return this[kClient].collection('${resource.name}');
+  get ${resource.name}(): Pick<HttpCollectionNode<${resource.dataType.name}>, ${methods}> {
+    return this.$client.collection('${resource.name}');
   }\n`;
     } else if (resource instanceof SingletonResourceInfo) {
-      serviceTs.addImport('@opra/client', 'HttpSingletonService');
+      serviceTs.addImport('@opra/client', 'HttpSingletonNode');
       serviceTs.addImport('./types/' + resource.dataType.name + ctx.extension, resource.dataType.name);
       const methods = resource.getHandlerNames()
           .map(x => `'${x}'`).join(' | ');
       serviceTs.content += `
-  get ${resource.name}(): Pick<HttpSingletonService<${resource.dataType.name}, never>, ${methods}> {
-    return this[kClient].singleton('${resource.name}');
+  get ${resource.name}(): Pick<HttpSingletonNode<${resource.dataType.name}>, ${methods}> {
+    return this.$client.singleton('${resource.name}');
   }\n`;
     }
   }
