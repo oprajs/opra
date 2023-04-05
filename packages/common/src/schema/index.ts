@@ -1,31 +1,90 @@
-import 'reflect-metadata';
+import { SpecVersion as _SpecVersion } from './constants.js';
+import { ComplexType as _ComplexType } from './data-type/complex-type.interface.js'
+import { DataType as _DataType, DataTypeBase as _DataTypeBase } from './data-type/data-type.interface.js'
+import {
+  EnumArray as _EnumArray,
+  EnumObject as _EnumObject,
+  EnumThunk as _EnumThunk,
+  EnumType as _EnumType
+} from './data-type/enum-type.interface.js'
+import { MappedType as _MappedType } from './data-type/mapped-type.interface.js'
+import { SimpleType as _SimpleType } from './data-type/simple-type.interface.js'
+import { UnionType as _UnionType } from './data-type/union-type.interface.js'
+import {
+  ApiDocument as _ApiDocument,
+  ContactPerson as _ContactPerson,
+  DocumentInfo as _DocumentInfo,
+  LicenseInfo as _LicenseInfo,
+  ServerInfo as _ServerInfo
+} from './document.interface.js';
+import { Collection as _Collection } from './resource/collection.interface.js';
+import { Container as _Container } from './resource/container.interface.js';
+import { Endpoint as _Endpoint } from './resource/endpoint.interface.js';
+import { Resource as _Resource, ResourceBase as _ResourceBase } from './resource/resource.interface.js';
+import { Singleton as _Singleton } from './resource/singleton.interface.js';
+import {
+  isCollection as _isCollection,
+  isComplexType as _isComplexType,
+  isContainer as _isContainer,
+  isDataType as _isDataType,
+  isEnumType as _isEnumType,
+  isMappedType as _isMappedType,
+  isResource as _isResource,
+  isSimpleType as _isSimpleType,
+  isSingleton as _isSingleton,
+  isUnionType as _isUnionType
+} from './type-guards.js';
 
-export * from './constants.js';
-export * from './types.js';
-export * from './opra-schema.definition.js';
+export namespace OpraSchema {
 
-export * from './decorators/opr-complex-type.decorator.js';
-export * from './decorators/opr-field.decorator.js';
-export * from './decorators/opr-collection-resource.decorator.js';
-export * from './decorators/opr-singleton-resource.decorator.js';
-export * from './decorators/opr-resolver.decorator.js';
+  // Re-export constants and types
+  export const SpecVersion = _SpecVersion;
+  export type SpecVersion = _SpecVersion;
 
-export * from './interfaces/resource-container.interface.js';
+  export type EnumObject = _EnumObject;
+  export type EnumArray = _EnumArray;
+  export type EnumThunk = _EnumThunk;
+  export type ApiDocument = _ApiDocument;
+  export type ContactPerson = _ContactPerson;
+  export type ServerInfo = _ServerInfo;
+  export type LicenseInfo = _LicenseInfo;
+  export type DocumentInfo = _DocumentInfo;
+  export type DataTypeBase = _DataTypeBase;
+  export type ResourceBase = _ResourceBase;
 
-export * from './implementation/document-builder.js';
-export * from './implementation/opra-document.js';
-export * from './implementation/data-type/data-type.js';
-export * from './implementation/data-type/complex-type.js';
-export * from './implementation/data-type/simple-type.js';
-export * from './implementation/data-type/union-type.js';
-export * from './implementation/resource/resource-info.js';
-export * from './implementation/resource/container-resource-info.js';
-export * from './implementation/resource/collection-resource-info.js';
-export * from './implementation/resource/singleton-resource-info.js';
-export * from './implementation/query/index.js';
+  // Re-export namespaces
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  export import DataType = _DataType;
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  export import ComplexType = _ComplexType;
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  export import EnumType = _EnumType;
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  export import MappedType = _MappedType;
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  export import SimpleType = _SimpleType;
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  export import UnionType = _UnionType;
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  export import Resource = _Resource;
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  export import Collection = _Collection;
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  export import Container = _Container;
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  export import Singleton = _Singleton;
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  export import Endpoint = _Endpoint;
 
-export * from './type-helpers/mixin-type.helper.js';
-export * from './type-helpers/extend-type.helper.js';
-export * from './implementation/schema-builder/extract-type-metadata.util.js';
-export * from './implementation/schema-builder/extract-resource-metadata.util.js';
+  export const isDataType = _isDataType;
+  export const isComplexType = _isComplexType;
+  export const isEnumType = _isEnumType;
+  export const isMappedType = _isMappedType;
+  export const isSimpleType = _isSimpleType;
+  export const isUnionType = _isUnionType;
+  export const isResource = _isResource;
+  export const isCollection = _isCollection;
+  export const isContainer = _isContainer;
+  export const isSingleton = _isSingleton;
 
+}

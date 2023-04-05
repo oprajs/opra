@@ -1,66 +1,67 @@
 import {
-  OprCollectionResource,
-  OprSearchResolver
+  Collection,
 } from '@opra/common';
-import { ICollectionResource } from '../../../../src/interfaces/resource.interface.js';
-import { Customer } from '../entities/customer.entity.js';
-import { CustomerNotes } from '../entities/customer-notes.entity.js';
+import { Customer, CustomerNotes } from '../../../../../common/test/_support/test-doc/index.js';
 
-@OprCollectionResource(Customer, {
+@Collection(Customer, {
   description: 'Customer resource',
-  keyFields: 'id'
+  primaryKey: 'id'
 })
-export class CustomersResource implements ICollectionResource<CustomerNotes> {
+export class CustomersResource {
   public initialized = false;
   public closed = false;
 
+  @Collection.CreateOperation()
   create() {
     return new CustomerNotes();
   }
 
+  @Collection.GetOperation()
   get() {
     return new CustomerNotes();
   }
 
-  count() {
-    return 1;
-  }
-
+  @Collection.DeleteOperation()
   delete() {
     return true;
   }
 
+  @Collection.DeleteManyOperation()
   deleteMany() {
     return 1;
   }
 
+  @Collection.UpdateOperation()
   update() {
     return new CustomerNotes();
   }
 
+  @Collection.UpdateManyOperation()
   updateMany() {
     return 1;
   }
 
-  @OprSearchResolver({
-    sortFields: ['id', 'givenName', 'familyName', 'gender', 'birthDate'],
+  @Collection.SearchOperation({
+    sortElements: ['id', 'givenName', 'familyName', 'gender', 'birthDate', 'address.city'],
     defaultSort: ['givenName'],
     filters: [
-      {field: 'id', operators: ['=']},
-      {field: 'countryCode', operators: ['=', 'in', '!in']},
-      {field: 'city', operators: ['=', 'like', '!like']},
-      {field: 'vip'},
+      {element: 'id', operators: ['=']},
+      {element: 'countryCode', operators: ['=', 'in', '!in']},
+      {element: 'city', operators: ['=', 'like', '!like']},
+      {element: 'vip'},
     ]
   })
   search() {
     return [new CustomerNotes()];
   }
 
-  init() {
+  @Collection.OnInit()
+  onInit() {
     this.initialized = true;
   }
 
-  shutDown() {
+  @Collection.OnShutdown()
+  onShutdown() {
     this.closed = true;
   }
 

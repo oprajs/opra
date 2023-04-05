@@ -1,14 +1,8 @@
-import * as _SqbConnect from '@sqb/connect';
+import './augmentation/document-factory.augmentation.js';
+import './augmentation/mapped-type.augmentation.js';
+import './augmentation/union-type.augmentation.js';
 
 export * from './sqb-adapter.js';
-export * from './base-entity-resource.js';
-export * from './base-entity-service.js';
-export type { _SqbConnect as SqbConnect };
-
-const optionalsSymbol = Symbol.for('opra.optional-lib.sqb-connect');
-globalThis[optionalsSymbol] = globalThis[optionalsSymbol] || {};
-globalThis[optionalsSymbol].SqbConnect = _SqbConnect;
-
-declare global {
-  export type SqbConnect = typeof _SqbConnect;
-}
+export * from './sqb-collection-resource.js';
+export * from './sqb-entity-service.js';
+export * from './sqb-singleton-resource.js';

@@ -1,11 +1,11 @@
-import { OprCollectionResource, OprSearchResolver } from '@opra/common';
+import { Collection } from '@opra/common';
 import { SqbClient } from '@sqb/connect';
-import { BaseEntityResource, BaseEntityService } from '../../../../src/index.js';
+import { SqbCollectionResource, SqbEntityService } from '../../../../src/index.js';
 import { Customer } from '../entities/customer.entity.js';
 import { CustomerService } from '../services/customer.service.js';
 
-@OprCollectionResource(Customer)
-export class CustomersResource extends BaseEntityResource<Customer> {
+@Collection(Customer)
+export class CustomersResource extends SqbCollectionResource<Customer> {
   readonly customersService: CustomerService;
 
   constructor(readonly db: SqbClient) {
@@ -13,12 +13,12 @@ export class CustomersResource extends BaseEntityResource<Customer> {
     this.customersService = new CustomerService(db);
   }
 
-  @OprSearchResolver({
-    sortFields: ['id', 'givenName', 'familyName', 'gender']
+  @Collection.SearchOperation({
+    sortElements: ['id', 'givenName', 'familyName', 'gender']
   })
   search;
 
-  getService(): BaseEntityService<Customer> {
+  getService(): SqbEntityService<Customer> {
     return this.customersService;
   }
 

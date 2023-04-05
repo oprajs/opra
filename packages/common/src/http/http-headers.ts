@@ -1,4 +1,4 @@
-import { ResponsiveMap } from '../helpers/responsive-map.js';
+import { ResponsiveMap } from '../helpers/index.js';
 import { HttpHeaderCodes } from './enums/http-headers-codes.enum.js';
 
 const knownKeys = Object.keys(HttpHeaderCodes);
@@ -9,11 +9,14 @@ const kEntries = Symbol('kEntries');
 const kSize = Symbol('kSize');
 const kOptions = Symbol('kOptions');
 
-type HeaderValueType = string | number | boolean;
-export type HttpHeadersInit = string | Headers | HttpHeaders | Map<string, any> | Record<string, string | string[]>;
 
-export interface HttpHeadersOptions {
-  onChange?: () => void;
+export namespace HttpHeaders {
+  export type Value = string | number | boolean;
+  export type Initiator = string | Headers | HttpHeaders | Map<string, any> | Record<string, string | string[]>;
+
+  export interface Options {
+    onChange?: () => void;
+  }
 }
 
 export class HttpHeaders {
@@ -23,9 +26,9 @@ export class HttpHeaders {
 
   protected [kEntries] = new ResponsiveMap<string, string[]>();
   protected [kSize] = 0;
-  protected [kOptions]: HttpHeadersOptions;
+  protected [kOptions]: HttpHeaders.Options;
 
-  constructor(init?: HttpHeadersInit, options?: HttpHeadersOptions) {
+  constructor(init?: HttpHeaders.Initiator, options?: HttpHeaders.Options) {
     this[kOptions] = {...options, onChange: undefined};
     if (init)
       this.appendAll(init);
@@ -40,7 +43,7 @@ export class HttpHeaders {
    * Appends a new value to the existing set of values for a header
    * and returns this instance
    */
-  append(name: string, value: HeaderValueType | HeaderValueType[]): this {
+  append(name: string, value: HttpHeaders.Value | HttpHeaders.Value[]): this {
     this._append(name, value);
     this.changed();
     return this;
@@ -50,7 +53,7 @@ export class HttpHeaders {
    * Appends multiple values to the existing set of values for a header
    * and returns this instance
    */
-  appendAll(headers: HttpHeadersInit): this {
+  appendAll(headers: HttpHeaders.Initiator): this {
     if (typeof headers === 'string') {
       headers.split('\n').forEach(line => {
         const index = line.indexOf(':');
@@ -84,7 +87,7 @@ export class HttpHeaders {
   /**
    * Deletes values for a given header
    */
-  delete(name: string, value?: HeaderValueType | HeaderValueType[]): this {
+  delete(name: string, value?: HttpHeaders.Value | HttpHeaders.Value[]): this {
     if (this._delete(name, value))
       this.changed();
     return this;
@@ -168,8 +171,11 @@ export class HttpHeaders {
    * Sets or modifies a value for a given header.
    * If the header already exists, its value is replaced with the given value
    */
-  set(name: string, value: HeaderValueType | HeaderValueType[]): this {
-    this._set(name, String(value));
+  set(name: string, value: HttpHeaders.Value | HttpHeaders.Value[] | undefined): this {
+    if (!value)
+      this._delete(name);
+    else
+      this._set(name, String(value));
     this.changed();
     return this;
   }
@@ -180,7 +186,7 @@ export class HttpHeaders {
     return this;
   }
 
-  protected _append(name: string, value: HeaderValueType | HeaderValueType[]) {
+  protected _append(name: string, value: HttpHeaders.Value | HttpHeaders.Value[]) {
     const i = knownKeysLower.indexOf(name);
     const normalizedName = knownKeys[i] || name;
     let values = this[kEntries].get(normalizedName);
@@ -195,7 +201,7 @@ export class HttpHeaders {
     this[kSize] = -oldSize + values.length;
   }
 
-  protected _delete(name: string, value?: HeaderValueType | HeaderValueType[]): boolean {
+  protected _delete(name: string, value?: HttpHeaders.Value | HttpHeaders.Value[]): boolean {
     const oldValues = this[kEntries].get(name);
     if (!oldValues)
       return false;

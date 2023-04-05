@@ -3,8 +3,7 @@ import {
   BooleanLiteral,
   ComparisonExpression, DateLiteral,
   Expression, LogicalExpression, NullLiteral,
-  NumberLiteral, ParenthesesExpression,
-  parseFilter,
+  NumberLiteral, ParenthesesExpression, parseFilter,
   QualifiedIdentifier,
   StringLiteral, TimeLiteral
 } from '@opra/common';

@@ -9,6 +9,7 @@
       "@opra/*": ["../../build/*"]
     },
     "sourceMap": false,
+    "inlineSourceMap": false,
     "noEmit": false,
     "declaration": false,
   },

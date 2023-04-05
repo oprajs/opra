@@ -1,11 +1,11 @@
-import { OprCollectionResource, OprSearchResolver } from '@opra/common';
+import { Collection } from '@opra/common';
 import { SqbClient } from '@sqb/connect';
-import { BaseEntityResource, BaseEntityService } from '../../../../src/index.js';
+import { SqbCollectionResource, SqbEntityService } from '../../../../src/index.js';
 import { Country } from '../entities/country.entity.js';
 import { CountryService } from '../services/country.service.js';
 
-@OprCollectionResource(Country)
-export class CountriesResource extends BaseEntityResource<Country> {
+@Collection(Country)
+export class CountriesResource extends SqbCollectionResource<Country> {
   readonly countryService: CountryService;
 
   constructor(readonly db: SqbClient) {
@@ -13,10 +13,7 @@ export class CountriesResource extends BaseEntityResource<Country> {
     this.countryService = new CountryService(db);
   }
 
-  @OprSearchResolver()
-  search;
-
-  getService(): BaseEntityService<Country> {
+  getService(): SqbEntityService<Country> {
     return this.countryService;
   }
 

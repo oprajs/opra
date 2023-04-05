@@ -4,9 +4,10 @@
     "baseUrl": "./",
     "paths": {
       "@opra/common": ["../common/src"],
-      "@opra/node-client": ["../node-client/src"]
+      "@opra/node-client": ["../node-client/src"],
+      "@opra/client": ["../node-client/src"]
     }
   },
-  "include": ["src", "tmp"],
+  "include": ["src"],
   "exclude": ["node_modules", "test"]
 }

@@ -1,0 +1,12 @@
+{
+  "extends": "../../tsconfig-base.json",
+  "include": ["**/*.ts"],
+  "compilerOptions": {
+    "baseUrl": "./",
+    "paths": {
+      "@opra/core": ["../../packages/core/src/index.ts"],
+      "@opra/common": ["../../packages/common/src/index.ts"],
+      "@opra/sqb": ["../../packages/sqb/src/index.ts"]
+    }
+  }
+}

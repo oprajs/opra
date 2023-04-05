@@ -11,7 +11,7 @@ import i18next, {
 import * as I18next from 'i18next';
 import path from 'path';
 import { Type } from 'ts-gems';
-import { isUrl } from '../utils/index.js';
+import { isUrl } from '../helpers/index.js';
 import { unescapeString } from './string-utils.js';
 
 export type BaseI18n = Type<I18next.i18n>;

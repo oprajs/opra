@@ -29,6 +29,8 @@ function assignMetadata(
 
 export function createOpraParamDecorator(paramType: HandlerParamType): ParameterDecorator {
   return (target, key, index) => {
+    if (!key)
+      return;
     const args =
         Reflect.getMetadata(PARAM_ARGS_METADATA, target.constructor, key) || {};
     Reflect.defineMetadata(

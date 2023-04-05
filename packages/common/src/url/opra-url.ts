@@ -1,5 +1,5 @@
 import { splitString, tokenize } from 'fast-tokenizer';
-import type { HttpParamDefinition } from '../http/http-params.js';
+import type { HttpParams } from '../http/http-params.js';
 import { OpraURLPath } from './opra-url-path.js';
 import { OpraURLPathComponentInit } from './opra-url-path-component.js';
 import { OpraURLSearchParams } from './opra-url-search-params.js';
@@ -39,7 +39,7 @@ export class OpraURL {
   constructor(input?: string | URL | OpraURL, base?: string | URL | OpraURL)
   constructor(input?: string | URL | OpraURL, options?: {
     base?: string | URL | OpraURL,
-    params?: Record<string, HttpParamDefinition>;
+    params?: Record<string, HttpParams.ParamDefinition>;
   })
   constructor(input?: string | URL | OpraURL, arg1?: any) {
     this[kPath] = new OpraURLPath('', {

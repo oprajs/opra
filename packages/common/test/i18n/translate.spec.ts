@@ -1,4 +1,4 @@
-import {translate} from '../../src/index.js';
+import {translate} from '@opra/common';
 
 describe('translate()', function () {
 

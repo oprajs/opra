@@ -2,9 +2,9 @@ import { createServer, IncomingMessage, Server, ServerResponse } from 'http';
 import { AddressInfo } from 'net';
 import { Type } from 'ts-gems';
 import { URL } from 'url';
-import { HttpResponse, HttpResponseInit, joinPath } from '@opra/common';
+import { joinPath } from '@opra/common';
 import {
-  HttpCollectionNode, HttpSingletonNode,
+  HttpCollectionNode, HttpResponse, HttpSingletonNode,
   // BatchRequest,
   OpraHttpClient,
   OpraHttpClientOptions,
@@ -71,7 +71,7 @@ export class OpraTestClient extends OpraHttpClient {
     });
   }
 
-  protected _createResponse(init?: HttpResponseInit): HttpResponse {
+  protected _createResponse(init?: HttpResponse.Initiator): HttpResponse {
     const resp = super._createResponse(init) as HttpResponse & ResponseExt;
     resp.expect = new ApiExpect(resp);
     return resp;

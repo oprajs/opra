@@ -1,13 +1,11 @@
 /* eslint-disable */
-import bodyParser from 'body-parser';
-import express, { Request } from 'express';
-import * as http from 'http';
-import { AddressInfo } from 'net';
-import { OpraDocument } from '@opra/common';
-import { createTestDocument } from '../../core/test/_support/test-app/create-document.js';
-import type { Customer } from '../../core/test/_support/test-app/entities/customer.entity.js';
-import { CustomerNotes } from '../../core/test/_support/test-app/entities/customer-notes.entity.js';
-import { HttpRequestHost, OpraHttpClient } from '../src/index.js';
+// import bodyParser from 'body-parser';
+// import express, { Request } from 'express';
+// import * as http from 'http';
+// import { AddressInfo } from 'net';
+// import { ApiDocument } from '@opra/common';
+// import { createTestDocument } from '../../core/test/_support/test-app/create-document.js';
+// import { HttpRequestObservable, OpraHttpClient } from '../src/index.js';
 
 describe('OpraClient:Batch', function () {
   //

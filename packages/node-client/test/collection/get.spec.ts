@@ -1,5 +1,4 @@
-import { HttpResponse } from '@opra/common';
-import { OpraHttpClient } from '../../src/index.js';
+import { HttpResponse, OpraHttpClient } from '../../src/index.js';
 import { createMockServer } from '../_support/create-mock-server.js';
 
 describe('Collection.get', function () {

@@ -107,13 +107,13 @@ function runCommands() {
                 return next();
               let content = await fs.readFile(src, 'utf-8');
               let overwritten = false;
-              content = content.replaceAll(/'i18next'/g, (v) => {
+              content = content.replace(/'i18next'/g, (v) => {
                 overwritten = true;
                 return `'@browsery/i18next'`;
-              }).replaceAll(/['"]antlr4['"]/g, () => {
+              }).replace(/['"]antlr4['"]/g, () => {
                 overwritten = true;
                 return `'@browsery/antlr4'`;
-              }).replaceAll(/['"]antlr4\/src\/antlr4\/(.*)['"]/g, (v, g1) => {
+              }).replace(/['"]antlr4\/src\/antlr4\/(.*)['"]/g, (v, g1) => {
                 overwritten = true;
                 return `'@browsery/antlr4/typings/${g1}'`;
               });

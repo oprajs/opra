@@ -1,9 +1,9 @@
-import { HttpParams, HttpParamsInit, HttpParamsOptions } from '../http/http-params.js';
-import { IntegerCodec } from '../http/param-codec/integer-codec.js';
+import { IntegerCodec } from '../http/codecs/integer-codec.js';
+import { HttpParams } from '../http/http-params.js';
 
 export class OpraURLSearchParams extends HttpParams {
 
-  constructor(init?: HttpParamsInit, options?: HttpParamsOptions) {
+  constructor(init?: HttpParams.Initiator, options?: HttpParams.Options) {
     super(init, {
       ...options,
       params: {

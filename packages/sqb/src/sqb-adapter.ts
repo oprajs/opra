@@ -1,126 +1,197 @@
 import isNil from 'lodash.isnil';
 import omitBy from 'lodash.omitby';
-import { OpraQuery } from '@opra/common';
+import {
+  CollectionCreateQuery,
+  CollectionDeleteManyQuery,
+  CollectionDeleteQuery,
+  CollectionGetQuery,
+  CollectionSearchQuery,
+  CollectionUpdateManyQuery,
+  CollectionUpdateQuery,
+  OpraQuery,
+  SingletonCreateQuery,
+  SingletonDeleteQuery,
+  SingletonGetQuery,
+  SingletonUpdateQuery
+} from '@opra/core';
 import { Repository } from '@sqb/connect';
-import type { BaseEntityService } from './base-entity-service';
 import { convertFilter } from './convert-filter.js';
 
 export namespace SQBAdapter {
 
-  export function prepare(query: OpraQuery): {
-    method: 'create' | 'count' | 'findByPk' | 'findAll' | 'update' | 'updateAll' | 'destroy' | 'destroyAll';
-    options: any,
+  export const parseFilter = convertFilter;
+  export type parseFilter = typeof convertFilter;
+
+  export function parseCollectionCreateQuery(query: CollectionCreateQuery) {
+    const options: Repository.CreateOptions = omitBy({
+      pick: query.pick?.length ? query.pick : undefined,
+      omit: query.omit?.length ? query.omit : undefined,
+      include: query.include?.length ? query.include : undefined,
+    }, isNil);
+    return {
+      method: query.method,
+      data: query.data,
+      options
+    };
+  }
+
+  export function parseCollectionDeleteQuery(query: CollectionDeleteQuery) {
+    const options = {};
+    const keyValue = query.keyValue;
+    return {
+      method: query.method,
+      keyValue,
+      options
+    };
+  }
+
+  export function parseCollectionDeleteManyQuery(query: CollectionDeleteManyQuery) {
+    const options: Repository.DestroyOptions = omitBy({
+      filter: parseFilter(query.filter)
+    }, isNil)
+    return {
+      method: query.method,
+      options
+    };
+  }
+
+  export function parseCollectionGetQuery(query: CollectionGetQuery) {
+    const options: Repository.FindOneOptions = omitBy({
+      pick: query.pick?.length ? query.pick : undefined,
+      omit: query.omit?.length ? query.omit : undefined,
+      include: query.include?.length ? query.include : undefined,
+    }, isNil);
+    const keyValue = query.keyValue;
+    return {
+      method: query.method,
+      keyValue,
+      options
+    };
+  }
+
+  export function parseSingletonGetQuery(query: SingletonGetQuery) {
+    const options: Repository.FindOneOptions = omitBy({
+      pick: query.pick?.length ? query.pick : undefined,
+      omit: query.omit?.length ? query.omit : undefined,
+      include: query.include?.length ? query.include : undefined,
+    }, isNil);
+    return {
+      method: query.method,
+      options
+    };
+  }
+
+  export function parseCollectionUpdateQuery(query: CollectionUpdateQuery) {
+    const options: Repository.UpdateOptions = omitBy({
+      pick: query.pick?.length ? query.pick : undefined,
+      omit: query.omit?.length ? query.omit : undefined,
+      include: query.include?.length ? query.include : undefined,
+    }, isNil);
+    return {
+      method: query.method,
+      keyValue: query.keyValue,
+      data: query.data,
+      options
+    };
+  }
+
+  export function parseCollectionUpdateManyQuery(query: CollectionUpdateManyQuery) {
+    const options: Repository.DestroyOptions = omitBy({
+      filter: parseFilter(query.filter)
+    }, isNil);
+    return {
+      method: query.method,
+      data: query.data,
+      options
+    };
+  }
+
+  export function parseCollectionSearchQuery(query: CollectionSearchQuery) {
+    const options: Repository.FindAllOptions = omitBy({
+      pick: query.pick?.length ? query.pick : undefined,
+      omit: query.omit?.length ? query.omit : undefined,
+      include: query.include?.length ? query.include : undefined,
+      sort: query.sort?.length ? query.sort : undefined,
+      limit: query.limit,
+      offset: query.skip,
+      distinct: query.distinct,
+      total: query.count,
+      filter: parseFilter(query.filter)
+    }, isNil)
+    return {
+      method: query.method,
+      options
+    };
+  }
+
+  export function parseSingletonCreateQuery(query: SingletonCreateQuery) {
+    const options: Repository.CreateOptions = omitBy({
+      pick: query.pick?.length ? query.pick : undefined,
+      omit: query.omit?.length ? query.omit : undefined,
+      include: query.include?.length ? query.include : undefined,
+    }, isNil);
+    return {
+      method: query.method,
+      data: query.data,
+      options
+    };
+  }
+
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  export function parseSingletonDeleteQuery(query: SingletonDeleteQuery) {
+    const options = {};
+    return {
+      method: query.method,
+      options,
+    };
+  }
+
+  export function parseSingletonUpdateQuery(query: SingletonUpdateQuery) {
+    const options: Repository.UpdateOptions = omitBy({
+      pick: query.pick?.length ? query.pick : undefined,
+      omit: query.omit?.length ? query.omit : undefined,
+      include: query.include?.length ? query.include : undefined,
+    }, isNil);
+    return {
+      method: query.method,
+      data: query.data,
+      options
+    };
+  }
+
+  export function parseQuery(query: OpraQuery): {
+    method: string;
     keyValue?: any;
-    values?: any;
-    args: any[]
+    data?: any;
+    options: any;
   } {
-    switch (query.method) {
-      case 'create': {
-        const options: Repository.CreateOptions = omitBy({
-          pick: query.pick?.length ? query.pick : undefined,
-          omit: query.omit?.length ? query.omit : undefined,
-          include: query.include?.length ? query.include : undefined,
-        }, isNil);
-        const {data} = query;
-        return {
-          method: 'create',
-          values: data,
-          options,
-          args: [data, options]
-        };
+    if (query.subject === 'Collection') {
+      switch (query.method) {
+        case 'create':
+          return parseCollectionCreateQuery(query);
+        case 'get':
+          return parseCollectionGetQuery(query);
+        case 'delete':
+          return parseCollectionDeleteQuery(query);
+        case 'deleteMany':
+          return parseCollectionDeleteManyQuery(query);
+        case 'update':
+          return parseCollectionUpdateQuery(query);
+        case 'updateMany':
+          return parseCollectionUpdateManyQuery(query);
+        case 'search':
+          return parseCollectionSearchQuery(query);
       }
-      case 'count': {
-        const options: BaseEntityService.CountOptions = omitBy({
-          filter: convertFilter(query.filter)
-        }, isNil)
-        return {
-          method: 'count',
-          options,
-          args: [options]
-        };
-      }
-      case 'get': {
-        if (query.kind === 'CollectionGetQuery') {
-          const options: Repository.FindOneOptions = omitBy({
-            pick: query.pick?.length ? query.pick : undefined,
-            omit: query.omit?.length ? query.omit : undefined,
-            include: query.include?.length ? query.include : undefined,
-          }, isNil);
-          const keyValue = query.keyValue;
-          return {
-            method: 'findByPk',
-            keyValue,
-            options,
-            args: [keyValue, options]
-          };
-        }
-        break;
-      }
-      case 'search': {
-        const options: BaseEntityService.SearchOptions = omitBy({
-          pick: query.pick?.length ? query.pick : undefined,
-          omit: query.omit?.length ? query.omit : undefined,
-          include: query.include?.length ? query.include : undefined,
-          sort: query.sort?.length ? query.sort : undefined,
-          limit: query.limit,
-          offset: query.skip,
-          distinct: query.distinct,
-          total: query.count,
-          filter: convertFilter(query.filter)
-        }, isNil)
-        return {
-          method: 'findAll',
-          options,
-          args: [options]
-        };
-      }
-      case 'update': {
-        const options: Repository.UpdateOptions = omitBy({
-          pick: query.pick?.length ? query.pick : undefined,
-          omit: query.omit?.length ? query.omit : undefined,
-          include: query.include?.length ? query.include : undefined,
-        }, isNil);
-        const {data} = query;
-        const keyValue = query.keyValue;
-        return {
-          method: 'update',
-          keyValue: query.keyValue,
-          values: data,
-          options,
-          args: [keyValue, data, options]
-        };
-      }
-      case 'updateMany': {
-        const options: Repository.DestroyOptions = omitBy({
-          filter: convertFilter(query.filter)
-        }, isNil);
-        const {data} = query;
-        return {
-          method: 'updateAll',
-          values: data,
-          options,
-          args: [data, options]
-        };
-      }
-      case 'delete': {
-        const options = {};
-        const keyValue = query.keyValue;
-        return {
-          method: 'destroy',
-          keyValue,
-          options,
-          args: [keyValue, options]
-        };
-      }
-      case 'deleteMany': {
-        const options: Repository.DestroyOptions = omitBy({
-          filter: convertFilter(query.filter)
-        }, isNil)
-        return {
-          method: 'destroyAll',
-          options,
-          args: [options]
-        };
+    } else if (query.subject === 'Singleton') {
+      switch (query.method) {
+        case 'create':
+          return parseSingletonCreateQuery(query);
+        case 'delete':
+          return parseSingletonDeleteQuery(query);
+        case 'get':
+          return parseSingletonGetQuery(query);
+        case 'update':
+          return parseSingletonUpdateQuery(query);
       }
     }
     throw new Error(`Unimplemented query method "${(query as any).method}"`);
