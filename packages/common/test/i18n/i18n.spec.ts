@@ -1,13 +1,12 @@
-import {fileURLToPath} from 'node:url';
 import path from 'path';
-import {i18n, translate} from '../../src/index.js';
+import { getStackFileName, i18n, translate } from '@opra/common';
 
-const dirname = path.dirname(fileURLToPath(import.meta.url));
+const dirname = path.dirname(getStackFileName());
 
 describe('I18n', function () {
 
   beforeAll(async () => {
-    i18n.registerLocaleDir(path.join(dirname, '_support/locale'));
+    i18n.registerLocaleDir(path.join(dirname, '../_support/locale'));
     await i18n.init({
       defaultNS: 'translate',
       lng: 'en',
@@ -25,7 +24,7 @@ describe('I18n', function () {
           }
         }
       },
-      resourceDirs: [path.join(dirname, '_support/locale2')]
+      resourceDirs: [path.join(dirname, '../_support/locale2')]
     })
   });
 
@@ -47,12 +46,12 @@ describe('I18n', function () {
 
   it('Should translate array using "deep" method', async () => {
     expect(i18n.deep(['HELLO', '$t(HELLO). How are you'], {name: 'John'}))
-      .toStrictEqual(['HELLO', 'Hello John. How are you']);
+        .toStrictEqual(['HELLO', 'Hello John. How are you']);
   })
 
   it('Should translate object using "deep" method', async () => {
     expect(i18n.deep({a: 'HELLO', b: '$t(HELLO). How are you'}, {name: 'John'}))
-      .toStrictEqual({a: 'HELLO', b: 'Hello John. How are you'});
+        .toStrictEqual({a: 'HELLO', b: 'Hello John. How are you'});
   })
 
   it('Should "deep" method translate Translating object within an object', async () => {
@@ -62,21 +61,21 @@ describe('I18n', function () {
       c: null,
       d: 1
     }))
-      .toStrictEqual({a: 'Hello Jena', b: 'Hello Mike', c: null, d: 1});
+        .toStrictEqual({a: 'Hello Jena', b: 'Hello Mike', c: null, d: 1});
   })
 
   it('Should "deep" method ignore built-in objects', async () => {
     const input = [Buffer.from(''), () => 0, Symbol('x'), /a/,
       new Map(), new Set(), new WeakMap(), new WeakSet()];
     expect(i18n.deep(input))
-      .toStrictEqual(input);
+        .toStrictEqual(input);
   })
 
   it('Should "deep" method ignore key using custom function', async () => {
     const input = ['$t(ok)', '$t(OK)'];
     await i18n.changeLanguage('tr');
     expect(i18n.deep(input, {ignore: (v) => v === '$t(OK)'}))
-      .toStrictEqual(['tamam', '$t(OK)']);
+        .toStrictEqual(['tamam', '$t(OK)']);
   })
 
   it('Should handle circular referenced objects', async () => {
@@ -89,7 +88,7 @@ describe('I18n', function () {
     dst1.b = dst2;
     dst2.a = dst1;
     expect(i18n.deep(src1, {name: 'John'}))
-      .toStrictEqual(dst1);
+        .toStrictEqual(dst1);
   })
 
   it('Should add "lowercase" formatter', async () => {

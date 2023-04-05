@@ -1,12 +1,12 @@
 import { UseGuards, UseInterceptors } from '@nestjs/common';
-import { OprCollectionResource } from '@opra/common';
+import { Collection } from '@opra/common';
 import { Cat } from './cat.dto.js';
 import { CatsService } from './cats.service.js';
 import { Interceptor } from './logging.interceptor.js';
 import { Guard } from './request-scoped.guard.js';
 import { UsersService } from './users.service.js';
 
-@OprCollectionResource(Cat, {keyFields: 'id'})
+@Collection(Cat, {primaryKey: 'id'})
 export class CatsResource {
   static COUNTER = 0;
 
@@ -19,6 +19,7 @@ export class CatsResource {
 
   @UseGuards(Guard)
   @UseInterceptors(Interceptor)
+  @Collection.GetOperation()
   get(): any[] {
     return this.catsService.getCats();
   }

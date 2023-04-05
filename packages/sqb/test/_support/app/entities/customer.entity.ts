@@ -1,4 +1,4 @@
-import { MixinType, OprComplexType, OprField } from '@opra/common';
+import { ComplexType, Expose, UnionType } from '@opra/common';
 import { Column, DataType, Entity, Link } from '@sqb/connect';
 import { Address } from '../types/address.type.js';
 import { Person } from '../types/person.type.js';
@@ -6,43 +6,43 @@ import { Country } from './country.entity.js';
 import { CustomerNote } from './customer-note.entity.js';
 import { Record } from './record.entity.js';
 
-@OprComplexType()
+@ComplexType()
 @Entity('customers')
-export class Customer extends MixinType(Record, Person) {
+export class Customer extends UnionType(Record, Person) {
 
-  @OprField()
+  @Expose()
   @Column({dataType: DataType.GUID})
   cid: string;
 
-  @OprField()
+  @Expose()
   @Column()
   identity: string;
 
-  @OprField()
+  @Expose()
   @Column({default: true})
   active: boolean;
 
-  @OprField()
+  @Expose()
   @Column({default: false})
   vip: boolean;
 
-  @OprField()
+  @Expose()
   @Column()
   countryCode: string;
 
-  @OprField()
+  @Expose()
   @Column()
   city?: string;
 
-  @OprField()
+  @Expose()
   @Column({exclusive: true})
   address?: Address;
 
-  @OprField()
+  @Expose()
   @Link().toOne(Country)
   country: Country;
 
-  @OprField()
+  @Expose()
   @Link({exclusive: true}).toMany(CustomerNote, {sourceKey: 'id', targetKey: 'customerId'})
   notes?: CustomerNote[];
 

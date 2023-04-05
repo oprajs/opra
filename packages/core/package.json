@@ -19,8 +19,8 @@
     "_copy_pkg_files": "cp README.md package.json ../../LICENSE ../../build/core && cp ../../package.cjs.json ../../build/core/cjs/package.json",
     "_copyi18n": "cp -R i18n ../../build/core/i18n",
     "lint": "eslint . --max-warnings=0",
-    "test": "NODE_OPTIONS=--experimental-vm-modules npx jest",
-    "cover": "NODE_OPTIONS=--experimental-vm-modules npx jest --collect-coverage",
+    "test": "jest",
+    "cover": "jest --collect-coverage",
     "clean": "npm run clean:src && npm run clean:dist && npm run clean:cover",
     "clean:src": "ts-cleanup -s src --all && ts-cleanup -s test --all",
     "clean:dist": "rimraf ../../build/core",
@@ -32,18 +32,18 @@
     "lodash.omitby": "^4.6.0",
     "power-tasks": "^1.6.4",
     "putil-isplainobject": "^1.1.5",
-    "putil-merge": "^3.10.1",
+    "putil-merge": "^3.10.3",
     "putil-varhelpers": "^1.6.5",
     "strict-typed-events": "^2.3.1"
   },
   "peerDependencies": {
-    "body-parser": ">= 1.0.0",
+    "body-parser": "^1.20.2",
     "express": "^4.x.x || ^5.x.x"
   },
   "devDependencies": {
     "@faker-js/faker": "^7.6.0",
     "@types/dicer": "^0.2.2",
-    "@types/express": "^4.17.16",
+    "@types/express": "^4.17.17",
     "cors": "^2.8.5",
     "ts-gems": "^2.3.0"
   },

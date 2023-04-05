@@ -4,11 +4,12 @@ import ruleJudgmentLib from 'rule-judgment';
 import {
   ArrayExpression, BooleanLiteral,
   ComparisonExpression, DateLiteral,
-  Expression, HttpResponse, LogicalExpression, NullLiteral,
+  Expression, LogicalExpression, NullLiteral,
   NumberLiteral, ParenthesesExpression, parseFilter,
   QualifiedIdentifier,
   StringLiteral, TimeLiteral
 } from '@opra/common';
+import { HttpResponse } from '@opra/node-client';
 
 // @ts-ignore
 const ruleJudgment = typeof ruleJudgmentLib === 'object' ? ruleJudgmentLib.default : ruleJudgmentLib;

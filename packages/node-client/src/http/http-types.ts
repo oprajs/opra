@@ -1,7 +1,9 @@
 // /// <reference lib="dom" />
-import { Observable } from 'rxjs';
-import { HttpHeadersInit, HttpParamsInit, HttpRequest, HttpResponse } from '@opra/common';
+import type { Observable } from 'rxjs';
+import type { HttpHeaders, HttpParams } from '@opra/common';
 import type { OpraHttpClient } from './http-client.js';
+import type { HttpRequest } from './http-request.js';
+import type { HttpResponse } from './http-response.js';
 
 export type ObserveType = 'response' | 'body' | 'events';
 export type HttpEventType = 'request' | 'upload-progress' | 'headers-received' |
@@ -22,14 +24,9 @@ export interface HttpClientContext {
 export type HttpRequestDefaults = Partial<Pick<HttpRequest, 'cache' | 'credentials' |
     'destination' | 'integrity' | 'keepalive' | 'mode' | 'redirect' |
     'referrer' | 'referrerPolicy'>> & {
-  headers?: HttpHeadersInit;
-  params?: HttpParamsInit;
+  headers?: HttpHeaders.Initiator;
+  params?: HttpParams.Initiator;
 };
-
-export type CommonHttpRequestOptions = {
-  observe?: ObserveType;
-  http?: HttpRequestDefaults;
-}
 
 export interface HttpEvent {
   event: HttpEventType | string;

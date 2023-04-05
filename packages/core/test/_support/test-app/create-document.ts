@@ -1,9 +1,10 @@
-import { OpraDocument } from '@opra/common';
+import { DocumentFactory } from '@opra/common';
 import { BestCustomerResource } from './resource/best-customer.resource.js';
 import { CustomersResource } from './resource/customers.resource.js';
 
 export async function createTestDocument() {
-  return OpraDocument.create({
+  return DocumentFactory.createDocument({
+    version: '1.0',
     info: {
       title: 'TestApi',
       version: 'v1',

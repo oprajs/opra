@@ -1,15 +1,15 @@
 import { OutgoingHttpHeaders } from 'http';
 import { Writable } from 'stream';
 import { normalizeHeaders } from '@opra/common';
-import { IHttpResponseWrapper } from '../../../src/index.js';
+import { HttpResponseWrapper } from '../../../src/index.js';
 
 export function createResponseWrapper(res: {
   status?: number;
   headers?: Record<string, string>;
   body?: any;
-}): IHttpResponseWrapper {
+}): HttpResponseWrapper {
   const headers: OutgoingHttpHeaders = normalizeHeaders(res.headers) || {};
-  const wrapper: IHttpResponseWrapper = {
+  const wrapper: HttpResponseWrapper = {
     getInstance(): any {
       return res;
     },

@@ -1,10 +1,10 @@
-import { OpraDocument } from '@opra/common';
+import { ApiDocument } from '@opra/common';
 import { IFileWriter } from './file-writer.interface.js';
 import { ILogger } from './logger.interface.js';
 
 export interface ServiceGenerationContext {
   serviceUrl: string;
-  document: OpraDocument;
+  document: ApiDocument;
   name: string;
   cwd: string;
   logger: ILogger;

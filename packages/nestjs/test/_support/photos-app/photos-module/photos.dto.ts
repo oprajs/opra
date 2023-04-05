@@ -1,17 +1,17 @@
-import { OprComplexType, OprField } from '@opra/common';
+import { ComplexType, Expose } from '@opra/common';
 
-@OprComplexType()
+@ComplexType()
 export class Photos {
 
-  @OprField()
+  @Expose()
   id: number;
 
-  @OprField()
+  @Expose()
   name: string;
 
-  @OprField()
+  @Expose()
   description: string;
 
-  @OprField()
+  @Expose()
   views: number;
 }

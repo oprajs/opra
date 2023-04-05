@@ -1,7 +1,7 @@
 import { IncomingHttpHeaders } from 'http';
 import { Readable } from 'stream';
 import { normalizeHeaders } from '@opra/common';
-import { IHttpRequestWrapper } from '../../../src/index.js';
+import { HttpRequestWrapper } from '../../../src/index.js';
 
 export function createRequestWrapper(req: {
   method: string;
@@ -9,7 +9,7 @@ export function createRequestWrapper(req: {
   headers?: Record<string, string>;
   body?: any;
   bodyStream?: Readable;
-}): IHttpRequestWrapper {
+}): HttpRequestWrapper {
   const headers = normalizeHeaders(req.headers) || {};
   return {
     getBody(): any {

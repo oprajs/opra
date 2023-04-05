@@ -2,10 +2,8 @@ import { lastValueFrom, Observable, Subscriber } from 'rxjs';
 import { isReadableStreamLike } from 'rxjs/internal/util/isReadableStreamLike';
 import { StrictOmit, Type } from 'ts-gems';
 import {
-  HttpHeaders, HttpParams,
-  HttpRequest, HttpResponse, HttpResponseInit,
+  ApiDocument, DocumentFactory, HttpHeaders, HttpParams,
   isBlob, joinPath,
-  OpraDocument,
 } from '@opra/common';
 import { ClientError } from '../client-error.js';
 import {
@@ -14,6 +12,8 @@ import {
   TEXT_CONTENT_TYPE_PATTERN
 } from '../constants.js';
 import { HttpCollectionNode } from './http-collection-node.js';
+import { HttpRequest } from './http-request.js';
+import { HttpResponse } from './http-response.js';
 import { HttpSingletonNode } from './http-singleton-node.js';
 import {
   HttpClientContext,
@@ -26,7 +26,7 @@ export interface OpraHttpClientOptions {
   /**
    //    * Opra Service Metadata Document
    //    */
-  document?: OpraDocument;
+  document?: ApiDocument;
   /**
    *
    */
@@ -41,7 +41,7 @@ export class OpraHttpClient {
   protected static kAssets = kAssets;
   protected [kAssets]: {
     serviceUrl: string;
-    metadata?: OpraDocument;
+    document?: ApiDocument;
     metadataPromise?: Promise<any>;
     requestInterceptors: RequestInterceptor[];
     responseInterceptors: ResponseInterceptor[];
@@ -54,12 +54,15 @@ export class OpraHttpClient {
       };
 
   constructor(serviceUrl: string, options?: OpraHttpClientOptions) {
-    this[kAssets] = {
-      serviceUrl,
-      metadata: options?.document,
-      requestInterceptors: options?.requestInterceptors || [],
-      responseInterceptors: options?.responseInterceptors || []
-    }
+    Object.defineProperty(this, kAssets, {
+      enumerable: false,
+      value: {
+        serviceUrl,
+        document: options?.document,
+        requestInterceptors: options?.requestInterceptors || [],
+        responseInterceptors: options?.responseInterceptors || []
+      }
+    })
     this.defaults = {
       ...options?.defaults,
       headers: options?.defaults?.headers instanceof HttpHeaders
@@ -73,9 +76,9 @@ export class OpraHttpClient {
     return this[kAssets].serviceUrl;
   }
 
-  async getMetadata(): Promise<OpraDocument> {
-    if (this[kAssets].metadata)
-      return this[kAssets].metadata;
+  async getMetadata(): Promise<ApiDocument> {
+    if (this[kAssets].document)
+      return this[kAssets].document;
     let promise = this[kAssets].metadataPromise;
     if (promise) {
       return promise;
@@ -90,7 +93,8 @@ export class OpraHttpClient {
         )
     );
     return await promise
-        .then(body => this[kAssets].metadata = new OpraDocument(body))
+        .then(body => DocumentFactory.createDocument(body))
+        .then(document => this[kAssets].document = document)
         .catch((e) => {
           e.message = 'Unable to fetch metadata from ' + this.serviceUrl + '. ' + e.message
           throw e
@@ -115,7 +119,7 @@ export class OpraHttpClient {
         // Validate resource exists and is a collection resource
         async () => {
           const metadata = await this.getMetadata();
-          metadata.getCollectionResource(ctx.resourceName);
+          metadata.getCollection(ctx.resourceName);
         }
       ],
       responseInterceptors: []
@@ -135,7 +139,7 @@ export class OpraHttpClient {
         // Validate resource exists and is a singleton resource
         async () => {
           const metadata = await this.getMetadata();
-          metadata.getSingletonResource(ctx.resourceName);
+          metadata.getSingleton(ctx.resourceName);
         }
       ],
       responseInterceptors: []
@@ -204,7 +208,7 @@ export class OpraHttpClient {
     return fetch(url, init);
   }
 
-  protected _createResponse(init?: HttpResponseInit): HttpResponse {
+  protected _createResponse(init?: HttpResponse.Initiator): HttpResponse {
     return new HttpResponse<any>(init);
   }
 

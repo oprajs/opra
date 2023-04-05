@@ -1,15 +1,15 @@
 import {
-  OprSingletonResource,
+  Singleton,
 } from '@opra/common';
-import { ISingletonResource } from '../../../../src/interfaces/resource.interface.js';
-import { Customer } from '../entities/customer.entity.js';
+import { Customer } from '../../../../../common/test/_support/test-doc/index.js';
 
-@OprSingletonResource(Customer, {
+@Singleton(Customer, {
   description: 'Best Customer resource'
 })
-export class BestCustomerResource implements ISingletonResource<Customer> {
+export class BestCustomerResource {
 
-  get() {
+  @Singleton.GetOperation()
+  raed() {
     return new Customer();
   }
 

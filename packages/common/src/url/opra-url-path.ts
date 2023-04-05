@@ -1,5 +1,5 @@
 import { tokenize } from 'fast-tokenizer';
-import { isURL } from '../utils/index.js';
+import { isURL } from '../helpers/index.js';
 import type { OpraURL } from './opra-url.js';
 import { OpraURLPathComponent, OpraURLPathComponentInit } from './opra-url-path-component.js';
 import { decodePathComponent, encodePathComponent, normalizePath } from './utils/path-utils.js';

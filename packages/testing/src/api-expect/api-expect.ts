@@ -1,4 +1,4 @@
-import { HttpResponse } from '@opra/common';
+import { HttpResponse } from '@opra/node-client';
 import { ApiExpectCollection } from './api-expect-collection.js';
 import { ApiExpectError } from './api-expect-error.js';
 import { ApiExpectObject } from './api-expect-object.js';

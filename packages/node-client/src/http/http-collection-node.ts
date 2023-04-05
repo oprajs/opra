@@ -1,23 +1,63 @@
 import { StrictOmit } from 'ts-gems';
-import type {
-  CollectionCreateQueryOptions,
-  CollectionDeleteManyQueryOptions,
-  CollectionGetQueryOptions,
-  CollectionSearchQueryOptions,
-  CollectionUpdateManyQueryOptions,
-  CollectionUpdateQueryOptions,
-  HttpResponse,
-  PartialInput
-} from '@opra/common';
+import type { PartialInput } from '@opra/common';
+import { Expression } from '@opra/common';
 import { kHttpClientContext } from '../constants.js';
-import { CommonHttpRequestOptions, HttpClientContext, HttpEvent } from './http-types.js';
-import { CollectionCreateRequest } from './requests/collection-create-request.js';
-import { CollectionDeleteManyRequest } from './requests/collection-delete-many-request.js';
-import { CollectionDeleteRequest } from './requests/collection-delete-request.js';
-import { CollectionGetRequest } from './requests/collection-get-request.js';
-import { CollectionSearchRequest } from './requests/collection-search-request.js';
-import { CollectionUpdateManyRequest } from './requests/collection-update-many-request.js';
-import { CollectionUpdateRequest } from './requests/collection-update-request.js';
+import { HttpRequestObservable } from './http-request-observable.js';
+import { HttpResponse } from './http-response.js';
+import { HttpClientContext, HttpEvent } from './http-types.js';
+
+export namespace HttpCollectionNode {
+
+  export interface CreateOptions extends HttpRequestObservable.Options {
+    pick?: string[];
+    omit?: string[];
+    include?: string[];
+  }
+
+  export interface DeleteOptions extends HttpRequestObservable.Options {
+  }
+
+  export interface DeleteManyOptions extends HttpRequestObservable.Options {
+    filter?: string | Expression;
+  }
+
+  export interface GetOptions extends HttpRequestObservable.Options {
+    pick?: string[];
+    omit?: string[];
+    include?: string[];
+  }
+
+  export interface SearchOptions extends HttpRequestObservable.Options {
+    pick?: string[];
+    omit?: string[];
+    include?: string[];
+    filter?: string | Expression;
+    limit?: number;
+    skip?: number;
+    distinct?: boolean;
+    count?: boolean;
+    sort?: string[];
+  }
+
+  export interface UpdateOptions extends HttpRequestObservable.Options {
+    pick?: string[];
+    omit?: string[];
+    include?: string[];
+  }
+
+  export interface UpdateManyOptions extends HttpRequestObservable.Options {
+    filter?: string | Expression;
+  }
+
+  export interface DeleteManyBody {
+    affected: number;
+  }
+
+  export interface UpdateManyBody {
+    affected: number;
+  }
+
+}
 
 export class HttpCollectionNode<TType, TResponseExt = any> {
   protected [kHttpClientContext]: HttpClientContext;
@@ -28,126 +68,189 @@ export class HttpCollectionNode<TType, TResponseExt = any> {
 
   create(
       data: PartialInput<TType>,
-      options?: CollectionCreateQueryOptions &
-          StrictOmit<CommonHttpRequestOptions, 'observe'> & { observe?: 'body' }
-  ): CollectionCreateRequest<TType, TType, HttpResponse<TType> & TResponseExt>
+      options?: StrictOmit<HttpCollectionNode.CreateOptions, 'observe'> & { observe?: 'body' }
+  ): HttpRequestObservable<TType, TType, TResponseExt>
   create(
       data: PartialInput<TType>,
-      options?: CollectionCreateQueryOptions &
-          StrictOmit<CommonHttpRequestOptions, 'observe'> & { observe: 'response' }
-  ): CollectionCreateRequest<HttpResponse<TType> & TResponseExt, TType, HttpResponse<TType> & TResponseExt>
+      options?: StrictOmit<HttpCollectionNode.CreateOptions, 'observe'> & { observe: 'response' }
+  ): HttpRequestObservable<HttpResponse<TType>, TType, TResponseExt>
   create(
       data: PartialInput<TType>,
-      options?: CollectionCreateQueryOptions &
-          StrictOmit<CommonHttpRequestOptions, 'observe'> & { observe: 'events' }
-  ): CollectionCreateRequest<HttpEvent, TType, HttpResponse<TType> & TResponseExt>
-  create(data: PartialInput<TType>, options?: CollectionCreateQueryOptions & CommonHttpRequestOptions) {
-    return new CollectionCreateRequest(this[kHttpClientContext], data, options);
+      options?: StrictOmit<HttpCollectionNode.CreateOptions, 'observe'> & { observe: 'events' }
+  ): HttpRequestObservable<HttpEvent, TType, TResponseExt>
+  create(data: PartialInput<TType>, options?: HttpCollectionNode.CreateOptions) {
+    const context = this[kHttpClientContext];
+    const requestHost = new HttpRequestObservable(context, options);
+    const request = requestHost[HttpRequestObservable.kRequest];
+    request.method = 'POST';
+    request.url = context.resourceName;
+    request.body = data;
+    if (options?.include)
+      request.params.set('$include', options.include);
+    if (options?.pick)
+      request.params.set('$pick', options.pick);
+    if (options?.omit)
+      request.params.set('$omit', options.omit);
+    return requestHost as any;
   }
 
   delete(
       id: any,
-      options?: StrictOmit<CommonHttpRequestOptions, 'observe'> & { observe?: 'body' }
-  ): CollectionDeleteRequest<never, HttpResponse<never> & TResponseExt>
+      options?: StrictOmit<HttpCollectionNode.DeleteOptions, 'observe'> & { observe?: 'body' }
+  ): HttpRequestObservable<never, never, TResponseExt>
   delete(
       id: any,
-      options?: StrictOmit<CommonHttpRequestOptions, 'observe'> & { observe: 'response' }
-  ): CollectionDeleteRequest<HttpResponse<never> & TResponseExt, HttpResponse<never> & TResponseExt>
+      options?: StrictOmit<HttpCollectionNode.DeleteOptions, 'observe'> & { observe: 'response' }
+  ): HttpRequestObservable<HttpResponse<never>, never, TResponseExt>
   delete(
       id: any,
-      options?: StrictOmit<CommonHttpRequestOptions, 'observe'> & { observe: 'events' }
-  ): CollectionDeleteRequest<HttpEvent, HttpResponse<never> & TResponseExt>
-  delete(id: any, options?: CommonHttpRequestOptions) {
-    return new CollectionDeleteRequest(this[kHttpClientContext], id, options);
+      options?: StrictOmit<HttpCollectionNode.DeleteOptions, 'observe'> & { observe: 'events' }
+  ): HttpRequestObservable<HttpEvent, never, TResponseExt>
+  delete(id: any, options?: HttpCollectionNode.DeleteOptions) {
+    const context = this[kHttpClientContext];
+    const requestHost = new HttpRequestObservable(context, options);
+    const request = requestHost[HttpRequestObservable.kRequest];
+    request.method = 'DELETE';
+    request.path.join({resource: context.resourceName, key: id});
+    return requestHost as any;
   }
 
   deleteMany(
-      options?: CollectionDeleteManyQueryOptions &
-          StrictOmit<CommonHttpRequestOptions, 'observe'> & { observe?: 'body' }
-  ): CollectionDeleteManyRequest<never, HttpResponse<never> & TResponseExt>
+      options?: StrictOmit<HttpCollectionNode.DeleteManyOptions, 'observe'> & { observe?: 'body' }
+  ): HttpRequestObservable<HttpCollectionNode.DeleteManyBody, HttpCollectionNode.DeleteManyBody, TResponseExt>
   deleteMany(
-      options?: CollectionDeleteManyQueryOptions &
-          StrictOmit<CommonHttpRequestOptions, 'observe'> & { observe: 'response' }
-  ): CollectionDeleteManyRequest<HttpResponse<never> & TResponseExt, HttpResponse<never> & TResponseExt>
+      options?: StrictOmit<HttpCollectionNode.DeleteManyOptions, 'observe'> & { observe: 'response' }
+  ): HttpRequestObservable<HttpResponse<HttpCollectionNode.DeleteManyBody>, HttpCollectionNode.DeleteManyBody, TResponseExt>
   deleteMany(
-      options?: CollectionDeleteManyQueryOptions &
-          StrictOmit<CommonHttpRequestOptions, 'observe'> & { observe: 'events' }
-  ): CollectionDeleteManyRequest<HttpEvent, HttpResponse<never> & TResponseExt>
-  deleteMany(options?: CollectionDeleteManyQueryOptions & CommonHttpRequestOptions) {
-    return new CollectionDeleteManyRequest(this[kHttpClientContext], options);
+      options?: StrictOmit<HttpCollectionNode.DeleteManyOptions, 'observe'> & { observe: 'events' }
+  ): HttpRequestObservable<HttpEvent, HttpCollectionNode.DeleteManyBody, TResponseExt>
+  deleteMany(options?: HttpCollectionNode.DeleteManyOptions) {
+    const context = this[kHttpClientContext];
+    const requestHost = new HttpRequestObservable(context, options);
+    const request = requestHost[HttpRequestObservable.kRequest];
+    request.method = 'DELETE';
+    request.url = context.resourceName;
+    if (options?.filter)
+      request.params.set('$filter', options.filter);
+    return requestHost as any;
   }
 
   get(
       id: any,
-      options?: CollectionGetQueryOptions &
-          StrictOmit<CommonHttpRequestOptions, 'observe'> & { observe?: 'body' }
-  ): CollectionGetRequest<TType, TType, HttpResponse<TType> & TResponseExt>
+      options?: StrictOmit<HttpCollectionNode.GetOptions, 'observe'> & { observe?: 'body' }
+  ): HttpRequestObservable<TType, TType, TResponseExt>
   get(
       id: any,
-      options?: CollectionGetQueryOptions &
-          StrictOmit<CommonHttpRequestOptions, 'observe'> & { observe: 'response' }
-  ): CollectionGetRequest<HttpResponse<TType> & TResponseExt, TType, HttpResponse<TType> & TResponseExt>
+      options?: StrictOmit<HttpCollectionNode.GetOptions, 'observe'> & { observe: 'response' }
+  ): HttpRequestObservable<HttpResponse<TType>, TType, TResponseExt>
   get(
       id: any,
-      options?: CollectionGetQueryOptions &
-          StrictOmit<CommonHttpRequestOptions, 'observe'> & { observe: 'events' }
-  ): CollectionGetRequest<HttpEvent, TType, HttpResponse<TType> & TResponseExt>
-  get(id: any, options?: CollectionGetQueryOptions & CommonHttpRequestOptions) {
-    return new CollectionGetRequest(this[kHttpClientContext], id, options);
+      options?: StrictOmit<HttpCollectionNode.GetOptions, 'observe'> & { observe: 'events' }
+  ): HttpRequestObservable<HttpEvent, TType, TResponseExt>
+  get(id: any, options?: HttpCollectionNode.GetOptions) {
+    const context = this[kHttpClientContext];
+    const requestHost = new HttpRequestObservable(context, options);
+    const request = requestHost[HttpRequestObservable.kRequest];
+    request.method = 'GET';
+    request.path.join({resource: context.resourceName, key: id});
+    if (options?.include)
+      request.params.set('$include', options.include);
+    if (options?.pick)
+      request.params.set('$pick', options.pick);
+    if (options?.omit)
+      request.params.set('$omit', options.omit);
+    return requestHost as any;
   }
 
   search(
-      options?: CollectionSearchQueryOptions &
-          StrictOmit<CommonHttpRequestOptions, 'observe'> & { observe?: 'body' }
-  ): CollectionSearchRequest<TType[], TType, HttpResponse<TType> & TResponseExt>
+      options?: StrictOmit<HttpCollectionNode.SearchOptions, 'observe'> & { observe?: 'body' }
+  ): HttpRequestObservable<TType[], TType, TResponseExt>
   search(
-      options?: CollectionSearchQueryOptions &
-          StrictOmit<CommonHttpRequestOptions, 'observe'> & { observe: 'response' }
-  ): CollectionSearchRequest<HttpResponse<TType[]> & TResponseExt, TType, HttpResponse<TType> & TResponseExt>
+      options?: StrictOmit<HttpCollectionNode.SearchOptions, 'observe'> & { observe: 'response' }
+  ): HttpRequestObservable<HttpResponse<TType[]>, TType, TResponseExt>
   search(
-      options?: CollectionSearchQueryOptions &
-          StrictOmit<CommonHttpRequestOptions, 'observe'> & { observe: 'events' }
-  ): CollectionSearchRequest<HttpEvent, TType, HttpResponse<TType> & TResponseExt>
-  search(options?: CollectionSearchQueryOptions & CommonHttpRequestOptions) {
-    return new CollectionSearchRequest(this[kHttpClientContext], options);
+      options?: StrictOmit<HttpCollectionNode.SearchOptions, 'observe'> & { observe: 'events' }
+  ): HttpRequestObservable<HttpEvent, TType, TResponseExt>
+  search(options?: HttpCollectionNode.SearchOptions) {
+    const context = this[kHttpClientContext];
+    const requestHost = new HttpRequestObservable(context, options);
+    const request = requestHost[HttpRequestObservable.kRequest];
+    request.method = 'GET';
+    request.url = context.resourceName;
+    if (options?.include)
+      request.params.set('$include', options.include);
+    if (options?.pick)
+      request.params.set('$pick', options.pick);
+    if (options?.omit)
+      request.params.set('$omit', options.omit);
+    if (options?.sort)
+      request.params.set('$sort', options.sort);
+    if (options?.filter)
+      request.params.set('$filter', options.filter);
+    if (options?.limit != null)
+      request.params.set('$limit', options.limit);
+    if (options?.skip != null)
+      request.params.set('$skip', options.skip);
+    if (options?.count != null)
+      request.params.set('$count', options.count);
+    if (options?.distinct != null)
+      request.params.set('$distinct', options.distinct);
+    return requestHost as any;
   }
 
   update(
-      id: any, data: PartialInput<TType>,
-      options?: CollectionUpdateQueryOptions &
-          StrictOmit<CommonHttpRequestOptions, 'observe'> & { observe?: 'body' }
-  ): CollectionSearchRequest<TType, TType, HttpResponse<TType> & TResponseExt>
+      id: any,
+      data: PartialInput<TType>,
+      options?: StrictOmit<HttpCollectionNode.UpdateOptions, 'observe'> & { observe?: 'body' }
+  ): HttpRequestObservable<TType, TType, TResponseExt>
   update(
-      id: any, data: PartialInput<TType>,
-      options?: CollectionUpdateQueryOptions &
-          StrictOmit<CommonHttpRequestOptions, 'observe'> & { observe: 'response' }
-  ): CollectionSearchRequest<HttpResponse<TType> & TResponseExt, TType, HttpResponse<TType> & TResponseExt>
+      id: any,
+      data: PartialInput<TType>,
+      options?: StrictOmit<HttpCollectionNode.UpdateOptions, 'observe'> & { observe: 'response' }
+  ): HttpRequestObservable<HttpResponse<TType>, TType, TResponseExt>
   update(
-      id: any, data: PartialInput<TType>,
-      options?: CollectionUpdateQueryOptions &
-          StrictOmit<CommonHttpRequestOptions, 'observe'> & { observe: 'events' }
-  ): CollectionSearchRequest<HttpEvent, TType, HttpResponse<TType> & TResponseExt>
-  update(id: any, data: PartialInput<TType>, options?: CollectionUpdateQueryOptions & CommonHttpRequestOptions) {
-    return new CollectionUpdateRequest(this[kHttpClientContext], id, data, options);
+      id: any,
+      data: PartialInput<TType>,
+      options?: StrictOmit<HttpCollectionNode.UpdateOptions, 'observe'> & { observe: 'events' }
+  ): HttpRequestObservable<HttpEvent, TType, TResponseExt>
+  update(id: any, data: PartialInput<TType>, options?: HttpCollectionNode.UpdateOptions) {
+    const context = this[kHttpClientContext];
+    const requestHost = new HttpRequestObservable(context, options);
+    const request = requestHost[HttpRequestObservable.kRequest];
+    request.method = 'PATCH';
+    request.path.join({resource: context.resourceName, key: id});
+    request.body = data;
+    if (options?.include)
+      request.params.set('$include', options.include);
+    if (options?.pick)
+      request.params.set('$pick', options.pick);
+    if (options?.omit)
+      request.params.set('$omit', options.omit);
+    return requestHost as any;
   }
 
   updateMany(
       data: PartialInput<TType>,
-      options?: CollectionUpdateManyQueryOptions &
-          StrictOmit<CommonHttpRequestOptions, 'observe'> & { observe?: 'body' }
-  ): CollectionSearchRequest<TType, TType, HttpResponse<TType> & TResponseExt>
+      options?: StrictOmit<HttpCollectionNode.UpdateManyOptions, 'observe'> & { observe?: 'body' }
+  ): HttpRequestObservable<HttpCollectionNode.UpdateManyBody, HttpCollectionNode.DeleteManyBody, TResponseExt>
   updateMany(
       data: PartialInput<TType>,
-      options?: CollectionUpdateManyQueryOptions &
-          StrictOmit<CommonHttpRequestOptions, 'observe'> & { observe: 'response' }
-  ): CollectionSearchRequest<HttpResponse<TType> & TResponseExt, TType, HttpResponse<TType> & TResponseExt>
+      options?: StrictOmit<HttpCollectionNode.UpdateManyOptions, 'observe'> & { observe: 'response' }
+  ): HttpRequestObservable<HttpResponse<HttpCollectionNode.UpdateManyBody>, HttpCollectionNode.DeleteManyBody, TResponseExt>
   updateMany(
       data: PartialInput<TType>,
-      options?: CollectionUpdateManyQueryOptions &
-          StrictOmit<CommonHttpRequestOptions, 'observe'> & { observe: 'events' }
-  ): CollectionSearchRequest<HttpEvent, TType, HttpResponse<TType> & TResponseExt>
-  updateMany(data: PartialInput<TType>, options?: CollectionUpdateManyQueryOptions & CommonHttpRequestOptions) {
-    return new CollectionUpdateManyRequest(this[kHttpClientContext], data, options);
+      options?: StrictOmit<HttpCollectionNode.UpdateManyOptions, 'observe'> & { observe: 'events' }
+  ): HttpRequestObservable<HttpEvent, HttpCollectionNode.UpdateManyBody, TResponseExt>
+  updateMany(data: PartialInput<TType>, options?: HttpCollectionNode.UpdateManyOptions) {
+    const context = this[kHttpClientContext];
+    const requestHost = new HttpRequestObservable(context, options);
+    const request = requestHost[HttpRequestObservable.kRequest];
+    request.method = 'PATCH';
+    request.url = context.resourceName;
+    request.body = data;
+    if (options?.filter)
+      request.params.set('$filter', options.filter);
+    return requestHost as any;
   }
 
 }

@@ -1,4 +1,4 @@
-import { ResponsiveMap } from '../src/helpers/responsive-map.js';
+import { ResponsiveMap } from '@opra/common';
 
 describe('ResponsiveMap', function () {
 

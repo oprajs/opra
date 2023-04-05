@@ -1,20 +1,20 @@
-import { OprComplexType, OprField } from '@opra/common';
+import { ComplexType, Expose } from '@opra/common';
 import { Column, Entity } from '@sqb/connect';
 import { Record } from './record.entity.js';
 
-@OprComplexType()
+@ComplexType()
 @Entity('customer_notes')
 export class CustomerNote extends Record {
 
-  @OprField()
+  @Expose()
   @Column()
   customerId: number;
 
-  @OprField()
+  @Expose()
   @Column()
   title: string;
 
-  @OprField()
+  @Expose()
   @Column()
   text: string;
 

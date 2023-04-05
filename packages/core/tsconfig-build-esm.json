@@ -7,6 +7,7 @@
       "@opra/common": ["../../build/common"]
     },
     "sourceMap": false,
+    "inlineSourceMap": false,
     "noEmit": false,
     "declaration": true
   },

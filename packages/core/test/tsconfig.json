@@ -4,6 +4,7 @@
   "compilerOptions": {
     "baseUrl": "./",
     "paths": {
+      "@opra/core": ["../src"],
       "@opra/common": ["../../common/src"],
       "@opra/node-client": ["../../node-client/src"],
       "@opra/testing": ["../../testing/src"]

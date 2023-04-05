@@ -17,8 +17,8 @@
     "build:esm": "tsc -b tsconfig-build-esm.json",
     "postbuild": "cp README.md package.json ../../LICENSE ../../build/nestjs && cp ../../package.cjs.json ../../build/nestjs/cjs/package.json",
     "lint": "eslint .",
-    "test": "NODE_OPTIONS=--experimental-vm-modules npx jest",
-    "cover": "NODE_OPTIONS=--experimental-vm-modules npx jest --collect-coverage",
+    "test": "jest",
+    "cover": "jest --collect-coverage",
     "clean": "npm run clean:src && npm run clean:dist && npm run clean:cover",
     "clean:src": "ts-cleanup -s src --all && ts-cleanup -s test --all",
     "clean:dist": "rimraf ../../build/nestjs",
@@ -27,18 +27,18 @@
   "dependencies": {
     "@opra/common": "^0.14.0",
     "@opra/core": "^0.14.0",
-    "fast-tokenizer": "^1.2.1",
+    "fast-tokenizer": "^1.2.2",
     "lodash.head": "^4.0.1",
     "lodash.identity": "^3.0.0",
     "reflect-metadata": "^0.1.13"
   },
   "peerDependencies": {
-    "@nestjs/common": "^9.2.1"
+    "@nestjs/common": "^9.4.0"
   },
   "devDependencies": {
-    "@nestjs/platform-express": "^9.2.1",
-    "@nestjs/testing": "^9.2.1",
-    "@types/lodash": "^4.14.191",
+    "@nestjs/platform-express": "^9.4.0",
+    "@nestjs/testing": "^9.4.0",
+    "@types/lodash": "^4.14.192",
     "filedirname": "^2.7.0"
   },
   "type": "module",

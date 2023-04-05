@@ -1,6 +1,6 @@
 import isNil from 'lodash.isnil';
 import omitBy from 'lodash.omitby';
-import { HttpResponse } from '@opra/common';
+import { HttpResponse } from '@opra/node-client';
 
 export class ApiExpectObject {
 

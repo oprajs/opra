@@ -20,8 +20,8 @@
     "copy:bin": "cp -R bin ../../build/cli/bin",
     "lint": "eslint . --max-warnings=0",
     "check": "madge --circular src/**",
-    "test": "NODE_OPTIONS=--experimental-vm-modules npx jest",
-    "cover": "NODE_OPTIONS=--experimental-vm-modules npx jest --collect-coverage",
+    "test": "jest",
+    "cover": "jest --collect-coverage",
     "clean": "npm run clean:src && npm run clean:dist && npm run clean:cover",
     "clean:src": "ts-cleanup -s src --all",
     "clean:dist": "rimraf ../../build/cli ../../build/client",
@@ -31,11 +31,10 @@
     "@opra/node-client": "^0.14.0",
     "chalk": "^5.2.0",
     "commander": "^10.0.0",
+    "js-string-escape": "^1.0.1",
     "putil-flattentext": "^2.1.1",
-    "putil-varhelpers": "^1.6.5",
-    "js-string-escape": "^1.0.1"
+    "putil-varhelpers": "^1.6.5"
   },
-  "devDependencies": {},
   "type": "module",
   "types": "esm/index.d.ts",
   "exports": {

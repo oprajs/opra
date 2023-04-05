@@ -1,25 +1,18 @@
 import { splitString, tokenize } from 'fast-tokenizer';
 import { StrictOmit } from 'ts-gems';
-import { ResponsiveMap } from '../helpers/responsive-map.js';
-import { HttpParamCodec } from './http-param-codec.js';
-import { BooleanCodec } from './param-codec/boolean-codec.js';
-import { DateCodec } from './param-codec/date-codec.js';
-import { FilterCodec } from './param-codec/filter-codec.js';
-import { IntegerCodec } from './param-codec/integer-codec.js';
-import { NumberCodec } from './param-codec/number-codec.js';
-import { StringCodec } from './param-codec/string-codec.js';
+import { ResponsiveMap } from '../helpers/index.js';
+import { BooleanCodec } from './codecs/boolean-codec.js';
+import { DateCodec } from './codecs/date-codec.js';
+import { FilterCodec } from './codecs/filter-codec.js';
+import { IntegerCodec } from './codecs/integer-codec.js';
+import { NumberCodec } from './codecs/number-codec.js';
+import { StringCodec } from './codecs/string-codec.js';
 import { encodeURIParam } from './utils/encodeURIParam.js';
 
 const kEntries = Symbol('kEntries');
 const kSize = Symbol('kSize');
 const kParamDefs = Symbol('kParamDefs');
 const kOptions = Symbol('kOptions');
-
-export type HttpParamsInit = string | URLSearchParams | HttpParams | Map<string, any> | Record<string, any>;
-const defaultKeyDecoder = (s: string) => decodeURIComponent(s);
-const defaultValueDecoder = (s: string) => decodeURIComponent(s);
-const defaultKeyEncoder = (s: string) => encodeURIParam(s);
-const defaultValueEncoder = (s: string) => encodeURIParam(s);
 
 const internalCodecs = {
   'boolean': new BooleanCodec(),
@@ -30,29 +23,34 @@ const internalCodecs = {
   'string': new StringCodec()
 }
 
-export interface HttpParamsCodec {
-  encodeKey?: (key: string) => string;
-  decodeKey?: (key: string) => string;
-  encodeValue?: (value: any) => string;
-  decodeValue?: (value: string) => any;
+export namespace HttpParams {
+  export type Initiator = string | URLSearchParams | HttpParams | Map<string, any> | Record<string, any>;
+
+  export interface Options {
+    onChange?: () => void;
+    params?: Record<string, ParamDefinition>;
+  }
+
+  export type ParamDefinition = StrictOmit<HttpParamMetadata, 'codec'> & {
+    codec?: Codec | string;
+  }
+
+  export interface Codec {
+    decode(value: string): any;
+
+    encode(value: any): string;
+  }
+
 }
 
-interface HttpParamMeta {
-  codec: HttpParamCodec;
+interface HttpParamMetadata {
+  codec: HttpParams.Codec;
   array?: boolean | 'strict';
   arrayDelimiter?: string;
   minArrayItems?: number;
   maxArrayItems?: number;
 }
 
-export type HttpParamDefinition = StrictOmit<HttpParamMeta, 'codec'> & {
-  codec?: HttpParamCodec | string;
-}
-
-export interface HttpParamsOptions extends HttpParamsCodec {
-  onChange?: () => void;
-  params?: Record<string, HttpParamDefinition>;
-}
 
 export class HttpParams {
   protected static kEntries = kEntries;
@@ -62,10 +60,10 @@ export class HttpParams {
 
   protected [kEntries] = new ResponsiveMap<string, any[]>();
   protected [kSize] = 0;
-  protected [kOptions]: HttpParamsOptions;
-  protected [kParamDefs] = new Map<string, HttpParamMeta>();
+  protected [kOptions]: HttpParams.Options;
+  protected [kParamDefs] = new Map<string, HttpParamMetadata>();
 
-  constructor(init?: HttpParamsInit, options?: HttpParamsOptions) {
+  constructor(init?: HttpParams.Initiator, options?: HttpParams.Options) {
     this[kOptions] = {...options, onChange: undefined};
     const defineParams = options?.params;
     if (defineParams)
@@ -89,7 +87,7 @@ export class HttpParams {
     return this;
   }
 
-  appendAll(input: HttpParamsInit): this {
+  appendAll(input: HttpParams.Initiator): this {
     if (typeof input === 'string') {
       if (input && input.startsWith('?'))
         input = input.substring(1);
@@ -104,7 +102,7 @@ export class HttpParams {
           quotes: true,
           brackets: true
         });
-        const k = this.decodeKey(itemTokenizer.next() || '');
+        const k = decodeURIComponent(itemTokenizer.next() || '');
         const v = this.decodeValue(itemTokenizer.join('='), k);
         this._append(k, v);
       }
@@ -243,13 +241,13 @@ export class HttpParams {
   toString(): string {
     const out: string[] = [];
     this.forEach((v, k) => {
-      out.push(this.encodeKey(k) +
+      out.push(encodeURIParam(k) +
           (v ? '=' + this.encodeValue(v, k) : ''));
     });
     return out.join('&');
   }
 
-  define(name: string, options?: HttpParamDefinition): this {
+  define(name: string, options?: HttpParams.ParamDefinition): this {
     if (!name)
       throw new Error('Parameter name required');
     if (typeof options?.codec === 'string' && !internalCodecs[options.codec])
@@ -259,7 +257,7 @@ export class HttpParams {
             : options?.codec
     ) || internalCodecs.string;
 
-    const meta: HttpParamMeta = {
+    const meta: HttpParamMetadata = {
       ...options,
       codec
     }
@@ -267,30 +265,22 @@ export class HttpParams {
     return this;
   }
 
-  encodeKey(key: string): string {
-    return (this[kOptions].encodeKey || defaultKeyEncoder)(key);
-  }
-
-  decodeKey(key: string): string {
-    return (this[kOptions].decodeKey || defaultKeyDecoder)(key);
-  }
-
   encodeValue(value: any, key: string): string {
     const prmDef = this[kParamDefs].get(key);
     if (prmDef) {
       const delimReplace = '%' + (prmDef.arrayDelimiter || ',').charCodeAt(0).toString(16).toUpperCase();
-      const fn = (x) => encodeURIParam(prmDef.codec.encode(x)).replaceAll(',', delimReplace);
+      const fn = (x) => encodeURIParam(prmDef.codec.encode(x))
+          .replace(/,/g, delimReplace);
       return Array.isArray(value)
           ? value.map((v: string) => fn(v)).join(prmDef.arrayDelimiter || ',')
           : fn(value);
     }
 
-    return (this[kOptions].encodeValue || defaultValueEncoder)(value);
+    return encodeURIParam(value);
   }
 
   decodeValue(value: string, key: string): any {
     const prmDef = this[kParamDefs].get(key);
-    const valueDecoder = (this[kOptions].decodeValue || defaultValueDecoder);
     let val: any = value;
     if (prmDef) {
       if (prmDef.array) {
@@ -299,10 +289,10 @@ export class HttpParams {
           brackets: true,
           quotes: true,
           keepQuotes: false
-        }).map((x) => valueDecoder(x));
+        }).map((x) => decodeURIComponent(x));
       } else
-        val = valueDecoder(val);
-      const fn = (x) => prmDef.codec.decode(valueDecoder(x));
+        val = decodeURIComponent(val);
+      const fn = (x) => prmDef.codec.decode(decodeURIComponent(x));
       val = Array.isArray(val) ? val.map(fn) : fn(val);
       if (prmDef.array === 'strict')
         val = Array.isArray(val) ? val : [val];
@@ -316,7 +306,7 @@ export class HttpParams {
       }
       return val;
     }
-    return valueDecoder(value);
+    return decodeURIComponent(value);
   }
 
   protected _append(name: string, value?: any) {

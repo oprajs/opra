@@ -22,9 +22,10 @@ describe('e2e: delete', function () {
         .toSuccess()
         .toReturnOperationResult()
         .toBeAffectedExact(1);
-    await expect(() => client.collection('Customers')
-        .get(101)
-        .fetch()
+    await expect(() =>
+        client.collection('Customers')
+            .get(101)
+            .fetch()
     ).rejects.toThrow('404');
   })
 

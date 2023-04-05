@@ -12,10 +12,10 @@ describe('OpraModule - Guards', function () {
 
   beforeEach(async () => {
     const module = await Test.createTestingModule({
-      imports: [ApplicationModule]
+      imports: [ApplicationModule],
     }).compile();
 
-    app = module.createNestApplication();
+    app = module.createNestApplication({logger: []});
     app.setGlobalPrefix('api');
     server = app.getHttpServer();
     await app.init();

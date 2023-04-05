@@ -1,3 +1,5 @@
+import { StrictOmit } from 'ts-gems';
+
 export interface ResponsiveMapOptions {
   wellKnownKeys?: string[];
   caseSensitive?: boolean;
@@ -21,17 +23,15 @@ export class ResponsiveMap<K, V> extends Map<K, V> {
   private [kKeyMap] = new Map<K, K>();
   private [kKeyOrder]: K[] = [];
   private [kWellKnownKeys] = new Map<string, string>();
-  private [kOptions] = {caseSensitive: false};
+  private [kOptions]: StrictOmit<ResponsiveMapOptions, 'wellKnownKeys'> = {caseSensitive: false};
 
-  constructor(init?: ResponsiveMapInit<K, V>, options?: ResponsiveMapOptions) {
+  constructor(init?: ResponsiveMapInit<K, V> | null, options?: ResponsiveMapOptions) {
     super();
     this[kOptions].caseSensitive = !!options?.caseSensitive;
     if (options?.wellKnownKeys)
       options.wellKnownKeys.forEach(k => this[kWellKnownKeys].set(k.toLowerCase(), k));
-    if (isMap(init)) {
-      init.forEach((v, k) => this.set(k, v));
-    } else if (init && typeof init === 'object')
-      Object.keys(init).forEach(k => this.set(k as K, init[k]));
+    if (init)
+      this.setAll(init);
   }
 
   clear() {
@@ -57,8 +57,16 @@ export class ResponsiveMap<K, V> extends Map<K, V> {
     return super.set(key, value);
   }
 
+  setAll(source: ResponsiveMapInit<K, V>): this {
+    if (isMap(source))
+      source.forEach((v, k) => this.set(k, v));
+    else
+      Object.keys(source).forEach(k => this.set(k as K, source[k]));
+    return this;
+  }
+
   keys(): IterableIterator<K> {
-    return this[kKeyOrder].values();
+    return this[kKeyOrder][Symbol.iterator]();
   }
 
   values(): IterableIterator<V> {

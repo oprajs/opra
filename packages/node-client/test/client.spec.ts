@@ -1,13 +1,13 @@
 import express from 'express';
 import * as http from 'http';
 import { AddressInfo } from 'net';
-import { OpraDocument } from '@opra/common';
+import { ApiDocument } from '@opra/common';
 import { createTestDocument } from '../../core/test/_support/test-app/create-document.js';
 import { HttpCollectionNode, HttpSingletonNode, OpraHttpClient } from '../src/index.js';
 
 describe('OpraClient', function () {
 
-  let document: OpraDocument;
+  let document: ApiDocument;
   let client: OpraHttpClient;
   let server: http.Server;
 
@@ -28,7 +28,7 @@ describe('OpraClient', function () {
   });
 
   it('Should retrieve metadata', async () => {
-    expect(await client.getMetadata()).toBeInstanceOf(OpraDocument);
+    expect(await client.getMetadata()).toBeInstanceOf(ApiDocument);
   });
 
   it('Should "collection()" create a service for Collection resources', async () => {
@@ -42,25 +42,25 @@ describe('OpraClient', function () {
   it('Should check if Collection resource exists', async () => {
     await expect(
         () => client.collection('blabla').get(1).fetch()
-    ).rejects.toThrow('does not exists');
+    ).rejects.toThrow('not found');
   });
 
   it('Should .collection() check if resource is CollectionResource', async () => {
     await expect(
         () => client.collection('BestCustomer').get(1).fetch()
-    ).rejects.toThrow('s not a CollectionResource');
+    ).rejects.toThrow('is not a Collection');
   });
 
   it('Should check if Singleton resource exists', async () => {
     await expect(
         () => client.singleton('blabla').get().fetch()
-    ).rejects.toThrow('does not exists');
+    ).rejects.toThrow('not found');
   });
 
   it('Should .singleton() check if resource is SingletonResource', async () => {
     await expect(
         () => client.singleton('Customers').get().fetch()
-    ).rejects.toThrow('s not a SingletonResource');
+    ).rejects.toThrow('is not a Singleton');
   });
 
 });

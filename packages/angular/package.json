@@ -16,8 +16,8 @@
     "postbuild": "cp ../../LICENSE ../../build/angular",
     "lint": "eslint . --max-warnings=0",
     "check": "madge --circular src/**",
-    "test": "NODE_OPTIONS=--experimental-vm-modules npx jest",
-    "cover": "NODE_OPTIONS=--experimental-vm-modules npx jest --collect-coverage",
+    "test": "jest",
+    "cover": "jest --collect-coverage",
     "clean": "npm run clean:src && npm run clean:dist && npm run clean:cover",
     "clean:src": "ts-cleanup -s src --all && ts-cleanup -s test --all",
     "clean:dist": "rimraf ../../build/angular",
@@ -25,16 +25,16 @@
     "fix-json": "node ./tools/fix-dependencies.mjs"
   },
   "peerDependencies": {
-    "@angular/common": "^14.2.12 || 15.x.x",
-    "@angular/core": "^14.2.12 || 15.x.x",
+    "@angular/common": "14.x.x || 15.x.x",
+    "@angular/core": "14.x.x || 15.x.x",
     "@opra/client": "^0.14.0",
     "ts-gems": "^2.3.0"
   },
   "devDependencies": {
-    "core-js": "^3.27.2",
+    "core-js": "^3.30.0",
     "cross-fetch": "^3.1.5",
     "express": "^4.18.2",
-    "zone.js": "^0.12.0"
+    "zone.js": "^0.13.0"
   },
   "engines": {
     "node": ">=16.0",

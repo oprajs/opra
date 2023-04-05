@@ -2,15 +2,13 @@ import { HTTP_INTERCEPTORS } from '@angular/common/http';
 import { HttpClientTestingModule } from '@angular/common/http/testing';
 import { Inject, Injectable, InjectionToken, Provider } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
-import { OpraHttpClient } from '@opra/client';
+import { HttpServiceBase, OpraHttpClient } from '@opra/client';
 import { createMockServer } from '../../node-client/test/_support/create-mock-server.js';
 import { OpraClientModule } from '../src/client.module.js';
 import { OpraClientModuleOptions } from '../src/interfaces/module-options.interface.js';
 import { createHttpRequestInterceptorMock } from './_support/http-mock.js';
 
-class TestApi {
-  constructor(public client) {
-  }
+class TestApi extends HttpServiceBase {
 }
 
 describe('OpraClientModule', function () {
@@ -60,7 +58,7 @@ describe('OpraClientModule', function () {
     const service = TestBed.inject(TestApi);
     expect(service).toBeDefined();
     expect(service).toBeInstanceOf(TestApi);
-    expect(service.client.serviceUrl).toBe(config.serviceUrl);
+    expect(service.$client.serviceUrl).toBe(config.serviceUrl);
   });
 
   it('registerClientAsync() - useFactory', async () => {
@@ -112,7 +110,7 @@ describe('OpraClientModule', function () {
     const service = TestBed.inject(TestApi);
     expect(service).toBeDefined();
     expect(service).toBeInstanceOf(TestApi);
-    expect(service.client.serviceUrl).toBe(config.serviceUrl);
+    expect(service.$client.serviceUrl).toBe(config.serviceUrl);
   });
 
   it('registerServiceAsync() - useClass', async () => {
@@ -133,7 +131,7 @@ describe('OpraClientModule', function () {
     const service = TestBed.inject(TestApi);
     expect(service).toBeDefined();
     expect(service).toBeInstanceOf(TestApi);
-    expect(service.client.serviceUrl).toBe(config.serviceUrl);
+    expect(service.$client.serviceUrl).toBe(config.serviceUrl);
   });
 
   it('Should register multiple clients', async () => {
@@ -192,7 +190,7 @@ describe('OpraClientModule', function () {
     expect(test.api1).toBeDefined();
     expect(test.api2).toBeDefined();
     expect(test.api1).not.toBe(test.api2);
-    expect(test.api1.client).not.toBe(test.api2.client);
+    expect(test.api1.$client).not.toBe(test.api2.$client);
   });
 
 });
