@@ -1,101 +1,368 @@
-import { Readable } from 'stream';
+import { Task } from 'power-tasks';
 import {
-  BadRequestError, Collection, HttpHeaderCodes, HttpHeaders, HttpStatusCodes,
-  InternalServerError, isReadable, IssueSeverity, MethodNotAllowedError, normalizeHeaders,
-  OpraException, OpraSchema, OpraURL, Singleton, wrapException
+  BadRequestError,
+  Collection,
+  HttpHeaderCodes,
+  HttpRequestMessage,
+  HttpResponseMessage,
+  HttpStatusCodes,
+  InternalServerError,
+  isReadable,
+  IssueSeverity,
+  MethodNotAllowedError,
+  OpraException,
+  OpraSchema,
+  OpraURL,
+  Singleton,
+  wrapException
 } from '@opra/common';
 import { OpraAdapter } from '../adapter.js';
-import { HttpExecutionContext } from '../interfaces/execution-context.interface.js';
-import {
-  CollectionCreateQuery,
-  CollectionDeleteManyQuery,
-  CollectionDeleteQuery,
-  CollectionGetQuery,
-  CollectionSearchQuery,
-  CollectionUpdateManyQuery,
-  CollectionUpdateQuery,
-  OpraQuery,
-  SingletonCreateQuery,
-  SingletonDeleteQuery,
-  SingletonGetQuery,
-  SingletonUpdateQuery
-} from '../query/index.js';
-import { QueryRequestContext } from '../request-context/query-request-context.js';
-import { RequestContext } from '../request-context/request-context.js';
+import { ExecutionContext } from '../interfaces/execution-context.interface.js';
+import { ILogger } from '../interfaces/logger.interface.js';
+import { Request } from '../interfaces/request.interface.js';
+import { HttpExecutionContextHost } from './http-execution-context.host.js';
+import { HttpRequestHost } from './http-request.host.js';
+import { HttpResponseHost } from './http-response.host.js';
 
+/**
+ * @namespace OpraHttpAdapter
+ */
 export namespace OpraHttpAdapter {
   export type Options = OpraAdapter.Options & {
     prefix?: string;
   }
 }
 
-interface PreparedOutput {
-  status: number;
-  headers: HttpHeaders;
-  body?: string | Readable | Buffer;
-}
+/**
+ *
+ * @class OpraHttpAdapter
+ */
+export abstract class OpraHttpAdapter extends OpraAdapter {
 
-export abstract class OpraHttpAdapter<TExecutionContext extends HttpExecutionContext = HttpExecutionContext> extends OpraAdapter<TExecutionContext> {
+  protected abstract platform: string;
 
-  async parse(executionContext: TExecutionContext): Promise<RequestContext> {
-    const req = executionContext.getRequest();
-    const contentType = req.getHeader('content-type');
+  /**
+   * Main http request handler
+   * @param incoming
+   * @param outgoing
+   * @protected
+   */
+  protected async handler(incoming: HttpRequestMessage, outgoing: HttpResponseMessage): Promise<void> {
 
-    if (!contentType || contentType === 'application/json') {
-      const body = req.getBody();
-      const url = new OpraURL(req.getUrl());
-      return this.parseQuery({
-        executionContext,
-        url,
-        method: req.getMethod(),
-        headers: req.getHeaders(),
-        body
-      });
+    try {
+      // Batch
+      if (incoming.is('multipart/mixed')) {
+        throw new BadRequestError({message: 'Not implemented yet'});
+      }
+
+      if (!(incoming.method === 'POST' || incoming.method === 'PATCH') || incoming.is('json')) {
+        const request = await this.parseRequest(incoming);
+        const response = new HttpResponseHost({}, outgoing);
+        const context = new HttpExecutionContextHost(this.platform, request, response);
+        const task = new Task(
+            async () => {
+              await this.executeRequest(context);
+              await this.sendResponse(context);
+            },
+            {
+              id: incoming.get('content-id'),
+              exclusive: request.crud !== 'read'
+            });
+        await task.toPromise().catch(e => this.logger?.error?.(e));
+      }
+
+      throw new BadRequestError({message: 'Unsupported Content-Type'});
+    } catch (error) {
+      await this.errorHandler(incoming, outgoing, error);
     }
-
-    if (typeof contentType === 'string' && contentType.startsWith('multipart/mixed')) {
-      // const m = BOUNDARY_PATTERN.exec(contentType);
-      // if (!m)
-      //   throw new BadRequestError({message: 'Content-Type header does not match required format'});
-      // const url = new OpraURL(req.getUrl());
-      // return await this.parseMultiPart(executionContext, url, req.getHeaders(), req.getStream(), m[1]);
-    }
-
-    throw new BadRequestError({message: 'Unsupported Content-Type'});
   }
 
-  parseQuery(args: {
-               executionContext: HttpExecutionContext,
-               url: OpraURL,
-               method: string,
-               headers: any,
-               body?: any;
-               contentId?: string
-             }
-  ): QueryRequestContext {
-    const {executionContext, url, method, headers, body, contentId} = args;
+  protected async errorHandler(incoming: HttpRequestMessage, outgoing: HttpResponseMessage, error): Promise<void> {
+    this.log((error instanceof OpraException) ? 'error' : 'fatal', incoming, error); // todo. implement a better logger
+    outgoing.status(error.status || 500);
+    outgoing.set(HttpHeaderCodes.Content_Type, 'application/json; charset=utf-8');
+    outgoing.set(HttpHeaderCodes.Cache_Control, 'no-cache');
+    outgoing.set(HttpHeaderCodes.Pragma, 'no-cache');
+    outgoing.set(HttpHeaderCodes.Expires, '-1');
+    outgoing.set(HttpHeaderCodes.X_Opra_Version, OpraSchema.SpecVersion);
+    const issue = this.i18n.deep(error.issue);
+    const body = {
+      errors: [issue]
+    };
+    outgoing.send(JSON.stringify(body));
+  }
+
+  protected log(logType: keyof ILogger, incoming: HttpRequestMessage, message: string, ...optionalParams: any[]) {
+    const logFn = this.logger?.[logType];
+    if (!logFn)
+      return;
+    logFn(message, ...optionalParams);
+  }
+
+  protected async afterExecuteRequest(context: ExecutionContext): Promise<void> {
+    await super.afterExecuteRequest(context);
+    const {request} = context;
+    const response = context.response;
+    const {crud} = request;
+    const httpResponse = response.switchToHttp();
+    if (crud === 'create') {
+      if (!response.value)
+        throw new InternalServerError();
+      // todo validate
+      httpResponse.status(201);
+    }
+    if (request.resource instanceof Singleton || request.resource instanceof Collection)
+      httpResponse.set(HttpHeaderCodes.X_Opra_DataType, request.resource.type.name);
+  }
+
+  /**
+   *
+   * @param incoming
+   * @protected
+   */
+  protected async parseRequest(incoming: HttpRequestMessage): Promise<Request> {
+    const url = new OpraURL(incoming.url);
+
+    // const {context, url, method, headers, body, contentId} = args;
     if (!url.path.size)
       throw new BadRequestError();
+
+    const method = incoming.method;
     if (method !== 'GET' && url.path.size > 1)
       throw new BadRequestError();
-    const query = this.buildQuery(url, method, body);
-    if (!query)
+
+    // const pathLen = url.path.size;
+    // let pathIndex = 0;
+    const p = url.path.get(0);
+    const resource = this._internalDoc.getResource(p.resource);
+    // let container: IResourceContainer | undefined;
+    // while (resource && resource instanceof ContainerResourceInfo) {
+    //   container = resource;
+    //   p = url.path.get(++pathIndex);
+    //   resource = container.getResource(p.resource);
+    // }
+
+    try {
+      // const headers = incoming.headers;
+      // const params = url.searchParams;
+      const searchParams = url.searchParams;
+
+      /*
+       * Collection
+       */
+      if (resource instanceof Collection) {
+        switch (method) {
+          case 'POST': {
+            if (!p.key) {
+              return new HttpRequestHost({
+                kind: 'CollectionCreateRequest',
+                resource,
+                operation: 'create',
+                crud: 'create',
+                many: false,
+                args: {
+                  data: incoming.body,
+                  pick: resource.normalizeElementNames(searchParams.get('$pick')),
+                  omit: resource.normalizeElementNames(searchParams.get('$omit')),
+                  include: resource.normalizeElementNames(searchParams.get('$include'))
+                }
+              }, incoming);
+            }
+            break;
+          }
+
+          case 'DELETE': {
+            if (p.key) {
+              return new HttpRequestHost({
+                kind: 'CollectionDeleteRequest',
+                resource,
+                operation: 'delete',
+                crud: 'delete',
+                many: false,
+                args: {
+                  key: resource.parseKeyValue(p.key)
+                }
+              }, incoming);
+            }
+            return new HttpRequestHost({
+              kind: 'CollectionDeleteManyRequest',
+              resource,
+              operation: 'deleteMany',
+              crud: 'delete',
+              many: true,
+              args: {
+                filter: resource.normalizeFilterElements(searchParams.get('$filter'))
+              }
+            }, incoming);
+          }
+
+          case 'GET': {
+            if (p.key) {
+              return new HttpRequestHost({
+                kind: 'CollectionGetRequest',
+                resource,
+                operation: 'get',
+                crud: 'read',
+                many: false,
+                args: {
+                  key: resource.parseKeyValue(p.key),
+                  pick: resource.normalizeElementNames(searchParams.get('$pick')),
+                  omit: resource.normalizeElementNames(searchParams.get('$omit')),
+                  include: resource.normalizeElementNames(searchParams.get('$include'))
+                }
+              }, incoming);
+            }
+
+            return new HttpRequestHost({
+              kind: 'CollectionSearchRequest',
+              resource,
+              operation: 'search',
+              crud: 'read',
+              many: true,
+              args: {
+                filter: resource.normalizeFilterElements(searchParams.get('$filter')),
+                limit: searchParams.get('$limit'),
+                skip: searchParams.get('$skip'),
+                distinct: searchParams.get('$distinct'),
+                count: searchParams.get('$count'),
+                sort: resource.normalizeSortElements(searchParams.get('$sort')),
+                pick: resource.normalizeElementNames(searchParams.get('$pick')),
+                omit: resource.normalizeElementNames(searchParams.get('$omit')),
+                include: resource.normalizeElementNames(searchParams.get('$include'))
+              }
+            }, incoming);
+          }
+
+          case 'PATCH': {
+            if (p.key) {
+              return new HttpRequestHost({
+                kind: 'CollectionUpdateRequest',
+                resource,
+                operation: 'update',
+                crud: 'update',
+                many: false,
+                args: {
+                  key: resource.parseKeyValue(p.key),
+                  data: incoming.body,
+                  pick: resource.normalizeElementNames(searchParams.get('$pick')),
+                  omit: resource.normalizeElementNames(searchParams.get('$omit')),
+                  include: resource.normalizeElementNames(searchParams.get('$include'))
+                }
+              }, incoming);
+            }
+            return new HttpRequestHost({
+              kind: 'CollectionUpdateManyRequest',
+              resource,
+              operation: 'updateMany',
+              crud: 'update',
+              many: true,
+              args: {
+                data: incoming.body,
+                filter: resource.normalizeFilterElements(searchParams.get('$filter'))
+              }
+            }, incoming);
+          }
+        }
+
+      } else
+          /*
+           * Singleton
+           */
+      if (resource instanceof Singleton && !p.key) {
+        switch (method) {
+          case 'POST': {
+            return new HttpRequestHost({
+              kind: 'SingletonCreateRequest',
+              resource,
+              operation: 'create',
+              crud: 'create',
+              many: false,
+              args: {
+                data: incoming.body,
+                pick: resource.normalizeElementNames(searchParams.get('$pick')),
+                omit: resource.normalizeElementNames(searchParams.get('$omit')),
+                include: resource.normalizeElementNames(searchParams.get('$include'))
+              }
+            }, incoming);
+          }
+          case 'DELETE': {
+            return new HttpRequestHost({
+              kind: 'SingletonDeleteRequest',
+              resource,
+              operation: 'delete',
+              crud: 'delete',
+              many: false,
+              args: {}
+            }, incoming);
+          }
+          case 'GET': {
+            return new HttpRequestHost({
+              kind: 'SingletonGetRequest',
+              resource,
+              operation: 'get',
+              crud: 'read',
+              many: false,
+              args: {
+                pick: resource.normalizeElementNames(searchParams.get('$pick')),
+                omit: resource.normalizeElementNames(searchParams.get('$omit')),
+                include: resource.normalizeElementNames(searchParams.get('$include'))
+              }
+            }, incoming);
+          }
+          case 'PATCH': {
+            return new HttpRequestHost({
+              kind: 'SingletonUpdateRequest',
+              resource,
+              operation: 'update',
+              crud: 'update',
+              many: false,
+              args: {
+                data: incoming.body,
+                pick: resource.normalizeElementNames(searchParams.get('$pick')),
+                omit: resource.normalizeElementNames(searchParams.get('$omit')),
+                include: resource.normalizeElementNames(searchParams.get('$include'))
+              }
+            }, incoming);
+          }
+        }
+      } else
+        throw new InternalServerError();
+
+      // if (query instanceof SingletonGetQuery || query instanceof CollectionGetQuery || query instanceof ElementReadQuery) {
+      //   // Move through properties
+      //   let parentType: DataType;
+      //   const curPath: string[] = [];
+      //   let parent: SingletonGetQuery | CollectionGetQuery | ElementReadQuery = query;
+      //   while (++pathIndex < pathLen) {
+      //     p = url.path.get(pathIndex);
+      //     parentType = parent.type;
+      //     if (parent.type instanceof UnionType) {
+      //       if (parent.type.name === 'any')
+      //         parentType = this.document.getComplexType('object');
+      //       else
+      //         throw new TypeError(`"${resource.name}.${curPath.join()}" is a UnionType and needs type casting.`);
+      //     }
+      //     if (!(parentType instanceof ComplexType))
+      //       throw new TypeError(`"${resource.name}.${curPath.join()}" is not a ComplexType and has no fields.`);
+      //     curPath.push(p.resource);
+      //     parent.child = new ElementReadQuery(parent, p.resource, {castingType: parentType});
+      //     parent = parent.child;
+      //   }
+      // }
+
       throw new MethodNotAllowedError({
         message: `Method "${method}" is not allowed by target endpoint`
       });
-    return new QueryRequestContext({
-      document: this.document,
-      executionContext,
-      headers,
-      query,
-      params: url.searchParams,
-      contentId,
-      continueOnError: query.operation === 'read'
-    });
+
+    } catch (e: any) {
+      if (e instanceof OpraException)
+        throw e;
+      throw new BadRequestError(e);
+    }
   }
 
   // async parseMultiPart(
-  //     executionContext: TExecutionContext,
+  //     context: TExecutionContext,
   //     url: OpraURL,
   //     headers: IncomingHttpHeaders,
   //     input: Readable,
@@ -138,7 +405,7 @@ export abstract class OpraHttpAdapter<TExecutionContext extends HttpExecutionCon
   //             const subUrl = new OpraURL(r.url);
   //             const contentId = header && header['content-id'];
   //             queries.push(this.parseSingleQuery({
-  //               executionContext,
+  //               context,
   //               url: subUrl,
   //               method: r.method,
   //               headers: r.headers,
@@ -160,7 +427,7 @@ export abstract class OpraHttpAdapter<TExecutionContext extends HttpExecutionCon
   //         _resolved = true;
   //         const batch = new BatchRequestContext({
   //           service: this.document,
-  //           executionContext,
+  //           context,
   //           headers,
   //           queries,
   //           params: url.searchParams,
@@ -173,159 +440,57 @@ export abstract class OpraHttpAdapter<TExecutionContext extends HttpExecutionCon
   //   });
   // }
 
-  buildQuery(url: OpraURL, method: string, body?: any): OpraQuery | undefined {
-    // const pathLen = url.path.size;
-    // let pathIndex = 0;
-    const p = url.path.get(0);
-    const resource = this._internalDoc.getResource(p.resource);
-    // let container: IResourceContainer | undefined;
-    // while (resource && resource instanceof ContainerResourceInfo) {
-    //   container = resource;
-    //   p = url.path.get(++pathIndex);
-    //   resource = container.getResource(p.resource);
-    // }
+  protected async sendResponse(context: ExecutionContext) {
+    const {response} = context;
+    const outgoing = context.response.switchToHttp();
+    outgoing.set(HttpHeaderCodes.Cache_Control, 'no-cache');
+    outgoing.set(HttpHeaderCodes.Pragma, 'no-cache');
+    outgoing.set(HttpHeaderCodes.Expires, '-1');
+    outgoing.set(HttpHeaderCodes.X_Opra_Version, OpraSchema.SpecVersion);
+    let status = outgoing.statusCode || 0;
 
-    try {
-      method = method.toUpperCase();
-      let query: OpraQuery | undefined;
-      const searchParams = url.searchParams;
-      if (resource instanceof Singleton && !p.key) {
-        switch (method) {
-          case 'POST': {
-            query = new SingletonCreateQuery(resource, body, {
-              pick: searchParams.get('$pick'),
-              omit: searchParams.get('$omit'),
-              include: searchParams.get('$include')
-            });
-            break;
-          }
-          case 'DELETE': {
-            query = new SingletonDeleteQuery(resource);
-            break;
-          }
-          case 'GET': {
-            query = new SingletonGetQuery(resource, {
-              pick: searchParams.get('$pick'),
-              omit: searchParams.get('$omit'),
-              include: searchParams.get('$include')
-            });
-            break;
-          }
-          case 'PATCH': {
-            query = new SingletonUpdateQuery(resource, body, {
-              pick: searchParams.get('$pick'),
-              omit: searchParams.get('$omit'),
-              include: searchParams.get('$include')
-            });
-            break;
-          }
-        }
-      } else if (resource instanceof Collection) {
-        switch (method) {
-          case 'POST': {
-            if (!p.key) {
-              query = new CollectionCreateQuery(resource, body, {
-                pick: searchParams.get('$pick'),
-                omit: searchParams.get('$omit'),
-                include: searchParams.get('$include')
-              });
-            }
-            break;
-          }
-
-          case 'DELETE': {
-            query = p.key
-                ? new CollectionDeleteQuery(resource, p.key)
-                : new CollectionDeleteManyQuery(resource, {
-                  filter: searchParams.get('$filter'),
-                });
-            break;
-          }
-
-          case 'GET': {
-            if (p.key) {
-              query = new CollectionGetQuery(resource, p.key, {
-                pick: searchParams.get('$pick'),
-                omit: searchParams.get('$omit'),
-                include: searchParams.get('$include')
-              });
-            } else {
-              query = new CollectionSearchQuery(resource, {
-                filter: searchParams.get('$filter'),
-                limit: searchParams.get('$limit'),
-                skip: searchParams.get('$skip'),
-                distinct: searchParams.get('$distinct'),
-                count: searchParams.get('$count'),
-                sort: searchParams.get('$sort'),
-                pick: searchParams.get('$pick'),
-                omit: searchParams.get('$omit'),
-                include: searchParams.get('$include')
-              });
-            }
-            break;
-          }
-
-          case 'PATCH': {
-            if (p.key) {
-              query = new CollectionUpdateQuery(resource, p.key, body, {
-                pick: searchParams.get('$pick'),
-                omit: searchParams.get('$omit'),
-                include: searchParams.get('$include')
-              });
-            } else {
-              query = new CollectionUpdateManyQuery(resource, body, {
-                filter: searchParams.get('$filter')
-              });
-            }
-            break;
-          }
-        }
-
-      } else
-        throw new InternalServerError();
-
-      // if (query instanceof SingletonGetQuery || query instanceof CollectionGetQuery || query instanceof ElementReadQuery) {
-      //   // Move through properties
-      //   let parentType: DataType;
-      //   const curPath: string[] = [];
-      //   let parent: SingletonGetQuery | CollectionGetQuery | ElementReadQuery = query;
-      //   while (++pathIndex < pathLen) {
-      //     p = url.path.get(pathIndex);
-      //     parentType = parent.type;
-      //     if (parent.type instanceof UnionType) {
-      //       if (parent.type.name === 'any')
-      //         parentType = this.document.getComplexType('object');
-      //       else
-      //         throw new TypeError(`"${resource.name}.${curPath.join()}" is a UnionType and needs type casting.`);
-      //     }
-      //     if (!(parentType instanceof ComplexType))
-      //       throw new TypeError(`"${resource.name}.${curPath.join()}" is not a ComplexType and has no fields.`);
-      //     curPath.push(p.resource);
-      //     parent.child = new ElementReadQuery(parent, p.resource, {castingType: parentType});
-      //     parent = parent.child;
-      //   }
-      // }
-
-      return query;
-
-    } catch (e: any) {
-      if (e instanceof OpraException)
-        throw e;
-      throw new BadRequestError(e);
+    const errors = response.errors?.map(e => wrapException(e));
+    if (errors && errors.length) {
+      // Sort errors from fatal to info
+      errors.sort((a, b) => {
+        const i = IssueSeverity.Keys.indexOf(a.issue.severity) - IssueSeverity.Keys.indexOf(b.issue.severity);
+        if (i === 0)
+          return b.status - a.status;
+        return i;
+      });
+      if (!status || status < HttpStatusCodes.BAD_REQUEST) {
+        status = errors[0].status;
+        if (status < HttpStatusCodes.BAD_REQUEST)
+          status = HttpStatusCodes.INTERNAL_SERVER_ERROR;
+      }
+      const body = this.i18n.deep({
+        errors: errors.map(e => e.issue)
+      });
+      outgoing.set(HttpHeaderCodes.Content_Type, 'application/json; charset=utf-8');
+      outgoing.status(status);
+      outgoing.send(JSON.stringify(body));
+      outgoing.end();
+      return;
     }
+
+    outgoing.status(status || HttpStatusCodes.OK);
+
+    if (response.value) {
+      if (typeof response.value === 'object') {
+        if (isReadable(response.value) || Buffer.isBuffer(response.value))
+          outgoing.send(response.value);
+        else {
+          const body = this.i18n.deep(response.value);
+          outgoing.set(HttpHeaderCodes.Content_Type, 'application/json; charset=utf-8');
+          outgoing.send(JSON.stringify(body));
+        }
+      } else outgoing.send(JSON.stringify(response.value));
+    }
+    outgoing.end();
   }
 
-  protected async sendResponse(executionContext: TExecutionContext, requestContext: RequestContext) {
-    // if (requestContext instanceof BatchRequestContext)
-    //   return this.sendBatchResponse(executionContext, requestContext);
-    if (requestContext instanceof QueryRequestContext)
-      return this.sendSingleResponse(executionContext, requestContext);
-    /* istanbul ignore next */
-    throw new TypeError('Invalid request context instance');
-  }
-
-  // protected async sendBatchResponse(executionContext: TExecutionContext, requestContext: BatchRequestContext) {
-  //   const resp = executionContext.getResponse();
+  // protected async sendBatchResponse(context: TExecutionContext, requestContext: BatchRequestContext) {
+  //   const resp = context.getResponse();
   //   resp.setStatus(HttpStatus.OK);
   //   resp.setHeader(HttpHeaderCodes.Cache_Control, 'no-cache');
   //   resp.setHeader(HttpHeaderCodes.Pragma, 'no-cache');
@@ -414,85 +579,5 @@ export abstract class OpraHttpAdapter<TExecutionContext extends HttpExecutionCon
   //   resp.send(Highland(chunks).flatten());
   //   resp.end();
   // }
-
-  protected async sendSingleResponse(executionContext: TExecutionContext, requestContext: QueryRequestContext) {
-    const out = this.createOutput(requestContext);
-
-    const resp = executionContext.getResponse();
-    resp.setStatus(out.status);
-    resp.setHeader(HttpHeaderCodes.Cache_Control, 'no-cache');
-    resp.setHeader(HttpHeaderCodes.Pragma, 'no-cache');
-    resp.setHeader(HttpHeaderCodes.Expires, '-1');
-    if (out.headers) {
-      for (const [k, v] of out.headers.entries()) {
-        if (v)
-          resp.setHeader(k, v);
-      }
-    }
-    resp.setHeader(HttpHeaderCodes.X_Opra_Version, OpraSchema.SpecVersion);
-    if (out.body)
-      resp.send(out.body);
-    resp.end();
-  }
-
-  protected createOutput(ctx: QueryRequestContext): PreparedOutput {
-    const {query} = ctx;
-    let body: any;
-    let status = ctx.status || 0;
-
-    const errors = ctx.errors.map(e => wrapException(e));
-
-    if (errors && errors.length) {
-      // Sort errors from fatal to info
-      errors.sort((a, b) => {
-        const i = IssueSeverity.Keys.indexOf(a.issue.severity) - IssueSeverity.Keys.indexOf(b.issue.severity);
-        if (i === 0)
-          return b.status - a.status;
-        return i;
-      });
-      if (!status || status < HttpStatusCodes.BAD_REQUEST) {
-        status = errors[0].status;
-        if (status < HttpStatusCodes.BAD_REQUEST)
-          status = HttpStatusCodes.INTERNAL_SERVER_ERROR;
-      }
-      body = this.i18n.deep({
-        operation: ctx.query.method,
-        errors: errors.map(e => e.issue)
-      });
-      body = JSON.stringify(body);
-      ctx.responseHeaders.set(HttpHeaderCodes.Content_Type, 'application/json; charset=utf-8');
-    } else {
-      if (typeof ctx.response === 'object' && !(isReadable(ctx.response) || Buffer.isBuffer(ctx.response))) {
-        body = this.i18n.deep(ctx.response);
-        body = JSON.stringify(body);
-        ctx.responseHeaders.set(HttpHeaderCodes.Content_Type, 'application/json; charset=utf-8');
-      }
-      status = status || (query.operation === 'create' ? HttpStatusCodes.CREATED : HttpStatusCodes.OK);
-    }
-
-    ctx.responseHeaders.sort();
-
-    return {
-      status,
-      headers: ctx.responseHeaders,
-      body
-    }
-  }
-
-  protected async sendError(executionContext: TExecutionContext, error: OpraException) {
-    const resp = executionContext.getResponse();
-    resp.setStatus(error.status || 500);
-    resp.setHeader(HttpHeaderCodes.Content_Type, 'application/json');
-    resp.setHeader(HttpHeaderCodes.Cache_Control, 'no-cache');
-    resp.setHeader(HttpHeaderCodes.Pragma, 'no-cache');
-    resp.setHeader(HttpHeaderCodes.Expires, '-1');
-    resp.setHeader(HttpHeaderCodes.X_Opra_Version, OpraSchema.SpecVersion);
-    const issue = this.i18n.deep(error.issue);
-    const body = {
-      operation: 'unknown',
-      errors: [issue]
-    };
-    resp.send(JSON.stringify(body));
-  }
 
 }

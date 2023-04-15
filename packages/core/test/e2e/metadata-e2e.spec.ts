@@ -4,7 +4,7 @@ import { ApiDocument } from '@opra/common';
 import { OpraExpressAdapter } from '@opra/core';
 import { createTestDocument } from '../_support/test-app/create-document.js';
 
-describe('$metadata', function () {
+describe('e2e:$metadata', function () {
 
   let document: ApiDocument;
   let app;

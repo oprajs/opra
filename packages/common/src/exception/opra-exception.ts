@@ -20,6 +20,8 @@ export class OpraException extends Error {
     }
 
     this._init(issue || cause || 'Unknown error');
+    if (issue instanceof Error)
+      this.stack = issue.stack;
     this.message = i18n.deep(this.issue.message);
   }
 

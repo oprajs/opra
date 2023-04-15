@@ -1,24 +1,24 @@
 import path from 'path';
-import { Task } from 'power-tasks';
-import { AsyncEventEmitter } from 'strict-typed-events';
 import {
   ApiDocument,
+  Collection,
   DocumentFactory,
-  FailedDependencyError, getStackFileName,
-  I18n,
-  OpraException,
+  FallbackLng,
+  ForbiddenError,
+  getStackFileName,
+  I18n, LanguageResource,
   OpraSchema,
-  wrapException
+  ResourceNotFoundError,
+  Singleton,
+  translate,
 } from '@opra/common';
 import { ExecutionContext } from './interfaces/execution-context.interface.js';
-import { I18nOptions } from './interfaces/i18n-options.interface.js';
 import { ILogger } from './interfaces/logger.interface.js';
 import { MetadataResource } from './internal/metadata.resource.js';
-import { OpraQuery } from './query/index.js';
-import { BatchRequestContext, QueryRequestContext, RequestContext } from './request-context/index.js';
 
-const noOp = () => void 0;
-
+/**
+ * @namespace OpraAdapter
+ */
 export namespace OpraAdapter {
   export type UserContextResolver = (executionContext: ExecutionContext) => object | Promise<object>;
 
@@ -28,9 +28,45 @@ export namespace OpraAdapter {
     logger?: ILogger;
   }
 
+  export interface I18nOptions {
+    /**
+     * Language to use
+     * @default undefined
+     */
+    lng?: string;
+
+    /**
+     * Language to use if translations in user language are not available.
+     * @default 'dev'
+     */
+    fallbackLng?: false | FallbackLng;
+
+    /**
+     * Default namespace used if not passed to translation function
+     * @default 'translation'
+     */
+    defaultNS?: string;
+
+    /**
+     * Resources to initialize with
+     * @default undefined
+     */
+    resources?: LanguageResource;
+
+    /**
+     * Resource directories to initialize with (if not using loading or not appending using addResourceBundle)
+     * @default undefined
+     */
+    resourceDirs?: string[];
+  }
+
+
 }
 
-export abstract class OpraAdapter<TExecutionContext extends ExecutionContext> {
+/**
+ * @class OpraAdapter
+ */
+export abstract class OpraAdapter {
   protected userContextResolver?: OpraAdapter.UserContextResolver;
   protected _internalDoc: ApiDocument;
   i18n: I18n;
@@ -89,76 +125,52 @@ export abstract class OpraAdapter<TExecutionContext extends ExecutionContext> {
     await Promise.allSettled(promises);
   }
 
-  /**
-   * Main request handler
-   * @param executionContext
-   * @protected
-   */
-  protected async handler(executionContext: TExecutionContext): Promise<void> {
-    let requestContext: RequestContext | undefined;
-    let failed = false;
-    try {
-      if (this.userContextResolver)
-        executionContext.userContext = this.userContextResolver(executionContext);
-      requestContext = await this.parse(executionContext);
-      const task = this.generateRequestTask(executionContext, requestContext);
-      await task.toPromise().catch(noOp);
-      await this.sendResponse(executionContext, requestContext);
-    } catch (e: any) {
-      failed = true;
-      const error = wrapException(e);
-      await this.sendError(executionContext, error);
-      this.logger?.error(e);
-    } finally {
-      if (executionContext as unknown instanceof AsyncEventEmitter) {
-        await (executionContext as unknown as AsyncEventEmitter)
-            .emitAsyncSerial('finish', {
-              context: executionContext,
-              failed
-            }).catch();
+  protected async executeRequest(context: ExecutionContext): Promise<void> {
+    const {request, response} = context;
+    const {resource, operation} = request;
+
+    if (resource instanceof Collection || resource instanceof Singleton) {
+      const endpoint = resource.operations[operation] as OpraSchema.Endpoint;
+      if (!endpoint?.handler)
+        throw new ForbiddenError({
+          message: translate('RESOLVER_FORBIDDEN', {operation},
+              `The resource endpoint does not accept '{{operation}}' operations`),
+          severity: 'error',
+          code: 'RESOLVER_FORBIDDEN'
+        });
+      const value = endpoint.handler(context);
+      if (value != null)
+        response.value = value;
+      await this.afterExecuteRequest(context);
+    }
+  }
+
+  protected async afterExecuteRequest(context: ExecutionContext): Promise<void> {
+    const {request, response} = context;
+    const {resource, crud, many} = request;
+    if (crud === 'delete' || (crud === 'update' && many)) {
+      let affected = 0;
+      if (typeof response.value === 'number')
+        affected = response.value;
+      if (typeof response.value === 'boolean')
+        affected = response.value ? 1 : 0;
+      if (typeof response.value === 'object')
+        affected = response.value.affectedRows || response.value.affected;
+      response.value = {
+        operation: request.operation,
+        affected
       }
+    } else if (response.value != null) {
+      if (!request.many)
+        response.value = Array.isArray(response.value) ? response.value[0] : response.value;
+      else response.value = Array.isArray(response.value) ? response.value : [response.value];
     }
+    if ((request.operation === 'get' || request.operation === 'update') && response.value == null)
+      throw new ResourceNotFoundError(resource.name, request.args.key);
   }
 
-  protected generateRequestTask(
-      executionContext: TExecutionContext,
-      requestContext: RequestContext
-  ): Task {
-    if (requestContext instanceof BatchRequestContext) {
-      const children = requestContext.queries
-          .map(q => this.generateRequestTask(executionContext, q));
-      return new Task(children, {bail: true});
-    } else if (requestContext instanceof QueryRequestContext) {
-      const {query} = requestContext;
-      const task = new Task(
-          async () => {
-            const v = await OpraQuery.execute(query, requestContext);
-            if (v != null)
-              requestContext.response = v;
-          },
-          {
-            id: requestContext.contentId,
-            exclusive: query.operation !== 'read'
-          });
-      task.on('finish', () => {
-        if (task.error) {
-          if (task.failedDependencies)
-            requestContext.errors.push(new FailedDependencyError());
-          else
-            requestContext.errors.push(wrapException(task.error));
-          this.logger?.error(task.error);
-          return;
-        }
-      });
-      return task;
-    }
-    /* istanbul ignore next */
-    throw new TypeError('Invalid request context instance');
-  }
-
-
-  protected async _createI18n(options?: I18nOptions): Promise<I18n> {
-    const opts: I18nOptions = {
+  protected async _createI18n(options?: OpraAdapter.I18nOptions): Promise<I18n> {
+    const opts: OpraAdapter.I18nOptions = {
       ...options,
     }
     delete opts.resourceDirs;
@@ -170,13 +182,6 @@ export abstract class OpraAdapter<TExecutionContext extends ExecutionContext> {
         await instance.loadResourceDir(dir);
     return instance;
   }
-
-
-  protected abstract parse(executionContext: TExecutionContext): Promise<RequestContext>;
-
-  protected abstract sendResponse(executionContext: TExecutionContext, requestContext: RequestContext): Promise<void>;
-
-  protected abstract sendError(executionContext: TExecutionContext, error: OpraException): Promise<void>;
 
 }
 

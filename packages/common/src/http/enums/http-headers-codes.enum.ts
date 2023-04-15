@@ -423,6 +423,12 @@ export enum HttpHeaderCodes {
    */
   Strict_Transport_Security = 'Strict-Transport-Security',
 
+
+  /**
+   *
+   */
+  Upgrade = 'Upgrade',
+
   /**
    * Sends a signal to the server expressing the client's preference for an encrypted and authenticated response,
    * and that it can successfully handle the upgrade-insecure-requests directive.
@@ -517,6 +523,11 @@ export enum HttpHeaderCodes {
    * resolution on both links that the user may choose to follow as well as URLs for items
    * referenced by the document, including images, CSS, JavaScript, and so forth.
    */
-  X_DNS_Prefetch_Control = 'X-DNS-Prefetch-Control'
+  X_DNS_Prefetch_Control = 'X-DNS-Prefetch-Control',
+
+  /**
+   *
+   */
+  Max_Forwards = 'Max-Forwards'
 
 }

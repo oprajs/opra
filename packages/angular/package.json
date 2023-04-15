@@ -25,8 +25,8 @@
     "fix-json": "node ./tools/fix-dependencies.mjs"
   },
   "peerDependencies": {
-    "@angular/common": "14.x.x || 15.x.x",
-    "@angular/core": "14.x.x || 15.x.x",
+    "@angular/common": "14.x.x || 15.x.x || 16.x.x",
+    "@angular/core": "14.x.x || 15.x.x || 16.x.x",
     "@opra/client": "^0.14.0",
     "ts-gems": "^2.3.0"
   },

@@ -1,80 +1,50 @@
-import { IncomingHttpHeaders, OutgoingHttpHeaders } from 'http';
-import { Readable, Writable } from 'stream';
-
-export type ContextType = 'http' | 'ws' | 'rpc';
+import { HttpRequestMessage, HttpResponseMessage } from '@opra/common';
+import { Request } from './request.interface.js';
+import { Response } from './response.interface.js';
 
 export namespace ExecutionContext {
-  export type OnFinishArgs = {
-    userContext: any;
-    failed: boolean;
-  }
+  export type Protocol = 'http' | 'ws' | 'rpc';
+  // export type OnFinishArgs = {
+  //   context: ExecutionContext;
+  //   failed: boolean;
+  // }
 }
 
 export interface ExecutionContext {
-  userContext: any;
 
-  getType(): ContextType;
+  readonly protocol: ExecutionContext.Protocol;
 
-  getPlatform(): string;
+  readonly platform: string;
+
+  readonly request: Request;
+
+  readonly response: Response;
+
+  user?: any;
 
   switchToHttp(): HttpExecutionContext;
 
-  on(event: 'finish', fn: (args: ExecutionContext.OnFinishArgs) => void | Promise<void>);
+  switchToWs(): WsExecutionContext;
+
+  switchToRpc(): RpcExecutionContext;
+
+  // on(event: 'finish', fn: (args: ExecutionContext.OnFinishArgs) => void | Promise<void>);
 }
 
-export interface HttpExecutionContext extends ExecutionContext {
 
-  getRequest(): HttpRequestWrapper;
+export interface HttpExecutionContext extends Omit<ExecutionContext, 'request' | 'response'> {
 
-  getResponse(): HttpResponseWrapper;
+  readonly request: HttpRequestMessage;
+
+  readonly response: HttpResponseMessage;
 }
 
-export interface HttpRequestWrapper {
 
-  getInstance(): any;
-
-  getUrl(): string;
-
-  getMethod(): string;
-
-  getHeaderNames(): string[];
-
-  getHeader(name: string): string | string[] | undefined;
-
-  getHeaders(): IncomingHttpHeaders;
-
-  getBody(): any;
-
-  isCompleted(): boolean;
-
-  getStream(): Readable;
+export interface WsExecutionContext extends Omit<ExecutionContext, 'request' | 'response'> {
 
 }
 
-export interface HttpResponseWrapper {
 
-  getInstance(): any;
-
-  getHeader(name: string): number | string | string[] | undefined;
-
-  getHeaders(): OutgoingHttpHeaders;
-
-  getHeaderNames(): string[];
-
-  hasHeader(name: string): boolean;
-
-  removeHeader(name: string): void;
-
-  setHeader(name: string, value: number | string | string[]): this;
-
-  getStatus(): number | undefined;
-
-  setStatus(value: number): this;
-
-  getStream(): Writable;
-
-  send(body: any): this;
-
-  end(): this;
+export interface RpcExecutionContext extends Omit<ExecutionContext, 'request' | 'response'> {
 
 }

@@ -16,7 +16,8 @@ export function convertFilter(str: string | Expression | undefined): any {
 
   if (ast instanceof ComparisonExpression) {
     const left = ast.left instanceof QualifiedIdentifier
-        ? ast.left.value : convertFilter(ast.left);
+        ? sqb.Field(ast.left.value)
+        : convertFilter(ast.left);
     const right = convertFilter(ast.right);
 
     switch (ast.op) {
@@ -49,7 +50,7 @@ export function convertFilter(str: string | Expression | undefined): any {
     }
   }
   if (ast instanceof QualifiedIdentifier) {
-    return sqb.Field(ast.value);
+    return ast.value;
   }
   if (ast instanceof NumberLiteral ||
       ast instanceof StringLiteral ||

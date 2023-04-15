@@ -17,4 +17,3 @@ export * from './data-type/expose.decorator.js';
 export * from './resource/resource.js';
 export * from './resource/collection.js';
 export * from './resource/singleton.js';
-export * from './utils/normalize-field-array.util.js';

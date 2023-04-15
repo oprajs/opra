@@ -1,20 +1,6 @@
 import isNil from 'lodash.isnil';
 import omitBy from 'lodash.omitby';
-import {
-  CollectionCreateQuery,
-  CollectionDeleteManyQuery,
-  CollectionDeleteQuery,
-  CollectionGetQuery,
-  CollectionSearchQuery,
-  CollectionUpdateManyQuery,
-  CollectionUpdateQuery,
-  OpraQuery,
-  SingletonCreateQuery,
-  SingletonDeleteQuery,
-  SingletonGetQuery,
-  SingletonUpdateQuery
-} from '@opra/core';
-import { Repository } from '@sqb/connect';
+import { Request } from '@opra/core';
 import { convertFilter } from './convert-filter.js';
 
 export namespace SQBAdapter {
@@ -22,179 +8,209 @@ export namespace SQBAdapter {
   export const parseFilter = convertFilter;
   export type parseFilter = typeof convertFilter;
 
-  export function parseCollectionCreateQuery(query: CollectionCreateQuery) {
-    const options: Repository.CreateOptions = omitBy({
-      pick: query.pick?.length ? query.pick : undefined,
-      omit: query.omit?.length ? query.omit : undefined,
-      include: query.include?.length ? query.include : undefined,
-    }, isNil);
+  export function parseCollectionCreateRequest(request: Request) {
+    /* istanbul ignore next */
+    if (!(request.resourceKind === 'Collection' && request.operation === 'create'))
+      throw new TypeError('"Request" is not a "CollectionCreateRequest"');
+    const {args} = request;
     return {
-      method: query.method,
-      data: query.data,
-      options
+      method: 'create',
+      data: args.data,
+      options: omitBy({
+        pick: args.pick?.length ? args.pick : undefined,
+        omit: args.omit?.length ? args.omit : undefined,
+        include: args.include?.length ? args.include : undefined,
+      }, isNil)
     };
   }
 
-  export function parseCollectionDeleteQuery(query: CollectionDeleteQuery) {
-    const options = {};
-    const keyValue = query.keyValue;
+  export function parseCollectionDeleteRequest(request: Request) {
+    /* istanbul ignore next */
+    if (!(request.resourceKind === 'Collection' && request.operation === 'delete'))
+      throw new TypeError('"Request" is not a "CollectionDeleteRequest"');
+    const {args} = request;
     return {
-      method: query.method,
-      keyValue,
-      options
+      method: 'destroy',
+      key: args.key,
+      options: {}
     };
   }
 
-  export function parseCollectionDeleteManyQuery(query: CollectionDeleteManyQuery) {
-    const options: Repository.DestroyOptions = omitBy({
-      filter: parseFilter(query.filter)
-    }, isNil)
+  export function parseCollectionDeleteManyRequest(request: Request) {
+    /* istanbul ignore next */
+    if (!(request.resourceKind === 'Collection' && request.operation === 'deleteMany'))
+      throw new TypeError('"Request" is not a "CollectionDeleteManyRequest"');
+    const {args} = request;
     return {
-      method: query.method,
-      options
+      method: 'destroyAll',
+      options: omitBy({
+        filter: parseFilter(args.filter)
+      }, isNil)
     };
   }
 
-  export function parseCollectionGetQuery(query: CollectionGetQuery) {
-    const options: Repository.FindOneOptions = omitBy({
-      pick: query.pick?.length ? query.pick : undefined,
-      omit: query.omit?.length ? query.omit : undefined,
-      include: query.include?.length ? query.include : undefined,
-    }, isNil);
-    const keyValue = query.keyValue;
+  export function parseCollectionGetRequest(request: Request) {
+    /* istanbul ignore next */
+    if (!(request.resourceKind === 'Collection' && request.operation === 'get'))
+      throw new TypeError('"Request" is not a "CollectionGetRequest"');
+    const {args} = request;
     return {
-      method: query.method,
-      keyValue,
-      options
+      method: 'findByPk',
+      key: args.key,
+      options: omitBy({
+        pick: args.pick?.length ? args.pick : undefined,
+        omit: args.omit?.length ? args.omit : undefined,
+        include: args.include?.length ? args.include : undefined,
+      }, isNil)
     };
   }
 
-  export function parseSingletonGetQuery(query: SingletonGetQuery) {
-    const options: Repository.FindOneOptions = omitBy({
-      pick: query.pick?.length ? query.pick : undefined,
-      omit: query.omit?.length ? query.omit : undefined,
-      include: query.include?.length ? query.include : undefined,
-    }, isNil);
+  export function parseCollectionUpdateRequest(request: Request) {
+    /* istanbul ignore next */
+    if (!(request.resourceKind === 'Collection' && request.operation === 'update'))
+      throw new TypeError('"Request" is not a "CollectionUpdateRequest"');
+    const {args} = request;
     return {
-      method: query.method,
-      options
+      method: 'update',
+      key: args.key,
+      data: args.data,
+      options: omitBy({
+        pick: args.pick?.length ? args.pick : undefined,
+        omit: args.omit?.length ? args.omit : undefined,
+        include: args.include?.length ? args.include : undefined,
+      }, isNil)
     };
   }
 
-  export function parseCollectionUpdateQuery(query: CollectionUpdateQuery) {
-    const options: Repository.UpdateOptions = omitBy({
-      pick: query.pick?.length ? query.pick : undefined,
-      omit: query.omit?.length ? query.omit : undefined,
-      include: query.include?.length ? query.include : undefined,
-    }, isNil);
+  export function parseCollectionUpdateManyRequest(request: Request) {
+    /* istanbul ignore next */
+    if (!(request.resourceKind === 'Collection' && request.operation === 'updateMany'))
+      throw new TypeError('"Request" is not a "CollectionUpdateManyRequest"');
+    const {args} = request;
     return {
-      method: query.method,
-      keyValue: query.keyValue,
-      data: query.data,
-      options
+      method: 'updateAll',
+      data: args.data,
+      options: omitBy({
+        filter: parseFilter(args.filter)
+      }, isNil)
     };
   }
 
-  export function parseCollectionUpdateManyQuery(query: CollectionUpdateManyQuery) {
-    const options: Repository.DestroyOptions = omitBy({
-      filter: parseFilter(query.filter)
-    }, isNil);
+  export function parseCollectionSearchRequest(request: Request) {
+    /* istanbul ignore next */
+    if (!(request.resourceKind === 'Collection' && request.operation === 'search'))
+      throw new TypeError('"Request" is not a "CollectionSearchRequest"');
+    const {args} = request;
     return {
-      method: query.method,
-      data: query.data,
-      options
+      method: 'findAll',
+      options: omitBy({
+        pick: args.pick?.length ? args.pick : undefined,
+        omit: args.omit?.length ? args.omit : undefined,
+        include: args.include?.length ? args.include : undefined,
+        sort: args.sort?.length ? args.sort : undefined,
+        limit: args.limit,
+        offset: args.skip,
+        distinct: args.distinct,
+        total: args.count,
+        filter: parseFilter(args.filter)
+      }, isNil)
     };
   }
 
-  export function parseCollectionSearchQuery(query: CollectionSearchQuery) {
-    const options: Repository.FindAllOptions = omitBy({
-      pick: query.pick?.length ? query.pick : undefined,
-      omit: query.omit?.length ? query.omit : undefined,
-      include: query.include?.length ? query.include : undefined,
-      sort: query.sort?.length ? query.sort : undefined,
-      limit: query.limit,
-      offset: query.skip,
-      distinct: query.distinct,
-      total: query.count,
-      filter: parseFilter(query.filter)
-    }, isNil)
+  export function parseSingletonGetRequest(request: Request) {
+    /* istanbul ignore next */
+    if (!(request.resourceKind === 'Singleton' && request.operation === 'get'))
+      throw new TypeError('"Request" is not a "SingletonGetRequest"');
+    const {args} = request;
     return {
-      method: query.method,
-      options
+      method: 'findOne',
+      options: omitBy({
+        pick: args.pick?.length ? args.pick : undefined,
+        omit: args.omit?.length ? args.omit : undefined,
+        include: args.include?.length ? args.include : undefined,
+      }, isNil)
     };
   }
 
-  export function parseSingletonCreateQuery(query: SingletonCreateQuery) {
-    const options: Repository.CreateOptions = omitBy({
-      pick: query.pick?.length ? query.pick : undefined,
-      omit: query.omit?.length ? query.omit : undefined,
-      include: query.include?.length ? query.include : undefined,
-    }, isNil);
+  export function parseSingletonCreateRequest(request: Request) {
+    /* istanbul ignore next */
+    if (!(request.resourceKind === 'Singleton' && request.operation === 'create'))
+      throw new TypeError('"Request" is not a "SingletonCreateRequest"');
+    const {args} = request;
     return {
-      method: query.method,
-      data: query.data,
-      options
+      method: 'create',
+      data: args.data,
+      options: omitBy({
+        pick: args.pick?.length ? args.pick : undefined,
+        omit: args.omit?.length ? args.omit : undefined,
+        include: args.include?.length ? args.include : undefined,
+      }, isNil)
     };
   }
 
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  export function parseSingletonDeleteQuery(query: SingletonDeleteQuery) {
-    const options = {};
+  export function parseSingletonDeleteRequest(request: Request) {
+    /* istanbul ignore next */
+    if (!(request.resourceKind === 'Singleton' && request.operation === 'delete'))
+      throw new TypeError('"Request" is not a "SingletonDeleteRequest"');
     return {
-      method: query.method,
-      options,
+      method: 'destroyAll',
+      options: {},
     };
   }
 
-  export function parseSingletonUpdateQuery(query: SingletonUpdateQuery) {
-    const options: Repository.UpdateOptions = omitBy({
-      pick: query.pick?.length ? query.pick : undefined,
-      omit: query.omit?.length ? query.omit : undefined,
-      include: query.include?.length ? query.include : undefined,
-    }, isNil);
+  export function parseSingletonUpdateRequest(request: Request) {
+    /* istanbul ignore next */
+    if (!(request.resourceKind === 'Singleton' && request.operation === 'update'))
+      throw new TypeError('"Request" is not a "SingletonUpdateRequest"');
+    const {args} = request;
     return {
-      method: query.method,
-      data: query.data,
-      options
+      method: 'updateAll',
+      data: args.data,
+      options: omitBy({
+        pick: args.pick?.length ? args.pick : undefined,
+        omit: args.omit?.length ? args.omit : undefined,
+        include: args.include?.length ? args.include : undefined,
+      }, isNil)
     };
   }
 
-  export function parseQuery(query: OpraQuery): {
+  export function parseRequest(request: Request): {
     method: string;
-    keyValue?: any;
+    key?: any;
     data?: any;
     options: any;
   } {
-    if (query.subject === 'Collection') {
-      switch (query.method) {
+    if (request.resourceKind === 'Collection') {
+      switch (request.operation) {
         case 'create':
-          return parseCollectionCreateQuery(query);
+          return parseCollectionCreateRequest(request);
         case 'get':
-          return parseCollectionGetQuery(query);
+          return parseCollectionGetRequest(request);
         case 'delete':
-          return parseCollectionDeleteQuery(query);
+          return parseCollectionDeleteRequest(request);
         case 'deleteMany':
-          return parseCollectionDeleteManyQuery(query);
+          return parseCollectionDeleteManyRequest(request);
         case 'update':
-          return parseCollectionUpdateQuery(query);
+          return parseCollectionUpdateRequest(request);
         case 'updateMany':
-          return parseCollectionUpdateManyQuery(query);
+          return parseCollectionUpdateManyRequest(request);
         case 'search':
-          return parseCollectionSearchQuery(query);
+          return parseCollectionSearchRequest(request);
       }
-    } else if (query.subject === 'Singleton') {
-      switch (query.method) {
+    } else if (request.resourceKind === 'Singleton') {
+      switch (request.operation) {
         case 'create':
-          return parseSingletonCreateQuery(query);
+          return parseSingletonCreateRequest(request);
         case 'delete':
-          return parseSingletonDeleteQuery(query);
+          return parseSingletonDeleteRequest(request);
         case 'get':
-          return parseSingletonGetQuery(query);
+          return parseSingletonGetRequest(request);
         case 'update':
-          return parseSingletonUpdateQuery(query);
+          return parseSingletonUpdateRequest(request);
       }
     }
-    throw new Error(`Unimplemented query method "${(query as any).method}"`);
+    throw new Error(`Unimplemented request method "${(request as any).method}"`);
   }
 
 }

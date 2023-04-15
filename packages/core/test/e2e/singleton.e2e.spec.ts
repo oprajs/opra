@@ -2,19 +2,18 @@
 import express from 'express';
 import supertest from 'supertest';
 import { jest } from '@jest/globals'
-import { ApiDocument, Collection } from '@opra/common';
+import { ApiDocument, Singleton } from '@opra/common';
 import { ExecutionContext, OpraExpressAdapter } from '@opra/core';
 import { createTestDocument } from '../_support/test-app/create-document.js';
 
-describe('e2e:Collection', function () {
+describe('e2e:Singleton', function () {
 
   const app = express();
   const client = supertest(app);
   let document: ApiDocument;
   let adapter: OpraExpressAdapter;
-  let resource: Collection;
+  let resource: Singleton;
   const data = {
-    id: 1001,
     givenName: 'abcd',
     familyName: 'efgh',
   }
@@ -22,7 +21,7 @@ describe('e2e:Collection', function () {
   beforeAll(async () => {
     document = await createTestDocument();
     adapter = await OpraExpressAdapter.create(app, document);
-    resource = document.getCollection('customers');
+    resource = document.getSingleton('bestcustomer');
   });
 
   afterAll(async () => {
@@ -34,7 +33,7 @@ describe('e2e:Collection', function () {
     const mockFn =
         jest.spyOn(resource.operations.create!, 'handler')
             .mockImplementation((c) => ctx = c);
-    await client.post('/Customers').send(data);
+    await client.post('/BestCustomer').send(data);
     expect(ctx).toBeDefined();
     expect(ctx.protocol).toStrictEqual('http');
     expect(ctx.request).toBeDefined();
@@ -49,27 +48,12 @@ describe('e2e:Collection', function () {
     const mockFn =
         jest.spyOn(resource.operations.get!, 'handler')
             .mockImplementation((c) => ctx = c);
-    await client.get('/Customers@1');
+    await client.get('/BestCustomer');
     expect(ctx).toBeDefined();
     expect(ctx.protocol).toStrictEqual('http');
     expect(ctx.request).toBeDefined();
     expect(ctx.response).toBeDefined();
     expect(ctx.request.operation).toStrictEqual('get');
-    expect(ctx.request.args.key).toStrictEqual(1);
-    mockFn.mockRestore();
-  });
-
-  it('Should execute "search" endpoint', async () => {
-    let ctx!: ExecutionContext;
-    const mockFn =
-        jest.spyOn(resource.operations.search!, 'handler')
-            .mockImplementation((c) => ctx = c);
-    await client.get('/Customers');
-    expect(ctx).toBeDefined();
-    expect(ctx.protocol).toStrictEqual('http');
-    expect(ctx.request).toBeDefined();
-    expect(ctx.response).toBeDefined();
-    expect(ctx.request.operation).toStrictEqual('search');
     mockFn.mockRestore();
   });
 
@@ -78,27 +62,12 @@ describe('e2e:Collection', function () {
     const mockFn =
         jest.spyOn(resource.operations.delete!, 'handler')
             .mockImplementation((c) => ctx = c);
-    await client.delete('/Customers@1');
+    await client.delete('/BestCustomer');
     expect(ctx).toBeDefined();
     expect(ctx.protocol).toStrictEqual('http');
     expect(ctx.request).toBeDefined();
     expect(ctx.response).toBeDefined();
     expect(ctx.request.operation).toStrictEqual('delete');
-    expect(ctx.request.args.key).toStrictEqual(1);
-    mockFn.mockRestore();
-  });
-
-  it('Should execute "deleteMany" endpoint', async () => {
-    let ctx!: ExecutionContext;
-    const mockFn =
-        jest.spyOn(resource.operations.deleteMany!, 'handler')
-            .mockImplementation((c) => ctx = c);
-    await client.delete('/Customers');
-    expect(ctx).toBeDefined();
-    expect(ctx.protocol).toStrictEqual('http');
-    expect(ctx.request).toBeDefined();
-    expect(ctx.response).toBeDefined();
-    expect(ctx.request.operation).toStrictEqual('deleteMany');
     mockFn.mockRestore();
   });
 
@@ -107,28 +76,12 @@ describe('e2e:Collection', function () {
     const mockFn =
         jest.spyOn(resource.operations.update!, 'handler')
             .mockImplementation((c) => ctx = c);
-    await client.patch('/Customers@1').send(data);
+    await client.patch('/BestCustomer').send(data);
     expect(ctx).toBeDefined();
     expect(ctx.protocol).toStrictEqual('http');
     expect(ctx.request).toBeDefined();
     expect(ctx.response).toBeDefined();
     expect(ctx.request.operation).toStrictEqual('update');
-    expect(ctx.request.args.key).toStrictEqual(1);
-    expect(ctx.request.args.data).toStrictEqual(data);
-    mockFn.mockRestore();
-  });
-
-  it('Should execute "updateMany" endpoint', async () => {
-    let ctx!: ExecutionContext;
-    const mockFn =
-        jest.spyOn(resource.operations.updateMany!, 'handler')
-            .mockImplementation((c) => ctx = c);
-    await client.patch('/Customers').send(data);
-    expect(ctx).toBeDefined();
-    expect(ctx.protocol).toStrictEqual('http');
-    expect(ctx.request).toBeDefined();
-    expect(ctx.response).toBeDefined();
-    expect(ctx.request.operation).toStrictEqual('updateMany');
     expect(ctx.request.args.data).toStrictEqual(data);
     mockFn.mockRestore();
   });

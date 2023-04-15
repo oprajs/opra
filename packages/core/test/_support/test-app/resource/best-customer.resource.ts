@@ -8,9 +8,24 @@ import { Customer } from '../../../../../common/test/_support/test-doc/index.js'
 })
 export class BestCustomerResource {
 
+  @Singleton.CreateOperation()
+  create() {
+    //
+  }
+
+  @Singleton.DeleteOperation()
+  delete() {
+    //
+  }
+
   @Singleton.GetOperation()
   raed() {
-    return new Customer();
+    //
+  }
+
+  @Singleton.UpdateOperation()
+  update() {
+    //
   }
 
 }
