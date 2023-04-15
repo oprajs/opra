@@ -50,6 +50,8 @@ export interface Singleton extends StrictOmit<Resource, 'exportSchema' | '_const
 
   exportSchema(): OpraSchema.Singleton;
 
+  normalizeElementNames(elements: string[]): string[] | undefined;
+
   _construct(init: Singleton.InitArguments): void;
 }
 
@@ -130,7 +132,12 @@ const proto = {
       operations: this.operations
     }));
     return out;
-  }
+  },
+
+  normalizeElementNames(this: Singleton, elements: string[]): string[] | undefined {
+    return this.type.normalizeElementNames(elements);
+  },
+
 } as Singleton;
 
 Object.assign(Singleton.prototype, proto);

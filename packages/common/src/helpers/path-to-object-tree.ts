@@ -5,7 +5,7 @@ export interface ObjectTree {
 }
 
 export function pathToObjectTree(arr: string[], lowerCaseKeys?: boolean): ObjectTree | undefined {
-  if (!arr.length)
+  if (!(arr && arr.length))
     return;
   return _pathToObjectTree(arr, {}, lowerCaseKeys);
 }

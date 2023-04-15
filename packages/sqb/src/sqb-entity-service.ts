@@ -2,8 +2,9 @@ import { Maybe, Type } from 'ts-gems';
 import { PartialInput, PartialOutput } from '@opra/core';
 import { EntityInput, EntityMetadata, Repository, SqbClient, SqbConnection } from '@sqb/connect';
 
-export abstract class SqbEntityService<T, TOutput = PartialOutput<T>> {
+export abstract class SqbEntityService<T, TContext = never, TOutput = PartialOutput<T>> {
   protected _entityMetadata: EntityMetadata;
+  protected _context: TContext;
 
   protected constructor(readonly resourceType: Type<T>) {
     const metadata = EntityMetadata.get(resourceType);
@@ -12,12 +13,17 @@ export abstract class SqbEntityService<T, TOutput = PartialOutput<T>> {
     this._entityMetadata = metadata;
   }
 
+  for(context: TContext): SqbEntityService<T, TContext, TOutput> {
+    const newScope = Object.create(this);
+    newScope._context = context;
+    return newScope;
+  }
+
   async create(
       data: PartialInput<T>,
-      options?: Repository.CreateOptions,
-      userContext?: any
+      options?: Repository.CreateOptions
   ): Promise<TOutput> {
-    const conn = await this.getConnection(userContext);
+    const conn = await this.getConnection(this._context);
     const repo = conn.getRepository(this.resourceType);
     let out;
     try {
@@ -27,7 +33,7 @@ export abstract class SqbEntityService<T, TOutput = PartialOutput<T>> {
       throw e;
     }
     if (out && this.onTransformRow)
-      out = this.onTransformRow(out, userContext, 'create');
+      out = this.onTransformRow(out, 'create', this._context);
     return out;
   }
 
@@ -89,7 +95,7 @@ export abstract class SqbEntityService<T, TOutput = PartialOutput<T>> {
       throw e;
     }
     if (out && this.onTransformRow)
-      out = this.onTransformRow(out, userContext, 'read');
+      out = this.onTransformRow(out, 'read', this._context);
     return out;
   }
 
@@ -107,7 +113,7 @@ export abstract class SqbEntityService<T, TOutput = PartialOutput<T>> {
       throw e;
     }
     if (out && this.onTransformRow)
-      out = this.onTransformRow(out, userContext, 'read');
+      out = this.onTransformRow(out, 'read', this._context);
     return out;
   }
 
@@ -128,7 +134,7 @@ export abstract class SqbEntityService<T, TOutput = PartialOutput<T>> {
     if (items.length && this.onTransformRow) {
       const newItems: any[] = [];
       for (const item of items) {
-        const v = this.onTransformRow(item, userContext, 'read');
+        const v = this.onTransformRow(item, 'read', this._context);
         if (v)
           newItems.push(v);
       }
@@ -153,7 +159,7 @@ export abstract class SqbEntityService<T, TOutput = PartialOutput<T>> {
       throw e;
     }
     if (out && this.onTransformRow)
-      out = this.onTransformRow(out, userContext, 'update');
+      out = this.onTransformRow(out, 'update', this._context);
     return out;
   }
 
@@ -177,11 +183,11 @@ export abstract class SqbEntityService<T, TOutput = PartialOutput<T>> {
       await this.onError(e);
   }
 
-  protected abstract getConnection(userContext?: any): SqbConnection | SqbClient | Promise<SqbConnection | SqbClient>;
+  protected abstract getConnection(context: TContext): SqbConnection | SqbClient | Promise<SqbConnection | SqbClient>;
 
   protected onError?(e: unknown): void | Promise<void>;
 
-  protected onTransformRow?(row: TOutput, userContext: any, method: string): TOutput;
+  protected onTransformRow?(row: TOutput, method: string, context: TContext): TOutput;
 
 
 }

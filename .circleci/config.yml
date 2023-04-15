@@ -32,6 +32,11 @@ jobs:
         type: string
     docker:
       - image: circleci/node:<< parameters.version >>
+    filters:
+      branches:
+        only:
+          - main
+          - dev
     environment:
       NODE_ENV: test
     steps:

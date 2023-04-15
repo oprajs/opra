@@ -1,6 +1,6 @@
 import omit from 'lodash.omit';
 import { StrictOmit, Type, Writable } from 'ts-gems';
-import { omitUndefined, ResponsiveMap } from '../../helpers/index.js';
+import { ObjectTree, omitUndefined, pathToObjectTree, ResponsiveMap } from '../../helpers/index.js';
 import { OpraSchema } from '../../schema/index.js';
 import type { ApiDocument } from '../api-document.js';
 import { METADATA_KEY, TYPENAME_PATTERN } from '../constants.js';
@@ -49,6 +49,8 @@ export interface ComplexType extends StrictOmit<DataType, 'own' | 'exportSchema'
   addElement(init: Element.InitArguments): Element;
 
   getElement(name: string): Element;
+
+  normalizeElementNames(elements: string[]): string[] | undefined;
 }
 
 /**
@@ -176,8 +178,62 @@ const proto = {
     if (!t)
       throw new Error(`"${this.name}" type doesn't have an element named "${name}"`);
     return t;
+  },
+
+  normalizeElementNames(this: ComplexType, elements: string[]): string[] | undefined {
+    const fieldsTree = pathToObjectTree(elements) || {};
+    const out = _normalizeElementNames([], this.document, this, fieldsTree, '', '');
+    return out.length ? out : undefined;
   }
+
 } as ComplexType;
 
 Object.assign(ComplexType.prototype, proto);
 Object.setPrototypeOf(ComplexType.prototype, DataType.prototype);
+
+/**
+ * Normalizes element names
+ */
+function _normalizeElementNames(
+    target: string[],
+    document: ApiDocument,
+    dataType: ComplexType | undefined,
+    node: ObjectTree,
+    parentPath: string = '',
+    actualPath: string = ''
+): string[] {
+  let curPath = '';
+  for (const k of Object.keys(node)) {
+    const nodeVal = node[k];
+
+    const element = dataType?.elements.get(k);
+    if (!element) {
+      curPath = parentPath ? parentPath + '.' + k : k;
+
+      if ((dataType && !dataType.additionalElements))
+        throw new TypeError(`Unknown element "${curPath}"`);
+      if (typeof nodeVal === 'object')
+        _normalizeElementNames(target, document, undefined, nodeVal, curPath, actualPath);
+      else target.push(curPath);
+      continue;
+    }
+    curPath = parentPath ? parentPath + '.' + element.name : element.name;
+
+    if (typeof nodeVal === 'object') {
+      if (!(element.type instanceof ComplexType))
+        throw new TypeError(`"${(actualPath ? actualPath + '.' + curPath : curPath)}" is not a complex type and has no sub fields`);
+      if (target.findIndex(x => x === parentPath) >= 0)
+        continue;
+
+      target = _normalizeElementNames(target, document, element.type, nodeVal, curPath, actualPath);
+      continue;
+    }
+
+    if (target.findIndex(x => x.startsWith(curPath + '.')) >= 0) {
+      target = target.filter(x => !x.startsWith(curPath + '.'));
+    }
+
+    target.push(curPath);
+  }
+  return target;
+}

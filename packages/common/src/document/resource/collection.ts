@@ -1,12 +1,24 @@
 import omit from 'lodash.omit';
 import merge from 'putil-merge';
 import { StrictOmit, Type, Writable } from 'ts-gems';
+import { BadRequestError } from '../../exception/index.js';
+import {
+  ArithmeticExpression,
+  ArrayExpression,
+  ComparisonExpression,
+  Expression,
+  LogicalExpression,
+  ParenthesesExpression,
+  QualifiedIdentifier
+} from '../../filter/index.js';
 import { omitUndefined } from '../../helpers/index.js';
+import { translate } from '../../i18n/index.js';
 import { OpraSchema } from '../../schema/index.js';
 import type { TypeThunkAsync } from '../../types.js';
 import type { ApiDocument } from '../api-document.js';
 import { METADATA_KEY } from '../constants.js';
 import type { ComplexType } from '../data-type/complex-type.js';
+import { SimpleType } from '../data-type/simple-type.js';
 import { Resource } from './resource.js';
 
 const NESTJS_INJECTABLE_WATERMARK = '__injectable__';
@@ -58,6 +70,14 @@ export interface Collection extends StrictOmit<Resource, 'exportSchema' | '_cons
   readonly primaryKey: string[];
 
   exportSchema(): OpraSchema.Collection;
+
+  parseKeyValue(value: any): any;
+
+  normalizeElementNames(elements: string[]): string[] | undefined;
+
+  normalizeSortElements(elements: string[]): string[] | undefined;
+
+  normalizeFilterElements(ast: Expression): Expression;
 
   _construct(init: Collection.InitArguments): void;
 }
@@ -120,7 +140,7 @@ export const Collection = function (this: Collection | void, ...args: any[]) {
 
 const proto = {
 
-  _construct(init: Collection.InitArguments): void {
+  _construct(this: Collection, init: Collection.InitArguments): void {
     // call super()
     Resource.prototype._construct.call(this, init);
 
@@ -135,7 +155,11 @@ const proto = {
         : [];
     if (!_this.primaryKey.length)
       throw new TypeError(`You must provide primaryKey for Collection resource ("${_this.name}")`);
-    _this.primaryKey.forEach(f => dataType.getElement(f));
+    _this.primaryKey.forEach(f => {
+      const el = dataType.getElement(f);
+      if (!(el.type instanceof SimpleType))
+        throw new TypeError(`Only Simple type allowed for primary keys but "${f}" is a ${el.type.kind}`);
+    });
     if (_this.controller) {
       const instance = typeof _this.controller == 'function'
           ? new (_this.controller as Type)()
@@ -151,7 +175,7 @@ const proto = {
     }
   },
 
-  exportSchema(): OpraSchema.Collection {
+  exportSchema(this: Collection): OpraSchema.Collection {
     const out = Resource.prototype.exportSchema.call(this) as OpraSchema.Collection;
     Object.assign(out, omitUndefined({
       type: this.type.name,
@@ -159,7 +183,80 @@ const proto = {
       primaryKey: this.primaryKey
     }));
     return out;
+  },
+
+  parseKeyValue(this: Collection, value: any): any | undefined {
+    if (!this.primaryKey?.length)
+      return;
+    const dataType = this.type;
+    if (this.primaryKey.length > 1) {
+      // Build primary key/value mapped object
+      const obj = Array.isArray(value)
+          ? this.primaryKey.reduce((o, k, i) => {
+            o[k] = value[i];
+            return obj;
+          }, {} as any)
+          : value;
+      // decode values
+      for (const [k, v] of Object.entries(obj)) {
+        const el = dataType.getElement(k);
+        obj[k] = (el.type as SimpleType).decode(v);
+        if (obj[k] == null)
+          throw new TypeError(`You must provide value of primary key element (${k})`);
+      }
+    } else {
+      const primaryKey = this.primaryKey[0];
+      if (typeof value === 'object')
+        value = value[primaryKey];
+      const el = dataType.getElement(primaryKey);
+      const result = (el.type as SimpleType).decode(value);
+      if (result == null)
+        throw new TypeError(`You must provide value of primary key element (${primaryKey})`);
+      return result;
+    }
+  },
+
+  normalizeElementNames(this: Collection, elements: string[]): string[] | undefined {
+    return this.type.normalizeElementNames(elements);
+  },
+
+  normalizeSortElements(this: Collection, elements: string[]): string[] | undefined {
+    const normalized = this.normalizeElementNames(elements);
+    if (!normalized)
+      return;
+    const searchEndpoint = this.operations.search;
+    const sortElements = searchEndpoint && searchEndpoint.sortElements;
+    normalized.forEach(element => {
+      if (!sortElements?.find(x => x === element))
+        throw new BadRequestError({
+          message: translate('error:UNACCEPTED_SORT_ELEMENT', {element},
+              `Element '${element}' is not available for sort operation`),
+        })
+    });
+    return normalized;
+  },
+
+  normalizeFilterElements(ast: Expression): Expression {
+    if (ast instanceof ComparisonExpression) {
+      this.normalizeFilterElements(ast.left);
+    } else if (ast instanceof LogicalExpression) {
+      ast.items.forEach(item =>
+          this.normalizeFilterElements(item));
+    } else if (ast instanceof ArithmeticExpression) {
+      ast.items.forEach(item =>
+          this.normalizeFilterElements(item.expression));
+    } else if (ast instanceof ArrayExpression) {
+      ast.items.forEach(item =>
+          this.normalizeFilterElements(item));
+    } else if (ast instanceof ParenthesesExpression) {
+      this.normalizeFilterElements(ast.expression);
+    } else if (ast instanceof QualifiedIdentifier) {
+      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+      ast.value = this.normalizeElementNames([ast.value])![0];
+    }
+    return ast;
   }
+
 } as Collection;
 
 

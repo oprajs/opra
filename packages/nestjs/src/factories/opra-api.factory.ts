@@ -105,8 +105,8 @@ export class OpraApiFactory {
             switch (ctx.type) {
               case 'http':
                 const http = ctx.switchToHttp();
-                const req = http.getRequest().getInstance();
-                const res = http.getResponse().getInstance();
+                const req = http.getIncoming().getInstance();
+                const res = http.getOutgoing().getInstance();
                 return callback(req, res, noOpFunction, ctx);
               default:
                 throw new Error(`"${ctx.type}" context type is not implemented yet`)

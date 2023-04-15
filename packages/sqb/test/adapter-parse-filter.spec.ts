@@ -1,256 +1,119 @@
-import { ApiDocument } from '@opra/common';
-import { CollectionSearchQuery } from '@opra/core';
-import { OperatorType, SerializationType } from '@sqb/builder';
-import { SQBAdapter } from '../src/index.js';
-import { createApp } from './_support/app/index.js';
+import {
+  And, Eq, Field, Gt, Gte, Ilike, In, Like, Lt, Lte, Ne, Nin, NLike, NotILike, Or,
+} from '@sqb/builder';
+import { convertFilter } from '../src/convert-filter.js';
 
-describe('SQBAdapter.parseFilter', function () {
-  let api: ApiDocument;
-
-  beforeAll(async () => {
-    api = (await createApp()).document;
-  })
+describe('SQBAdapter.convertFilter', function () {
 
   it('Should convert StringLiteral', async () => {
-    const query = new CollectionSearchQuery(api.getCollection('Customers'), {
-      filter: 'name="Demons"'
-    });
-    const o = SQBAdapter.parseQuery(query);
-    expect(o.options.filter._right).toStrictEqual('Demons');
+    const out = convertFilter('name="Demons"')
+    expect(out).toStrictEqual(Eq(Field('name'), 'Demons'));
   });
 
   it('Should convert NumberLiteral', async () => {
-    const query = new CollectionSearchQuery(api.getCollection('Customers'), {
-      filter: 'name=10'
-    });
-    const o = SQBAdapter.parseQuery(query);
-    expect(o.options.filter._right).toStrictEqual(10);
+    const out = convertFilter('name=10');
+    expect(out).toStrictEqual(Eq(Field('name'), 10));
   });
 
   it('Should convert BooleanLiteral', async () => {
-    const query = new CollectionSearchQuery(api.getCollection('Customers'), {
-      filter: 'name=true'
-    });
-    const o = SQBAdapter.parseQuery(query);
-    expect(o.options.filter._right).toStrictEqual(true);
+    let out = convertFilter('hidden=true');
+    expect(out).toStrictEqual(Eq(Field('hidden'), true));
+    out = convertFilter('hidden=false');
+    expect(out).toStrictEqual(Eq(Field('hidden'), false));
   });
 
   it('Should convert NullLiteral', async () => {
-    const query = new CollectionSearchQuery(api.getCollection('Customers'), {
-      filter: 'name=null'
-    });
-    const o = SQBAdapter.parseQuery(query);
-    expect(o.options.filter._right).toStrictEqual(null);
+    const out = convertFilter('name=null');
+    expect(out).toStrictEqual(Eq(Field('name'), null));
   });
 
   it('Should convert DateLiteral', async () => {
-    const query = new CollectionSearchQuery(api.getCollection('Customers'), {
-      filter: 'name="2020-06-11T12:30:15"'
-    });
-    const o = SQBAdapter.parseQuery(query);
-    expect(o.options.filter._right).toStrictEqual('2020-06-11T12:30:15');
+    const out = convertFilter('birthDate="2020-06-11T12:30:15"');
+    expect(out).toStrictEqual(Eq(Field('birthDate'), '2020-06-11T12:30:15'));
   });
 
   it('Should convert TimeLiteral', async () => {
-    const query = new CollectionSearchQuery(api.getCollection('Customers'), {
-      filter: 'name="12:30:15"'
-    });
-    const o = SQBAdapter.parseQuery(query);
-    expect(o.options.filter._right).toStrictEqual('12:30:15');
+    const out = convertFilter('birthTime="12:30:15"');
+    expect(out).toStrictEqual(Eq(Field('birthTime'), '12:30:15'));
   });
 
-  it('Should convert ComparisonExpression(=)', async () => {
-    const query = new CollectionSearchQuery(api.getCollection('Customers'), {
-      filter: 'name="Demons"'
-    });
-    const o = SQBAdapter.parseQuery(query);
-    expect(o.method).toStrictEqual(query.method);
-    expect(o.options).toBeDefined();
-    expect(o.options.filter._type).toStrictEqual(SerializationType.COMPARISON_EXPRESSION);
-    expect(o.options.filter._left).toStrictEqual('name');
-    expect(o.options.filter._right).toStrictEqual('Demons');
-    expect(o.options.filter._operatorType).toStrictEqual(OperatorType.eq);
+  it('Should convert ComparisonExpression (=)', async () => {
+    const out = convertFilter('name="Demons"')
+    expect(out).toStrictEqual(Eq(Field('name'), 'Demons'));
   });
 
-  it('Should convert ComparisonExpression(!=)', async () => {
-    const query = new CollectionSearchQuery(api.getCollection('Customers'), {
-      filter: 'name!="Demons"'
-    });
-    const o = SQBAdapter.parseQuery(query);
-    expect(o.method).toStrictEqual(query.method);
-    expect(o.options).toBeDefined();
-    expect(o.options.filter._type).toStrictEqual(SerializationType.COMPARISON_EXPRESSION);
-    expect(o.options.filter._left).toStrictEqual('name');
-    expect(o.options.filter._right).toStrictEqual('Demons');
-    expect(o.options.filter._operatorType).toStrictEqual(OperatorType.ne);
+  it('Should convert ComparisonExpression (!=)', async () => {
+    const out = convertFilter('name!="Demons"')
+    expect(out).toStrictEqual(Ne(Field('name'), 'Demons'));
   });
 
-  it('Should convert ComparisonExpression(>)', async () => {
-    const query = new CollectionSearchQuery(api.getCollection('Customers'), {
-      filter: 'pages>5'
-    });
-    const o = SQBAdapter.parseQuery(query);
-    expect(o.method).toStrictEqual(query.method);
-    expect(o.options).toBeDefined();
-    expect(o.options.filter._type).toStrictEqual(SerializationType.COMPARISON_EXPRESSION);
-    expect(o.options.filter._left).toStrictEqual('pages');
-    expect(o.options.filter._right).toStrictEqual(5);
-    expect(o.options.filter._operatorType).toStrictEqual(OperatorType.gt);
+  it('Should convert ComparisonExpression (>)', async () => {
+    const out = convertFilter('page>5')
+    expect(out).toStrictEqual(Gt(Field('page'), 5));
   });
 
-  it('Should convert ComparisonExpression(>=)', async () => {
-    const query = new CollectionSearchQuery(api.getCollection('Customers'), {
-      filter: 'pages>=5'
-    });
-    const o = SQBAdapter.parseQuery(query);
-    expect(o.method).toStrictEqual(query.method);
-    expect(o.options).toBeDefined();
-    expect(o.options.filter._type).toStrictEqual(SerializationType.COMPARISON_EXPRESSION);
-    expect(o.options.filter._left).toStrictEqual('pages');
-    expect(o.options.filter._right).toStrictEqual(5);
-    expect(o.options.filter._operatorType).toStrictEqual(OperatorType.gte);
+  it('Should convert ComparisonExpression (>=)', async () => {
+    const out = convertFilter('page>=5')
+    expect(out).toStrictEqual(Gte(Field('page'), 5));
   });
 
-  it('Should convert ComparisonExpression(<)', async () => {
-    const query = new CollectionSearchQuery(api.getCollection('Customers'), {
-      filter: 'pages<5'
-    });
-    const o = SQBAdapter.parseQuery(query);
-    expect(o.method).toStrictEqual(query.method);
-    expect(o.options).toBeDefined();
-    expect(o.options.filter._type).toStrictEqual(SerializationType.COMPARISON_EXPRESSION);
-    expect(o.options.filter._left).toStrictEqual('pages');
-    expect(o.options.filter._right).toStrictEqual(5);
-    expect(o.options.filter._operatorType).toStrictEqual(OperatorType.lt);
+  it('Should convert ComparisonExpression (<)', async () => {
+    const out = convertFilter('page<5')
+    expect(out).toStrictEqual(Lt(Field('page'), 5));
   });
 
-  it('Should convert ComparisonExpression(<=)', async () => {
-    const query = new CollectionSearchQuery(api.getCollection('Customers'), {
-      filter: 'pages<=5'
-    });
-    const o = SQBAdapter.parseQuery(query);
-    expect(o.method).toStrictEqual(query.method);
-    expect(o.options).toBeDefined();
-    expect(o.options.filter._type).toStrictEqual(SerializationType.COMPARISON_EXPRESSION);
-    expect(o.options.filter._left).toStrictEqual('pages');
-    expect(o.options.filter._right).toStrictEqual(5);
-    expect(o.options.filter._operatorType).toStrictEqual(OperatorType.lte);
+  it('Should convert ComparisonExpression (>=)', async () => {
+    const out = convertFilter('page<=5')
+    expect(out).toStrictEqual(Lte(Field('page'), 5));
   });
 
-  it('Should convert ComparisonExpression(in)', async () => {
-    const query = new CollectionSearchQuery(api.getCollection('Customers'), {
-      filter: 'pages in [5,6]'
-    });
-    const o = SQBAdapter.parseQuery(query);
-    expect(o.method).toStrictEqual(query.method);
-    expect(o.options).toBeDefined();
-    expect(o.options.filter._type).toStrictEqual(SerializationType.COMPARISON_EXPRESSION);
-    expect(o.options.filter._left).toStrictEqual('pages');
-    expect(o.options.filter._right).toStrictEqual([5, 6]);
-    expect(o.options.filter._operatorType).toStrictEqual(OperatorType.in);
+  it('Should convert ComparisonExpression (in)', async () => {
+    const out = convertFilter('page in [5,6]')
+    expect(out).toStrictEqual(In(Field('page'), [5, 6]));
   });
 
-  it('Should convert ComparisonExpression(!in)', async () => {
-    const query = new CollectionSearchQuery(api.getCollection('Customers'), {
-      filter: 'pages !in [5,6]'
-    });
-    const o = SQBAdapter.parseQuery(query);
-    expect(o.method).toStrictEqual(query.method);
-    expect(o.options).toBeDefined();
-    expect(o.options.filter._type).toStrictEqual(SerializationType.COMPARISON_EXPRESSION);
-    expect(o.options.filter._left).toStrictEqual('pages');
-    expect(o.options.filter._right).toStrictEqual([5, 6]);
-    expect(o.options.filter._operatorType).toStrictEqual(OperatorType.notIn);
+  it('Should convert ComparisonExpression (!in)', async () => {
+    const out = convertFilter('page !in [5,6]')
+    expect(out).toStrictEqual(Nin(Field('page'), [5, 6]));
   });
 
-  it('Should convert ComparisonExpression(like)', async () => {
-    const query = new CollectionSearchQuery(api.getCollection('Customers'), {
-      filter: 'name like "Demons"'
-    });
-    const o = SQBAdapter.parseQuery(query);
-    expect(o.method).toStrictEqual(query.method);
-    expect(o.options).toBeDefined();
-    expect(o.options.filter._type).toStrictEqual(SerializationType.COMPARISON_EXPRESSION);
-    expect(o.options.filter._left).toStrictEqual('name');
-    expect(o.options.filter._right).toStrictEqual('Demons');
-    expect(o.options.filter._operatorType).toStrictEqual(OperatorType.like);
+  it('Should convert ComparisonExpression (like)', async () => {
+    const out = convertFilter('name like "Demons"')
+    expect(out).toStrictEqual(Like(Field('name'), 'Demons'));
   });
 
-  it('Should convert ComparisonExpression(ilike)', async () => {
-    const query = new CollectionSearchQuery(api.getCollection('Customers'), {
-      filter: 'name ilike "Demons"'
-    });
-    const o = SQBAdapter.parseQuery(query);
-    expect(o.method).toStrictEqual(query.method);
-    expect(o.options).toBeDefined();
-    expect(o.options.filter._type).toStrictEqual(SerializationType.COMPARISON_EXPRESSION);
-    expect(o.options.filter._left).toStrictEqual('name');
-    expect(o.options.filter._right).toStrictEqual('Demons');
-    expect(o.options.filter._operatorType).toStrictEqual(OperatorType.iLike);
+  it('Should convert ComparisonExpression (!like)', async () => {
+    const out = convertFilter('name !like "Demons"')
+    expect(out).toStrictEqual(NLike(Field('name'), 'Demons'));
   });
 
-  it('Should convert ComparisonExpression(!like)', async () => {
-    const query = new CollectionSearchQuery(api.getCollection('Customers'), {
-      filter: 'name !like "Demons"'
-    });
-    const o = SQBAdapter.parseQuery(query);
-    expect(o.method).toStrictEqual(query.method);
-    expect(o.options).toBeDefined();
-    expect(o.options.filter._type).toStrictEqual(SerializationType.COMPARISON_EXPRESSION);
-    expect(o.options.filter._left).toStrictEqual('name');
-    expect(o.options.filter._right).toStrictEqual('Demons');
-    expect(o.options.filter._operatorType).toStrictEqual(OperatorType.notLike);
+  it('Should convert ComparisonExpression (ilike)', async () => {
+    const out = convertFilter('name ilike "Demons"')
+    expect(out).toStrictEqual(Ilike(Field('name'), 'Demons'));
   });
 
-  it('Should convert ComparisonExpression(!like)', async () => {
-    const query = new CollectionSearchQuery(api.getCollection('Customers'), {
-      filter: 'name !ilike "Demons"'
-    });
-    const o = SQBAdapter.parseQuery(query);
-    expect(o.method).toStrictEqual(query.method);
-    expect(o.options).toBeDefined();
-    expect(o.options.filter._type).toStrictEqual(SerializationType.COMPARISON_EXPRESSION);
-    expect(o.options.filter._left).toStrictEqual('name');
-    expect(o.options.filter._right).toStrictEqual('Demons');
-    expect(o.options.filter._operatorType).toStrictEqual(OperatorType.notILike);
+  it('Should convert ComparisonExpression (!ilike)', async () => {
+    const out = convertFilter('name !ilike "Demons"')
+    expect(out).toStrictEqual(NotILike(Field('name'), 'Demons'));
   });
 
-  it('Should convert LogicalExpression(or)', async () => {
-    const query = new CollectionSearchQuery(api.getCollection('Customers'), {
-      filter: 'page=1 or page=2'
-    });
-    const o = SQBAdapter.parseQuery(query);
-    expect(o.method).toStrictEqual(query.method);
-    expect(o.options).toBeDefined();
-    expect(o.options.filter._type).toStrictEqual(SerializationType.LOGICAL_EXPRESSION);
-    expect(o.options.filter._operatorType).toStrictEqual(OperatorType.or);
-    expect(o.options.filter._items[0]._type).toStrictEqual(SerializationType.COMPARISON_EXPRESSION);
+  it('Should convert LogicalExpression (or)', async () => {
+    const out = convertFilter('page=1 or page=2')
+    expect(out).toStrictEqual(Or(Eq(Field('page'), 1), Eq(Field('page'), 2)));
   });
 
-  it('Should convert LogicalExpression(and)', async () => {
-    const query = new CollectionSearchQuery(api.getCollection('Customers'), {
-      filter: 'page=1 and name = "Demons"'
-    });
-    const o = SQBAdapter.parseQuery(query);
-    expect(o.method).toStrictEqual(query.method);
-    expect(o.options).toBeDefined();
-    expect(o.options.filter._type).toStrictEqual(SerializationType.LOGICAL_EXPRESSION);
-    expect(o.options.filter._operatorType).toStrictEqual(OperatorType.and);
-    expect(o.options.filter._items[0]._type).toStrictEqual(SerializationType.COMPARISON_EXPRESSION);
+  it('Should convert LogicalExpression (and)', async () => {
+    const out = convertFilter('page=1 and active=true')
+    expect(out).toStrictEqual(And(Eq(Field('page'), 1), Eq(Field('active'), true)));
   });
 
   it('Should convert ParenthesesExpression', async () => {
-    const query = new CollectionSearchQuery(api.getCollection('Customers'), {
-      filter: '(page=1 or page=2) and name = "Demons"'
-    });
-    const o = SQBAdapter.parseQuery(query);
-    expect(o.method).toStrictEqual(query.method);
-    expect(o.options).toBeDefined();
-    expect(o.options.filter._type).toStrictEqual(SerializationType.LOGICAL_EXPRESSION);
-    expect(o.options.filter._operatorType).toStrictEqual(OperatorType.and);
-    expect(o.options.filter._items[0]._type).toStrictEqual(SerializationType.LOGICAL_EXPRESSION);
-    expect(o.options.filter._items[0]._operatorType).toStrictEqual(OperatorType.or);
-    expect(o.options.filter._items[1]._type).toStrictEqual(SerializationType.COMPARISON_EXPRESSION);
+    const out = convertFilter('(page=1 or page=2) and name = "Demons"')
+    expect(out).toStrictEqual(And(
+            Or(Eq(Field('page'), 1), Eq(Field('page'), 2)),
+            Eq(Field('name'), 'Demons')
+        )
+    );
   });
 
 });

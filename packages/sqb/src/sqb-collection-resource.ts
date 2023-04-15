@@ -1,65 +1,59 @@
 import { Maybe } from 'ts-gems';
 import { Collection, PartialOutput } from '@opra/common';
-import {
-  CollectionCreateQuery,
-  CollectionDeleteManyQuery,
-  CollectionDeleteQuery,
-  CollectionGetQuery, CollectionSearchQuery, CollectionUpdateManyQuery, CollectionUpdateQuery,
-  QueryRequestContext
-} from '@opra/core';
+import { Request } from '@opra/core';
 import { SQBAdapter } from './sqb-adapter.js';
 import { SqbEntityService } from './sqb-entity-service.js';
 
 export abstract class SqbCollectionResource<T> {
 
   @Collection.CreateOperation()
-  async create(ctx: QueryRequestContext): Promise<PartialOutput<T>> {
-    const prepared = SQBAdapter.parseCollectionCreateQuery(ctx.query as CollectionCreateQuery);
-    const service = await this.getService(ctx);
-    return service.create(prepared.data, prepared.options, ctx.userContext);
+  async create(req: Request): Promise<PartialOutput<T>> {
+    const prepared = SQBAdapter.parseCollectionCreateRequest(req);
+    const service = await this.getService(req);
+    return service.for(req).create(prepared.data, prepared.options);
   }
 
   @Collection.DeleteOperation()
-  async delete(ctx: QueryRequestContext): Promise<boolean> {
-    const prepared = SQBAdapter.parseCollectionDeleteQuery(ctx.query as CollectionDeleteQuery);
-    const service = await this.getService(ctx);
-    return service.destroy(prepared.keyValue, prepared.options, ctx.userContext);
+  async delete(req: Request): Promise<boolean> {
+    const prepared = SQBAdapter.parseCollectionDeleteRequest(req);
+    const service = await this.getService(req);
+    return service.for(req).destroy(prepared.key, prepared.options);
   }
 
   @Collection.DeleteManyOperation()
-  async deleteMany(ctx: QueryRequestContext<CollectionDeleteManyQuery>): Promise<number> {
-    const prepared = SQBAdapter.parseCollectionDeleteManyQuery(ctx.query);
-    const service = await this.getService(ctx);
-    return service.destroyAll(prepared.options, ctx.userContext);
+  async deleteMany(req: Request): Promise<number> {
+    const prepared = SQBAdapter.parseCollectionDeleteManyRequest(req);
+    const service = await this.getService(req);
+    return service.for(req).destroyAll(prepared.options);
   }
 
   @Collection.GetOperation()
-  async get(ctx: QueryRequestContext<CollectionGetQuery>): Promise<Maybe<PartialOutput<T>>> {
-    const prepared = SQBAdapter.parseCollectionGetQuery(ctx.query);
-    const service = await this.getService(ctx);
-    return service.findByPk(prepared.keyValue, prepared.options, ctx.userContext);
+  async get(req: Request): Promise<Maybe<PartialOutput<T>>> {
+    const prepared = SQBAdapter.parseCollectionGetRequest(req);
+    const service = await this.getService(req);
+    return service.for(req).findByPk(prepared.key, prepared.options);
   }
 
   @Collection.UpdateOperation()
-  async update(ctx: QueryRequestContext<CollectionUpdateQuery>): Promise<Maybe<PartialOutput<T>>> {
-    const prepared = SQBAdapter.parseCollectionUpdateQuery(ctx.query);
-    const service = await this.getService(ctx);
-    return service.update(prepared.keyValue, prepared.data, prepared.options, ctx.userContext);
+  async update(req: Request): Promise<Maybe<PartialOutput<T>>> {
+    const prepared = SQBAdapter.parseCollectionUpdateRequest(req);
+    const service = await this.getService(req);
+    return service.for(req).update(prepared.key, prepared.data, prepared.options);
   }
 
   @Collection.UpdateManyOperation()
-  async updateMany(ctx: QueryRequestContext<CollectionUpdateManyQuery>): Promise<number> {
-    const prepared = SQBAdapter.parseCollectionUpdateManyQuery(ctx.query);
-    const service = await this.getService(ctx);
-    return service.updateAll(prepared.data, prepared.options, ctx.userContext);
+  async updateMany(req: Request): Promise<number> {
+    const prepared = SQBAdapter.parseCollectionUpdateManyRequest(req);
+    const service = await this.getService(req);
+    return service.for(req).updateAll(prepared.data, prepared.options);
   }
 
   @Collection.SearchOperation()
-  async search(ctx: QueryRequestContext<CollectionSearchQuery>): Promise<PartialOutput<T>[]> {
-    const prepared = SQBAdapter.parseCollectionSearchQuery(ctx.query);
-    const service = await this.getService(ctx);
-    return service.findAll(prepared.options, ctx.userContext);
+  async search(req: Request): Promise<PartialOutput<T>[]> {
+    const prepared = SQBAdapter.parseCollectionSearchRequest(req);
+    const service = await this.getService(req);
+    return service.for(req).findAll(prepared.options);
   }
 
-  abstract getService(ctx: QueryRequestContext): SqbEntityService<T> | Promise<SqbEntityService<T>>;
+  abstract getService<TContext>(req: TContext): SqbEntityService<T, TContext> | Promise<SqbEntityService<T, TContext>>;
 }

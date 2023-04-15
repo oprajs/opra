@@ -10,6 +10,6 @@
   "UNPROCESSABLE_ENTITY": "Unprocessable entity",
   "RESOURCE_NOT_FOUND": "The resource '{{resource}}' could not be found",
   "RESOURCE_CONFLICT": "There is already an other {{resource}} resource with same field values ({{fields}})",
-  "RESOLVER_FORBIDDEN": "The resource endpoint does not accept '{{method}}' operations",
+  "RESOLVER_FORBIDDEN": "The resource endpoint does not accept '{{operation}}' operations",
   "UNACCEPTED_SORT_ELEMENT": "Element '{{element}}' is not available for sort operation"
 }
