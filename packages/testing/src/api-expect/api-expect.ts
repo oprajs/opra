@@ -1,3 +1,4 @@
+import '../jest-extend/index.js';
 import { HttpResponse } from '@opra/node-client';
 import { ApiExpectCollection } from './api-expect-collection.js';
 import { ApiExpectError } from './api-expect-error.js';

@@ -1,4 +1,4 @@
-import { ComplexField, ComplexType } from '@opra/common';
+import { ApiField, ComplexType } from '@opra/common';
 
 @ComplexType({
   description: 'Address information',
@@ -6,10 +6,10 @@ import { ComplexField, ComplexType } from '@opra/common';
 })
 export class Note {
 
-  @ComplexField()
+  @ApiField()
   title: string;
 
-  @ComplexField()
+  @ApiField()
   text: string;
 
 }

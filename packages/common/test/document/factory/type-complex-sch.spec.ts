@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
 import {
-  ComplexField,
+  ApiField,
   ComplexType,
   DocumentFactory,
   OpraSchema,
@@ -89,7 +89,7 @@ describe('DocumentFactory - ComplexType with schema object', function () {
     expect(t).toBeDefined();
     expect(t.kind).toStrictEqual(OpraSchema.ComplexType.Kind);
     expect(t.name).toStrictEqual('type1');
-    const idEl = t.fields.get('id') as ComplexField;
+    const idEl = t.fields.get('id') as ApiField;
     expect(idEl).toBeDefined();
     expect(idEl.type.name).toStrictEqual('string');
     expect(idEl.isArray).toStrictEqual(id.isArray);

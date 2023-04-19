@@ -1,4 +1,4 @@
-import { ComplexField, ComplexType } from '@opra/common';
+import { ApiField, ComplexType } from '@opra/common';
 import { Continent } from './continent.entity.js';
 
 @ComplexType({
@@ -6,16 +6,16 @@ import { Continent } from './continent.entity.js';
 })
 export class Country {
 
-  @ComplexField()
+  @ApiField()
   code: string;
 
-  @ComplexField()
+  @ApiField()
   name: string;
 
-  @ComplexField()
+  @ApiField()
   phoneCode?: string;
 
-  @ComplexField({type: async () => (await import('./continent.entity.js')).Continent})
+  @ApiField({type: async () => (await import('./continent.entity.js')).Continent})
   continent: Continent;
 
 }

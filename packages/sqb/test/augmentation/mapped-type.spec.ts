@@ -1,6 +1,6 @@
 import 'reflect-metadata';
 import '@opra/sqb';
-import { ComplexField, ComplexType, METADATA_KEY, OmitType, PickType } from '@opra/common';
+import { ApiField, ComplexType, METADATA_KEY, OmitType, PickType } from '@opra/common';
 import { Column, Entity } from '@sqb/connect';
 import { Customer } from '../_support/app/index.js';
 
@@ -10,7 +10,7 @@ describe('MappedType augmentation', function () {
 
     @ComplexType({description: 'TestClass schema'})
     class TestClass extends OmitType(Customer, ['gender']) {
-      @ComplexField()
+      @ApiField()
       @Column()
       sex: string;
     }
@@ -34,7 +34,7 @@ describe('MappedType augmentation', function () {
 
     @ComplexType({description: 'TestClass schema'})
     class TestClass extends PickType(Customer, ['gender']) {
-      @ComplexField()
+      @ApiField()
       @Column()
       sex: string;
     }

@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
 import {
-  ComplexField,
+  ApiField,
   ComplexType,
   DocumentFactory,
   OmitType,
@@ -26,13 +26,13 @@ describe('DocumentFactory - MappedType with decorated classes', function () {
       additionalFields: true
     })
     class Type1 {
-      @ComplexField()
+      @ApiField()
       id: number;
-      @ComplexField()
+      @ApiField()
       name: string;
-      @ComplexField()
+      @ApiField()
       age: number;
-      @ComplexField()
+      @ApiField()
       gender: string;
     }
 
@@ -58,13 +58,13 @@ describe('DocumentFactory - MappedType with decorated classes', function () {
       additionalFields: true
     })
     class Type1 {
-      @ComplexField()
+      @ApiField()
       id: number;
-      @ComplexField()
+      @ApiField()
       name: string;
-      @ComplexField()
+      @ApiField()
       age: number;
-      @ComplexField()
+      @ApiField()
       gender: string;
     }
 

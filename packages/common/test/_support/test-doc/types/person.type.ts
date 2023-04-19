@@ -1,4 +1,4 @@
-import { ComplexField, ComplexType } from '@opra/common';
+import { ApiField, ComplexType } from '@opra/common';
 import { GenderEnum } from '../enums/gender.enum.js';
 
 @ComplexType({
@@ -6,15 +6,15 @@ import { GenderEnum } from '../enums/gender.enum.js';
 })
 export class Person {
 
-  @ComplexField()
+  @ApiField()
   givenName: string;
 
-  @ComplexField()
+  @ApiField()
   familyName: string;
 
-  @ComplexField({enum: GenderEnum})
+  @ApiField({enum: GenderEnum})
   gender: string;
 
-  @ComplexField()
+  @ApiField()
   birthDate: Date;
 }

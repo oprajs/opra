@@ -4,7 +4,7 @@ import { ObjectTree, omitUndefined, pathToObjectTree, ResponsiveMap } from '../.
 import { OpraSchema } from '../../schema/index.js';
 import type { ApiDocument } from '../api-document.js';
 import { METADATA_KEY, TYPENAME_PATTERN } from '../constants.js';
-import { ComplexField } from './complex-field.js';
+import { ApiField } from './api-field.js';
 import { DataType } from './data-type.js';
 import type { UnionType } from './union-type';
 
@@ -19,7 +19,7 @@ export namespace ComplexType {
 
   export interface OwnProperties extends DataType.OwnProperties,
       Readonly<Pick<OpraSchema.ComplexType, 'ctor' | 'abstract' | 'additionalFields'>> {
-    readonly fields: ResponsiveMap<string, ComplexField>;
+    readonly fields: ResponsiveMap<string, ApiField>;
   }
 
   export interface DecoratorOptions extends DataType.DecoratorOptions,
@@ -29,7 +29,7 @@ export namespace ComplexType {
 
   export interface Metadata extends StrictOmit<OpraSchema.ComplexType, 'fields'> {
     name: string;
-    fields?: Record<string, ComplexField.Metadata>;
+    fields?: Record<string, ApiField.Metadata>;
   }
 }
 
@@ -45,9 +45,9 @@ export interface ComplexType extends StrictOmit<DataType, 'own' | 'exportSchema'
 
   exportSchema(): OpraSchema.ComplexType;
 
-  addField(init: ComplexField.InitArguments): ComplexField;
+  addField(init: ApiField.InitArguments): ApiField;
 
-  getField(name: string): ComplexField;
+  getField(name: string): ApiField;
 
   normalizeFieldNames(fields: string | string[]): string[] | undefined;
 }
@@ -113,7 +113,7 @@ export const ComplexType = function (
       _this.ctor = _this.base.ctor;
     if (_this.base.fields)
       for (const [k, el] of _this.base.fields.entries()) {
-        const newEl = new ComplexField(_this, el);
+        const newEl = new ApiField(_this, el);
         _this.fields.set(k, newEl);
       }
   }
@@ -151,19 +151,19 @@ const proto = {
     return omitUndefined(out);
   },
 
-  addField(init: ComplexField.InitArguments): ComplexField {
-    const field = new ComplexField(this, init);
+  addField(init: ApiField.InitArguments): ApiField {
+    const field = new ApiField(this, init);
     this.own.fields.set(field.name, field);
     this.fields.set(field.name, field);
     return field;
   },
 
-  getField(name: string): ComplexField {
+  getField(name: string): ApiField {
     if (name.includes('.')) {
       let dt: DataType = this;
       const arr = name.split('.');
       const l = arr.length;
-      let field: ComplexField;
+      let field: ApiField;
       for (let i = 0; i < l; i++) {
         if (!(dt instanceof ComplexType))
           throw new TypeError(`"${arr.slice(0, i - 1)}" field is not a ${OpraSchema.ComplexType.Kind} and has no child fields`);

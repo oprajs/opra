@@ -1,3 +1,4 @@
+import '../jest-extend/index.js';
 import matcherUtils from 'jest-matcher-utils';
 import { HttpResponse } from '@opra/node-client';
 import { objectMatches } from '../utils/object-matches.util.js';

@@ -7,7 +7,7 @@ import type { ComplexType } from './complex-type.js';
 import { DataType } from './data-type.js';
 import { EnumType } from './enum-type.js';
 
-export namespace ComplexField {
+export namespace ApiField {
   export interface InitArguments extends StrictOmit<OpraSchema.Field, 'type'> {
     name: string;
     type: DataType;
@@ -26,7 +26,7 @@ export namespace ComplexField {
   }
 }
 
-export interface ComplexField extends StrictOmit<OpraSchema.Field, 'type'> {
+export interface ApiField extends StrictOmit<OpraSchema.Field, 'type'> {
   readonly owner: ComplexType;
   readonly origin?: ComplexType;
   readonly type: DataType;
@@ -38,26 +38,26 @@ export interface ComplexField extends StrictOmit<OpraSchema.Field, 'type'> {
 
 /**
  * Type definition of ComplexType constructor type
- * @type ComplexFieldConstructor
+ * @type ApiFieldConstructor
  */
-export interface ComplexFieldConstructor {
-  new(owner: ComplexType, init: ComplexField.InitArguments): ComplexField;
+export interface ApiFieldConstructor {
+  new(owner: ComplexType, init: ApiField.InitArguments): ApiField;
 
-  (options?: ComplexField.DecoratorOptions): PropertyDecorator;
+  (options?: ApiField.DecoratorOptions): PropertyDecorator;
 
-  prototype: ComplexField;
+  prototype: ApiField;
 }
 
 
 /**
  * @class ComplexType
  */
-export const ComplexField = function (
-    this: ComplexField | void, ...args: any[]
+export const ApiField = function (
+    this: ApiField | void, ...args: any[]
 ) {
   // ClassDecorator
   if (!this) {
-    const [options] = args as [ComplexField.DecoratorOptions | undefined];
+    const [options] = args as [ApiField.DecoratorOptions | undefined];
     return function (target: Object, propertyKey: string | symbol) {
       if (typeof propertyKey !== 'string')
         throw new TypeError(`Symbol properties can't be used as a field`);
@@ -68,7 +68,7 @@ export const ComplexField = function (
 
       const designType = Reflect.getMetadata('design:type', target, propertyKey);
       const isArray = designType === Array;
-      const elemMeta: ComplexField.Metadata = metadata.fields[propertyKey] = {
+      const elemMeta: ApiField.Metadata = metadata.fields[propertyKey] = {
         ...options,
         enum: undefined,
         designType: isArray ? undefined : designType
@@ -96,8 +96,8 @@ export const ComplexField = function (
   }
 
   // Constructor
-  const [owner, init] = args as [ComplexType, ComplexField.InitArguments];
-  const _this = this as Writable<ComplexField>;
+  const [owner, init] = args as [ComplexType, ApiField.InitArguments];
+  const _this = this as Writable<ApiField>;
   _this.owner = owner;
   _this.name = init.name;
   _this.origin = init.origin || owner;
@@ -114,7 +114,7 @@ export const ComplexField = function (
     this.exclusive = init?.exclusive;
   if (init?.required != null)
     this.required = init?.required;
-} as ComplexFieldConstructor;
+} as ApiFieldConstructor;
 
 
 const proto = {
@@ -128,6 +128,6 @@ const proto = {
     };
     return out;
   }
-} as ComplexField;
+} as ApiField;
 
-Object.assign(ComplexField.prototype, proto);
+Object.assign(ApiField.prototype, proto);

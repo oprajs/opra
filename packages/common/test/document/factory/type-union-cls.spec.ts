@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
 import {
-  ComplexField,
+  ApiField,
   ComplexType,
   DocumentFactory,
   OpraSchema,
@@ -21,13 +21,13 @@ describe('DocumentFactory - UnionType with decorated classes', function () {
   it('Should add UnionType', async () => {
     @ComplexType()
     class Type1 {
-      @ComplexField()
+      @ApiField()
       id: number
     }
 
     @ComplexType()
     class Type2 {
-      @ComplexField()
+      @ApiField()
       name: string
     }
 
@@ -35,7 +35,7 @@ describe('DocumentFactory - UnionType with decorated classes', function () {
       additionalFields: true
     })
     class Type3 {
-      @ComplexField()
+      @ApiField()
       age: number
     }
 

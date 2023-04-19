@@ -1,3 +1,4 @@
+import '../jest-extend/index.js';
 import isNil from 'lodash.isnil';
 import omitBy from 'lodash.omitby';
 import { HttpResponse } from '@opra/node-client';

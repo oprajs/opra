@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
 import {
-  ComplexField,
+  ApiField,
   ComplexType,
   DocumentFactory,
   OpraSchema,
@@ -50,9 +50,9 @@ describe('DocumentFactory - ComplexType with decorated classes', function () {
       additionalFields: true,
     })
     class Type1 {
-      @ComplexField()
+      @ApiField()
       id: number
-      @ComplexField({type: 'guid'})
+      @ApiField({type: 'guid'})
       cid: number
     }
 
@@ -78,7 +78,7 @@ describe('DocumentFactory - ComplexType with decorated classes', function () {
       additionalFields: true,
     })
     class Type1 {
-      @ComplexField({
+      @ApiField({
         type: {
           kind: 'SimpleType',
           base: 'string'
@@ -108,7 +108,7 @@ describe('DocumentFactory - ComplexType with decorated classes', function () {
       additionalFields: true,
     })
     class Type1 {
-      @ComplexField()
+      @ApiField()
       id: number
     }
 
@@ -116,7 +116,7 @@ describe('DocumentFactory - ComplexType with decorated classes', function () {
       description: 'test type 2',
     })
     class Type2 extends Type1 {
-      @ComplexField({type: 'guid'})
+      @ApiField({type: 'guid'})
       cid: number
     }
 

@@ -1,3 +1,4 @@
+import '../jest-extend/index.js';
 import isNil from 'lodash.isnil';
 import omitBy from 'lodash.omitby';
 import ruleJudgmentLib from 'rule-judgment';

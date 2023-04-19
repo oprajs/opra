@@ -1,5 +1,5 @@
 import { Type } from 'ts-gems';
-import { ComplexField, DocumentFactory, METADATA_KEY, OpraSchema } from "@opra/common";
+import { ApiField, DocumentFactory, METADATA_KEY, OpraSchema } from "@opra/common";
 import { DataType as SqbDataType, EntityMetadata, isAssociationField } from '@sqb/connect';
 
 // @ts-ignore
@@ -9,7 +9,7 @@ DocumentFactory.prototype.extractFieldSchema = async function (
     this: DocumentFactory,
     target: OpraSchema.Field,
     ctor: Type,
-    metadata: ComplexField.Metadata,
+    metadata: ApiField.Metadata,
     name: string
 ) {
   await _extractFieldSchema.call(this, target, ctor, metadata, name);

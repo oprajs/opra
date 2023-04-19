@@ -1,10 +1,10 @@
-import { ComplexField, ComplexType } from '@opra/common';
+import { ApiField, ComplexType } from '@opra/common';
 import { Column, DataType, PrimaryKey } from '@sqb/connect';
 
 @ComplexType()
 export class Record {
 
-  @ComplexField()
+  @ApiField()
   @Column({
     dataType: DataType.INTEGER,
     notNull: true
@@ -12,11 +12,11 @@ export class Record {
   @PrimaryKey()
   id: number;
 
-  @ComplexField()
+  @ApiField()
   @Column()
   createdAt: Date;
 
-  @ComplexField()
+  @ApiField()
   @Column()
   updatedAt?: Date;
 

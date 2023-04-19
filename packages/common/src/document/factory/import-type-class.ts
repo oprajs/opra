@@ -3,7 +3,7 @@ import { cloneObject, isConstructor, resolveThunk } from '../../helpers/index.js
 import { OpraSchema } from '../../schema/index.js';
 import type { ThunkAsync } from '../../types.js';
 import { METADATA_KEY } from '../constants.js';
-import type { ComplexField } from '../data-type/complex-field.js';
+import type { ApiField } from '../data-type/api-field.js';
 import type { ComplexType } from '../data-type/complex-type.js';
 import type { EnumType } from '../data-type/enum-type.js';
 import type { MappedType } from '../data-type/mapped-type.js';
@@ -99,7 +99,7 @@ export async function extractComplexTypeSchema(
 // Fields
   if (metadata.fields) {
     const fields = target.fields = {};
-    for (const [elemName, elemMeta] of Object.entries<ComplexField.Metadata>(metadata.fields)) {
+    for (const [elemName, elemMeta] of Object.entries<ApiField.Metadata>(metadata.fields)) {
       try {
         const t = await elemMeta.type;
         const type = typeof t === 'function'
@@ -166,7 +166,7 @@ export async function extractEnumTypeSchema(
 export async function extractFieldSchema(
     this: DocumentFactory,
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    target: OpraSchema.Field, ctor: Type, metadata: ComplexField.Metadata, name: string
+    target: OpraSchema.Field, ctor: Type, metadata: ApiField.Metadata, name: string
 ): Promise<void> {
   // Do nothing. This method is used by external modules for extending the factory
 }

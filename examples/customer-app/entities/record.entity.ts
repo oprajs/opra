@@ -1,4 +1,4 @@
-import { ComplexField, ComplexType } from '@opra/common';
+import { ApiField, ComplexType } from '@opra/common';
 import { Column, DataType } from '@sqb/connect';
 
 @ComplexType({
@@ -8,11 +8,11 @@ import { Column, DataType } from '@sqb/connect';
 export class Record {
 
   @Column(DataType.INTEGER)
-  @ComplexField()
+  @ApiField()
   id: number;
 
   @Column()
-  @ComplexField()
+  @ApiField()
   deleted?: boolean;
 
 }
