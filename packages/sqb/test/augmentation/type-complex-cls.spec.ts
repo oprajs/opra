@@ -3,11 +3,18 @@ import '@opra/sqb';
 import {
   ApiField,
   ComplexType,
-  DocumentFactory,
+  DocumentFactory, EnumType,
   OpraSchema,
   SimpleType
 } from '@opra/common';
 import { Column, DataType } from '@sqb/connect';
+
+export enum GenderEnum {
+  MALE = 'M',
+  FEMALE = 'F'
+}
+
+EnumType(GenderEnum, {name: 'GenderEnum'});
 
 describe('DocumentFactory - ComplexType with decorated classes', function () {
 
@@ -150,6 +157,9 @@ describe('DocumentFactory - ComplexType with decorated classes', function () {
       @ApiField()
       @Column({dataType: DataType.GUID})
       cid: string
+      @ApiField()
+      @Column({dataType: DataType.VARCHAR, enum: GenderEnum})
+      gender: GenderEnum
     }
 
     const doc = await DocumentFactory.createDocument({
@@ -161,7 +171,7 @@ describe('DocumentFactory - ComplexType with decorated classes', function () {
     expect(t).toBeDefined();
     expect(t.kind).toStrictEqual('ComplexType');
     expect(t.name).toStrictEqual('Type1');
-    expect(Array.from(t.fields.keys())).toStrictEqual(['id', 'cid']);
+    expect(Array.from(t.fields.keys())).toStrictEqual(['id', 'cid', 'gender']);
     expect(t.fields.get('id')).toBeDefined();
     expect(t.fields.get('id')?.type.name).toStrictEqual('integer');
     expect(t.fields.get('id')?.required).toStrictEqual(true);
@@ -169,6 +179,8 @@ describe('DocumentFactory - ComplexType with decorated classes', function () {
     expect(t.fields.get('id')?.exclusive).toStrictEqual(true);
     expect(t.fields.get('cid')).toBeDefined();
     expect(t.fields.get('cid')?.type.name).toStrictEqual('guid');
+    expect(t.fields.get('gender')).toBeDefined();
+    expect(t.fields.get('gender')?.type.name).toStrictEqual('GenderEnum');
   })
 
 })

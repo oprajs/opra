@@ -110,15 +110,16 @@ export async function extractComplexTypeSchema(
           ...elemMeta,
           type
         }
-        if (elemMeta.enum) {
+        if (elemMeta.enum)
           elemSchema.type = await this.importTypeClass(elemMeta.enum);
-        }
-
         if (!elemSchema.type && elemMeta.designType)
           elemSchema.type = await this.importTypeClass(elemMeta.designType);
 
         await this.extractFieldSchema(elemSchema, ctor, elemMeta, elemName);
 
+        // Check enum again. External packages may modify enum value
+        if (elemMeta.enum)
+          elemSchema.type = await this.importTypeClass(elemMeta.enum);
         if (typeof elemSchema.type === 'function')
           elemSchema.type = await this.importTypeClass(elemSchema.type);
 
