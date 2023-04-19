@@ -1,4 +1,4 @@
-import { ComplexField, ComplexType } from '@opra/common';
+import { ApiField, ComplexType } from '@opra/common';
 import { Column, DataType } from '@sqb/connect';
 import { GenderEnum } from '../enums/gender.enum.js';
 
@@ -7,19 +7,19 @@ import { GenderEnum } from '../enums/gender.enum.js';
 })
 export class Person {
 
-  @ComplexField()
+  @ApiField()
   @Column({fieldName: 'given_name', notNull: true})
   givenName: string;
 
-  @ComplexField()
+  @ApiField()
   @Column({fieldName: 'family_name', notNull: true})
   familyName: string;
 
-  @ComplexField({enum: GenderEnum})
+  @ApiField({enum: GenderEnum})
   @Column({notNull: true})
   gender: string;
 
-  @ComplexField()
+  @ApiField()
   @Column({fieldName: 'birth_name', dataType: DataType.DATE})
   birthDate: Date;
 }

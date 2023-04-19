@@ -1,4 +1,4 @@
-import { ComplexField, ComplexType } from '@opra/common';
+import { ApiField, ComplexType } from '@opra/common';
 import { Column } from '@sqb/connect';
 
 @ComplexType({
@@ -6,25 +6,25 @@ import { Column } from '@sqb/connect';
 })
 export class Address {
 
-  @ComplexField({
+  @ApiField({
     description: 'Address code'
   })
   @Column()
   code: number;
 
-  @ComplexField({
+  @ApiField({
     description: 'City name'
   })
   @Column()
   city: string;
 
-  @ComplexField({
+  @ApiField({
     description: 'Street information'
   })
   @Column()
   street: string;
 
-  @ComplexField({
+  @ApiField({
     description: 'ZIP code'
   })
   @Column()

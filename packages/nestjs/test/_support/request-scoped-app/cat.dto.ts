@@ -1,14 +1,14 @@
-import { ComplexField, ComplexType } from '@opra/common';
+import { ApiField, ComplexType } from '@opra/common';
 
 @ComplexType()
 export class Cat {
 
-  @ComplexField()
+  @ApiField()
   id: number;
 
-  @ComplexField()
+  @ApiField()
   name: string;
 
-  @ComplexField()
+  @ApiField()
   age: number;
 }

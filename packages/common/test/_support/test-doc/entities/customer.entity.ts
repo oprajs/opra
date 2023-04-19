@@ -1,4 +1,4 @@
-import { ComplexField, ComplexType, UnionType } from '@opra/common';
+import { ApiField, ComplexType, UnionType } from '@opra/common';
 import { Address } from '../types/address.type.js';
 import { Person } from '../types/person.type.js';
 import { CustomerNotes } from './customer-notes.entity.js';
@@ -9,37 +9,37 @@ import { Record } from './record.entity.js';
 })
 export class Customer extends UnionType(Record, Person) {
 
-  @ComplexField()
+  @ApiField()
   cid: string;
 
-  @ComplexField({required: false})
+  @ApiField({required: false})
   identity: string;
 
-  @ComplexField()
+  @ApiField()
   city: string;
 
-  @ComplexField()
+  @ApiField()
   countryCode: string;
 
-  @ComplexField()
+  @ApiField()
   active: boolean;
 
-  @ComplexField({type: 'integer'})
+  @ApiField({type: 'integer'})
   vip: number;
 
-  @ComplexField()
+  @ApiField()
   address?: Address;
 
-  @ComplexField({type: CustomerNotes})
+  @ApiField({type: CustomerNotes})
   notes?: CustomerNotes[];
 
-  @ComplexField()
+  @ApiField()
   fieldInteger: number;
 
-  @ComplexField()
+  @ApiField()
   fieldBigint: bigint;
 
-  @ComplexField()
+  @ApiField()
   fieldGuid: string;
 
 }

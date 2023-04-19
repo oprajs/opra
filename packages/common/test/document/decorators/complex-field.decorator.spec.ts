@@ -1,10 +1,10 @@
-import { ComplexField, METADATA_KEY } from '@opra/common';
+import { ApiField, METADATA_KEY } from '@opra/common';
 
-describe('ComplexField() decorator', function () {
+describe('ApiField() decorator', function () {
 
   it('Should define field metadata', async () => {
     class Animal {
-      @ComplexField({
+      @ApiField({
         type: 'integer',
         description: 'description'
       })
@@ -24,14 +24,14 @@ describe('ComplexField() decorator', function () {
 
   it('Should determine design type if "type" is not defined', async () => {
     class Country {
-      @ComplexField()
+      @ApiField()
       id: number;
-      @ComplexField()
+      @ApiField()
       name: string;
     }
 
     class Person {
-      @ComplexField()
+      @ApiField()
       country: Country;
     }
 
@@ -50,13 +50,13 @@ describe('ComplexField() decorator', function () {
     class Person {
     }
 
-    expect(() => ComplexField({})(Person.prototype, sym)).toThrow('can\'t be used')
+    expect(() => ApiField({})(Person.prototype, sym)).toThrow('can\'t be used')
 
   })
 
   it('Should define enum with array', async () => {
     class Animal {
-      @ComplexField({
+      @ApiField({
         description: 'description',
         enum: ['A', 'B']
       })

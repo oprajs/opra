@@ -1,5 +1,5 @@
 import '@opra/sqb';
-import { ComplexField, ComplexType, OmitType, UnionType } from '@opra/common';
+import { ApiField, ComplexType, OmitType, UnionType } from '@opra/common';
 import { Column, Entity } from '@sqb/connect';
 import { Person } from '../types/person.type.js';
 import { PhoneNumber } from '../types/phone.type.js';
@@ -11,19 +11,19 @@ import { Record } from './record.entity.js';
 @Entity()
 export class CustomerNotes extends Record {
 
-  @ComplexField()
+  @ApiField()
   @Column({notNull: true})
   customerId: number;
 
-  @ComplexField()
+  @ApiField()
   @Column({notNull: true})
   title: string;
 
-  @ComplexField()
+  @ApiField()
   @Column()
   text: string;
 
-  @ComplexField({
+  @ApiField({
     type: UnionType(OmitType(Person, ['birthDate']), PhoneNumber)
   })
   @Column()

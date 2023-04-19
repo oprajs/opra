@@ -1,4 +1,4 @@
-import { ComplexField, ComplexType, OmitType, UnionType } from '@opra/common';
+import { ApiField, ComplexType, OmitType, UnionType } from '@opra/common';
 import { Column } from '@sqb/connect';
 import { Person } from './person.type.js';
 import { PhoneNumber } from './phone.type.js';
@@ -8,7 +8,7 @@ import { PhoneNumber } from './phone.type.js';
 })
 export class ContactPerson extends UnionType(OmitType(Person, ['gender', 'birthDate']), PhoneNumber) {
 
-  @ComplexField()
+  @ApiField()
   @Column({fieldName: 'relation_ship', notNull: true})
   relationShip: string;
 

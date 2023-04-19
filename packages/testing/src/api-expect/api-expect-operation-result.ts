@@ -1,3 +1,4 @@
+import '../jest-extend/index.js';
 import { HttpResponse } from '@opra/node-client';
 
 export class ApiExpectOperationResult {
