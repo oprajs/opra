@@ -3,7 +3,7 @@ import {
   $array, $date,
   $eq, $field, $gt, $gte, $ilike, $in, $like,
   $lt, $lte, $ne, $notILike, $notIn, $notLike, $number, $or, $paren, $time, Expression, parseFilter
-} from '../../src/index.js';
+} from '@opra/common';
 
 describe('Building Filter', function () {
 

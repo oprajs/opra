@@ -1,37 +1,37 @@
 import 'reflect-metadata';
 import { METADATA_KEY, Singleton } from '@opra/common';
-import { Customer } from '../../_support/test-doc/index.js';
+import { Country } from '../../_support/test-doc/index.js';
 
 describe('@Singleton() decorator', function () {
 
   it('Should define Singleton resource metadata', async function () {
     const opts: Singleton.DecoratorOptions = {description: 'xyz'};
 
-    @Singleton(Customer, opts)
-    class StarredCustomerResource {
+    @Singleton(Country, opts)
+    class MyCountryResource {
     }
 
-    const metadata = Reflect.getMetadata(METADATA_KEY, StarredCustomerResource);
+    const metadata = Reflect.getMetadata(METADATA_KEY, MyCountryResource);
     expect(metadata).toStrictEqual({
       kind: 'Singleton',
-      name: 'StarredCustomer',
-      type: Customer,
+      name: 'MyCountry',
+      type: Country,
       ...opts
     });
   })
 
   it('Should define custom name', async function () {
-    const opts: Singleton.DecoratorOptions = {name: 'Starred'};
+    const opts: Singleton.DecoratorOptions = {name: 'MySweetCountry'};
 
-    @Singleton(Customer, opts)
-    class StarredCustomerResource {
+    @Singleton(Country, opts)
+    class MyCountry {
     }
 
-    const metadata = Reflect.getMetadata(METADATA_KEY, StarredCustomerResource);
+    const metadata = Reflect.getMetadata(METADATA_KEY, MyCountry);
     expect(metadata).toStrictEqual({
       kind: 'Singleton',
-      name: 'Starred',
-      type: Customer,
+      name: 'MySweetCountry',
+      type: Country,
       ...opts
     });
   })

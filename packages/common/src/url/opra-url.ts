@@ -1,9 +1,9 @@
 import { splitString, tokenize } from 'fast-tokenizer';
-import type { HttpParams } from '../http/http-params.js';
+import { HttpParams } from '../http/index.js';
+import { normalizePath } from '../utils/path-utils.js';
 import { OpraURLPath } from './opra-url-path.js';
 import { OpraURLPathComponentInit } from './opra-url-path-component.js';
-import { OpraURLSearchParams } from './opra-url-search-params.js';
-import { decodePathComponent, normalizePath } from './utils/path-utils.js';
+import { decodePathComponent } from './utils/decode-path-component.js';
 
 const nodeInspectCustom = Symbol.for('nodejs.util.inspect.custom');
 const urlRegEx = /^(?:((?:[A-Z][A-Z+-.]+:)+)\/\/([^/?]+))?(.*)?$/i;
@@ -20,40 +20,41 @@ export class OpraURL {
   protected static kPath = kPath;
   protected static kSearchParams = kSearchParams;
 
-  protected [kContext] = {
+  protected [kPath]: OpraURLPath;
+  protected [kSearchParams]: HttpParams;
+  protected [kContext]: {
+    protocol: string,
+    username: string,
+    pathname?: string,
+    prefix: string,
+    hostname: string,
+    port: string,
+    hash: string,
+    password: string,
+    search?: string,
+    address?: string
+  } = {
     protocol: '',
     username: '',
-    pathname: '',
     prefix: '',
     hostname: '',
     port: '',
     hash: '',
-    password: '',
-    search: '',
-    address: '',
-    needUpdate: true
+    password: ''
   }
-  protected [kPath]: OpraURLPath;
-  protected [kSearchParams]: OpraURLSearchParams;
 
-  constructor(input?: string | URL | OpraURL, base?: string | URL | OpraURL)
-  constructor(input?: string | URL | OpraURL, options?: {
-    base?: string | URL | OpraURL,
-    params?: Record<string, HttpParams.ParamDefinition>;
-  })
-  constructor(input?: string | URL | OpraURL, arg1?: any) {
+  constructor(input?: string | URL | OpraURL, base?: string | URL | OpraURL) {
     this[kPath] = new OpraURLPath('', {
-      onChange: () => this._changed()
+      onChange: () => {
+        this[kContext].pathname = undefined;
+        this[kContext].address = undefined;
+      }
     });
-    this[kSearchParams] = new OpraURLSearchParams('', {
-      onChange: () => this._changed()
+    this[kSearchParams] = new HttpParams('', {
+      onChange: () => {
+        this[kContext].search = undefined;
+      }
     });
-    const base = typeof arg1 === 'object' ? arg1.base : arg1;
-    if (typeof arg1 === 'object') {
-      const defineParams = arg1?.params;
-      if (defineParams)
-        Object.keys(defineParams).forEach(key => this.searchParams.define(key, defineParams[key]));
-    }
     if (input)
       this.parse(typeof input === 'object' ? input.toString() : input);
     if (base) {
@@ -66,7 +67,21 @@ export class OpraURL {
   }
 
   get address(): string {
-    this._update();
+    if (this[kContext].address == null) {
+      let address = '';
+      if (this[kContext].hostname) {
+        address += (this[kContext].protocol || 'http:') + '//' +
+            (this[kContext].username || this[kContext].password
+                ? (
+                    (this[kContext].username ? encodeURIComponent(this[kContext].username) : '') +
+                    (this[kContext].password ? ':' + encodeURIComponent(this[kContext].password) : '') + '@'
+                )
+                : '') + this.host;
+      }
+      this[kContext].address = address +
+          (this.prefix !== '/' ? this.prefix : '') +
+          (this.pathname !== '/' ? this.pathname : '');
+    }
     return this[kContext].address;
   }
 
@@ -82,17 +97,16 @@ export class OpraURL {
           host: v,
           code: 'ERR_INVALID_URL'
         });
-      this[kContext].hostname = m[1];
-      this[kContext].port = m[2] || '';
+      this.hostname = m[1];
+      this.port = m[2] || '';
     } else {
-      this[kContext].hostname = '';
-      this[kContext].port = '';
+      this.hostname = '';
+      this.port = '';
     }
-    this._changed();
   }
 
   get hostname(): string {
-    return this[kContext].hostname || '';
+    return this[kContext].hostname;
   }
 
   set hostname(v: string) {
@@ -104,7 +118,7 @@ export class OpraURL {
         });
       this[kContext].hostname = v;
     } else this[kContext].hostname = '';
-    this._changed();
+    this[kContext].address = undefined;
   }
 
   get href(): string {
@@ -116,28 +130,26 @@ export class OpraURL {
   }
 
   set password(v: string) {
-    this[kContext].password = v || '';
-    this._changed();
+    this[kContext].password = v ?? '';
+    this[kContext].address = undefined;
   }
 
   get port(): string {
     return this[kContext].port;
   }
 
-  set port(value: string) {
+  set port(value: string | number) {
     if (value) {
       // noinspection SuspiciousTypeOfGuard
-      const v = parseInt(value, 10);
+      const v = typeof value === 'number' ? value : parseInt(value, 10);
       if (isNaN(v) || v < 1 || v > 35535 || v % 1 > 0)
         throw Object.assign(new TypeError('Invalid port'), {
           hostname: v,
           code: 'ERR_INVALID_URL'
         });
-      this[kContext].port = value;
+      this[kContext].port = String(v);
     } else this[kContext].port = '';
-    this._changed();
   }
-
 
   get prefix(): string {
     return this[kContext].prefix;
@@ -149,11 +161,11 @@ export class OpraURL {
       this[kContext].prefix = url.pathname;
     } else
       this[kContext].prefix = '';
-    this._changed();
+    this[kContext].address = undefined;
   }
 
   get protocol(): string {
-    return this[kContext].protocol || 'http:';
+    return this[kContext].protocol;
   }
 
   set protocol(v: string) {
@@ -165,7 +177,7 @@ export class OpraURL {
         });
       this[kContext].protocol = v + (v.endsWith(':') ? '' : ':');
     } else this[kContext].protocol = '';
-    this._changed();
+    this[kContext].address = undefined;
   }
 
   get username(): string {
@@ -173,10 +185,9 @@ export class OpraURL {
   }
 
   set username(v: string) {
-    this[kContext].username = v || '';
-    this._changed();
+    this[kContext].username = v ?? '';
+    this[kContext].address = undefined;
   }
-
 
   get origin(): string {
     return this.hostname ? (this.protocol + '//' + this.hostname) : '';
@@ -187,35 +198,41 @@ export class OpraURL {
   }
 
   get pathname(): string {
-    this._update();
-    return this[kContext].pathname || '';
+    if (this[kContext].pathname == null)
+      this[kContext].pathname = '/' + this[kPath].toString()
+    return this[kContext].pathname;
   }
 
   set pathname(v: string) {
     this._setPathname(v, false);
   }
 
-  get searchParams(): OpraURLSearchParams {
-    return this[kSearchParams];
-  }
-
   get hash(): string {
-    return this[kContext].hash || '';
+    return this[kContext].hash;
   }
 
   set hash(v: string) {
     this[kContext].hash = v ? (v.startsWith('#') ? v : '#' + v) : '';
-    this._changed();
   }
 
   get search(): string {
-    this._update();
-    return this[kContext].search || '';
+    if (this[kContext].search == null) {
+      const s = this[kSearchParams].toString();
+      this[kContext].search = s ? ('?' + s) : '';
+    }
+    return this[kContext].search;
   }
 
   set search(v: string) {
-    this.searchParams.clear();
-    this.searchParams.appendAll(v);
+    if (v) {
+      this[kSearchParams].clear();
+      this[kSearchParams].appendAll(v);
+    }
+    this[kContext].search = undefined;
+  }
+
+  get searchParams(): HttpParams {
+    return this[kSearchParams];
   }
 
   parse(input: string) {
@@ -246,9 +263,7 @@ export class OpraURL {
     this.hash = tokenizer.join('#');
     tokenizer = tokenize(input, {delimiters: '?', quotes: true, brackets: true});
     this._setPathname(tokenizer.next() || '', isAbsolute);
-    this.searchParams.clear();
-    this.searchParams.appendAll(tokenizer.join('&'));
-    this._changed();
+    this.search = tokenizer.join('&');
   }
 
   join(...source: (string | OpraURLPath | URL | OpraURL | OpraURLPathComponentInit)[]): this {
@@ -256,64 +271,13 @@ export class OpraURL {
     return this;
   }
 
-  addParam(name: string, value?: any): this {
-    this.searchParams.append(name, value);
-    return this;
-  }
-
-  setParam(name: string, value?: any): this {
-    this.searchParams.set(name, value);
-    return this;
-  }
-
-  setHost(v: string): this {
-    this.host = v;
-    return this;
-  }
-
-  setHostname(v: string): this {
-    this.hostname = v;
-    return this;
-  }
-
-  setProtocol(v: string): this {
-    this.protocol = v;
-    return this;
-  }
-
-  setPort(v: string | number | null): this {
-    this.port = v ? String(v) : '';
-    return this;
-  }
-
-  setPrefix(v: string): this {
-    this.prefix = v;
-    return this;
-  }
-
-  setPathname(v: string): this {
-    this.pathname = v;
-    return this;
-  }
-
-  setHash(v: string): this {
-    this.hash = v;
-    return this;
-  }
-
-  setSearch(v: string): this {
-    this.search = v;
-    return this;
-  }
-
-
   toString() {
     return this.href
   }
 
   /* istanbul ignore next */
   [nodeInspectCustom]() {
-    this._update();
+    // this._update();
     return {
       protocol: this.protocol,
       username: this.username,
@@ -325,33 +289,33 @@ export class OpraURL {
       path: this.path,
       pathname: this.pathname,
       search: this.search,
-      searchParams: this.searchParams,
       hash: this.hash,
     }
   }
 
-  protected _update() {
-    if (!this[kContext].needUpdate)
-      return;
-    const ctx = this[kContext];
-    ctx.needUpdate = false;
-    let s = this.path.toString();
-    ctx.pathname = s ? '/' + s : '';
-    s = this.searchParams.toString();
-    ctx.search = s ? '?' + s : '';
-
-    let address = '';
-    if (ctx.hostname) {
-      address += (ctx.protocol || 'http:') + '//' +
-          (ctx.username || ctx.password
-              ? (
-                  (ctx.username ? encodeURIComponent(ctx.username) : '') +
-                  (ctx.password ? ':' + encodeURIComponent(ctx.password) : '') + '@'
-              )
-              : '') + this.host;
-    }
-    ctx.address = address + ctx.prefix + ctx.pathname;
-  }
+  //
+  // protected _update() {
+  //   if (!this[kContext].needUpdate)
+  //     return;
+  //   const ctx = this[kContext];
+  //   ctx.needUpdate = false;
+  //   let s = this.path.toString();
+  //   ctx.pathname = s ? '/' + s : '';
+  //   s = this.searchParams.toString();
+  //   ctx.search = s ? '?' + s : '';
+  //
+  //   let address = '';
+  //   if (ctx.hostname) {
+  //     address += (ctx.protocol || 'http:') + '//' +
+  //         (ctx.username || ctx.password
+  //             ? (
+  //                 (ctx.username ? encodeURIComponent(ctx.username) : '') +
+  //                 (ctx.password ? ':' + encodeURIComponent(ctx.password) : '') + '@'
+  //             )
+  //             : '') + this.host;
+  //   }
+  //   ctx.address = address + ctx.prefix + ctx.pathname;
+  // }
 
   protected _setPathname(v: string, trimPrefix?: boolean) {
     this.path.clear();
@@ -375,11 +339,6 @@ export class OpraURL {
       const p = decodePathComponent(x);
       this.path.join(p);
     }
-    this._changed();
-  }
-
-  protected _changed() {
-    this[kContext].needUpdate = true;
   }
 
 }

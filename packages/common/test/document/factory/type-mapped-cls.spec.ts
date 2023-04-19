@@ -1,9 +1,8 @@
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
-import '@opra/sqb'
 import {
+  ComplexField,
   ComplexType,
   DocumentFactory,
-  Expose,
   OmitType,
   OpraSchema,
   PickType,
@@ -24,16 +23,16 @@ describe('DocumentFactory - MappedType with decorated classes', function () {
 
   it('Should PickType() create new MappedType with "pick" option', async () => {
     @ComplexType({
-      additionalElements: true
+      additionalFields: true
     })
     class Type1 {
-      @Expose()
+      @ComplexField()
       id: number;
-      @Expose()
+      @ComplexField()
       name: string;
-      @Expose()
+      @ComplexField()
       age: number;
-      @Expose()
+      @ComplexField()
       gender: string;
     }
 
@@ -50,22 +49,22 @@ describe('DocumentFactory - MappedType with decorated classes', function () {
     expect(t1).toBeDefined();
     expect(t1.kind).toStrictEqual('ComplexType');
     expect(t1.name).toStrictEqual('Mapped1');
-    expect(t1.additionalElements).toStrictEqual(true);
-    expect(Array.from(t1.elements.keys())).toStrictEqual(['id', 'name']);
+    expect(t1.additionalFields).toStrictEqual(true);
+    expect(Array.from(t1.fields.keys())).toStrictEqual(['id', 'name']);
   })
 
   it('Should OmitType() create new MappedType with "omit" option', async () => {
     @ComplexType({
-      additionalElements: true
+      additionalFields: true
     })
     class Type1 {
-      @Expose()
+      @ComplexField()
       id: number;
-      @Expose()
+      @ComplexField()
       name: string;
-      @Expose()
+      @ComplexField()
       age: number;
-      @Expose()
+      @ComplexField()
       gender: string;
     }
 
@@ -82,8 +81,8 @@ describe('DocumentFactory - MappedType with decorated classes', function () {
     expect(t1).toBeDefined();
     expect(t1.kind).toStrictEqual('ComplexType');
     expect(t1.name).toStrictEqual('Mapped1');
-    expect(t1.additionalElements).toStrictEqual(true);
-    expect(Array.from(t1.elements.keys())).toStrictEqual(['id', 'name']);
+    expect(t1.additionalFields).toStrictEqual(true);
+    expect(Array.from(t1.fields.keys())).toStrictEqual(['id', 'name']);
   })
 
 })

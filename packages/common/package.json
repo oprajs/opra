@@ -45,7 +45,6 @@
     "putil-promisify": "^1.10.0",
     "putil-varhelpers": "^1.6.5",
     "reflect-metadata": "^0.1.13",
-    "statuses": "^2.0.1",
     "type-is": "^1.6.18",
     "uid": "^2.0.1"
   },
@@ -56,7 +55,6 @@
     "@types/cookie-signature": "^1.1.0",
     "@types/encodeurl": "^1.0.0",
     "@types/type-is": "^1.6.3",
-    "@types/statuses": "^2.0.1",
     "@types/mime-types": "^2.1.1",
     "ts-gems": "^2.3.0"
   },

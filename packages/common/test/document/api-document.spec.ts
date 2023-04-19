@@ -152,7 +152,7 @@ describe('ApiDocument', function () {
     expect(ref?.getSimpleType('number').own.ctor).toStrictEqual(Number);
     expect(ref?.getDataType('object')).toBeDefined();
     expect(ref?.getComplexType('object')).toBeDefined();
-    expect(ref?.getComplexType('object').additionalElements).toStrictEqual(true);
+    expect(ref?.getComplexType('object').additionalFields).toStrictEqual(true);
     expect(ref?.getDataType('string')).toBeDefined();
     expect(ref?.getSimpleType('string').ctor).toStrictEqual(String);
     expect(ref?.getSimpleType('string').own.ctor).toStrictEqual(String);
@@ -217,7 +217,8 @@ describe('ApiDocument', function () {
     expect(sch.info).toStrictEqual(baseArgs.info);
     expect(sch.types).toBeDefined();
     expect(Object.keys(sch.types!).sort())
-        .toEqual(['Address', 'Continent', 'Country', 'Customer', 'CustomerNotes', 'Note', 'Person', 'Record'].sort());
+        .toEqual(['Address', 'Continent', 'Country', 'Customer', 'CustomerNotes',
+          'GenderEnum', 'Note', 'Person', 'Record'].sort());
     expect(sch.types?.Record).toBeDefined();
     expect(sch.types?.Record).toEqual(
         expect.objectContaining({

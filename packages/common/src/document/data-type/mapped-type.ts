@@ -41,7 +41,7 @@ export namespace MappedType {
  * @type MappedType
  */
 export interface MappedType extends StrictOmit<DataType, 'own' | 'exportSchema'>,
-    Pick<ComplexType, 'additionalElements' | 'elements'>, MappedType.OwnProperties {
+    Pick<ComplexType, 'additionalFields' | 'fields'>, MappedType.OwnProperties {
   readonly own: MappedType.OwnProperties;
   readonly type: ComplexType;
 
@@ -71,7 +71,7 @@ export interface MappedTypeConstructor {
   _applyMixin(target: Type, source: Type,
               options: MappedType.Options<any> &
                   {
-                    isInheritedPredicate: (elementName: string) => boolean;
+                    isInheritedPredicate: (fieldName: string) => boolean;
                   }
   ): void;
 }
@@ -150,11 +150,11 @@ export const MappedType = function (
   _this.type = own.type;
   _this.pick = own.pick;
   _this.omit = own.omit;
-  _this.elements = new ResponsiveMap();
-  _this.additionalElements = _this.type.additionalElements;
-  for (const [elemName, elem] of own.type.elements.entries()) {
+  _this.fields = new ResponsiveMap();
+  _this.additionalFields = _this.type.additionalFields;
+  for (const [elemName, elem] of own.type.fields.entries()) {
     if (isInheritedPredicate(elemName))
-      _this.elements.set(elemName, elem);
+      _this.fields.set(elemName, elem);
   }
 } as MappedTypeConstructor;
 

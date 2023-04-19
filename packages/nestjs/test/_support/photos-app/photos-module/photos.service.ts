@@ -22,7 +22,7 @@ export class PhotosService {
   }
 
   update(id: any, values: any) {
-    const data = photosData.find(x => x && '' + x.id === '' + id);
+    const data = photosData.find(x => x && ('' + x.id === '' + id));
     if (data) {
       delete values.id;
       Object.assign(data, values);

@@ -1,39 +1,39 @@
 import { Maybe } from 'ts-gems';
 import { PartialOutput, Singleton } from '@opra/common';
-import { Request } from '@opra/core';
+import { RequestContext } from '@opra/core';
 import { SQBAdapter } from './sqb-adapter.js';
 import { SqbEntityService } from './sqb-entity-service.js';
 
 export abstract class SqbSingletonResource<T> {
 
   @Singleton.CreateOperation()
-  async create(req: Request): Promise<PartialOutput<T>> {
-    const prepared = SQBAdapter.parseSingletonCreateRequest(req);
-    const service = await this.getService(req);
-    return service.for(req).create(prepared.data, prepared.options);
+  async create(ctx: RequestContext): Promise<PartialOutput<T>> {
+    const prepared = SQBAdapter.parseSingletonCreateRequest(ctx.request);
+    const service = await this.getService(ctx);
+    return service.create(ctx, prepared.data, prepared.options);
   }
 
   @Singleton.DeleteOperation()
-  async delete(req: Request): Promise<boolean> {
-    const prepared = SQBAdapter.parseSingletonDeleteRequest(req);
-    const service = await this.getService(req);
-    return !!(await service.for(req).destroyAll(prepared.options));
+  async delete(ctx: RequestContext): Promise<boolean> {
+    const prepared = SQBAdapter.parseSingletonDeleteRequest(ctx.request);
+    const service = await this.getService(ctx);
+    return !!(await service.destroyAll(ctx, prepared.options));
   }
 
   @Singleton.GetOperation()
-  async get(req: Request): Promise<Maybe<PartialOutput<T>>> {
-    const prepared = SQBAdapter.parseSingletonGetRequest(req);
-    const service = await this.getService(req);
-    return service.for(req).findOne(prepared.options);
+  async get(ctx: RequestContext): Promise<Maybe<PartialOutput<T>>> {
+    const prepared = SQBAdapter.parseSingletonGetRequest(ctx.request);
+    const service = await this.getService(ctx);
+    return service.findOne(ctx, prepared.options);
   }
 
   @Singleton.UpdateOperation()
-  async update(req: Request): Promise<Maybe<PartialOutput<T>>> {
-    const prepared = SQBAdapter.parseSingletonUpdateRequest(req);
-    const service = await this.getService(req);
-    await service.for(req).updateAll(prepared.data, prepared.options);
-    return service.for(req).findOne(prepared.options);
+  async update(ctx: RequestContext): Promise<Maybe<PartialOutput<T>>> {
+    const prepared = SQBAdapter.parseSingletonUpdateRequest(ctx.request);
+    const service = await this.getService(ctx);
+    await service.updateAll(ctx, prepared.data, prepared.options);
+    return service.findOne(ctx, prepared.options);
   }
 
-  abstract getService<TContext>(req: TContext): SqbEntityService<T, TContext> | Promise<SqbEntityService<T, TContext>>;
+  abstract getService(req: RequestContext): SqbEntityService<T> | Promise<SqbEntityService<T>>;
 }

@@ -10,6 +10,7 @@ import strip from '@rollup/plugin-strip';
 import filesize from 'rollup-plugin-filesize';
 import command from 'rollup-plugin-command';
 import clean from '@rollup-extras/plugin-clean';
+import json from '@rollup/plugin-json';
 import {manualChunksResolver} from '../../support/manual-chunks-resolver.mjs';
 import {filterDependencies} from '../../support/filter-dependencies.js';
 import {copyFiles} from '../../support/copy-files.mjs';
@@ -65,10 +66,12 @@ export default {
         {find: 'i18next', replacement: '@browsery/i18next'},
         {find: 'stream', replacement: '@browsery/stream'},
         {find: 'node:stream', replacement: '@browsery/stream'},
-        {find: 'path', replacement: 'path-browserify'}
+        {find: 'path', replacement: 'path-browserify'},
+        {find: 'crypto', replacement: 'crypto-browserify'}
       ]
     }),
     clean(targetPath),
+    json(),
     commonjs(),
     strip(),
     filesize(),

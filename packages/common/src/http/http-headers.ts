@@ -1,5 +1,5 @@
+/// <reference lib="dom" />
 import { IncomingHttpHeaders, OutgoingHttpHeaders } from 'http';
-import { HeaderObject } from 'http-parser-js';
 import { ResponsiveMap } from '../helpers/index.js';
 import { HttpHeaderCodes } from './enums/http-headers-codes.enum.js';
 
@@ -10,15 +10,15 @@ const nodeInspectCustom = Symbol.for('nodejs.util.inspect.custom');
 const kEntries = Symbol('kEntries');
 const kOptions = Symbol('kOptions');
 
-type HttpHeadersObject = Record<string, number | string | string[]>;
-
 /**
  *
  * @namespace HttpHeaders
  */
 export namespace HttpHeaders {
   export type Initiator = Headers | HttpHeaders | IncomingHttpHeaders | OutgoingHttpHeaders |
-      HttpHeadersObject | Map<string, number | string | string[]>;
+      HeadersObject | Map<string, number | string | string[]>;
+
+  export type HeadersObject = Record<string, number | string | string[]>;
 
   export interface Options {
     onChange?: () => void;
@@ -158,8 +158,10 @@ export class HttpHeaders {
   forEach(callbackFn: (value: number | string | string[], key: string, parent: HttpHeaders) => void, thisArg?: any): void {
     const iterator = this.entries();
     let entry = iterator.next();
+    let v;
     while (!entry.done) {
-      callbackFn.call(thisArg || this, entry.value[1], entry.value[0], this);
+      v = entry.value[1];
+      callbackFn.call(thisArg || this, (Array.isArray(v) ? v.join(';') : String(v)), entry.value[0], this);
       entry = iterator.next();
     }
   }
@@ -184,14 +186,14 @@ export class HttpHeaders {
     return this;
   }
 
-  toObject(): HeaderObject {
+  toObject(): Record<string, string> {
     const out: any = {};
     for (const [k, v] of this.entries())
-      out[k] = v;
+      out[k] = Array.isArray(v) ? v.join(';') : String(v);
     return out;
   }
 
-  getProxy(): HttpHeadersObject {
+  getProxy(): HttpHeaders.HeadersObject {
     const _this = this;
     return new Proxy<Record<string, number | string | string[]>>({}, {
       get(target, p: string | symbol, receiver: any): any {

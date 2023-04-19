@@ -1,13 +1,11 @@
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
-import '@opra/sqb'
 import {
+  ComplexField,
   ComplexType,
   DocumentFactory,
-  Expose,
   OpraSchema,
   SimpleType
 } from '@opra/common';
-import { Column, DataType } from '@sqb/connect';
 
 describe('DocumentFactory - ComplexType with decorated classes', function () {
 
@@ -25,7 +23,7 @@ describe('DocumentFactory - ComplexType with decorated classes', function () {
     @ComplexType({
       description: 'test type',
       abstract: true,
-      additionalElements: true,
+      additionalFields: true,
     })
     class Type1 {
 
@@ -42,19 +40,19 @@ describe('DocumentFactory - ComplexType with decorated classes', function () {
     expect(t.name).toStrictEqual('Type1');
     expect(t.description).toEqual('test type');
     expect(t.abstract).toEqual(true);
-    expect(t.additionalElements).toEqual(true);
+    expect(t.additionalFields).toEqual(true);
   })
 
-  it('Should define elements', async () => {
+  it('Should define fields', async () => {
     @ComplexType({
       description: 'test type',
       abstract: true,
-      additionalElements: true,
+      additionalFields: true,
     })
     class Type1 {
-      @Expose()
+      @ComplexField()
       id: number
-      @Expose({type: 'guid'})
+      @ComplexField({type: 'guid'})
       cid: number
     }
 
@@ -67,20 +65,20 @@ describe('DocumentFactory - ComplexType with decorated classes', function () {
     expect(t).toBeDefined();
     expect(t.kind).toStrictEqual('ComplexType');
     expect(t.name).toStrictEqual('Type1');
-    expect(t.elements.get('id')).toBeDefined();
-    expect(t.elements.get('id')?.type.name).toStrictEqual('number');
-    expect(t.elements.get('cid')).toBeDefined();
-    expect(t.elements.get('cid')?.type.name).toStrictEqual('guid');
+    expect(t.fields.get('id')).toBeDefined();
+    expect(t.fields.get('id')?.type.name).toStrictEqual('number');
+    expect(t.fields.get('cid')).toBeDefined();
+    expect(t.fields.get('cid')?.type.name).toStrictEqual('guid');
   })
 
-  it('Should define elements by element schema object', async () => {
+  it('Should define fields by schema object', async () => {
     @ComplexType({
       description: 'test type',
       abstract: true,
-      additionalElements: true,
+      additionalFields: true,
     })
     class Type1 {
-      @Expose({
+      @ComplexField({
         type: {
           kind: 'SimpleType',
           base: 'string'
@@ -98,19 +96,19 @@ describe('DocumentFactory - ComplexType with decorated classes', function () {
     expect(t).toBeDefined();
     expect(t.kind).toStrictEqual('ComplexType');
     expect(t.name).toStrictEqual('Type1');
-    expect(t.elements.get('cid')).toBeDefined();
-    expect(t.elements.get('cid')?.type.isAnonymous).toStrictEqual(true);
-    expect((t.elements.get('cid')?.type as SimpleType).base?.name).toStrictEqual('string');
+    expect(t.fields.get('cid')).toBeDefined();
+    expect(t.fields.get('cid')?.type.isAnonymous).toStrictEqual(true);
+    expect((t.fields.get('cid')?.type as SimpleType).base?.name).toStrictEqual('string');
   })
 
   it('Should extend ComplexType', async () => {
     @ComplexType({
       description: 'test type',
       abstract: true,
-      additionalElements: true,
+      additionalFields: true,
     })
     class Type1 {
-      @Expose()
+      @ComplexField()
       id: number
     }
 
@@ -118,7 +116,7 @@ describe('DocumentFactory - ComplexType with decorated classes', function () {
       description: 'test type 2',
     })
     class Type2 extends Type1 {
-      @Expose({type: 'guid'})
+      @ComplexField({type: 'guid'})
       cid: number
     }
 
@@ -131,44 +129,10 @@ describe('DocumentFactory - ComplexType with decorated classes', function () {
     expect(t).toBeDefined();
     expect(t.kind).toStrictEqual('ComplexType');
     expect(t.name).toStrictEqual('Type2');
-    expect(t.elements.get('id')).toBeDefined();
-    expect(t.elements.get('id')?.type.name).toStrictEqual('number');
-    expect(t.elements.get('cid')).toBeDefined();
-    expect(t.elements.get('cid')?.type.name).toStrictEqual('guid');
-  })
-
-  it('Should get elements info from SQB', async () => {
-    @ComplexType({
-      description: 'test type',
-      abstract: true,
-      additionalElements: true,
-    })
-    class Type1 {
-      @Expose()
-      @Column({dataType: DataType.INTEGER, notNull: true, default: 1, exclusive: true})
-      id: number
-      @Expose()
-      @Column({dataType: DataType.GUID})
-      cid: string
-    }
-
-    const doc = await DocumentFactory.createDocument({
-      ...baseArgs,
-      types: [Type1]
-    })
-    expect(doc).toBeDefined();
-    const t = doc.types.get('type1') as ComplexType;
-    expect(t).toBeDefined();
-    expect(t.kind).toStrictEqual('ComplexType');
-    expect(t.name).toStrictEqual('Type1');
-    expect(Array.from(t.elements.keys())).toStrictEqual(['id', 'cid']);
-    expect(t.elements.get('id')).toBeDefined();
-    expect(t.elements.get('id')?.type.name).toStrictEqual('integer');
-    expect(t.elements.get('id')?.required).toStrictEqual(true);
-    expect(t.elements.get('id')?.default).toStrictEqual(1);
-    expect(t.elements.get('id')?.exclusive).toStrictEqual(true);
-    expect(t.elements.get('cid')).toBeDefined();
-    expect(t.elements.get('cid')?.type.name).toStrictEqual('guid');
+    expect(t.fields.get('id')).toBeDefined();
+    expect(t.fields.get('id')?.type.name).toStrictEqual('number');
+    expect(t.fields.get('cid')).toBeDefined();
+    expect(t.fields.get('cid')?.type.name).toStrictEqual('guid');
   })
 
 })

@@ -1,24 +1,24 @@
-import { ComplexType, Expose } from '@opra/common';
+import { ComplexField, ComplexType } from '@opra/common';
 import { Column, Entity, PrimaryKey } from '@sqb/connect';
 
 @ComplexType()
 @Entity('countries')
 export class Country {
 
-  @Expose()
+  @ComplexField()
   @Column()
   @PrimaryKey()
   code: string;
 
-  @Expose()
+  @ComplexField()
   @Column()
   name: string;
 
-  @Expose()
+  @ComplexField()
   @Column()
   phoneCode: string;
 
-  @Expose()
+  @ComplexField()
   @Column()
   flag: string;
 }

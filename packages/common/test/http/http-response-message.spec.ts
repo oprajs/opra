@@ -3,7 +3,7 @@ import { HttpResponseMessageHost } from '@opra/common';
 describe('HttpResponseMessage', function () {
 
   it('Should create using init object', async () => {
-    const msg = new HttpResponseMessageHost({
+    const msg = HttpResponseMessageHost.create({
       statusCode: 200,
       statusMessage: 'OK',
       httpVersionMajor: 1,
@@ -23,7 +23,7 @@ describe('HttpResponseMessage', function () {
   })
 
   it('Should create using Buffer', async () => {
-    const msg = new HttpResponseMessageHost(Buffer.from(
+    const msg = HttpResponseMessageHost.fromBuffer(Buffer.from(
         [
           'HTTP/1.1 200 OK',
           'Content-Type: text/xml',
@@ -41,7 +41,7 @@ describe('HttpResponseMessage', function () {
   })
 
   it('Should header(name) set header value', async () => {
-    const msg = new HttpResponseMessageHost({
+    const msg = HttpResponseMessageHost.create({
       statusCode: 200,
       statusMessage: 'OK',
       rawHeaders: ['Accept', 'text/html'],
@@ -53,7 +53,7 @@ describe('HttpResponseMessage', function () {
   })
 
   it('Should append(name) add header value', async () => {
-    const msg = new HttpResponseMessageHost({
+    const msg = HttpResponseMessageHost.create({
       statusCode: 200,
       statusMessage: 'OK',
       rawHeaders: ['Accept-Language', 'tr'],
@@ -70,7 +70,7 @@ describe('HttpResponseMessage', function () {
   })
 
   it('Should attachment(name) set Content-Disposition header', async () => {
-    const msg = new HttpResponseMessageHost({
+    const msg = HttpResponseMessageHost.create({
       statusCode: 200,
       statusMessage: 'OK',
     });
@@ -81,7 +81,7 @@ describe('HttpResponseMessage', function () {
   })
 
   it('Should contentType(type) or type(type) set Content-Type header', async () => {
-    const msg = new HttpResponseMessageHost({
+    const msg = HttpResponseMessageHost.create({
       statusCode: 200,
       statusMessage: 'OK',
       rawHeaders: ['Content-Type', 'application/json']
@@ -94,7 +94,7 @@ describe('HttpResponseMessage', function () {
   })
 
   it('Should cookie() set Set-Cookie header', async () => {
-    const msg = new HttpResponseMessageHost({
+    const msg = HttpResponseMessageHost.create({
       statusCode: 200,
       statusMessage: 'OK'
     });
@@ -103,7 +103,7 @@ describe('HttpResponseMessage', function () {
   })
 
   it('Should clearCookie() delete Set-Cookie header', async () => {
-    const msg = new HttpResponseMessageHost({
+    const msg = HttpResponseMessageHost.create({
       statusCode: 200,
       statusMessage: 'OK'
     });
@@ -114,7 +114,7 @@ describe('HttpResponseMessage', function () {
   })
 
   it('Should links() set Link header', async () => {
-    const msg = new HttpResponseMessageHost({
+    const msg = HttpResponseMessageHost.create({
       statusCode: 200,
       statusMessage: 'OK'
     });
@@ -123,7 +123,7 @@ describe('HttpResponseMessage', function () {
   })
 
   it('Should redirect() set Location and statusCode', async () => {
-    const msg = new HttpResponseMessageHost({
+    const msg = HttpResponseMessageHost.create({
       statusCode: 200,
       statusMessage: 'OK'
     });
@@ -133,7 +133,7 @@ describe('HttpResponseMessage', function () {
   })
 
   it('Should status() set status code', async () => {
-    const msg = new HttpResponseMessageHost({
+    const msg = HttpResponseMessageHost.create({
       statusCode: 200,
       statusMessage: 'OK'
     });
@@ -143,7 +143,7 @@ describe('HttpResponseMessage', function () {
   })
 
   it('Should sendStatus() set status code and body as status message', async () => {
-    const msg = new HttpResponseMessageHost({
+    const msg = HttpResponseMessageHost.create({
       statusCode: 200,
       statusMessage: 'OK'
     });

@@ -1,18 +1,18 @@
-import { ComplexType, Expose } from '@opra/common';
+import { ComplexField, ComplexType } from '@opra/common';
 
 @ComplexType()
 export class Address {
 
-  @Expose()
+  @ComplexField()
   city: string;
 
-  @Expose()
+  @ComplexField()
   countryCode: string;
 
-  @Expose()
+  @ComplexField()
   street: string;
 
-  @Expose()
+  @ComplexField()
   zipCode: string;
 
 }

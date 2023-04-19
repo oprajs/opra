@@ -1,4 +1,4 @@
-import { ComplexType, Expose } from '@opra/common';
+import { ComplexField, ComplexType } from '@opra/common';
 import { Column } from '@sqb/connect';
 
 @ComplexType({
@@ -6,25 +6,25 @@ import { Column } from '@sqb/connect';
 })
 export class Address {
 
-  @Expose({
+  @ComplexField({
     description: 'Address code'
   })
   @Column()
   code: number;
 
-  @Expose({
+  @ComplexField({
     description: 'City name'
   })
   @Column()
   city: string;
 
-  @Expose({
+  @ComplexField({
     description: 'Street information'
   })
   @Column()
   street: string;
 
-  @Expose({
+  @ComplexField({
     description: 'ZIP code'
   })
   @Column()

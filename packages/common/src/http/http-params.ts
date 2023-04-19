@@ -7,21 +7,6 @@ import { FilterCodec } from './codecs/filter-codec.js';
 import { IntegerCodec } from './codecs/integer-codec.js';
 import { NumberCodec } from './codecs/number-codec.js';
 import { StringCodec } from './codecs/string-codec.js';
-import { encodeURIParam } from './utils/encodeURIParam.js';
-
-const kEntries = Symbol('kEntries');
-const kSize = Symbol('kSize');
-const kParamDefs = Symbol('kParamDefs');
-const kOptions = Symbol('kOptions');
-
-const internalCodecs = {
-  'boolean': new BooleanCodec(),
-  'date': new DateCodec(),
-  'filter': new FilterCodec(),
-  'integer': new IntegerCodec(),
-  'number': new NumberCodec(),
-  'string': new StringCodec()
-}
 
 export namespace HttpParams {
   export type Initiator = string | URLSearchParams | HttpParams | Map<string, any> | Record<string, any>;
@@ -40,7 +25,6 @@ export namespace HttpParams {
 
     encode(value: any): string;
   }
-
 }
 
 interface HttpParamMetadata {
@@ -51,13 +35,16 @@ interface HttpParamMetadata {
   maxArrayItems?: number;
 }
 
+const kEntries = Symbol('kEntries');
+const kSize = Symbol('kSize');
+const kParamDefs = Symbol('kParamDefs');
+const kOptions = Symbol('kOptions');
 
 export class HttpParams {
   protected static kEntries = kEntries;
   protected static kSize = kSize;
   protected static kParamDefs = kParamDefs;
   protected static kOptions = kOptions;
-
   protected [kEntries] = new ResponsiveMap<string, any[]>();
   protected [kSize] = 0;
   protected [kOptions]: HttpParams.Options;
@@ -247,21 +234,30 @@ export class HttpParams {
     return out.join('&');
   }
 
-  define(name: string, options?: HttpParams.ParamDefinition): this {
-    if (!name)
-      throw new Error('Parameter name required');
-    if (typeof options?.codec === 'string' && !internalCodecs[options.codec])
+  define(params: Record<string, HttpParams.ParamDefinition>): this
+  define(name: string, options: HttpParams.ParamDefinition): this
+  define(arg0, options?: HttpParams.ParamDefinition): this {
+    if (typeof arg0 === 'object') {
+      for (const [name, def] of Object.entries<HttpParams.ParamDefinition>(arg0))
+        this.define(name, def);
+      return this;
+    }
+    if (!arg0)
+      throw new Error('"name" argument required');
+    if (!options)
+      throw new Error('"options" argument required');
+    if (typeof options.codec === 'string' && !HttpParams.codecs[options.codec])
       throw new Error(`Unknown url parameter format name "${options.codec}"`);
     const codec = (typeof options?.codec === 'string'
-            ? internalCodecs[options.codec]
+            ? HttpParams.codecs[options.codec]
             : options?.codec
-    ) || internalCodecs.string;
+    ) || HttpParams.codecs.string;
 
     const meta: HttpParamMetadata = {
       ...options,
       codec
     }
-    this[kParamDefs].set(name, meta);
+    this[kParamDefs].set(arg0, meta);
     return this;
   }
 
@@ -366,4 +362,35 @@ export class HttpParams {
     return 'HttpParams';
   }
 
+  static codecs = {
+    'boolean': new BooleanCodec(),
+    'date': new DateCodec(),
+    'filter': new FilterCodec(),
+    'integer': new IntegerCodec(),
+    'number': new NumberCodec(),
+    'string': new StringCodec()
+  }
+
+}
+
+
+/**
+ * Encode input string with standard encodeURIComponent and then un-encode specific characters.
+ */
+const ENCODING_REGEX = /%(\d[a-f0-9])/gi;
+const ENCODING_REPLACEMENTS: { [x: string]: string } = {
+  '2C': ',',
+  '2F': '/',
+  '24': '$',
+  '3A': ':',
+  '3B': ';',
+  '3D': '=',
+  '3F': '?',
+  '40': '@'
+};
+
+
+export function encodeURIParam(v: string): string {
+  return encodeURIComponent(v).replace(
+      ENCODING_REGEX, (s, t) => ENCODING_REPLACEMENTS[t] ?? s);
 }

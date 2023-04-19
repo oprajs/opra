@@ -1,11 +1,7 @@
 import { UseGuards } from '@nestjs/common';
 import { Collection } from '@opra/common';
-import {
-  CollectionCreateQuery, CollectionDeleteManyQuery, CollectionDeleteQuery,
-  CollectionGetQuery, CollectionSearchQuery, CollectionUpdateManyQuery,
-  CollectionUpdateQuery
-} from '@opra/core';
-import { Query } from '../../../../src/index.js';
+import { RequestContext } from '@opra/core';
+import { Context } from '@opra/nestjs';
 import { AuthGuard } from '../guards/auth.guard.js';
 import { Photos } from './photos.dto.js';
 import { PhotosService } from './photos.service.js';
@@ -20,39 +16,46 @@ export class PhotosResource {
   }
 
   @Collection.SearchOperation()
-  async search(@Query query: CollectionSearchQuery) {
-    return this.photosService.search(query.filter);
+  async search(@Context ctx: RequestContext) {
+    const {request} = ctx;
+    return this.photosService.search(request.args.filter);
   }
 
   @UseGuards(AuthGuard)
   @Collection.CreateOperation()
-  create(@Query query: CollectionCreateQuery) {
-    return this.photosService.create(query.data);
+  create(@Context ctx: RequestContext) {
+    const {request} = ctx;
+    return this.photosService.create(request.args.data);
   }
 
   @Collection.GetOperation()
-  get(@Query query: CollectionGetQuery) {
-    return this.photosService.get(query.keyValue);
+  get(@Context ctx: RequestContext) {
+    const {request} = ctx;
+    return this.photosService.get(request.args.key);
   }
 
   @Collection.UpdateOperation()
-  update(@Query query: CollectionUpdateQuery) {
-    return this.photosService.update(query.keyValue, query.data);
+  update(@Context ctx: RequestContext) {
+    const {request} = ctx;
+    return this.photosService.update(request.args.key, request.args.data);
   }
 
   @Collection.UpdateManyOperation()
-  async updateMany(@Query query: CollectionUpdateManyQuery) {
-    return this.photosService.updateMany(query.data, query.filter);
+  async updateMany(@Context ctx: RequestContext) {
+    const {request} = ctx;
+    return this.photosService.updateMany(request.args.data, request.args.filter);
   }
 
   @Collection.DeleteOperation()
-  async delete(@Query query: CollectionDeleteQuery) {
-    return this.photosService.delete(query.keyValue);
+  async delete(@Context ctx: RequestContext) {
+    const {request} = ctx;
+    return this.photosService.delete(request.args.key);
   }
 
   @Collection.DeleteManyOperation()
-  async deleteMany(@Query query: CollectionDeleteManyQuery) {
-    return this.photosService.deleteMany(query.filter);
+  async deleteMany(@Context ctx: RequestContext) {
+    const {request} = ctx;
+    return this.photosService.deleteMany(request.args.filter);
   }
 
 }

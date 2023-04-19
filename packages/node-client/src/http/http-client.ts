@@ -198,7 +198,7 @@ export class OpraHttpClient {
         }
         if (observe === 'events')
           subscriber.next({event: 'sent', request} satisfies HttpEvent);
-        const response = await this._fetch(url, request);
+        const response = await this._fetch(url, {...request, headers: request.headers.toObject()});
         await this._handleResponse(observe, subscriber, request, response);
       })().catch(error => subscriber.error(error))
     });

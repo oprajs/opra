@@ -1,27 +1,21 @@
-import '@opra/sqb';
-import { ComplexType, Expose } from '@opra/common';
-import { Column, DataType, Entity, Link } from '@sqb/connect';
+import { ComplexField, ComplexType } from '@opra/common';
 import { Continent } from './continent.entity.js';
 
 @ComplexType({
   description: 'Country information'
 })
-@Entity()
 export class Country {
 
-  @Expose()
-  @Column({notNull: true, dataType: DataType.GUID})
+  @ComplexField()
   code: string;
 
-  @Expose()
-  @Column({notNull: true})
+  @ComplexField()
   name: string;
 
-  @Expose()
+  @ComplexField()
   phoneCode?: string;
 
-  @Expose()
-  @Link().toOne(async () => (await import('./continent.entity.js')).Continent)
+  @ComplexField({type: async () => (await import('./continent.entity.js')).Continent})
   continent: Continent;
 
 }

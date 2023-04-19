@@ -1,18 +1,18 @@
 import { Type } from 'ts-gems';
-import { DocumentFactory, Expose, METADATA_KEY, OpraSchema } from "@opra/common";
+import { ComplexField, DocumentFactory, METADATA_KEY, OpraSchema } from "@opra/common";
 import { DataType as SqbDataType, EntityMetadata, isAssociationField } from '@sqb/connect';
 
 // @ts-ignore
-const _extractElementSchema = DocumentFactory.prototype.extractElementSchema;
+const _extractFieldSchema = DocumentFactory.prototype.extractFieldSchema;
 // @ts-ignore
-DocumentFactory.prototype.extractElementSchema = async function (
+DocumentFactory.prototype.extractFieldSchema = async function (
     this: DocumentFactory,
-    target: OpraSchema.ComplexType.Element,
+    target: OpraSchema.ComplexField,
     ctor: Type,
-    metadata: Expose.Metadata,
+    metadata: ComplexField.Metadata,
     name: string
 ) {
-  await _extractElementSchema.call(this, target, ctor, metadata, name);
+  await _extractFieldSchema.call(this, target, ctor, metadata, name);
   const sqbMeta = EntityMetadata.get(ctor);
   const sqbField = sqbMeta && EntityMetadata.getField(sqbMeta, name);
   if (!sqbField)

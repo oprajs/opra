@@ -1,4 +1,5 @@
 import { SpecVersion as _SpecVersion } from './constants.js';
+import { ComplexField as _ComplexField } from './data-type/compex-field.interface.js';
 import { ComplexType as _ComplexType } from './data-type/complex-type.interface.js'
 import { DataType as _DataType, DataTypeBase as _DataTypeBase } from './data-type/data-type.interface.js'
 import {
@@ -57,6 +58,8 @@ export namespace OpraSchema {
   export import DataType = _DataType;
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   export import ComplexType = _ComplexType;
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  export import ComplexField = _ComplexField;
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   export import EnumType = _EnumType;
   // eslint-disable-next-line @typescript-eslint/no-unused-vars

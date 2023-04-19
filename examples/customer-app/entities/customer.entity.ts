@@ -1,5 +1,5 @@
 import '@opra/sqb';
-import { ComplexType, Expose, UnionType } from '@opra/common';
+import { ComplexField, ComplexType, UnionType } from '@opra/common';
 import { Column, DataType, Entity, Link } from '@sqb/connect';
 import { Address } from '../types/address.type.js';
 import { ContactPerson } from '../types/contact-person.type.js';
@@ -13,51 +13,51 @@ import { Record } from './record.entity.js';
 @Entity()
 export class Customer extends UnionType(Record, Person) {
 
-  @Expose()
+  @ComplexField()
   @Column({dataType: DataType.GUID, notNull: true})
   cid: string;
 
-  @Expose({required: false})
+  @ComplexField({required: false})
   @Column({notNull: true})
   identity: string;
 
-  @Expose()
+  @ComplexField()
   @Column()
   city: string;
 
-  @Expose()
+  @ComplexField()
   @Column()
   countryCode: string;
 
-  @Expose()
+  @ComplexField()
   @Column({default: true})
   active: boolean;
 
-  @Expose({type: 'integer'})
+  @ComplexField({type: 'integer'})
   @Column({exclusive: true})
   vip: number;
 
-  @Expose()
+  @ComplexField()
   @Column({type: Address})
   address?: Address;
 
-  @Expose()
+  @ComplexField()
   @Column({type: ContactPerson, dataType: DataType.JSON, isArray: true})
   contactPersons: ContactPerson[]
 
-  @Expose()
+  @ComplexField()
   @Link({exclusive: true}).toMany(CustomerNotes, {sourceKey: 'id', targetKey: 'customerId'})
   notes?: CustomerNotes[];
 
-  @Expose()
+  @ComplexField()
   @Column({dataType: DataType.INTEGER})
   fieldInteger: number;
 
-  @Expose()
+  @ComplexField()
   @Column({dataType: DataType.BIGINT})
   fieldBigint: bigint;
 
-  @Expose()
+  @ComplexField()
   @Column({dataType: DataType.GUID})
   fieldGuid: string;
 

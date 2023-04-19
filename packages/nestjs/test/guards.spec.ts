@@ -32,7 +32,6 @@ describe('OpraModule - Guards', function () {
         .send({id: 100});
     expect(r.status).toStrictEqual(401);
     expect(r.body).toStrictEqual({
-      operation: 'create',
       errors: [
         {
           code: 'UNAUTHORIZED',

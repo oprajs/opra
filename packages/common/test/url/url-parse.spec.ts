@@ -106,9 +106,8 @@ describe('Parse url string', () => {
 
   it('Should parse query part', () => {
     const u = new OpraURL('http://anyuri.com/?prm1=1&prm2=hello');
-    expect(u.searchParams.get('prm1')).toStrictEqual('1');
-    expect(u.searchParams.get('prm2')).toStrictEqual('hello');
     expect(u.search).toStrictEqual('?prm1=1&prm2=hello');
+    expect(u.searchParams.toString()).toStrictEqual('prm1=1&prm2=hello');
     expect(u.href).toStrictEqual('http://anyuri.com?prm1=1&prm2=hello');
   })
 
@@ -119,13 +118,6 @@ describe('Parse url string', () => {
     u = new OpraURL('http://localhost:3001/svc1/$metadata#types[name=\'Address\']');
     expect(u.hash).toStrictEqual('#types[name=\'Address\']');
     expect(u.href).toStrictEqual('http://localhost:3001/svc1/$metadata#types[name=\'Address\']');
-  })
-
-  it('Should set register custom parameter', () => {
-    const u = new OpraURL('/Person?_prm1=5', {
-      params: {'_prm1': {codec: 'integer'}}
-    });
-    expect(u.searchParams.get('_prm1')).toStrictEqual(5);
   })
 
   it('Should initialize with base uri and prefix', () => {

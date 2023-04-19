@@ -27,7 +27,11 @@ export function parseFilter(text: string, visitor?: ParseTreeVisitor<any>) {
     const errMsgs: any[] = [];
     for (const err of errors) {
       errMsgs.push(err.message +
-          ' at (' + 'line: ' + err.line + ' column: ' + err.charPositionInLine + ')');
+          (text.includes('\n')
+                  ? (' at ' + 'line: ' + err.line + ' column: ' + err.column)
+                  : (' at ' + ' column: ' + err.column)
+          )
+      );
     }
     const e = new SyntaxError(errMsgs.join('\n'));
     (e as any).errors = errors;

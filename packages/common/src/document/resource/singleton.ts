@@ -37,10 +37,10 @@ export namespace Singleton {
     update?: OpraSchema.Singleton.UpdateOperation & Operation;
   }
 
-  export type CreateOperationOptions = Required<Operations>['create'];
-  export type DeleteOperationOptions = Required<Operations>['delete'];
-  export type UpdateOperationOptions = Required<Operations>['update'];
-  export type GetOperationOptions = Required<Operations>['get'];
+  export type CreateOperationOptions = StrictOmit<OpraSchema.Singleton.CreateOperation, 'handler'>;
+  export type DeleteOperationOptions = StrictOmit<OpraSchema.Singleton.DeleteOperation, 'handler'>;
+  export type GetOperationOptions = StrictOmit<OpraSchema.Singleton.GetOperation, 'handler'>;
+  export type UpdateOperationOptions = StrictOmit<OpraSchema.Singleton.UpdateOperation, 'handler'>;
 }
 
 export interface Singleton extends StrictOmit<Resource, 'exportSchema' | '_construct'> {
@@ -50,7 +50,7 @@ export interface Singleton extends StrictOmit<Resource, 'exportSchema' | '_const
 
   exportSchema(): OpraSchema.Singleton;
 
-  normalizeElementNames(elements: string[]): string[] | undefined;
+  normalizeFieldNames(fields: string[]): string[] | undefined;
 
   _construct(init: Singleton.InitArguments): void;
 }
@@ -134,8 +134,8 @@ const proto = {
     return out;
   },
 
-  normalizeElementNames(this: Singleton, elements: string[]): string[] | undefined {
-    return this.type.normalizeElementNames(elements);
+  normalizeFieldNames(this: Singleton, fields: string[]): string[] | undefined {
+    return this.type.normalizeFieldNames(fields);
   },
 
 } as Singleton;

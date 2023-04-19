@@ -1,10 +1,10 @@
-import { Expose, METADATA_KEY } from '@opra/common';
+import { ComplexField, METADATA_KEY } from '@opra/common';
 
-describe('Expose() decorator', function () {
+describe('ComplexField() decorator', function () {
 
   it('Should define field metadata', async () => {
     class Animal {
-      @Expose({
+      @ComplexField({
         type: 'integer',
         description: 'description'
       })
@@ -13,7 +13,7 @@ describe('Expose() decorator', function () {
 
     const metadata = Reflect.getMetadata(METADATA_KEY, Animal)
     expect(metadata).toBeDefined();
-    expect(metadata.elements).toStrictEqual({
+    expect(metadata.fields).toStrictEqual({
       id: {
         type: 'integer',
         designType: Number,
@@ -24,20 +24,20 @@ describe('Expose() decorator', function () {
 
   it('Should determine design type if "type" is not defined', async () => {
     class Country {
-      @Expose()
+      @ComplexField()
       id: number;
-      @Expose()
+      @ComplexField()
       name: string;
     }
 
     class Person {
-      @Expose()
+      @ComplexField()
       country: Country;
     }
 
     const metadata = Reflect.getMetadata(METADATA_KEY, Person);
     expect(metadata).toBeDefined();
-    expect(metadata.elements).toStrictEqual({
+    expect(metadata.fields).toStrictEqual({
       country: {
         designType: Country
       }
@@ -50,13 +50,13 @@ describe('Expose() decorator', function () {
     class Person {
     }
 
-    expect(() => Expose({})(Person.prototype, sym)).toThrow('can\'t be used')
+    expect(() => ComplexField({})(Person.prototype, sym)).toThrow('can\'t be used')
 
   })
 
   it('Should define enum with array', async () => {
     class Animal {
-      @Expose({
+      @ComplexField({
         description: 'description',
         enum: ['A', 'B']
       })
@@ -65,7 +65,7 @@ describe('Expose() decorator', function () {
 
     const metadata = Reflect.getMetadata(METADATA_KEY, Animal)
     expect(metadata).toBeDefined();
-    expect(metadata.elements).toStrictEqual({
+    expect(metadata.fields).toStrictEqual({
       id: {
         designType: Number,
         description: 'description',

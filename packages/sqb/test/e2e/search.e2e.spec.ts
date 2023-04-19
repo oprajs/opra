@@ -94,7 +94,7 @@ describe('e2e: search', function () {
     resp.expect
         .toSuccess()
         .toReturnCollection();
-    expect(parseFloat('' + resp.headers.get(HttpHeaderCodes.X_Opra_Count))).toBeGreaterThanOrEqual(100);
+    expect(parseFloat('' + resp.headers.get(HttpHeaderCodes.X_Opra_Total_Matches))).toBeGreaterThanOrEqual(100);
   })
 
 });

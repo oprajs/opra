@@ -1,9 +1,9 @@
-import { HttpRequestMessageHost } from '@opra/common';
+import { HttpRequestMessage } from '@opra/common';
 
 describe('HttpRequestMessage', function () {
 
   it('Should create using init object', async () => {
-    const msg = new HttpRequestMessageHost({
+    const msg = HttpRequestMessage.create({
       method: 'post',
       url: '/customers',
       baseUrl: '/api',
@@ -25,7 +25,7 @@ describe('HttpRequestMessage', function () {
   })
 
   it('Should create using Buffer', async () => {
-    const msg = new HttpRequestMessageHost(Buffer.from(
+    const msg = HttpRequestMessage.fromBuffer(Buffer.from(
         [
           'POST /customers HTTP/1.1',
           'Accept: text/html',
@@ -44,7 +44,7 @@ describe('HttpRequestMessage', function () {
   })
 
   it('Should header(name) return header value', async () => {
-    const msg = new HttpRequestMessageHost({
+    const msg = HttpRequestMessage.create({
       method: 'post',
       url: '/customers',
       baseUrl: '/api',
@@ -58,7 +58,7 @@ describe('HttpRequestMessage', function () {
   })
 
   it('Should "hostname" getter return Parse the "Host" header field', async () => {
-    const msg = new HttpRequestMessageHost({
+    const msg = HttpRequestMessage.create({
       method: 'get',
       url: '/customers',
       httpVersionMajor: 1,
@@ -71,7 +71,7 @@ describe('HttpRequestMessage', function () {
   })
 
   it('Should get "protocol"', async () => {
-    const msg = new HttpRequestMessageHost({
+    const msg = HttpRequestMessage.create({
       method: 'get',
       url: '/customers',
       httpVersionMajor: 1,
@@ -81,13 +81,13 @@ describe('HttpRequestMessage', function () {
     });
     expect(msg.protocol).toStrictEqual('http');
     expect(msg.secure).toStrictEqual(false);
-    msg.protocol = undefined;
+    msg.protocol = '';
     expect(msg.protocol).toStrictEqual('https');
     expect(msg.secure).toStrictEqual(true);
   })
 
   it('Should accepts() check if the given `type(s)` is acceptable', async () => {
-    const msg = new HttpRequestMessageHost({
+    const msg = HttpRequestMessage.create({
       method: 'get',
       url: '/customers',
       httpVersionMajor: 1,
@@ -98,7 +98,7 @@ describe('HttpRequestMessage', function () {
   })
 
   it('Should accepts() check if the given `type(s)` is acceptable', async () => {
-    const msg = new HttpRequestMessageHost({
+    const msg = HttpRequestMessage.create({
       method: 'get',
       url: '/customers',
       httpVersionMajor: 1,
@@ -111,7 +111,7 @@ describe('HttpRequestMessage', function () {
   })
 
   it('Should accepts() check if the given `type(s)` is acceptable', async () => {
-    const msg = new HttpRequestMessageHost({
+    const msg = HttpRequestMessage.create({
       method: 'get',
       url: '/customers',
       httpVersionMajor: 1,
@@ -124,7 +124,7 @@ describe('HttpRequestMessage', function () {
   })
 
   it('Should accepts() check if the given `type(s)` is acceptable', async () => {
-    const msg = new HttpRequestMessageHost({
+    const msg = HttpRequestMessage.create({
       method: 'get',
       url: '/customers',
       httpVersionMajor: 1,
@@ -135,5 +135,20 @@ describe('HttpRequestMessage', function () {
     expect(msg.acceptsLanguages('pt')).toStrictEqual('pt');
     expect(msg.acceptsEncodings('fr')).toStrictEqual(false);
   })
+
+  it('Should is() check content-type matches given value', async () => {
+    const msg = HttpRequestMessage.create({
+      method: 'get',
+      url: '/customers',
+      rawHeaders: ['Content-Type', 'text/html']
+    });
+    expect(msg.is('html')).toStrictEqual('html');
+    expect(msg.is('text', 'html')).toStrictEqual('html');
+    expect(msg.is(['text', 'html'])).toStrictEqual('html');
+    expect(msg.is('text')).toStrictEqual(false);
+    expect(msg.is('text/*')).toStrictEqual('text/html');
+    expect(msg.is('json')).toStrictEqual(false);
+  })
+
 
 });

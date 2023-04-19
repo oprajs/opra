@@ -3,9 +3,9 @@ import { cloneObject, isConstructor, resolveThunk } from '../../helpers/index.js
 import { OpraSchema } from '../../schema/index.js';
 import type { ThunkAsync } from '../../types.js';
 import { METADATA_KEY } from '../constants.js';
+import type { ComplexField } from '../data-type/complex-field.js';
 import type { ComplexType } from '../data-type/complex-type.js';
 import type { EnumType } from '../data-type/enum-type.js';
-import { Expose } from '../data-type/expose.decorator.js';
 import type { MappedType } from '../data-type/mapped-type.js';
 import type { SimpleType } from '../data-type/simple-type.js';
 import type { UnionType } from '../data-type/union-type.js';
@@ -96,16 +96,19 @@ export async function extractComplexTypeSchema(
   if (Reflect.hasMetadata(METADATA_KEY, baseClass))
     target.base = await this.importTypeClass(baseClass);
   target.ctor = ctor;
-// Elements
-  if (metadata.elements) {
-    const elements = target.elements = {};
-    for (const [elemName, elemMeta] of Object.entries<Expose.Metadata>(metadata.elements)) {
+// Fields
+  if (metadata.fields) {
+    const fields = target.fields = {};
+    for (const [elemName, elemMeta] of Object.entries<ComplexField.Metadata>(metadata.fields)) {
       try {
-        const elemSchema = elements[elemName] = {
+        const t = await elemMeta.type;
+        const type = typeof t === 'function'
+            ? await this.importTypeClass(t)
+            : (t || '');
+
+        const elemSchema: OpraSchema.ComplexField = fields[elemName] = {
           ...elemMeta,
-          type: typeof elemMeta.type === 'function'
-              ? await this.importTypeClass(elemMeta.type)
-              : (elemMeta.type || '')
+          type
         }
         if (elemMeta.enum) {
           elemSchema.type = await this.importTypeClass(elemMeta.enum);
@@ -114,7 +117,7 @@ export async function extractComplexTypeSchema(
         if (!elemSchema.type && elemMeta.designType)
           elemSchema.type = await this.importTypeClass(elemMeta.designType);
 
-        await this.extractElementSchema(elemSchema, ctor, elemMeta, elemName);
+        await this.extractFieldSchema(elemSchema, ctor, elemMeta, elemName);
 
         if (typeof elemSchema.type === 'function')
           elemSchema.type = await this.importTypeClass(elemSchema.type);
@@ -124,7 +127,7 @@ export async function extractComplexTypeSchema(
 
         elemSchema.type = elemSchema.type || 'any';
       } catch (e: any) {
-        e.message = `Error in class "${ctor.name}" property "${elemName}". ` + e.message;
+        e.message = `Error in class "${ctor.name}.${elemName}". ` + e.message;
         throw e;
       }
     }
@@ -160,10 +163,10 @@ export async function extractEnumTypeSchema(
   // Do nothing. This method is used by external modules for extending the factory
 }
 
-export async function extractElementSchema(
+export async function extractFieldSchema(
     this: DocumentFactory,
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    target: OpraSchema.ComplexType.Element, ctor: Type, metadata: Expose.Metadata, name: string
+    target: OpraSchema.ComplexField, ctor: Type, metadata: ComplexField.Metadata, name: string
 ): Promise<void> {
   // Do nothing. This method is used by external modules for extending the factory
 }

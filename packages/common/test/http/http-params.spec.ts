@@ -1,15 +1,15 @@
-import { OpraURLSearchParams } from '../../src/index.js';
+import { HttpParams } from '@opra/common';
 
-describe('OpraURLSearchParams', function () {
+describe('HttpParams', function () {
 
   it('Should parse query part', () => {
-    const u = new OpraURLSearchParams('prm1&prm2=1');
+    const u = new HttpParams('prm1&prm2=1');
     expect(u.size).toStrictEqual(2);
     expect(u.toString()).toStrictEqual('prm1&prm2=1');
   })
 
   it('Should append entry', () => {
-    const u = new OpraURLSearchParams();
+    const u = new HttpParams();
     u.append('prm1');
     u.append('prm2', 1);
     u.append('prm2', 2);
@@ -18,7 +18,7 @@ describe('OpraURLSearchParams', function () {
   })
 
   it('Should set entry', () => {
-    const u = new OpraURLSearchParams();
+    const u = new HttpParams();
     u.append('prm1');
     expect(u.size).toStrictEqual(1);
     u.append('prm1', 2);
@@ -34,7 +34,7 @@ describe('OpraURLSearchParams', function () {
   })
 
   it('Should parse array parameters', () => {
-    const u = new OpraURLSearchParams();
+    const u = new HttpParams();
     u.define('prm1', {array: true});
     u.appendAll('prm1=a%26b');
     expect(u.get('prm1')).toStrictEqual("a&b");
@@ -49,7 +49,7 @@ describe('OpraURLSearchParams', function () {
   })
 
   it('Should parse strict array parameters', () => {
-    const u = new OpraURLSearchParams();
+    const u = new HttpParams();
     u.define('prm1', {array: 'strict'});
     u.appendAll('prm1=a');
     expect(u.get('prm1')).toStrictEqual(["a"]);
@@ -59,19 +59,19 @@ describe('OpraURLSearchParams', function () {
   })
 
   it('Should validate minArrayItems', () => {
-    const u = new OpraURLSearchParams();
+    const u = new HttpParams();
     u.define('prm1', {array: 'strict', minArrayItems: 2});
     expect(() => u.appendAll('prm1=a')).toThrow('at least');
   })
 
   it('Should validate maxArrayItems', () => {
-    const u = new OpraURLSearchParams();
+    const u = new HttpParams();
     u.define('prm1', {array: 'strict', maxArrayItems: 2});
     expect(() => u.appendAll('prm1=a,b,c')).toThrow('up to');
   })
 
   it('Should set array delimiter', () => {
-    const u = new OpraURLSearchParams('prm1=a|b', {
+    const u = new HttpParams('prm1=a|b', {
       params: {
         prm1: {array: 'strict', arrayDelimiter: '|'}
       }
@@ -80,7 +80,7 @@ describe('OpraURLSearchParams', function () {
   })
 
   it('Should stringify to percent encoded', () => {
-    const u = new OpraURLSearchParams();
+    const u = new HttpParams();
     u.set('prm1', 'a#b');
     expect(u.toString()).toStrictEqual('prm1=a%23b');
     u.set('prm1', ['a&b', 'a#b']);
@@ -88,7 +88,7 @@ describe('OpraURLSearchParams', function () {
   })
 
   it('Should clear', () => {
-    const u = new OpraURLSearchParams();
+    const u = new HttpParams();
     u.append('prm1');
     u.append('prm1', 2);
     u.append('prm1', 3);
@@ -99,7 +99,7 @@ describe('OpraURLSearchParams', function () {
   })
 
   it('Should delete entry', () => {
-    const u = new OpraURLSearchParams();
+    const u = new HttpParams();
     u.append('prm1');
     u.append('prm1', 2);
     u.append('prm2', 1);
@@ -110,7 +110,7 @@ describe('OpraURLSearchParams', function () {
   })
 
   it('Should get entry value', () => {
-    const u = new OpraURLSearchParams();
+    const u = new HttpParams();
     u.append('prm1', 1);
     u.append('prm1', 2);
     expect(u.get('prm1')).toStrictEqual(1);
@@ -118,26 +118,26 @@ describe('OpraURLSearchParams', function () {
   })
 
   it('Should get all entry values', () => {
-    const u = new OpraURLSearchParams();
+    const u = new HttpParams();
     u.append('prm1', 1);
     u.append('prm1', 2);
     expect(u.getAll('prm1')).toStrictEqual([1, 2]);
   })
 
   it('Should getAll return null if no entry found', () => {
-    const u = new OpraURLSearchParams();
+    const u = new HttpParams();
     expect(u.getAll('prm1')).toStrictEqual(null);
   })
 
   it('Should check if entry exists using has()', () => {
-    const u = new OpraURLSearchParams();
+    const u = new HttpParams();
     u.append('prm1', 1);
     expect(u.has('prm1')).toStrictEqual(true);
     expect(u.has('prm2')).toStrictEqual(false);
   })
 
   it('Should sort entries', () => {
-    const u = new OpraURLSearchParams();
+    const u = new HttpParams();
     u.append('prm3');
     u.append('prm2');
     u.append('prm1');
@@ -149,7 +149,7 @@ describe('OpraURLSearchParams', function () {
 
   it('Should iterate entries using "forEach()"', () => {
     const entries: any[][] = [['prm1', ''], ['prm1', 2], ['prm1', 3], ['prm2', 1]];
-    const u = new OpraURLSearchParams();
+    const u = new HttpParams();
     entries.forEach(x => u.append(x[0], x[1]));
     let i = 0;
     u.forEach((value, name) => {
@@ -161,7 +161,7 @@ describe('OpraURLSearchParams', function () {
 
   it('Should iterate entries', () => {
     const entries: any[][] = [['prm1', ''], ['prm1', 2], ['prm1', 3], ['prm2', 1]];
-    const u = new OpraURLSearchParams();
+    const u = new HttpParams();
     entries.forEach(x => u.append(x[0], x[1]));
     let i = 0;
     for (const [key, value] of u) {
@@ -173,7 +173,7 @@ describe('OpraURLSearchParams', function () {
 
   it('Should iterate entries using "entries()"', () => {
     const entries: any[][] = [['prm1', ''], ['prm1', 2], ['prm1', 3], ['prm2', 1]];
-    const u = new OpraURLSearchParams();
+    const u = new HttpParams();
     entries.forEach(x => u.append(x[0], x[1]));
     let i = 0;
     for (const [key, value] of u.entries()) {
@@ -185,7 +185,7 @@ describe('OpraURLSearchParams', function () {
 
   it('Should iterate keys', () => {
     const entries: any[][] = [['prm1', ''], ['prm2', 2], ['prm3', 3], ['prm4', 1]];
-    const u = new OpraURLSearchParams();
+    const u = new HttpParams();
     entries.forEach(x => u.append(x[0], x[1]));
     let i = 0;
     for (const value of u.keys()) {
@@ -195,7 +195,7 @@ describe('OpraURLSearchParams', function () {
   })
 
   it('Should encode', () => {
-    const u = new OpraURLSearchParams();
+    const u = new HttpParams();
     u.define('prm3', {array: true})
     u.append('prm1');
     u.append('prm2', 'x y z');
@@ -206,4 +206,3 @@ describe('OpraURLSearchParams', function () {
   })
 
 });
-

@@ -1,3 +1,4 @@
+import '@opra/core';
 import {
   Collection,
 } from '@opra/common';
@@ -42,13 +43,13 @@ export class CustomersResource {
   }
 
   @Collection.SearchOperation({
-    sortElements: ['id', 'givenName', 'familyName', 'gender', 'birthDate', 'address.city'],
+    sortFields: ['id', 'givenName', 'familyName', 'gender', 'birthDate', 'address.city'],
     defaultSort: ['givenName'],
     filters: [
-      {element: 'id', operators: ['=']},
-      {element: 'countryCode', operators: ['=', 'in', '!in']},
-      {element: 'city', operators: ['=', 'like', '!like']},
-      {element: 'vip'},
+      {field: 'id', operators: ['=']},
+      {field: 'countryCode', operators: ['=', 'in', '!in']},
+      {field: 'city', operators: ['=', 'like', '!like']},
+      {field: 'vip'},
     ]
   })
   search() {

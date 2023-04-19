@@ -1,5 +1,5 @@
 /// <reference lib="dom" />
-import { HttpHeaders, HttpParams, OpraURL, OpraURLPath, OpraURLSearchParams } from '@opra/common';
+import { HttpHeaders, HttpParams, OpraURL, OpraURLPath } from '@opra/common';
 
 const directCopyProperties = ['cache', 'credentials', 'destination', 'headers', 'integrity',
   'keepalive', 'mode', 'redirect', 'referrer', 'referrerPolicy'];
@@ -96,7 +96,7 @@ export class HttpRequest {
   }
 
   /** Returns the searchParams of the URL as OpraURLSearchParams */
-  get params(): OpraURLSearchParams {
+  get params(): HttpParams {
     return this.urlInstance.searchParams;
   }
 

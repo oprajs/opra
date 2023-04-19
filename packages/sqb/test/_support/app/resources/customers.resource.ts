@@ -14,7 +14,7 @@ export class CustomersResource extends SqbCollectionResource<Customer> {
   }
 
   @Collection.SearchOperation({
-    sortElements: ['id', 'givenName', 'familyName', 'gender']
+    sortFields: ['id', 'givenName', 'familyName', 'gender']
   })
   search;
 

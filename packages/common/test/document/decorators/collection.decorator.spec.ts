@@ -1,37 +1,37 @@
 import 'reflect-metadata';
 import { Collection, METADATA_KEY } from '@opra/common';
-import { Customer } from '../../_support/test-doc/index.js';
+import { Country } from '../../_support/test-doc/index.js';
 
 describe('@Collection() decorator', function () {
 
   it('Should define Collection resource metadata', async function () {
     const opts: Collection.DecoratorOptions = {primaryKey: 'id', description: 'xyz'};
 
-    @Collection(Customer, opts)
-    class StarredCustomersResource {
+    @Collection(Country, opts)
+    class CountryResource {
     }
 
-    const metadata = Reflect.getMetadata(METADATA_KEY, StarredCustomersResource);
+    const metadata = Reflect.getMetadata(METADATA_KEY, CountryResource);
     expect(metadata).toStrictEqual({
       kind: 'Collection',
-      name: 'StarredCustomers',
-      type: Customer,
+      name: 'Country',
+      type: Country,
       ...opts
     });
   })
 
   it('Should define custom name', async function () {
-    const opts: Collection.DecoratorOptions = {name: 'Starred'};
+    const opts: Collection.DecoratorOptions = {name: 'Countries'};
 
-    @Collection(Customer, opts)
-    class StarredCustomersResource {
+    @Collection(Country, opts)
+    class CountryResource {
     }
 
-    const metadata = Reflect.getMetadata(METADATA_KEY, StarredCustomersResource);
+    const metadata = Reflect.getMetadata(METADATA_KEY, CountryResource);
     expect(metadata).toStrictEqual({
       kind: 'Collection',
-      name: 'Starred',
-      type: Customer,
+      name: 'Countries',
+      type: Country,
       ...opts
     });
   })

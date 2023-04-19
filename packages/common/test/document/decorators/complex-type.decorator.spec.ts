@@ -7,7 +7,7 @@ describe('ComplexType() decorator', function () {
     const opts: ComplexType.DecoratorOptions = {
       description: 'Animal schema',
       abstract: false,
-      additionalElements: true
+      additionalFields: true
     }
 
     @ComplexType(opts)

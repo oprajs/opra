@@ -10,7 +10,7 @@ import { InternalCoreModule } from '@nestjs/core/injector/internal-core-module';
 import { Module } from '@nestjs/core/injector/module.js';
 import { REQUEST_CONTEXT_ID } from '@nestjs/core/router/request/request-constants';
 import { ApiDocument, DocumentFactory, METADATA_KEY, OpraSchema } from '@opra/common';
-import { QueryRequestContext } from '@opra/core';
+import * as opraCore from '@opra/core';
 import { PARAM_ARGS_METADATA } from '../constants.js';
 import { HandlerParamType } from '../enums/handler-paramtype.enum.js';
 import { OpraModuleOptions } from '../interfaces/opra-module-options.interface.js';
@@ -101,15 +101,13 @@ export class OpraApiFactory {
 
           const callback = this._createContextCallback(instance, prototype, wrapper,
               rootModule, nestHandlerName, isRequestScoped, undefined, contextType);
-          opr.handler = function (ctx: QueryRequestContext) {
-            switch (ctx.type) {
+          opr.handler = function (ctx: opraCore.RequestContext) {
+            switch (ctx.protocol) {
               case 'http':
-                const http = ctx.switchToHttp();
-                const req = http.getIncoming().getInstance();
-                const res = http.getOutgoing().getInstance();
-                return callback(req, res, noOpFunction, ctx);
+                const httpContext = ctx.switchToHttp();
+                return callback(httpContext.request, httpContext.response, noOpFunction, ctx);
               default:
-                throw new Error(`"${ctx.type}" context type is not implemented yet`)
+                throw new Error(`"${ctx.protocol}" context type is not implemented yet`)
             }
           };
           Object.defineProperty(opr.handler, 'name', {
@@ -121,77 +119,6 @@ export class OpraApiFactory {
 
         }
       }
-
-      /*
-            for (const methodName of methodsToWrap) {
-              const fn = prototype[methodName];
-              if (typeof fn !== 'function')
-                continue;
-
-              // We add special non-operational "prepare" method to prototype.
-              // This allows us to call Guards, Interceptors etc, before calling handler method
-              const oldPreFn = prototype['pre_' + methodName] = noOpFunction;
-              // Copy all metadata info (guards, etc) from operation handler to new pre_xxx handler
-              Reflect.getMetadataKeys(fn).forEach(k => {
-                const metadata = Reflect.getMetadata(k, fn);
-                Reflect.defineMetadata(k, metadata, oldPreFn);
-              });
-              const preCallback = this._createContextCallback(instance, prototype, wrapper,
-                  rootModule, methodName, isRequestScoped, undefined, contextType, true
-              );
-
-              const newPreFn = instance['pre_' + methodName] = function (ctx: QueryRequestContext) {
-                switch (ctx.type) {
-                  case 'http':
-                    const http = ctx.switchToHttp();
-                    const req = http.getRequest().getInstance();
-                    const res = http.getResponse().getInstance();
-                    return preCallback(req, res, noOpFunction, ctx);
-                  default:
-                    throw new Error(`"${ctx.type}" context type is not implemented yet`)
-                }
-              };
-              Object.defineProperty(newPreFn, 'name', {
-                configurable: false,
-                writable: false,
-                enumerable: true,
-                value: 'pre_' + methodName
-              });
-
-              if (!Reflect.hasMetadata(METHOD_PATCHED, fn)) {
-                const hasParamsArgs = Reflect.hasMetadata(PARAM_ARGS_METADATA, instance.constructor, methodName);
-                const patchedFn = prototype[methodName] = function (...args: any[]) {
-                  if (hasParamsArgs)
-                    return fn.apply(this, args);
-                  return fn.call(this, args[3]);
-                }
-                Reflect.defineMetadata(METHOD_PATCHED, true, patchedFn);
-                Reflect.getMetadataKeys(fn).forEach(k => {
-                  const metadata = Reflect.getMetadata(k, fn);
-                  Reflect.defineMetadata(k, metadata, patchedFn);
-                });
-              }
-
-              const callback = this._createContextCallback(instance, prototype, wrapper,
-                  rootModule, methodName, isRequestScoped, undefined, contextType, false);
-              const newFn = instance[methodName] = function (ctx: SingleRequestContext) {
-                switch (ctx.type) {
-                  case 'http':
-                    const http = ctx.switchToHttp();
-                    const req = http.getRequest().getInstance();
-                    const res = http.getResponse().getInstance();
-                    return callback(req, res, noOpFunction, ctx);
-                  default:
-                    throw new Error(`"${ctx.type}" context type is not implemented yet`)
-                }
-              };
-              Object.defineProperty(newFn, 'name', {
-                configurable: false,
-                writable: false,
-                enumerable: true,
-                value: methodName
-              });
-            }*/
     }
 
     // Create api document
@@ -210,14 +137,11 @@ export class OpraApiFactory {
       options?: ExternalContextOptions
   ) {
     const paramsFactory = this.paramsFactory;
-    // const options = !forPre ?
-    //     {guards: false, interceptors: false, filters: false} : undefined;
-
-    // const fnName = forPre ? 'pre_' + methodName : methodName;
 
     if (isRequestScoped) {
       return async (...args: any[]) => {
-        const opraContext: QueryRequestContext = paramsFactory.exchangeKeyForValue(HandlerParamType.CONTEXT, undefined, args);
+        const opraContext: opraCore.RequestContext =
+            paramsFactory.exchangeKeyForValue(HandlerParamType.CONTEXT, undefined, args);
         const contextId = this.getContextId(opraContext);
         this.registerContextProvider(opraContext, contextId);
         const contextInstance = await this.injector.loadPerContext(
@@ -235,7 +159,7 @@ export class OpraApiFactory {
             contextId,
             wrapper.id,
             options,
-            opraContext.type,
+            opraContext.protocol,
         );
         return callback(...args);
       };

@@ -1,17 +1,11 @@
-import '@opra/sqb';
-import { ComplexType, Expose, UnionType } from '@opra/common';
-import { Column, Entity } from '@sqb/connect';
+import { ComplexField, ComplexType, UnionType } from '@opra/common';
 import { Note } from '../types/note.type.js';
 import { Record } from './record.entity.js';
 
-@ComplexType({
-  description: 'Customer notes entity',
-})
-@Entity()
+@ComplexType()
 export class CustomerNotes extends UnionType(Record, Note) {
 
-  @Expose()
-  @Column({notNull: true})
+  @ComplexField()
   customerId: number;
 
 }

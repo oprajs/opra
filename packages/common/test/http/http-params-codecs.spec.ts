@@ -1,9 +1,9 @@
 import {
   $eq, $field, BooleanCodec, DateCodec, Expression,
   FilterCodec, IntegerCodec, NumberCodec, StringCodec
-} from '../../src/index.js';
+} from '@opra/common';
 
-describe('URL search param formats', () => {
+describe('HttpParams - Codecs', () => {
 
   describe('StringCodec', () => {
     it('Should parse', () => {
