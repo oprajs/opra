@@ -7,7 +7,7 @@ const _extractFieldSchema = DocumentFactory.prototype.extractFieldSchema;
 // @ts-ignore
 DocumentFactory.prototype.extractFieldSchema = async function (
     this: DocumentFactory,
-    target: OpraSchema.ComplexField,
+    target: OpraSchema.Field,
     ctor: Type,
     metadata: ComplexField.Metadata,
     name: string

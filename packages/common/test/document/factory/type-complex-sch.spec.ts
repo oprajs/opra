@@ -63,7 +63,7 @@ describe('DocumentFactory - ComplexType with schema object', function () {
   })
 
   it('Should define fields by schema object', async () => {
-    const id: OpraSchema.ComplexField = {
+    const id: OpraSchema.Field = {
       type: 'string',
       isArray: false,
       description: 'id field',

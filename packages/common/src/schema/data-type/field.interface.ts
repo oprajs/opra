@@ -1,11 +1,11 @@
 import type { DataType } from './data-type.interface.js';
 
-export namespace ComplexField {
+export namespace Field {
   export type Name = string;
   export type QualifiedName = string; // a.b.c
 }
 
-export type ComplexField = {
+export type Field = {
   type: DataType.Name | DataType;
   description?: string;
   isArray?: boolean;

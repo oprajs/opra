@@ -8,31 +8,31 @@ import { DataType } from './data-type.js';
 import { EnumType } from './enum-type.js';
 
 export namespace ComplexField {
-  export interface InitArguments extends StrictOmit<OpraSchema.ComplexField, 'type'> {
+  export interface InitArguments extends StrictOmit<OpraSchema.Field, 'type'> {
     name: string;
     type: DataType;
     origin?: ComplexType;
   }
 
-  export interface DecoratorOptions extends Partial<StrictOmit<OpraSchema.ComplexField, 'isArray' | 'type'>> {
+  export interface DecoratorOptions extends Partial<StrictOmit<OpraSchema.Field, 'isArray' | 'type'>> {
     type?: string | OpraSchema.DataType | TypeThunkAsync;
     enum?: OpraSchema.EnumObject | string[];
   }
 
-  export interface Metadata extends StrictOmit<OpraSchema.ComplexField, 'type'> {
+  export interface Metadata extends StrictOmit<OpraSchema.Field, 'type'> {
     type?: string | OpraSchema.DataType | TypeThunkAsync;
     enum?: OpraSchema.EnumObject;
     designType?: Type;
   }
 }
 
-export interface ComplexField extends StrictOmit<OpraSchema.ComplexField, 'type'> {
+export interface ComplexField extends StrictOmit<OpraSchema.Field, 'type'> {
   readonly owner: ComplexType;
   readonly origin?: ComplexType;
   readonly type: DataType;
   readonly name: string;
 
-  exportSchema(): OpraSchema.ComplexField;
+  exportSchema(): OpraSchema.Field;
 }
 
 
@@ -118,8 +118,8 @@ export const ComplexField = function (
 
 
 const proto = {
-  exportSchema(): OpraSchema.ComplexField {
-    const out: OpraSchema.ComplexField = {
+  exportSchema(): OpraSchema.Field {
+    const out: OpraSchema.Field = {
       type: this.type.name ? this.type.name : this.type.exportSchema(),
       description: this.description,
       isArray: this.isArray,

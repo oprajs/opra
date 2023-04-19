@@ -106,7 +106,7 @@ export async function extractComplexTypeSchema(
             ? await this.importTypeClass(t)
             : (t || '');
 
-        const elemSchema: OpraSchema.ComplexField = fields[elemName] = {
+        const elemSchema: OpraSchema.Field = fields[elemName] = {
           ...elemMeta,
           type
         }
@@ -166,7 +166,7 @@ export async function extractEnumTypeSchema(
 export async function extractFieldSchema(
     this: DocumentFactory,
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    target: OpraSchema.ComplexField, ctor: Type, metadata: ComplexField.Metadata, name: string
+    target: OpraSchema.Field, ctor: Type, metadata: ComplexField.Metadata, name: string
 ): Promise<void> {
   // Do nothing. This method is used by external modules for extending the factory
 }
