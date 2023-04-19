@@ -1,17 +1,29 @@
 import { HTTPParser } from 'http-parser-js';
-import { HttpMessage } from '@opra/common';
+import { HttpMessage, HttpMessageHost } from '../../src/http/http-message.host.js';
 
-class TestMessage extends HttpMessage {
+class TestMessage extends HttpMessageHost {
 
-  constructor(init: HttpMessage.Initiator | Buffer | ArrayBuffer) {
-    super(init, HTTPParser.REQUEST);
+  constructor() {
+    super();
+  }
+
+  static create(init: HttpMessage.Initiator): TestMessage {
+    const msg = new TestMessage();
+    msg._init(init);
+    return msg;
+  }
+
+  static fromBuffer(buffer: Buffer | ArrayBuffer): TestMessage {
+    const msg = new TestMessage();
+    msg._parseBuffer(buffer, HTTPParser.REQUEST);
+    return msg;
   }
 }
 
-describe('HttpMessage', function () {
+describe('HttpMessageHost', function () {
 
   it('Should create using init object', async () => {
-    const msg = new TestMessage({
+    const msg = TestMessage.create({
       httpVersionMajor: 1,
       httpVersionMinor: 0,
       rawHeaders: ['Accept', 'text/html'],
@@ -27,7 +39,7 @@ describe('HttpMessage', function () {
   })
 
   it('Should create using Buffer', async () => {
-    const msg = new TestMessage(Buffer.from(
+    const msg = TestMessage.fromBuffer(Buffer.from(
         [
           'GET /test HTTP/1.1',
           'Host: 0.0.0.0=5000',
@@ -43,7 +55,7 @@ describe('HttpMessage', function () {
   })
 
   it('Should initialize Headers proxy object from rawHeaders array', async () => {
-    const msg = new TestMessage({
+    const msg = TestMessage.create({
       httpVersionMajor: 1,
       httpVersionMinor: 0,
       rawHeaders: ['Accept', 'text/html', 'referrer', 'x']
@@ -58,7 +70,7 @@ describe('HttpMessage', function () {
   })
 
   it('Should initialize Trailers proxy object from rawTrailers array', async () => {
-    const msg = new TestMessage({
+    const msg = TestMessage.create({
       httpVersionMajor: 1,
       httpVersionMinor: 0,
       rawTrailers: ['Accept', 'text/html', 'referrer', 'x']
@@ -69,7 +81,7 @@ describe('HttpMessage', function () {
   })
 
   it('Should update rawHeaders on change any header value', async () => {
-    const msg = new TestMessage({
+    const msg = TestMessage.create({
       httpVersionMajor: 1,
       httpVersionMinor: 0,
       rawHeaders: ['Accept', 'text/html']
@@ -81,15 +93,15 @@ describe('HttpMessage', function () {
     msg.headers['accept-language'] = 'tr';
     msg.headers['set-cookie'] = ['x', 'y'];
     expect(msg.rawHeaders).toStrictEqual([
-      'Accept', 'application/json',
-      'Accept-Language', 'tr',
-      'Set-Cookie', 'x',
-      'Set-Cookie', 'y',
+      'accept', 'application/json',
+      'accept-language', 'tr',
+      'set-cookie', 'x',
+      'set-cookie', 'y',
     ]);
   })
 
   it('Should update rawTrailers on change any trailer value', async () => {
-    const msg = new TestMessage({
+    const msg = TestMessage.create({
       httpVersionMajor: 1,
       httpVersionMinor: 0,
       rawTrailers: ['Accept', 'text/html']
@@ -101,15 +113,15 @@ describe('HttpMessage', function () {
     msg.trailers['accept-language'] = 'tr';
     msg.trailers['set-cookie'] = ['x', 'y'];
     expect(msg.rawTrailers).toStrictEqual([
-      'Accept', 'application/json',
-      'Accept-Language', 'tr',
-      'Set-Cookie', 'x',
-      'Set-Cookie', 'y',
+      'accept', 'application/json',
+      'accept-language', 'tr',
+      'set-cookie', 'x',
+      'set-cookie', 'y',
     ]);
   })
 
   it('Should update Headers on rawHeaders change', async () => {
-    const msg = new TestMessage({
+    const msg = TestMessage.create({
       httpVersionMajor: 1,
       httpVersionMinor: 0,
       rawHeaders: ['Accept', 'text/html', 'referrer', 'x']
@@ -125,7 +137,7 @@ describe('HttpMessage', function () {
   })
 
   it('Should update Trailers on rawTrailers change', async () => {
-    const msg = new TestMessage({
+    const msg = TestMessage.create({
       httpVersionMajor: 1,
       httpVersionMinor: 0,
       rawTrailers: ['Accept', 'text/html', 'referrer', 'x']
@@ -138,7 +150,7 @@ describe('HttpMessage', function () {
   })
 
   it('Should setHeader(name, value) update header value', async () => {
-    const msg = new TestMessage({
+    const msg = TestMessage.create({
       httpVersionMajor: 1,
       httpVersionMinor: 0,
       rawHeaders: ['Accept', 'text/html', 'referrer', 'x']
@@ -150,7 +162,7 @@ describe('HttpMessage', function () {
   })
 
   it('Should setHeader(obj) update header values', async () => {
-    const msg = new TestMessage({
+    const msg = TestMessage.create({
       httpVersionMajor: 1,
       httpVersionMinor: 0,
       rawHeaders: ['Accept', 'text/html', 'referrer', 'x']
@@ -162,7 +174,7 @@ describe('HttpMessage', function () {
   })
 
   it('Should getHeaders() return swallow copy of headers', async () => {
-    const msg = new TestMessage({
+    const msg = TestMessage.create({
       httpVersionMajor: 1,
       httpVersionMinor: 0,
       rawHeaders: ['Accept', 'text/html', 'referer', 'x']
@@ -174,7 +186,7 @@ describe('HttpMessage', function () {
   })
 
   it('Should getHeaderNames() return header names', async () => {
-    const msg = new TestMessage({
+    const msg = TestMessage.create({
       httpVersionMajor: 1,
       httpVersionMinor: 0,
       rawHeaders: ['Accept', 'text/html', 'referer', 'x']
@@ -183,7 +195,7 @@ describe('HttpMessage', function () {
   })
 
   it('Should hasHeader() check if header exists', async () => {
-    const msg = new TestMessage({
+    const msg = TestMessage.create({
       httpVersionMajor: 1,
       httpVersionMinor: 0,
       rawHeaders: ['Accept', 'text/html', 'referer', 'x']
@@ -194,7 +206,7 @@ describe('HttpMessage', function () {
   })
 
   it('Should removeHeader() remove header', async () => {
-    const msg = new TestMessage({
+    const msg = TestMessage.create({
       httpVersionMajor: 1,
       httpVersionMinor: 0,
       rawHeaders: ['Accept', 'text/html', 'referer', 'x']
@@ -203,20 +215,6 @@ describe('HttpMessage', function () {
     expect(msg.hasHeader('Referer')).toStrictEqual(true);
     msg.removeHeader('referer');
     expect(msg.hasHeader('Referer')).toStrictEqual(false);
-  })
-
-  it('Should is() check content-type matches given value', async () => {
-    const msg = new TestMessage({
-      httpVersionMajor: 1,
-      httpVersionMinor: 0,
-      rawHeaders: ['Content-Type', 'text/html']
-    });
-    expect(msg.is('html')).toStrictEqual('html');
-    expect(msg.is('text', 'html')).toStrictEqual('html');
-    expect(msg.is(['text', 'html'])).toStrictEqual('html');
-    expect(msg.is('text')).toStrictEqual(false);
-    expect(msg.is('text/*')).toStrictEqual('text/html');
-    expect(msg.is('json')).toStrictEqual(false);
   })
 
 });

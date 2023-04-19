@@ -1,9 +1,8 @@
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
-import '@opra/sqb';
 import {
+  ComplexField,
   ComplexType,
   DocumentFactory,
-  Element,
   OpraSchema,
 } from '@opra/common';
 
@@ -24,7 +23,7 @@ describe('DocumentFactory - ComplexType with schema object', function () {
       kind: 'ComplexType',
       description: 'test type',
       abstract: true,
-      additionalElements: true,
+      additionalFields: true,
     };
     const doc = await DocumentFactory.createDocument({
       ...baseArgs,
@@ -39,16 +38,16 @@ describe('DocumentFactory - ComplexType with schema object', function () {
     expect(t.name).toStrictEqual('type1');
     expect(t.description).toEqual(type1.description);
     expect(t.abstract).toEqual(type1.abstract);
-    expect(t.additionalElements).toEqual(type1.additionalElements);
+    expect(t.additionalFields).toEqual(type1.additionalFields);
   })
 
-  it('Should define elements by type name', async () => {
+  it('Should define fields by type name', async () => {
     const doc = await DocumentFactory.createDocument({
       ...baseArgs,
       types: {
         type1: {
           kind: 'ComplexType',
-          elements: {
+          fields: {
             id: 'string'
           }
         }
@@ -59,12 +58,12 @@ describe('DocumentFactory - ComplexType with schema object', function () {
     expect(t).toBeDefined();
     expect(t.kind).toStrictEqual(OpraSchema.ComplexType.Kind);
     expect(t.name).toStrictEqual('type1');
-    expect(t.elements.get('id')).toBeDefined();
-    expect(t.elements.get('id')?.type.name).toStrictEqual('string');
+    expect(t.fields.get('id')).toBeDefined();
+    expect(t.fields.get('id')?.type.name).toStrictEqual('string');
   })
 
-  it('Should define elements by element schema object', async () => {
-    const id: OpraSchema.ComplexType.Element = {
+  it('Should define fields by schema object', async () => {
+    const id: OpraSchema.ComplexField = {
       type: 'string',
       isArray: false,
       description: 'id field',
@@ -79,7 +78,7 @@ describe('DocumentFactory - ComplexType with schema object', function () {
       types: {
         type1: {
           kind: 'ComplexType',
-          elements: {
+          fields: {
             id
           }
         }
@@ -90,7 +89,7 @@ describe('DocumentFactory - ComplexType with schema object', function () {
     expect(t).toBeDefined();
     expect(t.kind).toStrictEqual(OpraSchema.ComplexType.Kind);
     expect(t.name).toStrictEqual('type1');
-    const idEl = t.elements.get('id') as Element;
+    const idEl = t.fields.get('id') as ComplexField;
     expect(idEl).toBeDefined();
     expect(idEl.type.name).toStrictEqual('string');
     expect(idEl.isArray).toStrictEqual(id.isArray);
@@ -109,15 +108,15 @@ describe('DocumentFactory - ComplexType with schema object', function () {
     const type1: OpraSchema.ComplexType = {
       kind: 'ComplexType',
       base: 'type2',
-      elements: {
+      fields: {
         name: 'string'
       }
     };
     const type2: OpraSchema.ComplexType = {
       kind: 'ComplexType',
-      additionalElements: true,
+      additionalFields: true,
       ctor: Type2,
-      elements: {
+      fields: {
         id: 'number'
       }
     };
@@ -135,11 +134,11 @@ describe('DocumentFactory - ComplexType with schema object', function () {
     expect(t2).toBeDefined();
     expect(t1.kind).toStrictEqual(OpraSchema.ComplexType.Kind);
     expect(t1.name).toStrictEqual('type1');
-    expect(t1.additionalElements).toStrictEqual(true);
+    expect(t1.additionalFields).toStrictEqual(true);
     expect(t1.ctor).toStrictEqual(Type2);
-    expect(Array.from(t1.elements.keys())).toStrictEqual(['id', 'name']);
-    expect(t1.elements.get('id')?.origin).toEqual(t2);
-    expect(t1.elements.get('id')?.owner).toEqual(t1);
+    expect(Array.from(t1.fields.keys())).toStrictEqual(['id', 'name']);
+    expect(t1.fields.get('id')?.origin).toEqual(t2);
+    expect(t1.fields.get('id')?.owner).toEqual(t1);
   })
 
   it('Should extend ComplexType from other ComplexType type in place schema', async () => {
@@ -150,13 +149,13 @@ describe('DocumentFactory - ComplexType with schema object', function () {
       kind: 'ComplexType',
       base: {
         kind: 'ComplexType',
-        additionalElements: true,
+        additionalFields: true,
         ctor: Type2,
-        elements: {
+        fields: {
           id: 'number'
         }
       },
-      elements: {
+      fields: {
         name: 'string'
       }
     };
@@ -171,18 +170,18 @@ describe('DocumentFactory - ComplexType with schema object', function () {
     expect(t1).toBeDefined();
     expect(t1.kind).toStrictEqual(OpraSchema.ComplexType.Kind);
     expect(t1.name).toStrictEqual('type1');
-    expect(t1.additionalElements).toStrictEqual(true);
+    expect(t1.additionalFields).toStrictEqual(true);
     expect(t1.ctor).toStrictEqual(Type2);
-    expect(Array.from(t1.elements.keys())).toStrictEqual(['id', 'name']);
-    expect(t1.elements.get('id')?.origin).not.toEqual(t1);
-    expect(t1.elements.get('id')?.owner).toEqual(t1);
+    expect(Array.from(t1.fields.keys())).toStrictEqual(['id', 'name']);
+    expect(t1.fields.get('id')?.origin).not.toEqual(t1);
+    expect(t1.fields.get('id')?.owner).toEqual(t1);
   })
 
   it('Should detect circular references', async () => {
     const type1: OpraSchema.ComplexType = {
       kind: 'ComplexType',
       base: 'type1',
-      elements: {
+      fields: {
         name: 'string'
       }
     };

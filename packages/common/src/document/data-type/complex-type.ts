@@ -4,9 +4,8 @@ import { ObjectTree, omitUndefined, pathToObjectTree, ResponsiveMap } from '../.
 import { OpraSchema } from '../../schema/index.js';
 import type { ApiDocument } from '../api-document.js';
 import { METADATA_KEY, TYPENAME_PATTERN } from '../constants.js';
+import { ComplexField } from './complex-field.js';
 import { DataType } from './data-type.js';
-import { Element } from './element.js';
-import type { Expose } from './expose.decorator';
 import type { UnionType } from './union-type';
 
 /**
@@ -14,23 +13,23 @@ import type { UnionType } from './union-type';
  */
 export namespace ComplexType {
   export interface InitArguments extends DataType.InitArguments,
-      Pick<OpraSchema.ComplexType, 'ctor' | 'abstract' | 'additionalElements'> {
+      Pick<OpraSchema.ComplexType, 'ctor' | 'abstract' | 'additionalFields'> {
     base?: ComplexType | UnionType;
   }
 
   export interface OwnProperties extends DataType.OwnProperties,
-      Readonly<Pick<OpraSchema.ComplexType, 'ctor' | 'abstract' | 'additionalElements'>> {
-    readonly elements: ResponsiveMap<string, Element>;
+      Readonly<Pick<OpraSchema.ComplexType, 'ctor' | 'abstract' | 'additionalFields'>> {
+    readonly fields: ResponsiveMap<string, ComplexField>;
   }
 
   export interface DecoratorOptions extends DataType.DecoratorOptions,
-      Pick<InitArguments, 'ctor' | 'base' | 'additionalElements' | 'abstract'> {
+      Pick<InitArguments, 'ctor' | 'base' | 'additionalFields' | 'abstract'> {
 
   }
 
-  export interface Metadata extends StrictOmit<OpraSchema.ComplexType, 'elements'> {
+  export interface Metadata extends StrictOmit<OpraSchema.ComplexType, 'fields'> {
     name: string;
-    elements?: Record<string, Expose.Metadata>;
+    fields?: Record<string, ComplexField.Metadata>;
   }
 }
 
@@ -46,11 +45,11 @@ export interface ComplexType extends StrictOmit<DataType, 'own' | 'exportSchema'
 
   exportSchema(): OpraSchema.ComplexType;
 
-  addElement(init: Element.InitArguments): Element;
+  addField(init: ComplexField.InitArguments): ComplexField;
 
-  getElement(name: string): Element;
+  getField(name: string): ComplexField;
 
-  normalizeElementNames(elements: string[]): string[] | undefined;
+  normalizeFieldNames(fields: string | string[]): string[] | undefined;
 }
 
 /**
@@ -73,7 +72,7 @@ export const ComplexType = function (
 ) {
   // ClassDecorator
   if (!this) {
-    const [options] = args as [ComplexType.InitArguments | undefined];
+    const [options] = args as [ComplexType.DecoratorOptions | undefined];
     return function (target: Function) {
       const name = options?.name || target.name.match(TYPENAME_PATTERN)?.[1] || target.name;
       let metadata = Reflect.getOwnMetadata(METADATA_KEY, target) as ComplexType.Metadata;
@@ -85,7 +84,7 @@ export const ComplexType = function (
       metadata.name = name;
       // Merge options
       if (options)
-        Object.assign(metadata, omit(options, ['kind', 'name', 'base', 'ctor', 'elements']));
+        Object.assign(metadata, omit(options, ['kind', 'name', 'base', 'ctor', 'fields']));
     }
   }
 
@@ -97,25 +96,25 @@ export const ComplexType = function (
   const _this = this as Writable<ComplexType>;
   const own = _this.own as Writable<ComplexType.OwnProperties>
   own.ctor = init?.ctor;
-  own.elements = new ResponsiveMap();
+  own.fields = new ResponsiveMap();
   own.abstract = init?.abstract;
-  own.additionalElements = init?.additionalElements;
+  own.additionalFields = init?.additionalFields;
 
   _this.kind = OpraSchema.ComplexType.Kind;
   _this.base = init?.base;
   _this.ctor = own.ctor || Object;
   _this.abstract = own.abstract;
-  _this.additionalElements = own.additionalElements;
-  _this.elements = new ResponsiveMap();
+  _this.additionalFields = own.additionalFields;
+  _this.fields = new ResponsiveMap();
   if (_this.base) {
-    if (_this.additionalElements == null)
-      _this.additionalElements = _this.base.additionalElements;
+    if (_this.additionalFields == null)
+      _this.additionalFields = _this.base.additionalFields;
     if (own.ctor == null && _this.base instanceof ComplexType)
       _this.ctor = _this.base.ctor;
-    if (_this.base.elements)
-      for (const [k, el] of _this.base.elements.entries()) {
-        const newEl = new Element(_this, el);
-        _this.elements.set(k, newEl);
+    if (_this.base.fields)
+      for (const [k, el] of _this.base.fields.entries()) {
+        const newEl = new ComplexField(_this, el);
+        _this.fields.set(k, newEl);
       }
   }
 
@@ -141,48 +140,48 @@ const proto = {
       base: this.base ?
           (this.base.name ? this.base.name : this.base.exportSchema()) : undefined,
       abstract: this.own.abstract,
-      additionalElements: this.own.additionalElements
+      additionalFields: this.own.additionalFields
     }));
-    if (this.own.elements.size) {
-      const elements = out.elements = {};
-      for (const element of this.own.elements.values()) {
-        elements[element.name] = element.exportSchema();
+    if (this.own.fields.size) {
+      const fields = out.fields = {};
+      for (const field of this.own.fields.values()) {
+        fields[field.name] = field.exportSchema();
       }
     }
     return omitUndefined(out);
   },
 
-  addElement(init: Element.InitArguments): Element {
-    const element = new Element(this, init);
-    this.own.elements.set(element.name, element);
-    this.elements.set(element.name, element);
-    return element;
+  addField(init: ComplexField.InitArguments): ComplexField {
+    const field = new ComplexField(this, init);
+    this.own.fields.set(field.name, field);
+    this.fields.set(field.name, field);
+    return field;
   },
 
-  getElement(name: string): Element {
+  getField(name: string): ComplexField {
     if (name.includes('.')) {
       let dt: DataType = this;
       const arr = name.split('.');
       const l = arr.length;
-      let element: Element;
+      let field: ComplexField;
       for (let i = 0; i < l; i++) {
         if (!(dt instanceof ComplexType))
-          throw new TypeError(`Element "${arr.slice(0, i - 1)}" is not a ${OpraSchema.ComplexType.Kind} and has no child elements`);
-        element = dt.getElement(arr[i]);
-        dt = element.type;
+          throw new TypeError(`"${arr.slice(0, i - 1)}" field is not a ${OpraSchema.ComplexType.Kind} and has no child fields`);
+        field = dt.getField(arr[i]);
+        dt = field.type;
       }
       // @ts-ignore
-      return element;
+      return field;
     }
-    const t = this.elements.get(name);
+    const t = this.fields.get(name);
     if (!t)
-      throw new Error(`"${this.name}" type doesn't have an element named "${name}"`);
+      throw new Error(`"${this.name}" type doesn't have an field named "${name}"`);
     return t;
   },
 
-  normalizeElementNames(this: ComplexType, elements: string[]): string[] | undefined {
-    const fieldsTree = pathToObjectTree(elements) || {};
-    const out = _normalizeElementNames([], this.document, this, fieldsTree, '', '');
+  normalizeFieldNames(this: ComplexType, fields: string | string[]): string[] | undefined {
+    const fieldsTree = (fields && pathToObjectTree(Array.isArray(fields) ? fields: [fields])) || {};
+    const out = _normalizeFieldsNames([], this.document, this, fieldsTree, '', '');
     return out.length ? out : undefined;
   }
 
@@ -192,9 +191,9 @@ Object.assign(ComplexType.prototype, proto);
 Object.setPrototypeOf(ComplexType.prototype, DataType.prototype);
 
 /**
- * Normalizes element names
+ * Normalizes field names
  */
-function _normalizeElementNames(
+function _normalizeFieldsNames(
     target: string[],
     document: ApiDocument,
     dataType: ComplexType | undefined,
@@ -206,26 +205,26 @@ function _normalizeElementNames(
   for (const k of Object.keys(node)) {
     const nodeVal = node[k];
 
-    const element = dataType?.elements.get(k);
-    if (!element) {
+    const field = dataType?.fields.get(k);
+    if (!field) {
       curPath = parentPath ? parentPath + '.' + k : k;
 
-      if ((dataType && !dataType.additionalElements))
-        throw new TypeError(`Unknown element "${curPath}"`);
+      if ((dataType && !dataType.additionalFields))
+        throw new TypeError(`Unknown field "${curPath}"`);
       if (typeof nodeVal === 'object')
-        _normalizeElementNames(target, document, undefined, nodeVal, curPath, actualPath);
+        _normalizeFieldsNames(target, document, undefined, nodeVal, curPath, actualPath);
       else target.push(curPath);
       continue;
     }
-    curPath = parentPath ? parentPath + '.' + element.name : element.name;
+    curPath = parentPath ? parentPath + '.' + field.name : field.name;
 
     if (typeof nodeVal === 'object') {
-      if (!(element.type instanceof ComplexType))
+      if (!(field.type instanceof ComplexType))
         throw new TypeError(`"${(actualPath ? actualPath + '.' + curPath : curPath)}" is not a complex type and has no sub fields`);
       if (target.findIndex(x => x === parentPath) >= 0)
         continue;
 
-      target = _normalizeElementNames(target, document, element.type, nodeVal, curPath, actualPath);
+      target = _normalizeFieldsNames(target, document, field.type, nodeVal, curPath, actualPath);
       continue;
     }
 

@@ -1,3 +1,4 @@
+import '@opra/core';
 import {
   Singleton,
 } from '@opra/common';

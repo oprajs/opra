@@ -1,4 +1,4 @@
-import { ApiDocument, DocumentFactory, HttpRequestMessage, HttpRequestMessageHost } from '@opra/common';
+import { ApiDocument, DocumentFactory, HttpRequestMessage } from '@opra/common';
 import { OpraHttpAdapter, Request } from '@opra/core';
 import { Eq, Field } from '@sqb/builder';
 import { BestCustomerResource } from '../../core/test/_support/test-app/resource/best-customer.resource.js';
@@ -40,7 +40,7 @@ describe('SQBAdapter.parseRequest', function () {
 
     it('Should prepare', async () => {
       const values = {a: 1};
-      const request = await adapter.parseRequest(new HttpRequestMessageHost({
+      const request = await adapter.parseRequest(HttpRequestMessage.create({
         method: 'POST',
         url: '/Customers',
         body: values,
@@ -55,7 +55,7 @@ describe('SQBAdapter.parseRequest', function () {
 
     it('Should prepare with "pick" option', async () => {
       const values = {a: 1};
-      const request = await adapter.parseRequest(new HttpRequestMessageHost({
+      const request = await adapter.parseRequest(HttpRequestMessage.create({
         method: 'POST',
         url: '/Customers?$pick=id,givenname,address.city',
         body: values,
@@ -70,7 +70,7 @@ describe('SQBAdapter.parseRequest', function () {
 
     it('Should prepare with "omit" option', async () => {
       const values = {a: 1};
-      const request = await adapter.parseRequest(new HttpRequestMessageHost({
+      const request = await adapter.parseRequest(HttpRequestMessage.create({
         method: 'POST',
         url: '/Customers?$omit=id,givenname,address.city',
         body: values,
@@ -85,7 +85,7 @@ describe('SQBAdapter.parseRequest', function () {
 
     it('Should prepare with "include" option', async () => {
       const values = {a: 1};
-      const request = await adapter.parseRequest(new HttpRequestMessageHost({
+      const request = await adapter.parseRequest(HttpRequestMessage.create({
         method: 'POST',
         url: '/Customers?$include=id,givenname,address.city',
         body: values,
@@ -103,7 +103,7 @@ describe('SQBAdapter.parseRequest', function () {
 
   describe('CollectionDeleteQuery', function () {
     it('Should prepare', async () => {
-      const request = await adapter.parseRequest(new HttpRequestMessageHost({
+      const request = await adapter.parseRequest(HttpRequestMessage.create({
         method: 'DELETE',
         url: '/Customers@1'
       }));
@@ -117,7 +117,7 @@ describe('SQBAdapter.parseRequest', function () {
   describe('CollectionDeleteManyQuery', function () {
 
     it('Should prepare', async () => {
-      const request = await adapter.parseRequest(new HttpRequestMessageHost({
+      const request = await adapter.parseRequest(HttpRequestMessage.create({
         method: 'DELETE',
         url: '/Customers'
       }));
@@ -127,7 +127,7 @@ describe('SQBAdapter.parseRequest', function () {
     });
 
     it('Should prepare with "filter" option', async () => {
-      const request = await adapter.parseRequest(new HttpRequestMessageHost({
+      const request = await adapter.parseRequest(HttpRequestMessage.create({
         method: 'DELETE',
         url: '/Customers?$filter=givenname=John'
       }));
@@ -143,7 +143,7 @@ describe('SQBAdapter.parseRequest', function () {
   describe('CollectionGetQuery', function () {
 
     it('Should prepare', async () => {
-      const request = await adapter.parseRequest(new HttpRequestMessageHost({
+      const request = await adapter.parseRequest(HttpRequestMessage.create({
         method: 'GET',
         url: '/Customers@1'
       }));
@@ -154,7 +154,7 @@ describe('SQBAdapter.parseRequest', function () {
     });
 
     it('Should prepare with "pick" option', async () => {
-      const request = await adapter.parseRequest(new HttpRequestMessageHost({
+      const request = await adapter.parseRequest(HttpRequestMessage.create({
         method: 'GET',
         url: '/Customers@1?$pick=id,givenname,address.city',
       }));
@@ -166,7 +166,7 @@ describe('SQBAdapter.parseRequest', function () {
     });
 
     it('Should prepare with "omit" option', async () => {
-      const request = await adapter.parseRequest(new HttpRequestMessageHost({
+      const request = await adapter.parseRequest(HttpRequestMessage.create({
         method: 'GET',
         url: '/Customers@1?$omit=id,givenname,address.city',
       }));
@@ -178,7 +178,7 @@ describe('SQBAdapter.parseRequest', function () {
     });
 
     it('Should prepare with "include" option', async () => {
-      const request = await adapter.parseRequest(new HttpRequestMessageHost({
+      const request = await adapter.parseRequest(HttpRequestMessage.create({
         method: 'GET',
         url: '/Customers@1?$include=id,givenname,address.city',
       }));
@@ -196,7 +196,7 @@ describe('SQBAdapter.parseRequest', function () {
 
     it('Should prepare', async () => {
       const values = {a: 1};
-      const request = await adapter.parseRequest(new HttpRequestMessageHost({
+      const request = await adapter.parseRequest(HttpRequestMessage.create({
         method: 'PATCH',
         url: '/Customers@1',
         body: values,
@@ -212,7 +212,7 @@ describe('SQBAdapter.parseRequest', function () {
 
     it('Should prepare with "pick" option', async () => {
       const values = {a: 1};
-      const request = await adapter.parseRequest(new HttpRequestMessageHost({
+      const request = await adapter.parseRequest(HttpRequestMessage.create({
         method: 'PATCH',
         url: '/Customers@1?$pick=id,givenname,address.city',
         body: values,
@@ -228,7 +228,7 @@ describe('SQBAdapter.parseRequest', function () {
 
     it('Should prepare with "omit" option', async () => {
       const values = {a: 1};
-      const request = await adapter.parseRequest(new HttpRequestMessageHost({
+      const request = await adapter.parseRequest(HttpRequestMessage.create({
         method: 'PATCH',
         url: '/Customers@1?$omit=id,givenname,address.city',
         body: values,
@@ -244,7 +244,7 @@ describe('SQBAdapter.parseRequest', function () {
 
     it('Should prepare with "include" option', async () => {
       const values = {a: 1};
-      const request = await adapter.parseRequest(new HttpRequestMessageHost({
+      const request = await adapter.parseRequest(HttpRequestMessage.create({
         method: 'PATCH',
         url: '/Customers@1?$include=id,givenname,address.city',
         body: values,
@@ -264,7 +264,7 @@ describe('SQBAdapter.parseRequest', function () {
 
     it('Should prepare', async () => {
       const values = {a: 1};
-      const request = await adapter.parseRequest(new HttpRequestMessageHost({
+      const request = await adapter.parseRequest(HttpRequestMessage.create({
         method: 'PATCH',
         url: '/Customers',
         body: values,
@@ -278,7 +278,7 @@ describe('SQBAdapter.parseRequest', function () {
 
     it('Should prepare with "filter" option', async () => {
       const values = {a: 1};
-      const request = await adapter.parseRequest(new HttpRequestMessageHost({
+      const request = await adapter.parseRequest(HttpRequestMessage.create({
         method: 'PATCH',
         url: '/Customers?$filter=givenname=John',
         body: values,
@@ -297,7 +297,7 @@ describe('SQBAdapter.parseRequest', function () {
   describe('CollectionSearchQuery', function () {
 
     it('Should prepare', async () => {
-      const request = await adapter.parseRequest(new HttpRequestMessageHost({
+      const request = await adapter.parseRequest(HttpRequestMessage.create({
         method: 'GET',
         url: '/Customers'
       }));
@@ -308,7 +308,7 @@ describe('SQBAdapter.parseRequest', function () {
     });
 
     it('Should prepare with "pick" option', async () => {
-      const request = await adapter.parseRequest(new HttpRequestMessageHost({
+      const request = await adapter.parseRequest(HttpRequestMessage.create({
         method: 'GET',
         url: '/Customers?$pick=id,givenname,address.city',
       }));
@@ -319,7 +319,7 @@ describe('SQBAdapter.parseRequest', function () {
     });
 
     it('Should prepare with "omit" option', async () => {
-      const request = await adapter.parseRequest(new HttpRequestMessageHost({
+      const request = await adapter.parseRequest(HttpRequestMessage.create({
         method: 'GET',
         url: '/Customers?$omit=id,givenname,address.city',
       }));
@@ -330,7 +330,7 @@ describe('SQBAdapter.parseRequest', function () {
     });
 
     it('Should prepare with "include" option', async () => {
-      const request = await adapter.parseRequest(new HttpRequestMessageHost({
+      const request = await adapter.parseRequest(HttpRequestMessage.create({
         method: 'GET',
         url: '/Customers?$include=id,givenname,address.city',
       }));
@@ -341,7 +341,7 @@ describe('SQBAdapter.parseRequest', function () {
     });
 
     it('Should prepare with "filter" option', async () => {
-      const request = await adapter.parseRequest(new HttpRequestMessageHost({
+      const request = await adapter.parseRequest(HttpRequestMessage.create({
         method: 'GET',
         url: '/Customers?$filter=givenname=John'
       }));

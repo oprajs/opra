@@ -1,8 +1,10 @@
 import { tokenize } from 'fast-tokenizer';
 import { isURL } from '../helpers/index.js';
+import { normalizePath } from '../utils/path-utils.js';
 import type { OpraURL } from './opra-url.js';
 import { OpraURLPathComponent, OpraURLPathComponentInit } from './opra-url-path-component.js';
-import { decodePathComponent, encodePathComponent, normalizePath } from './utils/path-utils.js';
+import { decodePathComponent } from './utils/decode-path-component.js';
+import { encodePathComponent } from './utils/encode-path-component.js';
 
 const nodeInspectCustom = Symbol.for('nodejs.util.inspect.custom');
 const kEntries = Symbol('kEntries');
@@ -118,7 +120,8 @@ export class OpraURLPath {
   }
 
   toString(): string {
-    return this[kEntries].map(x => encodePathComponent(x.resource, x.key, x.typeCast)).join('/');
+    return this[kEntries]
+        .map(x => encodePathComponent(x.resource, x.key, x.typeCast)).join('/');
   }
 
   values(): IterableIterator<OpraURLPathComponent> {

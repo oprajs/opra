@@ -17,11 +17,12 @@ import {
   wrapException
 } from '@opra/common';
 import { OpraAdapter } from '../adapter.js';
-import { ExecutionContext } from '../interfaces/execution-context.interface.js';
 import { ILogger } from '../interfaces/logger.interface.js';
 import { Request } from '../interfaces/request.interface.js';
-import { HttpExecutionContextHost } from './http-execution-context.host.js';
+import { RequestContext } from '../interfaces/request-context.interface.js';
+import { Response } from '../interfaces/response.interface.js';
 import { HttpRequestHost } from './http-request.host.js';
+import { HttpRequestContextHost } from './http-request-context.host.js';
 import { HttpResponseHost } from './http-response.host.js';
 
 /**
@@ -57,62 +58,94 @@ export abstract class OpraHttpAdapter extends OpraAdapter {
 
       if (!(incoming.method === 'POST' || incoming.method === 'PATCH') || incoming.is('json')) {
         const request = await this.parseRequest(incoming);
-        const response = new HttpResponseHost({}, outgoing);
-        const context = new HttpExecutionContextHost(this.platform, request, response);
+        const response: Response = new HttpResponseHost({}, outgoing);
+        const context = new HttpRequestContextHost(this.platform, this.api, request, response);
         const task = new Task(
             async () => {
-              await this.executeRequest(context);
+              try {
+                await this.executeRequest(context);
+                if (request.operation === 'search' && request.args.count && response.count != null) {
+                  response.switchToHttp().header(HttpHeaderCodes.X_Opra_Total_Matches, String(response.count));
+                }
+              } catch (error: any) {
+                return this.errorHandler(incoming, outgoing, [error]);
+              }
               await this.sendResponse(context);
             },
             {
               id: incoming.get('content-id'),
               exclusive: request.crud !== 'read'
             });
-        await task.toPromise().catch(e => this.logger?.error?.(e));
+        await task.toPromise().catch(e => {
+          this.logger?.error?.(e);
+          outgoing.sendStatus(500);
+        });
+        return;
       }
 
       throw new BadRequestError({message: 'Unsupported Content-Type'});
     } catch (error) {
-      await this.errorHandler(incoming, outgoing, error);
+      await this.errorHandler(incoming, outgoing, [error]);
     }
   }
 
-  protected async errorHandler(incoming: HttpRequestMessage, outgoing: HttpResponseMessage, error): Promise<void> {
-    this.log((error instanceof OpraException) ? 'error' : 'fatal', incoming, error); // todo. implement a better logger
-    outgoing.status(error.status || 500);
+  protected async errorHandler(incoming: HttpRequestMessage, outgoing: HttpResponseMessage, errors: any[]): Promise<void> {
+    errors.forEach(e => {
+      this.log((e instanceof OpraException) ? 'error' : 'fatal', incoming, e); // todo. implement a better logger
+    });
+    errors = errors.map(wrapException);
+    let status = outgoing.statusCode || 0;
+
+    // Sort errors from fatal to info
+    errors.sort((a, b) => {
+      const i = IssueSeverity.Keys.indexOf(a.issue.severity) - IssueSeverity.Keys.indexOf(b.issue.severity);
+      if (i === 0)
+        return b.status - a.status;
+      return i;
+    });
+    if (!status || status < HttpStatusCodes.BAD_REQUEST) {
+      status = errors[0].status;
+      if (status < HttpStatusCodes.BAD_REQUEST)
+        status = HttpStatusCodes.INTERNAL_SERVER_ERROR;
+    }
+    const body = this.i18n.deep({
+      errors: errors.map(e => e.issue)
+    });
     outgoing.set(HttpHeaderCodes.Content_Type, 'application/json; charset=utf-8');
     outgoing.set(HttpHeaderCodes.Cache_Control, 'no-cache');
     outgoing.set(HttpHeaderCodes.Pragma, 'no-cache');
     outgoing.set(HttpHeaderCodes.Expires, '-1');
     outgoing.set(HttpHeaderCodes.X_Opra_Version, OpraSchema.SpecVersion);
-    const issue = this.i18n.deep(error.issue);
-    const body = {
-      errors: [issue]
-    };
+    outgoing.status(status);
     outgoing.send(JSON.stringify(body));
+    outgoing.end();
   }
 
   protected log(logType: keyof ILogger, incoming: HttpRequestMessage, message: string, ...optionalParams: any[]) {
-    const logFn = this.logger?.[logType];
+    const logFn = logType === 'fatal'
+        ? this.logger?.fatal || this.logger?.error
+        : this.logger?.[logType];
     if (!logFn)
       return;
-    logFn(message, ...optionalParams);
+    logFn.apply(this.logger, [String(message), ...optionalParams]);
   }
 
-  protected async afterExecuteRequest(context: ExecutionContext): Promise<void> {
+  protected async afterExecuteRequest(context: RequestContext): Promise<void> {
     await super.afterExecuteRequest(context);
     const {request} = context;
     const response = context.response;
     const {crud} = request;
     const httpResponse = response.switchToHttp();
+    if (request.resource instanceof Singleton || request.resource instanceof Collection) {
+      httpResponse.set(HttpHeaderCodes.X_Opra_Data_Type, request.resource.type.name);
+      httpResponse.set(HttpHeaderCodes.X_Opra_Operation, request.operation);
+    }
     if (crud === 'create') {
       if (!response.value)
         throw new InternalServerError();
       // todo validate
       httpResponse.status(201);
     }
-    if (request.resource instanceof Singleton || request.resource instanceof Collection)
-      httpResponse.set(HttpHeaderCodes.X_Opra_DataType, request.resource.type.name);
   }
 
   /**
@@ -121,31 +154,42 @@ export abstract class OpraHttpAdapter extends OpraAdapter {
    * @protected
    */
   protected async parseRequest(incoming: HttpRequestMessage): Promise<Request> {
-    const url = new OpraURL(incoming.url);
-
-    // const {context, url, method, headers, body, contentId} = args;
-    if (!url.path.size)
-      throw new BadRequestError();
-
-    const method = incoming.method;
-    if (method !== 'GET' && url.path.size > 1)
-      throw new BadRequestError();
-
-    // const pathLen = url.path.size;
-    // let pathIndex = 0;
-    const p = url.path.get(0);
-    const resource = this._internalDoc.getResource(p.resource);
-    // let container: IResourceContainer | undefined;
-    // while (resource && resource instanceof ContainerResourceInfo) {
-    //   container = resource;
-    //   p = url.path.get(++pathIndex);
-    //   resource = container.getResource(p.resource);
-    // }
-
     try {
+      const url = new OpraURL();
+      url.searchParams.define({
+        '$pick': {codec: 'string', array: true},
+        '$omit': {codec: 'string', array: true},
+        '$include': {codec: 'string', array: true},
+        '$sort': {codec: 'string', array: true},
+        '$filter': {codec: 'filter'},
+        '$limit': {codec: 'number'},
+        '$skip': {codec: 'number'},
+        '$distinct': {codec: 'boolean'},
+        '$count': {codec: 'boolean'},
+      });
+      url.parse(incoming.url);
+
+      // const {context, url, method, headers, body, contentId} = args;
+      if (!url.path.size)
+        throw new BadRequestError();
+
+      const method = incoming.method;
+      if (method !== 'GET' && url.path.size > 1)
+        throw new BadRequestError();
+
+      // const pathLen = url.path.size;
+      // let pathIndex = 0;
+      const params = url.searchParams;
+      const p = url.path.get(0);
+      const resource = this._internalDoc.getResource(p.resource);
+      // let container: IResourceContainer | undefined;
+      // while (resource && resource instanceof ContainerResourceInfo) {
+      //   container = resource;
+      //   p = url.path.get(++pathIndex);
+      //   resource = container.getResource(p.resource);
+      // }
+
       // const headers = incoming.headers;
-      // const params = url.searchParams;
-      const searchParams = url.searchParams;
 
       /*
        * Collection
@@ -162,9 +206,9 @@ export abstract class OpraHttpAdapter extends OpraAdapter {
                 many: false,
                 args: {
                   data: incoming.body,
-                  pick: resource.normalizeElementNames(searchParams.get('$pick')),
-                  omit: resource.normalizeElementNames(searchParams.get('$omit')),
-                  include: resource.normalizeElementNames(searchParams.get('$include'))
+                  pick: resource.normalizeFieldNames(params.get('$pick')),
+                  omit: resource.normalizeFieldNames(params.get('$omit')),
+                  include: resource.normalizeFieldNames(params.get('$include'))
                 }
               }, incoming);
             }
@@ -191,7 +235,7 @@ export abstract class OpraHttpAdapter extends OpraAdapter {
               crud: 'delete',
               many: true,
               args: {
-                filter: resource.normalizeFilterElements(searchParams.get('$filter'))
+                filter: resource.normalizeFilterFields(params.get('$filter'))
               }
             }, incoming);
           }
@@ -206,9 +250,9 @@ export abstract class OpraHttpAdapter extends OpraAdapter {
                 many: false,
                 args: {
                   key: resource.parseKeyValue(p.key),
-                  pick: resource.normalizeElementNames(searchParams.get('$pick')),
-                  omit: resource.normalizeElementNames(searchParams.get('$omit')),
-                  include: resource.normalizeElementNames(searchParams.get('$include'))
+                  pick: resource.normalizeFieldNames(params.get('$pick')),
+                  omit: resource.normalizeFieldNames(params.get('$omit')),
+                  include: resource.normalizeFieldNames(params.get('$include'))
                 }
               }, incoming);
             }
@@ -220,15 +264,15 @@ export abstract class OpraHttpAdapter extends OpraAdapter {
               crud: 'read',
               many: true,
               args: {
-                filter: resource.normalizeFilterElements(searchParams.get('$filter')),
-                limit: searchParams.get('$limit'),
-                skip: searchParams.get('$skip'),
-                distinct: searchParams.get('$distinct'),
-                count: searchParams.get('$count'),
-                sort: resource.normalizeSortElements(searchParams.get('$sort')),
-                pick: resource.normalizeElementNames(searchParams.get('$pick')),
-                omit: resource.normalizeElementNames(searchParams.get('$omit')),
-                include: resource.normalizeElementNames(searchParams.get('$include'))
+                sort: resource.normalizeSortFields(params.get('$sort')),
+                pick: resource.normalizeFieldNames(params.get('$pick')),
+                omit: resource.normalizeFieldNames(params.get('$omit')),
+                include: resource.normalizeFieldNames(params.get('$include')),
+                filter: resource.normalizeFilterFields(params.get('$filter')),
+                limit: params.get('$limit'),
+                skip: params.get('$skip'),
+                distinct: params.get('$distinct'),
+                count: params.get('$count'),
               }
             }, incoming);
           }
@@ -244,9 +288,9 @@ export abstract class OpraHttpAdapter extends OpraAdapter {
                 args: {
                   key: resource.parseKeyValue(p.key),
                   data: incoming.body,
-                  pick: resource.normalizeElementNames(searchParams.get('$pick')),
-                  omit: resource.normalizeElementNames(searchParams.get('$omit')),
-                  include: resource.normalizeElementNames(searchParams.get('$include'))
+                  pick: resource.normalizeFieldNames(params.get('$pick')),
+                  omit: resource.normalizeFieldNames(params.get('$omit')),
+                  include: resource.normalizeFieldNames(params.get('$include'))
                 }
               }, incoming);
             }
@@ -258,7 +302,7 @@ export abstract class OpraHttpAdapter extends OpraAdapter {
               many: true,
               args: {
                 data: incoming.body,
-                filter: resource.normalizeFilterElements(searchParams.get('$filter'))
+                filter: resource.normalizeFilterFields(params.get('$filter'))
               }
             }, incoming);
           }
@@ -279,9 +323,9 @@ export abstract class OpraHttpAdapter extends OpraAdapter {
               many: false,
               args: {
                 data: incoming.body,
-                pick: resource.normalizeElementNames(searchParams.get('$pick')),
-                omit: resource.normalizeElementNames(searchParams.get('$omit')),
-                include: resource.normalizeElementNames(searchParams.get('$include'))
+                pick: resource.normalizeFieldNames(params.get('$pick')),
+                omit: resource.normalizeFieldNames(params.get('$omit')),
+                include: resource.normalizeFieldNames(params.get('$include'))
               }
             }, incoming);
           }
@@ -303,9 +347,9 @@ export abstract class OpraHttpAdapter extends OpraAdapter {
               crud: 'read',
               many: false,
               args: {
-                pick: resource.normalizeElementNames(searchParams.get('$pick')),
-                omit: resource.normalizeElementNames(searchParams.get('$omit')),
-                include: resource.normalizeElementNames(searchParams.get('$include'))
+                pick: resource.normalizeFieldNames(params.get('$pick')),
+                omit: resource.normalizeFieldNames(params.get('$omit')),
+                include: resource.normalizeFieldNames(params.get('$include'))
               }
             }, incoming);
           }
@@ -318,9 +362,9 @@ export abstract class OpraHttpAdapter extends OpraAdapter {
               many: false,
               args: {
                 data: incoming.body,
-                pick: resource.normalizeElementNames(searchParams.get('$pick')),
-                omit: resource.normalizeElementNames(searchParams.get('$omit')),
-                include: resource.normalizeElementNames(searchParams.get('$include'))
+                pick: resource.normalizeFieldNames(params.get('$pick')),
+                omit: resource.normalizeFieldNames(params.get('$omit')),
+                include: resource.normalizeFieldNames(params.get('$include'))
               }
             }, incoming);
           }
@@ -440,41 +484,21 @@ export abstract class OpraHttpAdapter extends OpraAdapter {
   //   });
   // }
 
-  protected async sendResponse(context: ExecutionContext) {
-    const {response} = context;
-    const outgoing = context.response.switchToHttp();
+  protected async sendResponse(context: RequestContext) {
+    const {request, response} = context;
+    const outgoing = response.switchToHttp();
+
+    const errors = response.errors?.map(e => wrapException(e));
+    if (errors && errors.length) {
+      await this.errorHandler(request.switchToHttp(), outgoing, errors);
+      return;
+    }
+
     outgoing.set(HttpHeaderCodes.Cache_Control, 'no-cache');
     outgoing.set(HttpHeaderCodes.Pragma, 'no-cache');
     outgoing.set(HttpHeaderCodes.Expires, '-1');
     outgoing.set(HttpHeaderCodes.X_Opra_Version, OpraSchema.SpecVersion);
-    let status = outgoing.statusCode || 0;
-
-    const errors = response.errors?.map(e => wrapException(e));
-    if (errors && errors.length) {
-      // Sort errors from fatal to info
-      errors.sort((a, b) => {
-        const i = IssueSeverity.Keys.indexOf(a.issue.severity) - IssueSeverity.Keys.indexOf(b.issue.severity);
-        if (i === 0)
-          return b.status - a.status;
-        return i;
-      });
-      if (!status || status < HttpStatusCodes.BAD_REQUEST) {
-        status = errors[0].status;
-        if (status < HttpStatusCodes.BAD_REQUEST)
-          status = HttpStatusCodes.INTERNAL_SERVER_ERROR;
-      }
-      const body = this.i18n.deep({
-        errors: errors.map(e => e.issue)
-      });
-      outgoing.set(HttpHeaderCodes.Content_Type, 'application/json; charset=utf-8');
-      outgoing.status(status);
-      outgoing.send(JSON.stringify(body));
-      outgoing.end();
-      return;
-    }
-
-    outgoing.status(status || HttpStatusCodes.OK);
-
+    outgoing.status(outgoing.statusCode || HttpStatusCodes.OK);
     if (response.value) {
       if (typeof response.value === 'object') {
         if (isReadable(response.value) || Buffer.isBuffer(response.value))

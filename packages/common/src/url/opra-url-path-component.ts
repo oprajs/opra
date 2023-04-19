@@ -1,4 +1,4 @@
-import { encodePathComponent } from './utils/path-utils.js';
+import { encodePathComponent } from './utils/encode-path-component.js';
 
 const nodeInspectCustom = Symbol.for('nodejs.util.inspect.custom');
 

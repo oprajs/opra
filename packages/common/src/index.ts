@@ -8,4 +8,6 @@ export * from './i18n/index.js';
 export * from './schema/index.js';
 export * from './url/index.js';
 
+export * from './utils/path-utils.js';
+
 export { uid } from 'uid';

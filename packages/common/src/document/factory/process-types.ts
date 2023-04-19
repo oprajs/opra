@@ -113,13 +113,13 @@ export function addDataType(
       if (name)
         typeQueue.delete(name);
 
-      // process elements
-      if (schema.elements) {
-        for (const [elemName, v] of Object.entries(schema.elements)) {
+      // process fields
+      if (schema.fields) {
+        for (const [elemName, v] of Object.entries(schema.fields)) {
           const elemSchema = typeof v === 'object' ? v : {type: v};
           curPath.push(`${name}.${elemName}[type]`);
           const elemType = this.addDataType(elemSchema.type);
-          (dataType as ComplexType).addElement({
+          (dataType as ComplexType).addField({
             ...elemSchema,
             name: elemName,
             type: elemType

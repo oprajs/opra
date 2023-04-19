@@ -1,5 +1,4 @@
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
-import '@opra/sqb';
 import {
   DocumentFactory,
   OpraSchema,
@@ -21,13 +20,13 @@ describe('DocumentFactory - UnionType with schema object', function () {
   it('Should add UnionType by type schema', async () => {
     const type1: OpraSchema.ComplexType = {
       kind: 'ComplexType',
-      elements: {
+      fields: {
         id: 'number'
       }
     };
     const type2: OpraSchema.ComplexType = {
       kind: 'ComplexType',
-      elements: {
+      fields: {
         name: 'string'
       }
     };
@@ -40,8 +39,8 @@ describe('DocumentFactory - UnionType with schema object', function () {
             kind: 'UnionType',
             types: [type2, {
               kind: 'ComplexType',
-              additionalElements: true,
-              elements: {
+              additionalFields: true,
+              fields: {
                 age: 'number'
               }
             }]
@@ -55,8 +54,8 @@ describe('DocumentFactory - UnionType with schema object', function () {
     expect(t1).toBeDefined();
     expect(t1.kind).toStrictEqual(OpraSchema.UnionType.Kind);
     expect(t1.name).toStrictEqual('union1');
-    expect(t1.additionalElements).toStrictEqual(true);
-    expect(Array.from(t1.elements.keys())).toStrictEqual(['id', 'name', 'age']);
+    expect(t1.additionalFields).toStrictEqual(true);
+    expect(Array.from(t1.fields.keys())).toStrictEqual(['id', 'name', 'age']);
   })
 
 });

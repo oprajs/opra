@@ -1,27 +1,4 @@
 import { splitString } from 'fast-tokenizer';
-import isPlainObject from 'putil-isplainobject';
-
-export function normalizePath(p?: string, noLeadingSlash?: boolean): string {
-  if (!p)
-    return '';
-  while (noLeadingSlash && p.startsWith('/'))
-    p = p.substring(1);
-  while (p.endsWith('/'))
-    p = p.substring(0, p.length - 1);
-  return p;
-}
-
-export function joinPath(...p: string[]): string {
-  const out: string[] = [];
-  let s: string;
-  for (let i = 0, l = p.length; i < l; i++) {
-    s = normalizePath(p[i], i > 0);
-    if (s)
-      out.push(s);
-  }
-  return out.join('/');
-}
-
 
 const pathComponentRegEx = /^([^/?#:@]+)(?:@([^/?#:]*))?(?:::(.*))?$/;
 
@@ -63,25 +40,4 @@ export function decodePathComponent(input: string): { resource: string, key?: an
     return {resource, key, typeCast: m[3]};
   }
   return {resource, key};
-}
-
-export function encodePathComponent(resource: string, key?: any, typeCast?: string): string {
-  if (resource == null)
-    return '';
-  let keyString = '';
-  if (key !== '' && key != null) {
-    if (isPlainObject(key)) {
-      const arr: string[] = [];
-      for (const k of Object.keys(key)) {
-        arr.push(encodeURIComponent(k) + '=' + encodeURIComponent(key[k]));
-      }
-      keyString = arr.join(';');
-    } else keyString = encodeURIComponent('' + key);
-  }
-  if (typeCast)
-    typeCast = encodeURIComponent(typeCast);
-
-  return encodeURIComponent(resource).replace(/%24/, '$') +
-      (keyString ? '@' + keyString : '') +
-      (typeCast ? '::' + typeCast : '')
 }

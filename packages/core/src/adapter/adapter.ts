@@ -12,15 +12,15 @@ import {
   Singleton,
   translate,
 } from '@opra/common';
-import { ExecutionContext } from './interfaces/execution-context.interface.js';
 import { ILogger } from './interfaces/logger.interface.js';
+import { RequestContext } from './interfaces/request-context.interface.js';
 import { MetadataResource } from './internal/metadata.resource.js';
 
 /**
  * @namespace OpraAdapter
  */
 export namespace OpraAdapter {
-  export type UserContextResolver = (executionContext: ExecutionContext) => object | Promise<object>;
+  export type UserContextResolver = (context: RequestContext) => object | Promise<object>; // todo???
 
   export interface Options {
     i18n?: I18n | I18nOptions | (() => Promise<I18n>);
@@ -72,7 +72,7 @@ export abstract class OpraAdapter {
   i18n: I18n;
   logger?: ILogger;
 
-  protected constructor(readonly document: ApiDocument) {
+  protected constructor(readonly api: ApiDocument) {
   }
 
   /**
@@ -99,12 +99,12 @@ export abstract class OpraAdapter {
         version: OpraSchema.SpecVersion,
         title: 'Internal resources',
       },
-      references: {'api': this.document},
-      resources: [new MetadataResource(this.document)]
+      references: {'api': this.api},
+      resources: [new MetadataResource(this.api)]
     });
 
     const promises: Promise<void>[] = [];
-    for (const r of this.document.resources.values()) {
+    for (const r of this.api.resources.values()) {
       const onInit = r.onInit;
       if (onInit)
         promises.push((async () => onInit.call(r.controller, r))());
@@ -117,7 +117,7 @@ export abstract class OpraAdapter {
    */
   async close() {
     const promises: Promise<void>[] = [];
-    for (const r of this.document.resources.values()) {
+    for (const r of this.api.resources.values()) {
       const onShutdown = r.onShutdown;
       if (onShutdown)
         promises.push((async () => onShutdown.call(r.controller, r))());
@@ -125,7 +125,7 @@ export abstract class OpraAdapter {
     await Promise.allSettled(promises);
   }
 
-  protected async executeRequest(context: ExecutionContext): Promise<void> {
+  protected async executeRequest(context: RequestContext): Promise<void> {
     const {request, response} = context;
     const {resource, operation} = request;
 
@@ -138,14 +138,14 @@ export abstract class OpraAdapter {
           severity: 'error',
           code: 'RESOLVER_FORBIDDEN'
         });
-      const value = endpoint.handler(context);
+      const value = await endpoint.handler(context);
       if (value != null)
         response.value = value;
       await this.afterExecuteRequest(context);
     }
   }
 
-  protected async afterExecuteRequest(context: ExecutionContext): Promise<void> {
+  protected async afterExecuteRequest(context: RequestContext): Promise<void> {
     const {request, response} = context;
     const {resource, crud, many} = request;
     if (crud === 'delete' || (crud === 'update' && many)) {

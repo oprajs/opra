@@ -1,4 +1,4 @@
-import { ApiDocument, DocumentFactory, HttpRequestMessage, HttpRequestMessageHost } from '@opra/common';
+import { ApiDocument, DocumentFactory, HttpRequestMessage } from '@opra/common';
 import { OpraHttpAdapter, Request } from '@opra/core';
 import { BestCustomerResource } from '../../_support/test-app/resource/best-customer.resource.js';
 import { CustomersResource } from '../../_support/test-app/resource/customers.resource.js';
@@ -38,7 +38,7 @@ describe('OpraHttpAdapter parse Singleton requests', function () {
 
     it('Should parse request', async () => {
       const request = await adapter.parseRequest(
-          new HttpRequestMessageHost({
+          HttpRequestMessage.create({
             method: 'GET',
             url: '/BestCustomer?&$pick=id&$omit=gender&$include=address',
             headers: {'Accept': 'application/json'}
@@ -60,21 +60,21 @@ describe('OpraHttpAdapter parse Singleton requests', function () {
       expect(request.switchToHttp().headers.accept).toStrictEqual('application/json');
     })
 
-    it('Should normalize element names in "pick" option', async () => {
-      let request = await adapter.parseRequest(new HttpRequestMessageHost({
+    it('Should normalize field names in "pick" option', async () => {
+      let request = await adapter.parseRequest(HttpRequestMessage.create({
         method: 'GET',
         url: '/BestCustomer?$pick=givenname,GENDER,AdDRess.CIty'
       }));
       expect(request).toBeDefined();
       expect(request.operation).toStrictEqual('get');
       expect(request.args.pick).toStrictEqual(['givenName', 'gender', 'address.city']);
-      request = await adapter.parseRequest(new HttpRequestMessageHost({
+      request = await adapter.parseRequest(HttpRequestMessage.create({
         method: 'GET',
         url: '/BestCustomer?$pick=address,address.city'
       }));
       expect(request.operation).toStrictEqual('get');
       expect(request.args.pick).toStrictEqual(['address']);
-      request = await adapter.parseRequest(new HttpRequestMessageHost({
+      request = await adapter.parseRequest(HttpRequestMessage.create({
         method: 'GET',
         url: '/BestCustomer?$pick=address.city,address'
       }));
@@ -82,21 +82,21 @@ describe('OpraHttpAdapter parse Singleton requests', function () {
       expect(request.args.pick).toStrictEqual(['address']);
     })
 
-    it('Should normalize element names in "omit" option', async () => {
-      let request = await adapter.parseRequest(new HttpRequestMessageHost({
+    it('Should normalize field names in "omit" option', async () => {
+      let request = await adapter.parseRequest(HttpRequestMessage.create({
         method: 'GET',
         url: '/BestCustomer?$omit=givenname,GENDER,AdDRess.CIty'
       }));
       expect(request).toBeDefined();
       expect(request.operation).toStrictEqual('get');
       expect(request.args.omit).toStrictEqual(['givenName', 'gender', 'address.city']);
-      request = await adapter.parseRequest(new HttpRequestMessageHost({
+      request = await adapter.parseRequest(HttpRequestMessage.create({
         method: 'GET',
         url: '/BestCustomer?$omit=address,address.city'
       }));
       expect(request.operation).toStrictEqual('get');
       expect(request.args.omit).toStrictEqual(['address']);
-      request = await adapter.parseRequest(new HttpRequestMessageHost({
+      request = await adapter.parseRequest(HttpRequestMessage.create({
         method: 'GET',
         url: '/BestCustomer?$omit=address.city,address'
       }));
@@ -104,21 +104,21 @@ describe('OpraHttpAdapter parse Singleton requests', function () {
       expect(request.args.omit).toStrictEqual(['address']);
     })
 
-    it('Should normalize element names in "include" option', async () => {
-      let request = await adapter.parseRequest(new HttpRequestMessageHost({
+    it('Should normalize field names in "include" option', async () => {
+      let request = await adapter.parseRequest(HttpRequestMessage.create({
         method: 'GET',
         url: '/BestCustomer?$include=givenname,GENDER,AdDRess.CIty'
       }));
       expect(request).toBeDefined();
       expect(request.operation).toStrictEqual('get');
       expect(request.args.include).toStrictEqual(['givenName', 'gender', 'address.city']);
-      request = await adapter.parseRequest(new HttpRequestMessageHost({
+      request = await adapter.parseRequest(HttpRequestMessage.create({
         method: 'GET',
         url: '/BestCustomer?$include=address,address.city'
       }));
       expect(request.operation).toStrictEqual('get');
       expect(request.args.include).toStrictEqual(['address']);
-      request = await adapter.parseRequest(new HttpRequestMessageHost({
+      request = await adapter.parseRequest(HttpRequestMessage.create({
         method: 'GET',
         url: '/BestCustomer?$include=address.city,address'
       }));
@@ -127,31 +127,31 @@ describe('OpraHttpAdapter parse Singleton requests', function () {
     })
 
     it('Should validate if fields in "pick" option are exist', async () => {
-      await expect(() => adapter.parseRequest(new HttpRequestMessageHost({
+      await expect(() => adapter.parseRequest(HttpRequestMessage.create({
             method: 'GET',
             url: '/BestCustomer?$pick=address.x1'
           }))
-      ).rejects.toThrow('Unknown element "address.x1"');
+      ).rejects.toThrow('Unknown field "address.x1"');
     })
 
     it('Should validate if fields in "omit" option are exist', async () => {
-      await expect(() => adapter.parseRequest(new HttpRequestMessageHost({
+      await expect(() => adapter.parseRequest(HttpRequestMessage.create({
             method: 'GET',
             url: '/BestCustomer?$omit=address.x1'
           }))
-      ).rejects.toThrow('Unknown element "address.x1"');
+      ).rejects.toThrow('Unknown field "address.x1"');
     })
 
     it('Should validate if fields in "include" option are exist', async () => {
-      await expect(() => adapter.parseRequest(new HttpRequestMessageHost({
+      await expect(() => adapter.parseRequest(HttpRequestMessage.create({
             method: 'GET',
             url: '/BestCustomer?$include=address.x1'
           }))
-      ).rejects.toThrow('Unknown element "address.x1"');
+      ).rejects.toThrow('Unknown field "address.x1"');
     })
 
     it('Should allow unknown fields in "pick" option if additionalFields set to "true"', async () => {
-      const request = await adapter.parseRequest(new HttpRequestMessageHost({
+      const request = await adapter.parseRequest(HttpRequestMessage.create({
         method: 'GET',
         url: '/BestCustomer?$pick=notes.add1,notes.add2.add3'
       }));
@@ -160,7 +160,7 @@ describe('OpraHttpAdapter parse Singleton requests', function () {
     })
 
     it('Should allow unknown fields in "omit" option if additionalFields set to "true"', async () => {
-      const request = await adapter.parseRequest(new HttpRequestMessageHost({
+      const request = await adapter.parseRequest(HttpRequestMessage.create({
         method: 'GET',
         url: '/BestCustomer?$omit=notes.add1,notes.add2.add3'
       }));
@@ -170,7 +170,7 @@ describe('OpraHttpAdapter parse Singleton requests', function () {
     })
 
     it('Should allow unknown fields in "include" option if additionalFields set to "true"', async () => {
-      const request = await adapter.parseRequest(new HttpRequestMessageHost({
+      const request = await adapter.parseRequest(HttpRequestMessage.create({
         method: 'GET',
         url: '/BestCustomer?$include=notes.add1,notes.add2.add3'
       }));
@@ -186,7 +186,7 @@ describe('OpraHttpAdapter parse Singleton requests', function () {
 
     it('Should parse request', async () => {
       const request = await adapter.parseRequest(
-          new HttpRequestMessageHost({
+          HttpRequestMessage.create({
             method: 'POST',
             url: '/BestCustomer',
             body: {name: 'John'},
@@ -207,8 +207,8 @@ describe('OpraHttpAdapter parse Singleton requests', function () {
       expect(request.switchToHttp().headers.accept).toStrictEqual('application/json');
     })
 
-    it('Should normalize element names in "pick" option', async () => {
-      let request = await adapter.parseRequest(new HttpRequestMessageHost({
+    it('Should normalize field names in "pick" option', async () => {
+      let request = await adapter.parseRequest(HttpRequestMessage.create({
         method: 'POST',
         url: '/BestCustomer?$pick=givenname,GENDER,AdDRess.CIty',
         body: {id: 1},
@@ -217,7 +217,7 @@ describe('OpraHttpAdapter parse Singleton requests', function () {
       expect(request).toBeDefined();
       expect(request.operation).toStrictEqual('create');
       expect(request.args.pick).toStrictEqual(['givenName', 'gender', 'address.city']);
-      request = await adapter.parseRequest(new HttpRequestMessageHost({
+      request = await adapter.parseRequest(HttpRequestMessage.create({
         method: 'POST',
         url: '/BestCustomer?$pick=address,address.city',
         body: {id: 1},
@@ -225,7 +225,7 @@ describe('OpraHttpAdapter parse Singleton requests', function () {
       }));
       expect(request.operation).toStrictEqual('create');
       expect(request.args.pick).toStrictEqual(['address']);
-      request = await adapter.parseRequest(new HttpRequestMessageHost({
+      request = await adapter.parseRequest(HttpRequestMessage.create({
         method: 'POST',
         url: '/BestCustomer?$pick=address.city,address',
         body: {id: 1},
@@ -235,8 +235,8 @@ describe('OpraHttpAdapter parse Singleton requests', function () {
       expect(request.args.pick).toStrictEqual(['address']);
     })
 
-    it('Should normalize element names in "omit" option', async () => {
-      let request = await adapter.parseRequest(new HttpRequestMessageHost({
+    it('Should normalize field names in "omit" option', async () => {
+      let request = await adapter.parseRequest(HttpRequestMessage.create({
         method: 'POST',
         url: '/BestCustomer?$omit=givenname,GENDER,AdDRess.CIty',
         body: {id: 1},
@@ -245,7 +245,7 @@ describe('OpraHttpAdapter parse Singleton requests', function () {
       expect(request).toBeDefined();
       expect(request.operation).toStrictEqual('create');
       expect(request.args.omit).toStrictEqual(['givenName', 'gender', 'address.city']);
-      request = await adapter.parseRequest(new HttpRequestMessageHost({
+      request = await adapter.parseRequest(HttpRequestMessage.create({
         method: 'POST',
         url: '/BestCustomer?$omit=address,address.city',
         body: {id: 1},
@@ -253,7 +253,7 @@ describe('OpraHttpAdapter parse Singleton requests', function () {
       }));
       expect(request.operation).toStrictEqual('create');
       expect(request.args.omit).toStrictEqual(['address']);
-      request = await adapter.parseRequest(new HttpRequestMessageHost({
+      request = await adapter.parseRequest(HttpRequestMessage.create({
         method: 'POST',
         url: '/BestCustomer?$omit=address.city,address',
         body: {id: 1},
@@ -263,8 +263,8 @@ describe('OpraHttpAdapter parse Singleton requests', function () {
       expect(request.args.omit).toStrictEqual(['address']);
     })
 
-    it('Should normalize element names in "include" option', async () => {
-      let request = await adapter.parseRequest(new HttpRequestMessageHost({
+    it('Should normalize field names in "include" option', async () => {
+      let request = await adapter.parseRequest(HttpRequestMessage.create({
         method: 'POST',
         url: '/BestCustomer?$include=givenname,GENDER,AdDRess.CIty',
         body: {id: 1},
@@ -273,7 +273,7 @@ describe('OpraHttpAdapter parse Singleton requests', function () {
       expect(request).toBeDefined();
       expect(request.operation).toStrictEqual('create');
       expect(request.args.include).toStrictEqual(['givenName', 'gender', 'address.city']);
-      request = await adapter.parseRequest(new HttpRequestMessageHost({
+      request = await adapter.parseRequest(HttpRequestMessage.create({
         method: 'POST',
         url: '/BestCustomer?$include=address,address.city',
         body: {id: 1},
@@ -281,7 +281,7 @@ describe('OpraHttpAdapter parse Singleton requests', function () {
       }));
       expect(request.operation).toStrictEqual('create');
       expect(request.args.include).toStrictEqual(['address']);
-      request = await adapter.parseRequest(new HttpRequestMessageHost({
+      request = await adapter.parseRequest(HttpRequestMessage.create({
         method: 'POST',
         url: '/BestCustomer?$include=address.city,address'
       }));
@@ -290,37 +290,37 @@ describe('OpraHttpAdapter parse Singleton requests', function () {
     })
 
     it('Should validate if fields in "pick" option are exist', async () => {
-      await expect(() => adapter.parseRequest(new HttpRequestMessageHost({
+      await expect(() => adapter.parseRequest(HttpRequestMessage.create({
             method: 'POST',
             url: '/BestCustomer?$pick=address.x1',
             body: {id: 1},
             headers: {'content-type': 'application/json'}
           }))
-      ).rejects.toThrow('Unknown element "address.x1"');
+      ).rejects.toThrow('Unknown field "address.x1"');
     })
 
     it('Should validate if fields in "omit" option are exist', async () => {
-      await expect(() => adapter.parseRequest(new HttpRequestMessageHost({
+      await expect(() => adapter.parseRequest(HttpRequestMessage.create({
             method: 'POST',
             url: '/BestCustomer?$omit=address.x1',
             body: {id: 1},
             headers: {'content-type': 'application/json'}
           }))
-      ).rejects.toThrow('Unknown element "address.x1"');
+      ).rejects.toThrow('Unknown field "address.x1"');
     })
 
     it('Should validate if fields in "include" option are exist', async () => {
-      await expect(() => adapter.parseRequest(new HttpRequestMessageHost({
+      await expect(() => adapter.parseRequest(HttpRequestMessage.create({
             method: 'POST',
             url: '/BestCustomer?$include=address.x1',
             body: {id: 1},
             headers: {'content-type': 'application/json'}
           }))
-      ).rejects.toThrow('Unknown element "address.x1"');
+      ).rejects.toThrow('Unknown field "address.x1"');
     })
 
     it('Should allow unknown fields in "pick" option if additionalFields set to "true"', async () => {
-      const request = await adapter.parseRequest(new HttpRequestMessageHost({
+      const request = await adapter.parseRequest(HttpRequestMessage.create({
         method: 'POST',
         url: '/BestCustomer?$pick=notes.add1,notes.add2.add3',
         body: {id: 1},
@@ -332,7 +332,7 @@ describe('OpraHttpAdapter parse Singleton requests', function () {
     })
 
     it('Should allow unknown fields in "omit" option if additionalFields set to "true"', async () => {
-      const request = await adapter.parseRequest(new HttpRequestMessageHost({
+      const request = await adapter.parseRequest(HttpRequestMessage.create({
         method: 'POST',
         url: '/BestCustomer?$omit=notes.add1,notes.add2.add3',
         body: {id: 1},
@@ -344,7 +344,7 @@ describe('OpraHttpAdapter parse Singleton requests', function () {
     })
 
     it('Should allow unknown fields in "include" option if additionalFields set to "true"', async () => {
-      const request = await adapter.parseRequest(new HttpRequestMessageHost({
+      const request = await adapter.parseRequest(HttpRequestMessage.create({
         method: 'POST',
         url: '/BestCustomer?$include=notes.add1,notes.add2.add3',
         body: {id: 1},
@@ -361,7 +361,7 @@ describe('OpraHttpAdapter parse Singleton requests', function () {
 
     it('Should parse request', async () => {
       const request = await adapter.parseRequest(
-          new HttpRequestMessageHost({
+          HttpRequestMessage.create({
             method: 'PATCH',
             url: '/BestCustomer',
             body: {name: 'John'},
@@ -382,8 +382,8 @@ describe('OpraHttpAdapter parse Singleton requests', function () {
       expect(request.switchToHttp().headers.accept).toStrictEqual('application/json');
     })
 
-    it('Should normalize element names in "pick" option', async () => {
-      let request = await adapter.parseRequest(new HttpRequestMessageHost({
+    it('Should normalize field names in "pick" option', async () => {
+      let request = await adapter.parseRequest(HttpRequestMessage.create({
         method: 'PATCH',
         url: '/BestCustomer?$pick=givenname,GENDER,AdDRess.CIty',
         body: {id: 1},
@@ -391,13 +391,13 @@ describe('OpraHttpAdapter parse Singleton requests', function () {
       expect(request).toBeDefined();
       expect(request.operation).toStrictEqual('update');
       expect(request.args.pick).toStrictEqual(['givenName', 'gender', 'address.city']);
-      request = await adapter.parseRequest(new HttpRequestMessageHost({
+      request = await adapter.parseRequest(HttpRequestMessage.create({
         method: 'PATCH',
         url: '/BestCustomer?$pick=address,address.city'
       }));
       expect(request.operation).toStrictEqual('update');
       expect(request.args.pick).toStrictEqual(['address']);
-      request = await adapter.parseRequest(new HttpRequestMessageHost({
+      request = await adapter.parseRequest(HttpRequestMessage.create({
         method: 'PATCH',
         url: '/BestCustomer?$pick=address.city,address',
         body: {id: 1},
@@ -406,8 +406,8 @@ describe('OpraHttpAdapter parse Singleton requests', function () {
       expect(request.args.pick).toStrictEqual(['address']);
     })
 
-    it('Should normalize element names in "omit" option', async () => {
-      let request = await adapter.parseRequest(new HttpRequestMessageHost({
+    it('Should normalize field names in "omit" option', async () => {
+      let request = await adapter.parseRequest(HttpRequestMessage.create({
         method: 'PATCH',
         url: '/BestCustomer?$omit=givenname,GENDER,AdDRess.CIty',
         body: {id: 1},
@@ -415,14 +415,14 @@ describe('OpraHttpAdapter parse Singleton requests', function () {
       expect(request).toBeDefined();
       expect(request.operation).toStrictEqual('update');
       expect(request.args.omit).toStrictEqual(['givenName', 'gender', 'address.city']);
-      request = await adapter.parseRequest(new HttpRequestMessageHost({
+      request = await adapter.parseRequest(HttpRequestMessage.create({
         method: 'PATCH',
         url: '/BestCustomer?$omit=address,address.city',
         body: {id: 1},
       }));
       expect(request.operation).toStrictEqual('update');
       expect(request.args.omit).toStrictEqual(['address']);
-      request = await adapter.parseRequest(new HttpRequestMessageHost({
+      request = await adapter.parseRequest(HttpRequestMessage.create({
         method: 'PATCH',
         url: '/BestCustomer?$omit=address.city,address',
         body: {id: 1},
@@ -431,8 +431,8 @@ describe('OpraHttpAdapter parse Singleton requests', function () {
       expect(request.args.omit).toStrictEqual(['address']);
     })
 
-    it('Should normalize element names in "include" option', async () => {
-      let request = await adapter.parseRequest(new HttpRequestMessageHost({
+    it('Should normalize field names in "include" option', async () => {
+      let request = await adapter.parseRequest(HttpRequestMessage.create({
         method: 'PATCH',
         url: '/BestCustomer?$include=givenname,GENDER,AdDRess.CIty',
         body: {id: 1},
@@ -440,14 +440,14 @@ describe('OpraHttpAdapter parse Singleton requests', function () {
       expect(request).toBeDefined();
       expect(request.operation).toStrictEqual('update');
       expect(request.args.include).toStrictEqual(['givenName', 'gender', 'address.city']);
-      request = await adapter.parseRequest(new HttpRequestMessageHost({
+      request = await adapter.parseRequest(HttpRequestMessage.create({
         method: 'PATCH',
         url: '/BestCustomer?$include=address,address.city',
         body: {id: 1},
       }));
       expect(request.operation).toStrictEqual('update');
       expect(request.args.include).toStrictEqual(['address']);
-      request = await adapter.parseRequest(new HttpRequestMessageHost({
+      request = await adapter.parseRequest(HttpRequestMessage.create({
         method: 'PATCH',
         url: '/BestCustomer?$include=address.city,address',
         body: {id: 1},
@@ -457,34 +457,34 @@ describe('OpraHttpAdapter parse Singleton requests', function () {
     })
 
     it('Should validate if fields in "pick" option are exist', async () => {
-      await expect(() => adapter.parseRequest(new HttpRequestMessageHost({
+      await expect(() => adapter.parseRequest(HttpRequestMessage.create({
             method: 'PATCH',
             url: '/BestCustomer?$pick=address.x1',
             body: {id: 1},
           }))
-      ).rejects.toThrow('Unknown element "address.x1"');
+      ).rejects.toThrow('Unknown field "address.x1"');
     })
 
     it('Should validate if fields in "omit" option are exist', async () => {
-      await expect(() => adapter.parseRequest(new HttpRequestMessageHost({
+      await expect(() => adapter.parseRequest(HttpRequestMessage.create({
             method: 'PATCH',
             url: '/BestCustomer?$omit=address.x1',
             body: {id: 1},
           }))
-      ).rejects.toThrow('Unknown element "address.x1"');
+      ).rejects.toThrow('Unknown field "address.x1"');
     })
 
     it('Should validate if fields in "include" option are exist', async () => {
-      await expect(() => adapter.parseRequest(new HttpRequestMessageHost({
+      await expect(() => adapter.parseRequest(HttpRequestMessage.create({
             method: 'PATCH',
             url: '/BestCustomer?$include=address.x1',
             body: {id: 1},
           }))
-      ).rejects.toThrow('Unknown element "address.x1"');
+      ).rejects.toThrow('Unknown field "address.x1"');
     })
 
     it('Should allow unknown fields in "pick" option if additionalFields set to "true"', async () => {
-      const request = await adapter.parseRequest(new HttpRequestMessageHost({
+      const request = await adapter.parseRequest(HttpRequestMessage.create({
         method: 'PATCH',
         url: '/BestCustomer?$pick=notes.add1,notes.add2.add3',
         body: {id: 1},
@@ -495,7 +495,7 @@ describe('OpraHttpAdapter parse Singleton requests', function () {
     })
 
     it('Should allow unknown fields in "omit" option if additionalFields set to "true"', async () => {
-      const request = await adapter.parseRequest(new HttpRequestMessageHost({
+      const request = await adapter.parseRequest(HttpRequestMessage.create({
         method: 'PATCH',
         url: '/BestCustomer?$omit=notes.add1,notes.add2.add3',
         body: {id: 1},
@@ -506,7 +506,7 @@ describe('OpraHttpAdapter parse Singleton requests', function () {
     })
 
     it('Should allow unknown fields in "include" option if additionalFields set to "true"', async () => {
-      const request = await adapter.parseRequest(new HttpRequestMessageHost({
+      const request = await adapter.parseRequest(HttpRequestMessage.create({
         method: 'PATCH',
         url: '/BestCustomer?$include=notes.add1,notes.add2.add3',
         body: {id: 1},
@@ -522,7 +522,7 @@ describe('OpraHttpAdapter parse Singleton requests', function () {
 
     it('Should parse request', async () => {
       const request = await adapter.parseRequest(
-          new HttpRequestMessageHost({
+          HttpRequestMessage.create({
             method: 'DELETE',
             url: '/BestCustomer',
             headers: {'Accept': 'application/json'}

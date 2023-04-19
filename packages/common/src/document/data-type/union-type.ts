@@ -35,7 +35,7 @@ export namespace UnionType {
  * @type UnionType
  */
 export interface UnionType extends StrictOmit<DataType, 'own' | 'exportSchema'>,
-    Pick<ComplexType, 'additionalElements' | 'elements'>, UnionType.OwnProperties {
+    Pick<ComplexType, 'additionalFields' | 'fields'>, UnionType.OwnProperties {
   readonly own: UnionType.OwnProperties;
 
   exportSchema(): OpraSchema.UnionType;
@@ -84,7 +84,7 @@ export const UnionType = function (
 
   const [, init] = args as [never, UnionType.InitArguments];
   const _this = this as Writable<UnionType>;
-  _this.elements = new ResponsiveMap();
+  _this.fields = new ResponsiveMap();
   const own = _this.own as Writable<UnionType.OwnProperties>
   own.types = [];
 
@@ -93,9 +93,9 @@ export const UnionType = function (
       throw new TypeError(`${OpraSchema.UnionType.Kind} shall contain ${OpraSchema.ComplexType.Kind}, ` +
           `${OpraSchema.UnionType.Kind} of ${OpraSchema.MappedType.Kind} types.`);
     own.types.push(base);
-    if (base.additionalElements)
-      _this.additionalElements = true;
-    _this.elements.setAll(base.elements);
+    if (base.additionalFields)
+      _this.additionalFields = true;
+    _this.fields.setAll(base.fields);
   }
 
   _this.kind = 'UnionType';

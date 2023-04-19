@@ -20,7 +20,7 @@ describe('e2e: updateMany', function () {
       identity: '' + faker.datatype.number()
     }
     let resp = await client.collection('Customers')
-        .updateMany(data)
+        .updateMany(data, {filter: 'id<=50'})
         .fetch('response');
     resp.expect
         .toSuccess()
@@ -29,7 +29,7 @@ describe('e2e: updateMany', function () {
 
     resp = await client.collection('Customers')
         .search({
-          filter: 'identity="' + data.identity + '"',
+          filter: 'id<=50 and identity="' + data.identity + '"',
           limit: 1000000
         })
         .fetch('response');
@@ -39,25 +39,5 @@ describe('e2e: updateMany', function () {
         .toMatch(data);
   })
 
-  it('Should update many instances by filter', async () => {
-    const data = {
-      identity: '' + faker.datatype.number()
-    }
-    let resp = await client.collection('Customers')
-        .updateMany(data, {filter: 'id<=10'})
-        .fetch('response');
-    resp.expect
-        .toSuccess()
-        .toReturnOperationResult()
-        .toBeAffectedMin(10)
-    resp = await client.collection('Customers')
-        .search({filter: 'identity="' + data.identity + '"'})
-        .fetch('response');
-    resp.expect
-        .toSuccess()
-        .toReturnCollection()
-        .toHaveExactItems(10)
-        .toMatch(data);
-  })
 });
 

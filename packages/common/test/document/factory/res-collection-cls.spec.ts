@@ -1,5 +1,4 @@
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
-import '@opra/sqb';
 import {
   Collection,
   DocumentFactory,

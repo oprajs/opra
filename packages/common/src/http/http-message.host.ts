@@ -1,4 +1,5 @@
 import { HeaderInfo, HTTPParser, ParserType } from 'http-parser-js';
+import stream from 'stream';
 import { HttpHeaders } from './http-headers.js';
 
 const kHeaders = Symbol('kHeaders');
@@ -11,7 +12,25 @@ const kOnBodyChunk = Symbol('kOnBodyChunk');
 const kOnReadComplete = Symbol('kOnReadComplete');
 const crlfBuffer = Buffer.from('\r\n');
 
-export namespace HttpMessageHost {
+const HTTP_VERSION_PATTERN = /^(\d)\.(\d)$/;
+
+export interface HttpMessage {
+  httpVersion?: string;
+  httpVersionMajor?: number;
+  httpVersionMinor?: number;
+  headers?: any;
+  trailers?: any;
+  rawHeaders?: string[];
+  rawTrailers?: string[];
+  body?: any;
+  complete?: boolean;
+  upgrade?: boolean;
+
+  end(body?: any): this;
+  send(body: any): this;
+}
+
+export namespace HttpMessage {
   export interface Initiator {
     httpVersionMajor?: number;
     httpVersionMinor?: number;
@@ -23,7 +42,11 @@ export namespace HttpMessageHost {
   }
 }
 
-export abstract class HttpMessageHost {
+export interface HttpMessageHost extends stream.Duplex {
+
+}
+
+export abstract class HttpMessageHost implements HttpMessage {
   static kHeaders = kHeaders;
   static kHeadersProxy = kHeadersProxy;
   static kTrailers = kTrailers;
@@ -37,43 +60,45 @@ export abstract class HttpMessageHost {
   protected [kHeadersProxy]: any;
   protected [kTrailers]: HttpHeaders;
   protected [kTrailersProxy]: any;
-  protected _httpVersion: string;
-  protected _httpVersionMajor: number;
-  protected _httpVersionMinor: number;
+  protected _bodyChunks?: Buffer[];
   protected _rawHeaders?: string[];
   protected _rawTrailers?: string[];
   protected _headersChanged?: boolean;
   protected _trailersChanged?: boolean;
+  httpVersionMajor?: number;
+  httpVersionMinor?: number;
   shouldKeepAlive?: boolean;
-  protected _upgrade?: boolean;
-  protected _bodyChunks?: Buffer[];
-  protected _body?: Buffer | ArrayBuffer;
-  protected _complete: boolean = false;
+  complete: boolean = false;
+  upgrade?: boolean;
+  body?: Buffer | ArrayBuffer;
 
-  protected constructor(init: HttpMessageHost.Initiator | Buffer | ArrayBuffer, parserType: ParserType) {
+  protected constructor() {
+    stream.Duplex.apply(this);
     this[kHeaders] = new HttpHeaders(undefined, {
       onChange: () => this._headersChanged = true
     });
     this[kTrailers] = new HttpHeaders(undefined, {
       onChange: () => this._trailersChanged = true
     });
-    this._init(init, parserType);
   }
 
-  get complete(): boolean {
-    return this._complete;
+  get httpVersion(): string | undefined {
+    return this.httpVersionMajor
+        ? this.httpVersionMajor + '.' + (this.httpVersionMinor || 0)
+        : undefined;
   }
 
-  get httpVersionMajor(): number {
-    return this._httpVersionMajor;
-  }
-
-  get httpVersionMinor(): number {
-    return this._httpVersionMinor;
-  }
-
-  get httpVersion(): string {
-    return this._httpVersion;
+  set httpVersion(value: string | undefined) {
+    if (value) {
+      const m = HTTP_VERSION_PATTERN.exec(value);
+      if (!m)
+        throw new TypeError(`Invalid http version string (${value})`);
+      this.httpVersionMajor = parseInt(m[1], 10);
+      this.httpVersionMinor = parseInt(m[2], 10);
+    } else {
+      this.httpVersionMajor = undefined;
+      this.httpVersionMinor = undefined;
+    }
   }
 
   get headers(): any {
@@ -81,9 +106,19 @@ export abstract class HttpMessageHost {
     return this[kHeadersProxy];
   }
 
+  set headers(headers: any) {
+    this[kHeaders].clear();
+    this[kHeaders].set(headers);
+  }
+
   get trailers(): any {
     this._initTrailers();
     return this[kTrailersProxy];
+  }
+
+  set trailers(trailers: any) {
+    this[kTrailers].clear();
+    this[kTrailers].set(trailers);
   }
 
   get rawHeaders(): string[] {
@@ -106,20 +141,6 @@ export abstract class HttpMessageHost {
     this[kTrailersProxy] = undefined;
     this._trailersChanged = false;
     this._rawTrailers = trailers;
-  }
-
-  get body(): any | undefined {
-    if (!this.complete)
-      throw new Error('Message has not been completed yet');
-    if (!this._body && this._bodyChunks) {
-      this._body = Buffer.concat(this._bodyChunks);
-      this._bodyChunks = undefined;
-    }
-    return this._body;
-  }
-
-  get upgrade(): boolean | undefined {
-    return this._upgrade;
   }
 
   getHeader(name: 'set-cookie' | 'Set-Cookie'): string[] | undefined
@@ -203,40 +224,41 @@ export abstract class HttpMessageHost {
     this[kHeaders].delete(name);
   }
 
+  send(body: any): this {
+    this.body = body;
+    return this;
+  }
+
+  end(body?: any): this {
+    if (body)
+      this.body = body;
+    return this;
+  }
 
   setTimeout() {
     return this;
   }
 
-  protected _init(init: HttpMessageHost.Initiator | Buffer | ArrayBuffer, parserType: ParserType) {
-    if (Buffer.isBuffer(init) || init instanceof ArrayBuffer) {
-      this._parseBuffer(init, parserType);
-    } else {
-      this._assign(init);
-      this._complete = true;
-    }
-  }
-
-  protected _assign(args: HttpMessageHost.Initiator) {
-    this._httpVersionMajor = args?.httpVersionMajor ?? 1;
-    this._httpVersionMinor = args?.httpVersionMinor ?? 1;
-    this._httpVersion = this._httpVersionMajor + '.' + this._httpVersionMinor;
+  protected _init(args: HttpMessage.Initiator) {
+    this.complete = true;
+    this.httpVersionMajor = args?.httpVersionMajor;
+    this.httpVersionMinor = args?.httpVersionMinor;
     this._rawHeaders = args.rawHeaders;
     this._rawTrailers = args.rawTrailers;
     if (args.headers)
       this[kHeaders].set(args.headers);
     if (args.trailers)
       this[kTrailers].set(args.trailers);
-    this._body = args.body;
+    this.body = args.body;
   }
 
-  protected _parseBuffer(init: Buffer | ArrayBuffer, parserType: ParserType) {
+  protected _parseBuffer(buf: Buffer | ArrayBuffer, parserType: ParserType) {
     const parser = new HTTPParser(parserType);
     parser[HTTPParser.kOnHeadersComplete] = this[kOnHeaderReceived].bind(this);
     parser[HTTPParser.kOnBody] = this[kOnBodyChunk].bind(this);
     parser[HTTPParser.kOnHeaders] = this[kOnTrailersReceived].bind(this);
     parser[HTTPParser.kOnMessageComplete] = this[kOnReadComplete].bind(this);
-    const buffer: Buffer = Buffer.from(init);
+    const buffer: Buffer = Buffer.from(buf);
     let x = parser.execute(buffer);
     if (typeof x === 'object') throw x;
     if (!this.complete) {
@@ -303,12 +325,11 @@ export abstract class HttpMessageHost {
   }
 
   protected [kOnHeaderReceived](info: HeaderInfo) {
-    this._httpVersionMajor = info.versionMajor;
-    this._httpVersionMinor = info.versionMinor;
-    this._httpVersion = this._httpVersionMajor + '.' + this._httpVersionMinor;
+    this.httpVersionMajor = info.versionMajor;
+    this.httpVersionMinor = info.versionMinor;
     this._rawHeaders = info.headers;
     this.shouldKeepAlive = info.shouldKeepAlive;
-    this._upgrade = info.upgrade;
+    this.upgrade = info.upgrade;
   }
 
   protected [kOnTrailersReceived](trailers: string[]) {
@@ -321,7 +342,14 @@ export abstract class HttpMessageHost {
   }
 
   protected [kOnReadComplete]() {
-    this._complete = true;
+    this.complete = true;
+    if (this._bodyChunks) {
+      this.body = Buffer.concat(this._bodyChunks);
+      this._bodyChunks = undefined;
+    }
   }
 
 }
+
+// Mixin with Duplex
+Object.assign(HttpMessageHost.prototype, stream.Duplex.prototype);

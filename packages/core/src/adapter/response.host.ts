@@ -6,6 +6,7 @@ export namespace ResponseHost {
     value?: any;
     errors?: Error[];
     continueOnError?: boolean;
+    count?: number;
   }
 }
 
@@ -13,6 +14,7 @@ export abstract class ResponseHost implements Response {
   value?: any;
   errors: Error[];
   continueOnError?: boolean;
+  count?: number;
 
   protected constructor(init: ResponseHost.Initiator) {
     if (init)

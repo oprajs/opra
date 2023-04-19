@@ -1,5 +1,4 @@
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
-import '@opra/sqb';
 import {
   DocumentFactory,
   MappedType,
@@ -17,10 +16,10 @@ describe('DocumentFactory - MappedType with schema object', function () {
     }
   };
 
-  it('Should MappedType(pick) extend given ComplexType and pick given elements only', async () => {
+  it('Should MappedType(pick) extend given ComplexType and pick given fields only', async () => {
     const type1: OpraSchema.ComplexType = {
       kind: 'ComplexType',
-      elements: {
+      fields: {
         id: 'number',
         name: 'string',
         age: 'number',
@@ -46,13 +45,13 @@ describe('DocumentFactory - MappedType with schema object', function () {
     expect(t1.type).toBeDefined();
     expect(t1.type.name).toStrictEqual('type1');
     expect(t1.pick).toStrictEqual(['id', 'name']);
-    expect(Array.from(t1.elements.keys())).toStrictEqual(['id', 'name']);
+    expect(Array.from(t1.fields.keys())).toStrictEqual(['id', 'name']);
   })
 
-  it('Should MappedType(omit) extend given ComplexType and omit given elements', async () => {
+  it('Should MappedType(omit) extend given ComplexType and omit given fields', async () => {
     const type1: OpraSchema.ComplexType = {
       kind: 'ComplexType',
-      elements: {
+      fields: {
         id: 'number',
         name: 'string',
         age: 'number',
@@ -78,7 +77,7 @@ describe('DocumentFactory - MappedType with schema object', function () {
     expect(t1.type).toBeDefined();
     expect(t1.type.name).toStrictEqual('type1');
     expect(t1.omit).toStrictEqual(['gender', 'age']);
-    expect(Array.from(t1.elements.keys())).toStrictEqual(['id', 'name']);
+    expect(Array.from(t1.fields.keys())).toStrictEqual(['id', 'name']);
   })
 
 });

@@ -3,9 +3,9 @@ import cors from 'cors';
 import express from 'express';
 import { DocumentFactory } from '@opra/common';
 import { OpraExpressAdapter } from '@opra/core';
+import { GenderEnum } from './enums/gender.enum.js';
 import { BestCustomerResource } from './resource/best-customer.resource.js';
 import { CustomersResource } from './resource/customers.resource.js';
-import { GenderEnum } from './enums/gender.enum.js';
 
 async function run() {
   console.log(OpraExpressAdapter);

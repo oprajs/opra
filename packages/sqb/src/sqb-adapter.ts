@@ -111,7 +111,7 @@ export namespace SQBAdapter {
         limit: args.limit,
         offset: args.skip,
         distinct: args.distinct,
-        total: args.count,
+        count: args.count,
         filter: parseFilter(args.filter)
       }, isNil)
     };

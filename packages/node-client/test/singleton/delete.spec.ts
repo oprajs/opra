@@ -31,7 +31,7 @@ describe('Singleton.delete', function () {
     expect(resp).toBeInstanceOf(HttpResponse);
   });
 
-  it.only('Should subscribe events', (done) => {
+  it('Should subscribe events', (done) => {
     const expectedEvents = ['sent', 'headers-received', 'response'];
     const receivedEvents: string[] = [];
     client.singleton('BestCustomer').delete({observe: 'events'}).subscribe({

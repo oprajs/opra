@@ -1,15 +1,15 @@
-import { ComplexType, Expose } from '@opra/common';
+import { ComplexField, ComplexType } from '@opra/common';
 
 @ComplexType({
   description: 'Address information',
-  additionalElements: true
+  additionalFields: true
 })
 export class Note {
 
-  @Expose()
+  @ComplexField()
   title: string;
 
-  @Expose()
+  @ComplexField()
   text: string;
 
 }

@@ -3,7 +3,7 @@ import { ComplexType } from '../complex-type.js';
 @ComplexType({
   name: 'object',
   description: 'A non modelled object',
-  additionalElements: true
+  additionalFields: true
 })
 export class ObjectType {
 

@@ -16,8 +16,8 @@ import {
 } from './import-resource-class.js';
 import {
   extractComplexTypeSchema,
-  extractElementSchema,
   extractEnumTypeSchema,
+  extractFieldSchema,
   extractMappedTypeSchema,
   extractSimpleTypeSchema,
   extractUnionTypeSchema,
@@ -66,7 +66,7 @@ export class DocumentFactory {
   protected extractMappedTypeSchema: typeof extractMappedTypeSchema;
   protected extractUnionTypeSchema: typeof extractUnionTypeSchema;
   protected extractEnumTypeSchema: typeof extractEnumTypeSchema;
-  protected extractElementSchema: typeof extractElementSchema;
+  protected extractFieldSchema: typeof extractFieldSchema;
   protected processTypes: typeof processTypes;
   protected createDataTypeInstance: typeof createDataTypeInstance;
   protected addDataType: typeof addDataType;
@@ -105,7 +105,7 @@ export class DocumentFactory {
     DocumentFactory.prototype.extractMappedTypeSchema = extractMappedTypeSchema;
     DocumentFactory.prototype.extractUnionTypeSchema = extractUnionTypeSchema;
     DocumentFactory.prototype.extractEnumTypeSchema = extractEnumTypeSchema;
-    DocumentFactory.prototype.extractElementSchema = extractElementSchema;
+    DocumentFactory.prototype.extractFieldSchema = extractFieldSchema;
     DocumentFactory.prototype.processTypes = processTypes;
     DocumentFactory.prototype.createDataTypeInstance = createDataTypeInstance;
     DocumentFactory.prototype.addDataType = addDataType;

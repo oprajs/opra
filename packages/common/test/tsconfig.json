@@ -4,9 +4,7 @@
   "compilerOptions": {
     "baseUrl": "./",
     "paths": {
-      "@opra/common": ["../src"],
-      "@opra/core": ["../../core/src"],
-      "@opra/sqb": ["../../sqb/src"]
+      "@opra/common": ["../src"]
     }
   }
 }

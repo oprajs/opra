@@ -3,8 +3,8 @@ import { OpraURL } from '../../src/index.js';
 describe('URL build', () => {
 
   it('Should set hostname', () => {
-    const u = new OpraURL()
-        .setHostname('www.anyuri.com');
+    const u = new OpraURL();
+    u.hostname = 'www.anyuri.com';
     expect(u.href).toStrictEqual('http://www.anyuri.com');
     u.hostname = 'www.anyurl.org';
     expect(u.hostname).toStrictEqual('www.anyurl.org');
@@ -23,8 +23,8 @@ describe('URL build', () => {
     expect(u.protocol).toStrictEqual('git-ssh:');
     u.protocol = 'https:';
     expect(u.protocol).toStrictEqual('https:');
-    u.setProtocol('https')
-        .setHostname('www.anyuri.com');
+    u.protocol = 'https';
+    u.hostname = 'www.anyuri.com';
     expect(u.href).toStrictEqual('https://www.anyuri.com');
   })
 
@@ -34,25 +34,25 @@ describe('URL build', () => {
   })
 
   it('Should set port', () => {
-    const u = new OpraURL()
-        .setHostname('www.anyuri.com')
-        .setPort(81);
+    const u = new OpraURL();
+    u.hostname = 'www.anyuri.com';
+    u.port = 81;
     expect(u.href).toStrictEqual('http://www.anyuri.com:81');
-    u.setPort(1234);
+    u.port = '1234';
     expect(u.port).toStrictEqual('1234');
-    u.setPort(null);
+    u.port = '';
     expect(u.port).toStrictEqual('');
   })
 
   it('Should validate port', () => {
     const u = new OpraURL();
-    expect(() => u.setPort(-1)).toThrow('Invalid');
-    expect(() => u.setPort(35536)).toThrow('Invalid');
+    expect(() => u.port = -1).toThrow('Invalid');
+    expect(() => u.port = 35536).toThrow('Invalid');
   })
 
   it('Should set host', () => {
-    const u = new OpraURL()
-        .setHost('www.anyuri.com:81');
+    const u = new OpraURL();
+    u.host = 'www.anyuri.com:81';
     expect(u.href).toStrictEqual('http://www.anyuri.com:81');
     u.host = 'www.anyurl.org:82';
     expect(u.hostname).toStrictEqual('www.anyurl.org');
@@ -64,12 +64,12 @@ describe('URL build', () => {
 
   it('Should validate host', () => {
     const u = new OpraURL();
-    expect(() => u.setHost('htp:invalidUrl')).toThrow('Invalid host');
+    expect(() => u.host = 'htp:invalidUrl').toThrow('Invalid host');
   })
 
   it('Should set prefix', () => {
     const u = new OpraURL();
-    u.setPrefix('/api/v1');
+    u.prefix = '/api/v1';
     expect(u.href).toStrictEqual('/api/v1');
     u.prefix = 'api/v2/';
     expect(u.prefix).toStrictEqual('/api/v2');
@@ -86,9 +86,9 @@ describe('URL build', () => {
   })
 
   it('Should set pathname', () => {
-    const u = new OpraURL()
-        .setPrefix('api/v1')
-        .setPathname('Person');
+    const u = new OpraURL();
+    u.prefix = 'api/v1';
+    u.pathname = 'Person';
     expect(u.href).toStrictEqual('/api/v1/Person');
     u.pathname = 'a b%20';
     expect(u.pathname).toStrictEqual('/a%20b%20');
@@ -110,32 +110,16 @@ describe('URL build', () => {
   })
 
   it('Should set query', () => {
-    const u = new OpraURL()
-        .setSearch('prm1=&prm2=2');
+    const u = new OpraURL();
+    u.search = 'prm1=&prm2=2';
     expect(u.search).toStrictEqual('?prm1&prm2=2');
-  })
-
-  it('Should add search param', () => {
-    const u = new OpraURL()
-        .addParam('prm1')
-        .addParam('prm2', 2);
-    expect(u.searchParams.get('prm1')).toStrictEqual(null);
-    expect(u.searchParams.get('prm2')).toStrictEqual(2);
-    expect(u.search).toStrictEqual('?prm1&prm2=2');
-  })
-
-  it('Should set search param', () => {
-    const u = new OpraURL()
-        .addParam('prm1')
-        .setParam('prm1', 2);
-    expect(u.searchParams.get('prm1')).toStrictEqual(2);
-    expect(u.search).toStrictEqual('?prm1=2');
+    expect(u.searchParams.toString()).toStrictEqual('prm1&prm2=2');
   })
 
   it('Should set hash', () => {
-    const u = new OpraURL()
-        .setHash('hash')
-        .setHostname('www.anyuri.com');
+    const u = new OpraURL();
+    u.hash = 'hash';
+    u.hostname = 'www.anyuri.com';
     expect(u.href).toStrictEqual('http://www.anyuri.com#hash');
   })
 

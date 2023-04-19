@@ -1,4 +1,4 @@
-import { ComplexType, Expose } from '@opra/common';
+import { ComplexField, ComplexType } from '@opra/common';
 import { Column, DataType } from '@sqb/connect';
 import { GenderEnum } from '../enums/gender.enum.js';
 
@@ -7,19 +7,19 @@ import { GenderEnum } from '../enums/gender.enum.js';
 })
 export class Person {
 
-  @Expose()
+  @ComplexField()
   @Column({fieldName: 'given_name', notNull: true})
   givenName: string;
 
-  @Expose()
+  @ComplexField()
   @Column({fieldName: 'family_name', notNull: true})
   familyName: string;
 
-  @Expose({enum: GenderEnum})
+  @ComplexField({enum: GenderEnum})
   @Column({notNull: true})
   gender: string;
 
-  @Expose()
+  @ComplexField()
   @Column({fieldName: 'birth_name', dataType: DataType.DATE})
   birthDate: Date;
 }

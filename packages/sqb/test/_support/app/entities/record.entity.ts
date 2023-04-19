@@ -1,10 +1,10 @@
-import { ComplexType, Expose } from '@opra/common';
+import { ComplexField, ComplexType } from '@opra/common';
 import { Column, DataType, PrimaryKey } from '@sqb/connect';
 
 @ComplexType()
 export class Record {
 
-  @Expose()
+  @ComplexField()
   @Column({
     dataType: DataType.INTEGER,
     notNull: true
@@ -12,11 +12,11 @@ export class Record {
   @PrimaryKey()
   id: number;
 
-  @Expose()
+  @ComplexField()
   @Column()
   createdAt: Date;
 
-  @Expose()
+  @ComplexField()
   @Column()
   updatedAt?: Date;
 

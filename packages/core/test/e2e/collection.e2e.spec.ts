@@ -3,7 +3,7 @@ import express from 'express';
 import supertest from 'supertest';
 import { jest } from '@jest/globals'
 import { ApiDocument, Collection } from '@opra/common';
-import { ExecutionContext, OpraExpressAdapter } from '@opra/core';
+import { OpraExpressAdapter, RequestContext } from '@opra/core';
 import { createTestDocument } from '../_support/test-app/create-document.js';
 
 describe('e2e:Collection', function () {
@@ -30,7 +30,7 @@ describe('e2e:Collection', function () {
   })
 
   it('Should execute "create" endpoint', async () => {
-    let ctx!: ExecutionContext;
+    let ctx!: RequestContext;
     const mockFn =
         jest.spyOn(resource.operations.create!, 'handler')
             .mockImplementation((c) => ctx = c);
@@ -45,7 +45,7 @@ describe('e2e:Collection', function () {
   });
 
   it('Should execute "get" endpoint', async () => {
-    let ctx!: ExecutionContext;
+    let ctx!: RequestContext;
     const mockFn =
         jest.spyOn(resource.operations.get!, 'handler')
             .mockImplementation((c) => ctx = c);
@@ -60,7 +60,7 @@ describe('e2e:Collection', function () {
   });
 
   it('Should execute "search" endpoint', async () => {
-    let ctx!: ExecutionContext;
+    let ctx!: RequestContext;
     const mockFn =
         jest.spyOn(resource.operations.search!, 'handler')
             .mockImplementation((c) => ctx = c);
@@ -74,7 +74,7 @@ describe('e2e:Collection', function () {
   });
 
   it('Should execute "delete" endpoint', async () => {
-    let ctx!: ExecutionContext;
+    let ctx!: RequestContext;
     const mockFn =
         jest.spyOn(resource.operations.delete!, 'handler')
             .mockImplementation((c) => ctx = c);
@@ -89,7 +89,7 @@ describe('e2e:Collection', function () {
   });
 
   it('Should execute "deleteMany" endpoint', async () => {
-    let ctx!: ExecutionContext;
+    let ctx!: RequestContext;
     const mockFn =
         jest.spyOn(resource.operations.deleteMany!, 'handler')
             .mockImplementation((c) => ctx = c);
@@ -103,7 +103,7 @@ describe('e2e:Collection', function () {
   });
 
   it('Should execute "update" endpoint', async () => {
-    let ctx!: ExecutionContext;
+    let ctx!: RequestContext;
     const mockFn =
         jest.spyOn(resource.operations.update!, 'handler')
             .mockImplementation((c) => ctx = c);
@@ -119,7 +119,7 @@ describe('e2e:Collection', function () {
   });
 
   it('Should execute "updateMany" endpoint', async () => {
-    let ctx!: ExecutionContext;
+    let ctx!: RequestContext;
     const mockFn =
         jest.spyOn(resource.operations.updateMany!, 'handler')
             .mockImplementation((c) => ctx = c);

@@ -2,7 +2,7 @@ import {
   BooleanLiteral,
   DateLiteral, NullLiteral, NumberLiteral,
   parseFilter, TimeLiteral
-} from '../../src/index.js';
+} from '@opra/common';
 
 describe('Parsing Filter', function () {
 

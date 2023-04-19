@@ -1,14 +1,14 @@
-import { ComplexType, Expose } from '@opra/common';
+import { ComplexField, ComplexType } from '@opra/common';
 
 @ComplexType()
 export class Cat {
 
-  @Expose()
+  @ComplexField()
   id: number;
 
-  @Expose()
+  @ComplexField()
   name: string;
 
-  @Expose()
+  @ComplexField()
   age: number;
 }

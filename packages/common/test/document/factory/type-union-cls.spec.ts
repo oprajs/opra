@@ -1,9 +1,8 @@
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
-import '@opra/sqb'
 import {
+  ComplexField,
   ComplexType,
   DocumentFactory,
-  Expose,
   OpraSchema,
   UnionType
 } from '@opra/common';
@@ -22,21 +21,21 @@ describe('DocumentFactory - UnionType with decorated classes', function () {
   it('Should add UnionType', async () => {
     @ComplexType()
     class Type1 {
-      @Expose()
+      @ComplexField()
       id: number
     }
 
     @ComplexType()
     class Type2 {
-      @Expose()
+      @ComplexField()
       name: string
     }
 
     @ComplexType({
-      additionalElements: true
+      additionalFields: true
     })
     class Type3 {
-      @Expose()
+      @ComplexField()
       age: number
     }
 
@@ -54,8 +53,8 @@ describe('DocumentFactory - UnionType with decorated classes', function () {
     expect(t1).toBeDefined();
     expect(t1.kind).toStrictEqual('ComplexType');
     expect(t1.name).toStrictEqual('Union1');
-    expect(t1.additionalElements).toStrictEqual(true);
-    expect(Array.from(t1.elements.keys())).toStrictEqual(['id', 'name', 'age']);
+    expect(t1.additionalFields).toStrictEqual(true);
+    expect(Array.from(t1.fields.keys())).toStrictEqual(['id', 'name', 'age']);
   })
 
 })

@@ -54,13 +54,13 @@ export namespace Collection {
     search?: OpraSchema.Collection.SearchOperation & Operation;
   }
 
-  export type CreateOperationOptions = Required<Operations>['create'];
-  export type DeleteOperationOptions = Required<Operations>['delete'];
-  export type DeleteManyOperationOptions = Required<Operations>['deleteMany'];
-  export type UpdateOperationOptions = Required<Operations>['update'];
-  export type GetOperationOptions = Required<Operations>['get'];
-  export type UpdateManyOperationOptions = Required<Operations>['updateMany'];
-  export type SearchOperationOptions = Required<Operations>['search'];
+  export type CreateOperationOptions = StrictOmit<OpraSchema.Collection.CreateOperation, 'handler'>;
+  export type DeleteOperationOptions = StrictOmit<OpraSchema.Collection.DeleteOperation, 'handler'>;
+  export type DeleteManyOperationOptions = StrictOmit<OpraSchema.Collection.DeleteManyOperation, 'handler'>;
+  export type GetOperationOptions = StrictOmit<OpraSchema.Collection.GetOperation, 'handler'>;
+  export type UpdateOperationOptions = StrictOmit<OpraSchema.Collection.UpdateOperation, 'handler'>;
+  export type UpdateManyOperationOptions = StrictOmit<OpraSchema.Collection.UpdateManyOperation, 'handler'>;
+  export type SearchOperationOptions = StrictOmit<OpraSchema.Collection.SearchOperation, 'handler'>;
 }
 
 export interface Collection extends StrictOmit<Resource, 'exportSchema' | '_construct'> {
@@ -73,11 +73,11 @@ export interface Collection extends StrictOmit<Resource, 'exportSchema' | '_cons
 
   parseKeyValue(value: any): any;
 
-  normalizeElementNames(elements: string[]): string[] | undefined;
+  normalizeFieldNames(fields: string[]): string[] | undefined;
 
-  normalizeSortElements(elements: string[]): string[] | undefined;
+  normalizeSortFields(fields: string[]): string[] | undefined;
 
-  normalizeFilterElements(ast: Expression): Expression;
+  normalizeFilterFields(ast: Expression): Expression;
 
   _construct(init: Collection.InitArguments): void;
 }
@@ -149,14 +149,14 @@ const proto = {
     _this.controller = init.controller;
     const operations = _this.operations = init.operations || {};
     const dataType = _this.type = init.type;
-    // Validate key elements
+    // Validate key fields
     _this.primaryKey = init.primaryKey
         ? (Array.isArray(init.primaryKey) ? init.primaryKey : [init.primaryKey])
         : [];
     if (!_this.primaryKey.length)
       throw new TypeError(`You must provide primaryKey for Collection resource ("${_this.name}")`);
     _this.primaryKey.forEach(f => {
-      const el = dataType.getElement(f);
+      const el = dataType.getField(f);
       if (!(el.type instanceof SimpleType))
         throw new TypeError(`Only Simple type allowed for primary keys but "${f}" is a ${el.type.kind}`);
     });
@@ -199,60 +199,60 @@ const proto = {
           : value;
       // decode values
       for (const [k, v] of Object.entries(obj)) {
-        const el = dataType.getElement(k);
+        const el = dataType.getField(k);
         obj[k] = (el.type as SimpleType).decode(v);
         if (obj[k] == null)
-          throw new TypeError(`You must provide value of primary key element (${k})`);
+          throw new TypeError(`You must provide value of primary field(s) (${k})`);
       }
     } else {
       const primaryKey = this.primaryKey[0];
       if (typeof value === 'object')
         value = value[primaryKey];
-      const el = dataType.getElement(primaryKey);
+      const el = dataType.getField(primaryKey);
       const result = (el.type as SimpleType).decode(value);
       if (result == null)
-        throw new TypeError(`You must provide value of primary key element (${primaryKey})`);
+        throw new TypeError(`You must provide value of primary field(s) (${primaryKey})`);
       return result;
     }
   },
 
-  normalizeElementNames(this: Collection, elements: string[]): string[] | undefined {
-    return this.type.normalizeElementNames(elements);
+  normalizeFieldNames(this: Collection, fields: string | string[]): string[] | undefined {
+    return this.type.normalizeFieldNames(fields);
   },
 
-  normalizeSortElements(this: Collection, elements: string[]): string[] | undefined {
-    const normalized = this.normalizeElementNames(elements);
+  normalizeSortFields(this: Collection, fields: string[]): string[] | undefined {
+    const normalized = this.normalizeFieldNames(fields);
     if (!normalized)
       return;
     const searchEndpoint = this.operations.search;
-    const sortElements = searchEndpoint && searchEndpoint.sortElements;
-    normalized.forEach(element => {
-      if (!sortElements?.find(x => x === element))
+    const sortFields = searchEndpoint && searchEndpoint.sortFields;
+    normalized.forEach(field => {
+      if (!sortFields?.find(x => x === field))
         throw new BadRequestError({
-          message: translate('error:UNACCEPTED_SORT_ELEMENT', {element},
-              `Element '${element}' is not available for sort operation`),
+          message: translate('error:UNACCEPTED_SORT_FIELD', {field},
+              `Field '${field}' is not available for sort operation`),
         })
     });
     return normalized;
   },
 
-  normalizeFilterElements(ast: Expression): Expression {
+  normalizeFilterFields(ast: Expression): Expression {
     if (ast instanceof ComparisonExpression) {
-      this.normalizeFilterElements(ast.left);
+      this.normalizeFilterFields(ast.left);
     } else if (ast instanceof LogicalExpression) {
       ast.items.forEach(item =>
-          this.normalizeFilterElements(item));
+          this.normalizeFilterFields(item));
     } else if (ast instanceof ArithmeticExpression) {
       ast.items.forEach(item =>
-          this.normalizeFilterElements(item.expression));
+          this.normalizeFilterFields(item.expression));
     } else if (ast instanceof ArrayExpression) {
       ast.items.forEach(item =>
-          this.normalizeFilterElements(item));
+          this.normalizeFilterFields(item));
     } else if (ast instanceof ParenthesesExpression) {
-      this.normalizeFilterElements(ast.expression);
+      this.normalizeFilterFields(ast.expression);
     } else if (ast instanceof QualifiedIdentifier) {
       // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-      ast.value = this.normalizeElementNames([ast.value])![0];
+      ast.value = this.normalizeFieldNames([ast.value])![0];
     }
     return ast;
   }

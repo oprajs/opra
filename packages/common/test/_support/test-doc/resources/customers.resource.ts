@@ -8,7 +8,7 @@ import { Customer } from '../entities/customer.entity.js';
 export class CustomersResource {
 
   @Collection.SearchOperation({
-    sortElements: ['id', 'givenName', 'familyName', 'gender', 'address.city']
+    sortFields: ['id', 'givenName', 'familyName', 'gender', 'address.city']
   })
   search() {
     //

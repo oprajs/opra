@@ -1,4 +1,4 @@
-import { StrictOmit } from 'ts-gems';
+import type { StrictOmit } from 'ts-gems';
 import { InjectionToken, NgModule, Type } from '@angular/core';
 import { OpraHttpClientOptions } from '@opra/client';
 

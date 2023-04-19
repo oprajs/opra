@@ -136,35 +136,35 @@ export async function generateComplexTypeDefinition(
   }
 
   out += '{\n\n\t';
-  for (const element of dataType.own.elements.values()) {
+  for (const field of dataType.own.fields.values()) {
 
     // Print JSDoc
     let jsDoc = '';
-    if (element.description)
-      jsDoc += ` * ${element.description}\n`;
-    if (element.default)
-      jsDoc += ` * @default ` + element.default + '\n';
-    if (element.format)
-      jsDoc += ` * @format ` + element.format + '\n';
-    if (element.exclusive)
+    if (field.description)
+      jsDoc += ` * ${field.description}\n`;
+    if (field.default)
+      jsDoc += ` * @default ` + field.default + '\n';
+    if (field.format)
+      jsDoc += ` * @format ` + field.format + '\n';
+    if (field.exclusive)
       jsDoc += ` * @exclusive\n`;
-    if (element.deprecated)
-      jsDoc += ` * @deprecated ` + (typeof element.deprecated === 'string' ? element.deprecated : '') + '\n';
+    if (field.deprecated)
+      jsDoc += ` * @deprecated ` + (typeof field.deprecated === 'string' ? field.deprecated : '') + '\n';
 
     if (jsDoc)
       out += `/**\n${jsDoc}*/\n`;
 
     // Print field name
-    out += `${element.name}${element.required ? '' : '?'}: `;
+    out += `${field.name}${field.required ? '' : '?'}: `;
 
-    if (element.fixed)
-      out += `${element.fixed}`;
+    if (field.fixed)
+      out += `${field.fixed}`;
     else {
-      out += await this.resolveTypeNameOrDef(file, element.type) +
-          `${element.isArray ? '[]' : ''};\n\n`;
+      out += await this.resolveTypeNameOrDef(file, field.type) +
+          `${field.isArray ? '[]' : ''};\n\n`;
     }
   }
-  if (dataType.additionalElements)
+  if (dataType.additionalFields)
     out += '[key: string]: any;\n';
   return out + '\b}';
 }
