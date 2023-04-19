@@ -20,11 +20,9 @@ import { MetadataResource } from './internal/metadata.resource.js';
  * @namespace OpraAdapter
  */
 export namespace OpraAdapter {
-  export type UserContextResolver = (context: RequestContext) => object | Promise<object>; // todo???
 
   export interface Options {
     i18n?: I18n | I18nOptions | (() => Promise<I18n>);
-    userContext?: UserContextResolver;
     logger?: ILogger;
   }
 
@@ -67,7 +65,6 @@ export namespace OpraAdapter {
  * @class OpraAdapter
  */
 export abstract class OpraAdapter {
-  protected userContextResolver?: OpraAdapter.UserContextResolver;
   protected _internalDoc: ApiDocument;
   i18n: I18n;
   logger?: ILogger;
@@ -90,8 +87,6 @@ export abstract class OpraAdapter {
     this.i18n = this.i18n || I18n.defaultInstance;
     if (!this.i18n.isInitialized)
       await this.i18n.init();
-
-    this.userContextResolver = options?.userContext;
 
     this._internalDoc = await DocumentFactory.createDocument({
       version: OpraSchema.SpecVersion,

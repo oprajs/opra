@@ -1,5 +1,5 @@
 import '@opra/sqb';
-import { ComplexType, Expose } from '@opra/common';
+import { ApiField, ComplexType } from '@opra/common';
 import { Column, Entity, Link, PrimaryKey } from '@sqb/connect';
 import type { Country } from './country.entity.js';
 
@@ -7,16 +7,16 @@ import type { Country } from './country.entity.js';
 @Entity('continents')
 export class Continent {
 
-  @Expose()
+  @ApiField()
   @PrimaryKey()
   @Column()
   code: string;
 
-  @Expose()
+  @ApiField()
   @Column()
   name: string;
 
-  @Expose()
+  @ApiField()
   @Link({exclusive: true})
       .toMany(async () => (await import('./country.entity.js')).Country)
   countries: Country[];

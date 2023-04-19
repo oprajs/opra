@@ -45,7 +45,7 @@ export class ApiExporter {
   protected writer: IFileWriter;
   protected importExt: string;
   protected files: Record<string, TsFile> = {};
-  // protected nsMap: ResponsiveMap<string, ApiExporter>;
+  // protected nsMap: ResponsiveMap<ApiExporter>;
   protected processResources: typeof processResources;
   protected processTypes: typeof processTypes;
   protected generateTypeFile: typeof generateTypeFile;
@@ -58,7 +58,7 @@ export class ApiExporter {
 
   protected constructor(
       config: ApiExporter.Config,
-      // nsMap?: ResponsiveMap<string, ApiExporter> // implement references later
+      // nsMap?: ResponsiveMap<ApiExporter> // implement references later
   ) {
     this.client = new OpraHttpClient(config.serviceUrl);
     this.cwd = config.cwd || process.cwd();

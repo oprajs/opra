@@ -16,9 +16,9 @@ const kOptions = Symbol('kOptions');
  */
 export namespace HttpHeaders {
   export type Initiator = Headers | HttpHeaders | IncomingHttpHeaders | OutgoingHttpHeaders |
-      HeadersObject | Map<string, number | string | string[]>;
+      HeadersObject | Map<string, string | string[]>;
 
-  export type HeadersObject = Record<string, number | string | string[]>;
+  export type HeadersObject = Record<string, string | string[]>;
 
   export interface Options {
     onChange?: () => void;
@@ -34,7 +34,7 @@ export class HttpHeaders {
   protected static kEntries = kEntries;
   protected static kOptions = kOptions;
 
-  protected [kEntries] = new ResponsiveMap<string, string | string[]>();
+  protected [kEntries] = new ResponsiveMap<string | string[]>();
   protected [kOptions]: HttpHeaders.Options;
 
   constructor(init?: HttpHeaders.Initiator | string, options?: HttpHeaders.Options) {
@@ -195,47 +195,13 @@ export class HttpHeaders {
 
   getProxy(): HttpHeaders.HeadersObject {
     const _this = this;
-    return new Proxy<Record<string, number | string | string[]>>({}, {
-      get(target, p: string | symbol, receiver: any): any {
-        if (typeof p === 'string')
-          return _this.get(p);
-        return Reflect.get(target, p, receiver);
-      },
+    return this[kEntries].getProxy({
       set(target, p: string | symbol, newValue: any, receiver: any): boolean {
         if (typeof p === 'string') {
           _this.set(p, newValue);
           return true;
         }
         return Reflect.set(target, p, newValue, receiver);
-      },
-      has(target, p: string | symbol): boolean {
-        if (typeof p === 'string')
-          return _this.has(p);
-        return Reflect.has(target, p);
-      },
-      ownKeys(): ArrayLike<string | symbol> {
-        return Array.from(_this.keys()).map(x => x.toLowerCase());
-      },
-      getPrototypeOf(): object | null {
-        return Object.getPrototypeOf(_this);
-      },
-      defineProperty(target, property: string | symbol, attributes: PropertyDescriptor): boolean {
-        if (typeof property === 'string') {
-          _this.set(property, attributes.value);
-          return true;
-        }
-        return false;
-      },
-      deleteProperty(target, p: string | symbol): boolean {
-        if (typeof p === 'string')
-          return _this.delete(p);
-        return false;
-      },
-      getOwnPropertyDescriptor(target, key) {
-        if (typeof key === 'string') {
-          const value = _this.get(key);
-          return {configurable: true, enumerable: true, writable: true, value};
-        }
       },
     });
   }

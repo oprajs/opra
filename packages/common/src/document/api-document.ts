@@ -11,13 +11,13 @@ import { Resource } from './resource/resource.js';
 import { Singleton } from './resource/singleton.js';
 
 export class ApiDocument {
-  protected _typeCache = new ResponsiveMap<string, DataType | null>();
+  protected _typeCache = new ResponsiveMap<DataType | null>();
   protected _typesCacheByCtor = new Map<Type | object, DataType | null>();
   url?: string;
   info: OpraSchema.DocumentInfo;
-  references = new ResponsiveMap<string, ApiDocument>();
-  types = new ResponsiveMap<string, DataType>();
-  resources = new ResponsiveMap<string, Resource>();
+  references = new ResponsiveMap<ApiDocument>();
+  types = new ResponsiveMap<DataType>();
+  resources = new ResponsiveMap<Resource>();
 
   constructor() {
     this.info = {

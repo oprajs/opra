@@ -17,7 +17,7 @@ export class Person {
 
   @ApiField({enum: GenderEnum})
   @Column({notNull: true})
-  gender: string;
+  gender: GenderEnum;
 
   @ApiField()
   @Column({fieldName: 'birth_name', dataType: DataType.DATE})

@@ -27,6 +27,7 @@ export interface HttpMessage {
   upgrade?: boolean;
 
   end(body?: any): this;
+
   send(body: any): this;
 }
 

@@ -5,7 +5,7 @@ export interface ResponsiveMapOptions {
   caseSensitive?: boolean;
 }
 
-export type ResponsiveMapInit<K, V> = ResponsiveMap<K, V> | Map<K, V> | Record<any, V>;
+export type ResponsiveMapInit<V> = ResponsiveMap<V> | Map<string, V> | Record<any, V>;
 
 function isMap(v): v is Map<any, any> {
   return v && typeof v.forEach === 'function';
@@ -19,13 +19,13 @@ const kOptions = Symbol('kOptions');
 /**
  * A Map implementation that supports case-insensitivity and ordered keys
  */
-export class ResponsiveMap<K, V> extends Map<K, V> {
-  private [kKeyMap] = new Map<K, K>();
-  private [kKeyOrder]: K[] = [];
+export class ResponsiveMap<V> extends Map<string, V> {
+  private [kKeyMap] = new Map<string, string>();
+  private [kKeyOrder]: string[] = [];
   private [kWellKnownKeys] = new Map<string, string>();
   private [kOptions]: StrictOmit<ResponsiveMapOptions, 'wellKnownKeys'> = {caseSensitive: false};
 
-  constructor(init?: ResponsiveMapInit<K, V> | null, options?: ResponsiveMapOptions) {
+  constructor(init?: ResponsiveMapInit<V> | null, options?: ResponsiveMapOptions) {
     super();
     this[kOptions].caseSensitive = !!options?.caseSensitive;
     if (options?.wellKnownKeys)
@@ -40,16 +40,16 @@ export class ResponsiveMap<K, V> extends Map<K, V> {
     this[kKeyOrder] = [];
   }
 
-  get(key: K): V | undefined {
+  get(key: string): V | undefined {
     const orgKey = this._getOriginalKey(key);
-    return super.get(orgKey as K);
+    return super.get(orgKey as string);
   }
 
-  has(key: K): boolean {
+  has(key: string): boolean {
     return this[kKeyMap].has(this._getStoringKey(key));
   }
 
-  set(key: K, value: V): this {
+  set(key: string, value: V): this {
     key = this._getOriginalKey(key);
     this[kKeyMap].set(this._getStoringKey(key), key);
     if (!this[kKeyOrder].includes(key))
@@ -57,15 +57,15 @@ export class ResponsiveMap<K, V> extends Map<K, V> {
     return super.set(key, value);
   }
 
-  setAll(source: ResponsiveMapInit<K, V>): this {
+  setAll(source: ResponsiveMapInit<V>): this {
     if (isMap(source))
       source.forEach((v, k) => this.set(k, v));
     else
-      Object.keys(source).forEach(k => this.set(k as K, source[k]));
+      Object.keys(source).forEach(k => this.set(k, source[k]));
     return this;
   }
 
-  keys(): IterableIterator<K> {
+  keys(): IterableIterator<string> {
     return this[kKeyOrder][Symbol.iterator]();
   }
 
@@ -87,7 +87,7 @@ export class ResponsiveMap<K, V> extends Map<K, V> {
     };
   }
 
-  entries(): IterableIterator<[K, V]> {
+  entries(): IterableIterator<[string, V]> {
     let i = -1;
     const arr = this[kKeyOrder];
     const map = this;
@@ -105,7 +105,7 @@ export class ResponsiveMap<K, V> extends Map<K, V> {
     };
   }
 
-  delete(key: K): boolean {
+  delete(key: string): boolean {
     const orgKey = this._getOriginalKey(key);
     const k = this._getStoringKey(key);
     this[kKeyMap].delete(k);
@@ -115,29 +115,74 @@ export class ResponsiveMap<K, V> extends Map<K, V> {
     return super.delete(orgKey);
   }
 
-  sort(compareFn?: (a: K, b: K) => number): this {
+  sort(compareFn?: (a: string, b: string) => number): this {
     this[kKeyOrder].sort(compareFn);
     return this;
   }
 
-  [Symbol.iterator](): IterableIterator<[K, V]> {
+  getProxy(handler?: ProxyHandler<Record<string, V>>): Record<string, V> {
+    const _this = this;
+    const finalHandler = {
+      get(target, p: string | symbol, receiver: any): any {
+        if (typeof p === 'string')
+          return _this.get(p);
+        return Reflect.get(target, p, receiver);
+      },
+      set(target, p: string | symbol, newValue: any, receiver: any): boolean {
+        if (typeof p === 'string') {
+          _this.set(p, newValue);
+          return true;
+        }
+        return Reflect.set(target, p, newValue, receiver);
+      },
+      has(target, p: string | symbol): boolean {
+        if (typeof p === 'string')
+          return _this.has(p);
+        return Reflect.has(target, p);
+      },
+      ownKeys(): ArrayLike<string | symbol> {
+        return Array.from(_this.keys()).map(x => x.toLowerCase());
+      },
+      getPrototypeOf(): object | null {
+        return Object.prototype;
+      },
+      defineProperty(target, property: string | symbol, attributes: PropertyDescriptor): boolean {
+        if (typeof property === 'string') {
+          _this.set(property, attributes.value);
+          return true;
+        }
+        return false;
+      },
+      deleteProperty(target, p: string | symbol): boolean {
+        if (typeof p === 'string')
+          return _this.delete(p);
+        return false;
+      },
+      getOwnPropertyDescriptor(target, key) {
+        if (typeof key === 'string') {
+          const value = finalHandler.get(target, key);
+          return {configurable: true, enumerable: true, writable: true, value};
+        }
+      },
+      ...handler
+    }
+    return new Proxy<Record<string, V>>({}, finalHandler);
+  }
+
+  [Symbol.iterator](): IterableIterator<[string, V]> {
     return this.entries();
   }
 
-  protected _getOriginalKey(key: K): K {
-    if (this[kOptions].caseSensitive)
+  protected _getOriginalKey(key: string): string {
+    if (!key || this[kOptions].caseSensitive)
       return key;
-    if (typeof key === 'string')
-      return this[kKeyMap].get(key.toLowerCase() as K) ??
-          (this[kWellKnownKeys].get(key.toLowerCase()) as K ?? key);
-    return key;
+    return this[kKeyMap].get(key.toLowerCase()) ??
+        (this[kWellKnownKeys].get(key.toLowerCase()) ?? key);
   }
 
-  protected _getStoringKey(key: K): K {
+  protected _getStoringKey(key: string): string {
     if (this[kOptions].caseSensitive)
       return key;
-    if (typeof key === 'string')
-      return key.toLowerCase() as K;
-    return key;
+    return key.toLowerCase() as string;
   }
 }

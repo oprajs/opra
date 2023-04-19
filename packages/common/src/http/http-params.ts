@@ -45,7 +45,7 @@ export class HttpParams {
   protected static kSize = kSize;
   protected static kParamDefs = kParamDefs;
   protected static kOptions = kOptions;
-  protected [kEntries] = new ResponsiveMap<string, any[]>();
+  protected [kEntries] = new ResponsiveMap<any[]>();
   protected [kSize] = 0;
   protected [kOptions]: HttpParams.Options;
   protected [kParamDefs] = new Map<string, HttpParamMetadata>();
@@ -170,7 +170,7 @@ export class HttpParams {
    * Retrieves value of a given parameter at given index
    */
   get(name: string, index = 0): any {
-    const values = this[kEntries].get(name.toLowerCase());
+    const values = this[kEntries].get(name);
     return values && values.length > index ? values[index] : null;
   }
 
@@ -232,6 +232,26 @@ export class HttpParams {
           (v ? '=' + this.encodeValue(v, k) : ''));
     });
     return out.join('&');
+  }
+
+  getProxy(): Record<string, any> {
+    const _this = this;
+    return this[kEntries].getProxy({
+      get(target, p: string | symbol, receiver: any): any {
+        if (typeof p === 'string') {
+          const v = _this[kEntries].get(p);
+          return v ? (v.length > 1 ? v : v[0]) : undefined;
+        }
+        return Reflect.get(target, p, receiver);
+      },
+      set(target, p: string | symbol, newValue: any, receiver: any): boolean {
+        if (typeof p === 'string') {
+          _this.set(p, newValue);
+          return true;
+        }
+        return Reflect.set(target, p, newValue, receiver);
+      },
+    });
   }
 
   define(params: Record<string, HttpParams.ParamDefinition>): this

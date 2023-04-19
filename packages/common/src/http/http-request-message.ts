@@ -4,6 +4,7 @@ import { HeaderInfo, HTTPParser } from 'http-parser-js';
 import { Readable } from 'stream';
 import typeIs from 'type-is';
 import { HttpMessage, HttpMessageHost } from './http-message.host.js';
+import { HttpParams } from './http-params.js';
 
 const HTTP_VERSION_PATTERN = /^(\d)\.(\d)$/;
 
@@ -91,6 +92,8 @@ export interface HttpRequestMessage extends HttpMessage {
   url: string;
 
   baseUrl: string;
+
+  query: Record<string, any>;
 
   /**
    * Return request header.
@@ -262,11 +265,18 @@ export namespace HttpRequestMessage {
   }
 }
 
+const kQuery = Symbol('kQuery');
+const kQueryProxy = Symbol('kQueryProxy');
+const kProtocol = Symbol('kProtocol');
+
 /**
  *
  */
 class HttpRequestMessageHost extends HttpMessageHost implements HttpRequestMessage {
-  protected _protocol?: string;
+  static kQuery = kQuery;
+  protected [kQuery]: HttpParams;
+  protected [kQueryProxy]: Record<string, any>;
+  protected [kProtocol]?: string;
   httpVersionMajor: number = 1;
   httpVersionMinor: number = 0;
   method: string;
@@ -277,6 +287,8 @@ class HttpRequestMessageHost extends HttpMessageHost implements HttpRequestMessa
 
   constructor() {
     super();
+    this[kQuery] = new HttpParams();
+    this[kQueryProxy] = this[kQuery].getProxy();
   }
 
   get httpVersion(): string {
@@ -310,8 +322,8 @@ class HttpRequestMessageHost extends HttpMessageHost implements HttpRequestMessa
   }
 
   get protocol(): string {
-    if (this._protocol)
-      return this._protocol;
+    if (this[kProtocol])
+      return this[kProtocol];
     // Note: X-Forwarded-Proto is normally only ever a
     //       single value, but this is to be safe.
     const header = this.get('X-Forwarded-Proto');
@@ -325,11 +337,20 @@ class HttpRequestMessageHost extends HttpMessageHost implements HttpRequestMessa
   }
 
   set protocol(v: string | undefined) {
-    this._protocol = v;
+    this[kProtocol] = v;
   }
 
   get secure(): boolean {
     return this.protocol === 'https';
+  }
+
+  get query(): Record<string, any> {
+    return this[kQueryProxy];
+  }
+
+  set query(value: Record<string, any>) {
+    this[kQuery].clear();
+    this[kQuery].appendAll(value);
   }
 
   header(name: 'set-cookie' | 'Set-Cookie'): string[] | undefined
