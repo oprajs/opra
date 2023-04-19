@@ -50,9 +50,9 @@ export namespace DocumentFactory {
  */
 export class DocumentFactory {
   protected document: ApiDocument = new ApiDocument();
-  protected typeQueue = new ResponsiveMap<string, OpraSchema.DataType>()
-  protected resourceQueue = new ResponsiveMap<string, OpraSchema.Resource>();
-  protected circularRefs = new ResponsiveMap<string, any>();
+  protected typeQueue = new ResponsiveMap<OpraSchema.DataType>()
+  protected resourceQueue = new ResponsiveMap<OpraSchema.Resource>();
+  protected circularRefs = new ResponsiveMap<any>();
   protected curPath: string[] = []
   protected cache = new Map<any, any>();
 

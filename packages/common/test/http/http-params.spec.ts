@@ -205,4 +205,31 @@ describe('HttpParams', function () {
     expect(u.toString()).toStrictEqual('prm1&prm2=x%20y%20z&prm2=%2B123&prm3=a,a%2Cb');
   })
 
+  it('Should getProxy() return Proxy object', async () => {
+    const headers = new HttpParams({
+      'prm1': 'x',
+      'prm2': ['y'],
+      'prm3': [1, 'x', 'y'],
+    });
+    const proxy = headers.getProxy();
+    expect(proxy).toMatchObject({
+      'prm1': 'x',
+      'prm2': ['y'],
+      'prm3': [1, 'x', 'y'],
+    });
+    proxy.prm4 = 'z';
+    expect(proxy).toMatchObject({
+      'prm1': 'x',
+      'prm2': ['y'],
+      'prm3': [1, 'x', 'y'],
+      'prm4': 'z',
+    });
+    delete proxy.prm4;
+    expect(proxy).toMatchObject({
+      'prm1': 'x',
+      'prm2': ['y'],
+      'prm3': [1, 'x', 'y'],
+    });
+  })
+
 });

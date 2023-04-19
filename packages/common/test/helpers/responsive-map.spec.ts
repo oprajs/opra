@@ -2,15 +2,6 @@ import { ResponsiveMap } from '@opra/common';
 
 describe('ResponsiveMap', function () {
 
-  it('Should store string and other keys', async () => {
-    const map = new ResponsiveMap();
-    const key = {};
-    map.set('str', 1);
-    map.set(key, 2);
-    expect(map.get('str')).toStrictEqual(1);
-    expect(map.get(key)).toStrictEqual(2);
-  })
-
   it('Should get value with string key in case-insensitive way', async () => {
     const map = new ResponsiveMap();
     map.set('key1', 1);

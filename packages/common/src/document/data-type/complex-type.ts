@@ -19,7 +19,7 @@ export namespace ComplexType {
 
   export interface OwnProperties extends DataType.OwnProperties,
       Readonly<Pick<OpraSchema.ComplexType, 'ctor' | 'abstract' | 'additionalFields'>> {
-    readonly fields: ResponsiveMap<string, ApiField>;
+    readonly fields: ResponsiveMap<ApiField>;
   }
 
   export interface DecoratorOptions extends DataType.DecoratorOptions,

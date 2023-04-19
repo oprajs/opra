@@ -105,9 +105,9 @@ describe('HttpHeaders', function () {
       'Encoding': 'utf-8'
     });
     const proxy = headers.getProxy();
-    expect(headers.toObject()).toStrictEqual({
-      'Accept-Language': 'tr',
-      'Encoding': 'utf-8'
+    expect(proxy).toMatchObject({
+      'accept-language': 'tr',
+      'encoding': 'utf-8'
     });
     proxy['content-type'] = 'application/json';
     expect(Object.keys(proxy)).toStrictEqual(['accept-language', 'encoding', 'content-type']);

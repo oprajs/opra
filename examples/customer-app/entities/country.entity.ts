@@ -1,5 +1,5 @@
 import '@opra/sqb';
-import { ComplexType, Expose } from '@opra/common';
+import { ApiField, ComplexType } from '@opra/common';
 import { Column, DataType, Entity, Link } from '@sqb/connect';
 import { Continent } from './continent.entity.js';
 
@@ -9,18 +9,18 @@ import { Continent } from './continent.entity.js';
 @Entity()
 export class Country {
 
-  @Expose()
+  @ApiField()
   @Column({notNull: true, dataType: DataType.GUID})
   code: string;
 
-  @Expose()
+  @ApiField()
   @Column({notNull: true})
   name: string;
 
-  @Expose()
+  @ApiField()
   phoneCode?: string;
 
-  @Expose()
+  @ApiField()
   @Link().toOne(async () => (await import('./continent.entity.js')).Continent)
   continent: Continent;
 
