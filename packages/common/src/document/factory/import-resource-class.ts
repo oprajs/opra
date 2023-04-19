@@ -1,3 +1,4 @@
+import 'reflect-metadata';
 import { Type } from 'ts-gems';
 import { cloneObject, resolveClass, resolveThunk } from '../../helpers/index.js';
 import { OpraSchema } from '../../schema/index.js';
