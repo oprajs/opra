@@ -1,5 +1,5 @@
 import type { ComparisonOperator } from '../../filter/index.js';
-import type { ComplexField } from '../data-type/compex-field.interface.js';
+import type { Field } from '../data-type/field.interface';
 
 export interface Endpoint {
   description?: string;
@@ -12,20 +12,20 @@ export namespace Endpoint {
 
 export namespace _Operation {
   export interface Filter {
-    filters?: { field: ComplexField.QualifiedName, operators?: ComparisonOperator[] }[]
+    filters?: { field: Field.QualifiedName, operators?: ComparisonOperator[] }[]
   }
 
   export interface InputPickOmit {
     input?: {
-      pick?: ComplexField.QualifiedName[];
-      omit?: ComplexField.QualifiedName[];
+      pick?: Field.QualifiedName[];
+      omit?: Field.QualifiedName[];
     }
   }
 
   export interface ResponsePickOmit {
     response?: {
-      pick?: ComplexField.QualifiedName[];
-      omit?: ComplexField.QualifiedName[];
+      pick?: Field.QualifiedName[];
+      omit?: Field.QualifiedName[];
     }
   }
 }

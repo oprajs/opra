@@ -1,10 +1,10 @@
-import type { ComplexField } from './compex-field.interface.js';
+import type { Field } from 'src/schema/data-type/field.interface.js';
 import type { DataType, DataTypeBase } from './data-type.interface.js';
 
 export interface MappedType extends DataTypeBase {
   type: DataType.Name | DataType;
-  omit?: ComplexField.Name[];
-  pick?: ComplexField.Name[];
+  omit?: Field.Name[];
+  pick?: Field.Name[];
 }
 
 export namespace MappedType {

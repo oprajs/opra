@@ -1,12 +1,12 @@
-import type { ComplexField } from '../data-type/compex-field.interface.js';
 import type { DataType } from '../data-type/data-type.interface.js';
+import type { Field } from '../data-type/field.interface';
 import type { _Operation, Endpoint } from './endpoint.interface.js';
 import type { ResourceBase } from './resource.interface.js';
 
 export interface Collection extends ResourceBase {
   kind: Collection.Kind,
   type: DataType.Name;
-  primaryKey: ComplexField.Name | ComplexField.Name[];
+  primaryKey: Field.Name | Field.Name[];
   operations: Collection.Operations;
 }
 
