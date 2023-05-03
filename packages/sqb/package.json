@@ -30,15 +30,15 @@
   },
   "devDependencies": {
     "@faker-js/faker": "^7.6.0",
-    "@sqb/builder": "^4.8.0",
-    "@sqb/connect": "^4.8.0",
-    "@sqb/postgres": "^4.8.0",
+    "@sqb/builder": "^4.8.2",
+    "@sqb/connect": "^4.8.2",
+    "@sqb/postgres": "^4.8.2",
     "postgresql-client": "^2.5.5",
     "ts-gems": "^2.3.0"
   },
   "peerDependencies": {
     "@opra/core": "^0.15.0",
-    "@sqb/connect": ">= 4.8.0"
+    "@sqb/connect": ">= 4.8.2"
   },
   "type": "module",
   "types": "types/index.d.ts",
