@@ -4,7 +4,7 @@ import {
   OpraSchema,
   Singleton,
 } from '@opra/common';
-import { Country } from '../../_support/test-doc/index.js';
+import { Country } from '../../_support/test-api/index.js';
 
 describe('DocumentFactory - Singleton resource with decorated classes', function () {
 
@@ -45,7 +45,7 @@ describe('DocumentFactory - Singleton resource with decorated classes', function
     class MyCountryResource {
       protected x = 1;
 
-      @Singleton.CreateOperation()
+      @Singleton.Create()
       _create() {
         return this.x;
       }
@@ -67,7 +67,7 @@ describe('DocumentFactory - Singleton resource with decorated classes', function
     class MyCountryResource {
       protected x = 1;
 
-      @Singleton.GetOperation()
+      @Singleton.Get()
       _read() {
         return this.x;
       }
@@ -89,7 +89,7 @@ describe('DocumentFactory - Singleton resource with decorated classes', function
     class MyCountryResource {
       protected x = 1;
 
-      @Singleton.UpdateOperation()
+      @Singleton.Update()
       _update() {
         return this.x;
       }
@@ -106,12 +106,12 @@ describe('DocumentFactory - Singleton resource with decorated classes', function
     expect(t.operations.update?.handlerName).toStrictEqual('_update');
   })
 
-  it('Should define "delete" operation endpoint', async () => {
+  it('Should define "deleteOne" operation endpoint', async () => {
     @Singleton(Country)
     class MyCountryResource {
       protected x = 1;
 
-      @Singleton.DeleteOperation()
+      @Singleton.Delete()
       _delete() {
         return this.x;
       }

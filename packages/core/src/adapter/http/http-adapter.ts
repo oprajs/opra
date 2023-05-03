@@ -1,20 +1,8 @@
 import { Task } from 'power-tasks';
 import {
-  BadRequestError,
-  Collection,
-  HttpHeaderCodes,
-  HttpRequestMessage,
-  HttpResponseMessage,
-  HttpStatusCodes,
-  InternalServerError,
-  isReadable,
-  IssueSeverity,
-  MethodNotAllowedError,
-  OpraException,
-  OpraSchema,
-  OpraURL,
-  Singleton,
-  wrapException
+  BadRequestError, Collection, HttpHeaderCodes, HttpRequestMessage, HttpResponseMessage,
+  HttpStatusCodes, InternalServerError, isReadable, IssueSeverity, MethodNotAllowedError,
+  OpraException, OpraSchema, OpraURL, Singleton, wrapException
 } from '@opra/common';
 import { OpraAdapter } from '../adapter.js';
 import { ILogger } from '../interfaces/logger.interface.js';
@@ -49,7 +37,6 @@ export abstract class OpraHttpAdapter extends OpraAdapter {
    * @protected
    */
   protected async handler(incoming: HttpRequestMessage, outgoing: HttpResponseMessage): Promise<void> {
-
     try {
       // Batch
       if (incoming.is('multipart/mixed')) {
@@ -64,7 +51,7 @@ export abstract class OpraHttpAdapter extends OpraAdapter {
             async () => {
               try {
                 await this.executeRequest(context);
-                if (request.operation === 'search' && request.args.count && response.count != null) {
+                if (request.operation === 'findMany' && request.args.count && response.count != null) {
                   response.switchToHttp().header(HttpHeaderCodes.X_Opra_Total_Matches, String(response.count));
                 }
               } catch (error: any) {
@@ -80,9 +67,9 @@ export abstract class OpraHttpAdapter extends OpraAdapter {
           this.logger?.error?.(e);
           outgoing.sendStatus(500);
         });
+        await this.emitAsync('request-finish', context);
         return;
       }
-
       throw new BadRequestError({message: 'Unsupported Content-Type'});
     } catch (error) {
       await this.errorHandler(incoming, outgoing, [error]);
@@ -130,8 +117,8 @@ export abstract class OpraHttpAdapter extends OpraAdapter {
     logFn.apply(this.logger, [String(message), ...optionalParams]);
   }
 
-  protected async afterExecuteRequest(context: RequestContext): Promise<void> {
-    await super.afterExecuteRequest(context);
+  protected async executeRequest(context: RequestContext): Promise<void> {
+    await super.executeRequest(context);
     const {request} = context;
     const response = context.response;
     const {crud} = request;
@@ -258,9 +245,9 @@ export abstract class OpraHttpAdapter extends OpraAdapter {
             }
 
             return new HttpRequestHost({
-              kind: 'CollectionSearchRequest',
+              kind: 'CollectionFindManyRequest',
               resource,
-              operation: 'search',
+              operation: 'findMany',
               crud: 'read',
               many: true,
               args: {

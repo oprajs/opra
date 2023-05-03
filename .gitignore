@@ -13,7 +13,6 @@ env-dev.ts
 # Debug
 **/_debug.ts
 **/_debug.js
-support/esloader.mjs
 
 # Logs
 logs

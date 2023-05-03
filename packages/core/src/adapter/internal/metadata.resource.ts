@@ -10,7 +10,7 @@ export class MetadataResource {
     this._schema = document.exportSchema();
   }
 
-  @Singleton.GetOperation()
+  @Singleton.Get()
   get() {
     return cloneObject(this.document.exportSchema(), true);
   }

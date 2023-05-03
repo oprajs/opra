@@ -2,14 +2,38 @@ import { Maybe, Type } from 'ts-gems';
 import { PartialInput, PartialOutput, RequestContext } from '@opra/core';
 import { EntityInput, EntityMetadata, Repository, SqbClient, SqbConnection } from '@sqb/connect';
 
-export abstract class SqbEntityService<T, TOutput = PartialOutput<T>> {
-  protected _entityMetadata: EntityMetadata;
+export namespace SqbEntityService {
+  export interface Options {
+    db?: SqbClient | SqbConnection;
+    defaultLimit?: number;
+  }
+}
 
-  protected constructor(readonly resourceType: Type<T>) {
-    const metadata = EntityMetadata.get(resourceType);
+export class SqbEntityService<T, TOutput = PartialOutput<T>> {
+  context: RequestContext;
+  defaultLimit: number;
+  db?: SqbClient | SqbConnection;
+
+  constructor(readonly typeClass: Type<T>, options?: SqbEntityService.Options) {
+    const metadata = EntityMetadata.get(typeClass);
     if (!metadata)
-      throw new TypeError(`You must provide an SQB entity class`);
-    this._entityMetadata = metadata;
+      throw new TypeError(`Class ${typeClass} is not decorated with $Entity() decorator`);
+    this.db = options?.db;
+    this.defaultLimit = options?.defaultLimit || 10;
+  }
+
+  async count(
+      context: RequestContext,
+      options?: Repository.CountOptions
+  ): Promise<number> {
+    const conn = await this.getConnection();
+    const repo = conn.getRepository(this.typeClass);
+    try {
+      return await repo.count(options);
+    } catch (e: any) {
+      await this._onError(e);
+      throw e;
+    }
   }
 
   async create(
@@ -17,79 +41,68 @@ export abstract class SqbEntityService<T, TOutput = PartialOutput<T>> {
       data: PartialInput<T>,
       options?: Repository.CreateOptions
   ): Promise<TOutput> {
-    const conn = await this.getConnection(context);
-    const repo = conn.getRepository(this.resourceType);
+    const conn = await this.getConnection();
+    const repo = conn.getRepository(this.typeClass);
     let out;
     try {
       out = await repo.create(data, options);
     } catch (e: any) {
-      await this._onError(context, e);
+      await this._onError(e);
       throw e;
     }
     if (out && this.onTransformRow)
-      out = this.onTransformRow(context, out, 'create');
+      out = this.onTransformRow(out);
+    if (!out)
+      throw new Error('"create" operation returned no result!');
     return out;
   }
 
-  async count(
-      context: RequestContext,
-      options?: Repository.CountOptions
-  ): Promise<number> {
-    const conn = await this.getConnection(context);
-    const repo = conn.getRepository(this.resourceType);
-    try {
-      return await repo.count(options);
-    } catch (e: any) {
-      await this._onError(context, e);
-      throw e;
-    }
-  }
 
-  async destroy(
+  async delete(
       context: RequestContext,
       keyValue: any,
       options?: Repository.DestroyOptions
   ): Promise<boolean> {
-    const conn = await this.getConnection(context);
-    const repo = conn.getRepository(this.resourceType);
+    const conn = await this.getConnection();
+    const repo = conn.getRepository(this.typeClass);
     try {
-      return await repo.destroy(keyValue, options);
+      return await repo.delete(keyValue, options);
     } catch (e: any) {
-      await this._onError(context, e);
+      await this._onError(e);
       throw e;
     }
   }
 
-  async destroyAll(
+  async deleteMany(
       context: RequestContext,
       options?: Repository.DestroyOptions
   ): Promise<number> {
-    const conn = await this.getConnection(context);
-    const repo = conn.getRepository(this.resourceType);
+    const conn = await this.getConnection();
+    const repo = conn.getRepository(this.typeClass);
     try {
-      return await repo.destroyAll(options);
+      return await repo.deleteMany(options);
     } catch (e: any) {
-      await this._onError(context, e);
+      await this._onError(e);
       throw e;
     }
   }
 
-  async findByPk(
+  async find(
       context: RequestContext,
       keyValue: any,
-      options?: Repository.GetOptions
+      options?: Repository.FindOptions
   ): Promise<Maybe<TOutput>> {
-    const conn = await this.getConnection(context);
-    const repo = conn.getRepository(this.resourceType);
+    const conn = await this.getConnection();
+    const repo = conn.getRepository(this.typeClass);
     let out;
     try {
-      out = await repo.findByPk(keyValue, options);
+      out = await repo.find(keyValue, options);
     } catch (e: any) {
-      await this._onError(context, e);
+      await this._onError(e);
       throw e;
     }
     if (out && this.onTransformRow)
-      out = this.onTransformRow(context, out, 'read');
+      out = this.onTransformRow(out);
     return out;
   }
 
@@ -97,17 +110,17 @@ export abstract class SqbEntityService<T, TOutput = PartialOutput<T>> {
       context: RequestContext,
       options?: Repository.FindOneOptions
   ): Promise<Maybe<TOutput>> {
-    const conn = await this.getConnection(context);
-    const repo = conn.getRepository(this.resourceType);
+    const conn = await this.getConnection();
+    const repo = conn.getRepository(this.typeClass);
     let out;
     try {
       out = await repo.findOne(options);
     } catch (e: any) {
-      await this._onError(context, e);
+      await this._onError(e);
       throw e;
     }
     if (out && this.onTransformRow)
-      out = this.onTransformRow(context, out, 'read');
+      out = this.onTransformRow(out);
     return out;
   }
 
@@ -115,20 +128,20 @@ export abstract class SqbEntityService<T, TOutput = PartialOutput<T>> {
       context: RequestContext,
       options?: Repository.FindAllOptions,
   ): Promise<TOutput[]> {
-    const conn = await this.getConnection(context);
-    const repo = conn.getRepository(this.resourceType);
+    const conn = await this.getConnection();
+    const repo = conn.getRepository(this.typeClass);
     let items: any[];
     try {
       items = await repo.findAll(options);
     } catch (e: any) {
-      await this._onError(context, e);
+      await this._onError(e);
       throw e;
     }
 
     if (items.length && this.onTransformRow) {
       const newItems: any[] = [];
       for (const item of items) {
-        const v = this.onTransformRow(context, item, 'read');
+        const v = this.onTransformRow(item);
         if (v)
           newItems.push(v);
       }
@@ -137,51 +150,87 @@ export abstract class SqbEntityService<T, TOutput = PartialOutput<T>> {
     return items;
   }
 
+  async exists(
+      context: RequestContext,
+      options?: Repository.ExistsOptions
+  ): Promise<boolean> {
+    const conn = await this.getConnection();
+    const repo = conn.getRepository(this.typeClass);
+    try {
+      return await repo.exists(options);
+    } catch (e: any) {
+      await this._onError(e);
+      throw e;
+    }
+  }
+
+
   async update(
       context: RequestContext,
       keyValue: any,
       data: EntityInput<T>,
       options?: Repository.UpdateOptions
   ): Promise<Maybe<TOutput>> {
-    const conn = await this.getConnection(context);
-    const repo = conn.getRepository(this.resourceType);
+    const conn = await this.getConnection();
+    const repo = conn.getRepository(this.typeClass);
     let out;
     try {
       out = await repo.update(keyValue, data, options);
     } catch (e: any) {
-      await this._onError(context, e);
+      await this._onError(e);
       throw e;
     }
     if (out && this.onTransformRow)
-      out = this.onTransformRow(context, out, 'update');
+      out = this.onTransformRow(out);
     return out;
   }
 
-  async updateAll(
+  async updateMany(
       context: RequestContext,
       data: PartialInput<T>,
       options?: Repository.UpdateAllOptions
   ): Promise<number> {
-    const conn = await this.getConnection(context);
-    const repo = conn.getRepository(this.resourceType);
+    const conn = await this.getConnection();
+    const repo = conn.getRepository(this.typeClass);
     try {
-      return await repo.updateAll(data, options);
+      return await repo.updateMany(data, options);
     } catch (e: any) {
-      await this._onError(context, e);
+      await this._onError(e);
       throw e;
     }
   }
 
-  protected async _onError(context: RequestContext, error: unknown): Promise<void> {
-    if (this.onError)
-      await this.onError(context, error);
+  with(
+      context: RequestContext,
+      db?: SqbClient | SqbConnection
+  ): SqbEntityService<T, TOutput> {
+    if (this.context === context && this.db === db)
+      return this;
+    const instance = {context} as SqbEntityService<T, TOutput>;
+    // Should reset session if db changed
+    if (db) {
+      instance.db = db;
+    }
+    Object.setPrototypeOf(instance, this);
+    return instance;
   }
 
-  protected abstract getConnection(context: RequestContext): SqbConnection | SqbClient | Promise<SqbConnection | SqbClient>;
+  protected async _onError(error: unknown): Promise<void> {
+    if (this.onError)
+      await this.onError(error);
+  }
 
-  protected onError?(context: RequestContext, error: unknown): void | Promise<void>;
+  protected getConnection(): SqbConnection | SqbClient | Promise<SqbConnection | SqbClient> {
+    if (!this.context)
+      throw new Error(`Context not set!`);
+    if (!this.db)
+      throw new Error(`Database not set!`);
+    return this.db;
+  }
 
-  protected onTransformRow?(context: RequestContext, row: TOutput, method: string): TOutput;
+  protected onError?(error: unknown): void | Promise<void>;
+
+  protected onTransformRow?(row: TOutput): TOutput;
 
 
 }

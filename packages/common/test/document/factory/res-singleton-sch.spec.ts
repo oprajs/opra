@@ -4,7 +4,7 @@ import {
   DocumentFactory,
   OpraSchema, Singleton,
 } from '@opra/common';
-import { Country } from '../../_support/test-doc/index.js';
+import { Country } from '../../_support/test-api/index.js';
 
 describe('DocumentFactory - init resources with with schema object', function () {
 

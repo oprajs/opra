@@ -62,10 +62,10 @@ export interface SingletonConstructor {
 
   (type: TypeThunkAsync | string, options?: Singleton.DecoratorOptions): ClassDecorator;
 
-  CreateOperation: (options?: Singleton.CreateOperationOptions) => PropertyDecorator;
-  GetOperation: (options?: Singleton.GetOperationOptions) => PropertyDecorator;
-  DeleteOperation: (options?: Singleton.DeleteOperationOptions) => PropertyDecorator;
-  UpdateOperation: (options?: Singleton.UpdateOperationOptions) => PropertyDecorator;
+  Create: (options?: Singleton.CreateOperationOptions) => PropertyDecorator;
+  Delete: (options?: Singleton.DeleteOperationOptions) => PropertyDecorator;
+  Get: (options?: Singleton.GetOperationOptions) => PropertyDecorator;
+  Update: (options?: Singleton.UpdateOperationOptions) => PropertyDecorator;
 }
 
 export const Singleton = function (this: Singleton | void, ...args: any[]) {
@@ -143,7 +143,6 @@ const proto = {
 Object.assign(Singleton.prototype, proto);
 Object.setPrototypeOf(Singleton.prototype, Resource.prototype);
 
-
 function createOperationDecorator<T>(operation: string) {
   return (options?: T) =>
       ((target: Object, propertyKey: string | symbol): void => {
@@ -160,7 +159,7 @@ function createOperationDecorator<T>(operation: string) {
 }
 
 
-Singleton.CreateOperation = createOperationDecorator('create');
-Singleton.GetOperation = createOperationDecorator('get');
-Singleton.DeleteOperation = createOperationDecorator('delete');
-Singleton.UpdateOperation = createOperationDecorator('update');
+Singleton.Create = createOperationDecorator('create');
+Singleton.Get = createOperationDecorator('get');
+Singleton.Delete = createOperationDecorator('delete');
+Singleton.Update = createOperationDecorator('update');

@@ -4,7 +4,7 @@ import {
   DocumentFactory,
   OpraSchema,
 } from '@opra/common';
-import { Country } from '../../_support/test-doc/index.js';
+import { Country } from '../../_support/test-api/index.js';
 
 describe('DocumentFactory - Collection resource with decorated classes', function () {
 
@@ -45,7 +45,7 @@ describe('DocumentFactory - Collection resource with decorated classes', functio
     class CountriesResource {
       protected x = 1;
 
-      @Collection.CreateOperation()
+      @Collection.Create()
       _create() {
         return this.x;
       }
@@ -67,7 +67,7 @@ describe('DocumentFactory - Collection resource with decorated classes', functio
     class CountriesResource {
       protected x = 1;
 
-      @Collection.GetOperation()
+      @Collection.Get()
       _get() {
         return this.x;
       }
@@ -89,7 +89,7 @@ describe('DocumentFactory - Collection resource with decorated classes', functio
     class CountriesResource {
       protected x = 1;
 
-      @Collection.UpdateOperation()
+      @Collection.Update()
       _update() {
         return this.x;
       }
@@ -106,12 +106,12 @@ describe('DocumentFactory - Collection resource with decorated classes', functio
     expect(t.operations.update?.handlerName).toStrictEqual('_update');
   })
 
-  it('Should define "delete" operation endpoint', async () => {
+  it('Should define "deleteOne" operation endpoint', async () => {
     @Collection(Country, {primaryKey: 'code'})
     class CountriesResource {
       protected x = 1;
 
-      @Collection.DeleteOperation()
+      @Collection.Delete()
       _delete() {
         return this.x;
       }
@@ -133,7 +133,7 @@ describe('DocumentFactory - Collection resource with decorated classes', functio
     class CountriesResource {
       protected x = 1;
 
-      @Collection.SearchOperation()
+      @Collection.FindMany()
       _search() {
         return this.x;
       }
@@ -146,8 +146,8 @@ describe('DocumentFactory - Collection resource with decorated classes', functio
     expect(doc).toBeDefined();
     const t = doc.getCollection('countries');
     expect(t.controller).toBe(CountriesResource);
-    expect(t.operations.search).toBeDefined();
-    expect(t.operations.search?.handlerName).toStrictEqual('_search');
+    expect(t.operations.findMany).toBeDefined();
+    expect(t.operations.findMany?.handlerName).toStrictEqual('_search');
   })
 
   it('Should define "updateMany" operation endpoint', async () => {
@@ -155,7 +155,7 @@ describe('DocumentFactory - Collection resource with decorated classes', functio
     class CountriesResource {
       protected x = 1;
 
-      @Collection.UpdateManyOperation()
+      @Collection.UpdateMany()
       _updateMany() {
         return this.x;
       }
@@ -177,7 +177,7 @@ describe('DocumentFactory - Collection resource with decorated classes', functio
     class CountriesResource {
       protected x = 1;
 
-      @Collection.DeleteManyOperation()
+      @Collection.DeleteMany()
       _deleteMany() {
         return this.x;
       }

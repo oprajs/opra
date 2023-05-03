@@ -15,23 +15,23 @@ export namespace Collection {
   export type Kind = 'Collection';
 
   export type CreateOperation = Endpoint & _Operation.InputPickOmit & _Operation.ResponsePickOmit;
-  export type GetOperation = Endpoint & _Operation.ResponsePickOmit;
   export type DeleteOperation = Endpoint;
   export type DeleteManyOperation = Endpoint & _Operation.Filter;
-  export type UpdateOperation = Endpoint & _Operation.InputPickOmit & _Operation.ResponsePickOmit;
-  export type UpdateManyOperation = Endpoint & _Operation.InputPickOmit & _Operation.Filter;
-  export type SearchOperation = Endpoint & _Operation.Filter & _Operation.ResponsePickOmit & {
+  export type GetOperation = Endpoint & _Operation.ResponsePickOmit;
+  export type FindManyOperation = Endpoint & _Operation.Filter & _Operation.ResponsePickOmit & {
     sortFields?: string[];
     defaultSort?: string[];
   };
+  export type UpdateOperation = Endpoint & _Operation.InputPickOmit & _Operation.ResponsePickOmit;
+  export type UpdateManyOperation = Endpoint & _Operation.InputPickOmit & _Operation.Filter;
 
   export interface Operations {
     create?: CreateOperation;
     delete?: DeleteOperation;
-    deleteMany?: DeleteManyOperation;
     get?: GetOperation;
     update?: UpdateOperation;
+    deleteMany?: DeleteManyOperation;
+    findMany?: FindManyOperation;
     updateMany?: UpdateManyOperation;
-    search?: SearchOperation;
   }
 }

@@ -1,8 +1,8 @@
 import 'reflect-metadata';
 import '@opra/sqb';
 import { ApiField, ComplexType, METADATA_KEY, OmitType, PickType } from '@opra/common';
+import { Customer } from '@opra/common/test/_support/test-api';
 import { Column, Entity } from '@sqb/connect';
-import { Customer } from '../_support/app/index.js';
 
 describe('MappedType augmentation', function () {
 
@@ -25,7 +25,7 @@ describe('MappedType augmentation', function () {
     const sqbMeta = Entity.getMetadata(TestClass);
     expect(sqbMeta).toBeDefined();
     const keys = Object.keys((sqbMeta as any).fields);
-    expect(keys).toContain('id');
+    expect(keys).toContain('_id');
     expect(keys).toContain('sex');
     expect(keys).not.toContain('gender');
   })

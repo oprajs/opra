@@ -43,14 +43,14 @@
   },
   "devDependencies": {
     "@faker-js/faker": "^7.6.0",
+    "@types/content-type": "^1.1.5",
     "@types/dicer": "^0.2.2",
     "@types/express": "^4.17.17",
-    "@types/content-type": "^1.1.5",
     "cors": "^2.8.5",
     "ts-gems": "^2.3.0"
   },
   "type": "module",
-  "types": "esm/index.d.ts",
+  "types": "types/index.d.ts",
   "exports": {
     ".": {
       "require": "./cjs/index.js",
@@ -68,6 +68,7 @@
     "cjs/",
     "esm/",
     "i18n/",
+    "types/",
     "LICENSE",
     "README.md"
   ],

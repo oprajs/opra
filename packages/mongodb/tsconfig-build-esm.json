@@ -1,14 +1,10 @@
 {
-  "extends": "./tsconfig.json",
+  "extends": "../../tsconfig-build.json",
   "compilerOptions": {
     "rootDir": "src",
-    "outDir": "../../build/mongodb/esm",
-    "paths": {
-      "@opra/*": ["../../build/*"]
-    },
-    "sourceMap": false,
-    "inlineSourceMap": false,
     "noEmit": false,
+    "outDir": "../../build/mongodb/esm",
+    "declarationDir": "../../build/mongodb/types",
     "declaration": true
   },
   "include": ["src"]

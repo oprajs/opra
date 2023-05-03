@@ -33,7 +33,7 @@ describe('Entity operations', function () {
 
   });
 
-  it('Should search from entity collection', async function () {
+  it('Should find many entity', async function () {
     const resp = await request(server)
         .get('/api/svc1/Photos?$filter=id<=2');
     expect(resp.body).toStrictEqual(photosData.filter(x => x.id <= 2));

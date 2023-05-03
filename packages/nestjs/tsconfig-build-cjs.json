@@ -1,18 +1,9 @@
 {
-  "extends": "./tsconfig.json",
+  "extends": "../../tsconfig-build.json",
   "compilerOptions": {
-    "moduleResolution": "Node",
-    "module": "CommonJS",
     "rootDir": "src",
     "outDir": "../../build/nestjs/cjs",
-    "paths": {
-      "@opra/common": ["../../build/common"],
-      "@opra/core": ["../../build/core"]
-    },
-    "sourceMap": false,
-    "inlineSourceMap": false,
     "noEmit": false,
-    "declaration": false,
   },
   "include": ["src"]
 }

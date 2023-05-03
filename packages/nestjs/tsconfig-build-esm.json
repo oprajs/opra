@@ -1,15 +1,10 @@
 {
-  "extends": "./tsconfig.json",
+  "extends": "../../tsconfig-build.json",
   "compilerOptions": {
     "rootDir": "src",
-    "outDir": "../../build/nestjs/esm",
-    "paths": {
-      "@opra/common": ["../../build/common"],
-      "@opra/core": ["../../build/core"]
-    },
-    "sourceMap": false,
-    "inlineSourceMap": false,
     "noEmit": false,
+    "outDir": "../../build/nestjs/esm",
+    "declarationDir": "../../build/nestjs/types",
     "declaration": true
   },
   "include": ["src"]

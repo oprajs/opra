@@ -1,14 +1,10 @@
 {
-  "extends": "./tsconfig.json",
+  "extends": "../../tsconfig-build.json",
   "compilerOptions": {
     "rootDir": "src",
-    "outDir": "../../build/common/esm",
-    "paths": {
-      "@opra/common": ["../../build/common"]
-    },
-    "sourceMap": false,
-    "inlineSourceMap": false,
     "noEmit": false,
+    "outDir": "../../build/common/esm",
+    "declarationDir": "../../build/common/types",
     "declaration": true
   },
   "include": ["src"]

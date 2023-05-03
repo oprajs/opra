@@ -4,8 +4,7 @@ import {
   HttpRequestMessage,
 } from '@opra/common';
 import { OpraHttpAdapter, Request } from '@opra/core';
-import { BestCustomerResource } from '../../_support/test-app/resource/best-customer.resource.js';
-import { CustomersResource } from '../../_support/test-app/resource/customers.resource.js';
+import { CustomersResource, MyProfileResource } from '../../_support/test-app/index.js';
 
 describe('OpraHttpAdapter parse Collection requests', function () {
 
@@ -33,7 +32,7 @@ describe('OpraHttpAdapter parse Collection requests', function () {
         title: 'TestApi',
         version: 'v1',
       },
-      resources: [CustomersResource, BestCustomerResource]
+      resources: [CustomersResource, MyProfileResource]
     });
     adapter = await TestHttpAdapter.create(document);
   });
@@ -43,7 +42,7 @@ describe('OpraHttpAdapter parse Collection requests', function () {
     it('Should parse request', async () => {
       const request = await adapter.parseRequest(HttpRequestMessage.create({
         method: 'GET',
-        url: '/Customers@1?$pick=id&$omit=gender&$include=address',
+        url: '/Customers@1?$pick=_id&$omit=gender&$include=address',
         headers: {'Accept': 'application/json'}
       }));
       expect(request).toBeDefined();
@@ -55,7 +54,7 @@ describe('OpraHttpAdapter parse Collection requests', function () {
       expect(request.crud).toStrictEqual('read');
       expect(request.many).toStrictEqual(false);
       expect(request.args.key).toStrictEqual(1);
-      expect(request.args.pick).toStrictEqual(['id']);
+      expect(request.args.pick).toStrictEqual(['_id']);
       expect(request.args.omit).toStrictEqual(['gender']);
       expect(request.args.include).toStrictEqual(['address']);
       expect(() => request.switchToHttp()).not.toThrow();
@@ -188,8 +187,8 @@ describe('OpraHttpAdapter parse Collection requests', function () {
     it('Should parse request', async () => {
       const request = await adapter.parseRequest(HttpRequestMessage.create({
         method: 'POST',
-        url: '/Customers?$pick=id&$omit=gender&$include=address',
-        body: {id: 1},
+        url: '/Customers?$pick=_id&$omit=gender&$include=address',
+        body: {_id: 1},
         headers: {'content-type': 'application/json', 'Accept': 'application/json'}
       }));
       expect(request).toBeDefined();
@@ -200,8 +199,8 @@ describe('OpraHttpAdapter parse Collection requests', function () {
       expect(request.operation).toStrictEqual('create');
       expect(request.crud).toStrictEqual('create');
       expect(request.many).toStrictEqual(false);
-      expect(request.args.data).toStrictEqual({id: 1});
-      expect(request.args.pick).toStrictEqual(['id']);
+      expect(request.args.data).toStrictEqual({_id: 1});
+      expect(request.args.pick).toStrictEqual(['_id']);
       expect(request.args.omit).toStrictEqual(['gender']);
       expect(request.args.include).toStrictEqual(['address']);
       expect(() => request.switchToHttp()).not.toThrow();
@@ -213,7 +212,7 @@ describe('OpraHttpAdapter parse Collection requests', function () {
       let request = await adapter.parseRequest(HttpRequestMessage.create({
         method: 'POST',
         url: '/Customers?$pick=givenname,GENDER,AdDRess.CIty',
-        body: {id: 1},
+        body: {_id: 1},
         headers: {'content-type': 'application/json'}
       }));
       expect(request).toBeDefined();
@@ -222,7 +221,7 @@ describe('OpraHttpAdapter parse Collection requests', function () {
       request = await adapter.parseRequest(HttpRequestMessage.create({
         method: 'POST',
         url: '/Customers?$pick=address,address.city',
-        body: {id: 1},
+        body: {_id: 1},
         headers: {'content-type': 'application/json'}
       }));
       expect(request.operation).toStrictEqual('create');
@@ -230,7 +229,7 @@ describe('OpraHttpAdapter parse Collection requests', function () {
       request = await adapter.parseRequest(HttpRequestMessage.create({
         method: 'POST',
         url: '/Customers?$pick=address.city,address',
-        body: {id: 1},
+        body: {_id: 1},
         headers: {'content-type': 'application/json'}
       }));
       expect(request.operation).toStrictEqual('create');
@@ -241,7 +240,7 @@ describe('OpraHttpAdapter parse Collection requests', function () {
       let request = await adapter.parseRequest(HttpRequestMessage.create({
         method: 'POST',
         url: '/Customers?$omit=givenname,GENDER,AdDRess.CIty',
-        body: {id: 1},
+        body: {_id: 1},
         headers: {'content-type': 'application/json'}
       }));
       expect(request).toBeDefined();
@@ -250,7 +249,7 @@ describe('OpraHttpAdapter parse Collection requests', function () {
       request = await adapter.parseRequest(HttpRequestMessage.create({
         method: 'POST',
         url: '/Customers?$omit=address,address.city',
-        body: {id: 1},
+        body: {_id: 1},
         headers: {'content-type': 'application/json'}
       }));
       expect(request.operation).toStrictEqual('create');
@@ -258,7 +257,7 @@ describe('OpraHttpAdapter parse Collection requests', function () {
       request = await adapter.parseRequest(HttpRequestMessage.create({
         method: 'POST',
         url: '/Customers?$omit=address.city,address',
-        body: {id: 1},
+        body: {_id: 1},
         headers: {'content-type': 'application/json'}
       }));
       expect(request.operation).toStrictEqual('create');
@@ -269,7 +268,7 @@ describe('OpraHttpAdapter parse Collection requests', function () {
       let request = await adapter.parseRequest(HttpRequestMessage.create({
         method: 'POST',
         url: '/Customers?$include=givenname,GENDER,AdDRess.CIty',
-        body: {id: 1},
+        body: {_id: 1},
         headers: {'content-type': 'application/json'}
       }));
       expect(request).toBeDefined();
@@ -278,7 +277,7 @@ describe('OpraHttpAdapter parse Collection requests', function () {
       request = await adapter.parseRequest(HttpRequestMessage.create({
         method: 'POST',
         url: '/Customers?$include=address,address.city',
-        body: {id: 1},
+        body: {_id: 1},
         headers: {'content-type': 'application/json'}
       }));
       expect(request.args.include).toStrictEqual(['address']);
@@ -294,7 +293,7 @@ describe('OpraHttpAdapter parse Collection requests', function () {
       await expect(() => adapter.parseRequest(HttpRequestMessage.create({
             method: 'POST',
             url: '/Customers?$pick=address.x1',
-            body: {id: 1},
+            body: {_id: 1},
             headers: {'content-type': 'application/json'}
           }))
       ).rejects.toThrow('Unknown field "address.x1"');
@@ -304,7 +303,7 @@ describe('OpraHttpAdapter parse Collection requests', function () {
       await expect(() => adapter.parseRequest(HttpRequestMessage.create({
             method: 'POST',
             url: '/Customers?$omit=address.x1',
-            body: {id: 1},
+            body: {_id: 1},
             headers: {'content-type': 'application/json'}
           }))
       ).rejects.toThrow('Unknown field "address.x1"');
@@ -314,7 +313,7 @@ describe('OpraHttpAdapter parse Collection requests', function () {
       await expect(() => adapter.parseRequest(HttpRequestMessage.create({
             method: 'POST',
             url: '/Customers?$include=address.x1',
-            body: {id: 1},
+            body: {_id: 1},
             headers: {'content-type': 'application/json'}
           }))
       ).rejects.toThrow('Unknown field "address.x1"');
@@ -324,7 +323,7 @@ describe('OpraHttpAdapter parse Collection requests', function () {
       const request = await adapter.parseRequest(HttpRequestMessage.create({
         method: 'POST',
         url: '/Customers?$pick=notes.add1,notes.add2.add3',
-        body: {id: 1},
+        body: {_id: 1},
         headers: {'content-type': 'application/json'}
       }));
       expect(request).toBeDefined();
@@ -336,7 +335,7 @@ describe('OpraHttpAdapter parse Collection requests', function () {
       const request = await adapter.parseRequest(HttpRequestMessage.create({
         method: 'POST',
         url: '/Customers?$omit=notes.add1,notes.add2.add3',
-        body: {id: 1},
+        body: {_id: 1},
         headers: {'content-type': 'application/json'}
       }));
       expect(request).toBeDefined();
@@ -348,7 +347,7 @@ describe('OpraHttpAdapter parse Collection requests', function () {
       const request = await adapter.parseRequest(HttpRequestMessage.create({
         method: 'POST',
         url: '/Customers?$include=notes.add1,notes.add2.add3',
-        body: {id: 1},
+        body: {_id: 1},
         headers: {'content-type': 'application/json'}
       }));
       expect(request).toBeDefined();
@@ -363,8 +362,8 @@ describe('OpraHttpAdapter parse Collection requests', function () {
     it('Should parse request', async () => {
       const request = await adapter.parseRequest(HttpRequestMessage.create({
         method: 'PATCH',
-        url: '/Customers@1?$pick=id&$omit=gender&$include=address',
-        body: {id: 1},
+        url: '/Customers@1?$pick=_id&$omit=gender&$include=address',
+        body: {_id: 1},
         headers: {'content-type': 'application/json', 'Accept': 'application/json'}
       }));
       expect(request).toBeDefined();
@@ -376,8 +375,8 @@ describe('OpraHttpAdapter parse Collection requests', function () {
       expect(request.crud).toStrictEqual('update');
       expect(request.many).toStrictEqual(false);
       expect(request.args.key).toStrictEqual(1);
-      expect(request.args.data).toStrictEqual({id: 1});
-      expect(request.args.pick).toStrictEqual(['id']);
+      expect(request.args.data).toStrictEqual({_id: 1});
+      expect(request.args.pick).toStrictEqual(['_id']);
       expect(request.args.omit).toStrictEqual(['gender']);
       expect(request.args.include).toStrictEqual(['address']);
       expect(() => request.switchToHttp()).not.toThrow();
@@ -389,7 +388,7 @@ describe('OpraHttpAdapter parse Collection requests', function () {
       let request = await adapter.parseRequest(HttpRequestMessage.create({
         method: 'PATCH',
         url: '/Customers@1?$pick=givenname,GENDER,AdDRess.CIty',
-        body: {id: 1},
+        body: {_id: 1},
       }));
       expect(request).toBeDefined();
       expect(request.operation).toStrictEqual('update');
@@ -403,7 +402,7 @@ describe('OpraHttpAdapter parse Collection requests', function () {
       request = await adapter.parseRequest(HttpRequestMessage.create({
         method: 'PATCH',
         url: '/Customers@1?$pick=address.city,address',
-        body: {id: 1},
+        body: {_id: 1},
       }));
       expect(request.operation).toStrictEqual('update');
       expect(request.args.pick).toStrictEqual(['address']);
@@ -413,7 +412,7 @@ describe('OpraHttpAdapter parse Collection requests', function () {
       let request = await adapter.parseRequest(HttpRequestMessage.create({
         method: 'PATCH',
         url: '/Customers@1?$omit=givenname,GENDER,AdDRess.CIty',
-        body: {id: 1},
+        body: {_id: 1},
       }));
       expect(request).toBeDefined();
       expect(request.operation).toStrictEqual('update');
@@ -421,14 +420,14 @@ describe('OpraHttpAdapter parse Collection requests', function () {
       request = await adapter.parseRequest(HttpRequestMessage.create({
         method: 'PATCH',
         url: '/Customers@1?$omit=address,address.city',
-        body: {id: 1},
+        body: {_id: 1},
       }));
       expect(request.operation).toStrictEqual('update');
       expect(request.args.omit).toStrictEqual(['address']);
       request = await adapter.parseRequest(HttpRequestMessage.create({
         method: 'PATCH',
         url: '/Customers@1?$omit=address.city,address',
-        body: {id: 1},
+        body: {_id: 1},
       }));
       expect(request.operation).toStrictEqual('update');
       expect(request.args.omit).toStrictEqual(['address']);
@@ -438,7 +437,7 @@ describe('OpraHttpAdapter parse Collection requests', function () {
       let request = await adapter.parseRequest(HttpRequestMessage.create({
         method: 'PATCH',
         url: '/Customers@1?$include=givenname,GENDER,AdDRess.CIty',
-        body: {id: 1},
+        body: {_id: 1},
       }));
       expect(request).toBeDefined();
       expect(request.operation).toStrictEqual('update');
@@ -446,14 +445,14 @@ describe('OpraHttpAdapter parse Collection requests', function () {
       request = await adapter.parseRequest(HttpRequestMessage.create({
         method: 'PATCH',
         url: '/Customers@1?$include=address,address.city',
-        body: {id: 1},
+        body: {_id: 1},
       }));
       expect(request.operation).toStrictEqual('update');
       expect(request.args.include).toStrictEqual(['address']);
       request = await adapter.parseRequest(HttpRequestMessage.create({
         method: 'PATCH',
         url: '/Customers@1?$include=address.city,address',
-        body: {id: 1},
+        body: {_id: 1},
       }));
       expect(request.operation).toStrictEqual('update');
       expect(request.args.include).toStrictEqual(['address']);
@@ -463,7 +462,7 @@ describe('OpraHttpAdapter parse Collection requests', function () {
       await expect(() => adapter.parseRequest(HttpRequestMessage.create({
             method: 'PATCH',
             url: '/Customers@1?$pick=address.x1',
-            body: {id: 1},
+            body: {_id: 1},
           }))
       ).rejects.toThrow('Unknown field "address.x1"');
     })
@@ -472,7 +471,7 @@ describe('OpraHttpAdapter parse Collection requests', function () {
       await expect(() => adapter.parseRequest(HttpRequestMessage.create({
             method: 'PATCH',
             url: '/Customers@1?$omit=address.x1',
-            body: {id: 1},
+            body: {_id: 1},
           }))
       ).rejects.toThrow('Unknown field "address.x1"');
     })
@@ -481,7 +480,7 @@ describe('OpraHttpAdapter parse Collection requests', function () {
       await expect(() => adapter.parseRequest(HttpRequestMessage.create({
             method: 'PATCH',
             url: '/Customers@1?$include=address.x1',
-            body: {id: 1},
+            body: {_id: 1},
           }))
       ).rejects.toThrow('Unknown field "address.x1"');
     })
@@ -490,7 +489,7 @@ describe('OpraHttpAdapter parse Collection requests', function () {
       const request = await adapter.parseRequest(HttpRequestMessage.create({
         method: 'PATCH',
         url: '/Customers@1?$pick=notes.add1,notes.add2.add3',
-        body: {id: 1},
+        body: {_id: 1},
       }));
       expect(request).toBeDefined();
       expect(request.operation).toStrictEqual('update');
@@ -501,7 +500,7 @@ describe('OpraHttpAdapter parse Collection requests', function () {
       const request = await adapter.parseRequest(HttpRequestMessage.create({
         method: 'PATCH',
         url: '/Customers@1?$omit=notes.add1,notes.add2.add3',
-        body: {id: 1},
+        body: {_id: 1},
       }));
       expect(request).toBeDefined();
       expect(request.operation).toStrictEqual('update');
@@ -512,7 +511,7 @@ describe('OpraHttpAdapter parse Collection requests', function () {
       const request = await adapter.parseRequest(HttpRequestMessage.create({
         method: 'PATCH',
         url: '/Customers@1?$include=notes.add1,notes.add2.add3',
-        body: {id: 1},
+        body: {_id: 1},
       }));
       expect(request).toBeDefined();
       expect(request.operation).toStrictEqual('update');
@@ -527,7 +526,7 @@ describe('OpraHttpAdapter parse Collection requests', function () {
       const request = await adapter.parseRequest(HttpRequestMessage.create({
         method: 'PATCH',
         url: '/Customers',
-        body: {id: 1},
+        body: {_id: 1},
         headers: {'content-type': 'application/json', 'Accept': 'application/json'}
       }));
       expect(request).toBeDefined();
@@ -539,7 +538,7 @@ describe('OpraHttpAdapter parse Collection requests', function () {
       expect(request.crud).toStrictEqual('update');
       expect(request.many).toStrictEqual(true);
       expect(request.args.filter).toBeDefined();
-      expect(request.args.data).toStrictEqual({id: 1});
+      expect(request.args.data).toStrictEqual({_id: 1});
       expect(() => request.switchToHttp()).not.toThrow();
       expect(request.switchToHttp().headers).toBeDefined();
       expect(request.switchToHttp().headers.accept).toStrictEqual('application/json');
@@ -549,7 +548,7 @@ describe('OpraHttpAdapter parse Collection requests', function () {
       const request = await adapter.parseRequest(HttpRequestMessage.create({
         method: 'PATCH',
         url: '/Customers?$filter=givenname=John',
-        body: {id: 1},
+        body: {_id: 1},
         headers: {'content-type': 'application/json', 'Accept': 'application/json'}
       }));
       expect(request).toBeDefined();
@@ -562,7 +561,7 @@ describe('OpraHttpAdapter parse Collection requests', function () {
       await expect(() => adapter.parseRequest(HttpRequestMessage.create({
             method: 'PATCH',
             url: '/Customers?$filter=address.x1=1',
-            body: {id: 1},
+            body: {_id: 1},
             headers: {'content-type': 'application/json', 'Accept': 'application/json'}
           }))
       ).rejects.toThrow('Unknown field "address.x1"');
@@ -599,7 +598,7 @@ describe('OpraHttpAdapter parse Collection requests', function () {
     it('Should parse request', async () => {
       const request = await adapter.parseRequest(HttpRequestMessage.create({
         method: 'DELETE',
-        url: '/Customers?$filter=id<10',
+        url: '/Customers?$filter=_id<10',
         headers: {'Accept': 'application/json'}
       }));
       expect(request).toBeDefined();
@@ -637,25 +636,25 @@ describe('OpraHttpAdapter parse Collection requests', function () {
 
   })
 
-  describe('CollectionSearchRequest', function () {
+  describe('CollectionFindManyRequest', function () {
 
     it('Should parse request', async () => {
       const request = await adapter.parseRequest(HttpRequestMessage.create({
         method: 'GET',
-        url: '/Customers?$limit=1&$skip=1&$count=n&$distinct=t&$sort=id' +
-            '&$pick=id&$omit=gender&$include=address',
+        url: '/Customers?$limit=1&$skip=1&$count=n&$distinct=t&$sort=_id' +
+            '&$pick=_id&$omit=gender&$include=address',
         headers: {'Accept': 'application/json'}
       }));
       expect(request).toBeDefined();
       const resource = document.getCollection('Customers');
       expect(request.resource).toStrictEqual(resource);
-      expect(request.kind).toStrictEqual('CollectionSearchRequest');
+      expect(request.kind).toStrictEqual('CollectionFindManyRequest');
       expect(request.resourceKind).toStrictEqual('Collection');
-      expect(request.operation).toStrictEqual('search');
+      expect(request.operation).toStrictEqual('findMany');
       expect(request.crud).toStrictEqual('read');
       expect(request.many).toStrictEqual(true);
-      expect(request.args.sort).toStrictEqual(['id']);
-      expect(request.args.pick).toStrictEqual(['id']);
+      expect(request.args.sort).toStrictEqual(['_id']);
+      expect(request.args.pick).toStrictEqual(['_id']);
       expect(request.args.omit).toStrictEqual(['gender']);
       expect(request.args.include).toStrictEqual(['address']);
       expect(() => request.switchToHttp()).not.toThrow();
@@ -669,7 +668,7 @@ describe('OpraHttpAdapter parse Collection requests', function () {
         url: '/Customers?$pick=givenname,GENDER,AdDRess.CIty'
       }));
       expect(request).toBeDefined();
-      expect(request.operation).toStrictEqual('search');
+      expect(request.operation).toStrictEqual('findMany');
       expect(request.args.pick).toStrictEqual(['givenName', 'gender', 'address.city']);
 
       request = await adapter.parseRequest(HttpRequestMessage.create({
@@ -682,7 +681,7 @@ describe('OpraHttpAdapter parse Collection requests', function () {
         method: 'GET',
         url: '/Customers?$pick=address.city,address'
       }));
-      expect(request.operation).toStrictEqual('search');
+      expect(request.operation).toStrictEqual('findMany');
       expect(request.args.pick).toStrictEqual(['address']);
     })
 
@@ -711,21 +710,21 @@ describe('OpraHttpAdapter parse Collection requests', function () {
         url: '/Customers?$include=givenname,GENDER,AdDRess.CIty'
       }));
       expect(request).toBeDefined();
-      expect(request.operation).toStrictEqual('search');
+      expect(request.operation).toStrictEqual('findMany');
       expect(request.args.include).toStrictEqual(['givenName', 'gender', 'address.city']);
 
       request = await adapter.parseRequest(HttpRequestMessage.create({
         method: 'GET',
         url: '/Customers?$include=address,address.city'
       }));
-      expect(request.operation).toStrictEqual('search');
+      expect(request.operation).toStrictEqual('findMany');
       expect(request.args.include).toStrictEqual(['address']);
 
       request = await adapter.parseRequest(HttpRequestMessage.create({
         method: 'GET',
         url: '/Customers?$include=address.city,address'
       }));
-      expect(request.operation).toStrictEqual('search');
+      expect(request.operation).toStrictEqual('findMany');
       expect(request.args.include).toStrictEqual(['address']);
     })
 
@@ -735,7 +734,7 @@ describe('OpraHttpAdapter parse Collection requests', function () {
         url: '/Customers?$sort=givenname,GENDER,AdDRess.CIty'
       }));
       expect(request).toBeDefined();
-      expect(request.operation).toStrictEqual('search');
+      expect(request.operation).toStrictEqual('findMany');
       expect(request.args.sort).toStrictEqual(['givenName', 'gender', 'address.city']);
     })
 
@@ -774,7 +773,7 @@ describe('OpraHttpAdapter parse Collection requests', function () {
     it('Should validate if field is available for sorting', async () => {
       await expect(() => adapter.parseRequest(HttpRequestMessage.create({
             method: 'GET',
-            url: '/Customers?$sort=cid'
+            url: '/Customers?$sort=uid'
           }))
       ).rejects.toThrow('is not available for sort operation');
     })
@@ -785,7 +784,7 @@ describe('OpraHttpAdapter parse Collection requests', function () {
         url: '/Customers?$pick=notes.add1,notes.add2.add3'
       }));
       expect(request).toBeDefined();
-      expect(request.operation).toStrictEqual('search');
+      expect(request.operation).toStrictEqual('findMany');
       expect(request.args.pick).toStrictEqual(['notes.add1', 'notes.add2.add3']);
     })
 
@@ -795,7 +794,7 @@ describe('OpraHttpAdapter parse Collection requests', function () {
         url: '/Customers?$omit=notes.add1,notes.add2.add3'
       }));
       expect(request).toBeDefined();
-      expect(request.operation).toStrictEqual('search');
+      expect(request.operation).toStrictEqual('findMany');
       expect(request.args.omit).toStrictEqual(['notes.add1', 'notes.add2.add3']);
     })
 
@@ -805,7 +804,7 @@ describe('OpraHttpAdapter parse Collection requests', function () {
         url: '/Customers?$include=notes.add1,notes.add2.add3'
       }));
       expect(request).toBeDefined();
-      expect(request.operation).toStrictEqual('search');
+      expect(request.operation).toStrictEqual('findMany');
       expect(request.args.include).toStrictEqual(['notes.add1', 'notes.add2.add3']);
     })
 
@@ -831,7 +830,7 @@ describe('OpraHttpAdapter parse Collection requests', function () {
         url: '/Customers?$skip=5'
       }));
       expect(request).toBeDefined();
-      expect(request.operation).toStrictEqual('search');
+      expect(request.operation).toStrictEqual('findMany');
       expect(request.args.skip).toStrictEqual(5);
     })
 
@@ -848,42 +847,42 @@ describe('OpraHttpAdapter parse Collection requests', function () {
         url: '/Customers?$count=true'
       }));
       expect(request).toBeDefined();
-      expect(request.operation).toStrictEqual('search');
+      expect(request.operation).toStrictEqual('findMany');
       expect(request.args.count).toStrictEqual(true);
       request = await adapter.parseRequest(HttpRequestMessage.create({
         method: 'GET',
         url: '/Customers?$count=1'
       }));
       expect(request).toBeDefined();
-      expect(request.operation).toStrictEqual('search');
+      expect(request.operation).toStrictEqual('findMany');
       expect(request.args.count).toStrictEqual(true);
       request = await adapter.parseRequest(HttpRequestMessage.create({
         method: 'GET',
         url: '/Customers?$count=t'
       }));
       expect(request).toBeDefined();
-      expect(request.operation).toStrictEqual('search');
+      expect(request.operation).toStrictEqual('findMany');
       expect(request.args.count).toStrictEqual(true);
       request = await adapter.parseRequest(HttpRequestMessage.create({
         method: 'GET',
         url: '/Customers?$count=false'
       }));
       expect(request).toBeDefined();
-      expect(request.operation).toStrictEqual('search');
+      expect(request.operation).toStrictEqual('findMany');
       expect(request.args.count).toStrictEqual(false);
       request = await adapter.parseRequest(HttpRequestMessage.create({
         method: 'GET',
         url: '/Customers?$count=0'
       }));
       expect(request).toBeDefined();
-      expect(request.operation).toStrictEqual('search');
+      expect(request.operation).toStrictEqual('findMany');
       expect(request.args.count).toStrictEqual(false);
       request = await adapter.parseRequest(HttpRequestMessage.create({
         method: 'GET',
         url: '/Customers?$count=f'
       }));
       expect(request).toBeDefined();
-      expect(request.operation).toStrictEqual('search');
+      expect(request.operation).toStrictEqual('findMany');
       expect(request.args.count).toStrictEqual(false);
     })
 
@@ -900,42 +899,42 @@ describe('OpraHttpAdapter parse Collection requests', function () {
         url: '/Customers?$distinct=true'
       }));
       expect(request).toBeDefined();
-      expect(request.operation).toStrictEqual('search');
+      expect(request.operation).toStrictEqual('findMany');
       expect(request.args.distinct).toStrictEqual(true);
       request = await adapter.parseRequest(HttpRequestMessage.create({
         method: 'GET',
         url: '/Customers?$distinct=1'
       }));
       expect(request).toBeDefined();
-      expect(request.operation).toStrictEqual('search');
+      expect(request.operation).toStrictEqual('findMany');
       expect(request.args.distinct).toStrictEqual(true);
       request = await adapter.parseRequest(HttpRequestMessage.create({
         method: 'GET',
         url: '/Customers?$distinct=t'
       }));
       expect(request).toBeDefined();
-      expect(request.operation).toStrictEqual('search');
+      expect(request.operation).toStrictEqual('findMany');
       expect(request.args.distinct).toStrictEqual(true);
       request = await adapter.parseRequest(HttpRequestMessage.create({
         method: 'GET',
         url: '/Customers?$distinct=false'
       }));
       expect(request).toBeDefined();
-      expect(request.operation).toStrictEqual('search');
+      expect(request.operation).toStrictEqual('findMany');
       expect(request.args.distinct).toStrictEqual(false);
       request = await adapter.parseRequest(HttpRequestMessage.create({
         method: 'GET',
         url: '/Customers?$distinct=0'
       }));
       expect(request).toBeDefined();
-      expect(request.operation).toStrictEqual('search');
+      expect(request.operation).toStrictEqual('findMany');
       expect(request.args.distinct).toStrictEqual(false);
       request = await adapter.parseRequest(HttpRequestMessage.create({
         method: 'GET',
         url: '/Customers?$distinct=f'
       }));
       expect(request).toBeDefined();
-      expect(request.operation).toStrictEqual('search');
+      expect(request.operation).toStrictEqual('findMany');
       expect(request.args.distinct).toStrictEqual(false);
     })
 
@@ -952,7 +951,7 @@ describe('OpraHttpAdapter parse Collection requests', function () {
         url: '/Customers?$filter=givenname=John'
       }));
       expect(request).toBeDefined();
-      expect(request.operation).toStrictEqual('search');
+      expect(request.operation).toStrictEqual('findMany');
       expect(request.args.filter).toBeDefined();
       expect(typeof request.args.filter).toStrictEqual('object');
     })

@@ -12,37 +12,37 @@ export class CustomersResource {
   public initialized = false;
   public closed = false;
 
-  @Collection.CreateOperation()
+  @Collection.Create()
   create() {
     return new CustomerNotes();
   }
 
-  @Collection.GetOperation()
+  @Collection.Get()
   read() {
     return new CustomerNotes();
   }
 
-  @Collection.DeleteOperation()
+  @Collection.Delete()
   delete() {
     return true;
   }
 
-  @Collection.DeleteManyOperation()
+  @Collection.DeleteMany()
   deleteMany() {
     return 1;
   }
 
-  @Collection.UpdateOperation()
+  @Collection.Update()
   update() {
     return new CustomerNotes();
   }
 
-  @Collection.UpdateManyOperation()
+  @Collection.UpdateMany()
   updateMany() {
     return 1;
   }
 
-  @Collection.SearchOperation({
+  @Collection.FindMany({
     sortFields: ['id', 'givenName', 'familyName', 'gender', 'birthDate', 'address.city'],
     defaultSort: ['givenName'],
     filters: [

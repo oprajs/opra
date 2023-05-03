@@ -56,7 +56,7 @@ expect.extend({
     const pass = !filteredKeys.length === !this.isNot;
     if (!pass) {
       const message = () =>
-          `Expects keys to${this.isNot ? ' not' : ''} contain: ${colors.yellow('' + expectedKeys)}\n` +
+          `Expects keys ${this.isNot ? 'not ' : ''}to contain: ${colors.yellow('' + expectedKeys)}\n` +
           `${this.isNot ? 'Unsolicited' : 'Missing'} fields: ${colors.yellow('' + filteredKeys)}\n`;
       return {message, pass: !!this.isNot};
     }

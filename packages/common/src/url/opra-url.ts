@@ -13,15 +13,15 @@ const hostnameRegEx = /^([^/:]+)$/;
 
 const kContext = Symbol('kContext');
 const kPath = Symbol('kPath');
-const kSearchParams = Symbol('kSearchParams');
+const kParams = Symbol('kParams');
 
 export class OpraURL {
   protected static kContext = kContext;
   protected static kPath = kPath;
-  protected static kSearchParams = kSearchParams;
+  protected static kParams = kParams;
 
   protected [kPath]: OpraURLPath;
-  protected [kSearchParams]: HttpParams;
+  protected [kParams]: HttpParams;
   protected [kContext]: {
     protocol: string,
     username: string,
@@ -50,7 +50,7 @@ export class OpraURL {
         this[kContext].address = undefined;
       }
     });
-    this[kSearchParams] = new HttpParams('', {
+    this[kParams] = new HttpParams('', {
       onChange: () => {
         this[kContext].search = undefined;
       }
@@ -217,7 +217,7 @@ export class OpraURL {
 
   get search(): string {
     if (this[kContext].search == null) {
-      const s = this[kSearchParams].toString();
+      const s = this[kParams].toString();
       this[kContext].search = s ? ('?' + s) : '';
     }
     return this[kContext].search;
@@ -225,14 +225,14 @@ export class OpraURL {
 
   set search(v: string) {
     if (v) {
-      this[kSearchParams].clear();
-      this[kSearchParams].appendAll(v);
+      this[kParams].clear();
+      this[kParams].appendAll(v);
     }
     this[kContext].search = undefined;
   }
 
   get searchParams(): HttpParams {
-    return this[kSearchParams];
+    return this[kParams];
   }
 
   parse(input: string) {

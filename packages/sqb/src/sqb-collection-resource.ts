@@ -6,51 +6,51 @@ import { SqbEntityService } from './sqb-entity-service.js';
 
 export abstract class SqbCollectionResource<T> {
 
-  @Collection.CreateOperation()
+  @Collection.Create()
   async create(ctx: RequestContext): Promise<PartialOutput<T>> {
-    const prepared = SQBAdapter.parseCollectionCreateRequest(ctx.request);
+    const prepared = SQBAdapter.transformRequest(ctx.request);
     const service = await this.getService(ctx);
     return service.create(ctx, prepared.data, prepared.options);
   }
 
-  @Collection.DeleteOperation()
+  @Collection.Delete()
   async delete(ctx: RequestContext): Promise<boolean> {
-    const prepared = SQBAdapter.parseCollectionDeleteRequest(ctx.request);
+    const prepared = SQBAdapter.transformRequest(ctx.request);
     const service = await this.getService(ctx);
-    return service.destroy(ctx, prepared.key, prepared.options);
+    return service.delete(ctx, prepared.key, prepared.options);
   }
 
-  @Collection.DeleteManyOperation()
+  @Collection.DeleteMany()
   async deleteMany(ctx: RequestContext): Promise<number> {
-    const prepared = SQBAdapter.parseCollectionDeleteManyRequest(ctx.request);
+    const prepared = SQBAdapter.transformRequest(ctx.request);
     const service = await this.getService(ctx);
-    return service.destroyAll(ctx, prepared.options);
+    return service.deleteMany(ctx, prepared.options);
   }
 
-  @Collection.GetOperation()
-  async get(ctx: RequestContext): Promise<Maybe<PartialOutput<T>>> {
-    const prepared = SQBAdapter.parseCollectionGetRequest(ctx.request);
+  @Collection.Get()
+  async find(ctx: RequestContext): Promise<Maybe<PartialOutput<T>>> {
+    const prepared = SQBAdapter.transformRequest(ctx.request);
     const service = await this.getService(ctx);
-    return service.findByPk(ctx, prepared.key, prepared.options);
+    return service.find(ctx, prepared.key, prepared.options);
   }
 
-  @Collection.UpdateOperation()
+  @Collection.Update()
   async update(ctx: RequestContext): Promise<Maybe<PartialOutput<T>>> {
-    const prepared = SQBAdapter.parseCollectionUpdateRequest(ctx.request);
+    const prepared = SQBAdapter.transformRequest(ctx.request);
     const service = await this.getService(ctx);
     return service.update(ctx, prepared.key, prepared.data, prepared.options);
   }
 
-  @Collection.UpdateManyOperation()
+  @Collection.UpdateMany()
   async updateMany(ctx: RequestContext): Promise<number> {
-    const prepared = SQBAdapter.parseCollectionUpdateManyRequest(ctx.request);
+    const prepared = SQBAdapter.transformRequest(ctx.request);
     const service = await this.getService(ctx);
-    return service.updateAll(ctx, prepared.data, prepared.options);
+    return service.updateMany(ctx, prepared.data, prepared.options);
   }
 
-  @Collection.SearchOperation()
+  @Collection.FindMany()
   async search(ctx: RequestContext): Promise<PartialOutput<T>[]> {
-    const prepared = SQBAdapter.parseCollectionSearchRequest(ctx.request);
+    const prepared = SQBAdapter.transformRequest(ctx.request);
     const service = await this.getService(ctx);
     if (prepared.options.count) {
       const [items, count] = await Promise.all([

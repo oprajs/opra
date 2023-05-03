@@ -1,0 +1,13 @@
+{
+  "extends": "./tsconfig-base.json",
+  "compilerOptions": {
+    "module": "CommonJS",
+    "sourceMap": false,
+    "inlineSourceMap": false,
+    "declaration": false,
+    "baseUrl": "./",
+    "paths": {
+      "@opra/*": ["./build/*"]
+    }
+  }
+}

@@ -20,8 +20,10 @@ export class ApiExpect {
       msg = 'Unexpected "status" returned';
       this._expect(this.response.status).toStrictEqual(status);
     } catch (e: any) {
+      const issues = this.response.body?.errors;
+      const issue = issues?.[0]?.message;
       if (msg)
-        e.message = msg + '\n\n' + e.message;
+        e.message = msg + '\n\n' + (issue || e.message);
       Error.captureStackTrace(e, this.toSuccess);
       throw e;
     }

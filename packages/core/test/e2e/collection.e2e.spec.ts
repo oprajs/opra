@@ -4,7 +4,7 @@ import supertest from 'supertest';
 import { jest } from '@jest/globals'
 import { ApiDocument, Collection } from '@opra/common';
 import { OpraExpressAdapter, RequestContext } from '@opra/core';
-import { createTestDocument } from '../_support/test-app/create-document.js';
+import { createTestApi } from '../_support/test-app/index.js';
 
 describe('e2e:Collection', function () {
 
@@ -20,7 +20,7 @@ describe('e2e:Collection', function () {
   }
 
   beforeAll(async () => {
-    document = await createTestDocument();
+    document = await createTestApi();
     adapter = await OpraExpressAdapter.create(app, document);
     resource = document.getCollection('customers');
   });
@@ -62,14 +62,14 @@ describe('e2e:Collection', function () {
   it('Should execute "search" endpoint', async () => {
     let ctx!: RequestContext;
     const mockFn =
-        jest.spyOn(resource.operations.search!, 'handler')
+        jest.spyOn(resource.operations.findMany!, 'handler')
             .mockImplementation((c) => ctx = c);
     await client.get('/Customers');
     expect(ctx).toBeDefined();
     expect(ctx.protocol).toStrictEqual('http');
     expect(ctx.request).toBeDefined();
     expect(ctx.response).toBeDefined();
-    expect(ctx.request.operation).toStrictEqual('search');
+    expect(ctx.request.operation).toStrictEqual('findMany');
     mockFn.mockRestore();
   });
 

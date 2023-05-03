@@ -4,7 +4,6 @@
   "description": "Opra MongoDB adapter package",
   "author": "Panates",
   "license": "MIT",
-  "private": true,
   "repository": {
     "type": "git",
     "url": "https://github.com/panates/opra.git",
@@ -39,7 +38,7 @@
     "mongodb": ">=4.x.x"
   },
   "type": "module",
-  "types": "esm/index.d.ts",
+  "types": "types/index.d.ts",
   "exports": {
     ".": {
       "require": "./cjs/index.js",
@@ -56,6 +55,7 @@
     "bin/",
     "cjs/",
     "esm/",
+    "types/",
     "LICENSE",
     "README.md"
   ],

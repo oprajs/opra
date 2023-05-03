@@ -26,7 +26,7 @@ export interface OpraHttpClientOptions {
   /**
    //    * Opra Service Metadata Document
    //    */
-  document?: ApiDocument;
+  api?: ApiDocument;
   /**
    *
    */
@@ -41,7 +41,7 @@ export class OpraHttpClient {
   protected static kAssets = kAssets;
   protected [kAssets]: {
     serviceUrl: string;
-    document?: ApiDocument;
+    api?: ApiDocument;
     metadataPromise?: Promise<any>;
     requestInterceptors: RequestInterceptor[];
     responseInterceptors: ResponseInterceptor[];
@@ -58,7 +58,7 @@ export class OpraHttpClient {
       enumerable: false,
       value: {
         serviceUrl,
-        document: options?.document,
+        api: options?.api,
         requestInterceptors: options?.requestInterceptors || [],
         responseInterceptors: options?.responseInterceptors || []
       }
@@ -77,8 +77,8 @@ export class OpraHttpClient {
   }
 
   async getMetadata(): Promise<ApiDocument> {
-    if (this[kAssets].document)
-      return this[kAssets].document;
+    if (this[kAssets].api)
+      return this[kAssets].api;
     let promise = this[kAssets].metadataPromise;
     if (promise) {
       return promise;
@@ -94,7 +94,7 @@ export class OpraHttpClient {
     );
     return await promise
         .then(body => DocumentFactory.createDocument(body))
-        .then(document => this[kAssets].document = document)
+        .then(api => this[kAssets].api = api)
         .catch((e) => {
           e.message = 'Unable to fetch metadata from ' + this.serviceUrl + '. ' + e.message
           throw e
@@ -249,7 +249,7 @@ export class OpraHttpClient {
       }
     }
 
-    if (fetchResponse.status >= 400 && fetchResponse.status < 600) {
+    if (observe === 'body' && fetchResponse.status >= 400 && fetchResponse.status < 600) {
       subscriber.error(new ClientError({
         message: fetchResponse.status + ' ' + fetchResponse.statusText,
         status: fetchResponse.status,

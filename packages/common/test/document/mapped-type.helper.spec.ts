@@ -1,6 +1,6 @@
 import 'reflect-metadata';
 import { ComplexType, METADATA_KEY, OmitType, PickType } from '@opra/common';
-import { Country } from '../_support/test-doc/index.js';
+import { Country } from '../_support/test-api/index.js';
 
 describe('MappedType', function () {
 

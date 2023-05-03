@@ -1,59 +1,58 @@
 import '@opra/core';
-import {
-  Collection,
-} from '@opra/common';
-import { Customer, CustomerNotes } from '../../../../../common/test/_support/test-doc/index.js';
+import { Collection } from '@opra/common';
+import { Customer } from '@opra/common/test/_support/test-api';
 
 @Collection(Customer, {
   description: 'Customer resource',
-  primaryKey: 'id'
+  primaryKey: '_id'
 })
 export class CustomersResource {
   public initialized = false;
   public closed = false;
 
-  @Collection.CreateOperation()
+  @Collection.Create()
   create() {
-    return new CustomerNotes();
+    return new Customer();
   }
 
-  @Collection.GetOperation()
+  @Collection.Get()
   get() {
-    return new CustomerNotes();
+    return new Customer();
   }
 
-  @Collection.DeleteOperation()
+  @Collection.Delete()
   delete() {
     return true;
   }
 
-  @Collection.DeleteManyOperation()
+  @Collection.DeleteMany()
   deleteMany() {
     return 1;
   }
 
-  @Collection.UpdateOperation()
+  @Collection.Update()
   update() {
-    return new CustomerNotes();
+    return new Customer();
   }
 
-  @Collection.UpdateManyOperation()
+  @Collection.UpdateMany()
   updateMany() {
     return 1;
   }
 
-  @Collection.SearchOperation({
-    sortFields: ['id', 'givenName', 'familyName', 'gender', 'birthDate', 'address.city'],
+  @Collection.FindMany({
+    sortFields: ['_id', 'givenName', 'familyName', 'gender', 'birthDate', 'address.city'],
     defaultSort: ['givenName'],
     filters: [
-      {field: 'id', operators: ['=']},
+      {field: '_id', operators: ['=']},
       {field: 'countryCode', operators: ['=', 'in', '!in']},
-      {field: 'city', operators: ['=', 'like', '!like']},
-      {field: 'vip'},
+      {field: 'givenName', operators: ['=', 'like', '!like']},
+      {field: 'familyName', operators: ['=', 'like', '!like']},
+      {field: 'gender', operators: ['=']}
     ]
   })
   search() {
-    return [new CustomerNotes()];
+    return [new Customer()];
   }
 
   @Collection.OnInit()
