@@ -1,18 +1,9 @@
 {
-  "extends": "./tsconfig.json",
+  "extends": "../../tsconfig-build.json",
   "compilerOptions": {
-    "moduleResolution": "Node",
-    "module": "CommonJS",
     "rootDir": "src",
     "outDir": "../../build/testing/cjs",
-    "paths": {
-      "@opra/node-client": ["../../build/node-client"],
-      "@opra/common": ["../../build/common"]
-    },
-    "sourceMap": false,
-    "inlineSourceMap": false,
     "noEmit": false,
-    "declaration": false
   },
   "include": ["src"]
 }

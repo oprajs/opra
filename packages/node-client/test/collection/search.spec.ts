@@ -1,7 +1,7 @@
 import { HttpResponse, OpraHttpClient } from '../../src/index.js';
 import { createMockServer } from '../_support/create-mock-server.js';
 
-describe('Collection.search', function () {
+describe('Collection.findMany', function () {
 
   let app;
   let client: OpraHttpClient;
@@ -15,7 +15,7 @@ describe('Collection.search', function () {
 
   it('Should return body if observe=body or undefined', async () => {
     const resp = await client.collection('Customers')
-        .search().fetch();
+        .findMany().fetch();
     expect(app.lastRequest).toBeDefined();
     expect(app.lastRequest.method).toStrictEqual('GET');
     expect(app.lastRequest.baseUrl).toStrictEqual('/Customers');
@@ -24,7 +24,7 @@ describe('Collection.search', function () {
 
   it('Should return HttpResponse if observe=response', async () => {
     const resp = await client.collection('Customers')
-        .search().fetch('response');
+        .findMany().fetch('response');
     expect(app.lastRequest).toBeDefined();
     expect(app.lastRequest.method).toStrictEqual('GET');
     expect(app.lastRequest.baseUrl).toStrictEqual('/Customers');
@@ -34,7 +34,7 @@ describe('Collection.search', function () {
   it('Should subscribe events', (done) => {
     const expectedEvents = ['sent', 'headers-received', 'response'];
     const receivedEvents: string[] = [];
-    client.collection('Customers').search({observe: 'events'}).subscribe({
+    client.collection('Customers').findMany({observe: 'events'}).subscribe({
       next: (events) => {
         receivedEvents.push(events.event);
       },
@@ -52,7 +52,7 @@ describe('Collection.search', function () {
 
   it('Should send request with "$include" param', async () => {
     await client.collection('Customers')
-        .search({
+        .findMany({
           include: ['id', 'givenName']
         }).fetch();
     expect(app.lastRequest).toBeDefined();
@@ -64,7 +64,7 @@ describe('Collection.search', function () {
 
   it('Should send request with "$pick" param', async () => {
     await client.collection('Customers')
-        .search({
+        .findMany({
           pick: ['id', 'givenName']
         }).fetch();
     expect(app.lastRequest).toBeDefined();
@@ -76,7 +76,7 @@ describe('Collection.search', function () {
 
   it('Should send request with "$omit" param', async () => {
     await client.collection('Customers')
-        .search({
+        .findMany({
           omit: ['id', 'givenName']
         }).fetch();
     expect(app.lastRequest).toBeDefined();
@@ -88,7 +88,7 @@ describe('Collection.search', function () {
 
   it('Should send request with "$sort" param', async () => {
     await client.collection('Customers')
-        .search({
+        .findMany({
           sort: ['id', 'givenName']
         }).fetch();
     expect(app.lastRequest).toBeDefined();
@@ -100,7 +100,7 @@ describe('Collection.search', function () {
 
   it('Should send request with "$filter" param', async () => {
     await client.collection('Customers')
-        .search({
+        .findMany({
           filter: 'id=1'
         }).fetch();
     expect(app.lastRequest).toBeDefined();
@@ -112,7 +112,7 @@ describe('Collection.search', function () {
 
   it('Should send request with "$limit" param', async () => {
     await client.collection('Customers')
-        .search({
+        .findMany({
           limit: 5
         }).fetch();
     expect(app.lastRequest).toBeDefined();
@@ -124,7 +124,7 @@ describe('Collection.search', function () {
 
   it('Should send request with "$skip" param', async () => {
     await client.collection('Customers')
-        .search({
+        .findMany({
           skip: 5
         }).fetch();
     expect(app.lastRequest).toBeDefined();

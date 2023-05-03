@@ -15,44 +15,44 @@ export class PhotosResource {
   constructor(public photosService: PhotosService) {
   }
 
-  @Collection.SearchOperation()
+  @Collection.FindMany()
   async search(@Context ctx: RequestContext) {
     const {request} = ctx;
     return this.photosService.search(request.args.filter);
   }
 
   @UseGuards(AuthGuard)
-  @Collection.CreateOperation()
+  @Collection.Create()
   create(@Context ctx: RequestContext) {
     const {request} = ctx;
     return this.photosService.create(request.args.data);
   }
 
-  @Collection.GetOperation()
+  @Collection.Get()
   get(@Context ctx: RequestContext) {
     const {request} = ctx;
     return this.photosService.get(request.args.key);
   }
 
-  @Collection.UpdateOperation()
+  @Collection.Update()
   update(@Context ctx: RequestContext) {
     const {request} = ctx;
     return this.photosService.update(request.args.key, request.args.data);
   }
 
-  @Collection.UpdateManyOperation()
+  @Collection.UpdateMany()
   async updateMany(@Context ctx: RequestContext) {
     const {request} = ctx;
     return this.photosService.updateMany(request.args.data, request.args.filter);
   }
 
-  @Collection.DeleteOperation()
+  @Collection.Delete()
   async delete(@Context ctx: RequestContext) {
     const {request} = ctx;
     return this.photosService.delete(request.args.key);
   }
 
-  @Collection.DeleteManyOperation()
+  @Collection.DeleteMany()
   async deleteMany(@Context ctx: RequestContext) {
     const {request} = ctx;
     return this.photosService.deleteMany(request.args.filter);

@@ -14,27 +14,27 @@ describe('Singleton.delete', function () {
   });
 
   it('Should return body if observe=body or undefined', async () => {
-    const resp = await client.singleton('BestCustomer')
+    const resp = await client.singleton('MyProfile')
         .delete().fetch();
     expect(app.lastRequest).toBeDefined();
     expect(app.lastRequest.method).toStrictEqual('DELETE');
-    expect(app.lastRequest.baseUrl).toStrictEqual('/BestCustomer');
+    expect(app.lastRequest.baseUrl).toStrictEqual('/MyProfile');
     expect(resp).toEqual(app.respBody);
   });
 
   it('Should return HttpResponse if observe=response', async () => {
-    const resp = await client.singleton('BestCustomer')
+    const resp = await client.singleton('MyProfile')
         .delete().fetch('response');
     expect(app.lastRequest).toBeDefined();
     expect(app.lastRequest.method).toStrictEqual('DELETE');
-    expect(app.lastRequest.baseUrl).toStrictEqual('/BestCustomer');
+    expect(app.lastRequest.baseUrl).toStrictEqual('/MyProfile');
     expect(resp).toBeInstanceOf(HttpResponse);
   });
 
   it('Should subscribe events', (done) => {
     const expectedEvents = ['sent', 'headers-received', 'response'];
     const receivedEvents: string[] = [];
-    client.singleton('BestCustomer').delete({observe: 'events'}).subscribe({
+    client.singleton('MyProfile').delete({observe: 'events'}).subscribe({
       next: (events) => {
         receivedEvents.push(events.event);
       },

@@ -4,7 +4,7 @@ import supertest from 'supertest';
 import { jest } from '@jest/globals'
 import { ApiDocument, Singleton } from '@opra/common';
 import { OpraExpressAdapter, RequestContext } from '@opra/core';
-import { createTestDocument } from '../_support/test-app/create-document.js';
+import { createTestApi } from '../_support/test-app/index.js';
 
 describe('e2e:Singleton', function () {
 
@@ -19,9 +19,9 @@ describe('e2e:Singleton', function () {
   }
 
   beforeAll(async () => {
-    document = await createTestDocument();
+    document = await createTestApi();
     adapter = await OpraExpressAdapter.create(app, document);
-    resource = document.getSingleton('bestcustomer');
+    resource = document.getSingleton('myprofile');
   });
 
   afterAll(async () => {
@@ -33,7 +33,7 @@ describe('e2e:Singleton', function () {
     const mockFn =
         jest.spyOn(resource.operations.create!, 'handler')
             .mockImplementation((c) => ctx = c);
-    await client.post('/BestCustomer').send(data);
+    await client.post('/MyProfile').send(data);
     expect(ctx).toBeDefined();
     expect(ctx.protocol).toStrictEqual('http');
     expect(ctx.request).toBeDefined();
@@ -48,7 +48,7 @@ describe('e2e:Singleton', function () {
     const mockFn =
         jest.spyOn(resource.operations.get!, 'handler')
             .mockImplementation((c) => ctx = c);
-    await client.get('/BestCustomer');
+    await client.get('/MyProfile');
     expect(ctx).toBeDefined();
     expect(ctx.protocol).toStrictEqual('http');
     expect(ctx.request).toBeDefined();
@@ -62,7 +62,7 @@ describe('e2e:Singleton', function () {
     const mockFn =
         jest.spyOn(resource.operations.delete!, 'handler')
             .mockImplementation((c) => ctx = c);
-    await client.delete('/BestCustomer');
+    await client.delete('/MyProfile');
     expect(ctx).toBeDefined();
     expect(ctx.protocol).toStrictEqual('http');
     expect(ctx.request).toBeDefined();
@@ -76,7 +76,7 @@ describe('e2e:Singleton', function () {
     const mockFn =
         jest.spyOn(resource.operations.update!, 'handler')
             .mockImplementation((c) => ctx = c);
-    await client.patch('/BestCustomer').send(data);
+    await client.patch('/MyProfile').send(data);
     expect(ctx).toBeDefined();
     expect(ctx.protocol).toStrictEqual('http');
     expect(ctx.request).toBeDefined();

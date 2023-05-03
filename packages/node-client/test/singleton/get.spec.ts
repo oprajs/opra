@@ -14,27 +14,27 @@ describe('Singleton.get', function () {
   });
 
   it('Should return body if observe=body or undefined', async () => {
-    const resp = await client.singleton('BestCustomer')
+    const resp = await client.singleton('MyProfile')
         .get().fetch();
     expect(app.lastRequest).toBeDefined();
     expect(app.lastRequest.method).toStrictEqual('GET');
-    expect(app.lastRequest.baseUrl).toStrictEqual('/BestCustomer');
+    expect(app.lastRequest.baseUrl).toStrictEqual('/MyProfile');
     expect(resp).toEqual(app.respBody);
   });
 
   it('Should return HttpResponse if observe=response', async () => {
-    const resp = await client.singleton('BestCustomer')
+    const resp = await client.singleton('MyProfile')
         .get().fetch('response');
     expect(app.lastRequest).toBeDefined();
     expect(app.lastRequest.method).toStrictEqual('GET');
-    expect(app.lastRequest.baseUrl).toStrictEqual('/BestCustomer');
+    expect(app.lastRequest.baseUrl).toStrictEqual('/MyProfile');
     expect(resp).toBeInstanceOf(HttpResponse);
   });
 
   it('Should subscribe events', (done) => {
     const expectedEvents = ['sent', 'headers-received', 'response'];
     const receivedEvents: string[] = [];
-    client.singleton('BestCustomer').get({observe: 'events'}).subscribe({
+    client.singleton('MyProfile').get({observe: 'events'}).subscribe({
       next: (events) => {
         receivedEvents.push(events.event);
       },
@@ -51,31 +51,31 @@ describe('Singleton.get', function () {
   });
 
   it('Should send request with "$include" param', async () => {
-    await client.singleton('BestCustomer')
+    await client.singleton('MyProfile')
         .get({include: ['id', 'givenName']}).fetch();
     expect(app.lastRequest).toBeDefined();
     expect(app.lastRequest.method).toStrictEqual('GET');
-    expect(app.lastRequest.baseUrl).toStrictEqual('/BestCustomer');
+    expect(app.lastRequest.baseUrl).toStrictEqual('/MyProfile');
     expect(Object.keys(app.lastRequest.query)).toStrictEqual(['$include']);
     expect(app.lastRequest.query.$include).toStrictEqual('id,givenName');
   });
 
   it('Should send request with "$pick" param', async () => {
-    await client.singleton('BestCustomer')
+    await client.singleton('MyProfile')
         .get({pick: ['id', 'givenName']}).fetch();
     expect(app.lastRequest).toBeDefined();
     expect(app.lastRequest.method).toStrictEqual('GET');
-    expect(app.lastRequest.baseUrl).toStrictEqual('/BestCustomer');
+    expect(app.lastRequest.baseUrl).toStrictEqual('/MyProfile');
     expect(Object.keys(app.lastRequest.query)).toStrictEqual(['$pick']);
     expect(app.lastRequest.query.$pick).toStrictEqual('id,givenName');
   });
 
   it('Should send request with "$omit" param', async () => {
-    await client.singleton('BestCustomer')
+    await client.singleton('MyProfile')
         .get({omit: ['id', 'givenName']}).fetch();
     expect(app.lastRequest).toBeDefined();
     expect(app.lastRequest.method).toStrictEqual('GET');
-    expect(app.lastRequest.baseUrl).toStrictEqual('/BestCustomer');
+    expect(app.lastRequest.baseUrl).toStrictEqual('/MyProfile');
     expect(Object.keys(app.lastRequest.query)).toStrictEqual(['$omit']);
     expect(app.lastRequest.query.$omit).toStrictEqual('id,givenName');
   });

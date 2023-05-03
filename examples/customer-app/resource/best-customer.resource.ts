@@ -8,7 +8,7 @@ import { Customer } from '../entities/customer.entity.js';
 })
 export class BestCustomerResource {
 
-  @Singleton.GetOperation()
+  @Singleton.Get()
   raed() {
     return new Customer();
   }

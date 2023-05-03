@@ -24,5 +24,29 @@
     "allowJs": false,
     "incremental": false,
     "strictPropertyInitialization": false,
+    "resolveJsonModule": true,
+    "baseUrl": "./",
+    "paths": {
+      "#/*": ["./*"],
+      "@opra/angular": ["./packages/angular/src"],
+      "@opra/angular/*": ["./packages/angular/src/*"],
+      "@opra/core": ["./packages/core/src"],
+      "@opra/core/test": ["./packages/core/test"],
+      "@opra/core/*": ["./packages/core/src/*"],
+      "@opra/common": ["./packages/common/src"],
+      "@opra/common/test": ["./packages/common/test"],
+      "@opra/common/*": ["./packages/common/src/*"],
+      "@opra/sqb": ["./packages/sqb/src"],
+      "@opra/sqb/test": ["./packages/sqb/test"],
+      "@opra/sqb/*": ["./packages/sqb/src/*"],
+      "@opra/mongodb": ["./packages/mongodb/src"],
+      "@opra/mongodb/*": ["./packages/mongodb/src/*"],
+      "@opra/node-client": ["./packages/node-client/src"],
+      "@opra/node-client/*": ["./packages/node-client/src/*"],
+      "@opra/nestjs": ["./packages/nestjs/src"],
+      "@opra/nestjs/*": ["./packages/nestjs/src/*"],
+      "@opra/testing": ["./packages/testing/src"],
+      "@opra/testing/*": ["./packages/testing/src/*"]
+    }
   }
 }

@@ -27,7 +27,7 @@ export namespace HttpCollectionNode {
     include?: string[];
   }
 
-  export interface SearchOptions extends HttpRequestObservable.Options {
+  export interface FindManyOptions extends HttpRequestObservable.Options {
     pick?: string[];
     omit?: string[];
     include?: string[];
@@ -162,16 +162,16 @@ export class HttpCollectionNode<TType, TResponseExt = any> {
     return requestHost as any;
   }
 
-  search(
-      options?: StrictOmit<HttpCollectionNode.SearchOptions, 'observe'> & { observe?: 'body' }
+  findMany(
+      options?: StrictOmit<HttpCollectionNode.FindManyOptions, 'observe'> & { observe?: 'body' }
   ): HttpRequestObservable<TType[], TType, TResponseExt>
-  search(
-      options?: StrictOmit<HttpCollectionNode.SearchOptions, 'observe'> & { observe: 'response' }
+  findMany(
+      options?: StrictOmit<HttpCollectionNode.FindManyOptions, 'observe'> & { observe: 'response' }
   ): HttpRequestObservable<HttpResponse<TType[]>, TType, TResponseExt>
-  search(
-      options?: StrictOmit<HttpCollectionNode.SearchOptions, 'observe'> & { observe: 'events' }
+  findMany(
+      options?: StrictOmit<HttpCollectionNode.FindManyOptions, 'observe'> & { observe: 'events' }
   ): HttpRequestObservable<HttpEvent, TType, TResponseExt>
-  search(options?: HttpCollectionNode.SearchOptions) {
+  findMany(options?: HttpCollectionNode.FindManyOptions) {
     const context = this[kHttpClientContext];
     const requestHost = new HttpRequestObservable(context, options);
     const request = requestHost[HttpRequestObservable.kRequest];

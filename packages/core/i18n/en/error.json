@@ -8,7 +8,7 @@
   "NOT_FOUND": "Not found",
   "UNAUTHORIZED": "You have not been authenticated to perform this action",
   "UNPROCESSABLE_ENTITY": "Unprocessable entity",
-  "RESOURCE_NOT_FOUND": "The resource '{{resource}}' could not be found",
+  "RESOURCE_NOT_FOUND": "Resource not found: '{{resource}}'",
   "RESOURCE_CONFLICT": "There is already an other {{resource}} resource with same field values ({{fields}})",
   "RESOLVER_FORBIDDEN": "The resource endpoint does not accept '{{operation}}' operations",
   "UNACCEPTED_SORT_FIELD": "Field '{{field}}' is not available for sort operation"

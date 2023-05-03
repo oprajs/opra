@@ -37,7 +37,7 @@
     "fast-tokenizer": "^1.2.2",
     "highland": "^2.13.5",
     "http-parser-js": "^0.5.8",
-    "i18next": "^22.4.14",
+    "i18next": "^22.4.15",
     "lodash.omit": "^4.5.0",
     "mime-types": "^2.1.35",
     "putil-isplainobject": "^1.1.5",
@@ -54,12 +54,12 @@
     "@types/cookie": "^0.5.1",
     "@types/cookie-signature": "^1.1.0",
     "@types/encodeurl": "^1.0.0",
-    "@types/type-is": "^1.6.3",
     "@types/mime-types": "^2.1.1",
+    "@types/type-is": "^1.6.3",
     "ts-gems": "^2.3.0"
   },
   "type": "module",
-  "types": "esm/index.d.ts",
+  "types": "types/index.d.ts",
   "exports": {
     ".": {
       "require": "./cjs/index.js",
@@ -75,6 +75,7 @@
     "cjs/",
     "esm/",
     "umd/",
+    "types/",
     "LICENSE",
     "README.md"
   ],

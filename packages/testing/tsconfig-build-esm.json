@@ -1,15 +1,10 @@
 {
-  "extends": "./tsconfig.json",
+  "extends": "../../tsconfig-build.json",
   "compilerOptions": {
     "rootDir": "src",
-    "outDir": "../../build/testing/esm",
-    "paths": {
-      "@opra/node-client": ["../../build/node-client"],
-      "@opra/common": ["../../build/common"]
-    },
-    "sourceMap": false,
-    "inlineSourceMap": false,
     "noEmit": false,
+    "outDir": "../../build/testing/esm",
+    "declarationDir": "../../build/testing/types",
     "declaration": true
   },
   "include": ["src"]

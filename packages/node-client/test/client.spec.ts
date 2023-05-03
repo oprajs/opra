@@ -2,19 +2,19 @@ import express from 'express';
 import * as http from 'http';
 import { AddressInfo } from 'net';
 import { ApiDocument } from '@opra/common';
-import { createTestDocument } from '../../core/test/_support/test-app/create-document.js';
+import { createTestApi } from '@opra/core/test/_support/test-app/index';
 import { HttpCollectionNode, HttpSingletonNode, OpraHttpClient } from '../src/index.js';
 
 describe('OpraClient', function () {
 
-  let document: ApiDocument;
+  let api: ApiDocument;
   let client: OpraHttpClient;
   let server: http.Server;
 
   afterAll(() => server.close());
 
   beforeAll(async () => {
-    document = await createTestDocument();
+    api = await createTestApi();
     const app = express();
     app.use('*', (_req, _res) => {
       _res.end({});
@@ -23,7 +23,7 @@ describe('OpraClient', function () {
       server = app.listen(0, '127.0.0.1', () => subResolve());
     }).then(async () => {
       const address = server.address() as AddressInfo;
-      client = new OpraHttpClient('http://127.0.0.1:' + address.port.toString(), {document});
+      client = new OpraHttpClient('http://127.0.0.1:' + address.port.toString(), {api});
     });
   });
 
@@ -36,7 +36,7 @@ describe('OpraClient', function () {
   });
 
   it('Should "singleton()" create a service for Singleton resources', async () => {
-    expect(client.singleton('BestCustomer')).toBeInstanceOf(HttpSingletonNode);
+    expect(client.singleton('MyProfile')).toBeInstanceOf(HttpSingletonNode);
   });
 
   it('Should check if Collection resource exists', async () => {
@@ -47,7 +47,7 @@ describe('OpraClient', function () {
 
   it('Should .collection() check if resource is CollectionResource', async () => {
     await expect(
-        () => client.collection('BestCustomer').get(1).fetch()
+        () => client.collection('MyProfile').get(1).fetch()
     ).rejects.toThrow('is not a Collection');
   });
 

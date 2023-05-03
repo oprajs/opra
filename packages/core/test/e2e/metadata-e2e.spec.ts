@@ -2,7 +2,7 @@ import express from 'express';
 import request from 'supertest';
 import { ApiDocument } from '@opra/common';
 import { OpraExpressAdapter } from '@opra/core';
-import { createTestDocument } from '../_support/test-app/create-document.js';
+import { createTestApi } from '../_support/test-app/index.js';
 
 describe('e2e:$metadata', function () {
 
@@ -10,7 +10,7 @@ describe('e2e:$metadata', function () {
   let app;
 
   beforeAll(async () => {
-    document = await createTestDocument();
+    document = await createTestApi();
     app = express();
     await OpraExpressAdapter.create(app, document);
   });
@@ -27,41 +27,5 @@ describe('e2e:$metadata', function () {
       }
     })
   })
-
-  // it('Should /$metadata/resources/(Resource) return resource metadata', async () => {
-  //   const resp = await request(app).get('/$metadata/resources/Customers');
-  //   expect(resp.status).toStrictEqual(200);
-  //   expect(resp.body).toBeDefined();
-  //   expect(resp.body).toMatchObject({
-  //     "kind": "CollectionResource",
-  //     "type": "Customer"
-  //   })
-  // })
-  //
-  // it('Should /(Resource)/$metadata return resource metadata', async () => {
-  //   const resp = await request(app).get('/$metadata/resources/Customers');
-  //   expect(resp.status).toStrictEqual(200);
-  //   expect(resp.body).toBeDefined();
-  //   expect(resp.body).toMatchObject({
-  //     "kind": "CollectionResource",
-  //     "type": "Customer"
-  //   })
-  // })
-  //
-  // it('Should /$metadata/types/(DataType) return data type metadata', async () => {
-  //   const resp = await request(app).get('/$metadata/types/Address');
-  //   expect(resp.status).toStrictEqual(200);
-  //   expect(resp.body).toBeDefined();
-  //   expect(resp.body).toMatchObject({
-  //     "kind": "ComplexType"
-  //   })
-  // })
-  //
-  // it('Should throw if url is not acceptable', async () => {
-  //   let resp = await request(app).get('/$metadata/types/Address/id');
-  //   expect(resp.status).toStrictEqual(404);
-  //   resp = await request(app).get('/$metadata/resources/Customers/id');
-  //   expect(resp.status).toStrictEqual(404);
-  // })
 
 });

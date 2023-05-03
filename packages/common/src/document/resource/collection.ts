@@ -47,20 +47,20 @@ export namespace Collection {
   export interface Operations {
     create?: OpraSchema.Collection.CreateOperation & Operation;
     delete?: OpraSchema.Collection.DeleteOperation & Operation;
-    deleteMany?: OpraSchema.Collection.DeleteManyOperation & Operation;
     get?: OpraSchema.Collection.GetOperation & Operation;
     update?: OpraSchema.Collection.UpdateOperation & Operation;
+    deleteMany?: OpraSchema.Collection.DeleteManyOperation & Operation;
+    findMany?: OpraSchema.Collection.FindManyOperation & Operation;
     updateMany?: OpraSchema.Collection.UpdateManyOperation & Operation;
-    search?: OpraSchema.Collection.SearchOperation & Operation;
   }
 
   export type CreateOperationOptions = StrictOmit<OpraSchema.Collection.CreateOperation, 'handler'>;
   export type DeleteOperationOptions = StrictOmit<OpraSchema.Collection.DeleteOperation, 'handler'>;
   export type DeleteManyOperationOptions = StrictOmit<OpraSchema.Collection.DeleteManyOperation, 'handler'>;
+  export type FindManyOperationOptions = StrictOmit<OpraSchema.Collection.FindManyOperation, 'handler'>;
   export type GetOperationOptions = StrictOmit<OpraSchema.Collection.GetOperation, 'handler'>;
   export type UpdateOperationOptions = StrictOmit<OpraSchema.Collection.UpdateOperation, 'handler'>;
   export type UpdateManyOperationOptions = StrictOmit<OpraSchema.Collection.UpdateManyOperation, 'handler'>;
-  export type SearchOperationOptions = StrictOmit<OpraSchema.Collection.SearchOperation, 'handler'>;
 }
 
 export interface Collection extends StrictOmit<Resource, 'exportSchema' | '_construct'> {
@@ -89,13 +89,13 @@ export interface CollectionConstructor {
 
   (type: TypeThunkAsync | string, options?: Collection.DecoratorOptions): ClassDecorator;
 
-  CreateOperation: (options?: Collection.CreateOperationOptions) => PropertyDecorator;
-  GetOperation: (options?: Collection.GetOperationOptions) => PropertyDecorator;
-  DeleteOperation: (options?: Collection.DeleteOperationOptions) => PropertyDecorator;
-  UpdateOperation: (options?: Collection.UpdateOperationOptions) => PropertyDecorator;
-  SearchOperation: (options?: Collection.SearchOperationOptions) => PropertyDecorator;
-  UpdateManyOperation: (options?: Collection.UpdateManyOperationOptions) => PropertyDecorator;
-  DeleteManyOperation: (options?: Collection.DeleteManyOperationOptions) => PropertyDecorator;
+  Create: (options?: Collection.CreateOperationOptions) => PropertyDecorator;
+  Delete: (options?: Collection.DeleteOperationOptions) => PropertyDecorator;
+  Get: (options?: Collection.GetOperationOptions) => PropertyDecorator;
+  Update: (options?: Collection.UpdateOperationOptions) => PropertyDecorator;
+  FindMany: (options?: Collection.FindManyOperationOptions) => PropertyDecorator;
+  DeleteMany: (options?: Collection.DeleteManyOperationOptions) => PropertyDecorator;
+  UpdateMany: (options?: Collection.UpdateManyOperationOptions) => PropertyDecorator;
 }
 
 
@@ -224,8 +224,8 @@ const proto = {
     const normalized = this.normalizeFieldNames(fields);
     if (!normalized)
       return;
-    const searchEndpoint = this.operations.search;
-    const sortFields = searchEndpoint && searchEndpoint.sortFields;
+    const findManyEndpoint = this.operations.findMany;
+    const sortFields = findManyEndpoint && findManyEndpoint.sortFields;
     normalized.forEach(field => {
       if (!sortFields?.find(x => x === field))
         throw new BadRequestError({
@@ -278,10 +278,10 @@ function createOperationDecorator<T>(operation: string) {
       });
 }
 
-Collection.CreateOperation = createOperationDecorator('create');
-Collection.GetOperation = createOperationDecorator('get');
-Collection.DeleteOperation = createOperationDecorator('delete');
-Collection.UpdateOperation = createOperationDecorator('update');
-Collection.SearchOperation = createOperationDecorator('search');
-Collection.UpdateManyOperation = createOperationDecorator('updateMany');
-Collection.DeleteManyOperation = createOperationDecorator('deleteMany');
+Collection.Create = createOperationDecorator('create');
+Collection.Delete = createOperationDecorator('delete');
+Collection.DeleteMany = createOperationDecorator('deleteMany');
+Collection.Get = createOperationDecorator('get');
+Collection.FindMany = createOperationDecorator('findMany');
+Collection.Update = createOperationDecorator('update');
+Collection.UpdateMany = createOperationDecorator('updateMany');

@@ -1,6 +1,6 @@
 import 'reflect-metadata';
 import { Collection, METADATA_KEY } from '@opra/common';
-import { Country } from '../../_support/test-doc/index.js';
+import { Country } from '../../_support/test-api/index.js';
 
 describe('@Collection() decorator', function () {
 

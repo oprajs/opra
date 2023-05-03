@@ -59,7 +59,10 @@ export default {
     },
     alias({
       entries: [
-        {find: '@opra/common', replacement: path.resolve(buildPath, 'common/esm/index.js')},
+        {
+          find: '@opra/common',
+          replacement: path.resolve(buildPath, 'common/esm/index.js')
+        },
         {find: 'fs', replacement: '@browsery/fs'},
         {find: 'highland', replacement: '@browsery/highland'},
         {find: 'http-parser-js', replacement: '@browsery/http-parser'},
@@ -84,8 +87,8 @@ export default {
   ],
   onwarn: (warning) => {
     if (warning.code === 'CIRCULAR_DEPENDENCY' || warning.code ===
-            'THIS_IS_UNDEFINED' ||
-            warning.code === 'SOURCEMAP_ERROR')
+        'THIS_IS_UNDEFINED' ||
+        warning.code === 'SOURCEMAP_ERROR')
       return;
     console.warn(chalk.yellow(`(!) ${warning.message}`));
   }
@@ -102,59 +105,59 @@ function runCommands() {
     () => copyFiles(path.resolve(buildPath, '..'), ['LICENSE'], targetPath),
     // Copy typings from types
     () => copyFiles(
-            path.resolve(buildPath, 'common/esm'),
-            ['**/*.d.ts', '!node_modules/**'],
-            path.join(targetPath, 'typings', 'common'),
-            async (src, dst, next) => {
-              if (!src.endsWith('.d.ts'))
-                return next();
-              let content = await fs.readFile(src, 'utf-8');
-              let overwritten = false;
-              content = content.replace(/'i18next'/g, (v) => {
-                overwritten = true;
-                return `'@browsery/i18next'`;
-              }).replace(/['"]antlr4['"]/g, () => {
-                overwritten = true;
-                return `'@browsery/antlr4'`;
-              }).replace(/['"]antlr4\/src\/antlr4\/(.*)['"]/g, (v, g1) => {
-                overwritten = true;
-                return `'@browsery/antlr4/typings/${g1}'`;
-              });
-              if (overwritten)
-                return fs.writeFile(dst, content, 'utf-8');
-              return next();
-            }
+        path.resolve(buildPath, 'common/types'),
+        ['**/*.d.ts', '!node_modules/**'],
+        path.join(targetPath, 'types', 'common'),
+        async (src, dst, next) => {
+          if (!src.endsWith('.d.ts'))
+            return next();
+          let content = await fs.readFile(src, 'utf-8');
+          let overwritten = false;
+          content = content.replace(/'i18next'/g, () => {
+            overwritten = true;
+            return `'@browsery/i18next'`;
+          }).replace(/['"]antlr4['"]/g, () => {
+            overwritten = true;
+            return `'@browsery/antlr4'`;
+          }).replace(/['"]antlr4\/src\/antlr4\/(.*)['"]/g, (v, g1) => {
+            overwritten = true;
+            return `'@browsery/antlr4/typings/${g1}'`;
+          });
+          if (overwritten)
+            return fs.writeFile(dst, content, 'utf-8');
+          return next();
+        }
     ),
     // Copy node-client typings
     () => copyFiles(
-            path.resolve(buildPath, 'node-client/esm'),
-            ['**/*.d.ts', '!node_modules/**'],
-            path.join(targetPath, 'typings'),
-            async (src, dst, next) => {
-              if (!src.endsWith('.d.ts'))
-                return next();
-              const rel = path.relative(path.dirname(dst), path.resolve(targetPath, 'typings'));
-              let content = await fs.readFile(src, 'utf-8');
-              let overwritten = false;
+        path.resolve(buildPath, 'node-client/types'),
+        ['**/*.d.ts', '!node_modules/**'],
+        path.join(targetPath, 'types'),
+        async (src, dst, next) => {
+          if (!src.endsWith('.d.ts'))
+            return next();
+          const rel = path.relative(path.dirname(dst), path.resolve(targetPath, 'types'));
+          let content = await fs.readFile(src, 'utf-8');
+          let overwritten = false;
 
-              if (!rel && path.basename(dst) === 'index.d.ts') {
-                content += '\n' +
-                        `export * from './common/filter/index.js';\n` +
-                        `export * from './common/url/index.js';\n` +
-                        `export * from './common/schema/index.js';\n` +
-                        `export * from './common/i18n/index.js';\n` +
-                        `export * from './common/utils/index.js';\n`;
-                overwritten = true;
-              }
-              content = content.replaceAll(typingOverwrite, (v, m1, m2) => {
-                v = './' + m1 + (m2 || '');
-                const newPath = (rel ? path.join(rel, v) : v);
-                overwritten = true;
-                return `'${newPath}'`;
-              });
-              if (overwritten)
-                return fs.writeFile(dst, content, 'utf-8');
-              return next();
-            })
+          if (!rel && path.basename(dst) === 'index.d.ts') {
+            content += '\n' +
+                `export * from './common/filter/index.js';\n` +
+                `export * from './common/url/index.js';\n` +
+                `export * from './common/schema/index.js';\n` +
+                `export * from './common/i18n/index.js';\n` +
+                `export * from './common/utils/index.js';\n`;
+            overwritten = true;
+          }
+          content = content.replaceAll(typingOverwrite, (v, m1, m2) => {
+            v = './' + m1 + (m2 || '');
+            const newPath = (rel ? path.join(rel, v) : v);
+            overwritten = true;
+            return `'${newPath}'`;
+          });
+          if (overwritten)
+            return fs.writeFile(dst, content, 'utf-8');
+          return next();
+        })
   ], {once: true, exitOnFail: true});
 }

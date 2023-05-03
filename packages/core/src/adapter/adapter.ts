@@ -1,4 +1,5 @@
 import path from 'path';
+import { AsyncEventEmitter } from 'strict-typed-events';
 import {
   ApiDocument,
   Collection,
@@ -24,6 +25,7 @@ export namespace OpraAdapter {
   export interface Options {
     i18n?: I18n | I18nOptions | (() => Promise<I18n>);
     logger?: ILogger;
+    onRequest?: (ctx: RequestContext) => void | Promise<void>;
   }
 
   export interface I18nOptions {
@@ -64,12 +66,13 @@ export namespace OpraAdapter {
 /**
  * @class OpraAdapter
  */
-export abstract class OpraAdapter {
+export abstract class OpraAdapter extends AsyncEventEmitter {
   protected _internalDoc: ApiDocument;
   i18n: I18n;
   logger?: ILogger;
 
   protected constructor(readonly api: ApiDocument) {
+    super();
   }
 
   /**
@@ -87,6 +90,8 @@ export abstract class OpraAdapter {
     this.i18n = this.i18n || I18n.defaultInstance;
     if (!this.i18n.isInitialized)
       await this.i18n.init();
+    if (options?.onRequest)
+      this.on('request', options.onRequest);
 
     this._internalDoc = await DocumentFactory.createDocument({
       version: OpraSchema.SpecVersion,
@@ -121,6 +126,7 @@ export abstract class OpraAdapter {
   }
 
   protected async executeRequest(context: RequestContext): Promise<void> {
+    await this.emitAsync('request', context);
     const {request, response} = context;
     const {resource, operation} = request;
 
@@ -134,34 +140,31 @@ export abstract class OpraAdapter {
           code: 'RESOLVER_FORBIDDEN'
         });
       const value = await endpoint.handler(context);
+      // if (value == null)
       if (value != null)
         response.value = value;
-      await this.afterExecuteRequest(context);
-    }
-  }
 
-  protected async afterExecuteRequest(context: RequestContext): Promise<void> {
-    const {request, response} = context;
-    const {resource, crud, many} = request;
-    if (crud === 'delete' || (crud === 'update' && many)) {
-      let affected = 0;
-      if (typeof response.value === 'number')
-        affected = response.value;
-      if (typeof response.value === 'boolean')
-        affected = response.value ? 1 : 0;
-      if (typeof response.value === 'object')
-        affected = response.value.affectedRows || response.value.affected;
-      response.value = {
-        operation: request.operation,
-        affected
+      const {crud, many} = request;
+      if (crud === 'delete' || (crud === 'update' && many)) {
+        let affected = 0;
+        if (typeof response.value === 'number')
+          affected = response.value;
+        if (typeof response.value === 'boolean')
+          affected = response.value ? 1 : 0;
+        if (typeof response.value === 'object')
+          affected = response.value.affectedRows || response.value.affected;
+        response.value = {
+          operation: request.operation,
+          affected
+        }
+      } else if (response.value != null) {
+        if (!request.many)
+          response.value = Array.isArray(response.value) ? response.value[0] : response.value;
+        else response.value = Array.isArray(response.value) ? response.value : [response.value];
       }
-    } else if (response.value != null) {
-      if (!request.many)
-        response.value = Array.isArray(response.value) ? response.value[0] : response.value;
-      else response.value = Array.isArray(response.value) ? response.value : [response.value];
+      if ((request.operation === 'get' || request.operation === 'update') && response.value == null)
+        throw new ResourceNotFoundError(resource.name, request.args.key);
     }
-    if ((request.operation === 'get' || request.operation === 'update') && response.value == null)
-      throw new ResourceNotFoundError(resource.name, request.args.key);
   }
 
   protected async _createI18n(options?: OpraAdapter.I18nOptions): Promise<I18n> {

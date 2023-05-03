@@ -8,13 +8,10 @@ import {
   OpraSchema,
   SimpleType, Singleton,
 } from '@opra/common';
-import {
-  BestCustomerResource,
-  Country,
-  CountryResource,
-  CustomerNotesResource,
-  CustomersResource
-} from '../_support/test-doc/index.js';
+import { Country } from '../_support/test-api/index.js';
+import { CountriesResource } from '../_support/test-api/resources/countries.resource.js';
+import { CustomersResource } from '../_support/test-api/resources/customers.resource.js';
+import { MyProfileResource } from '../_support/test-api/resources/my-profile.resource.js';
 
 describe('ApiDocument', function () {
   const baseArgs: DocumentFactory.InitArguments = {
@@ -24,7 +21,7 @@ describe('ApiDocument', function () {
       version: 'v1',
       description: 'Document description',
     },
-    resources: [CustomersResource, CountryResource, CustomerNotesResource, BestCustomerResource]
+    resources: [CustomersResource, CountriesResource, MyProfileResource]
   };
 
   it('Should create ApiDocument instance', async () => {
@@ -183,19 +180,19 @@ describe('ApiDocument', function () {
 
   it('Should getCollection(name) throw if resource is not a Collection', async () => {
     const doc = await DocumentFactory.createDocument(baseArgs);
-    expect(() => doc.getCollection('BestCustomer')).toThrow('is not a Collection');
+    expect(() => doc.getCollection('MyProfile')).toThrow('is not a Collection');
   })
 
   it('Should getCollection(name, silent) return undefined if resource is not a Collection', async () => {
     const doc = await DocumentFactory.createDocument(baseArgs);
     expect(doc).toBeDefined();
-    expect(() => doc.getCollection('BestCustomer')).toThrow('is not a Collection');
+    expect(() => doc.getCollection('MyProfile')).toThrow('is not a Collection');
   })
 
   it('Should getSingleton(name) return Singleton instance', async () => {
     const doc = await DocumentFactory.createDocument(baseArgs);
     expect(doc).toBeDefined();
-    expect(doc.getSingleton('BestCustomer')).toBeInstanceOf(Singleton);
+    expect(doc.getSingleton('MyProfile')).toBeInstanceOf(Singleton);
   })
 
   it('Should getSingleton(name) throw if resource is not a Singleton', async () => {
@@ -217,8 +214,8 @@ describe('ApiDocument', function () {
     expect(sch.info).toStrictEqual(baseArgs.info);
     expect(sch.types).toBeDefined();
     expect(Object.keys(sch.types!).sort())
-        .toEqual(['Address', 'Continent', 'Country', 'Customer', 'CustomerNotes',
-          'GenderEnum', 'Note', 'Person', 'Record'].sort());
+        .toEqual(['Address', 'Country', 'Customer',
+          'GenderEnum', 'Note', 'Person', 'Profile', 'Record'].sort());
     expect(sch.types?.Record).toBeDefined();
     expect(sch.types?.Record).toEqual(
         expect.objectContaining({
@@ -229,7 +226,7 @@ describe('ApiDocument', function () {
     );
     expect(sch.resources).toBeDefined();
     expect(Object.keys(sch.resources!).sort())
-        .toEqual(['BestCustomer', 'Country', 'Customers', 'CustomerNotes'].sort());
+        .toEqual(['Countries', 'Customers', 'MyProfile'].sort());
   })
 
 });

@@ -2,12 +2,12 @@ import bodyParser from 'body-parser';
 import express from 'express';
 import http from 'http';
 import { AddressInfo } from 'net';
-import { createTestDocument } from '../../../core/test/_support/test-app/create-document.js';
+import { createTestApi } from '../../../core/test/_support/test-app/index.js';
 import { OpraHttpClient } from '../../src/index.js';
 
 export async function createMockServer() {
   let server: http.Server;
-  const document = await createTestDocument();
+  const api = await createTestApi();
   const app: any = express();
   app.use(bodyParser.json());
   app.use('*', (_req, _res) => {
@@ -25,8 +25,8 @@ export async function createMockServer() {
     app.address = address.address;
     app.port = address.port;
     app.baseUrl = `http://${address.address}:${address.port}`;
-    app.document = document;
-    app.client = new OpraHttpClient(app.baseUrl, {document});
+    app.api = api;
+    app.client = new OpraHttpClient(app.baseUrl, {api});
     return app;
   });
 }

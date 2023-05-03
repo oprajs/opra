@@ -6,34 +6,35 @@ import { SqbEntityService } from './sqb-entity-service.js';
 
 export abstract class SqbSingletonResource<T> {
 
-  @Singleton.CreateOperation()
+  @Singleton.Create()
   async create(ctx: RequestContext): Promise<PartialOutput<T>> {
-    const prepared = SQBAdapter.parseSingletonCreateRequest(ctx.request);
+    const prepared = SQBAdapter.transformRequest(ctx.request);
     const service = await this.getService(ctx);
     return service.create(ctx, prepared.data, prepared.options);
   }
 
-  @Singleton.DeleteOperation()
+  @Singleton.Delete()
   async delete(ctx: RequestContext): Promise<boolean> {
-    const prepared = SQBAdapter.parseSingletonDeleteRequest(ctx.request);
+    const prepared = SQBAdapter.transformRequest(ctx.request);
     const service = await this.getService(ctx);
-    return !!(await service.destroyAll(ctx, prepared.options));
+    return !!(await service.deleteMany(ctx, prepared.options));
   }
 
-  @Singleton.GetOperation()
+  @Singleton.Get()
   async get(ctx: RequestContext): Promise<Maybe<PartialOutput<T>>> {
-    const prepared = SQBAdapter.parseSingletonGetRequest(ctx.request);
+    const prepared = SQBAdapter.transformRequest(ctx.request);
     const service = await this.getService(ctx);
     return service.findOne(ctx, prepared.options);
   }
 
-  @Singleton.UpdateOperation()
+  @Singleton.Update()
   async update(ctx: RequestContext): Promise<Maybe<PartialOutput<T>>> {
-    const prepared = SQBAdapter.parseSingletonUpdateRequest(ctx.request);
+    const prepared = SQBAdapter.transformRequest(ctx.request);
     const service = await this.getService(ctx);
-    await service.updateAll(ctx, prepared.data, prepared.options);
+    await service.updateMany(ctx, prepared.data, prepared.options);
     return service.findOne(ctx, prepared.options);
   }
 
   abstract getService(req: RequestContext): SqbEntityService<T> | Promise<SqbEntityService<T>>;
+
 }

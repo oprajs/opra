@@ -13,14 +13,14 @@ export namespace Singleton {
   export type Kind = 'Singleton';
 
   export type CreateOperation = Endpoint & _Operation.InputPickOmit & _Operation.ResponsePickOmit;
+  export type DeleteOperation = Endpoint;
   export type GetOperation = Endpoint & _Operation.ResponsePickOmit;
   export type UpdateOperation = Endpoint & _Operation.InputPickOmit & _Operation.ResponsePickOmit;
-  export type DeleteOperation = Endpoint;
 
   export interface Operations {
     create?: CreateOperation;
+    delete?: DeleteOperation;
     get?: GetOperation;
     update?: UpdateOperation;
-    delete?: DeleteOperation;
   }
 }

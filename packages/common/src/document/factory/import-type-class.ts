@@ -38,6 +38,9 @@ export async function importTypeClass(
   const schema = cloneObject(metadata) as OpraSchema.DataType;
   const result = name || schema;
   if (name) {
+    if
+    (this.document.types.has(name) || typeQueue.has(name))
+      throw new TypeError(`Type "${name}" already imported`);
     cache.set(thunk, result);
     typeQueue.set(name, schema);
   }
@@ -73,6 +76,7 @@ export async function importTypeClass(
   throw new TypeError(`No EnumType metadata found for object ${JSON.stringify(enumObject).substring(0, 20)}...`);
 }
 
+// noinspection JSUnusedLocalSymbols
 export async function extractSimpleTypeSchema(
     this: DocumentFactory,
     target: OpraSchema.SimpleType,
@@ -156,6 +160,7 @@ export async function extractUnionTypeSchema(
     target.types.push(await this.importTypeClass(type));
 }
 
+// noinspection JSUnusedLocalSymbols
 export async function extractEnumTypeSchema(
     this: DocumentFactory,
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -164,6 +169,7 @@ export async function extractEnumTypeSchema(
   // Do nothing. This method is used by external modules for extending the factory
 }
 
+// noinspection JSUnusedLocalSymbols
 export async function extractFieldSchema(
     this: DocumentFactory,
     // eslint-disable-next-line @typescript-eslint/no-unused-vars

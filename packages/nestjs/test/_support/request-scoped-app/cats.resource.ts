@@ -4,22 +4,20 @@ import { Cat } from './cat.dto.js';
 import { CatsService } from './cats.service.js';
 import { Interceptor } from './logging.interceptor.js';
 import { Guard } from './request-scoped.guard.js';
-import { UsersService } from './users.service.js';
 
 @Collection(Cat, {primaryKey: 'id'})
 export class CatsResource {
   static COUNTER = 0;
 
   constructor(
-      private readonly catsService: CatsService,
-      private readonly usersService: UsersService
+      private readonly catsService: CatsService
   ) {
     CatsResource.COUNTER++;
   }
 
   @UseGuards(Guard)
   @UseInterceptors(Interceptor)
-  @Collection.GetOperation()
+  @Collection.Get()
   get(): any[] {
     return this.catsService.getCats();
   }
