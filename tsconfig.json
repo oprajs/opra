@@ -2,6 +2,7 @@
   "include": [
     "./packages",
     "./support",
+    "./examples",
     "./"
   ],
   "exclude": [
