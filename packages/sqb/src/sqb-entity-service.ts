@@ -23,7 +23,6 @@ export class SqbEntityService<T, TOutput = PartialOutput<T>> {
   }
 
   async count(
-      context: RequestContext,
       options?: Repository.CountOptions
   ): Promise<number> {
     const conn = await this.getConnection();
@@ -37,7 +36,6 @@ export class SqbEntityService<T, TOutput = PartialOutput<T>> {
   }
 
   async create(
-      context: RequestContext,
       data: PartialInput<T>,
       options?: Repository.CreateOptions
   ): Promise<TOutput> {
@@ -59,7 +57,6 @@ export class SqbEntityService<T, TOutput = PartialOutput<T>> {
 
 
   async delete(
-      context: RequestContext,
       keyValue: any,
       options?: Repository.DestroyOptions
   ): Promise<boolean> {
@@ -74,7 +71,6 @@ export class SqbEntityService<T, TOutput = PartialOutput<T>> {
   }
 
   async deleteMany(
-      context: RequestContext,
       options?: Repository.DestroyOptions
   ): Promise<number> {
     const conn = await this.getConnection();
@@ -88,7 +84,6 @@ export class SqbEntityService<T, TOutput = PartialOutput<T>> {
   }
 
   async find(
-      context: RequestContext,
       keyValue: any,
       options?: Repository.FindOptions
   ): Promise<Maybe<TOutput>> {
@@ -107,7 +102,6 @@ export class SqbEntityService<T, TOutput = PartialOutput<T>> {
   }
 
   async findOne(
-      context: RequestContext,
       options?: Repository.FindOneOptions
   ): Promise<Maybe<TOutput>> {
     const conn = await this.getConnection();
@@ -125,8 +119,7 @@ export class SqbEntityService<T, TOutput = PartialOutput<T>> {
   }
 
   async findAll(
-      context: RequestContext,
-      options?: Repository.FindAllOptions,
+      options?: Repository.FindManyOptions,
   ): Promise<TOutput[]> {
     const conn = await this.getConnection();
     const repo = conn.getRepository(this.typeClass);
@@ -151,7 +144,6 @@ export class SqbEntityService<T, TOutput = PartialOutput<T>> {
   }
 
   async exists(
-      context: RequestContext,
       options?: Repository.ExistsOptions
   ): Promise<boolean> {
     const conn = await this.getConnection();
@@ -166,7 +158,6 @@ export class SqbEntityService<T, TOutput = PartialOutput<T>> {
 
 
   async update(
-      context: RequestContext,
       keyValue: any,
       data: EntityInput<T>,
       options?: Repository.UpdateOptions
@@ -186,9 +177,8 @@ export class SqbEntityService<T, TOutput = PartialOutput<T>> {
   }
 
   async updateMany(
-      context: RequestContext,
       data: PartialInput<T>,
-      options?: Repository.UpdateAllOptions
+      options?: Repository.UpdateManyOptions
   ): Promise<number> {
     const conn = await this.getConnection();
     const repo = conn.getRepository(this.typeClass);
