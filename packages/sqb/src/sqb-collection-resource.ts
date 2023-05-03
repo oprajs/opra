@@ -10,42 +10,42 @@ export abstract class SqbCollectionResource<T> {
   async create(ctx: RequestContext): Promise<PartialOutput<T>> {
     const prepared = SQBAdapter.transformRequest(ctx.request);
     const service = await this.getService(ctx);
-    return service.create(ctx, prepared.data, prepared.options);
+    return service.with(ctx).create(prepared.data, prepared.options);
   }
 
   @Collection.Delete()
   async delete(ctx: RequestContext): Promise<boolean> {
     const prepared = SQBAdapter.transformRequest(ctx.request);
     const service = await this.getService(ctx);
-    return service.delete(ctx, prepared.key, prepared.options);
+    return service.with(ctx).delete(prepared.key, prepared.options);
   }
 
   @Collection.DeleteMany()
   async deleteMany(ctx: RequestContext): Promise<number> {
     const prepared = SQBAdapter.transformRequest(ctx.request);
     const service = await this.getService(ctx);
-    return service.deleteMany(ctx, prepared.options);
+    return service.with(ctx).deleteMany(prepared.options);
   }
 
   @Collection.Get()
   async find(ctx: RequestContext): Promise<Maybe<PartialOutput<T>>> {
     const prepared = SQBAdapter.transformRequest(ctx.request);
     const service = await this.getService(ctx);
-    return service.find(ctx, prepared.key, prepared.options);
+    return service.with(ctx).find(prepared.key, prepared.options);
   }
 
   @Collection.Update()
   async update(ctx: RequestContext): Promise<Maybe<PartialOutput<T>>> {
     const prepared = SQBAdapter.transformRequest(ctx.request);
     const service = await this.getService(ctx);
-    return service.update(ctx, prepared.key, prepared.data, prepared.options);
+    return service.with(ctx).update(prepared.key, prepared.data, prepared.options);
   }
 
   @Collection.UpdateMany()
   async updateMany(ctx: RequestContext): Promise<number> {
     const prepared = SQBAdapter.transformRequest(ctx.request);
     const service = await this.getService(ctx);
-    return service.updateMany(ctx, prepared.data, prepared.options);
+    return service.with(ctx).updateMany(prepared.data, prepared.options);
   }
 
   @Collection.FindMany()
@@ -60,7 +60,7 @@ export abstract class SqbCollectionResource<T> {
       ctx.response.count = count;
       return items;
     } else
-      return service.findAll(ctx, prepared.options);
+      return service.with(ctx).findAll(prepared.options);
   }
 
   abstract getService(ctx: RequestContext): SqbEntityService<T> | Promise<SqbEntityService<T>>;
