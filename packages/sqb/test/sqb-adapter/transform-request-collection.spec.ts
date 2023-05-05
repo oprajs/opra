@@ -1,3 +1,5 @@
+/* eslint-disable import/no-duplicates */
+import '@opra/sqb';
 import { ApiDocument, parseFilter } from '@opra/common';
 import { Request } from '@opra/core';
 import { createTestApi } from '@opra/core/test/_support/test-app';
@@ -108,12 +110,12 @@ describe('SQBAdapter.transformRequest (Collection)', function () {
 
     it('Should prepare with "filter" option', async () => {
       const request = {
-        resource: api.getCollection('countries'),
+        resource: api.getCollection('customers'),
         resourceKind: 'Collection',
         operation: 'deleteMany',
         crud: 'delete',
         many: true,
-        args: {filter: parseFilter('givenName=John')}
+        args: {filter: parseFilter('givenName="John"')}
       } as unknown as Request;
       const o = SQBAdapter.transformRequest(request);
       const options = {
@@ -196,12 +198,12 @@ describe('SQBAdapter.transformRequest (Collection)', function () {
 
     it('Should prepare with "filter" option', async () => {
       const request = {
-        resource: api.getCollection('countries'),
+        resource: api.getCollection('customers'),
         resourceKind: 'Collection',
         operation: 'findMany',
         crud: 'read',
         many: true,
-        args: {filter: parseFilter('givenName=John')}
+        args: {filter: parseFilter('givenName="John"')}
       } as unknown as Request;
       const o = SQBAdapter.transformRequest(request);
       const options = {
@@ -315,12 +317,12 @@ describe('SQBAdapter.transformRequest (Collection)', function () {
 
     it('Should prepare with "filter" option', async () => {
       const request = {
-        resource: api.getCollection('countries'),
+        resource: api.getCollection('customers'),
         resourceKind: 'Collection',
         operation: 'updateMany',
         crud: 'update',
         many: true,
-        args: {data, filter: parseFilter('givenName=John')}
+        args: {data, filter: parseFilter('givenName="John"')}
       } as unknown as Request;
       const o = SQBAdapter.transformRequest(request);
       const options = {

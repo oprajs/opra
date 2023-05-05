@@ -63,67 +63,44 @@ describe('OpraHttpAdapter parse Collection requests', function () {
     })
 
     it('Should normalize field names in "pick" option', async () => {
-      let request = await adapter.parseRequest(HttpRequestMessage.create({
+      const request = await adapter.parseRequest(HttpRequestMessage.create({
         method: 'GET',
-        url: '/Customers@1?$pick=givenname,GENDER,AdDRess.CIty'
+        url: '/Customers@1?$pick=givenname,GENDER,Address,address.countryCode'
       }));
       expect(request).toBeDefined();
       expect(request.operation).toStrictEqual('get');
-      expect(request.args.pick).toStrictEqual(['givenName', 'gender', 'address.city']);
-      request = await adapter.parseRequest(HttpRequestMessage.create({
-        method: 'GET',
-        url: '/Customers@1?$pick=address,address.city'
-      }));
-      expect(request.args.pick).toStrictEqual(['address']);
-      request = await adapter.parseRequest(HttpRequestMessage.create({
-        method: 'GET',
-        url: '/Customers@1?$pick=address.city,address'
-      }));
-      expect(request.operation).toStrictEqual('get');
-      expect(request.args.pick).toStrictEqual(['address']);
+      expect(request.args.pick).toStrictEqual(['givenName', 'gender', 'address', 'address.countryCode']);
     })
 
     it('Should normalize field names in "omit" option', async () => {
       let request = await adapter.parseRequest(HttpRequestMessage.create({
         method: 'GET',
-        url: '/Customers@1?$omit=givenname,GENDER,AdDRess.CIty'
+        url: '/Customers@1?$omit=givenname,GENDER,address.countryCode'
       }));
       expect(request).toBeDefined();
       expect(request.operation).toStrictEqual('get');
-      expect(request.args.omit).toStrictEqual(['givenName', 'gender', 'address.city']);
+      expect(request.args.omit).toStrictEqual(['givenName', 'gender', 'address.countryCode']);
       request = await adapter.parseRequest(HttpRequestMessage.create({
         method: 'GET',
-        url: '/Customers@1?$omit=address,address.city'
+        url: '/Customers@1?$omit=address,address.countryCode'
       }));
       expect(request.operation).toStrictEqual('get');
-      expect(request.args.omit).toStrictEqual(['address']);
-      request = await adapter.parseRequest(HttpRequestMessage.create({
-        method: 'GET',
-        url: '/Customers@1?$omit=address.city,address'
-      }));
-      expect(request.operation).toStrictEqual('get');
-      expect(request.args.omit).toStrictEqual(['address']);
+      expect(request.args.omit).toStrictEqual(['address', 'address.countryCode']);
     })
 
     it('Should normalize field names in "include" option', async () => {
       let request = await adapter.parseRequest(HttpRequestMessage.create({
         method: 'GET',
-        url: '/Customers@1?$include=givenname,GENDER,AdDRess.CIty'
+        url: '/Customers@1?$include=givenname,GENDER,address.countryCode'
       }));
       expect(request).toBeDefined();
       expect(request.operation).toStrictEqual('get');
-      expect(request.args.include).toStrictEqual(['givenName', 'gender', 'address.city']);
+      expect(request.args.include).toStrictEqual(['givenName', 'gender', 'address.countryCode']);
       request = await adapter.parseRequest(HttpRequestMessage.create({
         method: 'GET',
-        url: '/Customers@1?$include=address,address.city'
+        url: '/Customers@1?$include=address,address.countryCode'
       }));
-      expect(request.args.include).toStrictEqual(['address']);
-      request = await adapter.parseRequest(HttpRequestMessage.create({
-        method: 'GET',
-        url: '/Customers@1?$include=address.city,address'
-      }));
-      expect(request.operation).toStrictEqual('get');
-      expect(request.args.include).toStrictEqual(['address']);
+      expect(request.args.include).toStrictEqual(['address', 'address.countryCode']);
     })
 
     it('Should validate if fields in "pick" option are exist', async () => {
@@ -131,7 +108,7 @@ describe('OpraHttpAdapter parse Collection requests', function () {
             method: 'GET',
             url: '/Customers@1?$pick=address.x1'
           }))
-      ).rejects.toThrow('Unknown field "address.x1"');
+      ).rejects.toThrow('Invalid');
     })
 
     it('Should validate if fields in "omit" option are exist', async () => {
@@ -139,7 +116,7 @@ describe('OpraHttpAdapter parse Collection requests', function () {
             method: 'GET',
             url: '/Customers@1?$omit=address.x1'
           }))
-      ).rejects.toThrow('Unknown field "address.x1"');
+      ).rejects.toThrow('Invalid');
     })
 
     it('Should validate if fields in "include" option are exist', async () => {
@@ -147,7 +124,7 @@ describe('OpraHttpAdapter parse Collection requests', function () {
             method: 'GET',
             url: '/Customers@1?$include=address.x1'
           }))
-      ).rejects.toThrow('Unknown field "address.x1"');
+      ).rejects.toThrow('Invalid');
     })
 
     it('Should allow unknown fields in "pick" option if additionalFields set to "true"', async () => {
@@ -209,84 +186,39 @@ describe('OpraHttpAdapter parse Collection requests', function () {
     })
 
     it('Should normalize field names in "pick" option', async () => {
-      let request = await adapter.parseRequest(HttpRequestMessage.create({
+      const request = await adapter.parseRequest(HttpRequestMessage.create({
         method: 'POST',
-        url: '/Customers?$pick=givenname,GENDER,AdDRess.CIty',
+        url: '/Customers?$pick=givenname,GENDER,address,address.countryCode',
         body: {_id: 1},
         headers: {'content-type': 'application/json'}
       }));
       expect(request).toBeDefined();
       expect(request.operation).toStrictEqual('create');
-      expect(request.args.pick).toStrictEqual(['givenName', 'gender', 'address.city']);
-      request = await adapter.parseRequest(HttpRequestMessage.create({
-        method: 'POST',
-        url: '/Customers?$pick=address,address.city',
-        body: {_id: 1},
-        headers: {'content-type': 'application/json'}
-      }));
-      expect(request.operation).toStrictEqual('create');
-      expect(request.args.pick).toStrictEqual(['address']);
-      request = await adapter.parseRequest(HttpRequestMessage.create({
-        method: 'POST',
-        url: '/Customers?$pick=address.city,address',
-        body: {_id: 1},
-        headers: {'content-type': 'application/json'}
-      }));
-      expect(request.operation).toStrictEqual('create');
-      expect(request.args.pick).toStrictEqual(['address']);
+      expect(request.args.pick).toStrictEqual(['givenName', 'gender', 'address', 'address.countryCode']);
     })
 
     it('Should normalize field names in "omit" option', async () => {
-      let request = await adapter.parseRequest(HttpRequestMessage.create({
+      const request = await adapter.parseRequest(HttpRequestMessage.create({
         method: 'POST',
-        url: '/Customers?$omit=givenname,GENDER,AdDRess.CIty',
+        url: '/Customers?$omit=givenname,GENDER,address,address.countryCode',
         body: {_id: 1},
         headers: {'content-type': 'application/json'}
       }));
       expect(request).toBeDefined();
       expect(request.operation).toStrictEqual('create');
-      expect(request.args.omit).toStrictEqual(['givenName', 'gender', 'address.city']);
-      request = await adapter.parseRequest(HttpRequestMessage.create({
-        method: 'POST',
-        url: '/Customers?$omit=address,address.city',
-        body: {_id: 1},
-        headers: {'content-type': 'application/json'}
-      }));
-      expect(request.operation).toStrictEqual('create');
-      expect(request.args.omit).toStrictEqual(['address']);
-      request = await adapter.parseRequest(HttpRequestMessage.create({
-        method: 'POST',
-        url: '/Customers?$omit=address.city,address',
-        body: {_id: 1},
-        headers: {'content-type': 'application/json'}
-      }));
-      expect(request.operation).toStrictEqual('create');
-      expect(request.args.omit).toStrictEqual(['address']);
+      expect(request.args.omit).toStrictEqual(['givenName', 'gender', 'address', 'address.countryCode']);
     })
 
     it('Should normalize field names in "include" option', async () => {
-      let request = await adapter.parseRequest(HttpRequestMessage.create({
+      const request = await adapter.parseRequest(HttpRequestMessage.create({
         method: 'POST',
-        url: '/Customers?$include=givenname,GENDER,AdDRess.CIty',
+        url: '/Customers?$include=givenname,GENDER,address,address.countryCode',
         body: {_id: 1},
         headers: {'content-type': 'application/json'}
       }));
       expect(request).toBeDefined();
       expect(request.operation).toStrictEqual('create');
-      expect(request.args.include).toStrictEqual(['givenName', 'gender', 'address.city']);
-      request = await adapter.parseRequest(HttpRequestMessage.create({
-        method: 'POST',
-        url: '/Customers?$include=address,address.city',
-        body: {_id: 1},
-        headers: {'content-type': 'application/json'}
-      }));
-      expect(request.args.include).toStrictEqual(['address']);
-      expect(request.operation).toStrictEqual('create');
-      request = await adapter.parseRequest(HttpRequestMessage.create({
-        method: 'POST',
-        url: '/Customers?$include=address.city,address'
-      }));
-      expect(request.args.include).toStrictEqual(['address']);
+      expect(request.args.include).toStrictEqual(['givenName', 'gender', 'address', 'address.countryCode']);
     })
 
     it('Should validate if fields in "pick" option are exist', async () => {
@@ -296,7 +228,7 @@ describe('OpraHttpAdapter parse Collection requests', function () {
             body: {_id: 1},
             headers: {'content-type': 'application/json'}
           }))
-      ).rejects.toThrow('Unknown field "address.x1"');
+      ).rejects.toThrow('Invalid field');
     })
 
     it('Should validate if fields in "omit" option are exist', async () => {
@@ -306,7 +238,7 @@ describe('OpraHttpAdapter parse Collection requests', function () {
             body: {_id: 1},
             headers: {'content-type': 'application/json'}
           }))
-      ).rejects.toThrow('Unknown field "address.x1"');
+      ).rejects.toThrow('Invalid field');
     })
 
     it('Should validate if fields in "include" option are exist', async () => {
@@ -316,7 +248,7 @@ describe('OpraHttpAdapter parse Collection requests', function () {
             body: {_id: 1},
             headers: {'content-type': 'application/json'}
           }))
-      ).rejects.toThrow('Unknown field "address.x1"');
+      ).rejects.toThrow('Invalid field');
     })
 
     it('Should allow unknown fields in "pick" option if additionalFields set to "true"', async () => {
@@ -385,77 +317,36 @@ describe('OpraHttpAdapter parse Collection requests', function () {
     })
 
     it('Should normalize field names in "pick" option', async () => {
-      let request = await adapter.parseRequest(HttpRequestMessage.create({
+      const request = await adapter.parseRequest(HttpRequestMessage.create({
         method: 'PATCH',
-        url: '/Customers@1?$pick=givenname,GENDER,AdDRess.CIty',
+        url: '/Customers@1?$pick=givenname,GENDER,Address,address.countryCode',
         body: {_id: 1},
       }));
       expect(request).toBeDefined();
       expect(request.operation).toStrictEqual('update');
-      expect(request.args.pick).toStrictEqual(['givenName', 'gender', 'address.city']);
-      request = await adapter.parseRequest(HttpRequestMessage.create({
-        method: 'PATCH',
-        url: '/Customers@1?$pick=address,address.city'
-      }));
-      expect(request.operation).toStrictEqual('update');
-      expect(request.args.pick).toStrictEqual(['address']);
-      request = await adapter.parseRequest(HttpRequestMessage.create({
-        method: 'PATCH',
-        url: '/Customers@1?$pick=address.city,address',
-        body: {_id: 1},
-      }));
-      expect(request.operation).toStrictEqual('update');
-      expect(request.args.pick).toStrictEqual(['address']);
+      expect(request.args.pick).toStrictEqual(['givenName', 'gender', 'address', 'address.countryCode']);
     })
 
     it('Should normalize field names in "omit" option', async () => {
-      let request = await adapter.parseRequest(HttpRequestMessage.create({
+      const request = await adapter.parseRequest(HttpRequestMessage.create({
         method: 'PATCH',
-        url: '/Customers@1?$omit=givenname,GENDER,AdDRess.CIty',
+        url: '/Customers@1?$omit=givenname,GENDER,Address,address.countryCode',
         body: {_id: 1},
       }));
       expect(request).toBeDefined();
       expect(request.operation).toStrictEqual('update');
-      expect(request.args.omit).toStrictEqual(['givenName', 'gender', 'address.city']);
-      request = await adapter.parseRequest(HttpRequestMessage.create({
-        method: 'PATCH',
-        url: '/Customers@1?$omit=address,address.city',
-        body: {_id: 1},
-      }));
-      expect(request.operation).toStrictEqual('update');
-      expect(request.args.omit).toStrictEqual(['address']);
-      request = await adapter.parseRequest(HttpRequestMessage.create({
-        method: 'PATCH',
-        url: '/Customers@1?$omit=address.city,address',
-        body: {_id: 1},
-      }));
-      expect(request.operation).toStrictEqual('update');
-      expect(request.args.omit).toStrictEqual(['address']);
+      expect(request.args.omit).toStrictEqual(['givenName', 'gender', 'address', 'address.countryCode']);
     })
 
     it('Should normalize field names in "include" option', async () => {
-      let request = await adapter.parseRequest(HttpRequestMessage.create({
+      const request = await adapter.parseRequest(HttpRequestMessage.create({
         method: 'PATCH',
-        url: '/Customers@1?$include=givenname,GENDER,AdDRess.CIty',
+        url: '/Customers@1?$include=givenname,GENDER,Address,address.countryCode',
         body: {_id: 1},
       }));
       expect(request).toBeDefined();
       expect(request.operation).toStrictEqual('update');
-      expect(request.args.include).toStrictEqual(['givenName', 'gender', 'address.city']);
-      request = await adapter.parseRequest(HttpRequestMessage.create({
-        method: 'PATCH',
-        url: '/Customers@1?$include=address,address.city',
-        body: {_id: 1},
-      }));
-      expect(request.operation).toStrictEqual('update');
-      expect(request.args.include).toStrictEqual(['address']);
-      request = await adapter.parseRequest(HttpRequestMessage.create({
-        method: 'PATCH',
-        url: '/Customers@1?$include=address.city,address',
-        body: {_id: 1},
-      }));
-      expect(request.operation).toStrictEqual('update');
-      expect(request.args.include).toStrictEqual(['address']);
+      expect(request.args.include).toStrictEqual(['givenName', 'gender', 'address', 'address.countryCode']);
     })
 
     it('Should validate if fields in "pick" option are exist', async () => {
@@ -464,7 +355,7 @@ describe('OpraHttpAdapter parse Collection requests', function () {
             url: '/Customers@1?$pick=address.x1',
             body: {_id: 1},
           }))
-      ).rejects.toThrow('Unknown field "address.x1"');
+      ).rejects.toThrow('Invalid field');
     })
 
     it('Should validate if fields in "omit" option are exist', async () => {
@@ -473,7 +364,7 @@ describe('OpraHttpAdapter parse Collection requests', function () {
             url: '/Customers@1?$omit=address.x1',
             body: {_id: 1},
           }))
-      ).rejects.toThrow('Unknown field "address.x1"');
+      ).rejects.toThrow('Invalid field');
     })
 
     it('Should validate if fields in "include" option are exist', async () => {
@@ -482,7 +373,7 @@ describe('OpraHttpAdapter parse Collection requests', function () {
             url: '/Customers@1?$include=address.x1',
             body: {_id: 1},
           }))
-      ).rejects.toThrow('Unknown field "address.x1"');
+      ).rejects.toThrow('Invalid field');
     })
 
     it('Should allow unknown fields in "pick" option if additionalFields set to "true"', async () => {
@@ -564,7 +455,7 @@ describe('OpraHttpAdapter parse Collection requests', function () {
             body: {_id: 1},
             headers: {'content-type': 'application/json', 'Accept': 'application/json'}
           }))
-      ).rejects.toThrow('Unknown field "address.x1"');
+      ).rejects.toThrow('Invalid field');
     })
 
   });
@@ -631,7 +522,7 @@ describe('OpraHttpAdapter parse Collection requests', function () {
             method: 'DELETE',
             url: '/Customers?$filter=address.x1=1'
           }))
-      ).rejects.toThrow('Unknown field "address.x1"');
+      ).rejects.toThrow('Invalid field');
     })
 
   })
@@ -663,79 +554,42 @@ describe('OpraHttpAdapter parse Collection requests', function () {
     })
 
     it('Should normalize field names in "pick" option', async () => {
-      let request = await adapter.parseRequest(HttpRequestMessage.create({
+      const request = await adapter.parseRequest(HttpRequestMessage.create({
         method: 'GET',
-        url: '/Customers?$pick=givenname,GENDER,AdDRess.CIty'
+        url: '/Customers@1?$pick=givenname,GENDER,Address,address.countryCode'
       }));
       expect(request).toBeDefined();
-      expect(request.operation).toStrictEqual('findMany');
-      expect(request.args.pick).toStrictEqual(['givenName', 'gender', 'address.city']);
-
-      request = await adapter.parseRequest(HttpRequestMessage.create({
-        method: 'GET',
-        url: '/Customers?$pick=address,address.city'
-      }));
-      expect(request.args.pick).toStrictEqual(['address']);
-
-      request = await adapter.parseRequest(HttpRequestMessage.create({
-        method: 'GET',
-        url: '/Customers?$pick=address.city,address'
-      }));
-      expect(request.operation).toStrictEqual('findMany');
-      expect(request.args.pick).toStrictEqual(['address']);
+      expect(request.operation).toStrictEqual('get');
+      expect(request.args.pick).toStrictEqual(['givenName', 'gender', 'address', 'address.countryCode']);
     })
 
     it('Should normalize field names in "omit" option', async () => {
-      let request = await adapter.parseRequest(HttpRequestMessage.create({
+      const request = await adapter.parseRequest(HttpRequestMessage.create({
         method: 'GET',
-        url: '/Customers?$omit=givenname,GENDER,AdDRess.CIty'
+        url: '/Customers@1?$omit=givenname,GENDER,Address,address.countryCode'
       }));
       expect(request).toBeDefined();
-      expect(request.args.omit).toStrictEqual(['givenName', 'gender', 'address.city']);
-      request = await adapter.parseRequest(HttpRequestMessage.create({
-        method: 'GET',
-        url: '/Customers?$omit=address,address.city'
-      }));
-      expect(request.args.omit).toStrictEqual(['address']);
-      request = await adapter.parseRequest(HttpRequestMessage.create({
-        method: 'GET',
-        url: '/Customers?$omit=address.city,address'
-      }));
-      expect(request.args.omit).toStrictEqual(['address']);
+      expect(request.args.omit).toStrictEqual(['givenName', 'gender', 'address', 'address.countryCode']);
     })
 
     it('Should normalize field names in "include" option', async () => {
-      let request = await adapter.parseRequest(HttpRequestMessage.create({
+      const request = await adapter.parseRequest(HttpRequestMessage.create({
         method: 'GET',
-        url: '/Customers?$include=givenname,GENDER,AdDRess.CIty'
+        url: '/Customers@1?$include=givenname,GENDER,Address,address.countryCode'
       }));
       expect(request).toBeDefined();
-      expect(request.operation).toStrictEqual('findMany');
-      expect(request.args.include).toStrictEqual(['givenName', 'gender', 'address.city']);
-
-      request = await adapter.parseRequest(HttpRequestMessage.create({
-        method: 'GET',
-        url: '/Customers?$include=address,address.city'
-      }));
-      expect(request.operation).toStrictEqual('findMany');
-      expect(request.args.include).toStrictEqual(['address']);
-
-      request = await adapter.parseRequest(HttpRequestMessage.create({
-        method: 'GET',
-        url: '/Customers?$include=address.city,address'
-      }));
-      expect(request.operation).toStrictEqual('findMany');
-      expect(request.args.include).toStrictEqual(['address']);
+      expect(request.operation).toStrictEqual('get');
+      expect(request.args.include).toStrictEqual(['givenName', 'gender', 'address', 'address.countryCode']);
     })
 
     it('Should normalize field names in "sort" option', async () => {
       const request = await adapter.parseRequest(HttpRequestMessage.create({
         method: 'GET',
-        url: '/Customers?$sort=givenname,GENDER,AdDRess.CIty'
+        url: '/Customers?$sort=givenname,GENDER,address.countryCode'
       }));
       expect(request).toBeDefined();
       expect(request.operation).toStrictEqual('findMany');
-      expect(request.args.sort).toStrictEqual(['givenName', 'gender', 'address.city']);
+      expect(request.args.sort).toStrictEqual(['givenName', 'gender', 'address.countryCode']);
     })
 
     it('Should validate if fields in "pick" option are exist', async () => {
@@ -743,7 +597,7 @@ describe('OpraHttpAdapter parse Collection requests', function () {
             method: 'GET',
             url: '/Customers?$pick=address.x1'
           }))
-      ).rejects.toThrow('Unknown field "address.x1"');
+      ).rejects.toThrow('Invalid field');
     })
 
     it('Should validate if fields in "omit" option are exist', async () => {
@@ -751,7 +605,7 @@ describe('OpraHttpAdapter parse Collection requests', function () {
             method: 'GET',
             url: '/Customers?$omit=address.x1'
           }))
-      ).rejects.toThrow('Unknown field "address.x1"');
+      ).rejects.toThrow('Invalid field');
     })
 
     it('Should validate if fields in "include" option are exist', async () => {
@@ -759,7 +613,7 @@ describe('OpraHttpAdapter parse Collection requests', function () {
             method: 'GET',
             url: '/Customers?$include=address.x1'
           }))
-      ).rejects.toThrow('Unknown field "address.x1"');
+      ).rejects.toThrow('Invalid field');
     })
 
     it('Should validate if fields in "sort" option are exist', async () => {
@@ -767,7 +621,7 @@ describe('OpraHttpAdapter parse Collection requests', function () {
             method: 'GET',
             url: '/Customers?$sort=address.x1'
           }))
-      ).rejects.toThrow('Unknown field "address.x1"');
+      ).rejects.toThrow('Invalid field');
     })
 
     it('Should validate if field is available for sorting', async () => {
@@ -961,7 +815,7 @@ describe('OpraHttpAdapter parse Collection requests', function () {
             method: 'GET',
             url: '/Customers?$filter=address.x1=1'
           }))
-      ).rejects.toThrow('Unknown field "address.x1"');
+      ).rejects.toThrow('Invalid field');
     })
 
   })

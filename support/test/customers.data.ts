@@ -23,6 +23,7 @@ for (let _id = 1; _id <= 1000; _id++) {
     active: enumValue([true, false]),
     countryCode,
     deleted: enumValue([true, false]),
+    rate: Math.floor(Math.random() * 10),
     address: {
       countryCode,
       city: '' + faker.address.city(),

@@ -57,6 +57,7 @@ CREATE TABLE ${schema}.customers
     countryCode character varying(5),
     active boolean not null default true,   
     vip boolean not null default false,
+    rate numeric,
     address jsonb,
     notes jsonb,
     deleted boolean not null default false,

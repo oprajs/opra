@@ -41,7 +41,7 @@ export class CustomersResource {
   }
 
   @Collection.FindMany({
-    sortFields: ['_id', 'givenName', 'familyName', 'gender', 'birthDate', 'address.city'],
+    sortFields: ['_id', 'givenName', 'familyName', 'gender', 'birthDate', 'address.countryCode'],
     defaultSort: ['givenName'],
     filters: [
       {field: '_id', operators: ['=']},

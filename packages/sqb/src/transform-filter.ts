@@ -1,6 +1,6 @@
 import {
   ArrayExpression,
-  BooleanLiteral,
+  BooleanLiteral, Collection,
   ComparisonExpression, DateLiteral,
   Expression, LogicalExpression, NullLiteral,
   NumberLiteral, ParenthesesExpression, parseFilter,
@@ -9,16 +9,21 @@ import {
 } from '@opra/common';
 import * as sqb from '@sqb/builder';
 
-export default function transformFilter(str: string | Expression | undefined): any {
+export default function transformFilter(
+    resource: Collection,
+    str: string | Expression | undefined
+): any {
   const ast = typeof str === 'string' ? parseFilter(str) : str;
   if (!ast)
     return;
+  resource.normalizeFilter(ast);
 
   if (ast instanceof ComparisonExpression) {
-    const left = ast.left instanceof QualifiedIdentifier
-        ? sqb.Field(ast.left.value)
-        : transformFilter(ast.left);
-    const right = transformFilter(ast.right);
+    if (!(ast.left instanceof QualifiedIdentifier && ast.left.field))
+      throw new TypeError(`Unsupported filter query. Left side should be a data field.`);
+
+    const left = sqb.Field(ast.left.value);
+    const right = transformFilter(resource, ast.right);
 
     switch (ast.op) {
       case '=':
@@ -65,17 +70,17 @@ export default function transformFilter(str: string | Expression | undefined): a
   }
 
   if (ast instanceof ArrayExpression) {
-    return ast.items.map(transformFilter);
+    return ast.items.map(i=>transformFilter(resource, i));
   }
 
   if (ast instanceof LogicalExpression) {
     if (ast.op === 'or')
-      return sqb.Or(...ast.items.map(transformFilter));
-    return sqb.And(...ast.items.map(transformFilter));
+      return sqb.Or(...ast.items.map((i=>transformFilter(resource, i))));
+    return sqb.And(...ast.items.map((i=>transformFilter(resource, i))));
   }
 
   if (ast instanceof ParenthesesExpression) {
-    return transformFilter(ast.expression);
+    return transformFilter(resource, ast.expression);
   }
 
   throw new Error(`${ast.type} is not implemented yet`);

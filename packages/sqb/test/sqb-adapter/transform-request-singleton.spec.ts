@@ -1,3 +1,5 @@
+/* eslint-disable import/no-duplicates */
+import '@opra/sqb';
 import { ApiDocument } from '@opra/common';
 import { Request } from '@opra/core';
 import { createTestApi } from '@opra/core/test/_support/test-app';

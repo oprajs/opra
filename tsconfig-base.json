@@ -41,6 +41,8 @@
       "@opra/sqb/*": ["./packages/sqb/src/*"],
       "@opra/mongodb": ["./packages/mongodb/src"],
       "@opra/mongodb/*": ["./packages/mongodb/src/*"],
+      "@opra/elastic": ["./packages/elastic/src"],
+      "@opra/elastic/*": ["./packages/elastic/src/*"],
       "@opra/node-client": ["./packages/node-client/src"],
       "@opra/node-client/*": ["./packages/node-client/src/*"],
       "@opra/nestjs": ["./packages/nestjs/src"],
