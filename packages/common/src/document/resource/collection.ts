@@ -73,11 +73,15 @@ export interface Collection extends StrictOmit<Resource, 'exportSchema' | '_cons
 
   parseKeyValue(value: any): any;
 
-  normalizeFieldNames(fields: string[]): string[] | undefined;
+  normalizeFieldPath(fields: string): string;
 
-  normalizeSortFields(fields: string[]): string[] | undefined;
+  normalizeFieldPath(fields: string[]): string[];
 
-  normalizeFilterFields(ast: Expression): Expression;
+  normalizeFieldPath(fields: string | string[]): string | string[];
+
+  normalizeSortFields(fields: string | string[]): string[];
+
+  normalizeFilter(ast: Expression): Expression;
 
   _construct(init: Collection.InitArguments): void;
 }
@@ -156,9 +160,9 @@ const proto = {
     if (!_this.primaryKey.length)
       throw new TypeError(`You must provide primaryKey for Collection resource ("${_this.name}")`);
     _this.primaryKey.forEach(f => {
-      const el = dataType.getField(f);
-      if (!(el.type instanceof SimpleType))
-        throw new TypeError(`Only Simple type allowed for primary keys but "${f}" is a ${el.type.kind}`);
+      const field = dataType.getField(f);
+      if (!(field?.type instanceof SimpleType))
+        throw new TypeError(`Only Simple type allowed for primary keys but "${f}" is a ${field.type.kind}`);
     });
     if (_this.controller) {
       const instance = typeof _this.controller == 'function'
@@ -216,14 +220,12 @@ const proto = {
     }
   },
 
-  normalizeFieldNames(this: Collection, fields: string | string[]): string[] | undefined {
-    return this.type.normalizeFieldNames(fields);
+  normalizeFieldPath(this: Collection, path: string | []): string | string[] {
+    return this.type.normalizeFieldPath(path);
   },
 
-  normalizeSortFields(this: Collection, fields: string[]): string[] | undefined {
-    const normalized = this.normalizeFieldNames(fields);
-    if (!normalized)
-      return;
+  normalizeSortFields(this: Collection, fields: string[]): string[] {
+    const normalized = this.type.normalizeFieldPath(fields);
     const findManyEndpoint = this.operations.findMany;
     const sortFields = findManyEndpoint && findManyEndpoint.sortFields;
     normalized.forEach(field => {
@@ -236,23 +238,24 @@ const proto = {
     return normalized;
   },
 
-  normalizeFilterFields(ast: Expression): Expression {
+  normalizeFilter(ast: Expression): Expression {
     if (ast instanceof ComparisonExpression) {
-      this.normalizeFilterFields(ast.left);
+      this.normalizeFilter(ast.left);
     } else if (ast instanceof LogicalExpression) {
       ast.items.forEach(item =>
-          this.normalizeFilterFields(item));
+          this.normalizeFilter(item));
     } else if (ast instanceof ArithmeticExpression) {
       ast.items.forEach(item =>
-          this.normalizeFilterFields(item.expression));
+          this.normalizeFilter(item.expression));
     } else if (ast instanceof ArrayExpression) {
       ast.items.forEach(item =>
-          this.normalizeFilterFields(item));
+          this.normalizeFilter(item));
     } else if (ast instanceof ParenthesesExpression) {
-      this.normalizeFilterFields(ast.expression);
+      this.normalizeFilter(ast.expression);
     } else if (ast instanceof QualifiedIdentifier) {
-      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-      ast.value = this.normalizeFieldNames([ast.value])![0];
+      ast.field = this.type.findField(ast.value);
+      ast.dataType = ast.field?.type || this.document.getDataType('any');
+      ast.value = this.type.normalizeFieldPath(ast.value);
     }
     return ast;
   }

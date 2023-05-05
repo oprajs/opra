@@ -56,7 +56,7 @@ export abstract class MongoCollectionResource<T extends mongodb.Document, TOutpu
   }
 
   @Collection.FindMany()
-  async search(ctx: RequestContext): Promise<TOutput[]> {
+  async findMany(ctx: RequestContext): Promise<TOutput[]> {
     const prepared = MongoAdapter.transformRequest(ctx.request);
     const service = await this.getService(ctx);
     if (prepared.count) {

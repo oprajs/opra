@@ -24,6 +24,10 @@ export class Customer extends UnionType(Record, Person) {
   @Column()
   countryCode: string;
 
+  @ApiField()
+  @Column()
+  rate: number;
+
   @ApiField({type: Address, exclusive: true})
   @Column({exclusive: true})
   address?: Address;

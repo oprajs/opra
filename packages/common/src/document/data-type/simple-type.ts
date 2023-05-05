@@ -97,7 +97,6 @@ const proto = {
     Object.assign(out, omitUndefined({
       base: this.base ?
           (this.base.name ? this.base.name : this.base.exportSchema()) : undefined,
-      codec: this.own.codec,
       pattern: this.own.pattern
     }));
     return out;

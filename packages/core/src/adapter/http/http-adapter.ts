@@ -1,6 +1,6 @@
 import { Task } from 'power-tasks';
 import {
-  BadRequestError, Collection, HttpHeaderCodes, HttpRequestMessage, HttpResponseMessage,
+  BadRequestError, Collection, Expression, HttpHeaderCodes, HttpRequestMessage, HttpResponseMessage,
   HttpStatusCodes, InternalServerError, isReadable, IssueSeverity, MethodNotAllowedError,
   OpraException, OpraSchema, OpraURL, Singleton, wrapException
 } from '@opra/common';
@@ -144,10 +144,11 @@ export abstract class OpraHttpAdapter extends OpraAdapter {
     try {
       const url = new OpraURL();
       url.searchParams.define({
-        '$pick': {codec: 'string', array: true},
-        '$omit': {codec: 'string', array: true},
-        '$include': {codec: 'string', array: true},
-        '$sort': {codec: 'string', array: true},
+        '$search': {codec: 'string'},
+        '$pick': {codec: 'string', array: 'strict'},
+        '$omit': {codec: 'string', array: 'strict'},
+        '$include': {codec: 'string', array: 'strict'},
+        '$sort': {codec: 'string', array: 'strict'},
         '$filter': {codec: 'filter'},
         '$limit': {codec: 'number'},
         '$skip': {codec: 'number'},
@@ -185,6 +186,9 @@ export abstract class OpraHttpAdapter extends OpraAdapter {
         switch (method) {
           case 'POST': {
             if (!p.key) {
+              const pick = params.get('$pick') as string;
+              const omit = params.get('$omit') as string;
+              const include = params.get('$include') as string;
               return new HttpRequestHost({
                 kind: 'CollectionCreateRequest',
                 resource,
@@ -193,9 +197,9 @@ export abstract class OpraHttpAdapter extends OpraAdapter {
                 many: false,
                 args: {
                   data: incoming.body,
-                  pick: resource.normalizeFieldNames(params.get('$pick')),
-                  omit: resource.normalizeFieldNames(params.get('$omit')),
-                  include: resource.normalizeFieldNames(params.get('$include'))
+                  pick: pick && resource.normalizeFieldPath(pick),
+                  omit: omit && resource.normalizeFieldPath(omit),
+                  include: include && resource.normalizeFieldPath(include)
                 }
               }, incoming);
             }
@@ -215,6 +219,7 @@ export abstract class OpraHttpAdapter extends OpraAdapter {
                 }
               }, incoming);
             }
+            const filter = params.get('$filter') as Expression;
             return new HttpRequestHost({
               kind: 'CollectionDeleteManyRequest',
               resource,
@@ -222,12 +227,15 @@ export abstract class OpraHttpAdapter extends OpraAdapter {
               crud: 'delete',
               many: true,
               args: {
-                filter: resource.normalizeFilterFields(params.get('$filter'))
+                filter: filter && resource.normalizeFilter(filter)
               }
             }, incoming);
           }
 
           case 'GET': {
+            const pick = params.get('$pick') as string;
+            const omit = params.get('$omit') as string;
+            const include = params.get('$include') as string;
             if (p.key) {
               return new HttpRequestHost({
                 kind: 'CollectionGetRequest',
@@ -237,13 +245,15 @@ export abstract class OpraHttpAdapter extends OpraAdapter {
                 many: false,
                 args: {
                   key: resource.parseKeyValue(p.key),
-                  pick: resource.normalizeFieldNames(params.get('$pick')),
-                  omit: resource.normalizeFieldNames(params.get('$omit')),
-                  include: resource.normalizeFieldNames(params.get('$include'))
+                  pick: pick && resource.normalizeFieldPath(pick),
+                  omit: omit && resource.normalizeFieldPath(omit),
+                  include: include && resource.normalizeFieldPath(include)
                 }
               }, incoming);
             }
 
+            const filter = params.get('$filter') as Expression;
+            const sort = params.get('$sort') as string;
             return new HttpRequestHost({
               kind: 'CollectionFindManyRequest',
               resource,
@@ -251,11 +261,11 @@ export abstract class OpraHttpAdapter extends OpraAdapter {
               crud: 'read',
               many: true,
               args: {
-                sort: resource.normalizeSortFields(params.get('$sort')),
-                pick: resource.normalizeFieldNames(params.get('$pick')),
-                omit: resource.normalizeFieldNames(params.get('$omit')),
-                include: resource.normalizeFieldNames(params.get('$include')),
-                filter: resource.normalizeFilterFields(params.get('$filter')),
+                pick: pick && resource.normalizeFieldPath(pick),
+                omit: omit && resource.normalizeFieldPath(omit),
+                include: include && resource.normalizeFieldPath(include),
+                sort: sort && resource.normalizeSortFields(sort),
+                filter: filter && resource.normalizeFilter(filter),
                 limit: params.get('$limit'),
                 skip: params.get('$skip'),
                 distinct: params.get('$distinct'),
@@ -266,6 +276,9 @@ export abstract class OpraHttpAdapter extends OpraAdapter {
 
           case 'PATCH': {
             if (p.key) {
+              const pick = params.get('$pick') as string;
+              const omit = params.get('$omit') as string;
+              const include = params.get('$include') as string;
               return new HttpRequestHost({
                 kind: 'CollectionUpdateRequest',
                 resource,
@@ -275,12 +288,13 @@ export abstract class OpraHttpAdapter extends OpraAdapter {
                 args: {
                   key: resource.parseKeyValue(p.key),
                   data: incoming.body,
-                  pick: resource.normalizeFieldNames(params.get('$pick')),
-                  omit: resource.normalizeFieldNames(params.get('$omit')),
-                  include: resource.normalizeFieldNames(params.get('$include'))
+                  pick: pick && resource.normalizeFieldPath(pick),
+                  omit: omit && resource.normalizeFieldPath(omit),
+                  include: include && resource.normalizeFieldPath(include),
                 }
               }, incoming);
             }
+            const filter = params.get('$filter') as Expression;
             return new HttpRequestHost({
               kind: 'CollectionUpdateManyRequest',
               resource,
@@ -289,19 +303,26 @@ export abstract class OpraHttpAdapter extends OpraAdapter {
               many: true,
               args: {
                 data: incoming.body,
-                filter: resource.normalizeFilterFields(params.get('$filter'))
+                filter: filter && resource.normalizeFilter(filter),
               }
             }, incoming);
           }
+          default:
+            throw new BadRequestError()
         }
 
       } else
           /*
            * Singleton
            */
-      if (resource instanceof Singleton && !p.key) {
+      if (resource instanceof Singleton) {
+        if (p.key)
+          throw new BadRequestError();
         switch (method) {
           case 'POST': {
+            const pick = params.get('$pick') as string;
+            const omit = params.get('$omit') as string;
+            const include = params.get('$include') as string;
             return new HttpRequestHost({
               kind: 'SingletonCreateRequest',
               resource,
@@ -310,9 +331,9 @@ export abstract class OpraHttpAdapter extends OpraAdapter {
               many: false,
               args: {
                 data: incoming.body,
-                pick: resource.normalizeFieldNames(params.get('$pick')),
-                omit: resource.normalizeFieldNames(params.get('$omit')),
-                include: resource.normalizeFieldNames(params.get('$include'))
+                pick: pick && resource.normalizeFieldPath(pick),
+                omit: omit && resource.normalizeFieldPath(omit),
+                include: include && resource.normalizeFieldPath(include),
               }
             }, incoming);
           }
@@ -327,6 +348,9 @@ export abstract class OpraHttpAdapter extends OpraAdapter {
             }, incoming);
           }
           case 'GET': {
+            const pick = params.get('$pick') as string;
+            const omit = params.get('$omit') as string;
+            const include = params.get('$include') as string;
             return new HttpRequestHost({
               kind: 'SingletonGetRequest',
               resource,
@@ -334,13 +358,16 @@ export abstract class OpraHttpAdapter extends OpraAdapter {
               crud: 'read',
               many: false,
               args: {
-                pick: resource.normalizeFieldNames(params.get('$pick')),
-                omit: resource.normalizeFieldNames(params.get('$omit')),
-                include: resource.normalizeFieldNames(params.get('$include'))
+                pick: pick && resource.normalizeFieldPath(pick),
+                omit: omit && resource.normalizeFieldPath(omit),
+                include: include && resource.normalizeFieldPath(include),
               }
             }, incoming);
           }
           case 'PATCH': {
+            const pick = params.get('$pick') as string;
+            const omit = params.get('$omit') as string;
+            const include = params.get('$include') as string;
             return new HttpRequestHost({
               kind: 'SingletonUpdateRequest',
               resource,
@@ -349,12 +376,14 @@ export abstract class OpraHttpAdapter extends OpraAdapter {
               many: false,
               args: {
                 data: incoming.body,
-                pick: resource.normalizeFieldNames(params.get('$pick')),
-                omit: resource.normalizeFieldNames(params.get('$omit')),
-                include: resource.normalizeFieldNames(params.get('$include'))
+                pick: pick && resource.normalizeFieldPath(pick),
+                omit: omit && resource.normalizeFieldPath(omit),
+                include: include && resource.normalizeFieldPath(include),
               }
             }, incoming);
           }
+          default:
+            throw new BadRequestError()
         }
       } else
         throw new InternalServerError();

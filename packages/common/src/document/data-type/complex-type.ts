@@ -1,6 +1,6 @@
 import omit from 'lodash.omit';
 import { StrictOmit, Type, Writable } from 'ts-gems';
-import { ObjectTree, omitUndefined, pathToObjectTree, ResponsiveMap } from '../../helpers/index.js';
+import { omitUndefined, ResponsiveMap } from '../../helpers/index.js';
 import { OpraSchema } from '../../schema/index.js';
 import type { ApiDocument } from '../api-document.js';
 import { METADATA_KEY, TYPENAME_PATTERN } from '../constants.js';
@@ -31,6 +31,7 @@ export namespace ComplexType {
     name: string;
     fields?: Record<string, ApiField.Metadata>;
   }
+
 }
 
 /**
@@ -42,14 +43,25 @@ export interface ComplexType extends StrictOmit<DataType, 'own' | 'exportSchema'
   readonly ctor: Type;
   readonly base?: ComplexType | UnionType;
   readonly own: ComplexType.OwnProperties;
+  readonly abstract?: boolean;
+  readonly additionalFields?: boolean;
 
   exportSchema(): OpraSchema.ComplexType;
 
   addField(init: ApiField.InitArguments): ApiField;
 
-  getField(name: string): ApiField;
+  iteratePath(path: string, silent?: boolean): IterableIterator<[string, ApiField | undefined, string]>;
 
-  normalizeFieldNames(fields: string | string[]): string[] | undefined;
+  getField(nameOrPath: string): ApiField;
+
+  findField(nameOrPath: string): ApiField | undefined;
+
+  normalizeFieldPath(fields: string): string;
+
+  normalizeFieldPath(fields: string[]): string[];
+
+  normalizeFieldPath(fields: string | string[]): string | string[];
+
 }
 
 /**
@@ -117,14 +129,13 @@ export const ComplexType = function (
         _this.fields.set(k, newEl);
       }
   }
-
 } as ComplexTypeConstructor;
 
 Object.setPrototypeOf(ComplexType.prototype, DataType.prototype);
 
 const proto = {
 
-  extendsFrom(t: string | Type | DataType): boolean {
+  extendsFrom(this: ComplexType, t: string | Type | DataType): boolean {
     const base = t instanceof DataType ? t : this.document.getDataType(t);
     if (this.base) {
       if (this.base === base)
@@ -134,7 +145,7 @@ const proto = {
     return false;
   },
 
-  exportSchema(): OpraSchema.ComplexType {
+  exportSchema(this: ComplexType): OpraSchema.ComplexType {
     const out = DataType.prototype.exportSchema.call(this) as OpraSchema.ComplexType;
     Object.assign(out, omitUndefined({
       base: this.base ?
@@ -151,88 +162,89 @@ const proto = {
     return omitUndefined(out);
   },
 
-  addField(init: ApiField.InitArguments): ApiField {
+  addField(this: ComplexType, init: ApiField.InitArguments): ApiField {
     const field = new ApiField(this, init);
     this.own.fields.set(field.name, field);
     this.fields.set(field.name, field);
     return field;
   },
 
-  getField(name: string): ApiField {
-    if (name.includes('.')) {
-      let dt: DataType = this;
-      const arr = name.split('.');
-      const l = arr.length;
-      let field: ApiField;
-      for (let i = 0; i < l; i++) {
-        if (!(dt instanceof ComplexType))
-          throw new TypeError(`"${arr.slice(0, i - 1)}" field is not a ${OpraSchema.ComplexType.Kind} and has no child fields`);
-        field = dt.getField(arr[i]);
-        dt = field.type;
-      }
-      // @ts-ignore
-      return field;
+  findField(nameOrPath: string): ApiField | undefined {
+    let field: ApiField | undefined;
+    for (const [, f] of this.iteratePath(nameOrPath, true)) {
+      if (!f)
+        return;
+      field = f;
     }
-    const t = this.fields.get(name);
-    if (!t)
-      throw new Error(`"${this.name}" type doesn't have an field named "${name}"`);
-    return t;
+    return field;
   },
 
-  normalizeFieldNames(this: ComplexType, fields: string | string[]): string[] | undefined {
-    const fieldsTree = (fields && pathToObjectTree(Array.isArray(fields) ? fields: [fields])) || {};
-    const out = _normalizeFieldsNames([], this.document, this, fieldsTree, '', '');
-    return out.length ? out : undefined;
+  getField(this: ComplexType, nameOrPath: string): ApiField {
+    let field: ApiField | undefined;
+    for (const [, f, path] of this.iteratePath(nameOrPath)) {
+      if (!f)
+        throw new Error(`Invalid field definition "${path}"`);
+      field = f;
+    }
+    /* istanbul ignore next */
+    if (!field)
+      throw new Error(`Invalid field definition "${nameOrPath}"`);
+    return field as ApiField;
+  },
+
+  iteratePath(this: ComplexType, path: string, silent?: boolean): IterableIterator<[string, ApiField | undefined, string]> {
+    const arr = path.split('.');
+    const len = arr.length;
+    let dataType: DataType | undefined = this;
+    let field: ApiField | undefined;
+    let curPath = '';
+    let s: string;
+    let i = -1;
+    return {
+      [Symbol.iterator]() {
+        return this;
+      },
+      next() {
+        i++;
+        if (i < len) {
+          s = arr[i];
+          if (dataType && !(dataType instanceof ComplexType)) {
+            if (silent)
+              return {done: true, value: [] as any};
+            throw new TypeError(`"${curPath}" field is not a complex type and has no child fields`);
+          }
+          field = dataType?.fields.get(s);
+          if (field) {
+            curPath += (curPath ? '.' : '') + field.name;
+            dataType = field.type;
+          } else {
+            curPath += (curPath ? '.' : '') + s;
+            if (dataType && !dataType.additionalFields) {
+              if (silent)
+                return {done: true, value: [] as any};
+              throw new Error(`Invalid field definition "${curPath}"`);
+            }
+          }
+        }
+        return {
+          done: i >= len,
+          value: [field?.name || s, field, curPath]
+        }
+      }
+    };
+  },
+
+  normalizeFieldPath(this: ComplexType, path: string | []): string | string[] {
+    if (Array.isArray(path))
+      return path.map((s: string) => this.normalizeFieldPath(s))
+    let curPath = '';
+    for (const [, , p] of this.iteratePath(path)) {
+      curPath = p;
+    }
+    return curPath;
   }
 
 } as ComplexType;
 
 Object.assign(ComplexType.prototype, proto);
 Object.setPrototypeOf(ComplexType.prototype, DataType.prototype);
-
-/**
- * Normalizes field names
- */
-function _normalizeFieldsNames(
-    target: string[],
-    document: ApiDocument,
-    dataType: ComplexType | undefined,
-    node: ObjectTree,
-    parentPath: string = '',
-    actualPath: string = ''
-): string[] {
-  let curPath = '';
-  for (const k of Object.keys(node)) {
-    const nodeVal = node[k];
-
-    const field = dataType?.fields.get(k);
-    if (!field) {
-      curPath = parentPath ? parentPath + '.' + k : k;
-
-      if ((dataType && !dataType.additionalFields))
-        throw new TypeError(`Unknown field "${curPath}"`);
-      if (typeof nodeVal === 'object')
-        _normalizeFieldsNames(target, document, undefined, nodeVal, curPath, actualPath);
-      else target.push(curPath);
-      continue;
-    }
-    curPath = parentPath ? parentPath + '.' + field.name : field.name;
-
-    if (typeof nodeVal === 'object') {
-      if (!(field.type instanceof ComplexType))
-        throw new TypeError(`"${(actualPath ? actualPath + '.' + curPath : curPath)}" is not a complex type and has no sub fields`);
-      if (target.findIndex(x => x === parentPath) >= 0)
-        continue;
-
-      target = _normalizeFieldsNames(target, document, field.type, nodeVal, curPath, actualPath);
-      continue;
-    }
-
-    if (target.findIndex(x => x.startsWith(curPath + '.')) >= 0) {
-      target = target.filter(x => !x.startsWith(curPath + '.'));
-    }
-
-    target.push(curPath);
-  }
-  return target;
-}

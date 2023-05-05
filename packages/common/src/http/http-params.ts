@@ -9,7 +9,10 @@ import { NumberCodec } from './codecs/number-codec.js';
 import { StringCodec } from './codecs/string-codec.js';
 
 export namespace HttpParams {
-  export type Initiator = string | URLSearchParams | HttpParams | Map<string, any> | Record<string, any>;
+  export type Initiator = string | URLSearchParams | HttpParams |
+      Map<string, HttpParams.Value> | Record<string, HttpParams.Value>;
+
+  export type Value = string | number | boolean | object | null;
 
   export interface Options {
     onChange?: () => void;
@@ -21,9 +24,9 @@ export namespace HttpParams {
   }
 
   export interface Codec {
-    decode(value: string): any;
+    decode(value: string): HttpParams.Value;
 
-    encode(value: any): string;
+    encode(value: HttpParams.Value): string;
   }
 }
 
@@ -45,7 +48,7 @@ export class HttpParams {
   protected static kSize = kSize;
   protected static kParamDefs = kParamDefs;
   protected static kOptions = kOptions;
-  protected [kEntries] = new ResponsiveMap<any[]>();
+  protected [kEntries] = new ResponsiveMap<(HttpParams.Value)[]>();
   protected [kSize] = 0;
   protected [kOptions]: HttpParams.Options;
   protected [kParamDefs] = new Map<string, HttpParamMetadata>();
@@ -68,7 +71,7 @@ export class HttpParams {
    * Appends a new value to the existing set of values for a parameter
    * and returns this instance
    */
-  append(name: string, value?: any): this {
+  append(name: string, value?: HttpParams.Value): this {
     this._append(name, value);
     this.changed();
     return this;
@@ -116,7 +119,7 @@ export class HttpParams {
   /**
    * Deletes values for a given parameter
    */
-  delete(name: string, value?: any): this {
+  delete(name: string, value?: HttpParams.Value): this {
     if (this._delete(name, value))
       this.changed();
     return this;
@@ -125,11 +128,11 @@ export class HttpParams {
   /**
    * Returns an iterable of key, value pairs for every entry in the map.
    */
-  entries(): IterableIterator<[string, string]> {
+  entries(): IterableIterator<[string, HttpParams.Value]> {
     const iter = this[kEntries].entries();
     let i = 0;
     let key: string;
-    let values: string[] | undefined;
+    let values: HttpParams.Value[] | undefined;
     return {
       [Symbol.iterator]() {
         return this;
@@ -157,7 +160,7 @@ export class HttpParams {
     };
   }
 
-  forEach(callbackFn: (value: string, key: string, parent: HttpParams) => void, thisArg?: any): void {
+  forEach(callbackFn: (value: HttpParams.Value, key: string, parent: HttpParams) => void, thisArg?: any): void {
     const iterator = this.entries();
     let entry = iterator.next();
     while (!entry.done) {
@@ -169,7 +172,7 @@ export class HttpParams {
   /**
    * Retrieves value of a given parameter at given index
    */
-  get(name: string, index = 0): any {
+  get(name: string, index = 0): HttpParams.Value {
     const values = this[kEntries].get(name);
     return values && values.length > index ? values[index] : null;
   }
@@ -177,7 +180,7 @@ export class HttpParams {
   /**
    * Retrieves an array of values for a given parameter.
    */
-  getAll(name: string): any[] | null {
+  getAll(name: string): HttpParams.Value[] | null {
     const entry = this[kEntries].get(name);
     return entry ? entry.slice(0) : null;
   }
@@ -192,9 +195,9 @@ export class HttpParams {
   /**
    * Retrieves the names of the parameters.
    */
-  values(): IterableIterator<any> {
-    const items: string[] = [];
-    this.forEach((value: string) => items.push(value));
+  values(): IterableIterator<HttpParams.Value> {
+    const items: HttpParams.Value[] = [];
+    this.forEach((value: HttpParams.Value) => items.push(value));
     return items.values();
   }
 
@@ -209,7 +212,7 @@ export class HttpParams {
    * Sets or modifies a value for a given parameter.
    * If the header already exists, its value is replaced with the given value
    */
-  set(name: string, value: any): this {
+  set(name: string, value?: HttpParams.Value): this {
     this._set(name, value);
     this.changed();
     return this;
@@ -234,17 +237,17 @@ export class HttpParams {
     return out.join('&');
   }
 
-  getProxy(): Record<string, any> {
+  getProxy(): Record<string, HttpParams.Value> {
     const _this = this;
     return this[kEntries].getProxy({
-      get(target, p: string | symbol, receiver: any): any {
+      get(target, p: string | symbol, receiver: any): HttpParams.Value {
         if (typeof p === 'string') {
           const v = _this[kEntries].get(p);
-          return v ? (v.length > 1 ? v : v[0]) : undefined;
+          return v ? (v.length > 1 ? v : v[0]) : null;
         }
         return Reflect.get(target, p, receiver);
       },
-      set(target, p: string | symbol, newValue: any, receiver: any): boolean {
+      set(target, p: string | symbol, newValue: HttpParams.Value, receiver: any): boolean {
         if (typeof p === 'string') {
           _this.set(p, newValue);
           return true;
@@ -281,7 +284,7 @@ export class HttpParams {
     return this;
   }
 
-  encodeValue(value: any, key: string): string {
+  encodeValue(value: HttpParams.Value, key: string): string {
     const prmDef = this[kParamDefs].get(key);
     if (prmDef) {
       const delimReplace = '%' + (prmDef.arrayDelimiter || ',').charCodeAt(0).toString(16).toUpperCase();
@@ -291,11 +294,10 @@ export class HttpParams {
           ? value.map((v: string) => fn(v)).join(prmDef.arrayDelimiter || ',')
           : fn(value);
     }
-
-    return encodeURIParam(value);
+    return encodeURIParam(String(value));
   }
 
-  decodeValue(value: string, key: string): any {
+  decodeValue(value: string, key: string): HttpParams.Value {
     const prmDef = this[kParamDefs].get(key);
     let val: any = value;
     if (prmDef) {
@@ -325,7 +327,15 @@ export class HttpParams {
     return decodeURIComponent(value);
   }
 
-  protected _append(name: string, value?: any) {
+  [Symbol.iterator](): IterableIterator<[string, HttpParams.Value]> {
+    return this.entries();
+  }
+
+  get [Symbol.toStringTag]() {
+    return 'HttpParams';
+  }
+
+  protected _append(name: string, value?: HttpParams.Value) {
     let values = this[kEntries].get(name);
     if (!values) {
       values = [];
@@ -335,14 +345,13 @@ export class HttpParams {
     this[kSize] += 1;
   }
 
-  protected _delete(name: string, value?: string | string[]): boolean {
+  protected _delete(name: string, value?: HttpParams.Value): boolean {
     const oldValues = this[kEntries].get(name);
     if (!oldValues)
       return false;
     const oldSize = this[kSize];
     if (value) {
-      const valueToDelete = Array.isArray(value) ? value : [value];
-      const newValues = oldValues.filter(x => !valueToDelete.includes(x));
+      const newValues = oldValues.filter(x => x === value);
       this[kEntries].set(name, newValues);
       this[kSize] += -oldValues.length + newValues.length;
     } else {
@@ -352,8 +361,8 @@ export class HttpParams {
     return oldSize !== this[kSize];
   }
 
-  protected _set(name: string, value: any, index?: number): void {
-    if (value == null) {
+  protected _set(name: string, value?: HttpParams.Value, index?: number): void {
+    if (value === undefined) {
       this._delete(name);
       return;
     }
@@ -373,14 +382,6 @@ export class HttpParams {
     this[kSize] += -oldLen + values.length;
   }
 
-
-  [Symbol.iterator](): IterableIterator<[string, string]> {
-    return this.entries();
-  }
-
-  get [Symbol.toStringTag]() {
-    return 'HttpParams';
-  }
 
   static codecs = {
     'boolean': new BooleanCodec(),

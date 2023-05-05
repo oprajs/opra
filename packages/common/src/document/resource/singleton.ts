@@ -50,7 +50,11 @@ export interface Singleton extends StrictOmit<Resource, 'exportSchema' | '_const
 
   exportSchema(): OpraSchema.Singleton;
 
-  normalizeFieldNames(fields: string[]): string[] | undefined;
+  normalizeFieldPath(fields: string): string;
+
+  normalizeFieldPath(fields: string[]): string[];
+
+  normalizeFieldPath(fields: string | string[]): string | string[];
 
   _construct(init: Singleton.InitArguments): void;
 }
@@ -134,8 +138,8 @@ const proto = {
     return out;
   },
 
-  normalizeFieldNames(this: Singleton, fields: string[]): string[] | undefined {
-    return this.type.normalizeFieldNames(fields);
+  normalizeFieldPath(this: Singleton, path: string | []): string | string[] {
+    return this.type.normalizeFieldPath(path);
   },
 
 } as Singleton;

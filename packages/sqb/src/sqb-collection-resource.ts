@@ -49,7 +49,7 @@ export abstract class SqbCollectionResource<T> {
   }
 
   @Collection.FindMany()
-  async search(ctx: RequestContext): Promise<PartialOutput<T>[]> {
+  async findMany(ctx: RequestContext): Promise<PartialOutput<T>[]> {
     const prepared = SQBAdapter.transformRequest(ctx.request);
     const service = await this.getService(ctx);
     if (prepared.options.count) {

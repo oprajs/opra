@@ -68,7 +68,7 @@ export class OpraHttpClient {
       headers: options?.defaults?.headers instanceof HttpHeaders
           ? options?.defaults?.headers : new HttpHeaders(options?.defaults?.headers),
       params: options?.defaults?.params instanceof HttpParams
-          ? options?.defaults?.params : new HttpParams(options?.defaults?.headers)
+          ? options?.defaults?.params : new HttpParams(options?.defaults?.params)
     };
   }
 
