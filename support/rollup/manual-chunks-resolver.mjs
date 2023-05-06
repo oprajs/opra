@@ -10,6 +10,7 @@ export function manualChunksResolver({external, exclude}) {
   external = external || [];
   exclude = exclude || [];
   const excludeAll = [...exclude, external];
+  // noinspection JSUnusedLocalSymbols
   return function manualChunks(id, x) {
     if (!i++)
       console.log(chalk.yellow.bold('======= Processed Packages ====='));
