@@ -11,9 +11,9 @@ import filesize from 'rollup-plugin-filesize';
 import command from 'rollup-plugin-command';
 import clean from '@rollup-extras/plugin-clean';
 import json from '@rollup/plugin-json';
-import {manualChunksResolver} from '../../support/manual-chunks-resolver.mjs';
-import {filterDependencies} from '../../support/filter-dependencies.js';
-import {copyFiles} from '../../support/copy-files.mjs';
+import {manualChunksResolver} from '../../support/rollup/manual-chunks-resolver.mjs';
+import {filterDependencies} from '../../support/rollup/filter-dependencies.js';
+import {copyFiles} from '../../support/rollup/copy-files.mjs';
 import pkgJson from './package.json' assert {type: 'json'};
 
 const dirname = path.dirname(fileURLToPath(import.meta.url));
@@ -30,7 +30,7 @@ export default {
     dir: path.resolve(targetPath, 'esm'),
     entryFileNames: '[name].min.mjs',
     format: 'esm',
-    name: 'Stream',
+    name: 'OpraClient',
     manualChunks: manualChunksResolver({
       external,
       exclude: ['@opra/node-client', '@opra/common']
@@ -39,7 +39,7 @@ export default {
     dir: path.resolve(targetPath, 'cjs'),
     entryFileNames: '[name].min.mjs',
     format: 'cjs',
-    name: 'Stream',
+    name: 'OpraClient',
     manualChunks: manualChunksResolver({
       external,
       exclude: ['@opra/node-client', '@opra/common']
