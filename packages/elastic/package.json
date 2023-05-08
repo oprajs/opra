@@ -1,0 +1,68 @@
+{
+  "name": "@opra/elastic",
+  "version": "0.16.2",
+  "description": "Opra Elastic Search adapter package",
+  "author": "Panates",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/panates/opra.git",
+    "directory": "packages/elastic"
+  },
+  "scripts": {
+    "compile": "tsc",
+    "prebuild": "npm run lint && npm run clean",
+    "_build": "npm run build:cjs && npm run build:esm",
+    "_build:cjs": "tsc -b tsconfig-build-cjs.json",
+    "_build:esm": "tsc -b tsconfig-build-esm.json",
+    "_postbuild": "cp README.md package.json ../../LICENSE ../../build/elastic && cp ../../package.cjs.json ../../build/elastic/cjs/package.json",
+    "lint": "eslint .",
+    "test": "jest",
+    "cover": "jest --collect-coverage",
+    "clean": "npm run clean:src && npm run clean:dist && npm run clean:cover",
+    "clean:src": "ts-cleanup -s src --all && ts-cleanup -s test --all",
+    "clean:dist": "rimraf ../../build/elastic",
+    "clean:cover": "rimraf ../../coverage/elastic"
+  },
+  "dependencies": {
+    "lodash": "^4.17.21"
+  },
+  "devDependencies": {
+    "@faker-js/faker": "^7.6.0",
+    "@elastic/elasticsearch": "^8.7.0",
+    "ts-gems": "^2.3.0"
+  },
+  "peerDependencies": {
+    "@opra/common": "^0.16.2",
+    "@opra/core": "^0.16.2",
+    "@elastic/elasticsearch": ">=8.7.0"
+  },
+  "type": "module",
+  "types": "types/index.d.ts",
+  "exports": {
+    ".": {
+      "require": "./cjs/index.js",
+      "default": "./esm/index.js"
+    },
+    "./cjs": "./cjs/index.js",
+    "./esm": "./esm/index.js"
+  },
+  "engines": {
+    "node": ">=16.0",
+    "npm": ">=7.0.0"
+  },
+  "files": [
+    "bin/",
+    "cjs/",
+    "esm/",
+    "types/",
+    "LICENSE",
+    "README.md"
+  ],
+  "keywords": [
+    "opra",
+    "elastic",
+    "elasticsearch",
+    "adapter"
+  ]
+}
