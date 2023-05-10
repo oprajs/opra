@@ -7,7 +7,8 @@ export * from './expressions/arithmetic-expression.js';
 export * from './expressions/array-expression.js';
 export * from './expressions/comparison-expression.js';
 export * from './expressions/logical-expression.js';
-export * from './expressions/parentheses-expression.js';
+export * from './expressions/parenthesized-expression.js';
+export * from './expressions/negative-expression.js';
 
 export * from './terms/boolean-literal.js';
 export * from './terms/date-literal.js';

@@ -1,30 +1,48 @@
-import {
-  ArrayExpression,
-  BooleanLiteral, Collection,
-  ComparisonExpression, DateLiteral,
-  Expression, LogicalExpression, NullLiteral,
-  NumberLiteral, ParenthesesExpression, parseFilter,
-  QualifiedIdentifier,
-  StringLiteral, TimeLiteral
-} from '@opra/common';
+import '@opra/core';
+import { OpraFilter } from '@opra/common';
 import * as sqb from '@sqb/builder';
 
 export default function transformFilter(
-    resource: Collection,
-    str: string | Expression | undefined
+    ast: OpraFilter.Expression | undefined
 ): any {
-  const ast = typeof str === 'string' ? parseFilter(str) : str;
   if (!ast)
     return;
-  resource.normalizeFilter(ast);
 
-  if (ast instanceof ComparisonExpression) {
-    if (!(ast.left instanceof QualifiedIdentifier && ast.left.field))
-      throw new TypeError(`Unsupported filter query. Left side should be a data field.`);
+  if (ast instanceof OpraFilter.QualifiedIdentifier) {
+    return sqb.Field(ast.value);
+  }
 
-    const left = sqb.Field(ast.left.value);
-    const right = transformFilter(resource, ast.right);
+  if (ast instanceof OpraFilter.NumberLiteral ||
+      ast instanceof OpraFilter.StringLiteral ||
+      ast instanceof OpraFilter.BooleanLiteral ||
+      ast instanceof OpraFilter.NullLiteral ||
+      ast instanceof OpraFilter.DateLiteral ||
+      ast instanceof OpraFilter.TimeLiteral
+  ) {
+    return ast.value;
+  }
 
+  if (ast instanceof OpraFilter.ArrayExpression) {
+    return ast.items.map(transformFilter);
+  }
+
+  if (ast instanceof OpraFilter.NegativeExpression) {
+    return sqb.Not(transformFilter(ast.expression));
+  }
+
+  if (ast instanceof OpraFilter.LogicalExpression) {
+    if (ast.op === 'or')
+      return sqb.Or(...ast.items.map(transformFilter));
+    return sqb.And(...ast.items.map(transformFilter));
+  }
+
+  if (ast instanceof OpraFilter.ParenthesizedExpression) {
+    return transformFilter(ast.expression);
+  }
+
+  if (ast instanceof OpraFilter.ComparisonExpression) {
+    const left = transformFilter(ast.left);
+    const right = transformFilter(ast.right);
     switch (ast.op) {
       case '=':
         return sqb.Eq(left, right);
@@ -43,45 +61,17 @@ export default function transformFilter(
       case '!in':
         return sqb.Nin(left, right);
       case 'like':
-        return sqb.Like(left, right);
+        return sqb.Like(left, String(right).replace(/\*/, '%'));
       case 'ilike':
-        return sqb.Ilike(left, right);
+        return sqb.Ilike(left, String(right).replace(/\*/, '%'));
       case '!like':
-        return sqb.NotLike(left, right);
+        return sqb.NotLike(left, String(right).replace(/\*/, '%'));
       case '!ilike':
-        return sqb.NotILike(left, right);
+        return sqb.NotILike(left, String(right).replace(/\*/, '%'));
       default:
         throw new Error(`ComparisonExpression operator (${ast.op}) not implemented yet`);
     }
   }
 
-  if (ast instanceof QualifiedIdentifier) {
-    return ast.value;
-  }
-
-  if (ast instanceof NumberLiteral ||
-      ast instanceof StringLiteral ||
-      ast instanceof BooleanLiteral ||
-      ast instanceof NullLiteral ||
-      ast instanceof DateLiteral ||
-      ast instanceof TimeLiteral
-  ) {
-    return ast.value;
-  }
-
-  if (ast instanceof ArrayExpression) {
-    return ast.items.map(i=>transformFilter(resource, i));
-  }
-
-  if (ast instanceof LogicalExpression) {
-    if (ast.op === 'or')
-      return sqb.Or(...ast.items.map((i=>transformFilter(resource, i))));
-    return sqb.And(...ast.items.map((i=>transformFilter(resource, i))));
-  }
-
-  if (ast instanceof ParenthesesExpression) {
-    return transformFilter(resource, ast.expression);
-  }
-
-  throw new Error(`${ast.type} is not implemented yet`);
+  throw new Error(`${ast.kind} is not implemented yet`);
 }

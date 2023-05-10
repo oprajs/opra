@@ -1,1 +1,1 @@
-// export * from './elastic-adapter.js';
+export * from './elastic-adapter.js';

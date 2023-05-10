@@ -1,7 +1,11 @@
 import {
-  $eq, $field, BooleanCodec, DateCodec, Expression,
-  FilterCodec, IntegerCodec, NumberCodec, StringCodec
+  BooleanCodec, DateCodec,
+  FilterCodec, IntegerCodec,
+  NumberCodec, OpraFilter,
+  StringCodec
 } from '@opra/common';
+
+const {$eq, $field} = OpraFilter;
 
 describe('HttpParams - Codecs', () => {
 
@@ -187,7 +191,7 @@ describe('HttpParams - Codecs', () => {
   describe('FilterCodec', () => {
     it('Should parse', () => {
       const format = new FilterCodec();
-      expect(format.decode('a=1')).toBeInstanceOf(Expression);
+      expect(format.decode('a=1')).toBeInstanceOf(OpraFilter.Expression);
     })
 
     it('Should stringify to url string', () => {

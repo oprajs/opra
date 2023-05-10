@@ -8,7 +8,7 @@ import {
   Expression,
   LogicalExpression,
   NullLiteral,
-  NumberLiteral, ParenthesesExpression,
+  NumberLiteral, ParenthesizedExpression,
   QualifiedIdentifier,
   StringLiteral,
   TimeLiteral
@@ -93,8 +93,8 @@ export function $notILike(left: _EntryValue, right: _EntryValue): ComparisonExpr
   return comparisonExpression('!ilike', left, right);
 }
 
-export function $paren(expression: Expression): ParenthesesExpression {
-  return new ParenthesesExpression(expression);
+export function $paren(expression: Expression): ParenthesizedExpression {
+  return new ParenthesizedExpression(expression);
 }
 
 type MathExpression = ArithmeticExpression & {

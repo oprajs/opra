@@ -1,6 +1,6 @@
 import { Expression } from '../abstract/expression.js';
 
-export class ParenthesesExpression extends Expression {
+export class ParenthesizedExpression extends Expression {
   expression!: Expression;
 
   constructor(expression: Expression) {

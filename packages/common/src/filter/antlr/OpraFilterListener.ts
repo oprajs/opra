@@ -1,44 +1,34 @@
-// Generated from ./src/filter/antlr/OpraFilter.g4 by ANTLR 4.11.2-SNAPSHOT
+// Generated from ./src/filter/antlr/OpraFilter.g4 by ANTLR 4.12.0
+
 import { ParseTreeListener } from "@browsery/antlr4";
 import {
-  ArithmeticExpressionContext,
-  ArrayExpressionContext,
-  ArthOpContext,
+  ArithmeticOperatorContext,
+  ArrayValueContext,
   BooleanContext,
   BooleanLiteralContext,
   ComparisonExpressionContext,
-  CompOpContext,
+  ComparisonLeftContext,
+  ComparisonOperatorContext,
+  ComparisonRightContext,
   DateLiteralContext,
   DateTimeLiteralContext,
-  DateTimePrecisionContext,
   ExternalConstantContext,
-  ExternalConstantTermContext,
-  FunctionContext,
   IdentifierContext,
   InfinityContext,
   InfinityLiteralContext,
-  InvocableContext,
-  LiteralTermContext,
   LogicalExpressionContext,
-  LogOpContext,
-  MemberIndexContext,
-  MemberInvocationContext,
+  LogicalOperatorContext,
+  NegativeExpressionContext,
   NullContext,
   NullLiteralContext,
-  NumberIndexContext,
   NumberLiteralContext,
-  ParamListContext,
   ParenthesizedExpressionContext,
-  PluralDateTimePrecisionContext,
-  PolarityExpressionContext,
-  PolarOpContext,
+  ParenthesizedItemContext,
+  PolarityOperatorContext,
   QualifiedIdentifierContext,
-  QualifiedIdentifierTermContext,
   RootContext,
   StringLiteralContext,
-  TermExpressionContext,
-  TimeLiteralContext,
-  UnitContext
+  TimeLiteralContext
 } from "./OpraFilterParser.js";
 
 
@@ -70,29 +60,17 @@ export default class OpraFilterListener extends ParseTreeListener {
    */
   exitParenthesizedExpression?: (ctx: ParenthesizedExpressionContext) => void;
   /**
-   * Enter a parse tree produced by the `arrayExpression`
+   * Enter a parse tree produced by the `negativeExpression`
    * labeled alternative in `OpraFilterParser.expression`.
    * @param ctx the parse tree
    */
-  enterArrayExpression?: (ctx: ArrayExpressionContext) => void;
+  enterNegativeExpression?: (ctx: NegativeExpressionContext) => void;
   /**
-   * Exit a parse tree produced by the `arrayExpression`
+   * Exit a parse tree produced by the `negativeExpression`
    * labeled alternative in `OpraFilterParser.expression`.
    * @param ctx the parse tree
    */
-  exitArrayExpression?: (ctx: ArrayExpressionContext) => void;
-  /**
-   * Enter a parse tree produced by the `polarityExpression`
-   * labeled alternative in `OpraFilterParser.expression`.
-   * @param ctx the parse tree
-   */
-  enterPolarityExpression?: (ctx: PolarityExpressionContext) => void;
-  /**
-   * Exit a parse tree produced by the `polarityExpression`
-   * labeled alternative in `OpraFilterParser.expression`.
-   * @param ctx the parse tree
-   */
-  exitPolarityExpression?: (ctx: PolarityExpressionContext) => void;
+  exitNegativeExpression?: (ctx: NegativeExpressionContext) => void;
   /**
    * Enter a parse tree produced by the `comparisonExpression`
    * labeled alternative in `OpraFilterParser.expression`.
@@ -106,18 +84,6 @@ export default class OpraFilterListener extends ParseTreeListener {
    */
   exitComparisonExpression?: (ctx: ComparisonExpressionContext) => void;
   /**
-   * Enter a parse tree produced by the `arithmeticExpression`
-   * labeled alternative in `OpraFilterParser.expression`.
-   * @param ctx the parse tree
-   */
-  enterArithmeticExpression?: (ctx: ArithmeticExpressionContext) => void;
-  /**
-   * Exit a parse tree produced by the `arithmeticExpression`
-   * labeled alternative in `OpraFilterParser.expression`.
-   * @param ctx the parse tree
-   */
-  exitArithmeticExpression?: (ctx: ArithmeticExpressionContext) => void;
-  /**
    * Enter a parse tree produced by the `logicalExpression`
    * labeled alternative in `OpraFilterParser.expression`.
    * @param ctx the parse tree
@@ -130,149 +96,131 @@ export default class OpraFilterListener extends ParseTreeListener {
    */
   exitLogicalExpression?: (ctx: LogicalExpressionContext) => void;
   /**
-   * Enter a parse tree produced by the `termExpression`
-   * labeled alternative in `OpraFilterParser.expression`.
+   * Enter a parse tree produced by `OpraFilterParser.comparisonLeft`.
    * @param ctx the parse tree
    */
-  enterTermExpression?: (ctx: TermExpressionContext) => void;
+  enterComparisonLeft?: (ctx: ComparisonLeftContext) => void;
   /**
-   * Exit a parse tree produced by the `termExpression`
-   * labeled alternative in `OpraFilterParser.expression`.
+   * Exit a parse tree produced by `OpraFilterParser.comparisonLeft`.
    * @param ctx the parse tree
    */
-  exitTermExpression?: (ctx: TermExpressionContext) => void;
+  exitComparisonLeft?: (ctx: ComparisonLeftContext) => void;
   /**
-   * Enter a parse tree produced by the `literalTerm`
-   * labeled alternative in `OpraFilterParser.term`.
+   * Enter a parse tree produced by `OpraFilterParser.comparisonRight`.
    * @param ctx the parse tree
    */
-  enterLiteralTerm?: (ctx: LiteralTermContext) => void;
+  enterComparisonRight?: (ctx: ComparisonRightContext) => void;
   /**
-   * Exit a parse tree produced by the `literalTerm`
-   * labeled alternative in `OpraFilterParser.term`.
+   * Exit a parse tree produced by `OpraFilterParser.comparisonRight`.
    * @param ctx the parse tree
    */
-  exitLiteralTerm?: (ctx: LiteralTermContext) => void;
+  exitComparisonRight?: (ctx: ComparisonRightContext) => void;
   /**
-   * Enter a parse tree produced by the `qualifiedIdentifierTerm`
-   * labeled alternative in `OpraFilterParser.term`.
+   * Enter a parse tree produced by `OpraFilterParser.parenthesizedItem`.
    * @param ctx the parse tree
    */
-  enterQualifiedIdentifierTerm?: (ctx: QualifiedIdentifierTermContext) => void;
+  enterParenthesizedItem?: (ctx: ParenthesizedItemContext) => void;
   /**
-   * Exit a parse tree produced by the `qualifiedIdentifierTerm`
-   * labeled alternative in `OpraFilterParser.term`.
+   * Exit a parse tree produced by `OpraFilterParser.parenthesizedItem`.
    * @param ctx the parse tree
    */
-  exitQualifiedIdentifierTerm?: (ctx: QualifiedIdentifierTermContext) => void;
+  exitParenthesizedItem?: (ctx: ParenthesizedItemContext) => void;
   /**
-   * Enter a parse tree produced by the `externalConstantTerm`
-   * labeled alternative in `OpraFilterParser.term`.
+   * Enter a parse tree produced by the `numberLiteral`
+   * labeled alternative in `OpraFilterParser.value`.
    * @param ctx the parse tree
    */
-  enterExternalConstantTerm?: (ctx: ExternalConstantTermContext) => void;
+  enterNumberLiteral?: (ctx: NumberLiteralContext) => void;
   /**
-   * Exit a parse tree produced by the `externalConstantTerm`
-   * labeled alternative in `OpraFilterParser.term`.
+   * Exit a parse tree produced by the `numberLiteral`
+   * labeled alternative in `OpraFilterParser.value`.
    * @param ctx the parse tree
    */
-  exitExternalConstantTerm?: (ctx: ExternalConstantTermContext) => void;
+  exitNumberLiteral?: (ctx: NumberLiteralContext) => void;
   /**
-   * Enter a parse tree produced by `OpraFilterParser.invocable`.
+   * Enter a parse tree produced by the `infinityLiteral`
+   * labeled alternative in `OpraFilterParser.value`.
    * @param ctx the parse tree
    */
-  enterInvocable?: (ctx: InvocableContext) => void;
+  enterInfinityLiteral?: (ctx: InfinityLiteralContext) => void;
   /**
-   * Exit a parse tree produced by `OpraFilterParser.invocable`.
+   * Exit a parse tree produced by the `infinityLiteral`
+   * labeled alternative in `OpraFilterParser.value`.
    * @param ctx the parse tree
    */
-  exitInvocable?: (ctx: InvocableContext) => void;
+  exitInfinityLiteral?: (ctx: InfinityLiteralContext) => void;
   /**
-   * Enter a parse tree produced by the `memberInvocation`
-   * labeled alternative in `OpraFilterParser.invocation`.
+   * Enter a parse tree produced by the `booleanLiteral`
+   * labeled alternative in `OpraFilterParser.value`.
    * @param ctx the parse tree
    */
-  enterMemberInvocation?: (ctx: MemberInvocationContext) => void;
+  enterBooleanLiteral?: (ctx: BooleanLiteralContext) => void;
   /**
-   * Exit a parse tree produced by the `memberInvocation`
-   * labeled alternative in `OpraFilterParser.invocation`.
+   * Exit a parse tree produced by the `booleanLiteral`
+   * labeled alternative in `OpraFilterParser.value`.
    * @param ctx the parse tree
    */
-  exitMemberInvocation?: (ctx: MemberInvocationContext) => void;
+  exitBooleanLiteral?: (ctx: BooleanLiteralContext) => void;
   /**
-   * Enter a parse tree produced by the `memberIndex`
-   * labeled alternative in `OpraFilterParser.indexer`.
+   * Enter a parse tree produced by the `nullLiteral`
+   * labeled alternative in `OpraFilterParser.value`.
    * @param ctx the parse tree
    */
-  enterMemberIndex?: (ctx: MemberIndexContext) => void;
+  enterNullLiteral?: (ctx: NullLiteralContext) => void;
   /**
-   * Exit a parse tree produced by the `memberIndex`
-   * labeled alternative in `OpraFilterParser.indexer`.
+   * Exit a parse tree produced by the `nullLiteral`
+   * labeled alternative in `OpraFilterParser.value`.
    * @param ctx the parse tree
    */
-  exitMemberIndex?: (ctx: MemberIndexContext) => void;
+  exitNullLiteral?: (ctx: NullLiteralContext) => void;
   /**
-   * Enter a parse tree produced by the `numberIndex`
-   * labeled alternative in `OpraFilterParser.indexer`.
+   * Enter a parse tree produced by the `dateLiteral`
+   * labeled alternative in `OpraFilterParser.value`.
    * @param ctx the parse tree
    */
-  enterNumberIndex?: (ctx: NumberIndexContext) => void;
+  enterDateLiteral?: (ctx: DateLiteralContext) => void;
   /**
-   * Exit a parse tree produced by the `numberIndex`
-   * labeled alternative in `OpraFilterParser.indexer`.
+   * Exit a parse tree produced by the `dateLiteral`
+   * labeled alternative in `OpraFilterParser.value`.
    * @param ctx the parse tree
    */
-  exitNumberIndex?: (ctx: NumberIndexContext) => void;
+  exitDateLiteral?: (ctx: DateLiteralContext) => void;
   /**
-   * Enter a parse tree produced by `OpraFilterParser.function`.
+   * Enter a parse tree produced by the `dateTimeLiteral`
+   * labeled alternative in `OpraFilterParser.value`.
    * @param ctx the parse tree
    */
-  enterFunction?: (ctx: FunctionContext) => void;
+  enterDateTimeLiteral?: (ctx: DateTimeLiteralContext) => void;
   /**
-   * Exit a parse tree produced by `OpraFilterParser.function`.
+   * Exit a parse tree produced by the `dateTimeLiteral`
+   * labeled alternative in `OpraFilterParser.value`.
    * @param ctx the parse tree
    */
-  exitFunction?: (ctx: FunctionContext) => void;
+  exitDateTimeLiteral?: (ctx: DateTimeLiteralContext) => void;
   /**
-   * Enter a parse tree produced by `OpraFilterParser.paramList`.
+   * Enter a parse tree produced by the `timeLiteral`
+   * labeled alternative in `OpraFilterParser.value`.
    * @param ctx the parse tree
    */
-  enterParamList?: (ctx: ParamListContext) => void;
+  enterTimeLiteral?: (ctx: TimeLiteralContext) => void;
   /**
-   * Exit a parse tree produced by `OpraFilterParser.paramList`.
+   * Exit a parse tree produced by the `timeLiteral`
+   * labeled alternative in `OpraFilterParser.value`.
    * @param ctx the parse tree
    */
-  exitParamList?: (ctx: ParamListContext) => void;
+  exitTimeLiteral?: (ctx: TimeLiteralContext) => void;
   /**
-   * Enter a parse tree produced by `OpraFilterParser.unit`.
+   * Enter a parse tree produced by the `stringLiteral`
+   * labeled alternative in `OpraFilterParser.value`.
    * @param ctx the parse tree
    */
-  enterUnit?: (ctx: UnitContext) => void;
+  enterStringLiteral?: (ctx: StringLiteralContext) => void;
   /**
-   * Exit a parse tree produced by `OpraFilterParser.unit`.
+   * Exit a parse tree produced by the `stringLiteral`
+   * labeled alternative in `OpraFilterParser.value`.
    * @param ctx the parse tree
    */
-  exitUnit?: (ctx: UnitContext) => void;
-  /**
-   * Enter a parse tree produced by `OpraFilterParser.dateTimePrecision`.
-   * @param ctx the parse tree
-   */
-  enterDateTimePrecision?: (ctx: DateTimePrecisionContext) => void;
-  /**
-   * Exit a parse tree produced by `OpraFilterParser.dateTimePrecision`.
-   * @param ctx the parse tree
-   */
-  exitDateTimePrecision?: (ctx: DateTimePrecisionContext) => void;
-  /**
-   * Enter a parse tree produced by `OpraFilterParser.pluralDateTimePrecision`.
-   * @param ctx the parse tree
-   */
-  enterPluralDateTimePrecision?: (ctx: PluralDateTimePrecisionContext) => void;
-  /**
-   * Exit a parse tree produced by `OpraFilterParser.pluralDateTimePrecision`.
-   * @param ctx the parse tree
-   */
-  exitPluralDateTimePrecision?: (ctx: PluralDateTimePrecisionContext) => void;
+  exitStringLiteral?: (ctx: StringLiteralContext) => void;
   /**
    * Enter a parse tree produced by `OpraFilterParser.qualifiedIdentifier`.
    * @param ctx the parse tree
@@ -304,141 +252,15 @@ export default class OpraFilterListener extends ParseTreeListener {
    */
   exitIdentifier?: (ctx: IdentifierContext) => void;
   /**
-   * Enter a parse tree produced by the `numberLiteral`
-   * labeled alternative in `OpraFilterParser.literal`.
+   * Enter a parse tree produced by `OpraFilterParser.arrayValue`.
    * @param ctx the parse tree
    */
-  enterNumberLiteral?: (ctx: NumberLiteralContext) => void;
+  enterArrayValue?: (ctx: ArrayValueContext) => void;
   /**
-   * Exit a parse tree produced by the `numberLiteral`
-   * labeled alternative in `OpraFilterParser.literal`.
+   * Exit a parse tree produced by `OpraFilterParser.arrayValue`.
    * @param ctx the parse tree
    */
-  exitNumberLiteral?: (ctx: NumberLiteralContext) => void;
-  /**
-   * Enter a parse tree produced by the `infinityLiteral`
-   * labeled alternative in `OpraFilterParser.literal`.
-   * @param ctx the parse tree
-   */
-  enterInfinityLiteral?: (ctx: InfinityLiteralContext) => void;
-  /**
-   * Exit a parse tree produced by the `infinityLiteral`
-   * labeled alternative in `OpraFilterParser.literal`.
-   * @param ctx the parse tree
-   */
-  exitInfinityLiteral?: (ctx: InfinityLiteralContext) => void;
-  /**
-   * Enter a parse tree produced by the `booleanLiteral`
-   * labeled alternative in `OpraFilterParser.literal`.
-   * @param ctx the parse tree
-   */
-  enterBooleanLiteral?: (ctx: BooleanLiteralContext) => void;
-  /**
-   * Exit a parse tree produced by the `booleanLiteral`
-   * labeled alternative in `OpraFilterParser.literal`.
-   * @param ctx the parse tree
-   */
-  exitBooleanLiteral?: (ctx: BooleanLiteralContext) => void;
-  /**
-   * Enter a parse tree produced by the `nullLiteral`
-   * labeled alternative in `OpraFilterParser.literal`.
-   * @param ctx the parse tree
-   */
-  enterNullLiteral?: (ctx: NullLiteralContext) => void;
-  /**
-   * Exit a parse tree produced by the `nullLiteral`
-   * labeled alternative in `OpraFilterParser.literal`.
-   * @param ctx the parse tree
-   */
-  exitNullLiteral?: (ctx: NullLiteralContext) => void;
-  /**
-   * Enter a parse tree produced by the `dateLiteral`
-   * labeled alternative in `OpraFilterParser.literal`.
-   * @param ctx the parse tree
-   */
-  enterDateLiteral?: (ctx: DateLiteralContext) => void;
-  /**
-   * Exit a parse tree produced by the `dateLiteral`
-   * labeled alternative in `OpraFilterParser.literal`.
-   * @param ctx the parse tree
-   */
-  exitDateLiteral?: (ctx: DateLiteralContext) => void;
-  /**
-   * Enter a parse tree produced by the `dateTimeLiteral`
-   * labeled alternative in `OpraFilterParser.literal`.
-   * @param ctx the parse tree
-   */
-  enterDateTimeLiteral?: (ctx: DateTimeLiteralContext) => void;
-  /**
-   * Exit a parse tree produced by the `dateTimeLiteral`
-   * labeled alternative in `OpraFilterParser.literal`.
-   * @param ctx the parse tree
-   */
-  exitDateTimeLiteral?: (ctx: DateTimeLiteralContext) => void;
-  /**
-   * Enter a parse tree produced by the `timeLiteral`
-   * labeled alternative in `OpraFilterParser.literal`.
-   * @param ctx the parse tree
-   */
-  enterTimeLiteral?: (ctx: TimeLiteralContext) => void;
-  /**
-   * Exit a parse tree produced by the `timeLiteral`
-   * labeled alternative in `OpraFilterParser.literal`.
-   * @param ctx the parse tree
-   */
-  exitTimeLiteral?: (ctx: TimeLiteralContext) => void;
-  /**
-   * Enter a parse tree produced by the `stringLiteral`
-   * labeled alternative in `OpraFilterParser.literal`.
-   * @param ctx the parse tree
-   */
-  enterStringLiteral?: (ctx: StringLiteralContext) => void;
-  /**
-   * Exit a parse tree produced by the `stringLiteral`
-   * labeled alternative in `OpraFilterParser.literal`.
-   * @param ctx the parse tree
-   */
-  exitStringLiteral?: (ctx: StringLiteralContext) => void;
-  /**
-   * Enter a parse tree produced by `OpraFilterParser.compOp`.
-   * @param ctx the parse tree
-   */
-  enterCompOp?: (ctx: CompOpContext) => void;
-  /**
-   * Exit a parse tree produced by `OpraFilterParser.compOp`.
-   * @param ctx the parse tree
-   */
-  exitCompOp?: (ctx: CompOpContext) => void;
-  /**
-   * Enter a parse tree produced by `OpraFilterParser.arthOp`.
-   * @param ctx the parse tree
-   */
-  enterArthOp?: (ctx: ArthOpContext) => void;
-  /**
-   * Exit a parse tree produced by `OpraFilterParser.arthOp`.
-   * @param ctx the parse tree
-   */
-  exitArthOp?: (ctx: ArthOpContext) => void;
-  /**
-   * Enter a parse tree produced by `OpraFilterParser.polarOp`.
-   * @param ctx the parse tree
-   */
-  enterPolarOp?: (ctx: PolarOpContext) => void;
-  /**
-   * Exit a parse tree produced by `OpraFilterParser.polarOp`.
-   * @param ctx the parse tree
-   */
-  exitPolarOp?: (ctx: PolarOpContext) => void;
-  /**
-   * Enter a parse tree produced by `OpraFilterParser.logOp`.
-   * @param ctx the parse tree
-   */
-  enterLogOp?: (ctx: LogOpContext) => void;
-  /**
-   * Exit a parse tree produced by `OpraFilterParser.logOp`.
-   * @param ctx the parse tree
-   */
-  exitLogOp?: (ctx: LogOpContext) => void;
+  exitArrayValue?: (ctx: ArrayValueContext) => void;
   /**
    * Enter a parse tree produced by `OpraFilterParser.boolean`.
    * @param ctx the parse tree
@@ -469,5 +291,45 @@ export default class OpraFilterListener extends ParseTreeListener {
    * @param ctx the parse tree
    */
   exitInfinity?: (ctx: InfinityContext) => void;
+  /**
+   * Enter a parse tree produced by `OpraFilterParser.arithmeticOperator`.
+   * @param ctx the parse tree
+   */
+  enterArithmeticOperator?: (ctx: ArithmeticOperatorContext) => void;
+  /**
+   * Exit a parse tree produced by `OpraFilterParser.arithmeticOperator`.
+   * @param ctx the parse tree
+   */
+  exitArithmeticOperator?: (ctx: ArithmeticOperatorContext) => void;
+  /**
+   * Enter a parse tree produced by `OpraFilterParser.comparisonOperator`.
+   * @param ctx the parse tree
+   */
+  enterComparisonOperator?: (ctx: ComparisonOperatorContext) => void;
+  /**
+   * Exit a parse tree produced by `OpraFilterParser.comparisonOperator`.
+   * @param ctx the parse tree
+   */
+  exitComparisonOperator?: (ctx: ComparisonOperatorContext) => void;
+  /**
+   * Enter a parse tree produced by `OpraFilterParser.logicalOperator`.
+   * @param ctx the parse tree
+   */
+  enterLogicalOperator?: (ctx: LogicalOperatorContext) => void;
+  /**
+   * Exit a parse tree produced by `OpraFilterParser.logicalOperator`.
+   * @param ctx the parse tree
+   */
+  exitLogicalOperator?: (ctx: LogicalOperatorContext) => void;
+  /**
+   * Enter a parse tree produced by `OpraFilterParser.polarityOperator`.
+   * @param ctx the parse tree
+   */
+  enterPolarityOperator?: (ctx: PolarityOperatorContext) => void;
+  /**
+   * Exit a parse tree produced by `OpraFilterParser.polarityOperator`.
+   * @param ctx the parse tree
+   */
+  exitPolarityOperator?: (ctx: PolarityOperatorContext) => void;
 }
 

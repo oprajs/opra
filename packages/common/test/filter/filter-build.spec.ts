@@ -1,9 +1,13 @@
 import {
+  OpraFilter
+} from '@opra/common';
+
+const {
   $and, $arithmetic,
   $array, $date,
   $eq, $field, $gt, $gte, $ilike, $in, $like,
-  $lt, $lte, $ne, $notILike, $notIn, $notLike, $number, $or, $paren, $time, Expression, parseFilter
-} from '@opra/common';
+  $lt, $lte, $ne, $notILike, $notIn, $notLike, $number, $or, $paren, $time
+} = OpraFilter;
 
 describe('Building Filter', function () {
 
@@ -160,8 +164,8 @@ describe('Building Filter', function () {
   })
 
   it('Should $paren() create ParenthesesExpression', () => {
-    let x: Expression = $paren($arithmetic(1).add(2));
-    expect(x.kind).toStrictEqual('ParenthesesExpression');
+    let x: OpraFilter.Expression = $paren($arithmetic(1).add(2));
+    expect(x.kind).toStrictEqual('ParenthesizedExpression');
     expect('' + x).toStrictEqual('(1+2)');
     x = $arithmetic(1).add($paren($arithmetic(3).mul(4)));
     expect('' + x).toStrictEqual('1+(3*4)');
@@ -184,7 +188,7 @@ describe('Building Filter', function () {
   })
 
   it('Should $parse() parse expression', () => {
-    const x = parseFilter('a=1');
+    const x = OpraFilter.parse('a=1');
     expect(x.kind).toStrictEqual('ComparisonExpression');
   })
 

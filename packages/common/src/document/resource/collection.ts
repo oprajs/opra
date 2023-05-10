@@ -2,15 +2,7 @@ import omit from 'lodash.omit';
 import merge from 'putil-merge';
 import { StrictOmit, Type, Writable } from 'ts-gems';
 import { BadRequestError } from '../../exception/index.js';
-import {
-  ArithmeticExpression,
-  ArrayExpression,
-  ComparisonExpression,
-  Expression,
-  LogicalExpression,
-  ParenthesesExpression,
-  QualifiedIdentifier
-} from '../../filter/index.js';
+import { OpraFilter } from '../../filter/index.js';
 import { omitUndefined } from '../../helpers/index.js';
 import { translate } from '../../i18n/index.js';
 import { OpraSchema } from '../../schema/index.js';
@@ -81,7 +73,7 @@ export interface Collection extends StrictOmit<Resource, 'exportSchema' | '_cons
 
   normalizeSortFields(fields: string | string[]): string[];
 
-  normalizeFilter(ast: Expression): Expression;
+  normalizeFilter(ast: string | OpraFilter.Expression): OpraFilter.Expression | undefined;
 
   _construct(init: Collection.InitArguments): void;
 }
@@ -238,21 +230,27 @@ const proto = {
     return normalized;
   },
 
-  normalizeFilter(ast: Expression): Expression {
-    if (ast instanceof ComparisonExpression) {
+  normalizeFilter(filter: string | OpraFilter.Expression): OpraFilter.Expression | undefined {
+    if (!filter)
+      return;
+    const ast = typeof filter === 'string' ? OpraFilter.parse(filter) : filter;
+    if (ast instanceof OpraFilter.ComparisonExpression) {
       this.normalizeFilter(ast.left);
-    } else if (ast instanceof LogicalExpression) {
+      if (!(ast.left instanceof OpraFilter.QualifiedIdentifier && ast.left.field))
+        throw new TypeError(`Invalid filter query. Left side should be a data field.`);
+      this.normalizeFilter(ast.right);
+    } else if (ast instanceof OpraFilter.LogicalExpression) {
       ast.items.forEach(item =>
           this.normalizeFilter(item));
-    } else if (ast instanceof ArithmeticExpression) {
+    } else if (ast instanceof OpraFilter.ArithmeticExpression) {
       ast.items.forEach(item =>
           this.normalizeFilter(item.expression));
-    } else if (ast instanceof ArrayExpression) {
+    } else if (ast instanceof OpraFilter.ArrayExpression) {
       ast.items.forEach(item =>
           this.normalizeFilter(item));
-    } else if (ast instanceof ParenthesesExpression) {
+    } else if (ast instanceof OpraFilter.ParenthesizedExpression) {
       this.normalizeFilter(ast.expression);
-    } else if (ast instanceof QualifiedIdentifier) {
+    } else if (ast instanceof OpraFilter.QualifiedIdentifier) {
       ast.field = this.type.findField(ast.value);
       ast.dataType = ast.field?.type || this.document.getDataType('any');
       ast.value = this.type.normalizeFieldPath(ast.value);

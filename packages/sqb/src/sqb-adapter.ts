@@ -44,7 +44,7 @@ export namespace SQBAdapter {
       }
 
       if (resource instanceof Collection && args.filter) {
-        options.filter = _transformFilter(resource, args.filter);
+        options.filter = _transformFilter(args.filter);
       }
 
       if (operation === 'findMany') {
