@@ -6,7 +6,7 @@ import { SyntaxError } from './errors.js';
 import { FilterTreeVisitor } from './filter-tree-visitor.js';
 import { OpraErrorListener } from './opra-error-listener.js';
 
-export function parseFilter(text: string, visitor?: ParseTreeVisitor<any>) {
+export function parse(text: string, visitor?: ParseTreeVisitor<any>) {
   const chars = new CharStream(text);
   const lexer = new OpraFilterLexer(chars);
   const tokenStream = new CommonTokenStream(lexer as any);
@@ -21,8 +21,6 @@ export function parseFilter(text: string, visitor?: ParseTreeVisitor<any>) {
   parser.addErrorListener(errorListener);
   const tree = parser.root();
 
-  visitor = visitor || new FilterTreeVisitor();
-  const result = visitor.visit(tree);
   if (errors.length) {
     const errMsgs: any[] = [];
     for (const err of errors) {
@@ -37,6 +35,7 @@ export function parseFilter(text: string, visitor?: ParseTreeVisitor<any>) {
     (e as any).errors = errors;
     throw e;
   }
-  return result;
-
+  visitor = visitor || new FilterTreeVisitor();
+  return visitor.visit(tree);
 }
+

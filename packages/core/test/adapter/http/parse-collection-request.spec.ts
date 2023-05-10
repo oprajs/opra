@@ -428,7 +428,6 @@ describe('OpraHttpAdapter parse Collection requests', function () {
       expect(request.operation).toStrictEqual('updateMany');
       expect(request.crud).toStrictEqual('update');
       expect(request.many).toStrictEqual(true);
-      expect(request.args.filter).toBeDefined();
       expect(request.args.data).toStrictEqual({_id: 1});
       expect(() => request.switchToHttp()).not.toThrow();
       expect(request.switchToHttp().headers).toBeDefined();
@@ -438,7 +437,7 @@ describe('OpraHttpAdapter parse Collection requests', function () {
     it('Should parse "filter"', async () => {
       const request = await adapter.parseRequest(HttpRequestMessage.create({
         method: 'PATCH',
-        url: '/Customers?$filter=givenname=John',
+        url: '/Customers?$filter=givenname="John"',
         body: {_id: 1},
         headers: {'content-type': 'application/json', 'Accept': 'application/json'}
       }));
@@ -509,7 +508,7 @@ describe('OpraHttpAdapter parse Collection requests', function () {
     it('Should parse "filter"', async () => {
       const request = await adapter.parseRequest(HttpRequestMessage.create({
         method: 'DELETE',
-        url: '/Customers?$filter=givenname=John'
+        url: '/Customers?$filter=givenname="John"'
       }));
       expect(request).toBeDefined();
       expect(request.operation).toStrictEqual('deleteMany');
@@ -802,7 +801,7 @@ describe('OpraHttpAdapter parse Collection requests', function () {
     it('Should parse "filter"', async () => {
       const request = await adapter.parseRequest(HttpRequestMessage.create({
         method: 'GET',
-        url: '/Customers?$filter=givenname=John'
+        url: '/Customers?$filter=givenname="John"'
       }));
       expect(request).toBeDefined();
       expect(request.operation).toStrictEqual('findMany');

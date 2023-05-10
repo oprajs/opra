@@ -2,14 +2,7 @@ import '../jest-extend/index.js';
 import isNil from 'lodash.isnil';
 import omitBy from 'lodash.omitby';
 import ruleJudgmentLib from 'rule-judgment';
-import {
-  ArrayExpression, BooleanLiteral,
-  ComparisonExpression, DateLiteral,
-  Expression, LogicalExpression, NullLiteral,
-  NumberLiteral, ParenthesesExpression, parseFilter,
-  QualifiedIdentifier,
-  StringLiteral, TimeLiteral
-} from '@opra/common';
+import { OpraFilter } from '@opra/common';
 import { HttpResponse } from '@opra/node-client';
 
 // @ts-ignore
@@ -90,7 +83,7 @@ export class ApiExpectCollection {
     return this;
   }
 
-  toBeFilteredBy(filter: string | Expression): this {
+  toBeFilteredBy(filter: string | OpraFilter.Expression): this {
     const f = convertFilter(filter);
     if (f) {
       const j = ruleJudgment(f);
@@ -143,12 +136,12 @@ export class ApiExpectCollection {
 
 }
 
-export function convertFilter(str: string | Expression | undefined): any {
-  const ast = typeof str === 'string' ? parseFilter(str) : str;
+export function convertFilter(str: string | OpraFilter.Expression | undefined): any {
+  const ast = typeof str === 'string' ? OpraFilter.parse(str) : str;
   if (!ast)
     return;
 
-  if (ast instanceof ComparisonExpression) {
+  if (ast instanceof OpraFilter.ComparisonExpression) {
     const left = convertFilter(ast.left);
     const right = convertFilter(ast.right);
 
@@ -173,30 +166,30 @@ export function convertFilter(str: string | Expression | undefined): any {
         throw new Error(`ComparisonExpression operator (${ast.op}) not implemented yet`);
     }
   }
-  if (ast instanceof QualifiedIdentifier) {
+  if (ast instanceof OpraFilter.QualifiedIdentifier) {
     return ast.value;
   }
-  if (ast instanceof NumberLiteral ||
-      ast instanceof StringLiteral ||
-      ast instanceof BooleanLiteral ||
-      ast instanceof NullLiteral ||
-      ast instanceof DateLiteral ||
-      ast instanceof TimeLiteral
+  if (ast instanceof OpraFilter.NumberLiteral ||
+      ast instanceof OpraFilter.StringLiteral ||
+      ast instanceof OpraFilter.BooleanLiteral ||
+      ast instanceof OpraFilter.NullLiteral ||
+      ast instanceof OpraFilter.DateLiteral ||
+      ast instanceof OpraFilter.TimeLiteral
   ) {
     return ast.value;
   }
-  if (ast instanceof ArrayExpression) {
+  if (ast instanceof OpraFilter.ArrayExpression) {
     return ast.items.map(convertFilter);
   }
-  if (ast instanceof LogicalExpression) {
+  if (ast instanceof OpraFilter.LogicalExpression) {
     if (ast.op === 'or')
       return {$or: ast.items.map(convertFilter)};
     return {$and: ast.items.map(convertFilter)};
   }
-  if (ast instanceof ArrayExpression) {
+  if (ast instanceof OpraFilter.ArrayExpression) {
     return ast.items.map(convertFilter);
   }
-  if (ast instanceof ParenthesesExpression) {
+  if (ast instanceof OpraFilter.ParenthesesExpression) {
     return convertFilter(ast.expression);
   }
   throw new Error(`${ast.kind} is not implemented yet`);

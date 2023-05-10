@@ -1,6 +1,6 @@
 import { StrictOmit } from 'ts-gems';
 import type { PartialInput } from '@opra/common';
-import { Expression } from '@opra/common';
+import { OpraFilter } from '@opra/common';
 import { kHttpClientContext } from '../constants.js';
 import { HttpRequestObservable } from './http-request-observable.js';
 import { HttpResponse } from './http-response.js';
@@ -18,7 +18,7 @@ export namespace HttpCollectionNode {
   }
 
   export interface DeleteManyOptions extends HttpRequestObservable.Options {
-    filter?: string | Expression;
+    filter?: string | OpraFilter.Expression;
   }
 
   export interface GetOptions extends HttpRequestObservable.Options {
@@ -31,7 +31,7 @@ export namespace HttpCollectionNode {
     pick?: string[];
     omit?: string[];
     include?: string[];
-    filter?: string | Expression;
+    filter?: string | OpraFilter.Expression;
     limit?: number;
     skip?: number;
     distinct?: boolean;
@@ -46,7 +46,7 @@ export namespace HttpCollectionNode {
   }
 
   export interface UpdateManyOptions extends HttpRequestObservable.Options {
-    filter?: string | Expression;
+    filter?: string | OpraFilter.Expression;
   }
 
   export interface DeleteManyBody {

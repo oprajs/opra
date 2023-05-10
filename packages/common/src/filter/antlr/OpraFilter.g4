@@ -4,88 +4,32 @@ root
     : expression EOF
     ;
 
-/****************************************************************
-    Expressions
-*****************************************************************/
-
 expression
-    : term                                                      #termExpression
-    | polarOp expression                                        #polarityExpression
-//    | invocable '.' invocation                        #invocationExpression
-//    | invocable '[' indexer ']'                       #indexerExpression
-    | expression arthOp expression                              #arithmeticExpression
-    | expression compOp expression                              #comparisonExpression
-    | expression logOp expression                               #logicalExpression
-    | '(' expression ')'                                        #parenthesizedExpression
-    | '[' expression (',' expression)* ']'                      #arrayExpression
+    : left=comparisonLeft
+        operator=comparisonOperator
+         right=comparisonRight                                #comparisonExpression
+    | expression op=logicalOperator expression                #logicalExpression
+    | '(' parenthesizedItem ')'                               #parenthesizedExpression
+    | ('not' | '!') expression                                #negativeExpression
     ;
 
-
-/****************************************************************
-* Terms
-*
-* The term production rule defines the syntax for
-* core expression terms within Opra filter
-*****************************************************************/
-
-term
-    : literal                                   #literalTerm
-    | qualifiedIdentifier                       #qualifiedIdentifierTerm
-    | externalConstant                          #externalConstantTerm
-//    | function                                  #functionTerm
-//    | invocation                                #invocationTerm
-    ;
-
-invocable
-   : function
+comparisonLeft
+   : qualifiedIdentifier
    ;
 
-invocation                          // Terms that can be used after the function/member invocation '.'
-    : identifier                                            #memberInvocation
-//    | function                                              #functionInvocation
-    ;
+comparisonRight
+   : value
+   | qualifiedIdentifier
+   | externalConstant
+   | arrayValue
+   ;
 
-indexer
-    : identifier                                            #memberIndex
-    | INTEGER                                               #numberIndex
-    ;
+parenthesizedItem
+   : expression
+   ;
 
 
-function
-        : identifier '(' paramList? ')'
-        ;
-
-paramList
-        : expression (',' expression)*
-        ;
-
-unit
-    : dateTimePrecision
-    | pluralDateTimePrecision
-    | STRING // UCUM syntax for units of measure
-    ;
-
-dateTimePrecision
-        : 'year' | 'month' | 'week' | 'day' | 'hour' | 'minute' | 'second' | 'millisecond'
-        ;
-
-pluralDateTimePrecision
-        : 'years' | 'months' | 'weeks' | 'days' | 'hours' | 'minutes' | 'seconds' | 'milliseconds'
-        ;
-
-qualifiedIdentifier
-        : (identifier '.')* identifier
-        ;
-
-externalConstant
-        : '@' ( IDENTIFIER | STRING )
-        ;
-
-identifier
-    : IDENTIFIER
-    ;
-
-literal
+value
     : NUMBER                                                #numberLiteral
     | infinity                                              #infinityLiteral
     | boolean                                               #booleanLiteral
@@ -96,20 +40,21 @@ literal
     | STRING                                                #stringLiteral
     ;
 
-compOp
-    : '<=' | '<' | '>' | '>=' | '=' | '!=' | 'in' | '!in' | 'like' | '!like'| 'ilike' | '!ilike'
+qualifiedIdentifier
+        : (identifier '.')* identifier
+        ;
+
+externalConstant
+        : '@' identifier
+        ;
+
+identifier
+    : IDENTIFIER
     ;
 
-arthOp
-    : '+' | '-' | '*' | '/'
-    ;
 
-polarOp
-    : '+' | '-'
-    ;
-
-logOp
-    :'and' | 'or'
+arrayValue
+    : '[' value (',' value)* ']'
     ;
 
 boolean
@@ -120,15 +65,44 @@ null
    : 'null'
    ;
 
+
 infinity
    : 'Infinity' | 'infinity'
    ;
+
+
+arithmeticOperator
+    : '+' | '-' | '*' | '/'
+    ;
+
+comparisonOperator
+   : '<=' | '<' | '>' | '>=' | '=' | '!=' | 'in' | '!in' | 'like' | '!like'| 'ilike' | '!ilike'
+   ;
+
+logicalOperator
+    : 'and' | 'or' | '&&' | '||'
+    ;
+
+polarityOperator
+    : POLAR_OP
+    ;
+
 
 /****************************************************************
 * Lexer Rules
 *
 * The lexer rules define the terminal production rules
 *****************************************************************/
+
+
+IDENTIFIER
+    : ([A-Za-z$_])([A-Za-z0-9_$])*
+    ;
+
+
+POLAR_OP
+    : '+' | '-'
+    ;
 
 DATE
     : '\'' DATEFORMAT '\''
@@ -145,8 +119,12 @@ TIME
     | '"' TIMEFORMAT '"'
     ;
 
-IDENTIFIER
-    : ([A-Za-z$_])([A-Za-z0-9_$])*
+NUMBER
+    : POLAR_OP? DIGIT+ ('.' DIGIT*)? ('E' [-+]? DIGIT+)? | ('0x' HEX+)
+    ;
+
+INTEGER
+    : POLAR_OP? (DIGIT+) | ('0x' HEX+)
     ;
 
 STRING
@@ -154,13 +132,6 @@ STRING
     | '"' (ESC | ~["])* '"'
     ;
 
-NUMBER
-    : NUMBERFORMAT
-    ;
-
-INTEGER
-    : INTEGERFORMAT
-    ;
 
 
 // Pipe whitespace to the HIDDEN channel to support retrieving source text through the parser.
@@ -168,21 +139,8 @@ WHITESPACE
     : [ \r\n\t]+ -> channel(HIDDEN)
     ;
 
-COMMENT
-    : '/*' .*? '*/' -> channel(HIDDEN)
-    ;
+fragment DIGIT:     [0-9];
 
-LINE_COMMENT
-    : '//' ~[\r\n]* -> channel(HIDDEN)
-    ;
-
-fragment NUMBERFORMAT
-   : [0-9]+('.' [0-9]+)?
-   ;
-
-fragment INTEGERFORMAT
-   : [0-9]
-   ;
 
 fragment DATEFORMAT
     : [0-9][0-9][0-9][0-9] '-' ([0][1-9]|[1][012]) '-' ([123][0]|[012][1-9]|'31')

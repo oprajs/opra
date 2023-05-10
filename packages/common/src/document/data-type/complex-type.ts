@@ -222,7 +222,7 @@ const proto = {
             if (dataType && !dataType.additionalFields) {
               if (silent)
                 return {done: true, value: [] as any};
-              throw new Error(`Invalid field definition "${curPath}"`);
+              throw new Error(`Unknown or Invalid field (${curPath})`);
             }
           }
         }

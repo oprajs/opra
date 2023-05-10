@@ -1,6 +1,6 @@
 import { Task } from 'power-tasks';
 import {
-  BadRequestError, Collection, Expression, HttpHeaderCodes, HttpRequestMessage, HttpResponseMessage,
+  BadRequestError, Collection, HttpHeaderCodes, HttpRequestMessage, HttpResponseMessage,
   HttpStatusCodes, InternalServerError, isReadable, IssueSeverity, MethodNotAllowedError,
   OpraException, OpraSchema, OpraURL, Singleton, wrapException
 } from '@opra/common';
@@ -219,7 +219,7 @@ export abstract class OpraHttpAdapter extends OpraAdapter {
                 }
               }, incoming);
             }
-            const filter = params.get('$filter') as Expression;
+            const filter = resource.normalizeFilter(params.get('$filter') as any);
             return new HttpRequestHost({
               kind: 'CollectionDeleteManyRequest',
               resource,
@@ -227,7 +227,7 @@ export abstract class OpraHttpAdapter extends OpraAdapter {
               crud: 'delete',
               many: true,
               args: {
-                filter: filter && resource.normalizeFilter(filter)
+                filter
               }
             }, incoming);
           }
@@ -252,7 +252,7 @@ export abstract class OpraHttpAdapter extends OpraAdapter {
               }, incoming);
             }
 
-            const filter = params.get('$filter') as Expression;
+            const filter = resource.normalizeFilter(params.get('$filter') as any);
             const sort = params.get('$sort') as string;
             return new HttpRequestHost({
               kind: 'CollectionFindManyRequest',
@@ -265,7 +265,7 @@ export abstract class OpraHttpAdapter extends OpraAdapter {
                 omit: omit && resource.normalizeFieldPath(omit),
                 include: include && resource.normalizeFieldPath(include),
                 sort: sort && resource.normalizeSortFields(sort),
-                filter: filter && resource.normalizeFilter(filter),
+                filter,
                 limit: params.get('$limit'),
                 skip: params.get('$skip'),
                 distinct: params.get('$distinct'),
@@ -294,7 +294,7 @@ export abstract class OpraHttpAdapter extends OpraAdapter {
                 }
               }, incoming);
             }
-            const filter = params.get('$filter') as Expression;
+            const filter = resource.normalizeFilter(params.get('$filter') as any);
             return new HttpRequestHost({
               kind: 'CollectionUpdateManyRequest',
               resource,
@@ -303,7 +303,7 @@ export abstract class OpraHttpAdapter extends OpraAdapter {
               many: true,
               args: {
                 data: incoming.body,
-                filter: filter && resource.normalizeFilter(filter),
+                filter,
               }
             }, incoming);
           }

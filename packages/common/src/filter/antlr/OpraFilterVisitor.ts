@@ -1,44 +1,34 @@
-// Generated from ./src/filter/antlr/OpraFilter.g4 by ANTLR 4.11.2-SNAPSHOT
+// Generated from ./src/filter/antlr/OpraFilter.g4 by ANTLR 4.12.0
+
 import { ParseTreeVisitor } from '@browsery/antlr4';
 import {
-  ArithmeticExpressionContext,
-  ArrayExpressionContext,
-  ArthOpContext,
+  ArithmeticOperatorContext,
+  ArrayValueContext,
   BooleanContext,
   BooleanLiteralContext,
   ComparisonExpressionContext,
-  CompOpContext,
+  ComparisonLeftContext,
+  ComparisonOperatorContext,
+  ComparisonRightContext,
   DateLiteralContext,
   DateTimeLiteralContext,
-  DateTimePrecisionContext,
   ExternalConstantContext,
-  ExternalConstantTermContext,
-  FunctionContext,
   IdentifierContext,
   InfinityContext,
   InfinityLiteralContext,
-  InvocableContext,
-  LiteralTermContext,
   LogicalExpressionContext,
-  LogOpContext,
-  MemberIndexContext,
-  MemberInvocationContext,
+  LogicalOperatorContext,
+  NegativeExpressionContext,
   NullContext,
   NullLiteralContext,
-  NumberIndexContext,
   NumberLiteralContext,
-  ParamListContext,
   ParenthesizedExpressionContext,
-  PluralDateTimePrecisionContext,
-  PolarityExpressionContext,
-  PolarOpContext,
+  ParenthesizedItemContext,
+  PolarityOperatorContext,
   QualifiedIdentifierContext,
-  QualifiedIdentifierTermContext,
   RootContext,
   StringLiteralContext,
-  TermExpressionContext,
-  TimeLiteralContext,
-  UnitContext
+  TimeLiteralContext
 } from "./OpraFilterParser.js";
 
 
@@ -64,19 +54,12 @@ export default class OpraFilterVisitor<Result> extends ParseTreeVisitor<Result> 
    */
   visitParenthesizedExpression?: (ctx: ParenthesizedExpressionContext) => Result;
   /**
-   * Visit a parse tree produced by the `arrayExpression`
+   * Visit a parse tree produced by the `negativeExpression`
    * labeled alternative in `OpraFilterParser.expression`.
    * @param ctx the parse tree
    * @return the visitor result
    */
-  visitArrayExpression?: (ctx: ArrayExpressionContext) => Result;
-  /**
-   * Visit a parse tree produced by the `polarityExpression`
-   * labeled alternative in `OpraFilterParser.expression`.
-   * @param ctx the parse tree
-   * @return the visitor result
-   */
-  visitPolarityExpression?: (ctx: PolarityExpressionContext) => Result;
+  visitNegativeExpression?: (ctx: NegativeExpressionContext) => Result;
   /**
    * Visit a parse tree produced by the `comparisonExpression`
    * labeled alternative in `OpraFilterParser.expression`.
@@ -85,13 +68,6 @@ export default class OpraFilterVisitor<Result> extends ParseTreeVisitor<Result> 
    */
   visitComparisonExpression?: (ctx: ComparisonExpressionContext) => Result;
   /**
-   * Visit a parse tree produced by the `arithmeticExpression`
-   * labeled alternative in `OpraFilterParser.expression`.
-   * @param ctx the parse tree
-   * @return the visitor result
-   */
-  visitArithmeticExpression?: (ctx: ArithmeticExpressionContext) => Result;
-  /**
    * Visit a parse tree produced by the `logicalExpression`
    * labeled alternative in `OpraFilterParser.expression`.
    * @param ctx the parse tree
@@ -99,90 +75,79 @@ export default class OpraFilterVisitor<Result> extends ParseTreeVisitor<Result> 
    */
   visitLogicalExpression?: (ctx: LogicalExpressionContext) => Result;
   /**
-   * Visit a parse tree produced by the `termExpression`
-   * labeled alternative in `OpraFilterParser.expression`.
+   * Visit a parse tree produced by `OpraFilterParser.comparisonLeft`.
    * @param ctx the parse tree
    * @return the visitor result
    */
-  visitTermExpression?: (ctx: TermExpressionContext) => Result;
+  visitComparisonLeft?: (ctx: ComparisonLeftContext) => Result;
   /**
-   * Visit a parse tree produced by the `literalTerm`
-   * labeled alternative in `OpraFilterParser.term`.
+   * Visit a parse tree produced by `OpraFilterParser.comparisonRight`.
    * @param ctx the parse tree
    * @return the visitor result
    */
-  visitLiteralTerm?: (ctx: LiteralTermContext) => Result;
+  visitComparisonRight?: (ctx: ComparisonRightContext) => Result;
   /**
-   * Visit a parse tree produced by the `qualifiedIdentifierTerm`
-   * labeled alternative in `OpraFilterParser.term`.
+   * Visit a parse tree produced by `OpraFilterParser.parenthesizedItem`.
    * @param ctx the parse tree
    * @return the visitor result
    */
-  visitQualifiedIdentifierTerm?: (ctx: QualifiedIdentifierTermContext) => Result;
+  visitParenthesizedItem?: (ctx: ParenthesizedItemContext) => Result;
   /**
-   * Visit a parse tree produced by the `externalConstantTerm`
-   * labeled alternative in `OpraFilterParser.term`.
+   * Visit a parse tree produced by the `numberLiteral`
+   * labeled alternative in `OpraFilterParser.value`.
    * @param ctx the parse tree
    * @return the visitor result
    */
-  visitExternalConstantTerm?: (ctx: ExternalConstantTermContext) => Result;
+  visitNumberLiteral?: (ctx: NumberLiteralContext) => Result;
   /**
-   * Visit a parse tree produced by `OpraFilterParser.invocable`.
+   * Visit a parse tree produced by the `infinityLiteral`
+   * labeled alternative in `OpraFilterParser.value`.
    * @param ctx the parse tree
    * @return the visitor result
    */
-  visitInvocable?: (ctx: InvocableContext) => Result;
+  visitInfinityLiteral?: (ctx: InfinityLiteralContext) => Result;
   /**
-   * Visit a parse tree produced by the `memberInvocation`
-   * labeled alternative in `OpraFilterParser.invocation`.
+   * Visit a parse tree produced by the `booleanLiteral`
+   * labeled alternative in `OpraFilterParser.value`.
    * @param ctx the parse tree
    * @return the visitor result
    */
-  visitMemberInvocation?: (ctx: MemberInvocationContext) => Result;
+  visitBooleanLiteral?: (ctx: BooleanLiteralContext) => Result;
   /**
-   * Visit a parse tree produced by the `memberIndex`
-   * labeled alternative in `OpraFilterParser.indexer`.
+   * Visit a parse tree produced by the `nullLiteral`
+   * labeled alternative in `OpraFilterParser.value`.
    * @param ctx the parse tree
    * @return the visitor result
    */
-  visitMemberIndex?: (ctx: MemberIndexContext) => Result;
+  visitNullLiteral?: (ctx: NullLiteralContext) => Result;
   /**
-   * Visit a parse tree produced by the `numberIndex`
-   * labeled alternative in `OpraFilterParser.indexer`.
+   * Visit a parse tree produced by the `dateLiteral`
+   * labeled alternative in `OpraFilterParser.value`.
    * @param ctx the parse tree
    * @return the visitor result
    */
-  visitNumberIndex?: (ctx: NumberIndexContext) => Result;
+  visitDateLiteral?: (ctx: DateLiteralContext) => Result;
   /**
-   * Visit a parse tree produced by `OpraFilterParser.function`.
+   * Visit a parse tree produced by the `dateTimeLiteral`
+   * labeled alternative in `OpraFilterParser.value`.
    * @param ctx the parse tree
    * @return the visitor result
    */
-  visitFunction?: (ctx: FunctionContext) => Result;
+  visitDateTimeLiteral?: (ctx: DateTimeLiteralContext) => Result;
   /**
-   * Visit a parse tree produced by `OpraFilterParser.paramList`.
+   * Visit a parse tree produced by the `timeLiteral`
+   * labeled alternative in `OpraFilterParser.value`.
    * @param ctx the parse tree
    * @return the visitor result
    */
-  visitParamList?: (ctx: ParamListContext) => Result;
+  visitTimeLiteral?: (ctx: TimeLiteralContext) => Result;
   /**
-   * Visit a parse tree produced by `OpraFilterParser.unit`.
+   * Visit a parse tree produced by the `stringLiteral`
+   * labeled alternative in `OpraFilterParser.value`.
    * @param ctx the parse tree
    * @return the visitor result
    */
-  visitUnit?: (ctx: UnitContext) => Result;
-  /**
-   * Visit a parse tree produced by `OpraFilterParser.dateTimePrecision`.
-   * @param ctx the parse tree
-   * @return the visitor result
-   */
-  visitDateTimePrecision?: (ctx: DateTimePrecisionContext) => Result;
-  /**
-   * Visit a parse tree produced by `OpraFilterParser.pluralDateTimePrecision`.
-   * @param ctx the parse tree
-   * @return the visitor result
-   */
-  visitPluralDateTimePrecision?: (ctx: PluralDateTimePrecisionContext) => Result;
+  visitStringLiteral?: (ctx: StringLiteralContext) => Result;
   /**
    * Visit a parse tree produced by `OpraFilterParser.qualifiedIdentifier`.
    * @param ctx the parse tree
@@ -202,85 +167,11 @@ export default class OpraFilterVisitor<Result> extends ParseTreeVisitor<Result> 
    */
   visitIdentifier?: (ctx: IdentifierContext) => Result;
   /**
-   * Visit a parse tree produced by the `numberLiteral`
-   * labeled alternative in `OpraFilterParser.literal`.
+   * Visit a parse tree produced by `OpraFilterParser.arrayValue`.
    * @param ctx the parse tree
    * @return the visitor result
    */
-  visitNumberLiteral?: (ctx: NumberLiteralContext) => Result;
-  /**
-   * Visit a parse tree produced by the `infinityLiteral`
-   * labeled alternative in `OpraFilterParser.literal`.
-   * @param ctx the parse tree
-   * @return the visitor result
-   */
-  visitInfinityLiteral?: (ctx: InfinityLiteralContext) => Result;
-  /**
-   * Visit a parse tree produced by the `booleanLiteral`
-   * labeled alternative in `OpraFilterParser.literal`.
-   * @param ctx the parse tree
-   * @return the visitor result
-   */
-  visitBooleanLiteral?: (ctx: BooleanLiteralContext) => Result;
-  /**
-   * Visit a parse tree produced by the `nullLiteral`
-   * labeled alternative in `OpraFilterParser.literal`.
-   * @param ctx the parse tree
-   * @return the visitor result
-   */
-  visitNullLiteral?: (ctx: NullLiteralContext) => Result;
-  /**
-   * Visit a parse tree produced by the `dateLiteral`
-   * labeled alternative in `OpraFilterParser.literal`.
-   * @param ctx the parse tree
-   * @return the visitor result
-   */
-  visitDateLiteral?: (ctx: DateLiteralContext) => Result;
-  /**
-   * Visit a parse tree produced by the `dateTimeLiteral`
-   * labeled alternative in `OpraFilterParser.literal`.
-   * @param ctx the parse tree
-   * @return the visitor result
-   */
-  visitDateTimeLiteral?: (ctx: DateTimeLiteralContext) => Result;
-  /**
-   * Visit a parse tree produced by the `timeLiteral`
-   * labeled alternative in `OpraFilterParser.literal`.
-   * @param ctx the parse tree
-   * @return the visitor result
-   */
-  visitTimeLiteral?: (ctx: TimeLiteralContext) => Result;
-  /**
-   * Visit a parse tree produced by the `stringLiteral`
-   * labeled alternative in `OpraFilterParser.literal`.
-   * @param ctx the parse tree
-   * @return the visitor result
-   */
-  visitStringLiteral?: (ctx: StringLiteralContext) => Result;
-  /**
-   * Visit a parse tree produced by `OpraFilterParser.compOp`.
-   * @param ctx the parse tree
-   * @return the visitor result
-   */
-  visitCompOp?: (ctx: CompOpContext) => Result;
-  /**
-   * Visit a parse tree produced by `OpraFilterParser.arthOp`.
-   * @param ctx the parse tree
-   * @return the visitor result
-   */
-  visitArthOp?: (ctx: ArthOpContext) => Result;
-  /**
-   * Visit a parse tree produced by `OpraFilterParser.polarOp`.
-   * @param ctx the parse tree
-   * @return the visitor result
-   */
-  visitPolarOp?: (ctx: PolarOpContext) => Result;
-  /**
-   * Visit a parse tree produced by `OpraFilterParser.logOp`.
-   * @param ctx the parse tree
-   * @return the visitor result
-   */
-  visitLogOp?: (ctx: LogOpContext) => Result;
+  visitArrayValue?: (ctx: ArrayValueContext) => Result;
   /**
    * Visit a parse tree produced by `OpraFilterParser.boolean`.
    * @param ctx the parse tree
@@ -299,5 +190,29 @@ export default class OpraFilterVisitor<Result> extends ParseTreeVisitor<Result> 
    * @return the visitor result
    */
   visitInfinity?: (ctx: InfinityContext) => Result;
+  /**
+   * Visit a parse tree produced by `OpraFilterParser.arithmeticOperator`.
+   * @param ctx the parse tree
+   * @return the visitor result
+   */
+  visitArithmeticOperator?: (ctx: ArithmeticOperatorContext) => Result;
+  /**
+   * Visit a parse tree produced by `OpraFilterParser.comparisonOperator`.
+   * @param ctx the parse tree
+   * @return the visitor result
+   */
+  visitComparisonOperator?: (ctx: ComparisonOperatorContext) => Result;
+  /**
+   * Visit a parse tree produced by `OpraFilterParser.logicalOperator`.
+   * @param ctx the parse tree
+   * @return the visitor result
+   */
+  visitLogicalOperator?: (ctx: LogicalOperatorContext) => Result;
+  /**
+   * Visit a parse tree produced by `OpraFilterParser.polarityOperator`.
+   * @param ctx the parse tree
+   * @return the visitor result
+   */
+  visitPolarityOperator?: (ctx: PolarityOperatorContext) => Result;
 }
 

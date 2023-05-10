@@ -1,4 +1,4 @@
-import type { ComparisonOperator } from '../../filter/index.js';
+import type { OpraFilter } from '../../filter/index.js';
 import type { Field } from '../data-type/field.interface';
 
 export interface Endpoint {
@@ -12,7 +12,7 @@ export namespace Endpoint {
 
 export namespace _Operation {
   export interface Filter {
-    filters?: { field: Field.QualifiedName, operators?: ComparisonOperator[] }[]
+    filters?: { field: Field.QualifiedName, operators?: OpraFilter.ComparisonOperator[] }[]
   }
 
   export interface InputPickOmit {
