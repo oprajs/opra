@@ -23,6 +23,8 @@ export class TsFile {
 
   addImportFile = (filename: string, types?: string[]) => {
     filename = path.resolve(this.dirname, filename);
+    if (filename.endsWith('.ts') || filename.endsWith('.js'))
+      filename = setExt(filename, '');
     this.importFiles[filename] = this.importFiles[filename] || [];
     types?.forEach(x => {
       if (!this.importFiles[filename].includes(x))
@@ -54,9 +56,7 @@ export class TsFile {
           const types = this.importFiles[filename];
           let relFile = filename;
           if (path.isAbsolute(filename)) {
-            relFile = relativePath(dirname, filename);
-            if (options?.importExt)
-              relFile = setExt(relFile, options.importExt);
+            relFile = setExt(relativePath(dirname, filename), options?.importExt);
           }
           return `import ${types.length ? '{' + types.join(', ') + '} from ' : ''}'${relFile}';`;
         })
@@ -72,9 +72,7 @@ export class TsFile {
           const types = this.exportFiles[filename];
           let relFile = filename;
           if (path.isAbsolute(filename)) {
-            relFile = relativePath(dirname, filename);
-            if (options?.importExt)
-              relFile = setExt(relFile, options.importExt);
+            relFile = setExt(relativePath(dirname, filename), options?.importExt);
           }
           return `export ${types.length ? '{' + types.join(', ') + '}' : '*'} from '${relFile}';`;
         })
@@ -92,7 +90,7 @@ export function relativePath(from: string, to: string): string {
 }
 
 
-export function setExt(filename: string, ext: string): string {
+export function setExt(filename: string, ext?: string): string {
   const e = path.extname(filename);
   return filename.substring(0, filename.length - e.length) + (ext ? '.' + ext : '');
 }

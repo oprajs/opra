@@ -33,4 +33,7 @@ program
       console.log(chalk.greenBright('Completed'));
     });
 
-program.parse(process.argv);
+if (process.argv.length < 3)
+  program.help();
+else
+  program.parse(process.argv);
