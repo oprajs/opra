@@ -29,7 +29,6 @@ export namespace ApiExporter {
     logger?: ILogger;
     writer?: IFileWriter;
     fileHeader?: string;
-    importExt?: string;
   }
 }
 
@@ -43,7 +42,6 @@ export class ApiExporter {
   protected name: string;
   protected fileHeader: string;
   protected writer: IFileWriter;
-  protected importExt: string;
   protected files: Record<string, TsFile> = {};
   // protected nsMap: ResponsiveMap<ApiExporter>;
   protected processResources: typeof processResources;
@@ -71,7 +69,6 @@ export class ApiExporter {
       verbose: () => void 0,
     };
     this.fileHeader = config.fileHeader || '';
-    this.importExt = config.importExt || '';
     this.writer = config.writer || new FileWriter();
     // this.nsMap = nsMap || new ResponsiveMap(); // implement references later
   }
@@ -107,7 +104,7 @@ export class ApiExporter {
     for (const file of Object.values(this.files)) {
       const targetDir = path.dirname(file.filename);
       fs.mkdirSync(targetDir, {recursive: true});
-      await this.writer.writeFile(file.filename, file.generate({importExt: this.importExt}));
+      await this.writer.writeFile(file.filename, file.generate());
     }
   }
 
