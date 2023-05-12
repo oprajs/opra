@@ -17,7 +17,7 @@ export async function processTypes(
 ) {
   this.logger.log(chalk.yellow('Processing types'));
   const {document} = this;
-  const typesTs = this.addFile(path.join(targetDir, 'types.ts'));
+  const typesTs = this.addFile(path.join(targetDir, 'types.d.ts'));
   for (const dataType of document.types.values()) {
     const expFile = await this.generateTypeFile(dataType, targetDir);
     typesTs.addExportFile(expFile.filename);
@@ -40,11 +40,11 @@ export async function generateTypeFile(
 
   let filePath: string;
   if (dataType instanceof SimpleType)
-    filePath = '/simple-types.ts';
+    filePath = '/simple-types.d.ts';
   else if (dataType instanceof ComplexType)
-    filePath = `/types/${typeName}.ts`;
+    filePath = `/types/${typeName}.type.d.ts`;
   else if (dataType instanceof EnumType) {
-    filePath = `/enums/${typeName}.ts`;
+    filePath = `/enums/${typeName}.enum.d.ts`;
   } else
     throw new TypeError(`Unimplemented DataType (${dataType.kind})`);
 
@@ -53,11 +53,11 @@ export async function generateTypeFile(
     return file;
   file.exportTypes.push(typeName);
 
-  const indexTs = this.addFile('/index.ts', true);
+  const indexTs = this.addFile('/index.d.ts', true);
   indexTs.addExportFile(file.filename);
 
   file.content += `\n/**\n * ${wrapJSDocString(dataType.description || typeName)}
- * @type ${typeName}
+ * @interface ${typeName}
  * @kind ${dataType.kind}
  * @url ${joinPath(this.client.serviceUrl, '$metadata#types/' + typeName)}
  */\n`;
@@ -67,18 +67,7 @@ export async function generateTypeFile(
   } else if (dataType instanceof EnumType) {
     file.content += `export enum ${typeName} ` + await this.generateEnumTypeDefinition(file, dataType);
   } else if (dataType instanceof ComplexType) {
-    file.content += `export class ${typeName} {
-  constructor(init?: Partial<I${typeName}>) {
-    if (init)
-     Object.assign(this, init);
-  }
-}
-
-export interface ${typeName} extends I${typeName} {
-}
-
-interface I${typeName} ${await this.generateComplexTypeDefinition(file, dataType, true)}
-`
+    file.content += `export interface ${typeName} ${await this.generateComplexTypeDefinition(file, dataType, true)}`
   }
 
   return file;
