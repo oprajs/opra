@@ -1,6 +1,6 @@
 {
   "name": "@opra/core",
-  "version": "0.17.1",
+  "version": "0.17.2",
   "description": "Opra schema package",
   "author": "Panates",
   "license": "MIT",
@@ -27,7 +27,7 @@
     "clean:cover": "rimraf ../../coverage/core"
   },
   "dependencies": {
-    "@opra/common": "^0.17.1",
+    "@opra/common": "^0.17.2",
     "content-type": "^1.0.5",
     "lodash.isnil": "^4.0.0",
     "lodash.omitby": "^4.6.0",
