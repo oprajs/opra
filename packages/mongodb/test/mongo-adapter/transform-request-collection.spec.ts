@@ -127,14 +127,14 @@ describe('MongoAdapter.transformRequest (Collection)', function () {
     });
 
     it('Should prepare with "filter" option', async () => {
-      const resource = api.getCollection('countries');
+      const resource = api.getCollection('customers');
       const request = {
         resource,
         resourceKind: 'Collection',
         operation: 'deleteMany',
         crud: 'delete',
         many: true,
-        args: {filter: resource.normalizeFilter('givenName=John')}
+        args: {filter: resource.normalizeFilter('givenName="John"')}
       } as unknown as Request;
       const o = MongoAdapter.transformRequest(request);
       const filter = {givenName: 'John'};
@@ -242,14 +242,14 @@ describe('MongoAdapter.transformRequest (Collection)', function () {
     });
 
     it('Should prepare with "filter" option', async () => {
-      const resource = api.getCollection('countries');
+      const resource = api.getCollection('customers');
       const request = {
         resource: api.getCollection('countries'),
         resourceKind: 'Collection',
         operation: 'findMany',
         crud: 'read',
         many: true,
-        args: {filter: resource.normalizeFilter('givenName=John')}
+        args: {filter: resource.normalizeFilter('givenName="John"')}
       } as unknown as Request;
       const options = {};
       const o = MongoAdapter.transformRequest(request);
@@ -428,14 +428,14 @@ describe('MongoAdapter.transformRequest (Collection)', function () {
     });
 
     it('Should prepare with "filter" option', async () => {
-      const resource = api.getCollection('countries');
+      const resource = api.getCollection('customers');
       const request = {
         resource: api.getCollection('countries'),
         resourceKind: 'Collection',
         operation: 'updateMany',
         crud: 'update',
         many: true,
-        args: {data, filter: resource.normalizeFilter('givenName=John')}
+        args: {data, filter: resource.normalizeFilter('givenName="John"')}
       } as unknown as Request;
       const options = {};
       const o = MongoAdapter.transformRequest(request);

@@ -1,16 +1,13 @@
 import '@opra/core';
+import isNil from 'lodash.isnil';
 import { OpraFilter } from '@opra/common';
 
 export default function transformFilter(
-    ast: OpraFilter.Expression | undefined
+    ast: OpraFilter.Expression | undefined,
+    negative?: boolean
 ): any {
   if (!ast)
     return;
-
-  return {query: _transformAst(ast)};
-}
-
-function _transformAst(ast: OpraFilter.Expression, negative?: boolean): any {
 
   if (ast instanceof OpraFilter.QualifiedIdentifier) {
     return ast.value;
@@ -27,15 +24,19 @@ function _transformAst(ast: OpraFilter.Expression, negative?: boolean): any {
   }
 
   if (ast instanceof OpraFilter.ArrayExpression) {
-    return ast.items.map(x => _transformAst(x, negative));
+    return ast.items
+        .map(x => transformFilter(x, negative))
+        .filter(x => !isNil(x));
   }
 
   if (ast instanceof OpraFilter.NegativeExpression) {
-    return _transformAst(ast.expression, !negative);
+    return transformFilter(ast.expression, !negative);
   }
 
   if (ast instanceof OpraFilter.LogicalExpression) {
-    const v = ast.items.map(x => _transformAst(x));
+    const v = ast.items
+        .map(x => transformFilter(x))
+        .filter(x => !isNil(x));
     if (ast.op === 'and') {
       return {
         'bool': {
@@ -49,7 +50,7 @@ function _transformAst(ast: OpraFilter.Expression, negative?: boolean): any {
   }
 
   if (ast instanceof OpraFilter.ParenthesizedExpression) {
-    return _transformAst(ast.expression, negative);
+    return transformFilter(ast.expression, negative);
   }
 
   if (ast instanceof OpraFilter.ComparisonExpression)
@@ -62,13 +63,13 @@ function _transformComparisonExpression(
     ast: OpraFilter.ComparisonExpression,
     negative: boolean
 ): any {
-  const left = _transformAst(ast.left, negative);
+  const left = transformFilter(ast.left, negative);
 
   if (ast.right instanceof OpraFilter.QualifiedIdentifier) {
     throw new TypeError('not implemented yet')
   }
 
-  const right = _transformAst(ast.right);
+  const right = transformFilter(ast.right);
 
   if (right == null) {
     const op = ast.op === '='

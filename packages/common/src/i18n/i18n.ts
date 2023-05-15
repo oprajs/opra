@@ -1,5 +1,7 @@
 import { splitString, tokenize } from 'fast-tokenizer';
 import fs from 'fs';
+import path from 'path';
+import { Type } from 'ts-gems';
 import i18next, {
   FallbackLng,
   Formatter as I18nextFormatter,
@@ -7,10 +9,8 @@ import i18next, {
   InitOptions as I18nextInitOptions,
   Resource as I18nextResource, TFunction as I18nextTFunction,
   TOptions
-} from 'i18next';
-import * as I18next from 'i18next';
-import path from 'path';
-import { Type } from 'ts-gems';
+} from '@browsery/i18next';
+import * as I18next from '@browsery/i18next';
 import { isUrl } from '../helpers/index.js';
 import { unescapeString } from './string-utils.js';
 

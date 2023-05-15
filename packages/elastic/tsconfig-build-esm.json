@@ -7,5 +7,7 @@
     "declarationDir": "../../build/elastic/types",
     "declaration": true
   },
-  "include": ["src"]
+  "include": [
+    "src"
+  ]
 }

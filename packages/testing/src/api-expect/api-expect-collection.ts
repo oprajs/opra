@@ -2,8 +2,8 @@ import '../jest-extend/index.js';
 import isNil from 'lodash.isnil';
 import omitBy from 'lodash.omitby';
 import ruleJudgmentLib from 'rule-judgment';
+import { HttpResponse } from '@opra/client';
 import { OpraFilter } from '@opra/common';
-import { HttpResponse } from '@opra/node-client';
 
 // @ts-ignore
 const ruleJudgment = typeof ruleJudgmentLib === 'object' ? ruleJudgmentLib.default : ruleJudgmentLib;
@@ -189,7 +189,7 @@ export function convertFilter(str: string | OpraFilter.Expression | undefined): 
   if (ast instanceof OpraFilter.ArrayExpression) {
     return ast.items.map(convertFilter);
   }
-  if (ast instanceof OpraFilter.ParenthesesExpression) {
+  if (ast instanceof OpraFilter.ParenthesizedExpression) {
     return convertFilter(ast.expression);
   }
   throw new Error(`${ast.kind} is not implemented yet`);

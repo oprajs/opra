@@ -48,8 +48,8 @@ export class SqbEntityService<T, TOutput = PartialOutput<T>> {
       await this._onError(e);
       throw e;
     }
-    if (out && this.onTransformRow)
-      out = this.onTransformRow(out);
+    if (out && this.transformData)
+      out = this.transformData(out);
     if (!out)
       throw new Error('"create" operation returned no result!');
     return out;
@@ -96,8 +96,8 @@ export class SqbEntityService<T, TOutput = PartialOutput<T>> {
       await this._onError(e);
       throw e;
     }
-    if (out && this.onTransformRow)
-      out = this.onTransformRow(out);
+    if (out && this.transformData)
+      out = this.transformData(out);
     return out;
   }
 
@@ -113,28 +113,28 @@ export class SqbEntityService<T, TOutput = PartialOutput<T>> {
       await this._onError(e);
       throw e;
     }
-    if (out && this.onTransformRow)
-      out = this.onTransformRow(out);
+    if (out && this.transformData)
+      out = this.transformData(out);
     return out;
   }
 
-  async findAll(
+  async findMany(
       options?: Repository.FindManyOptions,
   ): Promise<TOutput[]> {
     const conn = await this.getConnection();
     const repo = conn.getRepository(this.typeClass);
     let items: any[];
     try {
-      items = await repo.findAll(options);
+      items = await repo.findMany(options);
     } catch (e: any) {
       await this._onError(e);
       throw e;
     }
 
-    if (items.length && this.onTransformRow) {
+    if (items.length && this.transformData) {
       const newItems: any[] = [];
       for (const item of items) {
-        const v = this.onTransformRow(item);
+        const v = this.transformData(item);
         if (v)
           newItems.push(v);
       }
@@ -171,8 +171,8 @@ export class SqbEntityService<T, TOutput = PartialOutput<T>> {
       await this._onError(e);
       throw e;
     }
-    if (out && this.onTransformRow)
-      out = this.onTransformRow(out);
+    if (out && this.transformData)
+      out = this.transformData(out);
     return out;
   }
 
@@ -220,7 +220,7 @@ export class SqbEntityService<T, TOutput = PartialOutput<T>> {
 
   protected onError?(error: unknown): void | Promise<void>;
 
-  protected onTransformRow?(row: TOutput): TOutput;
+  protected transformData?(row: TOutput): TOutput;
 
 
 }

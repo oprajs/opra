@@ -10,21 +10,25 @@ export namespace MongoEntityService {
 }
 
 export class MongoEntityService<T extends mongodb.Document, TOutput = PartialOutput<T>> {
+  protected _collectionName: string;
   context: RequestContext;
   defaultLimit: number;
   db?: mongodb.Db;
   session?: mongodb.ClientSession;
 
-  constructor(
-      readonly collectionName: string,
-      options?: MongoEntityService.Options
-  ) {
+  constructor(options?: MongoEntityService.Options)
+  constructor(collectionName: string, options?: MongoEntityService.Options)
+  constructor(arg0, arg1?) {
+    const options = typeof arg0 === 'object' ? arg0 : arg1;
+    if (typeof arg0 === 'string')
+      this._collectionName = arg0;
     this.db = options?.db;
     this.defaultLimit = options?.defaultLimit || 10;
   }
 
   async count(filter?: mongodb.Filter<T>, options?: mongodb.CountOptions): Promise<number> {
-    const collection = (await this.getDatabase()).collection<T>(this.collectionName);
+    const db = await this.getDatabase();
+    const collection = await this.getCollection(db);
     options = {
       ...options,
       session: options?.session || this.session
@@ -38,7 +42,8 @@ export class MongoEntityService<T extends mongodb.Document, TOutput = PartialOut
   }
 
   async deleteOne(filter?: mongodb.Filter<T>, options?: mongodb.DeleteOptions): Promise<number> {
-    const collection = (await this.getDatabase()).collection<T>(this.collectionName);
+    const db = await this.getDatabase();
+    const collection = await this.getCollection(db);
     options = {
       ...options,
       session: options?.session || this.session
@@ -53,7 +58,8 @@ export class MongoEntityService<T extends mongodb.Document, TOutput = PartialOut
   }
 
   async deleteMany(filter?: mongodb.Filter<T>, options?: mongodb.DeleteOptions): Promise<number> {
-    const collection = (await this.getDatabase()).collection<T>(this.collectionName);
+    const db = await this.getDatabase();
+    const collection = await this.getCollection(db);
     options = {
       ...options,
       session: options?.session || this.session
@@ -68,7 +74,8 @@ export class MongoEntityService<T extends mongodb.Document, TOutput = PartialOut
   }
 
   async findOne(filter: mongodb.Filter<T>, options?: mongodb.FindOptions): Promise<TOutput | undefined> {
-    const collection = (await this.getDatabase()).collection<T>(this.collectionName);
+    const db = await this.getDatabase();
+    const collection = await this.getCollection(db);
     options = {
       ...options,
       session: options?.session || this.session
@@ -80,36 +87,40 @@ export class MongoEntityService<T extends mongodb.Document, TOutput = PartialOut
       await this._onError(e);
       throw e;
     }
-    if (this.onTransformRow)
-      out = this.onTransformRow(out);
     return out;
   }
 
   async find(filter: mongodb.Filter<T>, options?: mongodb.FindOptions): Promise<TOutput[]> {
-    const collection = (await this.getDatabase()).collection<T>(this.collectionName);
+    const db = await this.getDatabase();
+    const collection = await this.getCollection(db);
     options = {
       ...options,
       limit: options?.limit || this.defaultLimit,
       session: options?.session || this.session
     }
     const out: TOutput[] = [];
+    let cursor: mongodb.FindCursor<T> | undefined;
     try {
-      const cursor = collection.find<T>(filter, options);
-      let row;
-      while (row = await cursor.next()) {
-        if (this.onTransformRow)
-          row = this.onTransformRow(row);
-        out.push(row);
+      cursor = collection.find<T>(filter, options);
+      let obj;
+      while (out.length < this.defaultLimit && (obj = await cursor.next())) {
+        const v = this.transformData ? this.transformData(obj) : obj;
+        if (v)
+          out.push(obj);
       }
     } catch (e: any) {
       await this._onError(e);
       throw e;
+    } finally {
+      if (cursor)
+        await cursor.close();
     }
     return out;
   }
 
   async insertOne(doc: mongodb.OptionalUnlessRequiredId<T>, options?: mongodb.InsertOneOptions): Promise<TOutput> {
-    const collection = (await this.getDatabase()).collection<T>(this.collectionName);
+    const db = await this.getDatabase();
+    const collection = await this.getCollection(db);
     let out;
     options = {
       ...options,
@@ -123,8 +134,8 @@ export class MongoEntityService<T extends mongodb.Document, TOutput = PartialOut
       await this._onError(e);
       throw e;
     }
-    if (this.onTransformRow)
-      out = this.onTransformRow(out);
+    if (this.transformData)
+      out = this.transformData(out);
     if (!out)
       throw new Error('"insertOne" operation returned no result!');
     return out;
@@ -135,7 +146,8 @@ export class MongoEntityService<T extends mongodb.Document, TOutput = PartialOut
       doc: UpdateFilter<T> | Partial<T>,
       options?: mongodb.UpdateOptions
   ): Promise<TOutput | undefined> {
-    const collection = (await this.getDatabase()).collection<T>(this.collectionName);
+    const db = await this.getDatabase();
+    const collection = await this.getCollection(db);
     let out;
     options = {
       ...options,
@@ -149,8 +161,8 @@ export class MongoEntityService<T extends mongodb.Document, TOutput = PartialOut
       await this._onError(e);
       throw e;
     }
-    if (this.onTransformRow)
-      out = this.onTransformRow(out);
+    if (this.transformData)
+      out = this.transformData(out);
     return out;
   }
 
@@ -159,7 +171,8 @@ export class MongoEntityService<T extends mongodb.Document, TOutput = PartialOut
       doc: UpdateFilter<T> | Partial<T>,
       options?: StrictOmit<mongodb.UpdateOptions, 'upsert'>
   ): Promise<number> {
-    const collection = (await this.getDatabase()).collection<T>(this.collectionName);
+    const db = await this.getDatabase();
+    const collection = await this.getCollection(db);
     options = {
       ...options,
       session: options?.session || this.session,
@@ -206,8 +219,20 @@ export class MongoEntityService<T extends mongodb.Document, TOutput = PartialOut
     return this.db;
   }
 
+  protected async getCollection(db: mongodb.Db): Promise<mongodb.Collection<T>> {
+    if (!this._collectionName)
+      throw new Error('collectionName is not assigned');
+    return db.collection<T>(this.getCollectionName());
+  }
+
+  protected getCollectionName(): string {
+    if (!this._collectionName)
+      throw new Error('collectionName is not defined');
+    return this._collectionName;
+  }
+
   protected onError?(error: unknown): void | Promise<void>;
 
-  protected onTransformRow?(row: mongodb.WithId<T>): mongodb.WithId<T>;
+  protected transformData?(row: TOutput): TOutput;
 
 }

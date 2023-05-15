@@ -2,13 +2,13 @@ import { createServer, IncomingMessage, Server, ServerResponse } from 'http';
 import { AddressInfo } from 'net';
 import { Type } from 'ts-gems';
 import { URL } from 'url';
-import { joinPath } from '@opra/common';
 import {
   HttpCollectionNode, HttpResponse, HttpSingletonNode,
   // BatchRequest,
   OpraHttpClient,
   OpraHttpClientOptions,
-} from '@opra/node-client';
+} from '@opra/client';
+import { joinPath } from '@opra/common';
 import { ApiExpect } from './api-expect/api-expect.js';
 import { isAbsoluteUrl } from './utils/is-absolute-url.util.js';
 

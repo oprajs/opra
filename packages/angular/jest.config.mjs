@@ -11,7 +11,6 @@ export default {
 
   moduleNameMapper: {
     '^#/(.*)': ['./$1'],
-    '^@opra/client$': ['<rootDir>/../node-client/src'],
     '^@opra/([^/]*)/test$': ['<rootDir>/../$1/test'],
     '^@opra/([^/]*)/test(?:/(.+))$': ['<rootDir>/../$1/test/$2'],
     '^@opra/([^/]*)(?:/(.+))$': ['<rootDir>/../$1/src/$2'],

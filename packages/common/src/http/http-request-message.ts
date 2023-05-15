@@ -1,8 +1,8 @@
 import accepts from 'accepts';
 import { IncomingHttpHeaders } from 'http';
-import { HeaderInfo, HTTPParser } from 'http-parser-js';
 import { Readable } from 'stream';
 import typeIs from 'type-is';
+import { HeaderInfo, HTTPParser } from '@browsery/http-parser';
 import { HttpMessage, HttpMessageHost } from './http-message.host.js';
 import { HttpParams } from './http-params.js';
 

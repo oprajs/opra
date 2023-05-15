@@ -1,6 +1,6 @@
 import '../jest-extend/index.js';
 import matcherUtils from 'jest-matcher-utils';
-import { HttpResponse } from '@opra/node-client';
+import { HttpResponse } from '@opra/client';
 import { objectMatches } from '../utils/object-matches.util.js';
 import { ApiExpectObject } from './api-expect-object.js';
 

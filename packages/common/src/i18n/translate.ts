@@ -1,5 +1,5 @@
-import {TOptions} from 'i18next';
-import {escapeString} from './string-utils.js';
+import { TOptions } from '@browsery/i18next';
+import { escapeString } from './string-utils.js';
 
 const bracketRegEx = /(\))/g
 
@@ -10,8 +10,8 @@ export function translate(key: string, arg0?, arg1?): string {
   const options = arg0 && typeof arg0 === 'object' ? arg0 : undefined;
   const fallback = typeof arg0 === 'string' ? arg0 : arg1;
   return '$t(' +
-    key +
-    (options ? ',' + JSON.stringify(options) : '') +
-    (fallback ? '?' + escapeString(fallback).replace(bracketRegEx, '\\$1') : '') +
-    ')'
+      key +
+      (options ? ',' + JSON.stringify(options) : '') +
+      (fallback ? '?' + escapeString(fallback).replace(bracketRegEx, '\\$1') : '') +
+      ')'
 }

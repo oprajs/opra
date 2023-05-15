@@ -1,6 +1,6 @@
 import { Type } from 'ts-gems';
 import type { DataType, DataTypeBase } from './data-type.interface.js';
-import { Field } from './field.interface.js';
+import type { Field } from './field.interface.js';
 import type { MappedType } from './mapped-type.interface.js';
 import type { UnionType } from './union-type.interface.js';
 

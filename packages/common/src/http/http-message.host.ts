@@ -1,5 +1,5 @@
-import { HeaderInfo, HTTPParser, ParserType } from 'http-parser-js';
 import stream from 'stream';
+import { HeaderInfo, HTTPParser, ParserType } from '@browsery/http-parser';
 import { HttpHeaders } from './http-headers.js';
 
 const kHeaders = Symbol('kHeaders');

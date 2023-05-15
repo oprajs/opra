@@ -2,7 +2,7 @@ import express from 'express';
 import * as http from 'http';
 import { AddressInfo } from 'net';
 import { ApiDocument } from '@opra/common';
-import { createTestApi } from '@opra/core/test/_support/test-app/index';
+import { createTestApi } from '../../core/test/_support/test-app/index.js';
 import { HttpCollectionNode, HttpSingletonNode, OpraHttpClient } from '../src/index.js';
 
 describe('OpraClient', function () {
