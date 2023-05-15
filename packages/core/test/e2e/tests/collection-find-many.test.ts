@@ -84,6 +84,7 @@ export function collectionSearchTests(args: { client: OpraTestClient }) {
       resp.expect
           .toSuccess()
           .toReturnCollection();
+      expect(resp.totalMatches).toBeGreaterThanOrEqual(100);
       expect(parseFloat('' + resp.headers.get(HttpHeaderCodes.X_Opra_Total_Matches))).toBeGreaterThanOrEqual(100);
     })
 

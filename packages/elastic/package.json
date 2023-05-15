@@ -4,6 +4,7 @@
   "description": "Opra Elastic Search adapter package",
   "author": "Panates",
   "license": "MIT",
+  "private": true,
   "repository": {
     "type": "git",
     "url": "https://github.com/panates/opra.git",
@@ -16,7 +17,7 @@
     "_build:cjs": "tsc -b tsconfig-build-cjs.json",
     "_build:esm": "tsc -b tsconfig-build-esm.json",
     "_postbuild": "cp README.md package.json ../../LICENSE ../../build/elastic && cp ../../package.cjs.json ../../build/elastic/cjs/package.json",
-    "lint": "eslint .",
+    "lint": "eslint ",
     "test": "jest",
     "cover": "jest --collect-coverage",
     "clean": "npm run clean:src && npm run clean:dist && npm run clean:cover",

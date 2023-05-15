@@ -1,4 +1,4 @@
-// import Highland from 'highland';
+// import Highland from '@browsery/highland';
 // import { Readable } from 'stream';
 // import { uid } from 'uid';
 // import { isReadable } from '../../helpers/index.js';

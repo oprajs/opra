@@ -2,16 +2,9 @@
   "extends": "../../tsconfig-base.json",
   "include": ["./test/**/*.ts"],
   "compilerOptions": {
-    "baseUrl": "./",
-    "types": ["node", "jest"],
     "module": "CommonJS",
     "target": "ES2016",
     "lib": [],
-    "outDir": "./out-tsc/spec",
-    "paths": {
-      "@opra/client": ["../node-client/src"],
-      "@opra/core": ["../core/src"],
-      "@opra/common": ["../common/src"]
-    }
+    "outDir": "./out-tsc/spec"
   }
 }

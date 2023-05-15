@@ -1,5 +1,6 @@
 import mongodb from 'mongodb';
-import { PartialOutput, ResourceNotFoundError, Singleton } from '@opra/common';
+import { Maybe } from 'ts-gems';
+import { PartialOutput, Singleton } from '@opra/common';
 import { RequestContext } from '@opra/core';
 import { MongoAdapter } from './mongo-adapter.js';
 import { MongoEntityService } from './mongo-entity-service.js';
@@ -23,23 +24,17 @@ export abstract class MongoSingletonResource<T extends mongodb.Document, TOutput
   }
 
   @Singleton.Get()
-  async get(ctx: RequestContext): Promise<TOutput> {
+  async get(ctx: RequestContext): Promise<Maybe<TOutput>> {
     const prepared = MongoAdapter.transformRequest(ctx.request);
     const service = await this.getService(ctx);
-    const out = await service.findOne(prepared.filter, prepared.options);
-    if (!out)
-      throw new ResourceNotFoundError(service.collectionName);
-    return out;
+    return service.findOne(prepared.filter, prepared.options);
   }
 
   @Singleton.Update()
-  async update(ctx: RequestContext): Promise<TOutput> {
+  async update(ctx: RequestContext): Promise<Maybe<TOutput>> {
     const prepared = MongoAdapter.transformRequest(ctx.request);
     const service = await this.getService(ctx);
-    const out = await service.updateOne(prepared.filter, prepared.update, prepared.options);
-    if (!out)
-      throw new ResourceNotFoundError(service.collectionName, prepared.filter._id);
-    return out;
+    return service.updateOne(prepared.filter, prepared.update, prepared.options);
   }
 
   abstract getService(ctx: RequestContext): MongoEntityService<T, TOutput> | Promise<MongoEntityService<T, TOutput>>;

@@ -1,11 +1,23 @@
 import mongodb from 'mongodb';
-import { Collection, PartialOutput, ResourceNotFoundError } from '@opra/common';
-import { RequestContext } from '@opra/core';
+import { Maybe } from 'ts-gems';
+import { Collection, PartialOutput } from '@opra/common';
+import { CollectionResourceBase, RequestContext } from '@opra/core';
 import { MongoAdapter } from './mongo-adapter.js';
 import { MongoEntityService } from './mongo-entity-service.js';
 
-export abstract class MongoCollectionResource<T extends mongodb.Document, TOutput = PartialOutput<T>> {
-  defaultLimit = 100;
+export namespace MongoCollectionResource {
+  export interface Options extends CollectionResourceBase.Options {
+  }
+}
+
+// noinspection TypeScriptAbstractClassConstructorCanBeMadeProtected
+export abstract class MongoCollectionResource<
+    T extends mongodb.Document, TOutput = PartialOutput<T>
+> extends CollectionResourceBase {
+
+  constructor(options?: MongoCollectionResource.Options) {
+    super(options);
+  }
 
   @Collection.Create()
   async create(ctx: RequestContext): Promise<TOutput> {
@@ -29,23 +41,17 @@ export abstract class MongoCollectionResource<T extends mongodb.Document, TOutpu
   }
 
   @Collection.Get()
-  async get(ctx: RequestContext): Promise<TOutput> {
+  async get(ctx: RequestContext): Promise<Maybe<TOutput>> {
     const prepared = MongoAdapter.transformRequest(ctx.request);
     const service = await this.getService(ctx);
-    const out = await service.findOne(prepared.filter, prepared.options);
-    if (!out)
-      throw new ResourceNotFoundError(service.collectionName, prepared.filter._id);
-    return out;
+    return service.findOne(prepared.filter, prepared.options);
   }
 
   @Collection.Update()
-  async update(ctx: RequestContext): Promise<TOutput> {
+  async update(ctx: RequestContext): Promise<Maybe<TOutput>> {
     const prepared = MongoAdapter.transformRequest(ctx.request);
     const service = await this.getService(ctx);
-    const out = await service.updateOne(prepared.filter, prepared.update, prepared.options);
-    if (!out)
-      throw new ResourceNotFoundError(service.collectionName, prepared.filter._id);
-    return out;
+    return service.updateOne(prepared.filter, prepared.update, prepared.options);
   }
 
   @Collection.UpdateMany()

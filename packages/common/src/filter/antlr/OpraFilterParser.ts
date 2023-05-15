@@ -11,8 +11,8 @@ import {
   RecognitionException, RuleContext,
   TerminalNode, Token, TokenStream
 } from '@browsery/antlr4';
-import OpraFilterListener from "./OpraFilterListener.js";
-import OpraFilterVisitor from "./OpraFilterVisitor.js";
+import type OpraFilterListener from "./OpraFilterListener.js";
+import type OpraFilterVisitor from "./OpraFilterVisitor.js";
 
 // for running tests with parameters, TODO: discuss strategy for typed parameters in CI
 // eslint-disable-next-line no-unused-vars,@typescript-eslint/no-unused-vars
@@ -260,6 +260,7 @@ export default class OpraFilterParser extends Parser {
             if (this._parseListeners != null) {
               this.triggerExitRuleEvent();
             }
+            // eslint-disable-next-line @typescript-eslint/no-unused-vars
             _prevctx = localctx;
             {
               {

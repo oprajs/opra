@@ -3,7 +3,7 @@ import { HttpClientTestingModule } from '@angular/common/http/testing';
 import { Inject, Injectable, InjectionToken, Provider } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { HttpServiceBase, OpraHttpClient } from '@opra/client';
-import { createMockServer } from '../../node-client/test/_support/create-mock-server.js';
+import { createMockServer } from '../../client/test/_support/create-mock-server.js';
 import { OpraClientModule } from '../src/client.module.js';
 import { OpraClientModuleOptions } from '../src/interfaces/module-options.interface.js';
 import { createHttpRequestInterceptorMock } from './_support/http-mock.js';

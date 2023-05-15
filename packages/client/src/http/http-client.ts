@@ -2,7 +2,7 @@ import { lastValueFrom, Observable, Subscriber } from 'rxjs';
 import { isReadableStreamLike } from 'rxjs/internal/util/isReadableStreamLike';
 import { StrictOmit, Type } from 'ts-gems';
 import {
-  ApiDocument, DocumentFactory, HttpHeaders, HttpParams,
+  ApiDocument, DocumentFactory, HttpHeaderCodes, HttpHeaders, HttpParams,
   isBlob, joinPath,
 } from '@opra/common';
 import { ClientError } from '../client-error.js';
@@ -19,7 +19,11 @@ import {
   HttpClientContext,
   HttpEvent,
   HttpHeadersReceivedEvent,
-  HttpRequestDefaults, HttpResponseEvent, ObserveType, RequestInterceptor, ResponseInterceptor,
+  HttpRequestDefaults,
+  HttpResponseEvent,
+  ObserveType,
+  RequestInterceptor,
+  ResponseInterceptor,
 } from './http-types.js';
 
 export interface OpraHttpClientOptions {
@@ -259,13 +263,18 @@ export class OpraHttpClient {
       return;
     }
 
-    const response = this._createResponse({
+    const responseInit: HttpResponse.Initiator = {
       url: fetchResponse.url,
       headers,
       status: fetchResponse.status,
       statusText: fetchResponse.statusText,
       body
-    });
+    }
+
+    if (fetchResponse.headers.has(HttpHeaderCodes.X_Opra_Total_Matches))
+      responseInit.totalMatches = parseInt(fetchResponse.headers.get(HttpHeaderCodes.X_Opra_Total_Matches) as string, 10);
+
+    const response = this._createResponse(responseInit);
 
     if (ctx) {
       const responseInterceptors = [

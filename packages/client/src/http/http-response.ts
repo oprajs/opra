@@ -8,6 +8,7 @@ export namespace HttpResponse {
     url?: string;
     body?: any;
     hasBody?: boolean;
+    totalMatches?: number;
   }
 }
 
@@ -37,6 +38,8 @@ export class HttpResponse<TBody = any> {
    */
   readonly body: TBody | null;
 
+  readonly totalMatches?: number;
+
   /**
    * Returns true if response has body to be received
    */
@@ -50,6 +53,7 @@ export class HttpResponse<TBody = any> {
     this.ok = this.status >= 200 && this.status < 300;
     this.body = init?.body;
     this.hasBody = init?.body != null || !!init?.hasBody;
+    this.totalMatches = init?.totalMatches;
   }
 
   clone(update?: HttpResponse.Initiator): HttpResponse {

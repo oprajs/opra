@@ -3,7 +3,7 @@ import antlr4 from '@browsery/antlr4';
 import {
   ArrayValueContext,
   BooleanLiteralContext,
-  ComparisonExpressionContext, ComparisonLeftContext,
+  ComparisonExpressionContext,
   DateLiteralContext,
   DateTimeLiteralContext, ExpressionContext, ExternalConstantContext,
   LogicalExpressionContext, NegativeExpressionContext,
