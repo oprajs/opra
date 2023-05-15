@@ -6,8 +6,8 @@ export function singletonGetTests(args: { client: OpraTestClient }) {
   describe('Singleton:get', function () {
     const data = {
       _id: 1,
-      givenName: faker.name.firstName(),
-      familyName: faker.name.lastName(),
+      givenName: faker.person.firstName(),
+      familyName: faker.person.lastName(),
       gender: 'M',
       address: {city: 'Izmir'}
     }

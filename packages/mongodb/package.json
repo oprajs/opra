@@ -28,9 +28,9 @@
     "lodash": "^4.17.21"
   },
   "devDependencies": {
-    "@faker-js/faker": "^7.6.0",
-    "mongodb": "^5.4.0",
-    "ts-gems": "^2.3.0"
+    "@faker-js/faker": "^8.0.0",
+    "mongodb": "^5.5.0",
+    "ts-gems": "^2.4.0"
   },
   "peerDependencies": {
     "@opra/common": "^0.17.2",

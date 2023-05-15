@@ -13,8 +13,8 @@ export function singletonCreateTests(args: { client: OpraTestClient }) {
 
     it('Should create instance', async () => {
       const data = {
-        givenName: faker.name.firstName(),
-        familyName: faker.name.lastName(),
+        givenName: faker.person.firstName(),
+        familyName: faker.person.lastName(),
         gender: 'M',
         address: {city: 'Izmir'}
       }
@@ -36,8 +36,8 @@ export function singletonCreateTests(args: { client: OpraTestClient }) {
 
     it('Should pick fields to be returned', async () => {
       const data = {
-        givenName: faker.name.firstName(),
-        familyName: faker.name.lastName(),
+        givenName: faker.person.firstName(),
+        familyName: faker.person.lastName(),
         gender: 'M',
         address: {city: 'Izmir'}
       }
@@ -52,8 +52,8 @@ export function singletonCreateTests(args: { client: OpraTestClient }) {
 
     it('Should omit fields to be returned', async () => {
       const data = {
-        givenName: faker.name.firstName(),
-        familyName: faker.name.lastName(),
+        givenName: faker.person.firstName(),
+        familyName: faker.person.lastName(),
         gender: 'M',
         address: {city: 'Izmir'}
       }
@@ -68,8 +68,8 @@ export function singletonCreateTests(args: { client: OpraTestClient }) {
 
     it('Should include exclusive fields if requested', async () => {
       const data = {
-        givenName: faker.name.firstName(),
-        familyName: faker.name.lastName(),
+        givenName: faker.person.firstName(),
+        familyName: faker.person.lastName(),
         gender: 'M',
         address: {city: 'Izmir'}
       }

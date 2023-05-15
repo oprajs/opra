@@ -5,8 +5,8 @@ export function singletonDeleteTests(args: { client: OpraTestClient }) {
 
   describe('Singleton:delete', function () {
     const data = {
-      givenName: faker.name.firstName(),
-      familyName: faker.name.lastName(),
+      givenName: faker.person.firstName(),
+      familyName: faker.person.lastName(),
       gender: 'M',
       address: {city: 'Izmir'}
     }

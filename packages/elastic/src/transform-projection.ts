@@ -9,6 +9,10 @@
 //     }
 // ): any {
 //   const out: Record<string, boolean> = {};
+//   const pick = args.pick ? pathToObjectTree(args.pick): undefined;
+//   const include = args.include ? pathToObjectTree(args.include): undefined;
+//   const omit = args.omit ? pathToObjectTree(args.omit): undefined;
+//
 //   // omitExclusiveFields(dataType, out);
 //   const pick = args.pick && pathToObjectTree(
 //       args.include ? [...args.pick, ...args.include] : args.pick

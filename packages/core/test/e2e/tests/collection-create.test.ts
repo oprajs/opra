@@ -8,8 +8,8 @@ export function collectionCreateTests(args: {client: OpraTestClient}) {
     it('Should create instance', async () => {
       const data = {
         _id: 1001,
-        givenName: faker.name.firstName(),
-        familyName: faker.name.lastName(),
+        givenName: faker.person.firstName(),
+        familyName: faker.person.lastName(),
         gender: 'M',
         address: {city: 'Izmir'}
       }
@@ -32,8 +32,8 @@ export function collectionCreateTests(args: {client: OpraTestClient}) {
     it('Should pick fields to be returned', async () => {
       const data = {
         _id: 1002,
-        givenName: faker.name.firstName(),
-        familyName: faker.name.lastName(),
+        givenName: faker.person.firstName(),
+        familyName: faker.person.lastName(),
         gender: 'M',
         address: {city: 'Izmir'}
       }
@@ -49,8 +49,8 @@ export function collectionCreateTests(args: {client: OpraTestClient}) {
     it('Should omit fields to be returned', async () => {
       const data = {
         _id: 1003,
-        givenName: faker.name.firstName(),
-        familyName: faker.name.lastName(),
+        givenName: faker.person.firstName(),
+        familyName: faker.person.lastName(),
         gender: 'M',
         address: {city: 'Izmir'}
       }
@@ -66,8 +66,8 @@ export function collectionCreateTests(args: {client: OpraTestClient}) {
     it('Should include exclusive fields if requested', async () => {
       const data = {
         _id: 1004,
-        givenName: faker.name.firstName(),
-        familyName: faker.name.lastName(),
+        givenName: faker.person.firstName(),
+        familyName: faker.person.lastName(),
         countryCode: 'TR',
         gender: 'M',
         address: {city: 'Izmir', countryCode: 'TR',}
