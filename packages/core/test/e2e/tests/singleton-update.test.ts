@@ -11,8 +11,8 @@ export function singletonUpdateTests(args: { client: OpraTestClient }) {
           .fetch('response');
       await args.client.singleton('MyProfile')
           .create({
-            givenName: faker.name.firstName(),
-            familyName: faker.name.lastName(),
+            givenName: faker.person.firstName(),
+            familyName: faker.person.lastName(),
             gender: 'F',
             address: {city: 'Istanbul'}
           })
@@ -29,8 +29,8 @@ export function singletonUpdateTests(args: { client: OpraTestClient }) {
       const oldData = resp.body;
 
       const data = {
-        givenName: faker.name.firstName(),
-        familyName: faker.name.lastName(),
+        givenName: faker.person.firstName(),
+        familyName: faker.person.lastName(),
         gender: 'M',
         address: {city: 'Izmir'}
       }
@@ -54,8 +54,8 @@ export function singletonUpdateTests(args: { client: OpraTestClient }) {
 
     it('Should pick fields to be returned', async () => {
       const data = {
-        givenName: faker.name.firstName(),
-        familyName: faker.name.lastName(),
+        givenName: faker.person.firstName(),
+        familyName: faker.person.lastName(),
         gender: 'X'
       }
       const resp = await args.client.singleton('MyProfile')
@@ -69,8 +69,8 @@ export function singletonUpdateTests(args: { client: OpraTestClient }) {
 
     it('Should omit fields to be returned', async () => {
       const data = {
-        givenName: faker.name.firstName(),
-        familyName: faker.name.lastName(),
+        givenName: faker.person.firstName(),
+        familyName: faker.person.lastName(),
         gender: 'X'
       }
       const resp = await args.client.singleton('MyProfile')
@@ -84,8 +84,8 @@ export function singletonUpdateTests(args: { client: OpraTestClient }) {
 
     it('Should include exclusive fields if requested', async () => {
       const data = {
-        givenName: faker.name.firstName(),
-        familyName: faker.name.lastName(),
+        givenName: faker.person.firstName(),
+        familyName: faker.person.lastName(),
         gender: 'X'
       }
       const resp = await args.client.singleton('MyProfile')

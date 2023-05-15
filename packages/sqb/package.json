@@ -29,12 +29,12 @@
     "lodash.omitby": "^4.6.0"
   },
   "devDependencies": {
-    "@faker-js/faker": "^7.6.0",
+    "@faker-js/faker": "^8.0.0",
     "@sqb/builder": "^4.9.0",
     "@sqb/connect": "^4.9.0",
     "@sqb/postgres": "^4.9.0",
     "postgresql-client": "^2.5.5",
-    "ts-gems": "^2.3.0"
+    "ts-gems": "^2.4.0"
   },
   "peerDependencies": {
     "@opra/core": "^0.17.2",

@@ -7,7 +7,7 @@ import _transformFilter from './transform-filter.js';
 import _transformKeyValues from './transform-key-values.js'
 // import _transformPatch from './transform-patch.js';
 // import _transformProjection from './transform-projection.js';
-// import _transformSort from './transform-sort.js';
+// import _transformSort from 'npm ./transform-sort.js';
 
 
 export namespace ElasticAdapter {
