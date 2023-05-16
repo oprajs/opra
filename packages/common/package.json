@@ -18,8 +18,8 @@
   "exports": {
     ".": {
       "require": "./cjs/index.js",
-      "default": "./esm/index.js",
-      "browser": "./browser.js"
+      "browser": "./browser.js",
+      "default": "./esm/index.js"
     }
   },
   "scripts": {
