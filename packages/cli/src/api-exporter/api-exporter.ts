@@ -29,6 +29,7 @@ export namespace ApiExporter {
     logger?: ILogger;
     writer?: IFileWriter;
     fileHeader?: string;
+    importExt?: boolean;
   }
 }
 
@@ -43,6 +44,7 @@ export class ApiExporter {
   protected fileHeader: string;
   protected writer: IFileWriter;
   protected files: Record<string, TsFile> = {};
+  protected importExt?: boolean;
   // protected nsMap: ResponsiveMap<ApiExporter>;
   protected processResources: typeof processResources;
   protected processTypes: typeof processTypes;
@@ -71,6 +73,7 @@ export class ApiExporter {
     this.fileHeader = config.fileHeader || '';
     this.writer = config.writer || new FileWriter();
     this.serviceClassName = config.name;
+    this.importExt = config.importExt;
     // this.nsMap = nsMap || new ResponsiveMap(); // implement references later
   }
 
@@ -101,11 +104,12 @@ export class ApiExporter {
     await this.processTypes();
     await this.processResources();
 
+    const {importExt} = this;
     // Write files
     for (const file of Object.values(this.files)) {
       const targetDir = path.dirname(file.filename);
       fs.mkdirSync(targetDir, {recursive: true});
-      await this.writer.writeFile(file.filename, file.generate());
+      await this.writer.writeFile(file.filename, file.generate({importExt}));
     }
   }
 
