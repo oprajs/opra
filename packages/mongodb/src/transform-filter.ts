@@ -1,6 +1,5 @@
 import '@opra/core';
 import { OpraFilter } from '@opra/common';
-import * as sqb from '@sqb/builder';
 
 const opMap = {
   '=': '$eq',

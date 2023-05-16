@@ -31,6 +31,8 @@ DocumentFactory.prototype.extractFieldSchema = async function (
   } else if (sqbField.kind === 'column') {
     if (typeof sqbField.enum === 'object')
       metadata.enum = sqbField.enum as any;
+    if (sqbField.notNull)
+      target.required = true;
 
     if (sqbField.type && Reflect.hasMetadata(METADATA_KEY, sqbField.type)) {
       target.type = sqbField.type as any;

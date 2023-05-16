@@ -31,6 +31,11 @@ describe('OpraClient', function () {
     expect(await client.getMetadata()).toBeInstanceOf(ApiDocument);
   });
 
+  it('Should getMetadata() reject promise on error', async () => {
+    const xClient = new OpraHttpClient('http://127.0.0.1:1001');
+    await expect(() => xClient.getMetadata()).rejects.toThrow('Unable to fetch metadata');
+  });
+
   it('Should "collection()" create a service for Collection resources', async () => {
     expect(client.collection('Customers')).toBeInstanceOf(HttpCollectionNode);
   });

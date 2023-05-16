@@ -42,9 +42,9 @@ export async function generateTypeFile(
   if (dataType instanceof SimpleType)
     filePath = '/simple-types.d.ts';
   else if (dataType instanceof ComplexType)
-    filePath = `/types/${typeName}.type.d.ts`;
+    filePath = `/types/${typeName}-type.d.ts`;
   else if (dataType instanceof EnumType) {
-    filePath = `/enums/${typeName}.enum.d.ts`;
+    filePath = `/enums/${typeName}-enum.d.ts`;
   } else
     throw new TypeError(`Unimplemented DataType (${dataType.kind})`);
 

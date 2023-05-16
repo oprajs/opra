@@ -39,7 +39,7 @@ export class ApiExporter {
   protected logger: ILogger;
   protected outDir: string;
   protected cwd: string;
-  protected name: string;
+  protected serviceClassName?: string;
   protected fileHeader: string;
   protected writer: IFileWriter;
   protected files: Record<string, TsFile> = {};
@@ -70,6 +70,7 @@ export class ApiExporter {
     };
     this.fileHeader = config.fileHeader || '';
     this.writer = config.writer || new FileWriter();
+    this.serviceClassName = config.name;
     // this.nsMap = nsMap || new ResponsiveMap(); // implement references later
   }
 
@@ -82,8 +83,8 @@ export class ApiExporter {
         chalk.white('Resources:'), chalk.magenta(this.document.resources.size), 'resources found\n',
         chalk.white('Types:'), chalk.magenta(this.document.types.size), 'types found\n',
     );
-    this.name = (this.name || this.document.info.title || 'Service1').replace(/[^\w_$]*/g, '')
-    this.name = this.name.charAt(0).toUpperCase() + this.name.substring(1);
+    this.serviceClassName = (this.serviceClassName || this.document.info.title || 'Service1').replace(/[^\w_$]*/g, '')
+    this.serviceClassName = this.serviceClassName.charAt(0).toUpperCase() + this.serviceClassName.substring(1);
 
     this.fileHeader += `/* 
  * ${this.document.info.title} 
@@ -94,7 +95,7 @@ export class ApiExporter {
     this.logger.log(chalk.yellow('Removing old files..'));
     this.cleanDirectory(this.outDir);
 
-    this.logger.log(chalk.yellow(`Generating service interface ( ${chalk.whiteBright(this.name)} )`));
+    this.logger.log(chalk.yellow(`Generating service interface ( ${chalk.whiteBright(this.serviceClassName)} )`));
     fs.mkdirSync(this.outDir, {recursive: true});
 
     await this.processTypes();

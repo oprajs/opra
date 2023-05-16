@@ -14,13 +14,13 @@ export async function processResources(
 ) {
   this.logger.log(chalk.yellow('Processing resources'));
   const {document} = this;
-  const serviceTs = this.addFile(path.join(targetDir, this.name + '.ts'));
+  const serviceTs = this.addFile(path.join(targetDir, this.serviceClassName + '.ts'));
   serviceTs.addImportPackage('@opra/client', ['HttpServiceBase']);
 
   const indexTs = this.addFile('/index.d.ts', true);
   indexTs.addExportFile(serviceTs.filename);
 
-  serviceTs.content = `\nexport class ${this.name} extends HttpServiceBase {\n`;
+  serviceTs.content = `\nexport class ${this.serviceClassName} extends HttpServiceBase {\n`;
 
   for (const resource of document.resources.values()) {
     serviceTs.content += `\n/**\n * ${wrapJSDocString(resource.description || resource.name)}
@@ -30,7 +30,7 @@ export async function processResources(
     if (resource instanceof Collection) {
       const typeName = resource.type.name || '';
       serviceTs.addImportPackage('@opra/client', ['HttpCollectionNode']);
-      serviceTs.addImportFile('types/' + typeName, [typeName]);
+      serviceTs.addImportFile(`types/${typeName}-type`, [typeName]);
 
       const operations = Object.keys(resource.operations)
           .map(x => `'${x}'`).join(' | ');
@@ -41,7 +41,7 @@ export async function processResources(
     } else if (resource instanceof Singleton) {
       const typeName = resource.type.name || '';
       serviceTs.addImportPackage('@opra/client', ['HttpSingletonNode']);
-      serviceTs.addImportFile('types/' + typeName, [typeName]);
+      serviceTs.addImportFile(`types/${typeName}-type`, [typeName]);
 
       const operations = Object.keys(resource.operations)
           .map(x => `'${x}'`).join(' | ');

@@ -97,11 +97,14 @@ export class OpraHttpClient {
         )
     );
     return await promise
-        .then(body => DocumentFactory.createDocument(body))
-        .then(api => this[kAssets].api = api)
+        .then(async (body) => {
+          const api = await DocumentFactory.createDocument(body);
+          this[kAssets].api = api;
+          return api;
+        })
         .catch((e) => {
           e.message = 'Unable to fetch metadata from ' + this.serviceUrl + '. ' + e.message
-          throw e
+          throw e;
         })
         .finally(() => delete this[kAssets].metadataPromise);
   }
