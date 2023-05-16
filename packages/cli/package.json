@@ -1,6 +1,6 @@
 {
   "name": "@opra/cli",
-  "version": "0.18.0",
+  "version": "0.18.1",
   "description": "Opra CLI tools",
   "author": "Panates",
   "license": "MIT",
@@ -28,7 +28,7 @@
     "clean:cover": "rimraf ../../coverage/client"
   },
   "dependencies": {
-    "@opra/client": "^0.18.0",
+    "@opra/client": "^0.18.1",
     "chalk": "^5.2.0",
     "commander": "^10.0.1",
     "js-string-escape": "^1.0.1",
