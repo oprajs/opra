@@ -17,7 +17,7 @@ export async function processTypes(
 ) {
   this.logger.log(chalk.yellow('Processing types'));
   const {document} = this;
-  const typesTs = this.addFile(path.join(targetDir, 'types.d.ts'));
+  const typesTs = this.addFile(path.join(targetDir, 'types.ts'));
   for (const dataType of document.types.values()) {
     const expFile = await this.generateTypeFile(dataType, targetDir);
     typesTs.addExportFile(expFile.filename);
@@ -40,11 +40,11 @@ export async function generateTypeFile(
 
   let filePath: string;
   if (dataType instanceof SimpleType)
-    filePath = '/simple-types.d.ts';
+    filePath = '/simple-types.ts';
   else if (dataType instanceof ComplexType)
-    filePath = `/types/${typeName}-type.d.ts`;
+    filePath = `/types/${typeName}-type.ts`;
   else if (dataType instanceof EnumType) {
-    filePath = `/enums/${typeName}-enum.d.ts`;
+    filePath = `/enums/${typeName}-enum.ts`;
   } else
     throw new TypeError(`Unimplemented DataType (${dataType.kind})`);
 
@@ -53,7 +53,7 @@ export async function generateTypeFile(
     return file;
   file.exportTypes.push(typeName);
 
-  const indexTs = this.addFile('/index.d.ts', true);
+  const indexTs = this.addFile('/index.ts', true);
   indexTs.addExportFile(file.filename);
 
   file.content += `\n/**\n * ${wrapJSDocString(dataType.description || typeName)}

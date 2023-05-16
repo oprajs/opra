@@ -17,7 +17,7 @@ export async function processResources(
   const serviceTs = this.addFile(path.join(targetDir, this.serviceClassName + '.ts'));
   serviceTs.addImportPackage('@opra/client', ['HttpServiceBase']);
 
-  const indexTs = this.addFile('/index.d.ts', true);
+  const indexTs = this.addFile('/index.ts', true);
   indexTs.addExportFile(serviceTs.filename);
 
   serviceTs.content = `\nexport class ${this.serviceClassName} extends HttpServiceBase {\n`;

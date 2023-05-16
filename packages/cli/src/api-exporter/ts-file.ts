@@ -47,7 +47,7 @@ export class TsFile {
     });
   }
 
-  generate(): string {
+  generate(options?: { importExt?: boolean }): string {
     const dirname = path.dirname(this.filename);
     let output = '/* #!oprimp_auto_generated!# !! Do NOT remove this line */\n' +
         (this.header ? flattenText(this.header) + '\n\n' : '\n');
@@ -57,8 +57,11 @@ export class TsFile {
         .map(filename => {
           const types = this.importFiles[filename];
           let relFile = filename;
-          if (path.isAbsolute(filename))
+          if (path.isAbsolute(filename)) {
             relFile = relativePath(dirname, filename);
+            if (options?.importExt)
+              relFile += '.js';
+          }
           return `import ${types.length ? '{ ' + types.join(', ') + ' } from ' : ''}'${relFile}';`;
         })
         .join('\n');
@@ -72,8 +75,11 @@ export class TsFile {
         .map(filename => {
           const types = this.exportFiles[filename];
           let relFile = filename;
-          if (path.isAbsolute(filename))
+          if (path.isAbsolute(filename)) {
             relFile = relativePath(dirname, filename);
+            if (options?.importExt)
+              relFile += '.js';
+          }
           return `export ${types.length ? '{ ' + types.join(', ') + ' }' : '*'} from '${relFile}';`;
         })
         .join('\n');
