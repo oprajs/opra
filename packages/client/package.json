@@ -40,7 +40,6 @@
     }
   },
   "dependencies": {
-    "@browsery/antlr4": "^0.7.0",
     "@browsery/fs": "^0.4.0",
     "@browsery/highland": "^0.4.0",
     "@browsery/http-parser": "^0.4.0",
