@@ -1,5 +1,5 @@
 import { Maybe } from 'ts-gems';
-import { Collection, PartialOutput, ResourceNotFoundError } from '@opra/common';
+import { Collection, PartialOutput } from '@opra/common';
 import { CollectionResourceBase, RequestContext } from '@opra/core';
 import { SQBAdapter } from './sqb-adapter.js';
 import { SqbEntityService } from './sqb-entity-service.js';

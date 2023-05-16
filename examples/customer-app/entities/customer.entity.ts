@@ -23,11 +23,11 @@ export class Customer extends UnionType(Record, Person) {
 
   @ApiField()
   @Column()
-  city: string;
+  city?: string;
 
   @ApiField()
   @Column()
-  countryCode: string;
+  countryCode?: string;
 
   @ApiField()
   @Column({default: true})
@@ -35,7 +35,7 @@ export class Customer extends UnionType(Record, Person) {
 
   @ApiField({type: 'integer'})
   @Column({exclusive: true})
-  vip: number;
+  vip?: number;
 
   @ApiField()
   @Column({type: Address})
@@ -43,7 +43,7 @@ export class Customer extends UnionType(Record, Person) {
 
   @ApiField()
   @Column({type: ContactPerson, dataType: DataType.JSON, isArray: true})
-  contactPersons: ContactPerson[]
+  contactPersons?: ContactPerson[]
 
   @ApiField()
   @Link({exclusive: true}).toMany(CustomerNotes, {sourceKey: 'id', targetKey: 'customerId'})
@@ -51,14 +51,14 @@ export class Customer extends UnionType(Record, Person) {
 
   @ApiField()
   @Column({dataType: DataType.INTEGER})
-  fieldInteger: number;
+  fieldInteger?: number;
 
   @ApiField()
   @Column({dataType: DataType.BIGINT})
-  fieldBigint: bigint;
+  fieldBigint?: bigint;
 
   @ApiField()
   @Column({dataType: DataType.GUID})
-  fieldGuid: string;
+  fieldGuid?: string;
 
 }

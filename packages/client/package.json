@@ -12,7 +12,7 @@
   "scripts": {
     "compile": "tsc",
     "prebuild": "npm run check && npm run lint && npm run clean",
-    "build": "npm run build:cjs && npm run build:esm",
+    "build": "npm run build:cjs && npm run build:esm && npm run build:browser",
     "build:cjs": "tsc -b tsconfig-build-cjs.json",
     "build:esm": "tsc -b tsconfig-build-esm.json",
     "build:browser": "node esbuild.mjs",
@@ -33,13 +33,10 @@
   "types": "./types/index.d.ts",
   "typings": "./types/index.d.ts",
   "exports": {
-    "./package.json": {
-      "default": "./package.json"
-    },
     ".": {
       "require": "./cjs/index.js",
-      "default": "./esm/index.js",
-      "browser": "./browser.js"
+      "browser": "./browser.js",
+      "default": "./esm/index.js"
     }
   },
   "dependencies": {

@@ -124,7 +124,8 @@ const proto = {
       description: this.description,
       isArray: this.isArray,
       default: this.default,
-      fixed: this.fixed
+      fixed: this.fixed,
+      required: this.required
     };
     return out;
   }
