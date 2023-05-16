@@ -41,7 +41,7 @@
     "antlr4": "java -jar ./tools/antlr4-4.12.1-SNAPSHOT-complete.jar -Dlanguage=TypeScript ./src/filter/antlr/OpraFilter.g4 -visitor"
   },
   "dependencies": {
-    "@browsery/antlr4": "^0.6.0",
+    "@browsery/antlr4": "^0.7.0",
     "@browsery/highland": "^0.4.0",
     "@browsery/http-parser": "^0.4.0",
     "@browsery/i18next": "^0.5.0",
