@@ -17,8 +17,8 @@ export interface HttpClientContext {
   readonly client: OpraHttpClient;
   readonly resourceName: string;
   send: HttpRequestHandler;
-  requestInterceptors: RequestInterceptor[];
-  responseInterceptors: ResponseInterceptor[];
+  requestInterceptors?: RequestInterceptor[];
+  responseInterceptors?: ResponseInterceptor[];
 }
 
 export type HttpRequestDefaults = Partial<Pick<HttpRequest, 'cache' | 'credentials' |

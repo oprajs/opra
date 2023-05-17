@@ -122,13 +122,13 @@ export class OpraHttpClient {
       client: this,
       resourceName,
       send: (observe, request) => this._sendRequest(observe, request, ctx),
-      requestInterceptors: [
-        // Validate resource exists and is a collection resource
-        async () => {
-          const metadata = await this.getMetadata();
-          metadata.getCollection(ctx.resourceName);
-        }
-      ],
+      // requestInterceptors: [
+      //   // Validate resource exists and is a collection resource
+      //   async () => {
+      //     const metadata = await this.getMetadata();
+      //     metadata.getCollection(ctx.resourceName);
+      //   }
+      // ],
       responseInterceptors: []
     }
     return new HttpCollectionNode<TType>(ctx);
@@ -142,13 +142,13 @@ export class OpraHttpClient {
       client: this,
       resourceName,
       send: (observe, request) => this._sendRequest(observe, request, ctx),
-      requestInterceptors: [
-        // Validate resource exists and is a singleton resource
-        async () => {
-          const metadata = await this.getMetadata();
-          metadata.getSingleton(ctx.resourceName);
-        }
-      ],
+      // requestInterceptors: [
+      //   // Validate resource exists and is a singleton resource
+      //   async () => {
+      //     const metadata = await this.getMetadata();
+      //     metadata.getSingleton(ctx.resourceName);
+      //   }
+      // ],
       responseInterceptors: []
     }
     return new HttpSingletonNode<TType>(ctx);
@@ -198,7 +198,7 @@ export class OpraHttpClient {
         if (ctx) {
           const requestInterceptors = [
             ...this[kAssets].requestInterceptors,
-            ...ctx.requestInterceptors];
+            ...(ctx.requestInterceptors || [])];
           for (const interceptor of requestInterceptors) {
             await interceptor(ctx, request);
           }
@@ -282,7 +282,7 @@ export class OpraHttpClient {
     if (ctx) {
       const responseInterceptors = [
         ...this[kAssets].responseInterceptors,
-        ...ctx.responseInterceptors];
+        ...(ctx.responseInterceptors || [])];
       for (const interceptor of responseInterceptors) {
         await interceptor(ctx, observe, request);
       }
