@@ -60,7 +60,8 @@
     "putil-varhelpers": "^1.6.5",
     "reflect-metadata": "^0.1.13",
     "type-is": "^1.6.18",
-    "uid": "^2.0.1"
+    "uid": "^2.0.1",
+    "zod": "^3.21.4"
   },
   "devDependencies": {
     "@browsery/fs": "^0.4.0",

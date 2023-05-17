@@ -29,7 +29,7 @@
   },
   "devDependencies": {
     "@elastic/elasticsearch": "^8.7.0",
-    "@faker-js/faker": "^8.0.0",
+    "@faker-js/faker": "^8.0.1",
     "ts-gems": "^2.4.0"
   },
   "peerDependencies": {
