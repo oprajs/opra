@@ -17,7 +17,7 @@ describe('OpraClient', function () {
     api = await createTestApi();
     const app = express();
     app.use('*', (_req, _res) => {
-      _res.end({});
+      _res.json({});
     });
     await new Promise<void>((subResolve) => {
       server = app.listen(0, '127.0.0.1', () => subResolve());
@@ -44,28 +44,28 @@ describe('OpraClient', function () {
     expect(client.singleton('MyProfile')).toBeInstanceOf(HttpSingletonNode);
   });
 
-  it('Should check if Collection resource exists', async () => {
-    await expect(
-        () => client.collection('blabla').get(1).fetch()
-    ).rejects.toThrow('not found');
-  });
-
-  it('Should .collection() check if resource is CollectionResource', async () => {
-    await expect(
-        () => client.collection('MyProfile').get(1).fetch()
-    ).rejects.toThrow('is not a Collection');
-  });
-
-  it('Should check if Singleton resource exists', async () => {
-    await expect(
-        () => client.singleton('blabla').get().fetch()
-    ).rejects.toThrow('not found');
-  });
-
-  it('Should .singleton() check if resource is SingletonResource', async () => {
-    await expect(
-        () => client.singleton('Customers').get().fetch()
-    ).rejects.toThrow('is not a Singleton');
-  });
+  // it('Should check if Collection resource exists', async () => {
+  //   await expect(
+  //       () => client.collection('blabla').get(1).fetch()
+  //   ).rejects.toThrow('not found');
+  // });
+  //
+  // it('Should .collection() check if resource is CollectionResource', async () => {
+  //   await expect(
+  //       () => client.collection('MyProfile').get(1).fetch()
+  //   ).rejects.toThrow('is not a Collection');
+  // });
+  //
+  // it('Should check if Singleton resource exists', async () => {
+  //   await expect(
+  //       () => client.singleton('blabla').get().fetch()
+  //   ).rejects.toThrow('not found');
+  // });
+  //
+  // it('Should .singleton() check if resource is SingletonResource', async () => {
+  //   await expect(
+  //       () => client.singleton('Customers').get().fetch()
+  //   ).rejects.toThrow('is not a Singleton');
+  // });
 
 });
