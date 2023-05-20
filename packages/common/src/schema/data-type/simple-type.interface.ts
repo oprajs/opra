@@ -4,7 +4,6 @@ import type { DataType, DataTypeBase } from './data-type.interface.js';
 export interface SimpleType extends DataTypeBase {
   ctor?: Type;
   base?: DataType.Name | SimpleType;
-  pattern?: string | RegExp;
   codec?: SimpleType.Codec;
 }
 
