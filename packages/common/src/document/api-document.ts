@@ -11,8 +11,9 @@ import { Resource } from './resource/resource.js';
 import { Singleton } from './resource/singleton.js';
 
 export class ApiDocument {
-  protected _typeCache = new ResponsiveMap<DataType | null>();
-  protected _typesCacheByCtor = new Map<Type | object, DataType | null>();
+  protected _designCtorMap = new Map<Type | Function, string>();
+  protected _typeCache = new ResponsiveMap<DataType>();
+  protected _typesCacheByCtor = new Map<Type | object, DataType>();
   url?: string;
   info: OpraSchema.DocumentInfo;
   references = new ResponsiveMap<ApiDocument>();
@@ -24,6 +25,18 @@ export class ApiDocument {
       version: '',
       title: ''
     }
+    const BigIntConstructor = Object.getPrototypeOf(BigInt(0)).constructor;
+    const BufferConstructor = Object.getPrototypeOf(Buffer.from([]));
+    this._designCtorMap.set(String, 'string');
+    this._designCtorMap.set(Number, 'number');
+    this._designCtorMap.set(Boolean, 'boolean');
+    this._designCtorMap.set(Object, 'any');
+    this._designCtorMap.set(Date, 'timestamp');
+    this._designCtorMap.set(BigIntConstructor, 'bigint');
+    this._designCtorMap.set(ArrayBuffer, 'base64');
+    this._designCtorMap.set(SharedArrayBuffer, 'base64');
+    this._designCtorMap.set(BufferConstructor, 'base64');
+
   }
 
   /**
@@ -37,55 +50,68 @@ export class ApiDocument {
    * @param nameOrCtor
    */
   getDataType(nameOrCtor: string | Type | object): DataType;
-  getDataType(nameOrCtor: string | Type | object, silent?: true): DataType | undefined {
+  /**
+   *
+   */
+  getDataType(arg0: string | Type | object, silent?: boolean): DataType | undefined {
     let dataType: DataType | undefined;
-    if (nameOrCtor === Object)
-      nameOrCtor = 'any';
-    const nameOrCtorName = typeof nameOrCtor === 'function' ? nameOrCtor.name : nameOrCtor;
+    const name = typeof arg0 === 'function' ? arg0.name : arg0;
     // Try to get instance from cache
-    const t = typeof nameOrCtor === 'string'
-        ? this._typeCache.get(nameOrCtor)
-        : this._typesCacheByCtor.get(nameOrCtor);
+    const t = typeof arg0 === 'string'
+        ? this._typeCache.get(arg0)
+        : this._typesCacheByCtor.get(arg0);
     if (t)
       return t;
+    // If cached as null, it means "not found"
     if (t === null) {
       if (silent) return;
-      throw new NotFoundError(`Data type "${nameOrCtorName}" does not exists`);
+      throw new Error(`Data type "${name}" does not exists`);
     }
 
-    if (typeof nameOrCtor === 'string') {
-      const m = NAMESPACE_PATTERN.exec(nameOrCtor);
+    // Convert design ctor to type name (String -> 'string')
+    if (typeof arg0 === 'function') {
+      const x = this._designCtorMap.get(arg0);
+      if (x) arg0 = x;
+    }
+
+    if (typeof arg0 === 'string') {
+      const m = NAMESPACE_PATTERN.exec(arg0);
       if (!m)
-        throw new NotFoundError(`Invalid data type name "${nameOrCtorName}"`);
+        throw new TypeError(`Invalid data type name "${name}"`);
       // If given string has namespace pattern (ns:type_name)
       if (m[2]) {
         const ref = this.references.get(m[1]);
         if (!ref) {
           if (silent) return;
-          throw new NotFoundError(`Reference "${m[1]}" not found`);
+          throw new Error(`No referenced document found for given namespace "${m[1]}"`);
         }
-        dataType = ref.getDataType(m[2]);
-        this._typeCache.set(nameOrCtor, dataType);
+        dataType = ref.getDataType(m[2], silent as any);
       } else {
-        const name = m[1];
         // Get instance from own types
-        dataType = this.types.get(name);
+        dataType = this.types.get(arg0);
         // if not found, search in references (from last to first)
         if (!dataType) {
           const references = Array.from(this.references.values()).reverse();
           for (const ref of references) {
-            dataType = ref.getDataType(name);
+            dataType = ref.getDataType(name, true);
             if (dataType)
               break;
           }
         }
-        if (dataType)
-          this._typeCache.set(dataType.name || name, dataType);
       }
-    } else if (typeof nameOrCtor === 'function') {
+      if (dataType) {
+        this._typeCache.set(arg0, dataType);
+        return dataType;
+      }
+      if (!silent)
+        throw new NotFoundError(`Data type "${arg0}" does not exists`);
+      return;
+    }
+
+    if (typeof arg0 === 'function') {
       const types = Array.from(this.types.values()).reverse();
       for (const dt of types) {
-        if ((dt instanceof ComplexType || dt instanceof SimpleType) && dt.own.ctor === nameOrCtor) {
+        if (dt instanceof ComplexType && dt.isTypeOf(arg0)) {
           dataType = dt;
           break;
         }
@@ -94,25 +120,24 @@ export class ApiDocument {
       if (!dataType) {
         const references = Array.from(this.references.values()).reverse();
         for (const ref of references) {
-          dataType = ref.getDataType(nameOrCtor, true);
+          dataType = ref.getDataType(arg0, true);
           if (dataType)
             break;
         }
       }
+      if (dataType)
+        this._typesCacheByCtor.set(arg0, dataType);
+
+      if (dataType)
+        return dataType;
+      if (!silent)
+        throw new NotFoundError(`No data type mapping found for class "${name}"`);
+      return;
     }
 
-    if (dataType) {
-      if ((dataType instanceof ComplexType || dataType instanceof SimpleType) &&
-          dataType.own?.ctor && dataType.own.ctor !== Object)
-        this._typesCacheByCtor.set(dataType.own.ctor, dataType);
-      return dataType;
-    } else {
-      if (typeof nameOrCtor === 'string')
-        this._typeCache.set(nameOrCtor, null);
-      else this._typesCacheByCtor.set(nameOrCtor, null);
-    }
-    if (silent) return;
-    throw new NotFoundError(`Data type "${nameOrCtorName}" does not exists`);
+    /* istanbul ignore next */
+    if (!silent)
+      throw new TypeError('Invalid argument');
   }
 
   /**

@@ -1,4 +1,4 @@
-import { IssueSeverity } from './enums/issue-severity.enum.js';
+import { IssueSeverity } from 'packages/common/src/exception/issue-severity.enum.js';
 
 export interface ErrorIssue {
 

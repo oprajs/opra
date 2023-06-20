@@ -1,4 +1,5 @@
 import { Type } from 'ts-gems';
+import { validator } from 'valgen';
 import { cloneObject, isConstructor, resolveThunk } from '../../helpers/index.js';
 import { OpraSchema } from '../../schema/index.js';
 import type { ThunkAsync } from '../../types.js';
@@ -87,7 +88,10 @@ export async function extractSimpleTypeSchema(
   const baseClass = Object.getPrototypeOf(ctor.prototype).constructor;
   if (Reflect.hasMetadata(METADATA_KEY, baseClass))
     target.base = await this.importTypeClass(baseClass);
-  target.codec = Object.create(ctor.prototype);
+  if (typeof ctor.prototype.decode === 'function')
+    target.decoder = validator(metadata.name, ctor.prototype.decode);
+  if (typeof ctor.prototype.encode === 'function')
+    target.encoder = validator(metadata.name, ctor.prototype.encode);
 }
 
 export async function extractComplexTypeSchema(
@@ -99,7 +103,7 @@ export async function extractComplexTypeSchema(
   const baseClass = Object.getPrototypeOf(ctor.prototype).constructor;
   if (Reflect.hasMetadata(METADATA_KEY, baseClass))
     target.base = await this.importTypeClass(baseClass);
-  target.ctor = ctor;
+  target.ctor = target.ctor || ctor;
 // Fields
   if (metadata.fields) {
     const fields = target.fields = {};
@@ -116,8 +120,14 @@ export async function extractComplexTypeSchema(
         }
         if (elemMeta.enum)
           elemSchema.type = await this.importTypeClass(elemMeta.enum);
-        if (!elemSchema.type && elemMeta.designType)
-          elemSchema.type = await this.importTypeClass(elemMeta.designType);
+
+        if (!elemSchema.type && elemMeta.designType) {
+          const mappingType = this.document.getDataType(elemMeta.designType, true);
+          if (mappingType)
+            elemSchema.type = mappingType.name!;
+          else
+            elemSchema.type = await this.importTypeClass(elemMeta.designType);
+        }
 
         await this.extractFieldSchema(elemSchema, ctor, elemMeta, elemName);
 

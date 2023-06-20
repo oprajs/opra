@@ -1,5 +1,6 @@
 import 'reflect-metadata';
 import { METADATA_KEY, SimpleType } from '@opra/common';
+import { StringType } from '../../../src/document/data-type/builtin/index.js';
 
 describe('SimpleType() decorator', function () {
 
@@ -9,8 +10,7 @@ describe('SimpleType() decorator', function () {
     }
 
     @SimpleType(opts)
-    class CustomStringType {
-
+    class CustomStringType extends StringType {
     }
 
     const schema = Reflect.getMetadata(METADATA_KEY, CustomStringType);
@@ -20,7 +20,7 @@ describe('SimpleType() decorator', function () {
   it('Should set alternate name', async () => {
 
     @SimpleType({description: 'Custom string schema', name: 'myString'})
-    class CustomStringType {
+    class CustomStringType extends StringType {
 
     }
 
@@ -31,13 +31,12 @@ describe('SimpleType() decorator', function () {
   it('Should not overwrite while extending', async () => {
 
     @SimpleType({description: 'Custom string schema'})
-    class CustomStringType {
-      id: string;
+    class CustomStringType extends StringType {
+
     }
 
     @SimpleType()
     class MyStringType extends CustomStringType {
-      name: string;
     }
 
     const sch1 = Reflect.getMetadata(METADATA_KEY, CustomStringType);

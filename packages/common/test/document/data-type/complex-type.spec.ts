@@ -50,7 +50,7 @@ describe('ComplexType', function () {
 
   it('Should getField(path) throw if field not found', async () => {
     const dt = api.getComplexType('customer');
-    expect(() => dt.getField('nofield')).toThrow('Invalid field');
+    expect(() => dt.getField('nofield')).toThrow('Unknown field');
   })
 
   it('Should getField(path) throw if given path is not valid', async () => {
@@ -87,6 +87,24 @@ describe('ComplexType', function () {
         }
       }
     })
+  })
+
+  it('Should transform (decode) object into ctor', async () => {
+    const dt = api.getComplexType('customer');
+    const decoded = dt.decode({
+      _id: '1',
+      givenName: 'John',
+      active: 1,
+      unkField: 1
+    })
+    expect(decoded).toBeDefined();
+    expect(decoded).toBeInstanceOf(Customer);
+    expect(decoded).toEqual({
+      _id: 1,
+      givenName: 'John',
+      active: true
+    });
+
   })
 
 });

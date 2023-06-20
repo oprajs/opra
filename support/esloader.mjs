@@ -10,6 +10,9 @@ import {createMatchPath, loadConfig} from 'tsconfig-paths';
 
 /** @typedef {'builtin'|'commonjs'|'dynamic'|'json'|'module'|'wasm'} Format */
 
+    // Get base URL and path aliases
+const {absoluteBaseUrl, paths} = loadConfig(process.cwd());
+
 /**
  * Custom resolver that handles TypeScript path mappings.
  *
@@ -23,8 +26,6 @@ import {createMatchPath, loadConfig} from 'tsconfig-paths';
  * @return {Promise<{ url: string }>} Promise containing object with file path
  */
 export const resolve = async (specifier, ctx, defaultResolve) => {
-  // Get base URL and path aliases
-  const {absoluteBaseUrl, paths} = loadConfig(process.cwd());
 
   // Attempt to resolve path based on path aliases
   const match = createMatchPath(absoluteBaseUrl, paths)(specifier);

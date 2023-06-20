@@ -1,8 +1,8 @@
 import { SimpleType } from '../simple-type.js';
 
 @SimpleType({
-  description: 'Any value',
-  ctor: Object
+  description: 'Represents any value'
 })
 export class AnyType {
+
 }

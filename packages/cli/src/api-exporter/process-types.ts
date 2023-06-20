@@ -20,7 +20,8 @@ export async function processTypes(
   const typesTs = this.addFile(path.join(targetDir, 'types.ts'));
   for (const dataType of document.types.values()) {
     const expFile = await this.generateTypeFile(dataType, targetDir);
-    typesTs.addExportFile(expFile.filename);
+    if (expFile)
+      typesTs.addExportFile(expFile.filename);
   }
 }
 
@@ -33,8 +34,10 @@ export async function generateTypeFile(
     this: ApiExporter,
     dataType: DataType,
     targetDir: string = ''
-): Promise<TsFile> {
+): Promise<TsFile | undefined> {
   const typeName = dataType.name;
+  if (typeName === 'any')
+    return;
   if (!typeName)
     throw new TypeError(`DataType has no name`);
 
@@ -89,6 +92,8 @@ export async function resolveTypeNameOrDef(
     if (internalTypeNames.includes(dataType.name))
       return dataType.name;
     const f = await this.generateTypeFile(dataType);
+    if (!f)
+      return '';
     file.addImportFile(f.filename, [dataType.name]);
     return dataType.name;
   }
@@ -102,8 +107,7 @@ export async function resolveTypeNameOrDef(
     return this.generateUnionTypeDefinition(file, dataType, forInterface);
   if (dataType instanceof MappedType)
     return this.generateMappedTypeDefinition(file, dataType, forInterface);
-
-  return 'xxx';
+  return '';
 }
 
 /**
@@ -169,16 +173,16 @@ export async function generateSimpleTypeDefinition(
     file: TsFile,
     dataType: SimpleType
 ): Promise<string> {
-  if (dataType.ctor === Boolean)
+  if (dataType.extendsFrom('boolean'))
     return 'boolean';
-  if (dataType.ctor === String)
+  if (dataType.extendsFrom('string'))
     return 'string';
-  if (dataType.ctor === Number)
+  if (dataType.extendsFrom('number') || dataType.extendsFrom('integer'))
     return 'number';
-  if (dataType.ctor === Date)
+  if (dataType.extendsFrom('timestamp') || dataType.extendsFrom('date'))
     return 'Date';
   if (dataType.extendsFrom('bigint'))
-    return 'Date';
+    return 'bigint';
   if (dataType.extendsFrom('object'))
     return 'object';
   return 'any';

@@ -1,13 +1,10 @@
 import { OpraSchema } from '../../schema/index.js';
 import { ApiDocument } from '../api-document.js';
 import {
-  AnyType,
-  Base64Type,
-  BigIntType,
-  BooleanType,
-  DateType,
-  GuidType,
-  IntegerType, NumberType, ObjectType, StringType
+  AnyType, Base64Type, BigintType, BooleanType, DateType,
+  IntegerType, NumberType, ObjectType,
+  StringType, TimestampType, TimeType,
+  UuidType
 } from '../data-type/builtin/index.js';
 import type { DocumentFactory } from './factory.js';
 
@@ -25,6 +22,8 @@ export async function createDocument(
   if (!options?.noBuiltinTypes) {
     const builtinDocument = await this.createBuiltinTypeDocument();
     this.document.references.set('Opra', builtinDocument);
+    for (const [c, s] of Object.getPrototypeOf(this).constructor.designTypeMap.entries())
+      (this.document as any)._designTypeMap.set(c, s);
   }
 
   if (init.references)
@@ -84,9 +83,9 @@ export async function createBuiltinTypeDocument(this: DocumentFactory): Promise<
         name: 'MIT'
       }
     },
-    types: [AnyType, Base64Type, BigIntType, BooleanType,
-      DateType, GuidType, IntegerType, NumberType,
-      ObjectType, StringType
+    types: [AnyType, Base64Type, BigintType, BooleanType,
+      DateType, UuidType, IntegerType, NumberType,
+      ObjectType, StringType, TimeType, TimestampType
     ]
   }
   const factoryClass = Object.getPrototypeOf(this).constructor as typeof DocumentFactory;

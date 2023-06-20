@@ -40,7 +40,7 @@ DocumentFactory.prototype.extractFieldSchema = async function (
     switch (sqbField.dataType) {
       case SqbDataType.GUID:
         if (!target.type || (detectType && target.type === 'string'))
-          target.type = 'guid';
+          target.type = 'uuid';
         break;
       case SqbDataType.JSON:
         if (!target.type || (detectType && target.type === 'any'))

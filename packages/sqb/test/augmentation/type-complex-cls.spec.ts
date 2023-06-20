@@ -61,7 +61,7 @@ describe('DocumentFactory - ComplexType with decorated classes', function () {
     class Type1 {
       @ApiField()
       id: number
-      @ApiField({type: 'guid'})
+      @ApiField({type: 'uuid'})
       cid: number
     }
 
@@ -77,7 +77,7 @@ describe('DocumentFactory - ComplexType with decorated classes', function () {
     expect(t.fields.get('id')).toBeDefined();
     expect(t.fields.get('id')?.type.name).toStrictEqual('number');
     expect(t.fields.get('cid')).toBeDefined();
-    expect(t.fields.get('cid')?.type.name).toStrictEqual('guid');
+    expect(t.fields.get('cid')?.type.name).toStrictEqual('uuid');
   })
 
   it('Should define fields by schema object', async () => {
@@ -125,7 +125,7 @@ describe('DocumentFactory - ComplexType with decorated classes', function () {
       description: 'test type 2',
     })
     class Type2 extends Type1 {
-      @ApiField({type: 'guid'})
+      @ApiField({type: 'uuid'})
       cid: number
     }
 
@@ -141,7 +141,7 @@ describe('DocumentFactory - ComplexType with decorated classes', function () {
     expect(t.fields.get('id')).toBeDefined();
     expect(t.fields.get('id')?.type.name).toStrictEqual('number');
     expect(t.fields.get('cid')).toBeDefined();
-    expect(t.fields.get('cid')?.type.name).toStrictEqual('guid');
+    expect(t.fields.get('cid')?.type.name).toStrictEqual('uuid');
   })
 
   it('Should get fields info from SQB', async () => {
@@ -178,7 +178,7 @@ describe('DocumentFactory - ComplexType with decorated classes', function () {
     expect(t.fields.get('id')?.default).toStrictEqual(1);
     expect(t.fields.get('id')?.exclusive).toStrictEqual(true);
     expect(t.fields.get('cid')).toBeDefined();
-    expect(t.fields.get('cid')?.type.name).toStrictEqual('guid');
+    expect(t.fields.get('cid')?.type.name).toStrictEqual('uuid');
     expect(t.fields.get('gender')).toBeDefined();
     expect(t.fields.get('gender')?.type.name).toStrictEqual('GenderEnum');
   })
