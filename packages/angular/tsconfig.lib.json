@@ -28,6 +28,7 @@
   "angularCompilerOptions": {
     "compilationMode": "partial",
     "strictTemplates": true,
-    "enableResourceInlining": true
+    "enableResourceInlining": true,
+    "incremental": true
   }
 }
