@@ -2,7 +2,7 @@ import { OpraSchema } from '../../schema/index.js';
 import { ApiDocument } from '../api-document.js';
 import {
   AnyType, Base64Type, BigintType, BooleanType, DateType,
-  IntegerType, NumberType, ObjectType,
+  IntegerType, NullType, NumberType, ObjectIdType, ObjectType,
   StringType, TimestampType, TimeType,
   UuidType
 } from '../data-type/builtin/index.js';
@@ -84,8 +84,9 @@ export async function createBuiltinTypeDocument(this: DocumentFactory): Promise<
       }
     },
     types: [AnyType, Base64Type, BigintType, BooleanType,
-      DateType, UuidType, IntegerType, NumberType,
-      ObjectType, StringType, TimeType, TimestampType
+      DateType, UuidType, IntegerType, NullType,
+      NumberType, ObjectType, ObjectIdType, StringType,
+      TimeType, TimestampType
     ]
   }
   const factoryClass = Object.getPrototypeOf(this).constructor as typeof DocumentFactory;
