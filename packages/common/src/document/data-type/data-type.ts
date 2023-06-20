@@ -1,100 +1,91 @@
-import { Type, Writable } from 'ts-gems';
+import { RequiredSome, Type } from 'ts-gems';
+import * as vg from 'valgen';
 import { omitUndefined } from '../../helpers/index.js';
 import { OpraSchema } from '../../schema/index.js';
 import type { ApiDocument } from '../api-document.js';
-import { colorFgMagenta, colorFgYellow, colorReset, nodeInspectCustom } from '../utils/inspect.util.js';
+import {
+  colorFgMagenta,
+  colorFgYellow,
+  colorReset,
+  nodeInspectCustom
+} from '../utils/inspect.util.js';
 
 export namespace DataType {
-  export interface InitArguments extends Partial<Pick<OpraSchema.DataTypeBase, 'description'>> {
+  export interface InitArguments {
     name?: string;
-  }
-
-  export interface OwnProperties {
     description?: string;
   }
 
-  export interface DecoratorOptions extends Pick<InitArguments, 'name' | 'description'> {
-
+  export interface DecoratorOptions extends InitArguments {
   }
+
+  export interface Metadata extends RequiredSome<DecoratorOptions, 'name'> {
+    kind: OpraSchema.DataType.Kind;
+  }
+
+  export interface OwnProperties {
+  }
+
 }
 
-export interface DataType extends DataType.OwnProperties {
+export abstract class DataType {
   readonly document: ApiDocument;
   readonly kind: OpraSchema.DataType.Kind;
   readonly name?: string;
+  readonly base?: DataType;
   readonly own: DataType.OwnProperties;
+  readonly description?: string;
   readonly isAnonymous: boolean;
 
-  coerce(value: any): any;
-
-  validate(v: any): void;
-
-  extendsFrom(t: string | Type | DataType): boolean;
-
-  exportSchema(): OpraSchema.DataType;
-
-  toString(): string;
-
-  [nodeInspectCustom](): string;
-}
-
-export interface DataTypeConstructor {
-  new(document: ApiDocument, init?: DataType.InitArguments): DataType;
-
-  (...args: any[]): void;
-
-  prototype: DataType;
-}
-
-export const DataType = function (
-    this: DataType | void,
-    document: ApiDocument,
-    init?: DataType.InitArguments
-) {
-  if (!(this instanceof DataType)) {
-    throw new TypeError(`Class constructor must be called with "new" keyword`);
-    // noinspection UnreachableCodeJS
-    return;
+  protected constructor(document: ApiDocument, init?: DataType.InitArguments) {
+    this.document = document;
+    this.name = init?.name;
+    this.own = {};
+    this.description = init?.description;
+    this.isAnonymous = !this.name;
   }
-  const _this = this as Writable<DataType>;
-  _this.document = document;
-  _this.name = init?.name;
-  _this.own = {
-    description: init?.description
-  };
-  _this.description = init?.description;
-  return this;
-} as DataTypeConstructor;
 
-const proto = {
-  get isAnonymous(): boolean {
-    return !this.name;
-  },
+  decode(v: any): any {
+    return this._getDecoder()(v, {coerce: true});
+  }
 
-  coerce(value: any): any {
-    return value;
-  },
+  encode(v: any): any {
+    return this._getEncoder()(v, {coerce: true});
+  }
 
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  extendsFrom(t: string | Type | DataType): boolean {
-    return false;
-  },
+  validate(v: any): any {
+    return this._getEncoder()(v);
+  }
+
+  protected abstract _getDecoder(): vg.Validator<any, any>;
+
+  protected abstract _getEncoder(): vg.Validator<any, any>;
 
   exportSchema(): OpraSchema.DataType {
     return omitUndefined({
       kind: this.kind,
-      description: this.own.description
+      description: this.description
     });
-  },
+  }
+
+  extendsFrom(type: string | Type | DataType): any {
+    const dataType = type instanceof DataType ? type : this.document.getDataType(type);
+    let t = this.base;
+    while (t) {
+      if (t === dataType)
+        return true;
+      t = t.base;
+    }
+    return false;
+  }
 
   toString(): string {
     return `[${Object.getPrototypeOf(this).constructor.name} ${this.name || '#anonymous'}]`;
-  },
+  }
 
   [nodeInspectCustom](): string {
     return `[${colorFgYellow + Object.getPrototypeOf(this).constructor.name + colorReset}` +
         ` ${colorFgMagenta + this.name + colorReset}]`;
   }
-} as DataType;
 
-Object.assign(DataType.prototype, proto);
+}

@@ -89,6 +89,7 @@
         "@typescript-eslint/no-misused-promises": "off",
         "@typescript-eslint/no-unsafe-argument": "off",
         "@typescript-eslint/no-misused-new": "off",
+        "@typescript-eslint/no-non-null-assertion": "off",
         "arrow-parens": [
           "off",
           "as-needed"

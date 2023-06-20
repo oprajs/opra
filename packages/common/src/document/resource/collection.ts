@@ -1,6 +1,6 @@
 import omit from 'lodash.omit';
 import merge from 'putil-merge';
-import { StrictOmit, Type, Writable } from 'ts-gems';
+import { StrictOmit, Type } from 'ts-gems';
 import { BadRequestError } from '../../exception/index.js';
 import { OpraFilter } from '../../filter/index.js';
 import { omitUndefined } from '../../helpers/index.js';
@@ -55,27 +55,133 @@ export namespace Collection {
   export type UpdateManyOperationOptions = StrictOmit<OpraSchema.Collection.UpdateManyOperation, 'handler'>;
 }
 
-export interface Collection extends StrictOmit<Resource, 'exportSchema' | '_construct'> {
+class CollectionClass extends Resource {
   readonly type: ComplexType;
+  readonly kind = OpraSchema.Collection.Kind;
   readonly operations: Collection.Operations;
   readonly controller?: object;
   readonly primaryKey: string[];
 
-  exportSchema(): OpraSchema.Collection;
+  constructor(
+      document: ApiDocument,
+      init: Collection.InitArguments
+  ) {
+    super(document, init);
+    this.controller = init.controller;
+    const operations = this.operations = init.operations || {};
+    const dataType = this.type = init.type;
+    // Validate key fields
+    this.primaryKey = init.primaryKey
+        ? (Array.isArray(init.primaryKey) ? init.primaryKey : [init.primaryKey])
+        : [];
+    if (!this.primaryKey.length)
+      throw new TypeError(`You must provide primaryKey for Collection resource ("${this.name}")`);
+    this.primaryKey.forEach(f => {
+      const field = dataType.getField(f);
+      if (!(field?.type instanceof SimpleType))
+        throw new TypeError(`Only Simple type allowed for primary keys but "${f}" is a ${field.type.kind}`);
+    });
+    if (this.controller) {
+      const instance = typeof this.controller == 'function'
+          ? new (this.controller as Type)()
+          : this.controller;
+      for (const operation of Object.values(operations)) {
+        if (!operation.handler && operation.handlerName) {
+          const fn = instance[operation.handlerName];
+          if (!fn)
+            throw new TypeError(`No such operation handler (${operation.handlerName}) found`);
+          operation.handler = fn.bind(instance);
+        }
+      }
+    }
+  }
 
-  parseKeyValue(value: any): any;
+  exportSchema(this: Collection): OpraSchema.Collection {
+    const out = Resource.prototype.exportSchema.call(this) as OpraSchema.Collection;
+    Object.assign(out, omitUndefined({
+      type: this.type.name,
+      operations: this.operations,
+      primaryKey: this.primaryKey
+    }));
+    return out;
+  }
 
-  normalizeFieldPath(fields: string): string;
+  parseKeyValue(this: Collection, value: any): any | undefined {
+    if (!this.primaryKey?.length)
+      return;
+    const dataType = this.type;
+    if (this.primaryKey.length > 1) {
+      // Build primary key/value mapped object
+      const obj = Array.isArray(value)
+          ? this.primaryKey.reduce((o, k, i) => {
+            o[k] = value[i];
+            return obj;
+          }, {} as any)
+          : value;
+      // decode values
+      for (const [k, v] of Object.entries(obj)) {
+        const el = dataType.getField(k);
+        obj[k] = (el.type as SimpleType).decode(v);
+        if (obj[k] == null)
+          throw new TypeError(`You must provide value of primary field(s) (${k})`);
+      }
+    } else {
+      const primaryKey = this.primaryKey[0];
+      if (typeof value === 'object')
+        value = value[primaryKey];
+      const el = dataType.getField(primaryKey);
+      const result = (el.type as SimpleType).decode(value);
+      if (result == null)
+        throw new TypeError(`You must provide value of primary field(s) (${primaryKey})`);
+      return result;
+    }
+  }
 
-  normalizeFieldPath(fields: string[]): string[];
+  normalizeFieldPath(this: Collection, path: string | string[]): string | string[] {
+    return this.type.normalizeFieldPath(path as any);
+  }
 
-  normalizeFieldPath(fields: string | string[]): string | string[];
+  normalizeSortFields(this: Collection, fields: string | string[]): string | string[] {
+    const normalized = this.type.normalizeFieldPath(fields as any);
+    const findManyEndpoint = this.operations.findMany;
+    const sortFields = findManyEndpoint && findManyEndpoint.sortFields;
+    (Array.isArray(normalized) ? normalized : [normalized]).forEach(field => {
+      if (!sortFields?.find(x => x === field))
+        throw new BadRequestError({
+          message: translate('error:UNACCEPTED_SORT_FIELD', {field},
+              `Field '${field}' is not available for sort operation`),
+        })
+    });
+    return normalized;
+  }
 
-  normalizeSortFields(fields: string | string[]): string[];
-
-  normalizeFilter(ast: string | OpraFilter.Expression): OpraFilter.Expression | undefined;
-
-  _construct(init: Collection.InitArguments): void;
+  normalizeFilter(filter: string | OpraFilter.Expression): OpraFilter.Expression | undefined {
+    if (!filter)
+      return;
+    const ast = typeof filter === 'string' ? OpraFilter.parse(filter) : filter;
+    if (ast instanceof OpraFilter.ComparisonExpression) {
+      this.normalizeFilter(ast.left);
+      if (!(ast.left instanceof OpraFilter.QualifiedIdentifier && ast.left.field))
+        throw new TypeError(`Invalid filter query. Left side should be a data field.`);
+      this.normalizeFilter(ast.right);
+    } else if (ast instanceof OpraFilter.LogicalExpression) {
+      ast.items.forEach(item =>
+          this.normalizeFilter(item));
+    } else if (ast instanceof OpraFilter.ArithmeticExpression) {
+      ast.items.forEach(item =>
+          this.normalizeFilter(item.expression));
+    } else if (ast instanceof OpraFilter.ArrayExpression) {
+      ast.items.forEach(item =>
+          this.normalizeFilter(item));
+    } else if (ast instanceof OpraFilter.ParenthesizedExpression) {
+      this.normalizeFilter(ast.expression);
+    } else if (ast instanceof OpraFilter.QualifiedIdentifier) {
+      ast.field = this.type.findField(ast.value);
+      ast.dataType = ast.field?.type || this.document.getDataType('any');
+      ast.value = this.type.normalizeFieldPath(ast.value);
+    }
+    return ast;
+  }
 }
 
 export interface CollectionConstructor {
@@ -94,6 +200,8 @@ export interface CollectionConstructor {
   UpdateMany: (options?: Collection.UpdateManyOperationOptions) => PropertyDecorator;
 }
 
+export interface Collection extends CollectionClass {
+}
 
 /**
  *
@@ -129,140 +237,11 @@ export const Collection = function (this: Collection | void, ...args: any[]) {
 
   // Constructor
   const [document, init] = args as [ApiDocument, Collection.InitArguments];
+  merge(this, new CollectionClass(document, init), {descriptor: true});
 
-  // call super()
-  Resource.apply(this, [document, init]);
 } as CollectionConstructor;
 
-const proto = {
-
-  _construct(this: Collection, init: Collection.InitArguments): void {
-    // call super()
-    Resource.prototype._construct.call(this, init);
-
-    const _this = this as Writable<Collection>;
-    _this.kind = OpraSchema.Collection.Kind;
-    _this.controller = init.controller;
-    const operations = _this.operations = init.operations || {};
-    const dataType = _this.type = init.type;
-    // Validate key fields
-    _this.primaryKey = init.primaryKey
-        ? (Array.isArray(init.primaryKey) ? init.primaryKey : [init.primaryKey])
-        : [];
-    if (!_this.primaryKey.length)
-      throw new TypeError(`You must provide primaryKey for Collection resource ("${_this.name}")`);
-    _this.primaryKey.forEach(f => {
-      const field = dataType.getField(f);
-      if (!(field?.type instanceof SimpleType))
-        throw new TypeError(`Only Simple type allowed for primary keys but "${f}" is a ${field.type.kind}`);
-    });
-    if (_this.controller) {
-      const instance = typeof _this.controller == 'function'
-          ? new (_this.controller as Type)()
-          : _this.controller;
-      for (const operation of Object.values(operations)) {
-        if (!operation.handler && operation.handlerName) {
-          const fn = instance[operation.handlerName];
-          if (!fn)
-            throw new TypeError(`No such operation handler (${operation.handlerName}) found`);
-          operation.handler = fn.bind(instance);
-        }
-      }
-    }
-  },
-
-  exportSchema(this: Collection): OpraSchema.Collection {
-    const out = Resource.prototype.exportSchema.call(this) as OpraSchema.Collection;
-    Object.assign(out, omitUndefined({
-      type: this.type.name,
-      operations: this.operations,
-      primaryKey: this.primaryKey
-    }));
-    return out;
-  },
-
-  parseKeyValue(this: Collection, value: any): any | undefined {
-    if (!this.primaryKey?.length)
-      return;
-    const dataType = this.type;
-    if (this.primaryKey.length > 1) {
-      // Build primary key/value mapped object
-      const obj = Array.isArray(value)
-          ? this.primaryKey.reduce((o, k, i) => {
-            o[k] = value[i];
-            return obj;
-          }, {} as any)
-          : value;
-      // decode values
-      for (const [k, v] of Object.entries(obj)) {
-        const el = dataType.getField(k);
-        obj[k] = (el.type as SimpleType).decode(v);
-        if (obj[k] == null)
-          throw new TypeError(`You must provide value of primary field(s) (${k})`);
-      }
-    } else {
-      const primaryKey = this.primaryKey[0];
-      if (typeof value === 'object')
-        value = value[primaryKey];
-      const el = dataType.getField(primaryKey);
-      const result = (el.type as SimpleType).decode(value);
-      if (result == null)
-        throw new TypeError(`You must provide value of primary field(s) (${primaryKey})`);
-      return result;
-    }
-  },
-
-  normalizeFieldPath(this: Collection, path: string | []): string | string[] {
-    return this.type.normalizeFieldPath(path);
-  },
-
-  normalizeSortFields(this: Collection, fields: string[]): string[] {
-    const normalized = this.type.normalizeFieldPath(fields);
-    const findManyEndpoint = this.operations.findMany;
-    const sortFields = findManyEndpoint && findManyEndpoint.sortFields;
-    normalized.forEach(field => {
-      if (!sortFields?.find(x => x === field))
-        throw new BadRequestError({
-          message: translate('error:UNACCEPTED_SORT_FIELD', {field},
-              `Field '${field}' is not available for sort operation`),
-        })
-    });
-    return normalized;
-  },
-
-  normalizeFilter(filter: string | OpraFilter.Expression): OpraFilter.Expression | undefined {
-    if (!filter)
-      return;
-    const ast = typeof filter === 'string' ? OpraFilter.parse(filter) : filter;
-    if (ast instanceof OpraFilter.ComparisonExpression) {
-      this.normalizeFilter(ast.left);
-      if (!(ast.left instanceof OpraFilter.QualifiedIdentifier && ast.left.field))
-        throw new TypeError(`Invalid filter query. Left side should be a data field.`);
-      this.normalizeFilter(ast.right);
-    } else if (ast instanceof OpraFilter.LogicalExpression) {
-      ast.items.forEach(item =>
-          this.normalizeFilter(item));
-    } else if (ast instanceof OpraFilter.ArithmeticExpression) {
-      ast.items.forEach(item =>
-          this.normalizeFilter(item.expression));
-    } else if (ast instanceof OpraFilter.ArrayExpression) {
-      ast.items.forEach(item =>
-          this.normalizeFilter(item));
-    } else if (ast instanceof OpraFilter.ParenthesizedExpression) {
-      this.normalizeFilter(ast.expression);
-    } else if (ast instanceof OpraFilter.QualifiedIdentifier) {
-      ast.field = this.type.findField(ast.value);
-      ast.dataType = ast.field?.type || this.document.getDataType('any');
-      ast.value = this.type.normalizeFieldPath(ast.value);
-    }
-    return ast;
-  }
-
-} as Collection;
-
-
-Object.assign(Collection.prototype, proto);
-Object.setPrototypeOf(Collection.prototype, Resource.prototype);
+Collection.prototype = CollectionClass.prototype;
 
 function createOperationDecorator<T>(operation: string) {
   return (options?: T) =>

@@ -67,14 +67,16 @@ export const ApiField = function (
       metadata.fields = metadata.fields || {};
 
       const designType = Reflect.getMetadata('design:type', target, propertyKey);
-      const isArray = designType === Array;
       const elemMeta: ApiField.Metadata = metadata.fields[propertyKey] = {
         ...options,
         enum: undefined,
-        designType: isArray ? undefined : designType
+        designType
       }
-      if (designType === Array)
+      if (designType === Array) {
         elemMeta.isArray = true;
+        delete elemMeta.designType;
+      }
+
       if (options?.enum) {
         elemMeta.type = undefined;
         if (Array.isArray(options.enum)) {
@@ -119,15 +121,14 @@ export const ApiField = function (
 
 const proto = {
   exportSchema(): OpraSchema.Field {
-    const out: OpraSchema.Field = {
+    return {
       type: this.type.name ? this.type.name : this.type.exportSchema(),
       description: this.description,
       isArray: this.isArray,
       default: this.default,
       fixed: this.fixed,
       required: this.required
-    };
-    return out;
+    } satisfies OpraSchema.Field;
   }
 } as ApiField;
 

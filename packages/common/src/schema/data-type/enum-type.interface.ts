@@ -2,17 +2,17 @@ import type { DataType, DataTypeBase } from './data-type.interface.js';
 
 export interface EnumType extends DataTypeBase {
   base?: DataType.Name | EnumType;
-  values: Record<EnumType.key, EnumType.value>;
-  meanings?: Record<EnumType.key, string>;
+  values: Record<EnumType.Key, EnumType.Value>;
+  meanings?: Record<EnumType.Key, string>;
 }
 
-export type EnumObject = Record<EnumType.key, EnumType.value>;
+export type EnumObject = Record<EnumType.Key, EnumType.Value>;
 export type EnumArray = readonly (string | number)[];
 export type EnumThunk = EnumObject | EnumArray;
 
 export namespace EnumType {
   export const Kind = 'EnumType';
   export type Kind = typeof Kind;
-  export type value = string | number;
-  export type key = string;
+  export type Value = string | number;
+  export type Key = string;
 }

@@ -38,7 +38,7 @@ import {
  * @namespace DocumentFactory
  */
 export namespace DocumentFactory {
-  export type InitArguments = StrictOmit<OpraSchema.ApiDocument, 'references' | 'types' | 'resources'> & {
+  export interface InitArguments extends StrictOmit<OpraSchema.ApiDocument, 'references' | 'types' | 'resources'> {
     references?: Record<string, string | OpraSchema.ApiDocument | ApiDocument>;
     resources?: ThunkAsync<Type | object>[] | Record<OpraSchema.Resource.Name, OpraSchema.Resource>;
     types?: ThunkAsync<Type | OpraSchema.EnumThunk>[] | Record<string, OpraSchema.DataType>;
@@ -49,6 +49,8 @@ export namespace DocumentFactory {
  * @class DocumentFactory
  */
 export class DocumentFactory {
+  static designTypeMap = new Map<Function | Type, string>();
+
   protected document: ApiDocument = new ApiDocument();
   protected typeQueue = new ResponsiveMap<OpraSchema.DataType>()
   protected resourceQueue = new ResponsiveMap<OpraSchema.Resource>();
@@ -95,26 +97,26 @@ export class DocumentFactory {
   }
 
   static {
-    DocumentFactory.prototype.createDocument = createDocument;
-    DocumentFactory.prototype.createDocumentFromUrl = createDocumentFromUrl;
-    DocumentFactory.prototype.createBuiltinTypeDocument = createBuiltinTypeDocument;
-    DocumentFactory.prototype.addReferences = addReferences;
-    DocumentFactory.prototype.importTypeClass = importTypeClass;
-    DocumentFactory.prototype.extractSimpleTypeSchema = extractSimpleTypeSchema;
-    DocumentFactory.prototype.extractComplexTypeSchema = extractComplexTypeSchema;
-    DocumentFactory.prototype.extractMappedTypeSchema = extractMappedTypeSchema;
-    DocumentFactory.prototype.extractUnionTypeSchema = extractUnionTypeSchema;
-    DocumentFactory.prototype.extractEnumTypeSchema = extractEnumTypeSchema;
-    DocumentFactory.prototype.extractFieldSchema = extractFieldSchema;
-    DocumentFactory.prototype.processTypes = processTypes;
-    DocumentFactory.prototype.createDataTypeInstance = createDataTypeInstance;
-    DocumentFactory.prototype.addDataType = addDataType;
-    DocumentFactory.prototype.importResourceClass = importResourceClass;
-    DocumentFactory.prototype.extractSingletonSchema = extractSingletonSchema;
-    DocumentFactory.prototype.extractCollectionSchema = extractCollectionSchema;
-    DocumentFactory.prototype.processResourceQueue = processResourceQueue;
-    DocumentFactory.prototype.createCollection = createCollection;
-    DocumentFactory.prototype.createSingleton = createSingleton;
+    this.prototype.createDocument = createDocument;
+    this.prototype.createDocumentFromUrl = createDocumentFromUrl;
+    this.prototype.createBuiltinTypeDocument = createBuiltinTypeDocument;
+    this.prototype.addReferences = addReferences;
+    this.prototype.importTypeClass = importTypeClass;
+    this.prototype.extractSimpleTypeSchema = extractSimpleTypeSchema;
+    this.prototype.extractComplexTypeSchema = extractComplexTypeSchema;
+    this.prototype.extractMappedTypeSchema = extractMappedTypeSchema;
+    this.prototype.extractUnionTypeSchema = extractUnionTypeSchema;
+    this.prototype.extractEnumTypeSchema = extractEnumTypeSchema;
+    this.prototype.extractFieldSchema = extractFieldSchema;
+    this.prototype.processTypes = processTypes;
+    this.prototype.createDataTypeInstance = createDataTypeInstance;
+    this.prototype.addDataType = addDataType;
+    this.prototype.importResourceClass = importResourceClass;
+    this.prototype.extractSingletonSchema = extractSingletonSchema;
+    this.prototype.extractCollectionSchema = extractCollectionSchema;
+    this.prototype.processResourceQueue = processResourceQueue;
+    this.prototype.createCollection = createCollection;
+    this.prototype.createSingleton = createSingleton;
   }
 }
 

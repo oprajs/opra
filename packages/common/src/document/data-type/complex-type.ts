@@ -1,12 +1,14 @@
 import omit from 'lodash.omit';
+import merge from 'putil-merge';
 import { StrictOmit, Type, Writable } from 'ts-gems';
+import * as vg from 'valgen';
 import { omitUndefined, ResponsiveMap } from '../../helpers/index.js';
 import { OpraSchema } from '../../schema/index.js';
 import type { ApiDocument } from '../api-document.js';
 import { METADATA_KEY, TYPENAME_PATTERN } from '../constants.js';
 import { ApiField } from './api-field.js';
 import { DataType } from './data-type.js';
-import type { UnionType } from './union-type';
+import type { UnionType } from './union-type.js';
 
 /**
  * @namespace ComplexType
@@ -17,14 +19,12 @@ export namespace ComplexType {
     base?: ComplexType | UnionType;
   }
 
-  export interface OwnProperties extends DataType.OwnProperties,
-      Readonly<Pick<OpraSchema.ComplexType, 'ctor' | 'abstract' | 'additionalFields'>> {
-    readonly fields: ResponsiveMap<ApiField>;
+  export interface OwnProperties extends Readonly<StrictOmit<OpraSchema.ComplexType, 'fields'>> {
+    fields: ResponsiveMap<ApiField>;
   }
 
   export interface DecoratorOptions extends DataType.DecoratorOptions,
-      Pick<InitArguments, 'ctor' | 'base' | 'additionalFields' | 'abstract'> {
-
+      Pick<InitArguments, 'ctor' | 'additionalFields' | 'abstract'> {
   }
 
   export interface Metadata extends StrictOmit<OpraSchema.ComplexType, 'fields'> {
@@ -35,167 +35,82 @@ export namespace ComplexType {
 }
 
 /**
- * Type definition of ComplexType prototype
- * @type ComplexType
+ * @class ComplexType
  */
-export interface ComplexType extends StrictOmit<DataType, 'own' | 'exportSchema'>,
-    ComplexType.OwnProperties {
+class ComplexTypeClass extends DataType {
+  readonly kind = OpraSchema.ComplexType.Kind;
   readonly ctor: Type;
   readonly base?: ComplexType | UnionType;
   readonly own: ComplexType.OwnProperties;
+  readonly fields: ResponsiveMap<ApiField>;
   readonly abstract?: boolean;
-  readonly additionalFields?: boolean;
+  readonly additionalFields?: boolean | vg.Validator<any, any> | 'ignore';
+  protected _decoder?: vg.Validator<any, any>;
+  protected _encoder?: vg.Validator<any, any>;
 
-  exportSchema(): OpraSchema.ComplexType;
+  constructor(document: ApiDocument, init: ComplexType.InitArguments) {
+    super(document, init);
+    const own = this.own = {} as Writable<ComplexType.OwnProperties>;
+    own.ctor = init?.ctor;
+    own.abstract = init?.abstract;
+    own.additionalFields = init?.additionalFields;
+    own.fields = new ResponsiveMap();
 
-  addField(init: ApiField.InitArguments): ApiField;
-
-  iteratePath(path: string, silent?: boolean): IterableIterator<[string, ApiField | undefined, string]>;
-
-  getField(nameOrPath: string): ApiField;
-
-  findField(nameOrPath: string): ApiField | undefined;
-
-  normalizeFieldPath(fields: string): string;
-
-  normalizeFieldPath(fields: string[]): string[];
-
-  normalizeFieldPath(fields: string | string[]): string | string[];
-
-}
-
-/**
- * Type definition of ComplexType constructor type
- * @type ComplexTypeConstructor
- */
-export interface ComplexTypeConstructor {
-  new(document: ApiDocument, init: ComplexType.InitArguments): ComplexType;
-
-  (options?: ComplexType.DecoratorOptions): ClassDecorator;
-
-  prototype: ComplexType;
-}
-
-/**
- * @class ComplexType
- */
-export const ComplexType = function (
-    this: ComplexType | void, ...args: any[]
-) {
-  // ClassDecorator
-  if (!this) {
-    const [options] = args as [ComplexType.DecoratorOptions | undefined];
-    return function (target: Function) {
-      const name = options?.name || target.name.match(TYPENAME_PATTERN)?.[1] || target.name;
-      let metadata = Reflect.getOwnMetadata(METADATA_KEY, target) as ComplexType.Metadata;
-      if (!metadata) {
-        metadata = {} as ComplexType.Metadata;
-        Reflect.defineMetadata(METADATA_KEY, metadata, target);
-      }
-      metadata.kind = OpraSchema.ComplexType.Kind;
-      metadata.name = name;
-      // Merge options
-      if (options)
-        Object.assign(metadata, omit(options, ['kind', 'name', 'base', 'ctor', 'fields']));
-    }
-  }
-
-  // Constructor
-  // call super()
-  DataType.apply(this, args);
-
-  const [, init] = args as [never, ComplexType.InitArguments | undefined];
-  const _this = this as Writable<ComplexType>;
-  const own = _this.own as Writable<ComplexType.OwnProperties>
-  own.ctor = init?.ctor;
-  own.fields = new ResponsiveMap();
-  own.abstract = init?.abstract;
-  own.additionalFields = init?.additionalFields;
-
-  _this.kind = OpraSchema.ComplexType.Kind;
-  _this.base = init?.base;
-  _this.ctor = own.ctor || Object;
-  _this.abstract = own.abstract;
-  _this.additionalFields = own.additionalFields;
-  _this.fields = new ResponsiveMap();
-  if (_this.base) {
-    if (_this.additionalFields == null)
-      _this.additionalFields = _this.base.additionalFields;
-    if (own.ctor == null && _this.base instanceof ComplexType)
-      _this.ctor = _this.base.ctor;
-    if (_this.base.fields)
-      for (const [k, el] of _this.base.fields.entries()) {
-        const newEl = new ApiField(_this, el);
-        _this.fields.set(k, newEl);
-      }
-  }
-} as ComplexTypeConstructor;
-
-Object.setPrototypeOf(ComplexType.prototype, DataType.prototype);
-
-const proto = {
-
-  extendsFrom(this: ComplexType, t: string | Type | DataType): boolean {
-    const base = t instanceof DataType ? t : this.document.getDataType(t);
+    this.kind = OpraSchema.ComplexType.Kind;
+    this.base = init?.base;
+    this.ctor = own.ctor || Object;
+    this.abstract = own.abstract;
+    this.additionalFields = own.additionalFields;
+    this.fields = new ResponsiveMap();
     if (this.base) {
-      if (this.base === base)
-        return true;
-      return this.base.extendsFrom(base);
+      if (this.additionalFields == null)
+        this.additionalFields = this.base.additionalFields;
+      if (own.ctor == null && this.base instanceof ComplexType)
+        this.ctor = this.base.ctor;
+      if (this.base.fields)
+        for (const [k, el] of this.base.fields.entries()) {
+          const newEl = new ApiField(this, el);
+          this.fields.set(k, newEl);
+        }
     }
-    return false;
-  },
+  }
 
-  exportSchema(this: ComplexType): OpraSchema.ComplexType {
-    const out = DataType.prototype.exportSchema.call(this) as OpraSchema.ComplexType;
-    Object.assign(out, omitUndefined({
-      base: this.base ?
-          (this.base.name ? this.base.name : this.base.exportSchema()) : undefined,
-      abstract: this.own.abstract,
-      additionalFields: this.own.additionalFields
-    }));
-    if (this.own.fields.size) {
-      const fields = out.fields = {};
-      for (const field of this.own.fields.values()) {
-        fields[field.name] = field.exportSchema();
-      }
-    }
-    return omitUndefined(out);
-  },
-
-  addField(this: ComplexType, init: ApiField.InitArguments): ApiField {
+  addField(init: ApiField.InitArguments): ApiField {
     const field = new ApiField(this, init);
     this.own.fields.set(field.name, field);
     this.fields.set(field.name, field);
     return field;
-  },
+  }
 
   findField(nameOrPath: string): ApiField | undefined {
     let field: ApiField | undefined;
-    for (const [, f] of this.iteratePath(nameOrPath, true)) {
-      if (!f)
-        return;
-      field = f;
+    if (nameOrPath.includes('.')) {
+      for (const [, f] of this.iteratePath(nameOrPath, true)) {
+        if (!f)
+          return;
+        field = f;
+      }
+      return field;
     }
-    return field;
-  },
+    return this.fields.get(nameOrPath);
+  }
 
-  getField(this: ComplexType, nameOrPath: string): ApiField {
+  getField(nameOrPath: string): ApiField {
     let field: ApiField | undefined;
-    for (const [, f, path] of this.iteratePath(nameOrPath)) {
-      if (!f)
-        throw new Error(`Invalid field definition "${path}"`);
-      field = f;
-    }
-    /* istanbul ignore next */
+    if (nameOrPath.includes('.')) {
+      for (const [, f] of this.iteratePath(nameOrPath)) {
+        field = f;
+      }
+    } else field = this.fields.get(nameOrPath);
     if (!field)
-      throw new Error(`Invalid field definition "${nameOrPath}"`);
+      throw new Error(`Unknown field "${nameOrPath}"`);
     return field as ApiField;
-  },
+  }
 
-  iteratePath(this: ComplexType, path: string, silent?: boolean): IterableIterator<[string, ApiField | undefined, string]> {
+  iteratePath(path: string, silent?: boolean): IterableIterator<[string, ApiField | undefined, string]> {
     const arr = path.split('.');
     const len = arr.length;
-    let dataType: DataType | undefined = this;
+    let dataType: DataType | undefined = this as DataType;
     let field: ApiField | undefined;
     let curPath = '';
     let s: string;
@@ -232,19 +147,149 @@ const proto = {
         }
       }
     };
-  },
+  }
 
-  normalizeFieldPath(this: ComplexType, path: string | []): string | string[] {
-    if (Array.isArray(path))
-      return path.map((s: string) => this.normalizeFieldPath(s))
+  normalizeFieldPath(fieldPath: string): string;
+  normalizeFieldPath(fieldPaths: string[]): string[];
+  normalizeFieldPath(fieldPaths: string | string[]): string | string[] {
+    if (Array.isArray(fieldPaths))
+      return fieldPaths.map((s: string) => this.normalizeFieldPath(s))
     let curPath = '';
-    for (const [, , p] of this.iteratePath(path)) {
+    for (const [, , p] of this.iteratePath(fieldPaths)) {
       curPath = p;
     }
     return curPath;
   }
 
-} as ComplexType;
+  exportSchema(): OpraSchema.ComplexType {
+    const out = super.exportSchema() as OpraSchema.ComplexType;
+    Object.assign(out, omitUndefined({
+      base: this.base ?
+          (this.base.name ? this.base.name : this.base.exportSchema()) : undefined,
+      abstract: this.own.abstract,
+      additionalFields: this.own.additionalFields
+    }));
+    if (this.own.fields.size) {
+      const fields = out.fields = {};
+      for (const field of this.own.fields.values()) {
+        fields[field.name] = field.exportSchema();
+      }
+    }
+    return omitUndefined(out);
+  }
 
-Object.assign(ComplexType.prototype, proto);
-Object.setPrototypeOf(ComplexType.prototype, DataType.prototype);
+  isTypeOf(t: Type | Function): boolean {
+    return t === this.own.ctor;
+  }
+
+  extendsFrom(t: string | Type | DataType): boolean {
+    const base = t instanceof DataType ? t : this.document.getDataType(t);
+    if (this.base) {
+      if (this.base === base)
+        return true;
+      return this.base.extendsFrom(base);
+    }
+    return false;
+  }
+
+  decode(v: object): any {
+    return this._getDecoder()(v, {coerce: true});
+  }
+
+  encode(v: any): any {
+    return this._getEncoder()(v, {coerce: true});
+  }
+
+  validate(v: any): any {
+    return this._getEncoder()(v);
+  }
+
+  protected _getDecoder(): vg.Validator<any, any> {
+    if (this._decoder)
+      return this._decoder;
+    const schema: vg.ObjectSchema = {};
+    for (const f of this.fields.values()) {
+      let t = (f.type as any)._getDecoder();
+      if (f.isArray)
+        t = vg.isArray(t);
+      schema[f.name] = f.required ? vg.required(t) : vg.optional(t);
+    }
+    this._decoder = vg.isObject(schema, {
+      ctor: this.ctor,
+      additionalFields: this.additionalFields ?? 'ignore',
+      name: this.name,
+      caseInSensitive: true,
+    });
+    return this._decoder;
+  }
+
+  protected _getEncoder(): vg.Validator<any, any> {
+    if (this._encoder)
+      return this._encoder;
+    const schema: vg.ObjectSchema = {};
+    for (const f of this.fields.values()) {
+      let t = (f.type as any)._getEncoder();
+      if (f.isArray)
+        t = vg.isArray(t);
+      schema[f.name] = t;
+    }
+    this._encoder = vg.isObject(schema, {
+      ctor: this.ctor,
+      additionalFields: this.additionalFields,
+      name: this.name,
+      caseInSensitive: true,
+      detectCircular: true
+    });
+    return this._encoder;
+  }
+
+}
+
+
+/**
+ * Callable class pattern for ComplexType
+ */
+export interface ComplexTypeConstructor {
+  new(document: ApiDocument, init: ComplexType.InitArguments): ComplexType;
+
+  (options?: ComplexType.DecoratorOptions): ClassDecorator;
+
+  prototype: ComplexType;
+}
+
+export interface ComplexType extends ComplexTypeClass {
+}
+
+/**
+ * @class ComplexType
+ */
+export const ComplexType = function (
+    this: ComplexType | void, ...args: any[]
+) {
+  // Constructor
+  if (this) {
+    const [document, init] = args as [ApiDocument, ComplexType.InitArguments];
+    merge(this, new ComplexTypeClass(document, init), {descriptor: true});
+    return;
+  }
+
+  // ClassDecorator
+
+  const [options] = args as [ComplexType.DecoratorOptions | undefined];
+  return function (target: Function) {
+    const name = options?.name || target.name.match(TYPENAME_PATTERN)?.[1] || target.name;
+    let metadata = Reflect.getOwnMetadata(METADATA_KEY, target) as ComplexType.Metadata;
+    if (!metadata) {
+      metadata = {} as ComplexType.Metadata;
+      Reflect.defineMetadata(METADATA_KEY, metadata, target);
+    }
+    metadata.kind = OpraSchema.ComplexType.Kind;
+    metadata.name = name;
+    // Merge options
+    if (options)
+      Object.assign(metadata, omit(options, ['kind', 'name', 'base', 'fields']));
+  }
+
+} as ComplexTypeConstructor;
+
+ComplexType.prototype = ComplexTypeClass.prototype;

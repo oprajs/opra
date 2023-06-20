@@ -120,39 +120,31 @@ describe('ApiDocument', function () {
     expect(ref).toBeDefined();
     expect(ref?.getDataType('any')).toBeDefined();
     expect(ref?.getDataType('any').kind).toStrictEqual('SimpleType');
-    expect(ref?.getDataType('base64')).toBeDefined();
-    expect(ref?.getSimpleType('base64').ctor).toStrictEqual(ArrayBuffer);
-    expect(() =>
-        ref?.getSimpleType('base64').validate(Buffer.from('12').toString('base64'))
-    ).not.toThrow();
+    expect(ref?.getDataType(Object)).toBeDefined();
+    expect(ref?.getDataType(Object).name).toStrictEqual('any')
+
     expect(ref?.getDataType('bigint')).toBeDefined();
-    expect(() =>
-        ref?.getSimpleType('bigint').validate(BigInt(123))
-    ).not.toThrow();
-    expect(() =>
-        ref?.getSimpleType('bigint').validate(123)
-    ).not.toThrow();
+    expect(ref?.getDataType(BigInt)).toBeDefined();
+    expect(ref?.getDataType(BigInt).name).toStrictEqual('bigint');
+
     expect(ref?.getDataType('boolean')).toBeDefined();
-    expect(ref?.getSimpleType('boolean').ctor).toStrictEqual(Boolean);
-    expect(ref?.getSimpleType('boolean').own.ctor).toStrictEqual(Boolean);
-    expect(ref?.getDataType('date')).toBeDefined();
-    expect(ref?.getSimpleType('date').ctor).toStrictEqual(Date);
-    expect(ref?.getSimpleType('date').own.ctor).toStrictEqual(undefined);
-    expect(ref?.getDataType('guid')).toBeDefined();
-    expect(ref?.getSimpleType('guid').ctor).toStrictEqual(String);
-    expect(ref?.getSimpleType('guid').own.ctor).toStrictEqual(undefined);
+    expect(ref?.getDataType(Boolean)).toBeDefined();
+    expect(ref?.getDataType(Boolean).name).toStrictEqual('boolean');
+
     expect(ref?.getDataType('integer')).toBeDefined();
-    expect(ref?.getSimpleType('integer').ctor).toStrictEqual(Number);
-    expect(ref?.getSimpleType('integer').own.ctor).toStrictEqual(undefined);
+
     expect(ref?.getDataType('number')).toBeDefined();
-    expect(ref?.getSimpleType('number').ctor).toStrictEqual(Number);
-    expect(ref?.getSimpleType('number').own.ctor).toStrictEqual(Number);
+    expect(ref?.getDataType(Number)).toBeDefined();
+    expect(ref?.getDataType(Number).name).toStrictEqual('number');
+
     expect(ref?.getDataType('object')).toBeDefined();
-    expect(ref?.getComplexType('object')).toBeDefined();
-    expect(ref?.getComplexType('object').additionalFields).toStrictEqual(true);
+
     expect(ref?.getDataType('string')).toBeDefined();
-    expect(ref?.getSimpleType('string').ctor).toStrictEqual(String);
-    expect(ref?.getSimpleType('string').own.ctor).toStrictEqual(String);
+    expect(ref?.getDataType(String)).toBeDefined();
+    expect(ref?.getDataType(String).name).toStrictEqual('string')
+
+    expect(ref?.getDataType('time')).toBeDefined();
+    expect(ref?.getDataType('timestamp')).toBeDefined();
   })
 
   it('Should getResource(name) return Resource instance', async () => {

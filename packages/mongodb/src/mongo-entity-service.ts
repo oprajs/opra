@@ -31,6 +31,7 @@ export class MongoEntityService<T extends mongodb.Document, TOutput = PartialOut
     const collection = await this.getCollection(db);
     options = {
       ...options,
+      limit: undefined,
       session: options?.session || this.session
     }
     try {

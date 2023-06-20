@@ -49,9 +49,10 @@
     "content-disposition": "^0.5.4",
     "cookie": "^0.5.0",
     "cookie-signature": "^1.2.1",
-    "dayjs": "^1.11.7",
+    "dayjs": "^1.11.8",
     "encodeurl": "^1.0.2",
     "fast-tokenizer": "^1.2.2",
+    "fastest-validator": "^1.17.0",
     "lodash.omit": "^4.5.0",
     "mime-types": "^2.1.35",
     "putil-isplainobject": "^1.1.5",
@@ -61,7 +62,7 @@
     "reflect-metadata": "^0.1.13",
     "type-is": "^1.6.18",
     "uid": "^2.0.1",
-    "zod": "^3.21.4"
+    "valgen": "^4.0.0-alpha.5"
   },
   "devDependencies": {
     "@browsery/fs": "^0.4.0",

@@ -19,11 +19,7 @@ describe('DocumentFactory - SimpleType with schema object', function () {
   it('Should add SimpleType by type schema', async () => {
     const type1: OpraSchema.SimpleType = {
       kind: 'SimpleType',
-      description: 'test type',
-      codec: {
-        decode: () => 1,
-        encode: () => 2,
-      }
+      description: 'test type'
     };
     const doc = await DocumentFactory.createDocument({
       ...baseArgs,
@@ -37,8 +33,6 @@ describe('DocumentFactory - SimpleType with schema object', function () {
     expect(t.kind).toStrictEqual(OpraSchema.SimpleType.Kind);
     expect(t.name).toStrictEqual('type1');
     expect(t.description).toEqual(type1.description);
-    expect(t.decode).toEqual(type1.codec?.decode);
-    expect(t.encode).toEqual(type1.codec?.encode);
   })
 
   it('Should extend SimpleType from other type by name', async () => {
@@ -49,10 +43,6 @@ describe('DocumentFactory - SimpleType with schema object', function () {
     const type2: OpraSchema.SimpleType = {
       kind: 'SimpleType',
       description: 'test type',
-      codec: {
-        decode: () => 1,
-        encode: () => 2,
-      }
     };
     const doc = await DocumentFactory.createDocument({
       ...baseArgs,
@@ -68,8 +58,6 @@ describe('DocumentFactory - SimpleType with schema object', function () {
     expect(t.name).toStrictEqual('type1');
     expect(t.base).toBeDefined();
     expect(t.base?.name).toStrictEqual('type2');
-    expect(t.decode).toEqual(t.base?.decode);
-    expect(t.encode).toEqual(t.base?.encode);
   })
 
   it('Should extend SimpleType from other type by in place schema', async () => {
@@ -77,11 +65,7 @@ describe('DocumentFactory - SimpleType with schema object', function () {
       kind: 'SimpleType',
       base: {
         kind: 'SimpleType',
-        description: 'test type',
-        codec: {
-          decode: () => 1,
-          encode: () => 2,
-        }
+        description: 'test type'
       }
     };
     const doc = await DocumentFactory.createDocument({

@@ -1,20 +1,14 @@
-import { Type } from 'ts-gems';
-import type { DataType, DataTypeBase } from './data-type.interface.js';
+import * as vg from 'valgen';
+import type { DataTypeBase } from './data-type.interface.js';
+import { DataType } from './data-type.interface.js';
 
 export interface SimpleType extends DataTypeBase {
-  ctor?: Type;
   base?: DataType.Name | SimpleType;
-  codec?: SimpleType.Codec;
+  decoder?: vg.Validator<any, any>;
+  encoder?: vg.Validator<any, any>;
 }
 
 export namespace SimpleType {
   export const Kind = 'SimpleType';
   export type Kind = 'SimpleType';
-
-  export interface Codec {
-    decode?: (v: any) => any;
-    encode?: (v: any) => any;
-    coerce?: (v: any) => any;
-    validate?: (v: any) => void;
-  }
 }

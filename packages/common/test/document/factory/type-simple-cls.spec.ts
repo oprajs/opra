@@ -17,15 +17,8 @@ describe('DocumentFactory - SimpleType with decorated classes', function () {
   };
 
   it('Should add SimpleType by decorated class', async () => {
-    @SimpleType({ctor: Number})
-    class Type1 {
-      decode() {
-        return 1;
-      }
-
-      encode() {
-        return 2;
-      }
+    @SimpleType()
+    class Type1  {
     }
 
     const doc = await DocumentFactory.createDocument({
@@ -38,20 +31,11 @@ describe('DocumentFactory - SimpleType with decorated classes', function () {
     expect(t).toBeDefined();
     expect(t.kind).toStrictEqual('SimpleType');
     expect(t.name).toStrictEqual('type1');
-    expect(t.decode).toEqual(Type1.prototype.decode);
-    expect(t.encode).toEqual(Type1.prototype.encode);
   })
 
   it('Should extend SimpleType', async () => {
-    @SimpleType({ctor: Number})
+    @SimpleType()
     class Type2 {
-      decode() {
-        return 1;
-      }
-
-      encode() {
-        return 2;
-      }
     }
 
     @SimpleType()
@@ -70,8 +54,6 @@ describe('DocumentFactory - SimpleType with decorated classes', function () {
     expect(t.name).toStrictEqual('type1');
     expect(t.base).toBeDefined();
     expect(t.base?.name).toStrictEqual('type2');
-    expect(t.decode).toEqual(t.base?.decode);
-    expect(t.encode).toEqual(t.base?.encode);
   })
 
 })

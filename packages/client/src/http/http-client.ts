@@ -28,8 +28,8 @@ import {
 
 export interface OpraHttpClientOptions {
   /**
-   //    * Opra Service Metadata Document
-   //    */
+   * Opra Service Metadata Document
+   */
   api?: ApiDocument;
   /**
    *

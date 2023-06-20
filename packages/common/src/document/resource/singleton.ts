@@ -1,5 +1,6 @@
 import omit from 'lodash.omit';
-import { StrictOmit, Type, Writable } from 'ts-gems';
+import merge from 'putil-merge';
+import { StrictOmit, Type } from 'ts-gems';
 import { omitUndefined } from '../../helpers/index.js';
 import { OpraSchema } from '../../schema/index.js';
 import type { TypeThunkAsync } from '../../types.js';
@@ -43,20 +44,48 @@ export namespace Singleton {
   export type UpdateOperationOptions = StrictOmit<OpraSchema.Singleton.UpdateOperation, 'handler'>;
 }
 
-export interface Singleton extends StrictOmit<Resource, 'exportSchema' | '_construct'> {
+class SingletonClass extends Resource {
   readonly type: ComplexType;
+  readonly kind = OpraSchema.Singleton.Kind;
   readonly operations: Singleton.Operations;
   readonly controller?: object | Type;
 
-  exportSchema(): OpraSchema.Singleton;
+  constructor(
+      document: ApiDocument,
+      init: Singleton.InitArguments
+  ) {
+    super(document, init);
+    this.controller = init.controller;
+    const operations = this.operations = init.operations || {};
+    this.type = init.type;
+    if (this.controller) {
+      const instance = typeof this.controller == 'function'
+          ? new (this.controller as Type)()
+          : this.controller;
+      for (const operation of Object.values(operations)) {
+        if (!operation.handler && operation.handlerName) {
+          const fn = instance[operation.handlerName];
+          if (!fn)
+            throw new TypeError(`No such operation handler (${operation.handlerName}) found`);
+          operation.handler = fn.bind(instance);
+        }
+      }
+    }
+  }
 
-  normalizeFieldPath(fields: string): string;
+  exportSchema(): OpraSchema.Singleton {
+    const out = Resource.prototype.exportSchema.call(this) as OpraSchema.Singleton;
+    Object.assign(out, omitUndefined({
+      type: this.type.name,
+      operations: this.operations
+    }));
+    return out;
+  }
 
-  normalizeFieldPath(fields: string[]): string[];
+  normalizeFieldPath(this: Singleton, path: string | []): string | string[] {
+    return this.type.normalizeFieldPath(path as any);
+  }
 
-  normalizeFieldPath(fields: string | string[]): string | string[];
-
-  _construct(init: Singleton.InitArguments): void;
 }
 
 export interface SingletonConstructor {
@@ -70,6 +99,9 @@ export interface SingletonConstructor {
   Delete: (options?: Singleton.DeleteOperationOptions) => PropertyDecorator;
   Get: (options?: Singleton.GetOperationOptions) => PropertyDecorator;
   Update: (options?: Singleton.UpdateOperationOptions) => PropertyDecorator;
+}
+
+export interface Singleton extends SingletonClass {
 }
 
 export const Singleton = function (this: Singleton | void, ...args: any[]) {
@@ -99,53 +131,10 @@ export const Singleton = function (this: Singleton | void, ...args: any[]) {
 
   // Constructor
   const [document, init] = args as [ApiDocument, Singleton.InitArguments];
-
-  // call super()
-  Resource.apply(this, [document, init]);
+  merge(this, new SingletonClass(document, init), {descriptor: true});
 } as SingletonConstructor;
 
-const proto = {
-  _construct(init: Singleton.InitArguments): void {
-    // call super()
-    Resource.prototype._construct.call(this, init);
-
-    const _this = this as Writable<Singleton>;
-    _this.kind = OpraSchema.Singleton.Kind;
-    _this.controller = init.controller;
-    const operations = _this.operations = init.operations || {};
-    _this.type = init.type;
-    if (_this.controller) {
-      const instance = typeof _this.controller == 'function'
-          ? new (_this.controller as Type)()
-          : _this.controller;
-      for (const operation of Object.values(operations)) {
-        if (!operation.handler && operation.handlerName) {
-          const fn = instance[operation.handlerName];
-          if (!fn)
-            throw new TypeError(`No such operation handler (${operation.handlerName}) found`);
-          operation.handler = fn.bind(instance);
-        }
-      }
-    }
-  },
-
-  exportSchema(): OpraSchema.Singleton {
-    const out = Resource.prototype.exportSchema.call(this) as OpraSchema.Singleton;
-    Object.assign(out, omitUndefined({
-      type: this.type.name,
-      operations: this.operations
-    }));
-    return out;
-  },
-
-  normalizeFieldPath(this: Singleton, path: string | []): string | string[] {
-    return this.type.normalizeFieldPath(path);
-  },
-
-} as Singleton;
-
-Object.assign(Singleton.prototype, proto);
-Object.setPrototypeOf(Singleton.prototype, Resource.prototype);
+Singleton.prototype = SingletonClass.prototype;
 
 function createOperationDecorator<T>(operation: string) {
   return (options?: T) =>

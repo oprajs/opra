@@ -1,4 +1,6 @@
+import merge from 'putil-merge';
 import { Class, StrictOmit, Type, Writable } from 'ts-gems';
+import * as vg from 'valgen';
 import {
   applyMixins,
   inheritPropertyInitializers,
@@ -8,6 +10,7 @@ import {
 import { OpraSchema } from '../../schema/index.js';
 import type { ApiDocument } from '../api-document.js';
 import { METADATA_KEY } from '../constants.js';
+import { ApiField } from './api-field.js';
 import { ComplexType } from './complex-type.js';
 import { DataType } from './data-type.js';
 import { MappedType } from './mapped-type.js';
@@ -30,15 +33,78 @@ export namespace UnionType {
   }
 }
 
-/**
- * Type definition of UnionType prototype
- * @type UnionType
- */
-export interface UnionType extends StrictOmit<DataType, 'own' | 'exportSchema'>,
-    Pick<ComplexType, 'additionalFields' | 'fields'>, UnionType.OwnProperties {
+class UnionTypeClass extends DataType {
+  readonly kind = OpraSchema.UnionType.Kind;
   readonly own: UnionType.OwnProperties;
+  readonly types: (ComplexType | UnionType | MappedType)[];
+  readonly additionalFields?: boolean;
+  readonly fields: ResponsiveMap<ApiField>;
+  protected _decoder: vg.Validator<any, any>;
+  protected _encoder: vg.Validator<any, any>;
 
-  exportSchema(): OpraSchema.UnionType;
+  constructor(document: ApiDocument, init: UnionType.InitArguments) {
+    super(document, init);
+    this.fields = new ResponsiveMap();
+    const own = this.own as Writable<UnionType.OwnProperties>
+    own.types = [];
+
+    for (const base of init.types) {
+      if (!(base instanceof ComplexType || base instanceof UnionType || base instanceof MappedType))
+        throw new TypeError(`${OpraSchema.UnionType.Kind} shall contain ${OpraSchema.ComplexType.Kind}, ` +
+            `${OpraSchema.UnionType.Kind} of ${OpraSchema.MappedType.Kind} types.`);
+      own.types.push(base);
+      if (base.additionalFields)
+        this.additionalFields = true;
+      this.fields.setAll(base.fields);
+    }
+
+    this.types = [...own.types];
+  }
+
+  exportSchema(): OpraSchema.UnionType {
+    const out = super.exportSchema() as OpraSchema.UnionType;
+    Object.assign(out, omitUndefined({
+      types: this.own.types.map(t => t.name ? t.name : t.exportSchema())
+    }));
+    return out;
+  }
+
+  protected _getDecoder(): vg.Validator<any, any> {
+    if (this._decoder)
+      return this._decoder;
+    const schema: vg.ObjectSchema = {};
+    for (const f of this.fields.values()) {
+      let t = (f.type as any).getDecoder();
+      if (f.isArray)
+        t = vg.isArray(t);
+      schema[f.name] = t;
+    }
+    this._decoder = vg.isObject(schema, {
+      additionalFields: this.additionalFields,
+      name: this.name,
+      caseInSensitive: true
+    });
+    return this._decoder;
+  }
+
+  protected _getEncoder(): vg.Validator<any, any> {
+    if (this._encoder)
+      return this._encoder;
+    const schema: vg.ObjectSchema = {};
+    for (const f of this.fields.values()) {
+      let t = (f.type as any).getEncoder();
+      if (f.isArray)
+        t = vg.isArray(t);
+      schema[f.name] = t;
+    }
+    this._encoder = vg.isObject(schema, {
+      additionalFields: this.additionalFields,
+      name: this.name,
+      caseInSensitive: true,
+      detectCircular: true
+    });
+    return this._encoder;
+  }
 }
 
 /**
@@ -66,6 +132,14 @@ export interface UnionTypeConstructor {
 }
 
 /**
+ * Type definition of UnionType prototype
+ * @type UnionType
+ */
+export interface UnionType extends UnionTypeClass {
+}
+
+
+/**
  * @class UnionType
  */
 export const UnionType = function (
@@ -73,56 +147,15 @@ export const UnionType = function (
     ...args: any[]
 ) {
 
-  // UnionType helper
-  if (!this) {
-    return mapToUnionType(...args);
-  }
-
   // Constructor
-  // call super()
-  DataType.apply(this, args);
-
-  const [, init] = args as [never, UnionType.InitArguments];
-  const _this = this as Writable<UnionType>;
-  _this.fields = new ResponsiveMap();
-  const own = _this.own as Writable<UnionType.OwnProperties>
-  own.types = [];
-
-  for (const base of init.types) {
-    if (!(base instanceof ComplexType || base instanceof UnionType || base instanceof MappedType))
-      throw new TypeError(`${OpraSchema.UnionType.Kind} shall contain ${OpraSchema.ComplexType.Kind}, ` +
-          `${OpraSchema.UnionType.Kind} of ${OpraSchema.MappedType.Kind} types.`);
-    own.types.push(base);
-    if (base.additionalFields)
-      _this.additionalFields = true;
-    _this.fields.setAll(base.fields);
+  if (this) {
+    const [document, init] = args as [ApiDocument, UnionType.InitArguments];
+    merge(this, new UnionTypeClass(document, init), {descriptor: true});
+    return;
   }
 
-  _this.kind = 'UnionType';
-  _this.types = [...own.types];
-} as UnionTypeConstructor;
+  // UnionType helper
 
-UnionType._applyMixin = () => void 0;
-
-const proto = {
-
-  exportSchema(): OpraSchema.UnionType {
-    const out = DataType.prototype.exportSchema.call(this) as OpraSchema.UnionType;
-    Object.assign(out, omitUndefined({
-      types: this.own.types.map(t => t.name ? t.name : t.exportSchema())
-    }));
-    return out;
-  }
-
-} as UnionType;
-
-Object.assign(UnionType.prototype, proto);
-Object.setPrototypeOf(UnionType.prototype, DataType.prototype);
-
-/**
- *
- */
-function mapToUnionType(...args: any[]) {
   // Filter undefined items
   const clasRefs = [...args].filter(x => !!x) as [Type];
   if (!clasRefs.length)
@@ -155,5 +188,8 @@ function mapToUnionType(...args: any[]) {
   UnionType._applyMixin(UnionClass, ...clasRefs);
 
   return UnionClass as any;
-}
+} as UnionTypeConstructor;
 
+UnionType.prototype = UnionTypeClass.prototype;
+
+UnionType._applyMixin = () => void 0;

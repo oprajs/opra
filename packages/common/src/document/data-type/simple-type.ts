@@ -1,108 +1,105 @@
 import omit from 'lodash.omit';
-import { StrictOmit, Type, Writable } from 'ts-gems';
-import { omitUndefined } from '../../helpers/index.js';
+import merge from 'putil-merge';
+import * as vg from 'valgen';
 import { OpraSchema } from '../../schema/index.js';
 import type { ApiDocument } from '../api-document.js';
 import { METADATA_KEY, TYPENAME_PATTERN } from '../constants.js';
 import { DataType } from './data-type.js';
 
 export namespace SimpleType {
-  export interface InitArguments extends DataType.InitArguments,
-      Pick<OpraSchema.SimpleType, 'ctor' | 'pattern' | 'codec'> {
+  export interface InitArguments extends DataType.InitArguments {
     base?: SimpleType;
+    decoder?: vg.Validator<any, any>;
+    encoder?: vg.Validator<any, any>;
   }
 
-  export interface OwnProperties extends DataType.OwnProperties,
-      Readonly<Pick<OpraSchema.SimpleType, 'ctor' | 'pattern' | 'codec'>> {
-
+  export interface DecoratorOptions extends DataType.DecoratorOptions {
+    decoder?: vg.Validator<any, any>;
+    encoder?: vg.Validator<any, any>;
   }
 
-  export interface DecoratorOptions extends DataType.DecoratorOptions,
-      Pick<InitArguments, 'ctor' | 'pattern'> {
-
+  export interface Metadata extends DataType.Metadata {
+    decoder?: vg.Validator<any, any>;
+    encoder?: vg.Validator<any, any>;
   }
 
-  export interface Metadata extends OpraSchema.SimpleType {
-    name: string;
+  export interface OwnProperties extends DataType.OwnProperties {
   }
+
 }
 
-export interface SimpleType extends StrictOmit<DataType, 'own' | 'exportSchema'>, SimpleType.OwnProperties {
-  readonly ctor: Type;
+/**
+ * @class SimpleType
+ */
+class SimpleTypeClass extends DataType {
+  readonly kind = OpraSchema.SimpleType.Kind
   readonly base?: SimpleType;
+  protected _decoder: vg.Validator<any, any>;
+  protected _encoder: vg.Validator<any, any>;
   readonly own: SimpleType.OwnProperties;
 
-  exportSchema(): OpraSchema.SimpleType;
+  constructor(document: ApiDocument, init: SimpleType.InitArguments) {
+    super(document, init);
+    this.base = init.base;
+    this._decoder = init.decoder || init.base?._decoder || vg.isAny();
+    this._encoder = init.encoder || init.base?._encoder || vg.isAny();
+  }
 
-  decode(value: any): any;
+  protected _getDecoder(): vg.Validator<any, any> {
+    return this._decoder;
+  }
 
-  encode(value: any): any;
+  protected _getEncoder(): vg.Validator<any, any> {
+    return this._encoder;
+  }
+
+  exportSchema(): OpraSchema.SimpleType {
+    // noinspection UnnecessaryLocalVariableJS
+    const out = super.exportSchema() as OpraSchema.SimpleType;
+    // Object.assign(out, omitUndefined({
+    //   base: this.base ?
+    //       (this.base.name ? this.base.name : this.base.exportSchema()) : undefined,
+    // }));
+    return out;
+  }
+
 }
 
 export interface SimpleTypeConstructor {
-  new(document: ApiDocument, init?: SimpleType.InitArguments): SimpleType;
+  new(document: ApiDocument, init: SimpleType.InitArguments): SimpleType;
 
-  (init?: SimpleType.DecoratorOptions): ClassDecorator;
+  (options?: SimpleType.DecoratorOptions): (target: any) => any;
 
   prototype: SimpleType;
+}
+
+export interface SimpleType extends SimpleTypeClass {
 }
 
 /**
  * @class SimpleType
  */
 export const SimpleType = function (this: SimpleType | void, ...args: any[]) {
-  // ClassDecorator
-  if (!this) {
-    const [options] = args as [SimpleType.DecoratorOptions | undefined];
-    return function (target: Function) {
-      let name = options?.name || target.name.match(TYPENAME_PATTERN)?.[1] || target.name;
-      name = name.charAt(0).toLowerCase() + name.substring(1);
-      const metadata: SimpleType.Metadata = Reflect.getOwnMetadata(METADATA_KEY, target) || ({} as any);
-      metadata.kind = OpraSchema.SimpleType.Kind;
-      metadata.name = name;
-      if (options)
-        Object.assign(metadata, omit(options, ['kind', 'name', 'base']));
-      Reflect.defineMetadata(METADATA_KEY, metadata, target);
-    }
+  // Constructor
+  if (this) {
+    const [document, init] = args as [ApiDocument, SimpleType.InitArguments];
+    merge(this, new SimpleTypeClass(document, init), {descriptor: true});
+    return;
   }
 
-  // Constructor
-  const [, options] = args as [never, SimpleType.InitArguments | undefined];
-
-  // call super()
-  DataType.apply(this, args);
-  const _this = this as Writable<SimpleType>;
-  _this.kind = OpraSchema.SimpleType.Kind;
-  _this.base = options?.base;
-  const own = _this.own as Writable<SimpleType.OwnProperties>;
-  own.codec = options?.codec;
-  own.ctor = options?.ctor;
-  if (options?.pattern)
-    own.pattern = (options?.pattern instanceof RegExp ? options.pattern : new RegExp(options.pattern));
-
-  const ctor = own.ctor || _this.base?.ctor;
-  _this.ctor = ctor || Object;
-  _this.decode = own.codec?.decode || _this.base?.decode || ((v) => v);
-  _this.encode = own.codec?.encode || _this.base?.encode || ((v) => v);
-  _this.coerce = own.codec?.coerce || _this.base?.coerce || ((v) => v);
-  _this.validate = own.codec?.validate || _this.base?.validate || (() => true);
-  _this.pattern = own.pattern || _this.base?.pattern;
+  // ClassDecorator
+  const [options] = args as [SimpleType.DecoratorOptions | undefined];
+  return function (target: Function) {
+    let name = options?.name || target.name.match(TYPENAME_PATTERN)?.[1] || target.name;
+    name = name.charAt(0).toLowerCase() + name.substring(1);
+    const metadata: SimpleType.Metadata = Reflect.getOwnMetadata(METADATA_KEY, target) || ({} as any);
+    metadata.kind = OpraSchema.SimpleType.Kind;
+    metadata.name = name;
+    if (options)
+      Object.assign(metadata, omit(options, ['kind', 'name']));
+    Reflect.defineMetadata(METADATA_KEY, metadata, target);
+  }
 
 } as SimpleTypeConstructor;
 
-const proto = {
-
-  exportSchema(): OpraSchema.SimpleType {
-    const out = DataType.prototype.exportSchema.call(this) as OpraSchema.SimpleType;
-    Object.assign(out, omitUndefined({
-      base: this.base ?
-          (this.base.name ? this.base.name : this.base.exportSchema()) : undefined,
-      pattern: this.own.pattern
-    }));
-    return out;
-  }
-
-} as SimpleType;
-
-Object.assign(SimpleType.prototype, proto);
-Object.setPrototypeOf(SimpleType.prototype, DataType.prototype);
+SimpleType.prototype = SimpleTypeClass.prototype;

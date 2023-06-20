@@ -9,9 +9,15 @@ export class OpraException extends Error {
   status: number = 500;
   cause?: Error;
 
-  constructor(issue?: string | Partial<ErrorIssue>, cause?: Error) {
+  constructor()
+  constructor(issue: string | Partial<ErrorIssue> | Error)
+  constructor(issue: string | Partial<ErrorIssue>, cause?: Error)
+  constructor(issue?: any, cause?: Error) {
     super('');
     this._initName();
+
+    if (issue instanceof Error)
+      cause = issue;
 
     if (cause) {
       this.cause = cause;
@@ -20,8 +26,6 @@ export class OpraException extends Error {
     }
 
     this._init(issue || cause || 'Unknown error');
-    if (issue instanceof Error)
-      this.stack = issue.stack;
     this.message = i18n.deep(this.issue.message);
   }
 
@@ -46,7 +50,7 @@ export class OpraException extends Error {
     this.name = this.constructor.name;
   }
 
-  protected _init(issue: Error | Partial<ErrorIssue> | string) {
+  protected _init(issue: any) {
     if (issue instanceof Error) {
       if (typeof (issue as any).status === 'number')
         this.status = (issue as any).status;
