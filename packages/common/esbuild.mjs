@@ -10,7 +10,10 @@ const dirname = path.dirname(fileURLToPath(import.meta.url));
 const appName = path.basename(dirname);
 const buildRoot = path.resolve(dirname, '../../build');
 const targetPath = path.resolve(buildRoot, appName);
-const external = [...Object.keys(pkgJson.dependencies), ...Object.keys(pkgJson.devDependencies)];
+const noExternal = [];
+const external = [...Object.keys(pkgJson.dependencies),
+  ...Object.keys(pkgJson.devDependencies), 'mime-db']
+    .filter(x => !noExternal.includes(x));
 
 await esbuild.build({
   entryPoints: [path.resolve(targetPath, 'esm/index.js')],

@@ -1,4 +1,4 @@
-import { HttpResponseMessage } from '@opra/common';
+import type { HttpResponseMessage } from '../http/http-response-message.js';
 
 export interface Response {
   /**

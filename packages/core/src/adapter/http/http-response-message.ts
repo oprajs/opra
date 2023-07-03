@@ -6,10 +6,13 @@ import mime from 'mime-types';
 import path from 'path';
 import { Readable } from 'stream';
 import { HeaderInfo, HTTPParser } from '@browsery/http-parser';
-import { HttpStatusMessages } from './enums/http-status-messages.js';
+import { HttpStatusMessages } from '@opra/common';
 import { HttpMessage, HttpMessageHost } from './http-message.host.js';
 import type { HttpRequestMessage } from './http-request-message.js';
-import { CookieOptions } from './interfaces/cookie-options.interface.js';
+
+export interface CookieOptions extends cookie.CookieSerializeOptions {
+  signed?: boolean;
+}
 
 export interface HttpResponseMessage extends HttpMessage {
 

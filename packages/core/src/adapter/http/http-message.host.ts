@@ -1,6 +1,6 @@
-import stream from 'stream';
+import * as stream from 'stream';
 import { HeaderInfo, HTTPParser, ParserType } from '@browsery/http-parser';
-import { HttpHeaders } from './http-headers.js';
+import { HttpHeaders } from '@opra/common';
 
 const kHeaders = Symbol('kHeaders');
 const kHeadersProxy = Symbol('kHeadersProxy');

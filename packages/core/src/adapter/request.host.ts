@@ -1,5 +1,6 @@
-import type { HttpRequestMessage, Resource } from '@opra/common';
+import type { Resource } from '@opra/common';
 import { OpraSchema } from '@opra/common';
+import { HttpRequestMessage } from './http/http-request-message.js';
 import type { Request } from './interfaces/request.interface.js';
 
 export namespace RequestHost {

@@ -11,8 +11,8 @@
   },
   "scripts": {
     "compile": "tsc",
-    "prebuild": "npm run check && npm run lint && npm run clean && npm run fix-json",
-    "build": "ng build --configuration production",
+    "prebuild": "npm run check && npm run lint && npm run clean",
+    "build": "ng build",
     "postbuild": "cp ../../LICENSE ../../build/angular",
     "lint": "eslint . --max-warnings=0",
     "check": "madge --circular src/**",
@@ -21,17 +21,17 @@
     "clean": "npm run clean:src && npm run clean:dist && npm run clean:cover",
     "clean:src": "ts-cleanup -s src --all && ts-cleanup -s test --all",
     "clean:dist": "rimraf ../../build/angular",
-    "clean:cover": "rimraf ../../coverage/angular",
-    "fix-json": "node ./tools/fix-dependencies.mjs"
+    "clean:cover": "rimraf ../../coverage/angular"
   },
   "peerDependencies": {
     "@angular/common": "15.x.x || 16.x.x",
     "@angular/core": "15.x.x || 16.x.x",
-    "@opra/client": "^0.19.0"
+    "@opra/client": "^0.19.0",
+    "ts-gems": "^2.4.0"
   },
   "devDependencies": {
     "core-js": "^3.31.0",
-    "cross-fetch": "^3.1.6",
+    "cross-fetch": "^4.0.0",
     "express": "^4.18.2",
     "ts-gems": "^2.4.0",
     "zone.js": "^0.13.1"

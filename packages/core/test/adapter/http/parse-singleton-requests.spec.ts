@@ -1,5 +1,5 @@
-import { ApiDocument, DocumentFactory, HttpRequestMessage } from '@opra/common';
-import { OpraHttpAdapter, Request } from '@opra/core';
+import { ApiDocument, DocumentFactory } from '@opra/common';
+import { HttpRequestMessage, OpraHttpAdapter, Request } from '@opra/core';
 import { CustomersResource, MyProfileResource } from '../../_support/test-app/index.js';
 
 describe('OpraHttpAdapter parse Singleton requests', function () {

@@ -1,4 +1,6 @@
-import { ApiDocument, HttpRequestMessage, HttpResponseMessage } from '@opra/common';
+import { ApiDocument } from '@opra/common';
+import { HttpRequestMessage } from '../http/http-request-message.js';
+import { HttpResponseMessage } from '../http/http-response-message.js';
 import { Request } from './request.interface.js';
 import { Response } from './response.interface.js';
 

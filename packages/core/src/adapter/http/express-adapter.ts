@@ -1,7 +1,8 @@
 import bodyParser from 'body-parser';
 import type { Application, NextFunction, Request, Response } from 'express';
-import { ApiDocument, HttpRequestMessage, normalizePath } from '@opra/common';
+import { ApiDocument, normalizePath } from '@opra/common';
 import { OpraHttpAdapter } from './http-adapter.js';
+import { HttpRequestMessage } from './http-request-message.js';
 
 export namespace OpraExpressAdapter {
   export interface Options extends OpraHttpAdapter.Options {

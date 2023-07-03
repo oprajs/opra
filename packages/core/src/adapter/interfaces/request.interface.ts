@@ -1,4 +1,5 @@
-import { HttpRequestMessage, OpraSchema, Resource } from '@opra/common';
+import { OpraSchema, Resource } from '@opra/common';
+import type { HttpRequestMessage } from '../http/http-request-message.js';
 
 export interface Request {
   readonly kind: string;

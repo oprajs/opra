@@ -1,4 +1,4 @@
-import { HttpRequestMessage } from '@opra/common';
+import { HttpRequestMessage } from '@opra/core';
 
 describe('HttpRequestMessage', function () {
 
