@@ -1,5 +1,5 @@
 import { HTTPParser } from 'http-parser-js';
-import { HttpMessage, HttpMessageHost } from '../../src/http/http-message.host.js';
+import { HttpMessage, HttpMessageHost } from '../../../src/adapter/http/http-message.host.js';
 
 class TestMessage extends HttpMessageHost {
 

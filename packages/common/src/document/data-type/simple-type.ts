@@ -1,3 +1,4 @@
+import 'reflect-metadata';
 import omit from 'lodash.omit';
 import merge from 'putil-merge';
 import * as vg from 'valgen';

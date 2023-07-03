@@ -1,3 +1,4 @@
+import 'reflect-metadata';
 import merge from 'putil-merge';
 import { Class, StrictOmit, Type, Writable } from 'ts-gems';
 import * as vg from 'valgen';

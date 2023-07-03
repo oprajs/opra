@@ -15,7 +15,6 @@ export async function createDocument(
       noBuiltinTypes?: boolean
     }
 ): Promise<ApiDocument> {
-  // const {document, typeQueue, curPath, resourceQueue} = this;
   this.document.url = init.url;
   if (init.info)
     Object.assign(this.document.info, init.info);

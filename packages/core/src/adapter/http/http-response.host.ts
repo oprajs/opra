@@ -1,5 +1,5 @@
-import { HttpResponseMessage } from '@opra/common';
 import { ResponseHost } from '../response.host.js';
+import { HttpResponseMessage } from './http-response-message.js';
 
 export class HttpResponseHost extends ResponseHost {
 

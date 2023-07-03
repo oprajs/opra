@@ -1,4 +1,4 @@
-import { HttpResponseMessage } from '@opra/common';
+import { HttpResponseMessage } from './http/http-response-message.js';
 import { Response } from './interfaces/response.interface.js';
 
 export namespace ResponseHost {

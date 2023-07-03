@@ -1,4 +1,4 @@
-import { HttpResponseMessageHost } from '@opra/common';
+import { HttpResponseMessageHost } from '@opra/core';
 
 describe('HttpResponseMessage', function () {
 

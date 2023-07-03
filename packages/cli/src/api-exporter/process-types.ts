@@ -5,7 +5,7 @@ import { wrapJSDocString } from '../utils/string-utils.js';
 import type { ApiExporter } from './api-exporter.js';
 import { TsFile } from './ts-file.js';
 
-const internalTypeNames = ['boolean', 'bigint', 'number', 'null', 'string'];
+const internalTypeNames = ['any', 'boolean', 'bigint', 'number', 'null', 'string'];
 
 /**
  *
@@ -248,11 +248,10 @@ export async function generateMappedTypeDefinition(
     dataType: MappedType,
     forInterface?: boolean
 ): Promise<string> {
-  return (dataType.pick ? 'Pick<' : 'Omit<') +
-      (await this.resolveTypeNameOrDef(file, dataType.type, forInterface)) +
-      ', ' +
-      (dataType.pick || dataType.omit || [])
-          .map(x => `'${x}'`).join(' | ') +
-      '>';
+  const typeName = await this.resolveTypeNameOrDef(file, dataType.type, forInterface);
+  const keys = (dataType.pick || dataType.omit || []);
+  if (!keys.length)
+    return typeName;
+  return `${dataType.pick ? 'Pick<' : 'Omit<'}${typeName}, ${keys.map(x => `'${x}'`).join(' | ')}>`;
 }
 

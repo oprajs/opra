@@ -3,8 +3,8 @@ import { IncomingHttpHeaders } from 'http';
 import { Readable } from 'stream';
 import typeIs from 'type-is';
 import { HeaderInfo, HTTPParser } from '@browsery/http-parser';
+import { HttpParams } from '@opra/common';
 import { HttpMessage, HttpMessageHost } from './http-message.host.js';
-import { HttpParams } from './http-params.js';
 
 const HTTP_VERSION_PATTERN = /^(\d)\.(\d)$/;
 

@@ -7,7 +7,7 @@ export function collectionUpdateManyTests(args: { client: OpraTestClient }) {
 
     it('Should update many instances', async () => {
       const data = {
-        uid: faker.datatype.hexadecimal({length: 5})
+        uid: faker.string.hexadecimal({length: 5})
       }
       let resp = await args.client.collection('Customers')
           .updateMany(data, {filter: '_id<=50'})

@@ -1,9 +1,8 @@
 import {
   ApiDocument,
   DocumentFactory,
-  HttpRequestMessage,
 } from '@opra/common';
-import { OpraHttpAdapter, Request } from '@opra/core';
+import { HttpRequestMessage, OpraHttpAdapter, Request } from '@opra/core';
 import { CustomersResource, MyProfileResource } from '../../_support/test-app/index.js';
 
 describe('OpraHttpAdapter parse Collection requests', function () {

@@ -1,6 +1,6 @@
 import { Task } from 'power-tasks';
 import {
-  BadRequestError, Collection, HttpHeaderCodes, HttpRequestMessage, HttpResponseMessage,
+  BadRequestError, Collection, HttpHeaderCodes,
   HttpStatusCodes, InternalServerError, isReadable, IssueSeverity, MethodNotAllowedError,
   OpraException, OpraSchema, OpraURL, Singleton, wrapException
 } from '@opra/common';
@@ -11,7 +11,9 @@ import { RequestContext } from '../interfaces/request-context.interface.js';
 import { Response } from '../interfaces/response.interface.js';
 import { HttpRequestHost } from './http-request.host.js';
 import { HttpRequestContextHost } from './http-request-context.host.js';
+import { HttpRequestMessage } from './http-request-message.js';
 import { HttpResponseHost } from './http-response.host.js';
+import { HttpResponseMessage } from './http-response-message.js';
 
 /**
  * @namespace OpraHttpAdapter
