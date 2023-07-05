@@ -78,13 +78,13 @@ export class ApiExporter {
   }
 
   protected async execute() {
-    this.logger.log(chalk.yellow('Fetching service metadata from'), chalk.whiteBright(this.client.serviceUrl));
+    this.logger.log(chalk.cyan('Fetching service metadata from'), chalk.whiteBright(this.client.serviceUrl));
     this.document = await this.client.getMetadata();
-    this.logger.log(chalk.yellow('Retrieved service info:\n'),
-        chalk.white('Title:'), chalk.magenta(this.document.info.title), '\n',
-        chalk.white('Version:'), chalk.magenta(this.document.info.version), '\n',
-        chalk.white('Resources:'), chalk.magenta(this.document.resources.size), 'resources found\n',
-        chalk.white('Types:'), chalk.magenta(this.document.types.size), 'types found\n',
+    this.logger.log(chalk.cyan('Retrieved service info:\n'),
+        chalk.white('Title:'), chalk.whiteBright(this.document.info.title), '\n',
+        chalk.white('Version:'), chalk.whiteBright(this.document.info.version), '\n',
+        chalk.white('Resources:'), chalk.whiteBright(this.document.resources.size), 'resources found\n',
+        chalk.white('Types:'), chalk.whiteBright(this.document.types.size), 'types found\n',
     );
     this.serviceClassName = (this.serviceClassName || this.document.info.title || 'Service1').replace(/[^\w_$]*/g, '')
     this.serviceClassName = this.serviceClassName.charAt(0).toUpperCase() + this.serviceClassName.substring(1);
@@ -95,10 +95,10 @@ export class ApiExporter {
  * ${this.client.serviceUrl}
 */`;
 
-    this.logger.log(chalk.yellow('Removing old files..'));
+    this.logger.log(chalk.cyan('Removing old files..'));
     this.cleanDirectory(this.outDir);
 
-    this.logger.log(chalk.yellow(`Generating service interface ( ${chalk.whiteBright(this.serviceClassName)} )`));
+    this.logger.log(chalk.cyan(`Generating service interface ( ${chalk.whiteBright(this.serviceClassName)} )`));
     fs.mkdirSync(this.outDir, {recursive: true});
 
     await this.processTypes();

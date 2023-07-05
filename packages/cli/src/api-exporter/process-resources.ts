@@ -12,7 +12,7 @@ export async function processResources(
     this: ApiExporter,
     targetDir: string = ''
 ) {
-  this.logger.log(chalk.yellow('Processing resources'));
+  this.logger.log(chalk.cyan('Processing resources'));
   const {document} = this;
   const serviceTs = this.addFile(path.join(targetDir, this.serviceClassName + '.ts'));
   serviceTs.addImportPackage('@opra/client', ['HttpServiceBase']);
@@ -23,9 +23,11 @@ export async function processResources(
   serviceTs.content = `\nexport class ${this.serviceClassName} extends HttpServiceBase {\n`;
 
   for (const resource of document.resources.values()) {
-    serviceTs.content += `\n/**\n * ${wrapJSDocString(resource.description || resource.name)}
- * @url ${joinPath(this.client.serviceUrl, '$metadata#resources/' + resource.name)}
- */`;
+    const jsDoc = `
+  /**
+   * ${wrapJSDocString(resource.description || resource.name)}    
+   * @url ${joinPath(this.client.serviceUrl, '$metadata#resources/' + resource.name)}
+   */`;
 
     if (resource instanceof Collection) {
       const typeName = resource.type.name || '';
@@ -34,7 +36,13 @@ export async function processResources(
 
       const operations = Object.keys(resource.operations)
           .map(x => `'${x}'`).join(' | ');
-      serviceTs.content += `
+      if (!operations.length) {
+        this.logger.warn(chalk.yellow('WARN: ') +
+            `Ignoring "${chalk.whiteBright(resource.name)}" resource. No operations available.`);
+        continue;
+      }
+
+      serviceTs.content += jsDoc + `
   get ${resource.name}(): Pick<HttpCollectionNode<${typeName}>, ${operations}> {
     return this.$client.collection('${resource.name}');
   }\n`;
@@ -45,7 +53,13 @@ export async function processResources(
 
       const operations = Object.keys(resource.operations)
           .map(x => `'${x}'`).join(' | ');
-      serviceTs.content += `
+      if (!operations.length) {
+        this.logger.warn(chalk.yellow('WARN: ') +
+            `Ignoring "${chalk.whiteBright(resource.name)}" resource. No operations available.`);
+        continue;
+      }
+
+      serviceTs.content += jsDoc + `
   get ${resource.name}(): Pick<HttpSingletonNode<${typeName}>, ${operations}> {
     return this.$client.singleton('${resource.name}');
   }\n`;
