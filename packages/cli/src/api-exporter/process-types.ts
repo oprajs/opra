@@ -15,7 +15,7 @@ export async function processTypes(
     this: ApiExporter,
     targetDir: string = ''
 ) {
-  this.logger.log(chalk.yellow('Processing types'));
+  this.logger.log(chalk.cyan('Processing types'));
   const {document} = this;
   const typesTs = this.addFile(path.join(targetDir, 'types.ts'));
   for (const dataType of document.types.values()) {

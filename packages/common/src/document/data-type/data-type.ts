@@ -70,7 +70,7 @@ export abstract class DataType {
 
   extendsFrom(type: string | Type | DataType): any {
     const dataType = type instanceof DataType ? type : this.document.getDataType(type);
-    let t = this.base;
+    let t: DataType | undefined = this;
     while (t) {
       if (t === dataType)
         return true;
