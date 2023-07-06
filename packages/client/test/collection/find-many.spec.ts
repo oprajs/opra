@@ -134,4 +134,16 @@ describe('Collection.findMany', function () {
     expect(app.lastRequest.query.$skip).toStrictEqual('5');
   });
 
+  it('Should send request with "$count" param', async () => {
+    await client.collection('Customers')
+        .findMany({
+          count: true
+        }).fetch('response');
+    expect(app.lastRequest).toBeDefined();
+    expect(app.lastRequest.method).toStrictEqual('GET');
+    expect(app.lastRequest.baseUrl).toStrictEqual('/Customers');
+    expect(Object.keys(app.lastRequest.query)).toStrictEqual(['$count']);
+    expect(app.lastRequest.query.$count).toStrictEqual('true');
+  });
+
 });
