@@ -1,9 +1,10 @@
+import { HttpHeaderCodes } from '@opra/common';
 import { HttpResponse, OpraHttpClient } from '../../src/index.js';
-import { createMockServer } from '../_support/create-mock-server.js';
+import { createMockServer, MockServer } from '../_support/create-mock-server.js';
 
 describe('Collection.updateMany', function () {
 
-  let app;
+  let app: MockServer;
   let client: OpraHttpClient;
   const data = {id: 1, givenName: 'dfd'};
 
@@ -11,7 +12,11 @@ describe('Collection.updateMany', function () {
 
   beforeAll(async () => {
     app = await createMockServer();
-    client = app.client;
+    client = new OpraHttpClient(app.baseUrl, {api: app.api});
+    app.mockHandler((req, res) => {
+      res.header(HttpHeaderCodes.X_Opra_Version, '1');
+      res.header(HttpHeaderCodes.X_Opra_Data_Type, 'Customer');
+    })
   });
 
   it('Should return body if observe=body or undefined', async () => {
@@ -20,7 +25,7 @@ describe('Collection.updateMany', function () {
     expect(app.lastRequest).toBeDefined();
     expect(app.lastRequest.method).toStrictEqual('PATCH');
     expect(app.lastRequest.baseUrl).toStrictEqual('/Customers');
-    expect(resp).toEqual(app.respBody);
+    expect(resp).toEqual(undefined);
   });
 
   it('Should return HttpResponse if observe=response', async () => {

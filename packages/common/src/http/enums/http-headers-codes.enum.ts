@@ -10,7 +10,7 @@ export enum HttpHeaderCodes {
   X_Opra_Version = "X-OPRA-Version",
   X_Opra_Data_Type = "X-OPRA-Data-Type",
   X_Opra_Operation = "X-OPRA-Operation",
-  X_Opra_Total_Matches = "X-OPRA-Total_Matches",
+  X_Opra_Total_Matches = "X-OPRA-Total-Matches",
 
 
   /* *** Authentication *** */

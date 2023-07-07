@@ -46,7 +46,8 @@ export class HttpResponse<TBody = any> {
   readonly hasBody: boolean = false;
 
   constructor(init?: HttpResponse.Initiator) {
-    this.headers = new HttpHeaders(init?.headers);
+    this.headers = init?.headers instanceof HttpHeaders ? init?.headers
+        : new HttpHeaders(init?.headers);
     this.status = init?.status || 200;
     this.statusText = init?.statusText || 'OK';
     this.url = init?.url || null;
