@@ -25,11 +25,11 @@ export class OpraTestClient extends OpraHttpClient {
   }
 
   collection<TType = any>(resourceName: string | Type<TType>): HttpCollectionNode<TType, ResponseExt> {
-    return super.collection(resourceName);
+    return super.collection(resourceName) as HttpCollectionNode<TType, ResponseExt>;
   }
 
   singleton<TType = any>(resourceName: string | Type<TType>): HttpSingletonNode<TType, ResponseExt> {
-    return super.singleton(resourceName);
+    return super.singleton(resourceName) as HttpSingletonNode<TType, ResponseExt>;
   }
 
   protected async _fetch(urlString: string, req: RequestInit = {}): Promise<Response> {
