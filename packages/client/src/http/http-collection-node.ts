@@ -59,7 +59,7 @@ export namespace HttpCollectionNode {
 
 }
 
-export class HttpCollectionNode<TType, TResponseExt = any> {
+export class HttpCollectionNode<TType, TResponseExt = {}> {
   protected [kHttpClientContext]: HttpClientContext;
 
   constructor(context: HttpClientContext) {
@@ -162,6 +162,9 @@ export class HttpCollectionNode<TType, TResponseExt = any> {
     return requestHost as any;
   }
 
+  findMany(
+      options?: StrictOmit<HttpCollectionNode.FindManyOptions, 'observe'>
+  ): HttpRequestObservable<TType[], TType, TResponseExt>
   findMany(
       options?: StrictOmit<HttpCollectionNode.FindManyOptions, 'observe'> & { observe?: 'body' }
   ): HttpRequestObservable<TType[], TType, TResponseExt>

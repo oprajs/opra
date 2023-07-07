@@ -1,25 +1,44 @@
+import { HttpHeaderCodes } from '@opra/common';
+import { customersData } from '../../../../support/test/customers.data.js';
 import { HttpResponse, OpraHttpClient } from '../../src/index.js';
-import { createMockServer } from '../_support/create-mock-server.js';
+import { createMockServer, MockServer } from '../_support/create-mock-server.js';
 
 describe('Collection.findMany', function () {
 
-  let app;
+  let app: MockServer;
   let client: OpraHttpClient;
+  const rows: any[] = JSON.parse(JSON.stringify(customersData.slice(0, 100)));
 
   afterAll(() => app.server.close());
 
   beforeAll(async () => {
     app = await createMockServer();
-    client = app.client;
+    client = new OpraHttpClient(app.baseUrl, {api: app.api});
+    app.mockHandler((req, res) => {
+      res.header(HttpHeaderCodes.X_Opra_Total_Matches, '10');
+      res.header(HttpHeaderCodes.X_Opra_Version, '1');
+      res.header(HttpHeaderCodes.X_Opra_Data_Type, 'Customer');
+      res.json(rows.slice(0, 10));
+    })
+  });
+
+  it('Should return OPRA headers', async () => {
+    const resp = await client.collection('Customers')
+        .findMany().fetch('response');
+    expect(app.lastResponse.get(HttpHeaderCodes.X_Opra_Version)).toStrictEqual('1');
+    expect(app.lastResponse.get(HttpHeaderCodes.X_Opra_Data_Type)).toStrictEqual('Customer');
+    expect(app.lastResponse.get(HttpHeaderCodes.X_Opra_Total_Matches)).toStrictEqual('10');
+    expect(resp.headers.get(HttpHeaderCodes.X_Opra_Version)).toStrictEqual('1');
+    expect(resp.headers.get(HttpHeaderCodes.X_Opra_Data_Type)).toStrictEqual('Customer');
+    expect(resp.headers.get(HttpHeaderCodes.X_Opra_Total_Matches)).toStrictEqual('10');
   });
 
   it('Should return body if observe=body or undefined', async () => {
     const resp = await client.collection('Customers')
         .findMany().fetch();
-    expect(app.lastRequest).toBeDefined();
     expect(app.lastRequest.method).toStrictEqual('GET');
     expect(app.lastRequest.baseUrl).toStrictEqual('/Customers');
-    expect(resp).toEqual(app.respBody);
+    expect(resp).toEqual(rows.slice(0, 10));
   });
 
   it('Should return HttpResponse if observe=response', async () => {
@@ -135,7 +154,7 @@ describe('Collection.findMany', function () {
   });
 
   it('Should send request with "$count" param', async () => {
-    await client.collection('Customers')
+    const resp = await client.collection('Customers')
         .findMany({
           count: true
         }).fetch('response');
@@ -144,6 +163,7 @@ describe('Collection.findMany', function () {
     expect(app.lastRequest.baseUrl).toStrictEqual('/Customers');
     expect(Object.keys(app.lastRequest.query)).toStrictEqual(['$count']);
     expect(app.lastRequest.query.$count).toStrictEqual('true');
+    expect(resp.totalMatches).toStrictEqual(10);
   });
 
 });

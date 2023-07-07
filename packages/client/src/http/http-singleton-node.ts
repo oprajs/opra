@@ -29,7 +29,7 @@ export namespace HttpSingletonNode {
 }
 
 
-export class HttpSingletonNode<TType, TResponseExt = any> {
+export class HttpSingletonNode<TType, TResponseExt = {}> {
   protected [kHttpClientContext]: HttpClientContext;
 
   constructor(context: HttpClientContext) {

@@ -1,6 +1,6 @@
 {
   "name": "@opra/nestjs",
-  "version": "0.20.1",
+  "version": "0.20.2",
   "description": "Opra NestJS module",
   "author": "Panates",
   "license": "MIT",
@@ -33,7 +33,7 @@
     "reflect-metadata": "^0.1.13"
   },
   "peerDependencies": {
-    "@nestjs/common": "^10.0.5"
+    "@nestjs/common": ">= 8.0.0"
   },
   "devDependencies": {
     "@nestjs/platform-express": "^10.0.5",

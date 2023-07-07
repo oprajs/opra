@@ -21,7 +21,7 @@ export namespace HttpRequestObservable {
   }
 }
 
-export class HttpRequestObservable<T, TBody, TResponseExt = never, TResponse = HttpResponse<TBody> & TResponseExt>
+export class HttpRequestObservable<T, TBody, TResponseExt = {}>
     extends Observable<T> {
   static kContext = kHttpClientContext;
   static kRequest = kRequest;
@@ -53,8 +53,8 @@ export class HttpRequestObservable<T, TBody, TResponseExt = never, TResponse = H
 
   async fetch(): Promise<TBody>
   async fetch(observe: 'body'): Promise<TBody>
-  async fetch(observe: 'response'): Promise<TResponse>
-  async fetch(observe?: ObserveType): Promise<TBody | TResponse | HttpEvent> {
+  async fetch(observe: 'response'): Promise<HttpResponse<TBody> & TResponseExt>
+  async fetch(observe?: ObserveType): Promise<TBody | (HttpResponse<TBody> & TResponseExt) | HttpEvent> {
     return lastValueFrom(this[kHttpClientContext].send(observe || 'body', this[kRequest]));
   }
 

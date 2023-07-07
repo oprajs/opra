@@ -1,16 +1,25 @@
+import { HttpHeaderCodes } from '@opra/common';
+import { customersData } from '../../../../support/test/customers.data.js';
 import { HttpResponse, OpraHttpClient } from '../../src/index.js';
-import { createMockServer } from '../_support/create-mock-server.js';
+import { createMockServer, MockServer } from '../_support/create-mock-server.js';
 
 describe('Singleton.get', function () {
 
-  let app;
+  let app: MockServer;
   let client: OpraHttpClient;
+  const rows: any[] = JSON.parse(JSON.stringify(customersData.slice(0, 1)));
 
   afterAll(() => app.server.close());
 
   beforeAll(async () => {
     app = await createMockServer();
-    client = app.client;
+    client = new OpraHttpClient(app.baseUrl, {api: app.api});
+    app.mockHandler((req, res) => {
+      res.header(HttpHeaderCodes.X_Opra_Total_Matches, '10');
+      res.header(HttpHeaderCodes.X_Opra_Version, '1');
+      res.header(HttpHeaderCodes.X_Opra_Data_Type, 'Customer');
+      res.json(rows[0]);
+    })
   });
 
   it('Should return body if observe=body or undefined', async () => {
@@ -19,7 +28,7 @@ describe('Singleton.get', function () {
     expect(app.lastRequest).toBeDefined();
     expect(app.lastRequest.method).toStrictEqual('GET');
     expect(app.lastRequest.baseUrl).toStrictEqual('/MyProfile');
-    expect(resp).toEqual(app.respBody);
+    expect(resp).toEqual(rows[0]);
   });
 
   it('Should return HttpResponse if observe=response', async () => {
