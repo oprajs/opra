@@ -16,3 +16,4 @@ export * from './data-type/union-type.js';
 export * from './resource/resource.js';
 export * from './resource/collection.js';
 export * from './resource/singleton.js';
+export * from './resource/storage.js';

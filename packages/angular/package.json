@@ -30,7 +30,7 @@
     "ts-gems": "^2.4.0"
   },
   "devDependencies": {
-    "core-js": "^3.31.0",
+    "core-js": "^3.31.1",
     "cross-fetch": "^4.0.0",
     "express": "^4.18.2",
     "ts-gems": "^2.4.0",

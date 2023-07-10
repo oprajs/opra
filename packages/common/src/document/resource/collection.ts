@@ -249,9 +249,10 @@ function createOperationDecorator<T>(operation: string) {
         const metadata = {
           ...options,
           handlerName: propertyKey
-        } as OpraSchema.Collection.CreateOperation;
+        };
 
-        const resourceMetadata = (Reflect.getOwnMetadata(METADATA_KEY, target.constructor) || {}) as Collection.Metadata;
+        const resourceMetadata =
+            (Reflect.getOwnMetadata(METADATA_KEY, target.constructor) || {}) as Collection.Metadata;
         resourceMetadata.operations = resourceMetadata.operations || {};
         resourceMetadata.operations[operation] = metadata;
         Reflect.defineMetadata(METADATA_KEY, resourceMetadata, target.constructor);

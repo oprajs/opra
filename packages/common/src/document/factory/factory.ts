@@ -24,8 +24,9 @@ import {
   importTypeClass
 } from './import-type-class.js';
 import {
-  createCollection,
-  createSingleton,
+  createCollectionResource,
+  createFileResource,
+  createSingletonResource,
   processResourceQueue
 } from './process-resources.js';
 import {
@@ -76,8 +77,9 @@ export class DocumentFactory {
   protected extractSingletonSchema: typeof extractSingletonSchema;
   protected extractCollectionSchema: typeof extractCollectionSchema;
   protected processResourceQueue: typeof processResourceQueue;
-  protected createCollection: typeof createCollection;
-  protected createSingleton: typeof createSingleton;
+  protected createCollectionResource: typeof createCollectionResource;
+  protected createSingletonResource: typeof createSingletonResource;
+  protected createFileResource: typeof createFileResource;
 
   /**
    * Creates ApiDocument instance from given schema object
@@ -115,8 +117,9 @@ export class DocumentFactory {
     this.prototype.extractSingletonSchema = extractSingletonSchema;
     this.prototype.extractCollectionSchema = extractCollectionSchema;
     this.prototype.processResourceQueue = processResourceQueue;
-    this.prototype.createCollection = createCollection;
-    this.prototype.createSingleton = createSingleton;
+    this.prototype.createCollectionResource = createCollectionResource;
+    this.prototype.createSingletonResource = createSingletonResource;
+    this.prototype.createFileResource = createFileResource;
   }
 }
 

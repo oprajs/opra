@@ -1,6 +1,7 @@
 import { OpraSchema } from '../../schema/index.js';
 import { Collection } from '../resource/collection.js';
 import { Singleton } from '../resource/singleton.js';
+import { Storage } from '../resource/storage.js';
 import type { DocumentFactory } from './factory.js';
 
 export async function processResourceQueue(
@@ -14,12 +15,17 @@ export async function processResourceQueue(
       continue;
     try {
       if (OpraSchema.isCollection(schema)) {
-        const resource = await this.createCollection(name, schema);
+        const resource = await this.createCollectionResource(name, schema);
         document.resources.set(name, resource);
         continue;
       }
       if (OpraSchema.isSingleton(schema)) {
-        const resource = await this.createSingleton(name, schema);
+        const resource = await this.createSingletonResource(name, schema);
+        document.resources.set(name, resource);
+        continue;
+      }
+      if (OpraSchema.isStorage(schema)) {
+        const resource = await this.createFileResource(name, schema);
         document.resources.set(name, resource);
         continue;
       }
@@ -33,7 +39,7 @@ export async function processResourceQueue(
   }
 }
 
-export async function createCollection(
+export async function createCollectionResource(
     this: DocumentFactory,
     name: string,
     schema: OpraSchema.Collection
@@ -48,7 +54,7 @@ export async function createCollection(
   return new Collection(document, initArgs);
 }
 
-export async function createSingleton(
+export async function createSingletonResource(
     this: DocumentFactory,
     name: string,
     schema: OpraSchema.Singleton
@@ -61,4 +67,17 @@ export async function createSingleton(
     type: dataType
   }
   return new Singleton(document, initArgs);
+}
+
+export async function createFileResource(
+    this: DocumentFactory,
+    name: string,
+    schema: OpraSchema.Storage
+): Promise<Storage> {
+  const {document} = this;
+  const initArgs: Storage.InitArguments = {
+    ...schema,
+    name
+  }
+  return new Storage(document, initArgs);
 }
