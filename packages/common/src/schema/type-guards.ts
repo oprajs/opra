@@ -8,6 +8,7 @@ import { Collection } from './resource/collection.interface.js';
 import { Container } from './resource/container.interface.js';
 import { Resource } from './resource/resource.interface.js';
 import { Singleton } from './resource/singleton.interface.js';
+import { Storage } from './resource/storage.interface.js';
 
 export function isDataType(obj: any): obj is DataType {
   return obj && typeof obj === 'object' &&
@@ -52,6 +53,10 @@ export function isCollection(obj: any): obj is Collection {
 
 export function isSingleton(obj: any): obj is Singleton {
   return obj && typeof obj === 'object' && obj.kind === Singleton.Kind;
+}
+
+export function isStorage(obj: any): obj is Singleton {
+  return obj && typeof obj === 'object' && obj.kind === Storage.Kind;
 }
 
 export function isContainer(obj: any): obj is Container {

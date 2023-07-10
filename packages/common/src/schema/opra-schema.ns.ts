@@ -11,6 +11,7 @@ export * from './resource/container.interface.js';
 export * from './resource/endpoint.interface.js';
 export * from './resource/resource.interface.js';
 export * from './resource/singleton.interface.js';
+export * from './resource/storage.interface.js';
 
 export * from './constants.js';
 export * from './document.interface.js';

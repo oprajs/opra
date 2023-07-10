@@ -33,7 +33,7 @@
     "reflect-metadata": "^0.1.13"
   },
   "peerDependencies": {
-    "@nestjs/common": ">= 8.0.0"
+    "@nestjs/common": "^10.0.5"
   },
   "devDependencies": {
     "@nestjs/platform-express": "^10.0.5",

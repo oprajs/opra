@@ -9,6 +9,7 @@ import { SimpleType } from './data-type/simple-type.js';
 import type { Collection } from './resource/collection.js';
 import { Resource } from './resource/resource.js';
 import { Singleton } from './resource/singleton.js';
+import { Storage } from './resource/storage.js';
 
 export class ApiDocument {
   protected _designCtorMap = new Map<Type | Function, string>();
@@ -36,7 +37,6 @@ export class ApiDocument {
     this._designCtorMap.set(ArrayBuffer, 'base64');
     this._designCtorMap.set(SharedArrayBuffer, 'base64');
     this._designCtorMap.set(BufferConstructor, 'base64');
-
   }
 
   /**
@@ -241,11 +241,6 @@ export class ApiDocument {
    */
 
   getCollection(path: string, silent: true): Collection | undefined
-  /**
-   * Returns ComplexType instance by name or Constructor.
-   * Throws error undefined if not found or data type is not a ComplexType
-   * @param path
-   */
   getCollection(path: string): Collection
   getCollection(path: string, silent?: true): Collection | undefined {
     const t = this.getResource(path);
@@ -265,11 +260,6 @@ export class ApiDocument {
    */
 
   getSingleton(path: string, silent: true): Singleton | undefined
-  /**
-   * Returns ComplexType instance by name or Constructor.
-   * Throws error undefined if not found or data type is not a ComplexType
-   * @param path
-   */
   getSingleton(path: string): Singleton
   getSingleton(path: string, silent?: true): Singleton | undefined {
     const t = this.getResource(path);
@@ -278,6 +268,17 @@ export class ApiDocument {
     if (t && t.kind === OpraSchema.Singleton.Kind)
       return t as Singleton;
     throw new NotAcceptableError(`Resource type "${t.name}" is not a Singleton`);
+  }
+
+  getStorage(path: string, silent: true): Storage | undefined
+  getStorage(path: string): Storage
+  getStorage(path: string, silent?: true): Storage | undefined {
+    const t = this.getResource(path);
+    if (!t && silent)
+      return;
+    if (t && t.kind === OpraSchema.Storage.Kind)
+      return t as Storage;
+    throw new NotAcceptableError(`Resource type "${t.name}" is not a Storage`);
   }
 
   /**
