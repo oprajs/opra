@@ -3,8 +3,8 @@ import merge from 'putil-merge';
 import { Class, StrictOmit, Type, Writable } from 'ts-gems';
 import * as vg from 'valgen';
 import {
-  applyMixins,
   inheritPropertyInitializers,
+  mergePrototype,
   omitUndefined,
   ResponsiveMap
 } from '../../helpers/index.js';
@@ -179,7 +179,7 @@ export const MappedType = function (
     }
   }
 
-  applyMixins(MappedClass, source);
+  mergePrototype(MappedClass.prototype, source.prototype);
 
   // const mappedTypeMetadata: MappedType.TypeMapping[] = [];
   const m = Reflect.getOwnMetadata(METADATA_KEY, source) as OpraSchema.DataType;

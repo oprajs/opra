@@ -1,7 +1,8 @@
 import { OpraSchema, Resource } from '@opra/common';
-import type { HttpRequestMessage } from '../http/http-request-message.js';
+import { HttpServerRequest } from '../http/impl/http-server-request.js';
 
 export interface Request {
+  readonly contentId: string;
   readonly kind: string;
   readonly resource: Resource;
   readonly resourceKind: OpraSchema.Resource.Kind;
@@ -10,7 +11,7 @@ export interface Request {
   readonly many: boolean;
   readonly args: any;
 
-  switchToHttp(): HttpRequestMessage;
+  switchToHttp(): HttpServerRequest;
 
   switchToWs(): never;
 

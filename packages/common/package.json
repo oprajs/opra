@@ -47,7 +47,6 @@
     "@browsery/i18next": "^0.6.0",
     "fast-tokenizer": "^1.2.2",
     "lodash.omit": "^4.5.0",
-    "path-browserify": "^1.0.1",
     "putil-isplainobject": "^1.1.5",
     "putil-merge": "^3.10.3",
     "putil-promisify": "^1.10.0",
@@ -62,6 +61,7 @@
     "@browsery/util": "^0.4.0",
     "@types/encodeurl": "^1.0.0",
     "@types/validator": "^13.7.17",
+    "path-browserify": "^1.0.1",
     "ts-gems": "^2.4.0"
   },
   "engines": {

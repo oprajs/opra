@@ -1,4 +1,4 @@
-import { HttpResponseMessage } from './http/http-response-message.js';
+import { HttpServerResponse } from './http/impl/http-server-response.js';
 import { Response } from './interfaces/response.interface.js';
 
 export namespace ResponseHost {
@@ -7,30 +7,34 @@ export namespace ResponseHost {
     errors?: Error[];
     continueOnError?: boolean;
     count?: number;
+    http?: HttpServerResponse;
   }
 }
 
-export abstract class ResponseHost implements Response {
+export class ResponseHost implements Response {
   value?: any;
   errors: Error[];
   continueOnError?: boolean;
   count?: number;
+  http?: HttpServerResponse;
 
-  protected constructor(init: ResponseHost.Initiator) {
+  constructor(init: ResponseHost.Initiator) {
     if (init)
       Object.assign(this, init);
     this.errors = this.errors || [];
   }
 
-  switchToHttp(): HttpResponseMessage {
-    throw new TypeError('Not executing in an "Http" protocol');
+  switchToHttp(): HttpServerResponse {
+    if (this.http)
+      return this.http;
+    throw new TypeError('Not executing in an "Http" context');
   }
 
   switchToWs(): never {
-    throw new TypeError('Not executing in an "WebSocket" protocol');
+    throw new TypeError('Not executing in an "WebSocket" context');
   }
 
   switchToRpc(): never {
-    throw new TypeError('Not executing in an "RPC" protocol');
+    throw new TypeError('Not executing in an "RPC" context');
   }
 }

@@ -3,8 +3,8 @@ import merge from 'putil-merge';
 import { Class, StrictOmit, Type, Writable } from 'ts-gems';
 import * as vg from 'valgen';
 import {
-  applyMixins,
   inheritPropertyInitializers,
+  mergePrototype,
   omitUndefined,
   ResponsiveMap
 } from '../../helpers/index.js';
@@ -183,7 +183,7 @@ export const UnionType = function (
         itemMeta.kind === OpraSchema.MappedType.Kind)))
       throw new TypeError(`Class "${c.name}" is not a ${OpraSchema.ComplexType.Kind}, ${OpraSchema.UnionType.Kind} or ${OpraSchema.MappedType.Kind}`);
     metadata.types.push(c);
-    applyMixins(UnionClass, c);
+    mergePrototype(UnionClass.prototype, c.prototype);
   }
 
   UnionType._applyMixin(UnionClass, ...clasRefs);

@@ -2,7 +2,7 @@ import { lastValueFrom, Observable, Subscriber } from 'rxjs';
 import { isReadableStreamLike } from 'rxjs/internal/util/isReadableStreamLike';
 import { StrictOmit, Type } from 'ts-gems';
 import {
-  ApiDocument, DocumentFactory, HttpHeaderCodes, HttpHeaders, HttpParams,
+  ApiDocument, DocumentFactory, HttpHeaderCodes, HttpParams,
   isBlob, joinPath,
 } from '@opra/common';
 import { ClientError } from '../client-error.js';
@@ -53,7 +53,7 @@ export class OpraHttpClient {
 
   defaults: StrictOmit<HttpRequestDefaults, 'headers' | 'params'> &
       {
-        headers: HttpHeaders;
+        headers: Headers;
         params: HttpParams;
       };
 
@@ -69,8 +69,8 @@ export class OpraHttpClient {
     })
     this.defaults = {
       ...options?.defaults,
-      headers: options?.defaults?.headers instanceof HttpHeaders
-          ? options?.defaults?.headers : new HttpHeaders(options?.defaults?.headers),
+      headers: options?.defaults?.headers instanceof Headers
+          ? options?.defaults?.headers : new Headers(options?.defaults?.headers),
       params: options?.defaults?.params instanceof HttpParams
           ? options?.defaults?.params : new HttpParams(options?.defaults?.params)
     };
@@ -92,7 +92,7 @@ export class OpraHttpClient {
             new HttpRequest({
               method: 'GET',
               url: '$metadata',
-              headers: new HttpHeaders({'accept': 'application/json'})
+              headers: new Headers({'accept': 'application/json'})
             })
         )
     );
@@ -178,12 +178,12 @@ export class OpraHttpClient {
           } else if (Buffer.isBuffer(request.body)) {
             contentType = 'application/octet-stream';
             body = request.body;
-            request.headers.set('Content-Size', request.body.length);
+            request.headers.set('Content-Size', String(request.body.length));
             delete request.duplex;
           } else if (isBlob(request.body)) {
             contentType = request.body.type || 'application/octet-stream';
             body = request.body;
-            request.headers.set('Content-Size', request.body.length);
+            request.headers.set('Content-Size', String(request.body.length));
             delete request.duplex;
           } else {
             contentType = 'application/json';
@@ -205,7 +205,7 @@ export class OpraHttpClient {
         }
         if (observe === 'events')
           subscriber.next({event: 'sent', request} satisfies HttpEvent);
-        const response = await this._fetch(url, {...request, headers: request.headers.toObject()});
+        const response = await this._fetch(url, request);
         await this._handleResponse(observe, subscriber, request, response);
       })().catch(error => subscriber.error(error))
     });
@@ -226,7 +226,7 @@ export class OpraHttpClient {
       fetchResponse: Response,
       ctx?: HttpClientContext
   ): Promise<void> {
-    const headers = new HttpHeaders(fetchResponse.headers);
+    const headers = fetchResponse.headers;
 
     if (observe === 'events') {
       const response = this._createResponse({
@@ -241,13 +241,13 @@ export class OpraHttpClient {
 
     let body;
     if (fetchResponse.body) {
-      if (JSON_CONTENT_TYPE_PATTERN.test(fetchResponse.headers.get('Content-Type') || '')) {
+      if (JSON_CONTENT_TYPE_PATTERN.test(headers.get('Content-Type') || '')) {
         body = await fetchResponse.json();
         if (typeof body === 'string')
           body = JSON.parse(body);
-      } else if (TEXT_CONTENT_TYPE_PATTERN.test(fetchResponse.headers.get('Content-Type') || ''))
+      } else if (TEXT_CONTENT_TYPE_PATTERN.test(headers.get('Content-Type') || ''))
         body = await fetchResponse.text();
-      else if (FORMDATA_CONTENT_TYPE_PATTERN.test(fetchResponse.headers.get('Content-Type') || ''))
+      else if (FORMDATA_CONTENT_TYPE_PATTERN.test(headers.get('Content-Type') || ''))
         body = await fetchResponse.formData();
       else {
         const buf = await fetchResponse.arrayBuffer();

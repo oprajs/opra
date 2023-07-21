@@ -1,6 +1,6 @@
 // /// <reference lib="dom" />
 import type { Observable } from 'rxjs';
-import type { HttpHeaders, HttpParams } from '@opra/common';
+import type { HttpParams } from '@opra/common';
 import type { OpraHttpClient } from './http-client.js';
 import type { HttpRequest } from './http-request.js';
 import type { HttpResponse } from './http-response.js';
@@ -24,7 +24,7 @@ export interface HttpClientContext {
 export type HttpRequestDefaults = Partial<Pick<HttpRequest, 'cache' | 'credentials' |
     'destination' | 'integrity' | 'keepalive' | 'mode' | 'redirect' |
     'referrer' | 'referrerPolicy'>> & {
-  headers?: HttpHeaders.Initiator;
+  headers?: HeadersInit;
   params?: HttpParams.Initiator;
 };
 

@@ -1,19 +1,20 @@
 import { Type } from 'ts-gems';
 
-export function applyMixins(derivedCtor: any, baseCtor: any, filter?: (k: string) => boolean) {
-  for (const k of Object.getOwnPropertyNames(baseCtor.prototype)) {
+export function mergePrototype(targetProto: any, baseProto: any, filter?: (k: string) => boolean) {
+  for (const k of Object.getOwnPropertyNames(baseProto)) {
     if ((k === 'constructor' || k === '__proto__' || k === 'toJSON' || k === 'toString') ||
         filter && !filter(k)
     ) continue;
     Object.defineProperty(
-        derivedCtor.prototype,
+        targetProto,
         k,
-        Object.getOwnPropertyDescriptor(baseCtor.prototype, k) ||
+        Object.getOwnPropertyDescriptor(baseProto, k) ||
         Object.create(null)
     );
   }
 }
 
+// noinspection JSUnusedLocalSymbols
 export function inheritPropertyInitializers(
     target: Record<string, any>,
     sourceClass: Type,

@@ -10,7 +10,8 @@
     "url": "https://github.com/panates/opra.git"
   },
   "workspaces": [
-    "packages/**"
+    "packages/**",
+    "examples/*"
   ],
   "scripts": {
     "preclean": "rimraf build coverage",

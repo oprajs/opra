@@ -7,10 +7,10 @@ import { Column } from '@sqb/connect';
 export class Address {
 
   @ApiField({
-    description: 'Address code'
+    description: 'Country code'
   })
-  @Column()
-  code: number;
+  @Column({fieldName: 'country_code'})
+  countryCode: string;
 
   @ApiField({
     description: 'City name'
@@ -27,7 +27,7 @@ export class Address {
   @ApiField({
     description: 'ZIP code'
   })
-  @Column()
+  @Column({fieldName: 'zip_code'})
   zipCode: string;
 
 }

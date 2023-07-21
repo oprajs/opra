@@ -2,17 +2,20 @@ import { AsyncEventEmitter } from 'strict-typed-events';
 import { ApiDocument } from '@opra/common';
 import { Request } from './interfaces/request.interface.js';
 import {
-  HttpRequestContext,
+  HttpMessageContext,
   RequestContext,
-  RpcRequestContext,
-  WsRequestContext
+  RpcMessageContext,
+  WsMessageContext
 } from './interfaces/request-context.interface.js';
 import { Response } from './interfaces/response.interface.js';
 
-export abstract class RequestContextHost extends AsyncEventEmitter implements RequestContext {
+export class RequestContextHost extends AsyncEventEmitter implements RequestContext {
   user?: any;
+  protected _http?: HttpMessageContext;
+  protected _ws?: WsMessageContext;
+  protected _rpc?: RpcMessageContext;
 
-  protected constructor(
+  constructor(
       readonly protocol: RequestContext.Protocol,
       readonly platform: string,
       readonly api: ApiDocument,
@@ -20,6 +23,14 @@ export abstract class RequestContextHost extends AsyncEventEmitter implements Re
       protected _response: Response
   ) {
     super();
+    if (this.protocol === 'http') {
+      this._http = {
+        platform,
+        request: this._request.switchToHttp(),
+        response: this._response.switchToHttp(),
+        switchToContext: () => this
+      };
+    }
   }
 
   get request(): Request {
@@ -30,16 +41,22 @@ export abstract class RequestContextHost extends AsyncEventEmitter implements Re
     return this._response;
   }
 
-  switchToHttp(): HttpRequestContext {
-    throw new TypeError('Not executing in an "Http" protocol');
+  switchToHttp(): HttpMessageContext {
+    if (this._http)
+      return this._http
+    throw new TypeError('Not executing in an "Http" context');
   }
 
-  switchToWs(): WsRequestContext {
-    throw new TypeError('Not executing in an "WebSocket" protocol');
+  switchToWs(): WsMessageContext {
+    if (this._ws)
+      return this._ws
+    throw new TypeError('Not executing in an "WebSocket" context');
   }
 
-  switchToRpc(): RpcRequestContext {
-    throw new TypeError('Not executing in an "RPC" protocol');
+  switchToRpc(): RpcMessageContext {
+    if (this._rpc)
+      return this._rpc
+    throw new TypeError('Not executing in an "RPC" context');
   }
 
 }

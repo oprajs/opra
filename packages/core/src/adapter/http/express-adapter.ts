@@ -1,15 +1,13 @@
-import bodyParser from 'body-parser';
 import type { Application, NextFunction, Request, Response } from 'express';
 import { ApiDocument, normalizePath } from '@opra/common';
 import { OpraHttpAdapter } from './http-adapter.js';
-import { HttpRequestMessage } from './http-request-message.js';
+import { HttpServerRequest } from './impl/http-server-request.js';
+import { HttpServerResponse } from './impl/http-server-response.js';
 
 export namespace OpraExpressAdapter {
   export interface Options extends OpraHttpAdapter.Options {
   }
 }
-
-const noOp = () => void 0;
 
 export class OpraExpressAdapter extends OpraHttpAdapter {
 
@@ -20,14 +18,14 @@ export class OpraExpressAdapter extends OpraHttpAdapter {
       document: ApiDocument,
       options?: OpraExpressAdapter.Options
   ): Promise<OpraExpressAdapter> {
+    const express = await import('express');
     const adapter = new OpraExpressAdapter(document);
     await adapter.init(options);
     const prefix = '/' + normalizePath(options?.prefix, true);
-    app.use(prefix, bodyParser.json());
+    app.use(prefix, express.json());
     app.use(prefix, (req: Request, res: Response, next: NextFunction) => {
-      (req as any).end = noOp as any;
-      (req as any).send = noOp as any;
-      adapter.handler(req as (Request & Pick<HttpRequestMessage, 'end' | 'send'>), res).catch(e => next(e));
+      adapter.handler(HttpServerRequest.create(req), HttpServerResponse.create(res))
+          .catch(e => next(e));
     });
     return adapter;
   }

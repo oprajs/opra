@@ -1,6 +1,6 @@
 import { ApiDocument } from '@opra/common';
-import { HttpRequestMessage } from '../http/http-request-message.js';
-import { HttpResponseMessage } from '../http/http-response-message.js';
+import { HttpServerRequest } from '../http/impl/http-server-request.js';
+import { HttpServerResponse } from '../http/impl/http-server-response.js';
 import { Request } from './request.interface.js';
 import { Response } from './response.interface.js';
 
@@ -26,29 +26,28 @@ export interface RequestContext {
 
   user?: any;
 
-  switchToHttp(): HttpRequestContext;
+  switchToHttp(): HttpMessageContext;
 
-  switchToWs(): WsRequestContext;
+  switchToWs(): WsMessageContext;
 
-  switchToRpc(): RpcRequestContext;
+  switchToRpc(): RpcMessageContext;
 
   // on(event: 'finish', fn: (args: RequestContext.OnFinishArgs) => void | Promise<void>);
 }
 
 
-export interface HttpRequestContext extends Omit<RequestContext, 'request' | 'response'> {
+export interface HttpMessageContext {
+  readonly platform: string;
+  readonly request: HttpServerRequest;
+  readonly response: HttpServerResponse;
 
-  readonly request: HttpRequestMessage;
-
-  readonly response: HttpResponseMessage;
+  switchToContext(): RequestContext;
 }
 
-
-export interface WsRequestContext extends Omit<RequestContext, 'request' | 'response'> {
-
+export interface WsMessageContext {
+  switchToContext(): RequestContext;
 }
 
-
-export interface RpcRequestContext extends Omit<RequestContext, 'request' | 'response'> {
-
+export interface RpcMessageContext {
+  switchToContext(): RequestContext;
 }

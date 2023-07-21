@@ -20,6 +20,6 @@ export class Person {
   gender: GenderEnum;
 
   @ApiField()
-  @Column({fieldName: 'birth_name', dataType: DataType.DATE})
+  @Column({fieldName: 'birth_date', dataType: DataType.DATE})
   birthDate: Date;
 }

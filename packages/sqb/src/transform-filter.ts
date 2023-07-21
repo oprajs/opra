@@ -41,7 +41,7 @@ export default function transformFilter(
   }
 
   if (ast instanceof OpraFilter.ComparisonExpression) {
-    const left = transformFilter(ast.left);
+    const left = String(ast.left);
     const right = transformFilter(ast.right);
     switch (ast.op) {
       case '=':

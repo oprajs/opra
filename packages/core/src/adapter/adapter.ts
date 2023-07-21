@@ -67,7 +67,7 @@ export namespace OpraAdapter {
  * @class OpraAdapter
  */
 export abstract class OpraAdapter extends AsyncEventEmitter {
-  protected _internalDoc: ApiDocument;
+  protected _apiRoot: ApiDocument;
   i18n: I18n;
   logger?: ILogger;
 
@@ -93,7 +93,7 @@ export abstract class OpraAdapter extends AsyncEventEmitter {
     if (options?.onRequest)
       this.on('request', options.onRequest);
 
-    this._internalDoc = await DocumentFactory.createDocument({
+    this._apiRoot = await DocumentFactory.createDocument({
       version: OpraSchema.SpecVersion,
       info: {
         version: OpraSchema.SpecVersion,
@@ -154,7 +154,7 @@ export abstract class OpraAdapter extends AsyncEventEmitter {
         if (typeof response.value === 'object')
           affected = response.value.affectedRows || response.value.affected;
         response.value = {
-          operation: request.operation,
+          operation: request.crud,
           affected
         }
       } else if (response.value != null) {
