@@ -1,25 +1,27 @@
 /// <reference lib="dom" />
-import { HttpHeaders, HttpParams, OpraURL, OpraURLPath } from '@opra/common';
+import { HttpParams, OpraURL, OpraURLPath } from '@opra/common';
 
 const directCopyProperties = ['cache', 'credentials', 'destination', 'headers', 'integrity',
   'keepalive', 'mode', 'redirect', 'referrer', 'referrerPolicy'];
 
-export interface HttpRequestInit {
-  cache?: RequestCache;
-  credentials?: RequestCredentials;
-  destination?: RequestDestination;
-  headers?: HttpHeaders.Initiator;
-  integrity?: string;
-  keepalive?: boolean;
-  method?: string;
-  mode?: RequestMode;
-  params?: HttpParams.Initiator;
-  redirect?: RequestRedirect;
-  referrer?: string;
-  referrerPolicy?: ReferrerPolicy;
-  signal?: AbortSignal;
-  url?: string;
-  body?: any;
+export namespace HttpRequest {
+  export interface Initiator {
+    cache?: RequestCache;
+    credentials?: RequestCredentials;
+    destination?: RequestDestination;
+    headers?: HeadersInit;
+    integrity?: string;
+    keepalive?: boolean;
+    method?: string;
+    mode?: RequestMode;
+    params?: HttpParams.Initiator;
+    redirect?: RequestRedirect;
+    referrer?: string;
+    referrerPolicy?: ReferrerPolicy;
+    signal?: AbortSignal;
+    url?: string;
+    body?: any;
+  }
 }
 
 export class HttpRequest {
@@ -35,7 +37,7 @@ export class HttpRequest {
   /** Returns a Headers object consisting of the headers associated with request.
    * Note that headers added in the network layer by the user agent will not be accounted for in this object,
    * e.g., the "Host" header. */
-  headers: HttpHeaders;
+  headers: Headers;
   /** Returns request's subresource integrity metadata, which is a cryptographic
    * hash of the resource being fetched.
    * Its value consists of multiple hashes separated by whitespace. [SRI] */
@@ -66,11 +68,11 @@ export class HttpRequest {
   body?: any;
   duplex?: 'half';
 
-  constructor(init?: HttpRequestInit) {
+  constructor(init?: HttpRequest.Initiator) {
     this.cache = init?.cache || 'default';
     this.credentials = init?.credentials || 'same-origin';
     this.destination = init?.destination || '';
-    this.headers = new HttpHeaders(init?.headers);
+    this.headers = init?.headers instanceof Headers ? init.headers : new Headers(init?.headers);
     this.integrity = init?.integrity || '';
     this.keepalive = init?.keepalive ?? false;
     this.method = (init?.method || 'GET').toUpperCase();
@@ -105,7 +107,7 @@ export class HttpRequest {
     return this.urlInstance.path;
   }
 
-  clone(...update: (HttpRequest | HttpRequestInit)[]): HttpRequest {
+  clone(...update: (HttpRequest | HttpRequest.Initiator)[]): HttpRequest {
     const out = new HttpRequest();
     out.merge(this);
     for (const upd of update) {
@@ -114,15 +116,15 @@ export class HttpRequest {
     return out;
   }
 
-  merge(update: HttpRequest | HttpRequestInit) {
+  merge(update: HttpRequest | HttpRequest.Initiator) {
     directCopyProperties.forEach(k => {
       if (update[k] != null)
         this[k] = update[k];
     });
     if (update.headers) {
-      const h = update.headers instanceof HttpHeaders
+      const h = update.headers instanceof Headers
           ? update.headers
-          : new HttpHeaders(update.headers);
+          : new Headers(update.headers);
       h.forEach((v, k) => {
         if (k.toLowerCase() === 'set-cookie') {
           this.headers.append(k, v);
@@ -131,15 +133,15 @@ export class HttpRequest {
     }
   }
 
-  inset(src: HttpRequest | HttpRequestInit) {
+  inset(src: HttpRequest | HttpRequest.Initiator) {
     directCopyProperties.forEach(k => {
       if (this[k] == null && src[k] != null)
         this[k] = src[k];
     });
     if (src.headers) {
-      const h = src.headers instanceof HttpHeaders
+      const h = src.headers instanceof Headers
           ? src.headers
-          : new HttpHeaders(src.headers);
+          : new Headers(src.headers);
       h.forEach((v, k) => {
         if (k.toLowerCase() === 'set-cookie') {
           this.headers.append(k, v);

@@ -1,25 +1,11 @@
 import { ApiDocument, DocumentFactory } from '@opra/common';
-import { HttpRequestMessage, OpraHttpAdapter, Request } from '@opra/core';
-import { CustomersResource, MyProfileResource } from '../../_support/test-app/index.js';
+import { HttpServerRequest } from '@opra/core';
+import { parseRequest } from '@opra/core/adapter/http/request-parsers/parse-request';
+import { CustomersResource, MyProfileResource } from '../../../_support/test-app/index.js';
 
-describe('OpraHttpAdapter parse Singleton requests', function () {
-
-  class TestHttpAdapter extends OpraHttpAdapter {
-    platform = 'test';
-
-    static async create(doc: ApiDocument, options?: OpraHttpAdapter.Options): Promise<TestHttpAdapter> {
-      const adapter1 = new TestHttpAdapter(doc);
-      await adapter1.init(options);
-      return adapter1;
-    }
-
-    async parseRequest(incoming: HttpRequestMessage): Promise<Request> {
-      return super.parseRequest(incoming);
-    }
-  }
+describe('parse Singleton Request', function () {
 
   let document: ApiDocument;
-  let adapter: TestHttpAdapter;
 
   beforeAll(async () => {
     document = await DocumentFactory.createDocument({
@@ -30,19 +16,16 @@ describe('OpraHttpAdapter parse Singleton requests', function () {
       },
       resources: [CustomersResource, MyProfileResource]
     });
-    adapter = await TestHttpAdapter.create(document);
   });
 
   describe('SingletonGetRequest', function () {
 
     it('Should parse request', async () => {
-      const request = await adapter.parseRequest(
-          HttpRequestMessage.create({
-            method: 'GET',
-            url: '/MyProfile?&$pick=_id&$omit=gender&$include=address',
-            headers: {'Accept': 'application/json'}
-          })
-      );
+      const request = await parseRequest(document, HttpServerRequest.create({
+        method: 'GET',
+        url: '/MyProfile?&$pick=_id&$omit=gender&$include=address',
+        headers: {'Accept': 'application/json'}
+      }));
       expect(request).toBeDefined();
       const resource = document.getSingleton('MyProfile');
       expect(request.resource).toStrictEqual(resource);
@@ -60,7 +43,7 @@ describe('OpraHttpAdapter parse Singleton requests', function () {
     })
 
     it('Should normalize field names in "pick" option', async () => {
-      const request = await adapter.parseRequest(HttpRequestMessage.create({
+      const request = await parseRequest(document, HttpServerRequest.create({
         method: 'GET',
         url: '/MyProfile?$pick=givenname,GENDER,Address,address.countryCode'
       }));
@@ -70,7 +53,7 @@ describe('OpraHttpAdapter parse Singleton requests', function () {
     })
 
     it('Should normalize field names in "omit" option', async () => {
-      const request = await adapter.parseRequest(HttpRequestMessage.create({
+      const request = await parseRequest(document, HttpServerRequest.create({
         method: 'GET',
         url: '/MyProfile?$omit=givenname,GENDER,Address,address.countryCode'
       }));
@@ -80,7 +63,7 @@ describe('OpraHttpAdapter parse Singleton requests', function () {
     })
 
     it('Should normalize field names in "include" option', async () => {
-      const request = await adapter.parseRequest(HttpRequestMessage.create({
+      const request = await parseRequest(document, HttpServerRequest.create({
         method: 'GET',
         url: '/MyProfile?$include=givenname,GENDER,Address,address.countryCode'
       }));
@@ -90,7 +73,7 @@ describe('OpraHttpAdapter parse Singleton requests', function () {
     })
 
     it('Should validate if fields in "pick" option are exist', async () => {
-      await expect(() => adapter.parseRequest(HttpRequestMessage.create({
+      await expect(() => parseRequest(document, HttpServerRequest.create({
             method: 'GET',
             url: '/MyProfile?$pick=address.x1'
           }))
@@ -98,7 +81,7 @@ describe('OpraHttpAdapter parse Singleton requests', function () {
     })
 
     it('Should validate if fields in "omit" option are exist', async () => {
-      await expect(() => adapter.parseRequest(HttpRequestMessage.create({
+      await expect(() => parseRequest(document, HttpServerRequest.create({
             method: 'GET',
             url: '/MyProfile?$omit=address.x1'
           }))
@@ -106,7 +89,7 @@ describe('OpraHttpAdapter parse Singleton requests', function () {
     })
 
     it('Should validate if fields in "include" option are exist', async () => {
-      await expect(() => adapter.parseRequest(HttpRequestMessage.create({
+      await expect(() => parseRequest(document, HttpServerRequest.create({
             method: 'GET',
             url: '/MyProfile?$include=address.x1'
           }))
@@ -116,7 +99,7 @@ describe('OpraHttpAdapter parse Singleton requests', function () {
     it('Should allow unknown fields in "pick" option if additionalFields set to "true"', async () => {
       const meta: any = document.getComplexType('Profile');
       meta.additionalFields = true;
-      const request = await adapter.parseRequest(HttpRequestMessage.create({
+      const request = await parseRequest(document, HttpServerRequest.create({
         method: 'GET',
         url: '/MyProfile?$pick=notes.add1,notes.add2.add3'
       }));
@@ -128,7 +111,7 @@ describe('OpraHttpAdapter parse Singleton requests', function () {
     it('Should allow unknown fields in "omit" option if additionalFields set to "true"', async () => {
       const meta: any = document.getComplexType('Profile');
       meta.additionalFields = true;
-      const request = await adapter.parseRequest(HttpRequestMessage.create({
+      const request = await parseRequest(document, HttpServerRequest.create({
         method: 'GET',
         url: '/MyProfile?$omit=notes.add1,notes.add2.add3'
       }));
@@ -141,7 +124,7 @@ describe('OpraHttpAdapter parse Singleton requests', function () {
     it('Should allow unknown fields in "include" option if additionalFields set to "true"', async () => {
       const meta: any = document.getComplexType('Profile');
       meta.additionalFields = true;
-      const request = await adapter.parseRequest(HttpRequestMessage.create({
+      const request = await parseRequest(document, HttpServerRequest.create({
         method: 'GET',
         url: '/MyProfile?$include=notes.add1,notes.add2.add3'
       }));
@@ -157,14 +140,12 @@ describe('OpraHttpAdapter parse Singleton requests', function () {
   describe('SingletonCreateRequest', function () {
 
     it('Should parse request', async () => {
-      const request = await adapter.parseRequest(
-          HttpRequestMessage.create({
-            method: 'POST',
-            url: '/MyProfile',
-            body: {name: 'John'},
-            headers: {'content-type': 'application/json', 'Accept': 'application/json'}
-          })
-      );
+      const request = await parseRequest(document, HttpServerRequest.create({
+        method: 'POST',
+        url: '/MyProfile',
+        body: {name: 'John'},
+        headers: {'content-type': 'application/json', 'Accept': 'application/json'}
+      }));
       expect(request).toBeDefined();
       const resource = document.getSingleton('MyProfile');
       expect(request.resource).toStrictEqual(resource);
@@ -180,7 +161,7 @@ describe('OpraHttpAdapter parse Singleton requests', function () {
     })
 
     it('Should normalize field names in "pick" option', async () => {
-      const request = await adapter.parseRequest(HttpRequestMessage.create({
+      const request = await parseRequest(document, HttpServerRequest.create({
         method: 'POST',
         url: '/MyProfile?$pick=givenname,GENDER,Address,address.countryCode',
         body: {id: 1},
@@ -192,7 +173,7 @@ describe('OpraHttpAdapter parse Singleton requests', function () {
     })
 
     it('Should normalize field names in "omit" option', async () => {
-      const request = await adapter.parseRequest(HttpRequestMessage.create({
+      const request = await parseRequest(document, HttpServerRequest.create({
         method: 'POST',
         url: '/MyProfile?$omit=givenname,GENDER,Address,address.countryCode',
         body: {id: 1},
@@ -204,7 +185,7 @@ describe('OpraHttpAdapter parse Singleton requests', function () {
     })
 
     it('Should normalize field names in "include" option', async () => {
-      const request = await adapter.parseRequest(HttpRequestMessage.create({
+      const request = await parseRequest(document, HttpServerRequest.create({
         method: 'POST',
         url: '/MyProfile?$include=givenname,GENDER,Address,address.countryCode',
         body: {id: 1},
@@ -216,7 +197,7 @@ describe('OpraHttpAdapter parse Singleton requests', function () {
     })
 
     it('Should validate if fields in "pick" option are exist', async () => {
-      await expect(() => adapter.parseRequest(HttpRequestMessage.create({
+      await expect(() => parseRequest(document, HttpServerRequest.create({
             method: 'POST',
             url: '/MyProfile?$pick=address.x1',
             body: {id: 1},
@@ -226,7 +207,7 @@ describe('OpraHttpAdapter parse Singleton requests', function () {
     })
 
     it('Should validate if fields in "omit" option are exist', async () => {
-      await expect(() => adapter.parseRequest(HttpRequestMessage.create({
+      await expect(() => parseRequest(document, HttpServerRequest.create({
             method: 'POST',
             url: '/MyProfile?$omit=address.x1',
             body: {id: 1},
@@ -236,7 +217,7 @@ describe('OpraHttpAdapter parse Singleton requests', function () {
     })
 
     it('Should validate if fields in "include" option are exist', async () => {
-      await expect(() => adapter.parseRequest(HttpRequestMessage.create({
+      await expect(() => parseRequest(document, HttpServerRequest.create({
             method: 'POST',
             url: '/MyProfile?$include=address.x1',
             body: {id: 1},
@@ -248,7 +229,7 @@ describe('OpraHttpAdapter parse Singleton requests', function () {
     it('Should allow unknown fields in "pick" option if additionalFields set to "true"', async () => {
       const meta: any = document.getComplexType('Profile');
       meta.additionalFields = true;
-      const request = await adapter.parseRequest(HttpRequestMessage.create({
+      const request = await parseRequest(document, HttpServerRequest.create({
         method: 'POST',
         url: '/MyProfile?$pick=notes.add1,notes.add2.add3',
         body: {id: 1},
@@ -263,7 +244,7 @@ describe('OpraHttpAdapter parse Singleton requests', function () {
     it('Should allow unknown fields in "omit" option if additionalFields set to "true"', async () => {
       const meta: any = document.getComplexType('Profile');
       meta.additionalFields = true;
-      const request = await adapter.parseRequest(HttpRequestMessage.create({
+      const request = await parseRequest(document, HttpServerRequest.create({
         method: 'POST',
         url: '/MyProfile?$omit=notes.add1,notes.add2.add3',
         body: {id: 1},
@@ -278,7 +259,7 @@ describe('OpraHttpAdapter parse Singleton requests', function () {
     it('Should allow unknown fields in "include" option if additionalFields set to "true"', async () => {
       const meta: any = document.getComplexType('Profile');
       meta.additionalFields = true;
-      const request = await adapter.parseRequest(HttpRequestMessage.create({
+      const request = await parseRequest(document, HttpServerRequest.create({
         method: 'POST',
         url: '/MyProfile?$include=notes.add1,notes.add2.add3',
         body: {id: 1},
@@ -295,14 +276,12 @@ describe('OpraHttpAdapter parse Singleton requests', function () {
   describe('SingletonUpdateRequest', function () {
 
     it('Should parse request', async () => {
-      const request = await adapter.parseRequest(
-          HttpRequestMessage.create({
-            method: 'PATCH',
-            url: '/MyProfile',
-            body: {name: 'John'},
-            headers: {'content-type': 'application/json', 'Accept': 'application/json'}
-          })
-      );
+      const request = await parseRequest(document, HttpServerRequest.create({
+        method: 'PATCH',
+        url: '/MyProfile',
+        body: {name: 'John'},
+        headers: {'content-type': 'application/json', 'Accept': 'application/json'}
+      }));
       expect(request).toBeDefined();
       const resource = document.getSingleton('MyProfile');
       expect(request.resource).toStrictEqual(resource);
@@ -318,9 +297,10 @@ describe('OpraHttpAdapter parse Singleton requests', function () {
     })
 
     it('Should normalize field names in "pick" option', async () => {
-      const request = await adapter.parseRequest(HttpRequestMessage.create({
+      const request = await parseRequest(document, HttpServerRequest.create({
         method: 'PATCH',
         url: '/MyProfile?$pick=givenname,GENDER,Address,address.countryCode',
+        headers: {'content-type': 'application/json'},
         body: {id: 1},
       }));
       expect(request).toBeDefined();
@@ -329,9 +309,10 @@ describe('OpraHttpAdapter parse Singleton requests', function () {
     })
 
     it('Should normalize field names in "omit" option', async () => {
-      const request = await adapter.parseRequest(HttpRequestMessage.create({
+      const request = await parseRequest(document, HttpServerRequest.create({
         method: 'PATCH',
         url: '/MyProfile?$omit=givenname,GENDER,Address,address.countryCode',
+        headers: {'content-type': 'application/json'},
         body: {id: 1},
       }));
       expect(request).toBeDefined();
@@ -340,9 +321,10 @@ describe('OpraHttpAdapter parse Singleton requests', function () {
     })
 
     it('Should normalize field names in "include" option', async () => {
-      const request = await adapter.parseRequest(HttpRequestMessage.create({
+      const request = await parseRequest(document, HttpServerRequest.create({
         method: 'PATCH',
         url: '/MyProfile?$include=givenname,GENDER,Address,address.countryCode',
+        headers: {'content-type': 'application/json'},
         body: {id: 1},
       }));
       expect(request).toBeDefined();
@@ -351,27 +333,30 @@ describe('OpraHttpAdapter parse Singleton requests', function () {
     })
 
     it('Should validate if fields in "pick" option are exist', async () => {
-      await expect(() => adapter.parseRequest(HttpRequestMessage.create({
+      await expect(() => parseRequest(document, HttpServerRequest.create({
             method: 'PATCH',
             url: '/MyProfile?$pick=address.x1',
+            headers: {'content-type': 'application/json'},
             body: {id: 1},
           }))
       ).rejects.toThrow('Invalid field');
     })
 
     it('Should validate if fields in "omit" option are exist', async () => {
-      await expect(() => adapter.parseRequest(HttpRequestMessage.create({
+      await expect(() => parseRequest(document, HttpServerRequest.create({
             method: 'PATCH',
             url: '/MyProfile?$omit=address.x1',
+            headers: {'content-type': 'application/json'},
             body: {id: 1},
           }))
       ).rejects.toThrow('Invalid field');
     })
 
     it('Should validate if fields in "include" option are exist', async () => {
-      await expect(() => adapter.parseRequest(HttpRequestMessage.create({
+      await expect(() => parseRequest(document, HttpServerRequest.create({
             method: 'PATCH',
             url: '/MyProfile?$include=address.x1',
+            headers: {'content-type': 'application/json'},
             body: {id: 1},
           }))
       ).rejects.toThrow('Invalid field');
@@ -380,9 +365,10 @@ describe('OpraHttpAdapter parse Singleton requests', function () {
     it('Should allow unknown fields in "pick" option if additionalFields set to "true"', async () => {
       const meta: any = document.getComplexType('Profile');
       meta.additionalFields = true;
-      const request = await adapter.parseRequest(HttpRequestMessage.create({
+      const request = await parseRequest(document, HttpServerRequest.create({
         method: 'PATCH',
         url: '/MyProfile?$pick=notes.add1,notes.add2.add3',
+        headers: {'content-type': 'application/json'},
         body: {id: 1},
       }));
       expect(request).toBeDefined();
@@ -394,9 +380,10 @@ describe('OpraHttpAdapter parse Singleton requests', function () {
     it('Should allow unknown fields in "omit" option if additionalFields set to "true"', async () => {
       const meta: any = document.getComplexType('Profile');
       meta.additionalFields = true;
-      const request = await adapter.parseRequest(HttpRequestMessage.create({
+      const request = await parseRequest(document, HttpServerRequest.create({
         method: 'PATCH',
         url: '/MyProfile?$omit=notes.add1,notes.add2.add3',
+        headers: {'content-type': 'application/json'},
         body: {id: 1},
       }));
       expect(request).toBeDefined();
@@ -408,9 +395,10 @@ describe('OpraHttpAdapter parse Singleton requests', function () {
     it('Should allow unknown fields in "include" option if additionalFields set to "true"', async () => {
       const meta: any = document.getComplexType('Profile');
       meta.additionalFields = true;
-      const request = await adapter.parseRequest(HttpRequestMessage.create({
+      const request = await parseRequest(document, HttpServerRequest.create({
         method: 'PATCH',
         url: '/MyProfile?$include=notes.add1,notes.add2.add3',
+        headers: {'content-type': 'application/json'},
         body: {id: 1},
       }));
       expect(request).toBeDefined();
@@ -424,13 +412,11 @@ describe('OpraHttpAdapter parse Singleton requests', function () {
   describe('SingletonDeleteRequest', function () {
 
     it('Should parse request', async () => {
-      const request = await adapter.parseRequest(
-          HttpRequestMessage.create({
-            method: 'DELETE',
-            url: '/MyProfile',
-            headers: {'Accept': 'application/json'}
-          })
-      );
+      const request = await parseRequest(document, HttpServerRequest.create({
+        method: 'DELETE',
+        url: '/MyProfile',
+        headers: {'Accept': 'application/json'}
+      }));
       expect(request).toBeDefined();
       const resource = document.getSingleton('MyProfile');
       expect(request.resource).toStrictEqual(resource);

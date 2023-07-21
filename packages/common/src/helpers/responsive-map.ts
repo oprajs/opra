@@ -116,7 +116,12 @@ export class ResponsiveMap<V> extends Map<string, V> {
   }
 
   sort(compareFn?: (a: string, b: string) => number): this {
-    this[kKeyOrder].sort(compareFn);
+    if (compareFn)
+      this[kKeyOrder].sort(compareFn);
+    else if (this[kOptions].caseSensitive)
+      this[kKeyOrder].sort();
+    else
+      this[kKeyOrder].sort((a, b) => a.toLowerCase().localeCompare(b.toLowerCase()))
     return this;
   }
 

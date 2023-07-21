@@ -2,27 +2,13 @@ import {
   ApiDocument,
   DocumentFactory,
 } from '@opra/common';
-import { HttpRequestMessage, OpraHttpAdapter, Request } from '@opra/core';
-import { CustomersResource, MyProfileResource } from '../../_support/test-app/index.js';
+import { HttpServerRequest } from '@opra/core';
+import { parseRequest } from '@opra/core/adapter/http/request-parsers/parse-request';
+import { CustomersResource, MyProfileResource } from '../../../_support/test-app/index.js';
 
-describe('OpraHttpAdapter parse Collection requests', function () {
-
-  class TestHttpAdapter extends OpraHttpAdapter {
-    platform = 'test';
-
-    static async create(doc: ApiDocument, options?: OpraHttpAdapter.Options): Promise<TestHttpAdapter> {
-      const adapter1 = new TestHttpAdapter(doc);
-      await adapter1.init(options);
-      return adapter1;
-    }
-
-    async parseRequest(incoming: HttpRequestMessage): Promise<Request> {
-      return super.parseRequest(incoming);
-    }
-  }
+describe('parse Collection Request', function () {
 
   let document: ApiDocument;
-  let adapter: TestHttpAdapter;
 
   beforeAll(async () => {
     document = await DocumentFactory.createDocument({
@@ -33,17 +19,17 @@ describe('OpraHttpAdapter parse Collection requests', function () {
       },
       resources: [CustomersResource, MyProfileResource]
     });
-    adapter = await TestHttpAdapter.create(document);
   });
 
   describe('CollectionGetRequest', function () {
 
     it('Should parse request', async () => {
-      const request = await adapter.parseRequest(HttpRequestMessage.create({
-        method: 'GET',
-        url: '/Customers@1?$pick=_id&$omit=gender&$include=address',
-        headers: {'Accept': 'application/json'}
-      }));
+      const request = await parseRequest(document,
+          HttpServerRequest.create({
+            method: 'GET',
+            url: '/Customers@1?$pick=_id&$omit=gender&$include=address',
+            headers: {'Accept': 'application/json'}
+          }));
       expect(request).toBeDefined();
       const resource = document.getCollection('Customers');
       expect(request.resource).toStrictEqual(resource);
@@ -62,7 +48,7 @@ describe('OpraHttpAdapter parse Collection requests', function () {
     })
 
     it('Should normalize field names in "pick" option', async () => {
-      const request = await adapter.parseRequest(HttpRequestMessage.create({
+      const request = await parseRequest(document, HttpServerRequest.create({
         method: 'GET',
         url: '/Customers@1?$pick=givenname,GENDER,Address,address.countryCode'
       }));
@@ -72,14 +58,14 @@ describe('OpraHttpAdapter parse Collection requests', function () {
     })
 
     it('Should normalize field names in "omit" option', async () => {
-      let request = await adapter.parseRequest(HttpRequestMessage.create({
+      let request = await parseRequest(document, HttpServerRequest.create({
         method: 'GET',
         url: '/Customers@1?$omit=givenname,GENDER,address.countryCode'
       }));
       expect(request).toBeDefined();
       expect(request.operation).toStrictEqual('get');
       expect(request.args.omit).toStrictEqual(['givenName', 'gender', 'address.countryCode']);
-      request = await adapter.parseRequest(HttpRequestMessage.create({
+      request = await parseRequest(document, HttpServerRequest.create({
         method: 'GET',
         url: '/Customers@1?$omit=address,address.countryCode'
       }));
@@ -88,14 +74,14 @@ describe('OpraHttpAdapter parse Collection requests', function () {
     })
 
     it('Should normalize field names in "include" option', async () => {
-      let request = await adapter.parseRequest(HttpRequestMessage.create({
+      let request = await parseRequest(document, HttpServerRequest.create({
         method: 'GET',
         url: '/Customers@1?$include=givenname,GENDER,address.countryCode'
       }));
       expect(request).toBeDefined();
       expect(request.operation).toStrictEqual('get');
       expect(request.args.include).toStrictEqual(['givenName', 'gender', 'address.countryCode']);
-      request = await adapter.parseRequest(HttpRequestMessage.create({
+      request = await parseRequest(document, HttpServerRequest.create({
         method: 'GET',
         url: '/Customers@1?$include=address,address.countryCode'
       }));
@@ -103,7 +89,7 @@ describe('OpraHttpAdapter parse Collection requests', function () {
     })
 
     it('Should validate if fields in "pick" option are exist', async () => {
-      await expect(() => adapter.parseRequest(HttpRequestMessage.create({
+      await expect(() => parseRequest(document, HttpServerRequest.create({
             method: 'GET',
             url: '/Customers@1?$pick=address.x1'
           }))
@@ -111,7 +97,7 @@ describe('OpraHttpAdapter parse Collection requests', function () {
     })
 
     it('Should validate if fields in "omit" option are exist', async () => {
-      await expect(() => adapter.parseRequest(HttpRequestMessage.create({
+      await expect(() => parseRequest(document, HttpServerRequest.create({
             method: 'GET',
             url: '/Customers@1?$omit=address.x1'
           }))
@@ -119,7 +105,7 @@ describe('OpraHttpAdapter parse Collection requests', function () {
     })
 
     it('Should validate if fields in "include" option are exist', async () => {
-      await expect(() => adapter.parseRequest(HttpRequestMessage.create({
+      await expect(() => parseRequest(document, HttpServerRequest.create({
             method: 'GET',
             url: '/Customers@1?$include=address.x1'
           }))
@@ -127,7 +113,7 @@ describe('OpraHttpAdapter parse Collection requests', function () {
     })
 
     it('Should allow unknown fields in "pick" option if additionalFields set to "true"', async () => {
-      const request = await adapter.parseRequest(HttpRequestMessage.create({
+      const request = await parseRequest(document, HttpServerRequest.create({
         method: 'GET',
         url: '/Customers@1?$pick=notes.add1,notes.add2.add3'
       }));
@@ -137,7 +123,7 @@ describe('OpraHttpAdapter parse Collection requests', function () {
     })
 
     it('Should allow unknown fields in "omit" option if additionalFields set to "true"', async () => {
-      const request = await adapter.parseRequest(HttpRequestMessage.create({
+      const request = await parseRequest(document, HttpServerRequest.create({
         method: 'GET',
         url: '/Customers@1?$omit=notes.add1,notes.add2.add3'
       }));
@@ -147,7 +133,7 @@ describe('OpraHttpAdapter parse Collection requests', function () {
     })
 
     it('Should allow unknown fields in "include" option if additionalFields set to "true"', async () => {
-      const request = await adapter.parseRequest(HttpRequestMessage.create({
+      const request = await parseRequest(document, HttpServerRequest.create({
         method: 'GET',
         url: '/Customers@1?$include=notes.add1,notes.add2.add3'
       }));
@@ -161,7 +147,7 @@ describe('OpraHttpAdapter parse Collection requests', function () {
   describe('CollectionCreateRequest', function () {
 
     it('Should parse request', async () => {
-      const request = await adapter.parseRequest(HttpRequestMessage.create({
+      const request = await parseRequest(document, HttpServerRequest.create({
         method: 'POST',
         url: '/Customers?$pick=_id&$omit=gender&$include=address',
         body: {_id: 1},
@@ -181,11 +167,14 @@ describe('OpraHttpAdapter parse Collection requests', function () {
       expect(request.args.include).toStrictEqual(['address']);
       expect(() => request.switchToHttp()).not.toThrow();
       expect(request.switchToHttp().headers).toBeDefined();
-      expect(request.switchToHttp().headers.accept).toStrictEqual('application/json');
+      expect(request.switchToHttp().headers).toStrictEqual({
+        'content-type': 'application/json',
+        'accept': 'application/json'
+      });
     })
 
     it('Should normalize field names in "pick" option', async () => {
-      const request = await adapter.parseRequest(HttpRequestMessage.create({
+      const request = await parseRequest(document, HttpServerRequest.create({
         method: 'POST',
         url: '/Customers?$pick=givenname,GENDER,address,address.countryCode',
         body: {_id: 1},
@@ -197,7 +186,7 @@ describe('OpraHttpAdapter parse Collection requests', function () {
     })
 
     it('Should normalize field names in "omit" option', async () => {
-      const request = await adapter.parseRequest(HttpRequestMessage.create({
+      const request = await parseRequest(document, HttpServerRequest.create({
         method: 'POST',
         url: '/Customers?$omit=givenname,GENDER,address,address.countryCode',
         body: {_id: 1},
@@ -209,7 +198,7 @@ describe('OpraHttpAdapter parse Collection requests', function () {
     })
 
     it('Should normalize field names in "include" option', async () => {
-      const request = await adapter.parseRequest(HttpRequestMessage.create({
+      const request = await parseRequest(document, HttpServerRequest.create({
         method: 'POST',
         url: '/Customers?$include=givenname,GENDER,address,address.countryCode',
         body: {_id: 1},
@@ -221,7 +210,7 @@ describe('OpraHttpAdapter parse Collection requests', function () {
     })
 
     it('Should validate if fields in "pick" option are exist', async () => {
-      await expect(() => adapter.parseRequest(HttpRequestMessage.create({
+      await expect(() => parseRequest(document, HttpServerRequest.create({
             method: 'POST',
             url: '/Customers?$pick=address.x1',
             body: {_id: 1},
@@ -231,7 +220,7 @@ describe('OpraHttpAdapter parse Collection requests', function () {
     })
 
     it('Should validate if fields in "omit" option are exist', async () => {
-      await expect(() => adapter.parseRequest(HttpRequestMessage.create({
+      await expect(() => parseRequest(document, HttpServerRequest.create({
             method: 'POST',
             url: '/Customers?$omit=address.x1',
             body: {_id: 1},
@@ -241,7 +230,7 @@ describe('OpraHttpAdapter parse Collection requests', function () {
     })
 
     it('Should validate if fields in "include" option are exist', async () => {
-      await expect(() => adapter.parseRequest(HttpRequestMessage.create({
+      await expect(() => parseRequest(document, HttpServerRequest.create({
             method: 'POST',
             url: '/Customers?$include=address.x1',
             body: {_id: 1},
@@ -251,7 +240,7 @@ describe('OpraHttpAdapter parse Collection requests', function () {
     })
 
     it('Should allow unknown fields in "pick" option if additionalFields set to "true"', async () => {
-      const request = await adapter.parseRequest(HttpRequestMessage.create({
+      const request = await parseRequest(document, HttpServerRequest.create({
         method: 'POST',
         url: '/Customers?$pick=notes.add1,notes.add2.add3',
         body: {_id: 1},
@@ -263,7 +252,7 @@ describe('OpraHttpAdapter parse Collection requests', function () {
     })
 
     it('Should allow unknown fields in "omit" option if additionalFields set to "true"', async () => {
-      const request = await adapter.parseRequest(HttpRequestMessage.create({
+      const request = await parseRequest(document, HttpServerRequest.create({
         method: 'POST',
         url: '/Customers?$omit=notes.add1,notes.add2.add3',
         body: {_id: 1},
@@ -275,7 +264,7 @@ describe('OpraHttpAdapter parse Collection requests', function () {
     })
 
     it('Should allow unknown fields in "include" option if additionalFields set to "true"', async () => {
-      const request = await adapter.parseRequest(HttpRequestMessage.create({
+      const request = await parseRequest(document, HttpServerRequest.create({
         method: 'POST',
         url: '/Customers?$include=notes.add1,notes.add2.add3',
         body: {_id: 1},
@@ -291,7 +280,7 @@ describe('OpraHttpAdapter parse Collection requests', function () {
   describe('CollectionUpdateRequest', function () {
 
     it('Should parse request', async () => {
-      const request = await adapter.parseRequest(HttpRequestMessage.create({
+      const request = await parseRequest(document, HttpServerRequest.create({
         method: 'PATCH',
         url: '/Customers@1?$pick=_id&$omit=gender&$include=address',
         body: {_id: 1},
@@ -316,10 +305,11 @@ describe('OpraHttpAdapter parse Collection requests', function () {
     })
 
     it('Should normalize field names in "pick" option', async () => {
-      const request = await adapter.parseRequest(HttpRequestMessage.create({
+      const request = await parseRequest(document, HttpServerRequest.create({
         method: 'PATCH',
         url: '/Customers@1?$pick=givenname,GENDER,Address,address.countryCode',
-        body: {_id: 1},
+        headers: ['content-type', 'application/json'],
+        body: {_id: 1}
       }));
       expect(request).toBeDefined();
       expect(request.operation).toStrictEqual('update');
@@ -327,9 +317,10 @@ describe('OpraHttpAdapter parse Collection requests', function () {
     })
 
     it('Should normalize field names in "omit" option', async () => {
-      const request = await adapter.parseRequest(HttpRequestMessage.create({
+      const request = await parseRequest(document, HttpServerRequest.create({
         method: 'PATCH',
         url: '/Customers@1?$omit=givenname,GENDER,Address,address.countryCode',
+        headers: ['content-type', 'application/json'],
         body: {_id: 1},
       }));
       expect(request).toBeDefined();
@@ -338,9 +329,10 @@ describe('OpraHttpAdapter parse Collection requests', function () {
     })
 
     it('Should normalize field names in "include" option', async () => {
-      const request = await adapter.parseRequest(HttpRequestMessage.create({
+      const request = await parseRequest(document, HttpServerRequest.create({
         method: 'PATCH',
         url: '/Customers@1?$include=givenname,GENDER,Address,address.countryCode',
+        headers: ['content-type', 'application/json'],
         body: {_id: 1},
       }));
       expect(request).toBeDefined();
@@ -349,36 +341,40 @@ describe('OpraHttpAdapter parse Collection requests', function () {
     })
 
     it('Should validate if fields in "pick" option are exist', async () => {
-      await expect(() => adapter.parseRequest(HttpRequestMessage.create({
+      await expect(() => parseRequest(document, HttpServerRequest.create({
             method: 'PATCH',
             url: '/Customers@1?$pick=address.x1',
+            headers: ['content-type', 'application/json'],
             body: {_id: 1},
           }))
       ).rejects.toThrow('Invalid field');
     })
 
     it('Should validate if fields in "omit" option are exist', async () => {
-      await expect(() => adapter.parseRequest(HttpRequestMessage.create({
+      await expect(() => parseRequest(document, HttpServerRequest.create({
             method: 'PATCH',
             url: '/Customers@1?$omit=address.x1',
+        headers: ['content-type', 'application/json'],
             body: {_id: 1},
           }))
       ).rejects.toThrow('Invalid field');
     })
 
     it('Should validate if fields in "include" option are exist', async () => {
-      await expect(() => adapter.parseRequest(HttpRequestMessage.create({
+      await expect(() => parseRequest(document, HttpServerRequest.create({
             method: 'PATCH',
             url: '/Customers@1?$include=address.x1',
+        headers: ['content-type', 'application/json'],
             body: {_id: 1},
           }))
       ).rejects.toThrow('Invalid field');
     })
 
     it('Should allow unknown fields in "pick" option if additionalFields set to "true"', async () => {
-      const request = await adapter.parseRequest(HttpRequestMessage.create({
+      const request = await parseRequest(document, HttpServerRequest.create({
         method: 'PATCH',
         url: '/Customers@1?$pick=notes.add1,notes.add2.add3',
+        headers: ['content-type', 'application/json'],
         body: {_id: 1},
       }));
       expect(request).toBeDefined();
@@ -387,9 +383,10 @@ describe('OpraHttpAdapter parse Collection requests', function () {
     })
 
     it('Should allow unknown fields in "omit" option if additionalFields set to "true"', async () => {
-      const request = await adapter.parseRequest(HttpRequestMessage.create({
+      const request = await parseRequest(document, HttpServerRequest.create({
         method: 'PATCH',
         url: '/Customers@1?$omit=notes.add1,notes.add2.add3',
+        headers: ['content-type', 'application/json'],
         body: {_id: 1},
       }));
       expect(request).toBeDefined();
@@ -398,9 +395,10 @@ describe('OpraHttpAdapter parse Collection requests', function () {
     })
 
     it('Should allow unknown fields in "include" option if additionalFields set to "true"', async () => {
-      const request = await adapter.parseRequest(HttpRequestMessage.create({
+      const request = await parseRequest(document, HttpServerRequest.create({
         method: 'PATCH',
         url: '/Customers@1?$include=notes.add1,notes.add2.add3',
+        headers: ['content-type', 'application/json'],
         body: {_id: 1},
       }));
       expect(request).toBeDefined();
@@ -413,7 +411,7 @@ describe('OpraHttpAdapter parse Collection requests', function () {
   describe('CollectionUpdateManyRequest', function () {
 
     it('Should parse request', async () => {
-      const request = await adapter.parseRequest(HttpRequestMessage.create({
+      const request = await parseRequest(document, HttpServerRequest.create({
         method: 'PATCH',
         url: '/Customers',
         body: {_id: 1},
@@ -434,7 +432,7 @@ describe('OpraHttpAdapter parse Collection requests', function () {
     })
 
     it('Should parse "filter"', async () => {
-      const request = await adapter.parseRequest(HttpRequestMessage.create({
+      const request = await parseRequest(document, HttpServerRequest.create({
         method: 'PATCH',
         url: '/Customers?$filter=givenname="John"',
         body: {_id: 1},
@@ -447,7 +445,7 @@ describe('OpraHttpAdapter parse Collection requests', function () {
     })
 
     it('Should validate if fields in "filter" option are exist', async () => {
-      await expect(() => adapter.parseRequest(HttpRequestMessage.create({
+      await expect(() => parseRequest(document, HttpServerRequest.create({
             method: 'PATCH',
             url: '/Customers?$filter=address.x1=1',
             body: {_id: 1},
@@ -461,7 +459,7 @@ describe('OpraHttpAdapter parse Collection requests', function () {
   describe('CollectionDeleteRequest', function () {
 
     it('Should parse request', async () => {
-      const request = await adapter.parseRequest(HttpRequestMessage.create({
+      const request = await parseRequest(document, HttpServerRequest.create({
         method: 'DELETE',
         url: '/Customers@1',
         headers: {'Accept': 'application/json'}
@@ -485,7 +483,7 @@ describe('OpraHttpAdapter parse Collection requests', function () {
   describe('CollectionDeleteManyRequest', function () {
 
     it('Should parse request', async () => {
-      const request = await adapter.parseRequest(HttpRequestMessage.create({
+      const request = await parseRequest(document, HttpServerRequest.create({
         method: 'DELETE',
         url: '/Customers?$filter=_id<10',
         headers: {'Accept': 'application/json'}
@@ -505,7 +503,7 @@ describe('OpraHttpAdapter parse Collection requests', function () {
     })
 
     it('Should parse "filter"', async () => {
-      const request = await adapter.parseRequest(HttpRequestMessage.create({
+      const request = await parseRequest(document, HttpServerRequest.create({
         method: 'DELETE',
         url: '/Customers?$filter=givenname="John"'
       }));
@@ -516,7 +514,7 @@ describe('OpraHttpAdapter parse Collection requests', function () {
     })
 
     it('Should validate if fields in "filter" option are exist', async () => {
-      await expect(() => adapter.parseRequest(HttpRequestMessage.create({
+      await expect(() => parseRequest(document, HttpServerRequest.create({
             method: 'DELETE',
             url: '/Customers?$filter=address.x1=1'
           }))
@@ -528,7 +526,7 @@ describe('OpraHttpAdapter parse Collection requests', function () {
   describe('CollectionFindManyRequest', function () {
 
     it('Should parse request', async () => {
-      const request = await adapter.parseRequest(HttpRequestMessage.create({
+      const request = await parseRequest(document, HttpServerRequest.create({
         method: 'GET',
         url: '/Customers?$limit=1&$skip=1&$count=n&$distinct=t&$sort=_id' +
             '&$pick=_id&$omit=gender&$include=address',
@@ -552,7 +550,7 @@ describe('OpraHttpAdapter parse Collection requests', function () {
     })
 
     it('Should normalize field names in "pick" option', async () => {
-      const request = await adapter.parseRequest(HttpRequestMessage.create({
+      const request = await parseRequest(document, HttpServerRequest.create({
         method: 'GET',
         url: '/Customers@1?$pick=givenname,GENDER,Address,address.countryCode'
       }));
@@ -562,7 +560,7 @@ describe('OpraHttpAdapter parse Collection requests', function () {
     })
 
     it('Should normalize field names in "omit" option', async () => {
-      const request = await adapter.parseRequest(HttpRequestMessage.create({
+      const request = await parseRequest(document, HttpServerRequest.create({
         method: 'GET',
         url: '/Customers@1?$omit=givenname,GENDER,Address,address.countryCode'
       }));
@@ -571,7 +569,7 @@ describe('OpraHttpAdapter parse Collection requests', function () {
     })
 
     it('Should normalize field names in "include" option', async () => {
-      const request = await adapter.parseRequest(HttpRequestMessage.create({
+      const request = await parseRequest(document, HttpServerRequest.create({
         method: 'GET',
         url: '/Customers@1?$include=givenname,GENDER,Address,address.countryCode'
       }));
@@ -581,7 +579,7 @@ describe('OpraHttpAdapter parse Collection requests', function () {
     })
 
     it('Should normalize field names in "sort" option', async () => {
-      const request = await adapter.parseRequest(HttpRequestMessage.create({
+      const request = await parseRequest(document, HttpServerRequest.create({
         method: 'GET',
         url: '/Customers?$sort=givenname,GENDER,address.countryCode'
       }));
@@ -591,7 +589,7 @@ describe('OpraHttpAdapter parse Collection requests', function () {
     })
 
     it('Should validate if fields in "pick" option are exist', async () => {
-      await expect(() => adapter.parseRequest(HttpRequestMessage.create({
+      await expect(() => parseRequest(document, HttpServerRequest.create({
             method: 'GET',
             url: '/Customers?$pick=address.x1'
           }))
@@ -599,7 +597,7 @@ describe('OpraHttpAdapter parse Collection requests', function () {
     })
 
     it('Should validate if fields in "omit" option are exist', async () => {
-      await expect(() => adapter.parseRequest(HttpRequestMessage.create({
+      await expect(() => parseRequest(document, HttpServerRequest.create({
             method: 'GET',
             url: '/Customers?$omit=address.x1'
           }))
@@ -607,7 +605,7 @@ describe('OpraHttpAdapter parse Collection requests', function () {
     })
 
     it('Should validate if fields in "include" option are exist', async () => {
-      await expect(() => adapter.parseRequest(HttpRequestMessage.create({
+      await expect(() => parseRequest(document, HttpServerRequest.create({
             method: 'GET',
             url: '/Customers?$include=address.x1'
           }))
@@ -615,7 +613,7 @@ describe('OpraHttpAdapter parse Collection requests', function () {
     })
 
     it('Should validate if fields in "sort" option are exist', async () => {
-      await expect(() => adapter.parseRequest(HttpRequestMessage.create({
+      await expect(() => parseRequest(document, HttpServerRequest.create({
             method: 'GET',
             url: '/Customers?$sort=address.x1'
           }))
@@ -623,7 +621,7 @@ describe('OpraHttpAdapter parse Collection requests', function () {
     })
 
     it('Should validate if field is available for sorting', async () => {
-      await expect(() => adapter.parseRequest(HttpRequestMessage.create({
+      await expect(() => parseRequest(document, HttpServerRequest.create({
             method: 'GET',
             url: '/Customers?$sort=uid'
           }))
@@ -631,7 +629,7 @@ describe('OpraHttpAdapter parse Collection requests', function () {
     })
 
     it('Should allow unknown fields in "pick" option if additionalFields set to "true"', async () => {
-      const request = await adapter.parseRequest(HttpRequestMessage.create({
+      const request = await parseRequest(document, HttpServerRequest.create({
         method: 'GET',
         url: '/Customers?$pick=notes.add1,notes.add2.add3'
       }));
@@ -641,7 +639,7 @@ describe('OpraHttpAdapter parse Collection requests', function () {
     })
 
     it('Should allow unknown fields in "omit" option if additionalFields set to "true"', async () => {
-      const request = await adapter.parseRequest(HttpRequestMessage.create({
+      const request = await parseRequest(document, HttpServerRequest.create({
         method: 'GET',
         url: '/Customers?$omit=notes.add1,notes.add2.add3'
       }));
@@ -651,7 +649,7 @@ describe('OpraHttpAdapter parse Collection requests', function () {
     })
 
     it('Should allow unknown fields in "include" option if additionalFields set to "true"', async () => {
-      const request = await adapter.parseRequest(HttpRequestMessage.create({
+      const request = await parseRequest(document, HttpServerRequest.create({
         method: 'GET',
         url: '/Customers?$include=notes.add1,notes.add2.add3'
       }));
@@ -661,7 +659,7 @@ describe('OpraHttpAdapter parse Collection requests', function () {
     })
 
     it('Should parse "limit" option', async () => {
-      const request = await adapter.parseRequest(HttpRequestMessage.create({
+      const request = await parseRequest(document, HttpServerRequest.create({
         method: 'GET',
         url: '/Customers?$limit=5'
       }));
@@ -670,14 +668,14 @@ describe('OpraHttpAdapter parse Collection requests', function () {
     })
 
     it('Should validate "limit" option', async () => {
-      await expect(() => adapter.parseRequest(HttpRequestMessage.create({
+      await expect(() => parseRequest(document, HttpServerRequest.create({
         method: 'GET',
         url: '/Customers?$limit=x5'
       }))).rejects.toThrow('not a valid number');
     })
 
     it('Should parse "skip" option', async () => {
-      const request = await adapter.parseRequest(HttpRequestMessage.create({
+      const request = await parseRequest(document, HttpServerRequest.create({
         method: 'GET',
         url: '/Customers?$skip=5'
       }));
@@ -687,49 +685,49 @@ describe('OpraHttpAdapter parse Collection requests', function () {
     })
 
     it('Should validate "skip" option', async () => {
-      await expect(() => adapter.parseRequest(HttpRequestMessage.create({
+      await expect(() => parseRequest(document, HttpServerRequest.create({
         method: 'GET',
         url: '/Customers?$skip=x5'
       }))).rejects.toThrow('not a valid number');
     })
 
     it('Should parse "count" option', async () => {
-      let request = await adapter.parseRequest(HttpRequestMessage.create({
+      let request = await parseRequest(document, HttpServerRequest.create({
         method: 'GET',
         url: '/Customers?$count=true'
       }));
       expect(request).toBeDefined();
       expect(request.operation).toStrictEqual('findMany');
       expect(request.args.count).toStrictEqual(true);
-      request = await adapter.parseRequest(HttpRequestMessage.create({
+      request = await parseRequest(document, HttpServerRequest.create({
         method: 'GET',
         url: '/Customers?$count=1'
       }));
       expect(request).toBeDefined();
       expect(request.operation).toStrictEqual('findMany');
       expect(request.args.count).toStrictEqual(true);
-      request = await adapter.parseRequest(HttpRequestMessage.create({
+      request = await parseRequest(document, HttpServerRequest.create({
         method: 'GET',
         url: '/Customers?$count=t'
       }));
       expect(request).toBeDefined();
       expect(request.operation).toStrictEqual('findMany');
       expect(request.args.count).toStrictEqual(true);
-      request = await adapter.parseRequest(HttpRequestMessage.create({
+      request = await parseRequest(document, HttpServerRequest.create({
         method: 'GET',
         url: '/Customers?$count=false'
       }));
       expect(request).toBeDefined();
       expect(request.operation).toStrictEqual('findMany');
       expect(request.args.count).toStrictEqual(false);
-      request = await adapter.parseRequest(HttpRequestMessage.create({
+      request = await parseRequest(document, HttpServerRequest.create({
         method: 'GET',
         url: '/Customers?$count=0'
       }));
       expect(request).toBeDefined();
       expect(request.operation).toStrictEqual('findMany');
       expect(request.args.count).toStrictEqual(false);
-      request = await adapter.parseRequest(HttpRequestMessage.create({
+      request = await parseRequest(document, HttpServerRequest.create({
         method: 'GET',
         url: '/Customers?$count=f'
       }));
@@ -739,49 +737,49 @@ describe('OpraHttpAdapter parse Collection requests', function () {
     })
 
     it('Should validate "count" option', async () => {
-      await expect(() => adapter.parseRequest(HttpRequestMessage.create({
+      await expect(() => parseRequest(document, HttpServerRequest.create({
         method: 'GET',
         url: '/Customers?$count=x5'
       }))).rejects.toThrow('not a valid boolean');
     })
 
     it('Should parse "distinct" option', async () => {
-      let request = await adapter.parseRequest(HttpRequestMessage.create({
+      let request = await parseRequest(document, HttpServerRequest.create({
         method: 'GET',
         url: '/Customers?$distinct=true'
       }));
       expect(request).toBeDefined();
       expect(request.operation).toStrictEqual('findMany');
       expect(request.args.distinct).toStrictEqual(true);
-      request = await adapter.parseRequest(HttpRequestMessage.create({
+      request = await parseRequest(document, HttpServerRequest.create({
         method: 'GET',
         url: '/Customers?$distinct=1'
       }));
       expect(request).toBeDefined();
       expect(request.operation).toStrictEqual('findMany');
       expect(request.args.distinct).toStrictEqual(true);
-      request = await adapter.parseRequest(HttpRequestMessage.create({
+      request = await parseRequest(document, HttpServerRequest.create({
         method: 'GET',
         url: '/Customers?$distinct=t'
       }));
       expect(request).toBeDefined();
       expect(request.operation).toStrictEqual('findMany');
       expect(request.args.distinct).toStrictEqual(true);
-      request = await adapter.parseRequest(HttpRequestMessage.create({
+      request = await parseRequest(document, HttpServerRequest.create({
         method: 'GET',
         url: '/Customers?$distinct=false'
       }));
       expect(request).toBeDefined();
       expect(request.operation).toStrictEqual('findMany');
       expect(request.args.distinct).toStrictEqual(false);
-      request = await adapter.parseRequest(HttpRequestMessage.create({
+      request = await parseRequest(document, HttpServerRequest.create({
         method: 'GET',
         url: '/Customers?$distinct=0'
       }));
       expect(request).toBeDefined();
       expect(request.operation).toStrictEqual('findMany');
       expect(request.args.distinct).toStrictEqual(false);
-      request = await adapter.parseRequest(HttpRequestMessage.create({
+      request = await parseRequest(document, HttpServerRequest.create({
         method: 'GET',
         url: '/Customers?$distinct=f'
       }));
@@ -791,14 +789,14 @@ describe('OpraHttpAdapter parse Collection requests', function () {
     })
 
     it('Should validate "distinct" option', async () => {
-      await expect(() => adapter.parseRequest(HttpRequestMessage.create({
+      await expect(() => parseRequest(document, HttpServerRequest.create({
         method: 'GET',
         url: '/Customers?$distinct=x5'
       }))).rejects.toThrow('not a valid boolean');
     })
 
     it('Should parse "filter"', async () => {
-      const request = await adapter.parseRequest(HttpRequestMessage.create({
+      const request = await parseRequest(document, HttpServerRequest.create({
         method: 'GET',
         url: '/Customers?$filter=givenname="John"'
       }));
@@ -809,7 +807,7 @@ describe('OpraHttpAdapter parse Collection requests', function () {
     })
 
     it('Should validate if fields in "filter" option are exist', async () => {
-      await expect(() => adapter.parseRequest(HttpRequestMessage.create({
+      await expect(() => parseRequest(document, HttpServerRequest.create({
             method: 'GET',
             url: '/Customers?$filter=address.x1=1'
           }))

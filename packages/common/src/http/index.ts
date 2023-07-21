@@ -1,4 +1,3 @@
-export * from './http-headers.js';
 export * from './http-params.js';
 
 export * from './enums/http-headers-codes.enum.js';

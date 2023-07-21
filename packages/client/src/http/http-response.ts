@@ -1,8 +1,6 @@
-import { HttpHeaders } from '@opra/common';
-
 export namespace HttpResponse {
   export interface Initiator {
-    headers?: HttpHeaders.Initiator;
+    headers?: HeadersInit;
     status?: number;
     statusText?: string;
     url?: string;
@@ -16,7 +14,7 @@ export class HttpResponse<TBody = any> {
   /**
    *  Contains the Headers object associated with the response.
    */
-  readonly headers: HttpHeaders;
+  readonly headers: Headers;
   /**
    *  Contains a Boolean stating whether the response was successful (status in the range 200-299) or not.
    */
@@ -46,8 +44,8 @@ export class HttpResponse<TBody = any> {
   readonly hasBody: boolean = false;
 
   constructor(init?: HttpResponse.Initiator) {
-    this.headers = init?.headers instanceof HttpHeaders ? init?.headers
-        : new HttpHeaders(init?.headers);
+    this.headers = init?.headers instanceof Headers ? init?.headers
+        : new Headers(init?.headers);
     this.status = init?.status || 200;
     this.statusText = init?.statusText || 'OK';
     this.url = init?.url || null;

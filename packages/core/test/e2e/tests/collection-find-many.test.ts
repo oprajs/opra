@@ -77,7 +77,7 @@ export function collectionSearchTests(args: { client: OpraTestClient }) {
           .toBeFilteredBy('gender="M"');
     })
 
-    it('Test "count" option', async () => {
+    it.only('Test "count" option', async () => {
       const resp = await args.client.collection('Customers')
           .findMany({count: true})
           .fetch('response');

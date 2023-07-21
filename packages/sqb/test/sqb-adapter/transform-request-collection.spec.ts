@@ -4,7 +4,7 @@ import { ApiDocument } from '@opra/common';
 import { Request } from '@opra/core';
 import { createTestApi } from '@opra/core/test/_support/test-app';
 import { SQBAdapter } from '@opra/sqb';
-import { Eq, Field } from '@sqb/builder';
+import { Eq } from '@sqb/builder';
 
 describe('SQBAdapter.transformRequest (Collection)', function () {
 
@@ -120,7 +120,7 @@ describe('SQBAdapter.transformRequest (Collection)', function () {
       } as unknown as Request;
       const o = SQBAdapter.transformRequest(request);
       const options = {
-        filter: Eq(Field('givenName'), 'John')
+        filter: Eq('givenName', 'John')
       }
       expect(o.method).toStrictEqual('deleteMany');
       expect(o.options).toStrictEqual(options);
@@ -209,7 +209,7 @@ describe('SQBAdapter.transformRequest (Collection)', function () {
       } as unknown as Request;
       const o = SQBAdapter.transformRequest(request);
       const options = {
-        filter: Eq(Field('givenName'), 'John')
+        filter: Eq('givenName', 'John')
       }
       expect(o.method).toStrictEqual('findMany');
       expect(o.options).toStrictEqual(options);
@@ -329,7 +329,7 @@ describe('SQBAdapter.transformRequest (Collection)', function () {
       } as unknown as Request;
       const o = SQBAdapter.transformRequest(request);
       const options = {
-        filter: Eq(Field('givenName'), 'John')
+        filter: Eq('givenName', 'John')
       }
       expect(o.method).toStrictEqual('updateMany');
       expect(o.data).toStrictEqual(data);

@@ -1,4 +1,4 @@
-import type { HttpResponseMessage } from '../http/http-response-message.js';
+import { HttpServerResponse } from '../http/impl/http-server-response.js';
 
 export interface Response {
   /**
@@ -21,7 +21,7 @@ export interface Response {
    */
   count?: number;
 
-  switchToHttp(): HttpResponseMessage;
+  switchToHttp(): HttpServerResponse;
 
   switchToWs(): never;
 

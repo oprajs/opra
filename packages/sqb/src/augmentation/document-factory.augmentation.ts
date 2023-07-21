@@ -1,5 +1,5 @@
 import { Type } from 'ts-gems';
-import { ApiField, DocumentFactory, METADATA_KEY, OpraSchema } from "@opra/common";
+import { ApiField, Collection, DocumentFactory, METADATA_KEY, OpraSchema } from "@opra/common";
 import { DataType as SqbDataType, EntityMetadata, isAssociationField } from '@sqb/connect';
 
 // @ts-ignore
@@ -105,12 +105,14 @@ DocumentFactory.prototype.extractFieldSchema = async function (
 }
 
 // @ts-ignore
-const _createCollection = DocumentFactory.prototype.createCollection;
+const _extractCollectionSchema = DocumentFactory.prototype.extractCollectionSchema;
 // @ts-ignore
-DocumentFactory.prototype.createCollection = async function (
+DocumentFactory.prototype.extractCollectionSchema = async function (
     this: DocumentFactory,
-    name: string,
-    schema: OpraSchema.Collection
+    schema: OpraSchema.Collection,
+    ctor: Type,
+    metadata: Collection.Metadata,
+    controller: object | Type
 ) {
   const {document} = this;
   const dataType = document.getComplexType(schema.type);
@@ -124,5 +126,5 @@ DocumentFactory.prototype.createCollection = async function (
       }
     }
   }
-  return await _createCollection.call(this, name, schema);
+  return await _extractCollectionSchema.call(this, schema, ctor, metadata, controller);
 }

@@ -1,5 +1,5 @@
 import { ApiField, ComplexType } from '@opra/common';
-import { Column, DataType } from '@sqb/connect';
+import { Column, DataType, PrimaryKey } from '@sqb/connect';
 
 @ComplexType({
   abstract: true,
@@ -9,6 +9,7 @@ export class Record {
 
   @Column(DataType.INTEGER)
   @ApiField()
+  @PrimaryKey()
   id: number;
 
   @Column()

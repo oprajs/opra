@@ -42,7 +42,11 @@ export class HttpRequestObservable<T, TBody, TResponseExt = {}>
   }
 
   header<K extends keyof ClientHttpHeaders>(name: K, value: ClientHttpHeaders[K]): this {
-    this[kRequest].headers.append(name, value);
+    const headers = this[kRequest].headers;
+    if (Array.isArray(value))
+      value.forEach(v => headers.append(name, String(v)))
+    else
+      headers.append(name, value);
     return this;
   }
 
