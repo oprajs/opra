@@ -24,9 +24,9 @@ describe('Collection.findMany', function () {
   it('Should return OPRA headers', async () => {
     const resp = await client.collection('Customers')
         .findMany().fetch(HttpObserveType.Response);
-    expect(app.lastResponse.get(HttpHeaderCodes.X_Opra_Version)).toStrictEqual('1.0');
+    expect(app.lastResponse.get(HttpHeaderCodes.X_Opra_Version)).toStrictEqual(OpraSchema.SpecVersion);
     expect(app.lastResponse.get(HttpHeaderCodes.X_Total_Count)).toStrictEqual('10');
-    expect(resp.headers.get(HttpHeaderCodes.X_Opra_Version)).toStrictEqual('1.0');
+    expect(resp.headers.get(HttpHeaderCodes.X_Opra_Version)).toStrictEqual(OpraSchema.SpecVersion);
     expect(resp.headers.get(HttpHeaderCodes.X_Total_Count)).toStrictEqual('10');
   });
 
