@@ -1,6 +1,6 @@
-import { HttpHeaderCodes } from '@opra/common';
+import { HttpHeaderCodes, OpraSchema } from '@opra/common';
 import { customersData } from '../../../../support/test/customers.data.js';
-import { HttpResponse, OpraHttpClient } from '../../src/index.js';
+import { HttpEventType, HttpObserveType, HttpResponse, OpraHttpClient } from '../../src/index.js';
 import { createMockServer, MockServer } from '../_support/create-mock-server.js';
 
 describe('Singleton.get', function () {
@@ -15,9 +15,8 @@ describe('Singleton.get', function () {
     app = await createMockServer();
     client = new OpraHttpClient(app.baseUrl, {api: app.api});
     app.mockHandler((req, res) => {
-      res.header(HttpHeaderCodes.X_Opra_Total_Matches, '10');
-      res.header(HttpHeaderCodes.X_Opra_Version, '1');
-      res.header(HttpHeaderCodes.X_Opra_Data_Type, 'Customer');
+      res.header(HttpHeaderCodes.X_Total_Count, '10');
+      res.header(HttpHeaderCodes.X_Opra_Version, OpraSchema.SpecVersion);
       res.json(rows[0]);
     })
   });
@@ -33,7 +32,7 @@ describe('Singleton.get', function () {
 
   it('Should return HttpResponse if observe=response', async () => {
     const resp = await client.singleton('MyProfile')
-        .get().fetch('response');
+        .get().fetch(HttpObserveType.Response);
     expect(app.lastRequest).toBeDefined();
     expect(app.lastRequest.method).toStrictEqual('GET');
     expect(app.lastRequest.baseUrl).toStrictEqual('/MyProfile');
@@ -41,11 +40,11 @@ describe('Singleton.get', function () {
   });
 
   it('Should subscribe events', (done) => {
-    const expectedEvents = ['sent', 'headers-received', 'response'];
-    const receivedEvents: string[] = [];
-    client.singleton('MyProfile').get({observe: 'events'}).subscribe({
-      next: (events) => {
-        receivedEvents.push(events.event);
+    const expectedEvents = ['sent', 'response-header', 'response'];
+    const receivedEvents: HttpEventType[] = [];
+    client.singleton('MyProfile').get({observe: HttpObserveType.Events}).subscribe({
+      next: (event) => {
+        receivedEvents.push(event.event);
       },
       complete: () => {
         try {

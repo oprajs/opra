@@ -276,7 +276,7 @@ export enum HttpStatusCodes {
    * to do so after the client upgrades to a different protocol. The server sends an Upgrade
    * header in a 426 response to indicate the required protocol(s).
    */
-  UPGRADE_REQUIRED = 428,
+  UPGRADE_REQUIRED = 426,
 
   /**
    * The origin server requires the request to be conditional. This response is intended to prevent

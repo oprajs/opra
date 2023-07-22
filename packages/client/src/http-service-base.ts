@@ -1,4 +1,4 @@
-import { OpraHttpClient } from './http-client.js';
+import { OpraHttpClient } from './client.js';
 
 export class HttpServiceBase {
 

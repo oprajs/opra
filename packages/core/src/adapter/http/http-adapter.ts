@@ -4,7 +4,7 @@ import {
   HttpStatusCodes, InternalServerError, isReadable,
   IssueSeverity,
   OpraException, OpraSchema,
-  Singleton, wrapException
+  wrapException
 } from '@opra/common';
 import { OpraAdapter } from '../adapter.js';
 import { ILogger } from '../interfaces/logger.interface.js';
@@ -85,11 +85,6 @@ export abstract class OpraHttpAdapter extends OpraAdapter {
       return;
     }
 
-    if (request.resource instanceof Singleton || request.resource instanceof Collection) {
-      outgoing.setHeader(HttpHeaderCodes.X_Opra_Data_Type, String(request.resource.type.name));
-      outgoing.setHeader(HttpHeaderCodes.X_Opra_Operation, request.operation);
-    }
-
     if (request.crud === 'create') {
       if (!response.value)
         throw new InternalServerError();
@@ -100,7 +95,7 @@ export abstract class OpraHttpAdapter extends OpraAdapter {
     if (request.resource instanceof Collection &&
         request.crud === 'read' && request.many && request.args.count >= 0
     ) {
-      outgoing.setHeader(HttpHeaderCodes.X_Opra_Total_Matches, String(response.count));
+      outgoing.setHeader(HttpHeaderCodes.X_Total_Count, String(response.count));
     }
 
     outgoing.statusCode = outgoing.statusCode || HttpStatusCodes.OK;
@@ -108,6 +103,17 @@ export abstract class OpraHttpAdapter extends OpraAdapter {
     outgoing.setHeader(HttpHeaderCodes.Pragma, 'no-cache');
     outgoing.setHeader(HttpHeaderCodes.Expires, '-1');
     outgoing.setHeader(HttpHeaderCodes.X_Opra_Version, OpraSchema.SpecVersion);
+    // Expose headers if cors enabled
+    if (outgoing.getHeader(HttpHeaderCodes.Access_Control_Allow_Origin)) {
+      // Expose X-Total-Count header
+      outgoing.appendHeader(HttpHeaderCodes.Access_Control_Expose_Headers, [HttpHeaderCodes.X_Total_Count]);
+      // Expose X-Opra-* headers
+      outgoing.appendHeader(HttpHeaderCodes.Access_Control_Expose_Headers,
+          Object.values(HttpHeaderCodes)
+              .filter(k => k.toLowerCase().startsWith('x-opra-'))
+      );
+    }
+
     if (response.value) {
       if (typeof response.value === 'object') {
         if (isReadable(response.value) || Buffer.isBuffer(response.value))
@@ -136,9 +142,9 @@ export abstract class OpraHttpAdapter extends OpraAdapter {
         return b.status - a.status;
       return i;
     });
-    if (!status || status < HttpStatusCodes.BAD_REQUEST) {
+    if (!status || status < Number(HttpStatusCodes.BAD_REQUEST)) {
       status = errors[0].status;
-      if (status < HttpStatusCodes.BAD_REQUEST)
+      if (status < Number(HttpStatusCodes.BAD_REQUEST))
         status = HttpStatusCodes.INTERNAL_SERVER_ERROR;
     }
     const body = this.i18n.deep({

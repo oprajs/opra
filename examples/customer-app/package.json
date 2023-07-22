@@ -4,9 +4,12 @@
     "start": "node --experimental-specifier-resolution=node --loader ../../support/esloader.mjs index.ts"
   },
   "dependencies": {
+    "@faker-js/faker": "^8.0.2",
     "@opra/sqb": "^0.21.0",
-    "@sqb/connect": "^4.9.0",
-    "@sqb/postgres": "^4.9.0",
-    "@faker-js/faker": "^8.0.2"
+    "@sqb/connect": "^4.9.1",
+    "@sqb/postgres": "^4.9.1"
+  },
+  "devDependencies": {
+    "@types/cors": "^2.8.13"
   }
 }

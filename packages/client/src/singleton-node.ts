@@ -1,9 +1,9 @@
 import { StrictOmit } from 'ts-gems';
 import { PartialInput } from '@opra/common';
-import { kHttpClientContext } from '../constants.js';
+import { kHttpClientContext } from './constants.js';
 import { HttpRequestObservable } from './http-request-observable.js';
 import { HttpResponse } from './http-response.js';
-import { HttpClientContext, HttpEvent } from './http-types.js';
+import { HttpClientContext, HttpEvent, HttpObserveType } from './types.js';
 
 export namespace HttpSingletonNode {
   export interface CreateOptions extends HttpRequestObservable.Options {
@@ -38,15 +38,15 @@ export class HttpSingletonNode<TType, TResponseExt = {}> {
 
   create(
       data: PartialInput<TType>,
-      options?: StrictOmit<HttpSingletonNode.CreateOptions, 'observe'> & { observe?: 'body' }
+      options?: StrictOmit<HttpSingletonNode.CreateOptions, 'observe'> & { observe?: HttpObserveType.Body }
   ): HttpRequestObservable<TType, TType, TResponseExt>
   create(
       data: PartialInput<TType>,
-      options?: StrictOmit<HttpSingletonNode.CreateOptions, 'observe'> & { observe: 'response' }
+      options?: StrictOmit<HttpSingletonNode.CreateOptions, 'observe'> & { observe: HttpObserveType.Response }
   ): HttpRequestObservable<HttpResponse<TType>, TType, TResponseExt>
   create(
       data: PartialInput<TType>,
-      options?: StrictOmit<HttpSingletonNode.CreateOptions, 'observe'> & { observe: 'events' }
+      options?: StrictOmit<HttpSingletonNode.CreateOptions, 'observe'> & { observe: HttpObserveType.Events }
   ): HttpRequestObservable<HttpEvent, TType, TResponseExt>
   create(data: PartialInput<TType>, options?: HttpSingletonNode.CreateOptions) {
     const context = this[kHttpClientContext];
@@ -65,13 +65,13 @@ export class HttpSingletonNode<TType, TResponseExt = {}> {
   }
 
   delete(
-      options?: StrictOmit<HttpSingletonNode.DeleteOptions, 'observe'> & { observe?: 'body' }
+      options?: StrictOmit<HttpSingletonNode.DeleteOptions, 'observe'> & { observe?: HttpObserveType.Body }
   ): HttpRequestObservable<never, never, TResponseExt>
   delete(
-      options?: StrictOmit<HttpSingletonNode.DeleteOptions, 'observe'> & { observe: 'response' }
+      options?: StrictOmit<HttpSingletonNode.DeleteOptions, 'observe'> & { observe: HttpObserveType.Response }
   ): HttpRequestObservable<HttpResponse<never>, never, TResponseExt>
   delete(
-      options?: StrictOmit<HttpSingletonNode.DeleteOptions, 'observe'> & { observe: 'events' }
+      options?: StrictOmit<HttpSingletonNode.DeleteOptions, 'observe'> & { observe: HttpObserveType.Events }
   ): HttpRequestObservable<HttpEvent, never, TResponseExt>
   delete(options?: HttpSingletonNode.DeleteOptions) {
     const context = this[kHttpClientContext];
@@ -83,13 +83,13 @@ export class HttpSingletonNode<TType, TResponseExt = {}> {
   }
 
   get(
-      options?: StrictOmit<HttpSingletonNode.GetOptions, 'observe'> & { observe?: 'body' }
+      options?: StrictOmit<HttpSingletonNode.GetOptions, 'observe'> & { observe?: HttpObserveType.Body }
   ): HttpRequestObservable<TType, TType, TResponseExt>
   get(
-      options?: StrictOmit<HttpSingletonNode.GetOptions, 'observe'> & { observe: 'response' }
+      options?: StrictOmit<HttpSingletonNode.GetOptions, 'observe'> & { observe: HttpObserveType.Response }
   ): HttpRequestObservable<HttpResponse<TType>, TType, TResponseExt>
   get(
-      options?: StrictOmit<HttpSingletonNode.GetOptions, 'observe'> & { observe: 'events' }
+      options?: StrictOmit<HttpSingletonNode.GetOptions, 'observe'> & { observe: HttpObserveType.Events }
   ): HttpRequestObservable<HttpEvent, TType, TResponseExt>
   get(options?: HttpSingletonNode.GetOptions) {
     const context = this[kHttpClientContext];
@@ -108,15 +108,15 @@ export class HttpSingletonNode<TType, TResponseExt = {}> {
 
   update(
       data: PartialInput<TType>,
-      options?: StrictOmit<HttpSingletonNode.UpdateOptions, 'observe'> & { observe?: 'body' }
+      options?: StrictOmit<HttpSingletonNode.UpdateOptions, 'observe'> & { observe?: HttpObserveType.Body }
   ): HttpRequestObservable<TType, TType, TResponseExt>
   update(
       data: PartialInput<TType>,
-      options?: StrictOmit<HttpSingletonNode.UpdateOptions, 'observe'> & { observe: 'response' }
+      options?: StrictOmit<HttpSingletonNode.UpdateOptions, 'observe'> & { observe: HttpObserveType.Response }
   ): HttpRequestObservable<HttpResponse<TType>, TType, TResponseExt>
   update(
       data: PartialInput<TType>,
-      options?: StrictOmit<HttpSingletonNode.UpdateOptions, 'observe'> & { observe: 'events' }
+      options?: StrictOmit<HttpSingletonNode.UpdateOptions, 'observe'> & { observe: HttpObserveType.Events }
   ): HttpRequestObservable<HttpEvent, TType, TResponseExt>
   update(data: PartialInput<TType>, options?: HttpSingletonNode.UpdateOptions) {
     const context = this[kHttpClientContext];

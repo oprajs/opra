@@ -3,20 +3,20 @@ import {
   ClientHttpHeaders,
   uid
 } from '@opra/common';
-import { kHttpClientContext } from '../constants.js';
+import { kHttpClientContext } from './constants.js';
 import { HttpRequest } from './http-request.js';
 import { HttpResponse } from './http-response.js';
 import {
   HttpClientContext,
-  HttpEvent, HttpRequestDefaults,
-  ObserveType
-} from './http-types.js';
+  HttpEvent, HttpObserveType,
+  HttpRequestDefaults
+} from './types.js';
 
 const kRequest = Symbol('kRequest');
 
 export namespace HttpRequestObservable {
   export interface Options {
-    observe?: ObserveType;
+    observe?: HttpObserveType;
     http?: HttpRequestDefaults;
   }
 }
@@ -34,7 +34,7 @@ export class HttpRequestObservable<T, TBody, TResponseExt = {}>
       options?: HttpRequestObservable.Options
   ) {
     super((subscriber) => {
-      context.send(options?.observe || 'body', this[kRequest]).subscribe((subscriber));
+      context.send(options?.observe || HttpObserveType.Body, this[kRequest]).subscribe((subscriber));
     });
     this[kHttpClientContext] = context;
     this[kRequest] = new HttpRequest(options?.http);
@@ -56,10 +56,10 @@ export class HttpRequestObservable<T, TBody, TResponseExt = {}>
   }
 
   async fetch(): Promise<TBody>
-  async fetch(observe: 'body'): Promise<TBody>
-  async fetch(observe: 'response'): Promise<HttpResponse<TBody> & TResponseExt>
-  async fetch(observe?: ObserveType): Promise<TBody | (HttpResponse<TBody> & TResponseExt) | HttpEvent> {
-    return lastValueFrom(this[kHttpClientContext].send(observe || 'body', this[kRequest]));
+  async fetch(observe: HttpObserveType.Body): Promise<TBody>
+  async fetch(observe: HttpObserveType.Response): Promise<HttpResponse<TBody> & TResponseExt>
+  async fetch(observe?: HttpObserveType): Promise<TBody | (HttpResponse<TBody> & TResponseExt) | HttpEvent> {
+    return lastValueFrom(this[kHttpClientContext].send(observe || HttpObserveType.Body, this[kRequest]));
   }
 
   with(cb: (_this: this) => void): this {

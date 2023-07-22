@@ -37,7 +37,9 @@ async function run() {
     });
     // console.log(util.inspect(service, {depth: 10, colors: true}));
     const app = express();
-    app.use(cors());
+    app.use(cors({
+      // exposedHeaders: ['*']
+    }));
     await OpraExpressAdapter.create(app, service, {
       prefix: '/svc1',
       logger: console

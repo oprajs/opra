@@ -55,7 +55,7 @@ export class ApiDocument {
    */
   getDataType(arg0: string | Type | object, silent?: boolean): DataType | undefined {
     let dataType: DataType | undefined;
-    const name = typeof arg0 === 'function' ? arg0.name : arg0;
+    const name: string = typeof arg0 === 'function' ? arg0.name : String(arg0);
     // Try to get instance from cache
     const t = typeof arg0 === 'string'
         ? this._typeCache.get(arg0)

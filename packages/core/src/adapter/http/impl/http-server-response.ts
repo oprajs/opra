@@ -182,7 +182,6 @@ export interface CookieOptions {
 }
 
 
-// noinspection JSUnusedLocalSymbols
 interface HttpServerResponseHost extends HttpServerResponse {
 
 }
@@ -206,27 +205,28 @@ class HttpServerResponseHost {
 
   setHeader(field: string | Record<string, any>, val?: any) {
     const setHeader: Function = Object.getPrototypeOf(this).setHeader;
-    if (typeof field === 'string') {
-      let value = Array.isArray(val)
-          ? val.map(String)
-          : (val ? String(val) : '');
-
-      // add charset to content-type
-      if (field.toLowerCase() === 'content-type') {
-        if (Array.isArray(value)) {
-          throw new TypeError('Content-Type cannot be set to an Array');
-        }
-        if (!charsetRegExp.test(value)) {
-          const charset = mime.charsets.lookup(value.split(';')[0]);
-          if (charset) value += '; charset=' + charset.toLowerCase();
-        }
-      }
-      setHeader.call(this, field, value);
-    } else {
+    if (typeof field === 'object') {
       for (const [k, v] of Object.entries(field)) {
         this.setHeader(k, v);
       }
+      return this;
     }
+    const fieldLower = field.toLowerCase();
+    let value = Array.isArray(val)
+        ? val.map(String)
+        : (val ? String(val) : '');
+
+    // add charset to content-type
+    if (fieldLower === 'content-type') {
+      if (Array.isArray(value)) {
+        throw new TypeError('Content-Type cannot be set to an Array');
+      }
+      if (!charsetRegExp.test(value)) {
+        const charset = mime.charsets.lookup(value.split(';')[0]);
+        if (charset) value += '; charset=' + charset.toLowerCase();
+      }
+    }
+    setHeader.call(this, field, value);
     return this;
   }
 

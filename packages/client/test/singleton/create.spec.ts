@@ -1,5 +1,5 @@
-import { HttpHeaderCodes } from '@opra/common';
-import { HttpResponse, OpraHttpClient } from '../../src/index.js';
+import { HttpHeaderCodes, OpraSchema } from '@opra/common';
+import { HttpEventType, HttpObserveType, HttpResponse, OpraHttpClient } from '../../src/index.js';
 import { createMockServer, MockServer } from '../_support/create-mock-server.js';
 
 describe('Singleton.create', function () {
@@ -14,19 +14,16 @@ describe('Singleton.create', function () {
     app = await createMockServer();
     client = new OpraHttpClient(app.baseUrl, {api: app.api});
     app.mockHandler((req, res) => {
-      res.header(HttpHeaderCodes.X_Opra_Version, '1');
-      res.header(HttpHeaderCodes.X_Opra_Data_Type, 'Customer');
+      res.header(HttpHeaderCodes.X_Opra_Version, OpraSchema.SpecVersion);
       res.json(data);
     })
   });
 
   it('Should return OPRA headers', async () => {
     const resp = await client.singleton('MyProfile')
-        .create(data).fetch('response');
-    expect(app.lastResponse.get(HttpHeaderCodes.X_Opra_Version)).toStrictEqual('1');
-    expect(app.lastResponse.get(HttpHeaderCodes.X_Opra_Data_Type)).toStrictEqual('Customer');
-    expect(resp.headers.get(HttpHeaderCodes.X_Opra_Version)).toStrictEqual('1');
-    expect(resp.headers.get(HttpHeaderCodes.X_Opra_Data_Type)).toStrictEqual('Customer');
+        .create(data).fetch(HttpObserveType.Response);
+    expect(app.lastResponse.get(HttpHeaderCodes.X_Opra_Version)).toStrictEqual(OpraSchema.SpecVersion);
+    expect(resp.headers.get(HttpHeaderCodes.X_Opra_Version)).toStrictEqual(OpraSchema.SpecVersion);
   });
 
   it('Should return body if observe=body or undefined', async () => {
@@ -40,7 +37,7 @@ describe('Singleton.create', function () {
 
   it('Should return HttpResponse if observe=response', async () => {
     const resp = await client.singleton('MyProfile')
-        .create(data).fetch('response');
+        .create(data).fetch(HttpObserveType.Response);
     expect(app.lastRequest).toBeDefined();
     expect(app.lastRequest.method).toStrictEqual('POST');
     expect(app.lastRequest.baseUrl).toStrictEqual('/MyProfile');
@@ -48,11 +45,11 @@ describe('Singleton.create', function () {
   });
 
   it('Should subscribe events', (done) => {
-    const expectedEvents = ['sent', 'headers-received', 'response'];
-    const receivedEvents: string[] = [];
-    client.singleton('MyProfile').create(data, {observe: 'events'}).subscribe({
-      next: (events) => {
-        receivedEvents.push(events.event);
+    const expectedEvents = ['sent', 'response-header', 'response'];
+    const receivedEvents: HttpEventType[] = [];
+    client.singleton('MyProfile').create(data, {observe: HttpObserveType.Events}).subscribe({
+      next: (event) => {
+        receivedEvents.push(event.event);
       },
       complete: () => {
         try {
