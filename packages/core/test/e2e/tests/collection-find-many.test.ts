@@ -77,15 +77,15 @@ export function collectionSearchTests(args: { client: OpraTestClient }) {
           .toBeFilteredBy('gender="M"');
     })
 
-    it.only('Test "count" option', async () => {
+    it('Test "count" option', async () => {
       const resp = await args.client.collection('Customers')
           .findMany({count: true})
           .fetch('response');
       resp.expect
           .toSuccess()
           .toReturnCollection();
-      expect(resp.totalMatches).toBeGreaterThanOrEqual(100);
-      expect(parseFloat('' + resp.headers.get(HttpHeaderCodes.X_Opra_Total_Matches))).toBeGreaterThanOrEqual(100);
+      expect(resp.totalCount).toBeGreaterThanOrEqual(100);
+      expect(parseFloat('' + resp.headers.get(HttpHeaderCodes.X_Total_Count))).toBeGreaterThanOrEqual(100);
     })
 
   })

@@ -6,11 +6,9 @@
 
 export enum HttpHeaderCodes {
 
-  /* *** Opra Headers *** */
-  X_Opra_Version = "X-OPRA-Version",
-  X_Opra_Data_Type = "X-OPRA-Data-Type",
-  X_Opra_Operation = "X-OPRA-Operation",
-  X_Opra_Total_Matches = "X-OPRA-Total-Matches",
+  /* *** Opra Custom Headers *** */
+  X_Opra_Version = "X-Opra-Version",
+  X_Total_Count = "X-Total-Count",
 
 
   /* *** Authentication *** */

@@ -14,14 +14,14 @@ export class ValidationError extends TypeError {
 
 export class FilterParseError extends Error {
   recognizer: Recognizer<any>;
-  offendingSymbol: any | undefined;
+  offendingSymbol?: any;
   line: number;
   column: number;
   e: RecognitionException | undefined;
 
   constructor(message: string, args: {
     recognizer: Recognizer<any>;
-    offendingSymbol: any | undefined;
+    offendingSymbol?: any;
     line: number;
     column: number;
     e: RecognitionException | undefined;

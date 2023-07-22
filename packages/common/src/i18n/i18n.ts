@@ -165,9 +165,9 @@ export class I18n extends BaseI18n {
             keys.push(token2);
           }
           const k = keys.length > 1 ? '$t(' + keys.join(',') + ')' : keys[0];
-          s += fallback
-              ? this.t(k, fallback, {...options, ...opts})
-              : this.t(k, {...options, ...opts});
+          s += (fallback
+              ? this.t(k, fallback, {...options, ...opts}) as string
+              : this.t(k, {...options, ...opts}) as string);
           continue;
         }
         s += token;

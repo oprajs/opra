@@ -2,29 +2,32 @@ import { lastValueFrom, Observable, Subscriber } from 'rxjs';
 import { isReadableStreamLike } from 'rxjs/internal/util/isReadableStreamLike';
 import { StrictOmit, Type } from 'ts-gems';
 import {
-  ApiDocument, DocumentFactory, HttpHeaderCodes, HttpParams,
-  isBlob, joinPath,
+  ApiDocument, DocumentFactory,
+  HttpHeaderCodes, HttpParams,
+  isBlob, joinPath
 } from '@opra/common';
-import { ClientError } from '../client-error.js';
+import { ClientError } from './client-error.js';
+import { HttpCollectionNode } from './collection-node.js';
 import {
   FORMDATA_CONTENT_TYPE_PATTERN,
   JSON_CONTENT_TYPE_PATTERN,
   TEXT_CONTENT_TYPE_PATTERN
-} from '../constants.js';
-import { HttpCollectionNode } from './http-collection-node.js';
+} from './constants.js';
 import { HttpRequest } from './http-request.js';
 import { HttpResponse } from './http-response.js';
-import { HttpSingletonNode } from './http-singleton-node.js';
+import { HttpSingletonNode } from './singleton-node.js';
 import {
   HttpClientContext,
   HttpEvent,
-  HttpHeadersReceivedEvent,
+  HttpEventType,
+  HttpObserveType,
   HttpRequestDefaults,
   HttpResponseEvent,
-  ObserveType,
+  HttpResponseHeaderEvent,
+  HttpSentEvent,
   RequestInterceptor,
   ResponseInterceptor,
-} from './http-types.js';
+} from './types.js';
 
 export interface OpraHttpClientOptions {
   /**
@@ -88,7 +91,7 @@ export class OpraHttpClient {
       return promise;
     }
     this[kAssets].metadataPromise = promise = lastValueFrom(
-        this._sendRequest<any>('body',
+        this._sendRequest<any>(HttpObserveType.Body,
             new HttpRequest({
               method: 'GET',
               url: '$metadata',
@@ -155,7 +158,7 @@ export class OpraHttpClient {
   }
 
   protected _sendRequest<TBody>(
-      observe: ObserveType,
+      observe: HttpObserveType,
       request: HttpRequest,
       ctx?: HttpClientContext
   ): Observable<HttpResponse<TBody> | TBody | HttpEvent> {
@@ -203,8 +206,12 @@ export class OpraHttpClient {
             await interceptor(ctx, request);
           }
         }
-        if (observe === 'events')
-          subscriber.next({event: 'sent', request} satisfies HttpEvent);
+        if (observe === HttpObserveType.Events)
+          subscriber.next({
+            observe,
+            request,
+            event: HttpEventType.Sent,
+          } satisfies HttpSentEvent);
         const response = await this._fetch(url, request);
         await this._handleResponse(observe, subscriber, request, response);
       })().catch(error => subscriber.error(error))
@@ -220,7 +227,7 @@ export class OpraHttpClient {
   }
 
   protected async _handleResponse(
-      observe: ObserveType,
+      observe: HttpObserveType,
       subscriber: Subscriber<any>,
       request: HttpRequest,
       fetchResponse: Response,
@@ -228,7 +235,7 @@ export class OpraHttpClient {
   ): Promise<void> {
     const headers = fetchResponse.headers;
 
-    if (observe === 'events') {
+    if (observe === HttpObserveType.Events) {
       const response = this._createResponse({
         url: fetchResponse.url,
         headers,
@@ -236,7 +243,12 @@ export class OpraHttpClient {
         statusText: fetchResponse.statusText,
         hasBody: !!fetchResponse.body
       })
-      subscriber.next({event: 'headers-received', request, response} satisfies HttpHeadersReceivedEvent);
+      subscriber.next({
+        observe,
+        request,
+        event: HttpEventType.ResponseHeader,
+        response
+      } satisfies HttpResponseHeaderEvent);
     }
 
     let body;
@@ -256,7 +268,7 @@ export class OpraHttpClient {
       }
     }
 
-    if (observe === 'body' && fetchResponse.status >= 400 && fetchResponse.status < 600) {
+    if (observe === HttpObserveType.Body && fetchResponse.status >= 400 && fetchResponse.status < 600) {
       subscriber.error(new ClientError({
         message: fetchResponse.status + ' ' + fetchResponse.statusText,
         status: fetchResponse.status,
@@ -274,8 +286,8 @@ export class OpraHttpClient {
       body
     }
 
-    if (fetchResponse.headers.has(HttpHeaderCodes.X_Opra_Total_Matches))
-      responseInit.totalMatches = parseInt(fetchResponse.headers.get(HttpHeaderCodes.X_Opra_Total_Matches) as string, 10);
+    if (fetchResponse.headers.has(HttpHeaderCodes.X_Total_Count))
+      responseInit.totalCount = parseInt(fetchResponse.headers.get(HttpHeaderCodes.X_Total_Count) as string, 10);
 
     const response = this._createResponse(responseInit);
 
@@ -288,11 +300,16 @@ export class OpraHttpClient {
       }
     }
 
-    if (observe === 'body') {
+    if (observe === HttpObserveType.Body) {
       subscriber.next(body);
     } else {
-      if (observe === 'events')
-        subscriber.next({event: 'response', request, response} satisfies HttpResponseEvent);
+      if (observe === HttpObserveType.Events)
+        subscriber.next({
+          observe,
+          request,
+          event: HttpEventType.Response,
+          response
+        } satisfies HttpResponseEvent);
       else
         subscriber.next(response);
     }

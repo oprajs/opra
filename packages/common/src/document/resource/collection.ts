@@ -106,7 +106,7 @@ class CollectionClass extends Resource {
     return out;
   }
 
-  parseKeyValue(this: Collection, value: any): any | undefined {
+  parseKeyValue(this: Collection, value: any): any {
     if (!this.primaryKey?.length)
       return;
     const dataType = this.type;

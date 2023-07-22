@@ -1,5 +1,5 @@
-import { HttpHeaderCodes } from '@opra/common';
-import { HttpResponse, OpraHttpClient } from '../../src/index.js';
+import { HttpHeaderCodes, OpraSchema } from '@opra/common';
+import { HttpEventType, HttpObserveType, HttpResponse, OpraHttpClient } from '../../src/index.js';
 import { createMockServer, MockServer } from '../_support/create-mock-server.js';
 
 describe('Collection.deleteMany', function () {
@@ -13,8 +13,7 @@ describe('Collection.deleteMany', function () {
     app = await createMockServer();
     client = new OpraHttpClient(app.baseUrl, {api: app.api});
     app.mockHandler((req, res) => {
-      res.header(HttpHeaderCodes.X_Opra_Version, '1');
-      res.header(HttpHeaderCodes.X_Opra_Data_Type, 'Customer');
+      res.header(HttpHeaderCodes.X_Opra_Version, OpraSchema.SpecVersion);
     })
   });
 
@@ -29,7 +28,7 @@ describe('Collection.deleteMany', function () {
 
   it('Should return HttpResponse if observe=response', async () => {
     const resp = await client.collection('Customers')
-        .deleteMany().fetch('response');
+        .deleteMany().fetch(HttpObserveType.Response);
     expect(app.lastRequest).toBeDefined();
     expect(app.lastRequest.method).toStrictEqual('DELETE');
     expect(app.lastRequest.baseUrl).toStrictEqual('/Customers');
@@ -37,11 +36,11 @@ describe('Collection.deleteMany', function () {
   });
 
   it('Should subscribe events', (done) => {
-    const expectedEvents = ['sent', 'headers-received', 'response'];
-    const receivedEvents: string[] = [];
-    client.collection('Customers').deleteMany({observe: 'events'}).subscribe({
-      next: (events) => {
-        receivedEvents.push(events.event);
+    const expectedEvents = ['sent', 'response-header', 'response'];
+    const receivedEvents: HttpEventType[] = [];
+    client.collection('Customers').deleteMany({observe: HttpObserveType.Events}).subscribe({
+      next: (event) => {
+        receivedEvents.push(event.event);
       },
       complete: () => {
         try {

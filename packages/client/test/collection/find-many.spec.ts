@@ -1,6 +1,6 @@
-import { HttpHeaderCodes } from '@opra/common';
+import { HttpHeaderCodes, OpraSchema } from '@opra/common';
 import { customersData } from '../../../../support/test/customers.data.js';
-import { HttpResponse, OpraHttpClient } from '../../src/index.js';
+import { HttpEventType, HttpObserveType, HttpResponse, OpraHttpClient } from '../../src/index.js';
 import { createMockServer, MockServer } from '../_support/create-mock-server.js';
 
 describe('Collection.findMany', function () {
@@ -15,22 +15,19 @@ describe('Collection.findMany', function () {
     app = await createMockServer();
     client = new OpraHttpClient(app.baseUrl, {api: app.api});
     app.mockHandler((req, res) => {
-      res.header(HttpHeaderCodes.X_Opra_Total_Matches, '10');
-      res.header(HttpHeaderCodes.X_Opra_Version, '1');
-      res.header(HttpHeaderCodes.X_Opra_Data_Type, 'Customer');
+      res.header(HttpHeaderCodes.X_Total_Count, '10');
+      res.header(HttpHeaderCodes.X_Opra_Version, OpraSchema.SpecVersion);
       res.json(rows.slice(0, 10));
     })
   });
 
   it('Should return OPRA headers', async () => {
     const resp = await client.collection('Customers')
-        .findMany().fetch('response');
-    expect(app.lastResponse.get(HttpHeaderCodes.X_Opra_Version)).toStrictEqual('1');
-    expect(app.lastResponse.get(HttpHeaderCodes.X_Opra_Data_Type)).toStrictEqual('Customer');
-    expect(app.lastResponse.get(HttpHeaderCodes.X_Opra_Total_Matches)).toStrictEqual('10');
-    expect(resp.headers.get(HttpHeaderCodes.X_Opra_Version)).toStrictEqual('1');
-    expect(resp.headers.get(HttpHeaderCodes.X_Opra_Data_Type)).toStrictEqual('Customer');
-    expect(resp.headers.get(HttpHeaderCodes.X_Opra_Total_Matches)).toStrictEqual('10');
+        .findMany().fetch(HttpObserveType.Response);
+    expect(app.lastResponse.get(HttpHeaderCodes.X_Opra_Version)).toStrictEqual('1.0');
+    expect(app.lastResponse.get(HttpHeaderCodes.X_Total_Count)).toStrictEqual('10');
+    expect(resp.headers.get(HttpHeaderCodes.X_Opra_Version)).toStrictEqual('1.0');
+    expect(resp.headers.get(HttpHeaderCodes.X_Total_Count)).toStrictEqual('10');
   });
 
   it('Should return body if observe=body or undefined', async () => {
@@ -43,7 +40,7 @@ describe('Collection.findMany', function () {
 
   it('Should return HttpResponse if observe=response', async () => {
     const resp = await client.collection('Customers')
-        .findMany().fetch('response');
+        .findMany().fetch(HttpObserveType.Response);
     expect(app.lastRequest).toBeDefined();
     expect(app.lastRequest.method).toStrictEqual('GET');
     expect(app.lastRequest.baseUrl).toStrictEqual('/Customers');
@@ -51,11 +48,11 @@ describe('Collection.findMany', function () {
   });
 
   it('Should subscribe events', (done) => {
-    const expectedEvents = ['sent', 'headers-received', 'response'];
-    const receivedEvents: string[] = [];
-    client.collection('Customers').findMany({observe: 'events'}).subscribe({
-      next: (events) => {
-        receivedEvents.push(events.event);
+    const expectedEvents = ['sent', 'response-header', 'response'];
+    const receivedEvents: HttpEventType[] = [];
+    client.collection('Customers').findMany({observe: HttpObserveType.Events}).subscribe({
+      next: (event) => {
+        receivedEvents.push(event.event);
       },
       complete: () => {
         try {
@@ -157,13 +154,13 @@ describe('Collection.findMany', function () {
     const resp = await client.collection('Customers')
         .findMany({
           count: true
-        }).fetch('response');
+        }).fetch(HttpObserveType.Response);
     expect(app.lastRequest).toBeDefined();
     expect(app.lastRequest.method).toStrictEqual('GET');
     expect(app.lastRequest.baseUrl).toStrictEqual('/Customers');
     expect(Object.keys(app.lastRequest.query)).toStrictEqual(['$count']);
     expect(app.lastRequest.query.$count).toStrictEqual('true');
-    expect(resp.totalMatches).toStrictEqual(10);
+    expect(resp.totalCount).toStrictEqual(10);
   });
 
 });

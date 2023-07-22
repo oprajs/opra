@@ -1,10 +1,10 @@
 import { StrictOmit } from 'ts-gems';
 import type { PartialInput } from '@opra/common';
 import { OpraFilter } from '@opra/common';
-import { kHttpClientContext } from '../constants.js';
+import { kHttpClientContext } from './constants.js';
 import { HttpRequestObservable } from './http-request-observable.js';
 import { HttpResponse } from './http-response.js';
-import { HttpClientContext, HttpEvent } from './http-types.js';
+import { HttpClientContext, HttpEvent, HttpObserveType } from './types.js';
 
 export namespace HttpCollectionNode {
 
@@ -68,15 +68,15 @@ export class HttpCollectionNode<TType, TResponseExt = {}> {
 
   create(
       data: PartialInput<TType>,
-      options?: StrictOmit<HttpCollectionNode.CreateOptions, 'observe'> & { observe?: 'body' }
+      options?: StrictOmit<HttpCollectionNode.CreateOptions, 'observe'> & { observe?: HttpObserveType.Body }
   ): HttpRequestObservable<TType, TType, TResponseExt>
   create(
       data: PartialInput<TType>,
-      options?: StrictOmit<HttpCollectionNode.CreateOptions, 'observe'> & { observe: 'response' }
+      options?: StrictOmit<HttpCollectionNode.CreateOptions, 'observe'> & { observe: HttpObserveType.Response }
   ): HttpRequestObservable<HttpResponse<TType>, TType, TResponseExt>
   create(
       data: PartialInput<TType>,
-      options?: StrictOmit<HttpCollectionNode.CreateOptions, 'observe'> & { observe: 'events' }
+      options?: StrictOmit<HttpCollectionNode.CreateOptions, 'observe'> & { observe: HttpObserveType.Events }
   ): HttpRequestObservable<HttpEvent, TType, TResponseExt>
   create(data: PartialInput<TType>, options?: HttpCollectionNode.CreateOptions) {
     const context = this[kHttpClientContext];
@@ -96,15 +96,15 @@ export class HttpCollectionNode<TType, TResponseExt = {}> {
 
   delete(
       id: any,
-      options?: StrictOmit<HttpCollectionNode.DeleteOptions, 'observe'> & { observe?: 'body' }
+      options?: StrictOmit<HttpCollectionNode.DeleteOptions, 'observe'> & { observe?: HttpObserveType.Body }
   ): HttpRequestObservable<never, never, TResponseExt>
   delete(
       id: any,
-      options?: StrictOmit<HttpCollectionNode.DeleteOptions, 'observe'> & { observe: 'response' }
+      options?: StrictOmit<HttpCollectionNode.DeleteOptions, 'observe'> & { observe: HttpObserveType.Response }
   ): HttpRequestObservable<HttpResponse<never>, never, TResponseExt>
   delete(
       id: any,
-      options?: StrictOmit<HttpCollectionNode.DeleteOptions, 'observe'> & { observe: 'events' }
+      options?: StrictOmit<HttpCollectionNode.DeleteOptions, 'observe'> & { observe: HttpObserveType.Events }
   ): HttpRequestObservable<HttpEvent, never, TResponseExt>
   delete(id: any, options?: HttpCollectionNode.DeleteOptions) {
     const context = this[kHttpClientContext];
@@ -116,13 +116,13 @@ export class HttpCollectionNode<TType, TResponseExt = {}> {
   }
 
   deleteMany(
-      options?: StrictOmit<HttpCollectionNode.DeleteManyOptions, 'observe'> & { observe?: 'body' }
+      options?: StrictOmit<HttpCollectionNode.DeleteManyOptions, 'observe'> & { observe?: HttpObserveType.Body }
   ): HttpRequestObservable<HttpCollectionNode.DeleteManyBody, HttpCollectionNode.DeleteManyBody, TResponseExt>
   deleteMany(
-      options?: StrictOmit<HttpCollectionNode.DeleteManyOptions, 'observe'> & { observe: 'response' }
+      options?: StrictOmit<HttpCollectionNode.DeleteManyOptions, 'observe'> & { observe: HttpObserveType.Response }
   ): HttpRequestObservable<HttpResponse<HttpCollectionNode.DeleteManyBody>, HttpCollectionNode.DeleteManyBody, TResponseExt>
   deleteMany(
-      options?: StrictOmit<HttpCollectionNode.DeleteManyOptions, 'observe'> & { observe: 'events' }
+      options?: StrictOmit<HttpCollectionNode.DeleteManyOptions, 'observe'> & { observe: HttpObserveType.Events }
   ): HttpRequestObservable<HttpEvent, HttpCollectionNode.DeleteManyBody, TResponseExt>
   deleteMany(options?: HttpCollectionNode.DeleteManyOptions) {
     const context = this[kHttpClientContext];
@@ -137,15 +137,15 @@ export class HttpCollectionNode<TType, TResponseExt = {}> {
 
   get(
       id: any,
-      options?: StrictOmit<HttpCollectionNode.GetOptions, 'observe'> & { observe?: 'body' }
+      options?: StrictOmit<HttpCollectionNode.GetOptions, 'observe'> & { observe?: HttpObserveType.Body }
   ): HttpRequestObservable<TType, TType, TResponseExt>
   get(
       id: any,
-      options?: StrictOmit<HttpCollectionNode.GetOptions, 'observe'> & { observe: 'response' }
+      options?: StrictOmit<HttpCollectionNode.GetOptions, 'observe'> & { observe: HttpObserveType.Response }
   ): HttpRequestObservable<HttpResponse<TType>, TType, TResponseExt>
   get(
       id: any,
-      options?: StrictOmit<HttpCollectionNode.GetOptions, 'observe'> & { observe: 'events' }
+      options?: StrictOmit<HttpCollectionNode.GetOptions, 'observe'> & { observe: HttpObserveType.Events }
   ): HttpRequestObservable<HttpEvent, TType, TResponseExt>
   get(id: any, options?: HttpCollectionNode.GetOptions) {
     const context = this[kHttpClientContext];
@@ -166,13 +166,13 @@ export class HttpCollectionNode<TType, TResponseExt = {}> {
       options?: StrictOmit<HttpCollectionNode.FindManyOptions, 'observe'>
   ): HttpRequestObservable<TType[], TType, TResponseExt>
   findMany(
-      options?: StrictOmit<HttpCollectionNode.FindManyOptions, 'observe'> & { observe?: 'body' }
+      options?: StrictOmit<HttpCollectionNode.FindManyOptions, 'observe'> & { observe?: HttpObserveType.Body }
   ): HttpRequestObservable<TType[], TType, TResponseExt>
   findMany(
-      options?: StrictOmit<HttpCollectionNode.FindManyOptions, 'observe'> & { observe: 'response' }
+      options?: StrictOmit<HttpCollectionNode.FindManyOptions, 'observe'> & { observe: HttpObserveType.Response }
   ): HttpRequestObservable<HttpResponse<TType[]>, TType, TResponseExt>
   findMany(
-      options?: StrictOmit<HttpCollectionNode.FindManyOptions, 'observe'> & { observe: 'events' }
+      options?: StrictOmit<HttpCollectionNode.FindManyOptions, 'observe'> & { observe: HttpObserveType.Events }
   ): HttpRequestObservable<HttpEvent, TType, TResponseExt>
   findMany(options?: HttpCollectionNode.FindManyOptions) {
     const context = this[kHttpClientContext];
@@ -204,17 +204,17 @@ export class HttpCollectionNode<TType, TResponseExt = {}> {
   update(
       id: any,
       data: PartialInput<TType>,
-      options?: StrictOmit<HttpCollectionNode.UpdateOptions, 'observe'> & { observe?: 'body' }
+      options?: StrictOmit<HttpCollectionNode.UpdateOptions, 'observe'> & { observe?: HttpObserveType.Body }
   ): HttpRequestObservable<TType, TType, TResponseExt>
   update(
       id: any,
       data: PartialInput<TType>,
-      options?: StrictOmit<HttpCollectionNode.UpdateOptions, 'observe'> & { observe: 'response' }
+      options?: StrictOmit<HttpCollectionNode.UpdateOptions, 'observe'> & { observe: HttpObserveType.Response }
   ): HttpRequestObservable<HttpResponse<TType>, TType, TResponseExt>
   update(
       id: any,
       data: PartialInput<TType>,
-      options?: StrictOmit<HttpCollectionNode.UpdateOptions, 'observe'> & { observe: 'events' }
+      options?: StrictOmit<HttpCollectionNode.UpdateOptions, 'observe'> & { observe: HttpObserveType.Events }
   ): HttpRequestObservable<HttpEvent, TType, TResponseExt>
   update(id: any, data: PartialInput<TType>, options?: HttpCollectionNode.UpdateOptions) {
     const context = this[kHttpClientContext];
@@ -234,15 +234,15 @@ export class HttpCollectionNode<TType, TResponseExt = {}> {
 
   updateMany(
       data: PartialInput<TType>,
-      options?: StrictOmit<HttpCollectionNode.UpdateManyOptions, 'observe'> & { observe?: 'body' }
+      options?: StrictOmit<HttpCollectionNode.UpdateManyOptions, 'observe'> & { observe?: HttpObserveType.Body }
   ): HttpRequestObservable<HttpCollectionNode.UpdateManyBody, HttpCollectionNode.DeleteManyBody, TResponseExt>
   updateMany(
       data: PartialInput<TType>,
-      options?: StrictOmit<HttpCollectionNode.UpdateManyOptions, 'observe'> & { observe: 'response' }
+      options?: StrictOmit<HttpCollectionNode.UpdateManyOptions, 'observe'> & { observe: HttpObserveType.Response }
   ): HttpRequestObservable<HttpResponse<HttpCollectionNode.UpdateManyBody>, HttpCollectionNode.DeleteManyBody, TResponseExt>
   updateMany(
       data: PartialInput<TType>,
-      options?: StrictOmit<HttpCollectionNode.UpdateManyOptions, 'observe'> & { observe: 'events' }
+      options?: StrictOmit<HttpCollectionNode.UpdateManyOptions, 'observe'> & { observe: HttpObserveType.Events }
   ): HttpRequestObservable<HttpEvent, HttpCollectionNode.UpdateManyBody, TResponseExt>
   updateMany(data: PartialInput<TType>, options?: HttpCollectionNode.UpdateManyOptions) {
     const context = this[kHttpClientContext];

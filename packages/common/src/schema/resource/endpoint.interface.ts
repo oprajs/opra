@@ -7,7 +7,7 @@ export interface Endpoint {
 }
 
 export namespace Endpoint {
-  export type MethodHandler = (...args: any[]) => any | Promise<any>;
+  export type MethodHandler = (...args: any[]) => any;
 }
 
 export namespace _Operation {

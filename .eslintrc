@@ -90,6 +90,8 @@
         "@typescript-eslint/no-unsafe-argument": "off",
         "@typescript-eslint/no-misused-new": "off",
         "@typescript-eslint/no-non-null-assertion": "off",
+        "@typescript-eslint/no-unsafe-declaration-merging": "off",
+        "@typescript-eslint/no-redundant-type-constituents": "off",
         "arrow-parens": [
           "off",
           "as-needed"
