@@ -1,4 +1,5 @@
 import { faker } from '@faker-js/faker';
+import { HttpObserveType } from '@opra/client';
 import { OpraTestClient } from '@opra/testing';
 
 export function collectionUpdateTests(args: { client: OpraTestClient }) {
@@ -14,7 +15,7 @@ export function collectionUpdateTests(args: { client: OpraTestClient }) {
       }
       let resp = await args.client.collection('Customers')
           .get(85)
-          .fetch('response');
+          .fetch(HttpObserveType.Response);
       resp.expect
           .toSuccess()
           .toReturnObject();
@@ -22,7 +23,7 @@ export function collectionUpdateTests(args: { client: OpraTestClient }) {
 
       resp = await args.client.collection('Customers')
           .update(oldData._id, data)
-          .fetch('response');
+          .fetch(HttpObserveType.Response);
       resp.expect
           .toSuccess()
           .toReturnObject()
@@ -30,7 +31,7 @@ export function collectionUpdateTests(args: { client: OpraTestClient }) {
 
       resp = await args.client.collection('Customers')
           .get(oldData._id)
-          .fetch('response');
+          .fetch(HttpObserveType.Response);
       resp.expect
           .toSuccess()
           .toReturnObject()
@@ -46,7 +47,7 @@ export function collectionUpdateTests(args: { client: OpraTestClient }) {
       }
       let resp = await args.client.collection('Customers')
           .get(100)
-          .fetch('response');
+          .fetch(HttpObserveType.Response);
       const oldData = resp.body;
       resp.expect
           .toSuccess()
@@ -54,7 +55,7 @@ export function collectionUpdateTests(args: { client: OpraTestClient }) {
 
       resp = await args.client.collection('Customers')
           .update(oldData._id, data, {pick: ['_id', 'givenName']})
-          .fetch('response');
+          .fetch(HttpObserveType.Response);
       resp.expect
           .toSuccess()
           .toReturnObject()
@@ -70,7 +71,7 @@ export function collectionUpdateTests(args: { client: OpraTestClient }) {
       }
       let resp = await args.client.collection('Customers')
           .get(100)
-          .fetch('response');
+          .fetch(HttpObserveType.Response);
       const oldData = resp.body;
       resp.expect
           .toSuccess()
@@ -78,7 +79,7 @@ export function collectionUpdateTests(args: { client: OpraTestClient }) {
 
       resp = await args.client.collection('Customers')
           .update(oldData._id, data, {omit: ['_id', 'givenName']})
-          .fetch('response');
+          .fetch(HttpObserveType.Response);
       resp.expect
           .toSuccess()
           .toReturnObject()
@@ -94,7 +95,7 @@ export function collectionUpdateTests(args: { client: OpraTestClient }) {
       }
       let resp = await args.client.collection('Customers')
           .get(100)
-          .fetch('response');
+          .fetch(HttpObserveType.Response);
       const oldData = resp.body;
       resp.expect
           .toSuccess()
@@ -102,7 +103,7 @@ export function collectionUpdateTests(args: { client: OpraTestClient }) {
 
       resp = await args.client.collection('Customers')
           .update(oldData._id, data, {include: ['address']})
-          .fetch('response');
+          .fetch(HttpObserveType.Response);
       resp.expect
           .toSuccess()
           .toReturnObject()

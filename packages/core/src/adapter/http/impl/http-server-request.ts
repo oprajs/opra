@@ -12,7 +12,7 @@ import parseRange, {
 } from 'range-parser';
 import stream from 'stream';
 import typeIs from 'type-is';
-import { isReadable, mergePrototype } from '@opra/common';
+import { isReadable, mergePrototype, OpraURL } from '@opra/common';
 import { HttpIncomingMessage, HttpIncomingMessageHost } from './http-incoming-message-host.js';
 import type { HttpServerResponse } from './http-server-response.js';
 
@@ -25,13 +25,22 @@ export namespace HttpServerRequest {
     if (!isHttpIncomingMessage(instance))
       instance = HttpIncomingMessageHost.create(instance);
     mergePrototype(instance, HttpServerRequestHost.prototype);
-    return instance as HttpServerRequest;
+    const req = instance as HttpServerRequest;
+    req.baseUrl = req.baseUrl || '';
+    req.parsedUrl = req.parsedUrl || new OpraURL(req.url);
+    return req;
   }
 }
 
 export interface HttpServerRequest extends HttpIncomingMessage {
 
   res: HttpServerResponse;
+
+  baseUrl: string;
+
+  originalUrl: string;
+
+  parsedUrl: OpraURL;
 
   body?: any;
 
@@ -238,6 +247,8 @@ interface HttpServerRequestHost extends HttpServerRequest {
 }
 
 class HttpServerRequestHost {
+  basePath: string = '/';
+  originalUrl: string;
 
   get protocol(): string {
     const proto = this.header('X-Forwarded-Proto') || 'http';

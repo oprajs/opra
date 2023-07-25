@@ -1,9 +1,6 @@
 import { lastValueFrom, Observable } from 'rxjs';
-import {
-  ClientHttpHeaders,
-  uid
-} from '@opra/common';
-import { kHttpClientContext } from './constants.js';
+import { uid } from '@opra/common';
+import { kContext, kRequest } from './constants.js';
 import { HttpRequest } from './http-request.js';
 import { HttpResponse } from './http-response.js';
 import {
@@ -11,8 +8,6 @@ import {
   HttpEvent, HttpObserveType,
   HttpRequestDefaults
 } from './types.js';
-
-const kRequest = Symbol('kRequest');
 
 export namespace HttpRequestObservable {
   export interface Options {
@@ -23,10 +18,8 @@ export namespace HttpRequestObservable {
 
 export class HttpRequestObservable<T, TBody, TResponseExt = {}>
     extends Observable<T> {
-  static kContext = kHttpClientContext;
-  static kRequest = kRequest;
   readonly contentId: string;
-  protected [kHttpClientContext]: HttpClientContext;
+  protected [kContext]: HttpClientContext;
   protected [kRequest]: HttpRequest;
 
   constructor(
@@ -36,12 +29,12 @@ export class HttpRequestObservable<T, TBody, TResponseExt = {}>
     super((subscriber) => {
       context.send(options?.observe || HttpObserveType.Body, this[kRequest]).subscribe((subscriber));
     });
-    this[kHttpClientContext] = context;
+    this[kContext] = context;
     this[kRequest] = new HttpRequest(options?.http);
     this.contentId = uid(6);
   }
 
-  header<K extends keyof ClientHttpHeaders>(name: K, value: ClientHttpHeaders[K]): this {
+  header(name: string, value: string | string[]): this {
     const headers = this[kRequest].headers;
     if (Array.isArray(value))
       value.forEach(v => headers.append(name, String(v)))
@@ -59,7 +52,7 @@ export class HttpRequestObservable<T, TBody, TResponseExt = {}>
   async fetch(observe: HttpObserveType.Body): Promise<TBody>
   async fetch(observe: HttpObserveType.Response): Promise<HttpResponse<TBody> & TResponseExt>
   async fetch(observe?: HttpObserveType): Promise<TBody | (HttpResponse<TBody> & TResponseExt) | HttpEvent> {
-    return lastValueFrom(this[kHttpClientContext].send(observe || HttpObserveType.Body, this[kRequest]));
+    return lastValueFrom(this[kContext].send(observe || HttpObserveType.Body, this[kRequest]));
   }
 
   with(cb: (_this: this) => void): this {

@@ -1,3 +1,4 @@
+import { HttpObserveType } from '@opra/client';
 import { OpraTestClient } from '@opra/testing';
 
 export function collectionGetTests(args: { client: OpraTestClient }) {
@@ -7,7 +8,7 @@ export function collectionGetTests(args: { client: OpraTestClient }) {
     it('Should return object', async () => {
       const resp = await args.client.collection('Customers')
           .get(1)
-          .fetch('response');
+          .fetch(HttpObserveType.Response);
       resp.expect
           .toSuccess()
           .toReturnObject()
@@ -24,7 +25,7 @@ export function collectionGetTests(args: { client: OpraTestClient }) {
     it('Should not fetch exclusive fields (unless not included for resolver)', async () => {
       const resp = await args.client.collection('Customers')
           .get(1)
-          .fetch('response');
+          .fetch(HttpObserveType.Response);
       resp.expect
           .toSuccess()
           .toReturnObject()
@@ -34,7 +35,7 @@ export function collectionGetTests(args: { client: OpraTestClient }) {
     it('Should pick fields to be returned', async () => {
       const resp = await args.client.collection('Customers')
           .get(1, {pick: ['_id', 'givenName']})
-          .fetch('response');
+          .fetch(HttpObserveType.Response);
       resp.expect
           .toSuccess()
           .toReturnObject()
@@ -44,7 +45,7 @@ export function collectionGetTests(args: { client: OpraTestClient }) {
     it('Should omit fields to be returned', async () => {
       const resp = await args.client.collection('Customers')
           .get(1, {omit: ['_id', 'givenName']})
-          .fetch('response');
+          .fetch(HttpObserveType.Response);
       resp.expect
           .toSuccess()
           .toReturnObject()
@@ -54,7 +55,7 @@ export function collectionGetTests(args: { client: OpraTestClient }) {
     it('Should include exclusive fields if requested', async () => {
       const resp = await args.client.collection('Customers')
           .get(2, {include: ['address']})
-          .fetch('response');
+          .fetch(HttpObserveType.Response);
       resp.expect
           .toSuccess()
           .toReturnObject()

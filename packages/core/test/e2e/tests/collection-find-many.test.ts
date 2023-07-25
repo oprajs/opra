@@ -1,3 +1,4 @@
+import { HttpObserveType } from '@opra/client';
 import { HttpHeaderCodes } from '@opra/common';
 import { OpraTestClient } from '@opra/testing';
 
@@ -8,7 +9,7 @@ export function collectionSearchTests(args: { client: OpraTestClient }) {
     it('Should return list object', async () => {
       const resp = await args.client.collection('Customers')
           .findMany()
-          .fetch('response');
+          .fetch(HttpObserveType.Response);
       resp.expect
           .toSuccess()
           .toReturnCollection()
@@ -18,7 +19,7 @@ export function collectionSearchTests(args: { client: OpraTestClient }) {
     it('Test "limit" option', async () => {
       const resp = await args.client.collection('Customers')
           .findMany({limit: 3})
-          .fetch('response');
+          .fetch(HttpObserveType.Response);
       resp.expect
           .toSuccess()
           .toReturnCollection()
@@ -28,7 +29,7 @@ export function collectionSearchTests(args: { client: OpraTestClient }) {
     it('Test "sort" option', async () => {
       const resp = await args.client.collection('Customers')
           .findMany({sort: ['givenName']})
-          .fetch('response');
+          .fetch(HttpObserveType.Response);
       resp.expect
           .toSuccess()
           .toReturnCollection()
@@ -38,7 +39,7 @@ export function collectionSearchTests(args: { client: OpraTestClient }) {
     it('Test "skip" option', async () => {
       const resp = await args.client.collection('Customers')
           .findMany({skip: 10, sort: ['_id']})
-          .fetch('response');
+          .fetch(HttpObserveType.Response);
       resp.expect
           .toSuccess()
           .toReturnCollection()
@@ -49,7 +50,7 @@ export function collectionSearchTests(args: { client: OpraTestClient }) {
     it('Test "pick" option', async () => {
       const resp = await args.client.collection('Customers')
           .findMany({pick: ['givenName']})
-          .fetch('response');
+          .fetch(HttpObserveType.Response);
       resp.expect
           .toSuccess()
           .toReturnCollection()
@@ -59,7 +60,7 @@ export function collectionSearchTests(args: { client: OpraTestClient }) {
     it('Test "omit" option', async () => {
       const resp = await args.client.collection('Customers')
           .findMany({omit: ['givenName']})
-          .fetch('response');
+          .fetch(HttpObserveType.Response);
       resp.expect
           .toSuccess()
           .toReturnCollection()
@@ -69,7 +70,7 @@ export function collectionSearchTests(args: { client: OpraTestClient }) {
     it('Test "filter" option', async () => {
       const resp = await args.client.collection('Customers')
           .findMany({filter: 'gender="M"'})
-          .fetch('response');
+          .fetch(HttpObserveType.Response);
       resp.expect
           .toSuccess()
           .toReturnCollection()
@@ -80,7 +81,7 @@ export function collectionSearchTests(args: { client: OpraTestClient }) {
     it('Test "count" option', async () => {
       const resp = await args.client.collection('Customers')
           .findMany({count: true})
-          .fetch('response');
+          .fetch(HttpObserveType.Response);
       resp.expect
           .toSuccess()
           .toReturnCollection();

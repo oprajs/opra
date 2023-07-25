@@ -11,7 +11,7 @@ import i18next, {
   TOptions
 } from '@browsery/i18next';
 import * as I18next from '@browsery/i18next';
-import { isUrl } from '../helpers/index.js';
+import { isUrlString } from '../helpers/index.js';
 import { unescapeString } from './string-utils.js';
 
 export type BaseI18n = Type<I18next.i18n>;
@@ -90,7 +90,7 @@ export class I18n extends BaseI18n {
       overwrite?: boolean
   ): Promise<void> {
     let obj;
-    if (isUrl(filePath)) {
+    if (isUrlString(filePath)) {
       obj = (await fetch(filePath, {headers: {accept: 'application/json'}})).json();
     } else {
       const content = fs.readFileSync(filePath, 'utf8');

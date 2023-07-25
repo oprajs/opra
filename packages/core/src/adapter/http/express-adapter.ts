@@ -1,6 +1,6 @@
 import type { Application, NextFunction, Request, Response } from 'express';
-import { ApiDocument, normalizePath } from '@opra/common';
-import { OpraHttpAdapter } from './http-adapter.js';
+import { ApiDocument, OpraURLPath } from '@opra/common';
+import { OpraHttpAdapter, OpraHttpAdapterBase } from './http-adapter.js';
 import { HttpServerRequest } from './impl/http-server-request.js';
 import { HttpServerResponse } from './impl/http-server-response.js';
 
@@ -9,23 +9,28 @@ export namespace OpraExpressAdapter {
   }
 }
 
-export class OpraExpressAdapter extends OpraHttpAdapter {
+export class OpraExpressAdapter extends OpraHttpAdapterBase {
 
   protected platform = 'express';
 
   static async create(
       app: Application,
-      document: ApiDocument,
+      api: ApiDocument,
       options?: OpraExpressAdapter.Options
   ): Promise<OpraExpressAdapter> {
     const express = await import('express');
-    const adapter = new OpraExpressAdapter(document);
+    const adapter = new OpraExpressAdapter(api);
     await adapter.init(options);
-    const prefix = '/' + normalizePath(options?.prefix, true);
-    app.use(prefix, express.json());
-    app.use(prefix, (req: Request, res: Response, next: NextFunction) => {
-      adapter.handler(HttpServerRequest.create(req), HttpServerResponse.create(res))
-          .catch(e => next(e));
+    const basePath = new OpraURLPath(options?.basePath);
+    app.use(basePath.toString(), express.json());
+    app.use(basePath.toString(), (_req: Request, _res: Response, next: NextFunction) => {
+      const req = HttpServerRequest.create(_req);
+      const res = HttpServerResponse.create(_res);
+      adapter.handler(req, res)
+          .catch(e => {
+            (adapter.logger?.fatal || adapter.logger?.error)?.(e);
+            next(e);
+          });
     });
     return adapter;
   }

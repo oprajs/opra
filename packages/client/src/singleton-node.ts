@@ -1,6 +1,7 @@
+import { toArrayDef } from 'putil-varhelpers';
 import { StrictOmit } from 'ts-gems';
 import { PartialInput } from '@opra/common';
-import { kHttpClientContext } from './constants.js';
+import { kContext, kRequest } from './constants.js';
 import { HttpRequestObservable } from './http-request-observable.js';
 import { HttpResponse } from './http-response.js';
 import { HttpClientContext, HttpEvent, HttpObserveType } from './types.js';
@@ -30,10 +31,10 @@ export namespace HttpSingletonNode {
 
 
 export class HttpSingletonNode<TType, TResponseExt = {}> {
-  protected [kHttpClientContext]: HttpClientContext;
+  protected [kContext]: HttpClientContext;
 
   constructor(context: HttpClientContext) {
-    this[kHttpClientContext] = context;
+    this[kContext] = context;
   }
 
   create(
@@ -49,18 +50,18 @@ export class HttpSingletonNode<TType, TResponseExt = {}> {
       options?: StrictOmit<HttpSingletonNode.CreateOptions, 'observe'> & { observe: HttpObserveType.Events }
   ): HttpRequestObservable<HttpEvent, TType, TResponseExt>
   create(data: PartialInput<TType>, options?: HttpSingletonNode.CreateOptions) {
-    const context = this[kHttpClientContext];
+    const context = this[kContext];
     const requestHost = new HttpRequestObservable(context, options);
-    const request = requestHost[HttpRequestObservable.kRequest];
+    const request = requestHost[kRequest];
     request.method = 'POST';
-    request.url = context.resourceName;
+    request.url.join(context.resourceName);
     request.body = data;
     if (options?.include)
-      request.params.set('$include', options.include);
+      request.params.set('$include', toArrayDef(options.include, []).join(','));
     if (options?.pick)
-      request.params.set('$pick', options.pick);
+      request.params.set('$pick', toArrayDef(options.pick, []).join(','));
     if (options?.omit)
-      request.params.set('$omit', options.omit);
+      request.params.set('$omit', toArrayDef(options.omit, []).join(','));
     return requestHost as any;
   }
 
@@ -74,11 +75,11 @@ export class HttpSingletonNode<TType, TResponseExt = {}> {
       options?: StrictOmit<HttpSingletonNode.DeleteOptions, 'observe'> & { observe: HttpObserveType.Events }
   ): HttpRequestObservable<HttpEvent, never, TResponseExt>
   delete(options?: HttpSingletonNode.DeleteOptions) {
-    const context = this[kHttpClientContext];
+    const context = this[kContext];
     const requestHost = new HttpRequestObservable(context, options);
-    const request = requestHost[HttpRequestObservable.kRequest];
+    const request = requestHost[kRequest];
     request.method = 'DELETE';
-    request.path.join({resource: context.resourceName});
+    request.url.join({resource: context.resourceName});
     return requestHost as any;
   }
 
@@ -92,17 +93,17 @@ export class HttpSingletonNode<TType, TResponseExt = {}> {
       options?: StrictOmit<HttpSingletonNode.GetOptions, 'observe'> & { observe: HttpObserveType.Events }
   ): HttpRequestObservable<HttpEvent, TType, TResponseExt>
   get(options?: HttpSingletonNode.GetOptions) {
-    const context = this[kHttpClientContext];
+    const context = this[kContext];
     const requestHost = new HttpRequestObservable(context, options);
-    const request = requestHost[HttpRequestObservable.kRequest];
+    const request = requestHost[kRequest];
     request.method = 'GET';
-    request.path.join({resource: context.resourceName});
+    request.url.join({resource: context.resourceName});
     if (options?.include)
-      request.params.set('$include', options.include);
+      request.params.set('$include', toArrayDef(options.include, []).join(','));
     if (options?.pick)
-      request.params.set('$pick', options.pick);
+      request.params.set('$pick', toArrayDef(options.pick, []).join(','));
     if (options?.omit)
-      request.params.set('$omit', options.omit);
+      request.params.set('$omit', toArrayDef(options.omit, []).join(','));
     return requestHost as any;
   }
 
@@ -119,18 +120,18 @@ export class HttpSingletonNode<TType, TResponseExt = {}> {
       options?: StrictOmit<HttpSingletonNode.UpdateOptions, 'observe'> & { observe: HttpObserveType.Events }
   ): HttpRequestObservable<HttpEvent, TType, TResponseExt>
   update(data: PartialInput<TType>, options?: HttpSingletonNode.UpdateOptions) {
-    const context = this[kHttpClientContext];
+    const context = this[kContext];
     const requestHost = new HttpRequestObservable(context, options);
-    const request = requestHost[HttpRequestObservable.kRequest];
+    const request = requestHost[kRequest];
     request.method = 'PATCH';
-    request.path.join({resource: context.resourceName});
+    request.url.join({resource: context.resourceName});
     request.body = data;
     if (options?.include)
-      request.params.set('$include', options.include);
+      request.params.set('$include', toArrayDef(options.include, []).join(','));
     if (options?.pick)
-      request.params.set('$pick', options.pick);
+      request.params.set('$pick', toArrayDef(options.pick, []).join(','));
     if (options?.omit)
-      request.params.set('$omit', options.omit);
+      request.params.set('$omit', toArrayDef(options.omit, []).join(','));
     return requestHost as any;
   }
 

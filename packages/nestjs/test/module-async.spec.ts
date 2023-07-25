@@ -13,7 +13,7 @@ import { Service1RootModule } from './_support/photos-app/service-root.module.js
     useFactory: async () => {
       return {
         ...config,
-        prefix: 'svc1',
+        basePath: 'svc1',
       }
     }
   })],

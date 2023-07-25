@@ -27,6 +27,7 @@
     "@angular/common": "15.x.x || 16.x.x",
     "@angular/core": "15.x.x || 16.x.x",
     "@opra/client": "^0.22.0",
+    "@opra/common": "^0.22.0",
     "ts-gems": "^2.4.0"
   },
   "devDependencies": {

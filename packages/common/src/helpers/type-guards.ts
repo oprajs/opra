@@ -48,6 +48,7 @@ export function isFormData(x): x is FormData {
 
 export function isURL(x): x is URL {
   return x !== null
+      && typeof x == 'object'
       && typeof x.host === 'string'
       && typeof x.href === 'string';
 }

@@ -11,7 +11,7 @@ import { Service1RootModule } from './service-root.module.js';
   imports: [
     OpraModule.forRoot({
       ...config,
-      prefix: 'svc1',
+      basePath: 'svc1',
       imports: [Service1RootModule]
     }),
   ],

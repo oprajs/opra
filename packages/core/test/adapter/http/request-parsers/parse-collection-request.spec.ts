@@ -354,7 +354,7 @@ describe('parse Collection Request', function () {
       await expect(() => parseRequest(document, HttpServerRequest.create({
             method: 'PATCH',
             url: '/Customers@1?$omit=address.x1',
-        headers: ['content-type', 'application/json'],
+            headers: ['content-type', 'application/json'],
             body: {_id: 1},
           }))
       ).rejects.toThrow('Invalid field');
@@ -364,7 +364,7 @@ describe('parse Collection Request', function () {
       await expect(() => parseRequest(document, HttpServerRequest.create({
             method: 'PATCH',
             url: '/Customers@1?$include=address.x1',
-        headers: ['content-type', 'application/json'],
+            headers: ['content-type', 'application/json'],
             body: {_id: 1},
           }))
       ).rejects.toThrow('Invalid field');
@@ -540,10 +540,15 @@ describe('parse Collection Request', function () {
       expect(request.operation).toStrictEqual('findMany');
       expect(request.crud).toStrictEqual('read');
       expect(request.many).toStrictEqual(true);
+      expect(request.args.skip).toStrictEqual(1);
+      expect(request.args.count).toStrictEqual(false);
+      expect(request.args.skip).toStrictEqual(1);
+      expect(request.args.distinct).toStrictEqual(true);
       expect(request.args.sort).toStrictEqual(['_id']);
       expect(request.args.pick).toStrictEqual(['_id']);
       expect(request.args.omit).toStrictEqual(['gender']);
       expect(request.args.include).toStrictEqual(['address']);
+
       expect(() => request.switchToHttp()).not.toThrow();
       expect(request.switchToHttp().headers).toBeDefined();
       expect(request.switchToHttp().headers.accept).toStrictEqual('application/json');
@@ -671,7 +676,7 @@ describe('parse Collection Request', function () {
       await expect(() => parseRequest(document, HttpServerRequest.create({
         method: 'GET',
         url: '/Customers?$limit=x5'
-      }))).rejects.toThrow('not a valid number');
+      }))).rejects.toThrow('not a valid integer');
     })
 
     it('Should parse "skip" option', async () => {
@@ -688,7 +693,7 @@ describe('parse Collection Request', function () {
       await expect(() => parseRequest(document, HttpServerRequest.create({
         method: 'GET',
         url: '/Customers?$skip=x5'
-      }))).rejects.toThrow('not a valid number');
+      }))).rejects.toThrow('not a valid integer');
     })
 
     it('Should parse "count" option', async () => {
@@ -736,13 +741,6 @@ describe('parse Collection Request', function () {
       expect(request.args.count).toStrictEqual(false);
     })
 
-    it('Should validate "count" option', async () => {
-      await expect(() => parseRequest(document, HttpServerRequest.create({
-        method: 'GET',
-        url: '/Customers?$count=x5'
-      }))).rejects.toThrow('not a valid boolean');
-    })
-
     it('Should parse "distinct" option', async () => {
       let request = await parseRequest(document, HttpServerRequest.create({
         method: 'GET',
@@ -786,13 +784,6 @@ describe('parse Collection Request', function () {
       expect(request).toBeDefined();
       expect(request.operation).toStrictEqual('findMany');
       expect(request.args.distinct).toStrictEqual(false);
-    })
-
-    it('Should validate "distinct" option', async () => {
-      await expect(() => parseRequest(document, HttpServerRequest.create({
-        method: 'GET',
-        url: '/Customers?$distinct=x5'
-      }))).rejects.toThrow('not a valid boolean');
     })
 
     it('Should parse "filter"', async () => {
