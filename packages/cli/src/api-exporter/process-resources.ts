@@ -1,6 +1,6 @@
 import chalk from 'chalk';
 import path from 'node:path';
-import { Collection, joinPath, Singleton } from '@opra/common';
+import { Collection, Singleton } from '@opra/common';
 import { wrapJSDocString } from '../utils/string-utils.js';
 import type { ApiExporter } from './api-exporter.js';
 
@@ -26,7 +26,7 @@ export async function processResources(
     const jsDoc = `
   /**
    * ${wrapJSDocString(resource.description || resource.name)}    
-   * @url ${joinPath(this.client.serviceUrl, '$metadata#resources/' + resource.name)}
+   * @url ${path.posix.join(this.client.serviceUrl, '$metadata#resources/' + resource.name)}
    */`;
 
     if (resource instanceof Collection) {

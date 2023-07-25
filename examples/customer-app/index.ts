@@ -41,7 +41,7 @@ async function run() {
       // exposedHeaders: ['*']
     }));
     await OpraExpressAdapter.create(app, service, {
-      prefix: '/svc1',
+      basePath: '/svc1',
       logger: console
     });
     const port = 3001;
@@ -55,4 +55,3 @@ async function run() {
 }
 
 run().catch(e => console.error(e));
-

@@ -1,7 +1,7 @@
 import { Inject, Logger } from '@nestjs/common';
 import { ApplicationConfig, HttpAdapterHost } from '@nestjs/core';
 import { Module } from '@nestjs/core/injector/module.js';
-import { ApiDocument, joinPath, normalizePath } from '@opra/common';
+import { ApiDocument, OpraURLPath } from '@opra/common';
 import { ILogger, OpraAdapter, OpraExpressAdapter } from '@opra/core';
 import { OPRA_MODULE_OPTIONS } from '../constants.js';
 import { OpraApiFactory } from '../factories/opra-api.factory.js';
@@ -29,13 +29,14 @@ export class OpraApiLoader {
     const platformName = httpAdapter.getType();
     const moduleOptions = this.opraModuleOptions;
 
-    const prefix = '/' + normalizePath(joinPath(
-        (moduleOptions.useGlobalPrefix !== false ? globalPrefix : ''), moduleOptions.prefix || ''), true);
+    let prefixPath = new OpraURLPath((moduleOptions.useGlobalPrefix !== false ? globalPrefix : ''));
+    if (moduleOptions.basePath)
+      prefixPath = prefixPath.join(moduleOptions.basePath);
     const name = moduleOptions.info?.title || 'untitled service';
 
     const options: OpraModuleOptions = {
       ...moduleOptions,
-      prefix
+      basePath: prefixPath.toString()
     }
 
     try {
@@ -53,7 +54,7 @@ export class OpraApiLoader {
         throw new Error(`No support for current HttpAdapter: ${platformName}`);
       }
 
-      this.logger.log(`Mapped {${prefix}} to "${name}" service`);
+      this.logger.log(`Mapped {${prefixPath.toString() || '/'}} to "${name}" service`);
 
     } catch (e) {
       this.logger.error(e);

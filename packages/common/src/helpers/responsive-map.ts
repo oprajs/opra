@@ -11,10 +11,10 @@ function isMap(v): v is Map<any, any> {
   return v && typeof v.forEach === 'function';
 }
 
-const kKeyMap = Symbol('kKeyMap');
-const kKeyOrder = Symbol('kKeyOrder');
-const kWellKnownKeys = Symbol('kWellKnownKeys');
-const kOptions = Symbol('kOptions');
+const kKeyMap = Symbol.for('kKeyMap');
+const kKeyOrder = Symbol.for('kKeyOrder');
+const kWellKnownKeys = Symbol.for('kWellKnownKeys');
+const kOptions = Symbol.for('kOptions');
 
 /**
  * A Map implementation that supports case-insensitivity and ordered keys

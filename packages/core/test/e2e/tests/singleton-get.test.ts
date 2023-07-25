@@ -1,4 +1,5 @@
 import { faker } from '@faker-js/faker';
+import { HttpObserveType } from '@opra/client';
 import { OpraTestClient } from '@opra/testing';
 
 export function singletonGetTests(args: { client: OpraTestClient }) {
@@ -27,7 +28,7 @@ export function singletonGetTests(args: { client: OpraTestClient }) {
 
       const resp = await args.client.singleton('MyProfile')
           .get()
-          .fetch('response');
+          .fetch(HttpObserveType.Response);
       resp.expect
           .toSuccess()
           .toReturnObject()
@@ -38,7 +39,7 @@ export function singletonGetTests(args: { client: OpraTestClient }) {
     it('Should not fetch exclusive fields (unless not included for resolver)', async () => {
       const resp = await args.client.singleton('MyProfile')
           .get()
-          .fetch('response');
+          .fetch(HttpObserveType.Response);
       resp.expect
           .toSuccess()
           .toReturnObject()
@@ -48,7 +49,7 @@ export function singletonGetTests(args: { client: OpraTestClient }) {
     it('Should pick fields to be returned', async () => {
       const resp = await args.client.singleton('MyProfile')
           .get({pick: ['_id', 'givenName']})
-          .fetch('response');
+          .fetch(HttpObserveType.Response);
       resp.expect
           .toSuccess()
           .toReturnObject()
@@ -58,7 +59,7 @@ export function singletonGetTests(args: { client: OpraTestClient }) {
     it('Should omit fields to be returned', async () => {
       const resp = await args.client.singleton('MyProfile')
           .get({omit: ['_id', 'givenName']})
-          .fetch('response');
+          .fetch(HttpObserveType.Response);
       resp.expect
           .toSuccess()
           .toReturnObject()
@@ -68,7 +69,7 @@ export function singletonGetTests(args: { client: OpraTestClient }) {
     it('Should include exclusive fields if requested', async () => {
       const resp = await args.client.singleton('MyProfile')
           .get({include: ['address']})
-          .fetch('response');
+          .fetch(HttpObserveType.Response);
       resp.expect
           .toSuccess()
           .toReturnObject()

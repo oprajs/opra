@@ -1,4 +1,5 @@
 import { faker } from '@faker-js/faker';
+import { HttpObserveType } from '@opra/client';
 import { OpraTestClient } from '@opra/testing';
 
 export function singletonUpdateTests(args: { client: OpraTestClient }) {
@@ -8,7 +9,7 @@ export function singletonUpdateTests(args: { client: OpraTestClient }) {
     beforeAll(async () => {
       await args.client.singleton('MyProfile')
           .delete()
-          .fetch('response');
+          .fetch(HttpObserveType.Response);
       await args.client.singleton('MyProfile')
           .create({
             givenName: faker.person.firstName(),
@@ -16,13 +17,13 @@ export function singletonUpdateTests(args: { client: OpraTestClient }) {
             gender: 'F',
             address: {city: 'Istanbul'}
           })
-          .fetch('response');
+          .fetch(HttpObserveType.Response);
     });
 
     it('Should update instance', async () => {
       let resp = await args.client.singleton('MyProfile')
           .get()
-          .fetch('response');
+          .fetch(HttpObserveType.Response);
       resp.expect
           .toSuccess()
           .toReturnObject();
@@ -37,7 +38,7 @@ export function singletonUpdateTests(args: { client: OpraTestClient }) {
 
       resp = await args.client.singleton('MyProfile')
           .update(data)
-          .fetch('response');
+          .fetch(HttpObserveType.Response);
       resp.expect
           .toSuccess()
           .toReturnObject()
@@ -45,7 +46,7 @@ export function singletonUpdateTests(args: { client: OpraTestClient }) {
 
       resp = await args.client.singleton('MyProfile')
           .get(oldData._id)
-          .fetch('response');
+          .fetch(HttpObserveType.Response);
       resp.expect
           .toSuccess()
           .toReturnObject()
@@ -60,7 +61,7 @@ export function singletonUpdateTests(args: { client: OpraTestClient }) {
       }
       const resp = await args.client.singleton('MyProfile')
           .update(data, {pick: ['_id', 'givenName']})
-          .fetch('response');
+          .fetch(HttpObserveType.Response);
       resp.expect
           .toSuccess()
           .toReturnObject()
@@ -75,7 +76,7 @@ export function singletonUpdateTests(args: { client: OpraTestClient }) {
       }
       const resp = await args.client.singleton('MyProfile')
           .update(data, {omit: ['givenName', 'gender']})
-          .fetch('response');
+          .fetch(HttpObserveType.Response);
       resp.expect
           .toSuccess()
           .toReturnObject()
@@ -90,7 +91,7 @@ export function singletonUpdateTests(args: { client: OpraTestClient }) {
       }
       const resp = await args.client.singleton('MyProfile')
           .update(data, {include: ['address']})
-          .fetch('response');
+          .fetch(HttpObserveType.Response);
       resp.expect
           .toSuccess()
           .toReturnObject()

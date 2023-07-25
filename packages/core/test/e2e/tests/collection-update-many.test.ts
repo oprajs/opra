@@ -1,4 +1,5 @@
 import { faker } from '@faker-js/faker';
+import { HttpObserveType } from '@opra/client';
 import { OpraTestClient } from '@opra/testing';
 
 export function collectionUpdateManyTests(args: { client: OpraTestClient }) {
@@ -11,7 +12,7 @@ export function collectionUpdateManyTests(args: { client: OpraTestClient }) {
       }
       let resp = await args.client.collection('Customers')
           .updateMany(data, {filter: '_id<=50'})
-          .fetch('response');
+          .fetch(HttpObserveType.Response);
       resp.expect
           .toSuccess()
           .toReturnOperationResult()
@@ -22,7 +23,7 @@ export function collectionUpdateManyTests(args: { client: OpraTestClient }) {
             filter: '_id<=50 and uid="' + data.uid + '"',
             limit: 1000000
           })
-          .fetch('response');
+          .fetch(HttpObserveType.Response);
       resp.expect
           .toSuccess()
           .toReturnCollection()

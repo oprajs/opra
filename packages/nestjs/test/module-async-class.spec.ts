@@ -11,7 +11,7 @@ class ConfigService implements OpraModuleOptionsFactory {
   createOptions(): OpraModuleOptions {
     return {
       ...config,
-      prefix: 'svc1',
+      basePath: 'svc1',
     };
   }
 }

@@ -1,16 +1,14 @@
 import { createServer, IncomingMessage, Server, ServerResponse } from 'http';
 import { AddressInfo } from 'net';
 import { Type } from 'ts-gems';
-import { URL } from 'url';
 import {
   HttpCollectionNode, HttpResponse, HttpSingletonNode,
   // BatchRequest,
   OpraHttpClient,
   OpraHttpClientOptions,
 } from '@opra/client';
-import { joinPath } from '@opra/common';
+import { OpraURL } from '@opra/common';
 import { ApiExpect } from './api-expect/api-expect.js';
-import { isAbsoluteUrl } from './utils/is-absolute-url.util.js';
 
 declare type RequestListener = (req: IncomingMessage, res: ServerResponse) => void
 
@@ -34,8 +32,7 @@ export class OpraTestClient extends OpraHttpClient {
 
   protected async _fetch(urlString: string, req: RequestInit = {}): Promise<Response> {
     return new Promise<Response>((resolve, reject) => {
-      urlString = isAbsoluteUrl(urlString) ? urlString : joinPath('http://opra.test', urlString);
-      const url = new URL(urlString);
+      const url = new OpraURL(urlString, 'http://opra.test');
       // Set protocol to HTTP
       url.protocol = 'http';
 

@@ -1,6 +1,7 @@
 import { BadRequestError, MethodNotAllowedError, OpraURL, Singleton } from '@opra/common';
 import { Request } from '../../interfaces/request.interface.js';
 import { RequestHost } from '../../request.host.js';
+import { parseArrayParam } from '../helpers/query-parsers.js';
 import { HttpServerRequest } from '../impl/http-server-request.js';
 
 export async function parseSingletonRequest(
@@ -12,20 +13,13 @@ export async function parseSingletonRequest(
       incoming.headers['content-type'] !== 'application/json')
     throw new BadRequestError({message: 'Unsupported Content-Type'});
 
-  url.searchParams.define({
-    '$pick': {codec: 'string', array: 'strict'},
-    '$omit': {codec: 'string', array: 'strict'},
-    '$include': {codec: 'string', array: 'strict'}
-  });
-  url.parse(incoming.url || '');
-
   const contentId = incoming.headers['content-id'] as string;
   const params = url.searchParams;
   switch (incoming.method) {
     case 'POST': {
-      const pick = params.get('$pick') as string;
-      const omit = params.get('$omit') as string;
-      const include = params.get('$include') as string;
+      const pick = parseArrayParam(params.get('$pick'));
+      const omit = parseArrayParam(params.get('$omit'));
+      const include = parseArrayParam(params.get('$include'));
       return new RequestHost({
         http: incoming,
         kind: 'SingletonCreateRequest',
@@ -57,9 +51,9 @@ export async function parseSingletonRequest(
     }
 
     case 'GET': {
-      const pick = params.get('$pick') as string;
-      const omit = params.get('$omit') as string;
-      const include = params.get('$include') as string;
+      const pick = parseArrayParam(params.get('$pick'));
+      const omit = parseArrayParam(params.get('$omit'));
+      const include = parseArrayParam(params.get('$include'));
       return new RequestHost({
         http: incoming,
         kind: 'SingletonGetRequest',
@@ -77,9 +71,9 @@ export async function parseSingletonRequest(
     }
 
     case 'PATCH': {
-      const pick = params.get('$pick') as string;
-      const omit = params.get('$omit') as string;
-      const include = params.get('$include') as string;
+      const pick = parseArrayParam(params.get('$pick'));
+      const omit = parseArrayParam(params.get('$omit'));
+      const include = parseArrayParam(params.get('$include'));
       return new RequestHost({
         http: incoming,
         kind: 'SingletonUpdateRequest',

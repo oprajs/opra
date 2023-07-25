@@ -1,6 +1,5 @@
 // /// <reference lib="dom" />
 import type { Observable } from 'rxjs';
-import type { HttpParams } from '@opra/common';
 import type { OpraHttpClient } from './client';
 import type { HttpRequest } from './http-request.js';
 import type { HttpResponse } from './http-response.js';
@@ -15,6 +14,7 @@ export type RequestInterceptor = (ctx: HttpClientContext, request: HttpRequest) 
 export type ResponseInterceptor = ((ctx: HttpClientContext, observe: HttpObserveType, response: any) => void | Promise<void>);
 export type HttpEvent = HttpSentEvent | HttpDownloadProgressEvent | HttpUploadProgressEvent |
     HttpResponseHeaderEvent | HttpResponseEvent | HttpUserEvent;
+export type URLSearchParamsInit = string[][] | Record<string, string> | string | URLSearchParams;
 
 
 /* **********************
@@ -81,7 +81,7 @@ export interface HttpRequestDefaults extends Partial<Pick<HttpRequest, 'cache' |
     'destination' | 'integrity' | 'keepalive' | 'mode' | 'redirect' |
     'referrer' | 'referrerPolicy'>> {
   headers?: HeadersInit;
-  params?: HttpParams.Initiator;
+  params?: URLSearchParamsInit;
 }
 
 interface HttpEventBase {

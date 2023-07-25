@@ -1,6 +1,6 @@
 import chalk from 'chalk';
 import path from 'node:path';
-import { ComplexType, DataType, EnumType, joinPath, MappedType, SimpleType, UnionType } from '@opra/common';
+import { ComplexType, DataType, EnumType, MappedType, SimpleType, UnionType } from '@opra/common';
 import { wrapJSDocString } from '../utils/string-utils.js';
 import type { ApiExporter } from './api-exporter.js';
 import { TsFile } from './ts-file.js';
@@ -62,7 +62,7 @@ export async function generateTypeFile(
   file.content += `\n/**\n * ${wrapJSDocString(dataType.description || typeName)}
  * @interface ${typeName}
  * @kind ${dataType.kind}
- * @url ${joinPath(this.client.serviceUrl, '$metadata#types/' + typeName)}
+ * @url ${path.posix.join(this.client.serviceUrl, '$metadata#types/' + typeName)}
  */\n`;
 
   if (dataType instanceof SimpleType) {
@@ -211,7 +211,7 @@ export async function generateEnumTypeDefinition(
 
     out += `${k}`;
     if (v)
-      out += ' = ' + (typeof v === 'number' ? v : ('"' + ('' + v).replace('"', '\\"')) + '"')
+      out += ' = ' + (typeof v === 'number' ? v : ('"' + (String(v)).replace('"', '\\"')) + '"')
     out += ',\n\n';
   }
   return out + '\b}';

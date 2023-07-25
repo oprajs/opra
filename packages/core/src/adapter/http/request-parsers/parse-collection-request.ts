@@ -1,6 +1,8 @@
+import { toBoolean, toInt } from 'putil-varhelpers';
 import { BadRequestError, Collection, MethodNotAllowedError, OpraURL } from '@opra/common';
 import { Request } from '../../interfaces/request.interface.js';
 import { RequestHost } from '../../request.host.js';
+import { parseArrayParam } from '../helpers/query-parsers.js';
 import { HttpServerRequest } from '../impl/http-server-request.js';
 
 export async function parseCollectionRequest(
@@ -12,29 +14,15 @@ export async function parseCollectionRequest(
       incoming.headers['content-type'] !== 'application/json')
     throw new BadRequestError({message: 'Unsupported Content-Type'});
 
-  url.searchParams.define({
-    '$search': {codec: 'string'},
-    '$pick': {codec: 'string', array: 'strict'},
-    '$omit': {codec: 'string', array: 'strict'},
-    '$include': {codec: 'string', array: 'strict'},
-    '$sort': {codec: 'string', array: 'strict'},
-    '$filter': {codec: 'filter'},
-    '$limit': {codec: 'number'},
-    '$skip': {codec: 'number'},
-    '$distinct': {codec: 'boolean'},
-    '$count': {codec: 'boolean'},
-  });
-  url.parse(incoming.url || '');
-
   const contentId = incoming.headers['content-id'] as string;
-  const p = url.path.get(0);
+  const p = url.path[0];
   const params = url.searchParams;
   switch (incoming.method) {
     case 'POST': {
-      if (!p.key) {
-        const pick = params.get('$pick') as string;
-        const omit = params.get('$omit') as string;
-        const include = params.get('$include') as string;
+      if (p.key == null) {
+        const pick = parseArrayParam(params.get('$pick'));
+        const omit = parseArrayParam(params.get('$omit'));
+        const include = parseArrayParam(params.get('$include'));
         return new RequestHost({
           http: incoming,
           kind: 'CollectionCreateRequest',
@@ -54,7 +42,7 @@ export async function parseCollectionRequest(
       break;
     }
     case 'DELETE': {
-      if (p.key) {
+      if (p.key != null) {
         return new RequestHost({
           http: incoming,
           kind: 'CollectionDeleteRequest',
@@ -84,10 +72,10 @@ export async function parseCollectionRequest(
     }
 
     case 'GET': {
-      const pick = params.get('$pick') as string;
-      const omit = params.get('$omit') as string;
-      const include = params.get('$include') as string;
-      if (p.key) {
+      const pick = parseArrayParam(params.get('$pick'));
+      const omit = parseArrayParam(params.get('$omit'));
+      const include = parseArrayParam(params.get('$include'));
+      if (p.key != null) {
         return new RequestHost({
           http: incoming,
           kind: 'CollectionGetRequest',
@@ -106,7 +94,7 @@ export async function parseCollectionRequest(
       }
 
       const filter = resource.normalizeFilter(params.get('$filter') as any);
-      const sort = params.get('$sort') as string;
+      const sort = parseArrayParam(params.get('$sort'));
       return new RequestHost({
         http: incoming,
         kind: 'CollectionFindManyRequest',
@@ -121,19 +109,19 @@ export async function parseCollectionRequest(
           include: include && resource.normalizeFieldPath(include),
           sort: sort && resource.normalizeSortFields(sort),
           filter,
-          limit: params.get('$limit'),
-          skip: params.get('$skip'),
-          distinct: params.get('$distinct'),
-          count: params.get('$count'),
+          limit: toInt(params.get('$limit')),
+          skip: toInt(params.get('$skip')),
+          distinct: toBoolean(params.get('$distinct')),
+          count: toBoolean(params.get('$count')),
         }
       });
     }
 
     case 'PATCH': {
-      if (p.key) {
-        const pick = params.get('$pick') as string;
-        const omit = params.get('$omit') as string;
-        const include = params.get('$include') as string;
+      if (p.key != null) {
+        const pick = parseArrayParam(params.get('$pick'));
+        const omit = parseArrayParam(params.get('$omit'));
+        const include = parseArrayParam(params.get('$include'));
         return new RequestHost({
           http: incoming,
           kind: 'CollectionUpdateRequest',

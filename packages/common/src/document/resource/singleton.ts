@@ -82,7 +82,7 @@ class SingletonClass extends Resource {
     return out;
   }
 
-  normalizeFieldPath(this: Singleton, path: string | []): string | string[] {
+  normalizeFieldPath(this: Singleton, path: string | string[]): string | string[] {
     return this.type.normalizeFieldPath(path as any);
   }
 

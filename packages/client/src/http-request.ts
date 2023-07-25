@@ -1,5 +1,6 @@
 /// <reference lib="dom" />
-import { HttpParams, OpraURL, OpraURLPath } from '@opra/common';
+import { OpraURL } from '@opra/common';
+import { URLSearchParamsInit } from './types.js';
 
 const directCopyProperties = ['cache', 'credentials', 'destination', 'headers', 'integrity',
   'keepalive', 'mode', 'redirect', 'referrer', 'referrerPolicy'];
@@ -14,7 +15,7 @@ export namespace HttpRequest {
     keepalive?: boolean;
     method?: string;
     mode?: RequestMode;
-    params?: HttpParams.Initiator;
+    params?: URLSearchParamsInit;
     redirect?: RequestRedirect;
     referrer?: string;
     referrerPolicy?: ReferrerPolicy;
@@ -63,7 +64,7 @@ export class HttpRequest {
    *  whether or not request has been aborted, and its abort event handler. */
   signal?: AbortSignal;
   /** Returns the parsed url as OpraURL instance */
-  readonly urlInstance: OpraURL;
+  parsedUrl: OpraURL;
   /** Body of the http request */
   body?: any;
   duplex?: 'half';
@@ -83,28 +84,25 @@ export class HttpRequest {
     this.referrerPolicy = init?.referrerPolicy || '';
     this.signal = init?.signal || new AbortController().signal;
     this.body = init?.body;
-    this.urlInstance = new OpraURL(init?.url);
-    if (init?.params)
-      this.params.appendAll(init.params);
+    this.parsedUrl = new OpraURL(init?.url);
+    if (init?.params) {
+      const params = new URLSearchParams(init.params);
+      params.forEach((v, k) => this.params.set(k, v));
+    }
   }
 
   /** Returns the URL of request as a string. */
-  get url(): string {
-    return this.urlInstance.href;
+  get url(): OpraURL {
+    return this.parsedUrl;
   }
 
-  set url(value: string) {
-    this.urlInstance.parse(value);
+  set url(value: OpraURL) {
+    this.parsedUrl = value;
   }
 
   /** Returns the searchParams of the URL as OpraURLSearchParams */
-  get params(): HttpParams {
-    return this.urlInstance.searchParams;
-  }
-
-  /** Returns the path part of URL as OpraURLPath */
-  get path(): OpraURLPath {
-    return this.urlInstance.path;
+  get params(): URLSearchParams {
+    return this.parsedUrl.searchParams;
   }
 
   clone(...update: (HttpRequest | HttpRequest.Initiator)[]): HttpRequest {

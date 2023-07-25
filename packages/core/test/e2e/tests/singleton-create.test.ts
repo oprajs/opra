@@ -1,14 +1,15 @@
 import { faker } from '@faker-js/faker';
+import { HttpObserveType } from '@opra/client';
 import { OpraTestClient } from '@opra/testing';
 
 export function singletonCreateTests(args: { client: OpraTestClient }) {
 
   describe('Singleton:create', function () {
 
-    beforeEach(async ()=>{
+    beforeEach(async () => {
       await args.client.singleton('MyProfile')
           .delete()
-          .fetch('response');
+          .fetch(HttpObserveType.Response);
     });
 
     it('Should create instance', async () => {
@@ -20,14 +21,14 @@ export function singletonCreateTests(args: { client: OpraTestClient }) {
       }
       let resp = await args.client.singleton('MyProfile')
           .create(data)
-          .fetch('response');
+          .fetch(HttpObserveType.Response);
       resp.expect
           .toSuccess(201)
           .toReturnObject()
           .toMatch({...data, address: undefined});
       resp = await args.client.singleton('MyProfile')
           .get()
-          .fetch('response');
+          .fetch(HttpObserveType.Response);
       resp.expect
           .toSuccess()
           .toReturnObject()
@@ -43,7 +44,7 @@ export function singletonCreateTests(args: { client: OpraTestClient }) {
       }
       const resp = await args.client.singleton('MyProfile')
           .create(data, {pick: ['givenName']})
-          .fetch('response');
+          .fetch(HttpObserveType.Response);
       resp.expect
           .toSuccess(201)
           .toReturnObject()
@@ -59,7 +60,7 @@ export function singletonCreateTests(args: { client: OpraTestClient }) {
       }
       const resp = await args.client.singleton('MyProfile')
           .create(data, {omit: ['givenName']})
-          .fetch('response');
+          .fetch(HttpObserveType.Response);
       resp.expect
           .toSuccess(201)
           .toReturnObject()
@@ -75,7 +76,7 @@ export function singletonCreateTests(args: { client: OpraTestClient }) {
       }
       const resp = await args.client.singleton('MyProfile')
           .create(data, {include: ['address']})
-          .fetch('response');
+          .fetch(HttpObserveType.Response);
       resp.expect
           .toSuccess(201)
           .toReturnObject()

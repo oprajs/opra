@@ -1,7 +1,8 @@
+import { toArrayDef } from 'putil-varhelpers';
 import { StrictOmit } from 'ts-gems';
 import type { PartialInput } from '@opra/common';
 import { OpraFilter } from '@opra/common';
-import { kHttpClientContext } from './constants.js';
+import { kContext, kRequest } from './constants.js';
 import { HttpRequestObservable } from './http-request-observable.js';
 import { HttpResponse } from './http-response.js';
 import { HttpClientContext, HttpEvent, HttpObserveType } from './types.js';
@@ -60,10 +61,10 @@ export namespace HttpCollectionNode {
 }
 
 export class HttpCollectionNode<TType, TResponseExt = {}> {
-  protected [kHttpClientContext]: HttpClientContext;
+  protected [kContext]: HttpClientContext;
 
   constructor(context: HttpClientContext) {
-    this[kHttpClientContext] = context;
+    this[kContext] = context;
   }
 
   create(
@@ -79,18 +80,18 @@ export class HttpCollectionNode<TType, TResponseExt = {}> {
       options?: StrictOmit<HttpCollectionNode.CreateOptions, 'observe'> & { observe: HttpObserveType.Events }
   ): HttpRequestObservable<HttpEvent, TType, TResponseExt>
   create(data: PartialInput<TType>, options?: HttpCollectionNode.CreateOptions) {
-    const context = this[kHttpClientContext];
+    const context = this[kContext];
     const requestHost = new HttpRequestObservable(context, options);
-    const request = requestHost[HttpRequestObservable.kRequest];
+    const request = requestHost[kRequest];
     request.method = 'POST';
-    request.url = context.resourceName;
+    request.url.resolve(context.resourceName);
     request.body = data;
     if (options?.include)
-      request.params.set('$include', options.include);
+      request.params.set('$include', toArrayDef(options.include, []).join(','));
     if (options?.pick)
-      request.params.set('$pick', options.pick);
+      request.params.set('$pick', toArrayDef(options.pick, []).join(','));
     if (options?.omit)
-      request.params.set('$omit', options.omit);
+      request.params.set('$omit', toArrayDef(options.omit, []).join(','));
     return requestHost as any;
   }
 
@@ -107,11 +108,11 @@ export class HttpCollectionNode<TType, TResponseExt = {}> {
       options?: StrictOmit<HttpCollectionNode.DeleteOptions, 'observe'> & { observe: HttpObserveType.Events }
   ): HttpRequestObservable<HttpEvent, never, TResponseExt>
   delete(id: any, options?: HttpCollectionNode.DeleteOptions) {
-    const context = this[kHttpClientContext];
+    const context = this[kContext];
     const requestHost = new HttpRequestObservable(context, options);
-    const request = requestHost[HttpRequestObservable.kRequest];
+    const request = requestHost[kRequest];
     request.method = 'DELETE';
-    request.path.join({resource: context.resourceName, key: id});
+    request.url.join({resource: context.resourceName, key: id});
     return requestHost as any;
   }
 
@@ -125,13 +126,13 @@ export class HttpCollectionNode<TType, TResponseExt = {}> {
       options?: StrictOmit<HttpCollectionNode.DeleteManyOptions, 'observe'> & { observe: HttpObserveType.Events }
   ): HttpRequestObservable<HttpEvent, HttpCollectionNode.DeleteManyBody, TResponseExt>
   deleteMany(options?: HttpCollectionNode.DeleteManyOptions) {
-    const context = this[kHttpClientContext];
+    const context = this[kContext];
     const requestHost = new HttpRequestObservable(context, options);
-    const request = requestHost[HttpRequestObservable.kRequest];
+    const request = requestHost[kRequest];
     request.method = 'DELETE';
-    request.url = context.resourceName;
+    request.url.join(context.resourceName);
     if (options?.filter)
-      request.params.set('$filter', options.filter);
+      request.params.set('$filter', String(options.filter));
     return requestHost as any;
   }
 
@@ -148,17 +149,17 @@ export class HttpCollectionNode<TType, TResponseExt = {}> {
       options?: StrictOmit<HttpCollectionNode.GetOptions, 'observe'> & { observe: HttpObserveType.Events }
   ): HttpRequestObservable<HttpEvent, TType, TResponseExt>
   get(id: any, options?: HttpCollectionNode.GetOptions) {
-    const context = this[kHttpClientContext];
+    const context = this[kContext];
     const requestHost = new HttpRequestObservable(context, options);
-    const request = requestHost[HttpRequestObservable.kRequest];
+    const request = requestHost[kRequest];
     request.method = 'GET';
-    request.path.join({resource: context.resourceName, key: id});
+    request.url.join({resource: context.resourceName, key: id});
     if (options?.include)
-      request.params.set('$include', options.include);
+      request.params.set('$include', toArrayDef(options.include, []).join(','));
     if (options?.pick)
-      request.params.set('$pick', options.pick);
+      request.params.set('$pick', toArrayDef(options.pick, []).join(','));
     if (options?.omit)
-      request.params.set('$omit', options.omit);
+      request.params.set('$omit', toArrayDef(options.omit, []).join(','));
     return requestHost as any;
   }
 
@@ -175,29 +176,29 @@ export class HttpCollectionNode<TType, TResponseExt = {}> {
       options?: StrictOmit<HttpCollectionNode.FindManyOptions, 'observe'> & { observe: HttpObserveType.Events }
   ): HttpRequestObservable<HttpEvent, TType, TResponseExt>
   findMany(options?: HttpCollectionNode.FindManyOptions) {
-    const context = this[kHttpClientContext];
+    const context = this[kContext];
     const requestHost = new HttpRequestObservable(context, options);
-    const request = requestHost[HttpRequestObservable.kRequest];
+    const request = requestHost[kRequest];
     request.method = 'GET';
-    request.url = context.resourceName;
+    request.url.join(context.resourceName);
     if (options?.include)
-      request.params.set('$include', options.include);
+      request.params.set('$include', toArrayDef(options.include, []).join(','));
     if (options?.pick)
-      request.params.set('$pick', options.pick);
+      request.params.set('$pick', toArrayDef(options.pick, []).join(','));
     if (options?.omit)
-      request.params.set('$omit', options.omit);
+      request.params.set('$omit', toArrayDef(options.omit, []).join(','));
     if (options?.sort)
-      request.params.set('$sort', options.sort);
+      request.params.set('$sort', toArrayDef(options.sort, []).join(','));
     if (options?.filter)
-      request.params.set('$filter', options.filter);
+      request.params.set('$filter', String(options.filter));
     if (options?.limit != null)
-      request.params.set('$limit', options.limit);
+      request.params.set('$limit', String(options.limit));
     if (options?.skip != null)
-      request.params.set('$skip', options.skip);
+      request.params.set('$skip', String(options.skip));
     if (options?.count != null)
-      request.params.set('$count', options.count);
+      request.params.set('$count', String(options.count));
     if (options?.distinct != null)
-      request.params.set('$distinct', options.distinct);
+      request.params.set('$distinct', String(options.distinct));
     return requestHost as any;
   }
 
@@ -217,18 +218,18 @@ export class HttpCollectionNode<TType, TResponseExt = {}> {
       options?: StrictOmit<HttpCollectionNode.UpdateOptions, 'observe'> & { observe: HttpObserveType.Events }
   ): HttpRequestObservable<HttpEvent, TType, TResponseExt>
   update(id: any, data: PartialInput<TType>, options?: HttpCollectionNode.UpdateOptions) {
-    const context = this[kHttpClientContext];
+    const context = this[kContext];
     const requestHost = new HttpRequestObservable(context, options);
-    const request = requestHost[HttpRequestObservable.kRequest];
+    const request = requestHost[kRequest];
     request.method = 'PATCH';
-    request.path.join({resource: context.resourceName, key: id});
+    request.url.join({resource: context.resourceName, key: id});
     request.body = data;
     if (options?.include)
-      request.params.set('$include', options.include);
+      request.params.set('$include', String(options.include));
     if (options?.pick)
-      request.params.set('$pick', options.pick);
+      request.params.set('$pick', String(options.pick));
     if (options?.omit)
-      request.params.set('$omit', options.omit);
+      request.params.set('$omit', String(options.omit));
     return requestHost as any;
   }
 
@@ -245,14 +246,14 @@ export class HttpCollectionNode<TType, TResponseExt = {}> {
       options?: StrictOmit<HttpCollectionNode.UpdateManyOptions, 'observe'> & { observe: HttpObserveType.Events }
   ): HttpRequestObservable<HttpEvent, HttpCollectionNode.UpdateManyBody, TResponseExt>
   updateMany(data: PartialInput<TType>, options?: HttpCollectionNode.UpdateManyOptions) {
-    const context = this[kHttpClientContext];
+    const context = this[kContext];
     const requestHost = new HttpRequestObservable(context, options);
-    const request = requestHost[HttpRequestObservable.kRequest];
+    const request = requestHost[kRequest];
     request.method = 'PATCH';
-    request.url = context.resourceName;
+    request.url.join(context.resourceName);
     request.body = data;
     if (options?.filter)
-      request.params.set('$filter', options.filter);
+      request.params.set('$filter', String(options.filter));
     return requestHost as any;
   }
 

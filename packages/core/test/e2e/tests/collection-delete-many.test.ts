@@ -1,3 +1,4 @@
+import { HttpObserveType } from '@opra/client';
 import { OpraTestClient } from '@opra/testing';
 
 export function collectionDeleteManyTests(args: { client: OpraTestClient }) {
@@ -7,7 +8,7 @@ export function collectionDeleteManyTests(args: { client: OpraTestClient }) {
     it('Should delete many instances by filter', async () => {
       const resp = await args.client.collection('Customers')
           .deleteMany({filter: '_id>=1001'})
-          .fetch('response');
+          .fetch(HttpObserveType.Response);
       resp.expect
           .toSuccess()
           .toReturnOperationResult()

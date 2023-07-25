@@ -3,8 +3,8 @@ import { isReadableStreamLike } from 'rxjs/internal/util/isReadableStreamLike';
 import { StrictOmit, Type } from 'ts-gems';
 import {
   ApiDocument, DocumentFactory,
-  HttpHeaderCodes, HttpParams,
-  isBlob, joinPath
+  HttpHeaderCodes,
+  isBlob, OpraURL
 } from '@opra/common';
 import { ClientError } from './client-error.js';
 import { HttpCollectionNode } from './collection-node.js';
@@ -57,7 +57,7 @@ export class OpraHttpClient {
   defaults: StrictOmit<HttpRequestDefaults, 'headers' | 'params'> &
       {
         headers: Headers;
-        params: HttpParams;
+        params: URLSearchParams;
       };
 
   constructor(serviceUrl: string, options?: OpraHttpClientOptions) {
@@ -74,8 +74,8 @@ export class OpraHttpClient {
       ...options?.defaults,
       headers: options?.defaults?.headers instanceof Headers
           ? options?.defaults?.headers : new Headers(options?.defaults?.headers),
-      params: options?.defaults?.params instanceof HttpParams
-          ? options?.defaults?.params : new HttpParams(options?.defaults?.params)
+      params: options?.defaults?.params instanceof URLSearchParams
+          ? options?.defaults?.params : new URLSearchParams(options?.defaults?.params)
     };
   }
 
@@ -106,7 +106,7 @@ export class OpraHttpClient {
           return api;
         })
         .catch((e) => {
-          e.message = 'Unable to fetch metadata from ' + this.serviceUrl + '. ' + e.message
+          e.message = 'Unable to fetch metadata from service url (' + this.serviceUrl + '). ' + e.message
           throw e;
         })
         .finally(() => delete this[kAssets].metadataPromise);
@@ -165,7 +165,7 @@ export class OpraHttpClient {
     return new Observable(subscriber => {
       (async () => {
         request.inset(this.defaults);
-        const url = request.url.includes('://') ? request.url : joinPath(this.serviceUrl, request.url);
+        const url = new OpraURL(request.url, this.serviceUrl);
         let body: any;
         if (request.body) {
           let contentType;
@@ -212,7 +212,7 @@ export class OpraHttpClient {
             request,
             event: HttpEventType.Sent,
           } satisfies HttpSentEvent);
-        const response = await this._fetch(url, request);
+        const response = await this._fetch(url.toString(), request);
         await this._handleResponse(observe, subscriber, request, response);
       })().catch(error => subscriber.error(error))
     });

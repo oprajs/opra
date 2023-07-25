@@ -1,9 +1,11 @@
+import http from 'http';
 import { Task } from 'power-tasks';
 import {
+  ApiDocument,
   BadRequestError, Collection, HttpHeaderCodes,
-  HttpStatusCodes, InternalServerError, isReadable,
+  HttpStatusCodes, HttpStatusMessages, InternalServerError, isReadable,
   IssueSeverity,
-  OpraException, OpraSchema,
+  OpraException, OpraSchema, OpraURL, OpraURLPath,
   wrapException
 } from '@opra/common';
 import { OpraAdapter } from '../adapter.js';
@@ -22,17 +24,17 @@ import { parseRequest } from './request-parsers/parse-request.js';
  */
 export namespace OpraHttpAdapter {
   export type Options = OpraAdapter.Options & {
-    prefix?: string;
+    basePath?: string;
   }
 }
 
 /**
  *
- * @class OpraHttpAdapter
+ * @class OpraHttpAdapterBase
  */
-export abstract class OpraHttpAdapter extends OpraAdapter {
+export abstract class OpraHttpAdapterBase extends OpraAdapter {
 
-  protected abstract platform: string;
+  protected platform: string = 'node';
 
   /**
    * Main http request handler
@@ -169,4 +171,36 @@ export abstract class OpraHttpAdapter extends OpraAdapter {
     logFn.apply(this.logger, [String(message), ...optionalParams]);
   }
 
+}
+
+export class OpraHttpAdapter extends OpraHttpAdapterBase {
+  readonly server: http.Server;
+
+  static create(
+      api: ApiDocument,
+      options?: OpraHttpAdapter.Options
+  ) {
+    const adapter = new OpraHttpAdapter(api);
+    const basePath = new OpraURLPath(options?.basePath);
+
+    http.createServer((incomingMessage: http.IncomingMessage, serverResponse: http.ServerResponse) => {
+      const originalUrl = incomingMessage.url;
+      const parsedUrl = new OpraURL(originalUrl);
+      const relativePath = OpraURLPath.relative(parsedUrl.path, basePath);
+      if (!relativePath) {
+        serverResponse.statusCode = HttpStatusCodes.NOT_FOUND;
+        serverResponse.statusMessage = HttpStatusMessages[HttpStatusCodes.NOT_FOUND];
+        serverResponse.end();
+        return;
+      }
+      parsedUrl.path = relativePath;
+      (incomingMessage as any).originalUrl = originalUrl;
+      (incomingMessage as any).baseUrl = basePath.toString();
+      (incomingMessage as any).parsedUrl = parsedUrl;
+      const req = HttpServerRequest.create(incomingMessage);
+      const res = HttpServerResponse.create(serverResponse);
+      adapter.handler(req, res)
+          .catch((e) => (adapter.logger?.fatal || adapter.logger?.error)?.(e));
+    })
+  }
 }
