@@ -24,9 +24,11 @@ function isHttpIncomingMessage(v: any): v is HttpOutgoingMessage {
 }
 
 export namespace HttpServerResponse {
-  export function create(instance?: HttpOutgoingMessage | HttpOutgoingMessageHost.Initiator): HttpServerResponse {
+  export function from(
+      instance?: HttpOutgoingMessage | HttpOutgoingMessageHost.Initiator
+  ): HttpServerResponse {
     if (!isHttpIncomingMessage(instance))
-      instance = HttpOutgoingMessageHost.create(instance);
+      instance = new HttpOutgoingMessageHost(instance);
     mergePrototype(instance, HttpServerResponseHost.prototype);
     return instance as HttpServerResponse;
   }

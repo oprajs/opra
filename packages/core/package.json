@@ -39,6 +39,7 @@
     "mime-types": "^2.1.35",
     "power-tasks": "^1.7.0",
     "putil-varhelpers": "^1.6.5",
+    "putil-isplainobject": "^1.1.5",
     "range-parser": "^1.2.1",
     "strict-typed-events": "^2.3.1",
     "type-is": "^1.6.18",

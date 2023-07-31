@@ -5,7 +5,7 @@ import {
   BadRequestError, Collection, HttpHeaderCodes,
   HttpStatusCodes, HttpStatusMessages, InternalServerError, isReadable,
   IssueSeverity,
-  OpraException, OpraSchema, OpraURL, OpraURLPath,
+  OpraException, OpraSchema, OpraURL, OpraURLPath, Singleton,
   wrapException
 } from '@opra/common';
 import { OpraAdapter } from '../adapter.js';
@@ -17,16 +17,9 @@ import { RequestContextHost } from '../request-context.host.js';
 import { ResponseHost } from '../response.host.js';
 import { HttpServerRequest } from './impl/http-server-request.js';
 import { HttpServerResponse } from './impl/http-server-response.js';
-import { parseRequest } from './request-parsers/parse-request.js';
+import { parseCollectionRequest, parseSingletonRequest } from './request-parsers/parse-entity-request.js';
 
-/**
- * @namespace OpraHttpAdapter
- */
-export namespace OpraHttpAdapter {
-  export type Options = OpraAdapter.Options & {
-    basePath?: string;
-  }
-}
+const kOptions = Symbol.for('kOptions');
 
 /**
  *
@@ -34,7 +27,7 @@ export namespace OpraHttpAdapter {
  */
 export abstract class OpraHttpAdapterBase extends OpraAdapter {
 
-  protected platform: string = 'node';
+  readonly platform: string;
 
   /**
    * Main http request handler
@@ -44,8 +37,10 @@ export abstract class OpraHttpAdapterBase extends OpraAdapter {
    */
   protected async handler(incoming: HttpServerRequest, outgoing: HttpServerResponse): Promise<void> {
     try {
+      if (!this.initialized)
+        throw new InternalServerError(`${Object.getPrototypeOf(this).costructor.name} has not been initialized yet`);
       try {
-        const request = await parseRequest(this._apiRoot, incoming);
+        const request = await this.parseRequest(incoming);
         const task = this.createRequestTask(request, outgoing);
         await task.toPromise();
       } catch (e: any) {
@@ -56,6 +51,24 @@ export abstract class OpraHttpAdapterBase extends OpraAdapter {
     } catch (error) {
       await this.handleError(incoming, outgoing, [error]);
     }
+  }
+
+  protected parseRequest(incoming: HttpServerRequest): Promise<Request> {
+    const {parsedUrl} = incoming;
+    if (!parsedUrl.path.length) {
+      // Batch
+      if (incoming.headers['content-type'] === 'multipart/mixed') {
+        // todo
+      }
+      throw new BadRequestError();
+    }
+    const p = parsedUrl.path[0];
+    const resource = this.rootDocument.getResource(p.resource);
+    if (resource instanceof Collection)
+      return parseCollectionRequest(this, incoming, resource, parsedUrl);
+    if (resource instanceof Singleton)
+      return parseSingletonRequest(this, incoming, resource, parsedUrl);
+    throw new BadRequestError();
   }
 
   protected createRequestTask(request: Request, outgoing: HttpServerResponse): Task {
@@ -174,33 +187,68 @@ export abstract class OpraHttpAdapterBase extends OpraAdapter {
 }
 
 export class OpraHttpAdapter extends OpraHttpAdapterBase {
+  readonly platform: string = 'node';
+  readonly basePath: OpraURLPath;
   readonly server: http.Server;
+  [kOptions]: OpraHttpAdapter.Options;
+  listen: http.Server['listen'];
 
-  static create(
-      api: ApiDocument,
-      options?: OpraHttpAdapter.Options
-  ) {
-    const adapter = new OpraHttpAdapter(api);
-    const basePath = new OpraURLPath(options?.basePath);
+  constructor(api: ApiDocument, options?: OpraHttpAdapter.Options) {
+    super(api, options);
+    this.basePath = new OpraURLPath(options?.basePath);
+    this.server = http.createServer(
+        (incomingMessage: http.IncomingMessage, serverResponse: http.ServerResponse) =>
+            this._serverListener(incomingMessage, serverResponse)) as any;
+    this.listen = this.server.listen.bind(this.server);
+  }
 
-    http.createServer((incomingMessage: http.IncomingMessage, serverResponse: http.ServerResponse) => {
-      const originalUrl = incomingMessage.url;
-      const parsedUrl = new OpraURL(originalUrl);
-      const relativePath = OpraURLPath.relative(parsedUrl.path, basePath);
-      if (!relativePath) {
-        serverResponse.statusCode = HttpStatusCodes.NOT_FOUND;
-        serverResponse.statusMessage = HttpStatusMessages[HttpStatusCodes.NOT_FOUND];
-        serverResponse.end();
-        return;
-      }
-      parsedUrl.path = relativePath;
-      (incomingMessage as any).originalUrl = originalUrl;
-      (incomingMessage as any).baseUrl = basePath.toString();
-      (incomingMessage as any).parsedUrl = parsedUrl;
-      const req = HttpServerRequest.create(incomingMessage);
-      const res = HttpServerResponse.create(serverResponse);
-      adapter.handler(req, res)
-          .catch((e) => (adapter.logger?.fatal || adapter.logger?.error)?.(e));
-    })
+  protected _serverListener(incomingMessage: http.IncomingMessage, serverResponse: http.ServerResponse) {
+    const originalUrl = incomingMessage.url;
+    const parsedUrl = new OpraURL(originalUrl);
+    const relativePath = OpraURLPath.relative(parsedUrl.path, this.basePath);
+    if (!relativePath) {
+      serverResponse.statusCode = HttpStatusCodes.NOT_FOUND;
+      serverResponse.statusMessage = HttpStatusMessages[HttpStatusCodes.NOT_FOUND];
+      serverResponse.end();
+      return;
+    }
+    parsedUrl.path = relativePath;
+    (incomingMessage as any).originalUrl = originalUrl;
+    (incomingMessage as any).baseUrl = this.basePath.toString();
+    (incomingMessage as any).parsedUrl = parsedUrl;
+    const req = HttpServerRequest.from(incomingMessage);
+    const res = HttpServerResponse.from(serverResponse);
+    this.handler(req, res)
+        .catch((e) => (this.logger?.fatal || this.logger?.error)?.(e));
+  }
+
+  async close() {
+    await super.close();
+    if (this.server.listening)
+      await new Promise<void>((resolve, reject) => {
+        this.server.close((err) => {
+          if (err)
+            return reject(err);
+          resolve();
+        });
+      })
+
+  }
+
+  static async create(api: ApiDocument, options?: OpraHttpAdapter.Options): Promise<OpraHttpAdapter> {
+    const adapter = new OpraHttpAdapter(api, options);
+    await adapter.init();
+    return adapter;
+  }
+
+}
+
+
+/**
+ * @namespace OpraHttpAdapter
+ */
+export namespace OpraHttpAdapter {
+  export type Options = OpraAdapter.Options & {
+    basePath?: string;
   }
 }

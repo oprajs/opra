@@ -3,8 +3,8 @@ import { HttpOutgoingMessageHost, HttpServerResponse } from '@opra/core';
 describe('HttpServerResponse', function () {
 
   it('Should wrap HttpOutgoingMessage', async () => {
-    const msg = HttpServerResponse.create(
-        HttpOutgoingMessageHost.create({
+    const msg = HttpServerResponse.from(
+        HttpOutgoingMessageHost.from({
           statusCode: 200,
           statusMessage: 'OK',
         }));
@@ -13,7 +13,7 @@ describe('HttpServerResponse', function () {
   });
 
   it('Should create with HttpOutgoingMessage initiator', async () => {
-    const msg = HttpServerResponse.create({
+    const msg = HttpServerResponse.from({
       statusCode: 200,
       statusMessage: 'OK',
     });
@@ -22,7 +22,7 @@ describe('HttpServerResponse', function () {
   });
 
   it('Should create using init object', async () => {
-    const msg = HttpServerResponse.create({
+    const msg = HttpServerResponse.from({
       statusCode: 200,
       statusMessage: 'OK',
       headers: ['Accept', 'text/html']
@@ -33,19 +33,19 @@ describe('HttpServerResponse', function () {
   })
 
   it('Should attachment(name) set Content-Disposition header', async () => {
-    const msg = HttpServerResponse.create();
+    const msg = HttpServerResponse.from();
     msg.attachment('path/to/logo.png');
     expect(msg.getHeader('Content-Disposition')).toStrictEqual('attachment; filename="logo.png"');
   })
 
   it('Should cookie() set Set-Cookie header', async () => {
-    const msg = HttpServerResponse.create();
+    const msg = HttpServerResponse.from();
     msg.cookie('c1', 'x', {path: '/api'});
     expect(msg.getHeader('Set-Cookie')).toStrictEqual('c1=x; Path=/api');
   })
 
   it('Should clearCookie() delete Set-Cookie header', async () => {
-    const msg = HttpServerResponse.create();
+    const msg = HttpServerResponse.from();
     msg.cookie('c1', 'x', {path: '/api'});
     expect(msg.getHeader('Set-Cookie')).toStrictEqual('c1=x; Path=/api');
     msg.clearCookie('c1');
@@ -53,7 +53,7 @@ describe('HttpServerResponse', function () {
   })
 
   it('Should contentType(type) or type(type) set Content-Type header', async () => {
-    const msg = HttpServerResponse.create();
+    const msg = HttpServerResponse.from();
     msg.contentType('text/xml');
     expect(msg.getHeader('Content-Type')).toStrictEqual('text/xml; charset=utf-8');
     msg.contentType('text/html');
@@ -61,20 +61,20 @@ describe('HttpServerResponse', function () {
   })
 
   it('Should links() set Link header', async () => {
-    const msg = HttpServerResponse.create();
+    const msg = HttpServerResponse.from();
     msg.links({next: '/next', prior: '/prior'});
     expect(msg.getHeader('Link')).toStrictEqual('</next>; rel="next", </prior>; rel="prior"');
   })
 
   it('Should redirect() set Location and statusCode', async () => {
-    const msg = HttpServerResponse.create();
+    const msg = HttpServerResponse.from();
     msg.redirect('www.newuri.org');
     expect(msg.getHeader('Location')).toStrictEqual('www.newuri.org');
     expect(msg.statusCode).toStrictEqual(302);
   })
 
   it('Should status() set status code', async () => {
-    const msg = HttpServerResponse.create({
+    const msg = HttpServerResponse.from({
       statusCode: 200
     });
     expect(msg.statusCode).toStrictEqual(200);
@@ -83,7 +83,7 @@ describe('HttpServerResponse', function () {
   })
 
   it('Should sendStatus() set status code and body as status message', async () => {
-    const msg = HttpServerResponse.create({
+    const msg = HttpServerResponse.from({
       statusCode: 200
     });
     expect(msg.statusCode).toStrictEqual(200);

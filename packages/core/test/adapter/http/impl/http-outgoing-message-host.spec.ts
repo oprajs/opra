@@ -3,7 +3,7 @@ import { HttpOutgoingMessageHost } from '@opra/core';
 describe('HttpOutgoingMessageHost', function () {
 
   it('Should create using init object', async () => {
-    const msg = HttpOutgoingMessageHost.create({
+    const msg = new HttpOutgoingMessageHost({
       statusCode: 200,
       statusMessage: 'OK',
       headers: {'accept': 'text/html'},
@@ -16,7 +16,7 @@ describe('HttpOutgoingMessageHost', function () {
   })
 
   it('Should getHeader() return header value', async () => {
-    const msg = HttpOutgoingMessageHost.create({
+    const msg = new HttpOutgoingMessageHost({
       headers: {'accept': 'text/html'},
     });
     expect(msg.getHeader('accept')).toStrictEqual('text/html');
@@ -24,7 +24,7 @@ describe('HttpOutgoingMessageHost', function () {
   })
 
   it('Should setHeader() overwrite header value', async () => {
-    const msg = HttpOutgoingMessageHost.create({
+    const msg = new HttpOutgoingMessageHost({
       headers: {'accept': 'text/html'},
     });
     expect(msg.getHeader('Accept')).toStrictEqual('text/html');
@@ -33,7 +33,7 @@ describe('HttpOutgoingMessageHost', function () {
   })
 
   it('Should appendHeader() append header value', async () => {
-    const msg = HttpOutgoingMessageHost.create({
+    const msg = new HttpOutgoingMessageHost({
       headers: {'accept': 'text/html'},
     });
     msg.appendHeader('accept', 'text/xml');
@@ -41,7 +41,7 @@ describe('HttpOutgoingMessageHost', function () {
   })
 
   it('Should getHeaders() return swallow copy of headers', async () => {
-    const msg = HttpOutgoingMessageHost.create({
+    const msg = new HttpOutgoingMessageHost({
       headers: {'Accept': 'text/html', 'Referer': 'x'},
     });
     expect(msg.getHeaders()).toEqual({
@@ -51,21 +51,21 @@ describe('HttpOutgoingMessageHost', function () {
   })
 
   it('Should getHeaderNames() return header names', async () => {
-    const msg = HttpOutgoingMessageHost.create({
+    const msg = new HttpOutgoingMessageHost({
       headers: {'Accept': 'text/html', 'Referer': 'x'},
     });
     expect(msg.getHeaderNames()).toStrictEqual(['accept', 'referer']);
   })
 
   it('Should getRawHeaderNames() return raw header names', async () => {
-    const msg = HttpOutgoingMessageHost.create({
+    const msg = new HttpOutgoingMessageHost({
       headers: {'Accept': 'text/html', 'Referer': 'x'},
     });
     expect(msg.getRawHeaderNames()).toStrictEqual(['Accept', 'Referer']);
   })
 
   it('Should hasHeader() check if header exists', async () => {
-    const msg = HttpOutgoingMessageHost.create({
+    const msg = new HttpOutgoingMessageHost({
       headers: {'Accept': 'text/html', 'Referer': 'x'},
     });
     expect(msg.hasHeader('accept')).toStrictEqual(true);
@@ -76,7 +76,7 @@ describe('HttpOutgoingMessageHost', function () {
   })
 
   it('Should removeHeader() remove header', async () => {
-    const msg = HttpOutgoingMessageHost.create({
+    const msg = new HttpOutgoingMessageHost({
       headers: {'Accept': 'text/html', 'Referer': 'x'},
     });
     expect(msg.hasHeader('Accept')).toStrictEqual(true);

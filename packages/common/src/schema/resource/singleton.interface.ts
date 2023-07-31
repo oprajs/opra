@@ -1,5 +1,5 @@
 import type { DataType } from '../data-type/data-type.interface.js';
-import type { _Operation, Endpoint } from './endpoint.interface.js';
+import type { Collection } from './collection.interface.js';
 import type { ResourceBase } from './resource.interface.js';
 
 export interface Singleton extends ResourceBase {
@@ -12,10 +12,10 @@ export namespace Singleton {
   export const Kind = 'Singleton';
   export type Kind = 'Singleton';
 
-  export type CreateOperation = Endpoint & _Operation.InputPickOmit & _Operation.ResponsePickOmit;
-  export type DeleteOperation = Endpoint;
-  export type GetOperation = Endpoint & _Operation.ResponsePickOmit;
-  export type UpdateOperation = Endpoint & _Operation.InputPickOmit & _Operation.ResponsePickOmit;
+  export type CreateOperation = Collection.CreateOperation;
+  export type DeleteOperation = Collection.DeleteOperation;
+  export type GetOperation = Collection.GetOperation;
+  export type UpdateOperation = Collection.UpdateOperation;
 
   export interface Operations {
     create?: CreateOperation;

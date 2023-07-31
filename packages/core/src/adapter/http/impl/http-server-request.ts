@@ -10,7 +10,6 @@ import parseRange, {
   Ranges as RangeParserRanges,
   Result as RangeParserResult
 } from 'range-parser';
-import stream from 'stream';
 import typeIs from 'type-is';
 import { isReadable, mergePrototype, OpraURL } from '@opra/common';
 import { HttpIncomingMessage, HttpIncomingMessageHost } from './http-incoming-message-host.js';
@@ -21,9 +20,11 @@ function isHttpIncomingMessage(v: any): v is HttpIncomingMessage {
 }
 
 export namespace HttpServerRequest {
-  export function create(instance?: HttpIncomingMessage | HttpIncomingMessageHost.Initiator | Buffer | stream.Readable): HttpServerRequest {
+  export function from(instance: HttpIncomingMessage | HttpIncomingMessageHost.Initiator |
+      string | Iterable<any> | AsyncIterable<any>
+  ): HttpServerRequest {
     if (!isHttpIncomingMessage(instance))
-      instance = HttpIncomingMessageHost.create(instance);
+      instance = HttpIncomingMessageHost.from(instance);
     mergePrototype(instance, HttpServerRequestHost.prototype);
     const req = instance as HttpServerRequest;
     req.baseUrl = req.baseUrl || '';

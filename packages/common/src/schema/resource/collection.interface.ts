@@ -1,6 +1,7 @@
+import { OpraFilter } from '@opra/common';
 import type { DataType } from '../data-type/data-type.interface.js';
 import type { Field } from '../data-type/field.interface';
-import type { _Operation, Endpoint } from './endpoint.interface.js';
+import type { Endpoint } from './endpoint.interface.js';
 import type { ResourceBase } from './resource.interface.js';
 
 export interface Collection extends ResourceBase {
@@ -14,16 +15,16 @@ export namespace Collection {
   export const Kind = 'Collection';
   export type Kind = 'Collection';
 
-  export type CreateOperation = Endpoint & _Operation.InputPickOmit & _Operation.ResponsePickOmit;
+  export type CreateOperation = Endpoint & _OperationInput & _OperationResponse;
   export type DeleteOperation = Endpoint;
-  export type DeleteManyOperation = Endpoint & _Operation.Filter;
-  export type GetOperation = Endpoint & _Operation.ResponsePickOmit;
-  export type FindManyOperation = Endpoint & _Operation.Filter & _Operation.ResponsePickOmit & {
+  export type DeleteManyOperation = Endpoint & _OperationFilter;
+  export type GetOperation = Endpoint & _OperationResponse;
+  export type FindManyOperation = Endpoint & _OperationFilter & _OperationResponse & {
     sortFields?: string[];
     defaultSort?: string[];
   };
-  export type UpdateOperation = Endpoint & _Operation.InputPickOmit & _Operation.ResponsePickOmit;
-  export type UpdateManyOperation = Endpoint & _Operation.InputPickOmit & _Operation.Filter;
+  export type UpdateOperation = Endpoint & _OperationInput & _OperationResponse;
+  export type UpdateManyOperation = Endpoint & _OperationInput & _OperationFilter;
 
   export interface Operations {
     create?: CreateOperation;
@@ -33,5 +34,24 @@ export namespace Collection {
     deleteMany?: DeleteManyOperation;
     findMany?: FindManyOperation;
     updateMany?: UpdateManyOperation;
+  }
+}
+
+interface _OperationFilter {
+  filters?: { field: Field.QualifiedName, operators?: OpraFilter.ComparisonOperator[] }[]
+}
+
+interface _OperationInput {
+  input?: {
+    maxContentSize?: number | string;
+    pick?: Field.QualifiedName[];
+    omit?: Field.QualifiedName[];
+  }
+}
+
+interface _OperationResponse {
+  response?: {
+    pick?: Field.QualifiedName[];
+    omit?: Field.QualifiedName[];
   }
 }

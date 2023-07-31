@@ -1,22 +1,20 @@
-import express from 'express';
-import request from 'supertest';
+import supertest from 'supertest';
 import { ApiDocument } from '@opra/common';
-import { OpraExpressAdapter } from '@opra/core';
+import { OpraHttpAdapter } from '@opra/core';
 import { createTestApi } from '../_support/test-app/index.js';
 
 describe('e2e:$metadata', function () {
 
   let document: ApiDocument;
-  let app;
+  let adapter: OpraHttpAdapter;
 
   beforeAll(async () => {
     document = await createTestApi();
-    app = express();
-    await OpraExpressAdapter.create(app, document);
+    adapter = await OpraHttpAdapter.create(document);
   });
 
   it('Should /$metadata return whole api schema', async () => {
-    const resp = await request(app).get('/$metadata');
+    const resp = await supertest(adapter.server).get('/$metadata');
     expect(resp.status).toStrictEqual(200);
     expect(resp.body).toBeDefined();
     expect(resp.body).toMatchObject({

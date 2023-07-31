@@ -17,6 +17,7 @@ import { ILogger } from './interfaces/logger.interface.js';
 import { RequestContext } from './interfaces/request-context.interface.js';
 import { MetadataResource } from './internal/metadata.resource.js';
 
+
 /**
  * @namespace OpraAdapter
  */
@@ -63,24 +64,35 @@ export namespace OpraAdapter {
 
 }
 
+const kObjectCache = Symbol.for('kObjectCache');
+const kOptions = Symbol.for('kOptions');
+
 /**
  * @class OpraAdapter
  */
 export abstract class OpraAdapter extends AsyncEventEmitter {
-  protected _apiRoot: ApiDocument;
-  i18n: I18n;
-  logger?: ILogger;
+  protected rootDocument: ApiDocument;
+  protected i18n: I18n;
+  protected logger?: ILogger;
+  [kOptions]: OpraAdapter.Options;
+  [kObjectCache] = new WeakMap<any, any>();
 
-  protected constructor(readonly api: ApiDocument) {
+  protected constructor(readonly api: ApiDocument, options?: OpraAdapter.Options) {
     super();
+    this[kOptions] = options || {};
+  }
+
+  get initialized(): boolean {
+    return !!this.rootDocument;
   }
 
   /**
    * Initializes the adapter
-   * @param options
-   * @protected
    */
-  protected async init(options?: OpraAdapter.Options) {
+  async init() {
+    if (this.initialized)
+      return;
+    const options = this[kOptions];
     this.logger = options?.logger;
     if (options?.i18n instanceof I18n)
       this.i18n = options.i18n;
@@ -93,7 +105,7 @@ export abstract class OpraAdapter extends AsyncEventEmitter {
     if (options?.onRequest)
       this.on('request', options.onRequest);
 
-    this._apiRoot = await DocumentFactory.createDocument({
+    this.rootDocument = await DocumentFactory.createDocument({
       version: OpraSchema.SpecVersion,
       info: {
         version: OpraSchema.SpecVersion,

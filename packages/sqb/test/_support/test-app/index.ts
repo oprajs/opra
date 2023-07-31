@@ -1,7 +1,6 @@
 import '@sqb/postgres';
-import express from 'express';
 import { ApiDocument, DocumentFactory } from '@opra/common';
-import { OpraExpressAdapter } from '@opra/core';
+import { OpraHttpAdapter } from '@opra/core';
 import { SqbClient } from '@sqb/connect';
 import { CustomersResource } from './customers.resource.js';
 import { MyProfileResource } from './my-profile.resource.js';
@@ -9,7 +8,7 @@ import { MyProfileResource } from './my-profile.resource.js';
 export interface TestApp {
   db: SqbClient;
   document: ApiDocument;
-  server: express.Express
+  adapter: OpraHttpAdapter
 }
 
 export async function createTestApp(): Promise<TestApp> {
@@ -28,12 +27,11 @@ export async function createTestApp(): Promise<TestApp> {
       new MyProfileResource(db)
     ]
   })
-  const server = express();
-  await OpraExpressAdapter.create(server, document);
+  const adapter = await OpraHttpAdapter.create(document);
   return {
     db,
     document,
-    server
+    adapter
   }
 
 }

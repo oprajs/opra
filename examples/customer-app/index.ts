@@ -22,7 +22,7 @@ async function run() {
   await dbClient.test();
   try {
     await createDatabase(dbClient, schema);
-    const service = await DocumentFactory.createDocument({
+    const api = await DocumentFactory.createDocument({
       version: '1.0',
       info: {
         title: 'TestApi',
@@ -37,10 +37,8 @@ async function run() {
     });
     // console.log(util.inspect(service, {depth: 10, colors: true}));
     const app = express();
-    app.use(cors({
-      // exposedHeaders: ['*']
-    }));
-    await OpraExpressAdapter.create(app, service, {
+    app.use(cors());
+    await OpraExpressAdapter.create(app, api, {
       basePath: '/svc1',
       logger: console
     });
