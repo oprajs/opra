@@ -22,11 +22,16 @@ export class CustomersResource extends SqbCollectionResource<Customer> {
       {field: 'gender', operators: ['=', 'in']},
       {field: 'birthDate', operators: ['=', '>', '>=', '<', '<=']}
     ],
-    response: {
-
-    }
+    response: {}
   })
   search;
+
+  @Collection.Create({
+    input: {
+      maxContentSize: '200k'
+    }
+  })
+  create;
 
   getService(ctx: RequestContext): SqbEntityService<Customer> {
     return this.customerService.with(ctx);

@@ -10,7 +10,7 @@ describe('e2e:Singleton', function () {
 
   beforeAll(async () => {
     app = await createTestApp();
-    client = new OpraTestClient(app.server, {api: app.document});
+    client = new OpraTestClient(app.adapter.server, {api: app.document});
     testArgs.app = app;
     testArgs.client = client;
   });

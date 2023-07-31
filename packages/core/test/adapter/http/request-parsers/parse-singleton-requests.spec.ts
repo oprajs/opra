@@ -1,14 +1,23 @@
-import { ApiDocument, DocumentFactory } from '@opra/common';
-import { HttpServerRequest } from '@opra/core';
-import { parseRequest } from '@opra/core/adapter/http/request-parsers/parse-request';
+import {
+  ApiDocument,
+  DocumentFactory,
+} from '@opra/common';
+import { HttpServerRequest, OpraHttpAdapter, Request } from '@opra/core';
 import { CustomersResource, MyProfileResource } from '../../../_support/test-app/index.js';
 
 describe('parse Singleton Request', function () {
 
-  let document: ApiDocument;
+  class TestAdapter extends OpraHttpAdapter {
+    parseRequest(incoming: HttpServerRequest): Promise<Request> {
+      return super.parseRequest(incoming);
+    }
+  }
+
+  let api: ApiDocument;
+  let adapter: TestAdapter;
 
   beforeAll(async () => {
-    document = await DocumentFactory.createDocument({
+    api = await DocumentFactory.createDocument({
       version: '1.0',
       info: {
         title: 'TestApi',
@@ -16,18 +25,20 @@ describe('parse Singleton Request', function () {
       },
       resources: [CustomersResource, MyProfileResource]
     });
+    adapter = new TestAdapter(api);
+    await adapter.init();
   });
 
   describe('SingletonGetRequest', function () {
 
     it('Should parse request', async () => {
-      const request = await parseRequest(document, HttpServerRequest.create({
+      const request = await adapter.parseRequest(HttpServerRequest.from({
         method: 'GET',
         url: '/MyProfile?&$pick=_id&$omit=gender&$include=address',
         headers: {'Accept': 'application/json'}
       }));
       expect(request).toBeDefined();
-      const resource = document.getSingleton('MyProfile');
+      const resource = api.getSingleton('MyProfile');
       expect(request.resource).toStrictEqual(resource);
       expect(request.kind).toStrictEqual('SingletonGetRequest');
       expect(request.resourceKind).toStrictEqual('Singleton');
@@ -43,7 +54,7 @@ describe('parse Singleton Request', function () {
     })
 
     it('Should normalize field names in "pick" option', async () => {
-      const request = await parseRequest(document, HttpServerRequest.create({
+      const request = await adapter.parseRequest(HttpServerRequest.from({
         method: 'GET',
         url: '/MyProfile?$pick=givenname,GENDER,Address,address.countryCode'
       }));
@@ -53,7 +64,7 @@ describe('parse Singleton Request', function () {
     })
 
     it('Should normalize field names in "omit" option', async () => {
-      const request = await parseRequest(document, HttpServerRequest.create({
+      const request = await adapter.parseRequest(HttpServerRequest.from({
         method: 'GET',
         url: '/MyProfile?$omit=givenname,GENDER,Address,address.countryCode'
       }));
@@ -63,7 +74,7 @@ describe('parse Singleton Request', function () {
     })
 
     it('Should normalize field names in "include" option', async () => {
-      const request = await parseRequest(document, HttpServerRequest.create({
+      const request = await adapter.parseRequest(HttpServerRequest.from({
         method: 'GET',
         url: '/MyProfile?$include=givenname,GENDER,Address,address.countryCode'
       }));
@@ -73,7 +84,7 @@ describe('parse Singleton Request', function () {
     })
 
     it('Should validate if fields in "pick" option are exist', async () => {
-      await expect(() => parseRequest(document, HttpServerRequest.create({
+      await expect(() => adapter.parseRequest(HttpServerRequest.from({
             method: 'GET',
             url: '/MyProfile?$pick=address.x1'
           }))
@@ -81,7 +92,7 @@ describe('parse Singleton Request', function () {
     })
 
     it('Should validate if fields in "omit" option are exist', async () => {
-      await expect(() => parseRequest(document, HttpServerRequest.create({
+      await expect(() => adapter.parseRequest(HttpServerRequest.from({
             method: 'GET',
             url: '/MyProfile?$omit=address.x1'
           }))
@@ -89,7 +100,7 @@ describe('parse Singleton Request', function () {
     })
 
     it('Should validate if fields in "include" option are exist', async () => {
-      await expect(() => parseRequest(document, HttpServerRequest.create({
+      await expect(() => adapter.parseRequest(HttpServerRequest.from({
             method: 'GET',
             url: '/MyProfile?$include=address.x1'
           }))
@@ -97,9 +108,9 @@ describe('parse Singleton Request', function () {
     })
 
     it('Should allow unknown fields in "pick" option if additionalFields set to "true"', async () => {
-      const meta: any = document.getComplexType('Profile');
+      const meta: any = api.getComplexType('Profile');
       meta.additionalFields = true;
-      const request = await parseRequest(document, HttpServerRequest.create({
+      const request = await adapter.parseRequest(HttpServerRequest.from({
         method: 'GET',
         url: '/MyProfile?$pick=notes.add1,notes.add2.add3'
       }));
@@ -109,9 +120,9 @@ describe('parse Singleton Request', function () {
     })
 
     it('Should allow unknown fields in "omit" option if additionalFields set to "true"', async () => {
-      const meta: any = document.getComplexType('Profile');
+      const meta: any = api.getComplexType('Profile');
       meta.additionalFields = true;
-      const request = await parseRequest(document, HttpServerRequest.create({
+      const request = await adapter.parseRequest(HttpServerRequest.from({
         method: 'GET',
         url: '/MyProfile?$omit=notes.add1,notes.add2.add3'
       }));
@@ -122,9 +133,9 @@ describe('parse Singleton Request', function () {
     })
 
     it('Should allow unknown fields in "include" option if additionalFields set to "true"', async () => {
-      const meta: any = document.getComplexType('Profile');
+      const meta: any = api.getComplexType('Profile');
       meta.additionalFields = true;
-      const request = await parseRequest(document, HttpServerRequest.create({
+      const request = await adapter.parseRequest(HttpServerRequest.from({
         method: 'GET',
         url: '/MyProfile?$include=notes.add1,notes.add2.add3'
       }));
@@ -140,14 +151,14 @@ describe('parse Singleton Request', function () {
   describe('SingletonCreateRequest', function () {
 
     it('Should parse request', async () => {
-      const request = await parseRequest(document, HttpServerRequest.create({
+      const request = await adapter.parseRequest(HttpServerRequest.from({
         method: 'POST',
         url: '/MyProfile',
         body: {name: 'John'},
         headers: {'content-type': 'application/json', 'Accept': 'application/json'}
       }));
       expect(request).toBeDefined();
-      const resource = document.getSingleton('MyProfile');
+      const resource = api.getSingleton('MyProfile');
       expect(request.resource).toStrictEqual(resource);
       expect(request.kind).toStrictEqual('SingletonCreateRequest');
       expect(request.resourceKind).toStrictEqual('Singleton');
@@ -161,7 +172,7 @@ describe('parse Singleton Request', function () {
     })
 
     it('Should normalize field names in "pick" option', async () => {
-      const request = await parseRequest(document, HttpServerRequest.create({
+      const request = await adapter.parseRequest(HttpServerRequest.from({
         method: 'POST',
         url: '/MyProfile?$pick=givenname,GENDER,Address,address.countryCode',
         body: {id: 1},
@@ -173,7 +184,7 @@ describe('parse Singleton Request', function () {
     })
 
     it('Should normalize field names in "omit" option', async () => {
-      const request = await parseRequest(document, HttpServerRequest.create({
+      const request = await adapter.parseRequest(HttpServerRequest.from({
         method: 'POST',
         url: '/MyProfile?$omit=givenname,GENDER,Address,address.countryCode',
         body: {id: 1},
@@ -185,7 +196,7 @@ describe('parse Singleton Request', function () {
     })
 
     it('Should normalize field names in "include" option', async () => {
-      const request = await parseRequest(document, HttpServerRequest.create({
+      const request = await adapter.parseRequest(HttpServerRequest.from({
         method: 'POST',
         url: '/MyProfile?$include=givenname,GENDER,Address,address.countryCode',
         body: {id: 1},
@@ -197,7 +208,7 @@ describe('parse Singleton Request', function () {
     })
 
     it('Should validate if fields in "pick" option are exist', async () => {
-      await expect(() => parseRequest(document, HttpServerRequest.create({
+      await expect(() => adapter.parseRequest(HttpServerRequest.from({
             method: 'POST',
             url: '/MyProfile?$pick=address.x1',
             body: {id: 1},
@@ -207,7 +218,7 @@ describe('parse Singleton Request', function () {
     })
 
     it('Should validate if fields in "omit" option are exist', async () => {
-      await expect(() => parseRequest(document, HttpServerRequest.create({
+      await expect(() => adapter.parseRequest(HttpServerRequest.from({
             method: 'POST',
             url: '/MyProfile?$omit=address.x1',
             body: {id: 1},
@@ -217,7 +228,7 @@ describe('parse Singleton Request', function () {
     })
 
     it('Should validate if fields in "include" option are exist', async () => {
-      await expect(() => parseRequest(document, HttpServerRequest.create({
+      await expect(() => adapter.parseRequest(HttpServerRequest.from({
             method: 'POST',
             url: '/MyProfile?$include=address.x1',
             body: {id: 1},
@@ -227,9 +238,9 @@ describe('parse Singleton Request', function () {
     })
 
     it('Should allow unknown fields in "pick" option if additionalFields set to "true"', async () => {
-      const meta: any = document.getComplexType('Profile');
+      const meta: any = api.getComplexType('Profile');
       meta.additionalFields = true;
-      const request = await parseRequest(document, HttpServerRequest.create({
+      const request = await adapter.parseRequest(HttpServerRequest.from({
         method: 'POST',
         url: '/MyProfile?$pick=notes.add1,notes.add2.add3',
         body: {id: 1},
@@ -242,9 +253,9 @@ describe('parse Singleton Request', function () {
     })
 
     it('Should allow unknown fields in "omit" option if additionalFields set to "true"', async () => {
-      const meta: any = document.getComplexType('Profile');
+      const meta: any = api.getComplexType('Profile');
       meta.additionalFields = true;
-      const request = await parseRequest(document, HttpServerRequest.create({
+      const request = await adapter.parseRequest(HttpServerRequest.from({
         method: 'POST',
         url: '/MyProfile?$omit=notes.add1,notes.add2.add3',
         body: {id: 1},
@@ -257,9 +268,9 @@ describe('parse Singleton Request', function () {
     })
 
     it('Should allow unknown fields in "include" option if additionalFields set to "true"', async () => {
-      const meta: any = document.getComplexType('Profile');
+      const meta: any = api.getComplexType('Profile');
       meta.additionalFields = true;
-      const request = await parseRequest(document, HttpServerRequest.create({
+      const request = await adapter.parseRequest(HttpServerRequest.from({
         method: 'POST',
         url: '/MyProfile?$include=notes.add1,notes.add2.add3',
         body: {id: 1},
@@ -276,14 +287,14 @@ describe('parse Singleton Request', function () {
   describe('SingletonUpdateRequest', function () {
 
     it('Should parse request', async () => {
-      const request = await parseRequest(document, HttpServerRequest.create({
+      const request = await adapter.parseRequest(HttpServerRequest.from({
         method: 'PATCH',
         url: '/MyProfile',
         body: {name: 'John'},
         headers: {'content-type': 'application/json', 'Accept': 'application/json'}
       }));
       expect(request).toBeDefined();
-      const resource = document.getSingleton('MyProfile');
+      const resource = api.getSingleton('MyProfile');
       expect(request.resource).toStrictEqual(resource);
       expect(request.kind).toStrictEqual('SingletonUpdateRequest');
       expect(request.resourceKind).toStrictEqual('Singleton');
@@ -297,7 +308,7 @@ describe('parse Singleton Request', function () {
     })
 
     it('Should normalize field names in "pick" option', async () => {
-      const request = await parseRequest(document, HttpServerRequest.create({
+      const request = await adapter.parseRequest(HttpServerRequest.from({
         method: 'PATCH',
         url: '/MyProfile?$pick=givenname,GENDER,Address,address.countryCode',
         headers: {'content-type': 'application/json'},
@@ -309,7 +320,7 @@ describe('parse Singleton Request', function () {
     })
 
     it('Should normalize field names in "omit" option', async () => {
-      const request = await parseRequest(document, HttpServerRequest.create({
+      const request = await adapter.parseRequest(HttpServerRequest.from({
         method: 'PATCH',
         url: '/MyProfile?$omit=givenname,GENDER,Address,address.countryCode',
         headers: {'content-type': 'application/json'},
@@ -321,7 +332,7 @@ describe('parse Singleton Request', function () {
     })
 
     it('Should normalize field names in "include" option', async () => {
-      const request = await parseRequest(document, HttpServerRequest.create({
+      const request = await adapter.parseRequest(HttpServerRequest.from({
         method: 'PATCH',
         url: '/MyProfile?$include=givenname,GENDER,Address,address.countryCode',
         headers: {'content-type': 'application/json'},
@@ -333,7 +344,7 @@ describe('parse Singleton Request', function () {
     })
 
     it('Should validate if fields in "pick" option are exist', async () => {
-      await expect(() => parseRequest(document, HttpServerRequest.create({
+      await expect(() => adapter.parseRequest(HttpServerRequest.from({
             method: 'PATCH',
             url: '/MyProfile?$pick=address.x1',
             headers: {'content-type': 'application/json'},
@@ -343,7 +354,7 @@ describe('parse Singleton Request', function () {
     })
 
     it('Should validate if fields in "omit" option are exist', async () => {
-      await expect(() => parseRequest(document, HttpServerRequest.create({
+      await expect(() => adapter.parseRequest(HttpServerRequest.from({
             method: 'PATCH',
             url: '/MyProfile?$omit=address.x1',
             headers: {'content-type': 'application/json'},
@@ -353,7 +364,7 @@ describe('parse Singleton Request', function () {
     })
 
     it('Should validate if fields in "include" option are exist', async () => {
-      await expect(() => parseRequest(document, HttpServerRequest.create({
+      await expect(() => adapter.parseRequest(HttpServerRequest.from({
             method: 'PATCH',
             url: '/MyProfile?$include=address.x1',
             headers: {'content-type': 'application/json'},
@@ -363,9 +374,9 @@ describe('parse Singleton Request', function () {
     })
 
     it('Should allow unknown fields in "pick" option if additionalFields set to "true"', async () => {
-      const meta: any = document.getComplexType('Profile');
+      const meta: any = api.getComplexType('Profile');
       meta.additionalFields = true;
-      const request = await parseRequest(document, HttpServerRequest.create({
+      const request = await adapter.parseRequest(HttpServerRequest.from({
         method: 'PATCH',
         url: '/MyProfile?$pick=notes.add1,notes.add2.add3',
         headers: {'content-type': 'application/json'},
@@ -378,9 +389,9 @@ describe('parse Singleton Request', function () {
     })
 
     it('Should allow unknown fields in "omit" option if additionalFields set to "true"', async () => {
-      const meta: any = document.getComplexType('Profile');
+      const meta: any = api.getComplexType('Profile');
       meta.additionalFields = true;
-      const request = await parseRequest(document, HttpServerRequest.create({
+      const request = await adapter.parseRequest(HttpServerRequest.from({
         method: 'PATCH',
         url: '/MyProfile?$omit=notes.add1,notes.add2.add3',
         headers: {'content-type': 'application/json'},
@@ -393,9 +404,9 @@ describe('parse Singleton Request', function () {
     })
 
     it('Should allow unknown fields in "include" option if additionalFields set to "true"', async () => {
-      const meta: any = document.getComplexType('Profile');
+      const meta: any = api.getComplexType('Profile');
       meta.additionalFields = true;
-      const request = await parseRequest(document, HttpServerRequest.create({
+      const request = await adapter.parseRequest(HttpServerRequest.from({
         method: 'PATCH',
         url: '/MyProfile?$include=notes.add1,notes.add2.add3',
         headers: {'content-type': 'application/json'},
@@ -412,13 +423,13 @@ describe('parse Singleton Request', function () {
   describe('SingletonDeleteRequest', function () {
 
     it('Should parse request', async () => {
-      const request = await parseRequest(document, HttpServerRequest.create({
+      const request = await adapter.parseRequest(HttpServerRequest.from({
         method: 'DELETE',
         url: '/MyProfile',
         headers: {'Accept': 'application/json'}
       }));
       expect(request).toBeDefined();
-      const resource = document.getSingleton('MyProfile');
+      const resource = api.getSingleton('MyProfile');
       expect(request.resource).toStrictEqual(resource);
       expect(request.kind).toStrictEqual('SingletonDeleteRequest');
       expect(request.resourceKind).toStrictEqual('Singleton');

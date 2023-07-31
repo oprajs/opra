@@ -1,17 +1,14 @@
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
-import express from 'express';
 import supertest from 'supertest';
 import { jest } from '@jest/globals'
 import { ApiDocument, Singleton } from '@opra/common';
-import { OpraExpressAdapter, RequestContext } from '@opra/core';
+import { OpraHttpAdapter, RequestContext } from '@opra/core';
 import { createTestApi } from '../_support/test-app/index.js';
 
 describe('e2e:Singleton', function () {
 
-  const app = express();
-  const client = supertest(app);
   let document: ApiDocument;
-  let adapter: OpraExpressAdapter;
+  let adapter: OpraHttpAdapter;
   let resource: Singleton;
   const data = {
     givenName: 'abcd',
@@ -20,7 +17,7 @@ describe('e2e:Singleton', function () {
 
   beforeAll(async () => {
     document = await createTestApi();
-    adapter = await OpraExpressAdapter.create(app, document);
+    adapter = await OpraHttpAdapter.create(document);
     resource = document.getSingleton('myprofile');
   });
 
@@ -33,7 +30,7 @@ describe('e2e:Singleton', function () {
     const mockFn =
         jest.spyOn(resource.operations.create!, 'handler')
             .mockImplementation((c) => ctx = c);
-    await client.post('/MyProfile').send(data);
+    await supertest(adapter.server).post('/MyProfile').send(data);
     expect(ctx).toBeDefined();
     expect(ctx.protocol).toStrictEqual('http');
     expect(ctx.request).toBeDefined();
@@ -48,7 +45,7 @@ describe('e2e:Singleton', function () {
     const mockFn =
         jest.spyOn(resource.operations.get!, 'handler')
             .mockImplementation((c) => ctx = c);
-    await client.get('/MyProfile');
+    await supertest(adapter.server).get('/MyProfile');
     expect(ctx).toBeDefined();
     expect(ctx.protocol).toStrictEqual('http');
     expect(ctx.request).toBeDefined();
@@ -62,7 +59,7 @@ describe('e2e:Singleton', function () {
     const mockFn =
         jest.spyOn(resource.operations.delete!, 'handler')
             .mockImplementation((c) => ctx = c);
-    await client.delete('/MyProfile');
+    await supertest(adapter.server).delete('/MyProfile');
     expect(ctx).toBeDefined();
     expect(ctx.protocol).toStrictEqual('http');
     expect(ctx.request).toBeDefined();
@@ -76,7 +73,7 @@ describe('e2e:Singleton', function () {
     const mockFn =
         jest.spyOn(resource.operations.update!, 'handler')
             .mockImplementation((c) => ctx = c);
-    await client.patch('/MyProfile').send(data);
+    await supertest(adapter.server).patch('/MyProfile').send(data);
     expect(ctx).toBeDefined();
     expect(ctx.protocol).toStrictEqual('http');
     expect(ctx.request).toBeDefined();

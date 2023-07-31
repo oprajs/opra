@@ -4,13 +4,12 @@
  */
 
 import http, { OutgoingHttpHeaders } from 'http';
-import * as stream from 'stream';
+import { Duplex, Writable } from 'stream';
 import { validateHeaderName, validateHeaderValue, validateString } from '../helpers/common.js';
 import type { HttpIncomingMessage } from './http-incoming-message-host.js';
 
-export const kOutHeaders = Symbol('kOutHeaders');
-export const kOutTrailers = Symbol('kOutTrailers');
-export const kErrored = Symbol('kErrored');
+export const kOutHeaders = Symbol.for('kOutHeaders');
+export const kOutTrailers = Symbol.for('kOutTrailers');
 
 // Fix missing typings in lib.dom.d.ts
 declare global {
@@ -32,7 +31,7 @@ export interface HttpOutgoingMessage extends Pick<http.ServerResponse,
     'statusCode' |
     'statusMessage' |
     'sendDate'
->, stream.Writable {
+>, Writable {
   req?: HttpIncomingMessage;
 
   appendHeader(name: string, value: string | readonly string[]): this;
@@ -49,26 +48,23 @@ export namespace HttpOutgoingMessageHost {
     chunkedEncoding?: boolean;
     sendDate?: boolean;
     strictContentLength?: boolean;
-    body?: any;
+    body?: string | Iterable<any> | AsyncIterable<any> | Object;
   }
 
 }
 
-export interface HttpOutgoingMessageHost extends stream.Writable {
-
-}
 
 // noinspection JSUnusedLocalSymbols
 /**
  *
  * @class HttpOutgoingMessageHost
  */
-export class HttpOutgoingMessageHost {
-  protected _headersSent: boolean = false;
-  protected _closed: boolean = false;
-  protected [kErrored]: Error | null = null;
+export class HttpOutgoingMessageHost extends Duplex implements HttpOutgoingMessage {
   protected [kOutHeaders]: Record<string, any>;
   protected [kOutTrailers]: Record<string, any>;
+  protected _headersSent: boolean = false;
+  protected _httpVersionMajor?: number;
+  protected _httpVersionMinor?: number;
   finished: boolean = false;
   req?: HttpIncomingMessage;
   statusCode: number;
@@ -78,20 +74,31 @@ export class HttpOutgoingMessageHost {
   strictContentLength: boolean;
   body?: any;
 
-  constructor() {
-    stream.Stream.apply(this);
+  constructor(init?: HttpOutgoingMessageHost.Initiator) {
+    super();
+    if (init) {
+      this.req = init.req;
+      this.statusCode = init?.statusCode || 0;
+      this.statusMessage = init?.statusMessage || '';
+      this.chunkedEncoding = !!init?.chunkedEncoding;
+      this.sendDate = !!init?.sendDate;
+      this.strictContentLength = !!init?.strictContentLength;
+      if (init.headers)
+        this.setHeaders(Array.isArray(init.headers) ? new Map([init.headers] as any) : init.headers);
+      this.body = init.body;
+    }
+  }
+
+  get httpVersionMajor(): number | undefined {
+    return this.req?.httpVersionMajor || this._httpVersionMajor;
+  }
+
+  get httpVersionMinor(): number | undefined {
+    return this.req?.httpVersionMinor || this._httpVersionMinor;
   }
 
   get headersSent(): boolean {
     return this._headersSent;
-  }
-
-  get closed(): boolean {
-    return this._closed;
-  }
-
-  get errored(): Error | null {
-    return this[kErrored];
   }
 
   appendHeader(name: string, value: number | string | readonly string[]) {
@@ -262,27 +269,8 @@ export class HttpOutgoingMessageHost {
     return this;
   }
 
-  protected _readConfig(init: HttpOutgoingMessageHost.Initiator) {
-    this.req = init.req;
-    this.statusCode = init?.statusCode || 0;
-    this.statusMessage = init?.statusMessage || '';
-    this.chunkedEncoding = !!init?.chunkedEncoding;
-    this.sendDate = !!init?.sendDate;
-    this.strictContentLength = !!init?.strictContentLength;
-    if (init.headers) {
-      this.setHeaders(Array.isArray(init.headers) ? new Map([init.headers] as any) : init.headers);
-    }
-    this.body = init.body;
-  }
-
-  static create(init?: HttpOutgoingMessageHost.Initiator) {
-    const msg = new HttpOutgoingMessageHost();
-    if (init)
-      msg._readConfig(init);
-    return msg;
+  static from(init: HttpOutgoingMessageHost.Initiator): HttpOutgoingMessageHost {
+    return new HttpOutgoingMessageHost(init);
   }
 
 }
-
-// Apply mixins
-Object.assign(HttpOutgoingMessageHost.prototype, stream.Stream.prototype);

@@ -2,16 +2,22 @@ import {
   ApiDocument,
   DocumentFactory,
 } from '@opra/common';
-import { HttpServerRequest } from '@opra/core';
-import { parseRequest } from '@opra/core/adapter/http/request-parsers/parse-request';
+import { HttpServerRequest, OpraHttpAdapter, Request } from '@opra/core';
 import { CustomersResource, MyProfileResource } from '../../../_support/test-app/index.js';
 
 describe('parse Collection Request', function () {
 
-  let document: ApiDocument;
+  class TestAdapter extends OpraHttpAdapter {
+    parseRequest(incoming: HttpServerRequest): Promise<Request> {
+      return super.parseRequest(incoming);
+    }
+  }
+
+  let api: ApiDocument;
+  let adapter: TestAdapter;
 
   beforeAll(async () => {
-    document = await DocumentFactory.createDocument({
+    api = await DocumentFactory.createDocument({
       version: '1.0',
       info: {
         title: 'TestApi',
@@ -19,19 +25,21 @@ describe('parse Collection Request', function () {
       },
       resources: [CustomersResource, MyProfileResource]
     });
+    adapter = new TestAdapter(api);
+    await adapter.init();
   });
 
   describe('CollectionGetRequest', function () {
 
     it('Should parse request', async () => {
-      const request = await parseRequest(document,
-          HttpServerRequest.create({
+      const request = await adapter.parseRequest(
+          HttpServerRequest.from({
             method: 'GET',
             url: '/Customers@1?$pick=_id&$omit=gender&$include=address',
             headers: {'Accept': 'application/json'}
           }));
       expect(request).toBeDefined();
-      const resource = document.getCollection('Customers');
+      const resource = api.getCollection('Customers');
       expect(request.resource).toStrictEqual(resource);
       expect(request.kind).toStrictEqual('CollectionGetRequest');
       expect(request.resourceKind).toStrictEqual('Collection');
@@ -48,7 +56,7 @@ describe('parse Collection Request', function () {
     })
 
     it('Should normalize field names in "pick" option', async () => {
-      const request = await parseRequest(document, HttpServerRequest.create({
+      const request = await adapter.parseRequest(HttpServerRequest.from({
         method: 'GET',
         url: '/Customers@1?$pick=givenname,GENDER,Address,address.countryCode'
       }));
@@ -58,14 +66,14 @@ describe('parse Collection Request', function () {
     })
 
     it('Should normalize field names in "omit" option', async () => {
-      let request = await parseRequest(document, HttpServerRequest.create({
+      let request = await adapter.parseRequest(HttpServerRequest.from({
         method: 'GET',
         url: '/Customers@1?$omit=givenname,GENDER,address.countryCode'
       }));
       expect(request).toBeDefined();
       expect(request.operation).toStrictEqual('get');
       expect(request.args.omit).toStrictEqual(['givenName', 'gender', 'address.countryCode']);
-      request = await parseRequest(document, HttpServerRequest.create({
+      request = await adapter.parseRequest(HttpServerRequest.from({
         method: 'GET',
         url: '/Customers@1?$omit=address,address.countryCode'
       }));
@@ -74,14 +82,14 @@ describe('parse Collection Request', function () {
     })
 
     it('Should normalize field names in "include" option', async () => {
-      let request = await parseRequest(document, HttpServerRequest.create({
+      let request = await adapter.parseRequest(HttpServerRequest.from({
         method: 'GET',
         url: '/Customers@1?$include=givenname,GENDER,address.countryCode'
       }));
       expect(request).toBeDefined();
       expect(request.operation).toStrictEqual('get');
       expect(request.args.include).toStrictEqual(['givenName', 'gender', 'address.countryCode']);
-      request = await parseRequest(document, HttpServerRequest.create({
+      request = await adapter.parseRequest(HttpServerRequest.from({
         method: 'GET',
         url: '/Customers@1?$include=address,address.countryCode'
       }));
@@ -89,7 +97,7 @@ describe('parse Collection Request', function () {
     })
 
     it('Should validate if fields in "pick" option are exist', async () => {
-      await expect(() => parseRequest(document, HttpServerRequest.create({
+      await expect(() => adapter.parseRequest(HttpServerRequest.from({
             method: 'GET',
             url: '/Customers@1?$pick=address.x1'
           }))
@@ -97,7 +105,7 @@ describe('parse Collection Request', function () {
     })
 
     it('Should validate if fields in "omit" option are exist', async () => {
-      await expect(() => parseRequest(document, HttpServerRequest.create({
+      await expect(() => adapter.parseRequest(HttpServerRequest.from({
             method: 'GET',
             url: '/Customers@1?$omit=address.x1'
           }))
@@ -105,7 +113,7 @@ describe('parse Collection Request', function () {
     })
 
     it('Should validate if fields in "include" option are exist', async () => {
-      await expect(() => parseRequest(document, HttpServerRequest.create({
+      await expect(() => adapter.parseRequest(HttpServerRequest.from({
             method: 'GET',
             url: '/Customers@1?$include=address.x1'
           }))
@@ -113,7 +121,7 @@ describe('parse Collection Request', function () {
     })
 
     it('Should allow unknown fields in "pick" option if additionalFields set to "true"', async () => {
-      const request = await parseRequest(document, HttpServerRequest.create({
+      const request = await adapter.parseRequest(HttpServerRequest.from({
         method: 'GET',
         url: '/Customers@1?$pick=notes.add1,notes.add2.add3'
       }));
@@ -123,7 +131,7 @@ describe('parse Collection Request', function () {
     })
 
     it('Should allow unknown fields in "omit" option if additionalFields set to "true"', async () => {
-      const request = await parseRequest(document, HttpServerRequest.create({
+      const request = await adapter.parseRequest(HttpServerRequest.from({
         method: 'GET',
         url: '/Customers@1?$omit=notes.add1,notes.add2.add3'
       }));
@@ -133,7 +141,7 @@ describe('parse Collection Request', function () {
     })
 
     it('Should allow unknown fields in "include" option if additionalFields set to "true"', async () => {
-      const request = await parseRequest(document, HttpServerRequest.create({
+      const request = await adapter.parseRequest(HttpServerRequest.from({
         method: 'GET',
         url: '/Customers@1?$include=notes.add1,notes.add2.add3'
       }));
@@ -147,14 +155,14 @@ describe('parse Collection Request', function () {
   describe('CollectionCreateRequest', function () {
 
     it('Should parse request', async () => {
-      const request = await parseRequest(document, HttpServerRequest.create({
+      const request = await adapter.parseRequest(HttpServerRequest.from({
         method: 'POST',
         url: '/Customers?$pick=_id&$omit=gender&$include=address',
         body: {_id: 1},
         headers: {'content-type': 'application/json', 'Accept': 'application/json'}
       }));
       expect(request).toBeDefined();
-      const resource = document.getCollection('Customers');
+      const resource = api.getCollection('Customers');
       expect(request.resource).toStrictEqual(resource);
       expect(request.kind).toStrictEqual('CollectionCreateRequest');
       expect(request.resourceKind).toStrictEqual('Collection');
@@ -174,7 +182,7 @@ describe('parse Collection Request', function () {
     })
 
     it('Should normalize field names in "pick" option', async () => {
-      const request = await parseRequest(document, HttpServerRequest.create({
+      const request = await adapter.parseRequest(HttpServerRequest.from({
         method: 'POST',
         url: '/Customers?$pick=givenname,GENDER,address,address.countryCode',
         body: {_id: 1},
@@ -186,7 +194,7 @@ describe('parse Collection Request', function () {
     })
 
     it('Should normalize field names in "omit" option', async () => {
-      const request = await parseRequest(document, HttpServerRequest.create({
+      const request = await adapter.parseRequest(HttpServerRequest.from({
         method: 'POST',
         url: '/Customers?$omit=givenname,GENDER,address,address.countryCode',
         body: {_id: 1},
@@ -198,7 +206,7 @@ describe('parse Collection Request', function () {
     })
 
     it('Should normalize field names in "include" option', async () => {
-      const request = await parseRequest(document, HttpServerRequest.create({
+      const request = await adapter.parseRequest(HttpServerRequest.from({
         method: 'POST',
         url: '/Customers?$include=givenname,GENDER,address,address.countryCode',
         body: {_id: 1},
@@ -210,7 +218,7 @@ describe('parse Collection Request', function () {
     })
 
     it('Should validate if fields in "pick" option are exist', async () => {
-      await expect(() => parseRequest(document, HttpServerRequest.create({
+      await expect(() => adapter.parseRequest(HttpServerRequest.from({
             method: 'POST',
             url: '/Customers?$pick=address.x1',
             body: {_id: 1},
@@ -220,7 +228,7 @@ describe('parse Collection Request', function () {
     })
 
     it('Should validate if fields in "omit" option are exist', async () => {
-      await expect(() => parseRequest(document, HttpServerRequest.create({
+      await expect(() => adapter.parseRequest(HttpServerRequest.from({
             method: 'POST',
             url: '/Customers?$omit=address.x1',
             body: {_id: 1},
@@ -230,7 +238,7 @@ describe('parse Collection Request', function () {
     })
 
     it('Should validate if fields in "include" option are exist', async () => {
-      await expect(() => parseRequest(document, HttpServerRequest.create({
+      await expect(() => adapter.parseRequest(HttpServerRequest.from({
             method: 'POST',
             url: '/Customers?$include=address.x1',
             body: {_id: 1},
@@ -240,7 +248,7 @@ describe('parse Collection Request', function () {
     })
 
     it('Should allow unknown fields in "pick" option if additionalFields set to "true"', async () => {
-      const request = await parseRequest(document, HttpServerRequest.create({
+      const request = await adapter.parseRequest(HttpServerRequest.from({
         method: 'POST',
         url: '/Customers?$pick=notes.add1,notes.add2.add3',
         body: {_id: 1},
@@ -252,7 +260,7 @@ describe('parse Collection Request', function () {
     })
 
     it('Should allow unknown fields in "omit" option if additionalFields set to "true"', async () => {
-      const request = await parseRequest(document, HttpServerRequest.create({
+      const request = await adapter.parseRequest(HttpServerRequest.from({
         method: 'POST',
         url: '/Customers?$omit=notes.add1,notes.add2.add3',
         body: {_id: 1},
@@ -264,7 +272,7 @@ describe('parse Collection Request', function () {
     })
 
     it('Should allow unknown fields in "include" option if additionalFields set to "true"', async () => {
-      const request = await parseRequest(document, HttpServerRequest.create({
+      const request = await adapter.parseRequest(HttpServerRequest.from({
         method: 'POST',
         url: '/Customers?$include=notes.add1,notes.add2.add3',
         body: {_id: 1},
@@ -280,14 +288,14 @@ describe('parse Collection Request', function () {
   describe('CollectionUpdateRequest', function () {
 
     it('Should parse request', async () => {
-      const request = await parseRequest(document, HttpServerRequest.create({
+      const request = await adapter.parseRequest(HttpServerRequest.from({
         method: 'PATCH',
         url: '/Customers@1?$pick=_id&$omit=gender&$include=address',
         body: {_id: 1},
         headers: {'content-type': 'application/json', 'Accept': 'application/json'}
       }));
       expect(request).toBeDefined();
-      const resource = document.getCollection('Customers');
+      const resource = api.getCollection('Customers');
       expect(request.resource).toStrictEqual(resource);
       expect(request.kind).toStrictEqual('CollectionUpdateRequest');
       expect(request.resourceKind).toStrictEqual('Collection');
@@ -305,7 +313,7 @@ describe('parse Collection Request', function () {
     })
 
     it('Should normalize field names in "pick" option', async () => {
-      const request = await parseRequest(document, HttpServerRequest.create({
+      const request = await adapter.parseRequest(HttpServerRequest.from({
         method: 'PATCH',
         url: '/Customers@1?$pick=givenname,GENDER,Address,address.countryCode',
         headers: ['content-type', 'application/json'],
@@ -317,7 +325,7 @@ describe('parse Collection Request', function () {
     })
 
     it('Should normalize field names in "omit" option', async () => {
-      const request = await parseRequest(document, HttpServerRequest.create({
+      const request = await adapter.parseRequest(HttpServerRequest.from({
         method: 'PATCH',
         url: '/Customers@1?$omit=givenname,GENDER,Address,address.countryCode',
         headers: ['content-type', 'application/json'],
@@ -329,7 +337,7 @@ describe('parse Collection Request', function () {
     })
 
     it('Should normalize field names in "include" option', async () => {
-      const request = await parseRequest(document, HttpServerRequest.create({
+      const request = await adapter.parseRequest(HttpServerRequest.from({
         method: 'PATCH',
         url: '/Customers@1?$include=givenname,GENDER,Address,address.countryCode',
         headers: ['content-type', 'application/json'],
@@ -341,7 +349,7 @@ describe('parse Collection Request', function () {
     })
 
     it('Should validate if fields in "pick" option are exist', async () => {
-      await expect(() => parseRequest(document, HttpServerRequest.create({
+      await expect(() => adapter.parseRequest(HttpServerRequest.from({
             method: 'PATCH',
             url: '/Customers@1?$pick=address.x1',
             headers: ['content-type', 'application/json'],
@@ -351,7 +359,7 @@ describe('parse Collection Request', function () {
     })
 
     it('Should validate if fields in "omit" option are exist', async () => {
-      await expect(() => parseRequest(document, HttpServerRequest.create({
+      await expect(() => adapter.parseRequest(HttpServerRequest.from({
             method: 'PATCH',
             url: '/Customers@1?$omit=address.x1',
             headers: ['content-type', 'application/json'],
@@ -361,7 +369,7 @@ describe('parse Collection Request', function () {
     })
 
     it('Should validate if fields in "include" option are exist', async () => {
-      await expect(() => parseRequest(document, HttpServerRequest.create({
+      await expect(() => adapter.parseRequest(HttpServerRequest.from({
             method: 'PATCH',
             url: '/Customers@1?$include=address.x1',
             headers: ['content-type', 'application/json'],
@@ -371,7 +379,7 @@ describe('parse Collection Request', function () {
     })
 
     it('Should allow unknown fields in "pick" option if additionalFields set to "true"', async () => {
-      const request = await parseRequest(document, HttpServerRequest.create({
+      const request = await adapter.parseRequest(HttpServerRequest.from({
         method: 'PATCH',
         url: '/Customers@1?$pick=notes.add1,notes.add2.add3',
         headers: ['content-type', 'application/json'],
@@ -383,7 +391,7 @@ describe('parse Collection Request', function () {
     })
 
     it('Should allow unknown fields in "omit" option if additionalFields set to "true"', async () => {
-      const request = await parseRequest(document, HttpServerRequest.create({
+      const request = await adapter.parseRequest(HttpServerRequest.from({
         method: 'PATCH',
         url: '/Customers@1?$omit=notes.add1,notes.add2.add3',
         headers: ['content-type', 'application/json'],
@@ -395,7 +403,7 @@ describe('parse Collection Request', function () {
     })
 
     it('Should allow unknown fields in "include" option if additionalFields set to "true"', async () => {
-      const request = await parseRequest(document, HttpServerRequest.create({
+      const request = await adapter.parseRequest(HttpServerRequest.from({
         method: 'PATCH',
         url: '/Customers@1?$include=notes.add1,notes.add2.add3',
         headers: ['content-type', 'application/json'],
@@ -411,14 +419,14 @@ describe('parse Collection Request', function () {
   describe('CollectionUpdateManyRequest', function () {
 
     it('Should parse request', async () => {
-      const request = await parseRequest(document, HttpServerRequest.create({
+      const request = await adapter.parseRequest(HttpServerRequest.from({
         method: 'PATCH',
         url: '/Customers',
         body: {_id: 1},
         headers: {'content-type': 'application/json', 'Accept': 'application/json'}
       }));
       expect(request).toBeDefined();
-      const resource = document.getCollection('Customers');
+      const resource = api.getCollection('Customers');
       expect(request.resource).toStrictEqual(resource);
       expect(request.kind).toStrictEqual('CollectionUpdateManyRequest');
       expect(request.resourceKind).toStrictEqual('Collection');
@@ -432,7 +440,7 @@ describe('parse Collection Request', function () {
     })
 
     it('Should parse "filter"', async () => {
-      const request = await parseRequest(document, HttpServerRequest.create({
+      const request = await adapter.parseRequest(HttpServerRequest.from({
         method: 'PATCH',
         url: '/Customers?$filter=givenname="John"',
         body: {_id: 1},
@@ -445,7 +453,7 @@ describe('parse Collection Request', function () {
     })
 
     it('Should validate if fields in "filter" option are exist', async () => {
-      await expect(() => parseRequest(document, HttpServerRequest.create({
+      await expect(() => adapter.parseRequest(HttpServerRequest.from({
             method: 'PATCH',
             url: '/Customers?$filter=address.x1=1',
             body: {_id: 1},
@@ -459,13 +467,13 @@ describe('parse Collection Request', function () {
   describe('CollectionDeleteRequest', function () {
 
     it('Should parse request', async () => {
-      const request = await parseRequest(document, HttpServerRequest.create({
+      const request = await adapter.parseRequest(HttpServerRequest.from({
         method: 'DELETE',
         url: '/Customers@1',
         headers: {'Accept': 'application/json'}
       }));
       expect(request).toBeDefined();
-      const resource = document.getCollection('Customers');
+      const resource = api.getCollection('Customers');
       expect(request.resource).toStrictEqual(resource);
       expect(request.kind).toStrictEqual('CollectionDeleteRequest');
       expect(request.resourceKind).toStrictEqual('Collection');
@@ -483,13 +491,13 @@ describe('parse Collection Request', function () {
   describe('CollectionDeleteManyRequest', function () {
 
     it('Should parse request', async () => {
-      const request = await parseRequest(document, HttpServerRequest.create({
+      const request = await adapter.parseRequest(HttpServerRequest.from({
         method: 'DELETE',
         url: '/Customers?$filter=_id<10',
         headers: {'Accept': 'application/json'}
       }));
       expect(request).toBeDefined();
-      const resource = document.getCollection('Customers');
+      const resource = api.getCollection('Customers');
       expect(request.resource).toStrictEqual(resource);
       expect(request.kind).toStrictEqual('CollectionDeleteManyRequest');
       expect(request.resourceKind).toStrictEqual('Collection');
@@ -503,7 +511,7 @@ describe('parse Collection Request', function () {
     })
 
     it('Should parse "filter"', async () => {
-      const request = await parseRequest(document, HttpServerRequest.create({
+      const request = await adapter.parseRequest(HttpServerRequest.from({
         method: 'DELETE',
         url: '/Customers?$filter=givenname="John"'
       }));
@@ -514,7 +522,7 @@ describe('parse Collection Request', function () {
     })
 
     it('Should validate if fields in "filter" option are exist', async () => {
-      await expect(() => parseRequest(document, HttpServerRequest.create({
+      await expect(() => adapter.parseRequest(HttpServerRequest.from({
             method: 'DELETE',
             url: '/Customers?$filter=address.x1=1'
           }))
@@ -526,14 +534,14 @@ describe('parse Collection Request', function () {
   describe('CollectionFindManyRequest', function () {
 
     it('Should parse request', async () => {
-      const request = await parseRequest(document, HttpServerRequest.create({
+      const request = await adapter.parseRequest(HttpServerRequest.from({
         method: 'GET',
         url: '/Customers?$limit=1&$skip=1&$count=n&$distinct=t&$sort=_id' +
             '&$pick=_id&$omit=gender&$include=address',
         headers: {'Accept': 'application/json'}
       }));
       expect(request).toBeDefined();
-      const resource = document.getCollection('Customers');
+      const resource = api.getCollection('Customers');
       expect(request.resource).toStrictEqual(resource);
       expect(request.kind).toStrictEqual('CollectionFindManyRequest');
       expect(request.resourceKind).toStrictEqual('Collection');
@@ -555,7 +563,7 @@ describe('parse Collection Request', function () {
     })
 
     it('Should normalize field names in "pick" option', async () => {
-      const request = await parseRequest(document, HttpServerRequest.create({
+      const request = await adapter.parseRequest(HttpServerRequest.from({
         method: 'GET',
         url: '/Customers@1?$pick=givenname,GENDER,Address,address.countryCode'
       }));
@@ -565,7 +573,7 @@ describe('parse Collection Request', function () {
     })
 
     it('Should normalize field names in "omit" option', async () => {
-      const request = await parseRequest(document, HttpServerRequest.create({
+      const request = await adapter.parseRequest(HttpServerRequest.from({
         method: 'GET',
         url: '/Customers@1?$omit=givenname,GENDER,Address,address.countryCode'
       }));
@@ -574,7 +582,7 @@ describe('parse Collection Request', function () {
     })
 
     it('Should normalize field names in "include" option', async () => {
-      const request = await parseRequest(document, HttpServerRequest.create({
+      const request = await adapter.parseRequest(HttpServerRequest.from({
         method: 'GET',
         url: '/Customers@1?$include=givenname,GENDER,Address,address.countryCode'
       }));
@@ -584,7 +592,7 @@ describe('parse Collection Request', function () {
     })
 
     it('Should normalize field names in "sort" option', async () => {
-      const request = await parseRequest(document, HttpServerRequest.create({
+      const request = await adapter.parseRequest(HttpServerRequest.from({
         method: 'GET',
         url: '/Customers?$sort=givenname,GENDER,address.countryCode'
       }));
@@ -594,7 +602,7 @@ describe('parse Collection Request', function () {
     })
 
     it('Should validate if fields in "pick" option are exist', async () => {
-      await expect(() => parseRequest(document, HttpServerRequest.create({
+      await expect(() => adapter.parseRequest(HttpServerRequest.from({
             method: 'GET',
             url: '/Customers?$pick=address.x1'
           }))
@@ -602,7 +610,7 @@ describe('parse Collection Request', function () {
     })
 
     it('Should validate if fields in "omit" option are exist', async () => {
-      await expect(() => parseRequest(document, HttpServerRequest.create({
+      await expect(() => adapter.parseRequest(HttpServerRequest.from({
             method: 'GET',
             url: '/Customers?$omit=address.x1'
           }))
@@ -610,7 +618,7 @@ describe('parse Collection Request', function () {
     })
 
     it('Should validate if fields in "include" option are exist', async () => {
-      await expect(() => parseRequest(document, HttpServerRequest.create({
+      await expect(() => adapter.parseRequest(HttpServerRequest.from({
             method: 'GET',
             url: '/Customers?$include=address.x1'
           }))
@@ -618,7 +626,7 @@ describe('parse Collection Request', function () {
     })
 
     it('Should validate if fields in "sort" option are exist', async () => {
-      await expect(() => parseRequest(document, HttpServerRequest.create({
+      await expect(() => adapter.parseRequest(HttpServerRequest.from({
             method: 'GET',
             url: '/Customers?$sort=address.x1'
           }))
@@ -626,7 +634,7 @@ describe('parse Collection Request', function () {
     })
 
     it('Should validate if field is available for sorting', async () => {
-      await expect(() => parseRequest(document, HttpServerRequest.create({
+      await expect(() => adapter.parseRequest(HttpServerRequest.from({
             method: 'GET',
             url: '/Customers?$sort=uid'
           }))
@@ -634,7 +642,7 @@ describe('parse Collection Request', function () {
     })
 
     it('Should allow unknown fields in "pick" option if additionalFields set to "true"', async () => {
-      const request = await parseRequest(document, HttpServerRequest.create({
+      const request = await adapter.parseRequest(HttpServerRequest.from({
         method: 'GET',
         url: '/Customers?$pick=notes.add1,notes.add2.add3'
       }));
@@ -644,7 +652,7 @@ describe('parse Collection Request', function () {
     })
 
     it('Should allow unknown fields in "omit" option if additionalFields set to "true"', async () => {
-      const request = await parseRequest(document, HttpServerRequest.create({
+      const request = await adapter.parseRequest(HttpServerRequest.from({
         method: 'GET',
         url: '/Customers?$omit=notes.add1,notes.add2.add3'
       }));
@@ -654,7 +662,7 @@ describe('parse Collection Request', function () {
     })
 
     it('Should allow unknown fields in "include" option if additionalFields set to "true"', async () => {
-      const request = await parseRequest(document, HttpServerRequest.create({
+      const request = await adapter.parseRequest(HttpServerRequest.from({
         method: 'GET',
         url: '/Customers?$include=notes.add1,notes.add2.add3'
       }));
@@ -664,7 +672,7 @@ describe('parse Collection Request', function () {
     })
 
     it('Should parse "limit" option', async () => {
-      const request = await parseRequest(document, HttpServerRequest.create({
+      const request = await adapter.parseRequest(HttpServerRequest.from({
         method: 'GET',
         url: '/Customers?$limit=5'
       }));
@@ -673,14 +681,14 @@ describe('parse Collection Request', function () {
     })
 
     it('Should validate "limit" option', async () => {
-      await expect(() => parseRequest(document, HttpServerRequest.create({
+      await expect(() => adapter.parseRequest(HttpServerRequest.from({
         method: 'GET',
         url: '/Customers?$limit=x5'
       }))).rejects.toThrow('not a valid integer');
     })
 
     it('Should parse "skip" option', async () => {
-      const request = await parseRequest(document, HttpServerRequest.create({
+      const request = await adapter.parseRequest(HttpServerRequest.from({
         method: 'GET',
         url: '/Customers?$skip=5'
       }));
@@ -690,49 +698,49 @@ describe('parse Collection Request', function () {
     })
 
     it('Should validate "skip" option', async () => {
-      await expect(() => parseRequest(document, HttpServerRequest.create({
+      await expect(() => adapter.parseRequest(HttpServerRequest.from({
         method: 'GET',
         url: '/Customers?$skip=x5'
       }))).rejects.toThrow('not a valid integer');
     })
 
     it('Should parse "count" option', async () => {
-      let request = await parseRequest(document, HttpServerRequest.create({
+      let request = await adapter.parseRequest(HttpServerRequest.from({
         method: 'GET',
         url: '/Customers?$count=true'
       }));
       expect(request).toBeDefined();
       expect(request.operation).toStrictEqual('findMany');
       expect(request.args.count).toStrictEqual(true);
-      request = await parseRequest(document, HttpServerRequest.create({
+      request = await adapter.parseRequest(HttpServerRequest.from({
         method: 'GET',
         url: '/Customers?$count=1'
       }));
       expect(request).toBeDefined();
       expect(request.operation).toStrictEqual('findMany');
       expect(request.args.count).toStrictEqual(true);
-      request = await parseRequest(document, HttpServerRequest.create({
+      request = await adapter.parseRequest(HttpServerRequest.from({
         method: 'GET',
         url: '/Customers?$count=t'
       }));
       expect(request).toBeDefined();
       expect(request.operation).toStrictEqual('findMany');
       expect(request.args.count).toStrictEqual(true);
-      request = await parseRequest(document, HttpServerRequest.create({
+      request = await adapter.parseRequest(HttpServerRequest.from({
         method: 'GET',
         url: '/Customers?$count=false'
       }));
       expect(request).toBeDefined();
       expect(request.operation).toStrictEqual('findMany');
       expect(request.args.count).toStrictEqual(false);
-      request = await parseRequest(document, HttpServerRequest.create({
+      request = await adapter.parseRequest(HttpServerRequest.from({
         method: 'GET',
         url: '/Customers?$count=0'
       }));
       expect(request).toBeDefined();
       expect(request.operation).toStrictEqual('findMany');
       expect(request.args.count).toStrictEqual(false);
-      request = await parseRequest(document, HttpServerRequest.create({
+      request = await adapter.parseRequest(HttpServerRequest.from({
         method: 'GET',
         url: '/Customers?$count=f'
       }));
@@ -742,42 +750,42 @@ describe('parse Collection Request', function () {
     })
 
     it('Should parse "distinct" option', async () => {
-      let request = await parseRequest(document, HttpServerRequest.create({
+      let request = await adapter.parseRequest(HttpServerRequest.from({
         method: 'GET',
         url: '/Customers?$distinct=true'
       }));
       expect(request).toBeDefined();
       expect(request.operation).toStrictEqual('findMany');
       expect(request.args.distinct).toStrictEqual(true);
-      request = await parseRequest(document, HttpServerRequest.create({
+      request = await adapter.parseRequest(HttpServerRequest.from({
         method: 'GET',
         url: '/Customers?$distinct=1'
       }));
       expect(request).toBeDefined();
       expect(request.operation).toStrictEqual('findMany');
       expect(request.args.distinct).toStrictEqual(true);
-      request = await parseRequest(document, HttpServerRequest.create({
+      request = await adapter.parseRequest(HttpServerRequest.from({
         method: 'GET',
         url: '/Customers?$distinct=t'
       }));
       expect(request).toBeDefined();
       expect(request.operation).toStrictEqual('findMany');
       expect(request.args.distinct).toStrictEqual(true);
-      request = await parseRequest(document, HttpServerRequest.create({
+      request = await adapter.parseRequest(HttpServerRequest.from({
         method: 'GET',
         url: '/Customers?$distinct=false'
       }));
       expect(request).toBeDefined();
       expect(request.operation).toStrictEqual('findMany');
       expect(request.args.distinct).toStrictEqual(false);
-      request = await parseRequest(document, HttpServerRequest.create({
+      request = await adapter.parseRequest(HttpServerRequest.from({
         method: 'GET',
         url: '/Customers?$distinct=0'
       }));
       expect(request).toBeDefined();
       expect(request.operation).toStrictEqual('findMany');
       expect(request.args.distinct).toStrictEqual(false);
-      request = await parseRequest(document, HttpServerRequest.create({
+      request = await adapter.parseRequest(HttpServerRequest.from({
         method: 'GET',
         url: '/Customers?$distinct=f'
       }));
@@ -787,7 +795,7 @@ describe('parse Collection Request', function () {
     })
 
     it('Should parse "filter"', async () => {
-      const request = await parseRequest(document, HttpServerRequest.create({
+      const request = await adapter.parseRequest(HttpServerRequest.from({
         method: 'GET',
         url: '/Customers?$filter=givenname="John"'
       }));
@@ -798,7 +806,7 @@ describe('parse Collection Request', function () {
     })
 
     it('Should validate if fields in "filter" option are exist', async () => {
-      await expect(() => parseRequest(document, HttpServerRequest.create({
+      await expect(() => adapter.parseRequest(HttpServerRequest.from({
             method: 'GET',
             url: '/Customers?$filter=address.x1=1'
           }))

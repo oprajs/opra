@@ -3,7 +3,7 @@ import { HttpIncomingMessageHost } from '@opra/core';
 describe('HttpIncomingMessageHost', function () {
 
   it('Should create using init object (raw headers)', async () => {
-    const msg = HttpIncomingMessageHost.create({
+    const msg = new HttpIncomingMessageHost({
       url: '/test',
       httpVersionMajor: 1,
       httpVersionMinor: 0,
@@ -24,7 +24,7 @@ describe('HttpIncomingMessageHost', function () {
   })
 
   it('Should create using init object (object headers)', async () => {
-    const msg = HttpIncomingMessageHost.create({
+    const msg = HttpIncomingMessageHost.from({
       url: '/test',
       httpVersionMajor: 1,
       httpVersionMinor: 0,
@@ -45,7 +45,7 @@ describe('HttpIncomingMessageHost', function () {
   })
 
   it('Should create using Buffer', async () => {
-    const msg = HttpIncomingMessageHost.create(Buffer.from(
+    const msg = await HttpIncomingMessageHost.fromAsync(
         [
           'POST /test HTTP/1.1',
           'Content-Type: text/plain',
@@ -56,7 +56,7 @@ describe('HttpIncomingMessageHost', function () {
           '0',
           'Expires: x', ''
         ].join('\r\n')
-    ));
+    );
     expect(msg.complete).toStrictEqual(true);
     expect(msg.url).toStrictEqual('/test');
     expect(msg.method).toStrictEqual('POST');

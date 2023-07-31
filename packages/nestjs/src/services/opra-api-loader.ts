@@ -76,7 +76,7 @@ export class OpraApiLoader {
       logger = new Logger(service.info.title) as unknown as ILogger;
       logger.fatal = logger.error.bind(logger);
     }
-    return OpraExpressAdapter.create(app, service, {
+    return await OpraExpressAdapter.create(app, service, {
       logger,
       ...moduleOptions
     });

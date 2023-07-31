@@ -4,18 +4,18 @@
  */
 
 import http, { IncomingHttpHeaders } from 'http';
-import * as stream from 'stream';
-import { Readable } from 'stream';
-import { HeaderInfo, HTTPParser } from '@browsery/http-parser';
-import { isReadable } from '@opra/common';
+import { Duplex, Readable } from 'stream';
+import { HeaderInfo, HTTPParser, HTTPParserJS } from '@browsery/http-parser';
+import { isAsyncIterable, isIterable } from '@opra/common';
+import { concatReadable } from '../helpers/concat-readable.js';
 import { convertToHeaders, convertToHeadersDistinct } from '../helpers/convert-to-headers.js';
 import { convertToRawHeaders } from '../helpers/convert-to-raw-headers.js';
 
 export const CRLF = Buffer.from('\r\n');
-export const kHeaders = Symbol('kHeaders');
-export const kHeadersDistinct = Symbol('kHeadersDistinct');
-export const kTrailers = Symbol('kTrailers');
-export const kTrailersDistinct = Symbol('kTrailersDistinct');
+export const kHeaders = Symbol.for('kHeaders');
+export const kHeadersDistinct = Symbol.for('kHeadersDistinct');
+export const kTrailers = Symbol.for('kTrailers');
+export const kTrailersDistinct = Symbol.for('kTrailersDistinct');
 
 export interface HttpIncomingMessage extends Pick<http.IncomingMessage,
     'httpVersion' |
@@ -28,7 +28,7 @@ export interface HttpIncomingMessage extends Pick<http.IncomingMessage,
     'rawTrailers' |
     'method' |
     'url'
->, stream.Readable {
+>, Readable {
 }
 
 // noinspection JSUnusedLocalSymbols
@@ -47,15 +47,16 @@ export namespace HttpIncomingMessageHost {
 
 }
 
-export interface HttpIncomingMessageHost extends stream.Readable {
-
-}
-
 /**
  *
  * @class HttpIncomingMessageHost
  */
-export class HttpIncomingMessageHost implements HttpIncomingMessage {
+export class HttpIncomingMessageHost extends Duplex implements HttpIncomingMessage {
+  protected [kHeaders]?: IncomingHttpHeaders;
+  protected [kHeadersDistinct]?: NodeJS.Dict<string[]>;
+  protected [kTrailers]?: NodeJS.Dict<string>;
+  protected [kTrailersDistinct]?: NodeJS.Dict<string[]>;
+  protected _httpParser: HTTPParserJS | undefined;
   httpVersionMajor: number;
   httpVersionMinor: number;
   method: string;
@@ -68,8 +69,22 @@ export class HttpIncomingMessageHost implements HttpIncomingMessage {
   ips?: string[];
   joinDuplicateHeaders = false;
 
-  constructor() {
-    stream.Readable.apply(this);
+  constructor(init?: HttpIncomingMessageHost.Initiator) {
+    super();
+    if (init) {
+      this.complete = true;
+      this.httpVersionMajor = init.httpVersionMajor || 1;
+      this.httpVersionMinor = init.httpVersionMinor || 0;
+      this.method = (init.method || 'GET').toUpperCase();
+      this.url = init.url || '';
+      this.body = init.body;
+      if (init.headers)
+        this.rawHeaders = Array.isArray(init.headers) ? init.headers : convertToRawHeaders(init.headers);
+      if (init.trailers)
+        this.rawTrailers = Array.isArray(init.trailers) ? init.trailers : convertToRawHeaders(init.trailers);
+      this.ip = init.ip || '';
+      this.ips = init.ips || (this.ip ? [this.ip] : []);
+    }
   }
 
   get httpVersion(): string {
@@ -110,71 +125,53 @@ export class HttpIncomingMessageHost implements HttpIncomingMessage {
     return this[kTrailersDistinct];
   }
 
-  protected _readConfig(init: HttpIncomingMessageHost.Initiator) {
-    this.complete = true;
-    this.httpVersionMajor = init?.httpVersionMajor || 1;
-    this.httpVersionMinor = init?.httpVersionMinor || 0;
-    this.method = (init.method || 'GET').toUpperCase();
-    this.url = init.url || '';
-    this.body = init.body;
-    if (init.headers)
-      this.rawHeaders = Array.isArray(init.headers) ? init.headers : convertToRawHeaders(init.headers);
-    if (init.trailers)
-      this.rawTrailers = Array.isArray(init.trailers) ? init.trailers : convertToRawHeaders(init.trailers);
-    this.ip = init.ip || '';
-    this.ips = init.ips || (this.ip ? [this.ip] : []);
+  _write(chunk: any, encoding: BufferEncoding, callback: (error?: Error | null) => void): void {
+    const error = this._httpParser?.execute(chunk);
+    if (error && typeof error === 'object')
+      callback(error);
+    else callback();
   }
 
-  protected _readBuffer(buf: Buffer | ArrayBuffer) {
-    const parser = new HTTPParser(HTTPParser.REQUEST);
+  static from(iterable: string | Iterable<any> | AsyncIterable<any> | HttpIncomingMessageHost.Initiator) {
+    if (typeof iterable === 'object' && !(isIterable(iterable) || isAsyncIterable(iterable)))
+      return new HttpIncomingMessageHost(iterable as HttpIncomingMessageHost.Initiator);
+    const msg = new HttpIncomingMessageHost();
+    const parser = msg._httpParser = new HTTPParser(HTTPParser.REQUEST);
     let bodyChunks: Buffer[] | undefined;
     parser[HTTPParser.kOnHeadersComplete] = (info: HeaderInfo) => {
-      this.httpVersionMajor = info.versionMajor;
-      this.httpVersionMinor = info.versionMinor;
-      this.rawHeaders = info.headers;
-      this.method = HTTPParser.methods[info.method];
-      this.url = info.url;
+      msg.httpVersionMajor = info.versionMajor;
+      msg.httpVersionMinor = info.versionMinor;
+      msg.rawHeaders = info.headers;
+      msg.method = HTTPParser.methods[info.method];
+      msg.url = info.url;
     };
     parser[HTTPParser.kOnHeaders] = (trailers: string[]) => {
-      this.rawTrailers = trailers;
+      msg.rawTrailers = trailers;
     }
     parser[HTTPParser.kOnBody] = (chunk: Buffer, offset: number, length: number) => {
       bodyChunks = bodyChunks || [];
       bodyChunks.push(chunk.subarray(offset, offset + length));
     };
     parser[HTTPParser.kOnMessageComplete] = () => {
-      this.complete = true;
+      msg.complete = true;
       if (bodyChunks)
-        this.body = Buffer.concat(bodyChunks);
+        msg.body = Buffer.concat(bodyChunks);
     }
-    const buffer: Buffer = Buffer.from(buf);
-    let x = parser.execute(buffer, 0, buffer.length);
-    if (typeof x === 'object') throw x;
-    if (!this.complete) {
-      x = parser.execute(CRLF);
-      if (typeof x === 'object') throw x;
-    }
-    parser.finish();
-  }
-
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  _readStream(readable: Readable) {
-    throw new Error('_readStream is not implemented yet')
-  }
-
-  static create(init?: HttpIncomingMessageHost.Initiator | Buffer | stream.Readable) {
-    const msg = new HttpIncomingMessageHost();
-    if (Buffer.isBuffer(init))
-      msg._readBuffer(init)
-    else if (isReadable(init)) {
-      throw new Error('fromStream is not implemented yet')
-    } else if (init)
-      msg._readConfig(init);
+    const readable = concatReadable(Readable.from(iterable as any), Readable.from(CRLF));
+    msg.once('finish', () => parser.finish());
+    readable.pipe(msg);
     return msg;
   }
 
+  static async fromAsync(
+      iterable: string | Iterable<any> | AsyncIterable<any> | HttpIncomingMessageHost.Initiator
+  ): Promise<HttpIncomingMessageHost> {
+    return new Promise<HttpIncomingMessageHost>((resolve, reject) => {
+      const msg = this.from(iterable);
+      msg.once('finish', () => resolve(msg));
+      msg.once('error', (error) => reject(error));
+    })
+
+  }
+
 }
-
-// Apply mixins
-Object.assign(HttpIncomingMessageHost.prototype, stream.Readable.prototype);
-

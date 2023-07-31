@@ -1,17 +1,14 @@
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
-import express from 'express';
 import supertest from 'supertest';
 import { jest } from '@jest/globals'
 import { ApiDocument, Collection } from '@opra/common';
-import { OpraExpressAdapter, RequestContext } from '@opra/core';
+import { OpraHttpAdapter, RequestContext } from '@opra/core';
 import { createTestApi } from '../_support/test-app/index.js';
 
 describe('e2e:Collection', function () {
 
-  const app = express();
-  const client = supertest(app);
   let document: ApiDocument;
-  let adapter: OpraExpressAdapter;
+  let adapter: OpraHttpAdapter;
   let resource: Collection;
   const data = {
     id: 1001,
@@ -21,7 +18,7 @@ describe('e2e:Collection', function () {
 
   beforeAll(async () => {
     document = await createTestApi();
-    adapter = await OpraExpressAdapter.create(app, document);
+    adapter = await OpraHttpAdapter.create(document);
     resource = document.getCollection('customers');
   });
 
@@ -37,7 +34,7 @@ describe('e2e:Collection', function () {
               ctx = c;
               return data;
             });
-    await client.post('/Customers').send(data);
+    await supertest(adapter.server).post('/Customers').send(data);
     expect(ctx).toBeDefined();
     expect(ctx.protocol).toStrictEqual('http');
     expect(ctx.request).toBeDefined();
@@ -55,7 +52,7 @@ describe('e2e:Collection', function () {
               ctx = c;
               return data;
             });
-    await client.get('/Customers@1');
+    await supertest(adapter.server).get('/Customers@1');
     expect(ctx).toBeDefined();
     expect(ctx.protocol).toStrictEqual('http');
     expect(ctx.request).toBeDefined();
@@ -73,7 +70,7 @@ describe('e2e:Collection', function () {
               ctx = c;
               return [data];
             });
-    await client.get('/Customers');
+    await supertest(adapter.server).get('/Customers');
     expect(ctx).toBeDefined();
     expect(ctx.protocol).toStrictEqual('http');
     expect(ctx.request).toBeDefined();
@@ -90,7 +87,7 @@ describe('e2e:Collection', function () {
               ctx = c;
               return true;
             });
-    await client.delete('/Customers@1');
+    await supertest(adapter.server).delete('/Customers@1');
     expect(ctx).toBeDefined();
     expect(ctx.protocol).toStrictEqual('http');
     expect(ctx.request).toBeDefined();
@@ -108,7 +105,7 @@ describe('e2e:Collection', function () {
               ctx = c;
               return 10;
             });
-    await client.delete('/Customers');
+    await supertest(adapter.server).delete('/Customers');
     expect(ctx).toBeDefined();
     expect(ctx.protocol).toStrictEqual('http');
     expect(ctx.request).toBeDefined();
@@ -125,7 +122,7 @@ describe('e2e:Collection', function () {
               ctx = c;
               return data;
             });
-    await client.patch('/Customers@1').send(data);
+    await supertest(adapter.server).patch('/Customers@1').send(data);
     expect(ctx).toBeDefined();
     expect(ctx.protocol).toStrictEqual('http');
     expect(ctx.request).toBeDefined();
@@ -144,7 +141,7 @@ describe('e2e:Collection', function () {
               ctx = c;
               return 8;
             });
-    await client.patch('/Customers').send(data);
+    await supertest(adapter.server).patch('/Customers').send(data);
     expect(ctx).toBeDefined();
     expect(ctx.protocol).toStrictEqual('http');
     expect(ctx.request).toBeDefined();
