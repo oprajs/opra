@@ -121,14 +121,14 @@ export const ApiField = function (
 
 const proto = {
   exportSchema(): OpraSchema.Field {
-    return {
+    return omitUndefined({
       type: this.type.name ? this.type.name : this.type.exportSchema(),
       description: this.description,
       isArray: this.isArray,
       default: this.default,
       fixed: this.fixed,
       required: this.required
-    } satisfies OpraSchema.Field;
+    }) satisfies OpraSchema.Field;
   }
 } as ApiField;
 

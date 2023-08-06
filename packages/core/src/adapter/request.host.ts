@@ -1,35 +1,28 @@
-import type { Resource } from '@opra/common';
-import { OpraSchema } from '@opra/common';
-import { HttpServerRequest } from './http/impl/http-server-request.js';
-import type { Request } from './interfaces/request.interface.js';
+import type { StrictOmit } from 'ts-gems';
+import type { HttpServerRequest } from './http/http-server-request.js';
+import type { Request } from './request';
 
 export namespace RequestHost {
-  export interface Initiator {
-    contentId?: string;
-    kind: string;
-    resource: Resource;
-    operation: string;
-    crud: 'create' | 'read' | 'update' | 'delete';
-    many: boolean;
-    args: any;
+  export interface Initiator extends StrictOmit<Request, 'switchToHttp' | 'switchToWs' | 'switchToRpc'> {
+    controller: any;
     http?: HttpServerRequest;
+
+    [key: string]: any;
   }
 }
 
+export interface RequestHost extends Request {
+}
+
 export class RequestHost implements Request {
-  readonly contentId: string = '';
-  readonly kind: string;
-  readonly resource: Resource;
-  readonly resourceKind: OpraSchema.Resource.Kind;
-  readonly operation: string;
-  readonly crud: 'create' | 'read' | 'update' | 'delete';
-  readonly many: boolean;
-  readonly args: any;
-  readonly http?: HttpServerRequest;
+  controller: any;
+  http?: HttpServerRequest;
+  key?: any;
+  params: Record<string, any>;
 
   constructor(init: RequestHost.Initiator) {
     Object.assign(this, init);
-    this.resourceKind = this.resource.kind;
+    this.params = this.params || {};
   }
 
   switchToHttp(): HttpServerRequest {

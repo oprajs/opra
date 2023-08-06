@@ -12,7 +12,7 @@ const NAME_PATTERN = /^(.*)(Resource)$/;
 
 export namespace Storage {
   export interface InitArguments extends Resource.InitArguments,
-      Pick<OpraSchema.Storage, 'operations'> {
+      StrictOmit<OpraSchema.Storage, 'kind'> {
   }
 
   export interface DecoratorOptions extends Resource.DecoratorOptions {
@@ -23,24 +23,26 @@ export namespace Storage {
     name: string;
   }
 
-  interface Operation {
-    handlerName?: string;
+  // Need for augmentation
+  export namespace Delete {
   }
 
-  export interface Operations {
-    delete?: OpraSchema.Storage.DeleteOperation & Operation;
-    get?: OpraSchema.Storage.GetOperation & Operation;
-    put?: OpraSchema.Storage.PutOperation & Operation;
+  // Need for augmentation
+  export namespace Get {
   }
 
-  export type DeleteOperationOptions = StrictOmit<OpraSchema.Storage.DeleteOperation, 'handler'>;
-  export type GetOperationOptions = StrictOmit<OpraSchema.Storage.GetOperation, 'handler'>;
-  export type PutOperationOptions = StrictOmit<OpraSchema.Storage.PutOperation, 'handler'>;
+  // Need for augmentation
+  export namespace Post {
+  }
+
+  export type DeleteOperationOptions = OpraSchema.Storage.DeleteOperation;
+  export type GetOperationOptions = OpraSchema.Storage.GetOperation;
+  export type PostOperationOptions = OpraSchema.Storage.PostOperation;
 }
 
 class StorageClass extends Resource {
   readonly kind = OpraSchema.Storage.Kind;
-  readonly operations: Storage.Operations;
+  readonly operations: OpraSchema.Storage.Operations;
   readonly controller?: object | Type;
 
   constructor(
@@ -49,20 +51,7 @@ class StorageClass extends Resource {
   ) {
     super(document, init);
     this.controller = init.controller;
-    const operations = this.operations = init.operations || {};
-    if (this.controller) {
-      const instance = typeof this.controller == 'function'
-          ? new (this.controller as Type)()
-          : this.controller;
-      for (const operation of Object.values(operations)) {
-        if (!operation.handler && operation.handlerName) {
-          const fn = instance[operation.handlerName];
-          if (!fn)
-            throw new TypeError(`No such operation handler (${operation.handlerName}) found`);
-          operation.handler = fn.bind(instance);
-        }
-      }
-    }
+    this.operations = {...init.operations};
   }
 
   exportSchema(): OpraSchema.Storage {
@@ -82,9 +71,9 @@ export interface StorageConstructor {
 
   (options?: Storage.DecoratorOptions): ClassDecorator;
 
-  Delete: (options?: Storage.DeleteOperationOptions) => PropertyDecorator;
-  Get: (options?: Storage.GetOperationOptions) => PropertyDecorator;
-  Put: (options?: Storage.PutOperationOptions) => PropertyDecorator;
+  Delete: (options?: Storage.DeleteOperationOptions) => ((target: Object, propertyKey: 'delete') => void);
+  Get: (options?: Storage.GetOperationOptions) => ((target: Object, propertyKey: 'get') => void);
+  Post: (options?: Storage.PostOperationOptions) => ((target: Object, propertyKey: 'post') => void);
 }
 
 export interface Storage extends StorageClass {
@@ -124,19 +113,17 @@ Storage.prototype = StorageClass.prototype;
 function createOperationDecorator<T>(operation: string) {
   return (options?: T) =>
       ((target: Object, propertyKey: string | symbol): void => {
-        const metadata = {
-          ...options,
-          handlerName: propertyKey
-        };
-
+        if (propertyKey !== operation)
+          throw new TypeError(`Name of the handler name should be '${operation}'`);
+        const operationMeta = {...options};
         const resourceMetadata =
             (Reflect.getOwnMetadata(METADATA_KEY, target.constructor) || {}) as Storage.Metadata;
         resourceMetadata.operations = resourceMetadata.operations || {};
-        resourceMetadata.operations[operation] = metadata;
+        resourceMetadata.operations[operation] = operationMeta;
         Reflect.defineMetadata(METADATA_KEY, resourceMetadata, target.constructor);
       });
 }
 
 Storage.Delete = createOperationDecorator('delete');
 Storage.Get = createOperationDecorator('get');
-Storage.Put = createOperationDecorator('put');
+Storage.Post = createOperationDecorator('post');

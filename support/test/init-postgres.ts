@@ -3,7 +3,6 @@ import { Connection } from 'postgresql-client';
 import { Insert } from '@sqb/builder';
 import { countriesData } from './countries.data';
 import { customersData } from './customers.data';
-import { productsData } from './products.data';
 
 export async function initPostgres() {
   const schema = process.env.PG_SCHEMA || 'opra_test';
@@ -69,16 +68,6 @@ CREATE TABLE ${schema}.customers
         ON DELETE NO ACTION
 );
 
-CREATE TABLE ${schema}.products
-(
-    _id SERIAL PRIMARY KEY,
-    code character varying(10),
-    name character varying(64),
-    deleted boolean not null default false,
-    createdAt timestamp default NOW(),
-    updatedAt timestamp   
-);
-
 `;
 }
 
@@ -93,13 +82,6 @@ async function createTestData(connection, schema) {
   for (const row of customersData) {
     lines.push(
         Insert(schema + '.customers', row)
-            .generate({dialect: 'postgres'}).sql
-    );
-  }
-
-  for (const row of productsData) {
-    lines.push(
-        Insert(schema + '.products', row)
             .generate({dialect: 'postgres'}).sql
     );
   }

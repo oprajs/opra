@@ -17,3 +17,6 @@ export * from './resource/resource.js';
 export * from './resource/collection.js';
 export * from './resource/singleton.js';
 export * from './resource/storage.js';
+
+export * from './interfaces/collection-resource.interface.js'
+export * from './interfaces/singleton-resource.interface.js'

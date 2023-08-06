@@ -1,6 +1,6 @@
 import { Type } from 'ts-gems';
-import { NotAcceptableError, NotFoundError } from '../exception/index.js';
-import { cloneObject, omitUndefined, ResponsiveMap } from '../helpers/index.js';
+import { NotAcceptableError, NotFoundError, ResourceNotFoundError } from '../exception/index.js';
+import { cloneObject, ResponsiveMap } from '../helpers/index.js';
 import { OpraSchema } from '../schema/index.js';
 import { NAMESPACE_PATTERN } from './constants.js';
 import { ComplexType } from './data-type/complex-type.js';
@@ -15,6 +15,7 @@ export class ApiDocument {
   protected _designCtorMap = new Map<Type | Function, string>();
   protected _typeCache = new ResponsiveMap<DataType>();
   protected _typesCacheByCtor = new Map<Type | object, DataType>();
+  protected _metadataCache?: OpraSchema.ApiDocument;
   url?: string;
   info: OpraSchema.DocumentInfo;
   references = new ResponsiveMap<ApiDocument>();
@@ -229,7 +230,7 @@ export class ApiDocument {
       }
     }
     if (silent) return;
-    throw new NotFoundError(`Resource not found (${path})`);
+    throw new ResourceNotFoundError(path);
   }
 
   /**
@@ -284,7 +285,9 @@ export class ApiDocument {
   /**
    * Export as Opra schema definition object
    */
-  exportSchema(): OpraSchema.ApiDocument {
+  exportSchema(options?: { webSafe?: boolean }): OpraSchema.ApiDocument {
+    if (this._metadataCache)
+      return cloneObject(this._metadataCache, options?.webSafe);
     const schema = {
       version: OpraSchema.SpecVersion,
       url: this.url,
@@ -314,10 +317,12 @@ export class ApiDocument {
         types[name] = r.exportSchema();
       }
     }
-    return omitUndefined(schema);
+    this._metadataCache = schema;
+    return this._metadataCache;
   }
 
   invalidate() {
+    this._metadataCache = undefined;
     this._typeCache.clear();
     this._typesCacheByCtor.clear();
   }

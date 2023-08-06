@@ -1,7 +1,7 @@
 import mongodb from 'mongodb';
 import { Maybe } from 'ts-gems';
 import { PartialOutput, Singleton } from '@opra/common';
-import { RequestContext } from '@opra/core';
+import { OperationContext } from '@opra/core';
 import { MongoAdapter } from './mongo-adapter.js';
 import { MongoEntityService } from './mongo-entity-service.js';
 
@@ -9,7 +9,7 @@ export abstract class MongoSingletonResource<T extends mongodb.Document, TOutput
   defaultLimit = 100;
 
   @Singleton.Create()
-  async create(ctx: RequestContext): Promise<TOutput> {
+  async create(ctx: OperationContext): Promise<TOutput> {
     const prepared = MongoAdapter.transformRequest(ctx.request);
     const service = await this.getService(ctx);
     await service.deleteMany();
@@ -17,26 +17,26 @@ export abstract class MongoSingletonResource<T extends mongodb.Document, TOutput
   }
 
   @Singleton.Delete()
-  async delete(ctx: RequestContext): Promise<number> {
+  async delete(ctx: OperationContext): Promise<number> {
     const prepared = MongoAdapter.transformRequest(ctx.request);
     const service = await this.getService(ctx);
     return service.deleteOne(prepared.filter, prepared.options);
   }
 
   @Singleton.Get()
-  async get(ctx: RequestContext): Promise<Maybe<TOutput>> {
+  async get(ctx: OperationContext): Promise<Maybe<TOutput>> {
     const prepared = MongoAdapter.transformRequest(ctx.request);
     const service = await this.getService(ctx);
     return service.findOne(prepared.filter, prepared.options);
   }
 
   @Singleton.Update()
-  async update(ctx: RequestContext): Promise<Maybe<TOutput>> {
+  async update(ctx: OperationContext): Promise<Maybe<TOutput>> {
     const prepared = MongoAdapter.transformRequest(ctx.request);
     const service = await this.getService(ctx);
     return service.updateOne(prepared.filter, prepared.update, prepared.options);
   }
 
-  abstract getService(ctx: RequestContext): MongoEntityService<T, TOutput> | Promise<MongoEntityService<T, TOutput>>;
+  abstract getService(ctx: OperationContext): MongoEntityService<T, TOutput> | Promise<MongoEntityService<T, TOutput>>;
 
 }

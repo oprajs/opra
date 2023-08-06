@@ -4,6 +4,7 @@ import merge from 'putil-merge';
 import { StrictOmit, Type, Writable } from 'ts-gems';
 import * as vg from 'valgen';
 import { omitUndefined, ResponsiveMap } from '../../helpers/index.js';
+import { translate } from '../../i18n/index.js';
 import { OpraSchema } from '../../schema/index.js';
 import type { ApiDocument } from '../api-document.js';
 import { METADATA_KEY, TYPENAME_PATTERN } from '../constants.js';
@@ -104,7 +105,7 @@ class ComplexTypeClass extends DataType {
       }
     } else field = this.fields.get(nameOrPath);
     if (!field)
-      throw new Error(`Unknown field "${nameOrPath}"`);
+      throw new Error(translate('error:UNKNOWN_FIELD', {field: nameOrPath}));
     return field as ApiField;
   }
 
@@ -138,7 +139,7 @@ class ComplexTypeClass extends DataType {
             if (dataType && !dataType.additionalFields) {
               if (silent)
                 return {done: true, value: [] as any};
-              throw new Error(`Unknown or Invalid field (${curPath})`);
+              throw new Error(translate('error:UNKNOWN_FIELD', {field: curPath}));
             }
           }
         }
@@ -150,16 +151,16 @@ class ComplexTypeClass extends DataType {
     };
   }
 
-  normalizeFieldPath(fieldPath: string): string;
-  normalizeFieldPath(fieldPaths: string[]): string[];
-  normalizeFieldPath(fieldPaths: string | string[]): string | string[] {
-    if (Array.isArray(fieldPaths))
-      return fieldPaths.map((s: string) => this.normalizeFieldPath(s))
-    let curPath = '';
-    for (const [, , p] of this.iteratePath(fieldPaths)) {
-      curPath = p;
-    }
-    return curPath;
+  normalizeFieldPath(fieldPaths: string | string[]): string[] | undefined {
+    const array = (Array.isArray(fieldPaths) ? fieldPaths : [fieldPaths])
+        .map(s => {
+          let curPath = '';
+          for (const [, , p] of this.iteratePath(s)) {
+            curPath = p;
+          }
+          return curPath;
+        }).flat()
+    return array.length ? array : undefined;
   }
 
   exportSchema(): OpraSchema.ComplexType {
@@ -236,7 +237,7 @@ class ComplexTypeClass extends DataType {
     }
     this._encoder = vg.isObject(schema, {
       ctor: this.ctor,
-      additionalFields: this.additionalFields,
+      additionalFields: this.additionalFields ?? 'ignore',
       name: this.name,
       caseInSensitive: true,
       detectCircular: true

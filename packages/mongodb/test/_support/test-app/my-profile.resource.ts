@@ -1,7 +1,7 @@
 import { Db } from 'mongodb';
 import { Singleton } from '@opra/common';
 import { Profile } from '@opra/common/test/_support/test-api';
-import { RequestContext } from '@opra/core';
+import { OperationContext } from '@opra/core';
 import { MongoEntityService, MongoSingletonResource } from '@opra/mongodb';
 
 @Singleton(Profile)
@@ -13,7 +13,7 @@ export class MyProfileResource extends MongoSingletonResource<Profile> {
     this.service = new MongoEntityService('MyProfile', {db});
   }
 
-  getService(ctx: RequestContext) {
+  getService(ctx: OperationContext) {
     return this.service.with(ctx);
   }
 

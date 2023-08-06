@@ -1,4 +1,4 @@
-import { Writable } from 'ts-gems';
+import type { Writable } from 'ts-gems';
 import { Collection, METADATA_KEY, Resource, Singleton } from "@opra/common";
 
 declare module "@opra/common" {

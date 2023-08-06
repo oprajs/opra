@@ -46,7 +46,7 @@ describe('DocumentFactory - Singleton resource with decorated classes', function
       protected x = 1;
 
       @Singleton.Create()
-      _create() {
+      create() {
         return this.x;
       }
     }
@@ -59,7 +59,6 @@ describe('DocumentFactory - Singleton resource with decorated classes', function
     const t = doc.getSingleton('MyCountry');
     expect(t.controller).toBe(MyCountryResource);
     expect(t.operations.create).toBeDefined();
-    expect(t.operations.create?.handlerName).toStrictEqual('_create');
   })
 
   it('Should define "get" operation endpoint', async () => {
@@ -68,7 +67,7 @@ describe('DocumentFactory - Singleton resource with decorated classes', function
       protected x = 1;
 
       @Singleton.Get()
-      _read() {
+      get() {
         return this.x;
       }
     }
@@ -81,7 +80,6 @@ describe('DocumentFactory - Singleton resource with decorated classes', function
     const t = doc.getSingleton('MyCountry');
     expect(t.controller).toBe(MyCountryResource);
     expect(t.operations.get).toBeDefined();
-    expect(t.operations.get?.handlerName).toStrictEqual('_read');
   })
 
   it('Should define "update" operation endpoint', async () => {
@@ -90,7 +88,7 @@ describe('DocumentFactory - Singleton resource with decorated classes', function
       protected x = 1;
 
       @Singleton.Update()
-      _update() {
+      update() {
         return this.x;
       }
     }
@@ -103,7 +101,6 @@ describe('DocumentFactory - Singleton resource with decorated classes', function
     const t = doc.getSingleton('MyCountry');
     expect(t.controller).toBe(MyCountryResource);
     expect(t.operations.update).toBeDefined();
-    expect(t.operations.update?.handlerName).toStrictEqual('_update');
   })
 
   it('Should define "deleteOne" operation endpoint', async () => {
@@ -112,7 +109,7 @@ describe('DocumentFactory - Singleton resource with decorated classes', function
       protected x = 1;
 
       @Singleton.Delete()
-      _delete() {
+      delete() {
         return this.x;
       }
     }
@@ -125,7 +122,6 @@ describe('DocumentFactory - Singleton resource with decorated classes', function
     const t = doc.getSingleton('MyCountry');
     expect(t.controller).toBe(MyCountryResource);
     expect(t.operations.delete).toBeDefined();
-    expect(t.operations.delete?.handlerName).toStrictEqual('_delete');
   })
 
 });

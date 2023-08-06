@@ -11,5 +11,8 @@
   "RESOURCE_NOT_FOUND": "Resource not found: '{{resource}}'",
   "RESOURCE_CONFLICT": "There is already an other {{resource}} resource with same field values ({{fields}})",
   "RESOLVER_FORBIDDEN": "The {{resource}} endpoint does not accept '{{operation}}' operations",
-  "UNACCEPTED_SORT_FIELD": "Field '{{field}}' is not available for sort operation"
+  "UNKNOWN_FIELD": "Unknown field '{{field}}'",
+  "UNACCEPTED_SORT_FIELD": "Field '{{field}}' is not available for sort operation",
+  "UNACCEPTED_FILTER_FIELD": "Field '{{field}}' is not available for filter operation",
+  "UNACCEPTED_FILTER_OPERATION": "'{{operation}}' for field '{{field}}' is not available for filter operation"
 }

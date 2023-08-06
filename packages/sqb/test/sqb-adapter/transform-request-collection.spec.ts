@@ -2,16 +2,17 @@
 import '@opra/sqb';
 import { ApiDocument } from '@opra/common';
 import { Request } from '@opra/core';
-import { createTestApi } from '@opra/core/test/_support/test-app';
 import { SQBAdapter } from '@opra/sqb';
 import { Eq } from '@sqb/builder';
+import { createTestApp } from '../_support/test-app/index.js';
 
 describe('SQBAdapter.transformRequest (Collection)', function () {
 
   let api: ApiDocument;
 
   beforeAll(async () => {
-    api = await createTestApi();
+    const app = await createTestApp();
+    api = app.api;
   });
 
   /*
@@ -22,7 +23,7 @@ describe('SQBAdapter.transformRequest (Collection)', function () {
 
     it('Should prepare', async () => {
       const request = {
-        resource: api.getCollection('countries'),
+        resource: api.getCollection('customers'),
         resourceKind: 'Collection',
         operation: 'create',
         crud: 'create',
@@ -41,7 +42,7 @@ describe('SQBAdapter.transformRequest (Collection)', function () {
 
     it('Should prepare with "pick", "omit" and "include" options', async () => {
       const request = {
-        resource: api.getCollection('countries'),
+        resource: api.getCollection('customers'),
         resourceKind: 'Collection',
         operation: 'create',
         crud: 'create',

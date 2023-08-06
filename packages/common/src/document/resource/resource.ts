@@ -5,7 +5,7 @@ import type { ApiDocument } from '../api-document.js';
 import { colorFgMagenta, colorFgYellow, colorReset, nodeInspectCustom } from '../utils/inspect.util.js';
 
 export namespace Resource {
-  export interface InitArguments extends StrictOmit<OpraSchema.ResourceBase, 'kind'> {
+  export interface InitArguments extends StrictOmit<OpraSchema.ResourceBase, 'kind' | 'operations'> {
     name: string;
     controller?: object | Type;
   }
@@ -21,6 +21,7 @@ export abstract class Resource {
   readonly name: string;
   readonly description?: string;
   readonly controller?: object | Type;
+  abstract readonly operations: Record<string, any>;
 
   protected constructor(
       document: ApiDocument,

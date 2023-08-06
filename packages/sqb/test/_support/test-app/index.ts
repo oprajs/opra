@@ -1,14 +1,14 @@
 import '@sqb/postgres';
 import { ApiDocument, DocumentFactory } from '@opra/common';
-import { OpraHttpAdapter } from '@opra/core';
+import { HttpAdapter } from '@opra/core';
 import { SqbClient } from '@sqb/connect';
-import { CustomersResource } from './customers.resource.js';
-import { MyProfileResource } from './my-profile.resource.js';
+import { CustomersResource } from './resources/customers.resource.js';
+import { MyProfileResource } from './resources/my-profile.resource.js';
 
 export interface TestApp {
   db: SqbClient;
-  document: ApiDocument;
-  adapter: OpraHttpAdapter
+  api: ApiDocument;
+  adapter: HttpAdapter
 }
 
 export async function createTestApp(): Promise<TestApp> {
@@ -16,7 +16,7 @@ export async function createTestApp(): Promise<TestApp> {
     dialect: 'postgres',
     schema: 'opra_test'
   })
-  const document = await DocumentFactory.createDocument({
+  const api = await DocumentFactory.createDocument({
     version: '1.0',
     info: {
       title: 'TestApi',
@@ -27,10 +27,10 @@ export async function createTestApp(): Promise<TestApp> {
       new MyProfileResource(db)
     ]
   })
-  const adapter = await OpraHttpAdapter.create(document);
+  const adapter = await HttpAdapter.create(api);
   return {
     db,
-    document,
+    api,
     adapter
   }
 
