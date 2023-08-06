@@ -1,29 +1,28 @@
 import supertest from 'supertest';
 import { ApiDocument } from '@opra/common';
-import { OpraHttpAdapter } from '@opra/core';
+import { HttpAdapter } from '@opra/core';
+import { HttpAdapterHost } from '@opra/core/adapter/http/http-adapter.host.js';
 import { createTestApi } from '../_support/test-app/index.js';
 
 describe('e2e:$metadata', function () {
 
-  let document: ApiDocument;
-  let adapter: OpraHttpAdapter;
+  let api: ApiDocument;
+  let adapter: HttpAdapterHost;
 
   beforeAll(async () => {
-    document = await createTestApi();
-    adapter = await OpraHttpAdapter.create(document);
+    api = await createTestApi();
+    adapter = await HttpAdapter.create(api) as HttpAdapterHost;
   });
 
-  it('Should /$metadata return whole api schema', async () => {
+  afterAll(async () => {
+    await adapter.close();
+  })
+
+  it('Should GET /$metadata return api schema', async () => {
     const resp = await supertest(adapter.server).get('/$metadata');
     expect(resp.status).toStrictEqual(200);
     expect(resp.body).toBeDefined();
-    expect(resp.body).toMatchObject({
-      "version": "1.0",
-      "info": {
-        "title": "TestApi",
-        "version": "v1"
-      }
-    })
+    expect(resp.body).toMatchObject(api.exportSchema({webSafe: true}));
   })
 
 });

@@ -1,86 +1,94 @@
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
 import supertest from 'supertest';
-import { jest } from '@jest/globals'
-import { ApiDocument, Singleton } from '@opra/common';
-import { OpraHttpAdapter, RequestContext } from '@opra/core';
+import { ApiDocument } from '@opra/common';
+import { HttpAdapter } from '@opra/core';
+import { HttpAdapterHost } from '@opra/core/adapter/http/http-adapter.host.js';
 import { createTestApi } from '../_support/test-app/index.js';
 
 describe('e2e:Singleton', function () {
 
-  let document: ApiDocument;
-  let adapter: OpraHttpAdapter;
-  let resource: Singleton;
-  const data = {
-    givenName: 'abcd',
-    familyName: 'efgh',
-  }
+  let api: ApiDocument;
+  let adapter: HttpAdapterHost;
 
   beforeAll(async () => {
-    document = await createTestApi();
-    adapter = await OpraHttpAdapter.create(document);
-    resource = document.getSingleton('myprofile');
+    api = await createTestApi();
+    adapter = await HttpAdapter.create(api) as HttpAdapterHost;
   });
 
   afterAll(async () => {
     await adapter.close();
   })
 
-  it('Should execute "create" endpoint', async () => {
-    let ctx!: RequestContext;
-    const mockFn =
-        jest.spyOn(resource.operations.create!, 'handler')
-            .mockImplementation((c) => ctx = c);
-    await supertest(adapter.server).post('/MyProfile').send(data);
-    expect(ctx).toBeDefined();
-    expect(ctx.protocol).toStrictEqual('http');
-    expect(ctx.request).toBeDefined();
-    expect(ctx.response).toBeDefined();
-    expect(ctx.request.operation).toStrictEqual('create');
-    expect(ctx.request.args.data).toStrictEqual(data);
-    mockFn.mockRestore();
+  it('Should execute "create" operation', async () => {
+    const resp = await supertest(adapter.server).post('/MyProfile')
+        .send({
+          givenName: 'abcd',
+          familyName: 'efgh',
+        });
+    expect(resp.type).toStrictEqual('application/json');
+    expect(resp.body).toBeDefined();
+    expect(resp.body.errors).not.toBeDefined();
+    expect(resp.body).toMatchObject({
+      resource: 'MyProfile',
+      operation: 'create',
+      affected: 1
+    });
+    expect(resp.body.data).toMatchObject({
+      _id: /\d+/,
+      givenName: /.+/,
+      familyName: /.+/
+    });
   });
 
-  it('Should execute "get" endpoint', async () => {
-    let ctx!: RequestContext;
-    const mockFn =
-        jest.spyOn(resource.operations.get!, 'handler')
-            .mockImplementation((c) => ctx = c);
-    await supertest(adapter.server).get('/MyProfile');
-    expect(ctx).toBeDefined();
-    expect(ctx.protocol).toStrictEqual('http');
-    expect(ctx.request).toBeDefined();
-    expect(ctx.response).toBeDefined();
-    expect(ctx.request.operation).toStrictEqual('get');
-    mockFn.mockRestore();
+  it('Should execute "get" operation', async () => {
+    const resp = await supertest(adapter.server).get('/MyProfile');
+    expect(resp.type).toStrictEqual('application/json');
+    expect(resp.body).toBeDefined();
+    expect(resp.body.errors).not.toBeDefined();
+    expect(resp.body).toMatchObject({
+      resource: 'MyProfile',
+      operation: 'get'
+    });
+    expect(resp.body.data).toMatchObject({
+      _id: /\d+/,
+      givenName: /.+/,
+      familyName: /.+/
+    });
   });
 
-  it('Should execute "delete" endpoint', async () => {
-    let ctx!: RequestContext;
-    const mockFn =
-        jest.spyOn(resource.operations.delete!, 'handler')
-            .mockImplementation((c) => ctx = c);
-    await supertest(adapter.server).delete('/MyProfile');
-    expect(ctx).toBeDefined();
-    expect(ctx.protocol).toStrictEqual('http');
-    expect(ctx.request).toBeDefined();
-    expect(ctx.response).toBeDefined();
-    expect(ctx.request.operation).toStrictEqual('delete');
-    mockFn.mockRestore();
+  it('Should execute "update" operation', async () => {
+    const resp = await supertest(adapter.server)
+        .patch('/MyProfile')
+        .send({
+          birthDate: new Date().toISOString()
+        });
+    expect(resp.type).toStrictEqual('application/json');
+    expect(resp.body).toBeDefined();
+    expect(resp.body.errors).not.toBeDefined();
+    expect(resp.body).toMatchObject({
+      resource: 'MyProfile',
+      operation: 'update',
+      affected: 1
+    });
+    expect(resp.body.data).toMatchObject({
+      _id: /\d+/,
+      givenName: /.+/,
+      familyName: /.+/,
+      birthDate: /^\d{4}-\d{2}-\d{2}/
+    });
   });
 
-  it('Should execute "update" endpoint', async () => {
-    let ctx!: RequestContext;
-    const mockFn =
-        jest.spyOn(resource.operations.update!, 'handler')
-            .mockImplementation((c) => ctx = c);
-    await supertest(adapter.server).patch('/MyProfile').send(data);
-    expect(ctx).toBeDefined();
-    expect(ctx.protocol).toStrictEqual('http');
-    expect(ctx.request).toBeDefined();
-    expect(ctx.response).toBeDefined();
-    expect(ctx.request.operation).toStrictEqual('update');
-    expect(ctx.request.args.data).toStrictEqual(data);
-    mockFn.mockRestore();
+  it('Should execute "delete" operation', async () => {
+    const resp = await supertest(adapter.server).delete('/MyProfile');
+    expect(resp.type).toStrictEqual('application/json');
+    expect(resp.body).toBeDefined();
+    expect(resp.body.errors).not.toBeDefined();
+    expect(resp.body).toMatchObject({
+      resource: 'MyProfile',
+      operation: 'delete',
+      affected: 1
+    });
   });
+
 
 });

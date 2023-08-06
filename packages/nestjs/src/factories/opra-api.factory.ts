@@ -101,7 +101,7 @@ export class OpraApiFactory {
 
           const callback = this._createContextCallback(instance, prototype, wrapper,
               rootModule, nestHandlerName, isRequestScoped, undefined, contextType);
-          opr.handler = function (ctx: opraCore.RequestContext) {
+          opr.handler = function (ctx: opraCore.OperationContext) {
             switch (ctx.protocol) {
               case 'http':
                 const httpContext = ctx.switchToHttp();
@@ -140,7 +140,7 @@ export class OpraApiFactory {
 
     if (isRequestScoped) {
       return async (...args: any[]) => {
-        const opraContext: opraCore.RequestContext =
+        const opraContext: opraCore.OperationContext =
             paramsFactory.exchangeKeyForValue(HandlerParamType.CONTEXT, undefined, args);
         const contextId = this.getContextId(opraContext);
         this.registerContextProvider(opraContext, contextId);

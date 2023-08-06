@@ -50,7 +50,7 @@ describe('ComplexType', function () {
 
   it('Should getField(path) throw if field not found', async () => {
     const dt = api.getComplexType('customer');
-    expect(() => dt.getField('nofield')).toThrow('Unknown field');
+    expect(() => dt.getField('nofield')).toThrow('UNKNOWN_FIELD');
   })
 
   it('Should getField(path) throw if given path is not valid', async () => {
@@ -62,7 +62,7 @@ describe('ComplexType', function () {
     const dt = api.getComplexType('customer');
     let x: any = dt.normalizeFieldPath('countrycode');
     expect(x).toBeDefined();
-    expect(x).toStrictEqual('countryCode');
+    expect(x).toStrictEqual(['countryCode']);
     x = dt.normalizeFieldPath(['givenname', 'countrycode']);
     expect(x).toBeDefined();
     expect(x).toStrictEqual(['givenName', 'countryCode']);

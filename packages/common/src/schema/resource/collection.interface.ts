@@ -1,7 +1,7 @@
 import { OpraFilter } from '@opra/common';
 import type { DataType } from '../data-type/data-type.interface.js';
 import type { Field } from '../data-type/field.interface';
-import type { Endpoint } from './endpoint.interface.js';
+import type { Operation } from './operation.interface';
 import type { ResourceBase } from './resource.interface.js';
 
 export interface Collection extends ResourceBase {
@@ -15,16 +15,16 @@ export namespace Collection {
   export const Kind = 'Collection';
   export type Kind = 'Collection';
 
-  export type CreateOperation = Endpoint & _OperationInput & _OperationResponse;
-  export type DeleteOperation = Endpoint;
-  export type DeleteManyOperation = Endpoint & _OperationFilter;
-  export type GetOperation = Endpoint & _OperationResponse;
-  export type FindManyOperation = Endpoint & _OperationFilter & _OperationResponse & {
+  export type CreateOperation = Operation & _OperationInput & _OperationResponse;
+  export type DeleteOperation = Operation;
+  export type DeleteManyOperation = Operation & _OperationFilter;
+  export type GetOperation = Operation & _OperationResponse;
+  export type FindManyOperation = Operation & _OperationFilter & _OperationResponse & {
     sortFields?: string[];
     defaultSort?: string[];
   };
-  export type UpdateOperation = Endpoint & _OperationInput & _OperationResponse;
-  export type UpdateManyOperation = Endpoint & _OperationInput & _OperationFilter;
+  export type UpdateOperation = Operation & _OperationInput & _OperationResponse;
+  export type UpdateManyOperation = Operation & _OperationInput & _OperationFilter;
 
   export interface Operations {
     create?: CreateOperation;

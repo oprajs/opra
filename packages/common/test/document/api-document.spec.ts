@@ -8,10 +8,10 @@ import {
   OpraSchema,
   SimpleType, Singleton,
 } from '@opra/common';
-import { Country } from '../_support/test-api/index.js';
-import { CountriesResource } from '../_support/test-api/resources/countries.resource.js';
-import { CustomersResource } from '../_support/test-api/resources/customers.resource.js';
-import { MyProfileResource } from '../_support/test-api/resources/my-profile.resource.js';
+import {
+  Country, CountriesResource,
+  CustomersResource, MyProfileResource
+} from '../_support/test-api/index.js';
 
 describe('ApiDocument', function () {
   const baseArgs: DocumentFactory.InitArguments = {

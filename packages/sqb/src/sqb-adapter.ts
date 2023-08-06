@@ -21,7 +21,7 @@ export namespace SQBAdapter {
     const {resource} = request;
 
     if (resource instanceof Collection || resource instanceof Singleton) {
-      const {args, operation} = request;
+      const {params, operation} = request;
       let options: any = {};
       const entityMetadata = EntityMetadata.get(resource.type.ctor);
       if (!entityMetadata)
@@ -38,30 +38,30 @@ export namespace SQBAdapter {
       if (operation === 'create' || operation === 'update' ||
           operation === 'get' || operation === 'findMany'
       ) {
-        options.pick = args.pick?.length ? args.pick : undefined;
-        options.omit = args.omit?.length ? args.omit : undefined;
-        options.include = args.include?.length ? args.include : undefined;
+        options.pick = params?.pick;
+        options.omit = params?.omit;
+        options.include = params?.include;
       }
 
-      if (resource instanceof Collection && args.filter) {
-        options.filter = _transformFilter(args.filter);
+      if (resource instanceof Collection && params?.filter) {
+        options.filter = _transformFilter(params.filter);
       }
 
       if (operation === 'findMany') {
-        options.sort = args.sort?.length ? args.sort : undefined;
-        options.limit = args.limit;
-        options.offset = args.skip;
-        options.distinct = args.distinct;
-        options.count = args.count;
+        options.sort = params?.sort;
+        options.limit = params?.limit;
+        options.offset = params?.skip;
+        options.distinct = params?.distinct;
+        options.count = params?.count;
       }
 
       options = omitBy(options, isNil);
       if (operation === 'create') {
         return {
           method: 'create',
-          data: args.data,
+          data: (request as any).data,
           options,
-          args: [args.data, options]
+          args: [(request as any).data, options]
         }
       }
 
@@ -76,9 +76,9 @@ export namespace SQBAdapter {
       if (operation === 'delete') {
         return {
           method: 'delete',
-          key: args.key,
+          key: (request as any).key,
           options,
-          args: [args.key, options]
+          args: [(request as any).key, options]
         }
       }
 
@@ -91,9 +91,9 @@ export namespace SQBAdapter {
           };
         return {
           method: 'find',
-          key: args.key,
+          key: (request as any).key,
           options,
-          args: [args.key, options]
+          args: [(request as any).key, options]
         };
       }
 
@@ -103,27 +103,26 @@ export namespace SQBAdapter {
           options,
           args: [options]
         };
-        if (args.count)
-          out.count = args.count;
+        out.count = params?.count;
         return out;
       }
 
       if (operation === 'updateMany' || (operation === 'update' && resource instanceof Singleton)) {
         return {
           method: 'updateMany',
-          data: args.data,
+          data: (request as any).data,
           options,
-          args: [args.data, options]
+          args: [(request as any).data, options]
         }
       }
 
       if (operation === 'update') {
         return {
           method: 'update',
-          key: args.key,
-          data: args.data,
+          key: (request as any).key,
+          data: (request as any).data,
           options,
-          args: [args.key, args.data, options]
+          args: [(request as any).key, (request as any).data, options]
         }
       }
     }

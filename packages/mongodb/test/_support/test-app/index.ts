@@ -1,6 +1,6 @@
 import { Db, MongoClient } from 'mongodb';
 import { ApiDocument, DocumentFactory } from '@opra/common';
-import { OpraHttpAdapter } from '@opra/core';
+import { HttpAdapterHost } from '@opra/core';
 import { CustomersResource } from './customers.resource.js';
 import { MyProfileResource } from './my-profile.resource.js';
 
@@ -8,7 +8,7 @@ export interface TestApp {
   client: MongoClient,
   db: Db;
   document: ApiDocument;
-  adapter: OpraHttpAdapter;
+  adapter: OpraHttpAdapterHost;
 }
 
 export async function createTestApp(): Promise<TestApp> {
@@ -25,7 +25,7 @@ export async function createTestApp(): Promise<TestApp> {
       new MyProfileResource(db),
     ]
   })
-  const adapter = await OpraHttpAdapter.create(document);
+  const adapter = await OpraHttpAdapterHost.create(document);
   return {
     client,
     db,

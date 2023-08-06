@@ -8,7 +8,7 @@ export * from './data-type/union-type.interface.js';
 
 export * from './resource/collection.interface.js';
 export * from './resource/container.interface.js';
-export * from './resource/endpoint.interface.js';
+export * from './resource/operation.interface.js';
 export * from './resource/resource.interface.js';
 export * from './resource/singleton.interface.js';
 export * from './resource/storage.interface.js';

@@ -13,18 +13,17 @@ import type { ComplexType } from '../data-type/complex-type.js';
 import { SimpleType } from '../data-type/simple-type.js';
 import { Resource } from './resource.js';
 
-const NESTJS_INJECTABLE_WATERMARK = '__injectable__';
+const NESTJS_INJECTABLE_WATERMARK = '__injectable__'; // todo, put this in nextjs package wia augmentation
 const NAME_PATTERN = /^(.*)(Resource|Collection)$/;
 
 export namespace Collection {
   export interface InitArguments extends Resource.InitArguments,
-      Pick<OpraSchema.Collection, 'primaryKey'> {
+      StrictOmit<OpraSchema.Collection, 'kind' | 'type'> {
     type: ComplexType;
-    operations: Operations;
   }
 
-  export interface DecoratorOptions extends Resource.DecoratorOptions,
-      Partial<Pick<OpraSchema.Collection, 'primaryKey'>> {
+  export interface DecoratorOptions<T = any> extends Resource.DecoratorOptions {
+    primaryKey?: keyof T | (keyof T)[];
   }
 
   export interface Metadata extends StrictOmit<OpraSchema.Collection, 'type'> {
@@ -32,33 +31,47 @@ export namespace Collection {
     type: TypeThunkAsync | string;
   }
 
-  interface Operation {
-    handlerName?: string;
+  // Need for augmentation
+  export namespace Create {
   }
 
-  export interface Operations {
-    create?: OpraSchema.Collection.CreateOperation & Operation;
-    delete?: OpraSchema.Collection.DeleteOperation & Operation;
-    get?: OpraSchema.Collection.GetOperation & Operation;
-    update?: OpraSchema.Collection.UpdateOperation & Operation;
-    deleteMany?: OpraSchema.Collection.DeleteManyOperation & Operation;
-    findMany?: OpraSchema.Collection.FindManyOperation & Operation;
-    updateMany?: OpraSchema.Collection.UpdateManyOperation & Operation;
+  // Need for augmentation
+  export namespace Delete {
   }
 
-  export type CreateOperationOptions = StrictOmit<OpraSchema.Collection.CreateOperation, 'handler'>;
-  export type DeleteOperationOptions = StrictOmit<OpraSchema.Collection.DeleteOperation, 'handler'>;
-  export type DeleteManyOperationOptions = StrictOmit<OpraSchema.Collection.DeleteManyOperation, 'handler'>;
-  export type FindManyOperationOptions = StrictOmit<OpraSchema.Collection.FindManyOperation, 'handler'>;
-  export type GetOperationOptions = StrictOmit<OpraSchema.Collection.GetOperation, 'handler'>;
-  export type UpdateOperationOptions = StrictOmit<OpraSchema.Collection.UpdateOperation, 'handler'>;
-  export type UpdateManyOperationOptions = StrictOmit<OpraSchema.Collection.UpdateManyOperation, 'handler'>;
+  // Need for augmentation
+  export namespace DeleteMany {
+  }
+
+  // Need for augmentation
+  export namespace FindMany {
+  }
+
+  // Need for augmentation
+  export namespace Get {
+  }
+
+  // Need for augmentation
+  export namespace Update {
+  }
+
+  // Need for augmentation
+  export namespace UpdateMany {
+  }
+
+  export type CreateOperationOptions = OpraSchema.Collection.CreateOperation;
+  export type DeleteOperationOptions = OpraSchema.Collection.DeleteOperation;
+  export type DeleteManyOperationOptions = OpraSchema.Collection.DeleteManyOperation;
+  export type FindManyOperationOptions = OpraSchema.Collection.FindManyOperation;
+  export type GetOperationOptions = OpraSchema.Collection.GetOperation;
+  export type UpdateOperationOptions = OpraSchema.Collection.UpdateOperation;
+  export type UpdateManyOperationOptions = OpraSchema.Collection.UpdateManyOperation;
 }
 
 class CollectionClass extends Resource {
   readonly type: ComplexType;
   readonly kind = OpraSchema.Collection.Kind;
-  readonly operations: Collection.Operations;
+  readonly operations: OpraSchema.Collection.Operations;
   readonly controller?: object;
   readonly primaryKey: string[];
 
@@ -68,7 +81,7 @@ class CollectionClass extends Resource {
   ) {
     super(document, init);
     this.controller = init.controller;
-    const operations = this.operations = init.operations || {};
+    this.operations = {...init.operations};
     const dataType = this.type = init.type;
     // Validate key fields
     this.primaryKey = init.primaryKey
@@ -81,19 +94,6 @@ class CollectionClass extends Resource {
       if (!(field?.type instanceof SimpleType))
         throw new TypeError(`Only Simple type allowed for primary keys but "${f}" is a ${field.type.kind}`);
     });
-    if (this.controller) {
-      const instance = typeof this.controller == 'function'
-          ? new (this.controller as Type)()
-          : this.controller;
-      for (const operation of Object.values(operations)) {
-        if (!operation.handler && operation.handlerName) {
-          const fn = instance[operation.handlerName];
-          if (!fn)
-            throw new TypeError(`No such operation handler (${operation.handlerName}) found`);
-          operation.handler = fn.bind(instance);
-        }
-      }
-    }
   }
 
   exportSchema(this: Collection): OpraSchema.Collection {
@@ -137,19 +137,20 @@ class CollectionClass extends Resource {
     }
   }
 
-  normalizeFieldPath(this: Collection, path: string | string[]): string | string[] {
+  normalizeFieldPath(this: Collection, path: string | string[]): string[] | undefined {
     return this.type.normalizeFieldPath(path as any);
   }
 
-  normalizeSortFields(this: Collection, fields: string | string[]): string | string[] {
-    const normalized = this.type.normalizeFieldPath(fields as any);
-    const findManyEndpoint = this.operations.findMany;
-    const sortFields = findManyEndpoint && findManyEndpoint.sortFields;
+  normalizeSortFields(this: Collection, fields: string | string[]): string[] | undefined {
+    const normalized = this.type.normalizeFieldPath(fields);
+    if (!normalized)
+      return;
+    const findManyOp = this.operations.findMany;
+    const sortFields = findManyOp && findManyOp.sortFields;
     (Array.isArray(normalized) ? normalized : [normalized]).forEach(field => {
       if (!sortFields?.find(x => x === field))
         throw new BadRequestError({
-          message: translate('error:UNACCEPTED_SORT_FIELD', {field},
-              `Field '${field}' is not available for sort operation`),
+          message: translate('error:UNACCEPTED_SORT_FIELD', {field}),
         })
     });
     return normalized;
@@ -163,22 +164,49 @@ class CollectionClass extends Resource {
       this.normalizeFilter(ast.left);
       if (!(ast.left instanceof OpraFilter.QualifiedIdentifier && ast.left.field))
         throw new TypeError(`Invalid filter query. Left side should be a data field.`);
+      // Check if filtering accepted for given field
+      const findManyOp = this.operations.findMany;
+      const fieldLower = ast.left.value.toLowerCase();
+      const filterDef = (findManyOp && findManyOp.filters || [])
+          .find(f => f.field.toLowerCase() === fieldLower);
+      if (!filterDef) {
+        throw new BadRequestError({
+          message: translate('error:UNACCEPTED_FILTER_FIELD', {field: ast.left.value}),
+        })
+      }
+      // Check if filtering operation accepted for given field
+      if (!filterDef.operators?.includes(ast.op))
+        throw new BadRequestError({
+          message: translate('error:UNACCEPTED_FILTER_OPERATION', {field: ast.left.value}),
+        })
       this.normalizeFilter(ast.right);
-    } else if (ast instanceof OpraFilter.LogicalExpression) {
+      return ast;
+    }
+    if (ast instanceof OpraFilter.LogicalExpression) {
       ast.items.forEach(item =>
           this.normalizeFilter(item));
-    } else if (ast instanceof OpraFilter.ArithmeticExpression) {
+      return ast;
+    }
+    if (ast instanceof OpraFilter.ArithmeticExpression) {
       ast.items.forEach(item =>
           this.normalizeFilter(item.expression));
-    } else if (ast instanceof OpraFilter.ArrayExpression) {
+      return ast;
+    }
+    if (ast instanceof OpraFilter.ArrayExpression) {
       ast.items.forEach(item =>
           this.normalizeFilter(item));
-    } else if (ast instanceof OpraFilter.ParenthesizedExpression) {
+      return ast;
+    }
+    if (ast instanceof OpraFilter.ParenthesizedExpression) {
       this.normalizeFilter(ast.expression);
-    } else if (ast instanceof OpraFilter.QualifiedIdentifier) {
-      ast.field = this.type.findField(ast.value);
+      return ast;
+    }
+    if (ast instanceof OpraFilter.QualifiedIdentifier) {
+      const normalizedFieldPath = this.type.normalizeFieldPath(ast.value)?.join('.') as string;
+      ast.field = this.type.getField(normalizedFieldPath);
       ast.dataType = ast.field?.type || this.document.getDataType('any');
-      ast.value = this.type.normalizeFieldPath(ast.value);
+      ast.value = normalizedFieldPath;
+      return ast;
     }
     return ast;
   }
@@ -189,15 +217,15 @@ export interface CollectionConstructor {
 
   new(document: ApiDocument, init: Collection.InitArguments): Collection;
 
-  (type: TypeThunkAsync | string, options?: Collection.DecoratorOptions): ClassDecorator;
+  <T>(type: Type<T> | string, options?: Collection.DecoratorOptions<T>): ClassDecorator;
 
-  Create: (options?: Collection.CreateOperationOptions) => PropertyDecorator;
-  Delete: (options?: Collection.DeleteOperationOptions) => PropertyDecorator;
-  Get: (options?: Collection.GetOperationOptions) => PropertyDecorator;
-  Update: (options?: Collection.UpdateOperationOptions) => PropertyDecorator;
-  FindMany: (options?: Collection.FindManyOperationOptions) => PropertyDecorator;
-  DeleteMany: (options?: Collection.DeleteManyOperationOptions) => PropertyDecorator;
-  UpdateMany: (options?: Collection.UpdateManyOperationOptions) => PropertyDecorator;
+  Create: (options?: Collection.CreateOperationOptions) => ((target: Object, propertyKey: 'create') => void);
+  Delete: (options?: Collection.DeleteOperationOptions) => ((target: Object, propertyKey: 'delete') => void);
+  DeleteMany: (options?: Collection.DeleteManyOperationOptions) => ((target: Object, propertyKey: 'deleteMany') => void);
+  Get: (options?: Collection.GetOperationOptions) => ((target: Object, propertyKey: 'get') => void);
+  FindMany: (options?: Collection.FindManyOperationOptions) => ((target: Object, propertyKey: 'findMany') => void);
+  Update: (options?: Collection.UpdateOperationOptions) => ((target: Object, propertyKey: 'update') => void);
+  UpdateMany: (options?: Collection.UpdateManyOperationOptions) => ((target: Object, propertyKey: 'updateMany') => void);
 }
 
 export interface Collection extends CollectionClass {
@@ -210,7 +238,8 @@ export const Collection = function (this: Collection | void, ...args: any[]) {
 
   // ClassDecorator
   if (!this) {
-    const [type, options] = args as [TypeThunkAsync | string, Collection.DecoratorOptions | undefined];
+    const [type, options] =
+        args as [Type | string, Collection.DecoratorOptions<any> | undefined];
     return function (target: Function) {
       const name = options?.name || target.name.match(NAME_PATTERN)?.[1] || target.name;
       const metadata: Collection.Metadata = Reflect.getOwnMetadata(METADATA_KEY, target) || ({} as any);
@@ -246,15 +275,13 @@ Collection.prototype = CollectionClass.prototype;
 function createOperationDecorator<T>(operation: string) {
   return (options?: T) =>
       ((target: Object, propertyKey: string | symbol): void => {
-        const metadata = {
-          ...options,
-          handlerName: propertyKey
-        };
-
+        if (propertyKey !== operation)
+          throw new TypeError(`Name of the handler name should be '${operation}'`);
+        const operationMeta = {...options};
         const resourceMetadata =
             (Reflect.getOwnMetadata(METADATA_KEY, target.constructor) || {}) as Collection.Metadata;
         resourceMetadata.operations = resourceMetadata.operations || {};
-        resourceMetadata.operations[operation] = metadata;
+        resourceMetadata.operations[operation] = operationMeta;
         Reflect.defineMetadata(METADATA_KEY, resourceMetadata, target.constructor);
       });
 }

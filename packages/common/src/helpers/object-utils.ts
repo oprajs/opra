@@ -16,13 +16,13 @@ export function cloneObject<T extends {}>(obj: T, jsonOnly?: boolean): T {
   }) as T;
 }
 
-export function omitUndefined(obj: any): any {
+export function omitUndefined(obj: any, recursive?: boolean): any {
   if (!(obj && typeof obj === 'object'))
     return obj;
   for (const k of Object.keys(obj)) {
     if (obj[k] === undefined)
       delete obj[k];
-    else if (typeof obj[k] === 'object')
+    else if (recursive && typeof obj[k] === 'object')
       omitUndefined(obj[k]);
   }
   return obj;

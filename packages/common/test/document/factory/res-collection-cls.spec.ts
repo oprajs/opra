@@ -46,7 +46,7 @@ describe('DocumentFactory - Collection resource with decorated classes', functio
       protected x = 1;
 
       @Collection.Create()
-      _create() {
+      create() {
         return this.x;
       }
     }
@@ -59,7 +59,6 @@ describe('DocumentFactory - Collection resource with decorated classes', functio
     const t = doc.getCollection('countries');
     expect(t.controller).toBe(CountriesResource);
     expect(t.operations.create).toBeDefined();
-    expect(t.operations.create?.handlerName).toStrictEqual('_create');
   })
 
   it('Should define "get" operation endpoint', async () => {
@@ -68,7 +67,7 @@ describe('DocumentFactory - Collection resource with decorated classes', functio
       protected x = 1;
 
       @Collection.Get()
-      _get() {
+      get() {
         return this.x;
       }
     }
@@ -81,7 +80,6 @@ describe('DocumentFactory - Collection resource with decorated classes', functio
     const t = doc.getCollection('countries');
     expect(t.controller).toBe(CountriesResource);
     expect(t.operations.get).toBeDefined();
-    expect(t.operations.get?.handlerName).toStrictEqual('_get');
   })
 
   it('Should define "update" operation endpoint', async () => {
@@ -90,7 +88,7 @@ describe('DocumentFactory - Collection resource with decorated classes', functio
       protected x = 1;
 
       @Collection.Update()
-      _update() {
+      update() {
         return this.x;
       }
     }
@@ -103,7 +101,6 @@ describe('DocumentFactory - Collection resource with decorated classes', functio
     const t = doc.getCollection('countries');
     expect(t.controller).toBe(CountriesResource);
     expect(t.operations.update).toBeDefined();
-    expect(t.operations.update?.handlerName).toStrictEqual('_update');
   })
 
   it('Should define "deleteOne" operation endpoint', async () => {
@@ -112,7 +109,7 @@ describe('DocumentFactory - Collection resource with decorated classes', functio
       protected x = 1;
 
       @Collection.Delete()
-      _delete() {
+      delete() {
         return this.x;
       }
     }
@@ -125,7 +122,6 @@ describe('DocumentFactory - Collection resource with decorated classes', functio
     const t = doc.getCollection('countries');
     expect(t.controller).toBe(CountriesResource);
     expect(t.operations.delete).toBeDefined();
-    expect(t.operations.delete?.handlerName).toStrictEqual('_delete');
   })
 
   it('Should define "search" operation endpoint', async () => {
@@ -134,7 +130,7 @@ describe('DocumentFactory - Collection resource with decorated classes', functio
       protected x = 1;
 
       @Collection.FindMany()
-      _search() {
+      findMany() {
         return this.x;
       }
     }
@@ -147,7 +143,6 @@ describe('DocumentFactory - Collection resource with decorated classes', functio
     const t = doc.getCollection('countries');
     expect(t.controller).toBe(CountriesResource);
     expect(t.operations.findMany).toBeDefined();
-    expect(t.operations.findMany?.handlerName).toStrictEqual('_search');
   })
 
   it('Should define "updateMany" operation endpoint', async () => {
@@ -156,7 +151,7 @@ describe('DocumentFactory - Collection resource with decorated classes', functio
       protected x = 1;
 
       @Collection.UpdateMany()
-      _updateMany() {
+      updateMany() {
         return this.x;
       }
     }
@@ -169,7 +164,6 @@ describe('DocumentFactory - Collection resource with decorated classes', functio
     const t = doc.getCollection('countries');
     expect(t.controller).toBe(CountriesResource);
     expect(t.operations.updateMany).toBeDefined();
-    expect(t.operations.updateMany?.handlerName).toStrictEqual('_updateMany');
   })
 
   it('Should define "updateMany" operation endpoint', async () => {
@@ -178,7 +172,7 @@ describe('DocumentFactory - Collection resource with decorated classes', functio
       protected x = 1;
 
       @Collection.DeleteMany()
-      _deleteMany() {
+      deleteMany() {
         return this.x;
       }
     }
@@ -191,7 +185,6 @@ describe('DocumentFactory - Collection resource with decorated classes', functio
     const t = doc.getCollection('countries');
     expect(t.controller).toBe(CountriesResource);
     expect(t.operations.deleteMany).toBeDefined();
-    expect(t.operations.deleteMany?.handlerName).toStrictEqual('_deleteMany');
   })
 
 });

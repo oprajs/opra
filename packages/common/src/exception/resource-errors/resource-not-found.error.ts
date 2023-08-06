@@ -10,7 +10,7 @@ export class ResourceNotFoundError extends OpraException {
   constructor(resource: string, keyValue?: any, cause?: Error) {
     super({
       message: translate(`error:RESOURCE_NOT_FOUND`, {resource: resource + (keyValue ? '@' + keyValue : '')},
-          `The resource '{{resource}}' could not be found`),
+          `The resource '{{resource}}' not found`),
       severity: 'error',
       code: 'RESOURCE_NOT_FOUND',
       details: {

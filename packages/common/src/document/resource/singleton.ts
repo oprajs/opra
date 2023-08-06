@@ -9,12 +9,12 @@ import { METADATA_KEY } from '../constants.js';
 import { ComplexType } from '../data-type/complex-type.js';
 import { Resource } from './resource.js';
 
-const NESTJS_INJECTABLE_WATERMARK = '__injectable__';
+const NESTJS_INJECTABLE_WATERMARK = '__injectable__'; // todo, put this in nextjs package wia augmentation
 const NAME_PATTERN = /^(.*)(Resource|Singleton)$/;
 
 export namespace Singleton {
   export interface InitArguments extends Resource.InitArguments,
-      Pick<OpraSchema.Singleton, 'operations'> {
+      StrictOmit<OpraSchema.Singleton, 'kind' | 'type'> {
     type: ComplexType;
   }
 
@@ -27,27 +27,32 @@ export namespace Singleton {
     type: TypeThunkAsync | string;
   }
 
-  interface Operation {
-    handlerName?: string;
+  // Need for augmentation
+  export namespace Create {
   }
 
-  export interface Operations {
-    create?: OpraSchema.Singleton.CreateOperation & Operation;
-    delete?: OpraSchema.Singleton.DeleteOperation & Operation;
-    get?: OpraSchema.Singleton.GetOperation & Operation;
-    update?: OpraSchema.Singleton.UpdateOperation & Operation;
+  // Need for augmentation
+  export namespace Delete {
   }
 
-  export type CreateOperationOptions = StrictOmit<OpraSchema.Singleton.CreateOperation, 'handler'>;
-  export type DeleteOperationOptions = StrictOmit<OpraSchema.Singleton.DeleteOperation, 'handler'>;
-  export type GetOperationOptions = StrictOmit<OpraSchema.Singleton.GetOperation, 'handler'>;
-  export type UpdateOperationOptions = StrictOmit<OpraSchema.Singleton.UpdateOperation, 'handler'>;
+  // Need for augmentation
+  export namespace Get {
+  }
+
+  // Need for augmentation
+  export namespace Update {
+  }
+
+  export type CreateOperationOptions = OpraSchema.Singleton.CreateOperation;
+  export type DeleteOperationOptions = OpraSchema.Singleton.DeleteOperation;
+  export type GetOperationOptions = OpraSchema.Singleton.GetOperation;
+  export type UpdateOperationOptions = OpraSchema.Singleton.UpdateOperation;
 }
 
 class SingletonClass extends Resource {
   readonly type: ComplexType;
   readonly kind = OpraSchema.Singleton.Kind;
-  readonly operations: Singleton.Operations;
+  readonly operations: OpraSchema.Singleton.Operations;
   readonly controller?: object | Type;
 
   constructor(
@@ -56,21 +61,8 @@ class SingletonClass extends Resource {
   ) {
     super(document, init);
     this.controller = init.controller;
-    const operations = this.operations = init.operations || {};
+    this.operations = {...init.operations};
     this.type = init.type;
-    if (this.controller) {
-      const instance = typeof this.controller == 'function'
-          ? new (this.controller as Type)()
-          : this.controller;
-      for (const operation of Object.values(operations)) {
-        if (!operation.handler && operation.handlerName) {
-          const fn = instance[operation.handlerName];
-          if (!fn)
-            throw new TypeError(`No such operation handler (${operation.handlerName}) found`);
-          operation.handler = fn.bind(instance);
-        }
-      }
-    }
   }
 
   exportSchema(): OpraSchema.Singleton {
@@ -82,8 +74,8 @@ class SingletonClass extends Resource {
     return out;
   }
 
-  normalizeFieldPath(this: Singleton, path: string | string[]): string | string[] {
-    return this.type.normalizeFieldPath(path as any);
+  normalizeFieldPath(this: Singleton, path: string | string[]): string[] | undefined {
+    return this.type.normalizeFieldPath(path);
   }
 
 }
@@ -95,10 +87,10 @@ export interface SingletonConstructor {
 
   (type: TypeThunkAsync | string, options?: Singleton.DecoratorOptions): ClassDecorator;
 
-  Create: (options?: Singleton.CreateOperationOptions) => PropertyDecorator;
-  Delete: (options?: Singleton.DeleteOperationOptions) => PropertyDecorator;
-  Get: (options?: Singleton.GetOperationOptions) => PropertyDecorator;
-  Update: (options?: Singleton.UpdateOperationOptions) => PropertyDecorator;
+  Create: (options?: Singleton.CreateOperationOptions) => ((target: Object, propertyKey: 'create') => void);
+  Delete: (options?: Singleton.DeleteOperationOptions) => ((target: Object, propertyKey: 'delete') => void);
+  Get: (options?: Singleton.GetOperationOptions) => ((target: Object, propertyKey: 'get') => void);
+  Update: (options?: Singleton.UpdateOperationOptions) => ((target: Object, propertyKey: 'update') => void);
 }
 
 export interface Singleton extends SingletonClass {
@@ -138,20 +130,17 @@ Singleton.prototype = SingletonClass.prototype;
 
 function createOperationDecorator<T>(operation: string) {
   return (options?: T) =>
-      ((target: Object, propertyKey: string | symbol): void => {
-        const metadata = {
-          ...options,
-          handlerName: propertyKey
-        };
-
+      ((target: Object, propertyKey: string): void => {
+        if (propertyKey !== operation)
+          throw new TypeError(`Name of the handler name should be '${operation}'`);
+        const operationMeta = {...options};
         const resourceMetadata =
             (Reflect.getOwnMetadata(METADATA_KEY, target.constructor) || {}) as Singleton.Metadata;
         resourceMetadata.operations = resourceMetadata.operations || {};
-        resourceMetadata.operations[operation] = metadata;
+        resourceMetadata.operations[operation] = operationMeta;
         Reflect.defineMetadata(METADATA_KEY, resourceMetadata, target.constructor);
       });
 }
-
 
 Singleton.Create = createOperationDecorator('create');
 Singleton.Get = createOperationDecorator('get');

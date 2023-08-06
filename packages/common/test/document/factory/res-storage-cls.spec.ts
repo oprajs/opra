@@ -41,7 +41,7 @@ describe('DocumentFactory - Storage resource with decorated classes', function (
     @Storage()
     class MyStorageResource {
       @Storage.Delete()
-      _delete() {
+      delete() {
         return {};
       }
     }
@@ -54,14 +54,13 @@ describe('DocumentFactory - Storage resource with decorated classes', function (
     const t = doc.getStorage('MyStorage');
     expect(t.controller).toBe(MyStorageResource);
     expect(t.operations.delete).toBeDefined();
-    expect(t.operations.delete?.handlerName).toStrictEqual('_delete');
   })
 
   it('Should define "get" operation endpoint', async () => {
     @Storage()
     class MyStorageResource {
       @Storage.Get()
-      _read() {
+      get() {
         return {};
       }
     }
@@ -74,14 +73,13 @@ describe('DocumentFactory - Storage resource with decorated classes', function (
     const t = doc.getStorage('MyStorage');
     expect(t.controller).toBe(MyStorageResource);
     expect(t.operations.get).toBeDefined();
-    expect(t.operations.get?.handlerName).toStrictEqual('_read');
   })
 
   it('Should define "put" operation endpoint', async () => {
     @Storage()
     class MyStorageResource {
-      @Storage.Put()
-      _put() {
+      @Storage.Post()
+      post() {
         return {};
       }
     }
@@ -93,8 +91,7 @@ describe('DocumentFactory - Storage resource with decorated classes', function (
     expect(doc).toBeDefined();
     const t = doc.getStorage('MyStorage');
     expect(t.controller).toBe(MyStorageResource);
-    expect(t.operations.put).toBeDefined();
-    expect(t.operations.put?.handlerName).toStrictEqual('_put');
+    expect(t.operations.post).toBeDefined();
   })
 
 

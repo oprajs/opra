@@ -60,6 +60,6 @@ export function isIterable<T = unknown>(x: any): x is Iterable<T> {
   return Symbol.iterator in x;
 }
 
-export function isAsyncIterable<T = unknown>(x: any): x is AsyncIterator<T> {
+export function isAsyncIterable<T = unknown>(x: any): x is AsyncIterableIterator<T> {
   return Symbol.asyncIterator in x;
 }

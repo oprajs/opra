@@ -1,6 +1,6 @@
 import mongodb, { UpdateFilter } from 'mongodb';
 import { StrictOmit } from 'ts-gems';
-import { PartialOutput, RequestContext } from '@opra/core';
+import { PartialOutput, OperationContext } from '@opra/core';
 
 export namespace MongoEntityService {
   export interface Options {
@@ -11,7 +11,7 @@ export namespace MongoEntityService {
 
 export class MongoEntityService<T extends mongodb.Document, TOutput = PartialOutput<T>> {
   protected _collectionName: string;
-  context: RequestContext;
+  context: OperationContext;
   defaultLimit: number;
   db?: mongodb.Db;
   session?: mongodb.ClientSession;
@@ -189,7 +189,7 @@ export class MongoEntityService<T extends mongodb.Document, TOutput = PartialOut
   }
 
   with(
-      context: RequestContext,
+      context: OperationContext,
       db?: mongodb.Db,
       session?: mongodb.ClientSession
   ): MongoEntityService<T, TOutput> {

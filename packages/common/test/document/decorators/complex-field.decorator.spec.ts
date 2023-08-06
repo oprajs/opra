@@ -13,7 +13,7 @@ describe('ApiField() decorator', function () {
 
     const metadata = Reflect.getMetadata(METADATA_KEY, Animal)
     expect(metadata).toBeDefined();
-    expect(metadata.fields).toStrictEqual({
+    expect(metadata.fields).toMatchObject({
       id: {
         type: 'integer',
         designType: Number,
@@ -37,7 +37,7 @@ describe('ApiField() decorator', function () {
 
     const metadata = Reflect.getMetadata(METADATA_KEY, Person);
     expect(metadata).toBeDefined();
-    expect(metadata.fields).toStrictEqual({
+    expect(metadata.fields).toMatchObject({
       country: {
         designType: Country
       }
@@ -65,7 +65,7 @@ describe('ApiField() decorator', function () {
 
     const metadata = Reflect.getMetadata(METADATA_KEY, Animal)
     expect(metadata).toBeDefined();
-    expect(metadata.fields).toStrictEqual({
+    expect(metadata.fields).toMatchObject({
       id: {
         designType: Number,
         description: 'description',
