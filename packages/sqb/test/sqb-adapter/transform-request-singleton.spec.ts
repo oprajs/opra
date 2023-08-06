@@ -2,15 +2,16 @@
 import '@opra/sqb';
 import { ApiDocument } from '@opra/common';
 import { Request } from '@opra/core';
-import { createTestApi } from '@opra/core/test/_support/test-app';
 import { SQBAdapter } from '@opra/sqb';
+import { createTestApp } from '../_support/test-app/index.js';
 
 describe('SQBAdapter.transformRequest (Singleton)', function () {
 
   let api: ApiDocument;
 
   beforeAll(async () => {
-    api = await createTestApi();
+    const app = await createTestApp();
+    api = app.api;
   });
 
   describe('Convert "create" request', function () {
@@ -19,11 +20,8 @@ describe('SQBAdapter.transformRequest (Singleton)', function () {
     it('Should prepare', async () => {
       const request = {
         resource: api.getSingleton('MyProfile'),
-        resourceKind: 'Singleton',
         operation: 'create',
-        crud: 'create',
-        many: false,
-        args: {data}
+        data
       } as unknown as Request;
       const o = SQBAdapter.transformRequest(request);
       expect(o.method).toStrictEqual('create');
@@ -35,12 +33,9 @@ describe('SQBAdapter.transformRequest (Singleton)', function () {
     it('Should prepare with "pick", "omit" and "include" options', async () => {
       const request = {
         resource: api.getSingleton('MyProfile'),
-        resourceKind: 'Singleton',
         operation: 'create',
-        crud: 'create',
-        many: false,
-        args: {
-          data,
+        data,
+        params: {
           pick: ['givenName'],
           omit: ['familyName'],
           include: ['gender']
@@ -64,11 +59,7 @@ describe('SQBAdapter.transformRequest (Singleton)', function () {
     it('Should prepare', async () => {
       const request = {
         resource: api.getSingleton('MyProfile'),
-        resourceKind: 'Singleton',
-        operation: 'delete',
-        crud: 'delete',
-        many: false,
-        args: {}
+        operation: 'delete'
       } as unknown as Request;
       const o = SQBAdapter.transformRequest(request);
       expect(o.method).toStrictEqual('deleteMany');
@@ -82,11 +73,7 @@ describe('SQBAdapter.transformRequest (Singleton)', function () {
     it('Should prepare', async () => {
       const request = {
         resource: api.getSingleton('MyProfile'),
-        resourceKind: 'Singleton',
-        operation: 'get',
-        crud: 'read',
-        many: false,
-        args: {}
+        operation: 'get'
       } as unknown as Request;
       const o = SQBAdapter.transformRequest(request);
       expect(o.method).toStrictEqual('findOne');
@@ -97,11 +84,8 @@ describe('SQBAdapter.transformRequest (Singleton)', function () {
     it('Should prepare with "pick", "omit" and "include" options', async () => {
       const request = {
         resource: api.getSingleton('MyProfile'),
-        resourceKind: 'Singleton',
         operation: 'get',
-        crud: 'read',
-        many: false,
-        args: {
+        params: {
           pick: ['givenName'],
           omit: ['familyName'],
           include: ['gender']
@@ -125,11 +109,8 @@ describe('SQBAdapter.transformRequest (Singleton)', function () {
     it('Should prepare', async () => {
       const request = {
         resource: api.getSingleton('MyProfile'),
-        resourceKind: 'Singleton',
         operation: 'update',
-        crud: 'update',
-        many: false,
-        args: {data}
+        data
       } as unknown as Request;
       const o = SQBAdapter.transformRequest(request);
       expect(o.method).toStrictEqual('updateMany');
@@ -141,12 +122,9 @@ describe('SQBAdapter.transformRequest (Singleton)', function () {
     it('Should prepare with "pick", "omit" and "include" options', async () => {
       const request = {
         resource: api.getSingleton('MyProfile'),
-        resourceKind: 'Singleton',
         operation: 'update',
-        crud: 'update',
-        many: false,
-        args: {
-          data,
+        data,
+        params: {
           pick: ['givenName'],
           omit: ['familyName'],
           include: ['gender']

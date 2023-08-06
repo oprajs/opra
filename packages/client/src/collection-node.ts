@@ -108,6 +108,8 @@ export class HttpCollectionNode<TType, TResponseExt = {}> {
       options?: StrictOmit<HttpCollectionNode.DeleteOptions, 'observe'> & { observe: HttpObserveType.Events }
   ): HttpRequestObservable<HttpEvent, never, TResponseExt>
   delete(id: any, options?: HttpCollectionNode.DeleteOptions) {
+    if (id == null)
+      throw new TypeError(`'id' argument must have a value`);
     const context = this[kContext];
     const requestHost = new HttpRequestObservable(context, options);
     const request = requestHost[kRequest];
@@ -149,6 +151,8 @@ export class HttpCollectionNode<TType, TResponseExt = {}> {
       options?: StrictOmit<HttpCollectionNode.GetOptions, 'observe'> & { observe: HttpObserveType.Events }
   ): HttpRequestObservable<HttpEvent, TType, TResponseExt>
   get(id: any, options?: HttpCollectionNode.GetOptions) {
+    if (id == null)
+      throw new TypeError(`'id' argument must have a value`);
     const context = this[kContext];
     const requestHost = new HttpRequestObservable(context, options);
     const request = requestHost[kRequest];
@@ -218,6 +222,8 @@ export class HttpCollectionNode<TType, TResponseExt = {}> {
       options?: StrictOmit<HttpCollectionNode.UpdateOptions, 'observe'> & { observe: HttpObserveType.Events }
   ): HttpRequestObservable<HttpEvent, TType, TResponseExt>
   update(id: any, data: PartialInput<TType>, options?: HttpCollectionNode.UpdateOptions) {
+    if (id == null)
+      throw new TypeError(`'id' argument must have a value`);
     const context = this[kContext];
     const requestHost = new HttpRequestObservable(context, options);
     const request = requestHost[kRequest];

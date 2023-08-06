@@ -60,7 +60,7 @@ export function collectionGetTests(args: { client: OpraTestClient }) {
           .toSuccess()
           .toReturnObject()
           .toHaveFields(['address']);
-      expect(resp.body.address).toBeDefined();
+      expect(resp.body.data.address).toBeDefined();
     })
 
   })

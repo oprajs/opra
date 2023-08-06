@@ -15,7 +15,7 @@ export class ApiExpectObject {
   toMatch<T extends {}>(expected: T): this {
     try {
       const v = omitBy(expected, isNil);
-      this._expect(this.response.body).toMatchObject(v);
+      this._expect(this.response.body.data).toMatchObject(v);
     } catch (e: any) {
       Error.captureStackTrace(e, this.toMatch);
       throw e;
@@ -25,7 +25,7 @@ export class ApiExpectObject {
 
   toHaveFields(fields: string[]): this {
     try {
-      this._expect(this.response.body).toHaveFields(fields);
+      this._expect(this.response.body.data).toHaveFields(fields);
     } catch (e: any) {
       Error.captureStackTrace(e, this.toHaveFields);
       throw e;
@@ -35,7 +35,7 @@ export class ApiExpectObject {
 
   toHaveFieldsOnly(fields: string[]): this {
     try {
-      this._expect(this.response.body).toHaveFieldsOnly(fields);
+      this._expect(this.response.body.data).toHaveFieldsOnly(fields);
     } catch (e: any) {
       Error.captureStackTrace(e, this.toHaveFieldsOnly);
       throw e;

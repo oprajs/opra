@@ -27,7 +27,7 @@ export function singletonUpdateTests(args: { client: OpraTestClient }) {
       resp.expect
           .toSuccess()
           .toReturnObject();
-      const oldData = resp.body;
+      const oldData = resp.body.data;
 
       const data = {
         givenName: faker.person.firstName(),
@@ -39,6 +39,7 @@ export function singletonUpdateTests(args: { client: OpraTestClient }) {
       resp = await args.client.singleton('MyProfile')
           .update(data)
           .fetch(HttpObserveType.Response);
+
       resp.expect
           .toSuccess()
           .toReturnObject()

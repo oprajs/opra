@@ -25,7 +25,7 @@ export class ApiExpectCollection {
   toMatch<T extends {}>(expected: T): this {
     try {
       const v = omitBy(expected, isNil);
-      for (const item of this.response.body) {
+      for (const item of this.response.body.data) {
         this._expect(item).toMatchObject(v);
       }
     } catch (e: any) {
@@ -37,7 +37,7 @@ export class ApiExpectCollection {
 
   toHaveFields(keys: string[]): this {
     try {
-      for (const item of this.response.body) {
+      for (const item of this.response.body.data) {
         this._expect(item).toHaveFields(keys);
       }
     } catch (e: any) {
@@ -49,7 +49,7 @@ export class ApiExpectCollection {
 
   toHaveFieldsOnly(keys: string[]): this {
     try {
-      for (const item of this.response.body) {
+      for (const item of this.response.body.data) {
         this._expect(item).toHaveFieldsOnly(keys);
       }
     } catch (e: any) {
@@ -75,7 +75,7 @@ export class ApiExpectCollection {
 
   toBeSortedBy(...fields: string[]): this {
     try {
-      this._expect(this.response.body).toBeSortedBy(fields);
+      this._expect(this.response.body.data).toBeSortedBy(fields);
     } catch (e: any) {
       Error.captureStackTrace(e, this.toBeSortedBy);
       throw e;
@@ -87,9 +87,9 @@ export class ApiExpectCollection {
     const f = convertFilter(filter);
     if (f) {
       const j = ruleJudgment(f);
-      const filtered = this.response.body.filter(j);
+      const filtered = this.response.body.data.filter(j);
       try {
-        this._expect(this.response.body).toStrictEqual(filtered);
+        this._expect(this.response.body.data).toStrictEqual(filtered);
       } catch (e: any) {
         Error.captureStackTrace(e, this.toBeFilteredBy);
         throw e;
@@ -100,7 +100,7 @@ export class ApiExpectCollection {
 
   toHaveExactItems(expected: number): this {
     try {
-      this._expect(this.response.body).toHaveLength(expected);
+      this._expect(this.response.body.data).toHaveLength(expected);
     } catch (e: any) {
       Error.captureStackTrace(e, this.toHaveExactItems);
       throw e;
@@ -110,7 +110,7 @@ export class ApiExpectCollection {
 
   toHaveMaxItems(expected: number): this {
     try {
-      this._expect(this.response.body.length).toBeLessThanOrEqual(expected);
+      this._expect(this.response.body.data.length).toBeLessThanOrEqual(expected);
     } catch (e: any) {
       Error.captureStackTrace(e, this.toHaveMaxItems);
       throw e;
@@ -120,7 +120,7 @@ export class ApiExpectCollection {
 
   toHaveMinItems(expected: number): this {
     try {
-      this._expect(this.response.body.length).toBeGreaterThanOrEqual(expected);
+      this._expect(this.response.body.data.length).toBeGreaterThanOrEqual(expected);
     } catch (e: any) {
       Error.captureStackTrace(e, this.toHaveMinItems);
       throw e;

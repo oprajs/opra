@@ -1,11 +1,11 @@
 /* eslint-disable import/no-duplicates */
 import '@opra/core';
 import { ApiDocument, Collection } from '@opra/common';
-import { createTestApi } from '@opra/core/test/_support/test-app/index';
 import { SQBAdapter } from '@opra/sqb';
 import {
   And, Eq, Gt, Gte, Ilike, In, Like, Lt, Lte, Ne, Nin, NLike, Not, NotILike, Or,
 } from '@sqb/builder';
+import { createTestApp } from '../_support/test-app/index.js';
 
 describe('SQBAdapter.convertFilter', function () {
 
@@ -13,7 +13,8 @@ describe('SQBAdapter.convertFilter', function () {
   let customers: Collection;
 
   beforeAll(async () => {
-    api = await createTestApi();
+    const app = await createTestApp();
+    api = app.api;
     customers = api.getCollection('customers');
   });
 

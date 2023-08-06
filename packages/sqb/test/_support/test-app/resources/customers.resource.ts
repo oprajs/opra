@@ -16,7 +16,20 @@ export class CustomersResource extends SqbCollectionResource<Customer> {
   }
 
   @Collection.FindMany({
-    sortFields: ['_id', 'givenName', 'familyName', 'gender']
+    sortFields: ['_id', 'givenName', 'familyName', 'gender', 'address.countryCode'],
+    defaultSort: ['givenName'],
+    filters: [
+      {field: '_id', operators: ['=', '>', '<', '>=', '<=']},
+      {field: 'givenName', operators: ['=', '!=', 'like', '!like', 'ilike', '!ilike']},
+      {field: 'familyName', operators: ['=', '!=', 'like', '!like']},
+      {field: 'gender', operators: ['=']},
+      {field: 'uid', operators: ['=']},
+      {field: 'address.countryCode', operators: ['=']},
+      {field: 'deleted', operators: ['=']},
+      {field: 'active', operators: ['=']},
+      {field: 'birthDate', operators: ['=']},
+      {field: 'rate', operators: ['=', '>', '<', '>=', '<=', 'in', '!in']},
+    ]
   })
   findMany;
 

@@ -74,6 +74,8 @@ export class ApiExpect {
       msg = '"body" is empty';
       expect(this.response.body).toBeDefined();
       expect(typeof this.response.body).toStrictEqual('object');
+      msg = `"body.data" is ${typeof typeof this.response.body.data}`;
+      expect(typeof this.response.body.data).toStrictEqual('object');
     } catch (e: any) {
       if (msg)
         e.message = msg + '\n\n' + e.message;
@@ -88,8 +90,9 @@ export class ApiExpect {
     try {
       msg = '"body" is empty';
       expect(this.response.body).toBeDefined();
+      expect(this.response.body.data).toBeDefined();
       msg = '"body" is not an array';
-      expect(this.response.body).toBeArray();
+      expect(this.response.body.data).toBeArray();
     } catch (e: any) {
       if (msg)
         e.message = msg + '\n\n' + e.message;

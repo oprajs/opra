@@ -10,7 +10,7 @@ describe('e2e:Collection', function () {
 
   beforeAll(async () => {
     app = await createTestApp();
-    client = new OpraTestClient(app.adapter.server, {api: app.document});
+    client = new OpraTestClient(app.adapter.server, {api: app.api});
     testArgs.app = app;
     testArgs.client = client;
   });
