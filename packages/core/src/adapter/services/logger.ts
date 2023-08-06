@@ -10,7 +10,8 @@ export class Logger implements ILogger {
   protected _instance: ILogger;
 
   constructor(options: LoggerOptions = {}) {
-    this._instance = options.instance || globalThis.console;
+    this._instance = options.instance ||
+        (!(process.env.NODE_ENV || '').includes('test') ? globalThis.console : {});
   }
 
   info(message: any, ...optionalParams: any[]): void {

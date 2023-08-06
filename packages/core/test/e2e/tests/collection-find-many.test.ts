@@ -1,5 +1,4 @@
 import { HttpObserveType } from '@opra/client';
-import { HttpHeaderCodes } from '@opra/common';
 import { OpraTestClient } from '@opra/testing';
 
 export function collectionSearchTests(args: { client: OpraTestClient }) {
@@ -44,7 +43,7 @@ export function collectionSearchTests(args: { client: OpraTestClient }) {
           .toSuccess()
           .toReturnCollection()
           .toHaveMinItems(1);
-      expect(resp.body[0]._id).toBeGreaterThanOrEqual(10);
+      expect(resp.body.data[0]._id).toBeGreaterThanOrEqual(10);
     })
 
     it('Test "pick" option', async () => {
@@ -86,7 +85,7 @@ export function collectionSearchTests(args: { client: OpraTestClient }) {
           .toSuccess()
           .toReturnCollection();
       expect(resp.totalCount).toBeGreaterThanOrEqual(100);
-      expect(parseFloat('' + resp.headers.get(HttpHeaderCodes.X_Total_Count))).toBeGreaterThanOrEqual(100);
+      expect(resp.body.totalCount).toBeGreaterThanOrEqual(100);
     })
 
   })

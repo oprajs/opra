@@ -24,13 +24,8 @@ describe('SQBAdapter.transformRequest (Collection)', function () {
     it('Should prepare', async () => {
       const request = {
         resource: api.getCollection('customers'),
-        resourceKind: 'Collection',
         operation: 'create',
-        crud: 'create',
-        many: false,
-        args: {
-          data,
-        }
+        data
       } as unknown as Request;
       const options = {};
       const o = SQBAdapter.transformRequest(request);
@@ -43,12 +38,9 @@ describe('SQBAdapter.transformRequest (Collection)', function () {
     it('Should prepare with "pick", "omit" and "include" options', async () => {
       const request = {
         resource: api.getCollection('customers'),
-        resourceKind: 'Collection',
         operation: 'create',
-        crud: 'create',
-        many: false,
-        args: {
-          data,
+        data,
+        params: {
           pick: ['phoneCode'],
           omit: ['code'],
           include: ['name']
@@ -73,12 +65,9 @@ describe('SQBAdapter.transformRequest (Collection)', function () {
   describe('Convert "delete" request', function () {
     it('Should prepare', async () => {
       const request = {
-        resource: api.getCollection('countries'),
-        resourceKind: 'Collection',
+        resource: api.getCollection('customers'),
         operation: 'delete',
-        crud: 'delete',
-        many: false,
-        args: {key: 1}
+        key: 1
       } as unknown as Request;
       const o = SQBAdapter.transformRequest(request);
       const options = {};
@@ -96,12 +85,8 @@ describe('SQBAdapter.transformRequest (Collection)', function () {
 
     it('Should prepare', async () => {
       const request = {
-        resource: api.getCollection('countries'),
-        resourceKind: 'Collection',
-        operation: 'deleteMany',
-        crud: 'delete',
-        many: true,
-        args: {}
+        resource: api.getCollection('customers'),
+        operation: 'deleteMany'
       } as unknown as Request;
       const o = SQBAdapter.transformRequest(request);
       expect(o.method).toStrictEqual('deleteMany');
@@ -113,11 +98,8 @@ describe('SQBAdapter.transformRequest (Collection)', function () {
       const resource = api.getCollection('customers');
       const request = {
         resource,
-        resourceKind: 'Collection',
         operation: 'deleteMany',
-        crud: 'delete',
-        many: true,
-        args: {filter: resource.normalizeFilter('givenName="John"')}
+        params: {filter: resource.normalizeFilter('givenName="John"')}
       } as unknown as Request;
       const o = SQBAdapter.transformRequest(request);
       const options = {
@@ -136,12 +118,9 @@ describe('SQBAdapter.transformRequest (Collection)', function () {
 
     it('Should prepare', async () => {
       const request = {
-        resource: api.getCollection('countries'),
-        resourceKind: 'Collection',
+        resource: api.getCollection('customers'),
         operation: 'get',
-        crud: 'read',
-        many: false,
-        args: {key: 1}
+        key: 1
       } as unknown as Request;
       const o = SQBAdapter.transformRequest(request);
       const options = {}
@@ -153,13 +132,10 @@ describe('SQBAdapter.transformRequest (Collection)', function () {
 
     it('Should prepare with "pick", "omit" and "include" options', async () => {
       const request = {
-        resource: api.getCollection('countries'),
-        resourceKind: 'Collection',
+        resource: api.getCollection('customers'),
         operation: 'get',
-        crud: 'read',
-        many: false,
-        args: {
-          key: 1,
+        key: 1,
+        params: {
           pick: ['phoneCode'],
           omit: ['code'],
           include: ['name']
@@ -185,12 +161,8 @@ describe('SQBAdapter.transformRequest (Collection)', function () {
 
     it('Should prepare', async () => {
       const request = {
-        resource: api.getCollection('countries'),
-        resourceKind: 'Collection',
-        operation: 'findMany',
-        crud: 'read',
-        many: true,
-        args: {}
+        resource: api.getCollection('customers'),
+        operation: 'findMany'
       } as unknown as Request;
       const o = SQBAdapter.transformRequest(request);
       expect(o.method).toStrictEqual('findMany');
@@ -202,11 +174,8 @@ describe('SQBAdapter.transformRequest (Collection)', function () {
       const resource = api.getCollection('customers');
       const request = {
         resource: api.getCollection('customers'),
-        resourceKind: 'Collection',
         operation: 'findMany',
-        crud: 'read',
-        many: true,
-        args: {filter: resource.normalizeFilter('givenName="John"')}
+        params: {filter: resource.normalizeFilter('givenName="John"')}
       } as unknown as Request;
       const o = SQBAdapter.transformRequest(request);
       const options = {
@@ -219,12 +188,9 @@ describe('SQBAdapter.transformRequest (Collection)', function () {
 
     it('Should prepare with "pick", "omit" and "include" options', async () => {
       const request = {
-        resource: api.getCollection('countries'),
-        resourceKind: 'Collection',
+        resource: api.getCollection('customers'),
         operation: 'findMany',
-        crud: 'read',
-        many: true,
-        args: {
+        params: {
           pick: ['phoneCode'],
           omit: ['code'],
           include: ['name']
@@ -250,12 +216,10 @@ describe('SQBAdapter.transformRequest (Collection)', function () {
 
     it('Should prepare', async () => {
       const request = {
-        resource: api.getCollection('countries'),
-        resourceKind: 'Collection',
+        resource: api.getCollection('customers'),
         operation: 'update',
-        crud: 'update',
-        many: false,
-        args: {key: 1, data}
+        key: 1,
+        data
       } as unknown as Request;
       const o = SQBAdapter.transformRequest(request);
       const options = {}
@@ -268,14 +232,11 @@ describe('SQBAdapter.transformRequest (Collection)', function () {
 
     it('Should prepare with "pick", "omit" and "include" options', async () => {
       const request = {
-        resource: api.getCollection('countries'),
-        resourceKind: 'Collection',
+        resource: api.getCollection('customers'),
         operation: 'update',
-        crud: 'update',
-        many: false,
-        args: {
-          key: 1,
-          data,
+        key: 1,
+        data,
+        params: {
           pick: ['phoneCode'],
           omit: ['code'],
           include: ['name']
@@ -303,12 +264,9 @@ describe('SQBAdapter.transformRequest (Collection)', function () {
 
     it('Should prepare', async () => {
       const request = {
-        resource: api.getCollection('countries'),
-        resourceKind: 'Collection',
+        resource: api.getCollection('customers'),
         operation: 'updateMany',
-        crud: 'update',
-        many: true,
-        args: {data}
+        data
       } as unknown as Request;
       const options = {};
       const o = SQBAdapter.transformRequest(request);
@@ -322,11 +280,9 @@ describe('SQBAdapter.transformRequest (Collection)', function () {
       const resource = api.getCollection('customers');
       const request = {
         resource: api.getCollection('customers'),
-        resourceKind: 'Collection',
         operation: 'updateMany',
-        crud: 'update',
-        many: true,
-        args: {data, filter: resource.normalizeFilter('givenName="John"')}
+        data,
+        params: {filter: resource.normalizeFilter('givenName="John"')}
       } as unknown as Request;
       const o = SQBAdapter.transformRequest(request);
       const options = {

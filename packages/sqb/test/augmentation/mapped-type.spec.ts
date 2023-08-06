@@ -1,8 +1,8 @@
 import 'reflect-metadata';
 import '@opra/sqb';
 import { ApiField, ComplexType, METADATA_KEY, OmitType, PickType } from '@opra/common';
-import { Customer } from '@opra/common/test/_support/test-api';
 import { Column, Entity } from '@sqb/connect';
+import { Customer } from '../_support/test-app/entities/customer.entity.js';
 
 describe('MappedType augmentation', function () {
 

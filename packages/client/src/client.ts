@@ -1,11 +1,7 @@
 import { lastValueFrom, Observable, Subscriber } from 'rxjs';
 import { isReadableStreamLike } from 'rxjs/internal/util/isReadableStreamLike';
 import { StrictOmit, Type } from 'ts-gems';
-import {
-  ApiDocument, DocumentFactory,
-  HttpHeaderCodes,
-  isBlob, OpraURL
-} from '@opra/common';
+import { ApiDocument, DocumentFactory, isBlob, OpraURL } from '@opra/common';
 import { ClientError } from './client-error.js';
 import { HttpCollectionNode } from './collection-node.js';
 import {
@@ -252,11 +248,13 @@ export class OpraHttpClient {
     }
 
     let body;
+    let totalCount;
     if (fetchResponse.body) {
       if (JSON_CONTENT_TYPE_PATTERN.test(headers.get('Content-Type') || '')) {
         body = await fetchResponse.json();
         if (typeof body === 'string')
           body = JSON.parse(body);
+        totalCount = body.totalCount;
       } else if (TEXT_CONTENT_TYPE_PATTERN.test(headers.get('Content-Type') || ''))
         body = await fetchResponse.text();
       else if (FORMDATA_CONTENT_TYPE_PATTERN.test(headers.get('Content-Type') || ''))
@@ -286,8 +284,8 @@ export class OpraHttpClient {
       body
     }
 
-    if (fetchResponse.headers.has(HttpHeaderCodes.X_Total_Count))
-      responseInit.totalCount = parseInt(fetchResponse.headers.get(HttpHeaderCodes.X_Total_Count) as string, 10);
+    if (totalCount != null)
+      responseInit.totalCount = totalCount;
 
     const response = this._createResponse(responseInit);
 

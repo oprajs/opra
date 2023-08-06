@@ -11,8 +11,8 @@ describe('MongoAdapter.transformKeyValues', function () {
   });
 
   it('Should transform using single primitive key value', async () => {
-    const out = SQBAdapter.transformKeyValues(api.getCollection('countries'), 1);
-    expect(out).toStrictEqual({code: 1});
+    const out = SQBAdapter.transformKeyValues(api.getCollection('customers'), 1);
+    expect(out).toStrictEqual({_id: 1});
   });
 
 });
