@@ -4,7 +4,7 @@ import '@opra/sqb';
 import cors from 'cors';
 import express from 'express';
 import { DocumentFactory } from '@opra/common';
-import { OpraExpressAdapter } from '@opra/core';
+import { ExpressAdapter } from '@opra/core';
 import { SqbClient } from '@sqb/connect';
 import { createDatabase } from './db-schema.js';
 import { GenderEnum } from './enums/gender.enum.js';
@@ -38,7 +38,7 @@ async function run() {
     // console.log(util.inspect(service, {depth: 10, colors: true}));
     const app = express();
     app.use(cors());
-    await OpraExpressAdapter.create(app, api, {
+    await ExpressAdapter.create(app, api, {
       basePath: '/svc1',
       logger: console
     });
