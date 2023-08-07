@@ -1,5 +1,4 @@
 import head from 'lodash.head';
-import identity from 'lodash.identity';
 import { ContextType, Inject, Injectable } from '@nestjs/common';
 import { ContextIdFactory, createContextId, ModulesContainer, REQUEST } from '@nestjs/core';
 import { ExternalContextCreator, ExternalContextOptions } from '@nestjs/core/helpers/external-context-creator';
@@ -55,7 +54,6 @@ export class OpraApiFactory {
         resources.push(instance);
     }
 
-
     for (const wrapper of wrappers) {
       const instance = wrapper.instance;
       const ctor = instance.constructor;
@@ -67,56 +65,39 @@ export class OpraApiFactory {
       resources.push(instance);
 
       /* Wrap resolver functions */
-      const prototype = Object.getPrototypeOf(instance);
       const isRequestScoped = !wrapper.isDependencyTreeStatic();
       // const methodsToWrap = OpraSchema.isCollectionResource(resourceDef) ? collectionMethods : [];
       if ((OpraSchema.isCollection(resourceDef) || OpraSchema.isSingleton(resourceDef)) && resourceDef.operations) {
-        for (const opr of Object.values(resourceDef.operations)) {
-          const {handlerName} = opr;
-          const fn = prototype[handlerName];
-          if (typeof fn !== 'function')
+        for (const methodName of Object.keys(resourceDef.operations)) {
+          const operationFunction = instance[methodName];
+          const nestHandlerName = methodName + '_nestjs';
+          // Skip patch if controller do not have function for operation or already patched before
+          if (typeof operationFunction !== 'function')
             continue;
+
           // NestJs requires calling handler function in different order than Opra.
           // In NestJS, handler functions must be called with these parameters (req, res, next)
           // In Opra, handler functions must be called with these parameters (context)
           // To work handlers properly we create new handlers that will work as a proxy to wrap parameters
           // Opra request (context) -> Nest (req, res, next, context: QueryRequestContext) -> Opra response (context)
-
-          const nestHandlerName = handlerName + '::nestjs';
-          const paramArgsMetadata = Reflect.getMetadata(PARAM_ARGS_METADATA, instance.constructor, handlerName);
+          const paramArgsMetadata = Reflect.getMetadata(PARAM_ARGS_METADATA, instance.constructor, methodName);
           const hasParamsArgs = !!paramArgsMetadata;
-          const patchedFn = prototype[nestHandlerName] = function (...args: any[]) {
+          const patchedFn = instance[nestHandlerName] = function (...args: any[]) {
             if (hasParamsArgs)
-              return fn.apply(this, args);
-            return fn.call(this, args[3]);
+              return operationFunction.apply(this, args);
+            return operationFunction.call(this, args[3]);
           }
           if (paramArgsMetadata)
             Reflect.defineMetadata(PARAM_ARGS_METADATA, paramArgsMetadata, instance.constructor, nestHandlerName);
 
           // Copy all metadata from old Function to new one
-          Reflect.getMetadataKeys(fn).forEach(k => {
-            const m = Reflect.getMetadata(k, fn);
+          Reflect.getMetadataKeys(operationFunction).forEach(k => {
+            const m = Reflect.getMetadata(k, operationFunction);
             Reflect.defineMetadata(k, m, patchedFn);
           });
 
-          const callback = this._createContextCallback(instance, prototype, wrapper,
-              rootModule, nestHandlerName, isRequestScoped, undefined, contextType);
-          opr.handler = function (ctx: opraCore.OperationContext) {
-            switch (ctx.protocol) {
-              case 'http':
-                const httpContext = ctx.switchToHttp();
-                return callback(httpContext.request, httpContext.response, noOpFunction, ctx);
-              default:
-                throw new Error(`"${ctx.protocol}" context type is not implemented yet`)
-            }
-          };
-          Object.defineProperty(opr.handler, 'name', {
-            configurable: false,
-            writable: false,
-            enumerable: true,
-            value: handlerName
-          });
-
+          this._createContextCallback(instance, wrapper,
+              rootModule, methodName, isRequestScoped, contextType);
         }
       }
     }
@@ -125,56 +106,70 @@ export class OpraApiFactory {
     return DocumentFactory.createDocument(apiSchema);
   }
 
+  private _createHandler(instance: object, callback: Function) {
+    return function (ctx: opraCore.OperationContext) {
+      switch (ctx.protocol) {
+        case 'http':
+          const httpContext = ctx.switchToHttp();
+          return callback(httpContext.incoming, httpContext.outgoing, noOpFunction, ctx);
+        default:
+          throw new Error(`"${ctx.protocol}" context type is not implemented yet`)
+      }
+    };
+  }
+
   private _createContextCallback(
       instance: object,
-      prototype: object,
       wrapper: InstanceWrapper,
       moduleRef: Module,
       methodName: string,
       isRequestScoped: boolean,
-      transform: Function = identity,
       contextType: ContextType,
       options?: ExternalContextOptions
   ) {
     const paramsFactory = this.paramsFactory;
+    const nestHandlerName = methodName + '_nestjs';
 
-    if (isRequestScoped) {
-      return async (...args: any[]) => {
-        const opraContext: opraCore.OperationContext =
-            paramsFactory.exchangeKeyForValue(HandlerParamType.CONTEXT, undefined, args);
-        const contextId = this.getContextId(opraContext);
-        this.registerContextProvider(opraContext, contextId);
-        const contextInstance = await this.injector.loadPerContext(
+    const callback = isRequestScoped
+        ? async (...args: any[]) => {
+          const opraContext: opraCore.OperationContext =
+              paramsFactory.exchangeKeyForValue(HandlerParamType.CONTEXT, undefined, args);
+          const contextId = this.getContextId(opraContext);
+          this.registerContextProvider(opraContext, contextId);
+          const contextInstance = await this.injector.loadPerContext(
+              instance,
+              moduleRef,
+              moduleRef.providers,
+              contextId,
+          );
+          const contextCallback = this.externalContextCreator.create(
+              contextInstance,
+              contextInstance[methodName],
+              nestHandlerName,
+              PARAM_ARGS_METADATA,
+              paramsFactory,
+              contextId,
+              wrapper.id,
+              options,
+              opraContext.protocol,
+          );
+          contextInstance[methodName] = this._createHandler(instance, contextCallback);
+
+          return contextCallback(...args);
+        }
+        : this.externalContextCreator.create<Record<number, ParamMetadata>, ContextType>(
             instance,
-            moduleRef,
-            moduleRef.providers,
-            contextId,
-        );
-        const callback = this.externalContextCreator.create(
-            contextInstance,
-            transform(contextInstance[methodName]),
-            methodName,
+            instance[nestHandlerName],
+            nestHandlerName,
             PARAM_ARGS_METADATA,
             paramsFactory,
-            contextId,
-            wrapper.id,
+            undefined,
+            undefined,
             options,
-            opraContext.protocol,
+            contextType,
         );
-        return callback(...args);
-      };
-    }
-    return this.externalContextCreator.create<Record<number, ParamMetadata>, ContextType>(
-        instance,
-        prototype[methodName],
-        methodName,
-        PARAM_ARGS_METADATA,
-        paramsFactory,
-        undefined,
-        undefined,
-        options,
-        contextType,
-    );
+    instance[methodName] = this._createHandler(instance, callback);
+    return callback;
   }
 
   // noinspection JSMethodCanBeStatic

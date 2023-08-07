@@ -1,5 +1,6 @@
 // /// <reference lib="dom" />
 import type { Observable } from 'rxjs';
+import type {OpraSchema} from '@opra/common';
 import type { OpraHttpClient } from './client';
 import type { HttpRequest } from './http-request.js';
 import type { HttpResponse } from './http-response.js';
@@ -70,8 +71,10 @@ export enum HttpEventType {
 
 
 export interface HttpClientContext {
-  readonly client: OpraHttpClient;
-  readonly resourceName: string;
+  client: OpraHttpClient;
+  resourceKind: OpraSchema.Resource.Kind;
+  resourceName: string;
+  operation: string;
   send: HttpRequestHandler;
   requestInterceptors?: RequestInterceptor[];
   responseInterceptors?: ResponseInterceptor[];

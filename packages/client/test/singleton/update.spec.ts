@@ -18,7 +18,7 @@ describe('Singleton.update', function () {
     app.mockHandler((req, res) => {
       res.header(HttpHeaderCodes.X_Total_Count, '10');
       res.header(HttpHeaderCodes.X_Opra_Version, OpraSchema.SpecVersion);
-      res.json(rows[0]);
+      res.json({data: rows[0]});
     })
   });
 

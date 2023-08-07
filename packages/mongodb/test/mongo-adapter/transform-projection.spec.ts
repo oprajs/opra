@@ -1,13 +1,13 @@
 import { ApiDocument } from '@opra/common';
-import { createTestApi } from '@opra/core/test/_support/test-app';
 import { MongoAdapter } from '@opra/mongodb';
+import { createTestApp } from '../../../sqb/test/_support/test-app/index.js';
 
 describe('MongoAdapter.transformProjection', function () {
 
   let api: ApiDocument;
 
   beforeAll(async () => {
-    api = await createTestApi();
+    api = (await createTestApp()).api;
   });
 
   it('Should process "pick" only args', async () => {

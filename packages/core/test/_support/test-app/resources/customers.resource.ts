@@ -4,8 +4,7 @@ import { Collection, CollectionResource } from '@opra/common';
 import { customersData } from '../../../../../../support/test/customers.data.js';
 import { Customer } from '../entities/customer.entity.js';
 
-
-let customers: Customer[] = structuredClone(customersData);
+let customers: Customer[] = JSON.parse(JSON.stringify(customersData));
 
 @Collection(Customer, {
   description: 'Customer resource',

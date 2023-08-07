@@ -1,6 +1,5 @@
 import { UseGuards } from '@nestjs/common';
 import { Collection } from '@opra/common';
-import { OperationContext } from '@opra/core';
 import { Context } from '@opra/nestjs';
 import { AuthGuard } from '../guards/auth.guard.js';
 import { Photos } from './photos.dto.js';
@@ -15,47 +14,51 @@ export class PhotosResource {
   constructor(public photosService: PhotosService) {
   }
 
-  @Collection.FindMany()
-  async search(@Context ctx: OperationContext) {
+  @Collection.FindMany({
+    filters: [
+      {field: 'id', operators: ['=', '<', '>', '>=', '<=', '!=']}
+    ]
+  })
+  async findMany(@Context ctx: Collection.FindMany.Context) {
     const {request} = ctx;
-    return this.photosService.search(request.args.filter);
+    return this.photosService.search(request.params.filter);
   }
 
   @UseGuards(AuthGuard)
   @Collection.Create()
-  create(@Context ctx: OperationContext) {
+  create(@Context ctx: Collection.Create.Context) {
     const {request} = ctx;
-    return this.photosService.create(request.args.data);
+    return this.photosService.create(request.data);
   }
 
   @Collection.Get()
-  get(@Context ctx: OperationContext) {
+  get(@Context ctx: Collection.Get.Context) {
     const {request} = ctx;
-    return this.photosService.get(request.args.key);
+    return this.photosService.get(request.key);
   }
 
   @Collection.Update()
-  update(@Context ctx: OperationContext) {
+  update(@Context ctx: Collection.Update.Context) {
     const {request} = ctx;
-    return this.photosService.update(request.args.key, request.args.data);
+    return this.photosService.update(request.key, request.data);
   }
 
   @Collection.UpdateMany()
-  async updateMany(@Context ctx: OperationContext) {
+  async updateMany(@Context ctx: Collection.UpdateMany.Context) {
     const {request} = ctx;
-    return this.photosService.updateMany(request.args.data, request.args.filter);
+    return this.photosService.updateMany(request.data, request.params.filter);
   }
 
   @Collection.Delete()
-  async delete(@Context ctx: OperationContext) {
+  async delete(@Context ctx: Collection.Delete.Context) {
     const {request} = ctx;
-    return this.photosService.delete(request.args.key);
+    return this.photosService.delete(request.key);
   }
 
   @Collection.DeleteMany()
-  async deleteMany(@Context ctx: OperationContext) {
+  async deleteMany(@Context ctx: Collection.DeleteMany.Context) {
     const {request} = ctx;
-    return this.photosService.deleteMany(request.args.filter);
+    return this.photosService.deleteMany(request.params.filter);
   }
 
 }

@@ -15,7 +15,7 @@ describe('Singleton.create', function () {
     client = new OpraHttpClient(app.baseUrl, {api: app.api});
     app.mockHandler((req, res) => {
       res.header(HttpHeaderCodes.X_Opra_Version, OpraSchema.SpecVersion);
-      res.json(data);
+      res.json({data});
     })
   });
 

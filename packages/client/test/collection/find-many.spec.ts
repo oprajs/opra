@@ -15,9 +15,11 @@ describe('Collection.findMany', function () {
     app = await createMockServer();
     client = new OpraHttpClient(app.baseUrl, {api: app.api});
     app.mockHandler((req, res) => {
-      res.header(HttpHeaderCodes.X_Total_Count, '10');
       res.header(HttpHeaderCodes.X_Opra_Version, OpraSchema.SpecVersion);
-      res.json(rows.slice(0, 10));
+      res.json({
+        totalCount: 10,
+        data: rows.slice(0, 10)
+      });
     })
   });
 
@@ -25,9 +27,7 @@ describe('Collection.findMany', function () {
     const resp = await client.collection('Customers')
         .findMany().fetch(HttpObserveType.Response);
     expect(app.lastResponse.get(HttpHeaderCodes.X_Opra_Version)).toStrictEqual(OpraSchema.SpecVersion);
-    expect(app.lastResponse.get(HttpHeaderCodes.X_Total_Count)).toStrictEqual('10');
     expect(resp.headers.get(HttpHeaderCodes.X_Opra_Version)).toStrictEqual(OpraSchema.SpecVersion);
-    expect(resp.headers.get(HttpHeaderCodes.X_Total_Count)).toStrictEqual('10');
   });
 
   it('Should return body if observe=body or undefined', async () => {

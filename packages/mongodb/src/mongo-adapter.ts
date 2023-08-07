@@ -20,33 +20,33 @@ export namespace MongoAdapter {
     const {resource} = request;
 
     if (resource instanceof Collection || resource instanceof Singleton) {
-      const {args, operation} = request;
+      const {params, operation} = request;
       let options: any = {};
       let filter;
 
       if (operation === 'create' || operation === 'update' ||
           operation === 'get' || operation === 'findMany'
       ) {
-        options.projection = transformProjection(resource.type, args)
+        options.projection = transformProjection(resource.type, params)
       }
 
       if (resource instanceof Collection &&
           (operation === 'delete' || operation === 'get' || operation === 'update')
       ) {
-        filter = transformKeyValues(resource, args.key);
+        filter = transformKeyValues(resource, (request as any).key);
       }
 
-      if (args.filter) {
-        const f = transformFilter(args.filter);
+      if (params?.filter) {
+        const f = transformFilter(params.filter);
         filter = filter ? {$and: [filter, f]} : f;
       }
 
       if (operation === 'findMany') {
-        options.sort = args.sort?.length ? args.sort : undefined;
-        options.limit = args.limit;
-        options.skip = args.skip;
-        options.distinct = args.distinct;
-        options.count = args.count;
+        options.sort = params?.sort;
+        options.limit = params?.limit;
+        options.skip = params?.skip;
+        options.distinct = params?.distinct;
+        options.count = params?.count;
       }
 
       options = omitBy(options, isNil);
@@ -55,9 +55,9 @@ export namespace MongoAdapter {
         case 'create': {
           return {
             method: 'insertOne',
-            data: args.data,
+            data: (request as any).data,
             options,
-            args: [args.data, options]
+            args: [(request as any).data, options]
           }
         }
         case 'delete':
@@ -84,12 +84,11 @@ export namespace MongoAdapter {
             options,
             args: [filter, options]
           };
-          if (args.count)
-            out.count = args.count;
+          out.count = params?.count;
           return out;
         }
         case 'update': {
-          const update = transformPatch(args.data);
+          const update = transformPatch((request as any).data);
           filter = filter || {};
           return {
             method: 'updateOne',
@@ -100,7 +99,7 @@ export namespace MongoAdapter {
           }
         }
         case 'updateMany': {
-          const update = transformPatch(args.data);
+          const update = transformPatch((request as any).data);
           return {
             method: 'updateMany',
             filter,
@@ -112,7 +111,7 @@ export namespace MongoAdapter {
       }
 
     }
-    throw new TypeError(`Unimplemented request kind (${request.resourceKind}.${request.operation})`);
+    throw new TypeError(`Unimplemented request kind (${request.resource.kind}.${request.operation})`);
   }
 
 

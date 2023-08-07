@@ -2,14 +2,14 @@ import { Inject, Logger } from '@nestjs/common';
 import { ApplicationConfig, HttpAdapterHost } from '@nestjs/core';
 import { Module } from '@nestjs/core/injector/module.js';
 import { ApiDocument, OpraURLPath } from '@opra/common';
-import { ILogger, PlatformAdapterHost, OpraExpressAdapter } from '@opra/core';
+import { ExpressAdapter, PlatformAdapter } from '@opra/core';
 import { OPRA_MODULE_OPTIONS } from '../constants.js';
 import { OpraApiFactory } from '../factories/opra-api.factory.js';
 import { OpraModuleOptions } from '../interfaces/opra-module-options.interface.js';
 
 export class OpraApiLoader {
-  private readonly logger = new Logger(OpraApiLoader.name, {timestamp: true});
-  private adapter: PlatformAdapterHost | undefined;
+  protected readonly logger = new Logger(OpraApiLoader.name, {timestamp: true});
+  protected adapter: PlatformAdapter | undefined;
 
   @Inject()
   protected readonly httpAdapterHost: HttpAdapterHost;
@@ -72,7 +72,7 @@ export class OpraApiLoader {
       return;
     const app = httpAdapter.getInstance();
     const logger = moduleOptions.logger || new Logger(service.info.title);
-    return await OpraExpressAdapter.create(app, service, {
+    return await ExpressAdapter.create(app, service, {
       ...moduleOptions,
       logger,
     });

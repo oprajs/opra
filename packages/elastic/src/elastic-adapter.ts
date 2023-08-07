@@ -21,37 +21,37 @@ export namespace ElasticAdapter {
     const {resource} = request;
 
     if (resource instanceof Collection || resource instanceof Singleton) {
-      const {args, operation} = request;
+      const {params, operation} = request;
       let options: TransportRequestOptions = {};
       switch (operation) {
         case 'findMany': {
-          let params: SearchRequest = {};
-          const filter = transformFilter(args.filter);
+          let searchRequest: SearchRequest = {};
+          const filter = transformFilter(params?.filter);
           if (filter)
-            params.query = filter;
-          if (args.limit != null)
-            params.size = args.limit;
-          if (args.skip != null)
-            params.from = args.skip;
-          if (args.count)
-            params.track_total_hits = true;
-          if (args.pick || args.include || args.omit)
-            params._source = _transformProjection(resource.type, args);
-          if (args.sort)
-            params.sort = _transformSort(args.sort);
-          params = omitBy(params, isNil);
+            searchRequest.query = filter;
+          if (params?.limit != null)
+            searchRequest.size = params.limit;
+          if (params?.skip != null)
+            searchRequest.from = params.skip;
+          if (params?.count)
+            searchRequest.track_total_hits = true;
+          if (params?.pick || params?.include || params?.omit)
+            searchRequest._source = _transformProjection(resource.type, params);
+          if (params?.sort)
+            searchRequest.sort = _transformSort(params.sort);
+          searchRequest = omitBy(searchRequest, isNil);
           options = omitBy(options, isNil);
           return {
             method: 'search',
-            params,
+            params: searchRequest,
             options,
-            args: [params, options]
+            args: [searchRequest, options]
           };
         }
 
       }
     }
-    throw new TypeError(`Unimplemented request (${request.resourceKind}.${request.operation})`);
+    throw new TypeError(`Unimplemented request (${request.resource.kind}.${request.operation})`);
   }
 
 }

@@ -26,7 +26,7 @@ describe('OpraModule - Guards', function () {
     await app.close();
   });
 
-  it('Should use per-function guards', async function () {
+  it.only('Should use per-function guards', async function () {
     const r = await request(server)
         .post('/api/svc1/Photos')
         .set('Authorization', 'reject-auth')
@@ -43,7 +43,7 @@ describe('OpraModule - Guards', function () {
     })
   });
 
-  it('Should use global guards', async function () {
+  it.only('Should use global guards', async function () {
     await request(server)
         .post('/api/svc1/Photos')
         .set('Authorization', 'reject-auth')
@@ -51,7 +51,7 @@ describe('OpraModule - Guards', function () {
     expect(TestGlobalGuard.counter).toBeGreaterThan(0);
   });
 
-  it('Should use global interceptors', async function () {
+  it.only('Should use global interceptors', async function () {
     const i = LogCounterInterceptor.logCount;
     await request(server)
         .get('/api/svc1/Photos');

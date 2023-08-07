@@ -27,7 +27,8 @@ export class HttpRequestObservable<T, TBody, TResponseExt = {}>
       options?: HttpRequestObservable.Options
   ) {
     super((subscriber) => {
-      context.send(options?.observe || HttpObserveType.Body, this[kRequest]).subscribe((subscriber));
+      context.send(options?.observe || HttpObserveType.Body, this[kRequest])
+          .subscribe((subscriber));
     });
     this[kContext] = context;
     this[kRequest] = new HttpRequest(options?.http);
@@ -52,7 +53,8 @@ export class HttpRequestObservable<T, TBody, TResponseExt = {}>
   async fetch(observe: HttpObserveType.Body): Promise<TBody>
   async fetch(observe: HttpObserveType.Response): Promise<HttpResponse<TBody> & TResponseExt>
   async fetch(observe?: HttpObserveType): Promise<TBody | (HttpResponse<TBody> & TResponseExt) | HttpEvent> {
-    return lastValueFrom(this[kContext].send(observe || HttpObserveType.Body, this[kRequest]));
+    return lastValueFrom(this[kContext]
+        .send(observe || HttpObserveType.Body, this[kRequest]));
   }
 
   with(cb: (_this: this) => void): this {

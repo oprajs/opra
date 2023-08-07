@@ -1,7 +1,7 @@
 import { lastValueFrom, Observable, Subscriber } from 'rxjs';
 import { isReadableStreamLike } from 'rxjs/internal/util/isReadableStreamLike';
 import { StrictOmit, Type } from 'ts-gems';
-import { ApiDocument, DocumentFactory, isBlob, OpraURL } from '@opra/common';
+import { ApiDocument, DocumentFactory, isBlob, OpraSchema, OpraURL } from '@opra/common';
 import { ClientError } from './client-error.js';
 import { HttpCollectionNode } from './collection-node.js';
 import {
@@ -87,7 +87,9 @@ export class OpraHttpClient {
       return promise;
     }
     this[kAssets].metadataPromise = promise = lastValueFrom(
-        this._sendRequest<any>(HttpObserveType.Body,
+        this._sendRequest<any>(
+            'Singleton', 'get',
+            HttpObserveType.Body,
             new HttpRequest({
               method: 'GET',
               url: '$metadata',
@@ -119,8 +121,11 @@ export class OpraHttpClient {
       resourceName = resourceName.name;
     const ctx: HttpClientContext = {
       client: this,
+      resourceKind: 'Collection',
+      operation: '',
       resourceName,
-      send: (observe, request) => this._sendRequest(observe, request, ctx),
+      send: (observe, request) =>
+          this._sendRequest('Collection', ctx.operation, observe, request, ctx),
       // requestInterceptors: [
       //   // Validate resource exists and is a collection resource
       //   async () => {
@@ -139,8 +144,11 @@ export class OpraHttpClient {
       resourceName = resourceName.name;
     const ctx: HttpClientContext = {
       client: this,
+      resourceKind: 'Singleton',
+      operation: '',
       resourceName,
-      send: (observe, request) => this._sendRequest(observe, request, ctx),
+      send: (observe, request) =>
+          this._sendRequest('Singleton', ctx.operation, observe, request, ctx),
       // requestInterceptors: [
       //   // Validate resource exists and is a singleton resource
       //   async () => {
@@ -154,6 +162,8 @@ export class OpraHttpClient {
   }
 
   protected _sendRequest<TBody>(
+      resourceKind: OpraSchema.Resource.Kind,
+      operation: string,
       observe: HttpObserveType,
       request: HttpRequest,
       ctx?: HttpClientContext
@@ -209,7 +219,7 @@ export class OpraHttpClient {
             event: HttpEventType.Sent,
           } satisfies HttpSentEvent);
         const response = await this._fetch(url.toString(), request);
-        await this._handleResponse(observe, subscriber, request, response);
+        await this._handleResponse(resourceKind, operation, observe, subscriber, request, response, ctx);
       })().catch(error => subscriber.error(error))
     });
   }
@@ -223,6 +233,8 @@ export class OpraHttpClient {
   }
 
   protected async _handleResponse(
+      resourceKind: OpraSchema.Resource.Kind,
+      operation: string,
       observe: HttpObserveType,
       subscriber: Subscriber<any>,
       request: HttpRequest,
@@ -299,7 +311,11 @@ export class OpraHttpClient {
     }
 
     if (observe === HttpObserveType.Body) {
-      subscriber.next(body);
+      if (
+          (resourceKind === 'Collection' || resourceKind === 'Singleton') &&
+          (operation === 'create' || operation === 'get' || operation === 'findMany' || operation === 'update')
+      ) subscriber.next(body.data);
+      else subscriber.next(body);
     } else {
       if (observe === HttpObserveType.Events)
         subscriber.next({
