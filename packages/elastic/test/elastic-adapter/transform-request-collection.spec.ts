@@ -1,26 +1,22 @@
 import { ApiDocument } from '@opra/common';
 import { Request } from '@opra/core';
-import { createTestApi } from '@opra/core/test/_support/test-app';
 import { ElasticAdapter } from '@opra/elastic';
+import { createTestApp } from '../../../sqb/test/_support/test-app/index.js';
 
 describe('ElasticAdapter.transformRequest (Collection)', function () {
 
   let api: ApiDocument;
 
   beforeAll(async () => {
-    api = await createTestApi();
+    api = (await createTestApp()).api;
   });
 
   describe('Convert "findMany" request', function () {
 
     it('Should prepare', async () => {
       const request = {
-        resource: api.getCollection('countries'),
-        resourceKind: 'Collection',
+        resource: api.getCollection('customers'),
         operation: 'findMany',
-        crud: 'read',
-        many: true,
-        args: {}
       } as unknown as Request;
       const o = ElasticAdapter.transformRequest(request);
       expect(o.method).toStrictEqual('search');
@@ -32,12 +28,9 @@ describe('ElasticAdapter.transformRequest (Collection)', function () {
     it('Should prepare with "filter" option', async () => {
       const resource = api.getCollection('customers');
       const request = {
-        resource: api.getCollection('countries'),
-        resourceKind: 'Collection',
+        resource: api.getCollection('customers'),
         operation: 'findMany',
-        crud: 'read',
-        many: true,
-        args: {filter: resource.normalizeFilter('givenName="John"')}
+        params: {filter: resource.normalizeFilter('givenName="John"')}
       } as unknown as Request;
       const options = {};
       const o = ElasticAdapter.transformRequest(request);
@@ -52,11 +45,8 @@ describe('ElasticAdapter.transformRequest (Collection)', function () {
     it('Should prepare with "pick" option', async () => {
       const request = {
         resource: api.getCollection('customers'),
-        resourceKind: 'Collection',
         operation: 'findMany',
-        crud: 'read',
-        many: true,
-        args: {pick: ['gender', 'address']}
+        params: {pick: ['gender', 'address']}
       } as unknown as Request;
       const params = {
         _source: {includes: ['gender', 'address.*']}
@@ -71,11 +61,8 @@ describe('ElasticAdapter.transformRequest (Collection)', function () {
     it('Should prepare with "omit" option', async () => {
       const request = {
         resource: api.getCollection('customers'),
-        resourceKind: 'Collection',
         operation: 'findMany',
-        crud: 'read',
-        many: true,
-        args: {omit: ['gender', 'address']}
+        params: {omit: ['gender', 'address']}
       } as unknown as Request;
       const params = {
         _source: {excludes: ['gender', 'address.*']}
@@ -90,11 +77,8 @@ describe('ElasticAdapter.transformRequest (Collection)', function () {
     it('Should prepare with "include" option', async () => {
       const request = {
         resource: api.getCollection('customers'),
-        resourceKind: 'Collection',
         operation: 'findMany',
-        crud: 'read',
-        many: true,
-        args: {include: ['address']}
+        params: {include: ['address']}
       } as unknown as Request;
       const o = ElasticAdapter.transformRequest(request);
       expect(o.method).toStrictEqual('search');
@@ -111,11 +95,8 @@ describe('ElasticAdapter.transformRequest (Collection)', function () {
     it('Should prepare with "sort" option', async () => {
       const request = {
         resource: api.getCollection('customers'),
-        resourceKind: 'Collection',
         operation: 'findMany',
-        crud: 'read',
-        many: true,
-        args: {sort: ['givenName']}
+        params: {sort: ['givenName']}
       } as unknown as Request;
       const params = {
         sort: ['givenName']

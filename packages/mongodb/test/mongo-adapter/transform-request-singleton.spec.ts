@@ -1,14 +1,14 @@
 import { ApiDocument } from '@opra/common';
 import { Request } from '@opra/core';
-import { createTestApi } from '@opra/core/test/_support/test-app';
 import { MongoAdapter } from '@opra/mongodb';
+import { createTestApp } from '../../../sqb/test/_support/test-app/index.js';
 
 describe('MongoAdapter.transformRequest (Singleton)', function () {
 
   let api: ApiDocument;
 
   beforeAll(async () => {
-    api = await createTestApi();
+    api = (await createTestApp()).api;
   });
 
   describe('Convert "create" request', function () {
@@ -17,11 +17,8 @@ describe('MongoAdapter.transformRequest (Singleton)', function () {
     it('Should prepare', async () => {
       const request = {
         resource: api.getSingleton('MyProfile'),
-        resourceKind: 'Singleton',
         operation: 'create',
-        crud: 'create',
-        many: false,
-        args: {data}
+        data
       } as unknown as Request;
       const o = MongoAdapter.transformRequest(request);
       const options = {
@@ -36,11 +33,9 @@ describe('MongoAdapter.transformRequest (Singleton)', function () {
     it('Should prepare with "pick" option', async () => {
       const request = {
         resource: api.getSingleton('MyProfile'),
-        resourceKind: 'Singleton',
         operation: 'create',
-        crud: 'create',
-        many: false,
-        args: {data, pick: ['givenName']}
+        data,
+        params: {pick: ['givenName']}
       } as unknown as Request;
       const options = {
         projection: {givenName: 1}
@@ -55,11 +50,9 @@ describe('MongoAdapter.transformRequest (Singleton)', function () {
     it('Should prepare with "omit" option', async () => {
       const request = {
         resource: api.getSingleton('MyProfile'),
-        resourceKind: 'Singleton',
         operation: 'create',
-        crud: 'create',
-        many: false,
-        args: {data, omit: ['givenName']}
+        data,
+        params: {omit: ['givenName']}
       } as unknown as Request;
       const options = {
         projection: {givenName: 0}
@@ -74,23 +67,19 @@ describe('MongoAdapter.transformRequest (Singleton)', function () {
     it('Should prepare with "include" option', async () => {
       const request = {
         resource: api.getSingleton('MyProfile'),
-        resourceKind: 'Singleton',
         operation: 'create',
-        crud: 'create',
-        many: false,
-        args: {data, include: ['address']}
+        data,
+        params: {include: ['address']}
       } as unknown as Request;
       const options = {
         projection: {
           "_id": 1,
           "address": 1,
           "birthDate": 1,
-          "createdAt": 1,
           "deleted": 1,
           "familyName": 1,
           "gender": 1,
-          "givenName": 1,
-          "updatedAt": 1
+          "givenName": 1
         }
       }
       const o = MongoAdapter.transformRequest(request);
@@ -106,11 +95,7 @@ describe('MongoAdapter.transformRequest (Singleton)', function () {
     it('Should prepare', async () => {
       const request = {
         resource: api.getSingleton('MyProfile'),
-        resourceKind: 'Singleton',
         operation: 'delete',
-        crud: 'delete',
-        many: false,
-        args: {}
       } as unknown as Request;
       const o = MongoAdapter.transformRequest(request);
       expect(o.method).toStrictEqual('deleteOne');
@@ -125,11 +110,7 @@ describe('MongoAdapter.transformRequest (Singleton)', function () {
     it('Should prepare', async () => {
       const request = {
         resource: api.getSingleton('MyProfile'),
-        resourceKind: 'Singleton',
         operation: 'get',
-        crud: 'read',
-        many: false,
-        args: {}
       } as unknown as Request;
       const o = MongoAdapter.transformRequest(request);
       const options = {
@@ -144,11 +125,8 @@ describe('MongoAdapter.transformRequest (Singleton)', function () {
     it('Should prepare with "pick" option', async () => {
       const request = {
         resource: api.getSingleton('MyProfile'),
-        resourceKind: 'Singleton',
         operation: 'get',
-        crud: 'read',
-        many: false,
-        args: {pick: ['givenName']}
+        params: {pick: ['givenName']}
       } as unknown as Request;
       const options = {
         projection: {givenName: 1}
@@ -163,11 +141,9 @@ describe('MongoAdapter.transformRequest (Singleton)', function () {
     it('Should prepare with "omit" option', async () => {
       const request = {
         resource: api.getSingleton('MyProfile'),
-        resourceKind: 'Singleton',
         operation: 'get',
-        crud: 'read',
-        many: false,
-        args: {key: 1, omit: ['givenName']}
+        key: 1,
+        params: {omit: ['givenName']}
       } as unknown as Request;
       const options = {
         projection: {givenName: 0}
@@ -182,23 +158,18 @@ describe('MongoAdapter.transformRequest (Singleton)', function () {
     it('Should prepare with "include" option', async () => {
       const request = {
         resource: api.getSingleton('MyProfile'),
-        resourceKind: 'Singleton',
         operation: 'get',
-        crud: 'read',
-        many: false,
-        args: {include: ['address']}
+        params: {include: ['address']}
       } as unknown as Request;
       const options = {
         projection: {
           "_id": 1,
           "address": 1,
           "birthDate": 1,
-          "createdAt": 1,
           "deleted": 1,
           "familyName": 1,
           "gender": 1,
-          "givenName": 1,
-          "updatedAt": 1
+          "givenName": 1
         }
       }
       const o = MongoAdapter.transformRequest(request);
@@ -217,11 +188,8 @@ describe('MongoAdapter.transformRequest (Singleton)', function () {
     it('Should prepare', async () => {
       const request = {
         resource: api.getSingleton('MyProfile'),
-        resourceKind: 'Singleton',
         operation: 'update',
-        crud: 'update',
-        many: false,
-        args: {data}
+        data
       } as unknown as Request;
       const o = MongoAdapter.transformRequest(request);
       const options = {
@@ -237,11 +205,9 @@ describe('MongoAdapter.transformRequest (Singleton)', function () {
     it('Should prepare with "pick" option', async () => {
       const request = {
         resource: api.getSingleton('MyProfile'),
-        resourceKind: 'Singleton',
         operation: 'update',
-        crud: 'update',
-        many: false,
-        args: {data, pick: ['givenName']}
+        data,
+        params: {pick: ['givenName']}
       } as unknown as Request;
       const options = {
         projection: {givenName: 1}
@@ -257,11 +223,9 @@ describe('MongoAdapter.transformRequest (Singleton)', function () {
     it('Should prepare with "omit" option', async () => {
       const request = {
         resource: api.getSingleton('MyProfile'),
-        resourceKind: 'Singleton',
         operation: 'update',
-        crud: 'update',
-        many: false,
-        args: {data, omit: ['givenName']}
+        data,
+        params: {omit: ['givenName']}
       } as unknown as Request;
       const options = {
         projection: {givenName: 0}
@@ -277,23 +241,19 @@ describe('MongoAdapter.transformRequest (Singleton)', function () {
     it('Should prepare with "include" option', async () => {
       const request = {
         resource: api.getSingleton('MyProfile'),
-        resourceKind: 'Singleton',
         operation: 'update',
-        crud: 'update',
-        many: false,
-        args: {data, include: ['address']}
+        data,
+        params: {include: ['address']}
       } as unknown as Request;
       const options = {
         projection: {
           "_id": 1,
           "address": 1,
           "birthDate": 1,
-          "createdAt": 1,
           "deleted": 1,
           "familyName": 1,
           "gender": 1,
-          "givenName": 1,
-          "updatedAt": 1
+          "givenName": 1
         }
       }
       const o = MongoAdapter.transformRequest(request);

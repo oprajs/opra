@@ -3,7 +3,7 @@ import { ComplexType, pathToObjectTree } from '@opra/common';
 
 export default function transformProjection(
     dataType: ComplexType,
-    args: {
+    args?: {
       pick?: string[],
       omit?: string[],
       include?: string[],
@@ -11,11 +11,11 @@ export default function transformProjection(
 ): mongodb.Document | undefined {
   const out: Record<string, boolean> = {};
   // omitExclusiveFields(dataType, out);
-  const pick = args.pick && pathToObjectTree(
+  const pick = args?.pick && pathToObjectTree(
       args.include ? [...args.pick, ...args.include] : args.pick
   );
-  const include = !args.pick && args.include && pathToObjectTree(args.include);
-  const omit = args.omit && pathToObjectTree(args.omit);
+  const include = !args?.pick && args?.include && pathToObjectTree(args.include);
+  const omit = args?.omit && pathToObjectTree(args.omit);
   if (pick || include) {
     _transformInclusionProjection(dataType, out, pick, include, omit);
   } else

@@ -1,6 +1,6 @@
 import mongodb, { UpdateFilter } from 'mongodb';
 import { StrictOmit } from 'ts-gems';
-import { PartialOutput, OperationContext } from '@opra/core';
+import { OperationContext, PartialOutput } from '@opra/core';
 
 export namespace MongoEntityService {
   export interface Options {
@@ -9,7 +9,7 @@ export namespace MongoEntityService {
   }
 }
 
-export class MongoEntityService<T extends mongodb.Document, TOutput = PartialOutput<T>> {
+export class MongoEntityService<T extends mongodb.Document> {
   protected _collectionName: string;
   context: OperationContext;
   defaultLimit: number;
@@ -74,7 +74,7 @@ export class MongoEntityService<T extends mongodb.Document, TOutput = PartialOut
     }
   }
 
-  async findOne(filter: mongodb.Filter<T>, options?: mongodb.FindOptions): Promise<TOutput | undefined> {
+  async findOne(filter: mongodb.Filter<T>, options?: mongodb.FindOptions): Promise<PartialOutput<T> | undefined> {
     const db = await this.getDatabase();
     const collection = await this.getCollection(db);
     options = {
@@ -91,7 +91,7 @@ export class MongoEntityService<T extends mongodb.Document, TOutput = PartialOut
     return out;
   }
 
-  async find(filter: mongodb.Filter<T>, options?: mongodb.FindOptions): Promise<TOutput[]> {
+  async find(filter: mongodb.Filter<T>, options?: mongodb.FindOptions): Promise<PartialOutput<T>[]> {
     const db = await this.getDatabase();
     const collection = await this.getCollection(db);
     options = {
@@ -99,7 +99,7 @@ export class MongoEntityService<T extends mongodb.Document, TOutput = PartialOut
       limit: options?.limit || this.defaultLimit,
       session: options?.session || this.session
     }
-    const out: TOutput[] = [];
+    const out: any[] = [];
     let cursor: mongodb.FindCursor<T> | undefined;
     try {
       cursor = collection.find<T>(filter, options);
@@ -119,7 +119,7 @@ export class MongoEntityService<T extends mongodb.Document, TOutput = PartialOut
     return out;
   }
 
-  async insertOne(doc: mongodb.OptionalUnlessRequiredId<T>, options?: mongodb.InsertOneOptions): Promise<TOutput> {
+  async insertOne(doc: mongodb.OptionalUnlessRequiredId<T>, options?: mongodb.InsertOneOptions): Promise<PartialOutput<T>> {
     const db = await this.getDatabase();
     const collection = await this.getCollection(db);
     let out;
@@ -146,7 +146,7 @@ export class MongoEntityService<T extends mongodb.Document, TOutput = PartialOut
       filter: mongodb.Filter<T>,
       doc: UpdateFilter<T> | Partial<T>,
       options?: mongodb.UpdateOptions
-  ): Promise<TOutput | undefined> {
+  ): Promise<PartialOutput<T> | undefined> {
     const db = await this.getDatabase();
     const collection = await this.getCollection(db);
     let out;
@@ -192,10 +192,10 @@ export class MongoEntityService<T extends mongodb.Document, TOutput = PartialOut
       context: OperationContext,
       db?: mongodb.Db,
       session?: mongodb.ClientSession
-  ): MongoEntityService<T, TOutput> {
+  ): MongoEntityService<T> {
     if (this.context === context && this.db === db && this.session === session)
       return this;
-    const instance = {context} as MongoEntityService<T, TOutput>;
+    const instance = {context} as MongoEntityService<T>;
     // Should reset session if db changed
     if (db) {
       instance.db = db;
@@ -234,6 +234,6 @@ export class MongoEntityService<T extends mongodb.Document, TOutput = PartialOut
 
   protected onError?(error: unknown): void | Promise<void>;
 
-  protected transformData?(row: TOutput): TOutput;
+  protected transformData?(row: PartialOutput<T>): PartialOutput<T>;
 
 }

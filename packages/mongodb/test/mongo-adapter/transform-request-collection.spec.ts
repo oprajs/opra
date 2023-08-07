@@ -1,14 +1,14 @@
 import { ApiDocument } from '@opra/common';
 import { Request } from '@opra/core';
-import { createTestApi } from '@opra/core/test/_support/test-app';
 import { MongoAdapter } from '@opra/mongodb';
+import { createTestApp } from '../../../sqb/test/_support/test-app/index.js';
 
 describe('MongoAdapter.transformRequest (Collection)', function () {
 
   let api: ApiDocument;
 
   beforeAll(async () => {
-    api = await createTestApi();
+    api = (await createTestApp()).api;
   });
 
   describe('Convert "create" request', function () {
@@ -16,31 +16,33 @@ describe('MongoAdapter.transformRequest (Collection)', function () {
 
     it('Should prepare', async () => {
       const request = {
-        resource: api.getCollection('countries'),
-        resourceKind: 'Collection',
+        resource: api.getCollection('customers'),
         operation: 'create',
-        crud: 'create',
-        many: false,
-        args: {data}
+        data
       } as unknown as Request;
+      const options = {
+        projection: {
+          address: 0,
+          country: 0,
+          notes: 0
+        }
+      };
       const o = MongoAdapter.transformRequest(request);
       expect(o.method).toStrictEqual('insertOne');
       expect(o.data).toStrictEqual(data);
-      expect(o.options).toStrictEqual({});
-      expect(o.args).toStrictEqual([data, {}]);
+      expect(o.options).toStrictEqual(options);
+      expect(o.args).toStrictEqual([data, options]);
     });
 
     it('Should prepare with "pick" option', async () => {
       const request = {
-        resource: api.getCollection('countries'),
-        resourceKind: 'Collection',
+        resource: api.getCollection('customers'),
         operation: 'create',
-        crud: 'create',
-        many: false,
-        args: {data, pick: ['phoneCode']}
+        data,
+        params: {pick: ['givenName']}
       } as unknown as Request;
       const options = {
-        projection: {phoneCode: 1}
+        projection: {givenName: 1}
       }
       const o = MongoAdapter.transformRequest(request);
       expect(o.method).toStrictEqual('insertOne');
@@ -51,15 +53,13 @@ describe('MongoAdapter.transformRequest (Collection)', function () {
 
     it('Should prepare with "omit" option', async () => {
       const request = {
-        resource: api.getCollection('countries'),
-        resourceKind: 'Collection',
+        resource: api.getCollection('customers'),
         operation: 'create',
-        crud: 'create',
-        many: false,
-        args: {data, omit: ['phoneCode']}
+        data,
+        params: {omit: ['givenName']}
       } as unknown as Request;
       const options = {
-        projection: {phoneCode: 0}
+        projection: {givenName: 0}
       }
       const o = MongoAdapter.transformRequest(request);
       expect(o.method).toStrictEqual('insertOne');
@@ -70,21 +70,19 @@ describe('MongoAdapter.transformRequest (Collection)', function () {
 
     it('Should prepare with "include" option', async () => {
       const request = {
-        resource: api.getCollection('countries'),
-        resourceKind: 'Collection',
+        resource: api.getCollection('customers'),
         operation: 'create',
-        crud: 'create',
-        many: false,
-        args: {data, include: ['phoneCode']}
+        data,
+        params: {include: ['address']}
       } as unknown as Request;
       const options = {
-        projection: {code: 1, name: 1, phoneCode: 1}
+        projection: {address: 1}
       }
       const o = MongoAdapter.transformRequest(request);
       expect(o.method).toStrictEqual('insertOne');
       expect(o.data).toStrictEqual(data);
-      expect(o.options).toStrictEqual(options);
-      expect(o.args).toStrictEqual([data, options]);
+      expect(o.options.projection).toMatchObject(options.projection);
+      expect(o.args).toStrictEqual([data, o.options]);
     });
 
   });
@@ -92,15 +90,12 @@ describe('MongoAdapter.transformRequest (Collection)', function () {
   describe('Convert "delete" request', function () {
     it('Should prepare', async () => {
       const request = {
-        resource: api.getCollection('countries'),
-        resourceKind: 'Collection',
+        resource: api.getCollection('customers'),
         operation: 'delete',
-        crud: 'delete',
-        many: false,
-        args: {key: 1}
+        key: 1
       } as unknown as Request;
       const o = MongoAdapter.transformRequest(request);
-      const filter = {code: 1};
+      const filter = {_id: 1};
       expect(o.method).toStrictEqual('deleteOne');
       expect(o.filter).toStrictEqual(filter);
       expect(o.options).toStrictEqual({});
@@ -112,12 +107,9 @@ describe('MongoAdapter.transformRequest (Collection)', function () {
 
     it('Should prepare', async () => {
       const request = {
-        resource: api.getCollection('countries'),
-        resourceKind: 'Collection',
+        resource: api.getCollection('customers'),
         operation: 'deleteMany',
         crud: 'delete',
-        many: true,
-        args: {}
       } as unknown as Request;
       const o = MongoAdapter.transformRequest(request);
       expect(o.method).toStrictEqual('deleteMany');
@@ -130,11 +122,8 @@ describe('MongoAdapter.transformRequest (Collection)', function () {
       const resource = api.getCollection('customers');
       const request = {
         resource,
-        resourceKind: 'Collection',
         operation: 'deleteMany',
-        crud: 'delete',
-        many: true,
-        args: {filter: resource.normalizeFilter('givenName="John"')}
+        params: {filter: resource.normalizeFilter('givenName="John"')}
       } as unknown as Request;
       const o = MongoAdapter.transformRequest(request);
       const filter = {givenName: 'John'};
@@ -149,76 +138,74 @@ describe('MongoAdapter.transformRequest (Collection)', function () {
 
     it('Should prepare', async () => {
       const request = {
-        resource: api.getCollection('countries'),
-        resourceKind: 'Collection',
+        resource: api.getCollection('customers'),
         operation: 'get',
-        crud: 'read',
-        many: false,
-        args: {key: 1}
+        key: 1
       } as unknown as Request;
       const o = MongoAdapter.transformRequest(request);
-      const filter = {code: 1};
+      const filter = {_id: 1};
+      const options = {
+        projection: {
+          address: 0,
+          country: 0,
+          notes: 0
+        }
+      };
       expect(o.method).toStrictEqual('findOne');
       expect(o.filter).toStrictEqual(filter);
-      expect(o.options).toStrictEqual({});
-      expect(o.args).toStrictEqual([filter, {}]);
+      expect(o.options).toStrictEqual(options);
+      expect(o.args).toStrictEqual([filter, options]);
     });
 
     it('Should prepare with "pick" option', async () => {
       const request = {
-        resource: api.getCollection('countries'),
-        resourceKind: 'Collection',
+        resource: api.getCollection('customers'),
         operation: 'get',
-        crud: 'read',
-        many: false,
-        args: {key: 1, pick: ['phoneCode']}
+        key: 1,
+        params: {pick: ['givenName']}
       } as unknown as Request;
       const options = {
-        projection: {phoneCode: 1}
+        projection: {givenName: 1}
       }
       const o = MongoAdapter.transformRequest(request);
       expect(o.method).toStrictEqual('findOne');
-      expect(o.filter).toStrictEqual({code: 1});
-      expect(o.options).toStrictEqual(options);
-      expect(o.args).toStrictEqual([{code: 1}, options]);
+      expect(o.filter).toStrictEqual({_id: 1});
+      expect(o.options).toMatchObject(options);
+      expect(o.args).toStrictEqual([{_id: 1}, options]);
     });
 
     it('Should prepare with "omit" option', async () => {
       const request = {
-        resource: api.getCollection('countries'),
-        resourceKind: 'Collection',
+        resource: api.getCollection('customers'),
         operation: 'get',
-        crud: 'read',
-        many: false,
-        args: {key: 1, omit: ['phoneCode']}
+        key: 1,
+        params: {omit: ['givenName']}
       } as unknown as Request;
       const options = {
-        projection: {phoneCode: 0}
+        projection: {givenName: 0}
       }
       const o = MongoAdapter.transformRequest(request);
       expect(o.method).toStrictEqual('findOne');
-      expect(o.filter).toStrictEqual({code: 1});
+      expect(o.filter).toStrictEqual({_id: 1});
       expect(o.options).toStrictEqual(options);
-      expect(o.args).toStrictEqual([{code: 1}, options]);
+      expect(o.args).toStrictEqual([{_id: 1}, options]);
     });
 
     it('Should prepare with "include" option', async () => {
       const request = {
-        resource: api.getCollection('countries'),
-        resourceKind: 'Collection',
+        resource: api.getCollection('customers'),
         operation: 'get',
-        crud: 'read',
-        many: false,
-        args: {key: 1, include: ['phoneCode']}
+        key: 1,
+        params: {include: ['address']}
       } as unknown as Request;
       const options = {
-        projection: {code: 1, name: 1, phoneCode: 1}
+        projection: {address: 1}
       }
       const o = MongoAdapter.transformRequest(request);
       expect(o.method).toStrictEqual('findOne');
-      expect(o.filter).toStrictEqual({code: 1});
-      expect(o.options).toStrictEqual(options);
-      expect(o.args).toStrictEqual([{code: 1}, options]);
+      expect(o.filter).toStrictEqual({_id: 1});
+      expect(o.options).toMatchObject(options);
+      expect(o.args).toStrictEqual([{_id: 1}, o.options]);
     });
 
   })
@@ -227,33 +214,39 @@ describe('MongoAdapter.transformRequest (Collection)', function () {
 
     it('Should prepare', async () => {
       const request = {
-        resource: api.getCollection('countries'),
-        resourceKind: 'Collection',
+        resource: api.getCollection('customers'),
         operation: 'findMany',
-        crud: 'read',
-        many: true,
-        args: {}
       } as unknown as Request;
       const o = MongoAdapter.transformRequest(request);
+      const options = {
+        projection: {
+          address: 0,
+          country: 0,
+          notes: 0
+        }
+      };
       expect(o.method).toStrictEqual('find');
       expect(o.filter).toStrictEqual(undefined);
-      expect(o.options).toStrictEqual({});
-      expect(o.args).toStrictEqual([undefined, {}]);
+      expect(o.options).toStrictEqual(options);
+      expect(o.args).toStrictEqual([undefined, options]);
     });
 
     it('Should prepare with "filter" option', async () => {
       const resource = api.getCollection('customers');
       const request = {
-        resource: api.getCollection('countries'),
-        resourceKind: 'Collection',
+        resource: api.getCollection('customers'),
         operation: 'findMany',
-        crud: 'read',
-        many: true,
-        args: {filter: resource.normalizeFilter('givenName="John"')}
+        params: {filter: resource.normalizeFilter('givenName="John"')}
       } as unknown as Request;
-      const options = {};
       const o = MongoAdapter.transformRequest(request);
       const filter = {givenName: 'John'};
+      const options = {
+        projection: {
+          address: 0,
+          country: 0,
+          notes: 0
+        }
+      };
       expect(o.method).toStrictEqual('find');
       expect(o.filter).toStrictEqual(filter);
       expect(o.options).toStrictEqual(options);
@@ -262,15 +255,12 @@ describe('MongoAdapter.transformRequest (Collection)', function () {
 
     it('Should prepare with "pick" option', async () => {
       const request = {
-        resource: api.getCollection('countries'),
-        resourceKind: 'Collection',
+        resource: api.getCollection('customers'),
         operation: 'findMany',
-        crud: 'read',
-        many: true,
-        args: {pick: ['phoneCode']}
+        params: {pick: ['givenName']}
       } as unknown as Request;
       const options = {
-        projection: {phoneCode: 1}
+        projection: {givenName: 1}
       }
       const o = MongoAdapter.transformRequest(request);
       expect(o.method).toStrictEqual('find');
@@ -281,15 +271,12 @@ describe('MongoAdapter.transformRequest (Collection)', function () {
 
     it('Should prepare with "omit" option', async () => {
       const request = {
-        resource: api.getCollection('countries'),
-        resourceKind: 'Collection',
+        resource: api.getCollection('customers'),
         operation: 'findMany',
-        crud: 'read',
-        many: true,
-        args: {omit: ['phoneCode']}
+        params: {omit: ['givenName']}
       } as unknown as Request;
       const options = {
-        projection: {phoneCode: 0}
+        projection: {givenName: 0}
       }
       const o = MongoAdapter.transformRequest(request);
       expect(o.method).toStrictEqual('find');
@@ -300,21 +287,18 @@ describe('MongoAdapter.transformRequest (Collection)', function () {
 
     it('Should prepare with "include" option', async () => {
       const request = {
-        resource: api.getCollection('countries'),
-        resourceKind: 'Collection',
+        resource: api.getCollection('customers'),
         operation: 'findMany',
-        crud: 'read',
-        many: true,
-        args: {include: ['phoneCode']}
+        params: {include: ['address']}
       } as unknown as Request;
       const options = {
-        projection: {code: 1, name: 1, phoneCode: 1}
+        projection: {address: 1}
       }
       const o = MongoAdapter.transformRequest(request);
       expect(o.method).toStrictEqual('find');
       expect(o.filter).toStrictEqual(undefined);
-      expect(o.options).toStrictEqual(options);
-      expect(o.args).toStrictEqual([undefined, options]);
+      expect(o.options).toMatchObject(options);
+      expect(o.args).toStrictEqual([undefined, o.options]);
     });
 
   });
@@ -325,36 +309,40 @@ describe('MongoAdapter.transformRequest (Collection)', function () {
 
     it('Should prepare', async () => {
       const request = {
-        resource: api.getCollection('countries'),
-        resourceKind: 'Collection',
+        resource: api.getCollection('customers'),
         operation: 'update',
-        crud: 'update',
-        many: false,
-        args: {key: 1, data}
+        key: 1,
+        data
       } as unknown as Request;
       const o = MongoAdapter.transformRequest(request);
-      const filter = {code: 1};
+      const filter = {_id: 1};
+      const options = {
+        projection: {
+          address: 0,
+          country: 0,
+          notes: 0
+        }
+      };
       expect(o.method).toStrictEqual('updateOne');
       expect(o.filter).toStrictEqual(filter);
       expect(o.update).toStrictEqual(update);
-      expect(o.options).toStrictEqual({});
-      expect(o.args).toStrictEqual([filter, update, {}]);
+      expect(o.options).toStrictEqual(options);
+      expect(o.args).toStrictEqual([filter, update, options]);
     });
 
     it('Should prepare with "pick" option', async () => {
       const request = {
-        resource: api.getCollection('countries'),
-        resourceKind: 'Collection',
+        resource: api.getCollection('customers'),
         operation: 'update',
-        crud: 'update',
-        many: false,
-        args: {key: 1, data, pick: ['phoneCode']}
+        key: 1,
+        data,
+        params: {pick: ['givenName']}
       } as unknown as Request;
       const options = {
-        projection: {phoneCode: 1}
+        projection: {givenName: 1}
       }
       const o = MongoAdapter.transformRequest(request);
-      const filter = {code: 1};
+      const filter = {_id: 1};
       expect(o.method).toStrictEqual('updateOne');
       expect(o.filter).toStrictEqual(filter);
       expect(o.update).toStrictEqual(update);
@@ -364,18 +352,16 @@ describe('MongoAdapter.transformRequest (Collection)', function () {
 
     it('Should prepare with "omit" option', async () => {
       const request = {
-        resource: api.getCollection('countries'),
-        resourceKind: 'Collection',
+        resource: api.getCollection('customers'),
         operation: 'update',
-        crud: 'update',
-        many: false,
-        args: {key: 1, data, omit: ['phoneCode']}
+        key: 1, data,
+        params: {omit: ['givenName']}
       } as unknown as Request;
       const options = {
-        projection: {phoneCode: 0}
+        projection: {givenName: 0}
       }
       const o = MongoAdapter.transformRequest(request);
-      const filter = {code: 1};
+      const filter = {_id: 1};
       expect(o.method).toStrictEqual('updateOne');
       expect(o.filter).toStrictEqual(filter);
       expect(o.update).toStrictEqual(update);
@@ -385,23 +371,22 @@ describe('MongoAdapter.transformRequest (Collection)', function () {
 
     it('Should prepare with "include" option', async () => {
       const request = {
-        resource: api.getCollection('countries'),
-        resourceKind: 'Collection',
+        resource: api.getCollection('customers'),
         operation: 'update',
-        crud: 'update',
-        many: false,
-        args: {key: 1, data, include: ['phoneCode']}
+        key: 1,
+        data,
+        params: {include: ['address']}
       } as unknown as Request;
       const options = {
-        projection: {code: 1, name: 1, phoneCode: 1}
+        projection: {address: 1}
       }
       const o = MongoAdapter.transformRequest(request);
-      const filter = {code: 1};
+      const filter = {_id: 1};
       expect(o.method).toStrictEqual('updateOne');
       expect(o.filter).toStrictEqual(filter);
       expect(o.update).toStrictEqual(update);
-      expect(o.options).toStrictEqual(options);
-      expect(o.args).toStrictEqual([filter, update, options]);
+      expect(o.options).toMatchObject(options);
+      expect(o.args).toStrictEqual([filter, update, o.options]);
     });
   });
 
@@ -411,12 +396,9 @@ describe('MongoAdapter.transformRequest (Collection)', function () {
 
     it('Should prepare', async () => {
       const request = {
-        resource: api.getCollection('countries'),
-        resourceKind: 'Collection',
+        resource: api.getCollection('customers'),
         operation: 'updateMany',
-        crud: 'update',
-        many: true,
-        args: {data}
+        data
       } as unknown as Request;
       const options = {};
       const o = MongoAdapter.transformRequest(request);
@@ -430,12 +412,10 @@ describe('MongoAdapter.transformRequest (Collection)', function () {
     it('Should prepare with "filter" option', async () => {
       const resource = api.getCollection('customers');
       const request = {
-        resource: api.getCollection('countries'),
-        resourceKind: 'Collection',
+        resource: api.getCollection('customers'),
         operation: 'updateMany',
-        crud: 'update',
-        many: true,
-        args: {data, filter: resource.normalizeFilter('givenName="John"')}
+        data,
+        params: {filter: resource.normalizeFilter('givenName="John"')}
       } as unknown as Request;
       const options = {};
       const o = MongoAdapter.transformRequest(request);

@@ -19,12 +19,10 @@ describe('MongoCollectionResource', function () {
     expect(r.defaultLimit).toStrictEqual(50);
   })
 
-  it('Should set operations to be activated', () => {
+  it('Should disable operations', () => {
     @Collection('any')
     class TestResource extends MongoCollectionResource<any> {
-      constructor() {
-        super({operations: ['get', 'updateMany']});
-      }
+      update = undefined;
 
       getService() {
         return null as any;
@@ -34,7 +32,7 @@ describe('MongoCollectionResource', function () {
     const r = new TestResource();
     expect(r.get).toBeInstanceOf(Function);
     expect(r.updateMany).toBeInstanceOf(Function);
-    expect(r.update).toStrictEqual(null);
+    expect(r.update).toStrictEqual(undefined);
   })
 
 });

@@ -25,8 +25,8 @@ export class CustomersResource extends SqbCollectionResource<Customer> {
       {field: 'gender', operators: ['=']},
       {field: 'uid', operators: ['=']},
       {field: 'address.countryCode', operators: ['=']},
-      {field: 'deleted', operators: ['=']},
-      {field: 'active', operators: ['=']},
+      {field: 'deleted', operators: ['=', '!=']},
+      {field: 'active', operators: ['=', '!=']},
       {field: 'birthDate', operators: ['=']},
       {field: 'rate', operators: ['=', '>', '<', '>=', '<=', 'in', '!in']},
     ]

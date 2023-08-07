@@ -1,6 +1,6 @@
 import { ApiDocument, Collection } from '@opra/common';
-import { createTestApi } from '@opra/core/test/_support/test-app/index';
 import { MongoAdapter } from '@opra/mongodb';
+import { createTestApp } from '../../../sqb/test/_support/test-app/index.js';
 
 describe('MongoAdapter.transformFilter', function () {
 
@@ -8,7 +8,8 @@ describe('MongoAdapter.transformFilter', function () {
   let customers: Collection;
 
   beforeAll(async () => {
-    api = await createTestApi();
+    const app = await createTestApp();
+    api = app.api;
     customers = api.getCollection('customers');
   });
 

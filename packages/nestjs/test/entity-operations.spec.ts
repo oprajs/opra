@@ -28,7 +28,8 @@ describe('Entity operations', function () {
   it('Should retrieve single instance', async function () {
     const resp = await request(server)
         .get('/api/svc1/Photos@1');
-    expect(resp.body).toStrictEqual(photosData[0]);
+    expect(resp.body.errors).toStrictEqual(undefined);
+    expect(resp.body.data).toStrictEqual(photosData[0]);
     expect(resp.status).toStrictEqual(200);
 
   });
@@ -36,7 +37,8 @@ describe('Entity operations', function () {
   it('Should find many entity', async function () {
     const resp = await request(server)
         .get('/api/svc1/Photos?$filter=id<=2');
-    expect(resp.body).toStrictEqual(photosData.filter(x => x.id <= 2));
+    expect(resp.body.errors).toStrictEqual(undefined);
+    expect(resp.body.data).toStrictEqual(photosData.filter(x => x.id <= 2));
     expect(resp.status).toStrictEqual(200);
   });
 
@@ -47,7 +49,8 @@ describe('Entity operations', function () {
     const resp = await request(server)
         .post('/api/svc1/Photos')
         .send(data)
-    expect(resp.body).toStrictEqual(data);
+    expect(resp.body.errors).toStrictEqual(undefined);
+    expect(resp.body.data).toStrictEqual(data);
     expect(resp.status).toStrictEqual(201);
     expect(photosData.find(x => x && x.id === 4)).toStrictEqual(data);
   });
@@ -58,7 +61,8 @@ describe('Entity operations', function () {
     const resp = await request(server)
         .patch('/api/svc1/Photos@1')
         .send(data)
-    expect(resp.body).toStrictEqual({...oldData, ...data});
+    expect(resp.body.errors).toStrictEqual(undefined);
+    expect(resp.body.data).toStrictEqual({...oldData, ...data});
     expect(resp.status).toStrictEqual(200);
     expect(photosData.find(x => x && x.id === 1)).toStrictEqual({...oldData, ...data});
   });
@@ -69,6 +73,7 @@ describe('Entity operations', function () {
     const resp = await request(server)
         .patch('/api/svc1/Photos?$filter=id>=5')
         .send(data)
+    expect(resp.body.errors).toStrictEqual(undefined);
     expect(resp.status).toStrictEqual(200);
     expect(photosData.find(x => x && x.id === 5)).toStrictEqual({id: 5, views: 100});
     expect(photosData.find(x => x && x.id === 6)).toStrictEqual({id: 6, views: 100});
@@ -78,7 +83,8 @@ describe('Entity operations', function () {
     photosData.push({id: 15});
     const resp = await request(server)
         .delete('/api/svc1/Photos@15');
-    expect(resp.body).toStrictEqual({operation: 'delete', affected: 1});
+    expect(resp.body.errors).toStrictEqual(undefined);
+    expect(resp.body).toMatchObject({operation: 'delete', affected: 1});
     expect(resp.status).toStrictEqual(200);
     expect(photosData.find(x => x && x.id === 15)).toStrictEqual(undefined);
   });
@@ -87,6 +93,7 @@ describe('Entity operations', function () {
     photosData.push({id: 16}, {id: 17});
     const resp = await request(server)
         .delete('/api/svc1/Photos?$filter=id>=16');
+    expect(resp.body.errors).toStrictEqual(undefined);
     expect(resp.body.affected).toBeGreaterThan(1);
     expect(resp.status).toStrictEqual(200);
     expect(photosData.find(x => x && x.id >= 16)).toStrictEqual(undefined);

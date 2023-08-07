@@ -1,7 +1,7 @@
 /* eslint-disable camelcase */
 import { ApiDocument, Collection } from '@opra/common';
-import { createTestApi } from '@opra/core/test/_support/test-app/index';
 import { ElasticAdapter } from '@opra/elastic';
+import { createTestApp } from '../../../sqb/test/_support/test-app/index.js';
 
 describe('ElasticAdapter.transformFilter', function () {
 
@@ -9,7 +9,7 @@ describe('ElasticAdapter.transformFilter', function () {
   let customers: Collection;
 
   beforeAll(async () => {
-    api = await createTestApi();
+    api = (await createTestApp()).api;
     customers = api.getCollection('customers');
   });
 
