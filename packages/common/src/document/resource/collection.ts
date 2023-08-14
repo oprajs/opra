@@ -1,6 +1,7 @@
 import omit from 'lodash.omit';
 import merge from 'putil-merge';
 import { StrictOmit, Type } from 'ts-gems';
+import * as vg from 'valgen';
 import { BadRequestError } from '../../exception/index.js';
 import { OpraFilter } from '../../filter/index.js';
 import { omitUndefined } from '../../helpers/index.js';
@@ -9,8 +10,9 @@ import { OpraSchema } from '../../schema/index.js';
 import type { TypeThunkAsync } from '../../types.js';
 import type { ApiDocument } from '../api-document.js';
 import { METADATA_KEY } from '../constants.js';
-import type { ComplexType } from '../data-type/complex-type.js';
+import { ComplexType } from '../data-type/complex-type.js';
 import { SimpleType } from '../data-type/simple-type.js';
+import { generateCodec, GenerateDecoderOptions } from '../utils/generate-codec.js';
 import { Resource } from './resource.js';
 
 const NESTJS_INJECTABLE_WATERMARK = '__injectable__'; // todo, put this in nextjs package wia augmentation
@@ -69,6 +71,8 @@ export namespace Collection {
 }
 
 class CollectionClass extends Resource {
+  private _decoders: Record<string, vg.Validator<any>> = {};
+  private _encoders: Record<string, vg.Validator<any>> = {};
   readonly type: ComplexType;
   readonly kind = OpraSchema.Collection.Kind;
   readonly operations: OpraSchema.Collection.Operations;
@@ -121,7 +125,8 @@ class CollectionClass extends Resource {
       // decode values
       for (const [k, v] of Object.entries(obj)) {
         const el = dataType.getField(k);
-        obj[k] = (el.type as SimpleType).decode(v);
+        if (el.type instanceof SimpleType)
+          obj[k] = el.type.decode(v);
         if (obj[k] == null)
           throw new TypeError(`You must provide value of primary field(s) (${k})`);
       }
@@ -130,7 +135,9 @@ class CollectionClass extends Resource {
       if (typeof value === 'object')
         value = value[primaryKey];
       const el = dataType.getField(primaryKey);
-      const result = (el.type as SimpleType).decode(value);
+      let result: any;
+      if (el.type instanceof SimpleType)
+        result = el.type.decode(value);
       if (result == null)
         throw new TypeError(`You must provide value of primary field(s) (${primaryKey})`);
       return result;
@@ -210,6 +217,35 @@ class CollectionClass extends Resource {
     }
     return ast;
   }
+
+  getDecoder(operation: keyof OpraSchema.Collection.Operations): vg.Validator<any, any> {
+    let decoder = this._decoders[operation];
+    if (decoder)
+      return decoder;
+    const options: GenerateDecoderOptions = {
+      partial: operation !== 'create'
+    };
+    if (operation !== 'create')
+      options.omit = [...this.primaryKey];
+    decoder = generateCodec(this.type, 'decode', options);
+    this._decoders[operation] = decoder;
+    return decoder;
+  }
+
+  getEncoder(operation: keyof OpraSchema.Collection.Operations): vg.Validator<any, any> {
+    let encoder = this._encoders[operation];
+    if (encoder)
+      return encoder;
+    const options: GenerateDecoderOptions = {
+      partial: true
+    };
+    encoder = generateCodec(this.type, 'encode', options);
+    if (operation === 'findMany')
+      return vg.isArray(encoder);
+    this._encoders[operation] = encoder;
+    return encoder;
+  }
+
 }
 
 export interface CollectionConstructor {

@@ -10,6 +10,7 @@ import type { ApiDocument } from '../api-document.js';
 import { METADATA_KEY, TYPENAME_PATTERN } from '../constants.js';
 import { ApiField } from './api-field.js';
 import { DataType } from './data-type.js';
+import type { MappedType } from './mapped-type.js';
 import type { UnionType } from './union-type.js';
 
 /**
@@ -18,7 +19,7 @@ import type { UnionType } from './union-type.js';
 export namespace ComplexType {
   export interface InitArguments extends DataType.InitArguments,
       Pick<OpraSchema.ComplexType, 'ctor' | 'abstract' | 'additionalFields'> {
-    base?: ComplexType | UnionType;
+    base?: ComplexType;
   }
 
   export interface OwnProperties extends Readonly<StrictOmit<OpraSchema.ComplexType, 'fields'>> {
@@ -40,20 +41,20 @@ export namespace ComplexType {
  * @class ComplexType
  */
 class ComplexTypeClass extends DataType {
+  protected _decode: vg.Validator<any, any>;
+  protected _encode: vg.Validator<any, any>;
   readonly kind = OpraSchema.ComplexType.Kind;
   readonly ctor: Type;
-  readonly base?: ComplexType | UnionType;
+  readonly base?: ComplexType | UnionType | MappedType;
   readonly own: ComplexType.OwnProperties;
   readonly fields: ResponsiveMap<ApiField>;
   readonly abstract?: boolean;
   readonly additionalFields?: boolean | vg.Validator<any, any> | 'ignore';
-  protected _decoder?: vg.Validator<any, any>;
-  protected _encoder?: vg.Validator<any, any>;
 
   constructor(document: ApiDocument, init: ComplexType.InitArguments) {
     super(document, init);
     const own = this.own = {} as Writable<ComplexType.OwnProperties>;
-    own.ctor = init?.ctor;
+    own.ctor = init?.ctor || init?.base?.ctor;
     own.abstract = init?.abstract;
     own.additionalFields = init?.additionalFields;
     own.fields = new ResponsiveMap();
@@ -67,8 +68,6 @@ class ComplexTypeClass extends DataType {
     if (this.base) {
       if (this.additionalFields == null)
         this.additionalFields = this.base.additionalFields;
-      if (own.ctor == null && this.base instanceof ComplexType)
-        this.ctor = this.base.ctor;
       if (this.base.fields)
         for (const [k, el] of this.base.fields.entries()) {
           const newEl = new ApiField(this, el);
@@ -194,56 +193,24 @@ class ComplexTypeClass extends DataType {
     return false;
   }
 
-  decode(v: object): any {
-    return this._getDecoder()(v, {coerce: true});
-  }
-
-  encode(v: any): any {
-    return this._getEncoder()(v, {coerce: true});
-  }
-
-  validate(v: any): any {
-    return this._getEncoder()(v);
-  }
-
-  protected _getDecoder(): vg.Validator<any, any> {
-    if (this._decoder)
-      return this._decoder;
-    const schema: vg.ObjectSchema = {};
-    for (const f of this.fields.values()) {
-      let t = (f.type as any)._getDecoder();
-      if (f.isArray)
-        t = vg.isArray(t);
-      schema[f.name] = f.required ? vg.required(t) : vg.optional(t);
-    }
-    this._decoder = vg.isObject(schema, {
-      ctor: this.ctor,
-      additionalFields: this.additionalFields ?? 'ignore',
-      name: this.name,
-      caseInSensitive: true,
-    });
-    return this._decoder;
-  }
-
-  protected _getEncoder(): vg.Validator<any, any> {
-    if (this._encoder)
-      return this._encoder;
-    const schema: vg.ObjectSchema = {};
-    for (const f of this.fields.values()) {
-      let t = (f.type as any)._getEncoder();
-      if (f.isArray)
-        t = vg.isArray(t);
-      schema[f.name] = t;
-    }
-    this._encoder = vg.isObject(schema, {
-      ctor: this.ctor,
-      additionalFields: this.additionalFields ?? 'ignore',
-      name: this.name,
-      caseInSensitive: true,
-      detectCircular: true
-    });
-    return this._encoder;
-  }
+  //
+  // getEncoder(): vg.Validator<any, any> {
+  //   const schema: vg.ObjectSchema = {};
+  //   for (const f of this.fields.values()) {
+  //     let t = (f.type as any)._getEncoder();
+  //     if (f.isArray)
+  //       t = vg.isArray(t);
+  //     schema[f.name] = t;
+  //   }
+  //   this._encoder = vg.isObject(schema, {
+  //     ctor: this.ctor,
+  //     additionalFields: this.additionalFields ?? 'ignore',
+  //     name: this.name,
+  //     caseInSensitive: true,
+  //     detectCircular: true
+  //   });
+  //   return this._encoder;
+  // }
 
 }
 

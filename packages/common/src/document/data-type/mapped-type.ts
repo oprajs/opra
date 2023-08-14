@@ -48,8 +48,6 @@ class MappedTypeClass extends DataType {
   readonly fields: ResponsiveMap<ApiField>;
   readonly omit?: Field.Name[];
   readonly pick?: Field.Name[];
-  protected _decoder: vg.Validator<any, any>;
-  protected _encoder: vg.Validator<any, any>;
 
   constructor(document: ApiDocument, init: MappedType.InitArguments) {
     super(document, init);
@@ -77,43 +75,6 @@ class MappedTypeClass extends DataType {
       omit: this.own.omit,
     }));
     return out;
-  }
-
-  protected _getDecoder(): vg.Validator<any, any> {
-    if (this._decoder)
-      return this._decoder;
-    const schema: vg.ObjectSchema = {};
-    for (const f of this.fields.values()) {
-      let t = (f.type as any).getDecoder();
-      if (f.isArray)
-        t = vg.isArray(t);
-      schema[f.name] = t;
-    }
-    this._decoder = vg.isObject(schema, {
-      additionalFields: this.additionalFields,
-      name: this.name,
-      caseInSensitive: true
-    });
-    return this._decoder;
-  }
-
-  protected _getEncoder(): vg.Validator<any, any> {
-    if (this._encoder)
-      return this._encoder;
-    const schema: vg.ObjectSchema = {};
-    for (const f of this.fields.values()) {
-      let t = (f.type as any).getEncoder();
-      if (f.isArray)
-        t = vg.isArray(t);
-      schema[f.name] = t;
-    }
-    this._encoder = vg.isObject(schema, {
-      additionalFields: this.additionalFields,
-      name: this.name,
-      caseInSensitive: true,
-      detectCircular: true
-    });
-    return this._encoder;
   }
 
 }

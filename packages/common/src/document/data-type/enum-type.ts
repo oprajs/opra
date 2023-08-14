@@ -35,8 +35,8 @@ class EnumTypeClass extends DataType {
   readonly meanings: Record<string, string>;
   readonly ownValues: Record<string, string | number>;
   readonly ownMeanings: Record<string, string>;
-  protected _decoder?: vg.Validator<any, any>;
-  protected _encoder?: vg.Validator<any, any>;
+  readonly decode: vg.Validator<any, any>;
+  readonly encode: vg.Validator<any, any>;
 
   constructor(document: ApiDocument, init: EnumType.InitArguments) {
     super(document, init);
@@ -45,6 +45,8 @@ class EnumTypeClass extends DataType {
     this.ownMeanings = init.meanings || {};
     this.values = {...this.base?.values, ...this.ownValues};
     this.meanings = {...this.base?.meanings, ...this.ownMeanings};
+    this.decode = vg.isEnum(Object.values(this.values));
+    this.encode = vg.isEnum(Object.values(this.values));
   }
 
   exportSchema(): OpraSchema.EnumType {
@@ -56,16 +58,6 @@ class EnumTypeClass extends DataType {
       meanings: this.ownMeanings
     }));
     return out;
-  }
-
-  protected _getDecoder(): vg.Validator<any, any> {
-    if (!this._decoder)
-      this._decoder = vg.isEnum(Object.values(this.values), {enumName: this.name});
-    return this._decoder;
-  }
-
-  protected _getEncoder(): vg.Validator<any, any> {
-    return this._getDecoder();
   }
 
 }

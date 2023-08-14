@@ -1,7 +1,6 @@
 import 'reflect-metadata';
 import merge from 'putil-merge';
 import { Class, StrictOmit, Type, Writable } from 'ts-gems';
-import * as vg from 'valgen';
 import {
   inheritPropertyInitializers,
   mergePrototype,
@@ -40,8 +39,6 @@ class UnionTypeClass extends DataType {
   readonly types: (ComplexType | UnionType | MappedType)[];
   readonly additionalFields?: boolean;
   readonly fields: ResponsiveMap<ApiField>;
-  protected _decoder: vg.Validator<any, any>;
-  protected _encoder: vg.Validator<any, any>;
 
   constructor(document: ApiDocument, init: UnionType.InitArguments) {
     super(document, init);
@@ -70,42 +67,6 @@ class UnionTypeClass extends DataType {
     return out;
   }
 
-  protected _getDecoder(): vg.Validator<any, any> {
-    if (this._decoder)
-      return this._decoder;
-    const schema: vg.ObjectSchema = {};
-    for (const f of this.fields.values()) {
-      let t = (f.type as any).getDecoder();
-      if (f.isArray)
-        t = vg.isArray(t);
-      schema[f.name] = t;
-    }
-    this._decoder = vg.isObject(schema, {
-      additionalFields: this.additionalFields,
-      name: this.name,
-      caseInSensitive: true
-    });
-    return this._decoder;
-  }
-
-  protected _getEncoder(): vg.Validator<any, any> {
-    if (this._encoder)
-      return this._encoder;
-    const schema: vg.ObjectSchema = {};
-    for (const f of this.fields.values()) {
-      let t = (f.type as any).getEncoder();
-      if (f.isArray)
-        t = vg.isArray(t);
-      schema[f.name] = t;
-    }
-    this._encoder = vg.isObject(schema, {
-      additionalFields: this.additionalFields,
-      name: this.name,
-      caseInSensitive: true,
-      detectCircular: true
-    });
-    return this._encoder;
-  }
 }
 
 /**

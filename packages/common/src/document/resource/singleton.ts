@@ -1,12 +1,14 @@
 import omit from 'lodash.omit';
 import merge from 'putil-merge';
 import { StrictOmit, Type } from 'ts-gems';
+import * as vg from 'valgen';
 import { omitUndefined } from '../../helpers/index.js';
 import { OpraSchema } from '../../schema/index.js';
 import type { TypeThunkAsync } from '../../types.js';
 import type { ApiDocument } from '../api-document.js';
 import { METADATA_KEY } from '../constants.js';
 import { ComplexType } from '../data-type/complex-type.js';
+import { generateCodec, GenerateDecoderOptions } from '../utils/generate-codec.js';
 import { Resource } from './resource.js';
 
 const NESTJS_INJECTABLE_WATERMARK = '__injectable__'; // todo, put this in nextjs package wia augmentation
@@ -50,6 +52,8 @@ export namespace Singleton {
 }
 
 class SingletonClass extends Resource {
+  private _decoders: Record<string, vg.Validator<any>> = {};
+  private _encoders: Record<string, vg.Validator<any>> = {};
   readonly type: ComplexType;
   readonly kind = OpraSchema.Singleton.Kind;
   readonly operations: OpraSchema.Singleton.Operations;
@@ -76,6 +80,31 @@ class SingletonClass extends Resource {
 
   normalizeFieldPath(this: Singleton, path: string | string[]): string[] | undefined {
     return this.type.normalizeFieldPath(path);
+  }
+
+
+  getDecoder(operation: keyof OpraSchema.Singleton.Operations): vg.Validator<any, any> {
+    let decoder = this._decoders[operation];
+    if (decoder)
+      return decoder;
+    const options: GenerateDecoderOptions = {
+      partial: operation !== 'create'
+    };
+    decoder = generateCodec(this.type, 'decode', options);
+    this._decoders[operation] = decoder;
+    return decoder;
+  }
+
+  getEncoder(operation: keyof OpraSchema.Singleton.Operations): vg.Validator<any, any> {
+    let encoder = this._encoders[operation];
+    if (encoder)
+      return encoder;
+    const options: GenerateDecoderOptions = {
+      partial: true
+    };
+    encoder = generateCodec(this.type, 'encode', options);
+    this._encoders[operation] = encoder;
+    return encoder;
   }
 
 }

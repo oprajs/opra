@@ -25,6 +25,7 @@ describe('e2e:Collection', function () {
         .send({
           givenName: 'abcd',
           familyName: 'efgh',
+          active: 'f'
         });
     expect(resp.type).toStrictEqual('application/json');
     expect(resp.body).toBeDefined();
@@ -37,7 +38,8 @@ describe('e2e:Collection', function () {
     expect(resp.body.data).toMatchObject({
       _id: /\d+/,
       givenName: /.+/,
-      familyName: /.+/
+      familyName: /.+/,
+      active: false
     });
   });
 
@@ -81,7 +83,8 @@ describe('e2e:Collection', function () {
     const resp = await supertest(adapter.server)
         .patch('/Customers@1')
         .send({
-          birthDate: new Date().toISOString()
+          birthDate: new Date().toISOString(),
+          active: 'f'
         });
     expect(resp.type).toStrictEqual('application/json');
     expect(resp.body).toBeDefined();
@@ -94,7 +97,8 @@ describe('e2e:Collection', function () {
       _id: /\d+/,
       givenName: /.+/,
       familyName: /.+/,
-      birthDate: /^\d{4}-\d{2}-\d{2}/
+      birthDate: /^\d{4}-\d{2}-\d{2}/,
+      active: false
     });
   });
 
