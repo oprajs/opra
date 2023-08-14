@@ -1,5 +1,5 @@
 import { Maybe, Type } from 'ts-gems';
-import { PartialInput, PartialOutput, OperationContext } from '@opra/core';
+import { OperationContext, PartialInput, PartialOutput } from '@opra/core';
 import { EntityInput, EntityMetadata, Repository, SqbClient, SqbConnection } from '@sqb/connect';
 
 export namespace SqbEntityService {

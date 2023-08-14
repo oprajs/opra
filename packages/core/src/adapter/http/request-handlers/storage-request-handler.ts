@@ -8,12 +8,15 @@ import {
   Storage,
   uid
 } from '@opra/common';
-import { HttpServerRequest, OperationContext, Request, Response } from '@opra/core';
 import type { ExecutionContext } from '../../execution-context';
+import { OperationContext } from '../../operation-context.js';
 import { RequestHost } from '../../request.host.js';
+import { Request } from '../../request.js';
 import { ResponseHost } from '../../response.host.js';
+import { Response } from '../../response.js';
 import { MultipartIterator } from '../helpers/multipart-helper.js';
 import type { HttpAdapterBase } from '../http-adapter-base.js';
+import { HttpServerRequest } from '../http-server-request.js';
 import { RequestHandlerBase } from './request-handler-base.js';
 
 export namespace StorageRequestHandler {

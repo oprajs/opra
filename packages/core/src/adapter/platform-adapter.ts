@@ -1,6 +1,7 @@
 import { FallbackLng, I18n, LanguageResource } from '@opra/common';
-import { ILogger, OperationContext } from '@opra/core';
+import { ILogger } from './interfaces/logger.interface.js';
 import { RequestHandler } from './interfaces/request-handler.interface.js';
+import { OperationContext } from './operation-context.js';
 
 export type Protocol = 'http' | 'ws' | 'rpc';
 

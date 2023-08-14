@@ -1,4 +1,4 @@
-import { OpraFilter } from '@opra/common';
+import type { OpraFilter } from '../../filter/index.js';
 import type { DataType } from '../data-type/data-type.interface.js';
 import type { Field } from '../data-type/field.interface';
 import type { Operation } from './operation.interface';
