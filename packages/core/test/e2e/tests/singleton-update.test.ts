@@ -58,7 +58,7 @@ export function singletonUpdateTests(args: { client: OpraTestClient }) {
       const data = {
         givenName: faker.person.firstName(),
         familyName: faker.person.lastName(),
-        gender: 'X'
+        gender: 'M'
       }
       const resp = await args.client.singleton('MyProfile')
           .update(data, {pick: ['_id', 'givenName']})
@@ -73,7 +73,7 @@ export function singletonUpdateTests(args: { client: OpraTestClient }) {
       const data = {
         givenName: faker.person.firstName(),
         familyName: faker.person.lastName(),
-        gender: 'X'
+        gender: 'F'
       }
       const resp = await args.client.singleton('MyProfile')
           .update(data, {omit: ['givenName', 'gender']})
@@ -88,7 +88,7 @@ export function singletonUpdateTests(args: { client: OpraTestClient }) {
       const data = {
         givenName: faker.person.firstName(),
         familyName: faker.person.lastName(),
-        gender: 'X'
+        gender: 'F'
       }
       const resp = await args.client.singleton('MyProfile')
           .update(data, {include: ['address']})

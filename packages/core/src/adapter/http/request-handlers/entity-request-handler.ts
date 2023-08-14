@@ -111,8 +111,8 @@ export class EntityRequestHandler extends RequestHandlerBase {
     } else {
       if (!response.value)
         throw new InternalServerError(`"${request.operation}" operation should return value`);
-      const data = response.value;
-      // const data = resource.type.encode(response.value); // todo
+      const encode = resource.getEncoder(request.operation as any);
+      const data = encode(response.value, {coerce: true});
       if (request.operation === 'create')
         outgoing.statusCode = 201;
       responseObject = {
@@ -147,8 +147,8 @@ export class EntityRequestHandler extends RequestHandlerBase {
           const operationMeta =
               await this.assertOperation<OpraSchema.Collection.CreateOperation>(resource, 'create');
           const jsonReader = this.getBodyLoader(operationMeta);
-          const data = await jsonReader(incoming);
-          // data = resource.type.decode(data);
+          const decode = resource.getDecoder('create');
+          const data = decode(await jsonReader(incoming), {coerce: true});
           const pick = parseArrayParam(params.get('$pick'));
           const omit = parseArrayParam(params.get('$omit'));
           const include = parseArrayParam(params.get('$include'));
@@ -246,8 +246,8 @@ export class EntityRequestHandler extends RequestHandlerBase {
           const operationMeta =
               await this.assertOperation<OpraSchema.Collection.DeleteOperation>(resource, 'update');
           const jsonReader = this.getBodyLoader(operationMeta);
-          const data = await jsonReader(incoming);
-          // data = resource.type.decode(data); // todo make partial
+          const decode = resource.getDecoder('update');
+          const data = decode(await jsonReader(incoming), {coerce: true});
           const pick = parseArrayParam(params.get('$pick'));
           const omit = parseArrayParam(params.get('$omit'));
           const include = parseArrayParam(params.get('$include'));
@@ -269,8 +269,8 @@ export class EntityRequestHandler extends RequestHandlerBase {
         const operationMeta =
             await this.assertOperation<OpraSchema.Collection.DeleteOperation>(resource, 'updateMany');
         const jsonReader = this.getBodyLoader(operationMeta);
-        const data = await jsonReader(incoming);
-        // data = resource.type.decode(data); // todo make partial
+        const decode = resource.getDecoder('updateMany');
+        const data = decode(await jsonReader(incoming), {coerce: true});
         const filter = resource.normalizeFilter(params.get('$filter') as any);
         return new RequestHost({
           controller: operationMeta.controller,
@@ -302,8 +302,8 @@ export class EntityRequestHandler extends RequestHandlerBase {
         const operationMeta =
             await this.assertOperation<OpraSchema.Singleton.DeleteOperation>(resource, 'create');
         const jsonReader = this.getBodyLoader(operationMeta);
-        const data = await jsonReader(incoming);
-        // data = resource.type.decode(data);
+        const decode = resource.getDecoder('create');
+        const data = decode(await jsonReader(incoming), {coerce: true});
         const pick = parseArrayParam(params.get('$pick'));
         const omit = parseArrayParam(params.get('$omit'));
         const include = parseArrayParam(params.get('$include'));
@@ -358,8 +358,8 @@ export class EntityRequestHandler extends RequestHandlerBase {
         const operationMeta =
             await this.assertOperation<OpraSchema.Singleton.DeleteOperation>(resource, 'update');
         const jsonReader = this.getBodyLoader(operationMeta);
-        const data = await jsonReader(incoming);
-        // data = resource.type.decode(data); // todo make partial
+        const decode = resource.getDecoder('update');
+        const data = decode(await jsonReader(incoming), {coerce: true});
         const pick = parseArrayParam(params.get('$pick'));
         const omit = parseArrayParam(params.get('$omit'));
         const include = parseArrayParam(params.get('$include'));

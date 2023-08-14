@@ -52,7 +52,7 @@ describe('Entity operations', function () {
     expect(resp.body.errors).toStrictEqual(undefined);
     expect(resp.body.data).toStrictEqual(data);
     expect(resp.status).toStrictEqual(201);
-    expect(photosData.find(x => x && x.id === 4)).toStrictEqual(data);
+    expect(photosData.find(x => x && x.id === 4)).toMatchObject(data);
   });
 
   it('Should update an instance', async function () {

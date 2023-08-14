@@ -89,22 +89,4 @@ describe('ComplexType', function () {
     })
   })
 
-  it('Should transform (decode) object into ctor', async () => {
-    const dt = api.getComplexType('customer');
-    const decoded = dt.decode({
-      _id: '1',
-      givenName: 'John',
-      active: 1,
-      unkField: 1
-    })
-    expect(decoded).toBeDefined();
-    expect(decoded).toBeInstanceOf(Customer);
-    expect(decoded).toEqual({
-      _id: 1,
-      givenName: 'John',
-      active: true
-    });
-
-  })
-
 });

@@ -35,23 +35,15 @@ export namespace SimpleType {
 class SimpleTypeClass extends DataType {
   readonly kind = OpraSchema.SimpleType.Kind
   readonly base?: SimpleType;
-  protected _decoder: vg.Validator<any, any>;
-  protected _encoder: vg.Validator<any, any>;
   readonly own: SimpleType.OwnProperties;
+  readonly decode: vg.Validator<any, any>;
+  readonly encode: vg.Validator<any, any>;
 
   constructor(document: ApiDocument, init: SimpleType.InitArguments) {
     super(document, init);
     this.base = init.base;
-    this._decoder = init.decoder || init.base?._decoder || vg.isAny();
-    this._encoder = init.encoder || init.base?._encoder || vg.isAny();
-  }
-
-  protected _getDecoder(): vg.Validator<any, any> {
-    return this._decoder;
-  }
-
-  protected _getEncoder(): vg.Validator<any, any> {
-    return this._encoder;
+    this.decode = init.decoder || init.base?.decode || vg.isAny();
+    this.encode = init.encoder || init.base?.encode || vg.isAny();
   }
 
   exportSchema(): OpraSchema.SimpleType {
