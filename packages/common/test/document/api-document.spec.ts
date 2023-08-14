@@ -9,8 +9,8 @@ import {
   SimpleType, Singleton,
 } from '@opra/common';
 import {
-  Country, CountriesResource,
-  CustomersResource, MyProfileResource
+  CountriesResource,
+  Country, CustomersResource, MyProfileResource
 } from '../_support/test-api/index.js';
 
 describe('ApiDocument', function () {

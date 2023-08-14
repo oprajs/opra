@@ -1,5 +1,6 @@
 import type { PartialOutput } from '@opra/common';
-import type { OperationContext, Request as _Request } from '@opra/core';
+import type { OperationContext } from '../adapter/operation-context.js';
+import type { Request as _Request } from '../adapter/request.js';
 
 declare module "@opra/common" {
 

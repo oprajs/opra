@@ -1,4 +1,4 @@
-import { ILogger } from '@opra/core';
+import { ILogger } from '../interfaces/logger.interface.js';
 
 export interface LoggerOptions {
   // context?: string;

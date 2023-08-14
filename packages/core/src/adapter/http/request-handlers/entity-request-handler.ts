@@ -5,15 +5,15 @@ import {
   InternalServerError, MethodNotAllowedError, OpraException,
   OpraSchema, ResourceNotFoundError, Singleton,
 } from '@opra/common';
-import {
-  HttpServerRequest,
-  OperationContext, Request, Response
-} from '@opra/core';
 import { ExecutionContext } from '../../execution-context.js';
+import { OperationContext } from '../../operation-context.js';
 import { RequestHost } from '../../request.host.js';
+import { Request } from '../../request.js';
 import { ResponseHost } from '../../response.host.js';
+import { Response } from '../../response.js';
 import { parseArrayParam } from '../helpers/query-parsers.js';
 import type { HttpAdapterBase } from '../http-adapter-base.js';
+import { HttpServerRequest } from '../http-server-request.js';
 import { RequestHandlerBase } from './request-handler-base.js';
 
 type BodyLoaderFunction = (incoming: HttpServerRequest) => Promise<any>;
