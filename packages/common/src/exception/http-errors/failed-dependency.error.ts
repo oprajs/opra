@@ -1,4 +1,5 @@
 import { translate } from '../../i18n/index.js';
+import { ErrorIssue } from '../error-issue.js';
 import { OpraException } from '../opra-exception.js';
 
 /**
@@ -8,11 +9,10 @@ import { OpraException } from '../opra-exception.js';
 export class FailedDependencyError extends OpraException {
   status = 424;
 
-  setIssue(issue) {
-    super.setIssue({
+  protected init(issue: Partial<ErrorIssue>) {
+    super.init({
       message: translate('error:FAILED_DEPENDENCY',
           'The request failed due to failure of a previous request'),
-      severity: 'error',
       code: 'FAILED_DEPENDENCY',
       ...issue
     });

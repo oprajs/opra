@@ -24,11 +24,11 @@ export class CustomersResource extends SqbCollectionResource<Customer> {
     ],
     response: {}
   })
-  search;
+  findMany;
 
   @Collection.Create({
     input: {
-      maxContentSize: '200k'
+      maxContentSize: '200kb'
     }
   })
   create;

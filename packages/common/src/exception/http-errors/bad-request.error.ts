@@ -1,4 +1,5 @@
 import { translate } from '../../i18n/index.js';
+import { ErrorIssue } from '../error-issue.js';
 import { OpraException } from '../opra-exception.js';
 
 /**
@@ -9,10 +10,9 @@ import { OpraException } from '../opra-exception.js';
 export class BadRequestError extends OpraException {
   status = 400;
 
-  setIssue(issue) {
-    super.setIssue({
+  protected init(issue: Partial<ErrorIssue>) {
+    super.init({
       message: translate('error:BAD_REQUEST', 'Bad request'),
-      severity: 'error',
       code: 'BAD_REQUEST',
       ...issue
     });

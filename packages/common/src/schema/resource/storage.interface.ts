@@ -38,7 +38,7 @@ export namespace Storage {
     /**
      * limit the size of the batch of uploaded files
      *
-     * @default options.maxFileSize
+     * @default maxFileSize
      */
     maxTotalFileSize?: number | undefined;
 

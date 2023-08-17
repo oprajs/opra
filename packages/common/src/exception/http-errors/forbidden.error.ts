@@ -1,4 +1,5 @@
 import { translate } from '../../i18n/index.js';
+import { ErrorIssue } from '../error-issue.js';
 import { OpraException } from '../opra-exception.js';
 
 /**
@@ -10,11 +11,10 @@ import { OpraException } from '../opra-exception.js';
 export class ForbiddenError extends OpraException {
   status = 403;
 
-  setIssue(issue) {
-    super.setIssue({
+  protected init(issue: Partial<ErrorIssue>) {
+    super.init({
       message: translate('error:FORBIDDEN',
           'You are not authorized to perform this action'),
-      severity: 'error',
       code: 'FORBIDDEN',
       ...issue
     });

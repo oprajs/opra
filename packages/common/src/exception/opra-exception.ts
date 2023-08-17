@@ -1,44 +1,44 @@
+import { omitUndefined } from '../helpers/index.js';
 import { i18n } from '../i18n/index.js';
 import { ErrorIssue } from './error-issue.js';
+import { IssueSeverity } from './issue-severity.enum.js';
+
+const inDevelopment = (process.env.NODE_ENV || '').startsWith('dev');
 
 /**
  * Defines the base Opra exception, which is handled by the default Exceptions Handler.
  */
 export class OpraException extends Error {
-  protected _issue: ErrorIssue;
-  status: number = 500;
   cause?: Error;
+  status: number = 500;
+  severity: IssueSeverity.Type;
+  system?: string;
+  code?: string;
+  details?: any;
 
   constructor()
-  constructor(issue: string | Partial<ErrorIssue> | Error)
-  constructor(issue: string | Partial<ErrorIssue>, cause?: Error)
-  constructor(issue?: any, cause?: Error) {
-    super('');
-    this._initName();
+  constructor(issue: string | Partial<ErrorIssue> | Error, status?: number)
+  constructor(issue: string | Partial<ErrorIssue>, cause?: Error, status?: number)
 
+  constructor(issue?: any, arg1?: Error | number, arg2?: number) {
+    super('Unknown error');
+    let cause = arg1 && arg1 instanceof Error ? arg1 : undefined;
+    this.status = (typeof arg1 === 'number' ? arg1 : Number(arg2)) || 500;
     if (issue instanceof Error)
       cause = issue;
-
-    if (cause) {
+    // noinspection SuspiciousTypeOfGuard
+    if (cause && cause instanceof Error) {
       this.cause = cause;
       if (cause.stack)
         this.stack = cause.stack;
     }
-
-    this._init(issue || cause || 'Unknown error');
-    this.message = i18n.deep(this.issue.message);
-  }
-
-  get issue(): ErrorIssue {
-    return this._issue;
-  }
-
-  setIssue(issue: Partial<ErrorIssue>) {
-    this._issue = {
-      message: 'Unknown error',
-      severity: 'error',
-      ...issue,
-    }
+    if (typeof issue === 'string')
+      this.initString(issue);
+    else if (issue instanceof Error)
+      this.initError(issue);
+    else if (issue && typeof issue === 'object')
+      this.init(issue);
+    this.message = this.message || this.constructor.name;
   }
 
   setStatus(status: number): this {
@@ -46,22 +46,43 @@ export class OpraException extends Error {
     return this;
   }
 
-  protected _initName(): void {
-    this.name = this.constructor.name;
+  toString(): string {
+    return i18n.deep(this.message);
   }
 
-  protected _init(issue: any) {
-    if (issue instanceof Error) {
-      if (typeof (issue as any).status === 'number')
-        this.status = (issue as any).status;
-      else if (typeof (issue as any).getStatus === 'function')
-        this.status = (issue as any).getStatus();
-      this.setIssue({message: issue.message});
-    } else if (typeof issue === 'object') {
-      this.setIssue(issue);
-    } else {
-      this.setIssue({message: String(issue)});
-    }
+  toJSON(): ErrorIssue {
+    return omitUndefined<ErrorIssue>({
+      message: this.message,
+      severity: this.severity,
+      system: this.system,
+      code: this.code,
+      details: this.details,
+      stack: inDevelopment ? this.stack?.split('\n') : undefined
+    }, true);
+  }
+
+  protected init(issue: Partial<ErrorIssue>) {
+    this.message = issue.message || this.constructor.name;
+    this.severity = issue.severity || 'error';
+    this.system = issue.system;
+    this.code = issue.code;
+    this.details = issue.details;
+  }
+
+  protected initString(issue: string) {
+    this.message = String(issue || '') || this.constructor.name;
+    this.severity = 'error';
+    this.code = this.constructor.name;
+  }
+
+  protected initError(issue: Error) {
+    if (typeof (issue as any).status === 'number')
+      this.status = (issue as any).status;
+    else if (typeof (issue as any).getStatus === 'function')
+      this.status = (issue as any).getStatus();
+    this.message = issue.message;
+    this.severity = (issue as any).severity || 'error';
+    this.code = (issue as any).code || (issue.constructor.name);
   }
 
 }

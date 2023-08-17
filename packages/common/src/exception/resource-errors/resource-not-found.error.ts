@@ -17,8 +17,7 @@ export class ResourceNotFoundError extends OpraException {
         resource,
         key: keyValue
       }
-    }, cause);
-    this.status = 404;
+    }, cause, 404);
   }
 
 }

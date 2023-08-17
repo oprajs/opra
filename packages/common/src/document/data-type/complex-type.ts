@@ -49,7 +49,7 @@ class ComplexTypeClass extends DataType {
   readonly own: ComplexType.OwnProperties;
   readonly fields: ResponsiveMap<ApiField>;
   readonly abstract?: boolean;
-  readonly additionalFields?: boolean | vg.Validator<any, any> | 'ignore';
+  readonly additionalFields?: boolean | vg.Validator | 'error';
 
   constructor(document: ApiDocument, init: ComplexType.InitArguments) {
     super(document, init);
@@ -192,25 +192,6 @@ class ComplexTypeClass extends DataType {
     }
     return false;
   }
-
-  //
-  // getEncoder(): vg.Validator<any, any> {
-  //   const schema: vg.ObjectSchema = {};
-  //   for (const f of this.fields.values()) {
-  //     let t = (f.type as any)._getEncoder();
-  //     if (f.isArray)
-  //       t = vg.isArray(t);
-  //     schema[f.name] = t;
-  //   }
-  //   this._encoder = vg.isObject(schema, {
-  //     ctor: this.ctor,
-  //     additionalFields: this.additionalFields ?? 'ignore',
-  //     name: this.name,
-  //     caseInSensitive: true,
-  //     detectCircular: true
-  //   });
-  //   return this._encoder;
-  // }
 
 }
 

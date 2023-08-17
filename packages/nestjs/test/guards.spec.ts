@@ -35,7 +35,7 @@ describe('OpraModule - Guards', function () {
     expect(r.body).toStrictEqual({
       errors: [
         {
-          code: 'UNAUTHORIZED',
+          code: 'UnauthorizedException',
           message: 'Unauthorized',
           severity: 'error'
         }
