@@ -114,7 +114,7 @@ export abstract class HttpAdapterBase extends PlatformAdapterHost {
     const wrappedErrors = errors.map(wrapException);
     // Sort errors from fatal to info
     wrappedErrors.sort((a, b) => {
-      const i = IssueSeverity.Keys.indexOf(a.issue.severity) - IssueSeverity.Keys.indexOf(b.issue.severity);
+      const i = IssueSeverity.Keys.indexOf(a.severity) - IssueSeverity.Keys.indexOf(b.severity);
       if (i === 0)
         return b.status - a.status;
       return i;
@@ -128,9 +128,9 @@ export abstract class HttpAdapterBase extends PlatformAdapterHost {
     }
     outgoing.statusCode = status;
 
-    const body = this._i18n.deep({
-      errors: wrappedErrors.map(x => x.issue)
-    });
+    const body = {
+      errors: wrappedErrors.map(x => this._i18n.deep(x.toJSON()))
+    };
 
     outgoing.setHeader(HttpHeaderCodes.Content_Type, 'application/json; charset=utf-8');
     outgoing.setHeader(HttpHeaderCodes.Cache_Control, 'no-cache');

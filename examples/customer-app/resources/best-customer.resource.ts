@@ -9,7 +9,7 @@ import { Customer } from '../entities/customer.entity.js';
 export class BestCustomerResource {
 
   @Singleton.Get()
-  raed() {
+  get() {
     return new Customer();
   }
 

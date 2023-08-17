@@ -13,5 +13,4 @@ export namespace Resource {
 export interface ResourceBase {
   kind: string;
   description?: string;
-  operations: any;
 }

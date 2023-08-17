@@ -8,6 +8,8 @@
   "NOT_FOUND": "Not found",
   "UNAUTHORIZED": "You have not been authenticated to perform this action",
   "UNPROCESSABLE_ENTITY": "Unprocessable entity",
+  "REQUEST_VALIDATION": "Request validation failed",
+  "RESPONSE_VALIDATION": "Response validation failed",
   "RESOURCE_NOT_FOUND": "Resource not found: '{{resource}}'",
   "RESOURCE_CONFLICT": "There is already an other {{resource}} resource with same field values ({{fields}})",
   "RESOLVER_FORBIDDEN": "The {{resource}} endpoint does not accept '{{operation}}' operations",

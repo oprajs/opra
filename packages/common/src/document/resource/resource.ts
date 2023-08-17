@@ -5,7 +5,7 @@ import type { ApiDocument } from '../api-document.js';
 import { colorFgMagenta, colorFgYellow, colorReset, nodeInspectCustom } from '../utils/inspect.util.js';
 
 export namespace Resource {
-  export interface InitArguments extends StrictOmit<OpraSchema.ResourceBase, 'kind' | 'operations'> {
+  export interface InitArguments extends StrictOmit<OpraSchema.ResourceBase, 'kind'> {
     name: string;
     controller?: object | Type;
   }

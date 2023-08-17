@@ -9,7 +9,7 @@ export interface ComplexType extends DataTypeBase {
   base?: DataType.Name | ComplexType | UnionType | MappedType;
   abstract?: boolean;
   fields?: Record<Field.Name, Field | DataType.Name>;
-  additionalFields?: boolean;// | string | Pick<Field, 'type' | 'format' | 'isArray' | 'enum'>;
+  additionalFields?: boolean | 'error';
 }
 
 export namespace ComplexType {

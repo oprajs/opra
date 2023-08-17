@@ -28,9 +28,9 @@
     "lodash": "^4.17.21"
   },
   "devDependencies": {
-    "@elastic/elasticsearch": "^8.8.1",
+    "@elastic/elasticsearch": "^8.9.0",
     "@faker-js/faker": "^8.0.2",
-    "ts-gems": "^2.4.0"
+    "ts-gems": "^2.4.1"
   },
   "peerDependencies": {
     "@elastic/elasticsearch": ">=8.7.0",

@@ -19,8 +19,8 @@ async function run() {
     dialect: 'postgres',
     schema
   });
-  await dbClient.test();
   try {
+    await dbClient.test();
     await createDatabase(dbClient, schema);
     const api = await DocumentFactory.createDocument({
       version: '1.0',

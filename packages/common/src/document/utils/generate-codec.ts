@@ -40,7 +40,7 @@ export function _generateDecoder(
   }
   return vg.isObject(schema, {
     ctor: (type as any).ctor,
-    additionalFields: type.additionalFields ?? 'ignore',
+    additionalFields: type.additionalFields ?? false,
     name: type.name,
     caseInSensitive: true,
   })

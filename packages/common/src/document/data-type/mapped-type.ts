@@ -44,7 +44,7 @@ class MappedTypeClass extends DataType {
   readonly kind = OpraSchema.MappedType.Kind;
   readonly own: MappedType.OwnProperties;
   readonly type: ComplexType;
-  readonly additionalFields?: boolean | vg.Validator<any, any> | 'ignore';
+  readonly additionalFields?: boolean | vg.Validator | 'error';
   readonly fields: ResponsiveMap<ApiField>;
   readonly omit?: Field.Name[];
   readonly pick?: Field.Name[];

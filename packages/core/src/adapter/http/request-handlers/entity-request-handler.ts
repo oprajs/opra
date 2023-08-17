@@ -1,9 +1,10 @@
 import bodyParser from 'body-parser';
 import { toBoolean, toInt } from 'putil-varhelpers';
+import * as valgen from 'valgen';
 import {
   BadRequestError, Collection, HttpHeaderCodes, HttpStatusCodes,
   InternalServerError, MethodNotAllowedError, OpraException,
-  OpraSchema, ResourceNotFoundError, Singleton,
+  OpraSchema, ResourceNotFoundError, Singleton, translate,
 } from '@opra/common';
 import { ExecutionContext } from '../../execution-context.js';
 import { OperationContext } from '../../operation-context.js';
@@ -41,7 +42,20 @@ export class EntityRequestHandler extends RequestHandlerBase {
       context.errors.push(...response.errors);
       return;
     }
-    await this.sendResponse(context);
+    try {
+      await this.sendResponse(context);
+    } catch (e: any) {
+      if (e instanceof OpraException)
+        throw e;
+      if (e instanceof valgen.ValidationError) {
+        throw new InternalServerError({
+          message: translate('error:RESPONSE_VALIDATION,', 'Response validation failed'),
+          code: 'RESPONSE_VALIDATION',
+          details: e.issues
+        }, e);
+      }
+      throw new InternalServerError(e);
+    }
   }
 
   async parseRequest(incoming: HttpServerRequest): Promise<Request | undefined> {
@@ -55,6 +69,13 @@ export class EntityRequestHandler extends RequestHandlerBase {
     } catch (e: any) {
       if (e instanceof OpraException)
         throw e;
+      if (e instanceof valgen.ValidationError) {
+        throw new BadRequestError({
+          message: translate('error:REQUEST_VALIDATION,', 'Request validation failed'),
+          code: 'REQUEST_VALIDATION',
+          details: e.issues
+        }, e);
+      }
       throw new BadRequestError(e);
     }
   }
@@ -148,7 +169,8 @@ export class EntityRequestHandler extends RequestHandlerBase {
               await this.assertOperation<OpraSchema.Collection.CreateOperation>(resource, 'create');
           const jsonReader = this.getBodyLoader(operationMeta);
           const decode = resource.getDecoder('create');
-          const data = decode(await jsonReader(incoming), {coerce: true});
+          let data = await jsonReader(incoming);
+          data = decode(data, {coerce: true});
           const pick = parseArrayParam(params.get('$pick'));
           const omit = parseArrayParam(params.get('$omit'));
           const include = parseArrayParam(params.get('$include'));
@@ -247,7 +269,8 @@ export class EntityRequestHandler extends RequestHandlerBase {
               await this.assertOperation<OpraSchema.Collection.DeleteOperation>(resource, 'update');
           const jsonReader = this.getBodyLoader(operationMeta);
           const decode = resource.getDecoder('update');
-          const data = decode(await jsonReader(incoming), {coerce: true});
+          let data = await jsonReader(incoming);
+          data = decode(data, {coerce: true});
           const pick = parseArrayParam(params.get('$pick'));
           const omit = parseArrayParam(params.get('$omit'));
           const include = parseArrayParam(params.get('$include'));
@@ -270,7 +293,8 @@ export class EntityRequestHandler extends RequestHandlerBase {
             await this.assertOperation<OpraSchema.Collection.DeleteOperation>(resource, 'updateMany');
         const jsonReader = this.getBodyLoader(operationMeta);
         const decode = resource.getDecoder('updateMany');
-        const data = decode(await jsonReader(incoming), {coerce: true});
+        let data = await jsonReader(incoming);
+        data = decode(data, {coerce: true});
         const filter = resource.normalizeFilter(params.get('$filter') as any);
         return new RequestHost({
           controller: operationMeta.controller,
@@ -303,7 +327,8 @@ export class EntityRequestHandler extends RequestHandlerBase {
             await this.assertOperation<OpraSchema.Singleton.DeleteOperation>(resource, 'create');
         const jsonReader = this.getBodyLoader(operationMeta);
         const decode = resource.getDecoder('create');
-        const data = decode(await jsonReader(incoming), {coerce: true});
+        let data = await jsonReader(incoming);
+        data = decode(data, {coerce: true});
         const pick = parseArrayParam(params.get('$pick'));
         const omit = parseArrayParam(params.get('$omit'));
         const include = parseArrayParam(params.get('$include'));
@@ -359,7 +384,8 @@ export class EntityRequestHandler extends RequestHandlerBase {
             await this.assertOperation<OpraSchema.Singleton.DeleteOperation>(resource, 'update');
         const jsonReader = this.getBodyLoader(operationMeta);
         const decode = resource.getDecoder('update');
-        const data = decode(await jsonReader(incoming), {coerce: true});
+        let data = await jsonReader(incoming);
+        data = decode(data, {coerce: true});
         const pick = parseArrayParam(params.get('$pick'));
         const omit = parseArrayParam(params.get('$omit'));
         const include = parseArrayParam(params.get('$include'));

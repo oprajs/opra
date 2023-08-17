@@ -1,4 +1,5 @@
 import { translate } from '../../i18n/index.js';
+import { ErrorIssue } from '../error-issue.js';
 import { OpraException } from '../opra-exception.js';
 
 /**
@@ -9,13 +10,12 @@ import { OpraException } from '../opra-exception.js';
 export class NotAcceptableError extends OpraException {
   status = 406;
 
-  setIssue(issue) {
-    super.setIssue({
+  protected init(issue: Partial<ErrorIssue>) {
+    super.init({
       message: translate('error:NOT_ACCEPTABLE', 'Not Acceptable'),
-      severity: 'error',
       code: 'NOT_ACCEPTABLE',
       ...issue
     });
   }
-  
+
 }

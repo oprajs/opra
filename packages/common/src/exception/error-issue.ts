@@ -9,6 +9,9 @@ export interface ErrorIssue {
   severity: IssueSeverity.Type;
 
   // Code of the issue
+  system?: string;
+
+  // Code of the issue
   code?: string;
 
   // Additional details about the error
@@ -18,5 +21,5 @@ export interface ErrorIssue {
   diagnostics?: string | string[];
 
   // Additional information for debugging issues. This property only available in debug mode
-  debugInfo?: string;
+  stack?: string[];
 }

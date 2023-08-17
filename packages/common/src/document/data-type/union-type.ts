@@ -1,6 +1,7 @@
 import 'reflect-metadata';
 import merge from 'putil-merge';
 import { Class, StrictOmit, Type, Writable } from 'ts-gems';
+import * as vg from 'valgen';
 import {
   inheritPropertyInitializers,
   mergePrototype,
@@ -37,7 +38,7 @@ class UnionTypeClass extends DataType {
   readonly kind = OpraSchema.UnionType.Kind;
   readonly own: UnionType.OwnProperties;
   readonly types: (ComplexType | UnionType | MappedType)[];
-  readonly additionalFields?: boolean;
+  readonly additionalFields?: boolean | vg.Validator | 'error'
   readonly fields: ResponsiveMap<ApiField>;
 
   constructor(document: ApiDocument, init: UnionType.InitArguments) {
@@ -52,7 +53,7 @@ class UnionTypeClass extends DataType {
             `${OpraSchema.UnionType.Kind} of ${OpraSchema.MappedType.Kind} types.`);
       own.types.push(base);
       if (base.additionalFields)
-        this.additionalFields = true;
+        this.additionalFields = base.additionalFields;
       this.fields.setAll(base.fields);
     }
 

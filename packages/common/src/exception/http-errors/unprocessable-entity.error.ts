@@ -1,4 +1,5 @@
 import { translate } from '../../i18n/index.js';
+import { ErrorIssue } from '../error-issue.js';
 import { OpraException } from '../opra-exception.js';
 
 /**
@@ -8,8 +9,8 @@ import { OpraException } from '../opra-exception.js';
 export class UnprocessableEntityError extends OpraException {
   status = 422;
 
-  setIssue(issue) {
-    super.setIssue({
+  protected init(issue: Partial<ErrorIssue>) {
+    super.init({
       message: translate('error:UNPROCESSABLE_ENTITY', 'Unprocessable entity'),
       severity: 'error',
       code: 'UNPROCESSABLE_ENTITY',
