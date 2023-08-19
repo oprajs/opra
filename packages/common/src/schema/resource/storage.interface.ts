@@ -1,4 +1,5 @@
-import type { Operation, ResourceBase } from './resource.interface.js';
+import type { Operation } from './operation.interface';
+import type { ResourceBase } from './resource.interface.js';
 
 export interface Storage extends ResourceBase {
   kind: Storage.Kind,
