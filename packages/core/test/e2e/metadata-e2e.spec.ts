@@ -4,7 +4,7 @@ import { HttpAdapter } from '@opra/core';
 import { HttpAdapterHost } from '@opra/core/adapter/http/http-adapter.host.js';
 import { createTestApi } from '../_support/test-app/index.js';
 
-describe('e2e:$metadata', function () {
+describe('e2e:metadata', function () {
 
   let api: ApiDocument;
   let adapter: HttpAdapterHost;
@@ -18,8 +18,8 @@ describe('e2e:$metadata', function () {
     await adapter.close();
   })
 
-  it('Should GET /$metadata return api schema', async () => {
-    const resp = await supertest(adapter.server).get('/$metadata');
+  it('Should GET / return api schema', async () => {
+    const resp = await supertest(adapter.server).get('/');
     expect(resp.status).toStrictEqual(200);
     expect(resp.body).toBeDefined();
     expect(resp.body).toMatchObject(api.exportSchema({webSafe: true}));

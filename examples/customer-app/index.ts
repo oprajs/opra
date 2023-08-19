@@ -8,8 +8,8 @@ import { ExpressAdapter } from '@opra/core';
 import { SqbClient } from '@sqb/connect';
 import { createDatabase } from './db-schema.js';
 import { GenderEnum } from './enums/gender.enum.js';
-import { CountryResource } from './resources/country.resource.js';
-import { CustomersResource } from './resources/customers.resource.js';
+import { CountriesSource } from './resources/countries-source.js';
+import { CustomersSource } from './resources/customers-source.js';
 import { CountryService } from './services/country.service.js';
 import { CustomerService } from './services/customer.service.js';
 
@@ -30,8 +30,8 @@ async function run() {
       },
       types: [GenderEnum],
       sources: [
-        new CountryResource(new CountryService(dbClient)),
-        new CustomersResource(new CustomerService(dbClient))
+        new CountriesSource(new CountryService(dbClient)),
+        new CustomersSource(new CustomerService(dbClient))
         // CustomersResource, BestCustomerResource
       ]
     });

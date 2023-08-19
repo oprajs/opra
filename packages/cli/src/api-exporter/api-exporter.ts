@@ -7,7 +7,7 @@ import { ApiDocument } from '@opra/common';
 import { IFileWriter } from '../interfaces/file-writer.interface.js';
 import { ILogger } from '../interfaces/logger.interface.js';
 import { FileWriter } from './file-writer.js';
-import { processResources } from './process-resources.js';
+import { processSources } from './process-sources.js';
 import {
   generateComplexTypeDefinition,
   generateEnumTypeDefinition,
@@ -46,7 +46,7 @@ export class ApiExporter {
   protected files: Record<string, TsFile> = {};
   protected importExt?: boolean;
   // protected nsMap: ResponsiveMap<ApiExporter>;
-  protected processResources: typeof processResources;
+  protected processSources: typeof processSources;
   protected processTypes: typeof processTypes;
   protected generateTypeFile: typeof generateTypeFile;
   protected generateComplexTypeDefinition: typeof generateComplexTypeDefinition;
@@ -83,7 +83,7 @@ export class ApiExporter {
     this.logger.log(chalk.cyan('Retrieved service info:\n'),
         chalk.white('Title:'), chalk.whiteBright(this.document.info.title), '\n',
         chalk.white('Version:'), chalk.whiteBright(this.document.info.version), '\n',
-        chalk.white('Resources:'), chalk.whiteBright(this.document.sources.size), 'resources found\n',
+        chalk.white('Sources:'), chalk.whiteBright(this.document.sources.size), 'sources found\n',
         chalk.white('Types:'), chalk.whiteBright(this.document.types.size), 'types found\n',
     );
     this.serviceClassName = (this.serviceClassName || this.document.info.title || 'Service1').replace(/[^\w_$]*/g, '')
@@ -102,7 +102,7 @@ export class ApiExporter {
     fs.mkdirSync(this.outDir, {recursive: true});
 
     await this.processTypes();
-    await this.processResources();
+    await this.processSources();
 
     const {importExt} = this;
     // Write files
@@ -157,7 +157,7 @@ export class ApiExporter {
   }
 
   static {
-    ApiExporter.prototype.processResources = processResources;
+    ApiExporter.prototype.processSources = processSources;
     ApiExporter.prototype.processTypes = processTypes;
     ApiExporter.prototype.generateTypeFile = generateTypeFile;
     ApiExporter.prototype.generateComplexTypeDefinition = generateComplexTypeDefinition;

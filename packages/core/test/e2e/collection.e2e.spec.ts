@@ -27,7 +27,7 @@ describe('e2e:Collection', function () {
           familyName: 'efgh',
           active: 'f'
         });
-    expect(resp.type).toStrictEqual('application/json');
+    expect(resp.type).toStrictEqual('application/opra+json');
     expect(resp.body).toBeDefined();
     expect(resp.body.errors).not.toBeDefined();
     expect(resp.body).toMatchObject({
@@ -45,7 +45,7 @@ describe('e2e:Collection', function () {
 
   it('Should execute "get" endpoint', async () => {
     const resp = await supertest(adapter.server).get('/Customers@1');
-    expect(resp.type).toStrictEqual('application/json');
+    expect(resp.type).toStrictEqual('application/opra+json');
     expect(resp.body).toBeDefined();
     expect(resp.body.errors).not.toBeDefined();
     expect(resp.body).toMatchObject({
@@ -61,7 +61,7 @@ describe('e2e:Collection', function () {
 
   it('Should execute "findMany" endpoint', async () => {
     const resp = await supertest(adapter.server).get('/Customers');
-    expect(resp.type).toStrictEqual('application/json');
+    expect(resp.type).toStrictEqual('application/opra+json');
     expect(resp.body).toBeDefined();
     expect(resp.body.errors).not.toBeDefined();
     expect(resp.body).toMatchObject({
@@ -86,7 +86,7 @@ describe('e2e:Collection', function () {
           birthDate: new Date().toISOString(),
           active: 'f'
         });
-    expect(resp.type).toStrictEqual('application/json');
+    expect(resp.type).toStrictEqual('application/opra+json');
     expect(resp.body).toBeDefined();
     expect(resp.body.errors).not.toBeDefined();
     expect(resp.body).toMatchObject({
@@ -108,7 +108,7 @@ describe('e2e:Collection', function () {
         .send({
           birthDate: new Date().toISOString()
         });
-    expect(resp.type).toStrictEqual('application/json');
+    expect(resp.type).toStrictEqual('application/opra+json');
     expect(resp.body).toBeDefined();
     expect(resp.body.errors).not.toBeDefined();
     expect(resp.body).toMatchObject({
@@ -119,7 +119,7 @@ describe('e2e:Collection', function () {
 
   it('Should execute "delete" endpoint', async () => {
     const resp = await supertest(adapter.server).delete('/Customers@99');
-    expect(resp.type).toStrictEqual('application/json');
+    expect(resp.type).toStrictEqual('application/opra+json');
     expect(resp.body).toBeDefined();
     expect(resp.body.errors).not.toBeDefined();
     expect(resp.body).toMatchObject({
@@ -130,7 +130,7 @@ describe('e2e:Collection', function () {
 
   it('Should execute "deleteMany" endpoint', async () => {
     const resp = await supertest(adapter.server).delete('/Customers');
-    expect(resp.type).toStrictEqual('application/json');
+    expect(resp.type).toStrictEqual('application/opra+json');
     expect(resp.body).toBeDefined();
     expect(resp.body.errors).not.toBeDefined();
     expect(resp.body).toMatchObject({

@@ -64,10 +64,7 @@ export abstract class HttpAdapterBase extends PlatformAdapterHost {
   async processRequest(context: ExecutionContext): Promise<void> {
     try {
       const {incoming, outgoing} = context.switchToHttp();
-      if (incoming.method === 'GET' &&
-          incoming.parsedUrl.path.length &&
-          incoming.parsedUrl.path[0].resource === '$metadata'
-      ) {
+      if (incoming.method === 'GET' && !incoming.parsedUrl.path.length) {
         outgoing.setHeader('content-type', 'application/json');
         outgoing.end(JSON.stringify(this.api.exportSchema({webSafe: true})));
         return;
@@ -132,7 +129,7 @@ export abstract class HttpAdapterBase extends PlatformAdapterHost {
       errors: wrappedErrors.map(x => this._i18n.deep(x.toJSON()))
     };
 
-    outgoing.setHeader(HttpHeaderCodes.Content_Type, 'application/json; charset=utf-8');
+    outgoing.setHeader(HttpHeaderCodes.Content_Type, 'application/opra+json; charset=utf-8');
     outgoing.setHeader(HttpHeaderCodes.Cache_Control, 'no-cache');
     outgoing.setHeader(HttpHeaderCodes.Pragma, 'no-cache');
     outgoing.setHeader(HttpHeaderCodes.Expires, '-1');

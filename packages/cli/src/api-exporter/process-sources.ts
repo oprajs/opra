@@ -8,11 +8,11 @@ import type { ApiExporter } from './api-exporter.js';
  *
  * @param targetDir
  */
-export async function processResources(
+export async function processSources(
     this: ApiExporter,
     targetDir: string = ''
 ) {
-  this.logger.log(chalk.cyan('Processing resources'));
+  this.logger.log(chalk.cyan('Processing sources'));
   const {document} = this;
   const serviceTs = this.addFile(path.join(targetDir, this.serviceClassName + '.ts'));
   serviceTs.addImportPackage('@opra/client', ['HttpServiceBase']);
@@ -22,46 +22,46 @@ export async function processResources(
 
   serviceTs.content = `\nexport class ${this.serviceClassName} extends HttpServiceBase {\n`;
 
-  for (const resource of document.sources.values()) {
+  for (const source of document.sources.values()) {
     const jsDoc = `
   /**
-   * ${wrapJSDocString(resource.description || resource.name)}    
-   * @url ${path.posix.join(this.client.serviceUrl, '$metadata#resources/' + resource.name)}
+   * ${wrapJSDocString(source.description || source.name)}    
+   * @url ${path.posix.join(this.client.serviceUrl, '#sources/' + source.name)}
    */`;
 
-    if (resource instanceof Collection) {
-      const typeName = resource.type.name || '';
+    if (source instanceof Collection) {
+      const typeName = source.type.name || '';
       serviceTs.addImportPackage('@opra/client', ['HttpCollectionNode']);
       serviceTs.addImportFile(`types/${typeName}-type`, [typeName]);
 
-      const operations = Object.keys(resource.endpoints)
+      const operations = Object.keys(source.endpoints)
           .map(x => `'${x}'`).join(' | ');
       if (!operations.length) {
         this.logger.warn(chalk.yellow('WARN: ') +
-            `Ignoring "${chalk.whiteBright(resource.name)}" resource. No operations available.`);
+            `Ignoring "${chalk.whiteBright(source.name)}" source. No operations available.`);
         continue;
       }
 
       serviceTs.content += jsDoc + `
-  get ${resource.name}(): Pick<HttpCollectionNode<${typeName}>, ${operations}> {
-    return this.$client.collection('${resource.name}');
+  get ${source.name}(): Pick<HttpCollectionNode<${typeName}>, ${operations}> {
+    return this.$client.collection('${source.name}');
   }\n`;
-    } else if (resource instanceof Singleton) {
-      const typeName = resource.type.name || '';
+    } else if (source instanceof Singleton) {
+      const typeName = source.type.name || '';
       serviceTs.addImportPackage('@opra/client', ['HttpSingletonNode']);
       serviceTs.addImportFile(`types/${typeName}-type`, [typeName]);
 
-      const operations = Object.keys(resource.endpoints)
+      const operations = Object.keys(source.endpoints)
           .map(x => `'${x}'`).join(' | ');
       if (!operations.length) {
         this.logger.warn(chalk.yellow('WARN: ') +
-            `Ignoring "${chalk.whiteBright(resource.name)}" resource. No operations available.`);
+            `Ignoring "${chalk.whiteBright(source.name)}" source. No operations available.`);
         continue;
       }
 
       serviceTs.content += jsDoc + `
-  get ${resource.name}(): Pick<HttpSingletonNode<${typeName}>, ${operations}> {
-    return this.$client.singleton('${resource.name}');
+  get ${source.name}(): Pick<HttpSingletonNode<${typeName}>, ${operations}> {
+    return this.$client.singleton('${source.name}');
   }\n`;
     }
 
