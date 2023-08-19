@@ -22,7 +22,7 @@ export async function createTestApp(): Promise<TestApp> {
       title: 'TestApi',
       version: 'v1',
     },
-    resources: [
+    sources: [
       new CustomersResource(db),
       new MyProfileResource(db)
     ]

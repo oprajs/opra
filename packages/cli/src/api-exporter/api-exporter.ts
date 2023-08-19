@@ -83,7 +83,7 @@ export class ApiExporter {
     this.logger.log(chalk.cyan('Retrieved service info:\n'),
         chalk.white('Title:'), chalk.whiteBright(this.document.info.title), '\n',
         chalk.white('Version:'), chalk.whiteBright(this.document.info.version), '\n',
-        chalk.white('Resources:'), chalk.whiteBright(this.document.resources.size), 'resources found\n',
+        chalk.white('Resources:'), chalk.whiteBright(this.document.sources.size), 'resources found\n',
         chalk.white('Types:'), chalk.whiteBright(this.document.types.size), 'types found\n',
     );
     this.serviceClassName = (this.serviceClassName || this.document.info.title || 'Service1').replace(/[^\w_$]*/g, '')

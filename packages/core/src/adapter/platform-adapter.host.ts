@@ -54,7 +54,7 @@ export abstract class PlatformAdapterHost extends AsyncEventEmitter implements P
 
   async close() {
     const promises: Promise<void>[] = [];
-    for (const r of this.api.resources.values()) {
+    for (const r of this.api.sources.values()) {
       const onShutdown = r.onShutdown;
       if (onShutdown)
         promises.push((async () => onShutdown.call(r.controller, r))());
@@ -80,7 +80,7 @@ export abstract class PlatformAdapterHost extends AsyncEventEmitter implements P
       await this._i18n.init();
 
     // Initialize all controllers
-    for (const resource of this.api.resources.values()) {
+    for (const resource of this.api.sources.values()) {
       await this.getController(resource);
     }
     this._initialized = true;
