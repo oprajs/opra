@@ -115,22 +115,22 @@ export class OpraHttpClient {
   // return new BatchRequest(request => this._sendRequest('response', request, requests);
   // }
 
-  collection<TType = any>(resourceName: string | Type<TType>): HttpCollectionNode<TType> {
+  collection<TType = any>(sourceName: string | Type<TType>): HttpCollectionNode<TType> {
     // If name argument is a class, we extract name from the class
-    if (typeof resourceName === 'function')
-      resourceName = resourceName.name;
+    if (typeof sourceName === 'function')
+      sourceName = sourceName.name;
     const ctx: HttpClientContext = {
       client: this,
-      resourceKind: 'Collection',
+      sourceKind: 'Collection',
       endpoint: '',
-      resourceName,
+      source: sourceName,
       send: (observe, request) =>
           this._sendRequest('Collection', ctx.endpoint, observe, request, ctx),
       // requestInterceptors: [
-      //   // Validate resource exists and is a collection resource
+      //   // Validate source exists and is a collection source
       //   async () => {
       //     const metadata = await this.getMetadata();
-      //     metadata.getCollection(ctx.resourceName);
+      //     metadata.getCollection(ctx.sourceName);
       //   }
       // ],
       responseInterceptors: []
@@ -138,22 +138,22 @@ export class OpraHttpClient {
     return new HttpCollectionNode<TType>(ctx);
   }
 
-  singleton<TType = any>(resourceName: string | Type<TType>): HttpSingletonNode<TType> {
+  singleton<TType = any>(sourceName: string | Type<TType>): HttpSingletonNode<TType> {
     // If name argument is a class, we extract name from the class
-    if (typeof resourceName === 'function')
-      resourceName = resourceName.name;
+    if (typeof sourceName === 'function')
+      sourceName = sourceName.name;
     const ctx: HttpClientContext = {
       client: this,
-      resourceKind: 'Singleton',
+      sourceKind: 'Singleton',
       endpoint: '',
-      resourceName,
+      source: sourceName,
       send: (observe, request) =>
           this._sendRequest('Singleton', ctx.endpoint, observe, request, ctx),
       // requestInterceptors: [
       //   // Validate resource exists and is a singleton resource
       //   async () => {
       //     const metadata = await this.getMetadata();
-      //     metadata.getSingleton(ctx.resourceName);
+      //     metadata.getSingleton(ctx.sourceName);
       //   }
       // ],
       responseInterceptors: []
@@ -162,7 +162,7 @@ export class OpraHttpClient {
   }
 
   protected _sendRequest<TBody>(
-      resourceKind: OpraSchema.Resource.Kind,
+      sourceKind: OpraSchema.Source.Kind,
       endpoint: string,
       observe: HttpObserveType,
       request: HttpRequest,
@@ -219,7 +219,7 @@ export class OpraHttpClient {
             event: HttpEventType.Sent,
           } satisfies HttpSentEvent);
         const response = await this._fetch(url.toString(), request);
-        await this._handleResponse(resourceKind, endpoint, observe, subscriber, request, response, ctx);
+        await this._handleResponse(sourceKind, endpoint, observe, subscriber, request, response, ctx);
       })().catch(error => subscriber.error(error))
     });
   }
@@ -233,7 +233,7 @@ export class OpraHttpClient {
   }
 
   protected async _handleResponse(
-      resourceKind: OpraSchema.Resource.Kind,
+      sourceKind: OpraSchema.Source.Kind,
       endpoint: string,
       observe: HttpObserveType,
       subscriber: Subscriber<any>,
@@ -316,7 +316,7 @@ export class OpraHttpClient {
 
     if (observe === HttpObserveType.Body) {
       if (
-          (resourceKind === 'Collection' || resourceKind === 'Singleton') &&
+          (sourceKind === 'Collection' || sourceKind === 'Singleton') &&
           (endpoint === 'create' || endpoint === 'get' || endpoint === 'findMany' || endpoint === 'update')
       ) subscriber.next(body.data);
       else subscriber.next(body);

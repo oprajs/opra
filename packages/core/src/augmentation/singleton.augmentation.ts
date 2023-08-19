@@ -71,7 +71,7 @@ declare module "@opra/common" {
   }
 
   /* ***************************** */
-  export interface SingletonResource<T> {
+  export interface ISingleton<T> {
     create?(context: Singleton.Create.Context): Promise<PartialOutput<T>>;
 
     delete?(context: Singleton.Delete.Context): Promise<number> | undefined;

@@ -1,6 +1,6 @@
 import type { Readable } from 'stream';
-import type { MultipartIterator } from '../adapter/http/helpers/multipart-helper';
 import type { EndpointContext } from '../adapter/endpoint-context';
+import type { MultipartIterator } from '../adapter/http/helpers/multipart-helper';
 import type { Request as _Request } from '../adapter/request.js';
 
 declare module "@opra/common" {
@@ -43,7 +43,7 @@ declare module "@opra/common" {
 
 
   /* ***************************** */
-  export interface StorageResource {
+  export interface IStorage {
     delete?(context: Storage.Delete.Context): Promise<number | undefined>;
 
     get?(context: Storage.Get.Context): Promise<Buffer | Readable | undefined>;

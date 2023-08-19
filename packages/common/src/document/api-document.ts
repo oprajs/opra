@@ -6,10 +6,10 @@ import { NAMESPACE_PATTERN } from './constants.js';
 import { ComplexType } from './data-type/complex-type.js';
 import type { DataType } from './data-type/data-type.js';
 import { SimpleType } from './data-type/simple-type.js';
-import type { Collection } from './resource/collection.js';
-import { Resource } from './resource/resource.js';
-import { Singleton } from './resource/singleton.js';
-import { Storage } from './resource/storage.js';
+import type { Collection } from './source/collection.js';
+import { Singleton } from './source/singleton.js';
+import { Source } from './source/source.js';
+import { Storage } from './source/storage.js';
 
 export class ApiDocument {
   protected _designCtorMap = new Map<Type | Function, string>();
@@ -20,7 +20,7 @@ export class ApiDocument {
   info: OpraSchema.DocumentInfo;
   references = new ResponsiveMap<ApiDocument>();
   types = new ResponsiveMap<DataType>();
-  sources = new ResponsiveMap<Resource>();
+  sources = new ResponsiveMap<Source>();
 
   constructor() {
     this.info = {
@@ -192,21 +192,21 @@ export class ApiDocument {
   }
 
   /**
-   * Returns Resource instance by path. Returns undefined if not found
+   * Returns Source instance by path. Returns undefined if not found
    * @param path
    * @param silent
    */
-  getResource(path: string, silent: boolean): Resource | undefined;
+  getSource(path: string, silent: boolean): Source | undefined;
   /**
-   * Returns Resource instance by path. Throws error if not found
+   * Returns Source instance by path. Throws error if not found
    * @param path
    */
-  getResource(path: string): Resource;
-  getResource(path: string, silent?: boolean): Resource | undefined {
-    let resource: Resource | undefined;
+  getSource(path: string): Source;
+  getSource(path: string, silent?: boolean): Source | undefined {
+    let source: Source | undefined;
     const m = NAMESPACE_PATTERN.exec(path);
     if (!m)
-      throw new NotFoundError(`Invalid resource path "${path}"`);
+      throw new NotFoundError(`Invalid source path "${path}"`);
     // If given string has namespace pattern (ns:type_name)
     if (m[2]) {
       const ref = this.references.get(m[1]);
@@ -214,19 +214,19 @@ export class ApiDocument {
         if (silent) return;
         throw new NotFoundError(`Reference "${m[1]}" not found`);
       }
-      return ref.getResource(m[2]);
+      return ref.getSource(m[2]);
     } else {
       const name = m[1];
       // Get instance from own types
-      resource = this.sources.get(name);
-      if (resource)
-        return resource;
+      source = this.sources.get(name);
+      if (source)
+        return source;
       // if not found, search in references (from last to first)
       const references = Array.from(this.references.values()).reverse();
       for (const ref of references) {
-        resource = silent ? ref.getResource(name, silent) : ref.getResource(name);
-        if (resource)
-          return resource;
+        source = silent ? ref.getSource(name, silent) : ref.getSource(name);
+        if (source)
+          return source;
       }
     }
     if (silent) return;
@@ -234,9 +234,9 @@ export class ApiDocument {
   }
 
   /**
-   * Returns Collection resource instance by path
+   * Returns Collection source instance by path
    * Returns undefined if not found
-   * Throws error if resource is not a Collection
+   * Throws error if source is not a Collection
    * @param path
    * @param silent
    */
@@ -244,18 +244,18 @@ export class ApiDocument {
   getCollection(path: string, silent: true): Collection | undefined
   getCollection(path: string): Collection
   getCollection(path: string, silent?: true): Collection | undefined {
-    const t = this.getResource(path);
+    const t = this.getSource(path);
     if (!t && silent)
       return;
     if (t && t.kind === OpraSchema.Collection.Kind)
       return t as Collection;
-    throw new NotAcceptableError(`Resource type "${t.name}" is not a Collection`);
+    throw new NotAcceptableError(`Source type "${t.name}" is not a Collection`);
   }
 
   /**
-   * Returns Singleton resource instance by path
+   * Returns Singleton source instance by path
    * Returns undefined if not found
-   * Throws error if resource is not a Collection
+   * Throws error if source is not a Collection
    * @param path
    * @param silent
    */
@@ -263,23 +263,23 @@ export class ApiDocument {
   getSingleton(path: string, silent: true): Singleton | undefined
   getSingleton(path: string): Singleton
   getSingleton(path: string, silent?: true): Singleton | undefined {
-    const t = this.getResource(path);
+    const t = this.getSource(path);
     if (!t && silent)
       return;
     if (t && t.kind === OpraSchema.Singleton.Kind)
       return t as Singleton;
-    throw new NotAcceptableError(`Resource type "${t.name}" is not a Singleton`);
+    throw new NotAcceptableError(`Source type "${t.name}" is not a Singleton`);
   }
 
   getStorage(path: string, silent: true): Storage | undefined
   getStorage(path: string): Storage
   getStorage(path: string, silent?: true): Storage | undefined {
-    const t = this.getResource(path);
+    const t = this.getSource(path);
     if (!t && silent)
       return;
     if (t && t.kind === OpraSchema.Storage.Kind)
       return t as Storage;
-    throw new NotAcceptableError(`Resource type "${t.name}" is not a Storage`);
+    throw new NotAcceptableError(`Source type "${t.name}" is not a Storage`);
   }
 
   /**

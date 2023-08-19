@@ -34,41 +34,40 @@ export class OpraApiFactory {
     const info: OpraSchema.DocumentInfo = {title: '', version: '', ...moduleOptions.info};
     info.title = info.title || 'Untitled service';
     info.version = info.version || '1';
-    const resources: any[] = [];
+    const sources: any[] = [];
     const apiSchema: DocumentFactory.InitArguments = {
       version: OpraSchema.SpecVersion,
       info,
       types: [],
-      sources: resources,
+      sources
     };
 
     /*
-     * Walk through modules and add Resource instances to the api schema
+     * Walk through modules and add Source instances to the api schema
      */
-    const wrappers = this.explorerService.exploreResourceWrappers(rootModule);
+    const wrappers = this.explorerService.exploreSourceWrappers(rootModule);
     for (const wrapper of wrappers) {
       const instance = wrapper.instance;
       const ctor = instance.constructor;
       const metadata = Reflect.getMetadata(METADATA_KEY, ctor);
-      if (OpraSchema.isResource(metadata))
-        resources.push(instance);
+      if (OpraSchema.isSource(metadata))
+        sources.push(instance);
     }
 
     for (const wrapper of wrappers) {
       const instance = wrapper.instance;
       const ctor = instance.constructor;
-      const resourceDef = Reflect.getMetadata(METADATA_KEY, ctor);
+      const sourceDef = Reflect.getMetadata(METADATA_KEY, ctor);
       /* istanbul ignore next */
-      if (!resourceDef)
+      if (!sourceDef)
         continue;
 
-      resources.push(instance);
+      sources.push(instance);
 
       /* Wrap resolver functions */
       const isRequestScoped = !wrapper.isDependencyTreeStatic();
-      // const methodsToWrap = OpraSchema.isCollectionResource(resourceDef) ? collectionMethods : [];
-      if ((OpraSchema.isCollection(resourceDef) || OpraSchema.isSingleton(resourceDef)) && resourceDef.endpoints) {
-        for (const methodName of Object.keys(resourceDef.endpoints)) {
+      if ((OpraSchema.isCollection(sourceDef) || OpraSchema.isSingleton(sourceDef)) && sourceDef.endpoints) {
+        for (const methodName of Object.keys(sourceDef.endpoints)) {
           const endpointFunction = instance[methodName];
           const nestHandlerName = methodName + '_nestjs';
           // Skip patch if controller do not have function for endpoint or already patched before

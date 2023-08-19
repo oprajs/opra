@@ -1,6 +1,6 @@
 import '@opra/core';
 import merge from 'putil-merge';
-import { Collection, CollectionResource } from '@opra/common';
+import { Collection, ICollection } from '@opra/common';
 import { customersData } from '../../../../../../support/test/customers.data.js';
 import { Customer } from '../entities/customer.entity.js';
 
@@ -10,7 +10,7 @@ let customers: Customer[] = JSON.parse(JSON.stringify(customersData));
   description: 'Customer resource',
   primaryKey: '_id'
 })
-export class CustomersResource implements CollectionResource<Customer> {
+export class CustomersResource implements ICollection<Customer> {
   public initialized = false;
   public closed = false;
   public idGen = 0;

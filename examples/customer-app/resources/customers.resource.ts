@@ -1,13 +1,13 @@
 import { Collection } from '@opra/common';
 import { EndpointContext } from '@opra/core';
-import { SqbCollectionResource, SqbEntityService } from '@opra/sqb';
+import { SqbCollection, SqbEntityService } from '@opra/sqb';
 import { Customer } from '../entities/customer.entity.js';
 import { CustomerService } from '../services/customer.service.js';
 
 @Collection(Customer, {
   description: 'Customer resource'
 })
-export class CustomersResource extends SqbCollectionResource<Customer> {
+export class CustomersResource extends SqbCollection<Customer> {
 
   constructor(public customerService: CustomerService) {
     super();

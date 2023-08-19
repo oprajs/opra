@@ -1,11 +1,11 @@
 import { Collection } from '@opra/common';
-import { MongoCollectionResource } from '@opra/mongodb';
+import { MongoCollection } from '@opra/mongodb';
 
 describe('MongoCollectionResource', function () {
 
   it('Should set options on create', () => {
     @Collection('any')
-    class TestResource extends MongoCollectionResource<any> {
+    class TestResource extends MongoCollection<any> {
       constructor() {
         super({defaultLimit: 50});
       }
@@ -21,7 +21,7 @@ describe('MongoCollectionResource', function () {
 
   it('Should disable operations', () => {
     @Collection('any')
-    class TestResource extends MongoCollectionResource<any> {
+    class TestResource extends MongoCollection<any> {
       update = undefined;
 
       getService() {

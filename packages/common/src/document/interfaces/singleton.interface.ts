@@ -1,6 +1,6 @@
 import { PartialOutput } from '../../types.js';
 
-export interface SingletonResource<T> {
+export interface ISingleton<T> {
   create?(...args: any[]): Promise<PartialOutput<T>>;
 
   delete?(...args: any[]): Promise<number> | undefined;

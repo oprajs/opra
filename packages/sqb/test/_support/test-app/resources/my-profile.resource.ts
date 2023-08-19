@@ -1,11 +1,11 @@
 import { Singleton } from '@opra/common';
 import { EndpointContext } from '@opra/core';
-import { SqbEntityService, SqbSingletonResource } from '@opra/sqb';
+import { SqbEntityService, SqbSingleton } from '@opra/sqb';
 import { SqbClient } from '@sqb/connect';
 import { Profile } from '../entities/profile.entity.js';
 
 @Singleton(Profile)
-export class MyProfileResource extends SqbSingletonResource<Profile> {
+export class MyProfileResource extends SqbSingleton<Profile> {
   service: SqbEntityService<Profile>;
 
   constructor(readonly db: SqbClient) {

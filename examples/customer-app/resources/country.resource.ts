@@ -1,6 +1,6 @@
 import { Collection } from '@opra/common';
 import { EndpointContext } from '@opra/core';
-import { SqbCollectionResource, SqbEntityService } from '@opra/sqb';
+import { SqbCollection, SqbEntityService } from '@opra/sqb';
 import { Country } from '../entities/country.entity.js';
 import { CountryService } from '../services/country.service.js';
 
@@ -8,7 +8,7 @@ import { CountryService } from '../services/country.service.js';
   name: 'Countries',
   description: 'Country resource'
 })
-export class CountryResource extends SqbCollectionResource<Country> {
+export class CountryResource extends SqbCollection<Country> {
   constructor(public countryService: CountryService) {
     super();
   }

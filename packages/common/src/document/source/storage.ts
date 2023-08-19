@@ -5,17 +5,17 @@ import { omitUndefined } from '../../helpers/index.js';
 import { OpraSchema } from '../../schema/index.js';
 import type { ApiDocument } from '../api-document.js';
 import { METADATA_KEY } from '../constants.js';
-import { Resource } from './resource.js';
+import { Source } from './source.js';
 
 const NESTJS_INJECTABLE_WATERMARK = '__injectable__';
-const NAME_PATTERN = /^(.*)(Resource)$/;
+const NAME_PATTERN = /^(.*)(Source|Resource|Storage)$/;
 
 export namespace Storage {
-  export interface InitArguments extends Resource.InitArguments,
+  export interface InitArguments extends Source.InitArguments,
       StrictOmit<OpraSchema.Storage, 'kind'> {
   }
 
-  export interface DecoratorOptions extends Resource.DecoratorOptions {
+  export interface DecoratorOptions extends Source.DecoratorOptions {
 
   }
 
@@ -40,7 +40,7 @@ export namespace Storage {
   export type PostEndpointOptions = OpraSchema.Storage.PostEndpoint;
 }
 
-class StorageClass extends Resource {
+class StorageClass extends Source {
   readonly kind = OpraSchema.Storage.Kind;
   readonly endpoints: OpraSchema.Storage.Endpoints;
   readonly controller?: object | Type;
@@ -55,7 +55,7 @@ class StorageClass extends Resource {
   }
 
   exportSchema(): OpraSchema.Storage {
-    const out = Resource.prototype.exportSchema.call(this) as OpraSchema.Storage;
+    const out = Source.prototype.exportSchema.call(this) as OpraSchema.Storage;
     Object.assign(out, omitUndefined({
       endpoints: this.endpoints
     }));
@@ -116,11 +116,11 @@ function createEndpointDecorator<T>(endpoint: string) {
         if (propertyKey !== endpoint)
           throw new TypeError(`Name of the handler name should be '${endpoint}'`);
         const endpointMeta = {...options};
-        const resourceMetadata =
+        const sourceMetadata =
             (Reflect.getOwnMetadata(METADATA_KEY, target.constructor) || {}) as Storage.Metadata;
-        resourceMetadata.endpoints = resourceMetadata.endpoints || {};
-        resourceMetadata.endpoints[endpoint] = endpointMeta;
-        Reflect.defineMetadata(METADATA_KEY, resourceMetadata, target.constructor);
+        sourceMetadata.endpoints = sourceMetadata.endpoints || {};
+        sourceMetadata.endpoints[endpoint] = endpointMeta;
+        Reflect.defineMetadata(METADATA_KEY, sourceMetadata, target.constructor);
       });
 }
 

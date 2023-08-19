@@ -1,6 +1,6 @@
 import { PartialOutput } from '../../types.js';
 
-export interface CollectionResource<T> {
+export interface ICollection<T> {
   create?(...args: any[]): Promise<PartialOutput<T>>;
 
   delete?(...args: any[]): Promise<number> | undefined;

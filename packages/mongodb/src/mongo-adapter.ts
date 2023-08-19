@@ -17,9 +17,9 @@ export namespace MongoAdapter {
   export const transformSort = _transformSort;
 
   export function transformRequest(request: Request): any {
-    const {resource} = request;
+    const {source} = request;
 
-    if (resource instanceof Collection || resource instanceof Singleton) {
+    if (source instanceof Collection || source instanceof Singleton) {
       const {params, endpoint} = request;
       let options: any = {};
       let filter;
@@ -27,13 +27,13 @@ export namespace MongoAdapter {
       if (endpoint === 'create' || endpoint === 'update' ||
           endpoint === 'get' || endpoint === 'findMany'
       ) {
-        options.projection = transformProjection(resource.type, params)
+        options.projection = transformProjection(source.type, params)
       }
 
-      if (resource instanceof Collection &&
+      if (source instanceof Collection &&
           (endpoint === 'delete' || endpoint === 'get' || endpoint === 'update')
       ) {
-        filter = transformKeyValues(resource, (request as any).key);
+        filter = transformKeyValues(source, (request as any).key);
       }
 
       if (params?.filter) {
@@ -111,7 +111,7 @@ export namespace MongoAdapter {
       }
 
     }
-    throw new TypeError(`Unimplemented request kind (${request.resource.kind}.${request.endpoint})`);
+    throw new TypeError(`Unimplemented request kind (${request.source.kind}.${request.endpoint})`);
   }
 
 

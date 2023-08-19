@@ -1,23 +1,23 @@
 import mongodb from 'mongodb';
 import { Maybe } from 'ts-gems';
-import { Collection, CollectionResource, PartialOutput } from '@opra/common';
+import { Collection, ICollection, PartialOutput } from '@opra/common';
 import { EndpointContext } from '@opra/core';
 import { MongoAdapter } from './mongo-adapter.js';
 import { MongoEntityService } from './mongo-entity-service.js';
 
-export namespace MongoCollectionResource {
+export namespace MongoCollection {
   export interface Options {
     defaultLimit?: number;
   }
 }
 
 // noinspection TypeScriptAbstractClassConstructorCanBeMadeProtected
-export abstract class MongoCollectionResource<T extends mongodb.Document>
-    implements CollectionResource<T> {
+export abstract class MongoCollection<T extends mongodb.Document>
+    implements ICollection<T> {
 
   defaultLimit?: number;
 
-  constructor(options?: MongoCollectionResource.Options) {
+  constructor(options?: MongoCollection.Options) {
     this.defaultLimit = options?.defaultLimit || 100;
   }
 

@@ -1,6 +1,6 @@
 import { Readable } from 'stream';
 
-export interface StorageResource {
+export interface IStorage {
   delete?(...args: any[]): Promise<number | undefined>;
 
   get?(...args: any[]): Promise<Buffer | Readable | undefined>;
