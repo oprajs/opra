@@ -14,7 +14,3 @@ export interface ResourceBase {
   kind: string;
   description?: string;
 }
-
-export interface Operation {
-  description?: string;
-}
