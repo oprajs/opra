@@ -41,8 +41,8 @@ describe('parse Storage Request', function () {
       const request = await requestHandler.parseRequest(context, incoming) as Storage.Post.Request;
       try {
         expect(request).toBeDefined();
-        const resource = api.getStorage('Files');
-        expect(request.resource).toStrictEqual(resource);
+        const source = api.getStorage('Files');
+        expect(request.source).toStrictEqual(source);
         expect(request.endpoint).toStrictEqual('post');
         const items = await request.parts.getAll();
         expect(items).toBeDefined();
@@ -103,8 +103,8 @@ describe('parse Storage Request', function () {
       const request = await requestHandler.parseRequest(context, incoming) as Storage.Post.Request;
       try {
         expect(request).toBeDefined();
-        const resource = api.getStorage('Files');
-        expect(request.resource).toStrictEqual(resource);
+        const source = api.getStorage('Files');
+        expect(request.source).toStrictEqual(source);
         expect(request.endpoint).toStrictEqual('post');
         let item: MultipartItem | undefined;
         let i = 0;

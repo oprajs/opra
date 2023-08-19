@@ -4,17 +4,17 @@ import { EndpointContext } from '@opra/core';
 import { SQBAdapter } from './sqb-adapter.js';
 import { SqbEntityService } from './sqb-entity-service.js';
 
-export namespace SqbCollectionResource {
+export namespace SqbCollection {
   export interface Options {
     defaultLimit?: number;
   }
 }
 
 // noinspection TypeScriptAbstractClassConstructorCanBeMadeProtected
-export abstract class SqbCollectionResource<T, TOutput = PartialOutput<T>> {
+export abstract class SqbCollection<T, TOutput = PartialOutput<T>> {
   defaultLimit?: number;
 
-  constructor(options?: SqbCollectionResource.Options) {
+  constructor(options?: SqbCollection.Options) {
     this.defaultLimit = options?.defaultLimit || 100;
   }
 

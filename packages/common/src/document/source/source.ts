@@ -4,8 +4,8 @@ import { OpraSchema } from '../../schema/index.js';
 import type { ApiDocument } from '../api-document.js';
 import { colorFgMagenta, colorFgYellow, colorReset, nodeInspectCustom } from '../utils/inspect.util.js';
 
-export namespace Resource {
-  export interface InitArguments extends StrictOmit<OpraSchema.ResourceBase, 'kind'> {
+export namespace Source {
+  export interface InitArguments extends StrictOmit<OpraSchema.SourceBase, 'kind'> {
     name: string;
     controller?: object | Type;
   }
@@ -15,9 +15,9 @@ export namespace Resource {
   }
 }
 
-export abstract class Resource {
+export abstract class Source {
   readonly document: ApiDocument;
-  abstract readonly kind: OpraSchema.Resource.Kind;
+  abstract readonly kind: OpraSchema.Source.Kind;
   readonly name: string;
   readonly description?: string;
   readonly controller?: object | Type;
@@ -25,7 +25,7 @@ export abstract class Resource {
 
   protected constructor(
       document: ApiDocument,
-      init: Resource.InitArguments
+      init: Source.InitArguments
   ) {
     this.document = document;
     this.name = init.name;
@@ -33,7 +33,7 @@ export abstract class Resource {
     this.controller = init.controller;
   }
 
-  exportSchema(): OpraSchema.ResourceBase {
+  exportSchema(): OpraSchema.SourceBase {
     return omitUndefined({
       kind: this.kind,
       description: this.description

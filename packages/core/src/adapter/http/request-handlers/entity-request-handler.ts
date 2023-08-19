@@ -59,12 +59,12 @@ export class EntityRequestHandler extends RequestHandlerBase {
 
   async parseRequest(incoming: HttpServerRequest): Promise<Request | undefined> {
     const p = incoming.parsedUrl.path[0];
-    const resource = this.adapter.api.getResource(p.resource);
+    const source = this.adapter.api.getSource(p.resource);
     try {
-      if (resource instanceof Collection)
-        return await this.parseCollectionRequest(resource, incoming);
-      if (resource instanceof Singleton)
-        return await this.parseSingletonRequest(resource, incoming);
+      if (source instanceof Collection)
+        return await this.parseCollectionRequest(source, incoming);
+      if (source instanceof Singleton)
+        return await this.parseSingletonRequest(source, incoming);
     } catch (e: any) {
       if (e instanceof OpraException)
         throw e;
@@ -82,7 +82,7 @@ export class EntityRequestHandler extends RequestHandlerBase {
   async callEndpoint(context: EndpointContext): Promise<void> {
     const request = context.request as RequestHost;
     const {response} = context;
-    const resource = request.resource as (Collection | Singleton);
+    const source = request.source as (Collection | Singleton);
     // Call endpoint handler method
     let value: any;
     try {
@@ -102,9 +102,9 @@ export class EntityRequestHandler extends RequestHandlerBase {
               (endpoint === 'updateMany' ? value.updated : value.deleted);
         response.value = affected;
       } else {
-        // "get" and "update" endpoints must return the entity instance, otherwise it means resource not found
+        // "get" and "update" endpoints must return the entity instance, otherwise it means source not found
         if (value == null && (request.endpoint === 'get' || request.endpoint === 'update'))
-          throw new ResourceNotFoundError(resource.name, (request as RequestHost).key);
+          throw new ResourceNotFoundError(source.name, (request as RequestHost).key);
         // "findMany" endpoint should return array of entity instances
         if (request.endpoint === 'findMany')
           value = value == null ? [] : Array.isArray(value) ? value : [value];
@@ -118,31 +118,31 @@ export class EntityRequestHandler extends RequestHandlerBase {
 
   async sendResponse(context: EndpointContext): Promise<void> {
     const {request, response} = context;
-    const resource = request.resource as (Collection | Singleton);
+    const source = request.source as (Collection | Singleton);
     const outgoing = response.switchToHttp();
 
     let responseObject: any;
     if (request.endpoint === 'delete' || request.endpoint === 'deleteMany') {
       responseObject = {
-        resource: resource.name,
+        source: source.name,
         operation: 'delete',
         affected: response.value
       }
     } else if (request.endpoint === 'updateMany') {
       responseObject = {
-        resource: resource.name,
+        source: source.name,
         operation: 'update',
         affected: response.value
       }
     } else {
       if (!response.value)
         throw new InternalServerError(`"${request.endpoint}" endpoint should return value`);
-      const encode = resource.getEncoder(request.endpoint as any);
+      const encode = source.getEncoder(request.endpoint as any);
       const data = encode(response.value, {coerce: true});
       if (request.endpoint === 'create')
         outgoing.statusCode = 201;
       responseObject = {
-        resource: resource.name,
+        source: source.name,
         endpoint: request.endpoint,
         data
       }
@@ -159,7 +159,7 @@ export class EntityRequestHandler extends RequestHandlerBase {
     outgoing.end();
   }
 
-  async parseCollectionRequest(resource: Collection, incoming: HttpServerRequest): Promise<Request> {
+  async parseCollectionRequest(source: Collection, incoming: HttpServerRequest): Promise<Request> {
     if ((incoming.method === 'POST' || incoming.method === 'PATCH') &&
         incoming.headers['content-type'] !== 'application/json')
       throw new BadRequestError({message: 'Unsupported Content-Type'});
@@ -171,9 +171,9 @@ export class EntityRequestHandler extends RequestHandlerBase {
       case 'POST': {
         if (p.key == null) {
           const endpointMeta =
-              await this.assertEndpoint<OpraSchema.Collection.CreateEndpoint>(resource, 'create');
+              await this.assertEndpoint<OpraSchema.Collection.CreateEndpoint>(source, 'create');
           const jsonReader = this.getBodyLoader(endpointMeta);
-          const decode = resource.getDecoder('create');
+          const decode = source.getDecoder('create');
           let data = await jsonReader(incoming);
           data = decode(data, {coerce: true});
           const pick = parseArrayParam(params.get('$pick'));
@@ -183,13 +183,13 @@ export class EntityRequestHandler extends RequestHandlerBase {
             controller: endpointMeta.controller,
             http: incoming,
             contentId,
-            resource,
+            source,
             endpoint: 'create',
             data,
             params: {
-              pick: pick && resource.normalizeFieldPath(pick as string[]),
-              omit: omit && resource.normalizeFieldPath(omit),
-              include: include && resource.normalizeFieldPath(include)
+              pick: pick && source.normalizeFieldPath(pick as string[]),
+              omit: omit && source.normalizeFieldPath(omit),
+              include: include && source.normalizeFieldPath(include)
             }
           });
         }
@@ -198,24 +198,24 @@ export class EntityRequestHandler extends RequestHandlerBase {
       case 'DELETE': {
         if (p.key != null) {
           const endpointMeta =
-              await this.assertEndpoint<OpraSchema.Collection.DeleteEndpoint>(resource, 'delete');
+              await this.assertEndpoint<OpraSchema.Collection.DeleteEndpoint>(source, 'delete');
           return new RequestHost({
             controller: endpointMeta.controller,
             http: incoming,
             contentId,
-            resource,
+            source,
             endpoint: 'delete',
-            key: resource.parseKeyValue(p.key)
+            key: source.parseKeyValue(p.key)
           });
         }
         const endpointMeta =
-            await this.assertEndpoint<OpraSchema.Collection.DeleteEndpoint>(resource, 'deleteMany');
-        const filter = resource.normalizeFilter(params.get('$filter') as any);
+            await this.assertEndpoint<OpraSchema.Collection.DeleteEndpoint>(source, 'deleteMany');
+        const filter = source.normalizeFilter(params.get('$filter') as any);
         return new RequestHost({
           controller: endpointMeta.controller,
           http: incoming,
           contentId,
-          resource,
+          source,
           endpoint: 'deleteMany',
           params: {
             filter
@@ -229,36 +229,36 @@ export class EntityRequestHandler extends RequestHandlerBase {
         const include = parseArrayParam(params.get('$include'));
         if (p.key != null) {
           const endpointMeta =
-              await this.assertEndpoint<OpraSchema.Collection.DeleteEndpoint>(resource, 'get');
+              await this.assertEndpoint<OpraSchema.Collection.DeleteEndpoint>(source, 'get');
           return new RequestHost({
             controller: endpointMeta.controller,
             http: incoming,
             contentId,
-            resource,
+            source,
             endpoint: 'get',
-            key: resource.parseKeyValue(p.key),
+            key: source.parseKeyValue(p.key),
             params: {
-              pick: pick && resource.normalizeFieldPath(pick),
-              omit: omit && resource.normalizeFieldPath(omit),
-              include: include && resource.normalizeFieldPath(include)
+              pick: pick && source.normalizeFieldPath(pick),
+              omit: omit && source.normalizeFieldPath(omit),
+              include: include && source.normalizeFieldPath(include)
             }
           });
         }
         const endpointMeta =
-            await this.assertEndpoint<OpraSchema.Collection.DeleteEndpoint>(resource, 'findMany');
-        const filter = resource.normalizeFilter(params.get('$filter') as any);
+            await this.assertEndpoint<OpraSchema.Collection.DeleteEndpoint>(source, 'findMany');
+        const filter = source.normalizeFilter(params.get('$filter') as any);
         const sort = parseArrayParam(params.get('$sort'));
         return new RequestHost({
           controller: endpointMeta.controller,
           http: incoming,
           contentId,
-          resource,
+          source,
           endpoint: 'findMany',
           params: {
-            pick: pick && resource.normalizeFieldPath(pick),
-            omit: omit && resource.normalizeFieldPath(omit),
-            include: include && resource.normalizeFieldPath(include),
-            sort: sort && resource.normalizeSortFields(sort),
+            pick: pick && source.normalizeFieldPath(pick),
+            omit: omit && source.normalizeFieldPath(omit),
+            include: include && source.normalizeFieldPath(include),
+            sort: sort && source.normalizeSortFields(sort),
             filter,
             limit: toInt(params.get('$limit')),
             skip: toInt(params.get('$skip')),
@@ -271,9 +271,9 @@ export class EntityRequestHandler extends RequestHandlerBase {
       case 'PATCH': {
         if (p.key != null) {
           const endpointMeta =
-              await this.assertEndpoint<OpraSchema.Collection.DeleteEndpoint>(resource, 'update');
+              await this.assertEndpoint<OpraSchema.Collection.DeleteEndpoint>(source, 'update');
           const jsonReader = this.getBodyLoader(endpointMeta);
-          const decode = resource.getDecoder('update');
+          const decode = source.getDecoder('update');
           let data = await jsonReader(incoming);
           data = decode(data, {coerce: true});
           const pick = parseArrayParam(params.get('$pick'));
@@ -283,29 +283,29 @@ export class EntityRequestHandler extends RequestHandlerBase {
             controller: endpointMeta.controller,
             http: incoming,
             contentId,
-            resource,
+            source,
             endpoint: 'update',
-            key: resource.parseKeyValue(p.key),
+            key: source.parseKeyValue(p.key),
             data,
             params: {
-              pick: pick && resource.normalizeFieldPath(pick),
-              omit: omit && resource.normalizeFieldPath(omit),
-              include: include && resource.normalizeFieldPath(include),
+              pick: pick && source.normalizeFieldPath(pick),
+              omit: omit && source.normalizeFieldPath(omit),
+              include: include && source.normalizeFieldPath(include),
             }
           });
         }
         const endpointMeta =
-            await this.assertEndpoint<OpraSchema.Collection.DeleteEndpoint>(resource, 'updateMany');
+            await this.assertEndpoint<OpraSchema.Collection.DeleteEndpoint>(source, 'updateMany');
         const jsonReader = this.getBodyLoader(endpointMeta);
-        const decode = resource.getDecoder('updateMany');
+        const decode = source.getDecoder('updateMany');
         let data = await jsonReader(incoming);
         data = decode(data, {coerce: true});
-        const filter = resource.normalizeFilter(params.get('$filter') as any);
+        const filter = source.normalizeFilter(params.get('$filter') as any);
         return new RequestHost({
           controller: endpointMeta.controller,
           http: incoming,
           contentId,
-          resource,
+          source,
           endpoint: 'updateMany',
           data,
           params: {
@@ -315,11 +315,11 @@ export class EntityRequestHandler extends RequestHandlerBase {
       }
     }
     throw new MethodNotAllowedError({
-      message: `Collection resources do not accept http "${incoming.method}" method`
+      message: `Collection source do not accept http "${incoming.method}" method`
     });
   }
 
-  async parseSingletonRequest(resource: Singleton, incoming: HttpServerRequest): Promise<Request> {
+  async parseSingletonRequest(source: Singleton, incoming: HttpServerRequest): Promise<Request> {
     if ((incoming.method === 'POST' || incoming.method === 'PATCH') &&
         incoming.headers['content-type'] !== 'application/json')
       throw new BadRequestError({message: 'Unsupported Content-Type'});
@@ -329,9 +329,9 @@ export class EntityRequestHandler extends RequestHandlerBase {
     switch (incoming.method) {
       case 'POST': {
         const endpointMeta =
-            await this.assertEndpoint<OpraSchema.Singleton.DeleteEndpoint>(resource, 'create');
+            await this.assertEndpoint<OpraSchema.Singleton.DeleteEndpoint>(source, 'create');
         const jsonReader = this.getBodyLoader(endpointMeta);
-        const decode = resource.getDecoder('create');
+        const decode = source.getDecoder('create');
         let data = await jsonReader(incoming);
         data = decode(data, {coerce: true});
         const pick = parseArrayParam(params.get('$pick'));
@@ -341,31 +341,31 @@ export class EntityRequestHandler extends RequestHandlerBase {
           controller: endpointMeta.controller,
           http: incoming,
           contentId,
-          resource,
+          source,
           endpoint: 'create',
           data,
           params: {
-            pick: pick && resource.normalizeFieldPath(pick),
-            omit: omit && resource.normalizeFieldPath(omit),
-            include: include && resource.normalizeFieldPath(include)
+            pick: pick && source.normalizeFieldPath(pick),
+            omit: omit && source.normalizeFieldPath(omit),
+            include: include && source.normalizeFieldPath(include)
           }
         });
       }
       case 'DELETE': {
         const endpointMeta =
-            await this.assertEndpoint<OpraSchema.Singleton.DeleteEndpoint>(resource, 'delete');
+            await this.assertEndpoint<OpraSchema.Singleton.DeleteEndpoint>(source, 'delete');
         return new RequestHost({
           controller: endpointMeta.controller,
           http: incoming,
           contentId,
-          resource,
+          source,
           endpoint: 'delete',
         });
       }
 
       case 'GET': {
         const endpointMeta =
-            await this.assertEndpoint<OpraSchema.Singleton.DeleteEndpoint>(resource, 'get');
+            await this.assertEndpoint<OpraSchema.Singleton.DeleteEndpoint>(source, 'get');
         const pick = parseArrayParam(params.get('$pick'));
         const omit = parseArrayParam(params.get('$omit'));
         const include = parseArrayParam(params.get('$include'));
@@ -373,12 +373,12 @@ export class EntityRequestHandler extends RequestHandlerBase {
           controller: endpointMeta.controller,
           http: incoming,
           contentId,
-          resource,
+          source,
           endpoint: 'get',
           params: {
-            pick: pick && resource.normalizeFieldPath(pick),
-            omit: omit && resource.normalizeFieldPath(omit),
-            include: include && resource.normalizeFieldPath(include)
+            pick: pick && source.normalizeFieldPath(pick),
+            omit: omit && source.normalizeFieldPath(omit),
+            include: include && source.normalizeFieldPath(include)
           }
         });
 
@@ -386,9 +386,9 @@ export class EntityRequestHandler extends RequestHandlerBase {
 
       case 'PATCH': {
         const endpointMeta =
-            await this.assertEndpoint<OpraSchema.Singleton.DeleteEndpoint>(resource, 'update');
+            await this.assertEndpoint<OpraSchema.Singleton.DeleteEndpoint>(source, 'update');
         const jsonReader = this.getBodyLoader(endpointMeta);
-        const decode = resource.getDecoder('update');
+        const decode = source.getDecoder('update');
         let data = await jsonReader(incoming);
         data = decode(data, {coerce: true});
         const pick = parseArrayParam(params.get('$pick'));
@@ -398,20 +398,20 @@ export class EntityRequestHandler extends RequestHandlerBase {
           controller: endpointMeta.controller,
           http: incoming,
           contentId,
-          resource,
+          source,
           endpoint: 'update',
           data,
           params: {
-            pick: pick && resource.normalizeFieldPath(pick),
-            omit: omit && resource.normalizeFieldPath(omit),
-            include: include && resource.normalizeFieldPath(include),
+            pick: pick && source.normalizeFieldPath(pick),
+            omit: omit && source.normalizeFieldPath(omit),
+            include: include && source.normalizeFieldPath(include),
           }
         });
 
       }
     }
     throw new MethodNotAllowedError({
-      message: `Singleton resources do not accept http "${incoming.method}" method`
+      message: `Singleton source do not accept http "${incoming.method}" method`
     });
   }
 

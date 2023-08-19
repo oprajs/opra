@@ -25,12 +25,12 @@ export class NestExplorer {
     return Array.from(wrappers.values());
   }
 
-  exploreResourceWrappers(rootModule: Module): InstanceWrapper[] {
+  exploreSourceWrappers(rootModule: Module): InstanceWrapper[] {
     return this.exploreProviders(rootModule, (wrapper: InstanceWrapper) => {
       return !!(wrapper.instance
           && typeof wrapper.instance === 'object'
           && wrapper.instance.constructor
-          && OpraSchema.isResource(Reflect.getMetadata(METADATA_KEY, wrapper.instance.constructor)))
+          && OpraSchema.isSource(Reflect.getMetadata(METADATA_KEY, wrapper.instance.constructor)))
     })
   }
 

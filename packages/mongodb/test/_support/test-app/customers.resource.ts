@@ -2,12 +2,12 @@ import { Db } from 'mongodb';
 import { Collection } from '@opra/common';
 import { Customer } from '@opra/common/test/_support/test-api';
 import { EndpointContext } from '@opra/core';
-import { MongoCollectionResource, MongoEntityService } from '../../../src/index.js';
+import { MongoCollection, MongoEntityService } from '../../../src/index.js';
 
 @Collection(Customer, {
   primaryKey: '_id'
 })
-export class CustomersResource extends MongoCollectionResource<Customer> {
+export class CustomersResource extends MongoCollection<Customer> {
   service: MongoEntityService<Customer>;
 
   constructor(readonly db: Db) {

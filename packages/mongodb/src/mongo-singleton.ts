@@ -5,7 +5,7 @@ import { EndpointContext } from '@opra/core';
 import { MongoAdapter } from './mongo-adapter.js';
 import { MongoEntityService } from './mongo-entity-service.js';
 
-export abstract class MongoSingletonResource<T extends mongodb.Document> {
+export abstract class MongoSingleton<T extends mongodb.Document> {
   defaultLimit = 100;
 
   @Singleton.Create()

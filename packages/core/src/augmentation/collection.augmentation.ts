@@ -124,7 +124,7 @@ declare module "@opra/common" {
   }
 
   /* ***************************** */
-  export interface CollectionResource<T> {
+  export interface ICollection<T> {
     create?(context: Collection.Create.Context): Promise<PartialOutput<T>>;
 
     delete?(context: Collection.Delete.Context): Promise<number> | undefined;

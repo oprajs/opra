@@ -29,7 +29,7 @@ describe('e2e:Singleton', function () {
     expect(resp.body).toBeDefined();
     expect(resp.body.errors).not.toBeDefined();
     expect(resp.body).toMatchObject({
-      resource: 'MyProfile',
+      source: 'MyProfile',
       endpoint: 'create',
       affected: 1
     });
@@ -46,7 +46,7 @@ describe('e2e:Singleton', function () {
     expect(resp.body).toBeDefined();
     expect(resp.body.errors).not.toBeDefined();
     expect(resp.body).toMatchObject({
-      resource: 'MyProfile',
+      source: 'MyProfile',
       endpoint: 'get'
     });
     expect(resp.body.data).toMatchObject({
@@ -66,7 +66,7 @@ describe('e2e:Singleton', function () {
     expect(resp.body).toBeDefined();
     expect(resp.body.errors).not.toBeDefined();
     expect(resp.body).toMatchObject({
-      resource: 'MyProfile',
+      source: 'MyProfile',
       endpoint: 'update',
       affected: 1
     });
@@ -84,11 +84,10 @@ describe('e2e:Singleton', function () {
     expect(resp.body).toBeDefined();
     expect(resp.body.errors).not.toBeDefined();
     expect(resp.body).toMatchObject({
-      resource: 'MyProfile',
+      source: 'MyProfile',
       operation: 'delete',
       affected: 1
     });
   });
-
 
 });

@@ -9,18 +9,18 @@ import type { ApiDocument } from '../api-document.js';
 import { METADATA_KEY } from '../constants.js';
 import { ComplexType } from '../data-type/complex-type.js';
 import { generateCodec, GenerateDecoderOptions } from '../utils/generate-codec.js';
-import { Resource } from './resource.js';
+import { Source } from './source.js';
 
 const NESTJS_INJECTABLE_WATERMARK = '__injectable__'; // todo, put this in nextjs package wia augmentation
-const NAME_PATTERN = /^(.*)(Resource|Singleton)$/;
+const NAME_PATTERN = /^(.*)(Source|Resource|Singleton)$/;
 
 export namespace Singleton {
-  export interface InitArguments extends Resource.InitArguments,
+  export interface InitArguments extends Source.InitArguments,
       StrictOmit<OpraSchema.Singleton, 'kind' | 'type'> {
     type: ComplexType;
   }
 
-  export interface DecoratorOptions extends Resource.DecoratorOptions {
+  export interface DecoratorOptions extends Source.DecoratorOptions {
 
   }
 
@@ -51,7 +51,7 @@ export namespace Singleton {
   export type UpdateEndpointOptions = OpraSchema.Singleton.UpdateEndpoint;
 }
 
-class SingletonClass extends Resource {
+class SingletonClass extends Source {
   private _decoders: Record<string, vg.Validator<any>> = {};
   private _encoders: Record<string, vg.Validator<any>> = {};
   readonly type: ComplexType;
@@ -70,7 +70,7 @@ class SingletonClass extends Resource {
   }
 
   exportSchema(): OpraSchema.Singleton {
-    const out = Resource.prototype.exportSchema.call(this) as OpraSchema.Singleton;
+    const out = Source.prototype.exportSchema.call(this) as OpraSchema.Singleton;
     Object.assign(out, omitUndefined({
       type: this.type.name,
       endpoints: this.endpoints
@@ -163,11 +163,11 @@ function createEndpointDecorator<T>(endpoint: string) {
         if (propertyKey !== endpoint)
           throw new TypeError(`Name of the handler name should be '${endpoint}'`);
         const endpointMeta = {...options};
-        const resourceMetadata =
+        const sourceMetadata =
             (Reflect.getOwnMetadata(METADATA_KEY, target.constructor) || {}) as Singleton.Metadata;
-        resourceMetadata.endpoints = resourceMetadata.endpoints || {};
-        resourceMetadata.endpoints[endpoint] = endpointMeta;
-        Reflect.defineMetadata(METADATA_KEY, resourceMetadata, target.constructor);
+        sourceMetadata.endpoints = sourceMetadata.endpoints || {};
+        sourceMetadata.endpoints[endpoint] = endpointMeta;
+        Reflect.defineMetadata(METADATA_KEY, sourceMetadata, target.constructor);
       });
 }
 

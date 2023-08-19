@@ -54,33 +54,33 @@ export class StorageRequestHandler extends RequestHandlerBase {
   async parseRequest(executionContext: ExecutionContext, incoming: HttpServerRequest): Promise<Request | undefined> {
     const contentId = incoming.headers['content-id'] as string;
     const p = incoming.parsedUrl.path[0];
-    const resource = this.adapter.api.getResource(p.resource);
+    const source = this.adapter.api.getSource(p.resource);
     try {
-      if (!(resource instanceof Storage))
+      if (!(source instanceof Storage))
         return;
       switch (incoming.method) {
         case 'GET': {
-          const endpointMeta: any = await this.assertEndpoint<OpraSchema.Storage.PostEndpoint>(resource, 'get');
+          const endpointMeta: any = await this.assertEndpoint<OpraSchema.Storage.PostEndpoint>(source, 'get');
           return new RequestHost({
             controller: endpointMeta.controller,
             http: incoming,
-            resource,
+            source,
             endpoint: 'get',
             contentId
           });
         }
         case 'DELETE': {
-          const endpointMeta: any = await this.assertEndpoint<OpraSchema.Storage.PostEndpoint>(resource, 'delete');
+          const endpointMeta: any = await this.assertEndpoint<OpraSchema.Storage.PostEndpoint>(source, 'delete');
           return new RequestHost({
             controller: endpointMeta.controller,
             http: incoming,
-            resource,
+            source,
             endpoint: 'delete',
             contentId
           });
         }
         case 'POST': {
-          const endpointMeta: any = await this.assertEndpoint<OpraSchema.Storage.PostEndpoint>(resource, 'post');
+          const endpointMeta: any = await this.assertEndpoint<OpraSchema.Storage.PostEndpoint>(source, 'post');
           await fs.mkdir(this._uploadDir, {recursive: true});
 
           const multipartIterator = new MultipartIterator(incoming, {
@@ -99,7 +99,7 @@ export class StorageRequestHandler extends RequestHandlerBase {
           return new RequestHost({
             controller: endpointMeta.controller,
             http: incoming,
-            resource,
+            source,
             endpoint: 'post',
             contentId,
             parts: multipartIterator

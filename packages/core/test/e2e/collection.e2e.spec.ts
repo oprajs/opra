@@ -31,7 +31,7 @@ describe('e2e:Collection', function () {
     expect(resp.body).toBeDefined();
     expect(resp.body.errors).not.toBeDefined();
     expect(resp.body).toMatchObject({
-      resource: 'Customers',
+      source: 'Customers',
       endpoint: 'create',
       affected: 1,
     });
@@ -49,7 +49,7 @@ describe('e2e:Collection', function () {
     expect(resp.body).toBeDefined();
     expect(resp.body.errors).not.toBeDefined();
     expect(resp.body).toMatchObject({
-      resource: 'Customers',
+      source: 'Customers',
       endpoint: 'get'
     });
     expect(resp.body.data).toMatchObject({
@@ -65,7 +65,7 @@ describe('e2e:Collection', function () {
     expect(resp.body).toBeDefined();
     expect(resp.body.errors).not.toBeDefined();
     expect(resp.body).toMatchObject({
-      resource: 'Customers',
+      source: 'Customers',
       endpoint: 'findMany'
     });
     expect(Array.isArray(resp.body.data)).toBeTruthy();

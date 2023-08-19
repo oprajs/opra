@@ -43,10 +43,10 @@ export async function createDocument(
     this.curPath.push('sources');
     if (Array.isArray(init.sources)) {
       for (const res of init.sources)
-        await this.importResourceClass(res);
+        await this.importSourceClass(res);
     } else
       this.sourceQueue.setAll(init.sources);
-    await this.processResourceQueue();
+    await this.processSourceQueue();
     this.curPath.pop();
   }
   this.document.types.sort();

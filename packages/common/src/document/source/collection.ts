@@ -13,18 +13,19 @@ import { METADATA_KEY } from '../constants.js';
 import { ComplexType } from '../data-type/complex-type.js';
 import { SimpleType } from '../data-type/simple-type.js';
 import { generateCodec, GenerateDecoderOptions } from '../utils/generate-codec.js';
-import { Resource } from './resource.js';
+import { Source } from './source.js';
 
-const NESTJS_INJECTABLE_WATERMARK = '__injectable__'; // todo, put this in nextjs package wia augmentation
-const NAME_PATTERN = /^(.*)(Resource|Collection)$/;
+// todo, put this in nextjs package wia augmentation
+const NESTJS_INJECTABLE_WATERMARK = '__injectable__';
+const NAME_PATTERN = /^(.*)(Source|Resource|Collection)$/;
 
 export namespace Collection {
-  export interface InitArguments extends Resource.InitArguments,
+  export interface InitArguments extends Source.InitArguments,
       StrictOmit<OpraSchema.Collection, 'kind' | 'type'> {
     type: ComplexType;
   }
 
-  export interface DecoratorOptions<T = any> extends Resource.DecoratorOptions {
+  export interface DecoratorOptions<T = any> extends Source.DecoratorOptions {
     primaryKey?: keyof T | (keyof T)[];
   }
 
@@ -70,7 +71,7 @@ export namespace Collection {
   export type UpdateManyEndpointOptions = OpraSchema.Collection.UpdateManyEndpoint;
 }
 
-class CollectionClass extends Resource {
+class CollectionClass extends Source {
   private _decoders: Record<string, vg.Validator<any>> = {};
   private _encoders: Record<string, vg.Validator<any>> = {};
   readonly type: ComplexType;
@@ -92,7 +93,7 @@ class CollectionClass extends Resource {
         ? (Array.isArray(init.primaryKey) ? init.primaryKey : [init.primaryKey])
         : [];
     if (!this.primaryKey.length)
-      throw new TypeError(`You must provide primaryKey for Collection resource ("${this.name}")`);
+      throw new TypeError(`You must provide primaryKey for Collection source ("${this.name}")`);
     this.primaryKey.forEach(f => {
       const field = dataType.getField(f);
       if (!(field?.type instanceof SimpleType))
@@ -101,7 +102,7 @@ class CollectionClass extends Resource {
   }
 
   exportSchema(this: Collection): OpraSchema.Collection {
-    const out = Resource.prototype.exportSchema.call(this) as OpraSchema.Collection;
+    const out = Source.prototype.exportSchema.call(this) as OpraSchema.Collection;
     Object.assign(out, omitUndefined({
       type: this.type.name,
       endpoints: this.endpoints,
@@ -314,11 +315,11 @@ function createEndpointDecorator<T>(endpoint: string) {
         if (propertyKey !== endpoint)
           throw new TypeError(`Name of the handler name should be '${endpoint}'`);
         const endpointMeta = {...options};
-        const resourceMetadata =
+        const sourceMetadata =
             (Reflect.getOwnMetadata(METADATA_KEY, target.constructor) || {}) as Collection.Metadata;
-        resourceMetadata.endpoints = resourceMetadata.endpoints || {};
-        resourceMetadata.endpoints[endpoint] = endpointMeta;
-        Reflect.defineMetadata(METADATA_KEY, resourceMetadata, target.constructor);
+        sourceMetadata.endpoints = sourceMetadata.endpoints || {};
+        sourceMetadata.endpoints[endpoint] = endpointMeta;
+        Reflect.defineMetadata(METADATA_KEY, sourceMetadata, target.constructor);
       });
 }
 

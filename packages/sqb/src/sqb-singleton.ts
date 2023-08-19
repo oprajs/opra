@@ -4,7 +4,7 @@ import { EndpointContext } from '@opra/core';
 import { SQBAdapter } from './sqb-adapter.js';
 import { SqbEntityService } from './sqb-entity-service.js';
 
-export abstract class SqbSingletonResource<T> {
+export abstract class SqbSingleton<T> {
 
   @Singleton.Create()
   async create(ctx: EndpointContext): Promise<PartialOutput<T>> {

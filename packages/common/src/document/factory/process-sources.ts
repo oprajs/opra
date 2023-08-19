@@ -1,45 +1,45 @@
 import { OpraSchema } from '../../schema/index.js';
-import { Collection } from '../resource/collection.js';
-import { Singleton } from '../resource/singleton.js';
-import { Storage } from '../resource/storage.js';
+import { Collection } from '../source/collection.js';
+import { Singleton } from '../source/singleton.js';
+import { Storage } from '../source/storage.js';
 import type { DocumentFactory } from './factory.js';
 
-export async function processResourceQueue(
+export async function processSourceQueue(
     this: DocumentFactory
 ) {
   const {document, sourceQueue} = this;
-  const resourceNames = Array.from(sourceQueue.keys());
-  for (const name of resourceNames) {
+  const sourceNames = Array.from(sourceQueue.keys());
+  for (const name of sourceNames) {
     const schema = sourceQueue.get(name);
     if (!schema)
       continue;
     try {
       if (OpraSchema.isCollection(schema)) {
-        const resource = await this.createCollectionResource(name, schema);
-        document.sources.set(name, resource);
+        const source = await this.createCollectionSource(name, schema);
+        document.sources.set(name, source);
         continue;
       }
       if (OpraSchema.isSingleton(schema)) {
-        const resource = await this.createSingletonResource(name, schema);
-        document.sources.set(name, resource);
+        const source = await this.createSingletonSource(name, schema);
+        document.sources.set(name, source);
         continue;
       }
       if (OpraSchema.isStorage(schema)) {
-        const resource = await this.createFileResource(name, schema);
-        document.sources.set(name, resource);
+        const source = await this.createFileSource(name, schema);
+        document.sources.set(name, source);
         continue;
       }
 
     } catch (e: any) {
-      e.message = `Error in Resource schema (${name}): ` + e.message;
+      e.message = `Error in Source schema (${name}): ` + e.message;
       throw e;
     }
 
-    throw new TypeError(`Invalid Resource schema: ${JSON.stringify(schema).substring(0, 20)}...`);
+    throw new TypeError(`Invalid Source schema: ${JSON.stringify(schema).substring(0, 20)}...`);
   }
 }
 
-export async function createCollectionResource(
+export async function createCollectionSource(
     this: DocumentFactory,
     name: string,
     schema: OpraSchema.Collection
@@ -54,7 +54,7 @@ export async function createCollectionResource(
   return new Collection(document, initArgs);
 }
 
-export async function createSingletonResource(
+export async function createSingletonSource(
     this: DocumentFactory,
     name: string,
     schema: OpraSchema.Singleton
@@ -69,7 +69,7 @@ export async function createSingletonResource(
   return new Singleton(document, initArgs);
 }
 
-export async function createFileResource(
+export async function createStorageSource(
     this: DocumentFactory,
     name: string,
     schema: OpraSchema.Storage

@@ -6,11 +6,11 @@ export * from './data-type/simple-type.interface.js';
 export * from './data-type/mapped-type.interface.js';
 export * from './data-type/union-type.interface.js';
 
-export * from './resource/collection.interface.js';
-export * from './resource/container.interface.js';
-export * from './resource/resource.interface.js';
-export * from './resource/singleton.interface.js';
-export * from './resource/storage.interface.js';
+export * from './source/collection.interface.js';
+export * from './source/container.interface.js';
+export * from './source/source.interface.js';
+export * from './source/singleton.interface.js';
+export * from './source/storage.interface.js';
 
 export * from './constants.js';
 export * from './document.interface.js';

@@ -23,8 +23,8 @@ describe('Parse Singleton requests', function () {
         headers: {'Accept': 'application/json'}
       })) as Singleton.Get.Request;
       expect(request).toBeDefined();
-      const resource = api.getSingleton('MyProfile');
-      expect(request.resource).toStrictEqual(resource);
+      const source = api.getSingleton('MyProfile');
+      expect(request.source).toStrictEqual(source);
       expect(request.endpoint).toStrictEqual('get');
       expect(request.params.pick).toStrictEqual(['_id']);
       expect(request.params.omit).toStrictEqual(['gender']);
@@ -139,8 +139,8 @@ describe('Parse Singleton requests', function () {
         headers: {'content-type': 'application/json', 'Accept': 'application/json'}
       })) as Singleton.Create.Request;
       expect(request).toBeDefined();
-      const resource = api.getSingleton('MyProfile');
-      expect(request.resource).toStrictEqual(resource);
+      const source = api.getSingleton('MyProfile');
+      expect(request.source).toStrictEqual(source);
       expect(request.endpoint).toStrictEqual('create');
       expect(request.data).toEqual({givenName: 'John'});
       expect(() => request.switchToHttp()).not.toThrow();
@@ -272,8 +272,8 @@ describe('Parse Singleton requests', function () {
         headers: {'content-type': 'application/json', 'Accept': 'application/json'}
       })) as Singleton.Update.Request;
       expect(request).toBeDefined();
-      const resource = api.getSingleton('MyProfile');
-      expect(request.resource).toStrictEqual(resource);
+      const source = api.getSingleton('MyProfile');
+      expect(request.source).toStrictEqual(source);
       expect(request.endpoint).toStrictEqual('update');
       expect(request.data).toEqual({givenName: 'John'});
       expect(() => request.switchToHttp()).not.toThrow();
@@ -403,8 +403,8 @@ describe('Parse Singleton requests', function () {
         headers: {'Accept': 'application/json'}
       })) as Singleton.Delete.Request;
       expect(request).toBeDefined();
-      const resource = api.getSingleton('MyProfile');
-      expect(request.resource).toStrictEqual(resource);
+      const source = api.getSingleton('MyProfile');
+      expect(request.source).toStrictEqual(source);
       expect(request.endpoint).toStrictEqual('delete');
       expect(() => request.switchToHttp()).not.toThrow();
       expect(request.switchToHttp().headers).toBeDefined();

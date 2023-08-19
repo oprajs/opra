@@ -1,8 +1,8 @@
 import type { DataType } from '../data-type/data-type.interface.js';
 import type { Collection } from './collection.interface.js';
-import type { ResourceBase } from './resource.interface.js';
+import type { SourceBase } from './source.interface.js';
 
-export interface Singleton extends ResourceBase {
+export interface Singleton extends SourceBase {
   kind: Singleton.Kind,
   type: DataType.Name;
   endpoints: Singleton.Endpoints;
