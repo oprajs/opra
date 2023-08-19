@@ -59,7 +59,15 @@ export class EntityRequestHandler extends RequestHandlerBase {
 
   async parseRequest(incoming: HttpServerRequest): Promise<Request | undefined> {
     const p = incoming.parsedUrl.path[0];
-    const source = this.adapter.api.getSource(p.resource);
+    const source = this.adapter.api.getSource(p.resource, true);
+    if (!source)
+      throw new BadRequestError({
+        message: translate('error:SOURCE_NOT_FOUND,', 'Source not found'),
+        code: 'SOURCE_NOT_FOUND',
+        details: {
+          path: incoming.parsedUrl.address
+        }
+      });
     try {
       if (source instanceof Collection)
         return await this.parseCollectionRequest(source, incoming);
@@ -154,7 +162,7 @@ export class EntityRequestHandler extends RequestHandlerBase {
 
     outgoing.statusCode = outgoing.statusCode || HttpStatusCodes.OK;
     const body = this.adapter._i18n.deep(responseObject);
-    outgoing.setHeader(HttpHeaderCodes.Content_Type, 'application/json; charset=utf-8');
+    outgoing.setHeader(HttpHeaderCodes.Content_Type, 'application/opra+json; charset=utf-8');
     outgoing.send(JSON.stringify(body));
     outgoing.end();
   }

@@ -25,7 +25,7 @@ describe('e2e:Singleton', function () {
           givenName: 'abcd',
           familyName: 'efgh',
         });
-    expect(resp.type).toStrictEqual('application/json');
+    expect(resp.type).toStrictEqual('application/opra+json');
     expect(resp.body).toBeDefined();
     expect(resp.body.errors).not.toBeDefined();
     expect(resp.body).toMatchObject({
@@ -42,7 +42,7 @@ describe('e2e:Singleton', function () {
 
   it('Should execute "get" endpoint', async () => {
     const resp = await supertest(adapter.server).get('/MyProfile');
-    expect(resp.type).toStrictEqual('application/json');
+    expect(resp.type).toStrictEqual('application/opra+json');
     expect(resp.body).toBeDefined();
     expect(resp.body.errors).not.toBeDefined();
     expect(resp.body).toMatchObject({
@@ -62,7 +62,7 @@ describe('e2e:Singleton', function () {
         .send({
           birthDate: new Date().toISOString()
         });
-    expect(resp.type).toStrictEqual('application/json');
+    expect(resp.type).toStrictEqual('application/opra+json');
     expect(resp.body).toBeDefined();
     expect(resp.body.errors).not.toBeDefined();
     expect(resp.body).toMatchObject({
@@ -80,7 +80,7 @@ describe('e2e:Singleton', function () {
 
   it('Should execute "delete" endpoint', async () => {
     const resp = await supertest(adapter.server).delete('/MyProfile');
-    expect(resp.type).toStrictEqual('application/json');
+    expect(resp.type).toStrictEqual('application/opra+json');
     expect(resp.body).toBeDefined();
     expect(resp.body.errors).not.toBeDefined();
     expect(resp.body).toMatchObject({

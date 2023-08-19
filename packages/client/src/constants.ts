@@ -1,3 +1,4 @@
+export const OPRA_JSON_CONTENT_TYPE_PATTERN = /^application\/\bopra\+json\b/i;
 export const JSON_CONTENT_TYPE_PATTERN = /^application\/([\w-]+\+)?\bjson\b/i;
 export const TEXT_CONTENT_TYPE_PATTERN = /^text\/.*$/i;
 export const FORMDATA_CONTENT_TYPE_PATTERN = /^multipart\/\bform-data\b/i;

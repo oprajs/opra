@@ -6,7 +6,7 @@ import { ClientError } from './client-error.js';
 import { HttpCollectionNode } from './collection-node.js';
 import {
   FORMDATA_CONTENT_TYPE_PATTERN,
-  JSON_CONTENT_TYPE_PATTERN,
+  JSON_CONTENT_TYPE_PATTERN, OPRA_JSON_CONTENT_TYPE_PATTERN,
   TEXT_CONTENT_TYPE_PATTERN
 } from './constants.js';
 import { HttpRequest } from './http-request.js';
@@ -88,17 +88,18 @@ export class OpraHttpClient {
     }
     this[kAssets].metadataPromise = promise = lastValueFrom(
         this._sendRequest<any>(
-            'Singleton', 'get',
             HttpObserveType.Body,
             new HttpRequest({
               method: 'GET',
-              url: '$metadata',
+              url: '',
               headers: new Headers({'accept': 'application/json'})
             })
         )
     );
     return await promise
         .then(async (body) => {
+          if (!body)
+            throw new Error(`No response returned.`);
           const api = await DocumentFactory.createDocument(body);
           this[kAssets].api = api;
           return api;
@@ -125,7 +126,7 @@ export class OpraHttpClient {
       endpoint: '',
       source: sourceName,
       send: (observe, request) =>
-          this._sendRequest('Collection', ctx.endpoint, observe, request, ctx),
+          this._sendRequest(observe, request, 'Collection', ctx.endpoint, ctx),
       // requestInterceptors: [
       //   // Validate source exists and is a collection source
       //   async () => {
@@ -148,7 +149,7 @@ export class OpraHttpClient {
       endpoint: '',
       source: sourceName,
       send: (observe, request) =>
-          this._sendRequest('Singleton', ctx.endpoint, observe, request, ctx),
+          this._sendRequest(observe, request, 'Singleton', ctx.endpoint, ctx),
       // requestInterceptors: [
       //   // Validate resource exists and is a singleton resource
       //   async () => {
@@ -162,10 +163,10 @@ export class OpraHttpClient {
   }
 
   protected _sendRequest<TBody>(
-      sourceKind: OpraSchema.Source.Kind,
-      endpoint: string,
       observe: HttpObserveType,
       request: HttpRequest,
+      sourceKind?: OpraSchema.Source.Kind,
+      endpoint?: string,
       ctx?: HttpClientContext
   ): Observable<HttpResponse<TBody> | TBody | HttpEvent> {
     return new Observable(subscriber => {
@@ -219,7 +220,7 @@ export class OpraHttpClient {
             event: HttpEventType.Sent,
           } satisfies HttpSentEvent);
         const response = await this._fetch(url.toString(), request);
-        await this._handleResponse(sourceKind, endpoint, observe, subscriber, request, response, ctx);
+        await this._handleResponse(observe, subscriber, request, response, sourceKind, endpoint, ctx);
       })().catch(error => subscriber.error(error))
     });
   }
@@ -233,12 +234,12 @@ export class OpraHttpClient {
   }
 
   protected async _handleResponse(
-      sourceKind: OpraSchema.Source.Kind,
-      endpoint: string,
       observe: HttpObserveType,
       subscriber: Subscriber<any>,
       request: HttpRequest,
       fetchResponse: Response,
+      sourceKind?: OpraSchema.Source.Kind,
+      endpoint?: string,
       ctx?: HttpClientContext
   ): Promise<void> {
     const headers = fetchResponse.headers;
@@ -262,13 +263,16 @@ export class OpraHttpClient {
     let body: any;
     let totalCount: number | undefined;
     let affected: number | undefined;
+    const contentType = headers.get('Content-Type') || '';
     if (fetchResponse.body) {
-      if (JSON_CONTENT_TYPE_PATTERN.test(headers.get('Content-Type') || '')) {
+      if (JSON_CONTENT_TYPE_PATTERN.test(contentType)) {
         body = await fetchResponse.json();
         if (typeof body === 'string')
           body = JSON.parse(body);
-        totalCount = body.totalCount;
-        affected = body.affected;
+        if (OPRA_JSON_CONTENT_TYPE_PATTERN.test(contentType)) {
+          totalCount = body.totalCount;
+          affected = body.affected;
+        }
       } else if (TEXT_CONTENT_TYPE_PATTERN.test(headers.get('Content-Type') || ''))
         body = await fetchResponse.text();
       else if (FORMDATA_CONTENT_TYPE_PATTERN.test(headers.get('Content-Type') || ''))
@@ -315,10 +319,8 @@ export class OpraHttpClient {
     }
 
     if (observe === HttpObserveType.Body) {
-      if (
-          (sourceKind === 'Collection' || sourceKind === 'Singleton') &&
-          (endpoint === 'create' || endpoint === 'get' || endpoint === 'findMany' || endpoint === 'update')
-      ) subscriber.next(body.data);
+      if (OPRA_JSON_CONTENT_TYPE_PATTERN.test(contentType))
+        subscriber.next(body.data);
       else subscriber.next(body);
     } else {
       if (observe === HttpObserveType.Events)

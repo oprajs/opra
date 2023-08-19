@@ -12,7 +12,7 @@ import { generateCodec, GenerateDecoderOptions } from '../utils/generate-codec.j
 import { Source } from './source.js';
 
 const NESTJS_INJECTABLE_WATERMARK = '__injectable__'; // todo, put this in nextjs package wia augmentation
-const NAME_PATTERN = /^(.*)(Source|Resource|Singleton)$/;
+const NAME_PATTERN = /^(.*)(Source|Resource|Singleton|Controller)$/;
 
 export namespace Singleton {
   export interface InitArguments extends Source.InitArguments,

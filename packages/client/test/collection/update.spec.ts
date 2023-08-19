@@ -17,6 +17,7 @@ describe('Collection.update', function () {
     client = new OpraHttpClient(app.baseUrl, {api: app.api});
     app.mockHandler((req, res) => {
       res.header(HttpHeaderCodes.X_Opra_Version, OpraSchema.SpecVersion);
+      res.header(HttpHeaderCodes.Content_Type, 'application/opra+json');
       res.json({data: rows[0]});
     })
   });

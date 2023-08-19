@@ -8,7 +8,7 @@ import { METADATA_KEY } from '../constants.js';
 import { Source } from './source.js';
 
 const NESTJS_INJECTABLE_WATERMARK = '__injectable__';
-const NAME_PATTERN = /^(.*)(Source|Resource|Storage)$/;
+const NAME_PATTERN = /^(.*)(Source|Resource|Storage|Controller)$/;
 
 export namespace Storage {
   export interface InitArguments extends Source.InitArguments,

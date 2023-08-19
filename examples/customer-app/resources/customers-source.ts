@@ -7,7 +7,7 @@ import { CustomerService } from '../services/customer.service.js';
 @Collection(Customer, {
   description: 'Customer resource'
 })
-export class CustomersResource extends SqbCollection<Customer> {
+export class CustomersSource extends SqbCollection<Customer> {
 
   constructor(public customerService: CustomerService) {
     super();

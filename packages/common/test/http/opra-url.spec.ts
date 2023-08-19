@@ -113,9 +113,9 @@ describe('OpraURL', () => {
     let u = new OpraURL('http://anyuri.com/Person#h1#h2');
     expect(u.hash).toStrictEqual('#h1#h2');
     expect(u.href).toStrictEqual('http://anyuri.com/Person#h1#h2');
-    u = new OpraURL('http://localhost:3001/svc1/$metadata#types[name=\'Address\']');
+    u = new OpraURL('http://localhost:3001/svc1/#types[name=\'Address\']');
     expect(u.hash).toStrictEqual('#types[name=\'Address\']');
-    expect(u.href).toStrictEqual('http://localhost:3001/svc1/$metadata#types[name=\'Address\']');
+    expect(u.href).toStrictEqual('http://localhost:3001/svc1#types[name=\'Address\']');
   })
 
   it('Should initialize with base uri', () => {

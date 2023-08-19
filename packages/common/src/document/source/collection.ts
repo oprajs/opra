@@ -17,7 +17,7 @@ import { Source } from './source.js';
 
 // todo, put this in nextjs package wia augmentation
 const NESTJS_INJECTABLE_WATERMARK = '__injectable__';
-const NAME_PATTERN = /^(.*)(Source|Resource|Collection)$/;
+const NAME_PATTERN = /^(.*)(Source|Resource|Collection|Controller)$/;
 
 export namespace Collection {
   export interface InitArguments extends Source.InitArguments,

@@ -62,7 +62,7 @@ export async function generateTypeFile(
   file.content += `\n/**\n * ${wrapJSDocString(dataType.description || typeName)}
  * @interface ${typeName}
  * @kind ${dataType.kind}
- * @url ${path.posix.join(this.client.serviceUrl, '$metadata#types/' + typeName)}
+ * @url ${path.posix.join(this.client.serviceUrl, '#types/' + typeName)}
  */\n`;
 
   if (dataType instanceof SimpleType) {
