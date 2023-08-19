@@ -17,7 +17,7 @@ describe('MongoAdapter.transformRequest (Collection)', function () {
     it('Should prepare', async () => {
       const request = {
         resource: api.getCollection('customers'),
-        operation: 'create',
+        endpoint: 'create',
         data
       } as unknown as Request;
       const options = {
@@ -37,7 +37,7 @@ describe('MongoAdapter.transformRequest (Collection)', function () {
     it('Should prepare with "pick" option', async () => {
       const request = {
         resource: api.getCollection('customers'),
-        operation: 'create',
+        endpoint: 'create',
         data,
         params: {pick: ['givenName']}
       } as unknown as Request;
@@ -54,7 +54,7 @@ describe('MongoAdapter.transformRequest (Collection)', function () {
     it('Should prepare with "omit" option', async () => {
       const request = {
         resource: api.getCollection('customers'),
-        operation: 'create',
+        endpoint: 'create',
         data,
         params: {omit: ['givenName']}
       } as unknown as Request;
@@ -71,7 +71,7 @@ describe('MongoAdapter.transformRequest (Collection)', function () {
     it('Should prepare with "include" option', async () => {
       const request = {
         resource: api.getCollection('customers'),
-        operation: 'create',
+        endpoint: 'create',
         data,
         params: {include: ['address']}
       } as unknown as Request;
@@ -91,7 +91,7 @@ describe('MongoAdapter.transformRequest (Collection)', function () {
     it('Should prepare', async () => {
       const request = {
         resource: api.getCollection('customers'),
-        operation: 'delete',
+        endpoint: 'delete',
         key: 1
       } as unknown as Request;
       const o = MongoAdapter.transformRequest(request);
@@ -108,7 +108,7 @@ describe('MongoAdapter.transformRequest (Collection)', function () {
     it('Should prepare', async () => {
       const request = {
         resource: api.getCollection('customers'),
-        operation: 'deleteMany',
+        endpoint: 'deleteMany',
         crud: 'delete',
       } as unknown as Request;
       const o = MongoAdapter.transformRequest(request);
@@ -122,7 +122,7 @@ describe('MongoAdapter.transformRequest (Collection)', function () {
       const resource = api.getCollection('customers');
       const request = {
         resource,
-        operation: 'deleteMany',
+        endpoint: 'deleteMany',
         params: {filter: resource.normalizeFilter('givenName="John"')}
       } as unknown as Request;
       const o = MongoAdapter.transformRequest(request);
@@ -139,7 +139,7 @@ describe('MongoAdapter.transformRequest (Collection)', function () {
     it('Should prepare', async () => {
       const request = {
         resource: api.getCollection('customers'),
-        operation: 'get',
+        endpoint: 'get',
         key: 1
       } as unknown as Request;
       const o = MongoAdapter.transformRequest(request);
@@ -160,7 +160,7 @@ describe('MongoAdapter.transformRequest (Collection)', function () {
     it('Should prepare with "pick" option', async () => {
       const request = {
         resource: api.getCollection('customers'),
-        operation: 'get',
+        endpoint: 'get',
         key: 1,
         params: {pick: ['givenName']}
       } as unknown as Request;
@@ -177,7 +177,7 @@ describe('MongoAdapter.transformRequest (Collection)', function () {
     it('Should prepare with "omit" option', async () => {
       const request = {
         resource: api.getCollection('customers'),
-        operation: 'get',
+        endpoint: 'get',
         key: 1,
         params: {omit: ['givenName']}
       } as unknown as Request;
@@ -194,7 +194,7 @@ describe('MongoAdapter.transformRequest (Collection)', function () {
     it('Should prepare with "include" option', async () => {
       const request = {
         resource: api.getCollection('customers'),
-        operation: 'get',
+        endpoint: 'get',
         key: 1,
         params: {include: ['address']}
       } as unknown as Request;
@@ -215,7 +215,7 @@ describe('MongoAdapter.transformRequest (Collection)', function () {
     it('Should prepare', async () => {
       const request = {
         resource: api.getCollection('customers'),
-        operation: 'findMany',
+        endpoint: 'findMany',
       } as unknown as Request;
       const o = MongoAdapter.transformRequest(request);
       const options = {
@@ -235,7 +235,7 @@ describe('MongoAdapter.transformRequest (Collection)', function () {
       const resource = api.getCollection('customers');
       const request = {
         resource: api.getCollection('customers'),
-        operation: 'findMany',
+        endpoint: 'findMany',
         params: {filter: resource.normalizeFilter('givenName="John"')}
       } as unknown as Request;
       const o = MongoAdapter.transformRequest(request);
@@ -256,7 +256,7 @@ describe('MongoAdapter.transformRequest (Collection)', function () {
     it('Should prepare with "pick" option', async () => {
       const request = {
         resource: api.getCollection('customers'),
-        operation: 'findMany',
+        endpoint: 'findMany',
         params: {pick: ['givenName']}
       } as unknown as Request;
       const options = {
@@ -272,7 +272,7 @@ describe('MongoAdapter.transformRequest (Collection)', function () {
     it('Should prepare with "omit" option', async () => {
       const request = {
         resource: api.getCollection('customers'),
-        operation: 'findMany',
+        endpoint: 'findMany',
         params: {omit: ['givenName']}
       } as unknown as Request;
       const options = {
@@ -288,7 +288,7 @@ describe('MongoAdapter.transformRequest (Collection)', function () {
     it('Should prepare with "include" option', async () => {
       const request = {
         resource: api.getCollection('customers'),
-        operation: 'findMany',
+        endpoint: 'findMany',
         params: {include: ['address']}
       } as unknown as Request;
       const options = {
@@ -310,7 +310,7 @@ describe('MongoAdapter.transformRequest (Collection)', function () {
     it('Should prepare', async () => {
       const request = {
         resource: api.getCollection('customers'),
-        operation: 'update',
+        endpoint: 'update',
         key: 1,
         data
       } as unknown as Request;
@@ -333,7 +333,7 @@ describe('MongoAdapter.transformRequest (Collection)', function () {
     it('Should prepare with "pick" option', async () => {
       const request = {
         resource: api.getCollection('customers'),
-        operation: 'update',
+        endpoint: 'update',
         key: 1,
         data,
         params: {pick: ['givenName']}
@@ -353,7 +353,7 @@ describe('MongoAdapter.transformRequest (Collection)', function () {
     it('Should prepare with "omit" option', async () => {
       const request = {
         resource: api.getCollection('customers'),
-        operation: 'update',
+        endpoint: 'update',
         key: 1, data,
         params: {omit: ['givenName']}
       } as unknown as Request;
@@ -372,7 +372,7 @@ describe('MongoAdapter.transformRequest (Collection)', function () {
     it('Should prepare with "include" option', async () => {
       const request = {
         resource: api.getCollection('customers'),
-        operation: 'update',
+        endpoint: 'update',
         key: 1,
         data,
         params: {include: ['address']}
@@ -397,7 +397,7 @@ describe('MongoAdapter.transformRequest (Collection)', function () {
     it('Should prepare', async () => {
       const request = {
         resource: api.getCollection('customers'),
-        operation: 'updateMany',
+        endpoint: 'updateMany',
         data
       } as unknown as Request;
       const options = {};
@@ -413,7 +413,7 @@ describe('MongoAdapter.transformRequest (Collection)', function () {
       const resource = api.getCollection('customers');
       const request = {
         resource: api.getCollection('customers'),
-        operation: 'updateMany',
+        endpoint: 'updateMany',
         data,
         params: {filter: resource.normalizeFilter('givenName="John"')}
       } as unknown as Request;

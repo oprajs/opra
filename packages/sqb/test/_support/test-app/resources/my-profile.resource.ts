@@ -1,5 +1,5 @@
 import { Singleton } from '@opra/common';
-import { OperationContext } from '@opra/core';
+import { EndpointContext } from '@opra/core';
 import { SqbEntityService, SqbSingletonResource } from '@opra/sqb';
 import { SqbClient } from '@sqb/connect';
 import { Profile } from '../entities/profile.entity.js';
@@ -13,7 +13,7 @@ export class MyProfileResource extends SqbSingletonResource<Profile> {
     this.service = new SqbEntityService(Profile, {db});
   }
 
-  getService(ctx: OperationContext) {
+  getService(ctx: EndpointContext) {
     return this.service.with(ctx);
   }
 

@@ -21,7 +21,7 @@ export abstract class Resource {
   readonly name: string;
   readonly description?: string;
   readonly controller?: object | Type;
-  abstract readonly operations: Record<string, any>;
+  abstract readonly endpoints: Record<string, any>;
 
   protected constructor(
       document: ApiDocument,

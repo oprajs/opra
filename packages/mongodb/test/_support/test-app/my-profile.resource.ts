@@ -1,7 +1,7 @@
 import { Db } from 'mongodb';
 import { Singleton } from '@opra/common';
 import { Profile } from '@opra/common/test/_support/test-api';
-import { OperationContext } from '@opra/core';
+import { EndpointContext } from '@opra/core';
 import { MongoSingletonResource } from '@opra/mongodb';
 import { MyProfileService } from './my-profile.service.js';
 
@@ -14,7 +14,7 @@ export class MyProfileResource extends MongoSingletonResource<Profile> {
     this.service = new MyProfileService({db});
   }
 
-  getService(ctx: OperationContext) {
+  getService(ctx: EndpointContext) {
     return this.service.with(ctx);
   }
 

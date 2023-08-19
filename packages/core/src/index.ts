@@ -7,7 +7,7 @@ import './augmentation/storage.augmentation.js';
 export * from './types.js';
 
 export * from './adapter/execution-context.js';
-export * from './adapter/operation-context.js';
+export * from './adapter/endpoint-context.js';
 export * from './adapter/platform-adapter.js';
 export * from './adapter/request.js';
 export * from './adapter/response.js';

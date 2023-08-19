@@ -1,7 +1,7 @@
 import { FallbackLng, I18n, LanguageResource } from '@opra/common';
 import { ILogger } from './interfaces/logger.interface.js';
 import { RequestHandler } from './interfaces/request-handler.interface.js';
-import { OperationContext } from './operation-context.js';
+import { EndpointContext } from './endpoint-context.js';
 
 export type Protocol = 'http' | 'ws' | 'rpc';
 
@@ -26,7 +26,7 @@ export namespace PlatformAdapter {
     i18n?: I18n | I18nOptions | (() => Promise<I18n>);
     logger?: ILogger;
     on?: {
-      request?: (ctx: OperationContext) => void | Promise<void>;
+      request?: (ctx: EndpointContext) => void | Promise<void>;
     }
   }
 

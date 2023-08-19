@@ -61,13 +61,13 @@ export namespace Collection {
   export namespace UpdateMany {
   }
 
-  export type CreateOperationOptions = OpraSchema.Collection.CreateOperation;
-  export type DeleteOperationOptions = OpraSchema.Collection.DeleteOperation;
-  export type DeleteManyOperationOptions = OpraSchema.Collection.DeleteManyOperation;
-  export type FindManyOperationOptions = OpraSchema.Collection.FindManyOperation;
-  export type GetOperationOptions = OpraSchema.Collection.GetOperation;
-  export type UpdateOperationOptions = OpraSchema.Collection.UpdateOperation;
-  export type UpdateManyOperationOptions = OpraSchema.Collection.UpdateManyOperation;
+  export type CreateEndpointOptions = OpraSchema.Collection.CreateEndpoint;
+  export type DeleteEndpointOptions = OpraSchema.Collection.DeleteEndpoint;
+  export type DeleteManyEndpointOptions = OpraSchema.Collection.DeleteManyEndpoint;
+  export type FindManyEndpointOptions = OpraSchema.Collection.FindManyEndpoint;
+  export type GetEndpointOptions = OpraSchema.Collection.GetEndpoint;
+  export type UpdateEndpointOptions = OpraSchema.Collection.UpdateEndpoint;
+  export type UpdateManyEndpointOptions = OpraSchema.Collection.UpdateManyEndpoint;
 }
 
 class CollectionClass extends Resource {
@@ -75,7 +75,7 @@ class CollectionClass extends Resource {
   private _encoders: Record<string, vg.Validator<any>> = {};
   readonly type: ComplexType;
   readonly kind = OpraSchema.Collection.Kind;
-  readonly operations: OpraSchema.Collection.Operations;
+  readonly endpoints: OpraSchema.Collection.Endpoints;
   readonly controller?: object;
   readonly primaryKey: string[];
 
@@ -85,7 +85,7 @@ class CollectionClass extends Resource {
   ) {
     super(document, init);
     this.controller = init.controller;
-    this.operations = {...init.operations};
+    this.endpoints = {...init.endpoints};
     const dataType = this.type = init.type;
     // Validate key fields
     this.primaryKey = init.primaryKey
@@ -104,7 +104,7 @@ class CollectionClass extends Resource {
     const out = Resource.prototype.exportSchema.call(this) as OpraSchema.Collection;
     Object.assign(out, omitUndefined({
       type: this.type.name,
-      operations: this.operations,
+      endpoints: this.endpoints,
       primaryKey: this.primaryKey
     }));
     return out;
@@ -152,7 +152,7 @@ class CollectionClass extends Resource {
     const normalized = this.type.normalizeFieldPath(fields);
     if (!normalized)
       return;
-    const findManyOp = this.operations.findMany;
+    const findManyOp = this.endpoints.findMany;
     const sortFields = findManyOp && findManyOp.sortFields;
     (Array.isArray(normalized) ? normalized : [normalized]).forEach(field => {
       if (!sortFields?.find(x => x === field))
@@ -172,7 +172,7 @@ class CollectionClass extends Resource {
       if (!(ast.left instanceof OpraFilter.QualifiedIdentifier && ast.left.field))
         throw new TypeError(`Invalid filter query. Left side should be a data field.`);
       // Check if filtering accepted for given field
-      const findManyOp = this.operations.findMany;
+      const findManyOp = this.endpoints.findMany;
       const fieldLower = ast.left.value.toLowerCase();
       const filterDef = (findManyOp && findManyOp.filters || [])
           .find(f => f.field.toLowerCase() === fieldLower);
@@ -181,7 +181,7 @@ class CollectionClass extends Resource {
           message: translate('error:UNACCEPTED_FILTER_FIELD', {field: ast.left.value}),
         })
       }
-      // Check if filtering operation accepted for given field
+      // Check if filtering endpoint accepted for given field
       if (!filterDef.operators?.includes(ast.op))
         throw new BadRequestError({
           message: translate('error:UNACCEPTED_FILTER_OPERATION', {field: ast.left.value}),
@@ -218,31 +218,31 @@ class CollectionClass extends Resource {
     return ast;
   }
 
-  getDecoder(operation: keyof OpraSchema.Collection.Operations): vg.Validator<any, any> {
-    let decoder = this._decoders[operation];
+  getDecoder(endpoint: keyof OpraSchema.Collection.Endpoints): vg.Validator<any, any> {
+    let decoder = this._decoders[endpoint];
     if (decoder)
       return decoder;
     const options: GenerateDecoderOptions = {
-      partial: operation !== 'create'
+      partial: endpoint !== 'create'
     };
-    if (operation !== 'create')
+    if (endpoint !== 'create')
       options.omit = [...this.primaryKey];
     decoder = generateCodec(this.type, 'decode', options);
-    this._decoders[operation] = decoder;
+    this._decoders[endpoint] = decoder;
     return decoder;
   }
 
-  getEncoder(operation: keyof OpraSchema.Collection.Operations): vg.Validator<any, any> {
-    let encoder = this._encoders[operation];
+  getEncoder(endpoint: keyof OpraSchema.Collection.Endpoints): vg.Validator<any, any> {
+    let encoder = this._encoders[endpoint];
     if (encoder)
       return encoder;
     const options: GenerateDecoderOptions = {
       partial: true
     };
     encoder = generateCodec(this.type, 'encode', options);
-    if (operation === 'findMany')
+    if (endpoint === 'findMany')
       return vg.isArray(encoder);
-    this._encoders[operation] = encoder;
+    this._encoders[endpoint] = encoder;
     return encoder;
   }
 
@@ -255,13 +255,13 @@ export interface CollectionConstructor {
 
   <T>(type: Type<T> | string, options?: Collection.DecoratorOptions<T>): ClassDecorator;
 
-  Create: (options?: Collection.CreateOperationOptions) => ((target: Object, propertyKey: 'create') => void);
-  Delete: (options?: Collection.DeleteOperationOptions) => ((target: Object, propertyKey: 'delete') => void);
-  DeleteMany: (options?: Collection.DeleteManyOperationOptions) => ((target: Object, propertyKey: 'deleteMany') => void);
-  Get: (options?: Collection.GetOperationOptions) => ((target: Object, propertyKey: 'get') => void);
-  FindMany: (options?: Collection.FindManyOperationOptions) => ((target: Object, propertyKey: 'findMany') => void);
-  Update: (options?: Collection.UpdateOperationOptions) => ((target: Object, propertyKey: 'update') => void);
-  UpdateMany: (options?: Collection.UpdateManyOperationOptions) => ((target: Object, propertyKey: 'updateMany') => void);
+  Create: (options?: Collection.CreateEndpointOptions) => ((target: Object, propertyKey: 'create') => void);
+  Delete: (options?: Collection.DeleteEndpointOptions) => ((target: Object, propertyKey: 'delete') => void);
+  DeleteMany: (options?: Collection.DeleteManyEndpointOptions) => ((target: Object, propertyKey: 'deleteMany') => void);
+  Get: (options?: Collection.GetEndpointOptions) => ((target: Object, propertyKey: 'get') => void);
+  FindMany: (options?: Collection.FindManyEndpointOptions) => ((target: Object, propertyKey: 'findMany') => void);
+  Update: (options?: Collection.UpdateEndpointOptions) => ((target: Object, propertyKey: 'update') => void);
+  UpdateMany: (options?: Collection.UpdateManyEndpointOptions) => ((target: Object, propertyKey: 'updateMany') => void);
 }
 
 export interface Collection extends CollectionClass {
@@ -308,24 +308,24 @@ export const Collection = function (this: Collection | void, ...args: any[]) {
 
 Collection.prototype = CollectionClass.prototype;
 
-function createOperationDecorator<T>(operation: string) {
+function createEndpointDecorator<T>(endpoint: string) {
   return (options?: T) =>
       ((target: Object, propertyKey: string | symbol): void => {
-        if (propertyKey !== operation)
-          throw new TypeError(`Name of the handler name should be '${operation}'`);
-        const operationMeta = {...options};
+        if (propertyKey !== endpoint)
+          throw new TypeError(`Name of the handler name should be '${endpoint}'`);
+        const endpointMeta = {...options};
         const resourceMetadata =
             (Reflect.getOwnMetadata(METADATA_KEY, target.constructor) || {}) as Collection.Metadata;
-        resourceMetadata.operations = resourceMetadata.operations || {};
-        resourceMetadata.operations[operation] = operationMeta;
+        resourceMetadata.endpoints = resourceMetadata.endpoints || {};
+        resourceMetadata.endpoints[endpoint] = endpointMeta;
         Reflect.defineMetadata(METADATA_KEY, resourceMetadata, target.constructor);
       });
 }
 
-Collection.Create = createOperationDecorator('create');
-Collection.Delete = createOperationDecorator('delete');
-Collection.DeleteMany = createOperationDecorator('deleteMany');
-Collection.Get = createOperationDecorator('get');
-Collection.FindMany = createOperationDecorator('findMany');
-Collection.Update = createOperationDecorator('update');
-Collection.UpdateMany = createOperationDecorator('updateMany');
+Collection.Create = createEndpointDecorator('create');
+Collection.Delete = createEndpointDecorator('delete');
+Collection.DeleteMany = createEndpointDecorator('deleteMany');
+Collection.Get = createEndpointDecorator('get');
+Collection.FindMany = createEndpointDecorator('findMany');
+Collection.Update = createEndpointDecorator('update');
+Collection.UpdateMany = createEndpointDecorator('updateMany');

@@ -19,7 +19,7 @@ describe('e2e:Collection', function () {
     await adapter.close();
   })
 
-  it('Should execute "create" operation', async () => {
+  it('Should execute "create" endpoint', async () => {
     const resp = await supertest(adapter.server)
         .post('/Customers')
         .send({
@@ -32,7 +32,7 @@ describe('e2e:Collection', function () {
     expect(resp.body.errors).not.toBeDefined();
     expect(resp.body).toMatchObject({
       resource: 'Customers',
-      operation: 'create',
+      endpoint: 'create',
       affected: 1,
     });
     expect(resp.body.data).toMatchObject({
@@ -43,14 +43,14 @@ describe('e2e:Collection', function () {
     });
   });
 
-  it('Should execute "get" operation', async () => {
+  it('Should execute "get" endpoint', async () => {
     const resp = await supertest(adapter.server).get('/Customers@1');
     expect(resp.type).toStrictEqual('application/json');
     expect(resp.body).toBeDefined();
     expect(resp.body.errors).not.toBeDefined();
     expect(resp.body).toMatchObject({
       resource: 'Customers',
-      operation: 'get'
+      endpoint: 'get'
     });
     expect(resp.body.data).toMatchObject({
       _id: 1,
@@ -59,14 +59,14 @@ describe('e2e:Collection', function () {
     });
   });
 
-  it('Should execute "findMany" operation', async () => {
+  it('Should execute "findMany" endpoint', async () => {
     const resp = await supertest(adapter.server).get('/Customers');
     expect(resp.type).toStrictEqual('application/json');
     expect(resp.body).toBeDefined();
     expect(resp.body.errors).not.toBeDefined();
     expect(resp.body).toMatchObject({
       resource: 'Customers',
-      operation: 'findMany'
+      endpoint: 'findMany'
     });
     expect(Array.isArray(resp.body.data)).toBeTruthy();
     expect(resp.body.data.length).toBeGreaterThan(0);
@@ -79,7 +79,7 @@ describe('e2e:Collection', function () {
 
 
 
-  it('Should execute "update" operation', async () => {
+  it('Should execute "update" endpoint', async () => {
     const resp = await supertest(adapter.server)
         .patch('/Customers@1')
         .send({
@@ -91,7 +91,7 @@ describe('e2e:Collection', function () {
     expect(resp.body.errors).not.toBeDefined();
     expect(resp.body).toMatchObject({
       affected: 1,
-      operation: 'update'
+      endpoint: 'update'
     });
     expect(resp.body.data).toMatchObject({
       _id: /\d+/,
@@ -102,7 +102,7 @@ describe('e2e:Collection', function () {
     });
   });
 
-  it('Should execute "updateMany" operation', async () => {
+  it('Should execute "updateMany" endpoint', async () => {
     const resp = await supertest(adapter.server)
         .patch('/Customers')
         .send({
@@ -113,11 +113,11 @@ describe('e2e:Collection', function () {
     expect(resp.body.errors).not.toBeDefined();
     expect(resp.body).toMatchObject({
       affected: /\d+/,
-      operation: 'updateMany'
+      operation: 'update'
     });
   });
 
-  it('Should execute "delete" operation', async () => {
+  it('Should execute "delete" endpoint', async () => {
     const resp = await supertest(adapter.server).delete('/Customers@99');
     expect(resp.type).toStrictEqual('application/json');
     expect(resp.body).toBeDefined();
@@ -128,14 +128,14 @@ describe('e2e:Collection', function () {
     });
   });
 
-  it('Should execute "deleteMany" operation', async () => {
+  it('Should execute "deleteMany" endpoint', async () => {
     const resp = await supertest(adapter.server).delete('/Customers');
     expect(resp.type).toStrictEqual('application/json');
     expect(resp.body).toBeDefined();
     expect(resp.body.errors).not.toBeDefined();
     expect(resp.body).toMatchObject({
       affected: /\d+/,
-      operation: 'deleteMany'
+      operation: 'delete'
     });
   });
 

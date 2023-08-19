@@ -7,6 +7,7 @@ export namespace HttpResponse {
     body?: any;
     hasBody?: boolean;
     totalCount?: number;
+    affected?: number;
   }
 }
 
@@ -37,6 +38,8 @@ export class HttpResponse<TBody = any> {
   readonly body: TBody | null;
 
   readonly totalCount?: number;
+
+  readonly affected?: number;
 
   /**
    * Returns true if response has body to be received

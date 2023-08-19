@@ -5,22 +5,22 @@ import type { ResourceBase } from './resource.interface.js';
 export interface Singleton extends ResourceBase {
   kind: Singleton.Kind,
   type: DataType.Name;
-  operations: Singleton.Operations;
+  endpoints: Singleton.Endpoints;
 }
 
 export namespace Singleton {
   export const Kind = 'Singleton';
   export type Kind = 'Singleton';
 
-  export type CreateOperation = Collection.CreateOperation;
-  export type DeleteOperation = Collection.DeleteOperation;
-  export type GetOperation = Collection.GetOperation;
-  export type UpdateOperation = Collection.UpdateOperation;
+  export type CreateEndpoint = Collection.CreateEndpoint;
+  export type DeleteEndpoint = Collection.DeleteEndpoint;
+  export type GetEndpoint = Collection.GetEndpoint;
+  export type UpdateEndpoint = Collection.UpdateEndpoint;
 
-  export interface Operations {
-    create?: CreateOperation;
-    delete?: DeleteOperation;
-    get?: GetOperation;
-    update?: UpdateOperation;
+  export interface Endpoints {
+    create?: CreateEndpoint;
+    delete?: DeleteEndpoint;
+    get?: GetEndpoint;
+    update?: UpdateEndpoint;
   }
 }

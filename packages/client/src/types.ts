@@ -74,7 +74,7 @@ export interface HttpClientContext {
   client: OpraHttpClient;
   resourceKind: OpraSchema.Resource.Kind;
   resourceName: string;
-  operation: string;
+  endpoint: string;
   send: HttpRequestHandler;
   requestInterceptors?: RequestInterceptor[];
   responseInterceptors?: ResponseInterceptor[];

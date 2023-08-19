@@ -19,7 +19,7 @@ describe('DocumentFactory - Storage resource with schema object', function () {
     const resource1: OpraSchema.Storage = {
       kind: 'Storage',
       description: 'test type',
-      operations: {}
+      endpoints: {}
     };
     const doc = await DocumentFactory.createDocument({
       ...baseArgs,
@@ -33,7 +33,7 @@ describe('DocumentFactory - Storage resource with schema object', function () {
     expect(t.kind).toStrictEqual(OpraSchema.Storage.Kind);
     expect(t.name).toStrictEqual('resource1');
     expect(t.description).toEqual(resource1.description);
-    expect(t.operations).toEqual(resource1.operations);
+    expect(t.endpoints).toEqual(resource1.endpoints);
   })
 
 });

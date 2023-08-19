@@ -67,12 +67,12 @@ export class OpraApiFactory {
       /* Wrap resolver functions */
       const isRequestScoped = !wrapper.isDependencyTreeStatic();
       // const methodsToWrap = OpraSchema.isCollectionResource(resourceDef) ? collectionMethods : [];
-      if ((OpraSchema.isCollection(resourceDef) || OpraSchema.isSingleton(resourceDef)) && resourceDef.operations) {
-        for (const methodName of Object.keys(resourceDef.operations)) {
-          const operationFunction = instance[methodName];
+      if ((OpraSchema.isCollection(resourceDef) || OpraSchema.isSingleton(resourceDef)) && resourceDef.endpoints) {
+        for (const methodName of Object.keys(resourceDef.endpoints)) {
+          const endpointFunction = instance[methodName];
           const nestHandlerName = methodName + '_nestjs';
-          // Skip patch if controller do not have function for operation or already patched before
-          if (typeof operationFunction !== 'function')
+          // Skip patch if controller do not have function for endpoint or already patched before
+          if (typeof endpointFunction !== 'function')
             continue;
 
           // NestJs requires calling handler function in different order than Opra.
@@ -84,15 +84,15 @@ export class OpraApiFactory {
           const hasParamsArgs = !!paramArgsMetadata;
           const patchedFn = instance[nestHandlerName] = function (...args: any[]) {
             if (hasParamsArgs)
-              return operationFunction.apply(this, args);
-            return operationFunction.call(this, args[3]);
+              return endpointFunction.apply(this, args);
+            return endpointFunction.call(this, args[3]);
           }
           if (paramArgsMetadata)
             Reflect.defineMetadata(PARAM_ARGS_METADATA, paramArgsMetadata, instance.constructor, nestHandlerName);
 
           // Copy all metadata from old Function to new one
-          Reflect.getMetadataKeys(operationFunction).forEach(k => {
-            const m = Reflect.getMetadata(k, operationFunction);
+          Reflect.getMetadataKeys(endpointFunction).forEach(k => {
+            const m = Reflect.getMetadata(k, endpointFunction);
             Reflect.defineMetadata(k, m, patchedFn);
           });
 
@@ -107,7 +107,7 @@ export class OpraApiFactory {
   }
 
   private _createHandler(instance: object, callback: Function) {
-    return function (ctx: opraCore.OperationContext) {
+    return function (ctx: opraCore.EndpointContext) {
       switch (ctx.protocol) {
         case 'http':
           const httpContext = ctx.switchToHttp();
@@ -132,7 +132,7 @@ export class OpraApiFactory {
 
     const callback = isRequestScoped
         ? async (...args: any[]) => {
-          const opraContext: opraCore.OperationContext =
+          const opraContext: opraCore.EndpointContext =
               paramsFactory.exchangeKeyForValue(HandlerParamType.CONTEXT, undefined, args);
           const contextId = this.getContextId(opraContext);
           this.registerContextProvider(opraContext, contextId);

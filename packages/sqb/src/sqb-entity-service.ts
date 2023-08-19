@@ -1,5 +1,5 @@
 import { Maybe, Type } from 'ts-gems';
-import { OperationContext, PartialInput, PartialOutput } from '@opra/core';
+import { EndpointContext, PartialInput, PartialOutput } from '@opra/core';
 import { EntityInput, EntityMetadata, Repository, SqbClient, SqbConnection } from '@sqb/connect';
 
 export namespace SqbEntityService {
@@ -10,7 +10,7 @@ export namespace SqbEntityService {
 }
 
 export class SqbEntityService<T, TOutput = PartialOutput<T>> {
-  context: OperationContext;
+  context: EndpointContext;
   defaultLimit: number;
   db?: SqbClient | SqbConnection;
 
@@ -51,7 +51,7 @@ export class SqbEntityService<T, TOutput = PartialOutput<T>> {
     if (out && this.transformData)
       out = this.transformData(out);
     if (!out)
-      throw new Error('"create" operation returned no result!');
+      throw new Error('"create" endpoint returned no result!');
     return out;
   }
 
@@ -191,7 +191,7 @@ export class SqbEntityService<T, TOutput = PartialOutput<T>> {
   }
 
   with(
-      context: OperationContext,
+      context: EndpointContext,
       db?: SqbClient | SqbConnection
   ): SqbEntityService<T, TOutput> {
     if (this.context === context && this.db === db)
