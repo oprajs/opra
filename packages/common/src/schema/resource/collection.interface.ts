@@ -1,8 +1,7 @@
 import type { OpraFilter } from '../../filter/index.js';
 import type { DataType } from '../data-type/data-type.interface.js';
 import type { Field } from '../data-type/field.interface';
-import type { Endpoint } from './endpoint.interface.js';
-import type { ResourceBase } from './resource.interface.js';
+import type { Endpoint, ResourceBase } from './resource.interface.js';
 
 export interface Collection extends ResourceBase {
   kind: Collection.Kind,

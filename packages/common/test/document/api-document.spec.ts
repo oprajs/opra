@@ -21,7 +21,7 @@ describe('ApiDocument', function () {
       version: 'v1',
       description: 'Document description',
     },
-    resources: [CustomersResource, CountriesResource, MyProfileResource]
+    sources: [CustomersResource, CountriesResource, MyProfileResource]
   };
 
   it('Should create ApiDocument instance', async () => {
@@ -216,8 +216,8 @@ describe('ApiDocument', function () {
           abstract: true
         })
     );
-    expect(sch.resources).toBeDefined();
-    expect(Object.keys(sch.resources!).sort())
+    expect(sch.sources).toBeDefined();
+    expect(Object.keys(sch.sources!).sort())
         .toEqual(['Countries', 'Customers', 'MyProfile'].sort());
   })
 

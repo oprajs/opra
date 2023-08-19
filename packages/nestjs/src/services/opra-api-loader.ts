@@ -41,7 +41,7 @@ export class OpraApiLoader {
 
     try {
       const serviceHost = await this.opraFactory.generateService(rootModule, options, 'http');
-      if (!serviceHost.resources.size) {
+      if (!serviceHost.sources.size) {
         this.logger.warn(`No resources found (${name})`);
         return;
       }

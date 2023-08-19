@@ -27,7 +27,7 @@ describe('DocumentFactory - Singleton resource with decorated classes', function
 
     const doc = await DocumentFactory.createDocument({
       ...baseArgs,
-      resources: [MyCountryResource]
+      sources: [MyCountryResource]
     })
     expect(doc).toBeDefined();
     const t = doc.getSingleton('MyCountry');
@@ -53,7 +53,7 @@ describe('DocumentFactory - Singleton resource with decorated classes', function
 
     const doc = await DocumentFactory.createDocument({
       ...baseArgs,
-      resources: [MyCountryResource]
+      sources: [MyCountryResource]
     })
     expect(doc).toBeDefined();
     const t = doc.getSingleton('MyCountry');
@@ -74,7 +74,7 @@ describe('DocumentFactory - Singleton resource with decorated classes', function
 
     const doc = await DocumentFactory.createDocument({
       ...baseArgs,
-      resources: [MyCountryResource]
+      sources: [MyCountryResource]
     })
     expect(doc).toBeDefined();
     const t = doc.getSingleton('MyCountry');
@@ -95,7 +95,7 @@ describe('DocumentFactory - Singleton resource with decorated classes', function
 
     const doc = await DocumentFactory.createDocument({
       ...baseArgs,
-      resources: [MyCountryResource]
+      sources: [MyCountryResource]
     })
     expect(doc).toBeDefined();
     const t = doc.getSingleton('MyCountry');
@@ -116,7 +116,7 @@ describe('DocumentFactory - Singleton resource with decorated classes', function
 
     const doc = await DocumentFactory.createDocument({
       ...baseArgs,
-      resources: [MyCountryResource]
+      sources: [MyCountryResource]
     })
     expect(doc).toBeDefined();
     const t = doc.getSingleton('MyCountry');

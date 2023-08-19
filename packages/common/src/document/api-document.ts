@@ -20,7 +20,7 @@ export class ApiDocument {
   info: OpraSchema.DocumentInfo;
   references = new ResponsiveMap<ApiDocument>();
   types = new ResponsiveMap<DataType>();
-  resources = new ResponsiveMap<Resource>();
+  sources = new ResponsiveMap<Resource>();
 
   constructor() {
     this.info = {
@@ -218,7 +218,7 @@ export class ApiDocument {
     } else {
       const name = m[1];
       // Get instance from own types
-      resource = this.resources.get(name);
+      resource = this.sources.get(name);
       if (resource)
         return resource;
       // if not found, search in references (from last to first)
@@ -305,10 +305,10 @@ export class ApiDocument {
       if (i)
         schema.references = references;
     }
-    if (this.resources.size) {
-      const resources = schema.resources = {};
-      for (const [name, r] of this.resources.entries()) {
-        resources[name] = r.exportSchema();
+    if (this.sources.size) {
+      const sources = schema.sources = {};
+      for (const [name, r] of this.sources.entries()) {
+        sources[name] = r.exportSchema();
       }
     }
     if (this.types.size) {

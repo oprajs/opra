@@ -23,12 +23,12 @@ describe('DocumentFactory - Storage resource with schema object', function () {
     };
     const doc = await DocumentFactory.createDocument({
       ...baseArgs,
-      resources: {
+      sources: {
         resource1
       }
     })
     expect(doc).toBeDefined();
-    const t = doc.resources.get('resource1') as Storage;
+    const t = doc.sources.get('resource1') as Storage;
     expect(t).toBeDefined();
     expect(t.kind).toStrictEqual(OpraSchema.Storage.Kind);
     expect(t.name).toStrictEqual('resource1');

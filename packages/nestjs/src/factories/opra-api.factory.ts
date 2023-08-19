@@ -39,7 +39,7 @@ export class OpraApiFactory {
       version: OpraSchema.SpecVersion,
       info,
       types: [],
-      resources,
+      sources: resources,
     };
 
     /*

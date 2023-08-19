@@ -8,7 +8,7 @@ export interface ApiDocument {
   info: DocumentInfo;
   references?: Record<string, string | ApiDocument>;
   types?: Record<DataType.Name, DataType>;
-  resources?: Record<Resource.Name, Resource>;
+  sources?: Record<Resource.Name, Resource>;
   servers?: ServerInfo[];
 }
 

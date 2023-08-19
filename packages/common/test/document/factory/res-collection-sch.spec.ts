@@ -28,12 +28,12 @@ describe('DocumentFactory - Collection resource with schema object', function ()
     const doc = await DocumentFactory.createDocument({
       ...baseArgs,
       types: [Country],
-      resources: {
+      sources: {
         resource1
       }
     })
     expect(doc).toBeDefined();
-    const t = doc.resources.get('resource1') as Collection;
+    const t = doc.sources.get('resource1') as Collection;
     expect(t).toBeDefined();
     expect(t.kind).toStrictEqual(OpraSchema.Collection.Kind);
     expect(t.name).toStrictEqual('resource1');

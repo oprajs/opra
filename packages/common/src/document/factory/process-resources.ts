@@ -7,26 +7,26 @@ import type { DocumentFactory } from './factory.js';
 export async function processResourceQueue(
     this: DocumentFactory
 ) {
-  const {document, resourceQueue} = this;
-  const resourceNames = Array.from(resourceQueue.keys());
+  const {document, sourceQueue} = this;
+  const resourceNames = Array.from(sourceQueue.keys());
   for (const name of resourceNames) {
-    const schema = resourceQueue.get(name);
+    const schema = sourceQueue.get(name);
     if (!schema)
       continue;
     try {
       if (OpraSchema.isCollection(schema)) {
         const resource = await this.createCollectionResource(name, schema);
-        document.resources.set(name, resource);
+        document.sources.set(name, resource);
         continue;
       }
       if (OpraSchema.isSingleton(schema)) {
         const resource = await this.createSingletonResource(name, schema);
-        document.resources.set(name, resource);
+        document.sources.set(name, resource);
         continue;
       }
       if (OpraSchema.isStorage(schema)) {
         const resource = await this.createFileResource(name, schema);
-        document.resources.set(name, resource);
+        document.sources.set(name, resource);
         continue;
       }
 

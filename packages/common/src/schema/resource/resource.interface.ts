@@ -14,3 +14,7 @@ export interface ResourceBase {
   kind: string;
   description?: string;
 }
+
+export interface Endpoint {
+  description?: string;
+}

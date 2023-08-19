@@ -12,7 +12,7 @@ export async function importResourceClass(
     this: DocumentFactory,
     thunk: ThunkAsync<Type | object>
 ): Promise<void> {
-  const {document, resourceQueue, cache} = this;
+  const {document, sourceQueue, cache} = this;
   const controller = await resolveThunk(thunk);
   const cached = cache.get(controller);
   if (cached)
@@ -49,7 +49,7 @@ export async function importResourceClass(
   if (OpraSchema.isCollection(schema))
     await this.extractCollectionSchema(schema, ctor, metadata, controller);
 
-  resourceQueue.set(metadata.name, schema);
+  sourceQueue.set(metadata.name, schema);
 }
 
 export async function extractSingletonSchema(

@@ -39,9 +39,9 @@ import {
  * @namespace DocumentFactory
  */
 export namespace DocumentFactory {
-  export interface InitArguments extends StrictOmit<OpraSchema.ApiDocument, 'references' | 'types' | 'resources'> {
+  export interface InitArguments extends StrictOmit<OpraSchema.ApiDocument, 'references' | 'types' | 'sources'> {
     references?: Record<string, string | OpraSchema.ApiDocument | ApiDocument>;
-    resources?: ThunkAsync<Type | object>[] | Record<OpraSchema.Resource.Name, OpraSchema.Resource>;
+    sources?: ThunkAsync<Type | object>[] | Record<OpraSchema.Resource.Name, OpraSchema.Resource>;
     types?: ThunkAsync<Type | OpraSchema.EnumThunk>[] | Record<string, OpraSchema.DataType>;
   }
 }
@@ -54,7 +54,7 @@ export class DocumentFactory {
 
   protected document: ApiDocument = new ApiDocument();
   protected typeQueue = new ResponsiveMap<OpraSchema.DataType>()
-  protected resourceQueue = new ResponsiveMap<OpraSchema.Resource>();
+  protected sourceQueue = new ResponsiveMap<OpraSchema.Resource>();
   protected circularRefs = new ResponsiveMap<any>();
   protected curPath: string[] = []
   protected cache = new Map<any, any>();

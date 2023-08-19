@@ -22,7 +22,7 @@ export async function processResources(
 
   serviceTs.content = `\nexport class ${this.serviceClassName} extends HttpServiceBase {\n`;
 
-  for (const resource of document.resources.values()) {
+  for (const resource of document.sources.values()) {
     const jsDoc = `
   /**
    * ${wrapJSDocString(resource.description || resource.name)}    

@@ -29,7 +29,7 @@ async function run() {
         version: 'v1',
       },
       types: [GenderEnum],
-      resources: [
+      sources: [
         new CountryResource(new CountryService(dbClient)),
         new CustomersResource(new CustomerService(dbClient))
         // CustomersResource, BestCustomerResource
