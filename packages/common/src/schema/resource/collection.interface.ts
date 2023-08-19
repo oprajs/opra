@@ -1,47 +1,47 @@
 import type { OpraFilter } from '../../filter/index.js';
 import type { DataType } from '../data-type/data-type.interface.js';
 import type { Field } from '../data-type/field.interface';
-import type { Operation } from './operation.interface';
+import type { Endpoint } from './endpoint.interface.js';
 import type { ResourceBase } from './resource.interface.js';
 
 export interface Collection extends ResourceBase {
   kind: Collection.Kind,
   type: DataType.Name;
   primaryKey: Field.Name | Field.Name[];
-  operations: Collection.Operations;
+  endpoints: Collection.Endpoints;
 }
 
 export namespace Collection {
   export const Kind = 'Collection';
   export type Kind = 'Collection';
 
-  export type CreateOperation = Operation & _OperationInput & _OperationResponse;
-  export type DeleteOperation = Operation;
-  export type DeleteManyOperation = Operation & _OperationFilter;
-  export type GetOperation = Operation & _OperationResponse;
-  export type FindManyOperation = Operation & _OperationFilter & _OperationResponse & {
+  export type CreateEndpoint = Endpoint & _EndpointInput & _EndpointResponse;
+  export type DeleteEndpoint = Endpoint;
+  export type DeleteManyEndpoint = Endpoint & _EndpointFilter;
+  export type GetEndpoint = Endpoint & _EndpointResponse;
+  export type FindManyEndpoint = Endpoint & _EndpointFilter & _EndpointResponse & {
     sortFields?: string[];
     defaultSort?: string[];
   };
-  export type UpdateOperation = Operation & _OperationInput & _OperationResponse;
-  export type UpdateManyOperation = Operation & _OperationInput & _OperationFilter;
+  export type UpdateEndpoint = Endpoint & _EndpointInput & _EndpointResponse;
+  export type UpdateManyEndpoint = Endpoint & _EndpointInput & _EndpointFilter;
 
-  export interface Operations {
-    create?: CreateOperation;
-    delete?: DeleteOperation;
-    get?: GetOperation;
-    update?: UpdateOperation;
-    deleteMany?: DeleteManyOperation;
-    findMany?: FindManyOperation;
-    updateMany?: UpdateManyOperation;
+  export interface Endpoints {
+    create?: CreateEndpoint;
+    delete?: DeleteEndpoint;
+    get?: GetEndpoint;
+    update?: UpdateEndpoint;
+    deleteMany?: DeleteManyEndpoint;
+    findMany?: FindManyEndpoint;
+    updateMany?: UpdateManyEndpoint;
   }
 }
 
-interface _OperationFilter {
+interface _EndpointFilter {
   filters?: { field: Field.QualifiedName, operators?: OpraFilter.ComparisonOperator[] }[]
 }
 
-interface _OperationInput {
+interface _EndpointInput {
   input?: {
     maxContentSize?: number | string;
     pick?: Field.QualifiedName[];
@@ -49,7 +49,7 @@ interface _OperationInput {
   }
 }
 
-interface _OperationResponse {
+interface _EndpointResponse {
   response?: {
     pick?: Field.QualifiedName[];
     omit?: Field.QualifiedName[];

@@ -45,10 +45,10 @@ export namespace Singleton {
   export namespace Update {
   }
 
-  export type CreateOperationOptions = OpraSchema.Singleton.CreateOperation;
-  export type DeleteOperationOptions = OpraSchema.Singleton.DeleteOperation;
-  export type GetOperationOptions = OpraSchema.Singleton.GetOperation;
-  export type UpdateOperationOptions = OpraSchema.Singleton.UpdateOperation;
+  export type CreateEndpointOptions = OpraSchema.Singleton.CreateEndpoint;
+  export type DeleteEndpointOptions = OpraSchema.Singleton.DeleteEndpoint;
+  export type GetEndpointOptions = OpraSchema.Singleton.GetEndpoint;
+  export type UpdateEndpointOptions = OpraSchema.Singleton.UpdateEndpoint;
 }
 
 class SingletonClass extends Resource {
@@ -56,7 +56,7 @@ class SingletonClass extends Resource {
   private _encoders: Record<string, vg.Validator<any>> = {};
   readonly type: ComplexType;
   readonly kind = OpraSchema.Singleton.Kind;
-  readonly operations: OpraSchema.Singleton.Operations;
+  readonly endpoints: OpraSchema.Singleton.Endpoints;
   readonly controller?: object | Type;
 
   constructor(
@@ -65,7 +65,7 @@ class SingletonClass extends Resource {
   ) {
     super(document, init);
     this.controller = init.controller;
-    this.operations = {...init.operations};
+    this.endpoints = {...init.endpoints};
     this.type = init.type;
   }
 
@@ -73,7 +73,7 @@ class SingletonClass extends Resource {
     const out = Resource.prototype.exportSchema.call(this) as OpraSchema.Singleton;
     Object.assign(out, omitUndefined({
       type: this.type.name,
-      operations: this.operations
+      endpoints: this.endpoints
     }));
     return out;
   }
@@ -83,27 +83,27 @@ class SingletonClass extends Resource {
   }
 
 
-  getDecoder(operation: keyof OpraSchema.Singleton.Operations): vg.Validator<any, any> {
-    let decoder = this._decoders[operation];
+  getDecoder(endpoint: keyof OpraSchema.Singleton.Endpoints): vg.Validator<any, any> {
+    let decoder = this._decoders[endpoint];
     if (decoder)
       return decoder;
     const options: GenerateDecoderOptions = {
-      partial: operation !== 'create'
+      partial: endpoint !== 'create'
     };
     decoder = generateCodec(this.type, 'decode', options);
-    this._decoders[operation] = decoder;
+    this._decoders[endpoint] = decoder;
     return decoder;
   }
 
-  getEncoder(operation: keyof OpraSchema.Singleton.Operations): vg.Validator<any, any> {
-    let encoder = this._encoders[operation];
+  getEncoder(endpoint: keyof OpraSchema.Singleton.Endpoints): vg.Validator<any, any> {
+    let encoder = this._encoders[endpoint];
     if (encoder)
       return encoder;
     const options: GenerateDecoderOptions = {
       partial: true
     };
     encoder = generateCodec(this.type, 'encode', options);
-    this._encoders[operation] = encoder;
+    this._encoders[endpoint] = encoder;
     return encoder;
   }
 
@@ -116,10 +116,10 @@ export interface SingletonConstructor {
 
   (type: TypeThunkAsync | string, options?: Singleton.DecoratorOptions): ClassDecorator;
 
-  Create: (options?: Singleton.CreateOperationOptions) => ((target: Object, propertyKey: 'create') => void);
-  Delete: (options?: Singleton.DeleteOperationOptions) => ((target: Object, propertyKey: 'delete') => void);
-  Get: (options?: Singleton.GetOperationOptions) => ((target: Object, propertyKey: 'get') => void);
-  Update: (options?: Singleton.UpdateOperationOptions) => ((target: Object, propertyKey: 'update') => void);
+  Create: (options?: Singleton.CreateEndpointOptions) => ((target: Object, propertyKey: 'create') => void);
+  Delete: (options?: Singleton.DeleteEndpointOptions) => ((target: Object, propertyKey: 'delete') => void);
+  Get: (options?: Singleton.GetEndpointOptions) => ((target: Object, propertyKey: 'get') => void);
+  Update: (options?: Singleton.UpdateEndpointOptions) => ((target: Object, propertyKey: 'update') => void);
 }
 
 export interface Singleton extends SingletonClass {
@@ -157,21 +157,21 @@ export const Singleton = function (this: Singleton | void, ...args: any[]) {
 
 Singleton.prototype = SingletonClass.prototype;
 
-function createOperationDecorator<T>(operation: string) {
+function createEndpointDecorator<T>(endpoint: string) {
   return (options?: T) =>
       ((target: Object, propertyKey: string): void => {
-        if (propertyKey !== operation)
-          throw new TypeError(`Name of the handler name should be '${operation}'`);
-        const operationMeta = {...options};
+        if (propertyKey !== endpoint)
+          throw new TypeError(`Name of the handler name should be '${endpoint}'`);
+        const endpointMeta = {...options};
         const resourceMetadata =
             (Reflect.getOwnMetadata(METADATA_KEY, target.constructor) || {}) as Singleton.Metadata;
-        resourceMetadata.operations = resourceMetadata.operations || {};
-        resourceMetadata.operations[operation] = operationMeta;
+        resourceMetadata.endpoints = resourceMetadata.endpoints || {};
+        resourceMetadata.endpoints[endpoint] = endpointMeta;
         Reflect.defineMetadata(METADATA_KEY, resourceMetadata, target.constructor);
       });
 }
 
-Singleton.Create = createOperationDecorator('create');
-Singleton.Get = createOperationDecorator('get');
-Singleton.Delete = createOperationDecorator('delete');
-Singleton.Update = createOperationDecorator('update');
+Singleton.Create = createEndpointDecorator('create');
+Singleton.Get = createEndpointDecorator('get');
+Singleton.Delete = createEndpointDecorator('delete');
+Singleton.Update = createEndpointDecorator('update');

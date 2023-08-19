@@ -17,7 +17,7 @@ export interface Response {
   continueOnError?: boolean;
 
   /**
-   * Total count of matched entities. (Used in "search" operation with "count" option
+   * Total count of matched entities. (Used in "search" endpoint with "count" option
    */
   count?: number;
 

@@ -81,7 +81,7 @@ export class HttpCollectionNode<TType, TResponseExt = {}> {
   ): HttpRequestObservable<HttpEvent, TType, TResponseExt>
   create(data: PartialInput<TType>, options?: HttpCollectionNode.CreateOptions) {
     const context = this[kContext];
-    context.operation = 'create';
+    context.endpoint = 'create';
     const requestHost = new HttpRequestObservable(context, options);
     const request = requestHost[kRequest];
     request.method = 'POST';
@@ -112,7 +112,7 @@ export class HttpCollectionNode<TType, TResponseExt = {}> {
     if (id == null)
       throw new TypeError(`'id' argument must have a value`);
     const context = this[kContext];
-    context.operation = 'delete';
+    context.endpoint = 'delete';
     const requestHost = new HttpRequestObservable(context, options);
     const request = requestHost[kRequest];
     request.method = 'DELETE';
@@ -131,7 +131,7 @@ export class HttpCollectionNode<TType, TResponseExt = {}> {
   ): HttpRequestObservable<HttpEvent, HttpCollectionNode.DeleteManyBody, TResponseExt>
   deleteMany(options?: HttpCollectionNode.DeleteManyOptions) {
     const context = this[kContext];
-    context.operation = 'deleteMany';
+    context.endpoint = 'deleteMany';
     const requestHost = new HttpRequestObservable(context, options);
     const request = requestHost[kRequest];
     request.method = 'DELETE';
@@ -157,7 +157,7 @@ export class HttpCollectionNode<TType, TResponseExt = {}> {
     if (id == null)
       throw new TypeError(`'id' argument must have a value`);
     const context = this[kContext];
-    context.operation = 'get';
+    context.endpoint = 'get';
     const requestHost = new HttpRequestObservable(context, options);
     const request = requestHost[kRequest];
     request.method = 'GET';
@@ -185,7 +185,7 @@ export class HttpCollectionNode<TType, TResponseExt = {}> {
   ): HttpRequestObservable<HttpEvent, TType, TResponseExt>
   findMany(options?: HttpCollectionNode.FindManyOptions) {
     const context = this[kContext];
-    context.operation = 'findMany';
+    context.endpoint = 'findMany';
     const requestHost = new HttpRequestObservable(context, options);
     const request = requestHost[kRequest];
     request.method = 'GET';
@@ -230,7 +230,7 @@ export class HttpCollectionNode<TType, TResponseExt = {}> {
     if (id == null)
       throw new TypeError(`'id' argument must have a value`);
     const context = this[kContext];
-    context.operation = 'update';
+    context.endpoint = 'update';
     const requestHost = new HttpRequestObservable(context, options);
     const request = requestHost[kRequest];
     request.method = 'PATCH';
@@ -259,7 +259,7 @@ export class HttpCollectionNode<TType, TResponseExt = {}> {
   ): HttpRequestObservable<HttpEvent, HttpCollectionNode.UpdateManyBody, TResponseExt>
   updateMany(data: PartialInput<TType>, options?: HttpCollectionNode.UpdateManyOptions) {
     const context = this[kContext];
-    context.operation = 'updateMany';
+    context.endpoint = 'updateMany';
     const requestHost = new HttpRequestObservable(context, options);
     const request = requestHost[kRequest];
     request.method = 'PATCH';

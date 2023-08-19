@@ -1,7 +1,7 @@
 import { Db } from 'mongodb';
 import { Collection } from '@opra/common';
 import { Customer } from '@opra/common/test/_support/test-api';
-import { OperationContext } from '@opra/core';
+import { EndpointContext } from '@opra/core';
 import { MongoCollectionResource, MongoEntityService } from '../../../src/index.js';
 
 @Collection(Customer, {
@@ -33,7 +33,7 @@ export class CustomersResource extends MongoCollectionResource<Customer> {
   })
   findMany;
 
-  getService(ctx: OperationContext) {
+  getService(ctx: EndpointContext) {
     return this.service.with(ctx);
   }
 

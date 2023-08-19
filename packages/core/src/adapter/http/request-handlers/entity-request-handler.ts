@@ -6,8 +6,8 @@ import {
   InternalServerError, MethodNotAllowedError, OpraException,
   OpraSchema, ResourceNotFoundError, Singleton, translate,
 } from '@opra/common';
+import { EndpointContext } from '../../endpoint-context.js';
 import { ExecutionContext } from '../../execution-context.js';
-import { OperationContext } from '../../operation-context.js';
 import { RequestHost } from '../../request.host.js';
 import { Request } from '../../request.js';
 import { ResponseHost } from '../../response.host.js';
@@ -35,9 +35,8 @@ export class EntityRequestHandler extends RequestHandlerBase {
     const request = await this.parseRequest(incoming);
     if (!request) return;
     const response: Response = new ResponseHost({http: outgoing});
-    const context = OperationContext.from(executionContext, request, response);
-    // Execute operation
-    await this.executeOperation(context);
+    const context = EndpointContext.from(executionContext, request, response);
+    await this.callEndpoint(context);
     if (response.errors.length) {
       context.errors.push(...response.errors);
       return;
@@ -80,19 +79,19 @@ export class EntityRequestHandler extends RequestHandlerBase {
     }
   }
 
-  async executeOperation(context: OperationContext): Promise<void> {
+  async callEndpoint(context: EndpointContext): Promise<void> {
     const request = context.request as RequestHost;
     const {response} = context;
     const resource = request.resource as (Collection | Singleton);
-    // Call operation handler method
+    // Call endpoint handler method
     let value: any;
     try {
-      value = await request.controller[request.operation].call(request.controller, context);
+      value = await request.controller[request.endpoint].call(request.controller, context);
       if (value == null)
         value = response.value;
 
-      const {operation} = request;
-      if (operation === 'delete' || operation === 'deleteMany' || operation === 'updateMany') {
+      const {endpoint} = request;
+      if (endpoint === 'delete' || endpoint === 'deleteMany' || endpoint === 'updateMany') {
         let affected = 0;
         if (typeof value === 'number')
           affected = value;
@@ -100,14 +99,14 @@ export class EntityRequestHandler extends RequestHandlerBase {
           affected = value ? 1 : 0;
         if (typeof value === 'object')
           affected = value.affected || value.affectedRows ||
-              (operation === 'updateMany' ? value.updated : value.deleted);
+              (endpoint === 'updateMany' ? value.updated : value.deleted);
         response.value = affected;
       } else {
-        // "get" and "update" operations must return the entity instance, otherwise it means resource not found
-        if (value == null && (request.operation === 'get' || request.operation === 'update'))
+        // "get" and "update" endpoints must return the entity instance, otherwise it means resource not found
+        if (value == null && (request.endpoint === 'get' || request.endpoint === 'update'))
           throw new ResourceNotFoundError(resource.name, (request as RequestHost).key);
-        // "findMany" operation should return array of entity instances
-        if (request.operation === 'findMany')
+        // "findMany" endpoint should return array of entity instances
+        if (request.endpoint === 'findMany')
           value = value == null ? [] : Array.isArray(value) ? value : [value];
         else value = value == null ? {} : Array.isArray(value) ? value[0] : value;
         response.value = value;
@@ -117,33 +116,39 @@ export class EntityRequestHandler extends RequestHandlerBase {
     }
   }
 
-  async sendResponse(context: OperationContext): Promise<void> {
+  async sendResponse(context: EndpointContext): Promise<void> {
     const {request, response} = context;
     const resource = request.resource as (Collection | Singleton);
     const outgoing = response.switchToHttp();
 
     let responseObject: any;
-    if (request.operation === 'delete' || request.operation === 'deleteMany' || request.operation === 'updateMany') {
+    if (request.endpoint === 'delete' || request.endpoint === 'deleteMany') {
       responseObject = {
         resource: resource.name,
-        operation: request.operation,
+        operation: 'delete',
+        affected: response.value
+      }
+    } else if (request.endpoint === 'updateMany') {
+      responseObject = {
+        resource: resource.name,
+        operation: 'update',
         affected: response.value
       }
     } else {
       if (!response.value)
-        throw new InternalServerError(`"${request.operation}" operation should return value`);
-      const encode = resource.getEncoder(request.operation as any);
+        throw new InternalServerError(`"${request.endpoint}" endpoint should return value`);
+      const encode = resource.getEncoder(request.endpoint as any);
       const data = encode(response.value, {coerce: true});
-      if (request.operation === 'create')
+      if (request.endpoint === 'create')
         outgoing.statusCode = 201;
       responseObject = {
         resource: resource.name,
-        operation: request.operation,
+        endpoint: request.endpoint,
         data
       }
-      if (request.operation === 'create' || request.operation === 'update')
+      if (request.endpoint === 'create' || request.endpoint === 'update')
         responseObject.affected = 1;
-      if (request.operation === 'findMany' && response.count != null && response.count >= 0)
+      if (request.endpoint === 'findMany' && response.count != null && response.count >= 0)
         responseObject.totalCount = response.count;
     }
 
@@ -165,9 +170,9 @@ export class EntityRequestHandler extends RequestHandlerBase {
     switch (incoming.method) {
       case 'POST': {
         if (p.key == null) {
-          const operationMeta =
-              await this.assertOperation<OpraSchema.Collection.CreateOperation>(resource, 'create');
-          const jsonReader = this.getBodyLoader(operationMeta);
+          const endpointMeta =
+              await this.assertEndpoint<OpraSchema.Collection.CreateEndpoint>(resource, 'create');
+          const jsonReader = this.getBodyLoader(endpointMeta);
           const decode = resource.getDecoder('create');
           let data = await jsonReader(incoming);
           data = decode(data, {coerce: true});
@@ -175,11 +180,11 @@ export class EntityRequestHandler extends RequestHandlerBase {
           const omit = parseArrayParam(params.get('$omit'));
           const include = parseArrayParam(params.get('$include'));
           return new RequestHost({
-            controller: operationMeta.controller,
+            controller: endpointMeta.controller,
             http: incoming,
             contentId,
             resource,
-            operation: 'create',
+            endpoint: 'create',
             data,
             params: {
               pick: pick && resource.normalizeFieldPath(pick as string[]),
@@ -192,26 +197,26 @@ export class EntityRequestHandler extends RequestHandlerBase {
       }
       case 'DELETE': {
         if (p.key != null) {
-          const operationMeta =
-              await this.assertOperation<OpraSchema.Collection.DeleteOperation>(resource, 'delete');
+          const endpointMeta =
+              await this.assertEndpoint<OpraSchema.Collection.DeleteEndpoint>(resource, 'delete');
           return new RequestHost({
-            controller: operationMeta.controller,
+            controller: endpointMeta.controller,
             http: incoming,
             contentId,
             resource,
-            operation: 'delete',
+            endpoint: 'delete',
             key: resource.parseKeyValue(p.key)
           });
         }
-        const operationMeta =
-            await this.assertOperation<OpraSchema.Collection.DeleteOperation>(resource, 'deleteMany');
+        const endpointMeta =
+            await this.assertEndpoint<OpraSchema.Collection.DeleteEndpoint>(resource, 'deleteMany');
         const filter = resource.normalizeFilter(params.get('$filter') as any);
         return new RequestHost({
-          controller: operationMeta.controller,
+          controller: endpointMeta.controller,
           http: incoming,
           contentId,
           resource,
-          operation: 'deleteMany',
+          endpoint: 'deleteMany',
           params: {
             filter
           }
@@ -223,14 +228,14 @@ export class EntityRequestHandler extends RequestHandlerBase {
         const omit = parseArrayParam(params.get('$omit'));
         const include = parseArrayParam(params.get('$include'));
         if (p.key != null) {
-          const operationMeta =
-              await this.assertOperation<OpraSchema.Collection.DeleteOperation>(resource, 'get');
+          const endpointMeta =
+              await this.assertEndpoint<OpraSchema.Collection.DeleteEndpoint>(resource, 'get');
           return new RequestHost({
-            controller: operationMeta.controller,
+            controller: endpointMeta.controller,
             http: incoming,
             contentId,
             resource,
-            operation: 'get',
+            endpoint: 'get',
             key: resource.parseKeyValue(p.key),
             params: {
               pick: pick && resource.normalizeFieldPath(pick),
@@ -239,16 +244,16 @@ export class EntityRequestHandler extends RequestHandlerBase {
             }
           });
         }
-        const operationMeta =
-            await this.assertOperation<OpraSchema.Collection.DeleteOperation>(resource, 'findMany');
+        const endpointMeta =
+            await this.assertEndpoint<OpraSchema.Collection.DeleteEndpoint>(resource, 'findMany');
         const filter = resource.normalizeFilter(params.get('$filter') as any);
         const sort = parseArrayParam(params.get('$sort'));
         return new RequestHost({
-          controller: operationMeta.controller,
+          controller: endpointMeta.controller,
           http: incoming,
           contentId,
           resource,
-          operation: 'findMany',
+          endpoint: 'findMany',
           params: {
             pick: pick && resource.normalizeFieldPath(pick),
             omit: omit && resource.normalizeFieldPath(omit),
@@ -265,9 +270,9 @@ export class EntityRequestHandler extends RequestHandlerBase {
 
       case 'PATCH': {
         if (p.key != null) {
-          const operationMeta =
-              await this.assertOperation<OpraSchema.Collection.DeleteOperation>(resource, 'update');
-          const jsonReader = this.getBodyLoader(operationMeta);
+          const endpointMeta =
+              await this.assertEndpoint<OpraSchema.Collection.DeleteEndpoint>(resource, 'update');
+          const jsonReader = this.getBodyLoader(endpointMeta);
           const decode = resource.getDecoder('update');
           let data = await jsonReader(incoming);
           data = decode(data, {coerce: true});
@@ -275,11 +280,11 @@ export class EntityRequestHandler extends RequestHandlerBase {
           const omit = parseArrayParam(params.get('$omit'));
           const include = parseArrayParam(params.get('$include'));
           return new RequestHost({
-            controller: operationMeta.controller,
+            controller: endpointMeta.controller,
             http: incoming,
             contentId,
             resource,
-            operation: 'update',
+            endpoint: 'update',
             key: resource.parseKeyValue(p.key),
             data,
             params: {
@@ -289,19 +294,19 @@ export class EntityRequestHandler extends RequestHandlerBase {
             }
           });
         }
-        const operationMeta =
-            await this.assertOperation<OpraSchema.Collection.DeleteOperation>(resource, 'updateMany');
-        const jsonReader = this.getBodyLoader(operationMeta);
+        const endpointMeta =
+            await this.assertEndpoint<OpraSchema.Collection.DeleteEndpoint>(resource, 'updateMany');
+        const jsonReader = this.getBodyLoader(endpointMeta);
         const decode = resource.getDecoder('updateMany');
         let data = await jsonReader(incoming);
         data = decode(data, {coerce: true});
         const filter = resource.normalizeFilter(params.get('$filter') as any);
         return new RequestHost({
-          controller: operationMeta.controller,
+          controller: endpointMeta.controller,
           http: incoming,
           contentId,
           resource,
-          operation: 'updateMany',
+          endpoint: 'updateMany',
           data,
           params: {
             filter,
@@ -323,9 +328,9 @@ export class EntityRequestHandler extends RequestHandlerBase {
     const params = incoming.parsedUrl.searchParams;
     switch (incoming.method) {
       case 'POST': {
-        const operationMeta =
-            await this.assertOperation<OpraSchema.Singleton.DeleteOperation>(resource, 'create');
-        const jsonReader = this.getBodyLoader(operationMeta);
+        const endpointMeta =
+            await this.assertEndpoint<OpraSchema.Singleton.DeleteEndpoint>(resource, 'create');
+        const jsonReader = this.getBodyLoader(endpointMeta);
         const decode = resource.getDecoder('create');
         let data = await jsonReader(incoming);
         data = decode(data, {coerce: true});
@@ -333,11 +338,11 @@ export class EntityRequestHandler extends RequestHandlerBase {
         const omit = parseArrayParam(params.get('$omit'));
         const include = parseArrayParam(params.get('$include'));
         return new RequestHost({
-          controller: operationMeta.controller,
+          controller: endpointMeta.controller,
           http: incoming,
           contentId,
           resource,
-          operation: 'create',
+          endpoint: 'create',
           data,
           params: {
             pick: pick && resource.normalizeFieldPath(pick),
@@ -347,29 +352,29 @@ export class EntityRequestHandler extends RequestHandlerBase {
         });
       }
       case 'DELETE': {
-        const operationMeta =
-            await this.assertOperation<OpraSchema.Singleton.DeleteOperation>(resource, 'delete');
+        const endpointMeta =
+            await this.assertEndpoint<OpraSchema.Singleton.DeleteEndpoint>(resource, 'delete');
         return new RequestHost({
-          controller: operationMeta.controller,
+          controller: endpointMeta.controller,
           http: incoming,
           contentId,
           resource,
-          operation: 'delete',
+          endpoint: 'delete',
         });
       }
 
       case 'GET': {
-        const operationMeta =
-            await this.assertOperation<OpraSchema.Singleton.DeleteOperation>(resource, 'get');
+        const endpointMeta =
+            await this.assertEndpoint<OpraSchema.Singleton.DeleteEndpoint>(resource, 'get');
         const pick = parseArrayParam(params.get('$pick'));
         const omit = parseArrayParam(params.get('$omit'));
         const include = parseArrayParam(params.get('$include'));
         return new RequestHost({
-          controller: operationMeta.controller,
+          controller: endpointMeta.controller,
           http: incoming,
           contentId,
           resource,
-          operation: 'get',
+          endpoint: 'get',
           params: {
             pick: pick && resource.normalizeFieldPath(pick),
             omit: omit && resource.normalizeFieldPath(omit),
@@ -380,9 +385,9 @@ export class EntityRequestHandler extends RequestHandlerBase {
       }
 
       case 'PATCH': {
-        const operationMeta =
-            await this.assertOperation<OpraSchema.Singleton.DeleteOperation>(resource, 'update');
-        const jsonReader = this.getBodyLoader(operationMeta);
+        const endpointMeta =
+            await this.assertEndpoint<OpraSchema.Singleton.DeleteEndpoint>(resource, 'update');
+        const jsonReader = this.getBodyLoader(endpointMeta);
         const decode = resource.getDecoder('update');
         let data = await jsonReader(incoming);
         data = decode(data, {coerce: true});
@@ -390,11 +395,11 @@ export class EntityRequestHandler extends RequestHandlerBase {
         const omit = parseArrayParam(params.get('$omit'));
         const include = parseArrayParam(params.get('$include'));
         return new RequestHost({
-          controller: operationMeta.controller,
+          controller: endpointMeta.controller,
           http: incoming,
           contentId,
           resource,
-          operation: 'update',
+          endpoint: 'update',
           data,
           params: {
             pick: pick && resource.normalizeFieldPath(pick),
@@ -410,15 +415,15 @@ export class EntityRequestHandler extends RequestHandlerBase {
     });
   }
 
-  getBodyLoader(operation:
-                    OpraSchema.Collection.CreateOperation |
-                    OpraSchema.Collection.UpdateOperation |
-                    OpraSchema.Collection.UpdateManyOperation
+  getBodyLoader(endpoint:
+                    OpraSchema.Collection.CreateEndpoint |
+                    OpraSchema.Collection.UpdateEndpoint |
+                    OpraSchema.Collection.UpdateManyEndpoint
   ): BodyLoaderFunction {
-    let bodyLoader = this.bodyLoaders.get(operation);
+    let bodyLoader = this.bodyLoaders.get(endpoint);
     if (!bodyLoader) {
       const parser = bodyParser.json({
-        limit: operation.input?.maxContentSize,
+        limit: endpoint.input?.maxContentSize,
         type: 'json'
       });
       bodyLoader = (incoming: HttpServerRequest) => {
@@ -431,7 +436,7 @@ export class EntityRequestHandler extends RequestHandlerBase {
           parser(incoming as any, {} as any, next)
         })
       }
-      this.bodyLoaders.set(operation, bodyLoader);
+      this.bodyLoaders.set(endpoint, bodyLoader);
     }
     return bodyLoader;
   }

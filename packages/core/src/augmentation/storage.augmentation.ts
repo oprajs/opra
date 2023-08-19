@@ -1,6 +1,6 @@
 import type { Readable } from 'stream';
 import type { MultipartIterator } from '../adapter/http/helpers/multipart-helper';
-import type { OperationContext } from '../adapter/operation-context.js';
+import type { EndpointContext } from '../adapter/endpoint-context';
 import type { Request as _Request } from '../adapter/request.js';
 
 declare module "@opra/common" {
@@ -13,7 +13,7 @@ declare module "@opra/common" {
       interface Request extends _Request {
       }
 
-      interface Context extends OperationContext {
+      interface Context extends EndpointContext {
         request: Request;
       }
     }
@@ -23,7 +23,7 @@ declare module "@opra/common" {
       interface Request extends _Request {
       }
 
-      interface Context extends OperationContext {
+      interface Context extends EndpointContext {
         request: Request;
       }
     }
@@ -34,7 +34,7 @@ declare module "@opra/common" {
         parts: MultipartIterator;
       }
 
-      interface Context extends OperationContext {
+      interface Context extends EndpointContext {
         request: Request;
       }
     }

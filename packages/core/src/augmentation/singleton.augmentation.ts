@@ -1,5 +1,5 @@
 import type { PartialOutput } from '@opra/common';
-import type { OperationContext } from '../adapter/operation-context.js';
+import type { EndpointContext } from '../adapter/endpoint-context.js';
 import type { Request as _Request } from '../adapter/request.js';
 
 declare module "@opra/common" {
@@ -10,7 +10,7 @@ declare module "@opra/common" {
     /* ***************************** */
     namespace Create {
       interface Request extends _Request {
-        operation: 'create';
+        endpoint: 'create';
         data: any;
         params: {
           pick?: string[];
@@ -19,7 +19,7 @@ declare module "@opra/common" {
         }
       }
 
-      interface Context extends OperationContext {
+      interface Context extends EndpointContext {
         request: Request;
       }
     }
@@ -27,10 +27,10 @@ declare module "@opra/common" {
     /* ***************************** */
     namespace Delete {
       interface Request extends _Request {
-        operation: 'delete';
+        endpoint: 'delete';
       }
 
-      interface Context extends OperationContext {
+      interface Context extends EndpointContext {
         request: Request;
       }
     }
@@ -38,7 +38,7 @@ declare module "@opra/common" {
     /* ***************************** */
     namespace Get {
       interface Request extends _Request {
-        operation: 'get';
+        endpoint: 'get';
         params: {
           pick?: string[];
           omit?: string[];
@@ -46,7 +46,7 @@ declare module "@opra/common" {
         }
       }
 
-      interface Context extends OperationContext {
+      interface Context extends EndpointContext {
         request: Request;
       }
     }
@@ -54,7 +54,7 @@ declare module "@opra/common" {
     /* ***************************** */
     namespace Update {
       interface Request extends _Request {
-        operation: 'update';
+        endpoint: 'update';
         data: any;
         params: {
           pick?: string[];
@@ -63,7 +63,7 @@ declare module "@opra/common" {
         }
       }
 
-      interface Context extends OperationContext {
+      interface Context extends EndpointContext {
         request: Request;
       }
     }

@@ -1,5 +1,5 @@
 import type { PartialOutput } from '@opra/common';
-import type { OperationContext } from '../adapter/operation-context.js';
+import type { EndpointContext } from '../adapter/endpoint-context.js';
 import type { Request as _Request } from '../adapter/request.js';
 
 declare module "@opra/common" {
@@ -10,7 +10,7 @@ declare module "@opra/common" {
     /* ***************************** */
     namespace Create {
       interface Request extends _Request {
-        operation: 'create';
+        endpoint: 'create';
         data: any;
         params: {
           pick?: string[];
@@ -19,7 +19,7 @@ declare module "@opra/common" {
         }
       }
 
-      interface Context extends OperationContext {
+      interface Context extends EndpointContext {
         request: Request;
       }
     }
@@ -27,11 +27,11 @@ declare module "@opra/common" {
     /* ***************************** */
     namespace Delete {
       interface Request extends _Request {
-        operation: 'delete';
+        endpoint: 'delete';
         key: any;
       }
 
-      interface Context extends OperationContext {
+      interface Context extends EndpointContext {
         request: Request;
       }
     }
@@ -39,13 +39,13 @@ declare module "@opra/common" {
     /* ***************************** */
     namespace DeleteMany {
       interface Request extends _Request {
-        operation: 'deleteMany';
+        endpoint: 'deleteMany';
         params: {
           filter?: any;
         }
       }
 
-      interface Context extends OperationContext {
+      interface Context extends EndpointContext {
         request: Request;
       }
     }
@@ -53,7 +53,7 @@ declare module "@opra/common" {
     /* ***************************** */
     namespace FindMany {
       interface Request extends _Request {
-        operation: 'findMany';
+        endpoint: 'findMany';
         params: {
           filter?: any;
           pick?: string[];
@@ -67,7 +67,7 @@ declare module "@opra/common" {
         }
       }
 
-      interface Context extends OperationContext {
+      interface Context extends EndpointContext {
         request: Request;
       }
     }
@@ -75,7 +75,7 @@ declare module "@opra/common" {
     /* ***************************** */
     namespace Get {
       interface Request extends _Request {
-        operation: 'get';
+        endpoint: 'get';
         key: any;
         params: {
           pick?: string[];
@@ -84,7 +84,7 @@ declare module "@opra/common" {
         }
       }
 
-      interface Context extends OperationContext {
+      interface Context extends EndpointContext {
         request: Request;
       }
     }
@@ -92,7 +92,7 @@ declare module "@opra/common" {
     /* ***************************** */
     namespace Update {
       interface Request extends _Request {
-        operation: 'update';
+        endpoint: 'update';
         key: any;
         data: any;
         params: {
@@ -102,7 +102,7 @@ declare module "@opra/common" {
         }
       }
 
-      interface Context extends OperationContext {
+      interface Context extends EndpointContext {
         request: Request;
       }
     }
@@ -110,14 +110,14 @@ declare module "@opra/common" {
     /* ***************************** */
     namespace UpdateMany {
       interface Request extends _Request {
-        operation: 'updateMany';
+        endpoint: 'updateMany';
         data: any;
         params: {
           filter?: any;
         }
       }
 
-      interface Context extends OperationContext {
+      interface Context extends EndpointContext {
         request: Request;
       }
     }

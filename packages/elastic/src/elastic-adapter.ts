@@ -21,9 +21,9 @@ export namespace ElasticAdapter {
     const {resource} = request;
 
     if (resource instanceof Collection || resource instanceof Singleton) {
-      const {params, operation} = request;
+      const {params, endpoint} = request;
       let options: TransportRequestOptions = {};
-      switch (operation) {
+      switch (endpoint) {
         case 'findMany': {
           let searchRequest: SearchRequest = {};
           const filter = transformFilter(params?.filter);
@@ -51,7 +51,7 @@ export namespace ElasticAdapter {
 
       }
     }
-    throw new TypeError(`Unimplemented request (${request.resource.kind}.${request.operation})`);
+    throw new TypeError(`Unimplemented request (${request.resource.kind}.${request.endpoint})`);
   }
 
 }

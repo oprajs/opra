@@ -1,18 +1,18 @@
-import type { Operation } from './operation.interface';
+import type { Endpoint } from './endpoint.interface';
 import type { ResourceBase } from './resource.interface.js';
 
 export interface Storage extends ResourceBase {
   kind: Storage.Kind,
-  operations: Storage.Operations;
+  endpoints: Storage.Endpoints;
 }
 
 export namespace Storage {
   export const Kind = 'Storage';
   export type Kind = 'Storage';
 
-  export type DeleteOperation = Operation;
-  export type GetOperation = Operation;
-  export type PostOperation = Operation & {
+  export type DeleteEndpoint = Endpoint;
+  export type GetEndpoint = Endpoint;
+  export type PostEndpoint = Endpoint & {
 
     /**
      * the minium size of uploaded file
@@ -57,9 +57,9 @@ export namespace Storage {
     maxFieldsSize?: number | undefined;
   };
 
-  export interface Operations {
-    delete?: DeleteOperation;
-    get?: GetOperation;
-    post?: PostOperation;
+  export interface Endpoints {
+    delete?: DeleteEndpoint;
+    get?: GetEndpoint;
+    post?: PostEndpoint;
   }
 }

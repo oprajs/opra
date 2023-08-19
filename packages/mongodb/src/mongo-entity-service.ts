@@ -1,6 +1,6 @@
 import mongodb, { UpdateFilter } from 'mongodb';
 import { StrictOmit } from 'ts-gems';
-import { OperationContext, PartialOutput } from '@opra/core';
+import { EndpointContext, PartialOutput } from '@opra/core';
 
 export namespace MongoEntityService {
   export interface Options {
@@ -11,7 +11,7 @@ export namespace MongoEntityService {
 
 export class MongoEntityService<T extends mongodb.Document> {
   protected _collectionName: string;
-  context: OperationContext;
+  context: EndpointContext;
   defaultLimit: number;
   db?: mongodb.Db;
   session?: mongodb.ClientSession;
@@ -138,7 +138,7 @@ export class MongoEntityService<T extends mongodb.Document> {
     if (this.transformData)
       out = this.transformData(out);
     if (!out)
-      throw new Error('"insertOne" operation returned no result!');
+      throw new Error('"insertOne" endpoint returned no result!');
     return out;
   }
 
@@ -189,7 +189,7 @@ export class MongoEntityService<T extends mongodb.Document> {
   }
 
   with(
-      context: OperationContext,
+      context: EndpointContext,
       db?: mongodb.Db,
       session?: mongodb.ClientSession
   ): MongoEntityService<T> {

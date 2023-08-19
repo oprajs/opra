@@ -51,7 +51,7 @@ export class HttpSingletonNode<TType, TResponseExt = {}> {
   ): HttpRequestObservable<HttpEvent, TType, TResponseExt>
   create(data: PartialInput<TType>, options?: HttpSingletonNode.CreateOptions) {
     const context = this[kContext];
-    context.operation = 'create';
+    context.endpoint = 'create';
     const requestHost = new HttpRequestObservable(context, options);
     const request = requestHost[kRequest];
     request.method = 'POST';
@@ -77,7 +77,7 @@ export class HttpSingletonNode<TType, TResponseExt = {}> {
   ): HttpRequestObservable<HttpEvent, never, TResponseExt>
   delete(options?: HttpSingletonNode.DeleteOptions) {
     const context = this[kContext];
-    context.operation = 'delete';
+    context.endpoint = 'delete';
     const requestHost = new HttpRequestObservable(context, options);
     const request = requestHost[kRequest];
     request.method = 'DELETE';
@@ -96,7 +96,7 @@ export class HttpSingletonNode<TType, TResponseExt = {}> {
   ): HttpRequestObservable<HttpEvent, TType, TResponseExt>
   get(options?: HttpSingletonNode.GetOptions) {
     const context = this[kContext];
-    context.operation = 'get';
+    context.endpoint = 'get';
     const requestHost = new HttpRequestObservable(context, options);
     const request = requestHost[kRequest];
     request.method = 'GET';
@@ -124,7 +124,7 @@ export class HttpSingletonNode<TType, TResponseExt = {}> {
   ): HttpRequestObservable<HttpEvent, TType, TResponseExt>
   update(data: PartialInput<TType>, options?: HttpSingletonNode.UpdateOptions) {
     const context = this[kContext];
-    context.operation = 'update';
+    context.endpoint = 'update';
     const requestHost = new HttpRequestObservable(context, options);
     const request = requestHost[kRequest];
     request.method = 'PATCH';

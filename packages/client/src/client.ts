@@ -122,10 +122,10 @@ export class OpraHttpClient {
     const ctx: HttpClientContext = {
       client: this,
       resourceKind: 'Collection',
-      operation: '',
+      endpoint: '',
       resourceName,
       send: (observe, request) =>
-          this._sendRequest('Collection', ctx.operation, observe, request, ctx),
+          this._sendRequest('Collection', ctx.endpoint, observe, request, ctx),
       // requestInterceptors: [
       //   // Validate resource exists and is a collection resource
       //   async () => {
@@ -145,10 +145,10 @@ export class OpraHttpClient {
     const ctx: HttpClientContext = {
       client: this,
       resourceKind: 'Singleton',
-      operation: '',
+      endpoint: '',
       resourceName,
       send: (observe, request) =>
-          this._sendRequest('Singleton', ctx.operation, observe, request, ctx),
+          this._sendRequest('Singleton', ctx.endpoint, observe, request, ctx),
       // requestInterceptors: [
       //   // Validate resource exists and is a singleton resource
       //   async () => {
@@ -163,7 +163,7 @@ export class OpraHttpClient {
 
   protected _sendRequest<TBody>(
       resourceKind: OpraSchema.Resource.Kind,
-      operation: string,
+      endpoint: string,
       observe: HttpObserveType,
       request: HttpRequest,
       ctx?: HttpClientContext
@@ -219,7 +219,7 @@ export class OpraHttpClient {
             event: HttpEventType.Sent,
           } satisfies HttpSentEvent);
         const response = await this._fetch(url.toString(), request);
-        await this._handleResponse(resourceKind, operation, observe, subscriber, request, response, ctx);
+        await this._handleResponse(resourceKind, endpoint, observe, subscriber, request, response, ctx);
       })().catch(error => subscriber.error(error))
     });
   }
@@ -234,7 +234,7 @@ export class OpraHttpClient {
 
   protected async _handleResponse(
       resourceKind: OpraSchema.Resource.Kind,
-      operation: string,
+      endpoint: string,
       observe: HttpObserveType,
       subscriber: Subscriber<any>,
       request: HttpRequest,
@@ -259,14 +259,16 @@ export class OpraHttpClient {
       } satisfies HttpResponseHeaderEvent);
     }
 
-    let body;
-    let totalCount;
+    let body: any;
+    let totalCount: number | undefined;
+    let affected: number | undefined;
     if (fetchResponse.body) {
       if (JSON_CONTENT_TYPE_PATTERN.test(headers.get('Content-Type') || '')) {
         body = await fetchResponse.json();
         if (typeof body === 'string')
           body = JSON.parse(body);
         totalCount = body.totalCount;
+        affected = body.affected;
       } else if (TEXT_CONTENT_TYPE_PATTERN.test(headers.get('Content-Type') || ''))
         body = await fetchResponse.text();
       else if (FORMDATA_CONTENT_TYPE_PATTERN.test(headers.get('Content-Type') || ''))
@@ -298,6 +300,8 @@ export class OpraHttpClient {
 
     if (totalCount != null)
       responseInit.totalCount = totalCount;
+    if (affected != null)
+      responseInit.affected = affected;
 
     const response = this._createResponse(responseInit);
 
@@ -313,7 +317,7 @@ export class OpraHttpClient {
     if (observe === HttpObserveType.Body) {
       if (
           (resourceKind === 'Collection' || resourceKind === 'Singleton') &&
-          (operation === 'create' || operation === 'get' || operation === 'findMany' || operation === 'update')
+          (endpoint === 'create' || endpoint === 'get' || endpoint === 'findMany' || endpoint === 'update')
       ) subscriber.next(body.data);
       else subscriber.next(body);
     } else {

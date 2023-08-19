@@ -1,6 +1,6 @@
 import { Maybe } from 'ts-gems';
 import { Collection, PartialOutput } from '@opra/common';
-import { OperationContext } from '@opra/core';
+import { EndpointContext } from '@opra/core';
 import { SQBAdapter } from './sqb-adapter.js';
 import { SqbEntityService } from './sqb-entity-service.js';
 
@@ -19,49 +19,49 @@ export abstract class SqbCollectionResource<T, TOutput = PartialOutput<T>> {
   }
 
   @Collection.Create()
-  async create(ctx: OperationContext): Promise<TOutput> {
+  async create(ctx: EndpointContext): Promise<TOutput> {
     const prepared = SQBAdapter.transformRequest(ctx.request);
     const service = await this.getService(ctx);
     return service.with(ctx).create(prepared.data, prepared.options);
   }
 
   @Collection.Delete()
-  async delete(ctx: OperationContext): Promise<boolean> {
+  async delete(ctx: EndpointContext): Promise<boolean> {
     const prepared = SQBAdapter.transformRequest(ctx.request);
     const service = await this.getService(ctx);
     return service.with(ctx).delete(prepared.key, prepared.options);
   }
 
   @Collection.DeleteMany()
-  async deleteMany(ctx: OperationContext): Promise<number> {
+  async deleteMany(ctx: EndpointContext): Promise<number> {
     const prepared = SQBAdapter.transformRequest(ctx.request);
     const service = await this.getService(ctx);
     return service.with(ctx).deleteMany(prepared.options);
   }
 
   @Collection.Get()
-  async get(ctx: OperationContext): Promise<Maybe<TOutput>> {
+  async get(ctx: EndpointContext): Promise<Maybe<TOutput>> {
     const prepared = SQBAdapter.transformRequest(ctx.request);
     const service = await this.getService(ctx);
     return service.with(ctx).find(prepared.key, prepared.options);
   }
 
   @Collection.Update()
-  async update(ctx: OperationContext): Promise<Maybe<TOutput>> {
+  async update(ctx: EndpointContext): Promise<Maybe<TOutput>> {
     const prepared = SQBAdapter.transformRequest(ctx.request);
     const service = await this.getService(ctx);
     return service.with(ctx).update(prepared.key, prepared.data, prepared.options);
   }
 
   @Collection.UpdateMany()
-  async updateMany(ctx: OperationContext): Promise<number> {
+  async updateMany(ctx: EndpointContext): Promise<number> {
     const prepared = SQBAdapter.transformRequest(ctx.request);
     const service = await this.getService(ctx);
     return service.with(ctx).updateMany(prepared.data, prepared.options);
   }
 
   @Collection.FindMany()
-  async findMany(ctx: OperationContext): Promise<TOutput[]> {
+  async findMany(ctx: EndpointContext): Promise<TOutput[]> {
     const prepared = SQBAdapter.transformRequest(ctx.request);
     const service = await this.getService(ctx);
     if (prepared.options.count) {
@@ -75,5 +75,5 @@ export abstract class SqbCollectionResource<T, TOutput = PartialOutput<T>> {
       return service.with(ctx).findMany(prepared.options);
   }
 
-  abstract getService(ctx: OperationContext): SqbEntityService<T, TOutput> | Promise<SqbEntityService<T, TOutput>>;
+  abstract getService(ctx: EndpointContext): SqbEntityService<T, TOutput> | Promise<SqbEntityService<T, TOutput>>;
 }

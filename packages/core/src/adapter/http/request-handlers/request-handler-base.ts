@@ -15,21 +15,21 @@ export abstract class RequestHandlerBase implements RequestHandler {
   abstract processRequest(executionContext: ExecutionContext): Promise<void>;
 
 
-  async assertOperation<T extends OpraSchema.Operation = OpraSchema.Operation>(
-      resource: Resource, operation: string
+  async assertEndpoint<T extends OpraSchema.Endpoint = OpraSchema.Endpoint>(
+      resource: Resource, endpoint: string
   ): Promise<T & {
     controller: any;
   }> {
     const controller = await this.adapter.getController(resource);
-    const operationMeta = (typeof controller?.[operation] === 'function') && resource.operations[operation];
-    if (operationMeta)
+    const endpointMeta = (typeof controller?.[endpoint] === 'function') && resource.endpoints[endpoint];
+    if (endpointMeta)
       return {
-        ...operationMeta,
+        ...endpointMeta,
         controller
       };
     throw new ForbiddenError({
-      message: translate('RESOLVER_FORBIDDEN', {resource: resource.name, operation},
-          `'{{resource}}' endpoint does not accept '{{operation}}' operations`),
+      message: translate('RESOLVER_FORBIDDEN', {resource: resource.name, endpoint},
+          `'{{resource}}' endpoint does not accept '{{endpoint}}' operations`),
       severity: 'error',
       code: 'RESOLVER_FORBIDDEN'
     });

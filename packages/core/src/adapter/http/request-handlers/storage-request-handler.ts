@@ -8,8 +8,8 @@ import {
   Storage,
   uid
 } from '@opra/common';
+import { EndpointContext } from '../../endpoint-context.js';
 import type { ExecutionContext } from '../../execution-context';
-import { OperationContext } from '../../operation-context.js';
 import { RequestHost } from '../../request.host.js';
 import { Request } from '../../request.js';
 import { ResponseHost } from '../../response.host.js';
@@ -42,9 +42,8 @@ export class StorageRequestHandler extends RequestHandlerBase {
     const request = await this.parseRequest(executionContext, incoming);
     if (!request) return;
     const response: Response = new ResponseHost({http: outgoing});
-    const context = OperationContext.from(executionContext, request, response);
-    // Execute operation
-    await this.executeOperation(context);
+    const context = EndpointContext.from(executionContext, request, response);
+    await this.callEndpoint(context);
     if (response.errors.length) {
       context.errors.push(...response.errors);
       return;
@@ -61,31 +60,31 @@ export class StorageRequestHandler extends RequestHandlerBase {
         return;
       switch (incoming.method) {
         case 'GET': {
-          const operationMeta: any = await this.assertOperation<OpraSchema.Storage.PostOperation>(resource, 'get');
+          const endpointMeta: any = await this.assertEndpoint<OpraSchema.Storage.PostEndpoint>(resource, 'get');
           return new RequestHost({
-            controller: operationMeta.controller,
+            controller: endpointMeta.controller,
             http: incoming,
             resource,
-            operation: 'get',
+            endpoint: 'get',
             contentId
           });
         }
         case 'DELETE': {
-          const operationMeta: any = await this.assertOperation<OpraSchema.Storage.PostOperation>(resource, 'delete');
+          const endpointMeta: any = await this.assertEndpoint<OpraSchema.Storage.PostEndpoint>(resource, 'delete');
           return new RequestHost({
-            controller: operationMeta.controller,
+            controller: endpointMeta.controller,
             http: incoming,
             resource,
-            operation: 'delete',
+            endpoint: 'delete',
             contentId
           });
         }
         case 'POST': {
-          const operationMeta: any = await this.assertOperation<OpraSchema.Storage.PostOperation>(resource, 'post');
+          const endpointMeta: any = await this.assertEndpoint<OpraSchema.Storage.PostEndpoint>(resource, 'post');
           await fs.mkdir(this._uploadDir, {recursive: true});
 
           const multipartIterator = new MultipartIterator(incoming, {
-            ...operationMeta,
+            ...endpointMeta,
             filename: () => this.adapter.serviceName + '_p' + process.pid +
                 't' + String(Date.now()).substring(8) + 'r' + uid(12)
           });
@@ -98,10 +97,10 @@ export class StorageRequestHandler extends RequestHandlerBase {
           });
 
           return new RequestHost({
-            controller: operationMeta.controller,
+            controller: endpointMeta.controller,
             http: incoming,
             resource,
-            operation: 'post',
+            endpoint: 'post',
             contentId,
             parts: multipartIterator
           });
@@ -115,13 +114,13 @@ export class StorageRequestHandler extends RequestHandlerBase {
     }
   }
 
-  async executeOperation(context: OperationContext): Promise<void> {
+  async callEndpoint(context: EndpointContext): Promise<void> {
     const request = context.request as RequestHost;
     const {response} = context;
-    // Call operation handler method
+    // Call endpoint handler method
     let value: any;
     try {
-      value = await request.controller[request.operation].call(request.controller, context);
+      value = await request.controller[request.endpoint].call(request.controller, context);
       if (response.value == null)
         response.value = value;
     } catch (error) {
@@ -129,7 +128,7 @@ export class StorageRequestHandler extends RequestHandlerBase {
     }
   }
 
-  async sendResponse(context: OperationContext): Promise<void> {
+  async sendResponse(context: EndpointContext): Promise<void> {
     const {response} = context;
     const outgoing = response.switchToHttp();
     outgoing.statusCode = outgoing.statusCode || HttpStatusCodes.OK;

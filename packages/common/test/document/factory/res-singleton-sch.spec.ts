@@ -21,7 +21,7 @@ describe('DocumentFactory - Singleton resource with schema object', function () 
       kind: 'Singleton',
       description: 'test type',
       type: 'Country',
-      operations: {}
+      endpoints: {}
     };
     const doc = await DocumentFactory.createDocument({
       ...baseArgs,
@@ -37,7 +37,7 @@ describe('DocumentFactory - Singleton resource with schema object', function () 
     expect(t.name).toStrictEqual('resource1');
     expect(t.description).toEqual(resource1.description);
     expect(t.type.name).toEqual(resource1.type);
-    expect(t.operations).toEqual(resource1.operations);
+    expect(t.endpoints).toEqual(resource1.endpoints);
   })
 
 });

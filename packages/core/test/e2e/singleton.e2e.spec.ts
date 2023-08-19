@@ -19,7 +19,7 @@ describe('e2e:Singleton', function () {
     await adapter.close();
   })
 
-  it('Should execute "create" operation', async () => {
+  it('Should execute "create" endpoint', async () => {
     const resp = await supertest(adapter.server).post('/MyProfile')
         .send({
           givenName: 'abcd',
@@ -30,7 +30,7 @@ describe('e2e:Singleton', function () {
     expect(resp.body.errors).not.toBeDefined();
     expect(resp.body).toMatchObject({
       resource: 'MyProfile',
-      operation: 'create',
+      endpoint: 'create',
       affected: 1
     });
     expect(resp.body.data).toMatchObject({
@@ -40,14 +40,14 @@ describe('e2e:Singleton', function () {
     });
   });
 
-  it('Should execute "get" operation', async () => {
+  it('Should execute "get" endpoint', async () => {
     const resp = await supertest(adapter.server).get('/MyProfile');
     expect(resp.type).toStrictEqual('application/json');
     expect(resp.body).toBeDefined();
     expect(resp.body.errors).not.toBeDefined();
     expect(resp.body).toMatchObject({
       resource: 'MyProfile',
-      operation: 'get'
+      endpoint: 'get'
     });
     expect(resp.body.data).toMatchObject({
       _id: /\d+/,
@@ -56,7 +56,7 @@ describe('e2e:Singleton', function () {
     });
   });
 
-  it('Should execute "update" operation', async () => {
+  it('Should execute "update" endpoint', async () => {
     const resp = await supertest(adapter.server)
         .patch('/MyProfile')
         .send({
@@ -67,7 +67,7 @@ describe('e2e:Singleton', function () {
     expect(resp.body.errors).not.toBeDefined();
     expect(resp.body).toMatchObject({
       resource: 'MyProfile',
-      operation: 'update',
+      endpoint: 'update',
       affected: 1
     });
     expect(resp.body.data).toMatchObject({
@@ -78,7 +78,7 @@ describe('e2e:Singleton', function () {
     });
   });
 
-  it('Should execute "delete" operation', async () => {
+  it('Should execute "delete" endpoint', async () => {
     const resp = await supertest(adapter.server).delete('/MyProfile');
     expect(resp.type).toStrictEqual('application/json');
     expect(resp.body).toBeDefined();
