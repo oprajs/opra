@@ -2,7 +2,7 @@ import type { Endpoint, SourceBase } from './source.interface.js';
 
 export interface Storage extends SourceBase {
   kind: Storage.Kind,
-  endpoints: Storage.Endpoints;
+  operations: Storage.Operations;
 }
 
 export namespace Storage {
@@ -56,7 +56,7 @@ export namespace Storage {
     maxFieldsSize?: number | undefined;
   };
 
-  export interface Endpoints {
+  export interface Operations {
     delete?: DeleteEndpoint;
     get?: GetEndpoint;
     post?: PostEndpoint;

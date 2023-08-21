@@ -34,7 +34,7 @@ export async function processSources(
       serviceTs.addImportPackage('@opra/client', ['HttpCollectionNode']);
       serviceTs.addImportFile(`types/${typeName}-type`, [typeName]);
 
-      const operations = Object.keys(source.endpoints)
+      const operations = Object.keys(source.operations)
           .map(x => `'${x}'`).join(' | ');
       if (!operations.length) {
         this.logger.warn(chalk.yellow('WARN: ') +
@@ -51,7 +51,7 @@ export async function processSources(
       serviceTs.addImportPackage('@opra/client', ['HttpSingletonNode']);
       serviceTs.addImportFile(`types/${typeName}-type`, [typeName]);
 
-      const operations = Object.keys(source.endpoints)
+      const operations = Object.keys(source.operations)
           .map(x => `'${x}'`).join(' | ');
       if (!operations.length) {
         this.logger.warn(chalk.yellow('WARN: ') +

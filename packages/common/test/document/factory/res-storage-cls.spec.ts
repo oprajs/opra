@@ -53,7 +53,7 @@ describe('DocumentFactory - Storage resource with decorated classes', function (
     expect(doc).toBeDefined();
     const t = doc.getStorage('MyStorage');
     expect(t.controller).toBe(MyStorageResource);
-    expect(t.endpoints.delete).toBeDefined();
+    expect(t.operations.delete).toBeDefined();
   })
 
   it('Should define "get" operation endpoint', async () => {
@@ -72,7 +72,7 @@ describe('DocumentFactory - Storage resource with decorated classes', function (
     expect(doc).toBeDefined();
     const t = doc.getStorage('MyStorage');
     expect(t.controller).toBe(MyStorageResource);
-    expect(t.endpoints.get).toBeDefined();
+    expect(t.operations.get).toBeDefined();
   })
 
   it('Should define "put" operation endpoint', async () => {
@@ -91,7 +91,7 @@ describe('DocumentFactory - Storage resource with decorated classes', function (
     expect(doc).toBeDefined();
     const t = doc.getStorage('MyStorage');
     expect(t.controller).toBe(MyStorageResource);
-    expect(t.endpoints.post).toBeDefined();
+    expect(t.operations.post).toBeDefined();
   })
 
 

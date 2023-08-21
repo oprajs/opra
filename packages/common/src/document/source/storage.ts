@@ -42,7 +42,7 @@ export namespace Storage {
 
 class StorageClass extends Source {
   readonly kind = OpraSchema.Storage.Kind;
-  readonly endpoints: OpraSchema.Storage.Endpoints;
+  readonly operations: OpraSchema.Storage.Operations;
   readonly controller?: object | Type;
 
   constructor(
@@ -51,13 +51,13 @@ class StorageClass extends Source {
   ) {
     super(document, init);
     this.controller = init.controller;
-    this.endpoints = {...init.endpoints};
+    this.operations = {...init.operations};
   }
 
   exportSchema(): OpraSchema.Storage {
     const out = Source.prototype.exportSchema.call(this) as OpraSchema.Storage;
     Object.assign(out, omitUndefined({
-      endpoints: this.endpoints
+      operations: this.operations
     }));
     return out;
   }
@@ -118,8 +118,8 @@ function createEndpointDecorator<T>(endpoint: string) {
         const endpointMeta = {...options};
         const sourceMetadata =
             (Reflect.getOwnMetadata(METADATA_KEY, target.constructor) || {}) as Storage.Metadata;
-        sourceMetadata.endpoints = sourceMetadata.endpoints || {};
-        sourceMetadata.endpoints[endpoint] = endpointMeta;
+        sourceMetadata.operations = sourceMetadata.operations || {};
+        sourceMetadata.operations[endpoint] = endpointMeta;
         Reflect.defineMetadata(METADATA_KEY, sourceMetadata, target.constructor);
       });
 }

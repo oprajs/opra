@@ -7,7 +7,7 @@ export interface Collection extends SourceBase {
   kind: Collection.Kind,
   type: DataType.Name;
   primaryKey: Field.Name | Field.Name[];
-  endpoints: Collection.Endpoints;
+  operations: Collection.Operations;
 }
 
 export namespace Collection {
@@ -25,7 +25,7 @@ export namespace Collection {
   export type UpdateEndpoint = Endpoint & _EndpointInput & _EndpointResponse;
   export type UpdateManyEndpoint = Endpoint & _EndpointInput & _EndpointFilter;
 
-  export interface Endpoints {
+  export interface Operations {
     create?: CreateEndpoint;
     delete?: DeleteEndpoint;
     get?: GetEndpoint;

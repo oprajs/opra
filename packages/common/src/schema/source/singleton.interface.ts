@@ -5,7 +5,7 @@ import type { SourceBase } from './source.interface.js';
 export interface Singleton extends SourceBase {
   kind: Singleton.Kind,
   type: DataType.Name;
-  endpoints: Singleton.Endpoints;
+  operations: Singleton.Operations;
 }
 
 export namespace Singleton {
@@ -17,7 +17,7 @@ export namespace Singleton {
   export type GetEndpoint = Collection.GetEndpoint;
   export type UpdateEndpoint = Collection.UpdateEndpoint;
 
-  export interface Endpoints {
+  export interface Operations {
     create?: CreateEndpoint;
     delete?: DeleteEndpoint;
     get?: GetEndpoint;

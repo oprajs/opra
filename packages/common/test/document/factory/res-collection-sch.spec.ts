@@ -23,7 +23,7 @@ describe('DocumentFactory - Collection resource with schema object', function ()
       description: 'test type',
       type: 'Country',
       primaryKey: 'code',
-      endpoints: {}
+      operations: {}
     };
     const doc = await DocumentFactory.createDocument({
       ...baseArgs,
@@ -40,7 +40,7 @@ describe('DocumentFactory - Collection resource with schema object', function ()
     expect(t.description).toEqual(resource1.description);
     expect(t.primaryKey).toStrictEqual([resource1.primaryKey]);
     expect(t.type.name).toEqual(resource1.type);
-    expect(t.endpoints).toEqual(resource1.endpoints);
+    expect(t.operations).toEqual(resource1.operations);
   })
 
 });
