@@ -1,0 +1,17 @@
+{
+  "extends": "../tsconfig.json",
+  "include": ["."],
+  "compilerOptions": {
+    "emitDecoratorMetadata": true,
+    "baseUrl": "./",
+    "paths": {
+      "@opra/mongodb": ["../src"],
+      "@opra/mongodb/*": ["../src/*"],
+      "@opra/client": ["../../client/src"],
+      "@opra/common": ["../../common/src"],
+      "@opra/core": ["../../core/src"],
+      "@opra/sqb": ["../../sqb/src"],
+      "@opra/testing": ["../../testing/src"]
+    }
+  }
+}

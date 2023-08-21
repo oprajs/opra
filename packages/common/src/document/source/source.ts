@@ -5,8 +5,6 @@ import { OpraSchema } from '../../schema/index.js';
 import type { ApiDocument } from '../api-document.js';
 import { colorFgMagenta, colorFgYellow, colorReset, nodeInspectCustom } from '../utils/inspect.util.js';
 import { Action } from './action.js';
-import { METADATA_KEY } from '../constants.js';
-import { Collection } from './collection.js';
 
 export namespace Source {
   export interface InitArguments extends StrictOmit<OpraSchema.SourceBase, 'kind'> {

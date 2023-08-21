@@ -1,10 +1,15 @@
 {
-  "extends": "../../tsconfig-base.json",
+  "extends": "./tsconfig.json",
   "include": ["./test/**/*.ts"],
   "compilerOptions": {
+    "emitDecoratorMetadata": true,
     "module": "CommonJS",
     "target": "ES2016",
     "lib": [],
-    "outDir": "./out-tsc/spec"
+    "paths": {
+      "@opra/client": ["../client/src"],
+      "@opra/common": ["../common/src"],
+      "@opra/core": ["../core/src"]
+    }
   }
 }

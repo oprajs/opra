@@ -1,7 +1,7 @@
 import { FallbackLng, I18n, LanguageResource } from '@opra/common';
+import { EndpointContext } from './endpoint-context.js';
 import { ILogger } from './interfaces/logger.interface.js';
 import { RequestHandler } from './interfaces/request-handler.interface.js';
-import { EndpointContext } from './endpoint-context.js';
 
 export type Protocol = 'http' | 'ws' | 'rpc';
 

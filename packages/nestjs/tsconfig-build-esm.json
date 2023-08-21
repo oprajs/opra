@@ -1,11 +1,9 @@
 {
-  "extends": "../../tsconfig-build.json",
+  "extends": ["./tsconfig.json", "../../tsconfig-build.json"],
   "compilerOptions": {
     "rootDir": "src",
-    "noEmit": false,
     "outDir": "../../build/nestjs/esm",
-    "declarationDir": "../../build/nestjs/types",
-    "declaration": true
+    "declarationDir": "../../build/nestjs/types"
   },
   "include": ["src"]
 }
