@@ -1,0 +1,15 @@
+{
+  "extends": "../tsconfig.json",
+  "include": ["."],
+  "compilerOptions": {
+    "emitDecoratorMetadata": true,
+    "baseUrl": "./",
+    "paths": {
+      "@opra/core": ["../src"],
+      "@opra/core/*": ["../src/*"],
+      "@opra/common": ["../../common/src"],
+      "@opra/client": ["../../client/src"],
+      "@opra/testing": ["../../testing/src"]
+    },
+  }
+}

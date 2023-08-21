@@ -15,10 +15,10 @@ export function generateCodec(
     codec: 'decode' | 'encode',
     options: GenerateDecoderOptions
 ): vg.Validator<any, any> {
-  return _generateDecoder(type, codec, options)
+  return _generateCodec(type, codec, options)
 }
 
-export function _generateDecoder(
+export function _generateCodec(
     type: ComplexType | MappedType | UnionType,
     codec: 'decode' | 'encode',
     options: GenerateDecoderOptions
@@ -29,7 +29,7 @@ export function _generateDecoder(
     if (f.type instanceof SimpleType || f.type instanceof EnumType) {
       fn = f.type[codec];
     } else if (f.type instanceof ComplexType || f.type instanceof MappedType || f.type instanceof UnionType) {
-      fn = _generateDecoder(f.type, codec, options)
+      fn = _generateCodec(f.type, codec, options)
     }
     /* istanbul ignore next */
     if (!fn)

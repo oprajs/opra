@@ -25,8 +25,7 @@
         "ecmaVersion": 2022,
         "project": [
           "tsconfig.json",
-          "./support/tsconfig.json",
-          "./examples/**/tsconfig.json"
+          "./test/tsconfig.json"
         ],
         "sourceType": "module"
       },

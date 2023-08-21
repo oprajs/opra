@@ -5,7 +5,7 @@ module.exports = {
   transform: {
     '^.+\\.m?[tj]sx?$': [
       'ts-jest', {
-        tsconfig: '<rootDir>/tsconfig.json',
+        tsconfig: '<rootDir>/test/tsconfig.json',
         // useESM: true
       }]
   },

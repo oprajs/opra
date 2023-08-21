@@ -1,11 +1,9 @@
 {
-  "extends": "../../tsconfig-build.json",
+  "extends": ["./tsconfig.json", "../../tsconfig-build.json"],
   "compilerOptions": {
     "rootDir": "src",
-    "noEmit": false,
     "outDir": "../../build/sqb/esm",
-    "declarationDir": "../../build/sqb/types",
-    "declaration": true
+    "declarationDir": "../../build/sqb/types"
   },
   "include": ["src"]
 }
