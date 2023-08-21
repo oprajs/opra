@@ -58,7 +58,7 @@ describe('DocumentFactory - Collection resource with decorated classes', functio
     expect(doc).toBeDefined();
     const t = doc.getCollection('countries');
     expect(t.controller).toBe(CountriesResource);
-    expect(t.endpoints.create).toBeDefined();
+    expect(t.operations.create).toBeDefined();
   })
 
   it('Should define "get" operation endpoint', async () => {
@@ -79,7 +79,7 @@ describe('DocumentFactory - Collection resource with decorated classes', functio
     expect(doc).toBeDefined();
     const t = doc.getCollection('countries');
     expect(t.controller).toBe(CountriesResource);
-    expect(t.endpoints.get).toBeDefined();
+    expect(t.operations.get).toBeDefined();
   })
 
   it('Should define "update" operation endpoint', async () => {
@@ -100,7 +100,7 @@ describe('DocumentFactory - Collection resource with decorated classes', functio
     expect(doc).toBeDefined();
     const t = doc.getCollection('countries');
     expect(t.controller).toBe(CountriesResource);
-    expect(t.endpoints.update).toBeDefined();
+    expect(t.operations.update).toBeDefined();
   })
 
   it('Should define "deleteOne" operation endpoint', async () => {
@@ -121,7 +121,7 @@ describe('DocumentFactory - Collection resource with decorated classes', functio
     expect(doc).toBeDefined();
     const t = doc.getCollection('countries');
     expect(t.controller).toBe(CountriesResource);
-    expect(t.endpoints.delete).toBeDefined();
+    expect(t.operations.delete).toBeDefined();
   })
 
   it('Should define "search" operation endpoint', async () => {
@@ -142,7 +142,7 @@ describe('DocumentFactory - Collection resource with decorated classes', functio
     expect(doc).toBeDefined();
     const t = doc.getCollection('countries');
     expect(t.controller).toBe(CountriesResource);
-    expect(t.endpoints.findMany).toBeDefined();
+    expect(t.operations.findMany).toBeDefined();
   })
 
   it('Should define "updateMany" operation endpoint', async () => {
@@ -163,7 +163,7 @@ describe('DocumentFactory - Collection resource with decorated classes', functio
     expect(doc).toBeDefined();
     const t = doc.getCollection('countries');
     expect(t.controller).toBe(CountriesResource);
-    expect(t.endpoints.updateMany).toBeDefined();
+    expect(t.operations.updateMany).toBeDefined();
   })
 
   it('Should define "updateMany" operation endpoint', async () => {
@@ -184,7 +184,7 @@ describe('DocumentFactory - Collection resource with decorated classes', functio
     expect(doc).toBeDefined();
     const t = doc.getCollection('countries');
     expect(t.controller).toBe(CountriesResource);
-    expect(t.endpoints.deleteMany).toBeDefined();
+    expect(t.operations.deleteMany).toBeDefined();
   })
 
 });

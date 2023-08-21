@@ -66,8 +66,8 @@ export class OpraApiFactory {
 
       /* Wrap resolver functions */
       const isRequestScoped = !wrapper.isDependencyTreeStatic();
-      if ((OpraSchema.isCollection(sourceDef) || OpraSchema.isSingleton(sourceDef)) && sourceDef.endpoints) {
-        for (const methodName of Object.keys(sourceDef.endpoints)) {
+      if ((OpraSchema.isCollection(sourceDef) || OpraSchema.isSingleton(sourceDef)) && sourceDef.operations) {
+        for (const methodName of Object.keys(sourceDef.operations)) {
           const endpointFunction = instance[methodName];
           const nestHandlerName = methodName + '_nestjs';
           // Skip patch if controller do not have function for endpoint or already patched before

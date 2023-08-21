@@ -56,7 +56,7 @@ class SingletonClass extends Source {
   private _encoders: Record<string, vg.Validator<any>> = {};
   readonly type: ComplexType;
   readonly kind = OpraSchema.Singleton.Kind;
-  readonly endpoints: OpraSchema.Singleton.Endpoints;
+  readonly operations: OpraSchema.Singleton.Operations;
   readonly controller?: object | Type;
 
   constructor(
@@ -65,7 +65,7 @@ class SingletonClass extends Source {
   ) {
     super(document, init);
     this.controller = init.controller;
-    this.endpoints = {...init.endpoints};
+    this.operations = {...init.operations};
     this.type = init.type;
   }
 
@@ -73,7 +73,7 @@ class SingletonClass extends Source {
     const out = Source.prototype.exportSchema.call(this) as OpraSchema.Singleton;
     Object.assign(out, omitUndefined({
       type: this.type.name,
-      endpoints: this.endpoints
+      operations: this.operations
     }));
     return out;
   }
@@ -83,7 +83,7 @@ class SingletonClass extends Source {
   }
 
 
-  getDecoder(endpoint: keyof OpraSchema.Singleton.Endpoints): vg.Validator<any, any> {
+  getDecoder(endpoint: keyof OpraSchema.Singleton.Operations): vg.Validator<any, any> {
     let decoder = this._decoders[endpoint];
     if (decoder)
       return decoder;
@@ -95,7 +95,7 @@ class SingletonClass extends Source {
     return decoder;
   }
 
-  getEncoder(endpoint: keyof OpraSchema.Singleton.Endpoints): vg.Validator<any, any> {
+  getEncoder(endpoint: keyof OpraSchema.Singleton.Operations): vg.Validator<any, any> {
     let encoder = this._encoders[endpoint];
     if (encoder)
       return encoder;
@@ -165,8 +165,8 @@ function createEndpointDecorator<T>(endpoint: string) {
         const endpointMeta = {...options};
         const sourceMetadata =
             (Reflect.getOwnMetadata(METADATA_KEY, target.constructor) || {}) as Singleton.Metadata;
-        sourceMetadata.endpoints = sourceMetadata.endpoints || {};
-        sourceMetadata.endpoints[endpoint] = endpointMeta;
+        sourceMetadata.operations = sourceMetadata.operations || {};
+        sourceMetadata.operations[endpoint] = endpointMeta;
         Reflect.defineMetadata(METADATA_KEY, sourceMetadata, target.constructor);
       });
 }

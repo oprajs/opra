@@ -21,7 +21,7 @@ export abstract class RequestHandlerBase implements RequestHandler {
     controller: any;
   }> {
     const controller = await this.adapter.getController(source);
-    const endpointMeta = (typeof controller?.[endpoint] === 'function') && source.endpoints[endpoint];
+    const endpointMeta = (typeof controller?.[endpoint] === 'function') && source.operations[endpoint];
     if (endpointMeta)
       return {
         ...endpointMeta,
