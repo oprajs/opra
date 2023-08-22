@@ -1,5 +1,5 @@
 import type { Writable } from 'ts-gems';
-import { Collection, Resource, Singleton, RESOURCE_METADATA } from "@opra/common";
+import { Collection, Resource, RESOURCE_METADATA, Singleton } from "@opra/common";
 import { EndpointContext } from '../adapter/endpoint-context.js';
 
 declare module "@opra/common" {
