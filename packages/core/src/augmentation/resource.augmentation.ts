@@ -1,5 +1,5 @@
 import type { Writable } from 'ts-gems';
-import { Collection, Resource, Singleton, SOURCE_METADATA } from "@opra/common";
+import { Collection, Resource, Singleton, RESOURCE_METADATA } from "@opra/common";
 import { EndpointContext } from '../adapter/endpoint-context.js';
 
 declare module "@opra/common" {
@@ -64,16 +64,16 @@ Resource.prototype._construct = function (init: Resource.InitArguments) {
 
 Collection.OnInit = Singleton.OnInit = function () {
   return (target: Object, propertyKey: string | symbol): void => {
-    const sourceMetadata = (Reflect.getOwnMetadata(SOURCE_METADATA, target.constructor) || {}) as any;
+    const sourceMetadata = (Reflect.getOwnMetadata(RESOURCE_METADATA, target.constructor) || {}) as any;
     sourceMetadata.onInit = target[propertyKey];
-    Reflect.defineMetadata(SOURCE_METADATA, target.constructor, sourceMetadata);
+    Reflect.defineMetadata(RESOURCE_METADATA, target.constructor, sourceMetadata);
   }
 }
 
 Collection.OnShutdown = Singleton.OnShutdown = function () {
   return (target: Object, propertyKey: string | symbol): void => {
-    const sourceMetadata = (Reflect.getOwnMetadata(SOURCE_METADATA, target.constructor) || {}) as any;
+    const sourceMetadata = (Reflect.getOwnMetadata(RESOURCE_METADATA, target.constructor) || {}) as any;
     sourceMetadata.onShutdown = target[propertyKey];
-    Reflect.defineMetadata(SOURCE_METADATA, target.constructor, sourceMetadata);
+    Reflect.defineMetadata(RESOURCE_METADATA, target.constructor, sourceMetadata);
   }
 }

@@ -1,4 +1,4 @@
-import { SOURCE_METADATA } from '../constants.js';
+import { RESOURCE_METADATA } from '../constants.js';
 import type { Resource } from './resource.js';
 
 export interface ResourceDecorator {
@@ -14,9 +14,9 @@ ResourceDecorator.Action = function (options): PropertyDecorator {
       throw new TypeError(`This decorator can't be used for Symbol keys'`);
     const actionMeta = {...options};
     const resourceMetadata =
-        (Reflect.getOwnMetadata(SOURCE_METADATA, target.constructor) || {}) as Resource.Metadata;
+        (Reflect.getOwnMetadata(RESOURCE_METADATA, target.constructor) || {}) as Resource.Metadata;
     resourceMetadata.actions = resourceMetadata.actions || {};
     resourceMetadata.actions[propertyKey] = actionMeta;
-    Reflect.defineMetadata(SOURCE_METADATA, resourceMetadata, target.constructor);
+    Reflect.defineMetadata(RESOURCE_METADATA, resourceMetadata, target.constructor);
   }
 }

@@ -1,5 +1,5 @@
 import 'reflect-metadata';
-import { Singleton, SOURCE_METADATA } from '@opra/common';
+import { Singleton, RESOURCE_METADATA } from '@opra/common';
 import { Country } from '../../_support/test-api/index.js';
 
 describe('Singleton decorators', function () {
@@ -13,7 +13,7 @@ describe('Singleton decorators', function () {
       class MyCountryResource {
       }
 
-      const metadata = Reflect.getMetadata(SOURCE_METADATA, MyCountryResource);
+      const metadata = Reflect.getMetadata(RESOURCE_METADATA, MyCountryResource);
       expect(metadata).toStrictEqual({
         kind: 'Singleton',
         name: 'MyCountry',
@@ -29,7 +29,7 @@ describe('Singleton decorators', function () {
       class MyCountry {
       }
 
-      const metadata = Reflect.getMetadata(SOURCE_METADATA, MyCountry);
+      const metadata = Reflect.getMetadata(RESOURCE_METADATA, MyCountry);
       expect(metadata).toStrictEqual({
         kind: 'Singleton',
         name: 'MySweetCountry',
@@ -47,7 +47,7 @@ describe('Singleton decorators', function () {
         }
       }
 
-      const metadata = Reflect.getMetadata(SOURCE_METADATA, CountryResource);
+      const metadata = Reflect.getMetadata(RESOURCE_METADATA, CountryResource);
       expect(metadata.actions).toStrictEqual({
         sendMessage: {description: 'action'}
       });
@@ -62,7 +62,7 @@ describe('Singleton decorators', function () {
         }
       }
 
-      const metadata = Reflect.getMetadata(SOURCE_METADATA, CountryResource);
+      const metadata = Reflect.getMetadata(RESOURCE_METADATA, CountryResource);
       expect(metadata.operations).toStrictEqual({
         create: {description: 'operation'}
       });
@@ -77,7 +77,7 @@ describe('Singleton decorators', function () {
         }
       }
 
-      const metadata = Reflect.getMetadata(SOURCE_METADATA, CountryResource);
+      const metadata = Reflect.getMetadata(RESOURCE_METADATA, CountryResource);
       expect(metadata.operations).toStrictEqual({
         delete: {description: 'operation'}
       });
@@ -92,7 +92,7 @@ describe('Singleton decorators', function () {
         }
       }
 
-      const metadata = Reflect.getMetadata(SOURCE_METADATA, CountryResource);
+      const metadata = Reflect.getMetadata(RESOURCE_METADATA, CountryResource);
       expect(metadata.operations).toStrictEqual({
         get: {description: 'operation'}
       });
@@ -107,7 +107,7 @@ describe('Singleton decorators', function () {
         }
       }
 
-      const metadata = Reflect.getMetadata(SOURCE_METADATA, CountryResource);
+      const metadata = Reflect.getMetadata(RESOURCE_METADATA, CountryResource);
       expect(metadata.operations).toStrictEqual({
         update: {description: 'operation'}
       });

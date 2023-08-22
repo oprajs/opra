@@ -8,7 +8,7 @@ import { ContextId, InstanceWrapper } from '@nestjs/core/injector/instance-wrapp
 import { InternalCoreModule } from '@nestjs/core/injector/internal-core-module';
 import { Module } from '@nestjs/core/injector/module.js';
 import { REQUEST_CONTEXT_ID } from '@nestjs/core/router/request/request-constants';
-import { ApiDocument, DocumentFactory, OpraSchema, SOURCE_METADATA } from '@opra/common';
+import { ApiDocument, DocumentFactory, OpraSchema, RESOURCE_METADATA } from '@opra/common';
 import * as opraCore from '@opra/core';
 import { PARAM_ARGS_METADATA } from '../constants.js';
 import { HandlerParamType } from '../enums/handler-paramtype.enum.js';
@@ -49,7 +49,7 @@ export class OpraApiFactory {
     for (const wrapper of wrappers) {
       const instance = wrapper.instance;
       const ctor = instance.constructor;
-      const metadata = Reflect.getMetadata(SOURCE_METADATA, ctor);
+      const metadata = Reflect.getMetadata(RESOURCE_METADATA, ctor);
       if (OpraSchema.isSource(metadata))
         resources.push(instance);
     }
@@ -57,7 +57,7 @@ export class OpraApiFactory {
     for (const wrapper of wrappers) {
       const instance = wrapper.instance;
       const ctor = instance.constructor;
-      const sourceDef = Reflect.getMetadata(SOURCE_METADATA, ctor);
+      const sourceDef = Reflect.getMetadata(RESOURCE_METADATA, ctor);
       /* istanbul ignore next */
       if (!sourceDef)
         continue;
@@ -66,7 +66,9 @@ export class OpraApiFactory {
 
       /* Wrap resolver functions */
       const isRequestScoped = !wrapper.isDependencyTreeStatic();
-      if ((OpraSchema.isCollection(sourceDef) || OpraSchema.isSingleton(sourceDef)) && sourceDef.operations) {
+      if (sourceDef.operations &&
+          (OpraSchema.isCollection(sourceDef) || OpraSchema.isSingleton(sourceDef) || OpraSchema.isStorage(sourceDef))
+      ) {
         for (const methodName of Object.keys(sourceDef.operations)) {
           const endpointFunction = instance[methodName];
           const nestHandlerName = methodName + '_nestjs';
