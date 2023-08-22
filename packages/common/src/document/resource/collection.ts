@@ -3,24 +3,24 @@ import { StrictOmit } from 'ts-gems';
 import { OpraSchema } from '../../schema/index.js';
 import type { TypeThunkAsync } from '../../types.js';
 import type { ApiDocument } from '../api-document.js';
+import { DECORATOR } from '../constants.js';
 import { ComplexType } from '../data-type/complex-type.js';
 import { CollectionClass } from './collection-class.js';
 import { CollectionDecorator } from './collection-decorator.js';
-import { Source } from './source.js';
+import { Resource } from './resource.js';
 
 
 export namespace Collection {
-  export interface InitArguments extends Source.InitArguments,
+  export interface InitArguments extends Resource.InitArguments,
       StrictOmit<OpraSchema.Collection, 'kind' | 'type'> {
     type: ComplexType;
   }
 
-  export interface DecoratorOptions<T = any> extends Source.DecoratorOptions {
+  export interface DecoratorOptions<T = any> extends Resource.DecoratorOptions {
     primaryKey?: keyof T | (keyof T)[];
   }
 
-  export interface Metadata extends StrictOmit<OpraSchema.Collection, 'type'> {
-    name: string;
+  export interface Metadata extends StrictOmit<Resource.Metadata, 'kind'>, StrictOmit<OpraSchema.Collection, 'type'> {
     type: TypeThunkAsync | string;
   }
 
@@ -78,7 +78,7 @@ export const Collection = function (this: Collection | void, ...args: any[]) {
   // ClassDecorator
   if (!this) {
     const [type, options] = args;
-    return CollectionDecorator.call(undefined, type, options);
+    return Collection[DECORATOR].call(undefined, type, options);
   }
 
   // Constructor
@@ -88,5 +88,5 @@ export const Collection = function (this: Collection | void, ...args: any[]) {
 } as CollectionConstructor;
 
 Collection.prototype = CollectionClass.prototype;
-
 Object.assign(Collection, CollectionDecorator);
+Collection[DECORATOR] = CollectionDecorator;

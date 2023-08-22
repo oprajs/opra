@@ -1,5 +1,5 @@
 import { Type } from 'ts-gems';
-import { ApiField, Collection, DocumentFactory, METADATA_KEY, OpraSchema } from "@opra/common";
+import { ApiField, Collection, DATATYPE_METADATA, DocumentFactory, OpraSchema } from "@opra/common";
 import { DataType as SqbDataType, EntityMetadata, isAssociationField } from '@sqb/connect';
 
 // @ts-ignore
@@ -34,7 +34,7 @@ DocumentFactory.prototype.extractFieldSchema = async function (
     if (target.required == null && sqbField.notNull)
       target.required = true;
 
-    if (sqbField.type && Reflect.hasMetadata(METADATA_KEY, sqbField.type)) {
+    if (sqbField.type && Reflect.hasMetadata(DATATYPE_METADATA, sqbField.type)) {
       target.type = sqbField.type as any;
     }
     switch (sqbField.dataType) {

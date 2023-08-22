@@ -7,6 +7,12 @@ declare module "@opra/common" {
   /* ***************************** */
   namespace Collection {
 
+    namespace Action {
+      interface Context extends Resource.Context {
+        key?: any;
+      }
+    }
+
     /* ***************************** */
     namespace Create {
       interface Request extends _Request {

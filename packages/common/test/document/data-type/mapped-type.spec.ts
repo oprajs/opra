@@ -1,5 +1,5 @@
 import 'reflect-metadata';
-import { ComplexType, METADATA_KEY, OmitType, PickType } from '@opra/common';
+import { ComplexType, DATATYPE_METADATA, OmitType, PickType } from '@opra/common';
 import { Country } from '../../_support/test-api/index.js';
 
 describe('MappedType', function () {
@@ -11,7 +11,7 @@ describe('MappedType', function () {
     }
 
     const base = Object.getPrototypeOf(TestClass);
-    const metadata = Reflect.getMetadata(METADATA_KEY, base);
+    const metadata = Reflect.getMetadata(DATATYPE_METADATA, base);
     expect(metadata).toStrictEqual({
       kind: 'MappedType',
       omit: ['phoneCode'],
@@ -26,7 +26,7 @@ describe('MappedType', function () {
     }
 
     const base = Object.getPrototypeOf(TestClass);
-    const metadata = Reflect.getMetadata(METADATA_KEY, base);
+    const metadata = Reflect.getMetadata(DATATYPE_METADATA, base);
     expect(metadata).toStrictEqual({
       kind: 'MappedType',
       pick: ['phoneCode'],

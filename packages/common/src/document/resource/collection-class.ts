@@ -9,9 +9,9 @@ import { ComplexType } from '../data-type/complex-type.js';
 import { SimpleType } from '../data-type/simple-type.js';
 import { generateCodec, GenerateDecoderOptions } from '../utils/generate-codec.js';
 import type { Collection } from './collection.js';
-import { Source } from './source.js';
+import { Resource } from './resource.js';
 
-export class CollectionClass extends Source {
+export class CollectionClass extends Resource {
   private _decoders: Record<string, vg.Validator<any>> = {};
   private _encoders: Record<string, vg.Validator<any>> = {};
   readonly type: ComplexType;
@@ -33,7 +33,7 @@ export class CollectionClass extends Source {
         ? (Array.isArray(init.primaryKey) ? init.primaryKey : [init.primaryKey])
         : [];
     if (!this.primaryKey.length)
-      throw new TypeError(`You must provide primaryKey for Collection source ("${this.name}")`);
+      throw new TypeError(`You must provide primaryKey for Collection resource ("${this.name}")`);
     this.primaryKey.forEach(f => {
       const field = dataType.getField(f);
       if (!(field?.type instanceof SimpleType))
@@ -41,17 +41,18 @@ export class CollectionClass extends Source {
     });
   }
 
-  exportSchema(this: Collection): OpraSchema.Collection {
-    const out = Source.prototype.exportSchema.call(this) as OpraSchema.Collection;
-    Object.assign(out, omitUndefined({
-      type: this.type.name,
-      operations: this.operations,
-      primaryKey: this.primaryKey
-    }));
-    return out;
+  exportSchema(): OpraSchema.Collection {
+    return {
+      ...super.exportSchema() as OpraSchema.Collection,
+      ...omitUndefined({
+        type: this.type.name || 'object',
+        operations: this.operations,
+        primaryKey: this.primaryKey
+      })
+    };
   }
 
-  parseKeyValue(this: Collection, value: any): any {
+  parseKeyValue(value: any): any {
     if (!this.primaryKey?.length)
       return;
     const dataType = this.type;
@@ -85,7 +86,7 @@ export class CollectionClass extends Source {
     }
   }
 
-  normalizeFieldPath(this: Collection, path: string | string[]): string[] | undefined {
+  normalizeFieldPath(path: string | string[]): string[] | undefined {
     return this.type.normalizeFieldPath(path as any);
   }
 

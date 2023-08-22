@@ -1,6 +1,6 @@
 import type { SpecVersion } from './constants.js';
 import type { DataType } from './data-type/data-type.interface.js';
-import type { Source } from './source/source.interface.js';
+import type { Resource } from './resource/resource.interface';
 
 export interface ApiDocument {
   version: SpecVersion;
@@ -8,7 +8,7 @@ export interface ApiDocument {
   info: DocumentInfo;
   references?: Record<string, string | ApiDocument>;
   types?: Record<DataType.Name, DataType>;
-  sources?: Record<Source.Name, Source>;
+  resources?: Record<Resource.Name, Resource>;
   servers?: ServerInfo[];
 }
 

@@ -1,36 +1,99 @@
 import 'reflect-metadata';
-import { METADATA_KEY, Storage } from '@opra/common';
+import { SOURCE_METADATA, Storage } from '@opra/common';
 
-describe('@Storage() decorator', function () {
+describe('Storage decorators', function () {
 
-  it('Should define Storage resource metadata', async function () {
-    const opts: Storage.DecoratorOptions = {description: 'xyz'};
+  describe('@Storage() decorator', function () {
 
-    @Storage(opts)
-    class MyFilesResource {
-    }
+    it('Should define Storage resource metadata', async function () {
+      const opts: Storage.DecoratorOptions = {description: 'xyz'};
 
-    const metadata = Reflect.getMetadata(METADATA_KEY, MyFilesResource);
-    expect(metadata).toStrictEqual({
-      kind: 'Storage',
-      name: 'MyFiles',
-      ...opts
-    });
+      @Storage(opts)
+      class MyFilesResource {
+      }
+
+      const metadata = Reflect.getMetadata(SOURCE_METADATA, MyFilesResource);
+      expect(metadata).toStrictEqual({
+        kind: 'Storage',
+        name: 'MyFiles',
+        ...opts
+      });
+    })
+
+    it('Should define custom name', async function () {
+      const opts: Storage.DecoratorOptions = {name: 'Uploads'};
+
+      @Storage(opts)
+      class MyFilesResource {
+      }
+
+      const metadata = Reflect.getMetadata(SOURCE_METADATA, MyFilesResource);
+      expect(metadata).toStrictEqual({
+        kind: 'Storage',
+        name: 'Uploads',
+        ...opts
+      });
+    })
   })
 
-  it('Should define custom name', async function () {
-    const opts: Storage.DecoratorOptions = {name: 'Uploads'};
+  describe('@Storage.Action() decorator', function () {
+    it('Should define Action operation metadata', async function () {
+      class CountryResource {
+        @Storage.Action({description: 'action'})
+        sendMessage() {
+        }
+      }
 
-    @Storage(opts)
-    class MyFilesResource {
-    }
+      const metadata = Reflect.getMetadata(SOURCE_METADATA, CountryResource);
+      expect(metadata.actions).toStrictEqual({
+        sendMessage: {description: 'action'}
+      });
+    })
+  })
 
-    const metadata = Reflect.getMetadata(METADATA_KEY, MyFilesResource);
-    expect(metadata).toStrictEqual({
-      kind: 'Storage',
-      name: 'Uploads',
-      ...opts
-    });
+  describe('@Storage.Delete() decorator', function () {
+    it('Should define Delete operation metadata', async function () {
+      class CountryResource {
+        @Storage.Delete({description: 'operation'})
+        delete() {
+        }
+      }
+
+      const metadata = Reflect.getMetadata(SOURCE_METADATA, CountryResource);
+      expect(metadata.operations).toStrictEqual({
+        delete: {description: 'operation'}
+      });
+    })
+  })
+
+  describe('@Storage.Get() decorator', function () {
+    it('Should define Get operation metadata', async function () {
+      class CountryResource {
+        @Storage.Get({description: 'operation'})
+        get() {
+        }
+      }
+
+      const metadata = Reflect.getMetadata(SOURCE_METADATA, CountryResource);
+      expect(metadata.operations).toStrictEqual({
+        get: {description: 'operation'}
+      });
+    })
+  })
+
+  describe('@Storage.Post() decorator', function () {
+    it('Should define Post operation metadata', async function () {
+      class CountryResource {
+        @Storage.Post({description: 'operation'})
+        post() {
+        }
+      }
+
+      const metadata = Reflect.getMetadata(SOURCE_METADATA, CountryResource);
+      expect(metadata.operations).toStrictEqual({
+        post: {description: 'operation'}
+      });
+    })
   })
 
 });

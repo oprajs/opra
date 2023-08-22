@@ -27,7 +27,7 @@ describe('DocumentFactory - Collection resource with decorated classes', functio
 
     const doc = await DocumentFactory.createDocument({
       ...baseArgs,
-      sources: [CountriesResource]
+      resources: [CountriesResource]
     })
     expect(doc).toBeDefined();
     const t = doc.getCollection('countries');
@@ -53,7 +53,7 @@ describe('DocumentFactory - Collection resource with decorated classes', functio
 
     const doc = await DocumentFactory.createDocument({
       ...baseArgs,
-      sources: [CountriesResource]
+      resources: [CountriesResource]
     })
     expect(doc).toBeDefined();
     const t = doc.getCollection('countries');
@@ -74,7 +74,7 @@ describe('DocumentFactory - Collection resource with decorated classes', functio
 
     const doc = await DocumentFactory.createDocument({
       ...baseArgs,
-      sources: [CountriesResource]
+      resources: [CountriesResource]
     })
     expect(doc).toBeDefined();
     const t = doc.getCollection('countries');
@@ -95,7 +95,7 @@ describe('DocumentFactory - Collection resource with decorated classes', functio
 
     const doc = await DocumentFactory.createDocument({
       ...baseArgs,
-      sources: [CountriesResource]
+      resources: [CountriesResource]
     })
     expect(doc).toBeDefined();
     const t = doc.getCollection('countries');
@@ -116,7 +116,7 @@ describe('DocumentFactory - Collection resource with decorated classes', functio
 
     const doc = await DocumentFactory.createDocument({
       ...baseArgs,
-      sources: [CountriesResource]
+      resources: [CountriesResource]
     })
     expect(doc).toBeDefined();
     const t = doc.getCollection('countries');
@@ -137,7 +137,7 @@ describe('DocumentFactory - Collection resource with decorated classes', functio
 
     const doc = await DocumentFactory.createDocument({
       ...baseArgs,
-      sources: [CountriesResource]
+      resources: [CountriesResource]
     })
     expect(doc).toBeDefined();
     const t = doc.getCollection('countries');
@@ -158,7 +158,7 @@ describe('DocumentFactory - Collection resource with decorated classes', functio
 
     const doc = await DocumentFactory.createDocument({
       ...baseArgs,
-      sources: [CountriesResource]
+      resources: [CountriesResource]
     })
     expect(doc).toBeDefined();
     const t = doc.getCollection('countries');
@@ -179,7 +179,7 @@ describe('DocumentFactory - Collection resource with decorated classes', functio
 
     const doc = await DocumentFactory.createDocument({
       ...baseArgs,
-      sources: [CountriesResource]
+      resources: [CountriesResource]
     })
     expect(doc).toBeDefined();
     const t = doc.getCollection('countries');

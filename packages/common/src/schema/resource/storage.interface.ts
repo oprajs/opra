@@ -1,6 +1,6 @@
-import type { Endpoint, SourceBase } from './source.interface.js';
+import type { Endpoint, ResourceBase } from './resource.interface.js';
 
-export interface Storage extends SourceBase {
+export interface Storage extends ResourceBase {
   kind: Storage.Kind,
   operations: Storage.Operations;
 }

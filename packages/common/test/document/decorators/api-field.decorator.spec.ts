@@ -1,4 +1,4 @@
-import { ApiField, METADATA_KEY } from '@opra/common';
+import { ApiField, DATATYPE_METADATA } from '@opra/common';
 
 describe('ApiField() decorator', function () {
 
@@ -11,7 +11,7 @@ describe('ApiField() decorator', function () {
       id: number;
     }
 
-    const metadata = Reflect.getMetadata(METADATA_KEY, Animal)
+    const metadata = Reflect.getMetadata(DATATYPE_METADATA, Animal)
     expect(metadata).toBeDefined();
     expect(metadata.fields).toMatchObject({
       id: {
@@ -35,7 +35,7 @@ describe('ApiField() decorator', function () {
       country: Country;
     }
 
-    const metadata = Reflect.getMetadata(METADATA_KEY, Person);
+    const metadata = Reflect.getMetadata(DATATYPE_METADATA, Person);
     expect(metadata).toBeDefined();
     expect(metadata.fields).toMatchObject({
       country: {
@@ -63,7 +63,7 @@ describe('ApiField() decorator', function () {
       id: number;
     }
 
-    const metadata = Reflect.getMetadata(METADATA_KEY, Animal)
+    const metadata = Reflect.getMetadata(DATATYPE_METADATA, Animal)
     expect(metadata).toBeDefined();
     expect(metadata.fields).toMatchObject({
       id: {

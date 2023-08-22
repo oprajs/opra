@@ -1,6 +1,6 @@
 import 'reflect-metadata';
 import '@opra/sqb';
-import { ApiField, ComplexType, METADATA_KEY, OmitType, PickType } from '@opra/common';
+import { ApiField, ComplexType, DATATYPE_METADATA, OmitType, PickType } from '@opra/common';
 import { Column, Entity } from '@sqb/connect';
 import { Customer } from '../_support/test-app/entities/customer.entity.js';
 
@@ -16,7 +16,7 @@ describe('MappedType augmentation', function () {
     }
 
     const base = Object.getPrototypeOf(TestClass);
-    const metadata = Reflect.getMetadata(METADATA_KEY, base);
+    const metadata = Reflect.getMetadata(DATATYPE_METADATA, base);
     expect(metadata).toStrictEqual({
       kind: 'MappedType',
       omit: ['gender'],
@@ -40,7 +40,7 @@ describe('MappedType augmentation', function () {
     }
 
     const base = Object.getPrototypeOf(TestClass);
-    const metadata = Reflect.getMetadata(METADATA_KEY, base);
+    const metadata = Reflect.getMetadata(DATATYPE_METADATA, base);
     expect(metadata).toStrictEqual({
       kind: 'MappedType',
       pick: ['gender'],

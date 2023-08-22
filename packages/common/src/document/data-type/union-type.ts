@@ -10,7 +10,7 @@ import {
 } from '../../helpers/index.js';
 import { OpraSchema } from '../../schema/index.js';
 import type { ApiDocument } from '../api-document.js';
-import { METADATA_KEY } from '../constants.js';
+import { DATATYPE_METADATA } from '../constants.js';
 import { ApiField } from './api-field.js';
 import { ComplexType } from './complex-type.js';
 import { DataType } from './data-type.js';
@@ -137,10 +137,10 @@ export const UnionType = function (
     kind: OpraSchema.UnionType.Kind,
     types: []
   };
-  Reflect.defineMetadata(METADATA_KEY, metadata, UnionClass);
+  Reflect.defineMetadata(DATATYPE_METADATA, metadata, UnionClass);
 
   for (const c of clasRefs) {
-    const itemMeta = Reflect.getMetadata(METADATA_KEY, c);
+    const itemMeta = Reflect.getMetadata(DATATYPE_METADATA, c);
     if (!(itemMeta && (itemMeta.kind === OpraSchema.ComplexType.Kind || itemMeta.kind === OpraSchema.UnionType.Kind ||
         itemMeta.kind === OpraSchema.MappedType.Kind)))
       throw new TypeError(`Class "${c.name}" is not a ${OpraSchema.ComplexType.Kind}, ${OpraSchema.UnionType.Kind} or ${OpraSchema.MappedType.Kind}`);

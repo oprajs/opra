@@ -39,18 +39,18 @@ export async function createDocument(
     this.curPath.pop();
   }
 
-  if (init.sources) {
-    this.curPath.push('sources');
-    if (Array.isArray(init.sources)) {
-      for (const res of init.sources)
+  if (init.resources) {
+    this.curPath.push('resources');
+    if (Array.isArray(init.resources)) {
+      for (const res of init.resources)
         await this.importSourceClass(res);
     } else
-      this.sourceQueue.setAll(init.sources);
+      this.sourceQueue.setAll(init.resources);
     await this.processSourceQueue();
     this.curPath.pop();
   }
   this.document.types.sort();
-  this.document.sources.sort();
+  this.document.resources.sort();
   return this.document;
 }
 

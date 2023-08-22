@@ -1,8 +1,8 @@
-import { Source } from '@opra/common';
+import { Resource } from '@opra/common';
 import { HttpServerRequest } from './http/http-server-request.js';
 
 export interface Request {
-  source: Source;
+  resource: Resource;
   endpoint: string;
   contentId?: string;
   params?: Record<string, any>;

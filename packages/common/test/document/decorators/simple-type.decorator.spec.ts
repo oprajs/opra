@@ -1,5 +1,5 @@
 import 'reflect-metadata';
-import { METADATA_KEY, SimpleType } from '@opra/common';
+import { DATATYPE_METADATA, SimpleType } from '@opra/common';
 import { StringType } from '../../../src/document/data-type/builtin/index.js';
 
 describe('SimpleType() decorator', function () {
@@ -13,7 +13,7 @@ describe('SimpleType() decorator', function () {
     class CustomStringType extends StringType {
     }
 
-    const schema = Reflect.getMetadata(METADATA_KEY, CustomStringType);
+    const schema = Reflect.getMetadata(DATATYPE_METADATA, CustomStringType);
     expect(schema).toStrictEqual({kind: 'SimpleType', name: 'customString', ...opts});
   })
 
@@ -24,7 +24,7 @@ describe('SimpleType() decorator', function () {
 
     }
 
-    const schema = Reflect.getMetadata(METADATA_KEY, CustomStringType);
+    const schema = Reflect.getMetadata(DATATYPE_METADATA, CustomStringType);
     expect(schema.name).toStrictEqual('myString');
   })
 
@@ -39,8 +39,8 @@ describe('SimpleType() decorator', function () {
     class MyStringType extends CustomStringType {
     }
 
-    const sch1 = Reflect.getMetadata(METADATA_KEY, CustomStringType);
-    const sch2 = Reflect.getMetadata(METADATA_KEY, MyStringType);
+    const sch1 = Reflect.getMetadata(DATATYPE_METADATA, CustomStringType);
+    const sch2 = Reflect.getMetadata(DATATYPE_METADATA, MyStringType);
     expect(sch1.name).toStrictEqual('customString');
     expect(sch2.name).toStrictEqual('myString');
   })

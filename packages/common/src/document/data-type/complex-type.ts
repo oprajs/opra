@@ -7,7 +7,7 @@ import { omitUndefined, ResponsiveMap } from '../../helpers/index.js';
 import { translate } from '../../i18n/index.js';
 import { OpraSchema } from '../../schema/index.js';
 import type { ApiDocument } from '../api-document.js';
-import { METADATA_KEY, TYPENAME_PATTERN } from '../constants.js';
+import { DATATYPE_METADATA, TYPENAME_PATTERN } from '../constants.js';
 import { ApiField } from './api-field.js';
 import { DataType } from './data-type.js';
 import type { MappedType } from './mapped-type.js';
@@ -228,10 +228,10 @@ export const ComplexType = function (
   const [options] = args as [ComplexType.DecoratorOptions | undefined];
   return function (target: Function) {
     const name = options?.name || target.name.match(TYPENAME_PATTERN)?.[1] || target.name;
-    let metadata = Reflect.getOwnMetadata(METADATA_KEY, target) as ComplexType.Metadata;
+    let metadata = Reflect.getOwnMetadata(DATATYPE_METADATA, target) as ComplexType.Metadata;
     if (!metadata) {
       metadata = {} as ComplexType.Metadata;
-      Reflect.defineMetadata(METADATA_KEY, metadata, target);
+      Reflect.defineMetadata(DATATYPE_METADATA, metadata, target);
     }
     metadata.kind = OpraSchema.ComplexType.Kind;
     metadata.name = name;

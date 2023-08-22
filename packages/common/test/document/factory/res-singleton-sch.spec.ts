@@ -26,12 +26,12 @@ describe('DocumentFactory - Singleton resource with schema object', function () 
     const doc = await DocumentFactory.createDocument({
       ...baseArgs,
       types: [Country],
-      sources: {
+      resources: {
         resource1
       }
     })
     expect(doc).toBeDefined();
-    const t = doc.sources.get('resource1') as Singleton;
+    const t = doc.resources.get('resource1') as Singleton;
     expect(t).toBeDefined();
     expect(t.kind).toStrictEqual(OpraSchema.Singleton.Kind);
     expect(t.name).toStrictEqual('resource1');

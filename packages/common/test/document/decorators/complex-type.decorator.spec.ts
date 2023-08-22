@@ -1,5 +1,5 @@
 import 'reflect-metadata';
-import { ComplexType, METADATA_KEY } from '@opra/common';
+import { ComplexType, DATATYPE_METADATA } from '@opra/common';
 
 describe('ComplexType() decorator', function () {
 
@@ -15,7 +15,7 @@ describe('ComplexType() decorator', function () {
       id: string;
     }
 
-    const schema = Reflect.getMetadata(METADATA_KEY, Animal);
+    const schema = Reflect.getMetadata(DATATYPE_METADATA, Animal);
     expect(schema).toStrictEqual({kind: 'ComplexType', name: 'Animal', ...opts});
   })
 
@@ -26,7 +26,7 @@ describe('ComplexType() decorator', function () {
       id: string;
     }
 
-    const schema = Reflect.getMetadata(METADATA_KEY, Animal)
+    const schema = Reflect.getMetadata(DATATYPE_METADATA, Animal)
     expect(schema.name).toStrictEqual('Cat');
   })
 
@@ -42,8 +42,8 @@ describe('ComplexType() decorator', function () {
       name: string;
     }
 
-    const animalSchema = Reflect.getMetadata(METADATA_KEY, Animal);
-    const catSchema = Reflect.getMetadata(METADATA_KEY, Cat);
+    const animalSchema = Reflect.getMetadata(DATATYPE_METADATA, Animal);
+    const catSchema = Reflect.getMetadata(DATATYPE_METADATA, Cat);
     expect(animalSchema.name).toStrictEqual('Animal');
     expect(catSchema.name).toStrictEqual('Cat');
   })

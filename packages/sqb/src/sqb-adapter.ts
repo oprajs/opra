@@ -18,21 +18,21 @@ export namespace SQBAdapter {
     options: any,
     args: any[]
   } {
-    const {source} = request;
+    const {resource} = request;
 
-    if (source instanceof Collection || source instanceof Singleton) {
+    if (resource instanceof Collection || resource instanceof Singleton) {
       const {params, endpoint} = request;
       let options: any = {};
-      const entityMetadata = EntityMetadata.get(source.type.ctor);
+      const entityMetadata = EntityMetadata.get(resource.type.ctor);
       if (!entityMetadata)
-        throw new Error(`Type class "${source.type.ctor}" is not an SQB entity`);
+        throw new Error(`Type class "${resource.type.ctor}" is not an SQB entity`);
 
-      if (source instanceof Collection) {
+      if (resource instanceof Collection) {
         const primaryIndex = entityMetadata.indexes.find(x => x.primary);
-        // Check if source primary keys are same with entity
+        // Check if resource primary keys are same with entity
         const primaryKeys = [...(primaryIndex && primaryIndex.columns) || []];
-        if (primaryKeys.sort().join() !== [...source.primaryKey].sort().join())
-          throw new Error('Source primaryKey definition differs from SQB Entity primaryKey definition');
+        if (primaryKeys.sort().join() !== [...resource.primaryKey].sort().join())
+          throw new Error('Resource primaryKey definition differs from SQB Entity primaryKey definition');
       }
 
       if (endpoint === 'create' || endpoint === 'update' ||
@@ -43,7 +43,7 @@ export namespace SQBAdapter {
         options.include = params?.include;
       }
 
-      if (source instanceof Collection && params?.filter) {
+      if (resource instanceof Collection && params?.filter) {
         options.filter = _transformFilter(params.filter);
       }
 
@@ -65,7 +65,7 @@ export namespace SQBAdapter {
         }
       }
 
-      if (endpoint === 'deleteMany' || (endpoint === 'delete' && source instanceof Singleton)) {
+      if (endpoint === 'deleteMany' || (endpoint === 'delete' && resource instanceof Singleton)) {
         return {
           method: 'deleteMany',
           options,
@@ -83,7 +83,7 @@ export namespace SQBAdapter {
       }
 
       if (endpoint === 'get') {
-        if (source instanceof Singleton)
+        if (resource instanceof Singleton)
           return {
             method: 'findOne',
             options,
@@ -107,7 +107,7 @@ export namespace SQBAdapter {
         return out;
       }
 
-      if (endpoint === 'updateMany' || (endpoint === 'update' && source instanceof Singleton)) {
+      if (endpoint === 'updateMany' || (endpoint === 'update' && resource instanceof Singleton)) {
         return {
           method: 'updateMany',
           data: (request as any).data,

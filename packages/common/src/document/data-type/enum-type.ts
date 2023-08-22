@@ -5,7 +5,7 @@ import * as vg from 'valgen';
 import { omitUndefined } from '../../helpers/index.js';
 import { OpraSchema } from '../../schema/index.js';
 import type { ApiDocument } from '../api-document.js';
-import { METADATA_KEY } from '../constants.js';
+import { DATATYPE_METADATA } from '../constants.js';
 import { DataType } from './data-type.js';
 
 export namespace EnumType {
@@ -83,20 +83,20 @@ export const EnumType = function (this: EnumType | void, ...args: any[]) {
   }
 
   // Injector
-  const [source, options] = args as [any, EnumType.Options<any> | undefined];
-  const values = Array.isArray(source)
-      ? source.reduce((obj, v) => {
+  const [enumSource, options] = args as [any, EnumType.Options<any> | undefined];
+  const values = Array.isArray(enumSource)
+      ? enumSource.reduce((obj, v) => {
         obj[v] = v;
         return obj;
       }, {})
-      : source;
+      : enumSource;
   const metadata = {
     kind: OpraSchema.EnumType.Kind,
     values
   };
   if (options)
     Object.assign(metadata, omit(options, ['kind', 'values']));
-  Reflect.defineMetadata(METADATA_KEY, metadata, source);
+  Reflect.defineMetadata(DATATYPE_METADATA, metadata, enumSource);
   return values;
 
 } as EnumTypeConstructor;

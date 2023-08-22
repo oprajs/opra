@@ -8,7 +8,7 @@ import { CountryService } from '../services/country.service.js';
   name: 'Countries',
   description: 'Country resource'
 })
-export class CountriesSource extends SqbCollection<Country> {
+export class CountriesResource extends SqbCollection<Country> {
   constructor(public countryService: CountryService) {
     super();
   }

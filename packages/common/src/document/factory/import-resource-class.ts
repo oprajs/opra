@@ -3,12 +3,12 @@ import { Type } from 'ts-gems';
 import { cloneObject, resolveClass, resolveThunk } from '../../helpers/index.js';
 import { OpraSchema } from '../../schema/index.js';
 import type { ThunkAsync } from '../../types.js';
-import { METADATA_KEY } from '../constants.js';
-import type { Collection } from '../source/collection.js';
-import type { Singleton } from '../source/singleton.js';
+import { SOURCE_METADATA } from '../constants.js';
+import type { Collection } from '../resource/collection.js';
+import type { Singleton } from '../resource/singleton.js';
 import type { DocumentFactory } from './factory.js';
 
-export async function importSourceClass(
+export async function importResourceClass(
     this: DocumentFactory,
     thunk: ThunkAsync<Type | object>
 ): Promise<void> {
@@ -19,9 +19,9 @@ export async function importSourceClass(
     return cached;
 
   const ctor = typeof thunk === 'function' ? thunk : Object.getPrototypeOf(thunk).constructor;
-  let metadata = Reflect.getMetadata(METADATA_KEY, ctor);
+  let metadata = Reflect.getMetadata(SOURCE_METADATA, ctor);
   if (!metadata && OpraSchema.isSource(metadata))
-    throw new TypeError(`Class "${ctor.name}" doesn't have a valid Source metadata`);
+    throw new TypeError(`Class "${ctor.name}" doesn't have a valid Resource metadata`);
 
   // const controller = typeof thunk === 'function' ? new ctor() : thunk;
 

@@ -41,7 +41,7 @@ export class OpraApiLoader {
 
     try {
       const serviceHost = await this.opraFactory.generateService(rootModule, options, 'http');
-      if (!serviceHost.sources.size) {
+      if (!serviceHost.resources.size) {
         this.logger.warn(`No Sources found (${name})`);
         return;
       }

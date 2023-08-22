@@ -3,7 +3,7 @@ import { validator } from 'valgen';
 import { cloneObject, isConstructor, resolveThunk } from '../../helpers/index.js';
 import { OpraSchema } from '../../schema/index.js';
 import type { ThunkAsync } from '../../types.js';
-import { METADATA_KEY } from '../constants.js';
+import { DATATYPE_METADATA } from '../constants.js';
 import type { ApiField } from '../data-type/api-field.js';
 import type { ComplexType } from '../data-type/complex-type.js';
 import type { EnumType } from '../data-type/enum-type.js';
@@ -26,7 +26,7 @@ export async function importTypeClass(
   if (dt && dt.name)
     return dt.name;
 
-  const metadata = Reflect.getMetadata(METADATA_KEY, thunk);
+  const metadata = Reflect.getMetadata(DATATYPE_METADATA, thunk);
   if (!(metadata && OpraSchema.isDataType(metadata as any))) {
     // If thunk is a Type class
     if (isConstructor(thunk))
@@ -66,7 +66,7 @@ export async function importTypeClass(
   const enumObject = thunk;
   if (OpraSchema.isEnumType(schema)) {
     let baseType: string | OpraSchema.EnumType | undefined;
-    if ((metadata as any).base && Reflect.hasMetadata(METADATA_KEY, (metadata as any).base)) {
+    if ((metadata as any).base && Reflect.hasMetadata(DATATYPE_METADATA, (metadata as any).base)) {
       baseType = await this.importTypeClass((metadata as any).base) as any;
     }
     schema.base = baseType;
@@ -86,7 +86,7 @@ export async function extractSimpleTypeSchema(
     metadata: SimpleType.Metadata
 ): Promise<void> {
   const baseClass = Object.getPrototypeOf(ctor.prototype).constructor;
-  if (Reflect.hasMetadata(METADATA_KEY, baseClass))
+  if (Reflect.hasMetadata(DATATYPE_METADATA, baseClass))
     target.base = await this.importTypeClass(baseClass);
   if (typeof ctor.prototype.decode === 'function')
     target.decoder = validator(metadata.name, ctor.prototype.decode);
@@ -101,7 +101,7 @@ export async function extractComplexTypeSchema(
     metadata: ComplexType.Metadata
 ): Promise<void> {
   const baseClass = Object.getPrototypeOf(ctor.prototype).constructor;
-  if (Reflect.hasMetadata(METADATA_KEY, baseClass))
+  if (Reflect.hasMetadata(DATATYPE_METADATA, baseClass))
     target.base = await this.importTypeClass(baseClass);
   target.ctor = target.ctor || ctor;
 // Fields

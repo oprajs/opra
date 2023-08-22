@@ -1,5 +1,5 @@
 import "reflect-metadata";
-import './augmentation/source.augmentation.js';
+import './augmentation/resource.augmentation.js';
 import './augmentation/collection.augmentation.js';
 import './augmentation/singleton.augmentation.js';
 import './augmentation/storage.augmentation.js';

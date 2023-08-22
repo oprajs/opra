@@ -8,7 +8,7 @@ import { ContextId, InstanceWrapper } from '@nestjs/core/injector/instance-wrapp
 import { InternalCoreModule } from '@nestjs/core/injector/internal-core-module';
 import { Module } from '@nestjs/core/injector/module.js';
 import { REQUEST_CONTEXT_ID } from '@nestjs/core/router/request/request-constants';
-import { ApiDocument, DocumentFactory, METADATA_KEY, OpraSchema } from '@opra/common';
+import { ApiDocument, DocumentFactory, OpraSchema, SOURCE_METADATA } from '@opra/common';
 import * as opraCore from '@opra/core';
 import { PARAM_ARGS_METADATA } from '../constants.js';
 import { HandlerParamType } from '../enums/handler-paramtype.enum.js';
@@ -34,35 +34,35 @@ export class OpraApiFactory {
     const info: OpraSchema.DocumentInfo = {title: '', version: '', ...moduleOptions.info};
     info.title = info.title || 'Untitled service';
     info.version = info.version || '1';
-    const sources: any[] = [];
+    const resources: any[] = [];
     const apiSchema: DocumentFactory.InitArguments = {
       version: OpraSchema.SpecVersion,
       info,
       types: [],
-      sources
+      resources
     };
 
     /*
-     * Walk through modules and add Source instances to the api schema
+     * Walk through modules and add Resource instances to the api schema
      */
     const wrappers = this.explorerService.exploreSourceWrappers(rootModule);
     for (const wrapper of wrappers) {
       const instance = wrapper.instance;
       const ctor = instance.constructor;
-      const metadata = Reflect.getMetadata(METADATA_KEY, ctor);
+      const metadata = Reflect.getMetadata(SOURCE_METADATA, ctor);
       if (OpraSchema.isSource(metadata))
-        sources.push(instance);
+        resources.push(instance);
     }
 
     for (const wrapper of wrappers) {
       const instance = wrapper.instance;
       const ctor = instance.constructor;
-      const sourceDef = Reflect.getMetadata(METADATA_KEY, ctor);
+      const sourceDef = Reflect.getMetadata(SOURCE_METADATA, ctor);
       /* istanbul ignore next */
       if (!sourceDef)
         continue;
 
-      sources.push(instance);
+      resources.push(instance);
 
       /* Wrap resolver functions */
       const isRequestScoped = !wrapper.isDependencyTreeStatic();

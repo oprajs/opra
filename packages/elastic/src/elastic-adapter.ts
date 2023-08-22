@@ -18,9 +18,9 @@ export namespace ElasticAdapter {
   export const transformSort = _transformSort;
 
   export function transformRequest(request: Request): any {
-    const {source} = request;
+    const {resource} = request;
 
-    if (source instanceof Collection || source instanceof Singleton) {
+    if (resource instanceof Collection || resource instanceof Singleton) {
       const {params, endpoint} = request;
       let options: TransportRequestOptions = {};
       switch (endpoint) {
@@ -36,7 +36,7 @@ export namespace ElasticAdapter {
           if (params?.count)
             searchRequest.track_total_hits = true;
           if (params?.pick || params?.include || params?.omit)
-            searchRequest._source = _transformProjection(source.type, params);
+            searchRequest._source = _transformProjection(resource.type, params);
           if (params?.sort)
             searchRequest.sort = _transformSort(params.sort);
           searchRequest = omitBy(searchRequest, isNil);
@@ -51,7 +51,7 @@ export namespace ElasticAdapter {
 
       }
     }
-    throw new TypeError(`Unimplemented request (${request.source.kind}.${request.endpoint})`);
+    throw new TypeError(`Unimplemented request (${request.resource.kind}.${request.endpoint})`);
   }
 
 }

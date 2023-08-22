@@ -1,10 +1,15 @@
 {
-  "extends": "../../tsconfig-base.json",
+  "extends": "../tsconfig-base.json",
   "include": ["**/*.ts"],
   "ts-node": {
     "compilerOptions": {
       "target": "ES2020",
       "module": "ES2020"
+    }
+  },
+  "compilerOptions": {
+    "paths": {
+      "@opra/*": ["../packages/*/src"]
     }
   }
 }

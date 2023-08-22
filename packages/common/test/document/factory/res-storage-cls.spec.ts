@@ -26,7 +26,7 @@ describe('DocumentFactory - Storage resource with decorated classes', function (
 
     const doc = await DocumentFactory.createDocument({
       ...baseArgs,
-      sources: [MyStorageResource]
+      resources: [MyStorageResource]
     })
     expect(doc).toBeDefined();
     const t = doc.getStorage('MyStorage');
@@ -48,7 +48,7 @@ describe('DocumentFactory - Storage resource with decorated classes', function (
 
     const doc = await DocumentFactory.createDocument({
       ...baseArgs,
-      sources: [MyStorageResource]
+      resources: [MyStorageResource]
     })
     expect(doc).toBeDefined();
     const t = doc.getStorage('MyStorage');
@@ -67,7 +67,7 @@ describe('DocumentFactory - Storage resource with decorated classes', function (
 
     const doc = await DocumentFactory.createDocument({
       ...baseArgs,
-      sources: [MyStorageResource]
+      resources: [MyStorageResource]
     })
     expect(doc).toBeDefined();
     const t = doc.getStorage('MyStorage');
@@ -86,7 +86,7 @@ describe('DocumentFactory - Storage resource with decorated classes', function (
 
     const doc = await DocumentFactory.createDocument({
       ...baseArgs,
-      sources: [MyStorageResource]
+      resources: [MyStorageResource]
     })
     expect(doc).toBeDefined();
     const t = doc.getStorage('MyStorage');

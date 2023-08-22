@@ -1,4 +1,4 @@
-import { ForbiddenError, OpraSchema, Source, translate } from '@opra/common';
+import { ForbiddenError, OpraSchema, Resource, translate } from '@opra/common';
 import type { ExecutionContext } from '../../execution-context';
 import type { RequestHandler } from '../../interfaces/request-handler.interface';
 import type { HttpAdapterBase } from '../http-adapter-base';
@@ -16,19 +16,19 @@ export abstract class RequestHandlerBase implements RequestHandler {
 
 
   async assertEndpoint<T extends OpraSchema.Endpoint = OpraSchema.Endpoint>(
-      source: Source, endpoint: string
+      resource: Resource, endpoint: string
   ): Promise<T & {
     controller: any;
   }> {
-    const controller = await this.adapter.getController(source);
-    const endpointMeta = (typeof controller?.[endpoint] === 'function') && source.operations[endpoint];
+    const controller = await this.adapter.getController(resource);
+    const endpointMeta = (typeof controller?.[endpoint] === 'function') && resource.operations[endpoint];
     if (endpointMeta)
       return {
         ...endpointMeta,
         controller
       };
     throw new ForbiddenError({
-      message: translate('RESOLVER_FORBIDDEN', {resource: source.name, endpoint},
+      message: translate('RESOLVER_FORBIDDEN', {resource: resource.name, endpoint},
           `'{{resource}}' endpoint does not accept '{{endpoint}}' operations`),
       severity: 'error',
       code: 'RESOLVER_FORBIDDEN'
