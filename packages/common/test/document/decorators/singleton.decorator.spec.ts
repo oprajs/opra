@@ -1,5 +1,5 @@
 import 'reflect-metadata';
-import { Singleton, RESOURCE_METADATA } from '@opra/common';
+import { RESOURCE_METADATA, Singleton } from '@opra/common';
 import { Country } from '../../_support/test-api/index.js';
 
 describe('Singleton decorators', function () {
