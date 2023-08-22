@@ -1,6 +1,6 @@
 import * as crypto from 'crypto';
 import {
-  DynamicModule,
+  DynamicModule, Global,
   Inject,
   Module,
   OnModuleDestroy,
@@ -16,6 +16,7 @@ import {
   OpraModuleOptions,
   OpraModuleOptionsFactory
 } from './interfaces/opra-module-options.interface.js';
+import { OpraModuleRef } from './opra-module-ref.js';
 import { NestExplorer } from './services/nest-explorer.js';
 import { OpraApiLoader } from './services/opra-api-loader.js';
 
@@ -26,32 +27,41 @@ import { OpraApiLoader } from './services/opra-api-loader.js';
     NestExplorer
   ]
 })
+@Global()
 export class OpraCoreModule implements OnModuleInit, OnModuleDestroy {
 
   constructor(
       private readonly httpAdapterHost: HttpAdapterHost,
       protected readonly modulesContainer: ModulesContainer,
       @Inject(OPRA_MODULE_OPTIONS) private readonly options: OpraModuleOptions,
-      @Inject(OPRA_INITIALIZER) private readonly opraServiceLoader: OpraApiLoader,
+      @Inject(OPRA_INITIALIZER) private readonly apiLoader: OpraApiLoader,
   ) {
   }
 
   static forRoot(options: OpraModuleOptions & Pick<DynamicModule, 'imports' | 'providers' | 'exports'>): DynamicModule {
+    const providers = [
+      ...(options.providers || []),
+      {
+        provide: OPRA_MODULE_OPTIONS,
+        useValue: options,
+      },
+      {
+        provide: OPRA_INITIALIZER,
+        useClass: OpraApiLoader
+      },
+      {
+        provide: options.id || OpraModuleRef,
+        inject: [OPRA_INITIALIZER],
+        useFactory: (apiLoader: OpraApiLoader) => {
+          return apiLoader.opraModuleRef;
+        }
+      }
+    ]
     return {
       module: OpraCoreModule,
       imports: [...(options.imports || [])],
-      providers: [
-        ...(options.providers || []),
-        {
-          provide: OPRA_MODULE_OPTIONS,
-          useValue: options,
-        },
-        {
-          provide: OPRA_INITIALIZER,
-          useClass: OpraApiLoader
-        }
-      ],
-      exports: [...(options.exports || [])]
+      exports: [...(options.exports || [])],
+      providers
     };
   }
 
@@ -68,6 +78,13 @@ export class OpraCoreModule implements OnModuleInit, OnModuleDestroy {
         {
           provide: OPRA_INITIALIZER,
           useClass: OpraApiLoader
+        },
+        {
+          provide: asyncOptions.id || OpraModuleRef,
+          inject: [OPRA_INITIALIZER],
+          useFactory: (apiLoader: OpraApiLoader) => {
+            return apiLoader.opraModuleRef;
+          }
         },
         ...this.createAsyncProviders(asyncOptions)
       ]
@@ -125,12 +142,12 @@ export class OpraCoreModule implements OnModuleInit, OnModuleDestroy {
       }
     })();
     if (opraModule) {
-      await this.opraServiceLoader.initialize(opraModule);
+      await this.apiLoader.initialize(opraModule);
     }
   }
 
   async onModuleDestroy() {
-    await this.opraServiceLoader.stop();
+    await this.apiLoader.stop();
   }
 
 }

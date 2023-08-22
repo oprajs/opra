@@ -1,4 +1,4 @@
-import { FallbackLng, I18n, LanguageResource } from '@opra/common';
+import { ApiDocument, FallbackLng, I18n, LanguageResource } from '@opra/common';
 import { EndpointContext } from './endpoint-context.js';
 import { ILogger } from './interfaces/logger.interface.js';
 import { RequestHandler } from './interfaces/request-handler.interface.js';
@@ -6,6 +6,7 @@ import { RequestHandler } from './interfaces/request-handler.interface.js';
 export type Protocol = 'http' | 'ws' | 'rpc';
 
 export interface PlatformAdapter extends RequestHandler {
+  readonly api: ApiDocument;
   readonly protocol: Protocol;
   readonly platform: string;
   readonly serviceName: string;
