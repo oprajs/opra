@@ -6,6 +6,7 @@
     "paths": {
       "@opra/common": ["../common/src"],
       "@opra/core": ["../core/src"]
-    }
+    },
+    "emitDecoratorMetadata": true
   }
 }
