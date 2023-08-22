@@ -3,6 +3,7 @@ import { OpraSchema } from '@opra/common';
 import { HttpAdapter } from '@opra/core';
 
 export type OpraModuleOptions = HttpAdapter.Options & {
+  id?: any;
   info?: OpraSchema.DocumentInfo,
 
   /**
@@ -12,16 +13,18 @@ export type OpraModuleOptions = HttpAdapter.Options & {
 
 }
 
+type OpraModuleOptionsWithoutId = Omit<OpraModuleOptions, 'id'>;
 
 export interface OpraModuleOptionsFactory {
-  createOptions(): Promise<OpraModuleOptions> | OpraModuleOptions;
+  createOptions(): Promise<OpraModuleOptionsWithoutId> | OpraModuleOptionsWithoutId;
 }
 
 export interface OpraModuleAsyncOptions
     extends Pick<ModuleMetadata, 'imports' | 'providers'> {
+  id?: any;
   useExisting?: Type<OpraModuleOptionsFactory>;
   useClass?: Type<OpraModuleOptionsFactory>;
-  useFactory?: (...args: any[]) => Promise<OpraModuleOptions> | OpraModuleOptions;
+  useFactory?: (...args: any[]) => Promise<OpraModuleOptionsWithoutId> | OpraModuleOptionsWithoutId;
   inject?: any[];
 }
 
