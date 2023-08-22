@@ -2,7 +2,7 @@ import omit from 'lodash.omit';
 import merge from 'putil-merge';
 import { StrictOmit, Type } from 'ts-gems';
 import { OpraSchema } from '../../schema/index.js';
-import { SOURCE_METADATA } from '../constants.js';
+import { RESOURCE_METADATA } from '../constants.js';
 import type { Collection } from './collection.js';
 import { Resource } from './resource.js';
 import { ResourceDecorator } from './resource-decorator.js';
@@ -33,8 +33,8 @@ export interface CollectionDecorator extends StrictOmit<ResourceDecorator, 'Acti
 export function CollectionDecorator(type: Type | string, options?: Collection.DecoratorOptions): ClassDecorator {
   return function (target: Function) {
     const name = options?.name || target.name.match(NAME_PATTERN)?.[1] || target.name;
-    const metadata: Collection.Metadata = Reflect.getOwnMetadata(SOURCE_METADATA, target) || ({} as any);
-    const baseMetadata = Reflect.getOwnMetadata(SOURCE_METADATA, Object.getPrototypeOf(target));
+    const metadata: Collection.Metadata = Reflect.getOwnMetadata(RESOURCE_METADATA, target) || ({} as any);
+    const baseMetadata = Reflect.getOwnMetadata(RESOURCE_METADATA, Object.getPrototypeOf(target));
     if (baseMetadata) {
       merge(metadata, baseMetadata, {deep: true});
     }
@@ -42,13 +42,13 @@ export function CollectionDecorator(type: Type | string, options?: Collection.De
     metadata.name = name;
     metadata.type = type;
     // Merge with previous metadata object
-    const m = Reflect.getMetadata(SOURCE_METADATA, target);
+    const m = Reflect.getMetadata(RESOURCE_METADATA, target);
     if (m && metadata !== m)
       Object.assign(metadata, omit(m), Object.keys(metadata));
     // Merge options
     if (options)
       Object.assign(metadata, omit(options, ['kind', 'name', 'type', 'controller']));
-    Reflect.defineMetadata(SOURCE_METADATA, metadata, target);
+    Reflect.defineMetadata(RESOURCE_METADATA, metadata, target);
   }
 }
 
@@ -79,9 +79,9 @@ function createOperationDecorator<T>(operation: string) {
           throw new TypeError(`Name of the handler name should be '${operation}'`);
         const operationMeta = {...options};
         const sourceMetadata =
-            (Reflect.getOwnMetadata(SOURCE_METADATA, target.constructor) || {}) as Collection.Metadata;
+            (Reflect.getOwnMetadata(RESOURCE_METADATA, target.constructor) || {}) as Collection.Metadata;
         sourceMetadata.operations = sourceMetadata.operations || {};
         sourceMetadata.operations[operation] = operationMeta;
-        Reflect.defineMetadata(SOURCE_METADATA, sourceMetadata, target.constructor);
+        Reflect.defineMetadata(RESOURCE_METADATA, sourceMetadata, target.constructor);
       });
 }

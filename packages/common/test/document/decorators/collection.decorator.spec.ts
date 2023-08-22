@@ -1,5 +1,5 @@
 import 'reflect-metadata';
-import { Collection, SOURCE_METADATA } from '@opra/common';
+import { Collection, RESOURCE_METADATA } from '@opra/common';
 import { Country } from '../../_support/test-api/index.js';
 
 describe('Collection decorators', function () {
@@ -13,7 +13,7 @@ describe('Collection decorators', function () {
       class CountryResource {
       }
 
-      const metadata = Reflect.getMetadata(SOURCE_METADATA, CountryResource);
+      const metadata = Reflect.getMetadata(RESOURCE_METADATA, CountryResource);
       expect(metadata).toStrictEqual({
         kind: 'Collection',
         name: 'Country',
@@ -29,7 +29,7 @@ describe('Collection decorators', function () {
       class CountryResource {
       }
 
-      const metadata = Reflect.getMetadata(SOURCE_METADATA, CountryResource);
+      const metadata = Reflect.getMetadata(RESOURCE_METADATA, CountryResource);
       expect(metadata).toStrictEqual({
         kind: 'Collection',
         name: 'Countries',
@@ -48,7 +48,7 @@ describe('Collection decorators', function () {
         }
       }
 
-      const metadata = Reflect.getMetadata(SOURCE_METADATA, CountryResource);
+      const metadata = Reflect.getMetadata(RESOURCE_METADATA, CountryResource);
       expect(metadata.actions).toStrictEqual({
         sendMessage: {description: 'action'}
       });
@@ -63,7 +63,7 @@ describe('Collection decorators', function () {
         }
       }
 
-      const metadata = Reflect.getMetadata(SOURCE_METADATA, CountryResource);
+      const metadata = Reflect.getMetadata(RESOURCE_METADATA, CountryResource);
       expect(metadata.operations).toStrictEqual({
         create: {description: 'operation'}
       });
@@ -78,7 +78,7 @@ describe('Collection decorators', function () {
         }
       }
 
-      const metadata = Reflect.getMetadata(SOURCE_METADATA, CountryResource);
+      const metadata = Reflect.getMetadata(RESOURCE_METADATA, CountryResource);
       expect(metadata.operations).toStrictEqual({
         delete: {description: 'operation'}
       });
@@ -93,7 +93,7 @@ describe('Collection decorators', function () {
         }
       }
 
-      const metadata = Reflect.getMetadata(SOURCE_METADATA, CountryResource);
+      const metadata = Reflect.getMetadata(RESOURCE_METADATA, CountryResource);
       expect(metadata.operations).toStrictEqual({
         deleteMany: {description: 'operation'}
       });
@@ -108,7 +108,7 @@ describe('Collection decorators', function () {
         }
       }
 
-      const metadata = Reflect.getMetadata(SOURCE_METADATA, CountryResource);
+      const metadata = Reflect.getMetadata(RESOURCE_METADATA, CountryResource);
       expect(metadata.operations).toStrictEqual({
         get: {description: 'operation'}
       });
@@ -123,7 +123,7 @@ describe('Collection decorators', function () {
         }
       }
 
-      const metadata = Reflect.getMetadata(SOURCE_METADATA, CountryResource);
+      const metadata = Reflect.getMetadata(RESOURCE_METADATA, CountryResource);
       expect(metadata.operations).toStrictEqual({
         findMany: {description: 'operation'}
       });
@@ -138,7 +138,7 @@ describe('Collection decorators', function () {
         }
       }
 
-      const metadata = Reflect.getMetadata(SOURCE_METADATA, CountryResource);
+      const metadata = Reflect.getMetadata(RESOURCE_METADATA, CountryResource);
       expect(metadata.operations).toStrictEqual({
         update: {description: 'operation'}
       });
@@ -153,7 +153,7 @@ describe('Collection decorators', function () {
         }
       }
 
-      const metadata = Reflect.getMetadata(SOURCE_METADATA, CountryResource);
+      const metadata = Reflect.getMetadata(RESOURCE_METADATA, CountryResource);
       expect(metadata.operations).toStrictEqual({
         updateMany: {description: 'operation'}
       });

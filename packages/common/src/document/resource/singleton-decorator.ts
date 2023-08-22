@@ -2,7 +2,7 @@ import omit from 'lodash.omit';
 import { StrictOmit } from 'ts-gems';
 import { OpraSchema } from '../../schema/index.js';
 import { TypeThunkAsync } from '../../types.js';
-import { SOURCE_METADATA } from '../constants.js';
+import { RESOURCE_METADATA } from '../constants.js';
 import { Collection } from './collection.js';
 import { Resource } from './resource.js';
 import { ResourceDecorator } from './resource-decorator.js';
@@ -31,18 +31,18 @@ export interface SingletonDecorator extends StrictOmit<ResourceDecorator, 'Actio
 export function SingletonDecorator(type: TypeThunkAsync | string, options?: Singleton.DecoratorOptions): ClassDecorator {
   return function (target: Function) {
     const name = options?.name || target.name.match(NAME_PATTERN)?.[1] || target.name;
-    const metadata: Singleton.Metadata = Reflect.getOwnMetadata(SOURCE_METADATA, target) || ({} as any);
+    const metadata: Singleton.Metadata = Reflect.getOwnMetadata(RESOURCE_METADATA, target) || ({} as any);
     metadata.kind = OpraSchema.Singleton.Kind;
     metadata.name = name;
     metadata.type = type;
     // Merge with previous metadata object
-    const m = Reflect.getMetadata(SOURCE_METADATA, target);
+    const m = Reflect.getMetadata(RESOURCE_METADATA, target);
     if (m && metadata !== m)
       Object.assign(metadata, omit(m), Object.keys(metadata));
     // Merge options
     if (options)
       Object.assign(metadata, omit(options, ['kind', 'name', 'type', 'controller']));
-    Reflect.defineMetadata(SOURCE_METADATA, metadata, target);
+    Reflect.defineMetadata(RESOURCE_METADATA, metadata, target);
   }
 }
 
@@ -70,9 +70,9 @@ function createOperationDecorator<T>(operation: string) {
           throw new TypeError(`Name of the handler name should be '${operation}'`);
         const operationMeta = {...options};
         const sourceMetadata =
-            (Reflect.getOwnMetadata(SOURCE_METADATA, target.constructor) || {}) as Collection.Metadata;
+            (Reflect.getOwnMetadata(RESOURCE_METADATA, target.constructor) || {}) as Collection.Metadata;
         sourceMetadata.operations = sourceMetadata.operations || {};
         sourceMetadata.operations[operation] = operationMeta;
-        Reflect.defineMetadata(SOURCE_METADATA, sourceMetadata, target.constructor);
+        Reflect.defineMetadata(RESOURCE_METADATA, sourceMetadata, target.constructor);
       });
 }

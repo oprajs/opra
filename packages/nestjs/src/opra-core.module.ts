@@ -74,7 +74,6 @@ export class OpraCoreModule implements OnModuleInit, OnModuleDestroy {
     };
   }
 
-
   private static createAsyncProviders(asyncOptions: OpraModuleAsyncOptions): Provider[] {
     if (asyncOptions.useExisting || asyncOptions.useFactory)
       return [this.createAsyncOptionsProvider(asyncOptions)];

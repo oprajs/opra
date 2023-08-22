@@ -1,5 +1,5 @@
 import 'reflect-metadata';
-import { SOURCE_METADATA, Storage } from '@opra/common';
+import { RESOURCE_METADATA, Storage } from '@opra/common';
 
 describe('Storage decorators', function () {
 
@@ -12,7 +12,7 @@ describe('Storage decorators', function () {
       class MyFilesResource {
       }
 
-      const metadata = Reflect.getMetadata(SOURCE_METADATA, MyFilesResource);
+      const metadata = Reflect.getMetadata(RESOURCE_METADATA, MyFilesResource);
       expect(metadata).toStrictEqual({
         kind: 'Storage',
         name: 'MyFiles',
@@ -27,7 +27,7 @@ describe('Storage decorators', function () {
       class MyFilesResource {
       }
 
-      const metadata = Reflect.getMetadata(SOURCE_METADATA, MyFilesResource);
+      const metadata = Reflect.getMetadata(RESOURCE_METADATA, MyFilesResource);
       expect(metadata).toStrictEqual({
         kind: 'Storage',
         name: 'Uploads',
@@ -44,7 +44,7 @@ describe('Storage decorators', function () {
         }
       }
 
-      const metadata = Reflect.getMetadata(SOURCE_METADATA, CountryResource);
+      const metadata = Reflect.getMetadata(RESOURCE_METADATA, CountryResource);
       expect(metadata.actions).toStrictEqual({
         sendMessage: {description: 'action'}
       });
@@ -59,7 +59,7 @@ describe('Storage decorators', function () {
         }
       }
 
-      const metadata = Reflect.getMetadata(SOURCE_METADATA, CountryResource);
+      const metadata = Reflect.getMetadata(RESOURCE_METADATA, CountryResource);
       expect(metadata.operations).toStrictEqual({
         delete: {description: 'operation'}
       });
@@ -74,7 +74,7 @@ describe('Storage decorators', function () {
         }
       }
 
-      const metadata = Reflect.getMetadata(SOURCE_METADATA, CountryResource);
+      const metadata = Reflect.getMetadata(RESOURCE_METADATA, CountryResource);
       expect(metadata.operations).toStrictEqual({
         get: {description: 'operation'}
       });
@@ -89,7 +89,7 @@ describe('Storage decorators', function () {
         }
       }
 
-      const metadata = Reflect.getMetadata(SOURCE_METADATA, CountryResource);
+      const metadata = Reflect.getMetadata(RESOURCE_METADATA, CountryResource);
       expect(metadata.operations).toStrictEqual({
         post: {description: 'operation'}
       });

@@ -44,7 +44,9 @@ export function isSource(obj: any): obj is Resource {
   return obj && typeof obj === 'object' &&
       (obj.kind === Container.Kind ||
           obj.kind === Collection.Kind ||
-          obj.kind === Singleton.Kind);
+          obj.kind === Singleton.Kind ||
+          obj.kind === Storage.Kind
+      );
 }
 
 export function isCollection(obj: any): obj is Collection {

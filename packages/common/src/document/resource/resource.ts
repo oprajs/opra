@@ -1,5 +1,4 @@
 import { StrictOmit, Type } from 'ts-gems';
-import { ResponsiveMap } from '../../helpers/index.js';
 import { omitUndefined } from '../../helpers/object-utils.js';
 import { OpraSchema } from '../../schema/index.js';
 import type { ApiDocument } from '../api-document.js';
@@ -32,7 +31,7 @@ export abstract class Resource {
   readonly description?: string;
   readonly controller?: object | Type;
   abstract readonly operations: Record<string, any>;
-  readonly actions = new ResponsiveMap<Action>();
+  readonly actions: Record<string, Action> = {};
 
   protected constructor(
       document: ApiDocument,
@@ -42,6 +41,11 @@ export abstract class Resource {
     this.name = init.name;
     this.description = init.description;
     this.controller = init.controller;
+    if (init.actions) {
+      for (const [name, meta] of Object.entries(init.actions)) {
+        this.actions[name.toLowerCase()] = new Action({...meta, name});
+      }
+    }
   }
 
   exportSchema(): OpraSchema.ResourceBase {
@@ -49,12 +53,14 @@ export abstract class Resource {
       kind: this.kind,
       description: this.description,
     });
-    if (this.actions.size) {
-      const actions = schema.actions = {};
-      for (const [name, r] of this.actions.entries()) {
-        actions[name] = r.exportSchema();
-      }
+    const actions = {};
+    let i = 0;
+    for (const action of Object.values(this.actions)) {
+      actions[action.name] = action.exportSchema();
+      i++;
     }
+    if (i)
+      schema.actions = actions;
     return schema;
   }
 

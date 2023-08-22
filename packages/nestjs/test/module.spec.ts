@@ -1,6 +1,8 @@
+// import { OpraModule } from '@opra/nestjs';
 import { Server } from 'http';
 import request from 'supertest';
 import { INestApplication } from '@nestjs/common';
+// import { ModuleRef } from '@nestjs/core';
 import { Test } from '@nestjs/testing';
 import { ApplicationModule } from './_support/photos-app/app.module.js';
 import photosData from './_support/photos-app/photos-module/photos.data.js';
@@ -9,6 +11,7 @@ describe('OpraModule', function () {
 
   let server: Server;
   let app: INestApplication;
+  // let moduleRef: ModuleRef;
 
   beforeEach(async () => {
     const module = await Test.createTestingModule({
@@ -19,6 +22,7 @@ describe('OpraModule', function () {
     app.setGlobalPrefix('api');
     server = app.getHttpServer();
     await app.init();
+    // moduleRef = app.get(ModuleRef);
   });
 
   afterEach(async () => {
