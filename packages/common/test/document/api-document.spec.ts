@@ -21,7 +21,7 @@ describe('ApiDocument', function () {
       version: 'v1',
       description: 'Document description',
     },
-    sources: [CustomersResource, CountriesResource, MyProfileResource]
+    resources: [CustomersResource, CountriesResource, MyProfileResource]
   };
 
   it('Should create ApiDocument instance', async () => {
@@ -150,18 +150,18 @@ describe('ApiDocument', function () {
   it('Should getResource(name) return Resource instance', async () => {
     const doc = await DocumentFactory.createDocument(baseArgs);
     expect(doc).toBeDefined();
-    expect(doc.getSource('Customers')).toBeInstanceOf(Collection);
-    expect(doc.getSource('Customers').name).toStrictEqual('Customers');
+    expect(doc.getResource('Customers')).toBeInstanceOf(Collection);
+    expect(doc.getResource('Customers').name).toStrictEqual('Customers');
   })
 
   it('Should getResource(name) throw if resource not a found', async () => {
     const doc = await DocumentFactory.createDocument(baseArgs);
-    expect(() => doc.getSource('unknownResource')).toThrow('not found');
+    expect(() => doc.getResource('unknownResource')).toThrow('not found');
   })
 
   it('Should getResource(name, silent) return undefined if resource not a found', async () => {
     const doc = await DocumentFactory.createDocument(baseArgs);
-    expect(doc.getSource('unknownResource', true)).not.toBeDefined();
+    expect(doc.getResource('unknownResource', true)).not.toBeDefined();
   })
 
   it('Should getCollection(name) return Collection instance', async () => {
@@ -216,8 +216,8 @@ describe('ApiDocument', function () {
           abstract: true
         })
     );
-    expect(sch.sources).toBeDefined();
-    expect(Object.keys(sch.sources!).sort())
+    expect(sch.resources).toBeDefined();
+    expect(Object.keys(sch.resources!).sort())
         .toEqual(['Countries', 'Customers', 'MyProfile'].sort());
   })
 

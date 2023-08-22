@@ -11,7 +11,7 @@ import {
 import { Field } from '../../schema/data-type/field.interface.js';
 import { OpraSchema } from '../../schema/index.js';
 import type { ApiDocument } from '../api-document.js';
-import { METADATA_KEY } from '../constants.js';
+import { DATATYPE_METADATA } from '../constants.js';
 import { ApiField } from './api-field.js';
 import { ComplexType } from './complex-type.js';
 import { DataType } from './data-type.js';
@@ -100,14 +100,14 @@ export interface MappedTypeConstructor {
       PickKey extends keyof I1,
       OmitKey extends keyof I1
   >(
-      source: Class<T, I1, S1>,
+      resource: Class<T, I1, S1>,
       options: {
         pickKeys?: readonly PickKey[],
         omitKeys?: readonly OmitKey[],
       }
   ): Class<T, Omit<Pick<I1, PickKey>, OmitKey>>;
 
-  _applyMixin(target: Type, source: Type,
+  _applyMixin(targetType: Type, sourceType: Type,
               options: MappedType.Options<any> &
                   {
                     isInheritedPredicate: (fieldName: string) => boolean;
@@ -131,35 +131,35 @@ export const MappedType = function (
   }
 
   // MappedType helper
-  const [source, options] = args as [Type, MappedType.Options<any>];
+  const [mappedSource, options] = args as [Type, MappedType.Options<any>];
   const isInheritedPredicate = getIsInheritedPredicateFn(options.pick as string[], options.omit as string[]);
 
   class MappedClass {
     constructor() {
-      inheritPropertyInitializers(this, source, isInheritedPredicate);
+      inheritPropertyInitializers(this, mappedSource, isInheritedPredicate);
     }
   }
 
-  mergePrototype(MappedClass.prototype, source.prototype);
+  mergePrototype(MappedClass.prototype, mappedSource.prototype);
 
   // const mappedTypeMetadata: MappedType.TypeMapping[] = [];
-  const m = Reflect.getOwnMetadata(METADATA_KEY, source) as OpraSchema.DataType;
+  const m = Reflect.getOwnMetadata(DATATYPE_METADATA, mappedSource) as OpraSchema.DataType;
   if (!m)
-    throw new TypeError(`Class "${source}" doesn't have datatype metadata information`);
+    throw new TypeError(`Class "${mappedSource}" doesn't have datatype metadata information`);
   if (!(m.kind === OpraSchema.ComplexType.Kind))
-    throw new TypeError(`Class "${source}" is not a ${OpraSchema.ComplexType.Kind}`);
+    throw new TypeError(`Class "${mappedSource}" is not a ${OpraSchema.ComplexType.Kind}`);
 
   const metadata: MappedType.Metadata = {
     kind: 'MappedType',
-    type: source
+    type: mappedSource
   };
   if (options.pick)
     metadata.pick = options.pick as string[];
   if (options.omit)
     metadata.omit = options.omit as string[];
-  Reflect.defineMetadata(METADATA_KEY, metadata, MappedClass);
+  Reflect.defineMetadata(DATATYPE_METADATA, metadata, MappedClass);
 
-  MappedType._applyMixin(MappedClass, source, {
+  MappedType._applyMixin(MappedClass, mappedSource, {
     ...options,
     isInheritedPredicate
   });

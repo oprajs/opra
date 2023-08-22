@@ -13,10 +13,10 @@ export * from './data-type/mapped-type.js';
 export * from './data-type/simple-type.js';
 export * from './data-type/union-type.js';
 
-export * from './source/source.js';
-export * from './source/collection.js';
-export * from './source/singleton.js';
-export * from './source/storage.js';
+export * from './resource/resource.js';
+export * from './resource/collection.js';
+export * from './resource/singleton.js';
+export * from './resource/storage.js';
 
 export * from './interfaces/collection.interface.js'
 export * from './interfaces/singleton.interface.js'

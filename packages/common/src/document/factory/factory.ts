@@ -12,8 +12,8 @@ import {
 import {
   extractCollectionSchema,
   extractSingletonSchema,
-  importSourceClass
-} from './import-source-class.js';
+  importResourceClass
+} from './import-resource-class.js';
 import {
   extractComplexTypeSchema,
   extractEnumTypeSchema,
@@ -24,11 +24,11 @@ import {
   importTypeClass
 } from './import-type-class.js';
 import {
-  createCollectionSource,
-  createSingletonSource,
-  createStorageSource,
+  createCollectionResource,
+  createSingletonResource,
+  createStorageResource,
   processSourceQueue
-} from './process-sources.js';
+} from './process-resources.js';
 import {
   addDataType,
   createDataTypeInstance,
@@ -39,9 +39,9 @@ import {
  * @namespace DocumentFactory
  */
 export namespace DocumentFactory {
-  export interface InitArguments extends StrictOmit<OpraSchema.ApiDocument, 'references' | 'types' | 'sources'> {
+  export interface InitArguments extends StrictOmit<OpraSchema.ApiDocument, 'references' | 'types' | 'resources'> {
     references?: Record<string, string | OpraSchema.ApiDocument | ApiDocument>;
-    sources?: ThunkAsync<Type | object>[] | Record<OpraSchema.Source.Name, OpraSchema.Source>;
+    resources?: ThunkAsync<Type | object>[] | Record<OpraSchema.Resource.Name, OpraSchema.Resource>;
     types?: ThunkAsync<Type | OpraSchema.EnumThunk>[] | Record<string, OpraSchema.DataType>;
   }
 }
@@ -54,7 +54,7 @@ export class DocumentFactory {
 
   protected document: ApiDocument = new ApiDocument();
   protected typeQueue = new ResponsiveMap<OpraSchema.DataType>()
-  protected sourceQueue = new ResponsiveMap<OpraSchema.Source>();
+  protected sourceQueue = new ResponsiveMap<OpraSchema.Resource>();
   protected circularRefs = new ResponsiveMap<any>();
   protected curPath: string[] = []
   protected cache = new Map<any, any>();
@@ -73,13 +73,13 @@ export class DocumentFactory {
   protected processTypes: typeof processTypes;
   protected createDataTypeInstance: typeof createDataTypeInstance;
   protected addDataType: typeof addDataType;
-  protected importSourceClass: typeof importSourceClass;
+  protected importSourceClass: typeof importResourceClass;
   protected extractSingletonSchema: typeof extractSingletonSchema;
   protected extractCollectionSchema: typeof extractCollectionSchema;
   protected processSourceQueue: typeof processSourceQueue;
-  protected createCollectionSource: typeof createCollectionSource;
-  protected createSingletonSource: typeof createSingletonSource;
-  protected createFileSource: typeof createStorageSource;
+  protected createCollectionSource: typeof createCollectionResource;
+  protected createSingletonSource: typeof createSingletonResource;
+  protected createFileSource: typeof createStorageResource;
 
   /**
    * Creates ApiDocument instance from given schema object
@@ -113,13 +113,13 @@ export class DocumentFactory {
     this.prototype.processTypes = processTypes;
     this.prototype.createDataTypeInstance = createDataTypeInstance;
     this.prototype.addDataType = addDataType;
-    this.prototype.importSourceClass = importSourceClass;
+    this.prototype.importSourceClass = importResourceClass;
     this.prototype.extractSingletonSchema = extractSingletonSchema;
     this.prototype.extractCollectionSchema = extractCollectionSchema;
     this.prototype.processSourceQueue = processSourceQueue;
-    this.prototype.createCollectionSource = createCollectionSource;
-    this.prototype.createSingletonSource = createSingletonSource;
-    this.prototype.createFileSource = createStorageSource;
+    this.prototype.createCollectionSource = createCollectionResource;
+    this.prototype.createSingletonSource = createSingletonResource;
+    this.prototype.createFileSource = createStorageResource;
   }
 }
 

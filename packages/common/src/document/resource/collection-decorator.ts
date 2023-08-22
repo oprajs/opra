@@ -1,16 +1,25 @@
 import omit from 'lodash.omit';
 import merge from 'putil-merge';
-import { Type } from 'ts-gems';
+import { StrictOmit, Type } from 'ts-gems';
 import { OpraSchema } from '../../schema/index.js';
-import { METADATA_KEY } from '../constants.js';
+import { SOURCE_METADATA } from '../constants.js';
 import type { Collection } from './collection.js';
+import { Resource } from './resource.js';
+import { ResourceDecorator } from './resource-decorator.js';
 
-// todo, put this in nextjs package wia augmentation
-const NESTJS_INJECTABLE_WATERMARK = '__injectable__';
-const NAME_PATTERN = /^(.*)(Source|Resource|Collection|Controller)$/;
+const NAME_PATTERN = /^(.*)(Resource|Collection|Controller)$/;
+type ErrorMessage<T, Error> = [T] extends [never] ? Error : T;
+const operationProperties = ['create', 'delete', 'deleteMany', 'get', 'findMany', 'update', 'updateMany'] as const;
+type OperationProperties = typeof operationProperties[number];
 
-export interface CollectionDecorator {
+export interface CollectionDecorator extends StrictOmit<ResourceDecorator, 'Action'> {
   <T>(type: Type<T> | string, options?: Collection.DecoratorOptions<T>): ClassDecorator;
+
+  Action: (options?: Resource.ActionOptions) => (<T, K extends keyof T>(
+      target: T,
+      propertyKey: ErrorMessage<Exclude<K, OperationProperties>,
+          // eslint-disable-next-line max-len
+          `'${string & K}' property is reserved for operation endpoints and can not be used for actions`>) => void);
 
   Create: (options?: Collection.CreateEndpointOptions) => ((target: Object, propertyKey: 'create') => void);
   Delete: (options?: Collection.DeleteEndpointOptions) => ((target: Object, propertyKey: 'delete') => void);
@@ -24,8 +33,8 @@ export interface CollectionDecorator {
 export function CollectionDecorator(type: Type | string, options?: Collection.DecoratorOptions): ClassDecorator {
   return function (target: Function) {
     const name = options?.name || target.name.match(NAME_PATTERN)?.[1] || target.name;
-    const metadata: Collection.Metadata = Reflect.getOwnMetadata(METADATA_KEY, target) || ({} as any);
-    const baseMetadata = Reflect.getOwnMetadata(METADATA_KEY, Object.getPrototypeOf(target));
+    const metadata: Collection.Metadata = Reflect.getOwnMetadata(SOURCE_METADATA, target) || ({} as any);
+    const baseMetadata = Reflect.getOwnMetadata(SOURCE_METADATA, Object.getPrototypeOf(target));
     if (baseMetadata) {
       merge(metadata, baseMetadata, {deep: true});
     }
@@ -33,20 +42,18 @@ export function CollectionDecorator(type: Type | string, options?: Collection.De
     metadata.name = name;
     metadata.type = type;
     // Merge with previous metadata object
-    const m = Reflect.getMetadata(METADATA_KEY, target);
+    const m = Reflect.getMetadata(SOURCE_METADATA, target);
     if (m && metadata !== m)
       Object.assign(metadata, omit(m), Object.keys(metadata));
     // Merge options
     if (options)
       Object.assign(metadata, omit(options, ['kind', 'name', 'type', 'controller']));
-    Reflect.defineMetadata(METADATA_KEY, metadata, target);
-
-    /* Define Injectable metadata for NestJS support*/
-    Reflect.defineMetadata(NESTJS_INJECTABLE_WATERMARK, true, target);
+    Reflect.defineMetadata(SOURCE_METADATA, metadata, target);
   }
 }
 
 
+Object.assign(CollectionDecorator, ResourceDecorator);
 CollectionDecorator.Create = createOperationDecorator('create');
 CollectionDecorator.Delete = createOperationDecorator('delete');
 CollectionDecorator.DeleteMany = createOperationDecorator('deleteMany');
@@ -54,6 +61,15 @@ CollectionDecorator.Get = createOperationDecorator('get');
 CollectionDecorator.FindMany = createOperationDecorator('findMany');
 CollectionDecorator.Update = createOperationDecorator('update');
 CollectionDecorator.UpdateMany = createOperationDecorator('updateMany');
+
+CollectionDecorator.Action = function (options: any): PropertyDecorator {
+  const oldDecorator = ResourceDecorator.Action(options);
+  return (target: Object, propertyKey: string | symbol): void => {
+    if (typeof propertyKey === 'string' && operationProperties.includes(propertyKey as any))
+      throw new TypeError(`The "${propertyKey}" property is reserved for "${propertyKey}" operations and cannot be used as an action'`);
+    return oldDecorator(target, propertyKey);
+  }
+}
 
 
 function createOperationDecorator<T>(operation: string) {
@@ -63,9 +79,9 @@ function createOperationDecorator<T>(operation: string) {
           throw new TypeError(`Name of the handler name should be '${operation}'`);
         const operationMeta = {...options};
         const sourceMetadata =
-            (Reflect.getOwnMetadata(METADATA_KEY, target.constructor) || {}) as Collection.Metadata;
+            (Reflect.getOwnMetadata(SOURCE_METADATA, target.constructor) || {}) as Collection.Metadata;
         sourceMetadata.operations = sourceMetadata.operations || {};
         sourceMetadata.operations[operation] = operationMeta;
-        Reflect.defineMetadata(METADATA_KEY, sourceMetadata, target.constructor);
+        Reflect.defineMetadata(SOURCE_METADATA, sourceMetadata, target.constructor);
       });
 }

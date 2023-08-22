@@ -24,8 +24,8 @@ describe('Parse Collection requests', function () {
             headers: {'Accept': 'application/json'}
           })) as Collection.Get.Request;
       expect(request).toBeDefined();
-      const source = api.getCollection('Customers');
-      expect(request.source).toStrictEqual(source);
+      const resource = api.getCollection('Customers');
+      expect(request.resource).toStrictEqual(resource);
       expect(request.endpoint).toStrictEqual('get');
       expect(request.key).toStrictEqual(1);
       expect(request.params.pick).toStrictEqual(['_id']);
@@ -143,8 +143,8 @@ describe('Parse Collection requests', function () {
         headers: {'content-type': 'application/json', 'Accept': 'application/json'}
       })) as Collection.Create.Request;
       expect(request).toBeDefined();
-      const source = api.getCollection('Customers');
-      expect(request?.source).toStrictEqual(source);
+      const resource = api.getCollection('Customers');
+      expect(request?.resource).toStrictEqual(resource);
       expect(request?.endpoint).toStrictEqual('create');
       expect(request?.data).toEqual({_id: 1});
       expect(request?.params.pick).toStrictEqual(['_id']);
@@ -272,8 +272,8 @@ describe('Parse Collection requests', function () {
         headers: {'content-type': 'application/json', 'Accept': 'application/json'}
       })) as Collection.Update.Request;
       expect(request).toBeDefined();
-      const source = api.getCollection('Customers');
-      expect(request?.source).toStrictEqual(source);
+      const resource = api.getCollection('Customers');
+      expect(request?.resource).toStrictEqual(resource);
       expect(request?.endpoint).toStrictEqual('update');
       expect(request?.key).toStrictEqual(1);
       expect(request?.data).toEqual({_id: 1});
@@ -400,8 +400,8 @@ describe('Parse Collection requests', function () {
         headers: {'content-type': 'application/json', 'Accept': 'application/json'}
       })) as Collection.UpdateMany.Request;
       expect(request).toBeDefined();
-      const source = api.getCollection('Customers');
-      expect(request?.source).toStrictEqual(source);
+      const resource = api.getCollection('Customers');
+      expect(request?.resource).toStrictEqual(resource);
       expect(request?.endpoint).toStrictEqual('updateMany');
       expect(request?.data).toEqual({_id: 1});
       expect(() => request?.switchToHttp()).not.toThrow();
@@ -444,8 +444,8 @@ describe('Parse Collection requests', function () {
         headers: {'Accept': 'application/json'}
       })) as Collection.Delete.Request;
       expect(request).toBeDefined();
-      const source = api.getCollection('Customers');
-      expect(request?.source).toStrictEqual(source);
+      const resource = api.getCollection('Customers');
+      expect(request?.resource).toStrictEqual(resource);
       expect(request?.endpoint).toStrictEqual('delete');
       expect(request?.key).toStrictEqual(1);
       expect(() => request?.switchToHttp()).not.toThrow();
@@ -464,8 +464,8 @@ describe('Parse Collection requests', function () {
         headers: {'Accept': 'application/json'}
       })) as Collection.DeleteMany.Request;
       expect(request).toBeDefined();
-      const source = api.getCollection('Customers');
-      expect(request?.source).toStrictEqual(source);
+      const resource = api.getCollection('Customers');
+      expect(request?.resource).toStrictEqual(resource);
       expect(request?.endpoint).toStrictEqual('deleteMany');
       expect(request?.params.filter).toBeDefined();
       expect(() => request?.switchToHttp()).not.toThrow();
@@ -505,8 +505,8 @@ describe('Parse Collection requests', function () {
         headers: {'Accept': 'application/json'}
       })) as Collection.FindMany.Request;
       expect(request).toBeDefined();
-      const source = api.getCollection('Customers');
-      expect(request?.source).toStrictEqual(source);
+      const resource = api.getCollection('Customers');
+      expect(request?.resource).toStrictEqual(resource);
       expect(request?.endpoint).toStrictEqual('findMany');
       expect(request?.params.skip).toStrictEqual(1);
       expect(request?.params.count).toStrictEqual(false);

@@ -85,7 +85,7 @@ export class HttpCollectionNode<TType, TResponseExt = {}> {
     const requestHost = new HttpRequestObservable(context, options);
     const request = requestHost[kRequest];
     request.method = 'POST';
-    request.url.resolve(context.source);
+    request.url.resolve(context.resource);
     request.body = data;
     if (options?.include)
       request.params.set('$include', toArrayDef(options.include, []).join(','));
@@ -116,7 +116,7 @@ export class HttpCollectionNode<TType, TResponseExt = {}> {
     const requestHost = new HttpRequestObservable(context, options);
     const request = requestHost[kRequest];
     request.method = 'DELETE';
-    request.url.join({resource: context.source, key: id});
+    request.url.join({resource: context.resource, key: id});
     return requestHost as any;
   }
 
@@ -135,7 +135,7 @@ export class HttpCollectionNode<TType, TResponseExt = {}> {
     const requestHost = new HttpRequestObservable(context, options);
     const request = requestHost[kRequest];
     request.method = 'DELETE';
-    request.url.join(context.source);
+    request.url.join(context.resource);
     if (options?.filter)
       request.params.set('$filter', String(options.filter));
     return requestHost as any;
@@ -161,7 +161,7 @@ export class HttpCollectionNode<TType, TResponseExt = {}> {
     const requestHost = new HttpRequestObservable(context, options);
     const request = requestHost[kRequest];
     request.method = 'GET';
-    request.url.join({resource: context.source, key: id});
+    request.url.join({resource: context.resource, key: id});
     if (options?.include)
       request.params.set('$include', toArrayDef(options.include, []).join(','));
     if (options?.pick)
@@ -189,7 +189,7 @@ export class HttpCollectionNode<TType, TResponseExt = {}> {
     const requestHost = new HttpRequestObservable(context, options);
     const request = requestHost[kRequest];
     request.method = 'GET';
-    request.url.join(context.source);
+    request.url.join(context.resource);
     if (options?.include)
       request.params.set('$include', toArrayDef(options.include, []).join(','));
     if (options?.pick)
@@ -234,7 +234,7 @@ export class HttpCollectionNode<TType, TResponseExt = {}> {
     const requestHost = new HttpRequestObservable(context, options);
     const request = requestHost[kRequest];
     request.method = 'PATCH';
-    request.url.join({resource: context.source, key: id});
+    request.url.join({resource: context.resource, key: id});
     request.body = data;
     if (options?.include)
       request.params.set('$include', String(options.include));
@@ -263,7 +263,7 @@ export class HttpCollectionNode<TType, TResponseExt = {}> {
     const requestHost = new HttpRequestObservable(context, options);
     const request = requestHost[kRequest];
     request.method = 'PATCH';
-    request.url.join(context.source);
+    request.url.join(context.resource);
     request.body = data;
     if (options?.filter)
       request.params.set('$filter', String(options.filter));

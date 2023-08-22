@@ -6,20 +6,28 @@ import type { ApiDocument } from '../api-document.js';
 import { colorFgMagenta, colorFgYellow, colorReset, nodeInspectCustom } from '../utils/inspect.util.js';
 import { Action } from './action.js';
 
-export namespace Source {
-  export interface InitArguments extends StrictOmit<OpraSchema.SourceBase, 'kind'> {
+export namespace Resource {
+  export interface InitArguments extends StrictOmit<OpraSchema.ResourceBase, 'kind'> {
     name: string;
     controller?: object | Type;
   }
 
   export interface DecoratorOptions extends Partial<Pick<InitArguments, 'name' | 'description'>> {
+  }
+
+  export interface Metadata extends OpraSchema.ResourceBase {
+    name: string;
+  }
+
+  export interface ActionOptions {
 
   }
+
 }
 
-export abstract class Source {
+export abstract class Resource {
   readonly document: ApiDocument;
-  abstract readonly kind: OpraSchema.Source.Kind;
+  abstract readonly kind: OpraSchema.Resource.Kind;
   readonly name: string;
   readonly description?: string;
   readonly controller?: object | Type;
@@ -28,7 +36,7 @@ export abstract class Source {
 
   protected constructor(
       document: ApiDocument,
-      init: Source.InitArguments
+      init: Resource.InitArguments
   ) {
     this.document = document;
     this.name = init.name;
@@ -36,8 +44,8 @@ export abstract class Source {
     this.controller = init.controller;
   }
 
-  exportSchema(): OpraSchema.SourceBase {
-    const schema = omitUndefined<OpraSchema.SourceBase>({
+  exportSchema(): OpraSchema.ResourceBase {
+    const schema = omitUndefined<OpraSchema.ResourceBase>({
       kind: this.kind,
       description: this.description,
     });

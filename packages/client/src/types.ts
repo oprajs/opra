@@ -72,8 +72,8 @@ export enum HttpEventType {
 
 export interface HttpClientContext {
   client: OpraHttpClient;
-  sourceKind: OpraSchema.Source.Kind;
-  source: string;
+  sourceKind: OpraSchema.Resource.Kind;
+  resource: string;
   endpoint: string;
   send: HttpRequestHandler;
   requestInterceptors?: RequestInterceptor[];

@@ -2,7 +2,7 @@ import path from 'path';
 import { pascalCase } from 'putil-varhelpers';
 import { AsyncEventEmitter } from 'strict-typed-events';
 import { Type } from 'ts-gems';
-import { ApiDocument, getStackFileName, I18n, Source } from '@opra/common';
+import { ApiDocument, getStackFileName, I18n, Resource } from '@opra/common';
 import { ExecutionContext } from './execution-context.js';
 import type { PlatformAdapter, Protocol } from './platform-adapter';
 import { Logger } from './services/logger.js';
@@ -11,7 +11,7 @@ import { Logger } from './services/logger.js';
  * @class PlatformAdapterHost
  */
 export abstract class PlatformAdapterHost extends AsyncEventEmitter implements PlatformAdapter {
-  _controllers = new WeakMap<Source, any>();
+  _controllers = new WeakMap<Resource, any>();
   _protocol: Protocol;
   _platform: string;
   _initialized = false;
@@ -54,7 +54,7 @@ export abstract class PlatformAdapterHost extends AsyncEventEmitter implements P
 
   async close() {
     const promises: Promise<void>[] = [];
-    for (const r of this.api.sources.values()) {
+    for (const r of this.api.resources.values()) {
       const onShutdown = r.onShutdown;
       if (onShutdown)
         promises.push((async () => onShutdown.call(r.controller, r))());
@@ -79,26 +79,26 @@ export abstract class PlatformAdapterHost extends AsyncEventEmitter implements P
     if (!this._i18n.isInitialized)
       await this._i18n.init();
 
-    // Initialize all sources
-    for (const source of this.api.sources.values()) {
-      await this.getController(source);
+    // Initialize all resources
+    for (const resource of this.api.resources.values()) {
+      await this.getController(resource);
     }
     this._initialized = true;
   }
 
-  async getController(source: Source | string): Promise<any> {
-    source = typeof source === 'object' && source instanceof Source
-        ? source : this.api.getSource(source);
-    let controller = this._controllers.get(source);
+  async getController(resource: Resource | string): Promise<any> {
+    resource = typeof resource === 'object' && resource instanceof Resource
+        ? resource : this.api.getResource(resource);
+    let controller = this._controllers.get(resource);
     if (!controller) {
-      if (source.controller) {
-        controller = typeof source.controller === 'function' ?
-            new (source.controller as Type)()
-            : source.controller;
+      if (resource.controller) {
+        controller = typeof resource.controller === 'function' ?
+            new (resource.controller as Type)()
+            : resource.controller;
         // Initialize controller
         if (typeof controller.onInit === 'function')
           await controller.onInit.call(controller)
-        this._controllers.set(source, controller);
+        this._controllers.set(resource, controller);
       }
     }
     return controller;

@@ -116,19 +116,19 @@ export class OpraHttpClient {
   // return new BatchRequest(request => this._sendRequest('response', request, requests);
   // }
 
-  collection<TType = any>(sourceName: string | Type<TType>): HttpCollectionNode<TType> {
+  collection<TType = any>(resourceName: string | Type<TType>): HttpCollectionNode<TType> {
     // If name argument is a class, we extract name from the class
-    if (typeof sourceName === 'function')
-      sourceName = sourceName.name;
+    if (typeof resourceName === 'function')
+      resourceName = resourceName.name;
     const ctx: HttpClientContext = {
       client: this,
       sourceKind: 'Collection',
       endpoint: '',
-      source: sourceName,
+      resource: resourceName,
       send: (observe, request) =>
           this._sendRequest(observe, request, 'Collection', ctx.endpoint, ctx),
       // requestInterceptors: [
-      //   // Validate source exists and is a collection source
+      //   // Validate resource exists and is a collection resource
       //   async () => {
       //     const metadata = await this.getMetadata();
       //     metadata.getCollection(ctx.sourceName);
@@ -147,7 +147,7 @@ export class OpraHttpClient {
       client: this,
       sourceKind: 'Singleton',
       endpoint: '',
-      source: sourceName,
+      resource: sourceName,
       send: (observe, request) =>
           this._sendRequest(observe, request, 'Singleton', ctx.endpoint, ctx),
       // requestInterceptors: [
@@ -165,7 +165,7 @@ export class OpraHttpClient {
   protected _sendRequest<TBody>(
       observe: HttpObserveType,
       request: HttpRequest,
-      sourceKind?: OpraSchema.Source.Kind,
+      sourceKind?: OpraSchema.Resource.Kind,
       endpoint?: string,
       ctx?: HttpClientContext
   ): Observable<HttpResponse<TBody> | TBody | HttpEvent> {
@@ -238,7 +238,7 @@ export class OpraHttpClient {
       subscriber: Subscriber<any>,
       request: HttpRequest,
       fetchResponse: Response,
-      sourceKind?: OpraSchema.Source.Kind,
+      sourceKind?: OpraSchema.Resource.Kind,
       endpoint?: string,
       ctx?: HttpClientContext
   ): Promise<void> {

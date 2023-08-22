@@ -4,11 +4,11 @@ import { EnumType } from './data-type/enum-type.interface.js';
 import { MappedType } from './data-type/mapped-type.interface.js';
 import { SimpleType } from './data-type/simple-type.interface.js';
 import { UnionType } from './data-type/union-type.interface.js';
-import { Collection } from './source/collection.interface.js';
-import { Container } from './source/container.interface.js';
-import { Singleton } from './source/singleton.interface.js';
-import { Source } from './source/source.interface.js';
-import { Storage } from './source/storage.interface.js';
+import { Collection } from './resource/collection.interface.js';
+import { Container } from './resource/container.interface.js';
+import { Resource } from './resource/resource.interface.js';
+import { Singleton } from './resource/singleton.interface.js';
+import { Storage } from './resource/storage.interface.js';
 
 export function isDataType(obj: any): obj is DataType {
   return obj && typeof obj === 'object' &&
@@ -40,7 +40,7 @@ export function isEnumType(obj: any): obj is EnumType {
   return obj && typeof obj === 'object' && obj.kind === EnumType.Kind;
 }
 
-export function isSource(obj: any): obj is Source {
+export function isSource(obj: any): obj is Resource {
   return obj && typeof obj === 'object' &&
       (obj.kind === Container.Kind ||
           obj.kind === Collection.Kind ||

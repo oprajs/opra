@@ -55,7 +55,7 @@ export class HttpSingletonNode<TType, TResponseExt = {}> {
     const requestHost = new HttpRequestObservable(context, options);
     const request = requestHost[kRequest];
     request.method = 'POST';
-    request.url.join(context.source);
+    request.url.join(context.resource);
     request.body = data;
     if (options?.include)
       request.params.set('$include', toArrayDef(options.include, []).join(','));
@@ -81,7 +81,7 @@ export class HttpSingletonNode<TType, TResponseExt = {}> {
     const requestHost = new HttpRequestObservable(context, options);
     const request = requestHost[kRequest];
     request.method = 'DELETE';
-    request.url.join({resource: context.source});
+    request.url.join({resource: context.resource});
     return requestHost as any;
   }
 
@@ -100,7 +100,7 @@ export class HttpSingletonNode<TType, TResponseExt = {}> {
     const requestHost = new HttpRequestObservable(context, options);
     const request = requestHost[kRequest];
     request.method = 'GET';
-    request.url.join({resource: context.source});
+    request.url.join({resource: context.resource});
     if (options?.include)
       request.params.set('$include', toArrayDef(options.include, []).join(','));
     if (options?.pick)
@@ -128,7 +128,7 @@ export class HttpSingletonNode<TType, TResponseExt = {}> {
     const requestHost = new HttpRequestObservable(context, options);
     const request = requestHost[kRequest];
     request.method = 'PATCH';
-    request.url.join({resource: context.source});
+    request.url.join({resource: context.resource});
     request.body = data;
     if (options?.include)
       request.params.set('$include', toArrayDef(options.include, []).join(','));

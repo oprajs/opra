@@ -17,12 +17,12 @@ export function mergePrototype(targetProto: any, baseProto: any, filter?: (k: st
 // noinspection JSUnusedLocalSymbols
 export function inheritPropertyInitializers(
     target: Record<string, any>,
-    sourceClass: Type,
+    clazz: Type,
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     isPropertyInherited = (key: string) => true,
 ) {
   try {
-    const tempInstance = new sourceClass();
+    const tempInstance = new clazz();
     const propertyNames = Object.getOwnPropertyNames(tempInstance);
     propertyNames
         .filter(

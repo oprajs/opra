@@ -8,6 +8,11 @@ declare module "@opra/common" {
   /* ***************************** */
   namespace Storage {
 
+    namespace Action {
+      interface Context extends Resource.Context {
+      }
+    }
+
     /* ***************************** */
     namespace Delete {
       interface Request extends _Request {

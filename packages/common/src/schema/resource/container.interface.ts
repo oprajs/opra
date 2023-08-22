@@ -1,10 +1,10 @@
 import type { DataType } from '../data-type/data-type.interface.js';
-import type { Source, SourceBase } from './source.interface.js';
+import type { Resource, ResourceBase } from './resource.interface';
 
-export interface Container extends SourceBase {
+export interface Container extends ResourceBase {
   kind: Container.Kind;
   types?: Record<DataType.Name, DataType>;
-  sources?: Record<Source.Name, Source>;
+  resources?: Record<Resource.Name, Resource>;
 }
 
 export namespace Container {

@@ -16,7 +16,7 @@ export async function createTestApi() {
       title: 'TestApi',
       version: 'v1',
     },
-    sources: [
+    resources: [
       CustomersResource,
       MyProfileResource,
       FilesResource

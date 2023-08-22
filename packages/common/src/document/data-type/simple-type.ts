@@ -4,7 +4,7 @@ import merge from 'putil-merge';
 import * as vg from 'valgen';
 import { OpraSchema } from '../../schema/index.js';
 import type { ApiDocument } from '../api-document.js';
-import { METADATA_KEY, TYPENAME_PATTERN } from '../constants.js';
+import { DATATYPE_METADATA, TYPENAME_PATTERN } from '../constants.js';
 import { DataType } from './data-type.js';
 
 export namespace SimpleType {
@@ -85,12 +85,12 @@ export const SimpleType = function (this: SimpleType | void, ...args: any[]) {
   return function (target: Function) {
     let name = options?.name || target.name.match(TYPENAME_PATTERN)?.[1] || target.name;
     name = name.charAt(0).toLowerCase() + name.substring(1);
-    const metadata: SimpleType.Metadata = Reflect.getOwnMetadata(METADATA_KEY, target) || ({} as any);
+    const metadata: SimpleType.Metadata = Reflect.getOwnMetadata(DATATYPE_METADATA, target) || ({} as any);
     metadata.kind = OpraSchema.SimpleType.Kind;
     metadata.name = name;
     if (options)
       Object.assign(metadata, omit(options, ['kind', 'name']));
-    Reflect.defineMetadata(METADATA_KEY, metadata, target);
+    Reflect.defineMetadata(DATATYPE_METADATA, metadata, target);
   }
 
 } as SimpleTypeConstructor;

@@ -16,7 +16,7 @@ describe('MongoAdapter.transformRequest (Singleton)', function () {
 
     it('Should prepare', async () => {
       const request = {
-        source: api.getSingleton('MyProfile'),
+        resource: api.getSingleton('MyProfile'),
         endpoint: 'create',
         data
       } as unknown as Request;
@@ -32,7 +32,7 @@ describe('MongoAdapter.transformRequest (Singleton)', function () {
 
     it('Should prepare with "pick" option', async () => {
       const request = {
-        source: api.getSingleton('MyProfile'),
+        resource: api.getSingleton('MyProfile'),
         endpoint: 'create',
         data,
         params: {pick: ['givenName']}
@@ -49,7 +49,7 @@ describe('MongoAdapter.transformRequest (Singleton)', function () {
 
     it('Should prepare with "omit" option', async () => {
       const request = {
-        source: api.getSingleton('MyProfile'),
+        resource: api.getSingleton('MyProfile'),
         endpoint: 'create',
         data,
         params: {omit: ['givenName']}
@@ -66,7 +66,7 @@ describe('MongoAdapter.transformRequest (Singleton)', function () {
 
     it('Should prepare with "include" option', async () => {
       const request = {
-        source: api.getSingleton('MyProfile'),
+        resource: api.getSingleton('MyProfile'),
         endpoint: 'create',
         data,
         params: {include: ['address']}
@@ -94,7 +94,7 @@ describe('MongoAdapter.transformRequest (Singleton)', function () {
   describe('Convert "deleteOne" request', function () {
     it('Should prepare', async () => {
       const request = {
-        source: api.getSingleton('MyProfile'),
+        resource: api.getSingleton('MyProfile'),
         endpoint: 'delete',
       } as unknown as Request;
       const o = MongoAdapter.transformRequest(request);
@@ -109,7 +109,7 @@ describe('MongoAdapter.transformRequest (Singleton)', function () {
 
     it('Should prepare', async () => {
       const request = {
-        source: api.getSingleton('MyProfile'),
+        resource: api.getSingleton('MyProfile'),
         endpoint: 'get',
       } as unknown as Request;
       const o = MongoAdapter.transformRequest(request);
@@ -124,7 +124,7 @@ describe('MongoAdapter.transformRequest (Singleton)', function () {
 
     it('Should prepare with "pick" option', async () => {
       const request = {
-        source: api.getSingleton('MyProfile'),
+        resource: api.getSingleton('MyProfile'),
         endpoint: 'get',
         params: {pick: ['givenName']}
       } as unknown as Request;
@@ -140,7 +140,7 @@ describe('MongoAdapter.transformRequest (Singleton)', function () {
 
     it('Should prepare with "omit" option', async () => {
       const request = {
-        source: api.getSingleton('MyProfile'),
+        resource: api.getSingleton('MyProfile'),
         endpoint: 'get',
         key: 1,
         params: {omit: ['givenName']}
@@ -157,7 +157,7 @@ describe('MongoAdapter.transformRequest (Singleton)', function () {
 
     it('Should prepare with "include" option', async () => {
       const request = {
-        source: api.getSingleton('MyProfile'),
+        resource: api.getSingleton('MyProfile'),
         endpoint: 'get',
         params: {include: ['address']}
       } as unknown as Request;
@@ -187,7 +187,7 @@ describe('MongoAdapter.transformRequest (Singleton)', function () {
 
     it('Should prepare', async () => {
       const request = {
-        source: api.getSingleton('MyProfile'),
+        resource: api.getSingleton('MyProfile'),
         endpoint: 'update',
         data
       } as unknown as Request;
@@ -204,7 +204,7 @@ describe('MongoAdapter.transformRequest (Singleton)', function () {
 
     it('Should prepare with "pick" option', async () => {
       const request = {
-        source: api.getSingleton('MyProfile'),
+        resource: api.getSingleton('MyProfile'),
         endpoint: 'update',
         data,
         params: {pick: ['givenName']}
@@ -222,7 +222,7 @@ describe('MongoAdapter.transformRequest (Singleton)', function () {
 
     it('Should prepare with "omit" option', async () => {
       const request = {
-        source: api.getSingleton('MyProfile'),
+        resource: api.getSingleton('MyProfile'),
         endpoint: 'update',
         data,
         params: {omit: ['givenName']}
@@ -240,7 +240,7 @@ describe('MongoAdapter.transformRequest (Singleton)', function () {
 
     it('Should prepare with "include" option', async () => {
       const request = {
-        source: api.getSingleton('MyProfile'),
+        resource: api.getSingleton('MyProfile'),
         endpoint: 'update',
         data,
         params: {include: ['address']}

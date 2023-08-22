@@ -4,14 +4,14 @@ import type { Container } from './container.interface.js';
 import type { Singleton } from './singleton.interface.js';
 import type { Storage } from './storage.interface';
 
-export type Source = Collection | Singleton | Storage | Container;
+export type Resource = Collection | Singleton | Storage | Container;
 
-export namespace Source {
+export namespace Resource {
   export type Name = string;
   export type Kind = Collection.Kind | Singleton.Kind | Storage.Kind | Container.Kind;
 }
 
-export interface SourceBase {
+export interface ResourceBase {
   kind: string;
   description?: string;
   actions?: Record<Action.Name, Action>;

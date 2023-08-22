@@ -1,6 +1,6 @@
 import { InstanceWrapper } from '@nestjs/core/injector/instance-wrapper';
 import { Module } from '@nestjs/core/injector/module';
-import { METADATA_KEY, OpraSchema } from '@opra/common';
+import { OpraSchema, SOURCE_METADATA } from '@opra/common';
 
 export class NestExplorer {
 
@@ -30,7 +30,7 @@ export class NestExplorer {
       return !!(wrapper.instance
           && typeof wrapper.instance === 'object'
           && wrapper.instance.constructor
-          && OpraSchema.isSource(Reflect.getMetadata(METADATA_KEY, wrapper.instance.constructor)))
+          && OpraSchema.isSource(Reflect.getMetadata(SOURCE_METADATA, wrapper.instance.constructor)))
     })
   }
 
