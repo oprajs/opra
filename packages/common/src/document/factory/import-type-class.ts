@@ -4,9 +4,9 @@ import { cloneObject, isConstructor, resolveThunk } from '../../helpers/index.js
 import { OpraSchema } from '../../schema/index.js';
 import type { ThunkAsync } from '../../types.js';
 import { DATATYPE_METADATA } from '../constants.js';
-import type { ApiField } from '../data-type/api-field.js';
 import type { ComplexType } from '../data-type/complex-type.js';
 import type { EnumType } from '../data-type/enum-type.js';
+import type { ApiField } from '../data-type/field.js';
 import type { MappedType } from '../data-type/mapped-type.js';
 import type { SimpleType } from '../data-type/simple-type.js';
 import type { UnionType } from '../data-type/union-type.js';

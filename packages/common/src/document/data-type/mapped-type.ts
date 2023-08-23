@@ -1,91 +1,38 @@
 import 'reflect-metadata';
 import merge from 'putil-merge';
-import { Class, StrictOmit, Type, Writable } from 'ts-gems';
-import * as vg from 'valgen';
+import { Class, StrictOmit, Type } from 'ts-gems';
 import {
   inheritPropertyInitializers,
-  mergePrototype,
-  omitUndefined,
-  ResponsiveMap
+  mergePrototype
 } from '../../helpers/index.js';
-import { Field } from '../../schema/data-type/field.interface.js';
 import { OpraSchema } from '../../schema/index.js';
 import type { ApiDocument } from '../api-document.js';
 import { DATATYPE_METADATA } from '../constants.js';
-import { ApiField } from './api-field.js';
 import { ComplexType } from './complex-type.js';
 import { DataType } from './data-type.js';
+import { getIsInheritedPredicateFn, MappedTypeClass } from './mapped-type-class.js';
 
 /**
- * @namespace MappedType
+ *
  */
-export namespace MappedType {
-
-  export interface InitArguments extends DataType.InitArguments,
-      Pick<OpraSchema.MappedType, 'pick' | 'omit'> {
-    type: ComplexType;
-  }
-
-  export interface OwnProperties extends DataType.OwnProperties,
-      Pick<OpraSchema.MappedType, 'pick' | 'omit'> {
-  }
-
-  export interface Options<T, K = keyof T> {
-    pick?: readonly K[],
-    omit?: readonly K[],
-  }
-
-  export interface Metadata extends StrictOmit<OpraSchema.MappedType, 'type'> {
-    type: Type;
-  }
-}
-
-class MappedTypeClass extends DataType {
-  readonly kind = OpraSchema.MappedType.Kind;
-  readonly own: MappedType.OwnProperties;
-  readonly type: ComplexType;
-  readonly additionalFields?: boolean | vg.Validator | 'error';
-  readonly fields: ResponsiveMap<ApiField>;
-  readonly omit?: Field.Name[];
-  readonly pick?: Field.Name[];
-
-  constructor(document: ApiDocument, init: MappedType.InitArguments) {
-    super(document, init);
-    const own = this.own as Writable<MappedType.OwnProperties>
-    own.pick = init.pick;
-    own.omit = init.omit;
-    this.kind = OpraSchema.MappedType.Kind;
-    this.type = init.type;
-    this.pick = own.pick;
-    this.omit = own.omit;
-    this.fields = new ResponsiveMap();
-    this.additionalFields = this.type.additionalFields;
-    const isInheritedPredicate = getIsInheritedPredicateFn(init.pick, init.omit);
-    for (const [elemName, elem] of this.type.fields.entries()) {
-      if (isInheritedPredicate(elemName))
-        this.fields.set(elemName, elem);
-    }
-  }
-
-  exportSchema(): OpraSchema.MappedType {
-    const out = DataType.prototype.exportSchema.call(this) as OpraSchema.MappedType;
-    Object.assign(out, omitUndefined({
-      type: this.type.name ? this.type.name : this.type.exportSchema(),
-      pick: this.own.pick,
-      omit: this.own.omit,
-    }));
-    return out;
-  }
-
+export function PickType<T extends any[], I1, S1, K extends keyof I1>(
+    classRef: Class<T, I1, S1>,
+    keys: readonly K[]
+): Class<T, Pick<I1, K>> &
+    Omit<Pick<S1, keyof typeof classRef>, 'prototype' | 'constructor'> {
+  return MappedType(classRef, {pick: keys} as any) as any;
 }
 
 /**
- * Type definition of MappedType prototype
- * @type MappedType
+ *
  */
-export interface MappedType extends MappedTypeClass {
-
+export function OmitType<T extends any[], I1, S1, K extends keyof I1>(
+    classRef: Class<T, I1, S1>, keys: readonly K[]
+): Class<T, Omit<I1, K>> &
+    Omit<Pick<S1, keyof typeof classRef>, 'prototype' | 'constructor'> {
+  return MappedType(classRef, {omit: keys} as any) as any;
 }
+
 
 /**
  * Type definition of MappedType constructor type
@@ -107,6 +54,7 @@ export interface MappedTypeConstructor {
       }
   ): Class<T, Omit<Pick<I1, PickKey>, OmitKey>>;
 
+  /* Used by extensions */
   _applyMixin(targetType: Type, sourceType: Type,
               options: MappedType.Options<any> &
                   {
@@ -169,39 +117,40 @@ export const MappedType = function (
 } as MappedTypeConstructor;
 
 MappedType.prototype = MappedTypeClass.prototype;
-
 MappedType._applyMixin = () => void 0;
 
 
-function getIsInheritedPredicateFn(pick?: Field.Name[], omit?: Field.Name[]) {
-  const pickKeys = pick?.map(x => String(x).toLowerCase());
-  const omitKeys = omit?.map(x => String(x).toLowerCase());
-  return (propertyName: string): boolean => {
-    if (omitKeys && omitKeys.includes(propertyName.toLowerCase()))
-      return false;
-    if (pickKeys)
-      return pickKeys.includes(propertyName.toLowerCase());
-    return true;
-  };
+/**
+ * Type definition of MappedType prototype
+ * @type MappedType
+ */
+export interface MappedType extends MappedTypeClass {
+
 }
 
 /**
- *
+ * @namespace MappedType
  */
-export function PickType<T extends any[], I1, S1, K extends keyof I1>(
-    classRef: Class<T, I1, S1>,
-    keys: readonly K[]
-): Class<T, Pick<I1, K>> &
-    Omit<Pick<S1, keyof typeof classRef>, 'prototype' | 'constructor'> {
-  return MappedType(classRef, {pick: keys} as any) as any;
+export namespace MappedType {
+
+  export interface InitArguments extends DataType.InitArguments,
+      Pick<OpraSchema.MappedType, 'pick' | 'omit'> {
+    type: ComplexType;
+  }
+
+  export interface OwnProperties extends DataType.OwnProperties,
+      Pick<OpraSchema.MappedType, 'pick' | 'omit'> {
+  }
+
+  export interface Options<T, K = keyof T> {
+    pick?: readonly K[],
+    omit?: readonly K[],
+  }
+
+  export interface Metadata extends StrictOmit<OpraSchema.MappedType, 'type'> {
+    type: Type;
+  }
 }
 
-/**
- *
- */
-export function OmitType<T extends any[], I1, S1, K extends keyof I1>(
-    classRef: Class<T, I1, S1>, keys: readonly K[]
-): Class<T, Omit<I1, K>> &
-    Omit<Pick<S1, keyof typeof classRef>, 'prototype' | 'constructor'> {
-  return MappedType(classRef, {omit: keys} as any) as any;
-}
+
+

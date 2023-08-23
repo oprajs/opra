@@ -137,8 +137,8 @@ export async function generateComplexTypeDefinition(
       jsDoc += ` * ${field.description}\n`;
     if (field.default)
       jsDoc += ` * @default ` + field.default + '\n';
-    if (field.format)
-      jsDoc += ` * @format ` + field.format + '\n';
+    // if (field.format)
+    //   jsDoc += ` * @format ` + field.format + '\n';
     if (field.exclusive)
       jsDoc += ` * @exclusive\n`;
     if (field.deprecated)

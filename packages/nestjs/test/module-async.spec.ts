@@ -1,7 +1,7 @@
-import { ModuleRef } from '@nestjs/core';
 import { Server } from 'http';
 import request from 'supertest';
 import { INestApplication, Module } from '@nestjs/common';
+import { ModuleRef } from '@nestjs/core';
 import { Test } from '@nestjs/testing';
 import { OpraModule, OpraModuleRef } from '../src/index.js';
 import config from './_support/photos-app/config.js';

@@ -36,13 +36,9 @@
     "putil-varhelpers": "^1.6.5"
   },
   "type": "module",
-  "types": "types/index.d.ts",
-  "exports": {
-    ".": {
-      "require": "./cjs/index.js",
-      "default": "./esm/index.js"
-    }
-  },
+  "module": "./esm/index.js",
+  "main": "./cjs/index.js",
+  "types": "./types/index.d.ts",
   "bin": {
     "oprimp": "bin/oprimp.mjs"
   },

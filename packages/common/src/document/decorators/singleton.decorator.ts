@@ -1,17 +1,19 @@
-import omit from 'lodash.omit';
 import { StrictOmit } from 'ts-gems';
 import { OpraSchema } from '../../schema/index.js';
 import { TypeThunkAsync } from '../../types.js';
 import { RESOURCE_METADATA } from '../constants.js';
-import { Collection } from './collection.js';
-import { Resource } from './resource.js';
-import { ResourceDecorator } from './resource-decorator.js';
-import type { Singleton } from './singleton.js';
+import { Collection } from '../resource/collection.js';
+import { Resource } from '../resource/resource.js';
+import type { Singleton } from '../resource/singleton.js';
+import { ResourceDecorator } from './resource.decorator.js';
 
-const NAME_PATTERN = /^(.*)(Resource|Singleton|Controller)$/;
 type ErrorMessage<T, Error> = [T] extends [never] ? Error : T;
 const operationProperties = ['create', 'delete', 'get', 'update'] as const;
 type OperationProperties = typeof operationProperties[number];
+
+export function SingletonDecorator(type: TypeThunkAsync | string, options?: Singleton.DecoratorOptions): ClassDecorator {
+  return ResourceDecorator(OpraSchema.Singleton.Kind, {...options, type})
+}
 
 export interface SingletonDecorator extends StrictOmit<ResourceDecorator, 'Action'> {
   (type: TypeThunkAsync | string, options?: Singleton.DecoratorOptions): ClassDecorator;
@@ -26,24 +28,6 @@ export interface SingletonDecorator extends StrictOmit<ResourceDecorator, 'Actio
   Delete: (options?: Singleton.DeleteEndpointOptions) => ((target: Object, propertyKey: 'delete') => void);
   Get: (options?: Singleton.GetEndpointOptions) => ((target: Object, propertyKey: 'get') => void);
   Update: (options?: Singleton.UpdateEndpointOptions) => ((target: Object, propertyKey: 'update') => void);
-}
-
-export function SingletonDecorator(type: TypeThunkAsync | string, options?: Singleton.DecoratorOptions): ClassDecorator {
-  return function (target: Function) {
-    const name = options?.name || target.name.match(NAME_PATTERN)?.[1] || target.name;
-    const metadata: Singleton.Metadata = Reflect.getOwnMetadata(RESOURCE_METADATA, target) || ({} as any);
-    metadata.kind = OpraSchema.Singleton.Kind;
-    metadata.name = name;
-    metadata.type = type;
-    // Merge with previous metadata object
-    const m = Reflect.getMetadata(RESOURCE_METADATA, target);
-    if (m && metadata !== m)
-      Object.assign(metadata, omit(m), Object.keys(metadata));
-    // Merge options
-    if (options)
-      Object.assign(metadata, omit(options, ['kind', 'name', 'type', 'controller']));
-    Reflect.defineMetadata(RESOURCE_METADATA, metadata, target);
-  }
 }
 
 Object.assign(SingletonDecorator, ResourceDecorator);

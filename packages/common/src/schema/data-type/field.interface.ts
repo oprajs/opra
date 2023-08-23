@@ -15,7 +15,6 @@ export type Field = {
   fixed?: string | number;
   examples?: any[] | Record<string, any>;
   deprecated?: boolean | string;
-
   /**
    * If true, this Field will not be included in results by default.
    * The client side should include the Field name in the "include" query parameter.
