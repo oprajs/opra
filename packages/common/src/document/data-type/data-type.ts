@@ -9,24 +9,10 @@ import {
   nodeInspectCustom
 } from '../utils/inspect.util.js';
 
-export namespace DataType {
-  export interface InitArguments {
-    name?: string;
-    description?: string;
-  }
-
-  export interface DecoratorOptions extends InitArguments {
-  }
-
-  export interface Metadata extends RequiredSome<DecoratorOptions, 'name'> {
-    kind: OpraSchema.DataType.Kind;
-  }
-
-  export interface OwnProperties {
-  }
-
-}
-
+/**
+ * @class DataType
+ * @abstract
+ */
 export abstract class DataType {
   readonly document: ApiDocument;
   readonly kind: OpraSchema.DataType.Kind;
@@ -69,6 +55,24 @@ export abstract class DataType {
   [nodeInspectCustom](): string {
     return `[${colorFgYellow + Object.getPrototypeOf(this).constructor.name + colorReset}` +
         ` ${colorFgMagenta + this.name + colorReset}]`;
+  }
+
+}
+
+export namespace DataType {
+  export interface InitArguments {
+    name?: string;
+    description?: string;
+  }
+
+  export interface DecoratorOptions extends InitArguments {
+  }
+
+  export interface Metadata extends RequiredSome<DecoratorOptions, 'name'> {
+    kind: OpraSchema.DataType.Kind;
+  }
+
+  export interface OwnProperties {
   }
 
 }

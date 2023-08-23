@@ -5,11 +5,44 @@ import type { TypeThunkAsync } from '../../types.js';
 import type { ApiDocument } from '../api-document.js';
 import { DECORATOR } from '../constants.js';
 import { ComplexType } from '../data-type/complex-type.js';
+import { SingletonDecorator } from '../decorators/singleton.decorator.js';
 import type { Resource } from './resource.js';
 import { SingletonClass } from './singleton-class.js';
-import { SingletonDecorator } from './singleton-decorator.js';
+
+export interface SingletonConstructor extends SingletonDecorator {
+  prototype: SingletonClass;
+
+  new(document: ApiDocument, init: Singleton.InitArguments): SingletonClass;
+}
+
+export interface Singleton extends SingletonClass {
+}
+
+/**
+ * @class Singleton
+ * @decorator Singleton
+ */
+export const Singleton = function (this: SingletonClass | void, ...args: any[]) {
+
+  // ClassDecorator
+  if (!this) {
+    const [type, options] = args;
+    return Singleton[DECORATOR].call(undefined, type, options);
+  }
+
+  // Constructor
+  const [document, init] = args as [ApiDocument, Singleton.InitArguments];
+  merge(this, new SingletonClass(document, init), {descriptor: true});
+} as SingletonConstructor;
+
+Singleton.prototype = SingletonClass.prototype;
+Object.assign(Singleton, SingletonDecorator);
+Singleton[DECORATOR] = SingletonDecorator;
 
 
+/**
+ * @namespace Singleton
+ */
 export namespace Singleton {
   export interface InitArguments extends Resource.InitArguments,
       StrictOmit<OpraSchema.Singleton, 'kind' | 'type'> {
@@ -46,28 +79,3 @@ export namespace Singleton {
   export type UpdateEndpointOptions = OpraSchema.Singleton.UpdateEndpoint;
 }
 
-export interface SingletonConstructor extends SingletonDecorator {
-  prototype: Singleton;
-
-  new(document: ApiDocument, init: Singleton.InitArguments): Singleton;
-}
-
-export interface Singleton extends SingletonClass {
-}
-
-export const Singleton = function (this: Singleton | void, ...args: any[]) {
-
-  // ClassDecorator
-  if (!this) {
-    const [type, options] = args;
-    return Singleton[DECORATOR].call(undefined, type, options);
-  }
-
-  // Constructor
-  const [document, init] = args as [ApiDocument, Singleton.InitArguments];
-  merge(this, new SingletonClass(document, init), {descriptor: true});
-} as SingletonConstructor;
-
-Singleton.prototype = SingletonClass.prototype;
-Object.assign(Singleton, SingletonDecorator);
-Singleton[DECORATOR] = SingletonDecorator;

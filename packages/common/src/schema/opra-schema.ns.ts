@@ -6,6 +6,7 @@ export * from './data-type/simple-type.interface.js';
 export * from './data-type/mapped-type.interface.js';
 export * from './data-type/union-type.interface.js';
 
+export * from './resource/endpoint.interface.js';
 export * from './resource/collection.interface.js';
 export * from './resource/container.interface.js';
 export * from './resource/resource.interface.js';

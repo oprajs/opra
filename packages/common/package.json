@@ -10,18 +10,10 @@
     "directory": "packages/common"
   },
   "type": "module",
-  "module": "./esm/index.mjs",
-  "main": "./cjs/index.cjs",
+  "module": "./esm/index.js",
+  "main": "./cjs/index.js",
   "browser": "./browser.js",
   "types": "./types/index.d.ts",
-  "typings": "./types/index.d.ts",
-  "exports": {
-    ".": {
-      "require": "./cjs/index.js",
-      "browser": "./browser.js",
-      "default": "./esm/index.js"
-    }
-  },
   "scripts": {
     "compile": "tsc",
     "prebuild": "npm run check && npm run lint && npm run clean",

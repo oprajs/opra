@@ -1,74 +1,15 @@
 import 'reflect-metadata';
 import merge from 'putil-merge';
-import { Class, StrictOmit, Type, Writable } from 'ts-gems';
-import * as vg from 'valgen';
-import {
-  inheritPropertyInitializers,
-  mergePrototype,
-  omitUndefined,
-  ResponsiveMap
-} from '../../helpers/index.js';
+import { Class, StrictOmit, Type } from 'ts-gems';
+import { inheritPropertyInitializers, mergePrototype, } from '../../helpers/index.js';
 import { OpraSchema } from '../../schema/index.js';
 import type { ApiDocument } from '../api-document.js';
 import { DATATYPE_METADATA } from '../constants.js';
-import { ApiField } from './api-field.js';
 import { ComplexType } from './complex-type.js';
 import { DataType } from './data-type.js';
 import { MappedType } from './mapped-type.js';
+import {UnionTypeClass} from './union-type-class.js';
 
-/**
- * @namespace UnionType
- */
-export namespace UnionType {
-
-  export interface InitArguments extends DataType.InitArguments {
-    types: (ComplexType | UnionType | MappedType)[]
-  }
-
-  export interface OwnProperties extends DataType.OwnProperties {
-    types: (ComplexType | UnionType | MappedType)[];
-  }
-
-  export interface Metadata extends StrictOmit<OpraSchema.UnionType, 'types'> {
-    types: Type[];
-  }
-}
-
-class UnionTypeClass extends DataType {
-  readonly kind = OpraSchema.UnionType.Kind;
-  readonly own: UnionType.OwnProperties;
-  readonly types: (ComplexType | UnionType | MappedType)[];
-  readonly additionalFields?: boolean | vg.Validator | 'error'
-  readonly fields: ResponsiveMap<ApiField>;
-
-  constructor(document: ApiDocument, init: UnionType.InitArguments) {
-    super(document, init);
-    this.fields = new ResponsiveMap();
-    const own = this.own as Writable<UnionType.OwnProperties>
-    own.types = [];
-
-    for (const base of init.types) {
-      if (!(base instanceof ComplexType || base instanceof UnionType || base instanceof MappedType))
-        throw new TypeError(`${OpraSchema.UnionType.Kind} shall contain ${OpraSchema.ComplexType.Kind}, ` +
-            `${OpraSchema.UnionType.Kind} of ${OpraSchema.MappedType.Kind} types.`);
-      own.types.push(base);
-      if (base.additionalFields)
-        this.additionalFields = base.additionalFields;
-      this.fields.setAll(base.fields);
-    }
-
-    this.types = [...own.types];
-  }
-
-  exportSchema(): OpraSchema.UnionType {
-    const out = super.exportSchema() as OpraSchema.UnionType;
-    Object.assign(out, omitUndefined({
-      types: this.own.types.map(t => t.name ? t.name : t.exportSchema())
-    }));
-    return out;
-  }
-
-}
 
 /**
  * Type definition of UnionType constructor type
@@ -154,5 +95,23 @@ export const UnionType = function (
 } as UnionTypeConstructor;
 
 UnionType.prototype = UnionTypeClass.prototype;
-
 UnionType._applyMixin = () => void 0;
+
+
+/**
+ * @namespace UnionType
+ */
+export namespace UnionType {
+
+  export interface InitArguments extends DataType.InitArguments {
+    types: (ComplexType | UnionType | MappedType)[]
+  }
+
+  export interface OwnProperties extends DataType.OwnProperties {
+    types: (ComplexType | UnionType | MappedType)[];
+  }
+
+  export interface Metadata extends StrictOmit<OpraSchema.UnionType, 'types'> {
+    types: Type[];
+  }
+}

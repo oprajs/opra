@@ -38,15 +38,9 @@
     "mongodb": ">=4.x.x"
   },
   "type": "module",
-  "types": "types/index.d.ts",
-  "exports": {
-    ".": {
-      "require": "./cjs/index.js",
-      "default": "./esm/index.js"
-    },
-    "./cjs": "./cjs/index.js",
-    "./esm": "./esm/index.js"
-  },
+  "module": "./esm/index.js",
+  "main": "./cjs/index.js",
+  "types": "./types/index.d.ts",
   "engines": {
     "node": ">=16.0",
     "npm": ">=7.0.0"

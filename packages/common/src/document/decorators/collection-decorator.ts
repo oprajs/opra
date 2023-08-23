@@ -1,16 +1,17 @@
-import omit from 'lodash.omit';
-import merge from 'putil-merge';
 import { StrictOmit, Type } from 'ts-gems';
 import { OpraSchema } from '../../schema/index.js';
 import { RESOURCE_METADATA } from '../constants.js';
-import type { Collection } from './collection.js';
-import { Resource } from './resource.js';
-import { ResourceDecorator } from './resource-decorator.js';
+import type { Collection } from '../resource/collection';
+import { Resource } from '../resource/resource.js';
+import { ResourceDecorator } from './resource.decorator.js';
 
-const NAME_PATTERN = /^(.*)(Resource|Collection|Controller)$/;
 type ErrorMessage<T, Error> = [T] extends [never] ? Error : T;
 const operationProperties = ['create', 'delete', 'deleteMany', 'get', 'findMany', 'update', 'updateMany'] as const;
 type OperationProperties = typeof operationProperties[number];
+
+export function CollectionDecorator(type: Type | string, options?: Collection.DecoratorOptions): ClassDecorator {
+  return ResourceDecorator(OpraSchema.Collection.Kind, {...options, type})
+}
 
 export interface CollectionDecorator extends StrictOmit<ResourceDecorator, 'Action'> {
   <T>(type: Type<T> | string, options?: Collection.DecoratorOptions<T>): ClassDecorator;
@@ -29,29 +30,6 @@ export interface CollectionDecorator extends StrictOmit<ResourceDecorator, 'Acti
   Update: (options?: Collection.UpdateEndpointOptions) => ((target: Object, propertyKey: 'update') => void);
   UpdateMany: (options?: Collection.UpdateManyEndpointOptions) => ((target: Object, propertyKey: 'updateMany') => void);
 }
-
-export function CollectionDecorator(type: Type | string, options?: Collection.DecoratorOptions): ClassDecorator {
-  return function (target: Function) {
-    const name = options?.name || target.name.match(NAME_PATTERN)?.[1] || target.name;
-    const metadata: Collection.Metadata = Reflect.getOwnMetadata(RESOURCE_METADATA, target) || ({} as any);
-    const baseMetadata = Reflect.getOwnMetadata(RESOURCE_METADATA, Object.getPrototypeOf(target));
-    if (baseMetadata) {
-      merge(metadata, baseMetadata, {deep: true});
-    }
-    metadata.kind = OpraSchema.Collection.Kind;
-    metadata.name = name;
-    metadata.type = type;
-    // Merge with previous metadata object
-    const m = Reflect.getMetadata(RESOURCE_METADATA, target);
-    if (m && metadata !== m)
-      Object.assign(metadata, omit(m), Object.keys(metadata));
-    // Merge options
-    if (options)
-      Object.assign(metadata, omit(options, ['kind', 'name', 'type', 'controller']));
-    Reflect.defineMetadata(RESOURCE_METADATA, metadata, target);
-  }
-}
-
 
 Object.assign(CollectionDecorator, ResourceDecorator);
 CollectionDecorator.Create = createOperationDecorator('create');

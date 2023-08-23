@@ -5,11 +5,42 @@ import type { TypeThunkAsync } from '../../types.js';
 import type { ApiDocument } from '../api-document.js';
 import { DECORATOR } from '../constants.js';
 import { ComplexType } from '../data-type/complex-type.js';
+import { CollectionDecorator } from '../decorators/collection-decorator.js';
 import { CollectionClass } from './collection-class.js';
-import { CollectionDecorator } from './collection-decorator.js';
-import { Resource } from './resource.js';
+import type { Resource } from './resource.js';
+
+export interface CollectionConstructor extends CollectionDecorator {
+  prototype: CollectionClass;
+
+  new(document: ApiDocument, init: Collection.InitArguments): CollectionClass;
+}
+
+export interface Collection extends CollectionClass {
+}
+
+/**
+ * @class Collection
+ * @decorator Collection
+ */
+export const Collection = function (this: CollectionClass | void, ...args: any[]) {
+  // Decorator
+  if (!this) {
+    const [type, options] = args;
+    return Collection[DECORATOR].call(undefined, type, options);
+  }
+  // Constructor
+  const [document, init] = args as [ApiDocument, Collection.InitArguments];
+  merge(this, new CollectionClass(document, init), {descriptor: true});
+} as CollectionConstructor;
+
+Collection.prototype = CollectionClass.prototype;
+Object.assign(Collection, CollectionDecorator);
+Collection[DECORATOR] = CollectionDecorator;
 
 
+/**
+ * @namespace Collection
+ */
 export namespace Collection {
   export interface InitArguments extends Resource.InitArguments,
       StrictOmit<OpraSchema.Collection, 'kind' | 'type'> {
@@ -61,32 +92,4 @@ export namespace Collection {
   export type UpdateManyEndpointOptions = OpraSchema.Collection.UpdateManyEndpoint;
 }
 
-export interface CollectionConstructor extends CollectionDecorator {
-  prototype: Collection;
 
-  new(document: ApiDocument, init: Collection.InitArguments): Collection;
-}
-
-export interface Collection extends CollectionClass {
-}
-
-/**
- *
- */
-export const Collection = function (this: Collection | void, ...args: any[]) {
-
-  // ClassDecorator
-  if (!this) {
-    const [type, options] = args;
-    return Collection[DECORATOR].call(undefined, type, options);
-  }
-
-  // Constructor
-  const [document, init] = args as [ApiDocument, Collection.InitArguments];
-  merge(this, new CollectionClass(document, init), {descriptor: true});
-
-} as CollectionConstructor;
-
-Collection.prototype = CollectionClass.prototype;
-Object.assign(Collection, CollectionDecorator);
-Collection[DECORATOR] = CollectionDecorator;

@@ -1,4 +1,3 @@
-import { Type } from 'ts-gems';
 import { omitUndefined } from '../../helpers/index.js';
 import { OpraSchema } from '../../schema/index.js';
 import type { ApiDocument } from '../api-document.js';
@@ -8,7 +7,6 @@ import type { Storage } from './storage.js';
 export class StorageClass extends Resource {
   readonly kind = OpraSchema.Storage.Kind;
   readonly operations: OpraSchema.Storage.Operations;
-  readonly controller?: object | Type;
 
   constructor(
       document: ApiDocument,

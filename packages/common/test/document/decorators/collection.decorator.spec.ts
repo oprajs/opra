@@ -2,6 +2,7 @@ import 'reflect-metadata';
 import { Collection, RESOURCE_METADATA } from '@opra/common';
 import { Country } from '../../_support/test-api/index.js';
 
+
 describe('Collection decorators', function () {
 
   describe('@Collection() decorator', function () {
