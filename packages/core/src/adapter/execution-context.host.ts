@@ -10,13 +10,13 @@ import type {
 import type { HttpServerRequest } from './http/http-server-request.js';
 import { Protocol } from './platform-adapter.js';
 
-export class ExecutionContextHost extends AsyncEventEmitter implements ExecutionContext {
+export class ExecutionContextHost<TSpace extends {} = {}> extends AsyncEventEmitter implements ExecutionContext<TSpace> {
   readonly protocol: Protocol;
   readonly http?: HttpMessageContext;
   readonly ws?: WsMessageContext;
   readonly rpc?: RpcMessageContext;
   errors: Error[] = [];
-  executionScope: Record<string | number | symbol, any> = {};
+  space: TSpace = {} as TSpace;
 
   constructor(
       readonly api: ApiDocument,

@@ -168,8 +168,7 @@ export class EntityRequestHandler extends RequestHandlerBase {
   }
 
   async parseCollectionRequest(resource: Collection, incoming: HttpServerRequest): Promise<Request> {
-    if ((incoming.method === 'POST' || incoming.method === 'PATCH') &&
-        incoming.headers['content-type'] !== 'application/json')
+    if ((incoming.method === 'POST' || incoming.method === 'PATCH') && !incoming.is('json'))
       throw new BadRequestError({message: 'Unsupported Content-Type'});
 
     const contentId = incoming.headers['content-id'] as string;
