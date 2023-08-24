@@ -2,10 +2,9 @@ import type { ExecutionContext } from './execution-context';
 import type { Request } from './request';
 import type { Response } from './response';
 
-export interface EndpointContext<TSpace extends object = Record<string | number | symbol, any>> extends ExecutionContext {
+export interface EndpointContext<TSpace extends object = Record<string | number | symbol, any>> extends ExecutionContext<TSpace> {
   request: Request;
   response: Response;
-  space: TSpace;
 }
 
 export namespace EndpointContext {
