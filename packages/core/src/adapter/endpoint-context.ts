@@ -16,7 +16,7 @@ export namespace EndpointContext {
     const out = {
       request,
       response,
-      space: {}
+      session: {}
     } as EndpointContext;
     Object.setPrototypeOf(out, executionContext);
     return out;

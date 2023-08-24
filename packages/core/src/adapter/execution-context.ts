@@ -2,13 +2,13 @@ import type { HttpServerRequest } from './http/http-server-request';
 import type { HttpServerResponse } from './http/http-server-response';
 import type { Protocol } from './platform-adapter';
 
-export interface ExecutionContext<TSpace extends {} = {}> {
+export interface ExecutionContext<TSession extends {} = {}> {
 
   readonly protocol: Protocol;
 
   readonly platform: string;
 
-  space: TSpace;
+  session: TSession;
 
   errors: Error[];
 
