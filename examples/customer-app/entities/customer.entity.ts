@@ -19,5 +19,4 @@ export class Customer extends UnionType(Record, Person) {
   @Link({exclusive: true})
       .toMany(CustomerNotes, {sourceKey: 'id', targetKey: 'customerId'})
   notes?: CustomerNotes[];
-
 }

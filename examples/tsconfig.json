@@ -8,8 +8,10 @@
     }
   },
   "compilerOptions": {
+    "baseUrl": ".",
     "paths": {
       "@opra/*": ["../packages/*/src"]
-    }
+    },
+    "emitDecoratorMetadata": true
   }
 }

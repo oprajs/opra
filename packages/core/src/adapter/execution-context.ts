@@ -2,7 +2,7 @@ import type { HttpServerRequest } from './http/http-server-request';
 import type { HttpServerResponse } from './http/http-server-response';
 import type { Protocol } from './platform-adapter';
 
-export interface ExecutionContext<TSpace extends object = Record<string | number | symbol, any>> {
+export interface ExecutionContext<TSpace extends {} = {}> {
 
   readonly protocol: Protocol;
 
@@ -11,8 +11,6 @@ export interface ExecutionContext<TSpace extends object = Record<string | number
   space: TSpace;
 
   errors: Error[];
-
-  executionScope: Record<string | number | symbol, any>;
 
   switchToHttp(): HttpMessageContext;
 
