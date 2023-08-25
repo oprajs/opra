@@ -18,9 +18,10 @@ export * from './adapter/http/impl/http-incoming-message.host.js';
 export * from './adapter/http/impl/http-outgoing-message.host.js';
 export * from './adapter/http/http-server-request.js';
 export * from './adapter/http/http-server-response.js';
+export * from './adapter/http/helpers/multipart-helper.js';
 
+export * from './adapter/interfaces/interceptor.interface.js';
 export * from './adapter/interfaces/logger.interface.js';
 export * from './adapter/interfaces/request-handler.interface.js';
-export * from './adapter/services/logger.js';
 
-export * from './adapter/http/helpers/multipart-helper.js';
+export * from './adapter/services/logger.js';

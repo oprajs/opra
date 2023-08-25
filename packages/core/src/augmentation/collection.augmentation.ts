@@ -8,7 +8,7 @@ declare module "@opra/common" {
   namespace Collection {
 
     namespace Action {
-      interface Context extends Resource.Context {
+      interface Context<TSession extends {} = {}> extends Resource.Context<TSession> {
         key?: any;
       }
     }
@@ -25,7 +25,7 @@ declare module "@opra/common" {
         }
       }
 
-      interface Context extends EndpointContext {
+      interface Context<TSession extends {} = {}> extends EndpointContext<TSession> {
         request: Request;
       }
     }
@@ -37,7 +37,7 @@ declare module "@opra/common" {
         key: any;
       }
 
-      interface Context extends EndpointContext {
+      interface Context<TSession extends {} = {}> extends EndpointContext<TSession> {
         request: Request;
       }
     }
@@ -51,7 +51,7 @@ declare module "@opra/common" {
         }
       }
 
-      interface Context extends EndpointContext {
+      interface Context<TSession extends {} = {}> extends EndpointContext<TSession> {
         request: Request;
       }
     }
@@ -73,7 +73,7 @@ declare module "@opra/common" {
         }
       }
 
-      interface Context extends EndpointContext {
+      interface Context<TSession extends {} = {}> extends EndpointContext<TSession> {
         request: Request;
       }
     }
@@ -90,7 +90,7 @@ declare module "@opra/common" {
         }
       }
 
-      interface Context extends EndpointContext {
+      interface Context<TSession extends {} = {}> extends EndpointContext<TSession> {
         request: Request;
       }
     }
@@ -108,7 +108,7 @@ declare module "@opra/common" {
         }
       }
 
-      interface Context extends EndpointContext {
+      interface Context<TSession extends {} = {}> extends EndpointContext<TSession> {
         request: Request;
       }
     }
@@ -123,7 +123,7 @@ declare module "@opra/common" {
         }
       }
 
-      interface Context extends EndpointContext {
+      interface Context<TSession extends {} = {}> extends EndpointContext<TSession> {
         request: Request;
       }
     }

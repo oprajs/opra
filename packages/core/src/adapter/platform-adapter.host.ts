@@ -4,6 +4,7 @@ import { AsyncEventEmitter } from 'strict-typed-events';
 import { Type } from 'ts-gems';
 import { ApiDocument, getStackFileName, I18n, Resource } from '@opra/common';
 import { ExecutionContext } from './execution-context.js';
+import { Interceptor } from './interfaces/interceptor.interface.js';
 import type { PlatformAdapter, Protocol } from './platform-adapter';
 import { Logger } from './services/logger.js';
 
@@ -19,10 +20,12 @@ export abstract class PlatformAdapterHost extends AsyncEventEmitter implements P
   _options: PlatformAdapter.Options;
   _i18n: I18n;
   _logger: Logger;
+  _interceptors: Interceptor[];
 
   protected constructor(readonly api: ApiDocument, options?: PlatformAdapter.Options) {
     super();
     this._options = options || {};
+    this._interceptors = [...(options?.interceptors || [])];
     this._logger = options?.logger && options.logger instanceof Logger
         ? options.logger
         : new Logger({instance: options?.logger})
