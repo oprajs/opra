@@ -8,7 +8,7 @@ declare module "@opra/common" {
   namespace Singleton {
 
     namespace Action {
-      interface Context extends Resource.Context {
+      interface Context<TSession extends {} = {}> extends Resource.Context<TSession> {
       }
     }
 
@@ -24,7 +24,7 @@ declare module "@opra/common" {
         }
       }
 
-      interface Context extends EndpointContext {
+      interface Context<TSession extends {} = {}> extends EndpointContext<TSession> {
         request: Request;
       }
     }
@@ -35,7 +35,7 @@ declare module "@opra/common" {
         endpoint: 'delete';
       }
 
-      interface Context extends EndpointContext {
+      interface Context<TSession extends {} = {}> extends EndpointContext<TSession> {
         request: Request;
       }
     }
@@ -51,7 +51,7 @@ declare module "@opra/common" {
         }
       }
 
-      interface Context extends EndpointContext {
+      interface Context<TSession extends {} = {}> extends EndpointContext<TSession> {
         request: Request;
       }
     }
@@ -68,7 +68,7 @@ declare module "@opra/common" {
         }
       }
 
-      interface Context extends EndpointContext {
+      interface Context<TSession extends {} = {}> extends EndpointContext<TSession> {
         request: Request;
       }
     }

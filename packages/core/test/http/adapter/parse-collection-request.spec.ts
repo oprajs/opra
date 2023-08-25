@@ -1,7 +1,7 @@
 import { ApiDocument, Collection } from '@opra/common';
 import { HttpAdapter, HttpServerRequest } from '@opra/core';
-import { EntityRequestHandler } from '../../../../src/adapter/http/request-handlers/entity-request-handler.js';
-import { createTestApi } from '../../../_support/test-app/index.js';
+import { EntityRequestHandler } from '@opra/core/adapter/http/request-handlers/entity-request-handler';
+import { createTestApi } from '../../_support/test-app/index.js';
 
 describe('Parse Collection requests', function () {
 

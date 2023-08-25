@@ -17,7 +17,7 @@ declare module "@opra/common" {
 
   // eslint-disable-next-line @typescript-eslint/no-shadow
   namespace Resource {
-    interface Context extends EndpointContext {
+    interface Context<TSession extends {} = {}> extends EndpointContext<TSession> {
       params: Record<string, any>;
     }
   }

@@ -49,7 +49,20 @@ export abstract class HttpAdapterBase extends PlatformAdapterHost {
         );
       }
 
-      await this.processRequest(context);
+      let i = 0;
+      let requestProcessed = false;
+      const next = async () => {
+        while (i < this._interceptors.length) {
+          const interceptor = this._interceptors[i++];
+          if (interceptor)
+            await interceptor(context, next);
+        }
+        if (!requestProcessed) {
+          requestProcessed = true;
+          await this.processRequest(context);
+        }
+      }
+      await next();
     } catch (error) {
       context.errors.push(wrapException(error));
     }

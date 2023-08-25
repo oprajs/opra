@@ -9,7 +9,7 @@ declare module "@opra/common" {
   namespace Storage {
 
     namespace Action {
-      interface Context extends Resource.Context {
+      interface Context<TSession extends {} = {}> extends Resource.Context<TSession> {
       }
     }
 
@@ -18,7 +18,7 @@ declare module "@opra/common" {
       interface Request extends _Request {
       }
 
-      interface Context extends EndpointContext {
+      interface Context<TSession extends {} = {}> extends EndpointContext<TSession> {
         request: Request;
       }
     }
@@ -28,7 +28,7 @@ declare module "@opra/common" {
       interface Request extends _Request {
       }
 
-      interface Context extends EndpointContext {
+      interface Context<TSession extends {} = {}> extends EndpointContext<TSession> {
         request: Request;
       }
     }
@@ -39,7 +39,7 @@ declare module "@opra/common" {
         parts: MultipartIterator;
       }
 
-      interface Context extends EndpointContext {
+      interface Context<TSession extends {} = {}> extends EndpointContext<TSession> {
         request: Request;
       }
     }

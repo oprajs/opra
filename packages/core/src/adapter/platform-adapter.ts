@@ -1,5 +1,6 @@
 import { ApiDocument, FallbackLng, I18n, LanguageResource } from '@opra/common';
 import { EndpointContext } from './endpoint-context.js';
+import { Interceptor } from './interfaces/interceptor.interface.js';
 import { ILogger } from './interfaces/logger.interface.js';
 import { RequestHandler } from './interfaces/request-handler.interface.js';
 
@@ -26,6 +27,7 @@ export namespace PlatformAdapter {
   export interface Options {
     i18n?: I18n | I18nOptions | (() => Promise<I18n>);
     logger?: ILogger;
+    interceptors?: Interceptor[];
     on?: {
       request?: (ctx: EndpointContext) => void | Promise<void>;
     }

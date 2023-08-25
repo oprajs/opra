@@ -3,7 +3,7 @@ import supertest from 'supertest';
 import { ApiDocument } from '@opra/common';
 import { HttpAdapter } from '@opra/core';
 import { HttpAdapterHost } from '@opra/core/adapter/http/http-adapter.host.js';
-import { createTestApi } from '../_support/test-app/index.js';
+import { createTestApi } from '../../_support/test-app/index.js';
 
 describe('e2e:Singleton', function () {
 
