@@ -23,49 +23,49 @@ export abstract class MongoCollection<T extends mongodb.Document>
 
   @Collection.Create()
   async create?(ctx: Collection.Create.Context): Promise<PartialOutput<T>> {
-    const prepared = MongoAdapter.transformRequest(ctx.request);
+    const prepared = this._onPrepare(ctx, MongoAdapter.transformRequest(ctx.request));
     const service = await this.getService(ctx);
     return service.insertOne(prepared.data, prepared.options);
   }
 
   @Collection.Delete()
   async delete?(ctx: EndpointContext): Promise<number> {
-    const prepared = MongoAdapter.transformRequest(ctx.request);
+    const prepared = this._onPrepare(ctx, MongoAdapter.transformRequest(ctx.request));
     const service = await this.getService(ctx);
     return service.deleteOne(prepared.filter, prepared.options);
   }
 
   @Collection.DeleteMany()
   async deleteMany?(ctx: EndpointContext): Promise<number> {
-    const prepared = MongoAdapter.transformRequest(ctx.request);
+    const prepared = this._onPrepare(ctx, MongoAdapter.transformRequest(ctx.request));
     const service = await this.getService(ctx);
     return service.deleteMany(prepared.filter, prepared.options);
   }
 
   @Collection.Get()
   async get?(ctx: EndpointContext): Promise<Maybe<PartialOutput<T>>> {
-    const prepared = MongoAdapter.transformRequest(ctx.request);
+    const prepared = this._onPrepare(ctx, MongoAdapter.transformRequest(ctx.request));
     const service = await this.getService(ctx);
     return service.findOne(prepared.filter, prepared.options);
   }
 
   @Collection.Update()
   async update?(ctx: EndpointContext): Promise<Maybe<PartialOutput<T>>> {
-    const prepared = MongoAdapter.transformRequest(ctx.request);
+    const prepared = this._onPrepare(ctx, MongoAdapter.transformRequest(ctx.request));
     const service = await this.getService(ctx);
-    return service.updateOne(prepared.filter, prepared.update, prepared.options);
+    return service.updateOne(prepared.filter, prepared.data, prepared.options);
   }
 
   @Collection.UpdateMany()
   async updateMany?(ctx: EndpointContext): Promise<number> {
-    const prepared = MongoAdapter.transformRequest(ctx.request);
+    const prepared = this._onPrepare(ctx, MongoAdapter.transformRequest(ctx.request));
     const service = await this.getService(ctx);
-    return service.updateMany(prepared.filter, prepared.update, prepared.options);
+    return service.updateMany(prepared.filter, prepared.data, prepared.options);
   }
 
   @Collection.FindMany()
   async findMany?(ctx: EndpointContext): Promise<PartialOutput<T>[]> {
-    const prepared = MongoAdapter.transformRequest(ctx.request);
+    const prepared = this._onPrepare(ctx, MongoAdapter.transformRequest(ctx.request));
     const service = await this.getService(ctx);
     if (prepared.count) {
       const [items, count] = await Promise.all([
@@ -79,5 +79,11 @@ export abstract class MongoCollection<T extends mongodb.Document>
   }
 
   abstract getService(ctx: EndpointContext): MongoEntityService<T> | Promise<MongoEntityService<T>>;
+
+  onPrepare?(ctx: EndpointContext, prepared: any): any;
+
+  protected _onPrepare(ctx: EndpointContext, prepared: any): any {
+    return (this.onPrepare && this.onPrepare(ctx, prepared)) || prepared;
+  }
 
 }

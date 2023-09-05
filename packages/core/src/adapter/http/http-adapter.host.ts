@@ -47,6 +47,11 @@ export class HttpAdapterHost extends HttpAdapterBase implements HttpAdapter {
     (incomingMessage as any).originalUrl = originalUrl;
     (incomingMessage as any).baseUrl = this.basePath.toString();
     (incomingMessage as any).parsedUrl = parsedUrl;
+    Object.defineProperty(incomingMessage, 'searchParams', {
+      get(): any {
+        return (incomingMessage as any).parsedUrl.searchParams;
+      }
+    })
     const req = HttpServerRequest.from(incomingMessage);
     const res = HttpServerResponse.from(serverResponse);
     this.handleIncoming(req, res)

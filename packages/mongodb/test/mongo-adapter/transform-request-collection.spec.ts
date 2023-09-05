@@ -325,7 +325,7 @@ describe('MongoAdapter.transformRequest (Collection)', function () {
       };
       expect(o.method).toStrictEqual('updateOne');
       expect(o.filter).toStrictEqual(filter);
-      expect(o.update).toStrictEqual(update);
+      expect(o.data).toStrictEqual(update);
       expect(o.options).toStrictEqual(options);
       expect(o.args).toStrictEqual([filter, update, options]);
     });
@@ -345,7 +345,7 @@ describe('MongoAdapter.transformRequest (Collection)', function () {
       const filter = {_id: 1};
       expect(o.method).toStrictEqual('updateOne');
       expect(o.filter).toStrictEqual(filter);
-      expect(o.update).toStrictEqual(update);
+      expect(o.data).toStrictEqual(update);
       expect(o.options).toStrictEqual(options);
       expect(o.args).toStrictEqual([filter, update, options]);
     });
@@ -364,7 +364,7 @@ describe('MongoAdapter.transformRequest (Collection)', function () {
       const filter = {_id: 1};
       expect(o.method).toStrictEqual('updateOne');
       expect(o.filter).toStrictEqual(filter);
-      expect(o.update).toStrictEqual(update);
+      expect(o.data).toStrictEqual(update);
       expect(o.options).toStrictEqual(options);
       expect(o.args).toStrictEqual([filter, update, options]);
     });
@@ -384,7 +384,7 @@ describe('MongoAdapter.transformRequest (Collection)', function () {
       const filter = {_id: 1};
       expect(o.method).toStrictEqual('updateOne');
       expect(o.filter).toStrictEqual(filter);
-      expect(o.update).toStrictEqual(update);
+      expect(o.data).toStrictEqual(update);
       expect(o.options).toMatchObject(options);
       expect(o.args).toStrictEqual([filter, update, o.options]);
     });
@@ -404,7 +404,7 @@ describe('MongoAdapter.transformRequest (Collection)', function () {
       const o = MongoAdapter.transformRequest(request);
       expect(o.method).toStrictEqual('updateMany');
       expect(o.filter).toStrictEqual(undefined);
-      expect(o.update).toStrictEqual(update);
+      expect(o.data).toStrictEqual(update);
       expect(o.options).toStrictEqual(options);
       expect(o.args).toStrictEqual([undefined, update, options]);
     });
@@ -422,7 +422,7 @@ describe('MongoAdapter.transformRequest (Collection)', function () {
       const filter = {givenName: 'John'};
       expect(o.method).toStrictEqual('updateMany');
       expect(o.filter).toStrictEqual(filter);
-      expect(o.update).toStrictEqual(update);
+      expect(o.data).toStrictEqual(update);
       expect(o.options).toStrictEqual(options);
       expect(o.args).toStrictEqual([filter, update, options]);
     })

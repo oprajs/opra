@@ -38,7 +38,11 @@ export namespace Collection {
 }
 
 interface _EndpointFilter {
-  filters?: { field: Field.QualifiedName, operators?: OpraFilter.ComparisonOperator[] }[]
+  filters?: {
+    field: Field.QualifiedName;
+    operators?: OpraFilter.ComparisonOperator[];
+    notes?: string;
+  }[]
 }
 
 interface _EndpointInput {

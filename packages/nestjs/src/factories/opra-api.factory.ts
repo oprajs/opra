@@ -107,7 +107,7 @@ export class OpraApiFactory {
     return DocumentFactory.createDocument(apiSchema);
   }
 
-  private _createHandler(instance: object, callback: Function) {
+  private _createHandler(callback: Function) {
     return function (ctx: opraCore.EndpointContext) {
       switch (ctx.protocol) {
         case 'http':
@@ -154,7 +154,7 @@ export class OpraApiFactory {
               options,
               opraContext.protocol,
           );
-          contextInstance[methodName] = this._createHandler(instance, contextCallback);
+          contextInstance[methodName] = this._createHandler(contextCallback);
 
           return contextCallback(...args);
         }
@@ -169,7 +169,7 @@ export class OpraApiFactory {
             options,
             contextType,
         );
-    instance[methodName] = this._createHandler(instance, callback);
+    instance[methodName] = this._createHandler(callback);
     return callback;
   }
 

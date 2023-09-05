@@ -3,8 +3,8 @@ import supertest from 'supertest';
 import { ApiDocument } from '@opra/common';
 import { HttpAdapter } from '@opra/core';
 import { HttpAdapterHost } from '@opra/core/adapter/http/http-adapter.host.js';
-import { FilesResource } from '../../_support/test-app/resources/files.resource.js';
 import { createTestApi } from '../../_support/test-app/index.js';
+import { FilesResource } from '../../_support/test-app/resources/files.resource.js';
 
 describe('e2e:Storage', function () {
 

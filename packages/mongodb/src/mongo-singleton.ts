@@ -34,7 +34,7 @@ export abstract class MongoSingleton<T extends mongodb.Document> {
   async update?(ctx: EndpointContext): Promise<Maybe<PartialOutput<T>>> {
     const prepared = MongoAdapter.transformRequest(ctx.request);
     const service = await this.getService(ctx);
-    return service.updateOne(prepared.filter, prepared.update, prepared.options);
+    return service.updateOne(prepared.filter, prepared.data, prepared.options);
   }
 
   abstract getService(ctx: EndpointContext): MongoEntityService<T> | Promise<MongoEntityService<T>>;

@@ -29,6 +29,12 @@ export namespace HttpServerRequest {
     const req = instance as HttpServerRequest;
     req.baseUrl = req.baseUrl || '';
     req.parsedUrl = req.parsedUrl || new OpraURL(req.url);
+    if (!req.searchParams)
+      Object.defineProperty(req, 'searchParams', {
+        get(): any {
+          return req.parsedUrl.searchParams;
+        }
+      })
     return req;
   }
 }
@@ -42,6 +48,8 @@ export interface HttpServerRequest extends HttpIncomingMessage {
   originalUrl: string;
 
   parsedUrl: OpraURL;
+
+  searchParams: URLSearchParams;
 
   body?: any;
 
