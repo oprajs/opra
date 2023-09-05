@@ -16,7 +16,15 @@ export namespace MongoAdapter {
   export const transformProjection = _transformProjection;
   export const transformSort = _transformSort;
 
-  export function transformRequest(request: Request): any {
+  export interface TransformedRequest {
+    method: 'findOne' | 'find' | 'insertOne' | 'deleteOne' | 'deleteMany' | 'updateOne' | 'updateMany';
+    filter?: any;
+    data?: any;
+    options?: any;
+    args: any[];
+  }
+
+  export function transformRequest(request: Request): TransformedRequest {
     const {resource} = request;
 
     if (resource instanceof Collection || resource instanceof Singleton) {
@@ -88,24 +96,24 @@ export namespace MongoAdapter {
           return out;
         }
         case 'update': {
-          const update = transformPatch((request as any).data);
+          const data = transformPatch((request as any).data);
           filter = filter || {};
           return {
             method: 'updateOne',
             filter,
-            update,
+            data,
             options,
-            args: [filter, update, options]
+            args: [filter, data, options]
           }
         }
         case 'updateMany': {
-          const update = transformPatch((request as any).data);
+          const data = transformPatch((request as any).data);
           return {
             method: 'updateMany',
             filter,
-            update,
+            data,
             options,
-            args: [filter, update, options]
+            args: [filter, data, options]
           }
         }
       }

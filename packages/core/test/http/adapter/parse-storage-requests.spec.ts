@@ -3,7 +3,7 @@ import { ApiDocument, Storage } from '@opra/common';
 import { HttpAdapter, HttpServerRequest, HttpServerResponse, MultipartItem } from '@opra/core';
 import { ExecutionContextHost } from '@opra/core/adapter/execution-context.host';
 import { StorageRequestHandler } from '@opra/core/adapter/http/request-handlers/storage-request-handler';
-import { createTestApi } from '../../_support/test-app/index';
+import { createTestApi } from '../../_support/test-app/index.js';
 
 describe('parse Storage Request', function () {
 

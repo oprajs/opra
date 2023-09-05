@@ -29,13 +29,13 @@
   },
   "devDependencies": {
     "@faker-js/faker": "^8.0.2",
-    "mongodb": "^5.8.1",
+    "mongodb": "^6.0.0",
     "ts-gems": "^2.4.1"
   },
   "peerDependencies": {
     "@opra/common": "^0.25.3",
     "@opra/core": "^0.25.3",
-    "mongodb": ">=4.x.x"
+    "mongodb": ">=6.x.x"
   },
   "type": "module",
   "module": "./esm/index.js",

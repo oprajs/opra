@@ -197,7 +197,7 @@ describe('MongoAdapter.transformRequest (Singleton)', function () {
       }
       expect(o.method).toStrictEqual('updateOne');
       expect(o.filter).toStrictEqual({});
-      expect(o.update).toStrictEqual(update);
+      expect(o.data).toStrictEqual(update);
       expect(o.options).toStrictEqual(options);
       expect(o.args).toStrictEqual([{}, update, options]);
     });
@@ -215,7 +215,7 @@ describe('MongoAdapter.transformRequest (Singleton)', function () {
       const o = MongoAdapter.transformRequest(request);
       expect(o.method).toStrictEqual('updateOne');
       expect(o.filter).toStrictEqual({});
-      expect(o.update).toStrictEqual(update);
+      expect(o.data).toStrictEqual(update);
       expect(o.options).toStrictEqual(options);
       expect(o.args).toStrictEqual([{}, update, options]);
     });
@@ -233,7 +233,7 @@ describe('MongoAdapter.transformRequest (Singleton)', function () {
       const o = MongoAdapter.transformRequest(request);
       expect(o.method).toStrictEqual('updateOne');
       expect(o.filter).toStrictEqual({});
-      expect(o.update).toStrictEqual(update);
+      expect(o.data).toStrictEqual(update);
       expect(o.options).toStrictEqual(options);
       expect(o.args).toStrictEqual([{}, update, options]);
     });
@@ -259,7 +259,7 @@ describe('MongoAdapter.transformRequest (Singleton)', function () {
       const o = MongoAdapter.transformRequest(request);
       expect(o.method).toStrictEqual('updateOne');
       expect(o.filter).toStrictEqual({});
-      expect(o.update).toStrictEqual(update);
+      expect(o.data).toStrictEqual(update);
       expect(o.options).toStrictEqual(options);
       expect(o.args).toStrictEqual([{}, update, options]);
     });
