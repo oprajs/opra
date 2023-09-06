@@ -1,5 +1,5 @@
-import type { HttpServerResponse } from './http/http-server-response';
-import type { Response } from './response';
+import type { HttpServerResponse } from './http/http-server-response.js';
+import type { Response } from './response.js';
 
 export namespace ResponseHost {
   export interface Initiator {

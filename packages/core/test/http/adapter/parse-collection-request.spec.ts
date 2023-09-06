@@ -1,6 +1,6 @@
 import { ApiDocument, Collection } from '@opra/common';
 import { HttpAdapter, HttpServerRequest } from '@opra/core';
-import { EntityRequestHandler } from '@opra/core/adapter/http/request-handlers/entity-request-handler';
+import { EntityRequestHandler } from '@opra/core/http/request-handlers/entity-request-handler';
 import { createTestApi } from '../../_support/test-app/index.js';
 
 describe('Parse Collection requests', function () {
@@ -20,7 +20,7 @@ describe('Parse Collection requests', function () {
       const request = await requestHandler.parseRequest(
           HttpServerRequest.from({
             method: 'GET',
-            url: '/Customers@1?$pick=_id&$omit=gender&$include=address',
+            url: '/Customers@1?$pick=_id&$omit=gender&$include=address&prm1=1&prm2=2',
             headers: {'Accept': 'application/json'}
           })) as Collection.Get.Request;
       expect(request).toBeDefined();
@@ -31,6 +31,8 @@ describe('Parse Collection requests', function () {
       expect(request.params.pick).toStrictEqual(['_id']);
       expect(request.params.omit).toStrictEqual(['gender']);
       expect(request.params.include).toStrictEqual(['address']);
+      expect(request.params.prm1).toStrictEqual('1');
+      expect(request.params.prm2).not.toBeDefined();
       expect(() => request.switchToHttp()).not.toThrow();
       expect(request.switchToHttp().headers).toBeDefined();
       expect(request.switchToHttp().headers.accept).toStrictEqual('application/json');

@@ -3,17 +3,23 @@ import { omitUndefined, ResponsiveMap } from '../../helpers/index.js';
 import { OpraSchema } from '../../schema/index.js';
 import { DataType } from '../data-type/data-type.js';
 
+/**
+ *
+ * @class Endpoint
+ */
 export class Endpoint {
   readonly name: string;
   description?: string;
-  parameters = new ResponsiveMap<Endpoint.Parameter>();
+  parameters: ResponsiveMap<EndpointParameter>;
+
+  [key: string]: any;
 
   constructor(init: Endpoint.InitArguments) {
-    this.name = init.name;
-    this.description = init.description;
+    Object.assign(this, init);
+    this.parameters = new ResponsiveMap();
     if (init.parameters) {
       for (const [n, p] of Object.entries(init.parameters)) {
-        this.parameters.set(n, new Endpoint.Parameter(p));
+        this.parameters.set(n, new EndpointParameter(p));
       }
     }
   }
@@ -37,30 +43,31 @@ export namespace Endpoint {
     name: string;
   }
 
-  export class Parameter implements StrictOmit<OpraSchema.Endpoint.Parameter, 'type'> {
-    readonly name: string;
-    readonly type: string | DataType;
-    description?: string;
-    isArray?: boolean;
-    default?: any;
-    required?: boolean;
-    deprecated?: boolean | string;
-
-    constructor(init: OpraSchema.Endpoint.Parameter) {
-      Object.assign(this, init);
-    }
-
-    exportSchema(): OpraSchema.Endpoint.Parameter {
-      return omitUndefined<OpraSchema.Endpoint.Parameter>({
-        type: typeof this.type === 'string' ? this.type : this.type.exportSchema(),
-        description: this.description,
-        isArray: this.isArray
-      })
-    }
-  }
-
-  export namespace Parameter {
-
-  }
-
 }
+
+/**
+ *
+ * @class EndpointParameter
+ */
+export class EndpointParameter implements StrictOmit<OpraSchema.Endpoint.Parameter, 'type'> {
+  readonly name: string;
+  readonly type: string | DataType;
+  description?: string;
+  isArray?: boolean;
+  default?: any;
+  required?: boolean;
+  deprecated?: boolean | string;
+
+  constructor(init: OpraSchema.Endpoint.Parameter) {
+    Object.assign(this, init);
+  }
+
+  exportSchema(): OpraSchema.Endpoint.Parameter {
+    return omitUndefined<OpraSchema.Endpoint.Parameter>({
+      type: typeof this.type === 'string' ? this.type : this.type.exportSchema(),
+      description: this.description,
+      isArray: this.isArray
+    })
+  }
+}
+

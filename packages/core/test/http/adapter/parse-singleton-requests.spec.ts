@@ -1,6 +1,6 @@
 import { ApiDocument, Singleton } from '@opra/common';
 import { HttpAdapter, HttpServerRequest } from '@opra/core';
-import { EntityRequestHandler } from '@opra/core/adapter/http/request-handlers/entity-request-handler';
+import { EntityRequestHandler } from '@opra/core/http/request-handlers/entity-request-handler';
 import { createTestApi } from '../../_support/test-app/index.js';
 
 describe('Parse Singleton requests', function () {

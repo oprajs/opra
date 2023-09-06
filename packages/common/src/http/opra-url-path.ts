@@ -25,6 +25,10 @@ export class OpraURLPath {
     return this[kLength];
   }
 
+  slice(start?: number, end?: number): OpraURLPath {
+    return new OpraURLPath(...[...this].slice(start, end));
+  }
+
   resolve(...items: OpraURLPath.ComponentLike[]): this {
     this._resolve(items);
     return this;

@@ -1,4 +1,4 @@
-import type { HttpServerResponse } from './http/http-server-response';
+import type { HttpServerResponse } from './http/http-server-response.js';
 
 export interface Response {
   /**

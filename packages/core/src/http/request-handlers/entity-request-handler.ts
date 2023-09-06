@@ -194,6 +194,7 @@ export class EntityRequestHandler extends RequestHandlerBase {
             endpoint: 'create',
             data,
             params: {
+              ...this.parseParameters(incoming.parsedUrl, endpointMeta),
               pick: pick && resource.normalizeFieldPath(pick as string[]),
               omit: omit && resource.normalizeFieldPath(omit),
               include: include && resource.normalizeFieldPath(include)
@@ -212,7 +213,8 @@ export class EntityRequestHandler extends RequestHandlerBase {
             contentId,
             resource,
             endpoint: 'delete',
-            key: resource.parseKeyValue(p.key)
+            key: resource.parseKeyValue(p.key),
+            params: this.parseParameters(incoming.parsedUrl, endpointMeta)
           });
         }
         const endpointMeta =
@@ -225,6 +227,7 @@ export class EntityRequestHandler extends RequestHandlerBase {
           resource,
           endpoint: 'deleteMany',
           params: {
+            ...this.parseParameters(incoming.parsedUrl, endpointMeta),
             filter
           }
         });
@@ -245,6 +248,7 @@ export class EntityRequestHandler extends RequestHandlerBase {
             endpoint: 'get',
             key: resource.parseKeyValue(p.key),
             params: {
+              ...this.parseParameters(incoming.parsedUrl, endpointMeta),
               pick: pick && resource.normalizeFieldPath(pick),
               omit: omit && resource.normalizeFieldPath(omit),
               include: include && resource.normalizeFieldPath(include)
@@ -262,6 +266,7 @@ export class EntityRequestHandler extends RequestHandlerBase {
           resource,
           endpoint: 'findMany',
           params: {
+            ...this.parseParameters(incoming.parsedUrl, endpointMeta),
             pick: pick && resource.normalizeFieldPath(pick),
             omit: omit && resource.normalizeFieldPath(omit),
             include: include && resource.normalizeFieldPath(include),
@@ -295,6 +300,7 @@ export class EntityRequestHandler extends RequestHandlerBase {
             key: resource.parseKeyValue(p.key),
             data,
             params: {
+              ...this.parseParameters(incoming.parsedUrl, endpointMeta),
               pick: pick && resource.normalizeFieldPath(pick),
               omit: omit && resource.normalizeFieldPath(omit),
               include: include && resource.normalizeFieldPath(include),
@@ -316,6 +322,7 @@ export class EntityRequestHandler extends RequestHandlerBase {
           endpoint: 'updateMany',
           data,
           params: {
+            ...this.parseParameters(incoming.parsedUrl, endpointMeta),
             filter,
           }
         });
@@ -352,6 +359,7 @@ export class EntityRequestHandler extends RequestHandlerBase {
           endpoint: 'create',
           data,
           params: {
+            ...this.parseParameters(incoming.parsedUrl, endpointMeta),
             pick: pick && resource.normalizeFieldPath(pick),
             omit: omit && resource.normalizeFieldPath(omit),
             include: include && resource.normalizeFieldPath(include)
@@ -367,6 +375,7 @@ export class EntityRequestHandler extends RequestHandlerBase {
           contentId,
           resource,
           endpoint: 'delete',
+          params: this.parseParameters(incoming.parsedUrl, endpointMeta)
         });
       }
 
@@ -383,6 +392,7 @@ export class EntityRequestHandler extends RequestHandlerBase {
           resource,
           endpoint: 'get',
           params: {
+            ...this.parseParameters(incoming.parsedUrl, endpointMeta),
             pick: pick && resource.normalizeFieldPath(pick),
             omit: omit && resource.normalizeFieldPath(omit),
             include: include && resource.normalizeFieldPath(include)
@@ -409,6 +419,7 @@ export class EntityRequestHandler extends RequestHandlerBase {
           endpoint: 'update',
           data,
           params: {
+            ...this.parseParameters(incoming.parsedUrl, endpointMeta),
             pick: pick && resource.normalizeFieldPath(pick),
             omit: omit && resource.normalizeFieldPath(omit),
             include: include && resource.normalizeFieldPath(include),

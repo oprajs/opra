@@ -1,6 +1,6 @@
 import http from 'http';
 import type { ApiDocument, OpraURLPath } from '@opra/common';
-import type { PlatformAdapter } from '../platform-adapter';
+import type { PlatformAdapter } from '../platform-adapter.js';
 import { HttpAdapterHost } from './http-adapter.host.js';
 
 export interface HttpAdapter extends PlatformAdapter {

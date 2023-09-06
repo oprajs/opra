@@ -5,7 +5,7 @@ export interface Request {
   resource: Resource;
   endpoint: string;
   contentId?: string;
-  params?: Record<string, any>;
+  params: Record<string, any>;
 
   switchToHttp(): HttpServerRequest;
 

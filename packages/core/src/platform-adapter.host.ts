@@ -5,7 +5,7 @@ import { Type } from 'ts-gems';
 import { ApiDocument, getStackFileName, I18n, Resource } from '@opra/common';
 import { ExecutionContext } from './execution-context.js';
 import { Interceptor } from './interfaces/interceptor.interface.js';
-import type { PlatformAdapter, Protocol } from './platform-adapter';
+import type { PlatformAdapter, Protocol } from './platform-adapter.js';
 import { Logger } from './services/logger.js';
 
 /**

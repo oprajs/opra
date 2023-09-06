@@ -1,7 +1,7 @@
 import type { Readable } from 'stream';
-import type { EndpointContext } from '../adapter/endpoint-context';
-import type { MultipartIterator } from '../adapter/http/helpers/multipart-helper';
-import type { Request as _Request } from '../adapter/request.js';
+import type { EndpointContext } from '../endpoint-context.js';
+import type { MultipartIterator } from '../http/helpers/multipart-helper';
+import type { Request as _Request } from '../request.js';
 
 declare module "@opra/common" {
 
@@ -16,6 +16,7 @@ declare module "@opra/common" {
     /* ***************************** */
     namespace Delete {
       interface Request extends _Request {
+        path?: string;
       }
 
       interface Context<TSession extends {} = {}> extends EndpointContext<TSession> {
@@ -26,6 +27,7 @@ declare module "@opra/common" {
     /* ***************************** */
     namespace Get {
       interface Request extends _Request {
+        path?: string;
       }
 
       interface Context<TSession extends {} = {}> extends EndpointContext<TSession> {
@@ -36,6 +38,7 @@ declare module "@opra/common" {
     /* ***************************** */
     namespace Post {
       interface Request extends _Request {
+        path?: string;
         parts: MultipartIterator;
       }
 
