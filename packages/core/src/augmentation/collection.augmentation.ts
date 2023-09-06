@@ -1,6 +1,6 @@
 import type { PartialOutput } from '@opra/common';
-import type { EndpointContext } from '../adapter/endpoint-context.js';
-import type { Request as _Request } from '../adapter/request.js';
+import type { EndpointContext } from '../endpoint-context.js';
+import type { Request as _Request } from '../request.js';
 
 declare module "@opra/common" {
 
@@ -22,6 +22,7 @@ declare module "@opra/common" {
           pick?: string[];
           omit?: string[];
           include?: string[];
+          [key: string]: any;
         }
       }
 
@@ -48,6 +49,7 @@ declare module "@opra/common" {
         endpoint: 'deleteMany';
         params: {
           filter?: any;
+          [key: string]: any;
         }
       }
 
@@ -70,6 +72,7 @@ declare module "@opra/common" {
           skip?: number;
           distinct?: boolean;
           count?: boolean;
+          [key: string]: any;
         }
       }
 
@@ -87,6 +90,7 @@ declare module "@opra/common" {
           pick?: string[];
           omit?: string[];
           include?: string[];
+          [key: string]: any;
         }
       }
 
@@ -105,6 +109,7 @@ declare module "@opra/common" {
           pick?: string[];
           omit?: string[];
           include?: string[];
+          [key: string]: any;
         }
       }
 
@@ -120,6 +125,7 @@ declare module "@opra/common" {
         data: any;
         params: {
           filter?: any;
+          [key: string]: any;
         }
       }
 

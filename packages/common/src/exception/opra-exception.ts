@@ -36,7 +36,7 @@ export class OpraException extends Error {
       this.initString(issue);
     else if (issue instanceof Error)
       this.initError(issue);
-    else if (issue && typeof issue === 'object')
+    else
       this.init(issue);
     this.message = this.message || this.constructor.name;
   }
@@ -61,18 +61,22 @@ export class OpraException extends Error {
     }, true);
   }
 
-  protected init(issue: Partial<ErrorIssue>) {
-    this.message = issue.message || this.constructor.name;
-    this.severity = issue.severity || 'error';
-    this.system = issue.system;
-    this.code = issue.code;
-    this.details = issue.details;
+  protected init(issue?: Partial<ErrorIssue>) {
+    this.message = issue?.message || this.constructor.name;
+    this.severity = issue?.severity || 'error';
+    if (issue) {
+      this.system = issue.system;
+      this.code = issue.code;
+      this.details = issue.details;
+    }
   }
 
   protected initString(issue: string) {
-    this.message = String(issue || '') || this.constructor.name;
-    this.severity = 'error';
-    this.code = this.constructor.name;
+    this.init({
+      message: String(issue || '') || this.constructor.name,
+      severity: 'error',
+      code: this.constructor.name
+    })
   }
 
   protected initError(issue: Error) {
@@ -80,9 +84,11 @@ export class OpraException extends Error {
       this.status = (issue as any).status;
     else if (typeof (issue as any).getStatus === 'function')
       this.status = (issue as any).getStatus();
-    this.message = issue.message;
-    this.severity = (issue as any).severity || 'error';
-    this.code = (issue as any).code || (issue.constructor.name);
+    this.init({
+      message: issue.message,
+      severity: (issue as any).severity || 'error',
+      code: (issue as any).code || (issue.constructor.name)
+    });
   }
 
 }

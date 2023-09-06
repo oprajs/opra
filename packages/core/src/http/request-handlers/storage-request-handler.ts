@@ -9,7 +9,7 @@ import {
   uid
 } from '@opra/common';
 import { EndpointContext } from '../../endpoint-context.js';
-import type { ExecutionContext } from '../../execution-context';
+import type { ExecutionContext } from '../../execution-context.js';
 import { RequestHost } from '../../request.host.js';
 import { Request } from '../../request.js';
 import { ResponseHost } from '../../response.host.js';
@@ -66,7 +66,9 @@ export class StorageRequestHandler extends RequestHandlerBase {
             http: incoming,
             resource,
             endpoint: 'get',
-            contentId
+            contentId,
+            path: incoming.parsedUrl.path.slice(1).toString().substring(1),
+            params: this.parseParameters(incoming.parsedUrl, endpointMeta)
           });
         }
         case 'DELETE': {
@@ -76,7 +78,9 @@ export class StorageRequestHandler extends RequestHandlerBase {
             http: incoming,
             resource,
             endpoint: 'delete',
-            contentId
+            contentId,
+            path: incoming.parsedUrl.path.slice(1).toString().substring(1),
+            params: this.parseParameters(incoming.parsedUrl, endpointMeta)
           });
         }
         case 'POST': {
@@ -102,7 +106,9 @@ export class StorageRequestHandler extends RequestHandlerBase {
             resource,
             endpoint: 'post',
             contentId,
-            parts: multipartIterator
+            parts: multipartIterator,
+            path: incoming.parsedUrl.path.slice(1).toString().substring(1),
+            params: this.parseParameters(incoming.parsedUrl, endpointMeta)
           });
         }
       }

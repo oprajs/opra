@@ -1,6 +1,6 @@
 import type { Writable } from 'ts-gems';
 import { Collection, Resource, RESOURCE_METADATA, Singleton } from "@opra/common";
-import { EndpointContext } from '../adapter/endpoint-context.js';
+import { EndpointContext } from '../endpoint-context.js';
 
 declare module "@opra/common" {
   interface CollectionConstructor {

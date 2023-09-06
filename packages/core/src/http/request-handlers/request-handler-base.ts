@@ -1,7 +1,7 @@
-import { ForbiddenError, OpraSchema, Resource, translate } from '@opra/common';
-import type { ExecutionContext } from '../../execution-context';
-import type { RequestHandler } from '../../interfaces/request-handler.interface';
-import type { HttpAdapterBase } from '../http-adapter-base';
+import { ForbiddenError, OpraSchema, OpraURL, Resource, translate } from '@opra/common';
+import type { ExecutionContext } from '../../execution-context.js';
+import type { RequestHandler } from '../../interfaces/request-handler.interface.js';
+import type { HttpAdapterBase } from '../http-adapter-base.js';
 
 
 /**
@@ -33,7 +33,18 @@ export abstract class RequestHandlerBase implements RequestHandler {
       severity: 'error',
       code: 'RESOLVER_FORBIDDEN'
     });
-
   }
+
+  protected parseParameters(parsedUrl: OpraURL, metadata: OpraSchema.Endpoint): any {
+    if (!metadata.parameters)
+      return;
+    const searchParams = parsedUrl.searchParams;
+    const out = {};
+    for (const [k] of Object.entries(metadata.parameters)) {
+      out[k] = searchParams.get(k);
+    }
+    return out;
+  }
+
 
 }

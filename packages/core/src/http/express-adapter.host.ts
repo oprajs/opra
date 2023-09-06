@@ -1,6 +1,6 @@
 import type { Application, Request, Response } from 'express';
 import { ApiDocument, OpraURLPath } from '@opra/common';
-import type { ExpressAdapter } from './express-adapter';
+import type { ExpressAdapter } from './express-adapter.js';
 import { HttpAdapterBase } from './http-adapter-base.js';
 import { HttpServerRequest } from './http-server-request.js';
 import { HttpServerResponse } from './http-server-response.js';

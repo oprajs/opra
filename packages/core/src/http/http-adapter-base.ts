@@ -8,8 +8,8 @@ import {
 import { ExecutionContextHost } from '../execution-context.host.js';
 import { ExecutionContext } from '../execution-context.js';
 import { RequestHandler } from '../interfaces/request-handler.interface.js';
-import type { Protocol } from '../platform-adapter';
 import { PlatformAdapterHost } from '../platform-adapter.host.js';
+import type { Protocol } from '../platform-adapter.js';
 import { HttpServerRequest } from './http-server-request.js';
 import { HttpServerResponse } from './http-server-response.js';
 import { EntityRequestHandler } from './request-handlers/entity-request-handler.js';

@@ -1,8 +1,8 @@
 import fs from 'fs';
 import { ApiDocument, Storage } from '@opra/common';
 import { HttpAdapter, HttpServerRequest, HttpServerResponse, MultipartItem } from '@opra/core';
-import { ExecutionContextHost } from '@opra/core/adapter/execution-context.host';
-import { StorageRequestHandler } from '@opra/core/adapter/http/request-handlers/storage-request-handler';
+import { ExecutionContextHost } from '../../../src/execution-context.host.js';
+import { StorageRequestHandler } from '../../../src/http/request-handlers/storage-request-handler.js';
 import { createTestApi } from '../../_support/test-app/index.js';
 
 describe('parse Storage Request', function () {

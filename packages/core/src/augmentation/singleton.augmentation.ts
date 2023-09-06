@@ -1,6 +1,6 @@
 import type { PartialOutput } from '@opra/common';
-import type { EndpointContext } from '../adapter/endpoint-context.js';
-import type { Request as _Request } from '../adapter/request.js';
+import type { EndpointContext } from '../endpoint-context.js';
+import type { Request as _Request } from '../request.js';
 
 declare module "@opra/common" {
 

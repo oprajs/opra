@@ -1,6 +1,6 @@
-import type { HttpServerRequest } from './http/http-server-request';
-import type { HttpServerResponse } from './http/http-server-response';
-import type { Protocol } from './platform-adapter';
+import type { HttpServerRequest } from './http/http-server-request.js';
+import type { HttpServerResponse } from './http/http-server-response.js';
+import type { Protocol } from './platform-adapter.js';
 
 export interface ExecutionContext<TSession extends {} = {}> {
 

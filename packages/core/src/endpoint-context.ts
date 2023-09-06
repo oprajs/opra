@@ -1,6 +1,6 @@
-import type { ExecutionContext } from './execution-context';
-import type { Request } from './request';
-import type { Response } from './response';
+import type { ExecutionContext } from './execution-context.js';
+import type { Request } from './request.js';
+import type { Response } from './response.js';
 
 export interface EndpointContext<TSession extends {} = {}> extends ExecutionContext<TSession> {
   request: Request;

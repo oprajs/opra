@@ -1,9 +1,11 @@
-import type { StrictOmit } from 'ts-gems';
+import type { PartialSome, StrictOmit } from 'ts-gems';
 import type { HttpServerRequest } from './http/http-server-request.js';
-import type { Request } from './request';
+import type { Request } from './request.js';
 
 export namespace RequestHost {
-  export interface Initiator extends StrictOmit<Request, 'switchToHttp' | 'switchToWs' | 'switchToRpc'> {
+  export interface Initiator extends PartialSome<
+      StrictOmit<Request, 'switchToHttp' | 'switchToWs' | 'switchToRpc'>,
+      'params'> {
     controller: any;
     http?: HttpServerRequest;
 

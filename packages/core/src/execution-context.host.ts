@@ -1,6 +1,5 @@
 import { AsyncEventEmitter } from 'strict-typed-events';
 import type { ApiDocument } from '@opra/common';
-import type { HttpServerResponse } from './/http/http-server-response.js';
 import type {
   ExecutionContext,
   HttpMessageContext,
@@ -8,6 +7,7 @@ import type {
   WsMessageContext
 } from './execution-context.js';
 import type { HttpServerRequest } from './http/http-server-request.js';
+import type { HttpServerResponse } from './http/http-server-response.js';
 import { Protocol } from './platform-adapter.js';
 
 export class ExecutionContextHost<TSession extends {} = {}> extends AsyncEventEmitter implements ExecutionContext<TSession> {

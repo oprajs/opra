@@ -6,7 +6,7 @@
 import http, { OutgoingHttpHeaders } from 'http';
 import { Duplex, Writable } from 'stream';
 import { validateHeaderName, validateHeaderValue, validateString } from '../helpers/common.js';
-import type { HttpIncomingMessage } from './http-incoming-message.host';
+import type { HttpIncomingMessage } from './http-incoming-message.host.js';
 
 export const kOutHeaders = Symbol.for('kOutHeaders');
 export const kOutTrailers = Symbol.for('kOutTrailers');
