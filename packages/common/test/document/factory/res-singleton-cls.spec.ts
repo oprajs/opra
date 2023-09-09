@@ -58,7 +58,7 @@ describe('DocumentFactory - Singleton resource with decorated classes', function
     expect(doc).toBeDefined();
     const t = doc.getSingleton('MyCountry');
     expect(t.controller).toBe(MyCountryResource);
-    expect(t.operations.create).toBeDefined();
+    expect(t.getOperation('create')).toBeDefined();
   })
 
   it('Should define "get" operation endpoint', async () => {
@@ -79,7 +79,7 @@ describe('DocumentFactory - Singleton resource with decorated classes', function
     expect(doc).toBeDefined();
     const t = doc.getSingleton('MyCountry');
     expect(t.controller).toBe(MyCountryResource);
-    expect(t.operations.get).toBeDefined();
+    expect(t.getOperation('get')).toBeDefined();
   })
 
   it('Should define "update" operation endpoint', async () => {
@@ -100,7 +100,7 @@ describe('DocumentFactory - Singleton resource with decorated classes', function
     expect(doc).toBeDefined();
     const t = doc.getSingleton('MyCountry');
     expect(t.controller).toBe(MyCountryResource);
-    expect(t.operations.update).toBeDefined();
+    expect(t.getOperation('update')).toBeDefined();
   })
 
   it('Should define "deleteOne" operation endpoint', async () => {
@@ -121,7 +121,7 @@ describe('DocumentFactory - Singleton resource with decorated classes', function
     expect(doc).toBeDefined();
     const t = doc.getSingleton('MyCountry');
     expect(t.controller).toBe(MyCountryResource);
-    expect(t.operations.delete).toBeDefined();
+    expect(t.getOperation('delete')).toBeDefined();
   })
 
 });

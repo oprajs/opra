@@ -16,7 +16,7 @@ describe('ElasticAdapter.transformRequest (Collection)', function () {
     it('Should prepare', async () => {
       const request = {
         resource: api.getCollection('customers'),
-        endpoint: 'findMany',
+        operation: 'findMany',
       } as unknown as Request;
       const o = ElasticAdapter.transformRequest(request);
       expect(o.method).toStrictEqual('search');
@@ -29,7 +29,7 @@ describe('ElasticAdapter.transformRequest (Collection)', function () {
       const resource = api.getCollection('customers');
       const request = {
         resource: api.getCollection('customers'),
-        endpoint: 'findMany',
+        operation: 'findMany',
         params: {filter: resource.normalizeFilter('givenName="John"')}
       } as unknown as Request;
       const options = {};
@@ -45,7 +45,7 @@ describe('ElasticAdapter.transformRequest (Collection)', function () {
     it('Should prepare with "pick" option', async () => {
       const request = {
         resource: api.getCollection('customers'),
-        endpoint: 'findMany',
+        operation: 'findMany',
         params: {pick: ['gender', 'address']}
       } as unknown as Request;
       const params = {
@@ -61,7 +61,7 @@ describe('ElasticAdapter.transformRequest (Collection)', function () {
     it('Should prepare with "omit" option', async () => {
       const request = {
         resource: api.getCollection('customers'),
-        endpoint: 'findMany',
+        operation: 'findMany',
         params: {omit: ['gender', 'address']}
       } as unknown as Request;
       const params = {
@@ -77,7 +77,7 @@ describe('ElasticAdapter.transformRequest (Collection)', function () {
     it('Should prepare with "include" option', async () => {
       const request = {
         resource: api.getCollection('customers'),
-        endpoint: 'findMany',
+        operation: 'findMany',
         params: {include: ['address']}
       } as unknown as Request;
       const o = ElasticAdapter.transformRequest(request);
@@ -95,7 +95,7 @@ describe('ElasticAdapter.transformRequest (Collection)', function () {
     it('Should prepare with "sort" option', async () => {
       const request = {
         resource: api.getCollection('customers'),
-        endpoint: 'findMany',
+        operation: 'findMany',
         params: {sort: ['givenName']}
       } as unknown as Request;
       const params = {

@@ -1,9 +1,9 @@
 import fs from 'fs';
 import { ApiDocument, Storage } from '@opra/common';
 import { HttpAdapter, HttpServerRequest, HttpServerResponse, MultipartItem } from '@opra/core';
-import { ExecutionContextHost } from '../../../src/execution-context.host.js';
-import { StorageRequestHandler } from '../../../src/http/request-handlers/storage-request-handler.js';
-import { createTestApi } from '../../_support/test-app/index.js';
+import { ExecutionContextHost } from '@opra/core/execution-context.host';
+import { StorageRequestHandler } from '@opra/core/http/request-handlers/storage-request-handler';
+import { createTestApi } from '../_support/test-app/index';
 
 describe('parse Storage Request', function () {
 
@@ -43,7 +43,7 @@ describe('parse Storage Request', function () {
         expect(request).toBeDefined();
         const resource = api.getStorage('Files');
         expect(request.resource).toStrictEqual(resource);
-        expect(request.endpoint).toStrictEqual('post');
+        expect(request.operation).toStrictEqual('post');
         const items = await request.parts.getAll();
         expect(items).toBeDefined();
         expect(items.length).toStrictEqual(2);
@@ -105,7 +105,7 @@ describe('parse Storage Request', function () {
         expect(request).toBeDefined();
         const resource = api.getStorage('Files');
         expect(request.resource).toStrictEqual(resource);
-        expect(request.endpoint).toStrictEqual('post');
+        expect(request.operation).toStrictEqual('post');
         let item: MultipartItem | undefined;
         let i = 0;
         while ((item = await request.parts.getNext())) {

@@ -2,19 +2,19 @@ import { StrictOmit } from 'ts-gems';
 import { omitUndefined, ResponsiveMap } from '../../helpers/index.js';
 import { OpraSchema } from '../../schema/index.js';
 import { DataType } from '../data-type/data-type.js';
+import type { Resource } from './resource.js';
 
 /**
  *
  * @class Endpoint
  */
 export class Endpoint {
-  readonly name: string;
   description?: string;
   parameters: ResponsiveMap<EndpointParameter>;
 
   [key: string]: any;
 
-  constructor(init: Endpoint.InitArguments) {
+  constructor(readonly resource: Resource, readonly name: string, init: Endpoint.InitArguments) {
     Object.assign(this, init);
     this.parameters = new ResponsiveMap();
     if (init.parameters) {
@@ -40,7 +40,6 @@ export class Endpoint {
 
 export namespace Endpoint {
   export interface InitArguments extends OpraSchema.Endpoint {
-    name: string;
   }
 
 }
@@ -60,6 +59,7 @@ export class EndpointParameter implements StrictOmit<OpraSchema.Endpoint.Paramet
 
   constructor(init: OpraSchema.Endpoint.Parameter) {
     Object.assign(this, init);
+    this.type = this.type || 'any';
   }
 
   exportSchema(): OpraSchema.Endpoint.Parameter {

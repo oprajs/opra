@@ -3,6 +3,7 @@ import { RESOURCE_METADATA, Storage } from '@opra/common';
 
 describe('Storage decorators', function () {
 
+  /* ***************************************************** */
   describe('@Storage() decorator', function () {
 
     it('Should define Storage resource metadata', async function () {
@@ -36,6 +37,8 @@ describe('Storage decorators', function () {
     })
   })
 
+
+  /* ***************************************************** */
   describe('@Storage.Action() decorator', function () {
     it('Should define Action operation metadata', async function () {
       class CountryResource {
@@ -51,6 +54,8 @@ describe('Storage decorators', function () {
     })
   })
 
+
+  /* ***************************************************** */
   describe('@Storage.Delete() decorator', function () {
     it('Should define Delete operation metadata', async function () {
       class CountryResource {
@@ -66,6 +71,8 @@ describe('Storage decorators', function () {
     })
   })
 
+
+  /* ***************************************************** */
   describe('@Storage.Get() decorator', function () {
     it('Should define Get operation metadata', async function () {
       class CountryResource {
@@ -81,6 +88,8 @@ describe('Storage decorators', function () {
     })
   })
 
+
+  /* ***************************************************** */
   describe('@Storage.Post() decorator', function () {
     it('Should define Post operation metadata', async function () {
       class CountryResource {
@@ -94,6 +103,93 @@ describe('Storage decorators', function () {
         post: {description: 'operation'}
       });
     })
+
+    it('Should MaxFields() define metadata value', async function () {
+      class CountryResource {
+        @Storage.Post()
+            .MaxFields(5)
+        post() {
+        }
+      }
+
+      const metadata = Reflect.getMetadata(RESOURCE_METADATA, CountryResource);
+      expect(metadata.operations).toStrictEqual({
+        post: {maxFields: 5}
+      });
+    })
+
+    it('Should MaxFieldSize() define metadata value', async function () {
+      class CountryResource {
+        @Storage.Post()
+            .MaxFieldSize(1000)
+        post() {
+        }
+      }
+
+      const metadata = Reflect.getMetadata(RESOURCE_METADATA, CountryResource);
+      expect(metadata.operations).toStrictEqual({
+        post: {maxFieldsSize: 1000}
+      });
+    })
+
+    it('Should MaxFiles() define metadata value', async function () {
+      class CountryResource {
+        @Storage.Post()
+            .MaxFiles(3)
+        post() {
+        }
+      }
+
+      const metadata = Reflect.getMetadata(RESOURCE_METADATA, CountryResource);
+      expect(metadata.operations).toStrictEqual({
+        post: {maxFiles: 3}
+      });
+    })
+
+    it('Should MaxFileSize() define metadata value', async function () {
+      class CountryResource {
+        @Storage.Post()
+            .MaxFileSize(1000)
+        post() {
+        }
+      }
+
+      const metadata = Reflect.getMetadata(RESOURCE_METADATA, CountryResource);
+      expect(metadata.operations).toStrictEqual({
+        post: {maxFileSize: 1000}
+      });
+    })
+
+    it('Should MaxTotalFileSize() define metadata value', async function () {
+      class CountryResource {
+        @Storage.Post()
+            .MaxTotalFileSize(1000)
+        post() {
+        }
+      }
+
+      const metadata = Reflect.getMetadata(RESOURCE_METADATA, CountryResource);
+      expect(metadata.operations).toStrictEqual({
+        post: {maxTotalFileSize: 1000}
+      });
+    })
+
+
+    it('Should MinFileSize() define metadata value', async function () {
+      class CountryResource {
+        @Storage.Post()
+            .MinFileSize(1000)
+        post() {
+        }
+      }
+
+      const metadata = Reflect.getMetadata(RESOURCE_METADATA, CountryResource);
+      expect(metadata.operations).toStrictEqual({
+        post: {minFileSize: 1000}
+      });
+    })
+
+
   })
 
 });

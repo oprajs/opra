@@ -10,28 +10,34 @@ export namespace OperationDecorator {
   }
 }
 
-export type OperationDecorator = PropertyDecorator & {
+export type OperationDecorator = ((target: Object, propertyKey: any) => void) & {
   Parameter: (name: string, options?: OperationDecorator.Options) => OperationDecorator;
 }
 
-export function buildOperationDecorator<T>(operation: string): ((options?: T) => OperationDecorator) {
-  return (options?: T) => {
-    const mergeMetadata: any = {};
-    const decorator = ((target: Object, propertyKey: string | symbol): void => {
-      if (propertyKey !== operation)
-        throw new TypeError(`Name of the handler name should be '${operation}'`);
-      const operationMeta = {...options};
-      const resourceMetadata = (Reflect.getOwnMetadata(RESOURCE_METADATA, target.constructor) || {});
-      resourceMetadata.operations = resourceMetadata.operations || {};
-      resourceMetadata.operations[operation] = operationMeta;
-      Object.assign(operationMeta, mergeMetadata);
-      Reflect.defineMetadata(RESOURCE_METADATA, resourceMetadata, target.constructor);
-    }) as OperationDecorator;
-    decorator.Parameter = (name: string) => {
-      mergeMetadata.parameters = mergeMetadata.parameters || {};
-      mergeMetadata.parameters[name] = {};
-      return decorator;
-    }
+export function createOperationDecorator<T extends OperationDecorator>(
+    operation: string,
+    options: any,
+    list: ((operationMeta: any) => void)[]
+): T {
+  const decorator = ((target: Object, propertyKey: any): void => {
+    if (propertyKey !== operation)
+      throw new TypeError(`Name of the handler name should be '${operation}'`);
+    const operationMeta = {...options};
+    const resourceMetadata = (Reflect.getOwnMetadata(RESOURCE_METADATA, target.constructor) || {});
+    resourceMetadata.operations = resourceMetadata.operations || {};
+    resourceMetadata.operations[operation] = operationMeta;
+    for (const fn of list)
+      fn(operationMeta);
+    Reflect.defineMetadata(RESOURCE_METADATA, resourceMetadata, target.constructor);
+  }) as T;
+  decorator.Parameter = (name: string) => {
+    list.push(
+        (operationMeta): void => {
+          operationMeta.parameters = operationMeta.parameters || {};
+          operationMeta.parameters[name] = {};
+        }
+    )
     return decorator;
   }
+  return decorator;
 }

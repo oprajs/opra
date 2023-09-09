@@ -1,4 +1,3 @@
-import type { Readable } from 'stream';
 import type { EndpointContext } from '../endpoint-context.js';
 import type { MultipartIterator } from '../http/helpers/multipart-helper';
 import type { Request as _Request } from '../request.js';
@@ -16,6 +15,7 @@ declare module "@opra/common" {
     /* ***************************** */
     namespace Delete {
       interface Request extends _Request {
+        operation: 'delete';
         path?: string;
       }
 
@@ -27,6 +27,7 @@ declare module "@opra/common" {
     /* ***************************** */
     namespace Get {
       interface Request extends _Request {
+        operation: 'get';
         path?: string;
       }
 
@@ -38,6 +39,7 @@ declare module "@opra/common" {
     /* ***************************** */
     namespace Post {
       interface Request extends _Request {
+        operation: 'post';
         path?: string;
         parts: MultipartIterator;
       }
@@ -49,17 +51,4 @@ declare module "@opra/common" {
 
   }
 
-
-  /* ***************************** */
-  export interface IStorage {
-    delete?(context: Storage.Delete.Context): Promise<number | undefined>;
-
-    get?(context: Storage.Get.Context): Promise<Buffer | Readable | undefined>;
-
-    post?(context: Storage.Post.Context): Promise<void>;
-
-    onInit?(): Promise<void>;
-
-    onShutdown?(): Promise<void>;
-  }
 }

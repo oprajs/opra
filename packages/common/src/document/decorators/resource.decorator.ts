@@ -8,10 +8,10 @@ export interface ResourceDecorator {
   Action: (options?: Resource.ActionOptions) => PropertyDecorator;
 }
 
-export function ResourceDecorator<O extends Resource.DecoratorOptions>(kind: OpraSchema.Resource.Kind, options?: O): ClassDecorator {
+export function ResourceDecorator<O extends Resource.DecoratorOptions>(kind: OpraSchema.Resource.Kind, meta?: O): ClassDecorator {
   const namePattern = new RegExp(`^(.*)(${kind}|Resource|Controller)$`);
   return function (target: Function) {
-    const name = options?.name || namePattern.exec(target.name)?.[1] || target.name;
+    const name = meta?.name || namePattern.exec(target.name)?.[1] || target.name;
     const metadata: Resource.Metadata = {kind, name};
     const baseMetadata = Reflect.getOwnMetadata(RESOURCE_METADATA, Object.getPrototypeOf(target));
     if (baseMetadata)
@@ -22,7 +22,7 @@ export function ResourceDecorator<O extends Resource.DecoratorOptions>(kind: Opr
     merge(metadata, {
       kind,
       name,
-      ...omit(options, ['kind', 'name', 'controller'])
+      ...omit(meta, ['kind', 'name', 'controller'])
     }, {deep: true});
     Reflect.defineMetadata(RESOURCE_METADATA, metadata, target);
   }

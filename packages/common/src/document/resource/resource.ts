@@ -12,7 +12,7 @@ export abstract class Resource {
   readonly name: string;
   description?: string;
   controller?: object | Type;
-  abstract operations: Record<string, any>;
+  operations = new ResponsiveMap<Endpoint>();
   actions = new ResponsiveMap<Endpoint>();
 
   protected constructor(
@@ -23,11 +23,20 @@ export abstract class Resource {
     this.name = init.name;
     this.description = init.description;
     this.controller = init.controller;
-    if (init.actions) {
-      for (const [name, meta] of Object.entries(init.actions)) {
-        this.actions.set(name, new Endpoint({...meta, name}));
+    if (init.operations) {
+      for (const [name, meta] of Object.entries<OpraSchema.Endpoint>(init.operations)) {
+        this.operations.set(name, new Endpoint(this, name, meta));
       }
     }
+    if (init.actions) {
+      for (const [name, meta] of Object.entries<OpraSchema.Endpoint>(init.actions)) {
+        this.actions.set(name, new Endpoint(this, name, meta));
+      }
+    }
+  }
+
+  getOperation(name: string): Endpoint | undefined {
+    return this.operations.get(name);
   }
 
   exportSchema(): OpraSchema.ResourceBase {
@@ -35,6 +44,12 @@ export abstract class Resource {
       kind: this.kind,
       description: this.description,
     });
+    if (this.operations.size) {
+      schema.operations = {};
+      for (const operation of this.operations.values()) {
+        schema.operations[operation.name] = operation.exportSchema();
+      }
+    }
     if (this.actions.size) {
       schema.actions = {};
       for (const action of this.actions.values()) {

@@ -23,8 +23,7 @@ export interface Singleton extends SingletonClass {
  * @decorator Singleton
  */
 export const Singleton = function (this: SingletonClass | void, ...args: any[]) {
-
-  // ClassDecorator
+  // Decorator
   if (!this) {
     const [type, options] = args;
     return Singleton[DECORATOR].call(undefined, type, options);
@@ -44,7 +43,7 @@ Singleton[DECORATOR] = SingletonDecorator;
  * @namespace Singleton
  */
 export namespace Singleton {
-  export interface InitArguments extends Resource.InitArguments,
+  export interface InitArguments extends StrictOmit<Resource.InitArguments, 'operations'>,
       StrictOmit<OpraSchema.Singleton, 'kind' | 'type'> {
     type: ComplexType;
   }
@@ -53,7 +52,7 @@ export namespace Singleton {
 
   }
 
-  export interface Metadata extends StrictOmit<Resource.Metadata, 'kind'>, StrictOmit<OpraSchema.Singleton, 'type'> {
+  export interface Metadata extends StrictOmit<Resource.Metadata, 'kind' | 'operations'>, StrictOmit<OpraSchema.Singleton, 'type'> {
     type: TypeThunkAsync | string;
   }
 
@@ -73,9 +72,5 @@ export namespace Singleton {
   export namespace Update {
   }
 
-  export type CreateEndpointOptions = OpraSchema.Singleton.CreateEndpoint;
-  export type DeleteEndpointOptions = OpraSchema.Singleton.DeleteEndpoint;
-  export type GetEndpointOptions = OpraSchema.Singleton.GetEndpoint;
-  export type UpdateEndpointOptions = OpraSchema.Singleton.UpdateEndpoint;
 }
 

@@ -1,10 +1,10 @@
 import { Type } from 'ts-gems';
 import * as vg from 'valgen';
-import { omitUndefined } from '../../helpers/index.js';
 import { OpraSchema } from '../../schema/index.js';
 import type { ApiDocument } from '../api-document.js';
 import { ComplexType } from '../data-type/complex-type.js';
 import { generateCodec, GenerateDecoderOptions } from '../utils/generate-codec.js';
+import { Endpoint } from './endpoint.js';
 import { Resource } from './resource.js';
 import type { Singleton } from './singleton.js';
 
@@ -13,26 +13,26 @@ export class SingletonClass extends Resource {
   private _encoders: Record<string, vg.Validator> = {};
   readonly type: ComplexType;
   readonly kind = OpraSchema.Singleton.Kind;
-  readonly operations: OpraSchema.Singleton.Operations;
   readonly controller?: object | Type;
 
-  constructor(
-      document: ApiDocument,
-      init: Singleton.InitArguments
-  ) {
+  constructor(document: ApiDocument, init: Singleton.InitArguments) {
     super(document, init);
     this.controller = init.controller;
-    this.operations = {...init.operations};
     this.type = init.type;
+  }
+
+  getOperation(name: 'create'): (Endpoint & OpraSchema.Singleton.Operations.Create) | undefined;
+  getOperation(name: 'delete'): (Endpoint & OpraSchema.Singleton.Operations.Delete) | undefined;
+  getOperation(name: 'get'): (Endpoint & OpraSchema.Singleton.Operations.Get) | undefined;
+  getOperation(name: 'update'): (Endpoint & OpraSchema.Singleton.Operations.Update) | undefined;
+  getOperation(name: string): Endpoint | undefined {
+    return super.getOperation(name);
   }
 
   exportSchema(): OpraSchema.Singleton {
     return {
       ...super.exportSchema() as OpraSchema.Singleton,
-      ...omitUndefined({
-        type: this.type.name || 'any',
-        operations: this.operations
-      })
+      type: this.type.name || 'any'
     };
   }
 

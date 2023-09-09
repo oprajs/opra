@@ -1,5 +1,5 @@
 import { OpraTestClient } from '@opra/testing';
-import { collectionTests } from '../../../core/test/http/e2e/tests/index.js';
+import { collectionTests } from '../../../core/test/e2e/tests/index.js';
 import { createTestApp, TestApp } from '../_support/test-app/index.js';
 
 describe('e2e:Collection', function () {

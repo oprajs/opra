@@ -1,6 +1,7 @@
 import { BadRequestError } from './http-errors/bad-request.error.js';
 import { FailedDependencyError } from './http-errors/failed-dependency.error.js';
 import { ForbiddenError } from './http-errors/forbidden.error.js';
+import { InternalServerError } from './http-errors/internal-server.error.js';
 import { MethodNotAllowedError } from './http-errors/method-not-allowed.error.js';
 import { NotAcceptableError } from './http-errors/not-acceptable.error.js';
 import { NotFoundError } from './http-errors/not-found.error.js';
@@ -34,6 +35,6 @@ export function wrapException(error: any): OpraException {
     case 424:
       return new FailedDependencyError(error);
     default:
-      return new FailedDependencyError(error);
+      return new InternalServerError(error);
   }
 }

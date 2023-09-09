@@ -1,9 +1,10 @@
-import { Resource } from '@opra/common';
+import { Endpoint, Resource } from '@opra/common';
 import { HttpServerRequest } from './http/http-server-request.js';
 
 export interface Request {
   resource: Resource;
-  endpoint: string;
+  endpoint: Endpoint;
+  operation: string;
   contentId?: string;
   params: Record<string, any>;
 

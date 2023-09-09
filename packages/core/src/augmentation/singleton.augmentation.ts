@@ -15,7 +15,7 @@ declare module "@opra/common" {
     /* ***************************** */
     namespace Create {
       interface Request extends _Request {
-        endpoint: 'create';
+        operation: 'create';
         data: any;
         params: {
           pick?: string[];
@@ -32,7 +32,7 @@ declare module "@opra/common" {
     /* ***************************** */
     namespace Delete {
       interface Request extends _Request {
-        endpoint: 'delete';
+        operation: 'delete';
       }
 
       interface Context<TSession extends {} = {}> extends EndpointContext<TSession> {
@@ -43,7 +43,7 @@ declare module "@opra/common" {
     /* ***************************** */
     namespace Get {
       interface Request extends _Request {
-        endpoint: 'get';
+        operation: 'get';
         params: {
           pick?: string[];
           omit?: string[];
@@ -59,7 +59,7 @@ declare module "@opra/common" {
     /* ***************************** */
     namespace Update {
       interface Request extends _Request {
-        endpoint: 'update';
+        operation: 'update';
         data: any;
         params: {
           pick?: string[];

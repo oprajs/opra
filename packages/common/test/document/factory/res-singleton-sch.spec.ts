@@ -37,7 +37,6 @@ describe('DocumentFactory - Singleton resource with schema object', function () 
     expect(t.name).toStrictEqual('resource1');
     expect(t.description).toEqual(resource1.description);
     expect(t.type.name).toEqual(resource1.type);
-    expect(t.operations).toEqual(resource1.operations);
   })
 
 });

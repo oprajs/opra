@@ -52,7 +52,7 @@ export abstract class PlatformAdapterHost extends AsyncEventEmitter implements P
   }
 
   get serviceName(): string {
-    return this.api.info.title;
+    return this._serviceName;
   }
 
   async close() {

@@ -39,7 +39,7 @@ Storage[DECORATOR] = StorageDecorator;
 
 
 export namespace Storage {
-  export interface InitArguments extends Resource.InitArguments,
+  export interface InitArguments extends StrictOmit<Resource.InitArguments, 'operations'>,
       StrictOmit<OpraSchema.Storage, 'kind'> {
   }
 
@@ -47,7 +47,7 @@ export namespace Storage {
 
   }
 
-  export interface Metadata extends StrictOmit<Resource.Metadata, 'kind'>, OpraSchema.Storage {
+  export interface Metadata extends StrictOmit<Resource.Metadata, 'kind' | 'operations'>, OpraSchema.Storage {
   }
 
   // Need for augmentation
@@ -62,7 +62,4 @@ export namespace Storage {
   export namespace Post {
   }
 
-  export type DeleteEndpointOptions = OpraSchema.Storage.DeleteEndpoint;
-  export type GetEndpointOptions = OpraSchema.Storage.GetEndpoint;
-  export type PostEndpointOptions = OpraSchema.Storage.PostEndpoint;
 }

@@ -28,18 +28,18 @@ export namespace MongoAdapter {
     const {resource} = request;
 
     if (resource instanceof Collection || resource instanceof Singleton) {
-      const {params, endpoint} = request;
+      const {params, operation} = request;
       let options: any = {};
       let filter;
 
-      if (endpoint === 'create' || endpoint === 'update' ||
-          endpoint === 'get' || endpoint === 'findMany'
+      if (operation === 'create' || operation === 'update' ||
+          operation === 'get' || operation === 'findMany'
       ) {
         options.projection = transformProjection(resource.type, params)
       }
 
       if (resource instanceof Collection &&
-          (endpoint === 'delete' || endpoint === 'get' || endpoint === 'update')
+          (operation === 'delete' || operation === 'get' || operation === 'update')
       ) {
         filter = transformKeyValues(resource, (request as any).key);
       }
@@ -49,7 +49,7 @@ export namespace MongoAdapter {
         filter = filter ? {$and: [filter, f]} : f;
       }
 
-      if (endpoint === 'findMany') {
+      if (operation === 'findMany') {
         options.sort = params?.sort;
         options.limit = params?.limit;
         options.skip = params?.skip;
@@ -59,7 +59,7 @@ export namespace MongoAdapter {
 
       options = omitBy(options, isNil);
 
-      switch (endpoint) {
+      switch (operation) {
         case 'create': {
           return {
             method: 'insertOne',
@@ -71,7 +71,7 @@ export namespace MongoAdapter {
         case 'delete':
         case 'deleteMany': {
           return {
-            method: (endpoint === 'delete' ? 'deleteOne' : 'deleteMany'),
+            method: (operation === 'delete' ? 'deleteOne' : 'deleteMany'),
             filter,
             options,
             args: [filter, options]
@@ -119,7 +119,7 @@ export namespace MongoAdapter {
       }
 
     }
-    throw new TypeError(`Unimplemented request kind (${request.resource.kind}.${request.endpoint})`);
+    throw new TypeError(`Unimplemented request kind (${request.resource.kind}.${request.operation})`);
   }
 
 
