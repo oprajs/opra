@@ -40,7 +40,6 @@ describe('DocumentFactory - Collection resource with schema object', function ()
     expect(t.description).toEqual(resource1.description);
     expect(t.primaryKey).toStrictEqual([resource1.primaryKey]);
     expect(t.type.name).toEqual(resource1.type);
-    expect(t.operations).toEqual(resource1.operations);
   })
 
 });

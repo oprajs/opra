@@ -20,7 +20,7 @@ describe('SQBAdapter.transformRequest (Singleton)', function () {
     it('Should prepare', async () => {
       const request = {
         resource: api.getSingleton('MyProfile'),
-        endpoint: 'create',
+        operation: 'create',
         data
       } as unknown as Request;
       const o = SQBAdapter.transformRequest(request);
@@ -33,7 +33,7 @@ describe('SQBAdapter.transformRequest (Singleton)', function () {
     it('Should prepare with "pick", "omit" and "include" options', async () => {
       const request = {
         resource: api.getSingleton('MyProfile'),
-        endpoint: 'create',
+        operation: 'create',
         data,
         params: {
           pick: ['givenName'],
@@ -59,7 +59,7 @@ describe('SQBAdapter.transformRequest (Singleton)', function () {
     it('Should prepare', async () => {
       const request = {
         resource: api.getSingleton('MyProfile'),
-        endpoint: 'delete'
+        operation: 'delete'
       } as unknown as Request;
       const o = SQBAdapter.transformRequest(request);
       expect(o.method).toStrictEqual('deleteMany');
@@ -73,7 +73,7 @@ describe('SQBAdapter.transformRequest (Singleton)', function () {
     it('Should prepare', async () => {
       const request = {
         resource: api.getSingleton('MyProfile'),
-        endpoint: 'get'
+        operation: 'get'
       } as unknown as Request;
       const o = SQBAdapter.transformRequest(request);
       expect(o.method).toStrictEqual('findOne');
@@ -84,7 +84,7 @@ describe('SQBAdapter.transformRequest (Singleton)', function () {
     it('Should prepare with "pick", "omit" and "include" options', async () => {
       const request = {
         resource: api.getSingleton('MyProfile'),
-        endpoint: 'get',
+        operation: 'get',
         params: {
           pick: ['givenName'],
           omit: ['familyName'],
@@ -109,7 +109,7 @@ describe('SQBAdapter.transformRequest (Singleton)', function () {
     it('Should prepare', async () => {
       const request = {
         resource: api.getSingleton('MyProfile'),
-        endpoint: 'update',
+        operation: 'update',
         data
       } as unknown as Request;
       const o = SQBAdapter.transformRequest(request);
@@ -122,7 +122,7 @@ describe('SQBAdapter.transformRequest (Singleton)', function () {
     it('Should prepare with "pick", "omit" and "include" options', async () => {
       const request = {
         resource: api.getSingleton('MyProfile'),
-        endpoint: 'update',
+        operation: 'update',
         data,
         params: {
           pick: ['givenName'],

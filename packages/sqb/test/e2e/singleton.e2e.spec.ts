@@ -1,6 +1,6 @@
 import '@opra/sqb';
 import { OpraTestClient } from '@opra/testing';
-import { singletonTests } from '../../../core/test/http/e2e/tests/index.js';
+import { singletonTests } from '../../../core/test/e2e/tests/index.js';
 import { createTestApp, TestApp } from '../_support/test-app/index.js';
 
 describe('e2e:Singleton', function () {

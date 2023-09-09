@@ -24,7 +24,7 @@ describe('SQBAdapter.transformRequest (Collection)', function () {
     it('Should prepare', async () => {
       const request = {
         resource: api.getCollection('customers'),
-        endpoint: 'create',
+        operation: 'create',
         data
       } as unknown as Request;
       const options = {};
@@ -38,7 +38,7 @@ describe('SQBAdapter.transformRequest (Collection)', function () {
     it('Should prepare with "pick", "omit" and "include" options', async () => {
       const request = {
         resource: api.getCollection('customers'),
-        endpoint: 'create',
+        operation: 'create',
         data,
         params: {
           pick: ['phoneCode'],
@@ -66,7 +66,7 @@ describe('SQBAdapter.transformRequest (Collection)', function () {
     it('Should prepare', async () => {
       const request = {
         resource: api.getCollection('customers'),
-        endpoint: 'delete',
+        operation: 'delete',
         key: 1
       } as unknown as Request;
       const o = SQBAdapter.transformRequest(request);
@@ -86,7 +86,7 @@ describe('SQBAdapter.transformRequest (Collection)', function () {
     it('Should prepare', async () => {
       const request = {
         resource: api.getCollection('customers'),
-        endpoint: 'deleteMany'
+        operation: 'deleteMany'
       } as unknown as Request;
       const o = SQBAdapter.transformRequest(request);
       expect(o.method).toStrictEqual('deleteMany');
@@ -98,7 +98,7 @@ describe('SQBAdapter.transformRequest (Collection)', function () {
       const resource = api.getCollection('customers');
       const request = {
         resource,
-        endpoint: 'deleteMany',
+        operation: 'deleteMany',
         params: {filter: resource.normalizeFilter('givenName="John"')}
       } as unknown as Request;
       const o = SQBAdapter.transformRequest(request);
@@ -119,7 +119,7 @@ describe('SQBAdapter.transformRequest (Collection)', function () {
     it('Should prepare', async () => {
       const request = {
         resource: api.getCollection('customers'),
-        endpoint: 'get',
+        operation: 'get',
         key: 1
       } as unknown as Request;
       const o = SQBAdapter.transformRequest(request);
@@ -133,7 +133,7 @@ describe('SQBAdapter.transformRequest (Collection)', function () {
     it('Should prepare with "pick", "omit" and "include" options', async () => {
       const request = {
         resource: api.getCollection('customers'),
-        endpoint: 'get',
+        operation: 'get',
         key: 1,
         params: {
           pick: ['phoneCode'],
@@ -162,7 +162,7 @@ describe('SQBAdapter.transformRequest (Collection)', function () {
     it('Should prepare', async () => {
       const request = {
         resource: api.getCollection('customers'),
-        endpoint: 'findMany'
+        operation: 'findMany'
       } as unknown as Request;
       const o = SQBAdapter.transformRequest(request);
       expect(o.method).toStrictEqual('findMany');
@@ -174,7 +174,7 @@ describe('SQBAdapter.transformRequest (Collection)', function () {
       const resource = api.getCollection('customers');
       const request = {
         resource,
-        endpoint: 'findMany',
+        operation: 'findMany',
         params: {filter: resource.normalizeFilter('givenName="John"')}
       } as unknown as Request;
       const o = SQBAdapter.transformRequest(request);
@@ -189,7 +189,7 @@ describe('SQBAdapter.transformRequest (Collection)', function () {
     it('Should prepare with "pick", "omit" and "include" options', async () => {
       const request = {
         resource: api.getCollection('customers'),
-        endpoint: 'findMany',
+        operation: 'findMany',
         params: {
           pick: ['phoneCode'],
           omit: ['code'],
@@ -217,7 +217,7 @@ describe('SQBAdapter.transformRequest (Collection)', function () {
     it('Should prepare', async () => {
       const request = {
         resource: api.getCollection('customers'),
-        endpoint: 'update',
+        operation: 'update',
         key: 1,
         data
       } as unknown as Request;
@@ -233,7 +233,7 @@ describe('SQBAdapter.transformRequest (Collection)', function () {
     it('Should prepare with "pick", "omit" and "include" options', async () => {
       const request = {
         resource: api.getCollection('customers'),
-        endpoint: 'update',
+        operation: 'update',
         key: 1,
         data,
         params: {
@@ -265,7 +265,7 @@ describe('SQBAdapter.transformRequest (Collection)', function () {
     it('Should prepare', async () => {
       const request = {
         resource: api.getCollection('customers'),
-        endpoint: 'updateMany',
+        operation: 'updateMany',
         data
       } as unknown as Request;
       const options = {};
@@ -280,7 +280,7 @@ describe('SQBAdapter.transformRequest (Collection)', function () {
       const resource = api.getCollection('customers');
       const request = {
         resource,
-        endpoint: 'updateMany',
+        operation: 'updateMany',
         data,
         params: {filter: resource.normalizeFilter('givenName="John"')}
       } as unknown as Request;

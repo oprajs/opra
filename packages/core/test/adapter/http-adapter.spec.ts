@@ -1,8 +1,8 @@
 import supertest from 'supertest';
 import { ApiDocument } from '@opra/common';
 import { HttpAdapter } from '@opra/core';
-import { HttpAdapterHost } from '@opra/core/http/http-adapter.host';
-import { createTestApi } from '../../_support/test-app/index.js';
+import { HttpAdapterHost } from '@opra/core/http/http-adapter.host.js';
+import { createTestApi } from '../_support/test-app/index.js';
 
 describe('Http Adapter', function () {
 

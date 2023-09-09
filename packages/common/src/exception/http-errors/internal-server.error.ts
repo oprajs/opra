@@ -13,6 +13,7 @@ export class InternalServerError extends OpraException {
     super.init({
       message: translate('error:INTERNAL_SERVER_ERROR', 'Internal server error'),
       code: 'INTERNAL_SERVER_ERROR',
+      severity: 'fatal',
       ...issue
     });
   }

@@ -4,7 +4,6 @@ import {
   BadRequestError,
   HttpStatusCodes,
   isReadable, OpraException,
-  OpraSchema,
   Storage,
   uid
 } from '@opra/common';
@@ -60,35 +59,35 @@ export class StorageRequestHandler extends RequestHandlerBase {
         return;
       switch (incoming.method) {
         case 'GET': {
-          const endpointMeta: any = await this.assertEndpoint<OpraSchema.Storage.PostEndpoint>(resource, 'get');
+          const {controller, endpoint} = await this.getOperation(resource, 'get');
           return new RequestHost({
-            controller: endpointMeta.controller,
+            endpoint,
+            operation: 'get',
+            controller,
             http: incoming,
-            resource,
-            endpoint: 'get',
             contentId,
             path: incoming.parsedUrl.path.slice(1).toString().substring(1),
-            params: this.parseParameters(incoming.parsedUrl, endpointMeta)
+            params: this.parseParameters(incoming.parsedUrl, endpoint)
           });
         }
         case 'DELETE': {
-          const endpointMeta: any = await this.assertEndpoint<OpraSchema.Storage.PostEndpoint>(resource, 'delete');
+          const {controller, endpoint} = await this.getOperation(resource, 'delete');
           return new RequestHost({
-            controller: endpointMeta.controller,
+            endpoint,
+            operation: 'delete',
+            controller,
             http: incoming,
-            resource,
-            endpoint: 'delete',
             contentId,
             path: incoming.parsedUrl.path.slice(1).toString().substring(1),
-            params: this.parseParameters(incoming.parsedUrl, endpointMeta)
+            params: this.parseParameters(incoming.parsedUrl, endpoint)
           });
         }
         case 'POST': {
-          const endpointMeta: any = await this.assertEndpoint<OpraSchema.Storage.PostEndpoint>(resource, 'post');
+          const {controller, endpoint} = await this.getOperation(resource, 'post');
           await fs.mkdir(this._uploadDir, {recursive: true});
 
           const multipartIterator = new MultipartIterator(incoming, {
-            ...endpointMeta,
+            ...endpoint.options,
             filename: () => this.adapter.serviceName + '_p' + process.pid +
                 't' + String(Date.now()).substring(8) + 'r' + uid(12)
           });
@@ -101,14 +100,14 @@ export class StorageRequestHandler extends RequestHandlerBase {
           });
 
           return new RequestHost({
-            controller: endpointMeta.controller,
+            endpoint,
+            operation: 'post',
+            controller,
             http: incoming,
-            resource,
-            endpoint: 'post',
             contentId,
             parts: multipartIterator,
             path: incoming.parsedUrl.path.slice(1).toString().substring(1),
-            params: this.parseParameters(incoming.parsedUrl, endpointMeta)
+            params: this.parseParameters(incoming.parsedUrl, endpoint)
           });
         }
       }
@@ -126,7 +125,7 @@ export class StorageRequestHandler extends RequestHandlerBase {
     // Call endpoint handler method
     let value: any;
     try {
-      value = await request.controller[request.endpoint].call(request.controller, context);
+      value = await request.controller[request.operation].call(request.controller, context);
       if (response.value == null)
         response.value = value;
     } catch (error) {

@@ -16,7 +16,7 @@ declare module "@opra/common" {
     /* ***************************** */
     namespace Create {
       interface Request extends _Request {
-        endpoint: 'create';
+        operation: 'create';
         data: any;
         params: {
           pick?: string[];
@@ -34,7 +34,7 @@ declare module "@opra/common" {
     /* ***************************** */
     namespace Delete {
       interface Request extends _Request {
-        endpoint: 'delete';
+        operation: 'delete';
         key: any;
       }
 
@@ -46,7 +46,7 @@ declare module "@opra/common" {
     /* ***************************** */
     namespace DeleteMany {
       interface Request extends _Request {
-        endpoint: 'deleteMany';
+        operation: 'deleteMany';
         params: {
           filter?: any;
           [key: string]: any;
@@ -61,7 +61,7 @@ declare module "@opra/common" {
     /* ***************************** */
     namespace FindMany {
       interface Request extends _Request {
-        endpoint: 'findMany';
+        operation: 'findMany';
         params: {
           filter?: any;
           pick?: string[];
@@ -84,7 +84,7 @@ declare module "@opra/common" {
     /* ***************************** */
     namespace Get {
       interface Request extends _Request {
-        endpoint: 'get';
+        operation: 'get';
         key: any;
         params: {
           pick?: string[];
@@ -102,7 +102,7 @@ declare module "@opra/common" {
     /* ***************************** */
     namespace Update {
       interface Request extends _Request {
-        endpoint: 'update';
+        operation: 'update';
         key: any;
         data: any;
         params: {
@@ -121,7 +121,7 @@ declare module "@opra/common" {
     /* ***************************** */
     namespace UpdateMany {
       interface Request extends _Request {
-        endpoint: 'updateMany';
+        operation: 'updateMany';
         data: any;
         params: {
           filter?: any;

@@ -33,7 +33,6 @@ describe('DocumentFactory - Storage resource with schema object', function () {
     expect(t.kind).toStrictEqual(OpraSchema.Storage.Kind);
     expect(t.name).toStrictEqual('resource1');
     expect(t.description).toEqual(resource1.description);
-    expect(t.operations).toEqual(resource1.operations);
   })
 
 });

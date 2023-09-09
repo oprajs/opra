@@ -28,6 +28,7 @@ export const Collection = function (this: CollectionClass | void, ...args: any[]
     const [type, options] = args;
     return Collection[DECORATOR].call(undefined, type, options);
   }
+
   // Constructor
   const [document, init] = args as [ApiDocument, Collection.InitArguments];
   merge(this, new CollectionClass(document, init), {descriptor: true});
@@ -42,7 +43,7 @@ Collection[DECORATOR] = CollectionDecorator;
  * @namespace Collection
  */
 export namespace Collection {
-  export interface InitArguments extends Resource.InitArguments,
+  export interface InitArguments extends StrictOmit<Resource.InitArguments, 'operations'>,
       StrictOmit<OpraSchema.Collection, 'kind' | 'type'> {
     type: ComplexType;
   }
@@ -51,7 +52,7 @@ export namespace Collection {
     primaryKey?: keyof T | (keyof T)[];
   }
 
-  export interface Metadata extends StrictOmit<Resource.Metadata, 'kind'>, StrictOmit<OpraSchema.Collection, 'type'> {
+  export interface Metadata extends StrictOmit<Resource.Metadata, 'kind' | 'operations'>, StrictOmit<OpraSchema.Collection, 'type'> {
     type: TypeThunkAsync | string;
   }
 
@@ -83,13 +84,6 @@ export namespace Collection {
   export namespace UpdateMany {
   }
 
-  export type CreateEndpointOptions = OpraSchema.Collection.CreateEndpoint;
-  export type DeleteEndpointOptions = OpraSchema.Collection.DeleteEndpoint;
-  export type DeleteManyEndpointOptions = OpraSchema.Collection.DeleteManyEndpoint;
-  export type FindManyEndpointOptions = OpraSchema.Collection.FindManyEndpoint;
-  export type GetEndpointOptions = OpraSchema.Collection.GetEndpoint;
-  export type UpdateEndpointOptions = OpraSchema.Collection.UpdateEndpoint;
-  export type UpdateManyEndpointOptions = OpraSchema.Collection.UpdateManyEndpoint;
 }
 
 

@@ -4,40 +4,41 @@ import type { Field } from '../data-type/field.interface';
 import type { Endpoint } from './endpoint.interface.js';
 import type { ResourceBase } from './resource.interface.js';
 
-export interface Collection extends ResourceBase {
-  kind: Collection.Kind,
+export interface Collection extends ResourceBase<Collection.Kind, Collection.Operations> {
   type: DataType.Name;
   primaryKey: Field.Name | Field.Name[];
-  operations: Collection.Operations;
 }
 
 export namespace Collection {
   export const Kind = 'Collection';
   export type Kind = 'Collection';
 
-  export type CreateEndpoint = Endpoint & _EndpointInput & _EndpointResponse;
-  export type DeleteEndpoint = Endpoint;
-  export type DeleteManyEndpoint = Endpoint & _EndpointFilter;
-  export type GetEndpoint = Endpoint & _EndpointResponse;
-  export type FindManyEndpoint = Endpoint & _EndpointFilter & _EndpointResponse & {
-    sortFields?: string[];
-    defaultSort?: string[];
-  };
-  export type UpdateEndpoint = Endpoint & _EndpointInput & _EndpointResponse;
-  export type UpdateManyEndpoint = Endpoint & _EndpointInput & _EndpointFilter;
-
   export interface Operations {
-    create?: CreateEndpoint;
-    delete?: DeleteEndpoint;
-    get?: GetEndpoint;
-    update?: UpdateEndpoint;
-    deleteMany?: DeleteManyEndpoint;
-    findMany?: FindManyEndpoint;
-    updateMany?: UpdateManyEndpoint;
+    create?: Operations.Create;
+    delete?: Operations.Delete;
+    deleteMany?: Operations.DeleteMany;
+    findMany?: Operations.FindMany;
+    get?: Operations.Get;
+    update?: Operations.Update;
+    updateMany?: Operations.UpdateMany;
   }
+
+  export namespace Operations {
+    export type Create = Endpoint & _InputOptions & _OutputOptions;
+    export type Delete = Endpoint;
+    export type DeleteMany = Endpoint & _FilterOption;
+    export type Get = Endpoint & _OutputOptions;
+    export type FindMany = Endpoint & _FilterOption & _OutputOptions & {
+      sortFields?: string[];
+      defaultSort?: string[];
+    };
+    export type Update = Endpoint & _InputOptions & _OutputOptions;
+    export type UpdateMany = Endpoint & _FilterOption & _InputOptions & _OutputOptions;
+  }
+
 }
 
-interface _EndpointFilter {
+interface _FilterOption {
   filters?: {
     field: Field.QualifiedName;
     operators?: OpraFilter.ComparisonOperator[];
@@ -45,17 +46,14 @@ interface _EndpointFilter {
   }[]
 }
 
-interface _EndpointInput {
-  input?: {
-    maxContentSize?: number | string;
-    pick?: Field.QualifiedName[];
-    omit?: Field.QualifiedName[];
-  }
+interface _InputOptions {
+  inputMaxContentSize?: number | string;
+  inputPick?: Field.QualifiedName[];
+  inputOmit?: Field.QualifiedName[];
+
 }
 
-interface _EndpointResponse {
-  response?: {
-    pick?: Field.QualifiedName[];
-    omit?: Field.QualifiedName[];
-  }
+interface _OutputOptions {
+  outputPick?: Field.QualifiedName[];
+  outputOmit?: Field.QualifiedName[];
 }

@@ -115,10 +115,18 @@ export abstract class HttpAdapterBase extends PlatformAdapterHost {
       return;
     }
     errors.forEach(x => {
-      // todo. implement a better log mechanism
-      if (x instanceof OpraException)
-        this._logger.fatal(x)
-      else this._logger.error(x);
+      if (x instanceof OpraException) {
+        switch (x.severity) {
+          case "fatal":
+            this._logger.fatal(x);
+            break;
+          case "warning":
+            this._logger.warn(x);
+            break;
+          default:
+            this._logger.error(x);
+        }
+      } else this._logger.fatal(x);
     });
 
     const wrappedErrors = errors.map(wrapException);

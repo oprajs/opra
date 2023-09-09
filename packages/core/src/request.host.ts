@@ -1,10 +1,11 @@
 import type { PartialSome, StrictOmit } from 'ts-gems';
+import type { Resource } from '@opra/common';
 import type { HttpServerRequest } from './http/http-server-request.js';
 import type { Request } from './request.js';
 
 export namespace RequestHost {
   export interface Initiator extends PartialSome<
-      StrictOmit<Request, 'switchToHttp' | 'switchToWs' | 'switchToRpc'>,
+      StrictOmit<Request, 'resource' | 'switchToHttp' | 'switchToWs' | 'switchToRpc'>,
       'params'> {
     controller: any;
     http?: HttpServerRequest;
@@ -25,6 +26,10 @@ export class RequestHost implements Request {
   constructor(init: RequestHost.Initiator) {
     Object.assign(this, init);
     this.params = this.params || {};
+  }
+
+  get resource(): Resource {
+    return this.endpoint.resource;
   }
 
   switchToHttp(): HttpServerRequest {

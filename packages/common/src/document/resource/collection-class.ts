@@ -1,7 +1,6 @@
 import * as vg from 'valgen';
 import { BadRequestError } from '../../exception/index.js';
 import { OpraFilter } from '../../filter/index.js';
-import { omitUndefined } from '../../helpers/object-utils.js';
 import { translate } from '../../i18n/index.js';
 import { OpraSchema } from '../../schema/index.js';
 import type { ApiDocument } from '../api-document.js';
@@ -9,24 +8,20 @@ import { ComplexType } from '../data-type/complex-type.js';
 import { SimpleType } from '../data-type/simple-type.js';
 import { generateCodec, GenerateDecoderOptions } from '../utils/generate-codec.js';
 import type { Collection } from './collection.js';
+import { Endpoint } from './endpoint.js';
 import { Resource } from './resource.js';
 
 export class CollectionClass extends Resource {
-  private _decoders: Record<string, vg.Validator<any>> = {};
-  private _encoders: Record<string, vg.Validator<any>> = {};
+  private _decoders: Record<string, vg.Validator> = {};
+  private _encoders: Record<string, vg.Validator> = {};
   readonly type: ComplexType;
   readonly kind = OpraSchema.Collection.Kind;
-  readonly operations: OpraSchema.Collection.Operations;
   readonly controller?: object;
   readonly primaryKey: string[];
 
-  constructor(
-      document: ApiDocument,
-      init: Collection.InitArguments
-  ) {
+  constructor(document: ApiDocument, init: Collection.InitArguments) {
     super(document, init);
     this.controller = init.controller;
-    this.operations = {...init.operations};
     const dataType = this.type = init.type;
     // Validate key fields
     this.primaryKey = init.primaryKey
@@ -41,14 +36,24 @@ export class CollectionClass extends Resource {
     });
   }
 
+  getOperation(name: 'create'): (Endpoint & OpraSchema.Collection.Operations.Create) | undefined;
+  getOperation(name: 'delete'): (Endpoint & OpraSchema.Collection.Operations.Delete) | undefined;
+  getOperation(name: 'deleteMany'): (Endpoint & OpraSchema.Collection.Operations.DeleteMany) | undefined;
+  getOperation(name: 'findMany'): (Endpoint & OpraSchema.Collection.Operations.FindMany) | undefined;
+  getOperation(name: 'get'): (Endpoint & OpraSchema.Collection.Operations.Get) | undefined;
+  getOperation(name: 'update'): (Endpoint & OpraSchema.Collection.Operations.Update) | undefined;
+  getOperation(name: 'updateMany'): (Endpoint & OpraSchema.Collection.Operations.UpdateMany) | undefined;
+  getOperation(name: string): Endpoint | undefined {
+    return super.getOperation(name);
+  }
+
   exportSchema(): OpraSchema.Collection {
     return {
       ...super.exportSchema() as OpraSchema.Collection,
-      ...omitUndefined({
-        type: this.type.name || 'object',
-        operations: this.operations,
+      type: this.type.name || 'object',
+      ...{
         primaryKey: this.primaryKey
-      })
+      }
     };
   }
 
@@ -94,7 +99,7 @@ export class CollectionClass extends Resource {
     const normalized = this.type.normalizeFieldPath(fields);
     if (!normalized)
       return;
-    const findManyOp = this.operations.findMany;
+    const findManyOp = this.getOperation('findMany');
     const sortFields = findManyOp && findManyOp.sortFields;
     (Array.isArray(normalized) ? normalized : [normalized]).forEach(field => {
       if (!sortFields?.find(x => x === field))
@@ -114,7 +119,7 @@ export class CollectionClass extends Resource {
       if (!(ast.left instanceof OpraFilter.QualifiedIdentifier && ast.left.field))
         throw new TypeError(`Invalid filter query. Left side should be a data field.`);
       // Check if filtering accepted for given field
-      const findManyOp = this.operations.findMany;
+      const findManyOp = this.getOperation('findMany');
       const fieldLower = ast.left.value.toLowerCase();
       const filterDef = (findManyOp && findManyOp.filters || [])
           .find(f => f.field.toLowerCase() === fieldLower);

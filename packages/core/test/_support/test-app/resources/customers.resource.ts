@@ -60,17 +60,14 @@ export class CustomersResource implements ICollection<Customer> {
     return 5;
   }
 
-  @Collection.FindMany({
-    sortFields: ['_id', 'givenName', 'familyName', 'gender', 'address.countryCode'],
-    defaultSort: ['givenName'],
-    filters: [
-      {field: '_id', operators: ['=', '>', '<', '>=', '<=']},
-      {field: 'givenName', operators: ['=', 'like', '!like']},
-      {field: 'familyName', operators: ['=', 'like', '!like']},
-      {field: 'gender', operators: ['=']},
-      {field: 'address.countryCode', operators: ['=']}
-    ]
-  })
+  @Collection.FindMany()
+      .SortFields('_id', 'givenName', 'familyName', 'gender', 'address.countryCode')
+      .DefaultSort('givenName')
+      .Filter('_id', '= >  <  >= <=')
+      .Filter('givenName', ['=', 'like', '!like'])
+      .Filter('familyName', ['=', 'like', '!like'])
+      .Filter('gender', '=')
+      .Filter('address.countryCode', '=')
   async findMany() {
     return customers;
   }

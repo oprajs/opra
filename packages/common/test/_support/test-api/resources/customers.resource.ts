@@ -7,9 +7,8 @@ import { Customer } from '../entities/customer.entity.js';
 })
 export class CustomersResource {
 
-  @Collection.FindMany({
-    sortFields: ['_id', 'givenName', 'familyName', 'gender', 'address.city']
-  })
+  @Collection.FindMany()
+      .SortFields('_id', 'givenName', 'familyName', 'gender', 'address.city')
   findMany() {
     //
   }

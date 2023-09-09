@@ -21,7 +21,7 @@ export namespace SQBAdapter {
     const {resource} = request;
 
     if (resource instanceof Collection || resource instanceof Singleton) {
-      const {params, endpoint} = request;
+      const {params, operation} = request;
       let options: any = {};
       const entityMetadata = EntityMetadata.get(resource.type.ctor);
       if (!entityMetadata)
@@ -35,8 +35,8 @@ export namespace SQBAdapter {
           throw new Error('Resource primaryKey definition differs from SQB Entity primaryKey definition');
       }
 
-      if (endpoint === 'create' || endpoint === 'update' ||
-          endpoint === 'get' || endpoint === 'findMany'
+      if (operation === 'create' || operation === 'update' ||
+          operation === 'get' || operation === 'findMany'
       ) {
         options.pick = params?.pick;
         options.omit = params?.omit;
@@ -47,7 +47,7 @@ export namespace SQBAdapter {
         options.filter = _transformFilter(params.filter);
       }
 
-      if (endpoint === 'findMany') {
+      if (operation === 'findMany') {
         options.sort = params?.sort;
         options.limit = params?.limit;
         options.offset = params?.skip;
@@ -56,7 +56,7 @@ export namespace SQBAdapter {
       }
 
       options = omitBy(options, isNil);
-      if (endpoint === 'create') {
+      if (operation === 'create') {
         return {
           method: 'create',
           data: (request as any).data,
@@ -65,7 +65,7 @@ export namespace SQBAdapter {
         }
       }
 
-      if (endpoint === 'deleteMany' || (endpoint === 'delete' && resource instanceof Singleton)) {
+      if (operation === 'deleteMany' || (operation === 'delete' && resource instanceof Singleton)) {
         return {
           method: 'deleteMany',
           options,
@@ -73,7 +73,7 @@ export namespace SQBAdapter {
         }
       }
 
-      if (endpoint === 'delete') {
+      if (operation === 'delete') {
         return {
           method: 'delete',
           key: (request as any).key,
@@ -82,7 +82,7 @@ export namespace SQBAdapter {
         }
       }
 
-      if (endpoint === 'get') {
+      if (operation === 'get') {
         if (resource instanceof Singleton)
           return {
             method: 'findOne',
@@ -97,7 +97,7 @@ export namespace SQBAdapter {
         };
       }
 
-      if (endpoint === 'findMany') {
+      if (operation === 'findMany') {
         const out: any = {
           method: 'findMany',
           options,
@@ -107,7 +107,7 @@ export namespace SQBAdapter {
         return out;
       }
 
-      if (endpoint === 'updateMany' || (endpoint === 'update' && resource instanceof Singleton)) {
+      if (operation === 'updateMany' || (operation === 'update' && resource instanceof Singleton)) {
         return {
           method: 'updateMany',
           data: (request as any).data,
@@ -116,7 +116,7 @@ export namespace SQBAdapter {
         }
       }
 
-      if (endpoint === 'update') {
+      if (operation === 'update') {
         return {
           method: 'update',
           key: (request as any).key,
@@ -126,7 +126,7 @@ export namespace SQBAdapter {
         }
       }
     }
-    throw new Error(`Unimplemented request method "${(request as any).endpoint}"`);
+    throw new Error(`Unimplemented request method "${(request as any).operation}"`);
   }
 
 }
