@@ -12,14 +12,12 @@ workflows:
             branches:
               only:
                 - main
-                - dev
       - test:
           version: '20.5'
           filters:
             branches:
               only:
                 - main
-                - dev
 
 jobs:
   test:
