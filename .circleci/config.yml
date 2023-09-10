@@ -7,13 +7,6 @@ workflows:
   main:
     jobs:
       - test:
-          version: '16.20'
-          filters:
-            branches:
-              only:
-                - main
-                - dev
-      - test:
           version: '18.17'
           filters:
             branches:
@@ -41,8 +34,6 @@ jobs:
           POSTGRES_USER: postgres
           POSTGRES_HOST_AUTH_METHOD: trust
       - image: circleci/mongo:4.1.13
-      - image: circleci/redis:5.0.14
-      - image: docker.elastic.co/elasticsearch/elasticsearch:8.6.1
         environment:
           discovery.type: single-node
           ES_JAVA_OPTS: -Xms500m -Xmx500m
