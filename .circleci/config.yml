@@ -40,8 +40,8 @@ jobs:
           POSTGRES_DB: test
           POSTGRES_USER: postgres
           POSTGRES_HOST_AUTH_METHOD: trust
-      - image: cimg/mongo:4.1.13
-      - image: cimg/redis:5.0.14
+      - image: circleci/mongo:4.1.13
+      - image: circleci/redis:5.0.14
       - image: docker.elastic.co/elasticsearch/elasticsearch:8.6.1
         environment:
           discovery.type: single-node
