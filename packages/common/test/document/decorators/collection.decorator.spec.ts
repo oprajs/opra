@@ -46,17 +46,32 @@ describe('Collection decorators', function () {
   /* ***************************************************** */
   describe('@Collection.Action() decorator', function () {
     it('Should define Action operation metadata', async function () {
-      class CountryResource {
+      class CustomersResource {
         @Collection.Action({description: 'action'})
         sendMessage() {
         }
       }
 
-      const metadata = Reflect.getMetadata(RESOURCE_METADATA, CountryResource);
+      const metadata = Reflect.getMetadata(RESOURCE_METADATA, CustomersResource);
       expect(metadata.actions).toStrictEqual({
         sendMessage: {description: 'action'}
       });
     })
+
+    it('Should Parameter() define metadata value', async function () {
+      class CustomersResource {
+        @Collection.Action()
+            .Parameter('message', String)
+        sendMessage() {
+        }
+      }
+
+      const metadata = Reflect.getMetadata(RESOURCE_METADATA, CustomersResource);
+      expect(metadata.actions).toStrictEqual({
+        sendMessage: {parameters: {message: {type: String}}}
+      });
+    })
+
   })
 
 
