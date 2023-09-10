@@ -1,9 +1,12 @@
-import { StrictOmit } from 'ts-gems';
+import { StrictOmit, Type } from 'ts-gems';
 import { OpraSchema } from '../../schema/index.js';
-import { Resource } from '../resource/resource.js';
 import type { Storage } from '../resource/storage.js';
-import { createOperationDecorator, OperationDecorator } from './build-operation-decorator.js';
-import { ResourceDecorator } from './resource.decorator.js';
+import {
+  ActionDecorator,
+  createActionDecorator,
+  createOperationDecorator,
+  ResourceDecorator
+} from './resource.decorator.js';
 
 type ErrorMessage<T, Error> = [T] extends [never] ? Error : T;
 const operationProperties = ['delete', 'get', 'post'] as const;
@@ -19,11 +22,12 @@ Object.assign(StorageDecorator, ResourceDecorator);
 export interface StorageDecorator extends StrictOmit<ResourceDecorator, 'Action'> {
   (options?: Storage.DecoratorOptions): ClassDecorator;
 
-  Action: (options?: Resource.ActionOptions) => (<T, K extends keyof T>(
-      target: T,
-      propertyKey: ErrorMessage<Exclude<K, OperationProperties>,
-          // eslint-disable-next-line max-len
-          `'${string & K}' property is reserved for operation endpoints and can not be used for actions`>) => void);
+  Action: (options?: ResourceDecorator.ActionOptions) => (
+      <T, K extends keyof T>(
+          target: T,
+          propertyKey: ErrorMessage<Exclude<K, OperationProperties>,
+              `'${string & K}' property is reserved for operation endpoints and can not be used for actions`>) => void
+      ) & ActionDecorator;
 
   Delete: typeof StorageDecorator.Delete;
   Get: typeof StorageDecorator.Get;
@@ -34,14 +38,12 @@ export interface StorageDecorator extends StrictOmit<ResourceDecorator, 'Action'
  * Action PropertyDecorator
  */
 export namespace StorageDecorator {
-  export function Action(options: any): PropertyDecorator {
-    const oldDecorator = ResourceDecorator.Action(options);
-    const operators = ['delete', 'get', 'post'];
-    return (target: Object, propertyKey: string | symbol): void => {
-      if (typeof propertyKey === 'string' && operators.includes(propertyKey))
-        throw new TypeError(`The "${propertyKey}" property is reserved for "${propertyKey}" operations and cannot be used as an action'`);
-      return oldDecorator(target, propertyKey);
-    }
+  export function Action(options: ResourceDecorator.ActionOptions): ActionDecorator
+  export function Action(description: string): ActionDecorator
+  export function Action(arg0?: any): ActionDecorator {
+    const list: ((operationMeta: any) => void)[] = [];
+    const options = typeof arg0 === 'string' ? {description: arg0} : {...arg0};
+    return createActionDecorator(options, operationProperties, list);
   }
 }
 
@@ -50,7 +52,7 @@ export namespace StorageDecorator {
  */
 export namespace StorageDecorator {
   export type DeleteDecorator = ((target: Object, propertyKey: 'delete') => void) & {
-    Parameter: (name: string, options?: OperationDecorator.Options) => DeleteDecorator;
+    Parameter: (name: string, optionsOrType?: ResourceDecorator.ParameterOptions | string | Type) => DeleteDecorator;
   };
 
   export function Delete(options?: OpraSchema.Storage.Operations.Delete): DeleteDecorator
@@ -68,7 +70,7 @@ export namespace StorageDecorator {
  */
 export namespace StorageDecorator {
   export type GetDecorator = ((target: Object, propertyKey: 'get') => void) & {
-    Parameter: (name: string, options?: OperationDecorator.Options) => GetDecorator;
+    Parameter: (name: string, optionsOrType?: ResourceDecorator.ParameterOptions | string | Type) => GetDecorator;
   };
 
   export function Get(options?: OpraSchema.Storage.Operations.Get): GetDecorator
@@ -86,7 +88,7 @@ export namespace StorageDecorator {
  */
 export namespace StorageDecorator {
   export type PostDecorator = ((target: Object, propertyKey: 'post') => void) & {
-    Parameter: (name: string, options?: OperationDecorator.Options) => PostDecorator;
+    Parameter: (name: string, optionsOrType?: ResourceDecorator.ParameterOptions | string | Type) => PostDecorator;
     MaxFields: (amount: number) => PostDecorator;
     MaxFieldSize: (sizeInBytes: number) => PostDecorator;
     MaxFiles: (amount: number) => PostDecorator;

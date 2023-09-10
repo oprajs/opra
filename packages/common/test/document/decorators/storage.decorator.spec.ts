@@ -1,5 +1,5 @@
 import 'reflect-metadata';
-import { RESOURCE_METADATA, Storage } from '@opra/common';
+import { Collection, RESOURCE_METADATA, Storage } from '@opra/common';
 
 describe('Storage decorators', function () {
 
@@ -50,6 +50,20 @@ describe('Storage decorators', function () {
       const metadata = Reflect.getMetadata(RESOURCE_METADATA, CountryResource);
       expect(metadata.actions).toStrictEqual({
         sendMessage: {description: 'action'}
+      });
+    })
+
+    it('Should Parameter() define metadata value', async function () {
+      class CustomersResource {
+        @Collection.Action()
+            .Parameter('message', String)
+        sendMessage() {
+        }
+      }
+
+      const metadata = Reflect.getMetadata(RESOURCE_METADATA, CustomersResource);
+      expect(metadata.actions).toStrictEqual({
+        sendMessage: {parameters: {message: {type: String}}}
       });
     })
   })

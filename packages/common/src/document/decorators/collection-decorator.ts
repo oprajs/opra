@@ -4,9 +4,12 @@ import { omitUndefined } from '../../helpers/index.js';
 import { Field } from '../../schema/data-type/field.interface.js';
 import { OpraSchema } from '../../schema/index.js';
 import type { Collection } from '../resource/collection';
-import { Resource } from '../resource/resource.js';
-import { createOperationDecorator, OperationDecorator } from './build-operation-decorator.js';
-import { ResourceDecorator } from './resource.decorator.js';
+import {
+  ActionDecorator,
+  createActionDecorator,
+  createOperationDecorator,
+  ResourceDecorator
+} from './resource.decorator.js';
 
 type ErrorMessage<T, Error> = [T] extends [never] ? Error : T;
 const operationProperties = ['create', 'delete', 'deleteMany', 'get', 'findMany', 'update', 'updateMany'] as const;
@@ -22,11 +25,12 @@ Object.assign(CollectionDecorator, ResourceDecorator);
 export interface CollectionDecorator extends StrictOmit<ResourceDecorator, 'Action'> {
   <T>(type: Type<T> | string, options?: Collection.DecoratorOptions<T>): ClassDecorator;
 
-  Action: (options?: Resource.ActionOptions) => (<T, K extends keyof T>(
-      target: T,
-      propertyKey: ErrorMessage<Exclude<K, OperationProperties>,
-          // eslint-disable-next-line max-len
-          `'${string & K}' property is reserved for operation endpoints and can not be used for actions`>) => void);
+  Action: (options?: ResourceDecorator.ActionOptions) => (
+      <T, K extends keyof T>(
+          target: T,
+          propertyKey: ErrorMessage<Exclude<K, OperationProperties>,
+              `'${string & K}' property is reserved for operation endpoints and can not be used for actions`>) => void
+      ) & ActionDecorator;
 
   Create: typeof CollectionDecorator.Create;
   Delete: typeof CollectionDecorator.Delete;
@@ -41,13 +45,12 @@ export interface CollectionDecorator extends StrictOmit<ResourceDecorator, 'Acti
  * Action PropertyDecorator
  */
 export namespace CollectionDecorator {
-  export function Action(options: any): PropertyDecorator {
-    const _super = ResourceDecorator.Action(options);
-    return (target: Object, propertyKey: string | symbol): void => {
-      if (typeof propertyKey === 'string' && operationProperties.includes(propertyKey as any))
-        throw new TypeError(`The "${propertyKey}" property is reserved for "${propertyKey}" operations and cannot be used as an action'`);
-      return _super(target, propertyKey);
-    }
+  export function Action(options: ResourceDecorator.ActionOptions): ActionDecorator
+  export function Action(description: string): ActionDecorator
+  export function Action(arg0?: any): ActionDecorator {
+    const list: ((operationMeta: any) => void)[] = [];
+    const options = typeof arg0 === 'string' ? {description: arg0} : {...arg0};
+    return createActionDecorator(options, operationProperties, list);
   }
 }
 
@@ -56,7 +59,7 @@ export namespace CollectionDecorator {
  */
 export namespace CollectionDecorator {
   export type CreateDecorator = ((target: Object, propertyKey: 'create') => void) & {
-    Parameter: (name: string, options?: OperationDecorator.Options) => CreateDecorator;
+    Parameter: (name: string, optionsOrType?: ResourceDecorator.ParameterOptions | string | Type) => CreateDecorator;
     InputMaxContentSize: (sizeInBytes: number) => CreateDecorator;
     InputPickFields: (...fields: Field.QualifiedName[]) => CreateDecorator;
     InputOmitFields: (...fields: Field.QualifiedName[]) => CreateDecorator;
@@ -99,7 +102,7 @@ export namespace CollectionDecorator {
  */
 export namespace CollectionDecorator {
   export type DeleteDecorator = ((target: Object, propertyKey: 'delete') => void) & {
-    Parameter: (name: string, options?: OperationDecorator.Options) => DeleteDecorator;
+    Parameter: (name: string, optionsOrType?: ResourceDecorator.ParameterOptions | string | Type) => DeleteDecorator;
   };
 
   export function Delete(options?: OpraSchema.Collection.Operations.Delete): DeleteDecorator
@@ -116,7 +119,7 @@ export namespace CollectionDecorator {
  */
 export namespace CollectionDecorator {
   export type DeleteManyDecorator = ((target: Object, propertyKey: 'deleteMany') => void) & {
-    Parameter: (name: string, options?: OperationDecorator.Options) => DeleteManyDecorator;
+    Parameter: (name: string, optionsOrType?: ResourceDecorator.ParameterOptions | string | Type) => DeleteManyDecorator;
     Filter: (field: Field.QualifiedName, operators?: OpraFilter.ComparisonOperator[] | string, notes?: string) => DeleteManyDecorator;
   };
 
@@ -146,7 +149,7 @@ export namespace CollectionDecorator {
  */
 export namespace CollectionDecorator {
   export type GetDecorator = ((target: Object, propertyKey: 'get') => void) & {
-    Parameter: (name: string, options?: OperationDecorator.Options) => GetDecorator;
+    Parameter: (name: string, optionsOrType?: ResourceDecorator.ParameterOptions | string | Type) => GetDecorator;
     OutputPickFields: (...fields: Field.QualifiedName[]) => GetDecorator;
     OutputOmitFields: (...fields: Field.QualifiedName[]) => GetDecorator;
   };
@@ -174,7 +177,7 @@ export namespace CollectionDecorator {
  */
 export namespace CollectionDecorator {
   export type FindManyDecorator = ((target: Object, propertyKey: 'findMany') => void) & {
-    Parameter: (name: string, options?: OperationDecorator.Options) => FindManyDecorator;
+    Parameter: (name: string, optionsOrType?: ResourceDecorator.ParameterOptions | string | Type) => FindManyDecorator;
     SortFields: (...fields: Field.QualifiedName[]) => FindManyDecorator;
     DefaultSort: (...fields: Field.QualifiedName[]) => FindManyDecorator;
     Filter: (field: Field.QualifiedName, operators?: OpraFilter.ComparisonOperator[] | string, notes?: string) => FindManyDecorator;
@@ -224,7 +227,7 @@ export namespace CollectionDecorator {
  */
 export namespace CollectionDecorator {
   export type UpdateDecorator = ((target: Object, propertyKey: 'update') => void) & {
-    Parameter: (name: string, options?: OperationDecorator.Options) => UpdateDecorator;
+    Parameter: (name: string, optionsOrType?: ResourceDecorator.ParameterOptions | string | Type) => UpdateDecorator;
     InputMaxContentSize: (sizeInBytes: number) => UpdateDecorator;
     InputPickFields: (...fields: Field.QualifiedName[]) => UpdateDecorator;
     InputOmitFields: (...fields: Field.QualifiedName[]) => UpdateDecorator;
@@ -267,7 +270,7 @@ export namespace CollectionDecorator {
  */
 export namespace CollectionDecorator {
   export type UpdateManyDecorator = ((target: Object, propertyKey: 'updateMany') => void) & {
-    Parameter: (name: string, options?: OperationDecorator.Options) => UpdateManyDecorator;
+    Parameter: (name: string, optionsOrType?: ResourceDecorator.ParameterOptions | string | Type) => UpdateManyDecorator;
     InputMaxContentSize: (sizeInBytes: number) => UpdateManyDecorator;
     InputPickFields: (...fields: Field.QualifiedName[]) => UpdateManyDecorator;
     InputOmitFields: (...fields: Field.QualifiedName[]) => UpdateManyDecorator;

@@ -1,11 +1,14 @@
 import { StrictOmit, Type } from 'ts-gems';
 import { Field } from '../../schema/data-type/field.interface.js';
 import { OpraSchema } from '../../schema/index.js';
-import { Resource } from '../resource/resource.js';
 import type { Singleton } from '../resource/singleton.js';
-import { OperationDecorator } from './build-operation-decorator.js';
 import { CollectionDecorator } from './collection-decorator.js';
-import { ResourceDecorator } from './resource.decorator.js';
+import {
+  ActionDecorator,
+  createActionDecorator,
+  createOperationDecorator,
+  ResourceDecorator
+} from './resource.decorator.js';
 
 type ErrorMessage<T, Error> = [T] extends [never] ? Error : T;
 const operationProperties = ['create', 'delete', 'get', 'update'] as const;
@@ -21,11 +24,12 @@ Object.assign(SingletonDecorator, ResourceDecorator);
 export interface SingletonDecorator extends StrictOmit<ResourceDecorator, 'Action'> {
   <T>(type: Type<T> | string, options?: Singleton.DecoratorOptions): ClassDecorator;
 
-  Action: (options?: Resource.ActionOptions) => (<T, K extends keyof T>(
-      target: T,
-      propertyKey: ErrorMessage<Exclude<K, OperationProperties>,
-          // eslint-disable-next-line max-len
-          `'${string & K}' property is reserved for operation endpoints and can not be used for actions`>) => void);
+  Action: (options?: ResourceDecorator.ActionOptions) => (
+      <T, K extends keyof T>(
+          target: T,
+          propertyKey: ErrorMessage<Exclude<K, OperationProperties>,
+              `'${string & K}' property is reserved for operation endpoints and can not be used for actions`>) => void
+      ) & ActionDecorator;
 
   Create: typeof SingletonDecorator.Create;
   Delete: typeof SingletonDecorator.Delete;
@@ -37,14 +41,12 @@ export interface SingletonDecorator extends StrictOmit<ResourceDecorator, 'Actio
  * Action PropertyDecorator
  */
 export namespace SingletonDecorator {
-  export function Action(options: any): PropertyDecorator {
-    const oldDecorator = ResourceDecorator.Action(options);
-    const operators = ['create', 'delete', 'get', 'update'];
-    return (target: Object, propertyKey: string | symbol): void => {
-      if (typeof propertyKey === 'string' && operators.includes(propertyKey))
-        throw new TypeError(`The "${propertyKey}" property is reserved for "${propertyKey}" operations and cannot be used as an action'`);
-      return oldDecorator(target, propertyKey);
-    }
+  export function Action(options: ResourceDecorator.ActionOptions): ActionDecorator
+  export function Action(description: string): ActionDecorator
+  export function Action(arg0?: any): ActionDecorator {
+    const list: ((operationMeta: any) => void)[] = [];
+    const options = typeof arg0 === 'string' ? {description: arg0} : {...arg0};
+    return createActionDecorator(options, operationProperties, list);
   }
 }
 
@@ -53,7 +55,7 @@ export namespace SingletonDecorator {
  */
 export namespace SingletonDecorator {
   export type CreateDecorator = ((target: Object, propertyKey: 'create') => void) & {
-    Parameter: (name: string, options?: OperationDecorator.Options) => CreateDecorator;
+    Parameter: (name: string, optionsOrType?: ResourceDecorator.ParameterOptions | string | Type) => CreateDecorator;
     InputMaxContentSize: (sizeInBytes: number) => CreateDecorator;
     InputPickFields: (...fields: Field.QualifiedName[]) => CreateDecorator;
     InputOmitFields: (...fields: Field.QualifiedName[]) => CreateDecorator;
@@ -73,7 +75,7 @@ export namespace SingletonDecorator {
  */
 export namespace SingletonDecorator {
   export type GetDecorator = ((target: Object, propertyKey: 'get') => void) & {
-    Parameter: (name: string, options?: OperationDecorator.Options) => GetDecorator;
+    Parameter: (name: string, optionsOrType?: ResourceDecorator.ParameterOptions | string | Type) => GetDecorator;
     OutputPickFields: (...fields: Field.QualifiedName[]) => GetDecorator;
     OutputOmitFields: (...fields: Field.QualifiedName[]) => GetDecorator;
   };
@@ -90,7 +92,7 @@ export namespace SingletonDecorator {
  */
 export namespace SingletonDecorator {
   export type DeleteDecorator = ((target: Object, propertyKey: 'delete') => void) & {
-    Parameter: (name: string, options?: OperationDecorator.Options) => DeleteDecorator;
+    Parameter: (name: string, optionsOrType?: ResourceDecorator.ParameterOptions | string | Type) => DeleteDecorator;
   };
 
   export function Delete(options?: OpraSchema.Singleton.Operations.Delete): DeleteDecorator
@@ -105,7 +107,7 @@ export namespace SingletonDecorator {
  */
 export namespace SingletonDecorator {
   export type UpdateDecorator = ((target: Object, propertyKey: 'update') => void) & {
-    Parameter: (name: string, options?: OperationDecorator.Options) => UpdateDecorator;
+    Parameter: (name: string, optionsOrType?: ResourceDecorator.ParameterOptions | string | Type) => UpdateDecorator;
     InputMaxContentSize: (sizeInBytes: number) => UpdateDecorator;
     InputPickFields: (...fields: Field.QualifiedName[]) => UpdateDecorator;
     InputOmitFields: (...fields: Field.QualifiedName[]) => UpdateDecorator;

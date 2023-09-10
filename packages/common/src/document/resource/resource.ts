@@ -82,8 +82,5 @@ export namespace Resource {
     name: string;
   }
 
-  export interface ActionOptions {
-
-  }
 
 }

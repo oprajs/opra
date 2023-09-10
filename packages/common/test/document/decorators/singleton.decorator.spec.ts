@@ -1,5 +1,5 @@
 import 'reflect-metadata';
-import { RESOURCE_METADATA, Singleton } from '@opra/common';
+import { Collection, RESOURCE_METADATA, Singleton } from '@opra/common';
 import { Country } from '../../_support/test-api/index.js';
 
 describe('Singleton decorators', function () {
@@ -55,6 +55,21 @@ describe('Singleton decorators', function () {
         sendMessage: {description: 'action'}
       });
     })
+
+    it('Should Parameter() define metadata value', async function () {
+      class CustomersResource {
+        @Collection.Action()
+            .Parameter('message', String)
+        sendMessage() {
+        }
+      }
+
+      const metadata = Reflect.getMetadata(RESOURCE_METADATA, CustomersResource);
+      expect(metadata.actions).toStrictEqual({
+        sendMessage: {parameters: {message: {type: String}}}
+      });
+    })
+
   })
 
 
