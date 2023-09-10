@@ -20,10 +20,10 @@ OPRA is available under [MIT](LICENSE) license.
 
 [npm-image]: https://img.shields.io/npm/v/@opra/core.svg
 [npm-url]: https://npmjs.org/package/@opra/core
-[circleci-image]: https://dl.circleci.com/status-badge/img/gh/oprajs/opra/tree/master.svg?style=shield
+[circleci-image]: https://dl.circleci.com/status-badge/img/gh/oprajs/opra/tree/main.svg?style=shield
 [circleci-url]: https://dl.circleci.com/status-badge/redirect/gh/oprajs/opra/tree/master
-[coveralls-image]: https://coveralls.io/repos/github/oprajs/opra/badge.svg?branch=master
-[coveralls-url]: https://coveralls.io/github/oprajs/opra?branch=master
+[coveralls-image]: https://coveralls.io/repos/github/oprajs/opra/badge.svg?branch=main
+[coveralls-url]: https://coveralls.io/github/oprajs/opra?branch=main
 [downloads-image]: https://img.shields.io/npm/dm/@opra/core.svg
 [downloads-url]: https://npmjs.org/package/@opra/core
 
