@@ -7,31 +7,18 @@ workflows:
   main:
     jobs:
       - test:
-          version: '15'
-          filters:
-            branches:
-              only:
-                - main
+          version: '16.20'
       - test:
-          version: '16'
-          filters:
-            branches:
-              only:
-                - main
+          version: '18.17'
       - test:
-          version: '17'
-          filters:
-            branches:
-              only:
-                - main
-
+          version: '20.5'
 jobs:
   test:
     parameters:
       version:
         type: string
     docker:
-      - image: circleci/node:<< parameters.version >>
+      - image: cimg/node:<< parameters.version >>
     filters:
       branches:
         only:
@@ -48,6 +35,7 @@ jobs:
           key: v1-deps-{{ checksum "package-lock.json" }}
           paths:
             - node_modules
+      - run: sudo npm install -g npm@^9
       - run: npm install
       - run: npm run citest
       - run: npm install coveralls --no-save
