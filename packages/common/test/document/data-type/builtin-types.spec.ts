@@ -1,13 +1,13 @@
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
 import {
   ApiDocument,
-  DocumentFactory,
+  ApiDocumentFactory,
   OpraSchema,
 } from '@opra/common';
 
 describe('Built-in types', function () {
   let api: ApiDocument;
-  const baseArgs: DocumentFactory.InitArguments = {
+  const baseArgs: ApiDocumentFactory.InitArguments = {
     version: OpraSchema.SpecVersion,
     info: {
       title: 'TestDocument',
@@ -16,7 +16,7 @@ describe('Built-in types', function () {
   };
 
   beforeAll(async () => {
-    api = await DocumentFactory.createDocument(baseArgs);
+    api = await ApiDocumentFactory.createDocument(baseArgs);
   })
 
   it('Should decode "any" type', async () => {

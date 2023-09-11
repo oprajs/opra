@@ -1,13 +1,13 @@
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
 import {
-  DocumentFactory,
+  ApiDocumentFactory,
   OpraSchema,
   SimpleType,
 } from '@opra/common';
 
-describe('DocumentFactory - SimpleType with schema object', function () {
+describe('ApiDocumentFactory - SimpleType with schema object', function () {
 
-  const baseArgs: DocumentFactory.InitArguments = {
+  const baseArgs: ApiDocumentFactory.InitArguments = {
     version: OpraSchema.SpecVersion,
     info: {
       title: 'TestDocument',
@@ -21,7 +21,7 @@ describe('DocumentFactory - SimpleType with schema object', function () {
       kind: 'SimpleType',
       description: 'test type'
     };
-    const doc = await DocumentFactory.createDocument({
+    const doc = await ApiDocumentFactory.createDocument({
       ...baseArgs,
       types: {
         type1
@@ -44,7 +44,7 @@ describe('DocumentFactory - SimpleType with schema object', function () {
       kind: 'SimpleType',
       description: 'test type',
     };
-    const doc = await DocumentFactory.createDocument({
+    const doc = await ApiDocumentFactory.createDocument({
       ...baseArgs,
       types: {
         type1,
@@ -68,7 +68,7 @@ describe('DocumentFactory - SimpleType with schema object', function () {
         description: 'test type'
       }
     };
-    const doc = await DocumentFactory.createDocument({
+    const doc = await ApiDocumentFactory.createDocument({
       ...baseArgs,
       types: {
         type1
@@ -90,7 +90,7 @@ describe('DocumentFactory - SimpleType with schema object', function () {
       kind: 'SimpleType',
       base: 'type1'
     };
-    await expect(() => DocumentFactory.createDocument({
+    await expect(() => ApiDocumentFactory.createDocument({
       ...baseArgs,
       types: {
         type1

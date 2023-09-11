@@ -1,14 +1,14 @@
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
 import {
   Collection,
-  DocumentFactory,
+  ApiDocumentFactory,
   OpraSchema,
 } from '@opra/common';
 import { Country } from '../../_support/test-api/index.js';
 
-describe('DocumentFactory - Collection resource with decorated classes', function () {
+describe('ApiDocumentFactory - Collection resource with decorated classes', function () {
 
-  const baseArgs: DocumentFactory.InitArguments = {
+  const baseArgs: ApiDocumentFactory.InitArguments = {
     version: OpraSchema.SpecVersion,
     info: {
       title: 'TestDocument',
@@ -25,7 +25,7 @@ describe('DocumentFactory - Collection resource with decorated classes', functio
     class CountriesResource {
     }
 
-    const doc = await DocumentFactory.createDocument({
+    const doc = await ApiDocumentFactory.createDocument({
       ...baseArgs,
       resources: [CountriesResource]
     })
@@ -51,7 +51,7 @@ describe('DocumentFactory - Collection resource with decorated classes', functio
       }
     }
 
-    const doc = await DocumentFactory.createDocument({
+    const doc = await ApiDocumentFactory.createDocument({
       ...baseArgs,
       resources: [CountriesResource]
     })
@@ -72,7 +72,7 @@ describe('DocumentFactory - Collection resource with decorated classes', functio
       }
     }
 
-    const doc = await DocumentFactory.createDocument({
+    const doc = await ApiDocumentFactory.createDocument({
       ...baseArgs,
       resources: [CountriesResource]
     })
@@ -93,7 +93,7 @@ describe('DocumentFactory - Collection resource with decorated classes', functio
       }
     }
 
-    const doc = await DocumentFactory.createDocument({
+    const doc = await ApiDocumentFactory.createDocument({
       ...baseArgs,
       resources: [CountriesResource]
     })
@@ -114,7 +114,7 @@ describe('DocumentFactory - Collection resource with decorated classes', functio
       }
     }
 
-    const doc = await DocumentFactory.createDocument({
+    const doc = await ApiDocumentFactory.createDocument({
       ...baseArgs,
       resources: [CountriesResource]
     })
@@ -135,7 +135,7 @@ describe('DocumentFactory - Collection resource with decorated classes', functio
       }
     }
 
-    const doc = await DocumentFactory.createDocument({
+    const doc = await ApiDocumentFactory.createDocument({
       ...baseArgs,
       resources: [CountriesResource]
     })
@@ -156,7 +156,7 @@ describe('DocumentFactory - Collection resource with decorated classes', functio
       }
     }
 
-    const doc = await DocumentFactory.createDocument({
+    const doc = await ApiDocumentFactory.createDocument({
       ...baseArgs,
       resources: [CountriesResource]
     })
@@ -177,7 +177,7 @@ describe('DocumentFactory - Collection resource with decorated classes', functio
       }
     }
 
-    const doc = await DocumentFactory.createDocument({
+    const doc = await ApiDocumentFactory.createDocument({
       ...baseArgs,
       resources: [CountriesResource]
     })

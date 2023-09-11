@@ -1,15 +1,15 @@
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
 import {
+  ApiDocumentFactory,
   ApiField,
   ComplexType,
-  DocumentFactory,
   OpraSchema,
   SimpleType
 } from '@opra/common';
 
-describe('DocumentFactory - ComplexType with decorated classes', function () {
+describe('ApiDocumentFactory - ComplexType with decorated classes', function () {
 
-  const baseArgs: DocumentFactory.InitArguments = {
+  const baseArgs: ApiDocumentFactory.InitArguments = {
     version: OpraSchema.SpecVersion,
     info: {
       title: 'TestDocument',
@@ -29,7 +29,7 @@ describe('DocumentFactory - ComplexType with decorated classes', function () {
 
     }
 
-    const doc = await DocumentFactory.createDocument({
+    const doc = await ApiDocumentFactory.createDocument({
       ...baseArgs,
       types: [Type1]
     })
@@ -56,7 +56,7 @@ describe('DocumentFactory - ComplexType with decorated classes', function () {
       cid: number
     }
 
-    const doc = await DocumentFactory.createDocument({
+    const doc = await ApiDocumentFactory.createDocument({
       ...baseArgs,
       types: [Type1]
     })
@@ -87,7 +87,7 @@ describe('DocumentFactory - ComplexType with decorated classes', function () {
       cid: number
     }
 
-    const doc = await DocumentFactory.createDocument({
+    const doc = await ApiDocumentFactory.createDocument({
       ...baseArgs,
       types: [Type1]
     })
@@ -120,7 +120,7 @@ describe('DocumentFactory - ComplexType with decorated classes', function () {
       cid: number
     }
 
-    const doc = await DocumentFactory.createDocument({
+    const doc = await ApiDocumentFactory.createDocument({
       ...baseArgs,
       types: [Type2]
     })

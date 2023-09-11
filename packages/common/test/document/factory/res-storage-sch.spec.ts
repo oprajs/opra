@@ -1,12 +1,12 @@
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
 import {
-  DocumentFactory,
+  ApiDocumentFactory,
   OpraSchema, Storage,
 } from '@opra/common';
 
-describe('DocumentFactory - Storage resource with schema object', function () {
+describe('ApiDocumentFactory - Storage resource with schema object', function () {
 
-  const baseArgs: DocumentFactory.InitArguments = {
+  const baseArgs: ApiDocumentFactory.InitArguments = {
     version: OpraSchema.SpecVersion,
     info: {
       title: 'TestDocument',
@@ -21,7 +21,7 @@ describe('DocumentFactory - Storage resource with schema object', function () {
       description: 'test type',
       operations: {}
     };
-    const doc = await DocumentFactory.createDocument({
+    const doc = await ApiDocumentFactory.createDocument({
       ...baseArgs,
       resources: {
         resource1

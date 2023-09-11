@@ -1,13 +1,13 @@
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
 import {
-  DocumentFactory,
+  ApiDocumentFactory,
   OpraSchema, Singleton,
 } from '@opra/common';
 import { Country } from '../../_support/test-api/index.js';
 
-describe('DocumentFactory - Singleton resource with schema object', function () {
+describe('ApiDocumentFactory - Singleton resource with schema object', function () {
 
-  const baseArgs: DocumentFactory.InitArguments = {
+  const baseArgs: ApiDocumentFactory.InitArguments = {
     version: OpraSchema.SpecVersion,
     info: {
       title: 'TestDocument',
@@ -23,7 +23,7 @@ describe('DocumentFactory - Singleton resource with schema object', function () 
       type: 'Country',
       operations: {}
     };
-    const doc = await DocumentFactory.createDocument({
+    const doc = await ApiDocumentFactory.createDocument({
       ...baseArgs,
       types: [Country],
       resources: {

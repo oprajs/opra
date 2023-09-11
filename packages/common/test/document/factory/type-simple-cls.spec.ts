@@ -1,13 +1,13 @@
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
 import {
-  DocumentFactory,
+  ApiDocumentFactory,
   OpraSchema,
   SimpleType
 } from '@opra/common';
 
-describe('DocumentFactory - SimpleType with decorated classes', function () {
+describe('ApiDocumentFactory - SimpleType with decorated classes', function () {
 
-  const baseArgs: DocumentFactory.InitArguments = {
+  const baseArgs: ApiDocumentFactory.InitArguments = {
     version: OpraSchema.SpecVersion,
     info: {
       title: 'TestDocument',
@@ -21,7 +21,7 @@ describe('DocumentFactory - SimpleType with decorated classes', function () {
     class Type1  {
     }
 
-    const doc = await DocumentFactory.createDocument({
+    const doc = await ApiDocumentFactory.createDocument({
       ...baseArgs,
       types: [Type1]
     })
@@ -42,7 +42,7 @@ describe('DocumentFactory - SimpleType with decorated classes', function () {
     class Type1 extends Type2 {
     }
 
-    const doc = await DocumentFactory.createDocument({
+    const doc = await ApiDocumentFactory.createDocument({
       ...baseArgs,
       types: [Type1]
     })

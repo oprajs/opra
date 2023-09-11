@@ -1,13 +1,13 @@
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
 import {
-  DocumentFactory,
+  ApiDocumentFactory,
   OpraSchema,
   UnionType
 } from '@opra/common';
 
-describe('DocumentFactory - UnionType with schema object', function () {
+describe('ApiDocumentFactory - UnionType with schema object', function () {
 
-  const baseArgs: DocumentFactory.InitArguments = {
+  const baseArgs: ApiDocumentFactory.InitArguments = {
     version: OpraSchema.SpecVersion,
     info: {
       title: 'TestDocument',
@@ -30,7 +30,7 @@ describe('DocumentFactory - UnionType with schema object', function () {
         name: 'string'
       }
     };
-    const doc = await DocumentFactory.createDocument({
+    const doc = await ApiDocumentFactory.createDocument({
       ...baseArgs,
       types: {
         union1: {

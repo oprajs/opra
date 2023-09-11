@@ -1,14 +1,14 @@
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
 import {
   ApiDocument,
-  DocumentFactory,
+  ApiDocumentFactory,
   OpraSchema,
 } from '@opra/common';
 import { Customer } from '../../_support/test-api/index.js';
 
 describe('ComplexType', function () {
   let api: ApiDocument;
-  const baseArgs: DocumentFactory.InitArguments = {
+  const baseArgs: ApiDocumentFactory.InitArguments = {
     version: OpraSchema.SpecVersion,
     info: {
       title: 'TestDocument',
@@ -18,7 +18,7 @@ describe('ComplexType', function () {
   };
 
   beforeAll(async () => {
-    api = await DocumentFactory.createDocument(baseArgs);
+    api = await ApiDocumentFactory.createDocument(baseArgs);
   })
 
   it('Should findField(name) return field instance', async () => {

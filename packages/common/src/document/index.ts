@@ -3,7 +3,7 @@ import 'reflect-metadata';
 export * from './constants.js';
 
 export * from './api-document.js';
-export * from './factory/index.js';
+export * from './factory/api-document-factory.js';
 
 export * from './data-type/data-type.js';
 export * from './data-type/complex-type.js';

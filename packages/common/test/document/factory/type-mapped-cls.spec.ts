@@ -2,16 +2,16 @@
 import {
   ApiField,
   ComplexType,
-  DocumentFactory,
+  ApiDocumentFactory,
   OmitType,
   OpraSchema,
   PickType,
   UnionType
 } from '@opra/common';
 
-describe('DocumentFactory - MappedType with decorated classes', function () {
+describe('ApiDocumentFactory - MappedType with decorated classes', function () {
 
-  const baseArgs: DocumentFactory.InitArguments = {
+  const baseArgs: ApiDocumentFactory.InitArguments = {
     version: OpraSchema.SpecVersion,
     info: {
       title: 'TestDocument',
@@ -40,7 +40,7 @@ describe('DocumentFactory - MappedType with decorated classes', function () {
     class Mapped1 extends PickType(Type1, ['id', 'name']) {
     }
 
-    const doc = await DocumentFactory.createDocument({
+    const doc = await ApiDocumentFactory.createDocument({
       ...baseArgs,
       types: [Mapped1]
     })
@@ -72,7 +72,7 @@ describe('DocumentFactory - MappedType with decorated classes', function () {
     class Mapped1 extends OmitType(Type1, ['age', 'gender']) {
     }
 
-    const doc = await DocumentFactory.createDocument({
+    const doc = await ApiDocumentFactory.createDocument({
       ...baseArgs,
       types: [Mapped1]
     })

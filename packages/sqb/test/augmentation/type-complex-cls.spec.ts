@@ -1,9 +1,10 @@
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
 import '@opra/sqb';
 import {
+  ApiDocumentFactory,
   ApiField,
   ComplexType,
-  DocumentFactory, EnumType,
+  EnumType,
   OpraSchema,
   SimpleType
 } from '@opra/common';
@@ -16,9 +17,9 @@ export enum GenderEnum {
 
 EnumType(GenderEnum, {name: 'GenderEnum'});
 
-describe('DocumentFactory - ComplexType with decorated classes', function () {
+describe('ApiDocumentFactory - ComplexType with decorated classes', function () {
 
-  const baseArgs: DocumentFactory.InitArguments = {
+  const baseArgs: ApiDocumentFactory.InitArguments = {
     version: OpraSchema.SpecVersion,
     info: {
       title: 'TestDocument',
@@ -38,7 +39,7 @@ describe('DocumentFactory - ComplexType with decorated classes', function () {
 
     }
 
-    const doc = await DocumentFactory.createDocument({
+    const doc = await ApiDocumentFactory.createDocument({
       ...baseArgs,
       types: [Type1]
     })
@@ -65,7 +66,7 @@ describe('DocumentFactory - ComplexType with decorated classes', function () {
       cid: number
     }
 
-    const doc = await DocumentFactory.createDocument({
+    const doc = await ApiDocumentFactory.createDocument({
       ...baseArgs,
       types: [Type1]
     })
@@ -96,7 +97,7 @@ describe('DocumentFactory - ComplexType with decorated classes', function () {
       cid: number
     }
 
-    const doc = await DocumentFactory.createDocument({
+    const doc = await ApiDocumentFactory.createDocument({
       ...baseArgs,
       types: [Type1]
     })
@@ -129,7 +130,7 @@ describe('DocumentFactory - ComplexType with decorated classes', function () {
       cid: number
     }
 
-    const doc = await DocumentFactory.createDocument({
+    const doc = await ApiDocumentFactory.createDocument({
       ...baseArgs,
       types: [Type2]
     })
@@ -162,7 +163,7 @@ describe('DocumentFactory - ComplexType with decorated classes', function () {
       gender: GenderEnum
     }
 
-    const doc = await DocumentFactory.createDocument({
+    const doc = await ApiDocumentFactory.createDocument({
       ...baseArgs,
       types: [Type1]
     })

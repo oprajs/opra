@@ -1,14 +1,14 @@
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
 import {
+  ApiDocumentFactory,
   Collection,
-  DocumentFactory,
   OpraSchema,
 } from '@opra/common';
 import { Country } from '../../_support/test-api/index.js';
 
-describe('DocumentFactory - Collection resource with schema object', function () {
+describe('ApiDocumentFactory - Collection resource with schema object', function () {
 
-  const baseArgs: DocumentFactory.InitArguments = {
+  const baseArgs: ApiDocumentFactory.InitArguments = {
     version: OpraSchema.SpecVersion,
     info: {
       title: 'TestDocument',
@@ -25,7 +25,7 @@ describe('DocumentFactory - Collection resource with schema object', function ()
       primaryKey: 'code',
       operations: {}
     };
-    const doc = await DocumentFactory.createDocument({
+    const doc = await ApiDocumentFactory.createDocument({
       ...baseArgs,
       types: [Country],
       resources: {

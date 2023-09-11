@@ -8,7 +8,7 @@ import { ContextId, InstanceWrapper } from '@nestjs/core/injector/instance-wrapp
 import { InternalCoreModule } from '@nestjs/core/injector/internal-core-module';
 import { Module } from '@nestjs/core/injector/module.js';
 import { REQUEST_CONTEXT_ID } from '@nestjs/core/router/request/request-constants';
-import { ApiDocument, DocumentFactory, OpraSchema, RESOURCE_METADATA } from '@opra/common';
+import { ApiDocument, ApiDocumentFactory, OpraSchema, RESOURCE_METADATA } from '@opra/common';
 import * as opraCore from '@opra/core';
 import { PARAM_ARGS_METADATA } from '../constants.js';
 import { HandlerParamType } from '../enums/handler-paramtype.enum.js';
@@ -35,7 +35,7 @@ export class OpraApiFactory {
     info.title = info.title || 'Untitled service';
     info.version = info.version || '1';
     const resources: any[] = [];
-    const apiSchema: DocumentFactory.InitArguments = {
+    const apiSchema: ApiDocumentFactory.InitArguments = {
       version: OpraSchema.SpecVersion,
       info,
       types: [],
@@ -104,7 +104,7 @@ export class OpraApiFactory {
     }
 
     // Create api document
-    return DocumentFactory.createDocument(apiSchema);
+    return ApiDocumentFactory.createDocument(apiSchema);
   }
 
   private _createHandler(callback: Function) {

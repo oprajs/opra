@@ -1,13 +1,13 @@
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
 import {
-  DocumentFactory,
+  ApiDocumentFactory,
   OpraSchema,
   Storage,
 } from '@opra/common';
 
-describe('DocumentFactory - Storage resource with decorated classes', function () {
+describe('ApiDocumentFactory - Storage resource with decorated classes', function () {
 
-  const baseArgs: DocumentFactory.InitArguments = {
+  const baseArgs: ApiDocumentFactory.InitArguments = {
     version: OpraSchema.SpecVersion,
     info: {
       title: 'TestDocument',
@@ -24,7 +24,7 @@ describe('DocumentFactory - Storage resource with decorated classes', function (
 
     }
 
-    const doc = await DocumentFactory.createDocument({
+    const doc = await ApiDocumentFactory.createDocument({
       ...baseArgs,
       resources: [MyStorageResource]
     })
@@ -46,7 +46,7 @@ describe('DocumentFactory - Storage resource with decorated classes', function (
       }
     }
 
-    const doc = await DocumentFactory.createDocument({
+    const doc = await ApiDocumentFactory.createDocument({
       ...baseArgs,
       resources: [MyStorageResource]
     })
@@ -65,7 +65,7 @@ describe('DocumentFactory - Storage resource with decorated classes', function (
       }
     }
 
-    const doc = await DocumentFactory.createDocument({
+    const doc = await ApiDocumentFactory.createDocument({
       ...baseArgs,
       resources: [MyStorageResource]
     })
@@ -84,7 +84,7 @@ describe('DocumentFactory - Storage resource with decorated classes', function (
       }
     }
 
-    const doc = await DocumentFactory.createDocument({
+    const doc = await ApiDocumentFactory.createDocument({
       ...baseArgs,
       resources: [MyStorageResource]
     })

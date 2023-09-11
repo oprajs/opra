@@ -1,13 +1,13 @@
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
 import {
-  DocumentFactory,
+  ApiDocumentFactory,
   EnumType,
   OpraSchema,
 } from '@opra/common';
 
-describe('DocumentFactory - EnumType with schema object', function () {
+describe('ApiDocumentFactory - EnumType with schema object', function () {
 
-  const baseArgs: DocumentFactory.InitArguments = {
+  const baseArgs: ApiDocumentFactory.InitArguments = {
     version: OpraSchema.SpecVersion,
     info: {
       title: 'TestDocument',
@@ -29,7 +29,7 @@ describe('DocumentFactory - EnumType with schema object', function () {
         FEMALE: 'Female person'
       }
     }
-    const doc = await DocumentFactory.createDocument({
+    const doc = await ApiDocumentFactory.createDocument({
       ...baseArgs,
       types: {
         Gender: GenderEnum
@@ -71,7 +71,7 @@ describe('DocumentFactory - EnumType with schema object', function () {
         UNKNOWN: 'Unknown gender person'
       }
     }
-    const doc = await DocumentFactory.createDocument({
+    const doc = await ApiDocumentFactory.createDocument({
       ...baseArgs,
       types: {
         AdministrativeGender,

@@ -1,13 +1,13 @@
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
 import {
-  DocumentFactory,
+  ApiDocumentFactory,
   MappedType,
   OpraSchema,
 } from '@opra/common';
 
-describe('DocumentFactory - MappedType with schema object', function () {
+describe('ApiDocumentFactory - MappedType with schema object', function () {
 
-  const baseArgs: DocumentFactory.InitArguments = {
+  const baseArgs: ApiDocumentFactory.InitArguments = {
     version: OpraSchema.SpecVersion,
     info: {
       title: 'TestDocument',
@@ -26,7 +26,7 @@ describe('DocumentFactory - MappedType with schema object', function () {
         gender: 'string',
       }
     };
-    const doc = await DocumentFactory.createDocument({
+    const doc = await ApiDocumentFactory.createDocument({
       ...baseArgs,
       types: {
         mapped1: {
@@ -58,7 +58,7 @@ describe('DocumentFactory - MappedType with schema object', function () {
         gender: 'string',
       }
     };
-    const doc = await DocumentFactory.createDocument({
+    const doc = await ApiDocumentFactory.createDocument({
       ...baseArgs,
       types: {
         mapped1: {

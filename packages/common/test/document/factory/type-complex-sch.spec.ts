@@ -1,14 +1,14 @@
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
 import {
+  ApiDocumentFactory,
   ApiField,
   ComplexType,
-  DocumentFactory,
   OpraSchema,
 } from '@opra/common';
 
-describe('DocumentFactory - ComplexType with schema object', function () {
+describe('ApiDocumentFactory - ComplexType with schema object', function () {
 
-  const baseArgs: DocumentFactory.InitArguments = {
+  const baseArgs: ApiDocumentFactory.InitArguments = {
     version: OpraSchema.SpecVersion,
     info: {
       title: 'TestDocument',
@@ -25,7 +25,7 @@ describe('DocumentFactory - ComplexType with schema object', function () {
       abstract: true,
       additionalFields: true,
     };
-    const doc = await DocumentFactory.createDocument({
+    const doc = await ApiDocumentFactory.createDocument({
       ...baseArgs,
       types: {
         type1
@@ -42,7 +42,7 @@ describe('DocumentFactory - ComplexType with schema object', function () {
   })
 
   it('Should define fields by type name', async () => {
-    const doc = await DocumentFactory.createDocument({
+    const doc = await ApiDocumentFactory.createDocument({
       ...baseArgs,
       types: {
         type1: {
@@ -73,7 +73,7 @@ describe('DocumentFactory - ComplexType with schema object', function () {
       fixed: 'x',
       required: true
     };
-    const doc = await DocumentFactory.createDocument({
+    const doc = await ApiDocumentFactory.createDocument({
       ...baseArgs,
       types: {
         type1: {
@@ -120,7 +120,7 @@ describe('DocumentFactory - ComplexType with schema object', function () {
         id: 'number'
       }
     };
-    const doc = await DocumentFactory.createDocument({
+    const doc = await ApiDocumentFactory.createDocument({
       ...baseArgs,
       types: {
         type1,
@@ -159,7 +159,7 @@ describe('DocumentFactory - ComplexType with schema object', function () {
         name: 'string'
       }
     };
-    const doc = await DocumentFactory.createDocument({
+    const doc = await ApiDocumentFactory.createDocument({
       ...baseArgs,
       types: {
         type1
@@ -185,7 +185,7 @@ describe('DocumentFactory - ComplexType with schema object', function () {
         name: 'string'
       }
     };
-    await expect(() => DocumentFactory.createDocument({
+    await expect(() => ApiDocumentFactory.createDocument({
       ...baseArgs,
       types: {
         type1

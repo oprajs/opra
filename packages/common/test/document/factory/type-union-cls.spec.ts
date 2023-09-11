@@ -1,15 +1,15 @@
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
 import {
+  ApiDocumentFactory,
   ApiField,
   ComplexType,
-  DocumentFactory,
   OpraSchema,
   UnionType
 } from '@opra/common';
 
-describe('DocumentFactory - UnionType with decorated classes', function () {
+describe('ApiDocumentFactory - UnionType with decorated classes', function () {
 
-  const baseArgs: DocumentFactory.InitArguments = {
+  const baseArgs: ApiDocumentFactory.InitArguments = {
     version: OpraSchema.SpecVersion,
     info: {
       title: 'TestDocument',
@@ -44,7 +44,7 @@ describe('DocumentFactory - UnionType with decorated classes', function () {
 
     }
 
-    const doc = await DocumentFactory.createDocument({
+    const doc = await ApiDocumentFactory.createDocument({
       ...baseArgs,
       types: [Union1]
     })

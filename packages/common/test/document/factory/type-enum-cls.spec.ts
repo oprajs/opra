@@ -1,13 +1,13 @@
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
 import {
-  DocumentFactory,
+  ApiDocumentFactory,
   EnumType,
-  OpraSchema
+  OpraSchema,
 } from '@opra/common';
 
-describe('DocumentFactory - EnumType with decorated classes', function () {
+describe('ApiDocumentFactory - EnumType with decorated classes', function () {
 
-  const baseArgs: DocumentFactory.InitArguments = {
+  const baseArgs: ApiDocumentFactory.InitArguments = {
     version: OpraSchema.SpecVersion,
     info: {
       title: 'TestDocument',
@@ -35,7 +35,7 @@ describe('DocumentFactory - EnumType with decorated classes', function () {
 
     EnumType(Gender, GenderOptions);
 
-    const doc = await DocumentFactory.createDocument({
+    const doc = await ApiDocumentFactory.createDocument({
       ...baseArgs,
       types: [Gender]
     })
@@ -64,7 +64,7 @@ describe('DocumentFactory - EnumType with decorated classes', function () {
 
     EnumType(Gender, GenderOptions)
 
-    const doc = await DocumentFactory.createDocument({
+    const doc = await ApiDocumentFactory.createDocument({
       ...baseArgs,
       types: [Gender]
     })
@@ -113,7 +113,7 @@ describe('DocumentFactory - EnumType with decorated classes', function () {
 
     EnumType(AdministrativeGender, AdministrativeGenderOptions);
 
-    const doc = await DocumentFactory.createDocument({
+    const doc = await ApiDocumentFactory.createDocument({
       ...baseArgs,
       types: [AdministrativeGender]
     })

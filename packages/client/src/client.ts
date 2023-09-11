@@ -1,7 +1,7 @@
 import { lastValueFrom, Observable, Subscriber } from 'rxjs';
 import { isReadableStreamLike } from 'rxjs/internal/util/isReadableStreamLike';
 import { StrictOmit, Type } from 'ts-gems';
-import { ApiDocument, DocumentFactory, isBlob, OpraSchema, OpraURL } from '@opra/common';
+import { ApiDocument, ApiDocumentFactory, isBlob, OpraSchema, OpraURL } from '@opra/common';
 import { ClientError } from './client-error.js';
 import { HttpCollectionNode } from './collection-node.js';
 import {
@@ -100,7 +100,7 @@ export class OpraHttpClient {
         .then(async (body) => {
           if (!body)
             throw new Error(`No response returned.`);
-          const api = await DocumentFactory.createDocument(body);
+          const api = await ApiDocumentFactory.createDocument(body);
           this[kAssets].api = api;
           return api;
         })
