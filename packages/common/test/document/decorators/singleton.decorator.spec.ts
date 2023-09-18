@@ -1,5 +1,6 @@
 import 'reflect-metadata';
 import { Collection, RESOURCE_METADATA, Singleton } from '@opra/common';
+import type { SingletonDecorator } from '@opra/common/document/resource/singleton.decorator';
 import { Country } from '../../_support/test-api/index.js';
 
 describe('Singleton decorators', function () {
@@ -8,7 +9,7 @@ describe('Singleton decorators', function () {
 
     /* ***************************************************** */
     it('Should define Singleton resource metadata', async function () {
-      const opts: Singleton.DecoratorOptions = {description: 'xyz'};
+      const opts: SingletonDecorator.Options = {description: 'xyz'};
 
       @Singleton(Country, opts)
       class MyCountryResource {
@@ -24,7 +25,7 @@ describe('Singleton decorators', function () {
     })
 
     it('Should define custom name', async function () {
-      const opts: Singleton.DecoratorOptions = {name: 'MySweetCountry'};
+      const opts: SingletonDecorator.Options = {name: 'MySweetCountry'};
 
       @Singleton(Country, opts)
       class MyCountry {

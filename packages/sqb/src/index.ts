@@ -1,4 +1,5 @@
-import './augmentation/document-factory.augmentation.js';
+import './augmentation/type-document-factory.augmentation.js';
+import './augmentation/api-document-factory.augmentation.js';
 import './augmentation/mapped-type.augmentation.js';
 import './augmentation/union-type.augmentation.js';
 

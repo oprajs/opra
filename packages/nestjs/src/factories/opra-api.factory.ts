@@ -50,7 +50,7 @@ export class OpraApiFactory {
       const instance = wrapper.instance;
       const ctor = instance.constructor;
       const metadata = Reflect.getMetadata(RESOURCE_METADATA, ctor);
-      if (OpraSchema.isSource(metadata))
+      if (OpraSchema.isResource(metadata))
         resources.push(instance);
     }
 

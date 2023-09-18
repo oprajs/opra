@@ -1,13 +1,14 @@
 import merge from 'putil-merge';
-import { StrictOmit } from 'ts-gems';
-import { OpraSchema } from '../../schema/index.js';
-import type { TypeThunkAsync } from '../../types.js';
+import { Combine, StrictOmit } from 'ts-gems';
 import type { ApiDocument } from '../api-document.js';
 import { DECORATOR } from '../constants.js';
 import { ComplexType } from '../data-type/complex-type.js';
-import { CollectionDecorator } from '../decorators/collection-decorator.js';
 import { CollectionClass } from './collection-class.js';
-import type { Resource } from './resource.js';
+import { CollectionDecorator } from './collection-decorator.js';
+import { Resource } from './resource.js';
+
+export interface Collection extends CollectionClass {
+}
 
 export interface CollectionConstructor extends CollectionDecorator {
   prototype: CollectionClass;
@@ -15,15 +16,13 @@ export interface CollectionConstructor extends CollectionDecorator {
   new(document: ApiDocument, init: Collection.InitArguments): CollectionClass;
 }
 
-export interface Collection extends CollectionClass {
-}
-
 /**
  * @class Collection
  * @decorator Collection
  */
 export const Collection = function (this: CollectionClass | void, ...args: any[]) {
-  // Decorator
+
+  // ClassDecorator
   if (!this) {
     const [type, options] = args;
     return Collection[DECORATOR].call(undefined, type, options);
@@ -43,17 +42,11 @@ Collection[DECORATOR] = CollectionDecorator;
  * @namespace Collection
  */
 export namespace Collection {
-  export interface InitArguments extends StrictOmit<Resource.InitArguments, 'operations'>,
-      StrictOmit<OpraSchema.Collection, 'kind' | 'type'> {
+
+  export interface InitArguments extends Combine<Resource.InitArguments,
+      StrictOmit<CollectionDecorator.Metadata, 'type'>> {
+    name: string;
     type: ComplexType;
-  }
-
-  export interface DecoratorOptions<T = any> extends Resource.DecoratorOptions {
-    primaryKey?: keyof T | (keyof T)[];
-  }
-
-  export interface Metadata extends StrictOmit<Resource.Metadata, 'kind' | 'operations'>, StrictOmit<OpraSchema.Collection, 'type'> {
-    type: TypeThunkAsync | string;
   }
 
   // Need for augmentation

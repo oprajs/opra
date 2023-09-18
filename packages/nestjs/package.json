@@ -40,7 +40,7 @@
     "@nestjs/testing": "^10.2.4",
     "@types/lodash": "^4.14.197",
     "filedirname": "^2.7.0",
-    "ts-gems": "^2.4.1"
+    "ts-gems": "^2.5.0"
   },
   "type": "module",
   "module": "./esm/index.js",

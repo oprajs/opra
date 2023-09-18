@@ -8,20 +8,19 @@ import { ComplexType } from '../data-type/complex-type.js';
 import { SimpleType } from '../data-type/simple-type.js';
 import { generateCodec, GenerateDecoderOptions } from '../utils/generate-codec.js';
 import type { Collection } from './collection.js';
+import type { CollectionDecorator } from './collection-decorator.js';
 import { Endpoint } from './endpoint.js';
 import { Resource } from './resource.js';
 
 export class CollectionClass extends Resource {
-  private _decoders: Record<string, vg.Validator> = {};
-  private _encoders: Record<string, vg.Validator> = {};
+  protected _decoders: Record<string, vg.Validator> = {};
+  protected _encoders: Record<string, vg.Validator> = {};
   readonly type: ComplexType;
   readonly kind = OpraSchema.Collection.Kind;
-  readonly controller?: object;
   readonly primaryKey: string[];
 
   constructor(document: ApiDocument, init: Collection.InitArguments) {
     super(document, init);
-    this.controller = init.controller;
     const dataType = this.type = init.type;
     // Validate key fields
     this.primaryKey = init.primaryKey
@@ -36,13 +35,13 @@ export class CollectionClass extends Resource {
     });
   }
 
-  getOperation(name: 'create'): (Endpoint & OpraSchema.Collection.Operations.Create) | undefined;
-  getOperation(name: 'delete'): (Endpoint & OpraSchema.Collection.Operations.Delete) | undefined;
-  getOperation(name: 'deleteMany'): (Endpoint & OpraSchema.Collection.Operations.DeleteMany) | undefined;
-  getOperation(name: 'findMany'): (Endpoint & OpraSchema.Collection.Operations.FindMany) | undefined;
-  getOperation(name: 'get'): (Endpoint & OpraSchema.Collection.Operations.Get) | undefined;
-  getOperation(name: 'update'): (Endpoint & OpraSchema.Collection.Operations.Update) | undefined;
-  getOperation(name: 'updateMany'): (Endpoint & OpraSchema.Collection.Operations.UpdateMany) | undefined;
+  getOperation(name: 'create'): (Endpoint & Omit<CollectionDecorator.Create.Metadata, keyof Endpoint>) | undefined;
+  getOperation(name: 'delete'): (Endpoint & Omit<CollectionDecorator.Delete.Metadata, keyof Endpoint>) | undefined;
+  getOperation(name: 'deleteMany'): (Endpoint & Omit<CollectionDecorator.DeleteMany.Metadata, keyof Endpoint>) | undefined;
+  getOperation(name: 'findMany'): (Endpoint & Omit<CollectionDecorator.FindMany.Metadata, keyof Endpoint>) | undefined;
+  getOperation(name: 'get'): (Endpoint & Omit<CollectionDecorator.Get.Metadata, keyof Endpoint>) | undefined;
+  getOperation(name: 'update'): (Endpoint & Omit<CollectionDecorator.Update.Metadata, keyof Endpoint>) | undefined;
+  getOperation(name: 'updateMany'): (Endpoint & Omit<CollectionDecorator.UpdateMany.Metadata, keyof Endpoint>) | undefined;
   getOperation(name: string): Endpoint | undefined {
     return super.getOperation(name);
   }
@@ -165,7 +164,7 @@ export class CollectionClass extends Resource {
     return ast;
   }
 
-  getDecoder(endpoint: keyof OpraSchema.Collection.Operations): vg.Validator<any, any> {
+  getDecoder(endpoint: keyof OpraSchema.Collection.Operations): vg.Validator {
     let decoder = this._decoders[endpoint];
     if (decoder)
       return decoder;
@@ -179,7 +178,7 @@ export class CollectionClass extends Resource {
     return decoder;
   }
 
-  getEncoder(endpoint: keyof OpraSchema.Collection.Operations): vg.Validator<any, any> {
+  getEncoder(endpoint: keyof OpraSchema.Collection.Operations): vg.Validator {
     let encoder = this._encoders[endpoint];
     if (encoder)
       return encoder;

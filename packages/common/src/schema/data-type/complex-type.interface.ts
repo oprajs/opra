@@ -4,7 +4,7 @@ import type { Field } from './field.interface.js';
 import type { MappedType } from './mapped-type.interface.js';
 import type { UnionType } from './union-type.interface.js';
 
-export interface ComplexType extends DataTypeBase {
+export interface ComplexType extends DataTypeBase<ComplexType.Kind> {
   ctor?: Type;
   base?: DataType.Name | ComplexType | UnionType | MappedType;
   abstract?: boolean;

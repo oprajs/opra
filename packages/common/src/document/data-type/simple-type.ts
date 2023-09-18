@@ -3,8 +3,8 @@ import merge from 'putil-merge';
 import * as vg from 'valgen';
 import type { ApiDocument } from '../api-document.js';
 import { DECORATOR } from '../constants.js';
-import { SimpleTypeDecorator } from '../decorators/simple-type.decorator.js';
 import { DataType } from './data-type.js';
+import { SimpleTypeDecorator } from './simple-type.decorator.js';
 import { SimpleTypeClass } from './simple-type-class.js'
 
 

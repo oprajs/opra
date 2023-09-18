@@ -13,23 +13,17 @@ export class CustomersResource extends SqbCollection<Customer> {
     super();
   }
 
-  @Collection.FindMany({
-    sortFields: ['id', 'givenName', 'familyName', 'gender', 'birthDate'],
-    filters: [
-      {field: 'id', operators: ['=']},
-      {field: 'givenName', operators: ['=', 'like', 'ilike']},
-      {field: 'familyName', operators: ['=', 'like', 'ilike']},
-      {field: 'gender', operators: ['=', 'in']},
-      {field: 'birthDate', operators: ['=', '>', '>=', '<', '<=']}
-    ],
-    response: {}
-  })
+  @Collection.FindMany()
+      .SortFields('id', 'givenName', 'familyName', 'gender', 'birthDate')
+      .Filter('id', '=')
+      .Filter('givenName', ['=', 'like', 'ilike'])
+      .Filter('familyName', ['=', 'like', 'ilike'])
+      .Filter('gender', ['=', '!=', 'in'])
+      .Filter('birthDate', ['=', '>', '>=', '<', '<='])
   findMany;
 
   @Collection.Create({
-    input: {
-      maxContentSize: '200kb'
-    }
+    inputMaxContentSize: '200kb'
   })
   create;
 

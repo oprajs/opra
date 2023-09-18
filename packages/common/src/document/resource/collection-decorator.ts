@@ -1,21 +1,18 @@
-import { StrictOmit, Type } from 'ts-gems';
+import { Combine, StrictOmit, Type } from 'ts-gems';
 import type { OpraFilter } from '../../filter/index.js';
 import { omitUndefined } from '../../helpers/index.js';
 import { Field } from '../../schema/data-type/field.interface.js';
 import { OpraSchema } from '../../schema/index.js';
-import type { Collection } from '../resource/collection';
-import {
-  ActionDecorator,
-  createActionDecorator,
-  createOperationDecorator,
-  ResourceDecorator
-} from './resource.decorator.js';
+import { TypeThunkAsync } from '../../types.js';
+import { ActionDecorator, createActionDecorator } from './action.decorator.js';
+import { createOperationDecorator } from './operation.decorator.js';
+import { ResourceDecorator } from './resource.decorator.js';
 
 type ErrorMessage<T, Error> = [T] extends [never] ? Error : T;
 const operationProperties = ['create', 'delete', 'deleteMany', 'get', 'findMany', 'update', 'updateMany'] as const;
 type OperationProperties = typeof operationProperties[number];
 
-export function CollectionDecorator(type: Type | string, options?: Collection.DecoratorOptions): ClassDecorator {
+export function CollectionDecorator(type: Type | string, options?: CollectionDecorator.Options): ClassDecorator {
   return ResourceDecorator(OpraSchema.Collection.Kind, {...options, type})
 }
 
@@ -23,9 +20,9 @@ Object.assign(CollectionDecorator, ResourceDecorator);
 
 
 export interface CollectionDecorator extends StrictOmit<ResourceDecorator, 'Action'> {
-  <T>(type: Type<T> | string, options?: Collection.DecoratorOptions<T>): ClassDecorator;
+  <T>(type: Type<T> | string, options?: CollectionDecorator.Options<T>): ClassDecorator;
 
-  Action: (options?: ResourceDecorator.ActionOptions) => (
+  Action: (options?: CollectionDecorator.Action.Options) => (
       <T, K extends keyof T>(
           target: T,
           propertyKey: ErrorMessage<Exclude<K, OperationProperties>,
@@ -41,23 +38,163 @@ export interface CollectionDecorator extends StrictOmit<ResourceDecorator, 'Acti
   UpdateMany: typeof CollectionDecorator.UpdateMany;
 }
 
+
+/**
+ * @namespace CollectionDecorator
+ */
+export namespace CollectionDecorator {
+
+  export interface Metadata extends StrictOmit<OpraSchema.Collection, 'kind' | 'type' | 'operations' | 'actions'> {
+    kind: OpraSchema.Collection.Kind;
+    name: string;
+    type: TypeThunkAsync | string;
+    actions?: Record<string, ResourceDecorator.EndpointMetadata>;
+    operations?: {
+      create: Create.Metadata;
+      delete: Delete.Metadata;
+      deleteMany: DeleteMany.Metadata;
+      get: Get.Metadata;
+      findMany: FindMany.Metadata;
+      update: Update.Metadata;
+      updateMany: UpdateMany.Metadata;
+    }
+  }
+
+  export interface Options<T = any> extends Partial<StrictOmit<Metadata, 'operations' | 'actions' | 'primaryKey'>> {
+    primaryKey?: keyof T | (keyof T)[];
+  }
+
+  /**
+   * @namespace Action
+   */
+  export namespace Action {
+    // eslint-disable-next-line @typescript-eslint/no-shadow
+    export interface Metadata extends ResourceDecorator.EndpointMetadata {
+    }
+
+    // eslint-disable-next-line @typescript-eslint/no-shadow
+    export interface Options extends ResourceDecorator.EndpointOptions {
+    }
+  }
+
+  /**
+   * @namespace Create
+   */
+  export namespace Create {
+    // eslint-disable-next-line @typescript-eslint/no-shadow
+    export interface Metadata extends Combine<ResourceDecorator.EndpointMetadata, OpraSchema.Collection.Operations.Create> {
+    }
+
+    // eslint-disable-next-line @typescript-eslint/no-shadow
+    export interface Options extends Combine<ResourceDecorator.EndpointOptions,
+        Partial<OpraSchema.Collection.Operations.Create>> {
+    }
+  }
+
+  // const a: Create.Options = {};
+  // a.
+
+  /**
+   * @namespace Delete
+   */
+  export namespace Delete {
+    // eslint-disable-next-line @typescript-eslint/no-shadow
+    export interface Metadata extends Combine<ResourceDecorator.EndpointMetadata, OpraSchema.Collection.Operations.Delete> {
+    }
+
+    // eslint-disable-next-line @typescript-eslint/no-shadow
+    export interface Options extends Combine<ResourceDecorator.EndpointOptions,
+        Partial<OpraSchema.Collection.Operations.Delete>> {
+    }
+  }
+
+  /**
+   * @namespace DeleteMany
+   */
+  export namespace DeleteMany {
+    // eslint-disable-next-line @typescript-eslint/no-shadow
+    export interface Metadata extends Combine<ResourceDecorator.EndpointMetadata, OpraSchema.Collection.Operations.DeleteMany> {
+    }
+
+    // eslint-disable-next-line @typescript-eslint/no-shadow
+    export interface Options extends Combine<ResourceDecorator.EndpointOptions,
+        Partial<OpraSchema.Collection.Operations.DeleteMany>> {
+    }
+  }
+
+  /**
+   * @namespace FindMany
+   */
+  export namespace FindMany {
+    // eslint-disable-next-line @typescript-eslint/no-shadow
+    export interface Metadata extends Combine<ResourceDecorator.EndpointMetadata, OpraSchema.Collection.Operations.FindMany> {
+    }
+
+    // eslint-disable-next-line @typescript-eslint/no-shadow
+    export interface Options extends Combine<ResourceDecorator.EndpointOptions,
+        Partial<OpraSchema.Collection.Operations.FindMany>> {
+    }
+  }
+
+  /**
+   * @namespace Get
+   */
+  export namespace Get {
+    // eslint-disable-next-line @typescript-eslint/no-shadow
+    export interface Metadata extends Combine<ResourceDecorator.EndpointMetadata, OpraSchema.Collection.Operations.Get> {
+    }
+
+    // eslint-disable-next-line @typescript-eslint/no-shadow
+    export interface Options extends Combine<ResourceDecorator.EndpointOptions,
+        Partial<OpraSchema.Collection.Operations.Get>> {
+    }
+  }
+
+  /**
+   * @namespace Update
+   */
+  export namespace Update {
+    // eslint-disable-next-line @typescript-eslint/no-shadow
+    export interface Metadata extends Combine<ResourceDecorator.EndpointMetadata, OpraSchema.Collection.Operations.Update> {
+    }
+
+    // eslint-disable-next-line @typescript-eslint/no-shadow
+    export interface Options extends Combine<ResourceDecorator.EndpointOptions,
+        Partial<OpraSchema.Collection.Operations.Update>> {
+    }
+  }
+
+  /**
+   * @namespace UpdateMany
+   */
+  export namespace UpdateMany {
+    // eslint-disable-next-line @typescript-eslint/no-shadow
+    export interface Metadata extends Combine<ResourceDecorator.EndpointMetadata, OpraSchema.Collection.Operations.UpdateMany> {
+    }
+
+    // eslint-disable-next-line @typescript-eslint/no-shadow
+    export interface Options extends Combine<ResourceDecorator.EndpointOptions,
+        Partial<OpraSchema.Collection.Operations.UpdateMany>> {
+    }
+  }
+
+}
+
 /*
  * Action PropertyDecorator
  */
 export namespace CollectionDecorator {
-  export function Action(options: ResourceDecorator.ActionOptions): ActionDecorator
-  export function Action(description: string): ActionDecorator
-  export function Action(arg0?: any): ActionDecorator {
+  /**
+   * Action PropertyDecorator
+   */
+  export function Action(options: ResourceDecorator.EndpointOptions): ActionDecorator {
     const list: ((operationMeta: any) => void)[] = [];
-    const options = typeof arg0 === 'string' ? {description: arg0} : {...arg0};
     return createActionDecorator(options, operationProperties, list);
   }
-}
 
-/*
- * Create PropertyDecorator
- */
-export namespace CollectionDecorator {
+  /**
+   * Create PropertyDecorator
+   */
   export type CreateDecorator = ((target: Object, propertyKey: 'create') => void) & {
     Parameter: (name: string, optionsOrType?: ResourceDecorator.ParameterOptions | string | Type) => CreateDecorator;
     InputMaxContentSize: (sizeInBytes: number) => CreateDecorator;
@@ -67,12 +204,9 @@ export namespace CollectionDecorator {
     OutputOmitFields: (...fields: Field.QualifiedName[]) => CreateDecorator;
   };
 
-  export function Create(options?: OpraSchema.Collection.Operations.Create): CreateDecorator
-  export function Create(description?: string): CreateDecorator
-  export function Create(arg0?: any): CreateDecorator {
+  export function Create(options?: Create.Options): CreateDecorator {
     const list: ((operationMeta: any) => void)[] = [];
-    const options = typeof arg0 === 'string' ? {description: arg0} : {...arg0};
-    const decorator = createOperationDecorator<CreateDecorator>('create', options, list);
+    const decorator = createOperationDecorator<CreateDecorator, Create.Metadata>('create', options, list);
     decorator.InputMaxContentSize = (sizeInBytes: number) => {
       list.push(operationMeta => operationMeta.inputMaxContentSize = sizeInBytes)
       return decorator;
@@ -95,40 +229,30 @@ export namespace CollectionDecorator {
     }
     return decorator;
   }
-}
 
-/*
- * Delete PropertyDecorator
- */
-export namespace CollectionDecorator {
+  /**
+   * Delete PropertyDecorator
+   */
   export type DeleteDecorator = ((target: Object, propertyKey: 'delete') => void) & {
     Parameter: (name: string, optionsOrType?: ResourceDecorator.ParameterOptions | string | Type) => DeleteDecorator;
   };
 
-  export function Delete(options?: OpraSchema.Collection.Operations.Delete): DeleteDecorator
-  export function Delete(description?: string): DeleteDecorator
-  export function Delete(arg0?: any): DeleteDecorator {
+  export function Delete(options?: Delete.Options): DeleteDecorator {
     const list: ((operationMeta: any) => void)[] = [];
-    const options = typeof arg0 === 'string' ? {description: arg0} : {...arg0};
-    return createOperationDecorator<DeleteDecorator>('delete', options, list);
+    return createOperationDecorator<DeleteDecorator, Delete.Metadata>('delete', options, list);
   }
-}
 
-/*
- * DeleteMany PropertyDecorator
- */
-export namespace CollectionDecorator {
+  /**
+   * DeleteMany PropertyDecorator
+   */
   export type DeleteManyDecorator = ((target: Object, propertyKey: 'deleteMany') => void) & {
     Parameter: (name: string, optionsOrType?: ResourceDecorator.ParameterOptions | string | Type) => DeleteManyDecorator;
     Filter: (field: Field.QualifiedName, operators?: OpraFilter.ComparisonOperator[] | string, notes?: string) => DeleteManyDecorator;
   };
 
-  export function DeleteMany(options?: OpraSchema.Collection.Operations.DeleteMany): DeleteManyDecorator
-  export function DeleteMany(description?: string): DeleteManyDecorator
-  export function DeleteMany(arg0?: any): DeleteManyDecorator {
+  export function DeleteMany(options?: DeleteMany.Options): DeleteManyDecorator {
     const list: ((operationMeta: any) => void)[] = [];
-    const options = typeof arg0 === 'string' ? {description: arg0} : {...arg0};
-    const decorator = createOperationDecorator<DeleteManyDecorator>('deleteMany', options, list);
+    const decorator = createOperationDecorator<DeleteManyDecorator, DeleteMany.Metadata>('deleteMany', options, list);
     decorator.Filter = (field: Field.QualifiedName, operators?: OpraFilter.ComparisonOperator[] | string, notes?: string) => {
       if (typeof operators === 'string')
         operators = operators.split(/\s*[,| ]\s*/) as OpraFilter.ComparisonOperator[]
@@ -142,24 +266,19 @@ export namespace CollectionDecorator {
     }
     return decorator;
   }
-}
 
-/*
- * Get PropertyDecorator
- */
-export namespace CollectionDecorator {
+  /**
+   * Get PropertyDecorator
+   */
   export type GetDecorator = ((target: Object, propertyKey: 'get') => void) & {
     Parameter: (name: string, optionsOrType?: ResourceDecorator.ParameterOptions | string | Type) => GetDecorator;
     OutputPickFields: (...fields: Field.QualifiedName[]) => GetDecorator;
     OutputOmitFields: (...fields: Field.QualifiedName[]) => GetDecorator;
   };
 
-  export function Get(options?: OpraSchema.Collection.Operations.Get): GetDecorator
-  export function Get(description?: string): GetDecorator
-  export function Get(arg0?: any): GetDecorator {
+  export function Get(options?: Get.Options): GetDecorator {
     const list: ((operationMeta: any) => void)[] = [];
-    const options = typeof arg0 === 'string' ? {description: arg0} : {...arg0};
-    const decorator = createOperationDecorator<GetDecorator>('get', options, list);
+    const decorator = createOperationDecorator<GetDecorator, Get.Metadata>('get', options, list);
     decorator.OutputPickFields = (...fields: Field.QualifiedName[]) => {
       list.push(operationMeta => operationMeta.outputPickFields = fields)
       return decorator;
@@ -170,12 +289,10 @@ export namespace CollectionDecorator {
     }
     return decorator;
   }
-}
 
-/*
- * FindMany PropertyDecorator
- */
-export namespace CollectionDecorator {
+  /**
+   * FindMany PropertyDecorator
+   */
   export type FindManyDecorator = ((target: Object, propertyKey: 'findMany') => void) & {
     Parameter: (name: string, optionsOrType?: ResourceDecorator.ParameterOptions | string | Type) => FindManyDecorator;
     SortFields: (...fields: Field.QualifiedName[]) => FindManyDecorator;
@@ -185,12 +302,9 @@ export namespace CollectionDecorator {
     OutputOmitFields: (...fields: Field.QualifiedName[]) => FindManyDecorator;
   };
 
-  export function FindMany(options?: OpraSchema.Collection.Operations.FindMany): FindManyDecorator
-  export function FindMany(description?: string): FindManyDecorator
-  export function FindMany(arg0?: any): FindManyDecorator {
+  export function FindMany(options?: FindMany.Options): FindManyDecorator {
     const list: ((operationMeta: any) => void)[] = [];
-    const options = typeof arg0 === 'string' ? {description: arg0} : {...arg0};
-    const decorator = createOperationDecorator<FindManyDecorator>('findMany', options, list);
+    const decorator = createOperationDecorator<FindManyDecorator, FindMany.Metadata>('findMany', options, list);
     decorator.SortFields = (...fields: string[]) => {
       list.push(operationMeta => operationMeta.sortFields = fields);
       return decorator;
@@ -235,12 +349,9 @@ export namespace CollectionDecorator {
     OutputOmitFields: (...fields: Field.QualifiedName[]) => UpdateDecorator;
   };
 
-  export function Update(options?: OpraSchema.Collection.Operations.Update): UpdateDecorator
-  export function Update(description?: string): UpdateDecorator
-  export function Update(arg0?: any): UpdateDecorator {
+  export function Update(options?: Update.Options): UpdateDecorator {
     const list: ((operationMeta: any) => void)[] = [];
-    const options = typeof arg0 === 'string' ? {description: arg0} : {...arg0};
-    const decorator = createOperationDecorator<UpdateDecorator>('update', options, list);
+    const decorator = createOperationDecorator<UpdateDecorator, Update.Metadata>('update', options, list);
     decorator.InputMaxContentSize = (sizeInBytes: number) => {
       list.push(operationMeta => operationMeta.inputMaxContentSize = sizeInBytes)
       return decorator;
@@ -277,12 +388,12 @@ export namespace CollectionDecorator {
     Filter: (field: Field.QualifiedName, operators?: OpraFilter.ComparisonOperator[] | string, notes?: string) => UpdateManyDecorator;
   };
 
-  export function UpdateMany(options?: OpraSchema.Collection.Operations.Update): UpdateManyDecorator
+  export function UpdateMany(options?: UpdateMany.Options): UpdateManyDecorator
   export function UpdateMany(description?: string): UpdateManyDecorator
   export function UpdateMany(arg0?: any): UpdateManyDecorator {
     const list: ((operationMeta: any) => void)[] = [];
     const options = typeof arg0 === 'string' ? {description: arg0} : {...arg0};
-    const decorator = createOperationDecorator<UpdateManyDecorator>('updateMany', options, list);
+    const decorator = createOperationDecorator<UpdateManyDecorator, UpdateMany.Metadata>('updateMany', options, list);
     decorator.InputMaxContentSize = (sizeInBytes: number) => {
       list.push(operationMeta => operationMeta.inputMaxContentSize = sizeInBytes)
       return decorator;

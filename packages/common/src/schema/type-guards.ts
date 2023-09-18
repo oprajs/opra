@@ -40,7 +40,7 @@ export function isEnumType(obj: any): obj is EnumType {
   return obj && typeof obj === 'object' && obj.kind === EnumType.Kind;
 }
 
-export function isSource(obj: any): obj is Resource {
+export function isResource(obj: any): obj is Resource {
   return obj && typeof obj === 'object' &&
       (obj.kind === Container.Kind ||
           obj.kind === Collection.Kind ||
@@ -57,7 +57,7 @@ export function isSingleton(obj: any): obj is Singleton {
   return obj && typeof obj === 'object' && obj.kind === Singleton.Kind;
 }
 
-export function isStorage(obj: any): obj is Singleton {
+export function isStorage(obj: any): obj is Storage {
   return obj && typeof obj === 'object' && obj.kind === Storage.Kind;
 }
 

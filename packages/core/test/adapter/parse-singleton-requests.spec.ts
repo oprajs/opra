@@ -1,7 +1,7 @@
 import { ApiDocument, Singleton } from '@opra/common';
 import { HttpAdapter, HttpServerRequest } from '@opra/core';
 import { EntityRequestHandler } from '@opra/core/http/request-handlers/entity-request-handler';
-import { createTestApi } from '../_support/test-app/index';
+import { createTestApi } from '../_support/test-app/index.js';
 
 describe('Parse Singleton requests', function () {
 
@@ -24,7 +24,7 @@ describe('Parse Singleton requests', function () {
       })) as Singleton.Get.Request;
       expect(request).toBeDefined();
       const resource = api.getSingleton('MyProfile');
-      expect(request.resource).toStrictEqual(resource);
+      expect(request.resource).toEqual(resource);
       expect(request.operation).toStrictEqual('get');
       expect(request.params.pick).toStrictEqual(['_id']);
       expect(request.params.omit).toStrictEqual(['gender']);
@@ -140,7 +140,7 @@ describe('Parse Singleton requests', function () {
       })) as Singleton.Create.Request;
       expect(request).toBeDefined();
       const resource = api.getSingleton('MyProfile');
-      expect(request.resource).toStrictEqual(resource);
+      expect(request.resource).toEqual(resource);
       expect(request.operation).toStrictEqual('create');
       expect(request.data).toEqual({givenName: 'John'});
       expect(() => request.switchToHttp()).not.toThrow();
@@ -273,7 +273,7 @@ describe('Parse Singleton requests', function () {
       })) as Singleton.Update.Request;
       expect(request).toBeDefined();
       const resource = api.getSingleton('MyProfile');
-      expect(request.resource).toStrictEqual(resource);
+      expect(request.resource).toEqual(resource);
       expect(request.operation).toStrictEqual('update');
       expect(request.data).toEqual({givenName: 'John'});
       expect(() => request.switchToHttp()).not.toThrow();
@@ -404,7 +404,7 @@ describe('Parse Singleton requests', function () {
       })) as Singleton.Delete.Request;
       expect(request).toBeDefined();
       const resource = api.getSingleton('MyProfile');
-      expect(request.resource).toStrictEqual(resource);
+      expect(request.resource).toEqual(resource);
       expect(request.operation).toStrictEqual('delete');
       expect(() => request.switchToHttp()).not.toThrow();
       expect(request.switchToHttp().headers).toBeDefined();

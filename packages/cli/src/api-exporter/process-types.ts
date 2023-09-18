@@ -199,19 +199,18 @@ export async function generateEnumTypeDefinition(
     dataType: EnumType
 ): Promise<string> {
   let out = '{\n\t';
-  for (const [k, v] of Object.entries(dataType.values)) {
+  for (const [value, info] of Object.entries(dataType.values)) {
 
     // Print JSDoc
     let jsDoc = '';
-    if (dataType.meanings[k])
-      jsDoc += ` * ${dataType.meanings[k]}\n`;
+    if (dataType.values[value].description)
+      jsDoc += ` * ${dataType.values[value].description}\n`;
 
     if (jsDoc)
       out += `/**\n${jsDoc}*/\n`;
 
-    out += `${k}`;
-    if (v)
-      out += ' = ' + (typeof v === 'number' ? v : ('"' + (String(v)).replace('"', '\\"')) + '"')
+    out += `${info.key || value} = ` +
+        (typeof value === 'number' ? value : ('\'' + (String(value)).replace('\'', '\\\'')) + '\'')
     out += ',\n\n';
   }
   return out + '\b}';

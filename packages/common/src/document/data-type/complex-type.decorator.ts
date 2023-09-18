@@ -1,7 +1,7 @@
 import omit from 'lodash.omit';
 import { OpraSchema } from '../../schema/index.js';
 import { DATATYPE_METADATA, TYPENAME_PATTERN } from '../constants.js';
-import type { ComplexType } from '../data-type/complex-type.js';
+import type { ComplexType } from './complex-type.js';
 
 export function ComplexTypeDecorator(options?: ComplexType.DecoratorOptions) {
   return function (target: Function) {

@@ -1,8 +1,8 @@
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
 import {
+  ApiDocumentFactory,
   ApiField,
   ComplexType,
-  ApiDocumentFactory,
   OmitType,
   OpraSchema,
   PickType,

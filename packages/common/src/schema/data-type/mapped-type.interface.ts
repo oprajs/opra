@@ -1,7 +1,7 @@
 import type { DataType, DataTypeBase } from './data-type.interface.js';
 import { Field } from './field.interface.js';
 
-export interface MappedType extends DataTypeBase {
+export interface MappedType extends DataTypeBase<MappedType.Kind> {
   type: DataType.Name | DataType;
   omit?: Field.Name[];
   pick?: Field.Name[];

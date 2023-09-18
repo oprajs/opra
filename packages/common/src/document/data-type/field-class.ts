@@ -19,18 +19,9 @@ export class FieldClass {
   examples?: any[] | Record<string, any>;
 
   constructor(owner: ComplexType, init: ApiField.InitArguments) {
+    Object.assign(this, init);
     this.owner = owner;
-    this.name = init.name;
     this.origin = init.origin || owner;
-    this.type = init.type;
-    this.description = init.description;
-    this.isArray = init.isArray;
-    this.default = init.default;
-    this.fixed = init.fixed;
-    this.required = init.required;
-    this.exclusive = init.exclusive;
-    this.deprecated = init.deprecated;
-    this.examples = init.examples;
   }
 
   exportSchema(): OpraSchema.Field {

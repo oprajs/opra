@@ -1,21 +1,19 @@
 import merge from 'putil-merge';
-import { StrictOmit } from 'ts-gems';
-import { OpraSchema } from '../../schema/index.js';
-import type { TypeThunkAsync } from '../../types.js';
+import { Combine, StrictOmit } from 'ts-gems';
 import type { ApiDocument } from '../api-document.js';
 import { DECORATOR } from '../constants.js';
 import { ComplexType } from '../data-type/complex-type.js';
-import { SingletonDecorator } from '../decorators/singleton.decorator.js';
-import type { Resource } from './resource.js';
+import { Resource } from './resource.js';
+import { SingletonDecorator } from './singleton.decorator.js';
 import { SingletonClass } from './singleton-class.js';
+
+export interface Singleton extends SingletonClass {
+}
 
 export interface SingletonConstructor extends SingletonDecorator {
   prototype: SingletonClass;
 
   new(document: ApiDocument, init: Singleton.InitArguments): SingletonClass;
-}
-
-export interface Singleton extends SingletonClass {
 }
 
 /**
@@ -43,17 +41,11 @@ Singleton[DECORATOR] = SingletonDecorator;
  * @namespace Singleton
  */
 export namespace Singleton {
-  export interface InitArguments extends StrictOmit<Resource.InitArguments, 'operations'>,
-      StrictOmit<OpraSchema.Singleton, 'kind' | 'type'> {
+
+  export interface InitArguments extends Combine<Resource.InitArguments,
+      StrictOmit<SingletonDecorator.Metadata, 'type'>> {
+    name: string;
     type: ComplexType;
-  }
-
-  export interface DecoratorOptions extends Resource.DecoratorOptions {
-
-  }
-
-  export interface Metadata extends StrictOmit<Resource.Metadata, 'kind' | 'operations'>, StrictOmit<OpraSchema.Singleton, 'type'> {
-    type: TypeThunkAsync | string;
   }
 
   // Need for augmentation

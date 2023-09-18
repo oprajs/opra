@@ -27,7 +27,12 @@ export class ComplexTypeClass extends DataType {
   constructor(document: ApiDocument, init: ComplexType.InitArguments) {
     super(document, init);
     const own = this.own = {} as Writable<ComplexType.OwnProperties>;
-    own.ctor = init?.ctor || init?.base?.ctor;
+    own.ctor = init.ctor;
+    if (init.base) {
+      if (!(init.base.kind === 'ComplexType' || init.base.kind === 'MappedType' || init.base.kind === 'UnionType'))
+        throw new TypeError('"base" argument must be one of ComplexType or MappedType or UnionType');
+      own.ctor = own.ctor || (init.base as ComplexTypeClass).ctor;
+    }
     own.abstract = init?.abstract;
     own.additionalFields = init?.additionalFields;
     own.fields = new ResponsiveMap();
@@ -43,17 +48,18 @@ export class ComplexTypeClass extends DataType {
         this.additionalFields = this.base.additionalFields;
       if (this.base.fields)
         for (const [k, el] of this.base.fields.entries()) {
-          const newEl = new ApiField(this, el);
-          this.fields.set(k, newEl);
+          const field = new ApiField(this, el);
+          this.fields.set(k, field);
         }
     }
-  }
-
-  addField(init: ApiField.InitArguments): ApiField {
-    const field = new ApiField(this, init);
-    this.own.fields.set(field.name, field);
-    this.fields.set(field.name, field);
-    return field;
+    if (init.fields) {
+      if (init.fields)
+        for (const [k, el] of Object.entries(init.fields)) {
+          const field = new ApiField(this, el);
+          this.own.fields.set(field.name, field);
+          this.fields.set(k, field);
+        }
+    }
   }
 
   findField(nameOrPath: string): ApiField | undefined {
@@ -154,7 +160,7 @@ export class ComplexTypeClass extends DataType {
   }
 
   isTypeOf(t: Type | Function): boolean {
-    return t === this.own.ctor;
+    return t === this.own?.ctor;
   }
 
   extendsFrom(t: string | Type | DataType): boolean {

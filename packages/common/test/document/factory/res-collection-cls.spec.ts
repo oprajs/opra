@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
 import {
-  Collection,
   ApiDocumentFactory,
+  Collection, EnumType,
   OpraSchema,
 } from '@opra/common';
 import { Country } from '../../_support/test-api/index.js';
@@ -37,7 +37,7 @@ describe('ApiDocumentFactory - Collection resource with decorated classes', func
     expect(t.description).toStrictEqual('Country collection');
     expect(t.primaryKey).toStrictEqual(['code']);
     expect(t.type.name).toEqual('Country');
-    expect(t.controller).toBe(CountriesResource);
+    expect(t.ctor).toBe(CountriesResource);
   })
 
   it('Should define "create" operation endpoint', async () => {
@@ -57,7 +57,7 @@ describe('ApiDocumentFactory - Collection resource with decorated classes', func
     })
     expect(doc).toBeDefined();
     const t = doc.getCollection('countries');
-    expect(t.controller).toBe(CountriesResource);
+    expect(t.ctor).toBe(CountriesResource);
     expect(t.getOperation('create')).toBeDefined();
   })
 
@@ -78,7 +78,7 @@ describe('ApiDocumentFactory - Collection resource with decorated classes', func
     })
     expect(doc).toBeDefined();
     const t = doc.getCollection('countries');
-    expect(t.controller).toBe(CountriesResource);
+    expect(t.ctor).toBe(CountriesResource);
     expect(t.getOperation('get')).toBeDefined();
   })
 
@@ -99,7 +99,7 @@ describe('ApiDocumentFactory - Collection resource with decorated classes', func
     })
     expect(doc).toBeDefined();
     const t = doc.getCollection('countries');
-    expect(t.controller).toBe(CountriesResource);
+    expect(t.ctor).toBe(CountriesResource);
     expect(t.getOperation('update')).toBeDefined();
   })
 
@@ -120,7 +120,7 @@ describe('ApiDocumentFactory - Collection resource with decorated classes', func
     })
     expect(doc).toBeDefined();
     const t = doc.getCollection('countries');
-    expect(t.controller).toBe(CountriesResource);
+    expect(t.ctor).toBe(CountriesResource);
     expect(t.getOperation('delete')).toBeDefined();
   })
 
@@ -141,7 +141,7 @@ describe('ApiDocumentFactory - Collection resource with decorated classes', func
     })
     expect(doc).toBeDefined();
     const t = doc.getCollection('countries');
-    expect(t.controller).toBe(CountriesResource);
+    expect(t.ctor).toBe(CountriesResource);
     expect(t.getOperation('findMany')).toBeDefined();
   })
 
@@ -162,7 +162,7 @@ describe('ApiDocumentFactory - Collection resource with decorated classes', func
     })
     expect(doc).toBeDefined();
     const t = doc.getCollection('countries');
-    expect(t.controller).toBe(CountriesResource);
+    expect(t.ctor).toBe(CountriesResource);
     expect(t.getOperation('updateMany')).toBeDefined();
   })
 
@@ -183,8 +183,49 @@ describe('ApiDocumentFactory - Collection resource with decorated classes', func
     })
     expect(doc).toBeDefined();
     const t = doc.getCollection('countries');
-    expect(t.controller).toBe(CountriesResource);
+    expect(t.ctor).toBe(CountriesResource);
     expect(t.getOperation('deleteMany')).toBeDefined();
+  })
+
+  it('Should define operation parameters', async () => {
+    enum Prm4 {X = 'x', Y = 'y'};
+
+    @Collection(Country, {primaryKey: 'code'})
+    class CountriesResource {
+      protected x = 1;
+
+      @Collection.Create()
+          .Parameter('prm1', String)
+          .Parameter('prm2', 'number')
+          .Parameter('prm3', {enum: ['x', 'y']})
+          .Parameter('prm4', {enum: Prm4})
+      create() {
+        return this.x;
+      }
+    }
+
+    const doc = await ApiDocumentFactory.createDocument({
+      ...baseArgs,
+      resources: [CountriesResource]
+    })
+    expect(doc).toBeDefined();
+    const t = doc.getCollection('countries');
+    const op = t.operations.get('create');
+    expect(op).toBeDefined();
+    const prm1 = op?.parameters.get('prm1');
+    const prm2 = op?.parameters.get('prm2');
+    const prm3 = op?.parameters.get('prm3');
+    const prm4 = op?.parameters.get('prm4');
+    expect(prm1).toBeDefined();
+    expect(prm2).toBeDefined();
+    expect(prm3).toBeDefined();
+    expect(prm4).toBeDefined();
+    expect(prm1?.type.name).toStrictEqual('string');
+    expect(prm2?.type.name).toStrictEqual('number');
+    expect(prm3?.type.kind).toStrictEqual('EnumType');
+    expect((prm3?.type as EnumType).values).toStrictEqual({x: {}, y: {}});
+    expect(prm4?.type.kind).toStrictEqual('EnumType');
+    expect((prm4?.type as EnumType).values).toStrictEqual({x: {key: 'X'}, y: {key: 'Y'}});
   })
 
 });

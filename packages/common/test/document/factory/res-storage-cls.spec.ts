@@ -34,7 +34,7 @@ describe('ApiDocumentFactory - Storage resource with decorated classes', functio
     expect(t.kind).toStrictEqual(OpraSchema.Storage.Kind);
     expect(t.name).toStrictEqual('MyStorage');
     expect(t.description).toStrictEqual('Storage resource');
-    expect(t.controller).toBe(MyStorageResource);
+    expect(t.ctor).toBe(MyStorageResource);
   })
 
   it('Should define "delete" operation endpoint', async () => {
@@ -52,7 +52,7 @@ describe('ApiDocumentFactory - Storage resource with decorated classes', functio
     })
     expect(doc).toBeDefined();
     const t = doc.getStorage('MyStorage');
-    expect(t.controller).toBe(MyStorageResource);
+    expect(t.ctor).toBe(MyStorageResource);
     expect(t.getOperation('delete')).toBeDefined();
   })
 
@@ -71,7 +71,7 @@ describe('ApiDocumentFactory - Storage resource with decorated classes', functio
     })
     expect(doc).toBeDefined();
     const t = doc.getStorage('MyStorage');
-    expect(t.controller).toBe(MyStorageResource);
+    expect(t.ctor).toBe(MyStorageResource);
     expect(t.getOperation('get')).toBeDefined();
   })
 
@@ -90,7 +90,7 @@ describe('ApiDocumentFactory - Storage resource with decorated classes', functio
     })
     expect(doc).toBeDefined();
     const t = doc.getStorage('MyStorage');
-    expect(t.controller).toBe(MyStorageResource);
+    expect(t.ctor).toBe(MyStorageResource);
     expect(t.getOperation('post')).toBeDefined();
   })
 

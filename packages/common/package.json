@@ -54,7 +54,7 @@
     "@types/encodeurl": "^1.0.0",
     "@types/validator": "^13.11.1",
     "path-browserify": "^1.0.1",
-    "ts-gems": "^2.4.1"
+    "ts-gems": "^2.5.0"
   },
   "engines": {
     "node": ">=16.0",

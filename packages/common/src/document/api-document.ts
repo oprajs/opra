@@ -2,9 +2,10 @@ import { Type } from 'ts-gems';
 import { NotAcceptableError, NotFoundError, ResourceNotFoundError } from '../exception/index.js';
 import { cloneObject, ResponsiveMap } from '../helpers/index.js';
 import { OpraSchema } from '../schema/index.js';
-import { NAMESPACE_PATTERN } from './constants.js';
+import { DATATYPE_METADATA, NAMESPACE_PATTERN } from './constants.js';
 import { ComplexType } from './data-type/complex-type.js';
 import type { DataType } from './data-type/data-type.js';
+import { EnumType } from './data-type/enum-type.js';
 import { SimpleType } from './data-type/simple-type.js';
 import { Collection } from './resource/collection.js';
 import { Resource } from './resource/resource.js';
@@ -45,18 +46,33 @@ export class ApiDocument {
    * @param nameOrCtor
    * @param silent
    */
-  getDataType(nameOrCtor: string | Type | object, silent: true): DataType | undefined;
+  getDataType(nameOrCtor: any, silent: true): DataType | undefined;
   /**
    * Returns DataType instance by name or Constructor. Throws error  if not found
    * @param nameOrCtor
    */
-  getDataType(nameOrCtor: string | Type | object): DataType;
+  getDataType(nameOrCtor: any): DataType;
   /**
    *
    */
-  getDataType(arg0: string | Type | object, silent?: boolean): DataType | undefined {
+  getDataType(arg0: any, silent?: boolean): DataType | undefined {
+    // Convert design ctor to type name (String -> 'string')
+    if (typeof arg0 === 'function') {
+      const x = this._designCtorMap.get(arg0);
+      if (x) arg0 = x;
+    }
+
     let dataType: DataType | undefined;
-    const name: string = typeof arg0 === 'function' ? arg0.name : String(arg0);
+    let name: string;
+    // Determine name
+    if (typeof arg0 === 'function') {
+      const metadata = Reflect.getMetadata(DATATYPE_METADATA, arg0);
+      name = metadata?.name || arg0.name;
+    } else if (typeof arg0 === 'function') {
+      const metadata = Reflect.getMetadata(DATATYPE_METADATA, arg0);
+      name = metadata?.name;
+    } else name = String(arg0);
+
     // Try to get instance from cache
     const t = typeof arg0 === 'string'
         ? this._typeCache.get(arg0)
@@ -69,13 +85,7 @@ export class ApiDocument {
       throw new Error(`Data type "${name}" does not exists`);
     }
 
-    // Convert design ctor to type name (String -> 'string')
-    if (typeof arg0 === 'function') {
-      const x = this._designCtorMap.get(arg0);
-      if (x) arg0 = x;
-    }
-
-    if (typeof arg0 === 'string') {
+    if (typeof arg0 === 'string' && arg0) {
       const m = NAMESPACE_PATTERN.exec(arg0);
       if (!m)
         throw new TypeError(`Invalid data type name "${name}"`);
@@ -132,8 +142,19 @@ export class ApiDocument {
       if (dataType)
         return dataType;
       if (!silent)
-        throw new NotFoundError(`No data type mapping found for class "${name}"`);
+        throw new Error(`No data type mapping found for class "${name}"`);
       return;
+    }
+
+    if (typeof arg0 === 'object') {
+      const metadata = arg0[DATATYPE_METADATA];
+      if (metadata && metadata.name) {
+        dataType = this.getDataType(metadata.name, true);
+        if (dataType)
+          return dataType;
+        if (!silent)
+          throw new Error(`No data type mapping found for class "${name}"`);
+      }
     }
 
     /* istanbul ignore next */
@@ -190,6 +211,22 @@ export class ApiDocument {
       return t as SimpleType;
     throw new NotAcceptableError(`Data type "${t.name || t}" is not a SimpleType`);
   }
+
+  /**
+   Returns SimpleType instance by name or Constructor.
+   Throws error undefined if not found or data type is not a SimpleType
+   * @param nameOrCtor
+   */
+  getEnumType(nameOrCtor: string | EnumType.EnumObject | EnumType.EnumArray): EnumType
+  getEnumType(nameOrCtor: string | EnumType.EnumObject | EnumType.EnumArray, silent?: true): EnumType | undefined {
+    const t = this.getDataType(nameOrCtor);
+    if (!t && silent)
+      return;
+    if (t && t.kind === OpraSchema.EnumType.Kind)
+      return t as EnumType;
+    throw new NotAcceptableError(`Data type "${t.name || t}" is not a EnumType`);
+  }
+
 
   /**
    * Returns Resource instance by path. Returns undefined if not found

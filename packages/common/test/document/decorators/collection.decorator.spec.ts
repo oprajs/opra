@@ -1,5 +1,6 @@
 import 'reflect-metadata';
 import { Collection, RESOURCE_METADATA } from '@opra/common';
+import type { CollectionDecorator } from '@opra/common/document/resource/collection-decorator';
 import { Country } from '../../_support/test-api/index.js';
 
 
@@ -9,7 +10,7 @@ describe('Collection decorators', function () {
 
     /* ***************************************************** */
     it('Should define Collection resource metadata', async function () {
-      const opts: Collection.DecoratorOptions = {primaryKey: 'id', description: 'xyz'};
+      const opts: CollectionDecorator.Options = {primaryKey: 'id', description: 'xyz'};
 
       @Collection(Country, opts)
       class CountryResource {
@@ -25,7 +26,7 @@ describe('Collection decorators', function () {
     })
 
     it('Should define custom name', async function () {
-      const opts: Collection.DecoratorOptions = {name: 'Countries'};
+      const opts: CollectionDecorator.Options = {name: 'Countries'};
 
       @Collection(Country, opts)
       class CountryResource {

@@ -1,8 +1,11 @@
-import { StrictOmit } from 'ts-gems';
+import { StrictOmit, Type } from 'ts-gems';
 import { omitUndefined, ResponsiveMap } from '../../helpers/index.js';
 import { OpraSchema } from '../../schema/index.js';
 import { DataType } from '../data-type/data-type.js';
-import type { Resource } from './resource.js';
+import { EnumType } from '../data-type/enum-type.js';
+import { Parameter } from './parameter.js';
+import type { Resource } from './resource';
+import type { ResourceDecorator } from './resource.decorator.js';
 
 /**
  *
@@ -10,7 +13,7 @@ import type { Resource } from './resource.js';
  */
 export class Endpoint {
   description?: string;
-  parameters: ResponsiveMap<EndpointParameter>;
+  parameters: ResponsiveMap<Parameter>;
 
   [key: string]: any;
 
@@ -19,7 +22,9 @@ export class Endpoint {
     this.parameters = new ResponsiveMap();
     if (init.parameters) {
       for (const [n, p] of Object.entries(init.parameters)) {
-        this.parameters.set(n, new EndpointParameter(p));
+        const type = p.type && p.type instanceof DataType
+            ? p.type : resource.document.getDataType(p.type || 'any');
+        this.parameters.set(n, new Parameter({...p, type}));
       }
     }
   }
@@ -39,35 +44,10 @@ export class Endpoint {
 }
 
 export namespace Endpoint {
-  export interface InitArguments extends OpraSchema.Endpoint {
-  }
-
-}
-
-/**
- *
- * @class EndpointParameter
- */
-export class EndpointParameter implements StrictOmit<OpraSchema.Endpoint.Parameter, 'type'> {
-  readonly name: string;
-  readonly type: string | DataType;
-  description?: string;
-  isArray?: boolean;
-  default?: any;
-  required?: boolean;
-  deprecated?: boolean | string;
-
-  constructor(init: OpraSchema.Endpoint.Parameter) {
-    Object.assign(this, init);
-    this.type = this.type || 'any';
-  }
-
-  exportSchema(): OpraSchema.Endpoint.Parameter {
-    return omitUndefined<OpraSchema.Endpoint.Parameter>({
-      type: typeof this.type === 'string' ? this.type : this.type.exportSchema(),
-      description: this.description,
-      isArray: this.isArray
-    })
+  export interface InitArguments extends StrictOmit<ResourceDecorator.EndpointMetadata, 'parameters'> {
+    parameters: Record<string, StrictOmit<Parameter.InitArguments, 'type'> &
+        { type: DataType | string | Type | EnumType.EnumArray | EnumType.EnumObject }
+    >;
   }
 }
 

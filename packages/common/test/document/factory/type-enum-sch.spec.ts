@@ -21,12 +21,8 @@ describe('ApiDocumentFactory - EnumType with schema object', function () {
       kind: 'EnumType',
       description: 'The gender of a person',
       values: {
-        MALE: 'M',
-        FEMALE: 'F'
-      },
-      meanings: {
-        MALE: 'Male person',
-        FEMALE: 'Female person'
+        M: {key: 'MALE', description: 'Male person'},
+        F: {key: 'FEMALE', description: 'Female person'}
       }
     }
     const doc = await ApiDocumentFactory.createDocument({
@@ -42,7 +38,6 @@ describe('ApiDocumentFactory - EnumType with schema object', function () {
     expect(t1.name).toStrictEqual('Gender');
     expect(t1.description).toStrictEqual(GenderEnum.description);
     expect(t1.values).toStrictEqual(GenderEnum.values);
-    expect(t1.meanings).toStrictEqual(GenderEnum.meanings);
   })
 
   it('Should extend EnumType', async () => {
@@ -50,12 +45,8 @@ describe('ApiDocumentFactory - EnumType with schema object', function () {
       kind: 'EnumType',
       description: 'The gender of a person',
       values: {
-        MALE: 'M',
-        FEMALE: 'F'
-      },
-      meanings: {
-        MALE: 'Male person',
-        FEMALE: 'Female person'
+        M: {key: 'MALE', description: 'Male person'},
+        F: {key: 'FEMALE', description: 'Female person'}
       }
     }
     const AdministrativeGender: OpraSchema.EnumType = {
@@ -63,12 +54,8 @@ describe('ApiDocumentFactory - EnumType with schema object', function () {
       base: 'Gender',
       description: 'The administrative gender of a person',
       values: {
-        OTHER: 'O',
-        UNKNOWN: 'U'
-      },
-      meanings: {
-        OTHER: 'Other gender person',
-        UNKNOWN: 'Unknown gender person'
+        O: {key: 'OTHER', description: 'Other gender person'},
+        U: {key: 'UNKNOWN', description: 'Unknown gender person'}
       }
     }
     const doc = await ApiDocumentFactory.createDocument({
@@ -84,8 +71,8 @@ describe('ApiDocumentFactory - EnumType with schema object', function () {
     expect(t1.kind).toStrictEqual(OpraSchema.EnumType.Kind);
     expect(t1.name).toStrictEqual('AdministrativeGender');
     expect(t1.description).toStrictEqual(AdministrativeGender.description);
+    expect(t1.description).toStrictEqual(AdministrativeGender.description);
     expect(t1.values).toStrictEqual({...Gender.values, ...AdministrativeGender.values});
-    expect(t1.meanings).toStrictEqual({...Gender.meanings, ...AdministrativeGender.meanings});
   })
 
 });

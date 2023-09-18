@@ -5,6 +5,7 @@ import { TypeThunkAsync } from '../../types.js';
 import { DECORATOR } from '../constants.js';
 import type { ComplexType } from './complex-type.js';
 import { DataType } from './data-type.js';
+import { EnumType } from './enum-type.js';
 import { FieldClass } from './field-class.js';
 import { FieldDecorator } from './field-decorator.js';
 
@@ -53,12 +54,12 @@ export namespace ApiField {
 
   export interface DecoratorOptions extends Partial<StrictOmit<OpraSchema.Field, 'isArray' | 'type'>> {
     type?: string | OpraSchema.DataType | TypeThunkAsync;
-    enum?: OpraSchema.EnumObject | string[];
+    enum?: EnumType.EnumObject | EnumType.EnumArray;
   }
 
   export interface Metadata extends StrictOmit<OpraSchema.Field, 'type'> {
     type?: string | OpraSchema.DataType | TypeThunkAsync;
-    enum?: OpraSchema.EnumObject;
+    enum?: EnumType.EnumObject | EnumType.EnumArray;
     designType?: Type;
   }
 }

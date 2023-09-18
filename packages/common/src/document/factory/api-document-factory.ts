@@ -1,11 +1,18 @@
 import { Type } from 'ts-gems';
-import { cloneObject, resolveClass, resolveThunk, ResponsiveMap } from '../../helpers/index.js';
+import { cloneObject, resolveThunk, ResponsiveMap } from '../../helpers/index.js';
 import { OpraSchema } from '../../schema/index.js';
 import { ThunkAsync } from '../../types.js';
 import { ApiDocument } from '../api-document.js';
 import { RESOURCE_METADATA } from '../constants.js';
+import { ComplexType } from '../data-type/complex-type.js';
+import { EnumType } from '../data-type/enum-type.js';
 import { Collection } from '../resource/collection.js';
+import { CollectionDecorator } from '../resource/collection-decorator.js';
+import { Parameter } from '../resource/parameter.js';
+import { ResourceDecorator } from '../resource/resource.decorator.js';
+import { SingletonDecorator } from '../resource/singleton.decorator.js';
 import { Singleton } from '../resource/singleton.js';
+import { StorageDecorator } from '../resource/storage.decorator.js';
 import { Storage } from '../resource/storage.js';
 import { TypeDocumentFactory } from './type-document-factory.js';
 
@@ -13,10 +20,17 @@ export namespace ApiDocumentFactory {
   export interface InitArguments extends TypeDocumentFactory.InitArguments {
     resources?: ThunkAsync<Type | object>[] | Record<OpraSchema.Resource.Name, OpraSchema.Resource>;
   }
+
+  export type DataTypeInitializer = TypeDocumentFactory.DataTypeInitializer;
+  export type ResourceInitializer =
+      (Collection.InitArguments & { kind: OpraSchema.Collection.Kind })
+      | (Singleton.InitArguments & { kind: OpraSchema.Singleton.Kind })
+      | (Storage.InitArguments & { kind: OpraSchema.Storage.Kind });
 }
 
+
 export class ApiDocumentFactory extends TypeDocumentFactory {
-  protected resourceQueue = new ResponsiveMap<OpraSchema.Resource>();
+  protected resourceQueue = new ResponsiveMap<any>();
 
   /**
    * Creates ApiDocument instance from given schema object
@@ -38,136 +52,132 @@ export class ApiDocumentFactory extends TypeDocumentFactory {
   protected async createDocument(init: ApiDocumentFactory.InitArguments): Promise<ApiDocument> {
     await super.createDocument(init);
     if (init.resources) {
-      this.curPath.push('resources');
+      this.curPath.push('Resources->');
       if (Array.isArray(init.resources)) {
-        for (const res of init.resources)
-          await this.importResourceClass(res);
+        for (const thunk of init.resources) {
+          const initArguments = await this.importResourceClass(thunk);
+          await this.addResource(initArguments);
+        }
       } else
-        this.resourceQueue.setAll(init.resources);
-      await this.processResourceQueue();
+        for (const [name, schema] of Object.entries(init.resources)) {
+          const initArguments = await this.importResourceSchema(name, schema);
+          await this.addResource(initArguments);
+        }
+      this.document.resources.sort();
       this.curPath.pop();
+      this.document.invalidate();
     }
-    this.document.resources.sort();
     return this.document;
   }
 
-  protected async importResourceClass(thunk: ThunkAsync<Type | object>): Promise<void> {
-    const {document, resourceQueue, cache} = this;
-    const controller = await resolveThunk(thunk);
-    const cached = cache.get(controller);
-    if (cached)
-      return cached;
+  protected async importResourceSchema(name: string, schema: OpraSchema.Resource): Promise<ApiDocumentFactory.ResourceInitializer> {
+    const convertEndpoints = async (source?: Record<string, OpraSchema.Endpoint>) => {
+      if (!source)
+        return;
+      const output: any = {};
+      for (const [kA, oA] of Object.entries(source)) {
+        let parameters: Record<string, Parameter.InitArguments> | undefined;
+        if (oA.parameters) {
+          parameters = {};
+          for (const [kP, oP] of Object.entries(oA.parameters)) {
+            if ((oP as any).enum) {
+              oP.type = EnumType((oP as any).enum, {name: kP + 'Enum'}) as any;
+            }
+            parameters[kP] = {...oP, type: await this.importDataType(oP.type || 'any')};
+          }
+        }
+        output[kA] = {...oA[kA], parameters};
+      }
+      return output;
+    }
+    if (schema.kind === 'Collection') {
+      return {
+        ...schema,
+        kind: schema.kind,
+        name,
+        type: await this.importDataType(schema.type) as ComplexType,
+        actions: await convertEndpoints(schema.actions),
+        operations: await convertEndpoints(schema.operations as any),
+      }
+    }
+    if (schema.kind === 'Singleton') {
+      return {
+        ...schema,
+        kind: schema.kind,
+        name,
+        type: await this.importDataType(schema.type) as ComplexType,
+        actions: await convertEndpoints(schema.actions),
+        operations: await convertEndpoints(schema.operations as any),
+      }
+    }
+    if (schema.kind === 'Storage') {
+      return {
+        ...schema,
+        name,
+        actions: await convertEndpoints(schema.actions),
+        operations: await convertEndpoints(schema.operations as any),
+      }
+    }
+    throw new TypeError('Not implemented yet')
+  }
 
+  protected async importResourceClass(thunk: ThunkAsync<Type | object>): Promise<ApiDocumentFactory.ResourceInitializer> {
+    thunk = await resolveThunk(thunk);
     const ctor = typeof thunk === 'function' ? thunk : Object.getPrototypeOf(thunk).constructor;
-    let metadata = Reflect.getMetadata(RESOURCE_METADATA, ctor);
-    if (!metadata && OpraSchema.isSource(metadata))
+    const metadata: CollectionDecorator.Metadata | SingletonDecorator.Metadata | StorageDecorator.Metadata
+        = Reflect.getMetadata(RESOURCE_METADATA, ctor);
+    if (!metadata && OpraSchema.isResource(metadata))
       throw new TypeError(`Class "${ctor.name}" doesn't have a valid Resource metadata`);
+    const controller = typeof thunk === 'object' ? thunk : undefined;
 
-    // const controller = typeof thunk === 'function' ? new ctor() : thunk;
+    const convertEndpoints = async (source?: Record<string, ResourceDecorator.EndpointMetadata>) => {
+      if (!source)
+        return;
+      const output: any = {};
+      for (const [kA, oA] of Object.entries(source)) {
+        let parameters: Record<string, Parameter.InitArguments> | undefined;
+        if (oA.parameters) {
+          parameters = {};
+          for (const [kP, oP] of Object.entries(oA.parameters)) {
+            if (oP.enum) {
+              oP.type = EnumType(oP.enum, {name: kP + 'Enum'}) as any;
+            }
+            parameters[kP] = {...oP, type: await this.importDataType(oP.type || 'any')};
+          }
+        }
+        output[kA] = {...oA, parameters};
+      }
+      return output;
+    }
 
     // Clone metadata to prevent changing its contents
-    metadata = cloneObject(metadata);
-    const schema: any = cloneObject(metadata);
-    schema.controller = controller;
-    cache.set(thunk, schema);
+    const initArguments = cloneObject(metadata) as unknown as ApiDocumentFactory.ResourceInitializer;
+    initArguments.controller = controller;
+    initArguments.ctor = ctor;
+    if (initArguments.actions)
+      initArguments.actions = await convertEndpoints(initArguments.actions as any);
 
-    if (OpraSchema.isSingleton(schema) || OpraSchema.isCollection(schema)) {
-      if (!document.getDataType(metadata.type, true) && (typeof metadata.type === 'function')) {
-        await this.importTypeClass(metadata.type);
-        await this.processTypes();
-        const dataTypeCtor = await resolveClass(metadata.type);
-        const dataType = document.getComplexType(dataTypeCtor);
-        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-        schema.type = dataType.name!;
-      }
-      // Check if data type exists
-      document.getComplexType(schema.type);
+    if (initArguments.kind === 'Collection' || initArguments.kind === 'Singleton') {
+      const dataType = await this.importDataType((metadata as any).type);
+      if (!dataType)
+        throw new TypeError(`Unable to determine data type of "${initArguments.name}" resource`);
+      if (!(dataType instanceof ComplexType))
+        throw new TypeError(`Data type of "${initArguments.name}" is not a ComplexType`);
+      initArguments.type = dataType;
+      if (initArguments.operations)
+        initArguments.operations = await convertEndpoints(initArguments.operations as any);
     }
-
-    if (OpraSchema.isSingleton(schema))
-      await this.extractSingletonSchema(schema, ctor, metadata, controller);
-    if (OpraSchema.isCollection(schema))
-      await this.extractCollectionSchema(schema, ctor, metadata, controller);
-
-    resourceQueue.set(metadata.name, schema);
+    return initArguments;
   }
 
-  protected async extractSingletonSchema(
-      // eslint-disable-next-line @typescript-eslint/no-unused-vars
-      target: OpraSchema.Singleton, ctor: Type, metadata: Singleton.Metadata, controller: object | Type
-  ): Promise<void> {
-    // Do nothing. This method is used by external modules for extending the factory
-  }
-
-  protected async extractCollectionSchema(
-      // eslint-disable-next-line @typescript-eslint/no-unused-vars
-      target: OpraSchema.Collection, ctor: Type, metadata: Collection.Metadata, controller: object | Type
-  ): Promise<void> {
-    // Do nothing. This method is used by external modules for extending the factory
-  }
-
-  protected async processResourceQueue() {
-    const {document, resourceQueue} = this;
-    const sourceNames = Array.from(resourceQueue.keys());
-    for (const name of sourceNames) {
-      const schema = resourceQueue.get(name);
-      if (!schema)
-        continue;
-      try {
-        if (OpraSchema.isCollection(schema)) {
-          const resource = await this.createCollectionResource(name, schema);
-          document.resources.set(name, resource);
-          continue;
-        }
-        if (OpraSchema.isSingleton(schema)) {
-          const resource = await this.createSingletonResource(name, schema);
-          document.resources.set(name, resource);
-          continue;
-        }
-        if (OpraSchema.isStorage(schema)) {
-          const resource = await this.createStorageResource(name, schema);
-          document.resources.set(name, resource);
-          continue;
-        }
-
-      } catch (e: any) {
-        e.message = `Error in Resource schema (${name}): ` + e.message;
-        throw e;
-      }
-
-      throw new TypeError(`Invalid Resource schema: ${JSON.stringify(schema).substring(0, 20)}...`);
+  protected async addResource(initArguments: ApiDocumentFactory.ResourceInitializer): Promise<void> {
+    if (initArguments.kind === 'Collection') {
+      this.document.resources.set(initArguments.name, new Collection(this.document, initArguments));
+    } else if (initArguments.kind === 'Singleton') {
+      this.document.resources.set(initArguments.name, new Singleton(this.document, initArguments));
+    } else if (initArguments.kind === 'Storage') {
+      this.document.resources.set(initArguments.name, new Storage(this.document, initArguments));
     }
-  }
-
-  protected async createCollectionResource(name: string, schema: OpraSchema.Collection): Promise<Collection> {
-    const {document} = this;
-    const dataType = document.getComplexType(schema.type);
-    const initArgs: Collection.InitArguments = {
-      ...schema,
-      name,
-      type: dataType
-    }
-    return new Collection(document, initArgs);
-  }
-
-  protected async createSingletonResource(name: string, schema: OpraSchema.Singleton): Promise<Singleton> {
-    const {document} = this;
-    const dataType = document.getComplexType(schema.type);
-    const initArgs: Singleton.InitArguments = {
-      ...schema,
-      name,
-      type: dataType
-    }
-    return new Singleton(document, initArgs);
-  }
-
-  protected async createStorageResource(name: string, schema: OpraSchema.Storage): Promise<Storage> {
-    const {document} = this;
-    const initArgs: Storage.InitArguments = {
-      ...schema,
-      name
-    }
-    return new Storage(document, initArgs);
   }
 
 }

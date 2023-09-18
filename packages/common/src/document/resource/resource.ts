@@ -5,13 +5,15 @@ import { OpraSchema } from '../../schema/index.js';
 import type { ApiDocument } from '../api-document.js';
 import { colorFgMagenta, colorFgYellow, colorReset, nodeInspectCustom } from '../utils/inspect.util.js';
 import { Endpoint } from './endpoint.js';
+import type { ResourceDecorator } from './resource.decorator.js';
 
 export abstract class Resource {
   readonly document: ApiDocument;
   abstract readonly kind: OpraSchema.Resource.Kind;
   readonly name: string;
   description?: string;
-  controller?: object | Type;
+  controller?: object;
+  ctor?: Type;
   operations = new ResponsiveMap<Endpoint>();
   actions = new ResponsiveMap<Endpoint>();
 
@@ -23,13 +25,16 @@ export abstract class Resource {
     this.name = init.name;
     this.description = init.description;
     this.controller = init.controller;
+    if (this.controller) {
+      this.ctor = Object.getPrototypeOf(this.controller).constructor;
+    } else this.ctor = init.ctor;
     if (init.operations) {
-      for (const [name, meta] of Object.entries<OpraSchema.Endpoint>(init.operations)) {
+      for (const [name, meta] of Object.entries(init.operations)) {
         this.operations.set(name, new Endpoint(this, name, meta));
       }
     }
     if (init.actions) {
-      for (const [name, meta] of Object.entries<OpraSchema.Endpoint>(init.actions)) {
+      for (const [name, meta] of Object.entries(init.actions)) {
         this.actions.set(name, new Endpoint(this, name, meta));
       }
     }
@@ -70,17 +75,11 @@ export abstract class Resource {
 }
 
 export namespace Resource {
-  export interface InitArguments extends StrictOmit<OpraSchema.ResourceBase, 'kind'> {
+  export interface InitArguments extends StrictOmit<ResourceDecorator.Metadata, 'kind' | 'operations' | 'actions'> {
     name: string;
-    controller?: object | Type;
+    actions?: Record<string, Endpoint.InitArguments>;
+    operations?: Record<string, Endpoint.InitArguments>;
+    controller?: object;
+    ctor?: Type;
   }
-
-  export interface DecoratorOptions extends Partial<Pick<InitArguments, 'name' | 'description'>> {
-  }
-
-  export interface Metadata extends OpraSchema.ResourceBase {
-    name: string;
-  }
-
-
 }

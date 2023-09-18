@@ -1,7 +1,7 @@
 import omit from 'lodash.omit';
 import { OpraSchema } from '../../schema/index.js';
 import { DATATYPE_METADATA, TYPENAME_PATTERN } from '../constants.js';
-import type { SimpleType } from '../data-type/simple-type';
+import type { SimpleType } from './simple-type.js';
 
 export function SimpleTypeDecorator(options?: SimpleType.DecoratorOptions) {
   return function (target: Function) {

@@ -30,7 +30,7 @@ export class NestExplorer {
       return !!(wrapper.instance
           && typeof wrapper.instance === 'object'
           && wrapper.instance.constructor
-          && OpraSchema.isSource(Reflect.getMetadata(RESOURCE_METADATA, wrapper.instance.constructor)))
+          && OpraSchema.isResource(Reflect.getMetadata(RESOURCE_METADATA, wrapper.instance.constructor)))
     })
   }
 

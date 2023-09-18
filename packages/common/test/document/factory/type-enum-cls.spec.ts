@@ -24,58 +24,58 @@ describe('ApiDocumentFactory - EnumType with decorated classes', function () {
       FEMALE = 'F'
     }
 
-    const GenderOptions: EnumType.Options<typeof Gender> = {
+    EnumType(Gender, {
       name: 'Gender',
       description: 'The gender of a person',
-      meanings: {
+      valueDescriptions: {
         MALE: 'Male person',
         FEMALE: 'Female person'
       }
-    }
-
-    EnumType(Gender, GenderOptions);
+    });
 
     const doc = await ApiDocumentFactory.createDocument({
       ...baseArgs,
       types: [Gender]
     })
     expect(doc).toBeDefined();
-    const t1 = doc.types.get('gender') as EnumType;
+    const t1 = doc.getEnumType('gender');
     expect(t1).toBeDefined();
     expect(t1.kind).toStrictEqual(OpraSchema.EnumType.Kind);
     expect(t1.name).toStrictEqual('Gender');
-    expect(t1.description).toStrictEqual(GenderOptions.description);
-    expect(t1.values).toStrictEqual(Gender);
-    expect(t1.meanings).toStrictEqual(GenderOptions.meanings);
+    expect(t1.description).toStrictEqual('The gender of a person');
+    expect(t1.values).toStrictEqual({
+      M: {key: 'MALE', description: 'Male person'},
+      F: {key: 'FEMALE', description: 'Female person'},
+    });
   })
 
   it('Should add EnumType from array', async () => {
 
     const Gender = ['M', 'F'] as const;
 
-    const GenderOptions: EnumType.Options<typeof Gender> = {
+    EnumType(Gender, {
       name: 'Gender',
       description: 'The gender of a person',
-      meanings: {
+      valueDescriptions: {
         M: 'Male person',
         F: 'Female person'
       }
-    }
-
-    EnumType(Gender, GenderOptions)
+    })
 
     const doc = await ApiDocumentFactory.createDocument({
       ...baseArgs,
       types: [Gender]
     })
     expect(doc).toBeDefined();
-    const t1 = doc.types.get('gender') as EnumType;
+    const t1 = doc.getEnumType('gender');
     expect(t1).toBeDefined();
     expect(t1.kind).toStrictEqual(OpraSchema.EnumType.Kind);
     expect(t1.name).toStrictEqual('Gender');
-    expect(t1.description).toStrictEqual(GenderOptions.description);
-    expect(t1.values).toStrictEqual({M: 'M', F: 'F'});
-    expect(t1.meanings).toStrictEqual(GenderOptions.meanings);
+    expect(t1.description).toStrictEqual('The gender of a person');
+    expect(t1.values).toStrictEqual({
+      M: {description: 'Male person'},
+      F: {description: 'Female person'},
+    });
   })
 
   it('Should extend EnumType', async () => {
@@ -85,54 +85,56 @@ describe('ApiDocumentFactory - EnumType with decorated classes', function () {
       FEMALE = 'F'
     }
 
-    const GenderOptions: EnumType.Options<typeof Gender> = {
+    EnumType(Gender, {
       name: 'Gender',
       description: 'The gender of a person',
-      meanings: {
+      valueDescriptions: {
         MALE: 'Male person',
         FEMALE: 'Female person'
       }
-    }
-
-    EnumType(Gender, GenderOptions);
+    });
 
     enum AdministrativeGender {
       OTHER = 'O',
       UNKNOWN = 'U'
     }
 
-    const AdministrativeGenderOptions: EnumType.Options<typeof AdministrativeGender> = {
+    EnumType(AdministrativeGender, {
       name: 'AdministrativeGender',
       base: Gender,
       description: 'The gender of a person',
-      meanings: {
-        OTHER: 'Other gender person',
-        UNKNOWN: 'Unknown gender person'
+      valueDescriptions: {
+        OTHER: 'Other gender',
+        UNKNOWN: 'Unknown gender'
       }
-    }
-
-    EnumType(AdministrativeGender, AdministrativeGenderOptions);
+    });
 
     const doc = await ApiDocumentFactory.createDocument({
       ...baseArgs,
       types: [AdministrativeGender]
     })
     expect(doc).toBeDefined();
-    const t1 = doc.types.get('gender') as EnumType;
+    const t1 = doc.getEnumType('gender');
     expect(t1).toBeDefined();
     expect(t1.kind).toStrictEqual(OpraSchema.EnumType.Kind);
     expect(t1.name).toStrictEqual('Gender');
-    expect(t1.description).toStrictEqual(GenderOptions.description);
-    expect(t1.values).toStrictEqual(Gender);
-    expect(t1.meanings).toStrictEqual(GenderOptions.meanings);
+    expect(t1.description).toStrictEqual('The gender of a person');
+    expect(t1.values).toStrictEqual({
+      M: {key: 'MALE', description: 'Male person'},
+      F: {key: 'FEMALE', description: 'Female person'},
+    });
 
-    const t2 = doc.types.get('administrativeGender') as EnumType;
+    const t2 = doc.getEnumType('administrativeGender');
     expect(t2).toBeDefined();
     expect(t2.kind).toStrictEqual(OpraSchema.EnumType.Kind);
     expect(t2.name).toStrictEqual('AdministrativeGender');
-    expect(t2.description).toStrictEqual(AdministrativeGenderOptions.description);
-    expect(t2.values).toStrictEqual({...Gender, ...AdministrativeGender});
-    expect(t2.meanings).toStrictEqual({...GenderOptions.meanings, ...AdministrativeGenderOptions.meanings});
+    expect(t2.description).toStrictEqual('The gender of a person');
+    expect(t2.values).toStrictEqual({
+      M: {key: 'MALE', description: 'Male person'},
+      F: {key: 'FEMALE', description: 'Female person'},
+      O: {key: 'OTHER', description: 'Other gender'},
+      U: {key: 'UNKNOWN', description: 'Unknown gender'},
+    });
   })
 
 })

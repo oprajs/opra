@@ -5,10 +5,12 @@ import { ResponsiveMap } from '../../helpers/index.js';
 import { OpraSchema } from '../../schema/index.js';
 import type { ApiDocument } from '../api-document.js';
 import { DECORATOR } from '../constants.js';
-import { ComplexTypeDecorator } from '../decorators/complex-type.decorator.js';
+import { ComplexTypeDecorator } from './complex-type.decorator.js';
 import { ComplexTypeClass } from './complex-type-class.js';
 import { DataType } from './data-type.js';
 import { ApiField } from './field.js';
+import type { MappedType } from './mapped-type.js';
+import type { UnionType } from './union-type.js';
 
 /**
  * Callable class pattern for ComplexType
@@ -53,7 +55,8 @@ ComplexType[DECORATOR] = ComplexTypeDecorator;
 export namespace ComplexType {
   export interface InitArguments extends DataType.InitArguments,
       Pick<OpraSchema.ComplexType, 'ctor' | 'abstract' | 'additionalFields'> {
-    base?: ComplexType;
+    base?: ComplexType | MappedType | UnionType;
+    fields?: Record<string, ApiField.InitArguments>;
   }
 
   export interface OwnProperties extends Readonly<StrictOmit<OpraSchema.ComplexType, 'fields'>> {

@@ -34,7 +34,7 @@ export abstract class DataType {
     return omitUndefined({
       kind: this.kind,
       description: this.description
-    });
+    }) as OpraSchema.DataType;
   }
 
   extendsFrom(type: string | Type | DataType): any {

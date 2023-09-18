@@ -4,13 +4,13 @@ import {
   ApiDocumentFactory,
   Collection,
   ComplexType,
-  DataType,
+  DataType, EnumType,
   OpraSchema,
   SimpleType, Singleton,
 } from '@opra/common';
 import {
   CountriesResource,
-  Country, CustomersResource, MyProfileResource
+  Country, CustomersResource, GenderEnum, MyProfileResource
 } from '../_support/test-api/index.js';
 
 describe('ApiDocument', function () {
@@ -110,6 +110,22 @@ describe('ApiDocument', function () {
     const doc = await ApiDocumentFactory.createDocument(baseArgs);
     expect(doc).toBeDefined();
     expect(() => doc.getComplexType(String)).toThrow('is not');
+  })
+
+  it('Should getEnumType(name) return DataType instance', async () => {
+    const doc = await ApiDocumentFactory.createDocument(baseArgs);
+    expect(doc).toBeDefined();
+    expect(doc.getEnumType('GenderEnum')).toBeInstanceOf(EnumType);
+    expect(doc.getEnumType('GenderEnum').name).toStrictEqual('GenderEnum');
+    expect(doc.getEnumType('GenderEnum').kind).toStrictEqual('EnumType');
+  })
+
+  it('Should getEnumType(Obj) return DataType instance', async () => {
+    const doc = await ApiDocumentFactory.createDocument(baseArgs);
+    expect(doc).toBeDefined();
+    expect(doc.getEnumType(GenderEnum)).toBeInstanceOf(EnumType);
+    expect(doc.getEnumType(GenderEnum).name).toStrictEqual('GenderEnum');
+    expect(doc.getEnumType(GenderEnum).kind).toStrictEqual('EnumType');
   })
 
   it('Should include built-in types by default', async () => {

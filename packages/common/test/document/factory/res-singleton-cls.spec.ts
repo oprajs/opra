@@ -36,7 +36,7 @@ describe('ApiDocumentFactory - Singleton resource with decorated classes', funct
     expect(t.name).toStrictEqual('MyCountry');
     expect(t.description).toStrictEqual('Country singleton');
     expect(t.type.name).toEqual('Country');
-    expect(t.controller).toBe(MyCountryResource);
+    expect(t.ctor).toBe(MyCountryResource);
   })
 
 
@@ -57,7 +57,7 @@ describe('ApiDocumentFactory - Singleton resource with decorated classes', funct
     })
     expect(doc).toBeDefined();
     const t = doc.getSingleton('MyCountry');
-    expect(t.controller).toBe(MyCountryResource);
+    expect(t.ctor).toBe(MyCountryResource);
     expect(t.getOperation('create')).toBeDefined();
   })
 
@@ -78,7 +78,7 @@ describe('ApiDocumentFactory - Singleton resource with decorated classes', funct
     })
     expect(doc).toBeDefined();
     const t = doc.getSingleton('MyCountry');
-    expect(t.controller).toBe(MyCountryResource);
+    expect(t.ctor).toBe(MyCountryResource);
     expect(t.getOperation('get')).toBeDefined();
   })
 
@@ -99,7 +99,7 @@ describe('ApiDocumentFactory - Singleton resource with decorated classes', funct
     })
     expect(doc).toBeDefined();
     const t = doc.getSingleton('MyCountry');
-    expect(t.controller).toBe(MyCountryResource);
+    expect(t.ctor).toBe(MyCountryResource);
     expect(t.getOperation('update')).toBeDefined();
   })
 
@@ -120,7 +120,7 @@ describe('ApiDocumentFactory - Singleton resource with decorated classes', funct
     })
     expect(doc).toBeDefined();
     const t = doc.getSingleton('MyCountry');
-    expect(t.controller).toBe(MyCountryResource);
+    expect(t.ctor).toBe(MyCountryResource);
     expect(t.getOperation('delete')).toBeDefined();
   })
 

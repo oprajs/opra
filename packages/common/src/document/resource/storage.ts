@@ -1,19 +1,18 @@
 import merge from 'putil-merge';
-import { StrictOmit } from 'ts-gems';
-import { OpraSchema } from '../../schema/index.js';
+import { Combine } from 'ts-gems';
 import type { ApiDocument } from '../api-document.js';
 import { DECORATOR } from '../constants.js';
-import { StorageDecorator } from '../decorators/storage.decorator.js';
-import type { Resource } from './resource.js';
+import { Resource } from './resource.js';
+import { StorageDecorator } from './storage.decorator.js';
 import { StorageClass } from './storage-class.js'
+
+export interface Storage extends StorageClass {
+}
 
 export interface StorageConstructor extends StorageDecorator {
   prototype: StorageClass;
 
   new(document: ApiDocument, init: Storage.InitArguments): StorageClass;
-}
-
-export interface Storage extends StorageClass {
 }
 
 /**
@@ -39,15 +38,8 @@ Storage[DECORATOR] = StorageDecorator;
 
 
 export namespace Storage {
-  export interface InitArguments extends StrictOmit<Resource.InitArguments, 'operations'>,
-      StrictOmit<OpraSchema.Storage, 'kind'> {
-  }
 
-  export interface DecoratorOptions extends Resource.DecoratorOptions {
-
-  }
-
-  export interface Metadata extends StrictOmit<Resource.Metadata, 'kind' | 'operations'>, OpraSchema.Storage {
+  export interface InitArguments extends Combine<Resource.InitArguments, StorageDecorator.Metadata> {
   }
 
   // Need for augmentation

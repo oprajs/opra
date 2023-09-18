@@ -3,7 +3,7 @@ import '@sqb/postgres';
 import '@opra/sqb';
 import cors from 'cors';
 import express from 'express';
-import { DocumentFactory } from '@opra/common';
+import { ApiDocumentFactory } from '@opra/common';
 import { ExpressAdapter } from '@opra/core';
 import { SqbClient } from '@sqb/connect';
 import { createDatabase } from './db-schema.js';
@@ -22,7 +22,7 @@ async function run() {
   try {
     await dbClient.test();
     await createDatabase(dbClient, schema);
-    const api = await DocumentFactory.createDocument({
+    const api = await ApiDocumentFactory.createDocument({
       version: '1.0',
       info: {
         title: 'TestApi',

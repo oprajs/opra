@@ -1,7 +1,6 @@
 import path from 'path';
 import { pascalCase } from 'putil-varhelpers';
 import { AsyncEventEmitter } from 'strict-typed-events';
-import { Type } from 'ts-gems';
 import { ApiDocument, getStackFileName, I18n, Resource } from '@opra/common';
 import { ExecutionContext } from './execution-context.js';
 import { Interceptor } from './interfaces/interceptor.interface.js';
@@ -94,15 +93,14 @@ export abstract class PlatformAdapterHost extends AsyncEventEmitter implements P
         ? resource : this.api.getResource(resource);
     let controller = this._controllers.get(resource);
     if (!controller) {
-      if (resource.controller) {
-        controller = typeof resource.controller === 'function' ?
-            new (resource.controller as Type)()
-            : resource.controller;
+      controller = resource.controller;
+      if (!controller && resource.ctor) {
+        controller = new resource.ctor();
         // Initialize controller
         if (typeof controller.onInit === 'function')
           await controller.onInit.call(controller)
-        this._controllers.set(resource, controller);
       }
+      this._controllers.set(resource, controller);
     }
     return controller;
   }

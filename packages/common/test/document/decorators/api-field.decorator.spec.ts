@@ -54,25 +54,5 @@ describe('ApiField() decorator', function () {
 
   })
 
-  it('Should define enum with array', async () => {
-    class Animal {
-      @ApiField({
-        description: 'description',
-        enum: ['A', 'B']
-      })
-      id: number;
-    }
-
-    const metadata = Reflect.getMetadata(DATATYPE_METADATA, Animal)
-    expect(metadata).toBeDefined();
-    expect(metadata.fields).toMatchObject({
-      id: {
-        designType: Number,
-        description: 'description',
-        enum: {A: 'A', B: 'B'}
-      }
-    });
-  })
-
 });
 

@@ -3,7 +3,7 @@ import { ApiDocument, Storage } from '@opra/common';
 import { HttpAdapter, HttpServerRequest, HttpServerResponse, MultipartItem } from '@opra/core';
 import { ExecutionContextHost } from '@opra/core/execution-context.host';
 import { StorageRequestHandler } from '@opra/core/http/request-handlers/storage-request-handler';
-import { createTestApi } from '../_support/test-app/index';
+import { createTestApi } from '../_support/test-app/index.js';
 
 describe('parse Storage Request', function () {
 
@@ -42,7 +42,7 @@ describe('parse Storage Request', function () {
       try {
         expect(request).toBeDefined();
         const resource = api.getStorage('Files');
-        expect(request.resource).toStrictEqual(resource);
+        expect(request.resource).toEqual(resource);
         expect(request.operation).toStrictEqual('post');
         const items = await request.parts.getAll();
         expect(items).toBeDefined();
@@ -104,7 +104,7 @@ describe('parse Storage Request', function () {
       try {
         expect(request).toBeDefined();
         const resource = api.getStorage('Files');
-        expect(request.resource).toStrictEqual(resource);
+        expect(request.resource).toEqual(resource);
         expect(request.operation).toStrictEqual('post');
         let item: MultipartItem | undefined;
         let i = 0;

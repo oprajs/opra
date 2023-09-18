@@ -10,7 +10,7 @@ export enum GenderEnum {
 EnumType(GenderEnum, {
   name: 'GenderEnum',
   description: 'The gender of a person',
-  meanings: {
+  valueDescriptions: {
     MALE: 'Male',
     FEMALE: 'Female',
     OTHER: 'Other',

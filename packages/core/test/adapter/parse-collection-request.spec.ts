@@ -1,7 +1,7 @@
 import { ApiDocument, Collection } from '@opra/common';
 import { HttpAdapter, HttpServerRequest } from '@opra/core';
 import { EntityRequestHandler } from '@opra/core/http/request-handlers/entity-request-handler';
-import { createTestApi } from '../_support/test-app/index';
+import { createTestApi } from '../_support/test-app/index.js';
 
 describe('Parse Collection requests', function () {
 
@@ -25,7 +25,7 @@ describe('Parse Collection requests', function () {
           })) as Collection.Get.Request;
       expect(request).toBeDefined();
       const resource = api.getCollection('Customers');
-      expect(request.resource).toStrictEqual(resource);
+      expect(request.resource).toEqual(resource);
       expect(request.operation).toStrictEqual('get');
       expect(request.key).toStrictEqual(1);
       expect(request.params.pick).toStrictEqual(['_id']);
@@ -146,7 +146,7 @@ describe('Parse Collection requests', function () {
       })) as Collection.Create.Request;
       expect(request).toBeDefined();
       const resource = api.getCollection('Customers');
-      expect(request?.resource).toStrictEqual(resource);
+      expect(request?.resource).toEqual(resource);
       expect(request?.operation).toStrictEqual('create');
       expect(request?.data).toEqual({_id: 1});
       expect(request?.params.pick).toStrictEqual(['_id']);
@@ -275,7 +275,7 @@ describe('Parse Collection requests', function () {
       })) as Collection.Update.Request;
       expect(request).toBeDefined();
       const resource = api.getCollection('Customers');
-      expect(request?.resource).toStrictEqual(resource);
+      expect(request?.resource).toEqual(resource);
       expect(request?.operation).toStrictEqual('update');
       expect(request?.key).toStrictEqual(1);
       expect(request?.data).toEqual({_id: 1});
@@ -403,7 +403,7 @@ describe('Parse Collection requests', function () {
       })) as Collection.UpdateMany.Request;
       expect(request).toBeDefined();
       const resource = api.getCollection('Customers');
-      expect(request?.resource).toStrictEqual(resource);
+      expect(request?.resource).toEqual(resource);
       expect(request?.operation).toStrictEqual('updateMany');
       expect(request?.data).toEqual({_id: 1});
       expect(() => request?.switchToHttp()).not.toThrow();
@@ -447,7 +447,7 @@ describe('Parse Collection requests', function () {
       })) as Collection.Delete.Request;
       expect(request).toBeDefined();
       const resource = api.getCollection('Customers');
-      expect(request?.resource).toStrictEqual(resource);
+      expect(request?.resource).toEqual(resource);
       expect(request?.operation).toStrictEqual('delete');
       expect(request?.key).toStrictEqual(1);
       expect(() => request?.switchToHttp()).not.toThrow();
@@ -467,7 +467,7 @@ describe('Parse Collection requests', function () {
       })) as Collection.DeleteMany.Request;
       expect(request).toBeDefined();
       const resource = api.getCollection('Customers');
-      expect(request?.resource).toStrictEqual(resource);
+      expect(request?.resource).toEqual(resource);
       expect(request?.operation).toStrictEqual('deleteMany');
       expect(request?.params.filter).toBeDefined();
       expect(() => request?.switchToHttp()).not.toThrow();
@@ -508,7 +508,7 @@ describe('Parse Collection requests', function () {
       })) as Collection.FindMany.Request;
       expect(request).toBeDefined();
       const resource = api.getCollection('Customers');
-      expect(request?.resource).toStrictEqual(resource);
+      expect(request?.resource).toEqual(resource);
       expect(request?.operation).toStrictEqual('findMany');
       expect(request?.params.skip).toStrictEqual(1);
       expect(request?.params.count).toStrictEqual(false);
