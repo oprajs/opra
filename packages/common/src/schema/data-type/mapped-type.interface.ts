@@ -1,8 +1,9 @@
-import type { DataType, DataTypeBase } from './data-type.interface.js';
+import { StrictOmit } from 'ts-gems';
+import { ComplexType } from './complex-type.interface.js';
 import { Field } from './field.interface.js';
 
-export interface MappedType extends DataTypeBase<MappedType.Kind> {
-  type: DataType.Name | DataType;
+export interface MappedType extends StrictOmit<ComplexType, 'kind'> {
+  kind: MappedType.Kind;
   omit?: Field.Name[];
   pick?: Field.Name[];
 }

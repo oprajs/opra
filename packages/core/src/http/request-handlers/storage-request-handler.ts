@@ -11,8 +11,6 @@ import { EndpointContext } from '../../endpoint-context.js';
 import type { ExecutionContext } from '../../execution-context.js';
 import { RequestHost } from '../../request.host.js';
 import { Request } from '../../request.js';
-import { ResponseHost } from '../../response.host.js';
-import { Response } from '../../response.js';
 import { MultipartIterator } from '../helpers/multipart-helper.js';
 import type { HttpAdapterBase } from '../http-adapter-base.js';
 import { HttpServerRequest } from '../http-server-request.js';
@@ -35,22 +33,8 @@ export class StorageRequestHandler extends RequestHandlerBase {
     this._uploadDir = options?.uploadDir || os.tmpdir();
   }
 
-  async processRequest(executionContext: ExecutionContext): Promise<void> {
-    const {incoming, outgoing} = executionContext.switchToHttp();
-    // Parse incoming message and create Request object
-    const request = await this.parseRequest(executionContext, incoming);
-    if (!request) return;
-    const response: Response = new ResponseHost({http: outgoing});
-    const context = EndpointContext.from(executionContext, request, response);
-    await this.callEndpoint(context);
-    if (response.errors.length) {
-      context.errors.push(...response.errors);
-      return;
-    }
-    await this.sendResponse(context);
-  }
-
-  async parseRequest(executionContext: ExecutionContext, incoming: HttpServerRequest): Promise<Request | undefined> {
+  async parseRequest(executionContext: ExecutionContext): Promise<Request | undefined> {
+    const {incoming} = executionContext.switchToHttp();
     const contentId = incoming.headers['content-id'] as string;
     const p = incoming.parsedUrl.path[0];
     const resource = this.adapter.api.getResource(p.resource);
@@ -116,20 +100,6 @@ export class StorageRequestHandler extends RequestHandlerBase {
       if (e instanceof OpraException)
         throw e;
       throw new BadRequestError(e);
-    }
-  }
-
-  async callEndpoint(context: EndpointContext): Promise<void> {
-    const request = context.request as RequestHost;
-    const {response} = context;
-    // Call endpoint handler method
-    let value: any;
-    try {
-      value = await request.controller[request.operation].call(request.controller, context);
-      if (response.value == null)
-        response.value = value;
-    } catch (error) {
-      response.errors.push(error);
     }
   }
 

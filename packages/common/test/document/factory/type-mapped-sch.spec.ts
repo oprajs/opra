@@ -31,7 +31,7 @@ describe('ApiDocumentFactory - MappedType with schema object', function () {
       types: {
         mapped1: {
           kind: 'MappedType',
-          type: 'type1',
+          base: 'type1',
           pick: ['id', 'name']
         },
         type1
@@ -42,8 +42,8 @@ describe('ApiDocumentFactory - MappedType with schema object', function () {
     expect(t1).toBeDefined();
     expect(t1.kind).toStrictEqual(OpraSchema.MappedType.Kind);
     expect(t1.name).toStrictEqual('mapped1');
-    expect(t1.type).toBeDefined();
-    expect(t1.type.name).toStrictEqual('type1');
+    expect(t1.base).toBeDefined();
+    expect(t1.base.name).toStrictEqual('type1');
     expect(t1.pick).toStrictEqual(['id', 'name']);
     expect(Array.from(t1.fields.keys())).toStrictEqual(['id', 'name']);
   })
@@ -63,7 +63,7 @@ describe('ApiDocumentFactory - MappedType with schema object', function () {
       types: {
         mapped1: {
           kind: 'MappedType',
-          type: 'type1',
+          base: 'type1',
           omit: ['gender', 'age']
         },
         type1
@@ -74,8 +74,8 @@ describe('ApiDocumentFactory - MappedType with schema object', function () {
     expect(t1).toBeDefined();
     expect(t1.kind).toStrictEqual(OpraSchema.MappedType.Kind);
     expect(t1.name).toStrictEqual('mapped1');
-    expect(t1.type).toBeDefined();
-    expect(t1.type.name).toStrictEqual('type1');
+    expect(t1.base).toBeDefined();
+    expect(t1.base.name).toStrictEqual('type1');
     expect(t1.omit).toStrictEqual(['gender', 'age']);
     expect(Array.from(t1.fields.keys())).toStrictEqual(['id', 'name']);
   })

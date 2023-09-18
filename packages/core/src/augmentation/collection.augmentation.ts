@@ -9,7 +9,6 @@ declare module "@opra/common" {
 
     namespace Action {
       interface Context<TSession extends {} = {}> extends Resource.Context<TSession> {
-        key?: any;
       }
     }
 

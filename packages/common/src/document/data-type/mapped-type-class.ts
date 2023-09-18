@@ -1,20 +1,17 @@
 import { Writable } from 'ts-gems';
-import * as vg from 'valgen';
-import { omitUndefined, ResponsiveMap } from '../../helpers/index.js';
+import { omitUndefined } from '../../helpers/index.js';
 import type { Field } from '../../schema/data-type/field.interface.js';
 import { OpraSchema } from '../../schema/index.js';
 import type { ApiDocument } from '../api-document.js';
 import type { ComplexType } from './complex-type.js';
-import { DataType } from './data-type.js';
-import type { ApiField } from './field.js';
+import { ComplexTypeClass } from './complex-type-class.js';
 import type { MappedType } from './mapped-type.js';
+import type { UnionType } from './union-type.js';
 
-export class MappedTypeClass extends DataType {
-  readonly kind = OpraSchema.MappedType.Kind;
+export class MappedTypeClass extends ComplexTypeClass {
+  override readonly kind: OpraSchema.DataType.Kind = OpraSchema.MappedType.Kind;
   readonly own: MappedType.OwnProperties;
-  readonly type: ComplexType;
-  readonly additionalFields?: boolean | vg.Validator | 'error';
-  readonly fields: ResponsiveMap<ApiField>;
+  readonly base: ComplexType | UnionType | MappedType;
   readonly omit?: Field.Name[];
   readonly pick?: Field.Name[];
 
@@ -24,22 +21,20 @@ export class MappedTypeClass extends DataType {
     own.pick = init.pick;
     own.omit = init.omit;
     this.kind = OpraSchema.MappedType.Kind;
-    this.type = init.type;
     this.pick = own.pick;
     this.omit = own.omit;
-    this.fields = new ResponsiveMap();
-    this.additionalFields = this.type.additionalFields;
     const isInheritedPredicate = getIsInheritedPredicateFn(init.pick, init.omit);
-    for (const [elemName, elem] of this.type.fields.entries()) {
-      if (isInheritedPredicate(elemName))
-        this.fields.set(elemName, elem);
+    for (const fieldName of this.fields.keys()) {
+      if (!isInheritedPredicate(fieldName)) {
+        this.fields.delete(fieldName);
+      }
     }
   }
 
-  exportSchema(): OpraSchema.MappedType {
-    const out = DataType.prototype.exportSchema.call(this) as OpraSchema.MappedType;
+  // @ts-ignore
+  override exportSchema(): OpraSchema.MappedType {
+    const out = super.exportSchema() as unknown as OpraSchema.MappedType;
     Object.assign(out, omitUndefined({
-      type: this.type.name ? this.type.name : this.type.exportSchema(),
       pick: this.own.pick,
       omit: this.own.omit,
     }));

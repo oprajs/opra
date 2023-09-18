@@ -72,6 +72,11 @@ export class CustomersResource implements ICollection<Customer> {
     return customers;
   }
 
+  @Collection.Action()
+  async sendMessage(context: Collection.Action.Context) {
+    return {sent: 1}
+  }
+
   @Collection.OnInit()
   async onInit() {
     this.initialized = true;

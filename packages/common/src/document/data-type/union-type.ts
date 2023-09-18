@@ -6,9 +6,8 @@ import { OpraSchema } from '../../schema/index.js';
 import type { ApiDocument } from '../api-document.js';
 import { DATATYPE_METADATA } from '../constants.js';
 import { ComplexType } from './complex-type.js';
-import { DataType } from './data-type.js';
 import { MappedType } from './mapped-type.js';
-import {UnionTypeClass} from './union-type-class.js';
+import { UnionTypeClass } from './union-type-class.js';
 
 
 /**
@@ -103,15 +102,18 @@ UnionType._applyMixin = () => void 0;
  */
 export namespace UnionType {
 
-  export interface InitArguments extends DataType.InitArguments {
+  export interface InitArguments extends ComplexType.InitArguments {
     types: (ComplexType | UnionType | MappedType)[]
   }
 
-  export interface OwnProperties extends DataType.OwnProperties {
+  export interface Metadata extends StrictOmit<ComplexType.Metadata, 'kind' | 'base' | 'name'> {
+    kind: OpraSchema.UnionType.Kind;
+    base?: Type;
+    types: Type[];
+  }
+
+  export interface OwnProperties extends ComplexType.OwnProperties {
     types: (ComplexType | UnionType | MappedType)[];
   }
 
-  export interface Metadata extends StrictOmit<OpraSchema.UnionType, 'types'> {
-    types: Type[];
-  }
 }

@@ -2,7 +2,7 @@ import * as vg from 'valgen';
 import { OpraSchema } from '../../schema/index.js';
 import type { ApiDocument } from '../api-document.js';
 import type { ComplexType } from '../data-type/complex-type.js';
-import { generateCodec, GenerateDecoderOptions } from '../utils/generate-codec.js';
+import type { DataType } from '../data-type/data-type.js';
 import type { Endpoint } from './endpoint.js';
 import { Resource } from './resource.js';
 import type { SingletonDecorator } from './singleton.decorator.js';
@@ -39,27 +39,27 @@ export class SingletonClass extends Resource {
   }
 
 
-  getDecoder(endpoint: keyof OpraSchema.Singleton.Operations): vg.Validator {
-    let decoder = this._decoders[endpoint];
+  getDecoder(operation: keyof OpraSchema.Singleton.Operations): vg.Validator {
+    let decoder = this._decoders[operation];
     if (decoder)
       return decoder;
-    const options: GenerateDecoderOptions = {
-      partial: endpoint !== 'create'
+    const options: DataType.GenerateCodecOptions = {
+      partial: operation !== 'create'
     };
-    decoder = generateCodec(this.type, 'decode', options);
-    this._decoders[endpoint] = decoder;
+    decoder = this.type.generateCodec('decode', options);
+    this._decoders[operation] = decoder;
     return decoder;
   }
 
-  getEncoder(endpoint: keyof OpraSchema.Singleton.Operations): vg.Validator {
-    let encoder = this._encoders[endpoint];
+  getEncoder(operation: keyof OpraSchema.Singleton.Operations): vg.Validator {
+    let encoder = this._encoders[operation];
     if (encoder)
       return encoder;
-    const options: GenerateDecoderOptions = {
+    const options: DataType.GenerateCodecOptions = {
       partial: true
     };
-    encoder = generateCodec(this.type, 'encode', options);
-    this._encoders[endpoint] = encoder;
+    encoder = this.type.generateCodec('encode', options);
+    this._encoders[operation] = encoder;
     return encoder;
   }
 

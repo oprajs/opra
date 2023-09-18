@@ -1,3 +1,4 @@
+import * as vg from 'valgen';
 import { omitUndefined } from '../../helpers/index.js';
 import type { OpraSchema } from '../../schema/index.js';
 import type { ComplexType } from './complex-type.js';
@@ -5,6 +6,8 @@ import type { DataType } from './data-type.js';
 import type { ApiField } from './field.js';
 
 export class FieldClass {
+  protected _decoder: vg.Validator;
+  protected _encoder: vg.Validator;
   readonly owner: ComplexType;
   readonly origin?: ComplexType;
   readonly type: DataType;
@@ -19,9 +22,18 @@ export class FieldClass {
   examples?: any[] | Record<string, any>;
 
   constructor(owner: ComplexType, init: ApiField.InitArguments) {
-    Object.assign(this, init);
     this.owner = owner;
     this.origin = init.origin || owner;
+    this.type = init.type;
+    this.name = init.name;
+    this.description = init.description;
+    this.isArray = init.isArray;
+    this.default = init.default;
+    this.fixed = init.fixed;
+    this.required = init.required;
+    this.exclusive = init.exclusive;
+    this.deprecated = init.deprecated;
+    this.examples = init.examples;
   }
 
   exportSchema(): OpraSchema.Field {
@@ -36,5 +48,24 @@ export class FieldClass {
       deprecated: this.deprecated,
       examples: this.examples
     }) satisfies OpraSchema.Field;
+  }
+
+  getDecoder(): vg.Validator {
+    if (!this._decoder)
+      this._decoder = this.generateCodec('decode');
+    return this._decoder;
+  }
+
+  getEncoder(): vg.Validator {
+    if (!this._encoder)
+      this._encoder = this.generateCodec('encode');
+    return this._encoder;
+  }
+
+  generateCodec(codec: 'decode' | 'encode', options?: DataType.GenerateCodecOptions): vg.Validator {
+    let fn = this.type.generateCodec(codec, options);
+    if (this.isArray)
+      fn = vg.isArray(fn);
+    return !options?.partial && this.required ? vg.required(fn) : vg.optional(fn);
   }
 }

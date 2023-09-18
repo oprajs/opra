@@ -14,9 +14,7 @@ import type { UnionType } from './union-type.js';
  * @class ComplexType
  */
 export class ComplexTypeClass extends DataType {
-  protected _decode: vg.Validator<any, any>;
-  protected _encode: vg.Validator<any, any>;
-  readonly kind = OpraSchema.ComplexType.Kind;
+  readonly kind: OpraSchema.DataType.Kind = OpraSchema.ComplexType.Kind;
   readonly ctor: Type;
   readonly base?: ComplexType | UnionType | MappedType;
   readonly own: ComplexType.OwnProperties;
@@ -33,19 +31,20 @@ export class ComplexTypeClass extends DataType {
         throw new TypeError('"base" argument must be one of ComplexType or MappedType or UnionType');
       own.ctor = own.ctor || (init.base as ComplexTypeClass).ctor;
     }
-    own.abstract = init?.abstract;
     own.additionalFields = init?.additionalFields;
     own.fields = new ResponsiveMap();
 
     this.kind = OpraSchema.ComplexType.Kind;
     this.base = init?.base;
     this.ctor = own.ctor || Object;
-    this.abstract = own.abstract;
+    this.abstract = init.abstract;
     this.additionalFields = own.additionalFields;
+    if (this.base?.additionalFields === true && this.additionalFields !== true)
+      this.additionalFields = true;
+    else if (this.base?.additionalFields === 'error' && !this.additionalFields)
+      this.additionalFields = 'error';
     this.fields = new ResponsiveMap();
     if (this.base) {
-      if (this.additionalFields == null)
-        this.additionalFields = this.base.additionalFields;
       if (this.base.fields)
         for (const [k, el] of this.base.fields.entries()) {
           const field = new ApiField(this, el);
@@ -53,12 +52,11 @@ export class ComplexTypeClass extends DataType {
         }
     }
     if (init.fields) {
-      if (init.fields)
-        for (const [k, el] of Object.entries(init.fields)) {
-          const field = new ApiField(this, el);
-          this.own.fields.set(field.name, field);
-          this.fields.set(k, field);
-        }
+      for (const [k, el] of Object.entries(init.fields)) {
+        const field = new ApiField(this, el);
+        this.own.fields.set(field.name, field);
+        this.fields.set(k, field);
+      }
     }
   }
 
@@ -147,7 +145,7 @@ export class ComplexTypeClass extends DataType {
     Object.assign(out, omitUndefined({
       base: this.base ?
           (this.base.name ? this.base.name : this.base.exportSchema()) : undefined,
-      abstract: this.own.abstract,
+      abstract: this.abstract,
       additionalFields: this.own.additionalFields
     }));
     if (this.own.fields.size) {
@@ -171,6 +169,20 @@ export class ComplexTypeClass extends DataType {
       return this.base.extendsFrom(base);
     }
     return false;
+  }
+
+  generateCodec(codec: 'decode' | 'encode', options?: DataType.GenerateCodecOptions): vg.Validator {
+    const schema: vg.ObjectSchema = {};
+    for (const f of this.fields.values()) {
+      // todo omit, pick
+      schema[f.name] = f.generateCodec(codec, options);
+    }
+    return vg.isObject(schema, {
+      ctor: this.ctor,
+      additionalFields: this.additionalFields ?? false,
+      name: this.name,
+      caseInSensitive: !options?.caseSensitive
+    })
   }
 
 }

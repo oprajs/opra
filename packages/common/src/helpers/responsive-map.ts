@@ -66,12 +66,12 @@ export class ResponsiveMap<V> extends Map<string, V> {
   }
 
   keys(): IterableIterator<string> {
-    return this[kKeyOrder][Symbol.iterator]();
+    return [...this[kKeyOrder]][Symbol.iterator]();
   }
 
   values(): IterableIterator<V> {
     let i = -1;
-    const arr = this[kKeyOrder];
+    const arr = [...this[kKeyOrder]];
     const map = this;
     return {
       [Symbol.iterator]() {
@@ -89,7 +89,7 @@ export class ResponsiveMap<V> extends Map<string, V> {
 
   entries(): IterableIterator<[string, V]> {
     let i = -1;
-    const arr = this[kKeyOrder];
+    const arr = [...this[kKeyOrder]];
     const map = this;
     return {
       [Symbol.iterator]() {

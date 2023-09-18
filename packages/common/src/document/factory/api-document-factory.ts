@@ -83,7 +83,11 @@ export class ApiDocumentFactory extends TypeDocumentFactory {
             if ((oP as any).enum) {
               oP.type = EnumType((oP as any).enum, {name: kP + 'Enum'}) as any;
             }
-            parameters[kP] = {...oP, type: await this.importDataType(oP.type || 'any')};
+            parameters[kP] = {
+              ...oP,
+              name: kP,
+              type: await this.importDataType(oP.type || 'any')
+            };
           }
         }
         output[kA] = {...oA[kA], parameters};
@@ -142,7 +146,11 @@ export class ApiDocumentFactory extends TypeDocumentFactory {
             if (oP.enum) {
               oP.type = EnumType(oP.enum, {name: kP + 'Enum'}) as any;
             }
-            parameters[kP] = {...oP, type: await this.importDataType(oP.type || 'any')};
+            parameters[kP] = {
+              ...oP,
+              name: kP,
+              type: await this.importDataType(oP.type || 'any')
+            };
           }
         }
         output[kA] = {...oA, parameters};

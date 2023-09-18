@@ -1,6 +1,6 @@
 import 'reflect-metadata';
 import merge from 'putil-merge';
-import { StrictOmit } from 'ts-gems';
+import { Combine, StrictOmit, Type } from 'ts-gems';
 import { ResponsiveMap } from '../../helpers/index.js';
 import { OpraSchema } from '../../schema/index.js';
 import type { ApiDocument } from '../api-document.js';
@@ -59,7 +59,9 @@ export namespace ComplexType {
     fields?: Record<string, ApiField.InitArguments>;
   }
 
-  export interface OwnProperties extends Readonly<StrictOmit<OpraSchema.ComplexType, 'fields'>> {
+  export interface OwnProperties extends DataType.OwnProperties {
+    ctor?: Type;
+    additionalFields?: OpraSchema.ComplexType['additionalFields'];
     fields: ResponsiveMap<ApiField>;
   }
 

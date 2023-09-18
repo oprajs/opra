@@ -4,8 +4,8 @@ import { OpraSchema } from '../../schema/index.js';
 import { TypeThunkAsync } from '../../types.js';
 import { DECORATOR } from '../constants.js';
 import type { ComplexType } from './complex-type.js';
-import { DataType } from './data-type.js';
-import { EnumType } from './enum-type.js';
+import type { DataType } from './data-type.js';
+import type { EnumType } from './enum-type.js';
 import { FieldClass } from './field-class.js';
 import { FieldDecorator } from './field-decorator.js';
 

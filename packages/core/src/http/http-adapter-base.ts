@@ -59,7 +59,7 @@ export abstract class HttpAdapterBase extends PlatformAdapterHost {
         }
         if (!requestProcessed) {
           requestProcessed = true;
-          await this.processRequest(context);
+          await this.handle(context);
         }
       }
       await next();
@@ -74,7 +74,7 @@ export abstract class HttpAdapterBase extends PlatformAdapterHost {
     }
   }
 
-  async processRequest(context: ExecutionContext): Promise<void> {
+  async handle(context: ExecutionContext): Promise<void> {
     try {
       const {incoming, outgoing} = context.switchToHttp();
       if (incoming.method === 'GET' && !incoming.parsedUrl.path.length) {
@@ -94,7 +94,7 @@ export abstract class HttpAdapterBase extends PlatformAdapterHost {
 
       // Iterate through request handlers until one of them sends response (end outgoing stream)
       for (const requestHandler of this._requestHandlers) {
-        await requestHandler.processRequest(context);
+        await requestHandler.handle(context);
         if (outgoing.writableEnded)
           return;
         if (context.errors.length) {

@@ -33,4 +33,10 @@ export class EnumTypeClass extends DataType {
     return out;
   }
 
+  generateCodec(codec: 'decode' | 'encode'): vg.Validator {
+    if (codec === 'encode')
+      return this.encode;
+    else return this.decode;
+  }
+
 }

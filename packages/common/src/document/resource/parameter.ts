@@ -3,7 +3,6 @@ import * as vg from 'valgen';
 import { omitUndefined } from '../../helpers/index.js';
 import { OpraSchema } from '../../schema/index.js';
 import { DataType } from '../data-type/data-type.js';
-import { generateCodec } from '../utils/generate-codec.js';
 import type { ResourceDecorator } from './resource.decorator.js';
 
 /**
@@ -23,7 +22,14 @@ export class Parameter {
   examples?: any[] | Record<string, any>;
 
   constructor(init: Parameter.InitArguments) {
-    Object.assign(this, init);
+    this.type = init.type;
+    this.name = init.name;
+    this.description = init.description;
+    this.isArray = init.isArray;
+    this.default = init.default;
+    this.required = init.required;
+    this.deprecated = init.deprecated;
+    this.examples = init.examples;
   }
 
   exportSchema(): OpraSchema.Endpoint.Parameter {
@@ -40,20 +46,28 @@ export class Parameter {
 
   getDecoder(): vg.Validator {
     if (!this._decoder)
-      this._decoder = generateCodec(this.type, 'decode');
+      this._decoder = this.generateCodec('decode');
     return this._decoder;
   }
 
   getEncoder(): vg.Validator {
     if (!this._encoder)
-      this._encoder = generateCodec(this.type, 'encode');
+      this._encoder = this.generateCodec('encode');
     return this._encoder;
+  }
+
+  generateCodec(codec: 'decode' | 'encode', options?: DataType.GenerateCodecOptions): vg.Validator {
+    let fn = this.type.generateCodec(codec, options);
+    if (this.isArray)
+      fn = vg.isArray(fn);
+    return !options?.partial && this.required ? vg.required(fn) : vg.optional(fn);
   }
 
 }
 
 export namespace Parameter {
   export interface InitArguments extends StrictOmit<ResourceDecorator.ParameterMetadata, 'type'> {
+    name: string;
     type: DataType;
   }
 }

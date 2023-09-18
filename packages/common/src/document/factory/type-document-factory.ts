@@ -290,11 +290,11 @@ export class TypeDocumentFactory {
     }
 
     if (initArguments.kind === 'MappedType') {
-      const dataType = await this.importDataType(initArguments.type as any);
+      const dataType = await this.importDataType(initArguments.base as any);
       // istanbul ignore next
       if (!(dataType instanceof ComplexType))
         throw new TypeError('MappedType.type property must address to a ComplexType');
-      initArguments.type = dataType;
+      initArguments.base = dataType;
     }
 
     if (initArguments.kind === 'UnionType') {

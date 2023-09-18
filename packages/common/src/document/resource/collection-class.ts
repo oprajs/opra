@@ -5,8 +5,8 @@ import { translate } from '../../i18n/index.js';
 import { OpraSchema } from '../../schema/index.js';
 import type { ApiDocument } from '../api-document.js';
 import { ComplexType } from '../data-type/complex-type.js';
+import type { DataType } from '../data-type/data-type.js';
 import { SimpleType } from '../data-type/simple-type.js';
-import { generateCodec, GenerateDecoderOptions } from '../utils/generate-codec.js';
 import type { Collection } from './collection.js';
 import type { CollectionDecorator } from './collection-decorator.js';
 import { Endpoint } from './endpoint.js';
@@ -164,31 +164,31 @@ export class CollectionClass extends Resource {
     return ast;
   }
 
-  getDecoder(endpoint: keyof OpraSchema.Collection.Operations): vg.Validator {
-    let decoder = this._decoders[endpoint];
+  getDecoder(operation: keyof OpraSchema.Collection.Operations): vg.Validator {
+    let decoder = this._decoders[operation];
     if (decoder)
       return decoder;
-    const options: GenerateDecoderOptions = {
-      partial: endpoint !== 'create'
+    const options: DataType.GenerateCodecOptions = {
+      partial: operation !== 'create'
     };
-    if (endpoint !== 'create')
+    if (operation !== 'create')
       options.omit = [...this.primaryKey];
-    decoder = generateCodec(this.type, 'decode', options);
-    this._decoders[endpoint] = decoder;
+    decoder = this.type.generateCodec('decode', options);
+    this._decoders[operation] = decoder;
     return decoder;
   }
 
-  getEncoder(endpoint: keyof OpraSchema.Collection.Operations): vg.Validator {
-    let encoder = this._encoders[endpoint];
+  getEncoder(operation: keyof OpraSchema.Collection.Operations): vg.Validator {
+    let encoder = this._encoders[operation];
     if (encoder)
       return encoder;
-    const options: GenerateDecoderOptions = {
+    const options: DataType.GenerateCodecOptions = {
       partial: true
     };
-    encoder = generateCodec(this.type, 'encode', options);
-    if (endpoint === 'findMany')
+    encoder = this.type.generateCodec('encode', options);
+    if (operation === 'findMany')
       return vg.isArray(encoder);
-    this._encoders[endpoint] = encoder;
+    this._encoders[operation] = encoder;
     return encoder;
   }
 

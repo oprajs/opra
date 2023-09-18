@@ -9,7 +9,6 @@ import { OpraSchema } from '../../schema/index.js';
 import type { ApiDocument } from '../api-document.js';
 import { DATATYPE_METADATA } from '../constants.js';
 import { ComplexType } from './complex-type.js';
-import { DataType } from './data-type.js';
 import { getIsInheritedPredicateFn, MappedTypeClass } from './mapped-type-class.js';
 
 /**
@@ -99,7 +98,7 @@ export const MappedType = function (
 
   const metadata: MappedType.Metadata = {
     kind: 'MappedType',
-    type: mappedSource
+    base: mappedSource
   };
   if (options.pick)
     metadata.pick = options.pick as string[];
@@ -133,12 +132,17 @@ export interface MappedType extends MappedTypeClass {
  */
 export namespace MappedType {
 
-  export interface InitArguments extends DataType.InitArguments,
+  export interface InitArguments extends ComplexType.InitArguments,
       Pick<OpraSchema.MappedType, 'pick' | 'omit'> {
-    type: ComplexType;
   }
 
-  export interface OwnProperties extends DataType.OwnProperties,
+  export interface Metadata extends StrictOmit<ComplexType.Metadata, 'kind' | 'base' | 'name'>,
+      Pick<OpraSchema.MappedType, 'pick' | 'omit'> {
+    kind: OpraSchema.MappedType.Kind;
+    base: Type;
+  }
+
+  export interface OwnProperties extends ComplexType.OwnProperties,
       Pick<OpraSchema.MappedType, 'pick' | 'omit'> {
   }
 
@@ -147,9 +151,6 @@ export namespace MappedType {
     omit?: readonly K[],
   }
 
-  export interface Metadata extends StrictOmit<OpraSchema.MappedType, 'type'> {
-    type: Type;
-  }
 }
 
 

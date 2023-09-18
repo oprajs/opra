@@ -10,6 +10,11 @@ describe('parse Storage Request', function () {
   let api: ApiDocument;
   let requestHandler: StorageRequestHandler;
 
+  function createContext(incoming: HttpServerRequest) {
+    const outgoing = HttpServerResponse.from();
+    return new ExecutionContextHost(api, 'http', {http: {incoming, outgoing}})
+  }
+
   beforeAll(async () => {
     api = await createTestApi();
     const adapter = await HttpAdapter.create(api);
@@ -19,7 +24,7 @@ describe('parse Storage Request', function () {
   describe('parse "post" operation', function () {
 
     it('Should parse request and getAll', async () => {
-      const incoming = HttpServerRequest.from({
+      const context = createContext(HttpServerRequest.from({
         method: 'POST',
         url: '/files',
         body: Buffer.from(
@@ -35,10 +40,8 @@ describe('parse Storage Request', function () {
             '--AaB03x--\r\n',
         ),
         headers: {'content-type': 'multipart/form-data; boundary=AaB03x'}
-      });
-      const outgoing = HttpServerResponse.from();
-      const context = new ExecutionContextHost(api, 'http', {http: {incoming, outgoing}})
-      const request = await requestHandler.parseRequest(context, incoming) as Storage.Post.Request;
+      }));
+      const request = await requestHandler.parseRequest(context) as Storage.Post.Request;
       try {
         expect(request).toBeDefined();
         const resource = api.getStorage('Files');
@@ -81,26 +84,26 @@ describe('parse Storage Request', function () {
     })
 
     it('Should parse request and get one at a time', async () => {
-      const incoming = HttpServerRequest.from({
-        method: 'POST',
-        url: '/files',
-        body: Buffer.from(
-            '--AaB03x\r\n' +
-            'content-disposition: form-data; name="field1"\r\n' +
-            '\r\n' +
-            'Joe Blow\r\nalmost tricked you!\r\n' +
-            '--AaB03x\r\n' +
-            'content-disposition: form-data; name="pics"; filename="file1.txt"\r\n' +
-            'Content-Type: text/plain\r\n' +
-            '\r\n' +
-            '... contents of file1.txt ...\r\r\n' +
-            '--AaB03x--\r\n',
-        ),
-        headers: {'content-type': 'multipart/form-data; boundary=AaB03x'}
-      });
-      const outgoing = HttpServerResponse.from();
-      const context = new ExecutionContextHost(api, 'http', {http: {incoming, outgoing}})
-      const request = await requestHandler.parseRequest(context, incoming) as Storage.Post.Request;
+      const context = createContext(
+          HttpServerRequest.from({
+            method: 'POST',
+            url: '/files',
+            body: Buffer.from(
+                '--AaB03x\r\n' +
+                'content-disposition: form-data; name="field1"\r\n' +
+                '\r\n' +
+                'Joe Blow\r\nalmost tricked you!\r\n' +
+                '--AaB03x\r\n' +
+                'content-disposition: form-data; name="pics"; filename="file1.txt"\r\n' +
+                'Content-Type: text/plain\r\n' +
+                '\r\n' +
+                '... contents of file1.txt ...\r\r\n' +
+                '--AaB03x--\r\n',
+            ),
+            headers: {'content-type': 'multipart/form-data; boundary=AaB03x'}
+          })
+      )
+      const request = await requestHandler.parseRequest(context) as Storage.Post.Request;
       try {
         expect(request).toBeDefined();
         const resource = api.getStorage('Files');

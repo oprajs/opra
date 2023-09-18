@@ -1,4 +1,5 @@
 import { RequiredSome, Type } from 'ts-gems';
+import * as vg from 'valgen';
 import { omitUndefined } from '../../helpers/index.js';
 import { OpraSchema } from '../../schema/index.js';
 import type { ApiDocument } from '../api-document.js';
@@ -29,6 +30,8 @@ export abstract class DataType {
     this.description = init?.description;
     this.isAnonymous = !this.name;
   }
+
+  abstract generateCodec(codec: 'decode' | 'encode', options?: DataType.GenerateCodecOptions): vg.Validator;
 
   exportSchema(): OpraSchema.DataType {
     return omitUndefined({
@@ -73,6 +76,13 @@ export namespace DataType {
   }
 
   export interface OwnProperties {
+  }
+
+  export interface GenerateCodecOptions {
+    caseSensitive?: boolean;
+    pick?: string[];
+    omit?: string[];
+    partial?: boolean;
   }
 
 }

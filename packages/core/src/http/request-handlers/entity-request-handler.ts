@@ -11,8 +11,6 @@ import { EndpointContext } from '../../endpoint-context.js';
 import { ExecutionContext } from '../../execution-context.js';
 import { RequestHost } from '../../request.host.js';
 import { Request } from '../../request.js';
-import { ResponseHost } from '../../response.host.js';
-import { Response } from '../../response.js';
 import { parseArrayParam } from '../helpers/query-parsers.js';
 import type { HttpAdapterBase } from '../http-adapter-base.js';
 import { HttpServerRequest } from '../http-server-request.js';
@@ -30,35 +28,8 @@ export class EntityRequestHandler extends RequestHandlerBase {
     super(adapter);
   }
 
-  async processRequest(executionContext: ExecutionContext): Promise<void> {
-    const {incoming, outgoing} = executionContext.switchToHttp();
-    // Parse incoming message and create Request object
-    const request = await this.parseRequest(incoming);
-    if (!request) return;
-    const response: Response = new ResponseHost({http: outgoing});
-    const context = EndpointContext.from(executionContext, request, response);
-    await this.callEndpoint(context);
-    if (response.errors.length) {
-      context.errors.push(...response.errors);
-      return;
-    }
-    try {
-      await this.sendResponse(context);
-    } catch (e: any) {
-      if (e instanceof OpraException)
-        throw e;
-      if (e instanceof valgen.ValidationError) {
-        throw new InternalServerError({
-          message: translate('error:RESPONSE_VALIDATION,', 'Response validation failed'),
-          code: 'RESPONSE_VALIDATION',
-          details: e.issues
-        }, e);
-      }
-      throw new InternalServerError(e);
-    }
-  }
-
-  async parseRequest(incoming: HttpServerRequest): Promise<Request | undefined> {
+  async parseRequest(executionContext: ExecutionContext): Promise<Request | undefined> {
+    const {incoming} = executionContext.switchToHttp();
     const p = incoming.parsedUrl.path[0];
     const resource = this.adapter.api.getResource(p.resource, true);
     if (!resource)
@@ -88,7 +59,7 @@ export class EntityRequestHandler extends RequestHandlerBase {
     }
   }
 
-  async callEndpoint(context: EndpointContext): Promise<void> {
+  async executeEndpoint(context: EndpointContext): Promise<void> {
     const request = context.request as RequestHost;
     const {response} = context;
     const resource = request.resource as (Collection | Singleton);

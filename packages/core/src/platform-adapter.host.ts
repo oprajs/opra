@@ -119,6 +119,6 @@ export abstract class PlatformAdapterHost extends AsyncEventEmitter implements P
     return instance;
   }
 
-  abstract processRequest(executionContext: ExecutionContext): Promise<void>;
+  abstract handle(executionContext: ExecutionContext): Promise<void>;
 
 }

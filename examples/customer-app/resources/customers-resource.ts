@@ -29,9 +29,9 @@ export class CustomersResource extends SqbCollection<Customer> {
 
   @Collection.Action()
   async sendMessage(context: Collection.Action.Context) {
-    if (context.key)
-      return {sent: 1}
-    return {sent: 20};
+    // if (context.key)
+    //   return {sent: 1}
+    // return {sent: 20};
   }
 
   getService(ctx: EndpointContext): SqbEntityService<Customer> {

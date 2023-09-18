@@ -15,7 +15,7 @@ describe('MappedType', function () {
     expect(metadata).toStrictEqual({
       kind: 'MappedType',
       omit: ['phoneCode'],
-      type: Country
+      base: Country
     });
   })
 
@@ -30,7 +30,7 @@ describe('MappedType', function () {
     expect(metadata).toStrictEqual({
       kind: 'MappedType',
       pick: ['phoneCode'],
-      type: Country
+      base: Country
     });
   })
 
