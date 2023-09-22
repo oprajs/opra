@@ -21,7 +21,7 @@ describe('SimpleType', function () {
 
   it('Should exportSchema() return schema', async () => {
     const dt = api.getSimpleType('string');
-    const x = dt.exportSchema();
+    const x = dt.exportSchema({webSafe: true});
     expect(x).toBeDefined();
     expect(x).toStrictEqual({
       kind: 'SimpleType',

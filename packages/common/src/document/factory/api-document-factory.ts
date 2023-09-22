@@ -1,4 +1,4 @@
-import { Type } from 'ts-gems';
+import { StrictOmit, Type } from 'ts-gems';
 import { cloneObject, resolveThunk, ResponsiveMap } from '../../helpers/index.js';
 import { OpraSchema } from '../../schema/index.js';
 import { ThunkAsync } from '../../types.js';
@@ -8,28 +8,39 @@ import { ComplexType } from '../data-type/complex-type.js';
 import { EnumType } from '../data-type/enum-type.js';
 import { Collection } from '../resource/collection.js';
 import { CollectionDecorator } from '../resource/collection-decorator.js';
+import { Container } from '../resource/container.js';
 import { Parameter } from '../resource/parameter.js';
-import { ResourceDecorator } from '../resource/resource.decorator.js';
-import { SingletonDecorator } from '../resource/singleton.decorator.js';
+import { Resource } from '../resource/resource.js';
+import { ResourceDecorator } from '../resource/resource-decorator.js';
 import { Singleton } from '../resource/singleton.js';
-import { StorageDecorator } from '../resource/storage.decorator.js';
+import { SingletonDecorator } from '../resource/singleton-decorator.js';
 import { Storage } from '../resource/storage.js';
+import { StorageDecorator } from '../resource/storage-decorator.js';
 import { TypeDocumentFactory } from './type-document-factory.js';
 
 export namespace ApiDocumentFactory {
-  export interface InitArguments extends TypeDocumentFactory.InitArguments {
+
+  export interface ContainerInit extends StrictOmit<OpraSchema.Container, 'kind' | 'resources'> {
     resources?: ThunkAsync<Type | object>[] | Record<OpraSchema.Resource.Name, OpraSchema.Resource>;
+  }
+
+  export interface InitArguments extends TypeDocumentFactory.InitArguments {
+    root?: ContainerInit;
   }
 
   export type DataTypeInitializer = TypeDocumentFactory.DataTypeInitializer;
   export type ResourceInitializer =
       (Collection.InitArguments & { kind: OpraSchema.Collection.Kind })
       | (Singleton.InitArguments & { kind: OpraSchema.Singleton.Kind })
-      | (Storage.InitArguments & { kind: OpraSchema.Storage.Kind });
+      | (Storage.InitArguments & { kind: OpraSchema.Storage.Kind })
+      | (Container.InitArguments & { kind: OpraSchema.Container.Kind });
 }
 
-
+/**
+ * @class ApiDocumentFactory
+ */
 export class ApiDocumentFactory extends TypeDocumentFactory {
+  protected document: ApiDocument;
   protected resourceQueue = new ResponsiveMap<any>();
 
   /**
@@ -38,7 +49,9 @@ export class ApiDocumentFactory extends TypeDocumentFactory {
    */
   static async createDocument(init: ApiDocumentFactory.InitArguments): Promise<ApiDocument> {
     const factory = new ApiDocumentFactory();
-    return factory.createDocument(init);
+    const document = factory.document = new ApiDocument();
+    await factory.initDocument(init);
+    return document;
   }
 
   /**
@@ -46,24 +59,31 @@ export class ApiDocumentFactory extends TypeDocumentFactory {
    */
   static async createDocumentFromUrl(url: string): Promise<ApiDocument> {
     const factory = new ApiDocumentFactory();
-    return factory.createDocumentFromUrl(url);
+    const document = factory.document = new ApiDocument();
+    await factory.initDocumentFromUrl(url);
+    return document;
   }
 
-  protected async createDocument(init: ApiDocumentFactory.InitArguments): Promise<ApiDocument> {
-    await super.createDocument(init);
-    if (init.resources) {
-      this.curPath.push('Resources->');
-      if (Array.isArray(init.resources)) {
-        for (const thunk of init.resources) {
+  protected async initDocument(init: ApiDocumentFactory.InitArguments): Promise<ApiDocument> {
+    await super.initDocument(init);
+    const processContainer = async (container: Container, containerInit: ApiDocumentFactory.ContainerInit) => {
+      if (!containerInit.resources)
+        return;
+      if (Array.isArray(containerInit.resources)) {
+        for (const thunk of containerInit.resources) {
           const initArguments = await this.importResourceClass(thunk);
-          await this.addResource(initArguments);
+          container.resources.set(initArguments.name, this.createResource(initArguments));
         }
       } else
-        for (const [name, schema] of Object.entries(init.resources)) {
+        for (const [name, schema] of Object.entries(containerInit.resources)) {
           const initArguments = await this.importResourceSchema(name, schema);
-          await this.addResource(initArguments);
+          container.resources.set(initArguments.name, this.createResource(initArguments));
         }
-      this.document.resources.sort();
+      container.resources.sort();
+    }
+    if (init.root) {
+      this.curPath.push('/root');
+      await processContainer(this.document.root, init.root);
       this.curPath.pop();
       this.document.invalidate();
     }
@@ -71,11 +91,13 @@ export class ApiDocumentFactory extends TypeDocumentFactory {
   }
 
   protected async importResourceSchema(name: string, schema: OpraSchema.Resource): Promise<ApiDocumentFactory.ResourceInitializer> {
-    const convertEndpoints = async (source?: Record<string, OpraSchema.Endpoint>) => {
+    const convertEndpoints = async (source?: Record<string, OpraSchema.Endpoint | undefined>) => {
       if (!source)
         return;
       const output: any = {};
       for (const [kA, oA] of Object.entries(source)) {
+        /* istanbul ignore next */
+        if (!oA) continue;
         let parameters: Record<string, Parameter.InitArguments> | undefined;
         if (oA.parameters) {
           parameters = {};
@@ -103,8 +125,7 @@ export class ApiDocumentFactory extends TypeDocumentFactory {
         actions: await convertEndpoints(schema.actions),
         operations: await convertEndpoints(schema.operations as any),
       }
-    }
-    if (schema.kind === 'Singleton') {
+    } else if (schema.kind === 'Singleton') {
       return {
         ...schema,
         kind: schema.kind,
@@ -113,16 +134,29 @@ export class ApiDocumentFactory extends TypeDocumentFactory {
         actions: await convertEndpoints(schema.actions),
         operations: await convertEndpoints(schema.operations as any),
       }
-    }
-    if (schema.kind === 'Storage') {
+    } else if (schema.kind === 'Storage') {
       return {
         ...schema,
         name,
         actions: await convertEndpoints(schema.actions),
         operations: await convertEndpoints(schema.operations as any),
       }
+    } else if (schema.kind === 'Container') {
+      const resources: Resource[] = [];
+      if (schema.resources) {
+        for (const [k, o] of Object.entries(schema.resources)) {
+          const rinit = await this.importResourceSchema(k, o)
+          resources.push(this.createResource(rinit));
+        }
+      }
+      return {
+        ...schema,
+        name,
+        resources,
+        actions: await convertEndpoints(schema.actions)
+      }
     }
-    throw new TypeError('Not implemented yet')
+    throw new TypeError(`Can not import resource schema (${(schema as any).kind})`);
   }
 
   protected async importResourceClass(thunk: ThunkAsync<Type | object>): Promise<ApiDocumentFactory.ResourceInitializer> {
@@ -132,7 +166,7 @@ export class ApiDocumentFactory extends TypeDocumentFactory {
         = Reflect.getMetadata(RESOURCE_METADATA, ctor);
     if (!metadata && OpraSchema.isResource(metadata))
       throw new TypeError(`Class "${ctor.name}" doesn't have a valid Resource metadata`);
-    const controller = typeof thunk === 'object' ? thunk : undefined;
+    const instance = typeof thunk === 'object' ? thunk : undefined;
 
     const convertEndpoints = async (source?: Record<string, ResourceDecorator.EndpointMetadata>) => {
       if (!source)
@@ -160,7 +194,7 @@ export class ApiDocumentFactory extends TypeDocumentFactory {
 
     // Clone metadata to prevent changing its contents
     const initArguments = cloneObject(metadata) as unknown as ApiDocumentFactory.ResourceInitializer;
-    initArguments.controller = controller;
+    initArguments.controller = instance;
     initArguments.ctor = ctor;
     if (initArguments.actions)
       initArguments.actions = await convertEndpoints(initArguments.actions as any);
@@ -174,18 +208,29 @@ export class ApiDocumentFactory extends TypeDocumentFactory {
       initArguments.type = dataType;
       if (initArguments.operations)
         initArguments.operations = await convertEndpoints(initArguments.operations as any);
+    } else if (initArguments.kind === 'Container') {
+      const oldResources = initArguments.resources as any;
+      if (Array.isArray(oldResources)) {
+        initArguments.resources = [];
+        for (const t of oldResources) {
+          const rinit = await this.importResourceClass(t);
+          initArguments.resources.push(this.createResource(rinit));
+        }
+      }
     }
     return initArguments;
   }
 
-  protected async addResource(initArguments: ApiDocumentFactory.ResourceInitializer): Promise<void> {
-    if (initArguments.kind === 'Collection') {
-      this.document.resources.set(initArguments.name, new Collection(this.document, initArguments));
-    } else if (initArguments.kind === 'Singleton') {
-      this.document.resources.set(initArguments.name, new Singleton(this.document, initArguments));
-    } else if (initArguments.kind === 'Storage') {
-      this.document.resources.set(initArguments.name, new Storage(this.document, initArguments));
-    }
+  protected createResource(initArguments: ApiDocumentFactory.ResourceInitializer): Resource {
+    if (initArguments.kind === 'Collection')
+      return new Collection(this.document, initArguments);
+    if (initArguments.kind === 'Singleton')
+      return new Singleton(this.document, initArguments);
+    if (initArguments.kind === 'Storage')
+      return new Storage(this.document, initArguments);
+    if (initArguments.kind === 'Container')
+      return new Container(this.document, initArguments);
+    else throw new Error(`Unknown resource type ${(initArguments as any).kind}`);
   }
 
 }

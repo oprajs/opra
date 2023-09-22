@@ -5,7 +5,7 @@ import { Customer } from '../entities/customer.entity.js';
   description: 'Customer resource',
   primaryKey: '_id'
 })
-export class CustomersResource {
+export class CustomersController {
 
   @Collection.FindMany()
       .SortFields('_id', 'givenName', 'familyName', 'gender', 'address.city')

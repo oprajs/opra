@@ -1,6 +1,5 @@
 import 'reflect-metadata';
 import { Collection, RESOURCE_METADATA, Storage } from '@opra/common';
-import type { StorageDecorator } from '@opra/common/document/resource/storage.decorator';
 
 describe('Storage decorators', function () {
 
@@ -8,7 +7,7 @@ describe('Storage decorators', function () {
   describe('@Storage() decorator', function () {
 
     it('Should define Storage resource metadata', async function () {
-      const opts: StorageDecorator.Options = {description: 'xyz'};
+      const opts: Storage.DecoratorOptions = {description: 'xyz'};
 
       @Storage(opts)
       class MyFilesResource {
@@ -23,7 +22,7 @@ describe('Storage decorators', function () {
     })
 
     it('Should define custom name', async function () {
-      const opts: StorageDecorator.Options = {name: 'Uploads'};
+      const opts: Storage.DecoratorOptions = {name: 'Uploads'};
 
       @Storage(opts)
       class MyFilesResource {

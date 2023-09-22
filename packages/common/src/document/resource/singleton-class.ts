@@ -5,14 +5,14 @@ import type { ComplexType } from '../data-type/complex-type.js';
 import type { DataType } from '../data-type/data-type.js';
 import type { Endpoint } from './endpoint.js';
 import { Resource } from './resource.js';
-import type { SingletonDecorator } from './singleton.decorator.js';
 import type { Singleton } from './singleton.js';
+import type { SingletonDecorator } from './singleton-decorator';
 
 export class SingletonClass extends Resource {
+  readonly kind: OpraSchema.Resource.Kind = OpraSchema.Singleton.Kind;
+  readonly type: ComplexType;
   private _decoders: Record<string, vg.Validator> = {};
   private _encoders: Record<string, vg.Validator> = {};
-  readonly type: ComplexType;
-  readonly kind = OpraSchema.Singleton.Kind;
 
   constructor(document: ApiDocument, init: Singleton.InitArguments) {
     super(document, init);
@@ -27,9 +27,9 @@ export class SingletonClass extends Resource {
     return super.getOperation(name);
   }
 
-  exportSchema(): OpraSchema.Singleton {
+  exportSchema(options?: { webSafe?: boolean }): OpraSchema.Singleton {
     return {
-      ...super.exportSchema() as OpraSchema.Singleton,
+      ...super.exportSchema(options) as OpraSchema.Singleton,
       type: this.type.name || 'any'
     };
   }

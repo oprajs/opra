@@ -3,7 +3,7 @@ import { Storage } from '@opra/common';
 @Storage({
   description: 'My files resource'
 })
-export class MyFilesResource {
+export class MyFilesController {
 
   @Storage.Get()
   get() {

@@ -26,7 +26,9 @@ describe('ApiDocumentFactory - Storage resource with decorated classes', functio
 
     const doc = await ApiDocumentFactory.createDocument({
       ...baseArgs,
-      resources: [MyStorageResource]
+      root: {
+        resources: [MyStorageResource]
+      }
     })
     expect(doc).toBeDefined();
     const t = doc.getStorage('MyStorage');
@@ -48,7 +50,7 @@ describe('ApiDocumentFactory - Storage resource with decorated classes', functio
 
     const doc = await ApiDocumentFactory.createDocument({
       ...baseArgs,
-      resources: [MyStorageResource]
+      root: {resources: [MyStorageResource]}
     })
     expect(doc).toBeDefined();
     const t = doc.getStorage('MyStorage');
@@ -67,7 +69,7 @@ describe('ApiDocumentFactory - Storage resource with decorated classes', functio
 
     const doc = await ApiDocumentFactory.createDocument({
       ...baseArgs,
-      resources: [MyStorageResource]
+      root: {resources: [MyStorageResource]}
     })
     expect(doc).toBeDefined();
     const t = doc.getStorage('MyStorage');
@@ -86,13 +88,12 @@ describe('ApiDocumentFactory - Storage resource with decorated classes', functio
 
     const doc = await ApiDocumentFactory.createDocument({
       ...baseArgs,
-      resources: [MyStorageResource]
+      root: {resources: [MyStorageResource]}
     })
     expect(doc).toBeDefined();
     const t = doc.getStorage('MyStorage');
     expect(t.ctor).toBe(MyStorageResource);
     expect(t.getOperation('post')).toBeDefined();
   })
-
 
 });

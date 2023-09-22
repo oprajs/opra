@@ -1,10 +1,10 @@
 import merge from 'putil-merge';
-import { Combine } from 'ts-gems';
+import { Combine, StrictOmit } from 'ts-gems';
 import type { ApiDocument } from '../api-document.js';
 import { DECORATOR } from '../constants.js';
 import { Resource } from './resource.js';
-import { StorageDecorator } from './storage.decorator.js';
 import { StorageClass } from './storage-class.js'
+import { StorageDecorator } from './storage-decorator.js';
 
 export interface Storage extends StorageClass {
 }
@@ -39,7 +39,10 @@ Storage[DECORATOR] = StorageDecorator;
 
 export namespace Storage {
 
-  export interface InitArguments extends Combine<Resource.InitArguments, StorageDecorator.Metadata> {
+  export interface InitArguments extends StrictOmit<Combine<Resource.InitArguments, StorageDecorator.Metadata>, 'kind'> {
+  }
+
+  export interface DecoratorOptions extends Partial<StrictOmit<StorageDecorator.Metadata, 'kind' | 'operations' | 'actions'>> {
   }
 
   // Need for augmentation

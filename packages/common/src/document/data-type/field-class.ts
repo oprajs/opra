@@ -36,9 +36,9 @@ export class FieldClass {
     this.examples = init.examples;
   }
 
-  exportSchema(): OpraSchema.Field {
+  exportSchema(options?: { webSafe?: boolean }): OpraSchema.Field {
     return omitUndefined({
-      type: this.type.name ? this.type.name : this.type.exportSchema(),
+      type: this.type.name ? this.type.name : this.type.exportSchema(options),
       description: this.description,
       isArray: this.isArray,
       default: this.default,

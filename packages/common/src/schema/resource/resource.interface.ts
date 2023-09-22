@@ -11,9 +11,9 @@ export namespace Resource {
   export type Kind = Collection.Kind | Singleton.Kind | Storage.Kind | Container.Kind;
 }
 
-export interface ResourceBase<TKind extends string = string, TOperations = any> {
-  kind: TKind;
+export interface ResourceBase {
+  kind: string;
   description?: string;
-  operations?: TOperations;
-  actions?: Record<string, Endpoint>;
+  operations?: Record<string, Endpoint | undefined>;
+  actions?: Record<string, Endpoint | undefined>;
 }

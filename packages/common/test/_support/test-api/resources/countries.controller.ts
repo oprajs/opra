@@ -5,7 +5,7 @@ import { Country } from '../entities/country.entity.js';
   description: 'Country resource',
   primaryKey: 'code'
 })
-export class CountriesResource {
+export class CountriesController {
 
   @Collection.FindMany()
   findMany() {

@@ -3,7 +3,7 @@ import {
   ApiDocumentFactory,
   OpraSchema, Singleton,
 } from '@opra/common';
-import { Country } from '../../_support/test-api/index.js';
+import { Country } from '../../../_support/test-api/index.js';
 
 describe('ApiDocumentFactory - Singleton resource with schema object', function () {
 
@@ -26,12 +26,14 @@ describe('ApiDocumentFactory - Singleton resource with schema object', function 
     const doc = await ApiDocumentFactory.createDocument({
       ...baseArgs,
       types: [Country],
-      resources: {
-        resource1
+      root: {
+        resources: {
+          resource1
+        }
       }
     })
     expect(doc).toBeDefined();
-    const t = doc.resources.get('resource1') as Singleton;
+    const t = doc.root.resources.get('resource1') as Singleton;
     expect(t).toBeDefined();
     expect(t.kind).toStrictEqual(OpraSchema.Singleton.Kind);
     expect(t.name).toStrictEqual('resource1');

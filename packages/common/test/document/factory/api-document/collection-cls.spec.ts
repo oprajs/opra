@@ -4,7 +4,7 @@ import {
   Collection, EnumType,
   OpraSchema,
 } from '@opra/common';
-import { Country } from '../../_support/test-api/index.js';
+import { Country } from '../../../_support/test-api/index.js';
 
 describe('ApiDocumentFactory - Collection resource with decorated classes', function () {
 
@@ -27,7 +27,9 @@ describe('ApiDocumentFactory - Collection resource with decorated classes', func
 
     const doc = await ApiDocumentFactory.createDocument({
       ...baseArgs,
-      resources: [CountriesResource]
+      root: {
+        resources: [CountriesResource]
+      }
     })
     expect(doc).toBeDefined();
     const t = doc.getCollection('countries');
@@ -53,7 +55,9 @@ describe('ApiDocumentFactory - Collection resource with decorated classes', func
 
     const doc = await ApiDocumentFactory.createDocument({
       ...baseArgs,
-      resources: [CountriesResource]
+      root: {
+        resources: [CountriesResource]
+      }
     })
     expect(doc).toBeDefined();
     const t = doc.getCollection('countries');
@@ -74,7 +78,9 @@ describe('ApiDocumentFactory - Collection resource with decorated classes', func
 
     const doc = await ApiDocumentFactory.createDocument({
       ...baseArgs,
-      resources: [CountriesResource]
+      root: {
+        resources: [CountriesResource]
+      }
     })
     expect(doc).toBeDefined();
     const t = doc.getCollection('countries');
@@ -95,7 +101,9 @@ describe('ApiDocumentFactory - Collection resource with decorated classes', func
 
     const doc = await ApiDocumentFactory.createDocument({
       ...baseArgs,
-      resources: [CountriesResource]
+      root: {
+        resources: [CountriesResource]
+      }
     })
     expect(doc).toBeDefined();
     const t = doc.getCollection('countries');
@@ -116,7 +124,9 @@ describe('ApiDocumentFactory - Collection resource with decorated classes', func
 
     const doc = await ApiDocumentFactory.createDocument({
       ...baseArgs,
-      resources: [CountriesResource]
+      root: {
+        resources: [CountriesResource]
+      }
     })
     expect(doc).toBeDefined();
     const t = doc.getCollection('countries');
@@ -137,7 +147,9 @@ describe('ApiDocumentFactory - Collection resource with decorated classes', func
 
     const doc = await ApiDocumentFactory.createDocument({
       ...baseArgs,
-      resources: [CountriesResource]
+      root: {
+        resources: [CountriesResource]
+      }
     })
     expect(doc).toBeDefined();
     const t = doc.getCollection('countries');
@@ -158,7 +170,9 @@ describe('ApiDocumentFactory - Collection resource with decorated classes', func
 
     const doc = await ApiDocumentFactory.createDocument({
       ...baseArgs,
-      resources: [CountriesResource]
+      root: {
+        resources: [CountriesResource]
+      }
     })
     expect(doc).toBeDefined();
     const t = doc.getCollection('countries');
@@ -179,7 +193,9 @@ describe('ApiDocumentFactory - Collection resource with decorated classes', func
 
     const doc = await ApiDocumentFactory.createDocument({
       ...baseArgs,
-      resources: [CountriesResource]
+      root: {
+        resources: [CountriesResource]
+      }
     })
     expect(doc).toBeDefined();
     const t = doc.getCollection('countries');
@@ -206,7 +222,9 @@ describe('ApiDocumentFactory - Collection resource with decorated classes', func
 
     const doc = await ApiDocumentFactory.createDocument({
       ...baseArgs,
-      resources: [CountriesResource]
+      root: {
+        resources: [CountriesResource]
+      }
     })
     expect(doc).toBeDefined();
     const t = doc.getCollection('countries');

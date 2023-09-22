@@ -1,16 +1,13 @@
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
 import {
-  ApiDocument,
-  ApiDocumentFactory,
-  Collection,
-  ComplexType,
-  DataType, EnumType,
-  OpraSchema,
-  SimpleType, Singleton,
+  ApiDocument, ApiDocumentFactory,
+  Collection, ComplexType, EnumType,
+  OpraSchema, Singleton,
 } from '@opra/common';
 import {
-  CountriesResource,
-  Country, CustomersResource, GenderEnum, MyProfileResource
+  AuthController,
+  CountriesController,
+  Country, Customer, CustomersController, GenderEnum, Profile
 } from '../_support/test-api/index.js';
 
 describe('ApiDocument', function () {
@@ -21,7 +18,9 @@ describe('ApiDocument', function () {
       version: 'v1',
       description: 'Document description',
     },
-    resources: [CustomersResource, CountriesResource, MyProfileResource]
+    root: {
+      resources: [CustomersController, CountriesController, AuthController]
+    }
   };
 
   it('Should create ApiDocument instance', async () => {
@@ -36,131 +35,13 @@ describe('ApiDocument', function () {
     expect(doc.info).toStrictEqual(baseArgs.info);
   })
 
-  it('Should getDataType(name) return DataType instance', async () => {
-    const doc = await ApiDocumentFactory.createDocument(baseArgs);
-    expect(doc).toBeDefined();
-    expect(doc.getDataType('string')).toBeInstanceOf(DataType);
-    expect(doc.getDataType('string').name).toStrictEqual('string');
-  })
-
-  it('Should getDataType(ctor: Class) return DataType instance', async () => {
-    const doc = await ApiDocumentFactory.createDocument(baseArgs);
-    expect(doc).toBeDefined();
-    expect(doc.getDataType(String)).toBeInstanceOf(DataType);
-    expect(doc.getDataType(String).name).toStrictEqual('string');
-  })
-
-  it('Should getDataType(unknown: string) throw if not found', async () => {
-    const doc = await ApiDocumentFactory.createDocument(baseArgs);
-    expect(doc).toBeDefined();
-    expect(() => doc.getDataType('notexists')).toThrow('does not exists');
-  })
-
-  it('Should getSimpleType(name) return DataType instance', async () => {
-    const doc = await ApiDocumentFactory.createDocument(baseArgs);
-    expect(doc).toBeDefined();
-    expect(doc.getSimpleType('string')).toBeInstanceOf(SimpleType);
-    expect(doc.getSimpleType('string').name).toStrictEqual('string');
-    expect(doc.getSimpleType('string').kind).toStrictEqual('SimpleType');
-  })
-
-  it('Should getSimpleType(ctor: Class) return DataType instance', async () => {
-    const doc = await ApiDocumentFactory.createDocument(baseArgs);
-    expect(doc).toBeDefined();
-    expect(doc.getSimpleType(String)).toBeInstanceOf(SimpleType);
-    expect(doc.getSimpleType(String).name).toStrictEqual('string');
-    expect(doc.getSimpleType(String).kind).toStrictEqual('SimpleType');
-  })
-
-  it('Should getSimpleType(name) throw if DataType is not SimpleType', async () => {
-    const doc = await ApiDocumentFactory.createDocument(baseArgs);
-    expect(doc).toBeDefined();
-    expect(() => doc.getSimpleType('object')).toThrow('is not');
-  })
-
-  it('Should getSimpleType(ctor: Class) throw if DataType is not SimpleType', async () => {
-    const doc = await ApiDocumentFactory.createDocument(baseArgs);
-    expect(doc).toBeDefined();
-    expect(() => doc.getSimpleType(Country)).toThrow('is not');
-  })
-
-  it('Should getComplexType(name) return DataType instance', async () => {
-    const doc = await ApiDocumentFactory.createDocument(baseArgs);
-    expect(doc).toBeDefined();
-    expect(doc.getComplexType('country')).toBeInstanceOf(ComplexType);
-    expect(doc.getComplexType('country').name).toStrictEqual('Country');
-    expect(doc.getComplexType('country').kind).toStrictEqual('ComplexType');
-  })
-
-  it('Should getComplexType(ctor: Class) return DataType instance', async () => {
+  it('Should import data types used by resources', async () => {
     const doc = await ApiDocumentFactory.createDocument(baseArgs);
     expect(doc).toBeDefined();
     expect(doc.getComplexType(Country)).toBeInstanceOf(ComplexType);
-    expect(doc.getComplexType(Country).name).toStrictEqual('Country');
-    expect(doc.getComplexType(Country).kind).toStrictEqual('ComplexType');
-  })
-
-  it('Should getComplexType(name) throw if DataType is not ComplexType', async () => {
-    const doc = await ApiDocumentFactory.createDocument(baseArgs);
-    expect(doc).toBeDefined();
-    expect(() => doc.getComplexType('string')).toThrow('is not');
-  })
-
-  it('Should getComplexType(ctor: Class) throw if DataType is not ComplexType', async () => {
-    const doc = await ApiDocumentFactory.createDocument(baseArgs);
-    expect(doc).toBeDefined();
-    expect(() => doc.getComplexType(String)).toThrow('is not');
-  })
-
-  it('Should getEnumType(name) return DataType instance', async () => {
-    const doc = await ApiDocumentFactory.createDocument(baseArgs);
-    expect(doc).toBeDefined();
-    expect(doc.getEnumType('GenderEnum')).toBeInstanceOf(EnumType);
-    expect(doc.getEnumType('GenderEnum').name).toStrictEqual('GenderEnum');
-    expect(doc.getEnumType('GenderEnum').kind).toStrictEqual('EnumType');
-  })
-
-  it('Should getEnumType(Obj) return DataType instance', async () => {
-    const doc = await ApiDocumentFactory.createDocument(baseArgs);
-    expect(doc).toBeDefined();
+    expect(doc.getComplexType(Customer)).toBeInstanceOf(ComplexType);
+    expect(doc.getComplexType(Profile)).toBeInstanceOf(ComplexType);
     expect(doc.getEnumType(GenderEnum)).toBeInstanceOf(EnumType);
-    expect(doc.getEnumType(GenderEnum).name).toStrictEqual('GenderEnum');
-    expect(doc.getEnumType(GenderEnum).kind).toStrictEqual('EnumType');
-  })
-
-  it('Should include built-in types by default', async () => {
-    const doc = await ApiDocumentFactory.createDocument(baseArgs);
-    expect(doc).toBeDefined();
-    expect(doc.references.size).toStrictEqual(1);
-    const ref = doc.references.get('opra');
-    expect(ref).toBeDefined();
-    expect(ref?.getDataType('any')).toBeDefined();
-    expect(ref?.getDataType('any').kind).toStrictEqual('SimpleType');
-    expect(ref?.getDataType(Object)).toBeDefined();
-    expect(ref?.getDataType(Object).name).toStrictEqual('any')
-
-    expect(ref?.getDataType('bigint')).toBeDefined();
-    expect(ref?.getDataType(BigInt)).toBeDefined();
-    expect(ref?.getDataType(BigInt).name).toStrictEqual('bigint');
-
-    expect(ref?.getDataType('boolean')).toBeDefined();
-    expect(ref?.getDataType(Boolean)).toBeDefined();
-    expect(ref?.getDataType(Boolean).name).toStrictEqual('boolean');
-
-    expect(ref?.getDataType('integer')).toBeDefined();
-
-    expect(ref?.getDataType('number')).toBeDefined();
-    expect(ref?.getDataType(Number)).toBeDefined();
-    expect(ref?.getDataType(Number).name).toStrictEqual('number');
-
-    expect(ref?.getDataType('object')).toBeDefined();
-
-    expect(ref?.getDataType('string')).toBeDefined();
-    expect(ref?.getDataType(String)).toBeDefined();
-    expect(ref?.getDataType(String).name).toStrictEqual('string')
-
-    expect(ref?.getDataType('time')).toBeDefined();
-    expect(ref?.getDataType('timestamp')).toBeDefined();
   })
 
   it('Should getResource(name) return Resource instance', async () => {
@@ -188,19 +69,19 @@ describe('ApiDocument', function () {
 
   it('Should getCollection(name) throw if resource is not a Collection', async () => {
     const doc = await ApiDocumentFactory.createDocument(baseArgs);
-    expect(() => doc.getCollection('MyProfile')).toThrow('is not a Collection');
+    expect(() => doc.getCollection('auth/MyProfile')).toThrow('is not a Collection');
   })
 
   it('Should getCollection(name, silent) return undefined if resource is not a Collection', async () => {
     const doc = await ApiDocumentFactory.createDocument(baseArgs);
     expect(doc).toBeDefined();
-    expect(() => doc.getCollection('MyProfile')).toThrow('is not a Collection');
+    expect(() => doc.getCollection('auth/MyProfile')).toThrow('is not a Collection');
   })
 
   it('Should getSingleton(name) return Singleton instance', async () => {
     const doc = await ApiDocumentFactory.createDocument(baseArgs);
     expect(doc).toBeDefined();
-    expect(doc.getSingleton('MyProfile')).toBeInstanceOf(Singleton);
+    expect(doc.getSingleton('auth/MyProfile')).toBeInstanceOf(Singleton);
   })
 
   it('Should getSingleton(name) throw if resource is not a Singleton', async () => {
@@ -232,9 +113,10 @@ describe('ApiDocument', function () {
           abstract: true
         })
     );
-    expect(sch.resources).toBeDefined();
-    expect(Object.keys(sch.resources!).sort())
-        .toEqual(['Countries', 'Customers', 'MyProfile'].sort());
+    expect(sch.root).toBeDefined();
+    expect(sch.root?.resources).toBeDefined();
+    expect(Object.keys(sch.root!.resources!).sort())
+        .toEqual(['Countries', 'Customers', 'Auth'].sort());
   })
 
 });

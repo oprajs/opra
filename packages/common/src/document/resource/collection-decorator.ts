@@ -4,15 +4,16 @@ import { omitUndefined } from '../../helpers/index.js';
 import { Field } from '../../schema/data-type/field.interface.js';
 import { OpraSchema } from '../../schema/index.js';
 import { TypeThunkAsync } from '../../types.js';
-import { ActionDecorator, createActionDecorator } from './action.decorator.js';
-import { createOperationDecorator } from './operation.decorator.js';
-import { ResourceDecorator } from './resource.decorator.js';
+import { ActionDecorator, createActionDecorator } from './action-decorator.js';
+import type { Collection } from './collection.js';
+import { createOperationDecorator } from './operation-decorator.js';
+import { ResourceDecorator } from './resource-decorator.js';
 
 type ErrorMessage<T, Error> = [T] extends [never] ? Error : T;
 const operationProperties = ['create', 'delete', 'deleteMany', 'get', 'findMany', 'update', 'updateMany'] as const;
 type OperationProperties = typeof operationProperties[number];
 
-export function CollectionDecorator(type: Type | string, options?: CollectionDecorator.Options): ClassDecorator {
+export function CollectionDecorator(type: Type | string, options?: Collection.DecoratorOptions): ClassDecorator {
   return ResourceDecorator(OpraSchema.Collection.Kind, {...options, type})
 }
 
@@ -20,7 +21,7 @@ Object.assign(CollectionDecorator, ResourceDecorator);
 
 
 export interface CollectionDecorator extends StrictOmit<ResourceDecorator, 'Action'> {
-  <T>(type: Type<T> | string, options?: CollectionDecorator.Options<T>): ClassDecorator;
+  <T>(type: Type<T> | string, options?: Collection.DecoratorOptions<T>): ClassDecorator;
 
   Action: (options?: CollectionDecorator.Action.Options) => (
       <T, K extends keyof T>(
@@ -58,10 +59,6 @@ export namespace CollectionDecorator {
       update: Update.Metadata;
       updateMany: UpdateMany.Metadata;
     }
-  }
-
-  export interface Options<T = any> extends Partial<StrictOmit<Metadata, 'operations' | 'actions' | 'primaryKey'>> {
-    primaryKey?: keyof T | (keyof T)[];
   }
 
   /**

@@ -10,7 +10,10 @@ export interface ResourceDecorator {
   Action: (options?: ResourceDecorator.EndpointOptions) => ResourceDecorator;
 }
 
-export function ResourceDecorator<O extends ResourceDecorator.Options>(kind: OpraSchema.Resource.Kind, meta?: O): ClassDecorator {
+export function ResourceDecorator<O extends ResourceDecorator.Options>(
+    kind: OpraSchema.Resource.Kind,
+    meta?: O
+): ClassDecorator {
   const namePattern = new RegExp(`^(.*)(${kind}|Resource|Controller)$`);
   return function (target: Function) {
     const name = meta?.name || namePattern.exec(target.name)?.[1] || target.name;

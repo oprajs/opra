@@ -33,7 +33,8 @@ export abstract class DataType {
 
   abstract generateCodec(codec: 'decode' | 'encode', options?: DataType.GenerateCodecOptions): vg.Validator;
 
-  exportSchema(): OpraSchema.DataType {
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  exportSchema(options?: { webSafe?: boolean }): OpraSchema.DataType {
     return omitUndefined({
       kind: this.kind,
       description: this.description

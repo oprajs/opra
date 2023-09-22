@@ -3,7 +3,7 @@ import * as vg from 'valgen';
 import { omitUndefined } from '../../helpers/index.js';
 import { OpraSchema } from '../../schema/index.js';
 import { DataType } from '../data-type/data-type.js';
-import type { ResourceDecorator } from './resource.decorator.js';
+import type { ResourceDecorator } from './resource-decorator.js';
 
 /**
  *
@@ -32,9 +32,9 @@ export class Parameter {
     this.examples = init.examples;
   }
 
-  exportSchema(): OpraSchema.Endpoint.Parameter {
+  exportSchema(options?: { webSafe?: boolean }): OpraSchema.Endpoint.Parameter {
     return omitUndefined<OpraSchema.Endpoint.Parameter>({
-      type: this.type.name ? this.type.name : this.type.exportSchema(),
+      type: this.type.name ? this.type.name : this.type.exportSchema(options),
       description: this.description,
       isArray: this.isArray,
       default: this.default,

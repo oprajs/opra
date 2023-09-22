@@ -4,8 +4,8 @@ import type { ApiDocument } from '../api-document.js';
 import { DECORATOR } from '../constants.js';
 import { ComplexType } from '../data-type/complex-type.js';
 import { Resource } from './resource.js';
-import { SingletonDecorator } from './singleton.decorator.js';
 import { SingletonClass } from './singleton-class.js';
+import { SingletonDecorator } from './singleton-decorator.js';
 
 export interface Singleton extends SingletonClass {
 }
@@ -42,11 +42,15 @@ Singleton[DECORATOR] = SingletonDecorator;
  */
 export namespace Singleton {
 
-  export interface InitArguments extends Combine<Resource.InitArguments,
-      StrictOmit<SingletonDecorator.Metadata, 'type'>> {
+  export interface InitArguments extends StrictOmit<Combine<Resource.InitArguments,
+      SingletonDecorator.Metadata>, 'kind' | 'type'> {
     name: string;
     type: ComplexType;
   }
+
+  export interface DecoratorOptions extends Partial<StrictOmit<SingletonDecorator.Metadata, 'kind' | 'operations' | 'actions'>> {
+  }
+
 
   // Need for augmentation
   export namespace Create {

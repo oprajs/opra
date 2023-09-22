@@ -4,7 +4,7 @@ import {
   Collection,
   OpraSchema,
 } from '@opra/common';
-import { Country } from '../../_support/test-api/index.js';
+import { Country } from '../../../_support/test-api/index.js';
 
 describe('ApiDocumentFactory - Collection resource with schema object', function () {
 
@@ -28,12 +28,14 @@ describe('ApiDocumentFactory - Collection resource with schema object', function
     const doc = await ApiDocumentFactory.createDocument({
       ...baseArgs,
       types: [Country],
-      resources: {
-        resource1
+      root: {
+        resources: {
+          resource1
+        }
       }
     })
     expect(doc).toBeDefined();
-    const t = doc.resources.get('resource1') as Collection;
+    const t = doc.root.resources.get('resource1') as Collection;
     expect(t).toBeDefined();
     expect(t.kind).toStrictEqual(OpraSchema.Collection.Kind);
     expect(t.name).toStrictEqual('resource1');

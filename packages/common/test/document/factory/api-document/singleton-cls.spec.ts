@@ -4,7 +4,7 @@ import {
   OpraSchema,
   Singleton,
 } from '@opra/common';
-import { Country } from '../../_support/test-api/index.js';
+import { Country } from '../../../_support/test-api/index.js';
 
 describe('ApiDocumentFactory - Singleton resource with decorated classes', function () {
 
@@ -27,7 +27,9 @@ describe('ApiDocumentFactory - Singleton resource with decorated classes', funct
 
     const doc = await ApiDocumentFactory.createDocument({
       ...baseArgs,
-      resources: [MyCountryResource]
+      root: {
+        resources: [MyCountryResource]
+      }
     })
     expect(doc).toBeDefined();
     const t = doc.getSingleton('MyCountry');
@@ -53,7 +55,9 @@ describe('ApiDocumentFactory - Singleton resource with decorated classes', funct
 
     const doc = await ApiDocumentFactory.createDocument({
       ...baseArgs,
-      resources: [MyCountryResource]
+      root: {
+        resources: [MyCountryResource]
+      }
     })
     expect(doc).toBeDefined();
     const t = doc.getSingleton('MyCountry');
@@ -74,7 +78,9 @@ describe('ApiDocumentFactory - Singleton resource with decorated classes', funct
 
     const doc = await ApiDocumentFactory.createDocument({
       ...baseArgs,
-      resources: [MyCountryResource]
+      root: {
+        resources: [MyCountryResource]
+      }
     })
     expect(doc).toBeDefined();
     const t = doc.getSingleton('MyCountry');
@@ -95,7 +101,9 @@ describe('ApiDocumentFactory - Singleton resource with decorated classes', funct
 
     const doc = await ApiDocumentFactory.createDocument({
       ...baseArgs,
-      resources: [MyCountryResource]
+      root: {
+        resources: [MyCountryResource]
+      }
     })
     expect(doc).toBeDefined();
     const t = doc.getSingleton('MyCountry');
@@ -116,7 +124,9 @@ describe('ApiDocumentFactory - Singleton resource with decorated classes', funct
 
     const doc = await ApiDocumentFactory.createDocument({
       ...baseArgs,
-      resources: [MyCountryResource]
+      root: {
+        resources: [MyCountryResource]
+      }
     })
     expect(doc).toBeDefined();
     const t = doc.getSingleton('MyCountry');

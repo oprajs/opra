@@ -1,7 +1,10 @@
+import { StrictOmit } from 'ts-gems';
 import type { Endpoint } from './endpoint.interface.js';
 import type { ResourceBase } from './resource.interface.js';
 
-export interface Storage extends ResourceBase<Storage.Kind, Storage.Operations> {
+export interface Storage extends StrictOmit<ResourceBase, 'kind' | 'operations'> {
+  kind: Storage.Kind;
+  operations?: Storage.Operations;
 }
 
 export namespace Storage {
@@ -12,6 +15,7 @@ export namespace Storage {
     delete?: Operations.Delete;
     get?: Operations.Get;
     post?: Operations.Post;
+    [key: string]: Endpoint | undefined;
   }
 
   export namespace Operations {

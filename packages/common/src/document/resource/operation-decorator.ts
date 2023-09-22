@@ -1,27 +1,27 @@
 import { Type } from 'ts-gems';
 import { RESOURCE_METADATA } from '../constants.js';
-import { ResourceDecorator } from './resource.decorator.js';
+import { ResourceDecorator } from './resource-decorator';
 
-export type ActionDecorator = ((target: Object, propertyKey: string) => void) & {
-  Parameter: (name: string, optionsOrType?: ResourceDecorator.ParameterOptions | string | Type) => ActionDecorator;
-};
+export type OperationDecorator = ((target: Object, propertyKey: any) => void) & {
+  Parameter: (name: string, optionsOrType?: ResourceDecorator.ParameterOptions | string | Type) => OperationDecorator;
+}
 
-export function createActionDecorator<T extends ActionDecorator, M extends ResourceDecorator.EndpointMetadata>(
+export function createOperationDecorator<T extends OperationDecorator, M extends ResourceDecorator.EndpointMetadata>(
+    operation: string,
     options: any,
-    bannedProperties: string[] | readonly string[],
-    list: ((operationMeta: M) => void)[]
+    list: ((operationMeta: M, target: Object, propertyKey: string) => void)[]
 ): T {
   const decorator = ((target: Object, propertyKey: any): void => {
-    if (typeof propertyKey === 'string' && bannedProperties.includes(propertyKey as any))
-      throw new TypeError(`The "${propertyKey}" property is reserved for "${propertyKey}" operations and cannot be used as an action'`);
+    if (propertyKey !== operation)
+      throw new TypeError(`Name of the handler name should be '${operation}'`);
 
     const resourceMetadata =
         (Reflect.getOwnMetadata(RESOURCE_METADATA, target.constructor) || {}) as ResourceDecorator.Metadata;
-    resourceMetadata.actions = resourceMetadata.actions || {};
-    const actionMeta: M = {...options};
-    resourceMetadata.actions[propertyKey] = actionMeta;
+    resourceMetadata.operations = resourceMetadata.operations || {};
+    const operationMeta: M = {...options};
+    resourceMetadata.operations[operation] = operationMeta;
     for (const fn of list)
-      fn(actionMeta);
+      fn(operationMeta, target, propertyKey);
     Reflect.defineMetadata(RESOURCE_METADATA, resourceMetadata, target.constructor);
   }) as T;
 
@@ -39,5 +39,3 @@ export function createActionDecorator<T extends ActionDecorator, M extends Resou
 
   return decorator;
 }
-
-

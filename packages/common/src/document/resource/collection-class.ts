@@ -8,16 +8,16 @@ import { ComplexType } from '../data-type/complex-type.js';
 import type { DataType } from '../data-type/data-type.js';
 import { SimpleType } from '../data-type/simple-type.js';
 import type { Collection } from './collection.js';
-import type { CollectionDecorator } from './collection-decorator.js';
+import type { CollectionDecorator } from './collection-decorator';
 import { Endpoint } from './endpoint.js';
 import { Resource } from './resource.js';
 
 export class CollectionClass extends Resource {
+  readonly kind: OpraSchema.Resource.Kind = OpraSchema.Collection.Kind;
+  readonly type: ComplexType;
+  readonly primaryKey: string[];
   protected _decoders: Record<string, vg.Validator> = {};
   protected _encoders: Record<string, vg.Validator> = {};
-  readonly type: ComplexType;
-  readonly kind = OpraSchema.Collection.Kind;
-  readonly primaryKey: string[];
 
   constructor(document: ApiDocument, init: Collection.InitArguments) {
     super(document, init);
@@ -46,9 +46,9 @@ export class CollectionClass extends Resource {
     return super.getOperation(name);
   }
 
-  exportSchema(): OpraSchema.Collection {
+  exportSchema(options?: { webSafe?: boolean }): OpraSchema.Collection {
     return {
-      ...super.exportSchema() as OpraSchema.Collection,
+      ...super.exportSchema(options) as OpraSchema.Collection,
       type: this.type.name || 'object',
       ...{
         primaryKey: this.primaryKey

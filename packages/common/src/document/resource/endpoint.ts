@@ -5,7 +5,7 @@ import { DataType } from '../data-type/data-type.js';
 import { EnumType } from '../data-type/enum-type.js';
 import { Parameter } from './parameter.js';
 import type { Resource } from './resource';
-import type { ResourceDecorator } from './resource.decorator.js';
+import type { ResourceDecorator } from './resource-decorator.js';
 
 /**
  *
@@ -29,14 +29,14 @@ export class Endpoint {
     }
   }
 
-  exportSchema(): OpraSchema.Endpoint {
+  exportSchema(options?: { webSafe?: boolean }): OpraSchema.Endpoint {
     const schema = omitUndefined<OpraSchema.Endpoint>({
       description: this.description
     });
     if (this.parameters.size) {
       schema.parameters = {};
       for (const [name, param] of this.parameters.entries()) {
-        schema.parameters[name] = param.exportSchema();
+        schema.parameters[name] = param.exportSchema(options);
       }
     }
     return schema;

@@ -2,15 +2,16 @@ import { Combine, StrictOmit, Type } from 'ts-gems';
 import { Field } from '../../schema/data-type/field.interface.js';
 import { OpraSchema } from '../../schema/index.js';
 import { TypeThunkAsync } from '../../types.js';
-import { ActionDecorator, createActionDecorator } from './action.decorator.js';
+import { ActionDecorator, createActionDecorator } from './action-decorator.js';
 import { CollectionDecorator } from './collection-decorator.js';
-import { ResourceDecorator } from './resource.decorator.js';
+import { ResourceDecorator } from './resource-decorator.js';
+import type { Singleton } from './singleton.js';
 
 type ErrorMessage<T, Error> = [T] extends [never] ? Error : T;
 const operationProperties = ['create', 'delete', 'get', 'update'] as const;
 type OperationProperties = typeof operationProperties[number];
 
-export function SingletonDecorator(type: Type | string, options?: SingletonDecorator.Options): ClassDecorator {
+export function SingletonDecorator(type: Type | string, options?: Singleton.DecoratorOptions): ClassDecorator {
   return ResourceDecorator(OpraSchema.Singleton.Kind, {...options, type})
 }
 
@@ -18,7 +19,7 @@ Object.assign(SingletonDecorator, ResourceDecorator);
 
 
 export interface SingletonDecorator extends StrictOmit<ResourceDecorator, 'Action'> {
-  <T>(type: Type<T> | string, options?: SingletonDecorator.Options): ClassDecorator;
+  <T>(type: Type<T> | string, options?: Singleton.DecoratorOptions): ClassDecorator;
 
   Action: (options?: SingletonDecorator.Action.Options) => (
       <T, K extends keyof T>(
@@ -49,9 +50,6 @@ export namespace SingletonDecorator {
       get: Get.Metadata;
       update: Update.Metadata;
     }
-  }
-
-  export interface Options extends Partial<StrictOmit<Metadata, 'operations' | 'actions'>> {
   }
 
   /**

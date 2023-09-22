@@ -23,12 +23,14 @@ describe('ApiDocumentFactory - Storage resource with schema object', function ()
     };
     const doc = await ApiDocumentFactory.createDocument({
       ...baseArgs,
-      resources: {
-        resource1
+      root: {
+        resources: {
+          resource1
+        }
       }
     })
     expect(doc).toBeDefined();
-    const t = doc.resources.get('resource1') as Storage;
+    const t = doc.getResource('resource1', true) as Storage;
     expect(t).toBeDefined();
     expect(t.kind).toStrictEqual(OpraSchema.Storage.Kind);
     expect(t.name).toStrictEqual('resource1');

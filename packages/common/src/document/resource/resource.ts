@@ -5,7 +5,7 @@ import { OpraSchema } from '../../schema/index.js';
 import type { ApiDocument } from '../api-document.js';
 import { colorFgMagenta, colorFgYellow, colorReset, nodeInspectCustom } from '../utils/inspect.util.js';
 import { Endpoint } from './endpoint.js';
-import type { ResourceDecorator } from './resource.decorator.js';
+import type { ResourceDecorator } from './resource-decorator';
 
 export abstract class Resource {
   readonly document: ApiDocument;
@@ -44,7 +44,7 @@ export abstract class Resource {
     return this.operations.get(name);
   }
 
-  exportSchema(): OpraSchema.ResourceBase {
+  exportSchema(options?: { webSafe?: boolean }): OpraSchema.ResourceBase {
     const schema = omitUndefined<OpraSchema.ResourceBase>({
       kind: this.kind,
       description: this.description,
@@ -52,13 +52,13 @@ export abstract class Resource {
     if (this.operations.size) {
       schema.operations = {};
       for (const operation of this.operations.values()) {
-        schema.operations[operation.name] = operation.exportSchema();
+        schema.operations[operation.name] = operation.exportSchema(options);
       }
     }
     if (this.actions.size) {
       schema.actions = {};
       for (const action of this.actions.values()) {
-        schema.actions[action.name] = action.exportSchema();
+        schema.actions[action.name] = action.exportSchema(options);
       }
     }
     return schema;
@@ -82,4 +82,5 @@ export namespace Resource {
     controller?: object;
     ctor?: Type;
   }
+
 }

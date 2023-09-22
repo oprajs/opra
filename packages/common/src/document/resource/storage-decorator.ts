@@ -1,14 +1,15 @@
 import { Combine, StrictOmit, Type } from 'ts-gems';
 import { OpraSchema } from '../../schema/index.js';
-import { ActionDecorator, createActionDecorator } from './action.decorator.js';
-import { createOperationDecorator } from './operation.decorator.js';
-import { ResourceDecorator } from './resource.decorator.js';
+import { ActionDecorator, createActionDecorator } from './action-decorator.js';
+import { createOperationDecorator } from './operation-decorator.js';
+import { ResourceDecorator } from './resource-decorator.js';
+import type { Storage } from './storage.js';
 
 type ErrorMessage<T, Error> = [T] extends [never] ? Error : T;
 const operationProperties = ['delete', 'get', 'post'] as const;
 type OperationProperties = typeof operationProperties[number];
 
-export function StorageDecorator(options?: StorageDecorator.Options): ClassDecorator {
+export function StorageDecorator(options?: Storage.DecoratorOptions): ClassDecorator {
   return ResourceDecorator(OpraSchema.Storage.Kind, options)
 }
 
@@ -16,7 +17,7 @@ Object.assign(StorageDecorator, ResourceDecorator);
 
 
 export interface StorageDecorator extends StrictOmit<ResourceDecorator, 'Action'> {
-  (options?: StorageDecorator.Options): ClassDecorator;
+  (options?: Storage.DecoratorOptions): ClassDecorator;
 
   Action: (options?: StorageDecorator.Action.Options) => (
       <T, K extends keyof T>(
@@ -45,10 +46,6 @@ export namespace StorageDecorator {
       post: Post.Metadata;
     }
   }
-
-  export interface Options extends Partial<StrictOmit<Metadata, 'operations' | 'actions'>> {
-  }
-
 
   /**
    * @namespace Action

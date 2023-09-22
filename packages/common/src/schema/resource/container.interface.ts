@@ -1,9 +1,11 @@
-import type { DataType } from '../data-type/data-type.interface.js';
+import type { StrictOmit } from 'ts-gems';
+import type { Endpoint } from './endpoint.interface.js';
 import type { Resource, ResourceBase } from './resource.interface';
 
-export interface Container extends ResourceBase<Container.Kind> {
-  types?: Record<DataType.Name, DataType>;
+export interface Container extends StrictOmit<ResourceBase, 'kind' | 'operations'> {
+  kind: Container.Kind;
   resources?: Record<Resource.Name, Resource>;
+  actions?: Record<string, Endpoint | undefined>;
 }
 
 export namespace Container {

@@ -1,9 +1,13 @@
+import { StrictOmit } from 'ts-gems';
 import type { DataType } from '../data-type/data-type.interface.js';
 import type { Collection } from './collection.interface.js';
+import { Endpoint } from './endpoint.interface.js';
 import type { ResourceBase } from './resource.interface.js';
 
-export interface Singleton extends ResourceBase<Singleton.Kind, Singleton.Operations> {
+export interface Singleton extends StrictOmit<ResourceBase, 'kind' | 'operations'> {
+  kind: Singleton.Kind;
   type: DataType.Name;
+  operations?: Singleton.Operations;
 }
 
 export namespace Singleton {
@@ -15,6 +19,8 @@ export namespace Singleton {
     delete?: Operations.Delete;
     get?: Operations.Get;
     update?: Operations.Update;
+
+    [key: string]: Endpoint | undefined;
   }
 
   export namespace Operations {

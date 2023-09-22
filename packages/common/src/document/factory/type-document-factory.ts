@@ -3,7 +3,7 @@ import { validator } from 'valgen';
 import { cloneObject, isConstructor, resolveThunk, ResponsiveMap } from '../../helpers/index.js';
 import { OpraSchema } from '../../schema/index.js';
 import { ThunkAsync } from '../../types.js';
-import { ApiDocument } from '../api-document.js';
+import type { ApiDocument } from '../api-document.js';
 import { DATATYPE_METADATA } from '../constants.js';
 import {
   AnyType, Base64Type, BigintType, BooleanType, DateType,
@@ -17,9 +17,10 @@ import { ApiField } from '../data-type/field.js';
 import { MappedType } from '../data-type/mapped-type.js';
 import { SimpleType } from '../data-type/simple-type.js';
 import { UnionType } from '../data-type/union-type.js';
+import { TypeDocument } from '../type-document.js';
 
 export namespace TypeDocumentFactory {
-  export interface InitArguments extends StrictOmit<OpraSchema.ApiDocument, 'references' | 'types' | 'resources'> {
+  export interface InitArguments extends StrictOmit<OpraSchema.TypeDocument, 'references' | 'types'> {
     references?: Record<string, string | OpraSchema.ApiDocument | ApiDocument>;
     types?: ThunkAsync<Type | EnumType.EnumObject | EnumType.EnumArray>[] | Record<string, OpraSchema.DataType>;
     noBuiltinTypes?: boolean;
@@ -34,18 +35,41 @@ export namespace TypeDocumentFactory {
       ;
 }
 
+/**
+ * @class TypeDocumentFactory
+ */
 export class TypeDocumentFactory {
   static designTypeMap = new Map<Function | Type, string>();
 
-  protected document: ApiDocument = new ApiDocument();
+  protected document: TypeDocument;
   protected typeQueue = new ResponsiveMap<any>();
   protected circularRefs = new Map();
   protected curPath: string[] = [];
   protected cache = new Map<any, any>();
 
-  protected async createDocument(
+  /**
+   * Creates ApiDocument instance from given schema object
+   */
+  static async createDocument(init: TypeDocumentFactory.InitArguments): Promise<TypeDocument> {
+    const factory = new TypeDocumentFactory();
+    const document = factory.document = new TypeDocument();
+    await factory.initDocument(init);
+    return document;
+  }
+
+  /**
+   * Downloads schema from the given URL and creates the document instance   * @param url
+   */
+  static async createDocumentFromUrl(url: string): Promise<TypeDocument> {
+    const factory = new TypeDocumentFactory();
+    const document = factory.document = new TypeDocument();
+    await factory.initDocumentFromUrl(url);
+    return document;
+  }
+
+  protected async initDocument(
       init: TypeDocumentFactory.InitArguments
-  ): Promise<ApiDocument> {
+  ): Promise<TypeDocument> {
     this.document.url = init.url;
     if (init.info)
       Object.assign(this.document.info, init.info);
@@ -83,15 +107,15 @@ export class TypeDocumentFactory {
     return this.document;
   }
 
-  async createDocumentFromUrl(url: string): Promise<ApiDocument> {
+  async initDocumentFromUrl(url: string): Promise<TypeDocument> {
     const resp = await fetch(url, {method: 'GET'});
     const init = await resp.json();
     if (!init)
       throw new TypeError(`Invalid response returned from url: ${url}`);
-    return await this.createDocument({...init, url});
+    return await this.initDocument({...init, url});
   }
 
-  protected async createBuiltinTypeDocument(): Promise<ApiDocument> {
+  protected async createBuiltinTypeDocument(): Promise<TypeDocument> {
     const init: TypeDocumentFactory.InitArguments = {
       version: OpraSchema.SpecVersion,
       info: {
@@ -113,18 +137,19 @@ export class TypeDocumentFactory {
       ]
     }
     const factory = new TypeDocumentFactory();
-    return await factory.createDocument({...init, noBuiltinTypes: true});
+    factory.document = new TypeDocument();
+    return await factory.initDocument({...init, noBuiltinTypes: true});
   }
 
-  protected async addReferences(references: Record<string, string | OpraSchema.ApiDocument | ApiDocument>): Promise<void> {
+  protected async addReferences(references: Record<string, string | OpraSchema.TypeDocument | TypeDocument>): Promise<void> {
     const {document} = this;
     for (const [ns, r] of Object.entries<any>(references)) {
       if (typeof r === 'string') {
-        document.references.set(ns, await this.createDocumentFromUrl(r));
-      } else if (r instanceof ApiDocument)
+        document.references.set(ns, await this.initDocumentFromUrl(r));
+      } else if (r instanceof TypeDocument)
         document.references.set(ns, r);
       else if (typeof r === 'object') {
-        document.references.set(ns, await this.createDocument(r));
+        document.references.set(ns, await this.initDocument(r));
       } else throw new TypeError(`Invalid document reference (${ns}) in schema`);
     }
   }
@@ -174,7 +199,7 @@ export class TypeDocumentFactory {
         throw new TypeError('Circular reference detected');
       const dataType = this.document.getDataType(name, true);
       if (dataType) return dataType;
-      this.curPath.push('#' + name);
+      this.curPath.push('/' + name);
       this.circularRefs.set(name, 1);
     }
     if (ctor) {
@@ -259,7 +284,7 @@ export class TypeDocumentFactory {
         const trgFields: Record<string, ApiField.InitArguments> = initArguments.fields = {};
         for (const [fieldName, o] of Object.entries<any>(srcFields)) {
           try {
-            this.curPath.push(fieldName);
+            this.curPath.push('.' + fieldName);
             const srcMeta: OpraSchema.Field | ApiField.Metadata = typeof o === 'string' ? {type: o} : o;
             const fieldInit = trgFields[fieldName] = {
               ...srcMeta,
@@ -333,139 +358,5 @@ export class TypeDocumentFactory {
     }
     return dataType;
   }
-
-  /*
-    protected processDataType(schemaOrName: OpraSchema.DataType | string): DataType {
-      const {document, typeQueue, circularRefs, curPath} = this;
-      const name = typeof schemaOrName === 'string' ? schemaOrName : undefined;
-      let schema: OpraSchema.DataType | undefined;
-      let dataType: DataType | undefined;
-      if (name) {
-        // Check if data type exists in document
-        dataType = document.getDataType(name);
-        // Get schema from stack, it is already done if not exist
-        schema = typeQueue.get(name);
-        if (!schema)
-          return dataType;
-        // Detect circular refs
-        if (circularRefs.has(name))
-          throw new TypeError(`Circular reference detected. ${[...Array.from(circularRefs.keys()), name].join('>')}`)
-        circularRefs.set(name, 1);
-      } else
-        schema = schemaOrName as OpraSchema.DataType;
-
-      try {
-        // Init base
-        let base: any;
-        if ((OpraSchema.isSimpleType(schema) || OpraSchema.isComplexType(schema) || OpraSchema.isEnumType(schema)) && schema.base) {
-          curPath.push(typeof schema.base === 'string' ? schema.base : '[base]');
-          base = this.processDataType(schema.base);
-          curPath.pop();
-        }
-
-        // **** Init SimpleType ****
-        if (OpraSchema.isSimpleType(schema)) {
-          const initArgs: SimpleType.InitArguments = {
-            ...schema,
-            name,
-            base
-          }
-          dataType = dataType || this.createDataTypeInstance(schema.kind, name);
-          if (name) curPath.push(name);
-          SimpleType.apply(dataType, [document, initArgs] as any);
-          if (name) curPath.pop();
-          return dataType;
-        }
-
-        // **** Init ComplexType ****
-        if (OpraSchema.isComplexType(schema)) {
-          const initArgs: ComplexType.InitArguments = {
-            ...schema,
-            name,
-            base
-          }
-          dataType = dataType || this.createDataTypeInstance(schema.kind, name);
-          if (name) curPath.push(name);
-          ComplexType.apply(dataType, [document, initArgs] as any);
-          if (name)
-            typeQueue.delete(name);
-
-          // process fields
-          if (schema.fields) {
-            for (const [elemName, v] of Object.entries(schema.fields)) {
-              const elemSchema = typeof v === 'object' ? v : {type: v};
-              curPath.push(`${name}.${elemName}[type]`);
-              const elemType = this.processDataType(elemSchema.type);
-              (dataType as ComplexType).addField({
-                ...elemSchema,
-                name: elemName,
-                type: elemType
-              });
-              curPath.pop();
-            }
-          }
-          if (name) curPath.pop();
-          return dataType;
-        }
-
-        // **** Init EnumType ****
-        if (OpraSchema.isEnumType(schema)) {
-          const initArgs: EnumType.InitArguments = {
-            ...schema,
-            name,
-            base
-          }
-          dataType = dataType || this.createDataTypeInstance(schema.kind, name);
-          if (name) curPath.push(name);
-          EnumType.apply(dataType, [document, initArgs] as any);
-          if (name) curPath.pop();
-          return dataType;
-        }
-
-        // **** Init UnionType ****
-        if (OpraSchema.isUnionType(schema)) {
-          const unionTypes = schema.types.map(t => this.processDataType(t)) as any;
-          const initArgs: UnionType.InitArguments = {
-            ...schema,
-            name,
-            types: unionTypes
-          }
-          dataType = dataType || this.createDataTypeInstance(schema.kind, name);
-          if (name) curPath.push(name);
-          UnionType.apply(dataType, [document, initArgs] as any);
-          if (name) curPath.pop();
-          return dataType;
-        }
-
-        // **** Init MappedType ****
-        if (OpraSchema.isMappedType(schema)) {
-          const dt = this.processDataType(schema.type);
-          if (!(dt instanceof ComplexType))
-            throw new TypeError(`MappedType requires a ComplexType`);
-          const initArgs: MappedType.InitArguments = {
-            ...schema,
-            name,
-            type: dt
-          }
-          dataType = dataType || this.createDataTypeInstance(schema.kind, name);
-          if (name) curPath.push(name);
-          MappedType.apply(dataType, [document, initArgs] as any);
-          if (name) curPath.pop();
-          return dataType;
-        }
-
-      } catch (e: any) {
-        if (curPath.length)
-          e.message = `Error at ${curPath.join('/')}: ` + e.message;
-        throw e;
-      } finally {
-        if (name) {
-          circularRefs.delete(name);
-          typeQueue.delete(name);
-        }
-      }
-      throw new TypeError(`Invalid DataType schema: ${JSON.stringify(schema).substring(0, 20)}...`);
-    }
-  */
 
 }

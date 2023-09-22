@@ -43,10 +43,16 @@ Collection[DECORATOR] = CollectionDecorator;
  */
 export namespace Collection {
 
-  export interface InitArguments extends Combine<Resource.InitArguments,
-      StrictOmit<CollectionDecorator.Metadata, 'type'>> {
+  export interface InitArguments extends StrictOmit<Combine<Resource.InitArguments,
+      CollectionDecorator.Metadata>, 'kind' | 'type'> {
     name: string;
     type: ComplexType;
+  }
+
+  export interface DecoratorOptions<T = any> extends Partial<
+      StrictOmit<CollectionDecorator.Metadata, 'kind' | 'operations' | 'actions' | 'primaryKey'>
+  > {
+    primaryKey?: keyof T | (keyof T)[];
   }
 
   // Need for augmentation

@@ -14,5 +14,7 @@ export * from './resource/singleton.interface.js';
 export * from './resource/storage.interface.js';
 
 export * from './constants.js';
-export * from './document.interface.js';
+export * from './document/document-base.interface.js';
+export * from './document/type-document.interface.js';
+export * from './document/api-document.interface.js';
 export * from './type-guards.js';
