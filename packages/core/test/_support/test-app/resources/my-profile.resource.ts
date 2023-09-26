@@ -1,5 +1,5 @@
 import '@opra/core';
-import { Collection, Singleton } from '@opra/common';
+import { Singleton } from '@opra/common';
 import { Profile } from '../entities/profile.entity.js';
 import { GenderEnum } from '../enums/gender.enum.js';
 
@@ -8,7 +8,12 @@ import { GenderEnum } from '../enums/gender.enum.js';
 })
 export class MyProfileResource {
   public idGen = 1;
-  public data: Profile | undefined = {_id: 1, givenName: 'Jessica Hugo', familyName: 'Something', gender: GenderEnum.FEMALE}
+  public data: Profile | undefined = {
+    _id: 1,
+    givenName: 'Jessica Hugo',
+    familyName: 'Something',
+    gender: GenderEnum.FEMALE
+  }
 
   @Singleton.Create()
   async create(context: Singleton.Create.Context) {
@@ -24,7 +29,7 @@ export class MyProfileResource {
     }
   }
 
-  @Collection.Get()
+  @Singleton.Get()
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   async get(context: Singleton.Get.Context) {
     return this.data;
@@ -36,6 +41,12 @@ export class MyProfileResource {
       this.data = {...this.data, ...context.request.data, _id: this.data._id};
       return this.data;
     }
+  }
+
+  @Singleton.Action()
+      .Parameter('message', String)
+  async sendMessage() {
+    return {sent: 1}
   }
 
 }

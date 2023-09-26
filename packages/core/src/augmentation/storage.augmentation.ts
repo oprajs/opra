@@ -1,6 +1,6 @@
-import type { EndpointContext } from '../endpoint-context.js';
 import type { MultipartIterator } from '../http/helpers/multipart-helper';
 import type { Request as _Request } from '../request.js';
+import type { RequestContext } from '../request-context.js';
 
 declare module "@opra/common" {
 
@@ -8,6 +8,11 @@ declare module "@opra/common" {
   namespace Storage {
 
     namespace Action {
+      interface Request extends _Request {
+        operation: 'action';
+        action: string;
+      }
+
       interface Context<TSession extends {} = {}> extends Resource.Context<TSession> {
       }
     }
@@ -19,7 +24,7 @@ declare module "@opra/common" {
         path?: string;
       }
 
-      interface Context<TSession extends {} = {}> extends EndpointContext<TSession> {
+      interface Context<TSession extends {} = {}> extends RequestContext<TSession> {
         request: Request;
       }
     }
@@ -31,7 +36,7 @@ declare module "@opra/common" {
         path?: string;
       }
 
-      interface Context<TSession extends {} = {}> extends EndpointContext<TSession> {
+      interface Context<TSession extends {} = {}> extends RequestContext<TSession> {
         request: Request;
       }
     }
@@ -44,7 +49,7 @@ declare module "@opra/common" {
         parts: MultipartIterator;
       }
 
-      interface Context<TSession extends {} = {}> extends EndpointContext<TSession> {
+      interface Context<TSession extends {} = {}> extends RequestContext<TSession> {
         request: Request;
       }
     }

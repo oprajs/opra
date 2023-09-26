@@ -1,14 +1,14 @@
 import fs from 'fs';
 import { ApiDocument, Storage } from '@opra/common';
-import { HttpAdapter, HttpServerRequest, HttpServerResponse, MultipartItem } from '@opra/core';
+import { HttpServerRequest, HttpServerResponse, MultipartItem, NodeHttpAdapter } from '@opra/core';
 import { ExecutionContextHost } from '@opra/core/execution-context.host';
-import { StorageRequestHandler } from '@opra/core/http/request-handlers/storage-request-handler';
+import { NodeHttpAdapterHost } from '@opra/core/http/adapters/node-http-adapter.host';
 import { createTestApi } from '../_support/test-app/index.js';
 
-describe('parse Storage Request', function () {
+describe('parse Storage requests', function () {
 
   let api: ApiDocument;
-  let requestHandler: StorageRequestHandler;
+  let adapter: NodeHttpAdapterHost;
 
   function createContext(incoming: HttpServerRequest) {
     const outgoing = HttpServerResponse.from();
@@ -17,8 +17,27 @@ describe('parse Storage Request', function () {
 
   beforeAll(async () => {
     api = await createTestApi();
-    const adapter = await HttpAdapter.create(api);
-    requestHandler = new StorageRequestHandler(adapter as any);
+    adapter = (await NodeHttpAdapter.create(api) as NodeHttpAdapterHost);
+  });
+
+
+  describe('parse "action"', function () {
+
+    it('Should parse action request', async () => {
+      const request = await adapter.parseRequest(
+          createContext(HttpServerRequest.from({
+            method: 'GET',
+            url: '/files/purge?silent=t'
+          }))
+      ) as Storage.Action.Request;
+      expect(request).toBeDefined();
+      const resource = api.getStorage('files');
+      expect(request.resource).toEqual(resource);
+      expect(request.operation).toStrictEqual('action');
+      expect(request.action).toStrictEqual('purge');
+      expect(request.endpoint.name).toStrictEqual('purge');
+      expect(request.params.silent).toStrictEqual(true);
+    })
   });
 
   describe('parse "post" operation', function () {
@@ -41,7 +60,7 @@ describe('parse Storage Request', function () {
         ),
         headers: {'content-type': 'multipart/form-data; boundary=AaB03x'}
       }));
-      const request = await requestHandler.parseRequest(context) as Storage.Post.Request;
+      const request = await adapter.parseRequest(context) as Storage.Post.Request;
       try {
         expect(request).toBeDefined();
         const resource = api.getStorage('Files');
@@ -103,7 +122,7 @@ describe('parse Storage Request', function () {
             headers: {'content-type': 'multipart/form-data; boundary=AaB03x'}
           })
       )
-      const request = await requestHandler.parseRequest(context) as Storage.Post.Request;
+      const request = await adapter.parseRequest(context) as Storage.Post.Request;
       try {
         expect(request).toBeDefined();
         const resource = api.getStorage('Files');

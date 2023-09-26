@@ -7,7 +7,8 @@ export namespace RequestHost {
   export interface Initiator extends PartialSome<
       StrictOmit<Request, 'resource' | 'switchToHttp' | 'switchToWs' | 'switchToRpc'>,
       'params'> {
-    controller: any;
+    controller: Object;
+    handler: Function;
     http?: HttpServerRequest;
 
     [key: string]: any;

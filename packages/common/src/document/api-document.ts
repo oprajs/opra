@@ -7,7 +7,7 @@ import { Storage } from './resource/storage.js';
 import { TypeDocument } from './type-document.js';
 
 export class ApiDocument extends TypeDocument {
-  root = new Container(this, {name: ''});
+  root: Container = new Container(this, {name: ''});
 
   /**
    * Returns Resource instance by path. Returns undefined if not found

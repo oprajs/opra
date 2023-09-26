@@ -4,11 +4,13 @@ import { omitUndefined } from '../../helpers/object-utils.js';
 import { OpraSchema } from '../../schema/index.js';
 import type { ApiDocument } from '../api-document.js';
 import { colorFgMagenta, colorFgYellow, colorReset, nodeInspectCustom } from '../utils/inspect.util.js';
+import type { Container } from './container.js';
 import { Endpoint } from './endpoint.js';
 import type { ResourceDecorator } from './resource-decorator';
 
 export abstract class Resource {
   readonly document: ApiDocument;
+  readonly parent?: Container;
   abstract readonly kind: OpraSchema.Resource.Kind;
   readonly name: string;
   description?: string;
@@ -18,10 +20,14 @@ export abstract class Resource {
   actions = new ResponsiveMap<Endpoint>();
 
   protected constructor(
-      document: ApiDocument,
+      parent: ApiDocument | Container,
       init: Resource.InitArguments
   ) {
-    this.document = document;
+    if (parent instanceof Resource) {
+      this.document = parent.document;
+      this.parent = parent;
+    } else
+      this.document = parent;
     this.name = init.name;
     this.description = init.description;
     this.controller = init.controller;
@@ -38,6 +44,12 @@ export abstract class Resource {
         this.actions.set(name, new Endpoint(this, name, meta));
       }
     }
+  }
+
+  getFullPath(): string {
+    if (this.parent && this.parent.name)
+      return this.parent?.getFullPath() + '/' + this.name;
+    return this.name;
   }
 
   getOperation(name: string): Endpoint | undefined {

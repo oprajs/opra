@@ -30,4 +30,10 @@ export class FilesResource {
     FilesResource.lastPost = await context.request.parts.getAll();
   }
 
+  @Storage.Action()
+      .Parameter('silent', Boolean)
+  async purge() {
+    return {done: true}
+  }
+
 }

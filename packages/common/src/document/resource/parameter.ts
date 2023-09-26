@@ -20,16 +20,18 @@ export class Parameter {
   required?: boolean;
   deprecated?: boolean | string;
   examples?: any[] | Record<string, any>;
+  readonly isBuiltin?: boolean;
 
-  constructor(init: Parameter.InitArguments) {
+  constructor(name: string, init: Parameter.InitArguments) {
+    this.name = name;
     this.type = init.type;
-    this.name = init.name;
     this.description = init.description;
     this.isArray = init.isArray;
     this.default = init.default;
     this.required = init.required;
     this.deprecated = init.deprecated;
     this.examples = init.examples;
+    this.isBuiltin = init.isBuiltin;
   }
 
   exportSchema(options?: { webSafe?: boolean }): OpraSchema.Endpoint.Parameter {
@@ -59,7 +61,7 @@ export class Parameter {
   generateCodec(codec: 'decode' | 'encode', options?: DataType.GenerateCodecOptions): vg.Validator {
     let fn = this.type.generateCodec(codec, options);
     if (this.isArray)
-      fn = vg.isArray(fn);
+      fn = vg.stringSplit(',');
     return !options?.partial && this.required ? vg.required(fn) : vg.optional(fn);
   }
 
@@ -67,7 +69,7 @@ export class Parameter {
 
 export namespace Parameter {
   export interface InitArguments extends StrictOmit<ResourceDecorator.ParameterMetadata, 'type'> {
-    name: string;
     type: DataType;
+    isBuiltin?: boolean;
   }
 }

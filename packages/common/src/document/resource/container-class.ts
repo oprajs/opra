@@ -2,11 +2,11 @@ import { NotAcceptableError, ResourceNotFoundError } from '../../exception/index
 import { ResponsiveMap } from '../../helpers/index.js';
 import { OpraSchema } from '../../schema/index.js';
 import type { ApiDocument } from '../api-document.js';
-import type { Collection } from './collection.js';
+import { Collection } from './collection.js';
 import type { Container } from './container.js';
 import { Resource } from './resource.js';
-import type { Singleton } from './singleton.js';
-import type { Storage } from './storage.js';
+import { Singleton } from './singleton.js';
+import { Storage } from './storage.js';
 
 export class ContainerClass extends Resource {
   readonly kind: OpraSchema.Resource.Kind = OpraSchema.Container.Kind;
@@ -16,8 +16,6 @@ export class ContainerClass extends Resource {
   constructor(owner: ApiDocument | Container, init: Container.InitArguments) {
     super(owner instanceof ContainerClass ? owner.document : owner, init);
     this.parent = owner instanceof ContainerClass ? owner : undefined;
-    if (init.resources)
-      init.resources.forEach(r => this.resources.set(r.name, r));
   }
 
   exportSchema(options?: { webSafe?: boolean }): OpraSchema.Container {

@@ -1,6 +1,6 @@
 import type { PartialOutput } from '@opra/common';
-import type { EndpointContext } from '../endpoint-context.js';
 import type { Request as _Request } from '../request.js';
+import type { RequestContext } from '../request-context';
 
 declare module "@opra/common" {
 
@@ -8,6 +8,11 @@ declare module "@opra/common" {
   namespace Collection {
 
     namespace Action {
+      interface Request extends _Request {
+        operation: 'action';
+        action: string;
+      }
+
       interface Context<TSession extends {} = {}> extends Resource.Context<TSession> {
       }
     }
@@ -25,7 +30,7 @@ declare module "@opra/common" {
         }
       }
 
-      interface Context<TSession extends {} = {}> extends EndpointContext<TSession> {
+      interface Context<TSession extends {} = {}> extends RequestContext<TSession> {
         request: Request;
       }
     }
@@ -37,7 +42,7 @@ declare module "@opra/common" {
         key: any;
       }
 
-      interface Context<TSession extends {} = {}> extends EndpointContext<TSession> {
+      interface Context<TSession extends {} = {}> extends RequestContext<TSession> {
         request: Request;
       }
     }
@@ -52,7 +57,7 @@ declare module "@opra/common" {
         }
       }
 
-      interface Context<TSession extends {} = {}> extends EndpointContext<TSession> {
+      interface Context<TSession extends {} = {}> extends RequestContext<TSession> {
         request: Request;
       }
     }
@@ -75,7 +80,7 @@ declare module "@opra/common" {
         }
       }
 
-      interface Context<TSession extends {} = {}> extends EndpointContext<TSession> {
+      interface Context<TSession extends {} = {}> extends RequestContext<TSession> {
         request: Request;
       }
     }
@@ -93,7 +98,7 @@ declare module "@opra/common" {
         }
       }
 
-      interface Context<TSession extends {} = {}> extends EndpointContext<TSession> {
+      interface Context<TSession extends {} = {}> extends RequestContext<TSession> {
         request: Request;
       }
     }
@@ -112,7 +117,7 @@ declare module "@opra/common" {
         }
       }
 
-      interface Context<TSession extends {} = {}> extends EndpointContext<TSession> {
+      interface Context<TSession extends {} = {}> extends RequestContext<TSession> {
         request: Request;
       }
     }
@@ -128,7 +133,7 @@ declare module "@opra/common" {
         }
       }
 
-      interface Context<TSession extends {} = {}> extends EndpointContext<TSession> {
+      interface Context<TSession extends {} = {}> extends RequestContext<TSession> {
         request: Request;
       }
     }

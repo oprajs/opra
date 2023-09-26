@@ -5,10 +5,10 @@ import { translate } from '../../i18n/index.js';
 import { OpraSchema } from '../../schema/index.js';
 import type { ApiDocument } from '../api-document.js';
 import { ComplexType } from '../data-type/complex-type.js';
-import type { DataType } from '../data-type/data-type.js';
 import { SimpleType } from '../data-type/simple-type.js';
 import type { Collection } from './collection.js';
 import type { CollectionDecorator } from './collection-decorator';
+import type { Container } from './container.js';
 import { Endpoint } from './endpoint.js';
 import { Resource } from './resource.js';
 
@@ -16,11 +16,9 @@ export class CollectionClass extends Resource {
   readonly kind: OpraSchema.Resource.Kind = OpraSchema.Collection.Kind;
   readonly type: ComplexType;
   readonly primaryKey: string[];
-  protected _decoders: Record<string, vg.Validator> = {};
-  protected _encoders: Record<string, vg.Validator> = {};
 
-  constructor(document: ApiDocument, init: Collection.InitArguments) {
-    super(document, init);
+  constructor(parent: ApiDocument | Container, init: Collection.InitArguments) {
+    super(parent, init);
     const dataType = this.type = init.type;
     // Validate key fields
     this.primaryKey = init.primaryKey
@@ -33,6 +31,87 @@ export class CollectionClass extends Resource {
       if (!(field?.type instanceof SimpleType))
         throw new TypeError(`Only Simple type allowed for primary keys but "${f}" is a ${field.type.kind}`);
     });
+    // ------------------
+    let endpoint = this.operations.get('create');
+    if (endpoint) {
+      endpoint.returnType = this.type;
+      endpoint.decode = this.type.generateCodec('decode', {
+        partial: true,
+        pick: endpoint.inputPickFields,
+        omit: endpoint.inputOmitFields,
+      })
+      endpoint.encode = this.type.generateCodec('encode', {
+        partial: true,
+        pick: endpoint.outputPickFields,
+        omit: endpoint.outputOmitFields,
+      })
+      endpoint.defineParameter('pick', {type: 'string', isArray: true, isBuiltin: true});
+      endpoint.defineParameter('omit', {type: 'string', isArray: true, isBuiltin: true});
+      endpoint.defineParameter('include', {type: 'string', isArray: true, isBuiltin: true});
+    }
+    // ------------------
+    endpoint = this.operations.get('deleteMany');
+    if (endpoint) {
+      endpoint.defineParameter('filter', {type: 'string', isBuiltin: true});
+    }
+    // ------------------
+    endpoint = this.operations.get('get');
+    if (endpoint) {
+      endpoint.returnType = this.type;
+      endpoint.encode = this.type.generateCodec('encode', {
+        partial: true,
+        pick: endpoint.outputPickFields,
+        omit: endpoint.outputOmitFields,
+      })
+      endpoint.defineParameter('pick', {type: 'string', isArray: true, isBuiltin: true});
+      endpoint.defineParameter('omit', {type: 'string', isArray: true, isBuiltin: true});
+      endpoint.defineParameter('include', {type: 'string', isArray: true, isBuiltin: true});
+    }
+    // ------------------
+    endpoint = this.operations.get('findMany');
+    if (endpoint) {
+      endpoint.returnType = this.type;
+      endpoint.encode = vg.isArray(this.type.generateCodec('encode', {
+        partial: true,
+        pick: endpoint.outputPickFields,
+        omit: endpoint.outputOmitFields,
+      }))
+      endpoint.defineParameter('pick', {type: 'string', isArray: true, isBuiltin: true});
+      endpoint.defineParameter('omit', {type: 'string', isArray: true, isBuiltin: true});
+      endpoint.defineParameter('include', {type: 'string', isArray: true, isBuiltin: true});
+      endpoint.defineParameter('sort', {type: 'string', isArray: true, isBuiltin: true});
+      endpoint.defineParameter('filter', {type: 'string', isBuiltin: true});
+      endpoint.defineParameter('limit', {type: 'integer', isBuiltin: true});
+      endpoint.defineParameter('skip', {type: 'integer', isBuiltin: true});
+      endpoint.defineParameter('distinct', {type: 'boolean', isBuiltin: true});
+      endpoint.defineParameter('count', {type: 'boolean', isBuiltin: true});
+    }
+    // ------------------
+    endpoint = this.operations.get('update');
+    if (endpoint) {
+      endpoint.returnType = this.type;
+      endpoint.decode = this.type.generateCodec('decode', {
+        pick: endpoint.inputPickFields,
+        omit: endpoint.inputOmitFields,
+      })
+      endpoint.encode = this.type.generateCodec('encode', {
+        partial: true,
+        pick: endpoint.outputPickFields,
+        omit: endpoint.outputOmitFields,
+      })
+      endpoint.defineParameter('pick', {type: 'string', isArray: true, isBuiltin: true});
+      endpoint.defineParameter('omit', {type: 'string', isArray: true, isBuiltin: true});
+      endpoint.defineParameter('include', {type: 'string', isArray: true, isBuiltin: true});
+    }
+    // ------------------
+    endpoint = this.operations.get('updateMany');
+    if (endpoint) {
+      endpoint.decode = this.type.generateCodec('decode', {
+        pick: endpoint.inputPickFields,
+        omit: endpoint.inputOmitFields,
+      })
+      endpoint.defineParameter('filter', {type: 'string', isBuiltin: true});
+    }
   }
 
   getOperation(name: 'create'): (Endpoint & Omit<CollectionDecorator.Create.Metadata, keyof Endpoint>) | undefined;
@@ -162,34 +241,6 @@ export class CollectionClass extends Resource {
       return ast;
     }
     return ast;
-  }
-
-  getDecoder(operation: keyof OpraSchema.Collection.Operations): vg.Validator {
-    let decoder = this._decoders[operation];
-    if (decoder)
-      return decoder;
-    const options: DataType.GenerateCodecOptions = {
-      partial: operation !== 'create'
-    };
-    if (operation !== 'create')
-      options.omit = [...this.primaryKey];
-    decoder = this.type.generateCodec('decode', options);
-    this._decoders[operation] = decoder;
-    return decoder;
-  }
-
-  getEncoder(operation: keyof OpraSchema.Collection.Operations): vg.Validator {
-    let encoder = this._encoders[operation];
-    if (encoder)
-      return encoder;
-    const options: DataType.GenerateCodecOptions = {
-      partial: true
-    };
-    encoder = this.type.generateCodec('encode', options);
-    if (operation === 'findMany')
-      return vg.isArray(encoder);
-    this._encoders[operation] = encoder;
-    return encoder;
   }
 
 }

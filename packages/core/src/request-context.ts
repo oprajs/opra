@@ -2,22 +2,22 @@ import type { ExecutionContext } from './execution-context.js';
 import type { Request } from './request.js';
 import type { Response } from './response.js';
 
-export interface EndpointContext<TSession extends {} = {}> extends ExecutionContext<TSession> {
+export interface RequestContext<TSession extends {} = {}> extends ExecutionContext<TSession> {
   request: Request;
   response: Response;
 }
 
-export namespace EndpointContext {
+export namespace RequestContext {
   export function from(
       executionContext: ExecutionContext,
       request: Request,
       response: Response
-  ): EndpointContext {
+  ): RequestContext {
     const out = {
       request,
       response,
       session: {}
-    } as EndpointContext;
+    } as RequestContext;
     Object.setPrototypeOf(out, executionContext);
     return out;
   }

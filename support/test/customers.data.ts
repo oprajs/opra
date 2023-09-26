@@ -1,19 +1,18 @@
 import { faker } from '@faker-js/faker';
-import type { Customer } from '@opra/common/test/_support/test-api/entities/customer.entity.js';
 
 function enumValue(enumVal) {
   const idx = Math.floor(Math.random() * enumVal.length);
   return enumVal[idx];
 }
 
-export const customersData: Customer[] = [];
+export const customersData: any[] = [];
 
 let gender;
 for (let _id = 1; _id <= 1000; _id++) {
   gender = enumValue(['M', 'F']);
   const sex = gender === 'M' ? 'male' : 'female';
   const countryCode = faker.location.countryCode('alpha-2');
-  const customer: Customer = {
+  const customer: any = {
     _id,
     uid: faker.string.uuid(),
     givenName: faker.person.firstName(sex),

@@ -1,17 +1,17 @@
 import supertest from 'supertest';
 import { ApiDocument } from '@opra/common';
-import { HttpAdapter } from '@opra/core';
-import { HttpAdapterHost } from '@opra/core/http/http-adapter.host.js';
+import { NodeHttpAdapter } from '@opra/core';
+import { NodeHttpAdapterHost } from '@opra/core/http/adapters/node-http-adapter.host';
 import { createTestApi } from '../_support/test-app/index.js';
 
 describe('Http Adapter', function () {
 
   let api: ApiDocument;
-  let adapter: HttpAdapterHost;
+  let adapter: NodeHttpAdapterHost;
 
   beforeAll(async () => {
     api = await createTestApi();
-    adapter = await HttpAdapter.create(api) as HttpAdapterHost;
+    adapter = await NodeHttpAdapter.create(api) as NodeHttpAdapterHost;
   });
 
   afterAll(async () => {
@@ -20,7 +20,7 @@ describe('Http Adapter', function () {
 
   it('Should call interceptors', async () => {
     const x: any[] = [];
-    adapter._interceptors = [
+    (adapter as any)._interceptors = [
       async () => {
         x.push(1);
       },
@@ -33,6 +33,7 @@ describe('Http Adapter', function () {
       }
     ];
     const resp = await supertest(adapter.server).get('/Customers');
+    expect(resp.status).toStrictEqual(200);
     expect(x).toStrictEqual([1, 2, 3]);
     expect(resp.body).toBeDefined();
   })

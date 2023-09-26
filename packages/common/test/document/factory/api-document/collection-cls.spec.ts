@@ -40,6 +40,7 @@ describe('ApiDocumentFactory - Collection resource with decorated classes', func
     expect(t.primaryKey).toStrictEqual(['code']);
     expect(t.type.name).toEqual('Country');
     expect(t.ctor).toBe(CountriesResource);
+    expect(t.getFullPath()).toStrictEqual('Countries');
   })
 
   it('Should define "create" operation endpoint', async () => {

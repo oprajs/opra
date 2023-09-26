@@ -104,11 +104,11 @@ export class OpraApiFactory {
     }
 
     // Create api document
-    return ApiDocumentFactory.createDocument(apiSchema);
+    return ApiDocumentFactory.initDocument(apiSchema);
   }
 
   private _createHandler(callback: Function) {
-    return function (ctx: opraCore.EndpointContext) {
+    return function (ctx: opraCore.RequestContext) {
       switch (ctx.protocol) {
         case 'http':
           const httpContext = ctx.switchToHttp();
@@ -133,7 +133,7 @@ export class OpraApiFactory {
 
     const callback = isRequestScoped
         ? async (...args: any[]) => {
-          const opraContext: opraCore.EndpointContext =
+          const opraContext: opraCore.RequestContext =
               paramsFactory.exchangeKeyForValue(HandlerParamType.CONTEXT, undefined, args);
           const contextId = this.getContextId(opraContext);
           this.registerContextProvider(opraContext, contextId);

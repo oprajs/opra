@@ -2,8 +2,9 @@ import merge from 'putil-merge';
 import { Combine, StrictOmit } from 'ts-gems';
 import type { ApiDocument } from '../api-document.js';
 import { DECORATOR } from '../constants.js';
-import { ComplexType } from '../data-type/complex-type.js';
-import { Resource } from './resource.js';
+import type { ComplexType } from '../data-type/complex-type.js';
+import type { Container } from './container.js';
+import type { Resource } from './resource.js';
 import { SingletonClass } from './singleton-class.js';
 import { SingletonDecorator } from './singleton-decorator.js';
 
@@ -13,7 +14,7 @@ export interface Singleton extends SingletonClass {
 export interface SingletonConstructor extends SingletonDecorator {
   prototype: SingletonClass;
 
-  new(document: ApiDocument, init: Singleton.InitArguments): SingletonClass;
+  new(parent: ApiDocument | Container, init: Singleton.InitArguments): SingletonClass;
 }
 
 /**
@@ -28,8 +29,8 @@ export const Singleton = function (this: SingletonClass | void, ...args: any[]) 
   }
 
   // Constructor
-  const [document, init] = args as [ApiDocument, Singleton.InitArguments];
-  merge(this, new SingletonClass(document, init), {descriptor: true});
+  const [parent, init] = args as [ApiDocument | Container, Singleton.InitArguments];
+  merge(this, new SingletonClass(parent, init), {descriptor: true});
 } as SingletonConstructor;
 
 Singleton.prototype = SingletonClass.prototype;

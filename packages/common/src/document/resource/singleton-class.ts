@@ -1,8 +1,7 @@
-import * as vg from 'valgen';
 import { OpraSchema } from '../../schema/index.js';
 import type { ApiDocument } from '../api-document.js';
 import type { ComplexType } from '../data-type/complex-type.js';
-import type { DataType } from '../data-type/data-type.js';
+import { Container } from './container.js';
 import type { Endpoint } from './endpoint.js';
 import { Resource } from './resource.js';
 import type { Singleton } from './singleton.js';
@@ -11,12 +10,58 @@ import type { SingletonDecorator } from './singleton-decorator';
 export class SingletonClass extends Resource {
   readonly kind: OpraSchema.Resource.Kind = OpraSchema.Singleton.Kind;
   readonly type: ComplexType;
-  private _decoders: Record<string, vg.Validator> = {};
-  private _encoders: Record<string, vg.Validator> = {};
 
-  constructor(document: ApiDocument, init: Singleton.InitArguments) {
-    super(document, init);
+  constructor(parent: ApiDocument | Container, init: Singleton.InitArguments) {
+    super(parent, init);
     this.type = init.type;
+    // ------------------
+    let endpoint = this.operations.get('create');
+    if (endpoint) {
+      endpoint.returnType = this.type;
+      endpoint.decode = this.type.generateCodec('decode', {
+        partial: true,
+        pick: endpoint.inputPickFields,
+        omit: endpoint.inputOmitFields,
+      })
+      endpoint.encode = this.type.generateCodec('encode', {
+        partial: true,
+        pick: endpoint.outputPickFields,
+        omit: endpoint.outputOmitFields,
+      })
+      endpoint.defineParameter('pick', {type: 'string', isArray: true, isBuiltin: true});
+      endpoint.defineParameter('omit', {type: 'string', isArray: true, isBuiltin: true});
+      endpoint.defineParameter('include', {type: 'string', isArray: true, isBuiltin: true});
+    }
+    // ------------------
+    endpoint = this.operations.get('get');
+    if (endpoint) {
+      endpoint.returnType = this.type;
+      endpoint.encode = this.type.generateCodec('encode', {
+        partial: true,
+        pick: endpoint.outputPickFields,
+        omit: endpoint.outputOmitFields,
+      })
+      endpoint.defineParameter('pick', {type: 'string', isArray: true, isBuiltin: true});
+      endpoint.defineParameter('omit', {type: 'string', isArray: true, isBuiltin: true});
+      endpoint.defineParameter('include', {type: 'string', isArray: true, isBuiltin: true});
+    }
+    // ------------------
+    endpoint = this.operations.get('update');
+    if (endpoint) {
+      endpoint.returnType = this.type;
+      endpoint.decode = this.type.generateCodec('decode', {
+        pick: endpoint.inputPickFields,
+        omit: endpoint.inputOmitFields,
+      })
+      endpoint.encode = this.type.generateCodec('encode', {
+        partial: true,
+        pick: endpoint.outputPickFields,
+        omit: endpoint.outputOmitFields,
+      })
+      endpoint.defineParameter('pick', {type: 'string', isArray: true, isBuiltin: true});
+      endpoint.defineParameter('omit', {type: 'string', isArray: true, isBuiltin: true});
+      endpoint.defineParameter('include', {type: 'string', isArray: true, isBuiltin: true});
+    }
   }
 
   getOperation(name: 'create'): (Endpoint & Omit<SingletonDecorator.Create.Metadata, keyof Endpoint>) | undefined;
@@ -36,31 +81,6 @@ export class SingletonClass extends Resource {
 
   normalizeFieldPath(path: string | string[]): string[] | undefined {
     return this.type.normalizeFieldPath(path);
-  }
-
-
-  getDecoder(operation: keyof OpraSchema.Singleton.Operations): vg.Validator {
-    let decoder = this._decoders[operation];
-    if (decoder)
-      return decoder;
-    const options: DataType.GenerateCodecOptions = {
-      partial: operation !== 'create'
-    };
-    decoder = this.type.generateCodec('decode', options);
-    this._decoders[operation] = decoder;
-    return decoder;
-  }
-
-  getEncoder(operation: keyof OpraSchema.Singleton.Operations): vg.Validator {
-    let encoder = this._encoders[operation];
-    if (encoder)
-      return encoder;
-    const options: DataType.GenerateCodecOptions = {
-      partial: true
-    };
-    encoder = this.type.generateCodec('encode', options);
-    this._encoders[operation] = encoder;
-    return encoder;
   }
 
 }

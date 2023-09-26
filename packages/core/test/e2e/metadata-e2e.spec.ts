@@ -1,17 +1,17 @@
 import supertest from 'supertest';
 import { ApiDocument } from '@opra/common';
-import { HttpAdapter } from '@opra/core';
-import { HttpAdapterHost } from '@opra/core/http/http-adapter.host';
+import { NodeHttpAdapter } from '@opra/core';
+import { NodeHttpAdapterHost } from '@opra/core/http/adapters/node-http-adapter.host';
 import { createTestApi } from '../_support/test-app/index.js';
 
 describe('e2e:metadata', function () {
 
   let api: ApiDocument;
-  let adapter: HttpAdapterHost;
+  let adapter: NodeHttpAdapterHost;
 
   beforeAll(async () => {
     api = await createTestApi();
-    adapter = await HttpAdapter.create(api) as HttpAdapterHost;
+    adapter = await NodeHttpAdapter.create(api) as NodeHttpAdapterHost;
   });
 
   afterAll(async () => {

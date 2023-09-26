@@ -1,6 +1,6 @@
 import type { Writable } from 'ts-gems';
 import { Collection, Resource, RESOURCE_METADATA, Singleton } from "@opra/common";
-import { EndpointContext } from '../endpoint-context.js';
+import { RequestContext } from '../request-context.js';
 
 declare module "@opra/common" {
   interface CollectionConstructor {
@@ -17,7 +17,7 @@ declare module "@opra/common" {
 
   // eslint-disable-next-line @typescript-eslint/no-shadow
   namespace Resource {
-    interface Context<TSession extends {} = {}> extends EndpointContext<TSession> {
+    interface Context<TSession extends {} = {}> extends RequestContext<TSession> {
       params: Record<string, any>;
     }
   }

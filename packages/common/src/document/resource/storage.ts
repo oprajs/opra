@@ -2,7 +2,8 @@ import merge from 'putil-merge';
 import { Combine, StrictOmit } from 'ts-gems';
 import type { ApiDocument } from '../api-document.js';
 import { DECORATOR } from '../constants.js';
-import { Resource } from './resource.js';
+import type { Container } from './container.js';
+import type { Resource } from './resource.js';
 import { StorageClass } from './storage-class.js'
 import { StorageDecorator } from './storage-decorator.js';
 
@@ -12,7 +13,7 @@ export interface Storage extends StorageClass {
 export interface StorageConstructor extends StorageDecorator {
   prototype: StorageClass;
 
-  new(document: ApiDocument, init: Storage.InitArguments): StorageClass;
+  new(parent: ApiDocument | Container, init: Storage.InitArguments): StorageClass;
 }
 
 /**
@@ -28,8 +29,8 @@ export const Storage = function (this: Storage | void, ...args: any[]) {
   }
 
   // Constructor
-  const [document, init] = args as [ApiDocument, Storage.InitArguments];
-  merge(this, new StorageClass(document, init), {descriptor: true});
+  const [parent, init] = args as [ApiDocument | Container, Storage.InitArguments];
+  merge(this, new StorageClass(parent, init), {descriptor: true});
 } as StorageConstructor;
 
 Storage.prototype = StorageClass.prototype;
@@ -43,6 +44,10 @@ export namespace Storage {
   }
 
   export interface DecoratorOptions extends Partial<StrictOmit<StorageDecorator.Metadata, 'kind' | 'operations' | 'actions'>> {
+  }
+
+  // Need for augmentation
+  export namespace Action {
   }
 
   // Need for augmentation

@@ -1,18 +1,18 @@
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
 import supertest from 'supertest';
 import { ApiDocument } from '@opra/common';
-import { HttpAdapter } from '@opra/core';
-import { HttpAdapterHost } from '@opra/core/http/http-adapter.host.js';
+import { NodeHttpAdapter } from '@opra/core';
+import { NodeHttpAdapterHost } from '@opra/core/http/adapters/node-http-adapter.host';
 import { createTestApi } from '../_support/test-app/index.js';
 
 describe('e2e:Singleton', function () {
 
   let api: ApiDocument;
-  let adapter: HttpAdapterHost;
+  let adapter: NodeHttpAdapterHost;
 
   beforeAll(async () => {
     api = await createTestApi();
-    adapter = await HttpAdapter.create(api) as HttpAdapterHost;
+    adapter = await NodeHttpAdapter.create(api) as NodeHttpAdapterHost;
   });
 
   afterAll(async () => {
@@ -20,7 +20,8 @@ describe('e2e:Singleton', function () {
   })
 
   it('Should execute "create" endpoint', async () => {
-    const resp = await supertest(adapter.server).post('/MyProfile')
+    const resp = await supertest(adapter.server)
+        .post('/auth/MyProfile')
         .send({
           givenName: 'abcd',
           familyName: 'efgh',
@@ -28,11 +29,9 @@ describe('e2e:Singleton', function () {
     expect(resp.type).toStrictEqual('application/opra+json');
     expect(resp.body).toBeDefined();
     expect(resp.body.errors).not.toBeDefined();
-    expect(resp.body).toMatchObject({
-      resource: 'MyProfile',
-      endpoint: 'create',
-      affected: 1
-    });
+    expect(resp.body.context).toStrictEqual('auth/MyProfile');
+    expect(resp.body.operation).toStrictEqual('create');
+    expect(resp.body.affected).toStrictEqual(1);
     expect(resp.body.data).toMatchObject({
       _id: /\d+/,
       givenName: /.+/,
@@ -41,14 +40,13 @@ describe('e2e:Singleton', function () {
   });
 
   it('Should execute "get" endpoint', async () => {
-    const resp = await supertest(adapter.server).get('/MyProfile');
+    const resp = await supertest(adapter.server)
+        .get('/auth/MyProfile');
     expect(resp.type).toStrictEqual('application/opra+json');
     expect(resp.body).toBeDefined();
     expect(resp.body.errors).not.toBeDefined();
-    expect(resp.body).toMatchObject({
-      resource: 'MyProfile',
-      endpoint: 'get'
-    });
+    expect(resp.body.context).toStrictEqual('auth/MyProfile');
+    expect(resp.body.operation).toStrictEqual('get');
     expect(resp.body.data).toMatchObject({
       _id: /\d+/,
       givenName: /.+/,
@@ -58,18 +56,16 @@ describe('e2e:Singleton', function () {
 
   it('Should execute "update" endpoint', async () => {
     const resp = await supertest(adapter.server)
-        .patch('/MyProfile')
+        .patch('/auth/MyProfile')
         .send({
           birthDate: new Date().toISOString()
         });
     expect(resp.type).toStrictEqual('application/opra+json');
     expect(resp.body).toBeDefined();
     expect(resp.body.errors).not.toBeDefined();
-    expect(resp.body).toMatchObject({
-      resource: 'MyProfile',
-      endpoint: 'update',
-      affected: 1
-    });
+    expect(resp.body.context).toStrictEqual('auth/MyProfile');
+    expect(resp.body.operation).toStrictEqual('update');
+    expect(resp.body.affected).toStrictEqual(1);
     expect(resp.body.data).toMatchObject({
       _id: /\d+/,
       givenName: /.+/,
@@ -79,15 +75,14 @@ describe('e2e:Singleton', function () {
   });
 
   it('Should execute "delete" endpoint', async () => {
-    const resp = await supertest(adapter.server).delete('/MyProfile');
+    const resp = await supertest(adapter.server)
+        .delete('/auth/MyProfile');
     expect(resp.type).toStrictEqual('application/opra+json');
     expect(resp.body).toBeDefined();
     expect(resp.body.errors).not.toBeDefined();
-    expect(resp.body).toMatchObject({
-      resource: 'MyProfile',
-      operation: 'delete',
-      affected: 1
-    });
+    expect(resp.body.context).toStrictEqual('auth/MyProfile');
+    expect(resp.body.operation).toStrictEqual('delete');
+    expect(resp.body.affected).toStrictEqual(1);
   });
 
 });

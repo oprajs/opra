@@ -100,7 +100,7 @@ export class OpraHttpClient {
         .then(async (body) => {
           if (!body)
             throw new Error(`No response returned.`);
-          const api = await ApiDocumentFactory.createDocument(body);
+          const api = await ApiDocumentFactory.initDocument(body);
           this[kAssets].api = api;
           return api;
         })

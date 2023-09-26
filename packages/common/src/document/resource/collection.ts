@@ -5,6 +5,7 @@ import { DECORATOR } from '../constants.js';
 import { ComplexType } from '../data-type/complex-type.js';
 import { CollectionClass } from './collection-class.js';
 import { CollectionDecorator } from './collection-decorator.js';
+import type { Container } from './container.js';
 import { Resource } from './resource.js';
 
 export interface Collection extends CollectionClass {
@@ -13,7 +14,7 @@ export interface Collection extends CollectionClass {
 export interface CollectionConstructor extends CollectionDecorator {
   prototype: CollectionClass;
 
-  new(document: ApiDocument, init: Collection.InitArguments): CollectionClass;
+  new(parent: ApiDocument | Container, init: Collection.InitArguments): CollectionClass;
 }
 
 /**
@@ -29,8 +30,8 @@ export const Collection = function (this: CollectionClass | void, ...args: any[]
   }
 
   // Constructor
-  const [document, init] = args as [ApiDocument, Collection.InitArguments];
-  merge(this, new CollectionClass(document, init), {descriptor: true});
+  const [parent, init] = args as [ApiDocument | Container, Collection.InitArguments];
+  merge(this, new CollectionClass(parent, init), {descriptor: true});
 } as CollectionConstructor;
 
 Collection.prototype = CollectionClass.prototype;
@@ -43,8 +44,8 @@ Collection[DECORATOR] = CollectionDecorator;
  */
 export namespace Collection {
 
-  export interface InitArguments extends StrictOmit<Combine<Resource.InitArguments,
-      CollectionDecorator.Metadata>, 'kind' | 'type'> {
+  export interface InitArguments extends StrictOmit<
+      Combine<Resource.InitArguments, CollectionDecorator.Metadata>, 'kind' | 'type'> {
     name: string;
     type: ComplexType;
   }

@@ -16,7 +16,13 @@ export function ResourceDecorator<O extends ResourceDecorator.Options>(
 ): ClassDecorator {
   const namePattern = new RegExp(`^(.*)(${kind}|Resource|Controller)$`);
   return function (target: Function) {
-    const name = meta?.name || namePattern.exec(target.name)?.[1] || target.name;
+    let name = meta?.name;
+    if (!name) {
+      name = namePattern.exec(target.name)?.[1] || target.name;
+      // Containers may start with lowercase
+      if (kind === 'Container')
+        name = name.charAt(0).toLowerCase() + name.substring(1);
+    }
     const metadata: ResourceDecorator.Metadata = {kind, name};
     const baseMetadata = Reflect.getOwnMetadata(RESOURCE_METADATA, Object.getPrototypeOf(target));
     if (baseMetadata)

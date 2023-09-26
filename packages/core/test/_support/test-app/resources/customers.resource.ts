@@ -4,7 +4,7 @@ import { Collection, ICollection } from '@opra/common';
 import { customersData } from '../../../../../../support/test/customers.data.js';
 import { Customer } from '../entities/customer.entity.js';
 
-let customers: Customer[] = JSON.parse(JSON.stringify(customersData));
+let customers: Customer[] = JSON.parse(JSON.stringify(customersData.slice(0, 20)));
 
 @Collection(Customer, {
   description: 'Customer resource',
@@ -23,7 +23,7 @@ export class CustomersResource implements ICollection<Customer> {
   }
 
   @Collection.Get()
-      .Parameter('prm1')
+      .Parameter('prm1', Number)
   async get(context: Collection.Get.Context) {
     return customers.find(x => x._id === context.request.key);
   }
@@ -73,7 +73,8 @@ export class CustomersResource implements ICollection<Customer> {
   }
 
   @Collection.Action()
-  async sendMessage(context: Collection.Action.Context) {
+      .Parameter('message', String)
+  async sendMessage() {
     return {sent: 1}
   }
 

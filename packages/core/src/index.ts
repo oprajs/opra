@@ -7,13 +7,13 @@ import './augmentation/storage.augmentation.js';
 export * from './types.js';
 
 export * from './execution-context.js';
-export * from './endpoint-context.js';
+export * from './request-context.js';
 export * from './platform-adapter.js';
 export * from './request.js';
 export * from './response.js';
 
-export * from './http/express-adapter.js';
-export * from './http/http-adapter.js';
+export * from './http/adapters/express-adapter.js';
+export * from './http/adapters/node-http-adapter.js';
 export * from './http/impl/http-incoming-message.host.js';
 export * from './http/impl/http-outgoing-message.host.js';
 export * from './http/http-server-request.js';

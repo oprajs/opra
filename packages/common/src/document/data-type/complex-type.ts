@@ -1,6 +1,6 @@
 import 'reflect-metadata';
 import merge from 'putil-merge';
-import { Combine, StrictOmit, Type } from 'ts-gems';
+import { StrictOmit, Type } from 'ts-gems';
 import { ResponsiveMap } from '../../helpers/index.js';
 import { OpraSchema } from '../../schema/index.js';
 import type { ApiDocument } from '../api-document.js';

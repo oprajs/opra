@@ -1,7 +1,7 @@
 import { ApiDocumentFactory } from '@opra/common';
+import { AuthController } from './resources/auth.controller.js';
 import { CustomersResource } from './resources/customers.resource.js';
 import { FilesResource } from './resources/files.resource.js';
-import { MyProfileResource } from './resources/my-profile.resource.js';
 
 export * from './resources/customers.resource.js';
 export * from './resources/my-profile.resource.js';
@@ -16,10 +16,12 @@ export async function createTestApi() {
       title: 'TestApi',
       version: 'v1',
     },
-    resources: [
-      CustomersResource,
-      MyProfileResource,
-      FilesResource
-    ]
+    root: {
+      resources: [
+        AuthController,
+        CustomersResource,
+        FilesResource
+      ]
+    }
   });
 }

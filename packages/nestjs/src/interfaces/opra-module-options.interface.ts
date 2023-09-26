@@ -1,8 +1,8 @@
 import { ModuleMetadata, Type } from '@nestjs/common';
 import { OpraSchema } from '@opra/common';
-import { HttpAdapter } from '@opra/core';
+import { NodeHttpAdapter } from '@opra/core';
 
-export type OpraModuleOptions = HttpAdapter.Options & {
+export type OpraModuleOptions = NodeHttpAdapter.Options & {
   id?: any;
   info?: OpraSchema.DocumentInfo,
 

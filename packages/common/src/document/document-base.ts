@@ -1,4 +1,4 @@
-import { cloneObject } from '../helpers/index.js';
+import { cloneObject, omitUndefined } from '../helpers/index.js';
 import { OpraSchema } from '../schema/index.js';
 
 export class DocumentBase {
@@ -16,11 +16,11 @@ export class DocumentBase {
    * Export as OPRA schema definition object
    */
   exportSchema(): OpraSchema.DocumentBase {
-    return {
+    return omitUndefined<OpraSchema.DocumentBase>({
       version: OpraSchema.SpecVersion,
       url: this.url,
       info: cloneObject(this.info, true)
-    } as OpraSchema.DocumentBase;
+    });
   }
 
 }

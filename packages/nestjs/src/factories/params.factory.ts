@@ -12,9 +12,9 @@ export class OpraParamsFactory implements ParamsFactory {
       case HandlerParamType.CONTEXT:
         return args[3];
       case HandlerParamType.REQUEST:
-        return (args[3] as opraCore.EndpointContext).request;
+        return (args[3] as opraCore.RequestContext).request;
       case HandlerParamType.RESPONSE:
-        return (args[3] as opraCore.EndpointContext).response;
+        return (args[3] as opraCore.RequestContext).response;
       default:
         return null;
     }

@@ -171,7 +171,7 @@ export namespace OpraURLPath {
  *
  * @class OpraURLPathComponent
  */
-class OpraURLPathComponent {
+export class OpraURLPathComponent {
   resource: string;
   key?: string | number | ResourceKey;
   args?: Record<string, any>;

@@ -1,6 +1,6 @@
 import { Type } from 'ts-gems';
 import { RESOURCE_METADATA } from '../constants.js';
-import { ResourceDecorator } from './resource-decorator';
+import { ResourceDecorator } from './resource-decorator.js';
 
 export type ActionDecorator = ((target: Object, propertyKey: string) => void) & {
   Parameter: (name: string, optionsOrType?: ResourceDecorator.ParameterOptions | string | Type) => ActionDecorator;

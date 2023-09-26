@@ -1,18 +1,18 @@
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
 import supertest from 'supertest';
 import { ApiDocument } from '@opra/common';
-import { HttpAdapter } from '@opra/core';
-import { HttpAdapterHost } from '@opra/core/http/http-adapter.host.js';
+import { NodeHttpAdapter } from '@opra/core';
+import { NodeHttpAdapterHost } from '@opra/core/http/adapters/node-http-adapter.host';
 import { createTestApi } from '../_support/test-app/index.js';
 
 describe('e2e:Collection', function () {
 
   let api: ApiDocument;
-  let adapter: HttpAdapterHost;
+  let adapter: NodeHttpAdapterHost;
 
   beforeAll(async () => {
     api = await createTestApi();
-    adapter = await HttpAdapter.create(api) as HttpAdapterHost;
+    adapter = await NodeHttpAdapter.create(api) as NodeHttpAdapterHost;
   });
 
   afterAll(async () => {
@@ -30,11 +30,9 @@ describe('e2e:Collection', function () {
     expect(resp.type).toStrictEqual('application/opra+json');
     expect(resp.body).toBeDefined();
     expect(resp.body.errors).not.toBeDefined();
-    expect(resp.body).toMatchObject({
-      resource: 'Customers',
-      endpoint: 'create',
-      affected: 1,
-    });
+    expect(resp.body.context).toStrictEqual('Customers');
+    expect(resp.body.operation).toStrictEqual('create');
+    expect(resp.body.affected).toStrictEqual(1);
     expect(resp.body.data).toMatchObject({
       _id: /\d+/,
       givenName: /.+/,
@@ -48,10 +46,9 @@ describe('e2e:Collection', function () {
     expect(resp.type).toStrictEqual('application/opra+json');
     expect(resp.body).toBeDefined();
     expect(resp.body.errors).not.toBeDefined();
-    expect(resp.body).toMatchObject({
-      resource: 'Customers',
-      endpoint: 'get'
-    });
+    expect(resp.body.context).toStrictEqual('Customers');
+    expect(resp.body.operation).toStrictEqual('get');
+    expect(resp.body.key).toStrictEqual(1);
     expect(resp.body.data).toMatchObject({
       _id: 1,
       givenName: /.+/,
@@ -64,10 +61,8 @@ describe('e2e:Collection', function () {
     expect(resp.type).toStrictEqual('application/opra+json');
     expect(resp.body).toBeDefined();
     expect(resp.body.errors).not.toBeDefined();
-    expect(resp.body).toMatchObject({
-      resource: 'Customers',
-      endpoint: 'findMany'
-    });
+    expect(resp.body.context).toStrictEqual('Customers');
+    expect(resp.body.operation).toStrictEqual('findMany');
     expect(Array.isArray(resp.body.data)).toBeTruthy();
     expect(resp.body.data.length).toBeGreaterThan(0);
     expect(resp.body.data[0]).toMatchObject({
@@ -76,7 +71,6 @@ describe('e2e:Collection', function () {
       familyName: /.+/
     });
   });
-
 
 
   it('Should execute "update" endpoint', async () => {
@@ -89,10 +83,9 @@ describe('e2e:Collection', function () {
     expect(resp.type).toStrictEqual('application/opra+json');
     expect(resp.body).toBeDefined();
     expect(resp.body.errors).not.toBeDefined();
-    expect(resp.body).toMatchObject({
-      affected: 1,
-      endpoint: 'update'
-    });
+    expect(resp.body.context).toStrictEqual('Customers');
+    expect(resp.body.operation).toStrictEqual('update');
+    expect(resp.body.affected).toStrictEqual(1);
     expect(resp.body.data).toMatchObject({
       _id: /\d+/,
       givenName: /.+/,
@@ -111,21 +104,19 @@ describe('e2e:Collection', function () {
     expect(resp.type).toStrictEqual('application/opra+json');
     expect(resp.body).toBeDefined();
     expect(resp.body.errors).not.toBeDefined();
-    expect(resp.body).toMatchObject({
-      affected: /\d+/,
-      operation: 'update'
-    });
+    expect(resp.body.context).toStrictEqual('Customers');
+    expect(resp.body.operation).toStrictEqual('updateMany');
+    expect(resp.body.affected).toBeGreaterThan(0);
   });
 
   it('Should execute "delete" endpoint', async () => {
-    const resp = await supertest(adapter.server).delete('/Customers@99');
+    const resp = await supertest(adapter.server).delete('/Customers@10');
     expect(resp.type).toStrictEqual('application/opra+json');
     expect(resp.body).toBeDefined();
     expect(resp.body.errors).not.toBeDefined();
-    expect(resp.body).toMatchObject({
-      affected: 1,
-      operation: 'delete'
-    });
+    expect(resp.body.context).toStrictEqual('Customers');
+    expect(resp.body.operation).toStrictEqual('delete');
+    expect(resp.body.affected).toStrictEqual(1);
   });
 
   it('Should execute "deleteMany" endpoint', async () => {
@@ -133,10 +124,9 @@ describe('e2e:Collection', function () {
     expect(resp.type).toStrictEqual('application/opra+json');
     expect(resp.body).toBeDefined();
     expect(resp.body.errors).not.toBeDefined();
-    expect(resp.body).toMatchObject({
-      affected: /\d+/,
-      operation: 'delete'
-    });
+    expect(resp.body.context).toStrictEqual('Customers');
+    expect(resp.body.operation).toStrictEqual('deleteMany');
+    expect(resp.body.affected).toBeGreaterThan(0);
   });
 
 });

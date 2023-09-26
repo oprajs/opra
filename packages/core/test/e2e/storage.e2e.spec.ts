@@ -1,19 +1,19 @@
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
 import supertest from 'supertest';
 import { ApiDocument } from '@opra/common';
-import { HttpAdapter } from '@opra/core';
-import { HttpAdapterHost } from '@opra/core/http/http-adapter.host.js';
+import { NodeHttpAdapter } from '@opra/core';
+import { NodeHttpAdapterHost } from '@opra/core/http/adapters/node-http-adapter.host';
 import { createTestApi } from '../_support/test-app/index.js';
 import { FilesResource } from '../_support/test-app/resources/files.resource.js';
 
 describe('e2e:Storage', function () {
 
   let api: ApiDocument;
-  let adapter: HttpAdapterHost;
+  let adapter: NodeHttpAdapterHost;
 
   beforeAll(async () => {
     api = await createTestApi();
-    adapter = await HttpAdapter.create(api) as HttpAdapterHost;
+    adapter = await NodeHttpAdapter.create(api) as NodeHttpAdapterHost;
   });
 
   afterAll(async () => {
@@ -43,9 +43,9 @@ describe('e2e:Storage', function () {
 
   it('Should execute "get" operation', async () => {
     const resp = await supertest(adapter.server).get('/Files/file1.txt');
-    expect(resp.type).toStrictEqual('application/json');
     expect(resp.body).toBeDefined();
     expect(resp.body.errors).not.toBeDefined();
+    expect(resp.type).toStrictEqual('application/json');
     expect(resp.body).toMatchObject({
       fileName: 'file1.txt'
     });
@@ -53,9 +53,9 @@ describe('e2e:Storage', function () {
 
   it('Should execute "delete" operation', async () => {
     const resp = await supertest(adapter.server).delete('/Files/file1.txt');
-    expect(resp.type).toStrictEqual('application/json');
     expect(resp.body).toBeDefined();
     expect(resp.body.errors).not.toBeDefined();
+    expect(resp.type).toStrictEqual('application/json');
     expect(resp.body).toMatchObject({
       deleted: 'file1.txt'
     });

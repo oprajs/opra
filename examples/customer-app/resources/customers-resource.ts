@@ -1,5 +1,5 @@
 import { Collection } from '@opra/common';
-import { EndpointContext } from '@opra/core';
+import { RequestContext } from '@opra/core';
 import { SqbCollection, SqbEntityService } from '@opra/sqb';
 import { Customer } from '../entities/customer.entity.js';
 import { CustomerService } from '../services/customer.service.js';
@@ -34,7 +34,7 @@ export class CustomersResource extends SqbCollection<Customer> {
     // return {sent: 20};
   }
 
-  getService(ctx: EndpointContext): SqbEntityService<Customer> {
+  getService(ctx: RequestContext): SqbEntityService<Customer> {
     return this.customerService.with(ctx);
   }
 
