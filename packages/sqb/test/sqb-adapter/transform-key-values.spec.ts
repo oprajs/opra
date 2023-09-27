@@ -2,7 +2,7 @@ import { ApiDocument } from '@opra/common';
 import { createTestApi } from '@opra/core/test/_support/test-app';
 import { SQBAdapter } from '@opra/sqb';
 
-describe('MongoAdapter.transformKeyValues', function () {
+describe('SQBAdapter.transformKeyValues', function () {
 
   let api: ApiDocument;
 

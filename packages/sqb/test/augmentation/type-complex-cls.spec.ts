@@ -39,7 +39,7 @@ describe('ApiDocumentFactory - ComplexType with decorated classes', function () 
 
     }
 
-    const doc = await ApiDocumentFactory.initDocument({
+    const doc = await ApiDocumentFactory.createDocument({
       ...baseArgs,
       types: [Type1]
     })
@@ -66,7 +66,7 @@ describe('ApiDocumentFactory - ComplexType with decorated classes', function () 
       cid: number
     }
 
-    const doc = await ApiDocumentFactory.initDocument({
+    const doc = await ApiDocumentFactory.createDocument({
       ...baseArgs,
       types: [Type1]
     })
@@ -97,7 +97,7 @@ describe('ApiDocumentFactory - ComplexType with decorated classes', function () 
       cid: number
     }
 
-    const doc = await ApiDocumentFactory.initDocument({
+    const doc = await ApiDocumentFactory.createDocument({
       ...baseArgs,
       types: [Type1]
     })
@@ -130,7 +130,7 @@ describe('ApiDocumentFactory - ComplexType with decorated classes', function () 
       cid: number
     }
 
-    const doc = await ApiDocumentFactory.initDocument({
+    const doc = await ApiDocumentFactory.createDocument({
       ...baseArgs,
       types: [Type2]
     })
@@ -163,7 +163,7 @@ describe('ApiDocumentFactory - ComplexType with decorated classes', function () 
       gender: GenderEnum
     }
 
-    const doc = await ApiDocumentFactory.initDocument({
+    const doc = await ApiDocumentFactory.createDocument({
       ...baseArgs,
       types: [Type1]
     })

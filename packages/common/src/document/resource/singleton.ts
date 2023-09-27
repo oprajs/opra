@@ -52,6 +52,9 @@ export namespace Singleton {
   export interface DecoratorOptions extends Partial<StrictOmit<SingletonDecorator.Metadata, 'kind' | 'operations' | 'actions'>> {
   }
 
+  // Need for augmentation
+  export namespace Action {
+  }
 
   // Need for augmentation
   export namespace Create {

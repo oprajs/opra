@@ -157,7 +157,13 @@ export abstract class HttpAdapterHost extends PlatformAdapterHost {
     const urlPath = i > 0 ? parsedUrl.path.slice(i) : parsedUrl.path;
     const searchParams = parsedUrl.searchParams;
     // If there is one more element in the path it may be an action
-    if (urlPath.length === 2 && resource.actions.has(urlPath[1].resource)) {
+    if (resource instanceof Container) {
+      if (urlPath.length === 1 && resource.actions.has(urlPath[0].resource)) {
+        request = await this._parseRequestAction(executionContext, resource, urlPath, searchParams);
+        if (request)
+          return request;
+      }
+    } else if (urlPath.length === 2 && resource.actions.has(urlPath[1].resource)) {
       request = await this._parseRequestAction(executionContext, resource, urlPath.slice(1), searchParams);
       if (request)
         return request;
@@ -538,8 +544,6 @@ export abstract class HttpAdapterHost extends PlatformAdapterHost {
       pathComponent: OpraURLPathComponent,
       searchParams?: URLSearchParams
   ): Record<string, any> {
-    if (!paramDefs.size)
-      return {};
     const out = {};
     // Parse known parameters
     for (const [k, prm] of paramDefs.entries()) {
@@ -643,18 +647,21 @@ export abstract class HttpAdapterHost extends PlatformAdapterHost {
       responseObject.action = request.action;
     else responseObject.operation = request.operation;
     const returnType = request.endpoint.returnType;
-    let responseValue: any;
+    let responseValue = response.value;
     if (returnType) {
       responseObject.type = returnType.name || '#anonymous';
       if (response.value != null)
         responseValue = responseObject.data = request.endpoint.encode(response.value, {coerce: true});
     }
 
-    if (request.resource instanceof Collection || request.resource instanceof Singleton) {
+    if (request.operation === 'action') {
+      if (responseValue != null)
+        responseObject.data = responseValue;
+    } else if (request.resource instanceof Collection || request.resource instanceof Singleton) {
       if (request.operation === 'delete' || request.operation === 'deleteMany' ||
           request.operation === 'updateMany'
       ) {
-        responseObject.affected = response.value || 0;
+        responseObject.affected = responseValue || 0;
       } else {
         if (!responseValue)
           throw new InternalServerError(`"${request.operation}" endpoint should return value`);
@@ -667,12 +674,11 @@ export abstract class HttpAdapterHost extends PlatformAdapterHost {
         if (request.operation === 'findMany' && response.count != null && response.count >= 0)
           responseObject.totalCount = response.count;
       }
-
       outgoing.statusCode = outgoing.statusCode || HttpStatusCodes.OK;
-      const body = this.i18n.deep(responseObject);
-      outgoing.setHeader(HttpHeaderCodes.Content_Type, 'application/opra+json; charset=utf-8');
-      outgoing.send(JSON.stringify(body));
     }
+    const body = this.i18n.deep(responseObject);
+    outgoing.setHeader(HttpHeaderCodes.Content_Type, 'application/opra+json; charset=utf-8');
+    outgoing.send(JSON.stringify(body));
     outgoing.end();
   }
 

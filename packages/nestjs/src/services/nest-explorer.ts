@@ -2,35 +2,40 @@ import { InstanceWrapper } from '@nestjs/core/injector/instance-wrapper';
 import { Module } from '@nestjs/core/injector/module';
 import { OpraSchema, RESOURCE_METADATA } from '@opra/common';
 
+type WrapperCallback = (wrapper: InstanceWrapper, tree: Module[]) => void;
+
 export class NestExplorer {
 
-  exploreProviders(rootModule: Module, predicate: (wrapper: InstanceWrapper) => boolean) {
+  exploreProviders(rootModule: Module, callback: WrapperCallback): void {
     const modules = new Set<Module>();
-    const wrappers = new Set<InstanceWrapper>();
+    const tree: Module[] = [];
     const scanModules = (m: Module) => {
       if (modules.has(m))
         return;
       modules.add(m);
+      tree.push(m);
       for (const mm of m.imports.values()) {
         scanModules(mm);
       }
       for (const wrapper of m.providers.values()) {
-        if (!wrappers.has(wrapper) && predicate(wrapper))
-          wrappers.add(wrapper);
+        callback(wrapper, tree);
         if (wrapper.host)
           scanModules(wrapper.host);
       }
+      tree.pop();
     }
     scanModules(rootModule);
-    return Array.from(wrappers.values());
   }
 
-  exploreSourceWrappers(rootModule: Module): InstanceWrapper[] {
-    return this.exploreProviders(rootModule, (wrapper: InstanceWrapper) => {
-      return !!(wrapper.instance
+  exploreResources(rootModule: Module, callback: WrapperCallback): void {
+    this.exploreProviders(rootModule, (wrapper: InstanceWrapper, tree) => {
+      if (wrapper.instance
           && typeof wrapper.instance === 'object'
           && wrapper.instance.constructor
-          && OpraSchema.isResource(Reflect.getMetadata(RESOURCE_METADATA, wrapper.instance.constructor)))
+          && OpraSchema.isResource(Reflect.getMetadata(RESOURCE_METADATA, wrapper.instance.constructor))) {
+        callback(wrapper, tree);
+      }
+      return false;
     })
   }
 

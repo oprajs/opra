@@ -34,77 +34,81 @@ export class OpraApiFactory {
     const info: OpraSchema.DocumentInfo = {title: '', version: '', ...moduleOptions.info};
     info.title = info.title || 'Untitled service';
     info.version = info.version || '1';
-    const resources: any[] = [];
+    const root: ApiDocumentFactory.RootInit = {
+      resources: []
+    };
     const apiSchema: ApiDocumentFactory.InitArguments = {
       version: OpraSchema.SpecVersion,
       info,
       types: [],
-      resources
+      root
     };
 
     /*
      * Walk through modules and add Resource instances to the api schema
      */
-    const wrappers = this.explorerService.exploreSourceWrappers(rootModule);
-    for (const wrapper of wrappers) {
+    this.explorerService.exploreResources(rootModule, (wrapper, modulePath) => {
       const instance = wrapper.instance;
       const ctor = instance.constructor;
       const metadata = Reflect.getMetadata(RESOURCE_METADATA, ctor);
-      if (OpraSchema.isResource(metadata))
-        resources.push(instance);
-    }
-
-    for (const wrapper of wrappers) {
-      const instance = wrapper.instance;
-      const ctor = instance.constructor;
-      const sourceDef = Reflect.getMetadata(RESOURCE_METADATA, ctor);
-      /* istanbul ignore next */
-      if (!sourceDef)
-        continue;
-
-      resources.push(instance);
-
-      /* Wrap resolver functions */
-      const isRequestScoped = !wrapper.isDependencyTreeStatic();
-      if (sourceDef.operations &&
-          (OpraSchema.isCollection(sourceDef) || OpraSchema.isSingleton(sourceDef) || OpraSchema.isStorage(sourceDef))
-      ) {
-        for (const methodName of Object.keys(sourceDef.operations)) {
-          const endpointFunction = instance[methodName];
-          const nestHandlerName = methodName + '_nestjs';
-          // Skip patch if controller do not have function for endpoint or already patched before
-          if (typeof endpointFunction !== 'function')
-            continue;
-
-          // NestJs requires calling handler function in different order than Opra.
-          // In NestJS, handler functions must be called with these parameters (req, res, next)
-          // In Opra, handler functions must be called with these parameters (context)
-          // To work handlers properly we create new handlers that will work as a proxy to wrap parameters
-          // Opra request (context) -> Nest (req, res, next, context: QueryRequestContext) -> Opra response (context)
-          const paramArgsMetadata = Reflect.getMetadata(PARAM_ARGS_METADATA, instance.constructor, methodName);
-          const hasParamsArgs = !!paramArgsMetadata;
-          const patchedFn = instance[nestHandlerName] = function (...args: any[]) {
-            if (hasParamsArgs)
-              return endpointFunction.apply(this, args);
-            return endpointFunction.call(this, args[3]);
+      let node: any = root;
+      modulePath.forEach(m => {
+        const mt = Reflect.getMetadata(RESOURCE_METADATA, (m as any)._metatype);
+        if (mt) {
+          let n = node.resources.find(x => x.controller === m.instance);
+          if (!n) {
+            n = {
+              ...mt,
+              kind: 'Container',
+              resources: [...(mt.resources || [])],
+              controller: m.instance
+            }
+            node.resources.push(n);
           }
-          if (paramArgsMetadata)
-            Reflect.defineMetadata(PARAM_ARGS_METADATA, paramArgsMetadata, instance.constructor, nestHandlerName);
-
-          // Copy all metadata from old Function to new one
-          Reflect.getMetadataKeys(endpointFunction).forEach(k => {
-            const m = Reflect.getMetadata(k, endpointFunction);
-            Reflect.defineMetadata(k, m, patchedFn);
-          });
-
-          this._createContextCallback(instance, wrapper,
-              rootModule, methodName, isRequestScoped, contextType);
+          node = n;
         }
+      });
+      // Do not add Modules decorated with @Container
+      if (wrapper.metatype !== wrapper.host?.metatype)
+        (node.resources as any[]).push(instance);
+      /* Wrap operation and action functions */
+      const isRequestScoped = !wrapper.isDependencyTreeStatic();
+      const methodNames = [...Object.keys(metadata.operations || []), ...Object.keys(metadata.actions || [])];
+      for (const methodName of methodNames) {
+        const endpointFunction = instance[methodName];
+        const nestHandlerName = methodName + '_nestjs';
+        // Skip patch if controller do not have function for endpoint or already patched before
+        if (typeof endpointFunction !== 'function')
+          continue;
+
+        // NestJs requires calling handler function in different order than Opra.
+        // In NestJS, handler functions must be called with these parameters (req, res, next)
+        // In Opra, handler functions must be called with these parameters (context)
+        // To work handlers properly we create new handlers that will work as a proxy to wrap parameters
+        // Opra request (context) -> Nest (req, res, next, context: QueryRequestContext) -> Opra response (context)
+        const paramArgsMetadata = Reflect.getMetadata(PARAM_ARGS_METADATA, instance.constructor, methodName);
+        const hasParamsArgs = !!paramArgsMetadata;
+        const patchedFn = instance[nestHandlerName] = function (...args: any[]) {
+          if (hasParamsArgs)
+            return endpointFunction.apply(this, args);
+          return endpointFunction.call(this, args[3]);
+        }
+        if (paramArgsMetadata)
+          Reflect.defineMetadata(PARAM_ARGS_METADATA, paramArgsMetadata, instance.constructor, nestHandlerName);
+
+        // Copy all metadata from old Function to new one
+        Reflect.getMetadataKeys(endpointFunction).forEach(k => {
+          const m = Reflect.getMetadata(k, endpointFunction);
+          Reflect.defineMetadata(k, m, patchedFn);
+        });
+
+        this._createContextCallback(instance, wrapper,
+            rootModule, methodName, isRequestScoped, contextType);
       }
-    }
+    });
 
     // Create api document
-    return ApiDocumentFactory.initDocument(apiSchema);
+    return ApiDocumentFactory.createDocument(apiSchema);
   }
 
   private _createHandler(callback: Function) {

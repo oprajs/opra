@@ -2,10 +2,10 @@ import { Server } from 'http';
 import request from 'supertest';
 import { INestApplication } from '@nestjs/common';
 import { Test } from '@nestjs/testing';
+import photosData from './_support/photos-app/api/photos-module/photos.data.js';
 import { ApplicationModule } from './_support/photos-app/app.module.js';
-import photosData from './_support/photos-app/photos-module/photos.data.js';
 
-describe('Entity operations', function () {
+describe('Collection resource operations', function () {
 
   let server: Server;
   let app: INestApplication;
@@ -25,24 +25,31 @@ describe('Entity operations', function () {
     await app.close();
   });
 
-  it('Should retrieve single instance', async function () {
+  it('Should execute action handler', async function () {
+    const resp = await request(server)
+        .get('/api/svc1/Photos/sendMessage?message=text');
+    expect(resp.body.errors).toStrictEqual(undefined);
+    expect(resp.body.data).toStrictEqual({ok: true, message: 'text'});
+    expect(resp.status).toStrictEqual(200);
+  });
+
+  it('Should execute "get" operation handler', async function () {
     const resp = await request(server)
         .get('/api/svc1/Photos@1');
     expect(resp.body.errors).toStrictEqual(undefined);
     expect(resp.body.data).toStrictEqual(photosData[0]);
     expect(resp.status).toStrictEqual(200);
-
   });
 
-  it('Should find many entity', async function () {
+  it('Should execute "findMany" operation handler', async function () {
     const resp = await request(server)
-        .get('/api/svc1/Photos?$filter=id<=2');
+        .get('/api/svc1/Photos?filter=id<=2');
     expect(resp.body.errors).toStrictEqual(undefined);
     expect(resp.body.data).toStrictEqual(photosData.filter(x => x.id <= 2));
     expect(resp.status).toStrictEqual(200);
   });
 
-  it('Should create new instance into entity', async function () {
+  it('Should execute "create" operation handler', async function () {
     const data = {
       id: 4, name: 'Elephant', description: 'Photo of an Elephant', views: 1000
     };
@@ -55,7 +62,7 @@ describe('Entity operations', function () {
     expect(photosData.find(x => x && x.id === 4)).toMatchObject(data);
   });
 
-  it('Should update an instance', async function () {
+  it('Should execute "update" operation handler', async function () {
     const oldData = photosData.find(x => x && x.id === 1);
     const data = {views: 5500};
     const resp = await request(server)
@@ -67,11 +74,11 @@ describe('Entity operations', function () {
     expect(photosData.find(x => x && x.id === 1)).toStrictEqual({...oldData, ...data});
   });
 
-  it('Should update multiple instances', async function () {
+  it('Should execute "updateMany" operation handler', async function () {
     photosData.push({id: 5}, {id: 6});
     const data = {views: 100};
     const resp = await request(server)
-        .patch('/api/svc1/Photos?$filter=id>=5')
+        .patch('/api/svc1/Photos?filter=id>=5')
         .send(data)
     expect(resp.body.errors).toStrictEqual(undefined);
     expect(resp.status).toStrictEqual(200);
@@ -79,7 +86,7 @@ describe('Entity operations', function () {
     expect(photosData.find(x => x && x.id === 6)).toStrictEqual({id: 6, views: 100});
   });
 
-  it('Should delete an instance', async function () {
+  it('Should execute "delete" operation handler', async function () {
     photosData.push({id: 15});
     const resp = await request(server)
         .delete('/api/svc1/Photos@15');
@@ -89,10 +96,10 @@ describe('Entity operations', function () {
     expect(photosData.find(x => x && x.id === 15)).toStrictEqual(undefined);
   });
 
-  it('Should delete multiple instances', async function () {
+  it('Should execute "deleteMany" operation handler', async function () {
     photosData.push({id: 16}, {id: 17});
     const resp = await request(server)
-        .delete('/api/svc1/Photos?$filter=id>=16');
+        .delete('/api/svc1/Photos?filter=id>=16');
     expect(resp.body.errors).toStrictEqual(undefined);
     expect(resp.body.affected).toBeGreaterThan(1);
     expect(resp.status).toStrictEqual(200);

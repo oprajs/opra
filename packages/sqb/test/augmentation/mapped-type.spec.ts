@@ -19,8 +19,8 @@ describe('MappedType augmentation', function () {
     const metadata = Reflect.getMetadata(DATATYPE_METADATA, base);
     expect(metadata).toStrictEqual({
       kind: 'MappedType',
+      base: Customer,
       omit: ['gender'],
-      type: Customer
     });
     const sqbMeta = Entity.getMetadata(TestClass);
     expect(sqbMeta).toBeDefined();
@@ -43,8 +43,8 @@ describe('MappedType augmentation', function () {
     const metadata = Reflect.getMetadata(DATATYPE_METADATA, base);
     expect(metadata).toStrictEqual({
       kind: 'MappedType',
+      base: Customer,
       pick: ['gender'],
-      type: Customer
     });
     const sqbMeta = Entity.getMetadata(TestClass);
     expect(sqbMeta).toBeDefined();

@@ -22,7 +22,7 @@ async function run() {
   try {
     await dbClient.test();
     await createDatabase(dbClient, schema);
-    const api = await ApiDocumentFactory.initDocument({
+    const api = await ApiDocumentFactory.createDocument({
       version: '1.0',
       info: {
         title: 'TestApi',

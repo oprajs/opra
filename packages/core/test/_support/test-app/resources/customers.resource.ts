@@ -4,7 +4,7 @@ import { Collection, ICollection } from '@opra/common';
 import { customersData } from '../../../../../../support/test/customers.data.js';
 import { Customer } from '../entities/customer.entity.js';
 
-let customers: Customer[] = JSON.parse(JSON.stringify(customersData.slice(0, 20)));
+let customers: Customer[] = JSON.parse(JSON.stringify(customersData));
 
 @Collection(Customer, {
   description: 'Customer resource',
@@ -68,8 +68,11 @@ export class CustomersResource implements ICollection<Customer> {
       .Filter('familyName', ['=', 'like', '!like'])
       .Filter('gender', '=')
       .Filter('address.countryCode', '=')
-  async findMany() {
-    return customers;
+  async findMany(ctx: Collection.FindMany.Context) {
+    const {params} = ctx.request;
+    const skip = params.skip || 0;
+    const limit = params.limit || 10;
+    return customers.slice(skip, skip + limit);
   }
 
   @Collection.Action()

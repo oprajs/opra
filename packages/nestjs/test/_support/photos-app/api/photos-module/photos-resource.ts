@@ -1,7 +1,7 @@
 import { UseGuards } from '@nestjs/common';
 import { Collection } from '@opra/common';
 import { Context } from '@opra/nestjs';
-import { AuthGuard } from '../guards/auth.guard.js';
+import { AuthGuard } from '../../guards/auth.guard.js';
 import { Photos } from './photos.dto.js';
 import { PhotosService } from './photos.service.js';
 
@@ -12,6 +12,11 @@ import { PhotosService } from './photos.service.js';
 export class PhotosResource {
 
   constructor(public photosService: PhotosService) {
+  }
+
+  @Collection.Action()
+  sendMessage(@Context ctx: Collection.Action.Context) {
+    return {ok: true, message: ctx.request.params.message};
   }
 
   @Collection.FindMany({

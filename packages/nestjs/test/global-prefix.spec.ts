@@ -4,12 +4,12 @@ import { INestApplication, Module } from '@nestjs/common';
 import { Test } from '@nestjs/testing';
 import { OpraModule } from '../src/index.js';
 import config from './_support/photos-app/config.js';
-import photosData from './_support/photos-app/photos-module/photos.data.js';
-import { Service1RootModule } from './_support/photos-app/service-root.module.js';
+import photosData from './_support/photos-app/api/photos-module/photos.data.js';
+import { ApiRootModule } from './_support/photos-app/api/api.module';
 
 @Module({
   imports: [OpraModule.forRootAsync({
-    imports: [Service1RootModule],
+    imports: [ApiRootModule],
     useFactory: async () => {
       return {
         ...config,

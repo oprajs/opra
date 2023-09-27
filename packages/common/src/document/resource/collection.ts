@@ -57,6 +57,10 @@ export namespace Collection {
   }
 
   // Need for augmentation
+  export namespace Action {
+  }
+
+  // Need for augmentation
   export namespace Create {
   }
 

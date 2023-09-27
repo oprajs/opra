@@ -1,11 +1,12 @@
-import { ApiDocumentFactory } from '@opra/common';
+import { ApiDocumentFactory, Container } from '@opra/common';
 import { EntityMetadata } from '@sqb/connect';
 
 // @ts-ignore
-const _addResource = ApiDocumentFactory.prototype.addResource;
+const _createResource = ApiDocumentFactory.prototype.createResource;
 // @ts-ignore
-ApiDocumentFactory.prototype.addResource = async function (
+ApiDocumentFactory.prototype.createResource = function (
     this: ApiDocumentFactory,
+    container: Container,
     initArguments: ApiDocumentFactory.ResourceInitializer
 ) {
   // Determine primaryKey if not defined
@@ -18,5 +19,5 @@ ApiDocumentFactory.prototype.addResource = async function (
       }
     }
   }
-  return await _addResource.call(this, initArguments);
+  return _createResource.call(this, container, initArguments);
 }

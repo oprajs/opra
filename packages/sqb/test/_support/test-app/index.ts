@@ -16,16 +16,18 @@ export async function createTestApp(): Promise<TestApp> {
     dialect: 'postgres',
     schema: 'opra_test'
   })
-  const api = await ApiDocumentFactory.initDocument({
+  const api = await ApiDocumentFactory.createDocument({
     version: '1.0',
     info: {
       title: 'TestApi',
       version: 'v1',
     },
-    resources: [
-      new CustomersResource(db),
-      new MyProfileResource(db)
-    ]
+    root: {
+      resources: [
+        new CustomersResource(db),
+        new MyProfileResource(db)
+      ]
+    }
   })
   const adapter = await NodeHttpAdapter.create(api);
   return {

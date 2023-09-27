@@ -70,15 +70,7 @@ export namespace Container {
   }
 
   // Need for augmentation
-  export namespace Delete {
-  }
-
-  // Need for augmentation
-  export namespace Get {
-  }
-
-  // Need for augmentation
-  export namespace Post {
+  export namespace Action {
   }
 
 }

@@ -14,16 +14,18 @@ export interface TestApp {
 export async function createTestApp(): Promise<TestApp> {
   const client = new MongoClient('mongodb://localhost:27017');
   const db = client.db('opra_test');
-  const document = await ApiDocumentFactory.initDocument({
+  const document = await ApiDocumentFactory.createDocument({
     version: '1.0',
     info: {
       title: 'TestApi',
       version: 'v1',
     },
-    resources: [
-      new CustomersResource(db),
-      new MyProfileResource(db),
-    ]
+    root: {
+      resources: [
+        new CustomersResource(db),
+        new MyProfileResource(db),
+      ]
+    }
   })
   const adapter = await NodeHttpAdapter.create(document);
   return {

@@ -19,6 +19,8 @@ export class ExpressAdapterHost extends HttpAdapterHost implements ExpressAdapte
   }
 
   protected async init(api: ApiDocument, options?: ExpressAdapter.Options) {
+    await super.init(api, options);
+    this._api = api;
     const basePath = new OpraURLPath(options?.basePath);
     this._app.use(basePath.toString(), (_req: Request, _res: Response) => {
       const req = HttpServerRequest.from(_req);

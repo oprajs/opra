@@ -4,8 +4,8 @@ import { INestApplication } from '@nestjs/common';
 import { ModuleRef } from '@nestjs/core';
 import { Test } from '@nestjs/testing';
 import { OpraModuleRef } from '@opra/nestjs';
+import photosData from './_support/photos-app/api/photos-module/photos.data.js';
 import { ApplicationModule } from './_support/photos-app/app.module.js';
-import photosData from './_support/photos-app/photos-module/photos.data.js';
 
 describe('OpraModule', function () {
 
