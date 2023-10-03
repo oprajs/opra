@@ -1,8 +1,8 @@
 import type { StrictOmit } from 'ts-gems';
 import { InjectionToken, NgModule, Type } from '@angular/core';
-import { OpraHttpClientOptions } from '@opra/client';
+import { OpraHttpClient } from '@opra/client';
 
-export type OpraClientModuleOptions = OpraHttpClientOptions & {
+export type OpraClientModuleOptions = OpraHttpClient.Options & {
   serviceUrl: string;
   token?: string | InjectionToken<any>;
 }

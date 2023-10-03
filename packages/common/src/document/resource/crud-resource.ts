@@ -1,7 +1,7 @@
 import { ResponsiveMap } from '../../helpers/index.js';
 import { OpraSchema } from '../../schema/index.js';
-import { ApiDocument } from '../api-document.js';
-import { Container } from './container.js';
+import type { ApiDocument } from '../api-document.js';
+import type { Container } from './container.js';
 import { Endpoint } from './endpoint.js';
 import { Resource } from './resource.js';
 

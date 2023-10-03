@@ -1,7 +1,7 @@
 import { OpraSchema } from '../../schema/index.js';
 import type { ApiDocument } from '../api-document.js';
 import type { ComplexType } from '../data-type/complex-type.js';
-import { Container } from './container.js';
+import type { Container } from './container.js';
 import { CrudResource } from './crud-resource.js';
 import type { Endpoint } from './endpoint.js';
 import type { Singleton } from './singleton.js';

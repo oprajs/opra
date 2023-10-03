@@ -1,9 +1,9 @@
 import { OpraSchema } from '../schema/index.js';
-import { Collection } from './resource/collection.js';
+import type { Collection } from './resource/collection.js';
 import { Container } from './resource/container.js';
-import { Resource } from './resource/resource.js';
-import { Singleton } from './resource/singleton.js';
-import { Storage } from './resource/storage.js';
+import type { Resource } from './resource/resource.js';
+import type { Singleton } from './resource/singleton.js';
+import type { Storage } from './resource/storage.js';
 import { TypeDocument } from './type-document.js';
 
 export class ApiDocument extends TypeDocument {
