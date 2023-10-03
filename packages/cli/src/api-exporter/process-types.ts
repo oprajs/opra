@@ -1,4 +1,3 @@
-import chalk from 'chalk';
 import path from 'node:path';
 import { ComplexType, DataType, EnumType, MappedType, SimpleType, UnionType } from '@opra/common';
 import { wrapJSDocString } from '../utils/string-utils.js';
@@ -11,17 +10,10 @@ const internalTypeNames = ['any', 'boolean', 'bigint', 'number', 'null', 'string
  *
  * @param targetDir
  */
-export async function processTypes(
-    this: ApiExporter,
-    targetDir: string = ''
-) {
-  this.logger.log(chalk.cyan('Processing types'));
+export async function processTypes(this: ApiExporter) {
   const {document} = this;
-  const typesTs = this.addFile(path.join(targetDir, 'types.ts'));
   for (const dataType of document.types.values()) {
-    const expFile = await this.generateTypeFile(dataType, targetDir);
-    if (expFile)
-      typesTs.addExportFile(expFile.filename);
+    await this.generateTypeFile(dataType);
   }
 }
 
@@ -32,8 +24,7 @@ export async function processTypes(
  */
 export async function generateTypeFile(
     this: ApiExporter,
-    dataType: DataType,
-    targetDir: string = ''
+    dataType: DataType
 ): Promise<TsFile | undefined> {
   const typeName = dataType.name;
   if (typeName === 'any')
@@ -41,38 +32,58 @@ export async function generateTypeFile(
   if (!typeName)
     throw new TypeError(`DataType has no name`);
 
-  let filePath: string;
+  const typesTs = this.addFile('/types.ts', true);
+
+  let filePath = '';
   if (dataType instanceof SimpleType)
     filePath = '/simple-types.ts';
-  else if (dataType instanceof ComplexType)
-    filePath = `/types/${typeName}-type.ts`;
-  else if (dataType instanceof EnumType) {
-    filePath = `/enums/${typeName}-enum.ts`;
-  } else
-    throw new TypeError(`Unimplemented DataType (${dataType.kind})`);
+  else {
+    if (dataType instanceof EnumType)
+      filePath = path.join('/enums', typeName + '.ts');
+    else
+      filePath = path.join('/types', typeName + '.ts');
+  }
+  const file = this.addFile(filePath, true);
 
-  const file = this.addFile(path.join(targetDir, filePath), true);
   if (file.exportTypes.includes(typeName))
     return file;
   file.exportTypes.push(typeName);
 
   const indexTs = this.addFile('/index.ts', true);
-  indexTs.addExportFile(file.filename);
+  indexTs.addExport(file.filename);
 
-  file.content += `\n/**\n * ${wrapJSDocString(dataType.description || typeName)}
- * @interface ${typeName}
- * @kind ${dataType.kind}
+  // Export EnumType
+  if (dataType instanceof EnumType) {
+    file.content += `
+/**\n * ${wrapJSDocString(dataType.description || '')}
+ * @enum ${typeName}
  * @url ${path.posix.join(this.client.serviceUrl, '#types/' + typeName)}
- */\n`;
-
-  if (dataType instanceof SimpleType) {
-    file.content += `export type ${typeName} = ` + await this.generateSimpleTypeDefinition(file, dataType);
-  } else if (dataType instanceof EnumType) {
-    file.content += `export enum ${typeName} ` + await this.generateEnumTypeDefinition(file, dataType);
-  } else if (dataType instanceof ComplexType) {
-    file.content += `export interface ${typeName} ${await this.generateComplexTypeDefinition(file, dataType, true)}`
+ */
+export enum ${typeName} ` + await this.generateEnumTypeDefinition(file, dataType);
   }
 
+  // Export ComplexType
+  if (dataType instanceof ComplexType) {
+    file.content += `
+/**\n * ${wrapJSDocString(dataType.description || '')}
+ * @interface ${typeName}
+ * @url ${path.posix.join(this.client.serviceUrl, '#types/' + typeName)}
+ */
+export interface ${typeName} ${await this.generateComplexTypeDefinition(file, dataType, true)}`
+  }
+
+  // Export SimpleType
+  if (dataType instanceof SimpleType) {
+
+    file.content += `
+/**\n * ${wrapJSDocString(dataType.description || '')}
+ * @interface ${typeName}
+ * @url ${path.posix.join(this.client.serviceUrl, '#types/' + typeName)}
+ */
+export type ${typeName} = ` + await this.generateSimpleTypeDefinition(file, dataType);
+  }
+
+  typesTs.addExport(file.filename);
   return file;
 }
 
@@ -94,11 +105,9 @@ export async function resolveTypeNameOrDef(
     const f = await this.generateTypeFile(dataType);
     if (!f)
       return '';
-    file.addImportFile(f.filename, [dataType.name]);
+    file.addImport(f.filename, [dataType.name], true);
     return dataType.name;
   }
-  if (dataType instanceof ComplexType)
-    return this.generateComplexTypeDefinition(file, dataType, forInterface);
   if (dataType instanceof SimpleType)
     return this.generateSimpleTypeDefinition(file, dataType);
   if (dataType instanceof EnumType)
@@ -107,6 +116,8 @@ export async function resolveTypeNameOrDef(
     return this.generateUnionTypeDefinition(file, dataType, forInterface);
   if (dataType instanceof MappedType)
     return this.generateMappedTypeDefinition(file, dataType, forInterface);
+  if (dataType instanceof ComplexType)
+    return this.generateComplexTypeDefinition(file, dataType, forInterface);
   return '';
 }
 
@@ -135,6 +146,8 @@ export async function generateComplexTypeDefinition(
     let jsDoc = '';
     if (field.description)
       jsDoc += ` * ${field.description}\n`;
+    if (field.type.name)
+      jsDoc += ` * @type ${field.type.name}\n`;
     if (field.default)
       jsDoc += ` * @default ` + field.default + '\n';
     // if (field.format)
@@ -145,7 +158,7 @@ export async function generateComplexTypeDefinition(
       jsDoc += ` * @deprecated ` + (typeof field.deprecated === 'string' ? field.deprecated : '') + '\n';
 
     if (jsDoc)
-      out += `/**\n${jsDoc}*/\n`;
+      out += `/**\n${jsDoc} */\n`;
 
     // Print field name
     out += `${field.name}${field.required ? '' : '?'}: `;
@@ -207,7 +220,7 @@ export async function generateEnumTypeDefinition(
       jsDoc += ` * ${dataType.values[value].description}\n`;
 
     if (jsDoc)
-      out += `/**\n${jsDoc}*/\n`;
+      out += `/**\n${jsDoc} */\n`;
 
     out += `${info.key || value} = ` +
         (typeof value === 'number' ? value : ('\'' + (String(value)).replace('\'', '\\\'')) + '\'')
@@ -247,7 +260,7 @@ export async function generateMappedTypeDefinition(
     dataType: MappedType,
     forInterface?: boolean
 ): Promise<string> {
-  const typeName = await this.resolveTypeNameOrDef(file, dataType.type, forInterface);
+  const typeName = await this.resolveTypeNameOrDef(file, dataType.base, forInterface);
   const keys = (dataType.pick || dataType.omit || []);
   if (!keys.length)
     return typeName;

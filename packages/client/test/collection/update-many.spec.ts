@@ -22,16 +22,18 @@ describe('Collection.updateMany', function () {
 
   it('Should return body if observe=body or undefined', async () => {
     const resp = await client.collection('Customers')
-        .updateMany(data).fetch();
+        .updateMany(data)
+        .getData();
     expect(app.lastRequest).toBeDefined();
     expect(app.lastRequest.method).toStrictEqual('PATCH');
     expect(app.lastRequest.baseUrl).toStrictEqual('/Customers');
-    expect(resp).toEqual(undefined);
+    expect(resp).toMatchObject({affected: 10});
   });
 
   it('Should return HttpResponse if observe=response', async () => {
     const resp = await client.collection('Customers')
-        .updateMany(data).fetch(HttpObserveType.Response);
+        .updateMany(data)
+        .getResponse();
     expect(app.lastRequest).toBeDefined();
     expect(app.lastRequest.method).toStrictEqual('PATCH');
     expect(app.lastRequest.baseUrl).toStrictEqual('/Customers');
@@ -41,31 +43,35 @@ describe('Collection.updateMany', function () {
   it('Should subscribe events', (done) => {
     const expectedEvents = ['sent', 'response-header', 'response'];
     const receivedEvents: HttpEventType[] = [];
-    client.collection('Customers').updateMany(data, {observe: HttpObserveType.Events}).subscribe({
-      next: (event) => {
-        receivedEvents.push(event.event);
-      },
-      complete: () => {
-        try {
-          expect(expectedEvents).toStrictEqual(receivedEvents);
-        } catch (e) {
-          return done(e);
-        }
-        done();
-      },
-      error: done
-    });
+    client.collection('Customers')
+        .updateMany(data)
+        .observe(HttpObserveType.Events)
+        .subscribe({
+          next: (event) => {
+            receivedEvents.push(event.event);
+          },
+          complete: () => {
+            try {
+              expect(expectedEvents).toStrictEqual(receivedEvents);
+            } catch (e) {
+              return done(e);
+            }
+            done();
+          },
+          error: done
+        });
   });
 
-  it('Should send request with "$filter" param', async () => {
+  it('Should send request with "filter" param', async () => {
     await client.collection('Customers')
-        .updateMany(data, {filter: 'id=1'}).fetch();
+        .updateMany(data, {filter: 'id=1'})
+        .toPromise();
     expect(app.lastRequest).toBeDefined();
     expect(app.lastRequest.method).toStrictEqual('PATCH');
     expect(app.lastRequest.baseUrl).toStrictEqual('/Customers');
     expect(app.lastRequest.body).toStrictEqual(data);
-    expect(Object.keys(app.lastRequest.query)).toStrictEqual(['$filter']);
-    expect(app.lastRequest.query.$filter).toStrictEqual('id=1');
+    expect(Object.keys(app.lastRequest.query)).toStrictEqual(['filter']);
+    expect(app.lastRequest.query.filter).toStrictEqual('id=1');
   });
 
 });

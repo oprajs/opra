@@ -44,7 +44,7 @@ export function ResourceDecorator<O extends ResourceDecorator.Options>(
  */
 export namespace ResourceDecorator {
 
-  export interface Metadata extends StrictOmit<OpraSchema.ResourceBase, 'actions' | 'operations'> {
+  export interface Metadata extends StrictOmit<OpraSchema.ResourceBase, 'actions'> {
     name: string;
     actions?: Record<string, EndpointMetadata>;
     operations?: Record<string, EndpointMetadata>;

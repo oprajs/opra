@@ -1,13 +1,13 @@
 import { Injectable } from '@nestjs/common';
 import { SqbEntityService } from '@opra/sqb';
-import { SqbClient } from '@sqb/connect';
-import { Country } from '../entities/country.entity.js';
+import { app } from '../../app.js';
+import { Country } from '../../types/entities/country.entity.js';
 
 @Injectable()
 export class CountryService extends SqbEntityService<Country> {
 
-  constructor(db: SqbClient) {
-    super(Country, {db})
+  constructor() {
+    super(Country, {db: app.db})
   }
 
 }

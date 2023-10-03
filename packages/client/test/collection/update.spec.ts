@@ -24,16 +24,18 @@ describe('Collection.update', function () {
 
   it('Should return body if observe=body or undefined', async () => {
     const resp = await client.collection('Customers')
-        .update(1, data).fetch();
+        .update(1, data)
+        .getData();
     expect(app.lastRequest).toBeDefined();
     expect(app.lastRequest.method).toStrictEqual('PATCH');
     expect(app.lastRequest.baseUrl).toStrictEqual('/Customers@1');
-    expect(resp).toEqual(rows[0]);
+    expect(resp).toMatchObject({data: rows[0]});
   });
 
   it('Should return HttpResponse if observe=response', async () => {
     const resp = await client.collection('Customers')
-        .update(1, data).fetch(HttpObserveType.Response);
+        .update(1, data)
+        .getResponse();
     expect(app.lastRequest).toBeDefined();
     expect(app.lastRequest.method).toStrictEqual('PATCH');
     expect(app.lastRequest.baseUrl).toStrictEqual('/Customers@1');
@@ -43,53 +45,59 @@ describe('Collection.update', function () {
   it('Should subscribe events', (done) => {
     const expectedEvents = ['sent', 'response-header', 'response'];
     const receivedEvents: HttpEventType[] = [];
-    client.collection('Customers').update(1, data, {observe: HttpObserveType.Events}).subscribe({
-      next: (event) => {
-        receivedEvents.push(event.event);
-      },
-      complete: () => {
-        try {
-          expect(expectedEvents).toStrictEqual(receivedEvents);
-        } catch (e) {
-          return done(e);
-        }
-        done();
-      },
-      error: done
-    });
+    client.collection('Customers')
+        .update(1, data)
+        .observe(HttpObserveType.Events)
+        .subscribe({
+          next: (event) => {
+            receivedEvents.push(event.event);
+          },
+          complete: () => {
+            try {
+              expect(expectedEvents).toStrictEqual(receivedEvents);
+            } catch (e) {
+              return done(e);
+            }
+            done();
+          },
+          error: done
+        });
   });
 
-  it('Should send request with "$include" param', async () => {
+  it('Should send request with "include" param', async () => {
     await client.collection('Customers')
-        .update(1, data, {include: ['id', 'givenName']}).fetch();
+        .update(1, data, {include: ['id', 'givenName']})
+        .toPromise();
     expect(app.lastRequest).toBeDefined();
     expect(app.lastRequest.method).toStrictEqual('PATCH');
     expect(app.lastRequest.baseUrl).toStrictEqual('/Customers@1');
     expect(app.lastRequest.body).toStrictEqual(data);
-    expect(Object.keys(app.lastRequest.query)).toStrictEqual(['$include']);
-    expect(app.lastRequest.query.$include).toStrictEqual('id,givenName');
+    expect(Object.keys(app.lastRequest.query)).toStrictEqual(['include']);
+    expect(app.lastRequest.query.include).toStrictEqual('id,givenName');
   });
 
-  it('Should send request with "$pick" param', async () => {
+  it('Should send request with "pick" param', async () => {
     await client.collection('Customers')
-        .update(1, data, {pick: ['id', 'givenName']}).fetch();
+        .update(1, data, {pick: ['id', 'givenName']})
+        .toPromise();
     expect(app.lastRequest).toBeDefined();
     expect(app.lastRequest.method).toStrictEqual('PATCH');
     expect(app.lastRequest.baseUrl).toStrictEqual('/Customers@1');
     expect(app.lastRequest.body).toStrictEqual(data);
-    expect(Object.keys(app.lastRequest.query)).toStrictEqual(['$pick']);
-    expect(app.lastRequest.query.$pick).toStrictEqual('id,givenName');
+    expect(Object.keys(app.lastRequest.query)).toStrictEqual(['pick']);
+    expect(app.lastRequest.query.pick).toStrictEqual('id,givenName');
   });
 
-  it('Should send request with "$omit" param', async () => {
+  it('Should send request with "omit" param', async () => {
     await client.collection('Customers')
-        .update(1, data, {omit: ['id', 'givenName']}).fetch();
+        .update(1, data, {omit: ['id', 'givenName']})
+        .toPromise();
     expect(app.lastRequest).toBeDefined();
     expect(app.lastRequest.method).toStrictEqual('PATCH');
     expect(app.lastRequest.baseUrl).toStrictEqual('/Customers@1');
     expect(app.lastRequest.body).toStrictEqual(data);
-    expect(Object.keys(app.lastRequest.query)).toStrictEqual(['$omit']);
-    expect(app.lastRequest.query.$omit).toStrictEqual('id,givenName');
+    expect(Object.keys(app.lastRequest.query)).toStrictEqual(['omit']);
+    expect(app.lastRequest.query.omit).toStrictEqual('id,givenName');
   });
 
 });

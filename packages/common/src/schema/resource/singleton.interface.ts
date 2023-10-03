@@ -4,7 +4,7 @@ import type { Collection } from './collection.interface.js';
 import { Endpoint } from './endpoint.interface.js';
 import type { ResourceBase } from './resource.interface.js';
 
-export interface Singleton extends StrictOmit<ResourceBase, 'kind' | 'operations'> {
+export interface Singleton extends StrictOmit<ResourceBase, 'kind'> {
   kind: Singleton.Kind;
   type: DataType.Name;
   operations?: Singleton.Operations;

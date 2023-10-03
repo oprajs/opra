@@ -27,7 +27,14 @@ export namespace ApiDocumentFactory {
 
   export type DataTypeInitializer = TypeDocumentFactory.DataTypeInitializer;
 
-  export type ResourceInitializer = Container.ResourceInitializer;
+  export type ResourceInitializer = (Collection.InitArguments & { kind: OpraSchema.Collection.Kind }) |
+      (Singleton.InitArguments & { kind: OpraSchema.Singleton.Kind }) |
+      (Storage.InitArguments & { kind: OpraSchema.Storage.Kind }) |
+      (StrictOmit<Container.InitArguments, 'resources'> &
+          {
+            kind: OpraSchema.Container.Kind,
+            resources?: ResourceInitializer[]
+          });
 }
 
 /**
@@ -232,9 +239,16 @@ export class ApiDocumentFactory extends TypeDocumentFactory {
       return new Singleton(container, initArguments);
     if (initArguments.kind === 'Storage')
       return new Storage(container, initArguments);
-    if (initArguments.kind === 'Container')
-      return new Container(container, initArguments);
-    else throw new Error(`Unknown resource type ${(initArguments as any).kind}`);
+    if (initArguments.kind === 'Container') {
+      const newContainer = new Container(container, {...initArguments, resources: undefined});
+      if (initArguments.resources) {
+        for (const r of initArguments.resources) {
+          const res = await this.createResource(newContainer, r)
+          newContainer.resources.set(res.name, res);
+        }
+      }
+      return newContainer;
+    } else throw new Error(`Unknown resource type ${(initArguments as any).kind}`);
   }
 
 }

@@ -24,16 +24,18 @@ describe('Singleton.get', function () {
 
   it('Should return body if observe=body or undefined', async () => {
     const resp = await client.singleton('MyProfile')
-        .get().fetch();
+        .get()
+        .getData();
     expect(app.lastRequest).toBeDefined();
     expect(app.lastRequest.method).toStrictEqual('GET');
     expect(app.lastRequest.baseUrl).toStrictEqual('/MyProfile');
-    expect(resp).toEqual(rows[0]);
+    expect(resp).toEqual({data: rows[0]});
   });
 
   it('Should return HttpResponse if observe=response', async () => {
     const resp = await client.singleton('MyProfile')
-        .get().fetch(HttpObserveType.Response);
+        .get()
+        .getResponse();
     expect(app.lastRequest).toBeDefined();
     expect(app.lastRequest.method).toStrictEqual('GET');
     expect(app.lastRequest.baseUrl).toStrictEqual('/MyProfile');
@@ -43,50 +45,56 @@ describe('Singleton.get', function () {
   it('Should subscribe events', (done) => {
     const expectedEvents = ['sent', 'response-header', 'response'];
     const receivedEvents: HttpEventType[] = [];
-    client.singleton('MyProfile').get({observe: HttpObserveType.Events}).subscribe({
-      next: (event) => {
-        receivedEvents.push(event.event);
-      },
-      complete: () => {
-        try {
-          expect(expectedEvents).toStrictEqual(receivedEvents);
-        } catch (e) {
-          return done(e);
-        }
-        done();
-      },
-      error: done
-    });
+    client.singleton('MyProfile')
+        .get()
+        .observe(HttpObserveType.Events)
+        .subscribe({
+          next: (event) => {
+            receivedEvents.push(event.event);
+          },
+          complete: () => {
+            try {
+              expect(expectedEvents).toStrictEqual(receivedEvents);
+            } catch (e) {
+              return done(e);
+            }
+            done();
+          },
+          error: done
+        });
   });
 
-  it('Should send request with "$include" param', async () => {
+  it('Should send request with "include" param', async () => {
     await client.singleton('MyProfile')
-        .get({include: ['id', 'givenName']}).fetch();
+        .get({include: ['id', 'givenName']})
+        .toPromise();
     expect(app.lastRequest).toBeDefined();
     expect(app.lastRequest.method).toStrictEqual('GET');
     expect(app.lastRequest.baseUrl).toStrictEqual('/MyProfile');
-    expect(Object.keys(app.lastRequest.query)).toStrictEqual(['$include']);
-    expect(app.lastRequest.query.$include).toStrictEqual('id,givenName');
+    expect(Object.keys(app.lastRequest.query)).toStrictEqual(['include']);
+    expect(app.lastRequest.query.include).toStrictEqual('id,givenName');
   });
 
-  it('Should send request with "$pick" param', async () => {
+  it('Should send request with "pick" param', async () => {
     await client.singleton('MyProfile')
-        .get({pick: ['id', 'givenName']}).fetch();
+        .get({pick: ['id', 'givenName']})
+        .toPromise();
     expect(app.lastRequest).toBeDefined();
     expect(app.lastRequest.method).toStrictEqual('GET');
     expect(app.lastRequest.baseUrl).toStrictEqual('/MyProfile');
-    expect(Object.keys(app.lastRequest.query)).toStrictEqual(['$pick']);
-    expect(app.lastRequest.query.$pick).toStrictEqual('id,givenName');
+    expect(Object.keys(app.lastRequest.query)).toStrictEqual(['pick']);
+    expect(app.lastRequest.query.pick).toStrictEqual('id,givenName');
   });
 
-  it('Should send request with "$omit" param', async () => {
+  it('Should send request with "omit" param', async () => {
     await client.singleton('MyProfile')
-        .get({omit: ['id', 'givenName']}).fetch();
+        .get({omit: ['id', 'givenName']})
+        .toPromise();
     expect(app.lastRequest).toBeDefined();
     expect(app.lastRequest.method).toStrictEqual('GET');
     expect(app.lastRequest.baseUrl).toStrictEqual('/MyProfile');
-    expect(Object.keys(app.lastRequest.query)).toStrictEqual(['$omit']);
-    expect(app.lastRequest.query.$omit).toStrictEqual('id,givenName');
+    expect(Object.keys(app.lastRequest.query)).toStrictEqual(['omit']);
+    expect(app.lastRequest.query.omit).toStrictEqual('id,givenName');
   });
 
 });

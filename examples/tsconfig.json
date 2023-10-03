@@ -10,7 +10,9 @@
   "compilerOptions": {
     "baseUrl": ".",
     "paths": {
-      "@opra/*": ["../packages/*/src"]
+      "@opra/common": ["../packages/common/src"],
+      "@opra/core": ["../packages/core/src"],
+      "@opra/sqb": ["../packages/sqb/src"]
     },
     "emitDecoratorMetadata": true
   }

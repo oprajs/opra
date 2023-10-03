@@ -2,12 +2,12 @@ import { OpraSchema } from '../../schema/index.js';
 import type { ApiDocument } from '../api-document.js';
 import type { ComplexType } from '../data-type/complex-type.js';
 import { Container } from './container.js';
+import { CrudResource } from './crud-resource.js';
 import type { Endpoint } from './endpoint.js';
-import { Resource } from './resource.js';
 import type { Singleton } from './singleton.js';
 import type { SingletonDecorator } from './singleton-decorator';
 
-export class SingletonClass extends Resource {
+export class SingletonClass extends CrudResource {
   readonly kind: OpraSchema.Resource.Kind = OpraSchema.Singleton.Kind;
   readonly type: ComplexType;
 

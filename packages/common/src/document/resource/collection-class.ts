@@ -9,10 +9,10 @@ import { SimpleType } from '../data-type/simple-type.js';
 import type { Collection } from './collection.js';
 import type { CollectionDecorator } from './collection-decorator';
 import type { Container } from './container.js';
+import { CrudResource } from './crud-resource.js';
 import { Endpoint } from './endpoint.js';
-import { Resource } from './resource.js';
 
-export class CollectionClass extends Resource {
+export class CollectionClass extends CrudResource {
   readonly kind: OpraSchema.Resource.Kind = OpraSchema.Collection.Kind;
   readonly type: ComplexType;
   readonly primaryKey: string[];

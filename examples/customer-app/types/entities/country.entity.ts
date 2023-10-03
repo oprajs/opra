@@ -1,4 +1,3 @@
-import '@opra/sqb';
 import { ApiField, ComplexType } from '@opra/common';
 import { Column, Entity, PrimaryKey } from '@sqb/connect';
 

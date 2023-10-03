@@ -1,8 +1,8 @@
 import { faker } from '@faker-js/faker';
 import { SqbClient } from '@sqb/connect';
 import countriesData from './data/countries.data.js';
-import { Country } from './entities/country.entity.js';
-import { Customer } from './entities/customer.entity.js';
+import { Country } from './types/entities/country.entity.js';
+import { Customer } from './types/entities/customer.entity.js';
 
 export const customersData: Customer[] = [];
 
@@ -63,6 +63,14 @@ CREATE TABLE ${schema}.customer_notes
         REFERENCES ${schema}.customers (id) MATCH SIMPLE
         ON UPDATE NO ACTION
         ON DELETE NO ACTION
+);
+
+CREATE TABLE ${schema}.settings
+(
+    id SERIAL,
+    company_name character varying(256),
+    company_email character varying(256),
+    session_timeout integer              
 );
 
 `

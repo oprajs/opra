@@ -22,23 +22,26 @@ describe('Singleton.create', function () {
 
   it('Should return OPRA headers', async () => {
     const resp = await client.singleton('MyProfile')
-        .create(data).fetch(HttpObserveType.Response);
+        .create(data)
+        .getResponse();
     expect(app.lastResponse.get(HttpHeaderCodes.X_Opra_Version)).toStrictEqual(OpraSchema.SpecVersion);
     expect(resp.headers.get(HttpHeaderCodes.X_Opra_Version)).toStrictEqual(OpraSchema.SpecVersion);
   });
 
   it('Should return body if observe=body or undefined', async () => {
     const resp = await client.singleton('MyProfile')
-        .create(data).fetch();
+        .create(data)
+        .getData();
     expect(app.lastRequest).toBeDefined();
     expect(app.lastRequest.method).toStrictEqual('POST');
     expect(app.lastRequest.baseUrl).toStrictEqual('/MyProfile');
-    expect(resp).toEqual(data);
+    expect(resp).toMatchObject({data});
   });
 
   it('Should return HttpResponse if observe=response', async () => {
     const resp = await client.singleton('MyProfile')
-        .create(data).fetch(HttpObserveType.Response);
+        .create(data)
+        .getResponse();
     expect(app.lastRequest).toBeDefined();
     expect(app.lastRequest.method).toStrictEqual('POST');
     expect(app.lastRequest.baseUrl).toStrictEqual('/MyProfile');
@@ -48,52 +51,59 @@ describe('Singleton.create', function () {
   it('Should subscribe events', (done) => {
     const expectedEvents = ['sent', 'response-header', 'response'];
     const receivedEvents: HttpEventType[] = [];
-    client.singleton('MyProfile').create(data, {observe: HttpObserveType.Events}).subscribe({
-      next: (event) => {
-        receivedEvents.push(event.event);
-      },
-      complete: () => {
-        try {
-          expect(expectedEvents).toStrictEqual(receivedEvents);
-        } catch (e) {
-          return done(e);
-        }
-        done();
-      },
-      error: done
-    });
+    client.singleton('MyProfile')
+        .create(data)
+        .observe(HttpObserveType.Events)
+        .subscribe({
+          next: (event) => {
+            receivedEvents.push(event.event);
+          },
+          complete: () => {
+            try {
+              expect(expectedEvents).toStrictEqual(receivedEvents);
+            } catch (e) {
+              return done(e);
+            }
+            done();
+          },
+          error: done
+        });
   });
 
-  it('Should send request with "$include" param', async () => {
-    await client.singleton('MyProfile').create(data, {include: ['id', 'givenName']}).fetch();
-    expect(app.lastRequest).toBeDefined();
-    expect(app.lastRequest.method).toStrictEqual('POST');
-    expect(app.lastRequest.baseUrl).toStrictEqual('/MyProfile');
-    expect(app.lastRequest.body).toStrictEqual(data);
-    expect(Object.keys(app.lastRequest.query)).toStrictEqual(['$include']);
-    expect(app.lastRequest.query.$include).toStrictEqual('id,givenName');
-  });
-
-  it('Should send request with "$pick" param', async () => {
+  it('Should send request with "include" param', async () => {
     await client.singleton('MyProfile')
-        .create(data, {pick: ['id', 'givenName']}).fetch();
+        .create(data, {include: ['id', 'givenName']})
+        .toPromise();
     expect(app.lastRequest).toBeDefined();
     expect(app.lastRequest.method).toStrictEqual('POST');
     expect(app.lastRequest.baseUrl).toStrictEqual('/MyProfile');
     expect(app.lastRequest.body).toStrictEqual(data);
-    expect(Object.keys(app.lastRequest.query)).toStrictEqual(['$pick']);
-    expect(app.lastRequest.query.$pick).toStrictEqual('id,givenName');
+    expect(Object.keys(app.lastRequest.query)).toStrictEqual(['include']);
+    expect(app.lastRequest.query.include).toStrictEqual('id,givenName');
   });
 
-  it('Should send request with "$omit" param', async () => {
+  it('Should send request with "pick" param', async () => {
     await client.singleton('MyProfile')
-        .create(data, {omit: ['id', 'givenName']}).fetch();
+        .create(data, {pick: ['id', 'givenName']})
+        .toPromise();
     expect(app.lastRequest).toBeDefined();
     expect(app.lastRequest.method).toStrictEqual('POST');
     expect(app.lastRequest.baseUrl).toStrictEqual('/MyProfile');
     expect(app.lastRequest.body).toStrictEqual(data);
-    expect(Object.keys(app.lastRequest.query)).toStrictEqual(['$omit']);
-    expect(app.lastRequest.query.$omit).toStrictEqual('id,givenName');
+    expect(Object.keys(app.lastRequest.query)).toStrictEqual(['pick']);
+    expect(app.lastRequest.query.pick).toStrictEqual('id,givenName');
+  });
+
+  it('Should send request with "omit" param', async () => {
+    await client.singleton('MyProfile')
+        .create(data, {omit: ['id', 'givenName']})
+        .toPromise();
+    expect(app.lastRequest).toBeDefined();
+    expect(app.lastRequest.method).toStrictEqual('POST');
+    expect(app.lastRequest.baseUrl).toStrictEqual('/MyProfile');
+    expect(app.lastRequest.body).toStrictEqual(data);
+    expect(Object.keys(app.lastRequest.query)).toStrictEqual(['omit']);
+    expect(app.lastRequest.query.omit).toStrictEqual('id,givenName');
   });
 
 });

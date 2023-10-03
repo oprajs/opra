@@ -15,22 +15,24 @@ describe('Collection.delete', function () {
     app.mockHandler((req, res) => {
       res.header(HttpHeaderCodes.X_Opra_Version, OpraSchema.SpecVersion);
       res.header(HttpHeaderCodes.Content_Type, 'application/opra+json');
-      res.end(JSON.stringify({affected: 10}));
+      res.end(JSON.stringify({affected: 1}));
     })
   });
 
   it('Should return body if observe=body or undefined', async () => {
     const resp = await client.collection('Customers')
-        .delete(1).fetch();
+        .delete(1)
+        .getData();
     expect(app.lastRequest).toBeDefined();
     expect(app.lastRequest.method).toStrictEqual('DELETE');
     expect(app.lastRequest.baseUrl).toStrictEqual('/Customers@1');
-    expect(resp).toEqual(undefined);
+    expect(resp).toEqual({affected: 1});
   });
 
   it('Should return HttpResponse if observe=response', async () => {
     const resp = await client.collection('Customers')
-        .delete(1).fetch(HttpObserveType.Response);
+        .delete(1)
+        .getResponse();
     expect(app.lastRequest).toBeDefined();
     expect(app.lastRequest.method).toStrictEqual('DELETE');
     expect(app.lastRequest.baseUrl).toStrictEqual('/Customers@1');
@@ -40,25 +42,29 @@ describe('Collection.delete', function () {
   it('Should subscribe events', (done) => {
     const expectedEvents = ['sent', 'response-header', 'response'];
     const receivedEvents: HttpEventType[] = [];
-    client.collection('Customers').delete(1, {observe: HttpObserveType.Events}).subscribe({
-      next: (event) => {
-        receivedEvents.push(event.event);
-      },
-      complete: () => {
-        try {
-          expect(expectedEvents).toStrictEqual(receivedEvents);
-        } catch (e) {
-          return done(e);
-        }
-        done();
-      },
-      error: done
-    });
+    client.collection('Customers')
+        .delete(1)
+        .observe(HttpObserveType.Events)
+        .subscribe({
+          next: (event) => {
+            receivedEvents.push(event.event);
+          },
+          complete: () => {
+            try {
+              expect(expectedEvents).toStrictEqual(receivedEvents);
+            } catch (e) {
+              return done(e);
+            }
+            done();
+          },
+          error: done
+        });
   });
 
   it('Should send "delete" request with multiple keys', async () => {
     await client.collection('Customers')
-        .delete({id: 1, active: true}).fetch();
+        .delete({id: 1, active: true})
+        .toPromise();
     expect(app.lastRequest).toBeDefined();
     expect(app.lastRequest.method).toStrictEqual('DELETE');
     expect(app.lastRequest.baseUrl).toStrictEqual('/Customers@id=1;active=true');

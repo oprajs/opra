@@ -1,71 +1,119 @@
-import chalk from 'chalk';
 import path from 'node:path';
-import { Collection, Singleton } from '@opra/common';
+import { Collection, Container, Resource, Singleton } from '@opra/common';
 import { wrapJSDocString } from '../utils/string-utils.js';
 import type { ApiExporter } from './api-exporter.js';
+import { TsFile } from './ts-file.js';
 
-/**
- *
- * @param targetDir
- */
-export async function processResources(
+export async function processResource(
     this: ApiExporter,
-    targetDir: string = ''
+    resource: Resource,
+    className: string,
+    tsFile: TsFile
 ) {
-  this.logger.log(chalk.cyan('Processing resources'));
-  const {document} = this;
-  const serviceTs = this.addFile(path.join(targetDir, this.serviceClassName + '.ts'));
-  serviceTs.addImportPackage('@opra/client', ['HttpServiceBase']);
-
+  tsFile.addImport('@opra/client', ['HttpServiceBase', 'kClient', 'kContext']);
   const indexTs = this.addFile('/index.ts', true);
-  indexTs.addExportFile(serviceTs.filename);
+  indexTs.addExport(tsFile.filename);
 
-  serviceTs.content = `\nexport class ${this.serviceClassName} extends HttpServiceBase {\n`;
+  tsFile.content = `\n
+/** 
+ * ${wrapJSDocString(resource.description || '')}
+ * @class ${className}
+ * @url ${path.posix.join(this.client.serviceUrl, '#resources/' + className)}
+ */  
+export class ${className} extends HttpServiceBase {\n`;
 
-  for (const resource of document.resources.values()) {
-    const jsDoc = `
+
+  if (resource instanceof Container) {
+    for (const child of resource.resources.values()) {
+      // Determine class name of child resource
+      let childClassName = '';
+      if (child instanceof Container)
+        childClassName = child.name.charAt(0).toUpperCase() + child.name.substring(1) + 'Container';
+      else childClassName = child.name + 'Resource';
+
+      // Create TsFile for child resource
+      const dir = path.dirname(tsFile.filename);
+      const basename = dir === '/'
+          ? 'root'
+          : path.basename(tsFile.filename, path.extname(tsFile.filename));
+      const childFile = this.addFile(path.join(dir, basename, child.name + '.ts'));
+      await this.processResource(child, childClassName, childFile);
+      tsFile.addImport(childFile.filename, [childClassName]);
+
+      tsFile.content += `
   /**
-   * ${wrapJSDocString(resource.description || resource.name)}    
-   * @url ${path.posix.join(this.client.serviceUrl, '#resources/' + resource.name)}
-   */`;
-
-    if (resource instanceof Collection) {
-      const typeName = resource.type.name || '';
-      serviceTs.addImportPackage('@opra/client', ['HttpCollectionNode']);
-      serviceTs.addImportFile(`types/${typeName}-type`, [typeName]);
-
-      const operations = Object.keys(resource.operations)
-          .map(x => `'${x}'`).join(' | ');
-      if (!operations.length) {
-        this.logger.warn(chalk.yellow('WARN: ') +
-            `Ignoring "${chalk.whiteBright(resource.name)}" resource. No operations available.`);
-        continue;
-      }
-
-      serviceTs.content += jsDoc + `
-  get ${resource.name}(): Pick<HttpCollectionNode<${typeName}>, ${operations}> {
-    return this.$client.collection('${resource.name}');
-  }\n`;
-    } else if (resource instanceof Singleton) {
-      const typeName = resource.type.name || '';
-      serviceTs.addImportPackage('@opra/client', ['HttpSingletonNode']);
-      serviceTs.addImportFile(`types/${typeName}-type`, [typeName]);
-
-      const operations = Object.keys(resource.operations)
-          .map(x => `'${x}'`).join(' | ');
-      if (!operations.length) {
-        this.logger.warn(chalk.yellow('WARN: ') +
-            `Ignoring "${chalk.whiteBright(resource.name)}" resource. No operations available.`);
-        continue;
-      }
-
-      serviceTs.content += jsDoc + `
-  get ${resource.name}(): Pick<HttpSingletonNode<${typeName}>, ${operations}> {
-    return this.$client.singleton('${resource.name}');
+   * ${wrapJSDocString(child.description || '')}    
+   * @url ${path.posix.join(this.client.serviceUrl, '#resources/' + child.name)}
+   */      
+  get ${child.name}(): ${childClassName} {
+    if (!this[kContext].resources.${child.name})
+      this[kContext].resources.${child.name} = new ${childClassName}(this[kClient]);     
+    return this[kContext].resources.${child.name};
   }\n`;
     }
+  } else if (resource instanceof Collection) {
+    tsFile.addImport('@opra/client', ['HttpCollectionNode']);
+    const typeName = resource.type.name || '';
+    tsFile.addImport(`/types/${typeName}`, [typeName], true);
 
+    for (const [operation, endpoint] of resource.operations.entries()) {
+      tsFile.content += `
+  /** 
+   * ${wrapJSDocString(endpoint.description || '')}
+   */      
+  get ${operation}(): HttpCollectionNode<${typeName}>['${operation}'] {
+    if (!this[kContext].node)
+      this[kContext].node = this[kClient].collection('${resource.name}');  
+    return this[kContext].node.${operation};
+  }    
+`
+    }
+  } else if (resource instanceof Singleton) {
+    tsFile.addImport('@opra/client', ['HttpSingletonNode']);
+    const typeName = resource.type.name || '';
+    tsFile.addImport(`/types/${typeName}`, [typeName], true);
 
+    for (const [operation, endpoint] of resource.operations.entries()) {
+      tsFile.content += `
+  /** 
+   * ${wrapJSDocString(endpoint.description || '')}
+   */      
+  get ${operation}(): HttpSingletonNode<${typeName}>['${operation}'] {
+    if (!this[kContext].node)
+      this[kContext].node = this[kClient].singleton('${resource.name}');  
+    return this[kContext].node.${operation};
+  }    
+`
+    }
   }
-  serviceTs.content += '}';
+
+  if (resource.actions.size) {
+    tsFile.addImport('@opra/client', ['HttpRequestObservable']);
+    for (const [action, endpoint] of resource.actions.entries()) {
+      const typeName = endpoint.returnType?.name || 'any';
+      const actionPath = resource.getFullPath() + '/' + action;
+      let params = '';
+      for (const prm of endpoint.parameters.values()) {
+        params += `      ${prm.name}: ${prm.type.name || 'any'}`;
+        if (prm.isArray) params += '[]';
+        params += ';\n';
+      }
+      params = params ? '{\n' + params + '    }\n  ' : '{}';
+
+      tsFile.content += `
+  /** 
+   * ${wrapJSDocString(endpoint.description || '')}
+   */      
+  ${action}(params: ${params}): HttpRequestObservable<${typeName}> {  
+    return this[kClient].action('${actionPath}', params);
+  }    
+`
+    }
+  }
+
+  tsFile.content += `}\n`;
+  return tsFile.content;
+
 }
+
+

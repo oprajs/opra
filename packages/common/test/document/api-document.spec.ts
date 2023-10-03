@@ -116,7 +116,7 @@ describe('ApiDocument', function () {
     expect(sch.root).toBeDefined();
     expect(sch.root?.resources).toBeDefined();
     expect(Object.keys(sch.root!.resources!).sort())
-        .toEqual(['Countries', 'Customers', 'Auth'].sort());
+        .toEqual(['Countries', 'Customers', 'auth'].sort());
   })
 
 });

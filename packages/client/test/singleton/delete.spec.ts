@@ -21,16 +21,18 @@ describe('Singleton.delete', function () {
 
   it('Should return body if observe=body or undefined', async () => {
     const resp = await client.singleton('MyProfile')
-        .delete().fetch();
+        .delete()
+        .getData();
     expect(app.lastRequest).toBeDefined();
     expect(app.lastRequest.method).toStrictEqual('DELETE');
     expect(app.lastRequest.baseUrl).toStrictEqual('/MyProfile');
-    expect(resp).toEqual(undefined);
+    expect(resp).toEqual({affected: 1});
   });
 
   it('Should return HttpResponse if observe=response', async () => {
     const resp = await client.singleton('MyProfile')
-        .delete().fetch(HttpObserveType.Response);
+        .delete()
+        .getResponse();
     expect(app.lastRequest).toBeDefined();
     expect(app.lastRequest.method).toStrictEqual('DELETE');
     expect(app.lastRequest.baseUrl).toStrictEqual('/MyProfile');
@@ -40,20 +42,23 @@ describe('Singleton.delete', function () {
   it('Should subscribe events', (done) => {
     const expectedEvents = ['sent', 'response-header', 'response'];
     const receivedEvents: HttpEventType[] = [];
-    client.singleton('MyProfile').delete({observe: HttpObserveType.Events}).subscribe({
-      next: (event) => {
-        receivedEvents.push(event.event);
-      },
-      complete: () => {
-        try {
-          expect(expectedEvents).toStrictEqual(receivedEvents);
-        } catch (e) {
-          return done(e);
-        }
-        done();
-      },
-      error: done
-    });
+    client.singleton('MyProfile')
+        .delete()
+        .observe(HttpObserveType.Events)
+        .subscribe({
+          next: (event) => {
+            receivedEvents.push(event.event);
+          },
+          complete: () => {
+            try {
+              expect(expectedEvents).toStrictEqual(receivedEvents);
+            } catch (e) {
+              return done(e);
+            }
+            done();
+          },
+          error: done
+        });
   });
 
 });

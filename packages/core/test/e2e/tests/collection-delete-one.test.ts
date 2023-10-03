@@ -1,4 +1,3 @@
-import { HttpObserveType } from '@opra/client';
 import { OpraTestClient } from '@opra/testing';
 
 export function collectionDeleteTests(args: { client: OpraTestClient }) {
@@ -8,7 +7,7 @@ export function collectionDeleteTests(args: { client: OpraTestClient }) {
     it('Should delete instance', async () => {
       const resp = await args.client.collection('Customers')
           .delete(1001)
-          .fetch(HttpObserveType.Response);
+          .getResponse();
       resp.expect
           .toSuccess()
           .toReturnOperationResult()
@@ -16,7 +15,7 @@ export function collectionDeleteTests(args: { client: OpraTestClient }) {
       await expect(() =>
           args.client.collection('Customers')
               .get(1001)
-              .fetch()
+              .toPromise()
       ).rejects.toThrow('404');
     })
 

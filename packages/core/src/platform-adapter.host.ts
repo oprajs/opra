@@ -3,7 +3,7 @@ import { pascalCase } from 'putil-varhelpers';
 import { AsyncEventEmitter } from 'strict-typed-events';
 import {
   ApiDocument,
-  Container,
+  Container, CrudResource,
   Endpoint,
   ForbiddenError,
   getStackFileName,
@@ -54,7 +54,7 @@ export abstract class PlatformAdapterHost extends AsyncEventEmitter implements P
   async close() {
     const promises: Promise<void>[] = [];
     for (const r of this._controllers.values()) {
-      const onShutdown = r.onShutdown;
+      const onShutdown = r?.onShutdown;
       if (onShutdown)
         promises.push((async () => onShutdown.call(r.controller, r))());
     }
@@ -135,9 +135,11 @@ export abstract class PlatformAdapterHost extends AsyncEventEmitter implements P
     handler: Function;
   }> {
     resource = typeof resource === 'object' && resource instanceof Resource
-        ? resource : this.api.getResource(resource);
+        ? resource
+        : this.api.getResource(resource);
     const controller = await this.getController(resource);
-    const endpoint = resource.operations.get(operationOrAction) ||
+    const endpoint =
+        (resource instanceof CrudResource && resource.operations.get(operationOrAction)) ||
         resource.actions.get(operationOrAction);
     if (endpoint) {
       const handler = typeof controller[operationOrAction] === 'function' ? controller[operationOrAction] : undefined;

@@ -1,5 +1,4 @@
 import { faker } from '@faker-js/faker';
-import { HttpObserveType } from '@opra/client';
 import { OpraTestClient } from '@opra/testing';
 
 export function collectionCreateTests(args: { client: OpraTestClient }) {
@@ -16,14 +15,14 @@ export function collectionCreateTests(args: { client: OpraTestClient }) {
       }
       let resp = await args.client.collection('Customers')
           .create(data)
-          .fetch(HttpObserveType.Response);
+          .getResponse();
       resp.expect
           .toSuccess(201)
           .toReturnObject()
           .toMatch({...data, address: undefined});
       resp = await args.client.collection('Customers')
           .get(1001)
-          .fetch(HttpObserveType.Response);
+          .getResponse();
       resp.expect
           .toSuccess()
           .toReturnObject()
@@ -40,7 +39,7 @@ export function collectionCreateTests(args: { client: OpraTestClient }) {
       }
       const resp = await args.client.collection('Customers')
           .create(data, {pick: ['_id', 'givenName']})
-          .fetch(HttpObserveType.Response);
+          .getResponse();
       resp.expect
           .toSuccess(201)
           .toReturnObject()
@@ -57,7 +56,7 @@ export function collectionCreateTests(args: { client: OpraTestClient }) {
       }
       const resp = await args.client.collection('Customers')
           .create(data, {omit: ['_id', 'givenName']})
-          .fetch(HttpObserveType.Response);
+          .getResponse();
       resp.expect
           .toSuccess(201)
           .toReturnObject()
@@ -75,7 +74,7 @@ export function collectionCreateTests(args: { client: OpraTestClient }) {
       }
       const resp = await args.client.collection('Customers')
           .create(data, {include: ['address']})
-          .fetch(HttpObserveType.Response);
+          .getResponse();
       resp.expect
           .toSuccess(201)
           .toReturnObject()

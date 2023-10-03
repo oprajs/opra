@@ -1,4 +1,3 @@
-import '@opra/sqb';
 import { ApiField, ComplexType} from '@opra/common';
 import { Column, Entity } from '@sqb/connect';
 import { Record } from './record.entity.js';

@@ -2,7 +2,7 @@ import { StrictOmit } from 'ts-gems';
 import type { Endpoint } from './endpoint.interface.js';
 import type { ResourceBase } from './resource.interface.js';
 
-export interface Storage extends StrictOmit<ResourceBase, 'kind' | 'operations'> {
+export interface Storage extends StrictOmit<ResourceBase, 'kind'> {
   kind: Storage.Kind;
   operations?: Storage.Operations;
 }

@@ -7,7 +7,7 @@ import { ApiDocument } from '@opra/common';
 import { IFileWriter } from '../interfaces/file-writer.interface.js';
 import { ILogger } from '../interfaces/logger.interface.js';
 import { FileWriter } from './file-writer.js';
-import { processResources } from './process-resources.js';
+import { processResource } from './process-resources.js';
 import {
   generateComplexTypeDefinition,
   generateEnumTypeDefinition,
@@ -45,8 +45,7 @@ export class ApiExporter {
   protected writer: IFileWriter;
   protected files: Record<string, TsFile> = {};
   protected importExt?: boolean;
-  // protected nsMap: ResponsiveMap<ApiExporter>;
-  protected processSources: typeof processResources;
+  protected processResource: typeof processResource;
   protected processTypes: typeof processTypes;
   protected generateTypeFile: typeof generateTypeFile;
   protected generateComplexTypeDefinition: typeof generateComplexTypeDefinition;
@@ -82,9 +81,7 @@ export class ApiExporter {
     this.document = await this.client.getMetadata();
     this.logger.log(chalk.cyan('Retrieved service info:\n'),
         chalk.white('Title:'), chalk.whiteBright(this.document.info.title), '\n',
-        chalk.white('Version:'), chalk.whiteBright(this.document.info.version), '\n',
-        chalk.white('Resources:'), chalk.whiteBright(this.document.resources.size), 'resources found\n',
-        chalk.white('Types:'), chalk.whiteBright(this.document.types.size), 'types found\n',
+        chalk.white('Version:'), chalk.whiteBright(this.document.info.version), '\n'
     );
     this.serviceClassName = (this.serviceClassName || this.document.info.title || 'Service1').replace(/[^\w_$]*/g, '')
     this.serviceClassName = this.serviceClassName.charAt(0).toUpperCase() + this.serviceClassName.substring(1);
@@ -101,30 +98,37 @@ export class ApiExporter {
     this.logger.log(chalk.cyan(`Generating service interface ( ${chalk.whiteBright(this.serviceClassName)} )`));
     fs.mkdirSync(this.outDir, {recursive: true});
 
+    this.logger.log(chalk.cyan('Processing types'));
     await this.processTypes();
-    await this.processSources();
+
+    this.logger.log(chalk.cyan('Processing resources'));
+    const rootTs = this.addFile('/' + this.serviceClassName + '.ts');
+    await this.processResource(this.document.root, this.serviceClassName, rootTs);
 
     const {importExt} = this;
     // Write files
     for (const file of Object.values(this.files)) {
-      const targetDir = path.dirname(file.filename);
+      const filename = path.join(this.outDir, file.filename);
+      const targetDir = path.dirname(filename);
       fs.mkdirSync(targetDir, {recursive: true});
-      await this.writer.writeFile(file.filename, file.generate({importExt}));
+      await this.writer.writeFile(filename, file.generate({importExt}));
     }
   }
 
   protected getFile(filePath: string): TsFile {
-    return this.files[path.resolve(path.join(this.outDir, filePath))];
+    return this.files[filePath];
   }
 
   protected addFile(filePath: string, returnExists?: boolean): TsFile {
+    if (!(filePath.startsWith('.') || filePath.startsWith('/')))
+      filePath = './' + filePath;
     let file = this.getFile(filePath);
     if (file) {
       if (returnExists)
         return file;
       throw new Error(`File "${filePath}" already exists`);
     }
-    file = new TsFile(path.resolve(path.join(this.outDir, filePath)));
+    file = new TsFile(filePath);
     file.header = this.fileHeader;
     this.files[file.filename] = file;
     return file;
@@ -157,7 +161,7 @@ export class ApiExporter {
   }
 
   static {
-    ApiExporter.prototype.processSources = processResources;
+    ApiExporter.prototype.processResource = processResource;
     ApiExporter.prototype.processTypes = processTypes;
     ApiExporter.prototype.generateTypeFile = generateTypeFile;
     ApiExporter.prototype.generateComplexTypeDefinition = generateComplexTypeDefinition;

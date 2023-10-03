@@ -34,7 +34,7 @@ describe('ApiDocumentFactory - Container resource with decorated classes', funct
     const t = doc.getResource('user', true) as Container;
     expect(t).toBeDefined();
     expect(t.kind).toStrictEqual(OpraSchema.Container.Kind);
-    expect(t.name).toStrictEqual('User');
+    expect(t.name).toStrictEqual('user');
     expect(t.description).toStrictEqual('Container resource');
     expect(t.ctor).toBe(UserContainer);
   })

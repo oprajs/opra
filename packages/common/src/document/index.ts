@@ -16,6 +16,7 @@ export * from './data-type/simple-type.js';
 export * from './data-type/union-type.js';
 
 export * from './resource/resource.js';
+export * from './resource/crud-resource.js';
 export * from './resource/collection.js';
 export * from './resource/container.js';
 export * from './resource/singleton.js';

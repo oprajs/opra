@@ -1,8 +1,8 @@
 import { Collection } from '@opra/common';
 import { RequestContext } from '@opra/core';
 import { SqbCollection, SqbEntityService } from '@opra/sqb';
-import { Country } from '../entities/country.entity.js';
-import { CountryService } from '../services/country.service.js';
+import { Country } from '../../types/entities/country.entity.js';
+import { CountryService } from './country.service.js';
 
 @Collection(Country, {
   name: 'Countries',

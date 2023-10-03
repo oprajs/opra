@@ -1,5 +1,4 @@
 import { faker } from '@faker-js/faker';
-import { HttpObserveType } from '@opra/client';
 import { OpraTestClient } from '@opra/testing';
 
 export function singletonGetTests(args: { client: OpraTestClient }) {
@@ -13,21 +12,23 @@ export function singletonGetTests(args: { client: OpraTestClient }) {
     }
 
     it('Should return error code if resource not found', async () => {
-      await args.client.singleton('MyProfile').delete().fetch();
+      await args.client.singleton('MyProfile')
+          .delete()
+          .toPromise();
       await expect(() => args.client.singleton('MyProfile')
           .get()
-          .fetch()
+          .toPromise()
       ).rejects.toThrow('404');
     });
 
     it('Should return object', async () => {
       await args.client.singleton('MyProfile')
           .create(data)
-          .fetch();
+          .toPromise();
 
       const resp = await args.client.singleton('MyProfile')
           .get()
-          .fetch(HttpObserveType.Response);
+          .getResponse();
       resp.expect
           .toSuccess()
           .toReturnObject()
@@ -38,7 +39,7 @@ export function singletonGetTests(args: { client: OpraTestClient }) {
     it('Should not fetch exclusive fields (unless not included for resolver)', async () => {
       const resp = await args.client.singleton('MyProfile')
           .get()
-          .fetch(HttpObserveType.Response);
+          .getResponse();
       resp.expect
           .toSuccess()
           .toReturnObject()
@@ -48,7 +49,7 @@ export function singletonGetTests(args: { client: OpraTestClient }) {
     it('Should pick fields to be returned', async () => {
       const resp = await args.client.singleton('MyProfile')
           .get({pick: ['_id', 'givenName']})
-          .fetch(HttpObserveType.Response);
+          .getResponse();
       resp.expect
           .toSuccess()
           .toReturnObject()
@@ -58,7 +59,7 @@ export function singletonGetTests(args: { client: OpraTestClient }) {
     it('Should omit fields to be returned', async () => {
       const resp = await args.client.singleton('MyProfile')
           .get({omit: ['_id', 'givenName']})
-          .fetch(HttpObserveType.Response);
+          .getResponse();
       resp.expect
           .toSuccess()
           .toReturnObject()
@@ -68,7 +69,7 @@ export function singletonGetTests(args: { client: OpraTestClient }) {
     it('Should include exclusive fields if requested', async () => {
       const resp = await args.client.singleton('MyProfile')
           .get({include: ['address']})
-          .fetch(HttpObserveType.Response);
+          .getResponse();
       resp.expect
           .toSuccess()
           .toReturnObject()

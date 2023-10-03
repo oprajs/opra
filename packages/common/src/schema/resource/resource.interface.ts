@@ -14,6 +14,5 @@ export namespace Resource {
 export interface ResourceBase {
   kind: string;
   description?: string;
-  operations?: Record<string, Endpoint | undefined>;
   actions?: Record<string, Endpoint | undefined>;
 }

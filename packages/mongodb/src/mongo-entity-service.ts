@@ -1,6 +1,6 @@
 import mongodb, { UpdateFilter } from 'mongodb';
 import { StrictOmit } from 'ts-gems';
-import { RequestContext, PartialOutput } from '@opra/core';
+import { PartialOutput, RequestContext } from '@opra/core';
 
 export namespace MongoEntityService {
   export interface Options {

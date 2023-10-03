@@ -1,4 +1,3 @@
-import { HttpObserveType } from '@opra/client';
 import { OpraTestClient } from '@opra/testing';
 
 export function collectionGetTests(args: { client: OpraTestClient }) {
@@ -8,7 +7,7 @@ export function collectionGetTests(args: { client: OpraTestClient }) {
     it('Should return object', async () => {
       const resp = await args.client.collection('Customers')
           .get(1)
-          .fetch(HttpObserveType.Response);
+          .getResponse();
       resp.expect
           .toSuccess()
           .toReturnObject()
@@ -18,14 +17,14 @@ export function collectionGetTests(args: { client: OpraTestClient }) {
     it('Should return error code if resource not found', async () => {
       await expect(() => args.client.collection('Customers')
           .get(999999)
-          .fetch()
+          .toPromise()
       ).rejects.toThrow('404');
     });
 
     it('Should not fetch exclusive fields (unless not included for resolver)', async () => {
       const resp = await args.client.collection('Customers')
           .get(1)
-          .fetch(HttpObserveType.Response);
+          .getResponse();
       resp.expect
           .toSuccess()
           .toReturnObject()
@@ -35,7 +34,7 @@ export function collectionGetTests(args: { client: OpraTestClient }) {
     it('Should pick fields to be returned', async () => {
       const resp = await args.client.collection('Customers')
           .get(1, {pick: ['_id', 'givenName']})
-          .fetch(HttpObserveType.Response);
+          .getResponse();
       resp.expect
           .toSuccess()
           .toReturnObject()
@@ -45,7 +44,7 @@ export function collectionGetTests(args: { client: OpraTestClient }) {
     it('Should omit fields to be returned', async () => {
       const resp = await args.client.collection('Customers')
           .get(1, {omit: ['_id', 'givenName']})
-          .fetch(HttpObserveType.Response);
+          .getResponse();
       resp.expect
           .toSuccess()
           .toReturnObject()
@@ -55,7 +54,7 @@ export function collectionGetTests(args: { client: OpraTestClient }) {
     it('Should include exclusive fields if requested', async () => {
       const resp = await args.client.collection('Customers')
           .get(2, {include: ['address']})
-          .fetch(HttpObserveType.Response);
+          .getResponse();
       resp.expect
           .toSuccess()
           .toReturnObject()

@@ -1,5 +1,4 @@
 import { faker } from '@faker-js/faker';
-import { HttpObserveType } from '@opra/client';
 import { OpraTestClient } from '@opra/testing';
 
 export function singletonDeleteTests(args: { client: OpraTestClient }) {
@@ -15,10 +14,10 @@ export function singletonDeleteTests(args: { client: OpraTestClient }) {
     it('Should delete instance', async () => {
       await args.client.singleton('MyProfile')
           .delete()
-          .fetch(HttpObserveType.Response);
+          .getResponse();
       let resp = await args.client.singleton('MyProfile')
           .create(data)
-          .fetch(HttpObserveType.Response);
+          .getResponse();
       resp.expect
           .toSuccess(201)
           .toReturnObject()
@@ -26,7 +25,7 @@ export function singletonDeleteTests(args: { client: OpraTestClient }) {
 
       resp = await args.client.singleton('MyProfile')
           .delete()
-          .fetch(HttpObserveType.Response);
+          .getResponse();
       resp.expect
           .toSuccess()
           .toReturnOperationResult()
@@ -34,7 +33,7 @@ export function singletonDeleteTests(args: { client: OpraTestClient }) {
       await expect(() =>
           args.client.singleton('MyProfile')
               .get()
-              .fetch()
+              .toPromise()
       ).rejects.toThrow('404');
     })
 

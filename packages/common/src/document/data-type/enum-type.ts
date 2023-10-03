@@ -29,12 +29,12 @@ export const EnumType = function (this: EnumType | void, ...args: any[]) {
     if (Array.isArray(enumSource)) {
       values = {};
       enumSource.forEach(k => {
-        const description = options?.valueDescriptions?.[k];
+        const description = options?.meanings?.[k];
         values[k] = omitUndefined({description});
       });
     } else {
       Object.keys(enumSource).forEach(k => {
-        const description = options?.valueDescriptions?.[k];
+        const description = options?.meanings?.[k];
         values[enumSource[k]] = omitUndefined({key: k, description});
       });
     }
@@ -86,7 +86,7 @@ export namespace EnumType {
   > extends DataType.DecoratorOptions {
     name?: string;
     base?: EnumObject;
-    valueDescriptions?: Record<Keys, string>;
+    meanings?: Record<Keys, string>;
   }
 
 }

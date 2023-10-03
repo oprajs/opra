@@ -27,7 +27,7 @@ describe('ApiDocumentFactory - EnumType with decorated classes', function () {
     EnumType(Gender, {
       name: 'Gender',
       description: 'The gender of a person',
-      valueDescriptions: {
+      meanings: {
         MALE: 'Male person',
         FEMALE: 'Female person'
       }
@@ -56,7 +56,7 @@ describe('ApiDocumentFactory - EnumType with decorated classes', function () {
     EnumType(Gender, {
       name: 'Gender',
       description: 'The gender of a person',
-      valueDescriptions: {
+      meanings: {
         M: 'Male person',
         F: 'Female person'
       }
@@ -88,7 +88,7 @@ describe('ApiDocumentFactory - EnumType with decorated classes', function () {
     EnumType(Gender, {
       name: 'Gender',
       description: 'The gender of a person',
-      valueDescriptions: {
+      meanings: {
         MALE: 'Male person',
         FEMALE: 'Female person'
       }
@@ -103,7 +103,7 @@ describe('ApiDocumentFactory - EnumType with decorated classes', function () {
       name: 'AdministrativeGender',
       base: Gender,
       description: 'The gender of a person',
-      valueDescriptions: {
+      meanings: {
         OTHER: 'Other gender',
         UNKNOWN: 'Unknown gender'
       }

@@ -16,7 +16,7 @@ describe('Container decorators', function () {
       const metadata = Reflect.getMetadata(RESOURCE_METADATA, AuthController);
       expect(metadata).toStrictEqual({
         kind: 'Container',
-        name: 'Auth',
+        name: 'auth',
         ...opts
       });
     })

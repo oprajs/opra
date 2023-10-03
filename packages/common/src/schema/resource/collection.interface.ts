@@ -5,7 +5,7 @@ import type { Field } from '../data-type/field.interface';
 import type { Endpoint } from './endpoint.interface.js';
 import type { ResourceBase } from './resource.interface.js';
 
-export interface Collection extends StrictOmit<ResourceBase, 'kind' | 'operations'> {
+export interface Collection extends StrictOmit<ResourceBase, 'kind'> {
   kind: Collection.Kind;
   type: DataType.Name;
   primaryKey: Field.Name | Field.Name[];

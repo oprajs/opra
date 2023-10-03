@@ -16,7 +16,6 @@ export abstract class Resource {
   description?: string;
   controller?: object;
   ctor?: Type;
-  operations = new ResponsiveMap<Endpoint>();
   actions = new ResponsiveMap<Endpoint>();
 
   protected constructor(
@@ -34,11 +33,6 @@ export abstract class Resource {
     if (this.controller) {
       this.ctor = Object.getPrototypeOf(this.controller).constructor;
     } else this.ctor = init.ctor;
-    if (init.operations) {
-      for (const [name, meta] of Object.entries(init.operations)) {
-        this.operations.set(name, new Endpoint(this, name, meta));
-      }
-    }
     if (init.actions) {
       for (const [name, meta] of Object.entries(init.actions)) {
         this.actions.set(name, new Endpoint(this, name, meta));
@@ -52,21 +46,12 @@ export abstract class Resource {
     return this.name;
   }
 
-  getOperation(name: string): Endpoint | undefined {
-    return this.operations.get(name);
-  }
 
   exportSchema(options?: { webSafe?: boolean }): OpraSchema.ResourceBase {
     const schema = omitUndefined<OpraSchema.ResourceBase>({
       kind: this.kind,
       description: this.description,
     });
-    if (this.operations.size) {
-      schema.operations = {};
-      for (const operation of this.operations.values()) {
-        schema.operations[operation.name] = operation.exportSchema(options);
-      }
-    }
     if (this.actions.size) {
       schema.actions = {};
       for (const action of this.actions.values()) {
