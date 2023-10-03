@@ -1,7 +1,7 @@
-import { ApiDocument } from '@opra/common';
-import { OpraHttpClient } from '../client.js';
-import { HttpResponse } from '../impl/http-response.js';
-import { RequestInterceptor, ResponseInterceptor } from '../types.js';
+import type { ApiDocument } from '@opra/common';
+import type { OpraHttpClient } from '../client.js';
+import type { HttpResponse } from '../impl/http-response.js';
+import type { RequestInterceptor, ResponseInterceptor } from '../types.js';
 
 export interface OpraHttpClientContext {
   serviceUrl: string;
