@@ -7,7 +7,6 @@ export default {
 
   preset: 'jest-preset-angular',
   setupFilesAfterEnv: ['<rootDir>/test/_support/setup-jest.ts'],
-  globalSetup: 'jest-preset-angular/global-setup',
 
   moduleNameMapper: {
     '^#/(.*)': ['./$1'],

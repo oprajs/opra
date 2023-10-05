@@ -12,6 +12,7 @@ workflows:
             branches:
               only:
                 - main
+                - dev
       - test:
           version: '20.5'
           filters:
@@ -31,7 +32,7 @@ jobs:
           POSTGRES_DB: test
           POSTGRES_USER: postgres
           POSTGRES_HOST_AUTH_METHOD: trust
-      - image: circleci/mongo:4.1.13
+      - image: mongo:4.1.13
         environment:
           discovery.type: single-node
           ES_JAVA_OPTS: -Xms500m -Xmx500m
