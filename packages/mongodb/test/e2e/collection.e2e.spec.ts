@@ -18,6 +18,8 @@ describe('e2e:Collection', function () {
     await app?.client.close();
   })
 
+  afterAll(() => global.gc && global.gc());
+
   // @ts-ignore
   collectionTests.call(this, testArgs);
 

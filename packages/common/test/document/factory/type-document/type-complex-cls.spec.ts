@@ -18,6 +18,7 @@ describe('ApiDocumentFactory - ComplexType with decorated classes', function () 
     }
   };
 
+  afterAll(() => global.gc && global.gc());
 
   it('Should add ComplexType by decorated class', async () => {
     @ComplexType({

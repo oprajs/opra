@@ -2,6 +2,8 @@ import { HttpIncomingMessageHost, HttpServerRequest } from '@opra/core';
 
 describe('HttpServerRequest', function () {
 
+  afterAll(() => global.gc && global.gc());
+
   it('Should wrap HttpIncomingMessage', async () => {
     const msg = HttpServerRequest.from(
         HttpIncomingMessageHost.from({

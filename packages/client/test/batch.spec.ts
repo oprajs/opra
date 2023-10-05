@@ -8,6 +8,9 @@
 // import { HttpRequestObservable, OpraHttpClient } from '../src/index.js';
 
 describe('OpraClient:Batch', function () {
+
+  afterAll(() => global.gc && global.gc());
+  
   //
   // let client: MockClient;
   // let document: OpraDocument;

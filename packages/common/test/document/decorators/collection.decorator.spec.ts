@@ -5,6 +5,8 @@ import { Country } from '../../_support/test-api/index.js';
 
 describe('Collection decorators', function () {
 
+  afterAll(() => global.gc && global.gc());
+
   describe('@Collection() decorator', function () {
 
     /* ***************************************************** */

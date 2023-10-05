@@ -16,6 +16,8 @@ describe('ApiDocumentFactory - SimpleType with schema object', function () {
     }
   };
 
+  afterAll(() => global.gc && global.gc());
+
   it('Should add SimpleType by type schema', async () => {
     const type1: OpraSchema.SimpleType = {
       kind: 'SimpleType',

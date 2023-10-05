@@ -11,6 +11,8 @@ export function singletonDeleteTests(args: { client: OpraTestClient }) {
       address: {city: 'Izmir'}
     }
 
+    afterAll(() => global.gc && global.gc());
+
     it('Should delete instance', async () => {
       await args.client.singleton('MyProfile')
           .delete()

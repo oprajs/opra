@@ -3,6 +3,8 @@ import { MongoCollection } from '@opra/mongodb';
 
 describe('MongoCollectionResource', function () {
 
+  afterAll(() => global.gc && global.gc());
+
   it('Should set options on create', () => {
     @Collection('any')
     class TestResource extends MongoCollection<any> {

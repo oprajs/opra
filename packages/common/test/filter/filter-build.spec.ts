@@ -11,6 +11,8 @@ const {
 
 describe('Building Filter', function () {
 
+  afterAll(() => global.gc && global.gc());
+
   it('Should $eq() create ComparisonExpression', () => {
     const x = $eq('a', 1);
     expect(x.kind).toStrictEqual('ComparisonExpression');

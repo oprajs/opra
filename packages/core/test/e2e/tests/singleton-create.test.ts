@@ -5,6 +5,8 @@ export function singletonCreateTests(args: { client: OpraTestClient }) {
 
   describe('Singleton:create', function () {
 
+    afterAll(() => global.gc && global.gc());
+
     beforeEach(async () => {
       await args.client.singleton('MyProfile')
           .delete()

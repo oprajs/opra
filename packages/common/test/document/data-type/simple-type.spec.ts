@@ -19,6 +19,8 @@ describe('SimpleType', function () {
     api = await ApiDocumentFactory.createDocument(baseArgs);
   })
 
+  afterAll(() => global.gc && global.gc());
+
   it('Should exportSchema() return schema', async () => {
     const dt = api.getSimpleType('string');
     const x = dt.exportSchema({webSafe: true});

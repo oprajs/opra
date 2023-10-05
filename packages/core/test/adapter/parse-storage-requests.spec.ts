@@ -20,6 +20,8 @@ describe('parse Storage requests', function () {
     adapter = (await NodeHttpAdapter.create(api) as NodeHttpAdapterHost);
   });
 
+  afterAll(async () => adapter.close());
+  afterAll(() => global.gc && global.gc());
 
   describe('parse "action"', function () {
 

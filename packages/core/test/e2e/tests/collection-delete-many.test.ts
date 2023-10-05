@@ -4,6 +4,8 @@ export function collectionDeleteManyTests(args: { client: OpraTestClient }) {
 
   describe('Collection:deleteMany', function () {
 
+    afterAll(() => global.gc && global.gc());
+
     it('Should delete many instances by filter', async () => {
       const resp = await args.client.collection('Customers')
           .deleteMany({filter: '_id>=1001'})

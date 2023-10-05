@@ -4,6 +4,8 @@ export function collectionSearchTests(args: { client: OpraTestClient }) {
 
   describe('Collection:findMany', function () {
 
+    afterAll(() => global.gc && global.gc());
+
     it('Should return list object', async () => {
       const resp = await args.client.collection('Customers')
           .findMany()

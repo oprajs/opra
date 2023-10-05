@@ -17,6 +17,8 @@ describe('ApiDocumentFactory - Collection resource with schema object', function
     }
   };
 
+  afterAll(() => global.gc && global.gc());
+
   it('Should add Collection resource', async () => {
     const resource1: OpraSchema.Collection = {
       kind: 'Collection',

@@ -16,6 +16,8 @@ describe('ApiDocumentFactory - Container resource with schema object', function 
     }
   };
 
+  afterAll(() => global.gc && global.gc());
+
   it('Should add Container resource', async () => {
     const resource1: OpraSchema.Container = {
       kind: 'Container',

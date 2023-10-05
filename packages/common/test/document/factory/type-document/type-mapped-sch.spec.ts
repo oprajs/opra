@@ -16,6 +16,8 @@ describe('ApiDocumentFactory - MappedType with schema object', function () {
     }
   };
 
+  afterAll(() => global.gc && global.gc());
+
   it('Should MappedType(pick) extend given ComplexType and pick given fields only', async () => {
     const type1: OpraSchema.ComplexType = {
       kind: 'ComplexType',

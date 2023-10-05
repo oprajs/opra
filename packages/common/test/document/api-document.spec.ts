@@ -11,6 +11,7 @@ import {
 } from '../_support/test-api/index.js';
 
 describe('ApiDocument', function () {
+
   const baseArgs: ApiDocumentFactory.InitArguments = {
     version: OpraSchema.SpecVersion,
     info: {
@@ -22,6 +23,8 @@ describe('ApiDocument', function () {
       resources: [CustomersController, CountriesController, AuthController]
     }
   };
+
+  afterAll(() => global.gc && global.gc());
 
   it('Should create ApiDocument instance', async () => {
     expect(OpraSchema.Container.Kind).toStrictEqual('Container');

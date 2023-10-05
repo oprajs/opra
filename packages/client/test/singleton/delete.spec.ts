@@ -8,6 +8,7 @@ describe('Singleton.delete', function () {
   let client: OpraHttpClient;
 
   afterAll(() => app.server.close());
+  afterAll(() => global.gc && global.gc());
 
   beforeAll(async () => {
     app = await createMockServer();

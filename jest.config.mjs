@@ -11,6 +11,7 @@ export default {
     '/node_modules/',
     '_support'
   ],
+  testSequencer: '<rootDir>/support/test/jest-customsequencer.cjs',
   projects: [
     '<rootDir>/packages/*/jest.config.mjs'
   ]

@@ -5,6 +5,8 @@ export function collectionCreateTests(args: { client: OpraTestClient }) {
 
   describe('Collection:create', function () {
 
+    afterAll(() => global.gc && global.gc());
+
     it('Should create instance', async () => {
       const data = {
         _id: 1001,

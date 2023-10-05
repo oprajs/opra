@@ -14,9 +14,8 @@ describe('Http Adapter', function () {
     adapter = await NodeHttpAdapter.create(api) as NodeHttpAdapterHost;
   });
 
-  afterAll(async () => {
-    await adapter.close();
-  })
+  afterAll(async () => adapter.close());
+  afterAll(() => global.gc && global.gc());
 
   it('Should call interceptors', async () => {
     const x: any[] = [];

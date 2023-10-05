@@ -17,6 +17,7 @@ describe('ApiDocumentFactory - ComplexType with schema object', function () {
     }
   };
 
+  afterAll(() => global.gc && global.gc());
 
   it('Should add ComplexType by type schema', async () => {
     const type1: OpraSchema.ComplexType = {

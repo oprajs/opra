@@ -2,6 +2,8 @@ import { HttpIncomingMessageHost } from '@opra/core';
 
 describe('HttpIncomingMessageHost', function () {
 
+  afterAll(() => global.gc && global.gc());
+
   it('Should create using init object (raw headers)', async () => {
     const msg = new HttpIncomingMessageHost({
       url: '/test',

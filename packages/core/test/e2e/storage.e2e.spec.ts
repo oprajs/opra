@@ -16,9 +16,8 @@ describe('e2e:Storage', function () {
     adapter = await NodeHttpAdapter.create(api) as NodeHttpAdapterHost;
   });
 
-  afterAll(async () => {
-    await adapter.close();
-  })
+  afterAll(async () => adapter.close());
+  afterAll(() => global.gc && global.gc());
 
   it('Should execute "post" operation', async () => {
     await supertest(adapter.server).post('/Files')

@@ -20,6 +20,7 @@ describe('ApiDocumentFactory - MappedType with decorated classes', function () {
     }
   };
 
+  afterAll(() => global.gc && global.gc());
 
   it('Should PickType() create new MappedType with "pick" option', async () => {
     @ComplexType({

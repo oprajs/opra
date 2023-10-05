@@ -5,6 +5,8 @@ const dirname = path.dirname(getStackFileName());
 
 describe('I18n', function () {
 
+  afterAll(() => global.gc && global.gc());
+
   beforeAll(async () => {
     i18n.registerLocaleDir(path.join(dirname, '../_support/locale'));
     await i18n.init({

@@ -19,6 +19,8 @@ describe('Built-in types', function () {
     api = await ApiDocumentFactory.createDocument(baseArgs);
   })
 
+  afterAll(() => global.gc && global.gc());
+
   it('Should decode "any" type', async () => {
     const dt = api.getSimpleType('any');
     expect(dt.decode('t')).toStrictEqual('t');

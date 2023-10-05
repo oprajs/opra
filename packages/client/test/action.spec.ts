@@ -10,6 +10,8 @@ describe('Actions', function () {
 
   afterAll(() => app.server.close());
 
+  afterAll(() => global.gc && global.gc());
+
   beforeAll(async () => {
     app = await createMockServer();
     client = new OpraHttpClient(app.baseUrl, {api: app.api});

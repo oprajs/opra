@@ -3,6 +3,8 @@ import { Container, RESOURCE_METADATA } from '@opra/common';
 
 describe('Container decorators', function () {
 
+  afterAll(() => global.gc && global.gc());
+
   /* ***************************************************** */
   describe('@Container() decorator', function () {
 

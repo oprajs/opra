@@ -18,6 +18,8 @@ describe('TypeDocument', function () {
     types: [Customer, Country, Profile]
   };
 
+  afterAll(() => global.gc && global.gc());
+
   it('Should create TypeDocument instance', async () => {
     expect(OpraSchema.Container.Kind).toStrictEqual('Container');
   })

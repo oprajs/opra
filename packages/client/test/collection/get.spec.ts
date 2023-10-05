@@ -10,6 +10,7 @@ describe('Collection.get', function () {
   const rows: any[] = JSON.parse(JSON.stringify(customersData.slice(0, 1)));
 
   afterAll(() => app.server.close());
+  afterAll(() => global.gc && global.gc());
 
   beforeAll(async () => {
     app = await createMockServer();

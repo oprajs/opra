@@ -2,6 +2,8 @@ import { OpraURL } from '../../src/index.js';
 
 describe('OpraURL', () => {
 
+  afterAll(() => global.gc && global.gc());
+
   it('Should parse protocol', () => {
     let u = new OpraURL('http://anyuri.com/');
     expect(u.protocol).toStrictEqual('http:');

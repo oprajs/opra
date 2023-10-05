@@ -13,6 +13,8 @@ describe('OpraClient', function () {
 
   afterAll(() => server.close());
 
+  afterAll(() => global.gc && global.gc());
+
   beforeAll(async () => {
     api = await createTestApi();
     const app = express();

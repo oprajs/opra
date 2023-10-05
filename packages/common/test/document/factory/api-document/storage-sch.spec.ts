@@ -15,6 +15,8 @@ describe('ApiDocumentFactory - Storage resource with schema object', function ()
     }
   };
 
+  afterAll(() => global.gc && global.gc());
+
   it('Should add Storage resource', async () => {
     const resource1: OpraSchema.Storage = {
       kind: 'Storage',

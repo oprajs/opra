@@ -21,6 +21,8 @@ describe('ComplexType', function () {
     api = await ApiDocumentFactory.createDocument(baseArgs);
   })
 
+  afterAll(() => global.gc && global.gc());
+
   it('Should findField(name) return field instance', async () => {
     const dt = api.getComplexType('customer');
     const f = dt.findField('countryCode');

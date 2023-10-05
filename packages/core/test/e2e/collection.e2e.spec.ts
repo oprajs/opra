@@ -15,9 +15,8 @@ describe('e2e:Collection', function () {
     adapter = await NodeHttpAdapter.create(api) as NodeHttpAdapterHost;
   });
 
-  afterAll(async () => {
-    await adapter.close();
-  })
+  afterAll(async () => adapter.close());
+  afterAll(() => global.gc && global.gc());
 
   it('Should execute "create" endpoint', async () => {
     const resp = await supertest(adapter.server)

@@ -11,6 +11,8 @@ describe('MongoAdapter.transformRequest (Collection)', function () {
     api = (await createTestApp()).api;
   });
 
+  afterAll(() => global.gc && global.gc());
+
   describe('Convert "create" request', function () {
     const data = {_id: 1001};
 

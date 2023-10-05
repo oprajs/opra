@@ -2,6 +2,8 @@ import { MongoAdapter } from '@opra/mongodb';
 
 describe('MongoAdapter.transformPatch', function () {
 
+  afterAll(() => global.gc && global.gc());
+
   it('Should convert simple values', async () => {
     const o: any = MongoAdapter.transformPatch({_id: 123});
     expect(o).toEqual({

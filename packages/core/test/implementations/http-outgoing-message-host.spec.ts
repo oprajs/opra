@@ -2,6 +2,8 @@ import { HttpOutgoingMessageHost } from '@opra/core';
 
 describe('HttpOutgoingMessageHost', function () {
 
+  afterAll(() => global.gc && global.gc());
+
   it('Should create using init object', async () => {
     const msg = new HttpOutgoingMessageHost({
       statusCode: 200,

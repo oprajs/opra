@@ -18,6 +18,8 @@ describe('e2e:Singleton', function () {
     await app?.client.close();
   })
 
+  afterAll(() => global.gc && global.gc());
+
   // @ts-ignore
   singletonTests.call(this, testArgs);
 

@@ -5,6 +5,8 @@ export function collectionUpdateTests(args: { client: OpraTestClient }) {
 
   describe('Collection:updateOne', function () {
 
+    afterAll(() => global.gc && global.gc());
+
     it('Should update instance', async () => {
       const data = {
         givenName: faker.person.firstName(),

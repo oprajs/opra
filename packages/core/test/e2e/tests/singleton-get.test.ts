@@ -11,6 +11,8 @@ export function singletonGetTests(args: { client: OpraTestClient }) {
       address: {city: 'Izmir'}
     }
 
+    afterAll(() => global.gc && global.gc());
+
     it('Should return error code if resource not found', async () => {
       await args.client.singleton('MyProfile')
           .delete()

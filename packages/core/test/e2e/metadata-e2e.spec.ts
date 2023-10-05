@@ -14,9 +14,8 @@ describe('e2e:metadata', function () {
     adapter = await NodeHttpAdapter.create(api) as NodeHttpAdapterHost;
   });
 
-  afterAll(async () => {
-    await adapter.close();
-  })
+  afterAll(async () => adapter.close());
+  afterAll(() => global.gc && global.gc());
 
   it('Should GET / return api schema', async () => {
     const resp = await supertest(adapter.server).get('/');

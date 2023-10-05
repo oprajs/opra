@@ -4,6 +4,8 @@ import { Country } from '../../_support/test-api/index.js';
 
 describe('Singleton decorators', function () {
 
+  afterAll(() => global.gc && global.gc());
+
   describe('@Singleton() decorator', function () {
 
     /* ***************************************************** */

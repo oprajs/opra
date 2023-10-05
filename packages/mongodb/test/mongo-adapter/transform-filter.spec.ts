@@ -13,6 +13,8 @@ describe('MongoAdapter.transformFilter', function () {
     customers = api.getCollection('customers');
   });
 
+  afterAll(() => global.gc && global.gc());
+
   it('Should convert ComparisonExpression (=)', async () => {
     let out = MongoAdapter.transformFilter(customers.normalizeFilter('givenName="Demons"'));
     expect(out).toStrictEqual({givenName: 'Demons'});

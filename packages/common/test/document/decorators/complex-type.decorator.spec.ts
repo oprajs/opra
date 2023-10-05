@@ -3,6 +3,8 @@ import { ComplexType, DATATYPE_METADATA } from '@opra/common';
 
 describe('ComplexType() decorator', function () {
 
+  afterAll(() => global.gc && global.gc());
+
   it('Should define ComplexType metadata', async function () {
     const opts: ComplexType.DecoratorOptions = {
       description: 'Animal schema',

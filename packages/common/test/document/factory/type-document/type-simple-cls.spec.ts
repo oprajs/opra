@@ -16,6 +16,8 @@ describe('ApiDocumentFactory - SimpleType with decorated classes', function () {
     }
   };
 
+  afterAll(() => global.gc && global.gc());
+
   it('Should add SimpleType by decorated class', async () => {
     @SimpleType()
     class Type1  {

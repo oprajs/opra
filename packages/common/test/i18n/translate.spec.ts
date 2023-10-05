@@ -2,6 +2,8 @@ import {translate} from '@opra/common';
 
 describe('translate()', function () {
 
+  afterAll(() => global.gc && global.gc());
+
   it('translate(key)', () => {
     expect(translate('HELLO')).toStrictEqual('$t(HELLO)');
   })

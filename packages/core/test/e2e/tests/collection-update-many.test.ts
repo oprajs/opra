@@ -5,6 +5,8 @@ export function collectionUpdateManyTests(args: { client: OpraTestClient }) {
 
   describe('Collection:updateMany', function () {
 
+    afterAll(() => global.gc && global.gc());
+
     it('Should update many instances', async () => {
       const data = {
         uid: faker.string.hexadecimal({length: 5})

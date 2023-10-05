@@ -2,6 +2,8 @@ import { ElasticAdapter } from '@opra/elastic';
 
 describe('ElasticAdapter.transformSort', function () {
 
+  afterAll(() => global.gc && global.gc());
+
   it('Should convert sort fields', async () => {
     const o: any = ElasticAdapter.transformSort(['_id', 'givenName']);
     expect(o).toEqual(['_id', 'givenName']);

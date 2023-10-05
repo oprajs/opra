@@ -21,6 +21,8 @@ describe('OpraClientModule', function () {
 
   afterAll(() => app.server.close());
 
+  afterAll(() => global.gc && global.gc());
+
   beforeAll(async () => {
     app = await createMockServer();
     config.serviceUrl = app.baseUrl;

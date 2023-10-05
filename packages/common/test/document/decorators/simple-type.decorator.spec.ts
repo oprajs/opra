@@ -4,6 +4,8 @@ import { StringType } from '../../../src/document/data-type/builtin/index.js';
 
 describe('SimpleType() decorator', function () {
 
+  afterAll(() => global.gc && global.gc());
+
   it('Should define SimpleType metadata', async function () {
     const opts: SimpleType.DecoratorOptions = {
       description: 'Custom string schema'

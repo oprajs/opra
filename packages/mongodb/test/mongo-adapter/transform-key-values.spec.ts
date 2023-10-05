@@ -10,6 +10,8 @@ describe('MongoAdapter.transformKeyValues', function () {
     api = (await createTestApp()).api;
   });
 
+  afterAll(() => global.gc && global.gc());
+
   it('Should transform using single primitive key value', async () => {
     const out = MongoAdapter.transformKeyValues(api.getCollection('customers'), 1);
     expect(out).toStrictEqual({_id: 1});

@@ -16,6 +16,7 @@ describe('ApiDocumentFactory - UnionType with schema object', function () {
     }
   };
 
+  afterAll(() => global.gc && global.gc());
 
   it('Should add UnionType by type schema', async () => {
     const type1: OpraSchema.ComplexType = {

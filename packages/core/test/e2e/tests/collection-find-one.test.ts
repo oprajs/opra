@@ -4,6 +4,8 @@ export function collectionGetTests(args: { client: OpraTestClient }) {
 
   describe('Collection:findOne', function () {
 
+    afterAll(() => global.gc && global.gc());
+
     it('Should return object', async () => {
       const resp = await args.client.collection('Customers')
           .get(1)

@@ -10,6 +10,8 @@ describe('MongoAdapter.transformProjection', function () {
     api = (await createTestApp()).api;
   });
 
+  afterAll(() => global.gc && global.gc());
+
   it('Should process "pick" only args', async () => {
     const o: any = MongoAdapter.transformProjection(
         api.getComplexType('customer'), {

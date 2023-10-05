@@ -17,6 +17,8 @@ describe('ApiDocumentFactory - Singleton resource with decorated classes', funct
     }
   };
 
+  afterAll(() => global.gc && global.gc());
+
   it('Should add Singleton resource', async () => {
     @Singleton(Country, {
       description: 'Country singleton',

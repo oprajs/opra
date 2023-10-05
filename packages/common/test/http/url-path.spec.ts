@@ -2,6 +2,8 @@ import { OpraURLPath } from '@opra/common';
 
 describe('UrlPath', function () {
 
+  afterAll(() => global.gc && global.gc());
+
   it('Should parse simple path components', () => {
     const u = new OpraURLPath('r1/r2');
     expect(u.length).toStrictEqual(2);

@@ -4,6 +4,8 @@ import { Country } from '../../_support/test-api/index.js';
 
 describe('MappedType', function () {
 
+  afterAll(() => global.gc && global.gc());
+
   it('Should OmitType() create MappedType class and define metadata', async function () {
 
     @ComplexType({description: 'TestClass schema'})

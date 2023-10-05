@@ -3,6 +3,8 @@ import { Collection, RESOURCE_METADATA, Storage } from '@opra/common';
 
 describe('Storage decorators', function () {
 
+  afterAll(() => global.gc && global.gc());
+
   /* ***************************************************** */
   describe('@Storage() decorator', function () {
 

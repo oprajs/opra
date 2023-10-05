@@ -16,6 +16,8 @@ describe('ApiDocumentFactory - Singleton resource with schema object', function 
     }
   };
 
+  afterAll(() => global.gc && global.gc());
+
   it('Should add Singleton resource', async () => {
     const resource1: OpraSchema.Singleton = {
       kind: 'Singleton',

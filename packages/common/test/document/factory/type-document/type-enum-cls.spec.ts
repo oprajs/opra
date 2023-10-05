@@ -16,6 +16,7 @@ describe('ApiDocumentFactory - EnumType with decorated classes', function () {
     }
   };
 
+  afterAll(() => global.gc && global.gc());
 
   it('Should add EnumType', async () => {
 

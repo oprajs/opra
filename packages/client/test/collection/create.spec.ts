@@ -9,6 +9,7 @@ describe('Collection.create', function () {
   const data = {id: 1, givenName: 'dfd'};
 
   afterAll(() => app.server.close());
+  afterAll(() => global.gc && global.gc());
 
   beforeAll(async () => {
     app = await createMockServer();

@@ -11,6 +11,8 @@ describe('ElasticAdapter.transformRequest (Collection)', function () {
     api = (await createTestApp()).api;
   });
 
+  afterAll(() => global.gc && global.gc());
+
   describe('Convert "findMany" request', function () {
 
     it('Should prepare', async () => {

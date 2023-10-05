@@ -2,6 +2,8 @@ import { MongoAdapter } from '@opra/mongodb';
 
 describe('MongoAdapter.transformSort', function () {
 
+  afterAll(() => global.gc && global.gc());
+
   it('Should convert sort fields', async () => {
     const o: any = MongoAdapter.transformSort(['_id', 'givenName']);
     expect(o).toEqual({

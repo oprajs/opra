@@ -16,6 +16,8 @@ describe('ApiDocumentFactory - EnumType with schema object', function () {
     }
   };
 
+  afterAll(() => global.gc && global.gc());
+
   it('Should add EnumType', async () => {
     const GenderEnum: OpraSchema.EnumType = {
       kind: 'EnumType',

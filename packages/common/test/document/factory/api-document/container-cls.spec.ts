@@ -16,6 +16,8 @@ describe('ApiDocumentFactory - Container resource with decorated classes', funct
     }
   };
 
+  afterAll(() => global.gc && global.gc());
+
   it('Should add Container resource', async () => {
     @Container({
       description: 'Container resource',

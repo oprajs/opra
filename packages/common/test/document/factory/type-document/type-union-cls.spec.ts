@@ -18,6 +18,8 @@ describe('ApiDocumentFactory - UnionType with decorated classes', function () {
     }
   };
 
+  afterAll(() => global.gc && global.gc());
+
   it('Should add UnionType', async () => {
     @ComplexType()
     class Type1 {

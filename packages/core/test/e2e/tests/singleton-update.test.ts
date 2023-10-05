@@ -19,6 +19,8 @@ export function singletonUpdateTests(args: { client: OpraTestClient }) {
           .getResponse();
     });
 
+    afterAll(() => global.gc && global.gc());
+
     it('Should update instance', async () => {
       let resp = await args.client.singleton('MyProfile')
           .get()

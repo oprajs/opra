@@ -16,6 +16,8 @@ describe('ApiDocumentFactory - Storage resource with decorated classes', functio
     }
   };
 
+  afterAll(() => global.gc && global.gc());
+
   it('Should add Storage resource', async () => {
     @Storage({
       description: 'Storage resource',

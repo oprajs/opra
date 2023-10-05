@@ -17,6 +17,8 @@ describe('ApiDocumentFactory - Collection resource with decorated classes', func
     }
   };
 
+  afterAll(() => global.gc && global.gc());
+
   it('Should add Collection resource', async () => {
     @Collection(Country, {
       description: 'Country collection',
