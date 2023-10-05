@@ -21,7 +21,7 @@
     "precover": "rimraf coverage",
     "cover": "jest --passWithNoTests --coverage",
     "precitest": "rimraf coverage",
-    "citest": "node --expose-gc ./node_modules/.bin/jest --passWithNoTests --runInBand --logHeapUsage --coverage --coverageReporters=lcov"
+    "citest": "node --expose-gc ./node_modules/.bin/jest --passWithNoTests --runInBand --logHeapUsage --coverage --coverageReporters=lcov --testTimeout=30000"
   },
   "devDependencies": {
     "@angular-devkit/build-angular": "^16.2.1",

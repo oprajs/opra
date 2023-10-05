@@ -10,7 +10,6 @@ export default async function config() {
   return {
     ...base,
     displayName: packageJson.name,
-    testTimeout: 30000,
     globalSetup: '<rootDir>/test/jest-setup.ts'
   };
 }
