@@ -41,6 +41,7 @@ jobs:
       NODE_ENV: test
       POSTGRES_USER: postgres
       POSTGRES_DB: test
+      NODE_OPTIONS: "--max-old-space-size=8192"
     steps:
       - checkout
       - restore_cache:
