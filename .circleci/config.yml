@@ -55,5 +55,5 @@ jobs:
       - run: npm install
       - run: npm run citest
       - run: npm install coveralls --no-save
-      - coveralls/upload:
-          coverage_file: ./coverage/lcov.info
+      # - coveralls/upload:
+      #    coverage_file: ./coverage/lcov.info
