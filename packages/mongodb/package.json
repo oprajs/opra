@@ -1,6 +1,6 @@
 {
   "name": "@opra/mongodb",
-  "version": "0.26.1",
+  "version": "0.26.2",
   "description": "Opra MongoDB adapter package",
   "author": "Panates",
   "license": "MIT",
