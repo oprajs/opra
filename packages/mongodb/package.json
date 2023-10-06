@@ -28,8 +28,8 @@
     "lodash": "^4.17.21"
   },
   "devDependencies": {
-    "@faker-js/faker": "^8.0.2",
-    "mongodb": "^6.0.0",
+    "@faker-js/faker": "^8.1.0",
+    "mongodb": "^6.1.0",
     "ts-gems": "^2.5.0"
   },
   "peerDependencies": {

@@ -33,7 +33,7 @@
     "rule-judgment": "^1.1.5"
   },
   "devDependencies": {
-    "@types/supertest": "^2.0.12"
+    "@types/supertest": "^2.0.14"
   },
   "type": "module",
   "module": "./esm/index.js",
