@@ -26,3 +26,4 @@ export * from './interfaces/logger.interface.js';
 export * from './interfaces/request-handler.interface.js';
 
 export * from './services/logger.js';
+export * from './services/api-service.js';

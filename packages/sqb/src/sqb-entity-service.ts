@@ -1,5 +1,5 @@
 import { Maybe, Type } from 'ts-gems';
-import { PartialInput, PartialOutput, RequestContext } from '@opra/core';
+import { ApiService, PartialInput, PartialOutput, RequestContext } from '@opra/core';
 import { EntityInput, EntityMetadata, Repository, SqbClient, SqbConnection } from '@sqb/connect';
 
 export namespace SqbEntityService {
@@ -9,12 +9,12 @@ export namespace SqbEntityService {
   }
 }
 
-export class SqbEntityService<T> {
-  context: RequestContext;
+export class SqbEntityService<T> extends ApiService {
   defaultLimit: number;
   db?: SqbClient | SqbConnection;
 
   constructor(readonly typeClass: Type<T>, options?: SqbEntityService.Options) {
+    super();
     const metadata = EntityMetadata.get(typeClass);
     if (!metadata)
       throw new TypeError(`Class ${typeClass} is not decorated with $Entity() decorator`);
@@ -173,16 +173,10 @@ export class SqbEntityService<T> {
     return this.forContext(context, db);
   }
 
-  forContext(context: RequestContext, db?: SqbClient | SqbConnection): SqbEntityService<T> {
-    if (this.context === context && this.db === db)
-      return this;
-    const instance = {context} as SqbEntityService<T>;
-    // Should reset session if db changed
-    if (db) {
-      instance.db = db;
-    }
-    Object.setPrototypeOf(instance, this);
-    return instance;
+  forContext(context: RequestContext, db?: SqbClient | SqbConnection): typeof this {
+    const instance = super.forContext(context) as SqbEntityService<T>;
+    instance.db = db || this.db;
+    return instance as typeof this;
   }
 
   protected async _onError(error: unknown): Promise<void> {

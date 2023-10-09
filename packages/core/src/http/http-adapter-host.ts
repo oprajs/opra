@@ -144,7 +144,7 @@ export abstract class HttpAdapterHost extends PlatformAdapterHost {
     let resource: Resource = this.api.root;
     let request: RequestHost | undefined;
     // Walk through container
-    while (resource instanceof Container) {
+    while (resource instanceof Container && i < parsedUrl.path.length) {
       p = parsedUrl.path[i];
       const r = resource.resources.get(p.resource);
       if (r) {

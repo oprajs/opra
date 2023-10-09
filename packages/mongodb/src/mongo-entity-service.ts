@@ -1,6 +1,6 @@
 import mongodb, { UpdateFilter } from 'mongodb';
 import { StrictOmit } from 'ts-gems';
-import { PartialOutput, RequestContext } from '@opra/core';
+import { ApiService, PartialOutput, RequestContext } from '@opra/core';
 
 export namespace MongoEntityService {
   export interface Options {
@@ -9,9 +9,8 @@ export namespace MongoEntityService {
   }
 }
 
-export class MongoEntityService<T extends mongodb.Document> {
+export class MongoEntityService<T extends mongodb.Document> extends ApiService {
   protected _collectionName: string;
-  context: RequestContext;
   defaultLimit: number;
   db?: mongodb.Db;
   session?: mongodb.ClientSession;
@@ -19,6 +18,7 @@ export class MongoEntityService<T extends mongodb.Document> {
   constructor(options?: MongoEntityService.Options)
   constructor(collectionName: string, options?: MongoEntityService.Options)
   constructor(arg0, arg1?) {
+    super();
     const options = typeof arg0 === 'object' ? arg0 : arg1;
     if (typeof arg0 === 'string')
       this._collectionName = arg0;
@@ -200,19 +200,11 @@ export class MongoEntityService<T extends mongodb.Document> {
       context: RequestContext,
       db?: mongodb.Db,
       session?: mongodb.ClientSession
-  ): MongoEntityService<T> {
-    if (this.context === context && this.db === db && this.session === session)
-      return this;
-    const instance = {context} as MongoEntityService<T>;
-    // Should reset session if db changed
-    if (db) {
-      instance.db = db;
-      instance.session = session;
-    }
-    if (session)
-      instance.session = session;
-    Object.setPrototypeOf(instance, this);
-    return instance;
+  ): typeof this {
+    const instance = super.forContext(context) as MongoEntityService<T>;
+    instance.db = db || this.db;
+    instance.session = session || this.session;
+    return instance as typeof this;
   }
 
   protected async _onError(error: unknown): Promise<void> {

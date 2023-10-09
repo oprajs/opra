@@ -34,7 +34,7 @@ export class CustomersResource extends SqbCollection<Customer> {
   findMany;
 
   getService(ctx: RequestContext) {
-    return this.service.with(ctx);
+    return this.service.forContext(ctx);
   }
 
 }

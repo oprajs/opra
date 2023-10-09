@@ -22,42 +22,42 @@ export abstract class SqbCollection<T> implements ICollection<T> {
   async create?(ctx: RequestContext): Promise<PartialOutput<T>> {
     const prepared = await this._prepare(ctx);
     const service = await this.getService(ctx);
-    return service.with(ctx).create(prepared.data, prepared.options);
+    return service.create(prepared.data, prepared.options);
   }
 
   @Collection.Delete()
   async delete?(ctx: RequestContext): Promise<number> {
     const prepared = await this._prepare(ctx);
     const service = await this.getService(ctx);
-    return service.with(ctx).delete(prepared.key, prepared.options);
+    return service.delete(prepared.key, prepared.options);
   }
 
   @Collection.DeleteMany()
   async deleteMany?(ctx: RequestContext): Promise<number> {
     const prepared = await this._prepare(ctx);
     const service = await this.getService(ctx);
-    return service.with(ctx).deleteMany(prepared.options);
+    return service.deleteMany(prepared.options);
   }
 
   @Collection.Get()
   async get?(ctx: RequestContext): Promise<Maybe<PartialOutput<T>>> {
     const prepared = await this._prepare(ctx);
     const service = await this.getService(ctx);
-    return service.with(ctx).find(prepared.key, prepared.options);
+    return service.find(prepared.key, prepared.options);
   }
 
   @Collection.Update()
   async update?(ctx: RequestContext): Promise<Maybe<PartialOutput<T>>> {
     const prepared = await this._prepare(ctx);
     const service = await this.getService(ctx);
-    return service.with(ctx).update(prepared.key, prepared.data, prepared.options);
+    return service.update(prepared.key, prepared.data, prepared.options);
   }
 
   @Collection.UpdateMany()
   async updateMany?(ctx: RequestContext): Promise<number> {
     const prepared = await this._prepare(ctx);
     const service = await this.getService(ctx);
-    return service.with(ctx).updateMany(prepared.data, prepared.options);
+    return service.updateMany(prepared.data, prepared.options);
   }
 
   @Collection.FindMany()
@@ -72,7 +72,7 @@ export abstract class SqbCollection<T> implements ICollection<T> {
       ctx.response.count = count;
       return items;
     } else
-      return service.with(ctx).findMany(prepared.options);
+      return service.findMany(prepared.options);
   }
 
   protected async _prepare(ctx: RequestContext): Promise<SQBAdapter.TransformedRequest> {

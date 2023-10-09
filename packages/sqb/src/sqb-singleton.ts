@@ -10,29 +10,29 @@ export abstract class SqbSingleton<T> implements ISingleton<T> {
   async create?(ctx: RequestContext): Promise<PartialOutput<T>> {
     const prepared = await this._prepare(ctx);
     const service = await this.getService(ctx);
-    return service.with(ctx).create(prepared.data, prepared.options);
+    return service.create(prepared.data, prepared.options);
   }
 
   @Singleton.Delete()
   async delete?(ctx: RequestContext): Promise<number> {
     const prepared = await this._prepare(ctx);
     const service = await this.getService(ctx);
-    return await service.with(ctx).deleteMany(prepared.options);
+    return await service.deleteMany(prepared.options);
   }
 
   @Singleton.Get()
   async get?(ctx: RequestContext): Promise<Maybe<PartialOutput<T>>> {
     const prepared = await this._prepare(ctx);
     const service = await this.getService(ctx);
-    return service.with(ctx).findOne(prepared.options);
+    return service.findOne(prepared.options);
   }
 
   @Singleton.Update()
   async update?(ctx: RequestContext): Promise<Maybe<PartialOutput<T>>> {
     const prepared = await this._prepare(ctx);
     const service = await this.getService(ctx);
-    await service.with(ctx).updateMany(prepared.data, prepared.options);
-    return service.with(ctx).findOne(prepared.options);
+    await service.updateMany(prepared.data, prepared.options);
+    return service.findOne(prepared.options);
   }
 
   protected async _prepare(ctx: RequestContext): Promise<SQBAdapter.TransformedRequest> {

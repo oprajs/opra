@@ -15,7 +15,7 @@ export class MyProfileResource extends MongoSingleton<Profile> {
   }
 
   getService(ctx: RequestContext) {
-    return this.service.with(ctx);
+    return this.service.forContext(ctx);
   }
 
 }
