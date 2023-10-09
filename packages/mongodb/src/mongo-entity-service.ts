@@ -193,6 +193,14 @@ export class MongoEntityService<T extends mongodb.Document> {
       db?: mongodb.Db,
       session?: mongodb.ClientSession
   ): MongoEntityService<T> {
+    return this.forContext(context, db, session);
+  }
+
+  forContext(
+      context: RequestContext,
+      db?: mongodb.Db,
+      session?: mongodb.ClientSession
+  ): MongoEntityService<T> {
     if (this.context === context && this.db === db && this.session === session)
       return this;
     const instance = {context} as MongoEntityService<T>;

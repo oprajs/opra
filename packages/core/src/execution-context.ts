@@ -2,13 +2,11 @@ import type { HttpServerRequest } from './http/http-server-request.js';
 import type { HttpServerResponse } from './http/http-server-response.js';
 import type { Protocol } from './platform-adapter.js';
 
-export interface ExecutionContext<TSession extends {} = {}> {
+export interface ExecutionContext {
 
   readonly protocol: Protocol;
 
   readonly platform: string;
-
-  session: TSession;
 
   errors: Error[];
 
@@ -19,6 +17,7 @@ export interface ExecutionContext<TSession extends {} = {}> {
   switchToRpc(): RpcMessageContext;
 
   on(event: 'finish', fn: (args: ExecutionContext.OnFinishArgs) => void | Promise<void>);
+
 }
 
 export namespace ExecutionContext {

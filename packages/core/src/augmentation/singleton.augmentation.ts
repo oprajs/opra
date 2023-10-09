@@ -13,7 +13,7 @@ declare module "@opra/common" {
         action: string;
       }
 
-      interface Context<TSession extends {} = {}> extends Resource.Context<TSession> {
+      interface Context extends Resource.Context {
       }
     }
 
@@ -29,7 +29,7 @@ declare module "@opra/common" {
         }
       }
 
-      interface Context<TSession extends {} = {}> extends RequestContext<TSession> {
+      interface Context extends RequestContext {
         request: Request;
       }
     }
@@ -40,7 +40,7 @@ declare module "@opra/common" {
         operation: 'delete';
       }
 
-      interface Context<TSession extends {} = {}> extends RequestContext<TSession> {
+      interface Context extends RequestContext {
         request: Request;
       }
     }
@@ -56,7 +56,7 @@ declare module "@opra/common" {
         }
       }
 
-      interface Context<TSession extends {} = {}> extends RequestContext<TSession> {
+      interface Context extends RequestContext {
         request: Request;
       }
     }
@@ -73,7 +73,7 @@ declare module "@opra/common" {
         }
       }
 
-      interface Context<TSession extends {} = {}> extends RequestContext<TSession> {
+      interface Context extends RequestContext {
         request: Request;
       }
     }

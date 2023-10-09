@@ -9,7 +9,7 @@ export namespace SqbEntityService {
   }
 }
 
-export class SqbEntityService<T, TOutput = PartialOutput<T>> {
+export class SqbEntityService<T> {
   context: RequestContext;
   defaultLimit: number;
   db?: SqbClient | SqbConnection;
@@ -35,10 +35,7 @@ export class SqbEntityService<T, TOutput = PartialOutput<T>> {
     }
   }
 
-  async create(
-      data: PartialInput<T>,
-      options?: Repository.CreateOptions
-  ): Promise<TOutput> {
+  async create(data: PartialInput<T>, options?: Repository.CreateOptions): Promise<PartialOutput<T>> {
     const conn = await this.getConnection();
     const repo = conn.getRepository(this.typeClass);
     let out;
@@ -56,23 +53,18 @@ export class SqbEntityService<T, TOutput = PartialOutput<T>> {
   }
 
 
-  async delete(
-      keyValue: any,
-      options?: Repository.DestroyOptions
-  ): Promise<boolean> {
+  async delete(keyValue: any, options?: Repository.DeleteOptions): Promise<number> {
     const conn = await this.getConnection();
     const repo = conn.getRepository(this.typeClass);
     try {
-      return await repo.delete(keyValue, options);
+      return await repo.delete(keyValue, options) ? 1 : 0;
     } catch (e: any) {
       await this._onError(e);
       throw e;
     }
   }
 
-  async deleteMany(
-      options?: Repository.DestroyOptions
-  ): Promise<number> {
+  async deleteMany(options?: Repository.DeleteManyOptions): Promise<number> {
     const conn = await this.getConnection();
     const repo = conn.getRepository(this.typeClass);
     try {
@@ -83,10 +75,7 @@ export class SqbEntityService<T, TOutput = PartialOutput<T>> {
     }
   }
 
-  async find(
-      keyValue: any,
-      options?: Repository.FindOptions
-  ): Promise<Maybe<TOutput>> {
+  async find(keyValue: any, options?: Repository.FindOptions): Promise<Maybe<PartialOutput<T>>> {
     const conn = await this.getConnection();
     const repo = conn.getRepository(this.typeClass);
     let out;
@@ -101,9 +90,7 @@ export class SqbEntityService<T, TOutput = PartialOutput<T>> {
     return out;
   }
 
-  async findOne(
-      options?: Repository.FindOneOptions
-  ): Promise<Maybe<TOutput>> {
+  async findOne(options?: Repository.FindOneOptions): Promise<Maybe<PartialOutput<T>>> {
     const conn = await this.getConnection();
     const repo = conn.getRepository(this.typeClass);
     let out;
@@ -118,9 +105,7 @@ export class SqbEntityService<T, TOutput = PartialOutput<T>> {
     return out;
   }
 
-  async findMany(
-      options?: Repository.FindManyOptions,
-  ): Promise<TOutput[]> {
+  async findMany(options?: Repository.FindManyOptions): Promise<PartialOutput<T>[]> {
     const conn = await this.getConnection();
     const repo = conn.getRepository(this.typeClass);
     let items: any[];
@@ -143,9 +128,7 @@ export class SqbEntityService<T, TOutput = PartialOutput<T>> {
     return items;
   }
 
-  async exists(
-      options?: Repository.ExistsOptions
-  ): Promise<boolean> {
+  async exists(options?: Repository.ExistsOptions): Promise<boolean> {
     const conn = await this.getConnection();
     const repo = conn.getRepository(this.typeClass);
     try {
@@ -157,11 +140,7 @@ export class SqbEntityService<T, TOutput = PartialOutput<T>> {
   }
 
 
-  async update(
-      keyValue: any,
-      data: EntityInput<T>,
-      options?: Repository.UpdateOptions
-  ): Promise<Maybe<TOutput>> {
+  async update(keyValue: any, data: EntityInput<T>, options?: Repository.UpdateOptions): Promise<Maybe<PartialOutput<T>>> {
     const conn = await this.getConnection();
     const repo = conn.getRepository(this.typeClass);
     let out;
@@ -190,13 +169,14 @@ export class SqbEntityService<T, TOutput = PartialOutput<T>> {
     }
   }
 
-  with(
-      context: RequestContext,
-      db?: SqbClient | SqbConnection
-  ): SqbEntityService<T, TOutput> {
+  with(context: RequestContext, db?: SqbClient | SqbConnection): SqbEntityService<T> {
+    return this.forContext(context, db);
+  }
+
+  forContext(context: RequestContext, db?: SqbClient | SqbConnection): SqbEntityService<T> {
     if (this.context === context && this.db === db)
       return this;
-    const instance = {context} as SqbEntityService<T, TOutput>;
+    const instance = {context} as SqbEntityService<T>;
     // Should reset session if db changed
     if (db) {
       instance.db = db;
@@ -220,7 +200,7 @@ export class SqbEntityService<T, TOutput = PartialOutput<T>> {
 
   protected onError?(error: unknown): void | Promise<void>;
 
-  protected transformData?(row: TOutput): TOutput;
+  protected transformData?(row: PartialOutput<T>): PartialOutput<T>;
 
 
 }

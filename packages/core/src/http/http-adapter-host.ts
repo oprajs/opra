@@ -202,7 +202,7 @@ export abstract class HttpAdapterHost extends PlatformAdapterHost {
     return new RequestHost({
       endpoint,
       operation: 'action',
-      action: p.resource,
+      action: endpoint.name,
       controller,
       handler,
       http: incoming,

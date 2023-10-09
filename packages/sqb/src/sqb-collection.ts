@@ -1,5 +1,5 @@
 import { Maybe } from 'ts-gems';
-import { Collection, PartialOutput } from '@opra/common';
+import { Collection, ICollection, PartialOutput } from '@opra/common';
 import { RequestContext } from '@opra/core';
 import { SQBAdapter } from './sqb-adapter.js';
 import { SqbEntityService } from './sqb-entity-service.js';
@@ -11,7 +11,7 @@ export namespace SqbCollection {
 }
 
 // noinspection TypeScriptAbstractClassConstructorCanBeMadeProtected
-export abstract class SqbCollection<T, TOutput = PartialOutput<T>> {
+export abstract class SqbCollection<T> implements ICollection<T> {
   defaultLimit?: number;
 
   constructor(options?: SqbCollection.Options) {
@@ -19,50 +19,50 @@ export abstract class SqbCollection<T, TOutput = PartialOutput<T>> {
   }
 
   @Collection.Create()
-  async create(ctx: RequestContext): Promise<TOutput> {
-    const prepared = SQBAdapter.transformRequest(ctx.request);
+  async create?(ctx: RequestContext): Promise<PartialOutput<T>> {
+    const prepared = await this._prepare(ctx);
     const service = await this.getService(ctx);
     return service.with(ctx).create(prepared.data, prepared.options);
   }
 
   @Collection.Delete()
-  async delete(ctx: RequestContext): Promise<boolean> {
-    const prepared = SQBAdapter.transformRequest(ctx.request);
+  async delete?(ctx: RequestContext): Promise<number> {
+    const prepared = await this._prepare(ctx);
     const service = await this.getService(ctx);
     return service.with(ctx).delete(prepared.key, prepared.options);
   }
 
   @Collection.DeleteMany()
-  async deleteMany(ctx: RequestContext): Promise<number> {
-    const prepared = SQBAdapter.transformRequest(ctx.request);
+  async deleteMany?(ctx: RequestContext): Promise<number> {
+    const prepared = await this._prepare(ctx);
     const service = await this.getService(ctx);
     return service.with(ctx).deleteMany(prepared.options);
   }
 
   @Collection.Get()
-  async get(ctx: RequestContext): Promise<Maybe<TOutput>> {
-    const prepared = SQBAdapter.transformRequest(ctx.request);
+  async get?(ctx: RequestContext): Promise<Maybe<PartialOutput<T>>> {
+    const prepared = await this._prepare(ctx);
     const service = await this.getService(ctx);
     return service.with(ctx).find(prepared.key, prepared.options);
   }
 
   @Collection.Update()
-  async update(ctx: RequestContext): Promise<Maybe<TOutput>> {
-    const prepared = SQBAdapter.transformRequest(ctx.request);
+  async update?(ctx: RequestContext): Promise<Maybe<PartialOutput<T>>> {
+    const prepared = await this._prepare(ctx);
     const service = await this.getService(ctx);
     return service.with(ctx).update(prepared.key, prepared.data, prepared.options);
   }
 
   @Collection.UpdateMany()
-  async updateMany(ctx: RequestContext): Promise<number> {
-    const prepared = SQBAdapter.transformRequest(ctx.request);
+  async updateMany?(ctx: RequestContext): Promise<number> {
+    const prepared = await this._prepare(ctx);
     const service = await this.getService(ctx);
     return service.with(ctx).updateMany(prepared.data, prepared.options);
   }
 
   @Collection.FindMany()
-  async findMany(ctx: RequestContext): Promise<TOutput[]> {
-    const prepared = SQBAdapter.transformRequest(ctx.request);
+  async findMany?(ctx: RequestContext): Promise<PartialOutput<T>[]> {
+    const prepared = await this._prepare(ctx);
     const service = await this.getService(ctx);
     if (prepared.options.count) {
       const [items, count] = await Promise.all([
@@ -75,5 +75,14 @@ export abstract class SqbCollection<T, TOutput = PartialOutput<T>> {
       return service.with(ctx).findMany(prepared.options);
   }
 
-  abstract getService(ctx: RequestContext): SqbEntityService<T, TOutput> | Promise<SqbEntityService<T, TOutput>>;
+  protected async _prepare(ctx: RequestContext): Promise<SQBAdapter.TransformedRequest> {
+    const prepared = SQBAdapter.transformRequest(ctx.request);
+    return (this.onPrepare && await this.onPrepare(ctx, prepared)) || prepared;
+  }
+
+  onPrepare?(ctx: RequestContext,
+             prepared: SQBAdapter.TransformedRequest): SQBAdapter.TransformedRequest | Promise<SQBAdapter.TransformedRequest>;
+
+  protected abstract getService(ctx: RequestContext): SqbEntityService<T> | Promise<SqbEntityService<T>>;
+
 }

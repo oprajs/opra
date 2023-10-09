@@ -11,7 +11,7 @@ declare module "@opra/common" {
         action: string;
       }
 
-      interface Context<TSession extends {} = {}> extends Resource.Context<TSession> {
+      interface Context extends Resource.Context {
       }
     }
   }

@@ -28,7 +28,7 @@ describe('Parse Collection requests', function () {
       const request = await adapter.parseRequest(
           createContext(HttpServerRequest.from({
             method: 'GET',
-            url: '/customers/sendMessage?message=text'
+            url: '/customers/sendmessage?message=text'
           }))
       ) as Collection.Action.Request;
       expect(request).toBeDefined();

@@ -11,13 +11,15 @@ export namespace SQBAdapter {
   export const transformFilter = _transformFilter;
   export const transformKeyValues = _transformKeyValues;
 
-  export function transformRequest(request: Request): {
+  export interface TransformedRequest {
     method: 'create' | 'delete' | 'deleteMany' | 'find' | 'findOne' | 'findMany' | 'update' | 'updateMany',
     key?: any,
     data?: any,
     options: any,
     args: any[]
-  } {
+  }
+
+  export function transformRequest(request: Request): TransformedRequest {
     const {resource} = request;
 
     if (resource instanceof Collection || resource instanceof Singleton) {

@@ -13,7 +13,7 @@ declare module "@opra/common" {
         action: string;
       }
 
-      interface Context<TSession extends {} = {}> extends Resource.Context<TSession> {
+      interface Context extends Resource.Context {
       }
     }
 
@@ -24,7 +24,7 @@ declare module "@opra/common" {
         path?: string;
       }
 
-      interface Context<TSession extends {} = {}> extends RequestContext<TSession> {
+      interface Context extends RequestContext {
         request: Request;
       }
     }
@@ -36,7 +36,7 @@ declare module "@opra/common" {
         path?: string;
       }
 
-      interface Context<TSession extends {} = {}> extends RequestContext<TSession> {
+      interface Context extends RequestContext {
         request: Request;
       }
     }
@@ -49,7 +49,7 @@ declare module "@opra/common" {
         parts: MultipartIterator;
       }
 
-      interface Context<TSession extends {} = {}> extends RequestContext<TSession> {
+      interface Context extends RequestContext {
         request: Request;
       }
     }

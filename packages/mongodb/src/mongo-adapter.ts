@@ -86,14 +86,12 @@ export namespace MongoAdapter {
           }
         }
         case 'findMany': {
-          const out: any = {
+          return {
             method: 'find',
             filter,
             options,
             args: [filter, options]
           };
-          out.count = params?.count;
-          return out;
         }
         case 'update': {
           const data = transformPatch((request as any).data);

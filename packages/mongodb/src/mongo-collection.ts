@@ -12,9 +12,7 @@ export namespace MongoCollection {
 }
 
 // noinspection TypeScriptAbstractClassConstructorCanBeMadeProtected
-export abstract class MongoCollection<T extends mongodb.Document>
-    implements ICollection<T> {
-
+export abstract class MongoCollection<T extends mongodb.Document> implements ICollection<T> {
   defaultLimit?: number;
 
   constructor(options?: MongoCollection.Options) {
@@ -22,52 +20,52 @@ export abstract class MongoCollection<T extends mongodb.Document>
   }
 
   @Collection.Create()
-  async create(ctx: Collection.Create.Context): Promise<PartialOutput<T>> {
-    const prepared = this._onPrepare(ctx, MongoAdapter.transformRequest(ctx.request));
+  async create?(ctx: Collection.Create.Context): Promise<PartialOutput<T>> {
+    const prepared = await this._prepare(ctx);
     const service = await this.getService(ctx);
     return service.insertOne(prepared.data, prepared.options);
   }
 
   @Collection.Delete()
-  async delete(ctx: RequestContext): Promise<number> {
-    const prepared = this._onPrepare(ctx, MongoAdapter.transformRequest(ctx.request));
+  async delete?(ctx: RequestContext): Promise<number> {
+    const prepared = await this._prepare(ctx);
     const service = await this.getService(ctx);
     return service.deleteOne(prepared.filter, prepared.options);
   }
 
   @Collection.DeleteMany()
-  async deleteMany(ctx: RequestContext): Promise<number> {
-    const prepared = this._onPrepare(ctx, MongoAdapter.transformRequest(ctx.request));
+  async deleteMany?(ctx: RequestContext): Promise<number> {
+    const prepared = await this._prepare(ctx);
     const service = await this.getService(ctx);
     return service.deleteMany(prepared.filter, prepared.options);
   }
 
   @Collection.Get()
-  async get(ctx: RequestContext): Promise<Maybe<PartialOutput<T>>> {
-    const prepared = this._onPrepare(ctx, MongoAdapter.transformRequest(ctx.request));
+  async get?(ctx: RequestContext): Promise<Maybe<PartialOutput<T>>> {
+    const prepared = await this._prepare(ctx);
     const service = await this.getService(ctx);
     return service.findOne(prepared.filter, prepared.options);
   }
 
   @Collection.Update()
-  async update(ctx: RequestContext): Promise<Maybe<PartialOutput<T>>> {
-    const prepared = this._onPrepare(ctx, MongoAdapter.transformRequest(ctx.request));
+  async update?(ctx: RequestContext): Promise<Maybe<PartialOutput<T>>> {
+    const prepared = await this._prepare(ctx);
     const service = await this.getService(ctx);
     return service.updateOne(prepared.filter, prepared.data, prepared.options);
   }
 
   @Collection.UpdateMany()
-  async updateMany(ctx: RequestContext): Promise<number> {
-    const prepared = this._onPrepare(ctx, MongoAdapter.transformRequest(ctx.request));
+  async updateMany?(ctx: RequestContext): Promise<number> {
+    const prepared = await this._prepare(ctx);
     const service = await this.getService(ctx);
     return service.updateMany(prepared.filter, prepared.data, prepared.options);
   }
 
   @Collection.FindMany()
-  async findMany(ctx: RequestContext): Promise<PartialOutput<T>[]> {
-    const prepared = this._onPrepare(ctx, MongoAdapter.transformRequest(ctx.request));
+  async findMany?(ctx: RequestContext): Promise<PartialOutput<T>[]> {
+    const prepared = await this._prepare(ctx);
     const service = await this.getService(ctx);
-    if (prepared.count) {
+    if (prepared.options.count) {
       const [items, count] = await Promise.all([
         service.find(prepared.filter, prepared.options),
         service.count(prepared.filter, prepared.options)
@@ -78,12 +76,14 @@ export abstract class MongoCollection<T extends mongodb.Document>
     return service.find(prepared.filter, prepared.options);
   }
 
-  abstract getService(ctx: RequestContext): MongoEntityService<T> | Promise<MongoEntityService<T>>;
-
-  onPrepare?(ctx: RequestContext, prepared: any): any;
-
-  protected _onPrepare(ctx: RequestContext, prepared: any): any {
-    return (this.onPrepare && this.onPrepare(ctx, prepared)) || prepared;
+  protected async _prepare(ctx: RequestContext): Promise<MongoAdapter.TransformedRequest> {
+    const prepared = MongoAdapter.transformRequest(ctx.request);
+    return (this.onPrepare && await this.onPrepare(ctx, prepared)) || prepared;
   }
+
+  protected onPrepare?(ctx: RequestContext,
+                       prepared: MongoAdapter.TransformedRequest): MongoAdapter.TransformedRequest | Promise<MongoAdapter.TransformedRequest>;
+
+  protected abstract getService(ctx: RequestContext): MongoEntityService<T> | Promise<MongoEntityService<T>>;
 
 }

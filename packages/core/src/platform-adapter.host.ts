@@ -142,7 +142,7 @@ export abstract class PlatformAdapterHost extends AsyncEventEmitter implements P
         (resource instanceof CrudResource && resource.operations.get(operationOrAction)) ||
         resource.actions.get(operationOrAction);
     if (endpoint) {
-      const handler = typeof controller[operationOrAction] === 'function' ? controller[operationOrAction] : undefined;
+      const handler = typeof controller[endpoint.name] === 'function' ? controller[endpoint.name] : undefined;
       if (handler)
         return {controller, endpoint, handler};
     }
