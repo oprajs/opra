@@ -31,8 +31,7 @@ export class MappedTypeClass extends ComplexTypeClass {
     }
   }
 
-  // @ts-ignore
-  override exportSchema(): OpraSchema.MappedType {
+  override exportSchema(): any {
     const out = super.exportSchema() as unknown as OpraSchema.MappedType;
     Object.assign(out, omitUndefined({
       pick: this.own.pick,

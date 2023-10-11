@@ -27,7 +27,7 @@ export namespace ContainerDecorator {
   export interface Metadata extends StrictOmit<OpraSchema.Container, 'kind' | 'actions' | 'resources'> {
     kind: OpraSchema.Container.Kind;
     name: string;
-    actions?: Record<string, ResourceDecorator.EndpointMetadata>;
+    actions?: Record<string, ResourceDecorator.OperationMetadata>;
     resources?: Type[];
   }
 
@@ -36,11 +36,11 @@ export namespace ContainerDecorator {
    */
   export namespace Action {
     // eslint-disable-next-line @typescript-eslint/no-shadow
-    export interface Metadata extends ResourceDecorator.EndpointMetadata {
+    export interface Metadata extends ResourceDecorator.OperationMetadata {
     }
 
     // eslint-disable-next-line @typescript-eslint/no-shadow
-    export interface Options extends ResourceDecorator.EndpointOptions {
+    export interface Options extends ResourceDecorator.OperationOptions {
     }
   }
 
@@ -54,7 +54,7 @@ export namespace ContainerDecorator {
   /**
    * Action PropertyDecorator
    */
-  export function Action(options: ResourceDecorator.EndpointOptions): ActionDecorator {
+  export function Action(options: ResourceDecorator.OperationOptions): ActionDecorator {
     const list: ((operationMeta: any) => void)[] = [];
     return createActionDecorator(options, [], list);
   }

@@ -1,9 +1,10 @@
+import assert from 'assert';
 import fs from 'fs/promises';
 import os from 'os';
-import * as valgen from 'valgen';
+import * as vg from 'valgen';
 import {
   BadRequestError,
-  Collection,
+  Collection, ComplexType,
   Container,
   HttpHeaderCodes,
   HttpStatusCodes,
@@ -125,7 +126,7 @@ export abstract class HttpAdapterHost extends PlatformAdapterHost {
     } catch (e: any) {
       if (e instanceof OpraException)
         throw e;
-      if (e instanceof valgen.ValidationError) {
+      if (e instanceof vg.ValidationError) {
         throw new InternalServerError({
           message: translate('error:RESPONSE_VALIDATION,', 'Response validation failed'),
           code: 'RESPONSE_VALIDATION',
@@ -195,14 +196,12 @@ export abstract class HttpAdapterHost extends PlatformAdapterHost {
       searchParams: URLSearchParams
   ): Promise<RequestHost> {
     const p = urlPath[0];
-    const {controller, endpoint, handler} = await this.getOperationHandler(resource, p.resource);
+    const {controller, endpoint, handler} = await this.getActionHandler(resource, p.resource);
     const {incoming} = executionContext.switchToHttp();
     const contentId = incoming.headers['content-id'] as string;
     const params = this.parseParameters(endpoint.parameters, p, searchParams);
     return new RequestHost({
       endpoint,
-      operation: 'action',
-      action: endpoint.name,
       controller,
       handler,
       http: incoming,
@@ -229,11 +228,10 @@ export abstract class HttpAdapterHost extends PlatformAdapterHost {
           const {controller, endpoint, handler} = await this.getOperationHandler(resource, 'create');
           const jsonReader = jsonBodyLoader({limit: endpoint.inputMaxContentSize}, endpoint);
           let data = await jsonReader(incoming);
-          data = endpoint.decode(data, {coerce: true});
+          data = endpoint.decodeInput(data, {coerce: true});
           const params = this.parseParameters(endpoint.parameters, p, searchParams);
           return new RequestHost({
             endpoint,
-            operation: 'create',
             controller,
             handler,
             http: incoming,
@@ -255,7 +253,6 @@ export abstract class HttpAdapterHost extends PlatformAdapterHost {
           const params = this.parseParameters(endpoint.parameters, p, searchParams);
           return new RequestHost({
             endpoint,
-            operation: 'delete',
             controller,
             handler,
             http: incoming,
@@ -268,7 +265,6 @@ export abstract class HttpAdapterHost extends PlatformAdapterHost {
         const params = this.parseParameters(endpoint.parameters, p, searchParams);
         return new RequestHost({
           endpoint,
-          operation: 'deleteMany',
           controller,
           handler,
           http: incoming,
@@ -286,7 +282,6 @@ export abstract class HttpAdapterHost extends PlatformAdapterHost {
           const params = this.parseParameters(endpoint.parameters, p, searchParams);
           return new RequestHost({
             endpoint,
-            operation: 'get',
             controller,
             handler,
             http: incoming,
@@ -304,7 +299,6 @@ export abstract class HttpAdapterHost extends PlatformAdapterHost {
         const params = this.parseParameters(endpoint.parameters, p, searchParams);
         return new RequestHost({
           endpoint,
-          operation: 'findMany',
           controller,
           handler,
           http: incoming,
@@ -325,11 +319,10 @@ export abstract class HttpAdapterHost extends PlatformAdapterHost {
           const {controller, endpoint, handler} = await this.getOperationHandler(resource, 'update');
           const jsonReader = jsonBodyLoader({limit: endpoint.inputMaxContentSize}, endpoint);
           let data = await jsonReader(incoming);
-          data = endpoint.decode(data, {coerce: true});
+          data = endpoint.decodeInput(data, {coerce: true});
           const params = this.parseParameters(endpoint.parameters, p, searchParams);
           return new RequestHost({
             endpoint,
-            operation: 'update',
             controller,
             handler,
             http: incoming,
@@ -347,11 +340,10 @@ export abstract class HttpAdapterHost extends PlatformAdapterHost {
         const {controller, endpoint, handler} = await this.getOperationHandler(resource, 'updateMany');
         const jsonReader = jsonBodyLoader({limit: endpoint.inputMaxContentSize}, endpoint);
         let data = await jsonReader(incoming);
-        data = endpoint.decode(data, {coerce: true});
+        data = endpoint.decodeInput(data, {coerce: true});
         const params = this.parseParameters(endpoint.parameters, p, searchParams);
         return new RequestHost({
           endpoint,
-          operation: 'updateMany',
           controller,
           handler,
           http: incoming,
@@ -386,11 +378,10 @@ export abstract class HttpAdapterHost extends PlatformAdapterHost {
         const {controller, endpoint, handler} = await this.getOperationHandler(resource, 'create');
         const jsonReader = jsonBodyLoader({limit: endpoint.inputMaxContentSize}, endpoint);
         let data = await jsonReader(incoming);
-        data = endpoint.decode(data, {coerce: true});
+        data = endpoint.decodeInput(data, {coerce: true});
         const params = this.parseParameters(endpoint.parameters, p, searchParams);
         return new RequestHost({
           endpoint,
-          operation: 'create',
           controller,
           handler,
           http: incoming,
@@ -409,7 +400,6 @@ export abstract class HttpAdapterHost extends PlatformAdapterHost {
         const params = this.parseParameters(endpoint.parameters, p, searchParams);
         return new RequestHost({
           endpoint,
-          operation: 'delete',
           controller,
           handler,
           http: incoming,
@@ -423,7 +413,6 @@ export abstract class HttpAdapterHost extends PlatformAdapterHost {
         const params = this.parseParameters(endpoint.parameters, p, searchParams);
         return new RequestHost({
           endpoint,
-          operation: 'get',
           controller,
           handler,
           http: incoming,
@@ -441,11 +430,10 @@ export abstract class HttpAdapterHost extends PlatformAdapterHost {
         const {controller, endpoint, handler} = await this.getOperationHandler(resource, 'update');
         const jsonReader = jsonBodyLoader({limit: endpoint.inputMaxContentSize}, endpoint);
         let data = await jsonReader(incoming);
-        data = endpoint.decode(data, {coerce: true});
+        data = endpoint.decodeInput(data, {coerce: true});
         const params = this.parseParameters(endpoint.parameters, p, searchParams);
         return new RequestHost({
           endpoint,
-          operation: 'update',
           controller,
           handler,
           http: incoming,
@@ -480,7 +468,6 @@ export abstract class HttpAdapterHost extends PlatformAdapterHost {
         const params = this.parseParameters(endpoint.parameters, p, searchParams);
         return new RequestHost({
           endpoint,
-          operation: 'get',
           controller,
           handler,
           http: incoming,
@@ -494,7 +481,6 @@ export abstract class HttpAdapterHost extends PlatformAdapterHost {
         const params = this.parseParameters(endpoint.parameters, p, searchParams);
         return new RequestHost({
           endpoint,
-          operation: 'delete',
           controller,
           handler,
           http: incoming,
@@ -523,7 +509,6 @@ export abstract class HttpAdapterHost extends PlatformAdapterHost {
 
         return new RequestHost({
           endpoint,
-          operation: 'post',
           controller,
           handler,
           http: incoming,
@@ -578,7 +563,6 @@ export abstract class HttpAdapterHost extends PlatformAdapterHost {
     return out;
   }
 
-
   protected async executeRequest(context: RequestContext): Promise<void> {
     const {request} = context;
     const {response} = context;
@@ -589,9 +573,15 @@ export abstract class HttpAdapterHost extends PlatformAdapterHost {
       value = await handler.call(request.controller, context);
       if (response.value == null)
         response.value = value;
-      if (request.resource instanceof Collection || request.resource instanceof Singleton) {
-        const {operation} = request;
-        if (operation === 'delete' || operation === 'deleteMany' || operation === 'updateMany') {
+
+      // Normalize response value
+      if (request.endpoint.kind === 'operation' &&
+          (resource instanceof Collection || resource instanceof Singleton || resource instanceof Storage)
+      ) {
+        const {endpoint} = request;
+        const operationName = endpoint.name;
+
+        if (operationName === 'delete' || operationName === 'deleteMany' || operationName === 'updateMany') {
           let affected = 0;
           if (typeof value === 'number')
             affected = value;
@@ -599,19 +589,32 @@ export abstract class HttpAdapterHost extends PlatformAdapterHost {
             affected = value ? 1 : 0;
           if (typeof value === 'object')
             affected = value.affected || value.affectedRows ||
-                (operation === 'updateMany' ? value.updated : value.deleted);
+                (operationName === 'updateMany' ? value.updated : value.deleted);
           response.value = affected;
-        } else {
-          // "get" and "update" endpoints must return the entity instance, otherwise it means resource not found
-          if (value == null && (request.operation === 'get' || request.operation === 'update'))
-            throw new ResourceNotFoundError(resource.name, (request as RequestHost).key);
-          // "findMany" endpoint should return array of entity instances
-          if (request.operation === 'findMany')
-            value = value == null ? [] : Array.isArray(value) ? value : [value];
-          else value = value == null ? {} : Array.isArray(value) ? value[0] : value;
-          response.value = value;
+          return;
         }
+
+        if (resource instanceof Storage)
+          return;
+
+        // "get" and "update" endpoints must return the entity instance, otherwise it means resource not found
+        if (value == null && (operationName === 'get' || operationName === 'update'))
+          throw new ResourceNotFoundError(resource.name, (request as RequestHost).key);
+
+        // "findMany" endpoint should return array of entity instances
+        if (operationName === 'findMany')
+          value = (value == null ? [] : Array.isArray(value) ? value : [value]);
+        else
+          value = value == null ? {} : Array.isArray(value) ? value[0] : value;
+        value = endpoint.encodeReturning(value, {coerce: true});
+        response.value = value;
+        return;
       }
+
+      const {endpoint} = request;
+      if (response.value)
+        response.value = endpoint.encodeReturning(response.value, {coerce: true});
+
     } catch (error) {
       response.errors.push(error);
     }
@@ -619,66 +622,66 @@ export abstract class HttpAdapterHost extends PlatformAdapterHost {
 
   async sendResponse(context: RequestContext): Promise<void> {
     const {request, response} = context;
+    const {endpoint, resource} = request;
     const outgoing = response.switchToHttp();
-    if (request.resource instanceof Storage) {
-      outgoing.statusCode = outgoing.statusCode || HttpStatusCodes.OK;
-      if (response.value != null) {
-        if (typeof response.value === 'string') {
-          if (!outgoing.hasHeader('content-type'))
-            outgoing.setHeader('content-type', 'text/plain');
-          outgoing.send(response.value);
-        } else if (Buffer.isBuffer(response.value) || isReadable(response.value)) {
-          if (!outgoing.hasHeader('content-type'))
-            outgoing.setHeader('content-type', 'application/octet-stream');
-          outgoing.send(response.value);
-        } else {
-          outgoing.setHeader('content-type', 'application/json; charset=utf-8');
-          outgoing.send(JSON.stringify(response.value));
-        }
+
+    if (endpoint.kind === 'operation' &&
+        (
+            resource instanceof Collection || resource instanceof Singleton ||
+            (resource instanceof Storage && endpoint.name !== 'get')
+        )
+    ) {
+      const returnType = endpoint.returnType;
+      const operationName = endpoint.name;
+      const body: any = {
+        context: resource.getFullPath(),
+        operation: operationName
+      };
+
+      if (operationName === 'delete' || operationName === 'deleteMany' || operationName === 'updateMany') {
+        body.affected = response.value;
+      } else {
+        if (!response.value)
+          throw new InternalServerError(`"${request.endpoint.name}" endpoint should return value`);
+        assert(returnType instanceof ComplexType);
+        body.type = returnType.name || '#anonymous';
+        body.data = this.i18n.deep(response.value);
+        if (operationName === 'create')
+          outgoing.statusCode = 201;
+        if (operationName === 'create' || operationName === 'update')
+          body.affected = 1;
+        else if (operationName === 'get' || operationName === 'update')
+          body.key = request.key;
+        if (operationName === 'findMany' && response.count != null && response.count >= 0)
+          body.totalCount = response.count;
       }
+      outgoing.statusCode = outgoing.statusCode || HttpStatusCodes.OK;
+      outgoing.setHeader(HttpHeaderCodes.Content_Type, 'application/opra+json; charset=utf-8');
+      outgoing.send(JSON.stringify(body));
       outgoing.end();
       return;
     }
 
-    const responseObject: any = {
-      context: request.resource.getFullPath()
-    };
-    if (request.operation === 'action')
-      responseObject.action = request.action;
-    else responseObject.operation = request.operation;
-    const returnType = request.endpoint.returnType;
-    let responseValue = response.value;
-    if (returnType) {
-      responseObject.type = returnType.name || '#anonymous';
-      if (response.value != null)
-        responseValue = responseObject.data = request.endpoint.encode(response.value, {coerce: true});
+    // Storage "get" resource
+    if (endpoint.kind === 'action') {
+    //
     }
 
-    if (request.operation === 'action') {
-      if (responseValue != null)
-        responseObject.data = responseValue;
-    } else if (request.resource instanceof Collection || request.resource instanceof Singleton) {
-      if (request.operation === 'delete' || request.operation === 'deleteMany' ||
-          request.operation === 'updateMany'
-      ) {
-        responseObject.affected = responseValue || 0;
+    outgoing.statusCode = outgoing.statusCode || HttpStatusCodes.OK;
+    if (response.value != null) {
+      if (typeof response.value === 'string') {
+        if (!outgoing.hasHeader('content-type'))
+          outgoing.setHeader('content-type', 'text/plain');
+        outgoing.send(response.value);
+      } else if (Buffer.isBuffer(response.value) || isReadable(response.value)) {
+        if (!outgoing.hasHeader('content-type'))
+          outgoing.setHeader('content-type', 'application/octet-stream');
+        outgoing.send(response.value);
       } else {
-        if (!responseValue)
-          throw new InternalServerError(`"${request.operation}" endpoint should return value`);
-        if (request.operation === 'create')
-          outgoing.statusCode = 201;
-        if (request.operation === 'create' || request.operation === 'update')
-          responseObject.affected = 1;
-        else if (request.operation === 'get' || request.operation === 'update')
-          responseObject.key = request.key;
-        if (request.operation === 'findMany' && response.count != null && response.count >= 0)
-          responseObject.totalCount = response.count;
+        outgoing.setHeader('content-type', 'application/json; charset=utf-8');
+        outgoing.send(JSON.stringify(response.value));
       }
-      outgoing.statusCode = outgoing.statusCode || HttpStatusCodes.OK;
     }
-    const body = this.i18n.deep(responseObject);
-    outgoing.setHeader(HttpHeaderCodes.Content_Type, 'application/opra+json; charset=utf-8');
-    outgoing.send(JSON.stringify(body));
     outgoing.end();
   }
 

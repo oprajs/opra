@@ -1,12 +1,15 @@
 import { Type } from 'ts-gems';
+import { TypeThunkAsync } from '../../types.js';
 import { RESOURCE_METADATA } from '../constants.js';
 import { ResourceDecorator } from './resource-decorator.js';
 
 export type ActionDecorator = ((target: Object, propertyKey: string) => void) & {
-  Parameter: (name: string, optionsOrType?: ResourceDecorator.ParameterOptions | string | Type) => ActionDecorator;
+  Parameter(name: string, optionsOrType?: ResourceDecorator.ParameterOptions | string | Type): ActionDecorator;
+
+  Returns(t: TypeThunkAsync | string): ActionDecorator;
 };
 
-export function createActionDecorator<T extends ActionDecorator, M extends ResourceDecorator.EndpointMetadata>(
+export function createActionDecorator<T extends ActionDecorator, M extends ResourceDecorator.ActionMetadata>(
     options: any,
     bannedProperties: string[] | readonly string[],
     list: ((operationMeta: M) => void)[]
@@ -32,6 +35,15 @@ export function createActionDecorator<T extends ActionDecorator, M extends Resou
         (operationMeta): void => {
           operationMeta.parameters = operationMeta.parameters || {};
           operationMeta.parameters[name] = {...parameterOptions};
+        }
+    )
+    return decorator;
+  }
+
+  decorator.Returns = (t: TypeThunkAsync | string): any => {
+    list.push(
+        (actionMetadata): void => {
+          actionMetadata.returnType = t;
         }
     )
     return decorator;

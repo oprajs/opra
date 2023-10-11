@@ -23,7 +23,7 @@ export namespace SQBAdapter {
     const {resource} = request;
 
     if (resource instanceof Collection || resource instanceof Singleton) {
-      const {params, operation} = request;
+      const {params, endpoint} = request;
       let options: any = {};
       const entityMetadata = EntityMetadata.get(resource.type.ctor);
       if (!entityMetadata)
@@ -36,7 +36,7 @@ export namespace SQBAdapter {
         if (primaryKeys.sort().join() !== [...resource.primaryKey].sort().join())
           throw new Error('Resource primaryKey definition differs from SQB Entity primaryKey definition');
       }
-
+      const operation = endpoint.name;
       if (operation === 'create' || operation === 'update' ||
           operation === 'get' || operation === 'findMany'
       ) {

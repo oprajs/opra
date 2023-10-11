@@ -28,9 +28,10 @@ export namespace MongoAdapter {
     const {resource} = request;
 
     if (resource instanceof Collection || resource instanceof Singleton) {
-      const {params, operation} = request;
+      const {params, endpoint} = request;
       let options: any = {};
       let filter;
+      const operation = endpoint.name;
 
       if (operation === 'create' || operation === 'update' ||
           operation === 'get' || operation === 'findMany'
@@ -117,7 +118,7 @@ export namespace MongoAdapter {
       }
 
     }
-    throw new TypeError(`Unimplemented request kind (${request.resource.kind}.${request.operation})`);
+    throw new TypeError(`Unimplemented request kind (${request.resource.kind}.${request.endpoint.name})`);
   }
 
 

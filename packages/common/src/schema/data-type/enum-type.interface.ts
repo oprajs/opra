@@ -1,6 +1,8 @@
+import { StrictOmit } from 'ts-gems';
 import type { DataType, DataTypeBase } from './data-type.interface.js';
 
-export interface EnumType extends DataTypeBase<EnumType.Kind> {
+export interface EnumType extends StrictOmit<DataTypeBase, 'kind'> {
+  kind: EnumType.Kind;
   base?: DataType.Name | EnumType;
   values: Record<EnumType.Value, EnumType.ValueInfo>;
 }

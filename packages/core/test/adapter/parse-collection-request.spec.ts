@@ -34,8 +34,7 @@ describe('Parse Collection requests', function () {
       expect(request).toBeDefined();
       const resource = api.getCollection('customers');
       expect(request.resource).toEqual(resource);
-      expect(request.operation).toStrictEqual('action');
-      expect(request.action).toStrictEqual('sendMessage');
+      expect(request.endpoint.kind).toStrictEqual('action');
       expect(request.endpoint.name).toStrictEqual('sendMessage');
       expect(request.params.message).toStrictEqual('text');
     })
@@ -54,7 +53,8 @@ describe('Parse Collection requests', function () {
       expect(request).toBeDefined();
       const resource = api.getCollection('Customers');
       expect(request.resource).toEqual(resource);
-      expect(request.operation).toStrictEqual('get');
+      expect(request.endpoint.kind).toStrictEqual('operation');
+      expect(request.endpoint.name).toStrictEqual('get');
       expect(request.key).toStrictEqual(1);
       expect(request.params.pick).toStrictEqual(['_id']);
       expect(request.params.omit).toStrictEqual(['gender']);
@@ -75,7 +75,8 @@ describe('Parse Collection requests', function () {
           }))
       ) as Collection.Get.Request;
       expect(request).toBeDefined();
-      expect(request.operation).toStrictEqual('get');
+      expect(request.endpoint.kind).toStrictEqual('operation');
+      expect(request.endpoint.name).toStrictEqual('get');
       expect(request.params.pick).toStrictEqual(['givenName', 'gender', 'address', 'address.countryCode']);
     })
 
@@ -87,7 +88,8 @@ describe('Parse Collection requests', function () {
           }))
       ) as Collection.Get.Request;
       expect(request).toBeDefined();
-      expect(request.operation).toStrictEqual('get');
+      expect(request.endpoint.kind).toStrictEqual('operation');
+      expect(request.endpoint.name).toStrictEqual('get');
       expect(request.params.omit).toStrictEqual(['givenName', 'gender', 'address.countryCode']);
       request = await adapter.parseRequest(
           createContext(HttpServerRequest.from({
@@ -95,7 +97,8 @@ describe('Parse Collection requests', function () {
             url: '/Customers@1?omit=address,address.countryCode'
           }))
       ) as Collection.Get.Request;
-      expect(request.operation).toStrictEqual('get');
+      expect(request.endpoint.kind).toStrictEqual('operation');
+      expect(request.endpoint.name).toStrictEqual('get');
       expect(request.params.omit).toStrictEqual(['address', 'address.countryCode']);
     })
 
@@ -106,7 +109,8 @@ describe('Parse Collection requests', function () {
             url: '/Customers@1?include=givenname,GENDER,address.countryCode'
           }))) as Collection.Get.Request;
       expect(request).toBeDefined();
-      expect(request.operation).toStrictEqual('get');
+      expect(request.endpoint.kind).toStrictEqual('operation');
+      expect(request.endpoint.name).toStrictEqual('get');
       expect(request.params.include).toStrictEqual(['givenName', 'gender', 'address.countryCode']);
       request = await adapter.parseRequest(
           createContext(HttpServerRequest.from({
@@ -152,7 +156,8 @@ describe('Parse Collection requests', function () {
           }))
       ) as Collection.Get.Request;
       expect(request).toBeDefined();
-      expect(request.operation).toStrictEqual('get');
+      expect(request.endpoint.kind).toStrictEqual('operation');
+      expect(request.endpoint.name).toStrictEqual('get');
       expect(request.params.pick).toStrictEqual(['notes.add1', 'notes.add2.add3']);
     })
 
@@ -164,7 +169,8 @@ describe('Parse Collection requests', function () {
           }))
       ) as Collection.Get.Request;
       expect(request).toBeDefined();
-      expect(request.operation).toStrictEqual('get');
+      expect(request.endpoint.kind).toStrictEqual('operation');
+      expect(request.endpoint.name).toStrictEqual('get');
       expect(request.params.omit).toStrictEqual(['notes.add1', 'notes.add2.add3']);
     })
 
@@ -176,7 +182,8 @@ describe('Parse Collection requests', function () {
           }))
       ) as Collection.Get.Request;
       expect(request).toBeDefined();
-      expect(request.operation).toStrictEqual('get');
+      expect(request.endpoint.kind).toStrictEqual('operation');
+      expect(request.endpoint.name).toStrictEqual('get');
       expect(request.params.include).toStrictEqual(['notes.add1', 'notes.add2.add3']);
     })
 
@@ -195,15 +202,16 @@ describe('Parse Collection requests', function () {
       ) as Collection.Create.Request;
       expect(request).toBeDefined();
       const resource = api.getCollection('Customers');
-      expect(request?.resource).toEqual(resource);
-      expect(request?.operation).toStrictEqual('create');
-      expect(request?.data).toEqual({_id: 1});
-      expect(request?.params.pick).toStrictEqual(['_id']);
-      expect(request?.params.omit).toStrictEqual(['gender']);
-      expect(request?.params.include).toStrictEqual(['address']);
-      expect(() => request?.switchToHttp()).not.toThrow();
-      expect(request?.switchToHttp().headers).toBeDefined();
-      expect(request?.switchToHttp().headers).toMatchObject({
+      expect(request.resource).toEqual(resource);
+      expect(request.endpoint.kind).toStrictEqual('operation');
+      expect(request.endpoint.name).toStrictEqual('create');
+      expect(request.data).toEqual({_id: 1});
+      expect(request.params.pick).toStrictEqual(['_id']);
+      expect(request.params.omit).toStrictEqual(['gender']);
+      expect(request.params.include).toStrictEqual(['address']);
+      expect(() => request.switchToHttp()).not.toThrow();
+      expect(request.switchToHttp().headers).toBeDefined();
+      expect(request.switchToHttp().headers).toMatchObject({
         'content-type': 'application/json',
         'accept': 'application/json'
       });
@@ -219,8 +227,9 @@ describe('Parse Collection requests', function () {
           }))
       ) as Collection.Create.Request;
       expect(request).toBeDefined();
-      expect(request?.operation).toStrictEqual('create');
-      expect(request?.params.pick).toStrictEqual(['givenName', 'gender', 'address', 'address.countryCode']);
+      expect(request.endpoint.kind).toStrictEqual('operation');
+      expect(request.endpoint.name).toStrictEqual('create');
+      expect(request.params.pick).toStrictEqual(['givenName', 'gender', 'address', 'address.countryCode']);
     })
 
     it('Should normalize field names in "omit" option', async () => {
@@ -233,8 +242,9 @@ describe('Parse Collection requests', function () {
           }))
       ) as Collection.Create.Request;
       expect(request).toBeDefined();
-      expect(request?.operation).toStrictEqual('create');
-      expect(request?.params.omit).toStrictEqual(['givenName', 'gender', 'address', 'address.countryCode']);
+      expect(request.endpoint.kind).toStrictEqual('operation');
+      expect(request.endpoint.name).toStrictEqual('create');
+      expect(request.params.omit).toStrictEqual(['givenName', 'gender', 'address', 'address.countryCode']);
     })
 
     it('Should normalize field names in "include" option', async () => {
@@ -247,8 +257,9 @@ describe('Parse Collection requests', function () {
           }))
       ) as Collection.Create.Request;
       expect(request).toBeDefined();
-      expect(request?.operation).toStrictEqual('create');
-      expect(request?.params.include).toStrictEqual(['givenName', 'gender', 'address', 'address.countryCode']);
+      expect(request.endpoint.kind).toStrictEqual('operation');
+      expect(request.endpoint.name).toStrictEqual('create');
+      expect(request.params.include).toStrictEqual(['givenName', 'gender', 'address', 'address.countryCode']);
     })
 
     it('Should validate if fields in "pick" option are exist', async () => {
@@ -294,8 +305,9 @@ describe('Parse Collection requests', function () {
           }))
       ) as Collection.Create.Request;
       expect(request).toBeDefined();
-      expect(request?.operation).toStrictEqual('create');
-      expect(request?.params.pick).toStrictEqual(['notes.add1', 'notes.add2.add3']);
+      expect(request.endpoint.kind).toStrictEqual('operation');
+      expect(request.endpoint.name).toStrictEqual('create');
+      expect(request.params.pick).toStrictEqual(['notes.add1', 'notes.add2.add3']);
     })
 
     it('Should allow unknown fields in "omit" option if additionalFields set to "true"', async () => {
@@ -308,8 +320,9 @@ describe('Parse Collection requests', function () {
           }))
       ) as Collection.Create.Request;
       expect(request).toBeDefined();
-      expect(request?.operation).toStrictEqual('create');
-      expect(request?.params.omit).toStrictEqual(['notes.add1', 'notes.add2.add3']);
+      expect(request.endpoint.kind).toStrictEqual('operation');
+      expect(request.endpoint.name).toStrictEqual('create');
+      expect(request.params.omit).toStrictEqual(['notes.add1', 'notes.add2.add3']);
     })
 
     it('Should allow unknown fields in "include" option if additionalFields set to "true"', async () => {
@@ -322,7 +335,7 @@ describe('Parse Collection requests', function () {
           }))
       ) as Collection.Create.Request;
       expect(request).toBeDefined();
-      expect(request?.params.include).toStrictEqual(['notes.add1', 'notes.add2.add3']);
+      expect(request.params.include).toStrictEqual(['notes.add1', 'notes.add2.add3']);
     })
 
   });
@@ -341,16 +354,17 @@ describe('Parse Collection requests', function () {
       ) as Collection.Update.Request;
       expect(request).toBeDefined();
       const resource = api.getCollection('Customers');
-      expect(request?.resource).toEqual(resource);
-      expect(request?.operation).toStrictEqual('update');
-      expect(request?.key).toStrictEqual(1);
-      expect(request?.data).toEqual({_id: 1});
-      expect(request?.params.pick).toStrictEqual(['_id']);
-      expect(request?.params.omit).toStrictEqual(['gender']);
-      expect(request?.params.include).toStrictEqual(['address']);
-      expect(() => request?.switchToHttp()).not.toThrow();
-      expect(request?.switchToHttp().headers).toBeDefined();
-      expect(request?.switchToHttp().headers.accept).toStrictEqual('application/json');
+      expect(request.resource).toEqual(resource);
+      expect(request.endpoint.kind).toStrictEqual('operation');
+      expect(request.endpoint.name).toStrictEqual('update');
+      expect(request.key).toStrictEqual(1);
+      expect(request.data).toEqual({_id: 1});
+      expect(request.params.pick).toStrictEqual(['_id']);
+      expect(request.params.omit).toStrictEqual(['gender']);
+      expect(request.params.include).toStrictEqual(['address']);
+      expect(() => request.switchToHttp()).not.toThrow();
+      expect(request.switchToHttp().headers).toBeDefined();
+      expect(request.switchToHttp().headers.accept).toStrictEqual('application/json');
     })
 
     it('Should normalize field names in "pick" option', async () => {
@@ -363,8 +377,9 @@ describe('Parse Collection requests', function () {
           }))
       ) as Collection.Update.Request;
       expect(request).toBeDefined();
-      expect(request?.operation).toStrictEqual('update');
-      expect(request?.params.pick).toStrictEqual(['givenName', 'gender', 'address', 'address.countryCode']);
+      expect(request.endpoint.kind).toStrictEqual('operation');
+      expect(request.endpoint.name).toStrictEqual('update');
+      expect(request.params.pick).toStrictEqual(['givenName', 'gender', 'address', 'address.countryCode']);
     })
 
     it('Should normalize field names in "omit" option', async () => {
@@ -377,8 +392,9 @@ describe('Parse Collection requests', function () {
           }))
       ) as Collection.Update.Request;
       expect(request).toBeDefined();
-      expect(request?.operation).toStrictEqual('update');
-      expect(request?.params.omit).toStrictEqual(['givenName', 'gender', 'address', 'address.countryCode']);
+      expect(request.endpoint.kind).toStrictEqual('operation');
+      expect(request.endpoint.name).toStrictEqual('update');
+      expect(request.params.omit).toStrictEqual(['givenName', 'gender', 'address', 'address.countryCode']);
     })
 
     it('Should normalize field names in "include" option', async () => {
@@ -391,8 +407,9 @@ describe('Parse Collection requests', function () {
           }))
       ) as Collection.Update.Request;
       expect(request).toBeDefined();
-      expect(request?.operation).toStrictEqual('update');
-      expect(request?.params.include).toStrictEqual(['givenName', 'gender', 'address', 'address.countryCode']);
+      expect(request.endpoint.kind).toStrictEqual('operation');
+      expect(request.endpoint.name).toStrictEqual('update');
+      expect(request.params.include).toStrictEqual(['givenName', 'gender', 'address', 'address.countryCode']);
     })
 
     it('Should validate if fields in "pick" option are exist', async () => {
@@ -438,8 +455,9 @@ describe('Parse Collection requests', function () {
           }))
       ) as Collection.Update.Request;
       expect(request).toBeDefined();
-      expect(request?.operation).toStrictEqual('update');
-      expect(request?.params.pick).toStrictEqual(['notes.add1', 'notes.add2.add3']);
+      expect(request.endpoint.kind).toStrictEqual('operation');
+      expect(request.endpoint.name).toStrictEqual('update');
+      expect(request.params.pick).toStrictEqual(['notes.add1', 'notes.add2.add3']);
     })
 
     it('Should allow unknown fields in "omit" option if additionalFields set to "true"', async () => {
@@ -452,8 +470,9 @@ describe('Parse Collection requests', function () {
           }))
       ) as Collection.Update.Request;
       expect(request).toBeDefined();
-      expect(request?.operation).toStrictEqual('update');
-      expect(request?.params.omit).toStrictEqual(['notes.add1', 'notes.add2.add3']);
+      expect(request.endpoint.kind).toStrictEqual('operation');
+      expect(request.endpoint.name).toStrictEqual('update');
+      expect(request.params.omit).toStrictEqual(['notes.add1', 'notes.add2.add3']);
     })
 
     it('Should allow unknown fields in "include" option if additionalFields set to "true"', async () => {
@@ -466,8 +485,9 @@ describe('Parse Collection requests', function () {
           }))
       ) as Collection.Update.Request;
       expect(request).toBeDefined();
-      expect(request?.operation).toStrictEqual('update');
-      expect(request?.params.include).toStrictEqual(['notes.add1', 'notes.add2.add3']);
+      expect(request.endpoint.kind).toStrictEqual('operation');
+      expect(request.endpoint.name).toStrictEqual('update');
+      expect(request.params.include).toStrictEqual(['notes.add1', 'notes.add2.add3']);
     })
 
   });
@@ -486,12 +506,13 @@ describe('Parse Collection requests', function () {
       ) as Collection.UpdateMany.Request;
       expect(request).toBeDefined();
       const resource = api.getCollection('Customers');
-      expect(request?.resource).toEqual(resource);
-      expect(request?.operation).toStrictEqual('updateMany');
-      expect(request?.data).toEqual({_id: 1});
-      expect(() => request?.switchToHttp()).not.toThrow();
-      expect(request?.switchToHttp().headers).toBeDefined();
-      expect(request?.switchToHttp().headers.accept).toStrictEqual('application/json');
+      expect(request.resource).toEqual(resource);
+      expect(request.endpoint.kind).toStrictEqual('operation');
+      expect(request.endpoint.name).toStrictEqual('updateMany');
+      expect(request.data).toEqual({_id: 1});
+      expect(() => request.switchToHttp()).not.toThrow();
+      expect(request.switchToHttp().headers).toBeDefined();
+      expect(request.switchToHttp().headers.accept).toStrictEqual('application/json');
     })
 
     it('Should parse "filter"', async () => {
@@ -504,9 +525,10 @@ describe('Parse Collection requests', function () {
           }))
       ) as Collection.UpdateMany.Request;
       expect(request).toBeDefined();
-      expect(request?.operation).toStrictEqual('updateMany');
-      expect(request?.params.filter).toBeDefined();
-      expect(typeof request?.params.filter).toStrictEqual('object');
+      expect(request.endpoint.kind).toStrictEqual('operation');
+      expect(request.endpoint.name).toStrictEqual('updateMany');
+      expect(request.params.filter).toBeDefined();
+      expect(typeof request.params.filter).toStrictEqual('object');
     })
 
     it('Should validate if fields in "filter" option are exist', async () => {
@@ -535,12 +557,13 @@ describe('Parse Collection requests', function () {
       ) as Collection.Delete.Request;
       expect(request).toBeDefined();
       const resource = api.getCollection('Customers');
-      expect(request?.resource).toEqual(resource);
-      expect(request?.operation).toStrictEqual('delete');
-      expect(request?.key).toStrictEqual(1);
-      expect(() => request?.switchToHttp()).not.toThrow();
-      expect(request?.switchToHttp().headers).toBeDefined();
-      expect(request?.switchToHttp().headers.accept).toStrictEqual('application/json');
+      expect(request.resource).toEqual(resource);
+      expect(request.endpoint.kind).toStrictEqual('operation');
+      expect(request.endpoint.name).toStrictEqual('delete');
+      expect(request.key).toStrictEqual(1);
+      expect(() => request.switchToHttp()).not.toThrow();
+      expect(request.switchToHttp().headers).toBeDefined();
+      expect(request.switchToHttp().headers.accept).toStrictEqual('application/json');
     })
 
   })
@@ -557,12 +580,13 @@ describe('Parse Collection requests', function () {
       ) as Collection.DeleteMany.Request;
       expect(request).toBeDefined();
       const resource = api.getCollection('Customers');
-      expect(request?.resource).toEqual(resource);
-      expect(request?.operation).toStrictEqual('deleteMany');
-      expect(request?.params.filter).toBeDefined();
-      expect(() => request?.switchToHttp()).not.toThrow();
-      expect(request?.switchToHttp().headers).toBeDefined();
-      expect(request?.switchToHttp().headers.accept).toStrictEqual('application/json');
+      expect(request.resource).toEqual(resource);
+      expect(request.endpoint.kind).toStrictEqual('operation');
+      expect(request.endpoint.name).toStrictEqual('deleteMany');
+      expect(request.params.filter).toBeDefined();
+      expect(() => request.switchToHttp()).not.toThrow();
+      expect(request.switchToHttp().headers).toBeDefined();
+      expect(request.switchToHttp().headers.accept).toStrictEqual('application/json');
     })
 
     it('Should parse "filter"', async () => {
@@ -573,9 +597,10 @@ describe('Parse Collection requests', function () {
           }))
       ) as Collection.DeleteMany.Request;
       expect(request).toBeDefined();
-      expect(request?.operation).toStrictEqual('deleteMany');
-      expect(request?.params.filter).toBeDefined();
-      expect(typeof request?.params.filter).toStrictEqual('object');
+      expect(request.endpoint.kind).toStrictEqual('operation');
+      expect(request.endpoint.name).toStrictEqual('deleteMany');
+      expect(request.params.filter).toBeDefined();
+      expect(typeof request.params.filter).toStrictEqual('object');
     })
 
     it('Should validate if fields in "filter" option are exist', async () => {
@@ -603,20 +628,21 @@ describe('Parse Collection requests', function () {
       ) as Collection.FindMany.Request;
       expect(request).toBeDefined();
       const resource = api.getCollection('Customers');
-      expect(request?.resource).toEqual(resource);
-      expect(request?.operation).toStrictEqual('findMany');
-      expect(request?.params.skip).toStrictEqual(1);
-      expect(request?.params.count).toStrictEqual(false);
-      expect(request?.params.skip).toStrictEqual(1);
-      expect(request?.params.distinct).toStrictEqual(true);
-      expect(request?.params.sort).toStrictEqual(['_id']);
-      expect(request?.params.pick).toStrictEqual(['_id']);
-      expect(request?.params.omit).toStrictEqual(['gender']);
-      expect(request?.params.include).toStrictEqual(['address']);
+      expect(request.resource).toEqual(resource);
+      expect(request.endpoint.kind).toStrictEqual('operation');
+      expect(request.endpoint.name).toStrictEqual('findMany');
+      expect(request.params.skip).toStrictEqual(1);
+      expect(request.params.count).toStrictEqual(false);
+      expect(request.params.skip).toStrictEqual(1);
+      expect(request.params.distinct).toStrictEqual(true);
+      expect(request.params.sort).toStrictEqual(['_id']);
+      expect(request.params.pick).toStrictEqual(['_id']);
+      expect(request.params.omit).toStrictEqual(['gender']);
+      expect(request.params.include).toStrictEqual(['address']);
 
-      expect(() => request?.switchToHttp()).not.toThrow();
-      expect(request?.switchToHttp().headers).toBeDefined();
-      expect(request?.switchToHttp().headers.accept).toStrictEqual('application/json');
+      expect(() => request.switchToHttp()).not.toThrow();
+      expect(request.switchToHttp().headers).toBeDefined();
+      expect(request.switchToHttp().headers.accept).toStrictEqual('application/json');
     })
 
     it('Should normalize field names in "pick" option', async () => {
@@ -627,8 +653,9 @@ describe('Parse Collection requests', function () {
           }))
       ) as Collection.FindMany.Request;
       expect(request).toBeDefined();
-      expect(request?.operation).toStrictEqual('get');
-      expect(request?.params.pick).toStrictEqual(['givenName', 'gender', 'address', 'address.countryCode']);
+      expect(request.endpoint.kind).toStrictEqual('operation');
+      expect(request.endpoint.name).toStrictEqual('get');
+      expect(request.params.pick).toStrictEqual(['givenName', 'gender', 'address', 'address.countryCode']);
     })
 
     it('Should normalize field names in "omit" option', async () => {
@@ -639,7 +666,7 @@ describe('Parse Collection requests', function () {
           }))
       ) as Collection.FindMany.Request;
       expect(request).toBeDefined();
-      expect(request?.params.omit).toStrictEqual(['givenName', 'gender', 'address', 'address.countryCode']);
+      expect(request.params.omit).toStrictEqual(['givenName', 'gender', 'address', 'address.countryCode']);
     })
 
     it('Should normalize field names in "include" option', async () => {
@@ -650,8 +677,9 @@ describe('Parse Collection requests', function () {
           }))
       ) as Collection.FindMany.Request;
       expect(request).toBeDefined();
-      expect(request?.operation).toStrictEqual('get');
-      expect(request?.params.include).toStrictEqual(['givenName', 'gender', 'address', 'address.countryCode']);
+      expect(request.endpoint.kind).toStrictEqual('operation');
+      expect(request.endpoint.name).toStrictEqual('get');
+      expect(request.params.include).toStrictEqual(['givenName', 'gender', 'address', 'address.countryCode']);
     })
 
     it('Should normalize field names in "sort" option', async () => {
@@ -662,8 +690,9 @@ describe('Parse Collection requests', function () {
           }))
       ) as Collection.FindMany.Request;
       expect(request).toBeDefined();
-      expect(request?.operation).toStrictEqual('findMany');
-      expect(request?.params.sort).toStrictEqual(['givenName', 'gender', 'address.countryCode']);
+      expect(request.endpoint.kind).toStrictEqual('operation');
+      expect(request.endpoint.name).toStrictEqual('findMany');
+      expect(request.params.sort).toStrictEqual(['givenName', 'gender', 'address.countryCode']);
     })
 
     it('Should validate if fields in "pick" option are exist', async () => {
@@ -719,8 +748,9 @@ describe('Parse Collection requests', function () {
           }))
       ) as Collection.FindMany.Request;
       expect(request).toBeDefined();
-      expect(request?.operation).toStrictEqual('findMany');
-      expect(request?.params.pick).toStrictEqual(['notes.add1', 'notes.add2.add3']);
+      expect(request.endpoint.kind).toStrictEqual('operation');
+      expect(request.endpoint.name).toStrictEqual('findMany');
+      expect(request.params.pick).toStrictEqual(['notes.add1', 'notes.add2.add3']);
     })
 
     it('Should allow unknown fields in "omit" option if additionalFields set to "true"', async () => {
@@ -731,8 +761,9 @@ describe('Parse Collection requests', function () {
           }))
       ) as Collection.FindMany.Request;
       expect(request).toBeDefined();
-      expect(request?.operation).toStrictEqual('findMany');
-      expect(request?.params.omit).toStrictEqual(['notes.add1', 'notes.add2.add3']);
+      expect(request.endpoint.kind).toStrictEqual('operation');
+      expect(request.endpoint.name).toStrictEqual('findMany');
+      expect(request.params.omit).toStrictEqual(['notes.add1', 'notes.add2.add3']);
     })
 
     it('Should allow unknown fields in "include" option if additionalFields set to "true"', async () => {
@@ -743,8 +774,9 @@ describe('Parse Collection requests', function () {
           }))
       ) as Collection.FindMany.Request;
       expect(request).toBeDefined();
-      expect(request?.operation).toStrictEqual('findMany');
-      expect(request?.params.include).toStrictEqual(['notes.add1', 'notes.add2.add3']);
+      expect(request.endpoint.kind).toStrictEqual('operation');
+      expect(request.endpoint.name).toStrictEqual('findMany');
+      expect(request.params.include).toStrictEqual(['notes.add1', 'notes.add2.add3']);
     })
 
     it('Should parse "limit" option', async () => {
@@ -755,7 +787,7 @@ describe('Parse Collection requests', function () {
           }))
       ) as Collection.FindMany.Request;
       expect(request).toBeDefined();
-      expect(request?.params.limit).toStrictEqual(5);
+      expect(request.params.limit).toStrictEqual(5);
     })
 
     it('Should validate "limit" option', async () => {
@@ -775,8 +807,9 @@ describe('Parse Collection requests', function () {
           }))
       ) as Collection.FindMany.Request;
       expect(request).toBeDefined();
-      expect(request?.operation).toStrictEqual('findMany');
-      expect(request?.params.skip).toStrictEqual(5);
+      expect(request.endpoint.kind).toStrictEqual('operation');
+      expect(request.endpoint.name).toStrictEqual('findMany');
+      expect(request.params.skip).toStrictEqual(5);
     })
 
     it('Should validate "skip" option', async () => {
@@ -796,8 +829,9 @@ describe('Parse Collection requests', function () {
           }))
       ) as Collection.FindMany.Request;
       expect(request).toBeDefined();
-      expect(request?.operation).toStrictEqual('findMany');
-      expect(request?.params.count).toStrictEqual(true);
+      expect(request.endpoint.kind).toStrictEqual('operation');
+      expect(request.endpoint.name).toStrictEqual('findMany');
+      expect(request.params.count).toStrictEqual(true);
       request = await adapter.parseRequest(
           createContext(HttpServerRequest.from({
             method: 'GET',
@@ -805,8 +839,9 @@ describe('Parse Collection requests', function () {
           }))
       ) as Collection.FindMany.Request;
       expect(request).toBeDefined();
-      expect(request?.operation).toStrictEqual('findMany');
-      expect(request?.params.count).toStrictEqual(true);
+      expect(request.endpoint.kind).toStrictEqual('operation');
+      expect(request.endpoint.name).toStrictEqual('findMany');
+      expect(request.params.count).toStrictEqual(true);
       request = await adapter.parseRequest(
           createContext(HttpServerRequest.from({
             method: 'GET',
@@ -814,8 +849,9 @@ describe('Parse Collection requests', function () {
           }))
       ) as Collection.FindMany.Request;
       expect(request).toBeDefined();
-      expect(request?.operation).toStrictEqual('findMany');
-      expect(request?.params.count).toStrictEqual(true);
+      expect(request.endpoint.kind).toStrictEqual('operation');
+      expect(request.endpoint.name).toStrictEqual('findMany');
+      expect(request.params.count).toStrictEqual(true);
       request = await adapter.parseRequest(
           createContext(HttpServerRequest.from({
             method: 'GET',
@@ -823,8 +859,9 @@ describe('Parse Collection requests', function () {
           }))
       ) as Collection.FindMany.Request;
       expect(request).toBeDefined();
-      expect(request?.operation).toStrictEqual('findMany');
-      expect(request?.params.count).toStrictEqual(false);
+      expect(request.endpoint.kind).toStrictEqual('operation');
+      expect(request.endpoint.name).toStrictEqual('findMany');
+      expect(request.params.count).toStrictEqual(false);
       request = await adapter.parseRequest(
           createContext(HttpServerRequest.from({
             method: 'GET',
@@ -832,8 +869,9 @@ describe('Parse Collection requests', function () {
           }))
       ) as Collection.FindMany.Request;
       expect(request).toBeDefined();
-      expect(request?.operation).toStrictEqual('findMany');
-      expect(request?.params.count).toStrictEqual(false);
+      expect(request.endpoint.kind).toStrictEqual('operation');
+      expect(request.endpoint.name).toStrictEqual('findMany');
+      expect(request.params.count).toStrictEqual(false);
       request = await adapter.parseRequest(
           createContext(HttpServerRequest.from({
             method: 'GET',
@@ -841,8 +879,9 @@ describe('Parse Collection requests', function () {
           }))
       ) as Collection.FindMany.Request;
       expect(request).toBeDefined();
-      expect(request?.operation).toStrictEqual('findMany');
-      expect(request?.params.count).toStrictEqual(false);
+      expect(request.endpoint.kind).toStrictEqual('operation');
+      expect(request.endpoint.name).toStrictEqual('findMany');
+      expect(request.params.count).toStrictEqual(false);
     })
 
     it('Should parse "distinct" option', async () => {
@@ -853,8 +892,9 @@ describe('Parse Collection requests', function () {
           }))
       ) as Collection.FindMany.Request;
       expect(request).toBeDefined();
-      expect(request?.operation).toStrictEqual('findMany');
-      expect(request?.params.distinct).toStrictEqual(true);
+      expect(request.endpoint.kind).toStrictEqual('operation');
+      expect(request.endpoint.name).toStrictEqual('findMany');
+      expect(request.params.distinct).toStrictEqual(true);
       request = await adapter.parseRequest(
           createContext(HttpServerRequest.from({
             method: 'GET',
@@ -862,8 +902,9 @@ describe('Parse Collection requests', function () {
           }))
       ) as Collection.FindMany.Request;
       expect(request).toBeDefined();
-      expect(request?.operation).toStrictEqual('findMany');
-      expect(request?.params.distinct).toStrictEqual(true);
+      expect(request.endpoint.kind).toStrictEqual('operation');
+      expect(request.endpoint.name).toStrictEqual('findMany');
+      expect(request.params.distinct).toStrictEqual(true);
       request = await adapter.parseRequest(
           createContext(HttpServerRequest.from({
             method: 'GET',
@@ -871,8 +912,9 @@ describe('Parse Collection requests', function () {
           }))
       ) as Collection.FindMany.Request;
       expect(request).toBeDefined();
-      expect(request?.operation).toStrictEqual('findMany');
-      expect(request?.params.distinct).toStrictEqual(true);
+      expect(request.endpoint.kind).toStrictEqual('operation');
+      expect(request.endpoint.name).toStrictEqual('findMany');
+      expect(request.params.distinct).toStrictEqual(true);
       request = await adapter.parseRequest(
           createContext(HttpServerRequest.from({
             method: 'GET',
@@ -880,8 +922,9 @@ describe('Parse Collection requests', function () {
           }))
       ) as Collection.FindMany.Request;
       expect(request).toBeDefined();
-      expect(request?.operation).toStrictEqual('findMany');
-      expect(request?.params.distinct).toStrictEqual(false);
+      expect(request.endpoint.kind).toStrictEqual('operation');
+      expect(request.endpoint.name).toStrictEqual('findMany');
+      expect(request.params.distinct).toStrictEqual(false);
       request = await adapter.parseRequest(
           createContext(HttpServerRequest.from({
             method: 'GET',
@@ -889,8 +932,9 @@ describe('Parse Collection requests', function () {
           }))
       ) as Collection.FindMany.Request;
       expect(request).toBeDefined();
-      expect(request?.operation).toStrictEqual('findMany');
-      expect(request?.params.distinct).toStrictEqual(false);
+      expect(request.endpoint.kind).toStrictEqual('operation');
+      expect(request.endpoint.name).toStrictEqual('findMany');
+      expect(request.params.distinct).toStrictEqual(false);
       request = await adapter.parseRequest(
           createContext(HttpServerRequest.from({
             method: 'GET',
@@ -898,8 +942,9 @@ describe('Parse Collection requests', function () {
           }))
       ) as Collection.FindMany.Request;
       expect(request).toBeDefined();
-      expect(request?.operation).toStrictEqual('findMany');
-      expect(request?.params.distinct).toStrictEqual(false);
+      expect(request.endpoint.kind).toStrictEqual('operation');
+      expect(request.endpoint.name).toStrictEqual('findMany');
+      expect(request.params.distinct).toStrictEqual(false);
     })
 
     it('Should parse "filter"', async () => {
@@ -910,8 +955,9 @@ describe('Parse Collection requests', function () {
           }))
       ) as Collection.FindMany.Request;
       expect(request).toBeDefined();
-      expect(request?.operation).toStrictEqual('findMany');
-      expect(request?.params.filter).toMatchObject({
+      expect(request.endpoint.kind).toStrictEqual('operation');
+      expect(request.endpoint.name).toStrictEqual('findMany');
+      expect(request.params.filter).toMatchObject({
         kind: 'ComparisonExpression',
         op: '=',
         left: {

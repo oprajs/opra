@@ -3,7 +3,7 @@ import type { ApiDocument } from '../api-document.js';
 import type { ComplexType } from '../data-type/complex-type.js';
 import type { Container } from './container.js';
 import { CrudResource } from './crud-resource.js';
-import type { Endpoint } from './endpoint.js';
+import type { Operation } from './operation.js';
 import type { Singleton } from './singleton.js';
 import type { SingletonDecorator } from './singleton-decorator';
 
@@ -23,7 +23,7 @@ export class SingletonClass extends CrudResource {
         pick: endpoint.inputPickFields,
         omit: endpoint.inputOmitFields,
       })
-      endpoint.encode = this.type.generateCodec('encode', {
+      endpoint.encodeReturning = this.type.generateCodec('encode', {
         partial: true,
         pick: endpoint.outputPickFields,
         omit: endpoint.outputOmitFields,
@@ -36,7 +36,7 @@ export class SingletonClass extends CrudResource {
     endpoint = this.operations.get('get');
     if (endpoint) {
       endpoint.returnType = this.type;
-      endpoint.encode = this.type.generateCodec('encode', {
+      endpoint.encodeReturning = this.type.generateCodec('encode', {
         partial: true,
         pick: endpoint.outputPickFields,
         omit: endpoint.outputOmitFields,
@@ -53,7 +53,7 @@ export class SingletonClass extends CrudResource {
         pick: endpoint.inputPickFields,
         omit: endpoint.inputOmitFields,
       })
-      endpoint.encode = this.type.generateCodec('encode', {
+      endpoint.encodeReturning = this.type.generateCodec('encode', {
         partial: true,
         pick: endpoint.outputPickFields,
         omit: endpoint.outputOmitFields,
@@ -64,11 +64,11 @@ export class SingletonClass extends CrudResource {
     }
   }
 
-  getOperation(name: 'create'): (Endpoint & Omit<SingletonDecorator.Create.Metadata, keyof Endpoint>) | undefined;
-  getOperation(name: 'delete'): (Endpoint & Omit<SingletonDecorator.Delete.Metadata, keyof Endpoint>) | undefined;
-  getOperation(name: 'get'): (Endpoint & Omit<SingletonDecorator.Get.Metadata, keyof Endpoint>) | undefined;
-  getOperation(name: 'update'): (Endpoint & Omit<SingletonDecorator.Update.Metadata, keyof Endpoint>) | undefined;
-  getOperation(name: string): Endpoint | undefined {
+  getOperation(name: 'create'): (Operation & Omit<SingletonDecorator.Create.Metadata, keyof Operation>) | undefined;
+  getOperation(name: 'delete'): (Operation & Omit<SingletonDecorator.Delete.Metadata, keyof Operation>) | undefined;
+  getOperation(name: 'get'): (Operation & Omit<SingletonDecorator.Get.Metadata, keyof Operation>) | undefined;
+  getOperation(name: 'update'): (Operation & Omit<SingletonDecorator.Update.Metadata, keyof Operation>) | undefined;
+  getOperation(name: string): Operation | undefined {
     return super.getOperation(name);
   }
 

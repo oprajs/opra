@@ -15,13 +15,14 @@ export * from './data-type/mapped-type.js';
 export * from './data-type/simple-type.js';
 export * from './data-type/union-type.js';
 
+export * from './resource/action.js';
 export * from './resource/resource.js';
 export * from './resource/crud-resource.js';
 export * from './resource/collection.js';
 export * from './resource/container.js';
 export * from './resource/singleton.js';
 export * from './resource/storage.js';
-export * from './resource/endpoint.js';
+export * from './resource/operation.js';
 export * from './resource/parameter.js';
 
 export * from './interfaces/collection.interface.js'

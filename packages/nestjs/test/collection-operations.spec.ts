@@ -29,7 +29,7 @@ describe('Collection resource operations', function () {
     const resp = await request(server)
         .get('/api/svc1/Photos/sendMessage?message=text');
     expect(resp.body.errors).toStrictEqual(undefined);
-    expect(resp.body.data).toStrictEqual({ok: true, message: 'text'});
+    expect(resp.body).toStrictEqual({ok: true, message: 'text'});
     expect(resp.status).toStrictEqual(200);
   });
 

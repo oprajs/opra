@@ -1,4 +1,5 @@
-import type { PartialOutput } from '@opra/common';
+import { StrictOmit } from 'ts-gems';
+import type { Action as _Action, Operation as _Operation, PartialOutput } from '@opra/common';
 import type { Request as _Request } from '../request.js';
 import type { RequestContext } from '../request-context.js';
 
@@ -8,9 +9,8 @@ declare module "@opra/common" {
   namespace Singleton {
 
     namespace Action {
-      interface Request extends _Request {
-        operation: 'action';
-        action: string;
+      interface Request extends StrictOmit<_Request, 'endpoint'> {
+        endpoint: _Action;
       }
 
       interface Context extends Resource.Context {
@@ -19,8 +19,8 @@ declare module "@opra/common" {
 
     /* ***************************** */
     namespace Create {
-      interface Request extends _Request {
-        operation: 'create';
+      interface Request extends StrictOmit<_Request, 'endpoint'> {
+        endpoint: _Operation & { name: 'create' };
         data: any;
         params: {
           pick?: string[];
@@ -36,8 +36,8 @@ declare module "@opra/common" {
 
     /* ***************************** */
     namespace Delete {
-      interface Request extends _Request {
-        operation: 'delete';
+      interface Request extends StrictOmit<_Request, 'endpoint'> {
+        endpoint: _Operation & { name: 'delete' };
       }
 
       interface Context extends RequestContext {
@@ -47,8 +47,8 @@ declare module "@opra/common" {
 
     /* ***************************** */
     namespace Get {
-      interface Request extends _Request {
-        operation: 'get';
+      interface Request extends StrictOmit<_Request, 'endpoint'> {
+        endpoint: _Operation & { name: 'get' };
         params: {
           pick?: string[];
           omit?: string[];
@@ -63,8 +63,8 @@ declare module "@opra/common" {
 
     /* ***************************** */
     namespace Update {
-      interface Request extends _Request {
-        operation: 'update';
+      interface Request extends StrictOmit<_Request, 'endpoint'> {
+        endpoint: _Operation & { name: 'update' };
         data: any;
         params: {
           pick?: string[];

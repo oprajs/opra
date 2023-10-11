@@ -12,7 +12,7 @@ export namespace DataType {
       MappedType.Kind | SimpleType.Kind | UnionType.Kind;
 }
 
-export interface DataTypeBase<TKind extends DataType.Kind = DataType.Kind> {
-  kind: TKind;
+export interface DataTypeBase {
+  kind: DataType.Kind;
   description?: string;
 }

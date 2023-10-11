@@ -2,11 +2,11 @@ import { ResponsiveMap } from '../../helpers/index.js';
 import { OpraSchema } from '../../schema/index.js';
 import type { ApiDocument } from '../api-document.js';
 import type { Container } from './container.js';
-import { Endpoint } from './endpoint.js';
+import { Operation } from './operation.js';
 import { Resource } from './resource.js';
 
 export abstract class CrudResource extends Resource {
-  operations = new ResponsiveMap<Endpoint>();
+  operations = new ResponsiveMap<Operation>();
 
   protected constructor(
       parent: ApiDocument | Container,
@@ -15,12 +15,12 @@ export abstract class CrudResource extends Resource {
     super(parent, init);
     if (init.operations) {
       for (const [name, meta] of Object.entries(init.operations)) {
-        this.operations.set(name, new Endpoint(this, name, meta));
+        this.operations.set(name, new Operation(this, name, meta));
       }
     }
   }
 
-  getOperation(name: string): Endpoint | undefined {
+  getOperation(name: string): Operation | undefined {
     return this.operations.get(name);
   }
 

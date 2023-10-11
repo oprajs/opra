@@ -43,7 +43,7 @@ export namespace SingletonDecorator {
     kind: OpraSchema.Singleton.Kind;
     name: string;
     type: TypeThunkAsync | string;
-    actions?: Record<string, ResourceDecorator.EndpointMetadata>;
+    actions?: Record<string, ResourceDecorator.OperationMetadata>;
     operations?: {
       create: Create.Metadata;
       delete: Delete.Metadata;
@@ -57,11 +57,11 @@ export namespace SingletonDecorator {
    */
   export namespace Action {
     // eslint-disable-next-line @typescript-eslint/no-shadow
-    export interface Metadata extends ResourceDecorator.EndpointMetadata {
+    export interface Metadata extends ResourceDecorator.OperationMetadata {
     }
 
     // eslint-disable-next-line @typescript-eslint/no-shadow
-    export interface Options extends ResourceDecorator.EndpointOptions {
+    export interface Options extends ResourceDecorator.OperationOptions {
     }
   }
 
@@ -70,11 +70,11 @@ export namespace SingletonDecorator {
    */
   export namespace Create {
     // eslint-disable-next-line @typescript-eslint/no-shadow
-    export interface Metadata extends Combine<ResourceDecorator.EndpointMetadata, OpraSchema.Singleton.Operations.Create> {
+    export interface Metadata extends Combine<ResourceDecorator.OperationMetadata, OpraSchema.Singleton.Operations.Create> {
     }
 
     // eslint-disable-next-line @typescript-eslint/no-shadow
-    export interface Options extends Combine<ResourceDecorator.EndpointOptions,
+    export interface Options extends Combine<ResourceDecorator.OperationOptions,
         Partial<OpraSchema.Singleton.Operations.Create>> {
     }
   }
@@ -84,11 +84,11 @@ export namespace SingletonDecorator {
    */
   export namespace Delete {
     // eslint-disable-next-line @typescript-eslint/no-shadow
-    export interface Metadata extends Combine<ResourceDecorator.EndpointMetadata, OpraSchema.Singleton.Operations.Delete> {
+    export interface Metadata extends Combine<ResourceDecorator.OperationMetadata, OpraSchema.Singleton.Operations.Delete> {
     }
 
     // eslint-disable-next-line @typescript-eslint/no-shadow
-    export interface Options extends Combine<ResourceDecorator.EndpointOptions,
+    export interface Options extends Combine<ResourceDecorator.OperationOptions,
         Partial<OpraSchema.Singleton.Operations.Delete>> {
     }
   }
@@ -98,11 +98,11 @@ export namespace SingletonDecorator {
    */
   export namespace Get {
     // eslint-disable-next-line @typescript-eslint/no-shadow
-    export interface Metadata extends Combine<ResourceDecorator.EndpointMetadata, OpraSchema.Singleton.Operations.Get> {
+    export interface Metadata extends Combine<ResourceDecorator.OperationMetadata, OpraSchema.Singleton.Operations.Get> {
     }
 
     // eslint-disable-next-line @typescript-eslint/no-shadow
-    export interface Options extends Combine<ResourceDecorator.EndpointOptions,
+    export interface Options extends Combine<ResourceDecorator.OperationOptions,
         Partial<OpraSchema.Singleton.Operations.Get>> {
     }
   }
@@ -112,11 +112,11 @@ export namespace SingletonDecorator {
    */
   export namespace Update {
     // eslint-disable-next-line @typescript-eslint/no-shadow
-    export interface Metadata extends Combine<ResourceDecorator.EndpointMetadata, OpraSchema.Singleton.Operations.Update> {
+    export interface Metadata extends Combine<ResourceDecorator.OperationMetadata, OpraSchema.Singleton.Operations.Update> {
     }
 
     // eslint-disable-next-line @typescript-eslint/no-shadow
-    export interface Options extends Combine<ResourceDecorator.EndpointOptions,
+    export interface Options extends Combine<ResourceDecorator.OperationOptions,
         Partial<OpraSchema.Singleton.Operations.Update>> {
     }
   }
@@ -131,7 +131,7 @@ export namespace SingletonDecorator {
   /**
    * Action PropertyDecorator
    */
-  export function Action(options: ResourceDecorator.EndpointOptions): ActionDecorator {
+  export function Action(options: ResourceDecorator.OperationOptions): ActionDecorator {
     const list: ((operationMeta: any) => void)[] = [];
     return createActionDecorator(options, operationProperties, list);
   }

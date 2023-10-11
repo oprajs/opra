@@ -10,7 +10,7 @@ import type { Collection } from './collection.js';
 import type { CollectionDecorator } from './collection-decorator';
 import type { Container } from './container.js';
 import { CrudResource } from './crud-resource.js';
-import { Endpoint } from './endpoint.js';
+import { Operation } from './operation.js';
 
 export class CollectionClass extends CrudResource {
   readonly kind: OpraSchema.Resource.Kind = OpraSchema.Collection.Kind;
@@ -40,7 +40,7 @@ export class CollectionClass extends CrudResource {
         pick: endpoint.inputPickFields,
         omit: endpoint.inputOmitFields,
       })
-      endpoint.encode = this.type.generateCodec('encode', {
+      endpoint.encodeReturning = this.type.generateCodec('encode', {
         partial: true,
         pick: endpoint.outputPickFields,
         omit: endpoint.outputOmitFields,
@@ -58,7 +58,7 @@ export class CollectionClass extends CrudResource {
     endpoint = this.operations.get('get');
     if (endpoint) {
       endpoint.returnType = this.type;
-      endpoint.encode = this.type.generateCodec('encode', {
+      endpoint.encodeReturning = this.type.generateCodec('encode', {
         partial: true,
         pick: endpoint.outputPickFields,
         omit: endpoint.outputOmitFields,
@@ -71,7 +71,7 @@ export class CollectionClass extends CrudResource {
     endpoint = this.operations.get('findMany');
     if (endpoint) {
       endpoint.returnType = this.type;
-      endpoint.encode = vg.isArray(this.type.generateCodec('encode', {
+      endpoint.encodeReturning = vg.isArray(this.type.generateCodec('encode', {
         partial: true,
         pick: endpoint.outputPickFields,
         omit: endpoint.outputOmitFields,
@@ -94,7 +94,7 @@ export class CollectionClass extends CrudResource {
         pick: endpoint.inputPickFields,
         omit: endpoint.inputOmitFields,
       })
-      endpoint.encode = this.type.generateCodec('encode', {
+      endpoint.encodeReturning = this.type.generateCodec('encode', {
         partial: true,
         pick: endpoint.outputPickFields,
         omit: endpoint.outputOmitFields,
@@ -114,14 +114,14 @@ export class CollectionClass extends CrudResource {
     }
   }
 
-  getOperation(name: 'create'): (Endpoint & Omit<CollectionDecorator.Create.Metadata, keyof Endpoint>) | undefined;
-  getOperation(name: 'delete'): (Endpoint & Omit<CollectionDecorator.Delete.Metadata, keyof Endpoint>) | undefined;
-  getOperation(name: 'deleteMany'): (Endpoint & Omit<CollectionDecorator.DeleteMany.Metadata, keyof Endpoint>) | undefined;
-  getOperation(name: 'findMany'): (Endpoint & Omit<CollectionDecorator.FindMany.Metadata, keyof Endpoint>) | undefined;
-  getOperation(name: 'get'): (Endpoint & Omit<CollectionDecorator.Get.Metadata, keyof Endpoint>) | undefined;
-  getOperation(name: 'update'): (Endpoint & Omit<CollectionDecorator.Update.Metadata, keyof Endpoint>) | undefined;
-  getOperation(name: 'updateMany'): (Endpoint & Omit<CollectionDecorator.UpdateMany.Metadata, keyof Endpoint>) | undefined;
-  getOperation(name: string): Endpoint | undefined {
+  getOperation(name: 'create'): (Operation & Omit<CollectionDecorator.Create.Metadata, keyof Operation>) | undefined;
+  getOperation(name: 'delete'): (Operation & Omit<CollectionDecorator.Delete.Metadata, keyof Operation>) | undefined;
+  getOperation(name: 'deleteMany'): (Operation & Omit<CollectionDecorator.DeleteMany.Metadata, keyof Operation>) | undefined;
+  getOperation(name: 'findMany'): (Operation & Omit<CollectionDecorator.FindMany.Metadata, keyof Operation>) | undefined;
+  getOperation(name: 'get'): (Operation & Omit<CollectionDecorator.Get.Metadata, keyof Operation>) | undefined;
+  getOperation(name: 'update'): (Operation & Omit<CollectionDecorator.Update.Metadata, keyof Operation>) | undefined;
+  getOperation(name: 'updateMany'): (Operation & Omit<CollectionDecorator.UpdateMany.Metadata, keyof Operation>) | undefined;
+  getOperation(name: string): Operation | undefined {
     return super.getOperation(name);
   }
 

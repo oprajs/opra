@@ -6,7 +6,7 @@ export type OperationDecorator = ((target: Object, propertyKey: any) => void) & 
   Parameter: (name: string, optionsOrType?: ResourceDecorator.ParameterOptions | string | Type) => OperationDecorator;
 }
 
-export function createOperationDecorator<T extends OperationDecorator, M extends ResourceDecorator.EndpointMetadata>(
+export function createOperationDecorator<T extends OperationDecorator, M extends ResourceDecorator.OperationMetadata>(
     operation: string,
     options: any,
     list: ((operationMeta: M, target: Object, propertyKey: string) => void)[]

@@ -6,28 +6,31 @@ import { DataType } from '../data-type/data-type.js';
 import { EnumType } from '../data-type/enum-type.js';
 import { Parameter } from './parameter.js';
 import type { Resource } from './resource';
-import type { ResourceDecorator } from './resource-decorator.js';
 
 /**
  *
  * @class Endpoint
  */
-export class Endpoint {
+export abstract class Endpoint {
+  abstract readonly kind: 'action' | 'operation';
   description?: string;
   parameters: ResponsiveMap<Parameter>;
   returnType?: DataType;
-  decode: vg.Validator = vg.isAny();
-  encode: vg.Validator = vg.isAny();
-
+  encodeReturning: vg.Validator = vg.isAny();
   [key: string]: any;
 
-  constructor(readonly resource: Resource, readonly name: string, init: Endpoint.InitArguments) {
+  protected constructor(readonly resource: Resource, readonly name: string, init: Endpoint.InitArguments) {
     Object.assign(this, init);
     this.parameters = new ResponsiveMap();
     if (init.parameters) {
       for (const [n, p] of Object.entries(init.parameters)) {
         this.defineParameter(n, p);
       }
+    }
+    if (init.returnType) {
+      this.returnType = init.returnType instanceof DataType
+          ? init.returnType : this.resource.document.getDataType(init.returnType);
+      this.encodeReturning = this.returnType.generateCodec('encode');
     }
   }
 
@@ -43,7 +46,7 @@ export class Endpoint {
   }
 
   exportSchema(options?: { webSafe?: boolean }): OpraSchema.Endpoint {
-    const schema = omitUndefined<OpraSchema.Endpoint>({
+    const schema = omitUndefined<OpraSchema.Action>({
       description: this.description
     });
     if (this.parameters.size) {
@@ -59,8 +62,9 @@ export class Endpoint {
 }
 
 export namespace Endpoint {
-  export interface InitArguments extends StrictOmit<ResourceDecorator.EndpointMetadata, 'parameters'> {
-    parameters: Record<string, ParameterInit>;
+  export interface InitArguments extends StrictOmit<OpraSchema.Endpoint, 'parameters'> {
+    parameters?: Record<string, ParameterInit>;
+    returnType?: DataType;
   }
 
   export type ParameterInit = StrictOmit<Parameter.InitArguments, 'type'> &

@@ -1,3 +1,5 @@
+import { StrictOmit } from 'ts-gems';
+import { Action as _Action } from '@opra/common';
 import type { Request as _Request } from '../request.js';
 
 declare module "@opra/common" {
@@ -6,9 +8,8 @@ declare module "@opra/common" {
   namespace Container {
 
     namespace Action {
-      interface Request extends _Request {
-        operation: 'action';
-        action: string;
+      interface Request extends StrictOmit<_Request, 'endpoint'> {
+        endpoint: _Action;
       }
 
       interface Context extends Resource.Context {

@@ -1,4 +1,5 @@
-import type { PartialOutput } from '@opra/common';
+import { StrictOmit } from 'ts-gems';
+import type { Action as _Action, Operation as _Operation, PartialOutput } from '@opra/common';
 import type { Request as _Request } from '../request.js';
 import type { RequestContext } from '../request-context';
 
@@ -8,9 +9,8 @@ declare module "@opra/common" {
   namespace Collection {
 
     namespace Action {
-      interface Request extends _Request {
-        operation: 'action';
-        action: string;
+      interface Request extends StrictOmit<_Request, 'endpoint'> {
+        endpoint: _Action;
       }
 
       interface Context extends Resource.Context {
@@ -19,8 +19,8 @@ declare module "@opra/common" {
 
     /* ***************************** */
     namespace Create {
-      interface Request extends _Request {
-        operation: 'create';
+      interface Request extends StrictOmit<_Request, 'endpoint'> {
+        endpoint: _Operation & { name: 'create' };
         data: any;
         params: {
           pick?: string[];
@@ -30,6 +30,7 @@ declare module "@opra/common" {
         }
       }
 
+
       interface Context extends RequestContext {
         request: Request;
       }
@@ -37,8 +38,8 @@ declare module "@opra/common" {
 
     /* ***************************** */
     namespace Delete {
-      interface Request extends _Request {
-        operation: 'delete';
+      interface Request extends StrictOmit<_Request, 'endpoint'> {
+        endpoint: _Operation & { name: 'delete' };
         key: any;
       }
 
@@ -49,8 +50,8 @@ declare module "@opra/common" {
 
     /* ***************************** */
     namespace DeleteMany {
-      interface Request extends _Request {
-        operation: 'deleteMany';
+      interface Request extends StrictOmit<_Request, 'endpoint'> {
+        endpoint: _Operation & { name: 'deleteMany' };
         params: {
           filter?: any;
           [key: string]: any;
@@ -64,8 +65,8 @@ declare module "@opra/common" {
 
     /* ***************************** */
     namespace FindMany {
-      interface Request extends _Request {
-        operation: 'findMany';
+      interface Request extends StrictOmit<_Request, 'endpoint'> {
+        endpoint: _Operation & { name: 'findMany' };
         params: {
           filter?: any;
           pick?: string[];
@@ -87,8 +88,8 @@ declare module "@opra/common" {
 
     /* ***************************** */
     namespace Get {
-      interface Request extends _Request {
-        operation: 'get';
+      interface Request extends StrictOmit<_Request, 'endpoint'> {
+        endpoint: _Operation & { name: 'get' };
         key: any;
         params: {
           pick?: string[];
@@ -105,8 +106,8 @@ declare module "@opra/common" {
 
     /* ***************************** */
     namespace Update {
-      interface Request extends _Request {
-        operation: 'update';
+      interface Request extends StrictOmit<_Request, 'endpoint'> {
+        endpoint: _Operation & { name: 'update' };
         key: any;
         data: any;
         params: {
@@ -124,8 +125,8 @@ declare module "@opra/common" {
 
     /* ***************************** */
     namespace UpdateMany {
-      interface Request extends _Request {
-        operation: 'updateMany';
+      interface Request extends StrictOmit<_Request, 'endpoint'> {
+        endpoint: _Operation & { name: 'updateMany' };
         data: any;
         params: {
           filter?: any;

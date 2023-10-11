@@ -2,12 +2,14 @@ import path from 'path';
 import { pascalCase } from 'putil-varhelpers';
 import { AsyncEventEmitter } from 'strict-typed-events';
 import {
+  Action,
   ApiDocument,
+  BadRequestError,
   Container, CrudResource,
-  Endpoint,
   ForbiddenError,
   getStackFileName,
   I18n,
+  Operation,
   Resource,
   translate
 } from '@opra/common';
@@ -126,11 +128,8 @@ export abstract class PlatformAdapterHost extends AsyncEventEmitter implements P
     return controller;
   }
 
-  async getOperationHandler(
-      resource: Resource | string,
-      operationOrAction: string
-  ): Promise<{
-    endpoint: Endpoint;
+  async getActionHandler(resource: Resource | string, name: string): Promise<{
+    endpoint: Action;
     controller: any;
     handler: Function;
   }> {
@@ -138,17 +137,41 @@ export abstract class PlatformAdapterHost extends AsyncEventEmitter implements P
         ? resource
         : this.api.getResource(resource);
     const controller = await this.getController(resource);
-    const endpoint =
-        (resource instanceof CrudResource && resource.operations.get(operationOrAction)) ||
-        resource.actions.get(operationOrAction);
+    const endpoint = resource.actions.get(name);
+    if (endpoint) {
+      const handler = typeof controller[endpoint.name] === 'function' ? controller[endpoint.name] : undefined;
+      if (handler)
+        return {controller, endpoint, handler};
+    }
+    throw new BadRequestError({
+      message: translate('ACTION_NOT_FOUND', {resource: resource.name, action: name},
+          `The {{resource}} resource doesn't have an action named '{{action}}'`),
+      severity: 'error',
+      code: 'ACTION_NOT_FOUND'
+    });
+  }
+
+  async getOperationHandler(
+      resource: Resource | string,
+      name: string
+  ): Promise<{
+    endpoint: Operation;
+    controller: any;
+    handler: Function;
+  }> {
+    resource = typeof resource === 'object' && resource instanceof Resource
+        ? resource
+        : this.api.getResource(resource);
+    const controller = await this.getController(resource);
+    const endpoint = resource instanceof CrudResource && resource.operations.get(name);
     if (endpoint) {
       const handler = typeof controller[endpoint.name] === 'function' ? controller[endpoint.name] : undefined;
       if (handler)
         return {controller, endpoint, handler};
     }
     throw new ForbiddenError({
-      message: translate('OPERATION_FORBIDDEN', {resource: resource.name, endpoint: operationOrAction},
-          `'{{resource}}' does not accept '{{endpoint}}' operations`),
+      message: translate('OPERATION_FORBIDDEN', {resource: resource.name, operation: name},
+          `'The {{resource}} resource does not accept '{{operation}}' operations`),
       severity: 'error',
       code: 'OPERATION_FORBIDDEN'
     });

@@ -4,8 +4,9 @@ import { omitUndefined } from '../../helpers/object-utils.js';
 import { OpraSchema } from '../../schema/index.js';
 import type { ApiDocument } from '../api-document.js';
 import { colorFgMagenta, colorFgYellow, colorReset, nodeInspectCustom } from '../utils/inspect.util.js';
+import { Action } from './action.js';
 import type { Container } from './container.js';
-import { Endpoint } from './endpoint.js';
+import { Operation } from './operation.js';
 import type { ResourceDecorator } from './resource-decorator';
 
 export abstract class Resource {
@@ -16,7 +17,7 @@ export abstract class Resource {
   description?: string;
   controller?: object;
   ctor?: Type;
-  actions = new ResponsiveMap<Endpoint>();
+  actions = new ResponsiveMap<Action>();
 
   protected constructor(
       parent: ApiDocument | Container,
@@ -35,7 +36,7 @@ export abstract class Resource {
     } else this.ctor = init.ctor;
     if (init.actions) {
       for (const [name, meta] of Object.entries(init.actions)) {
-        this.actions.set(name, new Endpoint(this, name, meta));
+        this.actions.set(name, new Action(this, name, meta));
       }
     }
   }
@@ -74,8 +75,8 @@ export abstract class Resource {
 export namespace Resource {
   export interface InitArguments extends StrictOmit<ResourceDecorator.Metadata, 'kind' | 'operations' | 'actions'> {
     name: string;
-    actions?: Record<string, Endpoint.InitArguments>;
-    operations?: Record<string, Endpoint.InitArguments>;
+    actions?: Record<string, Action.InitArguments>;
+    operations?: Record<string, Operation.InitArguments>;
     controller?: object;
     ctor?: Type;
   }

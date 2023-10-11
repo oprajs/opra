@@ -43,27 +43,68 @@ describe('Container decorators', function () {
   /* ***************************************************** */
   describe('@Container.Action() decorator', function () {
     it('Should define Action operation metadata', async function () {
-      class CustomersResource {
-        @Container.Action({description: 'action'})
+      class Resource1 {
+        @Container.Action({
+              description: 'action'
+            }
+        )
         sendMessage() {
         }
       }
 
-      const metadata = Reflect.getMetadata(RESOURCE_METADATA, CustomersResource);
+      const metadata = Reflect.getMetadata(RESOURCE_METADATA, Resource1);
       expect(metadata.actions).toStrictEqual({
         sendMessage: {description: 'action'}
       });
     })
 
+    it('Should define returnType in options', async function () {
+      class Resource1 {
+        @Container.Action({
+              description: 'action',
+              returnType: 'number'
+            }
+        )
+        sendMessage() {
+        }
+      }
+
+      const metadata1 = Reflect.getMetadata(RESOURCE_METADATA, Resource1);
+      expect(metadata1.actions).toStrictEqual({
+        sendMessage: {
+          description: 'action',
+          returnType: 'number'
+        }
+      });
+
+    })
+
+    it('Should define returnType with decorator', async function () {
+      class Resource1 {
+        @Container.Action({description: 'action'})
+            .Returns('string')
+        sendMessage() {
+        }
+      }
+
+      const metadata = Reflect.getMetadata(RESOURCE_METADATA, Resource1);
+      expect(metadata.actions).toStrictEqual({
+        sendMessage: {
+          description: 'action',
+          returnType: 'string'
+        }
+      });
+    })
+
     it('Should Parameter() define metadata value', async function () {
-      class CustomersResource {
+      class Resource1 {
         @Container.Action()
             .Parameter('message', String)
         sendMessage() {
         }
       }
 
-      const metadata = Reflect.getMetadata(RESOURCE_METADATA, CustomersResource);
+      const metadata = Reflect.getMetadata(RESOURCE_METADATA, Resource1);
       expect(metadata.actions).toStrictEqual({
         sendMessage: {parameters: {message: {type: String}}}
       });

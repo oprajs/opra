@@ -22,7 +22,7 @@ export class SimpleTypeClass extends DataType {
     this.encode = init.encoder || init.base?.encode || vg.isAny();
   }
 
-  exportSchema(options?: { webSafe?: boolean }): OpraSchema.SimpleType {
+  exportSchema(options?: { webSafe?: boolean }): any {
     // noinspection UnnecessaryLocalVariableJS
     const out = super.exportSchema(options) as OpraSchema.SimpleType;
     Object.assign(out, omitUndefined({

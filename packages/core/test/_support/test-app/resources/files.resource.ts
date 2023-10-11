@@ -17,12 +17,8 @@ export class FilesResource {
   }
 
   @Storage.Delete()
-  async delete(context: Storage.Delete.Context) {
-    const http = context.request.switchToHttp();
-    const requestedFile = http.parsedUrl.path[1].resource;
-    return {
-      deleted: requestedFile
-    }
+  async delete() {
+    return true;
   }
 
   @Storage.Post()

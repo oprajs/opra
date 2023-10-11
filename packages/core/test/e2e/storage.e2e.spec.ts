@@ -54,9 +54,9 @@ describe('e2e:Storage', function () {
     const resp = await supertest(adapter.server).delete('/Files/file1.txt');
     expect(resp.body).toBeDefined();
     expect(resp.body.errors).not.toBeDefined();
-    expect(resp.type).toStrictEqual('application/json');
+    expect(resp.type).toStrictEqual('application/opra+json');
     expect(resp.body).toMatchObject({
-      deleted: 'file1.txt'
+      affected: 1
     });
   });
 

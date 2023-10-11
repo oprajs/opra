@@ -7,7 +7,7 @@ import { RESOURCE_METADATA } from '../constants.js';
 import { EnumType } from '../data-type/enum-type.js';
 
 export interface ResourceDecorator {
-  Action: (options?: ResourceDecorator.EndpointOptions) => ResourceDecorator;
+  Action: (options?: ResourceDecorator.OperationOptions) => ResourceDecorator;
 }
 
 export function ResourceDecorator<O extends ResourceDecorator.Options>(
@@ -46,8 +46,8 @@ export namespace ResourceDecorator {
 
   export interface Metadata extends StrictOmit<OpraSchema.ResourceBase, 'actions'> {
     name: string;
-    actions?: Record<string, EndpointMetadata>;
-    operations?: Record<string, EndpointMetadata>;
+    actions?: Record<string, ActionMetadata>;
+    operations?: Record<string, OperationMetadata>;
   }
 
   export interface Options extends Partial<StrictOmit<Metadata, 'kind' | 'actions' | 'operations'>> {
@@ -61,11 +61,20 @@ export namespace ResourceDecorator {
   export interface ParameterOptions extends Partial<ParameterMetadata> {
   }
 
-  export interface EndpointMetadata extends StrictOmit<OpraSchema.Endpoint, 'parameters'> {
+  export interface OperationMetadata extends StrictOmit<OpraSchema.Endpoint, 'parameters'> {
     parameters: Record<string, ParameterMetadata>;
   }
 
-  export interface EndpointOptions extends Partial<StrictOmit<EndpointMetadata, 'parameters'>> {
+  export interface OperationOptions extends Partial<StrictOmit<OperationMetadata, 'parameters'>> {
+    parameters?: Record<string, ParameterOptions>;
+  }
+
+  export interface ActionMetadata extends StrictOmit<OpraSchema.Action, 'parameters' | 'returnType'> {
+    parameters: Record<string, ParameterMetadata>;
+    returnType?: TypeThunkAsync | string;
+  }
+
+  export interface ActionOptions extends Partial<StrictOmit<ActionMetadata, 'parameters'>> {
     parameters?: Record<string, ParameterOptions>;
   }
 

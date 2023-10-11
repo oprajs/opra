@@ -18,9 +18,10 @@ describe('SQBAdapter.transformRequest (Singleton)', function () {
     const data = {_id: 1001};
 
     it('Should prepare', async () => {
+      const resource = api.getSingleton('MyProfile');
       const request = {
-        resource: api.getSingleton('MyProfile'),
-        operation: 'create',
+        resource,
+        endpoint: resource.getOperation('create'),
         data
       } as unknown as Request;
       const o = SQBAdapter.transformRequest(request);
@@ -31,9 +32,10 @@ describe('SQBAdapter.transformRequest (Singleton)', function () {
     });
 
     it('Should prepare with "pick", "omit" and "include" options', async () => {
+      const resource = api.getSingleton('MyProfile');
       const request = {
-        resource: api.getSingleton('MyProfile'),
-        operation: 'create',
+        resource,
+        endpoint: resource.getOperation('create'),
         data,
         params: {
           pick: ['givenName'],
@@ -57,9 +59,10 @@ describe('SQBAdapter.transformRequest (Singleton)', function () {
 
   describe('Convert "delete" request', function () {
     it('Should prepare', async () => {
+      const resource = api.getSingleton('MyProfile');
       const request = {
-        resource: api.getSingleton('MyProfile'),
-        operation: 'delete'
+        resource,
+        endpoint: resource.getOperation('delete'),
       } as unknown as Request;
       const o = SQBAdapter.transformRequest(request);
       expect(o.method).toStrictEqual('deleteMany');
@@ -71,9 +74,10 @@ describe('SQBAdapter.transformRequest (Singleton)', function () {
   describe('Convert "get" request', function () {
 
     it('Should prepare', async () => {
+      const resource = api.getSingleton('MyProfile');
       const request = {
-        resource: api.getSingleton('MyProfile'),
-        operation: 'get'
+        resource,
+        endpoint: resource.getOperation('get'),
       } as unknown as Request;
       const o = SQBAdapter.transformRequest(request);
       expect(o.method).toStrictEqual('findOne');
@@ -82,9 +86,10 @@ describe('SQBAdapter.transformRequest (Singleton)', function () {
     });
 
     it('Should prepare with "pick", "omit" and "include" options', async () => {
+      const resource = api.getSingleton('MyProfile');
       const request = {
-        resource: api.getSingleton('MyProfile'),
-        operation: 'get',
+        resource,
+        endpoint: resource.getOperation('get'),
         params: {
           pick: ['givenName'],
           omit: ['familyName'],
@@ -107,9 +112,10 @@ describe('SQBAdapter.transformRequest (Singleton)', function () {
     const data = {gender: 'M'};
 
     it('Should prepare', async () => {
+      const resource = api.getSingleton('MyProfile');
       const request = {
-        resource: api.getSingleton('MyProfile'),
-        operation: 'update',
+        resource,
+        endpoint: resource.getOperation('update'),
         data
       } as unknown as Request;
       const o = SQBAdapter.transformRequest(request);
@@ -120,9 +126,10 @@ describe('SQBAdapter.transformRequest (Singleton)', function () {
     });
 
     it('Should prepare with "pick", "omit" and "include" options', async () => {
+      const resource = api.getSingleton('MyProfile');
       const request = {
-        resource: api.getSingleton('MyProfile'),
-        operation: 'update',
+        resource,
+        endpoint: resource.getOperation('update'),
         data,
         params: {
           pick: ['givenName'],

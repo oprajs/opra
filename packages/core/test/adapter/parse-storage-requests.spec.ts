@@ -35,8 +35,7 @@ describe('parse Storage requests', function () {
       expect(request).toBeDefined();
       const resource = api.getStorage('files');
       expect(request.resource).toEqual(resource);
-      expect(request.operation).toStrictEqual('action');
-      expect(request.action).toStrictEqual('purge');
+      expect(request.endpoint.kind).toStrictEqual('action');
       expect(request.endpoint.name).toStrictEqual('purge');
       expect(request.params.silent).toStrictEqual(true);
     })
@@ -67,7 +66,8 @@ describe('parse Storage requests', function () {
         expect(request).toBeDefined();
         const resource = api.getStorage('Files');
         expect(request.resource).toEqual(resource);
-        expect(request.operation).toStrictEqual('post');
+        expect(request.endpoint.kind).toStrictEqual('operation');
+        expect(request.endpoint.name).toStrictEqual('post');
         const items = await request.parts.getAll();
         expect(items).toBeDefined();
         expect(items.length).toStrictEqual(2);
@@ -129,7 +129,8 @@ describe('parse Storage requests', function () {
         expect(request).toBeDefined();
         const resource = api.getStorage('Files');
         expect(request.resource).toEqual(resource);
-        expect(request.operation).toStrictEqual('post');
+        expect(request.endpoint.kind).toStrictEqual('operation');
+        expect(request.endpoint.name).toStrictEqual('post');
         let item: MultipartItem | undefined;
         let i = 0;
         while ((item = await request.parts.getNext())) {

@@ -140,7 +140,7 @@ export class ComplexTypeClass extends DataType {
     return array.length ? array : undefined;
   }
 
-  exportSchema(options?: { webSafe?: boolean }): OpraSchema.ComplexType {
+  exportSchema(options?: { webSafe?: boolean }): any {
     const out = super.exportSchema(options) as OpraSchema.ComplexType;
     Object.assign(out, omitUndefined({
       base: this.base ?

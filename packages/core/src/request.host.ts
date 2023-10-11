@@ -1,5 +1,6 @@
 import type { PartialSome, StrictOmit } from 'ts-gems';
 import type { Resource } from '@opra/common';
+import { Action, Operation } from '@opra/common';
 import type { HttpServerRequest } from './http/http-server-request.js';
 import type { Request } from './request.js';
 
@@ -20,6 +21,7 @@ export interface RequestHost extends Request {
 
 export class RequestHost implements Request {
   controller: any;
+  endpoint: Action | Operation;
   http?: HttpServerRequest;
   key?: any;
   params: Record<string, any>;

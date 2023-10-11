@@ -1,5 +1,5 @@
 import { ApiDocument, Collection, Singleton } from '@opra/common';
-import { HttpServerRequest, HttpServerResponse,NodeHttpAdapter } from '@opra/core';
+import { HttpServerRequest, HttpServerResponse, NodeHttpAdapter } from '@opra/core';
 import { ExecutionContextHost } from '@opra/core/execution-context.host';
 import { NodeHttpAdapterHost } from '@opra/core/http/adapters/node-http-adapter.host';
 import { createTestApi } from '../_support/test-app/index.js';
@@ -26,16 +26,17 @@ describe('Parse Singleton requests', function () {
 
     it('Should parse action request', async () => {
       const request = await adapter.parseRequest(
-          createContext(HttpServerRequest.from({
-            method: 'GET',
-            url: '/auth/MyProfile/sendMessage?message=text'
-          }))
+          createContext(
+              HttpServerRequest.from({
+                method: 'GET',
+                url: '/auth/MyProfile/sendMessage?message=text'
+              })
+          )
       ) as Collection.Action.Request;
       expect(request).toBeDefined();
       const resource = api.getSingleton('auth/MyProfile');
       expect(request.resource).toEqual(resource);
-      expect(request.operation).toStrictEqual('action');
-      expect(request.action).toStrictEqual('sendMessage');
+      expect(request.endpoint.kind).toStrictEqual('action');
       expect(request.endpoint.name).toStrictEqual('sendMessage');
       expect(request.params.message).toStrictEqual('text');
     })
@@ -54,7 +55,8 @@ describe('Parse Singleton requests', function () {
       expect(request).toBeDefined();
       const resource = api.getSingleton('auth/MyProfile');
       expect(request.resource).toEqual(resource);
-      expect(request.operation).toStrictEqual('get');
+      expect(request.endpoint.kind).toStrictEqual('operation');
+      expect(request.endpoint.name).toStrictEqual('get');
       expect(request.params.pick).toStrictEqual(['_id']);
       expect(request.params.omit).toStrictEqual(['gender']);
       expect(request.params.include).toStrictEqual(['address']);
@@ -71,7 +73,8 @@ describe('Parse Singleton requests', function () {
           }))
       ) as Singleton.Get.Request;
       expect(request).toBeDefined();
-      expect(request.operation).toStrictEqual('get');
+      expect(request.endpoint.kind).toStrictEqual('operation');
+      expect(request.endpoint.name).toStrictEqual('get');
       expect(request.params.pick).toStrictEqual(['givenName', 'gender', 'address', 'address.countryCode']);
     })
 
@@ -83,7 +86,8 @@ describe('Parse Singleton requests', function () {
           }))
       ) as Singleton.Get.Request;
       expect(request).toBeDefined();
-      expect(request.operation).toStrictEqual('get');
+      expect(request.endpoint.kind).toStrictEqual('operation');
+      expect(request.endpoint.name).toStrictEqual('get');
       expect(request.params.omit).toStrictEqual(['givenName', 'gender', 'address', 'address.countryCode']);
     })
 
@@ -95,7 +99,8 @@ describe('Parse Singleton requests', function () {
           }))
       ) as Singleton.Get.Request;
       expect(request).toBeDefined();
-      expect(request.operation).toStrictEqual('get');
+      expect(request.endpoint.kind).toStrictEqual('operation');
+      expect(request.endpoint.name).toStrictEqual('get');
       expect(request.params.include).toStrictEqual(['givenName', 'gender', 'address', 'address.countryCode']);
     })
 
@@ -150,7 +155,8 @@ describe('Parse Singleton requests', function () {
           }))
       ) as Singleton.Get.Request;
       expect(request).toBeDefined();
-      expect(request.operation).toStrictEqual('get');
+      expect(request.endpoint.kind).toStrictEqual('operation');
+      expect(request.endpoint.name).toStrictEqual('get');
       expect(request.params.omit).toStrictEqual(['notes.add1', 'notes.add2.add3']);
       delete meta.additionalFields;
     })
@@ -165,7 +171,8 @@ describe('Parse Singleton requests', function () {
           }))
       ) as Singleton.Get.Request;
       expect(request).toBeDefined();
-      expect(request.operation).toStrictEqual('get');
+      expect(request.endpoint.kind).toStrictEqual('operation');
+      expect(request.endpoint.name).toStrictEqual('get');
       expect(request.params.include).toStrictEqual(['notes.add1', 'notes.add2.add3']);
       delete meta.additionalFields;
     })
@@ -187,7 +194,8 @@ describe('Parse Singleton requests', function () {
       expect(request).toBeDefined();
       const resource = api.getSingleton('auth/MyProfile');
       expect(request.resource).toEqual(resource);
-      expect(request.operation).toStrictEqual('create');
+      expect(request.endpoint.kind).toStrictEqual('operation');
+      expect(request.endpoint.name).toStrictEqual('create');
       expect(request.data).toEqual({givenName: 'John'});
       expect(() => request.switchToHttp()).not.toThrow();
       expect(request.switchToHttp().headers).toBeDefined();
@@ -204,7 +212,8 @@ describe('Parse Singleton requests', function () {
           }))
       ) as Singleton.Create.Request;
       expect(request).toBeDefined();
-      expect(request.operation).toStrictEqual('create');
+      expect(request.endpoint.kind).toStrictEqual('operation');
+      expect(request.endpoint.name).toStrictEqual('create');
       expect(request.params.pick).toStrictEqual(['givenName', 'gender', 'address', 'address.countryCode']);
     })
 
@@ -218,7 +227,8 @@ describe('Parse Singleton requests', function () {
           }))
       ) as Singleton.Create.Request;
       expect(request).toBeDefined();
-      expect(request.operation).toStrictEqual('create');
+      expect(request.endpoint.kind).toStrictEqual('operation');
+      expect(request.endpoint.name).toStrictEqual('create');
       expect(request.params.omit).toStrictEqual(['givenName', 'gender', 'address', 'address.countryCode']);
     })
 
@@ -232,7 +242,8 @@ describe('Parse Singleton requests', function () {
           }))
       ) as Singleton.Create.Request;
       expect(request).toBeDefined();
-      expect(request.operation).toStrictEqual('create');
+      expect(request.endpoint.kind).toStrictEqual('operation');
+      expect(request.endpoint.name).toStrictEqual('create');
       expect(request.params.include).toStrictEqual(['givenName', 'gender', 'address', 'address.countryCode']);
     })
 
@@ -281,7 +292,8 @@ describe('Parse Singleton requests', function () {
           }))
       ) as Singleton.Create.Request;
       expect(request).toBeDefined();
-      expect(request.operation).toStrictEqual('create');
+      expect(request.endpoint.kind).toStrictEqual('operation');
+      expect(request.endpoint.name).toStrictEqual('create');
       expect(request.params.pick).toStrictEqual(['notes.add1', 'notes.add2.add3']);
       delete meta.additionalFields;
     })
@@ -298,7 +310,8 @@ describe('Parse Singleton requests', function () {
           }))
       ) as Singleton.Create.Request;
       expect(request).toBeDefined();
-      expect(request.operation).toStrictEqual('create');
+      expect(request.endpoint.kind).toStrictEqual('operation');
+      expect(request.endpoint.name).toStrictEqual('create');
       expect(request.params.omit).toStrictEqual(['notes.add1', 'notes.add2.add3']);
       delete meta.additionalFields;
     })
@@ -315,7 +328,8 @@ describe('Parse Singleton requests', function () {
           }))
       ) as Singleton.Create.Request;
       expect(request).toBeDefined();
-      expect(request.operation).toStrictEqual('create');
+      expect(request.endpoint.kind).toStrictEqual('operation');
+      expect(request.endpoint.name).toStrictEqual('create');
       expect(request.params.include).toStrictEqual(['notes.add1', 'notes.add2.add3']);
       delete meta.additionalFields;
     })
@@ -337,7 +351,8 @@ describe('Parse Singleton requests', function () {
       expect(request).toBeDefined();
       const resource = api.getSingleton('auth/MyProfile');
       expect(request.resource).toEqual(resource);
-      expect(request.operation).toStrictEqual('update');
+      expect(request.endpoint.kind).toStrictEqual('operation');
+      expect(request.endpoint.name).toStrictEqual('update');
       expect(request.data).toEqual({givenName: 'John'});
       expect(() => request.switchToHttp()).not.toThrow();
       expect(request.switchToHttp().headers).toBeDefined();
@@ -354,7 +369,8 @@ describe('Parse Singleton requests', function () {
           }))
       ) as Singleton.Update.Request;
       expect(request).toBeDefined();
-      expect(request.operation).toStrictEqual('update');
+      expect(request.endpoint.kind).toStrictEqual('operation');
+      expect(request.endpoint.name).toStrictEqual('update');
       expect(request.params.pick).toStrictEqual(['givenName', 'gender', 'address', 'address.countryCode']);
     })
 
@@ -368,7 +384,8 @@ describe('Parse Singleton requests', function () {
           }))
       ) as Singleton.Update.Request;
       expect(request).toBeDefined();
-      expect(request.operation).toStrictEqual('update');
+      expect(request.endpoint.kind).toStrictEqual('operation');
+      expect(request.endpoint.name).toStrictEqual('update');
       expect(request.params.omit).toStrictEqual(['givenName', 'gender', 'address', 'address.countryCode']);
     })
 
@@ -382,7 +399,8 @@ describe('Parse Singleton requests', function () {
           }))
       ) as Singleton.Update.Request;
       expect(request).toBeDefined();
-      expect(request.operation).toStrictEqual('update');
+      expect(request.endpoint.kind).toStrictEqual('operation');
+      expect(request.endpoint.name).toStrictEqual('update');
       expect(request.params.include).toStrictEqual(['givenName', 'gender', 'address', 'address.countryCode']);
     })
 
@@ -431,7 +449,8 @@ describe('Parse Singleton requests', function () {
           }))
       ) as Singleton.Update.Request;
       expect(request).toBeDefined();
-      expect(request.operation).toStrictEqual('update');
+      expect(request.endpoint.kind).toStrictEqual('operation');
+      expect(request.endpoint.name).toStrictEqual('update');
       expect(request.params.pick).toStrictEqual(['notes.add1', 'notes.add2.add3']);
       delete meta.additionalFields;
     })
@@ -448,7 +467,8 @@ describe('Parse Singleton requests', function () {
           }))
       ) as Singleton.Update.Request;
       expect(request).toBeDefined();
-      expect(request.operation).toStrictEqual('update');
+      expect(request.endpoint.kind).toStrictEqual('operation');
+      expect(request.endpoint.name).toStrictEqual('update');
       expect(request.params.omit).toStrictEqual(['notes.add1', 'notes.add2.add3']);
       delete meta.additionalFields;
     })
@@ -465,7 +485,8 @@ describe('Parse Singleton requests', function () {
           }))
       ) as Singleton.Update.Request;
       expect(request).toBeDefined();
-      expect(request.operation).toStrictEqual('update');
+      expect(request.endpoint.kind).toStrictEqual('operation');
+      expect(request.endpoint.name).toStrictEqual('update');
       expect(request.params.include).toStrictEqual(['notes.add1', 'notes.add2.add3']);
       delete meta.additionalFields;
     })
@@ -485,7 +506,8 @@ describe('Parse Singleton requests', function () {
       expect(request).toBeDefined();
       const resource = api.getSingleton('auth/MyProfile');
       expect(request.resource).toEqual(resource);
-      expect(request.operation).toStrictEqual('delete');
+      expect(request.endpoint.kind).toStrictEqual('operation');
+      expect(request.endpoint.name).toStrictEqual('delete');
       expect(() => request.switchToHttp()).not.toThrow();
       expect(request.switchToHttp().headers).toBeDefined();
       expect(request.switchToHttp().headers.accept).toStrictEqual('application/json');

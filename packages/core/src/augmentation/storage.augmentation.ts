@@ -1,3 +1,5 @@
+import { StrictOmit } from 'ts-gems';
+import type { Action as _Action, Operation as _Operation } from '@opra/common';
 import type { MultipartIterator } from '../http/helpers/multipart-helper';
 import type { Request as _Request } from '../request.js';
 import type { RequestContext } from '../request-context.js';
@@ -8,9 +10,8 @@ declare module "@opra/common" {
   namespace Storage {
 
     namespace Action {
-      interface Request extends _Request {
-        operation: 'action';
-        action: string;
+      interface Request extends StrictOmit<_Request, 'endpoint'> {
+        endpoint: _Action;
       }
 
       interface Context extends Resource.Context {
@@ -19,8 +20,8 @@ declare module "@opra/common" {
 
     /* ***************************** */
     namespace Delete {
-      interface Request extends _Request {
-        operation: 'delete';
+      interface Request extends StrictOmit<_Request, 'endpoint'> {
+        endpoint: _Operation & { name: 'delete' };
         path?: string;
       }
 
@@ -31,8 +32,8 @@ declare module "@opra/common" {
 
     /* ***************************** */
     namespace Get {
-      interface Request extends _Request {
-        operation: 'get';
+      interface Request extends StrictOmit<_Request, 'endpoint'> {
+        endpoint: _Operation & { name: 'get' };
         path?: string;
       }
 
@@ -43,8 +44,8 @@ declare module "@opra/common" {
 
     /* ***************************** */
     namespace Post {
-      interface Request extends _Request {
-        operation: 'post';
+      interface Request extends StrictOmit<_Request, 'endpoint'> {
+        endpoint: _Operation & { name: 'post' };
         path?: string;
         parts: MultipartIterator;
       }

@@ -49,7 +49,7 @@ export namespace CollectionDecorator {
     kind: OpraSchema.Collection.Kind;
     name: string;
     type: TypeThunkAsync | string;
-    actions?: Record<string, ResourceDecorator.EndpointMetadata>;
+    actions?: Record<string, ResourceDecorator.OperationMetadata>;
     operations?: {
       create: Create.Metadata;
       delete: Delete.Metadata;
@@ -66,11 +66,11 @@ export namespace CollectionDecorator {
    */
   export namespace Action {
     // eslint-disable-next-line @typescript-eslint/no-shadow
-    export interface Metadata extends ResourceDecorator.EndpointMetadata {
+    export interface Metadata extends ResourceDecorator.ActionMetadata {
     }
 
     // eslint-disable-next-line @typescript-eslint/no-shadow
-    export interface Options extends ResourceDecorator.EndpointOptions {
+    export interface Options extends ResourceDecorator.ActionOptions {
     }
   }
 
@@ -79,11 +79,11 @@ export namespace CollectionDecorator {
    */
   export namespace Create {
     // eslint-disable-next-line @typescript-eslint/no-shadow
-    export interface Metadata extends Combine<ResourceDecorator.EndpointMetadata, OpraSchema.Collection.Operations.Create> {
+    export interface Metadata extends Combine<ResourceDecorator.OperationMetadata, OpraSchema.Collection.Operations.Create> {
     }
 
     // eslint-disable-next-line @typescript-eslint/no-shadow
-    export interface Options extends Combine<ResourceDecorator.EndpointOptions,
+    export interface Options extends Combine<ResourceDecorator.OperationOptions,
         Partial<OpraSchema.Collection.Operations.Create>> {
     }
   }
@@ -96,11 +96,11 @@ export namespace CollectionDecorator {
    */
   export namespace Delete {
     // eslint-disable-next-line @typescript-eslint/no-shadow
-    export interface Metadata extends Combine<ResourceDecorator.EndpointMetadata, OpraSchema.Collection.Operations.Delete> {
+    export interface Metadata extends Combine<ResourceDecorator.OperationMetadata, OpraSchema.Collection.Operations.Delete> {
     }
 
     // eslint-disable-next-line @typescript-eslint/no-shadow
-    export interface Options extends Combine<ResourceDecorator.EndpointOptions,
+    export interface Options extends Combine<ResourceDecorator.OperationOptions,
         Partial<OpraSchema.Collection.Operations.Delete>> {
     }
   }
@@ -110,11 +110,11 @@ export namespace CollectionDecorator {
    */
   export namespace DeleteMany {
     // eslint-disable-next-line @typescript-eslint/no-shadow
-    export interface Metadata extends Combine<ResourceDecorator.EndpointMetadata, OpraSchema.Collection.Operations.DeleteMany> {
+    export interface Metadata extends Combine<ResourceDecorator.OperationMetadata, OpraSchema.Collection.Operations.DeleteMany> {
     }
 
     // eslint-disable-next-line @typescript-eslint/no-shadow
-    export interface Options extends Combine<ResourceDecorator.EndpointOptions,
+    export interface Options extends Combine<ResourceDecorator.OperationOptions,
         Partial<OpraSchema.Collection.Operations.DeleteMany>> {
     }
   }
@@ -124,11 +124,11 @@ export namespace CollectionDecorator {
    */
   export namespace FindMany {
     // eslint-disable-next-line @typescript-eslint/no-shadow
-    export interface Metadata extends Combine<ResourceDecorator.EndpointMetadata, OpraSchema.Collection.Operations.FindMany> {
+    export interface Metadata extends Combine<ResourceDecorator.OperationMetadata, OpraSchema.Collection.Operations.FindMany> {
     }
 
     // eslint-disable-next-line @typescript-eslint/no-shadow
-    export interface Options extends Combine<ResourceDecorator.EndpointOptions,
+    export interface Options extends Combine<ResourceDecorator.OperationOptions,
         Partial<OpraSchema.Collection.Operations.FindMany>> {
     }
   }
@@ -138,11 +138,11 @@ export namespace CollectionDecorator {
    */
   export namespace Get {
     // eslint-disable-next-line @typescript-eslint/no-shadow
-    export interface Metadata extends Combine<ResourceDecorator.EndpointMetadata, OpraSchema.Collection.Operations.Get> {
+    export interface Metadata extends Combine<ResourceDecorator.OperationMetadata, OpraSchema.Collection.Operations.Get> {
     }
 
     // eslint-disable-next-line @typescript-eslint/no-shadow
-    export interface Options extends Combine<ResourceDecorator.EndpointOptions,
+    export interface Options extends Combine<ResourceDecorator.OperationOptions,
         Partial<OpraSchema.Collection.Operations.Get>> {
     }
   }
@@ -152,11 +152,11 @@ export namespace CollectionDecorator {
    */
   export namespace Update {
     // eslint-disable-next-line @typescript-eslint/no-shadow
-    export interface Metadata extends Combine<ResourceDecorator.EndpointMetadata, OpraSchema.Collection.Operations.Update> {
+    export interface Metadata extends Combine<ResourceDecorator.OperationMetadata, OpraSchema.Collection.Operations.Update> {
     }
 
     // eslint-disable-next-line @typescript-eslint/no-shadow
-    export interface Options extends Combine<ResourceDecorator.EndpointOptions,
+    export interface Options extends Combine<ResourceDecorator.OperationOptions,
         Partial<OpraSchema.Collection.Operations.Update>> {
     }
   }
@@ -166,11 +166,11 @@ export namespace CollectionDecorator {
    */
   export namespace UpdateMany {
     // eslint-disable-next-line @typescript-eslint/no-shadow
-    export interface Metadata extends Combine<ResourceDecorator.EndpointMetadata, OpraSchema.Collection.Operations.UpdateMany> {
+    export interface Metadata extends Combine<ResourceDecorator.OperationMetadata, OpraSchema.Collection.Operations.UpdateMany> {
     }
 
     // eslint-disable-next-line @typescript-eslint/no-shadow
-    export interface Options extends Combine<ResourceDecorator.EndpointOptions,
+    export interface Options extends Combine<ResourceDecorator.OperationOptions,
         Partial<OpraSchema.Collection.Operations.UpdateMany>> {
     }
   }
@@ -184,7 +184,7 @@ export namespace CollectionDecorator {
   /**
    * Action PropertyDecorator
    */
-  export function Action(options: ResourceDecorator.EndpointOptions): ActionDecorator {
+  export function Action(options: ResourceDecorator.OperationOptions): ActionDecorator {
     const list: ((operationMeta: any) => void)[] = [];
     return createActionDecorator(options, operationProperties, list);
   }

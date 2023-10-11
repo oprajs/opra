@@ -180,7 +180,7 @@ export class ApiDocumentFactory extends TypeDocumentFactory {
     if (!metadata && OpraSchema.isResource(metadata))
       throw new TypeError(`Class "${ctor.name}" doesn't have a valid Resource metadata`);
 
-    const convertEndpoints = async (source?: Record<string, ResourceDecorator.EndpointMetadata>) => {
+    const convertEndpoints = async (source?: Record<string, ResourceDecorator.OperationMetadata>) => {
       if (!source)
         return;
       const output: any = {};

@@ -33,7 +33,7 @@ export class UnionTypeClass extends ComplexType {
   }
 
   // @ts-ignore
-  exportSchema(): OpraSchema.UnionType {
+  exportSchema(): any {
     const out = super.exportSchema() as unknown as OpraSchema.UnionType;
     out.types = this.own.types.map(t => t.name ? t.name : t.exportSchema());
     return out;
