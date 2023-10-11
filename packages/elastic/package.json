@@ -1,6 +1,6 @@
 {
   "name": "@opra/elastic",
-  "version": "0.26.4",
+  "version": "0.26.5",
   "description": "Opra Elastic Search adapter package",
   "author": "Panates",
   "license": "MIT",
@@ -34,8 +34,8 @@
   },
   "peerDependencies": {
     "@elastic/elasticsearch": ">=8.7.0",
-    "@opra/common": "^0.26.4",
-    "@opra/core": "^0.26.4"
+    "@opra/common": "^0.26.5",
+    "@opra/core": "^0.26.5"
   },
   "type": "module",
   "module": "./esm/index.js",
