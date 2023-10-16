@@ -238,7 +238,7 @@ export class HttpRequestObservable<TPayload = any, TResponseExt = {}> extends Ob
 
         // Call response Interceptors
         for (const interceptor of clientContext.responseInterceptors) {
-          await interceptor(response);
+          await interceptor(response, request);
         }
 
         // Emit 'response' event
