@@ -16,6 +16,7 @@ describe('e2e:Collection', function () {
   });
 
   afterAll(async () => {
+    await app.adapter.close();
     await app?.db.close();
   })
 
