@@ -4,7 +4,6 @@ import { OpraSchema } from '../../schema/index.js';
 import { DataType } from '../data-type/data-type.js';
 import { Parameter } from './parameter.js';
 import type { Resource } from './resource';
-import * as vg from 'valgen';
 
 /**
  *
