@@ -1,3 +1,4 @@
+import { lastValueFrom } from 'rxjs';
 import { HttpHeaderCodes, OpraSchema } from '@opra/common';
 import { HttpEventType, HttpObserveType, HttpResponse, OpraHttpClient } from '../../src/index.js';
 import { createMockServer, MockServer } from '../_support/create-mock-server.js';
@@ -6,7 +7,7 @@ describe('Collection.create', function () {
 
   let app: MockServer;
   let client: OpraHttpClient;
-  const data = {id: 1, givenName: 'dfd'};
+  const data = {_id: 1, givenName: 'dfd'};
 
   afterAll(() => app.server.close());
   afterAll(() => global.gc && global.gc());
@@ -14,11 +15,6 @@ describe('Collection.create', function () {
   beforeAll(async () => {
     app = await createMockServer();
     client = new OpraHttpClient(app.baseUrl, {api: app.api});
-    app.mockHandler((req, res) => {
-      res.header(HttpHeaderCodes.X_Opra_Version, OpraSchema.SpecVersion);
-      res.header(HttpHeaderCodes.Content_Type, 'application/opra+json');
-      res.json({data});
-    })
   });
 
   it('Should return OPRA headers', async () => {
@@ -30,13 +26,37 @@ describe('Collection.create', function () {
   });
 
   it('Should return body if observe=body or undefined', async () => {
-    const resp = await client.collection('Customers')
+    let body = await lastValueFrom(
+        client.collection('Customers')
+            .create(data)
+            .observe(HttpObserveType.Body));
+    expect(app.lastRequest).toBeDefined();
+    expect(app.lastRequest.method).toStrictEqual('POST');
+    expect(app.lastRequest.url).toStrictEqual('/Customers');
+    expect(body.type).toStrictEqual('Customer');
+    expect(body.payload).toEqual(data);
+    body = await lastValueFrom(
+        client.collection('Customers')
+            .create(data)
+            .observe());
+    expect(app.lastRequest).toBeDefined();
+    expect(app.lastRequest.method).toStrictEqual('POST');
+    expect(app.lastRequest.url).toStrictEqual('/Customers');
+    expect(body.payload).toEqual(data);
+    body = await client.collection('Customers')
+        .create(data)
+        .getBody();
+    expect(app.lastRequest).toBeDefined();
+    expect(app.lastRequest.method).toStrictEqual('POST');
+    expect(app.lastRequest.url).toStrictEqual('/Customers');
+    expect(body.payload).toEqual(data);
+    body = await client.collection('Customers')
         .create(data)
         .toPromise();
     expect(app.lastRequest).toBeDefined();
     expect(app.lastRequest.method).toStrictEqual('POST');
-    expect(app.lastRequest.baseUrl).toStrictEqual('/Customers');
-    expect(resp).toEqual({data});
+    expect(app.lastRequest.url).toStrictEqual('/Customers');
+    expect(body.payload).toEqual(data);
   });
 
   it('Should return HttpResponse if observe=response', async () => {
@@ -45,8 +65,12 @@ describe('Collection.create', function () {
         .getResponse();
     expect(app.lastRequest).toBeDefined();
     expect(app.lastRequest.method).toStrictEqual('POST');
-    expect(app.lastRequest.baseUrl).toStrictEqual('/Customers');
+    expect(app.lastRequest.url).toStrictEqual('/Customers');
     expect(resp).toBeInstanceOf(HttpResponse);
+    expect(resp.body.context).toEqual('/Customers');
+    expect(resp.body.type).toEqual('Customer');
+    expect(resp.body.payload).toEqual(data);
+    expect(resp.body.affected).toEqual(1);
   });
 
   it('Should subscribe events', (done) => {
@@ -73,38 +97,32 @@ describe('Collection.create', function () {
 
   it('Should send request with "include" param', async () => {
     await client.collection('Customers')
-        .create(data, {include: ['id', 'givenName']})
+        .create(data, {include: ['_id', 'givenName']})
         .toPromise();
     expect(app.lastRequest).toBeDefined();
     expect(app.lastRequest.method).toStrictEqual('POST');
-    expect(app.lastRequest.baseUrl).toStrictEqual('/Customers');
-    expect(app.lastRequest.body).toStrictEqual(data);
-    expect(Object.keys(app.lastRequest.query)).toStrictEqual(['include']);
-    expect(app.lastRequest.query.include).toStrictEqual('id,givenName');
+    expect(app.lastRequest.url).toStrictEqual('/Customers?include=_id%2CgivenName');
+    expect(app.lastRequest.query.include).toStrictEqual('_id,givenName');
   });
 
   it('Should send request with "pick" param', async () => {
     await client.collection('Customers')
-        .create(data, {pick: ['id', 'givenName']})
+        .create(data, {pick: ['_id', 'givenName']})
         .toPromise();
     expect(app.lastRequest).toBeDefined();
     expect(app.lastRequest.method).toStrictEqual('POST');
-    expect(app.lastRequest.baseUrl).toStrictEqual('/Customers');
-    expect(app.lastRequest.body).toStrictEqual(data);
-    expect(Object.keys(app.lastRequest.query)).toStrictEqual(['pick']);
-    expect(app.lastRequest.query.pick).toStrictEqual('id,givenName');
+    expect(app.lastRequest.url).toStrictEqual('/Customers?pick=_id%2CgivenName');
+    expect(app.lastRequest.query.pick).toStrictEqual('_id,givenName');
   });
 
   it('Should send request with "omit" param', async () => {
     await client.collection('Customers')
-        .create(data, {omit: ['id', 'givenName']})
+        .create(data, {omit: ['_id', 'givenName']})
         .toPromise();
     expect(app.lastRequest).toBeDefined();
     expect(app.lastRequest.method).toStrictEqual('POST');
-    expect(app.lastRequest.baseUrl).toStrictEqual('/Customers');
-    expect(app.lastRequest.body).toStrictEqual(data);
-    expect(Object.keys(app.lastRequest.query)).toStrictEqual(['omit']);
-    expect(app.lastRequest.query.omit).toStrictEqual('id,givenName');
+    expect(app.lastRequest.url).toStrictEqual('/Customers?omit=_id%2CgivenName');
+    expect(app.lastRequest.query.omit).toStrictEqual('_id,givenName');
   });
 
 });

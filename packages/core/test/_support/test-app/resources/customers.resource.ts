@@ -72,6 +72,7 @@ export class CustomersResource implements ICollection<Customer> {
     const {params} = ctx.request;
     const skip = params.skip || 0;
     const limit = params.limit || 10;
+    ctx.response.totalMatches = customers.length;
     return customers.slice(skip, skip + limit);
   }
 

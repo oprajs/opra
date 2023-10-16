@@ -159,6 +159,14 @@ describe('TypeDocument', function () {
     expect(ref?.getDataType('timestamp')).toBeDefined();
   })
 
+  it('Should getDataTypeNs() return namespace of DataType', async () => {
+    const doc = await TypeDocumentFactory.createDocument(baseArgs);
+    expect(doc).toBeDefined();
+    expect(doc.getDataTypeNs(GenderEnum)).not.toBeDefined();
+    expect(doc.getDataTypeNs(String)).toStrictEqual('opra');
+    expect(doc.getDataTypeNs('string')).toStrictEqual('opra');
+  })
+
   it('Should exportSchema() return document schema', async () => {
     const doc = await TypeDocumentFactory.createDocument(baseArgs);
     expect(doc).toBeDefined();

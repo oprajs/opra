@@ -1,6 +1,6 @@
 import { ApiDocument } from '@opra/common';
 import { MongoAdapter } from '@opra/mongodb';
-import { createTestApp } from '../../../sqb/test/_support/test-app/index.js';
+import { createTestApp } from '../_support/test-app/index.js';
 
 describe('MongoAdapter.transformKeyValues', function () {
 

@@ -51,7 +51,7 @@
     "path-browserify": "^1.0.1",
     "process": "^0.11.10",
     "putil-isplainobject": "^1.1.5",
-    "putil-merge": "^3.11.0",
+    "putil-merge": "^3.12.1",
     "putil-promisify": "^1.10.1",
     "putil-varhelpers": "^1.6.5",
     "reflect-metadata": "^0.1.13",

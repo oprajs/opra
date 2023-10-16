@@ -1,7 +1,7 @@
 import { ApiDocument } from '@opra/common';
 import { Request } from '@opra/core';
 import { MongoAdapter } from '@opra/mongodb';
-import { createTestApp } from '../../../sqb/test/_support/test-app/index.js';
+import { createTestApp } from '../_support/test-app/index.js';
 
 describe('MongoAdapter.transformRequest (Singleton)', function () {
 
@@ -85,7 +85,9 @@ describe('MongoAdapter.transformRequest (Singleton)', function () {
           "deleted": 1,
           "familyName": 1,
           "gender": 1,
-          "givenName": 1
+          "givenName": 1,
+          "createdAt": 1,
+          "updatedAt": 1,
         }
       }
       const o = MongoAdapter.transformRequest(request);
@@ -180,7 +182,9 @@ describe('MongoAdapter.transformRequest (Singleton)', function () {
           "deleted": 1,
           "familyName": 1,
           "gender": 1,
-          "givenName": 1
+          "givenName": 1,
+          "createdAt": 1,
+          "updatedAt": 1,
         }
       }
       const o = MongoAdapter.transformRequest(request);
@@ -268,7 +272,9 @@ describe('MongoAdapter.transformRequest (Singleton)', function () {
           "deleted": 1,
           "familyName": 1,
           "gender": 1,
-          "givenName": 1
+          "givenName": 1,
+          "updatedAt": 1,
+          "createdAt": 1
         }
       }
       const o = MongoAdapter.transformRequest(request);

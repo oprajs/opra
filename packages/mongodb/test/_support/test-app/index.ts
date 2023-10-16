@@ -7,14 +7,14 @@ import { MyProfileResource } from './my-profile.resource.js';
 export interface TestApp {
   client: MongoClient,
   db: Db;
-  document: ApiDocument;
+  api: ApiDocument;
   adapter: NodeHttpAdapter;
 }
 
 export async function createTestApp(): Promise<TestApp> {
   const client = new MongoClient('mongodb://localhost:27017');
   const db = client.db('opra_test');
-  const document = await ApiDocumentFactory.createDocument({
+  const api = await ApiDocumentFactory.createDocument({
     version: '1.0',
     info: {
       title: 'TestApi',
@@ -27,11 +27,11 @@ export async function createTestApp(): Promise<TestApp> {
       ]
     }
   })
-  const adapter = await NodeHttpAdapter.create(document);
+  const adapter = await NodeHttpAdapter.create(api);
   return {
     client,
     db,
-    document,
+    api,
     adapter
   }
 

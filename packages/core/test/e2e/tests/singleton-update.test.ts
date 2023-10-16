@@ -28,7 +28,7 @@ export function singletonUpdateTests(args: { client: OpraTestClient }) {
       resp.expect
           .toSuccess()
           .toReturnObject();
-      const oldData = resp.body.data;
+      const oldData = resp.body.payload;
 
       const data = {
         givenName: faker.person.firstName(),

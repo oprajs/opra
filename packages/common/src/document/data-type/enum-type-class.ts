@@ -2,6 +2,7 @@ import * as vg from 'valgen';
 import { omitUndefined } from '../../helpers/index.js';
 import { OpraSchema } from '../../schema/index.js';
 import type { ApiDocument } from '../api-document.js';
+import { DATATYPE_METADATA } from '../constants.js';
 import { DataType } from './data-type.js';
 import type { EnumType } from './enum-type.js';
 
@@ -22,6 +23,10 @@ export class EnumTypeClass extends DataType {
     this.values = {...this.base?.values, ...this.ownValues};
     this.decode = vg.isEnum(Object.keys(this.values));
     this.encode = vg.isEnum(Object.keys(this.values));
+  }
+
+  isTypeOf(t: object): boolean {
+    return t[DATATYPE_METADATA] === this.enumObject?.[DATATYPE_METADATA];
   }
 
   exportSchema(): OpraSchema.EnumType {

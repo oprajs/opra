@@ -91,4 +91,58 @@ describe('ComplexType', function () {
     })
   })
 
+  it('Should _generateCodecSchema() return ValGen schema', async () => {
+    const dt = api.getComplexType('customer');
+    const x: any = (dt as any)._generateCodecSchema('decode');
+    expect(x).toBeDefined();
+    expect(Object.keys(x)).toStrictEqual([
+      "_id",
+      "deleted",
+      "createdAt",
+      "updatedAt",
+      "givenName",
+      "familyName",
+      "gender",
+      "birthDate",
+      "uid",
+      "active",
+      "countryCode",
+      "rate",
+      "address",
+      "notes",
+      "country"
+    ]);
+  })
+
+  it('Should pick properties in _generateCodecSchema()', async () => {
+    const dt = api.getComplexType('customer');
+    const x: any = (dt as any)._generateCodecSchema('decode', {pick: ['deleted', 'address.city']});
+    expect(x).toBeDefined();
+    expect(Object.keys(x)).toStrictEqual([
+      "deleted",
+      "address",
+    ]);
+  })
+
+  it('Should omit properties in _generateCodecSchema()', async () => {
+    const dt = api.getComplexType('customer');
+    const x: any = (dt as any)._generateCodecSchema('decode', {omit: ['deleted', 'notes', 'address.city']});
+    expect(x).toBeDefined();
+    expect(Object.keys(x)).toStrictEqual([
+      "_id",
+      "createdAt",
+      "updatedAt",
+      "givenName",
+      "familyName",
+      "gender",
+      "birthDate",
+      "uid",
+      "active",
+      "countryCode",
+      "rate",
+      "address",
+      "country"
+    ]);
+  })
+
 });

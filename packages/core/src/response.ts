@@ -19,7 +19,7 @@ export interface Response {
   /**
    * Total count of matched entities. (Used in "search" endpoint with "count" option
    */
-  count?: number;
+  totalMatches?: number;
 
   switchToHttp(): HttpServerResponse;
 

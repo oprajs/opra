@@ -1,7 +1,7 @@
 import { ApiDocument } from '@opra/common';
 import { Request } from '@opra/core';
 import { MongoAdapter } from '@opra/mongodb';
-import { createTestApp } from '../../../sqb/test/_support/test-app/index.js';
+import { createTestApp } from '../_support/test-app/index.js';
 
 describe('MongoAdapter.transformRequest (Collection)', function () {
 

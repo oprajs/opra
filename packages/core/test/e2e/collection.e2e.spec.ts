@@ -29,10 +29,13 @@ describe('e2e:Collection', function () {
     expect(resp.type).toStrictEqual('application/opra+json');
     expect(resp.body).toBeDefined();
     expect(resp.body.errors).not.toBeDefined();
-    expect(resp.body.context).toStrictEqual('Customers');
-    expect(resp.body.operation).toStrictEqual('create');
+    expect(resp.statusCode).toStrictEqual(201);
+    expect(resp.body.context).toStrictEqual('/Customers');
+    expect(resp.body.contextUrl).toMatch(/\/#\/root\/resources\/Customers$/);
+    expect(resp.body.type).toStrictEqual('Customer');
+    expect(resp.body.typeUrl).toMatch(/\/#\/types\/Customer$/);
     expect(resp.body.affected).toStrictEqual(1);
-    expect(resp.body.data).toMatchObject({
+    expect(resp.body.payload).toMatchObject({
       _id: /\d+/,
       givenName: /.+/,
       familyName: /.+/,
@@ -45,10 +48,12 @@ describe('e2e:Collection', function () {
     expect(resp.type).toStrictEqual('application/opra+json');
     expect(resp.body).toBeDefined();
     expect(resp.body.errors).not.toBeDefined();
-    expect(resp.body.context).toStrictEqual('Customers');
-    expect(resp.body.operation).toStrictEqual('get');
-    expect(resp.body.key).toStrictEqual(1);
-    expect(resp.body.data).toMatchObject({
+    expect(resp.statusCode).toStrictEqual(200);
+    expect(resp.body.context).toStrictEqual('/Customers');
+    expect(resp.body.contextUrl).toMatch(/\/#\/root\/resources\/Customers$/);
+    expect(resp.body.type).toStrictEqual('Customer');
+    expect(resp.body.typeUrl).toMatch(/\/#\/types\/Customer$/);
+    expect(resp.body.payload).toMatchObject({
       _id: 1,
       givenName: /.+/,
       familyName: /.+/
@@ -60,11 +65,16 @@ describe('e2e:Collection', function () {
     expect(resp.type).toStrictEqual('application/opra+json');
     expect(resp.body).toBeDefined();
     expect(resp.body.errors).not.toBeDefined();
-    expect(resp.body.context).toStrictEqual('Customers');
-    expect(resp.body.operation).toStrictEqual('findMany');
-    expect(Array.isArray(resp.body.data)).toBeTruthy();
-    expect(resp.body.data.length).toBeGreaterThan(0);
-    expect(resp.body.data[0]).toMatchObject({
+    expect(resp.statusCode).toStrictEqual(200);
+    expect(resp.body.context).toStrictEqual('/Customers');
+    expect(resp.body.contextUrl).toMatch(/\/#\/root\/resources\/Customers$/);
+    expect(resp.body.type).toStrictEqual('Customer');
+    expect(resp.body.typeUrl).toMatch(/\/#\/types\/Customer$/);
+    expect(resp.body.count).toStrictEqual(10);
+    expect(resp.body.totalMatches).toBeGreaterThan(10);
+    expect(Array.isArray(resp.body.payload)).toBeTruthy();
+    expect(resp.body.payload.length).toBeGreaterThan(0);
+    expect(resp.body.payload[0]).toMatchObject({
       _id: /\d+/,
       givenName: /.+/,
       familyName: /.+/
@@ -82,10 +92,13 @@ describe('e2e:Collection', function () {
     expect(resp.type).toStrictEqual('application/opra+json');
     expect(resp.body).toBeDefined();
     expect(resp.body.errors).not.toBeDefined();
-    expect(resp.body.context).toStrictEqual('Customers');
-    expect(resp.body.operation).toStrictEqual('update');
+    expect(resp.statusCode).toStrictEqual(200);
+    expect(resp.body.context).toStrictEqual('/Customers');
+    expect(resp.body.contextUrl).toMatch(/\/#\/root\/resources\/Customers$/);
+    expect(resp.body.type).toStrictEqual('Customer');
+    expect(resp.body.typeUrl).toMatch(/\/#\/types\/Customer$/);
     expect(resp.body.affected).toStrictEqual(1);
-    expect(resp.body.data).toMatchObject({
+    expect(resp.body.payload).toMatchObject({
       _id: /\d+/,
       givenName: /.+/,
       familyName: /.+/,
@@ -103,9 +116,10 @@ describe('e2e:Collection', function () {
     expect(resp.type).toStrictEqual('application/opra+json');
     expect(resp.body).toBeDefined();
     expect(resp.body.errors).not.toBeDefined();
-    expect(resp.body.context).toStrictEqual('Customers');
-    expect(resp.body.operation).toStrictEqual('updateMany');
-    expect(resp.body.affected).toBeGreaterThan(0);
+    expect(resp.statusCode).toStrictEqual(200);
+    expect(resp.body.context).toStrictEqual('/Customers');
+    expect(resp.body.contextUrl).toMatch(/\/#\/root\/resources\/Customers$/);
+    expect(resp.body.affected).toBeGreaterThan(1);
   });
 
   it('Should execute "delete" endpoint', async () => {
@@ -113,8 +127,9 @@ describe('e2e:Collection', function () {
     expect(resp.type).toStrictEqual('application/opra+json');
     expect(resp.body).toBeDefined();
     expect(resp.body.errors).not.toBeDefined();
-    expect(resp.body.context).toStrictEqual('Customers');
-    expect(resp.body.operation).toStrictEqual('delete');
+    expect(resp.statusCode).toStrictEqual(200);
+    expect(resp.body.context).toStrictEqual('/Customers');
+    expect(resp.body.contextUrl).toMatch(/\/#\/root\/resources\/Customers$/);
     expect(resp.body.affected).toStrictEqual(1);
   });
 
@@ -123,9 +138,10 @@ describe('e2e:Collection', function () {
     expect(resp.type).toStrictEqual('application/opra+json');
     expect(resp.body).toBeDefined();
     expect(resp.body.errors).not.toBeDefined();
-    expect(resp.body.context).toStrictEqual('Customers');
-    expect(resp.body.operation).toStrictEqual('deleteMany');
-    expect(resp.body.affected).toBeGreaterThan(0);
+    expect(resp.statusCode).toStrictEqual(200);
+    expect(resp.body.context).toStrictEqual('/Customers');
+    expect(resp.body.contextUrl).toMatch(/\/#\/root\/resources\/Customers$/);
+    expect(resp.body.affected).toBeGreaterThan(1);
   });
 
 });

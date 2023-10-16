@@ -28,7 +28,7 @@ describe('Container operations', function () {
     const resp = await request(server)
         .get('/api/svc1/auth/login?user=john');
     expect(resp.body.errors).toStrictEqual(undefined);
-    expect(resp.body).toStrictEqual({user: 'john'});
+    expect(resp.body.context).toStrictEqual('/auth/login');
     expect(resp.status).toStrictEqual(200);
   });
 
@@ -36,7 +36,7 @@ describe('Container operations', function () {
     const resp = await request(server)
         .get('/api/svc1/auth/profile');
     expect(resp.body.errors).toStrictEqual(undefined);
-    expect(resp.body.data).toStrictEqual({user: 'john'});
+    expect(resp.body.payload).toStrictEqual({user: 'john'});
     expect(resp.status).toStrictEqual(200);
   });
 

@@ -20,7 +20,7 @@ export function collectionUpdateTests(args: { client: OpraTestClient }) {
       resp.expect
           .toSuccess()
           .toReturnObject();
-      const oldData = resp.body.data;
+      const oldData = resp.body.payload;
 
       resp = await args.client.collection('Customers')
           .update(oldData._id, data)
@@ -49,7 +49,7 @@ export function collectionUpdateTests(args: { client: OpraTestClient }) {
       let resp = await args.client.collection('Customers')
           .get(100)
           .getResponse();
-      const oldData = resp.body.data;
+      const oldData = resp.body.payload;
       resp.expect
           .toSuccess()
           .toReturnObject();
@@ -73,7 +73,7 @@ export function collectionUpdateTests(args: { client: OpraTestClient }) {
       let resp = await args.client.collection('Customers')
           .get(100)
           .getResponse();
-      const oldData = resp.body.data;
+      const oldData = resp.body.payload;
       resp.expect
           .toSuccess()
           .toReturnObject();
@@ -97,7 +97,7 @@ export function collectionUpdateTests(args: { client: OpraTestClient }) {
       let resp = await args.client.collection('Customers')
           .get(100)
           .getResponse();
-      const oldData = resp.body.data;
+      const oldData = resp.body.payload;
       resp.expect
           .toSuccess()
           .toReturnObject();

@@ -40,7 +40,7 @@
     "fast-tokenizer": "^1.2.2",
     "lodash.omit": "^4.5.0",
     "putil-isplainobject": "^1.1.5",
-    "putil-merge": "^3.11.0",
+    "putil-merge": "^3.12.1",
     "putil-promisify": "^1.10.1",
     "putil-varhelpers": "^1.6.5",
     "reflect-metadata": "^0.1.13",

@@ -1,5 +1,4 @@
 import { HttpHeaderCodes, OpraSchema } from '@opra/common';
-import { customersData } from '../../../../support/test/customers.data.js';
 import { HttpEventType, HttpObserveType, HttpResponse, OpraHttpClient } from '../../src/index.js';
 import { createMockServer, MockServer } from '../_support/create-mock-server.js';
 
@@ -7,7 +6,6 @@ describe('Collection.findMany', function () {
 
   let app: MockServer;
   let client: OpraHttpClient;
-  const rows: any[] = JSON.parse(JSON.stringify(customersData.slice(0, 100)));
 
   afterAll(() => app.server.close());
   afterAll(() => global.gc && global.gc());
@@ -15,14 +13,6 @@ describe('Collection.findMany', function () {
   beforeAll(async () => {
     app = await createMockServer();
     client = new OpraHttpClient(app.baseUrl, {api: app.api});
-    app.mockHandler((req, res) => {
-      res.header(HttpHeaderCodes.X_Opra_Version, OpraSchema.SpecVersion);
-      res.header(HttpHeaderCodes.Content_Type, 'application/opra+json');
-      res.json({
-        totalCount: 10,
-        data: rows.slice(0, 10)
-      });
-    })
   });
 
   it('Should return OPRA headers', async () => {
@@ -34,14 +24,13 @@ describe('Collection.findMany', function () {
   });
 
   it('Should return body if observe=body or undefined', async () => {
-    const resp = await client.collection('Customers')
+    const body = await client.collection('Customers')
         .findMany()
-        .getData();
+        .getBody();
     expect(app.lastRequest.method).toStrictEqual('GET');
-    expect(app.lastRequest.baseUrl).toStrictEqual('/Customers');
-    expect(resp).toMatchObject({
-      data: rows.slice(0, 10)
-    });
+    expect(app.lastRequest.url).toStrictEqual('/Customers');
+    expect(Array.isArray(body.payload)).toBeTruthy();
+    expect(body.type).toStrictEqual('Customer');
   });
 
   it('Should return HttpResponse if observe=response', async () => {
@@ -50,7 +39,7 @@ describe('Collection.findMany', function () {
         .getResponse();
     expect(app.lastRequest).toBeDefined();
     expect(app.lastRequest.method).toStrictEqual('GET');
-    expect(app.lastRequest.baseUrl).toStrictEqual('/Customers');
+    expect(app.lastRequest.url).toStrictEqual('/Customers');
     expect(resp).toBeInstanceOf(HttpResponse);
   });
 
@@ -79,61 +68,61 @@ describe('Collection.findMany', function () {
   it('Should send request with "include" param', async () => {
     await client.collection('Customers')
         .findMany({
-          include: ['id', 'givenName']
-        }).getData();
+          include: ['_id', 'givenName']
+        }).getBody();
     expect(app.lastRequest).toBeDefined();
     expect(app.lastRequest.method).toStrictEqual('GET');
-    expect(app.lastRequest.baseUrl).toStrictEqual('/Customers');
+    expect(app.lastRequest.url).toStrictEqual('/Customers?include=_id%2CgivenName');
     expect(Object.keys(app.lastRequest.query)).toStrictEqual(['include']);
-    expect(app.lastRequest.query.include).toStrictEqual('id,givenName');
+    expect(app.lastRequest.query.include).toStrictEqual('_id,givenName');
   });
 
   it('Should send request with "pick" param', async () => {
     await client.collection('Customers')
         .findMany({
-          pick: ['id', 'givenName']
-        }).toPromise();
+          pick: ['_id', 'givenName']
+        }).getBody();
     expect(app.lastRequest).toBeDefined();
     expect(app.lastRequest.method).toStrictEqual('GET');
-    expect(app.lastRequest.baseUrl).toStrictEqual('/Customers');
+    expect(app.lastRequest.url).toStrictEqual('/Customers?pick=_id%2CgivenName');
     expect(Object.keys(app.lastRequest.query)).toStrictEqual(['pick']);
-    expect(app.lastRequest.query.pick).toStrictEqual('id,givenName');
+    expect(app.lastRequest.query.pick).toStrictEqual('_id,givenName');
   });
 
   it('Should send request with "omit" param', async () => {
     await client.collection('Customers')
         .findMany({
-          omit: ['id', 'givenName']
-        }).toPromise();
+          omit: ['_id', 'givenName']
+        }).getBody();
     expect(app.lastRequest).toBeDefined();
     expect(app.lastRequest.method).toStrictEqual('GET');
-    expect(app.lastRequest.baseUrl).toStrictEqual('/Customers');
+    expect(app.lastRequest.url).toStrictEqual('/Customers?omit=_id%2CgivenName');
     expect(Object.keys(app.lastRequest.query)).toStrictEqual(['omit']);
-    expect(app.lastRequest.query.omit).toStrictEqual('id,givenName');
+    expect(app.lastRequest.query.omit).toStrictEqual('_id,givenName');
   });
 
   it('Should send request with "sort" param', async () => {
     await client.collection('Customers')
         .findMany({
-          sort: ['id', 'givenName']
-        }).toPromise();
+          sort: ['_id', 'givenName']
+        }).getBody();
     expect(app.lastRequest).toBeDefined();
     expect(app.lastRequest.method).toStrictEqual('GET');
-    expect(app.lastRequest.baseUrl).toStrictEqual('/Customers');
+    expect(app.lastRequest.url).toStrictEqual('/Customers?sort=_id%2CgivenName');
     expect(Object.keys(app.lastRequest.query)).toStrictEqual(['sort']);
-    expect(app.lastRequest.query.sort).toStrictEqual('id,givenName');
+    expect(app.lastRequest.query.sort).toStrictEqual('_id,givenName');
   });
 
   it('Should send request with "filter" param', async () => {
     await client.collection('Customers')
         .findMany({
-          filter: 'id=1'
+          filter: '_id=1'
         }).toPromise();
     expect(app.lastRequest).toBeDefined();
     expect(app.lastRequest.method).toStrictEqual('GET');
-    expect(app.lastRequest.baseUrl).toStrictEqual('/Customers');
+    expect(app.lastRequest.url).toStrictEqual('/Customers?filter=_id%3D1');
     expect(Object.keys(app.lastRequest.query)).toStrictEqual(['filter']);
-    expect(app.lastRequest.query.filter).toStrictEqual('id=1');
+    expect(app.lastRequest.query.filter).toStrictEqual('_id=1');
   });
 
   it('Should send request with "limit" param', async () => {
@@ -143,7 +132,7 @@ describe('Collection.findMany', function () {
         }).toPromise();
     expect(app.lastRequest).toBeDefined();
     expect(app.lastRequest.method).toStrictEqual('GET');
-    expect(app.lastRequest.baseUrl).toStrictEqual('/Customers');
+    expect(app.lastRequest.url).toStrictEqual('/Customers?limit=5');
     expect(Object.keys(app.lastRequest.query)).toStrictEqual(['limit']);
     expect(app.lastRequest.query.limit).toStrictEqual('5');
   });
@@ -155,22 +144,23 @@ describe('Collection.findMany', function () {
         }).toPromise();
     expect(app.lastRequest).toBeDefined();
     expect(app.lastRequest.method).toStrictEqual('GET');
-    expect(app.lastRequest.baseUrl).toStrictEqual('/Customers');
+    expect(app.lastRequest.url).toStrictEqual('/Customers?skip=5');
     expect(Object.keys(app.lastRequest.query)).toStrictEqual(['skip']);
     expect(app.lastRequest.query.skip).toStrictEqual('5');
   });
 
   it('Should send request with "count" param', async () => {
-    const resp = await client.collection('Customers')
+    const body = await client.collection('Customers')
         .findMany({
           count: true
-        }).getResponse();
+        }).getBody();
     expect(app.lastRequest).toBeDefined();
     expect(app.lastRequest.method).toStrictEqual('GET');
-    expect(app.lastRequest.baseUrl).toStrictEqual('/Customers');
+    expect(app.lastRequest.url).toStrictEqual('/Customers?count=true');
     expect(Object.keys(app.lastRequest.query)).toStrictEqual(['count']);
     expect(app.lastRequest.query.count).toStrictEqual('true');
-    expect(resp.totalCount).toStrictEqual(10);
+    expect(body.count).toStrictEqual(10);
+    expect(body.totalMatches).toBeGreaterThan(10);
   });
 
 });

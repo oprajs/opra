@@ -6,20 +6,13 @@ describe('Actions', function () {
 
   let app: MockServer;
   let client: OpraHttpClient;
-  const data = {id: 1, givenName: 'dfd'};
 
   afterAll(() => app.server.close());
-
   afterAll(() => global.gc && global.gc());
 
   beforeAll(async () => {
     app = await createMockServer();
     client = new OpraHttpClient(app.baseUrl, {api: app.api});
-    app.mockHandler((req, res) => {
-      res.header(HttpHeaderCodes.X_Opra_Version, OpraSchema.SpecVersion);
-      res.header(HttpHeaderCodes.Content_Type, 'application/opra+json');
-      res.json({data});
-    })
   });
 
   it('Should return OPRA headers', async () => {
@@ -31,20 +24,21 @@ describe('Actions', function () {
   });
 
   it('Should return body if observe=body or undefined', async () => {
-    const resp = await client.action('auth/login')
-        .getData();
+    const body = await client.action('auth/login', {user: 'john'})
+        .getBody();
     expect(app.lastRequest).toBeDefined();
     expect(app.lastRequest.method).toStrictEqual('GET');
-    expect(app.lastRequest.baseUrl).toStrictEqual('/auth/login');
-    expect(resp).toMatchObject({data});
+    expect(app.lastRequest.url).toStrictEqual('/auth/login?user=john');
+    expect(body.context).toEqual('/auth/login');
+    expect(body.payload).toEqual({user: 'john', token: '123456'});
   });
 
   it('Should return HttpResponse if observe=response', async () => {
-    const resp = await client.action('auth/login')
+    const resp = await client.action('auth/login', {user: 'john'})
         .getResponse();
     expect(app.lastRequest).toBeDefined();
     expect(app.lastRequest.method).toStrictEqual('GET');
-    expect(app.lastRequest.baseUrl).toStrictEqual('/auth/login');
+    expect(app.lastRequest.url).toStrictEqual('/auth/login?user=john');
     expect(resp).toBeInstanceOf(HttpResponse);
   });
 
@@ -67,6 +61,27 @@ describe('Actions', function () {
           },
           error: done
         });
+  });
+
+  it('Should return body with simple type payload', async () => {
+    const body = await client.action('auth/getToken')
+        .getBody();
+    expect(app.lastRequest).toBeDefined();
+    expect(app.lastRequest.method).toStrictEqual('GET');
+    expect(app.lastRequest.url).toStrictEqual('/auth/getToken');
+    expect(body.type).toEqual('opra:string');
+    expect(body.typeUrl).toEqual('https://oprajs.com/spec/v1.0#/types/string');
+    expect(body.payload).toEqual('123456');
+  });
+
+  it('Should return body with other mime', async () => {
+    const body = await client.action('auth/getRawToken')
+        .getBody();
+    expect(app.lastRequest).toBeDefined();
+    expect(app.lastRequest.method).toStrictEqual('GET');
+    expect(app.lastRequest.url).toStrictEqual('/auth/getRawToken');
+    expect(app.lastResponse.getHeader('content-type')).toStrictEqual('text/plain; charset=utf-8');
+    expect(body).toEqual('123456');
   });
 
 });

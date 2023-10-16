@@ -1,4 +1,3 @@
-import { HttpHeaderCodes, OpraSchema } from '@opra/common';
 import { HttpEventType, HttpObserveType, HttpResponse, OpraHttpClient } from '../../src/index.js';
 import { createMockServer, MockServer } from '../_support/create-mock-server.js';
 
@@ -13,21 +12,17 @@ describe('Collection.delete', function () {
   beforeAll(async () => {
     app = await createMockServer();
     client = new OpraHttpClient(app.baseUrl, {api: app.api});
-    app.mockHandler((req, res) => {
-      res.header(HttpHeaderCodes.X_Opra_Version, OpraSchema.SpecVersion);
-      res.header(HttpHeaderCodes.Content_Type, 'application/opra+json');
-      res.end(JSON.stringify({affected: 1}));
-    })
   });
 
   it('Should return body if observe=body or undefined', async () => {
-    const resp = await client.collection('Customers')
+    const body = await client.collection('Customers')
         .delete(1)
-        .getData();
+        .getBody();
     expect(app.lastRequest).toBeDefined();
     expect(app.lastRequest.method).toStrictEqual('DELETE');
-    expect(app.lastRequest.baseUrl).toStrictEqual('/Customers@1');
-    expect(resp).toEqual({affected: 1});
+    expect(app.lastRequest.url).toStrictEqual('/Customers@1');
+    expect(body.context).toEqual('/Customers');
+    expect(body.affected).toEqual(1);
   });
 
   it('Should return HttpResponse if observe=response', async () => {
@@ -36,7 +31,7 @@ describe('Collection.delete', function () {
         .getResponse();
     expect(app.lastRequest).toBeDefined();
     expect(app.lastRequest.method).toStrictEqual('DELETE');
-    expect(app.lastRequest.baseUrl).toStrictEqual('/Customers@1');
+    expect(app.lastRequest.url).toStrictEqual('/Customers@1');
     expect(resp).toBeInstanceOf(HttpResponse);
   });
 
@@ -64,11 +59,11 @@ describe('Collection.delete', function () {
 
   it('Should send "delete" request with multiple keys', async () => {
     await client.collection('Customers')
-        .delete({id: 1, active: true})
+        .delete({_id: 1, active: true})
         .toPromise();
     expect(app.lastRequest).toBeDefined();
     expect(app.lastRequest.method).toStrictEqual('DELETE');
-    expect(app.lastRequest.baseUrl).toStrictEqual('/Customers@id=1;active=true');
+    expect(app.lastRequest.url).toStrictEqual('/Customers@_id=1;active=true');
   });
 
 });

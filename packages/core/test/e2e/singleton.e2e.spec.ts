@@ -28,14 +28,18 @@ describe('e2e:Singleton', function () {
     expect(resp.type).toStrictEqual('application/opra+json');
     expect(resp.body).toBeDefined();
     expect(resp.body.errors).not.toBeDefined();
-    expect(resp.body.context).toStrictEqual('auth/MyProfile');
-    expect(resp.body.operation).toStrictEqual('create');
+    expect(resp.statusCode).toStrictEqual(201);
+    expect(resp.body.context).toStrictEqual('/auth/MyProfile');
+    expect(resp.body.contextUrl).toMatch(/\/#\/root\/resources\/auth\/resources\/MyProfile$/);
+    expect(resp.body.type).toStrictEqual('Profile');
+    expect(resp.body.typeUrl).toMatch(/\/#\/types\/Profile$/);
     expect(resp.body.affected).toStrictEqual(1);
-    expect(resp.body.data).toMatchObject({
+    expect(resp.body.payload).toMatchObject({
       _id: /\d+/,
       givenName: /.+/,
       familyName: /.+/
     });
+
   });
 
   it('Should execute "get" endpoint', async () => {
@@ -44,9 +48,12 @@ describe('e2e:Singleton', function () {
     expect(resp.type).toStrictEqual('application/opra+json');
     expect(resp.body).toBeDefined();
     expect(resp.body.errors).not.toBeDefined();
-    expect(resp.body.context).toStrictEqual('auth/MyProfile');
-    expect(resp.body.operation).toStrictEqual('get');
-    expect(resp.body.data).toMatchObject({
+    expect(resp.statusCode).toStrictEqual(200);
+    expect(resp.body.context).toStrictEqual('/auth/MyProfile');
+    expect(resp.body.contextUrl).toMatch(/\/#\/root\/resources\/auth\/resources\/MyProfile$/);
+    expect(resp.body.type).toStrictEqual('Profile');
+    expect(resp.body.typeUrl).toMatch(/\/#\/types\/Profile$/);
+    expect(resp.body.payload).toMatchObject({
       _id: /\d+/,
       givenName: /.+/,
       familyName: /.+/
@@ -62,10 +69,13 @@ describe('e2e:Singleton', function () {
     expect(resp.type).toStrictEqual('application/opra+json');
     expect(resp.body).toBeDefined();
     expect(resp.body.errors).not.toBeDefined();
-    expect(resp.body.context).toStrictEqual('auth/MyProfile');
-    expect(resp.body.operation).toStrictEqual('update');
+    expect(resp.statusCode).toStrictEqual(200);
+    expect(resp.body.context).toStrictEqual('/auth/MyProfile');
+    expect(resp.body.contextUrl).toMatch(/\/#\/root\/resources\/auth\/resources\/MyProfile$/);
+    expect(resp.body.type).toStrictEqual('Profile');
+    expect(resp.body.typeUrl).toMatch(/\/#\/types\/Profile$/);
     expect(resp.body.affected).toStrictEqual(1);
-    expect(resp.body.data).toMatchObject({
+    expect(resp.body.payload).toMatchObject({
       _id: /\d+/,
       givenName: /.+/,
       familyName: /.+/,
@@ -79,8 +89,9 @@ describe('e2e:Singleton', function () {
     expect(resp.type).toStrictEqual('application/opra+json');
     expect(resp.body).toBeDefined();
     expect(resp.body.errors).not.toBeDefined();
-    expect(resp.body.context).toStrictEqual('auth/MyProfile');
-    expect(resp.body.operation).toStrictEqual('delete');
+    expect(resp.statusCode).toStrictEqual(200);
+    expect(resp.body.context).toStrictEqual('/auth/MyProfile');
+    expect(resp.body.contextUrl).toMatch(/\/#\/root\/resources\/auth\/resources\/MyProfile$/);
     expect(resp.body.affected).toStrictEqual(1);
   });
 

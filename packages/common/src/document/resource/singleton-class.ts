@@ -17,50 +17,50 @@ export class SingletonClass extends CrudResource {
     // ------------------
     let endpoint = this.operations.get('create');
     if (endpoint) {
-      endpoint.returnType = this.type;
-      endpoint.decode = this.type.generateCodec('decode', {
+      endpoint.defineParameter('pick', {type: 'string', isArray: true, isBuiltin: true});
+      endpoint.defineParameter('omit', {type: 'string', isArray: true, isBuiltin: true});
+      endpoint.defineParameter('include', {type: 'string', isArray: true, isBuiltin: true});
+      endpoint.decodeInput = this.type.generateCodec('decode', {
         partial: true,
         pick: endpoint.inputPickFields,
         omit: endpoint.inputOmitFields,
       })
-      endpoint.encodeReturning = this.type.generateCodec('encode', {
+      endpoint.returnType = this.type;
+      endpoint.encodeReturning = endpoint.returnType.generateCodec('encode', {
         partial: true,
         pick: endpoint.outputPickFields,
         omit: endpoint.outputOmitFields,
       })
-      endpoint.defineParameter('pick', {type: 'string', isArray: true, isBuiltin: true});
-      endpoint.defineParameter('omit', {type: 'string', isArray: true, isBuiltin: true});
-      endpoint.defineParameter('include', {type: 'string', isArray: true, isBuiltin: true});
     }
     // ------------------
     endpoint = this.operations.get('get');
     if (endpoint) {
+      endpoint.defineParameter('pick', {type: 'string', isArray: true, isBuiltin: true});
+      endpoint.defineParameter('omit', {type: 'string', isArray: true, isBuiltin: true});
+      endpoint.defineParameter('include', {type: 'string', isArray: true, isBuiltin: true});
       endpoint.returnType = this.type;
-      endpoint.encodeReturning = this.type.generateCodec('encode', {
+      endpoint.encodeReturning = endpoint.returnType.generateCodec('encode', {
         partial: true,
         pick: endpoint.outputPickFields,
         omit: endpoint.outputOmitFields,
       })
-      endpoint.defineParameter('pick', {type: 'string', isArray: true, isBuiltin: true});
-      endpoint.defineParameter('omit', {type: 'string', isArray: true, isBuiltin: true});
-      endpoint.defineParameter('include', {type: 'string', isArray: true, isBuiltin: true});
     }
     // ------------------
     endpoint = this.operations.get('update');
     if (endpoint) {
-      endpoint.returnType = this.type;
-      endpoint.decode = this.type.generateCodec('decode', {
+      endpoint.defineParameter('pick', {type: 'string', isArray: true, isBuiltin: true});
+      endpoint.defineParameter('omit', {type: 'string', isArray: true, isBuiltin: true});
+      endpoint.defineParameter('include', {type: 'string', isArray: true, isBuiltin: true});
+      endpoint.decodeInput = this.type.generateCodec('decode', {
         pick: endpoint.inputPickFields,
         omit: endpoint.inputOmitFields,
       })
-      endpoint.encodeReturning = this.type.generateCodec('encode', {
+      endpoint.returnType = this.type;
+      endpoint.encodeReturning = endpoint.returnType.generateCodec('encode', {
         partial: true,
         pick: endpoint.outputPickFields,
         omit: endpoint.outputOmitFields,
       })
-      endpoint.defineParameter('pick', {type: 'string', isArray: true, isBuiltin: true});
-      endpoint.defineParameter('omit', {type: 'string', isArray: true, isBuiltin: true});
-      endpoint.defineParameter('include', {type: 'string', isArray: true, isBuiltin: true});
     }
   }
 

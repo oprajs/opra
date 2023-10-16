@@ -14,7 +14,7 @@ export class PhotosResource {
   constructor(public photosService: PhotosService) {
   }
 
-  @Collection.Action()
+  @Collection.Action({returnType: 'object'})
   sendMessage(@Context ctx: Collection.Action.Context) {
     return {ok: true, message: ctx.request.params.message};
   }

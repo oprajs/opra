@@ -17,6 +17,8 @@ import { ApiField } from '../data-type/field.js';
 import { MappedType } from '../data-type/mapped-type.js';
 import { SimpleType } from '../data-type/simple-type.js';
 import { UnionType } from '../data-type/union-type.js';
+import { MetadataMode } from '../resource/enums/metadata-mode.enum.js';
+import { OperationResult } from '../resource/types/operation-result.type.js';
 import { TypeDocument } from '../type-document.js';
 
 export namespace TypeDocumentFactory {
@@ -75,7 +77,7 @@ export class TypeDocumentFactory {
       Object.assign(this.document.info, init.info);
     if (!init?.noBuiltinTypes) {
       const builtinDocument = await this.createBuiltinTypeDocument();
-      this.document.references.set('Opra', builtinDocument);
+      this.document.references.set('opra', builtinDocument);
     }
 
     if (init.references)
@@ -118,13 +120,10 @@ export class TypeDocumentFactory {
   protected async createBuiltinTypeDocument(): Promise<TypeDocument> {
     const init: TypeDocumentFactory.InitArguments = {
       version: OpraSchema.SpecVersion,
+      url: 'https://oprajs.com/spec/v1.0',
       info: {
         version: OpraSchema.SpecVersion,
         title: 'Opra built-in types',
-        contact: [{
-          url: 'https://github.com/oprajs/opra'
-        }
-        ],
         license: {
           url: 'https://github.com/oprajs/opra/blob/main/LICENSE',
           name: 'MIT'
@@ -133,7 +132,8 @@ export class TypeDocumentFactory {
       types: [AnyType, Base64Type, BigintType, BooleanType,
         DateType, UuidType, IntegerType, NullType,
         NumberType, ObjectType, ObjectIdType, StringType,
-        TimeType, TimestampType
+        TimeType, TimestampType,
+        OperationResult, MetadataMode,
       ]
     }
     const factory = new TypeDocumentFactory();
@@ -159,13 +159,17 @@ export class TypeDocumentFactory {
   ): Promise<DataType> {
     thunk = await resolveThunk(thunk);
     let name = '';
-    let schema: OpraSchema.DataType | undefined;
+    // let schema: OpraSchema.DataType | undefined;
     let ctor: Type | undefined;
 
     if (typeof thunk === 'string') {
       name = thunk;
-      schema = this.typeQueue.get(name);
-    } else if (typeof thunk === 'function') {
+      thunk = this.typeQueue.get(name);
+    }
+
+    let initArguments: any;
+
+    if (typeof thunk === 'function') {
       const metadata = Reflect.getMetadata(DATATYPE_METADATA, thunk);
       if (!metadata) {
         // Check if is an internal type class like String, Number etc
@@ -174,25 +178,24 @@ export class TypeDocumentFactory {
         throw new TypeError(`Class "${thunk.name}" doesn't have a valid DataType metadata`);
       }
       name = metadata.name;
-      schema = metadata;
+      initArguments = cloneObject(metadata);
       ctor = thunk as Type;
     } else if (typeof thunk === 'object') {
       if (OpraSchema.isDataType(thunk)) {
         name = (thunk as any).name;
         ctor = (thunk as any).ctor || ctor;
-        schema = thunk;
+        initArguments = cloneObject(thunk) as any;
       } else {
         // It should be an enum object
         const metadata = thunk[DATATYPE_METADATA];
         if (!metadata)
           throw new TypeError(`No EnumType metadata found for object ${JSON.stringify(thunk).substring(0, 20)}...`);
         name = metadata.name;
-        const dataType = this.document.getDataType(name, true);
-        if (dataType) return dataType;
-        schema = cloneObject(metadata) as OpraSchema.DataType;
+        initArguments = cloneObject(metadata);
+        initArguments.enumObject = thunk;
       }
     }
-    ctor = ctor ?? (schema && (isConstructor((schema as any).ctor)) ? (schema as any).ctor : undefined);
+    ctor = ctor ?? (initArguments && (isConstructor(initArguments.ctor)) ? initArguments.ctor : undefined);
 
     if (name) {
       if (this.circularRefs.has(name.toLowerCase()))
@@ -209,17 +212,17 @@ export class TypeDocumentFactory {
       if (dataType) return dataType;
       this.circularRefs.set(ctor, 1);
     }
+
     try {
-      if (!OpraSchema.isDataType(schema))
+      if (!initArguments)
         throw new TypeError(`No DataType schema determined`);
 
       // Create an empty DataType instance and add in to document.
       // This will help us for circular dependent data types
-      const instance = this.createDataTypeInstance(schema.kind, name);
+      const instance = this.createDataTypeInstance(initArguments.kind, name);
       if (name)
         this.document.types.set(name, instance);
 
-      const initArguments = cloneObject(schema) as TypeDocumentFactory.DataTypeInitializer;
       await this.prepareDataTypeInitArguments(initArguments, ctor);
 
       if (initArguments.kind === 'ComplexType')
@@ -233,7 +236,7 @@ export class TypeDocumentFactory {
       else if (initArguments.kind === 'UnionType')
         UnionType.apply(instance, [this.document, initArguments] as any);
       else
-        throw new TypeError(`Invalid data type schema: ${String(schema)}`);
+        throw new TypeError(`Invalid data type schema: ${String(initArguments)}`);
 
       return instance;
     } finally {
@@ -297,7 +300,7 @@ export class TypeDocumentFactory {
               if (enumObject[DATATYPE_METADATA]) {
                 fieldInit.type = await this.importDataType(enumObject);
               } else {
-                const enumMeta = EnumType(enumObject);
+                const enumMeta = EnumType(enumObject, {name: ''});
                 fieldInit.type = await this.importDataType({...enumMeta, kind: 'EnumType', base: undefined});
               }
             } else {

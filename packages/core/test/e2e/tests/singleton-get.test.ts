@@ -76,7 +76,7 @@ export function singletonGetTests(args: { client: OpraTestClient }) {
           .toSuccess()
           .toReturnObject()
           .toHaveFields(['address']);
-      expect(resp.body.data.address).toBeDefined();
+      expect(resp.body.payload.address).toBeDefined();
     })
 
   })

@@ -72,7 +72,7 @@ export class OpraHttpClient<TResponseExt = {}> {
       url: '',
       headers: {'accept': 'application/json'}
     })
-    this._metadataPromise = promise = controller.getData();
+    this._metadataPromise = promise = controller.getBody();
     return await promise
         .then(async (body) => {
           if (!body)

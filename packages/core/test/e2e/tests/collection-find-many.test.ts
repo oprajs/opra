@@ -44,7 +44,7 @@ export function collectionSearchTests(args: { client: OpraTestClient }) {
           .toSuccess()
           .toReturnCollection()
           .toHaveMinItems(1);
-      expect(resp.body?.data[0]._id).toBeGreaterThanOrEqual(10);
+      expect(resp.body.payload?.[0]._id).toBeGreaterThanOrEqual(10);
     })
 
     it('Test "pick" option', async () => {
@@ -85,8 +85,7 @@ export function collectionSearchTests(args: { client: OpraTestClient }) {
       resp.expect
           .toSuccess()
           .toReturnCollection();
-      expect(resp.totalCount).toBeGreaterThanOrEqual(100);
-      expect(resp.body?.totalCount).toBeGreaterThanOrEqual(100);
+      expect(resp.body.totalMatches).toBeGreaterThanOrEqual(100);
     })
 
   })

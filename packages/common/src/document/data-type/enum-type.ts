@@ -11,7 +11,7 @@ import { EnumTypeClass } from './enum-type-class.js';
 export interface EnumTypeConstructor {
   new(document: ApiDocument, init?: EnumType.InitArguments): EnumType;
 
-  <T extends EnumType.EnumObject | EnumType.EnumArray>(target: T, options?: EnumType.Options<T>): EnumType.Metadata;
+  <T extends EnumType.EnumObject | EnumType.EnumArray>(target: T, options: EnumType.Options<T>): EnumType.Metadata;
 }
 
 export interface EnumType extends EnumTypeClass {
@@ -84,7 +84,7 @@ export namespace EnumType {
       Keys extends (string | number | symbol) =
           T extends readonly any[] ? T[number] : keyof T
   > extends DataType.DecoratorOptions {
-    name?: string;
+    name: string;
     base?: EnumObject;
     meanings?: Record<Keys, string>;
   }

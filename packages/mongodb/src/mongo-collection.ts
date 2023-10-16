@@ -70,7 +70,7 @@ export abstract class MongoCollection<T extends mongodb.Document> implements ICo
         service.find(prepared.filter, prepared.options),
         service.count(prepared.filter, prepared.options)
       ]);
-      ctx.response.count = count;
+      ctx.response.totalMatches = count;
       return items;
     }
     return service.find(prepared.filter, prepared.options);

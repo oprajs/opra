@@ -10,13 +10,24 @@ export class AuthController {
   @Container.Action()
       .Parameter('user', String)
       .Parameter('password', 'string')
-  login() {
-    //
+      .Returns('any')
+  login(ctx: Container.Action.Context) {
+    return {user: ctx.request.params.user, token: '123456'}
   }
 
   @Container.Action()
   logout() {
     //
+  }
+
+  @Container.Action({returnType: 'string'})
+  getToken() {
+    return '123456'
+  }
+
+  @Container.Action({returnMime: 'text/plain'})
+  getRawToken() {
+    return '123456'
   }
 
 }

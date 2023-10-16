@@ -172,17 +172,36 @@ export class ComplexTypeClass extends DataType {
   }
 
   generateCodec(codec: 'decode' | 'encode', options?: DataType.GenerateCodecOptions): vg.Validator {
-    const schema: vg.ObjectSchema = {};
-    for (const f of this.fields.values()) {
-      // todo omit, pick
-      schema[f.name] = f.generateCodec(codec, options);
-    }
+    const schema = this._generateCodecSchema(codec, options);
     return vg.isObject(schema, {
       ctor: this.ctor,
       additionalFields: this.additionalFields ?? false,
       name: this.name,
       caseInSensitive: !options?.caseSensitive
     })
+  }
+
+  protected _generateCodecSchema(codec: 'decode' | 'encode', options?: DataType.GenerateCodecOptions): vg.ObjectSchema {
+    const schema: vg.ObjectSchema = {};
+    const pickOption = (options?.pick || []).map(x => x.toLowerCase());
+    const omitOption = (options?.omit || []).map(x => x.toLowerCase());
+    for (const f of this.fields.values()) {
+      const nameLower = f.name.toLowerCase();
+      if (omitOption.find(x => x === nameLower))
+        continue;
+      if (pickOption.length && !pickOption.find(x => x === nameLower || x.startsWith(nameLower + '.')))
+        continue;
+      schema[f.name] = f.generateCodec(codec, {
+        ...options,
+        pick: pickOption
+            .filter(x => x.startsWith(nameLower + '.'))
+            .map(x => x.substring(x.indexOf('.') + 1)),
+        omit: omitOption
+            .filter(x => x.startsWith(nameLower + '.'))
+            .map(x => x.substring(x.indexOf('.') + 1)),
+      });
+    }
+    return schema;
   }
 
 }

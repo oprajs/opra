@@ -15,7 +15,7 @@ export namespace RequestContext {
   ): RequestContext {
     const out = {
       request,
-      response,
+      response
     } as RequestContext;
     Object.setPrototypeOf(out, executionContext);
     return out;

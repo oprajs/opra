@@ -1,7 +1,7 @@
 import { ApiDocument } from '@opra/common';
 import { Request } from '@opra/core';
 import { ElasticAdapter } from '@opra/elastic';
-import { createTestApp } from '../../../sqb/test/_support/test-app/index.js';
+import { createTestApp } from '../../sqb/test/_support/test-app/index.js';
 
 describe('ElasticAdapter.transformRequest (Collection)', function () {
 

@@ -4,15 +4,15 @@ import { ResponsiveMap } from '../helpers/index.js';
 import { OpraSchema } from '../schema/index.js';
 import { DATATYPE_METADATA, NAMESPACE_PATTERN } from './constants.js';
 import { ComplexType } from './data-type/complex-type.js';
-import type { DataType } from './data-type/data-type.js';
+import { DataType } from './data-type/data-type.js';
 import { EnumType } from './data-type/enum-type.js';
 import { SimpleType } from './data-type/simple-type.js';
 import { DocumentBase } from './document-base.js';
 
 export class TypeDocument extends DocumentBase {
   protected _designCtorMap = new Map<Type | Function, string>();
-  protected _typeCache = new ResponsiveMap<DataType>();
-  protected _typesCacheByCtor = new Map<Type | object, DataType>();
+  protected _typeIndex = new Map<Type | object | string, DataType>();
+  protected _typeNsMap = new Map<DataType, string>();
   references = new ResponsiveMap<TypeDocument>();
   types = new ResponsiveMap<DataType>();
 
@@ -52,28 +52,39 @@ export class TypeDocument extends DocumentBase {
       if (x) arg0 = x;
     }
 
-    let dataType: DataType | undefined;
-    let name: string;
-    // Determine name
-    if (typeof arg0 === 'function') {
-      const metadata = Reflect.getMetadata(DATATYPE_METADATA, arg0);
-      name = metadata?.name || arg0.name;
-    } else if (typeof arg0 === 'function') {
-      const metadata = Reflect.getMetadata(DATATYPE_METADATA, arg0);
-      name = metadata?.name;
-    } else name = String(arg0);
-
     // Try to get instance from cache
     const t = typeof arg0 === 'string'
-        ? this._typeCache.get(arg0)
-        : this._typesCacheByCtor.get(arg0);
+        ? this._typeIndex.get(arg0.toLowerCase())
+        : this._typeIndex.get(arg0);
     if (t)
       return t;
-    // If cached as null, it means "not found"
+
+    // Determine name
+    let name: string;
+    if (typeof arg0 === 'string')
+      name = arg0;
+    else if (arg0 instanceof DataType)
+      name = arg0.name || '';
+    else {
+      const metadata = typeof arg0 === 'function'
+          ? Reflect.getMetadata(DATATYPE_METADATA, arg0) : arg0?.[DATATYPE_METADATA];
+      if (!metadata) {
+        /* istanbul ignore next */
+        if (!silent)
+          throw new TypeError('Invalid argument');
+        return;
+      }
+      name = metadata.name;
+    }
+
+    // If cached as null, it means "not found" before
     if (t === null) {
       if (silent) return;
       throw new Error(`Data type "${name}" does not exists`);
     }
+
+    let dataType: DataType | undefined;
+    let ns = '';
 
     if (typeof arg0 === 'string' && arg0) {
       const m = NAMESPACE_PATTERN.exec(arg0);
@@ -81,7 +92,8 @@ export class TypeDocument extends DocumentBase {
         throw new TypeError(`Invalid data type name "${name}"`);
       // If given string has namespace pattern (ns:type_name)
       if (m[2]) {
-        const ref = this.references.get(m[1]);
+        ns = m[1];
+        const ref = this.references.get(ns);
         if (!ref) {
           if (silent) return;
           throw new Error(`No referenced document found for given namespace "${m[1]}"`);
@@ -92,64 +104,74 @@ export class TypeDocument extends DocumentBase {
         dataType = this.types.get(arg0);
         // if not found, search in references (from last to first)
         if (!dataType) {
-          const references = Array.from(this.references.values()).reverse();
-          for (const ref of references) {
+          const references = Array.from(this.references.keys()).reverse();
+          for (const refNs of references) {
+            const ref = this.references.get(refNs) as TypeDocument;
             dataType = ref.getDataType(name, true);
-            if (dataType)
+            if (dataType) {
+              ns = refNs;
               break;
+            }
           }
         }
       }
-      if (dataType) {
-        this._typeCache.set(arg0, dataType);
-        return dataType;
-      }
-      if (!silent)
-        throw new NotFoundError(`Data type "${arg0}" does not exists`);
-      return;
-    }
-
-    if (typeof arg0 === 'function') {
+    } else {
       const types = Array.from(this.types.values()).reverse();
       for (const dt of types) {
-        if (dt instanceof ComplexType && dt.isTypeOf(arg0)) {
+        if (dt === arg0 ||
+            ((dt instanceof ComplexType || dt instanceof EnumType) && dt.isTypeOf(arg0))
+        ) {
           dataType = dt;
           break;
         }
       }
       // if not found, search in references (from last to first)
       if (!dataType) {
-        const references = Array.from(this.references.values()).reverse();
-        for (const ref of references) {
+        const references = Array.from(this.references.keys()).reverse();
+        for (const refNs of references) {
+          const ref = this.references.get(refNs) as TypeDocument;
           dataType = ref.getDataType(arg0, true);
-          if (dataType)
+          if (dataType) {
+            ns = refNs;
             break;
+          }
         }
       }
-      if (dataType)
-        this._typesCacheByCtor.set(arg0, dataType);
-
-      if (dataType)
-        return dataType;
-      if (!silent)
-        throw new Error(`No data type mapping found for class "${name}"`);
-      return;
     }
 
-    if (typeof arg0 === 'object') {
-      const metadata = arg0[DATATYPE_METADATA];
-      if (metadata && metadata.name) {
-        dataType = this.getDataType(metadata.name, true);
-        if (dataType)
-          return dataType;
-        if (!silent)
-          throw new Error(`No data type mapping found for class "${name}"`);
-      }
+    if (dataType) {
+      this._typeIndex.set(arg0, dataType);
+      if (ns)
+        this._typeNsMap.set(dataType, ns);
+      return dataType;
     }
+    if (!silent)
+      throw new NotFoundError(`Data type "${name}" does not exists`);
+    return;
 
     /* istanbul ignore next */
     if (!silent)
       throw new TypeError('Invalid argument');
+  }
+
+  /**
+   * Returns NS of datatype. Returns undefined if not found
+   * @param nameOrCtor
+   * @param silent
+   */
+  getDataTypeNs(nameOrCtor: any, silent: true): string | undefined;
+  /**
+   * Returns NS of datatype. Throws error  if not found
+   * @param nameOrCtor
+   */
+  getDataTypeNs(nameOrCtor: any): string;
+  /**
+   *
+   */
+  getDataTypeNs(arg0: any, silent?: boolean): string | undefined {
+    const dt = this.getDataType(arg0, silent as any);
+    if (dt)
+      return this._typeNsMap.get(dt);
   }
 
   /**
@@ -244,8 +266,8 @@ export class TypeDocument extends DocumentBase {
   }
 
   invalidate() {
-    this._typeCache.clear();
-    this._typesCacheByCtor.clear();
+    this._typeIndex.clear();
+    this._typeNsMap.clear();
   }
 
 }

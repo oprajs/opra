@@ -7,9 +7,7 @@ export interface ExecutionContext {
   readonly protocol: Protocol;
 
   readonly platform: string;
-
-  errors: Error[];
-
+  
   switchToHttp(): HttpMessageContext;
 
   switchToWs(): WsMessageContext;

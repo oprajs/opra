@@ -1,19 +1,17 @@
 import { lastValueFrom, Observable } from 'rxjs';
 import { isReadableStreamLike } from 'rxjs/internal/util/isReadableStreamLike';
+import typeIs from 'type-is';
 import { isBlob, OpraURL } from '@opra/common';
 import type { OpraHttpClient } from '../client.js';
 import { ClientError } from '../client-error.js';
-import {
-  FORMDATA_CONTENT_TYPE_PATTERN,
-  JSON_CONTENT_TYPE_PATTERN,
-  kClient, kContext,
-  OPRA_JSON_CONTENT_TYPE_PATTERN,
-  TEXT_CONTENT_TYPE_PATTERN
-} from '../constants.js';
+import { kClient, kContext } from '../constants.js';
 import { HttpObserveType } from '../enums/index.js';
 import {
-  HttpEvent, HttpEventType, HttpResponseEvent,
-  HttpResponseHeaderEvent, HttpSentEvent
+  HttpEvent,
+  HttpEventType,
+  HttpResponseEvent,
+  HttpResponseHeaderEvent,
+  HttpSentEvent
 } from '../interfaces/index.js';
 import { RequestInterceptor, ResponseInterceptor, URLSearchParamsInit } from '../types.js';
 import { HttpRequest } from './http-request.js';
@@ -44,7 +42,7 @@ const kIntlObservable = Symbol.for('kIntlObservable');
 /**
  * @class HttpRequestObservable
  */
-export class HttpRequestObservable<TBody = any, TResponseExt = {}> extends Observable<TBody> {
+export class HttpRequestObservable<TPayload = any, TResponseExt = {}> extends Observable<TPayload> {
   [kClient]: OpraHttpClient;
   [kIntlObservable]: Observable<HttpEvent>;
   request: HttpRequest;
@@ -122,29 +120,46 @@ export class HttpRequestObservable<TBody = any, TResponseExt = {}> extends Obser
     return this;
   }
 
-  observe(observe: HttpObserveType.Body): Observable<TBody>
+  observe(): Observable<TPayload>
+  observe(observe: HttpObserveType.Body): Observable<any>
   observe(observe: HttpObserveType.ResponseHeader): Observable<HttpResponse<void> & TResponseExt>
-  observe(observe: HttpObserveType.Response): Observable<HttpResponse<TBody> & TResponseExt>
+  observe(observe: HttpObserveType.Response): Observable<HttpResponse<any> & TResponseExt>
   observe(observe: HttpObserveType.Events): Observable<HttpEvent>
   observe(observe?: HttpObserveType): Observable<any> {
+    observe = observe || HttpObserveType.Body;
     return new Observable<any>((subscriber) => {
       this[kIntlObservable].subscribe((event) => {
             if (observe === HttpObserveType.Events) {
               subscriber.next(event);
               return;
             }
+
             if (observe === HttpObserveType.ResponseHeader && event.event === HttpEventType.ResponseHeader) {
               subscriber.next(event.response);
               subscriber.complete();
               return;
             }
-            if (observe === HttpObserveType.Body && event.event === HttpEventType.Response) {
-              subscriber.next(event.response.body);
-              subscriber.complete();
-              return;
-            }
+
             if (event.event === HttpEventType.Response) {
-              subscriber.next(event.response);
+              const {response} = event;
+              const isOpraResponse = typeIs.is(event.response.contentType || '', ['application/opra+json']);
+              if (observe === HttpObserveType.Response) {
+                subscriber.next(response);
+                subscriber.complete();
+                return;
+              }
+
+              if (response.status >= 400 && response.status < 600) {
+                subscriber.error(new ClientError({
+                  message: response.status + ' ' + response.statusText,
+                  status: response.status,
+                  issues: isOpraResponse ? response.body.errors : undefined
+                }));
+                subscriber.complete();
+                return;
+              }
+
+              subscriber.next(event.response.body);
               subscriber.complete();
             }
           },
@@ -154,15 +169,15 @@ export class HttpRequestObservable<TBody = any, TResponseExt = {}> extends Obser
     });
   }
 
-  toPromise(): Promise<TBody> {
-    return this.getData();
+  toPromise(): Promise<TPayload> {
+    return this.getBody();
   }
 
-  getData(): Promise<TBody> {
+  getBody(): Promise<TPayload> {
     return lastValueFrom(this.observe(HttpObserveType.Body));
   }
 
-  getResponse(): Promise<HttpResponse<TBody> & TResponseExt> {
+  getResponse(): Promise<HttpResponse<TPayload> & TResponseExt> {
     return lastValueFrom(this.observe(HttpObserveType.Response));
   }
 
@@ -188,6 +203,7 @@ export class HttpRequestObservable<TBody = any, TResponseExt = {}> extends Obser
         // Send request
         const url = new OpraURL(request.url, clientContext.serviceUrl);
         const fetchResponse = await clientContext.fetch(url.toString(), request);
+        const contentType = (fetchResponse.headers.get('content-type') || '').split(';')[0];
 
         // Emit 'response-header' event
         const headersResponse = clientContext.createResponse({
@@ -195,7 +211,8 @@ export class HttpRequestObservable<TBody = any, TResponseExt = {}> extends Obser
           headers: fetchResponse.headers,
           status: fetchResponse.status,
           statusText: fetchResponse.statusText,
-          hasBody: !!fetchResponse.body
+          hasBody: !!fetchResponse.body,
+          contentType
         })
         subscriber.next({
           request,
@@ -204,33 +221,18 @@ export class HttpRequestObservable<TBody = any, TResponseExt = {}> extends Obser
         } satisfies HttpResponseHeaderEvent);
 
         // Parse body
-        const body: TBody | undefined = fetchResponse.body
+        const body: TPayload | undefined = fetchResponse.body
             ? await this._parseBody(fetchResponse)
             : undefined;
 
-        // Handle errors
-        if (fetchResponse.status >= 400 && fetchResponse.status <= 599) {
-          subscriber.error(new ClientError({
-            message: fetchResponse.status + ' ' + fetchResponse.statusText,
-            status: fetchResponse.status,
-            issues: (body as any).errors
-          }));
-          subscriber.complete();
-          return;
-        }
-
         // Create response
-        const contentType = fetchResponse.headers.get('Content-Type') || '';
         const responseInit: HttpResponse.Initiator = {
           url: fetchResponse.url,
           headers: fetchResponse.headers,
           status: fetchResponse.status,
           statusText: fetchResponse.statusText,
+          contentType,
           body,
-        }
-        if (OPRA_JSON_CONTENT_TYPE_PATTERN.test(contentType)) {
-          responseInit.totalCount = (body as any)?.totalCount;
-          responseInit.affected = (body as any)?.affected;
         }
         const response = clientContext.createResponse(responseInit);
 
@@ -288,16 +290,16 @@ export class HttpRequestObservable<TBody = any, TResponseExt = {}> extends Obser
     }
   }
 
-  protected async _parseBody(fetchResponse: Response): Promise<TBody> {
+  protected async _parseBody(fetchResponse: Response): Promise<TPayload> {
     let body: any;
-    const contentType = fetchResponse.headers.get('Content-Type') || '';
-    if (JSON_CONTENT_TYPE_PATTERN.test(contentType)) {
+    const contentType = (fetchResponse.headers.get('Content-Type') || '');
+    if (typeIs.is(contentType, ['json', 'application/*+json'])) {
       body = await fetchResponse.json();
       if (typeof body === 'string')
         body = JSON.parse(body);
-    } else if (TEXT_CONTENT_TYPE_PATTERN.test(contentType))
+    } else if (typeIs.is(contentType, ['text']))
       body = await fetchResponse.text();
-    else if (FORMDATA_CONTENT_TYPE_PATTERN.test(contentType))
+    else if (typeIs.is(contentType, ['multipart']))
       body = await fetchResponse.formData();
     else {
       const buf = await fetchResponse.arrayBuffer();

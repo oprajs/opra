@@ -69,7 +69,7 @@ export abstract class SqbCollection<T> implements ICollection<T> {
         service.findMany(prepared.options),
         service.count(prepared.options)
       ]);
-      ctx.response.count = count;
+      ctx.response.totalMatches = count;
       return items;
     } else
       return service.findMany(prepared.options);

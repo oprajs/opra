@@ -56,7 +56,7 @@ describe('OpraModule (async existing)', function () {
     const r = await request(server)
         .get('/svc1/Photos@1');
     expect(r.status).toStrictEqual(200);
-    expect(r.body.data).toStrictEqual(photosData[0]);
+    expect(r.body.payload).toStrictEqual(photosData[0]);
   });
 
 });

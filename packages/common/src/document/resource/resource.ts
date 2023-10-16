@@ -41,12 +41,14 @@ export abstract class Resource {
     }
   }
 
-  getFullPath(): string {
-    if (this.parent && this.parent.name)
-      return this.parent?.getFullPath() + '/' + this.name;
-    return this.name;
+  getFullPath(documentPath?: boolean): string {
+    if ((this as any) === this.document.root)
+      return documentPath ? '/root' : '/';
+    let out = this.parent?.getFullPath(documentPath);
+    if (!out?.endsWith('/'))
+      out += '/';
+    return out + (documentPath ? 'resources/' : '') + this.name;
   }
-
 
   exportSchema(options?: { webSafe?: boolean }): OpraSchema.ResourceBase {
     const schema = omitUndefined<OpraSchema.ResourceBase>({

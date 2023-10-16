@@ -15,7 +15,6 @@ export class ExecutionContextHost extends AsyncEventEmitter implements Execution
   readonly http?: HttpMessageContext;
   readonly ws?: WsMessageContext;
   readonly rpc?: RpcMessageContext;
-  errors: Error[] = [];
 
   constructor(
       readonly api: ApiDocument,

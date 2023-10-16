@@ -44,7 +44,7 @@ describe('OpraModule', function () {
         .get('/api/svc1/Photos@1');
     expect(r.body.errors).toStrictEqual(undefined);
     expect(r.status).toStrictEqual(200);
-    expect(r.body.data).toStrictEqual(photosData[0]);
+    expect(r.body.payload).toStrictEqual(photosData[0]);
   });
 
 });

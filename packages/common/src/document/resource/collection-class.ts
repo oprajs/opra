@@ -34,48 +34,46 @@ export class CollectionClass extends CrudResource {
     // ------------------
     let endpoint = this.operations.get('create');
     if (endpoint) {
-      endpoint.returnType = this.type;
-      endpoint.decode = this.type.generateCodec('decode', {
+      // endpoint.defineParameter('metadata', {enum: MetadataMode, isBuiltin: true, default: 'minimal'});
+      endpoint.defineParameter('pick', {type: 'string', isArray: true, isBuiltin: true});
+      endpoint.defineParameter('omit', {type: 'string', isArray: true, isBuiltin: true});
+      endpoint.defineParameter('include', {type: 'string', isArray: true, isBuiltin: true});
+      endpoint.decodeInput = this.type.generateCodec('decode', {
         partial: true,
         pick: endpoint.inputPickFields,
         omit: endpoint.inputOmitFields,
       })
-      endpoint.encodeReturning = this.type.generateCodec('encode', {
+      endpoint.returnType = this.type;
+      endpoint.encodeReturning = endpoint.returnType.generateCodec('encode', {
         partial: true,
         pick: endpoint.outputPickFields,
         omit: endpoint.outputOmitFields,
       })
-      endpoint.defineParameter('pick', {type: 'string', isArray: true, isBuiltin: true});
-      endpoint.defineParameter('omit', {type: 'string', isArray: true, isBuiltin: true});
-      endpoint.defineParameter('include', {type: 'string', isArray: true, isBuiltin: true});
     }
     // ------------------
     endpoint = this.operations.get('deleteMany');
     if (endpoint) {
+      // endpoint.defineParameter('metadata', {enum: MetadataMode, isBuiltin: true});
       endpoint.defineParameter('filter', {type: 'string', isBuiltin: true});
     }
     // ------------------
     endpoint = this.operations.get('get');
     if (endpoint) {
+      // endpoint.defineParameter('metadata', {enum: MetadataMode, isBuiltin: true, default: 'minimal'});
+      endpoint.defineParameter('pick', {type: 'string', isArray: true, isBuiltin: true});
+      endpoint.defineParameter('omit', {type: 'string', isArray: true, isBuiltin: true});
+      endpoint.defineParameter('include', {type: 'string', isArray: true, isBuiltin: true});
       endpoint.returnType = this.type;
-      endpoint.encodeReturning = this.type.generateCodec('encode', {
+      endpoint.encodeReturning = endpoint.returnType.generateCodec('encode', {
         partial: true,
         pick: endpoint.outputPickFields,
         omit: endpoint.outputOmitFields,
       })
-      endpoint.defineParameter('pick', {type: 'string', isArray: true, isBuiltin: true});
-      endpoint.defineParameter('omit', {type: 'string', isArray: true, isBuiltin: true});
-      endpoint.defineParameter('include', {type: 'string', isArray: true, isBuiltin: true});
     }
     // ------------------
     endpoint = this.operations.get('findMany');
     if (endpoint) {
-      endpoint.returnType = this.type;
-      endpoint.encodeReturning = vg.isArray(this.type.generateCodec('encode', {
-        partial: true,
-        pick: endpoint.outputPickFields,
-        omit: endpoint.outputOmitFields,
-      }))
+      // endpoint.defineParameter('metadata', {enum: MetadataMode, isBuiltin: true, default: 'minimal'});
       endpoint.defineParameter('pick', {type: 'string', isArray: true, isBuiltin: true});
       endpoint.defineParameter('omit', {type: 'string', isArray: true, isBuiltin: true});
       endpoint.defineParameter('include', {type: 'string', isArray: true, isBuiltin: true});
@@ -85,32 +83,40 @@ export class CollectionClass extends CrudResource {
       endpoint.defineParameter('skip', {type: 'integer', isBuiltin: true});
       endpoint.defineParameter('distinct', {type: 'boolean', isBuiltin: true});
       endpoint.defineParameter('count', {type: 'boolean', isBuiltin: true});
+      endpoint.returnType = this.type;
+      endpoint.encodeReturning = vg.isArray(this.type.generateCodec('encode', {
+        partial: true,
+        pick: endpoint.outputPickFields,
+        omit: endpoint.outputOmitFields,
+      }))
     }
     // ------------------
     endpoint = this.operations.get('update');
     if (endpoint) {
-      endpoint.returnType = this.type;
-      endpoint.decode = this.type.generateCodec('decode', {
+      // endpoint.defineParameter('metadata', {enum: MetadataMode, isBuiltin: true, default: 'minimal'});
+      endpoint.defineParameter('pick', {type: 'string', isArray: true, isBuiltin: true});
+      endpoint.defineParameter('omit', {type: 'string', isArray: true, isBuiltin: true});
+      endpoint.defineParameter('include', {type: 'string', isArray: true, isBuiltin: true});
+      endpoint.decodeInput = this.type.generateCodec('decode', {
         pick: endpoint.inputPickFields,
         omit: endpoint.inputOmitFields,
       })
-      endpoint.encodeReturning = this.type.generateCodec('encode', {
+      endpoint.returnType = this.type;
+      endpoint.encodeReturning = endpoint.returnType.generateCodec('encode', {
         partial: true,
         pick: endpoint.outputPickFields,
         omit: endpoint.outputOmitFields,
       })
-      endpoint.defineParameter('pick', {type: 'string', isArray: true, isBuiltin: true});
-      endpoint.defineParameter('omit', {type: 'string', isArray: true, isBuiltin: true});
-      endpoint.defineParameter('include', {type: 'string', isArray: true, isBuiltin: true});
     }
     // ------------------
     endpoint = this.operations.get('updateMany');
     if (endpoint) {
-      endpoint.decode = this.type.generateCodec('decode', {
+      // endpoint.defineParameter('metadata', {enum: MetadataMode, isBuiltin: true, default: 'minimal'});
+      endpoint.defineParameter('filter', {type: 'string', isBuiltin: true});
+      endpoint.decodeInput = this.type.generateCodec('decode', {
         pick: endpoint.inputPickFields,
         omit: endpoint.inputOmitFields,
       })
-      endpoint.defineParameter('filter', {type: 'string', isBuiltin: true});
     }
   }
 
@@ -125,7 +131,9 @@ export class CollectionClass extends CrudResource {
     return super.getOperation(name);
   }
 
-  exportSchema(options?: { webSafe?: boolean }): OpraSchema.Collection {
+  exportSchema(options?: {
+    webSafe?: boolean
+  }): OpraSchema.Collection {
     return {
       ...super.exportSchema(options) as OpraSchema.Collection,
       type: this.type.name || 'object',
@@ -161,7 +169,7 @@ export class CollectionClass extends CrudResource {
         value = value[primaryKey];
       const el = dataType.getField(primaryKey);
       let result: any;
-      if (el.type instanceof SimpleType)
+      if (value != null && el.type instanceof SimpleType)
         result = el.type.decode(value);
       if (result == null)
         throw new TypeError(`You must provide value of primary field(s) (${primaryKey})`);
