@@ -33,10 +33,10 @@
     "antlr4": "java -jar ./tools/antlr4-4.12.1-SNAPSHOT-complete.jar -Dlanguage=TypeScript ./src/filter/antlr/OpraFilter.g4 -visitor"
   },
   "dependencies": {
-    "@browsery/antlr4": "^0.8.0",
-    "@browsery/highland": "^0.5.0",
+    "@browsery/antlr4": "^0.9.0",
+    "@browsery/highland": "^0.6.0",
     "@browsery/http-parser": "^0.4.0",
-    "@browsery/i18next": "^0.6.0",
+    "@browsery/i18next": "^0.7.0",
     "fast-tokenizer": "^1.2.2",
     "lodash.omit": "^4.5.0",
     "putil-isplainobject": "^1.1.5",
@@ -49,10 +49,10 @@
   },
   "devDependencies": {
     "@browsery/fs": "^0.4.0",
-    "@browsery/stream": "^0.5.0",
+    "@browsery/stream": "^0.6.0",
     "@browsery/util": "^0.4.0",
     "@types/encodeurl": "^1.0.0",
-    "@types/validator": "^13.11.2",
+    "@types/validator": "^13.11.3",
     "path-browserify": "^1.0.1",
     "ts-gems": "^2.5.0"
   },

@@ -1,6 +1,6 @@
 import { lastValueFrom, Observable } from 'rxjs';
 import { isReadableStreamLike } from 'rxjs/internal/util/isReadableStreamLike';
-import typeIs from 'type-is';
+import typeIs from '@browsery/type-is';
 import { isBlob, OpraURL } from '@opra/common';
 import type { OpraHttpClient } from '../client.js';
 import { ClientError } from '../client-error.js';
@@ -13,7 +13,7 @@ import {
   HttpResponseHeaderEvent,
   HttpSentEvent
 } from '../interfaces/index.js';
-import { RequestInterceptor, ResponseInterceptor, URLSearchParamsInit } from '../types.js';
+import { URLSearchParamsInit } from '../types.js';
 import { HttpRequest } from './http-request.js';
 import { HttpResponse } from './http-response.js';
 
@@ -25,10 +25,10 @@ const directCopyProperties = ['cache', 'credentials', 'destination', 'headers', 
  * @namespace HttpRequestObservable
  */
 export namespace HttpRequestObservable {
-  export interface Initiator extends HttpRequest.Initiator {
-    requestInterceptors?: RequestInterceptor[];
-    responseInterceptors?: ResponseInterceptor[];
-  }
+  // export interface Initiator extends HttpRequest.Initiator {
+  //   requestInterceptors?: RequestInterceptor[];
+  //   responseInterceptors?: ResponseInterceptor[];
+  // }
 
   export interface HttpOptions extends Partial<Pick<HttpRequest, 'cache' | 'credentials' |
       'destination' | 'integrity' | 'keepalive' | 'mode' | 'redirect' |
@@ -44,12 +44,17 @@ const kIntlObservable = Symbol.for('kIntlObservable');
  */
 export class HttpRequestObservable<TPayload = any, TResponseExt = {}> extends Observable<TPayload> {
   [kClient]: OpraHttpClient;
+  [kContext]: {
+    headers: Headers;
+    params: URLSearchParams;
+    requestInit: any;
+  }
   [kIntlObservable]: Observable<HttpEvent>;
   request: HttpRequest;
 
   constructor(
       client: OpraHttpClient<any>,
-      init?: HttpRequestObservable.Initiator
+      init?: HttpRequest.Initiator
   ) {
     super((subscriber) => {
       this[kIntlObservable].subscribe((event) => {
@@ -62,6 +67,15 @@ export class HttpRequestObservable<TPayload = any, TResponseExt = {}> extends Ob
           () => subscriber.complete()
       )
     });
+    const url = new OpraURL(init?.url);
+    Object.defineProperty(this, kContext, {
+      enumerable: false,
+      value: {
+        headers: new Headers(init?.headers),
+        params: url.searchParams,
+        requestInit: {...init}
+      }
+    })
     Object.defineProperty(this, kClient, {
       enumerable: false,
       value: client
@@ -276,7 +290,7 @@ export class HttpRequestObservable<TPayload = any, TResponseExt = {}> extends Ob
       } else if (isBlob(request.body)) {
         contentType = request.body.type || 'application/octet-stream';
         body = request.body;
-        request.headers.set('Content-Size', String(request.body.length));
+        request.headers.set('Content-Size', String(request.body.size));
         delete request.duplex;
       } else {
         contentType = 'application/json';

@@ -80,7 +80,6 @@ export class HttpRequest {
     this.method = (init?.method || 'GET').toUpperCase();
     this.mode = init?.mode || 'cors';
     this.redirect = init?.redirect || 'follow';
-    this.mode = init?.mode || 'cors';
     this.referrer = init?.referrer || '';
     this.referrerPolicy = init?.referrerPolicy || '';
     this.signal = init?.signal || new AbortController().signal;

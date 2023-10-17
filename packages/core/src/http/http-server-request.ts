@@ -10,7 +10,7 @@ import parseRange, {
   Ranges as RangeParserRanges,
   Result as RangeParserResult
 } from 'range-parser';
-import typeIs from 'type-is';
+import typeIs from '@browsery/type-is';
 import { isReadable, mergePrototype, OpraURL } from '@opra/common';
 import type { HttpServerResponse } from './http-server-response';
 import { HttpIncomingMessage, HttpIncomingMessageHost } from './impl/http-incoming-message.host.js';

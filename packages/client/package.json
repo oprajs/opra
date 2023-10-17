@@ -33,10 +33,11 @@
   "types": "./types/index.d.ts",
   "dependencies": {
     "@browsery/fs": "^0.4.0",
-    "@browsery/highland": "^0.5.0",
+    "@browsery/highland": "^0.6.0",
     "@browsery/http-parser": "^0.4.0",
-    "@browsery/i18next": "^0.6.0",
-    "@browsery/stream": "^0.5.0",
+    "@browsery/i18next": "^0.7.0",
+    "@browsery/stream": "^0.6.0",
+    "@browsery/type-is": "^0.6.1",
     "@browsery/util": "^0.4.0",
     "@opra/common": "^0.27.0",
     "accepts": "^1.3.8",
@@ -57,7 +58,6 @@
     "reflect-metadata": "^0.1.13",
     "rxjs": "^7.8.1",
     "ts-lib": "^0.0.5",
-    "type-is": "^1.6.18",
     "uid": "^2.0.1"
   },
   "sideEffects": false,

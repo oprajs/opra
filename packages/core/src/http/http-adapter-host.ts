@@ -1,7 +1,7 @@
 import fs from 'fs/promises';
 import os from 'os';
-import typeIs from 'type-is';
 import * as vg from 'valgen';
+import typeIs from '@browsery/type-is';
 import {
   BadRequestError,
   Collection,
