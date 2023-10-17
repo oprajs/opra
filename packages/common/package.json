@@ -36,7 +36,7 @@
     "@browsery/antlr4": "^0.9.0",
     "@browsery/highland": "^0.6.0",
     "@browsery/http-parser": "^0.4.0",
-    "@browsery/i18next": "^0.7.0",
+    "@browsery/i18next": "^0.7.2",
     "fast-tokenizer": "^1.2.2",
     "lodash.omit": "^4.5.0",
     "putil-isplainobject": "^1.1.5",
