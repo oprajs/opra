@@ -1,7 +1,7 @@
 import { OpraURL } from '@opra/common';
 import { Backend } from '../core/backend.js';
-import { HttpHandler } from './interfaces/http-handler.js';
-import { HttpInterceptor } from './interfaces/http-interceptor.js';
+import type { HttpHandler } from './interfaces/http-handler.js';
+import type { HttpInterceptor } from './interfaces/http-interceptor.js';
 
 /**
  *
