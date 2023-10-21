@@ -1,12 +1,11 @@
-import { HTTP_INTERCEPTORS } from '@angular/common/http';
 import { HttpClientTestingModule } from '@angular/common/http/testing';
-import { Inject, Injectable, InjectionToken, Provider } from '@angular/core';
+import { Inject, Injectable, InjectionToken, } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
-import { HttpServiceBase, kClient, OpraHttpClient } from '@opra/client';
+import { HttpServiceBase, kClient } from '@opra/client';
 import { createMockServer } from '../../client/test/_support/create-mock-server.js';
+import { OpraAngularClient } from '../src/angular-client.js';
 import { OpraClientModule } from '../src/client.module.js';
 import { OpraClientModuleOptions } from '../src/interfaces/module-options.interface.js';
-import { createHttpRequestInterceptorMock } from './_support/http-mock.js';
 
 class TestApi extends HttpServiceBase {
 }
@@ -14,10 +13,7 @@ class TestApi extends HttpServiceBase {
 describe('OpraClientModule', function () {
 
   let app;
-  let httpInterceptorProvider: Provider;
-  const config: OpraClientModuleOptions = {
-    serviceUrl: 'http://localhost',
-  };
+  let config: OpraClientModuleOptions;
 
   afterAll(() => app.server.close());
 
@@ -25,28 +21,19 @@ describe('OpraClientModule', function () {
 
   beforeAll(async () => {
     app = await createMockServer();
-    config.serviceUrl = app.baseUrl;
-  });
-
-  beforeAll(async () => {
-    httpInterceptorProvider = {
-      provide: HTTP_INTERCEPTORS,
-      useClass: createHttpRequestInterceptorMock(app),
-      multi: true
-    };
+    config = {serviceUrl: app.baseUrl};
   });
 
   it('registerClient()', async () => {
     await TestBed.configureTestingModule({
       imports: [
         HttpClientTestingModule,
-        OpraClientModule.registerClient(config)],
-      providers: [httpInterceptorProvider]
+        OpraClientModule.registerClient(config)]
     }).compileComponents();
 
-    const client = TestBed.inject(OpraHttpClient);
+    const client = TestBed.inject(OpraAngularClient);
     expect(client).toBeDefined();
-    expect(client).toBeInstanceOf(OpraHttpClient);
+    expect(client).toBeInstanceOf(OpraAngularClient);
     expect(client.serviceUrl).toStrictEqual(app.baseUrl);
   });
 
@@ -55,12 +42,10 @@ describe('OpraClientModule', function () {
       imports: [
         HttpClientTestingModule,
         OpraClientModule.registerService(TestApi, config)],
-      providers: [httpInterceptorProvider]
     }).compileComponents();
     const service = TestBed.inject(TestApi);
     expect(service).toBeDefined();
     expect(service).toBeInstanceOf(TestApi);
-    expect(service[kClient].serviceUrl).toBe(config.serviceUrl);
   });
 
   it('registerClientAsync() - useFactory', async () => {
@@ -69,12 +54,11 @@ describe('OpraClientModule', function () {
         HttpClientTestingModule,
         OpraClientModule.registerClientAsync({
           useFactory: () => config
-        })],
-      providers: [httpInterceptorProvider]
+        })]
     }).compileComponents();
-    const client = TestBed.inject(OpraHttpClient);
+    const client = TestBed.inject(OpraAngularClient);
     expect(client).toBeDefined();
-    expect(client).toBeInstanceOf(OpraHttpClient);
+    expect(client).toBeInstanceOf(OpraAngularClient);
     expect(client.serviceUrl).toStrictEqual(app.baseUrl);
   });
 
@@ -90,13 +74,12 @@ describe('OpraClientModule', function () {
         HttpClientTestingModule,
         OpraClientModule.registerClientAsync({
           useClass: ConfigClass
-        })],
-      providers: [httpInterceptorProvider]
+        })]
     }).compileComponents();
 
-    const client = TestBed.inject(OpraHttpClient);
+    const client = TestBed.inject(OpraAngularClient);
     expect(client).toBeDefined();
-    expect(client).toBeInstanceOf(OpraHttpClient);
+    expect(client).toBeInstanceOf(OpraAngularClient);
     expect(client.serviceUrl).toStrictEqual(app.baseUrl);
   });
 
@@ -106,8 +89,7 @@ describe('OpraClientModule', function () {
         HttpClientTestingModule,
         OpraClientModule.registerServiceAsync(TestApi, {
           useFactory: () => config
-        })],
-      providers: [httpInterceptorProvider]
+        })]
     }).compileComponents();
     const service = TestBed.inject(TestApi);
     expect(service).toBeDefined();
@@ -127,8 +109,7 @@ describe('OpraClientModule', function () {
         HttpClientTestingModule,
         OpraClientModule.registerServiceAsync(TestApi, {
           useClass: ConfigClass
-        })],
-      providers: [httpInterceptorProvider]
+        })]
     }).compileComponents();
     const service = TestBed.inject(TestApi);
     expect(service).toBeDefined();
@@ -141,8 +122,8 @@ describe('OpraClientModule', function () {
 
     @Injectable()
     class TestComponent {
-      constructor(public client1: OpraHttpClient,
-                  @Inject(CLIENT2) public client2: OpraHttpClient,
+      constructor(public client1: OpraAngularClient,
+                  @Inject(CLIENT2) public client2: OpraAngularClient,
       ) {
       }
     }
@@ -154,7 +135,6 @@ describe('OpraClientModule', function () {
         OpraClientModule.registerClient({...config, token: CLIENT2}),
       ],
       providers: [
-        httpInterceptorProvider,
         TestComponent
       ]
     }).compileComponents();
@@ -183,7 +163,6 @@ describe('OpraClientModule', function () {
         OpraClientModule.registerService(TestApi, {...config, token: SERVICE2}),
       ],
       providers: [
-        httpInterceptorProvider,
         TestComponent
       ]
     }).compileComponents();

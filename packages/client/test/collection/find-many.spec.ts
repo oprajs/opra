@@ -44,18 +44,49 @@ describe('Collection.findMany', function () {
   });
 
   it('Should subscribe events', (done) => {
-    const expectedEvents = ['sent', 'response-header', 'response'];
+    const expectedEvents = ['Sent', 'ResponseHeader', 'Response'];
     const receivedEvents: HttpEventType[] = [];
     client.collection('Customers')
         .findMany()
         .observe(HttpObserveType.Events)
         .subscribe({
           next: (event) => {
-            receivedEvents.push(event.event);
+            receivedEvents.push(event.type);
           },
           complete: () => {
             try {
               expect(expectedEvents).toStrictEqual(receivedEvents);
+            } catch (e) {
+              return done(e);
+            }
+            done();
+          },
+          error: done
+        });
+  });
+
+  it('Should emit DownloadProgress event reportProgress=true', (done) => {
+    let progressEvent = 0;
+    let loaded = 0;
+    let total = 0;
+    client.collection('Customers')
+        .findMany()
+        .options({reportProgress: true})
+        .observe(HttpObserveType.Events)
+        .subscribe({
+          next: (event) => {
+            if (event.type === HttpEventType.DownloadProgress) {
+              progressEvent++;
+              loaded = event.loaded;
+              total = event.total || 0;
+            }
+          },
+          complete: () => {
+            try {
+              expect(progressEvent).toBeGreaterThan(0);
+              expect(loaded).toBeGreaterThan(0);
+              expect(total).toBeGreaterThan(0);
+              expect(loaded).toEqual(total);
             } catch (e) {
               return done(e);
             }

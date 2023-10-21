@@ -1,10 +1,10 @@
-import { OpraHttpClient } from '../client.js';
 import { kClient, kContext } from '../constants.js';
+import { OpraHttpClient } from './http-client.js';
 
 export class HttpServiceBase {
   [kClient]: OpraHttpClient;
   [kContext]: any = {
-    resource: {},
+    resources: {},
     node: null
   };
 

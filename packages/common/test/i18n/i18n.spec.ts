@@ -8,11 +8,17 @@ describe('I18n', function () {
   afterAll(() => global.gc && global.gc());
 
   beforeAll(async () => {
-    i18n.registerLocaleDir(path.join(dirname, '../_support/locale'));
     await i18n.init({
       defaultNS: 'translate',
       lng: 'en',
       resources: {
+        tr: {
+          translate: {
+            "HELLO": "Merhaba {{name}}",
+            "ok": "tamam",
+            "OK": "TAMAM"
+          }
+        },
         en: {
           translate: {
             'HELLO': 'Hello {{name}}',

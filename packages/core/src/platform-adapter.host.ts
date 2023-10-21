@@ -144,8 +144,7 @@ export abstract class PlatformAdapterHost extends AsyncEventEmitter implements P
         return {controller, endpoint, handler};
     }
     throw new BadRequestError({
-      message: translate('ACTION_NOT_FOUND', {resource: resource.name, action: name},
-          `The {{resource}} resource doesn't have an action named '{{action}}'`),
+      message: translate('error:ACTION_NOT_FOUND', {resource: resource.name, action: name}),
       severity: 'error',
       code: 'ACTION_NOT_FOUND'
     });
@@ -170,8 +169,7 @@ export abstract class PlatformAdapterHost extends AsyncEventEmitter implements P
         return {controller, endpoint, handler};
     }
     throw new ForbiddenError({
-      message: translate('OPERATION_FORBIDDEN', {resource: resource.name, operation: name},
-          `'The {{resource}} resource does not accept '{{operation}}' operations`),
+      message: translate('error:OPERATION_FORBIDDEN', {resource: resource.name, operation: name}),
       severity: 'error',
       code: 'OPERATION_FORBIDDEN'
     });

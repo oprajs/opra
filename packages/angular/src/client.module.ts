@@ -1,6 +1,8 @@
 /* eslint-disable import/extensions */
+import { HttpClient } from '@angular/common/http';
 import { ModuleWithProviders, NgModule, Provider, Type } from '@angular/core';
-import { HttpServiceBase, OpraHttpClient } from '@opra/client';
+import { HttpServiceBase } from '@opra/client';
+import { OpraAngularClient } from './angular-client';
 import { OPRA_CLIENT_MODULE_OPTIONS } from './constants';
 import {
   OpraClientModuleAsyncOptions,
@@ -11,14 +13,15 @@ import {
 export class OpraClientModule {
 
   public static registerClient(options: OpraClientModuleOptions): ModuleWithProviders<OpraClientModule> {
-    const CLIENT_TOKEN = options.token || OpraHttpClient;
-    const client = new OpraHttpClient(options.serviceUrl, options);
+    const CLIENT_TOKEN = options.token || OpraAngularClient;
     return {
       ngModule: OpraClientModule,
       providers: [
         {
           provide: CLIENT_TOKEN,
-          useValue: client
+          deps: [HttpClient],
+          useFactory: (httpClient: HttpClient) =>
+              new OpraAngularClient(httpClient, options.serviceUrl, options)
         }
       ]
     };
@@ -29,14 +32,16 @@ export class OpraClientModule {
       options: OpraClientModuleOptions
   ): ModuleWithProviders<OpraClientModule> {
     const SERVICE_TOKEN = options.token || serviceClass;
-    const client = new OpraHttpClient(options.serviceUrl, options);
-    const service = new serviceClass(client);
     return {
       ngModule: OpraClientModule,
       providers: [
         {
           provide: SERVICE_TOKEN,
-          useValue: service
+          deps: [HttpClient],
+          useFactory: (httpClient: HttpClient) => {
+            const opraAngularClient = new OpraAngularClient(httpClient, options.serviceUrl, options);
+            return new serviceClass(opraAngularClient);
+          }
         }
       ]
     };
@@ -45,7 +50,7 @@ export class OpraClientModule {
   public static registerClientAsync(
       options: OpraClientModuleAsyncOptions
   ): ModuleWithProviders<OpraClientModule> {
-    const CLIENT_TOKEN = options.token || OpraHttpClient;
+    const CLIENT_TOKEN = options.token || OpraAngularClient;
     const asyncProviders = this._createAsyncProviders(options);
     return {
       ngModule: OpraClientModule,
@@ -53,9 +58,9 @@ export class OpraClientModule {
         ...asyncProviders,
         {
           provide: CLIENT_TOKEN,
-          deps: [OPRA_CLIENT_MODULE_OPTIONS],
-          useFactory: (opts: OpraClientModuleOptions) =>
-              new OpraHttpClient(opts.serviceUrl, opts)
+          deps: [HttpClient, OPRA_CLIENT_MODULE_OPTIONS],
+          useFactory: (httpClient: HttpClient, opts: OpraClientModuleOptions) =>
+              new OpraAngularClient(httpClient, opts.serviceUrl, opts)
         }
       ]
     };
@@ -73,10 +78,10 @@ export class OpraClientModule {
         ...asyncProviders,
         {
           provide: SERVICE_TOKEN,
-          deps: [OPRA_CLIENT_MODULE_OPTIONS],
-          useFactory: (opts: OpraClientModuleOptions) => {
-            const client = new OpraHttpClient(opts.serviceUrl, opts)
-            return new serviceClass(client);
+          deps: [HttpClient, OPRA_CLIENT_MODULE_OPTIONS],
+          useFactory: (httpClient: HttpClient, opts: OpraClientModuleOptions) => {
+            const opraAngularClient = new OpraAngularClient(httpClient, opts.serviceUrl, opts);
+            return new serviceClass(opraAngularClient);
           }
         }
       ]

@@ -1,9 +1,16 @@
 import express from 'express';
 import * as http from 'http';
 import { AddressInfo } from 'net';
+import { finalize, Observable } from 'rxjs';
 import { ApiDocument } from '@opra/common';
 import { createTestApi } from '../../core/test/_support/test-app/index.js';
-import { HttpCollectionNode, HttpSingletonNode, OpraHttpClient } from '../src/index.js';
+import {
+  FetchBackend,
+  HttpCollectionNode, HttpEvent,
+  HttpHandler,
+  HttpSingletonNode,
+  OpraHttpClient
+} from '../src/index.js';
 
 describe('OpraClient', function () {
 
@@ -44,6 +51,39 @@ describe('OpraClient', function () {
 
   it('Should "singleton()" create a service for Singleton resources', async () => {
     expect(client.singleton('MyProfile')).toBeInstanceOf(HttpSingletonNode);
+  });
+
+  it('Should run interceptor chain', async () => {
+    const address = server.address() as AddressInfo;
+    const callStack: string[] = [];
+    const client2 = new OpraHttpClient('http://127.0.0.1:' + address.port.toString(),
+        {
+          api,
+          interceptors: [
+            {
+              intercept(request: FetchBackend.RequestInit, next: HttpHandler): Observable<HttpEvent> {
+                callStack.push('a1');
+                return next.handle(request)
+                    .pipe(finalize(() => {
+                      callStack.push('a2');
+                    }));
+              }
+            },
+            {
+              intercept(request: FetchBackend.RequestInit, next: HttpHandler): Observable<HttpEvent> {
+                callStack.push('b1');
+                return next.handle(request)
+                    .pipe(finalize(() => {
+                      callStack.push('b2');
+                    }));
+              }
+            }
+          ]
+        });
+    await client2.collection('Customers')
+        .get(1)
+        .getResponse();
+    expect(callStack).toEqual(['a1', 'b1', 'b2', 'a2']);
   });
 
   // it('Should check if Collection resource exists', async () => {

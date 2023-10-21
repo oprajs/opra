@@ -6,7 +6,6 @@ export namespace HttpResponse {
     url?: string;
     body?: any;
     hasBody?: boolean;
-    contentType: string;
   }
 }
 
@@ -53,6 +52,7 @@ export class HttpResponse<TBody = any> {
     this.ok = this.status >= 200 && this.status < 300;
     this.body = init?.body;
     this.hasBody = init?.body != null || !!init?.hasBody;
+    this.contentType = (this.headers.get('content-type') || '').split(';')[0];
   }
 
   clone(update?: HttpResponse.Initiator): HttpResponse {

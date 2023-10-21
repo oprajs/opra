@@ -38,14 +38,14 @@ describe('Collection.update', function () {
   });
 
   it('Should subscribe events', (done) => {
-    const expectedEvents = ['sent', 'response-header', 'response'];
+    const expectedEvents = [ 'Sent', 'ResponseHeader', 'Response'];
     const receivedEvents: HttpEventType[] = [];
     client.collection('Customers')
         .update(1, data)
         .observe(HttpObserveType.Events)
         .subscribe({
           next: (event) => {
-            receivedEvents.push(event.event);
+            receivedEvents.push(event.type);
           },
           complete: () => {
             try {

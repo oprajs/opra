@@ -1,14 +1,23 @@
-export * from './client.js';
-export * from './client-error.js';
 export * from './types.js';
-export * from './enums/index.js';
-export * from './interfaces/index.js';
 
-export * from './impl/collection-node.js';
-export * from './impl/singleton-node.js';
-export * from './impl/http-request.js';
-export * from './impl/http-response.js';
-export * from './impl/http-service-base.js';
-export * from './impl/http-request-observable.js';
+export * from './core/backend.js';
+export * from './core/client-base.js';
+export * from './core/client-error.js';
 
-export { kClient, kContext } from './constants.js';
+export * from './http/fetch-backend.js';
+export * from './http/http-backend.js';
+export * from './http/http-client.js';
+export * from './http/http-client-base.js';
+export * from './http/http-collection-node.js';
+export * from './http/http-request-observable.js';
+export * from './http/http-response.js';
+export * from './http/http-service-base.js';
+export * from './http/http-singleton-node.js';
+
+export * from './http/enums/http-observable-type.enum.js';
+
+export * from './http/interfaces/http-event.js';
+export * from './http/interfaces/http-handler.js';
+export * from './http/interfaces/http-interceptor.js';
+
+export { kBackend, kContext, kClient } from './constants.js';

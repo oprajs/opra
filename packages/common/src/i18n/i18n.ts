@@ -1,6 +1,4 @@
 import { splitString, tokenize } from 'fast-tokenizer';
-import fs from 'fs';
-import path from 'path';
 import { Type } from 'ts-gems';
 import i18next, {
   FallbackLng,
@@ -11,11 +9,10 @@ import i18next, {
   TOptions
 } from '@browsery/i18next';
 import * as I18next from '@browsery/i18next';
-import { isUrlString } from '../helpers/index.js';
 import { unescapeString } from './string-utils.js';
 
 export type BaseI18n = Type<I18next.i18n>;
-export const BaseI18n = Object.getPrototypeOf(i18next).constructor as BaseI18n;
+export const BaseI18n = Object.getPrototypeOf(i18next.createInstance()).constructor as BaseI18n;
 export type DeepTranslateOptions = TOptions & { ignore?: (input: any, inst: i18n) => boolean };
 export type InitCallback = I18next.Callback;
 export type TranslateFunction = I18nextTFunction;
@@ -26,8 +23,6 @@ export type { FallbackLng };
 export interface InitOptions extends I18nextInitOptions {
   resourceDirs?: string[];
 }
-
-const globalLocaleDirs: string[] = [];
 
 export class I18n extends BaseI18n {
 
@@ -45,14 +40,6 @@ export class I18n extends BaseI18n {
       formatter.add('uppercase', (value, lng) => value.toLocaleUpperCase(lng));
       formatter.add('upperFirst', (value, lng) => value.charAt(0).toLocaleUpperCase(lng) + value.substring(1));
 
-      // Load globally registered resources
-      if (globalLocaleDirs.length)
-        await this.loadResourceDir(globalLocaleDirs, false, true);
-
-      // Load resource dirs and overwrite existing
-      if (options?.resourceDirs?.length) {
-        await this.loadResourceDir(options.resourceDirs, false, true);
-      }
       // overwrite existing resources with options.resources
       if (options?.resources) {
         for (const lang of Object.keys(options.resources)) {
@@ -77,49 +64,6 @@ export class I18n extends BaseI18n {
       return input;
     const objectStack = new WeakMap();
     return this._deepTranslate(input, objectStack, options);
-  }
-
-  registerLocaleDir(...dirname: string[]): void {
-    globalLocaleDirs.push(...dirname);
-  }
-
-  async loadResourceBundle(
-      lang: string, ns: string,
-      filePath: string,
-      deep?: boolean,
-      overwrite?: boolean
-  ): Promise<void> {
-    let obj;
-    if (isUrlString(filePath)) {
-      obj = (await fetch(filePath, {headers: {accept: 'application/json'}})).json();
-    } else {
-      const content = fs.readFileSync(filePath, 'utf8');
-      obj = JSON.parse(content);
-    }
-    this.addResourceBundle(lang, ns, obj, deep, overwrite);
-  }
-
-  async loadResourceDir(dirnames: string | string[], deep?: boolean, overwrite?: boolean): Promise<void> {
-    for (const dirname of Array.isArray(dirnames) ? dirnames : [dirnames]) {
-      /* istanbul ignore next */
-      if (!(fs.existsSync(dirname)))
-        continue;
-      const languageDirs = fs.readdirSync(dirname);
-      for (const lang of languageDirs) {
-        const langDir = path.join(dirname, lang);
-        if ((fs.statSync(langDir)).isDirectory()) {
-          const nsDirs = fs.readdirSync(langDir);
-          for (const nsfile of nsDirs) {
-            const nsFilePath = path.join(langDir, nsfile);
-            const ext = path.extname(nsfile);
-            if (ext === '.json' && (fs.statSync(nsFilePath)).isFile()) {
-              const ns = path.basename(nsfile, ext);
-              await this.loadResourceBundle(lang, ns, nsFilePath, deep, overwrite);
-            }
-          }
-        }
-      }
-    }
   }
 
   createInstance(options = {}, callback): I18n {

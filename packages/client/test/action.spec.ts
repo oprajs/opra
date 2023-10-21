@@ -43,13 +43,13 @@ describe('Actions', function () {
   });
 
   it('Should subscribe events', (done) => {
-    const expectedEvents = ['sent', 'response-header', 'response'];
+    const expectedEvents = [ 'Sent', 'ResponseHeader', 'Response'];
     const receivedEvents: HttpEventType[] = [];
     client.action('auth/login')
         .observe(HttpObserveType.Events)
         .subscribe({
           next: (event) => {
-            receivedEvents.push(event.event);
+            receivedEvents.push(event.type);
           },
           complete: () => {
             try {

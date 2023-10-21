@@ -1,27 +1,32 @@
 import { toArrayDef } from 'putil-varhelpers';
 import type { PartialInput } from '@opra/common';
 import { OperationResult, OpraFilter, OpraURL } from '@opra/common';
-import type { OpraHttpClient } from '../client.js';
+import { HttpBackend } from './http-backend.js';
 import { HttpRequestObservable } from './http-request-observable.js';
 
 /**
  * @class HttpCollectionNode
  */
-export class HttpCollectionNode<TType, TResponseExt = {}> {
-  protected _client: OpraHttpClient;
+export class HttpCollectionNode<TType, TRequestOptions = {}, TResponseExt = {}> {
+  protected _backend: HttpBackend;
   protected _path: string;
 
-  constructor(client: OpraHttpClient<any>, path: string) {
-    this._client = client;
+  constructor(backend: HttpBackend, path: string) {
+    this._backend = backend;
     this._path = path;
   }
 
   create(
       data: PartialInput<TType>,
       options?: HttpCollectionNode.CreateOptions
-  ): HttpRequestObservable<OperationResult<TType>, TResponseExt> {
+  ) {
     const observable =
-        new HttpRequestObservable<OperationResult<TType>, TResponseExt>(this._client, {
+        new HttpRequestObservable<
+            OperationResult<TType>,
+            OperationResult<TType>,
+            TRequestOptions,
+            TResponseExt
+        >(this._backend, {
           method: 'POST',
           url: this._path,
           body: data
@@ -35,12 +40,17 @@ export class HttpCollectionNode<TType, TResponseExt = {}> {
     return observable;
   }
 
-  delete(id: any): HttpRequestObservable<OperationResult<never>, TResponseExt> {
+  delete(id: any) {
     if (id == null || id === '')
       throw new TypeError(`'id' argument must have a value`);
     const url = new OpraURL();
     url.join({resource: this._path, key: id});
-    return new HttpRequestObservable<never, TResponseExt>(this._client, {
+    return new HttpRequestObservable<
+        OperationResult<never>,
+        OperationResult<never>,
+        TRequestOptions,
+        TResponseExt
+    >(this._backend, {
       method: 'DELETE',
       url
     });
@@ -48,9 +58,14 @@ export class HttpCollectionNode<TType, TResponseExt = {}> {
 
   deleteMany(
       options?: HttpCollectionNode.DeleteManyOptions
-  ): HttpRequestObservable<OperationResult<never>, TResponseExt> {
+  ) {
     const observable =
-        new HttpRequestObservable<OperationResult<never>, TResponseExt>(this._client, {
+        new HttpRequestObservable<
+            OperationResult<never>,
+            OperationResult<never>,
+            TRequestOptions,
+            TResponseExt
+        >(this._backend, {
           method: 'DELETE',
           url: this._path
         });
@@ -62,13 +77,18 @@ export class HttpCollectionNode<TType, TResponseExt = {}> {
   get(
       id: any,
       options?: HttpCollectionNode.GetOptions
-  ): HttpRequestObservable<OperationResult<TType>, TResponseExt> {
+  ) {
     if (id == null || id === '')
       throw new TypeError(`'id' argument must have a value`);
     const url = new OpraURL();
     url.join({resource: this._path, key: id});
     const observable =
-        new HttpRequestObservable<OperationResult<TType>, TResponseExt>(this._client, {
+        new HttpRequestObservable<
+            OperationResult<TType>,
+            OperationResult<TType>,
+            TRequestOptions,
+            TResponseExt
+        >(this._backend, {
           method: 'GET',
           url
         });
@@ -83,9 +103,14 @@ export class HttpCollectionNode<TType, TResponseExt = {}> {
 
   findMany(
       options?: HttpCollectionNode.FindManyOptions
-  ): HttpRequestObservable<OperationResult<TType[]>, TResponseExt> {
+  ) {
     const observable =
-        new HttpRequestObservable<OperationResult<TType[]>, TResponseExt>(this._client, {
+        new HttpRequestObservable<
+            OperationResult<TType[]>,
+            OperationResult<TType[]>,
+            TRequestOptions,
+            TResponseExt
+        >(this._backend, {
           method: 'GET',
           url: this._path
         });
@@ -114,13 +139,18 @@ export class HttpCollectionNode<TType, TResponseExt = {}> {
       id: any,
       data: PartialInput<TType>,
       options?: HttpCollectionNode.UpdateOptions
-  ): HttpRequestObservable<OperationResult<TType>, TResponseExt> {
+  ) {
     if (id == null)
       throw new TypeError(`'id' argument must have a value`);
     const url = new OpraURL();
     url.join({resource: this._path, key: id});
     const observable =
-        new HttpRequestObservable<OperationResult<TType>, TResponseExt>(this._client, {
+        new HttpRequestObservable<
+            OperationResult<TType>,
+            OperationResult<TType>,
+            TRequestOptions,
+            TResponseExt
+        >(this._backend, {
           method: 'PATCH',
           url,
           body: data
@@ -137,9 +167,14 @@ export class HttpCollectionNode<TType, TResponseExt = {}> {
   updateMany(
       data: PartialInput<TType>,
       options?: HttpCollectionNode.UpdateManyOptions
-  ): HttpRequestObservable<OperationResult<never>, TResponseExt> {
+  ) {
     const observable =
-        new HttpRequestObservable<OperationResult<never>, TResponseExt>(this._client, {
+        new HttpRequestObservable<
+            OperationResult<never>,
+            OperationResult<never>,
+            TRequestOptions,
+            TResponseExt
+        >(this._backend, {
           method: 'PATCH',
           url: this._path,
           body: data

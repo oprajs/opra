@@ -1,26 +1,31 @@
 import { toArrayDef } from 'putil-varhelpers';
 import { OperationResult, PartialInput } from '@opra/common';
-import type { OpraHttpClient } from '../client.js';
+import { HttpBackend } from './http-backend.js';
 import { HttpRequestObservable } from './http-request-observable.js';
 
 /**
  * @class HttpSingletonNode
  */
-export class HttpSingletonNode<TType, TResponseExt = {}> {
-  protected _client: OpraHttpClient;
+export class HttpSingletonNode<TType, TRequestOptions = {}, TResponseExt = {}> {
+  protected _backend: HttpBackend;
   protected _path: string;
 
-  constructor(client: OpraHttpClient<any>, path: string) {
-    this._client = client;
+  constructor(backend: HttpBackend, path: string) {
+    this._backend = backend;
     this._path = path;
   }
 
   create(
       data: PartialInput<TType>,
       options?: HttpSingletonNode.CreateOptions
-  ): HttpRequestObservable<OperationResult<TType>, TResponseExt> {
+  ) {
     const observable =
-        new HttpRequestObservable<OperationResult<TType>, TResponseExt>(this._client, {
+        new HttpRequestObservable<
+            OperationResult<TType>,
+            OperationResult<TType>,
+            TRequestOptions,
+            TResponseExt
+        >(this._backend, {
           method: 'POST',
           url: this._path,
           body: data
@@ -34,16 +39,26 @@ export class HttpSingletonNode<TType, TResponseExt = {}> {
     return observable;
   }
 
-  delete(): HttpRequestObservable<OperationResult<never>, TResponseExt> {
-    return new HttpRequestObservable<OperationResult<never>, TResponseExt>(this._client, {
+  delete() {
+    return new HttpRequestObservable<
+        OperationResult<never>,
+        OperationResult<never>,
+        TRequestOptions,
+        TResponseExt
+    >(this._backend, {
       method: 'DELETE',
       url: this._path
     });
   }
 
-  get(options?: HttpSingletonNode.GetOptions): HttpRequestObservable<OperationResult<TType>, TResponseExt> {
+  get(options?: HttpSingletonNode.GetOptions) {
     const observable =
-        new HttpRequestObservable<OperationResult<TType>, TResponseExt>(this._client, {
+        new HttpRequestObservable<
+            OperationResult<TType>,
+            OperationResult<TType>,
+            TRequestOptions,
+            TResponseExt
+        >(this._backend, {
           method: 'GET',
           url: this._path
         });
@@ -59,9 +74,14 @@ export class HttpSingletonNode<TType, TResponseExt = {}> {
   update(
       data: PartialInput<TType>,
       options?: HttpSingletonNode.UpdateOptions
-  ): HttpRequestObservable<OperationResult<TType>, TResponseExt> {
+  ) {
     const observable =
-        new HttpRequestObservable<OperationResult<TType>, TResponseExt>(this._client, {
+        new HttpRequestObservable<
+            OperationResult<TType>,
+            OperationResult<TType>,
+            TRequestOptions,
+            TResponseExt
+        >(this._backend, {
           method: 'PATCH',
           url: this._path,
           body: data

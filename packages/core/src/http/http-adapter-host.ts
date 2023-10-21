@@ -113,7 +113,7 @@ export abstract class HttpAdapterHost extends PlatformAdapterHost {
         throw e;
       if (e instanceof vg.ValidationError) {
         throw new BadRequestError({
-          message: translate('error:RESPONSE_VALIDATION,', 'Response validation failed'),
+          message: translate('error:RESPONSE_VALIDATION,'),
           code: 'RESPONSE_VALIDATION',
           details: e.issues
         }, e);
@@ -131,7 +131,7 @@ export abstract class HttpAdapterHost extends PlatformAdapterHost {
         throw e;
       if (e instanceof vg.ValidationError) {
         throw new InternalServerError({
-          message: translate('error:RESPONSE_VALIDATION,', 'Response validation failed'),
+          message: translate('error:RESPONSE_VALIDATION,'),
           code: 'RESPONSE_VALIDATION',
           details: e.issues
         }, e);
