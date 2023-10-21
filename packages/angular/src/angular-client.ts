@@ -1,6 +1,6 @@
 import { HttpClient } from '@angular/common/http';
 import { HttpClientBase, kBackend } from '@opra/client';
-import { AngularBackend } from './angular-backend.js';
+import { AngularBackend } from './angular-backend';
 
 /**
  *

@@ -1,0 +1,10 @@
+{
+  "overrides": [
+    {
+      "files": ["**/*.ts", "**/*.tsx", "**/*.mts", "**/*.cts"],
+      "rules": {
+        "import/extensions": "off"
+      }
+    }
+  ]
+}
