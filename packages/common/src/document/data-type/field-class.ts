@@ -17,6 +17,8 @@ export class FieldClass {
   default?: any;
   fixed?: string | number;
   required?: boolean;
+  readonly?: boolean;
+  writeonly?: boolean;
   exclusive?: boolean;
   deprecated?: boolean | string;
   examples?: any[] | Record<string, any>;
@@ -31,6 +33,8 @@ export class FieldClass {
     this.default = init.default;
     this.fixed = init.fixed;
     this.required = init.required;
+    this.readonly = init.readonly;
+    this.writeonly = init.writeonly;
     this.exclusive = init.exclusive;
     this.deprecated = init.deprecated;
     this.examples = init.examples;
@@ -44,25 +48,19 @@ export class FieldClass {
       default: this.default,
       fixed: this.fixed,
       required: this.required,
+      readonly: this.readonly,
+      writeonly: this.writeonly,
       exclusive: this.exclusive,
       deprecated: this.deprecated,
       examples: this.examples
     }) satisfies OpraSchema.Field;
   }
 
-  getDecoder(): vg.Validator {
-    if (!this._decoder)
-      this._decoder = this.generateCodec('decode');
-    return this._decoder;
-  }
-
-  getEncoder(): vg.Validator {
-    if (!this._encoder)
-      this._encoder = this.generateCodec('encode');
-    return this._encoder;
-  }
-
   generateCodec(codec: 'decode' | 'encode', options?: DataType.GenerateCodecOptions): vg.Validator {
+    if (options?.operation === 'read' && this.writeonly)
+      return vg.isUndefined()
+    if (options?.operation === 'write' && this.readonly)
+      return vg.isUndefined()
     let fn = this.type.generateCodec(codec, options);
     if (this.isArray)
       fn = vg.isArray(fn);

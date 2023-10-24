@@ -42,12 +42,14 @@ export class CollectionClass extends CrudResource {
         partial: true,
         pick: endpoint.inputPickFields,
         omit: endpoint.inputOmitFields,
+        operation: 'write'
       })
       endpoint.returnType = this.type;
       endpoint.encodeReturning = endpoint.returnType.generateCodec('encode', {
         partial: true,
         pick: endpoint.outputPickFields,
         omit: endpoint.outputOmitFields,
+        operation: 'read'
       })
     }
     // ------------------
@@ -68,6 +70,7 @@ export class CollectionClass extends CrudResource {
         partial: true,
         pick: endpoint.outputPickFields,
         omit: endpoint.outputOmitFields,
+        operation: 'read'
       })
     }
     // ------------------
@@ -88,6 +91,7 @@ export class CollectionClass extends CrudResource {
         partial: true,
         pick: endpoint.outputPickFields,
         omit: endpoint.outputOmitFields,
+        operation: 'read'
       }))
     }
     // ------------------
@@ -100,12 +104,14 @@ export class CollectionClass extends CrudResource {
       endpoint.decodeInput = this.type.generateCodec('decode', {
         pick: endpoint.inputPickFields,
         omit: endpoint.inputOmitFields,
+        operation: 'write'
       })
       endpoint.returnType = this.type;
       endpoint.encodeReturning = endpoint.returnType.generateCodec('encode', {
         partial: true,
         pick: endpoint.outputPickFields,
         omit: endpoint.outputOmitFields,
+        operation: 'read'
       })
     }
     // ------------------
@@ -116,6 +122,7 @@ export class CollectionClass extends CrudResource {
       endpoint.decodeInput = this.type.generateCodec('decode', {
         pick: endpoint.inputPickFields,
         omit: endpoint.inputOmitFields,
+        operation: 'write'
       })
     }
   }

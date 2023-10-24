@@ -1,3 +1,4 @@
+import './augmentation/18n.augmentation.js';
 import path from 'path';
 import { pascalCase } from 'putil-varhelpers';
 import { AsyncEventEmitter } from 'strict-typed-events';

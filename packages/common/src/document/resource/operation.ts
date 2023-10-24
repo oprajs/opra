@@ -19,7 +19,7 @@ export class Operation extends Endpoint {
     super(resource, name, init);
     this.returnType = init.returnType instanceof DataType
         ? init.returnType : this.resource.document.getDataType(init.returnType || 'any');
-    this.encodeReturning = this.returnType.generateCodec('encode');
+    this.encodeReturning = this.returnType.generateCodec('encode', {operation: 'read'});
   }
 
 }

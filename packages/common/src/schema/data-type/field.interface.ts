@@ -11,6 +11,8 @@ export type Field = {
   isArray?: boolean;
   default?: any;
   required?: boolean;
+  readonly?: boolean;
+  writeonly?: boolean;
   format?: string;
   fixed?: string | number;
   examples?: any[] | Record<string, any>;
@@ -20,10 +22,4 @@ export type Field = {
    * The client side should include the Field name in the "include" query parameter.
    */
   exclusive?: boolean;
-
-  // rules
-  // nullable?: boolean;
-  // readOnly?: boolean;
-  // writeOnly?: boolean;
-  // required?: boolean;
 }

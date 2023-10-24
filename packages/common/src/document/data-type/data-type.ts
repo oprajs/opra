@@ -84,6 +84,7 @@ export namespace DataType {
     pick?: string[];
     omit?: string[];
     partial?: boolean;
+    operation?: 'read' | 'write';
   }
 
 }
