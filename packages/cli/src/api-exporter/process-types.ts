@@ -154,6 +154,10 @@ export async function generateComplexTypeDefinition(
     //   jsDoc += ` * @format ` + field.format + '\n';
     if (field.exclusive)
       jsDoc += ` * @exclusive\n`;
+    if (field.readonly)
+      jsDoc += ` * @readonly\n`;
+    if (field.writeonly)
+      jsDoc += ` * @writeonly\n`;
     if (field.deprecated)
       jsDoc += ` * @deprecated ` + (typeof field.deprecated === 'string' ? field.deprecated : '') + '\n';
 
@@ -161,6 +165,7 @@ export async function generateComplexTypeDefinition(
       out += `/**\n${jsDoc} */\n`;
 
     // Print field name
+    if (field.readonly) out += 'readonly ';
     out += `${field.name}${field.required ? '' : '?'}: `;
 
     if (field.fixed)
