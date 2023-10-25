@@ -6,11 +6,11 @@ import {
   Action,
   ApiDocument,
   BadRequestError,
-  Container, CrudResource,
+  Container, CrudOperation,
+  CrudResource,
   ForbiddenError,
   getStackFileName,
   I18n,
-  CrudOperation,
   Resource,
   translate
 } from '@opra/common';
