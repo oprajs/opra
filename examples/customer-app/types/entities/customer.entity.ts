@@ -1,5 +1,5 @@
 import { ApiField, ComplexType, UnionType } from '@opra/common';
-import { Embedded, Entity, Link } from '@sqb/connect';
+import { Column, DataType, Embedded, Entity, Link } from '@sqb/connect';
 import { Address } from '../types/address.type.js';
 import { Person } from '../types/person.type.js';
 import { CustomerNotes } from './customer-notes.entity.js';
@@ -19,4 +19,8 @@ export class Customer extends UnionType(Record, Person) {
   @Link({exclusive: true})
       .toMany(CustomerNotes, {sourceKey: 'id', targetKey: 'customerId'})
   notes?: CustomerNotes[];
+
+  @ApiField()
+  @Column({dataType: DataType.JSON, fieldName: 'created_by'})
+  createdBy?: Person;
 }

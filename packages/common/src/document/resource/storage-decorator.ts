@@ -1,7 +1,7 @@
 import { Combine, StrictOmit, Type } from 'ts-gems';
 import { OpraSchema } from '../../schema/index.js';
 import { ActionDecorator, createActionDecorator } from './action-decorator.js';
-import { createOperationDecorator } from './operation-decorator.js';
+import { createOperationDecorator } from './crud-operation-decorator.js';
 import { ResourceDecorator } from './resource-decorator.js';
 import type { Storage } from './storage.js';
 
@@ -159,27 +159,27 @@ export namespace StorageDecorator {
     const list: ((operationMeta: any) => void)[] = [];
     const decorator = createOperationDecorator<PostDecorator, Post.Metadata>('post', options, list);
     decorator.MaxFields = (amount: number) => {
-      list.push(operationMeta => operationMeta.maxFields = amount);
+      list.push(operationMeta => operationMeta.options.maxFields = amount);
       return decorator;
     }
     decorator.MaxFieldSize = (amount: number) => {
-      list.push(operationMeta => operationMeta.maxFieldsSize = amount);
+      list.push(operationMeta => operationMeta.options.maxFieldsSize = amount);
       return decorator;
     }
     decorator.MaxFiles = (amount: number) => {
-      list.push(operationMeta => operationMeta.maxFiles = amount);
+      list.push(operationMeta => operationMeta.options.maxFiles = amount);
       return decorator;
     }
     decorator.MaxFileSize = (sizeInBytes: number) => {
-      list.push(operationMeta => operationMeta.maxFileSize = sizeInBytes);
+      list.push(operationMeta => operationMeta.options.maxFileSize = sizeInBytes);
       return decorator;
     }
     decorator.MaxTotalFileSize = (sizeInBytes: number) => {
-      list.push(operationMeta => operationMeta.maxTotalFileSize = sizeInBytes);
+      list.push(operationMeta => operationMeta.options.maxTotalFileSize = sizeInBytes);
       return decorator;
     }
     decorator.MinFileSize = (sizeInBytes: number) => {
-      list.push(operationMeta => operationMeta.minFileSize = sizeInBytes);
+      list.push(operationMeta => operationMeta.options.minFileSize = sizeInBytes);
       return decorator;
     }
     return decorator;

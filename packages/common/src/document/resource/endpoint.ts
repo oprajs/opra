@@ -13,8 +13,7 @@ export abstract class Endpoint {
   abstract readonly kind: 'action' | 'operation';
   description?: string;
   parameters: ResponsiveMap<Parameter>;
-
-  [key: string]: any;
+  options: any = {};
 
   protected constructor(readonly resource: Resource, readonly name: string, init: Endpoint.InitArguments) {
     Object.assign(this, init);
@@ -46,12 +45,19 @@ export abstract class Endpoint {
     const schema = omitUndefined<OpraSchema.Action>({
       description: this.description
     });
+    if (Object.keys(this.options).length)
+      schema.options = {...this.options};
     if (this.parameters.size) {
-      schema.parameters = {};
+      let i = 0;
+      const parameters = {};
       for (const [name, param] of this.parameters.entries()) {
-        if (!param.isBuiltin)
-          schema.parameters[name] = param.exportSchema(options);
+        if (!param.isBuiltin) {
+          parameters[name] = param.exportSchema(options);
+          i++;
+        }
       }
+      if (i)
+        schema.parameters = parameters;
     }
     return schema;
   }

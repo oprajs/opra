@@ -24,20 +24,22 @@ export namespace Collection {
     get?: Operations.Get;
     update?: Operations.Update;
     updateMany?: Operations.UpdateMany;
-    [key: string]: Endpoint | undefined;
+    // [key: string]: Endpoint | undefined;
   }
 
   export namespace Operations {
-    export type Create = Endpoint & _InputOptions & _OutputOptions;
+    export type Create = Endpoint<_InputOptions & _OutputOptions>;
     export type Delete = Endpoint;
-    export type DeleteMany = Endpoint & _FilterOption;
+    export type DeleteMany = Endpoint<_FilterOption>;
     export type Get = Endpoint & _OutputOptions;
-    export type FindMany = Endpoint & _FilterOption & _OutputOptions & {
-      sortFields?: string[];
-      defaultSort?: string[];
-    };
-    export type Update = Endpoint & _InputOptions & _OutputOptions;
-    export type UpdateMany = Endpoint & _FilterOption & _InputOptions & _OutputOptions;
+    export type FindMany = Endpoint<
+        _FilterOption & _OutputOptions &
+        {
+          sortFields?: string[];
+          defaultSort?: string[];
+        }>;
+    export type Update = Endpoint<_InputOptions & _OutputOptions>;
+    export type UpdateMany = Endpoint<_FilterOption & _InputOptions & _OutputOptions>;
   }
 
 }
@@ -54,7 +56,7 @@ interface _InputOptions {
   inputMaxContentSize?: number | string;
   inputPick?: Field.QualifiedName[];
   inputOmit?: Field.QualifiedName[];
-
+  inputOverwriteFields?: Record<string, Field>;
 }
 
 interface _OutputOptions {

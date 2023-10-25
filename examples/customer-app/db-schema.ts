@@ -44,6 +44,7 @@ CREATE TABLE ${schema}.customers
     family_name character varying(64),
     gender char(1),
     birth_date date,
+    created_by json,
     address_country_code varchar(2),
     address_city varchar(32),
     address_street varchar(256),

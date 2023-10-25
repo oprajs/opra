@@ -4,9 +4,10 @@ import { omitUndefined } from '../../helpers/index.js';
 import { Field } from '../../schema/data-type/field.interface.js';
 import { OpraSchema } from '../../schema/index.js';
 import { TypeThunkAsync } from '../../types.js';
+import { EnumType } from '../data-type/enum-type.js';
 import { ActionDecorator, createActionDecorator } from './action-decorator.js';
 import type { Collection } from './collection.js';
-import { createOperationDecorator } from './operation-decorator.js';
+import { createOperationDecorator } from './crud-operation-decorator.js';
 import { ResourceDecorator } from './resource-decorator.js';
 
 type ErrorMessage<T, Error> = [T] extends [never] ? Error : T;
@@ -59,6 +60,11 @@ export namespace CollectionDecorator {
       update: Update.Metadata;
       updateMany: UpdateMany.Metadata;
     }
+  }
+
+  export interface FieldDecoratorOptions extends Partial<StrictOmit<OpraSchema.Field, 'type'>> {
+    type?: string | OpraSchema.DataType | TypeThunkAsync;
+    enum?: EnumType.EnumObject | EnumType.EnumArray;
   }
 
   /**
@@ -197,31 +203,41 @@ export namespace CollectionDecorator {
     InputMaxContentSize: (sizeInBytes: number) => CreateDecorator;
     InputPickFields: (...fields: Field.QualifiedName[]) => CreateDecorator;
     InputOmitFields: (...fields: Field.QualifiedName[]) => CreateDecorator;
+    InputOverwriteFields: (fields: Record<string, FieldDecoratorOptions>) => CreateDecorator;
     OutputPickFields: (...fields: Field.QualifiedName[]) => CreateDecorator;
     OutputOmitFields: (...fields: Field.QualifiedName[]) => CreateDecorator;
+    OutputOverwriteFields: (fields: Record<string, FieldDecoratorOptions>) => CreateDecorator;
   };
 
   export function Create(options?: Create.Options): CreateDecorator {
     const list: ((operationMeta: any) => void)[] = [];
     const decorator = createOperationDecorator<CreateDecorator, Create.Metadata>('create', options, list);
     decorator.InputMaxContentSize = (sizeInBytes: number) => {
-      list.push(operationMeta => operationMeta.inputMaxContentSize = sizeInBytes)
+      list.push(operationMeta => operationMeta.options.inputMaxContentSize = sizeInBytes)
       return decorator;
     }
     decorator.InputPickFields = (...fields: Field.QualifiedName[]) => {
-      list.push(operationMeta => operationMeta.inputPickFields = fields)
+      list.push(operationMeta => operationMeta.options.inputPickFields = fields)
       return decorator;
     }
     decorator.InputOmitFields = (...fields: Field.QualifiedName[]) => {
-      list.push(operationMeta => operationMeta.inputOmitFields = fields)
+      list.push(operationMeta => operationMeta.options.inputOmitFields = fields)
+      return decorator;
+    }
+    decorator.InputOverwriteFields = (fields: Record<string, FieldDecoratorOptions>) => {
+      list.push(operationMeta => operationMeta.options.inputOverwriteFields = fields)
       return decorator;
     }
     decorator.OutputPickFields = (...fields: Field.QualifiedName[]) => {
-      list.push(operationMeta => operationMeta.outputPickFields = fields)
+      list.push(operationMeta => operationMeta.options.outputPickFields = fields)
       return decorator;
     }
     decorator.OutputOmitFields = (...fields: Field.QualifiedName[]) => {
-      list.push(operationMeta => operationMeta.outputOmitFields = fields)
+      list.push(operationMeta => operationMeta.options.outputOmitFields = fields)
+      return decorator;
+    }
+    decorator.OutputOverwriteFields = (fields: Record<string, FieldDecoratorOptions>) => {
+      list.push(operationMeta => operationMeta.options.outputOverwriteFields = fields)
       return decorator;
     }
     return decorator;
@@ -255,8 +271,8 @@ export namespace CollectionDecorator {
         operators = operators.split(/\s*[,| ]\s*/) as OpraFilter.ComparisonOperator[]
       list.push(
           operationMeta => {
-            operationMeta.filters = operationMeta.filters || [];
-            operationMeta.filters.push(omitUndefined({field, operators, notes}));
+            operationMeta.options.filters = operationMeta.options.filters || [];
+            operationMeta.options.filters.push(omitUndefined({field, operators, notes}));
           }
       )
       return decorator;
@@ -271,17 +287,22 @@ export namespace CollectionDecorator {
     Parameter: (name: string, optionsOrType?: ResourceDecorator.ParameterOptions | string | Type) => GetDecorator;
     OutputPickFields: (...fields: Field.QualifiedName[]) => GetDecorator;
     OutputOmitFields: (...fields: Field.QualifiedName[]) => GetDecorator;
+    OutputOverwriteFields: (fields: Record<string, FieldDecoratorOptions>) => GetDecorator;
   };
 
   export function Get(options?: Get.Options): GetDecorator {
     const list: ((operationMeta: any) => void)[] = [];
     const decorator = createOperationDecorator<GetDecorator, Get.Metadata>('get', options, list);
     decorator.OutputPickFields = (...fields: Field.QualifiedName[]) => {
-      list.push(operationMeta => operationMeta.outputPickFields = fields)
+      list.push(operationMeta => operationMeta.options.outputPickFields = fields)
       return decorator;
     }
     decorator.OutputOmitFields = (...fields: Field.QualifiedName[]) => {
-      list.push(operationMeta => operationMeta.outputOmitFields = fields)
+      list.push(operationMeta => operationMeta.options.outputOmitFields = fields)
+      return decorator;
+    }
+    decorator.OutputOverwriteFields = (fields: Record<string, FieldDecoratorOptions>) => {
+      list.push(operationMeta => operationMeta.options.outputOverwriteFields = fields)
       return decorator;
     }
     return decorator;
@@ -297,17 +318,18 @@ export namespace CollectionDecorator {
     Filter: (field: Field.QualifiedName, operators?: OpraFilter.ComparisonOperator[] | string, notes?: string) => FindManyDecorator;
     OutputPickFields: (...fields: Field.QualifiedName[]) => FindManyDecorator;
     OutputOmitFields: (...fields: Field.QualifiedName[]) => FindManyDecorator;
+    OutputOverwriteFields: (fields: Record<string, FieldDecoratorOptions>) => FindManyDecorator;
   };
 
   export function FindMany(options?: FindMany.Options): FindManyDecorator {
     const list: ((operationMeta: any) => void)[] = [];
     const decorator = createOperationDecorator<FindManyDecorator, FindMany.Metadata>('findMany', options, list);
     decorator.SortFields = (...fields: string[]) => {
-      list.push(operationMeta => operationMeta.sortFields = fields);
+      list.push(operationMeta => operationMeta.options.sortFields = fields);
       return decorator;
     }
     decorator.DefaultSort = (...fields: Field.QualifiedName[]) => {
-      list.push(operationMeta => operationMeta.defaultSort = fields);
+      list.push(operationMeta => operationMeta.options.defaultSort = fields);
       return decorator;
     }
     decorator.Filter = (field: Field.QualifiedName, operators?: OpraFilter.ComparisonOperator[] | string, notes?: string) => {
@@ -315,18 +337,22 @@ export namespace CollectionDecorator {
         operators = operators.split(/\s*[,| ]\s*/) as OpraFilter.ComparisonOperator[];
       list.push(
           operationMeta => {
-            operationMeta.filters = operationMeta.filters || [];
-            operationMeta.filters.push(omitUndefined({field, operators, notes}));
+            operationMeta.options.filters = operationMeta.options.filters || [];
+            operationMeta.options.filters.push(omitUndefined({field, operators, notes}));
           }
       )
       return decorator;
     }
     decorator.OutputPickFields = (...fields: Field.QualifiedName[]) => {
-      list.push(operationMeta => operationMeta.outputPickFields = fields)
+      list.push(operationMeta => operationMeta.options.outputPickFields = fields)
       return decorator;
     }
     decorator.OutputOmitFields = (...fields: Field.QualifiedName[]) => {
-      list.push(operationMeta => operationMeta.outputOmitFields = fields)
+      list.push(operationMeta => operationMeta.options.outputOmitFields = fields)
+      return decorator;
+    }
+    decorator.OutputOverwriteFields = (fields: Record<string, FieldDecoratorOptions>) => {
+      list.push(operationMeta => operationMeta.options.outputOverwriteFields = fields)
       return decorator;
     }
     return decorator;
@@ -342,31 +368,41 @@ export namespace CollectionDecorator {
     InputMaxContentSize: (sizeInBytes: number) => UpdateDecorator;
     InputPickFields: (...fields: Field.QualifiedName[]) => UpdateDecorator;
     InputOmitFields: (...fields: Field.QualifiedName[]) => UpdateDecorator;
+    InputOverwriteFields: (fields: Record<string, FieldDecoratorOptions>) => UpdateDecorator;
     OutputPickFields: (...fields: Field.QualifiedName[]) => UpdateDecorator;
     OutputOmitFields: (...fields: Field.QualifiedName[]) => UpdateDecorator;
+    OutputOverwriteFields: (fields: Record<string, FieldDecoratorOptions>) => UpdateDecorator;
   };
 
   export function Update(options?: Update.Options): UpdateDecorator {
     const list: ((operationMeta: any) => void)[] = [];
     const decorator = createOperationDecorator<UpdateDecorator, Update.Metadata>('update', options, list);
     decorator.InputMaxContentSize = (sizeInBytes: number) => {
-      list.push(operationMeta => operationMeta.inputMaxContentSize = sizeInBytes)
+      list.push(operationMeta => operationMeta.options.inputMaxContentSize = sizeInBytes)
       return decorator;
     }
     decorator.InputPickFields = (...fields: Field.QualifiedName[]) => {
-      list.push(operationMeta => operationMeta.inputPickFields = fields)
+      list.push(operationMeta => operationMeta.options.inputPickFields = fields)
       return decorator;
     }
     decorator.InputOmitFields = (...fields: Field.QualifiedName[]) => {
-      list.push(operationMeta => operationMeta.inputOmitFields = fields)
+      list.push(operationMeta => operationMeta.options.inputOmitFields = fields)
+      return decorator;
+    }
+    decorator.InputOverwriteFields = (fields: Record<string, FieldDecoratorOptions>) => {
+      list.push(operationMeta => operationMeta.options.inputOverwriteFields = fields)
       return decorator;
     }
     decorator.OutputPickFields = (...fields: Field.QualifiedName[]) => {
-      list.push(operationMeta => operationMeta.outputPickFields = fields)
+      list.push(operationMeta => operationMeta.options.outputPickFields = fields)
       return decorator;
     }
     decorator.OutputOmitFields = (...fields: Field.QualifiedName[]) => {
-      list.push(operationMeta => operationMeta.outputOmitFields = fields)
+      list.push(operationMeta => operationMeta.options.outputOmitFields = fields)
+      return decorator;
+    }
+    decorator.OutputOverwriteFields = (fields: Record<string, FieldDecoratorOptions>) => {
+      list.push(operationMeta => operationMeta.options.outputOverwriteFields = fields)
       return decorator;
     }
     return decorator;
@@ -382,6 +418,7 @@ export namespace CollectionDecorator {
     InputMaxContentSize: (sizeInBytes: number) => UpdateManyDecorator;
     InputPickFields: (...fields: Field.QualifiedName[]) => UpdateManyDecorator;
     InputOmitFields: (...fields: Field.QualifiedName[]) => UpdateManyDecorator;
+    InputOverwriteFields: (fields: Record<string, FieldDecoratorOptions>) => UpdateManyDecorator;
     Filter: (field: Field.QualifiedName, operators?: OpraFilter.ComparisonOperator[] | string, notes?: string) => UpdateManyDecorator;
   };
 
@@ -392,15 +429,19 @@ export namespace CollectionDecorator {
     const options = typeof arg0 === 'string' ? {description: arg0} : {...arg0};
     const decorator = createOperationDecorator<UpdateManyDecorator, UpdateMany.Metadata>('updateMany', options, list);
     decorator.InputMaxContentSize = (sizeInBytes: number) => {
-      list.push(operationMeta => operationMeta.inputMaxContentSize = sizeInBytes)
+      list.push(operationMeta => operationMeta.options.inputMaxContentSize = sizeInBytes)
       return decorator;
     }
     decorator.InputPickFields = (...fields: Field.QualifiedName[]) => {
-      list.push(operationMeta => operationMeta.inputPickFields = fields)
+      list.push(operationMeta => operationMeta.options.inputPickFields = fields)
       return decorator;
     }
     decorator.InputOmitFields = (...fields: Field.QualifiedName[]) => {
-      list.push(operationMeta => operationMeta.inputOmitFields = fields)
+      list.push(operationMeta => operationMeta.options.inputOmitFields = fields)
+      return decorator;
+    }
+    decorator.InputOverwriteFields = (fields: Record<string, FieldDecoratorOptions>) => {
+      list.push(operationMeta => operationMeta.options.inputOverwriteFields = fields)
       return decorator;
     }
     decorator.Filter = (field: Field.QualifiedName, operators?: OpraFilter.ComparisonOperator[] | string, notes?: string) => {
@@ -408,8 +449,8 @@ export namespace CollectionDecorator {
         operators = operators.split(/\s*[,| ]\s*/) as OpraFilter.ComparisonOperator[]
       list.push(
           operationMeta => {
-            operationMeta.filters = operationMeta.filters || [];
-            operationMeta.filters.push(omitUndefined({field, operators, notes}));
+            operationMeta.options.filters = operationMeta.options.filters || [];
+            operationMeta.options.filters.push(omitUndefined({field, operators, notes}));
           }
       )
       return decorator;

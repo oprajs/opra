@@ -88,7 +88,7 @@ describe('Collection decorators', function () {
 
       const metadata = Reflect.getMetadata(RESOURCE_METADATA, CountryResource);
       expect(metadata.operations).toStrictEqual({
-        create: {description: 'operation'}
+        create: {description: 'operation', options: {}}
       });
     })
 
@@ -102,7 +102,7 @@ describe('Collection decorators', function () {
 
       const metadata = Reflect.getMetadata(RESOURCE_METADATA, CountryResource);
       expect(metadata.operations).toStrictEqual({
-        create: {inputMaxContentSize: 1000}
+        create: {options: {inputMaxContentSize: 1000}}
       });
     })
 
@@ -116,7 +116,29 @@ describe('Collection decorators', function () {
 
       const metadata = Reflect.getMetadata(RESOURCE_METADATA, CountryResource);
       expect(metadata.operations).toStrictEqual({
-        create: {inputPickFields: ['_id', 'givenName']}
+        create: {options: {inputPickFields: ['_id', 'givenName']}}
+      });
+    })
+
+    it('Should InputOverwriteFields() define metadata value', async function () {
+      class CountryResource {
+        @Collection.Create()
+            .InputOverwriteFields({
+              extraField: {type: 'string'}
+            })
+        create() {
+        }
+      }
+
+      const metadata = Reflect.getMetadata(RESOURCE_METADATA, CountryResource);
+      expect(metadata.operations).toStrictEqual({
+        create: {
+          options: {
+            inputOverwriteFields: {
+              extraField: {type: 'string'}
+            }
+          }
+        }
       });
     })
 
@@ -130,7 +152,7 @@ describe('Collection decorators', function () {
 
       const metadata = Reflect.getMetadata(RESOURCE_METADATA, CountryResource);
       expect(metadata.operations).toStrictEqual({
-        create: {inputOmitFields: ['_id', 'givenName']}
+        create: {options: {inputOmitFields: ['_id', 'givenName']}}
       });
     })
 
@@ -144,7 +166,7 @@ describe('Collection decorators', function () {
 
       const metadata = Reflect.getMetadata(RESOURCE_METADATA, CountryResource);
       expect(metadata.operations).toStrictEqual({
-        create: {outputPickFields: ['_id', 'givenName']}
+        create: {options: {outputPickFields: ['_id', 'givenName']}}
       });
     })
 
@@ -158,7 +180,7 @@ describe('Collection decorators', function () {
 
       const metadata = Reflect.getMetadata(RESOURCE_METADATA, CountryResource);
       expect(metadata.operations).toStrictEqual({
-        create: {outputOmitFields: ['_id', 'givenName']}
+        create: {options: {outputOmitFields: ['_id', 'givenName']}}
       });
     })
 
@@ -176,7 +198,7 @@ describe('Collection decorators', function () {
 
       const metadata = Reflect.getMetadata(RESOURCE_METADATA, CountryResource);
       expect(metadata.operations).toStrictEqual({
-        delete: {description: 'operation'}
+        delete: {description: 'operation', options: {}}
       });
     })
   })
@@ -193,7 +215,7 @@ describe('Collection decorators', function () {
 
       const metadata = Reflect.getMetadata(RESOURCE_METADATA, CountryResource);
       expect(metadata.operations).toStrictEqual({
-        deleteMany: {description: 'operation'}
+        deleteMany: {description: 'operation', options: {}}
       });
     })
 
@@ -209,10 +231,12 @@ describe('Collection decorators', function () {
       const metadata = Reflect.getMetadata(RESOURCE_METADATA, CountryResource);
       expect(metadata.operations).toStrictEqual({
         deleteMany: {
-          filters: [
-            {field: '_id', operators: ['=', '!=']},
-            {field: 'givenName', operators: ['=', '!=', 'like']},
-          ]
+          options: {
+            filters: [
+              {field: '_id', operators: ['=', '!=']},
+              {field: 'givenName', operators: ['=', '!=', 'like']},
+            ]
+          }
         }
       });
     })
@@ -231,7 +255,7 @@ describe('Collection decorators', function () {
 
       const metadata = Reflect.getMetadata(RESOURCE_METADATA, CountryResource);
       expect(metadata.operations).toStrictEqual({
-        get: {description: 'operation'}
+        get: {description: 'operation', options: {}}
       });
     })
 
@@ -245,7 +269,7 @@ describe('Collection decorators', function () {
 
       const metadata = Reflect.getMetadata(RESOURCE_METADATA, CountryResource);
       expect(metadata.operations).toStrictEqual({
-        get: {outputPickFields: ['_id', 'givenName']}
+        get: {options: {outputPickFields: ['_id', 'givenName']}}
       });
     })
 
@@ -259,7 +283,7 @@ describe('Collection decorators', function () {
 
       const metadata = Reflect.getMetadata(RESOURCE_METADATA, CountryResource);
       expect(metadata.operations).toStrictEqual({
-        get: {outputOmitFields: ['_id', 'givenName']}
+        get: {options: {outputOmitFields: ['_id', 'givenName']}}
       });
     })
 
@@ -277,7 +301,7 @@ describe('Collection decorators', function () {
 
       const metadata = Reflect.getMetadata(RESOURCE_METADATA, CountryResource);
       expect(metadata.operations).toStrictEqual({
-        findMany: {description: 'operation'}
+        findMany: {description: 'operation', options: {}}
       });
     })
 
@@ -291,7 +315,7 @@ describe('Collection decorators', function () {
 
       const metadata = Reflect.getMetadata(RESOURCE_METADATA, CountryResource);
       expect(metadata.operations).toStrictEqual({
-        findMany: {sortFields: ['_id', 'givenName']}
+        findMany: {options: {sortFields: ['_id', 'givenName']}}
       });
     })
 
@@ -305,7 +329,7 @@ describe('Collection decorators', function () {
 
       const metadata = Reflect.getMetadata(RESOURCE_METADATA, CountryResource);
       expect(metadata.operations).toStrictEqual({
-        findMany: {defaultSort: ['_id', 'givenName']}
+        findMany: {options: {defaultSort: ['_id', 'givenName']}}
       });
     })
 
@@ -319,7 +343,7 @@ describe('Collection decorators', function () {
 
       const metadata = Reflect.getMetadata(RESOURCE_METADATA, CountryResource);
       expect(metadata.operations).toStrictEqual({
-        findMany: {outputPickFields: ['_id', 'givenName']}
+        findMany: {options: {outputPickFields: ['_id', 'givenName']}}
       });
     })
 
@@ -333,7 +357,7 @@ describe('Collection decorators', function () {
 
       const metadata = Reflect.getMetadata(RESOURCE_METADATA, CountryResource);
       expect(metadata.operations).toStrictEqual({
-        findMany: {outputOmitFields: ['_id', 'givenName']}
+        findMany: {options: {outputOmitFields: ['_id', 'givenName']}}
       });
     })
 
@@ -351,7 +375,7 @@ describe('Collection decorators', function () {
 
       const metadata = Reflect.getMetadata(RESOURCE_METADATA, CountryResource);
       expect(metadata.operations).toStrictEqual({
-        update: {description: 'operation'}
+        update: {description: 'operation', options: {}}
       });
     })
 
@@ -365,7 +389,7 @@ describe('Collection decorators', function () {
 
       const metadata = Reflect.getMetadata(RESOURCE_METADATA, CountryResource);
       expect(metadata.operations).toStrictEqual({
-        update: {inputMaxContentSize: 1000}
+        update: {options: {inputMaxContentSize: 1000}}
       });
     })
 
@@ -379,7 +403,29 @@ describe('Collection decorators', function () {
 
       const metadata = Reflect.getMetadata(RESOURCE_METADATA, CountryResource);
       expect(metadata.operations).toStrictEqual({
-        update: {inputPickFields: ['_id', 'givenName']}
+        update: {options: {inputPickFields: ['_id', 'givenName']}}
+      });
+    })
+
+    it('Should InputOverwriteFields() define metadata value', async function () {
+      class CountryResource {
+        @Collection.Update()
+            .InputOverwriteFields({
+              extraField: {type: 'string'}
+            })
+        update() {
+        }
+      }
+
+      const metadata = Reflect.getMetadata(RESOURCE_METADATA, CountryResource);
+      expect(metadata.operations).toStrictEqual({
+        update: {
+          options: {
+            inputOverwriteFields: {
+              extraField: {type: 'string'}
+            }
+          }
+        }
       });
     })
 
@@ -393,7 +439,7 @@ describe('Collection decorators', function () {
 
       const metadata = Reflect.getMetadata(RESOURCE_METADATA, CountryResource);
       expect(metadata.operations).toStrictEqual({
-        update: {inputOmitFields: ['_id', 'givenName']}
+        update: {options: {inputOmitFields: ['_id', 'givenName']}}
       });
     })
 
@@ -407,7 +453,7 @@ describe('Collection decorators', function () {
 
       const metadata = Reflect.getMetadata(RESOURCE_METADATA, CountryResource);
       expect(metadata.operations).toStrictEqual({
-        update: {outputPickFields: ['_id', 'givenName']}
+        update: {options: {outputPickFields: ['_id', 'givenName']}}
       });
     })
 
@@ -421,7 +467,7 @@ describe('Collection decorators', function () {
 
       const metadata = Reflect.getMetadata(RESOURCE_METADATA, CountryResource);
       expect(metadata.operations).toStrictEqual({
-        update: {outputOmitFields: ['_id', 'givenName']}
+        update: {options: {outputOmitFields: ['_id', 'givenName']}}
       });
     })
 
@@ -439,7 +485,7 @@ describe('Collection decorators', function () {
 
       const metadata = Reflect.getMetadata(RESOURCE_METADATA, CountryResource);
       expect(metadata.operations).toStrictEqual({
-        updateMany: {description: 'operation'}
+        updateMany: {description: 'operation', options: {}}
       });
     })
 
@@ -453,7 +499,7 @@ describe('Collection decorators', function () {
 
       const metadata = Reflect.getMetadata(RESOURCE_METADATA, CountryResource);
       expect(metadata.operations).toStrictEqual({
-        updateMany: {inputMaxContentSize: 1000}
+        updateMany: {options: {inputMaxContentSize: 1000}}
       });
     })
 
@@ -467,7 +513,7 @@ describe('Collection decorators', function () {
 
       const metadata = Reflect.getMetadata(RESOURCE_METADATA, CountryResource);
       expect(metadata.operations).toStrictEqual({
-        updateMany: {inputPickFields: ['_id', 'givenName']}
+        updateMany: {options: {inputPickFields: ['_id', 'givenName']}}
       });
     })
 
@@ -482,7 +528,7 @@ describe('Collection decorators', function () {
 
       const metadata = Reflect.getMetadata(RESOURCE_METADATA, CountryResource);
       expect(metadata.operations).toStrictEqual({
-        updateMany: {inputOmitFields: ['_id', 'givenName']}
+        updateMany: {options: {inputOmitFields: ['_id', 'givenName']}}
       });
     })
 
@@ -499,10 +545,12 @@ describe('Collection decorators', function () {
       const metadata = Reflect.getMetadata(RESOURCE_METADATA, CountryResource);
       expect(metadata.operations).toStrictEqual({
         updateMany: {
-          filters: [
-            {field: '_id', operators: ['=', '!=']},
-            {field: 'givenName', operators: ['=', '!=', 'like']},
-          ]
+          options: {
+            filters: [
+              {field: '_id', operators: ['=', '!=']},
+              {field: 'givenName', operators: ['=', '!=', 'like']},
+            ]
+          }
         }
       });
     })

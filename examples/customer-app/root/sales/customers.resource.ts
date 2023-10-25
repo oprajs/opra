@@ -8,10 +8,7 @@ import { CustomerService } from './customer.service.js';
   description: 'Customer resource'
 })
 export class CustomersResource extends SqbCollection<Customer> {
-
-  constructor(public customerService: CustomerService) {
-    super();
-  }
+  public customerService = new CustomerService();
 
   @Collection.FindMany()
       .SortFields('id', 'givenName', 'familyName', 'gender', 'birthDate')
@@ -21,6 +18,17 @@ export class CustomersResource extends SqbCollection<Customer> {
       .Filter('gender', ['=', '!=', 'in'])
       .Filter('birthDate', ['=', '>', '>=', '<', '<='])
   findMany;
+
+  @Collection.Create()
+      .InputOverwriteFields({
+        createdBy: {type: String, required: true}
+      })
+  async create(ctx: Collection.Create.Context) {
+    const {request} = ctx;
+    if (request.data.createdBy)
+      request.data.createdBy = {givenName: 'x', familyName: 'y'};
+    return super.create!(ctx);
+  }
 
   @Collection.Action()
       .Parameter('ids', {type: String, isArray: true, required: true})

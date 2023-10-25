@@ -185,9 +185,9 @@ export class ApiDocumentFactory extends TypeDocumentFactory {
         return;
       const output: any = {};
       for (const [kA, oA] of Object.entries(source)) {
-        let parameters: Record<string, Parameter.InitArguments> | undefined;
+        const o = output[kA] = {...oA};
         if (oA.parameters) {
-          parameters = {};
+          const parameters: Record<string, Parameter.InitArguments> | undefined = o.parameters = {};
           for (const [kP, oP] of Object.entries(oA.parameters)) {
             if (oP.enum) {
               oP.type = EnumType(oP.enum, {name: kP + 'Enum'}) as any;
@@ -198,7 +198,32 @@ export class ApiDocumentFactory extends TypeDocumentFactory {
             };
           }
         }
-        output[kA] = {...oA, parameters};
+        if (oA.options?.inputOverwriteFields) {
+          const inputOverwriteFields: Record<string, Parameter.InitArguments> | undefined = {};
+          for (const [kP, oP] of Object.entries<any>(oA.options.inputOverwriteFields)) {
+            if (oP.enum) {
+              oP.type = EnumType(oP.enum, {name: kP + 'Enum'}) as any;
+            }
+            inputOverwriteFields[kP] = {
+              ...oP,
+              type: await this.importDataType(oP.type || 'any')
+            };
+          }
+          o.options.inputOverwriteFields = inputOverwriteFields;
+        }
+        if (oA.options?.outputOverwriteFields) {
+          const outputOverwriteFields: Record<string, Parameter.InitArguments> | undefined = {};
+          for (const [kP, oP] of Object.entries<any>(oA.options.outputOverwriteFields)) {
+            if (oP.enum) {
+              oP.type = EnumType(oP.enum, {name: kP + 'Enum'}) as any;
+            }
+            outputOverwriteFields[kP] = {
+              ...oP,
+              type: await this.importDataType(oP.type || 'any')
+            };
+          }
+          o.options.outputOverwriteFields = outputOverwriteFields;
+        }
       }
       return output;
     }

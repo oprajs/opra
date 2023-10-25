@@ -19,11 +19,8 @@ export class PhotosResource {
     return {ok: true, message: ctx.request.params.message};
   }
 
-  @Collection.FindMany({
-    filters: [
-      {field: 'id', operators: ['=', '<', '>', '>=', '<=', '!=']}
-    ]
-  })
+  @Collection.FindMany()
+      .Filter('id')
   async findMany(@Context ctx: Collection.FindMany.Context) {
     const {request} = ctx;
     return this.photosService.search(request.params.filter);

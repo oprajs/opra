@@ -13,4 +13,15 @@ export class CustomersController {
     //
   }
 
+  @Collection.Create()
+      .InputOverwriteFields({
+        rate: {
+          type: 'integer',
+          required: true
+        }
+      })
+  create() {
+    //
+  }
+
 }

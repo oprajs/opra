@@ -18,7 +18,7 @@ export class ComplexTypeClass extends DataType {
   readonly ctor: Type;
   readonly base?: ComplexType | UnionType | MappedType;
   readonly own: ComplexType.OwnProperties;
-  readonly fields: ResponsiveMap<ApiField>;
+  readonly fields = new ResponsiveMap<ApiField>();
   readonly abstract?: boolean;
   readonly additionalFields?: boolean | vg.Validator | 'error';
 
@@ -43,7 +43,6 @@ export class ComplexTypeClass extends DataType {
       this.additionalFields = true;
     else if (this.base?.additionalFields === 'error' && !this.additionalFields)
       this.additionalFields = 'error';
-    this.fields = new ResponsiveMap();
     if (this.base) {
       if (this.base.fields)
         for (const [k, el] of this.base.fields.entries()) {
@@ -185,20 +184,33 @@ export class ComplexTypeClass extends DataType {
     const schema: vg.ObjectSchema = {};
     const pickOption = (options?.pick || []).map(x => x.toLowerCase());
     const omitOption = (options?.omit || []).map(x => x.toLowerCase());
-    for (const f of this.fields.values()) {
-      const nameLower = f.name.toLowerCase();
-      if (omitOption.find(x => x === nameLower))
-        continue;
-      if (pickOption.length && !pickOption.find(x => x === nameLower || x.startsWith(nameLower + '.')))
-        continue;
+    const dedupedFieldNames: string[] =
+        (options?.overwriteFields
+                ? Array.from(new Set([...this.fields.keys(), ...options?.overwriteFields.keys()]))
+                : Array.from(this.fields.keys())
+        ).map(x => x.toLocaleString());
+    for (const nameLower of dedupedFieldNames) {
+      const overwriteField = options?.overwriteFields?.get(nameLower);
+      const f = overwriteField || this.fields.get(nameLower);
+      /* istanbul ignore next */
+      if (!f) continue;
+      if (!overwriteField &&
+          (
+              omitOption.find(x => x === nameLower) ||
+              (pickOption.length && !pickOption.find(x => x === nameLower || x.startsWith(nameLower + '.')))
+          )
+      ) continue;
+
       schema[f.name] = f.generateCodec(codec, {
         ...options,
-        pick: pickOption
-            .filter(x => x.startsWith(nameLower + '.'))
-            .map(x => x.substring(x.indexOf('.') + 1)),
-        omit: omitOption
-            .filter(x => x.startsWith(nameLower + '.'))
-            .map(x => x.substring(x.indexOf('.') + 1)),
+        pick: overwriteField ? [] :
+            pickOption
+                .filter(x => x.startsWith(nameLower + '.'))
+                .map(x => x.substring(x.indexOf('.') + 1)),
+        omit: overwriteField ? [] :
+            omitOption
+                .filter(x => x.startsWith(nameLower + '.'))
+                .map(x => x.substring(x.indexOf('.') + 1)),
       });
     }
     return schema;

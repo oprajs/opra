@@ -15,22 +15,19 @@ export class CustomersResource extends MongoCollection<Customer> {
     this.service = new MongoEntityService('Customers', {db});
   }
 
-  @Collection.FindMany({
-    sortFields: ['_id', 'givenName', 'familyName', 'gender', 'address.countryCode'],
-    defaultSort: ['givenName'],
-    filters: [
-      {field: '_id', operators: ['=', '>', '<', '>=', '<=']},
-      {field: 'givenName', operators: ['=', '!=', 'like', '!like', 'ilike', '!ilike']},
-      {field: 'familyName', operators: ['=', '!=', 'like', '!like']},
-      {field: 'gender', operators: ['=']},
-      {field: 'uid', operators: ['=']},
-      {field: 'address.countryCode', operators: ['=']},
-      {field: 'deleted', operators: ['=', '!=']},
-      {field: 'active', operators: ['=']},
-      {field: 'birthDate', operators: ['=']},
-      {field: 'rate', operators: ['=', '>', '<', '>=', '<=', 'in', '!in']},
-    ]
-  })
+  @Collection.FindMany()
+      .SortFields('_id', 'givenName', 'familyName', 'gender', 'address.countryCode')
+      .DefaultSort('givenName')
+      .Filter('_id')
+      .Filter('givenName')
+      .Filter('familyName')
+      .Filter('gender')
+      .Filter('uid')
+      .Filter('address.countryCode')
+      .Filter('deleted')
+      .Filter('active')
+      .Filter('birthDate')
+      .Filter('rate')
   findMany;
 
   getService(ctx: RequestContext) {

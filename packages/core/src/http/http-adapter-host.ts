@@ -229,7 +229,9 @@ export abstract class HttpAdapterHost extends PlatformAdapterHost {
       case 'POST': {
         if (p.key == null) {
           const {controller, endpoint, handler} = await this.getOperationHandler(resource, 'create');
-          const jsonReader = jsonBodyLoader({limit: endpoint.inputMaxContentSize}, endpoint);
+          const jsonReader = jsonBodyLoader({
+            limit: endpoint.options.inputMaxContentSize
+          }, endpoint);
           let data = await jsonReader(incoming);
           data = endpoint.decodeInput(data, {coerce: true});
           const params = this.parseParameters(endpoint.parameters, searchParams);
@@ -320,7 +322,9 @@ export abstract class HttpAdapterHost extends PlatformAdapterHost {
       case 'PATCH': {
         if (p.key != null) {
           const {controller, endpoint, handler} = await this.getOperationHandler(resource, 'update');
-          const jsonReader = jsonBodyLoader({limit: endpoint.inputMaxContentSize}, endpoint);
+          const jsonReader = jsonBodyLoader({
+            limit: endpoint.options.inputMaxContentSize
+          }, endpoint);
           let data = await jsonReader(incoming);
           data = endpoint.decodeInput(data, {coerce: true});
           const params = this.parseParameters(endpoint.parameters, searchParams);
@@ -341,7 +345,9 @@ export abstract class HttpAdapterHost extends PlatformAdapterHost {
           });
         }
         const {controller, endpoint, handler} = await this.getOperationHandler(resource, 'updateMany');
-        const jsonReader = jsonBodyLoader({limit: endpoint.inputMaxContentSize}, endpoint);
+        const jsonReader = jsonBodyLoader({
+          limit: endpoint.options.inputMaxContentSize
+        }, endpoint);
         let data = await jsonReader(incoming);
         data = endpoint.decodeInput(data, {coerce: true});
         const params = this.parseParameters(endpoint.parameters, searchParams);
@@ -378,7 +384,9 @@ export abstract class HttpAdapterHost extends PlatformAdapterHost {
     switch (incoming.method) {
       case 'POST': {
         const {controller, endpoint, handler} = await this.getOperationHandler(resource, 'create');
-        const jsonReader = jsonBodyLoader({limit: endpoint.inputMaxContentSize}, endpoint);
+        const jsonReader = jsonBodyLoader({
+          limit: endpoint.options.inputMaxContentSize
+        }, endpoint);
         let data = await jsonReader(incoming);
         data = endpoint.decodeInput(data, {coerce: true});
         const params = this.parseParameters(endpoint.parameters, searchParams);
@@ -430,7 +438,9 @@ export abstract class HttpAdapterHost extends PlatformAdapterHost {
 
       case 'PATCH': {
         const {controller, endpoint, handler} = await this.getOperationHandler(resource, 'update');
-        const jsonReader = jsonBodyLoader({limit: endpoint.inputMaxContentSize}, endpoint);
+        const jsonReader = jsonBodyLoader({
+          limit: endpoint.options.inputMaxContentSize
+        }, endpoint);
         let data = await jsonReader(incoming);
         data = endpoint.decodeInput(data, {coerce: true});
         const params = this.parseParameters(endpoint.parameters, searchParams);

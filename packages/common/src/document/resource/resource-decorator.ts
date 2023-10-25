@@ -65,7 +65,7 @@ export namespace ResourceDecorator {
     parameters: Record<string, ParameterMetadata>;
   }
 
-  export interface OperationOptions extends Partial<StrictOmit<OperationMetadata, 'parameters'>> {
+  export interface OperationOptions extends Partial<StrictOmit<OpraSchema.Endpoint, 'parameters'>> {
     parameters?: Record<string, ParameterOptions>;
   }
 
@@ -74,8 +74,9 @@ export namespace ResourceDecorator {
     returnType?: TypeThunkAsync | string;
   }
 
-  export interface ActionOptions extends Partial<StrictOmit<ActionMetadata, 'parameters'>> {
+  export interface ActionOptions extends Partial<StrictOmit<OpraSchema.Action, 'parameters' | 'returnType'>> {
     parameters?: Record<string, ParameterOptions>;
+    returnType?: TypeThunkAsync | string;
   }
 
 }

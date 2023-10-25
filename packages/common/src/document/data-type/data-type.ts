@@ -1,6 +1,6 @@
 import { RequiredSome, Type } from 'ts-gems';
 import * as vg from 'valgen';
-import { omitUndefined } from '../../helpers/index.js';
+import { omitUndefined, ResponsiveMap } from '../../helpers/index.js';
 import { OpraSchema } from '../../schema/index.js';
 import type { ApiDocument } from '../api-document.js';
 import {
@@ -9,6 +9,7 @@ import {
   colorReset,
   nodeInspectCustom
 } from '../utils/inspect.util.js';
+import { ApiField } from './field.js';
 
 /**
  * @class DataType
@@ -85,6 +86,7 @@ export namespace DataType {
     omit?: string[];
     partial?: boolean;
     operation?: 'read' | 'write';
+    overwriteFields?: ResponsiveMap<ApiField>;
   }
 
 }

@@ -9,9 +9,7 @@ import { CountryService } from './country.service.js';
   description: 'Country resource'
 })
 export class CountriesResource extends SqbCollection<Country> {
-  constructor(public countryService: CountryService) {
-    super();
-  }
+  countryService = new CountryService();
 
   getService(ctx: RequestContext): SqbEntityService<Country> {
     return this.countryService.forContext(ctx);

@@ -82,7 +82,7 @@ describe('Storage decorators', function () {
 
       const metadata = Reflect.getMetadata(RESOURCE_METADATA, CountryResource);
       expect(metadata.operations).toStrictEqual({
-        delete: {description: 'operation'}
+        delete: {description: 'operation', options: {}}
       });
     })
   })
@@ -99,7 +99,7 @@ describe('Storage decorators', function () {
 
       const metadata = Reflect.getMetadata(RESOURCE_METADATA, CountryResource);
       expect(metadata.operations).toStrictEqual({
-        get: {description: 'operation'}
+        get: {description: 'operation', options: {}}
       });
     })
   })
@@ -116,7 +116,7 @@ describe('Storage decorators', function () {
 
       const metadata = Reflect.getMetadata(RESOURCE_METADATA, CountryResource);
       expect(metadata.operations).toStrictEqual({
-        post: {description: 'operation'}
+        post: {description: 'operation', options: {}}
       });
     })
 
@@ -130,7 +130,7 @@ describe('Storage decorators', function () {
 
       const metadata = Reflect.getMetadata(RESOURCE_METADATA, CountryResource);
       expect(metadata.operations).toStrictEqual({
-        post: {maxFields: 5}
+        post: {options: {maxFields: 5}}
       });
     })
 
@@ -144,7 +144,7 @@ describe('Storage decorators', function () {
 
       const metadata = Reflect.getMetadata(RESOURCE_METADATA, CountryResource);
       expect(metadata.operations).toStrictEqual({
-        post: {maxFieldsSize: 1000}
+        post: {options: {maxFieldsSize: 1000}}
       });
     })
 
@@ -158,7 +158,7 @@ describe('Storage decorators', function () {
 
       const metadata = Reflect.getMetadata(RESOURCE_METADATA, CountryResource);
       expect(metadata.operations).toStrictEqual({
-        post: {maxFiles: 3}
+        post: {options: {maxFiles: 3}}
       });
     })
 
@@ -172,7 +172,7 @@ describe('Storage decorators', function () {
 
       const metadata = Reflect.getMetadata(RESOURCE_METADATA, CountryResource);
       expect(metadata.operations).toStrictEqual({
-        post: {maxFileSize: 1000}
+        post: {options: {maxFileSize: 1000}}
       });
     })
 
@@ -186,7 +186,7 @@ describe('Storage decorators', function () {
 
       const metadata = Reflect.getMetadata(RESOURCE_METADATA, CountryResource);
       expect(metadata.operations).toStrictEqual({
-        post: {maxTotalFileSize: 1000}
+        post: {options: {maxTotalFileSize: 1000}}
       });
     })
 
@@ -201,7 +201,7 @@ describe('Storage decorators', function () {
 
       const metadata = Reflect.getMetadata(RESOURCE_METADATA, CountryResource);
       expect(metadata.operations).toStrictEqual({
-        post: {minFileSize: 1000}
+        post: {options: {minFileSize: 1000}}
       });
     })
 

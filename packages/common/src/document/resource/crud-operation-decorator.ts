@@ -2,13 +2,13 @@ import { Type } from 'ts-gems';
 import { RESOURCE_METADATA } from '../constants.js';
 import { ResourceDecorator } from './resource-decorator.js';
 
-export type OperationDecorator = ((target: Object, propertyKey: any) => void) & {
-  Parameter: (name: string, optionsOrType?: ResourceDecorator.ParameterOptions | string | Type) => OperationDecorator;
+export type CrudOperationDecorator = ((target: Object, propertyKey: any) => void) & {
+  Parameter: (name: string, optionsOrType?: ResourceDecorator.ParameterOptions | string | Type) => CrudOperationDecorator;
 }
 
-export function createOperationDecorator<T extends OperationDecorator, M extends ResourceDecorator.OperationMetadata>(
+export function createOperationDecorator<T extends CrudOperationDecorator, M extends ResourceDecorator.OperationMetadata>(
     operation: string,
-    options: any,
+    init: any,
     list: ((operationMeta: M, target: Object, propertyKey: string) => void)[]
 ): T {
   const decorator = ((target: Object, propertyKey: any): void => {
@@ -18,7 +18,8 @@ export function createOperationDecorator<T extends OperationDecorator, M extends
     const resourceMetadata =
         (Reflect.getOwnMetadata(RESOURCE_METADATA, target.constructor) || {}) as ResourceDecorator.Metadata;
     resourceMetadata.operations = resourceMetadata.operations || {};
-    const operationMeta: M = {...options};
+    const operationMeta: M = {...init};
+    operationMeta.options = operationMeta.options || {};
     resourceMetadata.operations[operation] = operationMeta;
     for (const fn of list)
       fn(operationMeta, target, propertyKey);

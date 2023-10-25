@@ -1,5 +1,5 @@
 import { StrictOmit } from 'ts-gems';
-import type { Action as _Action, Operation as _Operation, PartialOutput } from '@opra/common';
+import type { Action as _Action, CrudOperation as _Operation, PartialOutput } from '@opra/common';
 import type { Request as _Request } from '../request.js';
 import type { RequestContext } from '../request-context';
 

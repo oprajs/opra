@@ -144,8 +144,10 @@ export namespace SingletonDecorator {
     InputMaxContentSize: (sizeInBytes: number) => CreateDecorator;
     InputPickFields: (...fields: Field.QualifiedName[]) => CreateDecorator;
     InputOmitFields: (...fields: Field.QualifiedName[]) => CreateDecorator;
+    InputOverwriteFields: (fields: Record<string, CollectionDecorator.FieldDecoratorOptions>) => CreateDecorator;
     OutputPickFields: (...fields: Field.QualifiedName[]) => CreateDecorator;
     OutputOmitFields: (...fields: Field.QualifiedName[]) => CreateDecorator;
+    OutputOverwriteFields: (fields: Record<string, CollectionDecorator.FieldDecoratorOptions>) => CreateDecorator;
   };
 
   export function Create(options?: Create.Options): CreateDecorator {
@@ -161,6 +163,7 @@ export namespace SingletonDecorator {
     Parameter: (name: string, optionsOrType?: ResourceDecorator.ParameterOptions | string | Type) => GetDecorator;
     OutputPickFields: (...fields: Field.QualifiedName[]) => GetDecorator;
     OutputOmitFields: (...fields: Field.QualifiedName[]) => GetDecorator;
+    OutputOverwriteFields: (fields: Record<string, CollectionDecorator.FieldDecoratorOptions>) => GetDecorator;
   };
 
   export function Get(options?: Get.Options): GetDecorator {
@@ -179,6 +182,7 @@ export namespace SingletonDecorator {
   export function Delete(options?: Delete.Options): DeleteDecorator {
     return CollectionDecorator.Delete(options);
   }
+
 }
 
 /*
@@ -190,8 +194,10 @@ export namespace SingletonDecorator {
     InputMaxContentSize: (sizeInBytes: number) => UpdateDecorator;
     InputPickFields: (...fields: Field.QualifiedName[]) => UpdateDecorator;
     InputOmitFields: (...fields: Field.QualifiedName[]) => UpdateDecorator;
+    InputOverwriteFields: (fields: Record<string, CollectionDecorator.FieldDecoratorOptions>) => UpdateDecorator;
     OutputPickFields: (...fields: Field.QualifiedName[]) => UpdateDecorator;
     OutputOmitFields: (...fields: Field.QualifiedName[]) => UpdateDecorator;
+    OutputOverwriteFields: (fields: Record<string, CollectionDecorator.FieldDecoratorOptions>) => UpdateDecorator;
   };
 
   export function Update(options?: Update.Options): UpdateDecorator {

@@ -7,10 +7,8 @@ import type { ApiDocument } from '../api-document.js';
 import { ComplexType } from '../data-type/complex-type.js';
 import { SimpleType } from '../data-type/simple-type.js';
 import type { Collection } from './collection.js';
-import type { CollectionDecorator } from './collection-decorator';
 import type { Container } from './container.js';
 import { CrudResource } from './crud-resource.js';
-import { Operation } from './operation.js';
 
 export class CollectionClass extends CrudResource {
   readonly kind: OpraSchema.Resource.Kind = OpraSchema.Collection.Kind;
@@ -40,16 +38,18 @@ export class CollectionClass extends CrudResource {
       endpoint.defineParameter('include', {type: 'string', isArray: true, isBuiltin: true});
       endpoint.decodeInput = this.type.generateCodec('decode', {
         partial: true,
-        pick: endpoint.inputPickFields,
-        omit: endpoint.inputOmitFields,
-        operation: 'write'
+        pick: endpoint.options.inputPickFields,
+        omit: endpoint.options.inputOmitFields,
+        operation: 'write',
+        overwriteFields: endpoint.inputOverwrite?.fields
       })
       endpoint.returnType = this.type;
       endpoint.encodeReturning = endpoint.returnType.generateCodec('encode', {
         partial: true,
-        pick: endpoint.outputPickFields,
-        omit: endpoint.outputOmitFields,
-        operation: 'read'
+        pick: endpoint.options.outputPickFields,
+        omit: endpoint.options.outputOmitFields,
+        operation: 'read',
+        overwriteFields: endpoint.outputOverwrite?.fields
       })
     }
     // ------------------
@@ -68,9 +68,10 @@ export class CollectionClass extends CrudResource {
       endpoint.returnType = this.type;
       endpoint.encodeReturning = endpoint.returnType.generateCodec('encode', {
         partial: true,
-        pick: endpoint.outputPickFields,
-        omit: endpoint.outputOmitFields,
-        operation: 'read'
+        pick: endpoint.options.outputPickFields,
+        omit: endpoint.options.outputOmitFields,
+        operation: 'read',
+        overwriteFields: endpoint.outputOverwrite?.fields
       })
     }
     // ------------------
@@ -89,9 +90,10 @@ export class CollectionClass extends CrudResource {
       endpoint.returnType = this.type;
       endpoint.encodeReturning = vg.isArray(this.type.generateCodec('encode', {
         partial: true,
-        pick: endpoint.outputPickFields,
-        omit: endpoint.outputOmitFields,
-        operation: 'read'
+        pick: endpoint.options.outputPickFields,
+        omit: endpoint.options.outputOmitFields,
+        operation: 'read',
+        overwriteFields: endpoint.outputOverwrite?.fields
       }))
     }
     // ------------------
@@ -102,16 +104,18 @@ export class CollectionClass extends CrudResource {
       endpoint.defineParameter('omit', {type: 'string', isArray: true, isBuiltin: true});
       endpoint.defineParameter('include', {type: 'string', isArray: true, isBuiltin: true});
       endpoint.decodeInput = this.type.generateCodec('decode', {
-        pick: endpoint.inputPickFields,
-        omit: endpoint.inputOmitFields,
-        operation: 'write'
+        pick: endpoint.options.inputPickFields,
+        omit: endpoint.options.inputOmitFields,
+        operation: 'write',
+        overwriteFields: endpoint.inputOverwrite?.fields
       })
       endpoint.returnType = this.type;
       endpoint.encodeReturning = endpoint.returnType.generateCodec('encode', {
         partial: true,
-        pick: endpoint.outputPickFields,
-        omit: endpoint.outputOmitFields,
-        operation: 'read'
+        pick: endpoint.options.outputPickFields,
+        omit: endpoint.options.outputOmitFields,
+        operation: 'read',
+        overwriteFields: endpoint.outputOverwrite?.fields
       })
     }
     // ------------------
@@ -120,22 +124,12 @@ export class CollectionClass extends CrudResource {
       // endpoint.defineParameter('metadata', {enum: MetadataMode, isBuiltin: true, default: 'minimal'});
       endpoint.defineParameter('filter', {type: 'string', isBuiltin: true});
       endpoint.decodeInput = this.type.generateCodec('decode', {
-        pick: endpoint.inputPickFields,
-        omit: endpoint.inputOmitFields,
-        operation: 'write'
+        pick: endpoint.options.inputPickFields,
+        omit: endpoint.options.inputOmitFields,
+        operation: 'write',
+        overwriteFields: endpoint.inputOverwrite?.fields
       })
     }
-  }
-
-  getOperation(name: 'create'): (Operation & Omit<CollectionDecorator.Create.Metadata, keyof Operation>) | undefined;
-  getOperation(name: 'delete'): (Operation & Omit<CollectionDecorator.Delete.Metadata, keyof Operation>) | undefined;
-  getOperation(name: 'deleteMany'): (Operation & Omit<CollectionDecorator.DeleteMany.Metadata, keyof Operation>) | undefined;
-  getOperation(name: 'findMany'): (Operation & Omit<CollectionDecorator.FindMany.Metadata, keyof Operation>) | undefined;
-  getOperation(name: 'get'): (Operation & Omit<CollectionDecorator.Get.Metadata, keyof Operation>) | undefined;
-  getOperation(name: 'update'): (Operation & Omit<CollectionDecorator.Update.Metadata, keyof Operation>) | undefined;
-  getOperation(name: 'updateMany'): (Operation & Omit<CollectionDecorator.UpdateMany.Metadata, keyof Operation>) | undefined;
-  getOperation(name: string): Operation | undefined {
-    return super.getOperation(name);
   }
 
   exportSchema(options?: {
@@ -193,7 +187,7 @@ export class CollectionClass extends CrudResource {
     if (!normalized)
       return;
     const findManyOp = this.getOperation('findMany');
-    const sortFields = findManyOp && findManyOp.sortFields;
+    const sortFields = findManyOp && findManyOp.options.sortFields;
     (Array.isArray(normalized) ? normalized : [normalized]).forEach(field => {
       if (!sortFields?.find(x => x === field))
         throw new BadRequestError({
@@ -214,7 +208,7 @@ export class CollectionClass extends CrudResource {
       // Check if filtering accepted for given field
       const findManyOp = this.getOperation('findMany');
       const fieldLower = ast.left.value.toLowerCase();
-      const filterDef = (findManyOp && findManyOp.filters || [])
+      const filterDef = (findManyOp && findManyOp.options.filters || [])
           .find(f => f.field.toLowerCase() === fieldLower);
       if (!filterDef) {
         throw new BadRequestError({
@@ -222,7 +216,7 @@ export class CollectionClass extends CrudResource {
         })
       }
       // Check if filtering endpoint accepted for given field
-      if (!filterDef.operators?.includes(ast.op))
+      if (filterDef.operators && !filterDef.operators.includes(ast.op))
         throw new BadRequestError({
           message: translate('error:UNACCEPTED_FILTER_OPERATION', {field: ast.left.value}),
         })

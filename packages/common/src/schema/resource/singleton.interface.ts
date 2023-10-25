@@ -1,7 +1,6 @@
 import { StrictOmit } from 'ts-gems';
 import type { DataType } from '../data-type/data-type.interface.js';
 import type { Collection } from './collection.interface.js';
-import { Endpoint } from './endpoint.interface.js';
 import type { ResourceBase } from './resource.interface.js';
 
 export interface Singleton extends StrictOmit<ResourceBase, 'kind'> {
@@ -20,7 +19,7 @@ export namespace Singleton {
     get?: Operations.Get;
     update?: Operations.Update;
 
-    [key: string]: Endpoint | undefined;
+    // [key: string]: Endpoint | undefined;
   }
 
   export namespace Operations {

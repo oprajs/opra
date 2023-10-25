@@ -2,8 +2,8 @@ import { OpraSchema } from '../../schema/index.js';
 import type { ApiDocument } from '../api-document.js';
 import type { ComplexType } from '../data-type/complex-type.js';
 import type { Container } from './container.js';
+import type { CrudOperation } from './crud-operation';
 import { CrudResource } from './crud-resource.js';
-import type { Operation } from './operation.js';
 import type { Singleton } from './singleton.js';
 import type { SingletonDecorator } from './singleton-decorator';
 
@@ -22,16 +22,18 @@ export class SingletonClass extends CrudResource {
       endpoint.defineParameter('include', {type: 'string', isArray: true, isBuiltin: true});
       endpoint.decodeInput = this.type.generateCodec('decode', {
         partial: true,
-        pick: endpoint.inputPickFields,
-        omit: endpoint.inputOmitFields,
-        operation: 'write'
+        pick: endpoint.options.inputPickFields,
+        omit: endpoint.options.inputOmitFields,
+        operation: 'write',
+        overwriteFields: endpoint.inputOverwrite?.fields
       })
       endpoint.returnType = this.type;
       endpoint.encodeReturning = endpoint.returnType.generateCodec('encode', {
         partial: true,
-        pick: endpoint.outputPickFields,
-        omit: endpoint.outputOmitFields,
-        operation: 'read'
+        pick: endpoint.options.outputPickFields,
+        omit: endpoint.options.outputOmitFields,
+        operation: 'read',
+        overwriteFields: endpoint.outputOverwrite?.fields
       })
     }
     // ------------------
@@ -43,9 +45,10 @@ export class SingletonClass extends CrudResource {
       endpoint.returnType = this.type;
       endpoint.encodeReturning = endpoint.returnType.generateCodec('encode', {
         partial: true,
-        pick: endpoint.outputPickFields,
-        omit: endpoint.outputOmitFields,
-        operation: 'read'
+        pick: endpoint.options.outputPickFields,
+        omit: endpoint.options.outputOmitFields,
+        operation: 'read',
+        overwriteFields: endpoint.outputOverwrite?.fields
       })
     }
     // ------------------
@@ -55,25 +58,27 @@ export class SingletonClass extends CrudResource {
       endpoint.defineParameter('omit', {type: 'string', isArray: true, isBuiltin: true});
       endpoint.defineParameter('include', {type: 'string', isArray: true, isBuiltin: true});
       endpoint.decodeInput = this.type.generateCodec('decode', {
-        pick: endpoint.inputPickFields,
-        omit: endpoint.inputOmitFields,
-        operation: 'write'
+        pick: endpoint.options.inputPickFields,
+        omit: endpoint.options.inputOmitFields,
+        operation: 'write',
+        overwriteFields: endpoint.inputOverwrite?.fields
       })
       endpoint.returnType = this.type;
       endpoint.encodeReturning = endpoint.returnType.generateCodec('encode', {
         partial: true,
-        pick: endpoint.outputPickFields,
-        omit: endpoint.outputOmitFields,
-        operation: 'read'
+        pick: endpoint.options.outputPickFields,
+        omit: endpoint.options.outputOmitFields,
+        operation: 'read',
+        overwriteFields: endpoint.outputOverwrite?.fields
       })
     }
   }
 
-  getOperation(name: 'create'): (Operation & Omit<SingletonDecorator.Create.Metadata, keyof Operation>) | undefined;
-  getOperation(name: 'delete'): (Operation & Omit<SingletonDecorator.Delete.Metadata, keyof Operation>) | undefined;
-  getOperation(name: 'get'): (Operation & Omit<SingletonDecorator.Get.Metadata, keyof Operation>) | undefined;
-  getOperation(name: 'update'): (Operation & Omit<SingletonDecorator.Update.Metadata, keyof Operation>) | undefined;
-  getOperation(name: string): Operation | undefined {
+  getOperation(name: 'create'): (CrudOperation & Omit<SingletonDecorator.Create.Metadata, keyof CrudOperation>) | undefined;
+  getOperation(name: 'delete'): (CrudOperation & Omit<SingletonDecorator.Delete.Metadata, keyof CrudOperation>) | undefined;
+  getOperation(name: 'get'): (CrudOperation & Omit<SingletonDecorator.Get.Metadata, keyof CrudOperation>) | undefined;
+  getOperation(name: 'update'): (CrudOperation & Omit<SingletonDecorator.Update.Metadata, keyof CrudOperation>) | undefined;
+  getOperation(name: string): CrudOperation | undefined {
     return super.getOperation(name);
   }
 

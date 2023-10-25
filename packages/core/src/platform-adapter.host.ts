@@ -10,7 +10,7 @@ import {
   ForbiddenError,
   getStackFileName,
   I18n,
-  Operation,
+  CrudOperation,
   Resource,
   translate
 } from '@opra/common';
@@ -155,7 +155,7 @@ export abstract class PlatformAdapterHost extends AsyncEventEmitter implements P
       resource: Resource | string,
       name: string
   ): Promise<{
-    endpoint: Operation;
+    endpoint: CrudOperation;
     controller: any;
     handler: Function;
   }> {

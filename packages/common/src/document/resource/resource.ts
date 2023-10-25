@@ -6,7 +6,7 @@ import type { ApiDocument } from '../api-document.js';
 import { colorFgMagenta, colorFgYellow, colorReset, nodeInspectCustom } from '../utils/inspect.util.js';
 import { Action } from './action.js';
 import type { Container } from './container.js';
-import { Operation } from './operation.js';
+import { CrudOperation } from './crud-operation.js';
 import type { ResourceDecorator } from './resource-decorator';
 
 export abstract class Resource {
@@ -78,7 +78,7 @@ export namespace Resource {
   export interface InitArguments extends StrictOmit<ResourceDecorator.Metadata, 'kind' | 'operations' | 'actions'> {
     name: string;
     actions?: Record<string, Action.InitArguments>;
-    operations?: Record<string, Operation.InitArguments>;
+    operations?: Record<string, CrudOperation.InitArguments>;
     controller?: object;
     ctor?: Type;
   }

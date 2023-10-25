@@ -1,9 +1,9 @@
-import { Action, Operation, Resource } from '@opra/common';
+import { Action, CrudOperation, Resource } from '@opra/common';
 import { HttpServerRequest } from './http/http-server-request.js';
 
 export interface Request {
   resource: Resource;
-  endpoint: Action | Operation;
+  endpoint: Action | CrudOperation;
   key?: any;
   controller: Object;
   handler: Function;
