@@ -177,7 +177,7 @@ export class TypeDocumentFactory {
         if (dataType) return dataType;
         throw new TypeError(`Class "${thunk.name}" doesn't have a valid DataType metadata`);
       }
-      name = metadata.name;
+      name = metadata.anonymous ? undefined : metadata.name;
       initArguments = cloneObject(metadata);
       ctor = thunk as Type;
     } else if (typeof thunk === 'object') {
@@ -190,7 +190,7 @@ export class TypeDocumentFactory {
         const metadata = thunk[DATATYPE_METADATA];
         if (!metadata)
           throw new TypeError(`No EnumType metadata found for object ${JSON.stringify(thunk).substring(0, 20)}...`);
-        name = metadata.name;
+        name = metadata.anonymous ? undefined : metadata.name;
         initArguments = cloneObject(metadata);
         initArguments.enumObject = thunk;
       }

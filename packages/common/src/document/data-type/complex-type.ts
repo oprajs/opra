@@ -67,6 +67,7 @@ export namespace ComplexType {
 
   export interface DecoratorOptions extends DataType.DecoratorOptions,
       Pick<InitArguments, 'ctor' | 'additionalFields' | 'abstract'> {
+    anonymous?: boolean;
   }
 
   export interface Metadata extends StrictOmit<OpraSchema.ComplexType, 'fields'> {
