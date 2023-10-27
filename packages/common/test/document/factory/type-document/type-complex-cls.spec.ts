@@ -136,5 +136,36 @@ describe('ApiDocumentFactory - ComplexType with decorated classes', function () 
     expect(t.fields.get('cid')?.type.name).toStrictEqual('uuid');
   })
 
+  it('Should import data type in "additionalFields" option', async () => {
+    @ComplexType({description: 'test type 2'})
+    class Type2 {
+
+    }
+
+    @ComplexType({
+      description: 'test type',
+      abstract: true,
+      additionalFields: Type2,
+    })
+    class Type1 {
+
+    }
+
+    const doc = await ApiDocumentFactory.createDocument({
+      ...baseArgs,
+      types: [Type1]
+    })
+    expect(doc).toBeDefined();
+    const t = doc.types.get('type1') as ComplexType;
+    expect(t).toBeDefined();
+    expect(t.kind).toStrictEqual('ComplexType');
+    expect(t.name).toStrictEqual('Type1');
+    expect(t.description).toEqual('test type');
+    expect(t.abstract).toEqual(true);
+    expect(t.additionalFields).toBeInstanceOf(ComplexType);
+    expect((t.additionalFields as ComplexType).ctor).toBe(Type2);
+  })
+
+
 })
 

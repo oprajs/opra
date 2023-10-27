@@ -204,10 +204,9 @@ export class ApiDocumentFactory extends TypeDocumentFactory {
             if (oP.enum) {
               oP.type = EnumType(oP.enum, {name: kP + 'Enum'}) as any;
             }
-            inputOverwriteFields[kP] = {
-              ...oP,
-              type: await this.importDataType(oP.type || 'any')
-            };
+            inputOverwriteFields[kP] = {...oP,};
+            if (oP.type)
+              inputOverwriteFields[kP].type = await this.importDataType(oP.type)
           }
           o.options.inputOverwriteFields = inputOverwriteFields;
         }
@@ -217,10 +216,9 @@ export class ApiDocumentFactory extends TypeDocumentFactory {
             if (oP.enum) {
               oP.type = EnumType(oP.enum, {name: kP + 'Enum'}) as any;
             }
-            outputOverwriteFields[kP] = {
-              ...oP,
-              type: await this.importDataType(oP.type || 'any')
-            };
+            outputOverwriteFields[kP] = {...oP};
+            if (oP.type)
+              outputOverwriteFields[kP].type = await this.importDataType(oP.type)
           }
           o.options.outputOverwriteFields = outputOverwriteFields;
         }

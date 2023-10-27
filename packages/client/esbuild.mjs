@@ -19,11 +19,11 @@ await esbuild.build({
   entryPoints: [path.resolve(targetPath, 'esm/index.js')],
   bundle: true,
   platform: 'node',
-  target: ['node18'],
+  target: ['chrome58'],
   outfile: path.join(targetPath, './browser.js'),
   logLevel: 'info',
   format: 'esm',
-  // minify: true,
+  minify: true,
   keepNames: true,
   alias: {
     'fs': '@browsery/fs',

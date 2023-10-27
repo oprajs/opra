@@ -145,7 +145,6 @@ describe('ComplexType', function () {
     ]);
   })
 
-
   it('Should overwrite fields in _generateCodecSchema()', async () => {
     const odt = new ComplexType(api, {
       fields: {

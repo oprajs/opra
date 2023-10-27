@@ -10,7 +10,7 @@ export interface ComplexType extends StrictOmit<DataTypeBase, 'kind'> {
   base?: DataType.Name | ComplexType | UnionType | MappedType;
   abstract?: boolean;
   fields?: Record<Field.Name, Field | DataType.Name>;
-  additionalFields?: boolean | 'error';
+  additionalFields?: boolean | 'error' | string | DataType;
 }
 
 export namespace ComplexType {

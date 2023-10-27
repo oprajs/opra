@@ -29,7 +29,6 @@
     "@opra/core": "^0.29.0",
     "fast-tokenizer": "^1.2.2",
     "lodash.head": "^4.0.1",
-    "lodash.identity": "^3.0.0",
     "reflect-metadata": "^0.1.13"
   },
   "peerDependencies": {
@@ -38,7 +37,7 @@
   "devDependencies": {
     "@nestjs/platform-express": "^10.2.7",
     "@nestjs/testing": "^10.2.7",
-    "@types/lodash": "^4.14.199",
+    "@types/lodash.head": "^4.0.8",
     "filedirname": "^2.7.0",
     "ts-gems": "^2.5.0"
   },

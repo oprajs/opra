@@ -3,6 +3,7 @@ import merge from 'putil-merge';
 import { StrictOmit, Type } from 'ts-gems';
 import { ResponsiveMap } from '../../helpers/index.js';
 import { OpraSchema } from '../../schema/index.js';
+import type { TypeThunkAsync } from '../../types.js';
 import type { ApiDocument } from '../api-document.js';
 import { DECORATOR } from '../constants.js';
 import { ComplexTypeDecorator } from './complex-type.decorator.js';
@@ -54,20 +55,22 @@ ComplexType[DECORATOR] = ComplexTypeDecorator;
  */
 export namespace ComplexType {
   export interface InitArguments extends DataType.InitArguments,
-      Pick<OpraSchema.ComplexType, 'ctor' | 'abstract' | 'additionalFields'> {
+      Pick<OpraSchema.ComplexType, 'ctor' | 'abstract'> {
     base?: ComplexType | MappedType | UnionType;
     fields?: Record<string, ApiField.InitArguments>;
+    additionalFields?: boolean | DataType | 'error';
   }
 
   export interface OwnProperties extends DataType.OwnProperties {
     ctor?: Type;
-    additionalFields?: OpraSchema.ComplexType['additionalFields'];
+    additionalFields?: boolean | DataType | 'error';
     fields: ResponsiveMap<ApiField>;
   }
 
   export interface DecoratorOptions extends DataType.DecoratorOptions,
-      Pick<InitArguments, 'ctor' | 'additionalFields' | 'abstract'> {
+      Pick<InitArguments, 'ctor' | 'abstract'> {
     anonymous?: boolean;
+    additionalFields?: boolean | 'error' | string | TypeThunkAsync;
   }
 
   export interface Metadata extends StrictOmit<OpraSchema.ComplexType, 'fields'> {

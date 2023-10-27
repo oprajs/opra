@@ -41,7 +41,7 @@ export class CollectionClass extends CrudResource {
         pick: endpoint.options.inputPickFields,
         omit: endpoint.options.inputOmitFields,
         operation: 'write',
-        overwriteFields: endpoint.inputOverwrite?.fields
+        overwriteFields: endpoint.inputOverwriteFields
       })
       endpoint.returnType = this.type;
       endpoint.encodeReturning = endpoint.returnType.generateCodec('encode', {
@@ -49,7 +49,7 @@ export class CollectionClass extends CrudResource {
         pick: endpoint.options.outputPickFields,
         omit: endpoint.options.outputOmitFields,
         operation: 'read',
-        overwriteFields: endpoint.outputOverwrite?.fields
+        overwriteFields: endpoint.outputOverwriteFields
       })
     }
     // ------------------
@@ -71,7 +71,7 @@ export class CollectionClass extends CrudResource {
         pick: endpoint.options.outputPickFields,
         omit: endpoint.options.outputOmitFields,
         operation: 'read',
-        overwriteFields: endpoint.outputOverwrite?.fields
+        overwriteFields: endpoint.outputOverwriteFields
       })
     }
     // ------------------
@@ -93,7 +93,7 @@ export class CollectionClass extends CrudResource {
         pick: endpoint.options.outputPickFields,
         omit: endpoint.options.outputOmitFields,
         operation: 'read',
-        overwriteFields: endpoint.outputOverwrite?.fields
+        overwriteFields: endpoint.outputOverwriteFields
       }))
     }
     // ------------------
@@ -107,7 +107,7 @@ export class CollectionClass extends CrudResource {
         pick: endpoint.options.inputPickFields,
         omit: endpoint.options.inputOmitFields,
         operation: 'write',
-        overwriteFields: endpoint.inputOverwrite?.fields
+        overwriteFields: endpoint.inputOverwriteFields
       })
       endpoint.returnType = this.type;
       endpoint.encodeReturning = endpoint.returnType.generateCodec('encode', {
@@ -115,7 +115,7 @@ export class CollectionClass extends CrudResource {
         pick: endpoint.options.outputPickFields,
         omit: endpoint.options.outputOmitFields,
         operation: 'read',
-        overwriteFields: endpoint.outputOverwrite?.fields
+        overwriteFields: endpoint.outputOverwriteFields
       })
     }
     // ------------------
@@ -127,7 +127,7 @@ export class CollectionClass extends CrudResource {
         pick: endpoint.options.inputPickFields,
         omit: endpoint.options.inputOmitFields,
         operation: 'write',
-        overwriteFields: endpoint.inputOverwrite?.fields
+        overwriteFields: endpoint.inputOverwriteFields
       })
     }
   }

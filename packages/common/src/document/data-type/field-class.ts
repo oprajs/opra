@@ -6,8 +6,6 @@ import type { DataType } from './data-type.js';
 import type { ApiField } from './field.js';
 
 export class FieldClass {
-  protected _decoder: vg.Validator;
-  protected _encoder: vg.Validator;
   readonly owner: ComplexType;
   readonly origin?: ComplexType;
   readonly type: DataType;

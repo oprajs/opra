@@ -21,7 +21,7 @@ export class CustomersResource extends SqbCollection<Customer> {
 
   @Collection.Create()
       .InputOverwriteFields({
-        createdBy: {type: String, required: true}
+        createdBy: {required: true}
       })
   async create(ctx: Collection.Create.Context) {
     const {request} = ctx;

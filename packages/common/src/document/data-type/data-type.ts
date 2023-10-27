@@ -86,7 +86,7 @@ export namespace DataType {
     omit?: string[];
     partial?: boolean;
     operation?: 'read' | 'write';
-    overwriteFields?: ResponsiveMap<ApiField>;
+    overwriteFields?: ResponsiveMap<ApiField.InitArguments>;
   }
 
 }

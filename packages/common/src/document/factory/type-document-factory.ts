@@ -225,9 +225,11 @@ export class TypeDocumentFactory {
 
       await this.prepareDataTypeInitArguments(initArguments, ctor);
 
-      if (initArguments.kind === 'ComplexType')
+      if (initArguments.kind === 'ComplexType') {
+        if (typeof initArguments.additionalFields === 'function')
+          initArguments.additionalFields = await this.importDataType(initArguments.additionalFields);
         ComplexType.apply(instance, [this.document, initArguments] as any);
-      else if (initArguments.kind === 'SimpleType')
+      } else if (initArguments.kind === 'SimpleType')
         SimpleType.apply(instance, [this.document, initArguments] as any);
       else if (initArguments.kind === 'EnumType')
         EnumType.apply(instance, [this.document, initArguments] as any);

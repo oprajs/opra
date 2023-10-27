@@ -33,7 +33,8 @@
     "rule-judgment": "^1.1.5"
   },
   "devDependencies": {
-    "@types/supertest": "^2.0.14"
+    "@types/lodash.isnil": "^4.0.8",
+    "@types/lodash.omitby": "^4.6.8"
   },
   "type": "module",
   "module": "./esm/index.js",

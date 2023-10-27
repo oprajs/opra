@@ -20,7 +20,7 @@ export class ComplexTypeClass extends DataType {
   readonly own: ComplexType.OwnProperties;
   readonly fields = new ResponsiveMap<ApiField>();
   readonly abstract?: boolean;
-  readonly additionalFields?: boolean | vg.Validator | 'error';
+  readonly additionalFields?: boolean | DataType | 'error';
 
   constructor(document: ApiDocument, init: ComplexType.InitArguments) {
     super(document, init);
@@ -145,7 +145,12 @@ export class ComplexTypeClass extends DataType {
       base: this.base ?
           (this.base.name ? this.base.name : this.base.exportSchema(options)) : undefined,
       abstract: this.abstract,
-      additionalFields: this.own.additionalFields
+      additionalFields: this.own.additionalFields instanceof DataType
+          ? (this.own.additionalFields.name
+                  ? this.own.additionalFields.name
+                  : this.own.additionalFields.exportSchema(options)
+          )
+          : this.own.additionalFields
     }));
     if (this.own.fields.size) {
       const fields = out.fields = {};
@@ -172,9 +177,12 @@ export class ComplexTypeClass extends DataType {
 
   generateCodec(codec: 'decode' | 'encode', options?: DataType.GenerateCodecOptions): vg.Validator {
     const schema = this._generateCodecSchema(codec, options);
+    const additionalFields = this.additionalFields instanceof DataType
+        ? this.additionalFields.generateCodec(codec, options)
+        : this.additionalFields
     return vg.isObject(schema, {
       ctor: this.ctor,
-      additionalFields: this.additionalFields ?? false,
+      additionalFields,
       name: this.name,
       caseInSensitive: !options?.caseSensitive
     })
@@ -191,15 +199,21 @@ export class ComplexTypeClass extends DataType {
         ).map(x => x.toLocaleString());
     for (const nameLower of dedupedFieldNames) {
       const overwriteField = options?.overwriteFields?.get(nameLower);
-      const f = overwriteField || this.fields.get(nameLower);
+      const field = this.fields.get(nameLower);
       /* istanbul ignore next */
-      if (!f) continue;
+      if (!(field || overwriteField)) continue;
       if (!overwriteField &&
           (
               omitOption.find(x => x === nameLower) ||
               (pickOption.length && !pickOption.find(x => x === nameLower || x.startsWith(nameLower + '.')))
           )
       ) continue;
+
+      let f: ApiField;
+      if (overwriteField) {
+        f = {...overwriteField} as ApiField;
+        Object.setPrototypeOf(f, field || ApiField.prototype);
+      } else f = field as ApiField;
 
       schema[f.name] = f.generateCodec(codec, {
         ...options,
