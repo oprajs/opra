@@ -1,4 +1,4 @@
-import { ApiDocument, ApiDocumentFactory } from '@opra/common';
+import { ApiDocument, ApiDocumentFactory, ResponsiveMap } from '@opra/common';
 import { kBackend } from '../constants.js';
 import { ClientBase } from '../core/client-base.js';
 import { HttpBackend } from './http-backend.js';
@@ -13,6 +13,8 @@ import { HttpSingletonNode } from './http-singleton-node.js';
  */
 export abstract class HttpClientBase<TRequestOptions = {}, TResponseExt = {}> extends ClientBase {
   [kBackend]: HttpBackend;
+  protected _collectionCache = new ResponsiveMap<HttpCollectionNode<any>>();
+  protected _singletonCache = new ResponsiveMap<HttpCollectionNode<any>>();
   protected _metadataPromise?: Promise<any>;
 
   protected constructor(backend: HttpBackend) {
@@ -48,12 +50,22 @@ export abstract class HttpClientBase<TRequestOptions = {}, TResponseExt = {}> ex
         .finally(() => delete this._metadataPromise);
   }
 
-  collection<TType = any>(path: string) {
-    return new HttpCollectionNode<TType, TRequestOptions, TResponseExt>(this[kBackend], path);
+  collection<TType = any>(path: string): HttpCollectionNode<TType, TRequestOptions, TResponseExt> {
+    let node: any = this._collectionCache.get(path);
+    if (!node) {
+      node = new HttpCollectionNode(this[kBackend], path);
+      this._collectionCache.set(path, node);
+    }
+    return node;
   }
 
-  singleton<TType = any>(path: string) {
-    return new HttpSingletonNode<TType, TRequestOptions, TResponseExt>(this[kBackend], path);
+  singleton<TType = any>(path: string): HttpSingletonNode<TType, TRequestOptions, TResponseExt> {
+    let node: any = this._singletonCache.get(path);
+    if (!node) {
+      node = new HttpSingletonNode(this[kBackend], path);
+      this._singletonCache.set(path, node);
+    }
+    return node;
   }
 
   action<T = any>(
