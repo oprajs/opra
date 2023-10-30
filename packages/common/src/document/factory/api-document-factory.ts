@@ -266,7 +266,7 @@ export class ApiDocumentFactory extends TypeDocumentFactory {
       const newContainer = new Container(container, {...initArguments, resources: undefined});
       if (initArguments.resources) {
         for (const r of initArguments.resources) {
-          const res = await this.createResource(newContainer, r)
+          const res = await this.createResource(newContainer, r);
           newContainer.resources.set(res.name, res);
         }
       }

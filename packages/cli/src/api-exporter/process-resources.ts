@@ -10,7 +10,7 @@ export async function processResource(
     className: string,
     tsFile: TsFile
 ) {
-  tsFile.addImport('@opra/client', ['HttpServiceBase', 'kClient', 'kContext']);
+  tsFile.addImport('@opra/client', ['kClient', 'kContext', 'OpraHttpClient']);
   const indexTs = this.addFile('/index.ts', true);
   indexTs.addExport(tsFile.filename);
 
@@ -20,16 +20,20 @@ export async function processResource(
  * @class ${className}
  * @url ${path.posix.join(this.client.serviceUrl, '#resources/' + className)}
  */  
-export class ${className} extends HttpServiceBase {\n`;
+export class ${className} {
+  readonly [kClient]: OpraHttpClient;\n`;
 
+  let constructorBody = `
+  constructor(client: OpraHttpClient) {
+    this[kClient] = client;\n`;
 
   if (resource instanceof Container) {
     for (const child of resource.resources.values()) {
       // Determine class name of child resource
-      let childClassName = '';
+      let childClassName = child.name.charAt(0).toUpperCase() + child.name.substring(1);
       if (child instanceof Container)
-        childClassName = child.name.charAt(0).toUpperCase() + child.name.substring(1) + 'Container';
-      else childClassName = child.name + 'Resource';
+        childClassName += 'Container';
+      else childClassName += 'Resource'
 
       // Create TsFile for child resource
       const dir = path.dirname(tsFile.filename);
@@ -45,45 +49,41 @@ export class ${className} extends HttpServiceBase {\n`;
    * ${wrapJSDocString(child.description || '')}    
    * @url ${path.posix.join(this.client.serviceUrl, '#resources/' + child.name)}
    */      
-  get ${child.name}(): ${childClassName} {
-    if (!this[kContext].resources.${child.name})
-      this[kContext].resources.${child.name} = new ${childClassName}(this[kClient]);     
-    return this[kContext].resources.${child.name};
-  }\n`;
+  readonly ${child.name}: ${childClassName};\n`;
+      constructorBody += `    this.${child.name} = new ${childClassName}(client);\n`;
     }
   } else if (resource instanceof Collection) {
     tsFile.addImport('@opra/client', ['HttpCollectionNode']);
     const typeName = resource.type.name || '';
     tsFile.addImport(`/types/${typeName}`, [typeName], true);
 
-    for (const [operation, endpoint] of resource.operations.entries()) {
-      tsFile.content += `
-  /** 
-   * ${wrapJSDocString(endpoint.description || '')}
-   */      
-  get ${operation}(): HttpCollectionNode<${typeName}>['${operation}'] {
-    if (!this[kContext].node)
-      this[kContext].node = this[kClient].collection('${resource.name}');  
-    return this[kContext].node.${operation};
-  }    
-`
-    }
-  } else if (resource instanceof Singleton) {
-    tsFile.addImport('@opra/client', ['HttpSingletonNode']);
-    const typeName = resource.type.name || '';
-    tsFile.addImport(`/types/${typeName}`, [typeName], true);
+    constructorBody += `    const node = this[kClient].collection('${resource.name}');\n`;
 
     for (const [operation, endpoint] of resource.operations.entries()) {
       tsFile.content += `
   /** 
    * ${wrapJSDocString(endpoint.description || '')}
    */      
-  get ${operation}(): HttpSingletonNode<${typeName}>['${operation}'] {
-    if (!this[kContext].node)
-      this[kContext].node = this[kClient].singleton('${resource.name}');  
-    return this[kContext].node.${operation};
-  }    
-`
+  readonly ${operation}: HttpCollectionNode<${typeName}>['${operation}'];\n`
+
+      constructorBody += `    this.${operation} = node.${operation}.bind(node);\n`;
+
+    }
+  } else if (resource instanceof Singleton) {
+    tsFile.addImport('@opra/client', ['HttpSingletonNode']);
+    const typeName = resource.type.name || '';
+    tsFile.addImport(`/types/${typeName}`, [typeName], true);
+
+    constructorBody += `    const node = this[kClient].singleton('${resource.name}');\n`;
+
+    for (const [operation, endpoint] of resource.operations.entries()) {
+      tsFile.content += `
+  /** 
+   * ${wrapJSDocString(endpoint.description || '')}
+   */      
+  readonly ${operation}: HttpSingletonNode<${typeName}>['${operation}'];\n`
+
+      constructorBody += `    this.${operation} = node.${operation}.bind(node);\n`;
     }
   }
 
@@ -111,7 +111,7 @@ export class ${className} extends HttpServiceBase {\n`;
     }
   }
 
-  tsFile.content += `}\n`;
+  tsFile.content += constructorBody + `  }\n\n}\n`;
   return tsFile.content;
 
 }

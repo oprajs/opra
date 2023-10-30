@@ -212,6 +212,8 @@ export class ComplexTypeClass extends DataType {
       let f: ApiField;
       if (overwriteField) {
         f = {...overwriteField} as ApiField;
+        if (!field)
+          (f as any).type = this.document.getDataType('any');
         Object.setPrototypeOf(f, field || ApiField.prototype);
       } else f = field as ApiField;
 

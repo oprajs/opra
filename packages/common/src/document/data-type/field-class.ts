@@ -40,7 +40,8 @@ export class FieldClass {
 
   exportSchema(options?: { webSafe?: boolean }): OpraSchema.Field {
     return omitUndefined({
-      type: this.type.name ? this.type.name : this.type.exportSchema(options),
+      type: this.type ?
+          (this.type.name ? this.type.name : this.type.exportSchema(options)) : undefined,
       description: this.description,
       isArray: this.isArray,
       default: this.default,
@@ -51,7 +52,7 @@ export class FieldClass {
       exclusive: this.exclusive,
       deprecated: this.deprecated,
       examples: this.examples
-    }) satisfies OpraSchema.Field;
+    }) as OpraSchema.Field;
   }
 
   generateCodec(codec: 'decode' | 'encode', options?: DataType.GenerateCodecOptions): vg.Validator {
