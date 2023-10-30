@@ -1,13 +1,13 @@
 import { HttpClientTestingModule } from '@angular/common/http/testing';
 import { Inject, Injectable, InjectionToken, } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
-import { HttpServiceBase, kClient } from '@opra/client';
+import { kClient } from '@opra/client';
 import { createMockServer } from '../../client/test/_support/create-mock-server.js';
 import { OpraAngularClient } from '../src/angular-client.js';
 import { OpraClientModule } from '../src/client.module.js';
 import { OpraClientModuleOptions } from '../src/interfaces/module-options.interface.js';
 
-class TestApi extends HttpServiceBase {
+class TestApi {
 }
 
 describe('OpraClientModule', function () {

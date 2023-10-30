@@ -1,7 +1,7 @@
 /* eslint-disable import/extensions */
 import { HttpClient } from '@angular/common/http';
 import { ModuleWithProviders, NgModule, Provider, Type } from '@angular/core';
-import { HttpServiceBase } from '@opra/client';
+import { kClient } from '@opra/client';
 import { OpraAngularClient } from './angular-client';
 import { OPRA_CLIENT_MODULE_OPTIONS } from './constants';
 import {
@@ -27,7 +27,7 @@ export class OpraClientModule {
     };
   }
 
-  public static registerService<T extends HttpServiceBase>(
+  public static registerService<T>(
       serviceClass: Type<T>,
       options: OpraClientModuleOptions
   ): ModuleWithProviders<OpraClientModule> {
@@ -40,7 +40,9 @@ export class OpraClientModule {
           deps: [HttpClient],
           useFactory: (httpClient: HttpClient) => {
             const opraAngularClient = new OpraAngularClient(httpClient, options.serviceUrl, options);
-            return new serviceClass(opraAngularClient);
+            const service = new serviceClass(opraAngularClient);
+            service[kClient] = opraAngularClient;
+            return service;
           }
         }
       ]
@@ -66,7 +68,7 @@ export class OpraClientModule {
     };
   }
 
-  public static registerServiceAsync<T extends HttpServiceBase>(
+  public static registerServiceAsync<T>(
       serviceClass: Type<T>,
       options: OpraClientModuleAsyncOptions
   ): ModuleWithProviders<OpraClientModule> {
@@ -81,7 +83,9 @@ export class OpraClientModule {
           deps: [HttpClient, OPRA_CLIENT_MODULE_OPTIONS],
           useFactory: (httpClient: HttpClient, opts: OpraClientModuleOptions) => {
             const opraAngularClient = new OpraAngularClient(httpClient, opts.serviceUrl, opts);
-            return new serviceClass(opraAngularClient);
+            const service = new serviceClass(opraAngularClient);
+            service[kClient] = opraAngularClient;
+            return service;
           }
         }
       ]
