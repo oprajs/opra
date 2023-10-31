@@ -9,27 +9,43 @@ export abstract class SqbSingleton<T> implements ISingleton<T> {
   @Singleton.Create()
   async create?(ctx: RequestContext): Promise<PartialOutput<T>> {
     const prepared = await this._prepare(ctx);
-    const service = await this.getService(ctx);
-    return service.create(prepared.data, prepared.options);
+    return this._create(ctx, prepared);
   }
 
   @Singleton.Delete()
   async delete?(ctx: RequestContext): Promise<number> {
     const prepared = await this._prepare(ctx);
-    const service = await this.getService(ctx);
-    return await service.deleteMany(prepared.options);
+    return this._delete(ctx, prepared);
   }
 
   @Singleton.Get()
   async get?(ctx: RequestContext): Promise<Maybe<PartialOutput<T>>> {
     const prepared = await this._prepare(ctx);
-    const service = await this.getService(ctx);
-    return service.findOne(prepared.options);
+    return this._get(ctx, prepared);
   }
 
   @Singleton.Update()
   async update?(ctx: RequestContext): Promise<Maybe<PartialOutput<T>>> {
     const prepared = await this._prepare(ctx);
+    return this._update(ctx, prepared);
+  }
+
+  protected async _create(ctx: RequestContext, prepared: SQBAdapter.TransformedRequest): Promise<PartialOutput<T>> {
+    const service = await this.getService(ctx);
+    return service.create(prepared.data, prepared.options);
+  }
+
+  protected async _delete(ctx: RequestContext, prepared: SQBAdapter.TransformedRequest): Promise<number> {
+    const service = await this.getService(ctx);
+    return await service.deleteMany(prepared.options);
+  }
+
+  protected async _get(ctx: RequestContext, prepared: SQBAdapter.TransformedRequest): Promise<Maybe<PartialOutput<T>>> {
+    const service = await this.getService(ctx);
+    return service.findOne(prepared.options);
+  }
+
+  protected async _update(ctx: RequestContext, prepared: SQBAdapter.TransformedRequest): Promise<Maybe<PartialOutput<T>>> {
     const service = await this.getService(ctx);
     await service.updateMany(prepared.data, prepared.options);
     return service.findOne(prepared.options);

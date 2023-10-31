@@ -22,48 +22,51 @@ export abstract class MongoCollection<T extends mongodb.Document> implements ICo
   @Collection.Create()
   async create?(ctx: Collection.Create.Context): Promise<PartialOutput<T>> {
     const prepared = await this._prepare(ctx);
-    const service = await this.getService(ctx);
-    return service.insertOne(prepared.data, prepared.options);
+    return this._create(ctx, prepared);
   }
 
   @Collection.Delete()
   async delete?(ctx: RequestContext): Promise<number> {
     const prepared = await this._prepare(ctx);
-    const service = await this.getService(ctx);
-    return service.deleteOne(prepared.filter, prepared.options);
+    return this._delete(ctx, prepared);
   }
 
   @Collection.DeleteMany()
   async deleteMany?(ctx: RequestContext): Promise<number> {
     const prepared = await this._prepare(ctx);
-    const service = await this.getService(ctx);
-    return service.deleteMany(prepared.filter, prepared.options);
+    return this._deleteMany(ctx, prepared);
   }
 
   @Collection.Get()
   async get?(ctx: RequestContext): Promise<Maybe<PartialOutput<T>>> {
     const prepared = await this._prepare(ctx);
-    const service = await this.getService(ctx);
-    return service.findOne(prepared.filter, prepared.options);
+    return this._get(ctx, prepared);
   }
 
   @Collection.Update()
   async update?(ctx: RequestContext): Promise<Maybe<PartialOutput<T>>> {
     const prepared = await this._prepare(ctx);
-    const service = await this.getService(ctx);
-    return service.updateOne(prepared.filter, prepared.data, prepared.options);
+    return this._update(ctx, prepared);
   }
 
   @Collection.UpdateMany()
   async updateMany?(ctx: RequestContext): Promise<number> {
     const prepared = await this._prepare(ctx);
-    const service = await this.getService(ctx);
-    return service.updateMany(prepared.filter, prepared.data, prepared.options);
+    return this._updateMany(ctx, prepared);
   }
 
   @Collection.FindMany()
   async findMany?(ctx: RequestContext): Promise<PartialOutput<T>[]> {
     const prepared = await this._prepare(ctx);
+    return this._findMany(ctx, prepared);
+  }
+
+  protected async _prepare(ctx: RequestContext): Promise<MongoAdapter.TransformedRequest> {
+    const prepared = MongoAdapter.transformRequest(ctx.request);
+    return (this.onPrepare && await this.onPrepare(ctx, prepared)) || prepared;
+  }
+
+  protected async _findMany(ctx: RequestContext, prepared: MongoAdapter.TransformedRequest): Promise<PartialOutput<T>[]> {
     const service = await this.getService(ctx);
     if (prepared.options.count) {
       const [items, count] = await Promise.all([
@@ -76,9 +79,34 @@ export abstract class MongoCollection<T extends mongodb.Document> implements ICo
     return service.find(prepared.filter, prepared.options);
   }
 
-  protected async _prepare(ctx: RequestContext): Promise<MongoAdapter.TransformedRequest> {
-    const prepared = MongoAdapter.transformRequest(ctx.request);
-    return (this.onPrepare && await this.onPrepare(ctx, prepared)) || prepared;
+  protected async _create(ctx: Collection.Create.Context, prepared: MongoAdapter.TransformedRequest): Promise<PartialOutput<T>> {
+    const service = await this.getService(ctx);
+    return service.insertOne(prepared.data, prepared.options);
+  }
+
+  protected async _delete(ctx: RequestContext, prepared: MongoAdapter.TransformedRequest): Promise<number> {
+    const service = await this.getService(ctx);
+    return service.deleteOne(prepared.filter, prepared.options);
+  }
+
+  protected async _deleteMany(ctx: RequestContext, prepared: MongoAdapter.TransformedRequest): Promise<number> {
+    const service = await this.getService(ctx);
+    return service.deleteMany(prepared.filter, prepared.options);
+  }
+
+  protected async _get(ctx: RequestContext, prepared: MongoAdapter.TransformedRequest): Promise<Maybe<PartialOutput<T>>> {
+    const service = await this.getService(ctx);
+    return service.findOne(prepared.filter, prepared.options);
+  }
+
+  protected async _update(ctx: RequestContext, prepared: MongoAdapter.TransformedRequest): Promise<Maybe<PartialOutput<T>>> {
+    const service = await this.getService(ctx);
+    return service.updateOne(prepared.filter, prepared.data, prepared.options);
+  }
+
+  protected async _updateMany(ctx: RequestContext, prepared: MongoAdapter.TransformedRequest): Promise<number> {
+    const service = await this.getService(ctx);
+    return service.updateMany(prepared.filter, prepared.data, prepared.options);
   }
 
   protected onPrepare?(ctx: RequestContext,

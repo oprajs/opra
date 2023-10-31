@@ -10,28 +10,44 @@ export abstract class MongoSingleton<T extends mongodb.Document> implements ISin
   @Singleton.Create()
   async create?(ctx: RequestContext): Promise<PartialOutput<T>> {
     const prepared = await this._prepare(ctx);
-    const service = await this.getService(ctx);
-    await service.deleteMany();
-    return service.insertOne(prepared.data, prepared.options);
+    return this._create(ctx, prepared);
   }
 
   @Singleton.Delete()
   async delete?(ctx: RequestContext): Promise<number> {
     const prepared = await this._prepare(ctx);
-    const service = await this.getService(ctx);
-    return service.deleteOne(prepared.filter, prepared.options);
+    return this._delete(ctx, prepared);
   }
 
   @Singleton.Get()
   async get?(ctx: RequestContext): Promise<Maybe<PartialOutput<T>>> {
     const prepared = await this._prepare(ctx);
-    const service = await this.getService(ctx);
-    return service.findOne(prepared.filter, prepared.options);
+    return this._get(ctx, prepared);
   }
 
   @Singleton.Update()
   async update?(ctx: RequestContext): Promise<Maybe<PartialOutput<T>>> {
     const prepared = await this._prepare(ctx);
+    return this._update(ctx, prepared);
+  }
+
+  protected async _create(ctx: RequestContext, prepared: MongoAdapter.TransformedRequest): Promise<PartialOutput<T>> {
+    const service = await this.getService(ctx);
+    await service.deleteMany();
+    return service.insertOne(prepared.data, prepared.options);
+  }
+
+  protected async _delete(ctx: RequestContext, prepared: MongoAdapter.TransformedRequest): Promise<number> {
+    const service = await this.getService(ctx);
+    return service.deleteOne(prepared.filter, prepared.options);
+  }
+
+  protected async _get(ctx: RequestContext, prepared: MongoAdapter.TransformedRequest): Promise<Maybe<PartialOutput<T>>> {
+    const service = await this.getService(ctx);
+    return service.findOne(prepared.filter, prepared.options);
+  }
+
+  protected async _update(ctx: RequestContext, prepared: MongoAdapter.TransformedRequest): Promise<Maybe<PartialOutput<T>>> {
     const service = await this.getService(ctx);
     return service.updateOne(prepared.filter, prepared.data, prepared.options);
   }

@@ -21,48 +21,76 @@ export abstract class SqbCollection<T> implements ICollection<T> {
   @Collection.Create()
   async create?(ctx: RequestContext): Promise<PartialOutput<T>> {
     const prepared = await this._prepare(ctx);
-    const service = await this.getService(ctx);
-    return service.create(prepared.data, prepared.options);
+    return this._create(ctx, prepared);
   }
 
   @Collection.Delete()
   async delete?(ctx: RequestContext): Promise<number> {
     const prepared = await this._prepare(ctx);
-    const service = await this.getService(ctx);
-    return service.delete(prepared.key, prepared.options);
+    return this._delete(ctx, prepared);
   }
 
   @Collection.DeleteMany()
   async deleteMany?(ctx: RequestContext): Promise<number> {
     const prepared = await this._prepare(ctx);
-    const service = await this.getService(ctx);
-    return service.deleteMany(prepared.options);
+    return this._deleteMany(ctx, prepared);
   }
 
   @Collection.Get()
   async get?(ctx: RequestContext): Promise<Maybe<PartialOutput<T>>> {
     const prepared = await this._prepare(ctx);
-    const service = await this.getService(ctx);
-    return service.find(prepared.key, prepared.options);
+    return this._get(ctx, prepared);
   }
 
   @Collection.Update()
   async update?(ctx: RequestContext): Promise<Maybe<PartialOutput<T>>> {
     const prepared = await this._prepare(ctx);
-    const service = await this.getService(ctx);
-    return service.update(prepared.key, prepared.data, prepared.options);
+    return this._update(ctx, prepared);
   }
 
   @Collection.UpdateMany()
   async updateMany?(ctx: RequestContext): Promise<number> {
     const prepared = await this._prepare(ctx);
-    const service = await this.getService(ctx);
-    return service.updateMany(prepared.data, prepared.options);
+    return this._updateMany(ctx, prepared);
   }
 
   @Collection.FindMany()
   async findMany?(ctx: RequestContext): Promise<PartialOutput<T>[]> {
     const prepared = await this._prepare(ctx);
+    return this._findMany(ctx, prepared);
+  }
+
+  protected async _create(ctx: RequestContext, prepared: SQBAdapter.TransformedRequest): Promise<PartialOutput<T>> {
+    const service = await this.getService(ctx);
+    return service.create(prepared.data, prepared.options);
+  }
+
+  protected async _delete(ctx: RequestContext, prepared: SQBAdapter.TransformedRequest): Promise<number> {
+    const service = await this.getService(ctx);
+    return service.delete(prepared.key, prepared.options);
+  }
+
+  protected async _deleteMany(ctx: RequestContext, prepared: SQBAdapter.TransformedRequest): Promise<number> {
+    const service = await this.getService(ctx);
+    return service.deleteMany(prepared.options);
+  }
+
+  protected async _get(ctx: RequestContext, prepared: SQBAdapter.TransformedRequest): Promise<Maybe<PartialOutput<T>>> {
+    const service = await this.getService(ctx);
+    return service.find(prepared.key, prepared.options);
+  }
+
+  protected async _update(ctx: RequestContext, prepared: SQBAdapter.TransformedRequest): Promise<Maybe<PartialOutput<T>>> {
+    const service = await this.getService(ctx);
+    return service.update(prepared.key, prepared.data, prepared.options);
+  }
+
+  protected async _updateMany(ctx: RequestContext, prepared: SQBAdapter.TransformedRequest): Promise<number> {
+    const service = await this.getService(ctx);
+    return service.updateMany(prepared.data, prepared.options);
+  }
+
+  protected async _findMany(ctx: RequestContext, prepared: SQBAdapter.TransformedRequest): Promise<PartialOutput<T>[]> {
     const service = await this.getService(ctx);
     if (prepared.options.count) {
       const [items, count] = await Promise.all([

@@ -796,7 +796,7 @@ describe('Parse Collection requests', function () {
             method: 'GET',
             url: '/Customers?limit=x5'
           })))
-      ).rejects.toThrow('not a valid integer');
+      ).rejects.toThrow('must be an integer number');
     })
 
     it('Should parse "skip" option', async () => {
@@ -818,7 +818,7 @@ describe('Parse Collection requests', function () {
             method: 'GET',
             url: '/Customers?skip=x5'
           })))
-      ).rejects.toThrow('not a valid integer');
+      ).rejects.toThrow('must be an integer number');
     })
 
     it('Should parse "count" option', async () => {
