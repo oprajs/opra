@@ -35,7 +35,7 @@ export class MongoEntityService<T extends mongodb.Document> extends ApiService {
       session: options?.session || this.session
     }
     try {
-      return await collection.count(filter, options) || 0;
+      return await collection.countDocuments(filter, options) || 0;
     } catch (e: any) {
       await this._onError(e);
       throw e;
@@ -186,14 +186,6 @@ export class MongoEntityService<T extends mongodb.Document> extends ApiService {
       await this._onError(e);
       throw e;
     }
-  }
-
-  with(
-      context: RequestContext,
-      db?: mongodb.Db,
-      session?: mongodb.ClientSession
-  ): MongoEntityService<T> {
-    return this.forContext(context, db, session);
   }
 
   forContext(
