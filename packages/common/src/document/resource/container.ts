@@ -56,7 +56,11 @@ export namespace Container {
   export interface DecoratorOptions extends Partial<StrictOmit<ContainerDecorator.Metadata, 'kind' | 'actions'>> {
   }
 
-  // Need for augmentation
+  /* Required for augmentation */
+  export interface Action {
+  }
+
+  /* Required for augmentation */
   export namespace Action {
   }
 

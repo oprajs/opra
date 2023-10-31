@@ -52,23 +52,43 @@ export namespace Singleton {
   export interface DecoratorOptions extends Partial<StrictOmit<SingletonDecorator.Metadata, 'kind' | 'operations' | 'actions'>> {
   }
 
-  // Need for augmentation
+  /* Required for augmentation */
+  export interface Action {
+  }
+
+  /* Required for augmentation */
   export namespace Action {
   }
 
-  // Need for augmentation
+  /* Required for augmentation */
+  export interface Create {
+  }
+
+  /* Required for augmentation */
   export namespace Create {
   }
 
-  // Need for augmentation
+  /* Required for augmentation */
+  export interface Delete {
+  }
+
+  /* Required for augmentation */
   export namespace Delete {
   }
 
-  // Need for augmentation
+  /* Required for augmentation */
+  export interface Get {
+  }
+
+  /* Required for augmentation */
   export namespace Get {
   }
 
-  // Need for augmentation
+  /* Required for augmentation */
+  export interface Update {
+  }
+
+  /* Required for augmentation */
   export namespace Update {
   }
 

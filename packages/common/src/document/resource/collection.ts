@@ -56,35 +56,67 @@ export namespace Collection {
     primaryKey?: keyof T | (keyof T)[];
   }
 
-  // Need for augmentation
+  /* Required for augmentation */
+  export interface Action {
+  }
+
+  /* Required for augmentation */
   export namespace Action {
   }
 
-  // Need for augmentation
+  /* Required for augmentation */
+  export interface Create {
+  }
+
+  /* Required for augmentation */
   export namespace Create {
   }
 
-  // Need for augmentation
+  /* Required for augmentation */
+  export interface Delete {
+  }
+
+  /* Required for augmentation */
   export namespace Delete {
   }
 
-  // Need for augmentation
+  /* Required for augmentation */
+  export interface DeleteMany {
+  }
+
+  /* Required for augmentation */
   export namespace DeleteMany {
   }
 
-  // Need for augmentation
+  /* Required for augmentation */
+  export interface FindMany {
+  }
+
+  /* Required for augmentation */
   export namespace FindMany {
   }
 
-  // Need for augmentation
+  /* Required for augmentation */
+  export interface Get {
+  }
+
+  /* Required for augmentation */
   export namespace Get {
   }
 
-  // Need for augmentation
+  /* Required for augmentation */
+  export interface Update {
+  }
+
+  /* Required for augmentation */
   export namespace Update {
   }
 
-  // Need for augmentation
+  /* Required for augmentation */
+  export interface UpdateMany {
+  }
+
+  /* Required for augmentation */
   export namespace UpdateMany {
   }
 

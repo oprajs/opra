@@ -46,19 +46,35 @@ export namespace Storage {
   export interface DecoratorOptions extends Partial<StrictOmit<StorageDecorator.Metadata, 'kind' | 'operations' | 'actions'>> {
   }
 
-  // Need for augmentation
+  /* Required for augmentation */
+  export interface Action {
+  }
+
+  /* Required for augmentation */
   export namespace Action {
   }
 
-  // Need for augmentation
+  /* Required for augmentation */
+  export interface Delete {
+  }
+
+  /* Required for augmentation */
   export namespace Delete {
   }
 
-  // Need for augmentation
+  /* Required for augmentation */
+  export interface Get {
+  }
+
+  /* Required for augmentation */
   export namespace Get {
   }
 
-  // Need for augmentation
+  /* Required for augmentation */
+  export interface Post {
+  }
+
+  /* Required for augmentation */
   export namespace Post {
   }
 
