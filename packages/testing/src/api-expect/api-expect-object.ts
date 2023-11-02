@@ -1,21 +1,23 @@
-import '../jest-extend/index.js';
 import isNil from 'lodash.isnil';
 import omitBy from 'lodash.omitby';
-import { HttpResponse } from '@opra/client';
+import { ApiExpectBase } from './api-expect-base.js';
 
-export class ApiExpectObject {
-
-  constructor(readonly response: HttpResponse, protected _isNot: boolean = false) {
-  }
+export class ApiExpectObject extends ApiExpectBase {
 
   get not(): ApiExpectObject {
-    return new ApiExpectObject(this.response, !this._isNot);
+    return new ApiExpectObject(this.response, !this.isNot);
   }
 
+  /**
+   * Tests if Response payload matches given object
+   * @param expected
+   */
   toMatch<T extends {}>(expected: T): this {
     try {
-      const v = omitBy(expected, isNil);
-      this._expect(this.response.body.payload).toMatchObject(v);
+      expected = omitBy(expected, isNil) as T;
+      this._expect(this.response.body.payload).toEqual(
+          expect.objectContaining(expected)
+      )
     } catch (e: any) {
       Error.captureStackTrace(e, this.toMatch);
       throw e;
@@ -23,29 +25,37 @@ export class ApiExpectObject {
     return this;
   }
 
-  toHaveFields(fields: string[]): this {
+  /**
+   * Tests if Response payload has all of provided fields.
+   * @param fields
+   */
+  toContainFields(fields: string | string[]): this {
     try {
-      this._expect(this.response.body.payload).toHaveFields(fields);
+      fields = Array.isArray(fields) ? fields : [fields];
+      this._expect(Object.keys(this.response.body.payload))
+          .toEqual(expect.arrayContaining(fields));
     } catch (e: any) {
-      Error.captureStackTrace(e, this.toHaveFields);
+      Error.captureStackTrace(e, this.toContainFields);
       throw e;
     }
     return this;
   }
 
-  toHaveFieldsOnly(fields: string[]): this {
+  /**
+   * Tests if Response payload only contains all of provided fields.
+   * @param fields
+   */
+  toContainAllFields(fields: string | string[]): this {
     try {
-      this._expect(this.response.body.payload).toHaveFieldsOnly(fields);
+      fields = Array.isArray(fields) ? fields : [fields];
+      this._expect(Object.keys(this.response.body.payload))
+          .toEqual(fields);
     } catch (e: any) {
-      Error.captureStackTrace(e, this.toHaveFieldsOnly);
+      Error.captureStackTrace(e, this.toContainAllFields);
       throw e;
     }
     return this;
   }
 
-  protected _expect(expected: any): jest.Matchers<any> {
-    const out = expect(expected);
-    if (this._isNot) return out.not;
-    return out;
-  }
 }
+

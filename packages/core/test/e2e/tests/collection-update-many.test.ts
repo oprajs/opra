@@ -17,7 +17,7 @@ export function collectionUpdateManyTests(args: { client: OpraTestClient }) {
       resp1.expect
           .toSuccess()
           .toReturnOperationResult()
-          .toBeAffectedMin(1);
+          .toBeAffected();
 
       const resp2 = await args.client.collection('Customers')
           .findMany({

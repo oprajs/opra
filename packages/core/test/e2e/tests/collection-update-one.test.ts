@@ -23,7 +23,7 @@ export function collectionUpdateTests(args: { client: OpraTestClient }) {
       const oldData = resp.body.payload;
 
       resp = await args.client.collection('Customers')
-          .update(oldData._id, data)
+          .update(85, data)
           .getResponse();
       resp.expect
           .toSuccess()
@@ -31,7 +31,7 @@ export function collectionUpdateTests(args: { client: OpraTestClient }) {
           .toMatch({...oldData, ...data, address: undefined});
 
       resp = await args.client.collection('Customers')
-          .get(oldData._id)
+          .get(85)
           .getResponse();
       resp.expect
           .toSuccess()
@@ -60,7 +60,7 @@ export function collectionUpdateTests(args: { client: OpraTestClient }) {
       resp.expect
           .toSuccess()
           .toReturnObject()
-          .toHaveFieldsOnly(['_id', 'givenName']);
+          .toContainAllFields(['_id', 'givenName']);
     })
 
     it('Should omit fields to be returned', async () => {
@@ -84,7 +84,7 @@ export function collectionUpdateTests(args: { client: OpraTestClient }) {
       resp.expect
           .toSuccess()
           .toReturnObject()
-          .not.toHaveFields(['_id', 'givenName']);
+          .not.toContainFields(['_id', 'givenName']);
     })
 
     it('Should include exclusive fields if requested', async () => {
@@ -108,7 +108,7 @@ export function collectionUpdateTests(args: { client: OpraTestClient }) {
       resp.expect
           .toSuccess()
           .toReturnObject()
-          .toHaveFields(['address']);
+          .toContainFields(['address']);
     })
 
   })

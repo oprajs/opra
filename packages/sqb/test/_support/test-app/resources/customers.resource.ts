@@ -15,6 +15,14 @@ export class CustomersResource extends SqbCollection<Customer> {
     this.service = new SqbEntityService(Customer, {db});
   }
 
+  @Collection.Update()
+      .InputOmitFields('_id')
+  update;
+
+  @Collection.UpdateMany()
+      .InputOmitFields('_id')
+  updateMany;
+
   @Collection.FindMany()
       .SortFields('_id', 'givenName', 'familyName', 'gender', 'address.countryCode')
       .DefaultSort('givenName')

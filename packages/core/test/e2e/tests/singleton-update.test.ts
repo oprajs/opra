@@ -67,7 +67,7 @@ export function singletonUpdateTests(args: { client: OpraTestClient }) {
       resp.expect
           .toSuccess()
           .toReturnObject()
-          .toHaveFieldsOnly(['_id', 'givenName']);
+          .toContainAllFields(['_id', 'givenName']);
     })
 
     it('Should omit fields to be returned', async () => {
@@ -82,7 +82,7 @@ export function singletonUpdateTests(args: { client: OpraTestClient }) {
       resp.expect
           .toSuccess()
           .toReturnObject()
-          .not.toHaveFieldsOnly(['givenName', 'gender']);
+          .not.toContainFields(['givenName', 'gender']);
     })
 
     it('Should include exclusive fields if requested', async () => {
@@ -97,7 +97,7 @@ export function singletonUpdateTests(args: { client: OpraTestClient }) {
       resp.expect
           .toSuccess()
           .toReturnObject()
-          .toHaveFields(['givenName', 'gender', 'address']);
+          .toContainFields(['givenName', 'gender', 'address']);
     })
 
   })

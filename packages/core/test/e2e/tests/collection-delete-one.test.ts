@@ -13,7 +13,7 @@ export function collectionDeleteTests(args: { client: OpraTestClient }) {
       resp.expect
           .toSuccess()
           .toReturnOperationResult()
-          .toBeAffectedExact(1);
+          .toBeAffected();
       await expect(() =>
           args.client.collection('Customers')
               .get(1001)

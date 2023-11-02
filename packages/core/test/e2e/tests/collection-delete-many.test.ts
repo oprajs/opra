@@ -13,10 +13,10 @@ export function collectionDeleteManyTests(args: { client: OpraTestClient }) {
       resp.expect
           .toSuccess()
           .toReturnOperationResult()
-          .toBeAffectedMin(1);
+          .toBeAffected();
       await expect(() => args.client.collection('Customers')
           .get(1001)
-          .toPromise()
+          .getBody()
       ).rejects.toThrow('404');
     })
 

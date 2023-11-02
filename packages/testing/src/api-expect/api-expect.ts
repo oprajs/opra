@@ -1,101 +1,79 @@
 import '../jest-extend/index.js';
-import { HttpResponse } from '@opra/client';
+import colors from 'ansi-colors';
+import { ApiExpectBase } from './api-expect-base.js';
 import { ApiExpectCollection } from './api-expect-collection.js';
 import { ApiExpectError } from './api-expect-error.js';
 import { ApiExpectObject } from './api-expect-object.js';
 import { ApiExpectOperationResult } from './api-expect-operation-result.js';
 
-export class ApiExpect {
+export class ApiExpect extends ApiExpectBase {
 
-  constructor(readonly response: HttpResponse, protected _isNot: boolean = false) {
-  }
-
-  get not(): ApiExpect {
-    return new ApiExpect(this.response, !this._isNot);
-  }
-
-  toSuccess(status: number = 200): this {
+  /**
+   * Tests if request succeeded
+   * @param status Status code number between 200-299
+   */
+  toSuccess(status?: number): this {
     let msg = '';
     try {
-      msg = 'Unexpected "status" returned';
-      this._expect(this.response.status).toStrictEqual(status);
+      msg += `The response status isn't as expected.`;
+      if (status) {
+        expect(this.response.status).toEqual(status);
+      } else {
+        expect(this.response.status).toBeGreaterThanOrEqual(200);
+        expect(this.response.status).toBeLessThan(400);
+      }
     } catch (e: any) {
+      e.message = 'Request didn\'t succeeded. ' + msg + '\n\n' + e.message;
       const issues = this.response.body?.errors;
       const issue = issues?.[0]?.message;
-      if (msg)
-        e.message = msg + '\n\n' + (issue || e.message);
+      if (issue) {
+        e.message += '\n\n' + colors.yellow('Server message: ') + issue;
+      }
       Error.captureStackTrace(e, this.toSuccess);
       throw e;
     }
     return this;
   }
 
+  /**
+   * Tests if request failed
+   * @param status Status code number between 400-599
+   */
   toFail(status?: number): ApiExpectError {
     let msg = '';
     try {
-      msg = 'Request didn\'t failed';
+      msg += `The response status isn't as expected. `;
       if (status) {
-        expect(this.response.status).toStrictEqual(status);
+        expect(this.response.status).toEqual(status);
       } else {
         expect(this.response.status).toBeGreaterThanOrEqual(400);
         expect(this.response.status).toBeLessThanOrEqual(599);
       }
-      msg = 'Api did not returned "errors"';
-      expect(this.response.body.errors).toBeArray();
-      expect(this.response.body.errors.length).toBeGreaterThan(0);
     } catch (e: any) {
-      const issues = this.response.body?.errors;
-      const issue = issues?.[0]?.message;
-      if (msg)
-        e.message = msg + '\n\n' + (issue || e.message);
-      Error.captureStackTrace(e, this.toFail);
+      e.message = 'Request didn\'t failed. ' + msg + '\n\n' + e.message;
+      Error.captureStackTrace(e, this.toSuccess);
       throw e;
     }
     return new ApiExpectError(this.response);
   }
 
-  toReturnOperationResult(): ApiExpectOperationResult {
-    let msg = ''
-    try {
-      msg = '"body" is empty';
-      expect(this.response.body).toBeDefined();
-      msg = '"operation" property is empty';
-      expect(this.response.body.context).toBeDefined();
-    } catch (e: any) {
-      if (msg)
-        e.message = msg + '\n\n' + e.message;
-      Error.captureStackTrace(e, this.toReturnOperationResult);
-      throw e;
-    }
-    return new ApiExpectOperationResult(this.response);
-  }
-
-  toReturnObject(): ApiExpectObject {
-    let msg = ''
-    try {
-      msg = '"body" is empty';
-      expect(this.response.body).toBeDefined();
-      expect(typeof this.response.body).toStrictEqual('object');
-      msg = `"body.payload" is ${typeof typeof this.response.body.payload}`;
-      expect(typeof this.response.body.payload).toStrictEqual('object');
-    } catch (e: any) {
-      if (msg)
-        e.message = msg + '\n\n' + e.message;
-      Error.captureStackTrace(e, this.toReturnObject);
-      throw e;
-    }
-    return new ApiExpectObject(this.response);
-  }
-
+  /**
+   * Tests if API returns a Collection
+   */
   toReturnCollection(): ApiExpectCollection {
-    let msg = ''
+    let msg = '';
     try {
-      msg = '"body" is empty';
-      expect(this.response.body).toBeDefined();
-      expect(this.response.body.payload).toBeDefined();
-      msg = '"body" is not an array';
-      expect(this.response.body.payload).toBeArray();
+      msg = 'Content-Type header value is not valid. ';
+      expect(this.response.contentType).toEqual('application/opra+json');
+
+      msg = 'Type of response "body" is not valid. ';
+      expect(typeof this.response.body).toEqual('object');
+
+      msg = 'Type of "payload" is not an Array. ';
+      const payload = this.response.body.payload;
+      expect(Array.isArray(payload) ? 'array' : typeof payload).toEqual('array');
     } catch (e: any) {
+      e.message = 'Api didn\'t returned a Collection. ' + msg + '\n\n' + e.message;
       if (msg)
         e.message = msg + '\n\n' + e.message;
       Error.captureStackTrace(e, this.toReturnCollection);
@@ -104,12 +82,54 @@ export class ApiExpect {
     return new ApiExpectCollection(this.response);
   }
 
-  protected _expect(expected: any): jest.Matchers<any> {
-    const out = expect(expected);
-    if (this._isNot) return out.not;
-    return out;
+  /**
+   * Tests if API returns an Object
+   */
+  toReturnObject(): ApiExpectObject {
+    let msg = '';
+    try {
+      msg = 'Content-Type header value is not valid. ';
+      expect(this.response.contentType).toEqual('application/opra+json');
+
+      msg = 'Type of response "body" is not valid. ';
+      expect(typeof this.response.body).toEqual('object');
+
+      msg = 'Type of "payload" is not an Object. ';
+      const payload = this.response.body.payload;
+      expect(typeof payload).toEqual('object');
+    } catch (e: any) {
+      e.message = 'Api didn\'t returned an Object. ' + msg + '\n\n' + e.message;
+      if (msg)
+        e.message = msg + '\n\n' + e.message;
+      Error.captureStackTrace(e, this.toReturnCollection);
+      throw e;
+    }
+    return new ApiExpectObject(this.response);
+  }
+
+  /**
+   * Tests if API returns an OperationResult
+   */
+  toReturnOperationResult(): ApiExpectOperationResult {
+    let msg = '';
+    try {
+      msg = 'Content-Type header value is not valid. ';
+      expect(this.response.contentType).toEqual('application/opra+json');
+
+      msg = 'Type of response "body" is not valid. ';
+      expect(typeof this.response.body).toEqual('object');
+
+      msg = 'The response has payload. ';
+      const payload = this.response.body.payload;
+      expect(typeof payload).toEqual('undefined');
+    } catch (e: any) {
+      e.message = 'Api didn\'t returned a OperationResult. ' + msg + '\n\n' + e.message;
+      if (msg)
+        e.message = msg + '\n\n' + e.message;
+      Error.captureStackTrace(e, this.toReturnCollection);
+      throw e;
+    }
+    return new ApiExpectOperationResult(this.response);
   }
 
 }
-
-

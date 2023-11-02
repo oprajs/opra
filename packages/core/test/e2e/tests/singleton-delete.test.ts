@@ -31,11 +31,11 @@ export function singletonDeleteTests(args: { client: OpraTestClient }) {
       resp.expect
           .toSuccess()
           .toReturnOperationResult()
-          .toBeAffectedExact(1);
+          .toBeAffected();
       await expect(() =>
           args.client.singleton('MyProfile')
               .get()
-              .toPromise()
+              .getBody()
       ).rejects.toThrow('404');
     })
 

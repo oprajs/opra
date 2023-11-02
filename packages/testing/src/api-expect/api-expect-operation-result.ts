@@ -1,49 +1,27 @@
 import '../jest-extend/index.js';
-import { HttpResponse } from '@opra/client';
+import { ApiExpectBase } from './api-expect-base.js';
 
-export class ApiExpectOperationResult {
-
-  constructor(readonly response: HttpResponse, protected _isNot: boolean = false) {
-  }
+export class ApiExpectOperationResult extends ApiExpectBase {
 
   get not(): ApiExpectOperationResult {
-    return new ApiExpectOperationResult(this.response, !this._isNot);
+    return new ApiExpectOperationResult(this.response, !this.isNot);
   }
 
-  toBeAffectedExact(expected: number): this {
+  toBeAffected(min?: number, max?: number): this {
+    let msg = '';
     try {
-      this._expect(this.response.body.affected).toStrictEqual(expected);
+      msg += `The value of "affected" do not match. `;
+      const l = this.response.body.affected;
+      this._expect(l).toBeGreaterThanOrEqual(min || 1);
+      if (max)
+        this._expect(l).toBeLessThanOrEqual(max);
     } catch (e: any) {
-      Error.captureStackTrace(e, this.toBeAffectedExact);
+      if (msg)
+        e.message = msg + '\n\n' + e.message;
+      Error.captureStackTrace(e, this.toBeAffected);
       throw e;
     }
     return this;
-  }
-
-  toBeAffectedMin(expected: number): this {
-    try {
-      this._expect(this.response.body.affected).toBeGreaterThanOrEqual(expected);
-    } catch (e: any) {
-      Error.captureStackTrace(e, this.toBeAffectedMin);
-      throw e;
-    }
-    return this;
-  }
-
-  toBeAffectedMax(expected: number): this {
-    try {
-      this._expect(this.response.body.affected).toBeLessThanOrEqual(expected);
-    } catch (e: any) {
-      Error.captureStackTrace(e, this.toBeAffectedMax);
-      throw e;
-    }
-    return this;
-  }
-
-  protected _expect(expected: any): jest.Matchers<any> {
-    const out = expect(expected);
-    if (this._isNot) return out.not;
-    return out;
   }
 
 }

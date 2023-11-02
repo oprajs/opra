@@ -16,17 +16,17 @@ export function singletonGetTests(args: { client: OpraTestClient }) {
     it('Should return error code if resource not found', async () => {
       await args.client.singleton('MyProfile')
           .delete()
-          .toPromise();
+          .getResponse();
       await expect(() => args.client.singleton('MyProfile')
           .get()
-          .toPromise()
+          .getBody()
       ).rejects.toThrow('404');
     });
 
     it('Should return object', async () => {
       await args.client.singleton('MyProfile')
           .create(data)
-          .toPromise();
+          .getResponse();
 
       const resp = await args.client.singleton('MyProfile')
           .get()
@@ -45,7 +45,7 @@ export function singletonGetTests(args: { client: OpraTestClient }) {
       resp.expect
           .toSuccess()
           .toReturnObject()
-          .not.toHaveFields(['address', 'notes']);
+          .not.toContainFields(['address', 'notes']);
     })
 
     it('Should pick fields to be returned', async () => {
@@ -55,7 +55,7 @@ export function singletonGetTests(args: { client: OpraTestClient }) {
       resp.expect
           .toSuccess()
           .toReturnObject()
-          .toHaveFields(['_id', 'givenName']);
+          .toContainAllFields(['_id', 'givenName']);
     })
 
     it('Should omit fields to be returned', async () => {
@@ -65,7 +65,7 @@ export function singletonGetTests(args: { client: OpraTestClient }) {
       resp.expect
           .toSuccess()
           .toReturnObject()
-          .not.toHaveFields(['_id', 'givenName']);
+          .not.toContainFields(['_id', 'givenName']);
     })
 
     it('Should include exclusive fields if requested', async () => {
@@ -75,8 +75,7 @@ export function singletonGetTests(args: { client: OpraTestClient }) {
       resp.expect
           .toSuccess()
           .toReturnObject()
-          .toHaveFields(['address']);
-      expect(resp.body.payload.address).toBeDefined();
+          .toContainFields(['address']);
     })
 
   })

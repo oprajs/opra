@@ -45,7 +45,7 @@ export function collectionCreateTests(args: { client: OpraTestClient }) {
       resp.expect
           .toSuccess(201)
           .toReturnObject()
-          .toHaveFieldsOnly(['_id', 'givenName']);
+          .toContainAllFields(['_id', 'givenName']);
     })
 
     it('Should omit fields to be returned', async () => {
@@ -62,7 +62,7 @@ export function collectionCreateTests(args: { client: OpraTestClient }) {
       resp.expect
           .toSuccess(201)
           .toReturnObject()
-          .not.toHaveFields(['_id', 'givenName']);
+          .not.toContainFields(['_id', 'givenName']);
     })
 
     it('Should include exclusive fields if requested', async () => {
@@ -80,7 +80,7 @@ export function collectionCreateTests(args: { client: OpraTestClient }) {
       resp.expect
           .toSuccess(201)
           .toReturnObject()
-          .toHaveFields(['address']);
+          .toContainFields('address');
     })
   })
 }

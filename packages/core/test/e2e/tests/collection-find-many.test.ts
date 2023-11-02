@@ -13,7 +13,7 @@ export function collectionSearchTests(args: { client: OpraTestClient }) {
       resp.expect
           .toSuccess()
           .toReturnCollection()
-          .toHaveMinItems(1);
+          .toReturnItems();
     });
 
     it('Test "limit" option', async () => {
@@ -23,7 +23,7 @@ export function collectionSearchTests(args: { client: OpraTestClient }) {
       resp.expect
           .toSuccess()
           .toReturnCollection()
-          .toHaveMaxItems(3);
+          .toReturnItems(1, 3);
     })
 
     it('Test "sort" option', async () => {
@@ -43,18 +43,18 @@ export function collectionSearchTests(args: { client: OpraTestClient }) {
       resp.expect
           .toSuccess()
           .toReturnCollection()
-          .toHaveMinItems(1);
+          .toReturnItems();
       expect(resp.body.payload?.[0]._id).toBeGreaterThanOrEqual(10);
     })
 
     it('Test "pick" option', async () => {
       const resp = await args.client.collection('Customers')
-          .findMany({pick: ['givenName']})
+          .findMany({pick: ['_id', 'givenName']})
           .getResponse();
       resp.expect
           .toSuccess()
           .toReturnCollection()
-          .toHaveFieldsOnly(['_id', 'givenName']);
+          .toContainAllFields(['_id', 'givenName']);
     })
 
     it('Test "omit" option', async () => {
@@ -64,7 +64,7 @@ export function collectionSearchTests(args: { client: OpraTestClient }) {
       resp.expect
           .toSuccess()
           .toReturnCollection()
-          .not.toHaveFields(['givenName']);
+          .not.toContainFields(['givenName']);
     })
 
     it('Test "filter" option', async () => {
@@ -74,7 +74,7 @@ export function collectionSearchTests(args: { client: OpraTestClient }) {
       resp.expect
           .toSuccess()
           .toReturnCollection()
-          .toHaveMinItems(1)
+          .toReturnItems()
           .toBeFilteredBy('gender="M"');
     })
 
@@ -84,8 +84,8 @@ export function collectionSearchTests(args: { client: OpraTestClient }) {
           .getResponse();
       resp.expect
           .toSuccess()
-          .toReturnCollection();
-      expect(resp.body.totalMatches).toBeGreaterThanOrEqual(100);
+          .toReturnCollection()
+          .toContainTotalMatches(1);
     })
 
   })

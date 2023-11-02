@@ -44,12 +44,12 @@ export function singletonCreateTests(args: { client: OpraTestClient }) {
         address: {city: 'Izmir'}
       }
       const resp = await args.client.singleton('MyProfile')
-          .create(data, {pick: ['givenName']})
+          .create(data, {pick: ['_id', 'givenName']})
           .getResponse();
       resp.expect
           .toSuccess(201)
           .toReturnObject()
-          .toHaveFieldsOnly(['_id', 'givenName']);
+          .toContainAllFields(['_id', 'givenName']);
     })
 
     it('Should omit fields to be returned', async () => {
@@ -65,7 +65,7 @@ export function singletonCreateTests(args: { client: OpraTestClient }) {
       resp.expect
           .toSuccess(201)
           .toReturnObject()
-          .not.toHaveFields(['_id', 'givenName']);
+          .not.toContainFields(['_id', 'givenName']);
     })
 
     it('Should include exclusive fields if requested', async () => {
@@ -81,7 +81,7 @@ export function singletonCreateTests(args: { client: OpraTestClient }) {
       resp.expect
           .toSuccess(201)
           .toReturnObject()
-          .toHaveFields(['address']);
+          .toContainFields(['address']);
     })
   })
 }

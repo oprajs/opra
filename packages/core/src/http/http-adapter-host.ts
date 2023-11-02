@@ -113,8 +113,8 @@ export abstract class HttpAdapterHost extends PlatformAdapterHost {
         throw e;
       if (e instanceof vg.ValidationError) {
         throw new BadRequestError({
-          message: translate('error:RESPONSE_VALIDATION,'),
-          code: 'RESPONSE_VALIDATION',
+          message: e.issues.length === 1 ? e.message : translate('error:REQUEST_VALIDATION,'),
+          code: 'REQUEST_VALIDATION',
           details: e.issues
         }, e);
       }

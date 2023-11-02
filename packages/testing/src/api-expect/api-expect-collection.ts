@@ -1,33 +1,69 @@
-import '../jest-extend/index.js';
 import isNil from 'lodash.isnil';
 import omitBy from 'lodash.omitby';
 import ruleJudgmentLib from 'rule-judgment';
-import { HttpResponse } from '@opra/client';
 import { OpraFilter } from '@opra/common';
+import { ApiExpectBase } from './api-expect-base.js';
 
 // @ts-ignore
 const ruleJudgment = typeof ruleJudgmentLib === 'object' ? ruleJudgmentLib.default : ruleJudgmentLib;
 
-export class ApiExpectCollection {
-
-  constructor(readonly response: HttpResponse, protected _isNot: boolean = false) {
-  }
+export class ApiExpectCollection extends ApiExpectBase {
 
   get not(): ApiExpectCollection {
-    return new ApiExpectCollection(this.response, !this._isNot);
+    return new ApiExpectCollection(this.response, !this.isNot);
   }
 
-  forEach(callbackfn: (v: any) => void): this {
-    (this.response.body as any[]).forEach(callbackfn);
+  /**
+   * Tests if Collection have number of items in payload
+   * @param min Minimum number of items. Default 1
+   * @param max Maximum number of items
+   */
+  toReturnItems(min?: number, max?: number): this {
+    let msg = '';
+    try {
+      msg += `The length of payload array do not match. `;
+      const l = this.response.body.payload.length;
+      this._expect(l).toBeGreaterThanOrEqual(min || 1);
+      if (max)
+        this._expect(l).toBeLessThanOrEqual(max);
+    } catch (e: any) {
+      if (msg)
+        e.message = msg + '\n\n' + e.message;
+      Error.captureStackTrace(e, this.toReturnItems);
+      throw e;
+    }
     return this;
   }
 
+  toContainTotalMatches(min?: number, max?: number): this {
+    let msg = '';
+    try {
+      msg += `The value of "totalMatches" do not match. `;
+      const l = this.response.body.totalMatches;
+      this._expect(l).toBeGreaterThanOrEqual(min || 1);
+      if (max)
+        this._expect(l).toBeLessThanOrEqual(max);
+    } catch (e: any) {
+      if (msg)
+        e.message = msg + '\n\n' + e.message;
+      Error.captureStackTrace(e, this.toReturnItems);
+      throw e;
+    }
+    return this;
+  }
+
+  /**
+   * Tests if Collection items matches given object
+   * @param expected
+   */
   toMatch<T extends {}>(expected: T): this {
     try {
-      const v = omitBy(expected, isNil);
-      for (const item of this.response.body.payload) {
-        this._expect(item).toMatchObject(v);
-      }
+      expected = omitBy(expected, isNil) as T;
+      this._expect(this.response.body.payload).toEqual(
+          expect.arrayContaining(
+              [expect.objectContaining(expected)]
+          )
+      )
     } catch (e: any) {
       Error.captureStackTrace(e, this.toMatch);
       throw e;
@@ -35,47 +71,49 @@ export class ApiExpectCollection {
     return this;
   }
 
-  toHaveFields(keys: string[]): this {
+  /**
+   * Tests if Collection items has all of provided fields.
+   * @param fields
+   */
+  toContainFields(fields: string | string[]): this {
     try {
+      fields = Array.isArray(fields) ? fields : [fields];
       for (const item of this.response.body.payload) {
-        this._expect(item).toHaveFields(keys);
+        this._expect(Object.keys(item)).toEqual(expect.arrayContaining(fields));
       }
     } catch (e: any) {
-      Error.captureStackTrace(e, this.toHaveFields);
+      Error.captureStackTrace(e, this.toContainFields);
       throw e;
     }
     return this;
   }
 
-  toHaveFieldsOnly(keys: string[]): this {
+  /**
+   * Tests if Collection items only contains all of provided fields.
+   * @param fields
+   */
+  toContainAllFields(fields: string | string[]): this {
     try {
+      fields = Array.isArray(fields) ? fields : [fields];
       for (const item of this.response.body.payload) {
-        this._expect(item).toHaveFieldsOnly(keys);
+        this._expect(Object.keys(item)).toEqual(fields);
       }
     } catch (e: any) {
-      Error.captureStackTrace(e, this.toHaveFieldsOnly);
+      Error.captureStackTrace(e, this.toContainAllFields);
       throw e;
     }
     return this;
   }
 
-  //
-  // toHaveProperty(keyPath, value?): this {
-  //   try {
-  //     for (const item of this.response.payload) {
-  //       this._expect(item).toHaveProperty(keyPath, value);
-  //     }
-  //
-  //   } catch (e: any) {
-  //     Error.captureStackTrace(e, this.toHaveProperty);
-  //     throw e;
-  //   }
-  //   return this;
-  // }
-
-  toBeSortedBy(...fields: string[]): this {
+  /**
+   * Tests if Collection is sorted by given field(s).
+   * @param fields
+   */
+  toBeSortedBy(fields: string | string[]): this {
     try {
-      this._expect(this.response.body.payload).toBeSortedBy(fields);
+      fields = Array.isArray(fields) ? fields : [fields];
+      (this._expect(this.response.body.payload) as any)
+          .opraCollectionToBeSortedBy(fields);
     } catch (e: any) {
       Error.captureStackTrace(e, this.toBeSortedBy);
       throw e;
@@ -83,6 +121,10 @@ export class ApiExpectCollection {
     return this;
   }
 
+  /**
+   * Tests if Collection is filtered by given condition.
+   * @param filter
+   */
   toBeFilteredBy(filter: string | OpraFilter.Expression): this {
     const f = convertFilter(filter);
     if (f) {
@@ -98,43 +140,50 @@ export class ApiExpectCollection {
     return this;
   }
 
-  toHaveExactItems(expected: number): this {
-    try {
-      this._expect(this.response.body.dapayloadta).toHaveLength(expected);
-    } catch (e: any) {
-      Error.captureStackTrace(e, this.toHaveExactItems);
-      throw e;
-    }
-    return this;
-  }
-
-  toHaveMaxItems(expected: number): this {
-    try {
-      this._expect(this.response.body.payload.length).toBeLessThanOrEqual(expected);
-    } catch (e: any) {
-      Error.captureStackTrace(e, this.toHaveMaxItems);
-      throw e;
-    }
-    return this;
-  }
-
-  toHaveMinItems(expected: number): this {
-    try {
-      this._expect(this.response.body.payload.length).toBeGreaterThanOrEqual(expected);
-    } catch (e: any) {
-      Error.captureStackTrace(e, this.toHaveMinItems);
-      throw e;
-    }
-    return this;
-  }
-
-  protected _expect(expected: any): jest.Matchers<any> {
-    const out = expect(expected);
-    if (this._isNot) return out.not;
-    return out;
-  }
-
 }
+
+
+expect.extend({
+
+  opraCollectionToBeSortedBy(received, properties: string[]) {
+    const fieldsMap = properties.map(x => x.split('.'));
+    const getValue = (obj: any, fieldMap: string[]) => {
+      let v = obj;
+      let i = 0;
+      while (v && i < fieldMap.length) {
+        v = v[fieldMap[i++]];
+      }
+      return v;
+    }
+    let pass = true;
+    let message;
+    if (pass) {
+      const sorted = [...(received || [])];
+      sorted.sort((a, b) => {
+        for (const sortField of fieldsMap) {
+          const l = getValue(a, sortField);
+          const r = getValue(b, sortField);
+          if (l < r) return -1;
+          if (l > r) return 1;
+        }
+        return 0;
+      });
+      try {
+        expect(received).toEqual(sorted);
+      } catch (e) {
+        pass = false;
+        message = () => 'Items are not sorted as expected';
+      }
+    }
+    return {
+      actual: received,
+      message,
+      pass
+    };
+  },
+
+});
+
 
 export function convertFilter(str: string | OpraFilter.Expression | undefined): any {
   const ast = typeof str === 'string' ? OpraFilter.parse(str) : str;

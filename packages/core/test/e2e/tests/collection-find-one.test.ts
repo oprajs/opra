@@ -2,7 +2,7 @@ import { OpraTestClient } from '@opra/testing';
 
 export function collectionGetTests(args: { client: OpraTestClient }) {
 
-  describe('Collection:findOne', function () {
+  describe('Collection:get', function () {
 
     afterAll(() => global.gc && global.gc());
 
@@ -19,7 +19,7 @@ export function collectionGetTests(args: { client: OpraTestClient }) {
     it('Should return error code if resource not found', async () => {
       await expect(() => args.client.collection('Customers')
           .get(999999)
-          .toPromise()
+          .getBody()
       ).rejects.toThrow('404');
     });
 
@@ -30,7 +30,7 @@ export function collectionGetTests(args: { client: OpraTestClient }) {
       resp.expect
           .toSuccess()
           .toReturnObject()
-          .not.toHaveFields(['address', 'notes']);
+          .not.toContainFields(['address', 'notes']);
     })
 
     it('Should pick fields to be returned', async () => {
@@ -40,7 +40,7 @@ export function collectionGetTests(args: { client: OpraTestClient }) {
       resp.expect
           .toSuccess()
           .toReturnObject()
-          .toHaveFields(['_id', 'givenName']);
+          .toContainAllFields(['_id', 'givenName']);
     })
 
     it('Should omit fields to be returned', async () => {
@@ -50,7 +50,7 @@ export function collectionGetTests(args: { client: OpraTestClient }) {
       resp.expect
           .toSuccess()
           .toReturnObject()
-          .not.toHaveFields(['_id', 'givenName']);
+          .not.toContainFields(['_id', 'givenName']);
     })
 
     it('Should include exclusive fields if requested', async () => {
@@ -60,7 +60,7 @@ export function collectionGetTests(args: { client: OpraTestClient }) {
       resp.expect
           .toSuccess()
           .toReturnObject()
-          .toHaveFields(['address']);
+          .toContainFields(['address']);
       expect(resp.body.payload.address).toBeDefined();
     })
 

@@ -19,7 +19,6 @@ import {
 import { OpraModuleRef } from './opra-module-ref.js';
 import { NestExplorer } from './services/nest-explorer.js';
 import { OpraApiLoader } from './services/opra-api-loader.js';
-import { OpraExceptionFilter } from './services/opra-exception-filter.js';
 
 @Module({
   providers: [
