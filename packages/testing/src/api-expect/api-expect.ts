@@ -30,10 +30,10 @@ export class ApiExpect {
     return this;
   }
 
-  toFail(status: number = 400): ApiExpectError {
+  toFail(status?: number): ApiExpectError {
     let msg = '';
     try {
-      msg = 'Response "status" does not match';
+      msg = 'Request didn\'t failed';
       if (status) {
         expect(this.response.status).toStrictEqual(status);
       } else {
@@ -44,8 +44,10 @@ export class ApiExpect {
       expect(this.response.body.errors).toBeArray();
       expect(this.response.body.errors.length).toBeGreaterThan(0);
     } catch (e: any) {
+      const issues = this.response.body?.errors;
+      const issue = issues?.[0]?.message;
       if (msg)
-        e.message = msg + '\n\n' + e.message;
+        e.message = msg + '\n\n' + (issue || e.message);
       Error.captureStackTrace(e, this.toFail);
       throw e;
     }

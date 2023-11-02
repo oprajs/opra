@@ -75,7 +75,8 @@ export class OpraApiLoader {
     if (!httpAdapter)
       throw new Error('HttpAdapterHost is not initialized');
     const app = httpAdapter.getInstance();
-    const logger = moduleOptions.logger || new Logger(apiDocument.info.title);
+    const logger = moduleOptions.logger ||
+        (process.env.NODE_ENV === 'test' ? undefined : new Logger(apiDocument.info.title));
     return await ExpressAdapter.create(app, apiDocument, {
       ...moduleOptions,
       logger,

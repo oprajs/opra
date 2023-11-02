@@ -1,8 +1,19 @@
 import '../jest-extend/index.js';
-import matcherUtils from 'jest-matcher-utils';
+import * as matcherUtils from 'jest-matcher-utils';
 import { HttpResponse } from '@opra/client';
+import { ErrorIssue } from '@opra/common';
 import { objectMatches } from '../utils/object-matches.util.js';
 import { ApiExpectObject } from './api-expect-object.js';
+
+export type MatchingErrorIssue = Partial<ErrorIssue> &
+    {
+      message?: RegExp,
+      system?: RegExp,
+      code?: RegExp,
+      details?: RegExp,
+      diagnostics?: RegExp,
+      [index: string]: any;
+    };
 
 export class ApiExpectError extends ApiExpectObject {
 
@@ -10,13 +21,11 @@ export class ApiExpectError extends ApiExpectObject {
     super(response);
   }
 
-  toContainDetail(...matching: any[]) {
+  toContainError(...issue: (string | RegExp | MatchingErrorIssue)[]) {
     try {
-      expect(this.response.body).toBeDefined();
-      expect(this.response.body.issues).toBeDefined();
-      expect(this.response.body.issues).apiErrorDetailToContain(matching);
+      expect(this.response).apiResponseToContainError(issue);
     } catch (e: any) {
-      Error.captureStackTrace(e, this.toContainDetail);
+      Error.captureStackTrace(e, this.toContainError);
       throw e;
     }
   }
@@ -27,17 +36,18 @@ declare global {
   namespace jest {
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     interface Matchers<R> {
-      apiErrorDetailToContain(...issue: any[]);
+      apiResponseToContainError(issue: (string | RegExp | MatchingErrorIssue)[]);
     }
   }
 }
 
 expect.extend({
 
-  apiErrorDetailToContain(received: any[], issues: any[]) {
+  apiResponseToContainError(received: HttpResponse<any>, issues: (string | RegExp | MatchingErrorIssue)[]) {
     try {
-      expect(typeof received).toStrictEqual('object');
-      expect(Array.isArray(received)).toStrictEqual(true);
+      expect(received.body).toBeDefined();
+      expect(received.body.errors).toBeDefined();
+      expect(Array.isArray(received.body.errors)).toStrictEqual(true);
     } catch (e: any) {
       return {
         pass: false,
@@ -45,12 +55,14 @@ expect.extend({
       };
     }
 
-    for (const m of issues) {
+    for (let matchingIssue of issues) {
       let matched = false;
-      for (const detail of received) {
-        if (typeof m === 'object') {
+      for (const receivedIssue of received.body.errors) {
+        if (typeof matchingIssue === 'string' || matchingIssue instanceof RegExp)
+          matchingIssue = {message: matchingIssue} as MatchingErrorIssue;
+        if (typeof matchingIssue === 'object') {
           try {
-            objectMatches(detail, m);
+            objectMatches(receivedIssue, matchingIssue);
             matched = true;
             break;
           } catch {
@@ -61,7 +73,7 @@ expect.extend({
       if (!matched) {
         return {
           pass: false,
-          message: () => `Object does not match: \n` + matcherUtils.stringify(m)
+          message: () => `Object does not match: \n` + matcherUtils.stringify(matchingIssue)
         };
       }
     }

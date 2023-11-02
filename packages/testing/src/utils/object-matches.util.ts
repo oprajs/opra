@@ -15,14 +15,13 @@ function _objectMatches(received, expected: any, path: string) {
       } catch {
         throw new Error(`Property "${k}" does not match`)
       }
-    }
-    if (ev && typeof ev === 'object')
+    } else if (ev && typeof ev === 'object') {
       _objectMatches(rv, ev, path ? path + '.' + k : k)
-
-    try {
-      expect(rv).toStrictEqual(ev);
-    } catch {
-      throw new Error(`Property "${k}" does not match`)
-    }
+    } else
+      try {
+        expect(rv).toEqual(ev);
+      } catch {
+        throw new Error(`Property "${k}" does not match`)
+      }
   }
 }
