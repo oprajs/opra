@@ -4,6 +4,7 @@ export * from './wrap-exception.js';
 export * from './issue-severity.enum.js';
 
 export * from './http-errors/bad-request.error.js';
+export * from './http-errors/conflict.error.js';
 export * from './http-errors/failed-dependency.error.js';
 export * from './http-errors/forbidden.error.js';
 export * from './http-errors/internal-server.error.js';

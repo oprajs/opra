@@ -25,8 +25,6 @@ export namespace ApiDocumentFactory {
     root?: RootInit;
   }
 
-  export type DataTypeInitializer = TypeDocumentFactory.DataTypeInitializer;
-
   export type ResourceInitializer = (Collection.InitArguments & { kind: OpraSchema.Collection.Kind }) |
       (Singleton.InitArguments & { kind: OpraSchema.Singleton.Kind }) |
       (Storage.InitArguments & { kind: OpraSchema.Storage.Kind }) |
@@ -92,16 +90,21 @@ export class ApiDocumentFactory extends TypeDocumentFactory {
   }
 
   protected async importResourceSchema(name: string, schema: OpraSchema.Resource): Promise<ApiDocumentFactory.ResourceInitializer> {
-    const convertEndpoints = async (source?: Record<string, OpraSchema.Endpoint | undefined>) => {
+    const convertEndpoints = async (source?: Record<string, OpraSchema.Endpoint | OpraSchema.Action | undefined>) => {
       if (!source)
         return;
       const output: any = {};
       for (const [kA, oA] of Object.entries(source)) {
         /* istanbul ignore next */
         if (!oA) continue;
+        const o = output[kA] = {...oA};
         let parameters: Record<string, Parameter.InitArguments> | undefined;
+        // Resolve lazy type
+        if ((oA as ResourceDecorator.ActionMetadata).returnType) {
+          (o as any).returnType = await this.importDataType((oA as any).returnType);
+        }
         if (oA.parameters) {
-          parameters = {};
+          parameters = o.parameters = {};
           for (const [kP, oP] of Object.entries(oA.parameters)) {
             if ((oP as any).enum) {
               oP.type = EnumType((oP as any).enum, {name: kP + 'Enum'}) as any;
@@ -180,12 +183,17 @@ export class ApiDocumentFactory extends TypeDocumentFactory {
     if (!metadata && OpraSchema.isResource(metadata))
       throw new TypeError(`Class "${ctor.name}" doesn't have a valid Resource metadata`);
 
-    const convertEndpoints = async (source?: Record<string, ResourceDecorator.OperationMetadata>) => {
+    const convertEndpoints = async (source?: Record<string, ResourceDecorator.OperationMetadata | ResourceDecorator.ActionMetadata>) => {
       if (!source)
         return;
       const output: any = {};
       for (const [kA, oA] of Object.entries(source)) {
         const o = output[kA] = {...oA};
+        // Resolve lazy type
+        if ((oA as ResourceDecorator.ActionMetadata).returnType) {
+          (o as any).returnType = await this.importDataType((oA as any).returnType);
+        }
+
         if (oA.parameters) {
           const parameters: Record<string, Parameter.InitArguments> | undefined = o.parameters = {};
           for (const [kP, oP] of Object.entries(oA.parameters)) {

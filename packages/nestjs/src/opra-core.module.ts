@@ -7,7 +7,7 @@ import {
   OnModuleInit,
   Provider
 } from '@nestjs/common';
-import { HttpAdapterHost, ModulesContainer } from '@nestjs/core';
+import { APP_FILTER, HttpAdapterHost, ModulesContainer } from '@nestjs/core';
 import { MetadataScanner } from '@nestjs/core/metadata-scanner';
 import { OPRA_INITIALIZER, OPRA_MODULE_ID, OPRA_MODULE_OPTIONS } from './constants.js';
 import { OpraApiFactory } from './factories/opra-api.factory.js';
@@ -19,6 +19,7 @@ import {
 import { OpraModuleRef } from './opra-module-ref.js';
 import { NestExplorer } from './services/nest-explorer.js';
 import { OpraApiLoader } from './services/opra-api-loader.js';
+import { OpraExceptionFilter } from './services/opra-exception-filter.js';
 
 @Module({
   providers: [
@@ -55,6 +56,10 @@ export class OpraCoreModule implements OnModuleInit, OnModuleDestroy {
         useFactory: (apiLoader: OpraApiLoader) => {
           return apiLoader.opraModuleRef;
         }
+      },
+      {
+        provide: APP_FILTER,
+        useClass: OpraExceptionFilter,
       }
     ]
     return {
@@ -85,6 +90,10 @@ export class OpraCoreModule implements OnModuleInit, OnModuleDestroy {
           useFactory: (apiLoader: OpraApiLoader) => {
             return apiLoader.opraModuleRef;
           }
+        },
+        {
+          provide: APP_FILTER,
+          useClass: OpraExceptionFilter,
         },
         ...this.createAsyncProviders(asyncOptions)
       ]

@@ -5,7 +5,7 @@ export abstract class ApiService {
 
   get context(): RequestContext {
     if (!this._context)
-      throw new Error(`No context assigned for ${Object.getPrototypeOf(this).name}`);
+      throw new Error(`No context assigned for ${Object.getPrototypeOf(this).constructor.name}`);
     return this._context;
   }
 
