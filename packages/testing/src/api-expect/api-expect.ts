@@ -15,7 +15,7 @@ export class ApiExpect extends ApiExpectBase {
   toSuccess(status?: number): this {
     let msg = '';
     try {
-      msg += `The response status isn't as expected.`;
+      msg += `Status code do not match. `;
       if (status) {
         expect(this.response.status).toEqual(status);
       } else {
@@ -23,7 +23,7 @@ export class ApiExpect extends ApiExpectBase {
         expect(this.response.status).toBeLessThan(400);
       }
     } catch (e: any) {
-      e.message = 'Request didn\'t succeeded. ' + msg + '\n\n' + e.message;
+      e.message = 'Request didn\'t succeeded as expected. ' + msg + '\n\n' + e.message;
       const issues = this.response.body?.errors;
       const issue = issues?.[0]?.message;
       if (issue) {
@@ -42,7 +42,7 @@ export class ApiExpect extends ApiExpectBase {
   toFail(status?: number): ApiExpectError {
     let msg = '';
     try {
-      msg += `The response status isn't as expected. `;
+      msg += `Status code do not match. `;
       if (status) {
         expect(this.response.status).toEqual(status);
       } else {
@@ -50,7 +50,12 @@ export class ApiExpect extends ApiExpectBase {
         expect(this.response.status).toBeLessThanOrEqual(599);
       }
     } catch (e: any) {
-      e.message = 'Request didn\'t failed. ' + msg + '\n\n' + e.message;
+      e.message = 'Request didn\'t failed as expected. ' + msg + '\n\n' + e.message;
+      const issues = this.response.body?.errors;
+      const issue = issues?.[0]?.message;
+      if (issue) {
+        e.message += '\n\n' + colors.yellow('Server message: ') + issue;
+      }
       Error.captureStackTrace(e, this.toSuccess);
       throw e;
     }
