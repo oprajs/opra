@@ -173,10 +173,10 @@ export class SqbEntityService<T> extends ApiService {
     return this.forContext(context, db);
   }
 
-  forContext(context: RequestContext, db?: SqbClient | SqbConnection): typeof this {
-    const instance = super.forContext(context) as SqbEntityService<T>;
+  forContext(context: RequestContext, db?: SqbClient | SqbConnection): this {
+    const instance = super.forContext(context) as this;
     instance.db = db || this.db;
-    return instance as typeof this;
+    return instance as this;
   }
 
   protected async _onError(error: unknown): Promise<void> {

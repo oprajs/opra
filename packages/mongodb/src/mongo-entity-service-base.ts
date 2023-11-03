@@ -192,8 +192,8 @@ export class MongoEntityServiceBase<T extends mongodb.Document> extends ApiServi
       context: RequestContext,
       db?: mongodb.Db,
       session?: mongodb.ClientSession
-  ): typeof this {
-    const instance = super.forContext(context) as typeof this;
+  ): this {
+    const instance = super.forContext(context) as this;
     instance.db = db || this.db;
     instance.session = session || this.session;
     return instance as typeof this;
