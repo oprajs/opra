@@ -82,12 +82,19 @@ describe('UrlPath', function () {
   })
 
   it('Should .join() join path', () => {
-    const u1 = new OpraURLPath('/r1');
-    u1.join('/r2/r3')
+    let u1 = new OpraURLPath('/r1');
+    u1.join('/r2/r3@1')
     expect(u1.length).toStrictEqual(3);
     expect(u1[0].resource).toStrictEqual('r1');
     expect(u1[1].resource).toStrictEqual('r2');
     expect(u1[2].resource).toStrictEqual('r3');
+    expect(u1[2].key).toStrictEqual(1);
+    u1 = new OpraURLPath();
+    u1.join({resource: '/r1/r2', key: 1})
+    expect(u1.length).toStrictEqual(2);
+    expect(u1[0].resource).toStrictEqual('r1');
+    expect(u1[1].resource).toStrictEqual('r2');
+    expect(u1[1].key).toStrictEqual(1);
   })
 
   it('Should .resolve("/x") start from root', () => {

@@ -9,7 +9,7 @@ export abstract class ApiService {
     return this._context;
   }
 
-  forContext(context: RequestContext): typeof this {
+  forContext(context: RequestContext): this {
     const instance = {context} as ApiService;
     Object.setPrototypeOf(instance, this);
     return instance as typeof this;

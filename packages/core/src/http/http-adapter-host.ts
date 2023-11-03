@@ -185,7 +185,7 @@ export abstract class HttpAdapterHost extends PlatformAdapterHost {
     if (request)
       return request;
 
-    const path = parsedUrl.path;
+    const path = parsedUrl.path.toString();
     throw new BadRequestError({
       message: 'No resource or endpoint found at ' + path,
       details: {path}

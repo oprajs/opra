@@ -79,8 +79,14 @@ export class OpraURLPath {
 
   protected _resolve(items: OpraURLPath.ComponentLike | OpraURLPath.ComponentLike[], join?: boolean) {
     let paths = (Array.isArray(items) ? items : [items]).map(item => {
-      if (typeof item === 'object' && !(item instanceof OpraURLPath || item instanceof OpraURLPathComponent))
+      if (typeof item === 'object' && !(item instanceof OpraURLPath || item instanceof OpraURLPathComponent)) {
         item = new OpraURLPathComponent(item);
+        if (item.resource.includes('/')) {
+          const subPath = new OpraURLPath(item.resource);
+          subPath[subPath.length - 1].key = item.key;
+          return String(subPath)
+        }
+      }
       item = String(item);
       // Remove url parts coming after path (query, hash parts)
       if (item.includes('?'))
