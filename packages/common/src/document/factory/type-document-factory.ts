@@ -1,4 +1,4 @@
-import { StrictOmit, Type } from 'ts-gems';
+import { PartialSome, StrictOmit, Type } from 'ts-gems';
 import { validator } from 'valgen';
 import { cloneObject, isConstructor, resolveThunk, ResponsiveMap } from '../../helpers/index.js';
 import { OpraSchema } from '../../schema/index.js';
@@ -22,7 +22,7 @@ import { OperationResult } from '../resource/types/operation-result.type.js';
 import { TypeDocument } from '../type-document.js';
 
 export namespace TypeDocumentFactory {
-  export interface InitArguments extends StrictOmit<OpraSchema.TypeDocument, 'references' | 'types'> {
+  export interface InitArguments extends PartialSome<StrictOmit<OpraSchema.TypeDocument, 'references' | 'types'>, 'version'> {
     references?: Record<string, string | OpraSchema.ApiDocument | ApiDocument>;
     types?: ThunkAsync<Type | EnumType.EnumObject | EnumType.EnumArray>[] | Record<string, OpraSchema.DataType>;
     noBuiltinTypes?: boolean;
@@ -72,6 +72,7 @@ export class TypeDocumentFactory {
   protected async initDocument(
       init: TypeDocumentFactory.InitArguments
   ): Promise<TypeDocument> {
+    init.version = init.version || OpraSchema.SpecVersion;
     this.document.url = init.url;
     if (init.info)
       Object.assign(this.document.info, init.info);

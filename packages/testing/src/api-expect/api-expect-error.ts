@@ -4,15 +4,15 @@ import omitBy from 'lodash.omitby';
 import { ErrorIssue } from '@opra/common';
 import { ApiExpectBase } from './api-expect-base.js';
 
-export type MatchingErrorIssue = Partial<ErrorIssue> &
-    {
-      message?: RegExp,
-      system?: RegExp,
-      code?: RegExp,
-      details?: RegExp,
-      diagnostics?: RegExp,
-      [index: string]: any;
-    };
+export interface MatchingErrorIssue {
+  message?: ErrorIssue['message'] | RegExp;
+  system?: ErrorIssue['system'] | RegExp;
+  code?: ErrorIssue['code'] | RegExp;
+  details?: ErrorIssue['details'] | RegExp;
+  diagnostics?: ErrorIssue['diagnostics'] | RegExp;
+
+  [index: string]: any;
+}
 
 export class ApiExpectError extends ApiExpectBase {
 
