@@ -37,7 +37,7 @@ export class CollectionClass extends CrudResource {
       endpoint.defineParameter('omit', {type: 'string', isArray: true, isBuiltin: true});
       endpoint.defineParameter('include', {type: 'string', isArray: true, isBuiltin: true});
       endpoint.decodeInput = this.type.generateCodec('decode', {
-        partial: true,
+        partial: false,
         pick: endpoint.options.inputPickFields,
         omit: endpoint.options.inputOmitFields,
         operation: 'write',

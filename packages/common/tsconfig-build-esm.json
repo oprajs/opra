@@ -4,6 +4,5 @@
     "rootDir": "src",
     "outDir": "../../build/common/esm",
     "declarationDir": "../../build/common/types"
-  },
-  "include": ["src"]
+  }
 }

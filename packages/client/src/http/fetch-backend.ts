@@ -3,7 +3,7 @@ import { Observable } from 'rxjs';
 import { isReadableStreamLike } from 'rxjs/internal/util/isReadableStreamLike';
 import { Combine, StrictOmit } from 'ts-gems';
 import typeIs from '@browsery/type-is';
-import { isBlob } from '@opra/common';
+import { isBlob, OpraURL } from '@opra/common';
 import { HttpBackend } from './http-backend.js';
 import { HttpResponse } from './http-response.js';
 import {
@@ -171,6 +171,18 @@ export class FetchBackend extends HttpBackend {
       ...init,
       headers
     }
+    this.defaults.headers.forEach((val, key) => {
+      if (!headers.has(key))
+        headers.set(key, val);
+    });
+    const url = new OpraURL(requestInit.url, this.serviceUrl);
+    if (this.defaults.params.size) {
+      this.defaults.params.forEach((val, key) => {
+        if (!url.searchParams.has(key))
+          url.searchParams.set(key, val);
+      });
+      requestInit.url = url.toString();
+    }
     const body = requestInit.body;
     if (body) {
       let contentType: string;
@@ -199,7 +211,7 @@ export class FetchBackend extends HttpBackend {
       if (contentType && !headers.has('Content-Type'))
         headers.set('Content-Type', contentType);
     }
-    return new Request(requestInit.url.toString(), requestInit);
+    return new Request(url.toString(), requestInit);
   }
 
   protected createResponse(init: HttpResponse.Initiator): HttpResponse {
