@@ -13,13 +13,15 @@ export class FieldClass {
   description?: string;
   isArray?: boolean;
   default?: any;
-  fixed?: string | number;
+  fixed?: string | number | boolean;
   required?: boolean;
+  nullish?: boolean;
   readonly?: boolean;
   writeonly?: boolean;
   exclusive?: boolean;
   deprecated?: boolean | string;
   examples?: any[] | Record<string, any>;
+  format?: string;
 
   constructor(owner: ComplexType, init: ApiField.InitArguments) {
     this.owner = owner;
@@ -31,11 +33,13 @@ export class FieldClass {
     this.default = init.default;
     this.fixed = init.fixed;
     this.required = init.required;
+    this.nullish = init.nullish;
     this.readonly = init.readonly;
     this.writeonly = init.writeonly;
     this.exclusive = init.exclusive;
     this.deprecated = init.deprecated;
     this.examples = init.examples;
+    this.format = init.format;
   }
 
   exportSchema(options?: { webSafe?: boolean }): OpraSchema.Field {
@@ -47,11 +51,13 @@ export class FieldClass {
       default: this.default,
       fixed: this.fixed,
       required: this.required,
+      nullish: this.nullish,
       readonly: this.readonly,
       writeonly: this.writeonly,
       exclusive: this.exclusive,
       deprecated: this.deprecated,
-      examples: this.examples
+      examples: this.examples,
+      format: this.format,
     }) as OpraSchema.Field;
   }
 
