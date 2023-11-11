@@ -13,7 +13,7 @@ import {
   HttpResponseHeaderEvent,
   HttpSentEvent, HttpUploadProgressEvent
 } from '@opra/client';
-import { isBlob } from '@opra/common';
+import { isBlob, OpraURL } from '@opra/common';
 
 /**
  *
@@ -131,7 +131,18 @@ export class AngularBackend extends HttpBackend {
       ...init,
       headers
     }
-
+    this.defaults.headers.forEach((val, key) => {
+      if (!headers.has(key))
+        headers.set(key, val);
+    });
+    const url = new OpraURL(requestInit.url, this.serviceUrl);
+    if (this.defaults.params.size) {
+      this.defaults.params.forEach((val, key) => {
+        if (!url.searchParams.has(key))
+          url.searchParams.set(key, val);
+      });
+      requestInit.url = url.toString();
+    }
     if (requestInit.body) {
       let body: any;
       let contentType: string;
