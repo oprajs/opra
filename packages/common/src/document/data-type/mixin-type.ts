@@ -7,17 +7,17 @@ import type { ApiDocument } from '../api-document.js';
 import { DATATYPE_METADATA } from '../constants.js';
 import { ComplexType } from './complex-type.js';
 import { MappedType } from './mapped-type.js';
-import { UnionTypeClass } from './union-type-class.js';
+import { MixinTypeClass } from './mixin-type-class.js';
 
 
 /**
- * Type definition of UnionType constructor type
- * @type UnionTypeConstructor
+ * Type definition of MixinType constructor type
+ * @type MixinTypeConstructor
  */
-export interface UnionTypeConstructor {
-  prototype: UnionType;
+export interface MixinTypeConstructor {
+  prototype: MixinType;
 
-  new(document: ApiDocument, init: UnionType.InitArguments): UnionType;
+  new(document: ApiDocument, init: MixinType.InitArguments): MixinType;
 
   <A1 extends any[], I1, S1,
       A2 extends any[], I2, S2,
@@ -35,29 +35,29 @@ export interface UnionTypeConstructor {
 }
 
 /**
- * Type definition of UnionType prototype
- * @type UnionType
+ * Type definition of MixinType prototype
+ * @type MixinType
  */
-export interface UnionType extends UnionTypeClass {
+export interface MixinType extends MixinTypeClass {
 }
 
 
 /**
- * @class UnionType
+ * @class MixinType
  */
-export const UnionType = function (
-    this: UnionType,
+export const MixinType = function (
+    this: MixinType,
     ...args: any[]
 ) {
 
   // Constructor
   if (this) {
-    const [document, init] = args as [ApiDocument, UnionType.InitArguments];
-    merge(this, new UnionTypeClass(document, init), {descriptor: true});
+    const [document, init] = args as [ApiDocument, MixinType.InitArguments];
+    merge(this, new MixinTypeClass(document, init), {descriptor: true});
     return;
   }
 
-  // UnionType helper
+  // MixinType helper
 
   // Filter undefined items
   const clasRefs = [...args].filter(x => !!x) as [Type];
@@ -66,54 +66,54 @@ export const UnionType = function (
   if (clasRefs.length === 1)
     return clasRefs[0] as any;
 
-  class UnionClass {
+  class MixinClass {
     constructor() {
       for (const c of clasRefs)
         inheritPropertyInitializers(this, c);
     }
   }
 
-  const metadata: UnionType.Metadata = {
-    kind: OpraSchema.UnionType.Kind,
+  const metadata: MixinType.Metadata = {
+    kind: OpraSchema.MixinType.Kind,
     types: []
   };
-  Reflect.defineMetadata(DATATYPE_METADATA, metadata, UnionClass);
+  Reflect.defineMetadata(DATATYPE_METADATA, metadata, MixinClass);
 
   for (const c of clasRefs) {
     const itemMeta = Reflect.getMetadata(DATATYPE_METADATA, c);
-    if (!(itemMeta && (itemMeta.kind === OpraSchema.ComplexType.Kind || itemMeta.kind === OpraSchema.UnionType.Kind ||
+    if (!(itemMeta && (itemMeta.kind === OpraSchema.ComplexType.Kind || itemMeta.kind === OpraSchema.MixinType.Kind ||
         itemMeta.kind === OpraSchema.MappedType.Kind)))
-      throw new TypeError(`Class "${c.name}" is not a ${OpraSchema.ComplexType.Kind}, ${OpraSchema.UnionType.Kind} or ${OpraSchema.MappedType.Kind}`);
+      throw new TypeError(`Class "${c.name}" is not a ${OpraSchema.ComplexType.Kind}, ${OpraSchema.MixinType.Kind} or ${OpraSchema.MappedType.Kind}`);
     metadata.types.push(c);
-    mergePrototype(UnionClass.prototype, c.prototype);
+    mergePrototype(MixinType.prototype, c.prototype);
   }
 
-  UnionType._applyMixin(UnionClass, ...clasRefs);
+  MixinType._applyMixin(MixinClass, ...clasRefs);
 
-  return UnionClass as any;
-} as UnionTypeConstructor;
+  return MixinClass as any;
+} as MixinTypeConstructor;
 
-UnionType.prototype = UnionTypeClass.prototype;
-UnionType._applyMixin = () => void 0;
+MixinType.prototype = MixinTypeClass.prototype;
+MixinType._applyMixin = () => void 0;
 
 
 /**
- * @namespace UnionType
+ * @namespace MixinType
  */
-export namespace UnionType {
+export namespace MixinType {
 
   export interface InitArguments extends ComplexType.InitArguments {
-    types: (ComplexType | UnionType | MappedType)[]
+    types: (ComplexType | MixinType | MappedType)[]
   }
 
   export interface Metadata extends StrictOmit<ComplexType.Metadata, 'kind' | 'base' | 'name'> {
-    kind: OpraSchema.UnionType.Kind;
+    kind: OpraSchema.MixinType.Kind;
     base?: Type;
     types: Type[];
   }
 
   export interface OwnProperties extends ComplexType.OwnProperties {
-    types: (ComplexType | UnionType | MappedType)[];
+    types: (ComplexType | MixinType | MappedType)[];
   }
 
 }

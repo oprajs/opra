@@ -4,7 +4,7 @@ export * from './data-type/enum-type.interface.js';
 export * from './data-type/field.interface.js';
 export * from './data-type/simple-type.interface.js';
 export * from './data-type/mapped-type.interface.js';
-export * from './data-type/union-type.interface.js';
+export * from './data-type/mixin-type.interface.js';
 
 export * from './resource/action.interface.js';
 export * from './resource/endpoint.interface.js';

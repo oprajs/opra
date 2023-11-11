@@ -1,4 +1,4 @@
-import { ApiField, ComplexType, UnionType } from '@opra/common';
+import { ApiField, ComplexType, MixinType } from '@opra/common';
 import { Column, DataType, Embedded, Entity, Link } from '@sqb/connect';
 import { Address } from '../types/address.type.js';
 import { Person } from '../types/person.type.js';
@@ -9,7 +9,7 @@ import { Record } from './record.entity.js';
   description: 'Customer information',
 })
 @Entity({tableName: 'customers'})
-export class Customer extends UnionType(Record, Person) {
+export class Customer extends MixinType(Record, Person) {
 
   @ApiField()
   @Embedded(Address, {fieldNamePrefix: 'address_'})

@@ -1,5 +1,8 @@
 import path from 'node:path';
-import { ComplexType, DataType, EnumType, MappedType, SimpleType, UnionType } from '@opra/common';
+import {
+  ComplexType, DataType, EnumType,
+  MappedType, MixinType, SimpleType
+} from '@opra/common';
 import { wrapJSDocString } from '../utils/string-utils.js';
 import type { ApiExporter } from './api-exporter.js';
 import { TsFile } from './ts-file.js';
@@ -112,8 +115,8 @@ export async function resolveTypeNameOrDef(
     return this.generateSimpleTypeDefinition(file, dataType);
   if (dataType instanceof EnumType)
     return this.generateEnumTypeDefinition(file, dataType);
-  if (dataType instanceof UnionType)
-    return this.generateUnionTypeDefinition(file, dataType, forInterface);
+  if (dataType instanceof MixinType)
+    return this.generateMixinTypeDefinition(file, dataType, forInterface);
   if (dataType instanceof MappedType)
     return this.generateMappedTypeDefinition(file, dataType, forInterface);
   if (dataType instanceof ComplexType)
@@ -240,10 +243,10 @@ export async function generateEnumTypeDefinition(
  * @param dataType
  * @param forInterface
  */
-export async function generateUnionTypeDefinition(
+export async function generateMixinTypeDefinition(
     this: ApiExporter,
     file: TsFile,
-    dataType: UnionType,
+    dataType: MixinType,
     forInterface?: boolean
 ): Promise<string> {
   // let out = '';

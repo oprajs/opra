@@ -3,10 +3,10 @@ import {
   ApiDocumentFactory,
   ApiField,
   ComplexType,
+  MixinType,
   OmitType,
   OpraSchema,
-  PickType,
-  UnionType
+  PickType
 } from '@opra/common';
 
 describe('ApiDocumentFactory - MappedType with decorated classes', function () {
@@ -46,7 +46,7 @@ describe('ApiDocumentFactory - MappedType with decorated classes', function () {
       types: [Mapped1]
     })
     expect(doc).toBeDefined();
-    const t1 = doc.types.get('mapped1') as UnionType;
+    const t1 = doc.types.get('mapped1') as MixinType;
     expect(t1).toBeDefined();
     expect(t1.kind).toStrictEqual('ComplexType');
     expect(t1.name).toStrictEqual('Mapped1');
@@ -78,7 +78,7 @@ describe('ApiDocumentFactory - MappedType with decorated classes', function () {
       types: [Mapped1]
     })
     expect(doc).toBeDefined();
-    const t1 = doc.types.get('mapped1') as UnionType;
+    const t1 = doc.types.get('mapped1') as MixinType;
     expect(t1).toBeDefined();
     expect(t1.kind).toStrictEqual('ComplexType');
     expect(t1.name).toStrictEqual('Mapped1');

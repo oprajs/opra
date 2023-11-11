@@ -1,4 +1,4 @@
-import { ApiField, ComplexType, OmitType, UnionType } from '@opra/common';
+import { ApiField, ComplexType, OmitType, MixinType } from '@opra/common';
 import { Column } from '@sqb/connect';
 import { Person } from './person.type.js';
 import { PhoneNumber } from './phone.type.js';

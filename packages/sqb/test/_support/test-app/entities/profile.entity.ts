@@ -1,4 +1,4 @@
-import { ApiField, ComplexType, UnionType } from '@opra/common';
+import { ApiField, ComplexType, MixinType } from '@opra/common';
 import { Column, Entity } from '@sqb/connect';
 import { Address } from '../types/address.type.js';
 import { Person } from '../types/person.type.js';
@@ -8,7 +8,7 @@ import { Record } from '../types/record.type.js';
   description: 'Profile information'
 })
 @Entity('my_profile')
-export class Profile extends UnionType(Record, Person) {
+export class Profile extends MixinType(Record, Person) {
 
   @ApiField()
   @Column({type: Address, exclusive: true})

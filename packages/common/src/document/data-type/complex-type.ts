@@ -11,7 +11,7 @@ import { ComplexTypeClass } from './complex-type-class.js';
 import { DataType } from './data-type.js';
 import { ApiField } from './field.js';
 import type { MappedType } from './mapped-type.js';
-import type { UnionType } from './union-type.js';
+import type { MixinType } from './mixin-type.js';
 
 /**
  * Callable class pattern for ComplexType
@@ -56,7 +56,7 @@ ComplexType[DECORATOR] = ComplexTypeDecorator;
 export namespace ComplexType {
   export interface InitArguments extends DataType.InitArguments,
       Pick<OpraSchema.ComplexType, 'ctor' | 'abstract'> {
-    base?: ComplexType | MappedType | UnionType;
+    base?: ComplexType | MappedType | MixinType;
     fields?: Record<string, ApiField.InitArguments>;
     additionalFields?: boolean | DataType | 'error';
   }

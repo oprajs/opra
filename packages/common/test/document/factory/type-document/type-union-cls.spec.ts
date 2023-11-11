@@ -3,11 +3,11 @@ import {
   ApiDocumentFactory,
   ApiField,
   ComplexType,
-  OpraSchema,
-  UnionType
+  MixinType,
+  OpraSchema
 } from '@opra/common';
 
-describe('ApiDocumentFactory - UnionType with decorated classes', function () {
+describe('ApiDocumentFactory - MixinType with decorated classes', function () {
 
   const baseArgs: ApiDocumentFactory.InitArguments = {
     version: OpraSchema.SpecVersion,
@@ -20,7 +20,7 @@ describe('ApiDocumentFactory - UnionType with decorated classes', function () {
 
   afterAll(() => global.gc && global.gc());
 
-  it('Should add UnionType', async () => {
+  it('Should add MixinType', async () => {
     @ComplexType()
     class Type1 {
       @ApiField()
@@ -42,19 +42,19 @@ describe('ApiDocumentFactory - UnionType with decorated classes', function () {
     }
 
     @ComplexType()
-    class Union1 extends UnionType(Type1, UnionType(Type2, Type3)) {
+    class Mixin1 extends MixinType(Type1, MixinType(Type2, Type3)) {
 
     }
 
     const doc = await ApiDocumentFactory.createDocument({
       ...baseArgs,
-      types: [Union1]
+      types: [Mixin1]
     })
     expect(doc).toBeDefined();
-    const t1 = doc.types.get('union1') as UnionType;
+    const t1 = doc.types.get('mixin1') as MixinType;
     expect(t1).toBeDefined();
     expect(t1.kind).toStrictEqual('ComplexType');
-    expect(t1.name).toStrictEqual('Union1');
+    expect(t1.name).toStrictEqual('Mixin1');
     expect(t1.additionalFields).toStrictEqual(true);
     expect(Array.from(t1.fields.keys())).toStrictEqual(['id', 'name', 'age']);
   })

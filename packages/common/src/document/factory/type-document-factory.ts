@@ -15,8 +15,8 @@ import { DataType } from '../data-type/data-type.js';
 import { EnumType } from '../data-type/enum-type.js';
 import { ApiField } from '../data-type/field.js';
 import { MappedType } from '../data-type/mapped-type.js';
+import { MixinType } from '../data-type/mixin-type.js';
 import { SimpleType } from '../data-type/simple-type.js';
-import { UnionType } from '../data-type/union-type.js';
 import { MetadataMode } from '../resource/enums/metadata-mode.enum.js';
 import { OperationResult } from '../resource/types/operation-result.type.js';
 import { TypeDocument } from '../type-document.js';
@@ -31,7 +31,7 @@ export namespace TypeDocumentFactory {
   export type DataTypeInitializer =
       (ComplexType.InitArguments & { kind: OpraSchema.ComplexType.Kind })
       | (SimpleType.InitArguments & { kind: OpraSchema.SimpleType.Kind })
-      | (UnionType.InitArguments & { kind: OpraSchema.UnionType.Kind })
+      | (MixinType.InitArguments & { kind: OpraSchema.MixinType.Kind })
       | (MappedType.InitArguments & { kind: OpraSchema.MappedType.Kind })
       | (EnumType.InitArguments & { kind: OpraSchema.EnumType.Kind })
       ;
@@ -236,8 +236,8 @@ export class TypeDocumentFactory {
         EnumType.apply(instance, [this.document, initArguments] as any);
       else if (initArguments.kind === 'MappedType')
         MappedType.apply(instance, [this.document, initArguments] as any);
-      else if (initArguments.kind === 'UnionType')
-        UnionType.apply(instance, [this.document, initArguments] as any);
+      else if (initArguments.kind === 'MixinType')
+        MixinType.apply(instance, [this.document, initArguments] as any);
       else
         throw new TypeError(`Invalid data type schema: ${String(initArguments)}`);
 
@@ -328,7 +328,7 @@ export class TypeDocumentFactory {
       initArguments.base = dataType;
     }
 
-    if (initArguments.kind === 'UnionType') {
+    if (initArguments.kind === 'MixinType') {
       const oldTypes = initArguments.types as any;
       initArguments.types = [];
       for (const type of oldTypes)
@@ -356,8 +356,8 @@ export class TypeDocumentFactory {
       case OpraSchema.SimpleType.Kind:
         Object.setPrototypeOf(dataType, SimpleType.prototype);
         break;
-      case OpraSchema.UnionType.Kind:
-        Object.setPrototypeOf(dataType, UnionType.prototype);
+      case OpraSchema.MixinType.Kind:
+        Object.setPrototypeOf(dataType, MixinType.prototype);
         break;
       default:
         throw new TypeError(`Unknown DataType kind (${kind})`);

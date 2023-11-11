@@ -12,9 +12,9 @@ import {
   generateComplexTypeDefinition,
   generateEnumTypeDefinition,
   generateMappedTypeDefinition,
+  generateMixinTypeDefinition,
   generateSimpleTypeDefinition,
   generateTypeFile,
-  generateUnionTypeDefinition,
   processTypes,
   resolveTypeNameOrDef
 } from './process-types.js';
@@ -52,7 +52,7 @@ export class ApiExporter {
   protected generateSimpleTypeDefinition: typeof generateSimpleTypeDefinition;
   protected resolveTypeNameOrDef: typeof resolveTypeNameOrDef;
   protected generateEnumTypeDefinition: typeof generateEnumTypeDefinition;
-  protected generateUnionTypeDefinition: typeof generateUnionTypeDefinition;
+  protected generateMixinTypeDefinition: typeof generateMixinTypeDefinition;
   protected generateMappedTypeDefinition: typeof generateMappedTypeDefinition;
 
   protected constructor(
@@ -168,7 +168,7 @@ export class ApiExporter {
     ApiExporter.prototype.generateSimpleTypeDefinition = generateSimpleTypeDefinition;
     ApiExporter.prototype.resolveTypeNameOrDef = resolveTypeNameOrDef;
     ApiExporter.prototype.generateEnumTypeDefinition = generateEnumTypeDefinition;
-    ApiExporter.prototype.generateUnionTypeDefinition = generateUnionTypeDefinition;
+    ApiExporter.prototype.generateMixinTypeDefinition = generateMixinTypeDefinition;
     ApiExporter.prototype.generateMappedTypeDefinition = generateMappedTypeDefinition;
   }
 

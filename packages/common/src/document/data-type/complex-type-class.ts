@@ -8,7 +8,7 @@ import type { ComplexType } from './complex-type.js';
 import { DataType } from './data-type.js';
 import { ApiField } from './field.js';
 import type { MappedType } from './mapped-type.js';
-import type { UnionType } from './union-type.js';
+import type { MixinType } from './mixin-type.js';
 
 /**
  * @class ComplexType
@@ -16,7 +16,7 @@ import type { UnionType } from './union-type.js';
 export class ComplexTypeClass extends DataType {
   readonly kind: OpraSchema.DataType.Kind = OpraSchema.ComplexType.Kind;
   readonly ctor: Type;
-  readonly base?: ComplexType | UnionType | MappedType;
+  readonly base?: ComplexType | MixinType | MappedType;
   readonly own: ComplexType.OwnProperties;
   readonly fields = new ResponsiveMap<ApiField>();
   readonly abstract?: boolean;
@@ -27,8 +27,8 @@ export class ComplexTypeClass extends DataType {
     const own = this.own = {} as Writable<ComplexType.OwnProperties>;
     own.ctor = init.ctor;
     if (init.base) {
-      if (!(init.base.kind === 'ComplexType' || init.base.kind === 'MappedType' || init.base.kind === 'UnionType'))
-        throw new TypeError('"base" argument must be one of ComplexType or MappedType or UnionType');
+      if (!(init.base.kind === 'ComplexType' || init.base.kind === 'MappedType' || init.base.kind === 'MixinType'))
+        throw new TypeError('"base" argument must be one of ComplexType or MappedType or MixinType');
       own.ctor = own.ctor || (init.base as ComplexTypeClass).ctor;
     }
     own.additionalFields = init?.additionalFields;

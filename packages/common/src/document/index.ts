@@ -13,7 +13,7 @@ export * from './data-type/field.js';
 export * from './data-type/enum-type.js';
 export * from './data-type/mapped-type.js';
 export * from './data-type/simple-type.js';
-export * from './data-type/union-type.js';
+export * from './data-type/mixin-type.js';
 
 export * from './resource/action.js';
 export * from './resource/collection.js';

@@ -6,12 +6,12 @@ import type { ApiDocument } from '../api-document.js';
 import type { ComplexType } from './complex-type.js';
 import { ComplexTypeClass } from './complex-type-class.js';
 import type { MappedType } from './mapped-type.js';
-import type { UnionType } from './union-type.js';
+import type { MixinType } from './mixin-type';
 
 export class MappedTypeClass extends ComplexTypeClass {
   override readonly kind: OpraSchema.DataType.Kind = OpraSchema.MappedType.Kind;
   readonly own: MappedType.OwnProperties;
-  readonly base: ComplexType | UnionType | MappedType;
+  readonly base: ComplexType | MixinType | MappedType;
   readonly omit?: Field.Name[];
   readonly pick?: Field.Name[];
 
