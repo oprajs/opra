@@ -1,31 +1,27 @@
 import mongodb from 'mongodb';
 import { Maybe } from 'ts-gems';
-import { ISingleton, PartialOutput, Singleton } from '@opra/common';
+import { ISingleton, PartialOutput } from '@opra/common';
 import { RequestContext } from '@opra/core';
 import { MongoAdapter } from './mongo-adapter.js';
 import { MongoEntityService } from './mongo-entity-service.js';
 
 export abstract class MongoSingleton<T extends mongodb.Document> implements ISingleton<T> {
 
-  @Singleton.Create()
   async create?(ctx: RequestContext): Promise<PartialOutput<T>> {
     const prepared = await this._prepare(ctx);
     return this._create(ctx, prepared);
   }
 
-  @Singleton.Delete()
   async delete?(ctx: RequestContext): Promise<number> {
     const prepared = await this._prepare(ctx);
     return this._delete(ctx, prepared);
   }
 
-  @Singleton.Get()
   async get?(ctx: RequestContext): Promise<Maybe<PartialOutput<T>>> {
     const prepared = await this._prepare(ctx);
     return this._get(ctx, prepared);
   }
 
-  @Singleton.Update()
   async update?(ctx: RequestContext): Promise<Maybe<PartialOutput<T>>> {
     const prepared = await this._prepare(ctx);
     return this._update(ctx, prepared);

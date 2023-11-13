@@ -1,4 +1,4 @@
-import { Collection, Singleton } from '@opra/common';
+import { Singleton } from '@opra/common';
 import { RequestContext } from '@opra/core';
 import { SqbEntityService, SqbSingleton } from '@opra/sqb';
 import { SqbClient } from '@sqb/connect';
@@ -13,7 +13,16 @@ export class MyProfileResource extends SqbSingleton<Profile> {
     this.service = new SqbEntityService(Profile, {db});
   }
 
-  @Collection.Update()
+  @Singleton.Create()
+  create;
+
+  @Singleton.Delete()
+  delete;
+
+  @Singleton.Get()
+  get;
+
+  @Singleton.Update()
       .InputOmitFields('_id')
   update;
 

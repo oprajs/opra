@@ -20,8 +20,11 @@ export abstract class CrudResource extends Resource {
     }
   }
 
-  getOperation(name: string): CrudOperation | undefined {
-    return this.operations.get(name);
+  getOperation(operation: string): CrudOperation | undefined {
+    const op = this.operations.get(operation);
+    if (!op)
+      throw new Error(`${this.name} resource does not support "${operation}" operations`);
+    return op;
   }
 
   exportSchema(options?: { webSafe?: boolean }): OpraSchema.ResourceBase & { operations?: any } {

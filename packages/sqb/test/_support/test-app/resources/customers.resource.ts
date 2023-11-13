@@ -15,6 +15,18 @@ export class CustomersResource extends SqbCollection<Customer> {
     this.service = new SqbEntityService(Customer, {db});
   }
 
+  @Collection.Create()
+  create;
+
+  @Collection.Delete()
+  delete;
+
+  @Collection.DeleteMany()
+  deleteMany;
+
+  @Collection.Get()
+  get;
+
   @Collection.Update()
       .InputOmitFields('_id')
   update;

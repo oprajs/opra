@@ -11,6 +11,14 @@ import { CountryService } from './country.service.js';
 export class CountriesResource extends SqbCollection<Country> {
   countryService = new CountryService();
 
+
+  @Collection.Get()
+  get;
+
+  @Collection.FindMany()
+  findMany;
+
+
   getService(ctx: RequestContext): SqbEntityService<Country> {
     return this.countryService.forContext(ctx);
   }

@@ -10,14 +10,18 @@ import { CustomerService } from './customer.service.js';
 export class CustomersResource extends SqbCollection<Customer> {
   public customerService = new CustomerService();
 
-  @Collection.FindMany()
-      .SortFields('id', 'givenName', 'familyName', 'gender', 'birthDate')
-      .Filter('id', '=')
-      .Filter('givenName', ['=', 'like', 'ilike'])
-      .Filter('familyName', ['=', 'like', 'ilike'])
-      .Filter('gender', ['=', '!=', 'in'])
-      .Filter('birthDate', ['=', '>', '>=', '<', '<='])
-  findMany;
+  @Collection.Delete()
+  delete;
+
+  @Collection.DeleteMany()
+  deleteMany;
+
+  @Collection.Get()
+  get;
+
+  @Collection.Update()
+      .InputOmitFields('id')
+  update;
 
   @Collection.Create()
       .InputOverwriteFields({
@@ -29,6 +33,15 @@ export class CustomersResource extends SqbCollection<Customer> {
       request.data.createdBy = {givenName: 'x', familyName: 'y'};
     return super.create!(ctx);
   }
+
+  @Collection.FindMany()
+      .SortFields('id', 'givenName', 'familyName', 'gender', 'birthDate')
+      .Filter('id', '=')
+      .Filter('givenName', ['=', 'like', 'ilike'])
+      .Filter('familyName', ['=', 'like', 'ilike'])
+      .Filter('gender', ['=', '!=', 'in'])
+      .Filter('birthDate', ['=', '>', '>=', '<', '<='])
+  findMany;
 
   @Collection.Action()
       .Parameter('ids', {type: String, isArray: true, required: true})

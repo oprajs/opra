@@ -1,5 +1,5 @@
 import { Maybe } from 'ts-gems';
-import { Collection, ICollection, PartialOutput } from '@opra/common';
+import { ICollection, PartialOutput } from '@opra/common';
 import { RequestContext } from '@opra/core';
 import { SQBAdapter } from './sqb-adapter.js';
 import { SqbEntityService } from './sqb-entity-service.js';
@@ -18,43 +18,36 @@ export abstract class SqbCollection<T> implements ICollection<T> {
     this.defaultLimit = options?.defaultLimit || 100;
   }
 
-  @Collection.Create()
   async create?(ctx: RequestContext): Promise<PartialOutput<T>> {
     const prepared = await this._prepare(ctx);
     return this._create(ctx, prepared);
   }
 
-  @Collection.Delete()
   async delete?(ctx: RequestContext): Promise<number> {
     const prepared = await this._prepare(ctx);
     return this._delete(ctx, prepared);
   }
 
-  @Collection.DeleteMany()
   async deleteMany?(ctx: RequestContext): Promise<number> {
     const prepared = await this._prepare(ctx);
     return this._deleteMany(ctx, prepared);
   }
 
-  @Collection.Get()
   async get?(ctx: RequestContext): Promise<Maybe<PartialOutput<T>>> {
     const prepared = await this._prepare(ctx);
     return this._get(ctx, prepared);
   }
 
-  @Collection.Update()
   async update?(ctx: RequestContext): Promise<Maybe<PartialOutput<T>>> {
     const prepared = await this._prepare(ctx);
     return this._update(ctx, prepared);
   }
 
-  @Collection.UpdateMany()
   async updateMany?(ctx: RequestContext): Promise<number> {
     const prepared = await this._prepare(ctx);
     return this._updateMany(ctx, prepared);
   }
 
-  @Collection.FindMany()
   async findMany?(ctx: RequestContext): Promise<PartialOutput<T>[]> {
     const prepared = await this._prepare(ctx);
     return this._findMany(ctx, prepared);

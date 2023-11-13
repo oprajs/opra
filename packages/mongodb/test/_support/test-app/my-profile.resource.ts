@@ -14,6 +14,18 @@ export class MyProfileResource extends MongoSingleton<Profile> {
     this.service = new MyProfileService({db});
   }
 
+  @Singleton.Create()
+  create;
+
+  @Singleton.Delete()
+  delete;
+
+  @Singleton.Get()
+  get;
+
+  @Singleton.Update()
+  update;
+
   getService(ctx: RequestContext) {
     return this.service.forContext(ctx);
   }

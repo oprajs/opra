@@ -15,6 +15,24 @@ export class CustomersResource extends MongoCollection<Customer> {
     this.service = new MongoEntityService('Customers', {db});
   }
 
+  @Collection.Create()
+  create;
+
+  @Collection.Delete()
+  delete;
+
+  @Collection.DeleteMany()
+  deleteMany;
+
+  @Collection.Get()
+  get;
+
+  @Collection.Update()
+  update;
+
+  @Collection.UpdateMany()
+  updateMany;
+
   @Collection.FindMany()
       .SortFields('_id', 'givenName', 'familyName', 'gender', 'address.countryCode')
       .DefaultSort('givenName')
