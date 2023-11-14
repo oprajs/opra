@@ -21,15 +21,16 @@ export abstract class DataType {
   readonly name?: string;
   readonly base?: DataType;
   readonly own: DataType.OwnProperties;
-  readonly description?: string;
-  readonly isAnonymous: boolean;
+  description?: string;
+  isAnonymous?: boolean;
 
   protected constructor(document: ApiDocument, init?: DataType.InitArguments) {
     this.document = document;
     this.name = init?.name;
     this.own = {};
     this.description = init?.description;
-    this.isAnonymous = !this.name;
+    if (!this.name)
+      this.isAnonymous = true;
   }
 
   abstract generateCodec(codec: 'decode' | 'encode', options?: DataType.GenerateCodecOptions): vg.Validator;

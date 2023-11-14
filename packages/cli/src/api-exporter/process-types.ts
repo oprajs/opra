@@ -102,7 +102,7 @@ export async function resolveTypeNameOrDef(
     dataType: DataType,
     forInterface?: boolean
 ): Promise<string> {
-  if (dataType.name) {
+  if (dataType.name && !dataType.isAnonymous) {
     if (internalTypeNames.includes(dataType.name))
       return dataType.name;
     const f = await this.generateTypeFile(dataType);
@@ -139,10 +139,15 @@ export async function generateComplexTypeDefinition(
   let out = '';
   if (dataType.base) {
     const base = await this.resolveTypeNameOrDef(file, dataType.base, forInterface);
-    out += forInterface ? `extends ${base} ` : `${base} & `;
+    const omitFields = [...dataType.own.fields.keys()]
+        .filter(k => dataType.base?.fields.has(k));
+    const baseDef = omitFields.length
+        ? `Omit<${base}, ${omitFields.map(x => "'" + x + "'").join(' | ')}>`
+        : `${base}`;
+    out += forInterface ? `extends ${baseDef} ` : `${baseDef} & `;
   }
 
-  out += '{\n\n\t';
+  out += '{\n\t';
   for (const field of dataType.own.fields.values()) {
 
     // Print JSDoc
@@ -165,17 +170,19 @@ export async function generateComplexTypeDefinition(
       jsDoc += ` * @deprecated ` + (typeof field.deprecated === 'string' ? field.deprecated : '') + '\n';
 
     if (jsDoc)
-      out += `/**\n${jsDoc} */\n`;
+      out += `\n/**\n${jsDoc} */\n`;
+    else out += `\n`;
 
     // Print field name
     if (field.readonly) out += 'readonly ';
     out += `${field.name}${field.required ? '' : '?'}: `;
 
-    if (field.fixed)
-      out += `${field.fixed}`;
-    else {
+    if (field.fixed) {
+      const t = typeof field.fixed;
+      out += `${t === 'number' || t === 'boolean' || t === 'bigint' ? field.fixed : "'" + field.fixed + "'"}\n`;
+    } else {
       out += await this.resolveTypeNameOrDef(file, field.type) +
-          `${field.isArray ? '[]' : ''};\n\n`;
+          `${field.isArray ? '[]' : ''};\n`;
     }
   }
   if (dataType.additionalFields)

@@ -32,6 +32,7 @@ export class ComplexTypeClass extends DataType {
       own.ctor = own.ctor || (init.base as ComplexTypeClass).ctor;
     }
     own.additionalFields = init?.additionalFields;
+    own.anonymous = init?.anonymous;
     own.fields = new ResponsiveMap();
 
     this.kind = OpraSchema.ComplexType.Kind;
@@ -39,6 +40,7 @@ export class ComplexTypeClass extends DataType {
     this.ctor = own.ctor || Object;
     this.abstract = init.abstract;
     this.additionalFields = own.additionalFields;
+    this.isAnonymous = this.isAnonymous || init.anonymous;
     if (this.base?.additionalFields === true && this.additionalFields !== true)
       this.additionalFields = true;
     else if (this.base?.additionalFields === 'error' && !this.additionalFields)
