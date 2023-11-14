@@ -15,7 +15,6 @@ export class FieldClass {
   default?: any;
   fixed?: string | number | boolean;
   required?: boolean;
-  nullish?: boolean;
   readonly?: boolean;
   writeonly?: boolean;
   exclusive?: boolean;
@@ -33,7 +32,6 @@ export class FieldClass {
     this.default = init.default;
     this.fixed = init.fixed;
     this.required = init.required;
-    this.nullish = init.nullish;
     this.readonly = init.readonly;
     this.writeonly = init.writeonly;
     this.exclusive = init.exclusive;
@@ -54,7 +52,6 @@ export class FieldClass {
       default: this.default,
       fixed: this.fixed,
       required: this.required,
-      nullish: this.nullish,
       readonly: this.readonly,
       writeonly: this.writeonly,
       exclusive: this.exclusive,

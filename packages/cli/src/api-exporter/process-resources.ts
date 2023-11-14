@@ -10,9 +10,7 @@ export async function processResource(
     className: string,
     tsFile: TsFile
 ) {
-  tsFile.addImport('@opra/client', ['kClient', 'kContext', 'OpraHttpClient']);
-  const indexTs = this.addFile('/index.ts', true);
-  indexTs.addExport(tsFile.filename);
+  tsFile.addImport('@opra/client', ['kClient', 'OpraHttpClient']);
 
   tsFile.content = `\n
 /** 
@@ -57,7 +55,7 @@ export class ${className} {
     const typeName = resource.type.name || '';
     tsFile.addImport(`/types/${typeName}`, [typeName], true);
 
-    constructorBody += `    const node = this[kClient].collection('${resource.name}');\n`;
+    constructorBody += `    const node = this[kClient].collection('${resource.getFullPath()}');\n`;
 
     for (const [operation, endpoint] of resource.operations.entries()) {
       tsFile.content += `
@@ -74,7 +72,7 @@ export class ${className} {
     const typeName = resource.type.name || '';
     tsFile.addImport(`/types/${typeName}`, [typeName], true);
 
-    constructorBody += `    const node = this[kClient].singleton('${resource.name}');\n`;
+    constructorBody += `    const node = this[kClient].singleton('${resource.getFullPath()}');\n`;
 
     for (const [operation, endpoint] of resource.operations.entries()) {
       tsFile.content += `

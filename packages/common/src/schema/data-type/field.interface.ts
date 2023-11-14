@@ -34,11 +34,6 @@ export type Field = {
   required?: boolean;
 
   /**
-   * Defines if field value be nullish (undefined, null or empty)
-   */
-  nullish?: boolean;
-
-  /**
    * Defines if the field is readonly
    */
   readonly?: boolean;
