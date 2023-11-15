@@ -6,10 +6,10 @@ import { ThunkAsync } from '../../types.js';
 import type { ApiDocument } from '../api-document.js';
 import { DATATYPE_METADATA } from '../constants.js';
 import {
-  AnyType, Base64Type, BigintType, BooleanType,
-  DatetimeType, DateType, IntegerType, NullType,
-  NumberType, ObjectIdType, ObjectType, ApproxDatetimeType, ApproxDateType, StringType,
-  TimeType, UuidType
+  AnyType, ApproxDatetimeType, ApproxDateType, Base64Type,
+  BigintType, BooleanType, DatetimeType, DateType,
+  IntegerType, NullType, NumberType, ObjectIdType,
+  ObjectType, StringType, TimeType, UuidType
 } from '../data-type/builtin/index.js';
 import { ComplexType } from '../data-type/complex-type.js';
 import { DataType } from '../data-type/data-type.js';
