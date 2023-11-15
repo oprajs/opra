@@ -51,9 +51,9 @@
     "@browsery/fs": "^0.4.0",
     "@browsery/stream": "^0.6.0",
     "@browsery/util": "^0.4.0",
-    "@types/encodeurl": "^1.0.0",
-    "@types/validator": "^13.11.3",
-    "@types/lodash.omit": "^4.5.8",
+    "@types/encodeurl": "^1.0.2",
+    "@types/lodash.omit": "^4.5.9",
+    "@types/validator": "^13.11.6",
     "path-browserify": "^1.0.1",
     "ts-gems": "^2.5.0"
   },

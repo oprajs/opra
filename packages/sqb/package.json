@@ -29,13 +29,13 @@
     "lodash.omitby": "^4.6.0"
   },
   "devDependencies": {
-    "@faker-js/faker": "^8.2.0",
-    "@sqb/builder": "^4.9.1",
-    "@sqb/connect": "^4.9.1",
-    "@sqb/postgres": "^4.9.1",
-    "@types/lodash.isnil": "^4.0.8",
-    "@types/lodash.omitby": "^4.6.8",
-    "postgresql-client": "^2.9.1",
+    "@faker-js/faker": "^8.3.1",
+    "@sqb/builder": "^4.10.4",
+    "@sqb/connect": "^4.10.4",
+    "@sqb/postgres": "^4.10.4",
+    "@types/lodash.isnil": "^4.0.9",
+    "@types/lodash.omitby": "^4.6.9",
+    "postgresql-client": "^2.10.1",
     "ts-gems": "^2.5.0"
   },
   "peerDependencies": {

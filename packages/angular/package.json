@@ -24,15 +24,23 @@
     "clean:cover": "rimraf ../../coverage/angular"
   },
   "peerDependencies": {
-    "@angular/common": "15.x.x || 16.x.x",
-    "@angular/core": "15.x.x || 16.x.x",
+    "@angular/common": "15.x.x || 16.x.x || 17.x.x",
+    "@angular/core": "15.x.x || 16.x.x || || 17.x.x",
     "@opra/client": "^0.31.2",
     "ts-gems": "^2.4.0"
   },
   "devDependencies": {
-    "core-js": "^3.33.0",
+    "@angular-devkit/build-angular": "^17.0.0",
+    "@angular/cli": "^17.0.0",
+    "@angular/compiler": "^17.0.2",
+    "@angular/compiler-cli": "^17.0.2",
+    "@angular/platform-browser": "^17.0.2",
+    "@angular/platform-browser-dynamic": "^17.0.2",
+    "jest-preset-angular": "^13.1.4",
+    "core-js": "^3.33.2",
     "cross-fetch": "^4.0.0",
     "express": "^4.18.2",
+    "ng-packagr": "^17.0.0",
     "ts-gems": "^2.5.0",
     "zone.js": "^0.14.0"
   },

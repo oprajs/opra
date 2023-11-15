@@ -29,10 +29,10 @@
     "lodash.omitby": "^4.6.0"
   },
   "devDependencies": {
-    "@faker-js/faker": "^8.2.0",
-    "@types/lodash.isnil": "^4.0.8",
-    "@types/lodash.omitby": "^4.6.8",
-    "mongodb": "^6.1.0",
+    "@faker-js/faker": "^8.3.1",
+    "@types/lodash.isnil": "^4.0.9",
+    "@types/lodash.omitby": "^4.6.9",
+    "mongodb": "^6.2.0",
     "ts-gems": "^2.5.0"
   },
   "peerDependencies": {
