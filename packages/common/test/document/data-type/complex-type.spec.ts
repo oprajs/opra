@@ -108,6 +108,7 @@ describe('ComplexType', function () {
       "active",
       "countryCode",
       "rate",
+      "fillerDate",
       "address",
       "notes",
       "country"
@@ -140,6 +141,7 @@ describe('ComplexType', function () {
       "active",
       "countryCode",
       "rate",
+      "fillerDate",
       "address",
       "country"
     ]);

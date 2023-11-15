@@ -109,7 +109,7 @@ describe('Built-in types', function () {
   it('Should decode "time" type', async () => {
     const dt = api.getSimpleType('time');
     expect(dt.decode('10:30:45')).toStrictEqual('10:30:45');
-    expect(dt.decode('10:30', {coerce: true})).toStrictEqual('10:30:00');
+    expect(dt.decode('10:30', {coerce: true})).toStrictEqual('10:30');
   })
 
   it('Should encode "time" type', async () => {
@@ -118,17 +118,51 @@ describe('Built-in types', function () {
     expect(dt.encode('10:30:00')).toStrictEqual('10:30:00');
   })
 
-  it('Should decode "timestamp" type', async () => {
-    const dt = api.getSimpleType('timestamp');
+  it('Should decode "datetime" type', async () => {
+    const dt = api.getSimpleType('datetime');
     expect(dt.decode('2020-01-02T10:30:45', {coerce: true})).toStrictEqual(new Date('2020-01-02T10:30:45'));
     expect(dt.decode('2020-01-02', {coerce: true})).toStrictEqual(new Date('2020-01-02T00:00:00'));
     expect(dt.decode('2020', {coerce: true})).toStrictEqual(new Date('2020-01-01T00:00:00'));
     expect(dt.decode('2020-01-02T10:30:00', {coerce: true})).toStrictEqual(new Date('2020-01-02T10:30:00'));
   })
 
-  it('Should encode "timestamp" type', async () => {
-    const dt = api.getSimpleType('timestamp');
+  it('Should encode "datetime" type', async () => {
+    const dt = api.getSimpleType('datetime');
     expect(dt.encode(new Date('2020-01-02T10:30:45'))).toStrictEqual('2020-01-02T10:30:45');
+  })
+
+  it('Should decode "approxdate" type', async () => {
+    const dt = api.getSimpleType('approxdate');
+    expect(dt.decode('2020-01-02T10:30:45', {coerce: true})).toStrictEqual('2020-01-02');
+    expect(dt.decode('2020-01-02', {coerce: true})).toStrictEqual('2020-01-02');
+    expect(dt.decode('2020-01', {coerce: true})).toStrictEqual('2020-01');
+    expect(dt.decode('2020', {coerce: true})).toStrictEqual('2020');
+  })
+
+  it('Should encode "approxdate" type', async () => {
+    const dt = api.getSimpleType('approxdate');
+    expect(dt.encode('2020-01-02T10:30:45', {coerce: true})).toStrictEqual('2020-01-02');
+    expect(dt.encode('2020-01-02', {coerce: true})).toStrictEqual('2020-01-02');
+    expect(dt.encode('2020-01', {coerce: true})).toStrictEqual('2020-01');
+    expect(dt.encode('2020', {coerce: true})).toStrictEqual('2020');
+  })
+
+  it('Should decode "approxdatetime" type', async () => {
+    const dt = api.getSimpleType('approxdatetime');
+    expect(dt.decode('2020-01-02T23:48:12+01:00', {coerce: true})).toStrictEqual('2020-01-02T23:48:12+01:00');
+    expect(dt.decode('2020-01-02T23:48:12', {coerce: true})).toStrictEqual('2020-01-02T23:48:12');
+    expect(dt.decode('2020-01-02', {coerce: true})).toStrictEqual('2020-01-02');
+    expect(dt.decode('2020-01', {coerce: true})).toStrictEqual('2020-01');
+    expect(dt.decode('2020', {coerce: true})).toStrictEqual('2020');
+  })
+
+  it('Should encode "approxdatetime" type', async () => {
+    const dt = api.getSimpleType('approxdatetime');
+    expect(dt.encode('2020-01-02T23:48:12+01:00', {coerce: true})).toStrictEqual('2020-01-02T23:48:12+01:00');
+    expect(dt.encode('2020-01-02T23:48:12', {coerce: true})).toStrictEqual('2020-01-02T23:48:12');
+    expect(dt.encode('2020-01-02', {coerce: true})).toStrictEqual('2020-01-02');
+    expect(dt.encode('2020-01', {coerce: true})).toStrictEqual('2020-01');
+    expect(dt.encode('2020', {coerce: true})).toStrictEqual('2020');
   })
 
 });

@@ -1,3 +1,4 @@
+import { Type } from 'ts-gems';
 import * as vg from 'valgen';
 import { omitUndefined } from '../../helpers/index.js';
 import type { OpraSchema } from '../../schema/index.js';
@@ -10,6 +11,7 @@ export class FieldClass {
   readonly origin?: ComplexType;
   readonly type: DataType;
   readonly name: string;
+  readonly designType?: Type;
   description?: string;
   isArray?: boolean;
   default?: any;
@@ -26,6 +28,7 @@ export class FieldClass {
     this.owner = owner;
     this.origin = init.origin || owner;
     this.type = init.type;
+    this.designType = init.designType;
     this.name = init.name;
     this.description = init.description;
     this.isArray = init.isArray;
@@ -66,7 +69,7 @@ export class FieldClass {
       return vg.isUndefined()
     if (options?.operation === 'write' && this.readonly)
       return vg.isUndefined()
-    let fn = this.type.generateCodec(codec, options);
+    let fn = this.type.generateCodec(codec, {...options, designType: this.designType});
     if (this.isArray)
       fn = vg.isArray(fn);
     return !options?.partial && this.required ? vg.required(fn) : vg.optional(fn);

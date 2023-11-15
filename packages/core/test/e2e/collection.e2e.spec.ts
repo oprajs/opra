@@ -83,10 +83,12 @@ describe('e2e:Collection', function () {
 
 
   it('Should execute "update" endpoint', async () => {
+    const d = new Date();
     const resp = await supertest(adapter.server)
         .patch('/Customers@1')
         .send({
-          birthDate: new Date().toISOString(),
+          birthDate: d.toISOString(),
+          fillerDate: d.toISOString(),
           active: 'f'
         });
     expect(resp.type).toStrictEqual('application/opra+json');
@@ -103,6 +105,7 @@ describe('e2e:Collection', function () {
       givenName: /.+/,
       familyName: /.+/,
       birthDate: /^\d{4}-\d{2}-\d{2}/,
+      fillerDate: /^\d{4}-\d{2}-\d{2}/,
       active: false
     });
   });

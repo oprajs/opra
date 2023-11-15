@@ -49,6 +49,7 @@ export namespace ApiField {
   export interface InitArguments extends StrictOmit<OpraSchema.Field, 'type'> {
     name: string;
     type: DataType;
+    designType?: Type;
     origin?: ComplexType;
   }
 

@@ -207,8 +207,10 @@ export async function generateSimpleTypeDefinition(
     return 'string';
   if (dataType.extendsFrom('number') || dataType.extendsFrom('integer'))
     return 'number';
-  if (dataType.extendsFrom('timestamp') || dataType.extendsFrom('date'))
+  if (dataType.extendsFrom('date') || dataType.extendsFrom('datetime'))
     return 'Date';
+  if (dataType.extendsFrom('approxdate') || dataType.extendsFrom('approxdatetime'))
+    return 'string';
   if (dataType.extendsFrom('bigint'))
     return 'bigint';
   if (dataType.extendsFrom('object'))

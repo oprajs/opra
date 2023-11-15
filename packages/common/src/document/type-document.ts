@@ -24,7 +24,7 @@ export class TypeDocument extends DocumentBase {
     this._designCtorMap.set(Number, 'number');
     this._designCtorMap.set(Boolean, 'boolean');
     this._designCtorMap.set(Object, 'any');
-    this._designCtorMap.set(Date, 'timestamp');
+    this._designCtorMap.set(Date, 'datetime');
     this._designCtorMap.set(BigIntConstructor, 'bigint');
     this._designCtorMap.set(ArrayBuffer, 'base64');
     this._designCtorMap.set(SharedArrayBuffer, 'base64');

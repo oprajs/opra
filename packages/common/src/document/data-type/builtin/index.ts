@@ -1,8 +1,11 @@
 export * from './any.type.js';
+export * from './approx-date.type.js';
+export * from './approx-datetime.type.js';
 export * from './base64.type.js';
 export * from './bigint.type.js';
 export * from './boolean.type.js';
 export * from './date.type.js';
+export * from './datetime.type.js';
 export * from './uuid.type.js';
 export * from './integer.type.js';
 export * from './null.type.js';
@@ -11,4 +14,3 @@ export * from './object.type.js';
 export * from './object-id.type.js';
 export * from './string.type.js';
 export * from './time.type.js';
-export * from './timestamp.type.js';

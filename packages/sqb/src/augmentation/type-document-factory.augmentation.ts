@@ -52,15 +52,15 @@ TypeDocumentFactory.prototype.prepareDataTypeInitArguments = async function (
               fieldSchema.type = 'bigint';
             break;
           case SqbDataType.DATE:
-            if (!fieldSchema.type || (detectType && (fieldSchema.type === 'timestamp' || fieldSchema.type === 'string')))
+            if (!fieldSchema.type || (detectType && (fieldSchema.type === 'datetime' || fieldSchema.type === 'string')))
               fieldSchema.type = 'date';
             break;
           case SqbDataType.TIMESTAMPTZ:
-            if (!fieldSchema.type || (detectType && (fieldSchema.type === 'timestamp' || fieldSchema.type === 'string')))
+            if (!fieldSchema.type || (detectType && (fieldSchema.type === 'datetime' || fieldSchema.type === 'string')))
               fieldSchema.type = 'timestamptz';
             break;
           case SqbDataType.TIME:
-            if (!fieldSchema.type || (detectType && (fieldSchema.type === 'timestamp' || fieldSchema.type === 'string')))
+            if (!fieldSchema.type || (detectType && (fieldSchema.type === 'datetime' || fieldSchema.type === 'string')))
               fieldSchema.type = 'time';
             break;
           case SqbDataType.BINARY:
@@ -85,7 +85,7 @@ TypeDocumentFactory.prototype.prepareDataTypeInitArguments = async function (
               fieldSchema.type = 'number';
               break;
             case SqbDataType.TIMESTAMP:
-              fieldSchema.type = 'timestamp';
+              fieldSchema.type = 'datetime';
               break;
           }
         }

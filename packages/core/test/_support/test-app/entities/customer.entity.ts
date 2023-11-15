@@ -22,6 +22,9 @@ export class Customer extends MixinType(Record, Person) {
   @ApiField()
   rate: number;
 
+  @ApiField({type: 'date'})
+  fillerDate: string; // to test string date
+
   @ApiField({type: Address, exclusive: true})
   address?: Address;
 

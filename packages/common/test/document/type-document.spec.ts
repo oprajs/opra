@@ -156,7 +156,7 @@ describe('TypeDocument', function () {
     expect(ref?.getDataType(String).name).toStrictEqual('string')
 
     expect(ref?.getDataType('time')).toBeDefined();
-    expect(ref?.getDataType('timestamp')).toBeDefined();
+    expect(ref?.getDataType('datetime')).toBeDefined();
   })
 
   it('Should getDataTypeNs() return namespace of DataType', async () => {

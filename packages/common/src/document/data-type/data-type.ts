@@ -69,6 +69,7 @@ export namespace DataType {
   export interface InitArguments {
     name?: string;
     description?: string;
+    example?: string | string[];
   }
 
   export interface DecoratorOptions extends InitArguments {
@@ -88,6 +89,7 @@ export namespace DataType {
     partial?: boolean;
     operation?: 'read' | 'write';
     overwriteFields?: ResponsiveMap<ApiField.InitArguments>;
+    designType?: Type;
   }
 
 }

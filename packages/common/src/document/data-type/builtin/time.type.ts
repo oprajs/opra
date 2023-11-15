@@ -1,13 +1,16 @@
-import { isDateString } from 'valgen';
+import { isMatches } from 'valgen';
 import { SimpleType } from '../simple-type.js';
+
+const TIME_PATTERN = /^([0-1][0-9]|2[0-4]):([0-5][0-9])(?::([0-5][0-9]))?$/
 
 @SimpleType({
   description: 'Time string in 24h format, for example, 18:23:00',
-  decoder: isDateString({
-    format: ['HH:mm:ss', 'HH:mm'],
+  decoder: isMatches(TIME_PATTERN, {
+    formatName: 'time',
     onFail: () => '{{label}} is not a valid time'
   }),
-  encoder: isDateString({format: ['HH:mm:ss', 'HH:mm'],
+  encoder: isMatches(TIME_PATTERN, {
+    formatName: 'time',
     onFail: () => '{{label}} is not a valid time'
   })
 })

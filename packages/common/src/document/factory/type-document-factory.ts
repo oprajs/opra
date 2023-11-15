@@ -6,9 +6,10 @@ import { ThunkAsync } from '../../types.js';
 import type { ApiDocument } from '../api-document.js';
 import { DATATYPE_METADATA } from '../constants.js';
 import {
-  AnyType, Base64Type, BigintType, BooleanType, DateType,
-  IntegerType, NullType, NumberType, ObjectIdType, ObjectType,
-  StringType, TimestampType, TimeType, UuidType
+  AnyType, Base64Type, BigintType, BooleanType,
+  DatetimeType, DateType, IntegerType, NullType,
+  NumberType, ObjectIdType, ObjectType, ApproxDatetimeType, ApproxDateType, StringType,
+  TimeType, UuidType
 } from '../data-type/builtin/index.js';
 import { ComplexType } from '../data-type/complex-type.js';
 import { DataType } from '../data-type/data-type.js';
@@ -17,8 +18,6 @@ import { ApiField } from '../data-type/field.js';
 import { MappedType } from '../data-type/mapped-type.js';
 import { MixinType } from '../data-type/mixin-type.js';
 import { SimpleType } from '../data-type/simple-type.js';
-import { MetadataMode } from '../resource/enums/metadata-mode.enum.js';
-import { OperationResult } from '../resource/types/operation-result.type.js';
 import { TypeDocument } from '../type-document.js';
 
 export namespace TypeDocumentFactory {
@@ -131,10 +130,9 @@ export class TypeDocumentFactory {
         }
       },
       types: [AnyType, Base64Type, BigintType, BooleanType,
-        DateType, UuidType, IntegerType, NullType,
-        NumberType, ObjectType, ObjectIdType, StringType,
-        TimeType, TimestampType,
-        OperationResult, MetadataMode,
+        DateType, IntegerType, NullType, NumberType, ObjectIdType,
+        ObjectType, ApproxDateType, ApproxDatetimeType,
+        StringType, DatetimeType, TimeType, UuidType
       ]
     }
     const factory = new TypeDocumentFactory();
