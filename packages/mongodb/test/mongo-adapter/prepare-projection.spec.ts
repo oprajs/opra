@@ -2,7 +2,7 @@ import { ApiDocument } from '@opra/common';
 import { MongoAdapter } from '@opra/mongodb';
 import { createTestApp } from '../_support/test-app/index.js';
 
-describe('MongoAdapter.transformProjection', function () {
+describe('MongoAdapter.prepareProjection', function () {
 
   let api: ApiDocument;
 
@@ -13,7 +13,7 @@ describe('MongoAdapter.transformProjection', function () {
   afterAll(() => global.gc && global.gc());
 
   it('Should process "pick" only args', async () => {
-    const o: any = MongoAdapter.transformProjection(
+    const o: any = MongoAdapter.prepareProjection(
         api.getComplexType('customer'), {
           pick: ['_id', 'givenName']
         }
@@ -25,7 +25,7 @@ describe('MongoAdapter.transformProjection', function () {
   });
 
   it('Should process "pick" only args: nested fields', async () => {
-    const o: any = MongoAdapter.transformProjection(
+    const o: any = MongoAdapter.prepareProjection(
         api.getComplexType('customer'), {
           pick: ['_id', 'address.city']
         }
@@ -39,7 +39,7 @@ describe('MongoAdapter.transformProjection', function () {
   });
 
   it('Should process "pick" and "include" args', async () => {
-    const o: any = MongoAdapter.transformProjection(
+    const o: any = MongoAdapter.prepareProjection(
         api.getComplexType('customer'), {
           pick: ['_id', 'givenName'],
           include: ['gender', 'address']
@@ -54,7 +54,7 @@ describe('MongoAdapter.transformProjection', function () {
   });
 
   it('Should process "pick" and "include" args: nested fields', async () => {
-    const o: any = MongoAdapter.transformProjection(
+    const o: any = MongoAdapter.prepareProjection(
         api.getComplexType('customer'), {
           pick: ['_id', 'givenName'],
           include: ['gender', 'address.city']
@@ -71,7 +71,7 @@ describe('MongoAdapter.transformProjection', function () {
   });
 
   it('Should process "pick" and "omit" args', async () => {
-    const o: any = MongoAdapter.transformProjection(
+    const o: any = MongoAdapter.prepareProjection(
         api.getComplexType('customer'), {
           pick: ['_id', 'givenName', 'gender'],
           omit: ['givenName']
@@ -84,7 +84,7 @@ describe('MongoAdapter.transformProjection', function () {
   });
 
   it('Should process "pick" and "omit" args: nested fields', async () => {
-    const o: any = MongoAdapter.transformProjection(
+    const o: any = MongoAdapter.prepareProjection(
         api.getComplexType('customer'), {
           pick: ['_id', 'givenName', 'address'],
           omit: ['address.zipCode', 'address.street']
@@ -101,7 +101,7 @@ describe('MongoAdapter.transformProjection', function () {
   });
 
   it('Should process "include" only args', async () => {
-    const o: any = MongoAdapter.transformProjection(
+    const o: any = MongoAdapter.prepareProjection(
         api.getComplexType('customer'), {
           include: ['address']
         }
@@ -113,7 +113,7 @@ describe('MongoAdapter.transformProjection', function () {
   });
 
   it('Should process "include" only args: nested fields', async () => {
-    const o: any = MongoAdapter.transformProjection(
+    const o: any = MongoAdapter.prepareProjection(
         api.getComplexType('customer'), {
           include: ['address.city']
         }
@@ -130,7 +130,7 @@ describe('MongoAdapter.transformProjection', function () {
   });
 
   it('Should process "include" and "omit args', async () => {
-    const o: any = MongoAdapter.transformProjection(
+    const o: any = MongoAdapter.prepareProjection(
         api.getComplexType('customer'), {
           include: ['address'],
           omit: ['givenName'],
@@ -143,7 +143,7 @@ describe('MongoAdapter.transformProjection', function () {
   });
 
   it('Should process "include" and "omit args: nested fields', async () => {
-    const o: any = MongoAdapter.transformProjection(
+    const o: any = MongoAdapter.prepareProjection(
         api.getComplexType('customer'), {
           include: ['address'],
           omit: ['givenName', 'address.city'],
@@ -158,7 +158,7 @@ describe('MongoAdapter.transformProjection', function () {
   });
 
   it('Should process "omit" only args', async () => {
-    const o: any = MongoAdapter.transformProjection(
+    const o: any = MongoAdapter.prepareProjection(
         api.getComplexType('customer'), {
           omit: ['_id', 'givenName']
         }
@@ -175,7 +175,7 @@ describe('MongoAdapter.transformProjection', function () {
   });
 
   it('Should process "omit" only args: nested fields', async () => {
-    const o: any = MongoAdapter.transformProjection(
+    const o: any = MongoAdapter.prepareProjection(
         api.getComplexType('customer'), {
           omit: ['_id', 'address.city']
         }

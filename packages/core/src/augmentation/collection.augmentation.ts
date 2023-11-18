@@ -11,6 +11,9 @@ declare module "@opra/common" {
     namespace Action {
       interface Request extends StrictOmit<_Request, 'endpoint'> {
         endpoint: _Action;
+        params: {
+          [key: string]: any;
+        }
       }
 
       interface Context extends Resource.Context {
@@ -41,6 +44,9 @@ declare module "@opra/common" {
       interface Request extends StrictOmit<_Request, 'endpoint'> {
         endpoint: _Operation & { name: 'delete' };
         key: any;
+        params: {
+          [key: string]: any;
+        }
       }
 
       interface Context extends RequestContext {

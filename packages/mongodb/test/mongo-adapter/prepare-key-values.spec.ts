@@ -2,7 +2,7 @@ import { ApiDocument } from '@opra/common';
 import { MongoAdapter } from '@opra/mongodb';
 import { createTestApp } from '../_support/test-app/index.js';
 
-describe('MongoAdapter.transformKeyValues', function () {
+describe('MongoAdapter.prepareKeyValues', function () {
 
   let api: ApiDocument;
 
@@ -13,7 +13,7 @@ describe('MongoAdapter.transformKeyValues', function () {
   afterAll(() => global.gc && global.gc());
 
   it('Should transform using single primitive key value', async () => {
-    const out = MongoAdapter.transformKeyValues(api.getCollection('customers'), 1);
+    const out = MongoAdapter.prepareKeyValues(api.getCollection('customers'), 1);
     expect(out).toStrictEqual({_id: 1});
   });
 

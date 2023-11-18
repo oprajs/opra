@@ -9,7 +9,9 @@ export abstract class ApiService {
     return this._context;
   }
 
-  forContext(context: RequestContext): this {
+  forContext(context: RequestContext, options?: { newInstance?: boolean }): this {
+    if (this._context === context && !options?.newInstance)
+      return this;
     const instance = {context} as ApiService;
     Object.setPrototypeOf(instance, this);
     return instance as typeof this;

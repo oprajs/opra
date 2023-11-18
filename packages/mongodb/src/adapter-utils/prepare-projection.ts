@@ -1,7 +1,7 @@
 import mongodb from 'mongodb';
 import { ComplexType, pathToObjectTree } from '@opra/common';
 
-export default function transformProjection(
+export default function prepareProjection(
     dataType: ComplexType,
     args?: {
       pick?: string[],
@@ -17,13 +17,13 @@ export default function transformProjection(
   const include = !args?.pick && args?.include && pathToObjectTree(args.include);
   const omit = args?.omit && pathToObjectTree(args.omit);
   if (pick || include) {
-    _transformInclusionProjection(dataType, out, pick, include, omit);
+    _prepareInclusionProjection(dataType, out, pick, include, omit);
   } else
-    _transformExclusionProjection(dataType, out, omit, !omit);
+    _prepareExclusionProjection(dataType, out, omit, !omit);
   return Object.keys(out).length ? out : undefined;
 }
 
-export function _transformInclusionProjection(
+export function _prepareInclusionProjection(
     dataType: ComplexType,
     target: mongodb.Document,
     pick?: any,
@@ -34,6 +34,7 @@ export function _transformInclusionProjection(
   defaultFields = defaultFields ?? !pick;
   let n;
   for (const [k, f] of dataType.fields.entries()) {
+
     if (omit?.[k] === true)
       continue;
     n = (defaultFields && !f.exclusive) ||
@@ -41,7 +42,7 @@ export function _transformInclusionProjection(
     if (n) {
       if (f.type instanceof ComplexType && (typeof n === 'object' || typeof omit?.[k] === 'object')) {
         target[k] = {};
-        _transformInclusionProjection(f.type, target[k],
+        _prepareInclusionProjection(f.type, target[k],
             pick?.[k] || include?.[k],
             undefined,
             omit?.[k],
@@ -54,7 +55,7 @@ export function _transformInclusionProjection(
   }
 }
 
-export function _transformExclusionProjection(
+export function _prepareExclusionProjection(
     dataType: ComplexType,
     target: mongodb.Document,
     omit?: any,
@@ -66,7 +67,7 @@ export function _transformExclusionProjection(
     if (n) {
       if (f.type instanceof ComplexType && typeof n === 'object') {
         target[k] = {};
-        _transformExclusionProjection(f.type, target[k], omit?.[k], omitExclusiveFields);
+        _prepareExclusionProjection(f.type, target[k], omit?.[k], omitExclusiveFields);
         continue;
       }
       target[k] = 0;

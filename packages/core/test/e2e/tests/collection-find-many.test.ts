@@ -1,6 +1,6 @@
 import { OpraTestClient } from '@opra/testing';
 
-export function collectionSearchTests(args: { client: OpraTestClient }) {
+export function collectionFindManyTests(args: { client: OpraTestClient }) {
 
   describe('Collection:findMany', function () {
 

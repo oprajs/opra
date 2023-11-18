@@ -2,11 +2,11 @@ import { Db } from 'mongodb';
 import { Singleton } from '@opra/common';
 import { Profile } from '@opra/common/test/_support/test-api';
 import { RequestContext } from '@opra/core';
-import { MongoSingleton } from '@opra/mongodb';
+import { MongoSingletonResource } from '@opra/mongodb';
 import { MyProfileService } from './my-profile.service.js';
 
 @Singleton(Profile)
-export class MyProfileResource extends MongoSingleton<Profile> {
+export class MyProfileResource extends MongoSingletonResource<Profile> {
   service: MyProfileService;
 
   constructor(readonly db: Db) {

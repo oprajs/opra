@@ -1,6 +1,6 @@
 import mongodb from 'mongodb';
 
-export default function transformSort(sort?: string[]): mongodb.Sort | undefined {
+export default function prepareSort(sort?: string[]): mongodb.Sort | undefined {
   if (!(sort && sort.length))
     return;
   const out: mongodb.Sort = {};

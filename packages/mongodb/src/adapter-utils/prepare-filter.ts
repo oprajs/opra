@@ -1,4 +1,5 @@
 import '@opra/core';
+import mongodb from 'mongodb';
 import { OpraFilter } from '@opra/common';
 
 const opMap = {
@@ -12,7 +13,19 @@ const opMap = {
   '!in': '$nin',
 }
 
-export default function transformFilter(
+export default function prepareFilter(
+    filter: OpraFilter.Expression | mongodb.Filter<any> | string | undefined
+): mongodb.Filter<any> | undefined {
+  if (!filter)
+    return;
+  if (typeof filter === 'string')
+    return prepareFilterAst(OpraFilter.parse(filter));
+  else if (filter instanceof OpraFilter.Expression)
+    return prepareFilterAst(filter);
+  else return filter;
+}
+
+function prepareFilterAst(
     ast: OpraFilter.Expression | undefined,
     negative?: boolean
 ): any {
@@ -34,25 +47,28 @@ export default function transformFilter(
   }
 
   if (ast instanceof OpraFilter.ArrayExpression) {
-    return ast.items.map(x => transformFilter(x, negative));
+    return ast.items.map(x => prepareFilterAst(x, negative));
   }
 
   if (ast instanceof OpraFilter.NegativeExpression) {
-    return transformFilter(ast.expression, !negative);
+    return prepareFilterAst(ast.expression, !negative);
   }
 
   if (ast instanceof OpraFilter.LogicalExpression) {
+    const items = ast.items
+        .map(x => prepareFilterAst(x, negative))
+        .filter(x => x != null) as mongodb.Filter<any>[];
     if (ast.op === 'or')
-      return {$or: ast.items.map(x => transformFilter(x, negative))};
-    return {$and: ast.items.map(x => transformFilter(x, negative))};
+      return {$or: items};
+    return {$and: items};
   }
 
   if (ast instanceof OpraFilter.ParenthesizedExpression) {
-    return transformFilter(ast.expression, negative);
+    return prepareFilterAst(ast.expression, negative);
   }
 
   if (ast instanceof OpraFilter.ComparisonExpression) {
-    const left = transformFilter(ast.left, negative);
+    const left = prepareFilterAst(ast.left, negative);
 
     if (ast.right instanceof OpraFilter.QualifiedIdentifier) {
       const op = opMap[ast.op];
@@ -62,7 +78,7 @@ export default function transformFilter(
       throw new Error(`Invalid filter query.`);
     }
 
-    let right = transformFilter(ast.right);
+    let right = prepareFilterAst(ast.right);
     if (right == null) {
       const op = ast.op === '='
           ? (negative ? '!=' : '=')

@@ -1,10 +1,10 @@
-export default function transformPatch(doc: any): any {
+export default function preparePatch(doc: any): any {
   const trg = {};
-  _transformPatch(doc, trg);
+  _preparePatch(doc, trg);
   return trg;
 }
 
-function _transformPatch(src: any, trg: any = {}, path: string = '') {
+function _preparePatch(src: any, trg: any = {}, path: string = '') {
   let fieldName: string;
   for (const [k, v] of Object.entries(src)) {
     fieldName = k.startsWith('*') ? k.substring(1) : k;
@@ -17,7 +17,7 @@ function _transformPatch(src: any, trg: any = {}, path: string = '') {
     if (v && typeof v === 'object') {
       // If field name starts with "*", do "replace" operation except "merge"
       if (!k.startsWith('*')) {
-        _transformPatch(v, trg, key);
+        _preparePatch(v, trg, key);
         continue;
       }
     }

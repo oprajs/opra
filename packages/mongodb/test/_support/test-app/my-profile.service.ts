@@ -1,18 +1,22 @@
 import mongodb from 'mongodb';
+import { PartialOutput } from '@opra/common';
 import { Profile } from '@opra/common/test/_support/test-api';
-import { MongoEntityService } from '@opra/mongodb';
+import { MongoSingletonService, MongoSingletonServiceBase } from '@opra/mongodb';
 
 let idGen = 1001;
 
-export class MyProfileService extends MongoEntityService<Profile> {
+export class MyProfileService extends MongoSingletonService<Profile> {
 
-  constructor(options?: MongoEntityService.Options) {
-    super('MyProfile', options);
+  constructor(options?: MongoSingletonService.Options) {
+    super('MyProfile', {_id: 1, ...options});
   }
 
-  async insertOne(doc: mongodb.OptionalUnlessRequiredId<Profile>, options?: mongodb.InsertOneOptions) {
+  protected async _create(
+      doc: mongodb.OptionalUnlessRequiredId<Profile>,
+      options?: MongoSingletonServiceBase.CreateOptions
+  ): Promise<PartialOutput<Profile>> {
     doc._id = idGen++;
-    return super.insertOne(doc, options);
+    return super._create(doc, options);
   }
 
 }

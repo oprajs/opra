@@ -2,31 +2,59 @@ import mongodb, { UpdateFilter } from 'mongodb';
 import { StrictOmit } from 'ts-gems';
 import { ApiService, PartialOutput, RequestContext } from '@opra/core';
 
-export namespace MongoEntityServiceBase {
+export namespace MongoServiceBase {
   export interface Options {
     db?: mongodb.Db;
-    defaultLimit?: number;
   }
 }
 
-export class MongoEntityServiceBase<T extends mongodb.Document> extends ApiService {
+export class MongoServiceBase<T extends mongodb.Document> extends ApiService {
   protected _collectionName: string;
-  defaultLimit: number;
   db?: mongodb.Db;
   session?: mongodb.ClientSession;
 
-  constructor(options?: MongoEntityServiceBase.Options)
-  constructor(collectionName: string, options?: MongoEntityServiceBase.Options)
-  constructor(arg0, arg1?) {
+  constructor(options?: MongoServiceBase.Options)
+  constructor(collectionName: string, options?: MongoServiceBase.Options)
+  constructor(arg0: any, arg1?: any) {
     super();
     const options = typeof arg0 === 'object' ? arg0 : arg1;
     if (typeof arg0 === 'string')
       this._collectionName = arg0;
     this.db = options?.db;
-    this.defaultLimit = options?.defaultLimit || 10;
   }
 
-  protected async _count(filter?: mongodb.Filter<T>, options?: mongodb.CountOptions): Promise<number> {
+  forContext(
+      context: RequestContext,
+      options?: {
+        newInstance?: boolean,
+        db?: mongodb.Db,
+        session?: mongodb.ClientSession
+      }
+  ): this {
+    return super.forContext(context, {
+      newInstance: options?.newInstance ||
+          (options?.db && this.db !== options?.db) ||
+          (options?.session && this.session !== options?.session)
+    }) as this;
+  }
+
+
+  protected async _rawInsertOne(doc: mongodb.OptionalUnlessRequiredId<T>, options?: mongodb.InsertOneOptions) {
+    const db = await this.getDatabase();
+    const collection = await this.getCollection(db);
+    options = {
+      ...options,
+      session: options?.session || this.session
+    }
+    try {
+      return await collection.insertOne(doc, options);
+    } catch (e: any) {
+      await this._onError(e);
+      throw e;
+    }
+  }
+
+  protected async _rawCountDocuments(filter?: mongodb.Filter<T>, options?: mongodb.CountOptions): Promise<number> {
     const db = await this.getDatabase();
     const collection = await this.getCollection(db);
     options = {
@@ -42,7 +70,7 @@ export class MongoEntityServiceBase<T extends mongodb.Document> extends ApiServi
     }
   }
 
-  protected async _deleteOne(filter?: mongodb.Filter<T>, options?: mongodb.DeleteOptions): Promise<number> {
+  protected async _rawDeleteOne(filter?: mongodb.Filter<T>, options?: mongodb.DeleteOptions) {
     const db = await this.getDatabase();
     const collection = await this.getCollection(db);
     options = {
@@ -50,15 +78,14 @@ export class MongoEntityServiceBase<T extends mongodb.Document> extends ApiServi
       session: options?.session || this.session
     }
     try {
-      const r = await collection.deleteOne(filter, options);
-      return r.deletedCount;
+      return await collection.deleteOne(filter, options);
     } catch (e: any) {
       await this._onError(e);
       throw e;
     }
   }
 
-  protected async _deleteMany(filter?: mongodb.Filter<T>, options?: mongodb.DeleteOptions): Promise<number> {
+  protected async _rawDeleteMany(filter?: mongodb.Filter<T>, options?: mongodb.DeleteOptions) {
     const db = await this.getDatabase();
     const collection = await this.getCollection(db);
     options = {
@@ -66,112 +93,63 @@ export class MongoEntityServiceBase<T extends mongodb.Document> extends ApiServi
       session: options?.session || this.session
     }
     try {
-      const r = await collection.deleteMany(filter, options);
-      return r.deletedCount;
+      return await collection.deleteMany(filter, options);
     } catch (e: any) {
       await this._onError(e);
       throw e;
     }
   }
 
-  protected async _findOne(filter: mongodb.Filter<T>, options?: mongodb.FindOptions): Promise<PartialOutput<T> | undefined> {
+  protected async _rawFindOne(filter: mongodb.Filter<T>, options?: mongodb.FindOptions): Promise<PartialOutput<T> | undefined> {
     const db = await this.getDatabase();
     const collection = await this.getCollection(db);
     options = {
       ...options,
       session: options?.session || this.session
     }
-    let out;
     try {
-      out = await collection.findOne<T>(filter, options);
+      return await collection.findOne<T>(filter, options) as PartialOutput<T>;
     } catch (e: any) {
       await this._onError(e);
       throw e;
     }
-    return out;
   }
 
-  protected async _find(filter: mongodb.Filter<T>, options?: mongodb.FindOptions): Promise<PartialOutput<T>[]> {
+  protected async _rawFind(filter: mongodb.Filter<T>, options?: mongodb.FindOptions) {
     const db = await this.getDatabase();
     const collection = await this.getCollection(db);
-    options = {
-      ...options,
-      limit: options?.limit || this.defaultLimit,
-      session: options?.session || this.session
-    }
-    const out: any[] = [];
-    let cursor: mongodb.FindCursor<T> | undefined;
-    try {
-      cursor = collection.find<T>(filter, options);
-      let obj;
-      while (out.length < this.defaultLimit && (obj = await cursor.next())) {
-        const v = this.transformData ? this.transformData(obj) : obj;
-        if (v)
-          out.push(obj);
-      }
-    } catch (e: any) {
-      await this._onError(e);
-      throw e;
-    } finally {
-      if (cursor)
-        await cursor.close();
-    }
-    return out;
-  }
-
-  protected async _insertOne(doc: mongodb.OptionalUnlessRequiredId<T>, options?: mongodb.InsertOneOptions): Promise<PartialOutput<T>> {
-    const db = await this.getDatabase();
-    const collection = await this.getCollection(db);
-    let out;
     options = {
       ...options,
       session: options?.session || this.session
     }
     try {
-      const r = await collection.insertOne(doc, options);
-      if (r.insertedId)
-        out = await collection.findOne({_id: r.insertedId as any}, options);
+      return collection.find<T>(filter, options);
     } catch (e: any) {
       await this._onError(e);
       throw e;
     }
-    if (this.transformData)
-      out = this.transformData(out);
-    if (!out)
-      throw new Error('"insertOne" endpoint returned no result!');
-    return out;
   }
 
-  protected async _updateOne(
-      filter: mongodb.Filter<T>,
-      doc: UpdateFilter<T> | Partial<T>,
-      options?: mongodb.UpdateOptions
-  ): Promise<PartialOutput<T> | undefined> {
+  protected async _rawUpdateOne(filter: mongodb.Filter<T>, doc: UpdateFilter<T>, options?: mongodb.UpdateOptions) {
     const db = await this.getDatabase();
     const collection = await this.getCollection(db);
-    let out;
     options = {
       ...options,
       session: options?.session || this.session
     }
     try {
-      const r = await collection.updateOne(filter, doc, options);
-      if (r.matchedCount)
-        out = await collection.findOne((r.upsertedId ? {_id: r.upsertedId as any} : filter), options);
+      return await collection.updateOne(filter, doc, options);
     } catch (e: any) {
       await this._onError(e);
       throw e;
     }
-    if (this.transformData)
-      out = this.transformData(out);
-    return out;
   }
 
-  protected async _updateMany(
+  protected async _rawUpdateMany(
       filter: mongodb.Filter<T>,
       doc: UpdateFilter<T> | Partial<T>,
       options?: StrictOmit<mongodb.UpdateOptions, 'upsert'>
-  ): Promise<number> {
+  ) {
     const db = await this.getDatabase();
     const collection = await this.getCollection(db);
     options = {
@@ -180,24 +158,13 @@ export class MongoEntityServiceBase<T extends mongodb.Document> extends ApiServi
       upsert: false
     } as mongodb.UpdateOptions;
     try {
-      const r = await collection.updateMany(filter, doc, options);
-      return r.matchedCount;
+      return await collection.updateMany(filter, doc, options);
     } catch (e: any) {
       await this._onError(e);
       throw e;
     }
   }
 
-  forContext(
-      context: RequestContext,
-      db?: mongodb.Db,
-      session?: mongodb.ClientSession
-  ): this {
-    const instance = super.forContext(context) as this;
-    instance.db = db || this.db;
-    instance.session = session || this.session;
-    return instance as typeof this;
-  }
 
   protected async _onError(error: unknown): Promise<void> {
     if (this.onError)

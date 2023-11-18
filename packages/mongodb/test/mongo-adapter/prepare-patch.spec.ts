@@ -1,11 +1,11 @@
 import { MongoAdapter } from '@opra/mongodb';
 
-describe('MongoAdapter.transformPatch', function () {
+describe('MongoAdapter.preparePatch', function () {
 
   afterAll(() => global.gc && global.gc());
 
   it('Should convert simple values', async () => {
-    const o: any = MongoAdapter.transformPatch({_id: 123});
+    const o: any = MongoAdapter.preparePatch({_id: 123});
     expect(o).toEqual({
       $set: {
         _id: 123
@@ -14,7 +14,7 @@ describe('MongoAdapter.transformPatch', function () {
   });
 
   it('Should patch nested fields', async () => {
-    const o: any = MongoAdapter.transformPatch({_id: 123, address: {city: 'Berlin'}});
+    const o: any = MongoAdapter.preparePatch({_id: 123, address: {city: 'Berlin'}});
     expect(o).toEqual({
       $set: {
         '_id': 123,
@@ -24,7 +24,7 @@ describe('MongoAdapter.transformPatch', function () {
   });
 
   it('Should replace nested fields if starts with *', async () => {
-    const o: any = MongoAdapter.transformPatch({_id: 123, '*address': {city: 'Berlin'}});
+    const o: any = MongoAdapter.preparePatch({_id: 123, '*address': {city: 'Berlin'}});
     expect(o).toEqual({
       $set: {
         '_id': 123,
@@ -34,7 +34,7 @@ describe('MongoAdapter.transformPatch', function () {
   });
 
   it('Should unset fields', async () => {
-    const o: any = MongoAdapter.transformPatch({_id: 123, gender: null, address: {city: null}});
+    const o: any = MongoAdapter.preparePatch({_id: 123, gender: null, address: {city: null}});
     expect(o).toEqual({
       $set: {
         '_id': 123

@@ -26,6 +26,7 @@ declare module "@opra/common" {
           pick?: string[];
           omit?: string[];
           include?: string[];
+          [key: string]: any;
         }
       }
 
@@ -53,6 +54,7 @@ declare module "@opra/common" {
           pick?: string[];
           omit?: string[];
           include?: string[];
+          [key: string]: any;
         }
       }
 
@@ -70,6 +72,7 @@ declare module "@opra/common" {
           pick?: string[];
           omit?: string[];
           include?: string[];
+          [key: string]: any;
         }
       }
 

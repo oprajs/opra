@@ -169,10 +169,14 @@ export class SqbEntityServiceBase<T> extends ApiService {
     }
   }
 
-  forContext(context: RequestContext, db?: SqbClient | SqbConnection): this {
-    const instance = super.forContext(context) as this;
-    instance.db = db || this.db;
-    return instance as this;
+  forContext(context: RequestContext, options?: {
+    newInstance?: boolean,
+    db?: SqbClient | SqbConnection
+  }): this {
+    return super.forContext(context, {
+      newInstance: options?.newInstance ||
+          (options?.db && this.db !== options.db)
+    }) as this;
   }
 
   protected async _onError(error: unknown): Promise<void> {

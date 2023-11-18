@@ -19,10 +19,11 @@
     "lint": "eslint . --max-warnings=0",
     "test": "jest",
     "cover": "jest --collect-coverage",
-    "clean": "npm run clean:src && npm run clean:dist && npm run clean:cover",
-    "clean:src": "ts-cleanup -s src --all && ts-cleanup -s test --all",
-    "clean:dist": "rimraf ../../build/testing",
-    "clean:cover": "rimraf ../../coverage/testing"
+    "clean": "npm run clean:src && npm run clean:test && npm run clean:dist && npm run clean:cover",
+    "clean:src": "ts-cleanup -s src --all",
+    "clean:test": "ts-cleanup -s test --all",
+    "clean:dist": "rimraf ../../build/client",
+    "clean:cover": "rimraf ../../coverage/client"
   },
   "dependencies": {
     "@opra/client": "^0.31.4",
