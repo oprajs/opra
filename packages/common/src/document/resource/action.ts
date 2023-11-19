@@ -27,7 +27,9 @@ export class Action extends Endpoint {
   exportSchema(options?: { webSafe?: boolean }): OpraSchema.Endpoint {
     const schema = super.exportSchema(options) as OpraSchema.Action;
     if (this.returnType)
-      schema.returnType = this.returnType.name ? this.returnType.name : this.returnType.exportSchema(options);
+      schema.returnType = this.returnType.isAnonymous
+          ? this.returnType.exportSchema(options)
+          : this.returnType.name;
     if (this.returnMime)
       schema.returnMime = this.returnMime;
     return schema;

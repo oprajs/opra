@@ -36,7 +36,7 @@ export function singletonDeleteTests(args: { client: OpraTestClient }) {
           args.client.singleton('MyProfile')
               .get()
               .getBody()
-      ).rejects.toThrow('404');
+      ).rejects.toThrow('422');
     })
 
   })

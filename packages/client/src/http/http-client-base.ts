@@ -26,28 +26,31 @@ export abstract class HttpClientBase<TRequestOptions = {}, TResponseExt = {}> ex
   }
 
   async getMetadata(): Promise<ApiDocument> {
-    let promise = this._metadataPromise;
-    if (promise)
-      return promise;
+    if (this._metadataPromise)
+      return this._metadataPromise;
     const request = new HttpRequestObservable(this[kBackend], {
       method: 'GET',
       url: '/',
       headers: new Headers({'accept': 'application/json'})
     })
-    this._metadataPromise = promise = request.getBody();
-    return await promise
-        .then(async (body) => {
-          if (!body)
-            throw new Error(`No response returned.`);
-          const api = await ApiDocumentFactory.createDocument(body);
-          this[kBackend].api = api;
-          return api;
-        })
-        .catch((e) => {
-          e.message = 'Unable to fetch metadata from service url (' + this.serviceUrl + '). ' + e.message
-          throw e;
-        })
-        .finally(() => delete this._metadataPromise);
+    let body: any;
+    try {
+      this._metadataPromise = request.getBody();
+      body = await this._metadataPromise;
+    } catch (e: any) {
+      e.message = 'Error fetching metadata from url (' + this.serviceUrl + ').\n' + e.message;
+      throw e;
+    } finally {
+      this._metadataPromise = undefined;
+    }
+    try {
+      const api = await ApiDocumentFactory.createDocument(body);
+      this[kBackend].api = api;
+      return api;
+    } catch (e: any) {
+      e.message = 'Error loading api document.\n' + e.message;
+      throw e;
+    }
   }
 
   collection<TType = any>(path: string): HttpCollectionNode<TType, TRequestOptions, TResponseExt> {

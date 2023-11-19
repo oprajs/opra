@@ -1,55 +1,20 @@
 import mongodb, { ObjectId } from 'mongodb';
-import { StrictOmit } from 'ts-gems';
+import { StrictOmit, Type } from 'ts-gems';
 import { ResourceNotFoundError } from '@opra/common';
 import * as OpraCommon from '@opra/common';
 import { PartialInput, PartialOutput } from '@opra/core';
 import { MongoAdapter } from './mongo-adapter.js';
-import { MongoServiceBase } from './mongo-service-base.js';
-
-export namespace MongoSingletonService {
-
-  export interface Options extends MongoServiceBase.Options {
-    _id?: any;
-  }
-
-  export interface CreateOptions extends mongodb.InsertOneOptions {
-    pick?: string[],
-    omit?: string[],
-    include?: string[],
-  }
-
-  export interface DeleteOptions<T> extends mongodb.DeleteOptions {
-    filter?: mongodb.Filter<T> | OpraCommon.OpraFilter.Ast | string;
-  }
-
-  export interface GetOptions<T> extends StrictOmit<mongodb.FindOptions, 'sort' | 'limit' | 'skip'> {
-    pick?: string[],
-    omit?: string[],
-    include?: string[],
-    filter?: mongodb.Filter<T> | OpraCommon.OpraFilter.Ast | string;
-  }
-
-  export interface UpdateOptions<T> extends mongodb.UpdateOptions {
-    pick?: string[],
-    omit?: string[],
-    include?: string[],
-    filter?: mongodb.Filter<T> | OpraCommon.OpraFilter.Ast | string;
-  }
-
-}
+import { MongoService } from './mongo-service.js';
 
 /**
  *
  * @class MongoSingletonService
  */
-export class MongoSingletonService<T extends mongodb.Document> extends MongoServiceBase<T> {
+export class MongoSingletonService<T extends mongodb.Document> extends MongoService<T> {
   protected _id: any;
 
-  constructor(options?: MongoSingletonService.Options)
-  constructor(collectionName: string, options?: MongoSingletonService.Options)
-  constructor(arg0: any, arg1?: any) {
-    super(arg0, arg1);
-    const options = typeof arg0 === 'object' ? arg0 : arg1;
+  constructor(dataType: Type | string, options?: MongoSingletonService.Options) {
+    super(dataType, options);
     this._id = options?._id || new ObjectId('655608925cad472b75fc6485');
   }
 
@@ -134,5 +99,38 @@ export class MongoSingletonService<T extends mongodb.Document> extends MongoServ
 
 }
 
+/**
+ *
+ * @namespace MongoSingletonService
+ */
+export namespace MongoSingletonService {
 
+  export interface Options extends MongoService.Options {
+    _id?: any;
+  }
 
+  export interface CreateOptions extends mongodb.InsertOneOptions {
+    pick?: string[],
+    omit?: string[],
+    include?: string[],
+  }
+
+  export interface DeleteOptions<T> extends mongodb.DeleteOptions {
+    filter?: mongodb.Filter<T> | OpraCommon.OpraFilter.Ast | string;
+  }
+
+  export interface GetOptions<T> extends StrictOmit<mongodb.FindOptions, 'sort' | 'limit' | 'skip'> {
+    pick?: string[],
+    omit?: string[],
+    include?: string[],
+    filter?: mongodb.Filter<T> | OpraCommon.OpraFilter.Ast | string;
+  }
+
+  export interface UpdateOptions<T> extends mongodb.UpdateOptions {
+    pick?: string[],
+    omit?: string[],
+    include?: string[],
+    filter?: mongodb.Filter<T> | OpraCommon.OpraFilter.Ast | string;
+  }
+
+}

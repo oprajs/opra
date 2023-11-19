@@ -1,7 +1,8 @@
 import path from 'node:path';
-import { Collection, Container, Resource, Singleton } from '@opra/common';
+import { Collection, ComplexType, Container, Resource, SimpleType, Singleton } from '@opra/common';
 import { wrapJSDocString } from '../utils/string-utils.js';
 import type { ApiExporter } from './api-exporter.js';
+import { resolveTypeNameOrDef } from './process-types';
 import { TsFile } from './ts-file.js';
 
 export async function processResource(
@@ -88,22 +89,27 @@ export class ${className} {
   if (resource.actions.size) {
     tsFile.addImport('@opra/client', ['HttpRequestObservable']);
     for (const [action, endpoint] of resource.actions.entries()) {
-      const typeName = endpoint.returnType?.name || 'any';
+      let returnTypeDef = endpoint.returnType ?
+          await this.resolveTypeNameOrDef(tsFile, endpoint.returnType)
+          : 'any';
+      if (returnTypeDef.length > 40)
+        returnTypeDef = '\n\t\t' + returnTypeDef + '\n\b\b'
+
       const actionPath = resource.getFullPath() + '/' + action;
       let params = '';
       for (const prm of endpoint.parameters.values()) {
-        params += `      ${prm.name}: ${prm.type.name || 'any'}`;
+        params += `${prm.name}: ${prm.type.name || 'any'}`;
         if (prm.isArray) params += '[]';
         params += ';\n';
       }
-      params = params ? '{\n' + params + '    }\n  ' : '{}';
+      params = params ? '\n\t\t\tparams: {\n\t' + params + '\b}\n\b\b' : '';
 
       tsFile.content += `
   /** 
    * ${wrapJSDocString(endpoint.description || '')}
    */      
-  ${action}(params: ${params}): HttpRequestObservable<${typeName}> {  
-    return this[kClient].action('${actionPath}', params);
+  ${action}(${params}): HttpRequestObservable<${returnTypeDef}> {\b  
+    return this[kClient].action('${actionPath}'${params ? ', params' : ''});
   }    
 `
     }

@@ -17,7 +17,7 @@ export function collectionDeleteManyTests(args: { client: OpraTestClient }) {
       await expect(() => args.client.collection('Customers')
           .get(1001)
           .getBody()
-      ).rejects.toThrow('404');
+      ).rejects.toThrow('422');
     })
 
   })

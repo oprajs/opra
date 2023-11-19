@@ -1,8 +1,8 @@
 import { Db, MongoClient } from 'mongodb';
 import { ApiDocument, ApiDocumentFactory } from '@opra/common';
 import { NodeHttpAdapter } from '@opra/core';
-import { CustomersResource } from './customers.resource.js';
-import { MyProfileResource } from './my-profile.resource.js';
+import { CustomersResource } from './resources/customers.resource.js';
+import { MyProfileResource } from './resources/my-profile.resource.js';
 
 export interface TestApp {
   client: MongoClient,

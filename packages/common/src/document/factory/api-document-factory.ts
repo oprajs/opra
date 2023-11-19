@@ -94,18 +94,18 @@ export class ApiDocumentFactory extends TypeDocumentFactory {
       if (!source)
         return;
       const output: any = {};
-      for (const [kA, oA] of Object.entries(source)) {
+      for (const [endpointName, endpointSchema] of Object.entries(source)) {
         /* istanbul ignore next */
-        if (!oA) continue;
-        const o = output[kA] = {...oA};
+        if (!endpointSchema) continue;
+        const outputEndpoint = output[endpointName] = {...endpointSchema};
         let parameters: Record<string, Parameter.InitArguments> | undefined;
         // Resolve lazy type
-        if ((oA as ResourceDecorator.ActionMetadata).returnType) {
-          (o as any).returnType = await this.importDataType((oA as any).returnType);
+        if ((endpointSchema as ResourceDecorator.ActionMetadata).returnType) {
+          (outputEndpoint as any).returnType = await this.importDataType((endpointSchema as any).returnType);
         }
-        if (oA.parameters) {
-          parameters = o.parameters = {};
-          for (const [kP, oP] of Object.entries(oA.parameters)) {
+        if (endpointSchema.parameters) {
+          parameters = outputEndpoint.parameters = {};
+          for (const [kP, oP] of Object.entries(endpointSchema.parameters)) {
             if ((oP as any).enum) {
               oP.type = EnumType((oP as any).enum, {name: kP + 'Enum'}) as any;
             }
@@ -115,7 +115,6 @@ export class ApiDocumentFactory extends TypeDocumentFactory {
             };
           }
         }
-        output[kA] = {...oA[kA], parameters};
       }
       return output;
     }

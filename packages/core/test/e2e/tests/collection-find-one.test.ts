@@ -20,7 +20,7 @@ export function collectionGetTests(args: { client: OpraTestClient }) {
       await expect(() => args.client.collection('Customers')
           .get(999999)
           .getBody()
-      ).rejects.toThrow('404');
+      ).rejects.toThrow('422');
     });
 
     it('Should not fetch exclusive fields (unless not included for resolver)', async () => {

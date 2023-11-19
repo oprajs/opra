@@ -20,7 +20,7 @@ export function singletonGetTests(args: { client: OpraTestClient }) {
       await expect(() => args.client.singleton('MyProfile')
           .get()
           .getBody()
-      ).rejects.toThrow('404');
+      ).rejects.toThrow('422');
     });
 
     it('Should return object', async () => {

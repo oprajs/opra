@@ -42,7 +42,7 @@ describe('OpraClient', function () {
 
   it('Should getMetadata() reject promise on error', async () => {
     const xClient = new OpraHttpClient('http://127.0.0.1:1001');
-    await expect(() => xClient.getMetadata()).rejects.toThrow('Unable to fetch metadata');
+    await expect(() => xClient.getMetadata()).rejects.toThrow('Error fetching metadata');
   });
 
   it('Should "collection()" create a service for Collection resources', async () => {

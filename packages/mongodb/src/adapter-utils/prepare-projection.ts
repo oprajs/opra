@@ -61,7 +61,7 @@ export function _prepareExclusionProjection(
     omit?: any,
     omitExclusiveFields?: boolean
 ) {
-  let n;
+  let n: any;
   for (const [k, f] of dataType.fields.entries()) {
     n = omit?.[k] || (omitExclusiveFields && f.exclusive);
     if (n) {

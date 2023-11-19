@@ -123,7 +123,7 @@ export abstract class HttpAdapterHost extends PlatformAdapterHost {
     try {
       const {outgoing} = executionContext.switchToHttp();
       const response: Response = new ResponseHost({http: outgoing});
-      const context = RequestContext.from(executionContext, request, response);
+      const context = RequestContext.from(executionContext, this.api, request, response);
       await this.executeRequest(context);
       await this.sendResponse(context);
     } catch (e: any) {
@@ -699,7 +699,7 @@ export abstract class HttpAdapterHost extends PlatformAdapterHost {
         if (returnType) {
           if (response.value == null)
             throw new InternalServerError(`"${request.endpoint.name}" endpoint should return value`);
-          if (returnType.name) {
+          if (!returnType.isAnonymous) {
             const ns = this.api.getDataTypeNs(returnType);
             // const isOpraSpec = returnType.document.url?.startsWith('https://oprajs.com/spec/v1.0')
             body.type = (ns ? ns + ':' : '') + returnType.name;

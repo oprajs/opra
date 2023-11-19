@@ -11,7 +11,6 @@ const internalTypeNames = ['any', 'boolean', 'bigint', 'number', 'null', 'string
 
 /**
  *
- * @param targetDir
  */
 export async function processTypes(this: ApiExporter) {
   const {document} = this;
@@ -23,7 +22,6 @@ export async function processTypes(this: ApiExporter) {
 /**
  *
  * @param dataType
- * @param targetDir
  */
 export async function generateTypeFile(
     this: ApiExporter,
@@ -144,7 +142,15 @@ export async function generateComplexTypeDefinition(
     const baseDef = omitFields.length
         ? `Omit<${base}, ${omitFields.map(x => "'" + x + "'").join(' | ')}>`
         : `${base}`;
-    out += forInterface ? `extends ${baseDef} ` : `${baseDef} & `;
+    if (forInterface)
+      out += `extends ${baseDef} `;
+    else {
+      out += baseDef;
+      if (!dataType.own.fields.size)
+        return out;
+      out += ' & ';
+    }
+
   }
 
   out += '{\n\t';

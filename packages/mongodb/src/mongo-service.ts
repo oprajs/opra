@@ -1,26 +1,38 @@
 import mongodb, { UpdateFilter } from 'mongodb';
-import { StrictOmit } from 'ts-gems';
+import { StrictOmit, Type } from 'ts-gems';
+import { ComplexType, DATATYPE_METADATA } from '@opra/common';
 import { ApiService, PartialOutput, RequestContext } from '@opra/core';
 
-export namespace MongoServiceBase {
+export namespace MongoService {
   export interface Options {
     db?: mongodb.Db;
+    collectionName?: string;
+    resourceName?: string;
   }
 }
 
-export class MongoServiceBase<T extends mongodb.Document> extends ApiService {
-  protected _collectionName: string;
+export class MongoService<T extends mongodb.Document> extends ApiService {
+  protected _dataType: Type | string;
+  collectionName?: string;
   db?: mongodb.Db;
   session?: mongodb.ClientSession;
+  resourceName?: string;
 
-  constructor(options?: MongoServiceBase.Options)
-  constructor(collectionName: string, options?: MongoServiceBase.Options)
-  constructor(arg0: any, arg1?: any) {
+  constructor(dataType: Type | string, options?: MongoService.Options) {
     super();
-    const options = typeof arg0 === 'object' ? arg0 : arg1;
-    if (typeof arg0 === 'string')
-      this._collectionName = arg0;
+    this._dataType = dataType;
+    this.collectionName = options?.collectionName;
     this.db = options?.db;
+    if (!this.collectionName) {
+      if (typeof dataType === 'string')
+        this.collectionName = dataType;
+      if (typeof dataType === 'function') {
+        const metadata = Reflect.getMetadata(DATATYPE_METADATA, dataType);
+        if (metadata)
+          this.collectionName = metadata.name;
+      }
+    }
+    this.resourceName = options?.resourceName || this.collectionName;
   }
 
   forContext(
@@ -37,7 +49,6 @@ export class MongoServiceBase<T extends mongodb.Document> extends ApiService {
           (options?.session && this.session !== options?.session)
     }) as this;
   }
-
 
   protected async _rawInsertOne(doc: mongodb.OptionalUnlessRequiredId<T>, options?: mongodb.InsertOneOptions) {
     const db = await this.getDatabase();
@@ -179,16 +190,18 @@ export class MongoServiceBase<T extends mongodb.Document> extends ApiService {
     return this.db;
   }
 
+  protected getDataType(): ComplexType {
+    return this.context.api.getComplexType(this._dataType);
+  }
+
   protected async getCollection(db: mongodb.Db): Promise<mongodb.Collection<T>> {
-    if (!this._collectionName)
-      throw new Error('collectionName is not assigned');
     return db.collection<T>(this.getCollectionName());
   }
 
   protected getCollectionName(): string {
-    if (!this._collectionName)
-      throw new Error('collectionName is not defined');
-    return this._collectionName;
+    if (this.collectionName)
+      return this.collectionName;
+    throw new Error('collectionName is not defined');
   }
 
   protected onError?(error: unknown): void | Promise<void>;

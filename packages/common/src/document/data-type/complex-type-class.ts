@@ -198,7 +198,7 @@ export class ComplexTypeClass extends DataType {
         (options?.overwriteFields
                 ? Array.from(new Set([...this.fields.keys(), ...options?.overwriteFields.keys()]))
                 : Array.from(this.fields.keys())
-        ).map(x => x.toLocaleString());
+        ).map(x => x.toLowerCase());
     for (const nameLower of dedupedFieldNames) {
       const overwriteField = options?.overwriteFields?.get(nameLower);
       const field = this.fields.get(nameLower);

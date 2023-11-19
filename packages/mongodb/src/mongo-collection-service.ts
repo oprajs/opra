@@ -1,82 +1,25 @@
 import omit from 'lodash.omit';
 import mongodb from 'mongodb';
-import { StrictOmit } from 'ts-gems';
+import { StrictOmit, Type } from 'ts-gems';
 import { ResourceNotFoundError } from '@opra/common';
 import * as OpraCommon from '@opra/common';
 import { PartialInput, PartialOutput } from '@opra/core';
 import { MongoAdapter } from './mongo-adapter.js';
-import { MongoServiceBase } from './mongo-service-base.js';
-
-export namespace MongoCollectionService {
-
-  export interface Options extends MongoServiceBase.Options {
-  }
-
-  export interface CreateOptions extends mongodb.InsertOneOptions {
-    pick?: string[],
-    omit?: string[],
-    include?: string[],
-  }
-
-  export interface CountOptions<T> extends mongodb.CountOptions {
-    filter?: mongodb.Filter<T> | OpraCommon.OpraFilter.Ast | string;
-  }
-
-  export interface DeleteOptions<T> extends mongodb.DeleteOptions {
-    filter?: mongodb.Filter<T> | OpraCommon.OpraFilter.Ast | string;
-  }
-
-  export interface DeleteManyOptions<T> extends mongodb.DeleteOptions {
-    filter?: mongodb.Filter<T> | OpraCommon.OpraFilter.Ast | string;
-  }
-
-  export interface GetOptions<T = any> extends StrictOmit<mongodb.FindOptions, 'sort' | 'limit' | 'skip' | 'projection'> {
-    filter?: mongodb.Filter<T> | OpraCommon.OpraFilter.Ast | string;
-    pick?: string[],
-    omit?: string[],
-    include?: string[],
-  }
-
-  export interface FindManyOptions<T> extends StrictOmit<mongodb.FindOptions, 'sort' | 'projection'> {
-    filter?: mongodb.Filter<T> | OpraCommon.OpraFilter.Ast | string;
-    pick?: string[],
-    omit?: string[],
-    include?: string[],
-    sort?: string[];
-  }
-
-  export interface UpdateOptions<T> extends mongodb.UpdateOptions {
-    pick?: string[],
-    omit?: string[],
-    include?: string[],
-    filter?: mongodb.Filter<T> | OpraCommon.OpraFilter.Ast | string;
-  }
-
-  export interface UpdateManyOptions<T> extends StrictOmit<mongodb.UpdateOptions, 'upsert'> {
-    filter: mongodb.Filter<T> | OpraCommon.OpraFilter.Ast | string;
-  }
-}
+import { MongoService } from './mongo-service.js';
 
 /**
  *
  * @class MongoCollectionService
  */
-export class MongoCollectionService<T extends mongodb.Document> extends MongoServiceBase<T> {
+export class MongoCollectionService<T extends mongodb.Document> extends MongoService<T> {
+  keyFields?: string[];
   defaultLimit: number;
 
-  constructor(options?: MongoCollectionService.Options)
-  constructor(collectionName: string, options?: MongoCollectionService.Options)
-  constructor(arg0: any, arg1?: any) {
-    super(arg0, arg1);
-    const options = typeof arg0 === 'object' ? arg0 : arg1;
+  constructor(dataType: Type | string, options?: MongoCollectionService.Options) {
+    super(dataType, options);
     this.defaultLimit = options?.defaultLimit || 10;
-  }
-
-  protected get resource(): OpraCommon.Collection {
-    const resource = this.context.request.resource;
-    if (resource instanceof OpraCommon.Collection)
-      return resource;
-    throw new TypeError(`"${resource}" resource is not a Collection`);
+    this.keyFields = options?.keyField ?
+        (Array.isArray(options.keyField) ? options.keyField : [options.keyField]) : undefined;
   }
 
   protected async create(
@@ -85,7 +28,7 @@ export class MongoCollectionService<T extends mongodb.Document> extends MongoSer
   ): Promise<PartialOutput<T>> {
     const r = await this._rawInsertOne(doc, options);
     if (r.insertedId) {
-      const out = await this.get({_id: r.insertedId as any}, options);
+      const out = await this.get(r.insertedId, options);
       if (out)
         return out;
     }
@@ -104,7 +47,7 @@ export class MongoCollectionService<T extends mongodb.Document> extends MongoSer
       id: any,
       options?: MongoCollectionService.DeleteOptions<T>
   ): Promise<number> {
-    const filter = MongoAdapter.prepareKeyValues(this.resource, id);
+    const filter = MongoAdapter.prepareKeyValues(id, this.keyFields);
     const optionsFilter = MongoAdapter.prepareFilter(options?.filter);
     if (optionsFilter)
       filter.$and = [...(Array.isArray(optionsFilter) ? optionsFilter : [optionsFilter])];
@@ -126,7 +69,7 @@ export class MongoCollectionService<T extends mongodb.Document> extends MongoSer
   ): Promise<PartialOutput<T>> {
     const out = await this.findOne(id, options);
     if (!out)
-      throw new ResourceNotFoundError(this.resource.name, id);
+      throw new ResourceNotFoundError(this.resourceName || this.getCollectionName(), id);
     return out;
   }
 
@@ -134,13 +77,13 @@ export class MongoCollectionService<T extends mongodb.Document> extends MongoSer
       id: any,
       options?: MongoCollectionService.GetOptions
   ): Promise<PartialOutput<T> | undefined> {
-    const filter = MongoAdapter.prepareKeyValues(this.resource, id);
+    const filter = MongoAdapter.prepareKeyValues(id, this.keyFields);
     const optionsFilter = MongoAdapter.prepareFilter(options?.filter);
     if (optionsFilter)
       filter.$and = [...(Array.isArray(optionsFilter) ? optionsFilter : [optionsFilter])];
     const mongoOptions: mongodb.FindOptions = {
       ...omit(options, ['sort', 'skip', 'limit', 'filter']),
-      projection: MongoAdapter.prepareProjection(this.resource.type, options),
+      projection: MongoAdapter.prepareProjection(this.getDataType(), options),
     }
     const out = await this._rawFindOne(filter, mongoOptions);
     if (out) {
@@ -154,23 +97,33 @@ export class MongoCollectionService<T extends mongodb.Document> extends MongoSer
       options?: MongoCollectionService.FindManyOptions<T>
   ): Promise<PartialOutput<T>[]> {
     const filter = MongoAdapter.prepareFilter(options?.filter) || {};
-    const cursor = await this._rawFind(filter, {
-      ...omit(options, 'filter'),
-      sort: options?.sort ? MongoAdapter.prepareSort(options.sort) : undefined,
-      projection: MongoAdapter.prepareProjection(this.resource.type, options)
-    });
-    try {
-      const out: any[] = [];
-      let obj: any;
-      while (out.length < this.defaultLimit && (obj = await cursor.next())) {
-        const v = this.transformData ? this.transformData(obj) : obj;
-        if (v)
-          out.push(obj);
-      }
-      return out;
-    } finally {
-      await cursor.close();
-    }
+    const [items, count] = await Promise.all([
+      // Promise that returns items
+      Promise.resolve().then(async () => {
+        const cursor = await this._rawFind(filter, {
+          ...omit(options, 'filter'),
+          sort: options?.sort ? MongoAdapter.prepareSort(options.sort) : undefined,
+          projection: MongoAdapter.prepareProjection(this.getDataType(), options)
+        });
+        try {
+          const out: any[] = [];
+          let obj: any;
+          while (out.length < this.defaultLimit && (obj = await cursor.next())) {
+            const v = this.transformData ? this.transformData(obj) : obj;
+            if (v)
+              out.push(obj);
+          }
+          return out;
+        } finally {
+          await cursor.close();
+        }
+      }),
+      // Promise that returns count
+      (options?.count ? this.count(options) : Promise.resolve()),
+    ]);
+    if (options?.count)
+      this.context.response.totalMatches = count || 0;
+    return items;
   }
 
   protected async update(
@@ -178,7 +131,7 @@ export class MongoCollectionService<T extends mongodb.Document> extends MongoSer
       doc: PartialInput<T>,
       options?: MongoCollectionService.UpdateOptions<T>
   ): Promise<PartialOutput<T> | undefined> {
-    const filter = MongoAdapter.prepareKeyValues(this.resource, id);
+    const filter = MongoAdapter.prepareKeyValues(id, this.keyFields);
     const optionsFilter = MongoAdapter.prepareFilter(options?.filter);
     if (optionsFilter)
       filter.$and = [...(Array.isArray(optionsFilter) ? optionsFilter : [optionsFilter])];
@@ -214,5 +167,59 @@ export class MongoCollectionService<T extends mongodb.Document> extends MongoSer
 
 }
 
+/**
+ *
+ * @namespace MongoCollectionService
+ */
+export namespace MongoCollectionService {
 
+  export interface Options extends MongoService.Options {
+    keyField?: string | string[];
+    defaultLimit?: number;
+  }
 
+  export interface CreateOptions extends mongodb.InsertOneOptions {
+    pick?: string[],
+    omit?: string[],
+    include?: string[],
+  }
+
+  export interface CountOptions<T> extends mongodb.CountOptions {
+    filter?: mongodb.Filter<T> | OpraCommon.OpraFilter.Ast | string;
+  }
+
+  export interface DeleteOptions<T> extends mongodb.DeleteOptions {
+    filter?: mongodb.Filter<T> | OpraCommon.OpraFilter.Ast | string;
+  }
+
+  export interface DeleteManyOptions<T> extends mongodb.DeleteOptions {
+    filter?: mongodb.Filter<T> | OpraCommon.OpraFilter.Ast | string;
+  }
+
+  export interface GetOptions<T = any> extends StrictOmit<mongodb.FindOptions, 'sort' | 'limit' | 'skip' | 'projection'> {
+    filter?: mongodb.Filter<T> | OpraCommon.OpraFilter.Ast | string;
+    pick?: string[],
+    omit?: string[],
+    include?: string[],
+  }
+
+  export interface FindManyOptions<T> extends StrictOmit<mongodb.FindOptions, 'sort' | 'projection'> {
+    filter?: mongodb.Filter<T> | OpraCommon.OpraFilter.Ast | string;
+    pick?: string[],
+    omit?: string[],
+    include?: string[],
+    sort?: string[];
+    count?: boolean;
+  }
+
+  export interface UpdateOptions<T> extends mongodb.UpdateOptions {
+    pick?: string[],
+    omit?: string[],
+    include?: string[],
+    filter?: mongodb.Filter<T> | OpraCommon.OpraFilter.Ast | string;
+  }
+
+  export interface UpdateManyOptions<T> extends StrictOmit<mongodb.UpdateOptions, 'upsert'> {
+    filter?: mongodb.Filter<T> | OpraCommon.OpraFilter.Ast | string;
+  }
+}

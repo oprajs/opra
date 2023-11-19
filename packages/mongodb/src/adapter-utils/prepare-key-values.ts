@@ -1,11 +1,12 @@
 import isPlainObject from 'putil-isplainobject';
-import { Collection } from '@opra/common';
 
-export default function prepareKeyValues(resource: Collection, keyValue: any): Record<string, any> {
-  const {primaryKey} = resource;
+const defaultPrimaryKey = ['_id'];
+
+export default function prepareKeyValues(keyValue: any, primaryKey?: string[]): Record<string, any> {
+  primaryKey = primaryKey || defaultPrimaryKey;
   const b = isPlainObject(keyValue);
   if (primaryKey.length > 1 && !b)
-    new TypeError(`Argument "keyValue" must be an object that contains all key values of ${resource.name} resource`);
+    new TypeError(`Argument "keyValue" must be an object that contains all key values`);
   if (primaryKey.length > 1 || b) {
     return primaryKey.reduce((o, k) => {
       o[k] = keyValue[k];
