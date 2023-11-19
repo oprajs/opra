@@ -1,8 +1,7 @@
 import path from 'node:path';
-import { Collection, ComplexType, Container, Resource, SimpleType, Singleton } from '@opra/common';
+import { Collection, Container, Resource, Singleton } from '@opra/common';
 import { wrapJSDocString } from '../utils/string-utils.js';
 import type { ApiExporter } from './api-exporter.js';
-import { resolveTypeNameOrDef } from './process-types';
 import { TsFile } from './ts-file.js';
 
 export async function processResource(
