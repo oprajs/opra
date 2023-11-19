@@ -169,14 +169,10 @@ export class SqbEntityServiceBase<T> extends ApiService {
     }
   }
 
-  forContext(context: RequestContext, options?: {
-    newInstance?: boolean,
+  forContext(context: RequestContext, attributes?: {
     db?: SqbClient | SqbConnection
   }): this {
-    return super.forContext(context, {
-      newInstance: options?.newInstance ||
-          (options?.db && this.db !== options.db)
-    }) as this;
+    return super.forContext(context, attributes) as this;
   }
 
   protected async _onError(error: unknown): Promise<void> {
@@ -190,6 +186,11 @@ export class SqbEntityServiceBase<T> extends ApiService {
     if (!this.db)
       throw new Error(`Database not set!`);
     return this.db;
+  }
+
+  protected _cacheMatch(service: SqbEntityServiceBase<any>, context: RequestContext, options?: any): boolean {
+    return super._cacheMatch(service, context, options) &&
+        (!options?.db || service.db === options.db);
   }
 
   protected onError?(error: unknown): void | Promise<void>;

@@ -35,19 +35,10 @@ export class MongoService<T extends mongodb.Document> extends ApiService {
     this.resourceName = options?.resourceName || this.collectionName;
   }
 
-  forContext(
-      context: RequestContext,
-      options?: {
-        newInstance?: boolean,
-        db?: mongodb.Db,
-        session?: mongodb.ClientSession
-      }
-  ): this {
-    return super.forContext(context, {
-      newInstance: options?.newInstance ||
-          (options?.db && this.db !== options?.db) ||
-          (options?.session && this.session !== options?.session)
-    }) as this;
+  forContext(source: ApiService): this
+  forContext(context: RequestContext, attributes?: { db?: mongodb.Db, session?: mongodb.ClientSession }): this
+  forContext(arg0: any, attributes?: any): this {
+    return super.forContext(arg0, attributes) as this;
   }
 
   protected async _rawInsertOne(doc: mongodb.OptionalUnlessRequiredId<T>, options?: mongodb.InsertOneOptions) {
@@ -202,6 +193,12 @@ export class MongoService<T extends mongodb.Document> extends ApiService {
     if (this.collectionName)
       return this.collectionName;
     throw new Error('collectionName is not defined');
+  }
+
+  protected _cacheMatch(service: MongoService<any>, context: RequestContext, attributes?: any): boolean {
+    return super._cacheMatch(service, context, attributes) &&
+        (!attributes?.db || service.db === attributes.db) &&
+        (!attributes?.session || this.session === attributes?.session);
   }
 
   protected onError?(error: unknown): void | Promise<void>;
