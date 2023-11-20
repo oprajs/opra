@@ -138,15 +138,15 @@ export class MongoCollectionService<T extends mongodb.Document> extends MongoSer
     // Prevent updating _id field
     delete (doc as any)._id;
     const patch = MongoAdapter.preparePatch(doc);
+    patch.$set = patch.$set || {};
     const mongoOptions: mongodb.UpdateOptions = {
       ...options,
       upsert: undefined
     }
     const r = await this._rawUpdateOne(filter, patch, mongoOptions);
-    if (r.modifiedCount)
-      return await this.get(filter, options);
     if (r.upsertedCount)
       return await this.get(r.upsertedId, options);
+    return await this.get(id, options);
   }
 
   protected async updateMany(
@@ -156,6 +156,7 @@ export class MongoCollectionService<T extends mongodb.Document> extends MongoSer
     // Prevent updating _id field
     delete (doc as any)._id;
     const patch = MongoAdapter.preparePatch(doc);
+    patch.$set = patch.$set || {};
     const mongoOptions: mongodb.UpdateOptions = {
       ...omit(options, 'filter'),
       upsert: undefined

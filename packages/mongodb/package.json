@@ -24,12 +24,11 @@
     "clean:dist": "rimraf ../../build/mongodb",
     "clean:cover": "rimraf ../../coverage/mongodb"
   },
-  "dependencies": {},
   "devDependencies": {
     "@faker-js/faker": "^8.3.1",
     "@types/lodash.isnil": "^4.0.9",
     "@types/lodash.omitby": "^4.6.9",
-    "mongodb": "^6.2.0",
+    "mongodb": "^6.3.0",
     "ts-gems": "^2.5.0"
   },
   "peerDependencies": {

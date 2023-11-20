@@ -21,8 +21,8 @@ export class MongoService<T extends mongodb.Document> extends ApiService {
   constructor(dataType: Type | string, options?: MongoService.Options) {
     super();
     this._dataType = dataType;
-    this.collectionName = options?.collectionName;
     this.db = options?.db;
+    this.collectionName = options?.collectionName || options?.resourceName;
     if (!this.collectionName) {
       if (typeof dataType === 'string')
         this.collectionName = dataType;

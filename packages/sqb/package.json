@@ -31,9 +31,9 @@
   },
   "devDependencies": {
     "@faker-js/faker": "^8.3.1",
-    "@sqb/builder": "^4.10.4",
-    "@sqb/connect": "^4.10.4",
-    "@sqb/postgres": "^4.10.4",
+    "@sqb/builder": "^4.10.5",
+    "@sqb/connect": "^4.10.5",
+    "@sqb/postgres": "^4.10.5",
     "@types/lodash.isnil": "^4.0.9",
     "@types/lodash.omitby": "^4.6.9",
     "postgresql-client": "^2.10.1",

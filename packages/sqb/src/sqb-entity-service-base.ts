@@ -169,10 +169,10 @@ export class SqbEntityServiceBase<T> extends ApiService {
     }
   }
 
-  forContext(context: RequestContext, attributes?: {
-    db?: SqbClient | SqbConnection
-  }): this {
-    return super.forContext(context, attributes) as this;
+  forContext(source: ApiService): this
+  forContext(context: RequestContext, attributes?: { db?: SqbClient | SqbConnection }): this
+  forContext(arg0: any, attributes?: any): this {
+    return super.forContext(arg0, attributes) as this;
   }
 
   protected async _onError(error: unknown): Promise<void> {
@@ -188,9 +188,9 @@ export class SqbEntityServiceBase<T> extends ApiService {
     return this.db;
   }
 
-  protected _cacheMatch(service: SqbEntityServiceBase<any>, context: RequestContext, options?: any): boolean {
-    return super._cacheMatch(service, context, options) &&
-        (!options?.db || service.db === options.db);
+  protected _cacheMatch(service: ApiService, context: RequestContext, attributes?: any): boolean {
+    return super._cacheMatch(service, context, attributes) &&
+        (!attributes?.db || (service as any).db === attributes.db);
   }
 
   protected onError?(error: unknown): void | Promise<void>;
