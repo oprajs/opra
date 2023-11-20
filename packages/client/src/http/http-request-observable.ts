@@ -140,6 +140,9 @@ export class HttpRequestObservable<
   param(params: URLSearchParamsInit): this
   param(name: string, value: any): this
   param(arg0: string | URLSearchParamsInit, value?: any): this {
+    if (value && typeof value === 'object') {
+      value = JSON.stringify(value);
+    }
     const target = this[kContext].url.searchParams;
     if (typeof arg0 === 'object') {
       const h = arg0 instanceof URLSearchParams

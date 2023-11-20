@@ -1,5 +1,5 @@
 import 'reflect-metadata';
-import { ComplexType, DATATYPE_METADATA, OmitType, PickType } from '@opra/common';
+import { ComplexType, DATATYPE_METADATA, OmitType, PartialType, PickType } from '@opra/common';
 import { Country } from '../../_support/test-api/index.js';
 
 describe('MappedType', function () {
@@ -32,6 +32,21 @@ describe('MappedType', function () {
     expect(metadata).toStrictEqual({
       kind: 'MappedType',
       pick: ['phoneCode'],
+      base: Country
+    });
+  })
+
+  it('Should PartialType() create MappedType class and define metadata', async function () {
+
+    @ComplexType({description: 'TestClass schema'})
+    class TestClass extends PartialType(Country, ['name']) {
+    }
+
+    const base = Object.getPrototypeOf(TestClass);
+    const metadata = Reflect.getMetadata(DATATYPE_METADATA, base);
+    expect(metadata).toStrictEqual({
+      kind: 'MappedType',
+      partial: ['name'],
       base: Country
     });
   })

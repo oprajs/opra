@@ -14,19 +14,27 @@ export class MappedTypeClass extends ComplexTypeClass {
   readonly base: ComplexType | MixinType | MappedType;
   readonly omit?: Field.Name[];
   readonly pick?: Field.Name[];
+  readonly partial?: Field.Name[] | boolean;
 
   constructor(document: ApiDocument, init: MappedType.InitArguments) {
     super(document, init);
     const own = this.own as Writable<MappedType.OwnProperties>
     own.pick = init.pick;
     own.omit = init.omit;
+    own.partial = init.partial;
     this.kind = OpraSchema.MappedType.Kind;
     this.pick = own.pick;
     this.omit = own.omit;
+    this.partial = own.partial;
     const isInheritedPredicate = getIsInheritedPredicateFn(init.pick, init.omit);
     for (const fieldName of this.fields.keys()) {
       if (!isInheritedPredicate(fieldName)) {
         this.fields.delete(fieldName);
+      }
+      if (this.partial === true || (Array.isArray(this.partial) && this.partial.includes(fieldName))) {
+        const f = this.fields.get(fieldName);
+        if (f)
+          f.required = false;
       }
     }
   }
@@ -36,6 +44,7 @@ export class MappedTypeClass extends ComplexTypeClass {
     Object.assign(out, omitUndefined({
       pick: this.own.pick,
       omit: this.own.omit,
+      partial: this.own.partial
     }));
     return out;
   }

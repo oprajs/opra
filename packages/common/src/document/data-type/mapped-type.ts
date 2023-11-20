@@ -32,6 +32,16 @@ export function OmitType<T extends any[], I1, S1, K extends keyof I1>(
   return MappedType(classRef, {omit: keys} as any) as any;
 }
 
+/**
+ *
+ */
+export function PartialType<T extends any[], I1, S1, K extends keyof I1>(
+    classRef: Class<T, I1, S1>, keys?: readonly K[]
+): Class<T, Omit<I1, K>> &
+    Omit<Pick<S1, keyof typeof classRef>, 'prototype' | 'constructor'> {
+  return MappedType(classRef, {partial: keys || true} as any) as any;
+}
+
 
 /**
  * Type definition of MappedType constructor type
@@ -44,12 +54,14 @@ export interface MappedTypeConstructor {
 
   <T extends any[], I1, S1,
       PickKey extends keyof I1,
-      OmitKey extends keyof I1
+      OmitKey extends keyof I1,
+      PartialKey extends keyof I1,
   >(
       resource: Class<T, I1, S1>,
       options: {
         pickKeys?: readonly PickKey[],
         omitKeys?: readonly OmitKey[],
+        partialKeys?: readonly PartialKey[],
       }
   ): Class<T, Omit<Pick<I1, PickKey>, OmitKey>>;
 
@@ -93,7 +105,7 @@ export const MappedType = function (
   const m = Reflect.getOwnMetadata(DATATYPE_METADATA, mappedSource) as OpraSchema.DataType;
   if (!m)
     throw new TypeError(`Class "${mappedSource}" doesn't have datatype metadata information`);
-  if (!(m.kind === OpraSchema.ComplexType.Kind))
+  if (!(m.kind === OpraSchema.ComplexType.Kind || m.kind === OpraSchema.MappedType.Kind || m.kind === OpraSchema.MixinType.Kind))
     throw new TypeError(`Class "${mappedSource}" is not a ${OpraSchema.ComplexType.Kind}`);
 
   const metadata: MappedType.Metadata = {
@@ -104,6 +116,8 @@ export const MappedType = function (
     metadata.pick = options.pick as string[];
   if (options.omit)
     metadata.omit = options.omit as string[];
+  if (options.partial)
+    metadata.partial = options.partial as string[];
   Reflect.defineMetadata(DATATYPE_METADATA, metadata, MappedClass);
 
   MappedType._applyMixin(MappedClass, mappedSource, {
@@ -133,22 +147,23 @@ export interface MappedType extends MappedTypeClass {
 export namespace MappedType {
 
   export interface InitArguments extends ComplexType.InitArguments,
-      Pick<OpraSchema.MappedType, 'pick' | 'omit'> {
+      Pick<OpraSchema.MappedType, 'pick' | 'omit' | 'partial'> {
   }
 
   export interface Metadata extends StrictOmit<ComplexType.Metadata, 'kind' | 'base' | 'name'>,
-      Pick<OpraSchema.MappedType, 'pick' | 'omit'> {
+      Pick<OpraSchema.MappedType, 'pick' | 'omit' | 'partial'> {
     kind: OpraSchema.MappedType.Kind;
     base: Type;
   }
 
   export interface OwnProperties extends ComplexType.OwnProperties,
-      Pick<OpraSchema.MappedType, 'pick' | 'omit'> {
+      Pick<OpraSchema.MappedType, 'pick' | 'omit' | 'partial'> {
   }
 
   export interface Options<T, K = keyof T> {
-    pick?: readonly K[],
-    omit?: readonly K[],
+    pick?: readonly K[];
+    omit?: readonly K[];
+    partial?: readonly K[] | boolean;
   }
 
 }

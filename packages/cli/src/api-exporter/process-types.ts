@@ -283,10 +283,37 @@ export async function generateMappedTypeDefinition(
     dataType: MappedType,
     forInterface?: boolean
 ): Promise<string> {
-  const typeName = await this.resolveTypeNameOrDef(file, dataType.base, forInterface);
-  const keys = (dataType.pick || dataType.omit || []);
-  if (!keys.length)
-    return typeName;
-  return `${dataType.pick ? 'Pick<' : 'Omit<'}${typeName}, ${keys.map(x => `'${x}'`).join(' | ')}>`;
+  const typeDef = await this.resolveTypeNameOrDef(file, dataType.base, forInterface);
+  const pick = dataType.pick?.length ? dataType.pick : undefined;
+  const omit = !pick && dataType.omit?.length ? dataType.omit : undefined;
+  const partial =
+      dataType.partial === true || Array.isArray(dataType.partial) && dataType.partial.length > 0
+          ? dataType.partial
+          : undefined;
+  if (!(pick || omit || partial))
+    return typeDef;
+  let out = '';
+  if (partial)
+    out += 'Partial<';
+  if (pick)
+    out += 'Pick<';
+  else if (omit)
+    out += 'Omit<';
+  out += typeDef;
+  if (omit || pick)
+    out += ', ' + (omit || pick)!
+            .filter(x => !!x)
+            .map(x => `'${x}'`)
+            .join(' | ') +
+        '>';
+  if (partial) {
+    if (Array.isArray(partial))
+      out += ', ' + partial
+          .filter(x => !!x)
+          .map(x => `'${x}'`)
+          .join(' | ');
+    out += '>';
+  }
+  return out;
 }
 

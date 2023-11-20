@@ -160,8 +160,13 @@ export class CollectionClass extends CrudResource {
       // decode values
       for (const [k, v] of Object.entries(obj)) {
         const el = dataType.getField(k);
-        if (el.type instanceof SimpleType)
-          obj[k] = el.type.decode(v);
+        if (el.type instanceof SimpleType) {
+          try {
+            obj[k] = el.type.decode(v, {coerce: true});
+          } catch (e: any) {
+            e.message = `The key value for field "${el.name}" is not valid. ` + e.message;
+          }
+        }
         if (obj[k] == null)
           throw new TypeError(`You must provide value of primary field(s) (${k})`);
       }
@@ -171,8 +176,13 @@ export class CollectionClass extends CrudResource {
         value = value[primaryKey];
       const el = dataType.getField(primaryKey);
       let result: any;
-      if (value != null && el.type instanceof SimpleType)
-        result = el.type.decode(value);
+      if (value != null && el.type instanceof SimpleType) {
+        try {
+          result = el.type.decode(value, {coerce: true});
+        } catch (e: any) {
+          e.message = `The key value is not valid. ` + e.message;
+        }
+      }
       if (result == null)
         throw new TypeError(`You must provide value of primary field(s) (${primaryKey})`);
       return result;

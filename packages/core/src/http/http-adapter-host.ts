@@ -675,8 +675,8 @@ export abstract class HttpAdapterHost extends PlatformAdapterHost {
       const apiUrl = new OpraURL(incoming.baseUrl,
           incoming.protocol + '://' + incoming.get('host')).toString();
       const body = new OperationResult({
-        context: endpoint.getFullPath(false),
-        contextUrl: apiUrl + '/#' + endpoint.getFullPath(true)
+        context: '',
+        contextUrl: ''
       });
 
       const operationName = endpoint.kind === 'operation' ? endpoint.name : '';
@@ -709,9 +709,15 @@ export abstract class HttpAdapterHost extends PlatformAdapterHost {
                         : apiUrl + '/#/types/' + returnType.name
                 );
           } else body.typeUrl = body.contextUrl + '/type';
-          body.payload = this.i18n.deep(response.value);
+          if (response.value instanceof OperationResult) {
+            Object.assign(body, response.value);
+          } else body.payload = response.value;
+          body.payload = this.i18n.deep(body.payload);
         }
       }
+
+      body.context = endpoint.getFullPath(false);
+      body.contextUrl = apiUrl + '/#' + endpoint.getFullPath(true);
 
       outgoing.setHeader(HttpHeaderCodes.Content_Type, 'application/opra+json; charset=utf-8');
       outgoing.send(JSON.stringify(body));

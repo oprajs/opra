@@ -6,6 +6,7 @@ export interface MappedType extends StrictOmit<ComplexType, 'kind'> {
   kind: MappedType.Kind;
   omit?: Field.Name[];
   pick?: Field.Name[];
+  partial?: Field.Name[] | boolean;
 }
 
 export namespace MappedType {

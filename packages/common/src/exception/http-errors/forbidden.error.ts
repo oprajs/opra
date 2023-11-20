@@ -1,3 +1,4 @@
+import { HttpStatusCodes } from '../../http/index.js';
 import { translate } from '../../i18n/index.js';
 import { ErrorIssue } from '../error-issue.js';
 import { OpraException } from '../opra-exception.js';
@@ -9,7 +10,7 @@ import { OpraException } from '../opra-exception.js';
  * the client's identity is known to the server.
  */
 export class ForbiddenError extends OpraException {
-  status = 403;
+  status = HttpStatusCodes.FORBIDDEN;
 
   protected init(issue: Partial<ErrorIssue>) {
     super.init({

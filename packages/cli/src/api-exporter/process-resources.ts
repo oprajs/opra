@@ -97,7 +97,8 @@ export class ${className} {
       const actionPath = resource.getFullPath() + '/' + action;
       let params = '';
       for (const prm of endpoint.parameters.values()) {
-        params += `${prm.name}: ${prm.type.name || 'any'}`;
+        const paramTypeDef = await this.resolveTypeNameOrDef(tsFile, prm.type) || 'any';
+        params += `${prm.name}: ${paramTypeDef}`;
         if (prm.isArray) params += '[]';
         params += ';\n';
       }
