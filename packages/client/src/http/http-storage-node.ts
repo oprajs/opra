@@ -27,7 +27,7 @@ export class HttpStorageNode<TRequestOptions = {}, TResponseExt = {}> {
         TResponseExt
     >(this._backend, {
       method: 'DELETE',
-      url: this._path
+      url: path
     });
   }
 
@@ -38,17 +38,15 @@ export class HttpStorageNode<TRequestOptions = {}, TResponseExt = {}> {
       url.join(path);
       path = url.toString();
     } else path = this._path;
-    const observable =
-        new HttpRequestObservable<
+    return new HttpRequestObservable<
             OperationResult<any>,
             OperationResult<any>,
             TRequestOptions,
             TResponseExt
         >(this._backend, {
           method: 'GET',
-          url: this._path
+          url: path
         });
-    return observable;
   }
 
   post(data: FormData, path?: string) {
@@ -57,8 +55,7 @@ export class HttpStorageNode<TRequestOptions = {}, TResponseExt = {}> {
       url.join(path);
       path = url.toString();
     } else path = this._path;
-    const observable =
-        new HttpRequestObservable<
+    return new HttpRequestObservable<
             OperationResult<any>,
             OperationResult<any>,
             TRequestOptions,
@@ -68,7 +65,6 @@ export class HttpStorageNode<TRequestOptions = {}, TResponseExt = {}> {
           url: path,
           body: data
         });
-    return observable;
   }
 
 }
