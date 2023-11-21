@@ -7,7 +7,7 @@ import { wrapJSDocString } from '../utils/string-utils.js';
 import type { ApiExporter } from './api-exporter.js';
 import { TsFile } from './ts-file.js';
 
-const internalTypeNames = ['any', 'boolean', 'bigint', 'number', 'null', 'string'];
+const internalTypeNames = ['any', 'boolean', 'bigint', 'number', 'null', 'string', 'object'];
 
 /**
  *
