@@ -1,11 +1,11 @@
-import { OperationResult } from '@opra/common';
+import { OperationResult, OpraURL } from '@opra/common';
 import { HttpBackend } from './http-backend.js';
 import { HttpRequestObservable } from './http-request-observable.js';
 
 /**
  * @class HttpStorageNode
  */
-export class HttpStorageNode<TType, TRequestOptions = {}, TResponseExt = {}> {
+export class HttpStorageNode<TRequestOptions = {}, TResponseExt = {}> {
   protected _backend: HttpBackend;
   protected _path: string;
 
@@ -14,7 +14,12 @@ export class HttpStorageNode<TType, TRequestOptions = {}, TResponseExt = {}> {
     this._path = path;
   }
 
-  delete() {
+  delete(path?: string) {
+    if (path) {
+      const url = new OpraURL(this._path);
+      url.join(path);
+      path = url.toString();
+    } else path = this._path;
     return new HttpRequestObservable<
         OperationResult<never>,
         OperationResult<never>,
@@ -27,11 +32,16 @@ export class HttpStorageNode<TType, TRequestOptions = {}, TResponseExt = {}> {
   }
 
 
-  get() {
+  get(path?: string) {
+    if (path) {
+      const url = new OpraURL(this._path);
+      url.join(path);
+      path = url.toString();
+    } else path = this._path;
     const observable =
         new HttpRequestObservable<
-            OperationResult<TType>,
-            OperationResult<TType>,
+            OperationResult<any>,
+            OperationResult<any>,
             TRequestOptions,
             TResponseExt
         >(this._backend, {
@@ -41,16 +51,21 @@ export class HttpStorageNode<TType, TRequestOptions = {}, TResponseExt = {}> {
     return observable;
   }
 
-  post(data: FormData) {
+  post(data: FormData, path?: string) {
+    if (path) {
+      const url = new OpraURL(this._path);
+      url.join(path);
+      path = url.toString();
+    } else path = this._path;
     const observable =
         new HttpRequestObservable<
-            OperationResult<TType>,
-            OperationResult<TType>,
+            OperationResult<any>,
+            OperationResult<any>,
             TRequestOptions,
             TResponseExt
         >(this._backend, {
           method: 'POST',
-          url: this._path,
+          url: path,
           body: data
         });
     return observable;

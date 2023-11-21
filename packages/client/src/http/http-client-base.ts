@@ -73,7 +73,7 @@ export abstract class HttpClientBase<TRequestOptions = {}, TResponseExt = {}> ex
     return node;
   }
 
-  storage(path: string): HttpStorageNode<any, TRequestOptions, TResponseExt> {
+  storage(path: string): HttpStorageNode<TRequestOptions, TResponseExt> {
     let node: any = this._storageCache.get(path);
     if (!node) {
       node = new HttpStorageNode(this[kBackend], path);

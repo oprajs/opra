@@ -12,6 +12,7 @@ export * from './http/http-collection-node.js';
 export * from './http/http-request-observable.js';
 export * from './http/http-response.js';
 export * from './http/http-singleton-node.js';
+export * from './http/http-storage-node.js';
 
 export * from './http/enums/http-observable-type.enum.js';
 

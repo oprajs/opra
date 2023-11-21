@@ -1,5 +1,5 @@
 import path from 'node:path';
-import { Collection, Container, Resource, Singleton } from '@opra/common';
+import { Collection, Container, Resource, Singleton, Storage } from '@opra/common';
 import { wrapJSDocString } from '../utils/string-utils.js';
 import type { ApiExporter } from './api-exporter.js';
 import { TsFile } from './ts-file.js';
@@ -80,6 +80,20 @@ export class ${className} {
    * ${wrapJSDocString(endpoint.description || '')}
    */      
   readonly ${operation}: HttpSingletonNode<${typeName}>['${operation}'];\n`
+
+      constructorBody += `    this.${operation} = node.${operation}.bind(node);\n`;
+    }
+  }  else if (resource instanceof Storage) {
+    tsFile.addImport('@opra/client', ['HttpStorageNode']);
+
+    constructorBody += `    const node = this[kClient].storage('${resource.getFullPath()}');\n`;
+
+    for (const [operation, endpoint] of resource.operations.entries()) {
+      tsFile.content += `
+  /** 
+   * ${wrapJSDocString(endpoint.description || '')}
+   */      
+  readonly ${operation}: HttpStorageNode['${operation}'];\n`
 
       constructorBody += `    this.${operation} = node.${operation}.bind(node);\n`;
     }
