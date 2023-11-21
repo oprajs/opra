@@ -50,12 +50,13 @@ export class MultipartIterator extends EventEmitter {
   }
 
   getNext(): Promise<MultipartItem | undefined> {
-    if ((this._form as any).ended)
-      return Promise.resolve(undefined);
-    this.resume();
+    if (!(this._form as any).ended)
+      this.resume();
     return new Promise<any>((resolve, reject) => {
       if (this._stack.length)
         return resolve(this._stack.shift())
+      if ((this._form as any).ended)
+        return resolve(undefined);
       this.once('item', () => resolve(this._stack.shift()));
       this.once('error', (e) => reject(e));
     })
