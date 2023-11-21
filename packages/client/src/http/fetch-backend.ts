@@ -3,7 +3,7 @@ import { Observable } from 'rxjs';
 import { isReadableStreamLike } from 'rxjs/internal/util/isReadableStreamLike';
 import { Combine, StrictOmit } from 'ts-gems';
 import typeIs from '@browsery/type-is';
-import { isBlob, OpraURL } from '@opra/common';
+import { isBlob, isFormData, OpraURL } from '@opra/common';
 import { HttpBackend } from './http-backend.js';
 import { HttpResponse } from './http-response.js';
 import {
@@ -185,7 +185,7 @@ export class FetchBackend extends HttpBackend {
     }
     const body = requestInit.body;
     if (body) {
-      let contentType: string;
+      let contentType = '';
       if (typeof body === 'string' || typeof body === 'number' || typeof body === 'boolean') {
         contentType = 'text/plain; charset="UTF-8"';
         requestInit.body = new Blob([String(body)], {type: contentType});
@@ -201,6 +201,8 @@ export class FetchBackend extends HttpBackend {
       } else if (isBlob(body)) {
         contentType = body.type || 'application/octet-stream';
         headers.set('Content-Length', String(body.size));
+        delete requestInit.duplex;
+      } else if (isFormData(body)) {
         delete requestInit.duplex;
       } else {
         contentType = 'application/json;charset="UTF-8"';

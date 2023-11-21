@@ -4,8 +4,6 @@ import type IncomingForm from 'formidable/Formidable.js';
 import fs from 'fs/promises';
 import { HttpIncomingMessage } from '../impl/http-incoming-message.host.js';
 
-const noOp = () => void 0;
-
 export type MultipartFile = formidable.File;
 export type MultipartItem = {
   field: string;
@@ -19,7 +17,7 @@ export class MultipartIterator extends EventEmitter {
   protected _items: MultipartItem[] = [];
   protected _stack: MultipartItem[] = [];
 
-  constructor(incoming: HttpIncomingMessage, options?: formidable.Options) {
+  protected constructor(options?: formidable.Options) {
     super();
     this.setMaxListeners(1000);
     const form = this._form = formidable({
@@ -45,7 +43,6 @@ export class MultipartIterator extends EventEmitter {
       this._stack.push(item);
       this.emit('item', item);
     });
-    form.parse(incoming as any).catch(noOp);
   }
 
   get items(): MultipartItem[] {
@@ -78,15 +75,18 @@ export class MultipartIterator extends EventEmitter {
 
   cancel() {
     this._cancelled = true;
-    this.resume();
+    if ((this._form as any).req)
+      this.resume();
   }
 
   resume() {
-    (this._form as any).resume();
+    if ((this._form as any).req)
+      (this._form as any).resume();
   }
 
   pause() {
-    (this._form as any).pause();
+    if ((this._form as any).req)
+      (this._form as any).pause();
   }
 
   async deleteFiles() {
@@ -108,5 +108,11 @@ export class MultipartIterator extends EventEmitter {
           )
         });
     return Promise.allSettled(promises);
+  }
+
+  static async create(incoming: HttpIncomingMessage, options?: formidable.Options): Promise<MultipartIterator> {
+    const out = new MultipartIterator(options);
+    await out._form.parse(incoming as any);
+    return out;
   }
 }

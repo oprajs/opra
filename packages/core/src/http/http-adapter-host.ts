@@ -174,7 +174,7 @@ export abstract class HttpAdapterHost extends PlatformAdapterHost {
     }
 
     if (resource instanceof Storage)
-      request = await this._parseRequestStorage(executionContext, resource, searchParams);
+      request = await this._parseRequestStorage(executionContext, resource, urlPath.slice(1), searchParams);
     else if (urlPath.length === 1) { // Collection and Singleton resources should be last element in path
       if (resource instanceof Collection)
         request = await this._parseRequestCollection(executionContext, resource, urlPath, searchParams);
@@ -468,6 +468,7 @@ export abstract class HttpAdapterHost extends PlatformAdapterHost {
   protected async _parseRequestStorage(
       executionContext: ExecutionContext,
       resource: Storage,
+      urlPath: OpraURLPath,
       searchParams: URLSearchParams
   ): Promise<RequestHost> {
     const {incoming} = executionContext.switchToHttp();
@@ -482,7 +483,7 @@ export abstract class HttpAdapterHost extends PlatformAdapterHost {
           handler,
           http: incoming,
           contentId,
-          path: incoming.parsedUrl.path.slice(1).toString().substring(1),
+          path: urlPath.toString().substring(1),
           params
         });
       }
@@ -495,7 +496,7 @@ export abstract class HttpAdapterHost extends PlatformAdapterHost {
           handler,
           http: incoming,
           contentId,
-          path: incoming.parsedUrl.path.slice(1).toString().substring(1),
+          path: urlPath.toString().substring(1),
           params
         });
       }
@@ -504,7 +505,7 @@ export abstract class HttpAdapterHost extends PlatformAdapterHost {
         const params = this.parseParameters(endpoint.parameters, searchParams);
         await fs.mkdir(this._tempDir, {recursive: true});
 
-        const multipartIterator = new MultipartIterator(incoming, {
+        const multipartIterator = await MultipartIterator.create(incoming, {
           ...endpoint.options,
           filename: () => this.serviceName + '_p' + process.pid +
               't' + String(Date.now()).substring(8) + 'r' + uid(12)
@@ -524,7 +525,7 @@ export abstract class HttpAdapterHost extends PlatformAdapterHost {
           http: incoming,
           contentId,
           parts: multipartIterator,
-          path: incoming.parsedUrl.path.slice(1).toString().substring(1),
+          path: urlPath.toString().substring(1),
           params
         });
       }

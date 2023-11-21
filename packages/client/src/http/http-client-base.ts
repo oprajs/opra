@@ -5,6 +5,7 @@ import { HttpBackend } from './http-backend.js';
 import { HttpCollectionNode } from './http-collection-node.js';
 import { HttpRequestObservable } from './http-request-observable.js';
 import { HttpSingletonNode } from './http-singleton-node.js';
+import { HttpStorageNode } from './http-storage-node.js';
 
 /**
  *
@@ -15,6 +16,7 @@ export abstract class HttpClientBase<TRequestOptions = {}, TResponseExt = {}> ex
   [kBackend]: HttpBackend;
   protected _collectionCache = new ResponsiveMap<HttpCollectionNode<any>>();
   protected _singletonCache = new ResponsiveMap<HttpCollectionNode<any>>();
+  protected _storageCache = new ResponsiveMap<HttpStorageNode<any>>();
   protected _metadataPromise?: Promise<any>;
 
   protected constructor(backend: HttpBackend) {
@@ -67,6 +69,15 @@ export abstract class HttpClientBase<TRequestOptions = {}, TResponseExt = {}> ex
     if (!node) {
       node = new HttpSingletonNode(this[kBackend], path);
       this._singletonCache.set(path, node);
+    }
+    return node;
+  }
+
+  storage(path: string): HttpStorageNode<any, TRequestOptions, TResponseExt> {
+    let node: any = this._storageCache.get(path);
+    if (!node) {
+      node = new HttpStorageNode(this[kBackend], path);
+      this._storageCache.set(path, node);
     }
     return node;
   }
