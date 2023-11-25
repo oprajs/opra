@@ -7,9 +7,9 @@ import type { ApiDocument } from '../api-document.js';
 import { DATATYPE_METADATA } from '../constants.js';
 import {
   AnyType, ApproxDatetimeType, ApproxDateType, Base64Type,
-  BigintType, BooleanType, DatetimeType, DateType,
+  BigintType, BooleanType, DatetimeType, DateType, EmailType,
   IntegerType, NullType, NumberType, ObjectIdType,
-  ObjectType, StringType, TimeType, UuidType
+  ObjectType, StringType, TimeType, UrlType, UuidType
 } from '../data-type/builtin/index.js';
 import { ComplexType } from '../data-type/complex-type.js';
 import { DataType } from '../data-type/data-type.js';
@@ -130,9 +130,9 @@ export class TypeDocumentFactory {
         }
       },
       types: [AnyType, Base64Type, BigintType, BooleanType,
-        DateType, IntegerType, NullType, NumberType, ObjectIdType,
+        DateType, EmailType, IntegerType, NullType, NumberType, ObjectIdType,
         ObjectType, ApproxDateType, ApproxDatetimeType,
-        StringType, DatetimeType, TimeType, UuidType
+        StringType, DatetimeType, TimeType, UrlType, UuidType
       ]
     }
     const factory = new TypeDocumentFactory();

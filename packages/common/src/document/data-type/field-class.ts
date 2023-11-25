@@ -20,6 +20,7 @@ export class FieldClass {
   readonly?: boolean;
   writeonly?: boolean;
   exclusive?: boolean;
+  translatable?: boolean;
   deprecated?: boolean | string;
   examples?: any[] | Record<string, any>;
   format?: string;
@@ -38,6 +39,7 @@ export class FieldClass {
     this.readonly = init.readonly;
     this.writeonly = init.writeonly;
     this.exclusive = init.exclusive;
+    this.translatable = init.translatable;
     this.deprecated = init.deprecated;
     this.examples = init.examples;
     this.format = init.format;
@@ -58,6 +60,7 @@ export class FieldClass {
       readonly: this.readonly,
       writeonly: this.writeonly,
       exclusive: this.exclusive,
+      translatable: this.translatable,
       deprecated: this.deprecated,
       examples: this.examples,
       format: this.format,
