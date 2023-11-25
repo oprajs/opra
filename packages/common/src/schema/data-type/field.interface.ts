@@ -50,6 +50,11 @@ export type Field = {
   exclusive?: boolean;
 
   /**
+   * If true, this Field is a candidate for translations
+   */
+  translatable?: boolean;
+
+  /**
    * Defines example values for the field
    */
   examples?: any[] | Record<string, any>;
