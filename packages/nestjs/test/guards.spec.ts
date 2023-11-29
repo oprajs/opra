@@ -37,7 +37,8 @@ describe('OpraModule - Guards', function () {
         {
           code: 'UnauthorizedException',
           message: 'Unauthorized',
-          severity: 'error'
+          severity: 'error',
+          stack: expect.anything()
         }
       ]
     })
