@@ -3,8 +3,6 @@ import { i18n } from '../i18n/index.js';
 import { ErrorIssue } from './error-issue.js';
 import { IssueSeverity } from './issue-severity.enum.js';
 
-const inDevelopment = (process.env.NODE_ENV || '').startsWith('dev');
-
 /**
  * Defines the base Opra exception, which is handled by the default Exceptions Handler.
  */
@@ -51,13 +49,15 @@ export class OpraException extends Error {
   }
 
   toJSON(): ErrorIssue {
+    const env = process.env.NODE_ENV;
     return omitUndefined<ErrorIssue>({
       message: this.message,
       severity: this.severity,
       system: this.system,
       code: this.code,
       details: this.details,
-      stack: inDevelopment ? this.stack?.split('\n') : undefined
+      stack: env === 'dev' || env === 'development' || env === 'test'
+          ? this.stack?.split('\n') : undefined
     }, true);
   }
 

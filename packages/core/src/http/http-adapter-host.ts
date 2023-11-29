@@ -111,14 +111,15 @@ export abstract class HttpAdapterHost extends PlatformAdapterHost {
     } catch (e: any) {
       if (e instanceof OpraException)
         throw e;
-      if (e instanceof vg.ValidationError) {
-        throw new BadRequestError({
-          message: e.issues.length === 1 ? e.message : translate('error:REQUEST_VALIDATION,'),
-          code: 'REQUEST_VALIDATION',
-          details: e.issues
-        }, e);
-      }
-      throw new BadRequestError(e);
+      const errors = e.issues.map(issue => new BadRequestError({
+        message: issue.message,
+        code: 'REQUEST_VALIDATION',
+        details: {
+          ...issue,
+          message: undefined
+        }
+      }))
+      return this.sendErrorResponse(executionContext, errors);
     }
     try {
       const {outgoing} = executionContext.switchToHttp();

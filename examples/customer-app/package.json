@@ -10,6 +10,6 @@
     "@sqb/postgres": "^4.10.5"
   },
   "devDependencies": {
-    "@types/cors": "^2.8.16"
+    "@types/cors": "^2.8.17"
   }
 }

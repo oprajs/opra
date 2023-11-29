@@ -1,5 +1,6 @@
 import '../jest-extend/index.js';
 import colors from 'ansi-colors';
+import { ErrorIssue } from '@opra/common';
 import { ApiExpectBase } from './api-expect-base.js';
 import { ApiExpectCollection } from './api-expect-collection.js';
 import { ApiExpectError } from './api-expect-error.js';
@@ -24,10 +25,16 @@ export class ApiExpect extends ApiExpectBase {
       }
     } catch (e: any) {
       e.message = 'Request didn\'t succeeded as expected. ' + msg + '\n\n' + e.message;
-      const issues = this.response.body?.errors;
-      const issue = issues?.[0]?.message;
-      if (issue) {
-        e.message += '\n\n' + colors.yellow('Server message: ') + issue;
+      const issues: ErrorIssue[] = this.response.body?.errors;
+      if (issues) {
+        e.message += '\n\n';
+        issues.forEach((issue, i) => {
+          const stack = Array.isArray(issue.stack)
+              ? issue.stack.join('\n') : issue.stack;
+          e.message += colors.yellow(issues.length > 1 ? `Error [${i}]: ` : 'Error: ') +
+              issue.message + '\n' +
+              (stack ? '    ' + stack.substring(stack.indexOf('at ')) + '\n' : '');
+        });
       }
       Error.captureStackTrace(e, this.toSuccess);
       throw e;
@@ -52,9 +59,15 @@ export class ApiExpect extends ApiExpectBase {
     } catch (e: any) {
       e.message = 'Request didn\'t failed as expected. ' + msg + '\n\n' + e.message;
       const issues = this.response.body?.errors;
-      const issue = issues?.[0]?.message;
-      if (issue) {
-        e.message += '\n\n' + colors.yellow('Server message: ') + issue;
+      if (issues) {
+        e.message += '\n\n';
+        issues.forEach((issue, i) => {
+          const stack = Array.isArray(issue.stack)
+              ? issue.stack.join('\n') : issue.stack;
+          e.message += colors.yellow(issues.length > 1 ? `Error [${i}]: ` : 'Error: ') +
+              issue.message + '\n' +
+              (stack ? '    ' + stack.substring(stack.indexOf('at ')) + '\n' : '');
+        });
       }
       Error.captureStackTrace(e, this.toSuccess);
       throw e;
