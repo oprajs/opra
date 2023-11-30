@@ -17,7 +17,9 @@ export * from './response.host.js';
 export * from './types.js';
 
 export * from './http/adapters/express-adapter.js';
+export * from './http/adapters/express-adapter.host.js';
 export * from './http/adapters/node-http-adapter.js';
+export * from './http/adapters/node-http-adapter.host.js';
 export * from './http/impl/http-incoming-message.host.js';
 export * from './http/impl/http-outgoing-message.host.js';
 export * from './http/http-server-request.js';
