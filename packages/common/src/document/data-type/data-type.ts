@@ -1,4 +1,4 @@
-import { PartialSome, RequiredSome, StrictOmit, Type } from 'ts-gems';
+import { RequiredSome, StrictOmit, Type } from 'ts-gems';
 import * as vg from 'valgen';
 import { omitUndefined } from '../../helpers/index.js';
 import { OpraSchema } from '../../schema/index.js';
