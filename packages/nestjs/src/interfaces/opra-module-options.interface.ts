@@ -1,10 +1,12 @@
 import { ModuleMetadata, Type } from '@nestjs/common';
-import { OpraSchema } from '@opra/common';
-import { NodeHttpAdapter } from '@opra/core';
+import { ApiDocumentFactory } from '@opra/common';
+import { ExpressAdapter, NodeHttpAdapter } from '@opra/core';
 
 export type OpraModuleOptions = NodeHttpAdapter.Options & {
   id?: any;
-  info?: OpraSchema.DocumentInfo,
+  adapterNode?: ExpressAdapter.Options;
+  adapterExpress?: ExpressAdapter.Options;
+  document?: Partial<ApiDocumentFactory.InitArguments>
 
   /**
    * @default true

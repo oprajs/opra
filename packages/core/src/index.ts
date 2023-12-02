@@ -11,6 +11,7 @@ export * from './execution-context.host.js';
 export * from './platform-adapter.js';
 export * from './platform-adapter.host.js';
 export * from './request.js';
+export * from './request.host.js';
 export * from './request-context.js';
 export * from './response.js';
 export * from './response.host.js';

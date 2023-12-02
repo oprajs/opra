@@ -16,7 +16,7 @@ export class CustomersService extends MongoCollectionService<Customer> {
     return super.create(doc, options);
   }
 
-  async get(id: any, options?: MongoCollectionService.GetOptions) {
+  async get(id: any, options?: MongoCollectionService.FindOneOptions) {
     return super.get(id, options);
   }
 
@@ -32,8 +32,8 @@ export class CustomersService extends MongoCollectionService<Customer> {
     return super.findMany(options);
   }
 
-  async findOne(id: any, options?: MongoCollectionService.GetOptions) {
-    return super.findOne(id, options);
+  async findOne(options?: MongoCollectionService.FindOneOptions) {
+    return super.findOne(options);
   }
 
   async update(id: any, doc: PartialInput<Customer>,

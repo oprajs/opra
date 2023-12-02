@@ -12,7 +12,6 @@ import { ApiDocument, ApiDocumentFactory, OpraSchema, RESOURCE_METADATA } from '
 import * as opraCore from '@opra/core';
 import { PARAM_ARGS_METADATA } from '../constants.js';
 import { HandlerParamType } from '../enums/handler-paramtype.enum.js';
-import { OpraModuleOptions } from '../interfaces/opra-module-options.interface.js';
 import { NestExplorer } from '../services/nest-explorer.js';
 import { getNumberOfArguments } from '../utils/function.utils.js';
 import { OpraParamsFactory } from './params.factory.js';
@@ -30,19 +29,24 @@ export class OpraApiFactory {
   @Inject()
   private readonly explorerService: NestExplorer;
 
-  async generateService(rootModule: Module, moduleOptions: OpraModuleOptions, contextType: ContextType): Promise<ApiDocument> {
-    const info: OpraSchema.DocumentInfo = {title: '', version: '', ...moduleOptions.info};
+  async generateService(
+      rootModule: Module,
+      contextType: ContextType,
+      apiSchema?: Partial<ApiDocumentFactory.InitArguments>,
+  ): Promise<ApiDocument> {
+    const info = {...apiSchema?.info} as OpraSchema.DocumentInfo;
     info.title = info.title || 'Untitled service';
     info.version = info.version || '1';
     const root: ApiDocumentFactory.RootInit = {
       resources: []
     };
-    const apiSchema: ApiDocumentFactory.InitArguments = {
+    const apiInit: ApiDocumentFactory.InitArguments = {
       version: OpraSchema.SpecVersion,
+      ...apiSchema,
       info,
-      types: [],
+      types: apiSchema?.types || [],
       root
-    };
+    }
 
     /*
      * Walk through modules and add Resource instances to the api schema
@@ -108,7 +112,7 @@ export class OpraApiFactory {
     });
 
     // Create api document
-    return ApiDocumentFactory.createDocument(apiSchema);
+    return ApiDocumentFactory.createDocument(apiInit);
   }
 
   private _createHandler(callback: Function) {

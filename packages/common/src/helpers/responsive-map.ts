@@ -174,6 +174,13 @@ export class ResponsiveMap<V> extends Map<string, V> {
     return new Proxy<Record<string, V>>({}, finalHandler);
   }
 
+  toObject(): Record<string, V> {
+    return Object.keys(this.keys()).reduce((trg, k) => {
+      trg[k] = this.get(k) as V;
+      return trg;
+    }, {} as Record<string, V>);
+  }
+
   [Symbol.iterator](): IterableIterator<[string, V]> {
     return this.entries();
   }

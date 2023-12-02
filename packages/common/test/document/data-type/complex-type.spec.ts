@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
 import {
   ApiDocument,
-  ApiDocumentFactory, ComplexType,
+  ApiDocumentFactory,
   OpraSchema,
 } from '@opra/common';
 import { Customer } from '../../_support/test-api/index.js';
@@ -147,21 +147,50 @@ describe('ComplexType', function () {
     ]);
   })
 
-  it('Should overwrite fields in _generateCodecSchema()', async () => {
-    const odt = new ComplexType(api, {
-      fields: {
-        rate: {
-          name: 'rate',
-          type: api.getDataType('string'),
+  it('Should overwrite fields in generateCodecSchema()', async () => {
+    const dt = api.getComplexType('customer');
+    const x: any = dt.generateCodecSchema('decode', {
+      overwriteFields: {
+        'rate': {
+          type: 'string',
+          required: true,
+        },
+        'address.city': {
+          required: true,
+        },
+        'address': {
+          required: true,
+        },
+      }
+    });
+    expect(x.rate).toBeDefined();
+    expect(x.rate(3.1, {coerce: true})).toStrictEqual('3.1');
+    expect(() => x.rate()).toThrow('required');
+    expect(x.address({
+      city: 1
+    }, {coerce: true})).toEqual({city: '1'});
+  })
+
+  it('Should add fields in generateCodecSchema()', async () => {
+    const dt = api.getComplexType('customer');
+    const x: any = dt.generateCodecSchema('decode', {
+      overwriteFields: {
+        'point': {
+          type: 'number',
+          required: true,
+        },
+        'address.geo': {
+          type: 'string',
           required: true,
         }
       }
     });
-    const dt = api.getComplexType('customer');
-    const x: any = (dt as any)._generateCodecSchema('decode', {overwriteFields: odt.fields});
-    expect(x.rate).toBeDefined();
-    expect(x.rate(3.1, {coerce: true})).toStrictEqual('3.1');
-    expect(() => x.rate()).toThrow('required');
+    expect(x.point).toBeDefined();
+    expect(x.point('3.1', {coerce: true})).toStrictEqual(3.1);
+    expect(() => x.point()).toThrow('required');
+    expect(x.address({
+      geo: 1
+    }, {coerce: true})).toEqual({geo: '1'});
   })
 
 });

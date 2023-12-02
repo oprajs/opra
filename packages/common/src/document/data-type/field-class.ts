@@ -24,6 +24,7 @@ export class FieldClass {
   deprecated?: boolean | string;
   examples?: any[] | Record<string, any>;
   format?: string;
+  partialUpdate?: boolean;
 
   constructor(owner: ComplexType, init: ApiField.InitArguments) {
     this.owner = owner;
@@ -43,11 +44,12 @@ export class FieldClass {
     this.deprecated = init.deprecated;
     this.examples = init.examples;
     this.format = init.format;
+    this.partialUpdate = init.partialUpdate;
   }
 
   exportSchema(options?: { webSafe?: boolean }): OpraSchema.Field {
-    const isAnonymous = !this.type.name ||
-        (this.type.kind === 'ComplexType' && this.type.isAnonymous);
+    const isAnonymous = !this.type?.name ||
+        (this.type?.kind === 'ComplexType' && this.type.isAnonymous);
     return omitUndefined({
       type: this.type
           ? (isAnonymous ? this.type.exportSchema(options) : this.type.name)
@@ -64,6 +66,7 @@ export class FieldClass {
       deprecated: this.deprecated,
       examples: this.examples,
       format: this.format,
+      partialUpdate: this.partialUpdate,
     }) as OpraSchema.Field;
   }
 
@@ -75,6 +78,7 @@ export class FieldClass {
     let fn = this.type.generateCodec(codec, {...options, designType: this.designType});
     if (this.isArray)
       fn = vg.isArray(fn);
-    return !options?.partial && this.required ? vg.required(fn) : vg.optional(fn);
+    const partial = options?.partial && (this.partialUpdate || !this.isArray);
+    return !partial && this.required ? vg.required(fn) : vg.optional(fn);
   }
 }

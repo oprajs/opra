@@ -35,7 +35,7 @@ export class OpraApiLoader {
     let prefixPath = new OpraURLPath((moduleOptions.useGlobalPrefix !== false ? globalPrefix : ''));
     if (moduleOptions.basePath)
       prefixPath = prefixPath.join(moduleOptions.basePath);
-    const name = moduleOptions.info?.title || 'untitled service';
+    const name = moduleOptions.document?.info?.title || 'untitled service';
 
     const options: OpraModuleOptions = {
       ...moduleOptions,
@@ -43,7 +43,7 @@ export class OpraApiLoader {
     }
 
     try {
-      const apiDocument = await this.opraFactory.generateService(rootModule, options, 'http');
+      const apiDocument = await this.opraFactory.generateService(rootModule, 'http', options.document);
       if (!Object.keys(apiDocument.root).length) {
         this.logger.warn(`No Sources found (${name})`);
         return;

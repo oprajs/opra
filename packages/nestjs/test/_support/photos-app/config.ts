@@ -4,7 +4,9 @@ import { OpraModuleOptions } from '../../../src/index.js';
 
 const config: OpraModuleOptions = {
   basePath: '',
-  info: {title: 'service1', version: '1'},
+  document: {
+    info: {title: 'service1', version: '1'}
+  },
   i18n: {
     resourceDirs: [path.join(filedirname()[1], 'locale')]
   }

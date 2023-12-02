@@ -65,22 +65,22 @@ export class MongoCollectionService<T extends mongodb.Document> extends MongoSer
 
   protected async get(
       id: any,
-      options?: MongoCollectionService.GetOptions
+      options?: MongoCollectionService.FindOneOptions
   ): Promise<PartialOutput<T>> {
-    const out = await this.findOne(id, options);
+    const filter = MongoAdapter.prepareKeyValues(id, this.keyFields);
+    const optionsFilter = MongoAdapter.prepareFilter(options?.filter);
+    if (optionsFilter)
+      filter.$and = [...(Array.isArray(optionsFilter) ? optionsFilter : [optionsFilter])];
+    const out = await this.findOne({...options, filter});
     if (!out)
       throw new ResourceNotFoundError(this.resourceName || this.getCollectionName(), id);
     return out;
   }
 
   protected async findOne(
-      id: any,
-      options?: MongoCollectionService.GetOptions
+      options?: MongoCollectionService.FindOneOptions
   ): Promise<PartialOutput<T> | undefined> {
-    const filter = MongoAdapter.prepareKeyValues(id, this.keyFields);
-    const optionsFilter = MongoAdapter.prepareFilter(options?.filter);
-    if (optionsFilter)
-      filter.$and = [...(Array.isArray(optionsFilter) ? optionsFilter : [optionsFilter])];
+    const filter = MongoAdapter.prepareFilter(options?.filter) || {};
     const mongoOptions: mongodb.FindOptions = {
       ...omit(options, ['sort', 'skip', 'limit', 'filter']),
       projection: MongoAdapter.prepareProjection(this.getDataType(), options),
@@ -197,7 +197,7 @@ export namespace MongoCollectionService {
     filter?: mongodb.Filter<T> | OpraCommon.OpraFilter.Ast | string;
   }
 
-  export interface GetOptions<T = any> extends StrictOmit<mongodb.FindOptions, 'sort' | 'limit' | 'skip' | 'projection'> {
+  export interface FindOneOptions<T = any> extends StrictOmit<mongodb.FindOptions, 'sort' | 'limit' | 'skip' | 'projection'> {
     filter?: mongodb.Filter<T> | OpraCommon.OpraFilter.Ast | string;
     pick?: string[],
     omit?: string[],

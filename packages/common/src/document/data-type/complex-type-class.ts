@@ -1,4 +1,4 @@
-import { Type, Writable } from 'ts-gems';
+import { RequiredSome, Type, Writable } from 'ts-gems';
 import * as vg from 'valgen';
 import { omitUndefined, ResponsiveMap } from '../../helpers/index.js';
 import { translate } from '../../i18n/index.js';
@@ -177,10 +177,17 @@ export class ComplexTypeClass extends DataType {
     return false;
   }
 
-  generateCodec(codec: 'decode' | 'encode', options?: DataType.GenerateCodecOptions): vg.Validator {
-    const schema = this._generateCodecSchema(codec, options);
+  generateCodec(
+      codec: 'decode' | 'encode',
+      options?: DataType.GenerateCodecOptions
+  ): vg.Validator {
+    const schema = this.generateCodecSchema(codec, options);
     const additionalFields = this.additionalFields instanceof DataType
-        ? this.additionalFields.generateCodec(codec, options)
+        ? this.additionalFields.generateCodec(codec, {
+          operation: options?.operation,
+          caseSensitive: options?.caseSensitive,
+          partial: options?.partial
+        })
         : this.additionalFields
     return vg.isObject(schema, {
       ctor: this.ctor,
@@ -190,48 +197,104 @@ export class ComplexTypeClass extends DataType {
     })
   }
 
-  protected _generateCodecSchema(codec: 'decode' | 'encode', options?: DataType.GenerateCodecOptions): vg.ObjectSchema {
+  generateCodecSchema(
+      codec: 'decode' | 'encode',
+      options?: DataType.GenerateCodecOptions
+  ): vg.ObjectSchema {
+    const opts = {
+      ...options,
+      pick: (options?.pick || []).map(x => x.toLowerCase()),
+      omit: (options?.omit || []).map(x => x.toLowerCase()),
+      overwriteFields: options?.overwriteFields ? this._buildOverwriteFieldsTree(options.overwriteFields) : undefined,
+    }
+    return this._generateCodecSchema(codec, opts);
+  }
+
+  protected _generateCodecSchema(
+      codec: 'decode' | 'encode',
+      options?: RequiredSome<DataType.GenerateCodecOptions, 'pick' | 'omit'>
+  ): vg.ObjectSchema {
     const schema: vg.ObjectSchema = {};
-    const pickOption = (options?.pick || []).map(x => x.toLowerCase());
-    const omitOption = (options?.omit || []).map(x => x.toLowerCase());
-    const dedupedFieldNames: string[] =
-        (options?.overwriteFields
-                ? Array.from(new Set([...this.fields.keys(), ...options?.overwriteFields.keys()]))
-                : Array.from(this.fields.keys())
-        ).map(x => x.toLowerCase());
-    for (const nameLower of dedupedFieldNames) {
-      const overwriteField = options?.overwriteFields?.get(nameLower);
-      const field = this.fields.get(nameLower);
-      /* istanbul ignore next */
-      if (!(field || overwriteField)) continue;
-      if (!overwriteField &&
+    const overwriteFields = options?.overwriteFields;
+    const optionsPick = options?.pick || [];
+    const optionsOmit = options?.omit || [];
+    const fieldNames = [...this.fields.keys()];
+    // Add field name from overwriteFields which doesn't exist in this.fields
+    if (overwriteFields) {
+      for (const k of Object.keys(overwriteFields)) {
+        if (!this.fields.has(k))
+          fieldNames.push(k);
+      }
+    }
+
+    // Process fields
+    for (const fieldName of fieldNames) {
+      const lowerName = fieldName.toLowerCase();
+      const overwriteFieldInit = overwriteFields?.[fieldName];
+
+      // If field omitted or not in pick list we ignore it unless overwriteField defined
+      if (!overwriteFieldInit &&
           (
-              omitOption.find(x => x === nameLower) ||
-              (pickOption.length && !pickOption.find(x => x === nameLower || x.startsWith(nameLower + '.')))
+              optionsOmit.find(x => x === lowerName) ||
+              (optionsPick.length && !optionsPick.find(x => x === lowerName || x.startsWith(lowerName + '.')))
           )
       ) continue;
 
-      let f: ApiField;
-      if (overwriteField) {
-        f = {...overwriteField} as ApiField;
-        if (!field)
-          (f as any).type = this.document.getDataType('any');
-        Object.setPrototypeOf(f, field || ApiField.prototype);
-      } else f = field as ApiField;
-
-      schema[f.name] = f.generateCodec(codec, {
+      const subOptions = {
         ...options,
-        pick: overwriteField ? [] :
-            pickOption
-                .filter(x => x.startsWith(nameLower + '.'))
-                .map(x => x.substring(x.indexOf('.') + 1)),
-        omit: overwriteField ? [] :
-            omitOption
-                .filter(x => x.startsWith(nameLower + '.'))
-                .map(x => x.substring(x.indexOf('.') + 1)),
-      });
+        pick: optionsPick
+            .filter(x => x.startsWith(lowerName + '.'))
+            .map(x => x.substring(x.indexOf('.') + 1)),
+        omit: optionsOmit
+            .filter(x => x.startsWith(lowerName + '.'))
+            .map(x => x.substring(x.indexOf('.') + 1)),
+        overwriteFields: overwriteFieldInit?.overrideFields
+      }
+
+      let f: ApiField;
+      if (overwriteFieldInit) {
+        const field = this.fields.get(fieldName);
+        const init: any = {...field, ...overwriteFieldInit, name: fieldName};
+        if (!(init.type instanceof DataType))
+          init.type = this.document.getDataType(init.type || 'any');
+        f = new ApiField(this, init);
+      } else f = this.getField(fieldName) as ApiField;
+
+      schema[f.name] = f.generateCodec(codec, subOptions);
     }
+
     return schema;
   }
 
+  protected _buildOverwriteFieldsTree(obj: Record<string, DataType.OverrideFieldsConfig>) {
+    const tree: Record<string, DataType.OverrideFieldsConfig> = {};
+    for (let k of Object.keys(obj)) {
+      const v = obj[k];
+      if (!k.includes('.')) {
+        // Fix field name
+        const field = this.fields.get(k);
+        if (field) k = field.name;
+
+        tree[k] = {...tree[k], ...v};
+        continue;
+      }
+      const keyPath = k.split('.');
+      let subTree = tree;
+      while (keyPath.length) {
+        let j = keyPath.shift() as string;
+        // Fix field name
+        const field = this.fields.get(j);
+        if (field) j = field.name;
+
+        const treeItem = subTree[j] = subTree[j] || {};
+        if (keyPath.length) {
+          subTree = treeItem.overrideFields = treeItem.overrideFields || {};
+        } else
+          Object.assign(treeItem, v);
+      }
+    }
+    return tree;
+  }
+
 }
+

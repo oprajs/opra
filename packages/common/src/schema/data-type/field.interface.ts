@@ -14,7 +14,7 @@ export type Field = {
   description?: string;
 
   /**
-   * Defines if the field value is an array
+   * Indicates if the field value is an array
    */
   isArray?: boolean;
 
@@ -24,22 +24,22 @@ export type Field = {
   default?: any;
 
   /**
-   * Defines the fixed value of the field. The value of the field can not be any other value.
+   * Indicates the fixed value of the field. The value of the field can not be any other value.
    */
   fixed?: string | number | boolean;
 
   /**
-   * Defines if field value required in create operation
+   * Indicates if field value required in create operation
    */
   required?: boolean;
 
   /**
-   * Defines if the field is readonly
+   * Indicates if the field is readonly
    */
   readonly?: boolean;
 
   /**
-   * Defines if the field is writeonly
+   * Indicates if the field is writeonly
    */
   writeonly?: boolean;
 
@@ -60,10 +60,15 @@ export type Field = {
   examples?: any[] | Record<string, any>;
 
   /**
-   * Defines if the field is deprecated and can be removed in the next
+   * Indicates if the field is deprecated and can be removed in the next
    */
   deprecated?: boolean | string;
 
   format?: string;
+
+  /**
+   * Indicates if partial update enabled for this field
+   */
+  partialUpdate?: boolean;
 
 }

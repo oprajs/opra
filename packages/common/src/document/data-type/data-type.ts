@@ -1,6 +1,6 @@
-import { RequiredSome, Type } from 'ts-gems';
+import { PartialSome, RequiredSome, StrictOmit, Type } from 'ts-gems';
 import * as vg from 'valgen';
-import { omitUndefined, ResponsiveMap } from '../../helpers/index.js';
+import { omitUndefined } from '../../helpers/index.js';
 import { OpraSchema } from '../../schema/index.js';
 import type { ApiDocument } from '../api-document.js';
 import {
@@ -82,13 +82,21 @@ export namespace DataType {
   export interface OwnProperties {
   }
 
+  export type GenerateCodecField = StrictOmit<ApiField.InitArguments, 'type' | 'name'> & {
+    type?: DataType | string;
+  }
+
+  export type OverrideFieldsConfig = GenerateCodecField & {
+    overrideFields?: Record<string, OverrideFieldsConfig>
+  };
+
   export interface GenerateCodecOptions {
     caseSensitive?: boolean;
     pick?: string[];
     omit?: string[];
     partial?: boolean;
     operation?: 'read' | 'write';
-    overwriteFields?: ResponsiveMap<ApiField.InitArguments>;
+    overwriteFields?: Record<string, OverrideFieldsConfig>;
     designType?: Type;
   }
 
