@@ -209,7 +209,7 @@ export class MongoCollectionService<T extends mongodb.Document> extends MongoSer
    * @param id
    * @param options
    */
-  async get(id: AnyId, options?: MongoCollectionService.FindOneOptions): Promise<PartialOutput<any>> {
+  async get(id: AnyId, options?: MongoCollectionService.FindOneOptions): Promise<PartialOutput<T>> {
     const out = await this.findById(id, options);
     if (!out)
       throw new ResourceNotFoundError(this.resourceName || this.getCollectionName(), id);
