@@ -5,7 +5,7 @@
   },
   "dependencies": {
     "@faker-js/faker": "^8.3.1",
-    "@opra/sqb": "^0.31.13",
+    "@opra/sqb": "^0.32.0",
     "@sqb/connect": "^4.10.6",
     "@sqb/postgres": "^4.10.6"
   },
