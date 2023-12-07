@@ -9,6 +9,7 @@ export class CustomersController {
 
   @Collection.FindMany()
       .SortFields('_id', 'givenName', 'familyName', 'gender', 'address.city')
+      .Filter('givenName', ['=', '!=', 'like', '!like'])
   findMany() {
     //
   }

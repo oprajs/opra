@@ -4,6 +4,7 @@ import { OpraFilter } from '../../filter/index.js';
 import { translate } from '../../i18n/index.js';
 import { OpraSchema } from '../../schema/index.js';
 import type { ApiDocument } from '../api-document.js';
+import { SORT_FIELD_PATTERN } from '../constants.js';
 import { ComplexType } from '../data-type/complex-type.js';
 import { SimpleType } from '../data-type/simple-type.js';
 import type { Collection } from './collection.js';
@@ -189,18 +190,19 @@ export class CollectionClass extends CrudResource {
     }
   }
 
-  normalizeFieldPath(path: string | string[]): string[] | undefined {
-    return this.type.normalizeFieldPath(path as any);
+  normalizeFieldNames(fields: string | string[], allowSortSigns?: boolean): string[] | undefined {
+    return this.type.normalizeFieldNames(fields as any, allowSortSigns);
   }
 
-  normalizeSortFields(this: Collection, fields: string | string[]): string[] | undefined {
-    const normalized = this.type.normalizeFieldPath(fields);
+  normalizeSortFields(fields: string | string[]): string[] | undefined {
+    const normalized = this.type.normalizeFieldNames(fields, true);
     if (!normalized)
       return;
     const findManyOp = this.getOperation('findMany');
     const sortFields = findManyOp && findManyOp.options.sortFields;
     (Array.isArray(normalized) ? normalized : [normalized]).forEach(field => {
-      if (!sortFields?.find(x => x === field))
+      const m = SORT_FIELD_PATTERN.exec(field);
+      if (m && !sortFields?.find(x => x === m[2]))
         throw new BadRequestError({
           message: translate('error:UNACCEPTED_SORT_FIELD', {field}),
         })
@@ -254,7 +256,7 @@ export class CollectionClass extends CrudResource {
       return ast;
     }
     if (ast instanceof OpraFilter.QualifiedIdentifier) {
-      const normalizedFieldPath = this.type.normalizeFieldPath(ast.value)?.join('.') as string;
+      const normalizedFieldPath = this.type.normalizeFieldNames(ast.value)?.join('.') as string;
       ast.field = this.type.getField(normalizedFieldPath);
       ast.dataType = ast.field?.type || this.document.getDataType('any');
       ast.value = normalizedFieldPath;

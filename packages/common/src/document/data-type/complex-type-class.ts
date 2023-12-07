@@ -4,6 +4,7 @@ import { omitUndefined, ResponsiveMap } from '../../helpers/index.js';
 import { translate } from '../../i18n/index.js';
 import { OpraSchema } from '../../schema/index.js';
 import type { ApiDocument } from '../api-document.js';
+import { SORT_FIELD_PATTERN } from '../constants.js';
 import type { ComplexType } from './complex-type.js';
 import { DataType } from './data-type.js';
 import { ApiField } from './field.js';
@@ -129,14 +130,20 @@ export class ComplexTypeClass extends DataType {
     };
   }
 
-  normalizeFieldPath(fieldPaths: string | string[]): string[] | undefined {
-    const array = (Array.isArray(fieldPaths) ? fieldPaths : [fieldPaths])
+  normalizeFieldNames(fieldNames: string | string[], allowSortSigns?: boolean): string[] | undefined {
+    const array = (Array.isArray(fieldNames) ? fieldNames : [fieldNames])
         .map(s => {
+          let sign = '';
+          if (allowSortSigns) {
+            const m = SORT_FIELD_PATTERN.exec(s);
+            sign = (m && m[1]) || '';
+            s = (m && m[2]) || s;
+          }
           let curPath = '';
           for (const [, , p] of this.iteratePath(s)) {
             curPath = p;
           }
-          return curPath;
+          return sign + curPath;
         }).flat()
     return array.length ? array : undefined;
   }

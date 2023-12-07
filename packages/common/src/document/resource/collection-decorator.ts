@@ -268,7 +268,8 @@ export namespace CollectionDecorator {
     const decorator = createOperationDecorator<DeleteManyDecorator, DeleteMany.Metadata>('deleteMany', options, list);
     decorator.Filter = (field: Field.QualifiedName, operators?: OpraFilter.ComparisonOperator[] | string, notes?: string) => {
       if (typeof operators === 'string')
-        operators = operators.split(/\s*[,| ]\s*/) as OpraFilter.ComparisonOperator[]
+        operators = operators.split(/\s*[,| ]\s*/)
+            .filter(s => s) as OpraFilter.ComparisonOperator[]
       list.push(
           operationMeta => {
             operationMeta.options.filters = operationMeta.options.filters || [];

@@ -62,10 +62,10 @@ describe('ComplexType', function () {
 
   it('Should normalizeFieldPath() return normalized field name array', async () => {
     const dt = api.getComplexType('customer');
-    let x: any = dt.normalizeFieldPath('countrycode');
+    let x: any = dt.normalizeFieldNames('countrycode');
     expect(x).toBeDefined();
     expect(x).toStrictEqual(['countryCode']);
-    x = dt.normalizeFieldPath(['givenname', 'countrycode']);
+    x = dt.normalizeFieldNames(['givenname', 'countrycode']);
     expect(x).toBeDefined();
     expect(x).toStrictEqual(['givenName', 'countryCode']);
   })

@@ -246,9 +246,9 @@ export abstract class HttpAdapterHost extends PlatformAdapterHost {
             data,
             params: {
               ...params,
-              pick: params.pick && resource.normalizeFieldPath(params.pick),
-              omit: params.omit && resource.normalizeFieldPath(params.omit),
-              include: params.include && resource.normalizeFieldPath(params.include)
+              pick: params.pick && resource.normalizeFieldNames(params.pick),
+              omit: params.omit && resource.normalizeFieldNames(params.omit),
+              include: params.include && resource.normalizeFieldNames(params.include)
             }
           });
         }
@@ -296,9 +296,9 @@ export abstract class HttpAdapterHost extends PlatformAdapterHost {
             key: resource.parseKeyValue(p.key),
             params: {
               ...params,
-              pick: params.pick && resource.normalizeFieldPath(params.pick),
-              omit: params.omit && resource.normalizeFieldPath(params.omit),
-              include: params.include && resource.normalizeFieldPath(params.include)
+              pick: params.pick && resource.normalizeFieldNames(params.pick),
+              omit: params.omit && resource.normalizeFieldNames(params.omit),
+              include: params.include && resource.normalizeFieldNames(params.include)
             }
           });
         }
@@ -312,9 +312,9 @@ export abstract class HttpAdapterHost extends PlatformAdapterHost {
           contentId,
           params: {
             ...params,
-            pick: params.pick && resource.normalizeFieldPath(params.pick),
-            omit: params.omit && resource.normalizeFieldPath(params.omit),
-            include: params.include && resource.normalizeFieldPath(params.include),
+            pick: params.pick && resource.normalizeFieldNames(params.pick),
+            omit: params.omit && resource.normalizeFieldNames(params.omit),
+            include: params.include && resource.normalizeFieldNames(params.include),
             sort: params.sort && resource.normalizeSortFields(params.sort),
             filter: params.filter && resource.normalizeFilter(params.filter)
           }
@@ -340,9 +340,9 @@ export abstract class HttpAdapterHost extends PlatformAdapterHost {
             data,
             params: {
               ...params,
-              pick: params.pick && resource.normalizeFieldPath(params.pick),
-              omit: params.omit && resource.normalizeFieldPath(params.omit),
-              include: params.include && resource.normalizeFieldPath(params.include),
+              pick: params.pick && resource.normalizeFieldNames(params.pick),
+              omit: params.omit && resource.normalizeFieldNames(params.omit),
+              include: params.include && resource.normalizeFieldNames(params.include),
             }
           });
         }
@@ -401,9 +401,9 @@ export abstract class HttpAdapterHost extends PlatformAdapterHost {
           data,
           params: {
             ...params,
-            pick: params.pick && resource.normalizeFieldPath(params.pick),
-            omit: params.omit && resource.normalizeFieldPath(params.omit),
-            include: params.include && resource.normalizeFieldPath(params.include)
+            pick: params.pick && resource.normalizeFieldNames(params.pick),
+            omit: params.omit && resource.normalizeFieldNames(params.omit),
+            include: params.include && resource.normalizeFieldNames(params.include)
           }
         });
       }
@@ -431,9 +431,9 @@ export abstract class HttpAdapterHost extends PlatformAdapterHost {
           contentId,
           params: {
             ...params,
-            pick: params.pick && resource.normalizeFieldPath(params.pick),
-            omit: params.omit && resource.normalizeFieldPath(params.omit),
-            include: params.include && resource.normalizeFieldPath(params.include)
+            pick: params.pick && resource.normalizeFieldNames(params.pick),
+            omit: params.omit && resource.normalizeFieldNames(params.omit),
+            include: params.include && resource.normalizeFieldNames(params.include)
           }
         });
       }
@@ -455,9 +455,9 @@ export abstract class HttpAdapterHost extends PlatformAdapterHost {
           data,
           params: {
             ...params,
-            pick: params.pick && resource.normalizeFieldPath(params.pick),
-            omit: params.omit && resource.normalizeFieldPath(params.omit),
-            include: params.include && resource.normalizeFieldPath(params.include),
+            pick: params.pick && resource.normalizeFieldNames(params.pick),
+            omit: params.omit && resource.normalizeFieldNames(params.omit),
+            include: params.include && resource.normalizeFieldNames(params.include),
           }
         });
       }

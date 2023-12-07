@@ -89,8 +89,8 @@ export class SingletonClass extends CrudResource {
     };
   }
 
-  normalizeFieldPath(path: string | string[]): string[] | undefined {
-    return this.type.normalizeFieldPath(path);
+  normalizeFieldNames(path: string | string[]): string[] | undefined {
+    return this.type.normalizeFieldNames(path);
   }
 
 }
