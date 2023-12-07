@@ -1,6 +1,7 @@
 import fs from 'fs/promises';
 import os from 'os';
 import * as vg from 'valgen';
+import { ErrorIssue } from 'valgen/typings/core/types';
 import typeIs from '@browsery/type-is';
 import {
   BadRequestError,
@@ -541,6 +542,11 @@ export abstract class HttpAdapterHost extends PlatformAdapterHost {
       searchParams?: URLSearchParams
   ): Record<string, any> {
     const out = {};
+    const onFail = (issue: ErrorIssue) => {
+      issue.message = `Parameter parse error. ` + issue.message;
+      issue.location = '@parameters';
+      return issue;
+    }
     // Parse known parameters
     for (const [k, prm] of paramDefs.entries()) {
       const decode = prm.getDecoder();
@@ -550,9 +556,9 @@ export abstract class HttpAdapterHost extends PlatformAdapterHost {
           v = [prm.default];
         if (!prm.isArray) {
           v = v[0];
-          v = decode(v, {coerce: true});
+          v = decode(v, {coerce: true, label: k, onFail});
         } else {
-          v = v.map(x => decode(x, {coerce: true})).flat();
+          v = v.map(x => decode(x, {coerce: true, label: k})).flat();
           if (!v.length)
             v = undefined;
         }
