@@ -12,4 +12,10 @@ export class Note {
   @ApiField()
   text: string;
 
+  @ApiField()
+  rank: number;
+
+  @ApiField({exclusive: true})
+  largeContent: string;
+
 }

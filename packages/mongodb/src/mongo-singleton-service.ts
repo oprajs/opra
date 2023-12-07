@@ -12,89 +12,106 @@ import { MongoService } from './mongo-service.js';
  */
 export class MongoSingletonService<T extends mongodb.Document> extends MongoService<T> {
   protected _id: any;
+  collectionKey: string;
 
   constructor(dataType: Type | string, options?: MongoSingletonService.Options) {
     super(dataType, options);
+    this.collectionKey = options?.collectionKey || '_id';
     this._id = options?._id || new ObjectId('655608925cad472b75fc6485');
   }
 
-  protected get resource(): OpraCommon.Singleton {
-    const resource = this.context.request.resource;
-    if (resource instanceof OpraCommon.Singleton)
-      return resource;
-    throw new TypeError(`"${resource}" resource is not a Singleton`);
+  /**
+   * Fetches the Document. Throws error undefined if not found.
+   *
+   * @param options
+   */
+  async assert(options?: MongoSingletonService.GetOptions<T>): Promise<PartialOutput<any>> {
+    const out = await this.get(options);
+    if (!out)
+      throw new ResourceNotFoundError(this.resourceName || this.getCollectionName());
+    return out;
   }
 
-  protected async create(
+  /**
+   * Inserts the document into MongoDB
+   *
+   * @param doc
+   * @param options
+   */
+  async create(
       doc: mongodb.OptionalUnlessRequiredId<T>,
       options?: MongoSingletonService.CreateOptions
   ): Promise<PartialOutput<T>> {
-    const r = await this._rawInsertOne({...doc, _id: this._id}, options);
-    if (r.insertedId) {
-      const out = await this.get(options);
-      if (out)
-        return out;
-    }
+    const r = await this.__insertOne({...doc, _id: this._id}, options);
+    if (r.insertedId)
+      return doc as any;
     /* istanbul ignore next */
     throw new Error('Unknown error while creating document');
   }
 
-  protected async delete(options?: MongoSingletonService.DeleteOptions<T>): Promise<number> {
-    const filter: mongodb.Filter<T> = {_id: this._id};
-    const optionsFilter = MongoAdapter.prepareFilter(options?.filter);
-    if (optionsFilter)
-      filter.$and = [...(Array.isArray(optionsFilter) ? optionsFilter : [optionsFilter])];
-    const r = await this._rawDeleteOne(filter, options);
+  /**
+   * Delete the document from a collection
+   *
+   * @param options
+   */
+  async delete(options?: MongoSingletonService.DeleteOptions<T>): Promise<number> {
+    const filter = MongoAdapter.prepareFilter([{_id: this._id}, options?.filter]);
+    const r = await this.__deleteOne(filter, options);
     return r.deletedCount;
   }
 
-  protected async get(options?: MongoSingletonService.GetOptions<T>): Promise<PartialOutput<T>> {
-    const out = await this.find(options);
-    if (!out)
-      throw new ResourceNotFoundError(this.resource.name);
-    return out;
+  /**
+   * Checks if the document exists.
+   * Returns true if document exists, false otherwise
+   *
+   */
+  async exists(): Promise<boolean> {
+    return !!(await this.get({pick: ['_id']}));
   }
 
-  protected async find(options?: MongoSingletonService.GetOptions<T>): Promise<PartialOutput<T> | undefined> {
-    const filter: mongodb.Filter<T> = {_id: this._id};
-    const optionsFilter = MongoAdapter.prepareFilter(options?.filter);
-    if (optionsFilter)
-      filter.$and = [...(Array.isArray(optionsFilter) ? optionsFilter : [optionsFilter])];
+  /**
+   * Fetches the document
+   *
+   * @param options
+   */
+  async get(options?: MongoSingletonService.GetOptions<T>): Promise<PartialOutput<T> | undefined> {
+    const filter = MongoAdapter.prepareFilter([{_id: this._id}, options?.filter]);
     const mongoOptions: mongodb.FindOptions = {
       ...options,
-      projection: MongoAdapter.prepareProjection(this.resource.type, options),
+      projection: MongoAdapter.prepareProjection(this.getDataType(), options),
       sort: undefined,
       skip: undefined,
       limit: undefined
     }
-    const out = await this._rawFindOne(filter, mongoOptions);
-    if (out) {
-      if (this.transformData)
-        return this.transformData(out);
-      return out;
-    }
+    return await this.__findOne(filter, mongoOptions);
   }
 
-  protected async update(
+  /**
+   * Updates a single document.
+   * Returns updated document
+   *
+   * @param doc
+   * @param options
+   */
+  async update(
       doc: PartialInput<T>,
       options?: MongoSingletonService.UpdateOptions<T>
   ): Promise<PartialOutput<T> | undefined> {
-    // Prevent upsert with different _id field
-    if (options?.upsert)
-      (doc as any)._id = this._id;
-    else delete (doc as any)._id;
+    // Prevent updating _id field
+    delete (doc as any)._id;
+    const filter = MongoAdapter.prepareFilter([
+      {_id: this._id},
+      options?.filter
+    ])
     const patch = MongoAdapter.preparePatch(doc);
-    const mongoOptions: mongodb.UpdateOptions = {
+    const mongoOptions: mongodb.FindOneAndUpdateOptions = {
       ...options,
-      upsert: undefined
+      includeResultMetadata: false,
+      upsert: undefined,
+      projection: MongoAdapter.prepareProjection(this.getDataType(), options),
     }
-    const filter: mongodb.Filter<T> = {_id: this._id};
-    const optionsFilter = MongoAdapter.prepareFilter(options?.filter);
-    if (optionsFilter)
-      filter.$and = [...(Array.isArray(optionsFilter) ? optionsFilter : [optionsFilter])];
-    const r = await this._rawUpdateOne(filter, patch, mongoOptions);
-    if (r.matchedCount)
-      return await this.get(options);
+    const out = await this.__findOneAndUpdate(filter, patch, mongoOptions);
+    return (out as any) || undefined;
   }
 
 }
@@ -106,6 +123,7 @@ export class MongoSingletonService<T extends mongodb.Document> extends MongoServ
 export namespace MongoSingletonService {
 
   export interface Options extends MongoService.Options {
+    collectionKey?: string;
     _id?: any;
   }
 
@@ -126,7 +144,7 @@ export namespace MongoSingletonService {
     filter?: mongodb.Filter<T> | OpraCommon.OpraFilter.Ast | string;
   }
 
-  export interface UpdateOptions<T> extends mongodb.UpdateOptions {
+  export interface UpdateOptions<T> extends mongodb.FindOneAndUpdateOptions {
     pick?: string[],
     omit?: string[],
     include?: string[],

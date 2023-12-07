@@ -24,7 +24,7 @@ export class CustomersResource implements ICollection<Customer> {
   get(context: Collection.Get.Context): Promise<PartialOutput<Customer> | undefined> {
     const {request} = context;
     return this.service.forContext(context)
-        .get(request.key, request.params);
+        .findById(request.key, request.params);
   }
 
   @Collection.FindMany()

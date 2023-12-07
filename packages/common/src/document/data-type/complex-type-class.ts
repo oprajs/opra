@@ -193,8 +193,9 @@ export class ComplexTypeClass extends DataType {
       ctor: this.ctor,
       additionalFields,
       name: this.name,
-      caseInSensitive: !options?.caseSensitive
-    })
+      caseInSensitive: !options?.caseSensitive,
+      onFail: options?.onFail
+    });
   }
 
   generateCodecSchema(

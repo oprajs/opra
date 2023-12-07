@@ -24,8 +24,8 @@ export class CrudOperation extends Endpoint {
     this.returnType = init.returnType instanceof DataType
         ? init.returnType : this.resource.document.getDataType(init.returnType || 'any');
     this.encodeReturning = this.returnType.generateCodec('encode', {operation: 'read'});
-    this.inputOverwriteFields = init.options.inputOverwriteFields;
-    this.outputOverwriteFields = init.options.outputOverwriteFields;
+    this.inputOverwriteFields = init.options?.inputOverwriteFields;
+    this.outputOverwriteFields = init.options?.outputOverwriteFields;
   }
 
   exportSchema(options?: { webSafe?: boolean }) {

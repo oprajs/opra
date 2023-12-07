@@ -66,6 +66,7 @@ export abstract class DataType {
 }
 
 export namespace DataType {
+
   export interface InitArguments {
     name?: string;
     description?: string;
@@ -92,12 +93,14 @@ export namespace DataType {
 
   export interface GenerateCodecOptions {
     caseSensitive?: boolean;
-    pick?: string[];
-    omit?: string[];
+    pick?: string[] | readonly string[];
+    omit?: string[] | readonly string[];
     partial?: boolean;
     operation?: 'read' | 'write';
     overwriteFields?: Record<string, OverrideFieldsConfig>;
     designType?: Type;
+    onFail?: vg.OnFailFunction;
   }
+
 
 }

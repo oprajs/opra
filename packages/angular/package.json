@@ -28,11 +28,11 @@
     "@angular/common": "15.x.x || 16.x.x || 17.x.x",
     "@angular/core": "15.x.x || 16.x.x || || 17.x.x",
     "@opra/client": "^0.31.13",
-    "ts-gems": "^2.4.0"
+    "ts-gems": "^2.7.1"
   },
   "devDependencies": {
-    "@angular-devkit/build-angular": "^17.0.4",
-    "@angular/cli": "^17.0.4",
+    "@angular-devkit/build-angular": "^17.0.5",
+    "@angular/cli": "^17.0.5",
     "@angular/compiler": "^17.0.2",
     "@angular/compiler-cli": "^17.0.5",
     "@angular/platform-browser": "^17.0.2",
@@ -42,7 +42,7 @@
     "express": "^4.18.2",
     "jest-preset-angular": "^13.1.4",
     "ng-packagr": "^17.0.2",
-    "ts-gems": "^2.5.0",
+    "ts-gems": "^2.7.1",
     "zone.js": "^0.14.2"
   },
   "engines": {

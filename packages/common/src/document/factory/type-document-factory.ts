@@ -3,7 +3,6 @@ import { validator } from 'valgen';
 import { cloneObject, isConstructor, resolveThunk, ResponsiveMap } from '../../helpers/index.js';
 import { OpraSchema } from '../../schema/index.js';
 import { ThunkAsync } from '../../types.js';
-import type { ApiDocument } from '../api-document.js';
 import { DATATYPE_METADATA } from '../constants.js';
 import {
   AnyType, ApproxDatetimeType, ApproxDateType, Base64Type,
@@ -20,9 +19,11 @@ import { MixinType } from '../data-type/mixin-type.js';
 import { SimpleType } from '../data-type/simple-type.js';
 import { TypeDocument } from '../type-document.js';
 
+type ReferenceUnion = string | OpraSchema.TypeDocument | TypeDocument;
+
 export namespace TypeDocumentFactory {
   export interface InitArguments extends PartialSome<StrictOmit<OpraSchema.TypeDocument, 'references' | 'types'>, 'version'> {
-    references?: Record<string, string | OpraSchema.ApiDocument | ApiDocument>;
+    references?: Record<string, ReferenceUnion | Promise<ReferenceUnion>>;
     types?: ThunkAsync<Type | EnumType.EnumObject | EnumType.EnumArray>[] | Record<string, OpraSchema.DataType>;
     noBuiltinTypes?: boolean;
   }
@@ -140,9 +141,12 @@ export class TypeDocumentFactory {
     return await factory.initDocument({...init, noBuiltinTypes: true});
   }
 
-  protected async addReferences(references: Record<string, string | OpraSchema.TypeDocument | TypeDocument>): Promise<void> {
+  protected async addReferences(references: Record<string, ReferenceUnion | Promise<ReferenceUnion>>): Promise<void> {
     const {document} = this;
-    for (const [ns, r] of Object.entries<any>(references)) {
+    let ns: string;
+    let r: ReferenceUnion;
+    for ([ns, r] of Object.entries<any>(references)) {
+      r = await r;
       if (typeof r === 'string') {
         document.references.set(ns, await this.initDocumentFromUrl(r));
       } else if (r instanceof TypeDocument)

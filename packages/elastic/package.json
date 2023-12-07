@@ -34,7 +34,7 @@
     "@faker-js/faker": "^8.3.1",
     "@types/lodash.isnil": "^4.0.9",
     "@types/lodash.omitby": "^4.6.9",
-    "ts-gems": "^2.5.0"
+    "ts-gems": "^2.7.1"
   },
   "peerDependencies": {
     "@elastic/elasticsearch": ">=8.7.0",

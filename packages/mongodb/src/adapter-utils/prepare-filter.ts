@@ -1,4 +1,3 @@
-import '@opra/core';
 import mongodb from 'mongodb';
 import { OpraFilter } from '@opra/common';
 
@@ -13,16 +12,78 @@ const opMap = {
   '!in': '$nin',
 }
 
+type FilterInput = (OpraFilter.Expression | mongodb.Filter<any> | string | undefined);
+
+/**
+ * Convert filter expressions to MongoDB filter objects.
+ * This method also merges multiple expressions into one single filter object
+ * @param filters
+ */
 export default function prepareFilter(
-    filter: OpraFilter.Expression | mongodb.Filter<any> | string | undefined
-): mongodb.Filter<any> | undefined {
-  if (!filter)
-    return;
-  if (typeof filter === 'string')
-    return prepareFilterAst(OpraFilter.parse(filter));
-  else if (filter instanceof OpraFilter.Expression)
-    return prepareFilterAst(filter);
-  else return filter;
+    filters: FilterInput | FilterInput[],
+    options?: {
+      fieldPrefix?: string
+    }
+): mongodb.Filter<any> {
+  const filtersArray = Array.isArray(filters) ? filters : [filters];
+  if (!filtersArray.length)
+    return {};
+  let i = 0;
+  const out: any = {};
+  for (const filter of filtersArray) {
+    if (!filter)
+      continue;
+    let x: any;
+    if (typeof filter === 'string')
+      x = prepareFilterAst(OpraFilter.parse(filter));
+    else if (filter instanceof OpraFilter.Expression)
+      x = prepareFilterAst(filter);
+    else x = filter;
+    if (Array.isArray(x))
+      x = {$and: out};
+
+    // Merge $and arrays
+    if (x.$and) {
+      out.$and = out.$and || [];
+      out.$and.push(...x.$and);
+      delete x.$and;
+    }
+    // Merge $or arrays
+    if (x.$or) {
+      out.$or = out.$or || [];
+      out.$or.push(...x.$or);
+      delete x.$or;
+    }
+    for (const k of Object.keys(x)) {
+      // If result object has filter field we convert it to $and
+      if (out[k]) {
+        out.$and = out.$and || [];
+        out.$and.push({[k]: out[k]});
+        out.$and.push({[k]: x[k]});
+        delete out[k];
+        continue;
+      }
+      out[k] = x[k];
+    }
+    i++;
+  }
+  return i
+      ? (options?.fieldPrefix ? addPrefix(out, options.fieldPrefix) : out)
+      : undefined;
+}
+
+function addPrefix(source: any, prefix: string): any {
+  if (typeof source !== 'object')
+    return source;
+  if (Array.isArray(source))
+    return source.map(v => addPrefix(v, prefix));
+  const out: any = {};
+  for (const [k, v] of Object.entries(source)) {
+    if (k.startsWith('$'))
+      out[k] = addPrefix(v, prefix);
+    else out[prefix + k] = addPrefix(v, prefix);
+  }
+  return out;
 }
 
 function prepareFilterAst(

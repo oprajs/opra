@@ -29,7 +29,7 @@
     "@types/lodash.isnil": "^4.0.9",
     "@types/lodash.omitby": "^4.6.9",
     "mongodb": "^6.3.0",
-    "ts-gems": "^2.5.0"
+    "ts-gems": "^2.7.1"
   },
   "peerDependencies": {
     "@opra/common": "^0.31.13",

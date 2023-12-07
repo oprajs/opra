@@ -1,18 +1,18 @@
 import { ApiDocument } from '@opra/common';
 import { MongoAdapter } from '@opra/mongodb';
-import { createTestApp } from '../_support/test-app/index.js';
+import { TestApp } from '../_support/test-app/index.js';
 
 describe('MongoAdapter.prepareProjection', function () {
 
   let api: ApiDocument;
 
   beforeAll(async () => {
-    api = (await createTestApp()).api;
+    api = (await TestApp.create()).api;
   });
 
   afterAll(() => global.gc && global.gc());
 
-  it('Should process "pick" only args', async () => {
+  it('Should process "pick"', async () => {
     const o: any = MongoAdapter.prepareProjection(
         api.getComplexType('customer'), {
           pick: ['_id', 'givenName']
@@ -24,7 +24,7 @@ describe('MongoAdapter.prepareProjection', function () {
     });
   });
 
-  it('Should process "pick" only args: nested fields', async () => {
+  it('Should process "pick" nested', async () => {
     const o: any = MongoAdapter.prepareProjection(
         api.getComplexType('customer'), {
           pick: ['_id', 'address.city']
@@ -38,7 +38,7 @@ describe('MongoAdapter.prepareProjection', function () {
     });
   });
 
-  it('Should process "pick" and "include" args', async () => {
+  it('Should ignore "include" if "pick" defined', async () => {
     const o: any = MongoAdapter.prepareProjection(
         api.getComplexType('customer'), {
           pick: ['_id', 'givenName'],
@@ -48,12 +48,10 @@ describe('MongoAdapter.prepareProjection', function () {
     expect(o).toEqual({
       _id: 1,
       givenName: 1,
-      gender: 1,
-      address: 1
     });
   });
 
-  it('Should process "pick" and "include" args: nested fields', async () => {
+  it('Should ignore "include" if "pick" defined - nested', async () => {
     const o: any = MongoAdapter.prepareProjection(
         api.getComplexType('customer'), {
           pick: ['_id', 'givenName'],
@@ -62,15 +60,11 @@ describe('MongoAdapter.prepareProjection', function () {
     );
     expect(o).toEqual({
       _id: 1,
-      givenName: 1,
-      gender: 1,
-      address: {
-        city: 1
-      }
+      givenName: 1
     });
   });
 
-  it('Should process "pick" and "omit" args', async () => {
+  it('Should ignore field if omitted event in "pick" list', async () => {
     const o: any = MongoAdapter.prepareProjection(
         api.getComplexType('customer'), {
           pick: ['_id', 'givenName', 'gender'],
@@ -83,7 +77,7 @@ describe('MongoAdapter.prepareProjection', function () {
     });
   });
 
-  it('Should process "pick" and "omit" args: nested fields', async () => {
+  it('Should ignore field if omitted event in "pick" list nested', async () => {
     const o: any = MongoAdapter.prepareProjection(
         api.getComplexType('customer'), {
           pick: ['_id', 'givenName', 'address'],
@@ -100,7 +94,7 @@ describe('MongoAdapter.prepareProjection', function () {
     });
   });
 
-  it('Should process "include" only args', async () => {
+  it('Should process "include"', async () => {
     const o: any = MongoAdapter.prepareProjection(
         api.getComplexType('customer'), {
           include: ['address']
@@ -112,7 +106,7 @@ describe('MongoAdapter.prepareProjection', function () {
     expect(o.address).toStrictEqual(1);
   });
 
-  it('Should process "include" only args: nested fields', async () => {
+  it('Should process "include" nested', async () => {
     const o: any = MongoAdapter.prepareProjection(
         api.getComplexType('customer'), {
           include: ['address.city']
@@ -129,7 +123,7 @@ describe('MongoAdapter.prepareProjection', function () {
     });
   });
 
-  it('Should process "include" and "omit args', async () => {
+  it('Should process "include" and "omit"', async () => {
     const o: any = MongoAdapter.prepareProjection(
         api.getComplexType('customer'), {
           include: ['address'],
@@ -142,7 +136,7 @@ describe('MongoAdapter.prepareProjection', function () {
     expect(o.address).toStrictEqual(1);
   });
 
-  it('Should process "include" and "omit args: nested fields', async () => {
+  it('Should process "include" and "omit" nested', async () => {
     const o: any = MongoAdapter.prepareProjection(
         api.getComplexType('customer'), {
           include: ['address'],
@@ -157,36 +151,26 @@ describe('MongoAdapter.prepareProjection', function () {
     expect(o.address.city).not.toBeDefined();
   });
 
-  it('Should process "omit" only args', async () => {
+  it('Should process "omit"', async () => {
     const o: any = MongoAdapter.prepareProjection(
         api.getComplexType('customer'), {
           omit: ['_id', 'givenName']
         }
     );
     expect(o).toEqual({
-      _id: 0,
-      givenName: 0
-    })
-    expect(o).toBeDefined();
-    expect(o._id).toStrictEqual(0);
-    expect(o.givenName).toStrictEqual(0);
-    expect(o.gender).not.toBeDefined();
-    expect(o.address).not.toBeDefined();
-  });
-
-  it('Should process "omit" only args: nested fields', async () => {
-    const o: any = MongoAdapter.prepareProjection(
-        api.getComplexType('customer'), {
-          omit: ['_id', 'address.city']
-        }
-    );
-    expect(o).toEqual({
-      _id: 0,
-      address: {
-        city: 0
-      }
+      active: 1,
+      birthDate: 1,
+      countryCode: 1,
+      createdAt: 1,
+      deleted: 1,
+      familyName: 1,
+      fillerDate: 1,
+      gender: 1,
+      rate: 1,
+      uid: 1,
+      updatedAt: 1
     })
   });
-
+  
 });
 

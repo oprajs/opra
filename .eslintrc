@@ -91,6 +91,7 @@
         "@typescript-eslint/no-non-null-assertion": "off",
         "@typescript-eslint/no-unsafe-declaration-merging": "off",
         "@typescript-eslint/no-redundant-type-constituents": "off",
+        "@typescript-eslint/await-thenable": "off",
         "arrow-parens": [
           "off",
           "as-needed"

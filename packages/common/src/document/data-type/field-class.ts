@@ -75,10 +75,13 @@ export class FieldClass {
       return vg.isUndefined()
     if (options?.operation === 'write' && this.readonly)
       return vg.isUndefined()
-    let fn = this.type.generateCodec(codec, {...options, designType: this.designType});
+    let fn = this.type.generateCodec(codec, {
+      ...options,
+      designType: this.designType,
+      partial: options?.partial && (this.partialUpdate || !this.isArray)
+    });
     if (this.isArray)
       fn = vg.isArray(fn);
-    const partial = options?.partial && (this.partialUpdate || !this.isArray);
-    return !partial && this.required ? vg.required(fn) : vg.optional(fn);
+    return !options?.partial && this.required ? vg.required(fn) : vg.optional(fn);
   }
 }

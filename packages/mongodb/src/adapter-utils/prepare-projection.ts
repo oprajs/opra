@@ -3,74 +3,74 @@ import { ComplexType, pathToObjectTree } from '@opra/common';
 
 export default function prepareProjection(
     dataType: ComplexType,
-    args?: {
+    options?: {
       pick?: string[],
       omit?: string[],
       include?: string[],
     }
 ): mongodb.Document | undefined {
   const out: Record<string, boolean> = {};
-  // omitExclusiveFields(dataType, out);
-  const pick = args?.pick && pathToObjectTree(
-      args.include ? [...args.pick, ...args.include] : args.pick
-  );
-  const include = !args?.pick && args?.include && pathToObjectTree(args.include);
-  const omit = args?.omit && pathToObjectTree(args.omit);
-  if (pick || include) {
-    _prepareInclusionProjection(dataType, out, pick, include, omit);
-  } else
-    _prepareExclusionProjection(dataType, out, omit, !omit);
+  const pick = options?.pick && pathToObjectTree(options.pick);
+  const include = options?.include && pathToObjectTree(options.include);
+  const omit = options?.omit && pathToObjectTree(options.omit);
+  // const exclusionProjection = !pick && !!omit;
+  _prepareProjection(dataType, out, {
+    pickActivated: !!pick,
+    pick,
+    include,
+    omit
+  });
   return Object.keys(out).length ? out : undefined;
 }
 
-export function _prepareInclusionProjection(
+export function _prepareProjection(
     dataType: ComplexType,
     target: mongodb.Document,
-    pick?: any,
-    include?: any,
-    omit?: any,
-    defaultFields?: boolean
+    // exclusionProjection: boolean,
+    options: {
+      pickActivated: boolean,
+      include?: any,
+      pick?: any,
+      omit?: any,
+      // defaultFields?: boolean
+    }
 ) {
-  defaultFields = defaultFields ?? !pick;
-  let n;
-  for (const [k, f] of dataType.fields.entries()) {
+  // const defaultFields = options?.defaultFields ?? !options?.pick;
+  const optionsOmit = options?.omit;
+  const optionsPick = options?.pick;
+  const optionsInclude = options?.include;
+  const pickActivated = options?.pickActivated;
 
-    if (omit?.[k] === true)
+  for (const [k, f] of dataType.fields.entries()) {
+    const fieldOmit = optionsOmit?.[k];
+    const fieldInclude = optionsInclude?.[k];
+    const fieldPick = optionsPick?.[k];
+
+    if (fieldOmit === true ||
+        !(
+            (pickActivated && fieldPick) ||
+            (!pickActivated && (!f.exclusive || fieldInclude))
+        )
+    )
       continue;
-    n = (defaultFields && !f.exclusive) ||
-        pick === true || pick?.[k] || include === true || include?.[k];
-    if (n) {
-      if (f.type instanceof ComplexType && (typeof n === 'object' || typeof omit?.[k] === 'object')) {
-        target[k] = {};
-        _prepareInclusionProjection(f.type, target[k],
-            pick?.[k] || include?.[k],
-            undefined,
-            omit?.[k],
-            defaultFields
-        );
-        continue;
-      }
-      target[k] = 1;
-    }
-  }
-}
 
-export function _prepareExclusionProjection(
-    dataType: ComplexType,
-    target: mongodb.Document,
-    omit?: any,
-    omitExclusiveFields?: boolean
-) {
-  let n: any;
-  for (const [k, f] of dataType.fields.entries()) {
-    n = omit?.[k] || (omitExclusiveFields && f.exclusive);
-    if (n) {
-      if (f.type instanceof ComplexType && typeof n === 'object') {
-        target[k] = {};
-        _prepareExclusionProjection(f.type, target[k], omit?.[k], omitExclusiveFields);
-        continue;
-      }
-      target[k] = 0;
+    if (f.type instanceof ComplexType &&
+        (typeof fieldInclude === 'object' ||
+            typeof fieldPick === 'object' ||
+            typeof fieldOmit === 'object'
+        )
+    ) {
+      target[k] = {};
+      _prepareProjection(f.type, target[k],
+          {
+            pickActivated: fieldPick != null && fieldPick !== true,
+            include: typeof fieldInclude === 'object' ? fieldInclude : undefined,
+            pick: typeof fieldPick === 'object' ? fieldPick : undefined,
+            omit: typeof fieldOmit === 'object' ? fieldOmit : undefined
+          }
+      );
+      continue;
     }
+    target[k] = 1;
   }
 }

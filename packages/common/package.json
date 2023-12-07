@@ -46,7 +46,7 @@
     "putil-varhelpers": "^1.6.5",
     "reflect-metadata": "^0.1.13",
     "uid": "^2.0.1",
-    "valgen": "^4.2.5"
+    "valgen": "^4.3.1"
   },
   "devDependencies": {
     "@browsery/fs": "^0.4.0",
@@ -56,7 +56,7 @@
     "@types/lodash.omit": "^4.5.9",
     "@types/validator": "^13.11.7",
     "path-browserify": "^1.0.1",
-    "ts-gems": "^2.5.0"
+    "ts-gems": "^2.7.1"
   },
   "engines": {
     "node": ">=16.0",

@@ -16,8 +16,8 @@ export class CustomersService extends MongoCollectionService<Customer> {
     return super.create(doc, options);
   }
 
-  async get(id: any, options?: MongoCollectionService.FindOneOptions) {
-    return super.get(id, options);
+  async findById(id: any, options?: MongoCollectionService.FindOneOptions) {
+    return super.findById(id, options);
   }
 
   async delete(id: any, options?: MongoCollectionService.DeleteOptions<Customer>) {

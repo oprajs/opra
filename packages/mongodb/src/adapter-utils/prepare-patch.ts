@@ -4,8 +4,9 @@ export default function preparePatch(
       fieldPrefix?: string;
     }
 ): any {
-  const trg = {};
+  const trg: any = {};
   _preparePatch(doc, trg, '', options);
+  trg.$set = trg.$set || {}
   return trg;
 }
 

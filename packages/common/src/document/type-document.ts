@@ -192,12 +192,12 @@ export class TypeDocument extends DocumentBase {
   getComplexType(nameOrCtor: string | Type, silent?: true): ComplexType | undefined {
     if (nameOrCtor === Object)
       nameOrCtor = 'object';
-    const t = this.getDataType(nameOrCtor);
-    if (!t && silent)
-      return;
-    if (t && t.kind === OpraSchema.ComplexType.Kind)
-      return t as ComplexType;
-    throw new NotAcceptableError(`Data type "${t.name}" is not a ComplexType`);
+    const t = this.getDataType(nameOrCtor, silent as any);
+    if (t) {
+      if (t && t.kind === OpraSchema.ComplexType.Kind)
+        return t as ComplexType;
+      throw new NotAcceptableError(`Data type "${t.name}" is not a ComplexType`);
+    }
   }
 
   /**
@@ -216,12 +216,12 @@ export class TypeDocument extends DocumentBase {
    */
   getSimpleType(nameOrCtor: string | Type): SimpleType
   getSimpleType(nameOrCtor: string | Type, silent?: true): SimpleType | undefined {
-    const t = this.getDataType(nameOrCtor);
-    if (!t && silent)
-      return;
-    if (t && t.kind === OpraSchema.SimpleType.Kind)
-      return t as SimpleType;
-    throw new NotAcceptableError(`Data type "${t.name || t}" is not a SimpleType`);
+    const t = this.getDataType(nameOrCtor, silent as any);
+    if (t) {
+      if (t && t.kind === OpraSchema.SimpleType.Kind)
+        return t as SimpleType;
+      throw new NotAcceptableError(`Data type "${t.name || t}" is not a SimpleType`);
+    }
   }
 
   /**
@@ -250,7 +250,7 @@ export class TypeDocument extends DocumentBase {
       for (const [ns, r] of this.references.entries()) {
         if (ns.toLowerCase() === 'opra')
           continue;
-        references[ns] = r.url ? r.url : r.exportSchema(options);
+        references[ns] = r.exportSchema(options);
         i++;
       }
       if (i)
