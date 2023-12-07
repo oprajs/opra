@@ -2,7 +2,7 @@
   "name": "opra",
   "description": "Open Protocol for Restful Api",
   "private": true,
-  "version": "1.0.1",
+  "version": "1.1.0",
   "license": "MIT",
   "type": "module",
   "repository": {
