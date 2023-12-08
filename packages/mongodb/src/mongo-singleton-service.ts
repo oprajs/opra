@@ -86,7 +86,7 @@ export class MongoSingletonService<T extends mongodb.Document> extends MongoServ
    * @return {Promise<boolean>} - A promise that resolves to a boolean value indicating if the document exists.
    */
   async exists(): Promise<boolean> {
-    return !!(await this.find({pick: ['_id']}));
+    return !!(await this.findOne({pick: ['_id']}));
   }
 
   /**
@@ -95,7 +95,7 @@ export class MongoSingletonService<T extends mongodb.Document> extends MongoServ
    * @param {MongoSingletonService.FindOptions<T>} [options] - The options for finding the document.
    * @returns {Promise<PartialOutput<T> | undefined>} - A promise that resolves to the found document or undefined if not found.
    */
-  async find(options?: MongoSingletonService.FindOptions<T>): Promise<PartialOutput<T> | undefined> {
+  async findOne(options?: MongoSingletonService.FindOptions<T>): Promise<PartialOutput<T> | undefined> {
     const filter = MongoAdapter.prepareFilter([{_id: this._id}, options?.filter]);
     const mongoOptions: mongodb.FindOptions = {
       ...options,
@@ -115,7 +115,7 @@ export class MongoSingletonService<T extends mongodb.Document> extends MongoServ
    * @throws {ResourceNotFoundError} - If the document is not found in the collection.
    */
   async get(options?: MongoSingletonService.FindOptions<T>): Promise<PartialOutput<T>> {
-    const out = await this.find(options);
+    const out = await this.findOne(options);
     if (!out)
       throw new ResourceNotFoundError(this.resourceName || this.getCollectionName());
     return out;

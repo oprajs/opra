@@ -318,7 +318,7 @@ export class MongoCollectionService<T extends mongodb.Document> extends MongoSer
       projection: MongoAdapter.prepareProjection(this.getDataType(), options),
     }
     const out = await this.__updateOne(filter, patch, mongoOptions);
-    return out.modifiedCount;
+    return out.matchedCount;
   }
 
   /**
