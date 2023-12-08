@@ -184,10 +184,10 @@ export class ComplexTypeClass extends DataType {
     return false;
   }
 
-  generateCodec(
+  generateCodec<T extends Object = any>(
       codec: 'decode' | 'encode',
       options?: DataType.GenerateCodecOptions
-  ): vg.Validator {
+  ): vg.ObjectValidator<T> {
     const schema = this.generateCodecSchema(codec, options);
     const additionalFields = this.additionalFields instanceof DataType
         ? this.additionalFields.generateCodec(codec, {

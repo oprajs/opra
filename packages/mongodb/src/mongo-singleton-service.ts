@@ -7,11 +7,18 @@ import { MongoAdapter } from './mongo-adapter.js';
 import { MongoService } from './mongo-service.js';
 
 /**
- *
+ * A class that provides access to a MongoDB collection, with support for singleton document operations.
  * @class MongoSingletonService
+ * @extends MongoService
+ * @template T - The type of document stored in the collection
  */
 export class MongoSingletonService<T extends mongodb.Document> extends MongoService<T> {
   protected _id: any;
+  /**
+   * Represents the key for a collection.
+   *
+   * @type {string}
+   */
   collectionKey: string;
 
   constructor(dataType: Type | string, options?: MongoSingletonService.Options) {
@@ -21,38 +28,51 @@ export class MongoSingletonService<T extends mongodb.Document> extends MongoServ
   }
 
   /**
-   * Fetches the Document. Throws error undefined if not found.
+   * Asserts the existence of a resource based on the given options.
    *
-   * @param options
+   * @returns {Promise<void>} A Promise that resolves when the resource exists.
+   * @throws {ResourceNotFoundError} If the resource does not exist.
    */
-  async assert(options?: MongoSingletonService.GetOptions<T>): Promise<PartialOutput<any>> {
-    const out = await this.get(options);
-    if (!out)
+  async assert(): Promise<void> {
+    if (!(await this.exists()))
       throw new ResourceNotFoundError(this.resourceName || this.getCollectionName());
-    return out;
   }
 
   /**
-   * Inserts the document into MongoDB
+   * Creates the document in the database.
    *
-   * @param doc
-   * @param options
+   * @param {PartialInput<T>} input - The partial input to create the document with.
+   * @param {MongoSingletonService.CreateOptions} [options] - The options for creating the document.
+   * @return {Promise<PartialOutput<T>>} A promise that resolves to the partial output of the created document.
+   * @throws {Error} Throws an error if an unknown error occurs while creating the document.
    */
   async create(
-      doc: mongodb.OptionalUnlessRequiredId<T>,
+      input: PartialInput<T>,
       options?: MongoSingletonService.CreateOptions
   ): Promise<PartialOutput<T>> {
-    const r = await this.__insertOne({...doc, _id: this._id}, options);
-    if (r.insertedId)
-      return doc as any;
+    const encode = this.getEncoder('create');
+    const doc: any = encode(input);
+    doc._id = this._id;
+    const r = await this.__insertOne(doc, options);
+    if (r.insertedId) {
+      if (!options)
+        return doc;
+      try {
+        return this.get(options);
+      } catch (e: any) {
+        Error.captureStackTrace(e);
+        throw e;
+      }
+    }
     /* istanbul ignore next */
     throw new Error('Unknown error while creating document');
   }
 
   /**
-   * Delete the document from a collection
+   * Deletes a record from the database
    *
-   * @param options
+   * @param {MongoSingletonService.DeleteOptions<T>} options - The options for deleting the record
+   * @returns {Promise<number>} The number of records deleted
    */
   async delete(options?: MongoSingletonService.DeleteOptions<T>): Promise<number> {
     const filter = MongoAdapter.prepareFilter([{_id: this._id}, options?.filter]);
@@ -61,20 +81,21 @@ export class MongoSingletonService<T extends mongodb.Document> extends MongoServ
   }
 
   /**
-   * Checks if the document exists.
-   * Returns true if document exists, false otherwise
+   * Checks if the document exists in the database.
    *
+   * @return {Promise<boolean>} - A promise that resolves to a boolean value indicating if the document exists.
    */
   async exists(): Promise<boolean> {
-    return !!(await this.get({pick: ['_id']}));
+    return !!(await this.find({pick: ['_id']}));
   }
 
   /**
-   * Fetches the document
+   * Fetches the document if it exists. Returns undefined if not found.
    *
-   * @param options
+   * @param {MongoSingletonService.FindOptions<T>} [options] - The options for finding the document.
+   * @returns {Promise<PartialOutput<T> | undefined>} - A promise that resolves to the found document or undefined if not found.
    */
-  async get(options?: MongoSingletonService.GetOptions<T>): Promise<PartialOutput<T> | undefined> {
+  async find(options?: MongoSingletonService.FindOptions<T>): Promise<PartialOutput<T> | undefined> {
     const filter = MongoAdapter.prepareFilter([{_id: this._id}, options?.filter]);
     const mongoOptions: mongodb.FindOptions = {
       ...options,
@@ -87,22 +108,33 @@ export class MongoSingletonService<T extends mongodb.Document> extends MongoServ
   }
 
   /**
-   * Updates a single document.
-   * Returns updated document
+   * Fetches the document from the Mongo collection service. Throws error if not found.
    *
-   * @param doc
-   * @param options
+   * @param {MongoCollectionService.FindOneOptions} options - The options to customize the query.
+   * @return {Promise<PartialOutput<T>>} - A promise that resolves to the fetched document.
+   * @throws {ResourceNotFoundError} - If the document is not found in the collection.
+   */
+  async get(options?: MongoSingletonService.FindOptions<T>): Promise<PartialOutput<T>> {
+    const out = await this.find(options);
+    if (!out)
+      throw new ResourceNotFoundError(this.resourceName || this.getCollectionName());
+    return out;
+  }
+
+  /**
+   * Updates a document in the MongoDB collection.
+   *
+   * @param {PartialInput<T>} input - The partial input to update the document.
+   * @param {MongoSingletonService.UpdateOptions<T>} [options] - The update options.
+   *
+   * @return {Promise<PartialOutput<T> | undefined>} - A promise that resolves to the updated document or undefined if not found.
    */
   async update(
-      doc: PartialInput<T>,
+      input: PartialInput<T>,
       options?: MongoSingletonService.UpdateOptions<T>
   ): Promise<PartialOutput<T> | undefined> {
-    // Prevent updating _id field
-    delete (doc as any)._id;
-    const filter = MongoAdapter.prepareFilter([
-      {_id: this._id},
-      options?.filter
-    ])
+    const encode = this.getEncoder('update');
+    const doc = encode(input);
     const patch = MongoAdapter.preparePatch(doc);
     const mongoOptions: mongodb.FindOneAndUpdateOptions = {
       ...options,
@@ -110,8 +142,13 @@ export class MongoSingletonService<T extends mongodb.Document> extends MongoServ
       upsert: undefined,
       projection: MongoAdapter.prepareProjection(this.getDataType(), options),
     }
+    const filter = MongoAdapter.prepareFilter([
+      {_id: this._id},
+      options?.filter
+    ])
+    const decoder = this.getDecoder();
     const out = await this.__findOneAndUpdate(filter, patch, mongoOptions);
-    return (out as any) || undefined;
+    return out ? decoder(out) as PartialOutput<T> : undefined;
   }
 
 }
@@ -122,28 +159,57 @@ export class MongoSingletonService<T extends mongodb.Document> extends MongoServ
  */
 export namespace MongoSingletonService {
 
+  /**
+   * The constructor options of MongoSingletonService.
+   *
+   * @interface Options
+   * @extends MongoService.Options
+   */
   export interface Options extends MongoService.Options {
     collectionKey?: string;
     _id?: any;
   }
 
+  /**
+   * Represents options for creating the document.
+   *
+   * @interface
+   */
   export interface CreateOptions extends mongodb.InsertOneOptions {
     pick?: string[],
     omit?: string[],
     include?: string[],
   }
 
+  /**
+   * Represents options for deleting the document.
+   *
+   * @interface
+   * @template T - The type of the document.
+   */
   export interface DeleteOptions<T> extends mongodb.DeleteOptions {
     filter?: mongodb.Filter<T> | OpraCommon.OpraFilter.Ast | string;
   }
 
-  export interface GetOptions<T> extends StrictOmit<mongodb.FindOptions, 'sort' | 'limit' | 'skip'> {
+  /**
+   * Represents options for finding the document.
+   *
+   * @interface
+   * @template T - The type of the document.
+   */
+  export interface FindOptions<T> extends StrictOmit<mongodb.FindOptions, 'sort' | 'limit' | 'skip'> {
     pick?: string[],
     omit?: string[],
     include?: string[],
     filter?: mongodb.Filter<T> | OpraCommon.OpraFilter.Ast | string;
   }
 
+  /**
+   * Represents options for updating the document.
+   *
+   * @interface
+   * @template T - The type of the document.
+   */
   export interface UpdateOptions<T> extends mongodb.FindOneAndUpdateOptions {
     pick?: string[],
     omit?: string[],

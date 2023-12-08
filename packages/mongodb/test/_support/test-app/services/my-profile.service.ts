@@ -27,7 +27,7 @@ export class MyProfileService extends MongoSingletonService<Profile> {
     return super.delete(options);
   }
 
-  async get(options?: MongoSingletonService.GetOptions<Profile>) {
+  async get(options?: MongoSingletonService.FindOptions<Profile>) {
     return super.get(options);
   }
 

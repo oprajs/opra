@@ -1,6 +1,7 @@
 import mongodb from 'mongodb';
 import { StrictOmit, Type } from 'ts-gems';
-import { ComplexType, DATATYPE_METADATA } from '@opra/common';
+import vg from 'valgen';
+import { ComplexType, DataType, DATATYPE_METADATA } from '@opra/common';
 import { ApiService, PartialOutput, RequestContext } from '@opra/core';
 
 export namespace MongoService {
@@ -11,7 +12,14 @@ export namespace MongoService {
   }
 }
 
+/**
+ * Class representing a MongoDB service for interacting with a collection.
+ * @extends ApiService
+ * @template T - The type of the documents in the collection.
+ */
 export class MongoService<T extends mongodb.Document> extends ApiService {
+  protected _encoders: Record<string, vg.ObjectValidator<T>> = {};
+  protected _decoder?: vg.ObjectValidator<T>;
   protected _dataType: Type | string;
   collectionName?: string;
   db?: mongodb.Db;
@@ -35,6 +43,12 @@ export class MongoService<T extends mongodb.Document> extends ApiService {
     this.resourceName = options?.resourceName || this.collectionName;
   }
 
+  /**
+   * Retrieves the data type of the document
+   *
+   * @returns {ComplexType} The complex data type of the field.
+   * @throws {NotAcceptableError} If the data type is not a ComplexType.
+   */
   getDataType(): ComplexType {
     return this.context.api.getComplexType(this._dataType);
   }
@@ -185,10 +199,11 @@ export class MongoService<T extends mongodb.Document> extends ApiService {
   }
 
   /**
-   * Creates a cursor for a filter that can be used to iterate over results from MongoDB
+   * Creates a cursor for a filter that can be used to iterate over results from MongoDB.
    *
-   * @param filter
-   * @param options
+   * @param {mongodb.Filter<T>} filter - The filter to apply when searching for results.
+   * @param {mongodb.FindOptions} [options] - The options to customize the search behavior.
+   * @returns {mongodb.Cursor<T>} - The cursor object that can be used to iterate over the results.
    * @protected
    */
   protected async __find(filter: mongodb.Filter<T>, options?: mongodb.FindOptions) {
@@ -209,10 +224,11 @@ export class MongoService<T extends mongodb.Document> extends ApiService {
   /**
    * Update a single document in a collection
    *
-   * @param filter
-   * @param update
-   * @param options
+   * @param {mongodb.Filter<T>} filter - The filter to select the document(s) to update
+   * @param {mongodb.UpdateFilter<T>} update - The update operation to be applied on the selected document(s)
+   * @param {mongodb.UpdateOptions} [options] - Optional settings for the update operation
    * @protected
+   * @returns {Promise<mongodb.UpdateResult>} A promise that resolves to the result of the update operation
    */
   protected async __updateOne(
       filter: mongodb.Filter<T>,
@@ -317,6 +333,77 @@ export class MongoService<T extends mongodb.Document> extends ApiService {
     return super._cacheMatch(service, context, attributes) &&
         (!attributes?.db || service.db === attributes.db) &&
         (!attributes?.session || this.session === attributes?.session);
+  }
+
+  /**
+   * Retrieves the encoder for the specified operation.
+   *
+   * @param {String} operation - The operation to retrieve the encoder for. Valid values are 'create' and 'update'.
+   * @returns {vg.ObjectValidator<T>} - The encoder for the specified operation.
+   */
+  getEncoder(operation: 'create' | 'update'): vg.ObjectValidator<T> {
+    let encoder = this._encoders[operation];
+    if (encoder)
+      return encoder;
+    encoder = this._generateEncoder(operation);
+    this._encoders[operation] = encoder;
+    return encoder;
+  }
+
+  /**
+   * Retrieves the decoder.
+   *
+   * @returns {vg.ObjectValidator<T>} - The encoder for the specified operation.
+   */
+  getDecoder(): vg.ObjectValidator<T> {
+    let decoder = this._decoder;
+    if (decoder)
+      return decoder;
+    decoder = this._generateDecoder();
+    this._decoder = decoder;
+    return decoder;
+  }
+
+  /**
+   * Generates an encoder for the specified operation.
+   *
+   * @param {string} operation - The operation to generate the encoder for. Must be either 'create' or 'update'.
+   *
+   * @protected
+   *
+   * @returns {vg.Validator} - The generated encoder for the specified operation.
+   */
+  protected _generateEncoder(operation: 'create' | 'update'): vg.ObjectValidator<T> {
+    let encoder = this._encoders[operation];
+    if (encoder)
+      return encoder;
+    const dataType = this.getDataType();
+    const options: DataType.GenerateCodecOptions = {};
+    if (operation === 'update') {
+      options.omit = ['_id'];
+      options.partial = true;
+    }
+    encoder = dataType.generateCodec('encode', options);
+    this._encoders[operation] = encoder;
+    return encoder;
+  }
+
+
+  /**
+   * Generates an encoder for the specified operation.
+   *
+   * @protected
+   *
+   * @returns {vg.Validator} - The generated encoder for the specified operation.
+   */
+  protected _generateDecoder(): vg.ObjectValidator<T> {
+    let decoder = this._decoder;
+    if (decoder)
+      return decoder;
+    const dataType = this.getDataType();
+    const options: DataType.GenerateCodecOptions = {};
+    decoder = this._decoder = dataType.generateCodec('decode', options);
+    return decoder;
   }
 
   protected onError?(error: unknown): void | Promise<void>;

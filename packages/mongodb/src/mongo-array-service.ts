@@ -1,9 +1,8 @@
 import omit from 'lodash.omit';
 import mongodb, { ObjectId } from 'mongodb';
 import { StrictOmit, Type } from 'ts-gems';
-import vg from 'valgen';
 import * as OpraCommon from '@opra/common';
-import { ComplexType, DataType, NotAcceptableError, PartialInput, ResourceNotFoundError } from '@opra/common';
+import { ComplexType, NotAcceptableError, PartialInput, ResourceNotFoundError } from '@opra/common';
 import { PartialOutput } from '@opra/core';
 import { MongoAdapter } from './mongo-adapter.js';
 import { MongoCollectionService } from './mongo-collection-service.js';
@@ -11,15 +10,34 @@ import { MongoService } from './mongo-service.js';
 import { AnyId } from './types.js';
 
 /**
- *
- * @class MongoArrayService
+ * A class that provides methods to perform operations on an array field in a MongoDB collection.
+ * @template T The type of the array item.
  */
 export class MongoArrayService<T extends mongodb.Document> extends MongoService<T> {
-  protected _encoders: Record<string, vg.Validator> = {};
+  /**
+   * Represents the key for a collection.
+   *
+   * @type {string}
+   */
   collectionKey: string;
-  arrayKey: string;
-  defaultLimit: number;
+  /**
+   * Represents the name of the array field in parent document
+   *
+   * @type {string} FieldName
+   */
   fieldName: string;
+  /**
+   * Represents the key field of an array.
+   *
+   * @type {string} arrayKey
+   */
+  arrayKey: string;
+  /**
+   * Represents the default limit value for a certain operation.
+   *
+   * @type {number}
+   */
+  defaultLimit: number;
 
   constructor(dataType: Type | string, fieldName: string, options?: MongoArrayService.Options) {
     super(dataType, options);
@@ -29,8 +47,14 @@ export class MongoArrayService<T extends mongodb.Document> extends MongoService<
     this.arrayKey = options?.arrayKey || '_id';
   }
 
-  getArrayDataType(): ComplexType {
-    const t = this.getDataType()
+  /**
+   * Retrieves the data type of the array field
+   *
+   * @returns {ComplexType} The complex data type of the field.
+   * @throws {NotAcceptableError} If the data type is not a ComplexType.
+   */
+  getDataType(): ComplexType {
+    const t = super.getDataType()
         .getField(this.fieldName).type;
     if (!(t instanceof ComplexType))
       throw new NotAcceptableError(`Data type "${t.name}" is not a ComplexType`);
@@ -38,36 +62,41 @@ export class MongoArrayService<T extends mongodb.Document> extends MongoService<
   }
 
   /**
-   * Checks if array item exists. Throws error if not.
+   * Asserts whether a resource with the specified parentId and id exists.
+   * Throws a ResourceNotFoundError if the resource does not exist.
    *
-   * @param parentId
-   * @param id
+   * @param {AnyId} documentId - The ID of the parent document.
+   * @param {AnyId} id - The ID of the resource.
+   * @return {Promise<void>} - A promise that resolves with no value upon success.
+   * @throws {ResourceNotFoundError} - If the resource does not exist.
    */
-  async assert(parentId: AnyId, id: AnyId): Promise<void> {
-    if (!(await this.exists(parentId, id)))
+  async assert(documentId: AnyId, id: AnyId): Promise<void> {
+    if (!(await this.exists(documentId, id)))
       throw new ResourceNotFoundError(
           (this.resourceName || this.getCollectionName()) + '.' + this.arrayKey,
-          parentId + '/' + id);
+          documentId + '/' + id);
   }
 
 
   /**
-   * Adds a single item into array field.
+   * Adds a single item into the array field.
    *
-   * @param parentId
-   * @param input
-   * @param options
+   * @param {AnyId} documentId - The ID of the parent document.
+   * @param {T} input - The item to be added to the array field.
+   * @param {MongoArrayService.CreateOptions} [options] - Optional options for the create operation.
+   * @return {Promise<PartialOutput<T>>} - A promise that resolves with the partial output of the created item.
+   * @throws {ResourceNotFoundError} - If the parent document is not found.
    */
   async create(
-      parentId: AnyId,
+      documentId: AnyId,
       input: T,
       options?: MongoArrayService.CreateOptions
   ): Promise<PartialOutput<T>> {
-    const encode = this._getEncoder('create');
-    const doc = encode(input);
+    const encode = this.getEncoder('create');
+    const doc: any = encode(input);
     doc[this.arrayKey] = doc[this.arrayKey] || this._generateId();
 
-    const docFilter = MongoAdapter.prepareKeyValues(parentId, [this.collectionKey]);
+    const docFilter = MongoAdapter.prepareKeyValues(documentId, [this.collectionKey]);
     const r = await this.__updateOne(
         docFilter,
         {
@@ -75,26 +104,32 @@ export class MongoArrayService<T extends mongodb.Document> extends MongoService<
         },
         options
     );
-    if (r.modifiedCount)
+    if (r.modifiedCount) {
+      if (!options)
+        return doc;
       try {
-        return this.get(parentId, doc[this.arrayKey], {...options, filter: undefined, skip: undefined});
+        return this.get(documentId, doc[this.arrayKey], {...options, filter: undefined, skip: undefined});
       } catch (e: any) {
         Error.captureStackTrace(e);
         throw e;
       }
-    throw new ResourceNotFoundError(this.resourceName || this.getCollectionName(), parentId);
+    }
+    throw new ResourceNotFoundError(this.resourceName || this.getCollectionName(), documentId);
   }
 
   /**
-   * Gets the number of array items matching the filter.
-   * @param parentId
-   * @param options
+   * Counts the number of documents in the collection that match the specified parentId and options.
+   *
+   * @param {AnyId} documentId - The ID of the parent document.
+   * @param {object} options - Optional parameters for counting.
+   * @param {object} options.filter - The filter object to apply to the count operation.
+   * @returns {Promise<number>} - A promise that resolves to the count of documents.
    */
   async count(
-      parentId: AnyId,
+      documentId: AnyId,
       options?: MongoArrayService.CountOptions<T>
   ): Promise<number> {
-    const matchFilter = MongoAdapter.prepareKeyValues(parentId, [this.collectionKey]);
+    const matchFilter = MongoAdapter.prepareKeyValues(documentId, [this.collectionKey]);
     const stages: mongodb.Document[] = [
       {$match: matchFilter},
       {$unwind: {path: "$" + this.fieldName}},
@@ -116,18 +151,19 @@ export class MongoArrayService<T extends mongodb.Document> extends MongoService<
   }
 
   /**
-   * Removes one item from an array field
+   * Deletes an element from an array within a document in the MongoDB collection.
    *
-   * @param parentId
-   * @param id
-   * @param options
+   * @param {AnyId} documentId - The ID of the parent document.
+   * @param {AnyId} id - The ID of the element to delete from the array.
+   * @param {MongoArrayService.DeleteOptions<T>} [options] - Additional options for the delete operation.
+   * @return {Promise<number>} - A Promise that resolves to the number of elements deleted (1 if successful, 0 if not).
    */
   async delete(
-      parentId: AnyId,
+      documentId: AnyId,
       id: AnyId,
       options?: MongoArrayService.DeleteOptions<T>
   ): Promise<number> {
-    const matchFilter = MongoAdapter.prepareKeyValues(parentId, [this.collectionKey]);
+    const matchFilter = MongoAdapter.prepareKeyValues(documentId, [this.collectionKey]);
     const pullFilter = MongoAdapter.prepareFilter([
       MongoAdapter.prepareKeyValues(id, [this.arrayKey]),
       options?.filter
@@ -143,18 +179,19 @@ export class MongoArrayService<T extends mongodb.Document> extends MongoService<
   }
 
   /**
-   * Removes multiple items from an array field
+   * Deletes multiple items from a collection based on the parent ID and optional filter.
    *
-   * @param parentId
-   * @param options
+   * @param {AnyId} documentId - The ID of the parent document.
+   * @param {MongoArrayService.DeleteManyOptions<T>} options - Optional options to specify a filter.
+   * @returns {Promise<number>} - A Promise that resolves to the number of items deleted.
    */
   async deleteMany(
-      parentId: AnyId,
+      documentId: AnyId,
       options?: MongoArrayService.DeleteManyOptions<T>
   ): Promise<number> {
-    const docFilter = MongoAdapter.prepareKeyValues(parentId, [this.collectionKey]);
+    const docFilter = MongoAdapter.prepareKeyValues(documentId, [this.collectionKey]);
     // Count matching items, we will use this as result
-    const matchCount = await this.count(parentId, options);
+    const matchCount = await this.count(documentId, options);
 
     const pullFilter = MongoAdapter.prepareFilter(options?.filter) || {};
     const r = await this.__updateOne(
@@ -170,45 +207,48 @@ export class MongoArrayService<T extends mongodb.Document> extends MongoService<
   }
 
   /**
-   * Returns true if item exists, false otherwise
+   * Checks if an array element with the given parentId and id exists.
    *
-   * @param parentId
-   * @param id
+   * @param {AnyId} documentId - The ID of the parent document.
+   * @param {AnyId} id - The id of the record.
+   * @returns {Promise<boolean>} - A promise that resolves to a boolean indicating if the record exists or not.
    */
-  async exists(parentId: AnyId, id: AnyId): Promise<boolean> {
-    return !!(await this.findById(parentId, id, {pick: ['_id']}));
+  async exists(documentId: AnyId, id: AnyId): Promise<boolean> {
+    return !!(await this.findById(documentId, id, {pick: ['_id']}));
   }
 
   /**
-   * Fetches the first item in an array field that matches by id.
+   * Finds an element in array field by its parent ID and ID.
    *
-   * @param parentId
-   * @param id
-   * @param options
+   * @param {AnyId} documentId - The ID of the document.
+   * @param {AnyId} id - The ID of the document.
+   * @param {MongoArrayService.FindOneOptions} [options] - The optional options for the operation.
+   * @returns {Promise<PartialOutput<T> | undefined>} - A promise that resolves to the found document or undefined if not found.
    */
   async findById(
-      parentId: AnyId,
+      documentId: AnyId,
       id: AnyId,
       options?: MongoArrayService.FindOneOptions
   ): Promise<PartialOutput<T> | undefined> {
     let filter = MongoAdapter.prepareKeyValues(id, [this.arrayKey]);
     if (options?.filter)
       filter = MongoAdapter.prepareFilter([filter, options?.filter]);
-    return await this.findOne(parentId, {...options, filter});
+    return await this.findOne(documentId, {...options, filter});
   }
 
 
   /**
-   * Fetches the first item in an array field that matches the filter. Returns undefined if not found.
+   * Finds the first array element that matches the given parentId.
    *
-   * @param parentId
-   * @param options
+   * @param {AnyId} documentId - The ID of the document.
+   * @param {MongoArrayService.FindOneOptions} [options] - Optional options to customize the query.
+   * @returns {Promise<PartialOutput<T> | undefined>} A promise that resolves to the first matching document, or `undefined` if no match is found.
    */
   async findOne(
-      parentId: AnyId,
+      documentId: AnyId,
       options?: MongoArrayService.FindOneOptions
   ): Promise<PartialOutput<T> | undefined> {
-    const rows = await this.findMany(parentId, {
+    const rows = await this.findMany(documentId, {
       ...options,
       limit: 1
     });
@@ -216,16 +256,17 @@ export class MongoArrayService<T extends mongodb.Document> extends MongoService<
   }
 
   /**
-   * Fetches all items in an array field that matches the filter
+   * Finds multiple elements in an array field.
    *
-   * @param parentId
-   * @param options
+   * @param {AnyId} documentId - The ID of the parent document.
+   * @param {MongoArrayService.FindManyOptions<T>} [options] - The options for finding the documents.
+   * @returns {Promise<PartialOutput<T>[] | undefined>} - The found documents.
    */
   async findMany(
-      parentId: AnyId,
+      documentId: AnyId,
       options?: MongoArrayService.FindManyOptions<T>
   ): Promise<PartialOutput<T>[] | undefined> {
-    const matchFilter = MongoAdapter.prepareKeyValues(parentId, [this.collectionKey]);
+    const matchFilter = MongoAdapter.prepareKeyValues(documentId, [this.collectionKey]);
     const mongoOptions: mongodb.AggregateOptions = {
       ...omit(options, ['pick', 'include', 'omit', 'sort', 'skip', 'limit', 'filter', 'count'])
     };
@@ -259,10 +300,11 @@ export class MongoArrayService<T extends mongodb.Document> extends MongoService<
     }
     dataStages.push({$limit: limit});
 
-    const dataType = this.getArrayDataType();
+    const dataType = this.getDataType();
     const projection = MongoAdapter.prepareProjection(dataType, options);
     if (projection)
       dataStages.push({$project: projection});
+    const decoder = this.getDecoder();
 
     const cursor: mongodb.AggregationCursor = await this.__aggregate(stages, {
       ...mongoOptions
@@ -271,7 +313,7 @@ export class MongoArrayService<T extends mongodb.Document> extends MongoService<
       if (options?.count) {
         const facetResult = await cursor.toArray();
         this.context.response.totalMatches = facetResult[0].count[0].totalMatches || 0;
-        return facetResult[0].data;
+        return facetResult[0].data.map((r: any) => decoder(r));
       } else
         return await cursor.toArray();
     } finally {
@@ -281,43 +323,47 @@ export class MongoArrayService<T extends mongodb.Document> extends MongoService<
   }
 
   /**
-   * Fetches the first item in an array field that matches the item id. Throws error undefined if not found.
+   * Retrieves a specific item from the array of a document.
    *
-   * @param parentId
-   * @param id
-   * @param options
+   * @param {AnyId} documentId - The ID of the document.
+   * @param {AnyId} id - The ID of the item.
+   * @param {MongoArrayService.FindOneOptions<T>} [options] - The options for finding the item.
+   * @returns {Promise<PartialOutput<T>>} - The item found.
+   * @throws {ResourceNotFoundError} - If the item is not found.
    */
   async get(
-      parentId: AnyId,
+      documentId: AnyId,
       id: AnyId,
       options?: MongoArrayService.FindOneOptions<T>
   ): Promise<PartialOutput<T>> {
-    const out = await this.findById(parentId, id, options);
+    const out = await this.findById(documentId, id, options);
     if (!out)
       throw new ResourceNotFoundError(
           (this.resourceName || this.getCollectionName()) + '.' + this.arrayKey,
-          parentId + '/' + id);
+          documentId + '/' + id);
     return out;
   }
 
 
   /**
-   * Update a single item in array field
+   * Updates an array element with new data and returns the updated element
    *
-   * @param parentId
-   * @param id
-   * @param input
-   * @param options
+   * @param {AnyId} documentId - The ID of the document to update.
+   * @param {AnyId} id - The ID of the item to update within the document.
+   * @param {PartialInput<T>} input - The new data to update the item with.
+   * @param {MongoArrayService.UpdateOptions<T>} [options] - Additional update options.
+   * @returns {Promise<PartialOutput<T> | undefined>} The updated item or undefined if it does not exist.
+   * @throws {Error} If an error occurs while updating the item.
    */
   async update(
-      parentId: AnyId,
+      documentId: AnyId,
       id: AnyId,
       input: PartialInput<T>,
       options?: MongoArrayService.UpdateOptions<T>
   ): Promise<PartialOutput<T> | undefined> {
-    await this.updateOnly(parentId, id, input, options);
+    await this.updateOnly(documentId, id, input, options);
     try {
-      return await this.findById(parentId, id, options);
+      return await this.findById(documentId, id, options);
     } catch (e: any) {
       Error.captureStackTrace(e);
       throw e;
@@ -325,16 +371,16 @@ export class MongoArrayService<T extends mongodb.Document> extends MongoService<
   }
 
   /**
-   * Update a single item in array field
-   * Returns how many master documents updated (not array items)
+   * Update an array element with new data. Returns 1 if document updated 0 otherwise.
    *
-   * @param parentId
-   * @param id
-   * @param doc
-   * @param options
+   * @param {AnyId} documentId - The ID of the parent document.
+   * @param {AnyId} id - The ID of the document to update.
+   * @param {PartialInput<T>} doc - The partial input object containing the fields to update.
+   * @param {MongoArrayService.UpdateOptions<T>} [options] - Optional update options.
+   * @returns {Promise<number>} - A promise that resolves to the number of elements updated.
    */
   async updateOnly(
-      parentId: AnyId,
+      documentId: AnyId,
       id: AnyId,
       doc: PartialInput<T>,
       options?: MongoArrayService.UpdateOptions<T>
@@ -342,25 +388,28 @@ export class MongoArrayService<T extends mongodb.Document> extends MongoService<
     let filter = MongoAdapter.prepareKeyValues(id, [this.arrayKey]);
     if (options?.filter)
       filter = MongoAdapter.prepareFilter([filter, options?.filter]);
-    return await this.updateMany(parentId, doc, {...options, filter});
+    return await this.updateMany(documentId, doc, {...options, filter});
   }
 
   /**
-   * Update multiple items in array field, returns how many master documents updated (not array items)
+   * Updates multiple array elements in document
    *
-   * @param parentId
-   * @param input
-   * @param options
+   * @param {AnyId} documentId - The ID of the document to update.
+   * @param {PartialInput<T>} input - The updated data for the document(s).
+   * @param {MongoArrayService.UpdateManyOptions<T>} [options] - Additional options for the update operation.
+   * @returns {Promise<number>} - A promise that resolves to the number of documents updated.
    */
   async updateMany(
-      parentId: AnyId,
+      documentId: AnyId,
       input: PartialInput<T>,
       options?: MongoArrayService.UpdateManyOptions<T>
   ): Promise<number> {
-    const encode = this._getEncoder('update');
+    const encode = this.getEncoder('update');
     const doc = encode(input);
+    if (!Object.keys(doc).length)
+      return 0;
     const matchFilter = MongoAdapter.prepareFilter([
-      MongoAdapter.prepareKeyValues(parentId, [this.collectionKey]),
+      MongoAdapter.prepareKeyValues(documentId, [this.collectionKey]),
       {[this.fieldName]: {$exists: true}}
     ])
     if (options?.filter) {
@@ -381,61 +430,33 @@ export class MongoArrayService<T extends mongodb.Document> extends MongoService<
   }
 
   /**
-   * Update multiple items in array field and returns number of updated array items
+   * Updates multiple elements and returns the count of elements that were updated.
    *
-   * @param parentId
-   * @param doc
-   * @param options
+   * @param {AnyId} documentId - The ID of the document to update.
+   * @param {PartialInput<T>} doc - The partial document to update with.
+   * @param {MongoArrayService.UpdateManyOptions<T>} [options] - The options for updating multiple documents.
+   * @return {Promise<number>} A promise that resolves to the number of elements updated.
    */
   async updateManyReturnCount(
-      parentId: AnyId,
+      documentId: AnyId,
       doc: PartialInput<T>,
       options?: MongoArrayService.UpdateManyOptions<T>
   ): Promise<number> {
-    const r = await this.updateMany(parentId, doc, options);
+    const r = await this.updateMany(documentId, doc, options);
     return r
         // Count matching items that fits filter criteria
-        ? await this.count(parentId, options)
+        ? await this.count(documentId, options)
         : 0;
   }
 
   /**
-   * Generates Id value
+   * Generates a new id for new inserting Document.
    *
    * @protected
+   * @returns {AnyId} A new instance of AnyId.
    */
   protected _generateId(): AnyId {
     return new ObjectId();
-  }
-
-  /**
-   * Generates a new Validator  for encoding or returns from cache if already generated before
-   * @param operation
-   * @protected
-   */
-  protected _getEncoder(operation: 'create' | 'update'): vg.Validator {
-    let encoder = this._encoders[operation];
-    if (encoder)
-      return encoder;
-    encoder = this._generateEncoder(operation);
-    this._encoders[operation] = encoder;
-    return encoder;
-  }
-
-  /**
-   * Generates a new Valgen Validator for encode operation
-   *
-   * @param operation
-   * @protected
-   */
-  protected _generateEncoder(operation: 'create' | 'update'): vg.Validator {
-    const dataType = this.getArrayDataType();
-    const options: DataType.GenerateCodecOptions = {};
-    if (operation === 'update') {
-      options.omit = ['_id'];
-      options.partial = true;
-    }
-    return dataType.generateCodec('encode', options);
   }
 
 }
@@ -446,31 +467,69 @@ export class MongoArrayService<T extends mongodb.Document> extends MongoService<
  */
 export namespace MongoArrayService {
 
+  /**
+   * The constructor options of MongoArrayService.
+   */
   export interface Options extends MongoCollectionService.Options {
     arrayKey?: string;
   }
 
+  /**
+   * Represents options for creating objects.
+   *
+   * @interface
+   */
   export interface CreateOptions extends mongodb.UpdateOptions {
     pick?: string[],
     omit?: string[],
     include?: string[],
   }
 
+  /**
+   * Represents options for counting a new object.
+   *
+   * @interface
+   * @template T - The type of the document.
+   */
   export interface CountOptions<T> extends mongodb.AggregateOptions {
     filter?: mongodb.Filter<T> | OpraCommon.OpraFilter.Ast | string;
   }
 
+  /**
+   * Represents options for deleting single object.
+   *
+   * @interface
+   * @template T - The type of the document.
+   */
   export interface DeleteOptions<T> extends mongodb.UpdateOptions {
     filter?: mongodb.Filter<T> | OpraCommon.OpraFilter.Ast | string;
   }
 
+  /**
+   * Represents options for deleting multiple objects.
+   *
+   * @interface
+   * @template T - The type of the document.
+   */
   export interface DeleteManyOptions<T> extends mongodb.UpdateOptions {
     filter?: mongodb.Filter<T> | OpraCommon.OpraFilter.Ast | string;
   }
 
+  /**
+   * Represents options for finding single object.
+   *
+   * @interface
+   * @template T - The type of the document.
+   */
   export interface FindOneOptions<T = any> extends StrictOmit<FindManyOptions<T>, 'count' | 'limit'> {
   }
 
+  /**
+   * Represents options for finding multiple objects.
+   *
+   * @interface
+   * @template T - The type of the document.
+   */
   export interface FindManyOptions<T> extends mongodb.AggregateOptions {
     filter?: mongodb.Filter<T> | OpraCommon.OpraFilter.Ast | string;
     pick?: string[],
@@ -482,6 +541,12 @@ export namespace MongoArrayService {
     skip?: number;
   }
 
+  /**
+   * Represents options for updating single object.
+   *
+   * @interface
+   * @template T - The type of the document.
+   */
   export interface UpdateOptions<T> extends mongodb.UpdateOptions {
     pick?: string[],
     omit?: string[],
@@ -489,6 +554,12 @@ export namespace MongoArrayService {
     filter?: mongodb.Filter<T> | OpraCommon.OpraFilter.Ast | string;
   }
 
+  /**
+   * Represents options for updating multiple objects.
+   *
+   * @interface
+   * @template T - The type of the document.
+   */
   export interface UpdateManyOptions<T> extends mongodb.UpdateOptions {
     filter?: mongodb.Filter<T> | OpraCommon.OpraFilter.Ast | string;
   }
