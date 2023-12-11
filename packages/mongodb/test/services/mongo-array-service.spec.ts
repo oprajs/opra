@@ -6,6 +6,7 @@ describe('MongoArrayService', function () {
   let app: TestApp;
   let service: MongoArrayService<any>;
   const tempRecords: any[] = [];
+  const interceptorFn = (fn) => fn();
 
   beforeAll(async () => {
     app = await TestApp.create();
@@ -63,7 +64,7 @@ describe('MongoArrayService', function () {
     it('Should apply filter returned by documentFilter', async () => {
       const ctx = await app.createContext();
       await expect(() => service
-          .for(ctx, {documentFilter: () => '_id=2'})
+          .for(ctx, {$documentFilter: '_id=2'})
           .assert(1, 1)).rejects
           .toThrow('NOT_FOUND');
     });
@@ -71,7 +72,7 @@ describe('MongoArrayService', function () {
     it('Should apply filter returned by arrayFilter', async () => {
       const ctx = await app.createContext();
       await expect(() => service
-          .for(ctx, {arrayFilter: () => 'rank=99'})
+          .for(ctx, {$arrayFilter: () => 'rank=99'})
           .assert(1, 1)).rejects
           .toThrow('NOT_FOUND');
     });
@@ -100,7 +101,7 @@ describe('MongoArrayService', function () {
     it('Should apply filter returned by documentFilter', async () => {
       const ctx = await app.createContext();
       const result: any = await service
-          .for(ctx, {documentFilter: '_id=2'})
+          .for(ctx, {$documentFilter: '_id=2'})
           .count(1);
       expect(result).toEqual(0);
     });
@@ -108,9 +109,19 @@ describe('MongoArrayService', function () {
     it('Should apply filter returned by arrayFilter', async () => {
       const ctx = await app.createContext();
       const result: any = await service
-          .for(ctx, {arrayFilter: 'rank=2'})
+          .for(ctx, {$arrayFilter: 'rank=2'})
           .count(1);
       expect(result).toEqual(1);
+    });
+
+    it('Should run in interceptor', async () => {
+      const mockFn = jest.fn(interceptorFn);
+      const ctx = await app.createContext();
+      const result = await service
+          .for(ctx, {$interceptor: mockFn})
+          .count(1);
+      expect(result).toBeGreaterThan(0);
+      expect(mockFn).toBeCalled();
     });
 
   });
@@ -140,7 +151,7 @@ describe('MongoArrayService', function () {
     it('Should apply filter returned by documentFilter', async () => {
       const ctx = await app.createContext();
       const result: any = await service
-          .for(ctx, {documentFilter: '_id=2'})
+          .for(ctx, {$documentFilter: '_id=2'})
           .findById(1, 1);
       expect(result).not.toBeDefined();
     });
@@ -148,9 +159,19 @@ describe('MongoArrayService', function () {
     it('Should apply filter returned by arrayFilter()', async () => {
       const ctx = await app.createContext();
       const result: any = await service
-          .for(ctx, {arrayFilter: () => 'rank=99'})
+          .for(ctx, {$arrayFilter: () => 'rank=99'})
           .findById(1, 1);
       expect(result).not.toBeDefined();
+    });
+
+    it('Should run in interceptor', async () => {
+      const mockFn = jest.fn(interceptorFn);
+      const ctx = await app.createContext();
+      const result: any = await service
+          .for(ctx, {$interceptor: mockFn})
+          .findById(1, 1);
+      expect(result).toBeDefined();
+      expect(mockFn).toBeCalled();
     });
 
   });
@@ -197,7 +218,7 @@ describe('MongoArrayService', function () {
     it('Should apply filter returned by documentFilter', async () => {
       const ctx = await app.createContext();
       const result: any = await service
-          .for(ctx, {documentFilter: '_id=2'})
+          .for(ctx, {$documentFilter: '_id=2'})
           .findOne(1);
       expect(result).not.toBeDefined();
     });
@@ -205,7 +226,7 @@ describe('MongoArrayService', function () {
     it('Should apply filter returned by arrayFilter', async () => {
       const ctx = await app.createContext();
       const result: any = await service.for(ctx)
-          .for(ctx, {arrayFilter: 'rank=2'})
+          .for(ctx, {$arrayFilter: 'rank=2'})
           .findOne(1);
       expect(result.rank).toEqual(2);
     });
@@ -267,6 +288,16 @@ describe('MongoArrayService', function () {
       expect(result1._id).toBeLessThan(result2._id);
     });
 
+    it('Should run in interceptor', async () => {
+      const mockFn = jest.fn(interceptorFn);
+      const ctx = await app.createContext();
+      const result: any = await service
+          .for(ctx, {$interceptor: mockFn})
+          .findOne(1);
+      expect(result).toBeDefined();
+      expect(mockFn).toBeCalled();
+    });
+
   });
 
 
@@ -304,7 +335,7 @@ describe('MongoArrayService', function () {
     it('Should apply filter returned by documentFilter', async () => {
       const ctx = await app.createContext();
       const result: any = await service.for(ctx)
-          .for(ctx, {documentFilter: '_id=2'})
+          .for(ctx, {$documentFilter: '_id=2'})
           .findMany(1);
       expect(result.length).toEqual(0);
     });
@@ -312,7 +343,7 @@ describe('MongoArrayService', function () {
     it('Should apply filter returned by arrayFilter', async () => {
       const ctx = await app.createContext();
       const result: any = await service
-          .for(ctx, {arrayFilter: 'rank=2'})
+          .for(ctx, {$arrayFilter: 'rank=2'})
           .findMany(1);
       expect(result.length).toEqual(1);
       expect(result[0].rank).toEqual(2);
@@ -427,6 +458,17 @@ describe('MongoArrayService', function () {
       expect(ctx.response.totalMatches).toBeGreaterThan(5);
     });
 
+    it('Should run in interceptor', async () => {
+      const mockFn = jest.fn(interceptorFn);
+      const ctx = await app.createContext();
+      const result: any = await service
+          .for(ctx, {$interceptor: mockFn})
+          .findMany(1);
+      expect(result).toBeDefined();
+      expect(result.length).toBeGreaterThan(0);
+      expect(mockFn).toBeCalled();
+    });
+
   });
 
 
@@ -454,7 +496,7 @@ describe('MongoArrayService', function () {
     it('Should apply filter returned by documentFilter', async () => {
       const ctx = await app.createContext();
       await expect(() => service
-          .for(ctx, {documentFilter: '_id=999'})
+          .for(ctx, {$documentFilter: '_id=999'})
           .get(1, 1)).rejects
           .toThrow('NOT_FOUND');
     });
@@ -462,7 +504,7 @@ describe('MongoArrayService', function () {
     it('Should apply filter returned by arrayFilter', async () => {
       const ctx = await app.createContext();
       await expect(() => service
-          .for(ctx, {arrayFilter: 'rank=99'})
+          .for(ctx, {$arrayFilter: 'rank=99'})
           .get(1, 1)).rejects
           .toThrow('NOT_FOUND');
     });
@@ -490,6 +532,27 @@ describe('MongoArrayService', function () {
           .toThrow('NOT_FOUND')
     });
 
+    it('Should run in interceptor', async () => {
+      const mockFn = jest.fn(interceptorFn);
+      const ctx = await app.createContext();
+      const doc = {_id: 101, title: faker.lorem.text()};
+      const result: any = await service
+          .for(ctx, {$interceptor: mockFn})
+          .create(1, doc);
+      expect(result).toBeDefined();
+      expect(mockFn).toBeCalled();
+    });
+
+    it('Should run in interceptor', async () => {
+      const mockFn = jest.fn(interceptorFn);
+      const ctx = await app.createContext();
+      const result: any = await service
+          .for(ctx, {$interceptor: mockFn})
+          .get(1, 1);
+      expect(result).toBeDefined();
+      expect(mockFn).toBeCalled();
+    });
+
   });
 
 
@@ -515,7 +578,7 @@ describe('MongoArrayService', function () {
       const ctx = await app.createContext();
       const doc = {uid: faker.string.uuid()};
       const result = await service
-          .for(ctx, {documentFilter: '_id=999'})
+          .for(ctx, {$documentFilter: '_id=999'})
           .updateOnly(2, 1, doc);
       expect(result).toEqual(0);
     });
@@ -524,9 +587,21 @@ describe('MongoArrayService', function () {
       const ctx = await app.createContext();
       const doc = {uid: faker.string.uuid()};
       const result = await service
-          .for(ctx, {arrayFilter: 'rank=99'})
+          .for(ctx, {$arrayFilter: 'rank=99'})
           .updateOnly(2, 1, doc);
       expect(result).toEqual(0);
+    });
+
+    it('Should run in interceptor', async () => {
+      const mockFn = jest.fn(interceptorFn);
+      const ctx = await app.createContext();
+      const doc = {uid: faker.string.uuid()};
+      const srcDoc = tempRecords[5];
+      const result = await service
+          .for(ctx, {$interceptor: mockFn})
+          .updateOnly(srcDoc._id, srcDoc.notes[0]._id, doc);
+      expect(result).toEqual(1);
+      expect(mockFn).toBeCalled();
     });
 
   });
@@ -556,7 +631,7 @@ describe('MongoArrayService', function () {
       const ctx = await app.createContext();
       const doc = {uid: faker.string.uuid()};
       const result = await service
-          .for(ctx, {documentFilter: '_id=999'})
+          .for(ctx, {$documentFilter: '_id=999'})
           .update(2, 1, doc);
       expect(result).not.toBeDefined();
     });
@@ -565,9 +640,21 @@ describe('MongoArrayService', function () {
       const ctx = await app.createContext();
       const doc = {uid: faker.string.uuid()};
       const result = await service
-          .for(ctx, {arrayFilter: 'rank=99'})
+          .for(ctx, {$arrayFilter: 'rank=99'})
           .update(2, 1, doc);
       expect(result).not.toBeDefined();
+    });
+
+    it('Should run in interceptor', async () => {
+      const mockFn = jest.fn(interceptorFn);
+      const ctx = await app.createContext();
+      const doc = {uid: faker.string.uuid()};
+      const srcDoc = tempRecords[5];
+      const result: any = await service
+          .for(ctx, {$interceptor: mockFn})
+          .update(srcDoc._id, srcDoc.notes[0]._id, doc);
+      expect(result).toBeDefined();
+      expect(mockFn).toBeCalled();
     });
 
   });
@@ -612,7 +699,7 @@ describe('MongoArrayService', function () {
       const ctx = await app.createContext();
       const doc = {uid: faker.string.uuid()};
       const result = await service
-          .for(ctx, {documentFilter: '_id=999'})
+          .for(ctx, {$documentFilter: '_id=999'})
           .updateMany(2, doc);
       expect(result).toEqual(0);
     });
@@ -621,10 +708,22 @@ describe('MongoArrayService', function () {
       const ctx = await app.createContext();
       const doc = {uid: faker.string.uuid()};
       const result = await service
-          .for(ctx, {arrayFilter: 'rank=99'})
+          .for(ctx, {$arrayFilter: 'rank=99'})
           .updateMany(2, doc);
       expect(result).toEqual(0);
     });
+
+    it('Should run in interceptor', async () => {
+      const mockFn = jest.fn(interceptorFn);
+      const ctx = await app.createContext();
+      const update = {uid: faker.string.uuid()};
+      const r = await service
+          .for(ctx, {$interceptor: mockFn})
+          .updateMany(tempRecords[3]._id, update);
+      expect(r).toBeGreaterThan(0);
+      expect(mockFn).toBeCalled();
+    });
+
 
   });
 
@@ -671,7 +770,7 @@ describe('MongoArrayService', function () {
       const ctx = await app.createContext();
       const doc = {uid: faker.string.uuid()};
       const result = await service
-          .for(ctx, {documentFilter: '_id=999'})
+          .for(ctx, {$documentFilter: '_id=999'})
           .updateManyReturnCount(2, doc);
       expect(result).toEqual(0);
     });
@@ -680,9 +779,20 @@ describe('MongoArrayService', function () {
       const ctx = await app.createContext();
       const doc = {uid: faker.string.uuid()};
       const result = await service
-          .for(ctx, {arrayFilter: 'rank=99'})
+          .for(ctx, {$arrayFilter: 'rank=99'})
           .updateManyReturnCount(2, doc);
       expect(result).toEqual(0);
+    });
+
+    it('Should run in interceptor', async () => {
+      const mockFn = jest.fn(interceptorFn);
+      const ctx = await app.createContext();
+      const update = {uid: faker.string.uuid()};
+      const r = await service
+          .for(ctx, {$interceptor: mockFn})
+          .updateManyReturnCount(tempRecords[3]._id, update);
+      expect(r).toBeGreaterThan(0);
+      expect(mockFn).toBeCalled();
     });
 
   });
@@ -715,7 +825,7 @@ describe('MongoArrayService', function () {
     it('Should apply filter returned by documentFilter', async () => {
       const ctx = await app.createContext();
       const result = await service
-          .for(ctx, {documentFilter: '_id=999'})
+          .for(ctx, {$documentFilter: '_id=999'})
           .delete(3, 1);
       expect(result).toEqual(0);
     });
@@ -723,9 +833,20 @@ describe('MongoArrayService', function () {
     it('Should apply filter returned by arrayFilter', async () => {
       const ctx = await app.createContext();
       const result = await service
-          .for(ctx, {arrayFilter: 'rank=99'})
+          .for(ctx, {$arrayFilter: 'rank=99'})
           .delete(3, 1);
       expect(result).toEqual(0);
+    });
+
+    it('Should run in interceptor', async () => {
+      const mockFn = jest.fn(interceptorFn);
+      const ctx = await app.createContext();
+      const doc = tempRecords[2];
+      const result: any = await service
+          .for(ctx, {$interceptor: mockFn})
+          .delete(doc._id, doc.notes[0]._id);
+      expect(result).toEqual(1);
+      expect(mockFn).toBeCalled();
     });
 
   });
@@ -736,7 +857,7 @@ describe('MongoArrayService', function () {
     it('Should apply filter returned by documentFilter', async () => {
       const ctx = await app.createContext();
       const result = await service
-          .for(ctx, {documentFilter: '_id=999'})
+          .for(ctx, {$documentFilter: '_id=999'})
           .deleteMany(1);
       expect(result).toEqual(0);
     });
@@ -744,7 +865,7 @@ describe('MongoArrayService', function () {
     it('Should apply filter returned by arrayFilter', async () => {
       const ctx = await app.createContext();
       const result = await service
-          .for(ctx, {arrayFilter: 'rank=99'})
+          .for(ctx, {$arrayFilter: 'rank=99'})
           .deleteMany(3);
       expect(result).toEqual(0);
     });
@@ -759,7 +880,6 @@ describe('MongoArrayService', function () {
       expect(r).toBeGreaterThan(0);
     });
 
-
     it('Should delete all object from the array field', async () => {
       const ctx = await app.createContext();
       const result: any = await service.for(ctx)
@@ -770,8 +890,15 @@ describe('MongoArrayService', function () {
       expect(r).toEqual(0);
     });
 
+    it('Should run in interceptor', async () => {
+      const mockFn = jest.fn(interceptorFn);
+      const ctx = await app.createContext();
+      const result: any = await service
+          .for(ctx, {$interceptor: mockFn})
+          .deleteMany(1);
+      expect(result).toBeGreaterThanOrEqual(0);
+      expect(mockFn).toBeCalled();
+    });
   });
 
-
 });
-

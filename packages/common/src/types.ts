@@ -11,29 +11,32 @@ export type TypeThunkAsync<T = any> = ThunkAsync<Type<T>>;
  */
 export type DTO<T> = _DTO<Exclude<T, undefined>>;
 type _DTO<T, K extends keyof T = WritableKeys<T>> =
-    IfNoDeepValue<T> extends true ? T
-        : OmitNever<{
-          [P in K]: P extends symbol ? never
-              : T[P] extends Function ? never
-                  : DTO<Exclude<T[P], undefined>>
-        }>;
+    T extends (infer U)[] ? DTO<U>[]
+        : IfNoDeepValue<T> extends true ? T
+            : OmitNever<{
+              [P in K]: P extends symbol ? never
+                  : T[P] extends Function ? never
+                      : DTO<Exclude<T[P], undefined>>
+            }>;
 
 export type PartialDTO<T> = _PartialDTO<Exclude<T, undefined>>;
 type _PartialDTO<T, K extends keyof T = WritableKeys<T>> =
-    IfNoDeepValue<T> extends true ? T
-        : OmitNever<{
-          [P in K]?: P extends symbol ? never
-              : T[P] extends Function ? never
-                  : PartialDTO<Exclude<T[P], undefined>>
-        }>;
+    T extends (infer U)[] ? PartialDTO<U>[]
+        : IfNoDeepValue<T> extends true ? T
+            : OmitNever<{
+              [P in K]?: P extends symbol ? never
+                  : T[P] extends Function ? never
+                      : PartialDTO<Exclude<T[P], undefined>>
+            }>;
 
 
 export type PatchDTO<T> = _PatchDTO<Exclude<T, undefined>>;
 type _PatchDTO<T, K extends keyof T = WritableKeys<T>> =
-    IfNoDeepValue<T> extends true ? T
-        : OmitNever<{
-          [P in K]?: P extends symbol ? never
-              : T[P] extends Function ? never
-                  : IfUndefined<T> extends true ? T[P]
-                      : PatchDTO<Exclude<T[P], undefined>> | null
-        }>;
+    T extends (infer U)[] ? PatchDTO<U>[]
+        : IfNoDeepValue<T> extends true ? T
+            : OmitNever<{
+              [P in K]?: P extends symbol ? never
+                  : T[P] extends Function ? never
+                      : IfUndefined<T> extends true ? T[P]
+                          : PatchDTO<Exclude<T[P], undefined>> | null
+            }>;

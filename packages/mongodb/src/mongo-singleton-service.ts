@@ -30,9 +30,33 @@ export class MongoSingletonService<T extends mongodb.Document> extends MongoServ
   /**
    * Represents a common filter function for a MongoCollectionService.
    *
-   * @type {FilterInput | MongoCollectionService.CommonFilterFunction}
+   * @type {FilterInput | Function}
    */
-  documentFilter?: FilterInput | MongoSingletonService.CommonFilterFunction;
+  $documentFilter?: FilterInput | ((_this: this) => FilterInput | Promise<FilterInput> | undefined);
+
+  /**
+   * Interceptor function for handling callback execution with provided arguments.
+   *
+   * @param {Function} callback - The callback function to be intercepted.
+   * @param {Object} args - The arguments object containing the following properties:
+   *   @param {string} crud - The CRUD operation type.
+   *   @param {string} method - The method name.
+   *   @param {AnyId} documentId - The document ID (optional).
+   *   @param {Object} input - The input object (optional).
+   *   @param {Object} options - Additional options (optional).
+   * @param {Object} _this - The reference to the current object.
+   * @returns {Promise<any>} - The promise that resolves to the result of the callback execution.
+   */
+  $interceptor?: (
+      callback: (...args: any[]) => any,
+      args: {
+        crud: MongoService.CrudOp;
+        method: string;
+        documentId?: AnyId;
+        input?: Object;
+        options?: Record<string, any>
+      }, _this: any
+  ) => Promise<any>;
 
   /**
    * Constructs a new instance
@@ -43,9 +67,10 @@ export class MongoSingletonService<T extends mongodb.Document> extends MongoServ
    */
   constructor(dataType: Type | string, options?: MongoSingletonService.Options) {
     super(dataType, options);
-    this.collectionKey = options?.collectionKey || '_id';
-    this._id = options?._id || new ObjectId('655608925cad472b75fc6485');
-    this.documentFilter = options?.documentFilter;
+    this.collectionKey = this.collectionKey || options?.collectionKey || '_id';
+    this._id = this._id || options?._id || new ObjectId('655608925cad472b75fc6485');
+    this.$documentFilter = this.$documentFilter || options?.documentFilter;
+    this.$interceptor = this.$interceptor || options?.interceptor;
   }
 
   /**
@@ -56,7 +81,7 @@ export class MongoSingletonService<T extends mongodb.Document> extends MongoServ
    */
   async assert(options?: MongoSingletonService.ExistsOptions): Promise<void> {
     if (!(await this.exists(options)))
-      throw new ResourceNotFoundError(this.resourceName || this.getCollectionName());
+      throw new ResourceNotFoundError(this.getResourceName());
   }
 
   /**
@@ -71,15 +96,16 @@ export class MongoSingletonService<T extends mongodb.Document> extends MongoServ
       input: DTO<T>,
       options?: MongoSingletonService.CreateOptions
   ): Promise<PartialDTO<T>> {
-    if (this.interceptor && !(options as any)?.__interceptor__)
-      return this.interceptor(
+    if (this.$interceptor && !(options as any)?.__interceptor__)
+      return this.$interceptor(
           () => this.create(input, {...options, __interceptor__: true} as Object),
           {
             crud: 'create',
             method: 'create',
             input,
             options,
-          }
+          },
+          this
       );
     const encode = this.getEncoder('create');
     const doc: any = encode(input);
@@ -106,14 +132,15 @@ export class MongoSingletonService<T extends mongodb.Document> extends MongoServ
    * @returns {Promise<number>} The number of records deleted
    */
   async delete(options?: MongoSingletonService.DeleteOptions<T>): Promise<number> {
-    if (this.interceptor && !(options as any)?.__interceptor__)
-      return this.interceptor(
+    if (this.$interceptor && !(options as any)?.__interceptor__)
+      return this.$interceptor(
           () => this.delete({...options, __interceptor__: true} as Object),
           {
             crud: 'delete',
             method: 'delete',
             options,
-          }
+          },
+          this
       );
     const filter = MongoAdapter.prepareFilter([
       {_id: this._id},
@@ -130,14 +157,15 @@ export class MongoSingletonService<T extends mongodb.Document> extends MongoServ
    * @return {Promise<boolean>} - A promise that resolves to a boolean value indicating if the document exists.
    */
   async exists(options?: MongoSingletonService.ExistsOptions): Promise<boolean> {
-    if (this.interceptor && !(options as any)?.__interceptor__)
-      return this.interceptor(
+    if (this.$interceptor && !(options as any)?.__interceptor__)
+      return this.$interceptor(
           () => this.exists({...options, __interceptor__: true} as Object),
           {
             crud: 'read',
             method: 'exists',
             options,
-          }
+          },
+          this
       );
     return !!(await this.findOne({...options, pick: ['_id']}));
   }
@@ -151,14 +179,15 @@ export class MongoSingletonService<T extends mongodb.Document> extends MongoServ
   async findOne(
       options?: MongoSingletonService.FindOptions<T>
   ): Promise<PartialDTO<T> | undefined> {
-    if (this.interceptor && !(options as any)?.__interceptor__)
-      return this.interceptor(
+    if (this.$interceptor && !(options as any)?.__interceptor__)
+      return this.$interceptor(
           () => this.findOne({...options, __interceptor__: true} as Object),
           {
             crud: 'read',
             method: 'find',
             options,
-          }
+          },
+          this
       );
     const filter = MongoAdapter.prepareFilter([
       {_id: this._id},
@@ -187,7 +216,7 @@ export class MongoSingletonService<T extends mongodb.Document> extends MongoServ
   async get(options?: MongoSingletonService.FindOptions<T>): Promise<PartialDTO<T>> {
     const out = await this.findOne(options);
     if (!out)
-      throw new ResourceNotFoundError(this.resourceName || this.getCollectionName());
+      throw new ResourceNotFoundError(this.getResourceName());
     return out;
   }
 
@@ -203,15 +232,16 @@ export class MongoSingletonService<T extends mongodb.Document> extends MongoServ
       input: PatchDTO<T>,
       options?: MongoSingletonService.UpdateOptions<T>
   ): Promise<number> {
-    if (this.interceptor && !(options as any)?.__interceptor__)
-      return this.interceptor(
+    if (this.$interceptor && !(options as any)?.__interceptor__)
+      return this.$interceptor(
           () => this.updateOnly(input, {...options, __interceptor__: true} as Object),
           {
             crud: 'update',
             method: 'update',
             input,
             options,
-          }
+          },
+          this
       );
     const encode = this.getEncoder('update');
     const doc = encode(input);
@@ -243,15 +273,16 @@ export class MongoSingletonService<T extends mongodb.Document> extends MongoServ
       input: PatchDTO<T>,
       options?: MongoSingletonService.UpdateOptions<T>
   ): Promise<PartialDTO<T> | undefined> {
-    if (this.interceptor && !(options as any)?.__interceptor__)
-      return this.interceptor(
+    if (this.$interceptor && !(options as any)?.__interceptor__)
+      return this.$interceptor(
           () => this.update(input, {...options, __interceptor__: true} as Object),
           {
             crud: 'update',
             method: 'update',
             input,
             options,
-          }
+          },
+          this
       );
     const encode = this.getEncoder('update');
     const doc = encode(input);
@@ -281,8 +312,8 @@ export class MongoSingletonService<T extends mongodb.Document> extends MongoServ
    * that resolves to the common filter, or undefined if not available.
    */
   protected _getDocumentFilter(): FilterInput | Promise<FilterInput> | undefined {
-    return typeof this.documentFilter === 'function'
-        ? this.documentFilter(this) : this.documentFilter;
+    return typeof this.$documentFilter === 'function' ?
+        this.$documentFilter(this) : this.$documentFilter;
   }
 
 }
@@ -293,9 +324,6 @@ export class MongoSingletonService<T extends mongodb.Document> extends MongoServ
  */
 export namespace MongoSingletonService {
 
-  export type CommonFilterFunction =
-      (_this: MongoSingletonService<any>) => FilterInput | undefined;
-
 
   /**
    * The constructor options of MongoSingletonService.
@@ -304,9 +332,10 @@ export namespace MongoSingletonService {
    * @extends MongoService.Options
    */
   export interface Options extends MongoService.Options {
-    collectionKey?: string;
-    _id?: AnyId;
-    documentFilter?: CommonFilterFunction;
+    collectionKey?: MongoSingletonService<any>['collectionKey'];
+    _id?: MongoSingletonService<any>['_id'];
+    documentFilter?: MongoSingletonService<any>['$documentFilter'];
+    interceptor?: MongoSingletonService<any>['$interceptor'];
   }
 
   /**

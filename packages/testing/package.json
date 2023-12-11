@@ -31,8 +31,6 @@
     "ansi-colors": "^4.1.3",
     "rule-judgment": "^1.1.5"
   },
-  "devDependencies": {
-  },
   "type": "module",
   "module": "./esm/index.js",
   "main": "./cjs/index.js",
