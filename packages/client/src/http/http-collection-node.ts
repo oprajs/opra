@@ -1,6 +1,5 @@
 import { toArrayDef } from 'putil-varhelpers';
-import type { PartialInput } from '@opra/common';
-import { OperationResult, OpraFilter, OpraURL } from '@opra/common';
+import { DTO, OperationResult, OpraFilter, OpraURL, PatchDTO } from '@opra/common';
 import { HttpBackend } from './http-backend.js';
 import { HttpRequestObservable } from './http-request-observable.js';
 
@@ -17,7 +16,7 @@ export class HttpCollectionNode<TType, TRequestOptions = {}, TResponseExt = {}> 
   }
 
   create(
-      data: PartialInput<TType>,
+      data: DTO<TType>,
       options?: HttpCollectionNode.CreateOptions
   ) {
     const observable =
@@ -137,7 +136,7 @@ export class HttpCollectionNode<TType, TRequestOptions = {}, TResponseExt = {}> 
 
   update(
       id: any,
-      data: PartialInput<TType>,
+      data: PatchDTO<TType>,
       options?: HttpCollectionNode.UpdateOptions
   ) {
     if (id == null)
@@ -165,7 +164,7 @@ export class HttpCollectionNode<TType, TRequestOptions = {}, TResponseExt = {}> 
   }
 
   updateMany(
-      data: PartialInput<TType>,
+      data: PatchDTO<TType>,
       options?: HttpCollectionNode.UpdateManyOptions
   ) {
     const observable =

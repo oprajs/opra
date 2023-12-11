@@ -1,5 +1,4 @@
-import isNil from 'lodash.isnil';
-import omitBy from 'lodash.omitby';
+import { omitNullish } from '@opra/common';
 import { ApiExpectBase } from './api-expect-base.js';
 
 export class ApiExpectObject extends ApiExpectBase {
@@ -14,7 +13,7 @@ export class ApiExpectObject extends ApiExpectBase {
    */
   toMatch<T extends {}>(expected: T): this {
     try {
-      expected = omitBy(expected, isNil) as T;
+      expected = omitNullish(expected) as T;
       this._expect(this.response.body.payload).toEqual(
           expect.objectContaining(expected)
       )

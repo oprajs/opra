@@ -1,5 +1,5 @@
 import { Maybe } from 'ts-gems';
-import { ICollection, PartialOutput } from '@opra/common';
+import { ICollection, PartialDTO } from '@opra/common';
 import { RequestContext } from '@opra/core';
 import { SQBAdapter } from './sqb-adapter.js';
 import { SqbEntityService } from './sqb-entity-service.js';
@@ -18,7 +18,7 @@ export abstract class SqbCollection<T> implements ICollection<T> {
     this.defaultLimit = options?.defaultLimit || 100;
   }
 
-  async create?(ctx: RequestContext): Promise<PartialOutput<T>> {
+  async create?(ctx: RequestContext): Promise<PartialDTO<T>> {
     const prepared = await this._prepare(ctx);
     return this._create(ctx, prepared);
   }
@@ -33,12 +33,12 @@ export abstract class SqbCollection<T> implements ICollection<T> {
     return this._deleteMany(ctx, prepared);
   }
 
-  async get?(ctx: RequestContext): Promise<Maybe<PartialOutput<T>>> {
+  async get?(ctx: RequestContext): Promise<Maybe<PartialDTO<T>>> {
     const prepared = await this._prepare(ctx);
     return this._get(ctx, prepared);
   }
 
-  async update?(ctx: RequestContext): Promise<Maybe<PartialOutput<T>>> {
+  async update?(ctx: RequestContext): Promise<Maybe<PartialDTO<T>>> {
     const prepared = await this._prepare(ctx);
     return this._update(ctx, prepared);
   }
@@ -48,12 +48,12 @@ export abstract class SqbCollection<T> implements ICollection<T> {
     return this._updateMany(ctx, prepared);
   }
 
-  async findMany?(ctx: RequestContext): Promise<PartialOutput<T>[]> {
+  async findMany?(ctx: RequestContext): Promise<PartialDTO<T>[]> {
     const prepared = await this._prepare(ctx);
     return this._findMany(ctx, prepared);
   }
 
-  protected async _create(ctx: RequestContext, prepared: SQBAdapter.TransformedRequest): Promise<PartialOutput<T>> {
+  protected async _create(ctx: RequestContext, prepared: SQBAdapter.TransformedRequest): Promise<PartialDTO<T>> {
     const service = await this.getService(ctx);
     return service.create(prepared.data, prepared.options);
   }
@@ -68,12 +68,12 @@ export abstract class SqbCollection<T> implements ICollection<T> {
     return service.deleteMany(prepared.options);
   }
 
-  protected async _get(ctx: RequestContext, prepared: SQBAdapter.TransformedRequest): Promise<Maybe<PartialOutput<T>>> {
+  protected async _get(ctx: RequestContext, prepared: SQBAdapter.TransformedRequest): Promise<Maybe<PartialDTO<T>>> {
     const service = await this.getService(ctx);
     return service.find(prepared.key, prepared.options);
   }
 
-  protected async _update(ctx: RequestContext, prepared: SQBAdapter.TransformedRequest): Promise<Maybe<PartialOutput<T>>> {
+  protected async _update(ctx: RequestContext, prepared: SQBAdapter.TransformedRequest): Promise<Maybe<PartialDTO<T>>> {
     const service = await this.getService(ctx);
     return service.update(prepared.key, prepared.data, prepared.options);
   }
@@ -83,7 +83,7 @@ export abstract class SqbCollection<T> implements ICollection<T> {
     return service.updateMany(prepared.data, prepared.options);
   }
 
-  protected async _findMany(ctx: RequestContext, prepared: SQBAdapter.TransformedRequest): Promise<PartialOutput<T>[]> {
+  protected async _findMany(ctx: RequestContext, prepared: SQBAdapter.TransformedRequest): Promise<PartialDTO<T>[]> {
     const service = await this.getService(ctx);
     if (prepared.options.count) {
       const [items, count] = await Promise.all([

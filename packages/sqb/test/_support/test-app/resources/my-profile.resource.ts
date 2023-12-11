@@ -27,7 +27,7 @@ export class MyProfileResource extends SqbSingleton<Profile> {
   update;
 
   getService(ctx: RequestContext) {
-    return this.service.forContext(ctx);
+    return this.service.for(ctx);
   }
 
 }

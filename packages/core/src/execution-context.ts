@@ -1,3 +1,4 @@
+import { ExecutionContextHost } from './execution-context.host.js';
 import type { HttpServerRequest } from './http/http-server-request.js';
 import type { HttpServerResponse } from './http/http-server-response.js';
 import type { Protocol } from './platform-adapter.js';
@@ -7,7 +8,7 @@ export interface ExecutionContext {
   readonly protocol: Protocol;
 
   readonly platform: string;
-  
+
   switchToHttp(): HttpMessageContext;
 
   switchToWs(): WsMessageContext;
@@ -22,6 +23,16 @@ export namespace ExecutionContext {
   export type OnFinishArgs = {
     context: ExecutionContext;
     failed: boolean;
+  }
+
+  export function is(v: any) {
+    return v instanceof ExecutionContextHost ||
+        (typeof v.protocol === 'string' &&
+            typeof v.platform === 'string' &&
+            typeof v.switchToHttp === 'function' &&
+            typeof v.switchToWs === 'function' &&
+            typeof v.switchToRpc === 'function'
+        )
   }
 }
 

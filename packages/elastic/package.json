@@ -26,15 +26,11 @@
     "clean:cover": "rimraf ../../coverage/client"
   },
   "dependencies": {
-    "lodash.isnil": "^4.0.0",
-    "lodash.omitby": "^4.6.0"
   },
   "devDependencies": {
     "@elastic/elasticsearch": "^8.10.0",
     "@faker-js/faker": "^8.3.1",
-    "@types/lodash.isnil": "^4.0.9",
-    "@types/lodash.omitby": "^4.6.9",
-    "ts-gems": "^2.7.1"
+    "ts-gems": "^2.7.6"
   },
   "peerDependencies": {
     "@elastic/elasticsearch": ">=8.7.0",

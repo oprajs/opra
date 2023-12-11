@@ -1,5 +1,5 @@
 import mongodb from 'mongodb';
-import { PartialInput } from '@opra/common';
+import { PatchDTO } from '@opra/common';
 import { Profile } from '@opra/common/test/_support/test-api';
 import { MongoSingletonService } from '@opra/mongodb';
 
@@ -32,7 +32,7 @@ export class MyProfileService extends MongoSingletonService<Profile> {
   }
 
   async update(
-      doc: PartialInput<Profile>,
+      doc: PatchDTO<Profile>,
       options?: MongoSingletonService.UpdateOptions<Profile>
   ) {
     return super.update(doc, options);

@@ -20,6 +20,6 @@ export class CountriesResource extends SqbCollection<Country> {
 
 
   getService(ctx: RequestContext): SqbEntityService<Country> {
-    return this.countryService.forContext(ctx);
+    return this.countryService.for(ctx);
   }
 }

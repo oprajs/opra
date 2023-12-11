@@ -1,6 +1,4 @@
-import isNil from 'lodash.isnil';
-import omitBy from 'lodash.omitby';
-import { Collection, Singleton } from '@opra/common';
+import { Collection, omitNullish, Singleton } from '@opra/common';
 import { Request } from '@opra/core';
 import { EntityMetadata } from '@sqb/connect';
 import _transformFilter from './transform-filter.js';
@@ -57,7 +55,7 @@ export namespace SQBAdapter {
         options.count = params?.count;
       }
 
-      options = omitBy(options, isNil);
+      options = omitNullish(options);
       if (operation === 'create') {
         return {
           method: 'create',

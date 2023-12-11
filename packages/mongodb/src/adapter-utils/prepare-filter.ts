@@ -12,12 +12,16 @@ const opMap = {
   '!in': '$nin',
 }
 
-type FilterInput = (OpraFilter.Expression | mongodb.Filter<any> | string | undefined);
+export type FilterInput = (OpraFilter.Expression | mongodb.Filter<any> | string | undefined);
 
 /**
- * Convert filter expressions to MongoDB filter objects.
- * This method also merges multiple expressions into one single filter object
- * @param filters
+ * Prepare the MongoDB filter based on the provided filters and options.
+ *
+ * @param {FilterInput|FilterInput[]} filters - The filter(s) to be applied.
+ * @param {Object} [options] - Additional options.
+ * @param {string} [options.fieldPrefix] - The prefix to be added to field names.
+ *
+ * @returns {mongodb.Filter<any>} - The prepared MongoDB filter.
  */
 export default function prepareFilter(
     filters: FilterInput | FilterInput[],

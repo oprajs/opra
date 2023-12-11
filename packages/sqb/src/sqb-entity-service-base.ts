@@ -1,13 +1,7 @@
-import { Maybe, Type } from 'ts-gems';
-import { ApiService, PartialInput, PartialOutput, RequestContext } from '@opra/core';
+import { Type } from 'ts-gems';
+import { DTO, PartialDTO, PatchDTO } from '@opra/common';
+import { ApiService, RequestContext } from '@opra/core';
 import { EntityInput, EntityMetadata, Repository, SqbClient, SqbConnection } from '@sqb/connect';
-
-export namespace SqbEntityServiceBase {
-  export interface Options {
-    db?: SqbClient | SqbConnection;
-    defaultLimit?: number;
-  }
-}
 
 export class SqbEntityServiceBase<T> extends ApiService {
   defaultLimit: number;
@@ -35,12 +29,12 @@ export class SqbEntityServiceBase<T> extends ApiService {
     }
   }
 
-  protected async _create(data: PartialInput<T>, options?: Repository.CreateOptions): Promise<PartialOutput<T>> {
+  protected async _create(data: DTO<T>, options?: Repository.CreateOptions): Promise<PartialDTO<T>> {
     const conn = await this.getConnection();
     const repo = conn.getRepository(this.typeClass);
     let out;
     try {
-      out = await repo.create(data, options);
+      out = await repo.create(data as any, options);
     } catch (e: any) {
       await this._onError(e);
       throw e;
@@ -75,7 +69,7 @@ export class SqbEntityServiceBase<T> extends ApiService {
     }
   }
 
-  protected async _find(keyValue: any, options?: Repository.FindOptions): Promise<Maybe<PartialOutput<T>>> {
+  protected async _find(keyValue: any, options?: Repository.FindOptions): Promise<PartialDTO<T> | undefined> {
     const conn = await this.getConnection();
     const repo = conn.getRepository(this.typeClass);
     let out;
@@ -90,7 +84,7 @@ export class SqbEntityServiceBase<T> extends ApiService {
     return out;
   }
 
-  protected async _findOne(options?: Repository.FindOneOptions): Promise<Maybe<PartialOutput<T>>> {
+  protected async _findOne(options?: Repository.FindOneOptions): Promise<PartialDTO<T> | undefined> {
     const conn = await this.getConnection();
     const repo = conn.getRepository(this.typeClass);
     let out;
@@ -105,7 +99,7 @@ export class SqbEntityServiceBase<T> extends ApiService {
     return out;
   }
 
-  protected async _findMany(options?: Repository.FindManyOptions): Promise<PartialOutput<T>[]> {
+  protected async _findMany(options?: Repository.FindManyOptions): Promise<PartialDTO<T>[]> {
     const conn = await this.getConnection();
     const repo = conn.getRepository(this.typeClass);
     let items: any[];
@@ -140,7 +134,7 @@ export class SqbEntityServiceBase<T> extends ApiService {
   }
 
 
-  protected async _update(keyValue: any, data: EntityInput<T>, options?: Repository.UpdateOptions): Promise<Maybe<PartialOutput<T>>> {
+  protected async _update(keyValue: any, data: EntityInput<T>, options?: Repository.UpdateOptions): Promise<PartialDTO<T> | undefined> {
     const conn = await this.getConnection();
     const repo = conn.getRepository(this.typeClass);
     let out;
@@ -156,23 +150,24 @@ export class SqbEntityServiceBase<T> extends ApiService {
   }
 
   protected async _updateMany(
-      data: PartialInput<T>,
+      data: PatchDTO<T>,
       options?: Repository.UpdateManyOptions
   ): Promise<number> {
     const conn = await this.getConnection();
     const repo = conn.getRepository(this.typeClass);
     try {
-      return await repo.updateMany(data, options);
+      return await repo.updateMany(data as any, options);
     } catch (e: any) {
       await this._onError(e);
       throw e;
     }
   }
 
-  forContext(source: ApiService): this
-  forContext(context: RequestContext, attributes?: { db?: SqbClient | SqbConnection }): this
-  forContext(arg0: any, attributes?: any): this {
-    return super.forContext(arg0, attributes) as this;
+  for(context: RequestContext | ApiService): this
+  for(context: RequestContext | ApiService, attributes?: SqbEntityServiceBase.ExtendOptions): this
+  for<O extends ApiService.ExtendOptions>(attributes: O): this & O;
+  for(arg0: any, attributes?: any): this {
+    return super.for(arg0, attributes) as this;
   }
 
   protected async _onError(error: unknown): Promise<void> {
@@ -188,14 +183,26 @@ export class SqbEntityServiceBase<T> extends ApiService {
     return this.db;
   }
 
-  protected _cacheMatch(service: ApiService, context: RequestContext, attributes?: any): boolean {
-    return super._cacheMatch(service, context, attributes) &&
+  protected _instanceCompare(service: ApiService, context: RequestContext, attributes?: any): boolean {
+    return super._instanceCompare(service, context, attributes) &&
         (!attributes?.db || (service as any).db === attributes.db);
   }
 
   protected onError?(error: unknown): void | Promise<void>;
 
-  protected transformData?(row: PartialOutput<T>): PartialOutput<T>;
+  protected transformData?(row: PartialDTO<T>): PartialDTO<T>;
 
 
+}
+
+
+export namespace SqbEntityServiceBase {
+  export interface Options {
+    db?: SqbClient | SqbConnection;
+    defaultLimit?: number;
+  }
+
+  export interface ExtendOptions extends Options, ApiService.ExtendOptions {
+    db?: SqbClient | SqbConnection
+  }
 }

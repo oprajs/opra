@@ -52,7 +52,7 @@ export class CustomersResource extends SqbCollection<Customer> {
   }
 
   getService(ctx: RequestContext): SqbEntityService<Customer> {
-    return this.customerService.forContext(ctx);
+    return this.customerService.for(ctx);
   }
 
 }

@@ -1,5 +1,5 @@
 import { ApiDocument } from '@opra/common';
-import type { ExecutionContext } from './execution-context.js';
+import { ExecutionContext } from './execution-context.js';
 import type { Request } from './request.js';
 import type { Response } from './response.js';
 
@@ -24,4 +24,12 @@ export namespace RequestContext {
     Object.setPrototypeOf(out, executionContext);
     return out;
   }
+
+  export function is(v: any): v is RequestContext {
+    return ExecutionContext.is(v) &&
+        (v as any).api instanceof ApiDocument &&
+        (v as any).request &&
+        (v as any).response;
+  }
+
 }

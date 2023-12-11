@@ -30,7 +30,7 @@
     "@opra/core": "^0.32.3",
     "fast-tokenizer": "^1.2.2",
     "lodash.head": "^4.0.1",
-    "reflect-metadata": "^0.1.13"
+    "reflect-metadata": "^0.1.14"
   },
   "peerDependencies": {
     "@nestjs/common": "^10.2.10",
@@ -41,7 +41,7 @@
     "@nestjs/testing": "^10.2.10",
     "@types/lodash.head": "^4.0.9",
     "filedirname": "^3.2.0",
-    "ts-gems": "^2.7.1"
+    "ts-gems": "^2.7.6"
   },
   "type": "module",
   "module": "./esm/index.js",

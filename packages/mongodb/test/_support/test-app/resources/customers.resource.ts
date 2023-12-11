@@ -1,5 +1,5 @@
 import { Db } from 'mongodb';
-import { Collection, ICollection, PartialOutput } from '@opra/common';
+import { Collection, ICollection, PartialDTO } from '@opra/common';
 import { Customer } from '@opra/common/test/_support/test-api/index';
 import { CustomersService } from '../services/customers.service.js';
 
@@ -14,16 +14,16 @@ export class CustomersResource implements ICollection<Customer> {
   }
 
   @Collection.Create()
-  create(context: Collection.Create.Context): Promise<PartialOutput<Customer>> {
+  create(context: Collection.Create.Context): Promise<PartialDTO<Customer>> {
     const {request} = context;
-    return this.service.forContext(context)
+    return this.service.for(context)
         .create(request.data, request.params);
   }
 
   @Collection.Get()
-  get(context: Collection.Get.Context): Promise<PartialOutput<Customer> | undefined> {
+  get(context: Collection.Get.Context): Promise<PartialDTO<Customer> | undefined> {
     const {request} = context;
-    return this.service.forContext(context)
+    return this.service.for(context)
         .findById(request.key, request.params);
   }
 
@@ -40,9 +40,9 @@ export class CustomersResource implements ICollection<Customer> {
       .Filter('active')
       .Filter('birthDate')
       .Filter('rate')
-  findMany(context: Collection.FindMany.Context): Promise<PartialOutput<Customer>[] | undefined> {
+  findMany(context: Collection.FindMany.Context): Promise<PartialDTO<Customer>[] | undefined> {
     const {request} = context;
-    return this.service.forContext(context)
+    return this.service.for(context)
         .findMany(request.params);
   }
 
@@ -50,28 +50,28 @@ export class CustomersResource implements ICollection<Customer> {
   @Collection.Delete()
   delete(context: Collection.Delete.Context): Promise<number> | undefined {
     const {request} = context;
-    return this.service.forContext(context)
+    return this.service.for(context)
         .delete(request.key, request.params);
   }
 
   @Collection.DeleteMany()
   deleteMany(context: Collection.DeleteMany.Context): Promise<number> | undefined {
     const {request} = context;
-    return this.service.forContext(context)
+    return this.service.for(context)
         .deleteMany(request.params);
   }
 
   @Collection.Update()
-  update(context: Collection.Update.Context): Promise<PartialOutput<Customer> | undefined> {
+  update(context: Collection.Update.Context): Promise<PartialDTO<Customer> | undefined> {
     const {request} = context;
-    return this.service.forContext(context)
+    return this.service.for(context)
         .update(request.key, request.data, request.params);
   }
 
   @Collection.UpdateMany()
   updateMany(context: Collection.UpdateMany.Context): Promise<number> | undefined {
     const {request} = context;
-    return this.service.forContext(context)
+    return this.service.for(context)
         .updateMany(request.data, request.params);
   }
 

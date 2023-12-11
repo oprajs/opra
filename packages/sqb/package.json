@@ -26,18 +26,14 @@
     "clean:cover": "rimraf ../../coverage/client"
   },
   "dependencies": {
-    "lodash.isnil": "^4.0.0",
-    "lodash.omitby": "^4.6.0"
   },
   "devDependencies": {
     "@faker-js/faker": "^8.3.1",
     "@sqb/builder": "^4.10.6",
     "@sqb/connect": "^4.10.6",
     "@sqb/postgres": "^4.10.6",
-    "@types/lodash.isnil": "^4.0.9",
-    "@types/lodash.omitby": "^4.6.9",
     "postgresql-client": "^2.10.1",
-    "ts-gems": "^2.7.1"
+    "ts-gems": "^2.7.6"
   },
   "peerDependencies": {
     "@opra/core": "^0.32.3",

@@ -1,5 +1,5 @@
 import { StrictOmit } from 'ts-gems';
-import type { Action as _Action, CrudOperation as _Operation, PartialOutput } from '@opra/common';
+import type { Action as _Action, CrudOperation as _Operation, PartialDTO } from '@opra/common';
 import type { Request as _Request } from '../request.js';
 import type { RequestContext } from '../request-context.js';
 
@@ -85,13 +85,13 @@ declare module "@opra/common" {
 
   /* ***************************** */
   export interface ISingleton<T> {
-    create?(context: Singleton.Create.Context): Promise<PartialOutput<T>>;
+    create?(context: Singleton.Create.Context): Promise<PartialDTO<T>>;
 
     delete?(context: Singleton.Delete.Context): Promise<number> | undefined;
 
-    get?(context: Singleton.Get.Context): Promise<PartialOutput<T> | undefined>;
+    get?(context: Singleton.Get.Context): Promise<PartialDTO<T> | undefined>;
 
-    update?(context: Singleton.Update.Context): Promise<PartialOutput<T> | undefined>;
+    update?(context: Singleton.Update.Context): Promise<PartialDTO<T> | undefined>;
 
     onInit?(): Promise<void>;
 

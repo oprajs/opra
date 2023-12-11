@@ -1,5 +1,5 @@
 import { StrictOmit } from 'ts-gems';
-import type { Action as _Action, CrudOperation as _Operation, PartialOutput } from '@opra/common';
+import type { Action as _Action, CrudOperation as _Operation, PartialDTO } from '@opra/common';
 import type { Request as _Request } from '../request.js';
 import type { RequestContext } from '../request-context';
 
@@ -148,17 +148,17 @@ declare module "@opra/common" {
 
   /* ***************************** */
   export interface ICollection<T> {
-    create?(context: Collection.Create.Context): Promise<PartialOutput<T>>;
+    create?(context: Collection.Create.Context): Promise<PartialDTO<T>>;
 
     delete?(context: Collection.Delete.Context): Promise<number> | undefined;
 
     deleteMany?(context: Collection.DeleteMany.Context): Promise<number> | undefined;
 
-    findMany?(context: Collection.FindMany.Context): Promise<PartialOutput<T>[] | undefined>;
+    findMany?(context: Collection.FindMany.Context): Promise<PartialDTO<T>[] | undefined>;
 
-    get?(context: Collection.Get.Context): Promise<PartialOutput<T> | undefined>;
+    get?(context: Collection.Get.Context): Promise<PartialDTO<T> | undefined>;
 
-    update?(context: Collection.Update.Context): Promise<PartialOutput<T> | undefined>;
+    update?(context: Collection.Update.Context): Promise<PartialDTO<T> | undefined>;
 
     updateMany?(context: Collection.UpdateMany.Context): Promise<number> | undefined;
 

@@ -1,5 +1,5 @@
 import mongodb from 'mongodb';
-import { PartialInput } from '@opra/common';
+import { PatchDTO } from '@opra/common';
 import { Customer } from '@opra/common/test/_support/test-api';
 import { MongoCollectionService } from '@opra/mongodb';
 
@@ -36,13 +36,13 @@ export class CustomersService extends MongoCollectionService<Customer> {
     return super.findOne(options);
   }
 
-  async update(id: any, doc: PartialInput<Customer>,
+  async update(id: any, doc: PatchDTO<Customer>,
                options?: MongoCollectionService.UpdateOptions<Customer>
   ) {
     return super.update(id, doc, options);
   }
 
-  async updateMany(doc: PartialInput<Customer>, options?: MongoCollectionService.UpdateManyOptions<Customer>) {
+  async updateMany(doc: PatchDTO<Customer>, options?: MongoCollectionService.UpdateManyOptions<Customer>) {
     return super.updateMany(doc, options);
   }
 

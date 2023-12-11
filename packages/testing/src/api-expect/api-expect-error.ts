@@ -1,7 +1,5 @@
 import '../jest-extend/index.js';
-import isNil from 'lodash.isnil';
-import omitBy from 'lodash.omitby';
-import { ErrorIssue } from '@opra/common';
+import { ErrorIssue, omitNullish } from '@opra/common';
 import { ApiExpectBase } from './api-expect-base.js';
 
 export interface MatchingErrorIssue {
@@ -23,7 +21,7 @@ export class ApiExpectError extends ApiExpectBase {
       else if (expected instanceof RegExp)
         expected = {message: expect.stringMatching(expected)} as MatchingErrorIssue;
 
-      expected = omitBy(expected, isNil);
+      expected = omitNullish(expected);
       this._expect(this.response.body.errors).toEqual(
           expect.arrayContaining(
               [expect.objectContaining(expected)]

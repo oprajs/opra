@@ -15,7 +15,6 @@ export * from './request.host.js';
 export * from './request-context.js';
 export * from './response.js';
 export * from './response.host.js';
-export * from './types.js';
 
 export * from './http/adapters/express-adapter.js';
 export * from './http/adapters/express-adapter.host.js';

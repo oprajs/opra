@@ -1,11 +1,11 @@
-import { PartialOutput } from '../../types.js';
+import { PartialDTO } from '../../types.js';
 
 export interface ISingleton<T> {
-  create?(...args: any[]): Promise<PartialOutput<T>>;
+  create?(...args: any[]): Promise<PartialDTO<T>>;
 
   delete?(...args: any[]): Promise<number> | undefined;
 
-  get?(...args: any[]): Promise<PartialOutput<T> | undefined>;
+  get?(...args: any[]): Promise<PartialDTO<T> | undefined>;
 
-  update?(...args: any[]): Promise<PartialOutput<T> | undefined>;
+  update?(...args: any[]): Promise<PartialDTO<T> | undefined>;
 }

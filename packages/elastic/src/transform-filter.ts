@@ -1,6 +1,7 @@
 import '@opra/core';
-import isNil from 'lodash.isnil';
 import { OpraFilter } from '@opra/common';
+
+const isNil = (v: any) => v == null;
 
 export default function transformFilter(
     ast: OpraFilter.Expression | undefined,

@@ -1,5 +1,5 @@
-import { Maybe, Type } from 'ts-gems';
-import { PartialInput, PartialOutput } from '@opra/core';
+import { Type } from 'ts-gems';
+import { DTO, PartialDTO, PatchDTO } from '@opra/common';
 import { EntityInput, Repository } from '@sqb/connect';
 import { SqbEntityServiceBase } from './sqb-entity-service-base.js';
 
@@ -18,7 +18,7 @@ export class SqbEntityService<T> extends SqbEntityServiceBase<T> {
     return super._count(options);
   }
 
-  async create(data: PartialInput<T>, options?: Repository.CreateOptions): Promise<PartialOutput<T>> {
+  async create(data: DTO<T>, options?: Repository.CreateOptions): Promise<PartialDTO<T>> {
     return super._create(data, options);
   }
 
@@ -30,15 +30,15 @@ export class SqbEntityService<T> extends SqbEntityServiceBase<T> {
     return super._deleteMany(options);
   }
 
-  async find(keyValue: any, options?: Repository.FindOptions): Promise<Maybe<PartialOutput<T>>> {
+  async find(keyValue: any, options?: Repository.FindOptions): Promise<PartialDTO<T> | undefined> {
     return super._find(keyValue, options);
   }
 
-  async findOne(options?: Repository.FindOneOptions): Promise<Maybe<PartialOutput<T>>> {
+  async findOne(options?: Repository.FindOneOptions): Promise<PartialDTO<T> | undefined> {
     return super._findOne(options);
   }
 
-  async findMany(options?: Repository.FindManyOptions): Promise<PartialOutput<T>[]> {
+  async findMany(options?: Repository.FindManyOptions): Promise<PartialDTO<T>[]> {
     return super._findMany(options);
   }
 
@@ -46,12 +46,12 @@ export class SqbEntityService<T> extends SqbEntityServiceBase<T> {
     return super._exists(options);
   }
 
-  async update(keyValue: any, data: EntityInput<T>, options?: Repository.UpdateOptions): Promise<Maybe<PartialOutput<T>>> {
+  async update(keyValue: any, data: EntityInput<T>, options?: Repository.UpdateOptions): Promise<PartialDTO<T> | undefined> {
     return super._update(keyValue, data, options);
   }
 
   async updateMany(
-      data: PartialInput<T>,
+      data: PatchDTO<T>,
       options?: Repository.UpdateManyOptions
   ): Promise<number> {
     return super._updateMany(data, options);

@@ -1,6 +1,4 @@
-import isNil from 'lodash.isnil';
-import omitBy from 'lodash.omitby';
-import { ComplexType } from '@opra/common';
+import { ComplexType, omitNullish } from '@opra/common';
 
 export default function transformProjection(
     dataType: ComplexType,
@@ -54,9 +52,9 @@ export default function transformProjection(
     }
   }
 
-  return omitBy({
+  return omitNullish({
     includes,
     excludes
-  }, isNil)
+  })
 
 }

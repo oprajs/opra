@@ -1,9 +1,7 @@
 /* eslint-disable camelcase */
-import isNil from 'lodash.isnil';
-import omitBy from 'lodash.omitby';
 import { SearchRequest } from '@elastic/elasticsearch/lib/api/types';
 import { TransportRequestOptions } from '@elastic/transport';
-import { Collection, Singleton } from '@opra/common';
+import { Collection, omitNullish, Singleton } from '@opra/common';
 import { Request } from '@opra/core';
 import _transformFilter from './transform-filter.js';
 import _transformKeyValues from './transform-key-values.js'
@@ -39,8 +37,8 @@ export namespace ElasticAdapter {
             searchRequest._source = _transformProjection(resource.type, params);
           if (params?.sort)
             searchRequest.sort = _transformSort(params.sort);
-          searchRequest = omitBy(searchRequest, isNil);
-          options = omitBy(options, isNil);
+          searchRequest = omitNullish(searchRequest);
+          options = omitNullish(options);
           return {
             method: 'search',
             params: searchRequest,

@@ -1,5 +1,5 @@
 import { toArrayDef } from 'putil-varhelpers';
-import { OperationResult, PartialInput } from '@opra/common';
+import { DTO, OperationResult, PatchDTO } from '@opra/common';
 import { HttpBackend } from './http-backend.js';
 import { HttpRequestObservable } from './http-request-observable.js';
 
@@ -16,7 +16,7 @@ export class HttpSingletonNode<TType, TRequestOptions = {}, TResponseExt = {}> {
   }
 
   create(
-      data: PartialInput<TType>,
+      data: DTO<TType>,
       options?: HttpSingletonNode.CreateOptions
   ) {
     const observable =
@@ -72,7 +72,7 @@ export class HttpSingletonNode<TType, TRequestOptions = {}, TResponseExt = {}> {
   }
 
   update(
-      data: PartialInput<TType>,
+      data: PatchDTO<TType>,
       options?: HttpSingletonNode.UpdateOptions
   ) {
     const observable =
