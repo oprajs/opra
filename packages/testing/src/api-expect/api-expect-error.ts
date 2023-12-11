@@ -20,8 +20,8 @@ export class ApiExpectError extends ApiExpectBase {
         expected = {message: expected} as MatchingErrorIssue;
       else if (expected instanceof RegExp)
         expected = {message: expect.stringMatching(expected)} as MatchingErrorIssue;
-
-      expected = omitNullish(expected);
+      else
+        expected = omitNullish(expected);
       this._expect(this.response.body.errors).toEqual(
           expect.arrayContaining(
               [expect.objectContaining(expected)]
