@@ -31,7 +31,7 @@
     "@sqb/connect": "^4.10.6",
     "@sqb/postgres": "^4.10.6",
     "postgresql-client": "^2.10.1",
-    "ts-gems": "^2.9.2"
+    "ts-gems": "^2.9.3"
   },
   "peerDependencies": {
     "@opra/core": "^0.32.5",

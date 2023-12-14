@@ -507,8 +507,7 @@ export class MongoService<T extends mongodb.Document> extends ApiService {
     if (decoder)
       return decoder;
     const dataType = this.getDataType();
-    const options: DataType.GenerateCodecOptions = {};
-    decoder = this._decoder = dataType.generateCodec('decode', options);
+    decoder = this._decoder = dataType.generateCodec('decode', {partial: true});
     return decoder;
   }
 

@@ -148,7 +148,7 @@ export class MongoArrayService<T extends mongodb.Document> extends MongoService<
       );
 
     const encode = this.getEncoder('create');
-    const doc: any = encode(input);
+    const doc: any = encode(input, {coerce: true});
     doc._id = doc._id || this._generateId();
 
     const docFilter = MongoAdapter.prepareKeyValues(documentId, [this.collectionKey]);
@@ -465,7 +465,7 @@ export class MongoArrayService<T extends mongodb.Document> extends MongoService<
     const projection = MongoAdapter.prepareProjection(dataType, options);
     if (projection)
       dataStages.push({$project: projection});
-    const decoder = this.getDecoder();
+    const decode = this.getDecoder();
 
     const cursor: mongodb.AggregationCursor = await this.__aggregate(stages, {
       ...mongoOptions
@@ -474,7 +474,7 @@ export class MongoArrayService<T extends mongodb.Document> extends MongoService<
       if (options?.count) {
         const facetResult = await cursor.toArray();
         this.context.response.totalMatches = facetResult[0].count[0].totalMatches || 0;
-        return facetResult[0].data.map((r: any) => decoder(r));
+        return facetResult[0].data.map((r: any) => decode(r, {coerce: true}));
       } else
         return await cursor.toArray();
     } finally {
@@ -606,7 +606,7 @@ export class MongoArrayService<T extends mongodb.Document> extends MongoService<
       );
 
     const encode = this.getEncoder('update');
-    const doc = encode(input);
+    const doc = encode(input, {coerce: true});
     if (!Object.keys(doc).length)
       return 0;
     const matchFilter = MongoAdapter.prepareFilter([

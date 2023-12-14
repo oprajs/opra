@@ -114,7 +114,7 @@ export class MongoCollectionService<T extends mongodb.Document> extends MongoSer
           this
       );
     const encode = this.getEncoder('create');
-    const doc: any = encode(input);
+    const doc: any = encode(input, {coerce: true});
     doc._id = doc._id || this._generateId();
     const r = await this.__insertOne(doc, options);
     if (r.insertedId) {
@@ -286,9 +286,9 @@ export class MongoCollectionService<T extends mongodb.Document> extends MongoSer
       projection: MongoAdapter.prepareProjection(this.getDataType(), options),
       limit: undefined
     }
-    const decoder = this.getDecoder();
+    const decode = this.getDecoder();
     const out = await this.__findOne(filter, mongoOptions);
-    return out ? decoder(out) as PartialDTO<T> : undefined;
+    return out ? decode(out, {coerce: true}) as PartialDTO<T> : undefined;
   }
 
   /**
@@ -355,7 +355,7 @@ export class MongoCollectionService<T extends mongodb.Document> extends MongoSer
     const projection = MongoAdapter.prepareProjection(dataType, options);
     if (projection)
       dataStages.push({$project: projection});
-    const decoder = this.getDecoder();
+    const decode = this.getDecoder();
 
     const cursor: mongodb.AggregationCursor = await this.__aggregate(stages, {
       ...mongoOptions
@@ -364,7 +364,7 @@ export class MongoCollectionService<T extends mongodb.Document> extends MongoSer
       if (options?.count) {
         const facetResult = await cursor.toArray();
         this.context.response.totalMatches = facetResult[0].count[0].totalMatches || 0;
-        return facetResult[0].data.map((r: any) => decoder(r));
+        return facetResult[0].data.map((r: any) => decode(r, {coerce: true}));
       } else
         return await cursor.toArray();
     } finally {
@@ -416,7 +416,7 @@ export class MongoCollectionService<T extends mongodb.Document> extends MongoSer
           this
       );
     const encode = this.getEncoder('update');
-    const doc = encode(input);
+    const doc = encode(input, {coerce: true});
     const patch = MongoAdapter.preparePatch(doc);
     const mongoOptions: mongodb.FindOneAndUpdateOptions = {
       ...options,
@@ -429,9 +429,9 @@ export class MongoCollectionService<T extends mongodb.Document> extends MongoSer
       options?.filter,
       await this._getDocumentFilter()
     ])
-    const decoder = this.getDecoder();
+    const decode = this.getDecoder();
     const out = await this.__findOneAndUpdate(filter, patch, mongoOptions);
-    return out ? decoder(out) as PartialDTO<T> : undefined;
+    return out ? decode(out, {coerce: true}) as PartialDTO<T> : undefined;
   }
 
   /**
@@ -465,7 +465,7 @@ export class MongoCollectionService<T extends mongodb.Document> extends MongoSer
       await this._getDocumentFilter()
     ])
     const encode = this.getEncoder('update');
-    const doc = encode(input);
+    const doc = encode(input, {coerce: true});
     if (!Object.keys(doc).length)
       return 0;
     const patch = MongoAdapter.preparePatch(doc);
@@ -503,7 +503,7 @@ export class MongoCollectionService<T extends mongodb.Document> extends MongoSer
       );
 
     const encode = this.getEncoder('update');
-    const doc = encode(input);
+    const doc = encode(input, {coerce: true});
     if (!Object.keys(doc).length)
       return 0;
     const patch = MongoAdapter.preparePatch(doc);

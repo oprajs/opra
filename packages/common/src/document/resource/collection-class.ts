@@ -126,6 +126,7 @@ export class CollectionClass extends CrudResource {
       // endpoint.defineParameter('metadata', {enum: MetadataMode, isBuiltin: true, default: 'minimal'});
       endpoint.defineParameter('filter', {type: 'string', isBuiltin: true});
       endpoint.decodeInput = this.type.generateCodec('decode', {
+        partial: true,
         pick: endpoint.options.inputPickFields,
         omit: endpoint.options.inputOmitFields,
         operation: 'write',
