@@ -5,7 +5,7 @@ import { customersData } from './customers.data';
 
 export async function initMongodb() {
   const dbname = process.env.MONGO_DATABASE || 'opra_test';
-  const client = new MongoClient(process.env.MONGO_HOST || 'mongodb://localhost:27017');
+  const client = new MongoClient(process.env.MONGO_HOST || 'mongodb://127.0.0.1:27017/?directConnection=true');
   await client.connect();
   try {
     const db = client.db(dbname);

@@ -34,7 +34,7 @@ export class TestApp {
     })
     out.adapter = await NodeHttpAdapter.create(out.api);
     try {
-      out.dbClient = new MongoClient('mongodb://localhost:27017');
+      out.dbClient = new MongoClient('mongodb://127.0.0.1:27017/?directConnection=true');
       out.db = out.dbClient.db('opra_test');
     } catch (e) {
       await out.close();
