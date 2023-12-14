@@ -8,7 +8,7 @@ export class ResourceConflictError extends OpraException {
   constructor(resource: string, fields: string | string[], cause?: Error) {
     super({
       message: translate(`error:RESOURCE_CONFLICT`, {resource, fields},
-          `There is already an other {{resource}} resource with same field values ({{fields}})`),
+          `There is already an other {{resource}} resource with same values ({{fields}})`),
       severity: 'error',
       code: 'RESOURCE_CONFLICT',
       details: {
