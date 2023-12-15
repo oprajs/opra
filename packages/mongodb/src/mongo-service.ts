@@ -1,9 +1,9 @@
-import mongodb from 'mongodb';
+import mongodb, { MongoClient, TransactionOptions } from 'mongodb';
 import { StrictOmit, Type } from 'ts-gems';
 import vg from 'valgen';
 import { ComplexType, DataType, DATATYPE_METADATA, PartialDTO } from '@opra/common';
-import { ApiService, RequestContext } from '@opra/core';
-import { AnyId } from './types.js';
+import { ApiService } from '@opra/core';
+import { AnyId, WithTransactionCallback } from './types.js';
 
 
 /**
@@ -123,6 +123,47 @@ export class MongoService<T extends mongodb.Document> extends ApiService {
     decoder = this._generateDecoder();
     this._decoder = decoder;
     return decoder;
+  }
+
+  /**
+   * Executes the provided function within a transaction.
+   *
+   * @param {WithTransactionCallback} callback - The function to be executed within the transaction.
+   * @param {TransactionOptions} [options] - Optional options for the transaction.
+   * @returns {Promise<any>} - A promise that resolves with the result of the function execution within the transaction.
+   */
+  async withTransaction(callback: WithTransactionCallback, options?: TransactionOptions): Promise<any> {
+    let session = this.getSession();
+    if (session)
+      return callback(session);
+
+    // Backup old session property
+    const hasOldSession = this.hasOwnProperty('session');
+    const oldSessionGetter = hasOldSession ? this.session : undefined;
+
+    const db = this.getDatabase();
+    const client = (db as any).client as MongoClient;
+    session = client.startSession();
+    this.session = session;
+    const oldInTransaction = session.inTransaction();
+    try {
+      if (!oldInTransaction)
+        session.startTransaction(options);
+      const out = await callback(session);
+      if (!oldInTransaction)
+        await session.commitTransaction();
+      return out;
+    } catch (e) {
+      if (!oldInTransaction)
+        await session.abortTransaction();
+      throw e;
+    } finally {
+      // Restore old session property
+      if (hasOldSession) {
+        this.session = oldSessionGetter;
+        await session.endSession();
+      } else delete this.session;
+    }
   }
 
   /**
@@ -452,28 +493,6 @@ export class MongoService<T extends mongodb.Document> extends ApiService {
   }
 
   /**
-   * Compares the current instance with the provided attributes and returns true if they match, false otherwise.
-   * This method is protected and should only be called by subclasses.
-   *
-   * @param {MongoService<any>} service - The service instance to compare.
-   * @param {RequestContext} context - The request context.
-   * @param {Object} attributes - Optional attributes object for comparison.
-   * @return {boolean} - True if the instance matches the provided attributes, false otherwise.
-   * @protected
-   */
-  protected _instanceCompare(service: MongoService<any>, context: RequestContext, attributes?: any): boolean {
-    return super._instanceCompare(service, context, attributes) &&
-        (!attributes?.db ||
-            (typeof service.db === 'object' && service.db === attributes.db) ||
-            (typeof service.db === 'function' && service.getDatabase() === attributes.db)
-        ) &&
-        (!attributes?.session ||
-            (typeof service.session === 'object' && service.session === attributes?.session) ||
-            (typeof service.session === 'function' && service.getSession() === attributes?.session)
-        );
-  }
-
-  /**
    * Generates an encoder for the specified operation.
    *
    * @param {string} operation - The operation to generate the encoder for. Must be either 'create' or 'update'.
@@ -532,3 +551,4 @@ export namespace MongoService {
 
 
 }
+

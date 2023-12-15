@@ -2,7 +2,14 @@ import omit from 'lodash.omit';
 import mongodb, { ObjectId } from 'mongodb';
 import { StrictOmit, Type } from 'ts-gems';
 import * as OpraCommon from '@opra/common';
-import { ComplexType, DTO, NotAcceptableError, PartialDTO, PatchDTO, ResourceNotFoundError } from '@opra/common';
+import {
+  ComplexType,
+  DTO,
+  NotAcceptableError,
+  PartialDTO,
+  PatchDTO,
+  ResourceNotFoundError
+} from '@opra/common';
 import { FilterInput } from './adapter-utils/prepare-filter.js';
 import { MongoAdapter } from './mongo-adapter.js';
 import { MongoService } from './mongo-service.js';
@@ -133,20 +140,24 @@ export class MongoArrayService<T extends mongodb.Document> extends MongoService<
       input: DTO<T>,
       options?: MongoArrayService.CreateOptions
   ): Promise<PartialDTO<T>> {
-    if (this.$interceptor && !(options as any)?.__interceptor__)
-      return this.$interceptor(
-          () => this.create(documentId, input, {...options, __interceptor__: true} as Object),
-          {
-            crud: 'create',
-            method: 'create',
-            documentId,
-            itemId: (input as any)._id,
-            input,
-            options
-          },
-          this
-      );
+    return this._intercept(
+        () => this._create(documentId, input, options),
+        {
+          crud: 'create',
+          method: 'create',
+          documentId,
+          itemId: (input as any)._id,
+          input,
+          options
+        }
+    );
+  }
 
+  protected async _create(
+      documentId: AnyId,
+      input: DTO<T>,
+      options?: MongoArrayService.CreateOptions
+  ): Promise<PartialDTO<T>> {
     const encode = this.getEncoder('create');
     const doc: any = encode(input, {coerce: true});
     doc._id = doc._id || this._generateId();
@@ -159,15 +170,17 @@ export class MongoArrayService<T extends mongodb.Document> extends MongoService<
         },
         options
     );
-    if (r.modifiedCount) {
+    if (r.matchedCount) {
       if (!options)
         return doc;
-      try {
-        return this.get(documentId, doc[this.arrayKey], {...options, filter: undefined, skip: undefined});
-      } catch (e: any) {
-        Error.captureStackTrace(e);
-        throw e;
-      }
+      const id = doc[this.arrayKey];
+      const out = await this._findById(documentId, id, {
+        ...options,
+        filter: undefined,
+        skip: undefined
+      });
+      if (out)
+        return out;
     }
     throw new ResourceNotFoundError(this.getResourceName(), documentId);
   }
@@ -184,18 +197,21 @@ export class MongoArrayService<T extends mongodb.Document> extends MongoService<
       documentId: AnyId,
       options?: MongoArrayService.CountOptions<T>
   ): Promise<number> {
-    if (this.$interceptor && !(options as any)?.__interceptor__)
-      return this.$interceptor(
-          () => this.count(documentId, {...options, __interceptor__: true} as Object),
-          {
-            crud: 'read',
-            method: 'count',
-            documentId,
-            options
-          },
-          this
-      );
+    return this._intercept(
+        () => this._count(documentId, options),
+        {
+          crud: 'read',
+          method: 'count',
+          documentId,
+          options
+        }
+    );
+  }
 
+  protected async _count(
+      documentId: AnyId,
+      options?: MongoArrayService.CountOptions<T>
+  ): Promise<number> {
     const matchFilter = MongoAdapter.prepareFilter([
       MongoAdapter.prepareKeyValues(documentId, [this.collectionKey]),
       await this._getDocumentFilter()
@@ -234,19 +250,23 @@ export class MongoArrayService<T extends mongodb.Document> extends MongoService<
       id: AnyId,
       options?: MongoArrayService.DeleteOptions<T>
   ): Promise<number> {
-    if (this.$interceptor && !(options as any)?.__interceptor__)
-      return this.$interceptor(
-          () => this.delete(documentId, id, {...options, __interceptor__: true} as Object),
-          {
-            crud: 'delete',
-            method: 'delete',
-            documentId,
-            itemId: id,
-            options
-          },
-          this
-      );
+    return this._intercept(
+        () => this._delete(documentId, id, options),
+        {
+          crud: 'delete',
+          method: 'delete',
+          documentId,
+          itemId: id,
+          options
+        }
+    );
+  }
 
+  protected async _delete(
+      documentId: AnyId,
+      id: AnyId,
+      options?: MongoArrayService.DeleteOptions<T>
+  ): Promise<number> {
     const matchFilter = MongoAdapter.prepareFilter([
       MongoAdapter.prepareKeyValues(documentId, [this.collectionKey]),
       await this._getDocumentFilter()
@@ -277,17 +297,21 @@ export class MongoArrayService<T extends mongodb.Document> extends MongoService<
       documentId: AnyId,
       options?: MongoArrayService.DeleteManyOptions<T>
   ): Promise<number> {
-    if (this.$interceptor && !(options as any)?.__interceptor__)
-      return this.$interceptor(
-          () => this.deleteMany(documentId, {...options, __interceptor__: true} as Object),
-          {
-            crud: 'delete',
-            method: 'deleteMany',
-            documentId,
-            options
-          },
-          this
-      );
+    return this._intercept(
+        () => this._deleteMany(documentId, options),
+        {
+          crud: 'delete',
+          method: 'deleteMany',
+          documentId,
+          options
+        }
+    );
+  }
+
+  protected async _deleteMany(
+      documentId: AnyId,
+      options?: MongoArrayService.DeleteManyOptions<T>
+  ): Promise<number> {
     const matchFilter = MongoAdapter.prepareFilter([
       MongoAdapter.prepareKeyValues(documentId, [this.collectionKey]),
       await this._getDocumentFilter()
@@ -320,19 +344,7 @@ export class MongoArrayService<T extends mongodb.Document> extends MongoService<
    * @returns {Promise<boolean>} - A promise that resolves to a boolean indicating if the record exists or not.
    */
   async exists(documentId: AnyId, id: AnyId, options?: MongoArrayService.ExistsOptions): Promise<boolean> {
-    if (this.$interceptor && !(options as any)?.__interceptor__)
-      return this.$interceptor(
-          () => this.exists(documentId, id, {...options, __interceptor__: true} as Object),
-          {
-            crud: 'read',
-            method: 'exists',
-            documentId,
-            itemId: id,
-            options
-          },
-          this
-      );
-    return !!(await this.findById(documentId, id, {...options, pick: ['_id']}));
+    return !!(await this.findById(documentId, id, {...options, pick: ['_id'], omit: undefined, include: undefined}));
   }
 
   /**
@@ -348,25 +360,29 @@ export class MongoArrayService<T extends mongodb.Document> extends MongoService<
       id: AnyId,
       options?: MongoArrayService.FindOneOptions
   ): Promise<PartialDTO<T> | undefined> {
-    if (this.$interceptor && !(options as any)?.__interceptor__)
-      return this.$interceptor(
-          () => this.findOne(documentId, {...options, __interceptor__: true} as Object),
-          {
-            crud: 'read',
-            method: 'findById',
-            documentId,
-            itemId: id,
-            options
-          },
-          this
-      );
+    return this._intercept(
+        () => this._findById(documentId, id, options),
+        {
+          crud: 'read',
+          method: 'findById',
+          documentId,
+          itemId: id,
+          options
+        }
+    );
+  }
+
+  protected async _findById(
+      documentId: AnyId,
+      id: AnyId,
+      options?: MongoArrayService.FindOneOptions
+  ): Promise<PartialDTO<T> | undefined> {
     const filter = MongoAdapter.prepareFilter([
       MongoAdapter.prepareKeyValues(id, [this.arrayKey]),
       options?.filter
     ]);
-    return await this.findOne(documentId, {...options, filter});
+    return await this._findOne(documentId, {...options, filter});
   }
-
 
   /**
    * Finds the first array element that matches the given parentId.
@@ -379,18 +395,22 @@ export class MongoArrayService<T extends mongodb.Document> extends MongoService<
       documentId: AnyId,
       options?: MongoArrayService.FindOneOptions
   ): Promise<PartialDTO<T> | undefined> {
-    if (this.$interceptor && !(options as any)?.__interceptor__)
-      return this.$interceptor(
-          () => this.findOne(documentId, {...options, __interceptor__: true} as Object),
-          {
-            crud: 'read',
-            method: 'findOne',
-            documentId,
-            options
-          },
-          this
-      );
-    const rows = await this.findMany(documentId, {
+    return this._intercept(
+        () => this._findOne(documentId, options),
+        {
+          crud: 'read',
+          method: 'findOne',
+          documentId,
+          options
+        }
+    );
+  }
+
+  protected async _findOne(
+      documentId: AnyId,
+      options?: MongoArrayService.FindOneOptions
+  ): Promise<PartialDTO<T> | undefined> {
+    const rows = await this._findMany(documentId, {
       ...options,
       limit: 1
     });
@@ -408,18 +428,21 @@ export class MongoArrayService<T extends mongodb.Document> extends MongoService<
       documentId: AnyId,
       options?: MongoArrayService.FindManyOptions<T>
   ): Promise<PartialDTO<T>[]> {
-    if (this.$interceptor && !(options as any)?.__interceptor__)
-      return this.$interceptor(
-          () => this.findMany(documentId, {...options, __interceptor__: true} as Object),
-          {
-            crud: 'read',
-            method: 'findMany',
-            documentId,
-            options
-          },
-          this
-      );
+    return this._intercept(
+        () => this._findMany(documentId, options),
+        {
+          crud: 'read',
+          method: 'findMany',
+          documentId,
+          options
+        }
+    );
+  }
 
+  protected async _findMany(
+      documentId: AnyId,
+      options?: MongoArrayService.FindManyOptions<T>
+  ): Promise<PartialDTO<T>[]> {
     const matchFilter = MongoAdapter.prepareFilter([
       MongoAdapter.prepareKeyValues(documentId, [this.collectionKey]),
       await this._getDocumentFilter()
@@ -522,27 +545,33 @@ export class MongoArrayService<T extends mongodb.Document> extends MongoService<
       input: PatchDTO<T>,
       options?: MongoArrayService.UpdateOptions<T>
   ): Promise<PartialDTO<T> | undefined> {
-    if (this.$interceptor && !(options as any)?.__interceptor__)
-      return this.$interceptor(
-          () => this.update(documentId, id, input, {...options, __interceptor__: true} as Object),
-          {
-            crud: 'update',
-            method: 'update',
-            documentId,
-            itemId: id,
-            options
-          },
-          this
-      );
-    const r = await this.updateOnly(documentId, id, input, options);
+    return this._intercept(
+        () => this._update(documentId, id, input, options),
+        {
+          crud: 'update',
+          method: 'update',
+          documentId,
+          itemId: id,
+          options
+        }
+    );
+  }
+
+  protected async _update(
+      documentId: AnyId,
+      id: AnyId,
+      input: PatchDTO<T>,
+      options?: MongoArrayService.UpdateOptions<T>
+  ): Promise<PartialDTO<T> | undefined> {
+    const r = await this._updateOnly(documentId, id, input, options);
     if (!r)
       return;
-    try {
-      return await this.findById(documentId, id, options);
-    } catch (e: any) {
-      Error.captureStackTrace(e);
-      throw e;
-    }
+    const out = await this._findById(documentId, id, options);
+    if (out)
+      return out;
+    throw new ResourceNotFoundError(
+        this.getResourceName() + '.' + this.arrayKey,
+        documentId + '/' + id);
   }
 
   /**
@@ -560,23 +589,29 @@ export class MongoArrayService<T extends mongodb.Document> extends MongoService<
       input: PatchDTO<T>,
       options?: MongoArrayService.UpdateOptions<T>
   ): Promise<number> {
-    if (this.$interceptor && !(options as any)?.__interceptor__)
-      return this.$interceptor(
-          () => this.updateOnly(documentId, id, input, {...options, __interceptor__: true} as Object),
-          {
-            crud: 'update',
-            method: 'updateOnly',
-            documentId,
-            itemId: id,
-            input,
-            options
-          },
-          this
-      );
+    return this._intercept(
+        () => this._updateOnly(documentId, id, input, options),
+        {
+          crud: 'update',
+          method: 'updateOnly',
+          documentId,
+          itemId: id,
+          input,
+          options
+        }
+    );
+  }
+
+  protected async _updateOnly(
+      documentId: AnyId,
+      id: AnyId,
+      input: PatchDTO<T>,
+      options?: MongoArrayService.UpdateOptions<T>
+  ): Promise<number> {
     let filter = MongoAdapter.prepareKeyValues(id, [this.arrayKey]);
     if (options?.filter)
       filter = MongoAdapter.prepareFilter([filter, options?.filter]);
-    return await this.updateMany(documentId, input, {...options, filter});
+    return await this._updateMany(documentId, input, {...options, filter});
   }
 
   /**
@@ -592,19 +627,23 @@ export class MongoArrayService<T extends mongodb.Document> extends MongoService<
       input: PatchDTO<T>,
       options?: MongoArrayService.UpdateManyOptions<T>
   ): Promise<number> {
-    if (this.$interceptor && !(options as any)?.__interceptor__)
-      return this.$interceptor(
-          () => this.updateMany(documentId, input, {...options, __interceptor__: true} as Object),
-          {
-            crud: 'update',
-            method: 'updateMany',
-            documentId,
-            input,
-            options
-          },
-          this
-      );
+    return this._intercept(
+        () => this._updateMany(documentId, input, options),
+        {
+          crud: 'update',
+          method: 'updateMany',
+          documentId,
+          input,
+          options
+        }
+    );
+  }
 
+  protected async _updateMany(
+      documentId: AnyId,
+      input: PatchDTO<T>,
+      options?: MongoArrayService.UpdateManyOptions<T>
+  ): Promise<number> {
     const encode = this.getEncoder('update');
     const doc = encode(input, {coerce: true});
     if (!Object.keys(doc).length)
@@ -631,38 +670,11 @@ export class MongoArrayService<T extends mongodb.Document> extends MongoService<
         update,
         options
     );
-    return r.modifiedCount;
-  }
-
-  /**
-   * Updates multiple elements and returns the count of elements that were updated.
-   *
-   * @param {AnyId} documentId - The ID of the document to update.
-   * @param {PatchDTO<T>} input - The partial document to update with.
-   * @param {MongoArrayService.UpdateManyOptions<T>} [options] - The options for updating multiple documents.
-   * @return {Promise<number>} A promise that resolves to the number of elements updated.
-   */
-  async updateManyReturnCount(
-      documentId: AnyId,
-      input: PatchDTO<T>,
-      options?: MongoArrayService.UpdateManyOptions<T>
-  ): Promise<number> {
-    if (this.$interceptor && !(options as any)?.__interceptor__)
-      return this.$interceptor(
-          () => this.updateManyReturnCount(documentId, input, {...options, __interceptor__: true} as Object),
-          {
-            crud: 'update',
-            method: 'updateManyReturnCount',
-            documentId,
-            input,
-            options
-          },
-          this
-      );
-    const r = await this.updateMany(documentId, input, options);
-    return r
+    if (!options?.count)
+      return r.modifiedCount;
+    return r.modifiedCount
         // Count matching items that fits filter criteria
-        ? await this.count(documentId, options)
+        ? await this._count(documentId, options)
         : 0;
   }
 
@@ -715,6 +727,22 @@ export class MongoArrayService<T extends mongodb.Document> extends MongoService<
   protected _getArrayFilter(): FilterInput | Promise<FilterInput> | undefined {
     return typeof this.$arrayFilter === 'function' ?
         this.$arrayFilter(this) : this.$arrayFilter;
+  }
+
+  protected async _intercept(
+      callback: (...args: any[]) => any,
+      args: {
+        crud: MongoService.CrudOp;
+        method: string;
+        documentId?: AnyId;
+        itemId?: AnyId;
+        input?: Object;
+        options?: Record<string, any>
+      }
+  ): Promise<any> {
+    if (this.$interceptor)
+      return this.$interceptor(callback, args, this);
+    return callback();
   }
 
 }
@@ -826,6 +854,7 @@ export namespace MongoArrayService {
    */
   export interface UpdateManyOptions<T> extends mongodb.UpdateOptions {
     filter?: mongodb.Filter<T> | OpraCommon.OpraFilter.Ast | string;
+    count?: boolean;
   }
 
   /**

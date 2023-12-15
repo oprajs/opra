@@ -183,11 +183,6 @@ export class SqbEntityServiceBase<T> extends ApiService {
     return this.db;
   }
 
-  protected _instanceCompare(service: ApiService, context: RequestContext, attributes?: any): boolean {
-    return super._instanceCompare(service, context, attributes) &&
-        (!attributes?.db || (service as any).db === attributes.db);
-  }
-
   protected onError?(error: unknown): void | Promise<void>;
 
   protected transformData?(row: PartialDTO<T>): PartialDTO<T>;

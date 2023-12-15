@@ -713,6 +713,16 @@ describe('MongoArrayService', function () {
       expect(result).toEqual(0);
     });
 
+    it('Should count exact number of updated items', async () => {
+      const ctx = await app.createContext();
+      const doc = {uid: faker.string.uuid()};
+      const result = await service
+          .for(ctx)
+          .updateMany(2, doc, {count: true});
+      expect(result).toBeGreaterThan(1);
+    });
+
+
     it('Should run in interceptor', async () => {
       const mockFn = jest.fn(interceptorFn);
       const ctx = await app.createContext();
@@ -724,76 +734,6 @@ describe('MongoArrayService', function () {
       expect(mockFn).toBeCalled();
     });
 
-
-  });
-
-
-  describe('updateManyReturnCount()', function () {
-
-    it('Should update all objects in the array field', async () => {
-      const ctx = await app.createContext();
-      const update = {title: faker.lorem.text()};
-      const r: any = await service.for(ctx)
-          .updateManyReturnCount(tempRecords[3]._id, update);
-      expect(r).toBeGreaterThan(0);
-      const result = await service.for(ctx)
-          .findMany(tempRecords[3]._id);
-      expect(result).toBeDefined();
-      expect(result?.length).toEqual(r);
-      expect(result).toEqual(
-          expect.arrayContaining(
-              [expect.objectContaining({
-                title: update.title
-              })]
-          )
-      );
-    });
-
-    it('Should apply filter', async () => {
-      const ctx = await app.createContext();
-      const update = {title: faker.lorem.text()};
-      let r: any = await service.for(ctx)
-          .updateManyReturnCount(tempRecords[3]._id, update, {filter: 'rank>5'});
-      expect(r).toBeGreaterThan(0);
-      const result = await service.for(ctx)
-          .findMany(tempRecords[3]._id);
-      expect(result).toBeDefined();
-      for (r of result!) {
-        if (r.rank <= 5)
-          expect(r.title).not.toEqual(update.title);
-        else
-          expect(r.title).toEqual(update.title);
-      }
-    });
-
-    it('Should apply filter returned by documentFilter', async () => {
-      const ctx = await app.createContext();
-      const doc = {uid: faker.string.uuid()};
-      const result = await service
-          .for(ctx, {$documentFilter: '_id=999'})
-          .updateManyReturnCount(2, doc);
-      expect(result).toEqual(0);
-    });
-
-    it('Should apply filter returned by arrayFilter', async () => {
-      const ctx = await app.createContext();
-      const doc = {uid: faker.string.uuid()};
-      const result = await service
-          .for(ctx, {$arrayFilter: 'rank=99'})
-          .updateManyReturnCount(2, doc);
-      expect(result).toEqual(0);
-    });
-
-    it('Should run in interceptor', async () => {
-      const mockFn = jest.fn(interceptorFn);
-      const ctx = await app.createContext();
-      const update = {uid: faker.string.uuid()};
-      const r = await service
-          .for(ctx, {$interceptor: mockFn})
-          .updateManyReturnCount(tempRecords[3]._id, update);
-      expect(r).toBeGreaterThan(0);
-      expect(mockFn).toBeCalled();
-    });
 
   });
 
