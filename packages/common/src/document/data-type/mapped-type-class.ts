@@ -1,4 +1,4 @@
-import { Writable } from 'ts-gems';
+import { Mutable } from 'ts-gems';
 import { omitUndefined } from '../../helpers/index.js';
 import type { Field } from '../../schema/data-type/field.interface.js';
 import { OpraSchema } from '../../schema/index.js';
@@ -18,7 +18,7 @@ export class MappedTypeClass extends ComplexTypeClass {
 
   constructor(document: ApiDocument, init: MappedType.InitArguments) {
     super(document, init);
-    const own = this.own as Writable<MappedType.OwnProperties>
+    const own = this.own as Mutable<MappedType.OwnProperties>
     own.pick = init.pick;
     own.omit = init.omit;
     own.partial = init.partial;

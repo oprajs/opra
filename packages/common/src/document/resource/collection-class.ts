@@ -1,4 +1,4 @@
-import * as vg from 'valgen';
+import { vg } from 'valgen';
 import { BadRequestError } from '../../exception/index.js';
 import { OpraFilter } from '../../filter/index.js';
 import { translate } from '../../i18n/index.js';

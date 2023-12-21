@@ -3,8 +3,8 @@ import { SimpleType } from '../simple-type.js';
 
 @SimpleType({
   description: 'A Null value',
-  decoder: isNull(),
-  encoder: isNull()
+  decoder: isNull,
+  encoder: isNull
 })
 export class NullType {
 }

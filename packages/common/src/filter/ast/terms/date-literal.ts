@@ -1,5 +1,5 @@
 import { toDateDef } from 'putil-varhelpers';
-import { ValidationError } from '../../errors.js';
+import { FilterValidationError } from '../../errors.js';
 import { quoteFilterString } from '../../utils.js';
 import { Literal } from '../abstract/literal.js';
 
@@ -20,7 +20,7 @@ export class DateLiteral extends Literal {
       this.value = value;
       return;
     }
-    throw new ValidationError(`Invalid date value "${value}"`);
+    throw new FilterValidationError(`Invalid date value "${value}"`);
   }
 
   toString(): string {

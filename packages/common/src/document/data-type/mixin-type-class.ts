@@ -1,4 +1,4 @@
-import { Type, Writable } from 'ts-gems';
+import { Mutable, Type } from 'ts-gems';
 import { OpraSchema } from '../../schema/index.js';
 import type { ApiDocument } from '../api-document.js';
 import { ComplexType } from './complex-type.js';
@@ -12,7 +12,7 @@ export class MixinTypeClass extends ComplexType {
 
   constructor(document: ApiDocument, init: MixinType.InitArguments) {
     super(document, init);
-    const own = this.own as Writable<MixinType.OwnProperties>
+    const own = this.own as Mutable<MixinType.OwnProperties>
     own.types = [];
     const MixinType: Type<MixinType> = Object.getPrototypeOf(this).constructor;
     for (const base of init.types) {

@@ -1,4 +1,4 @@
-import type { Writable } from 'ts-gems';
+import type { Mutable } from 'ts-gems';
 import { Collection, Resource, RESOURCE_METADATA, Singleton } from "@opra/common";
 import { RequestContext } from '../request-context.js';
 
@@ -57,7 +57,7 @@ const oldConstruct = Resource.prototype._construct;
 // @ts-ignore
 Resource.prototype._construct = function (init: Resource.InitArguments) {
   oldConstruct.call(this, init);
-  const _this = this as Writable<Resource>;
+  const _this = this as Mutable<Resource>;
   _this.onInit = init.onInit;
   _this.onShutdown = init.onShutdown;
 }

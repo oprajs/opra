@@ -1,5 +1,5 @@
-import { RequiredSome, Type, Writable } from 'ts-gems';
-import * as vg from 'valgen';
+import { Mutable, RequiredSome, Type } from 'ts-gems';
+import { IsObject, vg } from 'valgen';
 import { omitUndefined, ResponsiveMap } from '../../helpers/index.js';
 import { translate } from '../../i18n/index.js';
 import { OpraSchema } from '../../schema/index.js';
@@ -25,7 +25,7 @@ export class ComplexTypeClass extends DataType {
 
   constructor(document: ApiDocument, init: ComplexType.InitArguments) {
     super(document, init);
-    const own = this.own = {} as Writable<ComplexType.OwnProperties>;
+    const own = this.own = {} as Mutable<ComplexType.OwnProperties>;
     own.ctor = init.ctor;
     if (init.base) {
       if (!(init.base.kind === 'ComplexType' || init.base.kind === 'MappedType' || init.base.kind === 'MixinType'))
@@ -187,7 +187,7 @@ export class ComplexTypeClass extends DataType {
   generateCodec<T extends Object = any>(
       codec: 'decode' | 'encode',
       options?: DataType.GenerateCodecOptions
-  ): vg.ObjectValidator<T> {
+  ): IsObject.Validator<T> {
     const schema = this.generateCodecSchema(codec, options);
     const additionalFields = this.additionalFields instanceof DataType
         ? this.additionalFields.generateCodec(codec, {
@@ -208,7 +208,7 @@ export class ComplexTypeClass extends DataType {
   generateCodecSchema(
       codec: 'decode' | 'encode',
       options?: DataType.GenerateCodecOptions
-  ): vg.ObjectSchema {
+  ): IsObject.Schema {
     const opts = {
       ...options,
       pick: (options?.pick || []).map(x => x.toLowerCase()),
@@ -221,8 +221,8 @@ export class ComplexTypeClass extends DataType {
   protected _generateCodecSchema(
       codec: 'decode' | 'encode',
       options?: RequiredSome<DataType.GenerateCodecOptions, 'pick' | 'omit'>
-  ): vg.ObjectSchema {
-    const schema: vg.ObjectSchema = {};
+  ): IsObject.Schema {
+    const schema: IsObject.Schema = {};
     const overwriteFields = options?.overwriteFields;
     const optionsPick = options?.pick || [];
     const optionsOmit = options?.omit || [];

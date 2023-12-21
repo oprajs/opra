@@ -1,6 +1,6 @@
 import isPlainObject from 'putil-isplainobject';
 import merge from 'putil-merge';
-import { HighDeepRemoveNulls } from 'ts-gems';
+import { DeeperOmitTypes } from 'ts-gems';
 import { DATATYPE_METADATA } from '../document/constants.js';
 
 export function cloneObject<T extends {}>(obj: T, jsonOnly?: boolean): T {
@@ -31,7 +31,7 @@ export function omitUndefined<T>(obj: T, recursive?: boolean): T {
   return obj;
 }
 
-export function omitNullish<T>(obj: T, recursive?: boolean): HighDeepRemoveNulls<T> {
+export function omitNullish<T>(obj: T, recursive?: boolean): DeeperOmitTypes<T, null | undefined> {
   if (!(obj && typeof obj === 'object'))
     return obj as any;
   for (const k of Object.keys(obj)) {

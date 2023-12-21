@@ -3,8 +3,8 @@ import { SimpleType } from '../simple-type.js';
 
 @SimpleType({
   description: 'An integer number',
-  decoder: isInteger(),
-  encoder: isInteger()
+  decoder: isInteger,
+  encoder: isInteger
 })
 export class IntegerType {
 

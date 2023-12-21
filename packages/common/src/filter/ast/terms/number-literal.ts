@@ -1,4 +1,4 @@
-import { ValidationError } from '../../errors.js';
+import { FilterValidationError } from '../../errors.js';
 import { Literal } from '../abstract/literal.js';
 
 export class NumberLiteral extends Literal {
@@ -26,7 +26,7 @@ export class NumberLiteral extends Literal {
     } catch {
       //
     }
-    throw new ValidationError(`Invalid number literal ${value}`);
+    throw new FilterValidationError(`Invalid number literal ${value}`);
   }
 
   toString(): string {

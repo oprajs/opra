@@ -11,8 +11,8 @@ import { SimpleType } from '../simple-type.js';
     '2021-04',
     '2021',
   ],
-  decoder: isDateString(),
-  encoder: isDateString()
+  decoder: isDateString,
+  encoder: isDateString
 })
 export class ApproxDatetimeType {
 }

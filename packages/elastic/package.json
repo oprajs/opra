@@ -28,7 +28,7 @@
   "devDependencies": {
     "@elastic/elasticsearch": "^8.11.0",
     "@faker-js/faker": "^8.3.1",
-    "ts-gems": "^2.9.3"
+    "ts-gems": "^3.0.0"
   },
   "peerDependencies": {
     "@elastic/elasticsearch": ">=8.7.0",

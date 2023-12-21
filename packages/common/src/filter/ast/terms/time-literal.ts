@@ -1,4 +1,4 @@
-import { ValidationError } from '../../errors.js';
+import { FilterValidationError } from '../../errors.js';
 import { quoteFilterString } from '../../utils.js';
 import { Literal } from '../abstract/literal.js';
 
@@ -21,7 +21,7 @@ export class TimeLiteral extends Literal {
       this.value = value;
       return;
     }
-    throw new ValidationError(`Invalid time value "${value}"`);
+    throw new FilterValidationError(`Invalid time value "${value}"`);
   }
 
   toString(): string {

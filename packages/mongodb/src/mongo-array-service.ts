@@ -4,7 +4,6 @@ import { StrictOmit, Type } from 'ts-gems';
 import * as OpraCommon from '@opra/common';
 import {
   ComplexType,
-  DTO,
   NotAcceptableError,
   PartialDTO,
   PatchDTO,
@@ -84,7 +83,7 @@ export class MongoArrayService<T extends mongodb.Document> extends MongoService<
         method: string;
         documentId?: AnyId;
         itemId?: AnyId;
-        input?: Object;
+        input?: Record<string, any>;
         options?: Record<string, any>
       }, _this: any
   ) => Promise<any>;
@@ -137,7 +136,7 @@ export class MongoArrayService<T extends mongodb.Document> extends MongoService<
    */
   async create(
       documentId: AnyId,
-      input: DTO<T>,
+      input: PartialDTO<T>,
       options?: MongoArrayService.CreateOptions
   ): Promise<PartialDTO<T>> {
     return this._intercept(
@@ -155,7 +154,7 @@ export class MongoArrayService<T extends mongodb.Document> extends MongoService<
 
   protected async _create(
       documentId: AnyId,
-      input: DTO<T>,
+      input: PartialDTO<T>,
       options?: MongoArrayService.CreateOptions
   ): Promise<PartialDTO<T>> {
     const encode = this.getEncoder('create');

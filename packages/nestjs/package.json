@@ -33,15 +33,15 @@
     "reflect-metadata": "^0.1.14"
   },
   "peerDependencies": {
-    "@nestjs/common": "^10.2.10",
-    "@nestjs/core": "^10.2.10"
+    "@nestjs/common": "^10.3.0",
+    "@nestjs/core": "^10.3.0"
   },
   "devDependencies": {
-    "@nestjs/platform-express": "^10.2.10",
-    "@nestjs/testing": "^10.2.10",
+    "@nestjs/platform-express": "^10.3.0",
+    "@nestjs/testing": "^10.3.0",
     "@types/lodash.head": "^4.0.9",
     "filedirname": "^3.2.0",
-    "ts-gems": "^2.9.3"
+    "ts-gems": "^3.0.0"
   },
   "type": "module",
   "module": "./esm/index.js",

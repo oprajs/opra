@@ -4,7 +4,7 @@ import { Recognizer } from '@browsery/antlr4/typings/Recognizer';
 export class SyntaxError extends TypeError {
 }
 
-export class ValidationError extends TypeError {
+export class FilterValidationError extends TypeError {
   constructor(message?: string | { message?: string }) {
     super(typeof message === 'string' ? message : message?.message);
     if (typeof message === 'object')

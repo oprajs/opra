@@ -1,5 +1,5 @@
 import { StrictOmit } from 'ts-gems';
-import * as vg from 'valgen';
+import { isAny, Validator } from 'valgen';
 import { OpraSchema } from '../../schema/index.js';
 import { DataType } from '../data-type/data-type.js';
 import { Endpoint } from './endpoint.js';
@@ -14,7 +14,7 @@ export class Action extends Endpoint {
   readonly kind = 'action';
   returnType?: DataType;
   returnMime?: string;
-  encodeReturning: vg.Validator = vg.isAny();
+  encodeReturning: Validator = isAny;
 
   constructor(readonly resource: Resource, readonly name: string, init: Action.InitArguments) {
     super(resource, name, init);

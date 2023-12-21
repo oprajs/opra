@@ -64,7 +64,10 @@ export type Field = {
    */
   deprecated?: boolean | string;
 
-  format?: string;
+  /**
+   * Defines RegExp pattern for the field. A String type is required for this option
+   */
+  pattern?: string;
 
   /**
    * Indicates if partial update enabled for this field

@@ -1,6 +1,6 @@
 import fs from 'fs/promises';
 import os from 'os';
-import * as vg from 'valgen';
+import { ValidationError } from 'valgen';
 import { ErrorIssue } from 'valgen/typings/core/types';
 import typeIs from '@browsery/type-is';
 import {
@@ -131,7 +131,7 @@ export abstract class HttpAdapterHost extends PlatformAdapterHost {
     } catch (e: any) {
       if (e instanceof OpraException)
         throw e;
-      if (e instanceof vg.ValidationError) {
+      if (e instanceof ValidationError) {
         throw new InternalServerError({
           message: translate('error:RESPONSE_VALIDATION,'),
           code: 'RESPONSE_VALIDATION',

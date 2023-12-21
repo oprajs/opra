@@ -1,4 +1,4 @@
-import { isDate, isDateString } from 'valgen';
+import { vg } from 'valgen';
 import { SimpleType } from '../simple-type.js';
 
 @SimpleType({
@@ -8,8 +8,8 @@ import { SimpleType } from '../simple-type.js';
     '2021-04-18 22:30:15',
     '2021-04-18 22:30'
   ],
-  decoder: isDate({precision: 'time'}),
-  encoder: isDateString({precision: 'time', trim: 'time'})
+  decoder: vg.isDate({precision: 'time'}),
+  encoder: vg.isDateString({precision: 'time', trim: 'time'})
 })
 export class DatetimeType {
 

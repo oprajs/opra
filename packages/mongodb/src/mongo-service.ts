@@ -1,6 +1,6 @@
 import mongodb, { MongoClient, TransactionOptions } from 'mongodb';
 import { StrictOmit, Type } from 'ts-gems';
-import vg from 'valgen';
+import { IsObject } from 'valgen';
 import { ComplexType, DataType, DATATYPE_METADATA, PartialDTO } from '@opra/common';
 import { ApiService } from '@opra/core';
 import { AnyId, WithTransactionCallback } from './types.js';
@@ -12,8 +12,8 @@ import { AnyId, WithTransactionCallback } from './types.js';
  * @template T - The type of the documents in the collection.
  */
 export class MongoService<T extends mongodb.Document> extends ApiService {
-  protected _encoders: Record<string, vg.ObjectValidator<T>> = {};
-  protected _decoder?: vg.ObjectValidator<T>;
+  protected _encoders: Record<string, IsObject.Validator<T>> = {};
+  protected _decoder?: IsObject.Validator<T>;
   protected _dataType: Type | string;
 
   /**
@@ -100,9 +100,9 @@ export class MongoService<T extends mongodb.Document> extends ApiService {
    * Retrieves the encoder for the specified operation.
    *
    * @param {String} operation - The operation to retrieve the encoder for. Valid values are 'create' and 'update'.
-   * @returns {vg.ObjectValidator<T>} - The encoder for the specified operation.
+   * @returns {IsObject.Validator<T>} - The encoder for the specified operation.
    */
-  getEncoder(operation: 'create' | 'update'): vg.ObjectValidator<T> {
+  getEncoder(operation: 'create' | 'update'): IsObject.Validator<T> {
     let encoder = this._encoders[operation];
     if (encoder)
       return encoder;
@@ -114,9 +114,9 @@ export class MongoService<T extends mongodb.Document> extends ApiService {
   /**
    * Retrieves the decoder.
    *
-   * @returns {vg.ObjectValidator<T>} - The encoder for the specified operation.
+   * @returns {IsObject.Validator<T>} - The encoder for the specified operation.
    */
-  getDecoder(): vg.ObjectValidator<T> {
+  getDecoder(): IsObject.Validator<T> {
     let decoder = this._decoder;
     if (decoder)
       return decoder;
@@ -497,21 +497,16 @@ export class MongoService<T extends mongodb.Document> extends ApiService {
    *
    * @param {string} operation - The operation to generate the encoder for. Must be either 'create' or 'update'.
    * @protected
-   * @returns {vg.Validator} - The generated encoder for the specified operation.
+   * @returns {IsObject.Validator} - The generated encoder for the specified operation.
    */
-  protected _generateEncoder(operation: 'create' | 'update'): vg.ObjectValidator<T> {
-    let encoder = this._encoders[operation];
-    if (encoder)
-      return encoder;
+  protected _generateEncoder(operation: 'create' | 'update'): IsObject.Validator<T> {
     const dataType = this.getDataType();
     const options: DataType.GenerateCodecOptions = {};
     if (operation === 'update') {
       options.omit = ['_id'];
       options.partial = true;
     }
-    encoder = dataType.generateCodec('encode', options);
-    this._encoders[operation] = encoder;
-    return encoder;
+    return dataType.generateCodec('encode', options);
   }
 
 
@@ -519,15 +514,11 @@ export class MongoService<T extends mongodb.Document> extends ApiService {
    * Generates an encoder for the specified operation.
    *
    * @protected
-   * @returns {vg.Validator} - The generated encoder for the specified operation.
+   * @returns {IsObject.Validator} - The generated encoder for the specified operation.
    */
-  protected _generateDecoder(): vg.ObjectValidator<T> {
-    let decoder = this._decoder;
-    if (decoder)
-      return decoder;
+  protected _generateDecoder(): IsObject.Validator<T> {
     const dataType = this.getDataType();
-    decoder = this._decoder = dataType.generateCodec('decode', {partial: true});
-    return decoder;
+    return dataType.generateCodec('decode', {partial: true});
   }
 
 }

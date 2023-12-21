@@ -1,6 +1,6 @@
 import mongodb, { ObjectId } from 'mongodb';
 import { StrictOmit, Type } from 'ts-gems';
-import { DTO, InternalServerError, PartialDTO, PatchDTO, ResourceNotFoundError } from '@opra/common';
+import { InternalServerError, PartialDTO, PatchDTO, ResourceNotFoundError } from '@opra/common';
 import * as OpraCommon from '@opra/common';
 import { FilterInput } from './adapter-utils/prepare-filter.js';
 import { MongoAdapter } from './mongo-adapter.js';
@@ -53,7 +53,7 @@ export class MongoSingletonService<T extends mongodb.Document> extends MongoServ
         crud: MongoService.CrudOp;
         method: string;
         documentId?: AnyId;
-        input?: Object;
+        input?: Record<string, any>;
         options?: Record<string, any>
       }, _this: any
   ) => Promise<any>;
@@ -93,7 +93,7 @@ export class MongoSingletonService<T extends mongodb.Document> extends MongoServ
    * @throws {Error} Throws an error if an unknown error occurs while creating the document.
    */
   async create(
-      input: DTO<T>,
+      input: PartialDTO<T>,
       options?: MongoSingletonService.CreateOptions
   ): Promise<PartialDTO<T>> {
     return this._intercept(
@@ -108,7 +108,7 @@ export class MongoSingletonService<T extends mongodb.Document> extends MongoServ
   }
 
   protected async _create(
-      input: DTO<T>,
+      input: PartialDTO<T>,
       options?: MongoSingletonService.CreateOptions
   ): Promise<PartialDTO<T>> {
     const encode = this.getEncoder('create');

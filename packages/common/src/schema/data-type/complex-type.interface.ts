@@ -15,6 +15,6 @@ export interface ComplexType extends StrictOmit<DataTypeBase, 'kind'> {
 
 export namespace ComplexType {
   export const Kind = 'ComplexType';
-  export type Kind = 'ComplexType';
+  export type Kind = typeof Kind;
 
 }

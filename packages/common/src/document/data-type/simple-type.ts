@@ -1,6 +1,6 @@
 import 'reflect-metadata';
 import merge from 'putil-merge';
-import * as vg from 'valgen';
+import { Validator } from 'valgen';
 import type { ApiDocument } from '../api-document.js';
 import { DECORATOR } from '../constants.js';
 import { DataType } from './data-type.js';
@@ -44,18 +44,18 @@ SimpleType[DECORATOR] = SimpleTypeDecorator;
 export namespace SimpleType {
   export interface InitArguments extends DataType.InitArguments {
     base?: SimpleType;
-    decoder?: vg.Validator;
-    encoder?: vg.Validator;
+    decoder?: Validator;
+    encoder?: Validator;
   }
 
   export interface DecoratorOptions extends DataType.DecoratorOptions {
-    decoder?: vg.Validator;
-    encoder?: vg.Validator;
+    decoder?: Validator;
+    encoder?: Validator;
   }
 
   export interface Metadata extends DataType.Metadata {
-    decoder?: vg.Validator;
-    encoder?: vg.Validator;
+    decoder?: Validator;
+    encoder?: Validator;
   }
 
   export interface OwnProperties extends DataType.OwnProperties {

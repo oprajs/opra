@@ -1,5 +1,5 @@
 import { Type } from 'ts-gems';
-import * as vg from 'valgen';
+import { isUndefined, Validator, vg } from 'valgen';
 import { omitUndefined } from '../../helpers/index.js';
 import type { OpraSchema } from '../../schema/index.js';
 import type { ComplexType } from './complex-type.js';
@@ -23,7 +23,7 @@ export class FieldClass {
   translatable?: boolean;
   deprecated?: boolean | string;
   examples?: any[] | Record<string, any>;
-  format?: string;
+  pattern?: RegExp;
   partialUpdate?: boolean;
 
   constructor(owner: ComplexType, init: ApiField.InitArguments) {
@@ -43,7 +43,8 @@ export class FieldClass {
     this.translatable = init.translatable;
     this.deprecated = init.deprecated;
     this.examples = init.examples;
-    this.format = init.format;
+    this.pattern = init.pattern ?
+        (init.pattern instanceof RegExp ? init.pattern : new RegExp(init.pattern)) : undefined;
     this.partialUpdate = init.partialUpdate;
   }
 
@@ -65,21 +66,23 @@ export class FieldClass {
       translatable: this.translatable,
       deprecated: this.deprecated,
       examples: this.examples,
-      format: this.format,
+      pattern: this.pattern ? String(this.pattern) : undefined,
       partialUpdate: this.partialUpdate,
     }) as OpraSchema.Field;
   }
 
-  generateCodec(codec: 'decode' | 'encode', options?: DataType.GenerateCodecOptions): vg.Validator {
+  generateCodec(codec: 'decode' | 'encode', options?: DataType.GenerateCodecOptions): Validator {
     if (options?.operation === 'read' && this.writeonly)
-      return vg.isUndefined()
+      return isUndefined
     if (options?.operation === 'write' && this.readonly)
-      return vg.isUndefined()
+      return isUndefined
     let fn = this.type.generateCodec(codec, {
       ...options,
       designType: this.designType,
       partial: options?.partial && (this.partialUpdate || !this.isArray)
     });
+    if (this.pattern)
+      fn = vg.allOf(fn, vg.isRegExp(this.pattern));
     if (this.isArray)
       fn = vg.isArray(fn);
     return !options?.partial && this.required ? vg.required(fn) : vg.optional(fn);

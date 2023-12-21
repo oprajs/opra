@@ -1,5 +1,5 @@
 import { RequiredSome, StrictOmit, Type } from 'ts-gems';
-import * as vg from 'valgen';
+import { OnFailFunction, Validator } from 'valgen';
 import { omitUndefined } from '../../helpers/index.js';
 import { OpraSchema } from '../../schema/index.js';
 import type { ApiDocument } from '../api-document.js';
@@ -33,7 +33,7 @@ export abstract class DataType {
       this.isAnonymous = true;
   }
 
-  abstract generateCodec(codec: 'decode' | 'encode', options?: DataType.GenerateCodecOptions): vg.Validator;
+  abstract generateCodec(codec: 'decode' | 'encode', options?: DataType.GenerateCodecOptions): Validator;
 
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   exportSchema(options?: { webSafe?: boolean }): OpraSchema.DataType {
@@ -99,7 +99,7 @@ export namespace DataType {
     operation?: 'read' | 'write';
     overwriteFields?: Record<string, OverrideFieldsConfig>;
     designType?: Type;
-    onFail?: vg.OnFailFunction;
+    onFail?: OnFailFunction;
   }
 
 

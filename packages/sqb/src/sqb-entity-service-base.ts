@@ -1,4 +1,4 @@
-import { Type } from 'ts-gems';
+import { Nullish, Type } from 'ts-gems';
 import { DTO, PartialDTO, PatchDTO } from '@opra/common';
 import { ApiService, RequestContext } from '@opra/core';
 import { EntityInput, EntityMetadata, Repository, SqbClient, SqbConnection } from '@sqb/connect';
@@ -163,11 +163,12 @@ export class SqbEntityServiceBase<T> extends ApiService {
     }
   }
 
-  for(context: RequestContext | ApiService): this
-  for(context: RequestContext | ApiService, attributes?: SqbEntityServiceBase.ExtendOptions): this
-  for<O extends ApiService.ExtendOptions>(attributes: O): this & O;
-  for(arg0: any, attributes?: any): this {
-    return super.for(arg0, attributes) as this;
+  for<C extends RequestContext, P extends Partial<this>>(
+      context: C,
+      overwriteProperties?: Nullish<P>,
+      overwriteContext?: Partial<C>
+  ): this & Required<P> {
+    return super.for(context, overwriteProperties, overwriteContext) as this & Required<P>;
   }
 
   protected async _onError(error: unknown): Promise<void> {
@@ -190,14 +191,9 @@ export class SqbEntityServiceBase<T> extends ApiService {
 
 }
 
-
 export namespace SqbEntityServiceBase {
   export interface Options {
     db?: SqbClient | SqbConnection;
     defaultLimit?: number;
-  }
-
-  export interface ExtendOptions extends Options, ApiService.ExtendOptions {
-    db?: SqbClient | SqbConnection
   }
 }

@@ -56,7 +56,7 @@
     "@types/lodash.omit": "^4.5.9",
     "@types/validator": "^13.11.7",
     "path-browserify": "^1.0.1",
-    "ts-gems": "^2.9.3"
+    "ts-gems": "^3.0.0"
   },
   "engines": {
     "node": ">=16.0",

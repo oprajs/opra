@@ -46,21 +46,24 @@ ApiField[DECORATOR] = FieldDecorator;
  * @namespace ApiField
  */
 export namespace ApiField {
-  export interface InitArguments extends StrictOmit<OpraSchema.Field, 'type'> {
+  export interface InitArguments extends StrictOmit<OpraSchema.Field, 'type' | 'pattern'> {
     name: string;
     type: DataType;
     designType?: Type;
     origin?: ComplexType;
+    pattern?: string | RegExp;
   }
 
-  export interface DecoratorOptions extends Partial<StrictOmit<OpraSchema.Field, 'isArray' | 'type'>> {
+  export interface DecoratorOptions extends Partial<StrictOmit<OpraSchema.Field, 'isArray' | 'type' | 'pattern'>> {
     type?: string | OpraSchema.DataType | TypeThunkAsync;
     enum?: EnumType.EnumObject | EnumType.EnumArray;
+    pattern?: string | RegExp;
   }
 
-  export interface Metadata extends StrictOmit<OpraSchema.Field, 'type'> {
+  export interface Metadata extends StrictOmit<OpraSchema.Field, 'type' | 'pattern'> {
     type?: string | OpraSchema.DataType | TypeThunkAsync;
     enum?: EnumType.EnumObject | EnumType.EnumArray;
     designType?: Type;
+    pattern?: string | RegExp;
   }
 }

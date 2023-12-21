@@ -11,5 +11,5 @@ export interface MappedType extends StrictOmit<ComplexType, 'kind'> {
 
 export namespace MappedType {
   export const Kind = 'MappedType';
-  export type Kind = 'MappedType';
+  export type Kind = typeof Kind;
 }

@@ -1,5 +1,5 @@
 import { StrictOmit } from 'ts-gems';
-import * as vg from 'valgen';
+import { Validator, vg } from 'valgen';
 import { omitUndefined } from '../../helpers/index.js';
 import { OpraSchema } from '../../schema/index.js';
 import { DataType } from '../data-type/data-type.js';
@@ -10,8 +10,8 @@ import type { ResourceDecorator } from './resource-decorator.js';
  * @class Parameter
  */
 export class Parameter {
-  protected _decoder: vg.Validator;
-  protected _encoder: vg.Validator;
+  protected _decoder: Validator;
+  protected _encoder: Validator;
   readonly name: string;
   readonly type: DataType;
   description?: string;
@@ -46,19 +46,19 @@ export class Parameter {
     })
   }
 
-  getDecoder(): vg.Validator {
+  getDecoder(): Validator {
     if (!this._decoder)
       this._decoder = this.generateCodec('decode');
     return this._decoder;
   }
 
-  getEncoder(): vg.Validator {
+  getEncoder(): Validator {
     if (!this._encoder)
       this._encoder = this.generateCodec('encode');
     return this._encoder;
   }
 
-  generateCodec(codec: 'decode' | 'encode', options?: DataType.GenerateCodecOptions): vg.Validator {
+  generateCodec(codec: 'decode' | 'encode', options?: DataType.GenerateCodecOptions): Validator {
     let fn = this.type.generateCodec(codec, options);
     if (this.isArray)
       fn = vg.stringSplit(',');

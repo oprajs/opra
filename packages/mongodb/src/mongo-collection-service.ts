@@ -1,7 +1,7 @@
 import omit from 'lodash.omit';
 import mongodb, { ObjectId } from 'mongodb';
 import { StrictOmit, Type } from 'ts-gems';
-import { DTO, InternalServerError, PartialDTO, PatchDTO, ResourceNotFoundError } from '@opra/common';
+import { InternalServerError, PartialDTO, PatchDTO, ResourceNotFoundError } from '@opra/common';
 import * as OpraCommon from '@opra/common';
 import { FilterInput } from './adapter-utils/prepare-filter.js';
 import { MongoAdapter } from './mongo-adapter.js';
@@ -54,7 +54,7 @@ export class MongoCollectionService<T extends mongodb.Document> extends MongoSer
         crud: MongoService.CrudOp;
         method: string;
         documentId?: AnyId;
-        input?: Object;
+        input?: Record<string, any>;
         options?: Record<string, any>
       }, _this: any
   ) => Promise<any>;
@@ -98,7 +98,7 @@ export class MongoCollectionService<T extends mongodb.Document> extends MongoSer
    * @throws {Error} if an unknown error occurs while creating the document.
    */
   async create(
-      input: DTO<T>,
+      input: PartialDTO<T>,
       options?: MongoCollectionService.CreateOptions
   ): Promise<PartialDTO<T>> {
     return this._intercept(
@@ -114,7 +114,7 @@ export class MongoCollectionService<T extends mongodb.Document> extends MongoSer
   }
 
   protected async _create(
-      input: DTO<T>,
+      input: PartialDTO<T>,
       options?: MongoCollectionService.CreateOptions
   ): Promise<PartialDTO<T>> {
     const encode = this.getEncoder('create');

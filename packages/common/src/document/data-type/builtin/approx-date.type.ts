@@ -1,4 +1,4 @@
-import { isDateString } from 'valgen';
+import { vg } from 'valgen';
 import { SimpleType } from '../simple-type.js';
 
 @SimpleType({
@@ -8,8 +8,8 @@ import { SimpleType } from '../simple-type.js';
     '2021-04',
     '2021',
   ],
-  decoder: isDateString({trim: 'date'}),
-  encoder: isDateString({trim: 'date'})
+  decoder: vg.isDateString({trim: 'date'}),
+  encoder: vg.isDateString({trim: 'date'})
 })
 export class ApproxDateType {
 }

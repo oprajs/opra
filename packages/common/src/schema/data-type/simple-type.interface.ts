@@ -1,13 +1,13 @@
 import { StrictOmit } from 'ts-gems';
-import * as vg from 'valgen';
+import { Validator } from 'valgen';
 import type { DataTypeBase } from './data-type.interface.js';
 import { DataType } from './data-type.interface.js';
 
 export interface SimpleType extends StrictOmit<DataTypeBase, 'kind'> {
   kind: SimpleType.Kind;
   base?: DataType.Name | SimpleType;
-  decoder?: vg.Validator;
-  encoder?: vg.Validator;
+  decoder?: Validator;
+  encoder?: Validator;
 }
 
 export namespace SimpleType {

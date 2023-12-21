@@ -1,5 +1,5 @@
 import { StrictOmit } from 'ts-gems';
-import * as vg from 'valgen';
+import { Validator, vg } from 'valgen';
 import { OpraSchema } from '../../schema/index.js';
 import { DataType } from '../data-type/data-type.js';
 import { ApiField } from '../data-type/field.js';
@@ -13,9 +13,9 @@ import type { ResourceDecorator } from './resource-decorator.js';
  */
 export class CrudOperation extends Endpoint {
   readonly kind = 'operation';
-  decodeInput: vg.Validator = vg.isAny();
+  decodeInput: Validator = vg.isAny();
   returnType: DataType;
-  encodeReturning: vg.Validator = vg.isAny();
+  encodeReturning: Validator = vg.isAny();
   inputOverwriteFields?: Record<string, ApiField.InitArguments>;
   outputOverwriteFields?: Record<string, ApiField.InitArguments>;
 
