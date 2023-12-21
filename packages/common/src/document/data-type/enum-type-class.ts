@@ -26,7 +26,8 @@ export class EnumTypeClass extends DataType {
   }
 
   isTypeOf(t: object): boolean {
-    return t[DATATYPE_METADATA] === this.enumObject?.[DATATYPE_METADATA];
+    return t[DATATYPE_METADATA] &&
+        t[DATATYPE_METADATA] === this.enumObject?.[DATATYPE_METADATA];
   }
 
   exportSchema(): OpraSchema.EnumType {

@@ -14,6 +14,7 @@ export * from './http-errors/not-found.error.js';
 export * from './http-errors/unauthorized.error.js';
 export * from './http-errors/unprocessable-entity.error.js';
 
+export * from './resource-errors/permission.error.js';
 export * from './resource-errors/resource-conflict.error.js';
 export * from './resource-errors/resource-not-found.error.js';
 
