@@ -45,7 +45,7 @@
     "buffer": "^6.0.3",
     "cookie": "^0.6.0",
     "crypto-browserify": "^3.12.0",
-    "dayjs": "^1.11.10",
+    "dayjs": "2.0.0-alpha.4",
     "encodeurl": "^1.0.2",
     "events": "^3.3.0",
     "fast-tokenizer": "^1.2.2",
