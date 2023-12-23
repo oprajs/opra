@@ -31,18 +31,18 @@
     "ts-gems": "^3.0.0"
   },
   "devDependencies": {
-    "@angular-devkit/build-angular": "^17.0.7",
-    "@angular/cli": "^17.0.7",
+    "@angular-devkit/build-angular": "^17.0.8",
+    "@angular/cli": "^17.0.8",
     "@angular/compiler": "^17.0.2",
-    "@angular/compiler-cli": "^17.0.7",
+    "@angular/compiler-cli": "^17.0.8",
     "@angular/platform-browser": "^17.0.2",
-    "@angular/platform-browser-dynamic": "^17.0.7",
+    "@angular/platform-browser-dynamic": "^17.0.8",
     "core-js": "^3.34.0",
     "cross-fetch": "^4.0.0",
     "express": "^4.18.2",
     "jest-preset-angular": "^13.1.4",
     "ng-packagr": "^17.0.3",
-    "ts-gems": "^3.0.0",
+    "ts-gems": "^3.1.0",
     "zone.js": "^0.14.2"
   },
   "engines": {

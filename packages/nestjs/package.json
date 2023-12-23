@@ -41,7 +41,7 @@
     "@nestjs/testing": "^10.3.0",
     "@types/lodash.head": "^4.0.9",
     "filedirname": "^3.2.0",
-    "ts-gems": "^3.0.0"
+    "ts-gems": "^3.1.0"
   },
   "type": "module",
   "module": "./esm/index.js",

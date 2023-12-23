@@ -27,7 +27,7 @@
   "devDependencies": {
     "@faker-js/faker": "^8.3.1",
     "mongodb": "^6.3.0",
-    "ts-gems": "^3.0.0"
+    "ts-gems": "^3.1.0"
   },
   "peerDependencies": {
     "@opra/common": "^0.32.6",

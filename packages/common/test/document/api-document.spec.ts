@@ -2,7 +2,7 @@
 import {
   ApiDocument, ApiDocumentFactory,
   Collection, ComplexType, EnumType,
-  OpraSchema, Singleton,
+  OpraSchema, ResourceNotAvailableError, Singleton,
 } from '@opra/common';
 import {
   AuthController,
@@ -56,7 +56,7 @@ describe('ApiDocument', function () {
 
   it('Should getResource(name) throw if resource not a found', async () => {
     const doc = await ApiDocumentFactory.createDocument(baseArgs);
-    expect(() => doc.getResource('unknownResource')).toThrow('not found');
+    expect(() => doc.getResource('unknownResource')).toThrow(ResourceNotAvailableError);
   })
 
   it('Should getResource(name, silent) return undefined if resource not a found', async () => {
