@@ -46,7 +46,7 @@
     "putil-varhelpers": "^1.6.5",
     "reflect-metadata": "^0.1.14",
     "uid": "^2.0.1",
-    "valgen": "^5.0.1"
+    "valgen": "^5.1.0"
   },
   "devDependencies": {
     "@browsery/fs": "^0.4.0",
