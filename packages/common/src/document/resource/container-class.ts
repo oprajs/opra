@@ -1,4 +1,4 @@
-import { NotAcceptableError, ResourceNotFoundError } from '../../exception/index.js';
+import { NotAcceptableError, ResourceNotAvailableError } from '../../exception/index.js';
 import { ResponsiveMap } from '../../helpers/index.js';
 import { OpraSchema } from '../../schema/index.js';
 import type { ApiDocument } from '../api-document.js';
@@ -62,7 +62,7 @@ export class ContainerClass extends Resource {
       resource = this.resources.get(path);
     if (resource || silent)
       return resource;
-    throw new ResourceNotFoundError(path);
+    throw new ResourceNotAvailableError(path);
   }
 
   /**

@@ -10,7 +10,7 @@
   "UNPROCESSABLE_ENTITY": "Unprocessable entity",
   "REQUEST_VALIDATION": "Request validation failed",
   "RESPONSE_VALIDATION": "Response validation failed",
-  "RESOURCE_NOT_FOUND": "Resource not found",
+  "RESOURCE_NOT_AVAILABLE": "Resource is not available or you dont have access",
   "RESOURCE_CONFLICT": "There is already an other {{resource}} resource with same field values ({{fields}})",
   "OPERATION_FORBIDDEN": "The {{resource}} resource does not accept '{{operation}}' operations",
   "ACTION_NOT_FOUND": "The {{resource}} resource doesn't have an action named '{{action}}'",

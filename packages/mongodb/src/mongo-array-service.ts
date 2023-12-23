@@ -7,7 +7,7 @@ import {
   NotAcceptableError,
   PartialDTO,
   PatchDTO,
-  ResourceNotFoundError
+  ResourceNotAvailableError
 } from '@opra/common';
 import { FilterInput } from './adapter-utils/prepare-filter.js';
 import { MongoAdapter } from './mongo-adapter.js';
@@ -53,14 +53,34 @@ export class MongoArrayService<T extends mongodb.Document> extends MongoService<
    *
    * @type {FilterInput
    */
-  $documentFilter?: FilterInput | ((_this: this) => FilterInput | Promise<FilterInput> | undefined);
+  $documentFilter?: FilterInput | (
+      (args: {
+         crud: MongoService.CrudOp;
+         method: string;
+         documentId?: AnyId;
+         itemId?: AnyId;
+         input?: Record<string, any>;
+         options?: Record<string, any>
+       },
+       _this: this
+      ) => FilterInput | Promise<FilterInput> | undefined);
 
   /**
    * Represents a common array filter function for a MongoCollectionService.
    *
-   * @type {FilterInput | MongoCollectionService.CommonFilterFunction}
+   * @type {FilterInput | Function}
    */
-  $arrayFilter?: FilterInput | ((_this: this) => FilterInput | Promise<FilterInput> | undefined);
+  $arrayFilter?: FilterInput | (
+      (args: {
+         crud: MongoService.CrudOp;
+         method: string;
+         documentId?: AnyId;
+         itemId?: AnyId;
+         input?: Record<string, any>;
+         options?: Record<string, any>
+       },
+       _this: this
+      ) => FilterInput | Promise<FilterInput> | undefined);
 
   /**
    * Interceptor function for handling callback execution with provided arguments.
@@ -115,11 +135,11 @@ export class MongoArrayService<T extends mongodb.Document> extends MongoService<
    * @param {AnyId} id - The ID of the resource.
    * @param {MongoArrayService.ExistsOptions} [options] - Optional parameters for checking resource existence.
    * @return {Promise<void>} - A promise that resolves with no value upon success.
-   * @throws {ResourceNotFoundError} - If the resource does not exist.
+   * @throws {ResourceNotAvailableError} - If the resource does not exist.
    */
   async assert(documentId: AnyId, id: AnyId, options?: MongoArrayService.ExistsOptions): Promise<void> {
     if (!(await this.exists(documentId, id, options)))
-      throw new ResourceNotFoundError(
+      throw new ResourceNotAvailableError(
           this.getResourceName() + '.' + this.arrayKey,
           documentId + '/' + id);
   }
@@ -132,24 +152,22 @@ export class MongoArrayService<T extends mongodb.Document> extends MongoService<
    * @param {T} input - The item to be added to the array field.
    * @param {MongoArrayService.CreateOptions} [options] - Optional options for the create operation.
    * @return {Promise<PartialDTO<T>>} - A promise that resolves with the partial output of the created item.
-   * @throws {ResourceNotFoundError} - If the parent document is not found.
+   * @throws {ResourceNotAvailableError} - If the parent document is not found.
    */
   async create(
       documentId: AnyId,
       input: PartialDTO<T>,
       options?: MongoArrayService.CreateOptions
   ): Promise<PartialDTO<T>> {
-    return this._intercept(
-        () => this._create(documentId, input, options),
-        {
-          crud: 'create',
-          method: 'create',
-          documentId,
-          itemId: (input as any)._id,
-          input,
-          options
-        }
-    );
+    const info: any = {
+      crud: 'create',
+      method: 'create',
+      documentId,
+      itemId: (input as any)._id,
+      input,
+      options
+    };
+    return this._intercept(() => this._create(documentId, input, options), info);
   }
 
   protected async _create(
@@ -181,7 +199,7 @@ export class MongoArrayService<T extends mongodb.Document> extends MongoService<
       if (out)
         return out;
     }
-    throw new ResourceNotFoundError(this.getResourceName(), documentId);
+    throw new ResourceNotAvailableError(this.getResourceName(), documentId);
   }
 
   /**
@@ -196,34 +214,43 @@ export class MongoArrayService<T extends mongodb.Document> extends MongoService<
       documentId: AnyId,
       options?: MongoArrayService.CountOptions<T>
   ): Promise<number> {
+    const info: any = {
+      crud: 'read',
+      method: 'count',
+      documentId,
+      options
+    };
     return this._intercept(
-        () => this._count(documentId, options),
-        {
-          crud: 'read',
-          method: 'count',
-          documentId,
-          options
-        }
-    );
+        async () => {
+          const documentFilter = MongoAdapter.prepareFilter([
+            await this._getDocumentFilter(info)
+          ]);
+          const filter = MongoAdapter.prepareFilter([
+            await this._getArrayFilter(info),
+            options?.filter
+          ]);
+          return this._count(documentId, {...options, filter, documentFilter});
+        }, info);
   }
 
   protected async _count(
       documentId: AnyId,
-      options?: MongoArrayService.CountOptions<T>
+      options?: MongoArrayService.CountOptions<T> & {
+        documentFilter?: FilterInput
+      }
   ): Promise<number> {
     const matchFilter = MongoAdapter.prepareFilter([
       MongoAdapter.prepareKeyValues(documentId, [this.collectionKey]),
-      await this._getDocumentFilter()
+      options?.documentFilter
     ]);
     const stages: mongodb.Document[] = [
       {$match: matchFilter},
       {$unwind: {path: "$" + this.fieldName}},
       {$replaceRoot: {newRoot: "$" + this.fieldName}}
     ];
-    const contextArrayFilter = await this._getArrayFilter();
-    if (options?.filter || contextArrayFilter) {
-      const optionsFilter = MongoAdapter.prepareFilter([options?.filter, contextArrayFilter]);
-      stages.push({$match: optionsFilter});
+    if (options?.filter) {
+      const filter = MongoAdapter.prepareFilter(options?.filter);
+      stages.push({$match: filter});
     }
     stages.push({$count: '*'});
 
@@ -249,31 +276,40 @@ export class MongoArrayService<T extends mongodb.Document> extends MongoService<
       id: AnyId,
       options?: MongoArrayService.DeleteOptions<T>
   ): Promise<number> {
+    const info: any = {
+      crud: 'delete',
+      method: 'delete',
+      documentId,
+      itemId: id,
+      options
+    }
     return this._intercept(
-        () => this._delete(documentId, id, options),
-        {
-          crud: 'delete',
-          method: 'delete',
-          documentId,
-          itemId: id,
-          options
-        }
-    );
+        async () => {
+          const documentFilter = MongoAdapter.prepareFilter([
+            await this._getDocumentFilter(info)
+          ]);
+          const filter = MongoAdapter.prepareFilter([
+            await this._getArrayFilter(info),
+            options?.filter
+          ]);
+          return this._delete(documentId, id, {...options, filter, documentFilter})
+        }, info);
   }
 
   protected async _delete(
       documentId: AnyId,
       id: AnyId,
-      options?: MongoArrayService.DeleteOptions<T>
+      options?: MongoArrayService.DeleteOptions<T> & {
+        documentFilter?: FilterInput
+      }
   ): Promise<number> {
     const matchFilter = MongoAdapter.prepareFilter([
       MongoAdapter.prepareKeyValues(documentId, [this.collectionKey]),
-      await this._getDocumentFilter()
+      options?.documentFilter
     ]);
     const pullFilter = MongoAdapter.prepareFilter([
       MongoAdapter.prepareKeyValues(id, [this.arrayKey]),
-      options?.filter,
-      await this._getArrayFilter()
+      options?.filter
     ]) || {};
     const r = await this.__updateOne(
         matchFilter,
@@ -296,32 +332,38 @@ export class MongoArrayService<T extends mongodb.Document> extends MongoService<
       documentId: AnyId,
       options?: MongoArrayService.DeleteManyOptions<T>
   ): Promise<number> {
+    const info: any = {
+      crud: 'delete',
+      method: 'deleteMany',
+      documentId,
+      options
+    };
     return this._intercept(
-        () => this._deleteMany(documentId, options),
-        {
-          crud: 'delete',
-          method: 'deleteMany',
-          documentId,
-          options
-        }
-    );
+        async () => {
+          const documentFilter = MongoAdapter.prepareFilter([
+            await this._getDocumentFilter(info)
+          ]);
+          const filter = MongoAdapter.prepareFilter([
+            await this._getArrayFilter(info),
+            options?.filter
+          ]);
+          return this._deleteMany(documentId, {...options, filter, documentFilter});
+        }, info);
   }
 
   protected async _deleteMany(
       documentId: AnyId,
-      options?: MongoArrayService.DeleteManyOptions<T>
+      options?: MongoArrayService.DeleteManyOptions<T> & {
+        documentFilter?: FilterInput
+      }
   ): Promise<number> {
     const matchFilter = MongoAdapter.prepareFilter([
       MongoAdapter.prepareKeyValues(documentId, [this.collectionKey]),
-      await this._getDocumentFilter()
+      options?.documentFilter
     ]);
     // Count matching items, we will use this as result
     const matchCount = await this.count(documentId, options);
-
-    const pullFilter = MongoAdapter.prepareFilter([
-      options?.filter,
-      await this._getArrayFilter()
-    ]) || {};
+    const pullFilter = MongoAdapter.prepareFilter(options?.filter) || {};
     const r = await this.__updateOne(
         matchFilter,
         {
@@ -359,28 +401,45 @@ export class MongoArrayService<T extends mongodb.Document> extends MongoService<
       id: AnyId,
       options?: MongoArrayService.FindOneOptions
   ): Promise<PartialDTO<T> | undefined> {
+    const info: any = {
+      crud: 'read',
+      method: 'findById',
+      documentId,
+      itemId: id,
+      options
+    }
     return this._intercept(
-        () => this._findById(documentId, id, options),
-        {
-          crud: 'read',
-          method: 'findById',
-          documentId,
-          itemId: id,
-          options
-        }
-    );
+        async () => {
+          const documentFilter = MongoAdapter.prepareFilter([
+            await this._getDocumentFilter(info)
+          ]);
+          const filter = MongoAdapter.prepareFilter([
+            await this._getArrayFilter(info),
+            options?.filter
+          ]);
+          return this._findById(documentId, id, {...options, filter, documentFilter});
+        }, info);
   }
 
   protected async _findById(
       documentId: AnyId,
       id: AnyId,
-      options?: MongoArrayService.FindOneOptions
+      options?: MongoArrayService.FindOneOptions & {
+        documentFilter?: FilterInput
+      }
   ): Promise<PartialDTO<T> | undefined> {
     const filter = MongoAdapter.prepareFilter([
       MongoAdapter.prepareKeyValues(id, [this.arrayKey]),
       options?.filter
     ]);
-    return await this._findOne(documentId, {...options, filter});
+    const rows = await this._findMany(documentId, {
+      ...options,
+      filter,
+      limit: 1,
+      skip: undefined,
+      sort: undefined
+    });
+    return rows?.[0];
   }
 
   /**
@@ -394,20 +453,30 @@ export class MongoArrayService<T extends mongodb.Document> extends MongoService<
       documentId: AnyId,
       options?: MongoArrayService.FindOneOptions
   ): Promise<PartialDTO<T> | undefined> {
+    const info: any = {
+      crud: 'read',
+      method: 'findOne',
+      documentId,
+      options
+    }
     return this._intercept(
-        () => this._findOne(documentId, options),
-        {
-          crud: 'read',
-          method: 'findOne',
-          documentId,
-          options
-        }
-    );
+        async () => {
+          const documentFilter = MongoAdapter.prepareFilter([
+            await this._getDocumentFilter(info)
+          ]);
+          const filter = MongoAdapter.prepareFilter([
+            await this._getArrayFilter(info),
+            options?.filter
+          ]);
+          return this._findOne(documentId, {...options, filter, documentFilter});
+        }, info);
   }
 
   protected async _findOne(
       documentId: AnyId,
-      options?: MongoArrayService.FindOneOptions
+      options?: MongoArrayService.FindOneOptions & {
+        documentFilter?: FilterInput
+      }
   ): Promise<PartialDTO<T> | undefined> {
     const rows = await this._findMany(documentId, {
       ...options,
@@ -427,24 +496,30 @@ export class MongoArrayService<T extends mongodb.Document> extends MongoService<
       documentId: AnyId,
       options?: MongoArrayService.FindManyOptions<T>
   ): Promise<PartialDTO<T>[]> {
+    const args: any = {
+      crud: 'read',
+      method: 'findMany',
+      documentId,
+      options
+    }
     return this._intercept(
-        () => this._findMany(documentId, options),
-        {
-          crud: 'read',
-          method: 'findMany',
-          documentId,
-          options
-        }
-    );
+        async () => {
+          const documentFilter = await this._getDocumentFilter(args);
+          const arrayFilter = await this._getArrayFilter(args);
+          return this._findMany(documentId, {...options, documentFilter, arrayFilter});
+        }, args);
   }
 
   protected async _findMany(
       documentId: AnyId,
-      options?: MongoArrayService.FindManyOptions<T>
+      options: MongoArrayService.FindManyOptions<T> & {
+        documentFilter?: FilterInput;
+        arrayFilter?: FilterInput;
+      }
   ): Promise<PartialDTO<T>[]> {
     const matchFilter = MongoAdapter.prepareFilter([
       MongoAdapter.prepareKeyValues(documentId, [this.collectionKey]),
-      await this._getDocumentFilter()
+      options.documentFilter
     ]);
     const mongoOptions: mongodb.AggregateOptions = {
       ...omit(options, ['pick', 'include', 'omit', 'sort', 'skip', 'limit', 'filter', 'count'])
@@ -466,11 +541,10 @@ export class MongoArrayService<T extends mongodb.Document> extends MongoService<
       })
     }
 
-    const contextArrayFilter = await this._getArrayFilter();
-    if (options?.filter || contextArrayFilter) {
+    if (options?.filter || options.arrayFilter) {
       const optionsFilter = MongoAdapter.prepareFilter([
         options?.filter,
-        contextArrayFilter
+        options.arrayFilter
       ]);
       dataStages.push({$match: optionsFilter});
     }
@@ -512,7 +586,7 @@ export class MongoArrayService<T extends mongodb.Document> extends MongoService<
    * @param {AnyId} id - The ID of the item.
    * @param {MongoArrayService.FindOneOptions<T>} [options] - The options for finding the item.
    * @returns {Promise<PartialDTO<T>>} - The item found.
-   * @throws {ResourceNotFoundError} - If the item is not found.
+   * @throws {ResourceNotAvailableError} - If the item is not found.
    */
   async get(
       documentId: AnyId,
@@ -521,7 +595,7 @@ export class MongoArrayService<T extends mongodb.Document> extends MongoService<
   ): Promise<PartialDTO<T>> {
     const out = await this.findById(documentId, id, options);
     if (!out)
-      throw new ResourceNotFoundError(
+      throw new ResourceNotAvailableError(
           this.getResourceName() + '.' + this.arrayKey,
           documentId + '/' + id);
     return out;
@@ -544,31 +618,13 @@ export class MongoArrayService<T extends mongodb.Document> extends MongoService<
       input: PatchDTO<T>,
       options?: MongoArrayService.UpdateOptions<T>
   ): Promise<PartialDTO<T> | undefined> {
-    return this._intercept(
-        () => this._update(documentId, id, input, options),
-        {
-          crud: 'update',
-          method: 'update',
-          documentId,
-          itemId: id,
-          options
-        }
-    );
-  }
-
-  protected async _update(
-      documentId: AnyId,
-      id: AnyId,
-      input: PatchDTO<T>,
-      options?: MongoArrayService.UpdateOptions<T>
-  ): Promise<PartialDTO<T> | undefined> {
-    const r = await this._updateOnly(documentId, id, input, options);
+    const r = await this.updateOnly(documentId, id, input, options);
     if (!r)
       return;
     const out = await this._findById(documentId, id, options);
     if (out)
       return out;
-    throw new ResourceNotFoundError(
+    throw new ResourceNotAvailableError(
         this.getResourceName() + '.' + this.arrayKey,
         documentId + '/' + id);
   }
@@ -588,24 +644,33 @@ export class MongoArrayService<T extends mongodb.Document> extends MongoService<
       input: PatchDTO<T>,
       options?: MongoArrayService.UpdateOptions<T>
   ): Promise<number> {
+    const info: any = {
+      crud: 'update',
+      method: 'update',
+      documentId,
+      itemId: id,
+      options
+    }
     return this._intercept(
-        () => this._updateOnly(documentId, id, input, options),
-        {
-          crud: 'update',
-          method: 'updateOnly',
-          documentId,
-          itemId: id,
-          input,
-          options
-        }
-    );
+        async () => {
+          const documentFilter = MongoAdapter.prepareFilter([
+            await this._getDocumentFilter(info)
+          ]);
+          const filter = MongoAdapter.prepareFilter([
+            await this._getArrayFilter(info),
+            options?.filter
+          ]);
+          return this._updateOnly(documentId, id, input, {...options, filter, documentFilter});
+        }, info);
   }
 
   protected async _updateOnly(
       documentId: AnyId,
       id: AnyId,
       input: PatchDTO<T>,
-      options?: MongoArrayService.UpdateOptions<T>
+      options?: MongoArrayService.UpdateOptions<T> & {
+        documentFilter?: FilterInput
+      }
   ): Promise<number> {
     let filter = MongoAdapter.prepareKeyValues(id, [this.arrayKey]);
     if (options?.filter)
@@ -626,22 +691,32 @@ export class MongoArrayService<T extends mongodb.Document> extends MongoService<
       input: PatchDTO<T>,
       options?: MongoArrayService.UpdateManyOptions<T>
   ): Promise<number> {
+    const info: any = {
+      crud: 'update',
+      method: 'updateMany',
+      documentId,
+      input,
+      options
+    };
     return this._intercept(
-        () => this._updateMany(documentId, input, options),
-        {
-          crud: 'update',
-          method: 'updateMany',
-          documentId,
-          input,
-          options
-        }
-    );
+        async () => {
+          const documentFilter = MongoAdapter.prepareFilter([
+            await this._getDocumentFilter(info)
+          ]);
+          const filter = MongoAdapter.prepareFilter([
+            await this._getArrayFilter(info),
+            options?.filter
+          ]);
+          return this._updateMany(documentId, input, {...options, filter, documentFilter});
+        }, info);
   }
 
   protected async _updateMany(
       documentId: AnyId,
       input: PatchDTO<T>,
-      options?: MongoArrayService.UpdateManyOptions<T>
+      options?: MongoArrayService.UpdateManyOptions<T> & {
+        documentFilter?: FilterInput
+      }
   ): Promise<number> {
     const encode = this.getEncoder('update');
     const doc = encode(input, {coerce: true});
@@ -649,19 +724,18 @@ export class MongoArrayService<T extends mongodb.Document> extends MongoService<
       return 0;
     const matchFilter = MongoAdapter.prepareFilter([
       MongoAdapter.prepareKeyValues(documentId, [this.collectionKey]),
-      await this._getDocumentFilter(),
+      options?.documentFilter,
       {[this.fieldName]: {$exists: true}}
     ])
-    const contextArrayFilter = await this._getArrayFilter();
-    if (options?.filter || contextArrayFilter) {
+    if (options?.filter) {
       const elemMatch = MongoAdapter.prepareFilter(
-          [options?.filter, contextArrayFilter],
+          [options?.filter],
           {fieldPrefix: 'elem.'});
       options = options || {};
       options.arrayFilters = [elemMatch];
     }
     const update: any = MongoAdapter.preparePatch(doc, {
-      fieldPrefix: this.fieldName + ((options?.filter || contextArrayFilter) ? '.$[elem].' : '.$[].')
+      fieldPrefix: this.fieldName + (options?.filter ? '.$[elem].' : '.$[].')
     });
 
     const r = await this.__updateOne(
@@ -710,9 +784,18 @@ export class MongoArrayService<T extends mongodb.Document> extends MongoService<
    * @returns {FilterInput | Promise<FilterInput> | undefined} The common filter or a Promise
    * that resolves to the common filter, or undefined if not available.
    */
-  protected _getDocumentFilter(): FilterInput | Promise<FilterInput> | undefined {
+  protected _getDocumentFilter(
+      args: {
+        crud: MongoService.CrudOp;
+        method: string;
+        documentId?: AnyId;
+        itemId?: AnyId;
+        input?: Object;
+        options?: Record<string, any>
+      }
+  ): FilterInput | Promise<FilterInput> | undefined {
     return typeof this.$documentFilter === 'function' ?
-        this.$documentFilter(this) : this.$documentFilter;
+        this.$documentFilter(args, this) : this.$documentFilter;
   }
 
   /**
@@ -723,9 +806,16 @@ export class MongoArrayService<T extends mongodb.Document> extends MongoService<
    * @returns {FilterInput | Promise<FilterInput> | undefined} The common filter or a Promise
    * that resolves to the common filter, or undefined if not available.
    */
-  protected _getArrayFilter(): FilterInput | Promise<FilterInput> | undefined {
+  protected _getArrayFilter(args: {
+    crud: MongoService.CrudOp;
+    method: string;
+    documentId?: AnyId;
+    itemId?: AnyId;
+    input?: Object;
+    options?: Record<string, any>
+  }): FilterInput | Promise<FilterInput> | undefined {
     return typeof this.$arrayFilter === 'function' ?
-        this.$arrayFilter(this) : this.$arrayFilter;
+        this.$arrayFilter(args, this) : this.$arrayFilter;
   }
 
   protected async _intercept(

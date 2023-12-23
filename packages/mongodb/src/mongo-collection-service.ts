@@ -1,7 +1,7 @@
 import omit from 'lodash.omit';
 import mongodb, { ObjectId } from 'mongodb';
 import { StrictOmit, Type } from 'ts-gems';
-import { InternalServerError, PartialDTO, PatchDTO, ResourceNotFoundError } from '@opra/common';
+import { InternalServerError, PartialDTO, PatchDTO, ResourceNotAvailableError } from '@opra/common';
 import * as OpraCommon from '@opra/common';
 import { FilterInput } from './adapter-utils/prepare-filter.js';
 import { MongoAdapter } from './mongo-adapter.js';
@@ -33,7 +33,16 @@ export class MongoCollectionService<T extends mongodb.Document> extends MongoSer
    *
    * @type {FilterInput | Function}
    */
-  $documentFilter?: FilterInput | ((_this: this) => FilterInput | Promise<FilterInput> | undefined);
+  $documentFilter?: FilterInput | (
+      (args: {
+         crud: MongoService.CrudOp;
+         method: string;
+         documentId?: AnyId;
+         input?: Record<string, any>;
+         options?: Record<string, any>
+       },
+       _this: this
+      ) => FilterInput | Promise<FilterInput> | undefined);
 
   /**
    * Interceptor function for handling callback execution with provided arguments.
@@ -49,7 +58,7 @@ export class MongoCollectionService<T extends mongodb.Document> extends MongoSer
    * @returns {Promise<any>} - The promise that resolves to the result of the callback execution.
    */
   $interceptor?: (
-      callback: (...args: any[]) => any,
+      callback: () => any,
       args: {
         crud: MongoService.CrudOp;
         method: string;
@@ -82,11 +91,11 @@ export class MongoCollectionService<T extends mongodb.Document> extends MongoSer
    * @param {AnyId} id - The ID of the resource to assert.
    * @param {MongoCollectionService.ExistsOptions} [options] - Optional options for checking the existence.
    * @returns {Promise<void>} - A Promise that resolves when the resource exists.
-   * @throws {ResourceNotFoundError} - If the resource does not exist.
+   * @throws {ResourceNotAvailableError} - If the resource does not exist.
    */
   async assert(id: AnyId, options?: MongoCollectionService.ExistsOptions): Promise<void> {
     if (!(await this.exists(id, options)))
-      throw new ResourceNotFoundError(this.getResourceName(), id);
+      throw new ResourceNotAvailableError(this.getResourceName(), id);
   }
 
   /**
@@ -101,21 +110,22 @@ export class MongoCollectionService<T extends mongodb.Document> extends MongoSer
       input: PartialDTO<T>,
       options?: MongoCollectionService.CreateOptions
   ): Promise<PartialDTO<T>> {
+    const info: any = {
+      crud: 'create',
+      method: 'create',
+      documentId: (input as any)._id,
+      input,
+      options
+    };
     return this._intercept(
         () => this._create(input, options),
-        {
-          crud: 'create',
-          method: 'create',
-          documentId: (input as any)._id,
-          input,
-          options
-        }
-    )
+        info
+    );
   }
 
   protected async _create(
       input: PartialDTO<T>,
-      options?: MongoCollectionService.CreateOptions
+      options: MongoCollectionService.CreateOptions | undefined
   ): Promise<PartialDTO<T>> {
     const encode = this.getEncoder('create');
     const doc: any = encode(input, {coerce: true});
@@ -145,20 +155,25 @@ export class MongoCollectionService<T extends mongodb.Document> extends MongoSer
   async count(
       options?: MongoCollectionService.CountOptions<T>
   ): Promise<number> {
+    const info: any = {
+      crud: 'read',
+      method: 'count',
+      options
+    };
     return this._intercept(
-        () => this._count(options),
-        {
-          crud: 'read',
-          method: 'count',
-          options
-        }
-    );
+        async () => {
+          const filter = MongoAdapter.prepareFilter([
+            await this._getDocumentFilter(info),
+            options?.filter
+          ]);
+          return this._count({...options, filter})
+        }, info);
   }
 
   protected async _count(
       options?: MongoCollectionService.CountOptions<T>
   ): Promise<number> {
-    const filter = MongoAdapter.prepareFilter([options?.filter, await this._getDocumentFilter()]);
+    const filter = MongoAdapter.prepareFilter(options?.filter);
     return this.__countDocuments(filter, omit(options, 'filter'));
   }
 
@@ -173,14 +188,21 @@ export class MongoCollectionService<T extends mongodb.Document> extends MongoSer
       id: AnyId,
       options?: MongoCollectionService.DeleteOptions<T>
   ): Promise<number> {
+    const info: any = {
+      crud: 'delete',
+      method: 'delete',
+      documentId: id,
+      options
+    }
     return this._intercept(
-        () => this._delete(id, options),
-        {
-          crud: 'delete',
-          method: 'delete',
-          documentId: id,
-          options
-        }
+        async () => {
+          const filter = MongoAdapter.prepareFilter([
+            await this._getDocumentFilter(info),
+            options?.filter
+          ]);
+          return this._delete(id, {...options, filter})
+        },
+        info
     );
   }
 
@@ -190,8 +212,7 @@ export class MongoCollectionService<T extends mongodb.Document> extends MongoSer
   ): Promise<number> {
     const filter = MongoAdapter.prepareFilter([
       MongoAdapter.prepareKeyValues(id, [this.collectionKey]),
-      options?.filter,
-      await this._getDocumentFilter(),
+      options?.filter
     ]);
     const r = await this.__deleteOne(filter, options);
     return r.deletedCount;
@@ -206,20 +227,25 @@ export class MongoCollectionService<T extends mongodb.Document> extends MongoSer
   async deleteMany(
       options?: MongoCollectionService.DeleteManyOptions<T>
   ): Promise<number> {
+    const info: any = {
+      crud: 'delete',
+      method: 'delete',
+      options
+    };
     return this._intercept(
-        () => this._deleteMany(options),
-        {
-          crud: 'delete',
-          method: 'deleteMany',
-          options
-        }
-    );
+        async () => {
+          const filter = MongoAdapter.prepareFilter([
+            await this._getDocumentFilter(info),
+            options?.filter,
+          ]);
+          return this._deleteMany({...options, filter});
+        }, info);
   }
 
   protected async _deleteMany(
       options?: MongoCollectionService.DeleteManyOptions<T>
   ): Promise<number> {
-    const filter = MongoAdapter.prepareFilter([options?.filter, await this._getDocumentFilter()]);
+    const filter = MongoAdapter.prepareFilter(options?.filter);
     const r = await this.__deleteMany(filter, omit(options, 'filter'));
     return r.deletedCount;
   }
@@ -261,14 +287,21 @@ export class MongoCollectionService<T extends mongodb.Document> extends MongoSer
       id: AnyId,
       options?: MongoCollectionService.FindOneOptions
   ): Promise<PartialDTO<T> | undefined> {
+    const info: any = {
+      crud: 'read',
+      method: 'findById',
+      documentId: id,
+      options
+    };
     return this._intercept(
-        () => this._findById(id, options),
-        {
-          crud: 'read',
-          method: 'findById',
-          documentId: id,
-          options
-        }
+        async () => {
+          const documentFilter = await this._getDocumentFilter(info);
+          const filter = MongoAdapter.prepareFilter([
+            documentFilter,
+            options?.filter,
+          ]);
+          return this._findById(id, {...options, filter});
+        }, info
     );
   }
 
@@ -280,7 +313,16 @@ export class MongoCollectionService<T extends mongodb.Document> extends MongoSer
       MongoAdapter.prepareKeyValues(id, [this.collectionKey]),
       options?.filter
     ]);
-    return await this._findOne({...options, filter});
+    const mongoOptions: mongodb.FindOptions = {
+      ...options,
+      limit: undefined,
+      skip: undefined,
+      sort: undefined,
+      projection: MongoAdapter.prepareProjection(this.getDataType(), options),
+    }
+    const decode = this.getDecoder();
+    const out = await this.__findOne(filter, mongoOptions);
+    return out ? decode(out, {coerce: true}) as PartialDTO<T> : undefined;
   }
 
   /**
@@ -292,20 +334,26 @@ export class MongoCollectionService<T extends mongodb.Document> extends MongoSer
   async findOne(
       options?: MongoCollectionService.FindOneOptions
   ): Promise<PartialDTO<T> | undefined> {
+    const info: any = {
+      crud: 'read',
+      method: 'findOne',
+      options
+    }
     return this._intercept(
-        () => this._findOne(options),
-        {
-          crud: 'read',
-          method: 'findOne',
-          options
-        }
+        async () => {
+          const filter = MongoAdapter.prepareFilter([
+            await this._getDocumentFilter(info),
+            options?.filter,
+          ]);
+          return this._findOne({...options, filter})
+        }, info
     );
   }
 
   protected async _findOne(
       options?: MongoCollectionService.FindOneOptions
   ): Promise<PartialDTO<T> | undefined> {
-    const filter = MongoAdapter.prepareFilter([options?.filter, await this._getDocumentFilter()]);
+    const filter = MongoAdapter.prepareFilter(options?.filter);
     const mongoOptions: mongodb.FindOptions = {
       ...options,
       sort: options?.sort ? MongoAdapter.prepareSort(options.sort) : undefined,
@@ -335,14 +383,19 @@ export class MongoCollectionService<T extends mongodb.Document> extends MongoSer
   async findMany(
       options?: MongoCollectionService.FindManyOptions<T>
   ): Promise<PartialDTO<T>[]> {
+    const info: any = {
+      crud: 'read',
+      method: 'findMany',
+      options
+    };
     return this._intercept(
-        () => this._findMany(options),
-        {
-          crud: 'read',
-          method: 'findMany',
-          options
-        }
-    );
+        async () => {
+          const filter = MongoAdapter.prepareFilter([
+            await this._getDocumentFilter(info),
+            options?.filter,
+          ]);
+          return this._findMany({...options, filter});
+        }, info);
   }
 
   protected async _findMany(
@@ -365,10 +418,9 @@ export class MongoCollectionService<T extends mongodb.Document> extends MongoSer
       })
     }
 
-    const contextFilter = await this._getDocumentFilter();
-    if (options?.filter || contextFilter) {
-      const optionsFilter = MongoAdapter.prepareFilter([options?.filter, contextFilter]);
-      dataStages.push({$match: optionsFilter});
+    if (options?.filter) {
+      const filter = MongoAdapter.prepareFilter(options?.filter);
+      dataStages.push({$match: filter});
     }
     if (options?.skip)
       dataStages.push({$skip: options.skip})
@@ -408,12 +460,12 @@ export class MongoCollectionService<T extends mongodb.Document> extends MongoSer
    * @param {MongoCollectionService.FindOneOptions} [options] - Optional options for the findOne operation.
    * @returns {Promise<PartialDTO<T>>} - A promise that resolves to the retrieved document,
    *    or rejects with a ResourceNotFoundError if the document does not exist.
-   * @throws {ResourceNotFoundError} - If the document with the specified ID does not exist.
+   * @throws {ResourceNotAvailableError} - If the document with the specified ID does not exist.
    */
   async get(id: AnyId, options?: MongoCollectionService.FindOneOptions): Promise<PartialDTO<T>> {
     const out = await this.findById(id, options);
     if (!out)
-      throw new ResourceNotFoundError(this.getResourceName(), id);
+      throw new ResourceNotAvailableError(this.getResourceName(), id);
     return out;
   }
 
@@ -431,15 +483,21 @@ export class MongoCollectionService<T extends mongodb.Document> extends MongoSer
       input: PatchDTO<T>,
       options?: MongoCollectionService.UpdateOptions<T>
   ): Promise<PartialDTO<T> | undefined> {
+    const info: any = {
+      crud: 'update',
+      method: 'update',
+      documentId: id,
+      input,
+      options,
+    };
     return this._intercept(
-        () => this._update(id, input, options),
-        {
-          crud: 'update',
-          method: 'update',
-          documentId: id,
-          input,
-          options,
-        }
+        async () => {
+          const filter = MongoAdapter.prepareFilter([
+            await this._getDocumentFilter(info),
+            options?.filter
+          ])
+          return this._update(id, input, {...options, filter})
+        }, info
     );
   }
 
@@ -459,8 +517,7 @@ export class MongoCollectionService<T extends mongodb.Document> extends MongoSer
     }
     const filter = MongoAdapter.prepareFilter([
       MongoAdapter.prepareKeyValues(id, [this.collectionKey]),
-      options?.filter,
-      await this._getDocumentFilter()
+      options?.filter
     ])
     const decode = this.getDecoder();
     const out = await this.__findOneAndUpdate(filter, patch, mongoOptions);
@@ -480,16 +537,21 @@ export class MongoCollectionService<T extends mongodb.Document> extends MongoSer
       input: PatchDTO<T>,
       options?: MongoCollectionService.UpdateOptions<T>
   ): Promise<number> {
+    const info: any = {
+      crud: 'update',
+      method: 'update',
+      documentId: id,
+      input,
+      options,
+    }
     return this._intercept(
-        () => this._updateOnly(id, input, options),
-        {
-          crud: 'update',
-          method: 'updateOnly',
-          documentId: id,
-          input,
-          options,
-        }
-    );
+        async () => {
+          const filter = MongoAdapter.prepareFilter([
+            await this._getDocumentFilter(info),
+            options?.filter
+          ])
+          return this._updateOnly(id, input, {...options, filter})
+        }, info);
   }
 
   protected async _updateOnly(
@@ -499,8 +561,7 @@ export class MongoCollectionService<T extends mongodb.Document> extends MongoSer
   ): Promise<number> {
     const filter = MongoAdapter.prepareFilter([
       MongoAdapter.prepareKeyValues(id, [this.collectionKey]),
-      options?.filter,
-      await this._getDocumentFilter()
+      options?.filter
     ])
     const encode = this.getEncoder('update');
     const doc = encode(input, {coerce: true});
@@ -528,15 +589,20 @@ export class MongoCollectionService<T extends mongodb.Document> extends MongoSer
       input: PatchDTO<T>,
       options?: MongoCollectionService.UpdateManyOptions<T>
   ): Promise<number> {
+    const info: any = {
+      crud: 'update',
+      method: 'updateMany',
+      input,
+      options,
+    };
     return this._intercept(
-        () => this._updateMany(input, options),
-        {
-          crud: 'update',
-          method: 'updateMany',
-          input,
-          options,
-        }
-    );
+        async () => {
+          const filter = MongoAdapter.prepareFilter([
+            await this._getDocumentFilter(info),
+            options?.filter
+          ]);
+          return this._updateMany(input, {...options, filter})
+        }, info);
   }
 
   protected async _updateMany(
@@ -553,7 +619,7 @@ export class MongoCollectionService<T extends mongodb.Document> extends MongoSer
       ...omit(options, 'filter'),
       upsert: undefined
     }
-    const filter = MongoAdapter.prepareFilter([options?.filter, await this._getDocumentFilter()]);
+    const filter = MongoAdapter.prepareFilter(options?.filter);
     const r = await this.__updateMany(filter, patch, mongoOptions);
     return r.matchedCount;
   }
@@ -577,9 +643,17 @@ export class MongoCollectionService<T extends mongodb.Document> extends MongoSer
    * @returns {FilterInput | Promise<FilterInput> | undefined} The common filter or a Promise
    * that resolves to the common filter, or undefined if not available.
    */
-  protected _getDocumentFilter(): FilterInput | Promise<FilterInput> | undefined {
+  protected _getDocumentFilter(
+      args: {
+        crud: MongoService.CrudOp;
+        method: string;
+        documentId?: AnyId;
+        input?: Object;
+        options?: Record<string, any>
+      }
+  ): FilterInput | Promise<FilterInput> | undefined {
     return typeof this.$documentFilter === 'function' ?
-        this.$documentFilter(this) : this.$documentFilter;
+        this.$documentFilter(args, this) : this.$documentFilter;
   }
 
   protected async _intercept(
@@ -725,6 +799,14 @@ export namespace MongoCollectionService {
    */
   export interface ExistsOneOptions<T> extends Omit<mongodb.CommandOperationOptions, 'writeConcern'> {
     filter?: mongodb.Filter<T> | OpraCommon.OpraFilter.Ast | string;
+  }
+
+  export interface OperationInfo {
+    crud: MongoService.CrudOp;
+    method: string;
+    documentId?: AnyId;
+    input?: Record<string, any>;
+    options?: Record<string, any>
   }
 
 }

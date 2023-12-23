@@ -1,4 +1,5 @@
 import { faker } from '@faker-js/faker';
+import { ResourceNotAvailableError } from '@opra/common';
 import { MongoCollectionService } from '@opra/mongodb';
 import { TestApp } from '../_support/test-app/index.js';
 
@@ -52,7 +53,7 @@ describe('MongoCollectionService', function () {
     it('Should throw error if not found', async () => {
       const ctx = await app.createContext();
       await expect(() => service.for(ctx).assert(9999)).rejects
-          .toThrow('NOT_FOUND')
+          .toThrow(ResourceNotAvailableError)
     });
 
     it('Should apply filter returned by documentFilter', async () => {
@@ -60,7 +61,7 @@ describe('MongoCollectionService', function () {
       await expect(() => service
           .for(ctx, {$documentFilter: () => '_id=2'})
           .assert(1)).rejects
-          .toThrow('NOT_FOUND');
+          .toThrow(ResourceNotAvailableError);
     });
 
   });
@@ -431,7 +432,7 @@ describe('MongoCollectionService', function () {
     it('Should throw error if not found', async () => {
       const ctx = await app.createContext();
       await expect(() => service.for(ctx).get(9999)).rejects
-          .toThrow('NOT_FOUND')
+          .toThrow(ResourceNotAvailableError)
     });
 
     it('Should apply filter returned by documentFilter', async () => {
@@ -439,7 +440,7 @@ describe('MongoCollectionService', function () {
       await expect(() => service
           .for(ctx, {$documentFilter: '_id=999'})
           .get(1)).rejects
-          .toThrow('NOT_FOUND');
+          .toThrow(ResourceNotAvailableError);
     });
 
     it('Should run in interceptor', async () => {

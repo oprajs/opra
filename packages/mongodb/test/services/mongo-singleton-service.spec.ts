@@ -1,4 +1,5 @@
 import { faker } from '@faker-js/faker';
+import { ResourceNotAvailableError } from '@opra/common';
 import { MongoSingletonService } from '@opra/mongodb';
 import { TestApp } from '../_support/test-app/index.js';
 
@@ -51,7 +52,7 @@ describe('MongoSingletonService', function () {
       const ctx = await app.createContext();
       service._id = 99;
       await expect(() => service.for(ctx).assert()).rejects
-          .toThrow('NOT_FOUND');
+          .toThrow(ResourceNotAvailableError);
     });
 
     it('Should apply filter returned by documentFilter', async () => {
@@ -59,7 +60,7 @@ describe('MongoSingletonService', function () {
       await expect(() => service
           .for(ctx, {$documentFilter: 'rate=99'})
           .assert()).rejects
-          .toThrow('NOT_FOUND');
+          .toThrow(ResourceNotAvailableError);
     });
 
   });
@@ -171,7 +172,7 @@ describe('MongoSingletonService', function () {
       service._id = 99;
       const ctx = await app.createContext();
       await expect(() => service.for(ctx).get()).rejects
-          .toThrow('NOT_FOUND');
+          .toThrow(ResourceNotAvailableError);
     });
 
     it('Should apply filter returned by documentFilter', async () => {
@@ -180,7 +181,7 @@ describe('MongoSingletonService', function () {
       await expect(() => service
           .for(ctx, {$documentFilter: 'rate=99'})
           .get()
-      ).rejects.toThrow('NOT_FOUND');
+      ).rejects.toThrow(ResourceNotAvailableError);
     });
 
     it('Should run in interceptor', async () => {

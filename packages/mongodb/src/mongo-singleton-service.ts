@@ -1,6 +1,6 @@
 import mongodb, { ObjectId } from 'mongodb';
 import { StrictOmit, Type } from 'ts-gems';
-import { InternalServerError, PartialDTO, PatchDTO, ResourceNotFoundError } from '@opra/common';
+import { InternalServerError, PartialDTO, PatchDTO, ResourceNotAvailableError } from '@opra/common';
 import * as OpraCommon from '@opra/common';
 import { FilterInput } from './adapter-utils/prepare-filter.js';
 import { MongoAdapter } from './mongo-adapter.js';
@@ -32,7 +32,16 @@ export class MongoSingletonService<T extends mongodb.Document> extends MongoServ
    *
    * @type {FilterInput | Function}
    */
-  $documentFilter?: FilterInput | ((_this: this) => FilterInput | Promise<FilterInput> | undefined);
+  $documentFilter?: FilterInput | (
+      (args: {
+         crud: MongoService.CrudOp;
+         method: string;
+         documentId?: AnyId;
+         input?: Record<string, any>;
+         options?: Record<string, any>
+       },
+       _this: this
+      ) => FilterInput | Promise<FilterInput> | undefined);
 
   /**
    * Interceptor function for handling callback execution with provided arguments.
@@ -77,11 +86,11 @@ export class MongoSingletonService<T extends mongodb.Document> extends MongoServ
    * Asserts the existence of a resource based on the given options.
    *
    * @returns {Promise<void>} A Promise that resolves when the resource exists.
-   * @throws {ResourceNotFoundError} If the resource does not exist.
+   * @throws {ResourceNotAvailableError} If the resource does not exist.
    */
   async assert(options?: MongoSingletonService.ExistsOptions): Promise<void> {
     if (!(await this.exists(options)))
-      throw new ResourceNotFoundError(this.getResourceName());
+      throw new ResourceNotAvailableError(this.getResourceName());
   }
 
   /**
@@ -96,14 +105,15 @@ export class MongoSingletonService<T extends mongodb.Document> extends MongoServ
       input: PartialDTO<T>,
       options?: MongoSingletonService.CreateOptions
   ): Promise<PartialDTO<T>> {
+    const info: any = {
+      crud: 'create',
+      method: 'create',
+      input,
+      options,
+    };
     return this._intercept(
         () => this._create(input, options),
-        {
-          crud: 'create',
-          method: 'create',
-          input,
-          options,
-        }
+        info
     );
   }
 
@@ -122,7 +132,7 @@ export class MongoSingletonService<T extends mongodb.Document> extends MongoServ
       if (out)
         return out;
       if (!out)
-        throw new ResourceNotFoundError(this.getResourceName());
+        throw new ResourceNotAvailableError(this.getResourceName());
     }
     /* istanbul ignore next */
     throw new InternalServerError(`Unknown error while creating document for "${this.getResourceName()}"`);
@@ -135,20 +145,26 @@ export class MongoSingletonService<T extends mongodb.Document> extends MongoServ
    * @returns {Promise<number>} The number of records deleted
    */
   async delete(options?: MongoSingletonService.DeleteOptions<T>): Promise<number> {
+    const info: any = {
+      crud: 'delete',
+      method: 'delete',
+      options,
+    }
     return this._intercept(
-        () => this._delete(options),
-        {
-          crud: 'delete',
-          method: 'delete',
-          options,
-        }
+        async () => {
+          const filter = MongoAdapter.prepareFilter([
+            await this._getDocumentFilter(info),
+            options?.filter
+          ]);
+          return this._delete({...options, filter})
+        },
+        info
     );
   }
 
   protected async _delete(options?: MongoSingletonService.DeleteOptions<T>): Promise<number> {
     const filter = MongoAdapter.prepareFilter([
       {_id: this._id},
-      await this._getDocumentFilter(),
       options?.filter
     ]);
     const r = await this.__deleteOne(filter, options);
@@ -173,13 +189,20 @@ export class MongoSingletonService<T extends mongodb.Document> extends MongoServ
   async findOne(
       options?: MongoSingletonService.FindOptions<T>
   ): Promise<PartialDTO<T> | undefined> {
+    const info: any = {
+      crud: 'read',
+      method: 'findOne',
+      options,
+    };
     return this._intercept(
-        () => this._findOne(options),
-        {
-          crud: 'read',
-          method: 'find',
-          options,
-        }
+        async () => {
+          const filter = MongoAdapter.prepareFilter([
+            await this._getDocumentFilter(info),
+            options?.filter
+          ]);
+          return this._findOne({...options, filter});
+        },
+        info
     );
   }
 
@@ -188,7 +211,6 @@ export class MongoSingletonService<T extends mongodb.Document> extends MongoServ
   ): Promise<PartialDTO<T> | undefined> {
     const filter = MongoAdapter.prepareFilter([
       {_id: this._id},
-      await this._getDocumentFilter(),
       options?.filter
     ]);
     const mongoOptions: mongodb.FindOptions = {
@@ -208,12 +230,12 @@ export class MongoSingletonService<T extends mongodb.Document> extends MongoServ
    *
    * @param {MongoCollectionService.FindOneOptions} options - The options to customize the query.
    * @return {Promise<PartialDTO<T>>} - A promise that resolves to the fetched document.
-   * @throws {ResourceNotFoundError} - If the document is not found in the collection.
+   * @throws {ResourceNotAvailableError} - If the document is not found in the collection.
    */
   async get(options?: MongoSingletonService.FindOptions<T>): Promise<PartialDTO<T>> {
     const out = await this.findOne(options);
     if (!out)
-      throw new ResourceNotFoundError(this.getResourceName());
+      throw new ResourceNotAvailableError(this.getResourceName());
     return out;
   }
 
@@ -229,14 +251,21 @@ export class MongoSingletonService<T extends mongodb.Document> extends MongoServ
       input: PatchDTO<T>,
       options?: MongoSingletonService.UpdateOptions<T>
   ): Promise<number> {
+    const info: any = {
+      crud: 'update',
+      method: 'update',
+      input,
+      options,
+    }
     return this._intercept(
-        () => this._updateOnly(input, options),
-        {
-          crud: 'update',
-          method: 'update',
-          input,
-          options,
-        }
+        async () => {
+          const filter = MongoAdapter.prepareFilter([
+            await this._getDocumentFilter(info),
+            options?.filter
+          ]);
+          return this._updateOnly(input, {...options, filter});
+        },
+        info
     );
   }
 
@@ -255,7 +284,6 @@ export class MongoSingletonService<T extends mongodb.Document> extends MongoServ
     }
     const filter = MongoAdapter.prepareFilter([
       {_id: this._id},
-      await this._getDocumentFilter(),
       options?.filter
     ])
     const r = await this.__updateOne(filter, patch, mongoOptions);
@@ -274,14 +302,21 @@ export class MongoSingletonService<T extends mongodb.Document> extends MongoServ
       input: PatchDTO<T>,
       options?: MongoSingletonService.UpdateOptions<T>
   ): Promise<PartialDTO<T> | undefined> {
+    const info: any = {
+      crud: 'update',
+      method: 'update',
+      input,
+      options,
+    };
     return this._intercept(
-        () => this._update(input, options),
-        {
-          crud: 'update',
-          method: 'update',
-          input,
-          options,
-        }
+        async () => {
+          const filter = MongoAdapter.prepareFilter([
+            await this._getDocumentFilter(info),
+            options?.filter
+          ]);
+          return this._update(input, {...options, filter});
+        },
+        info
     );
   }
 
@@ -300,7 +335,6 @@ export class MongoSingletonService<T extends mongodb.Document> extends MongoServ
     }
     const filter = MongoAdapter.prepareFilter([
       {_id: this._id},
-      await this._getDocumentFilter(),
       options?.filter
     ])
     const decoder = this.getDecoder();
@@ -316,9 +350,17 @@ export class MongoSingletonService<T extends mongodb.Document> extends MongoServ
    * @returns {FilterInput | Promise<FilterInput> | undefined} The common filter or a Promise
    * that resolves to the common filter, or undefined if not available.
    */
-  protected _getDocumentFilter(): FilterInput | Promise<FilterInput> | undefined {
+  protected _getDocumentFilter(
+      args: {
+        crud: MongoService.CrudOp;
+        method: string;
+        documentId?: AnyId;
+        input?: Object;
+        options?: Record<string, any>
+      }
+  ): FilterInput | Promise<FilterInput> | undefined {
     return typeof this.$documentFilter === 'function' ?
-        this.$documentFilter(this) : this.$documentFilter;
+        this.$documentFilter(args, this) : this.$documentFilter;
   }
 
   protected async _intercept(

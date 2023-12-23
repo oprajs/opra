@@ -17,7 +17,7 @@ import {
   OpraURL, OpraURLPath,
   OpraURLPathComponent,
   Parameter,
-  Resource, ResourceNotFoundError,
+  Resource, ResourceNotAvailableError,
   Singleton,
   Storage,
   translate,
@@ -623,7 +623,7 @@ export abstract class HttpAdapterHost extends PlatformAdapterHost {
 
           // "get" and "update" endpoints must return the entity instance, otherwise it means resource not found
           if (value == null && (operationName === 'get' || operationName === 'update'))
-            throw new ResourceNotFoundError(resource.name, (request as RequestHost).key);
+            throw new ResourceNotAvailableError(resource.name, (request as RequestHost).key);
 
           // "findMany" endpoint should return array of entity instances
           if (operationName === 'findMany')

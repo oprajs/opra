@@ -1,4 +1,5 @@
 import { faker } from '@faker-js/faker';
+import { ResourceNotAvailableError } from '@opra/common';
 import { MongoArrayService } from '@opra/mongodb';
 import { TestApp } from '../_support/test-app/index.js';
 
@@ -56,9 +57,9 @@ describe('MongoArrayService', function () {
     it('Should throw error if not found', async () => {
       const ctx = await app.createContext();
       await expect(() => service.for(ctx).assert(9999, 1)).rejects
-          .toThrow('NOT_FOUND');
+          .toThrow(ResourceNotAvailableError);
       await expect(() => service.for(ctx).assert(1, 99)).rejects
-          .toThrow('NOT_FOUND');
+          .toThrow(ResourceNotAvailableError);
     });
 
     it('Should apply filter returned by documentFilter', async () => {
@@ -66,7 +67,7 @@ describe('MongoArrayService', function () {
       await expect(() => service
           .for(ctx, {$documentFilter: '_id=2'})
           .assert(1, 1)).rejects
-          .toThrow('NOT_FOUND');
+          .toThrow(ResourceNotAvailableError);
     });
 
     it('Should apply filter returned by arrayFilter', async () => {
@@ -74,7 +75,7 @@ describe('MongoArrayService', function () {
       await expect(() => service
           .for(ctx, {$arrayFilter: () => 'rank=99'})
           .assert(1, 1)).rejects
-          .toThrow('NOT_FOUND');
+          .toThrow(ResourceNotAvailableError);
     });
 
   });
@@ -490,7 +491,7 @@ describe('MongoArrayService', function () {
     it('Should throw error if not found', async () => {
       const ctx = await app.createContext();
       await expect(() => service.for(ctx).get(1, 9999)).rejects
-          .toThrow('NOT_FOUND')
+          .toThrow(ResourceNotAvailableError)
     });
 
     it('Should apply filter returned by documentFilter', async () => {
@@ -498,7 +499,7 @@ describe('MongoArrayService', function () {
       await expect(() => service
           .for(ctx, {$documentFilter: '_id=999'})
           .get(1, 1)).rejects
-          .toThrow('NOT_FOUND');
+          .toThrow(ResourceNotAvailableError);
     });
 
     it('Should apply filter returned by arrayFilter', async () => {
@@ -506,7 +507,7 @@ describe('MongoArrayService', function () {
       await expect(() => service
           .for(ctx, {$arrayFilter: 'rank=99'})
           .get(1, 1)).rejects
-          .toThrow('NOT_FOUND');
+          .toThrow(ResourceNotAvailableError);
     });
 
   });
@@ -529,7 +530,7 @@ describe('MongoArrayService', function () {
       const doc = {_id: 101, title: faker.lorem.text()};
       await expect(() => service.for(ctx).create(9999, doc))
           .rejects
-          .toThrow('NOT_FOUND')
+          .toThrow(ResourceNotAvailableError)
     });
 
     it('Should run in interceptor', async () => {
