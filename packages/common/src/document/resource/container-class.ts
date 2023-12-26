@@ -8,6 +8,8 @@ import { Resource } from './resource.js';
 import { Singleton } from './singleton.js';
 import { Storage } from './storage.js';
 
+const PATH_PREFIX_PATTERN = /^(\/*)(.+)$/;
+
 export class ContainerClass extends Resource {
   readonly kind: OpraSchema.Resource.Kind = OpraSchema.Container.Kind;
   readonly resources = new ResponsiveMap<Resource>();
@@ -44,6 +46,7 @@ export class ContainerClass extends Resource {
   getResource(path: string, silent: false): Resource;
   getResource(path: string, silent?: boolean): Resource | undefined {
     let resource: Resource | undefined;
+    path = PATH_PREFIX_PATTERN.exec(path)?.[2] || path;
     if (path.includes('/')) {
       const arr = path.split('/');
       let i: number;

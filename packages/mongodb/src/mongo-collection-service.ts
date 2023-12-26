@@ -1,5 +1,5 @@
 import omit from 'lodash.omit';
-import mongodb, { ObjectId } from 'mongodb';
+import mongodb, { ObjectId, UpdateFilter } from 'mongodb';
 import { StrictOmit, Type } from 'ts-gems';
 import { InternalServerError, PartialDTO, PatchDTO, ResourceNotAvailableError } from '@opra/common';
 import * as OpraCommon from '@opra/common';
@@ -125,7 +125,7 @@ export class MongoCollectionService<T extends mongodb.Document> extends MongoSer
 
   protected async _create(
       input: PartialDTO<T>,
-      options: MongoCollectionService.CreateOptions | undefined
+      options?: MongoCollectionService.CreateOptions
   ): Promise<PartialDTO<T>> {
     const encode = this.getEncoder('create');
     const doc: any = encode(input, {coerce: true});
@@ -248,6 +248,33 @@ export class MongoCollectionService<T extends mongodb.Document> extends MongoSer
     const filter = MongoAdapter.prepareFilter(options?.filter);
     const r = await this.__deleteMany(filter, omit(options, 'filter'));
     return r.deletedCount;
+  }
+
+  async distinct(
+      field: string,
+      options?: MongoCollectionService.DistinctOptions<T>
+  ): Promise<any[]> {
+    const info: any = {
+      crud: 'read',
+      method: 'distinct',
+      options
+    };
+    return this._intercept(
+        async () => {
+          const filter = MongoAdapter.prepareFilter([
+            await this._getDocumentFilter(info),
+            options?.filter,
+          ]);
+          return this._distinct(field, {...options, filter});
+        }, info);
+  }
+
+  protected async _distinct(
+      field: string,
+      options?: MongoCollectionService.DistinctOptions<T>
+  ): Promise<any[]> {
+    const filter = MongoAdapter.prepareFilter(options?.filter);
+    return await this.__distinct(field, filter, omit(options, 'filter'));
   }
 
   /**
@@ -480,7 +507,7 @@ export class MongoCollectionService<T extends mongodb.Document> extends MongoSer
    */
   async update(
       id: AnyId,
-      input: PatchDTO<T>,
+      input: PatchDTO<T> | mongodb.UpdateFilter<T>,
       options?: MongoCollectionService.UpdateOptions<T>
   ): Promise<PartialDTO<T> | undefined> {
     const info: any = {
@@ -503,24 +530,36 @@ export class MongoCollectionService<T extends mongodb.Document> extends MongoSer
 
   protected async _update(
       id: AnyId,
-      input: PatchDTO<T>,
+      input: PatchDTO<T> | mongodb.UpdateFilter<T>,
       options?: MongoCollectionService.UpdateOptions<T>
   ): Promise<PartialDTO<T> | undefined> {
-    const encode = this.getEncoder('update');
-    const doc = encode(input, {coerce: true});
-    const patch = MongoAdapter.preparePatch(doc);
+    const isUpdateFilter = Array.isArray(input) ||
+        !!Object.keys(input).find(x => x.startsWith('$'));
+    const isDocument = !Array.isArray(input) &&
+        !!Object.keys(input).find(x => !x.startsWith('$'));
+    if (isUpdateFilter && isDocument)
+      throw new TypeError('You must pass one of MongoDB UpdateFilter or a partial document, not both');
+    let update: UpdateFilter<T>;
+    if (isDocument) {
+      const encode = this.getEncoder('update');
+      const doc = encode(input, {coerce: true});
+      update = MongoAdapter.preparePatch(doc);
+      update.$set = update.$set || {} as any;
+    } else update = input as UpdateFilter<T>;
+
+    const filter = MongoAdapter.prepareFilter([
+      MongoAdapter.prepareKeyValues(id, [this.collectionKey]),
+      options?.filter
+    ])
+
     const mongoOptions: mongodb.FindOneAndUpdateOptions = {
       ...options,
       includeResultMetadata: false,
       upsert: undefined,
       projection: MongoAdapter.prepareProjection(this.getDataType(), options),
     }
-    const filter = MongoAdapter.prepareFilter([
-      MongoAdapter.prepareKeyValues(id, [this.collectionKey]),
-      options?.filter
-    ])
     const decode = this.getDecoder();
-    const out = await this.__findOneAndUpdate(filter, patch, mongoOptions);
+    const out = await this.__findOneAndUpdate(filter, update, mongoOptions);
     return out ? decode(out, {coerce: true}) as PartialDTO<T> : undefined;
   }
 
@@ -534,7 +573,7 @@ export class MongoCollectionService<T extends mongodb.Document> extends MongoSer
    */
   async updateOnly(
       id: AnyId,
-      input: PatchDTO<T>,
+      input: PatchDTO<T> | mongodb.UpdateFilter<T>,
       options?: MongoCollectionService.UpdateOptions<T>
   ): Promise<number> {
     const info: any = {
@@ -556,25 +595,36 @@ export class MongoCollectionService<T extends mongodb.Document> extends MongoSer
 
   protected async _updateOnly(
       id: AnyId,
-      input: PatchDTO<T>,
+      input: PatchDTO<T> | mongodb.UpdateFilter<T>,
       options?: MongoCollectionService.UpdateOptions<T>
   ): Promise<number> {
+    const isUpdateFilter = Array.isArray(input) ||
+        !!Object.keys(input).find(x => x.startsWith('$'));
+    const isDocument = !Array.isArray(input) &&
+        !!Object.keys(input).find(x => !x.startsWith('$'));
+    if (isUpdateFilter && isDocument)
+      throw new TypeError('You must pass one of MongoDB UpdateFilter or a partial document, not both');
+    let update: UpdateFilter<T>;
+    if (isDocument) {
+      const encode = this.getEncoder('update');
+      const doc = encode(input, {coerce: true});
+      update = MongoAdapter.preparePatch(doc);
+      if (!Object.keys(doc).length)
+        return 0;
+    } else update = input as UpdateFilter<T>;
+
     const filter = MongoAdapter.prepareFilter([
       MongoAdapter.prepareKeyValues(id, [this.collectionKey]),
       options?.filter
     ])
-    const encode = this.getEncoder('update');
-    const doc = encode(input, {coerce: true});
-    if (!Object.keys(doc).length)
-      return 0;
-    const patch = MongoAdapter.preparePatch(doc);
+
     const mongoOptions: mongodb.FindOneAndUpdateOptions = {
       ...options,
       includeResultMetadata: false,
       upsert: undefined,
       projection: MongoAdapter.prepareProjection(this.getDataType(), options),
     }
-    const out = await this.__updateOne(filter, patch, mongoOptions);
+    const out = await this.__updateOne(filter, update, mongoOptions);
     return out.matchedCount;
   }
 
@@ -586,7 +636,7 @@ export class MongoCollectionService<T extends mongodb.Document> extends MongoSer
    * @return {Promise<number>} - A promise that resolves to the number of documents matched and modified.
    */
   async updateMany(
-      input: PatchDTO<T>,
+      input: PatchDTO<T> | mongodb.UpdateFilter<T>,
       options?: MongoCollectionService.UpdateManyOptions<T>
   ): Promise<number> {
     const info: any = {
@@ -606,21 +656,30 @@ export class MongoCollectionService<T extends mongodb.Document> extends MongoSer
   }
 
   protected async _updateMany(
-      input: PatchDTO<T>,
+      input: PatchDTO<T> | mongodb.UpdateFilter<T>,
       options?: MongoCollectionService.UpdateManyOptions<T>
   ): Promise<number> {
-    const encode = this.getEncoder('update');
-    const doc = encode(input, {coerce: true});
-    if (!Object.keys(doc).length)
-      return 0;
-    const patch = MongoAdapter.preparePatch(doc);
-    patch.$set = patch.$set || {};
+    const isUpdateFilter = Array.isArray(input) ||
+        !!Object.keys(input).find(x => x.startsWith('$'));
+    const isDocument = !Array.isArray(input) &&
+        !!Object.keys(input).find(x => !x.startsWith('$'));
+    if (isUpdateFilter && isDocument)
+      throw new TypeError('You must pass one of MongoDB UpdateFilter or a partial document, not both');
+    let update: UpdateFilter<T>;
+    if (isDocument) {
+      const encode = this.getEncoder('update');
+      const doc = encode(input, {coerce: true});
+      update = MongoAdapter.preparePatch(doc);
+      if (!Object.keys(doc).length)
+        return 0;
+    } else update = input as UpdateFilter<T>;
+
     const mongoOptions: mongodb.UpdateOptions = {
       ...omit(options, 'filter'),
       upsert: undefined
     }
     const filter = MongoAdapter.prepareFilter(options?.filter);
-    const r = await this.__updateMany(filter, patch, mongoOptions);
+    const r = await this.__updateMany(filter, update, mongoOptions);
     return r.matchedCount;
   }
 
@@ -694,7 +753,7 @@ export namespace MongoCollectionService {
   }
 
   /**
-   * Represents options for creating a new document.
+   * Represents options for "create" operation
    *
    * @interface
    */
@@ -705,7 +764,7 @@ export namespace MongoCollectionService {
   }
 
   /**
-   * Represents options for counting document.
+   * Represents options for "count" operation
    *
    * @interface
    * @template T - The type of the document.
@@ -715,7 +774,7 @@ export namespace MongoCollectionService {
   }
 
   /**
-   * Represents options for deleting single document.
+   * Represents options for "delete" operation
    *
    * @interface
    * @template T - The type of the document.
@@ -725,7 +784,7 @@ export namespace MongoCollectionService {
   }
 
   /**
-   * Represents options for deleting multiple documents.
+   * Represents options for "deleteMany" operation
    *
    * @interface
    * @template T - The type of the document.
@@ -735,7 +794,17 @@ export namespace MongoCollectionService {
   }
 
   /**
-   * Represents options for finding single document.
+   * Represents options for "distinct" operation
+   *
+   * @interface
+   * @template T - The type of the document.
+   */
+  export interface DistinctOptions<T> extends mongodb.DistinctOptions {
+    filter?: mongodb.Filter<T> | OpraCommon.OpraFilter.Ast | string;
+  }
+
+  /**
+   * Represents options for "findOne" operation
    *
    * @interface
    * @template T - The type of the document.
@@ -744,7 +813,7 @@ export namespace MongoCollectionService {
   }
 
   /**
-   * Represents options for finding multiple documents.
+   * Represents options for "findMany" operation
    *
    * @interface
    * @template T - The type of the document.
@@ -761,7 +830,7 @@ export namespace MongoCollectionService {
   }
 
   /**
-   * Represents options for updating single document.
+   * Represents options for "update" operation
    *
    * @interface
    * @template T - The type of the document.
@@ -775,7 +844,7 @@ export namespace MongoCollectionService {
   }
 
   /**
-   * Represents options for updating multiple documents.
+   * Represents options for "updateMany" operation
    *
    * @interface
    * @template T - The type of the document.
@@ -785,7 +854,7 @@ export namespace MongoCollectionService {
   }
 
   /**
-   * Represents options for checking the document exists
+   * Represents options for "exists" operation
    *
    * @interface
    */

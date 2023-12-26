@@ -106,6 +106,46 @@ describe('MongoCollectionService', function () {
   });
 
 
+  describe('distinct()', function () {
+
+    it('Should return distinct values of given field', async () => {
+      const ctx = await app.createContext();
+      const result = await service.for(ctx)
+          .distinct('countryCode');
+      expect(Array.isArray(result)).toBeTruthy();
+      expect(result.length).toBeGreaterThan(1);
+    });
+
+    it('Should apply filter', async () => {
+      const ctx = await app.createContext();
+      const result = await service.for(ctx)
+          .distinct('countryCode', {filter: {countryCode: tempRecords[0].countryCode}});
+      expect(Array.isArray(result)).toBeTruthy();
+      expect(result.length).toEqual(1);
+    });
+
+    it('Should apply filter returned by documentFilter', async () => {
+      const ctx = await app.createContext();
+      const result: any = await service
+          .for(ctx, {$documentFilter: {countryCode: tempRecords[0].countryCode}})
+          .distinct('countryCode');
+      expect(Array.isArray(result)).toBeTruthy();
+      expect(result.length).toEqual(1);
+    });
+
+    it('Should run in interceptor', async () => {
+      const mockFn = jest.fn(interceptorFn);
+      const ctx = await app.createContext();
+      const result = await service
+          .for(ctx, {$interceptor: mockFn})
+          .distinct('countryCode');
+      expect(Array.isArray(result)).toBeTruthy();
+      expect(mockFn).toBeCalled();
+    });
+
+  });
+
+
   describe('findById()', function () {
 
     it('Should return single object', async () => {

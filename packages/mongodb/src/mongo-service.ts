@@ -18,28 +18,22 @@ export class MongoService<T extends mongodb.Document> extends ApiService {
 
   /**
    * Represents the name of a collection in MongoDB
-   *
-   * @type {string | Function} collectionName
    */
   collectionName?: string | ((_this: any) => string);
 
   /**
    * Represents the name of a resource.
-   *
    * @type {string}
    */
   resourceName?: string | ((_this: any) => string);
 
   /**
    * Represents a MongoDB database object.
-   * @type {mongodb.Db | Function}
    */
   db?: mongodb.Db | ((_this: any) => mongodb.Db);
 
   /**
    * Represents a MongoDB ClientSession.
-   *
-   * @type {mongodb.ClientSession}
    */
   session?: mongodb.ClientSession | ((_this: any) => mongodb.ClientSession);
 
@@ -47,7 +41,6 @@ export class MongoService<T extends mongodb.Document> extends ApiService {
    * Generates a new id for new inserting Document.
    *
    * @protected
-   * @returns {AnyId} A new instance of AnyId.
    */
   $idGenerator?: (_this: any) => AnyId;
 
@@ -55,8 +48,7 @@ export class MongoService<T extends mongodb.Document> extends ApiService {
    * Callback function for handling errors.
    *
    * @param {unknown} error - The error object.
-   * @param {object} _this - The context object.
-   * @return {void|Promise<void>} - A void value or a promise that resolves to void.
+   * @param _this - The context object.
    */
   $onError?: (error: unknown, _this: any) => void | Promise<void>;
 
@@ -64,8 +56,8 @@ export class MongoService<T extends mongodb.Document> extends ApiService {
   /**
    * Constructs a new instance
    *
-   * @param {Type | string} dataType - The data type of the array elements.
-   * @param {MongoService.Options} [options] - The options for the array service.
+   * @param dataType - The data type of the array elements.
+   * @param [options] - The options for the array service.
    * @constructor
    */
   constructor(dataType: Type | string, options?: MongoService.Options) {
@@ -89,7 +81,6 @@ export class MongoService<T extends mongodb.Document> extends ApiService {
   /**
    * Retrieves the data type of the document
    *
-   * @returns {ComplexType} The complex data type of the field.
    * @throws {NotAcceptableError} If the data type is not a ComplexType.
    */
   getDataType(): ComplexType {
@@ -99,8 +90,7 @@ export class MongoService<T extends mongodb.Document> extends ApiService {
   /**
    * Retrieves the encoder for the specified operation.
    *
-   * @param {String} operation - The operation to retrieve the encoder for. Valid values are 'create' and 'update'.
-   * @returns {IsObject.Validator<T>} - The encoder for the specified operation.
+   * @param operation - The operation to retrieve the encoder for. Valid values are 'create' and 'update'.
    */
   getEncoder(operation: 'create' | 'update'): IsObject.Validator<T> {
     let encoder = this._encoders[operation];
@@ -113,8 +103,6 @@ export class MongoService<T extends mongodb.Document> extends ApiService {
 
   /**
    * Retrieves the decoder.
-   *
-   * @returns {IsObject.Validator<T>} - The encoder for the specified operation.
    */
   getDecoder(): IsObject.Validator<T> {
     let decoder = this._decoder;
@@ -128,9 +116,8 @@ export class MongoService<T extends mongodb.Document> extends ApiService {
   /**
    * Executes the provided function within a transaction.
    *
-   * @param {WithTransactionCallback} callback - The function to be executed within the transaction.
-   * @param {TransactionOptions} [options] - Optional options for the transaction.
-   * @returns {Promise<any>} - A promise that resolves with the result of the function execution within the transaction.
+   * @param callback - The function to be executed within the transaction.
+   * @param [options] - Optional options for the transaction.
    */
   async withTransaction(callback: WithTransactionCallback, options?: TransactionOptions): Promise<any> {
     let session = this.getSession();
@@ -159,10 +146,11 @@ export class MongoService<T extends mongodb.Document> extends ApiService {
       throw e;
     } finally {
       // Restore old session property
-      if (hasOldSession) {
+      if (hasOldSession)
         this.session = oldSessionGetter;
+      else delete this.session;
+      if (!oldInTransaction)
         await session.endSession();
-      } else delete this.session;
     }
   }
 
@@ -171,9 +159,8 @@ export class MongoService<T extends mongodb.Document> extends ApiService {
    * one will be added to each of the documents missing it by the driver, mutating the document. This behavior
    * can be overridden by setting the **forceServerObjectId** flag.
    *
-   * @param {T} doc - The document to be inserted.
-   * @param {mongodb.InsertOneOptions} options - The options for the insert operation.
-   * @returns {Promise<mongodb.InsertOneWriteOpResult<mongodb.OptionalId<T>>>} - A promise that resolves with the result of the insert operation.
+   * @param doc - The document to insert
+   * @param options - Optional settings for the command
    * @protected
    */
   protected async __insertOne(doc: mongodb.OptionalUnlessRequiredId<T>, options?: mongodb.InsertOneOptions) {
@@ -194,9 +181,8 @@ export class MongoService<T extends mongodb.Document> extends ApiService {
   /**
    * Gets the number of documents matching the filter.
    *
-   * @param {mongodb.Filter<T>} filter - The filter used to match documents.
-   * @param {mongodb.CountOptions} options - The options for counting documents.
-   * @returns {Promise<number>} - The number of documents matching the filter.
+   * @param filter - The filter used to match documents.
+   * @param options - The options for counting documents.
    * @protected
    */
   protected async __countDocuments(filter?: mongodb.Filter<T>, options?: mongodb.CountOptions): Promise<number> {
@@ -218,9 +204,9 @@ export class MongoService<T extends mongodb.Document> extends ApiService {
   /**
    * Delete a document from a collection
    *
-   * @param {mongodb.Filter<T>} filter - The filter used to select the document to remove
-   * @param {mongodb.DeleteOptions} options - Optional settings for the command
-   * @return {Promise<mongodb.DeleteResult>} A Promise that resolves to the result of the delete operation
+   * @param filter - The filter used to select the document to remove
+   * @param options - Optional settings for the command
+   * @protected
    */
   protected async __deleteOne(filter?: mongodb.Filter<T>, options?: mongodb.DeleteOptions) {
     const db = this.getDatabase();
@@ -238,12 +224,10 @@ export class MongoService<T extends mongodb.Document> extends ApiService {
   }
 
   /**
-   * Deletes multiple documents from a collection.
+   * Delete multiple documents from a collection
    *
-   * @param {mongodb.Filter<T>} [filter] - The filter object specifying the documents to delete.
-   * If not provided, all documents in the collection will be deleted.
-   * @param {mongodb.DeleteOptions} [options] - The options for the delete operation.
-   * @returns {Promise<mongodb.DeleteResult>} A promise that resolves with the delete result object.
+   * @param filter - The filter used to select the documents to remove
+   * @param options - Optional settings for the command
    * @protected
    */
   protected async __deleteMany(filter?: mongodb.Filter<T>, options?: mongodb.DeleteOptions) {
@@ -262,12 +246,33 @@ export class MongoService<T extends mongodb.Document> extends ApiService {
   }
 
   /**
-   * Create a new Change Stream, watching for new changes
-   * (insertions, updates, replacements, deletions, and invalidations) in this collection.
+   * Gets the number of documents matching the filter.
    *
-   * @param {mongodb.Document[]} pipeline - The pipeline of aggregation stages to apply to the collection.
-   * @param {mongodb.AggregateOptions} options - The options to customize the aggregation.
-   * @returns {Promise<mongodb.ChangeStream<T>>} - A promise that resolves to a Change Stream that represents the result of the aggregation.
+   * @param field - Field of the document to find distinct values for
+   * @param filter - The filter for filtering the set of documents to which we apply the distinct filter.
+   * @param options - Optional settings for the command
+   * @protected
+   */
+  protected async __distinct(field: string, filter?: mongodb.Filter<T>, options?: mongodb.DistinctOptions): Promise<any[]> {
+    const db = this.getDatabase();
+    const collection = await this.getCollection(db);
+    options = {
+      ...options,
+      session: options?.session || this.getSession()
+    }
+    try {
+      return await collection.distinct(field, filter || {}, options);
+    } catch (e: any) {
+      await this.$onError?.(e, this);
+      throw e;
+    }
+  }
+
+  /**
+   * Execute an aggregation framework pipeline against the collection, needs MongoDB \>= 2.2
+   *
+   * @param pipeline - An array of aggregation pipelines to execute
+   * @param options - Optional settings for the command
    * @protected
    */
   protected async __aggregate(pipeline?: mongodb.Document[], options?: mongodb.AggregateOptions) {
@@ -288,10 +293,9 @@ export class MongoService<T extends mongodb.Document> extends ApiService {
   /**
    * Fetches the first document that matches the filter
    *
-   * @param {mongodb.Filter<T>} filter - The filter object to match documents against
-   * @param {mongodb.FindOptions} [options] - The options to use when querying the collection
+   * @param filter - Query for find Operation
+   * @param options - Optional settings for the command
    * @protected
-   * @returns {Promise<PartialDTO<T> | undefined>} - A promise that resolves to the first matching document, or undefined if no match is found
    */
   protected async __findOne(filter: mongodb.Filter<T>, options?: mongodb.FindOptions): Promise<PartialDTO<T> | undefined> {
     const db = this.getDatabase();
@@ -309,11 +313,11 @@ export class MongoService<T extends mongodb.Document> extends ApiService {
   }
 
   /**
-   * Creates a cursor for a filter that can be used to iterate over results from MongoDB.
+   * Creates a cursor for a filter that can be used to iterate over results from MongoDB
    *
-   * @param {mongodb.Filter<T>} filter - The filter to apply when searching for results.
-   * @param {mongodb.FindOptions} [options] - The options to customize the search behavior.
-   * @returns {mongodb.Cursor<T>} - The cursor object that can be used to iterate over the results.
+   * @param filter - The filter predicate. If unspecified,
+   * then all documents in the collection will match the predicate
+   * @param options - Optional settings for the command
    * @protected
    */
   protected async __find(filter: mongodb.Filter<T>, options?: mongodb.FindOptions) {
@@ -332,13 +336,12 @@ export class MongoService<T extends mongodb.Document> extends ApiService {
   }
 
   /**
-   * Update a single document in a collection.
+   * Update a single document in a collection
    *
-   * @param {mongodb.Filter<T>} filter - The filter to select the document(s) to update.
-   * @param {mongodb.UpdateFilter<T>} update - The update operation to be applied on the selected document(s).
-   * @param {mongodb.UpdateOptions} [options] - Optional settings for the update operation.
+   * @param filter - The filter used to select the document to update
+   * @param update - The update operations to be applied to the document
+   * @param options - Optional settings for the command
    * @protected
-   * @returns {Promise<mongodb.UpdateResult>} - A promise that resolves to the result of the update operation.
    */
   protected async __updateOne(
       filter: mongodb.Filter<T>,
@@ -362,15 +365,14 @@ export class MongoService<T extends mongodb.Document> extends ApiService {
   /**
    * Find a document and update it in one atomic operation. Requires a write lock for the duration of the operation.
    *
-   * @param {mongodb.Filter<T>} filter - The filter to select the document to be updated.
-   * @param {mongodb.UpdateFilter<T>} doc - The update document.
-   * @param {mongodb.FindOneAndUpdateOptions} [options] - Optional options for the find one and update operation.
-   * @returns {Promise<T | null>} - A promise that resolves to the updated document or null if no document matched the filter.
+   * @param filter - The filter used to select the document to update
+   * @param update - Update operations to be performed on the document
+   * @param options - Optional settings for the command
    * @protected
    */
   protected async __findOneAndUpdate(
       filter: mongodb.Filter<T>,
-      doc: mongodb.UpdateFilter<T>,
+      update: mongodb.UpdateFilter<T>,
       options?: mongodb.FindOneAndUpdateOptions
   ) {
     const db = this.getDatabase();
@@ -382,7 +384,7 @@ export class MongoService<T extends mongodb.Document> extends ApiService {
       session: options?.session || this.getSession(),
     }
     try {
-      return await collection.findOneAndUpdate(filter || {}, doc, opts);
+      return await collection.findOneAndUpdate(filter || {}, update, opts);
     } catch (e: any) {
       await this.$onError?.(e, this);
       throw e;
@@ -390,17 +392,16 @@ export class MongoService<T extends mongodb.Document> extends ApiService {
   }
 
   /**
-   * Update multiple documents in a collection.
+   * Update multiple documents in a collection
    *
-   * @param {mongodb.Filter<T>} filter - The filter used to select the documents to be updated.
-   * @param {mongodb.UpdateFilter<T> | Partial<T>} doc - The updates to be applied to the selected documents.
-   * @param {StrictOmit<mongodb.UpdateOptions, 'upsert'>} [options] - The optional settings for the update operation.
-   * @return {Promise<mongodb.UpdateResult>} - A Promise that resolves to the result of the update operation.
+   * @param filter - The filter used to select the documents to update
+   * @param update - The update operations to be applied to the documents
+   * @param options - Optional settings for the command
    * @protected
    */
   protected async __updateMany(
       filter: mongodb.Filter<T>,
-      doc: mongodb.UpdateFilter<T> | Partial<T>,
+      update: mongodb.UpdateFilter<T> | Partial<T>,
       options?: StrictOmit<mongodb.UpdateOptions, 'upsert'>
   ) {
     const db = this.getDatabase();
@@ -411,7 +412,7 @@ export class MongoService<T extends mongodb.Document> extends ApiService {
       upsert: false
     } as mongodb.UpdateOptions;
     try {
-      return await collection.updateMany(filter || {}, doc, options);
+      return await collection.updateMany(filter || {}, update, options);
     } catch (e: any) {
       await this.$onError?.(e, this);
       throw e;
@@ -423,7 +424,6 @@ export class MongoService<T extends mongodb.Document> extends ApiService {
    *
    * @protected
    *
-   * @returns {Promise<mongodb.Db>} The database connection.
    * @throws {Error} If the context or database is not set.
    */
   protected getDatabase(): mongodb.Db {
@@ -440,7 +440,6 @@ export class MongoService<T extends mongodb.Document> extends ApiService {
    *
    * @protected
    *
-   * @returns {Promise<mongodb.ClientSession>} The database connection.
    * @throws {Error} If the context or database is not set.
    */
   protected getSession(): mongodb.ClientSession | undefined {
@@ -452,9 +451,8 @@ export class MongoService<T extends mongodb.Document> extends ApiService {
   /**
    * Retrieves a MongoDB collection from the given database.
    *
-   * @param {mongodb.Db} db - The MongoDB database.
+   * @param db - The MongoDB database.
    * @protected
-   * @returns {Promise<mongodb.Collection<T>>} A promise that resolves to the MongoDB collection.
    */
   protected async getCollection(db: mongodb.Db): Promise<mongodb.Collection<T>> {
     return db.collection<T>(this.getCollectionName());
@@ -464,7 +462,7 @@ export class MongoService<T extends mongodb.Document> extends ApiService {
    * Retrieves the collection name.
    *
    * @protected
-   * @returns {string} The collection name.
+   * @returns The collection name.
    * @throws {Error} If the collection name is not defined.
    */
   getCollectionName(): string {
@@ -480,7 +478,7 @@ export class MongoService<T extends mongodb.Document> extends ApiService {
    * Retrieves the resource name.
    *
    * @protected
-   * @returns {string} The collection name.
+   * @returns {string} The resource name.
    * @throws {Error} If the collection name is not defined.
    */
   getResourceName(): string {
@@ -495,9 +493,9 @@ export class MongoService<T extends mongodb.Document> extends ApiService {
   /**
    * Generates an encoder for the specified operation.
    *
-   * @param {string} operation - The operation to generate the encoder for. Must be either 'create' or 'update'.
+   * @param operation - The operation to generate the encoder for. Must be either 'create' or 'update'.
    * @protected
-   * @returns {IsObject.Validator} - The generated encoder for the specified operation.
+   * @returns - The generated encoder for the specified operation.
    */
   protected _generateEncoder(operation: 'create' | 'update'): IsObject.Validator<T> {
     const dataType = this.getDataType();
@@ -514,7 +512,7 @@ export class MongoService<T extends mongodb.Document> extends ApiService {
    * Generates an encoder for the specified operation.
    *
    * @protected
-   * @returns {IsObject.Validator} - The generated encoder for the specified operation.
+   * @returns - The generated encoder for the specified operation.
    */
   protected _generateDecoder(): IsObject.Validator<T> {
     const dataType = this.getDataType();
