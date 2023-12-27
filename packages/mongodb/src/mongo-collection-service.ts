@@ -37,6 +37,7 @@ export class MongoCollectionService<T extends mongodb.Document> extends MongoSer
       (args: {
          crud: MongoService.CrudOp;
          method: string;
+         byId: boolean;
          documentId?: AnyId;
          input?: Record<string, any>;
          options?: Record<string, any>
@@ -47,21 +48,23 @@ export class MongoCollectionService<T extends mongodb.Document> extends MongoSer
   /**
    * Interceptor function for handling callback execution with provided arguments.
    *
-   * @param {Function} callback - The callback function to be intercepted.
-   * @param {Object} args - The arguments object containing the following properties:
-   *   @param {string} crud - The CRUD operation type.
-   *   @param {string} method - The method name.
-   *   @param {AnyId} documentId - The document ID (optional).
-   *   @param {Object} input - The input object (optional).
-   *   @param {Object} options - Additional options (optional).
-   * @param {Object} _this - The reference to the current object.
-   * @returns {Promise<any>} - The promise that resolves to the result of the callback execution.
+   * @param callback - The callback function to be intercepted.
+   * @param args - The arguments object containing the following properties:
+   *   @param crud - The CRUD operation type.
+   *   @param method - The method name.
+   *   @param byId - True if current operation affects byId records (updateMany, deleteMany etc)
+   *   @param documentId - The document ID (optional).
+   *   @param input - The input object (optional).
+   *   @param options - Additional options (optional).
+   * @param _this - The reference to the current object.
+   * @returns - The promise that resolves to the result of the callback execution.
    */
   $interceptor?: (
       callback: () => any,
       args: {
         crud: MongoService.CrudOp;
         method: string;
+        byId: boolean;
         documentId?: AnyId;
         input?: Record<string, any>;
         options?: Record<string, any>
@@ -113,6 +116,7 @@ export class MongoCollectionService<T extends mongodb.Document> extends MongoSer
     const info: any = {
       crud: 'create',
       method: 'create',
+      byId: false,
       documentId: (input as any)._id,
       input,
       options
@@ -158,6 +162,7 @@ export class MongoCollectionService<T extends mongodb.Document> extends MongoSer
     const info: any = {
       crud: 'read',
       method: 'count',
+      byId: true,
       options
     };
     return this._intercept(
@@ -191,6 +196,7 @@ export class MongoCollectionService<T extends mongodb.Document> extends MongoSer
     const info: any = {
       crud: 'delete',
       method: 'delete',
+      byId: false,
       documentId: id,
       options
     }
@@ -229,7 +235,8 @@ export class MongoCollectionService<T extends mongodb.Document> extends MongoSer
   ): Promise<number> {
     const info: any = {
       crud: 'delete',
-      method: 'delete',
+      method: 'deleteMany',
+      byId: false,
       options
     };
     return this._intercept(
@@ -257,6 +264,7 @@ export class MongoCollectionService<T extends mongodb.Document> extends MongoSer
     const info: any = {
       crud: 'read',
       method: 'distinct',
+      byId: true,
       options
     };
     return this._intercept(
@@ -317,6 +325,7 @@ export class MongoCollectionService<T extends mongodb.Document> extends MongoSer
     const info: any = {
       crud: 'read',
       method: 'findById',
+      byId: false,
       documentId: id,
       options
     };
@@ -364,6 +373,7 @@ export class MongoCollectionService<T extends mongodb.Document> extends MongoSer
     const info: any = {
       crud: 'read',
       method: 'findOne',
+      byId: false,
       options
     }
     return this._intercept(
@@ -413,6 +423,7 @@ export class MongoCollectionService<T extends mongodb.Document> extends MongoSer
     const info: any = {
       crud: 'read',
       method: 'findMany',
+      byId: false,
       options
     };
     return this._intercept(
@@ -514,6 +525,7 @@ export class MongoCollectionService<T extends mongodb.Document> extends MongoSer
       crud: 'update',
       method: 'update',
       documentId: id,
+      byId: true,
       input,
       options,
     };
@@ -580,6 +592,7 @@ export class MongoCollectionService<T extends mongodb.Document> extends MongoSer
       crud: 'update',
       method: 'update',
       documentId: id,
+      byId: true,
       input,
       options,
     }
@@ -642,6 +655,7 @@ export class MongoCollectionService<T extends mongodb.Document> extends MongoSer
     const info: any = {
       crud: 'update',
       method: 'updateMany',
+      byId: false,
       input,
       options,
     };
@@ -706,6 +720,7 @@ export class MongoCollectionService<T extends mongodb.Document> extends MongoSer
       args: {
         crud: MongoService.CrudOp;
         method: string;
+        byId: boolean,
         documentId?: AnyId;
         input?: Object;
         options?: Record<string, any>
@@ -720,6 +735,7 @@ export class MongoCollectionService<T extends mongodb.Document> extends MongoSer
       args: {
         crud: MongoService.CrudOp;
         method: string;
+        byId: boolean,
         documentId?: AnyId;
         input?: Object;
         options?: Record<string, any>

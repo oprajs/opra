@@ -57,6 +57,7 @@ export class MongoArrayService<T extends mongodb.Document> extends MongoService<
       (args: {
          crud: MongoService.CrudOp;
          method: string;
+         byId: boolean,
          documentId?: AnyId;
          itemId?: AnyId;
          input?: Record<string, any>;
@@ -74,6 +75,7 @@ export class MongoArrayService<T extends mongodb.Document> extends MongoService<
       (args: {
          crud: MongoService.CrudOp;
          method: string;
+         byId: boolean,
          documentId?: AnyId;
          itemId?: AnyId;
          input?: Record<string, any>;
@@ -85,16 +87,17 @@ export class MongoArrayService<T extends mongodb.Document> extends MongoService<
   /**
    * Interceptor function for handling callback execution with provided arguments.
    *
-   * @param {Function} callback - The callback function to be intercepted.
-   * @param {Object} args - The arguments object containing the following properties:
-   *   @param {string} crud - The CRUD operation type.
-   *   @param {string} method - The method name.
-   *   @param {AnyId} documentId - The document ID (optional).
-   *   @param {AnyId} itemId -  ID for an item. (optional).
-   *   @param {Object} input - The input object (optional).
-   *   @param {Object} options - Additional options (optional).
-   * @param {Object} _this - The reference to the current object.
-   * @returns {Promise<any>} - The promise that resolves to the result of the callback execution.
+   * @param callback - The callback function to be intercepted.
+   * @param args - The arguments object containing the following properties:
+   *   @param crud - The CRUD operation type.
+   *   @param method - The method name.
+   *   @param byId - True if current operation affects byId records (updateMany, deleteMany etc)
+   *   @param documentId - The document ID (optional).
+   *   @param itemId - ID for an item. (optional).
+   *   @param input - The input object (optional).
+   *   @param options - Additional options (optional).
+   * @param _this - The reference to the current object.
+   * @returns - The promise that resolves to the result of the callback execution.
    */
   $interceptor?: (
       callback: (...args: any[]) => any,
@@ -102,6 +105,7 @@ export class MongoArrayService<T extends mongodb.Document> extends MongoService<
         crud: MongoService.CrudOp;
         method: string;
         documentId?: AnyId;
+        byId: boolean;
         itemId?: AnyId;
         input?: Record<string, any>;
         options?: Record<string, any>
@@ -162,6 +166,7 @@ export class MongoArrayService<T extends mongodb.Document> extends MongoService<
     const info: any = {
       crud: 'create',
       method: 'create',
+      byId: false,
       documentId,
       itemId: (input as any)._id,
       input,
@@ -217,6 +222,7 @@ export class MongoArrayService<T extends mongodb.Document> extends MongoService<
     const info: any = {
       crud: 'read',
       method: 'count',
+      byId: false,
       documentId,
       options
     };
@@ -279,6 +285,7 @@ export class MongoArrayService<T extends mongodb.Document> extends MongoService<
     const info: any = {
       crud: 'delete',
       method: 'delete',
+      byId: true,
       documentId,
       itemId: id,
       options
@@ -335,6 +342,7 @@ export class MongoArrayService<T extends mongodb.Document> extends MongoService<
     const info: any = {
       crud: 'delete',
       method: 'deleteMany',
+      byId: false,
       documentId,
       options
     };
@@ -404,6 +412,7 @@ export class MongoArrayService<T extends mongodb.Document> extends MongoService<
     const info: any = {
       crud: 'read',
       method: 'findById',
+      byId: true,
       documentId,
       itemId: id,
       options
@@ -456,6 +465,7 @@ export class MongoArrayService<T extends mongodb.Document> extends MongoService<
     const info: any = {
       crud: 'read',
       method: 'findOne',
+      byId: false,
       documentId,
       options
     }
@@ -499,6 +509,7 @@ export class MongoArrayService<T extends mongodb.Document> extends MongoService<
     const args: any = {
       crud: 'read',
       method: 'findMany',
+      byId: false,
       documentId,
       options
     }
@@ -647,6 +658,7 @@ export class MongoArrayService<T extends mongodb.Document> extends MongoService<
     const info: any = {
       crud: 'update',
       method: 'update',
+      byId: true,
       documentId,
       itemId: id,
       options
@@ -695,6 +707,7 @@ export class MongoArrayService<T extends mongodb.Document> extends MongoService<
       crud: 'update',
       method: 'updateMany',
       documentId,
+      byId: false,
       input,
       options
     };
@@ -788,6 +801,7 @@ export class MongoArrayService<T extends mongodb.Document> extends MongoService<
       args: {
         crud: MongoService.CrudOp;
         method: string;
+        byId: boolean,
         documentId?: AnyId;
         itemId?: AnyId;
         input?: Object;
@@ -809,6 +823,7 @@ export class MongoArrayService<T extends mongodb.Document> extends MongoService<
   protected _getArrayFilter(args: {
     crud: MongoService.CrudOp;
     method: string;
+    byId: boolean,
     documentId?: AnyId;
     itemId?: AnyId;
     input?: Object;
@@ -823,6 +838,7 @@ export class MongoArrayService<T extends mongodb.Document> extends MongoService<
       args: {
         crud: MongoService.CrudOp;
         method: string;
+        byId: boolean,
         documentId?: AnyId;
         itemId?: AnyId;
         input?: Object;
