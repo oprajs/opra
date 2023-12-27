@@ -1,6 +1,6 @@
 {
   "name": "@opra/angular",
-  "version": "0.33.4",
+  "version": "0.33.5",
   "description": "Opra internationalization package",
   "author": "Panates",
   "license": "MIT",
@@ -27,7 +27,7 @@
   "peerDependencies": {
     "@angular/common": "15.x.x || 16.x.x || 17.x.x",
     "@angular/core": "15.x.x || 16.x.x || || 17.x.x",
-    "@opra/client": "^0.33.4",
+    "@opra/client": "^0.33.5",
     "ts-gems": "^3.0.0"
   },
   "devDependencies": {
