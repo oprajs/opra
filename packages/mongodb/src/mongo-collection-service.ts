@@ -162,7 +162,7 @@ export class MongoCollectionService<T extends mongodb.Document> extends MongoSer
     const info: any = {
       crud: 'read',
       method: 'count',
-      byId: true,
+      byId: false,
       options
     };
     return this._intercept(
@@ -325,7 +325,7 @@ export class MongoCollectionService<T extends mongodb.Document> extends MongoSer
     const info: any = {
       crud: 'read',
       method: 'findById',
-      byId: false,
+      byId: true,
       documentId: id,
       options
     };
