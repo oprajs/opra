@@ -40,7 +40,7 @@
     "@nestjs/platform-express": "^10.3.0",
     "@nestjs/testing": "^10.3.0",
     "@types/lodash.head": "^4.0.9",
-    "filedirname": "^3.2.0",
+    "filedirname": "^3.3.0",
     "ts-gems": "^3.1.0"
   },
   "type": "module",
