@@ -328,7 +328,7 @@ export abstract class HttpAdapterHost extends PlatformAdapterHost {
             limit: endpoint.options.inputMaxContentSize
           }, endpoint);
           let data = await jsonReader(incoming);
-          data = endpoint.decodeInput(data, {coerce: true});
+          data = endpoint.decodeInput(data, {coerce: true, partial: true});
           const params = this.parseParameters(endpoint.parameters, searchParams);
           return new RequestHost({
             endpoint,
@@ -351,7 +351,7 @@ export abstract class HttpAdapterHost extends PlatformAdapterHost {
           limit: endpoint.options.inputMaxContentSize
         }, endpoint);
         let data = await jsonReader(incoming);
-        data = endpoint.decodeInput(data, {coerce: true});
+        data = endpoint.decodeInput(data, {coerce: true, partial: true});
         const params = this.parseParameters(endpoint.parameters, searchParams);
         return new RequestHost({
           endpoint,
@@ -444,7 +444,7 @@ export abstract class HttpAdapterHost extends PlatformAdapterHost {
           limit: endpoint.options.inputMaxContentSize
         }, endpoint);
         let data = await jsonReader(incoming);
-        data = endpoint.decodeInput(data, {coerce: true});
+        data = endpoint.decodeInput(data, {coerce: true, partial: true});
         const params = this.parseParameters(endpoint.parameters, searchParams);
         return new RequestHost({
           endpoint,
@@ -630,14 +630,14 @@ export abstract class HttpAdapterHost extends PlatformAdapterHost {
             value = (value == null ? [] : Array.isArray(value) ? value : [value]);
           else
             value = value == null ? {} : Array.isArray(value) ? value[0] : value;
-          value = endpoint.encodeReturning(value, {coerce: true});
+          value = endpoint.encodeReturning(value, {coerce: true, partial: true});
           response.value = value;
           return;
         }
       }
 
       if (response.value)
-        response.value = endpoint.encodeReturning(response.value, {coerce: true});
+        response.value = endpoint.encodeReturning(response.value, {coerce: true, partial: true});
 
     } catch (error) {
       response.errors.push(error);
