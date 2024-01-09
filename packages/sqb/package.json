@@ -30,7 +30,7 @@
     "@sqb/builder": "^4.10.6",
     "@sqb/connect": "^4.10.6",
     "@sqb/postgres": "^4.10.6",
-    "postgresql-client": "^2.10.1",
+    "postgresql-client": "^2.10.2",
     "ts-gems": "^3.1.0"
   },
   "peerDependencies": {

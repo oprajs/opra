@@ -94,7 +94,7 @@ export class HttpRequestObservable<
       enumerable: false,
       value: backend
     })
-    const url = new OpraURL(init?.url, backend.serviceUrl.toString());
+    const url = new OpraURL(init?.url);
     Object.defineProperty(this, kContext, {
       enumerable: false,
       value: {
