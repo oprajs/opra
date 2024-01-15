@@ -95,7 +95,7 @@ export async function resolveTypeNameOrDef(
       intent: Intent
     }
 ): Promise<string> {
-  const {intent, dataType} = args;
+  const {dataType} = args;
   if (dataType.name && !dataType.isEmbedded) {
     if (internalTypeNames.includes(dataType.name))
       return dataType.name;
@@ -305,7 +305,7 @@ export async function generateMappedTypeDefinition(
       intent: Intent
     }
 ): Promise<string> {
-  const {file, dataType, intent} = args;
+  const {dataType} = args;
 
   const typeDef = await this.resolveTypeNameOrDef({...args, dataType: dataType.base});
   const pick = dataType.pick?.length ? dataType.pick : undefined;
