@@ -1,6 +1,6 @@
 {
   "name": "@opra/client",
-  "version": "0.33.9",
+  "version": "0.33.10",
   "description": "Opra Client package",
   "author": "Panates",
   "license": "MIT",
@@ -40,7 +40,7 @@
     "@browsery/stream": "^0.6.0",
     "@browsery/type-is": "^0.6.3",
     "@browsery/util": "^0.4.0",
-    "@opra/common": "^0.33.9",
+    "@opra/common": "^0.33.10",
     "accepts": "^1.3.8",
     "buffer": "^6.0.3",
     "cookie": "^0.6.0",
