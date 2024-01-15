@@ -59,19 +59,19 @@ export namespace ComplexType {
     base?: ComplexType | MappedType | MixinType;
     fields?: Record<string, ApiField.InitArguments>;
     additionalFields?: boolean | DataType | 'error';
-    anonymous?: boolean;
+    embedded?: boolean;
   }
 
   export interface OwnProperties extends DataType.OwnProperties {
     ctor?: Type;
     additionalFields?: boolean | DataType | 'error';
     fields: ResponsiveMap<ApiField>;
-    anonymous?: boolean;
+    embedded?: boolean;
   }
 
   export interface DecoratorOptions extends DataType.DecoratorOptions,
       Pick<InitArguments, 'ctor' | 'abstract'> {
-    anonymous?: boolean;
+    embedded?: boolean;
     additionalFields?: boolean | 'error' | string | TypeThunkAsync;
   }
 

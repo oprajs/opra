@@ -22,7 +22,7 @@ export abstract class DataType {
   readonly base?: DataType;
   readonly own: DataType.OwnProperties;
   description?: string;
-  isAnonymous?: boolean;
+  isEmbedded?: boolean;
 
   protected constructor(document: ApiDocument, init?: DataType.InitArguments) {
     this.document = document;
@@ -30,7 +30,7 @@ export abstract class DataType {
     this.own = {};
     this.description = init?.description;
     if (!this.name)
-      this.isAnonymous = true;
+      this.isEmbedded = true;
   }
 
   abstract generateCodec(codec: 'decode' | 'encode', options?: DataType.GenerateCodecOptions): Validator;
@@ -55,7 +55,7 @@ export abstract class DataType {
   }
 
   toString(): string {
-    return `[${Object.getPrototypeOf(this).constructor.name} ${this.name || '#anonymous'}]`;
+    return `[${Object.getPrototypeOf(this).constructor.name} ${this.name || '#Embedded'}]`;
   }
 
   [nodeInspectCustom](): string {

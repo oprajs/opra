@@ -49,11 +49,11 @@ export class FieldClass {
   }
 
   exportSchema(options?: { webSafe?: boolean }): OpraSchema.Field {
-    const isAnonymous = !this.type?.name ||
-        (this.type?.kind === 'ComplexType' && this.type.isAnonymous);
+    const isEmbedded = !this.type?.name ||
+        (this.type?.kind === 'ComplexType' && this.type.isEmbedded);
     return omitUndefined({
       type: this.type
-          ? (isAnonymous ? this.type.exportSchema(options) : this.type.name)
+          ? (isEmbedded ? this.type.exportSchema(options) : this.type.name)
           : undefined,
       description: this.description,
       isArray: this.isArray,

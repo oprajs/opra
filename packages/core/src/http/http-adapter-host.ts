@@ -707,7 +707,7 @@ export abstract class HttpAdapterHost extends PlatformAdapterHost {
         if (returnType) {
           if (response.value == null)
             throw new InternalServerError(`"${request.endpoint.name}" endpoint should return value`);
-          if (!returnType.isAnonymous) {
+          if (!returnType.isEmbedded) {
             const ns = this.api.getDataTypeNs(returnType);
             // const isOpraSpec = returnType.document.url?.startsWith('https://oprajs.com/spec/v1.0')
             body.type = (ns ? ns + ':' : '') + returnType.name;

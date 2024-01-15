@@ -65,7 +65,7 @@ export abstract class Resource {
   }
 
   toString(): string {
-    return `[${Object.getPrototypeOf(this).constructor.name} ${this.name || '#anonymous'}]`;
+    return `[${Object.getPrototypeOf(this).constructor.name} ${this.name || '#Embedded'}]`;
   }
 
   [nodeInspectCustom](): string {

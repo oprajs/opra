@@ -82,7 +82,7 @@ describe('ApiDocumentFactory - SimpleType with schema object', function () {
     expect(t.kind).toStrictEqual(OpraSchema.SimpleType.Kind);
     expect(t.name).toStrictEqual('type1');
     expect(t.base).toBeDefined();
-    expect(t.base?.isAnonymous).toStrictEqual(true);
+    expect(t.base?.isEmbedded).toStrictEqual(true);
     expect(t.decode).toEqual(t.base?.decode);
     expect(t.encode).toEqual(t.base?.encode);
   });

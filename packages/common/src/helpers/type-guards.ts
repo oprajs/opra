@@ -6,7 +6,7 @@ export function isConstructor(fn: any): fn is Type {
   return typeof fn === 'function' && fn.prototype &&
       fn.prototype.constructor === fn &&
       fn.prototype.constructor.name !== 'Function' &&
-      fn.prototype.constructor.name !== 'anonymous';
+      fn.prototype.constructor.name !== 'embedded';
 }
 
 export function isStream(stream) {

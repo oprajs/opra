@@ -100,7 +100,7 @@ export async function resolveTypeNameOrDef(
     dataType: DataType,
     forInterface?: boolean
 ): Promise<string> {
-  if (dataType.name && !dataType.isAnonymous) {
+  if (dataType.name && !dataType.isEmbedded) {
     if (internalTypeNames.includes(dataType.name))
       return dataType.name;
     const f = await this.generateTypeFile(dataType);
