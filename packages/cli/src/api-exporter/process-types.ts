@@ -9,6 +9,8 @@ import { TsFile } from './ts-file.js';
 
 const internalTypeNames = ['any', 'boolean', 'bigint', 'number', 'null', 'string', 'object'];
 
+type Intent = 'scope' | 'extends' | 'field';
+
 /**
  *
  */
@@ -53,188 +55,96 @@ export async function generateTypeFile(
   const indexTs = this.addFile('/index.ts', true);
   indexTs.addExport(file.filename);
 
-  // Export EnumType
-  if (dataType instanceof EnumType) {
+  file.content += `
+/**
+ * ${typeName}`;
+
+  if (dataType.description)
     file.content += `
-/**\n * ${wrapJSDocString(dataType.description || '')}
- * @enum ${typeName}
+ * ${wrapJSDocString(dataType.description || '')}`;
+
+  file.content += `
  * @url ${path.posix.join(this.client.serviceUrl, '#types/' + typeName)}
  */
-export enum ${typeName} ` + await this.generateEnumTypeDefinition(file, dataType);
-  }
+export `;
 
-  // Export ComplexType
-  if (dataType instanceof ComplexType) {
-    file.content += `
-/**\n * ${wrapJSDocString(dataType.description || '')}
- * @interface ${typeName}
- * @url ${path.posix.join(this.client.serviceUrl, '#types/' + typeName)}
- */
-export interface ${typeName} ${await this.generateComplexTypeDefinition(file, dataType, true)}`
-  }
+  if (dataType instanceof EnumType)
+    file.content += await this.generateEnumTypeDefinition({file, dataType, intent: 'scope'});
+  else if (dataType instanceof ComplexType)
+    file.content += await this.generateComplexTypeDefinition({file, dataType, intent: 'scope'});
+  else if (dataType instanceof SimpleType)
+    file.content += await this.generateSimpleTypeDefinition({file, dataType, intent: 'scope'});
+  else
+    throw new TypeError(`${dataType.kind} data type (${typeName}) can not be directly exported`);
 
-  // Export SimpleType
-  if (dataType instanceof SimpleType) {
-
-    file.content += `
-/**\n * ${wrapJSDocString(dataType.description || '')}
- * @interface ${typeName}
- * @url ${path.posix.join(this.client.serviceUrl, '#types/' + typeName)}
- */
-export type ${typeName} = ` + await this.generateSimpleTypeDefinition(file, dataType);
-  }
+  file.content += '\n';
 
   typesTs.addExport(file.filename);
   return file;
 }
 
+
 /**
  *
- * @param file
- * @param dataType
- * @param forInterface
  */
 export async function resolveTypeNameOrDef(
     this: ApiExporter,
-    file: TsFile,
-    dataType: DataType,
-    forInterface?: boolean
+    args: {
+      file: TsFile,
+      dataType: DataType,
+      intent: Intent
+    }
 ): Promise<string> {
+  const {intent, dataType} = args;
   if (dataType.name && !dataType.isEmbedded) {
     if (internalTypeNames.includes(dataType.name))
       return dataType.name;
     const f = await this.generateTypeFile(dataType);
     if (!f)
       return '';
-    file.addImport(f.filename, [dataType.name], true);
+    args.file.addImport(f.filename, [dataType.name], true);
     return dataType.name;
   }
   if (dataType instanceof SimpleType)
-    return this.generateSimpleTypeDefinition(file, dataType);
+    return this.generateSimpleTypeDefinition({...args, dataType});
   if (dataType instanceof EnumType)
-    return this.generateEnumTypeDefinition(file, dataType);
+    return this.generateEnumTypeDefinition({...args, dataType});
   if (dataType instanceof MixinType)
-    return this.generateMixinTypeDefinition(file, dataType, forInterface);
+    return this.generateMixinTypeDefinition({...args, dataType});
   if (dataType instanceof MappedType)
-    return this.generateMappedTypeDefinition(file, dataType, forInterface);
+    return this.generateMappedTypeDefinition({...args, dataType});
   if (dataType instanceof ComplexType)
-    return this.generateComplexTypeDefinition(file, dataType, forInterface);
+    return this.generateComplexTypeDefinition({...args, dataType});
   return '';
 }
 
 /**
  *
- * @param file
- * @param dataType
- * @param forInterface
- */
-export async function generateComplexTypeDefinition(
-    this: ApiExporter,
-    file: TsFile,
-    dataType: ComplexType,
-    forInterface?: boolean
-): Promise<string> {
-  let out = '';
-  if (dataType.base) {
-    const base = await this.resolveTypeNameOrDef(file, dataType.base, forInterface);
-    const omitFields = [...dataType.own.fields.keys()]
-        .filter(k => dataType.base?.fields.has(k));
-    const baseDef = omitFields.length
-        ? `Omit<${base}, ${omitFields.map(x => "'" + x + "'").join(' | ')}>`
-        : `${base}`;
-    if (forInterface)
-      out += `extends ${baseDef} `;
-    else {
-      out += baseDef;
-      if (!dataType.own.fields.size)
-        return out;
-      out += ' & ';
-    }
-
-  }
-
-  out += '{\n\t';
-  for (const field of dataType.own.fields.values()) {
-
-    // Print JSDoc
-    let jsDoc = '';
-    if (field.description)
-      jsDoc += ` * ${field.description}\n`;
-    if (field.type.name)
-      jsDoc += ` * @type ${field.type.name}\n`;
-    if (field.default)
-      jsDoc += ` * @default ` + field.default + '\n';
-    // if (field.format)
-    //   jsDoc += ` * @format ` + field.format + '\n';
-    if (field.exclusive)
-      jsDoc += ` * @exclusive\n`;
-    if (field.readonly)
-      jsDoc += ` * @readonly\n`;
-    if (field.writeonly)
-      jsDoc += ` * @writeonly\n`;
-    if (field.deprecated)
-      jsDoc += ` * @deprecated ` + (typeof field.deprecated === 'string' ? field.deprecated : '') + '\n';
-
-    if (jsDoc)
-      out += `\n/**\n${jsDoc} */\n`;
-    else out += `\n`;
-
-    // Print field name
-    if (field.readonly) out += 'readonly ';
-    out += `${field.name}${field.required ? '' : '?'}: `;
-
-    if (field.fixed) {
-      const t = typeof field.fixed;
-      out += `${t === 'number' || t === 'boolean' || t === 'bigint' ? field.fixed : "'" + field.fixed + "'"}\n`;
-    } else {
-      out += await this.resolveTypeNameOrDef(file, field.type) +
-          `${field.isArray ? '[]' : ''};\n`;
-    }
-  }
-  if (dataType.additionalFields)
-    out += '[key: string]: any;\n';
-  return out + '\b}';
-}
-
-
-/**
- *
- * @param file
- * @param dataType
- */
-export async function generateSimpleTypeDefinition(
-    this: ApiExporter,
-    file: TsFile,
-    dataType: SimpleType
-): Promise<string> {
-  if (dataType.extendsFrom('boolean'))
-    return 'boolean';
-  if (dataType.extendsFrom('string'))
-    return 'string';
-  if (dataType.extendsFrom('number') || dataType.extendsFrom('integer'))
-    return 'number';
-  if (dataType.extendsFrom('date') || dataType.extendsFrom('datetime'))
-    return 'Date';
-  if (dataType.extendsFrom('approxdate') || dataType.extendsFrom('approxdatetime'))
-    return 'string';
-  if (dataType.extendsFrom('bigint'))
-    return 'bigint';
-  if (dataType.extendsFrom('object'))
-    return 'object';
-  return 'any';
-}
-
-/**
- *
- * @param file
- * @param dataType
  */
 export async function generateEnumTypeDefinition(
     this: ApiExporter,
-    file: TsFile,
-    dataType: EnumType
+    args: {
+      file: TsFile,
+      dataType: EnumType,
+      intent: Intent
+    }
 ): Promise<string> {
-  let out = '{\n\t';
+  const {dataType} = args;
+
+  if (args.intent === 'field')
+    return '(' +
+        Object.keys(dataType.values)
+            .map(t => `'${t}'`)
+            .join(' | ') +
+        ')';
+
+  if (args.intent !== 'scope')
+    throw new TypeError(`Can't generate EnumType for "${args.intent}" intent`);
+
+  if (!dataType.name)
+    throw new TypeError(`Name required to generate EnumType for "${args.intent}" intent`);
+
+  let out = `enum ${dataType.name} {\n\t`;
   for (const [value, info] of Object.entries(dataType.values)) {
 
     // Print JSDoc
@@ -254,36 +164,150 @@ export async function generateEnumTypeDefinition(
 
 /**
  *
- * @param file
- * @param dataType
- * @param forInterface
+ */
+export async function generateComplexTypeDefinition(
+    this: ApiExporter,
+    args: {
+      file: TsFile,
+      dataType: ComplexType,
+      intent: Intent
+    }
+): Promise<string> {
+  const {intent, dataType} = args;
+
+  if (intent === 'scope' && !dataType.name)
+    throw new TypeError(`Name required to generate ComplexType for "${args.intent}" intent`);
+
+  let out = intent === 'scope' ? `interface ${dataType.name} ` : '';
+
+  if (dataType.base) {
+    const base = await this.resolveTypeNameOrDef({file: args.file, dataType: dataType.base, intent: 'extends'});
+    const omitFields = [...dataType.own.fields.keys()]
+        .filter(k => dataType.base?.fields.has(k));
+    const baseDef = omitFields.length
+        ? `Omit<${base}, ${omitFields.map(x => "'" + x + "'").join(' | ')}>`
+        : `${base}`;
+    if (intent === 'scope')
+      out += `extends ${baseDef} `;
+    else {
+      out += baseDef;
+      if (!dataType.own.fields.size)
+        return out;
+      out += ' & ';
+    }
+
+  }
+
+  out += '{\n\t';
+  let i = 0;
+  for (const field of dataType.own.fields.values()) {
+    if (i++) out += '\n';
+
+    // Print JSDoc
+    out += `/**\n * ${field.description || ''}\n`;
+    if (field.default)
+      out += ` * @default ` + field.default + '\n';
+    // if (field.format)
+    //   jsDoc += ` * @format ` + field.format + '\n';
+    if (field.exclusive)
+      out += ` * @exclusive\n`;
+    if (field.readonly)
+      out += ` * @readonly\n`;
+    if (field.writeonly)
+      out += ` * @writeonly\n`;
+    if (field.deprecated)
+      out += ` * @deprecated ` + (typeof field.deprecated === 'string' ? field.deprecated : '') + '\n';
+    out += ' */\n';
+
+    // Print field name
+    if (field.readonly) out += 'readonly ';
+    out += `${field.name}${field.required ? '' : '?'}: `;
+
+    if (field.fixed) {
+      const t = typeof field.fixed;
+      out += `${t === 'number' || t === 'boolean' || t === 'bigint' ? field.fixed : "'" + field.fixed + "'"}\n`;
+    } else {
+      out += await this.resolveTypeNameOrDef({file: args.file, dataType: field.type, intent: 'field'}) +
+          `${field.isArray ? '[]' : ''};\n`;
+    }
+  }
+  if (dataType.additionalFields)
+    out += '[key: string]: any;\n';
+  return out + '\b}';
+}
+
+
+/**
+ *
+ */
+export async function generateSimpleTypeDefinition(
+    this: ApiExporter,
+    args: {
+      file: TsFile,
+      dataType: SimpleType,
+      intent: Intent
+    }
+): Promise<string> {
+  const {intent, dataType} = args;
+
+  if (intent === 'scope' && !dataType.name)
+    throw new TypeError(`Name required to generate SimpleType for "${args.intent}" intent`);
+
+  let out = intent === 'scope' ? `type ${dataType.name} = ` : '';
+
+  if (dataType.extendsFrom('boolean'))
+    out += 'boolean';
+  else if (dataType.extendsFrom('string'))
+    out += 'string';
+  else if (dataType.extendsFrom('number') || dataType.extendsFrom('integer'))
+    out += 'number';
+  else if (dataType.extendsFrom('date') || dataType.extendsFrom('datetime'))
+    out += 'Date';
+  else if (dataType.extendsFrom('approxdate') || dataType.extendsFrom('approxdatetime'))
+    out += 'string';
+  else if (dataType.extendsFrom('bigint'))
+    out += 'bigint';
+  else if (dataType.extendsFrom('object'))
+    out += 'object';
+  else
+    out += 'any';
+  return intent === 'scope' ? out + ';' : out;
+}
+
+
+/**
+ *
  */
 export async function generateMixinTypeDefinition(
     this: ApiExporter,
-    file: TsFile,
-    dataType: MixinType,
-    forInterface?: boolean
+    args: {
+      file: TsFile,
+      dataType: MixinType,
+      intent: Intent
+    }
 ): Promise<string> {
-  // let out = '';
+  const {file, dataType, intent} = args;
   return (await Promise.all(
       dataType.types
-          .map(t => this.resolveTypeNameOrDef(file, t, forInterface))
-  )).join(forInterface ? ', ' : ' & ');
+          .map(t => this.resolveTypeNameOrDef({file, dataType: t, intent}))
+  )).map(t => t.includes('|') ? '(' + t + ')' : t)
+      .join(intent === 'extends' ? ', ' : ' & ');
 }
 
 /**
  *
- * @param file
- * @param dataType
- * @param forInterface
  */
 export async function generateMappedTypeDefinition(
     this: ApiExporter,
-    file: TsFile,
-    dataType: MappedType,
-    forInterface?: boolean
+    args: {
+      file: TsFile,
+      dataType: MappedType,
+      intent: Intent
+    }
 ): Promise<string> {
-  const typeDef = await this.resolveTypeNameOrDef(file, dataType.base, forInterface);
+  const {file, dataType, intent} = args;
+
+  const typeDef = await this.resolveTypeNameOrDef({...args, dataType: dataType.base});
   const pick = dataType.pick?.length ? dataType.pick : undefined;
   const omit = !pick && dataType.omit?.length ? dataType.omit : undefined;
   const partial =

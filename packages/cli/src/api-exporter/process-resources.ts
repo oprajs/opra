@@ -83,7 +83,7 @@ export class ${className} {
 
       constructorBody += `    this.${operation} = node.${operation}.bind(node);\n`;
     }
-  }  else if (resource instanceof Storage) {
+  } else if (resource instanceof Storage) {
     tsFile.addImport('@opra/client', ['HttpStorageNode']);
 
     constructorBody += `    const node = this[kClient].storage('${resource.getFullPath()}');\n`;
@@ -103,7 +103,11 @@ export class ${className} {
     tsFile.addImport('@opra/client', ['HttpRequestObservable']);
     for (const [action, endpoint] of resource.actions.entries()) {
       let returnTypeDef = endpoint.returnType ?
-          await this.resolveTypeNameOrDef(tsFile, endpoint.returnType)
+          await this.resolveTypeNameOrDef({
+            file: tsFile,
+            dataType: endpoint.returnType,
+            intent: 'field'
+          })
           : 'any';
       if (returnTypeDef.length > 40)
         returnTypeDef = '\n\t\t' + returnTypeDef + '\n\b\b'
@@ -111,7 +115,11 @@ export class ${className} {
       const actionPath = resource.getFullPath() + '/' + action;
       let params = '';
       for (const prm of endpoint.parameters.values()) {
-        const paramTypeDef = await this.resolveTypeNameOrDef(tsFile, prm.type) || 'any';
+        const paramTypeDef = await this.resolveTypeNameOrDef({
+          file: tsFile,
+          dataType: prm.type,
+          intent: 'field'
+        }) || 'any';
         params += `${prm.name}: ${paramTypeDef}`;
         if (prm.isArray) params += '[]';
         params += ';\n';

@@ -1,1 +1,1 @@
-export * from './api-exporter/index.js';
+export * from './api-exporter/api-exporter.js';
