@@ -1,6 +1,6 @@
 import { Combine, StrictOmit, Type } from 'ts-gems';
 import { OpraSchema } from '../../schema/index.js';
-import { TypeThunkAsync } from '../../types';
+import { TypeThunkAsync } from '../../types.js';
 import { ActionDecorator, createActionDecorator } from './action-decorator.js';
 import { createOperationDecorator } from './crud-operation-decorator.js';
 import { ResourceDecorator } from './resource-decorator.js';
