@@ -622,14 +622,14 @@ export abstract class HttpAdapterHost extends PlatformAdapterHost {
               value = value == null ? {} : Array.isArray(value) ? value[0] : value;
           }
 
-          value = endpoint.encodeReturning(value, {coerce: true, partial: true});
+          value = endpoint.encodeReturning(value, {coerce: true});
           response.value = value;
           return;
         }
       }
 
       if (response.value)
-        response.value = endpoint.encodeReturning(response.value, {coerce: true, partial: true});
+        response.value = endpoint.encodeReturning(response.value, {coerce: true});
 
     } catch (error) {
       response.errors.push(error);

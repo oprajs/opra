@@ -23,7 +23,7 @@ export class CrudOperation extends Endpoint {
     super(resource, name, init);
     this.returnType = init.returnType instanceof DataType
         ? init.returnType : this.resource.document.getDataType(init.returnType || 'any');
-    this.encodeReturning = this.returnType.generateCodec('encode', {operation: 'read'});
+    this.encodeReturning = this.returnType.generateCodec('encode', {operation: 'read', partial: true});
     this.inputOverwriteFields = init.options?.inputOverwriteFields;
     this.outputOverwriteFields = init.options?.outputOverwriteFields;
   }
