@@ -1,5 +1,6 @@
 import '@opra/core';
 import { Storage } from '@opra/common';
+import { Note } from '../types/note.type.js';
 
 @Storage({
   description: 'Best Customer resource'
@@ -22,8 +23,13 @@ export class FilesResource {
   }
 
   @Storage.Post()
+      .Returns(Note)
   async post(context: Storage.Post.Context) {
     FilesResource.lastPost = await context.request.parts.getAll();
+    return new Note({
+      title: 'title',
+      text: 'text'
+    });
   }
 
   @Storage.Action()

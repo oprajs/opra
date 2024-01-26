@@ -1,4 +1,4 @@
-import { HttpStatusCodes } from '../../http/index.js';
+import { HttpStatusCode } from '../../http/index.js';
 import { translate } from '../../i18n/index.js';
 import { OpraException } from '../opra-exception.js';
 
@@ -18,7 +18,7 @@ export class ResourceNotAvailableError extends OpraException {
         resource,
         key: keyValue
       }
-    }, cause, HttpStatusCodes.UNPROCESSABLE_ENTITY);
+    }, cause, HttpStatusCode.UNPROCESSABLE_ENTITY);
   }
 
 }

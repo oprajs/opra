@@ -25,9 +25,9 @@
     "clean:cover": "rimraf ../../coverage/mongodb"
   },
   "devDependencies": {
-    "@faker-js/faker": "^8.3.1",
+    "@faker-js/faker": "^8.4.0",
     "mongodb": "^6.3.0",
-    "ts-gems": "^3.1.0"
+    "ts-gems": "^3.1.1"
   },
   "peerDependencies": {
     "@opra/common": "^0.33.10",

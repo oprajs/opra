@@ -1,5 +1,6 @@
 import { Combine, StrictOmit, Type } from 'ts-gems';
 import { OpraSchema } from '../../schema/index.js';
+import { TypeThunkAsync } from '../../types';
 import { ActionDecorator, createActionDecorator } from './action-decorator.js';
 import { createOperationDecorator } from './crud-operation-decorator.js';
 import { ResourceDecorator } from './resource-decorator.js';
@@ -146,13 +147,14 @@ export namespace StorageDecorator {
    * Post PropertyDecorator
    */
   export type PostDecorator = ((target: Object, propertyKey: 'post') => void) & {
-    Parameter: (name: string, optionsOrType?: ResourceDecorator.ParameterOptions | string | Type) => PostDecorator;
-    MaxFields: (amount: number) => PostDecorator;
-    MaxFieldSize: (sizeInBytes: number) => PostDecorator;
-    MaxFiles: (amount: number) => PostDecorator;
-    MaxFileSize: (sizeInBytes: number) => PostDecorator;
-    MaxTotalFileSize: (sizeInBytes: number) => PostDecorator;
-    MinFileSize: (sizeInBytes: number) => PostDecorator;
+    Parameter(name: string, optionsOrType?: ResourceDecorator.ParameterOptions | string | Type): PostDecorator;
+    MaxFields(amount: number): PostDecorator;
+    MaxFieldSize(sizeInBytes: number): PostDecorator;
+    MaxFiles(amount: number): PostDecorator;
+    MaxFileSize(sizeInBytes: number): PostDecorator;
+    MaxTotalFileSize(sizeInBytes: number): PostDecorator;
+    MinFileSize(sizeInBytes: number): PostDecorator;
+    Returns(t: TypeThunkAsync | string): PostDecorator;
   };
 
   export function Post(options?: Post.Options): PostDecorator {
@@ -180,6 +182,10 @@ export namespace StorageDecorator {
     }
     decorator.MinFileSize = (sizeInBytes: number) => {
       list.push(operationMeta => operationMeta.options.minFileSize = sizeInBytes);
+      return decorator;
+    }
+    decorator.Returns = (t: TypeThunkAsync | string) => {
+      list.push(operationMeta => operationMeta.returnType = t);
       return decorator;
     }
     return decorator;

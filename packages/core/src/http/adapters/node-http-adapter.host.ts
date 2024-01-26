@@ -1,6 +1,6 @@
 import http from 'http';
 import {
-  ApiDocument, HttpStatusCodes, HttpStatusMessages,
+  ApiDocument, HttpStatusCode, HttpStatusMessages,
   OpraURL, OpraURLPath,
 } from '@opra/common';
 import { HttpAdapterHost } from '../http-adapter-host.js';
@@ -49,8 +49,8 @@ export class NodeHttpAdapterHost extends HttpAdapterHost implements NodeHttpAdap
     const parsedUrl = new OpraURL(originalUrl);
     const relativePath = OpraURLPath.relative(parsedUrl.path, this.basePath);
     if (!relativePath) {
-      serverResponse.statusCode = HttpStatusCodes.NOT_FOUND;
-      serverResponse.statusMessage = HttpStatusMessages[HttpStatusCodes.NOT_FOUND];
+      serverResponse.statusCode = HttpStatusCode.NOT_FOUND;
+      serverResponse.statusMessage = HttpStatusMessages[HttpStatusCode.NOT_FOUND];
       serverResponse.end();
       return;
     }

@@ -13,7 +13,7 @@ import mime from 'mime-types';
 import path from 'path';
 import { toString } from 'putil-varhelpers';
 import vary from 'vary';
-import { HttpStatusCodes, isStream, mergePrototype } from '@opra/common';
+import { HttpStatusCode, isStream, mergePrototype } from '@opra/common';
 import type { HttpServerRequest } from './http-server-request.js';
 import { HttpOutgoingMessage, HttpOutgoingMessageHost } from './impl/http-outgoing-message.host.js';
 
@@ -276,7 +276,7 @@ class HttpServerResponseHost {
   }
 
   sendStatus(statusCode: number): this {
-    const body = HttpStatusCodes[statusCode] || String(statusCode)
+    const body = HttpStatusCode[statusCode] || String(statusCode)
     this.statusCode = statusCode;
     this.contentType('txt');
     return this.send(body);

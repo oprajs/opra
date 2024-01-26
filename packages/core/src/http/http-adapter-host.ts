@@ -1,14 +1,13 @@
 import fs from 'fs/promises';
 import os from 'os';
 import { ValidationError } from 'valgen';
-import { ErrorIssue } from 'valgen/typings/core/types';
-import typeIs from '@browsery/type-is';
+import type { ErrorIssue } from 'valgen/typings/core/types';
 import {
   BadRequestError,
   Collection,
   Container,
   HttpHeaderCodes,
-  HttpStatusCodes,
+  HttpStatusCode,
   InternalServerError, isReadable,
   IssueSeverity,
   MethodNotAllowedError, OperationResult,
@@ -595,17 +594,10 @@ export abstract class HttpAdapterHost extends PlatformAdapterHost {
 
       // Normalize response value
       if (endpoint.kind === 'operation') {
-        if (resource instanceof Storage && endpoint.name === 'post') {
-          // Count file parts
-          value = (context as any).request.parts.items.reduce(
-              (n, item) => item.file ? n + 1 : n, 0);
-        }
         if (resource instanceof Collection || resource instanceof Singleton || resource instanceof Storage) {
           const operationName = endpoint.name;
 
-          if (operationName === 'delete' || operationName === 'deleteMany' ||
-              operationName === 'updateMany' || operationName === 'post'
-          ) {
+          if (operationName === 'delete' || operationName === 'deleteMany' || operationName === 'updateMany') {
             let affected = 0;
             if (typeof value === 'number')
               affected = value;
@@ -618,18 +610,18 @@ export abstract class HttpAdapterHost extends PlatformAdapterHost {
             return;
           }
 
-          if (resource instanceof Storage)
-            return;
+          if (resource instanceof Collection || resource instanceof Singleton) {
+            // "get" and "update" endpoints must return the entity instance, otherwise it means resource not found
+            if (value == null && (operationName === 'get' || operationName === 'update'))
+              throw new ResourceNotAvailableError(resource.name, (request as RequestHost).key);
 
-          // "get" and "update" endpoints must return the entity instance, otherwise it means resource not found
-          if (value == null && (operationName === 'get' || operationName === 'update'))
-            throw new ResourceNotAvailableError(resource.name, (request as RequestHost).key);
+            // "findMany" endpoint should return array of entity instances
+            if (operationName === 'findMany')
+              value = (value == null ? [] : Array.isArray(value) ? value : [value]);
+            else
+              value = value == null ? {} : Array.isArray(value) ? value[0] : value;
+          }
 
-          // "findMany" endpoint should return array of entity instances
-          if (operationName === 'findMany')
-            value = (value == null ? [] : Array.isArray(value) ? value : [value]);
-          else
-            value = value == null ? {} : Array.isArray(value) ? value[0] : value;
           value = endpoint.encodeReturning(value, {coerce: true, partial: true});
           response.value = value;
           return;
@@ -666,18 +658,10 @@ export abstract class HttpAdapterHost extends PlatformAdapterHost {
       outgoing.setHeader('Content-Type', contentType);
     }
 
+
     // OperationResult response
-    if (
-        (endpoint.kind === 'operation' &&
-            (
-                resource instanceof Collection || resource instanceof Singleton ||
-                (resource instanceof Storage && endpoint.name !== 'get')
-            )
-        ) ||
-        (
-            endpoint.kind === 'action' &&
-            (!contentType || typeIs.is(contentType, ['application/opra+json']))
-        )
+    if ((returnType || endpoint.kind === 'operation') &&
+        !(resource instanceof Storage && endpoint.name === 'get')
     ) {
       const incoming = context.switchToHttp().incoming;
       const apiUrl = new OpraURL(incoming.baseUrl,
@@ -688,40 +672,37 @@ export abstract class HttpAdapterHost extends PlatformAdapterHost {
       });
 
       const operationName = endpoint.kind === 'operation' ? endpoint.name : '';
-      if (operationName === 'delete' || operationName === 'deleteMany' ||
-          operationName === 'updateMany' || operationName === 'post'
-      )
+      if (operationName === 'delete' || operationName === 'deleteMany' || operationName === 'updateMany')
         body.affected = response.value;
       else {
-        outgoing.statusCode = outgoing.statusCode || HttpStatusCodes.OK;
+        outgoing.statusCode = outgoing.statusCode || HttpStatusCode.OK;
         if (operationName === 'create')
           outgoing.statusCode = 201;
         if (operationName === 'update' || operationName === 'create')
           body.affected = response.value ? 1 : 0;
-
         if (operationName === 'findMany') {
           body.count = response.value.length;
           body.totalMatches = response.totalMatches;
         }
+      }
 
-        if (returnType) {
-          if (response.value == null)
-            throw new InternalServerError(`"${request.endpoint.name}" endpoint should return value`);
-          if (!returnType.isEmbedded) {
-            const ns = this.api.getDataTypeNs(returnType);
-            // const isOpraSpec = returnType.document.url?.startsWith('https://oprajs.com/spec/v1.0')
-            body.type = (ns ? ns + ':' : '') + returnType.name;
-            body.typeUrl =
-                (ns
-                        ? new OpraURL('/#/types/' + returnType.name, returnType.document.url || 'http://tempuri.org').toString()
-                        : apiUrl + '/#/types/' + returnType.name
-                );
-          } else body.typeUrl = body.contextUrl + '/type';
-          if (response.value instanceof OperationResult) {
-            Object.assign(body, response.value);
-          } else body.payload = response.value;
-          body.payload = this.i18n.deep(body.payload);
-        }
+      if (returnType) {
+        if (response.value == null)
+          throw new InternalServerError(`"${request.endpoint.name}" endpoint should return value`);
+        if (!returnType.isEmbedded) {
+          const ns = this.api.getDataTypeNs(returnType);
+          // const isOpraSpec = returnType.document.url?.startsWith('https://oprajs.com/spec/v1.0')
+          body.type = (ns ? ns + ':' : '') + returnType.name;
+          body.typeUrl =
+              (ns
+                      ? new OpraURL('/#/types/' + returnType.name, returnType.document.url || 'http://tempuri.org').toString()
+                      : apiUrl + '/#/types/' + returnType.name
+              );
+        } else body.typeUrl = body.contextUrl + '/type';
+        if (response.value instanceof OperationResult) {
+          Object.assign(body, response.value);
+        } else body.payload = response.value;
+        body.payload = this.i18n.deep(body.payload);
       }
 
       body.context = endpoint.getFullPath(false);
@@ -733,7 +714,7 @@ export abstract class HttpAdapterHost extends PlatformAdapterHost {
       return;
     }
 
-    outgoing.statusCode = outgoing.statusCode || HttpStatusCodes.OK;
+    outgoing.statusCode = outgoing.statusCode || HttpStatusCode.OK;
     if (response.value != null) {
       if (typeof response.value === 'string') {
         if (!contentType)
@@ -784,10 +765,10 @@ export abstract class HttpAdapterHost extends PlatformAdapterHost {
     });
 
     let status = outgoing.statusCode || 0;
-    if (!status || status < Number(HttpStatusCodes.BAD_REQUEST)) {
+    if (!status || status < Number(HttpStatusCode.BAD_REQUEST)) {
       status = wrappedErrors[0].status;
-      if (status < Number(HttpStatusCodes.BAD_REQUEST))
-        status = HttpStatusCodes.INTERNAL_SERVER_ERROR;
+      if (status < Number(HttpStatusCode.BAD_REQUEST))
+        status = HttpStatusCode.INTERNAL_SERVER_ERROR;
     }
     outgoing.statusCode = status;
 

@@ -42,9 +42,9 @@ describe('e2e:Storage', function () {
     expect(resp.body).toBeDefined();
     expect(resp.body.errors).not.toBeDefined();
     expect(resp.statusCode).toStrictEqual(200);
-    expect(resp.body.context).toStrictEqual('/Files');
-    expect(resp.body.contextUrl).toMatch(/\/#\/root\/resources\/Files$/);
-    expect(resp.body.affected).toStrictEqual(1);
+    expect(resp.body.payload).toBeDefined();
+    expect(resp.body.payload.title).toStrictEqual('title');
+    expect(resp.body.payload.text).toStrictEqual('text');
   });
 
   it('Should execute "get" operation', async () => {

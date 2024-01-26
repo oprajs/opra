@@ -26,12 +26,12 @@
     "clean:cover": "rimraf ../../coverage/client"
   },
   "devDependencies": {
-    "@faker-js/faker": "^8.3.1",
+    "@faker-js/faker": "^8.4.0",
     "@sqb/builder": "^4.10.6",
     "@sqb/connect": "^4.10.6",
     "@sqb/postgres": "^4.10.6",
-    "postgresql-client": "^2.10.2",
-    "ts-gems": "^3.1.0"
+    "postgresql-client": "^2.10.5",
+    "ts-gems": "^3.1.1"
   },
   "peerDependencies": {
     "@opra/core": "^0.33.10",
