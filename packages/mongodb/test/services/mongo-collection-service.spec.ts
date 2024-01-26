@@ -16,7 +16,7 @@ describe('MongoCollectionService', function () {
       collectionName: 'MongoCollectionService'
     });
 
-    for (let i = 1; i <= 10; i++) {
+    for (let i = 1; i <= 20; i++) {
       const record: any = {
         _id: i,
         uid: faker.string.uuid(),
@@ -434,11 +434,14 @@ describe('MongoCollectionService', function () {
       const result: any = await service.for(ctx)
           .findMany({
             filter: {rate: {$gt: 5}},
-            count: true
+            count: true,
+            limit: 5
           });
       expect(result).toBeDefined();
       expect(result.length).toBeGreaterThan(0);
+      expect(result.length).toBeLessThanOrEqual(5);
       expect(ctx.response.totalMatches).toBeGreaterThan(5);
+      expect(ctx.response.totalMatches).toBeLessThan(20);
     });
 
     it('Should run in interceptor', async () => {

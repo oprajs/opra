@@ -444,22 +444,27 @@ export class MongoCollectionService<T extends mongodb.Document> extends MongoSer
     };
     const limit = options?.limit || this.defaultLimit;
     const stages: mongodb.Document[] = [];
+    let filter: mongodb.Filter<any> | undefined;
+    if (options?.filter)
+      filter = MongoAdapter.prepareFilter(options?.filter);
 
     let dataStages = stages;
     if (options?.count) {
       dataStages = [];
+      const count: any[] = [];
+      if (filter)
+        count.push({$match: filter});
+      count.push({$count: 'totalMatches'});
       stages.push({
         $facet: {
           data: dataStages,
-          count: [{$count: 'totalMatches'}]
+          count,
         }
       })
     }
 
-    if (options?.filter) {
-      const filter = MongoAdapter.prepareFilter(options?.filter);
+    if (filter)
       dataStages.push({$match: filter});
-    }
     if (options?.skip)
       dataStages.push({$skip: options.skip})
     if (options?.sort) {
