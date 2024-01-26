@@ -651,7 +651,7 @@ export abstract class HttpAdapterHost extends PlatformAdapterHost {
     }
 
     let contentType = String(outgoing.getHeader('content-type') || '');
-    const returnType = endpoint.returnType;
+    let returnType = endpoint.returnType;
 
     if (endpoint.kind === 'action' && !contentType && endpoint.returnMime && response.value) {
       contentType = endpoint.returnMime;
@@ -672,15 +672,17 @@ export abstract class HttpAdapterHost extends PlatformAdapterHost {
       });
 
       const operationName = endpoint.kind === 'operation' ? endpoint.name : '';
-      if (operationName === 'delete' || operationName === 'deleteMany' || operationName === 'updateMany')
+      if (operationName === 'delete' || operationName === 'deleteMany' || operationName === 'updateMany') {
         body.affected = response.value;
+        returnType = undefined;
+      }
       else {
         outgoing.statusCode = outgoing.statusCode || HttpStatusCode.OK;
         if (operationName === 'create')
           outgoing.statusCode = 201;
-        if (operationName === 'update' || operationName === 'create')
+        if (operationName === 'update' || operationName === 'create') {
           body.affected = response.value ? 1 : 0;
-        if (operationName === 'findMany') {
+        } if (operationName === 'findMany') {
           body.count = response.value.length;
           body.totalMatches = response.totalMatches;
         }
