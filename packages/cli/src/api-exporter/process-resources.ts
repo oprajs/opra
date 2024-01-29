@@ -25,6 +25,7 @@ export class ${className} {
   constructor(client: OpraHttpClient) {
     this[kClient] = client;\n`;
 
+  /** Container */
   if (resource instanceof Container) {
     for (const child of resource.resources.values()) {
       // Determine class name of child resource
@@ -50,7 +51,9 @@ export class ${className} {
   readonly ${child.name}: ${childClassName};\n`;
       constructorBody += `    this.${child.name} = new ${childClassName}(client);\n`;
     }
-  } else if (resource instanceof Collection) {
+  } else
+      /** Collection */
+  if (resource instanceof Collection) {
     tsFile.addImport('@opra/client', ['HttpCollectionNode']);
     const typeName = resource.type.name || '';
     tsFile.addImport(`/types/${typeName}`, [typeName], true);
@@ -67,7 +70,9 @@ export class ${className} {
       constructorBody += `    this.${operation} = node.${operation}.bind(node);\n`;
 
     }
-  } else if (resource instanceof Singleton) {
+  } else
+      /** Singleton */
+  if (resource instanceof Singleton) {
     tsFile.addImport('@opra/client', ['HttpSingletonNode']);
     const typeName = resource.type.name || '';
     tsFile.addImport(`/types/${typeName}`, [typeName], true);
@@ -83,7 +88,9 @@ export class ${className} {
 
       constructorBody += `    this.${operation} = node.${operation}.bind(node);\n`;
     }
-  } else if (resource instanceof Storage) {
+  } else
+      /** Storage */
+  if (resource instanceof Storage) {
     tsFile.addImport('@opra/client', ['HttpStorageNode']);
 
     constructorBody += `    const node = this[kClient].storage('${resource.getFullPath()}');\n`;
