@@ -14,22 +14,26 @@ import type { ResourceDecorator } from './resource-decorator.js';
 export class CrudOperation extends Endpoint {
   readonly kind = 'operation';
   decodeInput: Validator = vg.isAny();
-  returnType: DataType;
+  returnType?: DataType;
   encodeReturning: Validator = vg.isAny();
   inputOverwriteFields?: Record<string, ApiField.InitArguments>;
   outputOverwriteFields?: Record<string, ApiField.InitArguments>;
 
   constructor(readonly resource: Resource, readonly name: string, init: CrudOperation.InitArguments) {
     super(resource, name, init);
-    this.returnType = init.returnType instanceof DataType
-        ? init.returnType : this.resource.document.getDataType(init.returnType || 'any');
-    this.encodeReturning = this.returnType.generateCodec('encode', {operation: 'read', partial: true});
+    if (init.returnType)
+      this.returnType = init.returnType instanceof DataType
+          ? init.returnType : this.resource.document.getDataType(init.returnType);
+    this.encodeReturning = this.returnType?.generateCodec('encode', {operation: 'read', partial: true}) || vg.isAny();
     this.inputOverwriteFields = init.options?.inputOverwriteFields;
     this.outputOverwriteFields = init.options?.outputOverwriteFields;
   }
 
   exportSchema(options?: { webSafe?: boolean }) {
     const schema: OpraSchema.Endpoint & Record<string, any> = super.exportSchema(options);
+    if (this.returnType)
+      schema.returnType = this.returnType.name && !this.returnType.isEmbedded ?
+          this.returnType.name : this.returnType.exportSchema(options);
     if (this.inputOverwriteFields) {
       const trg = schema.options.inputOverwriteFields = {};
       Object.keys(this.inputOverwriteFields)

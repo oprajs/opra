@@ -5,7 +5,7 @@ import { HttpRequestObservable } from './http-request-observable.js';
 /**
  * @class HttpStorageNode
  */
-export class HttpStorageNode<TRequestOptions = {}, TResponseExt = {}> {
+export class HttpStorageNode<TType = never, TRequestOptions = {}, TResponseExt = {}> {
   protected _backend: HttpBackend;
   protected _path: string;
 
@@ -39,14 +39,14 @@ export class HttpStorageNode<TRequestOptions = {}, TResponseExt = {}> {
       path = url.toString();
     } else path = this._path;
     return new HttpRequestObservable<
-            OperationResult<any>,
-            OperationResult<any>,
-            TRequestOptions,
-            TResponseExt
-        >(this._backend, {
-          method: 'GET',
-          url: path
-        });
+        OperationResult<any>,
+        OperationResult<any>,
+        TRequestOptions,
+        TResponseExt
+    >(this._backend, {
+      method: 'GET',
+      url: path
+    });
   }
 
   post(data: FormData, path?: string) {
@@ -56,15 +56,15 @@ export class HttpStorageNode<TRequestOptions = {}, TResponseExt = {}> {
       path = url.toString();
     } else path = this._path;
     return new HttpRequestObservable<
-            OperationResult<any>,
-            OperationResult<any>,
-            TRequestOptions,
-            TResponseExt
-        >(this._backend, {
-          method: 'POST',
-          url: path,
-          body: data
-        });
+        OperationResult<TType>,
+        OperationResult<TType>,
+        TRequestOptions,
+        TResponseExt
+    >(this._backend, {
+      method: 'POST',
+      url: path,
+      body: data
+    });
   }
 
 }

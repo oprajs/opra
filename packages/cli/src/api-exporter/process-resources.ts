@@ -92,8 +92,13 @@ export class ${className} {
       tsFile.content += `
   /** 
    * ${wrapJSDocString(endpoint.description || '')}
-   */      
-  readonly ${operation}: HttpStorageNode['${operation}'];\n`
+   */`
+      if (operation === 'post' && endpoint.returnType) {
+        const typeName = endpoint.returnType.name || 'any'; // todo
+        tsFile.addImport(`/types/${typeName}`, [typeName], true);
+        tsFile.content += `\n  readonly ${operation}: HttpStorageNode<${typeName}>['${operation}'];\n`;
+      } else
+        tsFile.content += `\n  readonly ${operation}: HttpStorageNode['${operation}'];\n`;
 
       constructorBody += `    this.${operation} = node.${operation}.bind(node);\n`;
     }
