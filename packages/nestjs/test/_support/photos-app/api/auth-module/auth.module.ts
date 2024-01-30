@@ -14,6 +14,7 @@ import { ProfileResource } from './profile-resource.js';
 export class AuthModule {
 
   @Container.Action()
+      .Parameter('user')
   async login(@Context ctx: Container.Action.Context) {
     return {user: ctx.request.params.user};
   }
