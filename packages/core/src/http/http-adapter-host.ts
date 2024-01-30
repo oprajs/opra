@@ -1,7 +1,6 @@
 import fs from 'fs/promises';
 import os from 'os';
 import { ValidationError } from 'valgen';
-import type { ErrorIssue } from 'valgen/typings/core/types';
 import {
   BadRequestError,
   Collection,
@@ -15,13 +14,12 @@ import {
   OpraSchema,
   OpraURL, OpraURLPath,
   OpraURLPathComponent,
-  Parameter,
   Resource, ResourceNotAvailableError,
   Singleton,
   Storage,
   translate,
   uid,
-  wrapException
+  wrapException,
 } from '@opra/common';
 import { ExecutionContextHost } from '../execution-context.host.js';
 import { ExecutionContext } from '../execution-context.js';
@@ -203,7 +201,7 @@ export abstract class HttpAdapterHost extends PlatformAdapterHost {
     const {controller, endpoint, handler} = await this.getActionHandler(resource, p.resource);
     const {incoming} = executionContext.switchToHttp();
     const contentId = incoming.headers['content-id'] as string;
-    const params = this.parseParameters(endpoint.parameters, searchParams);
+    const params = endpoint.parseParameters(searchParams);
     return new RequestHost({
       endpoint,
       controller,
@@ -235,7 +233,7 @@ export abstract class HttpAdapterHost extends PlatformAdapterHost {
           }, endpoint);
           let data = await jsonReader(incoming);
           data = endpoint.decodeInput(data, {coerce: true});
-          const params = this.parseParameters(endpoint.parameters, searchParams);
+          const params = endpoint.parseParameters(searchParams);
           return new RequestHost({
             endpoint,
             controller,
@@ -256,7 +254,7 @@ export abstract class HttpAdapterHost extends PlatformAdapterHost {
       case 'DELETE': {
         if (p.key != null) {
           const {controller, endpoint, handler} = await this.getOperationHandler(resource, 'delete');
-          const params = this.parseParameters(endpoint.parameters, searchParams);
+          const params = endpoint.parseParameters(searchParams);
           return new RequestHost({
             endpoint,
             controller,
@@ -268,7 +266,7 @@ export abstract class HttpAdapterHost extends PlatformAdapterHost {
           });
         }
         const {controller, endpoint, handler} = await this.getOperationHandler(resource, 'deleteMany');
-        const params = this.parseParameters(endpoint.parameters, searchParams);
+        const params = endpoint.parseParameters(searchParams);
         return new RequestHost({
           endpoint,
           controller,
@@ -285,7 +283,7 @@ export abstract class HttpAdapterHost extends PlatformAdapterHost {
       case 'GET': {
         if (p.key != null) {
           const {controller, endpoint, handler} = await this.getOperationHandler(resource, 'get');
-          const params = this.parseParameters(endpoint.parameters, searchParams);
+          const params = endpoint.parseParameters(searchParams);
           return new RequestHost({
             endpoint,
             controller,
@@ -302,7 +300,7 @@ export abstract class HttpAdapterHost extends PlatformAdapterHost {
           });
         }
         const {controller, endpoint, handler} = await this.getOperationHandler(resource, 'findMany');
-        const params = this.parseParameters(endpoint.parameters, searchParams);
+        const params = endpoint.parseParameters(searchParams);
         return new RequestHost({
           endpoint,
           controller,
@@ -328,7 +326,7 @@ export abstract class HttpAdapterHost extends PlatformAdapterHost {
           }, endpoint);
           let data = await jsonReader(incoming);
           data = endpoint.decodeInput(data, {coerce: true, partial: true});
-          const params = this.parseParameters(endpoint.parameters, searchParams);
+          const params = endpoint.parseParameters(searchParams);
           return new RequestHost({
             endpoint,
             controller,
@@ -351,7 +349,7 @@ export abstract class HttpAdapterHost extends PlatformAdapterHost {
         }, endpoint);
         let data = await jsonReader(incoming);
         data = endpoint.decodeInput(data, {coerce: true, partial: true});
-        const params = this.parseParameters(endpoint.parameters, searchParams);
+        const params = endpoint.parseParameters(searchParams);
         return new RequestHost({
           endpoint,
           controller,
@@ -375,7 +373,7 @@ export abstract class HttpAdapterHost extends PlatformAdapterHost {
       executionContext: ExecutionContext,
       resource: Singleton,
       urlPath: OpraURLPath,
-      searchParams?: URLSearchParams
+      searchParams: URLSearchParams
   ): Promise<RequestHost> {
     const {incoming} = executionContext.switchToHttp();
     if ((incoming.method === 'POST' || incoming.method === 'PATCH') && !incoming.is('json'))
@@ -390,7 +388,7 @@ export abstract class HttpAdapterHost extends PlatformAdapterHost {
         }, endpoint);
         let data = await jsonReader(incoming);
         data = endpoint.decodeInput(data, {coerce: true});
-        const params = this.parseParameters(endpoint.parameters, searchParams);
+        const params = endpoint.parseParameters(searchParams);
         return new RequestHost({
           endpoint,
           controller,
@@ -408,7 +406,7 @@ export abstract class HttpAdapterHost extends PlatformAdapterHost {
       }
       case 'DELETE': {
         const {controller, endpoint, handler} = await this.getOperationHandler(resource, 'delete');
-        const params = this.parseParameters(endpoint.parameters, searchParams);
+        const params = endpoint.parseParameters(searchParams);
         return new RequestHost({
           endpoint,
           controller,
@@ -421,7 +419,7 @@ export abstract class HttpAdapterHost extends PlatformAdapterHost {
 
       case 'GET': {
         const {controller, endpoint, handler} = await this.getOperationHandler(resource, 'get');
-        const params = this.parseParameters(endpoint.parameters, searchParams);
+        const params = endpoint.parseParameters(searchParams);
         return new RequestHost({
           endpoint,
           controller,
@@ -444,7 +442,7 @@ export abstract class HttpAdapterHost extends PlatformAdapterHost {
         }, endpoint);
         let data = await jsonReader(incoming);
         data = endpoint.decodeInput(data, {coerce: true, partial: true});
-        const params = this.parseParameters(endpoint.parameters, searchParams);
+        const params = endpoint.parseParameters(searchParams);
         return new RequestHost({
           endpoint,
           controller,
@@ -477,7 +475,7 @@ export abstract class HttpAdapterHost extends PlatformAdapterHost {
     switch (incoming.method) {
       case 'GET': {
         const {controller, endpoint, handler} = await this.getOperationHandler(resource, 'get');
-        const params = this.parseParameters(endpoint.parameters, searchParams);
+        const params = endpoint.parseParameters(searchParams);
         return new RequestHost({
           endpoint,
           controller,
@@ -490,7 +488,7 @@ export abstract class HttpAdapterHost extends PlatformAdapterHost {
       }
       case 'DELETE': {
         const {controller, endpoint, handler} = await this.getOperationHandler(resource, 'delete');
-        const params = this.parseParameters(endpoint.parameters, searchParams);
+        const params = endpoint.parseParameters(searchParams);
         return new RequestHost({
           endpoint,
           controller,
@@ -503,7 +501,7 @@ export abstract class HttpAdapterHost extends PlatformAdapterHost {
       }
       case 'POST': {
         const {controller, endpoint, handler} = await this.getOperationHandler(resource, 'post');
-        const params = this.parseParameters(endpoint.parameters, searchParams);
+        const params = endpoint.parseParameters(searchParams);
         await fs.mkdir(this._tempDir, {recursive: true});
 
         const multipartIterator = await MultipartIterator.create(incoming, {
@@ -534,51 +532,6 @@ export abstract class HttpAdapterHost extends PlatformAdapterHost {
     throw new MethodNotAllowedError({
       message: `Storage resource doesn't accept http "${incoming.method}" method`
     });
-  }
-
-  protected parseParameters(
-      paramDefs: Map<string, Parameter>,
-      searchParams?: URLSearchParams
-  ): Record<string, any> {
-    const out = {};
-    const onFail = (issue: ErrorIssue) => {
-      issue.message = `Parameter parse error. ` + issue.message;
-      issue.location = '@parameters';
-      return issue;
-    }
-    // Parse known parameters
-    for (const [k, prm] of paramDefs.entries()) {
-      const decode = prm.getDecoder();
-      let v: any = searchParams?.getAll(k);
-      try {
-        if (!v.length && prm.default != null)
-          v = [prm.default];
-        if (!prm.isArray) {
-          v = v[0];
-          v = decode(v, {coerce: true, label: k, onFail});
-        } else {
-          v = v.map(x => decode(x, {coerce: true, label: k})).flat();
-          if (!v.length)
-            v = undefined;
-        }
-        if (v !== undefined)
-          out[k] = v;
-      } catch (e: any) {
-        e.message = `Error parsing parameter ${k}. ` + e.message;
-        throw e;
-      }
-    }
-    // Add unknown parameters
-    if (searchParams) {
-      for (const k of searchParams.keys()) {
-        let v: any = searchParams.getAll(k);
-        if (v.length < 2)
-          v = v[0];
-        if (!paramDefs.has(k))
-          out[k] = v;
-      }
-    }
-    return out;
   }
 
   protected async executeRequest(context: RequestContext): Promise<void> {
@@ -675,14 +628,14 @@ export abstract class HttpAdapterHost extends PlatformAdapterHost {
       if (operationName === 'delete' || operationName === 'deleteMany' || operationName === 'updateMany') {
         body.affected = response.value;
         returnType = undefined;
-      }
-      else {
+      } else {
         outgoing.statusCode = outgoing.statusCode || HttpStatusCode.OK;
         if (operationName === 'create')
           outgoing.statusCode = 201;
         if (operationName === 'update' || operationName === 'create') {
           body.affected = response.value ? 1 : 0;
-        } if (operationName === 'findMany') {
+        }
+        if (operationName === 'findMany') {
           body.count = response.value.length;
           body.totalMatches = response.totalMatches;
         }

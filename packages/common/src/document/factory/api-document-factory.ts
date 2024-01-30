@@ -6,9 +6,9 @@ import { ApiDocument } from '../api-document.js';
 import { RESOURCE_METADATA } from '../constants.js';
 import { ComplexType } from '../data-type/complex-type.js';
 import { EnumType } from '../data-type/enum-type.js';
+import { ApiParameter } from '../resource/api-parameter.js';
 import { Collection } from '../resource/collection.js';
 import { Container } from '../resource/container.js';
-import { Parameter } from '../resource/parameter.js';
 import { Resource } from '../resource/resource.js';
 import { ResourceDecorator } from '../resource/resource-decorator.js';
 import { Singleton } from '../resource/singleton.js';
@@ -98,21 +98,21 @@ export class ApiDocumentFactory extends TypeDocumentFactory {
         /* istanbul ignore next */
         if (!endpointSchema) continue;
         const outputEndpoint = output[endpointName] = {...endpointSchema};
-        let parameters: Record<string, Parameter.InitArguments> | undefined;
+        let parameters: ApiParameter.InitArguments[] | undefined;
         // Resolve lazy type
         if ((endpointSchema as ResourceDecorator.ActionMetadata).returnType) {
           (outputEndpoint as any).returnType = await this.importDataType((endpointSchema as any).returnType);
         }
         if (endpointSchema.parameters) {
-          parameters = outputEndpoint.parameters = {};
-          for (const [kP, oP] of Object.entries(endpointSchema.parameters)) {
+          parameters = outputEndpoint.parameters = [];
+          for (const oP of endpointSchema.parameters) {
             if ((oP as any).enum) {
-              oP.type = EnumType((oP as any).enum, {name: kP + 'Enum'}) as any;
+              oP.type = EnumType((oP as any).enum, {name: oP.name + 'Enum'}) as any;
             }
-            parameters[kP] = {
+            parameters.push({
               ...oP,
               type: await this.importDataType(oP.type || 'any')
-            };
+            });
           }
         }
       }
@@ -194,19 +194,19 @@ export class ApiDocumentFactory extends TypeDocumentFactory {
         }
 
         if (oA.parameters) {
-          const parameters: Record<string, Parameter.InitArguments> | undefined = o.parameters = {};
-          for (const [kP, oP] of Object.entries(oA.parameters)) {
+          const parameters: ApiParameter.InitArguments[] = o.parameters = [];
+          for (const oP of oA.parameters) {
             if (oP.enum) {
-              oP.type = EnumType(oP.enum, {name: kP + 'Enum'}) as any;
+              oP.type = EnumType(oP.enum, {name: oP.name + 'Enum'}) as any;
             }
-            parameters[kP] = {
+            parameters.push({
               ...oP,
               type: await this.importDataType(oP.type || 'any')
-            };
+            });
           }
         }
         if (oA.options?.inputOverwriteFields) {
-          const inputOverwriteFields: Record<string, Parameter.InitArguments> | undefined = {};
+          const inputOverwriteFields: Record<string, ApiParameter.InitArguments> | undefined = {};
           for (const [kP, oP] of Object.entries<any>(oA.options.inputOverwriteFields)) {
             if (oP.enum) {
               oP.type = EnumType(oP.enum, {name: kP + 'Enum'}) as any;
@@ -218,7 +218,7 @@ export class ApiDocumentFactory extends TypeDocumentFactory {
           o.options.inputOverwriteFields = inputOverwriteFields;
         }
         if (oA.options?.outputOverwriteFields) {
-          const outputOverwriteFields: Record<string, Parameter.InitArguments> | undefined = {};
+          const outputOverwriteFields: Record<string, ApiParameter.InitArguments> | undefined = {};
           for (const [kP, oP] of Object.entries<any>(oA.options.outputOverwriteFields)) {
             if (oP.enum) {
               oP.type = EnumType(oP.enum, {name: kP + 'Enum'}) as any;

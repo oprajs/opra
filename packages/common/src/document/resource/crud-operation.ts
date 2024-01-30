@@ -3,6 +3,7 @@ import { Validator, vg } from 'valgen';
 import { OpraSchema } from '../../schema/index.js';
 import { DataType } from '../data-type/data-type.js';
 import { ApiField } from '../data-type/field.js';
+import { ApiParameter } from './api-parameter.js';
 import { Endpoint } from './endpoint.js';
 import type { Resource } from './resource';
 import type { ResourceDecorator } from './resource-decorator.js';
@@ -55,7 +56,7 @@ export class CrudOperation extends Endpoint {
 
 export namespace CrudOperation {
   export interface InitArguments extends StrictOmit<ResourceDecorator.OperationMetadata, 'parameters'> {
-    parameters: Record<string, Endpoint.ParameterInit>;
+    parameters: ApiParameter.InitArguments[];
     returnType?: DataType;
   }
 

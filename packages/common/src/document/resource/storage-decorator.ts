@@ -2,6 +2,7 @@ import { Combine, StrictOmit, Type } from 'ts-gems';
 import { OpraSchema } from '../../schema/index.js';
 import { TypeThunkAsync } from '../../types.js';
 import { ActionDecorator, createActionDecorator } from './action-decorator.js';
+import type { ApiParameter } from './api-parameter';
 import { createOperationDecorator } from './crud-operation-decorator.js';
 import { ResourceDecorator } from './resource-decorator.js';
 import type { Storage } from './storage.js';
@@ -122,7 +123,7 @@ export namespace StorageDecorator {
    * Delete PropertyDecorator
    */
   export type DeleteDecorator = ((target: Object, propertyKey: 'delete') => void) & {
-    Parameter: (name: string, optionsOrType?: ResourceDecorator.ParameterOptions | string | Type) => DeleteDecorator;
+    Parameter(name: string | RegExp, optionsOrType?: ApiParameter.DecoratorOptions | string | Type): DeleteDecorator;
   };
 
   export function Delete(options?: Delete.Options): DeleteDecorator {
@@ -135,7 +136,7 @@ export namespace StorageDecorator {
    * Get PropertyDecorator
    */
   export type GetDecorator = ((target: Object, propertyKey: 'get') => void) & {
-    Parameter: (name: string, optionsOrType?: ResourceDecorator.ParameterOptions | string | Type) => GetDecorator;
+    Parameter(name: string | RegExp, optionsOrType?: ApiParameter.DecoratorOptions | string | Type): GetDecorator;
   };
 
   export function Get(options?: Get.Options): GetDecorator {
@@ -147,7 +148,7 @@ export namespace StorageDecorator {
    * Post PropertyDecorator
    */
   export type PostDecorator = ((target: Object, propertyKey: 'post') => void) & {
-    Parameter(name: string, optionsOrType?: ResourceDecorator.ParameterOptions | string | Type): PostDecorator;
+    Parameter(name: string, optionsOrType?: ApiParameter.DecoratorOptions | string | Type): PostDecorator;
     MaxFields(amount: number): PostDecorator;
     MaxFieldSize(sizeInBytes: number): PostDecorator;
     MaxFiles(amount: number): PostDecorator;

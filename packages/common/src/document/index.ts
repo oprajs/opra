@@ -21,7 +21,7 @@ export * from './resource/container.js';
 export * from './resource/crud-resource.js';
 export * from './resource/endpoint.js';
 export * from './resource/crud-operation.js';
-export * from './resource/parameter.js';
+export * from './resource/api-parameter.js';
 export * from './resource/resource.js';
 export * from './resource/singleton.js';
 export * from './resource/storage.js';

@@ -3,6 +3,7 @@ import { Field } from '../../schema/data-type/field.interface.js';
 import { OpraSchema } from '../../schema/index.js';
 import { TypeThunkAsync } from '../../types.js';
 import { ActionDecorator, createActionDecorator } from './action-decorator.js';
+import type { ApiParameter } from './api-parameter.js';
 import { CollectionDecorator } from './collection-decorator.js';
 import { ResourceDecorator } from './resource-decorator.js';
 import type { Singleton } from './singleton.js';
@@ -140,14 +141,14 @@ export namespace SingletonDecorator {
    * Create PropertyDecorator
    */
   export type CreateDecorator = ((target: Object, propertyKey: 'create') => void) & {
-    Parameter: (name: string, optionsOrType?: ResourceDecorator.ParameterOptions | string | Type) => CreateDecorator;
-    InputMaxContentSize: (sizeInBytes: number) => CreateDecorator;
-    InputPickFields: (...fields: Field.QualifiedName[]) => CreateDecorator;
-    InputOmitFields: (...fields: Field.QualifiedName[]) => CreateDecorator;
-    InputOverwriteFields: (fields: Record<string, CollectionDecorator.FieldDecoratorOptions>) => CreateDecorator;
-    OutputPickFields: (...fields: Field.QualifiedName[]) => CreateDecorator;
-    OutputOmitFields: (...fields: Field.QualifiedName[]) => CreateDecorator;
-    OutputOverwriteFields: (fields: Record<string, CollectionDecorator.FieldDecoratorOptions>) => CreateDecorator;
+    Parameter(name: string | RegExp, optionsOrType?: ApiParameter.DecoratorOptions | string | Type): CreateDecorator;
+    InputMaxContentSize(sizeInBytes: number): CreateDecorator;
+    InputPickFields(...fields: Field.QualifiedName[]): CreateDecorator;
+    InputOmitFields(...fields: Field.QualifiedName[]): CreateDecorator;
+    InputOverwriteFields(fields: Record<string, CollectionDecorator.FieldDecoratorOptions>): CreateDecorator;
+    OutputPickFields(...fields: Field.QualifiedName[]): CreateDecorator;
+    OutputOmitFields(...fields: Field.QualifiedName[]): CreateDecorator;
+    OutputOverwriteFields(fields: Record<string, CollectionDecorator.FieldDecoratorOptions>): CreateDecorator;
   };
 
   export function Create(options?: Create.Options): CreateDecorator {
@@ -160,10 +161,10 @@ export namespace SingletonDecorator {
  */
 export namespace SingletonDecorator {
   export type GetDecorator = ((target: Object, propertyKey: 'get') => void) & {
-    Parameter: (name: string, optionsOrType?: ResourceDecorator.ParameterOptions | string | Type) => GetDecorator;
-    OutputPickFields: (...fields: Field.QualifiedName[]) => GetDecorator;
-    OutputOmitFields: (...fields: Field.QualifiedName[]) => GetDecorator;
-    OutputOverwriteFields: (fields: Record<string, CollectionDecorator.FieldDecoratorOptions>) => GetDecorator;
+    Parameter(name: string | RegExp, optionsOrType?: ApiParameter.DecoratorOptions | string | Type): GetDecorator;
+    OutputPickFields(...fields: Field.QualifiedName[]): GetDecorator;
+    OutputOmitFields(...fields: Field.QualifiedName[]): GetDecorator;
+    OutputOverwriteFields(fields: Record<string, CollectionDecorator.FieldDecoratorOptions>): GetDecorator;
   };
 
   export function Get(options?: Get.Options): GetDecorator {
@@ -176,7 +177,7 @@ export namespace SingletonDecorator {
  */
 export namespace SingletonDecorator {
   export type DeleteDecorator = ((target: Object, propertyKey: 'delete') => void) & {
-    Parameter: (name: string, optionsOrType?: ResourceDecorator.ParameterOptions | string | Type) => DeleteDecorator;
+    Parameter(name: string | RegExp, optionsOrType?: ApiParameter.DecoratorOptions | string | Type): DeleteDecorator;
   };
 
   export function Delete(options?: Delete.Options): DeleteDecorator {
@@ -190,14 +191,14 @@ export namespace SingletonDecorator {
  */
 export namespace SingletonDecorator {
   export type UpdateDecorator = ((target: Object, propertyKey: 'update') => void) & {
-    Parameter: (name: string, optionsOrType?: ResourceDecorator.ParameterOptions | string | Type) => UpdateDecorator;
-    InputMaxContentSize: (sizeInBytes: number) => UpdateDecorator;
-    InputPickFields: (...fields: Field.QualifiedName[]) => UpdateDecorator;
-    InputOmitFields: (...fields: Field.QualifiedName[]) => UpdateDecorator;
-    InputOverwriteFields: (fields: Record<string, CollectionDecorator.FieldDecoratorOptions>) => UpdateDecorator;
-    OutputPickFields: (...fields: Field.QualifiedName[]) => UpdateDecorator;
-    OutputOmitFields: (...fields: Field.QualifiedName[]) => UpdateDecorator;
-    OutputOverwriteFields: (fields: Record<string, CollectionDecorator.FieldDecoratorOptions>) => UpdateDecorator;
+    Parameter(name: string | RegExp, optionsOrType?: ApiParameter.DecoratorOptions | string | Type): UpdateDecorator;
+    InputMaxContentSize(sizeInBytes: number): UpdateDecorator;
+    InputPickFields(...fields: Field.QualifiedName[]): UpdateDecorator;
+    InputOmitFields(...fields: Field.QualifiedName[]): UpdateDecorator;
+    InputOverwriteFields(fields: Record<string, CollectionDecorator.FieldDecoratorOptions>): UpdateDecorator;
+    OutputPickFields(...fields: Field.QualifiedName[]): UpdateDecorator;
+    OutputOmitFields(...fields: Field.QualifiedName[]): UpdateDecorator;
+    OutputOverwriteFields(fields: Record<string, CollectionDecorator.FieldDecoratorOptions>): UpdateDecorator;
   };
 
   export function Update(options?: Update.Options): UpdateDecorator {

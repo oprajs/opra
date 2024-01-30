@@ -2,6 +2,7 @@ import { StrictOmit } from 'ts-gems';
 import { isAny, Validator } from 'valgen';
 import { OpraSchema } from '../../schema/index.js';
 import { DataType } from '../data-type/data-type.js';
+import type { ApiParameter } from './api-parameter.js';
 import { Endpoint } from './endpoint.js';
 import type { Resource } from './resource';
 import type { ResourceDecorator } from './resource-decorator.js';
@@ -39,7 +40,7 @@ export class Action extends Endpoint {
 
 export namespace Action {
   export interface InitArguments extends StrictOmit<ResourceDecorator.ActionMetadata, 'parameters' | 'returnType'> {
-    parameters: Record<string, Endpoint.ParameterInit>;
+    parameters: ApiParameter.InitArguments[];
     returnType?: DataType;
     returnMime?: string;
   }

@@ -70,7 +70,7 @@ describe('Collection decorators', function () {
 
       const metadata = Reflect.getMetadata(RESOURCE_METADATA, CustomersResource);
       expect(metadata.actions).toStrictEqual({
-        sendMessage: {parameters: {message: {type: String}}}
+        sendMessage: {parameters: [{name: 'message', type: String}]}
       });
     })
 

@@ -233,10 +233,10 @@ describe('ApiDocumentFactory - Collection resource with decorated classes', func
     const t = doc.getCollection('countries');
     const op = t.operations.get('create');
     expect(op).toBeDefined();
-    const prm1 = op?.parameters.get('prm1');
-    const prm2 = op?.parameters.get('prm2');
-    const prm3 = op?.parameters.get('prm3');
-    const prm4 = op?.parameters.get('prm4');
+    const prm1 = op?.getParameter('prm1');
+    const prm2 = op?.getParameter('prm2');
+    const prm3 = op?.getParameter('prm3');
+    const prm4 = op?.getParameter('prm4');
     expect(prm1).toBeDefined();
     expect(prm2).toBeDefined();
     expect(prm3).toBeDefined();

@@ -1,5 +1,5 @@
 import path from 'node:path';
-import { Collection, Container, Resource, Singleton, Storage } from '@opra/common';
+import { Collection, Container, CrudResource, Resource, Singleton, Storage } from '@opra/common';
 import { wrapJSDocString } from '../utils/string-utils.js';
 import type { ApiExporter } from './api-exporter.js';
 import { TsFile } from './ts-file.js';
@@ -52,62 +52,54 @@ export class ${className} {
       constructorBody += `    this.${child.name} = new ${childClassName}(client);\n`;
     }
   } else
-      /** Collection */
-  if (resource instanceof Collection) {
-    tsFile.addImport('@opra/client', ['HttpCollectionNode']);
-    const typeName = resource.type.name || '';
-    tsFile.addImport(`/types/${typeName}`, [typeName], true);
-
-    constructorBody += `    const node = this[kClient].collection('${resource.getFullPath()}');\n`;
-
-    for (const [operation, endpoint] of resource.operations.entries()) {
-      tsFile.content += `
-  /** 
-   * ${wrapJSDocString(endpoint.description || '')}
-   */      
-  readonly ${operation}: HttpCollectionNode<${typeName}>['${operation}'];\n`
-
-      constructorBody += `    this.${operation} = node.${operation}.bind(node);\n`;
-
+      /** Collection, Singleton, Storage */
+  if (resource instanceof CrudResource) {
+    let typeName = '';
+    if (resource instanceof Collection) {
+      tsFile.addImport('@opra/client', ['HttpCollectionNode']);
+      typeName = resource.type.name || '';
+      tsFile.addImport(`/types/${typeName}`, [typeName], true);
+      constructorBody += `    const node = this[kClient].collection('${resource.getFullPath()}');\n`;
+    } else if (resource instanceof Singleton) {
+      tsFile.addImport('@opra/client', ['HttpSingletonNode']);
+      typeName = resource.type.name || '';
+      tsFile.addImport(`/types/${typeName}`, [typeName], true);
+      constructorBody += `    const node = this[kClient].singleton('${resource.getFullPath()}');\n`;
+    } else {
+      tsFile.addImport('@opra/client', ['HttpStorageNode']);
+      constructorBody += `    const node = this[kClient].storage('${resource.getFullPath()}');\n`;
     }
-  } else
-      /** Singleton */
-  if (resource instanceof Singleton) {
-    tsFile.addImport('@opra/client', ['HttpSingletonNode']);
-    const typeName = resource.type.name || '';
-    tsFile.addImport(`/types/${typeName}`, [typeName], true);
-
-    constructorBody += `    const node = this[kClient].singleton('${resource.getFullPath()}');\n`;
 
     for (const [operation, endpoint] of resource.operations.entries()) {
       tsFile.content += `
   /** 
-   * ${wrapJSDocString(endpoint.description || '')}
-   */      
-  readonly ${operation}: HttpSingletonNode<${typeName}>['${operation}'];\n`
+   * ${wrapJSDocString(endpoint.description || '')}`;
+      for (const prm of endpoint.parameters) {
+        tsFile.content += `\n   * @query {${prm.type.name || 'any'}} ${String(prm.name)}` +
+            (prm.description ? ' - ' + prm.description : '') +
+            (prm.required ? ' (required)' : '') +
+            (prm.deprecated ? ' (deprecated)' : '');
+      }
+      for (const prm of endpoint.headers) {
+        tsFile.content += `\n   * @header {${prm.type.name || 'any'}} ${String(prm.name)}` +
+            (prm.description ? ' - ' + prm.description : '') +
+            (prm.required ? ' (required)' : '') +
+            (prm.deprecated ? ' (deprecated)' : '');
+      }
+      tsFile.content += `\n   */`;
 
-      constructorBody += `    this.${operation} = node.${operation}.bind(node);\n`;
-    }
-  } else
-      /** Storage */
-  if (resource instanceof Storage) {
-    tsFile.addImport('@opra/client', ['HttpStorageNode']);
-
-    constructorBody += `    const node = this[kClient].storage('${resource.getFullPath()}');\n`;
-
-    for (const [operation, endpoint] of resource.operations.entries()) {
-      tsFile.content += `
-  /** 
-   * ${wrapJSDocString(endpoint.description || '')}
-   */`
-      if (operation === 'post' && endpoint.returnType) {
-        const typeName = endpoint.returnType.name || 'any'; // todo
-        tsFile.addImport(`/types/${typeName}`, [typeName], true);
-        tsFile.content += `\n  readonly ${operation}: HttpStorageNode<${typeName}>['${operation}'];\n`;
-      } else
-        tsFile.content += `\n  readonly ${operation}: HttpStorageNode['${operation}'];\n`;
-
-      constructorBody += `    this.${operation} = node.${operation}.bind(node);\n`;
+      if (resource instanceof Collection) {
+        tsFile.content += `  readonly ${operation}: HttpCollectionNode<${typeName}>['${operation}'];\n`;
+      } else if (resource instanceof Singleton) {
+        tsFile.content += `  readonly ${operation}: HttpSingletonNode<${typeName}>['${operation}'];\n`;
+      } else if (resource instanceof Storage) {
+        if (operation === 'post' && endpoint.returnType) {
+          typeName = endpoint.returnType.name || 'any'; // todo
+          tsFile.addImport(`/types/${typeName}`, [typeName], true);
+          tsFile.content += `\n  readonly ${operation}: HttpStorageNode<${typeName}>['${operation}'];\n`;
+        } else
+          tsFile.content += `\n  readonly ${operation}: HttpStorageNode['${operation}'];\n`;
+      }
     }
   }
 

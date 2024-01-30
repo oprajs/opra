@@ -1,9 +1,10 @@
 import { Type } from 'ts-gems';
 import { RESOURCE_METADATA } from '../constants.js';
+import type { ApiParameter } from './api-parameter';
 import { ResourceDecorator } from './resource-decorator.js';
 
 export type CrudOperationDecorator = ((target: Object, propertyKey: any) => void) & {
-  Parameter: (name: string, optionsOrType?: ResourceDecorator.ParameterOptions | string | Type) => CrudOperationDecorator;
+  Parameter(name: string | RegExp, optionsOrType?: ApiParameter.DecoratorOptions | string | Type): CrudOperationDecorator;
 }
 
 export function createOperationDecorator<T extends CrudOperationDecorator, M extends ResourceDecorator.OperationMetadata>(
@@ -26,13 +27,17 @@ export function createOperationDecorator<T extends CrudOperationDecorator, M ext
     Reflect.defineMetadata(RESOURCE_METADATA, resourceMetadata, target.constructor);
   }) as T;
 
-  decorator.Parameter = (name: string, arg0?: ResourceDecorator.ParameterOptions | string | Type) => {
-    const parameterOptions: ResourceDecorator.ParameterOptions =
+  decorator.Parameter = (name: string, arg0?: ApiParameter.DecoratorOptions | string | Type) => {
+    const opts: ApiParameter.DecoratorOptions =
         typeof arg0 === 'string' || typeof arg0 === 'function' ? {type: arg0} : {...arg0};
+    const paramMeta: ApiParameter.DecoratorMetadata = {
+      ...opts,
+      name
+    }
     list.push(
         (operationMeta): void => {
-          operationMeta.parameters = operationMeta.parameters || {};
-          operationMeta.parameters[name] = {...parameterOptions};
+          operationMeta.parameters = operationMeta.parameters || [];
+          operationMeta.parameters.push(paramMeta);
         }
     )
     return decorator;

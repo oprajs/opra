@@ -24,3 +24,5 @@ export type DTO<T> = {
 
 export type PartialDTO<T> = DeeperPartial<DTO<T>>;
 export type PatchDTO<T> = DeeperNullish<DTO<T>>;
+
+export type URLSearchParamsInit = string[][] | Record<string, string> | string | URLSearchParams;

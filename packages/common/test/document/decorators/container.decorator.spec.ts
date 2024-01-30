@@ -106,7 +106,7 @@ describe('Container decorators', function () {
 
       const metadata = Reflect.getMetadata(RESOURCE_METADATA, Resource1);
       expect(metadata.actions).toStrictEqual({
-        sendMessage: {parameters: {message: {type: String}}}
+        sendMessage: {parameters: [{name: 'message', type: String}]}
       });
     })
   })

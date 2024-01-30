@@ -1,5 +1,3 @@
-export * from './types.js';
-
 export * from './core/backend.js';
 export * from './core/client-base.js';
 export * from './core/client-error.js';

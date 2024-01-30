@@ -1,9 +1,8 @@
 import { lastValueFrom, Observable } from 'rxjs';
 import typeIs from '@browsery/type-is';
-import { OpraURL } from '@opra/common';
+import { OpraURL, URLSearchParamsInit } from '@opra/common';
 import { kBackend, kContext } from '../constants.js';
 import { ClientError } from '../core/client-error.js';
-import { URLSearchParamsInit } from '../types.js';
 import { HttpObserveType } from './enums/http-observable-type.enum.js';
 import { HttpBackend } from './http-backend.js';
 import { HttpInterceptorHandler } from './http-interceptor-handler.js';

@@ -46,7 +46,7 @@ describe('Parse Collection requests', function () {
       const request = await adapter.parseRequest(
           createContext(HttpServerRequest.from({
             method: 'GET',
-            url: '/Customers@1?pick=_id&omit=gender&include=address&prm1=1&prm2=2&prm3=10&prm3=11',
+            url: '/Customers@1?pick=_id&omit=gender&include=address&prmA1=1&prmA2=2&prmB1=10&prmB1=11&unk=1',
             headers: {'Accept': 'application/json'}
           }))
       ) as Collection.Get.Request;
@@ -59,9 +59,10 @@ describe('Parse Collection requests', function () {
       expect(request.params.pick).toStrictEqual(['_id']);
       expect(request.params.omit).toStrictEqual(['gender']);
       expect(request.params.include).toStrictEqual(['address']);
-      expect(request.params.prm1).toStrictEqual(1);
-      expect(request.params.prm2).toStrictEqual('2');
-      expect(request.params.prm3).toStrictEqual(['10', '11']);
+      expect(request.params.prmA1).toStrictEqual(1);
+      expect(request.params.prmA2).toStrictEqual(2);
+      expect(request.params.prmB1).toStrictEqual([10, 11]);
+      expect(request.params.unk).not.toBeDefined();
       expect(() => request.switchToHttp()).not.toThrow();
       expect(request.switchToHttp().headers).toBeDefined();
       expect(request.switchToHttp().headers.accept).toStrictEqual('application/json');

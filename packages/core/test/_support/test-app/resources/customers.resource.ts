@@ -23,7 +23,8 @@ export class CustomersResource implements ICollection<Customer> {
   }
 
   @Collection.Get()
-      .Parameter('prm1', Number)
+      .Parameter(/^prmA\d+$/, Number)
+      .Parameter(/^prmB\d+$/, {type: Number, isArray: true})
   async get(context: Collection.Get.Context) {
     return customers.find(x => x._id === context.request.key);
   }
