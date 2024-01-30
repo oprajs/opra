@@ -60,11 +60,9 @@ describe('Container decorators', function () {
 
     it('Should define returnType in options', async function () {
       class Resource1 {
-        @Container.Action({
-              description: 'action',
-              returnType: 'number'
-            }
-        )
+        @Container
+            .Action({description: 'action'})
+            .Returns('number')
         sendMessage() {
         }
       }

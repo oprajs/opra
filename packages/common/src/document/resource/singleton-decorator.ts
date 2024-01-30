@@ -2,7 +2,9 @@ import { Combine, StrictOmit, Type } from 'ts-gems';
 import { Field } from '../../schema/data-type/field.interface.js';
 import { OpraSchema } from '../../schema/index.js';
 import { TypeThunkAsync } from '../../types.js';
-import { ActionDecorator, createActionDecorator } from './action-decorator.js';
+import { ApiActionDecorator, createActionDecorator } from './api-action.decorator.js';
+import type { ApiAction } from './api-action.js';
+import type { ApiOperation } from './api-operation.js';
 import type { ApiParameter } from './api-parameter.js';
 import { CollectionDecorator } from './collection-decorator.js';
 import { ResourceDecorator } from './resource-decorator.js';
@@ -22,12 +24,12 @@ Object.assign(SingletonDecorator, ResourceDecorator);
 export interface SingletonDecorator extends StrictOmit<ResourceDecorator, 'Action'> {
   <T>(type: Type<T> | string, options?: Singleton.DecoratorOptions): ClassDecorator;
 
-  Action: (options?: SingletonDecorator.Action.Options) => (
+  Action: (options?: ApiAction.DecoratorOptions) => (
       <T, K extends keyof T>(
           target: T,
           propertyKey: ErrorMessage<Exclude<K, OperationProperties>,
               `'${string & K}' property is reserved for operation endpoints and can not be used for actions`>) => void
-      ) & ActionDecorator;
+      ) & ApiActionDecorator;
 
   Create: typeof SingletonDecorator.Create;
   Delete: typeof SingletonDecorator.Delete;
@@ -44,7 +46,7 @@ export namespace SingletonDecorator {
     kind: OpraSchema.Singleton.Kind;
     name: string;
     type: TypeThunkAsync | string;
-    actions?: Record<string, ResourceDecorator.OperationMetadata>;
+    actions?: Record<string, ApiOperation.DecoratorMetadata>;
     operations?: {
       create: Create.Metadata;
       delete: Delete.Metadata;
@@ -54,28 +56,15 @@ export namespace SingletonDecorator {
   }
 
   /**
-   * @namespace Action
-   */
-  export namespace Action {
-    // eslint-disable-next-line @typescript-eslint/no-shadow
-    export interface Metadata extends ResourceDecorator.OperationMetadata {
-    }
-
-    // eslint-disable-next-line @typescript-eslint/no-shadow
-    export interface Options extends ResourceDecorator.OperationOptions {
-    }
-  }
-
-  /**
    * @namespace Create
    */
   export namespace Create {
     // eslint-disable-next-line @typescript-eslint/no-shadow
-    export interface Metadata extends Combine<ResourceDecorator.OperationMetadata, OpraSchema.Singleton.Operations.Create> {
+    export interface Metadata extends Combine<ApiOperation.DecoratorMetadata, OpraSchema.Singleton.Operations.Create> {
     }
 
     // eslint-disable-next-line @typescript-eslint/no-shadow
-    export interface Options extends Combine<ResourceDecorator.OperationOptions,
+    export interface Options extends Combine<ApiOperation.DecoratorOptions,
         Partial<OpraSchema.Singleton.Operations.Create>> {
     }
   }
@@ -85,11 +74,11 @@ export namespace SingletonDecorator {
    */
   export namespace Delete {
     // eslint-disable-next-line @typescript-eslint/no-shadow
-    export interface Metadata extends Combine<ResourceDecorator.OperationMetadata, OpraSchema.Singleton.Operations.Delete> {
+    export interface Metadata extends Combine<ApiOperation.DecoratorMetadata, OpraSchema.Singleton.Operations.Delete> {
     }
 
     // eslint-disable-next-line @typescript-eslint/no-shadow
-    export interface Options extends Combine<ResourceDecorator.OperationOptions,
+    export interface Options extends Combine<ApiOperation.DecoratorOptions,
         Partial<OpraSchema.Singleton.Operations.Delete>> {
     }
   }
@@ -99,11 +88,11 @@ export namespace SingletonDecorator {
    */
   export namespace Get {
     // eslint-disable-next-line @typescript-eslint/no-shadow
-    export interface Metadata extends Combine<ResourceDecorator.OperationMetadata, OpraSchema.Singleton.Operations.Get> {
+    export interface Metadata extends Combine<ApiOperation.DecoratorMetadata, OpraSchema.Singleton.Operations.Get> {
     }
 
     // eslint-disable-next-line @typescript-eslint/no-shadow
-    export interface Options extends Combine<ResourceDecorator.OperationOptions,
+    export interface Options extends Combine<ApiOperation.DecoratorOptions,
         Partial<OpraSchema.Singleton.Operations.Get>> {
     }
   }
@@ -113,11 +102,11 @@ export namespace SingletonDecorator {
    */
   export namespace Update {
     // eslint-disable-next-line @typescript-eslint/no-shadow
-    export interface Metadata extends Combine<ResourceDecorator.OperationMetadata, OpraSchema.Singleton.Operations.Update> {
+    export interface Metadata extends Combine<ApiOperation.DecoratorMetadata, OpraSchema.Singleton.Operations.Update> {
     }
 
     // eslint-disable-next-line @typescript-eslint/no-shadow
-    export interface Options extends Combine<ResourceDecorator.OperationOptions,
+    export interface Options extends Combine<ApiOperation.DecoratorOptions,
         Partial<OpraSchema.Singleton.Operations.Update>> {
     }
   }
@@ -132,7 +121,7 @@ export namespace SingletonDecorator {
   /**
    * Action PropertyDecorator
    */
-  export function Action(options: ResourceDecorator.OperationOptions): ActionDecorator {
+  export function Action(options: ApiOperation.DecoratorOptions): ApiActionDecorator {
     const list: ((operationMeta: any) => void)[] = [];
     return createActionDecorator(options, operationProperties, list);
   }

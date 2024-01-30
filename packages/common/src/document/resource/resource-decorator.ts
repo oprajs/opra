@@ -2,15 +2,31 @@ import omit from 'lodash.omit';
 import merge from 'putil-merge';
 import { StrictOmit } from 'ts-gems';
 import { OpraSchema } from '../../schema/index.js';
-import { TypeThunkAsync } from '../../types.js';
 import { RESOURCE_METADATA } from '../constants.js';
-import type { ApiParameter } from './api-parameter';
+import type { ApiAction } from './api-action.js';
+import type { ApiOperation } from './api-operation.js';
 
-export interface ResourceDecorator {
-  Action: (options?: ResourceDecorator.OperationOptions) => ResourceDecorator;
+/**
+ * @namespace ResourceDecorator
+ */
+export namespace ResourceDecorator {
+
+  export interface DecoratorMetadata extends StrictOmit<OpraSchema.ResourceBase, 'actions'> {
+    name: string;
+    actions?: Record<string, ApiAction.DecoratorMetadata>;
+    operations?: Record<string, ApiOperation.DecoratorMetadata>;
+  }
+
+  export interface DecoratorOptions extends Partial<StrictOmit<DecoratorMetadata, 'kind' | 'actions' | 'operations'>> {
+  }
+
 }
 
-export function ResourceDecorator<O extends ResourceDecorator.Options>(
+export interface ResourceDecorator {
+  Action: (options?: ResourceDecorator.DecoratorOptions) => ResourceDecorator;
+}
+
+export function ResourceDecorator<O extends ResourceDecorator.DecoratorOptions>(
     kind: OpraSchema.Resource.Kind,
     meta?: O
 ): ClassDecorator {
@@ -23,7 +39,7 @@ export function ResourceDecorator<O extends ResourceDecorator.Options>(
       if (kind === 'Container')
         name = name.charAt(0).toLowerCase() + name.substring(1);
     }
-    const metadata: ResourceDecorator.Metadata = {kind, name};
+    const metadata: ResourceDecorator.DecoratorMetadata = {kind, name};
     const baseMetadata = Reflect.getOwnMetadata(RESOURCE_METADATA, Object.getPrototypeOf(target));
     if (baseMetadata)
       merge(metadata, baseMetadata, {deep: true});
@@ -37,37 +53,4 @@ export function ResourceDecorator<O extends ResourceDecorator.Options>(
     }, {deep: true});
     Reflect.defineMetadata(RESOURCE_METADATA, metadata, target);
   }
-}
-
-/**
- * @namespace ResourceDecorator
- */
-export namespace ResourceDecorator {
-
-  export interface Metadata extends StrictOmit<OpraSchema.ResourceBase, 'actions'> {
-    name: string;
-    actions?: Record<string, ActionMetadata>;
-    operations?: Record<string, OperationMetadata>;
-  }
-
-  export interface Options extends Partial<StrictOmit<Metadata, 'kind' | 'actions' | 'operations'>> {
-  }
-
-
-  export interface OperationMetadata extends StrictOmit<OpraSchema.Endpoint, 'parameters'> {
-    parameters?: ApiParameter.DecoratorMetadata[];
-  }
-
-  export interface ActionMetadata extends StrictOmit<OpraSchema.Action, 'parameters' | 'returnType'> {
-    parameters?: ApiParameter.DecoratorMetadata[];
-    returnType?: TypeThunkAsync | string;
-  }
-
-  export interface OperationOptions extends Partial<StrictOmit<OpraSchema.Endpoint, 'parameters'>> {
-  }
-
-  export interface ActionOptions extends Partial<StrictOmit<OpraSchema.Action, 'parameters' | 'returnType'>> {
-    returnType?: TypeThunkAsync | string;
-  }
-
 }

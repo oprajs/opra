@@ -1,5 +1,5 @@
 import { StrictOmit } from 'ts-gems';
-import type { Action as _Action, CrudOperation as _Operation } from '@opra/common';
+import type { ApiAction as _Action, ApiOperation as _Operation } from '@opra/common';
 import type { MultipartIterator } from '../http/helpers/multipart-helper';
 import type { Request as _Request } from '../request.js';
 import type { RequestContext } from '../request-context.js';

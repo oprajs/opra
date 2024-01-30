@@ -15,12 +15,12 @@ export * from './data-type/mapped-type.js';
 export * from './data-type/simple-type.js';
 export * from './data-type/mixin-type.js';
 
-export * from './resource/action.js';
+export * from './resource/api-action';
 export * from './resource/collection.js';
 export * from './resource/container.js';
 export * from './resource/crud-resource.js';
-export * from './resource/endpoint.js';
-export * from './resource/crud-operation.js';
+export * from './resource/api-endpoint.js';
+export * from './resource/api-operation';
 export * from './resource/api-parameter.js';
 export * from './resource/resource.js';
 export * from './resource/singleton.js';

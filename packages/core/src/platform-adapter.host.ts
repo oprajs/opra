@@ -3,10 +3,10 @@ import path from 'path';
 import { pascalCase } from 'putil-varhelpers';
 import { AsyncEventEmitter } from 'strict-typed-events';
 import {
-  Action,
+  ApiAction,
   ApiDocument,
   BadRequestError,
-  Container, CrudOperation,
+  Container, ApiOperation,
   CrudResource,
   ForbiddenError,
   getStackFileName,
@@ -130,7 +130,7 @@ export abstract class PlatformAdapterHost extends AsyncEventEmitter implements P
   }
 
   async getActionHandler(resource: Resource | string, name: string): Promise<{
-    endpoint: Action;
+    endpoint: ApiAction;
     controller: any;
     handler: Function;
   }> {
@@ -155,7 +155,7 @@ export abstract class PlatformAdapterHost extends AsyncEventEmitter implements P
       resource: Resource | string,
       name: string
   ): Promise<{
-    endpoint: CrudOperation;
+    endpoint: ApiOperation;
     controller: any;
     handler: Function;
   }> {

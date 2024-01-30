@@ -1,5 +1,6 @@
 import { Type } from 'ts-gems';
 import { RESOURCE_METADATA } from '../constants.js';
+import type { ApiOperation } from './api-operation.js';
 import type { ApiParameter } from './api-parameter';
 import { ResourceDecorator } from './resource-decorator.js';
 
@@ -7,7 +8,7 @@ export type CrudOperationDecorator = ((target: Object, propertyKey: any) => void
   Parameter(name: string | RegExp, optionsOrType?: ApiParameter.DecoratorOptions | string | Type): CrudOperationDecorator;
 }
 
-export function createOperationDecorator<T extends CrudOperationDecorator, M extends ResourceDecorator.OperationMetadata>(
+export function createOperationDecorator<T extends CrudOperationDecorator, M extends ApiOperation.DecoratorMetadata>(
     operation: string,
     init: any,
     list: ((operationMeta: M, target: Object, propertyKey: string) => void)[]
@@ -17,7 +18,7 @@ export function createOperationDecorator<T extends CrudOperationDecorator, M ext
       throw new TypeError(`Name of the handler name should be '${operation}'`);
 
     const resourceMetadata =
-        (Reflect.getOwnMetadata(RESOURCE_METADATA, target.constructor) || {}) as ResourceDecorator.Metadata;
+        (Reflect.getOwnMetadata(RESOURCE_METADATA, target.constructor) || {}) as ResourceDecorator.DecoratorMetadata;
     resourceMetadata.operations = resourceMetadata.operations || {};
     const operationMeta: M = {...init};
     operationMeta.options = operationMeta.options || {};

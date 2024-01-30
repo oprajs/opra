@@ -1,16 +1,17 @@
 import { Type } from 'ts-gems';
 import { TypeThunkAsync } from '../../types.js';
 import { RESOURCE_METADATA } from '../constants.js';
+import type { ApiAction } from './api-action.js';
 import type { ApiParameter } from './api-parameter';
 import { ResourceDecorator } from './resource-decorator.js';
 
-export type ActionDecorator = ((target: Object, propertyKey: string) => void) & {
-  Parameter(name: string | RegExp, optionsOrType?: ApiParameter.DecoratorOptions | string | Type): ActionDecorator;
+export type ApiActionDecorator = ((target: Object, propertyKey: string) => void) & {
+  Parameter(name: string | RegExp, optionsOrType?: ApiParameter.DecoratorOptions | string | Type): ApiActionDecorator;
 
-  Returns(t: TypeThunkAsync | string): ActionDecorator;
+  Returns(t: TypeThunkAsync | string): ApiActionDecorator;
 };
 
-export function createActionDecorator<T extends ActionDecorator, M extends ResourceDecorator.ActionMetadata>(
+export function createActionDecorator<T extends ApiActionDecorator, M extends ApiAction.DecoratorMetadata>(
     options: any,
     bannedProperties: string[] | readonly string[],
     list: ((operationMeta: M) => void)[]
@@ -20,7 +21,7 @@ export function createActionDecorator<T extends ActionDecorator, M extends Resou
       throw new TypeError(`The "${propertyKey}" property is reserved for "${propertyKey}" operations and cannot be used as an action'`);
 
     const resourceMetadata =
-        (Reflect.getOwnMetadata(RESOURCE_METADATA, target.constructor) || {}) as ResourceDecorator.Metadata;
+        (Reflect.getOwnMetadata(RESOURCE_METADATA, target.constructor) || {}) as ResourceDecorator.DecoratorMetadata;
     resourceMetadata.actions = resourceMetadata.actions || {};
     const actionMeta: M = {...options};
     resourceMetadata.actions[propertyKey] = actionMeta;

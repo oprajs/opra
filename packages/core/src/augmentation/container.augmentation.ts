@@ -1,5 +1,5 @@
 import { StrictOmit } from 'ts-gems';
-import { Action as _Action } from '@opra/common';
+import { ApiAction as _Action } from '@opra/common';
 import type { Request as _Request } from '../request.js';
 
 declare module "@opra/common" {

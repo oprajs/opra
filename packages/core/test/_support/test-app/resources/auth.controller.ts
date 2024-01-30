@@ -20,7 +20,9 @@ export class AuthController {
     //
   }
 
-  @Container.Action({returnType: 'string'})
+  @Container
+      .Action()
+      .Returns('string')
   getToken() {
     return '123456'
   }

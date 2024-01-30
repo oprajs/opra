@@ -1,9 +1,11 @@
 import { Combine, StrictOmit, Type } from 'ts-gems';
 import { OpraSchema } from '../../schema/index.js';
 import { TypeThunkAsync } from '../../types.js';
-import { ActionDecorator, createActionDecorator } from './action-decorator.js';
+import { ApiActionDecorator, createActionDecorator } from './api-action.decorator.js';
+import type { ApiAction } from './api-action.js';
+import { createOperationDecorator } from './api-operation.decorator.js';
+import type { ApiOperation } from './api-operation.js';
 import type { ApiParameter } from './api-parameter';
-import { createOperationDecorator } from './crud-operation-decorator.js';
 import { ResourceDecorator } from './resource-decorator.js';
 import type { Storage } from './storage.js';
 
@@ -21,12 +23,12 @@ Object.assign(StorageDecorator, ResourceDecorator);
 export interface StorageDecorator extends StrictOmit<ResourceDecorator, 'Action'> {
   (options?: Storage.DecoratorOptions): ClassDecorator;
 
-  Action: (options?: StorageDecorator.Action.Options) => (
+  Action: (options?: ApiAction.DecoratorOptions) => (
       <T, K extends keyof T>(
           target: T,
           propertyKey: ErrorMessage<Exclude<K, OperationProperties>,
               `'${string & K}' property is reserved for operation endpoints and can not be used for actions`>) => void
-      ) & ActionDecorator;
+      ) & ApiActionDecorator;
 
   Delete: typeof StorageDecorator.Delete;
   Get: typeof StorageDecorator.Get;
@@ -41,7 +43,7 @@ export namespace StorageDecorator {
   export interface Metadata extends StrictOmit<OpraSchema.Storage, 'kind' | 'operations' | 'actions'> {
     kind: OpraSchema.Storage.Kind;
     name: string;
-    actions?: Record<string, ResourceDecorator.OperationMetadata>;
+    actions?: Record<string, ApiAction.DecoratorMetadata>;
     operations?: {
       get: Get.Metadata;
       delete: Delete.Metadata;
@@ -50,28 +52,15 @@ export namespace StorageDecorator {
   }
 
   /**
-   * @namespace Action
-   */
-  export namespace Action {
-    // eslint-disable-next-line @typescript-eslint/no-shadow
-    export interface Metadata extends ResourceDecorator.OperationMetadata {
-    }
-
-    // eslint-disable-next-line @typescript-eslint/no-shadow
-    export interface Options extends ResourceDecorator.OperationOptions {
-    }
-  }
-
-  /**
    * @namespace Get
    */
   export namespace Get {
     // eslint-disable-next-line @typescript-eslint/no-shadow
-    export interface Metadata extends Combine<ResourceDecorator.OperationMetadata, OpraSchema.Storage.Operations.Get> {
+    export interface Metadata extends Combine<ApiOperation.DecoratorMetadata, OpraSchema.Storage.Operations.Get> {
     }
 
     // eslint-disable-next-line @typescript-eslint/no-shadow
-    export interface Options extends Combine<ResourceDecorator.OperationOptions,
+    export interface Options extends Combine<ApiOperation.DecoratorOptions,
         Partial<OpraSchema.Storage.Operations.Get>> {
     }
   }
@@ -81,11 +70,11 @@ export namespace StorageDecorator {
    */
   export namespace Delete {
     // eslint-disable-next-line @typescript-eslint/no-shadow
-    export interface Metadata extends Combine<ResourceDecorator.OperationMetadata, OpraSchema.Storage.Operations.Delete> {
+    export interface Metadata extends Combine<ApiOperation.DecoratorMetadata, OpraSchema.Storage.Operations.Delete> {
     }
 
     // eslint-disable-next-line @typescript-eslint/no-shadow
-    export interface Options extends Combine<ResourceDecorator.OperationOptions,
+    export interface Options extends Combine<ApiOperation.DecoratorOptions,
         Partial<OpraSchema.Storage.Operations.Delete>> {
     }
   }
@@ -95,11 +84,11 @@ export namespace StorageDecorator {
    */
   export namespace Post {
     // eslint-disable-next-line @typescript-eslint/no-shadow
-    export interface Metadata extends Combine<ResourceDecorator.OperationMetadata, OpraSchema.Storage.Operations.Post> {
+    export interface Metadata extends Combine<ApiOperation.DecoratorMetadata, OpraSchema.Storage.Operations.Post> {
     }
 
     // eslint-disable-next-line @typescript-eslint/no-shadow
-    export interface Options extends Combine<ResourceDecorator.OperationOptions,
+    export interface Options extends Combine<ApiOperation.DecoratorOptions,
         Partial<OpraSchema.Storage.Operations.Post>> {
     }
   }
@@ -114,7 +103,7 @@ export namespace StorageDecorator {
   /**
    * Action PropertyDecorator
    */
-  export function Action(options: ResourceDecorator.OperationOptions): ActionDecorator {
+  export function Action(options: ApiOperation.DecoratorOptions): ApiActionDecorator {
     const list: ((operationMeta: any) => void)[] = [];
     return createActionDecorator(options, operationProperties, list);
   }

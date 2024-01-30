@@ -4,9 +4,9 @@ import { omitUndefined } from '../../helpers/object-utils.js';
 import { OpraSchema } from '../../schema/index.js';
 import type { ApiDocument } from '../api-document.js';
 import { colorFgMagenta, colorFgYellow, colorReset, nodeInspectCustom } from '../utils/inspect.util.js';
-import { Action } from './action.js';
+import { ApiAction } from './api-action';
 import type { Container } from './container.js';
-import { CrudOperation } from './crud-operation.js';
+import { ApiOperation } from './api-operation';
 import type { ResourceDecorator } from './resource-decorator';
 
 export abstract class Resource {
@@ -17,7 +17,7 @@ export abstract class Resource {
   description?: string;
   controller?: object;
   ctor?: Type;
-  actions = new ResponsiveMap<Action>();
+  actions = new ResponsiveMap<ApiAction>();
 
   protected constructor(
       parent: ApiDocument | Container,
@@ -36,7 +36,7 @@ export abstract class Resource {
     } else this.ctor = init.ctor;
     if (init.actions) {
       for (const [name, meta] of Object.entries(init.actions)) {
-        this.actions.set(name, new Action(this, name, meta));
+        this.actions.set(name, new ApiAction(this, name, meta));
       }
     }
   }
@@ -75,10 +75,10 @@ export abstract class Resource {
 }
 
 export namespace Resource {
-  export interface InitArguments extends StrictOmit<ResourceDecorator.Metadata, 'kind' | 'operations' | 'actions'> {
+  export interface InitArguments extends StrictOmit<ResourceDecorator.DecoratorMetadata, 'kind' | 'operations' | 'actions'> {
     name: string;
-    actions?: Record<string, Action.InitArguments>;
-    operations?: Record<string, CrudOperation.InitArguments>;
+    actions?: Record<string, ApiAction.InitArguments>;
+    operations?: Record<string, ApiOperation.InitArguments>;
     controller?: object;
     ctor?: Type;
   }

@@ -1,14 +1,15 @@
-import { StrictOmit } from 'ts-gems';
+import { StrictOmit, Type } from 'ts-gems';
 import { Validator, vg } from 'valgen';
 import { omitUndefined } from '../../helpers/index.js';
 import type { OpraSchema } from '../../schema/index.js';
 import type { TypeThunkAsync } from '../../types.js';
-import type { DataType } from '../data-type/data-type.js';
+import { DataType } from '../data-type/data-type.js';
 import type { EnumType } from '../data-type/enum-type.js';
+import type { ApiEndpoint } from './api-endpoint.js';
 
 export namespace ApiParameter {
   export interface InitArguments extends StrictOmit<OpraSchema.Parameter, 'type'> {
-    type: DataType;
+    type?: DataType | string | Type;
     isBuiltin?: boolean;
   }
 
@@ -29,6 +30,7 @@ export namespace ApiParameter {
 export class ApiParameter {
   protected _decoder: Validator;
   protected _encoder: Validator;
+  readonly endpoint: ApiEndpoint;
   readonly name: string | RegExp;
   readonly type: DataType;
   description?: string;
@@ -38,7 +40,8 @@ export class ApiParameter {
   examples?: any[] | Record<string, any>;
   readonly isBuiltin?: boolean;
 
-  constructor(init: ApiParameter.InitArguments) {
+  constructor(endpoint: ApiEndpoint, init: ApiParameter.InitArguments) {
+    this.endpoint = endpoint;
     const name = String(init.name);
     if (name.startsWith('/')) {
       const i = name.lastIndexOf('/');
@@ -47,7 +50,10 @@ export class ApiParameter {
       if (!flags.includes('i')) flags += 'i';
       this.name = new RegExp(s, flags);
     } else this.name = name;
-    this.type = init.type;
+    if (init.type)
+      this.type = init.type instanceof DataType
+          ? init.type
+          : this.endpoint.resource.document.getDataType(init.type);
     this.description = init.description;
     this.isArray = init.isArray;
     this.required = init.required;

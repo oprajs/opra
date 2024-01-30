@@ -2,7 +2,7 @@ import { OpraSchema } from '../../schema/index.js';
 import type { ApiDocument } from '../api-document.js';
 import type { ComplexType } from '../data-type/complex-type.js';
 import type { Container } from './container.js';
-import type { CrudOperation } from './crud-operation';
+import type { ApiOperation } from './api-operation';
 import { CrudResource } from './crud-resource.js';
 import type { Singleton } from './singleton.js';
 import type { SingletonDecorator } from './singleton-decorator';
@@ -74,11 +74,11 @@ export class SingletonClass extends CrudResource {
     }
   }
 
-  getOperation(name: 'create'): (CrudOperation & Omit<SingletonDecorator.Create.Metadata, keyof CrudOperation>) | undefined;
-  getOperation(name: 'delete'): (CrudOperation & Omit<SingletonDecorator.Delete.Metadata, keyof CrudOperation>) | undefined;
-  getOperation(name: 'get'): (CrudOperation & Omit<SingletonDecorator.Get.Metadata, keyof CrudOperation>) | undefined;
-  getOperation(name: 'update'): (CrudOperation & Omit<SingletonDecorator.Update.Metadata, keyof CrudOperation>) | undefined;
-  getOperation(name: string): CrudOperation | undefined {
+  getOperation(name: 'create'): (ApiOperation & Omit<SingletonDecorator.Create.Metadata, keyof ApiOperation>) | undefined;
+  getOperation(name: 'delete'): (ApiOperation & Omit<SingletonDecorator.Delete.Metadata, keyof ApiOperation>) | undefined;
+  getOperation(name: 'get'): (ApiOperation & Omit<SingletonDecorator.Get.Metadata, keyof ApiOperation>) | undefined;
+  getOperation(name: 'update'): (ApiOperation & Omit<SingletonDecorator.Update.Metadata, keyof ApiOperation>) | undefined;
+  getOperation(name: string): ApiOperation | undefined {
     return super.getOperation(name);
   }
 

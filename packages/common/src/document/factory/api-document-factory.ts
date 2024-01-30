@@ -6,11 +6,13 @@ import { ApiDocument } from '../api-document.js';
 import { RESOURCE_METADATA } from '../constants.js';
 import { ComplexType } from '../data-type/complex-type.js';
 import { EnumType } from '../data-type/enum-type.js';
+import { ApiAction } from '../resource/api-action.js';
+import { ApiEndpoint } from '../resource/api-endpoint.js';
+import { ApiOperation } from '../resource/api-operation.js';
 import { ApiParameter } from '../resource/api-parameter.js';
 import { Collection } from '../resource/collection.js';
 import { Container } from '../resource/container.js';
 import { Resource } from '../resource/resource.js';
-import { ResourceDecorator } from '../resource/resource-decorator.js';
 import { Singleton } from '../resource/singleton.js';
 import { Storage } from '../resource/storage.js';
 import { TypeDocumentFactory } from './type-document-factory.js';
@@ -90,7 +92,7 @@ export class ApiDocumentFactory extends TypeDocumentFactory {
   }
 
   protected async importResourceSchema(name: string, schema: OpraSchema.Resource): Promise<ApiDocumentFactory.ResourceInitializer> {
-    const convertEndpoints = async (source?: Record<string, OpraSchema.Endpoint | OpraSchema.Action | undefined>) => {
+    const convertEndpoints = async (source?: Record<string, OpraSchema.Endpoint | undefined>) => {
       if (!source)
         return;
       const output: any = {};
@@ -100,7 +102,7 @@ export class ApiDocumentFactory extends TypeDocumentFactory {
         const outputEndpoint = output[endpointName] = {...endpointSchema};
         let parameters: ApiParameter.InitArguments[] | undefined;
         // Resolve lazy type
-        if ((endpointSchema as ResourceDecorator.ActionMetadata).returnType) {
+        if ((endpointSchema as ApiEndpoint.DecoratorMetadata).returnType) {
           (outputEndpoint as any).returnType = await this.importDataType((endpointSchema as any).returnType);
         }
         if (endpointSchema.parameters) {
@@ -182,14 +184,14 @@ export class ApiDocumentFactory extends TypeDocumentFactory {
     if (!metadata && OpraSchema.isResource(metadata))
       throw new TypeError(`Class "${ctor.name}" doesn't have a valid Resource metadata`);
 
-    const convertEndpoints = async (source?: Record<string, ResourceDecorator.OperationMetadata | ResourceDecorator.ActionMetadata>) => {
+    const convertEndpoints = async (source?: Record<string, ApiOperation.DecoratorMetadata | ApiAction.DecoratorMetadata>) => {
       if (!source)
         return;
       const output: any = {};
       for (const [kA, oA] of Object.entries(source)) {
         const o = output[kA] = {...oA};
         // Resolve lazy type
-        if ((oA as ResourceDecorator.ActionMetadata).returnType) {
+        if ((oA as ApiOperation.DecoratorMetadata).returnType) {
           (o as any).returnType = await this.importDataType((oA as any).returnType);
         }
 
