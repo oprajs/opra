@@ -25,6 +25,15 @@ export namespace Operation {
   export type Method = 'GET' | 'HEAD' | 'POST' | 'PUT' | 'PATCH' | 'DELETE';
 }
 
+export interface Action extends Endpoint {
+  kind: Action.Kind;
+}
+
+export namespace Action {
+  export const Kind = 'Action';
+  export type Kind = 'Action';
+}
+
 
 export interface Response {
   statusCode: HttpStatusCode;

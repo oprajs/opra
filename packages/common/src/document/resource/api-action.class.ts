@@ -1,3 +1,4 @@
+import { OpraSchema } from '../../schema/index.js';
 import type { ApiAction } from './api-action.js';
 import { ApiEndpoint } from './api-endpoint.js';
 import type { Resource } from './resource';
@@ -11,6 +12,14 @@ export class ApiActionClass extends ApiEndpoint {
 
   constructor(readonly resource: Resource, readonly name: string, init: ApiAction.InitArguments) {
     super(resource, name, init);
+  }
+
+  exportSchema(options?: { webSafe?: boolean }): OpraSchema.Action {
+    const schema = super.exportSchema(options);
+    return {
+      kind: OpraSchema.Action.Kind,
+      ...schema
+    }
   }
 
 }

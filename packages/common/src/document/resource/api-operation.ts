@@ -1,17 +1,26 @@
 import merge from 'putil-merge';
-import type { ApiEndpoint } from './api-endpoint.js';
+import type { StrictOmit } from 'ts-gems';
+import type { OpraSchema } from '../../schema/index';
 import { ApiOperationClass } from './api-operation.class.js';
+import type { ApiParameter } from './api-parameter.js';
+import type { ApiResponse } from './api-response.js';
 import type { Resource } from './resource.js';
 
 
 export namespace ApiOperation {
-  export interface InitArguments extends ApiEndpoint.InitArguments {
+  export interface InitArguments extends StrictOmit<OpraSchema.Operation, 'headers' | 'parameters' | 'response'> {
+    headers?: ApiParameter.InitArguments[];
+    parameters?: ApiParameter.InitArguments[];
+    response?: ApiResponse.InitArguments;
   }
 
-  export interface DecoratorMetadata extends ApiEndpoint.DecoratorMetadata {
+  export interface DecoratorMetadata extends StrictOmit<OpraSchema.Operation, 'headers' | 'parameters' | 'response'> {
+    headers?: ApiParameter.DecoratorMetadata[];
+    parameters?: ApiParameter.DecoratorMetadata[];
+    response?: ApiResponse.DecoratorMetadata;
   }
 
-  export interface DecoratorOptions extends ApiEndpoint.DecoratorOptions {
+  export interface DecoratorOptions extends Partial<StrictOmit<OpraSchema.Operation, 'headers' | 'parameters' | 'response'>> {
   }
 }
 

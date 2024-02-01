@@ -1,6 +1,6 @@
 import type { Collection } from './collection.interface.js';
 import type { Container } from './container.interface.js';
-import type { Endpoint } from './endpoint.interface.js';
+import type { Action } from './endpoint.interface.js';
 import type { Singleton } from './singleton.interface.js';
 import type { Storage } from './storage.interface.js';
 
@@ -14,5 +14,5 @@ export namespace Resource {
 export interface Resource {
   kind: string;
   description?: string;
-  actions?: Record<string, Endpoint | undefined>;
+  actions?: Record<string, Action | undefined>;
 }

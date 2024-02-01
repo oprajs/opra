@@ -11,17 +11,19 @@ import type { Resource } from './resource.js';
  */
 export class ApiOperationClass extends ApiEndpoint {
   readonly kind = 'operation';
+  readonly method: OpraSchema.Operation.Method;
   decodeInput: Validator = isAny;
   inputOverwriteFields?: Record<string, ApiField.InitArguments>;
   outputOverwriteFields?: Record<string, ApiField.InitArguments>;
 
   constructor(readonly resource: Resource, readonly name: string, init: ApiOperation.InitArguments) {
     super(resource, name, init);
+    this.method = init.method || 'GET';
     this.inputOverwriteFields = init.options?.inputOverwriteFields;
     this.outputOverwriteFields = init.options?.outputOverwriteFields;
   }
 
-  exportSchema(options?: { webSafe?: boolean }) {
+  exportSchema(options?: { webSafe?: boolean }): OpraSchema.Operation {
     const schema: OpraSchema.Endpoint & Record<string, any> = super.exportSchema(options);
     if (this.inputOverwriteFields) {
       const trg = schema.options.inputOverwriteFields = {};
@@ -37,7 +39,11 @@ export class ApiOperationClass extends ApiEndpoint {
             trg[k] = ApiField.prototype.exportSchema.call(o, options);
           })
     }
-    return schema;
+    return {
+      kind: OpraSchema.Operation.Kind,
+      method: this.method,
+      ...schema
+    };
   }
 
 }
