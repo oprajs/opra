@@ -24,7 +24,7 @@ export * from './resource/api-response.js';
 export * from './resource/collection.js';
 export * from './resource/container.js';
 export * from './resource/crud-resource.js';
-export * from './resource/resource.js';
+export * from './resource/api-resource.js';
 export * from './resource/singleton.js';
 export * from './resource/storage.js';
 export * from './resource/enums/metadata-mode.enum.js';

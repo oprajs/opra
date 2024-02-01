@@ -2,8 +2,8 @@ import merge from 'putil-merge';
 import { Combine, StrictOmit } from 'ts-gems';
 import type { ApiDocument } from '../api-document.js';
 import { DECORATOR } from '../constants.js';
+import type { ApiResource } from './api-resource';
 import type { Container } from './container.js';
-import type { Resource } from './resource.js';
 import { StorageClass } from './storage-class.js'
 import { StorageDecorator } from './storage-decorator.js';
 
@@ -40,7 +40,7 @@ Storage[DECORATOR] = StorageDecorator;
 
 export namespace Storage {
 
-  export interface InitArguments extends StrictOmit<Combine<Resource.InitArguments, StorageDecorator.Metadata>, 'kind'> {
+  export interface InitArguments extends StrictOmit<Combine<ApiResource.InitArguments, StorageDecorator.Metadata>, 'kind'> {
   }
 
   export interface DecoratorOptions extends Partial<StrictOmit<StorageDecorator.Metadata, 'kind' | 'operations' | 'actions'>> {

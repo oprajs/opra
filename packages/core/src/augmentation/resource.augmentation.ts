@@ -1,5 +1,5 @@
 import type { Mutable } from 'ts-gems';
-import { Collection, Resource, RESOURCE_METADATA, Singleton } from "@opra/common";
+import { ApiResource, Collection, RESOURCE_METADATA, Singleton } from "@opra/common";
 import { RequestContext } from '../request-context.js';
 
 declare module "@opra/common" {
@@ -16,22 +16,22 @@ declare module "@opra/common" {
   }
 
   // eslint-disable-next-line @typescript-eslint/no-shadow
-  namespace Resource {
+  namespace ApiResource {
     interface Context extends RequestContext {
       params: Record<string, any>;
     }
   }
 
   // eslint-disable-next-line @typescript-eslint/no-shadow
-  interface Resource {
-    onInit?: (resource: Resource) => void | Promise<void>;
-    onShutdown?: (resource: Resource) => void | Promise<void>;
+  interface ApiResource {
+    onInit?: (resource: ApiResource) => void | Promise<void>;
+    onShutdown?: (resource: ApiResource) => void | Promise<void>;
   }
 
-  namespace Resource {
+  namespace ApiResource {
     interface InitArguments {
-      onInit?: (resource: Resource) => void | Promise<void>;
-      onShutdown?: (resource: Resource) => void | Promise<void>;
+      onInit?: (resource: ApiResource) => void | Promise<void>;
+      onShutdown?: (resource: ApiResource) => void | Promise<void>;
     }
   }
 
@@ -53,11 +53,11 @@ declare module "@opra/common" {
 }
 
 // @ts-ignore
-const oldConstruct = Resource.prototype._construct;
+const oldConstruct = ApiResource.prototype._construct;
 // @ts-ignore
-Resource.prototype._construct = function (init: Resource.InitArguments) {
+ApiResource.prototype._construct = function (init: ApiResource.InitArguments) {
   oldConstruct.call(this, init);
-  const _this = this as Mutable<Resource>;
+  const _this = this as Mutable<ApiResource>;
   _this.onInit = init.onInit;
   _this.onShutdown = init.onShutdown;
 }

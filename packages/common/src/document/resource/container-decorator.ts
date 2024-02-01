@@ -3,8 +3,8 @@ import { OpraSchema } from '../../schema/index.js';
 import { ApiActionDecorator, createActionDecorator } from './api-action.decorator.js';
 import type { ApiAction } from './api-action.js';
 import type { ApiOperation } from './api-operation.js';
+import { ResourceDecorator } from './api-resource.decorator.js';
 import type { Container } from './container.js';
-import { ResourceDecorator } from './resource-decorator.js';
 
 export function ContainerDecorator(options?: Container.DecoratorOptions): ClassDecorator {
   return ResourceDecorator(OpraSchema.Container.Kind, options)

@@ -1,5 +1,5 @@
 import { StrictOmit } from 'ts-gems';
-import type { ApiAction as _Action, ApiOperation as _Operation, PartialDTO } from '@opra/common';
+import { ApiAction as _Action, ApiOperation as _Operation, PartialDTO } from '@opra/common';
 import type { Request as _Request } from '../request.js';
 import type { RequestContext } from '../request-context.js';
 
@@ -13,7 +13,7 @@ declare module "@opra/common" {
         endpoint: _Action;
       }
 
-      interface Context extends Resource.Context {
+      interface Context extends ApiResource.Context {
       }
     }
 

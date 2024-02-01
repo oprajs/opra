@@ -3,8 +3,8 @@ import type { StrictOmit } from 'ts-gems';
 import type { OpraSchema } from '../../schema/index';
 import { ApiOperationClass } from './api-operation.class.js';
 import type { ApiParameter } from './api-parameter.js';
+import type { ApiResource } from './api-resource';
 import type { ApiResponse } from './api-response.js';
-import type { Resource } from './resource.js';
 
 
 export namespace ApiOperation {
@@ -30,7 +30,7 @@ export interface ApiOperation extends ApiOperationClass {
 
 export interface ApiOperationConstructor /* extends ApiOperationDecorator */
 {
-  new(resource: Resource, name: string, init: ApiOperation.InitArguments): ApiOperationClass;
+  new(resource: ApiResource, name: string, init: ApiOperation.InitArguments): ApiOperationClass;
 
   prototype: ApiOperationClass;
 }
@@ -49,7 +49,7 @@ export const ApiOperation = function (this: ApiOperationClass, ...args: any[]) {
   }
 
   // Constructor
-  const [resource, name, init] = args as [Resource, string, ApiOperation.InitArguments];
+  const [resource, name, init] = args as [ApiResource, string, ApiOperation.InitArguments];
   merge(this, new ApiOperationClass(resource, name, init), {descriptor: true});
 } as unknown as ApiOperationConstructor;
 

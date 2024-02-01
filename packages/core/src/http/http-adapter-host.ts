@@ -2,24 +2,12 @@ import fs from 'fs/promises';
 import os from 'os';
 import { ValidationError } from 'valgen';
 import {
-  BadRequestError,
-  Collection,
-  Container,
-  HttpHeaderCodes,
-  HttpStatusCode,
-  InternalServerError, isReadable,
-  IssueSeverity,
-  MethodNotAllowedError, OperationResult,
-  OpraException,
-  OpraSchema,
-  OpraURL, OpraURLPath,
-  OpraURLPathComponent,
-  Resource, ResourceNotAvailableError,
-  Singleton,
-  Storage,
-  translate,
-  uid,
-  wrapException,
+  ApiResource, BadRequestError, Collection, Container,
+  HttpHeaderCodes, HttpStatusCode, InternalServerError, isReadable,
+  IssueSeverity, MethodNotAllowedError, OperationResult,
+  OpraException, OpraSchema, OpraURL, OpraURLPath,
+  OpraURLPathComponent, ResourceNotAvailableError,
+  Singleton, Storage, translate, uid, wrapException,
 } from '@opra/common';
 import { ExecutionContextHost } from '../execution-context.host.js';
 import { ExecutionContext } from '../execution-context.js';
@@ -145,7 +133,7 @@ export abstract class HttpAdapterHost extends PlatformAdapterHost {
     const parsedUrl = new OpraURL(incoming.url);
     let i = 0;
     let p: OpraURLPathComponent;
-    let resource: Resource = this.api.root;
+    let resource: ApiResource = this.api.root;
     let request: RequestHost | undefined;
     // Walk through container
     while (resource instanceof Container && i < parsedUrl.path.length) {
@@ -194,7 +182,7 @@ export abstract class HttpAdapterHost extends PlatformAdapterHost {
 
   protected async _parseRequestAction(
       executionContext: ExecutionContext,
-      resource: Resource,
+      resource: ApiResource,
       urlPath: OpraURLPath,
       searchParams: URLSearchParams
   ): Promise<RequestHost> {

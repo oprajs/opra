@@ -2,15 +2,15 @@ import { ResponsiveMap } from '../../helpers/index.js';
 import { OpraSchema } from '../../schema/index.js';
 import type { ApiDocument } from '../api-document.js';
 import { ApiOperation } from './api-operation.js';
+import { ApiResource } from './api-resource.js';
 import type { Container } from './container.js';
-import { Resource } from './resource.js';
 
-export abstract class CrudResource extends Resource {
+export abstract class CrudResource extends ApiResource {
   operations = new ResponsiveMap<ApiOperation>();
 
   protected constructor(
       parent: ApiDocument | Container,
-      init: Resource.InitArguments
+      init: ApiResource.InitArguments
   ) {
     super(parent, init);
     if (init.operations) {

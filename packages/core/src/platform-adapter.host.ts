@@ -6,12 +6,12 @@ import {
   ApiAction,
   ApiDocument,
   ApiOperation,
+  ApiResource,
   BadRequestError,
   Container, CrudResource,
   ForbiddenError,
   getStackFileName,
   I18n,
-  Resource,
   translate
 } from '@opra/common';
 import { ExecutionContext } from './execution-context.js';
@@ -26,7 +26,7 @@ const resourceInitialized = Symbol.for('opra.resource.initialized');
  */
 export abstract class PlatformAdapterHost extends AsyncEventEmitter implements PlatformAdapter {
   protected _api: ApiDocument;
-  protected _controllers = new Map<Resource, any>();
+  protected _controllers = new Map<ApiResource, any>();
   protected _protocol: Protocol;
   protected _platform: string;
   protected _serviceName: string;
@@ -103,8 +103,8 @@ export abstract class PlatformAdapterHost extends AsyncEventEmitter implements P
     await this.getController(this.api.root);
   }
 
-  async getController(resource: Resource | string): Promise<any> {
-    resource = typeof resource === 'object' && resource instanceof Resource
+  async getController(resource: ApiResource | string): Promise<any> {
+    resource = typeof resource === 'object' && resource instanceof ApiResource
         ? resource : this.api.getResource(resource);
     let controller = this._controllers.get(resource);
     if (!controller) {
@@ -129,12 +129,12 @@ export abstract class PlatformAdapterHost extends AsyncEventEmitter implements P
     return controller;
   }
 
-  async getActionHandler(resource: Resource | string, name: string): Promise<{
+  async getActionHandler(resource: ApiResource | string, name: string): Promise<{
     endpoint: ApiAction;
     controller: any;
     handler: Function;
   }> {
-    resource = typeof resource === 'object' && resource instanceof Resource
+    resource = typeof resource === 'object' && resource instanceof ApiResource
         ? resource
         : this.api.getResource(resource);
     const controller = await this.getController(resource);
@@ -152,14 +152,14 @@ export abstract class PlatformAdapterHost extends AsyncEventEmitter implements P
   }
 
   async getOperationHandler(
-      resource: Resource | string,
+      resource: ApiResource | string,
       name: string
   ): Promise<{
     endpoint: ApiOperation;
     controller: any;
     handler: Function;
   }> {
-    resource = typeof resource === 'object' && resource instanceof Resource
+    resource = typeof resource === 'object' && resource instanceof ApiResource
         ? resource
         : this.api.getResource(resource);
     const controller = await this.getController(resource);

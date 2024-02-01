@@ -1,8 +1,8 @@
-import { ApiAction, ApiOperation, Resource } from '@opra/common';
+import { ApiAction, ApiOperation, ApiResource } from '@opra/common';
 import { HttpServerRequest } from './http/http-server-request.js';
 
 export interface Request {
-  resource: Resource;
+  resource: ApiResource;
   endpoint: ApiAction | ApiOperation;
   key?: any;
   controller: Object;

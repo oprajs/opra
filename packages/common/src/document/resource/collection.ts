@@ -3,10 +3,10 @@ import { Combine, StrictOmit } from 'ts-gems';
 import type { ApiDocument } from '../api-document.js';
 import { DECORATOR } from '../constants.js';
 import { ComplexType } from '../data-type/complex-type.js';
+import { ApiResource } from './api-resource.js';
 import { CollectionClass } from './collection-class.js';
 import { CollectionDecorator } from './collection-decorator.js';
 import type { Container } from './container.js';
-import { Resource } from './resource.js';
 
 export interface Collection extends CollectionClass {
 }
@@ -45,7 +45,7 @@ Collection[DECORATOR] = CollectionDecorator;
 export namespace Collection {
 
   export interface InitArguments extends StrictOmit<
-      Combine<Resource.InitArguments, CollectionDecorator.Metadata>, 'kind' | 'type'> {
+      Combine<ApiResource.InitArguments, CollectionDecorator.Metadata>, 'kind' | 'type'> {
     name: string;
     type: ComplexType;
   }

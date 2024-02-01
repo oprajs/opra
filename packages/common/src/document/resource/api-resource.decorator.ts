@@ -1,32 +1,14 @@
 import omit from 'lodash.omit';
 import merge from 'putil-merge';
-import { StrictOmit } from 'ts-gems';
 import { OpraSchema } from '../../schema/index.js';
 import { RESOURCE_METADATA } from '../constants.js';
-import type { ApiAction } from './api-action.js';
-import type { ApiOperation } from './api-operation.js';
-
-/**
- * @namespace ResourceDecorator
- */
-export namespace ResourceDecorator {
-
-  export interface DecoratorMetadata extends StrictOmit<OpraSchema.Resource, 'actions'> {
-    name: string;
-    actions?: Record<string, ApiAction.DecoratorMetadata>;
-    operations?: Record<string, ApiOperation.DecoratorMetadata>;
-  }
-
-  export interface DecoratorOptions extends Partial<StrictOmit<DecoratorMetadata, 'kind' | 'actions' | 'operations'>> {
-  }
-
-}
+import type { ApiResource } from './api-resource.js';
 
 export interface ResourceDecorator {
-  Action: (options?: ResourceDecorator.DecoratorOptions) => ResourceDecorator;
+  Action: (options?: ApiResource.DecoratorOptions) => ResourceDecorator;
 }
 
-export function ResourceDecorator<O extends ResourceDecorator.DecoratorOptions>(
+export function ResourceDecorator<O extends ApiResource.DecoratorOptions>(
     kind: OpraSchema.Resource.Kind,
     meta?: O
 ): ClassDecorator {
@@ -39,7 +21,7 @@ export function ResourceDecorator<O extends ResourceDecorator.DecoratorOptions>(
       if (kind === 'Container')
         name = name.charAt(0).toLowerCase() + name.substring(1);
     }
-    const metadata: ResourceDecorator.DecoratorMetadata = {kind, name};
+    const metadata: ApiResource.DecoratorMetadata = {kind, name};
     const baseMetadata = Reflect.getOwnMetadata(RESOURCE_METADATA, Object.getPrototypeOf(target));
     if (baseMetadata)
       merge(metadata, baseMetadata, {deep: true});

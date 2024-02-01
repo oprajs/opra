@@ -1,7 +1,7 @@
 import { OpraSchema } from '../../schema/index.js';
 import type { ApiAction } from './api-action.js';
 import { ApiEndpoint } from './api-endpoint.js';
-import type { Resource } from './resource';
+import type { ApiResource } from './api-resource';
 
 /**
  *
@@ -10,7 +10,7 @@ import type { Resource } from './resource';
 export class ApiActionClass extends ApiEndpoint {
   readonly kind = 'action';
 
-  constructor(readonly resource: Resource, readonly name: string, init: ApiAction.InitArguments) {
+  constructor(readonly resource: ApiResource, readonly name: string, init: ApiAction.InitArguments) {
     super(resource, name, init);
   }
 

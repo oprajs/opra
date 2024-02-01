@@ -3,7 +3,7 @@ import { OpraSchema } from '../../schema/index.js';
 import { ApiField } from '../data-type/field.js';
 import { ApiEndpoint } from './api-endpoint.js';
 import type { ApiOperation } from './api-operation.js';
-import type { Resource } from './resource.js';
+import type { ApiResource } from './api-resource';
 
 /**
  *
@@ -16,7 +16,7 @@ export class ApiOperationClass extends ApiEndpoint {
   inputOverwriteFields?: Record<string, ApiField.InitArguments>;
   outputOverwriteFields?: Record<string, ApiField.InitArguments>;
 
-  constructor(readonly resource: Resource, readonly name: string, init: ApiOperation.InitArguments) {
+  constructor(readonly resource: ApiResource, readonly name: string, init: ApiOperation.InitArguments) {
     super(resource, name, init);
     this.method = init.method || 'GET';
     this.inputOverwriteFields = init.options?.inputOverwriteFields;

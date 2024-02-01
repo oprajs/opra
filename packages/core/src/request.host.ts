@@ -1,5 +1,5 @@
 import type { PartialSome, StrictOmit } from 'ts-gems';
-import type { Resource } from '@opra/common';
+import type { ApiResource } from '@opra/common';
 import { ApiAction, ApiOperation } from '@opra/common';
 import type { HttpServerRequest } from './http/http-server-request.js';
 import type { Request } from './request.js';
@@ -31,7 +31,7 @@ export class RequestHost implements Request {
     this.params = this.params || {};
   }
 
-  get resource(): Resource {
+  get resource(): ApiResource {
     return this.endpoint.resource;
   }
 

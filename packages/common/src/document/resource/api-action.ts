@@ -1,7 +1,7 @@
 import merge from 'putil-merge';
 import { ApiActionClass } from './api-action.class.js';
 import type { ApiEndpoint } from './api-endpoint.js';
-import type { Resource } from './resource';
+import type { ApiResource } from './api-resource';
 
 
 export namespace ApiAction {
@@ -20,7 +20,7 @@ export interface ApiAction extends ApiActionClass {
 
 export interface ApiActionConstructor /* extends ApiActionDecorator */
 {
-  new(resource: Resource, name: string, init: ApiAction.InitArguments): ApiActionClass;
+  new(resource: ApiResource, name: string, init: ApiAction.InitArguments): ApiActionClass;
 
   prototype: ApiActionClass;
 }
@@ -39,7 +39,7 @@ export const ApiAction = function (this: ApiActionClass, ...args: any[]) {
   }
 
   // Constructor
-  const [resource, name, init] = args as [Resource, string, ApiAction.InitArguments];
+  const [resource, name, init] = args as [ApiResource, string, ApiAction.InitArguments];
   merge(this, new ApiActionClass(resource, name, init), {descriptor: true});
 } as unknown as ApiActionConstructor;
 

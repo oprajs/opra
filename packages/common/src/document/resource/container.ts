@@ -2,9 +2,9 @@ import merge from 'putil-merge';
 import { Combine, StrictOmit } from 'ts-gems';
 import type { ApiDocument } from '../api-document.js';
 import { DECORATOR } from '../constants.js';
+import type { ApiResource } from './api-resource';
 import { ContainerClass } from './container-class.js'
 import { ContainerDecorator } from './container-decorator.js';
-import type { Resource } from './resource.js';
 
 export interface Container extends ContainerClass {
 }
@@ -43,8 +43,8 @@ Container[DECORATOR] = ContainerDecorator;
 
 export namespace Container {
 
-  export interface InitArguments extends StrictOmit<Combine<Resource.InitArguments, ContainerDecorator.Metadata>, 'kind' | 'resources'> {
-    resources?: Resource[];
+  export interface InitArguments extends StrictOmit<Combine<ApiResource.InitArguments, ContainerDecorator.Metadata>, 'kind' | 'resources'> {
+    resources?: ApiResource[];
   }
 
   // export type ResourceInitializer =

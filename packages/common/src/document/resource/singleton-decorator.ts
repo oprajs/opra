@@ -6,8 +6,8 @@ import { ApiActionDecorator, createActionDecorator } from './api-action.decorato
 import type { ApiAction } from './api-action.js';
 import type { ApiOperation } from './api-operation.js';
 import type { ApiParameter } from './api-parameter.js';
+import { ResourceDecorator } from './api-resource.decorator.js';
 import { CollectionDecorator } from './collection-decorator.js';
-import { ResourceDecorator } from './resource-decorator.js';
 import type { Singleton } from './singleton.js';
 
 type ErrorMessage<T, Error> = [T] extends [never] ? Error : T;

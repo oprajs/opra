@@ -10,9 +10,9 @@ import { ApiAction } from '../resource/api-action.js';
 import { ApiEndpoint } from '../resource/api-endpoint.js';
 import { ApiOperation } from '../resource/api-operation.js';
 import { ApiParameter } from '../resource/api-parameter.js';
+import { ApiResource } from '../resource/api-resource.js';
 import { Collection } from '../resource/collection.js';
 import { Container } from '../resource/container.js';
-import { Resource } from '../resource/resource.js';
 import { Singleton } from '../resource/singleton.js';
 import { Storage } from '../resource/storage.js';
 import { TypeDocumentFactory } from './type-document-factory.js';
@@ -264,7 +264,7 @@ export class ApiDocumentFactory extends TypeDocumentFactory {
     return initArguments;
   }
 
-  protected async createResource(container: Container, initArguments: ApiDocumentFactory.ResourceInitializer): Promise<Resource> {
+  protected async createResource(container: Container, initArguments: ApiDocumentFactory.ResourceInitializer): Promise<ApiResource> {
     if (initArguments.kind === 'Collection')
       return new Collection(container, initArguments);
     if (initArguments.kind === 'Singleton')

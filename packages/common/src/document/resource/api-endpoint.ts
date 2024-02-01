@@ -5,8 +5,8 @@ import type { OpraSchema } from '../../schema/index.js';
 import type { URLSearchParamsInit } from '../../types.js';
 import { ApiElement } from './api-element.js';
 import { ApiParameter } from './api-parameter.js';
+import type { ApiResource } from './api-resource';
 import { ApiResponse } from './api-response.js';
-import type { Resource } from './resource.js';
 
 
 export namespace ApiEndpoint {
@@ -34,7 +34,7 @@ export namespace ApiEndpoint {
  */
 export abstract class ApiEndpoint extends ApiElement {
   abstract readonly kind: 'action' | 'operation';
-  readonly resource: Resource;
+  readonly resource: ApiResource;
   readonly name: string;
   description?: string;
   headers: ApiParameter[];
@@ -42,7 +42,7 @@ export abstract class ApiEndpoint extends ApiElement {
   response: ApiResponse;
   options: any;
 
-  protected constructor(resource: Resource, name: string, init: ApiEndpoint.InitArguments) {
+  protected constructor(resource: ApiResource, name: string, init: ApiEndpoint.InitArguments) {
     super(resource.document);
     this.resource = resource;
     this.name = name;

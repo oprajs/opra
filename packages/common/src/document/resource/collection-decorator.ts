@@ -10,8 +10,8 @@ import type { ApiAction } from './api-action.js';
 import { createOperationDecorator } from './api-operation.decorator.js';
 import type { ApiOperation } from './api-operation.js';
 import type { ApiParameter } from './api-parameter';
+import { ResourceDecorator } from './api-resource.decorator.js';
 import type { Collection } from './collection.js';
-import { ResourceDecorator } from './resource-decorator.js';
 
 type ErrorMessage<T, Error> = [T] extends [never] ? Error : T;
 const operationProperties = ['create', 'delete', 'deleteMany', 'get', 'findMany', 'update', 'updateMany'] as const;

@@ -2,9 +2,9 @@ import { Type } from 'ts-gems';
 import { TypeThunkAsync } from '../../types.js';
 import { RESOURCE_METADATA } from '../constants.js';
 import type { ApiAction } from './api-action.js';
-import type { ApiParameter } from './api-parameter';
+import type { ApiParameter } from './api-parameter.js';
+import type { ApiResource } from './api-resource.js';
 import type { ApiResponse } from './api-response.js';
-import { ResourceDecorator } from './resource-decorator.js';
 
 export type ApiActionDecorator = ((target: Object, propertyKey: string) => void) & {
   Parameter(name: string | RegExp, optionsOrType?: ApiParameter.DecoratorOptions | string | Type): ApiActionDecorator;
@@ -23,7 +23,7 @@ export function createActionDecorator<T extends ApiActionDecorator, M extends Ap
       throw new TypeError(`The "${propertyKey}" property is reserved for "${propertyKey}" operations and cannot be used as an action'`);
 
     const resourceMetadata =
-        (Reflect.getOwnMetadata(RESOURCE_METADATA, target.constructor) || {}) as ResourceDecorator.DecoratorMetadata;
+        (Reflect.getOwnMetadata(RESOURCE_METADATA, target.constructor) || {}) as ApiResource.DecoratorMetadata;
     resourceMetadata.actions = resourceMetadata.actions || {};
     const actionMeta: M = {...options};
     resourceMetadata.actions[propertyKey] = actionMeta;

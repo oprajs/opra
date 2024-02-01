@@ -1,7 +1,7 @@
 import { OpraSchema } from '../schema/index.js';
+import type { ApiResource } from './resource/api-resource';
 import type { Collection } from './resource/collection.js';
 import { Container } from './resource/container.js';
-import type { Resource } from './resource/resource.js';
 import type { Singleton } from './resource/singleton.js';
 import type { Storage } from './resource/storage.js';
 import { TypeDocument } from './type-document.js';
@@ -12,10 +12,10 @@ export class ApiDocument extends TypeDocument {
   /**
    * Returns Resource instance by path. Returns undefined if not found
    */
-  getResource(path: string): Resource;
-  getResource(path: string, silent: false): Resource;
-  getResource(path: string, silent: true): Resource | undefined;
-  getResource(path: string, silent?: boolean): Resource | undefined {
+  getResource(path: string): ApiResource;
+  getResource(path: string, silent: false): ApiResource;
+  getResource(path: string, silent: true): ApiResource | undefined;
+  getResource(path: string, silent?: boolean): ApiResource | undefined {
     return this.root.getResource(path, silent as any);
   }
 

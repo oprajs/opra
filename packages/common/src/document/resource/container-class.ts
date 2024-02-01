@@ -2,17 +2,17 @@ import { NotAcceptableError, ResourceNotAvailableError } from '../../exception/i
 import { ResponsiveMap } from '../../helpers/index.js';
 import { OpraSchema } from '../../schema/index.js';
 import type { ApiDocument } from '../api-document.js';
+import { ApiResource } from './api-resource.js';
 import type { Collection } from './collection.js';
 import type { Container } from './container.js';
-import { Resource } from './resource.js';
 import { Singleton } from './singleton.js';
 import { Storage } from './storage.js';
 
 const PATH_PREFIX_PATTERN = /^(\/*)(.+)$/;
 
-export class ContainerClass extends Resource {
+export class ContainerClass extends ApiResource {
   readonly kind: OpraSchema.Resource.Kind = OpraSchema.Container.Kind;
-  readonly resources = new ResponsiveMap<Resource>();
+  readonly resources = new ResponsiveMap<ApiResource>();
   readonly parent?: Container;
 
   constructor(owner: ApiDocument | Container, init: Container.InitArguments) {
@@ -36,16 +36,16 @@ export class ContainerClass extends Resource {
    * @param path
    * @param silent
    */
-  getResource(path: string, silent: boolean): Resource | undefined;
-  getResource(path: string, silent: true): Resource | undefined;
+  getResource(path: string, silent: boolean): ApiResource | undefined;
+  getResource(path: string, silent: true): ApiResource | undefined;
   /**
    * Returns Resource instance by path. Throws error if not found
    * @param path
    */
-  getResource(path: string): Resource;
-  getResource(path: string, silent: false): Resource;
-  getResource(path: string, silent?: boolean): Resource | undefined {
-    let resource: Resource | undefined;
+  getResource(path: string): ApiResource;
+  getResource(path: string, silent: false): ApiResource;
+  getResource(path: string, silent?: boolean): ApiResource | undefined {
+    let resource: ApiResource | undefined;
     path = PATH_PREFIX_PATTERN.exec(path)?.[2] || path;
     if (path.includes('/')) {
       const arr = path.split('/');

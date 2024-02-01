@@ -6,8 +6,8 @@ import type { ApiAction } from './api-action.js';
 import { createOperationDecorator } from './api-operation.decorator.js';
 import type { ApiOperation } from './api-operation.js';
 import type { ApiParameter } from './api-parameter';
+import { ResourceDecorator } from './api-resource.decorator.js';
 import type { ApiResponse } from './api-response';
-import { ResourceDecorator } from './resource-decorator.js';
 import type { Storage } from './storage.js';
 
 type ErrorMessage<T, Error> = [T] extends [never] ? Error : T;

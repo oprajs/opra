@@ -8,9 +8,28 @@ import { ApiAction } from './api-action.js';
 import { ApiElement } from './api-element.js';
 import { ApiOperation } from './api-operation.js';
 import type { Container } from './container.js';
-import type { ResourceDecorator } from './resource-decorator';
 
-export abstract class Resource extends ApiElement {
+export namespace ApiResource {
+  export interface InitArguments extends StrictOmit<DecoratorMetadata, 'kind' | 'operations' | 'actions'> {
+    name: string;
+    actions?: Record<string, ApiAction.InitArguments>;
+    operations?: Record<string, ApiOperation.InitArguments>;
+    controller?: object;
+    ctor?: Type;
+  }
+
+  export interface DecoratorMetadata extends StrictOmit<OpraSchema.Resource, 'actions'> {
+    name: string;
+    actions?: Record<string, ApiAction.DecoratorMetadata>;
+    operations?: Record<string, ApiOperation.DecoratorMetadata>;
+  }
+
+  export interface DecoratorOptions extends Partial<StrictOmit<DecoratorMetadata, 'kind' | 'actions' | 'operations'>> {
+  }
+
+}
+
+export abstract class ApiResource extends ApiElement {
   readonly parent?: Container;
   abstract readonly kind: OpraSchema.Resource.Kind;
   readonly name: string;
@@ -21,10 +40,10 @@ export abstract class Resource extends ApiElement {
 
   protected constructor(
       parent: ApiDocument | Container,
-      init: Resource.InitArguments
+      init: ApiResource.InitArguments
   ) {
-    super(parent instanceof Resource ? parent.document : parent);
-    if (parent instanceof Resource)
+    super(parent instanceof ApiResource ? parent.document : parent);
+    if (parent instanceof ApiResource)
       this.parent = parent;
     this.name = init.name;
     this.description = init.description;
@@ -72,13 +91,3 @@ export abstract class Resource extends ApiElement {
   }
 }
 
-export namespace Resource {
-  export interface InitArguments extends StrictOmit<ResourceDecorator.DecoratorMetadata, 'kind' | 'operations' | 'actions'> {
-    name: string;
-    actions?: Record<string, ApiAction.InitArguments>;
-    operations?: Record<string, ApiOperation.InitArguments>;
-    controller?: object;
-    ctor?: Type;
-  }
-
-}

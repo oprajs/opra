@@ -3,8 +3,8 @@ import { Combine, StrictOmit } from 'ts-gems';
 import type { ApiDocument } from '../api-document.js';
 import { DECORATOR } from '../constants.js';
 import type { ComplexType } from '../data-type/complex-type.js';
+import type { ApiResource } from './api-resource';
 import type { Container } from './container.js';
-import type { Resource } from './resource.js';
 import { SingletonClass } from './singleton-class.js';
 import { SingletonDecorator } from './singleton-decorator.js';
 
@@ -43,7 +43,7 @@ Singleton[DECORATOR] = SingletonDecorator;
  */
 export namespace Singleton {
 
-  export interface InitArguments extends StrictOmit<Combine<Resource.InitArguments,
+  export interface InitArguments extends StrictOmit<Combine<ApiResource.InitArguments,
       SingletonDecorator.Metadata>, 'kind' | 'type'> {
     name: string;
     type: ComplexType;

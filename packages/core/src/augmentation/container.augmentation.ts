@@ -12,7 +12,7 @@ declare module "@opra/common" {
         endpoint: _Action;
       }
 
-      interface Context extends Resource.Context {
+      interface Context extends ApiResource.Context {
       }
     }
   }
