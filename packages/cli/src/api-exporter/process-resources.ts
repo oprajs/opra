@@ -93,8 +93,8 @@ export class ${className} {
       } else if (resource instanceof Singleton) {
         tsFile.content += `  readonly ${operation}: HttpSingletonNode<${typeName}>['${operation}'];\n`;
       } else if (resource instanceof Storage) {
-        if (operation === 'post' && endpoint.returnType) {
-          typeName = endpoint.returnType.name || 'any'; // todo
+        if (operation === 'post' && endpoint.response.type) {
+          typeName = endpoint.response.type.name || 'any'; // todo
           tsFile.addImport(`/types/${typeName}`, [typeName], true);
           tsFile.content += `\n  readonly ${operation}: HttpStorageNode<${typeName}>['${operation}'];\n`;
         } else
@@ -106,10 +106,10 @@ export class ${className} {
   if (resource.actions.size) {
     tsFile.addImport('@opra/client', ['HttpRequestObservable']);
     for (const [action, endpoint] of resource.actions.entries()) {
-      let returnTypeDef = endpoint.returnType ?
+      let returnTypeDef = endpoint.response.type ?
           await this.resolveTypeNameOrDef({
             file: tsFile,
-            dataType: endpoint.returnType,
+            dataType: endpoint.response.type,
             intent: 'field'
           })
           : 'any';
