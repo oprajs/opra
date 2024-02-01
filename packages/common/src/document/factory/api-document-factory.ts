@@ -20,7 +20,7 @@ import { TypeDocumentFactory } from './type-document-factory.js';
 export namespace ApiDocumentFactory {
 
   export interface RootInit extends StrictOmit<OpraSchema.Container, 'kind' | 'resources'> {
-    resources?: ThunkAsync<Type | object>[] | Record<OpraSchema.Resource.Name, OpraSchema.Resource>;
+    resources?: ThunkAsync<Type | object>[] | Record<OpraSchema.Resource.Name, OpraSchema.AnyResource>;
   }
 
   export interface InitArguments extends TypeDocumentFactory.InitArguments {
@@ -91,7 +91,7 @@ export class ApiDocumentFactory extends TypeDocumentFactory {
     return this.document;
   }
 
-  protected async importResourceSchema(name: string, schema: OpraSchema.Resource): Promise<ApiDocumentFactory.ResourceInitializer> {
+  protected async importResourceSchema(name: string, schema: OpraSchema.AnyResource): Promise<ApiDocumentFactory.ResourceInitializer> {
     const convertEndpoints = async (source?: Record<string, OpraSchema.Endpoint | undefined>) => {
       if (!source)
         return;
@@ -102,8 +102,8 @@ export class ApiDocumentFactory extends TypeDocumentFactory {
         const outputEndpoint = output[endpointName] = {...endpointSchema};
         let parameters: ApiParameter.InitArguments[] | undefined;
         // Resolve lazy type
-        if ((endpointSchema as ApiEndpoint.DecoratorMetadata).returnType) {
-          (outputEndpoint as any).returnType = await this.importDataType((endpointSchema as any).returnType);
+        if ((endpointSchema as ApiEndpoint.DecoratorMetadata).response?.type) {
+          (outputEndpoint as any).response.type = await this.importDataType((endpointSchema as any).response.type);
         }
         if (endpointSchema.parameters) {
           parameters = outputEndpoint.parameters = [];
@@ -191,8 +191,8 @@ export class ApiDocumentFactory extends TypeDocumentFactory {
       for (const [kA, oA] of Object.entries(source)) {
         const o = output[kA] = {...oA};
         // Resolve lazy type
-        if ((oA as ApiOperation.DecoratorMetadata).returnType) {
-          (o as any).returnType = await this.importDataType((oA as any).returnType);
+        if ((oA as ApiOperation.DecoratorMetadata).response?.type) {
+          (o as any).response.type = await this.importDataType((oA as any).response.type);
         }
 
         if (oA.parameters) {

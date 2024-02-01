@@ -122,6 +122,7 @@ export abstract class HttpAdapterHost extends PlatformAdapterHost {
     try {
       const {outgoing} = executionContext.switchToHttp();
       const response: Response = new ResponseHost({http: outgoing});
+      response.switchToHttp().statusCode = request.endpoint.response.statusCode;
       const context = RequestContext.from(executionContext, this.api, request, response);
       await this.executeRequest(context);
       await this.sendResponse(context);
@@ -575,14 +576,14 @@ export abstract class HttpAdapterHost extends PlatformAdapterHost {
               value = value == null ? {} : Array.isArray(value) ? value[0] : value;
           }
 
-          value = endpoint.encodeReturning(value, {coerce: true});
+          value = endpoint.response.getEncoder()(value, {coerce: true});
           response.value = value;
           return;
         }
       }
 
       if (response.value)
-        response.value = endpoint.encodeReturning(response.value, {coerce: true});
+        response.value = endpoint.response.getEncoder()(response.value, {coerce: true});
 
     } catch (error) {
       response.errors.push(error);
@@ -604,10 +605,10 @@ export abstract class HttpAdapterHost extends PlatformAdapterHost {
     }
 
     let contentType = String(outgoing.getHeader('content-type') || '');
-    let returnType = endpoint.returnType;
+    let returnType = endpoint.response.type;
 
-    if (endpoint.kind === 'action' && !contentType && endpoint.returnMime && response.value) {
-      contentType = endpoint.returnMime;
+    if (endpoint.kind === 'action' && !contentType && endpoint.response.contentType && response.value) {
+      contentType = endpoint.response.contentType;
       outgoing.setHeader('Content-Type', contentType);
     }
 

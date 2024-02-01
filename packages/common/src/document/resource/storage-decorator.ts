@@ -6,6 +6,7 @@ import type { ApiAction } from './api-action.js';
 import { createOperationDecorator } from './api-operation.decorator.js';
 import type { ApiOperation } from './api-operation.js';
 import type { ApiParameter } from './api-parameter';
+import type { ApiResponse } from './api-response';
 import { ResourceDecorator } from './resource-decorator.js';
 import type { Storage } from './storage.js';
 
@@ -144,7 +145,8 @@ export namespace StorageDecorator {
     MaxFileSize(sizeInBytes: number): PostDecorator;
     MaxTotalFileSize(sizeInBytes: number): PostDecorator;
     MinFileSize(sizeInBytes: number): PostDecorator;
-    Returns(t: TypeThunkAsync | string): PostDecorator;
+    Returns(args: ApiResponse.DecoratorOptions): PostDecorator;
+    Returns(dataType: TypeThunkAsync | string): PostDecorator;
   };
 
   export function Post(options?: Post.Options): PostDecorator {
@@ -174,8 +176,10 @@ export namespace StorageDecorator {
       list.push(operationMeta => operationMeta.options.minFileSize = sizeInBytes);
       return decorator;
     }
-    decorator.Returns = (t: TypeThunkAsync | string) => {
-      list.push(operationMeta => operationMeta.returnType = t);
+    decorator.Returns = (args: TypeThunkAsync | string | ApiResponse.DecoratorOptions) => {
+      list.push(operationMeta => {
+        operationMeta.response = typeof args === 'object' ? {...args} : {type: args};
+      });
       return decorator;
     }
     return decorator;

@@ -1,28 +1,28 @@
-import { StrictOmit, Type } from 'ts-gems';
-import { isAny, Validator, vg } from 'valgen';
+import { StrictOmit } from 'ts-gems';
 import type { ErrorIssue } from 'valgen/typings/core/types';
 import { omitUndefined } from '../../helpers/index.js';
 import type { OpraSchema } from '../../schema/index.js';
-import type { TypeThunkAsync, URLSearchParamsInit } from '../../types.js';
-import { DataType } from '../data-type/data-type.js';
+import type { URLSearchParamsInit } from '../../types.js';
+import { ApiElement } from './api-element.js';
 import { ApiParameter } from './api-parameter.js';
+import { ApiResponse } from './api-response.js';
 import type { Resource } from './resource.js';
 
 
 export namespace ApiEndpoint {
-  export interface InitArguments extends StrictOmit<OpraSchema.Endpoint, 'headers' | 'parameters' | 'returnType'> {
+  export interface InitArguments extends StrictOmit<OpraSchema.Endpoint, 'headers' | 'parameters' | 'response'> {
     headers?: ApiParameter.InitArguments[];
     parameters?: ApiParameter.InitArguments[];
-    returnType?: DataType | string | Type;
+    response?: ApiResponse.InitArguments;
   }
 
-  export interface DecoratorMetadata extends StrictOmit<OpraSchema.Endpoint, 'headers' | 'parameters' | 'returnType'> {
+  export interface DecoratorMetadata extends StrictOmit<OpraSchema.Endpoint, 'headers' | 'parameters' | 'response'> {
     headers?: ApiParameter.DecoratorMetadata[];
     parameters?: ApiParameter.DecoratorMetadata[];
-    returnType?: TypeThunkAsync | string;
+    response?: ApiResponse.DecoratorMetadata;
   }
 
-  export interface DecoratorOptions extends Partial<StrictOmit<OpraSchema.Endpoint, 'headers' | 'parameters' | 'returnType'>> {
+  export interface DecoratorOptions extends Partial<StrictOmit<OpraSchema.Endpoint, 'headers' | 'parameters' | 'response'>> {
   }
 
 }
@@ -32,27 +32,25 @@ export namespace ApiEndpoint {
  *
  * @class ApiEndpoint
  */
-export abstract class ApiEndpoint {
+export abstract class ApiEndpoint extends ApiElement {
   abstract readonly kind: 'action' | 'operation';
+  readonly resource: Resource;
+  readonly name: string;
   description?: string;
   headers: ApiParameter[];
   parameters: ApiParameter[];
-  returnType?: DataType;
-  returnMime?: string;
-  options: any = {};
-  encodeReturning: Validator = isAny;
+  response: ApiResponse;
+  options: any;
 
-  protected constructor(readonly resource: Resource, readonly name: string, init: ApiEndpoint.InitArguments) {
-    Object.assign(this, init);
+  protected constructor(resource: Resource, name: string, init: ApiEndpoint.InitArguments) {
+    super(resource.document);
+    this.resource = resource;
+    this.name = name;
+    this.description = init.description;
     this.headers = [];
     this.parameters = [];
-    if (init.returnType) {
-      this.returnType = init.returnType instanceof DataType
-          ? init.returnType : this.resource.document.getDataType(init.returnType);
-      this.encodeReturning = this.returnType
-          .generateCodec('encode', {operation: 'read', partial: true});
-    }
-    this.returnMime = init.returnMime;
+    this.options = {...init.options};
+    this.response = new ApiResponse(this, init.response);
     if (init.headers) {
       for (const p of init.headers) {
         this.defineHeader(p);
@@ -126,12 +124,6 @@ export abstract class ApiEndpoint {
     const schema = omitUndefined<OpraSchema.Endpoint>({
       description: this.description
     });
-    if (this.returnType)
-      schema.returnType = this.returnType.isEmbedded
-          ? this.returnType.exportSchema(options)
-          : this.returnType.name;
-    if (this.returnMime)
-      schema.returnMime = this.returnMime;
     if (this.headers.length) {
       schema.headers = [];
       for (const prm of this.headers) {

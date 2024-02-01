@@ -1,8 +1,8 @@
 import { ResponsiveMap } from '../../helpers/index.js';
 import { OpraSchema } from '../../schema/index.js';
 import type { ApiDocument } from '../api-document.js';
-import type { Container } from './container.js';
 import { ApiOperation } from './api-operation.js';
+import type { Container } from './container.js';
 import { Resource } from './resource.js';
 
 export abstract class CrudResource extends Resource {
@@ -27,7 +27,7 @@ export abstract class CrudResource extends Resource {
     return op;
   }
 
-  exportSchema(options?: { webSafe?: boolean }): OpraSchema.ResourceBase & { operations?: any } {
+  exportSchema(options?: { webSafe?: boolean }): OpraSchema.Resource & { operations?: any } {
     const schema = super.exportSchema(options) as any;
     if (this.operations.size) {
       schema.operations = {};

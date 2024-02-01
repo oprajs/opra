@@ -27,7 +27,8 @@ export class AuthController {
     return '123456'
   }
 
-  @Container.Action({returnMime: 'text/plain'})
+  @Container.Action()
+      .Returns({contentType: 'text/plain'})
   getRawToken() {
     return '123456'
   }

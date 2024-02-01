@@ -3,9 +3,9 @@ import type { OpraFilter } from '../../filter/index.js';
 import type { DataType } from '../data-type/data-type.interface.js';
 import type { Field } from '../data-type/field.interface';
 import type { Endpoint } from './endpoint.interface.js';
-import type { ResourceBase } from './resource.interface.js';
+import type { Resource } from './resource.interface.js';
 
-export interface Collection extends StrictOmit<ResourceBase, 'kind'> {
+export interface Collection extends StrictOmit<Resource, 'kind'> {
   kind: Collection.Kind;
   type: DataType.Name;
   primaryKey: Field.Name | Field.Name[];
@@ -24,7 +24,6 @@ export namespace Collection {
     get?: Operations.Get;
     update?: Operations.Update;
     updateMany?: Operations.UpdateMany;
-    // [key: string]: Endpoint | undefined;
   }
 
   export namespace Operations {

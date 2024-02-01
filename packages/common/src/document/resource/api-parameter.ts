@@ -5,7 +5,9 @@ import type { OpraSchema } from '../../schema/index.js';
 import type { TypeThunkAsync } from '../../types.js';
 import { DataType } from '../data-type/data-type.js';
 import type { EnumType } from '../data-type/enum-type.js';
+import { ApiElement } from './api-element.js';
 import type { ApiEndpoint } from './api-endpoint.js';
+import type { ApiResponse } from './api-response.js';
 
 export namespace ApiParameter {
   export interface InitArguments extends StrictOmit<OpraSchema.Parameter, 'type'> {
@@ -27,10 +29,11 @@ export namespace ApiParameter {
  *
  * @class ApiParameter
  */
-export class ApiParameter {
+export class ApiParameter extends ApiElement {
   protected _decoder: Validator;
   protected _encoder: Validator;
-  readonly endpoint: ApiEndpoint;
+  readonly owner: ApiEndpoint | ApiResponse;
+  readonly response?: ApiResponse;
   readonly name: string | RegExp;
   readonly type: DataType;
   description?: string;
@@ -40,8 +43,9 @@ export class ApiParameter {
   examples?: any[] | Record<string, any>;
   readonly isBuiltin?: boolean;
 
-  constructor(endpoint: ApiEndpoint, init: ApiParameter.InitArguments) {
-    this.endpoint = endpoint;
+  constructor(owner: ApiEndpoint | ApiResponse, init: ApiParameter.InitArguments) {
+    super(owner.document);
+    this.owner = owner;
     const name = String(init.name);
     if (name.startsWith('/')) {
       const i = name.lastIndexOf('/');
@@ -53,7 +57,7 @@ export class ApiParameter {
     if (init.type)
       this.type = init.type instanceof DataType
           ? init.type
-          : this.endpoint.resource.document.getDataType(init.type);
+          : this.document.getDataType(init.type);
     this.description = init.description;
     this.isArray = init.isArray;
     this.required = init.required;

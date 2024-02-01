@@ -58,7 +58,7 @@ describe('Container decorators', function () {
       });
     })
 
-    it('Should define returnType in options', async function () {
+    it('Should define response', async function () {
       class Resource1 {
         @Container
             .Action({description: 'action'})
@@ -71,27 +71,10 @@ describe('Container decorators', function () {
       expect(metadata1.actions).toStrictEqual({
         sendMessage: {
           description: 'action',
-          returnType: 'number'
+          response: {type: 'number'}
         }
       });
 
-    })
-
-    it('Should define returnType with decorator', async function () {
-      class Resource1 {
-        @Container.Action({description: 'action'})
-            .Returns('string')
-        sendMessage() {
-        }
-      }
-
-      const metadata = Reflect.getMetadata(RESOURCE_METADATA, Resource1);
-      expect(metadata.actions).toStrictEqual({
-        sendMessage: {
-          description: 'action',
-          returnType: 'string'
-        }
-      });
     })
 
     it('Should Parameter() define metadata value', async function () {

@@ -4,13 +4,13 @@ import { omitUndefined } from '../../helpers/object-utils.js';
 import { OpraSchema } from '../../schema/index.js';
 import type { ApiDocument } from '../api-document.js';
 import { colorFgMagenta, colorFgYellow, colorReset, nodeInspectCustom } from '../utils/inspect.util.js';
-import { ApiAction } from './api-action';
+import { ApiAction } from './api-action.js';
+import { ApiElement } from './api-element.js';
+import { ApiOperation } from './api-operation.js';
 import type { Container } from './container.js';
-import { ApiOperation } from './api-operation';
 import type { ResourceDecorator } from './resource-decorator';
 
-export abstract class Resource {
-  readonly document: ApiDocument;
+export abstract class Resource extends ApiElement {
   readonly parent?: Container;
   abstract readonly kind: OpraSchema.Resource.Kind;
   readonly name: string;
@@ -23,11 +23,9 @@ export abstract class Resource {
       parent: ApiDocument | Container,
       init: Resource.InitArguments
   ) {
-    if (parent instanceof Resource) {
-      this.document = parent.document;
+    super(parent instanceof Resource ? parent.document : parent);
+    if (parent instanceof Resource)
       this.parent = parent;
-    } else
-      this.document = parent;
     this.name = init.name;
     this.description = init.description;
     this.controller = init.controller;
@@ -50,8 +48,8 @@ export abstract class Resource {
     return out + (documentPath ? 'resources/' : '') + this.name;
   }
 
-  exportSchema(options?: { webSafe?: boolean }): OpraSchema.ResourceBase {
-    const schema = omitUndefined<OpraSchema.ResourceBase>({
+  exportSchema(options?: { webSafe?: boolean }): OpraSchema.Resource {
+    const schema = omitUndefined<OpraSchema.Resource>({
       kind: this.kind,
       description: this.description,
     });

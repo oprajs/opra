@@ -44,8 +44,8 @@ export class CollectionClass extends CrudResource {
         operation: 'write',
         overwriteFields: endpoint.inputOverwriteFields
       })
-      endpoint.returnType = this.type;
-      endpoint.encodeReturning = endpoint.returnType.generateCodec('encode', {
+      endpoint.response.type = this.type;
+      (endpoint.response as any)._encoder = endpoint.response.type.generateCodec('encode', {
         partial: true,
         pick: endpoint.options.outputPickFields,
         omit: endpoint.options.outputOmitFields,
@@ -66,8 +66,8 @@ export class CollectionClass extends CrudResource {
       endpoint.defineParameter('pick', {type: 'string', isArray: true, isBuiltin: true});
       endpoint.defineParameter('omit', {type: 'string', isArray: true, isBuiltin: true});
       endpoint.defineParameter('include', {type: 'string', isArray: true, isBuiltin: true});
-      endpoint.returnType = this.type;
-      endpoint.encodeReturning = endpoint.returnType.generateCodec('encode', {
+      endpoint.response.type = this.type;
+      (endpoint.response as any)._encoder = endpoint.response.type.generateCodec('encode', {
         partial: true,
         pick: endpoint.options.outputPickFields,
         omit: endpoint.options.outputOmitFields,
@@ -88,8 +88,8 @@ export class CollectionClass extends CrudResource {
       endpoint.defineParameter('skip', {type: 'integer', isBuiltin: true});
       endpoint.defineParameter('distinct', {type: 'boolean', isBuiltin: true});
       endpoint.defineParameter('count', {type: 'boolean', isBuiltin: true});
-      endpoint.returnType = this.type;
-      endpoint.encodeReturning = vg.isArray(this.type.generateCodec('encode', {
+      endpoint.response.type = this.type;
+      (endpoint.response as any)._encoder = vg.isArray(endpoint.response.type.generateCodec('encode', {
         partial: true,
         pick: endpoint.options.outputPickFields,
         omit: endpoint.options.outputOmitFields,
@@ -111,8 +111,8 @@ export class CollectionClass extends CrudResource {
         operation: 'write',
         overwriteFields: endpoint.inputOverwriteFields
       })
-      endpoint.returnType = this.type;
-      endpoint.encodeReturning = endpoint.returnType.generateCodec('encode', {
+      endpoint.response.type = this.type;
+      (endpoint.response as any)._encoder = endpoint.response.type.generateCodec('encode', {
         partial: true,
         pick: endpoint.options.outputPickFields,
         omit: endpoint.options.outputOmitFields,

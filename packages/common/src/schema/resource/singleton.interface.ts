@@ -1,9 +1,9 @@
 import { StrictOmit } from 'ts-gems';
 import type { DataType } from '../data-type/data-type.interface.js';
 import type { Collection } from './collection.interface.js';
-import type { ResourceBase } from './resource.interface.js';
+import type { Resource } from './resource.interface.js';
 
-export interface Singleton extends StrictOmit<ResourceBase, 'kind'> {
+export interface Singleton extends StrictOmit<Resource, 'kind'> {
   kind: Singleton.Kind;
   type: DataType.Name;
   operations?: Singleton.Operations;

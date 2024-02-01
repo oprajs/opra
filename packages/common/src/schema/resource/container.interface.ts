@@ -1,9 +1,9 @@
 import type { StrictOmit } from 'ts-gems';
-import type { Resource, ResourceBase } from './resource.interface';
+import { AnyResource, Resource } from './resource.interface.js';
 
-export interface Container extends StrictOmit<ResourceBase, 'kind'> {
+export interface Container extends StrictOmit<Resource, 'kind'> {
   kind: Container.Kind;
-  resources?: Record<Resource.Name, Resource>;
+  resources?: Record<Resource.Name, AnyResource>;
 }
 
 export namespace Container {

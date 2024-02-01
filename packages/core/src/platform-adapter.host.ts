@@ -5,9 +5,9 @@ import { AsyncEventEmitter } from 'strict-typed-events';
 import {
   ApiAction,
   ApiDocument,
+  ApiOperation,
   BadRequestError,
-  Container, ApiOperation,
-  CrudResource,
+  Container, CrudResource,
   ForbiddenError,
   getStackFileName,
   I18n,

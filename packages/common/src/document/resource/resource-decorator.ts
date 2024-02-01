@@ -11,7 +11,7 @@ import type { ApiOperation } from './api-operation.js';
  */
 export namespace ResourceDecorator {
 
-  export interface DecoratorMetadata extends StrictOmit<OpraSchema.ResourceBase, 'actions'> {
+  export interface DecoratorMetadata extends StrictOmit<OpraSchema.Resource, 'actions'> {
     name: string;
     actions?: Record<string, ApiAction.DecoratorMetadata>;
     operations?: Record<string, ApiOperation.DecoratorMetadata>;

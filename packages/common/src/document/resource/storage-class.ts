@@ -1,7 +1,7 @@
 import { OpraSchema } from '../../schema/index.js';
 import type { ApiDocument } from '../api-document.js';
-import type { Container } from './container';
 import type { ApiOperation } from './api-operation.js';
+import type { Container } from './container';
 import { CrudResource } from './crud-resource.js';
 import type { Storage } from './storage.js';
 import type { StorageDecorator } from './storage-decorator';

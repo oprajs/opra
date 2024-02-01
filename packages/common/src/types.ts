@@ -4,7 +4,7 @@ import type {
 } from 'ts-gems';
 
 export type Thunk<T> = T | (() => T);
-export type ThunkAsync<T> = Thunk<T> | Thunk<Promise<T>>;
+export type ThunkAsync<T> = Thunk<T> | (() => Promise<T>)
 export type TypeThunk<T = any> = Thunk<Type<T>>;
 export type TypeThunkAsync<T = any> = ThunkAsync<Type<T>>;
 

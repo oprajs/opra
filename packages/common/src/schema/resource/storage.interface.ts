@@ -1,9 +1,8 @@
 import { StrictOmit } from 'ts-gems';
-import { DataType } from '../data-type/data-type.interface.js';
 import type { Endpoint } from './endpoint.interface.js';
-import type { ResourceBase } from './resource.interface.js';
+import type { Resource } from './resource.interface.js';
 
-export interface Storage extends StrictOmit<ResourceBase, 'kind'> {
+export interface Storage extends StrictOmit<Resource, 'kind'> {
   kind: Storage.Kind;
   operations?: Storage.Operations;
 }
@@ -24,8 +23,6 @@ export namespace Storage {
     export type Delete = Endpoint;
     export type Get = Endpoint;
     export type Post = Endpoint & {
-
-      returnType?: string | DataType;
 
       /**
        * the minium size of uploaded file

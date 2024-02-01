@@ -1,8 +1,8 @@
 import { OpraSchema } from '../../schema/index.js';
 import type { ApiDocument } from '../api-document.js';
 import type { ComplexType } from '../data-type/complex-type.js';
-import type { Container } from './container.js';
 import type { ApiOperation } from './api-operation';
+import type { Container } from './container.js';
 import { CrudResource } from './crud-resource.js';
 import type { Singleton } from './singleton.js';
 import type { SingletonDecorator } from './singleton-decorator';
@@ -27,8 +27,8 @@ export class SingletonClass extends CrudResource {
         operation: 'write',
         overwriteFields: endpoint.inputOverwriteFields
       })
-      endpoint.returnType = this.type;
-      endpoint.encodeReturning = endpoint.returnType.generateCodec('encode', {
+      endpoint.response.type = this.type;
+      (endpoint.response as any)._encoder = endpoint.response.type.generateCodec('encode', {
         partial: true,
         pick: endpoint.options.outputPickFields,
         omit: endpoint.options.outputOmitFields,
@@ -42,8 +42,8 @@ export class SingletonClass extends CrudResource {
       endpoint.defineParameter('pick', {type: 'string', isArray: true, isBuiltin: true});
       endpoint.defineParameter('omit', {type: 'string', isArray: true, isBuiltin: true});
       endpoint.defineParameter('include', {type: 'string', isArray: true, isBuiltin: true});
-      endpoint.returnType = this.type;
-      endpoint.encodeReturning = endpoint.returnType.generateCodec('encode', {
+      endpoint.response.type = this.type;
+      (endpoint.response as any)._encoder = endpoint.response.type.generateCodec('encode', {
         partial: true,
         pick: endpoint.options.outputPickFields,
         omit: endpoint.options.outputOmitFields,
@@ -63,8 +63,8 @@ export class SingletonClass extends CrudResource {
         operation: 'write',
         overwriteFields: endpoint.inputOverwriteFields
       })
-      endpoint.returnType = this.type;
-      endpoint.encodeReturning = endpoint.returnType.generateCodec('encode', {
+      endpoint.response.type = this.type;
+      (endpoint.response as any)._encoder = endpoint.response.type.generateCodec('encode', {
         partial: true,
         pick: endpoint.options.outputPickFields,
         omit: endpoint.options.outputOmitFields,

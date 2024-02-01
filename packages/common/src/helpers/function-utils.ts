@@ -3,7 +3,7 @@ import { Type } from 'ts-gems';
 import { ThunkAsync } from '../types.js';
 import { isConstructor } from './type-guards.js';
 
-export async function resolveThunk(thunk: ThunkAsync<any>): Promise<any> {
+export async function resolveThunk(thunk: ThunkAsync<any> | Promise<any>): Promise<any> {
   thunk = promisify.isPromise(thunk) ? await thunk : thunk;
   if (typeof thunk === 'function') {
     if (isConstructor(thunk))
@@ -13,7 +13,7 @@ export async function resolveThunk(thunk: ThunkAsync<any>): Promise<any> {
   return thunk;
 }
 
-export async function resolveClass(thunk: ThunkAsync<Type>): Promise<Type> {
+export async function resolveClass(thunk: ThunkAsync<Type> | Promise<Type>): Promise<Type> {
   thunk = promisify.isPromise(thunk) ? await thunk : thunk;
   if (typeof thunk !== 'function')
     throw new Error(`No Class type resolved`)

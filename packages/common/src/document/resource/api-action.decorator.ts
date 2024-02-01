@@ -3,12 +3,14 @@ import { TypeThunkAsync } from '../../types.js';
 import { RESOURCE_METADATA } from '../constants.js';
 import type { ApiAction } from './api-action.js';
 import type { ApiParameter } from './api-parameter';
+import type { ApiResponse } from './api-response.js';
 import { ResourceDecorator } from './resource-decorator.js';
 
 export type ApiActionDecorator = ((target: Object, propertyKey: string) => void) & {
   Parameter(name: string | RegExp, optionsOrType?: ApiParameter.DecoratorOptions | string | Type): ApiActionDecorator;
 
-  Returns(t: TypeThunkAsync | string): ApiActionDecorator;
+  Returns(args: ApiResponse.DecoratorOptions): ApiActionDecorator;
+  Returns(dataType: TypeThunkAsync | string): ApiActionDecorator;
 };
 
 export function createActionDecorator<T extends ApiActionDecorator, M extends ApiAction.DecoratorMetadata>(
@@ -46,10 +48,10 @@ export function createActionDecorator<T extends ApiActionDecorator, M extends Ap
     return decorator;
   }
 
-  decorator.Returns = (t: TypeThunkAsync | string): any => {
+  decorator.Returns = (args: TypeThunkAsync | string | ApiResponse.DecoratorOptions): any => {
     list.push(
         (actionMetadata): void => {
-          actionMetadata.returnType = t;
+          actionMetadata.response = typeof args === 'object' ? {...args} : {type: args};
         }
     )
     return decorator;
