@@ -10,7 +10,7 @@ import type { ApiAction } from './api-action.js';
 import { createOperationDecorator } from './api-operation.decorator.js';
 import type { ApiOperation } from './api-operation.js';
 import type { ApiParameter } from './api-parameter';
-import { ResourceDecorator } from './api-resource.decorator.js';
+import { ApiResourceDecorator } from './api-resource.decorator.js';
 import type { Collection } from './collection.js';
 
 type ErrorMessage<T, Error> = [T] extends [never] ? Error : T;
@@ -18,13 +18,13 @@ const operationProperties = ['create', 'delete', 'deleteMany', 'get', 'findMany'
 type OperationProperties = typeof operationProperties[number];
 
 export function CollectionDecorator(type: Type | string, options?: Collection.DecoratorOptions): ClassDecorator {
-  return ResourceDecorator(OpraSchema.Collection.Kind, {...options, type})
+  return ApiResourceDecorator(OpraSchema.Collection.Kind, {...options, type})
 }
 
-Object.assign(CollectionDecorator, ResourceDecorator);
+Object.assign(CollectionDecorator, ApiResourceDecorator);
 
 
-export interface CollectionDecorator extends StrictOmit<ResourceDecorator, 'Action'> {
+export interface CollectionDecorator extends StrictOmit<ApiResourceDecorator, 'Action'> {
   <T>(type: Type<T> | string, options?: Collection.DecoratorOptions<T>): ClassDecorator;
 
   Action: (options?: ApiAction.DecoratorOptions) => (

@@ -6,7 +6,7 @@ import type { ApiAction } from './api-action.js';
 import { createOperationDecorator } from './api-operation.decorator.js';
 import type { ApiOperation } from './api-operation.js';
 import type { ApiParameter } from './api-parameter';
-import { ResourceDecorator } from './api-resource.decorator.js';
+import { ApiResourceDecorator } from './api-resource.decorator.js';
 import type { ApiResponse } from './api-response';
 import type { Storage } from './storage.js';
 
@@ -15,13 +15,13 @@ const operationProperties = ['delete', 'get', 'post'] as const;
 type OperationProperties = typeof operationProperties[number];
 
 export function StorageDecorator(options?: Storage.DecoratorOptions): ClassDecorator {
-  return ResourceDecorator(OpraSchema.Storage.Kind, options)
+  return ApiResourceDecorator(OpraSchema.Storage.Kind, options)
 }
 
-Object.assign(StorageDecorator, ResourceDecorator);
+Object.assign(StorageDecorator, ApiResourceDecorator);
 
 
-export interface StorageDecorator extends StrictOmit<ResourceDecorator, 'Action'> {
+export interface StorageDecorator extends StrictOmit<ApiResourceDecorator, 'Action'> {
   (options?: Storage.DecoratorOptions): ClassDecorator;
 
   Action: (options?: ApiAction.DecoratorOptions) => (

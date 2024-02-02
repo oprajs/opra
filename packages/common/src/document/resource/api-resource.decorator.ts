@@ -4,11 +4,11 @@ import { OpraSchema } from '../../schema/index.js';
 import { RESOURCE_METADATA } from '../constants.js';
 import type { ApiResource } from './api-resource.js';
 
-export interface ResourceDecorator {
-  Action: (options?: ApiResource.DecoratorOptions) => ResourceDecorator;
+export interface ApiResourceDecorator {
+  Action: (options?: ApiResource.DecoratorOptions) => ApiResourceDecorator;
 }
 
-export function ResourceDecorator<O extends ApiResource.DecoratorOptions>(
+export function ApiResourceDecorator<O extends ApiResource.DecoratorOptions>(
     kind: OpraSchema.Resource.Kind,
     meta?: O
 ): ClassDecorator {

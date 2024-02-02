@@ -6,7 +6,7 @@ import { ApiActionDecorator, createActionDecorator } from './api-action.decorato
 import type { ApiAction } from './api-action.js';
 import type { ApiOperation } from './api-operation.js';
 import type { ApiParameter } from './api-parameter.js';
-import { ResourceDecorator } from './api-resource.decorator.js';
+import { ApiResourceDecorator } from './api-resource.decorator.js';
 import { CollectionDecorator } from './collection-decorator.js';
 import type { Singleton } from './singleton.js';
 
@@ -15,13 +15,13 @@ const operationProperties = ['create', 'delete', 'get', 'update'] as const;
 type OperationProperties = typeof operationProperties[number];
 
 export function SingletonDecorator(type: Type | string, options?: Singleton.DecoratorOptions): ClassDecorator {
-  return ResourceDecorator(OpraSchema.Singleton.Kind, {...options, type})
+  return ApiResourceDecorator(OpraSchema.Singleton.Kind, {...options, type})
 }
 
-Object.assign(SingletonDecorator, ResourceDecorator);
+Object.assign(SingletonDecorator, ApiResourceDecorator);
 
 
-export interface SingletonDecorator extends StrictOmit<ResourceDecorator, 'Action'> {
+export interface SingletonDecorator extends StrictOmit<ApiResourceDecorator, 'Action'> {
   <T>(type: Type<T> | string, options?: Singleton.DecoratorOptions): ClassDecorator;
 
   Action: (options?: ApiAction.DecoratorOptions) => (

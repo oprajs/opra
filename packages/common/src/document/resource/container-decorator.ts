@@ -3,17 +3,17 @@ import { OpraSchema } from '../../schema/index.js';
 import { ApiActionDecorator, createActionDecorator } from './api-action.decorator.js';
 import type { ApiAction } from './api-action.js';
 import type { ApiOperation } from './api-operation.js';
-import { ResourceDecorator } from './api-resource.decorator.js';
+import { ApiResourceDecorator } from './api-resource.decorator.js';
 import type { Container } from './container.js';
 
 export function ContainerDecorator(options?: Container.DecoratorOptions): ClassDecorator {
-  return ResourceDecorator(OpraSchema.Container.Kind, options)
+  return ApiResourceDecorator(OpraSchema.Container.Kind, options)
 }
 
-Object.assign(ContainerDecorator, ResourceDecorator);
+Object.assign(ContainerDecorator, ApiResourceDecorator);
 
 
-export interface ContainerDecorator extends StrictOmit<ResourceDecorator, 'Action'> {
+export interface ContainerDecorator extends StrictOmit<ApiResourceDecorator, 'Action'> {
   (options?: Container.DecoratorOptions): ClassDecorator;
 
   Action: (options?: ApiAction.DecoratorOptions) => ApiActionDecorator;
