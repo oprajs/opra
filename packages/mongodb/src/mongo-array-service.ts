@@ -325,7 +325,7 @@ export class MongoArrayService<T extends mongodb.Document> extends MongoService<
         },
         options
     );
-    return r.modifiedCount ? 1 : 0;
+    return r.matchedCount ? 1 : 0;
   }
 
   /**
@@ -379,7 +379,7 @@ export class MongoArrayService<T extends mongodb.Document> extends MongoService<
         },
         options
     );
-    if (r.modifiedCount)
+    if (r.matchedCount)
       return matchCount;
     return 0;
   }
@@ -756,12 +756,9 @@ export class MongoArrayService<T extends mongodb.Document> extends MongoService<
         update,
         options
     );
-    if (!options?.count)
-      return r.modifiedCount;
-    return r.modifiedCount
-        // Count matching items that fits filter criteria
-        ? await this._count(documentId, options)
-        : 0;
+    if (options?.count)
+      return await this._count(documentId, options);
+    return r.matchedCount || 0;
   }
 
   /**
