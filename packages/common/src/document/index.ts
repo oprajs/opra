@@ -17,16 +17,13 @@ export * from './data-type/mixin-type.js';
 
 export * from './resource/api-action.js';
 export * from './resource/api-element.js';
-export * from './resource/api-endpoint.js';
+export * from './resource/api-key-parameter.js';
 export * from './resource/api-operation.js';
+export * from './resource/api-operation-entity.decorator.js';
+export * from './resource/api-operation-multipart.decorator.js';
 export * from './resource/api-parameter.js';
-export * from './resource/api-response.js';
-export * from './resource/collection.js';
-export * from './resource/container.js';
-export * from './resource/crud-resource.js';
 export * from './resource/api-resource.js';
-export * from './resource/singleton.js';
-export * from './resource/storage.js';
+export * from './resource/api-response.js';
 export * from './resource/enums/metadata-mode.enum.js';
 export * from './resource/types/operation-result.type.js';
 

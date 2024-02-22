@@ -1,93 +1,68 @@
+import merge from 'putil-merge';
 import { StrictOmit, Type } from 'ts-gems';
-import { ResponsiveMap } from '../../helpers/index.js';
-import { omitUndefined } from '../../helpers/object-utils.js';
 import { OpraSchema } from '../../schema/index.js';
+import { TypeThunkAsync } from '../../types';
 import type { ApiDocument } from '../api-document.js';
-import { colorFgMagenta, colorFgYellow, colorReset, nodeInspectCustom } from '../utils/inspect.util.js';
+import { DECORATOR } from '../constants.js';
 import { ApiAction } from './api-action.js';
-import { ApiElement } from './api-element.js';
-import { ApiOperation } from './api-operation.js';
-import type { Container } from './container.js';
+import type { ApiKeyParameter } from './api-key-parameter.js';
+import type { ApiOperation } from './api-operation.js';
+import { ApiResourceClass } from './api-resource.class.js';
+import { createApiResourceDecorator } from './api-resource.decorator.js';
+
+
+export interface ApiResourceConstructor extends createApiResourceDecorator {
+  prototype: ApiResourceClass;
+
+  new(parent: ApiDocument | ApiResource, name: string, init: ApiResource.InitArguments): ApiResourceClass;
+}
+
+
+export interface ApiResource extends ApiResourceClass {
+}
+
+/**
+ * @class Collection
+ * @decorator Collection
+ */
+export const ApiResource = function (this: ApiResourceClass | void, ...args: any[]) {
+
+  // ClassDecorator
+  if (!this) {
+    const [type, options] = args;
+    return ApiResource[DECORATOR].call(undefined, type, options);
+  }
+
+  // Constructor
+  const [parent, name, init] = args as
+      [ApiDocument | ApiResourceClass, string, ApiResource.InitArguments];
+  merge(this, new ApiResourceClass(parent, name, init), {descriptor: true});
+} as ApiResourceConstructor;
+
+ApiResource.prototype = ApiResourceClass.prototype;
+Object.assign(ApiResource, createApiResourceDecorator);
+ApiResource[DECORATOR] = createApiResourceDecorator;
+
 
 export namespace ApiResource {
-  export interface InitArguments extends StrictOmit<DecoratorMetadata, 'kind' | 'operations' | 'actions'> {
-    name: string;
-    actions?: Record<string, ApiAction.InitArguments>;
-    operations?: Record<string, ApiOperation.InitArguments>;
+  export interface InitArguments extends StrictOmit<OpraSchema.Resource, 'key' | 'kind' | 'endpoints' | 'resources'> {
+    key?: ApiKeyParameter.InitArguments;
+    endpoints?: Record<string, ApiAction.InitArguments | ApiOperation.InitArguments>;
+    resources?: Record<string, ApiResource.InitArguments>;
     controller?: object;
     ctor?: Type;
   }
 
-  export interface DecoratorMetadata extends StrictOmit<OpraSchema.Resource, 'actions'> {
+  export interface DecoratorMetadata extends StrictOmit<OpraSchema.Resource, 'key' | 'endpoints' | 'resources'> {
     name: string;
-    actions?: Record<string, ApiAction.DecoratorMetadata>;
-    operations?: Record<string, ApiOperation.DecoratorMetadata>;
+    key?: ApiKeyParameter.DecoratorMetadata;
+    endpoints?: Record<string, ApiAction.DecoratorMetadata | ApiOperation.DecoratorMetadata>;
+    resources?: Type[];
   }
 
-  export interface DecoratorOptions extends Partial<StrictOmit<DecoratorMetadata, 'kind' | 'actions' | 'operations'>> {
+  export interface DecoratorOptions extends Partial<StrictOmit<OpraSchema.Resource, 'kind' | 'key' | 'endpoints' | 'resources'>> {
+    name?: string;
+    resources?: TypeThunkAsync[];
   }
 
 }
-
-export abstract class ApiResource extends ApiElement {
-  readonly parent?: Container;
-  abstract readonly kind: OpraSchema.Resource.Kind;
-  readonly name: string;
-  description?: string;
-  controller?: object;
-  ctor?: Type;
-  actions = new ResponsiveMap<ApiAction>();
-
-  protected constructor(
-      parent: ApiDocument | Container,
-      init: ApiResource.InitArguments
-  ) {
-    super(parent instanceof ApiResource ? parent.document : parent);
-    if (parent instanceof ApiResource)
-      this.parent = parent;
-    this.name = init.name;
-    this.description = init.description;
-    this.controller = init.controller;
-    if (this.controller) {
-      this.ctor = Object.getPrototypeOf(this.controller).constructor;
-    } else this.ctor = init.ctor;
-    if (init.actions) {
-      for (const [name, meta] of Object.entries(init.actions)) {
-        this.actions.set(name, new ApiAction(this, name, meta));
-      }
-    }
-  }
-
-  getFullPath(documentPath?: boolean): string {
-    if ((this as any) === this.document.root)
-      return documentPath ? '/root' : '/';
-    let out = this.parent?.getFullPath(documentPath);
-    if (!out?.endsWith('/'))
-      out += '/';
-    return out + (documentPath ? 'resources/' : '') + this.name;
-  }
-
-  exportSchema(options?: { webSafe?: boolean }): OpraSchema.Resource {
-    const schema = omitUndefined<OpraSchema.Resource>({
-      kind: this.kind,
-      description: this.description,
-    });
-    if (this.actions.size) {
-      schema.actions = {};
-      for (const action of this.actions.values()) {
-        schema.actions[action.name] = action.exportSchema(options);
-      }
-    }
-    return schema;
-  }
-
-  toString(): string {
-    return `[${Object.getPrototypeOf(this).constructor.name} ${this.name || '#Embedded'}]`;
-  }
-
-  [nodeInspectCustom](): string {
-    return `[${colorFgYellow + Object.getPrototypeOf(this).constructor.name + colorReset}` +
-        ` ${colorFgMagenta + this.name + colorReset}]`;
-  }
-}
-

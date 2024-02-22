@@ -1,26 +1,30 @@
 import merge from 'putil-merge';
+import type { StrictOmit } from 'ts-gems';
+import { OpraSchema } from '../../schema/index.js';
+import { DECORATOR } from '../constants.js';
 import { ApiActionClass } from './api-action.class.js';
-import type { ApiEndpoint } from './api-endpoint.js';
+import { ApiActionDecorator, createActionDecorator } from './api-action.decorator.js';
+import type { ApiParameter } from './api-parameter.js';
 import type { ApiResource } from './api-resource';
-
-
-export namespace ApiAction {
-  export interface InitArguments extends ApiEndpoint.InitArguments {
-  }
-
-  export interface DecoratorMetadata extends ApiEndpoint.DecoratorMetadata {
-  }
-
-  export interface DecoratorOptions extends ApiEndpoint.DecoratorOptions {
-  }
-}
+import type { ApiResponse } from './api-response.js';
 
 export interface ApiAction extends ApiActionClass {
 }
 
-export interface ApiActionConstructor /* extends ApiActionDecorator */
-{
+export interface ApiActionConstructor {
+  /**
+   * Constructor
+   * @param resource
+   * @param name
+   * @param init
+   */
   new(resource: ApiResource, name: string, init: ApiAction.InitArguments): ApiActionClass;
+
+  /**
+   * Decorator
+   * @param options
+   */
+  <T extends ApiAction.DecoratorOptions>(options?: T): ApiActionDecorator;
 
   prototype: ApiActionClass;
 }
@@ -33,9 +37,9 @@ export const ApiAction = function (this: ApiActionClass, ...args: any[]) {
 
   // Decorator
   if (!this) {
-    throw new TypeError('ApiAction constructor must be called with "new"');
-    // const [type, options] = args;
-    // return ApiAction[DECORATOR].call(undefined, type, options);
+    const [options] = args as [options: ApiAction.DecoratorOptions];
+    const decoratorChain: Function[] = [];
+    return (ApiAction[DECORATOR] as typeof createActionDecorator).call(undefined, decoratorChain, options);
   }
 
   // Constructor
@@ -44,5 +48,25 @@ export const ApiAction = function (this: ApiActionClass, ...args: any[]) {
 } as unknown as ApiActionConstructor;
 
 ApiAction.prototype = ApiActionClass.prototype;
-// Object.assign(ApiAction, ApiActionDecorator);
-// ApiAction[DECORATOR] = ApiActionDecorator;
+ApiAction[DECORATOR] = createActionDecorator;
+
+
+/**
+ * @namespace ApiAction
+ */
+export namespace ApiAction {
+  export interface InitArguments extends StrictOmit<OpraSchema.Action, 'parameters' | 'response'> {
+    headers?: ApiParameter.InitArguments[];
+    parameters?: ApiParameter.InitArguments[];
+    response?: ApiResponse.InitArguments;
+  }
+
+  export interface DecoratorMetadata extends StrictOmit<OpraSchema.Action, 'parameters' | 'response'> {
+    headers?: ApiParameter.DecoratorMetadata[];
+    parameters?: ApiParameter.DecoratorMetadata[];
+    response?: ApiResponse.DecoratorMetadata;
+  }
+
+  export interface DecoratorOptions extends Partial<Pick<OpraSchema.Action, 'description'>> {
+  }
+}

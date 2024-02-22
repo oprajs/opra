@@ -1,18 +1,22 @@
-import type { Collection } from './collection.interface.js';
-import type { Container } from './container.interface.js';
-import type { Action } from './endpoint.interface.js';
-import type { Singleton } from './singleton.interface.js';
-import type { Storage } from './storage.interface.js';
-
-export type AnyResource = Collection | Singleton | Storage | Container;
-
-export namespace Resource {
-  export type Name = string;
-  export type Kind = Collection.Kind | Singleton.Kind | Storage.Kind | Container.Kind;
-}
+import type { Action } from './action.interface.js';
+import type { Operation } from './operation.interface.js';
+import type { Parameter } from './parameter.interface.js';
 
 export interface Resource {
   kind: string;
   description?: string;
-  actions?: Record<string, Action | undefined>;
+  key?: KeyParameter;
+  endpoints?: Record<string, Action | Operation>;
+  resources?: Record<string, Resource>;
+}
+
+export namespace Resource {
+  export type Name = string;
+  export const Kind = 'Resource';
+  export type Kind = 'Resource';
+
+}
+
+export interface KeyParameter extends Omit<Parameter, 'name' | 'in' | 'required' | 'isArray'> {
+  name: string;
 }

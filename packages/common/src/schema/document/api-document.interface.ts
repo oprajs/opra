@@ -1,10 +1,10 @@
 import { StrictOmit } from 'ts-gems';
-import type { Container } from '../resource/container.interface';
+import { Resource } from '../resource/resource.interface.js';
 import { TypeDocument } from './type-document.interface.js';
 
 export interface ApiDocument extends TypeDocument {
   servers?: ServerInfo[];
-  root?: StrictOmit<Container, 'kind'>;
+  root?: StrictOmit<Resource, 'kind'>;
 }
 
 export type ServerInfo = {

@@ -1,30 +1,20 @@
 import { StrictOmit } from 'ts-gems';
 import type { ErrorIssue } from 'valgen/typings/core/types';
 import { omitUndefined } from '../../helpers/index.js';
-import type { OpraSchema } from '../../schema/index.js';
+import { OpraSchema } from '../../schema/index.js';
 import type { URLSearchParamsInit } from '../../types.js';
 import { ApiElement } from './api-element.js';
 import { ApiParameter } from './api-parameter.js';
 import type { ApiResource } from './api-resource';
 import { ApiResponse } from './api-response.js';
 
+const NAME_PATTERN = /^\w+$/i;
 
 export namespace ApiEndpoint {
-  export interface InitArguments extends StrictOmit<OpraSchema.Endpoint, 'headers' | 'parameters' | 'response'> {
-    headers?: ApiParameter.InitArguments[];
+  export interface InitArguments extends StrictOmit<OpraSchema.Endpoint, 'parameters' | 'response'> {
     parameters?: ApiParameter.InitArguments[];
     response?: ApiResponse.InitArguments;
   }
-
-  export interface DecoratorMetadata extends StrictOmit<OpraSchema.Endpoint, 'headers' | 'parameters' | 'response'> {
-    headers?: ApiParameter.DecoratorMetadata[];
-    parameters?: ApiParameter.DecoratorMetadata[];
-    response?: ApiResponse.DecoratorMetadata;
-  }
-
-  export interface DecoratorOptions extends Partial<StrictOmit<OpraSchema.Endpoint, 'headers' | 'parameters' | 'response'>> {
-  }
-
 }
 
 
@@ -33,29 +23,24 @@ export namespace ApiEndpoint {
  * @class ApiEndpoint
  */
 export abstract class ApiEndpoint extends ApiElement {
-  abstract readonly kind: 'action' | 'operation';
+  abstract readonly kind: OpraSchema.Action.Kind | OpraSchema.Operation.Kind;
   readonly resource: ApiResource;
   readonly name: string;
   description?: string;
-  headers: ApiParameter[];
   parameters: ApiParameter[];
   response: ApiResponse;
   options: any;
 
   protected constructor(resource: ApiResource, name: string, init: ApiEndpoint.InitArguments) {
     super(resource.document);
+    if (!NAME_PATTERN.test(name))
+      throw new TypeError(`Invalid endpoint name (${name})`);
     this.resource = resource;
     this.name = name;
     this.description = init.description;
-    this.headers = [];
     this.parameters = [];
     this.options = {...init.options};
     this.response = new ApiResponse(this, init.response);
-    if (init.headers) {
-      for (const p of init.headers) {
-        this.defineHeader(p);
-      }
-    }
     if (init.parameters) {
       for (const p of init.parameters) {
         this.defineParameter(p);
@@ -65,26 +50,10 @@ export abstract class ApiEndpoint extends ApiElement {
 
   getFullPath(documentPath?: boolean): string {
     return this.resource.getFullPath(documentPath) +
-        (this.kind === 'action' ? (documentPath ? '/actions/' : '/') + this.name : '')
-  }
-
-  defineHeader(init: ApiParameter.InitArguments): ApiParameter
-  defineHeader(name: string | RegExp, options?: StrictOmit<ApiParameter.InitArguments, 'name'>): ApiParameter
-  defineHeader(arg0: any, arg1?: any): ApiParameter {
-    let name: any;
-    let opts: any;
-    if (typeof arg0 === 'string' || arg0 instanceof RegExp) {
-      name = arg0;
-      opts = arg1;
-    } else {
-      name = arg0.name;
-      opts = arg0;
-    }
-    if (!name)
-      throw new TypeError('You must provide name of the header');
-    const prm = new ApiParameter(this, {...opts, name});
-    this.headers.push(prm);
-    return prm;
+        (documentPath
+                ? '/endpoints/' + this.name
+                : (this.kind === OpraSchema.Action.Kind ? this.name : '')
+        );
   }
 
   defineParameter(init: ApiParameter.InitArguments): ApiParameter
@@ -106,30 +75,24 @@ export abstract class ApiEndpoint extends ApiElement {
     return prm;
   }
 
-  getHeader(name: string): ApiParameter | undefined {
-    name = name.toLowerCase();
-    return this.headers.find(
-        x => x.name instanceof RegExp ? x.name.exec(name) : x.name.toLowerCase() === name
-    );
-  }
-
-  getParameter(name: string): ApiParameter | undefined {
+  getParameter(name: string, location?: OpraSchema.Parameter.Location): ApiParameter | undefined {
     name = name.toLowerCase();
     return this.parameters.find(
-        x => x.name instanceof RegExp ? x.name.test(name) : x.name.toLowerCase() === name
+        x => {
+          if (
+              (x.name instanceof RegExp ? x.name.test(name) : x.name.toLowerCase() === name) &&
+              (!location || location === x.in)
+          )
+            return x;
+        }
     );
   }
 
   exportSchema(options?: { webSafe?: boolean }): OpraSchema.Endpoint {
     const schema = omitUndefined<OpraSchema.Endpoint>({
+      kind: this.kind,
       description: this.description
     });
-    if (this.headers.length) {
-      schema.headers = [];
-      for (const prm of this.headers) {
-        schema.headers.push(prm.exportSchema(options));
-      }
-    }
     if (this.parameters.length) {
       let i = 0;
       const parameters: OpraSchema.Parameter[] = [];
@@ -147,7 +110,7 @@ export abstract class ApiEndpoint extends ApiElement {
     return schema;
   }
 
-  parseParameters(searchParams: URLSearchParamsInit): Record<string, any> {
+  parseSearchParams(searchParams: URLSearchParamsInit): Record<string, any> {
     const out = {};
     const onFail = (issue: ErrorIssue) => {
       issue.message = `Parameter parse error. ` + issue.message;

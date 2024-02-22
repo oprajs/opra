@@ -11,7 +11,7 @@ export class ResourceNotAvailableError extends OpraException {
   constructor(resource: string, keyValue?: any, cause?: Error) {
     super({
       message: translate(`error:RESOURCE_NOT_AVAILABLE`,
-          `Resource "${resource}${keyValue ? '/' + keyValue : ''}" is not available or you dont have access`),
+          `Resource "${resource}${keyValue ? '/' + keyValue : ''}" is not available`),
       severity: 'error',
       code: 'RESOURCE_NOT_AVAILABLE',
       details: {

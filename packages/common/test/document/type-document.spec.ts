@@ -21,10 +21,6 @@ describe('TypeDocument', function () {
   afterAll(() => global.gc && global.gc());
 
   it('Should create TypeDocument instance', async () => {
-    expect(OpraSchema.Container.Kind).toStrictEqual('Container');
-  })
-
-  it('Should create TypeDocument instance', async () => {
     const doc = await TypeDocumentFactory.createDocument(baseArgs);
     expect(doc).toBeDefined();
     expect(doc).toBeInstanceOf(TypeDocument);

@@ -1,20 +1,20 @@
-import { Container } from '@opra/common';
-import { MyProfileController } from './my-profile.controller.js';
+import { ApiAction, ApiResource } from '@opra/common';
+import { MyProfileResource } from './my-profile.resource.js';
 
-@Container({
-  'description': 'Auth container',
-  resources: [MyProfileController]
+@ApiResource({
+  description: 'Auth container',
+  resources: [MyProfileResource]
 })
 export class AuthController {
 
-  @Container.Action()
+  @ApiAction()
       .Parameter('user', String)
       .Parameter('password', 'string')
   login() {
     //
   }
 
-  @Container.Action()
+  @ApiAction()
   logout() {
     //
   }

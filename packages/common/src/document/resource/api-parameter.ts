@@ -6,8 +6,6 @@ import type { TypeThunkAsync } from '../../types.js';
 import { DataType } from '../data-type/data-type.js';
 import type { EnumType } from '../data-type/enum-type.js';
 import { ApiElement } from './api-element.js';
-import type { ApiEndpoint } from './api-endpoint.js';
-import type { ApiResponse } from './api-response.js';
 
 export namespace ApiParameter {
   export interface InitArguments extends StrictOmit<OpraSchema.Parameter, 'type'> {
@@ -20,10 +18,11 @@ export namespace ApiParameter {
     enum?: EnumType.EnumObject | EnumType.EnumArray;
   }
 
-  export interface DecoratorOptions extends Partial<StrictOmit<DecoratorMetadata, 'name'>> {
+  export interface DecoratorOptions extends Partial<StrictOmit<DecoratorMetadata, 'name' | 'in'>> {
   }
 
 }
+
 
 /**
  *
@@ -32,20 +31,18 @@ export namespace ApiParameter {
 export class ApiParameter extends ApiElement {
   protected _decoder: Validator;
   protected _encoder: Validator;
-  readonly owner: ApiEndpoint | ApiResponse;
-  readonly response?: ApiResponse;
   readonly name: string | RegExp;
   readonly type: DataType;
   description?: string;
-  isArray?: boolean;
-  required?: boolean;
   deprecated?: boolean | string;
   examples?: any[] | Record<string, any>;
+  in: OpraSchema.Parameter.Location;
+  required?: boolean;
+  isArray?: boolean;
   readonly isBuiltin?: boolean;
 
-  constructor(owner: ApiEndpoint | ApiResponse, init: ApiParameter.InitArguments) {
-    super(owner.document);
-    this.owner = owner;
+  constructor(parent: ApiElement, init: ApiParameter.InitArguments) {
+    super(parent);
     const name = String(init.name);
     if (name.startsWith('/')) {
       const i = name.lastIndexOf('/');
@@ -54,22 +51,17 @@ export class ApiParameter extends ApiElement {
       if (!flags.includes('i')) flags += 'i';
       this.name = new RegExp(s, flags);
     } else this.name = name;
-    if (init.type)
-      this.type = init.type instanceof DataType
-          ? init.type
-          : this.document.getDataType(init.type);
-    this.description = init.description;
-    this.isArray = init.isArray;
+    this.in = init.in;
     this.required = init.required;
-    this.deprecated = init.deprecated;
-    this.examples = init.examples;
+    this.isArray = init.isArray;
     this.isBuiltin = init.isBuiltin;
   }
 
   exportSchema(options?: { webSafe?: boolean }): OpraSchema.Parameter {
     return omitUndefined<OpraSchema.Parameter>({
       name: this.name,
-      type: this.type.name ? this.type.name : this.type.exportSchema(options),
+      in: this.in,
+      type: this.type ? (this.type.name ? this.type.name : this.type.exportSchema(options)) : undefined,
       description: this.description,
       isArray: this.isArray,
       required: this.required,
@@ -90,11 +82,12 @@ export class ApiParameter extends ApiElement {
     return this._encoder;
   }
 
-  generateCodec(codec: 'decode' | 'encode', options?: DataType.GenerateCodecOptions): Validator {
-    let fn = this.type.generateCodec(codec, options);
+  generateCodec(codec: 'decode' | 'encode'): Validator {
+    let fn = this.type?.generateCodec(codec) || vg.isAny();
     if (this.isArray)
       fn = vg.pipe(vg.stringSplit(','), vg.isArray(fn));
-    return !options?.partial && this.required ? vg.required(fn) : vg.optional(fn);
+    return this.required ? vg.required(fn) : vg.optional(fn);
   }
 
 }
+

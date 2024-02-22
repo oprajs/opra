@@ -8,6 +8,11 @@ export interface Parameter {
   name: string | RegExp;
 
   /**
+   * The location of the parameter
+   */
+  in: Parameter.Location;
+
+  /**
    * Data type of the parameter
    */
   type?: DataType.Name | DataType;
@@ -39,4 +44,8 @@ export interface Parameter {
 
   // instructions?: Record<string, any>;
 
+}
+
+export namespace Parameter {
+  export type Location = 'query' | 'header' | 'cookie';
 }

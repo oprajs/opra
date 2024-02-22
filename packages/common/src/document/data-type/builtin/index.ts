@@ -12,6 +12,7 @@ export * from './null.type.js';
 export * from './number.type.js';
 export * from './object.type.js';
 export * from './object-id.type.js';
+export * from './query.type.js';
 export * from './string.type.js';
 export * from './time.type.js';
 export * from './url.type.js';

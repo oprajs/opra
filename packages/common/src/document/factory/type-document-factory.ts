@@ -8,7 +8,7 @@ import {
   AnyType, ApproxDatetimeType, ApproxDateType, Base64Type,
   BigintType, BooleanType, DatetimeType, DateType, EmailType,
   IntegerType, NullType, NumberType, ObjectIdType,
-  ObjectType, StringType, TimeType, UrlType, UuidType
+  ObjectType, QueryType, StringType, TimeType, UrlType, UuidType
 } from '../data-type/builtin/index.js';
 import { ComplexType } from '../data-type/complex-type.js';
 import { DataType } from '../data-type/data-type.js';
@@ -133,7 +133,7 @@ export class TypeDocumentFactory {
       types: [AnyType, Base64Type, BigintType, BooleanType,
         DateType, EmailType, IntegerType, NullType, NumberType, ObjectIdType,
         ObjectType, ApproxDateType, ApproxDatetimeType,
-        StringType, DatetimeType, TimeType, UrlType, UuidType
+        StringType, DatetimeType, TimeType, UrlType, UuidType, QueryType
       ]
     }
     const factory = new TypeDocumentFactory();
