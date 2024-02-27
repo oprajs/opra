@@ -45,22 +45,22 @@ ApiResource[DECORATOR] = createApiResourceDecorator;
 
 
 export namespace ApiResource {
-  export interface InitArguments extends StrictOmit<OpraSchema.Resource, 'key' | 'kind' | 'endpoints' | 'resources'> {
-    key?: ApiKeyParameter.InitArguments;
+  export interface InitArguments extends StrictOmit<OpraSchema.Resource, 'keyParameter' | 'kind' | 'endpoints' | 'resources'> {
+    keyParameter?: ApiKeyParameter.InitArguments;
     endpoints?: Record<string, ApiAction.InitArguments | ApiOperation.InitArguments>;
     resources?: Record<string, ApiResource.InitArguments>;
     controller?: object;
     ctor?: Type;
   }
 
-  export interface DecoratorMetadata extends StrictOmit<OpraSchema.Resource, 'key' | 'endpoints' | 'resources'> {
+  export interface DecoratorMetadata extends StrictOmit<OpraSchema.Resource, 'keyParameter' | 'endpoints' | 'resources'> {
     name: string;
-    key?: ApiKeyParameter.DecoratorMetadata;
+    keyParameter?: ApiKeyParameter.DecoratorMetadata;
     endpoints?: Record<string, ApiAction.DecoratorMetadata | ApiOperation.DecoratorMetadata>;
     resources?: Type[];
   }
 
-  export interface DecoratorOptions extends Partial<StrictOmit<OpraSchema.Resource, 'kind' | 'key' | 'endpoints' | 'resources'>> {
+  export interface DecoratorOptions extends Partial<StrictOmit<OpraSchema.Resource, 'kind' | 'keyParameter' | 'endpoints' | 'resources'>> {
     name?: string;
     resources?: TypeThunkAsync[];
   }

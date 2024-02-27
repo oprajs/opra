@@ -1,6 +1,7 @@
 import { StrictOmit, Type } from 'ts-gems';
 import { OpraFilter } from '../../filter/index.js';
 import { omitUndefined } from '../../helpers/index.js';
+import { HttpStatusCode, MimeTypes } from '../../http/index.js';
 import { OpraSchema } from '../../schema/index.js';
 import { ApiOperationDecorator, createOperationDecorator } from './api-operation.decorator.js';
 import { ApiOperation } from './api-operation.js';
@@ -37,12 +38,15 @@ declare module './api-operation.js' {
        * @namespace Create
        */
       export namespace Create {
-        export interface Options extends StrictOmit<ApiOperation.DecoratorOptions, 'method'> {
-          inputMaxContentSize?: number;
+        export interface Options extends StrictOmit<ApiOperation.DecoratorOptions, 'method' | 'requestBody'> {
+          input?: {
+            type?: Type | string;
+            maxContentSize?: number;
+          },
         }
       }
 
-      export type CreateDecorator = ApiOperationDecorator & {};
+      export type CreateDecorator = ApiOperationDecorator<CreateDecorator> & {};
 
 
       /**
@@ -53,7 +57,7 @@ declare module './api-operation.js' {
         }
       }
 
-      export type DeleteDecorator = ApiOperationDecorator & {
+      export type DeleteDecorator = ApiOperationDecorator<DeleteDecorator> & {
         Filter(field: OpraSchema.Field.QualifiedName, operators?: OpraFilter.ComparisonOperator[] | string, notes?: string): DeleteDecorator;
       };
 
@@ -63,10 +67,12 @@ declare module './api-operation.js' {
        */
       export namespace FindMany {
         export interface Options extends StrictOmit<ApiOperation.DecoratorOptions, 'method'> {
+          defaultLimit?: number;
+          maxLimit?: number;
         }
       }
 
-      export type FindManyDecorator = ApiOperationDecorator & {
+      export type FindManyDecorator = ApiOperationDecorator<FindManyDecorator> & {
         SortFields(...fields: OpraSchema.Field.QualifiedName[]): FindManyDecorator;
         DefaultSort(...fields: OpraSchema.Field.QualifiedName[]): FindManyDecorator;
         Filter(field: OpraSchema.Field.QualifiedName, operators?: OpraFilter.ComparisonOperator[] | string, notes?: string): FindManyDecorator;
@@ -81,7 +87,7 @@ declare module './api-operation.js' {
         }
       }
 
-      export type FindOneDecorator = ApiOperationDecorator & {
+      export type FindOneDecorator = ApiOperationDecorator<FindOneDecorator> & {
         Filter(field: OpraSchema.Field.QualifiedName, operators?: OpraFilter.ComparisonOperator[] | string, notes?: string): FindOneDecorator;
       };
 
@@ -91,11 +97,14 @@ declare module './api-operation.js' {
        */
       export namespace UpdateMany {
         export interface Options extends StrictOmit<ApiOperation.DecoratorOptions, 'method'> {
-          inputMaxContentSize?: number;
+          input?: {
+            type?: Type | string;
+            maxContentSize?: number;
+          },
         }
       }
 
-      export type UpdateManyDecorator = ApiOperationDecorator & {
+      export type UpdateManyDecorator = ApiOperationDecorator<UpdateManyDecorator> & {
         Filter(field: OpraSchema.Field.QualifiedName, operators?: OpraFilter.ComparisonOperator[] | string, notes?: string): UpdateManyDecorator;
       };
 
@@ -105,11 +114,14 @@ declare module './api-operation.js' {
        */
       export namespace UpdateOne {
         export interface Options extends StrictOmit<ApiOperation.DecoratorOptions, 'method'> {
-          inputMaxContentSize?: number;
+          input?: {
+            type?: Type | string;
+            maxContentSize?: number;
+          },
         }
       }
 
-      export type UpdateOneDecorator = ApiOperationDecorator & {
+      export type UpdateOneDecorator = ApiOperationDecorator<UpdateOneDecorator> & {
         Filter(field: OpraSchema.Field.QualifiedName, operators?: OpraFilter.ComparisonOperator[] | string, notes?: string): UpdateManyDecorator;
       };
 
@@ -131,18 +143,23 @@ ApiOperation.Entity.Create = function (
     options?: ApiOperation.Entity.Create.Options
 ): ApiOperation.Entity.CreateDecorator {
   const decoratorChain: Function[] = [];
-  const decorator = createOperationDecorator(decoratorChain, options) as ApiOperation.Entity.CreateDecorator;
-  decoratorChain.push((operationMeta: ApiOperation.DecoratorMetadata) => {
-    operationMeta.composition = 'Entity.Create';
-    operationMeta.method = 'POST';
-    operationMeta.type = type;
-    operationMeta.type = type;
-    if (typeof type === 'function') {
-      operationMeta.useTypes = operationMeta.useTypes || [];
-      operationMeta.useTypes.push(type);
+  return createOperationDecorator<ApiOperation.Entity.CreateDecorator>(decoratorChain, omitUndefined({
+    description: options?.description,
+    method: 'POST',
+    composition: 'Entity.Create',
+    requestBody: {
+      required: true,
+      maxContentSize: options?.input?.maxContentSize
     }
-  });
-  return decorator;
+  })).Parameter('pick', {type: String, isArray: true, description: 'Determines fields to be picked'})
+      .Parameter('omit', {type: String, isArray: true, description: 'Determines fields to be omitted'})
+      .Parameter('include', {type: String, isArray: true, description: 'Determines fields to be included'})
+      .RequestContent(options?.input?.type || type)
+      .Response({
+        statusCode: HttpStatusCode.CREATED,
+        contentType: MimeTypes.opra_instance_json,
+        type
+      });
 }
 
 
@@ -154,22 +171,22 @@ ApiOperation.Entity.Delete = function (
     options?: ApiOperation.Entity.Delete.Options
 ): ApiOperation.Entity.DeleteDecorator {
   const decoratorChain: Function[] = [];
-  const decorator = createOperationDecorator(decoratorChain, options) as ApiOperation.Entity.DeleteDecorator;
-  decoratorChain.push((operationMeta: ApiOperation.DecoratorMetadata) => {
-    operationMeta.composition = 'Entity.Delete';
-    operationMeta.method = 'DELETE';
-    operationMeta.type = type;
-    if (typeof type === 'function') {
-      operationMeta.useTypes = operationMeta.useTypes || [];
-      operationMeta.useTypes.push(type);
-    }
+  const decorator = createOperationDecorator<ApiOperation.Entity.DeleteDecorator>(decoratorChain, omitUndefined({
+    description: options?.description,
+    method: 'DELETE',
+    composition: 'Entity.Delete'
+  })).Response({
+    statusCode: HttpStatusCode.OK,
+    contentType: MimeTypes.opra_response_json,
   });
   decorator.Filter = (field: OpraSchema.Field.QualifiedName, operators?: OpraFilter.ComparisonOperator[] | string, notes?: string) => {
+    decorator.Parameter('filter', {type: String, description: 'Determines filter fields'});
     if (typeof operators === 'string')
       operators = operators.split(/\s*[,| ]\s*/) as OpraFilter.ComparisonOperator[];
     decoratorChain.push((operationMeta: ApiOperation.DecoratorMetadata) => {
-          operationMeta.filters = operationMeta.filters || [];
-          operationMeta.filters.push(omitUndefined({field, operators, notes}));
+          const compositionOptions = operationMeta.compositionOptions = operationMeta.compositionOptions || {};
+          compositionOptions.filters = compositionOptions.filters || [];
+          compositionOptions.filters.push(omitUndefined({field, operators, notes}));
         }
     )
     return decorator;
@@ -186,30 +203,45 @@ ApiOperation.Entity.FindMany = function (
     options?: ApiOperation.Entity.FindMany.Options
 ): ApiOperation.Entity.FindManyDecorator {
   const decoratorChain: Function[] = [];
-  const decorator = createOperationDecorator(decoratorChain, options) as ApiOperation.Entity.FindManyDecorator;
-  decoratorChain.push((operationMeta: ApiOperation.DecoratorMetadata) => {
-    operationMeta.composition = 'Entity.FindMany';
-    operationMeta.method = 'GET';
-    operationMeta.type = type;
-    if (typeof type === 'function') {
-      operationMeta.useTypes = operationMeta.useTypes || [];
-      operationMeta.useTypes.push(type);
-    }
-  });
+  const decorator = createOperationDecorator<ApiOperation.Entity.FindManyDecorator>(decoratorChain, omitUndefined({
+    description: options?.description,
+    method: 'GET',
+    composition: 'Entity.FindMany'
+  })).Response({
+    statusCode: HttpStatusCode.OK,
+    contentType: MimeTypes.opra_collection_json,
+    type,
+  }).Parameter('limit', {type: Number, description: 'Determines number of returning instances'})
+      .Parameter('skip', {type: Number, description: 'Determines number of instances to be skipped'})
+      .Parameter('pick', {type: String, isArray: true, description: 'Determines fields to be picked'})
+      .Parameter('omit', {type: String, isArray: true, description: 'Determines fields to be omitted'})
+      .Parameter('include', {type: String, isArray: true, description: 'Determines fields to be included'})
+      .Parameter('count', {type: Boolean, description: 'Counts all matching instances if enabled'});
+
+
   decorator.DefaultSort = (...fields: OpraSchema.Field.QualifiedName[]) => {
-    decoratorChain.push((operationMeta: ApiOperation.DecoratorMetadata) => operationMeta.defaultSort = fields);
+    decoratorChain.push((operationMeta: ApiOperation.DecoratorMetadata) => {
+      const compositionOptions = operationMeta.compositionOptions = operationMeta.compositionOptions || {};
+      compositionOptions.defaultSort = fields;
+    });
     return decorator;
   }
   decorator.SortFields = (...fields: OpraSchema.Field.QualifiedName[]) => {
-    decoratorChain.push((operationMeta: ApiOperation.DecoratorMetadata) => operationMeta.sortFields = fields);
+    decorator.Parameter('sort', {type: String, isArray: true, description: 'Determines sort fields'});
+    decoratorChain.push((operationMeta: ApiOperation.DecoratorMetadata) => {
+      const compositionOptions = operationMeta.compositionOptions = operationMeta.compositionOptions || {};
+      compositionOptions.sortFields = fields;
+    });
     return decorator;
   }
   decorator.Filter = (field: OpraSchema.Field.QualifiedName, operators?: OpraFilter.ComparisonOperator[] | string, notes?: string) => {
+    decorator.Parameter('filter', {type: String, description: 'Determines filter fields'});
     if (typeof operators === 'string')
       operators = operators.split(/\s*[,| ]\s*/) as OpraFilter.ComparisonOperator[];
     decoratorChain.push((operationMeta: ApiOperation.DecoratorMetadata) => {
-          operationMeta.filters = operationMeta.filters || [];
-          operationMeta.filters.push(omitUndefined({field, operators, notes}));
+          const compositionOptions = operationMeta.compositionOptions = operationMeta.compositionOptions || {};
+          compositionOptions.filters = compositionOptions.filters || [];
+          compositionOptions.filters.push(omitUndefined({field, operators, notes}));
         }
     )
     return decorator;
@@ -226,22 +258,24 @@ ApiOperation.Entity.FindOne = function (
     options?: ApiOperation.Entity.FindOne.Options
 ): ApiOperation.Entity.FindOneDecorator {
   const decoratorChain: Function[] = [];
-  const decorator = createOperationDecorator(decoratorChain, options) as ApiOperation.Entity.FindOneDecorator;
-  decoratorChain.push((operationMeta: ApiOperation.DecoratorMetadata) => {
-    operationMeta.composition = 'Entity.FindOne';
-    operationMeta.method = 'GET';
-    operationMeta.type = type;
-    if (typeof type === 'function') {
-      operationMeta.useTypes = operationMeta.useTypes || [];
-      operationMeta.useTypes.push(type);
-    }
+  const decorator = createOperationDecorator<ApiOperation.Entity.FindOneDecorator>(decoratorChain, omitUndefined({
+    description: options?.description,
+    method: 'GET',
+    composition: 'Entity.FindOne'
+  })).Response({
+    statusCode: HttpStatusCode.OK,
+    contentType: MimeTypes.opra_instance_json,
+    type,
   });
+
   decorator.Filter = (field: OpraSchema.Field.QualifiedName, operators?: OpraFilter.ComparisonOperator[] | string, notes?: string) => {
+    decorator.Parameter('filter', {type: String, description: 'Determines filter fields'});
     if (typeof operators === 'string')
       operators = operators.split(/\s*[,| ]\s*/) as OpraFilter.ComparisonOperator[];
     decoratorChain.push((operationMeta: ApiOperation.DecoratorMetadata) => {
-          operationMeta.filters = operationMeta.filters || [];
-          operationMeta.filters.push(omitUndefined({field, operators, notes}));
+          const compositionOptions = operationMeta.compositionOptions = operationMeta.compositionOptions || {};
+          compositionOptions.filters = compositionOptions.filters || [];
+          compositionOptions.filters.push(omitUndefined({field, operators, notes}));
         }
     )
     return decorator;
@@ -258,22 +292,28 @@ ApiOperation.Entity.UpdateMany = function (
     options?: ApiOperation.Entity.UpdateMany.Options
 ): ApiOperation.Entity.UpdateManyDecorator {
   const decoratorChain: Function[] = [];
-  const decorator = createOperationDecorator(decoratorChain, options) as ApiOperation.Entity.UpdateManyDecorator;
-  decoratorChain.push((operationMeta: ApiOperation.DecoratorMetadata) => {
-    operationMeta.composition = 'Entity.UpdateMany';
-    operationMeta.method = 'PATCH';
-    operationMeta.type = type;
-    if (typeof type === 'function') {
-      operationMeta.useTypes = operationMeta.useTypes || [];
-      operationMeta.useTypes.push(type);
+  const decorator = createOperationDecorator<ApiOperation.Entity.UpdateManyDecorator>(decoratorChain, omitUndefined({
+    description: options?.description,
+    method: 'PATCH',
+    composition: 'Entity.UpdateMany',
+    requestBody: {
+      required: true,
+      maxContentSize: options?.input?.maxContentSize
     }
-  });
+  })).RequestContent(options?.input?.type || type)
+      .Response({
+        statusCode: HttpStatusCode.OK,
+        contentType: MimeTypes.opra_response_json
+      });
+
   decorator.Filter = (field: OpraSchema.Field.QualifiedName, operators?: OpraFilter.ComparisonOperator[] | string, notes?: string) => {
+    decorator.Parameter('filter', {type: String, description: 'Determines filter fields'});
     if (typeof operators === 'string')
       operators = operators.split(/\s*[,| ]\s*/) as OpraFilter.ComparisonOperator[];
     decoratorChain.push((operationMeta: ApiOperation.DecoratorMetadata) => {
-          operationMeta.filters = operationMeta.filters || [];
-          operationMeta.filters.push(omitUndefined({field, operators, notes}));
+          const compositionOptions = operationMeta.compositionOptions = operationMeta.compositionOptions || {};
+          compositionOptions.filters = compositionOptions.filters || [];
+          compositionOptions.filters.push(omitUndefined({field, operators, notes}));
         }
     )
     return decorator;
@@ -290,22 +330,32 @@ ApiOperation.Entity.UpdateOne = function (
     options?: ApiOperation.Entity.UpdateOne.Options
 ): ApiOperation.Entity.UpdateOneDecorator {
   const decoratorChain: Function[] = [];
-  const decorator = createOperationDecorator(decoratorChain, options) as ApiOperation.Entity.UpdateOneDecorator;
-  decoratorChain.push((operationMeta: ApiOperation.DecoratorMetadata) => {
-    operationMeta.composition = 'Entity.UpdateOne';
-    operationMeta.method = 'PATCH';
-    operationMeta.type = type;
-    if (typeof type === 'function') {
-      operationMeta.useTypes = operationMeta.useTypes || [];
-      operationMeta.useTypes.push(type);
+  const decorator = createOperationDecorator<ApiOperation.Entity.UpdateOneDecorator>(decoratorChain, omitUndefined({
+    description: options?.description,
+    method: 'PATCH',
+    composition: 'Entity.UpdateOne',
+    requestBody: {
+      required: true,
+      maxContentSize: options?.input?.maxContentSize
     }
-  });
+  })).Parameter('pick', {type: String, isArray: true, description: 'Determines fields to be picked'})
+      .Parameter('omit', {type: String, isArray: true, description: 'Determines fields to be omitted'})
+      .Parameter('include', {type: String, isArray: true, description: 'Determines fields to be included'})
+      .RequestContent(options?.input?.type || type)
+      .Response({
+        statusCode: HttpStatusCode.OK,
+        contentType: MimeTypes.opra_instance_json,
+        type,
+      });
+
   decorator.Filter = (field: OpraSchema.Field.QualifiedName, operators?: OpraFilter.ComparisonOperator[] | string, notes?: string) => {
+    decorator.Parameter('filter', {type: String, description: 'Determines filter fields'});
     if (typeof operators === 'string')
       operators = operators.split(/\s*[,| ]\s*/) as OpraFilter.ComparisonOperator[];
     decoratorChain.push((operationMeta: ApiOperation.DecoratorMetadata) => {
-          operationMeta.filters = operationMeta.filters || [];
-          operationMeta.filters.push(omitUndefined({field, operators, notes}));
+          const compositionOptions = operationMeta.compositionOptions = operationMeta.compositionOptions || {};
+          compositionOptions.filters = compositionOptions.filters || [];
+          compositionOptions.filters.push(omitUndefined({field, operators, notes}));
         }
     )
     return decorator;

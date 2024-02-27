@@ -1,12 +1,8 @@
-import type { HttpStatusCode } from '../../http/index';
-import type { DataType } from '../data-type/data-type.interface.js';
+import { HttpStatusRange } from '../../http/index.js';
+import type { MediaContent } from './media-content.interface.js';
 import type { Parameter } from './parameter.interface.js';
 
-export interface Response {
-  statusCode: HttpStatusCode;
-  description?: string;
-  type?: DataType.Name | DataType;
-  contentType?: string;
-  contentEncoding?: string;
+export interface Response extends MediaContent {
+  statusCode: HttpStatusRange | HttpStatusRange[];
   headers?: Parameter[];
 }

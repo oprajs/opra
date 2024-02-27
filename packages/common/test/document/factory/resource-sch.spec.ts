@@ -1,6 +1,7 @@
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
+import assert from 'assert';
 import { ApiDocumentFactory, OpraSchema, } from '@opra/common';
-import { Country } from '../../_support/test-api/index';
+import { Country } from '../../_support/test-api/index.js';
 
 describe('ApiDocumentFactory - Collection resource with schema object', function () {
 
@@ -19,7 +20,7 @@ describe('ApiDocumentFactory - Collection resource with schema object', function
     const resource1: OpraSchema.Resource = {
       kind: 'Resource',
       description: 'test type',
-      key: {
+      keyParameter: {
         name: 'id',
         type: 'string'
       }
@@ -36,13 +37,14 @@ describe('ApiDocumentFactory - Collection resource with schema object', function
     expect(doc).toBeDefined();
     const t = doc.getResource('resource1@');
     expect(t).toBeDefined();
+    assert(t);
     expect(t.kind).toStrictEqual(OpraSchema.Resource.Kind);
     expect(t.name).toStrictEqual('resource1@');
     expect(t.description).toEqual(resource1.description);
-    expect(t.key).toBeDefined();
-    expect(t.key?.name).toStrictEqual('id');
-    expect(t.key?.type).toBeDefined();
-    expect(t.key?.type.name).toStrictEqual('string');
+    expect(t.keyParameter).toBeDefined();
+    expect(t!.keyParameter?.name).toStrictEqual('id');
+    expect(t.keyParameter?.type).toBeDefined();
+    expect(t.keyParameter?.type.name).toStrictEqual('string');
   })
 
   it('Should import operation endpoint', async () => {
@@ -68,8 +70,9 @@ describe('ApiDocumentFactory - Collection resource with schema object', function
     expect(doc).toBeDefined();
     const t = doc.getResource('resource1');
     expect(t).toBeDefined();
+    assert(t);
     expect(t.getOperation('create')).toBeDefined();
-    expect(t.getOperation('create').method).toStrictEqual('POST');
+    expect(t.getOperation('create')!.method).toStrictEqual('POST');
   })
 
   it('Should import action endpoint', async () => {
@@ -94,6 +97,7 @@ describe('ApiDocumentFactory - Collection resource with schema object', function
     expect(doc).toBeDefined();
     const t = doc.getResource('resource1');
     expect(t).toBeDefined();
+    assert(t);
     expect(t.getAction('ping')).toBeDefined();
   })
 

@@ -11,11 +11,37 @@ describe('ApiOperation.Entity.* decorators', function () {
   /* ***************************************************** */
   describe('"Create" decorator', function () {
 
+    const defaultParameters = [
+      {
+        description: "Determines fields to be picked",
+        in: "query",
+        isArray: true,
+        name: "pick",
+        type: String
+      },
+      {
+        description: "Determines fields to be omitted",
+        in: "query",
+        isArray: true,
+        name: "omit",
+        type: String
+      },
+      {
+        description: "Determines fields to be included",
+        in: "query",
+        isArray: true,
+        name: "include",
+        type: String
+      }
+    ];
+
     it('Should define Create operation metadata', async function () {
       class CustomerResource {
         @ApiOperation.Entity.Create(Customer, {
           description: 'operation description',
-          inputMaxContentSize: 1000
+          input: {
+            maxContentSize: 1000
+          }
         })
         create() {
         }
@@ -26,12 +52,26 @@ describe('ApiOperation.Entity.* decorators', function () {
         endpoints: {
           create: {
             kind: 'Operation',
-            composition: 'Entity.Create',
             method: 'POST',
-            type: Customer,
+            composition: 'Entity.Create',
             description: 'operation description',
-            inputMaxContentSize: 1000,
-            useTypes: [Customer]
+            requestBody: {
+              content: [{
+                contentType: "application/json",
+                contentEncoding: "utf-8",
+                type: Customer,
+              }],
+              maxContentSize: 1000,
+              required: true
+            },
+            parameters: defaultParameters,
+            responses: [
+              {
+                contentType: "application/opra.instance+json",
+                statusCode: '201',
+                type: Customer
+              }
+            ]
           }
         }
       });
@@ -55,11 +95,15 @@ describe('ApiOperation.Entity.* decorators', function () {
         endpoints: {
           delete: {
             kind: 'Operation',
-            composition: 'Entity.Delete',
             method: 'DELETE',
-            type: Customer,
+            composition: 'Entity.Delete',
             description: 'operation description',
-            useTypes: [Customer]
+            responses: [
+              {
+                contentType: "application/opra.response+json",
+                statusCode: '200',
+              }
+            ],
           }
         }
       });
@@ -79,14 +123,28 @@ describe('ApiOperation.Entity.* decorators', function () {
         endpoints: {
           delete: {
             kind: 'Operation',
-            composition: 'Entity.Delete',
             method: 'DELETE',
-            type: Customer,
-            filters: [
-              {field: '_id', operators: ['=', '!=']},
-              {field: 'givenName', operators: ['=', '!=', 'like']},
+            composition: 'Entity.Delete',
+            compositionOptions: {
+              filters: [
+                {field: '_id', operators: ['=', '!=']},
+                {field: 'givenName', operators: ['=', '!=', 'like']},
+              ],
+            },
+            parameters: [
+              {
+                description: "Determines filter fields",
+                in: "query",
+                name: "filter",
+                type: String
+              }
             ],
-            useTypes: [Customer]
+            responses: [
+              {
+                contentType: "application/opra.response+json",
+                statusCode: '200',
+              }
+            ],
           }
         }
       });
@@ -96,6 +154,49 @@ describe('ApiOperation.Entity.* decorators', function () {
 
   /* ***************************************************** */
   describe('"FindMany" decorator', function () {
+
+    const defaultParameters = [
+      {
+        description: "Determines number of returning instances",
+        in: "query",
+        name: "limit",
+        type: Number
+      },
+      {
+        description: "Determines number of instances to be skipped",
+        in: "query",
+        name: "skip",
+        type: Number
+      },
+      {
+        description: "Determines fields to be picked",
+        in: "query",
+        isArray: true,
+        name: "pick",
+        type: String
+      },
+      {
+        description: "Determines fields to be omitted",
+        in: "query",
+        isArray: true,
+        name: "omit",
+        type: String
+      },
+      {
+        description: "Determines fields to be included",
+        in: "query",
+        isArray: true,
+        name: "include",
+        type: String
+      },
+      {
+        description: "Counts all matching instances if enabled",
+        in: "query",
+        name: "count",
+        type: Boolean
+      }
+    ];
+
     it('Should define FindMany operation metadata', async function () {
       class CustomerResource {
         @ApiOperation.Entity.FindMany(Customer, {description: 'operation description'})
@@ -110,9 +211,15 @@ describe('ApiOperation.Entity.* decorators', function () {
             kind: 'Operation',
             composition: 'Entity.FindMany',
             method: 'GET',
-            type: Customer,
             description: 'operation description',
-            useTypes: [Customer]
+            parameters: defaultParameters,
+            responses: [
+              {
+                contentType: "application/opra.collection+json",
+                statusCode: '200',
+                type: Customer
+              }
+            ]
           }
         }
       });
@@ -128,18 +235,34 @@ describe('ApiOperation.Entity.* decorators', function () {
       }
 
       const metadata = Reflect.getMetadata(RESOURCE_METADATA, CustomerResource);
-      expect(metadata).toStrictEqual({
+      expect(metadata).toEqual({
         endpoints: {
           findMany: {
             kind: 'Operation',
-            composition: 'Entity.FindMany',
             method: 'GET',
-            type: Customer,
-            filters: [
-              {field: '_id', operators: ['=', '!=']},
-              {field: 'givenName', operators: ['=', '!=', 'like']},
+            composition: 'Entity.FindMany',
+            compositionOptions: {
+              filters: [
+                {field: '_id', operators: ['=', '!=']},
+                {field: 'givenName', operators: ['=', '!=', 'like']},
+              ]
+            },
+            parameters: [
+              ...defaultParameters,
+              {
+                description: "Determines filter fields",
+                in: "query",
+                name: "filter",
+                type: String
+              }
             ],
-            useTypes: [Customer]
+            responses: [
+              {
+                contentType: "application/opra.collection+json",
+                statusCode: '200',
+                type: Customer
+              }
+            ]
           }
         }
       });
@@ -158,11 +281,28 @@ describe('ApiOperation.Entity.* decorators', function () {
         endpoints: {
           findMany: {
             kind: 'Operation',
-            composition: 'Entity.FindMany',
             method: 'GET',
-            type: Customer,
-            sortFields: ['_id', 'givenName'],
-            useTypes: [Customer]
+            composition: 'Entity.FindMany',
+            compositionOptions: {
+              sortFields: ['_id', 'givenName']
+            },
+            parameters: [
+              ...defaultParameters,
+              {
+                description: "Determines sort fields",
+                in: "query",
+                name: "sort",
+                isArray: true,
+                type: String
+              }
+            ],
+            responses: [
+              {
+                contentType: "application/opra.collection+json",
+                statusCode: '200',
+                type: Customer
+              }
+            ]
           }
         }
       });
@@ -171,7 +311,7 @@ describe('ApiOperation.Entity.* decorators', function () {
     it('Should DefaultSort() define metadata value', async function () {
       class CustomerResource {
         @ApiOperation.Entity.FindMany(Customer)
-            .DefaultSort('_id', 'givenName')
+            .DefaultSort('givenName')
         findMany() {
         }
       }
@@ -181,11 +321,19 @@ describe('ApiOperation.Entity.* decorators', function () {
         endpoints: {
           findMany: {
             kind: 'Operation',
-            composition: 'Entity.FindMany',
             method: 'GET',
-            type: Customer,
-            defaultSort: ['_id', 'givenName'],
-            useTypes: [Customer]
+            composition: 'Entity.FindMany',
+            compositionOptions: {
+              defaultSort: ['givenName'],
+            },
+            parameters: defaultParameters,
+            responses: [
+              {
+                contentType: "application/opra.collection+json",
+                statusCode: '200',
+                type: Customer
+              }
+            ]
           }
         }
       });
@@ -208,11 +356,16 @@ describe('ApiOperation.Entity.* decorators', function () {
         endpoints: {
           findOne: {
             kind: 'Operation',
-            composition: 'Entity.FindOne',
             method: 'GET',
-            type: Customer,
+            composition: 'Entity.FindOne',
             description: 'operation description',
-            useTypes: [Customer]
+            responses: [
+              {
+                contentType: "application/opra.instance+json",
+                statusCode: '200',
+                type: Customer
+              }
+            ]
           }
         }
       });
@@ -232,14 +385,29 @@ describe('ApiOperation.Entity.* decorators', function () {
         endpoints: {
           findOne: {
             kind: 'Operation',
-            composition: 'Entity.FindOne',
             method: 'GET',
-            type: Customer,
-            filters: [
-              {field: '_id', operators: ['=', '!=']},
-              {field: 'givenName', operators: ['=', '!=', 'like']},
+            composition: 'Entity.FindOne',
+            compositionOptions: {
+              filters: [
+                {field: '_id', operators: ['=', '!=']},
+                {field: 'givenName', operators: ['=', '!=', 'like']},
+              ],
+            },
+            parameters: [
+              {
+                description: "Determines filter fields",
+                in: "query",
+                name: "filter",
+                type: String
+              }
             ],
-            useTypes: [Customer]
+            responses: [
+              {
+                contentType: "application/opra.instance+json",
+                statusCode: '200',
+                type: Customer
+              }
+            ]
           }
         }
       });
@@ -254,7 +422,9 @@ describe('ApiOperation.Entity.* decorators', function () {
       class CustomerResource {
         @ApiOperation.Entity.UpdateMany(Customer, {
           description: 'operation description',
-          inputMaxContentSize: 1000
+          input: {
+            maxContentSize: 1000
+          }
         })
         updateMany() {
         }
@@ -265,12 +435,24 @@ describe('ApiOperation.Entity.* decorators', function () {
         endpoints: {
           updateMany: {
             kind: 'Operation',
-            composition: 'Entity.UpdateMany',
             method: 'PATCH',
-            type: Customer,
+            composition: 'Entity.UpdateMany',
             description: 'operation description',
-            inputMaxContentSize: 1000,
-            useTypes: [Customer]
+            requestBody: {
+              content: [{
+                contentType: "application/json",
+                contentEncoding: "utf-8",
+                type: Customer,
+              }],
+              maxContentSize: 1000,
+              required: true
+            },
+            responses: [
+              {
+                contentType: "application/opra.response+json",
+                statusCode: '200'
+              }
+            ]
           }
         }
       });
@@ -290,14 +472,37 @@ describe('ApiOperation.Entity.* decorators', function () {
         endpoints: {
           updateMany: {
             kind: 'Operation',
-            composition: 'Entity.UpdateMany',
             method: 'PATCH',
-            type: Customer,
-            filters: [
-              {field: '_id', operators: ['=', '!=']},
-              {field: 'givenName', operators: ['=', '!=', 'like']},
+            composition: 'Entity.UpdateMany',
+            compositionOptions: {
+              filters: [
+                {field: '_id', operators: ['=', '!=']},
+                {field: 'givenName', operators: ['=', '!=', 'like']},
+              ]
+            },
+            requestBody: {
+              content: [{
+                contentType: "application/json",
+                contentEncoding: "utf-8",
+                type: Customer,
+              }],
+              maxContentSize: undefined,
+              required: true
+            },
+            parameters: [
+              {
+                description: "Determines filter fields",
+                in: "query",
+                name: "filter",
+                type: String
+              }
             ],
-            useTypes: [Customer]
+            responses: [
+              {
+                contentType: "application/opra.response+json",
+                statusCode: '200'
+              }
+            ]
           }
         }
       });
@@ -308,11 +513,37 @@ describe('ApiOperation.Entity.* decorators', function () {
 
   /* ***************************************************** */
   describe('"UpdateOne" decorator', function () {
+    const defaultParameters = [
+      {
+        description: "Determines fields to be picked",
+        in: "query",
+        isArray: true,
+        name: "pick",
+        type: String
+      },
+      {
+        description: "Determines fields to be omitted",
+        in: "query",
+        isArray: true,
+        name: "omit",
+        type: String
+      },
+      {
+        description: "Determines fields to be included",
+        in: "query",
+        isArray: true,
+        name: "include",
+        type: String
+      }
+    ];
+
     it('Should define UpdateOne operation metadata', async function () {
       class CustomerResource {
         @ApiOperation.Entity.UpdateOne(Customer, {
           description: 'operation description',
-          inputMaxContentSize: 1000
+          input: {
+            maxContentSize: 1000
+          }
         })
         updateOne() {
         }
@@ -323,12 +554,26 @@ describe('ApiOperation.Entity.* decorators', function () {
         endpoints: {
           updateOne: {
             kind: 'Operation',
-            composition: 'Entity.UpdateOne',
             method: 'PATCH',
-            type: Customer,
+            composition: 'Entity.UpdateOne',
             description: 'operation description',
-            inputMaxContentSize: 1000,
-            useTypes: [Customer]
+            requestBody: {
+              content: [{
+                contentType: "application/json",
+                contentEncoding: "utf-8",
+                type: Customer,
+              }],
+              maxContentSize: 1000,
+              required: true
+            },
+            parameters: defaultParameters,
+            responses: [
+              {
+                contentType: "application/opra.instance+json",
+                statusCode: '200',
+                type: Customer
+              }
+            ]
           }
         }
       });
@@ -348,14 +593,39 @@ describe('ApiOperation.Entity.* decorators', function () {
         endpoints: {
           updateOne: {
             kind: 'Operation',
-            composition: 'Entity.UpdateOne',
             method: 'PATCH',
-            type: Customer,
-            filters: [
-              {field: '_id', operators: ['=', '!=']},
-              {field: 'givenName', operators: ['=', '!=', 'like']},
+            composition: 'Entity.UpdateOne',
+            compositionOptions: {
+              filters: [
+                {field: '_id', operators: ['=', '!=']},
+                {field: 'givenName', operators: ['=', '!=', 'like']},
+              ]
+            },
+            requestBody: {
+              content: [{
+                contentType: "application/json",
+                contentEncoding: "utf-8",
+                type: Customer,
+              }],
+              maxContentSize: undefined,
+              required: true
+            },
+            parameters: [
+              ...defaultParameters,
+              {
+                description: "Determines filter fields",
+                in: "query",
+                name: "filter",
+                type: String
+              }
             ],
-            useTypes: [Customer]
+            responses: [
+              {
+                contentType: "application/opra.instance+json",
+                statusCode: '200',
+                type: Customer
+              }
+            ]
           }
         }
       });

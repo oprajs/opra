@@ -9,7 +9,5 @@ export interface Endpoint {
   kind: string;
   description?: string;
   parameters?: Parameter[];
-  response?: Response;
-
-  [index: string]: any;
+  responses?: Response[];
 }

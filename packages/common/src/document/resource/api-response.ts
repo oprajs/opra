@@ -1,12 +1,10 @@
 import { StrictOmit, Type } from 'ts-gems';
 import { isAny, Validator } from 'valgen';
-import { omitUndefined } from '../../helpers/index.js';
-import { HttpStatusCode } from '../../http/index.js';
+import { HttpStatusCode, HttpStatusRange } from '../../http/index.js';
 import { OpraSchema } from '../../schema/index.js';
-import type { TypeThunkAsync } from '../../types';
 import { DataType } from '../data-type/data-type.js';
-import { ApiElement } from './api-element.js';
 import type { ApiEndpoint } from './api-endpoint.js';
+import { ApiMediaContent } from './api-media-content.js';
 import { ApiParameter } from './api-parameter.js';
 
 
@@ -14,43 +12,40 @@ import { ApiParameter } from './api-parameter.js';
  * @namespace ApiResponse
  */
 export namespace ApiResponse {
-  export interface InitArguments extends StrictOmit<OpraSchema.Response, 'type' | 'headers'> {
+  export interface InitArguments extends StrictOmit<OpraSchema.Response, 'type' | 'headers' | 'multipartFields'> {
     type?: DataType | string | Type;
-    headers: ApiParameter.InitArguments[];
+    multipartFields?: Record<string, ApiMediaContent.InitArguments>;
+    headers?: ApiParameter.InitArguments[];
   }
 
-  export interface DecoratorMetadata extends Partial<StrictOmit<OpraSchema.Response, 'type' | 'headers'>> {
-    type?: TypeThunkAsync | string;
+  export interface DecoratorMetadata extends Partial<StrictOmit<OpraSchema.Response, 'type' | 'headers' | 'multipartFields'>> {
+    type?: Type | string;
+    multipartFields?: Record<string, ApiMediaContent.DecoratorMetadata>;
     headers?: ApiParameter.DecoratorMetadata[];
   }
 
-  export interface DecoratorOptions extends Partial<StrictOmit<OpraSchema.Response, 'type' | 'headers'>> {
-    type?: TypeThunkAsync | string;
+  export interface DecoratorOptions extends Partial<StrictOmit<OpraSchema.Response, 'statusCode' | 'type' | 'headers' | 'multipartFields'>> {
+    statusCode: HttpStatusCode | number | HttpStatusRange | HttpStatusRange[];
+    type?: Type | string;
   }
 }
 
 
-export class ApiResponse extends ApiElement {
+export class ApiResponse extends ApiMediaContent {
   protected _encoder: Validator;
-  readonly endpoint: ApiEndpoint;
-  description?: string;
-  statusCode: HttpStatusCode;
-  type?: DataType;
-  contentType?: string;
-  contentEncoding?: string;
+  readonly parent: ApiEndpoint;
+  statusCode: HttpStatusRange[];
   headers: ApiParameter[] = [];
 
-  constructor(endpoint: ApiEndpoint, init?: ApiResponse.InitArguments) {
-    super(endpoint.document);
-    this.endpoint = endpoint;
-    this.description = init?.description;
-    this.statusCode = init?.statusCode || HttpStatusCode.OK;
+  constructor(endpoint: ApiEndpoint, init: ApiResponse.InitArguments) {
+    super(endpoint, init);
+    this.statusCode = init?.statusCode
+        ? (Array.isArray(init.statusCode) ? init.statusCode : String(init.statusCode)) as HttpStatusRange[]
+        : ['200'];
     if (init?.type)
       this.type = init.type instanceof DataType
           ? init.type
           : this.document.getDataType(init.type);
-    this.contentEncoding = init?.contentEncoding;
-    this.contentType = init?.contentType;
     if (init?.headers) {
       for (const p of init.headers) {
         this.defineHeader(p);
@@ -84,18 +79,13 @@ export class ApiResponse extends ApiElement {
     );
   }
 
-  exportSchema(options?: { webSafe?: boolean }): OpraSchema.Response {
-    const out = omitUndefined<OpraSchema.Response>({
-      description: this.description,
-      statusCode: this.statusCode,
-      type: this.type?.name ? this.type.name : this.type?.exportSchema(options),
-      contentType: this.contentType,
-      contentEncoding: this.contentEncoding
-    })
+  exportSchema(): OpraSchema.Response {
+    const out = super.exportSchema() as OpraSchema.Response;
+    out.statusCode = this.statusCode.length > 1 ? this.statusCode : this.statusCode[0];
     if (this.headers.length) {
       out.headers = [];
       for (const header of this.headers) {
-        out.headers.push(header.exportSchema(options));
+        out.headers.push(header.exportSchema());
       }
     }
     return out;

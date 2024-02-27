@@ -49,7 +49,7 @@ describe('ApiResource decorator', function () {
     expect(metadata).toStrictEqual({
       kind: 'Resource',
       name: 'Countries',
-      key: {
+      keyParameter: {
         name: 'id',
         type: 'any'
       },

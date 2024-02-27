@@ -5,7 +5,7 @@ import type { Parameter } from './parameter.interface.js';
 export interface Resource {
   kind: string;
   description?: string;
-  key?: KeyParameter;
+  keyParameter?: KeyParameter;
   endpoints?: Record<string, Action | Operation>;
   resources?: Record<string, Resource>;
 }

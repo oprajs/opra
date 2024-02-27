@@ -1,8 +1,9 @@
 import omit from 'lodash.omit';
-import { isAny, Validator } from 'valgen';
+import { omitUndefined } from '../../helpers/index.js';
 import { OpraSchema } from '../../schema/index.js';
 import { ApiEndpoint } from './api-endpoint.js';
 import type { ApiOperation } from './api-operation.js';
+import { ApiRequestBody } from './api-request-body.js';
 import type { ApiResource } from './api-resource';
 
 /**
@@ -11,24 +12,27 @@ import type { ApiResource } from './api-resource';
  */
 export class ApiOperationClass extends ApiEndpoint {
   readonly kind = OpraSchema.Operation.Kind;
-  readonly method: OpraSchema.Operation.Method;
-  readonly composition?: string;
-  decodeInput: Validator = isAny;
+  method: OpraSchema.Operation.Method;
+  composition?: string;
+  requestBody?: ApiRequestBody;
 
-  constructor(readonly resource: ApiResource, readonly name: string, init: ApiOperation.InitArguments) {
-    super(resource, name, init);
-    this.method = init.method || 'GET';
+  constructor(parent: ApiResource, name: string, init: ApiOperation.InitArguments) {
+    super(parent, name, init);
+    this.method = init.method;
     this.composition = init.composition;
+    if (init.requestBody)
+      this.requestBody = new ApiRequestBody(this, init.requestBody);
   }
 
-  exportSchema(options?: { webSafe?: boolean }): OpraSchema.Operation {
-    const schema = super.exportSchema(options) as OpraSchema.Operation;
-    return {
+  exportSchema(): OpraSchema.Operation {
+    const schema = super.exportSchema() as OpraSchema.Operation;
+    return omitUndefined<OpraSchema.Operation>({
       kind: this.kind,
       method: this.method,
       composition: this.composition,
-      ...omit(schema, ['kind', 'method', 'composition'])
-    };
+      requestBody: this.requestBody?.exportSchema(),
+      ...omit(schema, ['kind', 'method', 'composition', 'requestBody'])
+    });
   }
 
 }

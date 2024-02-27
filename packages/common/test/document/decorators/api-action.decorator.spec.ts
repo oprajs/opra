@@ -73,19 +73,20 @@ describe('ApiAction decorator', function () {
   it('Should Response(Type) define response options', async function () {
     class CustomersResource {
       @ApiAction()
-          .Response(String)
+          .Response(HttpStatusCode.OK, String)
       sendMessage() {
       }
     }
 
     const metadata = Reflect.getMetadata(RESOURCE_METADATA, CustomersResource);
-    expect(metadata).toStrictEqual({
+    expect(metadata).toEqual({
       endpoints: {
         sendMessage: {
           kind: 'Action',
-          response: {
+          responses: [{
+            statusCode: '200',
             type: String
-          }
+          }]
         }
       }
     });
@@ -97,7 +98,7 @@ describe('ApiAction decorator', function () {
           .Response({
             type: String,
             description: 'response description',
-            statusCode: HttpStatusCode.OK
+            statusCode: HttpStatusCode.ACCEPTED
           })
       sendMessage() {
       }
@@ -108,11 +109,11 @@ describe('ApiAction decorator', function () {
       endpoints: {
         sendMessage: {
           kind: 'Action',
-          response: {
+          responses: [{
+            statusCode: '202',
             type: String,
             description: 'response description',
-            statusCode: HttpStatusCode.OK
-          }
+          }]
         }
       }
     });

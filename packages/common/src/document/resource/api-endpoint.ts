@@ -11,9 +11,9 @@ import { ApiResponse } from './api-response.js';
 const NAME_PATTERN = /^\w+$/i;
 
 export namespace ApiEndpoint {
-  export interface InitArguments extends StrictOmit<OpraSchema.Endpoint, 'parameters' | 'response'> {
+  export interface InitArguments extends StrictOmit<OpraSchema.Endpoint, 'parameters' | 'responses'> {
     parameters?: ApiParameter.InitArguments[];
-    response?: ApiResponse.InitArguments;
+    responses?: ApiResponse.InitArguments[];
   }
 }
 
@@ -23,24 +23,26 @@ export namespace ApiEndpoint {
  * @class ApiEndpoint
  */
 export abstract class ApiEndpoint extends ApiElement {
+  readonly parent: ApiResource;
   abstract readonly kind: OpraSchema.Action.Kind | OpraSchema.Operation.Kind;
-  readonly resource: ApiResource;
   readonly name: string;
   description?: string;
   parameters: ApiParameter[];
-  response: ApiResponse;
-  options: any;
+  responses: ApiResponse[];
 
-  protected constructor(resource: ApiResource, name: string, init: ApiEndpoint.InitArguments) {
-    super(resource.document);
+  protected constructor(parent: ApiResource, name: string, init: ApiEndpoint.InitArguments) {
+    super(parent);
     if (!NAME_PATTERN.test(name))
       throw new TypeError(`Invalid endpoint name (${name})`);
-    this.resource = resource;
     this.name = name;
     this.description = init.description;
     this.parameters = [];
-    this.options = {...init.options};
-    this.response = new ApiResponse(this, init.response);
+    this.responses = [];
+    if (init.responses) {
+      for (const p of init.responses) {
+        this.defineResponse(p);
+      }
+    }
     if (init.parameters) {
       for (const p of init.parameters) {
         this.defineParameter(p);
@@ -49,11 +51,17 @@ export abstract class ApiEndpoint extends ApiElement {
   }
 
   getFullPath(documentPath?: boolean): string {
-    return this.resource.getFullPath(documentPath) +
+    return this.parent.getFullPath(documentPath) +
         (documentPath
                 ? '/endpoints/' + this.name
                 : (this.kind === OpraSchema.Action.Kind ? this.name : '')
         );
+  }
+
+  defineResponse(init: ApiResponse.InitArguments): ApiResponse {
+    const r = new ApiResponse(this, init);
+    this.responses.push(r);
+    return r;
   }
 
   defineParameter(init: ApiParameter.InitArguments): ApiParameter
@@ -88,7 +96,7 @@ export abstract class ApiEndpoint extends ApiElement {
     );
   }
 
-  exportSchema(options?: { webSafe?: boolean }): OpraSchema.Endpoint {
+  exportSchema(): OpraSchema.Endpoint {
     const schema = omitUndefined<OpraSchema.Endpoint>({
       kind: this.kind,
       description: this.description
@@ -98,15 +106,15 @@ export abstract class ApiEndpoint extends ApiElement {
       const parameters: OpraSchema.Parameter[] = [];
       for (const prm of this.parameters) {
         if (!prm.isBuiltin) {
-          parameters.push(prm.exportSchema(options));
+          parameters.push(prm.exportSchema());
           i++;
         }
       }
       if (i)
         schema.parameters = parameters;
     }
-    if (Object.keys(this.options).length)
-      schema.options = {...this.options};
+    if (this.responses.length)
+      schema.responses = this.responses.map(x => x.exportSchema());
     return schema;
   }
 
@@ -141,5 +149,4 @@ export abstract class ApiEndpoint extends ApiElement {
     }
     return out;
   }
-
 }

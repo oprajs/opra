@@ -9,24 +9,16 @@ export class ApiDocument extends TypeDocument {
    * Returns Resource instance by path. Returns undefined if not found
    * @param path
    */
-  findResource(path: string): ApiResource | undefined {
-    return this.root.findResource(path);
-  }
-
-  /**
-   * Returns Resource instance by path. Throws error if not found
-   * @param path
-   */
-  getResource(path: string): ApiResource {
+  getResource(path: string): ApiResource | undefined {
     return this.root.getResource(path);
   }
 
   /**
    * Export as Opra schema definition object
    */
-  exportSchema(options?: { webSafe?: boolean }): OpraSchema.ApiDocument {
-    const schema = super.exportSchema(options) as OpraSchema.ApiDocument;
-    schema.root = this.root.exportSchema(options);
+  exportSchema(): OpraSchema.ApiDocument {
+    const schema = super.exportSchema() as OpraSchema.ApiDocument;
+    schema.root = this.root.exportSchema();
     delete (schema.root as any).kind;
     return schema;
   }

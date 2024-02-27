@@ -18,38 +18,31 @@ describe('ApiResourceClass', function () {
   };
 
   beforeAll(async () => {
-    api = await ApiDocumentFactory.createDocument(baseArgs);
+    api = await ApiDocumentFactory.createDocument(baseArgs, {autoImportTypes: true});
   })
 
   afterAll(() => global.gc && global.gc());
 
-  it('Should findResource(name) return undefined if resource not a found', async () => {
-    const doc = await ApiDocumentFactory.createDocument(baseArgs);
-    expect(doc.findResource('unknownResource')).not.toBeDefined();
+  it('Should getResource(name) return undefined if resource not a found', async () => {
+    expect(api.getResource('unknownResource')).not.toBeDefined();
   })
 
   it('Should isRoot return "true" for root resource "false" otherwise', async () => {
     expect(api.root.isRoot).toEqual(true);
-    expect(api.getResource('customers').isRoot).toEqual(false);
+    expect(api.getResource('customers')!.isRoot).toEqual(false);
   })
 
   it('Should getFullPath return resource path', async () => {
-    expect(api.getResource('auth/MyProfile').getFullPath()).toEqual('/Auth/MyProfile');
+    expect(api.getResource('auth/MyProfile')!.getFullPath()).toEqual('/Auth/MyProfile');
   })
 
   it('Should getFullPath return document path', async () => {
-    expect(api.getResource('auth/MyProfile').getFullPath(true)).toEqual('/resources/Auth/MyProfile');
-  })
-
-
-  it('Should findResource(name) return Resource instance', async () => {
-    const res = api.findResource('auth/MyProfile');
-    expect(res).toBeDefined();
-    expect(res!.name).toStrictEqual('MyProfile');
+    expect(api.getResource('auth/MyProfile')!.getFullPath(true)).toEqual('/resources/Auth/MyProfile');
   })
 
   it('Should getResource(name) return Resource instance', async () => {
     const res = api.getResource('auth/MyProfile');
+    expect(res).toBeDefined();
     expect(res!.name).toStrictEqual('MyProfile');
   })
 
@@ -59,7 +52,7 @@ describe('ApiResourceClass', function () {
   })
 
   it('Should exportSchema() return Resource schema', async () => {
-    const res = api.getResource('Customers@');
+    const res = api.getResource('Customers@')!;
     const sch = res.exportSchema();
     expect(sch).toEqual({
       kind: OpraSchema.Resource.Kind,
@@ -69,12 +62,16 @@ describe('ApiResourceClass', function () {
           kind: "Operation",
           composition: "Entity.FindOne",
           method: "GET",
-          options: {
-            type: 'Customer'
-          }
+          responses: [
+            {
+              contentType: "application/opra.instance+json",
+              statusCode: "200",
+              type: "Customer"
+            }
+          ]
         }
       },
-      key: {
+      keyParameter: {
         name: "_id",
         type: "any"
       }

@@ -24,6 +24,7 @@ describe('ApiOperation.Multipart.* decorators', function () {
         endpoints: {
           get: {
             kind: 'Operation',
+            method: 'GET',
             composition: 'Multipart.Get',
             description: 'operation description'
           }
@@ -51,8 +52,17 @@ describe('ApiOperation.Multipart.* decorators', function () {
         endpoints: {
           post: {
             kind: 'Operation',
+            method: 'POST',
             composition: 'Multipart.Post',
-            description: 'operation description'
+            compositionOptions: {},
+            description: 'operation description',
+            requestBody: {
+              content: [
+                {
+                  contentType: "multipart/form-data"
+                }
+              ]
+            }
           }
         }
       });

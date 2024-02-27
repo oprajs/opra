@@ -49,10 +49,10 @@ export class ApiKeyParameter extends ApiElement {
     this.examples = init.examples;
   }
 
-  exportSchema(options?: { webSafe?: boolean }): OpraSchema.KeyParameter {
+  exportSchema(): OpraSchema.KeyParameter {
     return omitUndefined<OpraSchema.KeyParameter>({
       name: this.name,
-      type: this.type.name ? this.type.name : this.type.exportSchema(options),
+      type: this.type.name ? this.type.name : this.type.exportSchema(),
       description: this.description,
       deprecated: this.deprecated,
       examples: this.examples
@@ -60,20 +60,19 @@ export class ApiKeyParameter extends ApiElement {
   }
 
   getDecoder(): Validator {
-    if (!this._decoder)
-      this._decoder = this.generateCodec('decode');
+    if (!this._decoder) {
+      const fn = this.type?.generateCodec('decode', {operation: 'write'}) || vg.isAny();
+      this._decoder = vg.required(fn);
+    }
     return this._decoder;
   }
 
   getEncoder(): Validator {
-    if (!this._encoder)
-      this._encoder = this.generateCodec('encode');
+    if (!this._encoder) {
+      const fn = this.type?.generateCodec('encode', {operation: 'read'}) || vg.isAny();
+      this._encoder = vg.required(fn);
+    }
     return this._encoder;
-  }
-
-  generateCodec(codec: 'decode' | 'encode', options?: DataType.GenerateCodecOptions): Validator {
-    const fn = this.type.generateCodec(codec, options);
-    return vg.required(fn);
   }
 
 }

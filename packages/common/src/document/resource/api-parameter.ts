@@ -1,10 +1,11 @@
 import { StrictOmit, Type } from 'ts-gems';
-import { Validator, vg } from 'valgen';
+import { Validator, validator, vg } from 'valgen';
 import { omitUndefined } from '../../helpers/index.js';
 import type { OpraSchema } from '../../schema/index.js';
 import type { TypeThunkAsync } from '../../types.js';
 import { DataType } from '../data-type/data-type.js';
 import type { EnumType } from '../data-type/enum-type.js';
+import { parseRegExp } from '../utils/parse-regexp.util.js';
 import { ApiElement } from './api-element.js';
 
 export namespace ApiParameter {
@@ -44,24 +45,20 @@ export class ApiParameter extends ApiElement {
   constructor(parent: ApiElement, init: ApiParameter.InitArguments) {
     super(parent);
     const name = String(init.name);
-    if (name.startsWith('/')) {
-      const i = name.lastIndexOf('/');
-      const s = name.substring(1, i);
-      let flags = name.substring(i + 1);
-      if (!flags.includes('i')) flags += 'i';
-      this.name = new RegExp(s, flags);
-    } else this.name = name;
+    if (name.startsWith('/'))
+      this.name = parseRegExp(name, {includeFlags: 'i', excludeFlags: 'm'})
+    else this.name = name;
     this.in = init.in;
     this.required = init.required;
     this.isArray = init.isArray;
     this.isBuiltin = init.isBuiltin;
   }
 
-  exportSchema(options?: { webSafe?: boolean }): OpraSchema.Parameter {
+  exportSchema(): OpraSchema.Parameter {
     return omitUndefined<OpraSchema.Parameter>({
       name: this.name,
       in: this.in,
-      type: this.type ? (this.type.name ? this.type.name : this.type.exportSchema(options)) : undefined,
+      type: this.type ? (this.type.name ? this.type.name : this.type.exportSchema()) : undefined,
       description: this.description,
       isArray: this.isArray,
       required: this.required,
@@ -71,22 +68,23 @@ export class ApiParameter extends ApiElement {
   }
 
   getDecoder(): Validator {
-    if (!this._decoder)
-      this._decoder = this.generateCodec('decode');
+    if (!this._decoder) {
+      let fn = this.type?.generateCodec('decode', {operation: 'write'}) || vg.isAny();
+      if (this.isArray)
+        fn = vg.pipe(vg.stringSplit(','), vg.isArray(fn));
+      this._decoder = this.required ? vg.required(fn) : vg.optional(fn);
+    }
     return this._decoder;
   }
 
   getEncoder(): Validator {
-    if (!this._encoder)
-      this._encoder = this.generateCodec('encode');
+    if (!this._encoder) {
+      let fn = this.type?.generateCodec('encode', {operation: 'read'}) || vg.isAny();
+      if (this.isArray)
+        fn = vg.pipe(vg.isArray(fn), validator('toString', (x) => x != null ? String(x) : x));
+      this._encoder = this.required ? vg.required(fn) : vg.optional(fn);
+    }
     return this._encoder;
-  }
-
-  generateCodec(codec: 'decode' | 'encode'): Validator {
-    let fn = this.type?.generateCodec(codec) || vg.isAny();
-    if (this.isArray)
-      fn = vg.pipe(vg.stringSplit(','), vg.isArray(fn));
-    return this.required ? vg.required(fn) : vg.optional(fn);
   }
 
 }

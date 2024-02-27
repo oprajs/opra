@@ -242,7 +242,7 @@ export class TypeDocument extends DocumentBase {
   /**
    * Export as Opra schema definition object
    */
-  exportSchema(options?: { webSafe?: boolean }): OpraSchema.TypeDocument {
+  exportSchema(): OpraSchema.TypeDocument {
     const schema = super.exportSchema() as OpraSchema.TypeDocument;
     if (this.references.size) {
       const references = {};
@@ -250,7 +250,7 @@ export class TypeDocument extends DocumentBase {
       for (const [ns, r] of this.references.entries()) {
         if (ns.toLowerCase() === 'opra')
           continue;
-        references[ns] = r.exportSchema(options);
+        references[ns] = r.exportSchema();
         i++;
       }
       if (i)
@@ -259,7 +259,7 @@ export class TypeDocument extends DocumentBase {
     if (this.types.size) {
       const types = schema.types = {};
       for (const [name, r] of this.types.entries()) {
-        types[name] = r.exportSchema(options);
+        types[name] = r.exportSchema();
       }
     }
     return schema;

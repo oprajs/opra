@@ -55,16 +55,16 @@ ApiAction[DECORATOR] = createActionDecorator;
  * @namespace ApiAction
  */
 export namespace ApiAction {
-  export interface InitArguments extends StrictOmit<OpraSchema.Action, 'parameters' | 'response'> {
+  export interface InitArguments extends StrictOmit<OpraSchema.Action, 'parameters' | 'responses'> {
     headers?: ApiParameter.InitArguments[];
     parameters?: ApiParameter.InitArguments[];
-    response?: ApiResponse.InitArguments;
+    responses?: ApiResponse.InitArguments[];
   }
 
-  export interface DecoratorMetadata extends StrictOmit<OpraSchema.Action, 'parameters' | 'response'> {
+  export interface DecoratorMetadata extends StrictOmit<OpraSchema.Action, 'parameters' | 'responses'> {
     headers?: ApiParameter.DecoratorMetadata[];
     parameters?: ApiParameter.DecoratorMetadata[];
-    response?: ApiResponse.DecoratorMetadata;
+    responses?: ApiResponse.DecoratorMetadata[];
   }
 
   export interface DecoratorOptions extends Partial<Pick<OpraSchema.Action, 'description'>> {

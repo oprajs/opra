@@ -5,8 +5,7 @@ import {
   ApiResource,
   OpraSchema,
 } from '@opra/common';
-import { ApiOperationEntity } from '@opra/common/document/resource/operations/api-operation-entity';
-import { Country } from '../../_support/test-api/index';
+import { Country } from '../../_support/test-api/index.js';
 
 describe('ApiDocumentFactory - ApiResource() decorated class', function () {
 
@@ -21,7 +20,7 @@ describe('ApiDocumentFactory - ApiResource() decorated class', function () {
 
   afterAll(() => global.gc && global.gc());
 
-  it('Should import decorated class', async () => {
+  it('Should import decorated resource class', async () => {
     @ApiResource({
       description: 'Country collection'
     })
@@ -30,20 +29,41 @@ describe('ApiDocumentFactory - ApiResource() decorated class', function () {
 
     const doc = await ApiDocumentFactory.createDocument({
       ...baseArgs,
+      types: [Country],
       root: {
         resources: [CountriesResource]
       }
-    })
+    });
     expect(doc).toBeDefined();
     const t = doc.getResource('countries');
     expect(t).toBeDefined();
-    expect(t.ctor).toBe(CountriesResource);
+    expect(t!.ctor).toBe(CountriesResource);
   })
 
   it('Should import operation endpoint', async () => {
     @ApiResource()
     class CountriesResource {
-      @ApiOperation({method: 'GET'})
+      @ApiOperation({
+        method: 'POST',
+        description: 'operation description',
+        requestBody: {
+          description: 'requestBody description',
+          required: true,
+          maxContentSize: 1000
+        }
+      }).RequestContent({
+        contentType: 'application/json',
+        contentEncoding: 'utf-8',
+        type: Country,
+        description: 'content description',
+        example: 'example1',
+      }).RequestContent({
+        contentType: 'application/xml',
+        contentEncoding: 'utf-16',
+        type: Country,
+        description: 'content description',
+        example: 'example2',
+      })
       create() {
         return 1;
       }
@@ -54,13 +74,26 @@ describe('ApiDocumentFactory - ApiResource() decorated class', function () {
       root: {
         resources: [CountriesResource]
       }
-    })
+    }, {autoImportTypes: true})
     expect(doc).toBeDefined();
     const t = doc.getResource('countries');
-    expect(t.ctor).toBe(CountriesResource);
-    const endpoint = t.getOperation('create');
+    expect(t!.ctor).toBe(CountriesResource);
+    const endpoint = t!.getOperation('create');
     expect(endpoint).toBeDefined();
-    expect(endpoint.method).toStrictEqual('GET');
+    expect(endpoint!.method).toStrictEqual('POST');
+    expect(endpoint!.description).toStrictEqual('operation description');
+    expect(endpoint!.requestBody?.description).toStrictEqual('requestBody description');
+    expect(endpoint!.requestBody?.required).toStrictEqual(true);
+    expect(endpoint!.requestBody?.maxContentSize).toStrictEqual(1000);
+    expect(endpoint!.requestBody?.content.length).toStrictEqual(2);
+    expect(endpoint!.requestBody?.content[0].contentType).toStrictEqual('application/json');
+    expect(endpoint!.requestBody?.content[0].contentEncoding).toStrictEqual('utf-8');
+    expect(endpoint!.requestBody?.content[0].type?.name).toBe('Country');
+    expect(endpoint!.requestBody?.content[0].example).toBe('example1');
+    expect(endpoint!.requestBody?.content[1].contentType).toStrictEqual('application/xml');
+    expect(endpoint!.requestBody?.content[1].contentEncoding).toStrictEqual('utf-16');
+    expect(endpoint!.requestBody?.content[1].type!.name).toBe('Country');
+    expect(endpoint!.requestBody?.content[1].example).toBe('example2');
   })
 
   it('Should import action endpoint', async () => {
@@ -83,10 +116,10 @@ describe('ApiDocumentFactory - ApiResource() decorated class', function () {
     })
     expect(doc).toBeDefined();
     const t = doc.getResource('countries');
-    expect(t.ctor).toBe(CountriesResource);
-    const endpoint = t.getAction('ping');
+    expect(t!.ctor).toBe(CountriesResource);
+    const endpoint = t!.getAction('ping');
     expect(endpoint).toBeDefined();
-    expect(endpoint.description).toStrictEqual('action description');
+    expect(endpoint!.description).toStrictEqual('action description');
   })
 
   it('Should import ApiOperation.Entity.Create operation', async () => {
@@ -103,14 +136,13 @@ describe('ApiDocumentFactory - ApiResource() decorated class', function () {
       root: {
         resources: [CountriesResource]
       }
-    })
+    }, {autoImportTypes: true})
     expect(doc).toBeDefined();
     const t = doc.getResource('countries');
-    expect(t.ctor).toBe(CountriesResource);
-    const endpoint = t.getOperation('create');
+    expect(t!.ctor).toBe(CountriesResource);
+    const endpoint = t!.getOperation('create');
     expect(endpoint).toBeDefined();
-    expect(endpoint).toBeInstanceOf(ApiOperationEntity);
-    expect(endpoint.method).toStrictEqual('POST');
+    expect(endpoint!.method).toStrictEqual('POST');
   })
 
 });

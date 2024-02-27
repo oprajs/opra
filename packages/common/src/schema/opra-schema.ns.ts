@@ -8,8 +8,10 @@ export * from './data-type/mixin-type.interface.js';
 
 export * from './resource/action.interface.js';
 export * from './resource/endpoint.interface.js';
+export * from './resource/media-content.interface.js';
 export * from './resource/operation.interface.js';
 export * from './resource/parameter.interface.js';
+export * from './resource/request-body.interface.js';
 export * from './resource/resource.interface.js';
 export * from './resource/response.interface.js';
 

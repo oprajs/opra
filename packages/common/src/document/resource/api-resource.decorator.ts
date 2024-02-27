@@ -59,7 +59,7 @@ export function createApiResourceDecorator<O extends ApiResource.DecoratorOption
     }
     decoratorChain.push(
         (meta: ApiResource.DecoratorMetadata): void => {
-          meta.key = {...paramMeta};
+          meta.keyParameter = {...paramMeta};
         }
     )
     return decorator;

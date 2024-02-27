@@ -1,6 +1,6 @@
 import { Type } from 'ts-gems';
+import { HttpStatusCode, HttpStatusRange } from '../../http/index.js';
 import { OpraSchema } from '../../schema/index.js';
-import { TypeThunkAsync } from '../../types.js';
 import { RESOURCE_METADATA } from '../constants.js';
 import type { ApiAction } from './api-action.js';
 import type { ApiOperation } from './api-operation.js';
@@ -8,7 +8,7 @@ import type { ApiParameter } from './api-parameter.js';
 import type { ApiResource } from './api-resource.js';
 import type { ApiResponse } from './api-response.js';
 
-export interface ApiEndpointDecorator<T> {
+export interface ApiEndpointDecorator<T extends ApiEndpointDecorator<any>> {
   (target: Object, propertyKey: string): void;
 
   // Cookie(name: string | RegExp, optionsOrType?: ApiParameter.DecoratorOptions | string | Type): T;
@@ -19,7 +19,7 @@ export interface ApiEndpointDecorator<T> {
 
   Response(args: ApiResponse.DecoratorOptions): T;
 
-  Response(dataType: TypeThunkAsync | string): T;
+  Response(status?: HttpStatusCode | number | HttpStatusRange | HttpStatusRange[], dataType?: Type | string): T;
 }
 
 type DecoratorMetadata = ApiAction.DecoratorMetadata | ApiOperation.DecoratorMetadata;
@@ -94,7 +94,12 @@ function createEndpointDecorator(
     }
     decoratorChain.push((meta: DecoratorMetadata): void => {
       meta.parameters = meta.parameters || [];
-      meta.parameters.push(paramMeta);
+      const i = meta.parameters.findIndex(x =>
+          x.in === 'header' && String(x.name) === String(paramMeta.name)
+      );
+      if (i >= 0)
+        meta.parameters[i] = paramMeta;
+      else meta.parameters.push(paramMeta);
     });
     return decorator;
   }
@@ -112,7 +117,11 @@ function createEndpointDecorator(
     }
     decoratorChain.push((meta: DecoratorMetadata): void => {
       meta.parameters = meta.parameters || [];
-      meta.parameters.push(paramMeta);
+      const i = meta.parameters.findIndex(x =>
+          x.in === 'query' && String(x.name) === String(paramMeta.name));
+      if (i >= 0)
+        meta.parameters[i] = paramMeta;
+      else meta.parameters.push(paramMeta);
     });
     return decorator;
   }
@@ -120,10 +129,17 @@ function createEndpointDecorator(
   /**
    *
    */
-  decorator.Response = (args: TypeThunkAsync | string | ApiResponse.DecoratorOptions): any => {
+  decorator.Response = (arg0: any, arg1?: any): any => {
+    const responseMeta: ApiResponse.DecoratorMetadata =
+        typeof arg0 === 'string' || typeof arg0 === 'number' ? {statusCode: String(arg0), type: arg1} : {...arg0};
+    responseMeta.statusCode =
+        Array.isArray(responseMeta.statusCode)
+            ? responseMeta.statusCode.map(x => String(x))
+            : String(responseMeta.statusCode) as any;
     decoratorChain.push(
         (meta: DecoratorMetadata): void => {
-          meta.response = typeof args === 'object' ? {...args} : {type: args};
+          meta.responses = meta.responses || [];
+          meta.responses.push(responseMeta);
         }
     )
     return decorator;

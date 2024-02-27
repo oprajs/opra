@@ -1,4 +1,5 @@
 import { StrictOmit } from 'ts-gems';
+import { omitUndefined } from '../../helpers/index.js';
 import { ApiOperationDecorator, createOperationDecorator } from './api-operation.decorator.js';
 import { ApiOperation } from './api-operation.js';
 
@@ -31,13 +32,14 @@ declare module './api-operation.js' {
         }
       }
 
-      export type GetDecorator = ApiOperationDecorator & {};
+      export type GetDecorator = ApiOperationDecorator<GetDecorator> & {};
 
       /**
        * @namespace Post
        */
       export namespace Post {
         export interface Options extends StrictOmit<ApiOperation.DecoratorOptions, 'method'> {
+          contentType?: string;
           maxFields?: number;
           maxFieldsSize?: number;
           maxFiles?: number;
@@ -47,7 +49,7 @@ declare module './api-operation.js' {
         }
       }
 
-      export type PostDecorator = ApiOperationDecorator & {};
+      export type PostDecorator = ApiOperationDecorator<PostDecorator> & {};
 
     }
 
@@ -64,13 +66,13 @@ ApiOperation.Multipart = {} as any;
  */
 ApiOperation.Multipart.Get = function (
     options?: ApiOperation.Multipart.Get.Options
-): ApiOperation.Entity.CreateDecorator {
+): ApiOperation.Multipart.GetDecorator {
   const decoratorChain: Function[] = [];
-  const decorator = createOperationDecorator(decoratorChain, options) as ApiOperation.Entity.CreateDecorator;
-  decoratorChain.push((operationMeta: ApiOperation.DecoratorMetadata) => {
-    operationMeta.composition = 'Multipart.Get';
-  });
-  return decorator;
+  return createOperationDecorator<ApiOperation.Multipart.GetDecorator>(decoratorChain, omitUndefined({
+    description: options?.description,
+    method: 'GET',
+    composition: 'Multipart.Get'
+  }));
 }
 
 
@@ -79,11 +81,17 @@ ApiOperation.Multipart.Get = function (
  */
 ApiOperation.Multipart.Post = function (
     options?: ApiOperation.Multipart.Post.Options
-): ApiOperation.Entity.CreateDecorator {
+): ApiOperation.Multipart.PostDecorator {
   const decoratorChain: Function[] = [];
-  const decorator = createOperationDecorator(decoratorChain, options) as ApiOperation.Entity.CreateDecorator;
-  decoratorChain.push((operationMeta: ApiOperation.DecoratorMetadata) => {
-    operationMeta.composition = 'Multipart.Post';
+  return createOperationDecorator<ApiOperation.Multipart.PostDecorator>(decoratorChain, omitUndefined({
+    description: options?.description,
+    method: 'POST',
+    composition: 'Multipart.Post',
+    compositionOptions: omitUndefined({
+      ...options,
+      description: undefined
+    })
+  })).RequestContent({
+    contentType: options?.contentType || 'multipart/form-data'
   });
-  return decorator;
 }

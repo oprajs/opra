@@ -148,23 +148,23 @@ export class ComplexTypeClass extends DataType {
     return array.length ? array : undefined;
   }
 
-  exportSchema(options?: { webSafe?: boolean }): any {
-    const out = super.exportSchema(options) as OpraSchema.ComplexType;
+  exportSchema(): any {
+    const out = super.exportSchema() as OpraSchema.ComplexType;
     Object.assign(out, omitUndefined({
       base: this.base ?
-          (this.base.name ? this.base.name : this.base.exportSchema(options)) : undefined,
+          (this.base.name ? this.base.name : this.base.exportSchema()) : undefined,
       abstract: this.abstract,
       additionalFields: this.own.additionalFields instanceof DataType
           ? (this.own.additionalFields.name
                   ? this.own.additionalFields.name
-                  : this.own.additionalFields.exportSchema(options)
+                  : this.own.additionalFields.exportSchema()
           )
           : this.own.additionalFields
     }));
     if (this.own.fields.size) {
       const fields = out.fields = {};
       for (const field of this.own.fields.values()) {
-        fields[field.name] = field.exportSchema(options);
+        fields[field.name] = field.exportSchema();
       }
     }
     return omitUndefined(out);

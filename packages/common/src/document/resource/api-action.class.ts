@@ -11,12 +11,12 @@ import type { ApiResource } from './api-resource';
 export class ApiActionClass extends ApiEndpoint {
   readonly kind = OpraSchema.Action.Kind;
 
-  constructor(readonly resource: ApiResource, readonly name: string, init: ApiAction.InitArguments) {
-    super(resource, name, init);
+  constructor(parent: ApiResource, name: string, init: ApiAction.InitArguments) {
+    super(parent, name, init);
   }
 
-  exportSchema(options?: { webSafe?: boolean }): OpraSchema.Action {
-    const schema = super.exportSchema(options) as OpraSchema.Action;
+  exportSchema(): OpraSchema.Action {
+    const schema = super.exportSchema() as OpraSchema.Action;
     return {
       kind: this.kind,
       ...omit(schema, ['kind'])

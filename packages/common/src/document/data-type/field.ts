@@ -54,7 +54,7 @@ export namespace ApiField {
     pattern?: string | RegExp;
   }
 
-  export interface DecoratorOptions extends Partial<StrictOmit<OpraSchema.Field, 'isArray' | 'type' | 'pattern'>> {
+  export interface DecoratorOptions extends Partial<StrictOmit<OpraSchema.Field, 'type' | 'pattern'>> {
     type?: string | OpraSchema.DataType | TypeThunkAsync;
     enum?: EnumType.EnumObject | EnumType.EnumArray;
     pattern?: string | RegExp;

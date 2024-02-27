@@ -1,11 +1,11 @@
 import merge from 'putil-merge';
-import type { StrictOmit } from 'ts-gems';
+import { StrictOmit } from 'ts-gems';
 import type { OpraSchema } from '../../schema/index.js';
-import { TypeThunkAsync } from '../../types.js';
 import { DECORATOR } from '../constants.js';
 import { ApiOperationClass } from './api-operation.class.js';
 import { ApiOperationDecorator, createOperationDecorator } from './api-operation.decorator.js';
 import type { ApiParameter } from './api-parameter.js';
+import { ApiRequestBody } from './api-request-body.js';
 import type { ApiResource } from './api-resource.js';
 import type { ApiResponse } from './api-response.js';
 
@@ -56,19 +56,22 @@ ApiOperation[DECORATOR] = createOperationDecorator;
  * @namespace ApiOperation
  */
 export namespace ApiOperation {
-  export interface InitArguments extends StrictOmit<OpraSchema.Operation, 'parameters' | 'response'> {
+  export interface InitArguments extends StrictOmit<OpraSchema.Operation, 'parameters' | 'responses' | 'requestBody'> {
     headers?: ApiParameter.InitArguments[];
     parameters?: ApiParameter.InitArguments[];
-    response?: ApiResponse.InitArguments;
+    requestBody?: ApiRequestBody.InitArguments;
+    responses?: ApiResponse.InitArguments[];
   }
 
-  export interface DecoratorMetadata extends StrictOmit<OpraSchema.Operation, 'parameters' | 'response'> {
+  export interface DecoratorMetadata extends StrictOmit<OpraSchema.Operation, 'parameters' | 'responses' | 'requestBody'> {
     headers?: ApiParameter.DecoratorMetadata[];
     parameters?: ApiParameter.DecoratorMetadata[];
-    response?: ApiResponse.DecoratorMetadata;
-    useTypes?: TypeThunkAsync[];
+    requestBody?: ApiRequestBody.DecoratorMetadata;
+    responses?: ApiResponse.DecoratorMetadata[];
   }
 
   export interface DecoratorOptions extends Partial<Pick<OpraSchema.Operation, 'description' | 'method'>> {
+    requestBody?: ApiRequestBody.DecoratorOptions;
   }
+
 }
