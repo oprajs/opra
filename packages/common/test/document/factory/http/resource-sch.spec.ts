@@ -28,19 +28,17 @@ describe('ApiDocumentFactory - Collection resource with schema object', function
     const doc = await ApiDocumentFactory.createDocument({
       ...baseArgs,
       types: [Country],
-      services: {
-        TestService: {
-          protocol: 'http',
-          root: {
-            resources: {resource1}
-          }
+      api: {
+        protocol: 'http',
+        name: 'TestService',
+        root: {
+          resources: {resource1}
         }
       }
     })
     expect(doc).toBeDefined();
-    const service = doc.getHttpService('TestService');
-    expect(service).toBeDefined();
-    const t = service.root.getResource('resource1@');
+    expect(doc.api).toBeDefined();
+    const t = doc.api!.root.getResource('resource1@');
     expect(t).toBeDefined();
     assert(t);
     expect(t.kind).toStrictEqual(OpraSchema.Http.Resource.Kind);
@@ -66,19 +64,17 @@ describe('ApiDocumentFactory - Collection resource with schema object', function
     const doc = await ApiDocumentFactory.createDocument({
       ...baseArgs,
       types: [Country],
-      services: {
-        TestService: {
-          protocol: 'http',
-          root: {
-            resources: {resource1}
-          }
+      api: {
+        protocol: 'http',
+        name: 'TestService',
+        root: {
+          resources: {resource1}
         }
       }
     })
     expect(doc).toBeDefined();
-    const service = doc.getHttpService('TestService');
-    expect(service).toBeDefined();
-    const t = service.root.getResource('resource1');
+    expect(doc.api).toBeDefined();
+    const t = doc.api!.root.getResource('resource1');
     expect(t).toBeDefined();
     assert(t);
     expect(t.getOperation('create')).toBeDefined();
@@ -98,19 +94,17 @@ describe('ApiDocumentFactory - Collection resource with schema object', function
     const doc = await ApiDocumentFactory.createDocument({
       ...baseArgs,
       types: [Country],
-      services: {
-        TestService: {
-          protocol: 'http',
-          root: {
-            resources: {resource1}
-          }
+      api: {
+        protocol: 'http',
+        name: 'TestService',
+        root: {
+          resources: {resource1}
         }
       }
     })
     expect(doc).toBeDefined();
-    const service = doc.getHttpService('TestService');
-    expect(service).toBeDefined();
-    const t = service.root.getResource('resource1');
+    expect(doc.api).toBeDefined();
+    const t = doc.api!.root.getResource('resource1');
     expect(t).toBeDefined();
     assert(t);
     expect(t.getAction('ping')).toBeDefined();

@@ -1,30 +1,30 @@
 import { OpraSchema } from '../../schema/index.js';
+import { ApiBase } from '../api-base.js';
 import type { ApiDocument } from '../api-document';
-import { ApiService } from '../api-service.js';
 import type { HttpResource } from './http-resource.js';
 
 /**
- * @namespace HttpService
+ * @namespace HttpApi
  */
-export namespace HttpService {
-  export interface InitArguments extends Pick<OpraSchema.Http.Service, 'description' | 'url'> {
+export namespace HttpApi {
+  export interface InitArguments extends ApiBase.InitArguments, Pick<OpraSchema.HttpApi, 'url'> {
   }
 }
 
 /**
- * @class HttpService
+ * @class HttpApi
  */
-export class HttpService extends ApiService {
+export class HttpApi extends ApiBase {
   readonly protocol = 'http';
   root: HttpResource;
   url?: string;
 
-  constructor(parent: ApiDocument, serviceName: string, init?: HttpService.InitArguments) {
-    super(parent, serviceName, init);
+  constructor(parent: ApiDocument, init: HttpApi.InitArguments) {
+    super(parent, init);
     this.url = init?.url;
   }
 
-  toJSON(): OpraSchema.Http.Service {
+  toJSON(): OpraSchema.HttpApi {
     const schema = super.toJSON();
     return {
       ...schema,

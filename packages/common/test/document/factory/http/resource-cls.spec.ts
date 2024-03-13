@@ -1,6 +1,7 @@
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
 import {
-  ApiDocumentFactory, HttpAction, HttpOperation, HttpResource, HttpService, OpraSchema,
+  ApiDocumentFactory, HttpAction, HttpApi,
+  HttpOperation, HttpResource, OpraSchema,
 } from '@opra/common';
 import { Country } from '../../../_support/test-api/index.js';
 
@@ -27,18 +28,17 @@ describe('ApiDocumentFactory - HttpResource() decorated class', function () {
     const doc = await ApiDocumentFactory.createDocument({
       ...baseArgs,
       types: [Country],
-      services: {
-        TestService: {
-          protocol: 'http',
-          root: {
-            resources: [CountriesResource]
-          }
+      api: {
+        protocol: 'http',
+        name: 'TestService',
+        root: {
+          resources: [CountriesResource]
         }
       }
     });
     expect(doc).toBeDefined();
-    expect(doc.getService('TestService')).toBeDefined();
-    const t = (doc.getService('TestService') as HttpService)
+    expect(doc.api).toBeDefined();
+    const t = (doc.api as HttpApi)
         .root.getResource('countries');
     expect(t).toBeDefined();
     expect(t!.ctor).toBe(CountriesResource);
@@ -76,19 +76,17 @@ describe('ApiDocumentFactory - HttpResource() decorated class', function () {
     const doc = await ApiDocumentFactory.createDocument({
       ...baseArgs,
       types: [Country],
-      services: {
-        TestService: {
-          protocol: 'http',
-          root: {
-            resources: [CountriesResource]
-          }
+      api: {
+        protocol: 'http',
+        name: 'TestService',
+        root: {
+          resources: [CountriesResource]
         }
       }
     })
     expect(doc).toBeDefined();
-    const service = doc.getHttpService('TestService');
-    expect(service).toBeDefined();
-    const t = service.root.getResource('countries');
+    expect(doc.api).toBeDefined();
+    const t = doc.api!.root.getResource('countries');
     expect(t!.ctor).toBe(CountriesResource);
     const endpoint = t!.getOperation('create');
     expect(endpoint).toBeDefined();
@@ -122,19 +120,17 @@ describe('ApiDocumentFactory - HttpResource() decorated class', function () {
 
     const doc = await ApiDocumentFactory.createDocument({
       ...baseArgs,
-      services: {
-        TestService: {
-          protocol: 'http',
-          root: {
-            resources: [CountriesResource]
-          }
+      api: {
+        protocol: 'http',
+        name: 'TestService',
+        root: {
+          resources: [CountriesResource]
         }
       }
     })
     expect(doc).toBeDefined();
-    const service = doc.getHttpService('TestService');
-    expect(service).toBeDefined();
-    const t = service.root.getResource('countries');
+    expect(doc.api).toBeDefined();
+    const t = doc.api!.root.getResource('countries');
     expect(t!.ctor).toBe(CountriesResource);
     const endpoint = t!.getAction('ping');
     expect(endpoint).toBeDefined();
@@ -153,19 +149,17 @@ describe('ApiDocumentFactory - HttpResource() decorated class', function () {
     const doc = await ApiDocumentFactory.createDocument({
       ...baseArgs,
       types: [Country],
-      services: {
-        TestService: {
-          protocol: 'http',
-          root: {
-            resources: [CountriesResource]
-          }
+      api: {
+        protocol: 'http',
+        name: 'TestService',
+        root: {
+          resources: [CountriesResource]
         }
       }
     })
     expect(doc).toBeDefined();
-    const service = doc.getHttpService('TestService');
-    expect(service).toBeDefined();
-    const t = service.root.getResource('countries');
+    expect(doc.api).toBeDefined();
+    const t = doc.api!.root.getResource('countries');
     expect(t!.ctor).toBe(CountriesResource);
     const endpoint = t!.getOperation('create');
     expect(endpoint).toBeDefined();

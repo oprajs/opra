@@ -1,4 +1,4 @@
-import type { DocumentElement } from '../type-scope.interface';
+import type { DocumentElement } from '../document-element.interface';
 import type { Action } from './action.interface';
 import type { Operation } from './operation.interface';
 import type { KeyParameter } from './parameter.interface';

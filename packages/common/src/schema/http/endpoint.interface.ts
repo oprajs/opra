@@ -1,4 +1,4 @@
-import type { DocumentElement } from '../type-scope.interface';
+import type { DocumentElement } from '../document-element.interface';
 import type { Parameter } from './parameter.interface';
 import type { Response } from './response.interface';
 

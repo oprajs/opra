@@ -34,12 +34,11 @@ export const testApiDocumentDef: ApiDocumentFactory.InitArguments = {
     description: 'Document description',
   },
   types: [Record, Person, GenderEnum, Address, Note, Country, Customer, Profile],
-  services: {
-    TestService: {
-      protocol: 'http',
-      description: 'test service',
-      url: '/test',
-      root: RootResource
-    }
+  api: {
+    protocol: 'http',
+    name: 'TestService',
+    description: 'test service',
+    url: '/test',
+    root: RootResource
   }
 };

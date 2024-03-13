@@ -49,25 +49,17 @@ describe('ApiDocument', function () {
     expect(doc.getDataTypeNs('string')).toStrictEqual('opra');
   })
 
-  it('Should getService(name) return ApiService instance', async () => {
-    const doc = await ApiDocumentFactory.createDocument(testApiDocumentDef);
-    expect(doc).toBeDefined();
-    expect(doc.getService('TestService')).toBeDefined();
-    expect(doc.getService('TestService')!.name).toStrictEqual('TestService');
-  })
-
   it('Should toJSON() return document schema', async () => {
     const doc = await ApiDocumentFactory.createDocument(testApiDocumentDef);
     expect(doc).toBeDefined();
     const sch = doc.toJSON();
     expect(sch.spec).toStrictEqual(OpraSchema.SpecVersion);
     expect(sch.info).toStrictEqual(testApiDocumentDef.info);
-    expect(sch.services).toBeDefined();
-    expect(Object.keys(sch.services)).toEqual(['TestService']);
-    expect(sch.services.TestService.protocol).toEqual('http');
-    expect(sch.services.TestService.description).toEqual('test service');
-    expect(sch.services.TestService.url).toEqual('/test');
-    expect(sch.services.TestService.root).toBeDefined();
+    expect(sch.api).toBeDefined();
+    expect(sch.api!.protocol).toEqual('http');
+    expect(sch.api!.description).toEqual('test service');
+    expect(sch.api!.url).toEqual('/test');
+    expect(sch.api!.root).toBeDefined();
   })
 
 });

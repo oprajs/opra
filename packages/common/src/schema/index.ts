@@ -1,4 +1,3 @@
-import * as ApiDocument_ from './api-document.interface.js';
 import * as constants_ from './constants.js';
 import * as ComplexType_ from './data-type/complex-type.interface.js';
 import * as DataType_ from './data-type/data-type.interface.js';
@@ -7,19 +6,21 @@ import * as Field_ from './data-type/field.interface.js';
 import * as MappedType_ from './data-type/mapped-type.interface.js';
 import * as MixinType_ from './data-type/mixin-type.interface.js';
 import * as SimpleType_ from './data-type/simple-type.interface.js';
-import * as Http_ from './http.js';
+import * as ApiDocument_ from './document.interface.js';
+import * as TypeScope_ from './document-element.interface.js';
+import * as Http_ from './http.ns.js';
 import * as TypeGuards_ from './type-guards.js';
-import * as TypeScope_ from './type-scope.interface.js';
 
 export namespace OpraSchema {
   export import SpecVersion = constants_.SpecVersion;
   export import Protocol = ApiDocument_.Protocol;
 
-  export import ApiDocument = ApiDocument_.ApiDocument;
+  export import ApiDocument = ApiDocument_.Document;
   export import DocumentInfo = ApiDocument_.DocumentInfo;
   export import ContactPerson = ApiDocument_.ContactPerson;
   export import LicenseInfo = ApiDocument_.LicenseInfo;
-  export import Service = ApiDocument_.Service;
+  export import HttpApi = ApiDocument_.HttpApi;
+  export import Api = ApiDocument_.Api;
 
   export import ComplexType = ComplexType_.ComplexType;
   export import DataType = DataType_.DataType;

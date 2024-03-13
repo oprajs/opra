@@ -2,17 +2,16 @@ import { Type } from 'ts-gems';
 import { cloneObject, ResponsiveMap } from '../helpers/index.js';
 import { OpraSchema } from '../schema/index.js';
 import { ApiDocumentElement } from './api-document-element.js';
-import { ApiService } from './api-service.js';
-import { NAMESPACE_PATTERN } from './constants.js';
+import { BUILTIN, NAMESPACE_PATTERN } from './constants.js';
 import { DataType } from './data-type/data-type.js';
-import { HttpService } from './http/http-service.js';
+import type { HttpApi } from './http/http-api.js';
 
 export class ApiDocument extends ApiDocumentElement {
   protected _typeNsMap = new WeakMap<DataType, string>();
   url?: string;
   info: OpraSchema.DocumentInfo;
   references = new ResponsiveMap<ApiDocument>();
-  services = new ResponsiveMap<ApiService>();
+  api?: HttpApi;
 
   constructor() {
     super()
@@ -43,25 +42,6 @@ export class ApiDocument extends ApiDocumentElement {
   }
 
   /**
-   * Returns ApiService instance by name. Returns undefined if not found
-   * @param name
-   */
-  getService(name: string): ApiService {
-    const service = this.services.get(name);
-    if (!service)
-      throw new TypeError(`Service "${name}" not found in api schema`);
-    return service;
-  }
-
-  getHttpService(name: string): HttpService {
-    const t = this.getService(name);
-    if (t instanceof HttpService)
-      return t;
-    throw new TypeError(`"${t.name}" is not an HttpService`);
-  }
-
-
-  /**
    * Export as Opra schema definition object
    */
   toJSON(): OpraSchema.ApiDocument {
@@ -75,7 +55,7 @@ export class ApiDocument extends ApiDocumentElement {
       const references = {};
       let i = 0;
       for (const [ns, r] of this.references.entries()) {
-        if (ns.toLowerCase() === 'opra')
+        if (r[BUILTIN])
           continue;
         references[ns] = r.toJSON();
         i++;
@@ -83,22 +63,8 @@ export class ApiDocument extends ApiDocumentElement {
       if (i)
         schema.references = references;
     }
-    if (this.services.size) {
-      const services = {};
-      let i = 0;
-      for (const [name, r] of this.services.entries()) {
-        services[name] = r.toJSON();
-        i++;
-      }
-      if (i)
-        schema.services = services;
-      // schema.http = omitUndefined({
-      //   ...this.http.toJSON(),
-      //   kind: undefined,
-      //   description: undefined,
-      //   name: undefined
-      // }) as OpraSchema.HttpRoot;
-    }
+    if (this.api)
+      schema.api = this.api.toJSON();
     return schema;
   }
 

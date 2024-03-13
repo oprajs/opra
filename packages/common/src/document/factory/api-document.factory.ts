@@ -2,6 +2,7 @@ import { PartialSome, StrictOmit, Type } from 'ts-gems';
 import { OpraSchema } from '../../schema/index.js';
 import { ThunkAsync } from '../../types.js';
 import { ApiDocument } from '../api-document.js';
+import { BUILTIN } from '../constants.js';
 import {
   AnyType, ApproxDatetimeType, ApproxDateType, Base64Type, BigintType,
   BooleanType, DatetimeType, DateType, EmailType, IntegerType,
@@ -10,15 +11,15 @@ import {
 } from '../data-type/builtin/index.js';
 import { EnumType } from '../data-type/enum-type.js';
 import { DataTypeFactory } from './data-type.factory.js';
-import { HttpServiceFactory } from './http-service.factory.js';
+import { HttpApiFactory } from './http-api.factory.js';
 
 type ReferenceUnion = string | OpraSchema.ApiDocument | ApiDocument;
 const OPRA_DOCUMENT_URL = 'https://oprajs.com/spec/v' + OpraSchema.SpecVersion;
 
 export namespace ApiDocumentFactory {
-  export interface InitArguments extends PartialSome<StrictOmit<OpraSchema.ApiDocument, 'references' | 'types' | 'services'>, 'spec'> {
+  export interface InitArguments extends PartialSome<StrictOmit<OpraSchema.ApiDocument, 'references' | 'types' | 'api'>, 'spec'> {
     references?: Record<string, ReferenceUnion | Promise<ReferenceUnion>>;
-    services?: Record<string, HttpServiceFactory.InitArguments>,
+    api?: HttpApiFactory.InitArguments,
     types?: ThunkAsync<Type | EnumType.EnumObject | EnumType.EnumArray>[] | Record<string, OpraSchema.DataType>;
   }
 
@@ -88,9 +89,11 @@ export class ApiDocumentFactory {
         await typeFactory.importAllDataTypes(context, init.types);
         context.curPath.pop();
       }
-      if (init.services) {
-        context.curPath.push(`.services`)
-        await this.createServices(context, init.services);
+      if (init.api) {
+        context.curPath.push(`.api`)
+        if (init.api.protocol === 'http')
+          document.api = await HttpApiFactory.createApi(context, init.api);
+        else throw new TypeError(`Unknown service protocol (${init.api.protocol})`);
         context.curPath.pop();
       }
       return document;
@@ -125,25 +128,6 @@ export class ApiDocumentFactory {
     }
   }
 
-  protected async createServices(
-      context: ApiDocumentFactory.Context,
-      services: ApiDocumentFactory.InitArguments['services']
-  ): Promise<void> {
-    if (!services)
-      return;
-    const {document} = context;
-    let serviceName: string;
-    let r;
-    for ([serviceName, r] of Object.entries<any>(services)) {
-      context.curPath.push('.' + serviceName);
-      r = await r;
-      if (r.protocol === 'http')
-        document.services.set(serviceName, await HttpServiceFactory.createService(context, serviceName, r));
-      else throw new TypeError(`Unknown service protocol (${r.protocol})`);
-      context.curPath.pop();
-    }
-  }
-
   protected async createBuiltinTypeDocument(): Promise<ApiDocument> {
     const init: ApiDocumentFactory.InitArguments = {
       spec: OpraSchema.SpecVersion,
@@ -167,6 +151,7 @@ export class ApiDocumentFactory {
       curPath: []
     }
     const document = await this.createDocument(context, init);
+    document[BUILTIN] = true;
     const BigIntConstructor = Object.getPrototypeOf(BigInt(0)).constructor;
     const BufferConstructor = Object.getPrototypeOf(Buffer.from([]));
     document.registerTypeCtor(Object, 'object');

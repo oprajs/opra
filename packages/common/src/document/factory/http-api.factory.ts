@@ -6,35 +6,34 @@ import { ApiDocument } from '../api-document.js';
 import { RESOURCE_METADATA } from '../constants.js';
 import { EnumType } from '../data-type/enum-type.js';
 import { HttpAction } from '../http/http-action.js';
+import { HttpApi } from '../http/http-api.js';
 import { HttpMediaContent } from '../http/http-media-content.js';
 import { HttpOperation } from '../http/http-operation.js';
 import { HttpParameter } from '../http/http-parameter.js';
 import { HttpResource } from '../http/http-resource.js';
 import { HttpResponse } from '../http/http-response.js';
-import { HttpService } from '../http/http-service.js';
 import type { ApiDocumentFactory } from './api-document.factory';
 import { DataTypeFactory } from './data-type.factory.js';
 
-export namespace HttpServiceFactory {
-  export interface InitArguments extends StrictOmit<OpraSchema.Http.Service, 'root'> {
+export namespace HttpApiFactory {
+  export interface InitArguments extends StrictOmit<OpraSchema.HttpApi, 'root'> {
     root: ThunkAsync<Type | object | HttpResource.InitArguments>
   }
 }
 
 /**
- * @class HttpServiceFactory
+ * @class HttpApiFactory
  */
-export class HttpServiceFactory {
+export class HttpApiFactory {
 
-  static async createService(
+  static async createApi(
       context: ApiDocumentFactory.Context,
-      serviceName: string,
-      init: HttpServiceFactory.InitArguments
-  ): Promise<HttpService> {
-    const factory = new HttpServiceFactory();
-    const service = new HttpService(context.document, serviceName, init);
-    service.root = await factory.createResource(context, context.document, init.root, 'root');
-    return service;
+      init: HttpApiFactory.InitArguments
+  ): Promise<HttpApi> {
+    const factory = new HttpApiFactory();
+    const api = new HttpApi(context.document, init);
+    api.root = await factory.createResource(context, context.document, init.root, 'root');
+    return api;
   }
 
   protected async createResource(

@@ -6,7 +6,6 @@ import * as Parameter_ from './http/parameter.interface.js';
 import * as RequestBody_ from './http/request-body.interface.js';
 import * as Resource_ from './http/resource.interface.js';
 import * as Response_ from './http/response.interface.js';
-import * as Service_ from './http/service.interface.js';
 
 export namespace Http {
 
@@ -19,7 +18,5 @@ export namespace Http {
   export import RequestBody = RequestBody_.RequestBody;
   export import Resource = Resource_.Resource;
   export import Response = Response_.Response;
-  export import Service = Service_.Service;
-  export import HttpRoot = Service_.HttpRoot;
 
 }

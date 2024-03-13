@@ -2,10 +2,10 @@ import 'reflect-metadata';
 import './http/decorators/http-operation-entity.decorator.js';
 import './http/decorators/http-operation-multipart.decorator.js';
 
+export * from './api-base.js';
 export * from './api-document.js';
 export * from './api-document-element.js';
 export * from './api-node.js';
-export * from './api-service.js';
 export * from './constants.js';
 
 export * from './data-type/data-type.js';
@@ -27,6 +27,6 @@ export * from './http/http-parameter.js';
 export * from './http/http-request-body.js';
 export * from './http/http-resource.js';
 export * from './http/http-response.js';
-export * from './http/http-service.js';
+export * from './http/http-api.js';
 export * from './http/enums/metadata-mode.enum.js';
 export * from './http/types/operation-result.type.js';
