@@ -2,7 +2,8 @@ import { RequiredSome, StrictOmit, Type } from 'ts-gems';
 import { OnFailFunction, Validator } from 'valgen';
 import { omitUndefined } from '../../helpers/index.js';
 import { OpraSchema } from '../../schema/index.js';
-import type { ApiDocument } from '../api-document.js';
+import type { ApiNode } from '../api-node';
+import { TYPENAME_PATTERN } from '../constants.js';
 import {
   colorFgMagenta,
   colorFgYellow,
@@ -16,7 +17,7 @@ import { ApiField } from './field.js';
  * @abstract
  */
 export abstract class DataType {
-  readonly document: ApiDocument;
+  readonly documentNode: ApiNode;
   readonly kind: OpraSchema.DataType.Kind;
   readonly name?: string;
   readonly base?: DataType;
@@ -24,8 +25,10 @@ export abstract class DataType {
   description?: string;
   isEmbedded?: boolean;
 
-  protected constructor(document: ApiDocument, init?: DataType.InitArguments) {
-    this.document = document;
+  protected constructor(documentNode: ApiNode, init?: DataType.InitArguments) {
+    if (init?.name && !TYPENAME_PATTERN.test(init.name))
+      throw new TypeError(`"${init.name}" is not a valid type name`);
+    this.documentNode = documentNode;
     this.name = init?.name;
     this.own = {};
     this.description = init?.description;
@@ -35,7 +38,7 @@ export abstract class DataType {
 
   abstract generateCodec(codec: 'decode' | 'encode', options?: DataType.GenerateCodecOptions): Validator;
 
-  exportSchema(): OpraSchema.DataType {
+  toJSON(): OpraSchema.DataType {
     return omitUndefined({
       kind: this.kind,
       description: this.description
@@ -43,7 +46,7 @@ export abstract class DataType {
   }
 
   extendsFrom(type: string | Type | DataType): any {
-    const dataType = type instanceof DataType ? type : this.document.getDataType(type);
+    const dataType = type instanceof DataType ? type : this.documentNode.findDataType(type);
     let t: DataType | undefined = this;
     while (t) {
       if (t === dataType)

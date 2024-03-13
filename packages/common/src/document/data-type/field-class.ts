@@ -48,12 +48,12 @@ export class FieldClass {
     this.partialUpdate = init.partialUpdate;
   }
 
-  exportSchema(): OpraSchema.Field {
+  toJSON(): OpraSchema.Field {
     const isEmbedded = !this.type?.name ||
         (this.type?.kind === 'ComplexType' && this.type.isEmbedded);
     return omitUndefined({
       type: this.type
-          ? (isEmbedded ? this.type.exportSchema() : this.type.name)
+          ? (isEmbedded ? this.type.toJSON() : this.type.name)
           : undefined,
       description: this.description,
       isArray: this.isArray,

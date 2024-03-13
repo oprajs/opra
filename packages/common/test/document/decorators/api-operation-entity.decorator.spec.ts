@@ -1,9 +1,9 @@
 import 'reflect-metadata';
-import { ApiOperation, RESOURCE_METADATA } from '@opra/common';
+import { HttpOperation, RESOURCE_METADATA } from '@opra/common';
 import { Customer } from '../../_support/test-api/index.js';
 
 
-describe('ApiOperation.Entity.* decorators', function () {
+describe('HttpOperation.Entity.* decorators', function () {
 
   afterAll(() => global.gc && global.gc());
 
@@ -37,7 +37,7 @@ describe('ApiOperation.Entity.* decorators', function () {
 
     it('Should define Create operation metadata', async function () {
       class CustomerResource {
-        @ApiOperation.Entity.Create(Customer, {
+        @HttpOperation.Entity.Create(Customer, {
           description: 'operation description',
           input: {
             maxContentSize: 1000
@@ -48,12 +48,15 @@ describe('ApiOperation.Entity.* decorators', function () {
       }
 
       const metadata = Reflect.getMetadata(RESOURCE_METADATA, CustomerResource);
-      expect(metadata).toStrictEqual({
+      expect(metadata).toEqual({
         endpoints: {
           create: {
             kind: 'Operation',
             method: 'POST',
             composition: 'Entity.Create',
+            compositionOptions: {
+              type: 'Customer'
+            },
             description: 'operation description',
             requestBody: {
               content: [{
@@ -69,9 +72,11 @@ describe('ApiOperation.Entity.* decorators', function () {
               {
                 contentType: "application/opra.instance+json",
                 statusCode: '201',
+                partial: true,
                 type: Customer
               }
-            ]
+            ],
+            types: [Customer]
           }
         }
       });
@@ -85,35 +90,7 @@ describe('ApiOperation.Entity.* decorators', function () {
 
     it('Should define Delete operation metadata', async function () {
       class CustomerResource {
-        @ApiOperation.Entity.Delete(Customer, {description: 'operation description'})
-        delete() {
-        }
-      }
-
-      const metadata = Reflect.getMetadata(RESOURCE_METADATA, CustomerResource);
-      expect(metadata).toStrictEqual({
-        endpoints: {
-          delete: {
-            kind: 'Operation',
-            method: 'DELETE',
-            composition: 'Entity.Delete',
-            description: 'operation description',
-            responses: [
-              {
-                contentType: "application/opra.response+json",
-                statusCode: '200',
-              }
-            ],
-          }
-        }
-      });
-    })
-
-    it('Should Filter() define metadata value', async function () {
-      class CustomerResource {
-        @ApiOperation.Entity.Delete(Customer)
-            .Filter('_id', '=, !=')
-            .Filter('givenName', ['=', '!=', 'like'])
+        @HttpOperation.Entity.Delete(Customer, 'id', {description: 'operation description'})
         delete() {
         }
       }
@@ -126,6 +103,75 @@ describe('ApiOperation.Entity.* decorators', function () {
             method: 'DELETE',
             composition: 'Entity.Delete',
             compositionOptions: {
+              type: 'Customer',
+              keyField: 'id'
+            },
+            description: 'operation description',
+            responses: [
+              {
+                contentType: "application/opra.response+json",
+                statusCode: '200',
+              }
+            ],
+            types: [Customer]
+          }
+        }
+      });
+    })
+  })
+
+
+  /* ***************************************************** */
+  describe('"DeleteMany" decorator', function () {
+
+    it('Should define DeleteMany operation metadata', async function () {
+      class CustomerResource {
+        @HttpOperation.Entity.DeleteMany(Customer, {description: 'operation description'})
+        deleteMany() {
+        }
+      }
+
+      const metadata = Reflect.getMetadata(RESOURCE_METADATA, CustomerResource);
+      expect(metadata).toStrictEqual({
+        endpoints: {
+          deleteMany: {
+            kind: 'Operation',
+            method: 'DELETE',
+            composition: 'Entity.DeleteMany',
+            compositionOptions: {
+              type: 'Customer'
+            },
+            description: 'operation description',
+            responses: [
+              {
+                contentType: "application/opra.response+json",
+                statusCode: '200',
+              }
+            ],
+            types: [Customer]
+          }
+        }
+      });
+    })
+
+    it('Should Filter() define metadata value', async function () {
+      class CustomerResource {
+        @HttpOperation.Entity.DeleteMany(Customer)
+            .Filter('_id', ['=', '!='])
+            .Filter('givenName', ['=', '!=', 'like'])
+        deleteMany() {
+        }
+      }
+
+      const metadata = Reflect.getMetadata(RESOURCE_METADATA, CustomerResource);
+      expect(metadata).toStrictEqual({
+        endpoints: {
+          deleteMany: {
+            kind: 'Operation',
+            method: 'DELETE',
+            composition: 'Entity.DeleteMany',
+            compositionOptions: {
+              type: 'Customer',
               filters: [
                 {field: '_id', operators: ['=', '!=']},
                 {field: 'givenName', operators: ['=', '!=', 'like']},
@@ -145,12 +191,12 @@ describe('ApiOperation.Entity.* decorators', function () {
                 statusCode: '200',
               }
             ],
+            types: [Customer]
           }
         }
       });
     })
   })
-
 
   /* ***************************************************** */
   describe('"FindMany" decorator', function () {
@@ -199,7 +245,7 @@ describe('ApiOperation.Entity.* decorators', function () {
 
     it('Should define FindMany operation metadata', async function () {
       class CustomerResource {
-        @ApiOperation.Entity.FindMany(Customer, {description: 'operation description'})
+        @HttpOperation.Entity.FindMany(Customer, {description: 'operation description'})
         findMany() {
         }
       }
@@ -210,6 +256,9 @@ describe('ApiOperation.Entity.* decorators', function () {
           findMany: {
             kind: 'Operation',
             composition: 'Entity.FindMany',
+            compositionOptions: {
+              type: 'Customer'
+            },
             method: 'GET',
             description: 'operation description',
             parameters: defaultParameters,
@@ -217,9 +266,11 @@ describe('ApiOperation.Entity.* decorators', function () {
               {
                 contentType: "application/opra.collection+json",
                 statusCode: '200',
+                partial: true,
                 type: Customer
               }
-            ]
+            ],
+            types: [Customer]
           }
         }
       });
@@ -227,7 +278,7 @@ describe('ApiOperation.Entity.* decorators', function () {
 
     it('Should Filter() define metadata value', async function () {
       class CustomerResource {
-        @ApiOperation.Entity.FindMany(Customer)
+        @HttpOperation.Entity.FindMany(Customer)
             .Filter('_id', '=, !=')
             .Filter('givenName', ['=', '!=', 'like'])
         findMany() {
@@ -242,6 +293,7 @@ describe('ApiOperation.Entity.* decorators', function () {
             method: 'GET',
             composition: 'Entity.FindMany',
             compositionOptions: {
+              type: 'Customer',
               filters: [
                 {field: '_id', operators: ['=', '!=']},
                 {field: 'givenName', operators: ['=', '!=', 'like']},
@@ -260,9 +312,11 @@ describe('ApiOperation.Entity.* decorators', function () {
               {
                 contentType: "application/opra.collection+json",
                 statusCode: '200',
+                partial: true,
                 type: Customer
               }
-            ]
+            ],
+            types: [Customer]
           }
         }
       });
@@ -270,7 +324,7 @@ describe('ApiOperation.Entity.* decorators', function () {
 
     it('Should SortFields() define metadata value', async function () {
       class CustomerResource {
-        @ApiOperation.Entity.FindMany(Customer)
+        @HttpOperation.Entity.FindMany(Customer)
             .SortFields('_id', 'givenName')
         findMany() {
         }
@@ -284,6 +338,7 @@ describe('ApiOperation.Entity.* decorators', function () {
             method: 'GET',
             composition: 'Entity.FindMany',
             compositionOptions: {
+              type: 'Customer',
               sortFields: ['_id', 'givenName']
             },
             parameters: [
@@ -300,9 +355,11 @@ describe('ApiOperation.Entity.* decorators', function () {
               {
                 contentType: "application/opra.collection+json",
                 statusCode: '200',
+                partial: true,
                 type: Customer
               }
-            ]
+            ],
+            types: [Customer]
           }
         }
       });
@@ -310,7 +367,7 @@ describe('ApiOperation.Entity.* decorators', function () {
 
     it('Should DefaultSort() define metadata value', async function () {
       class CustomerResource {
-        @ApiOperation.Entity.FindMany(Customer)
+        @HttpOperation.Entity.FindMany(Customer)
             .DefaultSort('givenName')
         findMany() {
         }
@@ -324,6 +381,7 @@ describe('ApiOperation.Entity.* decorators', function () {
             method: 'GET',
             composition: 'Entity.FindMany',
             compositionOptions: {
+              type: 'Customer',
               defaultSort: ['givenName'],
             },
             parameters: defaultParameters,
@@ -331,9 +389,11 @@ describe('ApiOperation.Entity.* decorators', function () {
               {
                 contentType: "application/opra.collection+json",
                 statusCode: '200',
+                partial: true,
                 type: Customer
               }
-            ]
+            ],
+            types: [Customer]
           }
         }
       });
@@ -343,71 +403,35 @@ describe('ApiOperation.Entity.* decorators', function () {
 
 
   /* ***************************************************** */
-  describe('"FindOne" decorator', function () {
-    it('Should define FindOne operation metadata', async function () {
+  describe('"Get" decorator', function () {
+    it('Should define Get operation metadata', async function () {
       class CustomerResource {
-        @ApiOperation.Entity.FindOne(Customer, {description: 'operation description'})
-        findOne() {
+        @HttpOperation.Entity.Get(Customer, 'id', {description: 'operation description'})
+        get() {
         }
       }
 
       const metadata = Reflect.getMetadata(RESOURCE_METADATA, CustomerResource);
       expect(metadata).toStrictEqual({
         endpoints: {
-          findOne: {
+          get: {
             kind: 'Operation',
             method: 'GET',
-            composition: 'Entity.FindOne',
+            composition: 'Entity.Get',
+            compositionOptions: {
+              type: 'Customer',
+              keyField: 'id'
+            },
             description: 'operation description',
             responses: [
               {
                 contentType: "application/opra.instance+json",
                 statusCode: '200',
+                partial: true,
                 type: Customer
-              }
-            ]
-          }
-        }
-      });
-    })
-
-    it('Should Filter() define metadata value', async function () {
-      class CustomerResource {
-        @ApiOperation.Entity.FindOne(Customer)
-            .Filter('_id', '=, !=')
-            .Filter('givenName', ['=', '!=', 'like'])
-        findOne() {
-        }
-      }
-
-      const metadata = Reflect.getMetadata(RESOURCE_METADATA, CustomerResource);
-      expect(metadata).toStrictEqual({
-        endpoints: {
-          findOne: {
-            kind: 'Operation',
-            method: 'GET',
-            composition: 'Entity.FindOne',
-            compositionOptions: {
-              filters: [
-                {field: '_id', operators: ['=', '!=']},
-                {field: 'givenName', operators: ['=', '!=', 'like']},
-              ],
-            },
-            parameters: [
-              {
-                description: "Determines filter fields",
-                in: "query",
-                name: "filter",
-                type: String
               }
             ],
-            responses: [
-              {
-                contentType: "application/opra.instance+json",
-                statusCode: '200',
-                type: Customer
-              }
-            ]
+            types: [Customer]
           }
         }
       });
@@ -420,7 +444,7 @@ describe('ApiOperation.Entity.* decorators', function () {
   describe('"UpdateMany" decorator', function () {
     it('Should define UpdateMany operation metadata', async function () {
       class CustomerResource {
-        @ApiOperation.Entity.UpdateMany(Customer, {
+        @HttpOperation.Entity.UpdateMany(Customer, {
           description: 'operation description',
           input: {
             maxContentSize: 1000
@@ -437,6 +461,9 @@ describe('ApiOperation.Entity.* decorators', function () {
             kind: 'Operation',
             method: 'PATCH',
             composition: 'Entity.UpdateMany',
+            compositionOptions: {
+              type: 'Customer'
+            },
             description: 'operation description',
             requestBody: {
               content: [{
@@ -450,9 +477,10 @@ describe('ApiOperation.Entity.* decorators', function () {
             responses: [
               {
                 contentType: "application/opra.response+json",
-                statusCode: '200'
+                statusCode: '200',
               }
-            ]
+            ],
+            types: [Customer]
           }
         }
       });
@@ -460,7 +488,7 @@ describe('ApiOperation.Entity.* decorators', function () {
 
     it('Should Filter() define metadata value', async function () {
       class CustomerResource {
-        @ApiOperation.Entity.UpdateMany(Customer)
+        @HttpOperation.Entity.UpdateMany(Customer)
             .Filter('_id', '=, !=')
             .Filter('givenName', ['=', '!=', 'like'])
         updateMany() {
@@ -475,6 +503,7 @@ describe('ApiOperation.Entity.* decorators', function () {
             method: 'PATCH',
             composition: 'Entity.UpdateMany',
             compositionOptions: {
+              type: 'Customer',
               filters: [
                 {field: '_id', operators: ['=', '!=']},
                 {field: 'givenName', operators: ['=', '!=', 'like']},
@@ -502,7 +531,8 @@ describe('ApiOperation.Entity.* decorators', function () {
                 contentType: "application/opra.response+json",
                 statusCode: '200'
               }
-            ]
+            ],
+            types: [Customer]
           }
         }
       });
@@ -512,7 +542,7 @@ describe('ApiOperation.Entity.* decorators', function () {
 
 
   /* ***************************************************** */
-  describe('"UpdateOne" decorator', function () {
+  describe('"Update" decorator', function () {
     const defaultParameters = [
       {
         description: "Determines fields to be picked",
@@ -537,9 +567,9 @@ describe('ApiOperation.Entity.* decorators', function () {
       }
     ];
 
-    it('Should define UpdateOne operation metadata', async function () {
+    it('Should define Update operation metadata', async function () {
       class CustomerResource {
-        @ApiOperation.Entity.UpdateOne(Customer, {
+        @HttpOperation.Entity.Update(Customer, 'id', {
           description: 'operation description',
           input: {
             maxContentSize: 1000
@@ -555,7 +585,11 @@ describe('ApiOperation.Entity.* decorators', function () {
           updateOne: {
             kind: 'Operation',
             method: 'PATCH',
-            composition: 'Entity.UpdateOne',
+            composition: 'Entity.Update',
+            compositionOptions: {
+              type: 'Customer',
+              keyField: 'id'
+            },
             description: 'operation description',
             requestBody: {
               content: [{
@@ -571,9 +605,11 @@ describe('ApiOperation.Entity.* decorators', function () {
               {
                 contentType: "application/opra.instance+json",
                 statusCode: '200',
+                partial: true,
                 type: Customer
               }
-            ]
+            ],
+            types: [Customer]
           }
         }
       });
@@ -581,7 +617,7 @@ describe('ApiOperation.Entity.* decorators', function () {
 
     it('Should Filter() define metadata value', async function () {
       class CustomerResource {
-        @ApiOperation.Entity.UpdateOne(Customer)
+        @HttpOperation.Entity.Update(Customer, 'id')
             .Filter('_id', '=, !=')
             .Filter('givenName', ['=', '!=', 'like'])
         updateOne() {
@@ -594,8 +630,10 @@ describe('ApiOperation.Entity.* decorators', function () {
           updateOne: {
             kind: 'Operation',
             method: 'PATCH',
-            composition: 'Entity.UpdateOne',
+            composition: 'Entity.Update',
             compositionOptions: {
+              type: 'Customer',
+              keyField: 'id',
               filters: [
                 {field: '_id', operators: ['=', '!=']},
                 {field: 'givenName', operators: ['=', '!=', 'like']},
@@ -623,9 +661,11 @@ describe('ApiOperation.Entity.* decorators', function () {
               {
                 contentType: "application/opra.instance+json",
                 statusCode: '200',
+                partial: true,
                 type: Customer
               }
-            ]
+            ],
+            types: [Customer]
           }
         }
       });

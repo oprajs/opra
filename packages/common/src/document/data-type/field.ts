@@ -5,9 +5,9 @@ import { TypeThunkAsync } from '../../types.js';
 import { DECORATOR } from '../constants.js';
 import type { ComplexType } from './complex-type.js';
 import type { DataType } from './data-type.js';
+import { FieldDecorator } from './decorators/field-decorator.js';
 import type { EnumType } from './enum-type.js';
 import { FieldClass } from './field-class.js';
-import { FieldDecorator } from './field-decorator.js';
 
 /**
  * Type definition of ComplexType constructor type

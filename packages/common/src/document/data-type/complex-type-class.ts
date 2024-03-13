@@ -3,7 +3,7 @@ import { IsObject, vg } from 'valgen';
 import { omitUndefined, ResponsiveMap } from '../../helpers/index.js';
 import { translate } from '../../i18n/index.js';
 import { OpraSchema } from '../../schema/index.js';
-import type { ApiDocument } from '../api-document.js';
+import type { ApiNode } from '../api-node';
 import { SORT_FIELD_PATTERN } from '../constants.js';
 import type { ComplexType } from './complex-type.js';
 import { DataType } from './data-type.js';
@@ -23,8 +23,8 @@ export class ComplexTypeClass extends DataType {
   readonly abstract?: boolean;
   readonly additionalFields?: boolean | DataType | 'error';
 
-  constructor(document: ApiDocument, init: ComplexType.InitArguments) {
-    super(document, init);
+  constructor(documentNode: ApiNode, init: ComplexType.InitArguments) {
+    super(documentNode, init);
     const own = this.own = {} as Mutable<ComplexType.OwnProperties>;
     own.ctor = init.ctor;
     if (init.base) {
@@ -148,23 +148,23 @@ export class ComplexTypeClass extends DataType {
     return array.length ? array : undefined;
   }
 
-  exportSchema(): any {
-    const out = super.exportSchema() as OpraSchema.ComplexType;
+  toJSON(): any {
+    const out = super.toJSON() as OpraSchema.ComplexType;
     Object.assign(out, omitUndefined({
       base: this.base ?
-          (this.base.name ? this.base.name : this.base.exportSchema()) : undefined,
+          (this.base.name ? this.base.name : this.base.toJSON()) : undefined,
       abstract: this.abstract,
       additionalFields: this.own.additionalFields instanceof DataType
           ? (this.own.additionalFields.name
                   ? this.own.additionalFields.name
-                  : this.own.additionalFields.exportSchema()
+                  : this.own.additionalFields.toJSON()
           )
           : this.own.additionalFields
     }));
     if (this.own.fields.size) {
       const fields = out.fields = {};
       for (const field of this.own.fields.values()) {
-        fields[field.name] = field.exportSchema();
+        fields[field.name] = field.toJSON();
       }
     }
     return omitUndefined(out);
@@ -175,8 +175,8 @@ export class ComplexTypeClass extends DataType {
   }
 
   extendsFrom(t: string | Type | DataType): boolean {
-    const base = t instanceof DataType ? t : this.document.getDataType(t);
-    if (this.base) {
+    const base = t instanceof DataType ? t : this.documentNode.findDataType(t);
+    if (base && this.base) {
       if (this.base === base)
         return true;
       return this.base.extendsFrom(base);
@@ -264,7 +264,7 @@ export class ComplexTypeClass extends DataType {
         const field = this.fields.get(fieldName);
         const init: any = {...field, ...overwriteFieldInit, name: fieldName};
         if (!(init.type instanceof DataType))
-          init.type = this.document.getDataType(init.type || 'any');
+          init.type = this.documentNode.findDataType(init.type || 'any');
         f = new ApiField(this, init);
       } else f = this.getField(fieldName) as ApiField;
 

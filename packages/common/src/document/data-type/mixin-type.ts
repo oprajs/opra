@@ -3,7 +3,7 @@ import merge from 'putil-merge';
 import { Class, StrictOmit, Type } from 'ts-gems';
 import { inheritPropertyInitializers, mergePrototype, } from '../../helpers/index.js';
 import { OpraSchema } from '../../schema/index.js';
-import type { ApiDocument } from '../api-document.js';
+import type { ApiNode } from '../api-node';
 import { DATATYPE_METADATA } from '../constants.js';
 import { ComplexType } from './complex-type.js';
 import { MappedType } from './mapped-type.js';
@@ -17,7 +17,7 @@ import { MixinTypeClass } from './mixin-type-class.js';
 export interface MixinTypeConstructor {
   prototype: MixinType;
 
-  new(document: ApiDocument, init: MixinType.InitArguments): MixinType;
+  new(node: ApiNode, init: MixinType.InitArguments): MixinType;
 
   <A1 extends any[], I1, S1,
       A2 extends any[], I2, S2,
@@ -52,8 +52,8 @@ export const MixinType = function (
 
   // Constructor
   if (this) {
-    const [document, init] = args as [ApiDocument, MixinType.InitArguments];
-    merge(this, new MixinTypeClass(document, init), {descriptor: true});
+    const [node, init] = args as [ApiNode, MixinType.InitArguments];
+    merge(this, new MixinTypeClass(node, init), {descriptor: true});
     return;
   }
 

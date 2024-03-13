@@ -2,7 +2,7 @@ import { Mutable } from 'ts-gems';
 import { omitUndefined } from '../../helpers/index.js';
 import type { Field } from '../../schema/data-type/field.interface.js';
 import { OpraSchema } from '../../schema/index.js';
-import type { ApiDocument } from '../api-document.js';
+import type { ApiNode } from '../api-node.js';
 import type { ComplexType } from './complex-type.js';
 import { ComplexTypeClass } from './complex-type-class.js';
 import type { MappedType } from './mapped-type.js';
@@ -16,8 +16,8 @@ export class MappedTypeClass extends ComplexTypeClass {
   readonly pick?: Field.Name[];
   readonly partial?: Field.Name[] | boolean;
 
-  constructor(document: ApiDocument, init: MappedType.InitArguments) {
-    super(document, init);
+  constructor(node: ApiNode, init: MappedType.InitArguments) {
+    super(node, init);
     const own = this.own as Mutable<MappedType.OwnProperties>
     own.pick = init.pick;
     own.omit = init.omit;
@@ -39,8 +39,8 @@ export class MappedTypeClass extends ComplexTypeClass {
     }
   }
 
-  override exportSchema(): any {
-    const out = super.exportSchema() as unknown as OpraSchema.MappedType;
+  override toJSON(): any {
+    const out = super.toJSON() as unknown as OpraSchema.MappedType;
     Object.assign(out, omitUndefined({
       pick: this.own.pick,
       omit: this.own.omit,

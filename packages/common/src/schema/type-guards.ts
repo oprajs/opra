@@ -4,7 +4,7 @@ import { EnumType } from './data-type/enum-type.interface.js';
 import { MappedType } from './data-type/mapped-type.interface.js';
 import { MixinType } from './data-type/mixin-type.interface.js';
 import { SimpleType } from './data-type/simple-type.interface.js';
-import { Resource } from './resource/resource.interface.js';
+import { Resource as HttpResource } from './http/resource.interface.js';
 
 export function isDataType(obj: any): obj is DataType {
   return obj && typeof obj === 'object' &&
@@ -36,6 +36,6 @@ export function isEnumType(obj: any): obj is EnumType {
   return obj && typeof obj === 'object' && obj.kind === EnumType.Kind;
 }
 
-export function isResource(obj: any): obj is Resource {
-  return obj && typeof obj === 'object' && obj.kind === Resource.Kind;
+export function isHttpResource(obj: any): obj is HttpResource {
+  return obj && typeof obj === 'object' && obj.kind === HttpResource.Kind;
 }

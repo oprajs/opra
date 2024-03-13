@@ -1,14 +1,14 @@
 import 'reflect-metadata';
-import { ApiAction, HttpStatusCode, RESOURCE_METADATA } from '@opra/common';
+import { HttpAction, HttpStatusCode, RESOURCE_METADATA } from '@opra/common';
 
 
-describe('ApiAction decorator', function () {
+describe('HttpAction decorator', function () {
 
   afterAll(() => global.gc && global.gc());
 
   it('Should define Action operation metadata', async function () {
     class CustomersResource {
-      @ApiAction({description: 'any description'})
+      @HttpAction({description: 'any description'})
       sendMessage() {
       }
     }
@@ -26,7 +26,7 @@ describe('ApiAction decorator', function () {
 
   it('Should Parameter() define query parameter', async function () {
     class CustomersResource {
-      @ApiAction()
+      @HttpAction()
           .Parameter('message', String)
       sendMessage() {
       }
@@ -49,7 +49,7 @@ describe('ApiAction decorator', function () {
 
   it('Should Header() define header parameter', async function () {
     class CustomersResource {
-      @ApiAction()
+      @HttpAction()
           .Header('x-id', String)
       sendMessage() {
       }
@@ -72,7 +72,7 @@ describe('ApiAction decorator', function () {
 
   it('Should Response(Type) define response options', async function () {
     class CustomersResource {
-      @ApiAction()
+      @HttpAction()
           .Response(HttpStatusCode.OK, String)
       sendMessage() {
       }
@@ -94,7 +94,7 @@ describe('ApiAction decorator', function () {
 
   it('Should Response({args}) define response options', async function () {
     class CustomersResource {
-      @ApiAction()
+      @HttpAction()
           .Response({
             type: String,
             description: 'response description',

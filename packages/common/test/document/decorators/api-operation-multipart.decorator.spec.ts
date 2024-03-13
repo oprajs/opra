@@ -1,8 +1,8 @@
 import 'reflect-metadata';
-import { ApiOperation, RESOURCE_METADATA } from '@opra/common';
+import { HttpOperation, RESOURCE_METADATA } from '@opra/common';
 
 
-describe('ApiOperation.Multipart.* decorators', function () {
+describe('HttpOperation.Multipart.* decorators', function () {
 
   afterAll(() => global.gc && global.gc());
 
@@ -12,7 +12,7 @@ describe('ApiOperation.Multipart.* decorators', function () {
 
     it('Should define Get operation metadata', async function () {
       class CustomerResource {
-        @ApiOperation.Multipart.Get({
+        @HttpOperation.Multipart.GET({
           description: 'operation description'
         })
         get() {
@@ -25,7 +25,7 @@ describe('ApiOperation.Multipart.* decorators', function () {
           get: {
             kind: 'Operation',
             method: 'GET',
-            composition: 'Multipart.Get',
+            composition: 'Multipart.GET',
             description: 'operation description'
           }
         }
@@ -40,7 +40,7 @@ describe('ApiOperation.Multipart.* decorators', function () {
 
     it('Should define Post operation metadata', async function () {
       class CustomerResource {
-        @ApiOperation.Multipart.Post({
+        @HttpOperation.Multipart.POST({
           description: 'operation description'
         })
         post() {
@@ -53,7 +53,7 @@ describe('ApiOperation.Multipart.* decorators', function () {
           post: {
             kind: 'Operation',
             method: 'POST',
-            composition: 'Multipart.Post',
+            composition: 'Multipart.POST',
             compositionOptions: {},
             description: 'operation description',
             requestBody: {

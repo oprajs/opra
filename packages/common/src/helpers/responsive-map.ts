@@ -41,12 +41,14 @@ export class ResponsiveMap<V> extends Map<string, V> {
   }
 
   get(key: string): V | undefined {
+    if (!key)
+      return;
     const orgKey = this._getOriginalKey(key);
     return super.get(orgKey as string);
   }
 
   has(key: string): boolean {
-    return this[kKeyMap].has(this._getStoringKey(key));
+    return !!key && this[kKeyMap].has(this._getStoringKey(key));
   }
 
   set(key: string, value: V): this {

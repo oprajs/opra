@@ -4,17 +4,17 @@ import {
   ApiDocumentFactory,
   OpraSchema,
 } from '@opra/common';
-import { Customer } from '../../_support/test-api/index.js';
+import { Address, Country, Customer, GenderEnum, Note, Person, Record } from '../../_support/test-api/index.js';
 
 describe('ComplexType', function () {
   let api: ApiDocument;
   const baseArgs: ApiDocumentFactory.InitArguments = {
-    version: OpraSchema.SpecVersion,
+    spec: OpraSchema.SpecVersion,
     info: {
       title: 'TestDocument',
       version: 'v1',
     },
-    types: [Customer]
+    types: [Record, Person, GenderEnum, Address, Note, Country, Customer]
   };
 
   beforeAll(async () => {
@@ -25,21 +25,24 @@ describe('ComplexType', function () {
 
   it('Should findField(name) return field instance', async () => {
     const dt = api.getComplexType('customer');
-    const f = dt.findField('countryCode');
+    expect(dt).toBeDefined();
+    const f = dt!.findField('countryCode');
     expect(f).toBeDefined();
     expect(f!.name).toStrictEqual('countryCode');
   })
 
   it('Should findField(name) do case-insensitive search', async () => {
     const dt = api.getComplexType('customer');
-    const f = dt.findField('countrycode');
+    expect(dt).toBeDefined();
+    const f = dt!.findField('countrycode');
     expect(f).toBeDefined();
     expect(f!.name).toStrictEqual('countryCode');
   })
 
   it('Should findField(path) return nested fields', async () => {
     const dt = api.getComplexType('customer');
-    const f = dt.findField('country.phonecode');
+    expect(dt).toBeDefined();
+    const f = dt!.findField('country.phonecode');
     expect(f).toBeDefined();
     expect(f!.owner.name).toStrictEqual('Country');
     expect(f!.name).toStrictEqual('phoneCode');
@@ -47,32 +50,38 @@ describe('ComplexType', function () {
 
   it('Should findField(path) return "undefined" if field not found', async () => {
     const dt = api.getComplexType('customer');
-    expect(dt.findField('nofield')).not.toBeDefined();
+    expect(dt).toBeDefined();
+    expect(dt!.findField('nofield')).not.toBeDefined();
   })
 
   it('Should getField(path) throw if field not found', async () => {
     const dt = api.getComplexType('customer');
-    expect(() => dt.getField('nofield')).toThrow('UNKNOWN_FIELD');
+    expect(dt).toBeDefined();
+    expect(() => dt!.getField('nofield')).toThrow('UNKNOWN_FIELD');
   })
 
   it('Should getField(path) throw if given path is not valid', async () => {
     const dt = api.getComplexType('customer');
-    expect(() => dt.getField('givenName.code')).toThrow('field is not');
+    expect(dt).toBeDefined();
+    expect(() => dt!.getField('givenName.code')).toThrow('field is not');
   })
 
   it('Should normalizeFieldPath() return normalized field name array', async () => {
     const dt = api.getComplexType('customer');
-    let x: any = dt.normalizeFieldNames('countrycode');
+    expect(dt).toBeDefined();
+    let x: any = dt!.normalizeFieldNames('countrycode');
     expect(x).toBeDefined();
     expect(x).toStrictEqual(['countryCode']);
-    x = dt.normalizeFieldNames(['givenname', 'countrycode']);
+    expect(dt).toBeDefined();
+    x = dt!.normalizeFieldNames(['givenname', 'countrycode']);
     expect(x).toBeDefined();
     expect(x).toStrictEqual(['givenName', 'countryCode']);
   })
 
   it('Should exportSchema() return schema', async () => {
     const dt = api.getComplexType('country');
-    const x = dt.exportSchema();
+    expect(dt).toBeDefined();
+    const x = dt!.toJSON();
     expect(x).toBeDefined();
     expect(x).toStrictEqual({
       kind: 'ComplexType',
@@ -149,7 +158,8 @@ describe('ComplexType', function () {
 
   it('Should overwrite fields in generateCodecSchema()', async () => {
     const dt = api.getComplexType('customer');
-    const x: any = dt.generateCodecSchema('decode', {
+    expect(dt).toBeDefined();
+    const x: any = dt!.generateCodecSchema('decode', {
       overwriteFields: {
         'rate': {
           type: 'string',
@@ -173,7 +183,8 @@ describe('ComplexType', function () {
 
   it('Should add fields in generateCodecSchema()', async () => {
     const dt = api.getComplexType('customer');
-    const x: any = dt.generateCodecSchema('decode', {
+    expect(dt).toBeDefined();
+    const x: any = dt!.generateCodecSchema('decode', {
       overwriteFields: {
         'point': {
           type: 'number',

@@ -1,6 +1,6 @@
 import { Mutable, Type } from 'ts-gems';
 import { OpraSchema } from '../../schema/index.js';
-import type { ApiDocument } from '../api-document.js';
+import type { ApiNode } from '../api-node.js';
 import { ComplexType } from './complex-type.js';
 import { MappedType } from './mapped-type.js';
 import type { MixinType } from './mixin-type';
@@ -10,8 +10,8 @@ export class MixinTypeClass extends ComplexType {
   readonly own: MixinType.OwnProperties;
   readonly types: (ComplexType | MixinType | MappedType)[];
 
-  constructor(document: ApiDocument, init: MixinType.InitArguments) {
-    super(document, init);
+  constructor(node: ApiNode, init: MixinType.InitArguments) {
+    super(node, init);
     const own = this.own as Mutable<MixinType.OwnProperties>
     own.types = [];
     const MixinType: Type<MixinType> = Object.getPrototypeOf(this).constructor;
@@ -33,9 +33,9 @@ export class MixinTypeClass extends ComplexType {
   }
 
   // @ts-ignore
-  exportSchema(): any {
-    const out = super.exportSchema() as unknown as OpraSchema.MixinType;
-    out.types = this.own.types.map(t => t.name ? t.name : t.exportSchema());
+  toJSON(): any {
+    const out = super.toJSON() as unknown as OpraSchema.MixinType;
+    out.types = this.own.types.map(t => t.name ? t.name : t.toJSON());
     return out;
   }
 

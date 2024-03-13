@@ -3,13 +3,13 @@ import merge from 'putil-merge';
 import { StrictOmit } from 'ts-gems';
 import { omitUndefined } from '../../helpers/index.js';
 import { OpraSchema } from '../../schema/index.js';
-import type { ApiDocument } from '../api-document.js';
+import type { ApiNode } from '../api-node';
 import { DATATYPE_METADATA } from '../constants.js';
 import { DataType } from './data-type.js';
 import { EnumTypeClass } from './enum-type-class.js';
 
 export interface EnumTypeConstructor {
-  new(document: ApiDocument, init?: EnumType.InitArguments): EnumType;
+  new(node: ApiNode, init?: EnumType.InitArguments): EnumType;
 
   <T extends EnumType.EnumObject | EnumType.EnumArray>(target: T, options: EnumType.Options<T>): EnumType.Metadata;
 }
@@ -55,8 +55,8 @@ export const EnumType = function (this: EnumType | void, ...args: any[]) {
   }
 
   // Constructor
-  const [document, init] = args as [ApiDocument, EnumType.InitArguments];
-  merge(this, new EnumTypeClass(document, init), {descriptor: true});
+  const [node, init] = args as [ApiNode, EnumType.InitArguments];
+  merge(this, new EnumTypeClass(node, init), {descriptor: true});
   return;
 
 } as EnumTypeConstructor;

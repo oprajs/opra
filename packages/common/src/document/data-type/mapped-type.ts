@@ -6,7 +6,7 @@ import {
   mergePrototype
 } from '../../helpers/index.js';
 import { OpraSchema } from '../../schema/index.js';
-import type { ApiDocument } from '../api-document.js';
+import type { ApiNode } from '../api-node.js';
 import { DATATYPE_METADATA } from '../constants.js';
 import { ComplexType } from './complex-type.js';
 import { getIsInheritedPredicateFn, MappedTypeClass } from './mapped-type-class.js';
@@ -50,7 +50,7 @@ export function PartialType<T extends any[], I1, S1, K extends keyof I1>(
 export interface MappedTypeConstructor {
   prototype: MappedType;
 
-  new(document: ApiDocument, init: MappedType.InitArguments): MappedType;
+  new(node: ApiNode, init: MappedType.InitArguments): MappedType;
 
   <T extends any[], I1, S1,
       PickKey extends keyof I1,
@@ -84,8 +84,8 @@ export const MappedType = function (
 ) {
   // Constructor
   if (this) {
-    const [document, init] = args as [ApiDocument, MappedType.InitArguments];
-    merge(this, new MappedTypeClass(document, init), {descriptor: true});
+    const [node, init] = args as [ApiNode, MappedType.InitArguments];
+    merge(this, new MappedTypeClass(node, init), {descriptor: true});
     return;
   }
 

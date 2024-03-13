@@ -22,4 +22,6 @@ export enum MimeTypes {
 
   markdown = 'text/markdown',
 
+  binary = 'binary/octet-stream',
+
 }

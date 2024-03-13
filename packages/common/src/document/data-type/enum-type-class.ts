@@ -1,7 +1,7 @@
 import { Validator, vg } from 'valgen';
 import { omitUndefined } from '../../helpers/index.js';
 import { OpraSchema } from '../../schema/index.js';
-import type { ApiDocument } from '../api-document.js';
+import type { ApiNode } from '../api-node.js';
 import { DATATYPE_METADATA } from '../constants.js';
 import { DataType } from './data-type.js';
 import type { EnumType } from './enum-type.js';
@@ -15,8 +15,8 @@ export class EnumTypeClass extends DataType {
   readonly decode: Validator;
   readonly encode: Validator;
 
-  constructor(document: ApiDocument, init: EnumType.InitArguments) {
-    super(document, init);
+  constructor(node: ApiNode, init: EnumType.InitArguments) {
+    super(node, init);
     this.enumObject = init.enumObject;
     this.base = init.base;
     this.ownValues = {...init.values};
@@ -30,8 +30,8 @@ export class EnumTypeClass extends DataType {
         t[DATATYPE_METADATA] === this.enumObject?.[DATATYPE_METADATA];
   }
 
-  exportSchema(): OpraSchema.EnumType {
-    const out = super.exportSchema() as OpraSchema.EnumType;
+  toJSON(): OpraSchema.EnumType {
+    const out = super.toJSON() as OpraSchema.EnumType;
     out.values = {};
     Object.entries(this.values).forEach(([k, i]) => {
       out.values[k] = omitUndefined({key: i.key, description: i.description})

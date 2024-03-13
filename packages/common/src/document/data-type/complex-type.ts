@@ -4,11 +4,11 @@ import { StrictOmit, Type } from 'ts-gems';
 import { ResponsiveMap } from '../../helpers/index.js';
 import { OpraSchema } from '../../schema/index.js';
 import type { TypeThunkAsync } from '../../types.js';
-import type { ApiDocument } from '../api-document.js';
+import type { ApiNode } from '../api-node';
 import { DECORATOR } from '../constants.js';
-import { ComplexTypeDecorator } from './complex-type.decorator.js';
 import { ComplexTypeClass } from './complex-type-class.js';
 import { DataType } from './data-type.js';
+import { ComplexTypeDecorator } from './decorators/complex-type.decorator.js';
 import { ApiField } from './field.js';
 import type { MappedType } from './mapped-type.js';
 import type { MixinType } from './mixin-type.js';
@@ -17,7 +17,7 @@ import type { MixinType } from './mixin-type.js';
  * Callable class pattern for ComplexType
  */
 export interface ComplexTypeConstructor {
-  new(document: ApiDocument, init: ComplexType.InitArguments): ComplexType;
+  new(node: ApiNode, init: ComplexType.InitArguments): ComplexType;
 
   (options?: ComplexType.DecoratorOptions): ClassDecorator;
 
@@ -41,8 +41,8 @@ export const ComplexType = function (
     return ComplexType[DECORATOR](options);
   }
   // Constructor
-  const [document, init] = args as [ApiDocument, ComplexType.InitArguments];
-  merge(this, new ComplexTypeClass(document, init), {descriptor: true});
+  const [node, init] = args as [ApiNode, ComplexType.InitArguments];
+  merge(this, new ComplexTypeClass(node, init), {descriptor: true});
 } as ComplexTypeConstructor;
 
 ComplexType.prototype = ComplexTypeClass.prototype;

@@ -8,7 +8,7 @@ import {
 describe('SimpleType', function () {
   let api: ApiDocument;
   const baseArgs: ApiDocumentFactory.InitArguments = {
-    version: OpraSchema.SpecVersion,
+    spec: OpraSchema.SpecVersion,
     info: {
       title: 'TestDocument',
       version: 'v1',
@@ -23,7 +23,8 @@ describe('SimpleType', function () {
 
   it('Should exportSchema() return schema', async () => {
     const dt = api.getSimpleType('string');
-    const x = dt.exportSchema();
+    expect(dt).toBeDefined();
+    const x = dt!.toJSON();
     expect(x).toBeDefined();
     expect(x).toStrictEqual({
       kind: 'SimpleType',

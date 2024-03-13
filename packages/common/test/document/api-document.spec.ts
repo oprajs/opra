@@ -1,72 +1,73 @@
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
-import {
-  ApiDocument, ApiDocumentFactory,
-  ComplexType, EnumType,
-  OpraSchema,
-} from '@opra/common';
-import {
-  Country,
-  Customer,
-  GenderEnum,
-  Profile,
-  RootResource
-} from '../_support/test-api/index.js';
+import { ApiDocumentFactory, OpraSchema } from '@opra/common';
+import { GenderEnum, testApiDocumentDef } from '../_support/test-api/index.js';
 
 describe('ApiDocument', function () {
 
-  const baseArgs: ApiDocumentFactory.InitArguments = {
-    version: OpraSchema.SpecVersion,
-    info: {
-      title: 'TestDocument',
-      version: 'v1',
-      description: 'Document description',
-    },
-    root: RootResource
-  };
-
   afterAll(() => global.gc && global.gc());
 
-  it('Should create ApiDocument instance', async () => {
-    const doc = await ApiDocumentFactory.createDocument(baseArgs, {autoImportTypes: true});
+  it('Should include built-in types by default', async () => {
+    const doc = await ApiDocumentFactory.createDocument(testApiDocumentDef);
     expect(doc).toBeDefined();
-    expect(doc).toBeInstanceOf(ApiDocument);
-    expect(doc.info).toBeDefined();
-    expect(doc.info).toStrictEqual(baseArgs.info);
+    expect(doc.references.size).toStrictEqual(1);
+    const ref = doc.references.get('opra');
+    expect(ref).toBeDefined();
+    expect(ref?.getDataType('any')).toBeDefined();
+    expect(ref?.getDataType('any').kind).toStrictEqual('SimpleType');
+    expect(ref?.getDataType(Object)).toBeDefined();
+    expect(ref?.getDataType(Object).name).toStrictEqual('any')
+
+    expect(ref?.getDataType('bigint')).toBeDefined();
+    expect(ref?.getDataType(BigInt)).toBeDefined();
+    expect(ref?.getDataType(BigInt).name).toStrictEqual('bigint');
+
+    expect(ref?.getDataType('boolean')).toBeDefined();
+    expect(ref?.getDataType(Boolean)).toBeDefined();
+    expect(ref?.getDataType(Boolean).name).toStrictEqual('boolean');
+
+    expect(ref?.getDataType('integer')).toBeDefined();
+
+    expect(ref?.getDataType('number')).toBeDefined();
+    expect(ref?.getDataType(Number)).toBeDefined();
+    expect(ref?.getDataType(Number).name).toStrictEqual('number');
+
+    expect(ref?.getDataType('object')).toBeDefined();
+
+    expect(ref?.getDataType('string')).toBeDefined();
+    expect(ref?.getDataType(String)).toBeDefined();
+    expect(ref?.getDataType(String).name).toStrictEqual('string')
+
+    expect(ref?.getDataType('time')).toBeDefined();
+    expect(ref?.getDataType('datetime')).toBeDefined();
   })
 
-  it('Should import data types used by resources', async () => {
-    const doc = await ApiDocumentFactory.createDocument(baseArgs, {autoImportTypes: true});
+  it('Should getDataTypeNs() return namespace of DataType', async () => {
+    const doc = await ApiDocumentFactory.createDocument(testApiDocumentDef);
     expect(doc).toBeDefined();
-    expect(doc.getComplexType(Country)).toBeInstanceOf(ComplexType);
-    expect(doc.getComplexType(Customer)).toBeInstanceOf(ComplexType);
-    expect(doc.getComplexType(Profile)).toBeInstanceOf(ComplexType);
-    expect(doc.getEnumType(GenderEnum)).toBeInstanceOf(EnumType);
+    expect(doc.getDataTypeNs(GenderEnum)).not.toBeDefined();
+    expect(doc.getDataTypeNs(String)).toStrictEqual('opra');
+    expect(doc.getDataTypeNs('string')).toStrictEqual('opra');
   })
 
-  it('Should getResource(name) return Resource instance', async () => {
-    const doc = await ApiDocumentFactory.createDocument(baseArgs, {autoImportTypes: true});
+  it('Should getService(name) return ApiService instance', async () => {
+    const doc = await ApiDocumentFactory.createDocument(testApiDocumentDef);
     expect(doc).toBeDefined();
-    expect(doc.getResource('Customers')!.name).toStrictEqual('Customers');
-    expect(doc.getResource('Customers@')!.name).toStrictEqual('Customers@');
+    expect(doc.getService('TestService')).toBeDefined();
+    expect(doc.getService('TestService')!.name).toStrictEqual('TestService');
   })
 
-  it('Should findResource(name) return undefined if resource not a found', async () => {
-    const doc = await ApiDocumentFactory.createDocument(baseArgs, {autoImportTypes: true});
-    expect(doc.getResource('unknownResource')).not.toBeDefined();
-  })
-
-  it('Should exportSchema() return document schema', async () => {
-    const doc = await ApiDocumentFactory.createDocument(baseArgs, {autoImportTypes: true});
+  it('Should toJSON() return document schema', async () => {
+    const doc = await ApiDocumentFactory.createDocument(testApiDocumentDef);
     expect(doc).toBeDefined();
-    const sch = doc.exportSchema();
-    expect(sch.version).toStrictEqual(OpraSchema.SpecVersion);
-    expect(sch.info).toStrictEqual(baseArgs.info);
-    expect(sch.root).toBeDefined();
-    expect(sch.root?.resources).toBeDefined();
-    expect(Object.keys(sch.root!.resources!).sort())
-        .toEqual(['Auth', 'Countries', 'Countries@', 'Customers', 'Customers@'].sort());
-    expect(Object.keys(sch.root!.resources!.Auth!.resources!).sort())
-        .toEqual(['MyProfile'].sort());
+    const sch = doc.toJSON();
+    expect(sch.spec).toStrictEqual(OpraSchema.SpecVersion);
+    expect(sch.info).toStrictEqual(testApiDocumentDef.info);
+    expect(sch.services).toBeDefined();
+    expect(Object.keys(sch.services)).toEqual(['TestService']);
+    expect(sch.services.TestService.protocol).toEqual('http');
+    expect(sch.services.TestService.description).toEqual('test service');
+    expect(sch.services.TestService.url).toEqual('/test');
+    expect(sch.services.TestService.root).toBeDefined();
   })
 
 });

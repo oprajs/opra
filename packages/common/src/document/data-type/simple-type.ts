@@ -1,15 +1,15 @@
 import 'reflect-metadata';
 import merge from 'putil-merge';
 import { Validator } from 'valgen';
-import type { ApiDocument } from '../api-document.js';
+import type { ApiNode } from '../api-node';
 import { DECORATOR } from '../constants.js';
 import { DataType } from './data-type.js';
-import { SimpleTypeDecorator } from './simple-type.decorator.js';
+import { SimpleTypeDecorator } from './decorators/simple-type.decorator.js';
 import { SimpleTypeClass } from './simple-type-class.js'
 
 
 export interface SimpleTypeConstructor {
-  new(document: ApiDocument, init: SimpleType.InitArguments): SimpleType;
+  new(node: ApiNode, init: SimpleType.InitArguments): SimpleType;
 
   (options?: SimpleType.DecoratorOptions): (target: any) => any;
 
@@ -30,8 +30,8 @@ export const SimpleType = function (this: SimpleType | void, ...args: any[]) {
     return SimpleType[DECORATOR](options);
   }
   // Constructor
-  const [document, init] = args as [ApiDocument, SimpleType.InitArguments];
-  merge(this, new SimpleTypeClass(document, init), {descriptor: true});
+  const [node, init] = args as [ApiNode, SimpleType.InitArguments];
+  merge(this, new SimpleTypeClass(node, init), {descriptor: true});
 } as SimpleTypeConstructor;
 
 SimpleType.prototype = SimpleTypeClass.prototype;

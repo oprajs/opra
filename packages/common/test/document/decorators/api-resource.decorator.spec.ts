@@ -1,53 +1,53 @@
 import 'reflect-metadata';
-import { ApiResource, RESOURCE_METADATA } from '@opra/common';
+import { HttpResource, RESOURCE_METADATA } from '@opra/common';
 
 
-describe('ApiResource decorator', function () {
+describe('HttpResource decorator', function () {
 
   afterAll(() => global.gc && global.gc());
 
   /* ***************************************************** */
   it('Should define Collection resource metadata', async function () {
-    const opts: ApiResource.DecoratorOptions = {description: 'xyz'};
+    const opts: HttpResource.DecoratorOptions = {description: 'xyz'};
 
-    @ApiResource(opts)
+    @HttpResource(opts)
     class CountryResource {
     }
 
     const metadata = Reflect.getMetadata(RESOURCE_METADATA, CountryResource);
     expect(metadata).toStrictEqual({
-      kind: 'Resource',
+      kind: 'HttpResource',
       name: 'Country',
       ...opts
     });
   })
 
   it('Should define custom name', async function () {
-    const opts: ApiResource.DecoratorOptions = {name: 'Countries'};
+    const opts: HttpResource.DecoratorOptions = {name: 'Countries'};
 
-    @ApiResource(opts)
+    @HttpResource(opts)
     class CountryResource {
     }
 
     const metadata = Reflect.getMetadata(RESOURCE_METADATA, CountryResource);
     expect(metadata).toStrictEqual({
-      kind: 'Resource',
+      kind: 'HttpResource',
       name: 'Countries',
       ...opts
     });
   })
 
   it('Should define key parameter', async function () {
-    const opts: ApiResource.DecoratorOptions = {name: 'Countries'};
+    const opts: HttpResource.DecoratorOptions = {name: 'Countries'};
 
-    @ApiResource(opts)
+    @HttpResource(opts)
         .KeyParameter('id')
     class CountryResource {
     }
 
     const metadata = Reflect.getMetadata(RESOURCE_METADATA, CountryResource);
     expect(metadata).toStrictEqual({
-      kind: 'Resource',
+      kind: 'HttpResource',
       name: 'Countries',
       keyParameter: {
         name: 'id',
