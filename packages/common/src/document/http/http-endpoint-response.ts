@@ -9,9 +9,9 @@ import { HttpParameter } from './http-parameter.js';
 
 
 /**
- * @namespace HttpResponse
+ * @namespace HttpEndpointResponse
  */
-export namespace HttpResponse {
+export namespace HttpEndpointResponse {
   export interface InitArguments extends StrictOmit<OpraSchema.Http.Response, 'type' | 'headers' | 'multipartFields'> {
     type?: DataType | string;
     multipartFields?: Record<string, HttpMediaContent.InitArguments>;
@@ -31,13 +31,13 @@ export namespace HttpResponse {
 }
 
 
-export class HttpResponse extends HttpMediaContent {
+export class HttpEndpointResponse extends HttpMediaContent {
   protected _encoder: Validator;
   readonly parent: HttpEndpoint;
   statusCode: HttpStatusRange[];
   headers: HttpParameter[] = [];
 
-  constructor(endpoint: HttpEndpoint, init: HttpResponse.InitArguments) {
+  constructor(endpoint: HttpEndpoint, init: HttpEndpointResponse.InitArguments) {
     super(endpoint, init);
     this.statusCode =
         Array.isArray(init.statusCode)

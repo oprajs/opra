@@ -7,11 +7,11 @@ import { RESOURCE_METADATA } from '../constants.js';
 import { EnumType } from '../data-type/enum-type.js';
 import { HttpAction } from '../http/http-action.js';
 import { HttpApi } from '../http/http-api.js';
+import { HttpEndpointResponse } from '../http/http-endpoint-response.js';
 import { HttpMediaContent } from '../http/http-media-content.js';
 import { HttpOperation } from '../http/http-operation.js';
 import { HttpParameter } from '../http/http-parameter.js';
 import { HttpResource } from '../http/http-resource.js';
-import { HttpResponse } from '../http/http-response.js';
 import type { ApiDocumentFactory } from './api-document.factory';
 import { DataTypeFactory } from './data-type.factory.js';
 
@@ -166,7 +166,7 @@ export class HttpApiFactory {
           let i = 0;
           for (const src of endpointMeta.responses) {
             context.curPath.push(`.responses[${i++}]`);
-            const responseInit: HttpResponse.InitArguments = {...src};
+            const responseInit: HttpEndpointResponse.InitArguments = {...src};
             if (src.type) {
               context.curPath.push(`.type`);
               responseInit.type = await endpointTypeFactory.createDataType(context, src.type);

@@ -3,10 +3,10 @@ import { HttpStatusCode } from '../../../http/index.js';
 import { OpraSchema } from '../../../schema/index.js';
 import { RESOURCE_METADATA } from '../../constants.js';
 import type { HttpAction } from '../http-action.js';
+import { HttpEndpointResponse, HttpStatusRange } from '../http-endpoint-response.js';
 import type { HttpOperation } from '../http-operation.js';
 import type { HttpParameter } from '../http-parameter';
 import type { HttpResource } from '../http-resource.js';
-import { HttpResponse, HttpStatusRange } from '../http-response.js';
 
 export interface HttpEndpointDecorator<T extends HttpEndpointDecorator<any>> {
   (target: Object, propertyKey: string): void;
@@ -17,7 +17,7 @@ export interface HttpEndpointDecorator<T extends HttpEndpointDecorator<any>> {
 
   Parameter(name: string | RegExp, optionsOrType?: HttpParameter.DecoratorOptions | string | Type): T;
 
-  Response(args: HttpResponse.DecoratorOptions): T;
+  Response(args: HttpEndpointResponse.DecoratorOptions): T;
 
   Response(status?: HttpStatusCode | number | HttpStatusRange | HttpStatusRange[], dataType?: Type | string): T;
 
@@ -133,7 +133,7 @@ function createHttpEndpointDecorator(
    *
    */
   decorator.Response = (arg0: any, arg1?: any): any => {
-    const responseMeta: HttpResponse.DecoratorMetadata =
+    const responseMeta: HttpEndpointResponse.DecoratorMetadata =
         typeof arg0 === 'string' || typeof arg0 === 'number' ? {statusCode: String(arg0), type: arg1} : {...arg0};
     responseMeta.statusCode =
         Array.isArray(responseMeta.statusCode)

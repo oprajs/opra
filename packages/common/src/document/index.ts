@@ -20,13 +20,13 @@ export * from './factory/api-document.factory.js';
 
 export * from './http/http-action.js';
 export * from './http/http-endpoint.js';
+export * from './http/http-endpoint-response.js';
 export * from './http/http-key-parameter.js';
 export * from './http/http-media-content.js';
 export * from './http/http-operation.js';
 export * from './http/http-parameter.js';
 export * from './http/http-request-body.js';
 export * from './http/http-resource.js';
-export * from './http/http-response.js';
 export * from './http/http-api.js';
 export * from './http/enums/metadata-mode.enum.js';
 export * from './http/types/operation-result.type.js';

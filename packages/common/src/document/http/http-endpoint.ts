@@ -4,9 +4,9 @@ import { omitUndefined, ResponsiveMap } from '../../helpers/index.js';
 import { OpraSchema } from '../../schema/index.js';
 import type { URLSearchParamsInit } from '../../types.js';
 import { ApiDocumentElement } from '../api-document-element.js';
+import { HttpEndpointResponse } from './http-endpoint-response.js';
 import { HttpParameter } from './http-parameter.js';
 import type { HttpResource } from './http-resource.js';
-import { HttpResponse } from './http-response.js';
 
 const NAME_PATTERN = /^\w+$/i;
 
@@ -16,12 +16,12 @@ export namespace HttpEndpoint {
 
   export interface DecoratorMetadata extends StrictOmit<OpraSchema.Http.Endpoint, 'parameters' | 'responses' | 'types'> {
     parameters?: HttpParameter.DecoratorMetadata[];
-    responses?: HttpResponse.DecoratorMetadata[];
+    responses?: HttpEndpointResponse.DecoratorMetadata[];
     types?: Type[];
   }
 
   export interface FindResponseResult {
-    response: HttpResponse;
+    response: HttpEndpointResponse;
     statusCode: number;
     contentType: string;
   }
@@ -33,14 +33,14 @@ export namespace HttpEndpoint {
  * @class HttpEndpoint
  */
 export abstract class HttpEndpoint extends ApiDocumentElement {
-  protected _sortedResponseCache = new ResponsiveMap<HttpResponse>();
+  protected _sortedResponseCache = new ResponsiveMap<HttpEndpointResponse>();
   protected _findResponseCache = new ResponsiveMap<HttpEndpoint.FindResponseResult>();
   readonly parent: HttpResource;
   abstract readonly kind: OpraSchema.Http.Action.Kind | OpraSchema.Http.Operation.Kind;
   readonly name: string;
   description?: string;
   parameters: HttpParameter[] = [];
-  responses: HttpResponse[] = [];
+  responses: HttpEndpointResponse[] = [];
 
   protected constructor(parent: HttpResource, name: string, init: HttpEndpoint.InitArguments) {
     super(parent);
@@ -58,8 +58,8 @@ export abstract class HttpEndpoint extends ApiDocumentElement {
         );
   }
 
-  defineResponse(init: HttpResponse.InitArguments): HttpResponse {
-    const r = new HttpResponse(this, init);
+  defineResponse(init: HttpEndpointResponse.InitArguments): HttpEndpointResponse {
+    const r = new HttpEndpointResponse(this, init);
     this.responses.push(r);
     this._sortedResponseCache.clear();
     this._findResponseCache.clear();
