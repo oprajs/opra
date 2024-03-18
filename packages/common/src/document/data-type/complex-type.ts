@@ -1,9 +1,8 @@
 import 'reflect-metadata';
 import merge from 'putil-merge';
-import { StrictOmit, Type } from 'ts-gems';
+import { StrictOmit, Type, TypeThunkAsync } from 'ts-gems';
 import { ResponsiveMap } from '../../helpers/index.js';
 import { OpraSchema } from '../../schema/index.js';
-import type { TypeThunkAsync } from '../../types.js';
 import type { ApiNode } from '../api-node';
 import { DECORATOR } from '../constants.js';
 import { ComplexTypeClass } from './complex-type-class.js';

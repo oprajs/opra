@@ -1,8 +1,7 @@
-import { StrictOmit } from 'ts-gems';
+import { StrictOmit, TypeThunkAsync } from 'ts-gems';
 import { Validator, validator, vg } from 'valgen';
 import { omitUndefined } from '../../helpers/index.js';
 import type { OpraSchema } from '../../schema/index.js';
-import type { TypeThunkAsync } from '../../types.js';
 import { ApiNode } from '../api-node.js';
 import { DataType } from '../data-type/data-type.js';
 import type { EnumType } from '../data-type/enum-type.js';

@@ -1,8 +1,7 @@
 import omit from 'lodash.omit';
 import merge from 'putil-merge';
-import { Type } from 'ts-gems';
+import { Type, TypeThunkAsync } from 'ts-gems';
 import { OpraSchema } from '../../../schema/index.js';
-import { TypeThunkAsync } from '../../../types.js';
 import { RESOURCE_METADATA } from '../../constants.js';
 import type { HttpKeyParameter } from '../http-key-parameter';
 import type { HttpResource } from '../http-resource.js';

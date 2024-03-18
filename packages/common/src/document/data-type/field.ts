@@ -1,7 +1,6 @@
 import merge from 'putil-merge';
-import { StrictOmit, Type } from 'ts-gems';
+import { StrictOmit, Type, TypeThunkAsync } from 'ts-gems';
 import { OpraSchema } from '../../schema/index.js';
-import { TypeThunkAsync } from '../../types.js';
 import { DECORATOR } from '../constants.js';
 import type { ComplexType } from './complex-type.js';
 import type { DataType } from './data-type.js';

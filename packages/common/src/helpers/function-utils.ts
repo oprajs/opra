@@ -1,6 +1,5 @@
 import promisify from 'putil-promisify';
-import { Type } from 'ts-gems';
-import { ThunkAsync } from '../types.js';
+import { ThunkAsync, Type } from 'ts-gems';
 import { isConstructor } from './type-guards.js';
 
 export async function resolveThunk(thunk: ThunkAsync<any> | Promise<any>): Promise<any> {

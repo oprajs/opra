@@ -1,6 +1,5 @@
-import { PartialSome, StrictOmit, Type } from 'ts-gems';
+import { PartialSome, StrictOmit, ThunkAsync, Type } from 'ts-gems';
 import { OpraSchema } from '../../schema/index.js';
-import { ThunkAsync } from '../../types.js';
 import { ApiDocument } from '../api-document.js';
 import { BUILTIN } from '../constants.js';
 import {

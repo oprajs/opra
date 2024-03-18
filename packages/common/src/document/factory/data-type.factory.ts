@@ -1,8 +1,7 @@
-import { Type } from 'ts-gems';
+import { ThunkAsync, Type } from 'ts-gems';
 import { validator } from 'valgen';
 import { cloneObject, resolveThunk, ResponsiveMap } from '../../helpers/index.js';
 import { OpraSchema } from '../../schema/index.js';
-import { ThunkAsync } from '../../types.js';
 import type { ApiDocumentElement } from '../api-document-element';
 import { DATATYPE_METADATA } from '../constants.js';
 import { ComplexType } from '../data-type/complex-type.js';

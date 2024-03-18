@@ -1,7 +1,6 @@
-import { StrictOmit, Type } from 'ts-gems';
+import { StrictOmit, ThunkAsync, Type } from 'ts-gems';
 import { resolveThunk } from '../../helpers/index.js';
 import { OpraSchema } from '../../schema/index.js';
-import { ThunkAsync } from '../../types.js';
 import { ApiDocument } from '../api-document.js';
 import { RESOURCE_METADATA } from '../constants.js';
 import { EnumType } from '../data-type/enum-type.js';
