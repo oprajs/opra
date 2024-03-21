@@ -4,7 +4,7 @@ import { Customer } from '../entities/customer.entity.js';
 @HttpResource({
   description: 'Customers collection'
 })
-export class CustomersCollection {
+export class CustomersController {
 
   @HttpOperation.Entity.FindMany(Customer)
       .SortFields('_id', 'givenName', 'familyName', 'gender', 'address.city')

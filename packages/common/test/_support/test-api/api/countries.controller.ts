@@ -4,7 +4,7 @@ import { Country } from '../entities/country.entity.js';
 @HttpResource({
   description: 'Countries collection',
 })
-export class CountriesCollection {
+export class CountriesController {
 
   @HttpOperation.Entity.FindMany(Country)
   findMany() {

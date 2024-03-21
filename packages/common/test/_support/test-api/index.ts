@@ -1,9 +1,9 @@
 import { ApiDocumentFactory, OpraSchema } from '@opra/common';
+import { RootController } from './api/root.controller.js';
 import { Country } from './entities/country.entity.js';
 import { Customer } from './entities/customer.entity.js';
 import { Profile } from './entities/profile.entity.js';
 import { GenderEnum } from './enums/gender.enum.js';
-import { RootResource } from './service1/root.resource.js';
 import { Address } from './types/address.type.js';
 import { Note } from './types/note.type.js';
 import { Person } from './types/person.type.js';
@@ -17,13 +17,13 @@ export * from './types/address.type.js';
 export * from './types/note.type.js';
 export * from './types/person.type.js';
 export * from './types/record.type.js';
-export * from './service1/auth.controller.js';
-export * from './service1/countries.collection.js';
-export * from './service1/countries.resource.js';
-export * from './service1/customers.collection.js';
-export * from './service1/customers.resource.js';
-export * from './service1/my-profile.resource.js';
-export * from './service1/root.resource.js';
+export * from './api/auth.controller.js';
+export * from './api/countries.controller.js';
+export * from './api/country.controller.js';
+export * from './api/customers.controller.js';
+export * from './api/customer.controller.js';
+export * from './api/my-profile.controller.js';
+export * from './api/root.controller.js';
 
 
 export const testApiDocumentDef: ApiDocumentFactory.InitArguments = {
@@ -39,6 +39,6 @@ export const testApiDocumentDef: ApiDocumentFactory.InitArguments = {
     name: 'TestService',
     description: 'test service',
     url: '/test',
-    root: RootResource
+    root: RootController
   }
 };

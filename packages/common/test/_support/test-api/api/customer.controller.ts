@@ -3,8 +3,9 @@ import { Customer } from '../entities/customer.entity.js';
 
 @HttpResource({
   description: 'Customer resource',
+  name: 'Customers'
 }).KeyParameter('_id')
-export class CustomersResource {
+export class CustomerController {
 
   @HttpOperation.Entity.Get(Customer, 'id')
   get() {

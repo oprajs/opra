@@ -1,4 +1,5 @@
 import { StrictOmit, Type } from 'ts-gems';
+import { isAny, Validator } from 'valgen';
 import { omitUndefined } from '../../helpers/index.js';
 import { OpraSchema } from '../../schema/index.js';
 import { ApiNode } from '../api-node.js';
@@ -27,6 +28,8 @@ export namespace HttpMediaContent {
 
 
 export class HttpMediaContent extends ApiNode {
+  protected _decoder: Validator;
+  protected _encoder: Validator;
   readonly parent: ApiNode;
   description?: string;
   contentType: string;
@@ -84,14 +87,28 @@ export class HttpMediaContent extends ApiNode {
     return out;
   }
 
-  //
-  // getEncoder(): Validator {
-  //   if (!this._encoder) {
-  //     if (this.type)
-  //       this._encoder = this.type.generateCodec('encode', {partial: true, operation: 'read'});
-  //     else this._encoder = isAny;
-  //   }
-  //   return this._encoder;
-  // }
+  getDecoder(): Validator {
+    if (!this._decoder) {
+      if (this.type)
+        this._decoder = this.type.generateCodec('encode', {
+          partial: this.partial,
+          operation: 'read'
+        });
+      else this._decoder = isAny;
+    }
+    return this._decoder;
+  }
+
+  getEncoder(): Validator {
+    if (!this._encoder) {
+      if (this.type)
+        this._encoder = this.type.generateCodec('encode', {
+          partial: this.partial,
+          operation: 'read'
+        });
+      else this._encoder = isAny;
+    }
+    return this._encoder;
+  }
 
 }

@@ -34,10 +34,10 @@
     "antlr4": "java -jar ./tools/antlr4-4.12.1-SNAPSHOT-complete.jar -Dlanguage=TypeScript ./src/filter/antlr/OpraFilter.g4 -visitor"
   },
   "dependencies": {
-    "@browsery/antlr4": "^0.9.0",
-    "@browsery/highland": "^0.6.0",
-    "@browsery/http-parser": "^0.4.0",
-    "@browsery/i18next": "^0.7.2",
+    "@browsery/antlr4": "^4.13.1",
+    "@browsery/highland": "^2.13.5",
+    "@browsery/http-parser": "^0.5.8",
+    "@browsery/i18next": "^23.8.2",
     "fast-tokenizer": "^1.2.2",
     "lodash.omit": "^4.5.0",
     "putil-isplainobject": "^1.1.5",
@@ -50,13 +50,13 @@
   },
   "devDependencies": {
     "@browsery/fs": "^0.4.0",
-    "@browsery/stream": "^0.6.0",
-    "@browsery/util": "^0.4.0",
+    "@browsery/stream": "^4.3.0",
+    "@browsery/util": "^0.12.5",
     "@types/encodeurl": "^1.0.2",
     "@types/lodash.omit": "^4.5.9",
-    "@types/validator": "^13.11.8",
+    "@types/validator": "^13.11.9",
     "path-browserify": "^1.0.1",
-    "ts-gems": "^3.1.1"
+    "ts-gems": "^3.2.1"
   },
   "engines": {
     "node": ">=16.0",

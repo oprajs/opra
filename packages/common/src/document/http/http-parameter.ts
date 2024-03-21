@@ -77,7 +77,10 @@ export class HttpParameter extends ApiNode {
 
   getDecoder(): Validator {
     if (!this._decoder) {
-      let fn = this.type?.generateCodec('decode', {operation: 'write'}) || vg.isAny();
+      let fn = this.type?.generateCodec('decode', {
+        operation: 'write',
+        caseInSensitive: true
+      }) || vg.isAny();
       if (this.isArray)
         fn = vg.pipe(vg.stringSplit(','), vg.isArray(fn));
       this._decoder = this.required ? vg.required(fn) : vg.optional(fn);
@@ -87,7 +90,10 @@ export class HttpParameter extends ApiNode {
 
   getEncoder(): Validator {
     if (!this._encoder) {
-      let fn = this.type?.generateCodec('encode', {operation: 'read'}) || vg.isAny();
+      let fn = this.type?.generateCodec('encode', {
+        operation: 'read',
+        caseInSensitive: true
+      }) || vg.isAny();
       if (this.isArray)
         fn = vg.pipe(vg.isArray(fn), validator('toString', (x) => x != null ? String(x) : x));
       this._encoder = this.required ? vg.required(fn) : vg.optional(fn);

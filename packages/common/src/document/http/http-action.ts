@@ -21,6 +21,7 @@ export namespace HttpAction {
 
   export interface DecoratorOptions extends Partial<Pick<OpraSchema.Http.Action, 'description'>> {
   }
+
 }
 
 /**

@@ -17,7 +17,6 @@ export class OpraException extends Error {
   constructor()
   constructor(issue: string | Partial<ErrorIssue> | Error, status?: number)
   constructor(issue: string | Partial<ErrorIssue>, cause?: Error, status?: number)
-
   constructor(issue?: any, arg1?: Error | number, arg2?: number) {
     super('Unknown error');
     let cause = arg1 && arg1 instanceof Error ? arg1 : undefined;

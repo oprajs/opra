@@ -1,9 +1,9 @@
 import { HttpAction, HttpResource } from '@opra/common';
-import { MyProfileResource } from './my-profile.resource.js';
+import { MyProfileController } from './my-profile.controller.js';
 
 @HttpResource({
   description: 'Auth container',
-  resources: [MyProfileResource]
+  resources: [MyProfileController]
 })
 export class AuthController {
 

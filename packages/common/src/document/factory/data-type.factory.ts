@@ -50,18 +50,23 @@ export class DataTypeFactory {
     // Add type sources into typeQueue
     if (Array.isArray(types)) {
       let i = 0;
-      for (const thunk of types) {
+      for (let thunk of types) {
         ctx.curPath.push(`/[${i}]`);
+        thunk = await resolveThunk(thunk);
         const metadata = Reflect.getMetadata(DATATYPE_METADATA, thunk) || thunk[DATATYPE_METADATA];
         if (!(metadata && metadata.name))
           throw new TypeError(`Metadata information not found at types[${i++}] "${String(thunk)}"`);
         typeQueue.set(metadata.name, thunk);
         ctx.curPath.pop();
       }
-    } else
-      for (const [name, thunk] of Object.entries(types)) {
+    } else {
+      let thunk: any;
+      let name: string;
+      for ([name, thunk] of Object.entries(types)) {
+        thunk = await resolveThunk(thunk);
         typeQueue.set(name, typeof thunk === 'object' ? {...thunk, name} : thunk);
       }
+    }
 
     // Create type instances
     for (const name of Array.from(typeQueue.keys())) {

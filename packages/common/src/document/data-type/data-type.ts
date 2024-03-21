@@ -94,7 +94,7 @@ export namespace DataType {
   };
 
   export interface GenerateCodecOptions {
-    caseSensitive?: boolean;
+    caseInSensitive?: boolean;
     pick?: string[] | readonly string[];
     omit?: string[] | readonly string[];
     partial?: boolean;

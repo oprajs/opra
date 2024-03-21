@@ -3,8 +3,9 @@ import { Country } from '../entities/country.entity.js';
 
 @HttpResource({
   description: 'Country resource',
+  name: 'Countries'
 }).KeyParameter('code')
-export class CountriesResource {
+export class CountryController {
 
   @HttpOperation.Entity.Get(Country, 'id')
   get() {

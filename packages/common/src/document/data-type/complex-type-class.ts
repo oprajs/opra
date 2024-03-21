@@ -192,7 +192,7 @@ export class ComplexTypeClass extends DataType {
     const additionalFields = this.additionalFields instanceof DataType
         ? this.additionalFields.generateCodec(codec, {
           operation: options?.operation,
-          caseSensitive: options?.caseSensitive,
+          caseInSensitive: options?.caseInSensitive,
           partial: options?.partial
         })
         : this.additionalFields
@@ -200,7 +200,7 @@ export class ComplexTypeClass extends DataType {
       ctor: this.ctor,
       additionalFields,
       name: this.name,
-      caseInSensitive: !options?.caseSensitive,
+      caseInSensitive: options?.caseInSensitive,
       onFail: options?.onFail
     });
   }

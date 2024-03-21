@@ -137,9 +137,7 @@ HttpOperation.Entity.Create = function (
       required: true,
       maxContentSize: options?.input?.maxContentSize
     }
-  })).Parameter('pick', {type: String, isArray: true, description: 'Determines fields to be picked'})
-      .Parameter('omit', {type: String, isArray: true, description: 'Determines fields to be omitted'})
-      .Parameter('include', {type: String, isArray: true, description: 'Determines fields to be included'})
+  })).Parameter('fields', {type: String, isArray: true, description: 'Determines fields to be exposed'})
       .RequestContent(options?.input?.type || type)
       .Response({
         statusCode: HttpStatusCode.CREATED,
@@ -245,9 +243,7 @@ HttpOperation.Entity.FindMany = function (
     partial: true,
   }).Parameter('limit', {type: Number, description: 'Determines number of returning instances'})
       .Parameter('skip', {type: Number, description: 'Determines number of instances to be skipped'})
-      .Parameter('pick', {type: String, isArray: true, description: 'Determines fields to be picked'})
-      .Parameter('omit', {type: String, isArray: true, description: 'Determines fields to be omitted'})
-      .Parameter('include', {type: String, isArray: true, description: 'Determines fields to be included'})
+      .Parameter('fields', {type: String, isArray: true, description: 'Determines fields to be exposed'})
       .Parameter('count', {type: Boolean, description: 'Counts all matching instances if enabled'});
   if (typeof type === 'function')
     decorator.UseType(type)
@@ -383,9 +379,7 @@ HttpOperation.Entity.Update = function (
       required: true,
       maxContentSize: options?.input?.maxContentSize
     }
-  })).Parameter('pick', {type: String, isArray: true, description: 'Determines fields to be picked'})
-      .Parameter('omit', {type: String, isArray: true, description: 'Determines fields to be omitted'})
-      .Parameter('include', {type: String, isArray: true, description: 'Determines fields to be included'})
+  })).Parameter('fields', {type: String, isArray: true, description: 'Determines fields to be exposed'})
       .RequestContent(options?.input?.type || type)
       .Response({
         statusCode: HttpStatusCode.OK,

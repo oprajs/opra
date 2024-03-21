@@ -13,24 +13,10 @@ describe('HttpOperation.Entity.* decorators', function () {
 
     const defaultParameters = [
       {
-        description: "Determines fields to be picked",
+        description: "Determines fields to be exposed",
         in: "query",
         isArray: true,
-        name: "pick",
-        type: String
-      },
-      {
-        description: "Determines fields to be omitted",
-        in: "query",
-        isArray: true,
-        name: "omit",
-        type: String
-      },
-      {
-        description: "Determines fields to be included",
-        in: "query",
-        isArray: true,
-        name: "include",
+        name: "fields",
         type: String
       }
     ];
@@ -215,24 +201,10 @@ describe('HttpOperation.Entity.* decorators', function () {
         type: Number
       },
       {
-        description: "Determines fields to be picked",
+        description: "Determines fields to be exposed",
         in: "query",
         isArray: true,
-        name: "pick",
-        type: String
-      },
-      {
-        description: "Determines fields to be omitted",
-        in: "query",
-        isArray: true,
-        name: "omit",
-        type: String
-      },
-      {
-        description: "Determines fields to be included",
-        in: "query",
-        isArray: true,
-        name: "include",
+        name: "fields",
         type: String
       },
       {
@@ -545,24 +517,10 @@ describe('HttpOperation.Entity.* decorators', function () {
   describe('"Update" decorator', function () {
     const defaultParameters = [
       {
-        description: "Determines fields to be picked",
+        description: "Determines fields to be exposed",
         in: "query",
         isArray: true,
-        name: "pick",
-        type: String
-      },
-      {
-        description: "Determines fields to be omitted",
-        in: "query",
-        isArray: true,
-        name: "omit",
-        type: String
-      },
-      {
-        description: "Determines fields to be included",
-        in: "query",
-        isArray: true,
-        name: "include",
+        name: "fields",
         type: String
       }
     ];

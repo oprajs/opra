@@ -1,4 +1,4 @@
-import { Type } from 'ts-gems';
+import { Type, TypeThunkAsync } from 'ts-gems';
 import { HttpStatusCode } from '../../../http/index.js';
 import { OpraSchema } from '../../../schema/index.js';
 import { RESOURCE_METADATA } from '../../constants.js';
@@ -13,13 +13,13 @@ export interface HttpEndpointDecorator<T extends HttpEndpointDecorator<any>> {
 
   // Cookie(name: string | RegExp, optionsOrType?: HttpParameter.DecoratorOptions | string | Type): T;
 
-  Header(name: string | RegExp, optionsOrType?: HttpParameter.DecoratorOptions | string | Type): T;
+  Header(name: string | RegExp, optionsOrType?: HttpParameter.DecoratorOptions | string | TypeThunkAsync): T;
 
-  Parameter(name: string | RegExp, optionsOrType?: HttpParameter.DecoratorOptions | string | Type): T;
+  Parameter(name: string | RegExp, optionsOrType?: HttpParameter.DecoratorOptions | string | TypeThunkAsync): T;
 
   Response(args: HttpEndpointResponse.DecoratorOptions): T;
 
-  Response(status?: HttpStatusCode | number | HttpStatusRange | HttpStatusRange[], dataType?: Type | string): T;
+  Response(status?: HttpStatusCode | number | HttpStatusRange | HttpStatusRange[], dataType?: TypeThunkAsync | string): T;
 
   UseType(...type: Type[]): T;
 
