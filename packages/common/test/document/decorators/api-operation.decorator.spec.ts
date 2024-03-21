@@ -41,7 +41,6 @@ describe('HttpOperation decorator', function () {
           kind: 'Operation',
           method: 'POST',
           parameters: [{
-            in: 'query',
             name: 'message',
             type: String
           }]
@@ -64,8 +63,7 @@ describe('HttpOperation decorator', function () {
         getMessage: {
           kind: 'Operation',
           method: 'GET',
-          parameters: [{
-            in: 'header',
+          headers: [{
             name: 'x-id',
             type: String
           }]

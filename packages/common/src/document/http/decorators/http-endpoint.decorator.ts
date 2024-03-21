@@ -92,17 +92,14 @@ function createHttpEndpointDecorator(
         typeof arg0 === 'string' || typeof arg0 === 'function' ? {type: arg0} : {...arg0};
     const paramMeta: HttpParameter.DecoratorMetadata = {
       ...opts,
-      in: 'header',
       name
     }
     decoratorChain.push((meta: DecoratorMetadata): void => {
-      meta.parameters = meta.parameters || [];
-      const i = meta.parameters.findIndex(x =>
-          x.in === 'header' && String(x.name) === String(paramMeta.name)
-      );
+      meta.headers = meta.headers || [];
+      const i = meta.headers.findIndex(x => String(x.name) === String(paramMeta.name));
       if (i >= 0)
-        meta.parameters[i] = paramMeta;
-      else meta.parameters.push(paramMeta);
+        meta.headers[i] = paramMeta;
+      else meta.headers.push(paramMeta);
     });
     return decorator;
   }
@@ -115,13 +112,11 @@ function createHttpEndpointDecorator(
         typeof arg0 === 'string' || typeof arg0 === 'function' ? {type: arg0} : {...arg0};
     const paramMeta: HttpParameter.DecoratorMetadata = {
       ...opts,
-      in: 'query',
       name
     }
     decoratorChain.push((meta: DecoratorMetadata): void => {
       meta.parameters = meta.parameters || [];
-      const i = meta.parameters.findIndex(x =>
-          x.in === 'query' && String(x.name) === String(paramMeta.name));
+      const i = meta.parameters.findIndex(x => String(x.name) === String(paramMeta.name));
       if (i >= 0)
         meta.parameters[i] = paramMeta;
       else meta.parameters.push(paramMeta);

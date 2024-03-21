@@ -17,7 +17,7 @@ export namespace HttpParameter {
     enum?: EnumType.EnumObject | EnumType.EnumArray;
   }
 
-  export interface DecoratorOptions extends Partial<StrictOmit<DecoratorMetadata, 'name' | 'in'>> {
+  export interface DecoratorOptions extends Partial<StrictOmit<DecoratorMetadata, 'name'>> {
   }
 
 }
@@ -35,7 +35,6 @@ export class HttpParameter extends ApiNode {
   description?: string;
   deprecated?: boolean | string;
   examples?: any[] | Record<string, any>;
-  in: OpraSchema.Http.Parameter.Location;
   required?: boolean;
   isArray?: boolean;
   readonly isBuiltin?: boolean;
@@ -58,7 +57,6 @@ export class HttpParameter extends ApiNode {
       }
     }
     this.description = init.description;
-    this.in = init.in;
     this.required = init.required;
     this.isArray = init.isArray;
     this.deprecated = init.deprecated;
@@ -68,7 +66,6 @@ export class HttpParameter extends ApiNode {
   toJSON(): OpraSchema.Http.Parameter {
     return omitUndefined<OpraSchema.Http.Parameter>({
       name: this.name,
-      in: this.in,
       type: this.type?.name,
       description: this.description,
       isArray: this.isArray,

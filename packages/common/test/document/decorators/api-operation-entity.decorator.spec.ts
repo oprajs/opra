@@ -14,7 +14,6 @@ describe('HttpOperation.Entity.* decorators', function () {
     const defaultParameters = [
       {
         description: "Determines fields to be exposed",
-        in: "query",
         isArray: true,
         name: "fields",
         type: String
@@ -166,7 +165,6 @@ describe('HttpOperation.Entity.* decorators', function () {
             parameters: [
               {
                 description: "Determines filter fields",
-                in: "query",
                 name: "filter",
                 type: String
               }
@@ -190,26 +188,22 @@ describe('HttpOperation.Entity.* decorators', function () {
     const defaultParameters = [
       {
         description: "Determines number of returning instances",
-        in: "query",
         name: "limit",
         type: Number
       },
       {
         description: "Determines number of instances to be skipped",
-        in: "query",
         name: "skip",
         type: Number
       },
       {
         description: "Determines fields to be exposed",
-        in: "query",
         isArray: true,
         name: "fields",
         type: String
       },
       {
         description: "Counts all matching instances if enabled",
-        in: "query",
         name: "count",
         type: Boolean
       }
@@ -275,7 +269,6 @@ describe('HttpOperation.Entity.* decorators', function () {
               ...defaultParameters,
               {
                 description: "Determines filter fields",
-                in: "query",
                 name: "filter",
                 type: String
               }
@@ -317,7 +310,6 @@ describe('HttpOperation.Entity.* decorators', function () {
               ...defaultParameters,
               {
                 description: "Determines sort fields",
-                in: "query",
                 name: "sort",
                 isArray: true,
                 type: String
@@ -397,7 +389,6 @@ describe('HttpOperation.Entity.* decorators', function () {
             parameters: [
               {
                 description: "Determines fields to be exposed",
-                in: "query",
                 isArray: true,
                 name: "fields",
                 type: String
@@ -502,7 +493,6 @@ describe('HttpOperation.Entity.* decorators', function () {
             parameters: [
               {
                 description: "Determines filter fields",
-                in: "query",
                 name: "filter",
                 type: String
               }
@@ -527,7 +517,6 @@ describe('HttpOperation.Entity.* decorators', function () {
     const defaultParameters = [
       {
         description: "Determines fields to be exposed",
-        in: "query",
         isArray: true,
         name: "fields",
         type: String
@@ -619,7 +608,6 @@ describe('HttpOperation.Entity.* decorators', function () {
               ...defaultParameters,
               {
                 description: "Determines filter fields",
-                in: "query",
                 name: "filter",
                 type: String
               }

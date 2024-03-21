@@ -10,5 +10,6 @@ export interface Endpoint extends DocumentElement {
   kind: string;
   description?: string;
   parameters?: Parameter[];
+  headers?: Parameter[];
   responses?: Response[];
 }

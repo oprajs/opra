@@ -1,3 +1,4 @@
+import { StrictOmit } from 'ts-gems';
 import { DataType } from '../data-type/data-type.interface.js';
 
 /**
@@ -10,11 +11,6 @@ export interface Parameter {
    * Name or the name pattern of the parameter
    */
   name: string | RegExp;
-
-  /**
-   * The location of the parameter
-   */
-  in: Parameter.Location;
 
   /**
    * Data type of the parameter
@@ -52,16 +48,8 @@ export interface Parameter {
 
 /**
  *
- * @namespace Parameter
- */
-export namespace Parameter {
-  export type Location = 'query' | 'header' | 'cookie';
-}
-
-/**
- *
  * @interface KeyParameter
  */
-export interface KeyParameter extends Omit<Parameter, 'name' | 'in' | 'required' | 'isArray'> {
+export interface KeyParameter extends StrictOmit<Parameter, 'name' | 'required' | 'isArray'> {
   name: string;
 }

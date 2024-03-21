@@ -38,7 +38,6 @@ describe('HttpAction decorator', function () {
         sendMessage: {
           kind: 'Action',
           parameters: [{
-            in: 'query',
             name: 'message',
             type: String
           }]
@@ -60,8 +59,7 @@ describe('HttpAction decorator', function () {
       endpoints: {
         sendMessage: {
           kind: 'Action',
-          parameters: [{
-            in: 'header',
+          headers: [{
             name: 'x-id',
             type: String
           }]

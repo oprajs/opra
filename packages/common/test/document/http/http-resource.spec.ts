@@ -54,7 +54,6 @@ describe('HttpResource', function () {
           parameters: [
             {
               description: "Determines fields to be exposed",
-              in: "query",
               isArray: true,
               name: "fields",
               type: 'string'
