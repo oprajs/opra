@@ -394,6 +394,15 @@ describe('HttpOperation.Entity.* decorators', function () {
               type: 'Customer',
               keyField: 'id'
             },
+            parameters: [
+              {
+                description: "Determines fields to be exposed",
+                in: "query",
+                isArray: true,
+                name: "fields",
+                type: String
+              },
+            ],
             description: 'operation description',
             responses: [
               {

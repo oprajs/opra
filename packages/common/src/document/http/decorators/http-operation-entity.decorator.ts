@@ -297,7 +297,8 @@ HttpOperation.Entity.Get = function (
     description: options?.description,
     method: 'GET',
     composition: 'Entity.Get'
-  })).Response({
+  })).Parameter('fields', {type: String, isArray: true, description: 'Determines fields to be exposed'})
+      .Response({
     statusCode: HttpStatusCode.OK,
     contentType: MimeTypes.opra_instance_json,
     type,

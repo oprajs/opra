@@ -51,6 +51,15 @@ describe('HttpResource', function () {
           kind: "Operation",
           composition: "Entity.Get",
           method: "GET",
+          parameters: [
+            {
+              description: "Determines fields to be exposed",
+              in: "query",
+              isArray: true,
+              name: "fields",
+              type: 'string'
+            }
+          ],
           responses: [
             {
               contentType: "application/opra.instance+json",

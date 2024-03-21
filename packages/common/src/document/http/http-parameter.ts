@@ -57,9 +57,12 @@ export class HttpParameter extends ApiNode {
           throw new TypeError(`Datatype (${init.type}) given for parameter "${this.name}" could not be found in document scope`);
       }
     }
+    this.description = init.description;
     this.in = init.in;
     this.required = init.required;
     this.isArray = init.isArray;
+    this.deprecated = init.deprecated;
+    this.examples = init.examples;
   }
 
   toJSON(): OpraSchema.Http.Parameter {
