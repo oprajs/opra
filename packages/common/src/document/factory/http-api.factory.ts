@@ -103,6 +103,24 @@ export class HttpApiFactory {
         }
 
         // Process parameters
+        if (endpointMeta.headers?.length) {
+          for (const oP of endpointMeta.headers) {
+            context.curPath.push(`.headers[${oP.name}]`);
+            const prmInit: HttpParameter.InitArguments = {...oP};
+            if (prmInit.type) {
+              context.curPath.push(`.type`);
+              let typeDef: any = prmInit.type;
+              if (oP.enum)
+                typeDef = EnumType(oP.enum, {name: oP.name + 'Enum'}) as any;
+              prmInit.type = await endpointTypeFactory.createDataType(context, typeDef);
+              context.curPath.pop();
+            }
+            endpoint.defineHeader(prmInit.name, prmInit);
+            context.curPath.pop();
+          }
+        }
+
+        // Process parameters
         if (endpointMeta.parameters?.length) {
           for (const oP of endpointMeta.parameters) {
             context.curPath.push(`.parameters[${oP.name}]`);
