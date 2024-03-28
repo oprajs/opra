@@ -1,19 +1,20 @@
 import 'reflect-metadata';
 import merge from 'putil-merge';
-import { Validator } from 'valgen';
+import { StrictOmit, Type } from 'ts-gems';
+import { OpraSchema } from '../../schema/index.js';
 import type { ApiNode } from '../api-node';
 import { DECORATOR } from '../constants.js';
-import { DataType } from './data-type.js';
-import { SimpleTypeDecorator } from './decorators/simple-type.decorator.js';
+import { DataType } from './data-type';
+import { createAttributeDecorator, createSimpleTypeDecorator } from './decorators/simple-type.decorator.js';
 import { SimpleTypeClass } from './simple-type-class.js'
 
 
-export interface SimpleTypeConstructor {
+export interface SimpleTypeConstructor extends createSimpleTypeDecorator {
   new(node: ApiNode, init: SimpleType.InitArguments): SimpleType;
 
-  (options?: SimpleType.DecoratorOptions): (target: any) => any;
-
   prototype: SimpleType;
+
+  Attribute(options?: Partial<OpraSchema.Attribute>): PropertyDecorator;
 }
 
 export interface SimpleType extends SimpleTypeClass {
@@ -35,31 +36,41 @@ export const SimpleType = function (this: SimpleType | void, ...args: any[]) {
 } as SimpleTypeConstructor;
 
 SimpleType.prototype = SimpleTypeClass.prototype;
-Object.assign(SimpleType, SimpleTypeDecorator);
-SimpleType[DECORATOR] = SimpleTypeDecorator;
+Object.assign(SimpleType, createSimpleTypeDecorator);
+SimpleType[DECORATOR] = createSimpleTypeDecorator;
+
+
+SimpleType.Attribute = createAttributeDecorator;
+
 
 /**
  * @namespace SimpleType
  */
 export namespace SimpleType {
-  export interface InitArguments extends DataType.InitArguments {
+  export interface InitArguments extends StrictOmit<DataType.InitArguments, 'base'> {
+    name: string;
     base?: SimpleType;
-    decoder?: Validator;
-    encoder?: Validator;
+    instance?: object;
+    attributes?: Record<string, Attribute>;
   }
 
-  export interface DecoratorOptions extends DataType.DecoratorOptions {
-    decoder?: Validator;
-    encoder?: Validator;
+  export interface DecoratorOptions extends Pick<InitArguments, 'description' | 'example'> {
+    name?: string;
   }
 
-  export interface Metadata extends DataType.Metadata {
-    decoder?: Validator;
-    encoder?: Validator;
+  export interface Metadata extends StrictOmit<OpraSchema.SimpleType, 'attributes'> {
+    name: string;
+    attributes?: Record<string, OpraSchema.Attribute>;
   }
 
   export interface OwnProperties extends DataType.OwnProperties {
+    attributes?: Record<string, Attribute>;
+    instance?: object;
   }
 
-}
+  export interface Attribute extends OpraSchema.Attribute {
+    value?: any;
+  }
 
+
+}

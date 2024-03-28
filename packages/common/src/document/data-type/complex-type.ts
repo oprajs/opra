@@ -53,19 +53,17 @@ ComplexType[DECORATOR] = ComplexTypeDecorator;
  * @namespace ComplexType
  */
 export namespace ComplexType {
-  export interface InitArguments extends DataType.InitArguments,
+  export interface InitArguments extends StrictOmit<DataType.InitArguments, 'base'>,
       Pick<OpraSchema.ComplexType, 'ctor' | 'abstract'> {
     base?: ComplexType | MappedType | MixinType;
     fields?: Record<string, ApiField.InitArguments>;
     additionalFields?: boolean | DataType | 'error';
-    embedded?: boolean;
   }
 
   export interface OwnProperties extends DataType.OwnProperties {
     ctor?: Type;
     additionalFields?: boolean | DataType | 'error';
     fields: ResponsiveMap<ApiField>;
-    embedded?: boolean;
   }
 
   export interface DecoratorOptions extends DataType.DecoratorOptions,

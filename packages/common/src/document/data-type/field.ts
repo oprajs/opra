@@ -54,14 +54,12 @@ export namespace ApiField {
   }
 
   export interface DecoratorOptions extends Partial<StrictOmit<OpraSchema.Field, 'type' | 'pattern'>> {
-    type?: string | OpraSchema.DataType | TypeThunkAsync;
-    enum?: EnumType.EnumObject | EnumType.EnumArray;
+    type?: string | OpraSchema.DataType | TypeThunkAsync | EnumType.EnumObject | EnumType.EnumArray | object;
     pattern?: string | RegExp;
   }
 
   export interface Metadata extends StrictOmit<OpraSchema.Field, 'type' | 'pattern'> {
-    type?: string | OpraSchema.DataType | TypeThunkAsync;
-    enum?: EnumType.EnumObject | EnumType.EnumArray;
+    type?: string | OpraSchema.DataType | TypeThunkAsync | EnumType.EnumObject | EnumType.EnumArray | object;
     designType?: Type;
     pattern?: string | RegExp;
   }

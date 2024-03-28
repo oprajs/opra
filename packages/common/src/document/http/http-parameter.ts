@@ -13,8 +13,7 @@ export namespace HttpParameter {
   }
 
   export interface DecoratorMetadata extends StrictOmit<OpraSchema.Http.Parameter, 'type'> {
-    type?: TypeThunkAsync | string;
-    enum?: EnumType.EnumObject | EnumType.EnumArray;
+    type?: TypeThunkAsync | string | EnumType.EnumObject | EnumType.EnumArray | object;
   }
 
   export interface DecoratorOptions extends Partial<StrictOmit<DecoratorMetadata, 'name'>> {

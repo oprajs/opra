@@ -15,4 +15,5 @@ export namespace DataType {
 export interface DataTypeBase {
   kind: DataType.Kind;
   description?: string;
+  example?: string | string[];
 }

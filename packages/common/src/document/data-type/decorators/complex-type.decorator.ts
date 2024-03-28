@@ -1,4 +1,5 @@
 import omit from 'lodash.omit';
+import { Type } from 'ts-gems';
 import { OpraSchema } from '../../../schema/index.js';
 import { DATATYPE_METADATA, EXTRACT_TYPENAME_PATTERN, TYPENAME_PATTERN } from '../../constants.js';
 import type { ComplexType } from '../complex-type';

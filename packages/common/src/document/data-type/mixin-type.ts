@@ -113,7 +113,6 @@ export namespace MixinType {
   }
 
   export interface OwnProperties extends ComplexType.OwnProperties {
-    types: (ComplexType | MixinType | MappedType)[];
   }
 
 }

@@ -1,6 +1,7 @@
 import { RequiredSome, StrictOmit, Type } from 'ts-gems';
 import { OnFailFunction, Validator } from 'valgen';
 import { omitUndefined } from '../../helpers/index.js';
+import type { DataTypeBase } from '../../schema/data-type/data-type.interface.js';
 import { OpraSchema } from '../../schema/index.js';
 import type { ApiNode } from '../api-node';
 import { TYPENAME_PATTERN } from '../constants.js';
@@ -22,18 +23,20 @@ export abstract class DataType {
   readonly name?: string;
   readonly base?: DataType;
   readonly own: DataType.OwnProperties;
+  readonly isEmbedded?: boolean;
   description?: string;
-  isEmbedded?: boolean;
 
   protected constructor(documentNode: ApiNode, init?: DataType.InitArguments) {
     if (init?.name && !TYPENAME_PATTERN.test(init.name))
       throw new TypeError(`"${init.name}" is not a valid type name`);
+    this.base = typeof init?.base === 'string' ? documentNode.getDataType(init.base) : init?.base;
+    this.own = {
+      embedded: init?.embedded
+    };
     this.documentNode = documentNode;
     this.name = init?.name;
-    this.own = {};
     this.description = init?.description;
-    if (!this.name)
-      this.isEmbedded = true;
+    this.isEmbedded = init?.embedded || !this.name;
   }
 
   abstract generateCodec(codec: 'decode' | 'encode', options?: DataType.GenerateCodecOptions): Validator;
@@ -41,7 +44,8 @@ export abstract class DataType {
   toJSON(): OpraSchema.DataType {
     return omitUndefined({
       kind: this.kind,
-      description: this.description
+      description: this.description,
+      base: this.base?.isEmbedded ? this.base.toJSON() : this.base?.name,
     }) as OpraSchema.DataType;
   }
 
@@ -69,10 +73,10 @@ export abstract class DataType {
 
 export namespace DataType {
 
-  export interface InitArguments {
+  export interface InitArguments extends Pick<DataTypeBase, 'description' | 'example'> {
+    base?: DataType | string;
     name?: string;
-    description?: string;
-    example?: string | string[];
+    embedded?: boolean;
   }
 
   export interface DecoratorOptions extends InitArguments {
@@ -83,6 +87,7 @@ export namespace DataType {
   }
 
   export interface OwnProperties {
+    embedded?: boolean;
   }
 
   export type GenerateCodecField = StrictOmit<ApiField.InitArguments, 'type' | 'name'> & {

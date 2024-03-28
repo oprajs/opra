@@ -1,4 +1,5 @@
 import * as constants_ from './constants.js';
+import * as Attribute_ from './data-type/attribute.interface.js';
 import * as ComplexType_ from './data-type/complex-type.interface.js';
 import * as DataType_ from './data-type/data-type.interface.js';
 import * as EnumType_ from './data-type/enum-type.interface.js';
@@ -29,6 +30,7 @@ export namespace OpraSchema {
   export import MappedType = MappedType_.MappedType;
   export import MixinType = MixinType_.MixinType;
   export import SimpleType = SimpleType_.SimpleType;
+  export import Attribute = Attribute_.Attribute;
 
   export import DocumentElement = TypeScope_.DocumentElement;
 

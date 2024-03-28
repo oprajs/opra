@@ -13,7 +13,6 @@ export namespace HttpKeyParameter {
 
   export interface DecoratorMetadata extends StrictOmit<OpraSchema.Http.KeyParameter, 'type'> {
     type?: string | Type | EnumType.EnumObject;
-    // enum?: EnumType.EnumObject | EnumType.EnumArray;
   }
 
   export interface DecoratorOptions extends Partial<StrictOmit<DecoratorMetadata, 'name'>> {

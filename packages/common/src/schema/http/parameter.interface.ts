@@ -28,7 +28,7 @@ export interface Parameter {
   isArray?: boolean;
 
   /**
-   * Indicates if parameter value required in create operation
+   * Indicates if parameter value required
    */
   required?: boolean;
 

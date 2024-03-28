@@ -15,6 +15,8 @@ export * from './data-type/enum-type.js';
 export * from './data-type/mapped-type.js';
 export * from './data-type/simple-type.js';
 export * from './data-type/mixin-type.js';
+export * from './data-type/primitive-types/index.js';
+export * from './data-type/extended-types/index.js';
 
 export * from './factory/api-document.factory.js';
 

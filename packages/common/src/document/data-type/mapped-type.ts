@@ -156,8 +156,7 @@ export namespace MappedType {
     base: Type;
   }
 
-  export interface OwnProperties extends ComplexType.OwnProperties,
-      Pick<OpraSchema.MappedType, 'pick' | 'omit' | 'partial'> {
+  export interface OwnProperties extends ComplexType.OwnProperties {
   }
 
   export interface Options<T, K = keyof T> {

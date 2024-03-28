@@ -3,7 +3,7 @@ import { validator } from 'valgen';
 import { cloneObject, resolveThunk, ResponsiveMap } from '../../helpers/index.js';
 import { OpraSchema } from '../../schema/index.js';
 import type { ApiDocumentElement } from '../api-document-element';
-import { DATATYPE_METADATA } from '../constants.js';
+import { DATATYPE_METADATA, DECODER, ENCODER } from '../constants.js';
 import { ComplexType } from '../data-type/complex-type.js';
 import { DataType } from '../data-type/data-type.js';
 import { EnumType } from '../data-type/enum-type.js';
@@ -47,6 +47,7 @@ export class DataTypeFactory {
   ): Promise<void> {
     const typeQueue = new ResponsiveMap<any>();
     const ctx: DataTypeFactory.Context = {...context, typeQueue};
+
     // Add type sources into typeQueue
     if (Array.isArray(types)) {
       let i = 0;
@@ -87,88 +88,102 @@ export class DataTypeFactory {
   ): Promise<DataType> {
     thunk = await resolveThunk(thunk);
     let name = '';
-    // let schema: OpraSchema.DataType | undefined;
     let ctor: Type | undefined;
-
     let initArguments: any;
 
     if (typeof thunk === 'string') {
       name = thunk;
+      const dataType = this.target.findDataType(name);
+      if (dataType && !dataType?.[initializingSymbol]) return dataType;
       thunk = context.typeQueue?.get(name);
     }
 
     if (typeof thunk === 'function') {
       // Check if type class already loaded
       const dataType = this.target.findDataType(thunk);
-      if (dataType) return dataType;
+      if (dataType && !dataType?.[initializingSymbol]) return dataType;
       const metadata = Reflect.getMetadata(DATATYPE_METADATA, thunk);
       if (!metadata)
         throw new TypeError(`Class "${thunk.name}" doesn't have a valid DataType metadata`);
-      name = metadata.embedded ? undefined : metadata.name;
       initArguments = cloneObject(metadata);
       ctor = thunk as Type;
+      if (initArguments.kind === 'SimpleType')
+        initArguments.instance = new ctor();
     } else if (typeof thunk === 'object') {
       if (OpraSchema.isDataType(thunk)) {
         name = (thunk as any).name;
         ctor = (thunk as any).ctor || ctor;
         initArguments = cloneObject(thunk) as any;
       } else {
-        // It should be an enum object
-        const metadata = thunk[DATATYPE_METADATA];
+        // It may be an enum object
+        let metadata = thunk[DATATYPE_METADATA];
+        if (metadata) {
+          initArguments = cloneObject(metadata);
+          initArguments.instance = thunk;
+        } else {
+          // Or may be an data type instance
+          ctor = Object.getPrototypeOf(thunk).constructor;
+          metadata = ctor && Reflect.getMetadata(DATATYPE_METADATA, ctor);
+          if (metadata) {
+            initArguments = cloneObject(metadata);
+            initArguments.base = this.target.getDataType(initArguments.name);
+            initArguments.instance = thunk;
+            initArguments.embedded = true;
+          }
+        }
         if (!metadata)
-          throw new TypeError(`No EnumType metadata found for object ${JSON.stringify(thunk).substring(0, 20)}...`);
-        name = metadata.embedded ? undefined : metadata.name;
-        initArguments = cloneObject(metadata);
-        initArguments.enumObject = thunk;
+          throw new TypeError(`No DataType metadata found for object ${JSON.stringify(thunk).substring(0, 20)}...`);
       }
     }
+    name = initArguments?.embedded ? undefined : initArguments?.name || name;
 
-    let instance = name ? this.target.findDataType(name) :
-        (ctor ? this.target.findDataType(ctor) : undefined);
-    if (instance?.[initializingSymbol])
+    let dataType = !initArguments?.embedded && (name || ctor)
+        ? this.target.findDataType((name || ctor) as any) : undefined;
+    if (dataType?.[initializingSymbol])
       throw new TypeError('Circular reference detected');
-    if (instance)
-      return instance;
+    if (dataType)
+      return dataType;
 
     if (name)
       context.curPath.push(`[${name}]`);
-    try {
-      if (!initArguments)
-        throw new TypeError(`No DataType schema determined`);
 
-      // Create an empty DataType instance and add in to document.
-      // This will help us for circular dependent data types
-      instance = this.createDataTypeInstance(initArguments.kind, name);
-      instance[initializingSymbol] = true;
-      if (context.typeQueue?.has(name)) {
-        this.target.types.set(name, instance);
-        context.typeQueue.delete(name);
-      } else if (!instance.isEmbedded)
-        throw new TypeError(`Data Type (${name}) must be explicitly added to type list in the document scope`);
+    if (!initArguments)
+      throw new TypeError(`No DataType schema determined`);
 
-      await this.prepareDataTypeInitArguments(context, initArguments, ctor);
+    // Create an empty DataType instance and add in to document.
+    // This will help us for circular dependent data types
+    dataType = this.createDataTypeInstance(initArguments.kind, name);
+    dataType[initializingSymbol] = true;
+    if (context.typeQueue?.has(name)) {
+      this.target.types.set(name, dataType);
+      context.typeQueue.delete(name);
+    } else if (!dataType.isEmbedded)
+      throw new TypeError(`Data Type (${name}) must be explicitly added to type list in the document scope`);
 
-      if (initArguments.kind === 'ComplexType') {
-        if (typeof initArguments.additionalFields === 'function')
-          initArguments.additionalFields = await this.createDataType(context, initArguments.additionalFields);
-        ComplexType.apply(instance, [this.target, initArguments] as any);
-      } else if (initArguments.kind === 'SimpleType')
-        SimpleType.apply(instance, [this.target, initArguments] as any);
-      else if (initArguments.kind === 'EnumType')
-        EnumType.apply(instance, [this.target, initArguments] as any);
-      else if (initArguments.kind === 'MappedType')
-        MappedType.apply(instance, [this.target, initArguments] as any);
-      else if (initArguments.kind === 'MixinType')
-        MixinType.apply(instance, [this.target, initArguments] as any);
-      else
-        throw new TypeError(`Invalid data type schema: ${String(initArguments)}`);
+    await this.prepareDataTypeInitArguments(context, initArguments, ctor);
 
-      delete instance[initializingSymbol];
-      return instance;
-    } finally {
-      if (name)
-        context.curPath.pop();
-    }
+    if (dataType instanceof SimpleType)
+      SimpleType.apply(dataType, [this.target, initArguments] as any);
+    else if (dataType instanceof EnumType)
+      EnumType.apply(dataType, [this.target, initArguments] as any);
+    else if (dataType instanceof MappedType)
+      MappedType.apply(dataType, [this.target, initArguments] as any);
+    else if (dataType instanceof MixinType)
+      MixinType.apply(dataType, [this.target, initArguments] as any);
+    else if (dataType instanceof ComplexType) {
+      if (typeof initArguments.additionalFields === 'function')
+        initArguments.additionalFields = await this.createDataType(context, initArguments.additionalFields);
+      ComplexType.apply(dataType, [this.target, initArguments] as any);
+    } else
+      throw new TypeError(`Invalid data type schema: ${String(initArguments)}`);
+
+    delete dataType[initializingSymbol];
+
+    if (name)
+      context.curPath.pop();
+
+    return dataType;
+
   }
 
   protected async prepareDataTypeInitArguments(
@@ -177,6 +192,9 @@ export class DataTypeFactory {
       ctor?: Type
   ) {
     const initArguments = schema as DataTypeFactory.DataTypeInitializer;
+    if (!initArguments.name)
+      initArguments.embedded = true;
+
     // Import extending class first
     if (initArguments.kind === 'SimpleType' || initArguments.kind === 'ComplexType' ||
         initArguments.kind === 'EnumType'
@@ -192,16 +210,6 @@ export class DataTypeFactory {
       }
     }
 
-    if (initArguments.kind === 'SimpleType' && ctor) {
-      if (typeof ctor.prototype.decode === 'function')
-        initArguments.decoder = initArguments.name
-            ? validator(initArguments.name, ctor.prototype.decode) : validator(ctor.prototype.decode);
-      if (typeof ctor.prototype.encode === 'function')
-        initArguments.decoder = initArguments.name
-            ? validator(initArguments.name, ctor.prototype.encode) : validator(ctor.prototype.encode);
-      return;
-    }
-
     if (initArguments.kind === 'ComplexType') {
       initArguments.ctor = ctor;
       if (initArguments.fields) {
@@ -212,25 +220,16 @@ export class DataTypeFactory {
         for (const [fieldName, o] of Object.entries<any>(srcFields)) {
           context.curPath.push('.' + fieldName);
           const srcMeta: OpraSchema.Field | ApiField.Metadata = typeof o === 'string' ? {type: o} : o;
+
           const fieldInit = trgFields[fieldName] = {
             ...srcMeta,
             name: fieldName
           } as ApiField.InitArguments;
 
-          if ((srcMeta as any).enum) {
-            const enumObject = (srcMeta as any).enum;
-            delete (srcMeta as any).enum;
-            if (enumObject[DATATYPE_METADATA]) {
-              fieldInit.type = await this.createDataType(context, enumObject);
-            } else {
-              const enumMeta = EnumType(enumObject, {name: ''});
-              fieldInit.type = await this.createDataType(context, {...enumMeta, kind: 'EnumType', base: undefined});
-            }
-          } else {
-            if (srcMeta.isArray && !srcMeta.type)
-              throw new TypeError(`"type" must be defined explicitly for array properties`);
-            fieldInit.type = await this.createDataType(context, srcMeta.type || (srcMeta as any).designType || 'any');
-          }
+          if (srcMeta.isArray && !srcMeta.type)
+            throw new TypeError(`"type" must be defined explicitly for array properties`);
+          fieldInit.type = await this.createDataType(context, srcMeta.type || (srcMeta as any).designType || 'any');
+
           context.curPath.pop();
         }
         context.curPath.pop();
@@ -264,6 +263,8 @@ export class DataTypeFactory {
       kind,
       name
     } as unknown as DataType;
+    if (!name)
+      (dataType as any).isEmbedded = true;
     switch (kind) {
       case OpraSchema.ComplexType.Kind:
         Object.setPrototypeOf(dataType, ComplexType.prototype);
@@ -283,8 +284,6 @@ export class DataTypeFactory {
       default:
         throw new TypeError(`Unknown DataType kind (${kind})`);
     }
-    if (!name)
-      dataType.isEmbedded = true;
     return dataType;
   }
 

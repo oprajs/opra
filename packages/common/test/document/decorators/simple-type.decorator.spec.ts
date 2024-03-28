@@ -1,6 +1,6 @@
 import 'reflect-metadata';
 import { DATATYPE_METADATA, SimpleType } from '@opra/common';
-import { StringType } from '../../../src/document/data-type/builtin/index.js';
+import { StringType } from '@opra/common/document/data-type/primitive-types/index';
 
 describe('SimpleType() decorator', function () {
 

@@ -2,13 +2,17 @@ import { PartialSome, StrictOmit, ThunkAsync, Type } from 'ts-gems';
 import { OpraSchema } from '../../schema/index.js';
 import { ApiDocument } from '../api-document.js';
 import { BUILTIN } from '../constants.js';
-import {
-  AnyType, ApproxDatetimeType, ApproxDateType, Base64Type, BigintType,
-  BooleanType, DatetimeType, DateType, EmailType, IntegerType,
-  NullType, NumberType, ObjectIdType, ObjectType, QueryType,
-  StringType, TimeType, UrlType, UuidType
-} from '../data-type/builtin/index.js';
 import { EnumType } from '../data-type/enum-type.js';
+import {
+  ApproxDatetimeType, ApproxDateType, Base64Type,
+  DatetimeType, DateType, EmailType,
+  FieldNameType, FieldPathType, FilterType,
+  ObjectIdType, SortFieldType, TimeType, UrlType, UuidType
+} from '../data-type/extended-types/index.js';
+import {
+  AnyType, BigintType, BooleanType, IntegerType, NullType,
+  NumberType, ObjectType, StringType,
+} from '../data-type/primitive-types/index.js';
 import { DataTypeFactory } from './data-type.factory.js';
 import { HttpApiFactory } from './http-api.factory.js';
 
@@ -139,10 +143,15 @@ export class ApiDocumentFactory {
           name: 'MIT'
         }
       },
-      types: [AnyType, Base64Type, BigintType, BooleanType,
-        DateType, EmailType, IntegerType, NullType, NumberType, ObjectIdType,
-        ObjectType, ApproxDateType, ApproxDatetimeType,
-        StringType, DatetimeType, TimeType, UrlType, UuidType, QueryType
+      types: [
+        // Primitive types
+        AnyType, BigintType, BooleanType, IntegerType, NullType,
+        NumberType, ObjectType, StringType,
+        // Extended types
+        ApproxDatetimeType, ApproxDateType, Base64Type,
+        DatetimeType, DateType, EmailType,
+        FieldNameType, FieldPathType, FilterType,
+        ObjectIdType, SortFieldType, TimeType, UrlType, UuidType
       ]
     }
     const context = {

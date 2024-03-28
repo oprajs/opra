@@ -12,7 +12,7 @@ export class Person {
   @ApiField()
   familyName: string;
 
-  @ApiField({enum: GenderEnum})
+  @ApiField({type: GenderEnum})
   gender: GenderEnum;
 
   @ApiField()

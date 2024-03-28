@@ -62,31 +62,6 @@ describe('ApiDocumentFactory - SimpleType with schema object', function () {
     expect(t.base?.name).toStrictEqual('type2');
   })
 
-  it('Should extend SimpleType from other type by in place schema', async () => {
-    const type1: OpraSchema.SimpleType = {
-      kind: 'SimpleType',
-      base: {
-        kind: 'SimpleType',
-        description: 'test type'
-      }
-    };
-    const doc = await ApiDocumentFactory.createDocument({
-      ...baseArgs,
-      types: {
-        type1
-      }
-    })
-    expect(doc).toBeDefined();
-    const t = doc.types.get('type1') as SimpleType;
-    expect(t).toBeDefined();
-    expect(t.kind).toStrictEqual(OpraSchema.SimpleType.Kind);
-    expect(t.name).toStrictEqual('type1');
-    expect(t.base).toBeDefined();
-    expect(t.base?.isEmbedded).toStrictEqual(true);
-    expect(t.decode).toEqual(t.base?.decode);
-    expect(t.encode).toEqual(t.base?.encode);
-  });
-
   it('Should detect circular references', async () => {
     const type1: OpraSchema.SimpleType = {
       kind: 'SimpleType',

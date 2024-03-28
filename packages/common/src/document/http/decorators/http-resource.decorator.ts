@@ -8,19 +8,19 @@ import type { HttpResource } from '../http-resource.js';
 
 const CLASS_NAME_PATTERN = /^(.*)(Collection|Singleton|Resource|Controller)$/;
 
-export interface createHttpResourceDecorator {
-  <T extends HttpResource.DecoratorOptions>(options?: T): HttpResourceDecorator;
-}
-
 export interface HttpResourceDecorator extends ClassDecorator {
   KeyParameter(name: string, optionsOrType?: HttpKeyParameter.DecoratorOptions | string | Type): HttpResourceDecorator;
 
   UseType(...type: TypeThunkAsync[]): HttpResourceDecorator;
 }
 
+export interface createHttpResourceDecorator {
+  <T extends HttpResource.DecoratorOptions>(options?: T): HttpResourceDecorator;
+}
+
 export function createHttpResourceDecorator<O extends HttpResource.DecoratorOptions>(
     options?: O
-): ClassDecorator {
+): HttpResourceDecorator {
   const decoratorChain: Function[] = [];
   /**
    *

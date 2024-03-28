@@ -1,4 +1,3 @@
-import { Mutable } from 'ts-gems';
 import { omitUndefined } from '../../helpers/index.js';
 import type { Field } from '../../schema/data-type/field.interface.js';
 import { OpraSchema } from '../../schema/index.js';
@@ -18,15 +17,12 @@ export class MappedTypeClass extends ComplexTypeClass {
 
   constructor(node: ApiNode, init: MappedType.InitArguments) {
     super(node, init);
-    const own = this.own as Mutable<MappedType.OwnProperties>
-    own.pick = init.pick;
-    own.omit = init.omit;
-    own.partial = init.partial;
-    this.kind = OpraSchema.MappedType.Kind;
-    this.pick = own.pick;
-    this.omit = own.omit;
-    this.partial = own.partial;
-    const isInheritedPredicate = getIsInheritedPredicateFn(init.pick, init.omit);
+    if (init.pick)
+      this.pick = init.pick;
+    else if (init.omit)
+      this.omit = init.omit;
+    else this.partial = init.partial;
+    const isInheritedPredicate = getIsInheritedPredicateFn(this.pick, this.omit);
     for (const fieldName of this.fields.keys()) {
       if (!isInheritedPredicate(fieldName)) {
         this.fields.delete(fieldName);
@@ -42,9 +38,9 @@ export class MappedTypeClass extends ComplexTypeClass {
   override toJSON(): any {
     const out = super.toJSON() as unknown as OpraSchema.MappedType;
     Object.assign(out, omitUndefined({
-      pick: this.own.pick,
-      omit: this.own.omit,
-      partial: this.own.partial
+      pick: this.pick,
+      omit: this.omit,
+      partial: this.partial
     }));
     return out;
   }

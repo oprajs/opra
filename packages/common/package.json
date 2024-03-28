@@ -44,9 +44,9 @@
     "putil-merge": "^3.12.1",
     "putil-promisify": "^1.10.1",
     "putil-varhelpers": "^1.6.5",
-    "reflect-metadata": "^0.1.14",
+    "reflect-metadata": "^0.2.1",
     "uid": "^2.0.1",
-    "valgen": "^5.2.0"
+    "valgen": "^5.2.1"
   },
   "devDependencies": {
     "@browsery/fs": "^0.4.0",

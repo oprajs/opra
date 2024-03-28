@@ -11,7 +11,7 @@ import { EnumTypeClass } from './enum-type-class.js';
 export interface EnumTypeConstructor {
   new(node: ApiNode, init?: EnumType.InitArguments): EnumType;
 
-  <T extends EnumType.EnumObject | EnumType.EnumArray>(target: T, options: EnumType.Options<T>): EnumType.Metadata;
+  <T extends EnumType.EnumObject | EnumType.EnumArray>(target: T, options: EnumType.Options<T>): T
 }
 
 export interface EnumType extends EnumTypeClass {
@@ -51,7 +51,7 @@ export const EnumType = function (this: EnumType | void, ...args: any[]) {
       configurable: true,
       writable: true
     })
-    return metadata;
+    return enumSource;
   }
 
   // Constructor
@@ -73,17 +73,19 @@ export namespace EnumType {
     base?: EnumObject | string;
   }
 
-  export interface InitArguments extends DataType.InitArguments,
-      Pick<OpraSchema.EnumType, 'base'> {
-    enumObject?: object;
+  export interface InitArguments extends StrictOmit<DataType.InitArguments, 'base'> {
+    instance?: object;
     base?: EnumType;
     values: Record<OpraSchema.EnumType.Value, OpraSchema.EnumType.ValueInfo>;
   }
 
+  export interface OwnProperties extends DataType.OwnProperties {
+    values: Record<OpraSchema.EnumType.Value, OpraSchema.EnumType.ValueInfo>;
+  }
+
   export interface Options<T,
-      Keys extends (string | number | symbol) =
-          T extends readonly any[] ? T[number] : keyof T
-  > extends DataType.DecoratorOptions {
+      Keys extends (string | number | symbol) = T extends readonly any[] ? T[number] : keyof T
+  > extends StrictOmit<DataType.InitArguments, 'base'> {
     name: string;
     base?: EnumObject;
     meanings?: Record<Keys, string>;

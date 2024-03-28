@@ -4,7 +4,8 @@ import {
   ApiField,
   ComplexType,
   OpraSchema,
-  SimpleType
+  SimpleType,
+  StringType
 } from '@opra/common';
 
 describe('ApiDocumentFactory - ComplexType with decorated classes', function () {
@@ -80,12 +81,9 @@ describe('ApiDocumentFactory - ComplexType with decorated classes', function () 
     })
     class Type1 {
       @ApiField({
-        type: {
-          kind: 'SimpleType',
-          base: 'string'
-        }
+        type: new StringType({pattern: 'abc'})
       })
-      cid: number
+      cid: string;
     }
 
     const doc = await ApiDocumentFactory.createDocument({
@@ -97,9 +95,10 @@ describe('ApiDocumentFactory - ComplexType with decorated classes', function () 
     expect(t).toBeDefined();
     expect(t.kind).toStrictEqual('ComplexType');
     expect(t.name).toStrictEqual('Type1');
-    expect(t.fields.get('cid')).toBeDefined();
-    expect(t.fields.get('cid')?.type.isEmbedded).toStrictEqual(true);
-    expect((t.fields.get('cid')?.type as SimpleType).base?.name).toStrictEqual('string');
+    const f = t.fields.get('cid');
+    expect(f).toBeDefined();
+    expect(f!.type.isEmbedded).toStrictEqual(true);
+    expect((f!.type as SimpleType).base?.name).toStrictEqual('string');
   })
 
   it('Should extend ComplexType', async () => {

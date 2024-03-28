@@ -138,8 +138,10 @@ describe('ApiDocumentFactory - ComplexType with schema object', function () {
     expect(t1.additionalFields).toStrictEqual(true);
     expect(t1.ctor).toStrictEqual(Type2);
     expect(Array.from(t1.fields.keys())).toStrictEqual(['id', 'name']);
-    expect(t1.fields.get('id')?.origin).toEqual(t2);
-    expect(t1.fields.get('id')?.owner).toEqual(t1);
+    const f = t1.fields.get('id');
+    expect(f).toBeDefined();
+    expect(f!.origin).toEqual(t2);
+    expect(f!.owner).toEqual(t1);
   })
 
   it('Should extend ComplexType from other ComplexType type in place schema', async () => {

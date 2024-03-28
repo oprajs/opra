@@ -2,7 +2,7 @@ import { StrictOmit, ThunkAsync, Type } from 'ts-gems';
 import { resolveThunk } from '../../helpers/index.js';
 import { OpraSchema } from '../../schema/index.js';
 import { ApiDocument } from '../api-document.js';
-import { RESOURCE_METADATA } from '../constants.js';
+import { DATATYPE_METADATA, RESOURCE_METADATA } from '../constants.js';
 import { EnumType } from '../data-type/enum-type.js';
 import { HttpAction } from '../http/http-action.js';
 import { HttpApi } from '../http/http-api.js';
@@ -110,8 +110,10 @@ export class HttpApiFactory {
             if (prmInit.type) {
               context.curPath.push(`.type`);
               let typeDef: any = prmInit.type;
-              if (oP.enum)
-                typeDef = EnumType(oP.enum, {name: oP.name + 'Enum'}) as any;
+              if (oP.enum) {
+                EnumType(oP.enum, {name: oP.name + 'Enum'});
+                typeDef = oP.enum[DATATYPE_METADATA];
+              }
               prmInit.type = await endpointTypeFactory.createDataType(context, typeDef);
               context.curPath.pop();
             }
@@ -128,8 +130,10 @@ export class HttpApiFactory {
             if (prmInit.type) {
               context.curPath.push(`.type`);
               let typeDef: any = prmInit.type;
-              if (oP.enum)
-                typeDef = EnumType(oP.enum, {name: oP.name + 'Enum'}) as any;
+              if (oP.enum) {
+                EnumType(oP.enum, {name: oP.name + 'Enum'});
+                typeDef = oP.enum[DATATYPE_METADATA];
+              }
               prmInit.type = await endpointTypeFactory.createDataType(context, typeDef);
               context.curPath.pop();
             }

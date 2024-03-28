@@ -25,33 +25,33 @@ export class ComplexTypeClass extends DataType {
 
   constructor(documentNode: ApiNode, init: ComplexType.InitArguments) {
     super(documentNode, init);
-    const own = this.own = {} as Mutable<ComplexType.OwnProperties>;
-    own.ctor = init.ctor;
+    // noinspection SuspiciousTypeOfGuard
+    if (this.base && !(this.base instanceof ComplexTypeClass))
+      throw new TypeError('"base" argument must be one of ComplexType, MappedType or MixinType');
+
+    this.own.ctor = init.ctor;
+    this.own.fields = new ResponsiveMap();
+    this.own.additionalFields = init.additionalFields;
     if (init.base) {
       if (!(init.base.kind === 'ComplexType' || init.base.kind === 'MappedType' || init.base.kind === 'MixinType'))
         throw new TypeError('"base" argument must be one of ComplexType or MappedType or MixinType');
-      own.ctor = own.ctor || (init.base as ComplexTypeClass).ctor;
+      this.own.ctor = this.own.ctor || (init.base as ComplexTypeClass).ctor;
     }
-    own.additionalFields = init?.additionalFields;
-    own.embedded = init?.embedded;
-    own.fields = new ResponsiveMap();
-
-    this.kind = OpraSchema.ComplexType.Kind;
-    this.base = init?.base;
-    this.ctor = own.ctor || Object;
+    this.ctor = this.own.ctor || Object;
     this.abstract = init.abstract;
-    this.additionalFields = own.additionalFields;
-    this.isEmbedded = this.isEmbedded || init.embedded;
-    if (this.base?.additionalFields === true && this.additionalFields !== true)
-      this.additionalFields = true;
-    else if (this.base?.additionalFields === 'error' && !this.additionalFields)
-      this.additionalFields = 'error';
-    if (this.base) {
-      if (this.base.fields)
-        for (const [k, el] of this.base.fields.entries()) {
-          const field = new ApiField(this, el);
-          this.fields.set(k, field);
-        }
+    this.additionalFields = this.own.additionalFields != null
+        ? this.own.additionalFields
+        : this.base?.additionalFields;
+    if (this.base?.fields) {
+      for (const [k, el] of this.base.fields.entries()) {
+        const field = {
+          ...el,
+          owner: this,
+          origin: this.base
+        } as unknown as ApiField;
+        Object.setPrototypeOf(field, ApiField.prototype);
+        this.fields.set(k, field);
+      }
     }
     if (init.fields) {
       for (const [k, el] of Object.entries(init.fields)) {

@@ -11,9 +11,9 @@ import { HttpResourceClass } from './http-resource.class.js';
 
 
 export interface HttpResourceConstructor extends createHttpResourceDecorator {
-  prototype: HttpResourceClass;
-
   new(parent: ApiDocument | HttpResource, name: string, init: HttpResource.InitArguments): HttpResourceClass;
+
+  prototype: HttpResourceClass;
 }
 
 

@@ -28,7 +28,21 @@ describe('SimpleType', function () {
     expect(x).toBeDefined();
     expect(x).toStrictEqual({
       kind: 'SimpleType',
-      description: 'A sequence of characters'
+      description: 'A sequence of characters',
+      attributes: {
+        maxLength: {
+          format: "number",
+          description: "Minimum number of characters"
+        },
+        minLength: {
+          format: "number",
+          description: "Minimum number of characters"
+        },
+        pattern: {
+          format: "string",
+          description: "Regex pattern to be used for validation"
+        }
+      },
     })
   })
 
