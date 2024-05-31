@@ -6,7 +6,7 @@ const kLength = Symbol.for('kLength');
 
 type ResourceKey = Record<string, string | number | boolean | null>;
 const pathComponentRegEx = /^([^/?#:@]+)(?:@([^/?#:]*))?(?:::(.*))?$/;
-const decimalPattern = /^[+-]?\d+(\.\d+)?$/
+const decimalPattern = /^[+-]?\d+(\.\d+)?$/;
 const booleanPattern = /^true|false$/;
 
 /**
@@ -43,8 +43,7 @@ export class OpraURLPath {
     basePath = basePath instanceof OpraURLPath ? basePath : new OpraURLPath(basePath);
     let i: number;
     for (i = 0; i < basePath.length; i++) {
-      if (String(this[i]) !== String(basePath[i]))
-        return false;
+      if (String(this[i]) !== String(basePath[i])) return false;
     }
     return true;
   }
@@ -58,8 +57,7 @@ export class OpraURLPath {
 
   values(): IterableIterator<OpraURLPathComponent> {
     const arr = new Array(this.length);
-    for (let i = 0; i < this.length; i++)
-      arr[i] = this[i];
+    for (let i = 0; i < this.length; i++) arr[i] = this[i];
     return arr.values();
   }
 
@@ -84,7 +82,7 @@ export class OpraURLPath {
         if (item.resource.includes('/')) {
           const subPath = new OpraURLPath(item.resource);
           subPath[subPath.length - 1].key = item.key;
-          return String(subPath)
+          return String(subPath);
         }
       }
       item = String(item);
@@ -95,7 +93,7 @@ export class OpraURLPath {
           quotes: true,
           brackets: true,
           keepBrackets: true,
-          keepQuotes: true
+          keepQuotes: true,
         })[0];
       if (item.includes('#'))
         item = splitString(item, {
@@ -103,7 +101,7 @@ export class OpraURLPath {
           quotes: true,
           brackets: true,
           keepBrackets: true,
-          keepQuotes: true
+          keepQuotes: true,
         })[0];
       return join ? removeLeadingSeparator(item) : item;
     });
@@ -112,22 +110,18 @@ export class OpraURLPath {
     let n = 0;
     if (!join) {
       for (n = paths.length - 1; n >= 0; n--) {
-        if (String(items[n]).startsWith('/'))
-          break;
+        if (String(items[n]).startsWith('/')) break;
       }
-      if (n > 0)
-        paths = paths.slice(n);
+      if (n > 0) paths = paths.slice(n);
     }
 
     const newPath = paths[0]?.startsWith('/') ? [] : Array.from(this).map(String);
     for (let i = 0; i < paths.length; i++) {
-      const pathTokenizer = tokenize(paths[i], {delimiters: '/', quotes: true, brackets: true});
+      const pathTokenizer = tokenize(paths[i], { delimiters: '/', quotes: true, brackets: true });
       for (const x of pathTokenizer) {
-        if (!x)
-          continue;
+        if (!x) continue;
         if (x.startsWith('.')) {
-          if (x === '.')
-            continue;
+          if (x === '.') continue;
           if (x === '..') {
             newPath.pop();
             continue;
@@ -161,12 +155,10 @@ export class OpraURLPath {
     basePath = basePath instanceof OpraURLPath ? basePath : new OpraURLPath(basePath);
     let i: number;
     for (i = 0; i < basePath.length; i++) {
-      if (String(source[i]) !== String(basePath[i]))
-        return;
+      if (String(source[i]) !== String(basePath[i])) return;
     }
-    return new OpraURLPath(Array.from(source).slice(i).join('/'))
+    return new OpraURLPath(Array.from(source).slice(i).join('/'));
   }
-
 }
 
 export namespace OpraURLPath {
@@ -181,7 +173,7 @@ export class OpraURLPathComponent {
   resource: string;
   key?: string | number | ResourceKey;
   args?: Record<string, any>;
-  typeCast?: string
+  typeCast?: string;
 
   constructor(init: OpraURLPathComponent.Initiator) {
     this.resource = init.resource;
@@ -197,8 +189,7 @@ export class OpraURLPathComponent {
         const arr: string[] = [];
         for (const k of Object.keys(this.key)) {
           let v = this.key[k];
-          if (typeof v === 'number' || typeof v === 'boolean')
-            v = String(v);
+          if (typeof v === 'number' || typeof v === 'boolean') v = String(v);
           else v = '"' + encodeURIComponent(String(v)) + '"';
           arr.push(encodeURIComponent(k) + '=' + v);
         }
@@ -214,8 +205,7 @@ export class OpraURLPathComponent {
       out += '(' + arr.join(';') + ')';
     }
 
-    if (this.typeCast)
-      out += '::' + encodeURIComponent(this.typeCast);
+    if (this.typeCast) out += '::' + encodeURIComponent(this.typeCast);
 
     return out;
   }
@@ -232,59 +222,56 @@ export class OpraURLPathComponent {
   static parse(input: string): OpraURLPathComponent {
     const m = pathComponentRegEx.exec(input);
     if (!m)
-      throw Object.assign(
-          new TypeError('Invalid Opra URL'), {
-            code: 'ERR_INVALID_OPRA_URL',
-            input,
-          });
+      throw Object.assign(new TypeError('Invalid Opra URL'), {
+        code: 'ERR_INVALID_OPRA_URL',
+        input,
+      });
     let key: any;
     if (m[2]) {
       const s = decodeURIComponent(m[2]);
-      const b = splitString(s, {delimiters: ';', quotes: true, escape: false, keepQuotes: true, keepBrackets: true})
+      const b = splitString(s, { delimiters: ';', quotes: true, escape: false, keepQuotes: true, keepBrackets: true });
       for (const n of b) {
-        const c = splitString(n, {delimiters: '=', quotes: true, escape: false, keepQuotes: true, keepBrackets: true});
-        if ((b.length > 1 && c.length < 2) ||
-            (key &&
-                (c.length >= 2 && typeof key !== 'object') ||
-                (c.length < 2 && typeof key === 'object')
-            )
+        const c = splitString(n, {
+          delimiters: '=',
+          quotes: true,
+          escape: false,
+          keepQuotes: true,
+          keepBrackets: true,
+        });
+        if (
+          (b.length > 1 && c.length < 2) ||
+          (key && c.length >= 2 && typeof key !== 'object') ||
+          (c.length < 2 && typeof key === 'object')
         )
-          throw Object.assign(
-              new TypeError('Invalid Opra URL. name:value pair required for multiple key format'), {
-                pathComponent: input,
-                code: 'ERR_INVALID_OPRA_URL'
-              });
+          throw Object.assign(new TypeError('Invalid Opra URL. name:value pair required for multiple key format'), {
+            pathComponent: input,
+            code: 'ERR_INVALID_OPRA_URL',
+          });
 
         if (c.length >= 2) {
           key = key || {};
           const k = c.shift() || '';
           let v: any = c.join('=');
-          if (decimalPattern.test(v))
-            v = Number(v);
-          else if (booleanPattern.test(v))
-            v = Boolean(v);
-          else if (v.startsWith('"') && v.endsWith('"'))
-            v = v.substring(1, v.length - 1);
-          else if (v.startsWith("'") && v.endsWith("'"))
-            v = v.substring(1, v.length - 1);
+          if (decimalPattern.test(v)) v = Number(v);
+          else if (booleanPattern.test(v)) v = Boolean(v);
+          else if (v.startsWith('"') && v.endsWith('"')) v = v.substring(1, v.length - 1);
+          else if (v.startsWith("'") && v.endsWith("'")) v = v.substring(1, v.length - 1);
           key[k] = v;
         } else {
-          if (decimalPattern.test(c[0]))
-            key = Number(c[0]);
-          else if (booleanPattern.test(c[0]))
-            key = Boolean(c[0]);
+          if (decimalPattern.test(c[0])) key = Number(c[0]);
+          else if (booleanPattern.test(c[0])) key = Boolean(c[0]);
           else key = c[0];
         }
       }
       return new OpraURLPathComponent({
         resource: decodeURIComponent(m[1]),
         key,
-        typeCast: m[3] ? decodeURIComponent(m[3]) : undefined
+        typeCast: m[3] ? decodeURIComponent(m[3]) : undefined,
       });
     }
     return new OpraURLPathComponent({
       resource: decodeURIComponent(m[1]),
-      typeCast: m[3] ? decodeURIComponent(m[3]) : undefined
+      typeCast: m[3] ? decodeURIComponent(m[3]) : undefined,
     });
   }
 }

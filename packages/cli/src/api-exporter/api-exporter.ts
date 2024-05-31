@@ -78,7 +78,7 @@ export class ApiExporter {
 
   protected async execute() {
     this.logger.log(chalk.cyan('Fetching service metadata from'), chalk.whiteBright(this.client.serviceUrl));
-    this.document = await this.client.getMetadata();
+    this.document = await this.client.getSchema();
     this.logger.log(chalk.cyan('Retrieved service info:\n'),
         chalk.white('Title:'), chalk.whiteBright(this.document.info.title), '\n',
         chalk.white('Version:'), chalk.whiteBright(this.document.info.version), '\n'

@@ -1,6 +1,6 @@
 import { translate } from '../../i18n/index.js';
 import { ErrorIssue } from '../error-issue.js';
-import { OpraException } from '../opra-exception.js';
+import { OpraHttpError } from '../opra-http-error.js';
 
 /**
  * 404 Not Found
@@ -10,15 +10,14 @@ import { OpraException } from '../opra-exception.js';
  * from an unauthorized client. This response code is probably the most well known due to its
  * frequent occurrence on the web.
  */
-export class NotFoundError extends OpraException {
+export class NotFoundError extends OpraHttpError {
   status = 404;
 
   protected init(issue: Partial<ErrorIssue>) {
     super.init({
       message: translate('error:NOT_FOUND', 'Not found'),
       code: 'NOT_FOUND',
-      ...issue
+      ...issue,
     });
   }
-
 }

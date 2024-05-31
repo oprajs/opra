@@ -1,3 +1,5 @@
+import './monkey-patches.js';
+
 export * from './function-utils.js';
 export * from './get-stack-filename.js';
 export * from './is-url-string.js';

@@ -1,16 +1,16 @@
 import type { SpecVersion } from './constants.js';
-import type { DocumentElement } from './document-element.interface';
-import type { Resource } from './http/resource.interface';
+import type { DataTypeContainer } from './data-type-container.interface.js';
+import type { HttpController } from './http/http-controller.interface';
 
 export type Protocol = 'http' | 'ws' | 'rpc';
 
 /**
  * @interface Document
  */
-export interface Document extends DocumentElement {
+export interface Document extends DataTypeContainer {
   spec: SpecVersion;
   url?: string;
-  info: DocumentInfo;
+  info?: DocumentInfo;
   references?: Record<string, string | Document>;
   api?: HttpApi;
 }
@@ -19,8 +19,8 @@ export interface Document extends DocumentElement {
  * @interface DocumentInfo
  */
 export interface DocumentInfo {
-  title: string;
-  version: string;
+  title?: string;
+  version?: string;
   description?: string;
   termsOfService?: string;
   contact?: ContactPerson[];
@@ -45,7 +45,7 @@ export interface LicenseInfo {
   content?: string;
 }
 
-export interface Api extends DocumentElement {
+export interface Api extends DataTypeContainer {
   protocol: Protocol;
   /**
    * Name of the api. Should be a computer friendly name
@@ -64,5 +64,4 @@ export interface HttpApi extends Api {
 /**
  * @interface HttpRoot
  */
-export interface HttpRoot extends Pick<Resource, 'endpoints' | 'resources' | 'types'> {
-}
+export interface HttpRoot extends Pick<HttpController, 'operations' | 'children' | 'types' | 'parameters'> {}

@@ -1,21 +1,20 @@
-import { HttpResource } from '@opra/common';
+import { HttpController } from '@opra/common';
 import { AuthController } from './auth.controller.js';
-import { CountriesController } from './countries.controller';
-import { CountryController } from './country.controller';
-import { CustomersController } from './customers.controller';
-import { CustomerController } from './customer.controller';
-import { MyFilesController } from './my-files.controller';
-import { MyProfileController } from './my-profile.controller';
+import { CountriesController } from './countries.controller.js';
+import { CountryController } from './country.controller.js';
+import { CustomerController } from './customer.controller.js';
+import { CustomersController } from './customers.controller.js';
+import { MyProfileController } from './my-profile.controller.js';
 
-@HttpResource({
+@HttpController({
   description: 'Api root',
-  resources: [
+  children: [
     AuthController,
-    CountriesController, CountryController,
-    CustomersController, CustomerController,
-    MyFilesController, MyProfileController
-  ]
+    CountriesController,
+    CountryController,
+    CustomersController,
+    CustomerController,
+    MyProfileController,
+  ],
 })
-export class RootController {
-
-}
+export class RootController {}

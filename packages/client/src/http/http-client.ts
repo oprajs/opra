@@ -16,5 +16,4 @@ export class OpraHttpClient extends HttpClientBase<FetchBackend.RequestOptions> 
   get defaults(): FetchBackend.RequestDefaults {
     return this[kBackend].defaults;
   }
-
 }

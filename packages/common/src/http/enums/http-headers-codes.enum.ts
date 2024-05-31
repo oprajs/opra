@@ -5,11 +5,9 @@
  */
 
 export enum HttpHeaderCodes {
-
   /* *** Opra Custom Headers *** */
-  X_Opra_Version = "X-Opra-Version",
-  X_Total_Count = "X-Total-Count",
-
+  X_Opra_Version = 'X-Opra-Version',
+  X_Total_Count = 'X-Total-Count',
 
   /* *** Authentication *** */
 
@@ -32,7 +30,6 @@ export enum HttpHeaderCodes {
    * Contains the credentials to authenticate a user agent with a proxy server.
    */
   Proxy_Authorization = 'Proxy-Authorization',
-
 
   /* *** Caching *** */
 
@@ -61,7 +58,6 @@ export enum HttpHeaderCodes {
    * Used for backwards compatibility with HTTP/1.0 caches where the Cache-Control header is not yet present.
    */
   Pragma = 'Pragma',
-
 
   /* *** Conditionals *** */
 
@@ -111,7 +107,6 @@ export enum HttpHeaderCodes {
    */
   Vary = 'Vary',
 
-
   /* *** Connection management *** */
 
   /**
@@ -144,14 +139,12 @@ export enum HttpHeaderCodes {
    */
   Accept_Language = 'Accept-Language',
 
-
   /* *** Controls *** */
 
   /**
    * Indicates expectations that need to be fulfilled by the server to properly handle the request.
    */
   Expect = 'Expect',
-
 
   /* *** Cookies *** */
 
@@ -164,7 +157,6 @@ export enum HttpHeaderCodes {
    * Send cookies from the server to the user-agent.
    */
   Set_Cookie = 'Set-Cookie',
-
 
   /* *** CORS *** */
 
@@ -221,7 +213,6 @@ export enum HttpHeaderCodes {
    */
   Timing_Allow_Origin = 'Timing-Allow-Origin',
 
-
   /* *** Downloads *** */
 
   /**
@@ -229,7 +220,6 @@ export enum HttpHeaderCodes {
    * or if it should be handled like a download and the browser should present a "Save As" dialog.
    */
   Content_Disposition = 'Content-Disposition',
-
 
   /* *** Message body information *** */
 
@@ -299,14 +289,12 @@ export enum HttpHeaderCodes {
    */
   Via = 'Via',
 
-
   /* *** Redirects *** */
 
   /**
    * Indicates the URL to redirect a page to.
    */
   Location = 'Location',
-
 
   /* *** Request context *** */
 
@@ -337,7 +325,6 @@ export enum HttpHeaderCodes {
    */
   User_Agent = 'User-Agent',
 
-
   /* *** Response context *** */
 
   /**
@@ -349,7 +336,6 @@ export enum HttpHeaderCodes {
    * Contains information about the software used by the origin server to handle the request.
    */
   Server = 'Server',
-
 
   /* *** Range requests *** */
 
@@ -373,7 +359,6 @@ export enum HttpHeaderCodes {
    * Indicates where in a full body message a partial message belongs.
    */
   Content_Range = 'Content-Range',
-
 
   /* *** Security *** */
 
@@ -421,7 +406,6 @@ export enum HttpHeaderCodes {
    * Force communication using HTTPS instead of HTTP.
    */
   Strict_Transport_Security = 'Strict-Transport-Security',
-
 
   /**
    *
@@ -472,7 +456,6 @@ export enum HttpHeaderCodes {
    */
   X_XSS_Protection = 'X-XSS-Protection',
 
-
   /* *** Transfer coding *** */
 
   /**
@@ -490,7 +473,6 @@ export enum HttpHeaderCodes {
    */
   Trailer = 'Trailer',
 
-
   /* *** WebSockets *** */
 
   Sec_WebSocket_Key = 'Sec-WebSocket-Key',
@@ -498,7 +480,6 @@ export enum HttpHeaderCodes {
   Sec_WebSocket_Accept = 'Sec-WebSocket-Accept',
   Sec_WebSocket_Protocol = 'Sec-WebSocket-Protocol',
   Sec_WebSocket_Version = 'Sec-WebSocket-Version',
-
 
   /* *** Other *** */
 
@@ -527,6 +508,5 @@ export enum HttpHeaderCodes {
   /**
    *
    */
-  Max_Forwards = 'Max-Forwards'
-
+  Max_Forwards = 'Max-Forwards',
 }

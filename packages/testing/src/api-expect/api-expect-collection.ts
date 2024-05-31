@@ -6,7 +6,6 @@ import { ApiExpectBase } from './api-expect-base.js';
 const ruleJudgment = typeof ruleJudgmentLib === 'object' ? ruleJudgmentLib.default : ruleJudgmentLib;
 
 export class ApiExpectCollection extends ApiExpectBase {
-
   get not(): ApiExpectCollection {
     return new ApiExpectCollection(this.response, !this.isNot);
   }
@@ -22,11 +21,9 @@ export class ApiExpectCollection extends ApiExpectBase {
       msg += `The length of payload array do not match. `;
       const l = this.response.body.payload.length;
       this._expect(l).toBeGreaterThanOrEqual(min || 1);
-      if (max)
-        this._expect(l).toBeLessThanOrEqual(max);
+      if (max) this._expect(l).toBeLessThanOrEqual(max);
     } catch (e: any) {
-      if (msg)
-        e.message = msg + '\n\n' + e.message;
+      if (msg) e.message = msg + '\n\n' + e.message;
       Error.captureStackTrace(e, this.toReturnItems);
       throw e;
     }
@@ -39,11 +36,9 @@ export class ApiExpectCollection extends ApiExpectBase {
       msg += `The value of "totalMatches" do not match. `;
       const l = this.response.body.totalMatches;
       this._expect(l).toBeGreaterThanOrEqual(min || 1);
-      if (max)
-        this._expect(l).toBeLessThanOrEqual(max);
+      if (max) this._expect(l).toBeLessThanOrEqual(max);
     } catch (e: any) {
-      if (msg)
-        e.message = msg + '\n\n' + e.message;
+      if (msg) e.message = msg + '\n\n' + e.message;
       Error.captureStackTrace(e, this.toReturnItems);
       throw e;
     }
@@ -57,11 +52,7 @@ export class ApiExpectCollection extends ApiExpectBase {
   toMatch<T extends {}>(expected: T): this {
     try {
       expected = omitNullish(expected) as T;
-      this._expect(this.response.body.payload).toEqual(
-          expect.arrayContaining(
-              [expect.objectContaining(expected)]
-          )
-      )
+      this._expect(this.response.body.payload).toEqual(expect.arrayContaining([expect.objectContaining(expected)]));
     } catch (e: any) {
       Error.captureStackTrace(e, this.toMatch);
       throw e;
@@ -110,8 +101,7 @@ export class ApiExpectCollection extends ApiExpectBase {
   toBeSortedBy(fields: string | string[]): this {
     try {
       fields = Array.isArray(fields) ? fields : [fields];
-      (this._expect(this.response.body.payload) as any)
-          .opraCollectionToBeSortedBy(fields);
+      (this._expect(this.response.body.payload) as any).opraCollectionToBeSortedBy(fields);
     } catch (e: any) {
       Error.captureStackTrace(e, this.toBeSortedBy);
       throw e;
@@ -137,12 +127,9 @@ export class ApiExpectCollection extends ApiExpectBase {
     }
     return this;
   }
-
 }
 
-
 expect.extend({
-
   opraCollectionToBeSortedBy(received, properties: string[]) {
     const fieldsMap = properties.map(x => x.split('.'));
     const getValue = (obj: any, fieldMap: string[]) => {
@@ -152,7 +139,7 @@ expect.extend({
         v = v[fieldMap[i++]];
       }
       return v;
-    }
+    };
     let pass = true;
     let message;
     if (pass) {
@@ -176,17 +163,14 @@ expect.extend({
     return {
       actual: received,
       message,
-      pass
+      pass,
     };
   },
-
 });
-
 
 export function convertFilter(str: string | OpraFilter.Expression | undefined): any {
   const ast = typeof str === 'string' ? OpraFilter.parse(str) : str;
-  if (!ast)
-    return;
+  if (!ast) return;
 
   if (ast instanceof OpraFilter.ComparisonExpression) {
     const left = convertFilter(ast.left);
@@ -194,21 +178,21 @@ export function convertFilter(str: string | OpraFilter.Expression | undefined): 
 
     switch (ast.op) {
       case '=':
-        return {$eq: {[left]: right}};
+        return { $eq: { [left]: right } };
       case '!=':
-        return {$ne: {[left]: right}};
+        return { $ne: { [left]: right } };
       case '>':
-        return {$gt: {[left]: right}};
+        return { $gt: { [left]: right } };
       case '>=':
-        return {$gte: {[left]: right}};
+        return { $gte: { [left]: right } };
       case '<':
-        return {$lt: {[left]: right}};
+        return { $lt: { [left]: right } };
       case '<=':
-        return {$lte: {[left]: right}};
+        return { $lte: { [left]: right } };
       case 'in':
-        return {$in: {[left]: right}};
+        return { $in: { [left]: right } };
       case '!in':
-        return {$nin: {[left]: right}};
+        return { $nin: { [left]: right } };
       default:
         throw new Error(`ComparisonExpression operator (${ast.op}) not implemented yet`);
     }
@@ -216,12 +200,13 @@ export function convertFilter(str: string | OpraFilter.Expression | undefined): 
   if (ast instanceof OpraFilter.QualifiedIdentifier) {
     return ast.value;
   }
-  if (ast instanceof OpraFilter.NumberLiteral ||
-      ast instanceof OpraFilter.StringLiteral ||
-      ast instanceof OpraFilter.BooleanLiteral ||
-      ast instanceof OpraFilter.NullLiteral ||
-      ast instanceof OpraFilter.DateLiteral ||
-      ast instanceof OpraFilter.TimeLiteral
+  if (
+    ast instanceof OpraFilter.NumberLiteral ||
+    ast instanceof OpraFilter.StringLiteral ||
+    ast instanceof OpraFilter.BooleanLiteral ||
+    ast instanceof OpraFilter.NullLiteral ||
+    ast instanceof OpraFilter.DateLiteral ||
+    ast instanceof OpraFilter.TimeLiteral
   ) {
     return ast.value;
   }
@@ -229,9 +214,8 @@ export function convertFilter(str: string | OpraFilter.Expression | undefined): 
     return ast.items.map(convertFilter);
   }
   if (ast instanceof OpraFilter.LogicalExpression) {
-    if (ast.op === 'or')
-      return {$or: ast.items.map(convertFilter)};
-    return {$and: ast.items.map(convertFilter)};
+    if (ast.op === 'or') return { $or: ast.items.map(convertFilter) };
+    return { $and: ast.items.map(convertFilter) };
   }
   if (ast instanceof OpraFilter.ArrayExpression) {
     return ast.items.map(convertFilter);

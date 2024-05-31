@@ -15,7 +15,7 @@ export class Person {
   @Column({fieldName: 'family_name', notNull: true})
   familyName: string;
 
-  @ApiField({enum: GenderEnum})
+  @ApiField({type: GenderEnum})
   @Column({notNull: true})
   gender: GenderEnum;
 

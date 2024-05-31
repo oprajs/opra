@@ -9,16 +9,11 @@ export class LogicalExpression extends Expression {
   constructor(o: Omit<LogicalExpression, 'kind'>) {
     super();
     Object.assign(this, o);
-    if ((this.op as string) === '&&')
-      this.op = 'and';
-    if ((this.op as string) === '||')
-      this.op = 'or';
+    if ((this.op as string) === '&&') this.op = 'and';
+    if ((this.op as string) === '||') this.op = 'or';
   }
 
   toString(): string {
-    return this.items
-        .map(child => '' + child)
-        .join(' ' + this.op + ' ');
+    return this.items.map(child => '' + child).join(' ' + this.op + ' ');
   }
-
 }

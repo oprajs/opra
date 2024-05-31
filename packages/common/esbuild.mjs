@@ -1,6 +1,6 @@
 import path from 'node:path';
-import {fileURLToPath} from 'node:url';
-import {createRequire} from 'node:module';
+import { fileURLToPath } from 'node:url';
+import { createRequire } from 'node:module';
 import * as esbuild from 'esbuild';
 
 const require = createRequire(import.meta.url);
@@ -11,9 +11,11 @@ const appName = path.basename(dirname);
 const buildRoot = path.resolve(dirname, '../../build');
 const targetPath = path.resolve(buildRoot, appName);
 const noExternal = [];
-const external = [...Object.keys(pkgJson.dependencies),
-  ...Object.keys(pkgJson.devDependencies), 'mime-db']
-    .filter(x => !noExternal.includes(x));
+const external = [
+  ...Object.keys(pkgJson.dependencies),
+  ...Object.keys(pkgJson.devDependencies),
+  'mime-db',
+].filter(x => !noExternal.includes(x));
 
 await esbuild.build({
   entryPoints: [path.resolve(targetPath, 'esm/index.js')],
@@ -26,14 +28,14 @@ await esbuild.build({
   // minify: true,
   keepNames: true,
   alias: {
-    'fs': '@browsery/fs',
-    'highland': '@browsery/highland',
+    fs: '@browsery/fs',
+    highland: '@browsery/highland',
     'http-parser-js': '@browsery/http-parser',
-    'i18next': '@browsery/i18next',
-    'stream': '@browsery/stream',
+    i18next: '@browsery/i18next',
+    stream: '@browsery/stream',
     'node:stream': '@browsery/stream',
-    'path': 'path-browserify',
-    'crypto': 'crypto-browserify'
+    path: 'path-browserify',
+    crypto: 'crypto-browserify',
   },
   external,
   // legalComments: 'external',
@@ -42,6 +44,6 @@ await esbuild.build({
 * All rights reserved Panates® 2022-${new Date().getFullYear()}
 * http://www.panates.com
 *****************************************/
-`
-  }
+`,
+  },
 });

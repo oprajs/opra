@@ -1,6 +1,6 @@
 import '@opra/sqb';
 import { OpraTestClient } from '@opra/testing';
-import { collectionTests } from '../../../core/test/e2e/tests/index.js';
+import { entityTests } from '../../../core/test/http/e2e/tests/index.js';
 import { createTestApp, TestApp } from '../_support/test-app/index.js';
 
 describe('e2e:Collection', function () {
@@ -10,7 +10,7 @@ describe('e2e:Collection', function () {
 
   beforeAll(async () => {
     app = await createTestApp();
-    client = new OpraTestClient(app.adapter.server, {api: app.api});
+    client = new OpraTestClient(app.adapter.server, {document: app.api});
     testArgs.app = app;
     testArgs.client = client;
   });
@@ -21,7 +21,7 @@ describe('e2e:Collection', function () {
   })
 
   // @ts-ignore
-  collectionTests.call(this, testArgs);
+  entityTests.call(this, testArgs);
 
 });
 

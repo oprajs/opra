@@ -28,9 +28,8 @@ import {
   QualifiedIdentifierContext,
   RootContext,
   StringLiteralContext,
-  TimeLiteralContext
-} from "./OpraFilterParser.js";
-
+  TimeLiteralContext,
+} from './OpraFilterParser.js';
 
 /**
  * This interface defines a complete generic visitor for a parse tree produced
@@ -215,4 +214,3 @@ export default class OpraFilterVisitor<Result> extends ParseTreeVisitor<Result> 
    */
   visitPolarityOperator?: (ctx: PolarityOperatorContext) => Result;
 }
-

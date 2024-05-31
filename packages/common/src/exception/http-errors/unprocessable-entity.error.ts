@@ -1,12 +1,12 @@
 import { translate } from '../../i18n/index.js';
 import { ErrorIssue } from '../error-issue.js';
-import { OpraException } from '../opra-exception.js';
+import { OpraHttpError } from '../opra-http-error.js';
 
 /**
  * 422 Unprocessable Entity
  * The request was well-formed but was unable to be followed due to semantic errors.
  */
-export class UnprocessableEntityError extends OpraException {
+export class UnprocessableEntityError extends OpraHttpError {
   status = 422;
 
   protected init(issue: Partial<ErrorIssue>) {
@@ -14,8 +14,7 @@ export class UnprocessableEntityError extends OpraException {
       message: translate('error:UNPROCESSABLE_ENTITY', 'Unprocessable entity'),
       severity: 'error',
       code: 'UNPROCESSABLE_ENTITY',
-      ...issue
+      ...issue,
     });
   }
-
 }

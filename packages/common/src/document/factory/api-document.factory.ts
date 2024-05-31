@@ -1,178 +1,211 @@
-import { PartialSome, StrictOmit, ThunkAsync, Type } from 'ts-gems';
+import { PartialSome, StrictOmit } from 'ts-gems';
 import { OpraSchema } from '../../schema/index.js';
 import { ApiDocument } from '../api-document.js';
-import { BUILTIN } from '../constants.js';
-import { EnumType } from '../data-type/enum-type.js';
+import { DocumentInitContext } from '../common/document-init-context.js';
+import { OpraDocumentError } from '../common/opra-document-error.js';
+import { BUILTIN, CLASS_NAME_PATTERN, kCtorMap } from '../constants.js';
 import {
-  ApproxDatetimeType, ApproxDateType, Base64Type,
-  DatetimeType, DateType, EmailType,
-  FieldNameType, FieldPathType, FilterType,
-  ObjectIdType, SortFieldType, TimeType, UrlType, UuidType
+  ApproxDatetimeType,
+  ApproxDateType,
+  Base64Type,
+  DatetimeType,
+  DateType,
+  EmailType,
+  FieldPathType,
+  FilterType,
+  ObjectIdType,
+  OperationResult,
+  TimeType,
+  UrlType,
+  UuidType,
 } from '../data-type/extended-types/index.js';
 import {
-  AnyType, BigintType, BooleanType, IntegerType, NullType,
-  NumberType, ObjectType, StringType,
+  AnyType,
+  BigintType,
+  BooleanType,
+  IntegerType,
+  NullType,
+  NumberType,
+  ObjectType,
+  StringType,
 } from '../data-type/primitive-types/index.js';
 import { DataTypeFactory } from './data-type.factory.js';
 import { HttpApiFactory } from './http-api.factory.js';
 
-type ReferenceUnion = string | OpraSchema.ApiDocument | ApiDocument;
-const OPRA_DOCUMENT_URL = 'https://oprajs.com/spec/v' + OpraSchema.SpecVersion;
+const OPRA_SPEC_URL = 'https://oprajs.com/spec/v' + OpraSchema.SpecVersion;
 
 export namespace ApiDocumentFactory {
-  export interface InitArguments extends PartialSome<StrictOmit<OpraSchema.ApiDocument, 'references' | 'types' | 'api'>, 'spec'> {
-    references?: Record<string, ReferenceUnion | Promise<ReferenceUnion>>;
-    api?: HttpApiFactory.InitArguments,
-    types?: ThunkAsync<Type | EnumType.EnumObject | EnumType.EnumArray>[] | Record<string, OpraSchema.DataType>;
+  export interface InitArguments
+    extends PartialSome<StrictOmit<OpraSchema.ApiDocument, 'references' | 'types' | 'api'>, 'spec'> {
+    references?: Record<string, string | OpraSchema.ApiDocument | InitArguments | ApiDocument>;
+    types?: DataTypeInitThunk;
+    api?: HttpApiFactory.InitArguments;
   }
 
-  export interface Context {
-    document: ApiDocument;
-    curPath: string[];
-  }
-
+  export type DataTypeInitThunk = DataTypeFactory.DataTypeSources;
 }
 
 /**
  * @class ApiDocumentFactory
  */
 export class ApiDocumentFactory {
-
   /**
    * Creates ApiDocument instance from given schema object
    */
-  static async createDocument(schemaOrUrl: ApiDocumentFactory.InitArguments | string): Promise<ApiDocument> {
+  static async createDocument(
+    schemaOrUrl: string | OpraSchema.ApiDocument | ApiDocumentFactory.InitArguments,
+    options?: Partial<Pick<DocumentInitContext, 'maxErrors' | 'showErrorDetails'>> | DocumentInitContext,
+  ): Promise<ApiDocument> {
     const factory = new ApiDocumentFactory();
-    const context = {
-      document: new ApiDocument(),
-      curPath: []
+    const context: DocumentInitContext =
+      options instanceof DocumentInitContext ? options : new DocumentInitContext(options);
+    try {
+      const document = new ApiDocument();
+      await factory.initDocument(document, context, schemaOrUrl);
+      if (context.error.details.length) throw context.error;
+      return document;
+    } catch (e: any) {
+      try {
+        if (!(e instanceof OpraDocumentError)) {
+          context.addError(e);
+        }
+      } catch {
+        //
+      }
+      if (!context.error.message) {
+        const l = context.error.details.length;
+        context.error.message = `(${l}) error${l > 1 ? 's' : ''} found in document schema.`;
+        if (context.showErrorDetails) {
+          context.error.message += context.error.details
+            .map(d => {
+              return `\n\n  - ${d.message}` + (d.path ? `\n    @${d.path}` : '');
+            })
+            .join('');
+        }
+      }
+      throw context.error;
     }
-    return factory.createDocument(context, schemaOrUrl);
   }
 
   /**
    * Downloads schema from the given URL and creates the document instance   * @param url
    */
-  async createDocument(
-      context: ApiDocumentFactory.Context,
-      schemaOrUrl: ApiDocumentFactory.InitArguments | string
-  ): Promise<ApiDocument> {
-    let init: ApiDocumentFactory.InitArguments;
-    try {
-
-      if (typeof schemaOrUrl === 'string') {
-        const resp = await fetch(schemaOrUrl, {method: 'GET'});
-        init = await resp.json();
-        if (!init)
-          throw new TypeError(`Invalid response returned from url: ${schemaOrUrl}`);
-        init.url = schemaOrUrl;
-      } else init = schemaOrUrl;
-
-      const {document} = context;
-
-      if (init.url !== OPRA_DOCUMENT_URL) {
-        const builtinDocument = await this.createBuiltinTypeDocument();
-        document.references.set('opra', builtinDocument);
-      }
-
-      init.spec = init.spec || OpraSchema.SpecVersion;
-      document.url = init.url;
-      if (init.info)
-        Object.assign(document.info, init.info);
-
-      if (init.references) {
-        context.curPath.push('.references');
-        await this.createReferences(context, init.references);
-        context.curPath.pop();
-      }
-
-      if (init.types) {
-        context.curPath.push('.types');
-        const typeFactory = new DataTypeFactory(document);
-        await typeFactory.importAllDataTypes(context, init.types);
-        context.curPath.pop();
-      }
-      if (init.api) {
-        context.curPath.push(`.api`)
-        if (init.api.protocol === 'http')
-          document.api = await HttpApiFactory.createApi(context, init.api);
-        else throw new TypeError(`Unknown service protocol (${init.api.protocol})`);
-        context.curPath.pop();
-      }
-      return document;
-    } catch (e: any) {
-      e.message = `ApiDocument creation error at "#${context.curPath.join('')}". ` + e.message;
-      throw e;
-    }
-  }
-
-  protected async createReferences(
-      context: ApiDocumentFactory.Context,
-      references: ApiDocumentFactory.InitArguments['references']
+  protected async initDocument(
+    document: ApiDocument,
+    context: DocumentInitContext,
+    schemaOrUrl: ApiDocumentFactory.InitArguments | string,
   ): Promise<void> {
-    if (!references)
-      return;
-    const {document} = context;
-    let ns: string;
-    let r: ReferenceUnion;
-    for ([ns, r] of Object.entries<any>(references)) {
-      context.curPath.push('.' + ns);
-      r = await r;
-      if (r instanceof ApiDocument) {
-        document.references.set(ns, r);
-        continue;
-      }
-      const refContext: ApiDocumentFactory.Context = {
-        ...context,
-        document: new ApiDocument()
-      }
-      document.references.set(ns, await this.createDocument(refContext, r));
-      context.curPath.pop();
+    let init: ApiDocumentFactory.InitArguments;
+    if (typeof schemaOrUrl === 'string') {
+      const resp = await fetch(schemaOrUrl, { method: 'GET' });
+      init = await resp.json();
+      if (!init) return context.addError(`Invalid response returned from url: ${schemaOrUrl}`);
+      init.url = schemaOrUrl;
+    } else init = schemaOrUrl;
+
+    // Add builtin data types if this document is the root
+    if (!document[BUILTIN]) {
+      const builtinDocument = await this.createBuiltinDocument(context);
+      document.references.set('opra', builtinDocument);
+    }
+
+    init.spec = init.spec || OpraSchema.SpecVersion;
+    document.url = init.url;
+    if (init.info) document.info = { ...init.info };
+
+    /** Add references  */
+    if (init.references) {
+      await context.enterAsync('.references', async () => {
+        for (const [ns, r] of Object.entries(init.references!)) {
+          await context.enterAsync(`[${ns}]`, async () => {
+            if (!CLASS_NAME_PATTERN.test(ns)) throw new TypeError(`Invalid namespace (${ns})`);
+            if (r instanceof ApiDocument) {
+              document.references.set(ns, r);
+              return;
+            }
+            const refDoc = new ApiDocument();
+            await this.initDocument(refDoc, context, r);
+            document.references.set(ns, refDoc);
+          });
+        }
+      });
+    }
+
+    if (init.types) {
+      await context.enterAsync('.types', async () => {
+        await DataTypeFactory.addDataTypes(context, document, init.types!);
+      });
+    }
+
+    if (init.api) {
+      await context.enterAsync(`.api`, async () => {
+        if (init.api!.protocol === 'http') {
+          const api = await HttpApiFactory.createApi(context, document, init.api!);
+          if (api) document.api = api;
+        } else context.addError(`Unknown service protocol (${init.api!.protocol})`);
+      });
     }
   }
 
-  protected async createBuiltinTypeDocument(): Promise<ApiDocument> {
+  /**
+   *
+   * @param context
+   * @protected
+   */
+  protected async createBuiltinDocument(context: DocumentInitContext): Promise<ApiDocument> {
     const init: ApiDocumentFactory.InitArguments = {
       spec: OpraSchema.SpecVersion,
-      url: OPRA_DOCUMENT_URL,
+      url: OPRA_SPEC_URL,
       info: {
         version: OpraSchema.SpecVersion,
         title: 'Opra built-in types',
         license: {
           url: 'https://github.com/oprajs/opra/blob/main/LICENSE',
-          name: 'MIT'
-        }
+          name: 'MIT',
+        },
       },
       types: [
         // Primitive types
-        AnyType, BigintType, BooleanType, IntegerType, NullType,
-        NumberType, ObjectType, StringType,
+        AnyType,
+        BigintType,
+        BooleanType,
+        IntegerType,
+        NullType,
+        NumberType,
+        ObjectType,
+        StringType,
         // Extended types
-        ApproxDatetimeType, ApproxDateType, Base64Type,
-        DatetimeType, DateType, EmailType,
-        FieldNameType, FieldPathType, FilterType,
-        ObjectIdType, SortFieldType, TimeType, UrlType, UuidType
-      ]
-    }
-    const context = {
-      document: new ApiDocument(),
-      curPath: []
-    }
-    const document = await this.createDocument(context, init);
+        ApproxDatetimeType,
+        ApproxDateType,
+        Base64Type,
+        DatetimeType,
+        DateType,
+        EmailType,
+        FieldPathType,
+        FilterType,
+        ObjectIdType,
+        OperationResult,
+        TimeType,
+        UrlType,
+        UuidType,
+      ],
+    };
+    const document = new ApiDocument();
     document[BUILTIN] = true;
     const BigIntConstructor = Object.getPrototypeOf(BigInt(0)).constructor;
     const BufferConstructor = Object.getPrototypeOf(Buffer.from([]));
-    document.registerTypeCtor(Object, 'object');
-    document.registerTypeCtor(String, 'string');
-    document.registerTypeCtor(Number, 'number');
-    document.registerTypeCtor(Boolean, 'boolean');
-    document.registerTypeCtor(Object, 'any');
-    document.registerTypeCtor(Date, 'datetime');
-    document.registerTypeCtor(BigIntConstructor, 'bigint');
-    document.registerTypeCtor(ArrayBuffer, 'base64');
-    document.registerTypeCtor(SharedArrayBuffer, 'base64');
-    document.registerTypeCtor(BufferConstructor, 'base64');
+    const _ctorTypeMap = document.types[kCtorMap];
+    _ctorTypeMap.set(Object, 'object');
+    _ctorTypeMap.set(String, 'string');
+    _ctorTypeMap.set(Number, 'number');
+    _ctorTypeMap.set(Boolean, 'boolean');
+    _ctorTypeMap.set(Object, 'any');
+    _ctorTypeMap.set(Date, 'datetime');
+    _ctorTypeMap.set(BigIntConstructor, 'bigint');
+    _ctorTypeMap.set(ArrayBuffer, 'base64');
+    _ctorTypeMap.set(SharedArrayBuffer, 'base64');
+    _ctorTypeMap.set(BufferConstructor, 'base64');
+    await this.initDocument(document, context, init);
     return document;
   }
-
 }

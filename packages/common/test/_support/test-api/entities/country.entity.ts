@@ -1,10 +1,10 @@
 import { ApiField, ComplexType } from '@opra/common';
 
 @ComplexType({
-  description: 'Country information'
+  description: 'Country information',
+  keyField: 'code',
 })
 export class Country {
-
   @ApiField()
   code: string;
 
@@ -13,5 +13,4 @@ export class Country {
 
   @ApiField()
   phoneCode?: string;
-
 }

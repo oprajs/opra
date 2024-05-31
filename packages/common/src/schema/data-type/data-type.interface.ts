@@ -8,12 +8,17 @@ export type DataType = SimpleType | EnumType | ComplexType | MappedType | MixinT
 
 export namespace DataType {
   export type Name = string;
-  export type Kind = ComplexType.Kind | EnumType.Kind |
-      MappedType.Kind | SimpleType.Kind | MixinType.Kind;
+  export type Kind = ComplexType.Kind | EnumType.Kind | MappedType.Kind | SimpleType.Kind | MixinType.Kind;
 }
 
 export interface DataTypeBase {
   kind: DataType.Kind;
   description?: string;
-  example?: string | string[];
+  examples?: DataTypeExample[];
+  abstract?: boolean;
+}
+
+export interface DataTypeExample {
+  description?: string;
+  value?: any;
 }

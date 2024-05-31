@@ -1,4 +1,4 @@
-const quotesRegEx = /'/g
+const quotesRegEx = /'/g;
 const escapeRegEx = /(\\)/g;
 const unescapeRegEx = /\\(.)/g;
 
@@ -11,9 +11,7 @@ function unescapeString(s: string): string {
 }
 
 export function quoteFilterString(s: string): string {
-  return "'" +
-      escapeString(s).replace(quotesRegEx, '\\\'') +
-      "'";
+  return "'" + escapeString(s).replace(quotesRegEx, "\\'") + "'";
 }
 
 export function unquoteFilterString(s: string): string {

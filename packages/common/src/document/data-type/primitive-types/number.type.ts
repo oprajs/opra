@@ -1,38 +1,33 @@
-import { isNumber, Validator, vg } from 'valgen';
+import { toNumber, Validator, vg } from 'valgen';
 import { DECODER, ENCODER } from '../../constants.js';
 import { SimpleType } from '../simple-type.js';
 
 @SimpleType({
-  description: 'Both Integer as well as Floating-Point numbers'
+  description: 'Both Integer as well as Floating-Point numbers',
 })
 export class NumberType {
-
-  constructor(attributes?: Partial<NumberType>) {
-    if (attributes)
-      Object.assign(this, attributes);
-  }
-
-  [DECODER](): Validator {
-    const x: Validator[] = [isNumber];
-    if (this.minValue)
-      x.push(vg.isLte(this.minValue))
-    if (this.maxValue)
-      x.push(vg.isGte(this.maxValue))
-    return x.length > 1 ? vg.allOf(...x) : x[0];
-  }
-
-  [ENCODER](): Validator {
-    return this[DECODER]();
+  constructor(properties?: Partial<NumberType>) {
+    if (properties) Object.assign(this, properties);
   }
 
   @SimpleType.Attribute({
-    description: 'Minimum value'
+    description: 'Determines the minimum value',
   })
   minValue?: number;
 
   @SimpleType.Attribute({
-    description: 'Maximum value'
+    description: 'Determines the maximum value',
   })
   maxValue?: number;
 
+  protected [DECODER](properties: Partial<this>): Validator {
+    const x: Validator[] = [];
+    if (properties.minValue) x.push(vg.isGte(properties.minValue));
+    if (properties.maxValue) x.push(vg.isLte(properties.maxValue));
+    return x.length > 0 ? vg.pipe([toNumber, ...x], { returnIndex: 0 }) : toNumber;
+  }
+
+  protected [ENCODER](properties: Partial<this>): Validator {
+    return this[DECODER](properties);
+  }
 }

@@ -3,10 +3,10 @@ import { ApiDocument } from '@opra/common';
 import { HttpEvent } from '../http/interfaces/http-event.js';
 
 export abstract class Backend implements Backend {
-  api?: ApiDocument;
+  document?: ApiDocument;
 
   protected constructor(options?: Backend.Options) {
-    this.api = options?.api;
+    this.document = options?.document;
   }
 
   abstract handle(init: Backend.RequestInit): Observable<HttpEvent>;
@@ -17,9 +17,8 @@ export abstract class Backend implements Backend {
  */
 export namespace Backend {
   export interface Options {
-    api?: ApiDocument;
+    document?: ApiDocument;
   }
 
-  export interface RequestInit {
-  }
+  export interface RequestInit {}
 }

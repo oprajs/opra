@@ -12,7 +12,8 @@ import {
   HttpEventType,
   HttpResponseEvent,
   HttpResponseHeaderEvent,
-  HttpSentEvent, HttpUploadProgressEvent
+  HttpSentEvent,
+  HttpUploadProgressEvent,
 } from './interfaces/http-event.js';
 import { HttpInterceptor } from './interfaces/http-interceptor.js';
 
@@ -21,7 +22,6 @@ import { HttpInterceptor } from './interfaces/http-interceptor.js';
  * @class FetchBackend
  */
 export class FetchBackend extends HttpBackend {
-
   interceptors: FetchBackend.Interceptor[];
   defaults: FetchBackend.RequestDefaults;
 
@@ -31,15 +31,19 @@ export class FetchBackend extends HttpBackend {
     this.interceptors = Array.from(new Set([...(options?.interceptors || [])]));
     this.defaults = {
       ...options?.defaults,
-      headers: options?.defaults?.headers instanceof Headers
-          ? options?.defaults?.headers : new Headers(options?.defaults?.headers),
-      params: options?.defaults?.params instanceof URLSearchParams
-          ? options?.defaults?.params : new URLSearchParams(options?.defaults?.params)
-    }
+      headers:
+        options?.defaults?.headers instanceof Headers
+          ? options?.defaults?.headers
+          : new Headers(options?.defaults?.headers),
+      params:
+        options?.defaults?.params instanceof URLSearchParams
+          ? options?.defaults?.params
+          : new URLSearchParams(options?.defaults?.params),
+    };
   }
 
   handle(init: FetchBackend.RequestInit): Observable<HttpEvent> {
-    return new Observable<HttpEvent>((subscriber) => {
+    return new Observable<HttpEvent>(subscriber => {
       (async () => {
         let request = this.prepareRequest(init);
 
@@ -57,9 +61,9 @@ export class FetchBackend extends HttpBackend {
                 type: HttpEventType.UploadProgress,
                 request,
                 total,
-                loaded
+                loaded,
               } satisfies HttpUploadProgressEvent);
-            }
+            },
           });
           request = new Request(request.url, {
             cache: request.cache,
@@ -77,7 +81,7 @@ export class FetchBackend extends HttpBackend {
             window: init.window,
             ...{
               // undici library requires
-              duplex: 'half'
+              duplex: 'half',
             },
           });
         }
@@ -99,12 +103,12 @@ export class FetchBackend extends HttpBackend {
           headers: fetchResponse.headers,
           status: fetchResponse.status,
           statusText: fetchResponse.statusText,
-          hasBody: !!fetchResponse.body
+          hasBody: !!fetchResponse.body,
         }) as HttpResponse<never>;
         subscriber.next({
           request,
           type: HttpEventType.ResponseHeader,
-          response: headersResponse
+          response: headersResponse,
         } satisfies HttpResponseHeaderEvent);
 
         // Parse body
@@ -115,25 +119,27 @@ export class FetchBackend extends HttpBackend {
             const contentLength = fetchResponse.headers.get('content-length') || '0';
             const total = parseInt(contentLength, 10) || 0;
             let loaded = 0;
-            const res = new Response(new ReadableStream({
-              async start(controller) {
-                const reader = fetchBody.getReader();
-                for (; ;) {
-                  const {done, value} = await reader.read();
-                  if (done) break;
-                  loaded += value.byteLength;
-                  controller.enqueue(value);
-                  // Emit 'DownloadProgress' event
-                  subscriber.next({
-                    type: HttpEventType.DownloadProgress,
-                    request,
-                    total,
-                    loaded
-                  } satisfies HttpDownloadProgressEvent);
-                }
-                controller.close();
-              },
-            }));
+            const res = new Response(
+              new ReadableStream({
+                async start(controller) {
+                  const reader = fetchBody.getReader();
+                  for (;;) {
+                    const { done, value } = await reader.read();
+                    if (done) break;
+                    loaded += value.byteLength;
+                    controller.enqueue(value);
+                    // Emit 'DownloadProgress' event
+                    subscriber.next({
+                      type: HttpEventType.DownloadProgress,
+                      request,
+                      total,
+                      loaded,
+                    } satisfies HttpDownloadProgressEvent);
+                  }
+                  controller.close();
+                },
+              }),
+            );
             body = await this.parseBody(res);
           } else {
             body = await this.parseBody(fetchResponse);
@@ -152,12 +158,11 @@ export class FetchBackend extends HttpBackend {
         subscriber.next({
           request,
           type: HttpEventType.Response,
-          response
+          response,
         } satisfies HttpResponseEvent);
 
         subscriber.complete();
-
-      })().catch(error => subscriber.error(error))
+      })().catch(error => subscriber.error(error));
     });
   }
 
@@ -169,17 +174,15 @@ export class FetchBackend extends HttpBackend {
     const headers = init.headers || new Headers();
     const requestInit: FetchBackend.RequestInit = {
       ...init,
-      headers
-    }
+      headers,
+    };
     this.defaults.headers.forEach((val, key) => {
-      if (!headers.has(key))
-        headers.set(key, val);
+      if (!headers.has(key)) headers.set(key, val);
     });
     const url = new OpraURL(requestInit.url, this.serviceUrl);
     if (this.defaults.params.size) {
       this.defaults.params.forEach((val, key) => {
-        if (!url.searchParams.has(key))
-          url.searchParams.set(key, val);
+        if (!url.searchParams.has(key)) url.searchParams.set(key, val);
       });
       requestInit.url = url.toString();
     }
@@ -188,7 +191,7 @@ export class FetchBackend extends HttpBackend {
       let contentType = '';
       if (typeof body === 'string' || typeof body === 'number' || typeof body === 'boolean') {
         contentType = 'text/plain; charset="UTF-8"';
-        requestInit.body = new Blob([String(body)], {type: contentType});
+        requestInit.body = new Blob([String(body)], { type: contentType });
         headers.set('Content-Length', String(requestInit.body.size));
         delete requestInit.duplex;
       } else if (isReadableStreamLike(body)) {
@@ -206,12 +209,11 @@ export class FetchBackend extends HttpBackend {
         delete requestInit.duplex;
       } else {
         contentType = 'application/json;charset="UTF-8"';
-        requestInit.body = new Blob([JSON.stringify(body)], {type: contentType});
+        requestInit.body = new Blob([JSON.stringify(body)], { type: contentType });
         headers.set('Content-Length', String(requestInit.body.size));
         delete requestInit.duplex;
       }
-      if (contentType && !headers.has('Content-Type'))
-        headers.set('Content-Type', contentType);
+      if (contentType && !headers.has('Content-Type')) headers.set('Content-Type', contentType);
     }
     return new Request(url.toString(), requestInit);
   }
@@ -222,23 +224,18 @@ export class FetchBackend extends HttpBackend {
 
   protected async parseBody(fetchResponse: Response): Promise<any> {
     let body: any;
-    const contentType = (fetchResponse.headers.get('Content-Type') || '');
+    const contentType = fetchResponse.headers.get('Content-Type') || '';
     if (typeIs.is(contentType, ['json', 'application/*+json'])) {
       body = await fetchResponse.json();
-      if (typeof body === 'string')
-        body = JSON.parse(body);
-    } else if (typeIs.is(contentType, ['text']))
-      body = await fetchResponse.text();
-    else if (typeIs.is(contentType, ['multipart']))
-      body = await fetchResponse.formData();
+      if (typeof body === 'string') body = JSON.parse(body);
+    } else if (typeIs.is(contentType, ['text'])) body = await fetchResponse.text();
+    else if (typeIs.is(contentType, ['multipart'])) body = await fetchResponse.formData();
     else {
       const buf = await fetchResponse.arrayBuffer();
-      if (buf.byteLength)
-        body = buf;
+      if (buf.byteLength) body = buf;
     }
     return body;
   }
-
 }
 
 type DomRequestInit = RequestInit;
@@ -246,7 +243,6 @@ type DomRequestInit = RequestInit;
  * @namespace FetchBackend
  */
 export namespace FetchBackend {
-
   export type Interceptor = HttpInterceptor<RequestInit>;
 
   export interface Options extends HttpBackend.Options {
@@ -259,14 +255,22 @@ export namespace FetchBackend {
     reportProgress?: boolean;
   }
 
-  export interface RequestOptions extends Pick<RequestInit, 'cache' | 'credentials' |
-      'integrity' | 'keepalive' | 'mode' | 'redirect' | 'referrer' | 'referrerPolicy' |
-      'reportProgress'> {
-  }
+  export interface RequestOptions
+    extends Pick<
+      RequestInit,
+      | 'cache'
+      | 'credentials'
+      | 'integrity'
+      | 'keepalive'
+      | 'mode'
+      | 'redirect'
+      | 'referrer'
+      | 'referrerPolicy'
+      | 'reportProgress'
+    > {}
 
   export type RequestDefaults = RequestOptions & {
     headers: Headers;
     params: URLSearchParams;
   };
-
 }

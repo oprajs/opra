@@ -3,10 +3,10 @@ import { ApiDocument, ApiDocumentFactory } from '@opra/common';
 import {
   ExecutionContextHost,
   HttpServerRequest,
-  HttpServerResponse, NodeHttpAdapter,
-  RequestContext,
+  HttpOutgoingHost, NodeHttpAdapter,
+  HttpContext,
   RequestHost,
-  ResponseHost
+  HttpOutgoingHost
 } from '@opra/core';
 import { CustomersResource } from './resources/customers.resource.js';
 import { MyProfileResource } from './resources/my-profile.resource.js';
@@ -60,7 +60,7 @@ export class TestApp {
       controller: {},
       handler: null
     } as any);
-    const response = new ResponseHost({http: outgoing});
+    const response = new HttpOutgoingHost({http: outgoing});
     const executionContext = new ExecutionContextHost(this.api, 'http', {http: {incoming, outgoing}});
     return RequestContext.from(executionContext, this.api, request, response);
   }

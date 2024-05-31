@@ -1,9 +1,9 @@
 import { Nullish, Type } from 'ts-gems';
 import { DTO, PartialDTO, PatchDTO } from '@opra/common';
-import { ApiService, RequestContext } from '@opra/core';
+import { ServiceBase, HttpContext } from '@opra/core';
 import { EntityInput, EntityMetadata, Repository, SqbClient, SqbConnection } from '@sqb/connect';
 
-export class SqbEntityServiceBase<T> extends ApiService {
+export class SqbEntityServiceBase<T> extends ServiceBase {
   defaultLimit: number;
   db?: SqbClient | SqbConnection;
 
@@ -163,7 +163,7 @@ export class SqbEntityServiceBase<T> extends ApiService {
     }
   }
 
-  for<C extends RequestContext, P extends Partial<this>>(
+  for<C extends HttpContext, P extends Partial<this>>(
       context: C,
       overwriteProperties?: Nullish<P>,
       overwriteContext?: Partial<C>

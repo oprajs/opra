@@ -7,8 +7,8 @@ import { HttpClientBase } from './http-client-base.js';
  * @class HttpFetchClient
  */
 export class HttpFetchClient<
-    TRequestOptions extends FetchBackend.RequestOptions = FetchBackend.RequestOptions,
-    TResponseExt = {}
+  TRequestOptions extends FetchBackend.RequestOptions = FetchBackend.RequestOptions,
+  TResponseExt = {},
 > extends HttpClientBase<TRequestOptions, TResponseExt> {
   [kBackend]: FetchBackend;
 
@@ -19,5 +19,4 @@ export class HttpFetchClient<
   get defaults(): FetchBackend.RequestDefaults {
     return this[kBackend].defaults;
   }
-
 }

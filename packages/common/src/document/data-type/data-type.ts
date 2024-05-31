@@ -1,63 +1,94 @@
-import { RequiredSome, StrictOmit, Type } from 'ts-gems';
-import { OnFailFunction, Validator } from 'valgen';
+import { asMutable, StrictOmit } from 'ts-gems';
+import { ValidationOptions, Validator } from 'valgen';
 import { omitUndefined } from '../../helpers/index.js';
 import type { DataTypeBase } from '../../schema/data-type/data-type.interface.js';
 import { OpraSchema } from '../../schema/index.js';
-import type { ApiNode } from '../api-node';
-import { TYPENAME_PATTERN } from '../constants.js';
-import {
-  colorFgMagenta,
-  colorFgYellow,
-  colorReset,
-  nodeInspectCustom
-} from '../utils/inspect.util.js';
-import { ApiField } from './field.js';
+import { DocumentElement } from '../common/document-element.js';
+import { DocumentInitContext } from '../common/document-init-context.js';
+import { CLASS_NAME_PATTERN } from '../constants.js';
+import { colorFgMagenta, colorFgYellow, colorReset, nodeInspectCustom } from '../utils/inspect.util.js';
 
 /**
- * @class DataType
- * @abstract
+ * @namespace DataType
  */
-export abstract class DataType {
-  readonly documentNode: ApiNode;
-  readonly kind: OpraSchema.DataType.Kind;
-  readonly name?: string;
-  readonly base?: DataType;
-  readonly own: DataType.OwnProperties;
-  readonly isEmbedded?: boolean;
-  description?: string;
-
-  protected constructor(documentNode: ApiNode, init?: DataType.InitArguments) {
-    if (init?.name && !TYPENAME_PATTERN.test(init.name))
-      throw new TypeError(`"${init.name}" is not a valid type name`);
-    this.base = typeof init?.base === 'string' ? documentNode.getDataType(init.base) : init?.base;
-    this.own = {
-      embedded: init?.embedded
-    };
-    this.documentNode = documentNode;
-    this.name = init?.name;
-    this.description = init?.description;
-    this.isEmbedded = init?.embedded || !this.name;
+export namespace DataType {
+  export interface Metadata extends DataTypeBase {
+    name?: string;
   }
 
-  abstract generateCodec(codec: 'decode' | 'encode', options?: DataType.GenerateCodecOptions): Validator;
+  export interface Options extends Partial<StrictOmit<Metadata, 'kind' | 'examples'>> {
+    embedded?: boolean;
+  }
+
+  export interface InitArguments extends DataType.Metadata {}
+
+  export interface GenerateCodecOptions extends ValidationOptions {
+    documentPath?: DocumentElement;
+    caseInSensitive?: boolean;
+  }
+}
+
+interface DataTypeStatic {
+  new (owner: DocumentElement, args?: DataType.InitArguments, context?: DocumentInitContext): DataType;
+
+  prototype: DataType;
+}
+
+/**
+ * Type definition of DataType prototype
+ * @interface DataType
+ */
+export interface DataType extends DataTypeClass {}
+
+/**
+ * DataType constructor
+ */
+export const DataType = function (
+  this: DataType,
+  owner: DocumentElement,
+  initArgs: DataType.InitArguments,
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  context?: DocumentInitContext,
+) {
+  if (!this) throw new TypeError('"this" should be passed to call class constructor');
+  if (initArgs?.name && !CLASS_NAME_PATTERN.test(initArgs.name))
+    throw new TypeError(`"${initArgs.name}" is not a valid DataType name`);
+  DocumentElement.call(this, owner);
+  const _this = asMutable(this);
+  _this.kind = initArgs.kind;
+  _this.name = initArgs.name;
+  _this.description = initArgs.description;
+  _this.abstract = initArgs.abstract;
+  _this.examples = initArgs.examples;
+} as Function as DataTypeStatic;
+
+/**
+ *
+ * @class DataType
+ */
+abstract class DataTypeClass extends DocumentElement {
+  readonly kind: OpraSchema.DataType.Kind;
+  readonly owner: DocumentElement;
+  readonly name?: string;
+  readonly description?: string;
+  readonly abstract?: boolean;
+  readonly examples?: OpraSchema.DataTypeExample[];
+
+  abstract generateCodec(codec: 'encode' | 'decode', options?: DataType.GenerateCodecOptions): Validator;
+
+  get embedded(): any {
+    return !this.name;
+  }
+
+  abstract extendsFrom(baseType: DataType): boolean;
 
   toJSON(): OpraSchema.DataType {
     return omitUndefined({
       kind: this.kind,
       description: this.description,
-      base: this.base?.isEmbedded ? this.base.toJSON() : this.base?.name,
+      abstract: this.abstract,
+      examples: this.examples,
     }) as OpraSchema.DataType;
-  }
-
-  extendsFrom(type: string | Type | DataType): any {
-    const dataType = type instanceof DataType ? type : this.documentNode.findDataType(type);
-    let t: DataType | undefined = this;
-    while (t) {
-      if (t === dataType)
-        return true;
-      t = t.base;
-    }
-    return false;
   }
 
   toString(): string {
@@ -65,49 +96,11 @@ export abstract class DataType {
   }
 
   [nodeInspectCustom](): string {
-    return `[${colorFgYellow + Object.getPrototypeOf(this).constructor.name + colorReset}` +
-        ` ${colorFgMagenta + this.name + colorReset}]`;
+    return (
+      `[${colorFgYellow + Object.getPrototypeOf(this).constructor.name + colorReset}` +
+      ` ${colorFgMagenta + this.name + colorReset}]`
+    );
   }
-
 }
 
-export namespace DataType {
-
-  export interface InitArguments extends Pick<DataTypeBase, 'description' | 'example'> {
-    base?: DataType | string;
-    name?: string;
-    embedded?: boolean;
-  }
-
-  export interface DecoratorOptions extends InitArguments {
-  }
-
-  export interface Metadata extends RequiredSome<DecoratorOptions, 'name'> {
-    kind: OpraSchema.DataType.Kind;
-  }
-
-  export interface OwnProperties {
-    embedded?: boolean;
-  }
-
-  export type GenerateCodecField = StrictOmit<ApiField.InitArguments, 'type' | 'name'> & {
-    type?: DataType | string;
-  }
-
-  export type OverrideFieldsConfig = GenerateCodecField & {
-    overrideFields?: Record<string, OverrideFieldsConfig>
-  };
-
-  export interface GenerateCodecOptions {
-    caseInSensitive?: boolean;
-    pick?: string[] | readonly string[];
-    omit?: string[] | readonly string[];
-    partial?: boolean;
-    operation?: 'read' | 'write';
-    overwriteFields?: Record<string, OverrideFieldsConfig>;
-    designType?: Type;
-    onFail?: OnFailFunction;
-  }
-
-
-}
+DataType.prototype = DataTypeClass.prototype;

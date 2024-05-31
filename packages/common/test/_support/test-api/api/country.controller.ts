@@ -1,15 +1,23 @@
-import { HttpOperation, HttpResource } from '@opra/common';
+import { HttpController, HttpOperation } from '@opra/common';
 import { Country } from '../entities/country.entity.js';
 
-@HttpResource({
+@HttpController({
   description: 'Country resource',
-  name: 'Countries'
-}).KeyParameter('code')
+  path: 'Countries@:countryCode',
+}).PathParam('countryCode', String)
 export class CountryController {
-
-  @HttpOperation.Entity.Get(Country, 'id')
+  @HttpOperation.Entity.Get(Country)
   get() {
     //
   }
 
+  @HttpOperation.Entity.Delete(Country)
+  delete() {
+    //
+  }
+
+  @HttpOperation.Entity.Update(Country)
+  update() {
+    //
+  }
 }

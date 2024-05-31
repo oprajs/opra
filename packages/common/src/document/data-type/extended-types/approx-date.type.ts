@@ -4,40 +4,34 @@ import { SimpleType } from '../simple-type.js';
 
 @SimpleType({
   description: 'An approximate date value',
-  example: [
-    '2021-04-18',
-    '2021-04',
-    '2021',
-  ]
 })
+  .Example('2021-04-18', 'Full date value')
+  .Example('2021-04', 'Date value without day')
+  .Example('2021', 'Year only value')
 export class ApproxDateType {
-
   constructor(attributes?: Partial<ApproxDateType>) {
-    if (attributes)
-      Object.assign(this, attributes);
+    if (attributes) Object.assign(this, attributes);
   }
 
-  [DECODER](): Validator {
-    const x: Validator[] = [vg.isDateString({trim: 'date'})];
-    if (this.minValue)
-      x.push(vg.isLte(this.minValue))
-    if (this.maxValue)
-      x.push(vg.isGte(this.maxValue))
-    return x.length > 1 ? vg.allOf(...x) : x[0];
+  protected [DECODER](properties: Partial<this>): Validator {
+    const fn = vg.isDateString({ trim: 'date', coerce: true });
+    const x: Validator[] = [];
+    if (properties.minValue) x.push(vg.isGte(properties.minValue));
+    if (properties.maxValue) x.push(vg.isLte(properties.maxValue));
+    return x.length > 0 ? vg.pipe([fn, ...x], { returnIndex: 0 }) : fn;
   }
 
-  [ENCODER](): Validator {
-    return this[DECODER]();
+  protected [ENCODER](properties: Partial<this>): Validator {
+    return this[DECODER](properties);
   }
 
   @SimpleType.Attribute({
-    description: 'Minimum value'
+    description: 'Minimum value',
   })
   minValue?: string;
 
   @SimpleType.Attribute({
-    description: 'Maximum value'
+    description: 'Maximum value',
   })
   maxValue?: string;
-
 }

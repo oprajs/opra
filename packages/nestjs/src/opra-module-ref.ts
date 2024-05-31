@@ -12,7 +12,7 @@ export class OpraModuleRef {
   }
 
   get api(): ApiDocument {
-    return this[kAdapter].api;
+    return this[kAdapter].document;
   }
 
   get options(): OpraModuleOptions {

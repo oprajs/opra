@@ -2,7 +2,7 @@ import { EnumType } from '@opra/common';
 
 export enum GenderEnum {
   MALE = 'M',
-  FEMALE = 'F'
+  FEMALE = 'F',
 }
 
 EnumType(GenderEnum, {
@@ -10,6 +10,6 @@ EnumType(GenderEnum, {
   description: 'The gender of a person',
   meanings: {
     MALE: 'Male person',
-    FEMALE: 'Female person'
-  }
-})
+    FEMALE: 'Female person',
+  },
+});

@@ -1,23 +1,20 @@
-import { isEmail, isObjectId, isString, Validator, vg } from 'valgen';
-import { DECODER, ENCODER } from '../../constants';
+import { Validator, vg } from 'valgen';
+import { DECODER, ENCODER } from '../../constants.js';
 import { SimpleType } from '../simple-type.js';
 
 @SimpleType({
-  description: 'A MongoDB ObjectID value'
+  description: 'A MongoDB ObjectID value',
 })
 export class ObjectIdType {
-
   constructor(attributes?: Partial<ObjectIdType>) {
-    if (attributes)
-      Object.assign(this, attributes);
+    if (attributes) Object.assign(this, attributes);
   }
 
-  [DECODER](): Validator {
-    return isObjectId;
+  protected [DECODER](): Validator {
+    return vg.isObjectId({ coerce: true });
   }
 
-  [ENCODER](): Validator {
-    return vg.pipe(isObjectId, isString);
+  protected [ENCODER](): Validator {
+    return vg.isObjectId({ coerce: true });
   }
-
 }

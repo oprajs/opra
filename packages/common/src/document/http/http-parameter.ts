@@ -1,104 +1,96 @@
-import { StrictOmit, TypeThunkAsync } from 'ts-gems';
-import { Validator, validator, vg } from 'valgen';
+import { asMutable, Combine, StrictOmit, TypeThunkAsync } from 'ts-gems';
 import { omitUndefined } from '../../helpers/index.js';
 import type { OpraSchema } from '../../schema/index.js';
-import { ApiNode } from '../api-node.js';
+import { HttpParameterLocation } from '../../schema/types.js';
+import { DocumentElement } from '../common/document-element.js';
+import { Value } from '../common/value.js';
 import { DataType } from '../data-type/data-type.js';
 import type { EnumType } from '../data-type/enum-type.js';
 import { parseRegExp } from '../utils/parse-regexp.util.js';
 
+/**
+ * @namespace HttpParameter
+ */
 export namespace HttpParameter {
-  export interface InitArguments extends StrictOmit<OpraSchema.Http.Parameter, 'type'> {
-    type?: string | DataType;
+  export interface Metadata extends StrictOmit<OpraSchema.HttpParameter, 'type'> {
+    name: string | RegExp;
+    type?: string | TypeThunkAsync | EnumType.EnumObject | EnumType.EnumArray | object;
   }
 
-  export interface DecoratorMetadata extends StrictOmit<OpraSchema.Http.Parameter, 'type'> {
-    type?: TypeThunkAsync | string | EnumType.EnumObject | EnumType.EnumArray | object;
+  export interface Options extends Partial<StrictOmit<Metadata, 'type'>> {
+    type?: string | TypeThunkAsync | object;
   }
 
-  export interface DecoratorOptions extends Partial<StrictOmit<DecoratorMetadata, 'name'>> {
-  }
-
+  export interface InitArguments
+    extends Combine<
+      {
+        type?: DataType;
+      },
+      Metadata
+    > {}
 }
-
 
 /**
- *
+ * Type definition for HttpParameter
  * @class HttpParameter
  */
-export class HttpParameter extends ApiNode {
-  protected _decoder: Validator;
-  protected _encoder: Validator;
-  readonly name: string | RegExp;
-  type?: DataType;
-  description?: string;
-  deprecated?: boolean | string;
-  examples?: any[] | Record<string, any>;
-  required?: boolean;
-  isArray?: boolean;
-  readonly isBuiltin?: boolean;
+interface HttpParameterStatic {
+  new (owner: DocumentElement, args: HttpParameter.InitArguments): HttpParameter;
 
-  constructor(parent: ApiNode, init: HttpParameter.InitArguments) {
-    super(parent);
-    const name = String(init.name);
-    if (name.startsWith('/'))
-      this.name = parseRegExp(name, {includeFlags: 'i', excludeFlags: 'm'})
-    else this.name = name;
-    if (init.type) {
-      if (init.type instanceof DataType) {
-        this.type = init.type.isEmbedded ? init.type : this.findDataType(init.type.name!);
-        if (!this.type)
-          throw new TypeError(`Datatype (${init.type.name!}) given for parameter "${this.name}" is not belong to this document scope`);
-      } else {
-        this.type = this.findDataType(init.type);
-        if (!this.type)
-          throw new TypeError(`Datatype (${init.type}) given for parameter "${this.name}" could not be found in document scope`);
-      }
-    }
-    this.description = init.description;
-    this.required = init.required;
-    this.isArray = init.isArray;
-    this.deprecated = init.deprecated;
-    this.examples = init.examples;
-  }
-
-  toJSON(): OpraSchema.Http.Parameter {
-    return omitUndefined<OpraSchema.Http.Parameter>({
-      name: this.name,
-      type: this.type?.name,
-      description: this.description,
-      isArray: this.isArray,
-      required: this.required,
-      deprecated: this.deprecated,
-      examples: this.examples
-    })
-  }
-
-  getDecoder(): Validator {
-    if (!this._decoder) {
-      let fn = this.type?.generateCodec('decode', {
-        operation: 'write',
-        caseInSensitive: true
-      }) || vg.isAny();
-      if (this.isArray)
-        fn = vg.pipe(vg.stringSplit(','), vg.isArray(fn));
-      this._decoder = this.required ? vg.required(fn) : vg.optional(fn);
-    }
-    return this._decoder;
-  }
-
-  getEncoder(): Validator {
-    if (!this._encoder) {
-      let fn = this.type?.generateCodec('encode', {
-        operation: 'read',
-        caseInSensitive: true
-      }) || vg.isAny();
-      if (this.isArray)
-        fn = vg.pipe(vg.isArray(fn), validator('toString', (x) => x != null ? String(x) : x));
-      this._encoder = this.required ? vg.required(fn) : vg.optional(fn);
-    }
-    return this._encoder;
-  }
-
+  prototype: HttpParameter;
 }
 
+/**
+ * Type definition of HttpParameter prototype
+ * @interface HttpParameter
+ */
+export interface HttpParameter extends HttpParameterClass {}
+
+export const HttpParameter = function (
+  this: HttpParameter,
+  owner: DocumentElement,
+  initArgs: HttpParameter.InitArguments,
+) {
+  if (!this) throw new TypeError('"this" should be passed to call class constructor');
+  Value.call(this, owner, initArgs);
+  const _this = asMutable(this);
+  if (initArgs.name) {
+    _this.name =
+      initArgs.name instanceof RegExp
+        ? initArgs.name
+        : initArgs.name.startsWith('/')
+          ? parseRegExp(initArgs.name, {
+              includeFlags: 'i',
+              excludeFlags: 'm',
+            })
+          : initArgs.name;
+  }
+  _this.location = initArgs.location;
+  _this.deprecated = initArgs.deprecated;
+  _this.required = initArgs.required;
+  _this.arraySeparator = initArgs.arraySeparator;
+} as Function as HttpParameterStatic;
+
+/**
+ * @class HttpParameter
+ */
+class HttpParameterClass extends Value {
+  readonly owner: DocumentElement;
+  deprecated?: boolean | string;
+  required?: boolean;
+  arraySeparator?: string;
+  location: HttpParameterLocation;
+
+  toJSON(): OpraSchema.HttpParameter {
+    return omitUndefined<OpraSchema.HttpParameter>({
+      ...super.toJSON(),
+      name: this.name,
+      location: this.location,
+      arraySeparator: this.arraySeparator,
+      required: this.required,
+      deprecated: this.deprecated,
+    });
+  }
+}
+
+HttpParameter.prototype = HttpParameterClass.prototype;

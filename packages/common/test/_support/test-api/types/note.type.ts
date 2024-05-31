@@ -2,10 +2,9 @@ import { ApiField, ComplexType } from '@opra/common';
 
 @ComplexType({
   description: 'Address information',
-  additionalFields: true
+  additionalFields: true,
 })
 export class Note {
-
   @ApiField()
   title: string;
 
@@ -15,7 +14,6 @@ export class Note {
   @ApiField()
   rank: number;
 
-  @ApiField({exclusive: true})
+  @ApiField({ exclusive: true })
   largeContent: string;
-
 }

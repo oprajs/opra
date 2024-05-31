@@ -1,6 +1,6 @@
 import { InstanceWrapper } from '@nestjs/core/injector/instance-wrapper';
 import { Module } from '@nestjs/core/injector/module';
-import { OpraSchema, RESOURCE_METADATA } from '@opra/common';
+import { OpraSchema, HTTP_CONTROLLER_METADATA } from '@opra/common';
 
 type WrapperCallback = (wrapper: InstanceWrapper, tree: Module[]) => void;
 
@@ -32,7 +32,7 @@ export class NestExplorer {
       if (wrapper.instance
           && typeof wrapper.instance === 'object'
           && wrapper.instance.constructor
-          && OpraSchema.isResource(Reflect.getMetadata(RESOURCE_METADATA, wrapper.instance.constructor))) {
+          && OpraSchema.isAnyResource(Reflect.getMetadata(HTTP_CONTROLLER_METADATA, wrapper.instance.constructor))) {
         callback(wrapper, tree);
       }
       return false;

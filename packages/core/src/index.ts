@@ -1,34 +1,43 @@
-import "reflect-metadata";
+import 'reflect-metadata';
 import './augmentation/18n.augmentation.js';
-import './augmentation/resource.augmentation.js';
-import './augmentation/collection.augmentation.js';
-import './augmentation/container.augmentation.js';
-import './augmentation/singleton.augmentation.js';
-import './augmentation/storage.augmentation.js';
+import './augmentation/http-controller.augmentation.js';
+import * as ExecutionContextHost_ from './server/base/execution-context.host.js';
+import * as PlatformAdapterHost_ from './server/base/platform-adapter.host.js';
+import * as ExpressAdapterHost_ from './server/http/adapters/express-adapter.host.js';
+import * as HttpAdapterHost_ from './server/http/http-adapter-host.js';
+import * as HttpContextHost_ from './server/http/http-context.host.js';
+import * as HttpIncomingHost_ from './server/http/http-incoming.host.js';
+import * as HttpOutgoingHost_ from './server/http/http-outgoing.host.js';
+import * as NodeIncomingMessageHost_ from './server/http/node-incoming-message.host.js';
+import * as NodeOutgoingMessageHost_ from './server/http/node-outgoing-message.host.js';
 
-export * from './execution-context.js';
-export * from './execution-context.host.js';
-export * from './platform-adapter.js';
-export * from './platform-adapter.host.js';
-export * from './request.js';
-export * from './request.host.js';
-export * from './request-context.js';
-export * from './response.js';
-export * from './response.host.js';
+export * from './helpers/logger.js';
+export * from './helpers/service-base.js';
 
-export * from './http/adapters/express-adapter.js';
-export * from './http/adapters/express-adapter.host.js';
-export * from './http/adapters/node-http-adapter.js';
-export * from './http/adapters/node-http-adapter.host.js';
-export * from './http/impl/http-incoming-message.host.js';
-export * from './http/impl/http-outgoing-message.host.js';
-export * from './http/http-server-request.js';
-export * from './http/http-server-response.js';
-export * from './http/helpers/multipart-helper.js';
+export * from './server/base/execution-context.host.js';
+export * from './server/base/interfaces/execution-context.interface.js';
+export * from './server/base/interfaces/logger.interface.js';
+export * from './server/base/interfaces/platform-adapter.interface.js';
 
-export * from './interfaces/interceptor.interface.js';
-export * from './interfaces/logger.interface.js';
-export * from './interfaces/request-handler.interface.js';
+export * from './server/http/adapters/express-adapter.js';
+export * from './server/http/interfaces/http-adapter.interface.js';
+export * from './server/http/interfaces/http-context.interface.js';
+export * from './server/http/interfaces/http-incoming.interface.js';
+export * from './server/http/interfaces/http-outgoing.interface.js';
+export * from './server/http/interfaces/node-incoming-message.interface.js';
+export * from './server/http/interfaces/node-outgoing-message.interface.js';
+export * from './server/http/multipart-reader.js';
 
-export * from './services/logger.js';
-export * from './services/api-service.js';
+export * from './type-guards.js';
+
+export namespace classes {
+  export import ExecutionContextHost = ExecutionContextHost_.ExecutionContextHost;
+  export import PlatformAdapterHost = PlatformAdapterHost_.PlatformAdapterHost;
+  export import HttpAdapterHost = HttpAdapterHost_.HttpAdapterHost;
+  export import HttpContextHost = HttpContextHost_.HttpContextHost;
+  export import HttpIncomingHost = HttpIncomingHost_.HttpIncomingHost;
+  export import HttpOutgoingHost = HttpOutgoingHost_.HttpOutgoingHost;
+  export import NodeIncomingMessageHost = NodeIncomingMessageHost_.NodeIncomingMessageHost;
+  export import NodeOutgoingMessageHost = NodeOutgoingMessageHost_.NodeOutgoingMessageHost;
+  export import ExpressAdapterHost = ExpressAdapterHost_.ExpressAdapterHost;
+}

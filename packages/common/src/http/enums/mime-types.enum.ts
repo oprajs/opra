@@ -5,14 +5,9 @@
  */
 
 export enum MimeTypes {
-
   json = 'application/json',
 
   opra_response_json = 'application/opra.response+json',
-
-  opra_collection_json = 'application/opra.collection+json',
-
-  opra_instance_json = 'application/opra.instance+json',
 
   xml = 'application/XML',
 
@@ -23,5 +18,4 @@ export enum MimeTypes {
   markdown = 'text/markdown',
 
   binary = 'binary/octet-stream',
-
 }

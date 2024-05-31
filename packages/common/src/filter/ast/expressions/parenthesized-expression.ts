@@ -11,5 +11,4 @@ export class ParenthesizedExpression extends Expression {
   toString(): string {
     return `(${this.expression})`;
   }
-
 }

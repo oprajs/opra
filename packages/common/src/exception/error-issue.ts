@@ -1,7 +1,6 @@
 import { IssueSeverity } from './issue-severity.enum.js';
 
 export interface ErrorIssue {
-
   // Human-readable description of the issue
   message: string;
 

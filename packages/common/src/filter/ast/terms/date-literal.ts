@@ -26,5 +26,4 @@ export class DateLiteral extends Literal {
   toString(): string {
     return quoteFilterString(this.value);
   }
-
 }

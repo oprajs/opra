@@ -17,6 +17,7 @@
     "build:esm": "tsc -b tsconfig-build-esm.json",
     "postbuild": "cp README.md package.json ../../LICENSE ../../build/elastic && cp ../../package.cjs.json ../../build/elastic/cjs/package.json",
     "lint": "eslint . --max-warnings=0",
+    "format": "prettier . --write --log-level=warn",
     "test": "jest",
     "cover": "jest --collect-coverage",
     "clean": "npm run clean:src && npm run clean:test && npm run clean:dist && npm run clean:cover",
@@ -26,9 +27,9 @@
     "clean:cover": "rimraf ../../coverage/client"
   },
   "devDependencies": {
-    "@elastic/elasticsearch": "^8.11.0",
-    "@faker-js/faker": "^8.4.0",
-    "ts-gems": "^3.1.1"
+    "@elastic/elasticsearch": "^8.13.1",
+    "@faker-js/faker": "^8.4.1",
+    "ts-gems": "^3.4.0"
   },
   "peerDependencies": {
     "@elastic/elasticsearch": ">=8.7.0",

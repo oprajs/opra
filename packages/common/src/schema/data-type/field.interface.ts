@@ -6,7 +6,7 @@ export namespace Field {
 }
 
 export type Field = {
-  type: DataType.Name | DataType;
+  type?: DataType.Name | DataType;
 
   /**
    * Defines the description of the field
@@ -26,7 +26,7 @@ export type Field = {
   /**
    * Indicates the fixed value of the field. The value of the field can not be any other value.
    */
-  fixed?: string | number | boolean;
+  fixed?: any;
 
   /**
    * Indicates if field value required in create operation
@@ -63,15 +63,4 @@ export type Field = {
    * Indicates if the field is deprecated and can be removed in the next
    */
   deprecated?: boolean | string;
-
-  /**
-   * Defines RegExp pattern for the field. A String type is required for this option
-   */
-  pattern?: string;
-
-  /**
-   * Indicates if partial update enabled for this field
-   */
-  partialUpdate?: boolean;
-
-}
+};

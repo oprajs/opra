@@ -2,7 +2,6 @@ import { quoteFilterString } from '../../utils.js';
 import { Literal } from '../abstract/literal.js';
 
 export class StringLiteral extends Literal {
-
   constructor(value: string) {
     super('' + value);
   }
@@ -10,5 +9,4 @@ export class StringLiteral extends Literal {
   toString(): string {
     return quoteFilterString(this.value);
   }
-
 }

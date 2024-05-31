@@ -9,29 +9,27 @@ import { Country } from './country.entity.js';
   description: 'Customer information',
 })
 export class Customer extends MixinType(Record, Person) {
-
   @ApiField()
   uid?: string;
 
   @ApiField()
   active: boolean;
 
-  @ApiField({type: new StringType({pattern: /[a-z]{3}/i})})
+  @ApiField({ type: new StringType({ pattern: /[a-z]{3}/i }) })
   countryCode: string;
 
   @ApiField()
   rate: number;
 
-  @ApiField({type: 'date'})
+  @ApiField({ type: 'date' })
   fillerDate: string; // to test string date
 
-  @ApiField({type: Address, exclusive: true})
+  @ApiField({ type: Address, exclusive: true })
   address?: Address;
 
-  @ApiField({type: Note, exclusive: true})
+  @ApiField({ type: Note, exclusive: true })
   notes?: Note[];
 
-  @ApiField({exclusive: true})
+  @ApiField({ exclusive: true })
   readonly country?: Country;
-
 }

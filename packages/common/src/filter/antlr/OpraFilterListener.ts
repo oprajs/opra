@@ -1,6 +1,6 @@
 // Generated from ./src/filter/antlr/OpraFilter.g4 by ANTLR 4.12.0
 
-import { ParseTreeListener } from "@browsery/antlr4";
+import { ParseTreeListener } from '@browsery/antlr4';
 import {
   ArithmeticOperatorContext,
   ArrayValueContext,
@@ -28,9 +28,8 @@ import {
   QualifiedIdentifierContext,
   RootContext,
   StringLiteralContext,
-  TimeLiteralContext
-} from "./OpraFilterParser.js";
-
+  TimeLiteralContext,
+} from './OpraFilterParser.js';
 
 /**
  * This interface defines a complete listener for a parse tree produced by
@@ -332,4 +331,3 @@ export default class OpraFilterListener extends ParseTreeListener {
    */
   exitPolarityOperator?: (ctx: PolarityOperatorContext) => void;
 }
-

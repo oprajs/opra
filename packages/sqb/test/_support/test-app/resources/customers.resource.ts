@@ -1,5 +1,5 @@
 import { Collection } from '@opra/common';
-import { RequestContext } from '@opra/core';
+import { HttpContext } from '@opra/core';
 import { SqbCollection, SqbEntityService } from '@opra/sqb';
 import { SqbClient } from '@sqb/connect';
 import { Customer } from '../entities/customer.entity.js';
@@ -50,7 +50,7 @@ export class CustomersResource extends SqbCollection<Customer> {
       .Filter('rate', ['=', '>', '<', '>=', '<=', 'in', '!in'])
   findMany;
 
-  getService(ctx: RequestContext) {
+  getService(ctx: HttpContext) {
     return this.service.for(ctx);
   }
 

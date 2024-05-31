@@ -2,12 +2,12 @@ import '../jest-extend/index.js';
 import { HttpResponse } from '@opra/client';
 
 export class ApiExpectBase {
-  readonly response: HttpResponse
+  readonly response: HttpResponse;
   protected readonly isNot?: boolean;
 
   constructor(response: HttpResponse, isNot?: boolean) {
-      this.response = response;
-      this.isNot = isNot;
+    this.response = response;
+    this.isNot = isNot;
   }
 
   protected _expect(expected: any): jest.Matchers<any> {
@@ -15,7 +15,4 @@ export class ApiExpectBase {
     if (this.isNot) return out.not;
     return out;
   }
-
 }
-
-

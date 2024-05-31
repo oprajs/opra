@@ -2,7 +2,6 @@ import { omitNullish } from '@opra/common';
 import { ApiExpectBase } from './api-expect-base.js';
 
 export class ApiExpectObject extends ApiExpectBase {
-
   get not(): ApiExpectObject {
     return new ApiExpectObject(this.response, !this.isNot);
   }
@@ -14,9 +13,7 @@ export class ApiExpectObject extends ApiExpectBase {
   toMatch<T extends {}>(expected: T): this {
     try {
       expected = omitNullish(expected) as T;
-      this._expect(this.response.body.payload).toEqual(
-          expect.objectContaining(expected)
-      )
+      this._expect(this.response.body.payload).toEqual(expect.objectContaining(expected));
     } catch (e: any) {
       Error.captureStackTrace(e, this.toMatch);
       throw e;
@@ -31,8 +28,7 @@ export class ApiExpectObject extends ApiExpectBase {
   toContainFields(fields: string | string[]): this {
     try {
       fields = Array.isArray(fields) ? fields : [fields];
-      this._expect(Object.keys(this.response.body.payload))
-          .toEqual(expect.arrayContaining(fields));
+      this._expect(Object.keys(this.response.body.payload)).toEqual(expect.arrayContaining(fields));
     } catch (e: any) {
       Error.captureStackTrace(e, this.toContainFields);
       throw e;
@@ -47,14 +43,11 @@ export class ApiExpectObject extends ApiExpectBase {
   toContainAllFields(fields: string | string[]): this {
     try {
       fields = Array.isArray(fields) ? fields : [fields];
-      this._expect(Object.keys(this.response.body.payload))
-          .toEqual(fields);
+      this._expect(Object.keys(this.response.body.payload)).toEqual(fields);
     } catch (e: any) {
       Error.captureStackTrace(e, this.toContainAllFields);
       throw e;
     }
     return this;
   }
-
 }
-

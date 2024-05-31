@@ -10,20 +10,18 @@ export class ArithmeticExpression extends Expression {
   }
 
   append(op: ArithmeticOperator, expression: Expression): this {
-    this.items.push(new ArithmeticExpressionItem({
-      op,
-      expression
-    }));
+    this.items.push(
+      new ArithmeticExpressionItem({
+        op,
+        expression,
+      }),
+    );
     return this;
   }
 
   toString(): string {
-    return this.items.map(
-        (child, i) =>
-            (i > 0 ? child.op : '') + child.expression
-    ).join('');
+    return this.items.map((child, i) => (i > 0 ? child.op : '') + child.expression).join('');
   }
-
 }
 
 export class ArithmeticExpressionItem {
@@ -33,5 +31,4 @@ export class ArithmeticExpressionItem {
   constructor(o: ArithmeticExpressionItem) {
     Object.assign(this, o);
   }
-
 }

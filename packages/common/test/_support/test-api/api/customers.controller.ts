@@ -1,26 +1,19 @@
-import { HttpOperation, HttpResource } from '@opra/common';
+import { HttpController, HttpOperation } from '@opra/common';
 import { Customer } from '../entities/customer.entity.js';
 
-@HttpResource({
-  description: 'Customers collection'
+@HttpController({
+  description: 'Customers collection',
 })
 export class CustomersController {
-
-  @HttpOperation.Entity.FindMany(Customer)
-      .SortFields('_id', 'givenName', 'familyName', 'gender', 'address.city')
-      .Filter('givenName', ['=', '!=', 'like', '!like'])
+  @HttpOperation.Entity.FindMany({ type: Customer })
+    .SortFields('_id', 'givenName', 'familyName', 'gender', 'address.city')
+    .Filter('givenName', ['=', '!=', 'like', '!like'])
   findMany() {
     //
   }
 
-  @HttpOperation.Entity.Create(Customer)
+  @HttpOperation.Entity.Create({ type: Customer })
   create() {
     //
   }
-
-  @HttpOperation.Entity.Delete(Customer, 'id')
-  delete() {
-    //
-  }
-
 }

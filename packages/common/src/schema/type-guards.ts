@@ -4,16 +4,18 @@ import { EnumType } from './data-type/enum-type.interface.js';
 import { MappedType } from './data-type/mapped-type.interface.js';
 import { MixinType } from './data-type/mixin-type.interface.js';
 import { SimpleType } from './data-type/simple-type.interface.js';
-import { Resource as HttpResource } from './http/resource.interface.js';
+import { HttpController } from './http/http-controller.interface.js';
 
 export function isDataType(obj: any): obj is DataType {
-  return obj && typeof obj === 'object' &&
-      (obj.kind === ComplexType.Kind ||
-          obj.kind === EnumType.Kind ||
-          obj.kind === MappedType.Kind ||
-          obj.kind === SimpleType.Kind ||
-          obj.kind === MixinType.Kind
-      );
+  return (
+    obj &&
+    typeof obj === 'object' &&
+    (obj.kind === ComplexType.Kind ||
+      obj.kind === EnumType.Kind ||
+      obj.kind === MappedType.Kind ||
+      obj.kind === SimpleType.Kind ||
+      obj.kind === MixinType.Kind)
+  );
 }
 
 export function isComplexType(obj: any): obj is ComplexType {
@@ -36,6 +38,6 @@ export function isEnumType(obj: any): obj is EnumType {
   return obj && typeof obj === 'object' && obj.kind === EnumType.Kind;
 }
 
-export function isHttpResource(obj: any): obj is HttpResource {
-  return obj && typeof obj === 'object' && obj.kind === HttpResource.Kind;
+export function isHttpController(obj: any): obj is HttpController {
+  return obj && typeof obj === 'object' && obj.kind === HttpController.Kind;
 }

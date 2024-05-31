@@ -1,54 +1,85 @@
 import 'reflect-metadata';
-import { ComplexType, DATATYPE_METADATA, OmitType, PartialType, PickType } from '@opra/common';
-import { Country } from '../../_support/test-api/index.js';
+import { ApiDocument, ApiDocumentFactory, OmitType, OpraSchema, PartialType, PickType } from '@opra/common';
+import { Address, Country, Customer, GenderEnum, Note, Person, Record } from '../../_support/test-api/index.js';
 
 describe('MappedType', function () {
+  let api: ApiDocument;
+  const baseArgs: ApiDocumentFactory.InitArguments = {
+    spec: OpraSchema.SpecVersion,
+    info: {
+      title: 'TestDocument',
+      version: 'v1',
+    },
+    types: [
+      Record,
+      Person,
+      GenderEnum,
+      Address,
+      Note,
+      Country,
+      Customer,
+      OmitType(Country, ['phonecode' as any], { name: 'OmitType1' }),
+      PickType(Country, ['phonecode' as any], { name: 'PickType1' }),
+      PartialType(Country, { name: 'PartialType1' }),
+      PartialType(Country, ['phonecode' as any], { name: 'PartialType2' }),
+    ],
+  };
 
-  afterAll(() => global.gc && global.gc());
+  beforeAll(async () => {
+    api = await ApiDocumentFactory.createDocument(baseArgs);
+  });
 
-  it('Should OmitType() create MappedType class and define metadata', async function () {
+  it('Should OmitType() create MappedType that omits given fields', async function () {
+    const dt = api.node.getMappedType('OmitType1');
+    expect(dt).toBeDefined();
+    expect(dt.name).toEqual('OmitType1');
+    expect(dt.base?.name).toEqual('Country');
+    expect(dt.omit).toEqual(['phoneCode']);
+    expect(dt.findField('name')).toBeDefined();
+    expect(dt.findField('phoneCode')).not.toBeDefined();
+  });
 
-    @ComplexType({description: 'TestClass schema'})
-    class TestClass extends OmitType(Country, ['phoneCode']) {
-    }
+  it('Should OmitType._generateSchema() return ValGen schema', async () => {
+    const dt = api.node.getMappedType('OmitType1');
+    const x: any = (dt as any)._generateSchema('decode', {});
+    expect(x).toBeDefined();
+    expect(Object.keys(x)).toStrictEqual(['code', 'name']);
+  });
 
-    const base = Object.getPrototypeOf(TestClass);
-    const metadata = Reflect.getMetadata(DATATYPE_METADATA, base);
-    expect(metadata).toStrictEqual({
-      kind: 'MappedType',
-      omit: ['phoneCode'],
-      base: Country
-    });
-  })
+  it('Should PickType() create MappedType that picks given fields', async function () {
+    const dt = api.node.getMappedType('PickType1');
+    expect(dt).toBeDefined();
+    expect(dt.name).toEqual('PickType1');
+    expect(dt.base?.name).toEqual('Country');
+    expect(dt.pick).toEqual(['phoneCode']);
+    expect(dt.findField('name')).not.toBeDefined();
+    expect(dt.findField('phoneCode')).toBeDefined();
+  });
 
-  it('Should PickType() create MappedType class and define metadata', async function () {
+  it('Should PickType._generateSchema() return ValGen schema', async () => {
+    const dt = api.node.getMappedType('PickType1');
+    const x: any = (dt as any)._generateSchema('decode', {});
+    expect(x).toBeDefined();
+    expect(Object.keys(x)).toStrictEqual(['phoneCode']);
+  });
 
-    @ComplexType({description: 'TestClass schema'})
-    class TestClass extends PickType(Country, ['phoneCode']) {
-    }
+  it('Should PartialType() create MappedType that makes all fields partial', async function () {
+    const dt = api.node.getMappedType('PartialType1');
+    expect(dt).toBeDefined();
+    expect(dt.name).toEqual('PartialType1');
+    expect(dt.base?.name).toEqual('Country');
+    expect(dt.partial).toEqual(true);
+    expect(dt.getField('name').required).toEqual(false);
+    expect(dt.getField('phoneCode').required).toEqual(false);
+  });
 
-    const base = Object.getPrototypeOf(TestClass);
-    const metadata = Reflect.getMetadata(DATATYPE_METADATA, base);
-    expect(metadata).toStrictEqual({
-      kind: 'MappedType',
-      pick: ['phoneCode'],
-      base: Country
-    });
-  })
-
-  it('Should PartialType() create MappedType class and define metadata', async function () {
-
-    @ComplexType({description: 'TestClass schema'})
-    class TestClass extends PartialType(Country, ['name']) {
-    }
-
-    const base = Object.getPrototypeOf(TestClass);
-    const metadata = Reflect.getMetadata(DATATYPE_METADATA, base);
-    expect(metadata).toStrictEqual({
-      kind: 'MappedType',
-      partial: ['name'],
-      base: Country
-    });
-  })
-
-})
+  it('Should PartialType() create MappedType that makes selected fields partial', async function () {
+    const dt = api.node.getMappedType('PartialType2');
+    expect(dt).toBeDefined();
+    expect(dt.name).toEqual('PartialType2');
+    expect(dt.base?.name).toEqual('Country');
+    expect(dt.partial).toEqual(['phoneCode']);
+    expect(dt.getField('name').required).not.toEqual(false);
+    expect(dt.getField('phoneCode').required).toEqual(false);
+  });
+});

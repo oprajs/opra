@@ -2,10 +2,10 @@ import { ApiField, ComplexType } from '@opra/common';
 
 @ComplexType({
   abstract: true,
-  description: 'Base Record schema'
+  description: 'Base Record schema',
+  keyField: '_id',
 })
 export class Record {
-
   @ApiField()
   _id: number;
 
@@ -17,5 +17,4 @@ export class Record {
 
   @ApiField()
   updatedAt?: Date;
-
 }

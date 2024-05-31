@@ -1,15 +1,18 @@
-import { HttpOperation, HttpResource } from '@opra/common';
+import { HttpController, HttpOperation } from '@opra/common';
 import { Customer } from '../entities/customer.entity.js';
 
-@HttpResource({
+@HttpController({
   description: 'Customer resource',
-  name: 'Customers'
-}).KeyParameter('_id')
+  path: 'Customers@:customerId',
+}).PathParam('customerId', 'uuid')
 export class CustomerController {
-
-  @HttpOperation.Entity.Get(Customer, 'id')
+  @HttpOperation.Entity.Get({ type: Customer })
   get() {
     //
   }
 
+  @HttpOperation.Entity.Delete({ type: Customer })
+  delete() {
+    //
+  }
 }

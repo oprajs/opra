@@ -107,7 +107,7 @@ describe('ApiDocumentFactory - ComplexType with decorated classes', function () 
     expect(t.kind).toStrictEqual('ComplexType');
     expect(t.name).toStrictEqual('Type1');
     expect(t.fields.get('cid')).toBeDefined();
-    expect(t.fields.get('cid')?.type.isEmbedded).toStrictEqual(true);
+    expect(t.fields.get('cid')?.type.embedded).toStrictEqual(true);
     expect((t.fields.get('cid')?.type as SimpleType).base?.name).toStrictEqual('string');
   })
 

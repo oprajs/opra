@@ -8,19 +8,17 @@ import { Record } from './record.entity.js';
 @ComplexType({
   description: 'Customer information',
 })
-@Entity({tableName: 'customers'})
+@Entity({ tableName: 'customers' })
 export class Customer extends MixinType(Record, Person) {
-
   @ApiField()
-  @Embedded(Address, {fieldNamePrefix: 'address_'})
+  @Embedded(Address, { fieldNamePrefix: 'address_' })
   address?: Address;
 
   @ApiField()
-  @Link({exclusive: true})
-      .toMany(CustomerNotes, {sourceKey: 'id', targetKey: 'customerId'})
+  @Link({ exclusive: true }).toMany(CustomerNotes, { sourceKey: 'id', targetKey: 'customerId' })
   notes?: CustomerNotes[];
 
   @ApiField()
-  @Column({dataType: DataType.JSON, fieldName: 'created_by'})
+  @Column({ dataType: DataType.JSON, fieldName: 'created_by' })
   createdBy?: Person;
 }

@@ -20,6 +20,7 @@
     "copy:bin": "cp -R bin ../../build/cli/bin",
     "lint": "eslint . --max-warnings=0",
     "check": "madge --circular src/**",
+    "format": "prettier . --write --log-level=warn",
     "test": "jest",
     "cover": "jest --collect-coverage",
     "clean": "npm run clean:src && npm run clean:test && npm run clean:dist && npm run clean:cover",
@@ -30,8 +31,9 @@
   },
   "dependencies": {
     "@opra/client": "^0.33.13",
+    "@opra/common": "^0.33.13",
     "chalk": "^5.3.0",
-    "commander": "^11.0.0",
+    "commander": "^12.0.0",
     "js-string-escape": "^1.0.1",
     "putil-flattentext": "^2.1.1",
     "putil-varhelpers": "^1.6.5"

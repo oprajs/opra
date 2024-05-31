@@ -1,5 +1,5 @@
 import { ApiDocument } from '@opra/common';
-import { createTestApi } from '@opra/core/test/_support/test-app';
+import { createTestApi } from '../../../core/test/_support/test-api';
 import { SQBAdapter } from '@opra/sqb';
 
 describe('SQBAdapter.transformKeyValues', function () {

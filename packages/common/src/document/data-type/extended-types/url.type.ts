@@ -1,23 +1,20 @@
-import { isURL, Validator } from 'valgen';
-import { DECODER, ENCODER } from '../../constants';
+import { Validator, vg } from 'valgen';
+import { DECODER, ENCODER } from '../../constants.js';
 import { SimpleType } from '../simple-type.js';
 
 @SimpleType({
-  description: 'A Uniform Resource Identifier Reference (RFC 3986 icon) value'
-})
+  description: 'A Uniform Resource Identifier Reference (RFC 3986 icon) value',
+}).Example('http://tempuri.org')
 export class UrlType {
-
   constructor(attributes?: Partial<UrlType>) {
-    if (attributes)
-      Object.assign(this, attributes);
+    if (attributes) Object.assign(this, attributes);
   }
 
-  [DECODER](): Validator {
-    return isURL;
+  protected [DECODER](): Validator {
+    return vg.isURL({ coerce: true });
   }
 
-  [ENCODER](): Validator {
-    return isURL;
+  protected [ENCODER](): Validator {
+    return vg.isURL({ coerce: true });
   }
-
 }

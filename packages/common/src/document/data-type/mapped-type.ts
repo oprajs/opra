@@ -1,163 +1,31 @@
 import 'reflect-metadata';
-import merge from 'putil-merge';
-import { Class, StrictOmit, Type } from 'ts-gems';
-import {
-  inheritPropertyInitializers,
-  mergePrototype
-} from '../../helpers/index.js';
+import { asMutable, Combine, Type } from 'ts-gems';
+import { omitUndefined } from '../../helpers/index.js';
+import type { Field } from '../../schema/data-type/field.interface';
 import { OpraSchema } from '../../schema/index.js';
-import type { ApiNode } from '../api-node.js';
-import { DATATYPE_METADATA } from '../constants.js';
-import { ComplexType } from './complex-type.js';
-import { getIsInheritedPredicateFn, MappedTypeClass } from './mapped-type-class.js';
-
-/**
- *
- */
-export function PickType<T extends any[], I1, S1, K extends keyof I1>(
-    classRef: Class<T, I1, S1>,
-    keys: readonly K[]
-): Class<T, Pick<I1, K>> &
-    Omit<Pick<S1, keyof typeof classRef>, 'prototype' | 'constructor'> {
-  return MappedType(classRef, {pick: keys} as any) as any;
-}
-
-/**
- *
- */
-export function OmitType<T extends any[], I1, S1, K extends keyof I1>(
-    classRef: Class<T, I1, S1>, keys: readonly K[]
-): Class<T, Omit<I1, K>> &
-    Omit<Pick<S1, keyof typeof classRef>, 'prototype' | 'constructor'> {
-  return MappedType(classRef, {omit: keys} as any) as any;
-}
-
-/**
- *
- */
-export function PartialType<T extends any[], I1, S1, K extends keyof I1>(
-    classRef: Class<T, I1, S1>, keys?: readonly K[]
-): Class<T, Omit<I1, K>> &
-    Omit<Pick<S1, keyof typeof classRef>, 'prototype' | 'constructor'> {
-  return MappedType(classRef, {partial: keys || true} as any) as any;
-}
-
-
-/**
- * Type definition of MappedType constructor type
- * @type MappedTypeConstructor
- */
-export interface MappedTypeConstructor {
-  prototype: MappedType;
-
-  new(node: ApiNode, init: MappedType.InitArguments): MappedType;
-
-  <T extends any[], I1, S1,
-      PickKey extends keyof I1,
-      OmitKey extends keyof I1,
-      PartialKey extends keyof I1,
-  >(
-      resource: Class<T, I1, S1>,
-      options: {
-        pickKeys?: readonly PickKey[],
-        omitKeys?: readonly OmitKey[],
-        partialKeys?: readonly PartialKey[],
-      }
-  ): Class<T, Omit<Pick<I1, PickKey>, OmitKey>>;
-
-  /* Used by extensions */
-  _applyMixin(targetType: Type, sourceType: Type,
-              options: MappedType.Options<any> &
-                  {
-                    isInheritedPredicate: (fieldName: string) => boolean;
-                  }
-  ): void;
-}
-
-
-/**
- * @class MappedType
- */
-export const MappedType = function (
-    this: MappedType,
-    ...args: any[]
-) {
-  // Constructor
-  if (this) {
-    const [node, init] = args as [ApiNode, MappedType.InitArguments];
-    merge(this, new MappedTypeClass(node, init), {descriptor: true});
-    return;
-  }
-
-  // MappedType helper
-  const [mappedSource, options] = args as [Type, MappedType.Options<any>];
-  const isInheritedPredicate = getIsInheritedPredicateFn(options.pick as string[], options.omit as string[]);
-
-  class MappedClass {
-    constructor() {
-      inheritPropertyInitializers(this, mappedSource, isInheritedPredicate);
-    }
-  }
-
-  mergePrototype(MappedClass.prototype, mappedSource.prototype);
-
-  // const mappedTypeMetadata: MappedType.TypeMapping[] = [];
-  const m = Reflect.getOwnMetadata(DATATYPE_METADATA, mappedSource) as OpraSchema.DataType;
-  if (!m)
-    throw new TypeError(`Class "${mappedSource}" doesn't have datatype metadata information`);
-  if (!(m.kind === OpraSchema.ComplexType.Kind || m.kind === OpraSchema.MappedType.Kind || m.kind === OpraSchema.MixinType.Kind))
-    throw new TypeError(`Class "${mappedSource}" is not a ${OpraSchema.ComplexType.Kind}`);
-
-  const metadata: MappedType.Metadata = {
-    kind: 'MappedType',
-    base: mappedSource
-  };
-  if (options.pick)
-    metadata.pick = options.pick as string[];
-  if (options.omit)
-    metadata.omit = options.omit as string[];
-  if (options.partial)
-    metadata.partial = options.partial as string[];
-  Reflect.defineMetadata(DATATYPE_METADATA, metadata, MappedClass);
-
-  MappedType._applyMixin(MappedClass, mappedSource, {
-    ...options,
-    isInheritedPredicate
-  });
-
-  return MappedClass as any;
-
-} as MappedTypeConstructor;
-
-MappedType.prototype = MappedTypeClass.prototype;
-MappedType._applyMixin = () => void 0;
-
-
-/**
- * Type definition of MappedType prototype
- * @type MappedType
- */
-export interface MappedType extends MappedTypeClass {
-
-}
+import { DocumentElement } from '../common/document-element.js';
+import type { DocumentInitContext } from '../common/document-init-context';
+import { ApiField } from './api-field.js';
+import type { ComplexType } from './complex-type.js';
+import { ComplexTypeBase } from './complex-type-base.js';
+import type { DataType } from './data-type.js';
+import type { MixinType } from './mixin-type';
+import { getIsInheritedPredicateFn } from './utils/get-is-inherited-predicate-fn.js';
 
 /**
  * @namespace MappedType
  */
 export namespace MappedType {
-
-  export interface InitArguments extends ComplexType.InitArguments,
-      Pick<OpraSchema.MappedType, 'pick' | 'omit' | 'partial'> {
-  }
-
-  export interface Metadata extends StrictOmit<ComplexType.Metadata, 'kind' | 'base' | 'name'>,
-      Pick<OpraSchema.MappedType, 'pick' | 'omit' | 'partial'> {
-    kind: OpraSchema.MappedType.Kind;
-    base: Type;
-  }
-
-  export interface OwnProperties extends ComplexType.OwnProperties {
-  }
+  export interface Metadata
+    extends Combine<
+      {
+        kind: OpraSchema.MappedType.Kind;
+        base: Type | string;
+      },
+      DataType.Metadata,
+      Pick<ComplexType.Metadata, 'additionalFields'>,
+      OpraSchema.MappedType
+    > {}
 
   export interface Options<T, K = keyof T> {
     pick?: readonly K[];
@@ -165,7 +33,138 @@ export namespace MappedType {
     partial?: readonly K[] | boolean;
   }
 
+  export interface InitArguments
+    extends Combine<
+      {
+        kind: OpraSchema.MappedType.Kind;
+        base: ComplexType | MappedType | MixinType;
+        ctor?: Type;
+      },
+      DataType.InitArguments,
+      MappedType.Metadata
+    > {}
 }
 
+/**
+ * Type definition of class constructor for MappedType
+ */
+export interface MappedTypeStatic {
+  /**
+   * Class constructor of MappedType
+   *
+   * @param owner
+   * @param args
+   * @constructor
+   */
+  new (owner: DocumentElement, args: MappedType.InitArguments): MappedType;
 
+  /* Used by extensions */
+  _applyMixin(
+    targetType: Type,
+    sourceType: Type,
+    options: MappedType.Options<any> & {
+      isInheritedPredicate: (fieldName: string) => boolean;
+    },
+  ): void;
 
+  prototype: MappedType;
+}
+
+/**
+ * Type definition of MappedType prototype
+ * @interface MappedType
+ */
+export interface MappedType extends MappedTypeClass {}
+
+/**
+ * MappedType constructor
+ */
+export const MappedType = function (this: MappedType, ...args: any[]) {
+  if (!this) throw new TypeError('"this" should be passed to call class constructor');
+  // Constructor
+  const [owner, initArgs, context] = args as [
+    DocumentElement,
+    MappedType.InitArguments,
+    DocumentInitContext | undefined,
+  ];
+  ComplexTypeBase.call(this, owner, initArgs, context);
+  const _this = asMutable(this);
+  _this.kind = OpraSchema.MappedType.Kind;
+  if (initArgs.base) {
+    // noinspection SuspiciousTypeOfGuard
+    if (!(initArgs.base instanceof ComplexTypeBase))
+      throw new TypeError(`"${(initArgs.base as DataType).kind}" can't be set as base for a "${this.kind}"`);
+    _this.base = initArgs.base;
+    _this.ctor = initArgs.ctor || _this.base.ctor;
+
+    if (initArgs.pick) _this.pick = initArgs.pick.map(f => _this.base.normalizeFieldPath(f));
+    else if (initArgs.omit) _this.omit = initArgs.omit.map(f => _this.base.normalizeFieldPath(f));
+    else if (initArgs.partial)
+      _this.partial = Array.isArray(initArgs.partial)
+        ? initArgs.partial.map(f => _this.base.normalizeFieldPath(f))
+        : initArgs.partial;
+    else if (initArgs.required)
+      _this.required = Array.isArray(initArgs.required)
+        ? initArgs.required.map(f => _this.base.normalizeFieldPath(f))
+        : initArgs.required;
+
+    /** Copy fields from base */
+    const isInheritedPredicate = getIsInheritedPredicateFn(_this.pick, _this.omit);
+    const partial = Array.isArray(_this.partial) ? _this.partial.map(x => x.toLowerCase()) : _this.partial;
+    const required = Array.isArray(_this.required) ? _this.required.map(x => x.toLowerCase()) : _this.required;
+    for (const [k, v] of _this.base.fields.entries()) {
+      if (!isInheritedPredicate(k)) continue;
+      const meta = { ...v } as ApiField.InitArguments;
+      if (partial === true || (Array.isArray(partial) && partial.includes(v.name.toLowerCase()))) {
+        meta.required = false;
+      } else if (required === true || (Array.isArray(required) && required.includes(v.name.toLowerCase()))) {
+        meta.required = true;
+      }
+      const field = new ApiField(this, meta);
+      _this.fields.set(field.name, field);
+    }
+
+    if (
+      !_this.pick ||
+      _this.base.additionalFields === false ||
+      (Array.isArray(_this.base.additionalFields) && _this.base.additionalFields?.[0] === 'error')
+    )
+      _this.additionalFields = _this.base.additionalFields;
+    if (initArgs.base.keyField && isInheritedPredicate(initArgs.base.keyField)) _this.keyField = initArgs.base.keyField;
+  }
+} as Function as MappedTypeStatic;
+
+/**
+ *
+ * @class MappedType
+ */
+class MappedTypeClass extends ComplexTypeBase {
+  readonly kind: OpraSchema.MappedType.Kind;
+  readonly base: ComplexType | MappedType | MixinType;
+  readonly ctor?: Type;
+  readonly omit?: Field.Name[];
+  readonly pick?: Field.Name[];
+  readonly partial?: Field.Name[] | boolean;
+  readonly required?: Field.Name[] | boolean;
+
+  extendsFrom(baseType: DataType): boolean {
+    if (!(baseType instanceof ComplexTypeBase)) return false;
+    if (baseType === this) return true;
+    return !!this.base?.extendsFrom(baseType);
+  }
+
+  toJSON(): OpraSchema.MappedType {
+    return omitUndefined<OpraSchema.MappedType>({
+      ...ComplexTypeBase.prototype.toJSON.call(this),
+      base: this.base.name ? this.base.name : this.base.toJSON(),
+      kind: this.kind as any,
+      pick: this.pick,
+      omit: this.omit,
+      partial: this.partial,
+      required: this.required,
+    });
+  }
+}
+
+MappedType.prototype = MappedTypeClass.prototype;
+MappedType._applyMixin = () => void 0;

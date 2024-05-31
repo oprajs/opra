@@ -24,6 +24,7 @@
     "postbuild": "cp package.json ../../LICENSE ../../build/common && cp ../../package.cjs.json ../../build/common/cjs/package.json",
     "lint": "eslint . --max-warnings=0",
     "check": "madge --circular src/**",
+    "format": "prettier . --write --log-level=warn",
     "test": "jest",
     "cover": "jest --collect-coverage",
     "clean": "npm run clean:src && npm run clean:test && npm run clean:dist && npm run clean:cover",
@@ -44,9 +45,9 @@
     "putil-merge": "^3.12.1",
     "putil-promisify": "^1.10.1",
     "putil-varhelpers": "^1.6.5",
-    "reflect-metadata": "^0.2.1",
+    "reflect-metadata": "^0.2.2",
     "uid": "^2.0.1",
-    "valgen": "^5.2.1"
+    "valgen": "^5.4.1"
   },
   "devDependencies": {
     "@browsery/fs": "^0.4.0",
@@ -54,9 +55,9 @@
     "@browsery/util": "^0.12.5",
     "@types/encodeurl": "^1.0.2",
     "@types/lodash.omit": "^4.5.9",
-    "@types/validator": "^13.11.9",
+    "@types/validator": "^13.11.10",
     "path-browserify": "^1.0.1",
-    "ts-gems": "^3.2.1"
+    "ts-gems": "^3.4.0"
   },
   "engines": {
     "node": ">=16.0",

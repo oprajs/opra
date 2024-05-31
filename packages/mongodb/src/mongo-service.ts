@@ -2,16 +2,16 @@ import mongodb, { MongoClient, TransactionOptions } from 'mongodb';
 import { StrictOmit, Type } from 'ts-gems';
 import { IsObject } from 'valgen';
 import { ComplexType, DataType, DATATYPE_METADATA, PartialDTO } from '@opra/common';
-import { ApiService } from '@opra/core';
+import { ServiceBase } from '@opra/core';
 import { AnyId, WithTransactionCallback } from './types.js';
 
 
 /**
  * Class representing a MongoDB service for interacting with a collection.
- * @extends ApiService
+ * @extends ServiceBase
  * @template T - The type of the documents in the collection.
  */
-export class MongoService<T extends mongodb.Document> extends ApiService {
+export class MongoService<T extends mongodb.Document> extends ServiceBase {
   protected _encoders: Record<string, IsObject.Validator<T>> = {};
   protected _decoder?: IsObject.Validator<T>;
   protected _dataType: Type | string;

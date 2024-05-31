@@ -1,12 +1,16 @@
 import { StrictOmit } from 'ts-gems';
-import { ComplexType } from './complex-type.interface.js';
-import { Field } from './field.interface.js';
+import type { ComplexType } from './complex-type.interface';
+import type { DataType, DataTypeBase } from './data-type.interface';
+import type { Field } from './field.interface.js';
+import type { MixinType } from './mixin-type.interface.js';
 
-export interface MappedType extends StrictOmit<ComplexType, 'kind'> {
+export interface MappedType extends StrictOmit<DataTypeBase, 'kind'> {
   kind: MappedType.Kind;
+  base: DataType.Name | ComplexType | MixinType | MappedType;
   omit?: Field.Name[];
   pick?: Field.Name[];
   partial?: Field.Name[] | boolean;
+  required?: Field.Name[] | boolean;
 }
 
 export namespace MappedType {

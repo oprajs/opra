@@ -19,28 +19,27 @@ export class OpraURL {
   protected [kPath]: OpraURLPath;
   protected [kSearchParams]: URLSearchParams;
   protected [kContext]: {
-    protocol: string,
-    username: string,
-    pathname?: string,
-    hostname: string,
-    port: string,
-    hash: string,
-    password: string,
-    address?: string
+    protocol: string;
+    username: string;
+    pathname?: string;
+    hostname: string;
+    port: string;
+    hash: string;
+    password: string;
+    address?: string;
   } = {
     protocol: '',
     username: '',
     hostname: '',
     port: '',
     hash: '',
-    password: ''
-  }
+    password: '',
+  };
 
   constructor(input?: string | URL | OpraURL, base?: string | URL | OpraURL) {
     this[kSearchParams] = new URLSearchParams();
     this[kPath] = new OpraURLPath();
-    if (input)
-      this._parse(String(input));
+    if (input) this._parse(String(input));
     if (base && !this.host) {
       const baseUrl = base instanceof OpraURL ? base : new OpraURL(base);
       this[kContext].protocol = baseUrl.protocol;
@@ -56,22 +55,23 @@ export class OpraURL {
     if (this[kContext].address == null) {
       let address = '';
       if (this[kContext].hostname) {
-        address += (this[kContext].protocol || 'http:') + '//' +
-            (this[kContext].username || this[kContext].password
-                ? (
-                    (this[kContext].username ? encodeURIComponent(this[kContext].username) : '') +
-                    (this[kContext].password ? ':' + encodeURIComponent(this[kContext].password) : '') + '@'
-                )
-                : '') + this.host;
+        address +=
+          (this[kContext].protocol || 'http:') +
+          '//' +
+          (this[kContext].username || this[kContext].password
+            ? (this[kContext].username ? encodeURIComponent(this[kContext].username) : '') +
+              (this[kContext].password ? ':' + encodeURIComponent(this[kContext].password) : '') +
+              '@'
+            : '') +
+          this.host;
       }
-      this[kContext].address = address +
-          (this.pathname !== '/' ? this.pathname : '');
+      this[kContext].address = address + (this.pathname !== '/' ? this.pathname : '');
     }
     return this[kContext].address;
   }
 
   get host(): string {
-    return this.hostname ? (this.hostname + (this.port ? ':' + this.port : '')) : '';
+    return this.hostname ? this.hostname + (this.port ? ':' + this.port : '') : '';
   }
 
   set host(v: string) {
@@ -80,7 +80,7 @@ export class OpraURL {
       if (!m)
         throw Object.assign(new TypeError('Invalid host'), {
           host: v,
-          code: 'ERR_INVALID_URL'
+          code: 'ERR_INVALID_URL',
         });
       this.hostname = m[1];
       this.port = m[2] || '';
@@ -99,7 +99,7 @@ export class OpraURL {
       if (!hostnameRegEx.test(v))
         throw Object.assign(new TypeError('Invalid hostname'), {
           hostname: v,
-          code: 'ERR_INVALID_URL'
+          code: 'ERR_INVALID_URL',
         });
       this[kContext].hostname = v;
     } else this[kContext].hostname = '';
@@ -130,7 +130,7 @@ export class OpraURL {
       if (isNaN(v) || v < 1 || v > 65535 || v % 1 > 0)
         throw Object.assign(new TypeError(`Invalid port number (${value})`), {
           hostname: v,
-          code: 'ERR_INVALID_URL'
+          code: 'ERR_INVALID_URL',
         });
       this[kContext].port = String(v);
     } else this[kContext].port = '';
@@ -146,7 +146,7 @@ export class OpraURL {
       if (!schemeRegEx.test(v))
         throw Object.assign(new TypeError('Invalid protocol'), {
           protocol: v,
-          code: 'ERR_INVALID_URL'
+          code: 'ERR_INVALID_URL',
         });
       this[kContext].protocol = v + (v.endsWith(':') ? '' : ':');
     } else this[kContext].protocol = '';
@@ -163,7 +163,7 @@ export class OpraURL {
   }
 
   get origin(): string {
-    return this.hostname ? (this.protocol + '//' + this.hostname) : '';
+    return this.hostname ? this.protocol + '//' + this.hostname : '';
   }
 
   get path(): OpraURLPath {
@@ -178,8 +178,7 @@ export class OpraURL {
   }
 
   get pathname(): string {
-    if (this[kContext].pathname == null)
-      this[kContext].pathname = this.path.toString() || '/';
+    if (this[kContext].pathname == null) this[kContext].pathname = this.path.toString() || '/';
     return this[kContext].pathname;
   }
 
@@ -231,7 +230,7 @@ export class OpraURL {
   }
 
   toString() {
-    return this.href
+    return this.href;
   }
 
   protected _parse(input: string) {
@@ -239,15 +238,15 @@ export class OpraURL {
     if (!m)
       throw Object.assign(new TypeError('Invalid URL'), {
         input,
-        code: 'ERR_INVALID_URL'
+        code: 'ERR_INVALID_URL',
       });
     this.protocol = m[1];
     const isAbsolute = !!m[2];
     if (isAbsolute) {
-      let tokens = splitString(m[2], {delimiters: '@'});
+      let tokens = splitString(m[2], { delimiters: '@' });
       if (tokens.length > 1) {
         this.host = tokens[1];
-        tokens = splitString(tokens[0], {delimiters: ':'});
+        tokens = splitString(tokens[0], { delimiters: ':' });
         this.username = tokens[0] ? decodeURIComponent(tokens[0]) : '';
         this.password = tokens[1] ? decodeURIComponent(tokens[1]) : '';
       } else this.host = tokens[0];
@@ -257,10 +256,10 @@ export class OpraURL {
       this.password = '';
     }
     input = m[3] || '';
-    let tokenizer = tokenize(input, {delimiters: '#', quotes: true, brackets: true});
+    let tokenizer = tokenize(input, { delimiters: '#', quotes: true, brackets: true });
     input = tokenizer.next() || '';
     this.hash = tokenizer.join('#');
-    tokenizer = tokenize(input, {delimiters: '?', quotes: true, brackets: true});
+    tokenizer = tokenize(input, { delimiters: '?', quotes: true, brackets: true });
     this.path = new OpraURLPath(tokenizer.next());
     this.search = tokenizer.join('&');
   }
@@ -279,7 +278,6 @@ export class OpraURL {
       pathname: this.pathname,
       search: this.search,
       hash: this.hash,
-    }
+    };
   }
-
 }

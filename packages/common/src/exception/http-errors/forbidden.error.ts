@@ -1,7 +1,7 @@
 import { HttpStatusCode } from '../../http/index.js';
 import { translate } from '../../i18n/index.js';
 import { ErrorIssue } from '../error-issue.js';
-import { OpraException } from '../opra-exception.js';
+import { OpraHttpError } from '../opra-http-error.js';
 
 /**
  * 403 Forbidden
@@ -9,16 +9,14 @@ import { OpraException } from '../opra-exception.js';
  * so the server is refusing to give the requested resource. Unlike 401 Unauthorized,
  * the client's identity is known to the server.
  */
-export class ForbiddenError extends OpraException {
+export class ForbiddenError extends OpraHttpError {
   status = HttpStatusCode.FORBIDDEN;
 
   protected init(issue: Partial<ErrorIssue>) {
     super.init({
-      message: translate('error:FORBIDDEN',
-          'You are not authorized to perform this action'),
+      message: translate('error:FORBIDDEN', 'You are not authorized to perform this action'),
       code: 'FORBIDDEN',
-      ...issue
+      ...issue,
     });
   }
-
 }

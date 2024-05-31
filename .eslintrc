@@ -15,10 +15,11 @@
         "security"
       ],
       "extends": [
-        "plugin:@typescript-eslint/recommended",
-        "plugin:@typescript-eslint/recommended-requiring-type-checking",
         "plugin:import/recommended",
-        "plugin:import/typescript"
+        "plugin:import/typescript",
+        "plugin:prettier/recommended",
+        "plugin:@typescript-eslint/recommended",
+        "plugin:@typescript-eslint/recommended-requiring-type-checking"
       ],
       "parser": "@typescript-eslint/parser",
       "parserOptions": {
@@ -176,7 +177,8 @@
       },
       "extends": [
         "eslint:recommended",
-        "google"
+        "plugin:import/recommended",
+        "plugin:prettier/recommended"
       ],
       "parser": "@babel/eslint-parser",
       "parserOptions": {

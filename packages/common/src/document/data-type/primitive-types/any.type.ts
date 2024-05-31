@@ -1,23 +1,20 @@
 import { isAny, Validator } from 'valgen';
-import { DECODER, ENCODER } from '../../constants';
+import { DECODER, ENCODER } from '../../constants.js';
 import { SimpleType } from '../simple-type.js';
 
 @SimpleType({
-  description: 'Represents any value'
+  description: 'Represents any value',
 })
 export class AnyType {
-
-  constructor(attributes?: Partial<AnyType>) {
-    if (attributes)
-      Object.assign(this, attributes);
+  constructor(properties?: Partial<AnyType>) {
+    if (properties) Object.assign(this, properties);
   }
 
-  [DECODER](): Validator {
+  protected [DECODER](): Validator {
     return isAny;
   }
 
-  [ENCODER](): Validator {
+  protected [ENCODER](): Validator {
     return isAny;
   }
-
 }

@@ -1,95 +1,186 @@
 import 'reflect-metadata';
-import merge from 'putil-merge';
-import { StrictOmit } from 'ts-gems';
-import { omitUndefined } from '../../helpers/index.js';
+import { asMutable, Combine } from 'ts-gems';
+import { Validator, vg } from 'valgen';
+import { cloneObject, omitUndefined } from '../../helpers/index.js';
 import { OpraSchema } from '../../schema/index.js';
-import type { ApiNode } from '../api-node';
-import { DATATYPE_METADATA } from '../constants.js';
+import type { DocumentElement } from '../common/document-element.js';
+import { DocumentInitContext } from '../common/document-init-context.js';
+import { DATATYPE_METADATA, DECORATOR } from '../constants.js';
 import { DataType } from './data-type.js';
-import { EnumTypeClass } from './enum-type-class.js';
 
-export interface EnumTypeConstructor {
-  new(node: ApiNode, init?: EnumType.InitArguments): EnumType;
+/**
+ * @namespace EnumType
+ */
+export namespace EnumType {
+  export type EnumObject = Record<string, string | number>;
+  export type EnumArray = readonly string[];
 
-  <T extends EnumType.EnumObject | EnumType.EnumArray>(target: T, options: EnumType.Options<T>): T
+  export interface Metadata
+    extends Combine<
+      {
+        kind: OpraSchema.EnumType.Kind;
+        base?: EnumObject | EnumArray | string;
+        name: string;
+      },
+      DataType.Metadata,
+      OpraSchema.EnumType
+    > {}
+
+  export interface Options<T, Keys extends string | number | symbol = T extends readonly any[] ? T[number] : keyof T>
+    extends Combine<
+      {
+        base?: EnumObject | EnumArray | string;
+        meanings?: Record<Keys, string>;
+      },
+      DataType.Options
+    > {}
+
+  export interface InitArguments
+    extends Combine<
+      {
+        kind: OpraSchema.EnumType.Kind;
+        base?: EnumType;
+        instance?: object;
+      },
+      DataType.InitArguments,
+      EnumType.Metadata
+    > {}
 }
 
-export interface EnumType extends EnumTypeClass {
+/**
+ * Mixin type definition of class constructor and helper method for EnumType
+ */
+export interface EnumTypeStatic {
+  /**
+   * Class constructor of EnumType
+   *
+   * @param owner
+   * @param args
+   * @constructor
+   */
+  new (owner: DocumentElement, args?: EnumType.InitArguments): EnumType;
+
+  <T extends EnumType.EnumObject, B extends EnumType.EnumObject>(
+    enumSource: T,
+    base: B,
+    options: EnumType.Options<T>,
+  ): B & T;
+
+  <T extends EnumType.EnumArray, B extends EnumType.EnumArray>(
+    enumSource: T,
+    base: B,
+    options: EnumType.Options<T>,
+  ): B & T;
+
+  <T extends EnumType.EnumObject | EnumType.EnumArray>(target: T, options: EnumType.Options<T>): T;
 }
 
+/**
+ * Type definition of EnumType prototype
+ * @interface EnumType
+ */
+export interface EnumType extends EnumTypeClass {}
 
 /**
  * @class EnumType
  */
 export const EnumType = function (this: EnumType | void, ...args: any[]) {
   // Injector
-  if (!this) {
-    const [enumSource, options] = args as [any, EnumType.Options<any> | undefined];
-    let values: Record<OpraSchema.EnumType.Value, OpraSchema.EnumType.ValueInfo> = {};
-    if (Array.isArray(enumSource)) {
-      values = {};
-      enumSource.forEach(k => {
-        const description = options?.meanings?.[k];
-        values[k] = omitUndefined({description});
-      });
-    } else {
-      Object.keys(enumSource).forEach(k => {
-        const description = options?.meanings?.[k];
-        values[enumSource[k]] = omitUndefined({key: k, description});
-      });
-    }
-    const metadata: EnumType.Metadata = {
-      kind: OpraSchema.EnumType.Kind,
-      values,
-      base: options?.base,
-      name: options?.name,
-      description: options?.description
-    };
-    Object.defineProperty(enumSource, DATATYPE_METADATA, {
-      value: metadata,
-      enumerable: false,
-      configurable: true,
-      writable: true
-    })
-    return enumSource;
-  }
-
+  if (!this) return EnumType[DECORATOR].apply(undefined, args);
   // Constructor
-  const [node, init] = args as [ApiNode, EnumType.InitArguments];
-  merge(this, new EnumTypeClass(node, init), {descriptor: true});
-  return;
+  const [owner, initArgs, context] = args as [DocumentElement, EnumType.InitArguments, DocumentInitContext | undefined];
+  DataType.call(this, owner, initArgs, context);
+  const _this = asMutable(this);
+  _this.kind = OpraSchema.EnumType.Kind;
+  if (initArgs.base) {
+    // noinspection SuspiciousTypeOfGuard
+    if (!(initArgs.base instanceof EnumType))
+      throw new TypeError(`"${(initArgs.base as DataType).kind}" can't be set as base for a "${this.kind}"`);
+    _this.base = initArgs.base;
+  }
+  _this.instance = initArgs.instance;
+  _this.ownAttributes = cloneObject(initArgs.attributes || {});
+  _this.attributes = _this.base ? cloneObject(_this.base.attributes) : {};
+  for (const [k, el] of Object.entries(_this.ownAttributes)) {
+    _this.attributes[k] = el;
+  }
+} as EnumTypeStatic;
 
-} as EnumTypeConstructor;
+/**
+ * @class EnumType
+ */
+class EnumTypeClass extends DataType {
+  readonly kind: OpraSchema.EnumType.Kind;
+  readonly base?: EnumType;
+  readonly instance?: object;
+  readonly attributes: Record<string | number, OpraSchema.EnumType.ValueInfo>;
+  readonly ownAttributes: Record<string | number, OpraSchema.EnumType.ValueInfo>;
 
-EnumType.prototype = EnumTypeClass.prototype;
-
-
-export namespace EnumType {
-  export type EnumObject = Record<string, OpraSchema.EnumType.Value>;
-  export type EnumArray = readonly string[];
-
-  export interface Metadata extends StrictOmit<OpraSchema.EnumType, 'base'> {
-    name?: string;
-    base?: EnumObject | string;
+  extendsFrom(baseType: DataType): boolean {
+    if (!(baseType instanceof EnumType)) return false;
+    if (baseType === this) return true;
+    return !!this.base?.extendsFrom(baseType);
   }
 
-  export interface InitArguments extends StrictOmit<DataType.InitArguments, 'base'> {
-    instance?: object;
-    base?: EnumType;
-    values: Record<OpraSchema.EnumType.Value, OpraSchema.EnumType.ValueInfo>;
+  generateCodec(): Validator {
+    return vg.isEnum(Object.keys(this.attributes) as any);
   }
 
-  export interface OwnProperties extends DataType.OwnProperties {
-    values: Record<OpraSchema.EnumType.Value, OpraSchema.EnumType.ValueInfo>;
+  toJSON(): OpraSchema.EnumType {
+    return omitUndefined<OpraSchema.EnumType>({
+      ...(DataType.prototype.toJSON.call(this) as any),
+      base: this.base ? (this.base.name ? this.base.name : this.base.toJSON()) : undefined,
+      attributes: cloneObject(this.ownAttributes),
+    });
   }
-
-  export interface Options<T,
-      Keys extends (string | number | symbol) = T extends readonly any[] ? T[number] : keyof T
-  > extends StrictOmit<DataType.InitArguments, 'base'> {
-    name: string;
-    base?: EnumObject;
-    meanings?: Record<Keys, string>;
-  }
-
 }
 
+EnumType.prototype = EnumTypeClass.prototype;
+Object.assign(EnumType, EnumTypeClass);
+
+/**
+ *
+ */
+function EnumTypeFactory(enumSource: object, ...args: any[]) {
+  const base = args.length >= 2 ? args[0] : undefined;
+  const options = args.length >= 2 ? args[1] : args[0];
+  let attributes: Record<string | number, OpraSchema.EnumType.ValueInfo> = {};
+  let out = enumSource;
+  if (Array.isArray(enumSource)) {
+    if (base) {
+      if (!Array.isArray(base)) throw new TypeError('Both "target" and "base" arguments should be array');
+      out = [...base, ...enumSource];
+    }
+    attributes = {};
+    enumSource.forEach(k => {
+      const description = options?.meanings?.[k];
+      attributes[k] = omitUndefined({ description });
+    });
+  } else {
+    if (base) {
+      if (Array.isArray(base)) throw new TypeError('Both "target" and "base" arguments should be enum object');
+      out = { ...base, ...enumSource };
+    }
+    Object.keys(enumSource).forEach(k => {
+      const description = options?.meanings?.[k];
+      attributes[enumSource[k]] = omitUndefined({ alias: k, description });
+    });
+  }
+  const metadata: EnumType.Metadata = {
+    kind: OpraSchema.EnumType.Kind,
+    attributes,
+    base: options.base,
+    name: options.name,
+    description: options?.description,
+  };
+  Object.defineProperty(enumSource, DATATYPE_METADATA, {
+    value: metadata,
+    enumerable: false,
+    configurable: true,
+    writable: true,
+  });
+  return out;
+}
+
+EnumType.prototype = EnumTypeClass.prototype;
+EnumType[DECORATOR] = EnumTypeFactory;

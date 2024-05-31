@@ -11,5 +11,4 @@ export class NegativeExpression extends Expression {
   toString(): string {
     return `(${this.expression})`;
   }
-
 }

@@ -6,5 +6,4 @@ export class BooleanLiteral extends Literal {
   constructor(value: boolean) {
     super(value);
   }
-
 }

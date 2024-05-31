@@ -1,97 +1,94 @@
 import { Type } from 'ts-gems';
-import { cloneObject, ResponsiveMap } from '../helpers/index.js';
+import { cloneObject, omitUndefined, ResponsiveMap } from '../helpers/index.js';
 import { OpraSchema } from '../schema/index.js';
-import { ApiDocumentElement } from './api-document-element.js';
-import { BUILTIN, NAMESPACE_PATTERN } from './constants.js';
+import { DataTypeMap } from './common/data-type-map.js';
+import { DocumentElement } from './common/document-element.js';
+import { BUILTIN, kDataTypeMap, kTypeNSMap, NAMESPACE_PATTERN } from './constants.js';
 import { DataType } from './data-type/data-type.js';
+import type { EnumType } from './data-type/enum-type.js';
 import type { HttpApi } from './http/http-api.js';
 
-export class ApiDocument extends ApiDocumentElement {
-  protected _typeNsMap = new WeakMap<DataType, string>();
+/**
+ *
+ * @class ApiDocument
+ */
+export class ApiDocument extends DocumentElement {
+  protected [kTypeNSMap] = new WeakMap<DataType, string>();
   url?: string;
   info: OpraSchema.DocumentInfo;
   references = new ResponsiveMap<ApiDocument>();
+  types = new DataTypeMap();
   api?: HttpApi;
 
   constructor() {
-    super()
-    this.info = {
-      version: '',
-      title: ''
-    }
-  }
-
-  /**
-   * Returns DataType instance by name or Constructor. Returns undefined if not found
-   * @param nameOrCtor
-   */
-  findDataType(nameOrCtor: string | Type | Function | object): DataType | undefined {
-    return this._findDataType(nameOrCtor);
+    super(null as any);
+    this.node[kDataTypeMap] = this.types;
+    this.node.findDataType = this._findDataType.bind(this);
   }
 
   /**
    * Returns NS of datatype. Returns undefined if not found
    * @param nameOrCtor
    */
-  getDataTypeNs(nameOrCtor: string | Type | Function | object | DataType): string | undefined {
-    const dt = nameOrCtor instanceof DataType
-        ? this.findDataType(nameOrCtor.name || '')
-        : this.findDataType(nameOrCtor);
-    if (dt)
-      return this._typeNsMap.get(dt);
+  getDataTypeNs(
+    nameOrCtor: string | Type | Function | EnumType.EnumArray | EnumType.EnumObject | DataType,
+  ): string | undefined {
+    const dt =
+      nameOrCtor instanceof DataType ? this._findDataType(nameOrCtor.name || '') : this._findDataType(nameOrCtor);
+    if (dt) return this[kTypeNSMap].get(dt);
   }
 
   /**
    * Export as Opra schema definition object
    */
   toJSON(): OpraSchema.ApiDocument {
-    const schema = {
+    const out = omitUndefined<OpraSchema.ApiDocument>({
       spec: OpraSchema.SpecVersion,
       url: this.url,
       info: cloneObject(this.info, true),
-      ...super.toJSON()
-    } as OpraSchema.ApiDocument;
+      // api: this.api ? this.api.toJSON() : undefined,
+    });
     if (this.references.size) {
-      const references = {};
       let i = 0;
-      for (const [ns, r] of this.references.entries()) {
-        if (r[BUILTIN])
-          continue;
-        references[ns] = r.toJSON();
+      const references: any = {};
+      for (const [ns, doc] of this.references.entries()) {
+        if (doc[BUILTIN]) continue;
+        references[ns] = doc.url ? doc.url : doc.toJSON();
         i++;
       }
-      if (i)
-        schema.references = references;
+      if (i) this.references = references;
     }
-    if (this.api)
-      schema.api = this.api.toJSON();
-    return schema;
+    if (this.types.size) {
+      out.types = {};
+      for (const v of this.types.values()) {
+        out.types[v.name!] = v.toJSON();
+      }
+    }
+    if (this.api) out.api = this.api.toJSON();
+    return out;
   }
 
   protected _findDataType(
-      nameOrCtor: string | Type | Function | object,
-      visitedRefs?: WeakMap<ApiDocument, boolean>
+    nameOrCtor: string | Type | Function | EnumType.EnumArray | EnumType.EnumObject,
+    visitedRefs?: WeakMap<ApiDocument, boolean>,
   ): DataType | undefined {
-    let result = super.findDataType(nameOrCtor);
-    if (result || !this.references.size)
-      return result;
+    let result = this.types.get(nameOrCtor);
+
+    if (result || !this.references.size) return result;
 
     // Lookup for references
-
     if (typeof nameOrCtor === 'string') {
       // If given string has namespace pattern (ns:type_name)
       const m = NAMESPACE_PATTERN.exec(nameOrCtor);
       if (m) {
         const ns = m[1];
         const ref = this.references.get(ns);
-        if (!ref)
-          return;
+        if (!ref) return;
         visitedRefs = visitedRefs || new WeakMap<ApiDocument, boolean>();
         visitedRefs.set(this, true);
         visitedRefs.set(ref, true);
         result = ref._findDataType(m[2], visitedRefs);
-        if (result)
-          this._typeNsMap.set(result, ns);
+        if (result) this[kTypeNSMap].set(result, ns);
         return result;
       }
     }
@@ -105,10 +102,9 @@ export class ApiDocument extends ApiDocumentElement {
       visitedRefs.set(ref!, true);
       result = ref!._findDataType(nameOrCtor, visitedRefs);
       if (result) {
-        this._typeNsMap.set(result, refNs);
+        this[kTypeNSMap].set(result, refNs);
         return result;
       }
     }
   }
-
 }

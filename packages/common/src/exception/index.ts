@@ -1,6 +1,6 @@
 export * from './opra-exception.js';
+export * from './opra-http-error.js';
 export * from './error-issue.js';
-export * from './wrap-exception.js';
 export * from './issue-severity.enum.js';
 
 export * from './http-errors/bad-request.error.js';
@@ -14,7 +14,6 @@ export * from './http-errors/not-found.error.js';
 export * from './http-errors/unauthorized.error.js';
 export * from './http-errors/unprocessable-entity.error.js';
 
-export * from './resource-errors/permission.error.js';
-export * from './resource-errors/resource-conflict.error.js';
-export * from './resource-errors/resource-not.available.error.js';
-
+export * from './http-errors/permission.error.js';
+export * from './http-errors/resource-conflict.error.js';
+export * from './http-errors/resource-not.available.error.js';

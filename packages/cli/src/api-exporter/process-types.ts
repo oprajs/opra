@@ -96,7 +96,7 @@ export async function resolveTypeNameOrDef(
     }
 ): Promise<string> {
   const {dataType} = args;
-  if (dataType.name && !dataType.isEmbedded) {
+  if (dataType.name && !dataType.embedded) {
     if (internalTypeNames.includes(dataType.name))
       return dataType.name;
     const f = await this.generateTypeFile(dataType);

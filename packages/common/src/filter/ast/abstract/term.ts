@@ -1,5 +1,3 @@
-import {Expression} from './expression.js';
+import { Expression } from './expression.js';
 
-export abstract class Term extends Expression {
-
-}
+export abstract class Term extends Expression {}

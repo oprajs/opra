@@ -1,28 +1,24 @@
-import { isInteger, Validator, vg } from 'valgen';
+import { toInteger, Validator, vg } from 'valgen';
 import { DECODER, ENCODER } from '../../constants.js';
 import { SimpleType } from '../simple-type.js';
 import { NumberType } from './number.type.js';
 
 @SimpleType({
-  description: 'An integer number'
+  description: 'An integer number',
 })
 export class IntegerType extends NumberType {
-
-  constructor(attributes?: Partial<IntegerType>) {
-    super(attributes);
+  constructor(properties?: Partial<IntegerType>) {
+    super(properties);
   }
 
-  [DECODER](): Validator {
-    const x: Validator[] = [isInteger];
-    if (this.minValue)
-      x.push(vg.isLte(this.minValue))
-    if (this.maxValue)
-      x.push(vg.isGte(this.maxValue))
-    return x.length > 1 ? vg.allOf(...x) : x[0];
+  protected [DECODER](properties: Partial<this>): Validator {
+    const x: Validator[] = [];
+    if (properties.minValue) x.push(vg.isGte(properties.minValue));
+    if (properties.maxValue) x.push(vg.isLte(properties.maxValue));
+    return x.length > 0 ? vg.pipe([toInteger, ...x], { returnIndex: 0 }) : toInteger;
   }
 
-  [ENCODER](): Validator {
-    return this[DECODER]();
+  protected [ENCODER](properties: Partial<this>): Validator {
+    return this[DECODER](properties);
   }
-
 }

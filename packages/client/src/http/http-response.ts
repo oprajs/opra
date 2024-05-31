@@ -1,3 +1,5 @@
+/// <reference lib="dom" />
+
 export namespace HttpResponse {
   export interface Initiator {
     headers?: HeadersInit;
@@ -44,8 +46,7 @@ export class HttpResponse<TBody = any> {
   readonly hasBody: boolean = false;
 
   constructor(init?: HttpResponse.Initiator) {
-    this.headers = init?.headers instanceof Headers ? init?.headers
-        : new Headers(init?.headers);
+    this.headers = init?.headers instanceof Headers ? init?.headers : new Headers(init?.headers);
     this.status = init?.status || 200;
     this.statusText = init?.statusText || 'OK';
     this.url = init?.url || null;
@@ -56,7 +57,6 @@ export class HttpResponse<TBody = any> {
   }
 
   clone(update?: HttpResponse.Initiator): HttpResponse {
-    return new HttpResponse({...this, ...update});
+    return new HttpResponse({ ...this, ...update });
   }
-
 }

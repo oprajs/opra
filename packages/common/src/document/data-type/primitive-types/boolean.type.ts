@@ -1,23 +1,20 @@
-import { isBoolean, Validator } from 'valgen';
+import { toBoolean, Validator } from 'valgen';
 import { DECODER, ENCODER } from '../../constants.js';
 import { SimpleType } from '../simple-type.js';
 
 @SimpleType({
-  description: 'Simple true/false value'
+  description: 'Simple true/false value',
 })
 export class BooleanType {
-
-  constructor(attributes?: Partial<BooleanType>) {
-    if (attributes)
-      Object.assign(this, attributes);
+  constructor(properties?: Partial<BooleanType>) {
+    if (properties) Object.assign(this, properties);
   }
 
-  [DECODER](): Validator {
-    return isBoolean
+  protected [DECODER](): Validator {
+    return toBoolean;
   }
 
-  [ENCODER](): Validator {
-    return isBoolean;
+  protected [ENCODER](): Validator {
+    return toBoolean;
   }
-
 }

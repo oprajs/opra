@@ -5,7 +5,6 @@
  */
 
 export enum HttpStatusCode {
-
   /* *** Information responses *** */
 
   /**
@@ -30,7 +29,6 @@ export enum HttpStatusCode {
    * start preloading resources while the server prepares a response.
    */
   EARLYHINTS = 103,
-
 
   /* *** Successful responses *** */
 
@@ -76,7 +74,6 @@ export enum HttpStatusCode {
    * This response code is used when the Range header is sent from the client to request only part of a resource.
    */
   PARTIAL_CONTENT = 206,
-
 
   /* *** Redirection messages *** */
 
@@ -125,7 +122,6 @@ export enum HttpStatusCode {
    * in the first request, a POST must be used in the second request.
    */
   PERMANENT_REDIRECT = 308,
-
 
   /* *** Client error responses *** */
 
@@ -358,6 +354,5 @@ export enum HttpStatusCode {
   /**
    * Indicates that the client needs to authenticate to gain network access.
    */
-  NETWORK_AUTHENTICATION_REQUIRED = 511
-
+  NETWORK_AUTHENTICATION_REQUIRED = 511,
 }

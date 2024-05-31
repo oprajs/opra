@@ -2,21 +2,21 @@ import { StrictOmit, ThunkAsync, Type } from 'ts-gems';
 import { resolveThunk } from '../../helpers/index.js';
 import { OpraSchema } from '../../schema/index.js';
 import { ApiDocument } from '../api-document.js';
-import { DATATYPE_METADATA, RESOURCE_METADATA } from '../constants.js';
-import { EnumType } from '../data-type/enum-type.js';
-import { HttpAction } from '../http/http-action.js';
+import { DocumentInitContext } from '../common/document-init-context.js';
+import { HTTP_CONTROLLER_METADATA } from '../constants.js';
 import { HttpApi } from '../http/http-api.js';
-import { HttpEndpointResponse } from '../http/http-endpoint-response.js';
-import { HttpMediaContent } from '../http/http-media-content.js';
+import { HttpController } from '../http/http-controller.js';
+import { HttpMediaType } from '../http/http-media-type.js';
+import { HttpMultipartField } from '../http/http-multipart-field.js';
 import { HttpOperation } from '../http/http-operation.js';
+import { HttpOperationResponse } from '../http/http-operation-response.js';
 import { HttpParameter } from '../http/http-parameter.js';
-import { HttpResource } from '../http/http-resource.js';
-import type { ApiDocumentFactory } from './api-document.factory';
+import { HttpRequestBody } from '../http/http-request-body.js';
 import { DataTypeFactory } from './data-type.factory.js';
 
 export namespace HttpApiFactory {
   export interface InitArguments extends StrictOmit<OpraSchema.HttpApi, 'root'> {
-    root: ThunkAsync<Type | object | HttpResource.InitArguments>
+    root: ThunkAsync<Type | object | OpraSchema.HttpController>;
   }
 }
 
@@ -24,200 +24,302 @@ export namespace HttpApiFactory {
  * @class HttpApiFactory
  */
 export class HttpApiFactory {
-
+  /**
+   * Generates HttpApi
+   * @param context
+   * @param document
+   * @param init
+   */
   static async createApi(
-      context: ApiDocumentFactory.Context,
-      init: HttpApiFactory.InitArguments
+    context: DocumentInitContext,
+    document: ApiDocument,
+    init: HttpApiFactory.InitArguments,
   ): Promise<HttpApi> {
-    const factory = new HttpApiFactory();
-    const api = new HttpApi(context.document, init);
-    api.root = await factory.createResource(context, context.document, init.root, 'root');
+    const api = new HttpApi(document);
+    api.description = init.description;
+    api.url = init.url;
+    await context.enterAsync('root', async () => {
+      const root = await this._createController(context, api, init.root, 'root');
+      if (root) api.root = root;
+    });
     return api;
   }
 
-  protected async createResource(
-      context: ApiDocumentFactory.Context,
-      parent: ApiDocument | HttpResource,
-      thunk: ThunkAsync<Type | object | HttpResource.DecoratorMetadata | HttpResource.InitArguments>,
-      name?: string
-  ): Promise<HttpResource> {
+  protected static async _createController(
+    context: DocumentInitContext,
+    parent: HttpApi | HttpController,
+    thunk: Type | object | OpraSchema.HttpController,
+    name?: string,
+  ): Promise<HttpController | undefined | void> {
     thunk = await resolveThunk(thunk);
     let ctor: Type;
-    let metadata: HttpResource.DecoratorMetadata;
+    let metadata: HttpController.Metadata | OpraSchema.HttpController;
     let instance: any;
+
     // If thunk is a class
     if (typeof thunk === 'function') {
+      metadata = Reflect.getMetadata(HTTP_CONTROLLER_METADATA, thunk);
+      if (!metadata) return context.addError(`Class "${thunk.name}" doesn't have a valid HttpController metadata`);
       ctor = thunk as Type;
-      metadata = Reflect.getMetadata(RESOURCE_METADATA, ctor);
     } else {
-      // If thunk is an instance of a class decorated with HttpResource()
+      // If thunk is an instance of a class decorated with HttpController()
       ctor = Object.getPrototypeOf(thunk).constructor;
-      metadata = Reflect.getMetadata(RESOURCE_METADATA, ctor);
+      metadata = Reflect.getMetadata(HTTP_CONTROLLER_METADATA, ctor);
       if (!metadata) {
         // If thunk is a DecoratorMetadata or InitArguments
-        metadata = thunk as HttpResource.DecoratorMetadata;
-        if ((thunk as any).controller === 'object') {
-          instance = (thunk as any).controller;
+        metadata = thunk as HttpController.Metadata;
+        if ((thunk as any).instance === 'object') {
+          instance = (thunk as any).instance;
           ctor = Object.getPrototypeOf(instance).constructor;
         }
       }
     }
-    if (!metadata)
-      throw new TypeError(`Class "${ctor.name}" is not decorated with HttpResource()`);
-    name = name || metadata.name;
-    if (!name)
-      throw new TypeError(`Resource name required`);
+    if (!metadata) return context.addError(`Class "${ctor.name}" is not decorated with HttpController()`);
+    name = name || (metadata as any).name;
+    if (!name) throw new TypeError(`Controller name required`);
 
-    const resource = new HttpResource(parent, name, metadata);
-    resource.ctor = ctor;
+    const controller = new HttpController(parent, {
+      ...metadata,
+      name,
+      instance,
+      ctor,
+    });
     if (metadata.types) {
-      context.curPath.push('.types');
-      const typeFactory = new DataTypeFactory(resource);
-      await typeFactory.importAllDataTypes(context, metadata.types);
-      context.curPath.pop();
+      await context.enterAsync('.types', async () => {
+        await DataTypeFactory.addDataTypes(context, controller, metadata.types!);
+      });
     }
 
-    if (metadata.keyParameter) {
-      context.curPath.push('.keyParameter');
-      const type = metadata.keyParameter.type
-          ? resource.getDataType(metadata.keyParameter.type)
-          : undefined;
-      resource.setKeyParameter({...metadata.keyParameter, type});
-      context.curPath.pop();
+    if (metadata.parameters) {
+      await context.enterAsync('.parameters', async () => {
+        let i = 0;
+        for (const v of metadata.parameters!) {
+          await context.enterAsync(`[${i++}]`, async () => {
+            const prmArgs = { ...v } as HttpParameter.InitArguments;
+            await context.enterAsync('.type', async () => {
+              if (v.type) prmArgs.type = controller.node.findDataType(v.type);
+              if (!prmArgs.type && typeof v.type === 'object') {
+                prmArgs.type = await DataTypeFactory.createDataType(context, controller, v.type);
+              }
+              if (!prmArgs.type) prmArgs.type = controller.node.getDataType('any');
+            });
+            const prm = new HttpParameter(controller, prmArgs);
+            controller.parameters.push(prm);
+          });
+        }
+      });
     }
 
-    if (metadata.endpoints) {
-      context.curPath.push('.endpoints');
-      for (const [endpointName, endpointMeta] of Object.entries<any>(metadata.endpoints)) {
-        context.curPath.push('.' + endpointName);
-        // Create endpoint
-        const endpoint = endpointMeta.kind === OpraSchema.Http.Action.Kind
-            ? resource.addAction(endpointName, endpointMeta as HttpAction.InitArguments)
-            : resource.addOperation(endpointName, endpointMeta as HttpOperation.InitArguments);
-
-        const endpointTypeFactory = new DataTypeFactory(endpoint);
-        if (endpointMeta.types) {
-          context.curPath.push('.types');
-          await endpointTypeFactory.importAllDataTypes(context, endpointMeta.types);
-          context.curPath.pop();
+    if (metadata.operations) {
+      await context.enterAsync('.operations', async () => {
+        for (const [k, v] of Object.entries<any>(metadata.operations!)) {
+          await context.enterAsync(`[${k}]`, async () => {
+            const operation = new HttpOperation(controller, { name: k, method: 'GET' });
+            await this._initHttpOperation(context, operation, v);
+            controller.operations.set(k, operation);
+          });
         }
-
-        // Process parameters
-        if (endpointMeta.headers?.length) {
-          for (const oP of endpointMeta.headers) {
-            context.curPath.push(`.headers[${oP.name}]`);
-            const prmInit: HttpParameter.InitArguments = {...oP};
-            if (prmInit.type) {
-              context.curPath.push(`.type`);
-              let typeDef: any = prmInit.type;
-              if (oP.enum) {
-                EnumType(oP.enum, {name: oP.name + 'Enum'});
-                typeDef = oP.enum[DATATYPE_METADATA];
-              }
-              prmInit.type = await endpointTypeFactory.createDataType(context, typeDef);
-              context.curPath.pop();
-            }
-            endpoint.defineHeader(prmInit.name, prmInit);
-            context.curPath.pop();
-          }
-        }
-
-        // Process parameters
-        if (endpointMeta.parameters?.length) {
-          for (const oP of endpointMeta.parameters) {
-            context.curPath.push(`.parameters[${oP.name}]`);
-            const prmInit: HttpParameter.InitArguments = {...oP};
-            if (prmInit.type) {
-              context.curPath.push(`.type`);
-              let typeDef: any = prmInit.type;
-              if (oP.enum) {
-                EnumType(oP.enum, {name: oP.name + 'Enum'});
-                typeDef = oP.enum[DATATYPE_METADATA];
-              }
-              prmInit.type = await endpointTypeFactory.createDataType(context, typeDef);
-              context.curPath.pop();
-            }
-            endpoint.defineParameter(prmInit.name, prmInit);
-            context.curPath.pop();
-          }
-        }
-
-        // Process requestBody
-        if (endpoint instanceof HttpOperation && endpointMeta.requestBody) {
-          context.curPath.push('.requestBody');
-          const requestBodyInit = {
-            ...endpointMeta.requestBody,
-            content: []
-          };
-          if (endpointMeta.requestBody.content) {
-            const processContent = async (src: HttpMediaContent.DecoratorMetadata): Promise<HttpMediaContent.InitArguments> => {
-              const content = {...src} as HttpMediaContent.InitArguments;
-              if (src.type) {
-                context.curPath.push(`.type`);
-                content.type = await endpointTypeFactory.createDataType(context, src.type);
-                context.curPath.pop();
-              }
-              if (src.examples)
-                content.examples = {...src.examples};
-              if (src.multipartFields) {
-                content.multipartFields = {};
-                let i = 0;
-                for (const [k, p] of Object.entries(src.multipartFields)) {
-                  context.curPath.push(`.multipartFields[${i++}]`);
-                  content.multipartFields[k] = await processContent(p);
-                  context.curPath.pop();
-                }
-              }
-              return content;
-            }
-            let i = 0;
-            for (const src of endpointMeta.requestBody.content) {
-              context.curPath.push(`.content[${i++}]`);
-              const content = await processContent(src);
-              requestBodyInit.content.push(content);
-              context.curPath.pop();
-            }
-          }
-          endpoint.setRequestBody(requestBodyInit);
-          context.curPath.pop();
-        }
-
-        // Process responses
-        if (endpointMeta.responses) {
-          let i = 0;
-          for (const src of endpointMeta.responses) {
-            context.curPath.push(`.responses[${i++}]`);
-            const responseInit: HttpEndpointResponse.InitArguments = {...src};
-            if (src.type) {
-              context.curPath.push(`.type`);
-              responseInit.type = await endpointTypeFactory.createDataType(context, src.type);
-              context.curPath.pop();
-            }
-            endpoint.defineResponse(responseInit);
-            context.curPath.pop();
-          }
-        }
-
-        context.curPath.pop();
-      }
-      context.curPath.pop();
+      });
     }
 
-    if (metadata.resources) {
-      if (Array.isArray(metadata.resources)) {
-        for (const t of metadata.resources) {
-          const r = await this.createResource(context, resource, t);
-          resource.resources.set(r.name, r);
+    if (metadata.children) {
+      await context.enterAsync('.children', async () => {
+        if (Array.isArray(metadata.children)) {
+          let k = 0;
+          for (const v of metadata.children!) {
+            await context.enterAsync(`[${k}]`, async () => {
+              const r = await this._createController(context, controller, v);
+              if (r) {
+                if (controller.children.get(r.name)) context.addError(`Duplicate controller name (${r.name})`);
+                controller.children.set(r.name, r);
+              }
+            });
+            k++;
+          }
+        } else {
+          for (const [k, v] of Object.entries<any>(metadata.children!)) {
+            await context.enterAsync(`[${k}]`, async () => {
+              const r = await this._createController(context, controller, v, k);
+              if (r) {
+                if (controller.children.get(r.name)) context.addError(`Duplicate controller name (${r.name})`);
+                controller.children.set(r.name, r);
+              }
+            });
+          }
         }
-      } else {
-        for (const [k, meta] of Object.entries<any>(metadata.resources)) {
-          const r = await this.createResource(context, resource, meta, k);
-          resource.resources.set(r.name, r);
-        }
-      }
+      });
     }
-    return resource;
+
+    return controller;
   }
 
+  /**
+   * Initializes HttpOperation
+   * @param context
+   * @param operation
+   * @param metadata
+   * @protected
+   */
+  protected static async _initHttpOperation(
+    context: DocumentInitContext,
+    operation: HttpOperation,
+    metadata: HttpOperation.Metadata | OpraSchema.HttpOperation,
+  ) {
+    const initArgs: HttpOperation.InitArguments = {
+      ...metadata,
+      name: operation.name,
+      types: undefined,
+    };
+    HttpOperation.apply(operation, [operation.owner, initArgs] as any);
+    if (metadata.types) {
+      await context.enterAsync('.types', async () => {
+        await DataTypeFactory.addDataTypes(context, operation, metadata.types!);
+      });
+    }
 
+    if (metadata.parameters) {
+      await context.enterAsync('.parameters', async () => {
+        let i = 0;
+        for (const v of metadata.parameters!) {
+          await context.enterAsync(`[${i++}]`, async () => {
+            const prmArgs = { ...v } as HttpParameter.InitArguments;
+            await context.enterAsync('.type', async () => {
+              if (v.type) prmArgs.type = operation.node.findDataType(v.type);
+              if (!prmArgs.type && typeof v.type === 'object') {
+                prmArgs.type = await DataTypeFactory.createDataType(context, operation, v.type);
+              }
+              if (!prmArgs.type) prmArgs.type = operation.node.getDataType('any');
+            });
+            const prm = new HttpParameter(operation, prmArgs);
+            operation.parameters.push(prm);
+          });
+        }
+      });
+    }
+
+    if (metadata.responses) {
+      await context.enterAsync('.responses', async () => {
+        let i = 0;
+        for (const v of metadata.responses!) {
+          await context.enterAsync(`[${i++}]`, async () => {
+            const response = new HttpOperationResponse(operation, v.statusCode);
+            await this._initHttpOperationResponse(context, response, v);
+            operation.responses.push(response);
+          });
+        }
+      });
+    }
+    if (metadata.requestBody) {
+      await context.enter('.requestBody', async () => {
+        const requestBody = new HttpRequestBody(operation);
+        await this._initHttpRequestBody(context, requestBody, metadata.requestBody!);
+        operation.requestBody = requestBody;
+      });
+    }
+    return operation;
+  }
+
+  /**
+   * Initializes HttpMediaType
+   * @param context
+   * @param target
+   * @param metadata
+   * @protected
+   */
+  protected static async _initHttpMediaType(
+    context: DocumentInitContext,
+    target: HttpMediaType,
+    metadata: HttpMediaType.Metadata | OpraSchema.HttpMediaType,
+  ) {
+    HttpMediaType.call(target, target.owner, {
+      ...metadata,
+      type: undefined,
+      multipartFields: undefined,
+    });
+    if (metadata.type) {
+      await context.enterAsync('.type', async () => {
+        if (metadata.type) target.type = target.node.findDataType(metadata.type);
+        if (!target.type && (typeof metadata.type === 'object' || typeof metadata.type === 'function')) {
+          target.type = await DataTypeFactory.createDataType(context, target, metadata.type);
+        }
+        if (!target.type) target.type = target.node.getDataType('any');
+      });
+    }
+    if (metadata.multipartFields) {
+      await context.enterAsync('.multipartFields', async () => {
+        for (let i = 0; i < metadata.multipartFields!.length; i++) {
+          await context.enterAsync(`[${i}]`, async () => {
+            const src = metadata.multipartFields![i];
+            const field = new HttpMultipartField(target, { fieldName: src.fieldName, fieldType: src.fieldType });
+            await this._initHttpMediaType(context, field, src);
+            target.multipartFields.push(field);
+          });
+        }
+      });
+    }
+  }
+
+  /**
+   * Initializes HttpOperationResponse
+   * @param context
+   * @param target
+   * @param metadata
+   * @protected
+   */
+  protected static async _initHttpOperationResponse(
+    context: DocumentInitContext,
+    target: HttpOperationResponse,
+    metadata: HttpOperationResponse.Metadata | OpraSchema.HttpOperationResponse,
+  ) {
+    await this._initHttpMediaType(context, target, metadata);
+    if (metadata.parameters) {
+      await context.enterAsync('.parameters', async () => {
+        let i = 0;
+        for (const v of metadata.parameters!) {
+          await context.enterAsync(`[${i++}]`, async () => {
+            const prmArgs = { ...v } as HttpParameter.InitArguments;
+            await context.enterAsync('.type', async () => {
+              if (v.type) prmArgs.type = target.node.findDataType(v.type);
+              if (!prmArgs.type && typeof v.type === 'object') {
+                prmArgs.type = await DataTypeFactory.createDataType(context, target, v.type);
+              }
+              if (!prmArgs.type) prmArgs.type = target.node.getDataType('any');
+            });
+            const prm = new HttpParameter(target, prmArgs);
+            target.parameters.push(prm);
+          });
+        }
+      });
+    }
+  }
+
+  /**
+   * Initializes HttpRequestBody
+   * @param context
+   * @param target
+   * @param metadata
+   * @protected
+   */
+  protected static async _initHttpRequestBody(
+    context: DocumentInitContext,
+    target: HttpRequestBody,
+    metadata: HttpRequestBody.Metadata | OpraSchema.HttpRequestBody,
+  ) {
+    target.description = metadata.description;
+    target.required = metadata.required;
+    target.maxContentSize = metadata.maxContentSize;
+    target.immediateFetch = (metadata as HttpRequestBody.Metadata).immediateFetch;
+    if (metadata.content) {
+      await context.enterAsync('.content', async () => {
+        for (let i = 0; i < metadata.content.length; i++) {
+          await context.enterAsync(`[${i}]`, async () => {
+            const src = metadata.content![i];
+            const field = new HttpMediaType(target, String(i));
+            await this._initHttpMediaType(context, field, src);
+            target.content.push(field);
+          });
+        }
+      });
+    }
+  }
 }

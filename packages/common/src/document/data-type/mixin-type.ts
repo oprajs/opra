@@ -1,118 +1,240 @@
 import 'reflect-metadata';
-import merge from 'putil-merge';
-import { Class, StrictOmit, Type } from 'ts-gems';
-import { inheritPropertyInitializers, mergePrototype, } from '../../helpers/index.js';
+import { asMutable, Class, Combine, Type } from 'ts-gems';
+import { inheritPropertyInitializers, mergePrototype, omitUndefined } from '../../helpers/index.js';
 import { OpraSchema } from '../../schema/index.js';
-import type { ApiNode } from '../api-node';
-import { DATATYPE_METADATA } from '../constants.js';
-import { ComplexType } from './complex-type.js';
-import { MappedType } from './mapped-type.js';
-import { MixinTypeClass } from './mixin-type-class.js';
-
-
-/**
- * Type definition of MixinType constructor type
- * @type MixinTypeConstructor
- */
-export interface MixinTypeConstructor {
-  prototype: MixinType;
-
-  new(node: ApiNode, init: MixinType.InitArguments): MixinType;
-
-  <A1 extends any[], I1, S1,
-      A2 extends any[], I2, S2,
-      A3 extends any[], I3, S3,
-      A4 extends any[], I4, S4,
-      // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  >(
-      c1: Class<A1, I1, S1>,
-      c2: Class<A2, I2, S2>,
-      c3?: Class<A3, I3, S3>,
-      c4?: Class<A4, I4, S4>
-  ): Class<any[], I1 & I2 & I3 & I4, S1 & S2 & S3 & S4>;
-
-  _applyMixin(target: Type, ...sources: [Type]): void;
-}
-
-/**
- * Type definition of MixinType prototype
- * @type MixinType
- */
-export interface MixinType extends MixinTypeClass {
-}
-
-
-/**
- * @class MixinType
- */
-export const MixinType = function (
-    this: MixinType,
-    ...args: any[]
-) {
-
-  // Constructor
-  if (this) {
-    const [node, init] = args as [ApiNode, MixinType.InitArguments];
-    merge(this, new MixinTypeClass(node, init), {descriptor: true});
-    return;
-  }
-
-  // MixinType helper
-
-  // Filter undefined items
-  const clasRefs = [...args].filter(x => !!x) as [Type];
-  if (!clasRefs.length)
-    throw new TypeError('No Class has been provided');
-  if (clasRefs.length === 1)
-    return clasRefs[0] as any;
-
-  class MixinClass {
-    constructor() {
-      for (const c of clasRefs)
-        inheritPropertyInitializers(this, c);
-    }
-  }
-
-  const metadata: MixinType.Metadata = {
-    kind: OpraSchema.MixinType.Kind,
-    types: []
-  };
-  Reflect.defineMetadata(DATATYPE_METADATA, metadata, MixinClass);
-
-  for (const c of clasRefs) {
-    const itemMeta = Reflect.getMetadata(DATATYPE_METADATA, c);
-    if (!(itemMeta && (itemMeta.kind === OpraSchema.ComplexType.Kind || itemMeta.kind === OpraSchema.MixinType.Kind ||
-        itemMeta.kind === OpraSchema.MappedType.Kind)))
-      throw new TypeError(`Class "${c.name}" is not a ${OpraSchema.ComplexType.Kind}, ${OpraSchema.MixinType.Kind} or ${OpraSchema.MappedType.Kind}`);
-    metadata.types.push(c);
-    mergePrototype(MixinType.prototype, c.prototype);
-  }
-
-  MixinType._applyMixin(MixinClass, ...clasRefs);
-
-  return MixinClass as any;
-} as MixinTypeConstructor;
-
-MixinType.prototype = MixinTypeClass.prototype;
-MixinType._applyMixin = () => void 0;
-
+import type { DocumentElement } from '../common/document-element.js';
+import type { DocumentInitContext } from '../common/document-init-context';
+import { DATATYPE_METADATA, DECORATOR } from '../constants.js';
+import { ApiField } from './api-field.js';
+import type { ComplexType } from './complex-type.js';
+import { ComplexTypeBase } from './complex-type-base.js';
+import type { DataType } from './data-type.js';
+import type { MappedType } from './mapped-type.js';
 
 /**
  * @namespace MixinType
  */
 export namespace MixinType {
+  export interface Metadata
+    extends Combine<
+      {
+        kind: OpraSchema.MixinType.Kind;
+        name?: string;
+        types: Type[];
+      },
+      DataType.Metadata,
+      Pick<ComplexType.Metadata, 'additionalFields'>,
+      OpraSchema.MixinType
+    > {}
 
-  export interface InitArguments extends ComplexType.InitArguments {
-    types: (ComplexType | MixinType | MappedType)[]
+  export interface InitArguments
+    extends Combine<
+      {
+        kind: OpraSchema.MixinType.Kind;
+        types: (ComplexType | MappedType | MixinType)[];
+        ctor?: Type;
+      },
+      DataType.InitArguments,
+      MixinType.Metadata
+    > {}
+}
+
+/**
+ * Type definition for MixinType
+ * @class MixinType
+ */
+export interface MixinTypeStatic {
+  /**
+   * Class constructor of MixinType
+   *
+   * @param owner
+   * @param args
+   * @constructor
+   */
+  new (owner: DocumentElement, args: MixinType.InitArguments): MixinType;
+
+  /**
+   * Create a new mixin type from given two types
+   * @param c1
+   * @param c2
+   * @param options
+   */ <
+    A1 extends any[],
+    I1,
+    S1,
+    A2 extends any[],
+    I2,
+    S2,
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  >(
+    c1: Class<A1, I1, S1>,
+    c2: Class<A2, I2, S2>,
+    options?: DataType.Options,
+  ): Class<any[], I1 & I2, S1 & S2>;
+
+  /**
+   * Helper method that mixes given types
+   * @param c1
+   * @param c2
+   * @param c3
+   * @param options
+   */ <
+    A1 extends any[],
+    I1,
+    S1,
+    A2 extends any[],
+    I2,
+    S2,
+    A3 extends any[],
+    I3,
+    S3,
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  >(
+    c1: Class<A1, I1, S1>,
+    c2: Class<A2, I2, S2>,
+    c3?: Class<A3, I3, S3>,
+    options?: DataType.Options,
+  ): Class<any[], I1 & I2 & I3, S1 & S2 & S3>;
+
+  /**
+   * Helper method that mixes given types
+   * @param c1
+   * @param c2
+   * @param c3
+   * @param c4
+   * @param options
+   */ <
+    A1 extends any[],
+    I1,
+    S1,
+    A2 extends any[],
+    I2,
+    S2,
+    A3 extends any[],
+    I3,
+    S3,
+    A4 extends any[],
+    I4,
+    S4,
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  >(
+    c1: Class<A1, I1, S1>,
+    c2: Class<A2, I2, S2>,
+    c3?: Class<A3, I3, S3>,
+    c4?: Class<A4, I4, S4>,
+    options?: DataType.Options,
+  ): Class<any[], I1 & I2 & I3 & I4, S1 & S2 & S3 & S4>;
+
+  prototype: MixinType;
+}
+
+/**
+ * Type definition of MixinType prototype
+ * @interface
+ */
+export interface MixinType extends MixinTypeClass {}
+
+/**
+ * @class MixinType
+ */
+export const MixinType = function (this: MixinType, ...args: any[]) {
+  // MixinType factory
+  if (!this) return MixinType[DECORATOR].apply(undefined, args);
+  // Constructor
+  const [owner, initArgs, context] = args as [
+    DocumentElement,
+    MixinType.InitArguments,
+    DocumentInitContext | undefined,
+  ];
+  ComplexTypeBase.call(this, owner, initArgs, context);
+  const _this = asMutable(this);
+  _this.kind = OpraSchema.MixinType.Kind;
+  _this.types = [];
+  for (const base of initArgs.types) {
+    if (_this.additionalFields !== true) {
+      if (base.additionalFields === true) _this.additionalFields = true;
+      else if (!_this.additionalFields) _this.additionalFields = base.additionalFields;
+    }
+    for (const v of base.fields.values()) {
+      const field = new ApiField(this, v);
+      _this.fields.set(field.name, field);
+    }
+    _this.types.push(base);
+    if (base.keyField) _this.keyField = base.keyField;
+  }
+} as MixinTypeStatic;
+
+/**
+ *
+ * @class MixinType
+ */
+class MixinTypeClass extends ComplexTypeBase {
+  readonly kind: OpraSchema.MixinType.Kind;
+  readonly types: (ComplexType | MixinType | MappedType)[];
+
+  extendsFrom(baseType: DataType): boolean {
+    if (!(baseType instanceof ComplexTypeBase)) return false;
+    if (baseType === this) return true;
+    for (const t of this.types) {
+      if (t.extendsFrom(baseType)) return true;
+    }
+    return false;
   }
 
-  export interface Metadata extends StrictOmit<ComplexType.Metadata, 'kind' | 'base' | 'name'> {
-    kind: OpraSchema.MixinType.Kind;
-    base?: Type;
-    types: Type[];
+  toJSON(): OpraSchema.MixinType {
+    return omitUndefined<OpraSchema.MixinType>({
+      ...ComplexTypeBase.prototype.toJSON.call(this),
+      kind: this.kind as any,
+      types: this.types.map(t => (t.name ? t.name : t.toJSON())),
+    });
+  }
+}
+
+MixinType.prototype = MixinTypeClass.prototype;
+MixinType[DECORATOR] = MixinTypeFactory;
+
+/**
+ *
+ */
+function MixinTypeFactory(...args: any[]): Type {
+  // Filter undefined items
+  const clasRefs = args.filter(x => typeof x === 'function') as [Type];
+  const options = typeof args[args.length - 1] === 'object' ? args[args.length - 1] : undefined;
+  if (!clasRefs.length) throw new TypeError('No Class has been provided');
+  if (clasRefs.length === 1) return clasRefs[0] as any;
+  const className = clasRefs[0].name + 'Mixin';
+
+  const MixinClass = {
+    [className]: class {
+      constructor() {
+        for (const c of clasRefs) inheritPropertyInitializers(this, c);
+      }
+    },
+  }[className];
+
+  const metadata: MixinType.Metadata = {
+    ...options,
+    kind: OpraSchema.MixinType.Kind,
+    types: [],
+  };
+  Reflect.defineMetadata(DATATYPE_METADATA, metadata, MixinClass);
+
+  for (const c of clasRefs) {
+    const itemMeta = Reflect.getMetadata(DATATYPE_METADATA, c);
+    if (
+      !(
+        itemMeta &&
+        (itemMeta.kind === OpraSchema.ComplexType.Kind ||
+          itemMeta.kind === OpraSchema.MixinType.Kind ||
+          itemMeta.kind === OpraSchema.MappedType.Kind)
+      )
+    )
+      throw new TypeError(
+        `Class "${c.name}" is not a ${OpraSchema.ComplexType.Kind}, ${OpraSchema.MixinType.Kind} or ${OpraSchema.MappedType.Kind}`,
+      );
+    metadata.types.push(c);
+    mergePrototype(MixinClass.prototype, c.prototype);
   }
 
-  export interface OwnProperties extends ComplexType.OwnProperties {
-  }
-
+  return MixinClass as any;
 }

@@ -4,32 +4,34 @@ import http from 'http';
 import { AddressInfo } from 'net';
 import { ApiDocument } from '@opra/common';
 import { ExpressAdapter } from '@opra/core';
-import { createTestApi } from '../../../core/test/_support/test-app/index.js';
+import { createTestApi } from '../../../core/test/_support/test-api/index.js';
 
 export interface MockServer extends express.Express {
   api: ApiDocument;
-  adapter: ExpressAdapter,
-  server: http.Server,
+  adapter: ExpressAdapter;
+  server: http.Server;
   address: string;
   port: number;
   baseUrl: string;
   lastRequest: express.Request;
   lastResponse: express.Response;
+  requestCount: number;
 }
 
 export async function createMockServer(): Promise<MockServer> {
-
   const api = await createTestApi();
   const app = express() as MockServer;
+  app.requestCount = 0;
   app.use(bodyParser.json());
   app.use('*', (_req, _res, next) => {
     app.lastRequest = _req;
     app.lastResponse = _res;
+    app.requestCount++;
     next();
   });
   app.adapter = await ExpressAdapter.create(app, api);
 
-  return await new Promise<void>((subResolve) => {
+  return await new Promise<void>(subResolve => {
     app.server = app.listen(0, '127.0.0.1', () => subResolve());
   }).then(async () => {
     const address = app.server.address() as AddressInfo;

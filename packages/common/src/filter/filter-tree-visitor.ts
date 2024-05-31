@@ -5,23 +5,35 @@ import {
   BooleanLiteralContext,
   ComparisonExpressionContext,
   DateLiteralContext,
-  DateTimeLiteralContext, ExpressionContext, ExternalConstantContext,
-  LogicalExpressionContext, NegativeExpressionContext,
+  DateTimeLiteralContext,
+  ExpressionContext,
+  ExternalConstantContext,
+  LogicalExpressionContext,
+  NegativeExpressionContext,
   NumberLiteralContext,
-  ParenthesizedExpressionContext, ParenthesizedItemContext, QualifiedIdentifierContext, RootContext,
+  ParenthesizedExpressionContext,
+  ParenthesizedItemContext,
+  QualifiedIdentifierContext,
+  RootContext,
   StringLiteralContext,
   TimeLiteralContext,
 } from './antlr/OpraFilterParser.js';
 import OpraFilterVisitor from './antlr/OpraFilterVisitor.js';
 import {
   ArrayExpression,
-  BooleanLiteral, ComparisonExpression, ComparisonOperator,
-  DateLiteral, LogicalExpression, LogicalOperator, NegativeExpression,
+  BooleanLiteral,
+  ComparisonExpression,
+  ComparisonOperator,
+  DateLiteral,
+  LogicalExpression,
+  LogicalOperator,
+  NegativeExpression,
   NullLiteral,
-  NumberLiteral, ParenthesizedExpression,
+  NumberLiteral,
+  ParenthesizedExpression,
   QualifiedIdentifier,
   StringLiteral,
-  TimeLiteral
+  TimeLiteral,
 } from './ast/index.js';
 import { ExternalConstant } from './ast/terms/external-constant.js';
 import { unquoteFilterString } from './utils.js';
@@ -32,17 +44,14 @@ const ParseTreeVisitor = (antlr4 as any).tree.ParseTreeVisitor as typeof TParseT
 export class FilterTreeVisitor extends ParseTreeVisitor<any> implements OpraFilterVisitor<any> {
   private _timeZone?: string;
 
-  constructor(options?: {
-    timeZone?: string
-  }) {
+  constructor(options?: { timeZone?: string }) {
     super();
     this._timeZone = options?.timeZone;
   }
 
   visitChildren(node: RuleNode) {
     const result = super.visitChildren(node);
-    if (Array.isArray(result) && result.length < 2)
-      return result[0];
+    if (Array.isArray(result) && result.length < 2) return result[0];
     return result ?? node.getText();
   }
 
@@ -72,8 +81,8 @@ export class FilterTreeVisitor extends ParseTreeVisitor<any> implements OpraFilt
     return new ComparisonExpression({
       op: ctx.comparisonOperator().getText() as ComparisonOperator,
       left: this.visit(ctx.comparisonLeft()),
-      right: this.visit(ctx.comparisonRight())
-    })
+      right: this.visit(ctx.comparisonRight()),
+    });
   }
 
   visitLogicalExpression(ctx: LogicalExpressionContext) {
@@ -87,12 +96,12 @@ export class FilterTreeVisitor extends ParseTreeVisitor<any> implements OpraFilt
         const o = this.visit(c);
         items.push(o);
       }
-    }
+    };
     wrapChildren(ctx.expression_list(), ctx.logicalOperator().getText());
     return new LogicalExpression({
       op: ctx.logicalOperator().getText() as LogicalOperator,
-      items
-    })
+      items,
+    });
   }
 
   visitQualifiedIdentifier(ctx: QualifiedIdentifierContext) {
@@ -156,6 +165,4 @@ export class FilterTreeVisitor extends ParseTreeVisitor<any> implements OpraFilt
   //   wrapChildren(ctx.expression_list(), ctx.arthOp().getText());
   //   return exp;
   // }
-
 }
-

@@ -1,5 +1,3 @@
-import {Ast} from './ast.js';
+import { Ast } from './ast.js';
 
-export abstract class Expression extends Ast {
-
-}
+export abstract class Expression extends Ast {}

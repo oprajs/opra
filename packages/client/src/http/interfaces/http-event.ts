@@ -1,18 +1,17 @@
 import type { HttpResponse } from '../http-response';
 
 export type HttpEvent<T = any, TResponseExt = {}> =
-    HttpSentEvent |
-    HttpProgressEvent |
-    HttpResponseHeaderEvent |
-    HttpResponseEvent<T, TResponseExt> |
-    HttpUserEvent;
+  | HttpSentEvent
+  | HttpProgressEvent
+  | HttpResponseHeaderEvent
+  | HttpResponseEvent<T, TResponseExt>
+  | HttpUserEvent;
 
 /**
  * Type enumeration for the different kinds of `HttpEvent`.
  * @enum HttpEventType
  */
 export enum HttpEventType {
-
   /**
    * The request was sent out over the wire.
    */
@@ -44,7 +43,6 @@ export enum HttpEventType {
   User = 'User',
 }
 
-
 /**
  *
  * @interface HttpEventBase
@@ -54,7 +52,6 @@ interface HttpEventBase {
   request: any;
 }
 
-
 /**
  *
  * @interface HttpSentEvent
@@ -62,7 +59,6 @@ interface HttpEventBase {
 export interface HttpSentEvent extends HttpEventBase {
   type: HttpEventType.Sent;
 }
-
 
 /**
  *
@@ -81,7 +77,6 @@ interface HttpProgressEvent extends HttpEventBase {
   total?: number;
 }
 
-
 /**
  *
  * @interface HttpDownloadProgressEvent
@@ -90,7 +85,6 @@ export interface HttpDownloadProgressEvent extends HttpProgressEvent {
   type: HttpEventType.DownloadProgress;
 }
 
-
 /**
  *
  * @interface HttpUploadProgressEvent
@@ -98,7 +92,6 @@ export interface HttpDownloadProgressEvent extends HttpProgressEvent {
 export interface HttpUploadProgressEvent extends HttpProgressEvent {
   type: HttpEventType.UploadProgress;
 }
-
 
 /**
  *
@@ -112,7 +105,6 @@ export interface HttpResponseHeaderEvent<TResponseExt = {}> extends HttpEventBas
   response: HttpResponse<never> & TResponseExt;
 }
 
-
 /**
  *
  * @interface HttpResponseEvent
@@ -124,7 +116,6 @@ export interface HttpResponseEvent<T = any, TResponseExt = {}> extends HttpEvent
    */
   response: HttpResponse<T> & TResponseExt;
 }
-
 
 /**
  *

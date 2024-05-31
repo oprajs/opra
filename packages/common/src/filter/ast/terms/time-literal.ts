@@ -10,10 +10,12 @@ export class TimeLiteral extends Literal {
   constructor(value: string | Date) {
     super('');
     if (value instanceof Date) {
-      this.value = pad(value.getHours()) + ':' +
-          pad(value.getMinutes()) +
-          (value.getSeconds() ? ':' + pad(value.getSeconds()) : '') +
-          (value.getMilliseconds() ? '.' + pad(value.getMilliseconds()) : '');
+      this.value =
+        pad(value.getHours()) +
+        ':' +
+        pad(value.getMinutes()) +
+        (value.getSeconds() ? ':' + pad(value.getSeconds()) : '') +
+        (value.getMilliseconds() ? '.' + pad(value.getMilliseconds()) : '');
       return;
     }
     // noinspection SuspiciousTypeOfGuard
@@ -27,7 +29,6 @@ export class TimeLiteral extends Literal {
   toString(): string {
     return quoteFilterString(this.value);
   }
-
 }
 
 function pad(n: number): string {

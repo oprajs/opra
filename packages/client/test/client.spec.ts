@@ -1,113 +1,127 @@
-import express from 'express';
-import * as http from 'http';
-import { AddressInfo } from 'net';
 import { finalize, Observable } from 'rxjs';
-import { ApiDocument } from '@opra/common';
-import { createTestApi } from '../../core/test/_support/test-app/index.js';
+import { ApiDocument, HttpHeaderCodes, OpraSchema } from '@opra/common';
 import {
   FetchBackend,
-  HttpCollectionNode, HttpEvent,
+  HttpEvent,
+  HttpEventType,
   HttpHandler,
-  HttpSingletonNode,
-  OpraHttpClient
+  HttpObserveType,
+  HttpResponse,
+  OpraHttpClient,
 } from '../src/index.js';
+import { createMockServer, MockServer } from './_support/create-mock-server.js';
 
 describe('OpraClient', function () {
-
-  let api: ApiDocument;
+  let app: MockServer;
   let client: OpraHttpClient;
-  let server: http.Server;
 
-  afterAll(() => server.close());
-
+  afterAll(() => app.server.close());
   afterAll(() => global.gc && global.gc());
 
   beforeAll(async () => {
-    api = await createTestApi();
-    const app = express();
-    app.use('*', (_req, _res) => {
-      _res.json({});
-    });
-    await new Promise<void>((subResolve) => {
-      server = app.listen(0, '127.0.0.1', () => subResolve());
-    }).then(async () => {
-      const address = server.address() as AddressInfo;
-      client = new OpraHttpClient('http://127.0.0.1:' + address.port.toString(), {api});
-    });
+    app = await createMockServer();
+    client = new OpraHttpClient(app.baseUrl, { document: app.api });
   });
 
-  it('Should retrieve metadata', async () => {
-    expect(await client.getMetadata()).toBeInstanceOf(ApiDocument);
+  it('Should retrieve api document schema', async () => {
+    expect(await client.getSchema()).toBeInstanceOf(ApiDocument);
   });
 
-  it('Should getMetadata() reject promise on error', async () => {
+  it('Should getSchema() reject promise on error', async () => {
     const xClient = new OpraHttpClient('http://127.0.0.1:1001');
-    await expect(() => xClient.getMetadata()).rejects.toThrow('Error fetching metadata');
+    await expect(() => xClient.getSchema()).rejects.toThrow('Error fetching api schema');
   });
 
-  it('Should "collection()" create a service for Collection resources', async () => {
-    expect(client.collection('Customers')).toBeInstanceOf(HttpCollectionNode);
+  it('Should getSchema() be called only one at a time', async () => {
+    const requestCount = app.requestCount;
+    await Promise.all([client.getSchema(), client.getSchema(), client.getSchema()]);
+    expect(app.requestCount).toEqual(requestCount + 1);
+    await Promise.all([client.getSchema(), client.getSchema(), client.getSchema()]);
+    expect(app.requestCount).toEqual(requestCount + 2);
   });
 
-  it('Should "singleton()" create a service for Singleton resources', async () => {
-    expect(client.singleton('MyProfile')).toBeInstanceOf(HttpSingletonNode);
+  it('Should return OPRA headers', async () => {
+    const resp = await client.request('auth/login', { params: { user: 'john' } }).getResponse();
+    expect(app.lastResponse.get(HttpHeaderCodes.X_Opra_Version)).toStrictEqual(OpraSchema.SpecVersion);
+    expect(app.lastRequest.query.user).toStrictEqual('john');
+    expect(resp.headers.get(HttpHeaderCodes.X_Opra_Version)).toStrictEqual(OpraSchema.SpecVersion);
+  });
+
+  it('Should return body if observe=body or undefined', async () => {
+    const body = await client.request('auth/login', { params: { user: 'john' } }).getBody();
+    expect(app.lastRequest).toBeDefined();
+    expect(app.lastRequest.method).toStrictEqual('GET');
+    expect(app.lastRequest.url).toStrictEqual('/auth/login?user=john');
+    expect(body).toEqual({
+      context: '/Auth',
+      type: 'LoginResult',
+      payload: { user: 'john', token: '123456' },
+    });
+  });
+
+  it('Should return Response object if observe=response or undefined', async () => {
+    const resp = await client.request('auth/login', { params: { user: 'john' } }).getResponse();
+    expect(app.lastRequest).toBeDefined();
+    expect(app.lastRequest.method).toStrictEqual('GET');
+    expect(app.lastRequest.url).toStrictEqual('/auth/login?user=john');
+    expect(resp).toBeInstanceOf(HttpResponse);
+    expect(resp.body).toEqual({
+      context: '/Auth',
+      type: 'LoginResult',
+      payload: { user: 'john', token: '123456' },
+    });
   });
 
   it('Should run interceptor chain', async () => {
-    const address = server.address() as AddressInfo;
     const callStack: string[] = [];
-    const client2 = new OpraHttpClient('http://127.0.0.1:' + address.port.toString(),
+    const client2 = new OpraHttpClient(app.baseUrl, {
+      document: app.api,
+      interceptors: [
         {
-          api,
-          interceptors: [
-            {
-              intercept(request: FetchBackend.RequestInit, next: HttpHandler): Observable<HttpEvent> {
-                callStack.push('a1');
-                return next.handle(request)
-                    .pipe(finalize(() => {
-                      callStack.push('a2');
-                    }));
-              }
-            },
-            {
-              intercept(request: FetchBackend.RequestInit, next: HttpHandler): Observable<HttpEvent> {
-                callStack.push('b1');
-                return next.handle(request)
-                    .pipe(finalize(() => {
-                      callStack.push('b2');
-                    }));
-              }
-            }
-          ]
-        });
-    await client2.collection('Customers')
-        .get(1)
-        .getResponse();
+          intercept(request: FetchBackend.RequestInit, next: HttpHandler): Observable<HttpEvent> {
+            callStack.push('a1');
+            return next.handle(request).pipe(
+              finalize(() => {
+                callStack.push('a2');
+              }),
+            );
+          },
+        },
+        {
+          intercept(request: FetchBackend.RequestInit, next: HttpHandler): Observable<HttpEvent> {
+            callStack.push('b1');
+            return next.handle(request).pipe(
+              finalize(() => {
+                callStack.push('b2');
+              }),
+            );
+          },
+        },
+      ],
+    });
+    await client2.request('Customers@1').getResponse();
     expect(callStack).toEqual(['a1', 'b1', 'b2', 'a2']);
   });
 
-  // it('Should check if Collection resource exists', async () => {
-  //   await expect(
-  //       () => client.collection('blabla').get(1).fetch()
-  //   ).rejects.toThrow('not found');
-  // });
-  //
-  // it('Should .collection() check if resource is CollectionResource', async () => {
-  //   await expect(
-  //       () => client.collection('MyProfile').get(1).fetch()
-  //   ).rejects.toThrow('is not a Collection');
-  // });
-  //
-  // it('Should check if Singleton resource exists', async () => {
-  //   await expect(
-  //       () => client.singleton('blabla').get().fetch()
-  //   ).rejects.toThrow('not found');
-  // });
-  //
-  // it('Should .singleton() check if resource is SingletonResource', async () => {
-  //   await expect(
-  //       () => client.singleton('Customers').get().fetch()
-  //   ).rejects.toThrow('is not a Singleton');
-  // });
-
+  it('Should subscribe events', done => {
+    const expectedEvents = ['Sent', 'ResponseHeader', 'Response'];
+    const receivedEvents: HttpEventType[] = [];
+    client
+      .request('auth/login', { params: { user: 'john' } })
+      .observe(HttpObserveType.Events)
+      .subscribe({
+        next: event => {
+          receivedEvents.push(event.type);
+        },
+        complete: () => {
+          try {
+            expect(expectedEvents).toStrictEqual(receivedEvents);
+          } catch (e) {
+            return done(e);
+          }
+          done();
+        },
+        error: done,
+      });
+  });
 });

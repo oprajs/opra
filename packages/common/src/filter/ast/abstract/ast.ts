@@ -6,5 +6,4 @@ export abstract class Ast {
   }
 
   abstract toString(): string;
-
 }

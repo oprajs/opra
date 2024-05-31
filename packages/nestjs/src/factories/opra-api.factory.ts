@@ -8,7 +8,7 @@ import { ContextId, InstanceWrapper } from '@nestjs/core/injector/instance-wrapp
 import { InternalCoreModule } from '@nestjs/core/injector/internal-core-module';
 import { Module } from '@nestjs/core/injector/module.js';
 import { REQUEST_CONTEXT_ID } from '@nestjs/core/router/request/request-constants';
-import { ApiDocument, ApiDocumentFactory, OpraSchema, RESOURCE_METADATA } from '@opra/common';
+import { ApiDocument, ApiDocumentFactory, OpraSchema, HTTP_CONTROLLER_METADATA } from '@opra/common';
 import * as opraCore from '@opra/core';
 import { PARAM_ARGS_METADATA } from '../constants.js';
 import { HandlerParamType } from '../enums/handler-paramtype.enum.js';
@@ -54,10 +54,10 @@ export class OpraApiFactory {
     this.explorerService.exploreResources(rootModule, (wrapper, modulePath) => {
       const instance = wrapper.instance;
       const ctor = instance.constructor;
-      const metadata = Reflect.getMetadata(RESOURCE_METADATA, ctor);
+      const metadata = Reflect.getMetadata(HTTP_CONTROLLER_METADATA, ctor);
       let node: any = root;
       modulePath.forEach(m => {
-        const mt = Reflect.getMetadata(RESOURCE_METADATA, (m as any)._metatype);
+        const mt = Reflect.getMetadata(HTTP_CONTROLLER_METADATA, (m as any)._metatype);
         if (mt) {
           let n = node.resources.find(x => x.controller === m.instance);
           if (!n) {
@@ -116,7 +116,7 @@ export class OpraApiFactory {
   }
 
   private _createHandler(callback: Function) {
-    return function (ctx: opraCore.RequestContext) {
+    return function (ctx: opraCore.HttpContext) {
       switch (ctx.protocol) {
         case 'http':
           const httpContext = ctx.switchToHttp();
@@ -141,7 +141,7 @@ export class OpraApiFactory {
 
     const callback = isRequestScoped
         ? async (...args: any[]) => {
-          const opraContext: opraCore.RequestContext =
+          const opraContext: opraCore.HttpContext =
               paramsFactory.exchangeKeyForValue(HandlerParamType.CONTEXT, undefined, args);
           const contextId = this.getContextId(opraContext);
           this.registerContextProvider(opraContext, contextId);

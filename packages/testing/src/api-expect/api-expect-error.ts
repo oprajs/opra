@@ -13,25 +13,17 @@ export interface MatchingErrorIssue {
 }
 
 export class ApiExpectError extends ApiExpectBase {
-
-  toMatch(expected: (string | RegExp | MatchingErrorIssue)) {
+  toMatch(expected: string | RegExp | MatchingErrorIssue) {
     try {
-      if (typeof expected === 'string')
-        expected = {message: expected} as MatchingErrorIssue;
+      if (typeof expected === 'string') expected = { message: expected } as MatchingErrorIssue;
       else if (expected instanceof RegExp)
-        expected = {message: expect.stringMatching(expected)} as MatchingErrorIssue;
-      else
-        expected = omitNullish(expected);
-      this._expect(this.response.body.errors).toEqual(
-          expect.arrayContaining(
-              [expect.objectContaining(expected)]
-          )
-      )
+        expected = { message: expect.stringMatching(expected) } as MatchingErrorIssue;
+      else expected = omitNullish(expected);
+      this._expect(this.response.body.errors).toEqual(expect.arrayContaining([expect.objectContaining(expected)]));
     } catch (e: any) {
       Error.captureStackTrace(e, this.toMatch);
       throw e;
     }
     return this;
   }
-
 }

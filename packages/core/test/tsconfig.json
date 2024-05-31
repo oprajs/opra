@@ -10,6 +10,6 @@
       "@opra/common": ["../../common/src"],
       "@opra/client": ["../../client/src"],
       "@opra/testing": ["../../testing/src"]
-    },
+    }
   }
 }

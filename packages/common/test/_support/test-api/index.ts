@@ -17,14 +17,7 @@ export * from './types/address.type.js';
 export * from './types/note.type.js';
 export * from './types/person.type.js';
 export * from './types/record.type.js';
-export * from './api/auth.controller.js';
-export * from './api/countries.controller.js';
-export * from './api/country.controller.js';
-export * from './api/customers.controller.js';
-export * from './api/customer.controller.js';
-export * from './api/my-profile.controller.js';
 export * from './api/root.controller.js';
-
 
 export const testApiDocumentDef: ApiDocumentFactory.InitArguments = {
   spec: OpraSchema.SpecVersion,
@@ -39,6 +32,6 @@ export const testApiDocumentDef: ApiDocumentFactory.InitArguments = {
     name: 'TestService',
     description: 'test service',
     url: '/test',
-    root: RootController
-  }
+    root: RootController,
+  },
 };

@@ -5,6 +5,5 @@ export function isUrlString(url: string) {
 }
 
 export const isAbsoluteUrl = (urlString: string) => {
-  return !urlString.includes('://') &&
-      (new URL(urlString, 'http://tempuri.org/')).host !== 'tempuri.org';
-}
+  return !urlString.includes('://') && new URL(urlString, 'http://tempuri.org/').host !== 'tempuri.org';
+};

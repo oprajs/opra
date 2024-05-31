@@ -1,28 +1,26 @@
 import { ApiField, DATATYPE_METADATA } from '@opra/common';
 
 describe('ApiField() decorator', function () {
-
   afterAll(() => global.gc && global.gc());
 
   it('Should define field metadata', async () => {
     class Animal {
       @ApiField({
         type: 'integer',
-        description: 'description'
+        description: 'description',
       })
       id: number;
     }
 
-    const metadata = Reflect.getMetadata(DATATYPE_METADATA, Animal)
+    const metadata = Reflect.getMetadata(DATATYPE_METADATA, Animal);
     expect(metadata).toBeDefined();
     expect(metadata.fields).toMatchObject({
       id: {
         type: 'integer',
-        designType: Number,
         description: 'description',
-      }
+      },
     });
-  })
+  });
 
   it('Should determine design type if "type" is not defined', async () => {
     class Country {
@@ -41,20 +39,16 @@ describe('ApiField() decorator', function () {
     expect(metadata).toBeDefined();
     expect(metadata.fields).toMatchObject({
       country: {
-        designType: Country
-      }
+        type: Country,
+      },
     });
-  })
+  });
 
   it('Should validate if field name is string', async () => {
     const sym = Symbol('sym');
 
-    class Person {
-    }
+    class Person {}
 
-    expect(() => ApiField({})(Person.prototype, sym)).toThrow('can\'t be used')
-
-  })
-
+    expect(() => ApiField({})(Person.prototype, sym)).toThrow("can't be used");
+  });
 });
-

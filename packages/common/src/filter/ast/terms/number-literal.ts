@@ -18,8 +18,7 @@ export class NumberLiteral extends Literal {
           return;
         }
         const n = Number(value);
-        if ('' + n === value)
-          this.value = n;
+        if ('' + n === value) this.value = n;
         else this.value = BigInt(value);
         return;
       }
@@ -30,9 +29,6 @@ export class NumberLiteral extends Literal {
   }
 
   toString(): string {
-    return typeof this.value === 'bigint'
-        ? ('' + this.value).replace(/n$/, '')
-        : ('' + this.value);
+    return typeof this.value === 'bigint' ? ('' + this.value).replace(/n$/, '') : '' + this.value;
   }
-
 }
