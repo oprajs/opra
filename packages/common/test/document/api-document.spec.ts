@@ -59,6 +59,6 @@ describe('ApiDocument', function () {
     expect(sch.api!.protocol).toEqual('http');
     expect(sch.api!.description).toEqual('test service');
     expect(sch.api!.url).toEqual('/test');
-    expect(sch.api!.root).toBeDefined();
+    expect(sch.api!.controllers).toBeDefined();
   });
 });

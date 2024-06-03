@@ -35,7 +35,7 @@ describe('HttpContext', function () {
   afterAll(() => global.gc && global.gc());
 
   it('Should getBody() retrieve body content', async () => {
-    const resource = document.api?.root.findController('Customer');
+    const resource = document.api?.findController('Customer');
     const operation = resource!.operations.get('update')!;
     const context = createContext(
       operation,
@@ -60,7 +60,7 @@ describe('HttpContext', function () {
   });
 
   it('Should validate body content', async () => {
-    const resource = document.api?.root.findController('Customer');
+    const resource = document.api?.findController('Customer');
     const operation = resource!.operations.get('update')!;
     const context = createContext(
       operation,
@@ -83,7 +83,7 @@ describe('HttpContext', function () {
   });
 
   it('Should return MultipartReader if content is multipart', async () => {
-    const resource = document.api?.root.findController('Files');
+    const resource = document.api?.findController('Files');
     const operation = resource!.operations.get('post')!;
     const s = [
       '--AaB03x',

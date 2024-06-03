@@ -1,5 +1,9 @@
 import { ApiDocumentFactory, OpraSchema } from '@opra/common';
-import { RootController } from './api/root.controller.js';
+import { AuthController } from './api/auth.controller.js';
+import { CountriesController } from './api/countries.controller.js';
+import { CountryController } from './api/country.controller.js';
+import { CustomerController } from './api/customer.controller.js';
+import { CustomersController } from './api/customers.controller.js';
 import { Country } from './entities/country.entity.js';
 import { Customer } from './entities/customer.entity.js';
 import { Profile } from './entities/profile.entity.js';
@@ -17,7 +21,6 @@ export * from './types/address.type.js';
 export * from './types/note.type.js';
 export * from './types/person.type.js';
 export * from './types/record.type.js';
-export * from './api/root.controller.js';
 export * from './data/customers.data.js';
 
 export const testApiDocumentDef: ApiDocumentFactory.InitArguments = {
@@ -33,6 +36,6 @@ export const testApiDocumentDef: ApiDocumentFactory.InitArguments = {
     name: 'TestService',
     description: 'test service',
     url: '/test',
-    root: RootController,
+    controllers: [AuthController, CountriesController, CountryController, CustomersController, CustomerController],
   },
 };

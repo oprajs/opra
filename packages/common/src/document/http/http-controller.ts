@@ -139,11 +139,9 @@ class HttpControllerClass extends DocumentElement {
    *
    */
   getDocumentPath(): string {
-    return this.isRoot
-      ? '/'
-      : this.owner instanceof HttpController
-        ? nodePath.join(this.owner.getDocumentPath(), this.path)
-        : this.path;
+    return this.owner instanceof HttpController
+      ? nodePath.join(this.owner.getDocumentPath(), this.path)
+      : '/' + this.path;
   }
 
   /**

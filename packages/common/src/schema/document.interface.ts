@@ -58,10 +58,5 @@ export interface HttpApi extends Api {
   protocol: 'http';
   description?: string;
   url?: string;
-  root: HttpRoot;
+  controllers: Record<string, HttpController>;
 }
-
-/**
- * @interface HttpRoot
- */
-export interface HttpRoot extends Pick<HttpController, 'operations' | 'controllers' | 'types' | 'parameters'> {}

@@ -116,18 +116,13 @@ describe('ApiDocumentFactory', function () {
         protocol: 'http',
         description: 'Test api',
         name: 'Api1',
-        root: {
-          kind: 'HttpResource',
-          description: 'api root',
-        },
+        controllers: {},
       },
     });
     expect(doc).toBeDefined();
     expect(doc).toBeInstanceOf(ApiDocument);
     expect(doc.api).toBeDefined();
     expect(doc.api!.description).toEqual('Test api');
-    expect(doc.api!.root).toBeDefined();
-    expect(doc.api!.root.description).toEqual('api root');
   });
 
   it('Should throw OpraDocumentError on error', async () => {

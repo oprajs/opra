@@ -65,7 +65,7 @@ describe('HttpAdapter', function () {
   });
 
   it('Should parse query parameters', async () => {
-    const resource = document.api?.root.findController('Customers');
+    const resource = document.api?.findController('Customers');
     const operation = resource!.operations.get('findMany')!;
     const context = createContext(
       operation,
@@ -80,7 +80,7 @@ describe('HttpAdapter', function () {
   });
 
   it('Should parse path parameters', async () => {
-    const resource = document.api?.root.findController('Customer/CustomerAddress');
+    const resource = document.api?.findController('Customer/CustomerAddress');
     const operation = resource!.operations.get('get')!;
     const context = createContext(
       operation,
@@ -95,7 +95,7 @@ describe('HttpAdapter', function () {
   });
 
   it('Should parse cookie parameters', async () => {
-    const resource = document.api?.root.findController('Customer');
+    const resource = document.api?.findController('Customer');
     const operation = resource!.operations.get('get')!;
     const context = createContext(
       operation,
@@ -111,7 +111,7 @@ describe('HttpAdapter', function () {
   });
 
   it('Should parse header parameters', async () => {
-    const resource = document.api?.root.findController('Customer');
+    const resource = document.api?.findController('Customer');
     const operation = resource!.operations.get('get')!;
     const context = createContext(
       operation,
@@ -127,7 +127,7 @@ describe('HttpAdapter', function () {
   });
 
   it('Should validate parameters', async () => {
-    const resource = document.api?.root.findController('Customers');
+    const resource = document.api?.findController('Customers');
     const operation = resource!.operations.get('findMany')!;
     const context = createContext(
       operation,
@@ -140,7 +140,7 @@ describe('HttpAdapter', function () {
   });
 
   it('Should parse content-type', async () => {
-    const resource = document.api?.root.findController('Customers');
+    const resource = document.api?.findController('Customers');
     const operation = resource!.operations.get('create')!;
     const context = createContext(
       operation,
@@ -156,7 +156,7 @@ describe('HttpAdapter', function () {
   });
 
   it('Should throw if content-type does not matches', async () => {
-    const resource = document.api?.root.findController('Customers');
+    const resource = document.api?.findController('Customers');
     const operation = resource!.operations.get('create')!;
     const context = createContext(
       operation,

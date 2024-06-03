@@ -56,7 +56,7 @@ export abstract class HttpAdapterHost extends PlatformAdapterHost implements Htt
   protected _assetCache = new WeakMap<any, Record<string, any>>();
 
   getControllerInstance<T>(controllerPath: string): T | undefined {
-    const controller = this.api.root.findController(controllerPath);
+    const controller = this.api.findController(controllerPath);
     return controller && this._controllers.get(controller);
   }
 
@@ -664,7 +664,9 @@ export abstract class HttpAdapterHost extends PlatformAdapterHost implements Htt
     this.api = document.api;
     this._interceptors = [...(options?.interceptors || [])];
     if (options?.onRequest) this.on('request', options.onRequest);
-    if (document.api) await this._createControllers(document.api!.root);
+    if (document.api) {
+      for (const c of this.api.controllers.values()) await this._createControllers(c);
+    }
     for (const controller of this._controllers.values()) {
       if (typeof controller.onInit === 'function') await controller.onInit.call(controller, this);
     }
@@ -689,7 +691,7 @@ export abstract class HttpAdapterHost extends PlatformAdapterHost implements Htt
         }
       }
     };
-    if (this.document.api?.root) await processResource(this.document.api.root);
+    for (const c of this.api.controllers.values()) await processResource(c);
     this._controllers.clear();
   }
 

@@ -21,14 +21,12 @@ describe('HttpApiFactory - HttpOperation (Schema)', function () {
       api: {
         protocol: 'http',
         name: 'TestService',
-        root: {
-          controllers: { countries },
-        },
+        controllers: { countries },
       },
     });
     expect(doc).toBeDefined();
     expect(doc.api).toBeDefined();
-    const r = doc.api!.root.findController('countries');
+    const r = doc.api!.findController('countries');
     expect(r).toBeDefined();
     assert(r);
     expect(r).toBeDefined();
@@ -61,14 +59,12 @@ describe('HttpApiFactory - HttpOperation (Schema)', function () {
       api: {
         protocol: 'http',
         name: 'TestService',
-        root: {
-          controllers: { countries },
-        },
+        controllers: { countries },
       },
     });
     expect(doc).toBeDefined();
     expect(doc.api).toBeDefined();
-    const r = doc.api!.root.findController('countries');
+    const r = doc.api!.findController('countries');
     expect(r).toBeDefined();
     assert(r);
     const opr = r!.operations.get('findOne');

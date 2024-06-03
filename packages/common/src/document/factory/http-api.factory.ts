@@ -1,4 +1,4 @@
-import { StrictOmit, ThunkAsync, Type } from 'ts-gems';
+import { StrictOmit, Type } from 'ts-gems';
 import { resolveThunk } from '../../helpers/index.js';
 import { OpraSchema } from '../../schema/index.js';
 import { ApiDocument } from '../api-document.js';
@@ -15,8 +15,8 @@ import { HttpRequestBody } from '../http/http-request-body.js';
 import { DataTypeFactory } from './data-type.factory.js';
 
 export namespace HttpApiFactory {
-  export interface InitArguments extends StrictOmit<OpraSchema.HttpApi, 'root'> {
-    root: ThunkAsync<Type | object | OpraSchema.HttpController>;
+  export interface InitArguments extends StrictOmit<OpraSchema.HttpApi, 'controllers'> {
+    controllers: Type[] | OpraSchema.HttpApi['controllers'];
   }
 }
 
@@ -38,13 +38,21 @@ export class HttpApiFactory {
     const api = new HttpApi(document);
     api.description = init.description;
     api.url = init.url;
-    await context.enterAsync('root', async () => {
-      const root = await this._createController(context, api, init.root, 'root');
-      if (root) {
-        root.path = '/';
-        api.root = root;
-      }
-    });
+    if (init.controllers) {
+      await context.enterAsync('.controllers', async () => {
+        if (Array.isArray(init.controllers)) {
+          for (const c of init.controllers) {
+            const controller = await this._createController(context, api, c);
+            if (controller) api.controllers.set(controller.name, controller);
+          }
+        } else {
+          for (const [k, v] of Object.entries(init.controllers)) {
+            const controller = await this._createController(context, api, v, k);
+            if (controller) api.controllers.set(controller.name, controller);
+          }
+        }
+      });
+    }
     return api;
   }
 

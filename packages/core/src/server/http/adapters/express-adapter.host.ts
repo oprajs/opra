@@ -44,9 +44,9 @@ export class ExpressAdapterHost extends HttpAdapterHost implements ExpressAdapte
     });
 
     /** Add operation endpoints */
-    if (document.api?.root) {
+    if (document.api?.controllers.size) {
       const processResource = (resource: HttpController, currentPath: string) => {
-        currentPath = nodePath.join(currentPath, resource.isRoot ? '' : resource.path || resource.name);
+        currentPath = nodePath.join(currentPath, resource.path);
         for (const operation of resource.operations.values()) {
           const routePath = operation.path ? nodePath.join(currentPath, operation.path) : currentPath;
           router[operation.method.toLowerCase()](routePath, (_req: Request, _res: Response, _next) => {
@@ -68,7 +68,7 @@ export class ExpressAdapterHost extends HttpAdapterHost implements ExpressAdapte
           for (const child of resource.controllers.values()) processResource(child, currentPath);
         }
       };
-      processResource(document.api.root, '/');
+      for (const c of document.api.controllers.values()) processResource(c, '/');
     }
 
     /** Add an endpoint that returns 404 error at last */

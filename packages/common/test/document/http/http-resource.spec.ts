@@ -12,35 +12,28 @@ describe('HttpResource', function () {
   afterAll(() => global.gc && global.gc());
 
   it('Should getResource(name) return undefined if resource not a found', async () => {
-    expect(doc.api!.root.findController('unknownResource')).not.toBeDefined();
-  });
-
-  it('Should isRoot return "true" for root resource "false" otherwise', async () => {
-    expect(doc.api!.root.isRoot).toEqual(true);
-    const res = doc.api!.root.findController('customers');
-    expect(res).toBeDefined();
-    expect(res!.isRoot).toEqual(false);
+    expect(doc.api!.findController('unknownResource')).not.toBeDefined();
   });
 
   it('Should getFullPath return resource path', async () => {
-    const res = doc.api!.root.findController('auth/MyProfile');
+    const res = doc.api!.findController('auth/MyProfile');
     expect(res).toBeDefined();
     expect(res!.getDocumentPath()).toEqual('/Auth/MyProfile');
   });
 
   it('Should getResource(name) return Resource instance', async () => {
-    const res = doc.api!.root.findController('auth/MyProfile');
+    const res = doc.api!.findController('auth/MyProfile');
     expect(res).toBeDefined();
     expect(res!.name).toStrictEqual('MyProfile');
   });
 
   it('Should toString() return string enumeration', async () => {
-    const res = doc.api!.root.findController('auth/MyProfile');
+    const res = doc.api!.findController('auth/MyProfile');
     expect(res!.toString()).toStrictEqual('[HttpController MyProfile]');
   });
 
   it('Should toJSON() return Resource schema', async () => {
-    const res = doc.api!.root.findController('Customer')!;
+    const res = doc.api!.findController('Customer')!;
     const sch = res.toJSON();
     expect(sch).toEqual({
       kind: OpraSchema.HttpController.Kind,

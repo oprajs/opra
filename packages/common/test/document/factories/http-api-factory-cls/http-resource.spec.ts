@@ -15,14 +15,12 @@ describe('HttpApiFactory - HttpController (Class)', function () {
       api: {
         protocol: 'http',
         name: 'TestService',
-        root: {
-          controllers: [CountriesResource],
-        },
+        controllers: [CountriesResource],
       },
     });
     expect(doc).toBeDefined();
     expect(doc.api).toBeDefined();
-    const r = (doc.api as HttpApi).root.findController('countries');
+    const r = (doc.api as HttpApi).findController('countries');
     expect(r).toBeDefined();
     expect(r!.ctor).toBe(CountriesResource);
     expect(r!.description).toEqual('Country collection');
@@ -41,14 +39,12 @@ describe('HttpApiFactory - HttpController (Class)', function () {
       api: {
         protocol: 'http',
         name: 'TestService',
-        root: {
-          controllers: [CountriesResource],
-        },
+        controllers: [CountriesResource],
       },
     });
     expect(doc).toBeDefined();
     expect(doc.api).toBeDefined();
-    const r = (doc.api as HttpApi).root.findController('MyCountries');
+    const r = (doc.api as HttpApi).findController('MyCountries');
     expect(r).toBeDefined();
     expect(r!.ctor).toBe(CountriesResource);
     expect(r!.name).toEqual('MyCountries');
@@ -66,14 +62,12 @@ describe('HttpApiFactory - HttpController (Class)', function () {
       api: {
         protocol: 'http',
         name: 'TestService',
-        root: {
-          controllers: [CountriesResource],
-        },
+        controllers: [CountriesResource],
       },
     });
     expect(doc).toBeDefined();
     expect(doc.api).toBeDefined();
-    const r = (doc.api as HttpApi).root.findController('countries');
+    const r = (doc.api as HttpApi).findController('countries');
     expect(r).toBeDefined();
     expect(r!.parameters.map(x => x.name)).toEqual(['access-token']);
     expect(r!.findParameter('access-token')?.location).toEqual('cookie');
@@ -91,14 +85,12 @@ describe('HttpApiFactory - HttpController (Class)', function () {
       api: {
         protocol: 'http',
         name: 'TestService',
-        root: {
-          controllers: [CountriesResource],
-        },
+        controllers: [CountriesResource],
       },
     });
     expect(doc).toBeDefined();
     expect(doc.api).toBeDefined();
-    const r = (doc.api as HttpApi).root.findController('countries');
+    const r = (doc.api as HttpApi).findController('countries');
     expect(r).toBeDefined();
     expect(r!.parameters.map(x => x.name)).toEqual(['access-token']);
     expect(r!.findParameter('access-token')?.location).toEqual('header');
@@ -116,14 +108,12 @@ describe('HttpApiFactory - HttpController (Class)', function () {
       api: {
         protocol: 'http',
         name: 'TestService',
-        root: {
-          controllers: [CountriesResource],
-        },
+        controllers: [CountriesResource],
       },
     });
     expect(doc).toBeDefined();
     expect(doc.api).toBeDefined();
-    const r = (doc.api as HttpApi).root.findController('countries');
+    const r = (doc.api as HttpApi).findController('countries');
     expect(r).toBeDefined();
     expect(r!.parameters.map(x => x.name)).toEqual(['access-token']);
     expect(r!.findParameter('access-token')?.location).toEqual('query');
@@ -141,14 +131,12 @@ describe('HttpApiFactory - HttpController (Class)', function () {
       api: {
         protocol: 'http',
         name: 'TestService',
-        root: {
-          controllers: [CountriesResource],
-        },
+        controllers: [CountriesResource],
       },
     });
     expect(doc).toBeDefined();
     expect(doc.api).toBeDefined();
-    const r = (doc.api as HttpApi).root.findController('countries');
+    const r = (doc.api as HttpApi).findController('countries');
     expect(r).toBeDefined();
     expect(r!.parameters.map(x => x.name)).toEqual(['access-token']);
     expect(r!.findParameter('access-token')?.location).toEqual('path');
@@ -172,14 +160,12 @@ describe('HttpApiFactory - HttpController (Class)', function () {
       api: {
         protocol: 'http',
         name: 'TestService',
-        root: {
-          controllers: [CountriesResource],
-        },
+        controllers: [CountriesResource],
       },
     });
     expect(doc).toBeDefined();
     expect(doc.api).toBeDefined();
-    const r = (doc.api as HttpApi).root.findController('countries');
+    const r = (doc.api as HttpApi).findController('countries');
     expect(r).toBeDefined();
     expect(Array.from(r!.controllers.keys())).toEqual(['Cities']);
     expect(r!.controllers.get('cities')!.ctor).toEqual(CitiesResource);

@@ -9,6 +9,11 @@ import {
   Profile,
   Record,
 } from '../../../../common/test/_support/test-api/index.js';
+import { AuthController } from './api/auth.controller.js';
+import { CustomerController } from './api/customer.controller.js';
+import { CustomersController } from './api/customers.controller.js';
+import { FilesController } from './api/files.controller.js';
+import { MyProfileController } from './api/my-profile.controller.js';
 import { RootController } from './api/root.controller.js';
 
 export * from './api/auth.controller.js';
@@ -32,7 +37,14 @@ export async function createTestApi() {
     api: {
       protocol: 'http',
       name: 'TestApi',
-      root: RootController,
+      controllers: [
+        RootController,
+        AuthController,
+        CustomersController,
+        CustomerController,
+        FilesController,
+        MyProfileController,
+      ],
     },
   });
 }
