@@ -7,7 +7,7 @@ import { MyProfileController } from './my-profile.controller.js';
 
 @HttpController({
   description: 'Api root',
-  children: [AuthController, CustomersController, CustomerController, FilesController, MyProfileController],
+  controllers: [AuthController, CustomersController, CustomerController, FilesController, MyProfileController],
 })
 export class RootController {
   @HttpOperation({ path: 'ping' }).Response(200, {

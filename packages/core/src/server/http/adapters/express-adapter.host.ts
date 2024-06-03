@@ -64,8 +64,8 @@ export class ExpressAdapterHost extends HttpAdapterHost implements ExpressAdapte
               .catch(e => this._logger.fatal(e));
           });
         }
-        if (resource.children.size) {
-          for (const child of resource.children.values()) processResource(child, currentPath);
+        if (resource.controllers.size) {
+          for (const child of resource.controllers.values()) processResource(child, currentPath);
         }
       };
       processResource(document.api.root, '/');

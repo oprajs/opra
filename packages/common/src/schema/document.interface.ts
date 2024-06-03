@@ -64,4 +64,4 @@ export interface HttpApi extends Api {
 /**
  * @interface HttpRoot
  */
-export interface HttpRoot extends Pick<HttpController, 'operations' | 'children' | 'types' | 'parameters'> {}
+export interface HttpRoot extends Pick<HttpController, 'operations' | 'controllers' | 'types' | 'parameters'> {}

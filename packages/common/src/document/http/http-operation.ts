@@ -64,11 +64,15 @@ export interface HttpOperationStatic {
 
   HEAD(options?: StrictOmit<HttpOperation.Options, 'method'>): HttpOperationDecorator;
 
+  OPTIONS(options?: StrictOmit<HttpOperation.Options, 'method'>): HttpOperationDecorator;
+
   PATCH(options?: StrictOmit<HttpOperation.Options, 'method'>): HttpOperationDecorator;
 
   POST(options?: StrictOmit<HttpOperation.Options, 'method'>): HttpOperationDecorator;
 
   PUT(options?: StrictOmit<HttpOperation.Options, 'method'>): HttpOperationDecorator;
+
+  SEARCH(options?: StrictOmit<HttpOperation.Options, 'method'>): HttpOperationDecorator;
 }
 
 /**
@@ -171,6 +175,10 @@ HttpOperation.HEAD = function (options?: StrictOmit<HttpOperation.Options, 'meth
   return HttpOperationDecoratorFactory([], { ...options, method: 'HEAD' });
 };
 
+HttpOperation.OPTIONS = function (options?: StrictOmit<HttpOperation.Options, 'method'>): HttpOperationDecorator {
+  return HttpOperationDecoratorFactory([], { ...options, method: 'OPTIONS' });
+};
+
 HttpOperation.PATCH = function (options?: StrictOmit<HttpOperation.Options, 'method'>): HttpOperationDecorator {
   return HttpOperationDecoratorFactory([], { ...options, method: 'PATCH' });
 };
@@ -181,4 +189,8 @@ HttpOperation.POST = function (options?: StrictOmit<HttpOperation.Options, 'meth
 
 HttpOperation.PUT = function (options?: StrictOmit<HttpOperation.Options, 'method'>): HttpOperationDecorator {
   return HttpOperationDecoratorFactory([], { ...options, method: 'PUT' });
+};
+
+HttpOperation.SEARCH = function (options?: StrictOmit<HttpOperation.Options, 'method'>): HttpOperationDecorator {
+  return HttpOperationDecoratorFactory([], { ...options, method: 'SEARCH' });
 };

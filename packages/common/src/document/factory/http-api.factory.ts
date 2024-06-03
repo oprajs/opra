@@ -40,7 +40,10 @@ export class HttpApiFactory {
     api.url = init.url;
     await context.enterAsync('root', async () => {
       const root = await this._createController(context, api, init.root, 'root');
-      if (root) api.root = root;
+      if (root) {
+        root.path = '/';
+        api.root = root;
+      }
     });
     return api;
   }
@@ -122,27 +125,27 @@ export class HttpApiFactory {
       });
     }
 
-    if (metadata.children) {
-      await context.enterAsync('.children', async () => {
-        if (Array.isArray(metadata.children)) {
+    if (metadata.controllers) {
+      await context.enterAsync('.controllers', async () => {
+        if (Array.isArray(metadata.controllers)) {
           let k = 0;
-          for (const v of metadata.children!) {
+          for (const v of metadata.controllers!) {
             await context.enterAsync(`[${k}]`, async () => {
               const r = await this._createController(context, controller, v);
               if (r) {
-                if (controller.children.get(r.name)) context.addError(`Duplicate controller name (${r.name})`);
-                controller.children.set(r.name, r);
+                if (controller.controllers.get(r.name)) context.addError(`Duplicate controller name (${r.name})`);
+                controller.controllers.set(r.name, r);
               }
             });
             k++;
           }
         } else {
-          for (const [k, v] of Object.entries<any>(metadata.children!)) {
+          for (const [k, v] of Object.entries<any>(metadata.controllers!)) {
             await context.enterAsync(`[${k}]`, async () => {
               const r = await this._createController(context, controller, v, k);
               if (r) {
-                if (controller.children.get(r.name)) context.addError(`Duplicate controller name (${r.name})`);
-                controller.children.set(r.name, r);
+                if (controller.controllers.get(r.name)) context.addError(`Duplicate controller name (${r.name})`);
+                controller.controllers.set(r.name, r);
               }
             });
           }

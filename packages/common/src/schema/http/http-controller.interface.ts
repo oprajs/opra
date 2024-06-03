@@ -11,7 +11,7 @@ export interface HttpController extends DataTypeContainer {
   description?: string;
   path?: string;
   operations?: Record<string, HttpOperation>;
-  children?: Record<string, HttpController>;
+  controllers?: Record<string, HttpController>;
   parameters?: HttpParameter[];
 }
 

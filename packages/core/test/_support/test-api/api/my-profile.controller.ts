@@ -1,6 +1,5 @@
 import { HttpController, HttpOperation } from '@opra/common';
-import { Profile } from '../entities/profile.entity.js';
-import { GenderEnum } from '../enums/gender.enum.js';
+import { GenderEnum, Profile } from '../../../../../common/test/_support/test-api/index.js';
 
 @HttpController({
   description: 'My profile resource',
@@ -12,6 +11,7 @@ export class MyProfileController {
     givenName: 'Jessica Hugo',
     familyName: 'Something',
     gender: GenderEnum.FEMALE,
+    createdAt: new Date(),
   };
 
   @HttpOperation.Entity.Create(Profile)

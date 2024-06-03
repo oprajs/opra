@@ -1,17 +1,24 @@
 import { ApiDocumentFactory } from '@opra/common';
+import {
+  Address,
+  Country,
+  Customer,
+  GenderEnum,
+  Note,
+  Person,
+  Profile,
+  Record,
+} from '../../../../common/test/_support/test-api/index.js';
 import { RootController } from './api/root.controller.js';
-import { Country } from './entities/country.entity.js';
-import { Customer } from './entities/customer.entity.js';
-import { Profile } from './entities/profile.entity.js';
-import { GenderEnum } from './enums/gender.enum.js';
-import { Address } from './types/address.type.js';
-import { Note } from './types/note.type.js';
-import { Person } from './types/person.type.js';
-import { Record } from './types/record.type.js';
 
-export * from './entities/country.entity.js';
-export * from './entities/customer.entity.js';
-export * from './entities/profile.entity.js';
+export * from './api/auth.controller.js';
+export * from './api/customer.controller.js';
+export * from './api/customer-address.controller.js';
+export * from './api/customer-addresses.controller.js';
+export * from './api/customers.controller.js';
+export * from './api/files.controller.js';
+export * from './api/my-profile.controller.js';
+export * from './api/root.controller.js';
 
 export async function createTestApi() {
   return ApiDocumentFactory.createDocument({

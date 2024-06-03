@@ -3,7 +3,7 @@ import { MyProfileController } from './my-profile.controller.js';
 
 @HttpController({
   description: 'Auth controller',
-  children: [MyProfileController],
+  controllers: [MyProfileController],
 })
 export class AuthController {
   @HttpOperation({

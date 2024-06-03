@@ -17,7 +17,7 @@ describe('HttpApiFactory - HttpResource (Schema)', function () {
         protocol: 'http',
         name: 'TestService',
         root: {
-          children: { countries },
+          controllers: { countries },
         },
       },
     });
@@ -49,7 +49,7 @@ describe('HttpApiFactory - HttpResource (Schema)', function () {
         protocol: 'http',
         name: 'TestService',
         root: {
-          children: { countries },
+          controllers: { countries },
         },
       },
     });
@@ -64,13 +64,13 @@ describe('HttpApiFactory - HttpResource (Schema)', function () {
     expect(r!.findParameter('access-token')?.required).toEqual(true);
   });
 
-  it('Should import children', async () => {
+  it('Should import sub controllers', async () => {
     const cities: OpraSchema.HttpController = {
       kind: 'HttpController',
     };
     const countries: OpraSchema.HttpController = {
       kind: 'HttpController',
-      children: { cities },
+      controllers: { cities },
     };
     const doc = await ApiDocumentFactory.createDocument({
       types: [Country],
@@ -78,7 +78,7 @@ describe('HttpApiFactory - HttpResource (Schema)', function () {
         protocol: 'http',
         name: 'TestService',
         root: {
-          children: { countries },
+          controllers: { countries },
         },
       },
     });
@@ -88,6 +88,6 @@ describe('HttpApiFactory - HttpResource (Schema)', function () {
     expect(r).toBeDefined();
     assert(r);
     expect(r).toBeDefined();
-    expect(Array.from(r!.children.keys())).toEqual(['cities']);
+    expect(Array.from(r!.controllers.keys())).toEqual(['cities']);
   });
 });

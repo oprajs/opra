@@ -17,9 +17,9 @@ export namespace ExpressAdapter {
 
   export async function create(
     app: Application,
-    api: ApiDocument,
+    document: ApiDocument,
     options?: ExpressAdapter.Options,
   ): Promise<ExpressAdapter> {
-    return ExpressAdapterHost.create(app, api, options);
+    return ExpressAdapterHost.create(app, document, options);
   }
 }

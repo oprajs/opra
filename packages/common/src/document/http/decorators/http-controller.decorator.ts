@@ -56,6 +56,7 @@ export function HttpControllerDecoratorFactory<O extends HttpController.Options>
       {
         kind: OpraSchema.HttpController.Kind,
         name,
+        path: name,
         ...omit(options, ['kind', 'name', 'instance', 'endpoints', 'key']),
       },
       { deep: true },

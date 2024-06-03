@@ -31,6 +31,7 @@ describe('HttpResource decorator', function () {
     expect(metadata).toStrictEqual({
       kind: 'HttpController',
       name: 'Country',
+      path: 'Country',
     });
   });
 });

@@ -673,8 +673,8 @@ export abstract class HttpAdapterHost extends PlatformAdapterHost implements Htt
   protected async _close(): Promise<void> {
     await super._close();
     const processResource = async (resource: HttpController) => {
-      if (resource.children.size) {
-        const subResources = Array.from(resource.children.values());
+      if (resource.controllers.size) {
+        const subResources = Array.from(resource.controllers.values());
         subResources.reverse();
         for (const subResource of subResources) {
           await processResource(subResource);
@@ -703,7 +703,7 @@ export abstract class HttpAdapterHost extends PlatformAdapterHost implements Htt
         if (typeof fn === 'function') this.setCachedAsset(operation, 'handler', fn);
       }
       // Initialize sub resources
-      for (const r of resource.children.values()) {
+      for (const r of resource.controllers.values()) {
         await this._createControllers(r);
       }
     }

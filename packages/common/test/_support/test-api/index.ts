@@ -18,6 +18,7 @@ export * from './types/note.type.js';
 export * from './types/person.type.js';
 export * from './types/record.type.js';
 export * from './api/root.controller.js';
+export * from './data/customers.data.js';
 
 export const testApiDocumentDef: ApiDocumentFactory.InitArguments = {
   spec: OpraSchema.SpecVersion,

@@ -1,14 +1,13 @@
 import merge from 'putil-merge';
 import { HttpController, HttpOperation } from '@opra/common';
-import { Data } from '../data/customers.data.js';
-import { Customer } from '../entities/customer.entity.js';
+import { Customer, Data } from '../../../../../common/test/_support/test-api/index.js';
 import { CustomerAddressController } from './customer-address.controller.js';
 import { CustomerAddressesController } from './customer-addresses.controller.js';
 
 @HttpController({
   description: 'Customer resource',
   path: 'Customers@:customerId',
-  children: [CustomerAddressesController, CustomerAddressController],
+  controllers: [CustomerAddressesController, CustomerAddressController],
 })
   .PathParam('customerId', Number)
   .Cookie('accessToken', String)

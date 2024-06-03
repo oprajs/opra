@@ -53,7 +53,7 @@ export class ApiDocumentFactory {
    * Creates ApiDocument instance from given schema object
    */
   static async createDocument(
-    schemaOrUrl: string | OpraSchema.ApiDocument | ApiDocumentFactory.InitArguments,
+    schemaOrUrl: string | PartialSome<OpraSchema.ApiDocument, 'spec'> | ApiDocumentFactory.InitArguments,
     options?: Partial<Pick<DocumentInitContext, 'maxErrors' | 'showErrorDetails'>> | DocumentInitContext,
   ): Promise<ApiDocument> {
     const factory = new ApiDocumentFactory();

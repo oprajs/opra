@@ -1,12 +1,11 @@
 import { HttpController, HttpOperation } from '@opra/common';
-import { Note } from '../types/note.type.js';
+import { Note } from '../../../../../common/test/_support/test-api/index.js';
 
 @HttpController({
   description: 'Files resource',
 })
 export class FilesController {
   static lastPost: any;
-
 
   @HttpOperation.POST()
     .MultipartContent({}, config => {

@@ -1,5 +1,5 @@
 import nodePath from 'node:path';
-import { asMutable, Combine, ThunkAsync, Type, TypeThunkAsync } from 'ts-gems';
+import { asMutable, Combine, ThunkAsync, Type } from 'ts-gems';
 import { omitUndefined, ResponsiveMap } from '../../helpers/index.js';
 import { OpraSchema } from '../../schema/index.js';
 import { DataTypeMap } from '../common/data-type-map.js';
@@ -18,7 +18,7 @@ import { HttpParameter } from './http-parameter.js';
 export namespace HttpController {
   export interface Metadata extends Pick<OpraSchema.HttpController, 'description' | 'path'> {
     name: string;
-    children?: TypeThunkAsync[];
+    controllers?: Type[];
     types?: ThunkAsync<Type | EnumType.EnumObject | EnumType.EnumArray>[];
     operations?: Record<string, HttpOperation.Metadata>;
     parameters?: HttpParameter.Metadata[];
@@ -26,7 +26,7 @@ export namespace HttpController {
 
   export interface Options extends Partial<Pick<OpraSchema.HttpController, 'description' | 'path'>> {
     name?: string;
-    children?: TypeThunkAsync[];
+    controllers?: Type[];
   }
 
   export interface InitArguments
@@ -75,7 +75,7 @@ export const HttpController = function (this: HttpController | void, ...args: an
   _this.kind = OpraSchema.HttpController.Kind;
   _this.types = _this.node[kDataTypeMap] = new DataTypeMap();
   _this.operations = new ResponsiveMap();
-  _this.children = new ResponsiveMap();
+  _this.controllers = new ResponsiveMap();
   _this.parameters = [];
   _this.name = initArgs.name;
   _this.description = initArgs.description;
@@ -98,7 +98,7 @@ class HttpControllerClass extends DocumentElement {
   ctor?: Type;
   parameters: HttpParameter[];
   operations: ResponsiveMap<HttpOperation>;
-  children: ResponsiveMap<HttpController>;
+  controllers: ResponsiveMap<HttpController>;
   types: DataTypeMap;
 
   /**
@@ -114,11 +114,11 @@ class HttpControllerClass extends DocumentElement {
       const a = resourcePath.split('/');
       let r: HttpController | undefined = this;
       while (r && a.length > 0) {
-        r = r.children.get(a.shift()!);
+        r = r.controllers.get(a.shift()!);
       }
       return r;
     }
-    return this.children.get(resourcePath);
+    return this.controllers.get(resourcePath);
   }
 
   findParameter(paramName: string, location?: OpraSchema.HttpParameterLocation): HttpParameter | undefined {
@@ -168,10 +168,10 @@ class HttpControllerClass extends DocumentElement {
         out.operations[name] = v.toJSON();
       }
     }
-    if (this.children.size) {
-      out.children = {};
-      for (const [name, v] of this.children.entries()) {
-        out.children[name] = v.toJSON();
+    if (this.controllers.size) {
+      out.controllers = {};
+      for (const [name, v] of this.controllers.entries()) {
+        out.controllers[name] = v.toJSON();
       }
     }
     if (this.types.size) {

@@ -1,8 +1,7 @@
 import merge from 'putil-merge';
 import { HttpController, HttpOperation, OperationResult } from '@opra/common';
 import { HttpContext } from '@opra/core';
-import { Data } from '../data/customers.data.js';
-import { Customer } from '../entities/customer.entity.js';
+import { Customer, Data } from '../../../../../common/test/_support/test-api/index.js';
 
 @HttpController({
   description: 'Customer resource',

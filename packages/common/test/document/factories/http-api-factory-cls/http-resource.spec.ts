@@ -16,7 +16,7 @@ describe('HttpApiFactory - HttpController (Class)', function () {
         protocol: 'http',
         name: 'TestService',
         root: {
-          children: [CountriesResource],
+          controllers: [CountriesResource],
         },
       },
     });
@@ -42,7 +42,7 @@ describe('HttpApiFactory - HttpController (Class)', function () {
         protocol: 'http',
         name: 'TestService',
         root: {
-          children: [CountriesResource],
+          controllers: [CountriesResource],
         },
       },
     });
@@ -67,7 +67,7 @@ describe('HttpApiFactory - HttpController (Class)', function () {
         protocol: 'http',
         name: 'TestService',
         root: {
-          children: [CountriesResource],
+          controllers: [CountriesResource],
         },
       },
     });
@@ -92,7 +92,7 @@ describe('HttpApiFactory - HttpController (Class)', function () {
         protocol: 'http',
         name: 'TestService',
         root: {
-          children: [CountriesResource],
+          controllers: [CountriesResource],
         },
       },
     });
@@ -117,7 +117,7 @@ describe('HttpApiFactory - HttpController (Class)', function () {
         protocol: 'http',
         name: 'TestService',
         root: {
-          children: [CountriesResource],
+          controllers: [CountriesResource],
         },
       },
     });
@@ -142,7 +142,7 @@ describe('HttpApiFactory - HttpController (Class)', function () {
         protocol: 'http',
         name: 'TestService',
         root: {
-          children: [CountriesResource],
+          controllers: [CountriesResource],
         },
       },
     });
@@ -155,7 +155,7 @@ describe('HttpApiFactory - HttpController (Class)', function () {
     expect(r!.findParameter('access-token')?.required).toEqual(true);
   });
 
-  it('Should import children', async () => {
+  it('Should import sub controllers', async () => {
     @HttpController({
       description: 'Cities collection',
     })
@@ -163,7 +163,7 @@ describe('HttpApiFactory - HttpController (Class)', function () {
 
     @HttpController({
       description: 'Country collection',
-      children: [CitiesResource],
+      controllers: [CitiesResource],
     })
     class CountriesResource {}
 
@@ -173,7 +173,7 @@ describe('HttpApiFactory - HttpController (Class)', function () {
         protocol: 'http',
         name: 'TestService',
         root: {
-          children: [CountriesResource],
+          controllers: [CountriesResource],
         },
       },
     });
@@ -181,7 +181,7 @@ describe('HttpApiFactory - HttpController (Class)', function () {
     expect(doc.api).toBeDefined();
     const r = (doc.api as HttpApi).root.findController('countries');
     expect(r).toBeDefined();
-    expect(Array.from(r!.children.keys())).toEqual(['Cities']);
-    expect(r!.children.get('cities')!.ctor).toEqual(CitiesResource);
+    expect(Array.from(r!.controllers.keys())).toEqual(['Cities']);
+    expect(r!.controllers.get('cities')!.ctor).toEqual(CitiesResource);
   });
 });

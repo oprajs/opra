@@ -1,9 +1,10 @@
 import { ApiField, ComplexType } from '@opra/common';
+import { Record } from './record.type.js';
 
 @ComplexType({
   description: 'Address information',
 })
-export class Address {
+export class Address extends Record {
   @ApiField()
   city: string;
 

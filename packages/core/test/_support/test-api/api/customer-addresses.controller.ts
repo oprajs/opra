@@ -1,6 +1,5 @@
 import { HttpController, HttpOperation, NotFoundError, OperationResult } from '@opra/common';
-import { Data } from '../data/customers.data.js';
-import { Address } from '../types/address.type.js';
+import { Address, Data } from '../../../../../common/test/_support/test-api/index.js';
 
 @HttpController({
   description: 'Customer addresses',

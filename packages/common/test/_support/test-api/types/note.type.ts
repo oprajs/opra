@@ -1,3 +1,4 @@
+import { PartialDTO } from 'ts-gems';
 import { ApiField, ComplexType } from '@opra/common';
 
 @ComplexType({
@@ -5,6 +6,10 @@ import { ApiField, ComplexType } from '@opra/common';
   additionalFields: true,
 })
 export class Note {
+  constructor(init?: PartialDTO<Note>) {
+    Object.assign(this, init);
+  }
+
   @ApiField()
   title: string;
 

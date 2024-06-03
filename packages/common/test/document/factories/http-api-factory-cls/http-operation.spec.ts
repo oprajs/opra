@@ -22,7 +22,7 @@ describe('HttpApiFactory - HttpOperation (Class)', function () {
         protocol: 'http',
         name: 'TestService',
         root: {
-          children: [CountriesResource],
+          controllers: [CountriesResource],
         },
       },
     });
@@ -55,7 +55,7 @@ describe('HttpApiFactory - HttpOperation (Class)', function () {
         protocol: 'http',
         name: 'TestService',
         root: {
-          children: [CountriesResource],
+          controllers: [CountriesResource],
         },
       },
     });
@@ -88,7 +88,7 @@ describe('HttpApiFactory - HttpOperation (Class)', function () {
         protocol: 'http',
         name: 'TestService',
         root: {
-          children: [CountriesResource],
+          controllers: [CountriesResource],
         },
       },
     });
@@ -121,7 +121,7 @@ describe('HttpApiFactory - HttpOperation (Class)', function () {
         protocol: 'http',
         name: 'TestService',
         root: {
-          children: [CountriesResource],
+          controllers: [CountriesResource],
         },
       },
     });
@@ -154,7 +154,7 @@ describe('HttpApiFactory - HttpOperation (Class)', function () {
         protocol: 'http',
         name: 'TestService',
         root: {
-          children: [CountriesResource],
+          controllers: [CountriesResource],
         },
       },
     });
@@ -195,7 +195,7 @@ describe('HttpApiFactory - HttpOperation (Class)', function () {
         protocol: 'http',
         name: 'TestService',
         root: {
-          children: [CountriesResource],
+          controllers: [CountriesResource],
         },
       },
     });
@@ -240,7 +240,7 @@ describe('HttpApiFactory - HttpOperation (Class)', function () {
         protocol: 'http',
         name: 'TestService',
         root: {
-          children: [CountriesResource],
+          controllers: [CountriesResource],
         },
       },
     });

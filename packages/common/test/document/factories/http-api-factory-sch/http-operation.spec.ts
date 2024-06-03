@@ -22,7 +22,7 @@ describe('HttpApiFactory - HttpOperation (Schema)', function () {
         protocol: 'http',
         name: 'TestService',
         root: {
-          children: { countries },
+          controllers: { countries },
         },
       },
     });
@@ -62,7 +62,7 @@ describe('HttpApiFactory - HttpOperation (Schema)', function () {
         protocol: 'http',
         name: 'TestService',
         root: {
-          children: { countries },
+          controllers: { countries },
         },
       },
     });

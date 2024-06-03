@@ -8,7 +8,7 @@ import { MyProfileController } from './my-profile.controller.js';
 
 @HttpController({
   description: 'Api root',
-  children: [
+  controllers: [
     AuthController,
     CountriesController,
     CountryController,
