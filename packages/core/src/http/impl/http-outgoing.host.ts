@@ -14,7 +14,7 @@ import path from 'path';
 import { toString } from 'putil-varhelpers';
 import vary from 'vary';
 import { HttpStatusCode } from '@opra/common';
-import type { CookieOptions, HttpOutgoing } from './interfaces/http-outgoing.interface.js';
+import type { CookieOptions, HttpOutgoing } from '../interfaces/http-outgoing.interface';
 
 const charsetRegExp = /;\s*charset\s*=/;
 

@@ -15,7 +15,7 @@ describe('e2e:Storage', function () {
   beforeAll(async () => {
     document = await createTestApi();
     app = express();
-    adapter = await ExpressAdapter.create(app, document);
+    adapter = new ExpressAdapter(app, document);
     testArgs.app = app;
     testArgs.client = new OpraTestClient(app, { document });
   });

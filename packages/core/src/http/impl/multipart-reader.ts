@@ -2,7 +2,7 @@ import { EventEmitter } from 'events';
 import formidable from 'formidable';
 import type IncomingForm from 'formidable/Formidable.js';
 import fs from 'fs/promises';
-import { NodeIncomingMessage } from './interfaces/node-incoming-message.interface.js';
+import type { NodeIncomingMessage } from '../interfaces/node-incoming-message.interface.js';
 
 export type MultipartFile = formidable.File;
 export type MultipartItem = {

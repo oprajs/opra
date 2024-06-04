@@ -3,7 +3,7 @@ import express, { Express } from 'express';
 import supertest from 'supertest';
 import { ApiDocument, OpraSchema } from '@opra/common';
 import { ExpressAdapter } from '@opra/core';
-import { createTestApi } from '../_support/test-api/index.js';
+import { createTestApi, CustomersController } from '../_support/test-api/index.js';
 
 describe('ExpressAdapter', function () {
   let document: ApiDocument;
@@ -14,11 +14,19 @@ describe('ExpressAdapter', function () {
     document = await createTestApi();
     app = express();
     app.use(cookieParser());
-    adapter = await ExpressAdapter.create(app, document, { basePath: 'api' });
+    adapter = new ExpressAdapter(app, document, { basePath: 'api' });
   });
 
   afterAll(async () => adapter.close());
   afterAll(() => global.gc && global.gc());
+
+  it('Should call HttpController onInit method while init', async () => {
+    const instance = adapter.getControllerInstance<CustomersController>('/Customers');
+    expect(instance).toBeDefined();
+    expect(instance).toBeInstanceOf(CustomersController);
+    expect(instance!.initialized).toEqual(true);
+    expect(instance!.closed).toEqual(false);
+  });
 
   it('Should init all routes', async () => {
     const routerStack = app._router.stack.find(x => x.name === 'router');
@@ -81,5 +89,14 @@ describe('ExpressAdapter', function () {
       payload: expect.any(Object),
     });
     expect(resp.body.payload.spec).toEqual(OpraSchema.SpecVersion);
+  });
+
+  it('Should call HttpController onShutdown method on close', async () => {
+    const instance = adapter.getControllerInstance<CustomersController>('/Customers');
+    await adapter.close();
+    expect(instance).toBeDefined();
+    expect(instance).toBeInstanceOf(CustomersController);
+    expect(instance!.initialized).toEqual(true);
+    expect(instance!.closed).toEqual(true);
   });
 });

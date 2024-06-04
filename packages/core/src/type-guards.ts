@@ -1,14 +1,8 @@
 import { isReadable, isStream } from '@opra/common';
-import { ExecutionContextHost } from './server/base/execution-context.host.js';
-import type { ExecutionContext } from './server/base/interfaces/execution-context.interface';
-import type { HttpIncoming } from './server/http/interfaces/http-incoming.interface.js';
-import type { HttpOutgoing } from './server/http/interfaces/http-outgoing.interface.js';
-import type { NodeIncomingMessage } from './server/http/interfaces/node-incoming-message.interface.js';
-import type { NodeOutgoingMessage } from './server/http/interfaces/node-outgoing-message.interface.js';
-
-export function isExecutionContext(v: any): v is ExecutionContext {
-  return v instanceof ExecutionContextHost;
-}
+import type { HttpIncoming } from './http/interfaces/http-incoming.interface.js';
+import type { HttpOutgoing } from './http/interfaces/http-outgoing.interface.js';
+import type { NodeIncomingMessage } from './http/interfaces/node-incoming-message.interface.js';
+import type { NodeOutgoingMessage } from './http/interfaces/node-outgoing-message.interface.js';
 
 export function isNodeIncomingMessage(v: any): v is NodeIncomingMessage {
   return v && typeof v.method === 'string' && Array.isArray(v.rawHeaders) && isReadable(v);

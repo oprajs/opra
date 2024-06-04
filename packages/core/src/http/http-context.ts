@@ -7,17 +7,18 @@ import {
   HttpOperation,
   InternalServerError,
   NotAcceptableError,
+  OpraSchema,
 } from '@opra/common';
-import { ExecutionContextHost } from '../base/execution-context.host.js';
-import type { HttpAdapterHost } from './http-adapter-host.js';
-import { HttpContext } from './interfaces/http-context.interface.js';
+import { kAssetCache } from '../constants.js';
+import { ExecutionContext } from '../execution-context.js';
+import type { HttpAdapter } from './http-adapter';
+import { MultipartReader } from './impl/multipart-reader.js';
 import type { HttpIncoming } from './interfaces/http-incoming.interface';
 import type { HttpOutgoing } from './interfaces/http-outgoing.interface';
-import { MultipartReader } from './multipart-reader.js';
 
-export namespace HttpContextHost {
-  export interface Initiator extends ExecutionContextHost.Initiator {
-    adapter: HttpAdapterHost;
+export namespace HttpContext {
+  export interface Initiator extends Omit<ExecutionContext.Initiator, 'document' | 'protocol'> {
+    adapter: HttpAdapter;
     operation?: HttpOperation;
     request: HttpIncoming;
     response: HttpOutgoing;
@@ -31,22 +32,23 @@ export namespace HttpContextHost {
   }
 }
 
-export class HttpContextHost extends ExecutionContextHost implements HttpContext {
+export class HttpContext extends ExecutionContext {
   protected _body?: any;
   protected _multipartReader?: MultipartReader;
-  adapter: HttpAdapterHost;
-  resource: HttpController;
-  operation: HttpOperation;
-  request: HttpIncoming;
-  response: HttpOutgoing;
-  mediaType?: HttpMediaType;
-  cookies: Record<string, any>;
-  headers: Record<string, any>;
-  pathParams: Record<string, any>;
-  queryParams: Record<string, any>;
+  readonly protocol: OpraSchema.Protocol;
+  readonly adapter: HttpAdapter;
+  readonly resource: HttpController;
+  readonly operation: HttpOperation;
+  readonly request: HttpIncoming;
+  readonly response: HttpOutgoing;
+  readonly mediaType?: HttpMediaType;
+  readonly cookies: Record<string, any>;
+  readonly headers: Record<string, any>;
+  readonly pathParams: Record<string, any>;
+  readonly queryParams: Record<string, any>;
 
-  constructor(init: HttpContextHost.Initiator) {
-    super(init);
+  constructor(init: HttpContext.Initiator) {
+    super({ ...init, document: init.adapter.document, protocol: 'http' });
     this.adapter = init.adapter;
     this.protocol = 'http';
     if (init.resource) this.resource = init.resource;
@@ -130,10 +132,10 @@ export class HttpContextHost extends ExecutionContextHost implements HttpContext
     if (mediaType) {
       // Decode/Validate the data object according to data model
       if (this._body && mediaType.type) {
-        let decode = this.adapter.getCachedAsset<Validator>(mediaType, 'decode')!;
+        let decode = this.adapter[kAssetCache].get<Validator>(mediaType, 'decode')!;
         if (!decode) {
           decode = mediaType.type?.generateCodec('decode') || vg.isAny();
-          this.adapter.setCachedAsset(mediaType, 'decode', decode);
+          this.adapter[kAssetCache].set(mediaType, 'decode', decode);
         }
         this._body = decode(this._body);
       }

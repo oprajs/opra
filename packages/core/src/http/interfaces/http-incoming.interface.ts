@@ -1,7 +1,7 @@
 import { Options as RangeParserOptions, Ranges as RangeParserRanges, Result as RangeParserResult } from 'range-parser';
 import { mergePrototype } from '@opra/common';
-import { isHttpIncoming, isNodeIncomingMessage } from '../../../type-guards.js';
-import { HttpIncomingHost } from '../http-incoming.host.js';
+import { isHttpIncoming, isNodeIncomingMessage } from '../../type-guards.js';
+import { HttpIncomingHost } from '../impl/http-incoming.host.js';
 import { BodyReader } from '../utils/body-reader.js';
 import type { HttpOutgoing } from './http-outgoing.interface';
 import { NodeIncomingMessage } from './node-incoming-message.interface.js';

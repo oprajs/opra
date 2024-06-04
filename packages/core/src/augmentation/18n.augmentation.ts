@@ -1,6 +1,6 @@
 import fs from 'fs';
 import path from 'path';
-import { I18n, isUrlString } from '@opra/common';
+import { FallbackLng, getStackFileName, I18n as I18n_, isUrlString, LanguageResource } from '@opra/common';
 
 declare module '@opra/common' {
   export interface I18n {
@@ -8,9 +8,57 @@ declare module '@opra/common' {
 
     loadResourceBundle(lang: string, ns: string, filePath: string, deep?: boolean, overwrite?: boolean): Promise<void>;
   }
+
+  namespace I18n {
+    function load(): Promise<I18n>;
+
+    export interface Options {
+      /**
+       * Language to use
+       * @default undefined
+       */
+      lng?: string;
+
+      /**
+       * Language to use if translations in user language are not available.
+       * @default 'dev'
+       */
+      fallbackLng?: false | FallbackLng;
+
+      /**
+       * Default namespace used if not passed to translation function
+       * @default 'translation'
+       */
+      defaultNS?: string;
+
+      /**
+       * Resources to initialize with
+       * @default undefined
+       */
+      resources?: LanguageResource;
+
+      /**
+       * Resource directories to initialize with (if not using loading or not appending using addResourceBundle)
+       * @default undefined
+       */
+      resourceDirs?: string[];
+    }
+  }
 }
 
-I18n.prototype.loadResourceBundle = async function (
+I18n_.load = async function (options?: I18n_.Options) {
+  const opts: I18n_.Options = {
+    ...options,
+  };
+  delete opts.resourceDirs;
+  const instance = I18n_.createInstance(opts);
+  await instance.init();
+  await instance.loadResourceDir(path.resolve(getStackFileName(), '../../../i18n'));
+  if (options?.resourceDirs) for (const dir of options.resourceDirs) await instance.loadResourceDir(dir);
+  return instance;
+};
+
+I18n_.prototype.loadResourceBundle = async function (
   lang: string,
   ns: string,
   filePath: string,
@@ -27,7 +75,7 @@ I18n.prototype.loadResourceBundle = async function (
   this.addResourceBundle(lang, ns, obj, deep, overwrite);
 };
 
-I18n.prototype.loadResourceDir = async function (dirnames: string | string[], deep?: boolean, overwrite?: boolean) {
+I18n_.prototype.loadResourceDir = async function (dirnames: string | string[], deep?: boolean, overwrite?: boolean) {
   for (const dirname of Array.isArray(dirnames) ? dirnames : [dirnames]) {
     /* istanbul ignore next */
     if (!fs.existsSync(dirname)) continue;

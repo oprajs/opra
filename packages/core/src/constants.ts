@@ -1,1 +1,2 @@
-export const SERVICE_NAME_PATTERN = /^[a-z][\w_]*$/i;
+export const kHandler = Symbol('kHandler');
+export const kAssetCache = Symbol('kAssetCache');

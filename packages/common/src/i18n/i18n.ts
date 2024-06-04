@@ -12,7 +12,8 @@ import i18next, {
 import * as I18next from '@browsery/i18next';
 import { unescapeString } from './string-utils.js';
 
-export type BaseI18n = Type<I18next.i18n>;
+export interface BaseI18n extends Type<I18next.i18n> {}
+
 export const BaseI18n = Object.getPrototypeOf(i18next.createInstance()).constructor as BaseI18n;
 export type DeepTranslateOptions = TOptions & { ignore?: (input: any, inst: i18n) => boolean };
 export type InitCallback = I18next.Callback;

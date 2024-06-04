@@ -1,7 +1,7 @@
 import { StrictOmit } from 'ts-gems';
 import { mergePrototype } from '@opra/common';
-import { isHttpOutgoing, isNodeOutgoingMessage } from '../../../type-guards.js';
-import { HttpOutgoingHost } from '../http-outgoing.host.js';
+import { isHttpOutgoing, isNodeOutgoingMessage } from '../../type-guards.js';
+import { HttpOutgoingHost } from '../impl/http-outgoing.host.js';
 import type { HttpIncoming } from './http-incoming.interface';
 import { NodeOutgoingMessage } from './node-outgoing-message.interface.js';
 

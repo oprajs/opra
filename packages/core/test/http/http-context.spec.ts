@@ -1,24 +1,32 @@
 import cookieParser from 'cookie-parser';
 import express, { Express } from 'express';
 import { ApiDocument, HttpOperation } from '@opra/common';
-import { ExpressAdapter, HttpIncoming, HttpOutgoing, MultipartItem, NodeIncomingMessage } from '@opra/core';
-import type { ExpressAdapterHost } from '@opra/core/server/http/adapters/express-adapter.host';
-import { HttpContextHost } from '@opra/core/server/http/http-context.host';
+import {
+  ExpressAdapter,
+  HttpContext,
+  HttpIncoming,
+  HttpOutgoing,
+  MultipartItem,
+  NodeIncomingMessage,
+} from '@opra/core';
+import { kHandler } from '@opra/core/constants';
+import { HttpHandler } from '@opra/core/http/impl/http-handler';
 import { createTestApi } from '../_support/test-api/index.js';
 
 describe('HttpContext', function () {
   let document: ApiDocument;
   let app: Express;
-  let adapter: ExpressAdapterHost;
+  let adapter: ExpressAdapter;
+  let httpHandler: HttpHandler;
 
   function createContext(operation: HttpOperation, request: HttpIncoming) {
     const response = HttpOutgoing.from({ req: request });
-    return new HttpContextHost({
+    return new HttpContext({
       adapter,
-      document,
       operation,
       resource: operation.owner,
-      platform: { name: 'express' },
+      platform: 'express',
+      platformArgs: {},
       request,
       response,
     });
@@ -28,7 +36,8 @@ describe('HttpContext', function () {
     document = await createTestApi();
     app = express();
     app.use(cookieParser());
-    adapter = (await ExpressAdapter.create(app, document)) as ExpressAdapterHost;
+    adapter = new ExpressAdapter(app, document);
+    httpHandler = adapter[kHandler];
   });
 
   afterAll(async () => adapter.close());
@@ -54,7 +63,7 @@ describe('HttpContext', function () {
         ),
       ),
     );
-    await adapter.parseRequest(context);
+    await httpHandler.parseRequest(context);
     const body = await context.getBody();
     expect(body).toEqual({ active: true });
   });
@@ -79,7 +88,7 @@ describe('HttpContext', function () {
         ),
       ),
     );
-    await await expect(() => adapter.parseRequest(context)).rejects.toThrow('not a valid number');
+    await await expect(() => httpHandler.parseRequest(context)).rejects.toThrow('not a valid number');
   });
 
   it('Should return MultipartReader if content is multipart', async () => {
@@ -118,7 +127,7 @@ describe('HttpContext', function () {
         ),
       ),
     );
-    await adapter.parseRequest(context);
+    await httpHandler.parseRequest(context);
     const reader = await context.getMultipartReader();
     let parts = await reader.getAll();
     expect(parts).toBeDefined();

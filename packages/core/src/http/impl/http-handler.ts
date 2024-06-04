@@ -1,6 +1,6 @@
 import { parse as parseContentType } from 'content-type';
 import * as process from 'node:process';
-import { StrictOmit } from 'ts-gems';
+import { asMutable } from 'ts-gems';
 import { toArray, ValidationError, Validator, vg } from 'valgen';
 import type { ErrorIssue } from 'valgen/typings/core/types';
 import typeIs from '@browsery/type-is';
@@ -8,7 +8,6 @@ import {
   ApiDocument,
   BadRequestError,
   DocumentElement,
-  HttpApi,
   HttpController,
   HttpHeaderCodes,
   HttpMediaType,
@@ -27,87 +26,53 @@ import {
   OpraSchema,
   translate,
 } from '@opra/common';
-import { ExecutionContext } from '../base/interfaces/execution-context.interface.js';
-import { PlatformAdapterHost } from '../base/platform-adapter.host.js';
-import { HttpContextHost } from './http-context.host.js';
-import type { HttpAdapter } from './interfaces/http-adapter.interface.js';
-import { HttpIncoming } from './interfaces/http-incoming.interface.js';
-import { HttpOutgoing } from './interfaces/http-outgoing.interface.js';
-import { wrapException } from './utils/wrap-exception.js';
+import { kAssetCache } from '../../constants.js';
+import type { HttpAdapter } from '../http-adapter.js';
+import { HttpOutgoing } from '../interfaces/http-outgoing.interface.js';
+import { wrapException } from '../utils/wrap-exception.js';
+import { AssetCache } from './asset-cache.js';
+import { HttpContext } from '../http-context';
 
-interface ResponseArgs {
-  statusCode: number;
-  contentType?: string;
-  operationResponse?: HttpOperationResponse;
-  context?: string;
-  typeName?: string;
-  body?: any;
+/**
+ * @namespace
+ */
+export namespace HttpHandler {
+  /**
+   * @interface ResponseArgs
+   */
+  export interface ResponseArgs {
+    statusCode: number;
+    contentType?: string;
+    operationResponse?: HttpOperationResponse;
+    context?: string;
+    typeName?: string;
+    body?: any;
+  }
 }
 
 /**
- *
- * @class HttpAdapterHost
+ * @class HttpHandler
  */
-export abstract class HttpAdapterHost extends PlatformAdapterHost implements HttpAdapter {
-  api: HttpApi;
-  protected _protocol: OpraSchema.Protocol = 'http';
-  protected _interceptors: HttpAdapter.Interceptor[];
-  protected _controllers = new Map<HttpController, any>();
-  protected _assetCache = new WeakMap<any, Record<string, any>>();
+export class HttpHandler {
+  protected [kAssetCache]: AssetCache;
 
-  getControllerInstance<T>(controllerPath: string): T | undefined {
-    const controller = this.api.findController(controllerPath);
-    return controller && this._controllers.get(controller);
-  }
-
-  getCachedAsset<T>(obj: any, name: string): T | undefined {
-    const cache = this._assetCache.get(obj);
-    return cache && (cache[name] as T);
-  }
-
-  setCachedAsset(obj: any, name: string, asset: any): void {
-    let cache = this._assetCache.get(obj);
-    if (!cache) {
-      cache = {};
-      this._assetCache.set(obj, cache);
-    }
-    cache[name] = asset;
+  constructor(readonly adapter: HttpAdapter) {
+    this[kAssetCache] = adapter[kAssetCache];
   }
 
   /**
    * Main http request handler
-   * @param operation
-   * @param incoming
-   * @param outgoing
-   * @param platformInfo
+   * @param context
    * @protected
    */
-  async handleOperation(
-    operation: HttpOperation,
-    incoming: HttpIncoming,
-    outgoing: HttpOutgoing,
-    platformInfo: StrictOmit<ExecutionContext.PlatformInfo, 'name'>,
-  ): Promise<void> {
-    const context = new HttpContextHost({
-      adapter: this,
-      document: this.document,
-      platform: { name: this.platform, ...platformInfo },
-      request: incoming,
-      response: outgoing,
-      operation,
-      resource: operation.owner,
-    });
-
+  async handleRequest(context: HttpContext): Promise<void> {
+    const { response } = context;
     try {
-      /* istanbul ignore next */
-      if (!this._document)
-        throw new InternalServerError(`${Object.getPrototypeOf(this).constructor.name} has not been initialized yet`);
-
-      outgoing.setHeader(HttpHeaderCodes.X_Opra_Version, OpraSchema.SpecVersion);
+      response.setHeader(HttpHeaderCodes.X_Opra_Version, OpraSchema.SpecVersion);
       // Expose headers if cors enabled
-      if (outgoing.getHeader(HttpHeaderCodes.Access_Control_Allow_Origin)) {
+      if (response.getHeader(HttpHeaderCodes.Access_Control_Allow_Origin)) {
         // Expose X-Opra-* headers
-        outgoing.appendHeader(
+        response.appendHeader(
           HttpHeaderCodes.Access_Control_Expose_Headers,
           Object.values(HttpHeaderCodes).filter(k => k.toLowerCase().startsWith('x-opra-')),
         );
@@ -131,21 +96,23 @@ export abstract class HttpAdapterHost extends PlatformAdapterHost implements Htt
         throw new BadRequestError(e);
       }
 
+      await this.adapter.emitAsync('request', context);
+
       // Call interceptors than execute request
       let responseValue: any;
-      if (this._interceptors) {
+      if (this.adapter.interceptors) {
         let i = 0;
         const next = async () => {
-          const interceptor = this._interceptors[i++];
+          const interceptor = this.adapter.interceptors[i++];
           if (interceptor) await interceptor(context, next);
           else responseValue = await this._executeRequest(context);
         };
         await next();
       } else responseValue = await this._executeRequest(context);
 
-      if (!outgoing.writableEnded)
+      if (!response.writableEnded)
         await this._sendResponse(context, responseValue).finally(() => {
-          if (!outgoing.writableEnded) outgoing.end();
+          if (!response.writableEnded) response.end();
         });
     } catch (e: any) {
       if (e instanceof ValidationError) {
@@ -158,14 +125,14 @@ export abstract class HttpAdapterHost extends PlatformAdapterHost implements Htt
           e,
         );
       } else e = wrapException(e);
-      outgoing.status(e.statusCode || e.status || HttpStatusCode.INTERNAL_SERVER_ERROR);
-      outgoing.contentType(MimeTypes.opra_response_json);
+      response.status(e.statusCode || e.status || HttpStatusCode.INTERNAL_SERVER_ERROR);
+      response.contentType(MimeTypes.opra_response_json);
       await this._sendResponse(context, new OperationResult({ errors: [e] })).finally(() => {
-        if (!outgoing.finished) outgoing.end();
+        if (!response.finished) response.end();
       });
       // if (!outgoing.writableEnded) await this._sendErrorResponse(context.response, [error]);
     } finally {
-      await context._eventEmitter.emitAsync('finish');
+      await context.emitAsync('finish');
     }
   }
 
@@ -173,7 +140,7 @@ export abstract class HttpAdapterHost extends PlatformAdapterHost implements Htt
    *
    * @param context
    */
-  async parseRequest(context: HttpContextHost): Promise<void> {
+  async parseRequest(context: HttpContext): Promise<void> {
     await this._parseParameters(context);
     await this._parseContentType(context);
     if (context.operation.requestBody?.immediateFetch) await context.getBody();
@@ -194,7 +161,7 @@ export abstract class HttpAdapterHost extends PlatformAdapterHost implements Htt
    * @param context
    * @protected
    */
-  protected async _parseParameters(context: HttpContextHost) {
+  protected async _parseParameters(context: HttpContext) {
     const { operation, request } = context;
     let prmName: string = '';
     try {
@@ -205,10 +172,10 @@ export abstract class HttpAdapterHost extends PlatformAdapterHost implements Htt
       /** prepare decoders */
 
       const getDecoder = (prm: HttpParameter): Validator => {
-        let decode = this.getCachedAsset<Validator>(prm, 'decode');
+        let decode = this[kAssetCache].get<Validator>(prm, 'decode');
         if (!decode) {
           decode = prm.type?.generateCodec('decode') || vg.isAny();
-          this.setCachedAsset(prm, 'decode', decode);
+          this[kAssetCache].set(prm, 'decode', decode);
         }
         return decode;
       };
@@ -308,7 +275,7 @@ export abstract class HttpAdapterHost extends PlatformAdapterHost implements Htt
    * @param context
    * @protected
    */
-  protected async _parseContentType(context: HttpContextHost) {
+  protected async _parseContentType(context: HttpContext) {
     const { request, operation } = context;
     if (operation.requestBody?.content.length) {
       let mediaType: HttpMediaType | undefined;
@@ -325,7 +292,7 @@ export abstract class HttpAdapterHost extends PlatformAdapterHost implements Htt
         const contentTypes = operation.requestBody.content.map(mc => mc.contentType).flat();
         throw new BadRequestError(`Request body should be one of required content types (${contentTypes.join(', ')})`);
       }
-      context.mediaType = mediaType;
+      asMutable(context).mediaType = mediaType;
     }
   }
 
@@ -334,9 +301,9 @@ export abstract class HttpAdapterHost extends PlatformAdapterHost implements Htt
    * @param context
    * @protected
    */
-  protected async _executeRequest(context: HttpContextHost): Promise<any> {
+  protected async _executeRequest(context: HttpContext): Promise<any> {
     const { operation, resource } = context;
-    const handler = this.getCachedAsset<Function>(operation, 'handler');
+    const handler = this[kAssetCache].get<Function>(operation, 'handler');
     if (!handler) throw new MethodNotAllowedError();
     return await handler.call(resource.instance, context);
   }
@@ -347,30 +314,31 @@ export abstract class HttpAdapterHost extends PlatformAdapterHost implements Htt
    * @param responseValue
    * @protected
    */
-  protected async _sendResponse(context: HttpContextHost, responseValue: any): Promise<void> {
+  protected async _sendResponse(context: HttpContext, responseValue: any): Promise<void> {
     const { response } = context;
+    const { document } = this.adapter;
     const responseArgs = this._determineResponseArgs(context, responseValue);
 
     const { operationResponse, statusCode } = responseArgs;
     let { contentType, body } = responseArgs;
 
-    const operationResultType = this.document.node.getDataType(OperationResult);
-    let operationResultEncoder = this.getCachedAsset<Validator>(operationResultType, 'encode');
+    const operationResultType = document.node.getDataType(OperationResult);
+    let operationResultEncoder = this[kAssetCache].get<Validator>(operationResultType, 'encode');
     if (!operationResultEncoder) {
       operationResultEncoder = operationResultType.generateCodec('encode');
-      this.setCachedAsset(operationResultType, 'encode', operationResultEncoder);
+      this[kAssetCache].set(operationResultType, 'encode', operationResultEncoder);
     }
 
     /** Validate response */
     if (operationResponse?.type) {
       if (!(body == null && statusCode === HttpStatusCode.NO_CONTENT)) {
         /** Generate encoder */
-        let encode = this.getCachedAsset<Validator>(operationResponse, 'encode');
+        let encode = this[kAssetCache].get<Validator>(operationResponse, 'encode');
         if (!encode) {
           encode = operationResponse.type.generateCodec('encode');
           if (operationResponse) {
             if (operationResponse.isArray) encode = vg.isArray(encode);
-            this.setCachedAsset(operationResponse, 'encode', encode);
+            this[kAssetCache].set(operationResponse, 'encode', encode);
           }
         }
         /** Encode body */
@@ -424,7 +392,7 @@ export abstract class HttpAdapterHost extends PlatformAdapterHost implements Htt
    * @param body
    * @protected
    */
-  protected _determineResponseArgs(context: HttpContextHost, body: any): ResponseArgs {
+  protected _determineResponseArgs(context: HttpContext, body: any): HttpHandler.ResponseArgs {
     const { response, operation } = context;
 
     const hasBody = !!body;
@@ -441,9 +409,9 @@ export abstract class HttpAdapterHost extends PlatformAdapterHost implements Htt
     let operationResponse: HttpOperationResponse | undefined;
 
     const cacheKey = `HttpOperationResponse:${statusCode}${contentType ? ':' + contentType : ''}`;
-    let responseArgs = this.getCachedAsset<ResponseArgs>(response, cacheKey);
+    let responseArgs = this[kAssetCache].get<HttpHandler.ResponseArgs>(response, cacheKey);
     if (!responseArgs) {
-      responseArgs = { statusCode, contentType } as ResponseArgs;
+      responseArgs = { statusCode, contentType } as HttpHandler.ResponseArgs;
 
       if (operation.responses.length) {
         /** Filter available HttpOperationResponse instances according to status code. */
@@ -492,7 +460,7 @@ export abstract class HttpAdapterHost extends PlatformAdapterHost implements Htt
         }
       }
       if (!hasBody) delete responseArgs.contentType;
-      this.setCachedAsset(response, cacheKey, { ...responseArgs });
+      this[kAssetCache].set(response, cacheKey, { ...responseArgs });
     }
 
     /** Fix response value according to composition */
@@ -572,48 +540,50 @@ export abstract class HttpAdapterHost extends PlatformAdapterHost implements Htt
     return responseArgs;
   }
 
-  protected async _sendDocumentSchema(response: HttpOutgoing): Promise<void> {
+  async sendDocumentSchema(response: HttpOutgoing): Promise<void> {
+    const { document } = this.adapter;
     response.setHeader('content-type', MimeTypes.json);
     /** Check if response cache exists */
-    let responseBody = this.getCachedAsset(this.document, '$schema-response');
+    let responseBody = this[kAssetCache].get(document, '$schema-response');
     /** Create response if response cache does not exists */
     if (!responseBody) {
-      const schema = this.document.toJSON();
-      const dt = this.document.node.getComplexType('OperationResult');
-      let encode = this.getCachedAsset<Validator>(dt, 'encode');
+      const schema = document.toJSON();
+      const dt = document.node.getComplexType('OperationResult');
+      let encode = this[kAssetCache].get<Validator>(dt, 'encode');
       if (!encode) {
         encode = dt.generateCodec('encode');
-        this.setCachedAsset(dt, 'encode', encode);
+        this[kAssetCache].set(dt, 'encode', encode);
       }
       const bodyObject = new OperationResult({
         payload: schema,
       });
       const body = encode(bodyObject);
       responseBody = JSON.stringify(body);
-      this.setCachedAsset(this.document, '$schema-response', responseBody);
+      this[kAssetCache].set(document, '$schema-response', responseBody);
     }
     response.end(responseBody);
   }
 
-  protected async _sendErrorResponse(response: HttpOutgoing, errors: any[]): Promise<void> {
+  async sendErrorResponse(response: HttpOutgoing, errors: any[]): Promise<void> {
     if (response.headersSent) {
       response.end();
       return;
     }
     if (!errors.length) errors.push(wrapException({ status: response.statusCode || 500 }));
+    const { logger } = this.adapter;
     errors.forEach(x => {
       if (x instanceof OpraException) {
         switch (x.severity) {
           case 'fatal':
-            this._logger.fatal(x);
+            logger.fatal(x);
             break;
           case 'warning':
-            this._logger.warn(x);
+            logger.warn(x);
             break;
           default:
-            this._logger.error(x);
+            logger.error(x);
         }
-      } else this._logger.fatal(x);
+      } else logger.fatal(x);
     });
 
     const wrappedErrors = errors.map(wrapException);
@@ -631,17 +601,19 @@ export abstract class HttpAdapterHost extends PlatformAdapterHost implements Htt
     }
     response.statusCode = status;
 
-    const dt = this.document.node.getComplexType('OperationResult');
-    let encode = this.getCachedAsset<Validator>(dt, 'encode');
+    const { document } = this.adapter;
+    const dt = document.node.getComplexType('OperationResult');
+    let encode = this[kAssetCache].get<Validator>(dt, 'encode');
     if (!encode) {
       encode = dt.generateCodec('encode');
-      this.setCachedAsset(dt, 'encode', encode);
+      this[kAssetCache].set(dt, 'encode', encode);
     }
+    const { i18n } = this.adapter;
     const bodyObject = new OperationResult({
       errors: wrappedErrors.map(x => {
         const o = x.toJSON();
         if (!(process.env.NODE_ENV === 'dev' || process.env.NODE_ENV === 'development')) delete o.stack;
-        return this._i18n.deep(o);
+        return i18n.deep(o);
       }),
     });
     const body = encode(bodyObject);
@@ -653,62 +625,5 @@ export abstract class HttpAdapterHost extends PlatformAdapterHost implements Htt
     response.setHeader(HttpHeaderCodes.X_Opra_Version, OpraSchema.SpecVersion);
     response.send(JSON.stringify(body));
     response.end();
-  }
-
-  /**
-   * Initializes the adapter
-   */
-  protected async _init(document: ApiDocument, options?: HttpAdapter.Options) {
-    await super._init(document, options);
-    if (!(document.api instanceof HttpApi)) throw new TypeError(`The document does not expose an HTTP Api`);
-    this.api = document.api;
-    this._interceptors = [...(options?.interceptors || [])];
-    if (options?.onRequest) this.on('request', options.onRequest);
-    if (document.api) {
-      for (const c of this.api.controllers.values()) await this._createControllers(c);
-    }
-    for (const controller of this._controllers.values()) {
-      if (typeof controller.onInit === 'function') await controller.onInit.call(controller, this);
-    }
-  }
-
-  protected async _close(): Promise<void> {
-    await super._close();
-    const processResource = async (resource: HttpController) => {
-      if (resource.controllers.size) {
-        const subResources = Array.from(resource.controllers.values());
-        subResources.reverse();
-        for (const subResource of subResources) {
-          await processResource(subResource);
-        }
-      }
-      if (resource.onShutdown) {
-        const controller = this._controllers.get(resource) || resource.instance;
-        try {
-          await resource.onShutdown.call(controller, resource);
-        } catch (e) {
-          this._logger.error(e);
-        }
-      }
-    };
-    for (const c of this.api.controllers.values()) await processResource(c);
-    this._controllers.clear();
-  }
-
-  protected async _createControllers(resource: HttpController): Promise<void> {
-    let controller: any = resource.instance;
-    if (!controller && resource.ctor) controller = new resource.ctor();
-    if (controller) {
-      this._controllers.set(resource, controller);
-      for (const operation of resource.operations.values()) {
-        const fn = controller[operation.name];
-        if (typeof fn === 'function') this.setCachedAsset(operation, 'handler', fn);
-      }
-      // Initialize sub resources
-      for (const r of resource.controllers.values()) {
-        await this._createControllers(r);
-      }
-    }
-    return controller;
   }
 }

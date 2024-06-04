@@ -1,5 +1,5 @@
 import { Nullish } from 'ts-gems';
-import { HttpContext } from '../server/http/interfaces/http-context.interface.js';
+import type { HttpContext } from '../http/http-context';
 
 export abstract class ServiceBase {
   protected _context: HttpContext;

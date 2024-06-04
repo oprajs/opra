@@ -2,7 +2,7 @@ import http from 'http';
 import { Readable } from 'stream';
 import { HeaderInfo, HTTPParser } from '@browsery/http-parser';
 import { isAsyncIterable, isIterable } from '@opra/common';
-import { CRLF, kHttpParser, NodeIncomingMessageHost } from '../node-incoming-message.host.js';
+import { CRLF, kHttpParser, NodeIncomingMessageHost } from '../impl/node-incoming-message.host.js';
 import { concatReadable } from '../utils/concat-readable.js';
 
 /**

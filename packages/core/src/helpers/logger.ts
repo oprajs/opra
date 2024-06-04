@@ -1,4 +1,4 @@
-import { ILogger } from '../server/base/interfaces/logger.interface.js';
+import { ILogger } from '../interfaces/logger.interface.js';
 
 export interface LoggerOptions {
   // context?: string;

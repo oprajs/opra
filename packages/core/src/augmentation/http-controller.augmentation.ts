@@ -1,5 +1,5 @@
 import { HTTP_CONTROLLER_METADATA, HttpController } from '@opra/common';
-import { HttpContext } from '../server/http/interfaces/http-context.interface.js';
+import type { HttpContext } from '../http/http-context';
 
 declare module '@opra/common' {
   interface HttpControllerStatic {
@@ -10,13 +10,13 @@ declare module '@opra/common' {
 
   // eslint-disable-next-line @typescript-eslint/no-shadow
   interface HttpController {
-    onInit?: (resource: HttpController) => void | Promise<void>;
+    onInit?: (resource: HttpController) => void;
     onShutdown?: (resource: HttpController) => void | Promise<void>;
   }
 
   namespace HttpController {
     interface InitArguments {
-      onInit?: (resource: HttpController) => void | Promise<void>;
+      onInit?: (resource: HttpController) => void;
       onShutdown?: (resource: HttpController) => void | Promise<void>;
     }
   }

@@ -2,25 +2,26 @@ import cookieParser from 'cookie-parser';
 import express, { Express } from 'express';
 import supertest from 'supertest';
 import { ApiDocument, HttpOperation } from '@opra/common';
-import { ExpressAdapter, HttpContext, HttpIncoming, HttpOutgoing } from '@opra/core';
-import type { ExpressAdapterHost } from '@opra/core/server/http/adapters/express-adapter.host';
-import { HttpContextHost } from '@opra/core/server/http/http-context.host';
-import { CustomersController } from '../_support/test-api/api/customers.controller.js';
+import { ExpressAdapter, HttpIncoming, HttpOutgoing } from '@opra/core';
+import { kHandler } from '@opra/core/constants';
+import { HttpContext } from '@opra/core/http/http-context';
+import { HttpHandler } from '@opra/core/http/impl/http-handler';
 import { createTestApi } from '../_support/test-api/index.js';
 
-describe('HttpAdapter', function () {
+describe('HttpHandler', function () {
   let document: ApiDocument;
   let app: Express;
-  let adapter: ExpressAdapterHost;
+  let adapter: ExpressAdapter;
+  let httpHandler: HttpHandler;
 
   function createContext(operation: HttpOperation, request: HttpIncoming) {
     const response = HttpOutgoing.from({ req: request });
-    return new HttpContextHost({
+    return new HttpContext({
       adapter,
-      document,
       operation,
       resource: operation.owner,
-      platform: { name: 'express' },
+      platform: 'express',
+      platformArgs: {},
       request,
       response,
     });
@@ -30,39 +31,12 @@ describe('HttpAdapter', function () {
     document = await createTestApi();
     app = express();
     app.use(cookieParser());
-    adapter = (await ExpressAdapter.create(app, document)) as ExpressAdapterHost;
+    adapter = new ExpressAdapter(app, document);
+    httpHandler = adapter[kHandler];
   });
 
   afterAll(async () => adapter.close());
   afterAll(() => global.gc && global.gc());
-
-  it('Should call HttpController onInit method while init', async () => {
-    const instance = adapter.getControllerInstance<CustomersController>('/Customers');
-    expect(instance).toBeDefined();
-    expect(instance).toBeInstanceOf(CustomersController);
-    expect(instance!.initialized).toEqual(true);
-    expect(instance!.closed).toEqual(false);
-  });
-
-  it('Should call interceptors', async () => {
-    const x: any[] = [];
-    (adapter as any)._interceptors = [
-      async (ctx: HttpContext, next) => {
-        x.push(1);
-        next();
-      },
-      async (ctx: HttpContext, next) => {
-        x.push(2);
-        await next();
-        if (ctx.response.writableEnded) x.push(3);
-        else x.push(0);
-      },
-    ];
-    const resp = await supertest(app).get('/Customers');
-    expect(resp.status).toStrictEqual(200);
-    expect(x).toStrictEqual([1, 2, 3]);
-    expect(resp.body).toBeDefined();
-  });
 
   it('Should parse query parameters', async () => {
     const resource = document.api?.findController('Customers');
@@ -74,7 +48,7 @@ describe('HttpAdapter', function () {
         url: '/Customers?limit=5&xyz=1',
       }),
     );
-    await adapter.parseRequest(context);
+    await httpHandler.parseRequest(context);
     expect(context.queryParams.limit).toEqual(5);
     expect(context.queryParams.xyz).not.toBeDefined();
   });
@@ -89,7 +63,7 @@ describe('HttpAdapter', function () {
         params: { customerId: '123', addressId: '456' },
       }),
     );
-    await adapter.parseRequest(context);
+    await httpHandler.parseRequest(context);
     expect(context.pathParams.customerId).toEqual(123);
     expect(context.pathParams.addressId).toEqual(456);
   });
@@ -104,7 +78,7 @@ describe('HttpAdapter', function () {
         cookies: { accessToken: 'gWEGnjkwegew', cid: '123', other: 'xyz' },
       }),
     );
-    await adapter.parseRequest(context);
+    await httpHandler.parseRequest(context);
     expect(context.cookies.accessToken).toEqual('gWEGnjkwegew');
     expect(context.cookies.cid).toEqual(123);
     expect(context.cookies.other).not.toBeDefined();
@@ -120,7 +94,7 @@ describe('HttpAdapter', function () {
         headers: { accessToken: 'gWEGnjkwegew', cid: '123', other: 'xyz' },
       }),
     );
-    await adapter.parseRequest(context);
+    await httpHandler.parseRequest(context);
     expect(context.headers.accesstoken).toEqual('gWEGnjkwegew');
     expect(context.headers.cid).toEqual(123);
     expect(context.headers.other).not.toBeDefined();
@@ -136,7 +110,7 @@ describe('HttpAdapter', function () {
         url: '/Customers?limit=abc',
       }),
     );
-    await expect(() => adapter.parseRequest(context)).rejects.toThrow('Invalid parameter');
+    await expect(() => httpHandler.parseRequest(context)).rejects.toThrow('Invalid parameter');
   });
 
   it('Should parse content-type', async () => {
@@ -149,7 +123,7 @@ describe('HttpAdapter', function () {
         headers: { 'content-type': 'application/json; charset=UTF-8' },
       }),
     );
-    await adapter.parseRequest(context);
+    await httpHandler.parseRequest(context);
     expect(context.mediaType).toBeDefined();
     expect(context.mediaType?.contentType).toEqual('application/json');
     expect(context.mediaType?.contentEncoding).toEqual('utf-8');
@@ -165,15 +139,26 @@ describe('HttpAdapter', function () {
         headers: { 'content-type': 'text/plain; charset=UTF-8' },
       }),
     );
-    await expect(() => adapter.parseRequest(context)).rejects.toThrow('should be one of required content types');
+    await expect(() => httpHandler.parseRequest(context)).rejects.toThrow('should be one of required content types');
   });
 
-  it('Should call HttpController onShutdown method on close', async () => {
-    const instance = adapter.getControllerInstance<CustomersController>('/Customers');
-    await adapter.close();
-    expect(instance).toBeDefined();
-    expect(instance).toBeInstanceOf(CustomersController);
-    expect(instance!.initialized).toEqual(true);
-    expect(instance!.closed).toEqual(true);
+  it('Should call interceptors', async () => {
+    const x: any[] = [];
+    adapter.interceptors = [
+      async (ctx: HttpContext, next) => {
+        x.push(1);
+        next();
+      },
+      async (ctx: HttpContext, next) => {
+        x.push(2);
+        await next();
+        if (ctx.response.writableEnded) x.push(3);
+        else x.push(0);
+      },
+    ];
+    const resp = await supertest(app).get('/Customers');
+    expect(resp.status).toStrictEqual(200);
+    expect(x).toStrictEqual([1, 2, 3]);
+    expect(resp.body).toBeDefined();
   });
 });
