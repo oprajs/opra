@@ -4,14 +4,10 @@ import { ModuleWithProviders, NgModule, Provider, Type } from '@angular/core';
 import { kClient } from '@opra/client';
 import { OpraAngularClient } from './angular-client';
 import { OPRA_CLIENT_MODULE_OPTIONS } from './constants';
-import {
-  OpraClientModuleAsyncOptions,
-  OpraClientModuleOptions
-} from './interfaces/module-options.interface';
+import { OpraClientModuleAsyncOptions, OpraClientModuleOptions } from './interfaces/module-options.interface';
 
 @NgModule({})
 export class OpraClientModule {
-
   public static registerClient(options: OpraClientModuleOptions): ModuleWithProviders<OpraClientModule> {
     const CLIENT_TOKEN = options.token || OpraAngularClient;
     return {
@@ -20,16 +16,15 @@ export class OpraClientModule {
         {
           provide: CLIENT_TOKEN,
           deps: [HttpClient],
-          useFactory: (httpClient: HttpClient) =>
-              new OpraAngularClient(httpClient, options.serviceUrl, options)
-        }
-      ]
+          useFactory: (httpClient: HttpClient) => new OpraAngularClient(httpClient, options.serviceUrl, options),
+        },
+      ],
     };
   }
 
   public static registerService<T>(
-      serviceClass: Type<T>,
-      options: OpraClientModuleOptions
+    serviceClass: Type<T>,
+    options: OpraClientModuleOptions,
   ): ModuleWithProviders<OpraClientModule> {
     const SERVICE_TOKEN = options.token || serviceClass;
     return {
@@ -43,15 +38,13 @@ export class OpraClientModule {
             const service = new serviceClass(opraAngularClient);
             service[kClient] = opraAngularClient;
             return service;
-          }
-        }
-      ]
+          },
+        },
+      ],
     };
   }
 
-  public static registerClientAsync(
-      options: OpraClientModuleAsyncOptions
-  ): ModuleWithProviders<OpraClientModule> {
+  public static registerClientAsync(options: OpraClientModuleAsyncOptions): ModuleWithProviders<OpraClientModule> {
     const CLIENT_TOKEN = options.token || OpraAngularClient;
     const asyncProviders = this._createAsyncProviders(options);
     return {
@@ -62,15 +55,15 @@ export class OpraClientModule {
           provide: CLIENT_TOKEN,
           deps: [HttpClient, OPRA_CLIENT_MODULE_OPTIONS],
           useFactory: (httpClient: HttpClient, opts: OpraClientModuleOptions) =>
-              new OpraAngularClient(httpClient, opts.serviceUrl, opts)
-        }
-      ]
+            new OpraAngularClient(httpClient, opts.serviceUrl, opts),
+        },
+      ],
     };
   }
 
   public static registerServiceAsync<T>(
-      serviceClass: Type<T>,
-      options: OpraClientModuleAsyncOptions
+    serviceClass: Type<T>,
+    options: OpraClientModuleAsyncOptions,
   ): ModuleWithProviders<OpraClientModule> {
     const SERVICE_TOKEN = options.token || serviceClass;
     const asyncProviders = this._createAsyncProviders(options);
@@ -86,23 +79,22 @@ export class OpraClientModule {
             const service = new serviceClass(opraAngularClient);
             service[kClient] = opraAngularClient;
             return service;
-          }
-        }
-      ]
+          },
+        },
+      ],
     };
   }
 
   private static _createAsyncProviders(options: OpraClientModuleAsyncOptions): Provider[] {
-    if (options.useExisting || options.useFactory)
-      return [this._createAsyncOptionsProvider(options)];
+    if (options.useExisting || options.useFactory) return [this._createAsyncOptionsProvider(options)];
 
     if (options.useClass)
       return [
         this._createAsyncOptionsProvider(options),
         {
           provide: options.useClass,
-          useClass: options.useClass
-        }
+          useClass: options.useClass,
+        },
       ];
 
     throw new Error('Invalid configuration. Must provide useFactory, useClass or useExisting');
@@ -120,12 +112,10 @@ export class OpraClientModule {
     if (useClass) {
       return {
         provide: OPRA_CLIENT_MODULE_OPTIONS,
-        useFactory: (o) => o,
+        useFactory: o => o,
         deps: [useClass],
       };
     }
     throw new Error('Invalid configuration. Must provide useFactory, useClass or useExisting');
   }
-
-
 }

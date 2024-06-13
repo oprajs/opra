@@ -1,4 +1,3 @@
-import nodePath from 'node:path';
 import { asMutable, Combine, ThunkAsync, Type } from 'ts-gems';
 import { omitUndefined, ResponsiveMap } from '../../helpers/index.js';
 import { OpraSchema } from '../../schema/index.js';
@@ -90,11 +89,12 @@ export const HttpController = function (this: HttpController | void, ...args: an
  * @class HttpController
  */
 class HttpControllerClass extends DocumentElement {
+  protected _controllerReverseMap: WeakMap<Type, HttpController | null> = new WeakMap();
   readonly kind: OpraSchema.HttpController.Kind;
   readonly name: string;
   description?: string;
   path: string;
-  instance?: object;
+  instance?: any;
   ctor?: Type;
   parameters: HttpParameter[];
   operations: ResponsiveMap<HttpOperation>;
@@ -108,17 +108,40 @@ class HttpControllerClass extends DocumentElement {
     return !(this.owner instanceof HttpController);
   }
 
-  findController(resourcePath: string): HttpController | undefined {
-    if (resourcePath.startsWith('/')) resourcePath = resourcePath.substring(1);
-    if (resourcePath.includes('/')) {
-      const a = resourcePath.split('/');
+  findController(controller: Type): HttpController | undefined;
+  findController(resourcePath: string): HttpController | undefined;
+  findController(arg0: string | Type): HttpController | undefined {
+    if (typeof arg0 === 'function') {
+      /** Check for cached mapping */
+      let controller = this._controllerReverseMap.get(arg0);
+      if (controller != null) return controller;
+      /** Lookup for ctor in all controllers */
+      for (const c of this.controllers.values()) {
+        if (c.ctor === arg0) {
+          this._controllerReverseMap.set(arg0, c);
+          return c;
+        }
+        if (c.controllers.size) {
+          controller = c.findController(arg0);
+          if (controller) {
+            this._controllerReverseMap.set(arg0, c);
+            return controller;
+          }
+        }
+      }
+      this._controllerReverseMap.set(arg0, null);
+      return;
+    }
+    if (arg0.startsWith('/')) arg0 = arg0.substring(1);
+    if (arg0.includes('/')) {
+      const a = arg0.split('/');
       let r: HttpController | undefined = this;
       while (r && a.length > 0) {
         r = r.controllers.get(a.shift()!);
       }
       return r;
     }
-    return this.controllers.get(resourcePath);
+    return this.controllers.get(arg0);
   }
 
   findParameter(paramName: string, location?: OpraSchema.HttpParameterLocation): HttpParameter | undefined {
@@ -133,15 +156,6 @@ class HttpControllerClass extends DocumentElement {
     }
     if (this.node.parent && this.node.parent.element instanceof HttpController)
       return this.node.parent.element.findParameter(paramName, location);
-  }
-
-  /**
-   *
-   */
-  getDocumentPath(): string {
-    return this.owner instanceof HttpController
-      ? nodePath.join(this.owner.getDocumentPath(), this.path)
-      : '/' + this.path;
   }
 
   /**

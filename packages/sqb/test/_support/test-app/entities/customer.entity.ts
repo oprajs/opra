@@ -11,7 +11,6 @@ import { Country } from './country.entity.js';
 })
 @Entity('customers')
 export class Customer extends MixinType(Record, Person) {
-
   @ApiField()
   @Column()
   uid?: string;
@@ -29,15 +28,14 @@ export class Customer extends MixinType(Record, Person) {
   rate: number;
 
   @ApiField()
-  @Column({type: Address, exclusive: true})
+  @Column({ type: Address, exclusive: true })
   address?: Address;
 
   @ApiField()
-  @Column({type: Note, exclusive: true})
+  @Column({ type: Note, exclusive: true })
   notes?: Note[];
 
-  @ApiField({exclusive: true})
-  @Link({exclusive: true}).toOne(Country, {sourceKey: 'countryCode', targetKey: 'code'})
+  @ApiField({ exclusive: true })
+  @Link({ exclusive: true }).toOne(Country, { sourceKey: 'countryCode', targetKey: 'code' })
   readonly country?: Country;
-
 }

@@ -1,86 +1,75 @@
 import { faker } from '@faker-js/faker';
+import { HttpStatusCode } from '@opra/common';
 import { OpraTestClient } from '@opra/testing';
 
 export function singletonUpdateTests(args: { client: OpraTestClient }) {
   describe('Singleton:update', function () {
-    beforeAll(async () => {
-      await args.client.singleton('MyProfile').delete().getResponse();
-      await args.client
-        .singleton('MyProfile')
-        .create({
-          givenName: faker.person.firstName(),
-          familyName: faker.person.lastName(),
-          gender: 'F',
-          address: { city: 'Istanbul' },
-        })
-        .getResponse();
-    });
-
-    afterAll(() => global.gc && global.gc());
-
-    it('Should update instance', async () => {
-      let resp = await args.client.singleton('MyProfile').get().getResponse();
-      resp.expect.toSuccess().toReturnObject();
-      const oldData = resp.body.payload;
-
-      const data = {
+    const generateData = (v?: any) => {
+      return {
         givenName: faker.person.firstName(),
         familyName: faker.person.lastName(),
         gender: 'M',
         address: { city: 'Izmir' },
+        ...v,
       };
+    };
 
-      resp = await args.client.singleton('MyProfile').update(data).getResponse();
+    afterAll(() => global.gc && global.gc());
 
+    beforeAll(async () => {
+      await args.client.delete('MyProfile').getResponse();
+      await args.client.post('MyProfile', generateData()).getResponse();
+    });
+
+    it('Should update instance', async () => {
+      const data = generateData();
+
+      let resp = await args.client.get('MyProfile').getResponse();
+      resp.expect.toSuccess().toReturnObject();
+      const oldData = resp.body.payload;
+
+      resp = await args.client.patch('MyProfile', data).getResponse();
       resp.expect
         .toSuccess()
         .toReturnObject()
         .toMatch({ ...oldData, ...data, address: undefined });
 
-      resp = await args.client.singleton('MyProfile').get(oldData._id).getResponse();
+      resp = await args.client.get('MyProfile').getResponse();
       resp.expect
         .toSuccess()
         .toReturnObject()
         .toMatch({ ...oldData, ...data, address: undefined });
     });
 
+    it('Should exclude exclusive fields by default', async () => {
+      const data = generateData();
+      const resp = await args.client.patch('MyProfile', data).getResponse();
+      resp.expect.toSuccess().toReturnObject().not.toContainFields(['address', 'notes']);
+    });
+
+    it('Should fetch exclusive fields if requested', async () => {
+      const data = generateData();
+      const resp = await args.client.patch('MyProfile', data).param('projection', '+address').getResponse();
+      resp.expect.toSuccess().toReturnObject().toContainFields(['_id', 'givenName', 'address']);
+    });
+
     it('Should pick fields to be returned', async () => {
-      const data = {
-        givenName: faker.person.firstName(),
-        familyName: faker.person.lastName(),
-        gender: 'M',
-      };
-      const resp = await args.client
-        .singleton('MyProfile')
-        .update(data, { pick: ['_id', 'givenName'] })
-        .getResponse();
+      const data = generateData();
+      const resp = await args.client.patch('MyProfile', data).param('projection', '_id,givenName').getResponse();
       resp.expect.toSuccess().toReturnObject().toContainAllFields(['_id', 'givenName']);
     });
 
     it('Should omit fields to be returned', async () => {
-      const data = {
-        givenName: faker.person.firstName(),
-        familyName: faker.person.lastName(),
-        gender: 'F',
-      };
-      const resp = await args.client
-        .singleton('MyProfile')
-        .update(data, { omit: ['givenName', 'gender'] })
-        .getResponse();
-      resp.expect.toSuccess().toReturnObject().not.toContainFields(['givenName', 'gender']);
+      const data = generateData();
+      const resp = await args.client.patch('MyProfile', data).param('projection', '-_id,-givenName').getResponse();
+      resp.expect.toSuccess().toReturnObject().not.toContainAllFields(['_id', 'givenName']);
     });
 
-    it('Should include exclusive fields if requested', async () => {
-      const data = {
-        givenName: faker.person.firstName(),
-        familyName: faker.person.lastName(),
-        gender: 'F',
-      };
-      const resp = await args.client
-        .singleton('MyProfile')
-        .update(data, { include: ['address'] })
-        .getResponse();
-      resp.expect.toSuccess().toReturnObject().toContainFields(['givenName', 'gender', 'address']);
+    it('Should return 204 NO-CONTENT status code if resource available', async () => {
+      await args.client.delete('MyProfile').getResponse();
+      const data = generateData();
+      const resp = await args.client.patch('MyProfile', data).param('projection', '-_id,-givenName').getResponse();
+      resp.expect.toSuccess(HttpStatusCode.NO_CONTENT);
     });
   });
 }

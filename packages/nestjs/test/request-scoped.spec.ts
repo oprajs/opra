@@ -1,11 +1,11 @@
 import request from 'supertest';
 import { INestApplication } from '@nestjs/common';
 import { Test } from '@nestjs/testing';
-import { CatsResource } from './_support/request-scoped-app/cats.resource.js';
+import { CatsController } from './_support/request-scoped-app/cats.controller.js';
+import { CatsService } from './_support/request-scoped-app/cats.service.js';
 import { HelloModule } from './_support/request-scoped-app/hello.module.js';
 import { Interceptor } from './_support/request-scoped-app/logging.interceptor.js';
 import { Guard } from './_support/request-scoped-app/request-scoped.guard.js';
-import { UsersService } from './_support/request-scoped-app/users.service.js';
 
 class Meta {
   static COUNTER = 0;
@@ -36,25 +36,18 @@ describe('Request scope', () => {
 
   describe('when one service is request scoped', () => {
     beforeAll(async () => {
-      const performHttpCall = (end) =>
-          request(server)
-              .get('/Cats@1')
-              .expect(200)
-              .end((err) => {
-                if (err) return end(err);
-                end();
-              });
-      await new Promise((resolve) => performHttpCall(resolve));
-      await new Promise((resolve) => performHttpCall(resolve));
-      await new Promise((resolve) => performHttpCall(resolve));
+      const performHttpCall = () => request(server).get('/Cats@1').expect(200).send();
+      await performHttpCall();
+      await performHttpCall();
+      await performHttpCall();
     });
 
     it(`should create resource controller for each request`, async () => {
-      expect(CatsResource.COUNTER).toEqual(3);
+      expect(CatsController.COUNTER).toEqual(3);
     });
 
     it(`should create service for each request`, async () => {
-      expect(UsersService.COUNTER).toEqual(3);
+      expect(CatsService.COUNTER).toEqual(3);
     });
 
     it(`should share static provider across requests`, async () => {

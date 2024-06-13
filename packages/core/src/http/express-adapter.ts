@@ -1,8 +1,7 @@
 import { Application, NextFunction, Request, Response, Router } from 'express';
 import * as nodePath from 'path';
-import { Mutable } from 'ts-gems';
 import { ApiDocument, HttpApi, HttpController, NotFoundError } from '@opra/common';
-import { kAssetCache, kHandler } from '../constants.js';
+import { kHandler } from '../constants.js';
 import { HttpAdapter } from './http-adapter.js';
 import { HttpContext } from './http-context.js';
 import { HttpIncoming } from './interfaces/http-incoming.interface.js';
@@ -10,13 +9,12 @@ import { HttpOutgoing } from './interfaces/http-outgoing.interface.js';
 
 export class ExpressAdapter extends HttpAdapter {
   readonly app: Application;
-  protected _controllers = new Map<HttpController, any>();
+  protected _controllerInstances = new Map<HttpController, any>();
 
   constructor(app: Application, document: ApiDocument, options?: HttpAdapter.Options) {
     super(document, options);
     this.app = app;
     if (!(this.document.api instanceof HttpApi)) throw new TypeError('document.api must be instance of HttpApi');
-    (this as Mutable<ExpressAdapter>).api = this.document.api as HttpApi;
     for (const c of this.api.controllers.values()) this._createControllers(c);
     this._initRouter(options?.basePath);
   }
@@ -35,21 +33,22 @@ export class ExpressAdapter extends HttpAdapter {
         }
       }
       if (resource.onShutdown) {
-        const controller = this._controllers.get(resource) || resource.instance;
-        try {
-          await resource.onShutdown.call(controller, resource);
-        } catch (e) {
-          this.logger.error(e);
-        }
+        const instance = this._controllerInstances.get(resource) || resource.instance;
+        if (instance)
+          try {
+            await resource.onShutdown.call(instance, resource);
+          } catch (e) {
+            this.logger.error(e);
+          }
       }
     };
     for (const c of this.api.controllers.values()) await processResource(c);
-    this._controllers.clear();
+    this._controllerInstances.clear();
   }
 
   getControllerInstance<T>(controllerPath: string): T | undefined {
     const controller = this.api.findController(controllerPath);
-    return controller && this._controllers.get(controller);
+    return controller && this._controllerInstances.get(controller);
   }
 
   protected _initRouter(basePath?: string) {
@@ -74,27 +73,33 @@ export class ExpressAdapter extends HttpAdapter {
 
     /** Add operation endpoints */
     if (this.api.controllers.size) {
-      const processResource = (resource: HttpController, currentPath: string) => {
-        currentPath = nodePath.join(currentPath, resource.path);
-        for (const operation of resource.operations.values()) {
-          const routePath = operation.path ? nodePath.join(currentPath, operation.path) : currentPath;
-          router[operation.method.toLowerCase()](routePath, (_req: Request, _res: Response, _next) => {
+      const processResource = (controller: HttpController, currentPath: string) => {
+        currentPath = nodePath.join(currentPath, controller.path);
+        for (const operation of controller.operations.values()) {
+          const routePath = currentPath + (operation.path || '');
+          const controllerInstance = this._controllerInstances.get(controller);
+          const operationHandler = controllerInstance[operation.name];
+          if (!operationHandler) continue;
+
+          /** Define router callback */
+          router[operation.method.toLowerCase()](routePath, (_req: Request, _res: Response, _next: NextFunction) => {
             const request = HttpIncoming.from(_req);
             const response = HttpOutgoing.from(_res);
             const platformArgs = {
-              app: this.app,
-              router,
               request: _req,
               response: _res,
             };
+
             const context = new HttpContext({
               adapter: this,
               platform: this.platform,
+              platformArgs,
               request,
               response,
+              controller,
+              controllerInstance,
               operation,
-              resource: operation.owner,
-              platformArgs,
+              operationHandler,
             });
 
             this[kHandler]
@@ -105,8 +110,8 @@ export class ExpressAdapter extends HttpAdapter {
               .catch((e: unknown) => this.logger.fatal(e));
           });
         }
-        if (resource.controllers.size) {
-          for (const child of resource.controllers.values()) processResource(child, currentPath);
+        if (controller.controllers.size) {
+          for (const child of controller.controllers.values()) processResource(child, currentPath);
         }
       };
       for (const c of this.api.controllers.values()) processResource(c, '/');
@@ -130,21 +135,17 @@ export class ExpressAdapter extends HttpAdapter {
     });
   }
 
-  protected _createControllers(resource: HttpController): void {
-    let controller: any = resource.instance;
-    if (!controller && resource.ctor) controller = new resource.ctor();
-    if (controller) {
-      if (typeof controller.onInit === 'function') controller.onInit.call(controller, this);
-      this._controllers.set(resource, controller);
-      for (const operation of resource.operations.values()) {
-        const fn = controller[operation.name];
-        if (typeof fn === 'function') this[kAssetCache].set(operation, 'handler', fn);
-      }
+  protected _createControllers(controller: HttpController): void {
+    let instance = controller.instance;
+    if (!instance && controller.ctor) instance = new controller.ctor();
+    if (instance) {
+      if (typeof instance.onInit === 'function') instance.onInit.call(instance, this);
+      this._controllerInstances.set(controller, instance);
       // Initialize sub resources
-      for (const r of resource.controllers.values()) {
+      for (const r of controller.controllers.values()) {
         this._createControllers(r);
       }
     }
-    return controller;
+    return instance;
   }
 }

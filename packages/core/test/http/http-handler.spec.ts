@@ -19,7 +19,7 @@ describe('HttpHandler', function () {
     return new HttpContext({
       adapter,
       operation,
-      resource: operation.owner,
+      controller: operation.owner,
       platform: 'express',
       platformArgs: {},
       request,

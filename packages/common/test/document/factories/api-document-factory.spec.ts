@@ -41,8 +41,8 @@ describe('ApiDocumentFactory', function () {
     expect(ref?.node.getDataType('number')).toBeDefined();
     expect(ref?.node.getDataType('object')).toBeDefined();
     expect(ref?.node.getDataType('string')).toBeDefined();
-    expect(ref?.node.getDataType('approxdate')).toBeDefined();
-    expect(ref?.node.getDataType('approxdatetime')).toBeDefined();
+    expect(ref?.node.getDataType('datestring')).toBeDefined();
+    expect(ref?.node.getDataType('datetimestring')).toBeDefined();
     expect(ref?.node.getDataType('base64')).toBeDefined();
     expect(ref?.node.getDataType('date')).toBeDefined();
     expect(ref?.node.getDataType('datetime')).toBeDefined();

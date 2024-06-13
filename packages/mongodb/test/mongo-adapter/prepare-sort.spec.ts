@@ -1,14 +1,13 @@
 import { MongoAdapter } from '@opra/mongodb';
 
 describe('MongoAdapter.transformSort', function () {
-
   afterAll(() => global.gc && global.gc());
 
   it('Should convert sort fields', async () => {
     const o: any = MongoAdapter.prepareSort(['_id', 'givenName']);
     expect(o).toEqual({
       _id: 1,
-      givenName: 1
+      givenName: 1,
     });
   });
 
@@ -16,7 +15,7 @@ describe('MongoAdapter.transformSort', function () {
     const o: any = MongoAdapter.prepareSort(['+_id', '-givenName']);
     expect(o).toEqual({
       _id: 1,
-      givenName: -1
+      givenName: -1,
     });
   });
 
@@ -24,6 +23,4 @@ describe('MongoAdapter.transformSort', function () {
     const o: any = MongoAdapter.prepareSort([]);
     expect(o).toStrictEqual(undefined);
   });
-
 });
-

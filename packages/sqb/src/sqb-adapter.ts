@@ -1,132 +1,89 @@
-import { Collection, omitNullish, Singleton } from '@opra/common';
-import { Request } from '@opra/core';
-import { EntityMetadata } from '@sqb/connect';
-import _transformFilter from './transform-filter.js';
-import _transformKeyValues from './transform-key-values.js';
+import { type OpraFilter } from '@opra/common';
+import { HttpContext } from '@opra/core';
+import { EntityMetadata, type Repository } from '@sqb/connect';
+import _parseFilter from './adapter-utils/parse-filter.js';
 
 export namespace SQBAdapter {
+  export type Id = string | number | boolean | Date;
+  export type IdOrIds = Id | Record<string, Id>;
 
-  export const transformFilter = _transformFilter;
-  export const transformKeyValues = _transformKeyValues;
+  export type FilterInput = OpraFilter.Expression | Repository.FindManyOptions['filter'] | string | undefined;
+
+  export const parseFilter = _parseFilter;
 
   export interface TransformedRequest {
-    method: 'create' | 'delete' | 'deleteMany' | 'find' | 'findOne' | 'findMany' | 'update' | 'updateMany',
-    key?: any,
-    data?: any,
-    options: any,
-    args: any[]
+    method: 'create' | 'delete' | 'deleteMany' | 'get' | 'findMany' | 'update' | 'updateMany';
+    key?: any;
+    data?: any;
+    options: any;
   }
 
-  export function transformRequest(request: Request): TransformedRequest {
-    const {resource} = request;
+  export async function parseRequest(context: HttpContext): Promise<TransformedRequest> {
+    const { operation } = context;
 
-    if (resource instanceof Collection || resource instanceof Singleton) {
-      const {params, endpoint} = request;
-      let options: any = {};
-      const entityMetadata = EntityMetadata.get(resource.type.ctor);
-      if (!entityMetadata)
-        throw new Error(`Type class "${resource.type.ctor}" is not an SQB entity`);
-
-      if (resource instanceof Collection) {
-        const primaryIndex = entityMetadata.indexes.find(x => x.primary);
-        // Check if resource primary keys are same with entity
-        const primaryKeys = [...(primaryIndex && primaryIndex.columns) || []];
-        if (primaryKeys.sort().join() !== [...resource.primaryKey].sort().join())
-          throw new Error('Resource primaryKey definition differs from SQB Entity primaryKey definition');
-      }
-      const operation = endpoint.name;
-      if (operation === 'create' || operation === 'update' ||
-          operation === 'get' || operation === 'findMany'
-      ) {
-        options.pick = params?.pick;
-        options.omit = params?.omit;
-        options.include = params?.include;
-      }
-
-      if (resource instanceof Collection && params?.filter) {
-        options.filter = _transformFilter(params.filter);
-      }
-
-      if (operation === 'findMany') {
-        options.sort = params?.sort;
-        options.limit = params?.limit;
-        options.offset = params?.skip;
-        options.distinct = params?.distinct;
-        options.count = params?.count;
-      }
-
-      options = omitNullish(options);
-      if (operation === 'create') {
-        return {
-          method: 'create',
-          data: (request as any).data,
-          options,
-          args: [(request as any).data, options]
-        }
-      }
-
-      if (operation === 'deleteMany' || (operation === 'delete' && resource instanceof Singleton)) {
-        return {
-          method: 'deleteMany',
-          options,
-          args: [options]
-        }
-      }
-
-      if (operation === 'delete') {
-        return {
-          method: 'delete',
-          key: (request as any).key,
-          options,
-          args: [(request as any).key, options]
-        }
-      }
-
-      if (operation === 'get') {
-        if (resource instanceof Singleton)
-          return {
-            method: 'findOne',
-            options,
-            args: [options]
+    if (operation.composition?.startsWith('Entity.') && operation.compositionOptions?.type) {
+      const dataType = context.document.node.getComplexType(operation.compositionOptions?.type);
+      const entityMetadata = EntityMetadata.get(dataType.ctor!);
+      if (!entityMetadata) throw new Error(`Type class "${dataType.ctor}" is not an SQB entity`);
+      const { compositionOptions } = operation;
+      switch (operation.composition) {
+        case 'Entity.Create': {
+          const data = await context.getBody<any>();
+          const options = {
+            projection: context.queryParams.projection,
           };
-        return {
-          method: 'find',
-          key: (request as any).key,
-          options,
-          args: [(request as any).key, options]
-        };
-      }
-
-      if (operation === 'findMany') {
-        const out: any = {
-          method: 'findMany',
-          options,
-          args: [options]
-        };
-        out.count = params?.count;
-        return out;
-      }
-
-      if (operation === 'updateMany' || (operation === 'update' && resource instanceof Singleton)) {
-        return {
-          method: 'updateMany',
-          data: (request as any).data,
-          options,
-          args: [(request as any).data, options]
+          return { method: 'create', data, options } satisfies TransformedRequest;
         }
-      }
-
-      if (operation === 'update') {
-        return {
-          method: 'update',
-          key: (request as any).key,
-          data: (request as any).data,
-          options,
-          args: [(request as any).key, (request as any).data, options]
+        case 'Entity.Delete': {
+          const key = context.pathParams[compositionOptions.keyParameter];
+          const options = {
+            filter: parseFilter(context.queryParams.filter),
+          };
+          return { method: 'delete', key, options } satisfies TransformedRequest;
+        }
+        case 'Entity.DeleteMany': {
+          const options = {
+            filter: parseFilter(context.queryParams.filter),
+          };
+          return { method: 'deleteMany', options } satisfies TransformedRequest;
+        }
+        case 'Entity.FindMany': {
+          const options = {
+            count: context.queryParams.count,
+            filter: parseFilter(context.queryParams.filter),
+            limit: context.queryParams.limit,
+            offset: context.queryParams.skip,
+            projection: context.queryParams.projection,
+            sort: context.queryParams.sort,
+          };
+          return { method: 'findMany', options } satisfies TransformedRequest;
+        }
+        case 'Entity.Get': {
+          const key = context.pathParams[compositionOptions.keyParameter];
+          const options = {
+            projection: context.queryParams.projection,
+            filter: parseFilter(context.queryParams.filter),
+          };
+          return { method: 'get', key, options } satisfies TransformedRequest;
+        }
+        case 'Entity.Update': {
+          const data = await context.getBody<any>();
+          const key = context.pathParams[compositionOptions.keyParameter];
+          const options = {
+            projection: context.queryParams.projection,
+            filter: parseFilter(context.queryParams.filter),
+          };
+          return { method: 'update', key, data, options } satisfies TransformedRequest;
+        }
+        case 'Entity.UpdateMany': {
+          const data = await context.getBody<any>();
+          const options = {
+            filter: parseFilter(context.queryParams.filter),
+          };
+          return { method: 'updateMany', data, options } satisfies TransformedRequest;
         }
       }
     }
-    throw new Error(`Unimplemented request method "${(request as any).operation}"`);
+    throw new Error(`This operation is not compatible to SQB Adapter`);
   }
-
 }

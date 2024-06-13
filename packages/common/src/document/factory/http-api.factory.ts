@@ -16,7 +16,7 @@ import { DataTypeFactory } from './data-type.factory.js';
 
 export namespace HttpApiFactory {
   export interface InitArguments extends StrictOmit<OpraSchema.HttpApi, 'controllers'> {
-    controllers: Type[] | OpraSchema.HttpApi['controllers'];
+    controllers: Type[] | any[] | OpraSchema.HttpApi['controllers'];
   }
 }
 
@@ -86,6 +86,7 @@ export class HttpApiFactory {
       }
     }
     if (!metadata) return context.addError(`Class "${ctor.name}" is not decorated with HttpController()`);
+    instance = thunk;
     name = name || (metadata as any).name;
     if (!name) throw new TypeError(`Controller name required`);
 
@@ -213,7 +214,7 @@ export class HttpApiFactory {
         let i = 0;
         for (const v of metadata.responses!) {
           await context.enterAsync(`[${i++}]`, async () => {
-            const response = new HttpOperationResponse(operation, v.statusCode);
+            const response = new HttpOperationResponse(operation, { statusCode: v.statusCode });
             await this._initHttpOperationResponse(context, response, v);
             operation.responses.push(response);
           });
@@ -283,6 +284,7 @@ export class HttpApiFactory {
     metadata: HttpOperationResponse.Metadata | OpraSchema.HttpOperationResponse,
   ) {
     await this._initHttpMediaType(context, target, metadata);
+    target.partial = metadata.partial;
     if (metadata.parameters) {
       await context.enterAsync('.parameters', async () => {
         let i = 0;
@@ -320,6 +322,7 @@ export class HttpApiFactory {
     target.required = metadata.required;
     target.maxContentSize = metadata.maxContentSize;
     target.immediateFetch = (metadata as HttpRequestBody.Metadata).immediateFetch;
+    target.partial = metadata.partial;
     if (metadata.content) {
       await context.enterAsync('.content', async () => {
         for (let i = 0; i < metadata.content.length; i++) {

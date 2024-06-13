@@ -16,5 +16,4 @@ export class OpraAngularClient extends HttpClientBase<AngularBackend.RequestOpti
   get defaults(): AngularBackend.RequestDefaults {
     return this[kBackend].defaults;
   }
-
 }

@@ -1,76 +1,55 @@
-import mongodb from 'mongodb';
-import { ComplexType, pathToObjectTree } from '@opra/common';
+import mongodb, { Document } from 'mongodb';
+import { ApiField, ComplexType, FieldsProjection, parseFieldsProjection } from '@opra/common';
 
 export default function prepareProjection(
-    dataType: ComplexType,
-    options?: {
-      pick?: string[],
-      omit?: string[],
-      include?: string[],
-    }
+  dataType: ComplexType,
+  projection?: string | string[] | Document,
 ): mongodb.Document | undefined {
+  if (projection && typeof projection === 'object' && !Array.isArray(projection)) return projection;
   const out: Record<string, boolean> = {};
-  const pick = options?.pick && pathToObjectTree(options.pick);
-  const include = options?.include && pathToObjectTree(options.include);
-  const omit = options?.omit && pathToObjectTree(options.omit);
+  const projection_ =
+    typeof projection === 'string' || Array.isArray(projection) ? parseFieldsProjection(projection) : projection;
   // const exclusionProjection = !pick && !!omit;
-  _prepareProjection(dataType, out, {
-    pickActivated: !!pick,
-    pick,
-    include,
-    omit
-  });
+  prepare(dataType, out, projection_);
   return Object.keys(out).length ? out : undefined;
 }
 
-export function _prepareProjection(
-    dataType: ComplexType,
-    target: mongodb.Document,
-    // exclusionProjection: boolean,
-    options: {
-      pickActivated: boolean,
-      include?: any,
-      pick?: any,
-      omit?: any,
-      // defaultFields?: boolean
-    }
-) {
-  // const defaultFields = options?.defaultFields ?? !options?.pick;
-  const optionsOmit = options?.omit;
-  const optionsPick = options?.pick;
-  const optionsInclude = options?.include;
-  const pickActivated = options?.pickActivated;
-
-  for (const [k, f] of dataType.fields.entries()) {
-    const fieldOmit = optionsOmit?.[k];
-    const fieldInclude = optionsInclude?.[k];
-    const fieldPick = optionsPick?.[k];
-
-    if (fieldOmit === true ||
-        !(
-            (pickActivated && fieldPick) ||
-            (!pickActivated && (!f.exclusive || fieldInclude))
-        )
-    )
-      continue;
-
-    if (f.type instanceof ComplexType &&
-        (typeof fieldInclude === 'object' ||
-            typeof fieldPick === 'object' ||
-            typeof fieldOmit === 'object'
-        )
+export function prepare(dataType: ComplexType, target: mongodb.Document, projection?: FieldsProjection) {
+  const defaultFields = !projection || !Object.values(projection).find(p => !p.sign);
+  const projectionKeys = projection && Object.keys(projection).map(x => x.toLowerCase());
+  const projectionKeysSet = new Set(projectionKeys);
+  let fieldName: string;
+  let field: ApiField;
+  let k: string;
+  /** Add fields from data type */
+  for (field of dataType.fields.values()) {
+    fieldName = field.name;
+    k = fieldName.toLowerCase();
+    projectionKeysSet.delete(k);
+    const p = projection?.[k];
+    if (
+      /** Ignore if field is omitted */
+      p?.sign === '-' ||
+      /** Ignore if default fields and field is not in projection */
+      (!defaultFields && !p) ||
+      /** Ignore if default fields enabled and fields is exclusive */
+      (defaultFields && field.exclusive && !p)
     ) {
-      target[k] = {};
-      _prepareProjection(f.type, target[k],
-          {
-            pickActivated: fieldPick != null && fieldPick !== true,
-            include: typeof fieldInclude === 'object' ? fieldInclude : undefined,
-            pick: typeof fieldPick === 'object' ? fieldPick : undefined,
-            omit: typeof fieldOmit === 'object' ? fieldOmit : undefined
-          }
-      );
       continue;
     }
-    target[k] = 1;
+
+    if (field.type instanceof ComplexType && typeof p?.projection === 'object') {
+      target[fieldName] = {};
+      prepare(field.type, target[fieldName], p.projection);
+      continue;
+    }
+    target[fieldName] = 1;
+  }
+  /** Add additional fields */
+  if (dataType.additionalFields) {
+    for (k of projectionKeysSet.values()) {
+      const n = projectionKeysSet[k];
+      if (n?.sign !== '-') target[k] = 1;
+    }
   }
 }

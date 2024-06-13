@@ -83,7 +83,7 @@ export class ApiExpect extends ApiExpectBase {
     let msg = '';
     try {
       msg = 'Content-Type header value is not valid. ';
-      expect(this.response.contentType).toEqual('application/opra+json');
+      expect(this.response.contentType).toEqual('application/opra.response+json');
 
       msg = 'Type of response "body" is not valid. ';
       expect(typeof this.response.body).toEqual('object');
@@ -131,7 +131,7 @@ export class ApiExpect extends ApiExpectBase {
     let msg = '';
     try {
       msg = 'Content-Type header value is not valid. ';
-      expect(this.response.contentType).toEqual('application/opra+json');
+      expect(this.response.contentType).toEqual(MimeTypes.opra_response_json);
 
       msg = 'Type of response "body" is not valid. ';
       expect(typeof this.response.body).toEqual('object');

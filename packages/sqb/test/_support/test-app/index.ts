@@ -1,40 +1,71 @@
 import '@sqb/postgres';
-import { ApiDocument, ApiDocumentFactory } from '@opra/common';
-import { NodeHttpAdapter } from '@opra/core';
+import express from 'express';
+import { ApiDocument, ApiDocumentFactory, HttpOperation } from '@opra/common';
+import { ExpressAdapter, HttpContext, HttpIncoming, HttpOutgoing } from '@opra/core';
 import { SqbClient } from '@sqb/connect';
-import { CustomersResource } from './resources/customers.resource.js';
-import { MyProfileResource } from './resources/my-profile.resource.js';
+import { CustomersController } from './api/customers-controller.js';
+import { MyProfileController } from './api/my-profile.controller.js';
+import { Country } from './entities/country.entity.js';
+import { Customer } from './entities/customer.entity.js';
+import { Profile } from './entities/profile.entity.js';
+import { GenderEnum } from './enums/gender.enum.js';
+import { Address } from './types/address.type.js';
+import { Note } from './types/note.type.js';
+import { Person } from './types/person.type.js';
+import { Record } from './types/record.type.js';
 
-export interface TestApp {
+export class TestApp {
+  adapter: ExpressAdapter;
+  document: ApiDocument;
   db: SqbClient;
-  api: ApiDocument;
-  adapter: NodeHttpAdapter
-}
 
-export async function createTestApp(): Promise<TestApp> {
-  const db = new SqbClient({
-    dialect: 'postgres',
-    schema: 'opra_test'
-  })
-  const api = await ApiDocumentFactory.createDocument({
-    version: '1.0',
-    info: {
-      title: 'TestApi',
-      version: 'v1',
-    },
-    root: {
-      resources: [
-        new CustomersResource(db),
-        new MyProfileResource(db)
-      ]
+  static async create(): Promise<TestApp> {
+    const out = new TestApp();
+    try {
+      out.db = new SqbClient({
+        dialect: 'postgres',
+        schema: 'opra_test',
+      });
+    } catch (e) {
+      await out.close();
+      throw e;
     }
-  })
-  const adapter = await NodeHttpAdapter.create(api);
-  return {
-    db,
-    api,
-    adapter
+    out.document = await ApiDocumentFactory.createDocument({
+      info: {
+        title: 'TestApi',
+        version: '1.0',
+      },
+      types: [Customer, Profile, Record, Person, Address, Note, Country, GenderEnum],
+      api: {
+        name: 'TestApi',
+        protocol: 'http',
+        controllers: [new CustomersController(out.db), new MyProfileController(out.db)],
+      },
+    });
+    const app = express();
+    out.adapter = new ExpressAdapter(app, out.document);
+
+    return out;
   }
 
-}
+  protected constructor() {}
 
+  async close() {
+    await this.db?.close();
+    await this.adapter?.close();
+  }
+
+  createContext(operation?: HttpOperation, request?: HttpIncoming) {
+    request = request || HttpIncoming.from({ method: 'GET', url: '/' });
+    const response = HttpOutgoing.from({ req: request });
+    return new HttpContext({
+      adapter: this.adapter,
+      operation,
+      controller: operation?.owner,
+      platform: 'express',
+      platformArgs: {},
+      request,
+      response,
+    });
+  }
+}

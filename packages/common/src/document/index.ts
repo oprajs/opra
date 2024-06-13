@@ -1,4 +1,6 @@
 import 'reflect-metadata';
+import * as DataTypeFactory_ from './factory/data-type.factory.js';
+import * as HttpApiFactory_ from './factory/http-api.factory.js';
 
 export * from './api-document.js';
 export * from './constants.js';
@@ -37,3 +39,8 @@ export * from './http/http-parameter.js';
 export * from './http/http-request-body.js';
 export * from './http/http-controller.js';
 export * from './http/http-status-range.js';
+
+export namespace classes {
+  export import HttpApiFactory = HttpApiFactory_.HttpApiFactory;
+  export import DataTypeFactory = DataTypeFactory_.DataTypeFactory;
+}

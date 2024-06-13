@@ -19,10 +19,12 @@ import type { HttpOutgoing } from './interfaces/http-outgoing.interface';
 export namespace HttpContext {
   export interface Initiator extends Omit<ExecutionContext.Initiator, 'document' | 'protocol'> {
     adapter: HttpAdapter;
-    operation?: HttpOperation;
     request: HttpIncoming;
     response: HttpOutgoing;
-    resource?: HttpController;
+    controller?: HttpController;
+    controllerInstance?: any;
+    operation?: HttpOperation;
+    operationHandler?: Function;
     cookies?: Record<string, any>;
     headers?: Record<string, any>;
     pathParams?: Record<string, any>;
@@ -37,8 +39,10 @@ export class HttpContext extends ExecutionContext {
   protected _multipartReader?: MultipartReader;
   readonly protocol: OpraSchema.Protocol;
   readonly adapter: HttpAdapter;
-  readonly resource: HttpController;
+  readonly controller: HttpController;
+  readonly controllerInstance?: any;
   readonly operation: HttpOperation;
+  readonly operationHandler?: Function;
   readonly request: HttpIncoming;
   readonly response: HttpOutgoing;
   readonly mediaType?: HttpMediaType;
@@ -51,8 +55,10 @@ export class HttpContext extends ExecutionContext {
     super({ ...init, document: init.adapter.document, protocol: 'http' });
     this.adapter = init.adapter;
     this.protocol = 'http';
-    if (init.resource) this.resource = init.resource;
+    if (init.controller) this.controller = init.controller;
+    if (init.controllerInstance) this.controllerInstance = init.controllerInstance;
     if (init.operation) this.operation = init.operation;
+    if (init.operationHandler) this.operationHandler = init.operationHandler;
     this.request = init.request;
     this.response = init.response;
     this.mediaType = init.mediaType;
@@ -134,7 +140,11 @@ export class HttpContext extends ExecutionContext {
       if (this._body && mediaType.type) {
         let decode = this.adapter[kAssetCache].get<Validator>(mediaType, 'decode')!;
         if (!decode) {
-          decode = mediaType.type?.generateCodec('decode') || vg.isAny();
+          decode =
+            mediaType.type?.generateCodec('decode', {
+              partial: operation.requestBody?.partial,
+              projection: '*',
+            }) || vg.isAny();
           this.adapter[kAssetCache].set(mediaType, 'decode', decode);
         }
         this._body = decode(this._body);

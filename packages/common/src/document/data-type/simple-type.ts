@@ -135,14 +135,14 @@ abstract class SimpleTypeClass extends DataType {
     if (codec === 'decode') {
       let t: SimpleType | undefined = this;
       while (t) {
-        if (t._generateDecoder) return t._generateDecoder(prop, options?.documentPath || this.owner);
+        if (t._generateDecoder) return t._generateDecoder(prop, options?.documentElement || this.owner);
         t = this.base;
       }
       return isAny;
     } else {
       let t: SimpleType | undefined = this;
       while (t) {
-        if (t._generateEncoder) return t._generateEncoder(prop, options?.documentPath || this.owner);
+        if (t._generateEncoder) return t._generateEncoder(prop, options?.documentElement || this.owner);
         t = this.base;
       }
       return isAny;

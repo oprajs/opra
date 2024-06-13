@@ -1,2 +1,2 @@
-export const kHandler = Symbol('kHandler');
-export const kAssetCache = Symbol('kAssetCache');
+export const kHandler = Symbol.for('kHandler');
+export const kAssetCache = Symbol.for('kAssetCache');

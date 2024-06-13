@@ -1,12 +1,12 @@
 import { ComplexType, omitNullish } from '@opra/common';
 
 export default function transformProjection(
-    dataType: ComplexType,
-    args: {
-      pick?: string[],
-      omit?: string[],
-      include?: string[],
-    }
+  dataType: ComplexType,
+  args: {
+    pick?: string[];
+    omit?: string[];
+    include?: string[];
+  },
 ): any {
   let includes: string[] | undefined;
   let excludes: string[] | undefined;
@@ -14,10 +14,8 @@ export default function transformProjection(
   if (args.include && !args.pick) {
     includes = includes || [];
     for (const [k, f] of dataType.fields) {
-      if (f.exclusive)
-        continue;
-      if (f.type instanceof ComplexType)
-        includes.push(k + '.*')
+      if (f.exclusive) continue;
+      if (f.type instanceof ComplexType) includes.push(k + '.*');
       else includes.push(k);
     }
   }
@@ -26,8 +24,7 @@ export default function transformProjection(
     includes = includes || [];
     for (const k of args.pick) {
       const f = dataType.getField(k);
-      if (f.type instanceof ComplexType)
-        includes.push(k + '.*')
+      if (f.type instanceof ComplexType) includes.push(k + '.*');
       else includes.push(k);
     }
   }
@@ -36,8 +33,7 @@ export default function transformProjection(
     includes = includes || [];
     for (const k of args.include) {
       const f = dataType.getField(k);
-      if (f.type instanceof ComplexType)
-        includes.push(k + '.*')
+      if (f.type instanceof ComplexType) includes.push(k + '.*');
       else includes.push(k);
     }
   }
@@ -46,15 +42,13 @@ export default function transformProjection(
     excludes = excludes || [];
     for (const k of args.omit) {
       const f = dataType.getField(k);
-      if (f.type instanceof ComplexType)
-        excludes.push(k + '.*')
+      if (f.type instanceof ComplexType) excludes.push(k + '.*');
       else excludes.push(k);
     }
   }
 
   return omitNullish({
     includes,
-    excludes
-  })
-
+    excludes,
+  });
 }

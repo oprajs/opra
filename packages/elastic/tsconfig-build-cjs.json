@@ -6,7 +6,5 @@
     "outDir": "../../build/elastic/cjs",
     "declaration": false
   },
-  "include": [
-    "src"
-  ]
+  "include": ["src"]
 }

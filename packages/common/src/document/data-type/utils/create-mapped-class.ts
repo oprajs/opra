@@ -7,7 +7,6 @@ import { MappedType } from '../mapped-type.js';
 import { getIsInheritedPredicateFn } from './get-is-inherited-predicate-fn.js';
 
 export function createMappedClass(source: string | Type, config: any, options?: DataType.Options) {
-  // const [mappedSource, options] = args as [Type, MappedType.Options<any>];
   const isInheritedPredicate = getIsInheritedPredicateFn(config.pick as any, config.omit as any);
   const sourceName = typeof source === 'string' ? source.charAt(0).toUpperCase() + source.substring(1) : source.name;
   const className = options?.name || sourceName + 'Mapped';

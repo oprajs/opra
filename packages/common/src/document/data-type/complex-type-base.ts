@@ -1,6 +1,6 @@
-import { asMutable, Type } from 'ts-gems';
+import { asMutable, StrictOmit, Type } from 'ts-gems';
 import { IsObject, Validator, validator, vg } from 'valgen';
-import { ResponsiveMap } from '../../helpers/index.js';
+import { FieldsProjection, parseFieldsProjection, ResponsiveMap } from '../../helpers/index.js';
 import { translate } from '../../i18n/index.js';
 import { OpraSchema } from '../../schema/index.js';
 import type { DocumentElement } from '../common/document-element.js';
@@ -167,7 +167,10 @@ abstract class ComplexTypeBaseClass extends DataType {
    *
    */
   generateCodec(codec: 'encode' | 'decode', options?: DataType.GenerateCodecOptions): Validator {
-    const schema = this._generateSchema(codec, { ...options, currentPath: '' });
+    const projection = Array.isArray(options?.projection)
+      ? parseFieldsProjection(options.projection)
+      : options?.projection;
+    const schema = this._generateSchema(codec, { ...options, projection, currentPath: '' });
 
     let additionalFields: any;
     if (this.additionalFields instanceof DataType)
@@ -193,19 +196,40 @@ abstract class ComplexTypeBaseClass extends DataType {
 
   protected _generateSchema(
     codec: 'encode' | 'decode',
-    context: DataType.GenerateCodecOptions & {
+    context: StrictOmit<DataType.GenerateCodecOptions, 'projection'> & {
       currentPath: string;
+      projection?: FieldsProjection | '*';
     },
   ) {
     const schema: IsObject.Schema = {};
-    const { currentPath } = context;
+    const { currentPath, projection } = context;
+    const pickList = !!(projection && Object.values(projection).find(p => !p.sign));
     // Process fields
+    let fieldName: string;
     for (const field of this.fields.values()) {
+      fieldName = field.name;
+      let p: any;
+      if (projection !== '*') {
+        p = projection?.[fieldName.toLowerCase()];
+        if (
+          /** Ignore if field is omitted */
+          p?.sign === '-' ||
+          /** Ignore if default fields ignored and field is not in projection */
+          (pickList && !p) ||
+          /** Ignore if default fields enabled and fields is exclusive */
+          (!pickList && field.exclusive && !p)
+        ) {
+          schema[field.name] = vg.isUndefined({ coerce: true });
+          continue;
+        }
+      }
       const fn = this._generateFieldCodec(codec, field, {
         ...context,
-        currentPath: currentPath + (currentPath ? '.' : '') + field.name,
+        partial: context.partial === 'deep' ? context.partial : undefined,
+        projection: projection !== '*' ? projection : p?.projection,
+        currentPath: currentPath + (currentPath ? '.' : '') + fieldName,
       });
-      if (fn) schema[field.name] = field.required ? vg.required(fn) : vg.optional(fn);
+      schema[fieldName] = context.partial || !field.required ? vg.optional(fn) : vg.required(fn);
     }
     return schema;
   }
@@ -213,8 +237,9 @@ abstract class ComplexTypeBaseClass extends DataType {
   protected _generateFieldCodec(
     codec: 'encode' | 'decode',
     field: ApiField,
-    context: DataType.GenerateCodecOptions & {
+    context: StrictOmit<DataType.GenerateCodecOptions, 'projection'> & {
       currentPath: string;
+      projection?: FieldsProjection;
     },
   ): Validator {
     let fn = field.type.generateCodec(codec, context);
@@ -225,25 +250,3 @@ abstract class ComplexTypeBaseClass extends DataType {
 }
 
 ComplexTypeBase.prototype = ComplexTypeBaseClass.prototype;
-
-// extendsFrom(t: string | Type | DataType): boolean {
-//   const base = t instanceof DataType ? t : this.owner.node.findDataType(t);
-//   if (base && this.base) {
-//     if (this.base === base) return true;
-//     return this.base.extendsFrom(base);
-//   }
-//   return false;
-// }
-
-// protected _generateCodecSchema(
-//   codec: 'decode' | 'encode',
-//   options: DataType.GenerateCodecOptions,
-//   context: DataType.GenerateCodecContext,
-// ): IsObject.Schema {
-//   const opts = {
-//     ...options,
-//     pick: (options?.pick || []).map(x => x.toLowerCase()),
-//     omit: (options?.omit || []).map(x => x.toLowerCase()),
-//   };
-//   return this._generateCodecSchema(codec, opts);
-// }

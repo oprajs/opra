@@ -1,6 +1,6 @@
 import { asMutable, StrictOmit } from 'ts-gems';
 import { ValidationOptions, Validator } from 'valgen';
-import { omitUndefined } from '../../helpers/index.js';
+import { FieldsProjection, omitUndefined } from '../../helpers/index.js';
 import type { DataTypeBase } from '../../schema/data-type/data-type.interface.js';
 import { OpraSchema } from '../../schema/index.js';
 import { DocumentElement } from '../common/document-element.js';
@@ -23,8 +23,10 @@ export namespace DataType {
   export interface InitArguments extends DataType.Metadata {}
 
   export interface GenerateCodecOptions extends ValidationOptions {
-    documentPath?: DocumentElement;
+    documentElement?: DocumentElement;
     caseInSensitive?: boolean;
+    partial?: boolean | 'deep';
+    projection?: string[] | FieldsProjection | '*';
   }
 }
 

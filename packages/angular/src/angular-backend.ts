@@ -5,13 +5,15 @@ import { HttpContext, HttpHeaders, HttpParams } from '@angular/common/http';
 import * as Angular from '@angular/common/http';
 import typeIs from '@browsery/type-is';
 import {
-  HttpBackend, HttpDownloadProgressEvent,
+  HttpBackend,
+  HttpDownloadProgressEvent,
   HttpEvent,
   HttpEventType,
   HttpResponse,
   HttpResponseEvent,
   HttpResponseHeaderEvent,
-  HttpSentEvent, HttpUploadProgressEvent
+  HttpSentEvent,
+  HttpUploadProgressEvent,
 } from '@opra/client';
 import { isBlob, OpraURL } from '@opra/common';
 
@@ -20,29 +22,36 @@ import { isBlob, OpraURL } from '@opra/common';
  * @class AngularBackend
  */
 export class AngularBackend extends HttpBackend {
-
   defaults: AngularBackend.RequestDefaults;
 
-  constructor(readonly httpClient: Angular.HttpClient, serviceUrl: string, options?: AngularBackend.Options) {
+  constructor(
+    readonly httpClient: Angular.HttpClient,
+    serviceUrl: string,
+    options?: AngularBackend.Options,
+  ) {
     super(serviceUrl, options);
     this.defaults = {
       ...options?.defaults,
-      headers: options?.defaults?.headers instanceof Headers
-          ? options?.defaults?.headers : new Headers(options?.defaults?.headers),
-      params: options?.defaults?.params instanceof URLSearchParams
-          ? options?.defaults?.params : new URLSearchParams(options?.defaults?.params)
-    }
+      headers:
+        options?.defaults?.headers instanceof Headers
+          ? options?.defaults?.headers
+          : new Headers(options?.defaults?.headers),
+      params:
+        options?.defaults?.params instanceof URLSearchParams
+          ? options?.defaults?.params
+          : new URLSearchParams(options?.defaults?.params),
+    };
   }
 
   handle(init: AngularBackend.RequestInit): Observable<HttpEvent> {
     const requestInit = this.prepareRequest(init);
     const request = new Angular.HttpRequest(requestInit.method, requestInit.url.toString(), {
       ...requestInit,
-      headers: new HttpHeaders(requestInit.headers)
+      headers: new HttpHeaders(requestInit.headers),
     });
 
     const _this = this;
-    return new Observable<HttpEvent>((subscriber) => {
+    return new Observable<HttpEvent>(subscriber => {
       // Send request
       this.send(request).subscribe({
         next(event) {
@@ -62,12 +71,12 @@ export class AngularBackend extends HttpBackend {
               headers: requestInit.headers,
               status: event.status,
               statusText: event.statusText,
-              hasBody: event.headers.has('Content-Type') || event.headers.has('Content-Length')
+              hasBody: event.headers.has('Content-Type') || event.headers.has('Content-Length'),
             }) as HttpResponse<never>;
             subscriber.next({
               request,
               type: HttpEventType.ResponseHeader,
-              response: headersResponse
+              response: headersResponse,
             } satisfies HttpResponseHeaderEvent);
             return;
           }
@@ -78,7 +87,7 @@ export class AngularBackend extends HttpBackend {
               request,
               type: HttpEventType.DownloadProgress,
               loaded: event.loaded,
-              total: event.total
+              total: event.total,
             } satisfies HttpDownloadProgressEvent);
           }
 
@@ -88,7 +97,7 @@ export class AngularBackend extends HttpBackend {
               request,
               type: HttpEventType.UploadProgress,
               loaded: event.loaded,
-              total: event.total
+              total: event.total,
             } satisfies HttpUploadProgressEvent);
           }
 
@@ -101,22 +110,22 @@ export class AngularBackend extends HttpBackend {
               status: event.status,
               statusText: event.statusText,
               hasBody: !!event.body,
-              body: event.body
+              body: event.body,
             });
             // Emit 'Response' event
             subscriber.next({
               type: HttpEventType.Response,
               request,
-              response
+              response,
             } satisfies HttpResponseEvent);
           }
         },
         error(error) {
-          subscriber.error(error)
+          subscriber.error(error);
         },
         complete() {
-          subscriber.complete()
-        }
+          subscriber.complete();
+        },
       });
     });
   }
@@ -129,24 +138,26 @@ export class AngularBackend extends HttpBackend {
     const headers = init.headers || new Headers();
     const requestInit: AngularBackend.RequestInit = {
       ...init,
-      headers
-    }
+      headers,
+    };
     this.defaults.headers.forEach((val, key) => {
-      if (!headers.has(key))
-        headers.set(key, val);
+      if (!headers.has(key)) headers.set(key, val);
     });
     const url = new OpraURL(requestInit.url, this.serviceUrl);
     if (this.defaults.params.size) {
       this.defaults.params.forEach((val, key) => {
-        if (!url.searchParams.has(key))
-          url.searchParams.set(key, val);
+        if (!url.searchParams.has(key)) url.searchParams.set(key, val);
       });
       requestInit.url = url.toString();
     }
     if (requestInit.body) {
       let body: any;
       let contentType: string;
-      if (typeof requestInit.body === 'string' || typeof requestInit.body === 'number' || typeof requestInit.body === 'boolean') {
+      if (
+        typeof requestInit.body === 'string' ||
+        typeof requestInit.body === 'number' ||
+        typeof requestInit.body === 'boolean'
+      ) {
         contentType = 'text/plain; charset=UTF-8"';
         body = String(requestInit.body);
         headers.delete('Content-Size');
@@ -157,7 +168,6 @@ export class AngularBackend extends HttpBackend {
         contentType = 'application/octet-stream';
         body = requestInit.body;
         headers.set('Content-Size', String(requestInit.body.length));
-        ;
       } else if (isBlob(requestInit.body)) {
         contentType = requestInit.body.type || 'application/octet-stream';
         body = requestInit.body;
@@ -167,8 +177,7 @@ export class AngularBackend extends HttpBackend {
         body = JSON.stringify(requestInit.body);
         headers.delete('Content-Size');
       }
-      if (!headers.has('Content-Type') && contentType)
-        headers.set('Content-Type', contentType);
+      if (!headers.has('Content-Type') && contentType) headers.set('Content-Type', contentType);
       requestInit.body = body;
     }
     return requestInit;
@@ -180,30 +189,24 @@ export class AngularBackend extends HttpBackend {
 
   protected async parseBody(fetchResponse: Response): Promise<any> {
     let body: any;
-    const contentType = (fetchResponse.headers.get('Content-Type') || '');
+    const contentType = fetchResponse.headers.get('Content-Type') || '';
     if (typeIs.is(contentType, ['json', 'application/*+json'])) {
       body = await fetchResponse.json();
-      if (typeof body === 'string')
-        body = JSON.parse(body);
-    } else if (typeIs.is(contentType, ['text']))
-      body = await fetchResponse.text();
-    else if (typeIs.is(contentType, ['multipart']))
-      body = await fetchResponse.formData();
+      if (typeof body === 'string') body = JSON.parse(body);
+    } else if (typeIs.is(contentType, ['text'])) body = await fetchResponse.text();
+    else if (typeIs.is(contentType, ['multipart'])) body = await fetchResponse.formData();
     else {
       const buf = await fetchResponse.arrayBuffer();
-      if (buf.byteLength)
-        body = buf;
+      if (buf.byteLength) body = buf;
     }
     return body;
   }
-
 }
 
 /**
  * @namespace AngularBackend
  */
 export namespace AngularBackend {
-
   export interface Options extends HttpBackend.Options {
     defaults?: RequestDefaults;
   }
@@ -216,12 +219,10 @@ export namespace AngularBackend {
     withCredentials?: boolean;
   }
 
-  export interface RequestOptions extends Pick<RequestInit, 'context' | 'reportProgress' | 'withCredentials'> {
-  }
+  export interface RequestOptions extends Pick<RequestInit, 'context' | 'reportProgress' | 'withCredentials'> {}
 
   export type RequestDefaults = StrictOmit<RequestOptions, 'context'> & {
     headers: Headers;
     params: URLSearchParams;
   };
-
 }

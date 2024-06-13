@@ -225,9 +225,9 @@ describe('Built-in types', function () {
    * Extended Types
    */
 
-  describe('"approxDate"', function () {
+  describe('"datestring"', function () {
     it('Should decode', async () => {
-      const dt = api.node.getSimpleType('approxDate');
+      const dt = api.node.getSimpleType('datestring');
       const decode = dt.generateCodec('decode');
       expect(decode('2020-01-02T10:30:00')).toStrictEqual('2020-01-02');
       expect(decode('2020-02')).toStrictEqual('2020-02');
@@ -235,29 +235,29 @@ describe('Built-in types', function () {
     });
 
     it('Should encode', async () => {
-      const dt = api.node.getSimpleType('approxDate');
+      const dt = api.node.getSimpleType('datestring');
       const encode = dt.generateCodec('encode');
       expect(encode(new Date('2020-01-02T00:00:00'))).toStrictEqual('2020-01-02');
     });
 
     it('Should validate "minValue"', async () => {
-      const dt = api.node.getSimpleType('approxDate');
+      const dt = api.node.getSimpleType('datestring');
       const decode = dt.generateCodec('decode', null, { minValue: '2021-02-10' });
       expect(decode('2022-01-02T10:30:00')).toStrictEqual('2022-01-02');
       expect(() => decode('2020-01-02T10:30:00')).toThrow('Value must be greater than or equal to');
     });
 
     it('Should validate "maxValue"', async () => {
-      const dt = api.node.getSimpleType('approxDate');
+      const dt = api.node.getSimpleType('datestring');
       const decode = dt.generateCodec('decode', null, { maxValue: '2021-02-10' });
       expect(decode('2020-01-02T10:30:00')).toStrictEqual('2020-01-02');
       expect(() => decode('2022-01-02T10:30:00')).toThrow('Value must be lover than or equal to');
     });
   });
 
-  describe('"approxDateTime"', function () {
+  describe('"datetimestring"', function () {
     it('Should decode', async () => {
-      const dt = api.node.getSimpleType('approxDateTime');
+      const dt = api.node.getSimpleType('datetimestring');
       const decode = dt.generateCodec('decode');
       expect(decode('2020-01-02T10:30:00')).toStrictEqual('2020-01-02T10:30:00');
       expect(decode('2020-01-02T10:30')).toStrictEqual('2020-01-02T10:30');
@@ -266,20 +266,20 @@ describe('Built-in types', function () {
     });
 
     it('Should encode', async () => {
-      const dt = api.node.getSimpleType('approxDateTime');
+      const dt = api.node.getSimpleType('datetimestring');
       const encode = dt.generateCodec('encode');
       expect(encode(new Date('2020-01-02T00:00:00'))).toStrictEqual('2020-01-02T00:00:00');
     });
 
     it('Should validate "minValue"', async () => {
-      const dt = api.node.getSimpleType('approxDateTime');
+      const dt = api.node.getSimpleType('datetimestring');
       const decode = dt.generateCodec('decode', null, { minValue: '2021-02-10' });
       expect(decode('2022-01-02T10:30:00')).toStrictEqual('2022-01-02T10:30:00');
       expect(() => decode('2020-01-02T10:30:00')).toThrow('Value must be greater than or equal to');
     });
 
     it('Should validate "maxValue"', async () => {
-      const dt = api.node.getSimpleType('approxDateTime');
+      const dt = api.node.getSimpleType('datetimestring');
       const decode = dt.generateCodec('decode', null, { maxValue: '2021-02-10' });
       expect(decode('2020-01-02T10:30:00')).toStrictEqual('2020-01-02T10:30:00');
       expect(() => decode('2022-01-02T10:30:00')).toThrow('Value must be lover than or equal to');
@@ -401,7 +401,7 @@ describe('Built-in types', function () {
   describe('"fieldPath"', function () {
     it('Should decode', async () => {
       const dt = api.node.getSimpleType('fieldPath');
-      const decode = dt.generateCodec('decode', { documentPath: api }, { dataType: 'customer' });
+      const decode = dt.generateCodec('decode', { documentElement: api }, { dataType: 'customer' });
       expect(decode('address.countrycode')).toStrictEqual('address.countryCode');
       expect(() => decode('address.xyz')).toThrow('Unknown field (address.xyz)');
     });
@@ -412,7 +412,7 @@ describe('Built-in types', function () {
       const dt = api.node.getSimpleType('filter');
       const decode = dt.generateCodec(
         'decode',
-        { documentPath: api },
+        { documentElement: api },
         {
           dataType: 'customer',
           rules: {

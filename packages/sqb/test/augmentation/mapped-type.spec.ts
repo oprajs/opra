@@ -2,57 +2,73 @@ import 'reflect-metadata';
 import '@opra/sqb';
 import { ApiField, ComplexType, DATATYPE_METADATA, OmitType, PickType } from '@opra/common';
 import { Column, Entity } from '@sqb/connect';
-import { Customer } from '../_support/test-app/entities/customer.entity.js';
 
 describe('MappedType augmentation', function () {
-
   it('Should inject into OmitType() decorator', async function () {
-
-    @ComplexType({description: 'TestClass schema'})
-    class TestClass extends OmitType(Customer, ['gender']) {
+    @ComplexType()
+    class Type1 {
       @ApiField()
       @Column()
-      sex: string;
+      field1: number;
+      @ApiField()
+      @Column()
+      field2: any;
+      @ApiField()
+      @Column()
+      field3: number;
     }
 
-    const base = Object.getPrototypeOf(TestClass);
+    @ComplexType()
+    class Type2 extends OmitType(Type1, ['field2']) {
+      @ApiField()
+      @Column()
+      field4: number;
+    }
+
+    const base = Object.getPrototypeOf(Type2);
     const metadata = Reflect.getMetadata(DATATYPE_METADATA, base);
     expect(metadata).toStrictEqual({
       kind: 'MappedType',
-      base: Customer,
-      omit: ['gender'],
+      base: Type1,
+      omit: ['field2'],
     });
-    const sqbMeta = Entity.getMetadata(TestClass);
+    const sqbMeta = Entity.getMetadata(Type2);
     expect(sqbMeta).toBeDefined();
     const keys = Object.keys((sqbMeta as any).fields);
-    expect(keys).toContain('_id');
-    expect(keys).toContain('sex');
-    expect(keys).not.toContain('gender');
-  })
+    expect(keys).toEqual(['field1', 'field3', 'field4']);
+  });
 
   it('Should inject into PickType() decorator', async function () {
-
-    @ComplexType({description: 'TestClass schema'})
-    class TestClass extends PickType(Customer, ['gender']) {
+    @ComplexType()
+    class Type1 {
       @ApiField()
       @Column()
-      sex: string;
+      field1: number;
+      @ApiField()
+      @Column()
+      field2: any;
+      @ApiField()
+      @Column()
+      field3: number;
     }
 
-    const base = Object.getPrototypeOf(TestClass);
+    @ComplexType()
+    class Type2 extends PickType(Type1, ['field2']) {
+      @ApiField()
+      @Column()
+      field4: number;
+    }
+
+    const base = Object.getPrototypeOf(Type2);
     const metadata = Reflect.getMetadata(DATATYPE_METADATA, base);
     expect(metadata).toStrictEqual({
       kind: 'MappedType',
-      base: Customer,
-      pick: ['gender'],
+      base: Type1,
+      pick: ['field2'],
     });
-    const sqbMeta = Entity.getMetadata(TestClass);
+    const sqbMeta = Entity.getMetadata(Type2);
     expect(sqbMeta).toBeDefined();
     const keys = Object.keys((sqbMeta as any).fields);
-    expect(keys).not.toContain('id');
-    expect(keys).toContain('sex');
-    expect(keys).toContain('gender');
-    expect(keys).not.toContain('id');
-  })
-
-})
+    expect(keys).toEqual(['field2', 'field4']);
+  });
+});

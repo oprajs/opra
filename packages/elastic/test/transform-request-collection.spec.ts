@@ -4,7 +4,6 @@ import { ElasticAdapter } from '@opra/elastic';
 import { createTestApp } from '../../sqb/test/_support/test-app/index.js';
 
 describe('ElasticAdapter.transformRequest (Collection)', function () {
-
   let api: ApiDocument;
 
   beforeAll(async () => {
@@ -14,9 +13,8 @@ describe('ElasticAdapter.transformRequest (Collection)', function () {
   afterAll(() => global.gc && global.gc());
 
   describe('Convert "findMany" request', function () {
-
     it('Should prepare', async () => {
-      const resource= api.getCollection('customers');
+      const resource = api.getCollection('customers');
       const request = {
         resource,
         endpoint: resource.getOperation('findMany'),
@@ -33,28 +31,28 @@ describe('ElasticAdapter.transformRequest (Collection)', function () {
       const request = {
         resource,
         endpoint: resource.getOperation('findMany'),
-        params: {filter: resource.normalizeFilter('givenName="John"')}
+        params: { filter: resource.normalizeFilter('givenName="John"') },
       } as unknown as Request;
       const options = {};
       const o = ElasticAdapter.transformRequest(request);
-      const query = {term: {givenName: 'John'}};
-      const params = {query};
+      const query = { term: { givenName: 'John' } };
+      const params = { query };
       expect(o.method).toStrictEqual('search');
-      expect(o.params).toStrictEqual({query});
+      expect(o.params).toStrictEqual({ query });
       expect(o.options).toStrictEqual(options);
       expect(o.args).toStrictEqual([params, options]);
     });
 
     it('Should prepare with "pick" option', async () => {
-      const resource= api.getCollection('customers');
+      const resource = api.getCollection('customers');
       const request = {
         resource,
         endpoint: resource.getOperation('findMany'),
-        params: {pick: ['gender', 'address']}
+        params: { pick: ['gender', 'address'] },
       } as unknown as Request;
       const params = {
-        _source: {includes: ['gender', 'address.*']}
-      }
+        _source: { includes: ['gender', 'address.*'] },
+      };
       const o = ElasticAdapter.transformRequest(request);
       expect(o.method).toStrictEqual('search');
       expect(o.params).toStrictEqual(params);
@@ -63,15 +61,15 @@ describe('ElasticAdapter.transformRequest (Collection)', function () {
     });
 
     it('Should prepare with "omit" option', async () => {
-      const resource= api.getCollection('customers');
+      const resource = api.getCollection('customers');
       const request = {
         resource,
         endpoint: resource.getOperation('findMany'),
-        params: {omit: ['gender', 'address']}
+        params: { omit: ['gender', 'address'] },
       } as unknown as Request;
       const params = {
-        _source: {excludes: ['gender', 'address.*']}
-      }
+        _source: { excludes: ['gender', 'address.*'] },
+      };
       const o = ElasticAdapter.transformRequest(request);
       expect(o.method).toStrictEqual('search');
       expect(o.params).toStrictEqual(params);
@@ -80,11 +78,11 @@ describe('ElasticAdapter.transformRequest (Collection)', function () {
     });
 
     it('Should prepare with "include" option', async () => {
-      const resource= api.getCollection('customers');
+      const resource = api.getCollection('customers');
       const request = {
         resource,
         endpoint: resource.getOperation('findMany'),
-        params: {include: ['address']}
+        params: { include: ['address'] },
       } as unknown as Request;
       const o = ElasticAdapter.transformRequest(request);
       expect(o.method).toStrictEqual('search');
@@ -99,23 +97,20 @@ describe('ElasticAdapter.transformRequest (Collection)', function () {
     });
 
     it('Should prepare with "sort" option', async () => {
-      const resource= api.getCollection('customers');
+      const resource = api.getCollection('customers');
       const request = {
         resource,
         endpoint: resource.getOperation('findMany'),
-        params: {sort: ['givenName']}
+        params: { sort: ['givenName'] },
       } as unknown as Request;
       const params = {
-        sort: ['givenName']
-      }
+        sort: ['givenName'],
+      };
       const o = ElasticAdapter.transformRequest(request);
       expect(o.method).toStrictEqual('search');
       expect(o.params).toStrictEqual(params);
       expect(o.options).toStrictEqual({});
       expect(o.args).toStrictEqual([params, {}]);
     });
-
   });
-
 });
-

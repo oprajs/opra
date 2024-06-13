@@ -1,5 +1,5 @@
 import { HttpClientTestingModule } from '@angular/common/http/testing';
-import { Inject, Injectable, InjectionToken, } from '@angular/core';
+import { Inject, Injectable, InjectionToken } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { kClient } from '@opra/client';
 import { createMockServer } from '../../client/test/_support/create-mock-server.js';
@@ -7,11 +7,9 @@ import { OpraAngularClient } from '../src/angular-client.js';
 import { OpraClientModule } from '../src/client.module.js';
 import { OpraClientModuleOptions } from '../src/interfaces/module-options.interface.js';
 
-class TestApi {
-}
+class TestApi {}
 
 describe('OpraClientModule', function () {
-
   let app;
   let config: OpraClientModuleOptions;
 
@@ -21,14 +19,12 @@ describe('OpraClientModule', function () {
 
   beforeAll(async () => {
     app = await createMockServer();
-    config = {serviceUrl: app.baseUrl};
+    config = { serviceUrl: app.baseUrl };
   });
 
   it('registerClient()', async () => {
     await TestBed.configureTestingModule({
-      imports: [
-        HttpClientTestingModule,
-        OpraClientModule.registerClient(config)]
+      imports: [HttpClientTestingModule, OpraClientModule.registerClient(config)],
     }).compileComponents();
 
     const client = TestBed.inject(OpraAngularClient);
@@ -39,9 +35,7 @@ describe('OpraClientModule', function () {
 
   it('registerService()', async () => {
     await TestBed.configureTestingModule({
-      imports: [
-        HttpClientTestingModule,
-        OpraClientModule.registerService(TestApi, config)],
+      imports: [HttpClientTestingModule, OpraClientModule.registerService(TestApi, config)],
     }).compileComponents();
     const service = TestBed.inject(TestApi);
     expect(service).toBeDefined();
@@ -53,8 +47,9 @@ describe('OpraClientModule', function () {
       imports: [
         HttpClientTestingModule,
         OpraClientModule.registerClientAsync({
-          useFactory: () => config
-        })]
+          useFactory: () => config,
+        }),
+      ],
     }).compileComponents();
     const client = TestBed.inject(OpraAngularClient);
     expect(client).toBeDefined();
@@ -73,8 +68,9 @@ describe('OpraClientModule', function () {
       imports: [
         HttpClientTestingModule,
         OpraClientModule.registerClientAsync({
-          useClass: ConfigClass
-        })]
+          useClass: ConfigClass,
+        }),
+      ],
     }).compileComponents();
 
     const client = TestBed.inject(OpraAngularClient);
@@ -88,8 +84,9 @@ describe('OpraClientModule', function () {
       imports: [
         HttpClientTestingModule,
         OpraClientModule.registerServiceAsync(TestApi, {
-          useFactory: () => config
-        })]
+          useFactory: () => config,
+        }),
+      ],
     }).compileComponents();
     const service = TestBed.inject(TestApi);
     expect(service).toBeDefined();
@@ -108,8 +105,9 @@ describe('OpraClientModule', function () {
       imports: [
         HttpClientTestingModule,
         OpraClientModule.registerServiceAsync(TestApi, {
-          useClass: ConfigClass
-        })]
+          useClass: ConfigClass,
+        }),
+      ],
     }).compileComponents();
     const service = TestBed.inject(TestApi);
     expect(service).toBeDefined();
@@ -122,21 +120,19 @@ describe('OpraClientModule', function () {
 
     @Injectable()
     class TestComponent {
-      constructor(public client1: OpraAngularClient,
-                  @Inject(CLIENT2) public client2: OpraAngularClient,
-      ) {
-      }
+      constructor(
+        public client1: OpraAngularClient,
+        @Inject(CLIENT2) public client2: OpraAngularClient,
+      ) {}
     }
 
     await TestBed.configureTestingModule({
       imports: [
         HttpClientTestingModule,
         OpraClientModule.registerClient(config),
-        OpraClientModule.registerClient({...config, token: CLIENT2}),
+        OpraClientModule.registerClient({ ...config, token: CLIENT2 }),
       ],
-      providers: [
-        TestComponent
-      ]
+      providers: [TestComponent],
     }).compileComponents();
     const test = TestBed.inject(TestComponent);
     expect(test).toBeDefined();
@@ -150,21 +146,19 @@ describe('OpraClientModule', function () {
 
     @Injectable()
     class TestComponent {
-      constructor(public api1: TestApi,
-                  @Inject(SERVICE2) public api2: TestApi,
-      ) {
-      }
+      constructor(
+        public api1: TestApi,
+        @Inject(SERVICE2) public api2: TestApi,
+      ) {}
     }
 
     await TestBed.configureTestingModule({
       imports: [
         HttpClientTestingModule,
         OpraClientModule.registerService(TestApi, config),
-        OpraClientModule.registerService(TestApi, {...config, token: SERVICE2}),
+        OpraClientModule.registerService(TestApi, { ...config, token: SERVICE2 }),
       ],
-      providers: [
-        TestComponent
-      ]
+      providers: [TestComponent],
     }).compileComponents();
     const test = TestBed.inject(TestComponent);
     expect(test).toBeDefined();
@@ -173,5 +167,4 @@ describe('OpraClientModule', function () {
     expect(test.api1).not.toBe(test.api2);
     expect(test.api1[kClient]).not.toBe(test.api2[kClient]);
   });
-
 });

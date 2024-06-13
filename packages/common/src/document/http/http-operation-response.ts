@@ -15,16 +15,24 @@ export namespace HttpOperationResponse {
       {
         statusCode: number | string | (number | string)[];
         parameters?: HttpParameter.Metadata[];
+        partial?: boolean | 'deep';
       },
       HttpMediaType.Metadata
     > {}
 
-  export interface Options extends HttpMediaType.Options {}
+  export interface Options extends HttpMediaType.Options {
+    partial?: boolean | 'deep';
+  }
 
   export interface InitArguments
     extends Combine<
       {
-        statusCode: HttpStatusRange[];
+        statusCode:
+          | number
+          | string
+          | HttpStatusRange
+          | OpraSchema.HttpStatusRange
+          | (number | string | HttpStatusRange | OpraSchema.HttpStatusRange)[];
       },
       HttpMediaType.InitArguments,
       StrictOmit<Metadata, 'multipartFields'>
@@ -37,21 +45,18 @@ export namespace HttpOperationResponse {
 export class HttpOperationResponse extends HttpMediaType {
   statusCode: HttpStatusRange[];
   parameters: HttpParameter[];
+  partial?: boolean | 'deep';
 
   constructor(
     readonly owner: HttpOperation,
-    status:
-      | number
-      | string
-      | HttpStatusRange
-      | OpraSchema.HttpStatusRange
-      | (number | string | HttpStatusRange | OpraSchema.HttpStatusRange)[],
+    init: HttpOperationResponse.InitArguments,
   ) {
-    super(owner, '');
+    super(owner, init);
     this.parameters = [];
-    this.statusCode = (Array.isArray(status) ? status : [status]).map(x =>
+    this.statusCode = (Array.isArray(init.statusCode) ? init.statusCode : [init.statusCode]).map(x =>
       typeof x === 'object' ? new HttpStatusRange(x.start, x.end) : new HttpStatusRange(x as any),
     );
+    this.partial = init.partial;
   }
 
   findParameter(paramName: string, location?: OpraSchema.HttpParameterLocation): HttpParameter | undefined {
@@ -70,6 +75,7 @@ export class HttpOperationResponse extends HttpMediaType {
     const out = omitUndefined<OpraSchema.HttpOperationResponse>({
       ...super.toJSON(),
       statusCode: statusCode.length === 1 && typeof statusCode[0] === 'number' ? statusCode[0] : statusCode,
+      partial: this.partial,
     });
     if (this.parameters.length) {
       out.parameters = [];

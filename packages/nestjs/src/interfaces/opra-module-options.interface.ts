@@ -1,32 +1,20 @@
-import { ModuleMetadata, Type } from '@nestjs/common';
-import { ApiDocumentFactory } from '@opra/common';
-import { ExpressAdapter, NodeHttpAdapter } from '@opra/core';
+// import { ApiDocumentFactory } from '@opra/common';
+// import { ExpressAdapter, HttpAdapter } from '@opra/core';
 
-export type OpraModuleOptions = NodeHttpAdapter.Options & {
-  id?: any;
-  adapterNode?: ExpressAdapter.Options;
-  adapterExpress?: ExpressAdapter.Options;
-  document?: Partial<ApiDocumentFactory.InitArguments>
+// export interface OpraModuleOptions extends HttpAdapter.Options {
+//   id?: any;
+//   document?: Partial<ApiDocumentFactory.InitArguments>;
+//
+//   /**
+//    * @default true
+//    */
+//   useGlobalPrefix?: boolean;
+// }
 
-  /**
-   * @default true
-   */
-  useGlobalPrefix?: boolean;
+// export interface ExpressModuleOptions extends OpraModuleOptions, HttpAdapter.Options {}
 
-}
+// type OpraModuleOptionsWithoutId = Omit<OpraModuleOptions, 'id'>;
 
-type OpraModuleOptionsWithoutId = Omit<OpraModuleOptions, 'id'>;
-
-export interface OpraModuleOptionsFactory {
-  createOptions(): Promise<OpraModuleOptionsWithoutId> | OpraModuleOptionsWithoutId;
-}
-
-export interface OpraModuleAsyncOptions
-    extends Pick<ModuleMetadata, 'imports' | 'providers'> {
-  id?: any;
-  useExisting?: Type<OpraModuleOptionsFactory>;
-  useClass?: Type<OpraModuleOptionsFactory>;
-  useFactory?: (...args: any[]) => Promise<OpraModuleOptionsWithoutId> | OpraModuleOptionsWithoutId;
-  inject?: any[];
-}
-
+// export interface OpraModuleOptionsFactory {
+//   createOptions(): Promise<OpraModuleOptionsWithoutId> | OpraModuleOptionsWithoutId;
+// }

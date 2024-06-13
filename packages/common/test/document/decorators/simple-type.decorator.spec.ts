@@ -14,7 +14,7 @@ describe('SimpleType() decorator', function () {
     class CustomStringType extends StringType {}
 
     const schema = Reflect.getMetadata(DATATYPE_METADATA, CustomStringType);
-    expect(schema).toStrictEqual({ kind: 'SimpleType', name: 'customString', ...opts });
+    expect(schema).toStrictEqual({ kind: 'SimpleType', name: 'customstring', ...opts });
   });
 
   it('Should set alternate name', async () => {
@@ -34,7 +34,7 @@ describe('SimpleType() decorator', function () {
 
     const sch1 = Reflect.getMetadata(DATATYPE_METADATA, CustomStringType);
     const sch2 = Reflect.getMetadata(DATATYPE_METADATA, MyStringType);
-    expect(sch1.name).toStrictEqual('customString');
-    expect(sch2.name).toStrictEqual('myString');
+    expect(sch1.name).toStrictEqual('customstring');
+    expect(sch2.name).toStrictEqual('mystring');
   });
 });

@@ -1,4 +1,5 @@
-import { omitNullish } from '@opra/common';
+import typeIs from '@browsery/type-is';
+import { MimeTypes, omitNullish } from '@opra/common';
 import { ApiExpectBase } from './api-expect-base.js';
 
 export class ApiExpectObject extends ApiExpectBase {
@@ -13,7 +14,10 @@ export class ApiExpectObject extends ApiExpectBase {
   toMatch<T extends {}>(expected: T): this {
     try {
       expected = omitNullish(expected) as T;
-      this._expect(this.response.body.payload).toEqual(expect.objectContaining(expected));
+      const data = typeIs.is(this.response.contentType, [MimeTypes.opra_response_json])
+        ? this.response.body.payload
+        : this.response.body;
+      this._expect(data).toEqual(expect.objectContaining(expected));
     } catch (e: any) {
       Error.captureStackTrace(e, this.toMatch);
       throw e;
@@ -28,7 +32,10 @@ export class ApiExpectObject extends ApiExpectBase {
   toContainFields(fields: string | string[]): this {
     try {
       fields = Array.isArray(fields) ? fields : [fields];
-      this._expect(Object.keys(this.response.body.payload)).toEqual(expect.arrayContaining(fields));
+      const data = typeIs.is(this.response.contentType, [MimeTypes.opra_response_json])
+        ? this.response.body.payload
+        : this.response.body;
+      this._expect(Object.keys(data)).toEqual(expect.arrayContaining(fields));
     } catch (e: any) {
       Error.captureStackTrace(e, this.toContainFields);
       throw e;
@@ -43,7 +50,10 @@ export class ApiExpectObject extends ApiExpectBase {
   toContainAllFields(fields: string | string[]): this {
     try {
       fields = Array.isArray(fields) ? fields : [fields];
-      this._expect(Object.keys(this.response.body.payload)).toEqual(fields);
+      const data = typeIs.is(this.response.contentType, [MimeTypes.opra_response_json])
+        ? this.response.body.payload
+        : this.response.body;
+      this._expect(Object.keys(data)).toEqual(fields);
     } catch (e: any) {
       Error.captureStackTrace(e, this.toContainAllFields);
       throw e;

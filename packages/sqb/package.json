@@ -28,9 +28,9 @@
   },
   "devDependencies": {
     "@faker-js/faker": "^8.4.1",
-    "@sqb/builder": "^4.11.3",
-    "@sqb/connect": "^4.11.3",
-    "@sqb/postgres": "^4.11.3",
+    "@sqb/builder": "^4.12.0",
+    "@sqb/connect": "^4.12.0",
+    "@sqb/postgres": "^4.12.0",
     "postgresql-client": "^2.11.0",
     "ts-gems": "^3.4.0"
   },

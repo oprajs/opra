@@ -23,7 +23,6 @@ export namespace HttpAdapter {
  */
 export abstract class HttpAdapter extends PlatformAdapter {
   protected [kHandler]: HttpHandler;
-  readonly api: HttpApi;
   readonly protocol: OpraSchema.Protocol = 'http';
   interceptors: HttpAdapter.Interceptor[];
 
@@ -33,5 +32,9 @@ export abstract class HttpAdapter extends PlatformAdapter {
     this[kHandler] = new HttpHandler(this);
     this.interceptors = [...(options?.interceptors || [])];
     if (options?.onRequest) this.on('request', options.onRequest);
+  }
+
+  get api(): HttpApi {
+    return this.document.api!;
   }
 }

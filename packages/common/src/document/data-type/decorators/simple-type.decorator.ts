@@ -28,8 +28,8 @@ export function SimpleTypeDecoratorFactory(options?: SimpleType.Options): Simple
         name = options.name;
       } else {
         name = target.name.match(EXTRACT_TYPENAME_PATTERN)?.[1] || target.name;
+        name = name.toLowerCase();
       }
-      name = name.charAt(0).toLowerCase() + name.substring(1);
     }
     const metadata: SimpleType.Metadata = Reflect.getOwnMetadata(DATATYPE_METADATA, target) || ({} as any);
     metadata.kind = OpraSchema.SimpleType.Kind;

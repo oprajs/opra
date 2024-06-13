@@ -15,12 +15,6 @@ describe('HttpResource', function () {
     expect(doc.api!.findController('unknownResource')).not.toBeDefined();
   });
 
-  it('Should getFullPath return resource path', async () => {
-    const res = doc.api!.findController('auth/MyProfile');
-    expect(res).toBeDefined();
-    expect(res!.getDocumentPath()).toEqual('/Auth/MyProfile');
-  });
-
   it('Should getResource(name) return Resource instance', async () => {
     const res = doc.api!.findController('auth/MyProfile');
     expect(res).toBeDefined();
@@ -73,10 +67,10 @@ describe('HttpResource', function () {
       parameters: [
         {
           location: 'query',
-          name: 'fields',
-          description: 'Determines fields to be exposed',
+          name: 'projection',
+          description: 'Determines fields projection',
           type: {
-            base: 'fieldPath',
+            base: 'fieldpath',
             kind: 'SimpleType',
             properties: {
               allowSigns: 'each',

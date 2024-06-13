@@ -134,13 +134,6 @@ class HttpOperationClass extends DocumentElement {
     }
   }
 
-  /**
-   *
-   */
-  getDocumentPath(): string {
-    return this.owner.getDocumentPath() + '.' + this.name;
-  }
-
   toJSON(): OpraSchema.HttpOperation {
     const out = omitUndefined<OpraSchema.HttpOperation>({
       kind: OpraSchema.HttpOperation.Kind,

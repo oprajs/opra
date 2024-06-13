@@ -1,17 +1,158 @@
-import mongodb, { MongoClient, TransactionOptions } from 'mongodb';
-import { StrictOmit, Type } from 'ts-gems';
+import mongodb, { Document, MongoClient, ObjectId, TransactionOptions } from 'mongodb';
+import { PartialDTO, StrictOmit, Type } from 'ts-gems';
 import { IsObject } from 'valgen';
-import { ComplexType, DataType, DATATYPE_METADATA, PartialDTO } from '@opra/common';
+import * as OpraCommon from '@opra/common';
+import { ComplexType, DataType, DATATYPE_METADATA } from '@opra/common';
 import { ServiceBase } from '@opra/core';
-import { AnyId, WithTransactionCallback } from './types.js';
+import { MongoAdapter } from './mongo-adapter.js';
 
+/**
+ * The namespace for the MongoService.
+ *
+ * @namespace MongoService
+ */
+export namespace MongoService {
+  export interface Options {
+    db?: MongoService<any>['db'];
+    session?: MongoService<any>['session'];
+    collectionName?: MongoService<any>['$collectionName'];
+    resourceName?: MongoService<any>['$resourceName'];
+    documentFilter?: MongoService<any>['$documentFilter'];
+    interceptor?: MongoService<any>['$interceptor'];
+    idGenerator?: MongoService<any>['$idGenerator'];
+    onError?: MongoService<any>['$onError'];
+  }
+
+  export type CrudOp = 'create' | 'read' | 'update' | 'delete';
+
+  export interface CommandInfo {
+    crud: CrudOp;
+    method: string;
+    byId: boolean;
+    documentId?: MongoAdapter.AnyId;
+    nestedId?: MongoAdapter.AnyId;
+    input?: Record<string, any>;
+    options?: Record<string, any>;
+  }
+
+  /**
+   * Represents options for "create" operation
+   *
+   * @interface
+   */
+  export interface CreateOptions extends mongodb.InsertOneOptions {
+    fields?: string[];
+  }
+
+  /**
+   * Represents options for "count" operation
+   *
+   * @interface
+   * @template T - The type of the document.
+   */
+  export interface CountOptions<T> extends mongodb.CountOptions {
+    filter?: mongodb.Filter<T> | OpraCommon.OpraFilter.Ast | string;
+  }
+
+  /**
+   * Represents options for "delete" operation
+   *
+   * @interface
+   * @template T - The type of the document.
+   */
+  export interface DeleteOptions<T> extends mongodb.DeleteOptions {
+    filter?: mongodb.Filter<T> | OpraCommon.OpraFilter.Ast | string;
+  }
+
+  /**
+   * Represents options for "deleteMany" operation
+   *
+   * @interface
+   * @template T - The type of the document.
+   */
+  export interface DeleteManyOptions<T> extends mongodb.DeleteOptions {
+    filter?: mongodb.Filter<T> | OpraCommon.OpraFilter.Ast | string;
+  }
+
+  /**
+   * Represents options for "distinct" operation
+   *
+   * @interface
+   * @template T - The type of the document.
+   */
+  export interface DistinctOptions<T> extends mongodb.DistinctOptions {
+    filter?: mongodb.Filter<T> | OpraCommon.OpraFilter.Ast | string;
+  }
+
+  /**
+   * Represents options for "exists" operation
+   *
+   * @interface
+   */
+  export interface ExistsOptions<T> extends Omit<mongodb.CommandOperationOptions, 'writeConcern'> {
+    filter?: mongodb.Filter<T> | OpraCommon.OpraFilter.Ast | string;
+  }
+
+  /**
+   * Represents options for checking the document exists
+   *
+   * @interface
+   */
+  export interface ExistsOneOptions<T> extends Omit<mongodb.CommandOperationOptions, 'writeConcern'> {
+    filter?: mongodb.Filter<T> | OpraCommon.OpraFilter.Ast | string;
+  }
+
+  /**
+   * Represents options for "findOne" operation
+   *
+   * @interface
+   * @template T - The type of the document.
+   */
+  export interface FindOneOptions<T> extends StrictOmit<FindManyOptions<T>, 'limit'> {}
+
+  /**
+   * Represents options for "findMany" operation
+   *
+   * @interface
+   * @template T - The type of the document.
+   */
+  export interface FindManyOptions<T> extends mongodb.AggregateOptions {
+    filter?: mongodb.Filter<T> | OpraCommon.OpraFilter.Ast | string;
+    projection?: string | string[] | Document;
+    sort?: string[];
+    limit?: number;
+    skip?: number;
+  }
+
+  /**
+   * Represents options for "update" operation
+   *
+   * @interface
+   * @template T - The type of the document.
+   */
+  export interface UpdateOptions<T>
+    extends StrictOmit<mongodb.FindOneAndUpdateOptions, 'projection' | 'returnDocument' | 'includeResultMetadata'> {
+    projection?: string | string[] | Document;
+    filter?: mongodb.Filter<T> | OpraCommon.OpraFilter.Ast | string;
+  }
+
+  /**
+   * Represents options for "updateMany" operation
+   *
+   * @interface
+   * @template T - The type of the document.
+   */
+  export interface UpdateManyOptions<T> extends StrictOmit<mongodb.UpdateOptions, 'upsert'> {
+    filter?: mongodb.Filter<T> | OpraCommon.OpraFilter.Ast | string;
+  }
+}
 
 /**
  * Class representing a MongoDB service for interacting with a collection.
  * @extends ServiceBase
  * @template T - The type of the documents in the collection.
  */
-export class MongoService<T extends mongodb.Document> extends ServiceBase {
+export class MongoService<T extends mongodb.Document = mongodb.Document> extends ServiceBase {
   protected _encoders: Record<string, IsObject.Validator<T>> = {};
   protected _decoder?: IsObject.Validator<T>;
   protected _dataType: Type | string;
@@ -19,13 +160,13 @@ export class MongoService<T extends mongodb.Document> extends ServiceBase {
   /**
    * Represents the name of a collection in MongoDB
    */
-  collectionName?: string | ((_this: any) => string);
+  $collectionName?: string | ((_this: any) => string);
 
   /**
    * Represents the name of a resource.
    * @type {string}
    */
-  resourceName?: string | ((_this: any) => string);
+  $resourceName?: string | ((_this: any) => string);
 
   /**
    * Represents a MongoDB database object.
@@ -40,9 +181,8 @@ export class MongoService<T extends mongodb.Document> extends ServiceBase {
   /**
    * Generates a new id for new inserting Document.
    *
-   * @protected
    */
-  $idGenerator?: (_this: any) => AnyId;
+  $idGenerator?: (_this: any) => MongoAdapter.AnyId;
 
   /**
    * Callback function for handling errors.
@@ -52,30 +192,80 @@ export class MongoService<T extends mongodb.Document> extends ServiceBase {
    */
   $onError?: (error: unknown, _this: any) => void | Promise<void>;
 
+  /**
+   * Represents a common filter function for a MongoEntityService.
+   *
+   * @type {FilterInput | Function}
+   */
+  $documentFilter?:
+    | MongoAdapter.FilterInput
+    | ((
+        args: MongoService.CommandInfo,
+        _this: this,
+      ) => MongoAdapter.FilterInput | Promise<MongoAdapter.FilterInput> | undefined);
+
+  /**
+   * Interceptor function for handling callback execution with provided arguments.
+   *
+   * @param callback - The callback function to be intercepted.
+   * @param {MongoService.CommandInfo} info - The arguments object containing the following properties:
+   * @param _this - The reference to the current object.
+   * @returns - The promise that resolves to the result of the callback execution.
+   */
+  $interceptor?: (callback: () => any, info: MongoService.CommandInfo, _this: any) => Promise<any>;
 
   /**
    * Constructs a new instance
    *
-   * @param dataType - The data type of the array elements.
-   * @param [options] - The options for the array service.
+   * @param dataType - The data type of the returning results
+   * @param [options] - The options for the service
    * @constructor
    */
   constructor(dataType: Type | string, options?: MongoService.Options) {
     super();
     this._dataType = dataType;
     this.db = options?.db;
-    this.collectionName = options?.collectionName;
-    if (!this.collectionName) {
-      if (typeof dataType === 'string')
-        this.collectionName = dataType;
+    this.$documentFilter = this.$documentFilter || options?.documentFilter;
+    this.$interceptor = this.$interceptor || options?.interceptor;
+    this.$collectionName = options?.collectionName;
+    if (!this.$collectionName) {
+      if (typeof dataType === 'string') this.$collectionName = dataType;
       if (typeof dataType === 'function') {
         const metadata = Reflect.getMetadata(DATATYPE_METADATA, dataType);
-        if (metadata)
-          this.collectionName = metadata.name;
+        if (metadata) this.$collectionName = metadata.name;
       }
     }
-    this.resourceName = options?.resourceName;
+    this.$resourceName = options?.resourceName;
     this.$idGenerator = options?.idGenerator;
+  }
+
+  /**
+   * Retrieves the collection name.
+   *
+   * @protected
+   * @returns The collection name.
+   * @throws {Error} If the collection name is not defined.
+   */
+  getCollectionName(): string {
+    const out = typeof this.$collectionName === 'function' ? this.$collectionName(this) : this.$collectionName;
+    if (out) return out;
+    throw new Error('collectionName is not defined');
+  }
+
+  /**
+   * Retrieves the resource name.
+   *
+   * @protected
+   * @returns {string} The resource name.
+   * @throws {Error} If the collection name is not defined.
+   */
+  getResourceName(): string {
+    const out =
+      typeof this.$resourceName === 'function'
+        ? this.$resourceName(this)
+        : this.$resourceName || this.getCollectionName();
+    if (out) return out;
+    throw new Error('resourceName is not defined');
   }
 
   /**
@@ -84,7 +274,7 @@ export class MongoService<T extends mongodb.Document> extends ServiceBase {
    * @throws {NotAcceptableError} If the data type is not a ComplexType.
    */
   getDataType(): ComplexType {
-    return this.context.api.getComplexType(this._dataType);
+    return this.context.document.node.getComplexType(this._dataType);
   }
 
   /**
@@ -94,9 +284,11 @@ export class MongoService<T extends mongodb.Document> extends ServiceBase {
    */
   getEncoder(operation: 'create' | 'update'): IsObject.Validator<T> {
     let encoder = this._encoders[operation];
-    if (encoder)
-      return encoder;
-    encoder = this._generateEncoder(operation);
+    if (encoder) return encoder;
+    const options: DataType.GenerateCodecOptions = { projection: '*' };
+    if (operation === 'update') options.partial = true;
+    const dataType = this.getDataType();
+    encoder = dataType.generateCodec('encode', options) as IsObject.Validator<T>;
     this._encoders[operation] = encoder;
     return encoder;
   }
@@ -106,9 +298,10 @@ export class MongoService<T extends mongodb.Document> extends ServiceBase {
    */
   getDecoder(): IsObject.Validator<T> {
     let decoder = this._decoder;
-    if (decoder)
-      return decoder;
-    decoder = this._generateDecoder();
+    if (decoder) return decoder;
+    const options: DataType.GenerateCodecOptions = { projection: '*', partial: true };
+    const dataType = this.getDataType();
+    decoder = dataType.generateCodec('decode', options) as IsObject.Validator<T>;
     this._decoder = decoder;
     return decoder;
   }
@@ -119,10 +312,9 @@ export class MongoService<T extends mongodb.Document> extends ServiceBase {
    * @param callback - The function to be executed within the transaction.
    * @param [options] - Optional options for the transaction.
    */
-  async withTransaction(callback: WithTransactionCallback, options?: TransactionOptions): Promise<any> {
+  async withTransaction(callback: MongoAdapter.WithTransactionCallback, options?: TransactionOptions): Promise<any> {
     let session = this.getSession();
-    if (session)
-      return callback(session);
+    if (session) return callback(session);
 
     // Backup old session property
     const hasOldSession = this.hasOwnProperty('session');
@@ -134,47 +326,18 @@ export class MongoService<T extends mongodb.Document> extends ServiceBase {
     this.session = session;
     const oldInTransaction = session.inTransaction();
     try {
-      if (!oldInTransaction)
-        session.startTransaction(options);
+      if (!oldInTransaction) session.startTransaction(options);
       const out = await callback(session);
-      if (!oldInTransaction)
-        await session.commitTransaction();
+      if (!oldInTransaction) await session.commitTransaction();
       return out;
     } catch (e) {
-      if (!oldInTransaction)
-        await session.abortTransaction();
+      if (!oldInTransaction) await session.abortTransaction();
       throw e;
     } finally {
       // Restore old session property
-      if (hasOldSession)
-        this.session = oldSessionGetter;
+      if (hasOldSession) this.session = oldSessionGetter;
       else delete this.session;
-      if (!oldInTransaction)
-        await session.endSession();
-    }
-  }
-
-  /**
-   * Inserts a single document into MongoDB. If documents passed in do not contain the **_id** field,
-   * one will be added to each of the documents missing it by the driver, mutating the document. This behavior
-   * can be overridden by setting the **forceServerObjectId** flag.
-   *
-   * @param doc - The document to insert
-   * @param options - Optional settings for the command
-   * @protected
-   */
-  protected async __insertOne(doc: mongodb.OptionalUnlessRequiredId<T>, options?: mongodb.InsertOneOptions) {
-    const db = this.getDatabase();
-    const collection = await this.getCollection(db);
-    options = {
-      ...options,
-      session: options?.session || this.getSession()
-    }
-    try {
-      return await collection.insertOne(doc, options);
-    } catch (e: any) {
-      await this.$onError?.(e, this);
-      throw e;
+      if (!oldInTransaction) await session.endSession();
     }
   }
 
@@ -185,195 +348,179 @@ export class MongoService<T extends mongodb.Document> extends ServiceBase {
    * @param options - The options for counting documents.
    * @protected
    */
-  protected async __countDocuments(filter?: mongodb.Filter<T>, options?: mongodb.CountOptions): Promise<number> {
+  protected async _dbCountDocuments(filter?: mongodb.Filter<T>, options?: mongodb.CountOptions): Promise<number> {
     const db = this.getDatabase();
     const collection = await this.getCollection(db);
     options = {
       ...options,
       limit: undefined,
-      session: options?.session || this.getSession()
-    }
-    try {
-      return await collection.countDocuments(filter || {}, options) || 0;
-    } catch (e: any) {
-      await this.$onError?.(e, this);
-      throw e;
-    }
+      session: options?.session || this.getSession(),
+    };
+    return (await collection.countDocuments(filter || {}, options)) || 0;
   }
 
   /**
-   * Delete a document from a collection
+   * Acquires a connection and performs Collection.deleteOne operation
    *
    * @param filter - The filter used to select the document to remove
    * @param options - Optional settings for the command
    * @protected
    */
-  protected async __deleteOne(filter?: mongodb.Filter<T>, options?: mongodb.DeleteOptions) {
+  protected async _dbDeleteOne(filter?: mongodb.Filter<T>, options?: mongodb.DeleteOptions) {
     const db = this.getDatabase();
     const collection = await this.getCollection(db);
     options = {
       ...options,
-      session: options?.session || this.getSession()
-    }
-    try {
-      return await collection.deleteOne(filter || {}, options);
-    } catch (e: any) {
-      await this.$onError?.(e, this);
-      throw e;
-    }
+      session: options?.session || this.getSession(),
+    };
+    return await collection.deleteOne(filter || {}, options);
   }
 
   /**
-   * Delete multiple documents from a collection
+   * Acquires a connection and performs Collection.deleteMany operation
    *
    * @param filter - The filter used to select the documents to remove
    * @param options - Optional settings for the command
    * @protected
    */
-  protected async __deleteMany(filter?: mongodb.Filter<T>, options?: mongodb.DeleteOptions) {
+  protected async _dbDeleteMany(filter?: mongodb.Filter<T>, options?: mongodb.DeleteOptions) {
     const db = this.getDatabase();
     const collection = await this.getCollection(db);
     options = {
       ...options,
-      session: options?.session || this.getSession()
-    }
-    try {
-      return await collection.deleteMany(filter || {}, options);
-    } catch (e: any) {
-      await this.$onError?.(e, this);
-      throw e;
-    }
+      session: options?.session || this.getSession(),
+    };
+    return await collection.deleteMany(filter || {}, options);
   }
 
   /**
-   * Gets the number of documents matching the filter.
+   * Acquires a connection and performs Collection.distinct operation
    *
    * @param field - Field of the document to find distinct values for
    * @param filter - The filter for filtering the set of documents to which we apply the distinct filter.
    * @param options - Optional settings for the command
    * @protected
    */
-  protected async __distinct(field: string, filter?: mongodb.Filter<T>, options?: mongodb.DistinctOptions): Promise<any[]> {
+  protected async _dbDistinct(
+    field: string,
+    filter?: mongodb.Filter<T>,
+    options?: mongodb.DistinctOptions,
+  ): Promise<any[]> {
     const db = this.getDatabase();
     const collection = await this.getCollection(db);
     options = {
       ...options,
-      session: options?.session || this.getSession()
-    }
-    try {
-      return await collection.distinct(field, filter || {}, options);
-    } catch (e: any) {
-      await this.$onError?.(e, this);
-      throw e;
-    }
+      session: options?.session || this.getSession(),
+    };
+    return await collection.distinct(field, filter || {}, options);
   }
 
   /**
-   * Execute an aggregation framework pipeline against the collection, needs MongoDB \>= 2.2
+   * Acquires a connection and performs Collection.aggregate operation
    *
    * @param pipeline - An array of aggregation pipelines to execute
    * @param options - Optional settings for the command
    * @protected
    */
-  protected async __aggregate(pipeline?: mongodb.Document[], options?: mongodb.AggregateOptions) {
+  protected async _dbAggregate(pipeline?: mongodb.Document[], options?: mongodb.AggregateOptions) {
     const db = this.getDatabase();
     const collection = await this.getCollection(db);
     options = {
       ...options,
-      session: options?.session || this.getSession()
-    }
-    try {
-      return await collection.aggregate<T>(pipeline, options);
-    } catch (e: any) {
-      await this.$onError?.(e, this);
-      throw e;
-    }
+      session: options?.session || this.getSession(),
+    };
+    return await collection.aggregate<T>(pipeline, options);
   }
 
   /**
-   * Fetches the first document that matches the filter
+   * Acquires a connection and performs Collection.findOne operation
    *
    * @param filter - Query for find Operation
    * @param options - Optional settings for the command
    * @protected
    */
-  protected async __findOne(filter: mongodb.Filter<T>, options?: mongodb.FindOptions): Promise<PartialDTO<T> | undefined> {
+  protected async _dbFindOne(
+    filter: mongodb.Filter<T>,
+    options?: mongodb.FindOptions,
+  ): Promise<PartialDTO<T> | undefined> {
     const db = this.getDatabase();
     const collection = await this.getCollection(db);
     options = {
       ...options,
-      session: options?.session || this.getSession()
-    }
-    try {
-      return await collection.findOne<T>(filter || {}, options) as PartialDTO<T>;
-    } catch (e: any) {
-      await this.$onError?.(e, this);
-      throw e;
-    }
+      session: options?.session || this.getSession(),
+    };
+    return (await collection.findOne<T>(filter || {}, options)) as PartialDTO<T>;
   }
 
   /**
-   * Creates a cursor for a filter that can be used to iterate over results from MongoDB
+   * Acquires a connection and performs Collection.find operation
    *
    * @param filter - The filter predicate. If unspecified,
    * then all documents in the collection will match the predicate
    * @param options - Optional settings for the command
    * @protected
    */
-  protected async __find(filter: mongodb.Filter<T>, options?: mongodb.FindOptions) {
+  protected async _dbFind(filter: mongodb.Filter<T>, options?: mongodb.FindOptions) {
     const db = this.getDatabase();
     const collection = await this.getCollection(db);
     options = {
       ...options,
-      session: options?.session || this.getSession()
-    }
-    try {
-      return collection.find<T>(filter || {}, options);
-    } catch (e: any) {
-      await this.$onError?.(e, this);
-      throw e;
-    }
+      session: options?.session || this.getSession(),
+    };
+    return collection.find<T>(filter || {}, options);
   }
 
   /**
-   * Update a single document in a collection
+   * Acquires a connection and performs Collection.insertOne operation
+   *
+   * @param doc - The document to insert
+   * @param options - Optional settings for the command
+   * @protected
+   */
+  protected async _dbInsertOne(doc: mongodb.OptionalUnlessRequiredId<T>, options?: mongodb.InsertOneOptions) {
+    const db = this.getDatabase();
+    const collection = await this.getCollection(db);
+    options = {
+      ...options,
+      session: options?.session || this.getSession(),
+    };
+    return await collection.insertOne(doc, options);
+  }
+
+  /**
+   * Acquires a connection and performs Collection.updateOne operation
    *
    * @param filter - The filter used to select the document to update
    * @param update - The update operations to be applied to the document
    * @param options - Optional settings for the command
    * @protected
    */
-  protected async __updateOne(
-      filter: mongodb.Filter<T>,
-      update: mongodb.UpdateFilter<T>,
-      options?: mongodb.UpdateOptions
+  protected async _dbUpdateOne(
+    filter: mongodb.Filter<T>,
+    update: mongodb.UpdateFilter<T>,
+    options?: mongodb.UpdateOptions,
   ) {
     const db = this.getDatabase();
     const collection = await this.getCollection(db);
     options = {
       ...options,
       session: options?.session || this.getSession(),
-    }
-    try {
-      return collection.updateOne(filter || {}, update, options);
-    } catch (e: any) {
-      await this.$onError?.(e, this);
-      throw e;
-    }
+    };
+    return collection.updateOne(filter || {}, update, options);
   }
 
   /**
-   * Find a document and update it in one atomic operation. Requires a write lock for the duration of the operation.
+   * Acquires a connection and performs Collection.findOneAndUpdate operation
    *
    * @param filter - The filter used to select the document to update
    * @param update - Update operations to be performed on the document
    * @param options - Optional settings for the command
    * @protected
    */
-  protected async __findOneAndUpdate(
-      filter: mongodb.Filter<T>,
-      update: mongodb.UpdateFilter<T>,
-      options?: mongodb.FindOneAndUpdateOptions
+  protected async _dbFindOneAndUpdate(
+    filter: mongodb.Filter<T>,
+    update: mongodb.UpdateFilter<T>,
+    options?: mongodb.FindOneAndUpdateOptions,
   ) {
     const db = this.getDatabase();
     const collection = await this.getCollection(db);
@@ -382,41 +529,31 @@ export class MongoService<T extends mongodb.Document> extends ServiceBase {
       includeResultMetadata: false,
       ...options,
       session: options?.session || this.getSession(),
-    }
-    try {
-      return await collection.findOneAndUpdate(filter || {}, update, opts);
-    } catch (e: any) {
-      await this.$onError?.(e, this);
-      throw e;
-    }
+    };
+    return await collection.findOneAndUpdate(filter || {}, update, opts);
   }
 
   /**
-   * Update multiple documents in a collection
+   * Acquires a connection and performs Collection.updateMany operation
    *
    * @param filter - The filter used to select the documents to update
    * @param update - The update operations to be applied to the documents
    * @param options - Optional settings for the command
    * @protected
    */
-  protected async __updateMany(
-      filter: mongodb.Filter<T>,
-      update: mongodb.UpdateFilter<T> | Partial<T>,
-      options?: StrictOmit<mongodb.UpdateOptions, 'upsert'>
+  protected async _dbUpdateMany(
+    filter: mongodb.Filter<T>,
+    update: mongodb.UpdateFilter<T> | Partial<T>,
+    options?: StrictOmit<mongodb.UpdateOptions, 'upsert'>,
   ) {
     const db = this.getDatabase();
     const collection = await this.getCollection(db);
     options = {
       ...options,
       session: options?.session || this.getSession(),
-      upsert: false
+      upsert: false,
     } as mongodb.UpdateOptions;
-    try {
-      return await collection.updateMany(filter || {}, update, options);
-    } catch (e: any) {
-      await this.$onError?.(e, this);
-      throw e;
-    }
+    return await collection.updateMany(filter || {}, update, options);
   }
 
   /**
@@ -427,11 +564,8 @@ export class MongoService<T extends mongodb.Document> extends ServiceBase {
    * @throws {Error} If the context or database is not set.
    */
   protected getDatabase(): mongodb.Db {
-    const db = typeof this.db === 'function'
-        ? this.db(this)
-        : this.db
-    if (!db)
-      throw new Error(`Database not set!`);
+    const db = typeof this.db === 'function' ? this.db(this) : this.db;
+    if (!db) throw new Error(`Database not set!`);
     return db;
   }
 
@@ -443,9 +577,7 @@ export class MongoService<T extends mongodb.Document> extends ServiceBase {
    * @throws {Error} If the context or database is not set.
    */
   protected getSession(): mongodb.ClientSession | undefined {
-    return typeof this.session === 'function'
-        ? this.session(this)
-        : this.session
+    return typeof this.session === 'function' ? this.session(this) : this.session;
   }
 
   /**
@@ -459,85 +591,37 @@ export class MongoService<T extends mongodb.Document> extends ServiceBase {
   }
 
   /**
-   * Retrieves the collection name.
+   * Generates an ID.
    *
    * @protected
-   * @returns The collection name.
-   * @throws {Error} If the collection name is not defined.
+   * @returns {MongoAdapter.AnyId} The generated ID.
    */
-  getCollectionName(): string {
-    const out = typeof this.collectionName === 'function'
-        ? this.collectionName(this)
-        : this.collectionName;
-    if (out)
-      return out;
-    throw new Error('collectionName is not defined');
+  protected _generateId(): MongoAdapter.AnyId {
+    return typeof this.$idGenerator === 'function' ? this.$idGenerator(this) : new ObjectId();
   }
 
   /**
-   * Retrieves the resource name.
+   * Retrieves the common filter used for querying documents.
+   * This method is mostly used for security issues like securing multi-tenant applications.
    *
    * @protected
-   * @returns {string} The resource name.
-   * @throws {Error} If the collection name is not defined.
+   * @returns {FilterInput | Promise<FilterInput> | undefined} The common filter or a Promise
+   * that resolves to the common filter, or undefined if not available.
    */
-  getResourceName(): string {
-    const out = typeof this.resourceName === 'function'
-        ? this.resourceName(this)
-        : this.resourceName || this.getCollectionName();
-    if (out)
-      return out;
-    throw new Error('resourceName is not defined');
+  protected _getDocumentFilter(
+    info: MongoService.CommandInfo,
+  ): MongoAdapter.FilterInput | Promise<MongoAdapter.FilterInput> | undefined {
+    return typeof this.$documentFilter === 'function' ? this.$documentFilter(info, this) : this.$documentFilter;
   }
 
-  /**
-   * Generates an encoder for the specified operation.
-   *
-   * @param operation - The operation to generate the encoder for. Must be either 'create' or 'update'.
-   * @protected
-   * @returns - The generated encoder for the specified operation.
-   */
-  protected _generateEncoder(operation: 'create' | 'update'): IsObject.Validator<T> {
-    const dataType = this.getDataType();
-    const options: DataType.GenerateCodecOptions = {};
-    if (operation === 'update') {
-      options.omit = ['_id'];
-      options.partial = true;
+  protected async _intercept(callback: (...args: any[]) => any, info: MongoService.CommandInfo): Promise<any> {
+    try {
+      if (this.$interceptor) return this.$interceptor(callback, info, this);
+      return callback();
+    } catch (e: any) {
+      Error.captureStackTrace(e, this._intercept);
+      await this.$onError?.(e, this);
+      throw e;
     }
-    return dataType.generateCodec('encode', options);
   }
-
-
-  /**
-   * Generates an encoder for the specified operation.
-   *
-   * @protected
-   * @returns - The generated encoder for the specified operation.
-   */
-  protected _generateDecoder(): IsObject.Validator<T> {
-    const dataType = this.getDataType();
-    return dataType.generateCodec('decode', {partial: true});
-  }
-
 }
-
-/**
- * The namespace for the MongoService.
- *
- * @namespace MongoService
- */
-export namespace MongoService {
-  export interface Options {
-    db?: MongoService<any>['db'];
-    collectionName?: MongoService<any>['collectionName'];
-    resourceName?: MongoService<any>['resourceName'];
-    session?: MongoService<any>['session'];
-    idGenerator?: MongoService<any>['$idGenerator'];
-    onError?: MongoService<any>['$onError'];
-  }
-
-  export type CrudOp = 'create' | 'read' | 'update' | 'delete';
-
-
-}
-

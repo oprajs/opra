@@ -27,7 +27,7 @@
   },
   "devDependencies": {
     "@faker-js/faker": "^8.4.1",
-    "mongodb": "^6.6.2",
+    "mongodb": "^6.7.0",
     "ts-gems": "^3.4.0"
   },
   "peerDependencies": {

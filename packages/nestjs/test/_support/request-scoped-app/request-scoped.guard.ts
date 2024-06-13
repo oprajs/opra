@@ -1,11 +1,6 @@
-import {
-  CanActivate,
-  Inject,
-  Injectable,
-  Scope,
-} from '@nestjs/common';
+import { CanActivate, Inject, Injectable, Scope } from '@nestjs/common';
 
-@Injectable({scope: Scope.REQUEST})
+@Injectable({ scope: Scope.REQUEST })
 export class Guard implements CanActivate {
   static COUNTER = 0;
   static REQUEST_SCOPED_DATA: number[] = [];

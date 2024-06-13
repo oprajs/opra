@@ -1,4 +1,4 @@
-import { StrictOmit, Type } from 'ts-gems';
+import { StrictOmit, Type, TypeThunkAsync } from 'ts-gems';
 import { FilterRules } from '../../../filter/filter-rules.js';
 import { OpraFilter } from '../../../filter/index.js';
 import { omitUndefined } from '../../../helpers/index.js';
@@ -8,6 +8,7 @@ import { DATATYPE_METADATA } from '../../constants.js';
 import { FieldPathType, FilterType } from '../../data-type/extended-types/index.js';
 import { IntegerType } from '../../data-type/primitive-types/index.js';
 import { HttpOperation } from '../http-operation.js';
+import type { HttpParameter } from '../http-parameter';
 import { HttpRequestBody } from '../http-request-body.js';
 import { HttpOperationDecorator, HttpOperationDecoratorFactory } from './http-operation.decorator.js';
 
@@ -86,11 +87,15 @@ declare module '../http-operation' {
       }
 
       /** Delete */
-      export type DeleteDecorator = HttpOperationDecorator;
+      export interface DeleteDecorator extends HttpOperationDecorator {
+        KeyParam(
+          name: string,
+          optionsOrType?: StrictOmit<HttpParameter.Options, 'location'> | string | TypeThunkAsync,
+        ): this;
+      }
 
       export interface DeleteArgs extends StrictOmit<HttpOperation.Options, 'method' | 'requestBody'> {
         type: Type | string;
-        keyField?: string;
       }
 
       /** DeleteMany */
@@ -126,15 +131,24 @@ declare module '../http-operation' {
       }
 
       /** Get */
-      export interface GetDecorator extends HttpOperationDecorator {}
+      export interface GetDecorator extends HttpOperationDecorator {
+        KeyParam(
+          name: string,
+          optionsOrType?: StrictOmit<HttpParameter.Options, 'location'> | string | TypeThunkAsync,
+        ): this;
+      }
 
       export interface GetArgs extends StrictOmit<HttpOperation.Options, 'method' | 'requestBody'> {
         type: Type | string;
-        keyField?: string;
       }
 
       /** Update */
       export interface UpdateDecorator extends HttpOperationDecorator {
+        KeyParam(
+          name: string,
+          optionsOrType?: StrictOmit<HttpParameter.Options, 'location'> | string | TypeThunkAsync,
+        ): this;
+
         Filter(
           field: OpraSchema.Field.QualifiedName,
           operators?: OpraFilter.ComparisonOperator[] | string,
@@ -144,7 +158,6 @@ declare module '../http-operation' {
 
       export interface UpdateArgs extends StrictOmit<HttpOperation.Options, 'method' | 'requestBody'> {
         type: Type | string;
-        keyField?: string;
         requestBody?: Pick<HttpRequestBody.Options, 'description' | 'maxContentSize'> & {
           type?: Type | string;
           immediateFetch?: boolean;
@@ -200,8 +213,8 @@ HttpOperation.Entity.Create = function (arg0: any, arg1?: any): HttpOperation.En
     }),
   ) as HttpOperation.Entity.CreateDecorator;
   decorator
-    .QueryParam('fields', {
-      description: 'Determines fields to be exposed',
+    .QueryParam('projection', {
+      description: 'Determines fields projection',
       type: new FieldPathType({
         dataType: args.type,
         allowSigns: 'each',
@@ -215,6 +228,7 @@ HttpOperation.Entity.Create = function (arg0: any, arg1?: any): HttpOperation.En
         'Operation is successful. Returns OperationResult with "payload" field that contains the created resource.',
       contentType: MimeTypes.opra_response_json,
       type: args.type,
+      partial: 'deep',
     })
     .Response(HttpStatusCode.UNPROCESSABLE_ENTITY, {
       description: 'The request was well-formed but was unable to process operation due to one or many errors.',
@@ -258,10 +272,23 @@ HttpOperation.Entity.Delete = function (arg0: any, arg1?: any): HttpOperation.En
       contentType: MimeTypes.opra_response_json,
     });
   if (typeof args.type === 'function') decorator.UseType(args.type);
+
+  /**
+   *
+   */
+  decorator.KeyParam = (name: string, prmOptions?: StrictOmit<HttpParameter.Options, 'location'> | string | Type) => {
+    decorator.PathParam(name, prmOptions);
+    decoratorChain.push((meta: HttpOperation.Metadata): void => {
+      meta.path = (meta.path || '') + '@:' + name;
+      meta.compositionOptions = meta.compositionOptions || {};
+      meta.compositionOptions.keyParameter = name;
+    });
+    return decorator;
+  };
+
   decoratorChain.push((operationMeta: HttpOperation.Metadata) => {
     const compositionOptions = (operationMeta.compositionOptions = operationMeta.compositionOptions || {});
     compositionOptions.type = getDataTypeName(args.type);
-    compositionOptions.keyField = args.keyField;
   });
   return decorator;
 };
@@ -279,6 +306,7 @@ HttpOperation.Entity.DeleteMany = function (arg0: any, arg1?: any): HttpOperatio
   const decoratorChain: Function[] = [];
   const filterRules = new FilterRules();
   const filterType = new FilterType({ dataType: args.type });
+  filterType.rules = {};
   const decorator = HttpOperationDecoratorFactory(
     decoratorChain,
     omitUndefined({
@@ -295,6 +323,10 @@ HttpOperation.Entity.DeleteMany = function (arg0: any, arg1?: any): HttpOperatio
     .Response(HttpStatusCode.UNPROCESSABLE_ENTITY, {
       description: 'The request was well-formed but was unable to process operation due to one or many errors.',
       contentType: MimeTypes.opra_response_json,
+    })
+    .QueryParam('filter', {
+      type: filterType,
+      description: 'Determines filter fields',
     });
   if (typeof args.type === 'function') decorator.UseType(args.type);
   decoratorChain.push((operationMeta: HttpOperation.Metadata) => {
@@ -306,10 +338,6 @@ HttpOperation.Entity.DeleteMany = function (arg0: any, arg1?: any): HttpOperatio
     operators?: OpraFilter.ComparisonOperator[] | string,
     description?: string,
   ) => {
-    decorator.QueryParam('filter', {
-      type: filterType,
-      description: 'Determines filter fields',
-    });
     decoratorChain.push(() => {
       filterRules.set(field, { operators, description });
       filterType.rules = filterRules.toJSON();
@@ -331,6 +359,8 @@ HttpOperation.Entity.FindMany = function (arg0: any, arg1?: any): HttpOperation.
   /** Initialize the decorator and the chain */
   const decoratorChain: Function[] = [];
   const filterRules = new FilterRules();
+  const filterType = new FilterType({ dataType: args.type });
+  filterType.rules = {};
   const decorator = HttpOperationDecoratorFactory(
     decoratorChain,
     omitUndefined({
@@ -345,6 +375,7 @@ HttpOperation.Entity.FindMany = function (arg0: any, arg1?: any): HttpOperation.
         'Operation is successful. Returns OperationResult with "payload" field that contains list of resources.',
       contentType: MimeTypes.opra_response_json,
       type: args.type,
+      partial: 'deep',
       isArray: true,
     })
     .Response(HttpStatusCode.UNPROCESSABLE_ENTITY, {
@@ -363,11 +394,24 @@ HttpOperation.Entity.FindMany = function (arg0: any, arg1?: any): HttpOperation.
       description: 'Counts all matching instances if enabled',
       type: Boolean,
     })
-    .QueryParam('fields', {
-      description: 'Determines fields to be exposed',
+    .QueryParam('projection', {
+      description: 'Determines fields projection',
       type: new FieldPathType({
         dataType: args.type,
         allowSigns: 'each',
+      }),
+      isArray: true,
+      arraySeparator: ',',
+    })
+    .QueryParam('filter', {
+      type: filterType,
+      description: 'Determines filter fields',
+    })
+    .QueryParam('sort', {
+      description: 'Determines sort fields',
+      type: new FieldPathType({
+        dataType: args.type,
+        allowSigns: 'first',
       }),
       isArray: true,
       arraySeparator: ',',
@@ -386,15 +430,6 @@ HttpOperation.Entity.FindMany = function (arg0: any, arg1?: any): HttpOperation.
     return decorator;
   };
   decorator.SortFields = (...fields: OpraSchema.Field.QualifiedName[]) => {
-    decorator.QueryParam('sort', {
-      description: 'Determines sort fields',
-      type: new FieldPathType({
-        dataType: args.type,
-        allowSigns: 'first',
-      }),
-      isArray: true,
-      arraySeparator: ',',
-    });
     decoratorChain.push((operationMeta: HttpOperation.Metadata) => {
       const compositionOptions = (operationMeta.compositionOptions = operationMeta.compositionOptions || {});
       compositionOptions.sortFields = fields;
@@ -406,11 +441,6 @@ HttpOperation.Entity.FindMany = function (arg0: any, arg1?: any): HttpOperation.
     operators?: OpraFilter.ComparisonOperator[] | string,
     description?: string,
   ) => {
-    const filterType = new FilterType({ dataType: args.type });
-    decorator.QueryParam('filter', {
-      type: filterType,
-      description: 'Determines filter fields',
-    });
     decoratorChain.push(() => {
       filterRules.set(field, { operators, description });
       filterType.rules = filterRules.toJSON();
@@ -440,8 +470,8 @@ HttpOperation.Entity.Get = function (arg0: any, arg1?: any): HttpOperation.Entit
     }),
   ) as HttpOperation.Entity.GetDecorator;
   decorator
-    .QueryParam('fields', {
-      description: 'Determines fields to be exposed',
+    .QueryParam('projection', {
+      description: 'Determines fields projection',
       type: new FieldPathType({
         dataType: args.type,
         allowSigns: 'each',
@@ -454,6 +484,7 @@ HttpOperation.Entity.Get = function (arg0: any, arg1?: any): HttpOperation.Entit
         'Operation is successful. Returns OperationResult with "payload" field that contains the resource asked for.',
       contentType: MimeTypes.opra_response_json,
       type: args.type,
+      partial: 'deep',
     })
     .Response(HttpStatusCode.NO_CONTENT, {
       description: 'Operation is successful but no resource found',
@@ -464,10 +495,22 @@ HttpOperation.Entity.Get = function (arg0: any, arg1?: any): HttpOperation.Entit
     });
   if (typeof args.type === 'function') decorator.UseType(args.type);
 
+  /**
+   *
+   */
+  decorator.KeyParam = (name: string, prmOptions?: StrictOmit<HttpParameter.Options, 'location'> | string | Type) => {
+    decorator.PathParam(name, prmOptions);
+    decoratorChain.push((meta: HttpOperation.Metadata): void => {
+      meta.path = (meta.path || '') + '@:' + name;
+      meta.compositionOptions = meta.compositionOptions || {};
+      meta.compositionOptions.keyParameter = name;
+    });
+    return decorator;
+  };
+
   decoratorChain.push((operationMeta: HttpOperation.Metadata) => {
     const compositionOptions = (operationMeta.compositionOptions = operationMeta.compositionOptions || {});
     compositionOptions.type = getDataTypeName(args.type);
-    compositionOptions.keyField = args.keyField;
   });
   return decorator;
 };
@@ -483,6 +526,8 @@ HttpOperation.Entity.UpdateMany = function (arg0: any, arg1?: any): HttpOperatio
 
   /** Initialize the decorator and the chain */
   const decoratorChain: Function[] = [];
+  const filterType = new FilterType({ dataType: args.type });
+  filterType.rules = {};
   const filterRules = new FilterRules();
   const decorator = HttpOperationDecoratorFactory(
     decoratorChain,
@@ -492,6 +537,7 @@ HttpOperation.Entity.UpdateMany = function (arg0: any, arg1?: any): HttpOperatio
       composition: 'Entity.UpdateMany',
       requestBody: {
         immediateFetch: true,
+        partial: 'deep',
         ...args.requestBody,
         required: true,
       },
@@ -508,6 +554,10 @@ HttpOperation.Entity.UpdateMany = function (arg0: any, arg1?: any): HttpOperatio
     .Response(HttpStatusCode.UNPROCESSABLE_ENTITY, {
       description: 'The request was well-formed but was unable to process operation due to one or many errors.',
       contentType: MimeTypes.opra_response_json,
+    })
+    .QueryParam('filter', {
+      type: filterType,
+      description: 'Determines filter fields',
     });
 
   decoratorChain.push((operationMeta: HttpOperation.Metadata) => {
@@ -520,11 +570,6 @@ HttpOperation.Entity.UpdateMany = function (arg0: any, arg1?: any): HttpOperatio
     operators?: OpraFilter.ComparisonOperator[] | string,
     description?: string,
   ) => {
-    const filterType = new FilterType({ dataType: args.type });
-    decorator.QueryParam('filter', {
-      type: filterType,
-      description: 'Determines filter fields',
-    });
     decoratorChain.push(() => {
       filterRules.set(field, { operators, description });
       filterType.rules = filterRules.toJSON();
@@ -546,6 +591,8 @@ HttpOperation.Entity.Update = function (arg0: any, arg1?: any): HttpOperation.En
   /** Initialize the decorator and the chain */
   const decoratorChain: Function[] = [];
   const filterRules = new FilterRules();
+  const filterType = new FilterType({ dataType: args.type });
+  filterType.rules = {};
   const decorator = HttpOperationDecoratorFactory(
     decoratorChain,
     omitUndefined({
@@ -553,15 +600,15 @@ HttpOperation.Entity.Update = function (arg0: any, arg1?: any): HttpOperation.En
       method: 'PATCH',
       composition: 'Entity.Update',
       requestBody: {
-        immediateFetch: true,
+        partial: 'deep',
         ...args.requestBody,
         required: true,
       },
     }),
   ) as HttpOperation.Entity.UpdateDecorator;
   decorator
-    .QueryParam('fields', {
-      description: 'Determines fields to be exposed',
+    .QueryParam('projection', {
+      description: 'Determines fields projection',
       type: new FieldPathType({
         dataType: args.type,
         allowSigns: 'each',
@@ -569,12 +616,17 @@ HttpOperation.Entity.Update = function (arg0: any, arg1?: any): HttpOperation.En
       isArray: true,
       arraySeparator: ',',
     })
+    .QueryParam('filter', {
+      type: filterType,
+      description: 'Determines filter fields',
+    })
     .RequestContent(args.requestBody?.type || args.type)
     .Response(HttpStatusCode.OK, {
       description:
         'Operation is successful. Returns OperationResult with "payload" field that contains updated resource.',
       contentType: MimeTypes.opra_response_json,
       type: args.type,
+      partial: 'deep',
     })
     .Response(HttpStatusCode.NO_CONTENT, {
       description: 'Operation is successful but no resource found',
@@ -583,12 +635,25 @@ HttpOperation.Entity.Update = function (arg0: any, arg1?: any): HttpOperation.En
       description: 'The request was well-formed but was unable to process operation due to one or many errors.',
       contentType: MimeTypes.opra_response_json,
     });
+
   if (typeof args.type === 'function') decorator.UseType(args.type);
+
+  /**
+   *
+   */
+  decorator.KeyParam = (name: string, prmOptions?: StrictOmit<HttpParameter.Options, 'location'> | string | Type) => {
+    decorator.PathParam(name, prmOptions);
+    decoratorChain.push((meta: HttpOperation.Metadata): void => {
+      meta.path = (meta.path || '') + '@:' + name;
+      meta.compositionOptions = meta.compositionOptions || {};
+      meta.compositionOptions.keyParameter = name;
+    });
+    return decorator;
+  };
 
   decoratorChain.push((operationMeta: HttpOperation.Metadata) => {
     const compositionOptions = (operationMeta.compositionOptions = operationMeta.compositionOptions || {});
     compositionOptions.type = getDataTypeName(args.type);
-    compositionOptions.keyField = args.keyField;
   });
 
   decorator.Filter = (
@@ -596,11 +661,6 @@ HttpOperation.Entity.Update = function (arg0: any, arg1?: any): HttpOperation.En
     operators?: OpraFilter.ComparisonOperator[] | string,
     description?: string,
   ) => {
-    const filterType = new FilterType({ dataType: args.type });
-    decorator.QueryParam('filter', {
-      type: filterType,
-      description: 'Determines filter fields',
-    });
     decoratorChain.push(() => {
       filterRules.set(field, { operators, description });
       filterType.rules = filterRules.toJSON();
@@ -617,6 +677,7 @@ HttpOperation.Entity.Update = function (arg0: any, arg1?: any): HttpOperation.En
 function getDataTypeName(typ: Type | string): string {
   if (typeof typ === 'string') return typ;
   const metadata = Reflect.getMetadata(DATATYPE_METADATA, typ);
+  if (!metadata) throw new TypeError(`Type (${typ}) is not decorated with any datatype decorators`);
   if (metadata?.name) return metadata.name;
-  throw new TypeError(`Type (${typ}) is not decorated with any datatype decorators`);
+  throw new TypeError(`You should provide named data type but embedded one found`);
 }

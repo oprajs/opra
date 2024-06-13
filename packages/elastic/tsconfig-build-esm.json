@@ -5,7 +5,5 @@
     "outDir": "../../build/elastic/esm",
     "declarationDir": "../../build/elastic/types"
   },
-  "include": [
-    "src"
-  ]
+  "include": ["src"]
 }

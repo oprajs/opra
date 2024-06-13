@@ -4,7 +4,7 @@ export enum GenderEnum {
   MALE = 'M',
   FEMALE = 'F',
   OTHER = 'O',
-  UNKNOWN = 'U'
+  UNKNOWN = 'U',
 }
 
 EnumType(GenderEnum, {
@@ -14,6 +14,6 @@ EnumType(GenderEnum, {
     MALE: 'Male',
     FEMALE: 'Female',
     OTHER: 'Other',
-    UNKNOWN: 'Unknown'
-  }
-})
+    UNKNOWN: 'Unknown',
+  },
+});

@@ -1,17 +1,14 @@
 import { parse as parseContentType } from 'content-type';
+import { splitString } from 'fast-tokenizer';
 import * as process from 'node:process';
 import { asMutable } from 'ts-gems';
 import { toArray, ValidationError, Validator, vg } from 'valgen';
 import type { ErrorIssue } from 'valgen/typings/core/types';
 import typeIs from '@browsery/type-is';
 import {
-  ApiDocument,
   BadRequestError,
-  DocumentElement,
-  HttpController,
   HttpHeaderCodes,
   HttpMediaType,
-  HttpOperation,
   HttpOperationResponse,
   HttpParameter,
   HttpStatusCode,
@@ -28,10 +25,10 @@ import {
 } from '@opra/common';
 import { kAssetCache } from '../../constants.js';
 import type { HttpAdapter } from '../http-adapter.js';
+import { HttpContext } from '../http-context.js';
 import { HttpOutgoing } from '../interfaces/http-outgoing.interface.js';
 import { wrapException } from '../utils/wrap-exception.js';
 import { AssetCache } from './asset-cache.js';
-import { HttpContext } from '../http-context';
 
 /**
  * @namespace
@@ -44,8 +41,6 @@ export namespace HttpHandler {
     statusCode: number;
     contentType?: string;
     operationResponse?: HttpOperationResponse;
-    context?: string;
-    typeName?: string;
     body?: any;
   }
 }
@@ -238,14 +233,15 @@ export class HttpHandler {
         if (oprPrm) paramsLeft.delete(oprPrm);
         if (cntPrm) paramsLeft.delete(cntPrm);
         const decode = getDecoder(prm);
-        let v: any = searchParams?.getAll(prmName)?.flat();
-        if (prm.isArray) {
-          v = decode(v, { coerce: true, label: prmName, onFail });
-          if (!v.length) v = undefined;
+        let values: any[] = searchParams?.getAll(prmName);
+        if (values?.length && prm.isArray) {
+          values = values.map(v => splitString(v, { delimiters: prm.arraySeparator, quotes: true })).flat();
+          values = values.map(v => decode(v, { coerce: true, label: prmName, onFail }));
+          if (values.length) context.queryParams[prmName] = values;
         } else {
-          v = decode(v[0], { coerce: true, label: prmName, onFail });
+          const v = decode(values[0], { coerce: true, label: prmName, onFail });
+          if (values.length) context.queryParams[prmName] = v;
         }
-        if (v !== undefined) context.queryParams[prmName] = v;
       }
 
       for (const prm of paramsLeft) {
@@ -302,10 +298,8 @@ export class HttpHandler {
    * @protected
    */
   protected async _executeRequest(context: HttpContext): Promise<any> {
-    const { operation, resource } = context;
-    const handler = this[kAssetCache].get<Function>(operation, 'handler');
-    if (!handler) throw new MethodNotAllowedError();
-    return await handler.call(resource.instance, context);
+    if (!context.operationHandler) throw new MethodNotAllowedError();
+    return await context.operationHandler.call(context.controllerInstance, context);
   }
 
   /**
@@ -335,7 +329,10 @@ export class HttpHandler {
         /** Generate encoder */
         let encode = this[kAssetCache].get<Validator>(operationResponse, 'encode');
         if (!encode) {
-          encode = operationResponse.type.generateCodec('encode');
+          encode = operationResponse.type.generateCodec('encode', {
+            partial: operationResponse.partial,
+            projection: '*',
+          });
           if (operationResponse) {
             if (operationResponse.isArray) encode = vg.isArray(encode);
             this[kAssetCache].set(operationResponse, 'encode', encode);
@@ -349,10 +346,18 @@ export class HttpHandler {
             body = operationResultEncoder(body);
           }
         } else {
-          if (body instanceof OperationResult) {
+          if (
+            body instanceof OperationResult &&
+            contentType &&
+            typeIs.is(contentType, [MimeTypes.opra_response_json])
+          ) {
             body.payload = encode(body.payload);
             body = operationResultEncoder(body);
           } else body = encode(body);
+        }
+
+        if (body instanceof OperationResult && operationResponse.type) {
+          body.type = operationResponse.type.name ? operationResponse.type.name : '#embedded';
         }
       }
     } else if (body != null) {
@@ -395,7 +400,7 @@ export class HttpHandler {
   protected _determineResponseArgs(context: HttpContext, body: any): HttpHandler.ResponseArgs {
     const { response, operation } = context;
 
-    const hasBody = !!body;
+    const hasBody = body != null;
     const statusCode =
       !hasBody && response.statusCode === HttpStatusCode.OK ? HttpStatusCode.NO_CONTENT : response.statusCode;
     /** Parse content-type header */
@@ -481,27 +486,6 @@ export class HttpHandler {
             body.affected == null
           )
             body.affected = 1;
-          if (!responseArgs.context && operationResponse?.type) {
-            let el: DocumentElement | undefined = operationResponse.type.owner;
-            while (el) {
-              if (el instanceof HttpOperationResponse) {
-                responseArgs.context = el.owner.getDocumentPath() + `#responses[${el.owner.responses.indexOf(el!)}]`;
-                break;
-              }
-              if (el instanceof HttpOperation || el instanceof HttpController) {
-                responseArgs.context = el.getDocumentPath();
-                break;
-              }
-              if (el instanceof ApiDocument) {
-                responseArgs.context = '/';
-                break;
-              }
-              el = el.owner;
-            }
-            responseArgs.typeName = operationResponse.type.embedded ? `[#embedded]` : operationResponse.type.name;
-          }
-          body.context = responseArgs.context;
-          body.type = responseArgs.typeName;
           break;
         }
         case 'Entity.Delete':
@@ -530,7 +514,7 @@ export class HttpHandler {
       else response.removeHeader('content-type');
     if (
       responseArgs.contentType &&
-      body &&
+      body != null &&
       !(body instanceof OperationResult) &&
       typeIs.is(responseArgs.contentType!, [MimeTypes.opra_response_json])
     )

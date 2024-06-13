@@ -28,6 +28,7 @@ export class HttpRequestBody extends DocumentElement {
   required?: boolean;
   maxContentSize?: number;
   immediateFetch?: boolean;
+  partial?: boolean | 'deep';
 
   constructor(readonly owner: HttpOperation) {
     super(owner);
@@ -39,6 +40,7 @@ export class HttpRequestBody extends DocumentElement {
       required: this.required,
       maxContentSize: this.maxContentSize,
       content: this.content.length ? this.content.map(x => x.toJSON()) : [],
+      partial: this.partial,
     });
   }
 }

@@ -1,5 +1,6 @@
 import mongodb from 'mongodb';
 import { OpraFilter } from '@opra/common';
+import type { MongoAdapter } from '../mongo-adapter.js';
 
 const opMap = {
   '=': '$eq',
@@ -8,11 +9,9 @@ const opMap = {
   '>=': '$gte',
   '<': '$lt',
   '<=': '$lte',
-  'in': '$in',
+  in: '$in',
   '!in': '$nin',
-}
-
-export type FilterInput = (OpraFilter.Expression | mongodb.Filter<any> | string | undefined);
+};
 
 /**
  * Prepare the MongoDB filter based on the provided filters and options.
@@ -24,27 +23,22 @@ export type FilterInput = (OpraFilter.Expression | mongodb.Filter<any> | string 
  * @returns {mongodb.Filter<any>} - The prepared MongoDB filter.
  */
 export default function prepareFilter(
-    filters: FilterInput | FilterInput[],
-    options?: {
-      fieldPrefix?: string
-    }
+  filters: MongoAdapter.FilterInput | MongoAdapter.FilterInput[],
+  options?: {
+    fieldPrefix?: string;
+  },
 ): mongodb.Filter<any> {
   const filtersArray = Array.isArray(filters) ? filters : [filters];
-  if (!filtersArray.length)
-    return {};
+  if (!filtersArray.length) return {};
   let i = 0;
   const out: any = {};
   for (const filter of filtersArray) {
-    if (!filter)
-      continue;
+    if (!filter) continue;
     let x: any;
-    if (typeof filter === 'string')
-      x = prepareFilterAst(OpraFilter.parse(filter));
-    else if (filter instanceof OpraFilter.Expression)
-      x = prepareFilterAst(filter);
+    if (typeof filter === 'string') x = prepareFilterAst(OpraFilter.parse(filter));
+    else if (filter instanceof OpraFilter.Expression) x = prepareFilterAst(filter);
     else x = filter;
-    if (Array.isArray(x))
-      x = {$and: out};
+    if (Array.isArray(x)) x = { $and: out };
 
     // Merge $and arrays
     if (x.$and) {
@@ -62,8 +56,8 @@ export default function prepareFilter(
       // If result object has filter field we convert it to $and
       if (out[k]) {
         out.$and = out.$and || [];
-        out.$and.push({[k]: out[k]});
-        out.$and.push({[k]: x[k]});
+        out.$and.push({ [k]: out[k] });
+        out.$and.push({ [k]: x[k] });
         delete out[k];
         continue;
       }
@@ -71,42 +65,31 @@ export default function prepareFilter(
     }
     i++;
   }
-  return i
-      ? (options?.fieldPrefix ? addPrefix(out, options.fieldPrefix) : out)
-      : undefined;
+  return i ? (options?.fieldPrefix ? addPrefix(out, options.fieldPrefix) : out) : undefined;
 }
 
 function addPrefix(source: any, prefix: string): any {
-  if (typeof source !== 'object')
-    return source;
-  if (Array.isArray(source))
-    return source.map(v => addPrefix(v, prefix));
+  if (typeof source !== 'object') return source;
+  if (Array.isArray(source)) return source.map(v => addPrefix(v, prefix));
   const out: any = {};
   for (const [k, v] of Object.entries(source)) {
-    if (k.startsWith('$'))
-      out[k] = addPrefix(v, prefix);
+    if (k.startsWith('$')) out[k] = addPrefix(v, prefix);
     else out[prefix + k] = addPrefix(v, prefix);
   }
   return out;
 }
 
-function prepareFilterAst(
-    ast: OpraFilter.Expression | undefined,
-    negative?: boolean
-): any {
-  if (!ast)
-    return;
+function prepareFilterAst(ast: OpraFilter.Expression | undefined, negative?: boolean): any {
+  if (!ast) return;
 
-  if (ast instanceof OpraFilter.QualifiedIdentifier) {
-    return ast.value;
-  }
-
-  if (ast instanceof OpraFilter.NumberLiteral ||
-      ast instanceof OpraFilter.StringLiteral ||
-      ast instanceof OpraFilter.BooleanLiteral ||
-      ast instanceof OpraFilter.NullLiteral ||
-      ast instanceof OpraFilter.DateLiteral ||
-      ast instanceof OpraFilter.TimeLiteral
+  if (
+    ast instanceof OpraFilter.QualifiedIdentifier ||
+    ast instanceof OpraFilter.NumberLiteral ||
+    ast instanceof OpraFilter.StringLiteral ||
+    ast instanceof OpraFilter.BooleanLiteral ||
+    ast instanceof OpraFilter.NullLiteral ||
+    ast instanceof OpraFilter.DateLiteral ||
+    ast instanceof OpraFilter.TimeLiteral
   ) {
     return ast.value;
   }
@@ -120,12 +103,9 @@ function prepareFilterAst(
   }
 
   if (ast instanceof OpraFilter.LogicalExpression) {
-    const items = ast.items
-        .map(x => prepareFilterAst(x, negative))
-        .filter(x => x != null) as mongodb.Filter<any>[];
-    if (ast.op === 'or')
-      return {$or: items};
-    return {$and: items};
+    const items = ast.items.map(x => prepareFilterAst(x, negative)).filter(x => x != null) as mongodb.Filter<any>[];
+    if (ast.op === 'or') return { $or: items };
+    return { $and: items };
   }
 
   if (ast instanceof OpraFilter.ParenthesizedExpression) {
@@ -137,68 +117,71 @@ function prepareFilterAst(
 
     if (ast.right instanceof OpraFilter.QualifiedIdentifier) {
       const op = opMap[ast.op];
-      if (op)
-        return {$expr: {[op]: ["$" + left, "$" + ast.right.value]}};
+      if (op) return { $expr: { [op]: ['$' + left, '$' + ast.right.value] } };
       /* istanbul ignore next */
       throw new Error(`Invalid filter query.`);
     }
 
     let right = prepareFilterAst(ast.right);
     if (right == null) {
-      const op = ast.op === '='
-          ? (negative ? '!=' : '=')
-          : (negative ? '=' : '!=');
-      if (op === '=')
-        return {$or: [{[left]: null}, {[left]: {$exists: false}}]};
-      if (op === '!=')
-        return {$and: [{$ne: {[left]: null}}, {[left]: {$exists: true}}]};
+      const op = ast.op === '=' ? (negative ? '!=' : '=') : negative ? '=' : '!=';
+      if (op === '=') return { $or: [{ [left]: null }, { [left]: { $exists: false } }] };
+      if (op === '!=') return { $and: [{ $ne: { [left]: null } }, { [left]: { $exists: true } }] };
     }
 
     const mngOp = opMap[ast.op];
     if (mngOp) {
-      if (ast.op === 'in' || ast.op === '!in')
-        right = Array.isArray(right) ? right : [right];
-      if (ast.op === '=' && !negative)
-        return {[left]: right};
-      return {[left]: wrapNot({[mngOp]: right}, negative)};
+      if (ast.op === 'in' || ast.op === '!in') right = Array.isArray(right) ? right : [right];
+      if (ast.op === '=' && !negative) return { [left]: right };
+      return { [left]: wrapNot({ [mngOp]: right }, negative) };
     }
 
     switch (ast.op) {
       case 'like':
         return {
-          [left]:
-              wrapNot({
-                $text: {
-                  $search: '\\"' + right.replace(/\\"/, '"') + '\\"',
-                  $caseSensitive: true
-                }
-              }, negative)
+          [left]: wrapNot(
+            {
+              $text: {
+                $search: '\\"' + right.replace(/\\"/, '"') + '\\"',
+                $caseSensitive: true,
+              },
+            },
+            negative,
+          ),
         };
       case 'ilike':
         return {
-          [left]:
-              wrapNot({
-                $text: {
-                  $search: '\\"' + right.replace(/\\"/, '"') + '\\"'
-                }
-              }, negative)
+          [left]: wrapNot(
+            {
+              $text: {
+                $search: '\\"' + right.replace(/\\"/, '"') + '\\"',
+              },
+            },
+            negative,
+          ),
         };
       case '!like':
         return {
-          [left]: wrapNot({
-            $text: {
-              $search: '\\"' + right.replace(/\\"/, '"') + '\\"',
-              $caseSensitive: true
-            }
-          }, !negative)
-        }
+          [left]: wrapNot(
+            {
+              $text: {
+                $search: '\\"' + right.replace(/\\"/, '"') + '\\"',
+                $caseSensitive: true,
+              },
+            },
+            !negative,
+          ),
+        };
       case '!ilike':
         return {
-          [left]: wrapNot({
-            $text: {
-              $search: '\\"' + right.replace(/\\"/, '"') + '\\"'
-            }
-          }, !negative)
+          [left]: wrapNot(
+            {
+              $text: {
+                $search: '\\"' + right.replace(/\\"/, '"') + '\\"',
+              },
+            },
+            !negative,
+          ),
         };
     }
 
@@ -208,4 +191,4 @@ function prepareFilterAst(
   throw new Error(`${ast.kind} is not implemented yet`);
 }
 
-const wrapNot = (o: object, negative?: boolean) => negative ? {$not: o} : o;
+const wrapNot = (o: object, negative?: boolean) => (negative ? { $not: o } : o);

@@ -5,56 +5,50 @@ export function collectionFindManyTests(args: { client: OpraTestClient }) {
     afterAll(() => global.gc && global.gc());
 
     it('Should return list object', async () => {
-      const resp = await args.client.collection('Customers').findMany().getResponse();
+      const resp = await args.client.get('Customers').getResponse();
       resp.expect.toSuccess().toReturnCollection().toReturnItems();
     });
 
+    it('Test "count" option', async () => {
+      const resp = await args.client.get('Customers').param({ count: true }).getResponse();
+      resp.expect.toSuccess().toReturnCollection().toReturnItems();
+      expect(resp.body.totalMatches).toBeGreaterThan(0);
+    });
+
     it('Test "limit" option', async () => {
-      const resp = await args.client.collection('Customers').findMany({ limit: 3 }).getResponse();
+      const resp = await args.client.get('Customers').param({ limit: '3' }).getResponse();
       resp.expect.toSuccess().toReturnCollection().toReturnItems(1, 3);
     });
 
     it('Test "sort" option', async () => {
-      const resp = await args.client
-        .collection('Customers')
-        .findMany({ sort: ['givenName'] })
-        .getResponse();
+      const resp = await args.client.get('Customers').param({ sort: 'givenName' }).getResponse();
       resp.expect.toSuccess().toReturnCollection().toBeSortedBy('givenName');
     });
 
     it('Test "skip" option', async () => {
-      const resp = await args.client
-        .collection('Customers')
-        .findMany({ skip: 10, sort: ['_id'] })
-        .getResponse();
+      const resp = await args.client.get('Customers').param({ skip: '10', sort: '_id' }).getResponse();
       resp.expect.toSuccess().toReturnCollection().toReturnItems();
       expect(resp.body.payload?.[0]._id).toBeGreaterThanOrEqual(10);
     });
 
-    it('Test "pick" option', async () => {
-      const resp = await args.client
-        .collection('Customers')
-        .findMany({ pick: ['_id', 'givenName'] })
-        .getResponse();
+    it('Should exclude exclusive fields by default', async () => {
+      const resp = await args.client.get('Customers').getResponse();
+      resp.expect.toSuccess().toReturnCollection().not.toContainFields(['address', 'notes']);
+    });
+
+    it('Should fetch exclusive fields if requested', async () => {
+      const resp = await args.client.get('Customers').param('projection', '+address').getResponse();
+      resp.expect.toSuccess().toReturnCollection().toContainFields(['_id', 'givenName', 'address']);
+    });
+
+    it('Should pick fields to be returned', async () => {
+      const resp = await args.client.get('Customers').param('projection', '_id,givenName').getResponse();
       resp.expect.toSuccess().toReturnCollection().toContainAllFields(['_id', 'givenName']);
     });
 
-    it('Test "omit" option', async () => {
-      const resp = await args.client
-        .collection('Customers')
-        .findMany({ omit: ['givenName'] })
-        .getResponse();
-      resp.expect.toSuccess().toReturnCollection().not.toContainFields(['givenName']);
-    });
-
-    it('Test "filter" option', async () => {
-      const resp = await args.client.collection('Customers').findMany({ filter: 'gender="M"' }).getResponse();
-      resp.expect.toSuccess().toReturnCollection().toReturnItems().toBeFilteredBy('gender="M"');
-    });
-
-    it('Test "count" option', async () => {
-      const resp = await args.client.collection('Customers').findMany({ count: true }).getResponse();
-      resp.expect.toSuccess().toReturnCollection().toContainTotalMatches(1);
+    it('Should omit fields to be returned', async () => {
+      const resp = await args.client.get('Customers').param('projection', '-_id,-givenName').getResponse();
+      resp.expect.toSuccess().toReturnCollection().not.toContainAllFields(['_id', 'givenName']);
     });
   });
 }

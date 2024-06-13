@@ -69,7 +69,7 @@ export interface HttpIncoming extends NodeIncomingMessage {
   /**
    * Path parameter values
    */
-  params?: Record<string, any>;
+  params: Record<string, any>;
 
   /**
    * Cookie parameter values
@@ -234,6 +234,7 @@ export namespace HttpIncoming {
     mergePrototype(instance, HttpIncomingHost.prototype);
     const req = instance as HttpIncoming;
     req.baseUrl = req.baseUrl || '';
+    req.params = req.params || {};
     return req;
   }
 }

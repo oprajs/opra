@@ -5,10 +5,10 @@ import { DocumentInitContext } from '../common/document-init-context.js';
 import { OpraDocumentError } from '../common/opra-document-error.js';
 import { BUILTIN, CLASS_NAME_PATTERN, kCtorMap } from '../constants.js';
 import {
-  ApproxDatetimeType,
-  ApproxDateType,
   Base64Type,
-  DatetimeType,
+  DateStringType,
+  DateTimeStringType,
+  DateTimeType,
   DateType,
   EmailType,
   FieldPathType,
@@ -175,11 +175,11 @@ export class ApiDocumentFactory {
         ObjectType,
         StringType,
         // Extended types
-        ApproxDatetimeType,
-        ApproxDateType,
         Base64Type,
-        DatetimeType,
         DateType,
+        DateStringType,
+        DateTimeType,
+        DateTimeStringType,
         EmailType,
         FieldPathType,
         FilterType,

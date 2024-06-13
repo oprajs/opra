@@ -2,11 +2,10 @@ import { ApiField, ComplexType } from '@opra/common';
 import { Column, Entity } from '@sqb/connect';
 
 @ComplexType({
-  description: 'Country information'
+  description: 'Country information',
 })
 @Entity('countries')
 export class Country {
-
   @ApiField()
   @Column()
   code: string;
@@ -18,5 +17,4 @@ export class Country {
   @ApiField()
   @Column()
   phoneCode?: string;
-
 }

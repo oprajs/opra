@@ -21,6 +21,7 @@ export * from './http/interfaces/http-outgoing.interface.js';
 export * from './http/interfaces/node-incoming-message.interface.js';
 export * from './http/interfaces/node-outgoing-message.interface.js';
 export * from './http/impl/multipart-reader.js';
+export * from './http/utils/wrap-exception.js';
 
 export * from './interfaces/logger.interface.js';
 

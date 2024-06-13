@@ -1,5 +1,6 @@
 import ruleJudgmentLib from 'rule-judgment';
-import { omitNullish, OpraFilter } from '@opra/common';
+import typeIs from '@browsery/type-is';
+import { MimeTypes, omitNullish, OpraFilter } from '@opra/common';
 import { ApiExpectBase } from './api-expect-base.js';
 
 // @ts-ignore
@@ -18,8 +19,13 @@ export class ApiExpectCollection extends ApiExpectBase {
   toReturnItems(min?: number, max?: number): this {
     let msg = '';
     try {
+      const data = typeIs.is(this.response.contentType, [MimeTypes.opra_response_json])
+        ? this.response.body.payload
+        : this.response.body;
+      msg += `Payload should be array.`;
+      this._expect(Array.isArray(data)).toBeTruthy();
       msg += `The length of payload array do not match. `;
-      const l = this.response.body.payload.length;
+      const l = data.length;
       this._expect(l).toBeGreaterThanOrEqual(min || 1);
       if (max) this._expect(l).toBeLessThanOrEqual(max);
     } catch (e: any) {
@@ -52,7 +58,12 @@ export class ApiExpectCollection extends ApiExpectBase {
   toMatch<T extends {}>(expected: T): this {
     try {
       expected = omitNullish(expected) as T;
-      this._expect(this.response.body.payload).toEqual(expect.arrayContaining([expect.objectContaining(expected)]));
+      const data = typeIs.is(this.response.contentType, [MimeTypes.opra_response_json])
+        ? this.response.body.payload
+        : this.response.body;
+      for (const x of data) {
+        this._expect(x).toMatchObject(expected);
+      }
     } catch (e: any) {
       Error.captureStackTrace(e, this.toMatch);
       throw e;
@@ -67,7 +78,10 @@ export class ApiExpectCollection extends ApiExpectBase {
   toContainFields(fields: string | string[]): this {
     try {
       fields = Array.isArray(fields) ? fields : [fields];
-      for (const item of this.response.body.payload) {
+      const data = typeIs.is(this.response.contentType, [MimeTypes.opra_response_json])
+        ? this.response.body.payload
+        : this.response.body;
+      for (const item of data) {
         this._expect(Object.keys(item)).toEqual(expect.arrayContaining(fields));
       }
     } catch (e: any) {
@@ -84,7 +98,10 @@ export class ApiExpectCollection extends ApiExpectBase {
   toContainAllFields(fields: string | string[]): this {
     try {
       fields = Array.isArray(fields) ? fields : [fields];
-      for (const item of this.response.body.payload) {
+      const data = typeIs.is(this.response.contentType, [MimeTypes.opra_response_json])
+        ? this.response.body.payload
+        : this.response.body;
+      for (const item of data) {
         this._expect(Object.keys(item)).toEqual(fields);
       }
     } catch (e: any) {
@@ -101,7 +118,10 @@ export class ApiExpectCollection extends ApiExpectBase {
   toBeSortedBy(fields: string | string[]): this {
     try {
       fields = Array.isArray(fields) ? fields : [fields];
-      (this._expect(this.response.body.payload) as any).opraCollectionToBeSortedBy(fields);
+      const data = typeIs.is(this.response.contentType, [MimeTypes.opra_response_json])
+        ? this.response.body.payload
+        : this.response.body;
+      (this._expect(data) as any).opraCollectionToBeSortedBy(fields);
     } catch (e: any) {
       Error.captureStackTrace(e, this.toBeSortedBy);
       throw e;
@@ -117,9 +137,12 @@ export class ApiExpectCollection extends ApiExpectBase {
     const f = convertFilter(filter);
     if (f) {
       const j = ruleJudgment(f);
-      const filtered = this.response.body.payload.filter(j);
+      const data = typeIs.is(this.response.contentType, [MimeTypes.opra_response_json])
+        ? this.response.body.payload
+        : this.response.body;
+      const filtered = data.filter(j);
       try {
-        this._expect(this.response.body.payload).toStrictEqual(filtered);
+        this._expect(data).toStrictEqual(filtered);
       } catch (e: any) {
         Error.captureStackTrace(e, this.toBeFilteredBy);
         throw e;

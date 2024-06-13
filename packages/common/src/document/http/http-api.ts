@@ -1,13 +1,17 @@
+import { Type } from 'ts-gems';
 import { ResponsiveMap } from '../../helpers/index.js';
 import { OpraSchema } from '../../schema/index.js';
 import type { ApiDocument } from '../api-document';
 import { ApiBase } from '../common/api-base.js';
 import { HttpController } from './http-controller.js';
+import type { HttpOperation } from './http-operation.js';
 
 /**
  * @class HttpApi
  */
 export class HttpApi extends ApiBase {
+  // noinspection JSUnusedGlobalSymbols
+  protected _controllerReverseMap: WeakMap<Type, HttpController | null> = new WeakMap();
   readonly protocol = 'http';
   controllers: ResponsiveMap<HttpController> = new ResponsiveMap();
   url?: string;
@@ -16,17 +20,17 @@ export class HttpApi extends ApiBase {
     super(owner);
   }
 
-  findController(resourcePath: string): HttpController | undefined {
-    if (resourcePath.startsWith('/')) resourcePath = resourcePath.substring(1);
-    if (resourcePath.includes('/')) {
-      const a = resourcePath.split('/');
-      let r = this.controllers.get(a.shift()!);
-      while (r && a.length > 0) {
-        r = r.controllers.get(a.shift()!);
-      }
-      return r;
-    }
-    return this.controllers.get(resourcePath);
+  findController(controller: Type): HttpController | undefined;
+  findController(resourcePath: string): HttpController | undefined;
+  findController(arg0: string | Type): HttpController | undefined {
+    return HttpController.prototype.findController.call(this, arg0 as any);
+  }
+
+  findOperation(controller: Type, operationName: string): HttpOperation | undefined;
+  findOperation(resourcePath: string, operationName: string): HttpOperation | undefined;
+  findOperation(arg0: string | Type, operationName: string): HttpOperation | undefined {
+    const controller = this.findController(arg0 as any);
+    return controller?.operations.get(operationName);
   }
 
   toJSON(): OpraSchema.HttpApi {

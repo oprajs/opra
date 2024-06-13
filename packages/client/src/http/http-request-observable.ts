@@ -1,6 +1,6 @@
 import { lastValueFrom, Observable } from 'rxjs';
 import typeIs from '@browsery/type-is';
-import { OpraURL, URLSearchParamsInit } from '@opra/common';
+import { MimeTypes, OpraURL, URLSearchParamsInit } from '@opra/common';
 import { kBackend, kContext } from '../constants.js';
 import { ClientError } from '../core/client-error.js';
 import { HttpObserveType } from './enums/http-observable-type.enum.js';
@@ -57,7 +57,7 @@ export class HttpRequestObservable<
               return;
             }
 
-            const isOpraResponse = typeIs.is(event.response.contentType || '', ['application/opra+json']);
+            const isOpraResponse = typeIs.is(event.response.contentType || '', [MimeTypes.opra_response_json]);
 
             if (response.status >= 400 && response.status < 600) {
               subscriber.error(
@@ -126,7 +126,7 @@ export class HttpRequestObservable<
     return this;
   }
 
-  param(params: URLSearchParamsInit): this;
+  param(params: URLSearchParamsInit | Record<string, string | number | boolean | Date>): this;
   param(name: string, value: any): this;
   param(arg0: string | URLSearchParamsInit, value?: any): this {
     if (value && typeof value === 'object') {
@@ -134,8 +134,11 @@ export class HttpRequestObservable<
     }
     const target = this[kContext].url.searchParams;
     if (typeof arg0 === 'object') {
-      const h = arg0 instanceof URLSearchParams ? arg0 : new URLSearchParams(arg0);
-      h.forEach((v, k) => target.set(k, v));
+      if (typeof arg0.forEach === 'function') {
+        arg0.forEach((v: any, k: any) => target.set(String(k), String(v)));
+      } else {
+        Object.entries(arg0).forEach(entry => target.set(String(entry[0]), String(entry[1])));
+      }
       return this;
     }
     if (value == null) target.delete(arg0);

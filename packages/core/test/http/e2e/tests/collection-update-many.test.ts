@@ -4,22 +4,41 @@ import { OpraTestClient } from '@opra/testing';
 export function collectionUpdateManyTests(args: { client: OpraTestClient }) {
   describe('Collection:updateMany', function () {
     afterAll(() => global.gc && global.gc());
-
-    it('Should update many instances', async () => {
-      const data = {
-        uid: faker.string.hexadecimal({ length: 5 }),
+    const generateData = (v?: any) => {
+      return {
+        givenName: faker.person.firstName(),
+        familyName: faker.person.lastName(),
+        gender: 'M',
+        ...v,
       };
-      const resp1 = await args.client.collection('Customers').updateMany(data, { filter: '_id<=50' }).getResponse();
+    };
+
+    it('Should update many instances with filter', async () => {
+      const data = generateData({
+        uid: faker.string.hexadecimal({ length: 5 }),
+      });
+      const resp1 = await args.client
+        .patch('Customers', data)
+        .param({
+          filter: '_id<=5',
+        })
+        .getResponse();
       resp1.expect.toSuccess().toReturnOperationResult().toBeAffected();
 
-      const resp2 = await args.client
-        .collection('Customers')
-        .findMany({
-          filter: '_id<=50 and uid="' + data.uid + '"',
-          limit: 1000000,
+      let resp2 = await args.client
+        .get('Customers')
+        .param({
+          filter: '_id<=5',
         })
         .getResponse();
       resp2.expect.toSuccess().toReturnCollection().toMatch(data);
+      resp2 = await args.client
+        .get('Customers')
+        .param({
+          filter: '_id>5',
+        })
+        .getResponse();
+      resp2.expect.toSuccess().toReturnCollection().not.toMatch(data);
     });
   });
 }

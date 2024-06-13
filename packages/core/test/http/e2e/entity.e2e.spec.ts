@@ -34,7 +34,6 @@ describe('e2e:HttpOperation.Entity endpoints', function (this: any) {
     expect(resp.body.errors).not.toBeDefined();
     expect(resp.statusCode).toStrictEqual(201);
     expect(resp.body).toEqual({
-      context: '/',
       type: 'Customer',
       affected: 1,
       payload: {
@@ -53,7 +52,6 @@ describe('e2e:HttpOperation.Entity endpoints', function (this: any) {
     expect(resp.body.errors).not.toBeDefined();
     expect(resp.statusCode).toStrictEqual(200);
     expect(resp.body).toEqual({
-      context: '/',
       type: 'Customer',
       payload: expect.any(Object),
     });
@@ -75,7 +73,6 @@ describe('e2e:HttpOperation.Entity endpoints', function (this: any) {
     expect(resp.body.errors).not.toBeDefined();
     expect(resp.statusCode).toStrictEqual(200);
     expect(resp.body).toEqual({
-      context: '/',
       type: 'Customer',
       totalMatches: expect.any(Number),
       payload: expect.any(Object),
@@ -101,7 +98,6 @@ describe('e2e:HttpOperation.Entity endpoints', function (this: any) {
     expect(resp.body.errors).not.toBeDefined();
     expect(resp.statusCode).toStrictEqual(200);
     expect(resp.body).toEqual({
-      context: '/',
       type: 'Customer',
       affected: 1,
       payload: expect.any(Object),

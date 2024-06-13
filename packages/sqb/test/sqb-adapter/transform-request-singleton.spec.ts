@@ -6,7 +6,6 @@ import { SQBAdapter } from '@opra/sqb';
 import { createTestApp } from '../_support/test-app/index.js';
 
 describe('SQBAdapter.transformRequest (Singleton)', function () {
-
   let api: ApiDocument;
 
   beforeAll(async () => {
@@ -15,14 +14,14 @@ describe('SQBAdapter.transformRequest (Singleton)', function () {
   });
 
   describe('Convert "create" request', function () {
-    const data = {_id: 1001};
+    const data = { _id: 1001 };
 
     it('Should prepare', async () => {
       const resource = api.getSingleton('MyProfile');
       const request = {
         resource,
         endpoint: resource.getOperation('create'),
-        data
+        data,
       } as unknown as Request;
       const o = SQBAdapter.transformRequest(request);
       expect(o.method).toStrictEqual('create');
@@ -40,21 +39,20 @@ describe('SQBAdapter.transformRequest (Singleton)', function () {
         params: {
           pick: ['givenName'],
           omit: ['familyName'],
-          include: ['gender']
-        }
+          include: ['gender'],
+        },
       } as unknown as Request;
       const options = {
         pick: ['givenName'],
         omit: ['familyName'],
-        include: ['gender']
-      }
+        include: ['gender'],
+      };
       const o = SQBAdapter.transformRequest(request);
       expect(o.method).toStrictEqual('create');
       expect(o.data).toStrictEqual(data);
       expect(o.options).toStrictEqual(options);
       expect(o.args).toStrictEqual([data, options]);
     });
-
   });
 
   describe('Convert "delete" request', function () {
@@ -72,7 +70,6 @@ describe('SQBAdapter.transformRequest (Singleton)', function () {
   });
 
   describe('Convert "get" request', function () {
-
     it('Should prepare', async () => {
       const resource = api.getSingleton('MyProfile');
       const request = {
@@ -93,30 +90,30 @@ describe('SQBAdapter.transformRequest (Singleton)', function () {
         params: {
           pick: ['givenName'],
           omit: ['familyName'],
-          include: ['gender']
-        }
+          include: ['gender'],
+        },
       } as unknown as Request;
       const options = {
         pick: ['givenName'],
         omit: ['familyName'],
-        include: ['gender']
-      }
+        include: ['gender'],
+      };
       const o = SQBAdapter.transformRequest(request);
       expect(o.method).toStrictEqual('findOne');
       expect(o.options).toStrictEqual(options);
       expect(o.args).toStrictEqual([options]);
     });
-  })
+  });
 
   describe('Convert "update" request', function () {
-    const data = {gender: 'M'};
+    const data = { gender: 'M' };
 
     it('Should prepare', async () => {
       const resource = api.getSingleton('MyProfile');
       const request = {
         resource,
         endpoint: resource.getOperation('update'),
-        data
+        data,
       } as unknown as Request;
       const o = SQBAdapter.transformRequest(request);
       expect(o.method).toStrictEqual('updateMany');
@@ -134,22 +131,19 @@ describe('SQBAdapter.transformRequest (Singleton)', function () {
         params: {
           pick: ['givenName'],
           omit: ['familyName'],
-          include: ['gender']
-        }
+          include: ['gender'],
+        },
       } as unknown as Request;
       const options = {
         pick: ['givenName'],
         omit: ['familyName'],
-        include: ['gender']
-      }
+        include: ['gender'],
+      };
       const o = SQBAdapter.transformRequest(request);
       expect(o.method).toStrictEqual('updateMany');
       expect(o.data).toStrictEqual(data);
       expect(o.options).toStrictEqual(options);
       expect(o.args).toStrictEqual([data, options]);
     });
-
   });
-
 });
-

@@ -53,7 +53,6 @@ describe('OpraClient', function () {
     expect(app.lastRequest.method).toStrictEqual('GET');
     expect(app.lastRequest.url).toStrictEqual('/auth/login?user=john');
     expect(body).toEqual({
-      context: '/Auth',
       type: 'LoginResult',
       payload: { user: 'john', token: '123456' },
     });
@@ -66,7 +65,6 @@ describe('OpraClient', function () {
     expect(app.lastRequest.url).toStrictEqual('/auth/login?user=john');
     expect(resp).toBeInstanceOf(HttpResponse);
     expect(resp.body).toEqual({
-      context: '/Auth',
       type: 'LoginResult',
       payload: { user: 'john', token: '123456' },
     });

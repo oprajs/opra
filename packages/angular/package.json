@@ -26,22 +26,22 @@
     "clean:cover": "rimraf ../../coverage/client"
   },
   "peerDependencies": {
-    "@angular/common": "15.x.x || 16.x.x || 17.x.x",
-    "@angular/core": "15.x.x || 16.x.x || || 17.x.x",
+    "@angular/common": ">= 15.0.0",
+    "@angular/core": ">= 15.0.0",
     "@opra/client": "^0.33.13",
     "ts-gems": "^3.0.0"
   },
   "devDependencies": {
-    "@angular-devkit/build-angular": "^17.3.8",
-    "@angular/cli": "^17.3.8",
-    "@angular/compiler": "^17.0.2",
-    "@angular/compiler-cli": "^17.3.9",
-    "@angular/platform-browser": "^17.0.2",
-    "@angular/platform-browser-dynamic": "^17.3.9",
+    "@angular-devkit/build-angular": "^18.0.3",
+    "@angular/cli": "^18.0.3",
+    "@angular/compiler": "^18.0.2",
+    "@angular/compiler-cli": "^18.0.2",
+    "@angular/platform-browser": "^18.0.2",
+    "@angular/platform-browser-dynamic": "^18.0.2",
     "core-js": "^3.37.1",
     "cross-fetch": "^4.0.0",
-    "express": "^4.18.3",
-    "ng-packagr": "^17.3.0",
+    "express": "^4.19.2",
+    "ng-packagr": "^18.0.0",
     "ts-gems": "^3.4.0",
     "zone.js": "^0.14.6"
   },

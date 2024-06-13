@@ -29,7 +29,7 @@ export async function createMockServer(): Promise<MockServer> {
     app.requestCount++;
     next();
   });
-  app.adapter = await ExpressAdapter.create(app, api);
+  app.adapter = new ExpressAdapter(app, api);
 
   return await new Promise<void>(subResolve => {
     app.server = app.listen(0, '127.0.0.1', () => subResolve());

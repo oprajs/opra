@@ -18,4 +18,9 @@ export interface HttpOperationResponse extends HttpMediaType {
    * Returned parameters for this response. etc. headers or cookies
    */
   parameters?: HttpParameter[];
+
+  /**
+   * Determines if the response object is partial
+   */
+  partial?: boolean | 'deep';
 }

@@ -1,5 +1,5 @@
 import 'reflect-metadata';
-import { FieldPathType, HTTP_CONTROLLER_METADATA, HttpOperation, IntegerType, OperationResult } from '@opra/common';
+import { FieldPathType, HTTP_CONTROLLER_METADATA, HttpOperation, IntegerType } from '@opra/common';
 import { Customer } from '../../_support/test-api/index.js';
 
 describe('HttpOperation.Entity.* decorators', function () {
@@ -33,7 +33,7 @@ describe('HttpOperation.Entity.* decorators', function () {
       expect(opr.parameters).toEqual([
         {
           location: 'query',
-          name: 'fields',
+          name: 'projection',
           description: expect.any(String),
           isArray: true,
           arraySeparator: ',',
@@ -59,6 +59,7 @@ describe('HttpOperation.Entity.* decorators', function () {
           contentEncoding: 'utf-8',
           statusCode: 201,
           type: expect.any(Function),
+          partial: 'deep',
         },
         {
           description: expect.any(String),
@@ -73,7 +74,10 @@ describe('HttpOperation.Entity.* decorators', function () {
   describe('"Delete" decorator', function () {
     it('Should define Delete operation metadata', async function () {
       class CustomerResource {
-        @HttpOperation.Entity.Delete({ type: Customer, keyField: 'id', description: 'operation description' })
+        @HttpOperation.Entity.Delete({
+          type: Customer,
+          description: 'operation description',
+        }).KeyParam('id', 'number')
         delete() {}
       }
 
@@ -86,8 +90,15 @@ describe('HttpOperation.Entity.* decorators', function () {
       expect(opr.composition).toEqual('Entity.Delete');
       expect(opr.compositionOptions).toEqual({
         type: 'Customer',
-        keyField: 'id',
+        keyParameter: 'id',
       });
+      expect(opr.parameters).toEqual([
+        {
+          location: 'path',
+          name: 'id',
+          type: 'number',
+        },
+      ]);
       expect(opr.responses).toEqual([
         {
           description: expect.any(String),
@@ -196,7 +207,7 @@ describe('HttpOperation.Entity.* decorators', function () {
       },
       {
         location: 'query',
-        name: 'fields',
+        name: 'projection',
         description: expect.any(String),
         isArray: true,
         type: expect.any(FieldPathType),
@@ -228,6 +239,7 @@ describe('HttpOperation.Entity.* decorators', function () {
           contentEncoding: 'utf-8',
           statusCode: 200,
           type: expect.any(Function),
+          partial: 'deep',
           isArray: true,
         },
         {
@@ -281,6 +293,7 @@ describe('HttpOperation.Entity.* decorators', function () {
           contentEncoding: 'utf-8',
           statusCode: 200,
           type: expect.any(Function),
+          partial: 'deep',
           isArray: true,
         },
         {
@@ -325,6 +338,7 @@ describe('HttpOperation.Entity.* decorators', function () {
           contentEncoding: 'utf-8',
           statusCode: 200,
           type: expect.any(Function),
+          partial: 'deep',
           isArray: true,
         },
         {
@@ -359,6 +373,7 @@ describe('HttpOperation.Entity.* decorators', function () {
           contentEncoding: 'utf-8',
           statusCode: 200,
           type: expect.any(Function),
+          partial: 'deep',
           isArray: true,
         },
         {
@@ -374,7 +389,10 @@ describe('HttpOperation.Entity.* decorators', function () {
   describe('"Get" decorator', function () {
     it('Should define Get operation metadata', async function () {
       class CustomerResource {
-        @HttpOperation.Entity.Get({ type: Customer, keyField: 'id', description: 'operation description' })
+        @HttpOperation.Entity.Get({
+          type: Customer,
+          description: 'operation description',
+        }).KeyParam('id')
         get() {}
       }
 
@@ -382,20 +400,25 @@ describe('HttpOperation.Entity.* decorators', function () {
       const opr = metadata.operations?.get;
       expect(opr).toBeDefined();
       expect(opr.method).toEqual('GET');
+      expect(opr.path).toEqual('@:id');
       expect(opr.types).toEqual([Customer]);
       expect(opr.composition).toEqual('Entity.Get');
       expect(opr.compositionOptions).toEqual({
         type: 'Customer',
-        keyField: 'id',
+        keyParameter: 'id',
       });
       expect(opr.parameters).toEqual([
         {
           location: 'query',
-          name: 'fields',
+          name: 'projection',
           description: expect.any(String),
           isArray: true,
           arraySeparator: ',',
           type: expect.any(FieldPathType),
+        },
+        {
+          location: 'path',
+          name: 'id',
         },
       ]);
       expect(opr.responses).toEqual([
@@ -405,6 +428,7 @@ describe('HttpOperation.Entity.* decorators', function () {
           contentEncoding: 'utf-8',
           statusCode: 200,
           type: expect.any(Function),
+          partial: 'deep',
         },
         {
           description: expect.any(String),
@@ -512,12 +536,11 @@ describe('HttpOperation.Entity.* decorators', function () {
       class CustomerResource {
         @HttpOperation.Entity.Update({
           type: Customer,
-          keyField: 'id',
           description: 'operation description',
           requestBody: {
             maxContentSize: 1000,
           },
-        })
+        }).KeyParam('id', 'number')
         updateOne() {}
       }
 
@@ -530,17 +553,22 @@ describe('HttpOperation.Entity.* decorators', function () {
       expect(opr.composition).toEqual('Entity.Update');
       expect(opr.compositionOptions).toEqual({
         type: 'Customer',
-        keyField: 'id',
+        keyParameter: 'id',
       });
       expect(opr.types).toEqual([Customer]);
       expect(opr.parameters).toEqual([
         {
           location: 'query',
-          name: 'fields',
+          name: 'projection',
           description: expect.any(String),
           isArray: true,
           arraySeparator: ',',
           type: expect.any(FieldPathType),
+        },
+        {
+          location: 'path',
+          name: 'id',
+          type: 'number',
         },
       ]);
       expect(opr.requestBody).toEqual({
@@ -562,6 +590,7 @@ describe('HttpOperation.Entity.* decorators', function () {
           contentEncoding: 'utf-8',
           statusCode: 200,
           type: expect.any(Function),
+          partial: 'deep',
         },
         {
           description: expect.any(String),
@@ -579,8 +608,8 @@ describe('HttpOperation.Entity.* decorators', function () {
       class CustomerResource {
         @HttpOperation.Entity.Update({
           type: Customer,
-          keyField: 'id',
         })
+          .KeyParam('id', 'number')
           .Filter('_id', '=, !=')
           .Filter('givenName', ['=', '!=', 'like'])
         updateOne() {}
@@ -592,16 +621,21 @@ describe('HttpOperation.Entity.* decorators', function () {
       expect(opr.method).toEqual('PATCH');
       expect(opr.compositionOptions).toEqual({
         type: 'Customer',
-        keyField: 'id',
+        keyParameter: 'id',
       });
       expect(opr.parameters).toEqual([
         {
           location: 'query',
-          name: 'fields',
+          name: 'projection',
           description: expect.any(String),
           isArray: true,
           arraySeparator: ',',
           type: expect.any(FieldPathType),
+        },
+        {
+          location: 'path',
+          name: 'id',
+          type: 'number',
         },
         {
           location: 'query',

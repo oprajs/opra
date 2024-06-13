@@ -24,7 +24,7 @@ describe('HttpContext', function () {
     return new HttpContext({
       adapter,
       operation,
-      resource: operation.owner,
+      controller: operation.owner,
       platform: 'express',
       platformArgs: {},
       request,
@@ -44,8 +44,8 @@ describe('HttpContext', function () {
   afterAll(() => global.gc && global.gc());
 
   it('Should getBody() retrieve body content', async () => {
-    const resource = document.api?.findController('Customer');
-    const operation = resource!.operations.get('update')!;
+    const controller = document.api?.findController('Customer');
+    const operation = controller!.operations.get('update')!;
     const context = createContext(
       operation,
       HttpIncoming.from(
@@ -69,8 +69,8 @@ describe('HttpContext', function () {
   });
 
   it('Should validate body content', async () => {
-    const resource = document.api?.findController('Customer');
-    const operation = resource!.operations.get('update')!;
+    const controller = document.api?.findController('Customer');
+    const operation = controller!.operations.get('update')!;
     const context = createContext(
       operation,
       HttpIncoming.from(
@@ -92,8 +92,8 @@ describe('HttpContext', function () {
   });
 
   it('Should return MultipartReader if content is multipart', async () => {
-    const resource = document.api?.findController('Files');
-    const operation = resource!.operations.get('post')!;
+    const controller = document.api?.findController('Files');
+    const operation = controller!.operations.get('post')!;
     const s = [
       '--AaB03x',
       'content-disposition: form-data; name="notes"',

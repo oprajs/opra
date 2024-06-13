@@ -26,4 +26,9 @@ export interface HttpRequestBody {
    * Maximum accepted content size in bytes.
    */
   maxContentSize?: number;
+
+  /**
+   * Determines if the request body object is partial
+   */
+  partial?: boolean | 'deep';
 }

@@ -4,12 +4,7 @@ import { wrapJSDocString } from '../utils/string-utils.js';
 import type { ApiExporter } from './api-exporter.js';
 import { TsFile } from './ts-file.js';
 
-export async function processResource(
-    this: ApiExporter,
-    resource: ApiResource,
-    className: string,
-    tsFile: TsFile
-) {
+export async function processResource(this: ApiExporter, resource: ApiResource, className: string, tsFile: TsFile) {
   tsFile.addImport('@opra/client', ['kClient', 'OpraHttpClient']);
 
   tsFile.content = `\n
@@ -30,15 +25,12 @@ export class ${className} {
     for (const child of resource.resources.values()) {
       // Determine class name of child resource
       let childClassName = child.name.charAt(0).toUpperCase() + child.name.substring(1);
-      if (child instanceof Container)
-        childClassName += 'Container';
-      else childClassName += 'Resource'
+      if (child instanceof Container) childClassName += 'Container';
+      else childClassName += 'Resource';
 
       // Create TsFile for child resource
       const dir = path.dirname(tsFile.filename);
-      const basename = dir === '/'
-          ? 'root'
-          : path.basename(tsFile.filename, path.extname(tsFile.filename));
+      const basename = dir === '/' ? 'root' : path.basename(tsFile.filename, path.extname(tsFile.filename));
       const childFile = this.addFile(path.join(dir, basename, child.name + '.ts'));
       await this.processResource(child, childClassName, childFile);
       tsFile.addImport(childFile.filename, [childClassName]);
@@ -51,9 +43,8 @@ export class ${className} {
   readonly ${child.name}: ${childClassName};\n`;
       constructorBody += `    this.${child.name} = new ${childClassName}(client);\n`;
     }
-  } else
-      /** Collection, Singleton, Storage */
-  if (resource instanceof CrudResource) {
+  } else if (resource instanceof CrudResource) {
+    /** Collection, Singleton, Storage */
     let typeName = '';
     if (resource instanceof Collection) {
       tsFile.addImport('@opra/client', ['HttpCollectionNode']);
@@ -75,16 +66,18 @@ export class ${className} {
   /** 
    * ${wrapJSDocString(endpoint.description || '')}`;
       for (const prm of endpoint.parameters) {
-        tsFile.content += `\n   * @query {${prm.type.name || 'any'}} ${String(prm.name)}` +
-            (prm.description ? ' - ' + prm.description : '') +
-            (prm.required ? ' (required)' : '') +
-            (prm.deprecated ? ' (deprecated)' : '');
+        tsFile.content +=
+          `\n   * @query {${prm.type.name || 'any'}} ${String(prm.name)}` +
+          (prm.description ? ' - ' + prm.description : '') +
+          (prm.required ? ' (required)' : '') +
+          (prm.deprecated ? ' (deprecated)' : '');
       }
       for (const prm of endpoint.headers) {
-        tsFile.content += `\n   * @header {${prm.type.name || 'any'}} ${String(prm.name)}` +
-            (prm.description ? ' - ' + prm.description : '') +
-            (prm.required ? ' (required)' : '') +
-            (prm.deprecated ? ' (deprecated)' : '');
+        tsFile.content +=
+          `\n   * @header {${prm.type.name || 'any'}} ${String(prm.name)}` +
+          (prm.description ? ' - ' + prm.description : '') +
+          (prm.required ? ' (required)' : '') +
+          (prm.deprecated ? ' (deprecated)' : '');
       }
       tsFile.content += `\n   */`;
 
@@ -97,8 +90,7 @@ export class ${className} {
           typeName = endpoint.response.type.name || 'any'; // todo
           tsFile.addImport(`/types/${typeName}`, [typeName], true);
           tsFile.content += `\n  readonly ${operation}: HttpStorageNode<${typeName}>['${operation}'];\n`;
-        } else
-          tsFile.content += `\n  readonly ${operation}: HttpStorageNode['${operation}'];\n`;
+        } else tsFile.content += `\n  readonly ${operation}: HttpStorageNode['${operation}'];\n`;
       }
     }
   }
@@ -106,24 +98,24 @@ export class ${className} {
   if (resource.actions.size) {
     tsFile.addImport('@opra/client', ['HttpRequestObservable']);
     for (const [action, endpoint] of resource.actions.entries()) {
-      let returnTypeDef = endpoint.response.type ?
-          await this.resolveTypeNameOrDef({
+      let returnTypeDef = endpoint.response.type
+        ? await this.resolveTypeNameOrDef({
             file: tsFile,
             dataType: endpoint.response.type,
-            intent: 'field'
+            intent: 'field',
           })
-          : 'any';
-      if (returnTypeDef.length > 40)
-        returnTypeDef = '\n\t\t' + returnTypeDef + '\n\b\b'
+        : 'any';
+      if (returnTypeDef.length > 40) returnTypeDef = '\n\t\t' + returnTypeDef + '\n\b\b';
 
       const actionPath = resource.getFullPath() + '/' + action;
       let params = '';
       for (const prm of endpoint.parameters.values()) {
-        const paramTypeDef = await this.resolveTypeNameOrDef({
-          file: tsFile,
-          dataType: prm.type,
-          intent: 'field'
-        }) || 'any';
+        const paramTypeDef =
+          (await this.resolveTypeNameOrDef({
+            file: tsFile,
+            dataType: prm.type,
+            intent: 'field',
+          })) || 'any';
         params += `${prm.name}: ${paramTypeDef}`;
         if (prm.isArray) params += '[]';
         params += ';\n';
@@ -137,13 +129,10 @@ export class ${className} {
   ${action}(${params}): HttpRequestObservable<${returnTypeDef}> {\b  
     return this[kClient].action('${actionPath}'${params ? ', params' : ''});
   }    
-`
+`;
     }
   }
 
   tsFile.content += constructorBody + `  }\n\n}\n`;
   return tsFile.content;
-
 }
-
-

@@ -16,14 +16,14 @@ import {
   generateSimpleTypeDefinition,
   generateTypeFile,
   processTypes,
-  resolveTypeNameOrDef
+  resolveTypeNameOrDef,
 } from './process-types.js';
 import { TsFile } from './ts-file.js';
 
 export namespace ApiExporter {
   export interface Config {
     serviceUrl: string;
-    outDir: string,
+    outDir: string;
     name?: string;
     cwd?: string;
     logger?: ILogger;
@@ -32,7 +32,6 @@ export namespace ApiExporter {
     importExt?: boolean;
   }
 }
-
 
 export class ApiExporter {
   protected client: OpraHttpClient;
@@ -56,8 +55,8 @@ export class ApiExporter {
   protected generateMappedTypeDefinition: typeof generateMappedTypeDefinition;
 
   protected constructor(
-      config: ApiExporter.Config,
-      // nsMap?: ResponsiveMap<ApiExporter> // implement references later
+    config: ApiExporter.Config,
+    // nsMap?: ResponsiveMap<ApiExporter> // implement references later
   ) {
     this.client = new OpraHttpClient(config.serviceUrl);
     this.cwd = config.cwd || process.cwd();
@@ -79,11 +78,16 @@ export class ApiExporter {
   protected async execute() {
     this.logger.log(chalk.cyan('Fetching service metadata from'), chalk.whiteBright(this.client.serviceUrl));
     this.document = await this.client.getSchema();
-    this.logger.log(chalk.cyan('Retrieved service info:\n'),
-        chalk.white('Title:'), chalk.whiteBright(this.document.info.title), '\n',
-        chalk.white('Version:'), chalk.whiteBright(this.document.info.version), '\n'
+    this.logger.log(
+      chalk.cyan('Retrieved service info:\n'),
+      chalk.white('Title:'),
+      chalk.whiteBright(this.document.info.title),
+      '\n',
+      chalk.white('Version:'),
+      chalk.whiteBright(this.document.info.version),
+      '\n',
     );
-    this.serviceClassName = (this.serviceClassName || this.document.info.title || 'Service1').replace(/[^\w_$]*/g, '')
+    this.serviceClassName = (this.serviceClassName || this.document.info.title || 'Service1').replace(/[^\w_$]*/g, '');
     this.serviceClassName = this.serviceClassName.charAt(0).toUpperCase() + this.serviceClassName.substring(1);
 
     this.fileHeader += `/* 
@@ -96,7 +100,7 @@ export class ApiExporter {
     this.cleanDirectory(this.outDir);
 
     this.logger.log(chalk.cyan(`Generating service interface ( ${chalk.whiteBright(this.serviceClassName)} )`));
-    fs.mkdirSync(this.outDir, {recursive: true});
+    fs.mkdirSync(this.outDir, { recursive: true });
 
     this.logger.log(chalk.cyan('Processing types'));
     await this.processTypes();
@@ -105,13 +109,13 @@ export class ApiExporter {
     const rootTs = this.addFile('/' + this.serviceClassName + '.ts');
     await this.processResource(this.document.root, this.serviceClassName, rootTs);
 
-    const {importExt} = this;
+    const { importExt } = this;
     // Write files
     for (const file of Object.values(this.files)) {
       const filename = path.join(this.outDir, file.filename);
       const targetDir = path.dirname(filename);
-      fs.mkdirSync(targetDir, {recursive: true});
-      await this.writer.writeFile(filename, file.generate({importExt}));
+      fs.mkdirSync(targetDir, { recursive: true });
+      await this.writer.writeFile(filename, file.generate({ importExt }));
     }
   }
 
@@ -120,12 +124,10 @@ export class ApiExporter {
   }
 
   protected addFile(filePath: string, returnExists?: boolean): TsFile {
-    if (!(filePath.startsWith('.') || filePath.startsWith('/')))
-      filePath = './' + filePath;
+    if (!(filePath.startsWith('.') || filePath.startsWith('/'))) filePath = './' + filePath;
     let file = this.getFile(filePath);
     if (file) {
-      if (returnExists)
-        return file;
+      if (returnExists) return file;
       throw new Error(`File "${filePath}" already exists`);
     }
     file = new TsFile(filePath);
@@ -135,15 +137,13 @@ export class ApiExporter {
   }
 
   protected cleanDirectory(dirname: string) {
-    if (!fs.existsSync(dirname))
-      return;
+    if (!fs.existsSync(dirname)) return;
     const files = fs.readdirSync(dirname);
     for (const f of files) {
       const absolutePath = path.join(dirname, f);
       if (fs.statSync(absolutePath).isDirectory()) {
         this.cleanDirectory(absolutePath);
-        if (!fs.readdirSync(absolutePath).length)
-          fs.rmdirSync(absolutePath);
+        if (!fs.readdirSync(absolutePath).length) fs.rmdirSync(absolutePath);
         continue;
       }
       if (path.extname(f) === '.ts') {
@@ -171,5 +171,4 @@ export class ApiExporter {
     ApiExporter.prototype.generateMixinTypeDefinition = generateMixinTypeDefinition;
     ApiExporter.prototype.generateMappedTypeDefinition = generateMappedTypeDefinition;
   }
-
 }

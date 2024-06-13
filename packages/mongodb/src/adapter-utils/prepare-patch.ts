@@ -1,22 +1,22 @@
 export default function preparePatch(
-    doc: any,
-    options?: {
-      fieldPrefix?: string;
-    }
+  doc: any,
+  options?: {
+    fieldPrefix?: string;
+  },
 ): any {
   const trg: any = {};
   _preparePatch(doc, trg, '', options);
-  trg.$set = trg.$set || {}
+  trg.$set = trg.$set || {};
   return trg;
 }
 
 function _preparePatch(
-    src: any,
-    trg: any = {},
-    path: string,
-    options?: {
-      fieldPrefix?: string;
-    }
+  src: any,
+  trg: any = {},
+  path: string,
+  options?: {
+    fieldPrefix?: string;
+  },
 ) {
   let f: string;
   let key: string;

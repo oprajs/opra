@@ -3,10 +3,9 @@ import { Column } from '@sqb/connect';
 import { GenderEnum } from '../enums/gender.enum.js';
 
 @ComplexType({
-  description: 'Person information'
+  description: 'Person information',
 })
 export class Person {
-
   @ApiField()
   @Column()
   givenName: string;
@@ -15,7 +14,7 @@ export class Person {
   @Column()
   familyName: string;
 
-  @ApiField({enum: GenderEnum})
+  @ApiField({ type: GenderEnum })
   @Column()
   gender: GenderEnum;
 

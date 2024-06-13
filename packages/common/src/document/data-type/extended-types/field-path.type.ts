@@ -29,7 +29,7 @@ export class FieldPathType {
     const dataType = properties.dataType
       ? element.node.getComplexType(properties.dataType)
       : element.node.getComplexType('object');
-    const allowSigns = this.allowSigns;
+    const allowSigns = properties.allowSigns;
     const decodeFieldPath = validator('decodeFieldPath', function (input: string) {
       return dataType.normalizeFieldPath(input, { allowSigns });
     });

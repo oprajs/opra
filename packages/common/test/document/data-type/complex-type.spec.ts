@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
-import { ApiDocument, ApiDocumentFactory, OpraSchema } from '@opra/common';
+import { ApiDocument, ApiDocumentFactory, OpraSchema, parseFieldsProjection } from '@opra/common';
 import { Address, Country, Customer, GenderEnum, Note, Person, Record } from '../../_support/test-api/index.js';
 
 describe('ComplexType', function () {
@@ -96,27 +96,58 @@ describe('ComplexType', function () {
     });
   });
 
-  it('Should _generateSchema() return ValGen schema', async () => {
-    const dt = api.node.getComplexType('customer');
-    const x: any = (dt as any)._generateSchema('decode', {});
-    expect(x).toBeDefined();
-    expect(Object.keys(x)).toStrictEqual([
-      '_id',
-      'deleted',
-      'createdAt',
-      'updatedAt',
-      'givenName',
-      'familyName',
-      'gender',
-      'birthDate',
-      'uid',
-      'active',
-      'countryCode',
-      'rate',
-      'fillerDate',
-      'address',
-      'notes',
-      'country',
-    ]);
+  describe('_generateSchema()', () => {
+    it('Should _generate ValGen schema', async () => {
+      const dt = api.node.getComplexType('Note');
+      const x: any = (dt as any)._generateSchema('decode', {});
+      expect(x).toBeDefined();
+      expect(Object.keys(x)).toStrictEqual(['title', 'text', 'rank', 'largeContent']);
+    });
+
+    it('Should ignore exclusive fields by default', async () => {
+      const dt = api.node.getComplexType('Note');
+      const x: any = (dt as any)._generateSchema('decode', {});
+      expect(x).toBeDefined();
+      expect(x.title(1)).toStrictEqual('1');
+      expect(x.largeContent(1)).toStrictEqual(undefined);
+      expect(x.text(1)).toStrictEqual('1');
+      expect(x.rank(1)).toStrictEqual(1);
+    });
+
+    it('Should pick fields using projection', async () => {
+      const dt = api.node.getComplexType('Note');
+      const x: any = (dt as any)._generateSchema('decode', {
+        projection: parseFieldsProjection(['title', 'largecontent']),
+      });
+      expect(x).toBeDefined();
+      expect(x.title(1)).toStrictEqual('1');
+      expect(x.largeContent(1)).toStrictEqual('1');
+      expect(x.text(1)).toStrictEqual(undefined);
+      expect(x.rank(1)).toStrictEqual(undefined);
+    });
+
+    it('Should omit fields using projection', async () => {
+      const dt = api.node.getComplexType('Note');
+      const x: any = (dt as any)._generateSchema('decode', {
+        projection: parseFieldsProjection(['-title']),
+      });
+      expect(x).toBeDefined();
+      expect(x.title(1)).toStrictEqual(undefined);
+      expect(x.largeContent(1)).toStrictEqual(undefined);
+      expect(x.text(1)).toStrictEqual('1');
+      expect(x.rank(1)).toStrictEqual(1);
+    });
+
+    it('Should include exclusive fields using projection', async () => {
+      const dt = api.node.getComplexType('Note');
+      const x: any = (dt as any)._generateSchema('decode', {
+        projection: parseFieldsProjection(['+largecontent']),
+      });
+      expect(x).toBeDefined();
+      expect(x.title(1)).toStrictEqual('1');
+      expect(x.largeContent(1)).toStrictEqual('1');
+      expect(x.text(1)).toStrictEqual('1');
+      expect(x.rank(1)).toStrictEqual(1);
+    });
   });
 });
