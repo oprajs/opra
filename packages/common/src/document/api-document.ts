@@ -39,6 +39,15 @@ export class ApiDocument extends DocumentElement {
     if (dt) return this[kTypeNSMap].get(dt);
   }
 
+  findDocument(id: string): ApiDocument | undefined {
+    if (this.id === id) return this;
+    for (const doc of this.references.values()) {
+      if (doc.id === id) return doc;
+      const d = doc.findDocument(id);
+      if (d) return d;
+    }
+  }
+
   toJSON(): OpraSchema.ApiDocument {
     return this.export();
   }
