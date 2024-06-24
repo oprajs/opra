@@ -37,11 +37,11 @@ export abstract class HttpClientBase<TRequestOptions = {}, TResponseExt = {}> {
     return this[kBackend].serviceUrl;
   }
 
-  async fetchSchema(options?: { ns?: string }): Promise<ApiDocument> {
+  async fetchSchema(options?: { documentId?: string }): Promise<ApiDocument> {
     const req = this.request('$schema', {
       headers: new Headers({ accept: 'application/json' }),
     });
-    if (options?.ns) req.param('ns', options?.ns);
+    if (options?.documentId) req.param('id', options?.documentId);
     const body = await req.getBody().catch(e => {
       e.message = 'Error fetching api schema from url (' + this.serviceUrl + ').\n' + e.message;
       throw e;
