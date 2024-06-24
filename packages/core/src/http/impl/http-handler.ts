@@ -528,20 +528,14 @@ export class HttpHandler {
     response.setHeader('content-type', MimeTypes.json);
     const url = new URL(request.originalUrl || request.url || '/', 'http://tempuri.org');
     const { searchParams } = url;
-    const nsParam = searchParams.get('ns');
-    let doc: ApiDocument | undefined = document;
-    if (nsParam) {
-      const arr = nsParam.split('/');
-      for (const a of arr) {
-        doc = doc!.references.get(a);
-        if (!doc)
-          return this.sendErrorResponse(response, [
-            new BadRequestError({
-              message: `The ns [${nsParam}] you provided does not exists`,
-            }),
-          ]);
-      }
-    }
+    const documentId = searchParams.get('id');
+    const doc = documentId ? document.findDocument(documentId) : document;
+    if (!doc)
+      return this.sendErrorResponse(response, [
+        new BadRequestError({
+          message: `Document with given id [${documentId}] does not exists`,
+        }),
+      ]);
     /** Check if response cache exists */
     let responseBody = this[kAssetCache].get(doc, `$schema`);
     /** Create response if response cache does not exists */
