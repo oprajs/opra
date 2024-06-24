@@ -23,7 +23,7 @@ export class DataTypeMap {
 
   get(nameOrCtor: string | Type | Function | object): DataType | undefined {
     let name = typeof nameOrCtor === 'string' ? nameOrCtor : this[kCtorMap].get(nameOrCtor);
-    if (!name) {
+    if (!name && typeof nameOrCtor === 'function') {
       const metadata = Reflect.getMetadata(DATATYPE_METADATA, nameOrCtor);
       name = metadata?.name;
     }
