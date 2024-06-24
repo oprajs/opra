@@ -1,4 +1,4 @@
-/* eslint-disable import/extensions */
+/* eslint-disable import-x/extensions */
 import { Connection } from 'postgresql-client';
 import { Insert } from '@sqb/builder';
 import { countriesData } from './countries.data';
@@ -6,7 +6,7 @@ import { customersData } from './customers.data';
 
 export async function initPostgres() {
   const schema = process.env.PG_SCHEMA || 'opra_test';
-  const connection = new Connection({schema: 'postgres'});
+  const connection = new Connection({ schema: 'postgres' });
   await connection.connect();
   try {
     const sql = getSql(schema);
@@ -74,16 +74,12 @@ CREATE TABLE ${schema}.customers
 async function createTestData(connection, schema) {
   const lines: string[] = [];
   for (const row of countriesData) {
-    const line = Insert(schema + '.countries', row)
-        .generate({dialect: 'postgres'}).sql;
+    const line = Insert(schema + '.countries', row).generate({ dialect: 'postgres' }).sql;
     lines.push(line);
   }
 
   for (const row of customersData) {
-    lines.push(
-        Insert(schema + '.customers', row)
-            .generate({dialect: 'postgres'}).sql
-    );
+    lines.push(Insert(schema + '.customers', row).generate({ dialect: 'postgres' }).sql);
   }
 
   await connection.execute(lines.join(';\n'));

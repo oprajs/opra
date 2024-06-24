@@ -15,6 +15,7 @@
     "esModuleInterop": true,
     "importHelpers": true,
     "experimentalDecorators": true,
+    "useDefineForClassFields": false,
     "noLib": false,
     "noImplicitAny": false,
     "allowJs": false,

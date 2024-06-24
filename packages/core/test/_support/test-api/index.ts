@@ -1,14 +1,5 @@
+import { CustomerModelsDocument } from 'customer-mongo/models';
 import { ApiDocumentFactory } from '@opra/common';
-import {
-  Address,
-  Country,
-  Customer,
-  GenderEnum,
-  Note,
-  Person,
-  Profile,
-  Record,
-} from '../../../../common/test/_support/test-api/index.js';
 import { AuthController } from './api/auth.controller.js';
 import { CustomerController } from './api/customer.controller.js';
 import { CustomersController } from './api/customers.controller.js';
@@ -26,6 +17,7 @@ export * from './api/my-profile.controller.js';
 export * from './api/root.controller.js';
 
 export async function createTestApi() {
+  const customerDoc = await CustomerModelsDocument.init();
   return ApiDocumentFactory.createDocument({
     spec: '1.0',
     info: {
@@ -33,7 +25,9 @@ export async function createTestApi() {
       version: 'v1',
       description: 'Document description',
     },
-    types: [Address, Note, Person, Record, GenderEnum, Country, Customer, Profile],
+    references: {
+      customer: customerDoc,
+    },
     api: {
       protocol: 'http',
       name: 'TestApi',

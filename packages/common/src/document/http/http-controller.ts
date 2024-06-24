@@ -5,8 +5,8 @@ import { DataTypeMap } from '../common/data-type-map.js';
 import { DocumentElement } from '../common/document-element.js';
 import { CLASS_NAME_PATTERN, DECORATOR, kDataTypeMap } from '../constants.js';
 import type { EnumType } from '../data-type/enum-type.js';
+import { HttpControllerDecoratorFactory } from '../decorators/http-controller.decorator.js';
 import { colorFgMagenta, colorFgYellow, colorReset, nodeInspectCustom } from '../utils/inspect.util.js';
-import { HttpControllerDecoratorFactory } from './decorators/http-controller.decorator.js';
 import type { HttpApi } from './http-api.js';
 import type { HttpOperation } from './http-operation';
 import { HttpParameter } from './http-parameter.js';
@@ -17,7 +17,7 @@ import { HttpParameter } from './http-parameter.js';
 export namespace HttpController {
   export interface Metadata extends Pick<OpraSchema.HttpController, 'description' | 'path'> {
     name: string;
-    controllers?: Type[];
+    controllers?: (Type | ((parent: any) => any))[];
     types?: ThunkAsync<Type | EnumType.EnumObject | EnumType.EnumArray>[];
     operations?: Record<string, HttpOperation.Metadata>;
     parameters?: HttpParameter.Metadata[];
@@ -25,7 +25,7 @@ export namespace HttpController {
 
   export interface Options extends Partial<Pick<OpraSchema.HttpController, 'description' | 'path'>> {
     name?: string;
-    controllers?: Type[];
+    controllers?: (Type | ((parent: any) => any))[];
   }
 
   export interface InitArguments
@@ -81,6 +81,7 @@ export const HttpController = function (this: HttpController | void, ...args: an
   _this.path = initArgs.path || initArgs.name;
   _this.instance = initArgs.instance;
   _this.ctor = initArgs.ctor;
+  (_this as any)._controllerReverseMap = new WeakMap();
   (_this as any)._initialize?.(initArgs);
 } as HttpControllerStatic;
 
@@ -89,8 +90,8 @@ export const HttpController = function (this: HttpController | void, ...args: an
  * @class HttpController
  */
 class HttpControllerClass extends DocumentElement {
-  protected _controllerReverseMap: WeakMap<Type, HttpController | null> = new WeakMap();
-  readonly kind: OpraSchema.HttpController.Kind;
+  protected _controllerReverseMap: WeakMap<Type, HttpController | null>;
+  declare readonly kind: OpraSchema.HttpController.Kind;
   readonly name: string;
   description?: string;
   path: string;

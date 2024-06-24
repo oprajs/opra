@@ -70,7 +70,7 @@ export const DataType = function (
  */
 abstract class DataTypeClass extends DocumentElement {
   readonly kind: OpraSchema.DataType.Kind;
-  readonly owner: DocumentElement;
+  declare readonly owner: DocumentElement;
   readonly name?: string;
   readonly description?: string;
   readonly abstract?: boolean;

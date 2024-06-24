@@ -14,7 +14,9 @@ export abstract class HttpBackend extends Backend implements HttpHandler {
 
   protected constructor(serviceUrl: string, options?: HttpBackend.Options) {
     super(options);
-    this.serviceUrl = serviceUrl;
+    const u = new URL(serviceUrl);
+    this.serviceUrl = u.toString().split('?')[0].split('#')[0];
+    if (!this.serviceUrl.endsWith('/')) this.serviceUrl += '/';
   }
 }
 

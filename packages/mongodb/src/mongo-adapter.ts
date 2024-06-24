@@ -12,9 +12,9 @@ export namespace MongoAdapter {
   export type FilterInput = OpraFilter.Expression | mongodb.Filter<any> | string | undefined;
   export type WithTransactionCallback = (session: ClientSession) => any;
 
+  export const prepareFilter = _prepareFilter;
   export const prepareKeyValues = _prepareKeyValues;
   export const preparePatch = _preparePatch;
-  export const prepareFilter = _prepareFilter;
   export const prepareProjection = _prepareProjection;
   export const prepareSort = _prepareSort;
 

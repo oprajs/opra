@@ -139,9 +139,9 @@ export const MappedType = function (this: MappedType, ...args: any[]) {
  * @class MappedType
  */
 class MappedTypeClass extends ComplexTypeBase {
-  readonly kind: OpraSchema.MappedType.Kind;
+  declare readonly kind: OpraSchema.MappedType.Kind;
   readonly base: ComplexType | MappedType | MixinType;
-  readonly ctor?: Type;
+  declare readonly ctor?: Type;
   readonly omit?: Field.Name[];
   readonly pick?: Field.Name[];
   readonly partial?: Field.Name[] | boolean;
@@ -154,9 +154,10 @@ class MappedTypeClass extends ComplexTypeBase {
   }
 
   toJSON(): OpraSchema.MappedType {
+    const baseName = this.base ? this.node.getDataTypeNameWithNs(this.base) : undefined;
     return omitUndefined<OpraSchema.MappedType>({
       ...ComplexTypeBase.prototype.toJSON.call(this),
-      base: this.base.name ? this.base.name : this.base.toJSON(),
+      base: baseName ? baseName : this.base.toJSON(),
       kind: this.kind as any,
       pick: this.pick,
       omit: this.omit,

@@ -6,8 +6,8 @@ import { OpraSchema } from '../../schema/index.js';
 import type { DocumentElement } from '../common/document-element';
 import { DocumentInitContext } from '../common/document-init-context.js';
 import { DECORATOR } from '../constants.js';
+import { AttributeDecoratorFactory, SimpleTypeDecoratorFactory } from '../decorators/simple-type.decorator.js';
 import { DataType } from './data-type.js';
-import { AttributeDecoratorFactory, SimpleTypeDecoratorFactory } from './decorators/simple-type.decorator.js';
 
 /**
  * @namespace SimpleType
@@ -109,7 +109,7 @@ export const SimpleType = function (this: SimpleType | void, ...args: any[]) {
  * @class SimpleType
  */
 abstract class SimpleTypeClass extends DataType {
-  readonly kind: OpraSchema.SimpleType.Kind;
+  declare readonly kind: OpraSchema.SimpleType.Kind;
   readonly base?: SimpleType;
   readonly attributes: Record<string, SimpleType.Attribute>;
   readonly ownAttributes: Record<string, SimpleType.Attribute>;
@@ -159,9 +159,10 @@ abstract class SimpleTypeClass extends DataType {
       if (properties[k] !== undefined) o[k] = properties[k];
       return o;
     }, {});
+    const baseName = this.base ? this.node.getDataTypeNameWithNs(this.base) : undefined;
     return omitUndefined<OpraSchema.SimpleType>({
       ...(DataType.prototype.toJSON.apply(this) as any),
-      base: this.base ? (this.base.name ? this.base.name : this.base.toJSON()) : undefined,
+      base: this.base ? (baseName ? baseName : this.base.toJSON()) : undefined,
       attributes: attributes && Object.keys(attributes).length ? attributes : undefined,
       properties: Object.keys(properties).length ? properties : undefined,
     });

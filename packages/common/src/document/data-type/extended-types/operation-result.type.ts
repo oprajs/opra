@@ -23,6 +23,9 @@ export class OperationResult<TPayload = any> {
   @ApiField()
   type?: string;
 
+  @ApiField()
+  message?: string;
+
   @ApiField({ type: 'any' })
   payload?: TPayload;
 

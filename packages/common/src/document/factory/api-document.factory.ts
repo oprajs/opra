@@ -1,4 +1,5 @@
-import { PartialSome, StrictOmit } from 'ts-gems';
+import { PartialSome, StrictOmit, ThunkAsync } from 'ts-gems';
+import { resolveThunk } from '../../helpers/index.js';
 import { OpraSchema } from '../../schema/index.js';
 import { ApiDocument } from '../api-document.js';
 import { DocumentInitContext } from '../common/document-init-context.js';
@@ -37,12 +38,15 @@ const OPRA_SPEC_URL = 'https://oprajs.com/spec/v' + OpraSchema.SpecVersion;
 export namespace ApiDocumentFactory {
   export interface InitArguments
     extends PartialSome<StrictOmit<OpraSchema.ApiDocument, 'references' | 'types' | 'api'>, 'spec'> {
-    references?: Record<string, string | OpraSchema.ApiDocument | InitArguments | ApiDocument>;
-    types?: DataTypeInitThunk;
+    references?: Record<string, ReferenceThunk>;
+    types?: DataTypeInitSources;
     api?: HttpApiFactory.InitArguments;
   }
 
-  export type DataTypeInitThunk = DataTypeFactory.DataTypeSources;
+  export type ReferenceSource = string | OpraSchema.ApiDocument | InitArguments | ApiDocument;
+  export type ReferenceThunk = ThunkAsync<ReferenceSource>;
+
+  export type DataTypeInitSources = DataTypeFactory.DataTypeSources;
 }
 
 /**
@@ -116,7 +120,10 @@ export class ApiDocumentFactory {
     /** Add references  */
     if (init.references) {
       await context.enterAsync('.references', async () => {
-        for (const [ns, r] of Object.entries(init.references!)) {
+        let ns: string;
+        let r: any;
+        for ([ns, r] of Object.entries(init.references!)) {
+          r = await resolveThunk(r);
           await context.enterAsync(`[${ns}]`, async () => {
             if (!CLASS_NAME_PATTERN.test(ns)) throw new TypeError(`Invalid namespace (${ns})`);
             if (r instanceof ApiDocument) {

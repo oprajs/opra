@@ -1,14 +1,16 @@
+import { CustomerApplication } from 'express-sqb';
 import { ApiDocument } from '@opra/common';
 import { HttpIncoming, NodeIncomingMessage } from '@opra/core';
 import { SQBAdapter } from '@opra/sqb';
-import { TestApp } from '../_support/test-app/index.js';
+import { op } from '@sqb/builder';
+import { createContext } from '../_support/create-context.js';
 
 describe('SQBAdapter.parseRequest', function () {
-  let app: TestApp;
+  let app: CustomerApplication;
   let document: ApiDocument;
 
   beforeAll(async () => {
-    app = await TestApp.create();
+    app = await CustomerApplication.create();
     document = app.document;
   });
 
@@ -16,7 +18,8 @@ describe('SQBAdapter.parseRequest', function () {
     const data = { _id: 1001 };
     const dataStr = JSON.stringify(data);
     const operation = document.api?.findOperation('Customers', 'create');
-    const context = app.createContext(
+    const context = createContext(
+      app.adapter,
       operation,
       HttpIncoming.from(
         await NodeIncomingMessage.fromAsync(
@@ -33,19 +36,20 @@ describe('SQBAdapter.parseRequest', function () {
         ),
       ),
     );
-    context.queryParams.projection = 'projection';
+    context.queryParams.projection = 'givenName,gender';
 
     const o = await SQBAdapter.parseRequest(context);
     expect(o.method).toStrictEqual('create');
     expect(o.data).toEqual(data);
-    expect(o.options).toStrictEqual({
-      projection: 'projection',
+    expect(o.options).toEqual({
+      projection: 'givenName,gender',
     });
   });
 
   it('Should parse "delete" request', async () => {
-    const operation = document.api?.findOperation('Customers', 'delete');
-    const context = app.createContext(operation);
+    const operation = document.api?.findOperation('Customer', 'delete');
+    expect(operation).toBeDefined();
+    const context = createContext(app.adapter, operation);
     context.pathParams._id = 1;
 
     const o = await SQBAdapter.parseRequest(context);
@@ -55,35 +59,38 @@ describe('SQBAdapter.parseRequest', function () {
 
   it('Should parse "deleteMany" request', async () => {
     const operation = document.api?.findOperation('Customers', 'deleteMany');
-    const context = app.createContext(operation);
-    context.queryParams.filter = 'filter';
+    expect(operation).toBeDefined();
+    const context = createContext(app.adapter, operation);
+    context.queryParams.filter = '_id>5';
 
     const o = await SQBAdapter.parseRequest(context);
     expect(o.method).toStrictEqual('deleteMany');
-    expect(o.options).toStrictEqual({
-      filter: 'filter',
+    expect(o.options).toEqual({
+      filter: op.gt('_id', 5),
     });
   });
 
   it('Should parse "get" request', async () => {
-    const operation = document.api?.findOperation('Customers', 'get');
-    const context = app.createContext(operation);
+    const operation = document.api?.findOperation('Customer', 'get');
+    expect(operation).toBeDefined();
+    const context = createContext(app.adapter, operation);
     context.pathParams._id = 1;
-    context.queryParams.projection = 'projection';
+    context.queryParams.projection = 'givenName,gender';
 
     const o = await SQBAdapter.parseRequest(context);
     expect(o.method).toStrictEqual('get');
     expect(o.key).toStrictEqual(1);
-    expect(o.options).toStrictEqual({
-      projection: 'projection',
+    expect(o.options).toEqual({
+      projection: 'givenName,gender',
     });
   });
 
   it('Should parse "findMany" request', async () => {
     const operation = document.api?.findOperation('Customers', 'findMany');
-    const context = app.createContext(operation);
-    context.queryParams.projection = 'projection';
-    context.queryParams.filter = 'filter';
+    expect(operation).toBeDefined();
+    const context = createContext(app.adapter, operation);
+    context.queryParams.projection = 'givenName,gender';
+    context.queryParams.filter = '_id>5';
     context.queryParams.limit = 10;
     context.queryParams.skip = 1;
     context.queryParams.count = true;
@@ -91,21 +98,23 @@ describe('SQBAdapter.parseRequest', function () {
 
     const o = await SQBAdapter.parseRequest(context);
     expect(o.method).toStrictEqual('findMany');
-    expect(o.options).toStrictEqual({
-      projection: 'projection',
-      filter: 'filter',
+    expect(o.options).toEqual({
+      projection: 'givenName,gender',
+      filter: op.gt('_id', 5),
       limit: 10,
-      skip: 1,
+      offset: 1,
       count: true,
       sort: 'sort',
     });
   });
 
   it('Should parse "update" request', async () => {
+    const operation = document.api?.findOperation('Customer', 'update');
+    expect(operation).toBeDefined();
     const data = { _id: 1001 };
     const dataStr = JSON.stringify(data);
-    const operation = document.api?.findOperation('Customers', 'update');
-    const context = app.createContext(
+    const context = createContext(
+      app.adapter,
       operation,
       HttpIncoming.from(
         await NodeIncomingMessage.fromAsync(
@@ -123,22 +132,24 @@ describe('SQBAdapter.parseRequest', function () {
       ),
     );
     context.pathParams._id = 1;
-    context.queryParams.projection = 'projection';
+    context.queryParams.projection = 'givenName,gender';
 
     const o = await SQBAdapter.parseRequest(context);
     expect(o.method).toStrictEqual('update');
     expect(o.data).toEqual(data);
     expect(o.key).toStrictEqual(1);
-    expect(o.options).toStrictEqual({
-      projection: 'projection',
+    expect(o.options).toEqual({
+      projection: 'givenName,gender',
     });
   });
 
   it('Should parse "updateMany" request', async () => {
+    const operation = document.api?.findOperation('Customers', 'updateMany');
+    expect(operation).toBeDefined();
     const data = { _id: 1001 };
     const dataStr = JSON.stringify(data);
-    const operation = document.api?.findOperation('Customers', 'updateMany');
-    const context = app.createContext(
+    const context = createContext(
+      app.adapter,
       operation,
       HttpIncoming.from(
         await NodeIncomingMessage.fromAsync(
@@ -155,13 +166,13 @@ describe('SQBAdapter.parseRequest', function () {
         ),
       ),
     );
-    context.queryParams.filter = 'filter';
+    context.queryParams.filter = '_id>5';
 
     const o = await SQBAdapter.parseRequest(context);
     expect(o.method).toStrictEqual('updateMany');
     expect(o.data).toEqual(data);
-    expect(o.options).toStrictEqual({
-      filter: 'filter',
+    expect(o.options).toEqual({
+      filter: op.gt('_id', 5),
     });
   });
 });

@@ -14,12 +14,12 @@ export function singletonGetTests(args: { client: OpraTestClient }) {
     afterAll(() => global.gc && global.gc());
 
     beforeAll(async () => {
-      await args.client.delete('MyProfile').getResponse();
-      await args.client.post('MyProfile', data).getResponse();
+      await args.client.delete('auth/MyProfile').getResponse();
+      await args.client.post('auth/MyProfile', data).getResponse();
     });
 
     it('Should return object', async () => {
-      const resp = await args.client.get('MyProfile').getResponse();
+      const resp = await args.client.get('auth/MyProfile').getResponse();
       resp.expect
         .toSuccess()
         .toReturnObject()
@@ -27,23 +27,23 @@ export function singletonGetTests(args: { client: OpraTestClient }) {
     });
 
     it('Should exclude exclusive fields by default', async () => {
-      const resp = await args.client.get('MyProfile').getResponse();
+      const resp = await args.client.get('auth/MyProfile').getResponse();
       resp.expect.toSuccess().toReturnObject().not.toContainFields(['address', 'notes']);
     });
 
     it('Should fetch exclusive fields if requested', async () => {
-      const resp = await args.client.get('MyProfile').param('projection', '+address').getResponse();
+      const resp = await args.client.get('auth/MyProfile').param('projection', '+address').getResponse();
       resp.expect.toSuccess().toReturnObject().toContainFields(['_id', 'givenName', 'address']);
     });
 
     it('Should pick fields to be returned', async () => {
-      const resp = await args.client.get('MyProfile').param('projection', '_id,givenName').getResponse();
+      const resp = await args.client.get('auth/MyProfile').param('projection', '_id,givenName').getResponse();
       resp.expect.toSuccess().toReturnObject().toContainAllFields(['_id', 'givenName']);
     });
 
     it('Should return 204 NO-CONTENT status code if resource available', async () => {
-      await args.client.delete('MyProfile').getResponse();
-      const resp = await args.client.get('MyProfile').getResponse();
+      await args.client.delete('auth/MyProfile').getResponse();
+      const resp = await args.client.get('auth/MyProfile').getResponse();
       resp.expect.toSuccess(HttpStatusCode.NO_CONTENT);
     });
   });

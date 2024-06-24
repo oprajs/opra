@@ -6,12 +6,13 @@
     "baseUrl": "./",
     "paths": {
       "@opra/elastic": ["../src"],
-      "@opra/elastic/*": ["../src/*"],
       "@opra/client": ["../../client/src"],
       "@opra/common": ["../../common/src"],
       "@opra/core": ["../../core/src"],
-      "@opra/sqb": ["../../sqb/src"],
-      "@opra/testing": ["../../testing/src"]
+      "@opra/mongodb": ["../../mongodb/src"],
+      "@opra/testing": ["../../testing/src"],
+      "customer-mongo": ["../../../examples/_lib/customer-mongo"],
+      "express-mongo": ["../../../examples/express-mongo"]
     }
   }
 }

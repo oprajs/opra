@@ -9,7 +9,8 @@
     "paths": {
       "@opra/client": ["../client/src"],
       "@opra/common": ["../common/src"],
-      "@opra/core": ["../core/src"]
+      "@opra/core": ["../core/src"],
+      "customer-mongo/models": ["../../examples/_lib/customer-mongo/src/models/index"]
     }
   }
 }

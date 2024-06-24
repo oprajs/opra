@@ -2,9 +2,9 @@ import { Server } from 'http';
 import request from 'supertest';
 import { INestApplication } from '@nestjs/common';
 import { Test } from '@nestjs/testing';
-import { ApplicationModule } from './_support/customer-app/app.module.js';
 import { TestGlobalGuard } from './_support/customer-app/guards/global.guard.js';
 import { LogCounterInterceptor } from './_support/customer-app/guards/log-counter.interceptor.js';
+import { TestModule } from './_support/customer-app/test.module.js';
 
 describe('OpraModule - Guards', function () {
   let server: Server;
@@ -12,7 +12,7 @@ describe('OpraModule - Guards', function () {
 
   beforeEach(async () => {
     const module = await Test.createTestingModule({
-      imports: [ApplicationModule],
+      imports: [TestModule],
     }).compile();
 
     app = module.createNestApplication({ logger: [] });
@@ -26,7 +26,7 @@ describe('OpraModule - Guards', function () {
   });
 
   it('Should use per-function guards', async function () {
-    const r = await request(server).post('/api/svc1/MyProfile').set('Authorization', 'reject-auth').send({ id: 100 });
+    const r = await request(server).post('/api/auth/MyProfile').set('Authorization', 'reject-auth').send({ id: 100 });
     expect(r.status).toStrictEqual(401);
     expect(r.body).toStrictEqual({
       errors: [
@@ -40,13 +40,13 @@ describe('OpraModule - Guards', function () {
   });
 
   it('Should use global guards', async function () {
-    await request(server).post('/api/svc1/MyProfile').set('Authorization', 'reject-auth').send({ id: 100 });
+    await request(server).post('/api/auth/MyProfile').set('Authorization', 'reject-auth').send({ id: 100 });
     expect(TestGlobalGuard.counter).toBeGreaterThan(0);
   });
 
   it('Should use global interceptors', async function () {
     const i = LogCounterInterceptor.logCount;
-    await request(server).get('/api/svc1/MyProfile');
+    await request(server).get('/api/auth/MyProfile');
     expect(LogCounterInterceptor.logCount).toEqual(i + 1);
   });
 });

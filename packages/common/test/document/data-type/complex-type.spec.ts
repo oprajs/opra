@@ -1,26 +1,18 @@
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
-import { ApiDocument, ApiDocumentFactory, OpraSchema, parseFieldsProjection } from '@opra/common';
-import { Address, Country, Customer, GenderEnum, Note, Person, Record } from '../../_support/test-api/index.js';
+import { ApiDocument, parseFieldsProjection } from '@opra/common';
+import { TestApiDocument } from '../../_support/test-api/index.js';
 
 describe('ComplexType', function () {
-  let api: ApiDocument;
-  const baseArgs: ApiDocumentFactory.InitArguments = {
-    spec: OpraSchema.SpecVersion,
-    info: {
-      title: 'TestDocument',
-      version: 'v1',
-    },
-    types: [Record, Person, GenderEnum, Address, Note, Country, Customer],
-  };
+  let doc: ApiDocument;
 
   beforeAll(async () => {
-    api = await ApiDocumentFactory.createDocument(baseArgs);
+    doc = await TestApiDocument.create();
   });
 
   afterAll(() => global.gc && global.gc());
 
   it('Should findField(name) return field instance', async () => {
-    const dt = api.node.getComplexType('customer');
+    const dt = doc.node.getComplexType('customer');
     expect(dt).toBeDefined();
     const f = dt!.findField('countryCode');
     expect(f).toBeDefined();
@@ -28,7 +20,7 @@ describe('ComplexType', function () {
   });
 
   it('Should findField(name) do case-insensitive search', async () => {
-    const dt = api.node.getComplexType('customer');
+    const dt = doc.node.getComplexType('customer');
     expect(dt).toBeDefined();
     const f = dt!.findField('countrycode');
     expect(f).toBeDefined();
@@ -36,7 +28,7 @@ describe('ComplexType', function () {
   });
 
   it('Should findField(path) return nested fields', async () => {
-    const dt = api.node.getComplexType('customer');
+    const dt = doc.node.getComplexType('customer');
     expect(dt).toBeDefined();
     const f = dt!.findField('country.phonecode');
     expect(f).toBeDefined();
@@ -45,25 +37,25 @@ describe('ComplexType', function () {
   });
 
   it('Should findField(path) return "undefined" if field not found', async () => {
-    const dt = api.node.getComplexType('customer');
+    const dt = doc.node.getComplexType('customer');
     expect(dt).toBeDefined();
     expect(dt!.findField('nofield')).not.toBeDefined();
   });
 
   it('Should getField(path) throw if field not found', async () => {
-    const dt = api.node.getComplexType('customer');
+    const dt = doc.node.getComplexType('customer');
     expect(dt).toBeDefined();
     expect(() => dt!.getField('nofield')).toThrow('UNKNOWN_FIELD');
   });
 
   it('Should getField(path) throw if given path is not valid', async () => {
-    const dt = api.node.getComplexType('customer');
+    const dt = doc.node.getComplexType('customer');
     expect(dt).toBeDefined();
     expect(() => dt!.getField('givenName.code')).toThrow('field is not');
   });
 
   it('Should normalizeFieldPath() return normalized field name array', async () => {
-    const dt = api.node.getComplexType('customer');
+    const dt = doc.node.getComplexType('customer');
     expect(dt).toBeDefined();
     let x: any = dt!.normalizeFieldPath('countrycode');
     expect(x).toBeDefined();
@@ -75,7 +67,7 @@ describe('ComplexType', function () {
   });
 
   it('Should exportSchema() return schema', async () => {
-    const dt = api.node.getComplexType('country');
+    const dt = doc.node.getComplexType('country');
     expect(dt).toBeDefined();
     const x = dt!.toJSON();
     expect(x).toBeDefined();
@@ -98,14 +90,23 @@ describe('ComplexType', function () {
 
   describe('_generateSchema()', () => {
     it('Should _generate ValGen schema', async () => {
-      const dt = api.node.getComplexType('Note');
+      const dt = doc.node.getComplexType('Note');
       const x: any = (dt as any)._generateSchema('decode', {});
       expect(x).toBeDefined();
-      expect(Object.keys(x)).toStrictEqual(['title', 'text', 'rank', 'largeContent']);
+      expect(Object.keys(x)).toStrictEqual([
+        '_id',
+        'deleted',
+        'createdAt',
+        'updatedAt',
+        'title',
+        'text',
+        'rank',
+        'largeContent',
+      ]);
     });
 
     it('Should ignore exclusive fields by default', async () => {
-      const dt = api.node.getComplexType('Note');
+      const dt = doc.node.getComplexType('Note');
       const x: any = (dt as any)._generateSchema('decode', {});
       expect(x).toBeDefined();
       expect(x.title(1)).toStrictEqual('1');
@@ -115,7 +116,7 @@ describe('ComplexType', function () {
     });
 
     it('Should pick fields using projection', async () => {
-      const dt = api.node.getComplexType('Note');
+      const dt = doc.node.getComplexType('Note');
       const x: any = (dt as any)._generateSchema('decode', {
         projection: parseFieldsProjection(['title', 'largecontent']),
       });
@@ -127,7 +128,7 @@ describe('ComplexType', function () {
     });
 
     it('Should omit fields using projection', async () => {
-      const dt = api.node.getComplexType('Note');
+      const dt = doc.node.getComplexType('Note');
       const x: any = (dt as any)._generateSchema('decode', {
         projection: parseFieldsProjection(['-title']),
       });
@@ -139,7 +140,7 @@ describe('ComplexType', function () {
     });
 
     it('Should include exclusive fields using projection', async () => {
-      const dt = api.node.getComplexType('Note');
+      const dt = doc.node.getComplexType('Note');
       const x: any = (dt as any)._generateSchema('decode', {
         projection: parseFieldsProjection(['+largecontent']),
       });

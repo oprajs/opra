@@ -37,7 +37,7 @@ export namespace HttpContext {
 export class HttpContext extends ExecutionContext {
   protected _body?: any;
   protected _multipartReader?: MultipartReader;
-  readonly protocol: OpraSchema.Protocol;
+  readonly protocol: OpraSchema.Protocol; // todo
   readonly adapter: HttpAdapter;
   readonly controller: HttpController;
   readonly controllerInstance?: any;

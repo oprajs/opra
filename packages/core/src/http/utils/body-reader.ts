@@ -9,7 +9,7 @@ import { Writable } from 'stream';
 import * as zlib from 'zlib';
 import typeIs from '@browsery/type-is';
 import { BadRequestError, InternalServerError, OpraHttpError } from '@opra/common';
-import { HttpIncoming } from '../interfaces/http-incoming.interface.js';
+import type { HttpIncoming } from '../interfaces/http-incoming.interface.js';
 
 /**
  *

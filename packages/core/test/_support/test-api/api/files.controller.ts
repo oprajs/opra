@@ -1,5 +1,5 @@
+import { Note } from 'customer-mongo/models';
 import { HttpController, HttpOperation } from '@opra/common';
-import { Note } from '../../../../../common/test/_support/test-api/index.js';
 
 @HttpController({
   description: 'Files resource',

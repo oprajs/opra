@@ -17,15 +17,15 @@ export function singletonDeleteTests(args: { client: OpraTestClient }) {
     afterAll(() => global.gc && global.gc());
 
     beforeAll(async () => {
-      await args.client.delete('MyProfile').getResponse();
-      await args.client.post('MyProfile', generateData()).getResponse();
+      await args.client.delete('auth/MyProfile').getResponse();
+      await args.client.post('auth/MyProfile', generateData()).getResponse();
     });
 
     it('Should delete instance', async () => {
-      let resp = await args.client.delete('MyProfile').getResponse();
+      let resp = await args.client.delete('auth/MyProfile').getResponse();
       resp.expect.toSuccess().toReturnOperationResult().toBeAffected();
 
-      resp = await args.client.get('MyProfile').getResponse();
+      resp = await args.client.get('auth/MyProfile').getResponse();
       resp.expect.toSuccess(HttpStatusCode.NO_CONTENT);
     });
   });

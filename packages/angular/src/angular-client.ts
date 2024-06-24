@@ -1,3 +1,4 @@
+/* eslint-disable import-x/extensions */
 import { HttpClient } from '@angular/common/http';
 import { HttpClientBase, kBackend } from '@opra/client';
 import { AngularBackend } from './angular-backend';

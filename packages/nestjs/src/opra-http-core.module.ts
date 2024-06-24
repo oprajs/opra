@@ -2,7 +2,7 @@ import { asMutable } from 'ts-gems';
 import { DynamicModule, Global, Module, OnModuleDestroy } from '@nestjs/common';
 import { ApiDocumentFactory } from '@opra/common';
 import type { OpraHttpModule } from './opra-http.module';
-import { OpraNestAdapter } from './services/opra-nestjs-adapter.js';
+import { OpraNestAdapter } from './opra-nestjs-adapter.js';
 
 @Module({})
 @Global()

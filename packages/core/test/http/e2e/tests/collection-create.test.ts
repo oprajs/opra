@@ -6,7 +6,6 @@ export function collectionCreateTests(args: { client: OpraTestClient }) {
     afterAll(() => global.gc && global.gc());
     const generateData = (v?: any) => {
       return {
-        _id: 1001,
         givenName: faker.person.firstName(),
         familyName: faker.person.lastName(),
         gender: 'M',
@@ -16,15 +15,15 @@ export function collectionCreateTests(args: { client: OpraTestClient }) {
     };
 
     it('Should create instance', async () => {
-      const data = generateData({ _id: 1001 });
+      const data = generateData();
       let resp = await args.client.post('Customers', data).getResponse();
       resp.expect
         .toSuccess(201)
         .toReturnObject()
         .toMatch({ ...data, address: undefined });
-      resp = await args.client.get('Customers@1001').getResponse();
+      resp = await args.client.get(`Customers@${resp.body.payload._id}`).getResponse();
       resp.expect
-        .toSuccess()
+        .toSuccess(200)
         .toReturnObject()
         .toMatch({ ...data, address: undefined });
     });

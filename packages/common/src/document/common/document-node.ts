@@ -16,6 +16,7 @@ import type { DocumentElement } from './document-element';
  */
 export class DocumentNode {
   protected [kDataTypeMap]?: DataTypeMap;
+  protected _document?: ApiDocument;
   readonly parent?: DocumentNode;
   readonly element: DocumentElement;
 
@@ -25,8 +26,9 @@ export class DocumentNode {
   }
 
   getDocument(): ApiDocument {
+    if (this._document) return this._document;
     if (this.element[kTypeNSMap]) return this.element as unknown as ApiDocument;
-    if (this.parent) return this.parent.getDocument();
+    if (this.parent) return (this._document = this.parent.getDocument());
     // istanbul ignore next
     throw new Error('ApiDocument not found in document tree');
   }
@@ -60,6 +62,12 @@ export class DocumentNode {
     }
     if (typeof nameOrCtor === 'string') name = nameOrCtor;
     throw new TypeError(`Unknown data type` + (name ? ' (' + name + ')' : ''));
+  }
+
+  getDataTypeNameWithNs(dataType: DataType): string | undefined {
+    if (!dataType.name) return;
+    const ns = this.getDocument().getDataTypeNs(dataType);
+    return ns ? ns + ':' + dataType.name : dataType.name;
   }
 
   /**

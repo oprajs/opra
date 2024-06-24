@@ -16,7 +16,7 @@ class LoginResult {
   resources: [MyProfileController],
 }).UseType(LoginResult)
 export class AuthController {
-  @HttpOperation({ path: 'login' })
+  @HttpOperation({ path: '/login' })
     .QueryParam('user', String)
     .QueryParam('password', 'string')
     .Response(200, { type: LoginResult })
@@ -24,17 +24,17 @@ export class AuthController {
     return { user: ctx.queryParams.user, token: '123456' };
   }
 
-  @HttpOperation({ path: 'logout' })
+  @HttpOperation({ path: '/logout' })
   logout() {
     //
   }
 
-  @HttpOperation({ path: 'getToken' }).Response(200, { type: String })
+  @HttpOperation({ path: '/getToken' }).Response(200, { type: String })
   getToken() {
     return '123456';
   }
 
-  @HttpOperation({ path: 'getRawToken' }).Response(200, {
+  @HttpOperation({ path: '/getRawToken' }).Response(200, {
     contentType: 'text/plain',
   })
   getRawToken() {

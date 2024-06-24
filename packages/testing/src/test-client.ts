@@ -8,10 +8,16 @@ export const kContext = Symbol.for('kContext');
 
 export type ResponseExt = { expect: ApiExpect };
 
+export namespace OpraTestClient {
+  export interface Options extends FetchBackend.Options {
+    basePath?: string;
+  }
+}
+
 export class OpraTestClient extends HttpClientBase<FetchBackend.RequestOptions, ResponseExt> {
   [kBackend]: TestBackend;
 
-  constructor(app: Server | RequestListener, options?: FetchBackend.Options) {
+  constructor(app: Server | RequestListener, options?: OpraTestClient.Options) {
     super(new TestBackend(app, options));
   }
 }

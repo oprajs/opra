@@ -1,5 +1,5 @@
-import { type OpraFilter } from '@opra/common';
-import { HttpContext } from '@opra/core';
+import type { OpraFilter } from '@opra/common';
+import type { HttpContext } from '@opra/core';
 import { EntityMetadata, type Repository } from '@sqb/connect';
 import _parseFilter from './adapter-utils/parse-filter.js';
 

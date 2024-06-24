@@ -76,7 +76,7 @@ export const HttpMediaType = function (
  * @class HttpMediaType
  */
 class HttpMediaTypeClass extends DocumentElement {
-  readonly owner: DocumentElement;
+  declare readonly owner: DocumentElement;
   description?: string;
   contentType?: string | string[];
   contentEncoding?: string;
@@ -104,11 +104,12 @@ class HttpMediaTypeClass extends DocumentElement {
   }
 
   toJSON(): OpraSchema.HttpMediaType {
+    const typeName = this.type ? this.node.getDataTypeNameWithNs(this.type) : undefined;
     const out = omitUndefined<OpraSchema.HttpMediaType>({
       description: this.description,
       contentType: this.contentType,
       contentEncoding: this.contentEncoding,
-      type: this.type?.name ? this.type.name : this.type?.toJSON(),
+      type: typeName ? typeName : this.type?.toJSON(),
       isArray: this.isArray,
       example: this.example,
       examples: this.examples,

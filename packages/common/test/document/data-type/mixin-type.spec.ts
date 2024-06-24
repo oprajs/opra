@@ -1,30 +1,27 @@
 import 'reflect-metadata';
+import { Country, Note, Record } from 'customer-mongo/models';
 import { ApiDocument, ApiDocumentFactory, MixinType, OpraSchema } from '@opra/common';
-import { Country, Note, Record } from '../../_support/test-api/index.js';
+import { TestApiDocument } from '../../_support/test-api/index.js';
 
 describe('MixinType', function () {
-  let api: ApiDocument;
-  const baseArgs: ApiDocumentFactory.InitArguments = {
-    spec: OpraSchema.SpecVersion,
-    info: {
-      title: 'TestDocument',
-      version: 'v1',
-    },
-    types: [
-      Record,
-      Country,
-      Note,
-      MixinType(Record, Country, { name: 'MixinType1' }),
-      MixinType(Record, Country, Note, { name: 'MixinType2' }),
-    ],
-  };
+  let doc: ApiDocument;
 
   beforeAll(async () => {
-    api = await ApiDocumentFactory.createDocument(baseArgs);
+    const baseDoc = await TestApiDocument.create();
+    doc = await ApiDocumentFactory.createDocument({
+      spec: OpraSchema.SpecVersion,
+      references: {
+        base: baseDoc,
+      },
+      types: [
+        MixinType(Record, Country, { name: 'MixinType1' }),
+        MixinType(Record, Country, Note, { name: 'MixinType2' }),
+      ],
+    });
   });
 
   it('Should create MixinType with two types', async function () {
-    const dt = api.node.getMixinType('MixinType1');
+    const dt = doc.node.getMixinType('MixinType1');
     expect(dt).toBeDefined();
     expect(dt.name).toEqual('MixinType1');
     expect(dt.types.length).toEqual(2);
@@ -35,7 +32,7 @@ describe('MixinType', function () {
   });
 
   it('Should create MixinType with three types', async function () {
-    const dt = api.node.getMixinType('MixinType2');
+    const dt = doc.node.getMixinType('MixinType2');
     expect(dt).toBeDefined();
     expect(dt.name).toEqual('MixinType2');
     expect(dt.types.length).toEqual(3);
@@ -48,7 +45,7 @@ describe('MixinType', function () {
   });
 
   it('Should _generateSchema() return ValGen schema', async () => {
-    const dt = api.node.getMixinType('MixinType2');
+    const dt = doc.node.getMixinType('MixinType2');
     const x: any = (dt as any)._generateSchema('decode', {});
     expect(x).toBeDefined();
     expect(Object.keys(x)).toStrictEqual([

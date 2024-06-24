@@ -1,36 +1,29 @@
 import 'reflect-metadata';
+import { Country } from 'customer-mongo/models';
 import { ApiDocument, ApiDocumentFactory, OmitType, OpraSchema, PartialType, PickType } from '@opra/common';
-import { Address, Country, Customer, GenderEnum, Note, Person, Record } from '../../_support/test-api/index.js';
+import { TestApiDocument } from '../../_support/test-api/index.js';
 
 describe('MappedType', function () {
-  let api: ApiDocument;
-  const baseArgs: ApiDocumentFactory.InitArguments = {
-    spec: OpraSchema.SpecVersion,
-    info: {
-      title: 'TestDocument',
-      version: 'v1',
-    },
-    types: [
-      Record,
-      Person,
-      GenderEnum,
-      Address,
-      Note,
-      Country,
-      Customer,
-      OmitType(Country, ['phonecode' as any], { name: 'OmitType1' }),
-      PickType(Country, ['phonecode' as any], { name: 'PickType1' }),
-      PartialType(Country, { name: 'PartialType1' }),
-      PartialType(Country, ['phonecode' as any], { name: 'PartialType2' }),
-    ],
-  };
+  let doc: ApiDocument;
 
   beforeAll(async () => {
-    api = await ApiDocumentFactory.createDocument(baseArgs);
+    const baseDoc = await TestApiDocument.create();
+    doc = await ApiDocumentFactory.createDocument({
+      spec: OpraSchema.SpecVersion,
+      references: {
+        base: baseDoc,
+      },
+      types: [
+        OmitType(Country, ['phonecode' as any], { name: 'OmitType1' }),
+        PickType(Country, ['phonecode' as any], { name: 'PickType1' }),
+        PartialType(Country, { name: 'PartialType1' }),
+        PartialType(Country, ['phonecode' as any], { name: 'PartialType2' }),
+      ],
+    });
   });
 
   it('Should OmitType() create MappedType that omits given fields', async function () {
-    const dt = api.node.getMappedType('OmitType1');
+    const dt = doc.node.getMappedType('OmitType1');
     expect(dt).toBeDefined();
     expect(dt.name).toEqual('OmitType1');
     expect(dt.base?.name).toEqual('Country');
@@ -40,14 +33,14 @@ describe('MappedType', function () {
   });
 
   it('Should OmitType._generateSchema() return ValGen schema', async () => {
-    const dt = api.node.getMappedType('OmitType1');
+    const dt = doc.node.getMappedType('OmitType1');
     const x: any = (dt as any)._generateSchema('decode', {});
     expect(x).toBeDefined();
     expect(Object.keys(x)).toStrictEqual(['code', 'name']);
   });
 
   it('Should PickType() create MappedType that picks given fields', async function () {
-    const dt = api.node.getMappedType('PickType1');
+    const dt = doc.node.getMappedType('PickType1');
     expect(dt).toBeDefined();
     expect(dt.name).toEqual('PickType1');
     expect(dt.base?.name).toEqual('Country');
@@ -57,14 +50,14 @@ describe('MappedType', function () {
   });
 
   it('Should PickType._generateSchema() return ValGen schema', async () => {
-    const dt = api.node.getMappedType('PickType1');
+    const dt = doc.node.getMappedType('PickType1');
     const x: any = (dt as any)._generateSchema('decode', {});
     expect(x).toBeDefined();
     expect(Object.keys(x)).toStrictEqual(['phoneCode']);
   });
 
   it('Should PartialType() create MappedType that makes all fields partial', async function () {
-    const dt = api.node.getMappedType('PartialType1');
+    const dt = doc.node.getMappedType('PartialType1');
     expect(dt).toBeDefined();
     expect(dt.name).toEqual('PartialType1');
     expect(dt.base?.name).toEqual('Country');
@@ -74,7 +67,7 @@ describe('MappedType', function () {
   });
 
   it('Should PartialType() create MappedType that makes selected fields partial', async function () {
-    const dt = api.node.getMappedType('PartialType2');
+    const dt = doc.node.getMappedType('PartialType2');
     expect(dt).toBeDefined();
     expect(dt.name).toEqual('PartialType2');
     expect(dt.base?.name).toEqual('Country');

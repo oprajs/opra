@@ -58,7 +58,7 @@ export const Value = function (this: Value, owner: DocumentElement, initArgs: Va
  * @class Value
  */
 class ValueClass extends DocumentElement {
-  readonly owner: DocumentElement;
+  declare readonly owner: DocumentElement;
   readonly name: string | RegExp;
   type?: DataType;
   description?: string;
@@ -66,8 +66,9 @@ class ValueClass extends DocumentElement {
   isArray?: boolean;
 
   toJSON(): OpraSchema.Value {
+    const typeName = this.type ? this.node.getDataTypeNameWithNs(this.type) : undefined;
     return omitUndefined<OpraSchema.Value>({
-      type: this.type ? (this.type.name ? this.type.name : this.type.toJSON()) : 'any',
+      type: this.type ? (typeName ? typeName : this.type.toJSON()) : 'any',
       description: this.description,
       isArray: this.isArray,
       examples: this.examples,

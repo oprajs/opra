@@ -94,21 +94,15 @@ export class HttpHandler {
       await this.adapter.emitAsync('request', context);
 
       // Call interceptors than execute request
-      let responseValue: any;
       if (this.adapter.interceptors) {
         let i = 0;
         const next = async () => {
           const interceptor = this.adapter.interceptors[i++];
           if (interceptor) await interceptor(context, next);
-          else responseValue = await this._executeRequest(context);
+          await this._executeRequest(context);
         };
         await next();
-      } else responseValue = await this._executeRequest(context);
-
-      if (!response.writableEnded)
-        await this._sendResponse(context, responseValue).finally(() => {
-          if (!response.writableEnded) response.end();
-        });
+      } else await this._executeRequest(context);
     } catch (e: any) {
       if (e instanceof ValidationError) {
         e = new InternalServerError(
@@ -299,7 +293,12 @@ export class HttpHandler {
    */
   protected async _executeRequest(context: HttpContext): Promise<any> {
     if (!context.operationHandler) throw new MethodNotAllowedError();
-    return await context.operationHandler.call(context.controllerInstance, context);
+    const responseValue = await context.operationHandler.call(context.controllerInstance, context);
+    const { response } = context;
+    if (!response.writableEnded)
+      await this._sendResponse(context, responseValue).finally(() => {
+        if (!response.writableEnded) response.end();
+      });
   }
 
   /**
@@ -325,7 +324,7 @@ export class HttpHandler {
 
     /** Validate response */
     if (operationResponse?.type) {
-      if (!(body == null && statusCode === HttpStatusCode.NO_CONTENT)) {
+      if (!(body == null && (statusCode as HttpStatusCode) === HttpStatusCode.NO_CONTENT)) {
         /** Generate encoder */
         let encode = this[kAssetCache].get<Validator>(operationResponse, 'encode');
         if (!encode) {
@@ -402,7 +401,7 @@ export class HttpHandler {
 
     const hasBody = body != null;
     const statusCode =
-      !hasBody && response.statusCode === HttpStatusCode.OK ? HttpStatusCode.NO_CONTENT : response.statusCode;
+      !hasBody && (response.statusCode as any) === HttpStatusCode.OK ? HttpStatusCode.NO_CONTENT : response.statusCode;
     /** Parse content-type header */
     const parsedContentType = hasBody && response.hasHeader('content-type') ? parseContentType(response) : undefined;
     let contentType = parsedContentType?.type;
@@ -508,10 +507,8 @@ export class HttpHandler {
       }
     }
 
-    if (responseArgs.contentType)
-      if (responseArgs.contentType !== parsedContentType?.type)
-        response.setHeader('content-type', responseArgs.contentType);
-      else response.removeHeader('content-type');
+    if (responseArgs.contentType && responseArgs.contentType !== parsedContentType?.type)
+      response.setHeader('content-type', responseArgs.contentType);
     if (
       responseArgs.contentType &&
       body != null &&
@@ -524,25 +521,31 @@ export class HttpHandler {
     return responseArgs;
   }
 
-  async sendDocumentSchema(response: HttpOutgoing): Promise<void> {
+  async sendDocumentSchema(context: HttpContext): Promise<void> {
+    const { request, response } = context;
     const { document } = this.adapter;
     response.setHeader('content-type', MimeTypes.json);
     /** Check if response cache exists */
     let responseBody = this[kAssetCache].get(document, '$schema-response');
     /** Create response if response cache does not exists */
     if (!responseBody) {
-      const schema = document.toJSON();
+      const url = new URL(request.originalUrl || request.url || '/', 'http://tempuri.org');
+      const { searchParams } = url;
+      // const nsPath = searchParams.get('ns');
+      // if (nsPath) {
+      //   const arr = nsPath.split('/');
+      //   let doc = document;
+      //   for (const a of arr) {
+      //   }
+      // }
+      const schema = document.export({ references: searchParams.get('references') as any });
       const dt = document.node.getComplexType('OperationResult');
       let encode = this[kAssetCache].get<Validator>(dt, 'encode');
       if (!encode) {
         encode = dt.generateCodec('encode');
         this[kAssetCache].set(dt, 'encode', encode);
       }
-      const bodyObject = new OperationResult({
-        payload: schema,
-      });
-      const body = encode(bodyObject);
-      responseBody = JSON.stringify(body);
+      responseBody = JSON.stringify(schema);
       this[kAssetCache].set(document, '$schema-response', responseBody);
     }
     response.end(responseBody);

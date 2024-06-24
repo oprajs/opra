@@ -1,6 +1,6 @@
 import 'reflect-metadata';
+import { Customer } from 'customer-mongo/models';
 import { ApiField, ComplexType, HTTP_CONTROLLER_METADATA, HttpOperation, HttpStatusCode } from '@opra/common';
-import { Customer } from '../../_support/test-api/index.js';
 
 describe('HttpOperation decorator', function () {
   afterAll(() => global.gc && global.gc());

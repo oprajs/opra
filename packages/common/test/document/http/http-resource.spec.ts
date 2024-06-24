@@ -1,15 +1,14 @@
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
-import { ApiDocument, ApiDocumentFactory, OpraSchema } from '@opra/common';
-import { testApiDocumentDef } from '../../_support/test-api/index.js';
+import { ApiDocument, OpraSchema } from '@opra/common';
+import { TestApiDocument } from '../../_support/test-api/index.js';
 
 describe('HttpResource', function () {
   let doc: ApiDocument;
+  afterAll(() => global.gc && global.gc());
 
   beforeAll(async () => {
-    doc = await ApiDocumentFactory.createDocument(testApiDocumentDef);
+    doc = await TestApiDocument.create();
   });
-
-  afterAll(() => global.gc && global.gc());
 
   it('Should getResource(name) return undefined if resource not a found', async () => {
     expect(doc.api!.findController('unknownResource')).not.toBeDefined();
@@ -88,6 +87,7 @@ describe('HttpResource', function () {
           contentEncoding: 'utf-8',
           statusCode: 200,
           type: 'Customer',
+          partial: 'deep',
         },
         {
           description: expect.any(String),

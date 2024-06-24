@@ -1,5 +1,5 @@
+import { Gender, Profile } from 'customer-mongo/models';
 import { HttpController, HttpOperation } from '@opra/common';
-import { GenderEnum, Profile } from '../../../../../common/test/_support/test-api/index.js';
 
 @HttpController({
   description: 'My profile resource',
@@ -10,7 +10,7 @@ export class MyProfileController {
     _id: 1,
     givenName: 'Jessica Hugo',
     familyName: 'Something',
-    gender: GenderEnum.FEMALE,
+    gender: Gender.FEMALE,
     createdAt: new Date(),
   };
 

@@ -1,0 +1,22 @@
+{
+  "name": "nestjs-express-mongo",
+  "private": true,
+  "version": "0.0.1",
+  "type": "module",
+  "module": "./index.js",
+  "dependencies": {
+    "mongodb": "^6.7.0",
+    "@opra/common": "^0.33.13",
+    "@opra/core": "^0.33.13",
+    "@opra/mongodb": "^0.33.13",
+    "@nestjs/common": "^10.3.9",
+    "@nestjs/core": "^10.3.9"
+  },
+  "scripts": {
+    "_build": "tsc && npm run check && npm run lint && npm run format",
+    "lint": "eslint . --max-warnings=0",
+    "check": "madge --circular src/**",
+    "format": "prettier . --write --log-level=warn",
+    "start": "node --loader ../../support/esloader.mjs --experimental-specifier-resolution=node --import=./logerror.js src/start.ts"
+  }
+}

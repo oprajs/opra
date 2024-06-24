@@ -1,5 +1,5 @@
+import { Country } from 'customer-mongo/models';
 import { ApiDocumentFactory, ComplexType, HttpApi, HttpController, HttpOperation, HttpStatusRange } from '@opra/common';
-import { Country } from '../../../_support/test-api/index.js';
 
 describe('HttpApiFactory - HttpOperation (Class)', function () {
   afterAll(() => global.gc && global.gc());

@@ -1,4 +1,4 @@
-import './augmentation/datatype-factory.augmentation';
+import './augmentation/datatype-factory.augmentation.js';
 import './augmentation/mapped-type.augmentation.js';
 import './augmentation/mixin-type.augmentation.js';
 

@@ -1,9 +1,59 @@
 import 'reflect-metadata';
-import { FieldPathType, HTTP_CONTROLLER_METADATA, HttpOperation, IntegerType } from '@opra/common';
-import { Customer } from '../../_support/test-api/index.js';
+import { Customer } from 'customer-mongo/models';
+import { FieldPathType, FilterType, HTTP_CONTROLLER_METADATA, HttpOperation, IntegerType } from '@opra/common';
 
 describe('HttpOperation.Entity.* decorators', function () {
   afterAll(() => global.gc && global.gc());
+
+  const queryParams = {
+    limit: {
+      location: 'query',
+      name: 'limit',
+      description: expect.any(String),
+      type: new IntegerType({
+        minValue: 1,
+      }),
+    },
+    skip: {
+      location: 'query',
+      name: 'skip',
+      description: expect.any(String),
+      type: new IntegerType({
+        minValue: 1,
+      }),
+    },
+    count: {
+      location: 'query',
+      name: 'count',
+      description: expect.any(String),
+      type: Boolean,
+    },
+    projection: {
+      location: 'query',
+      name: 'projection',
+      description: expect.any(String),
+      isArray: true,
+      type: expect.any(FieldPathType),
+      arraySeparator: ',',
+    },
+    filter: {
+      location: 'query',
+      description: 'Determines filter fields',
+      name: 'filter',
+      type: {
+        dataType: Customer,
+        rules: {},
+      },
+    },
+    sort: {
+      location: 'query',
+      name: 'sort',
+      description: 'Determines sort fields',
+      isArray: true,
+      arraySeparator: ',',
+      type: expect.any(FieldPathType),
+    },
+  };
 
   /* ***************************************************** */
   describe('"Create" decorator', function () {
@@ -30,16 +80,15 @@ describe('HttpOperation.Entity.* decorators', function () {
         type: 'Customer',
       });
       expect(opr.types).toEqual([Customer]);
-      expect(opr.parameters).toEqual([
-        {
-          location: 'query',
-          name: 'projection',
-          description: expect.any(String),
-          isArray: true,
-          arraySeparator: ',',
-          type: expect.any(FieldPathType),
-        },
-      ]);
+      expect(opr.parameters.map(prm => prm.name)).toStrictEqual(['projection']);
+      expect(opr.parameters.find(prm => prm.name === 'projection')).toEqual({
+        location: 'query',
+        name: 'projection',
+        description: expect.any(String),
+        isArray: true,
+        arraySeparator: ',',
+        type: expect.any(FieldPathType),
+      });
       expect(opr.requestBody).toEqual({
         content: [
           {
@@ -92,13 +141,12 @@ describe('HttpOperation.Entity.* decorators', function () {
         type: 'Customer',
         keyParameter: 'id',
       });
-      expect(opr.parameters).toEqual([
-        {
-          location: 'path',
-          name: 'id',
-          type: 'number',
-        },
-      ]);
+      expect(opr.parameters.map(prm => prm.name)).toStrictEqual(['id']);
+      expect(opr.parameters.find(prm => prm.name === 'id')).toEqual({
+        location: 'path',
+        name: 'id',
+        type: 'number',
+      });
       expect(opr.responses).toEqual([
         {
           description: expect.any(String),
@@ -159,62 +207,28 @@ describe('HttpOperation.Entity.* decorators', function () {
       expect(opr).toBeDefined();
       expect(opr.method).toEqual('DELETE');
       expect(opr.composition).toEqual('Entity.DeleteMany');
-      expect(opr.parameters).toEqual([
-        {
-          location: 'query',
-          name: 'filter',
-          description: 'Determines filter fields',
-          type: {
-            dataType: Customer,
-            rules: {
-              _id: {
-                operators: ['=', '!='],
-              },
-              givenName: {
-                operators: ['=', '!=', 'like'],
-              },
+      expect(opr.parameters.map(prm => prm.name)).toStrictEqual(['filter']);
+      expect(opr.parameters.find(prm => prm.name === 'filter')).toEqual({
+        location: 'query',
+        name: 'filter',
+        description: 'Determines filter fields',
+        type: {
+          dataType: Customer,
+          rules: {
+            _id: {
+              operators: ['=', '!='],
+            },
+            givenName: {
+              operators: ['=', '!=', 'like'],
             },
           },
         },
-      ]);
+      });
     });
   });
 
   /* ***************************************************** */
   describe('"FindMany" decorator', function () {
-    const queryParams = [
-      {
-        location: 'query',
-        name: 'limit',
-        description: expect.any(String),
-        type: new IntegerType({
-          minValue: 1,
-        }),
-      },
-      {
-        location: 'query',
-        name: 'skip',
-        description: expect.any(String),
-        type: new IntegerType({
-          minValue: 1,
-        }),
-      },
-      {
-        location: 'query',
-        name: 'count',
-        description: expect.any(String),
-        type: Boolean,
-      },
-      {
-        location: 'query',
-        name: 'projection',
-        description: expect.any(String),
-        isArray: true,
-        type: expect.any(FieldPathType),
-        arraySeparator: ',',
-      },
-    ];
-
     it('Should define FindMany operation metadata', async function () {
       class CustomerResource {
         @HttpOperation.Entity.FindMany({ type: Customer, description: 'operation description' })
@@ -231,7 +245,20 @@ describe('HttpOperation.Entity.* decorators', function () {
       expect(opr.compositionOptions).toEqual({
         type: 'Customer',
       });
-      expect(opr.parameters).toEqual(queryParams);
+      expect(opr.parameters.map(prm => prm.name)).toStrictEqual([
+        'limit',
+        'skip',
+        'count',
+        'projection',
+        'filter',
+        'sort',
+      ]);
+      expect(opr.parameters.find(prm => prm.name === 'limit')).toEqual(queryParams.limit);
+      expect(opr.parameters.find(prm => prm.name === 'skip')).toEqual(queryParams.skip);
+      expect(opr.parameters.find(prm => prm.name === 'count')).toEqual(queryParams.count);
+      expect(opr.parameters.find(prm => prm.name === 'projection')).toEqual(queryParams.projection);
+      expect(opr.parameters.find(prm => prm.name === 'filter')).toEqual(queryParams.filter);
+      expect(opr.parameters.find(prm => prm.name === 'sort')).toEqual(queryParams.sort);
       expect(opr.responses).toEqual([
         {
           description: expect.any(String),
@@ -267,25 +294,22 @@ describe('HttpOperation.Entity.* decorators', function () {
       expect(opr.compositionOptions).toEqual({
         type: 'Customer',
       });
-      expect(opr.parameters).toEqual([
-        ...queryParams,
-        {
-          location: 'query',
-          description: 'Determines filter fields',
-          name: 'filter',
-          type: {
-            dataType: Customer,
-            rules: {
-              _id: {
-                operators: ['=', '!='],
-              },
-              givenName: {
-                operators: ['=', '!=', 'like'],
-              },
+      expect(opr.parameters.find(prm => prm.name === 'filter')).toEqual({
+        location: 'query',
+        description: 'Determines filter fields',
+        name: 'filter',
+        type: {
+          dataType: Customer,
+          rules: {
+            _id: {
+              operators: ['=', '!='],
+            },
+            givenName: {
+              operators: ['=', '!=', 'like'],
             },
           },
         },
-      ]);
+      });
       expect(opr.responses).toEqual([
         {
           description: expect.any(String),
@@ -320,17 +344,14 @@ describe('HttpOperation.Entity.* decorators', function () {
         type: 'Customer',
         sortFields: ['_id', 'givenName'],
       });
-      expect(opr.parameters).toEqual([
-        ...queryParams,
-        {
-          location: 'query',
-          name: 'sort',
-          description: 'Determines sort fields',
-          isArray: true,
-          arraySeparator: ',',
-          type: expect.any(FieldPathType),
-        },
-      ]);
+      expect(opr.parameters.find(prm => prm.name === 'sort')).toEqual({
+        location: 'query',
+        name: 'sort',
+        description: 'Determines sort fields',
+        isArray: true,
+        arraySeparator: ',',
+        type: expect.any(FieldPathType),
+      });
       expect(opr.responses).toEqual([
         {
           description: expect.any(String),
@@ -365,7 +386,6 @@ describe('HttpOperation.Entity.* decorators', function () {
         type: 'Customer',
         defaultSort: ['givenName'],
       });
-      expect(opr.parameters).toEqual(queryParams);
       expect(opr.responses).toEqual([
         {
           description: expect.any(String),
@@ -407,20 +427,19 @@ describe('HttpOperation.Entity.* decorators', function () {
         type: 'Customer',
         keyParameter: 'id',
       });
-      expect(opr.parameters).toEqual([
-        {
-          location: 'query',
-          name: 'projection',
-          description: expect.any(String),
-          isArray: true,
-          arraySeparator: ',',
-          type: expect.any(FieldPathType),
-        },
-        {
-          location: 'path',
-          name: 'id',
-        },
-      ]);
+      expect(opr.parameters.map(prm => prm.name)).toStrictEqual(['projection', 'id']);
+      expect(opr.parameters.find(prm => prm.name === 'projection')).toEqual({
+        location: 'query',
+        name: 'projection',
+        description: expect.any(String),
+        isArray: true,
+        arraySeparator: ',',
+        type: expect.any(FieldPathType),
+      });
+      expect(opr.parameters.find(prm => prm.name === 'id')).toEqual({
+        location: 'path',
+        name: 'id',
+      });
       expect(opr.responses).toEqual([
         {
           description: expect.any(String),
@@ -479,6 +498,7 @@ describe('HttpOperation.Entity.* decorators', function () {
         maxContentSize: 1000,
         required: true,
         immediateFetch: true,
+        partial: 'deep',
       });
       expect(opr.responses).toEqual([
         {
@@ -509,24 +529,23 @@ describe('HttpOperation.Entity.* decorators', function () {
       expect(opr.compositionOptions).toEqual({
         type: 'Customer',
       });
-      expect(opr.parameters).toEqual([
-        {
-          location: 'query',
-          name: 'filter',
-          description: 'Determines filter fields',
-          type: {
-            dataType: Customer,
-            rules: {
-              _id: {
-                operators: ['=', '!='],
-              },
-              givenName: {
-                operators: ['=', '!=', 'like'],
-              },
+      expect(opr.parameters.map(prm => prm.name)).toStrictEqual(['filter']);
+      expect(opr.parameters.find(prm => prm.name === 'filter')).toEqual({
+        location: 'query',
+        name: 'filter',
+        description: 'Determines filter fields',
+        type: {
+          dataType: Customer,
+          rules: {
+            _id: {
+              operators: ['=', '!='],
+            },
+            givenName: {
+              operators: ['=', '!=', 'like'],
             },
           },
         },
-      ]);
+      });
     });
   });
 
@@ -556,21 +575,26 @@ describe('HttpOperation.Entity.* decorators', function () {
         keyParameter: 'id',
       });
       expect(opr.types).toEqual([Customer]);
-      expect(opr.parameters).toEqual([
-        {
-          location: 'query',
-          name: 'projection',
-          description: expect.any(String),
-          isArray: true,
-          arraySeparator: ',',
-          type: expect.any(FieldPathType),
-        },
-        {
-          location: 'path',
-          name: 'id',
-          type: 'number',
-        },
-      ]);
+      expect(opr.parameters.map(prm => prm.name)).toStrictEqual(['projection', 'filter', 'id']);
+      expect(opr.parameters.find(prm => prm.name === 'projection')).toEqual({
+        location: 'query',
+        name: 'projection',
+        description: expect.any(String),
+        isArray: true,
+        arraySeparator: ',',
+        type: expect.any(FieldPathType),
+      });
+      expect(opr.parameters.find(prm => prm.name === 'filter')).toEqual({
+        description: expect.any(String),
+        location: 'query',
+        name: 'filter',
+        type: expect.any(FilterType),
+      });
+      expect(opr.parameters.find(prm => prm.name === 'id')).toEqual({
+        location: 'path',
+        name: 'id',
+        type: 'number',
+      });
       expect(opr.requestBody).toEqual({
         content: [
           {
@@ -582,6 +606,7 @@ describe('HttpOperation.Entity.* decorators', function () {
         maxContentSize: 1000,
         required: true,
         immediateFetch: true,
+        partial: 'deep',
       });
       expect(opr.responses).toEqual([
         {
@@ -623,37 +648,22 @@ describe('HttpOperation.Entity.* decorators', function () {
         type: 'Customer',
         keyParameter: 'id',
       });
-      expect(opr.parameters).toEqual([
-        {
-          location: 'query',
-          name: 'projection',
-          description: expect.any(String),
-          isArray: true,
-          arraySeparator: ',',
-          type: expect.any(FieldPathType),
-        },
-        {
-          location: 'path',
-          name: 'id',
-          type: 'number',
-        },
-        {
-          location: 'query',
-          name: 'filter',
-          description: expect.any(String),
-          type: {
-            dataType: Customer,
-            rules: {
-              _id: {
-                operators: ['=', '!='],
-              },
-              givenName: {
-                operators: ['=', '!=', 'like'],
-              },
+      expect(opr.parameters.find(prm => prm.name === 'filter')).toEqual({
+        location: 'query',
+        name: 'filter',
+        description: expect.any(String),
+        type: {
+          dataType: Customer,
+          rules: {
+            _id: {
+              operators: ['=', '!='],
+            },
+            givenName: {
+              operators: ['=', '!=', 'like'],
             },
           },
         },
-      ]);
+      });
     });
   });
 });

@@ -1,7 +1,7 @@
+import { CustomerApplication } from 'express-mongo';
 import { Validator } from 'valgen';
 import { ApiDocument, HttpController } from '@opra/common';
 import { MongoAdapter } from '@opra/mongodb';
-import { TestApp } from '../_support/test-app/index.js';
 
 describe('MongoAdapter.prepareFilter', function () {
   let document: ApiDocument;
@@ -9,7 +9,7 @@ describe('MongoAdapter.prepareFilter', function () {
   let filterDecoder: Validator;
 
   beforeAll(async () => {
-    document = (await TestApp.create()).document;
+    document = (await CustomerApplication.create()).document;
     customers = document.api!.findController('customers')!;
     const findMany = customers.operations.get('findMany');
     const filterParam = findMany!.findParameter('filter');

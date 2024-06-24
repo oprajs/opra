@@ -1,6 +1,6 @@
 import assert from 'assert';
+import { Country } from 'customer-mongo/models';
 import { ApiDocumentFactory, OpraSchema } from '@opra/common';
-import { Country } from '../../../_support/test-api/index.js';
 
 describe('HttpApiFactory - HttpOperation (Schema)', function () {
   afterAll(() => global.gc && global.gc());

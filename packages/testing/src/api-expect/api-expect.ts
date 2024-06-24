@@ -24,6 +24,7 @@ export class ApiExpect extends ApiExpectBase {
       }
     } catch (e: any) {
       e.message = "Request didn't succeeded as expected. " + msg + '\n\n' + e.message;
+
       const issues: ErrorIssue[] = this.response.body?.errors;
       if (issues) {
         e.message += '\n\n';

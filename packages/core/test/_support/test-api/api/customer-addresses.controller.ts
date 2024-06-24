@@ -1,5 +1,6 @@
+import { Address } from 'customer-mongo/models';
 import { HttpController, HttpOperation, NotFoundError, OperationResult } from '@opra/common';
-import { Address, Data } from '../../../../../common/test/_support/test-api/index.js';
+import { Data } from '../../../../../../examples/_lib/data/customers-data.js';
 
 @HttpController({
   description: 'Customer addresses',

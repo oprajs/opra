@@ -19,6 +19,7 @@
     "_copy_pkg_files": "cp README.md package.json ../../LICENSE ../../build/core && cp ../../package.cjs.json ../../build/core/cjs/package.json",
     "_copyi18n": "cp -R i18n ../../build/core/i18n",
     "lint": "eslint . --max-warnings=0",
+    "check": "madge --circular src/**",
     "format": "prettier . --write --log-level=warn",
     "test": "jest",
     "cover": "jest --collect-coverage",

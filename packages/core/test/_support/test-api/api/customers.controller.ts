@@ -1,7 +1,8 @@
+import { Customer } from 'customer-mongo/models';
 import merge from 'putil-merge';
 import { HttpController, HttpOperation, OperationResult } from '@opra/common';
 import { HttpContext } from '@opra/core';
-import { Customer, Data } from '../../../../../common/test/_support/test-api/index.js';
+import { Data } from '../../../../../../examples/_lib/data/customers-data.js';
 
 @HttpController({
   description: 'Customer resource',
@@ -60,7 +61,7 @@ export class CustomersController {
     });
   }
 
-  @HttpOperation({ path: 'sendMessageAll' }).QueryParam('message', String)
+  @HttpOperation({ path: '/sendMessageAll' }).QueryParam('message', String)
   async sendMessageAll(context: HttpContext) {
     return { sent: 10, message: context.queryParams.message };
   }

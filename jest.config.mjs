@@ -4,15 +4,13 @@ export default {
   ...base,
   // verbose: true,
   coverageReporters: ['lcov', 'text'],
-  coverageDirectory: "<rootDir>/coverage/",
+  coverageDirectory: '<rootDir>/coverage/',
   coveragePathIgnorePatterns: [
     '<rootDir>/build/',
     '<rootDir>/dist/',
     '/node_modules/',
-    '_support'
+    '_support',
   ],
   testSequencer: '<rootDir>/support/test/jest-customsequencer.cjs',
-  projects: [
-    '<rootDir>/packages/*/jest.config.mjs'
-  ]
+  projects: ['<rootDir>/packages/*/jest.config.mjs'],
 };

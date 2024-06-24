@@ -1,6 +1,11 @@
-// eslint-disable-next-line import-x/extensions
-import { initPostgres } from '../../../support/test/init-postgres';
+/* eslint-disable import-x/extensions */
+import { initDatabase } from '../../../examples/_lib/customer-sqb/src/init-database';
+import { countriesData } from '../../../examples/_lib/data/countries-data';
+import { customersData } from '../../../examples/_lib/data/customers-data';
 
 export default async function globalSetup() {
-  await initPostgres();
+  await initDatabase({
+    countries: countriesData,
+    customers: customersData,
+  });
 }

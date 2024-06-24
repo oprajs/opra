@@ -16,6 +16,9 @@ export default {
     '^@opra/([^/]*)/test(?:/(.+))$': ['<rootDir>/../$1/test/$2'],
     '^@opra/([^/]*)(?:/(.+))$': ['<rootDir>/../$1/src/$2'],
     '^@opra/([^/]*)$': ['<rootDir>/../$1/src'],
+    '^customer-mongo/models$': [
+      '<rootDir>/../../examples/_lib/customer-mongo/src/models/index',
+    ],
     '^(\\.{1,2}/.*)\\.js$': '$1',
   },
 };

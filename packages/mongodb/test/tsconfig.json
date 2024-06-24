@@ -10,8 +10,9 @@
       "@opra/client": ["../../client/src"],
       "@opra/common": ["../../common/src"],
       "@opra/core": ["../../core/src"],
-      "@opra/sqb": ["../../sqb/src"],
-      "@opra/testing": ["../../testing/src"]
+      "@opra/testing": ["../../testing/src"],
+      "customer-mongo": ["../../../examples/_lib/customer-mongo"],
+      "express-mongo": ["../../../examples/express-mongo"]
     }
   }
 }

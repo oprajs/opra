@@ -1,24 +1,18 @@
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
-import { ApiDocument, ApiDocumentFactory, OpraSchema } from '@opra/common';
+import { ApiDocument } from '@opra/common';
+import { TestApiDocument } from '../../_support/test-api/index.js';
 
 describe('SimpleType', function () {
-  let api: ApiDocument;
-  const baseArgs: ApiDocumentFactory.InitArguments = {
-    spec: OpraSchema.SpecVersion,
-    info: {
-      title: 'TestDocument',
-      version: 'v1',
-    },
-  };
+  let doc: ApiDocument;
 
   beforeAll(async () => {
-    api = await ApiDocumentFactory.createDocument(baseArgs);
+    doc = await TestApiDocument.create();
   });
 
   afterAll(() => global.gc && global.gc());
 
   it('Should exportSchema() return schema', async () => {
-    const dt = api.node.getSimpleType('string');
+    const dt = doc.node.getSimpleType('string');
     expect(dt).toBeDefined();
     const x = dt!.toJSON();
     expect(x).toBeDefined();
@@ -47,13 +41,13 @@ describe('SimpleType', function () {
   });
 
   it('Should generate decoder', async () => {
-    const dt = api.node.getSimpleType('date');
+    const dt = doc.node.getSimpleType('date');
     const decode = dt.generateCodec('decode');
     expect(decode('2020-01-02T10:30:00')).toStrictEqual(new Date('2020-01-02T00:00:00'));
   });
 
   it('Should generate encoder', async () => {
-    const dt = api.node.getSimpleType('date');
+    const dt = doc.node.getSimpleType('date');
     const encode = dt.generateCodec('encode');
     expect(encode(new Date('2020-01-02T00:00:00'))).toStrictEqual('2020-01-02');
   });

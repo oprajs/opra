@@ -1,6 +1,6 @@
 import fs from 'fs';
 import path from 'path';
-import { FallbackLng, getStackFileName, I18n as I18n_, isUrlString, LanguageResource } from '@opra/common';
+import { FallbackLng, getStackFileName, I18n as I18n_, LanguageResource } from '@opra/common';
 
 declare module '@opra/common' {
   export interface I18n {
@@ -66,7 +66,7 @@ I18n_.prototype.loadResourceBundle = async function (
   overwrite?: boolean,
 ): Promise<void> {
   let obj;
-  if (isUrlString(filePath)) {
+  if (URL.canParse(filePath)) {
     obj = (await fetch(filePath, { headers: { accept: 'application/json' } })).json();
   } else {
     const content = fs.readFileSync(filePath, 'utf8');

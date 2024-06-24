@@ -5,10 +5,10 @@ import { OpraSchema } from '../../schema/index.js';
 import type { DocumentElement } from '../common/document-element.js';
 import { DocumentInitContext } from '../common/document-init-context.js';
 import { DECORATOR } from '../constants.js';
+import { ComplexTypeDecorator } from '../decorators/complex-type.decorator.js';
 import { ApiField } from './api-field.js';
 import { ComplexTypeBase } from './complex-type-base.js';
 import { DataType } from './data-type.js';
-import { ComplexTypeDecorator } from './decorators/complex-type.decorator.js';
 import type { MappedType } from './mapped-type.js';
 import type { MixinType } from './mixin-type.js';
 
@@ -133,9 +133,9 @@ export const ComplexType = function (this: ComplexType | void, ...args: any[]) {
  * @class ComplexType
  */
 abstract class ComplexTypeClass extends ComplexTypeBase {
-  readonly kind: OpraSchema.ComplexType.Kind;
+  declare readonly kind: OpraSchema.ComplexType.Kind;
   readonly base?: ComplexType | MappedType | MixinType;
-  readonly ctor?: Type;
+  declare readonly ctor?: Type;
 
   extendsFrom(baseType: DataType): boolean {
     if (!(baseType instanceof ComplexTypeBase)) return false;
@@ -144,10 +144,11 @@ abstract class ComplexTypeClass extends ComplexTypeBase {
   }
 
   toJSON(): OpraSchema.ComplexType {
+    const baseName = this.base ? this.node.getDataTypeNameWithNs(this.base) : undefined;
     const out = omitUndefined<OpraSchema.ComplexType>({
       ...ComplexTypeBase.prototype.toJSON.call(this),
       kind: this.kind,
-      base: this.base ? (this.base.name ? this.base.name : this.base.toJSON()) : undefined,
+      base: this.base ? (baseName ? baseName : this.base.toJSON()) : undefined,
     });
     if (this.additionalFields) {
       if (this.additionalFields instanceof DataType) {

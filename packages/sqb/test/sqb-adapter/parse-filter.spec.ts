@@ -1,9 +1,9 @@
 import '@opra/core';
+import { CustomerApplication } from 'express-sqb';
 import { Validator } from 'valgen';
 import { ApiDocument, HttpController } from '@opra/common';
 import { SQBAdapter } from '@opra/sqb';
 import { And, Eq, Gt, Gte, Ilike, In, Like, Lt, Lte, Ne, Nin, NLike, Not, NotILike, Or } from '@sqb/builder';
-import { TestApp } from '../_support/test-app/index.js';
 
 describe('SQBAdapter.parseFilter', function () {
   let document: ApiDocument;
@@ -11,7 +11,7 @@ describe('SQBAdapter.parseFilter', function () {
   let filterDecoder: Validator;
 
   beforeAll(async () => {
-    document = (await TestApp.create()).document;
+    document = (await CustomerApplication.create()).document;
     customers = document.api!.findController('customers')!;
     const findMany = customers.operations.get('findMany');
     const filterParam = findMany!.findParameter('filter');

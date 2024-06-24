@@ -10,7 +10,10 @@
       "@opra/client": ["../../client/src"],
       "@opra/common": ["../../common/src"],
       "@opra/core": ["../../core/src"],
-      "@opra/testing": ["../../testing/src"]
+      "@opra/mongodb": ["../../mongodb/src"],
+      "@opra/testing": ["../../testing/src"],
+      "customer-mongo": ["../../../examples/_lib/customer-mongo"],
+      "nestjs-express-mongo": ["../../../examples/nestjs-express-mongo"]
     }
   }
 }

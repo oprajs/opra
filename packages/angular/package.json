@@ -22,8 +22,8 @@
     "clean": "npm run clean:src && npm run clean:test && npm run clean:dist && npm run clean:cover",
     "clean:src": "ts-cleanup -s src --all",
     "clean:test": "ts-cleanup -s test --all",
-    "clean:dist": "rimraf ../../build/client",
-    "clean:cover": "rimraf ../../coverage/client"
+    "clean:dist": "rimraf ../../build/angular",
+    "clean:cover": "rimraf ../../coverage/angular"
   },
   "peerDependencies": {
     "@angular/common": ">= 15.0.0",

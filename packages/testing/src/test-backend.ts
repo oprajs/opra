@@ -1,8 +1,9 @@
 import { createServer, IncomingMessage, Server, ServerResponse } from 'http';
 import { AddressInfo } from 'net';
+import * as path from 'node:path';
 import { FetchBackend, HttpResponse } from '@opra/client';
-import { OpraURL } from '@opra/common';
 import { ApiExpect } from './api-expect/api-expect.js';
+import type { OpraTestClient } from './test-client.js';
 
 declare type RequestListener = (req: IncomingMessage, res: ServerResponse) => void;
 
@@ -15,14 +16,14 @@ export type ResponseExt = { expect: ApiExpect };
 export class TestBackend extends FetchBackend {
   protected _server: Server;
 
-  constructor(app: Server | RequestListener, options?: TestBackend.Options) {
-    super('http://tempuri.org', options);
+  constructor(app: Server | RequestListener, options?: OpraTestClient.Options) {
+    super(options?.basePath ? path.join('http://tempuri.org', options.basePath) : 'http://tempuri.org', options);
     this._server = app instanceof Server ? app : createServer(app);
   }
 
   protected send(req: Request): Promise<Response> {
     return new Promise<Response>((resolve, reject) => {
-      const url = new OpraURL(req.url);
+      const url = new URL(req.url);
       // Set protocol to HTTP
       url.protocol = 'http';
 

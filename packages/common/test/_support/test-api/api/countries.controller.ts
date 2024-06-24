@@ -1,5 +1,5 @@
+import { Country } from 'customer-mongo/models';
 import { HttpController, HttpOperation } from '@opra/common';
-import { Country } from '../entities/country.entity.js';
 
 @HttpController({
   description: 'Countries collection',

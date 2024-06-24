@@ -1,16 +1,16 @@
 import '@opra/sqb';
+import { CustomerApplication } from 'express-mongo';
 import { OpraTestClient } from '@opra/testing';
 import { entityTests } from '../../../core/test/http/e2e/tests/index.js';
-import { TestApp } from '../_support/test-app/index.js';
 
 describe('e2e tests', function () {
-  let app: TestApp;
+  let app: CustomerApplication;
   let client: OpraTestClient;
   const testArgs: any = {};
 
   beforeAll(async () => {
-    app = await TestApp.create();
-    client = new OpraTestClient(app.adapter.app, { document: app.document });
+    app = await CustomerApplication.create({ basePath: '/api/v1' });
+    client = new OpraTestClient(app.adapter.app, { document: app.document, basePath: '/api/v1' });
     testArgs.app = app;
     testArgs.client = client;
   });

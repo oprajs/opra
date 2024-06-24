@@ -1,17 +1,17 @@
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
-import { ApiDocument, ApiDocumentFactory, OpraSchema } from '@opra/common';
-import { GenderEnum, testApiDocumentDef } from '../_support/test-api/index.js';
+import { Gender } from 'customer-mongo/models';
+import { ApiDocument, OpraSchema } from '@opra/common';
+import { TestApiDocument } from '../_support/test-api/index.js';
 
 describe('ApiDocument', function () {
   let doc: ApiDocument;
   afterAll(() => global.gc && global.gc());
 
   beforeAll(async () => {
-    doc = await ApiDocumentFactory.createDocument(testApiDocumentDef);
+    doc = await TestApiDocument.create();
   });
 
   it('Should include built-in types by default', async () => {
-    expect(doc.references.size).toStrictEqual(1);
     const ref = doc.references.get('opra');
     expect(ref).toBeDefined();
     expect(ref?.node.getDataType('any')).toBeDefined();
@@ -44,21 +44,25 @@ describe('ApiDocument', function () {
   });
 
   it('Should getDataTypeNs() return namespace of DataType', async () => {
-    expect(doc.getDataTypeNs(GenderEnum)).not.toBeDefined();
+    expect(doc.getDataTypeNs(Gender)).toStrictEqual('customer');
     expect(doc.getDataTypeNs(String)).toStrictEqual('opra');
     expect(doc.getDataTypeNs('string')).toStrictEqual('opra');
   });
 
   it('Should toJSON() return document schema', async () => {
-    const sch = doc.toJSON();
+    let sch = doc.toJSON();
     expect(sch.spec).toStrictEqual(OpraSchema.SpecVersion);
-    expect(sch.info).toStrictEqual(testApiDocumentDef.info);
-    expect(sch.types).toBeDefined();
-    expect(sch.types!.Record).toBeDefined();
+    expect(sch.info).toBeDefined();
+    expect(sch.types).not.toBeDefined();
+    expect(sch.references).toBeDefined();
+    expect(sch.references!.customer).toBeDefined();
     expect(sch.api).toBeDefined();
     expect(sch.api!.protocol).toEqual('http');
     expect(sch.api!.description).toEqual('test service');
     expect(sch.api!.url).toEqual('/test');
     expect(sch.api!.controllers).toBeDefined();
+    sch = sch.references!.customer as any;
+    expect(sch.types).toBeDefined();
+    expect(sch.types!.Record).toBeDefined();
   });
 });

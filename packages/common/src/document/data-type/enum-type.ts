@@ -110,7 +110,7 @@ export const EnumType = function (this: EnumType | void, ...args: any[]) {
  * @class EnumType
  */
 class EnumTypeClass extends DataType {
-  readonly kind: OpraSchema.EnumType.Kind;
+  declare readonly kind: OpraSchema.EnumType.Kind;
   readonly base?: EnumType;
   readonly instance?: object;
   readonly attributes: Record<string | number, OpraSchema.EnumType.ValueInfo>;
@@ -127,9 +127,10 @@ class EnumTypeClass extends DataType {
   }
 
   toJSON(): OpraSchema.EnumType {
+    const baseName = this.base ? this.node.getDataTypeNameWithNs(this.base) : undefined;
     return omitUndefined<OpraSchema.EnumType>({
       ...(DataType.prototype.toJSON.call(this) as any),
-      base: this.base ? (this.base.name ? this.base.name : this.base.toJSON()) : undefined,
+      base: this.base ? (baseName ? baseName : this.base.toJSON()) : undefined,
       attributes: cloneObject(this.ownAttributes),
     });
   }

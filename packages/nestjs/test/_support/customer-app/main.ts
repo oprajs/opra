@@ -1,8 +1,8 @@
 import { NestFactory } from '@nestjs/core';
-import { ApplicationModule } from './app.module.js';
+import { TestModule } from './test.module.js';
 
 async function bootstrap() {
-  const app = await NestFactory.create(ApplicationModule, {
+  const app = await NestFactory.create(TestModule, {
     logger: ['error', 'warn', 'log', 'verbose', 'debug'],
   });
   app.setGlobalPrefix('/api/v1');

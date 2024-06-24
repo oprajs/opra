@@ -3,10 +3,10 @@ import { omitUndefined } from '../../helpers/index.js';
 import { OpraSchema } from '../../schema/index.js';
 import { DocumentElement } from '../common/document-element.js';
 import { DECORATOR } from '../constants.js';
+import { ApiFieldDecorator } from '../decorators/api-field-decorator.js';
 import type { ComplexType } from './complex-type.js';
 import { ComplexTypeBase } from './complex-type-base.js';
 import type { DataType } from './data-type.js';
-import { ApiFieldDecorator } from './decorators/api-field-decorator.js';
 import type { EnumType } from './enum-type.js';
 import type { MappedType } from './mapped-type.js';
 import type { MixinType } from './mixin-type.js';
@@ -88,7 +88,7 @@ export const ApiField = function (this: ApiField | void, ...args: any[]) {
  * @class ApiField
  */
 class ApiFieldClass extends DocumentElement {
-  readonly owner: ComplexType | MappedType | MixinType;
+  declare readonly owner: ComplexType | MappedType | MixinType;
   readonly origin?: ComplexType | MappedType | MixinType;
   readonly name: string;
   readonly type: DataType;
@@ -103,9 +103,9 @@ class ApiFieldClass extends DocumentElement {
   readonly examples?: any[] | Record<string, any>;
 
   toJSON(): OpraSchema.Field {
-    const embedded = !this.type?.name || (this.type?.kind === 'ComplexType' && this.type.embedded);
+    const typeName = this.type ? this.node.getDataTypeNameWithNs(this.type) : undefined;
     return omitUndefined<OpraSchema.Field>({
-      type: this.type ? (embedded ? (this.type?.toJSON() as any) : this.type.name) : undefined,
+      type: this.type ? (typeName ? typeName : (this.type?.toJSON() as any)) : undefined,
       description: this.description,
       isArray: this.isArray,
       default: this.default,

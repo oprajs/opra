@@ -1,5 +1,5 @@
+import { Customer } from 'customer-mongo/models';
 import { HttpController, HttpOperation } from '@opra/common';
-import { Customer } from '../entities/customer.entity.js';
 
 @HttpController({
   description: 'Customers collection',

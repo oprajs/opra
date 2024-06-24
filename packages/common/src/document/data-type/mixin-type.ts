@@ -169,7 +169,7 @@ export const MixinType = function (this: MixinType, ...args: any[]) {
  * @class MixinType
  */
 class MixinTypeClass extends ComplexTypeBase {
-  readonly kind: OpraSchema.MixinType.Kind;
+  declare readonly kind: OpraSchema.MixinType.Kind;
   readonly types: (ComplexType | MixinType | MappedType)[];
 
   extendsFrom(baseType: DataType): boolean {
@@ -185,7 +185,10 @@ class MixinTypeClass extends ComplexTypeBase {
     return omitUndefined<OpraSchema.MixinType>({
       ...ComplexTypeBase.prototype.toJSON.call(this),
       kind: this.kind as any,
-      types: this.types.map(t => (t.name ? t.name : t.toJSON())),
+      types: this.types.map(t => {
+        const baseName = this.node.getDataTypeNameWithNs(t);
+        return baseName ? baseName : t.toJSON();
+      }),
     });
   }
 }

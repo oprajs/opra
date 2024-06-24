@@ -1,5 +1,5 @@
 import { StrictOmit, Type } from 'ts-gems';
-import { resolveThunk } from '../../helpers/index.js';
+import { isConstructor, resolveThunk } from '../../helpers/index.js';
 import { OpraSchema } from '../../schema/index.js';
 import { ApiDocument } from '../api-document.js';
 import { DocumentInitContext } from '../common/document-init-context.js';
@@ -16,7 +16,7 @@ import { DataTypeFactory } from './data-type.factory.js';
 
 export namespace HttpApiFactory {
   export interface InitArguments extends StrictOmit<OpraSchema.HttpApi, 'controllers'> {
-    controllers: Type[] | any[] | OpraSchema.HttpApi['controllers'];
+    controllers: Type[] | any[] | ((parent: any) => any) | OpraSchema.HttpApi['controllers'];
   }
 }
 
@@ -59,9 +59,11 @@ export class HttpApiFactory {
   protected static async _createController(
     context: DocumentInitContext,
     parent: HttpApi | HttpController,
-    thunk: Type | object | OpraSchema.HttpController,
+    thunk: Type | object | Function | OpraSchema.HttpController,
     name?: string,
   ): Promise<HttpController | undefined | void> {
+    if (typeof thunk === 'function' && !isConstructor(thunk))
+      thunk = parent instanceof HttpController ? thunk(parent.instance) : thunk();
     thunk = await resolveThunk(thunk);
     let ctor: Type;
     let metadata: HttpController.Metadata | OpraSchema.HttpController;
@@ -76,7 +78,8 @@ export class HttpApiFactory {
       // If thunk is an instance of a class decorated with HttpController()
       ctor = Object.getPrototypeOf(thunk).constructor;
       metadata = Reflect.getMetadata(HTTP_CONTROLLER_METADATA, ctor);
-      if (!metadata) {
+      if (metadata) instance = thunk;
+      else {
         // If thunk is a DecoratorMetadata or InitArguments
         metadata = thunk as HttpController.Metadata;
         if ((thunk as any).instance === 'object') {
@@ -86,7 +89,6 @@ export class HttpApiFactory {
       }
     }
     if (!metadata) return context.addError(`Class "${ctor.name}" is not decorated with HttpController()`);
-    instance = thunk;
     name = name || (metadata as any).name;
     if (!name) throw new TypeError(`Controller name required`);
 

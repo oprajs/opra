@@ -147,7 +147,7 @@ describe('HttpHandler', function () {
     adapter.interceptors = [
       async (ctx: HttpContext, next) => {
         x.push(1);
-        next();
+        return next();
       },
       async (ctx: HttpContext, next) => {
         x.push(2);

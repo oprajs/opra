@@ -8,6 +8,12 @@ import { DataType } from './data-type/data-type.js';
 import type { EnumType } from './data-type/enum-type.js';
 import type { HttpApi } from './http/http-api.js';
 
+export namespace ApiDocument {
+  export interface ExportOptions {
+    references?: 'inline' | 'relative-url' | 'external-url';
+  }
+}
+
 /**
  *
  * @class ApiDocument
@@ -38,10 +44,14 @@ export class ApiDocument extends DocumentElement {
     if (dt) return this[kTypeNSMap].get(dt);
   }
 
+  toJSON(): OpraSchema.ApiDocument {
+    return this.export();
+  }
+
   /**
    * Export as Opra schema definition object
    */
-  toJSON(): OpraSchema.ApiDocument {
+  export(options?: ApiDocument.ExportOptions): OpraSchema.ApiDocument {
     const out = omitUndefined<OpraSchema.ApiDocument>({
       spec: OpraSchema.SpecVersion,
       url: this.url,
@@ -53,10 +63,14 @@ export class ApiDocument extends DocumentElement {
       const references: any = {};
       for (const [ns, doc] of this.references.entries()) {
         if (doc[BUILTIN]) continue;
-        references[ns] = doc.url ? doc.url : doc.toJSON();
+        if (options?.references === 'external-url') {
+          if (doc.url) references[ns] = doc.url;
+          else references[ns] = `/$schema?ns=${ns}`;
+        } else if (options?.references === 'relative-url') references[ns] = `/$schema?ns=${ns}`;
+        else references[ns] = doc.export(options);
         i++;
       }
-      if (i) this.references = references;
+      if (i) out.references = references;
     }
     if (this.types.size) {
       out.types = {};
@@ -82,14 +96,15 @@ export class ApiDocument extends DocumentElement {
       const m = NAMESPACE_PATTERN.exec(nameOrCtor);
       if (m) {
         const ns = m[1];
-        const ref = this.references.get(ns);
-        if (!ref) return;
-        visitedRefs = visitedRefs || new WeakMap<ApiDocument, boolean>();
-        visitedRefs.set(this, true);
-        visitedRefs.set(ref, true);
-        result = ref._findDataType(m[2], visitedRefs);
-        if (result) this[kTypeNSMap].set(result, ns);
-        return result;
+        if (ns) {
+          const ref = this.references.get(ns);
+          if (!ref) return;
+          visitedRefs = visitedRefs || new WeakMap<ApiDocument, boolean>();
+          visitedRefs.set(this, true);
+          visitedRefs.set(ref, true);
+          return ref._findDataType(m[2], visitedRefs);
+        }
+        nameOrCtor = m[2];
       }
     }
 
@@ -97,12 +112,22 @@ export class ApiDocument extends DocumentElement {
     visitedRefs = visitedRefs || new WeakMap<ApiDocument, boolean>();
     visitedRefs.set(this, true);
     const references = Array.from(this.references.keys()).reverse();
+    /** First step, lookup for own types */
+    for (const refNs of references) {
+      const ref = this.references.get(refNs);
+      result = ref?.types.get(nameOrCtor);
+      if (result) {
+        this[kTypeNSMap].set(result, ref?.[BUILTIN] ? '' : refNs);
+        return result;
+      }
+    }
+    /** If not found lookup for child references */
     for (const refNs of references) {
       const ref = this.references.get(refNs);
       visitedRefs.set(ref!, true);
       result = ref!._findDataType(nameOrCtor, visitedRefs);
       if (result) {
-        this[kTypeNSMap].set(result, refNs);
+        this[kTypeNSMap].set(result, ref?.[BUILTIN] ? '' : refNs);
         return result;
       }
     }

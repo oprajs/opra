@@ -7,7 +7,7 @@ import { OutgoingHttpHeaders } from 'http';
 import { Duplex } from 'stream';
 import type { NodeIncomingMessage } from '../interfaces/node-incoming-message.interface';
 import type { NodeOutgoingMessage } from '../interfaces/node-outgoing-message.interface';
-import { validateHeaderName, validateHeaderValue, validateString } from '../utils/common';
+import { validateHeaderName, validateHeaderValue, validateString } from '../utils/common.js';
 
 export const kOutHeaders = Symbol.for('kOutHeaders');
 export const kOutTrailers = Symbol.for('kOutTrailers');

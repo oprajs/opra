@@ -1,4 +1,5 @@
-import { HttpClientTestingModule } from '@angular/common/http/testing';
+import { provideHttpClient } from '@angular/common/http';
+import { provideHttpClientTesting } from '@angular/common/http/testing';
 import { Inject, Injectable, InjectionToken } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { kClient } from '@opra/client';
@@ -24,18 +25,20 @@ describe('OpraClientModule', function () {
 
   it('registerClient()', async () => {
     await TestBed.configureTestingModule({
-      imports: [HttpClientTestingModule, OpraClientModule.registerClient(config)],
+      imports: [OpraClientModule.registerClient(config)],
+      providers: [provideHttpClient(), provideHttpClientTesting()],
     }).compileComponents();
 
     const client = TestBed.inject(OpraAngularClient);
     expect(client).toBeDefined();
     expect(client).toBeInstanceOf(OpraAngularClient);
-    expect(client.serviceUrl).toStrictEqual(app.baseUrl);
+    expect(client.serviceUrl).toStrictEqual(app.baseUrl + '/');
   });
 
   it('registerService()', async () => {
     await TestBed.configureTestingModule({
-      imports: [HttpClientTestingModule, OpraClientModule.registerService(TestApi, config)],
+      imports: [OpraClientModule.registerService(TestApi, config)],
+      providers: [provideHttpClient(), provideHttpClientTesting()],
     }).compileComponents();
     const service = TestBed.inject(TestApi);
     expect(service).toBeDefined();
@@ -45,16 +48,16 @@ describe('OpraClientModule', function () {
   it('registerClientAsync() - useFactory', async () => {
     await TestBed.configureTestingModule({
       imports: [
-        HttpClientTestingModule,
         OpraClientModule.registerClientAsync({
           useFactory: () => config,
         }),
       ],
+      providers: [provideHttpClient(), provideHttpClientTesting()],
     }).compileComponents();
     const client = TestBed.inject(OpraAngularClient);
     expect(client).toBeDefined();
     expect(client).toBeInstanceOf(OpraAngularClient);
-    expect(client.serviceUrl).toStrictEqual(app.baseUrl);
+    expect(client.serviceUrl).toStrictEqual(app.baseUrl + '/');
   });
 
   it('registerClientAsync() - useClass', async () => {
@@ -66,32 +69,32 @@ describe('OpraClientModule', function () {
 
     await TestBed.configureTestingModule({
       imports: [
-        HttpClientTestingModule,
         OpraClientModule.registerClientAsync({
           useClass: ConfigClass,
         }),
       ],
+      providers: [provideHttpClient(), provideHttpClientTesting()],
     }).compileComponents();
 
     const client = TestBed.inject(OpraAngularClient);
     expect(client).toBeDefined();
     expect(client).toBeInstanceOf(OpraAngularClient);
-    expect(client.serviceUrl).toStrictEqual(app.baseUrl);
+    expect(client.serviceUrl).toStrictEqual(app.baseUrl + '/');
   });
 
   it('registerClientAsync() - useFactory', async () => {
     await TestBed.configureTestingModule({
       imports: [
-        HttpClientTestingModule,
         OpraClientModule.registerServiceAsync(TestApi, {
           useFactory: () => config,
         }),
       ],
+      providers: [provideHttpClient(), provideHttpClientTesting()],
     }).compileComponents();
     const service = TestBed.inject(TestApi);
     expect(service).toBeDefined();
     expect(service).toBeInstanceOf(TestApi);
-    expect(service[kClient].serviceUrl).toBe(config.serviceUrl);
+    expect(service[kClient].serviceUrl).toBe(config.serviceUrl + '/');
   });
 
   it('registerServiceAsync() - useClass', async () => {
@@ -103,16 +106,16 @@ describe('OpraClientModule', function () {
 
     await TestBed.configureTestingModule({
       imports: [
-        HttpClientTestingModule,
         OpraClientModule.registerServiceAsync(TestApi, {
           useClass: ConfigClass,
         }),
       ],
+      providers: [provideHttpClient(), provideHttpClientTesting()],
     }).compileComponents();
     const service = TestBed.inject(TestApi);
     expect(service).toBeDefined();
     expect(service).toBeInstanceOf(TestApi);
-    expect(service[kClient].serviceUrl).toBe(config.serviceUrl);
+    expect(service[kClient].serviceUrl).toBe(config.serviceUrl + '/');
   });
 
   it('Should register multiple clients', async () => {
@@ -128,11 +131,10 @@ describe('OpraClientModule', function () {
 
     await TestBed.configureTestingModule({
       imports: [
-        HttpClientTestingModule,
         OpraClientModule.registerClient(config),
         OpraClientModule.registerClient({ ...config, token: CLIENT2 }),
       ],
-      providers: [TestComponent],
+      providers: [provideHttpClient(), provideHttpClientTesting(), TestComponent],
     }).compileComponents();
     const test = TestBed.inject(TestComponent);
     expect(test).toBeDefined();
@@ -154,11 +156,10 @@ describe('OpraClientModule', function () {
 
     await TestBed.configureTestingModule({
       imports: [
-        HttpClientTestingModule,
         OpraClientModule.registerService(TestApi, config),
         OpraClientModule.registerService(TestApi, { ...config, token: SERVICE2 }),
       ],
-      providers: [TestComponent],
+      providers: [provideHttpClient(), provideHttpClientTesting(), TestComponent],
     }).compileComponents();
     const test = TestBed.inject(TestComponent);
     expect(test).toBeDefined();

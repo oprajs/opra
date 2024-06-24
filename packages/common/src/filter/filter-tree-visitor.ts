@@ -1,5 +1,4 @@
-import type { ParseTreeVisitor as TParseTreeVisitor, RuleNode } from '@browsery/antlr4';
-import antlr4 from '@browsery/antlr4';
+import { ParseTreeVisitor, type RuleNode } from '@browsery/antlr4';
 import {
   ArrayValueContext,
   BooleanLiteralContext,
@@ -37,9 +36,6 @@ import {
 } from './ast/index.js';
 import { ExternalConstant } from './ast/terms/external-constant.js';
 import { unquoteFilterString } from './utils.js';
-
-// Fix: antlr4 d.ts files are invalid
-const ParseTreeVisitor = (antlr4 as any).tree.ParseTreeVisitor as typeof TParseTreeVisitor;
 
 export class FilterTreeVisitor extends ParseTreeVisitor<any> implements OpraFilterVisitor<any> {
   private _timeZone?: string;

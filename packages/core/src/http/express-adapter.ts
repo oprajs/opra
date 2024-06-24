@@ -1,6 +1,6 @@
 import { Application, NextFunction, Request, Response, Router } from 'express';
 import * as nodePath from 'path';
-import { ApiDocument, HttpApi, HttpController, NotFoundError } from '@opra/common';
+import { ApiDocument, HttpApi, HttpController, HttpOperation, NotFoundError } from '@opra/common';
 import { kHandler } from '../constants.js';
 import { HttpAdapter } from './http-adapter.js';
 import { HttpContext } from './http-context.js';
@@ -58,13 +58,42 @@ export class ExpressAdapter extends HttpAdapter {
       if (basePath) this.app.use(basePath, router);
     } else this.app.use(router);
 
+    const createContext = (
+      _req: Request,
+      _res: Response,
+      args?: {
+        controller?: HttpController;
+        controllerInstance?: any;
+        operation?: HttpOperation;
+        operationHandler: Function;
+      },
+    ): HttpContext => {
+      const request = HttpIncoming.from(_req);
+      const response = HttpOutgoing.from(_res);
+      const platformArgs = {
+        request: _req,
+        response: _res,
+      };
+      return new HttpContext({
+        adapter: this,
+        platform: this.platform,
+        platformArgs,
+        request,
+        response,
+        controller: args?.controller,
+        controllerInstance: args?.controllerInstance,
+        operation: args?.operation,
+        operationHandler: args?.operationHandler,
+      });
+    };
+
     /** Add an endpoint that returns document schema */
     router.get('*', (_req, _res, next) => {
       if (_req.url.includes('/$schema')) {
         const url = (_req.url.includes('?') ? _req.url.substring(0, _req.url.indexOf('?')) : _req.url).toLowerCase();
         if (url === '/$schema') {
-          const res = HttpOutgoing.from(_res);
-          this[kHandler].sendDocumentSchema(res).catch(next);
+          const context = createContext(_req, _res);
+          this[kHandler].sendDocumentSchema(context).catch(next);
           return;
         }
       }
@@ -80,28 +109,14 @@ export class ExpressAdapter extends HttpAdapter {
           const controllerInstance = this._controllerInstances.get(controller);
           const operationHandler = controllerInstance[operation.name];
           if (!operationHandler) continue;
-
           /** Define router callback */
           router[operation.method.toLowerCase()](routePath, (_req: Request, _res: Response, _next: NextFunction) => {
-            const request = HttpIncoming.from(_req);
-            const response = HttpOutgoing.from(_res);
-            const platformArgs = {
-              request: _req,
-              response: _res,
-            };
-
-            const context = new HttpContext({
-              adapter: this,
-              platform: this.platform,
-              platformArgs,
-              request,
-              response,
+            const context = createContext(_req, _res, {
               controller,
               controllerInstance,
               operation,
               operationHandler,
             });
-
             this[kHandler]
               .handleRequest(context)
               .then(() => {

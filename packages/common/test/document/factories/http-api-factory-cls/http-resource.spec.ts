@@ -1,5 +1,5 @@
+import { Country } from 'customer-mongo/models';
 import { ApiDocumentFactory, HttpApi, HttpController } from '@opra/common';
-import { Country } from '../../../_support/test-api/index.js';
 
 describe('HttpApiFactory - HttpController (Class)', function () {
   afterAll(() => global.gc && global.gc());

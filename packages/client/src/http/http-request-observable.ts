@@ -1,6 +1,6 @@
 import { lastValueFrom, Observable } from 'rxjs';
 import typeIs from '@browsery/type-is';
-import { MimeTypes, OpraURL, URLSearchParamsInit } from '@opra/common';
+import { MimeTypes, URLSearchParamsInit } from '@opra/common';
 import { kBackend, kContext } from '../constants.js';
 import { ClientError } from '../core/client-error.js';
 import { HttpObserveType } from './enums/http-observable-type.enum.js';
@@ -87,14 +87,12 @@ export class HttpRequestObservable<
       enumerable: false,
       value: backend,
     });
-    const url = new OpraURL(init?.url);
     Object.defineProperty(this, kContext, {
       enumerable: false,
       value: {
         ...init,
         observe: HttpObserveType.Body,
         headers: new Headers(init?.headers),
-        url,
       },
     });
   }

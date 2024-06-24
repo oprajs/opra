@@ -75,7 +75,7 @@ export const HttpParameter = function (
  * @class HttpParameter
  */
 class HttpParameterClass extends Value {
-  readonly owner: DocumentElement;
+  declare readonly owner: DocumentElement;
   deprecated?: boolean | string;
   required?: boolean;
   arraySeparator?: string;

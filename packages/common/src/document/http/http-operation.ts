@@ -6,7 +6,7 @@ import { DocumentElement } from '../common/document-element.js';
 import { CLASS_NAME_PATTERN, DECORATOR, kDataTypeMap } from '../constants.js';
 import type { DataType } from '../data-type/data-type.js';
 import type { EnumType } from '../data-type/enum-type.js';
-import { HttpOperationDecorator, HttpOperationDecoratorFactory } from './decorators/http-operation.decorator.js';
+import { HttpOperationDecorator, HttpOperationDecoratorFactory } from '../decorators/http-operation.decorator.js';
 import type { HttpController } from './http-controller.js';
 import type { HttpOperationResponse } from './http-operation-response.js';
 import type { HttpParameter } from './http-parameter.js';
@@ -111,7 +111,7 @@ export const HttpOperation = function (this: HttpOperation, ...args: any[]) {
  * @class HttpOperation
  */
 class HttpOperationClass extends DocumentElement {
-  readonly owner: HttpController;
+  declare readonly owner: HttpController;
   readonly name: string;
   method: OpraSchema.HttpMethod;
   description?: string;
