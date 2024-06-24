@@ -1,6 +1,6 @@
 {
   "name": "@opra/angular",
-  "version": "0.33.13",
+  "version": "1.0.0-alpha.1",
   "description": "Opra internationalization package",
   "author": "Panates",
   "license": "MIT",

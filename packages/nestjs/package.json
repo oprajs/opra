@@ -1,6 +1,6 @@
 {
   "name": "@opra/nestjs",
-  "version": "0.33.13",
+  "version": "1.0.0-alpha.1",
   "description": "Opra NestJS module",
   "author": "Panates",
   "license": "MIT",

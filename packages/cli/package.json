@@ -1,6 +1,6 @@
 {
   "name": "@opra/cli",
-  "version": "0.33.13",
+  "version": "1.0.0-alpha.1",
   "description": "Opra CLI tools",
   "author": "Panates",
   "license": "MIT",

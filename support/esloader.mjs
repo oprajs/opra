@@ -1,6 +1,6 @@
-import {lstatSync} from 'fs';
-import {resolve as resolveTs} from 'ts-node/esm';
-import {createMatchPath, loadConfig} from 'tsconfig-paths';
+import { lstatSync } from 'fs';
+import { resolve as resolveTs } from 'ts-node/esm';
+import { createMatchPath, loadConfig } from 'tsconfig-paths';
 
 /**
  * @file Helpers - Custom ESM Loader
@@ -11,7 +11,7 @@ import {createMatchPath, loadConfig} from 'tsconfig-paths';
 /** @typedef {'builtin'|'commonjs'|'dynamic'|'json'|'module'|'wasm'} Format */
 
 // Get base URL and path aliases
-const {absoluteBaseUrl, paths} = loadConfig(process.cwd());
+const { absoluteBaseUrl, paths } = loadConfig(process.cwd());
 
 /**
  * Custom resolver that handles TypeScript path mappings.
@@ -44,4 +44,4 @@ export const resolve = async (specifier, ctx, defaultResolve) => {
   return resolveTs(specifier, ctx, defaultResolve);
 };
 
-export {transformSource, load} from 'ts-node/esm';
+export { transformSource, load } from 'ts-node/esm';
