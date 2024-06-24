@@ -152,9 +152,8 @@ abstract class ComplexTypeClass extends ComplexTypeBase {
     });
     if (this.additionalFields) {
       if (this.additionalFields instanceof DataType) {
-        out.additionalFields = this.additionalFields[1].name
-          ? this.additionalFields[1].name
-          : (this.additionalFields[1].toJSON() as OpraSchema.DataType);
+        const typeName = this.node.getDataTypeNameWithNs(this.additionalFields);
+        out.additionalFields = typeName ? typeName : (this.additionalFields.toJSON() as OpraSchema.DataType);
       } else out.additionalFields = this.additionalFields;
     }
     if (this.fields.size) {

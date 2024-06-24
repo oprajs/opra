@@ -1,4 +1,5 @@
-import { PartialSome, StrictOmit, ThunkAsync } from 'ts-gems';
+import crypto from 'node:crypto';
+import { asMutable, PartialSome, StrictOmit, ThunkAsync } from 'ts-gems';
 import { resolveThunk } from '../../helpers/index.js';
 import { OpraSchema } from '../../schema/index.js';
 import { ApiDocument } from '../api-document.js';
@@ -37,7 +38,7 @@ const OPRA_SPEC_URL = 'https://oprajs.com/spec/v' + OpraSchema.SpecVersion;
 
 export namespace ApiDocumentFactory {
   export interface InitArguments
-    extends PartialSome<StrictOmit<OpraSchema.ApiDocument, 'references' | 'types' | 'api'>, 'spec'> {
+    extends PartialSome<StrictOmit<OpraSchema.ApiDocument, 'id' | 'references' | 'types' | 'api'>, 'spec'> {
     references?: Record<string, ReferenceThunk>;
     types?: DataTypeInitSources;
     api?: HttpApiFactory.InitArguments;
@@ -152,6 +153,8 @@ export class ApiDocumentFactory {
         } else context.addError(`Unknown service protocol (${init.api!.protocol})`);
       });
     }
+    const x = document.export();
+    asMutable(document).id = crypto.createHash('md5').update(JSON.stringify(x)).digest('base64url');
   }
 
   /**

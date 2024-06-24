@@ -529,7 +529,6 @@ export class HttpHandler {
     const url = new URL(request.originalUrl || request.url || '/', 'http://tempuri.org');
     const { searchParams } = url;
     const nsParam = searchParams.get('ns');
-    const referencesParam = searchParams.get('references') || 'inline';
     let doc: ApiDocument | undefined = document;
     if (nsParam) {
       const arr = nsParam.split('/');
@@ -544,12 +543,12 @@ export class HttpHandler {
       }
     }
     /** Check if response cache exists */
-    let responseBody = this[kAssetCache].get(doc, `$schema-response:${referencesParam}`);
+    let responseBody = this[kAssetCache].get(doc, `$schema`);
     /** Create response if response cache does not exists */
     if (!responseBody) {
-      const schema = doc.export({ references: referencesParam as any });
+      const schema = doc.export();
       responseBody = JSON.stringify(schema);
-      this[kAssetCache].set(doc, `$schema-response:${referencesParam}`, responseBody);
+      this[kAssetCache].set(doc, `$schema`, responseBody);
     }
     response.end(responseBody);
   }

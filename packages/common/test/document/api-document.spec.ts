@@ -49,10 +49,11 @@ describe('ApiDocument', function () {
     expect(doc.getDataTypeNs('string')).toStrictEqual('');
   });
 
-  it('Should toJSON() return document schema', async () => {
-    let sch = doc.toJSON();
+  it('Should export() return document schema', async () => {
+    let sch = doc.export();
     expect(sch.spec).toStrictEqual(OpraSchema.SpecVersion);
     expect(sch.info).toBeDefined();
+    expect(sch.id).toBeDefined();
     expect(sch.types).not.toBeDefined();
     expect(sch.references).toBeDefined();
     expect(sch.references!.ns1).toBeDefined();
@@ -61,8 +62,5 @@ describe('ApiDocument', function () {
     expect(sch.api!.description).toEqual('test service');
     expect(sch.api!.url).toEqual('/test');
     expect(sch.api!.controllers).toBeDefined();
-    sch = sch.references!.ns1 as any;
-    expect(sch.types).toBeDefined();
-    expect(sch.types!.Record).toBeDefined();
   });
 });

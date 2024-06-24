@@ -25,7 +25,6 @@ export namespace OpraClientBase {
  */
 export abstract class HttpClientBase<TRequestOptions = {}, TResponseExt = {}> {
   protected [kBackend]: HttpBackend;
-  protected _schemaRequest?: Promise<any>;
 
   protected constructor(backend: HttpBackend) {
     Object.defineProperty(this, kBackend, {
@@ -38,25 +37,19 @@ export abstract class HttpClientBase<TRequestOptions = {}, TResponseExt = {}> {
     return this[kBackend].serviceUrl;
   }
 
-  async getSchema(): Promise<ApiDocument> {
-    if (!this._schemaRequest) {
-      this._schemaRequest = this.request('$schema', {
-        headers: new Headers({ accept: 'application/json' }),
-      })
-        .getBody()
-        .catch(e => {
-          e.message = 'Error fetching api schema from url (' + this.serviceUrl + ').\n' + e.message;
-          throw e;
-        });
-    }
-    const body = await this._schemaRequest;
-    const document = await ApiDocumentFactory.createDocument(body).catch(e => {
+  async fetchSchema(options?: { ns?: string }): Promise<ApiDocument> {
+    const req = this.request('$schema', {
+      headers: new Headers({ accept: 'application/json' }),
+    });
+    if (options?.ns) req.param('ns', options?.ns);
+    const body = await req.getBody().catch(e => {
+      e.message = 'Error fetching api schema from url (' + this.serviceUrl + ').\n' + e.message;
+      throw e;
+    });
+    return await ApiDocumentFactory.createDocument(body).catch(e => {
       e.message = 'Error loading api document.\n' + e.message;
       throw e;
     });
-    this[kBackend].document = document;
-    this._schemaRequest = undefined;
-    return document;
   }
 
   request<TBody = any>(path: string, options?: OpraClientBase.RequestOptions) {

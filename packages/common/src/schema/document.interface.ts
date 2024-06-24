@@ -9,9 +9,10 @@ export type Protocol = 'http' | 'ws' | 'rpc';
  */
 export interface Document extends DataTypeContainer {
   spec: SpecVersion;
+  id: string;
   url?: string;
   info?: DocumentInfo;
-  references?: Record<string, string | Document>;
+  references?: Record<string, DocumentReference>;
   api?: HttpApi;
 }
 
@@ -45,6 +46,14 @@ export interface LicenseInfo {
   content?: string;
 }
 
+/**
+ * @interface DocumentReference
+ */
+export interface DocumentReference extends Pick<Document, 'id' | 'url' | 'info'> {}
+
+/**
+ * @interface Api
+ */
 export interface Api extends DataTypeContainer {
   protocol: Protocol;
   /**
@@ -54,6 +63,9 @@ export interface Api extends DataTypeContainer {
   description?: string;
 }
 
+/**
+ * @interface HttpApi
+ */
 export interface HttpApi extends Api {
   protocol: 'http';
   description?: string;

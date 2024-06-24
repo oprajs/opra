@@ -8,18 +8,13 @@ import { DataType } from './data-type/data-type.js';
 import type { EnumType } from './data-type/enum-type.js';
 import type { HttpApi } from './http/http-api.js';
 
-export namespace ApiDocument {
-  export interface ExportOptions {
-    references?: 'inline' | 'relative' | 'url';
-  }
-}
-
 /**
  *
  * @class ApiDocument
  */
 export class ApiDocument extends DocumentElement {
   protected [kTypeNSMap] = new WeakMap<DataType, string>();
+  readonly id: string;
   url?: string;
   info: OpraSchema.DocumentInfo;
   references = new ResponsiveMap<ApiDocument>();
@@ -51,23 +46,23 @@ export class ApiDocument extends DocumentElement {
   /**
    * Export as Opra schema definition object
    */
-  export(options?: ApiDocument.ExportOptions): OpraSchema.ApiDocument {
+  export(): OpraSchema.ApiDocument {
     const out = omitUndefined<OpraSchema.ApiDocument>({
       spec: OpraSchema.SpecVersion,
+      id: this.id,
       url: this.url,
       info: cloneObject(this.info, true),
-      // api: this.api ? this.api.toJSON() : undefined,
     });
     if (this.references.size) {
       let i = 0;
-      const references: any = {};
+      const references: Record<string, OpraSchema.DocumentReference> = {};
       for (const [ns, doc] of this.references.entries()) {
         if (doc[BUILTIN]) continue;
-        if (options?.references === 'url') {
-          if (doc.url) references[ns] = doc.url;
-          else references[ns] = `/$schema?ns=${ns}`;
-        } else if (options?.references === 'relative') references[ns] = `/$schema?ns=${ns}`;
-        else references[ns] = doc.export(options);
+        references[ns] = {
+          id: doc.id,
+          url: doc.url,
+          info: cloneObject(doc.info, true),
+        };
         i++;
       }
       if (i) out.references = references;

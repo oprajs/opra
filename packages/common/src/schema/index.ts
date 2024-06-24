@@ -28,6 +28,7 @@ export namespace OpraSchema {
   export import DocumentInfo = apiDocument_.DocumentInfo;
   export import ContactPerson = apiDocument_.ContactPerson;
   export import LicenseInfo = apiDocument_.LicenseInfo;
+  export import DocumentReference = apiDocument_.DocumentReference;
   export import HttpApi = apiDocument_.HttpApi;
   export import Api = apiDocument_.Api;
   export import HttpMethod = types_.HttpMethod;

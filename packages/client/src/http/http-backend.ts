@@ -1,4 +1,3 @@
-import { ApiDocument } from '@opra/common';
 import { Backend } from '../core/backend.js';
 import type { HttpHandler } from './interfaces/http-handler.js';
 import type { HttpInterceptor } from './interfaces/http-interceptor.js';
@@ -10,7 +9,6 @@ import type { HttpInterceptor } from './interfaces/http-interceptor.js';
 export abstract class HttpBackend extends Backend implements HttpHandler {
   readonly serviceUrl: string;
   interceptors: HttpInterceptor<any>[];
-  document?: ApiDocument;
 
   protected constructor(serviceUrl: string, options?: HttpBackend.Options) {
     super(options);
