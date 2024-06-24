@@ -5,8 +5,8 @@
   "type": "module",
   "module": "./index.js",
   "dependencies": {
-    "@opra/common": "^0.33.13",
-    "@opra/mongodb": "^0.33.13"
+    "@opra/common": "^1.0.0-alpha.2",
+    "@opra/mongodb": "^1.0.0-alpha.2"
   },
   "scripts": {
     "_build": "tsc && npm run check && npm run lint && npm run format",

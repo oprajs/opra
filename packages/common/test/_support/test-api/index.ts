@@ -17,7 +17,7 @@ export namespace TestApiDocument {
         description: 'Document description',
       },
       references: {
-        customer: customerDoc,
+        ns1: customerDoc,
       },
       api: {
         protocol: 'http',

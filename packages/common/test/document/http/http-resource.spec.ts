@@ -73,7 +73,7 @@ describe('HttpResource', function () {
             kind: 'SimpleType',
             properties: {
               allowSigns: 'each',
-              dataType: 'Customer',
+              dataType: 'ns1:Customer',
             },
           },
           isArray: true,
@@ -86,7 +86,7 @@ describe('HttpResource', function () {
           contentType: 'application/opra.response+json',
           contentEncoding: 'utf-8',
           statusCode: 200,
-          type: 'Customer',
+          type: 'ns1:Customer',
           partial: 'deep',
         },
         {

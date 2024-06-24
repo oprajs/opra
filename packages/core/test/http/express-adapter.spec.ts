@@ -85,10 +85,8 @@ describe('ExpressAdapter', function () {
   it('Should GET:/$schema return api schema ', async () => {
     const resp = await supertest(app).get('/api/$schema');
     expect(resp.status).toStrictEqual(200);
-    expect(resp.body).toEqual({
-      payload: expect.any(Object),
-    });
-    expect(resp.body.payload.spec).toEqual(OpraSchema.SpecVersion);
+    expect(resp.body).toBeInstanceOf(Object);
+    expect(resp.body.spec).toEqual(OpraSchema.SpecVersion);
   });
 
   it('Should call HttpController onShutdown method on close', async () => {

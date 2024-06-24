@@ -44,9 +44,9 @@ describe('ApiDocument', function () {
   });
 
   it('Should getDataTypeNs() return namespace of DataType', async () => {
-    expect(doc.getDataTypeNs(Gender)).toStrictEqual('customer');
-    expect(doc.getDataTypeNs(String)).toStrictEqual('opra');
-    expect(doc.getDataTypeNs('string')).toStrictEqual('opra');
+    expect(doc.getDataTypeNs(Gender)).toStrictEqual('ns1');
+    expect(doc.getDataTypeNs(String)).toStrictEqual('');
+    expect(doc.getDataTypeNs('string')).toStrictEqual('');
   });
 
   it('Should toJSON() return document schema', async () => {
@@ -55,13 +55,13 @@ describe('ApiDocument', function () {
     expect(sch.info).toBeDefined();
     expect(sch.types).not.toBeDefined();
     expect(sch.references).toBeDefined();
-    expect(sch.references!.customer).toBeDefined();
+    expect(sch.references!.ns1).toBeDefined();
     expect(sch.api).toBeDefined();
     expect(sch.api!.protocol).toEqual('http');
     expect(sch.api!.description).toEqual('test service');
     expect(sch.api!.url).toEqual('/test');
     expect(sch.api!.controllers).toBeDefined();
-    sch = sch.references!.customer as any;
+    sch = sch.references!.ns1 as any;
     expect(sch.types).toBeDefined();
     expect(sch.types!.Record).toBeDefined();
   });

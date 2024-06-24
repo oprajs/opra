@@ -10,7 +10,7 @@ import type { HttpApi } from './http/http-api.js';
 
 export namespace ApiDocument {
   export interface ExportOptions {
-    references?: 'inline' | 'relative-url' | 'external-url';
+    references?: 'inline' | 'relative' | 'url';
   }
 }
 
@@ -63,10 +63,10 @@ export class ApiDocument extends DocumentElement {
       const references: any = {};
       for (const [ns, doc] of this.references.entries()) {
         if (doc[BUILTIN]) continue;
-        if (options?.references === 'external-url') {
+        if (options?.references === 'url') {
           if (doc.url) references[ns] = doc.url;
           else references[ns] = `/$schema?ns=${ns}`;
-        } else if (options?.references === 'relative-url') references[ns] = `/$schema?ns=${ns}`;
+        } else if (options?.references === 'relative') references[ns] = `/$schema?ns=${ns}`;
         else references[ns] = doc.export(options);
         i++;
       }

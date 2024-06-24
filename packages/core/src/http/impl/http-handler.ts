@@ -6,6 +6,7 @@ import { toArray, ValidationError, Validator, vg } from 'valgen';
 import type { ErrorIssue } from 'valgen/typings/core/types';
 import typeIs from '@browsery/type-is';
 import {
+  ApiDocument,
   BadRequestError,
   HttpHeaderCodes,
   HttpMediaType,
@@ -525,28 +526,30 @@ export class HttpHandler {
     const { request, response } = context;
     const { document } = this.adapter;
     response.setHeader('content-type', MimeTypes.json);
+    const url = new URL(request.originalUrl || request.url || '/', 'http://tempuri.org');
+    const { searchParams } = url;
+    const nsParam = searchParams.get('ns');
+    const referencesParam = searchParams.get('references') || 'inline';
+    let doc: ApiDocument | undefined = document;
+    if (nsParam) {
+      const arr = nsParam.split('/');
+      for (const a of arr) {
+        doc = doc!.references.get(a);
+        if (!doc)
+          return this.sendErrorResponse(response, [
+            new BadRequestError({
+              message: `The ns [${nsParam}] you provided does not exists`,
+            }),
+          ]);
+      }
+    }
     /** Check if response cache exists */
-    let responseBody = this[kAssetCache].get(document, '$schema-response');
+    let responseBody = this[kAssetCache].get(doc, `$schema-response:${referencesParam}`);
     /** Create response if response cache does not exists */
     if (!responseBody) {
-      const url = new URL(request.originalUrl || request.url || '/', 'http://tempuri.org');
-      const { searchParams } = url;
-      // const nsPath = searchParams.get('ns');
-      // if (nsPath) {
-      //   const arr = nsPath.split('/');
-      //   let doc = document;
-      //   for (const a of arr) {
-      //   }
-      // }
-      const schema = document.export({ references: searchParams.get('references') as any });
-      const dt = document.node.getComplexType('OperationResult');
-      let encode = this[kAssetCache].get<Validator>(dt, 'encode');
-      if (!encode) {
-        encode = dt.generateCodec('encode');
-        this[kAssetCache].set(dt, 'encode', encode);
-      }
+      const schema = doc.export({ references: referencesParam as any });
       responseBody = JSON.stringify(schema);
-      this[kAssetCache].set(document, '$schema-response', responseBody);
+      this[kAssetCache].set(doc, `$schema-response:${referencesParam}`, responseBody);
     }
     response.end(responseBody);
   }
