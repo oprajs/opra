@@ -9,7 +9,6 @@ export namespace ExecutionContext {
     document: ApiDocument;
     protocol: OpraSchema.Protocol;
     platform: string;
-    platformArgs: any;
   }
 
   export type OnFinishListener = (error: Error | undefined, context: ExecutionContext) => void | Promise<void>;
@@ -22,14 +21,12 @@ export abstract class ExecutionContext extends AsyncEventEmitter {
   readonly document: ApiDocument;
   readonly protocol: OpraSchema.Protocol;
   readonly platform: string;
-  readonly platformArgs: any;
 
   protected constructor(init: ExecutionContext.Initiator) {
     super();
     this.document = init.document;
     this.protocol = init.protocol;
     this.platform = init.platform;
-    this.platformArgs = init.platformArgs;
   }
 
   addListener(event: 'finish', listener: ExecutionContext.OnFinishListener): this {

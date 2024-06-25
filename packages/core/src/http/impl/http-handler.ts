@@ -6,7 +6,6 @@ import { toArray, ValidationError, Validator, vg } from 'valgen';
 import type { ErrorIssue } from 'valgen/typings/core/types';
 import typeIs from '@browsery/type-is';
 import {
-  ApiDocument,
   BadRequestError,
   HttpHeaderCodes,
   HttpMediaType,

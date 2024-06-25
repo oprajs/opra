@@ -22,14 +22,14 @@ import {
   isConstructor,
   NotFoundError,
 } from '@opra/common';
-import { HttpAdapter, HttpContext, HttpIncoming, HttpOutgoing } from '@opra/core';
+import { HttpAdapter, HttpContext } from '@opra/core';
+import { asMutable } from 'ts-gems';
 import type { OpraHttpModule } from './opra-http.module';
 import { OpraExceptionFilter } from './services/opra-exception-filter.js';
 
 export const kHandler = Symbol.for('kHandler');
 
 export class OpraNestAdapter extends HttpAdapter {
-  // protected _platform: string = 'express';
   readonly controllers: Type[] = [];
 
   constructor(options: OpraHttpModule.Options) {
@@ -71,42 +71,30 @@ export class OpraNestAdapter extends HttpAdapter {
         Object.defineProperty(newClass.prototype, k, {
           writable: true,
           /** NestJS handler method */
-          async value(this: any, _req: any, _res: any) {
-            const request = HttpIncoming.from(_req);
-            const response = HttpOutgoing.from(_res);
+          async value(this: any, _req: any) {
             const api = adapter.document.api as HttpApi;
             const controller = api.findController(newClass);
             const operation = controller?.operations.get(k);
-            if (!(operation && typeof operationHandler === 'function'))
+            const context = asMutable<HttpContext>(_req.opraContext);
+            if (!(context && operation && typeof operationHandler === 'function'))
               throw new NotFoundError({
-                message: `No endpoint found for [${request.method}]${request.baseUrl}`,
+                message: `No endpoint found for [${_req.method}]${_req.baseUrl}`,
                 details: {
-                  path: request.baseUrl,
-                  method: request.method,
+                  path: _req.baseUrl,
+                  method: _req.method,
                 },
               });
-
-            /** Create the HttpContext */
-            const context = new HttpContext({
-              adapter,
-              platform: _req.route ? 'express' : 'fastify',
-              platformArgs: {
-                request,
-                response,
-              },
-              request,
-              response,
-              operation,
-              controller: operation.owner,
-              controllerInstance: this,
-              operationHandler,
-            });
+            /** Configure the HttpContext */
+            context.adapter = adapter;
+            context.document = adapter.document;
+            context.operation = operation;
+            context.controller = operation.owner;
+            context.controllerInstance = this;
+            context.operationHandler = operationHandler;
             /** Handle request */
             await adapter[kHandler].handleRequest(context);
           },
         });
-        Req()(newClass.prototype, k, 0);
-        Res()(newClass.prototype, k, 1);
 
         /** Copy metadata keys from source function to new one */
         const metadataKeys = Reflect.getOwnMetadataKeys(operationHandler);
@@ -115,6 +103,9 @@ export class OpraNestAdapter extends HttpAdapter {
           const m = Reflect.getMetadata(key, operationHandler);
           Reflect.defineMetadata(key, m, newFn);
         }
+
+        Req()(newClass.prototype, k, 0);
+        Res()(newClass.prototype, k, 1);
 
         const descriptor = Object.getOwnPropertyDescriptor(newClass.prototype, k)!;
         const operationPath = newPath + (v.path || '');

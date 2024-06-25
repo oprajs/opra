@@ -371,7 +371,7 @@ export class DataTypeFactory {
             const fieldMeta = typeof v === 'string' ? { type: v } : v;
             if (fieldMeta.isArray && !fieldMeta.type)
               return context.addError(`"type" must be defined explicitly for array fields`);
-            const t = await this._importDataTypeArgs(context, owner, fieldMeta.type);
+            const t = await this._importDataTypeArgs(context, owner, fieldMeta.type || 'any');
             if (!t) return;
             initArgs.fields![k] = {
               ...fieldMeta,

@@ -70,14 +70,9 @@ export class ExpressAdapter extends HttpAdapter {
     ): HttpContext => {
       const request = HttpIncoming.from(_req);
       const response = HttpOutgoing.from(_res);
-      const platformArgs = {
-        request: _req,
-        response: _res,
-      };
       return new HttpContext({
         adapter: this,
         platform: this.platform,
-        platformArgs,
         request,
         response,
         controller: args?.controller,

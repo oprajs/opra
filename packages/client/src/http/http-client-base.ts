@@ -1,5 +1,5 @@
 import { StrictOmit } from 'ts-gems';
-import { ApiDocument, ApiDocumentFactory, URLSearchParamsInit } from '@opra/common';
+import { ApiDocument, ApiDocumentFactory, OpraSchema, URLSearchParamsInit } from '@opra/common';
 import { kBackend } from '../constants.js';
 import { HttpBackend } from './http-backend.js';
 import { HttpRequestObservable } from './http-request-observable.js';
@@ -37,15 +37,31 @@ export abstract class HttpClientBase<TRequestOptions = {}, TResponseExt = {}> {
     return this[kBackend].serviceUrl;
   }
 
-  async fetchSchema(options?: { documentId?: string }): Promise<ApiDocument> {
-    const req = this.request('$schema', {
-      headers: new Headers({ accept: 'application/json' }),
-    });
-    if (options?.documentId) req.param('id', options?.documentId);
-    const body = await req.getBody().catch(e => {
-      e.message = 'Error fetching api schema from url (' + this.serviceUrl + ').\n' + e.message;
-      throw e;
-    });
+  async fetchDocument(options?: { documentId?: string }): Promise<ApiDocument> {
+    const documentMap: Record<string, any> = {};
+    const getDocument = async (documentId?: string) => {
+      const req = this.request('$schema', {
+        headers: new Headers({ accept: 'application/json' }),
+      });
+      if (documentId) req.param('id', documentId);
+      const body = await req.getBody().catch(e => {
+        e.message = 'Error fetching api schema from url (' + this.serviceUrl + ').\n' + e.message;
+        throw e;
+      });
+      if (body.references) {
+        const oldReferences = body.references;
+        body.references = {};
+        for (const [ns, obj] of Object.entries<OpraSchema.DocumentReference>(oldReferences)) {
+          if (documentMap[obj.id] === null) throw new Error('Circular reference detected');
+          documentMap[obj.id] = null;
+          const x = await getDocument(obj.id);
+          body.references[ns] = documentMap[obj.id] = x;
+        }
+      }
+      return body;
+    };
+
+    const body = await getDocument(options?.documentId);
     return await ApiDocumentFactory.createDocument(body).catch(e => {
       e.message = 'Error loading api document.\n' + e.message;
       throw e;

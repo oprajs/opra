@@ -26,7 +26,6 @@ describe('HttpContext', function () {
       operation,
       controller: operation.owner,
       platform: 'express',
-      platformArgs: {},
       request,
       response,
     });

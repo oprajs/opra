@@ -41,7 +41,7 @@ export namespace MongoService {
    * @interface
    */
   export interface CreateOptions extends mongodb.InsertOneOptions {
-    fields?: string[];
+    projection?: string[];
   }
 
   /**
@@ -153,9 +153,10 @@ export namespace MongoService {
  * @template T - The type of the documents in the collection.
  */
 export class MongoService<T extends mongodb.Document = mongodb.Document> extends ServiceBase {
-  protected _encoders: Record<string, IsObject.Validator<T>> = {};
-  protected _decoder?: IsObject.Validator<T>;
-  protected _dataType: Type | string;
+  protected _dataType_: Type | string;
+  protected _dataType: ComplexType;
+  protected _inputCodecs: Record<string, IsObject.Validator<T>> = {};
+  protected _outputCodecs: Record<string, IsObject.Validator<T>> = {};
 
   /**
    * Represents the name of a collection in MongoDB
@@ -223,7 +224,7 @@ export class MongoService<T extends mongodb.Document = mongodb.Document> extends
    */
   constructor(dataType: Type | string, options?: MongoService.Options) {
     super();
-    this._dataType = dataType;
+    this._dataType_ = dataType;
     this.db = options?.db;
     this.$documentFilter = this.$documentFilter || options?.documentFilter;
     this.$interceptor = this.$interceptor || options?.interceptor;
@@ -269,41 +270,42 @@ export class MongoService<T extends mongodb.Document = mongodb.Document> extends
   }
 
   /**
-   * Retrieves the data type of the document
+   * Retrieves the OPRA data type
    *
    * @throws {NotAcceptableError} If the data type is not a ComplexType.
    */
-  getDataType(): ComplexType {
-    return this.context.document.node.getComplexType(this._dataType);
+  get dataType(): ComplexType {
+    if (!this._dataType) this._dataType = this.context.document.node.getComplexType(this._dataType_);
+    return this._dataType;
   }
 
   /**
-   * Retrieves the encoder for the specified operation.
+   * Retrieves the codec for the specified operation.
    *
    * @param operation - The operation to retrieve the encoder for. Valid values are 'create' and 'update'.
    */
-  getEncoder(operation: 'create' | 'update'): IsObject.Validator<T> {
-    let encoder = this._encoders[operation];
-    if (encoder) return encoder;
+  getInputCodec(operation: string): IsObject.Validator<T> {
+    let validator = this._inputCodecs[operation];
+    if (validator) return validator;
     const options: DataType.GenerateCodecOptions = { projection: '*' };
-    if (operation === 'update') options.partial = true;
-    const dataType = this.getDataType();
-    encoder = dataType.generateCodec('encode', options) as IsObject.Validator<T>;
-    this._encoders[operation] = encoder;
-    return encoder;
+    if (operation === 'update') options.partial = 'deep';
+    const dataType = this.dataType;
+    validator = dataType.generateCodec('decode', options) as IsObject.Validator<T>;
+    this._inputCodecs[operation] = validator;
+    return validator;
   }
 
   /**
-   * Retrieves the decoder.
+   * Retrieves the codec.
    */
-  getDecoder(): IsObject.Validator<T> {
-    let decoder = this._decoder;
-    if (decoder) return decoder;
-    const options: DataType.GenerateCodecOptions = { projection: '*', partial: true };
-    const dataType = this.getDataType();
-    decoder = dataType.generateCodec('decode', options) as IsObject.Validator<T>;
-    this._decoder = decoder;
-    return decoder;
+  getOutputCodec(operation: string): IsObject.Validator<T> {
+    let validator = this._outputCodecs[operation];
+    if (validator) return validator;
+    const options: DataType.GenerateCodecOptions = { projection: '*', partial: 'deep' };
+    const dataType = this.dataType;
+    validator = dataType.generateCodec('decode', options) as IsObject.Validator<T>;
+    this._outputCodecs[operation] = validator;
+    return validator;
   }
 
   /**

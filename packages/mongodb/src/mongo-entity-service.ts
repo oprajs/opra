@@ -64,8 +64,8 @@ export class MongoEntityService<T extends mongodb.Document> extends MongoService
    * @protected
    */
   protected async _create(input: PartialDTO<T>, options?: MongoEntityService.CreateOptions): Promise<PartialDTO<T>> {
-    const encode = this.getEncoder('create');
-    const doc: any = encode(input);
+    const inputCodec = this.getInputCodec('create');
+    const doc: any = inputCodec(input);
     assert.ok(doc._id, 'You must provide the "_id" field');
     const r = await this._dbInsertOne(doc, options);
     if (r.insertedId) {
@@ -139,14 +139,14 @@ export class MongoEntityService<T extends mongodb.Document> extends MongoService
     const filter = MongoAdapter.prepareFilter([MongoAdapter.prepareKeyValues(id, ['_id']), options?.filter]);
     const mongoOptions: mongodb.FindOptions = {
       ...options,
-      projection: MongoAdapter.prepareProjection(this.getDataType(), options?.projection),
+      projection: MongoAdapter.prepareProjection(this.dataType, options?.projection),
       limit: undefined,
       skip: undefined,
       sort: undefined,
     };
-    const decode = this.getDecoder();
     const out = await this._dbFindOne(filter, mongoOptions);
-    return out ? (decode(out) as PartialDTO<T>) : undefined;
+    const outputCodec = this.getOutputCodec('find');
+    if (out) return outputCodec(out);
   }
 
   /**
@@ -160,12 +160,12 @@ export class MongoEntityService<T extends mongodb.Document> extends MongoService
     const mongoOptions: mongodb.FindOptions = {
       ...omit(options, 'filter'),
       sort: options?.sort ? MongoAdapter.prepareSort(options.sort) : undefined,
-      projection: MongoAdapter.prepareProjection(this.getDataType(), options?.projection),
+      projection: MongoAdapter.prepareProjection(this.dataType, options?.projection),
       limit: undefined,
     };
-    const decode = this.getDecoder();
     const out = await this._dbFindOne(filter, mongoOptions);
-    return out ? (decode(out, { coerce: true }) as PartialDTO<T>) : undefined;
+    const outputCodec = this.getOutputCodec('find');
+    if (out) return outputCodec(out);
   }
 
   /**
@@ -191,15 +191,15 @@ export class MongoEntityService<T extends mongodb.Document> extends MongoService
     }
     stages.push({ $limit: limit });
 
-    const dataType = this.getDataType();
+    const dataType = this.dataType;
     const projection = MongoAdapter.prepareProjection(dataType, options?.projection);
     if (projection) stages.push({ $project: projection });
-    const decode = this.getDecoder();
     const cursor = await this._dbAggregate(stages, mongoOptions);
     /** Execute db command */
     try {
       /** Fetch the cursor and decode the result objects */
-      return (await cursor.toArray()).map((r: any) => decode(r));
+      const outputCodec = this.getOutputCodec('find');
+      return (await cursor.toArray()).map((r: any) => outputCodec(r));
     } finally {
       if (!cursor.closed) await cursor.close();
     }
@@ -244,10 +244,10 @@ export class MongoEntityService<T extends mongodb.Document> extends MongoService
     }
     dataStages.push({ $limit: limit });
 
-    const dataType = this.getDataType();
+    const dataType = this.dataType;
     const projection = MongoAdapter.prepareProjection(dataType, options?.projection);
     if (projection) dataStages.push({ $project: projection });
-    const decode = this.getDecoder();
+    const outputCodec = this.getOutputCodec('find');
     /** Execute db command */
     const cursor = await this._dbAggregate(stages, mongoOptions);
     try {
@@ -255,7 +255,7 @@ export class MongoEntityService<T extends mongodb.Document> extends MongoService
       const facetResult = await cursor.toArray();
       return {
         count: facetResult[0].count[0]?.totalMatches || 0,
-        items: facetResult[0].data?.map((r: any) => decode(r)),
+        items: facetResult[0].data?.map((r: any) => outputCodec(r)),
       };
     } finally {
       if (!cursor.closed) await cursor.close();
@@ -282,8 +282,8 @@ export class MongoEntityService<T extends mongodb.Document> extends MongoService
       throw new TypeError('You must pass one of MongoDB UpdateFilter or a partial document, not both');
     let update: UpdateFilter<T>;
     if (isDocument) {
-      const encode = this.getEncoder('update');
-      const doc = encode(input, { coerce: true });
+      const inputCodec = this.getInputCodec('update');
+      const doc = inputCodec(input);
       delete doc._id;
       update = MongoAdapter.preparePatch(doc);
       update.$set = update.$set || ({} as any);
@@ -295,11 +295,11 @@ export class MongoEntityService<T extends mongodb.Document> extends MongoService
       ...options,
       includeResultMetadata: false,
       upsert: undefined,
-      projection: MongoAdapter.prepareProjection(this.getDataType(), options?.projection),
+      projection: MongoAdapter.prepareProjection(this.dataType, options?.projection),
     };
-    const decode = this.getDecoder();
     const out = await this._dbFindOneAndUpdate(filter, update, mongoOptions);
-    return out ? (decode(out, { coerce: true }) as PartialDTO<T>) : undefined;
+    const outputCodec = this.getOutputCodec('update');
+    if (out) return outputCodec(out);
   }
 
   /**
@@ -321,8 +321,8 @@ export class MongoEntityService<T extends mongodb.Document> extends MongoService
       throw new TypeError('You must pass one of MongoDB UpdateFilter or a partial document, not both');
     let update: UpdateFilter<T>;
     if (isDocument) {
-      const encode = this.getEncoder('update');
-      const doc = encode(input, { coerce: true });
+      const inputCodec = this.getInputCodec('update');
+      const doc = inputCodec(input);
       delete doc._id;
       update = MongoAdapter.preparePatch(doc);
       if (!Object.keys(doc).length) return 0;
@@ -334,7 +334,7 @@ export class MongoEntityService<T extends mongodb.Document> extends MongoService
       ...options,
       includeResultMetadata: false,
       upsert: undefined,
-      projection: MongoAdapter.prepareProjection(this.getDataType(), options?.projection),
+      projection: MongoAdapter.prepareProjection(this.dataType, options?.projection),
     };
     const out = await this._dbUpdateOne(filter, update, mongoOptions);
     return out.matchedCount;
@@ -357,8 +357,8 @@ export class MongoEntityService<T extends mongodb.Document> extends MongoService
       throw new TypeError('You must pass one of MongoDB UpdateFilter or a partial document, not both');
     let update: UpdateFilter<T>;
     if (isDocument) {
-      const encode = this.getEncoder('update');
-      const doc = encode(input, { coerce: true });
+      const inputCodec = this.getInputCodec('update');
+      const doc = inputCodec(input);
       delete doc._id;
       update = MongoAdapter.preparePatch(doc);
       if (!Object.keys(doc).length) return 0;

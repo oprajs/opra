@@ -114,6 +114,18 @@ export class MongoNestedService<T extends mongodb.Document> extends MongoService
   }
 
   /**
+   * Retrieves the data type of the array field
+   *
+   * @returns {ComplexType} The complex data type of the field.
+   * @throws {NotAcceptableError} If the data type is not a ComplexType.
+   */
+  get dataType(): ComplexType {
+    const t = super.dataType.getField(this.fieldName).type;
+    if (!(t instanceof ComplexType)) throw new NotAcceptableError(`Data type "${t.name}" is not a ComplexType`);
+    return t;
+  }
+
+  /**
    * Asserts whether a resource with the specified parentId and id exists.
    * Throws a ResourceNotFoundError if the resource does not exist.
    *
@@ -165,8 +177,8 @@ export class MongoNestedService<T extends mongodb.Document> extends MongoService
     input: PartialDTO<T>,
     options?: MongoNestedService.CreateOptions,
   ): Promise<PartialDTO<T>> {
-    const encode = this.getEncoder('create');
-    const doc: any = encode(input);
+    const inputCodec = this.getInputCodec('create');
+    const doc: any = inputCodec(input);
     doc._id = doc._id || this._generateId();
 
     const docFilter = MongoAdapter.prepareKeyValues(documentId, ['_id']);
@@ -505,14 +517,13 @@ export class MongoNestedService<T extends mongodb.Document> extends MongoService
     }
     stages.push({ $limit: limit });
 
-    const dataType = this.getDataType();
+    const dataType = this.dataType;
     const projection = MongoAdapter.prepareProjection(dataType, options?.projection);
     if (projection) stages.push({ $project: projection });
-    const decode = this.getDecoder();
-
     const cursor = await this._dbAggregate(stages, mongoOptions);
     try {
-      const out = await (await cursor.toArray()).map((r: any) => decode(r));
+      const outputCodec = this.getOutputCodec('find');
+      const out = await (await cursor.toArray()).map((r: any) => outputCodec(r));
       return out;
     } finally {
       if (!cursor.closed) await cursor.close();
@@ -591,19 +602,19 @@ export class MongoNestedService<T extends mongodb.Document> extends MongoService
     }
     dataStages.push({ $limit: limit });
 
-    const dataType = this.getDataType();
+    const dataType = this.dataType;
     const projection = MongoAdapter.prepareProjection(dataType, options?.projection);
     if (projection) dataStages.push({ $project: projection });
-    const decode = this.getDecoder();
 
     const cursor: mongodb.AggregationCursor = await this._dbAggregate(stages, {
       ...mongoOptions,
     });
     try {
       const facetResult = await cursor.toArray();
+      const outputCodec = this.getOutputCodec('find');
       return {
         count: facetResult[0].count[0].totalMatches || 0,
-        items: facetResult[0].data.map((r: any) => decode(r)),
+        items: facetResult[0].data.map((r: any) => outputCodec(r)),
       };
     } finally {
       if (!cursor.closed) await cursor.close();
@@ -730,8 +741,8 @@ export class MongoNestedService<T extends mongodb.Document> extends MongoService
     input: PatchDTO<T>,
     options?: MongoNestedService.UpdateManyOptions<T>,
   ): Promise<number> {
-    const encode = this.getEncoder('update');
-    const doc = encode(input, { coerce: true });
+    const inputCodec = this.getInputCodec('update');
+    const doc = inputCodec(input);
     if (!Object.keys(doc).length) return 0;
     const matchFilter = MongoAdapter.prepareFilter([
       MongoAdapter.prepareKeyValues(documentId, ['_id']),
@@ -750,18 +761,6 @@ export class MongoNestedService<T extends mongodb.Document> extends MongoService
     const r = await this._dbUpdateOne(matchFilter, update, options);
     if (options?.count) return await this._count(documentId, options);
     return r.modifiedCount || 0;
-  }
-
-  /**
-   * Retrieves the data type of the array field
-   *
-   * @returns {ComplexType} The complex data type of the field.
-   * @throws {NotAcceptableError} If the data type is not a ComplexType.
-   */
-  getDataType(): ComplexType {
-    const t = super.getDataType().getField(this.fieldName).type;
-    if (!(t instanceof ComplexType)) throw new NotAcceptableError(`Data type "${t.name}" is not a ComplexType`);
-    return t;
   }
 
   /**

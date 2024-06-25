@@ -224,7 +224,7 @@ export class HttpApiFactory {
       });
     }
     if (metadata.requestBody) {
-      await context.enter('.requestBody', async () => {
+      await context.enterAsync('.requestBody', async () => {
         const requestBody = new HttpRequestBody(operation);
         await this._initHttpRequestBody(context, requestBody, metadata.requestBody!);
         operation.requestBody = requestBody;

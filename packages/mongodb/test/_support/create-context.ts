@@ -9,7 +9,6 @@ export function createContext(adapter: HttpAdapter, operation?: HttpOperation, r
     operation,
     controller: operation?.owner,
     platform: 'express',
-    platformArgs: {},
     request,
     response,
   });

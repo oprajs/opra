@@ -24,19 +24,19 @@ describe('OpraClient', function () {
   });
 
   it('Should retrieve api document schema', async () => {
-    expect(await client.fetchSchema()).toBeInstanceOf(ApiDocument);
+    expect(await client.fetchDocument()).toBeInstanceOf(ApiDocument);
   });
 
   it('Should getSchema() reject promise on error', async () => {
     const xClient = new OpraHttpClient('http://127.0.0.1:1001');
-    await expect(() => xClient.fetchSchema()).rejects.toThrow('Error fetching api schema');
+    await expect(() => xClient.fetchDocument()).rejects.toThrow('Error fetching api schema');
   });
 
   it('Should getSchema() be called only one at a time', async () => {
     const requestCount = app.requestCount;
-    await Promise.all([client.fetchSchema(), client.fetchSchema(), client.fetchSchema()]);
+    await Promise.all([client.fetchDocument(), client.fetchDocument(), client.fetchDocument()]);
     expect(app.requestCount).toEqual(requestCount + 1);
-    await Promise.all([client.fetchSchema(), client.fetchSchema(), client.fetchSchema()]);
+    await Promise.all([client.fetchDocument(), client.fetchDocument(), client.fetchDocument()]);
     expect(app.requestCount).toEqual(requestCount + 2);
   });
 

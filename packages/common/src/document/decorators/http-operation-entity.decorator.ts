@@ -202,8 +202,8 @@ HttpOperation.Entity.Create = function (arg0: any, arg1?: any): HttpOperation.En
   const decorator = HttpOperationDecoratorFactory(
     decoratorChain,
     omitUndefined({
-      description: args.description,
       method: 'POST',
+      ...args,
       composition: 'Entity.Create',
       requestBody: {
         immediateFetch: true,
@@ -257,8 +257,8 @@ HttpOperation.Entity.Delete = function (arg0: any, arg1?: any): HttpOperation.En
   const decorator = HttpOperationDecoratorFactory(
     decoratorChain,
     omitUndefined({
-      description: args.description,
       method: 'DELETE',
+      ...args,
       composition: 'Entity.Delete',
     }),
   ) as HttpOperation.Entity.DeleteDecorator;
@@ -310,8 +310,8 @@ HttpOperation.Entity.DeleteMany = function (arg0: any, arg1?: any): HttpOperatio
   const decorator = HttpOperationDecoratorFactory(
     decoratorChain,
     omitUndefined({
-      description: args.description,
       method: 'DELETE',
+      ...args,
       composition: 'Entity.DeleteMany',
     }),
   ) as HttpOperation.Entity.DeleteManyDecorator;
@@ -364,8 +364,8 @@ HttpOperation.Entity.FindMany = function (arg0: any, arg1?: any): HttpOperation.
   const decorator = HttpOperationDecoratorFactory(
     decoratorChain,
     omitUndefined({
-      description: args.description,
       method: 'GET',
+      ...args,
       composition: 'Entity.FindMany',
     }),
   ) as HttpOperation.Entity.FindManyDecorator;
@@ -464,8 +464,8 @@ HttpOperation.Entity.Get = function (arg0: any, arg1?: any): HttpOperation.Entit
   const decorator = HttpOperationDecoratorFactory(
     decoratorChain,
     omitUndefined({
-      description: args.description,
       method: 'GET',
+      ...args,
       composition: 'Entity.Get',
     }),
   ) as HttpOperation.Entity.GetDecorator;
@@ -532,8 +532,8 @@ HttpOperation.Entity.UpdateMany = function (arg0: any, arg1?: any): HttpOperatio
   const decorator = HttpOperationDecoratorFactory(
     decoratorChain,
     omitUndefined({
-      description: args.description,
       method: 'PATCH',
+      ...args,
       composition: 'Entity.UpdateMany',
       requestBody: {
         immediateFetch: true,
@@ -596,8 +596,8 @@ HttpOperation.Entity.Update = function (arg0: any, arg1?: any): HttpOperation.En
   const decorator = HttpOperationDecoratorFactory(
     decoratorChain,
     omitUndefined({
-      description: args.description,
       method: 'PATCH',
+      ...args,
       composition: 'Entity.Update',
       requestBody: {
         partial: 'deep',

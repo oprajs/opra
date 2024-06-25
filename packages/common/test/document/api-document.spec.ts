@@ -50,7 +50,7 @@ describe('ApiDocument', function () {
   });
 
   it('Should export() return document schema', async () => {
-    let sch = doc.export();
+    const sch = doc.export();
     expect(sch.spec).toStrictEqual(OpraSchema.SpecVersion);
     expect(sch.info).toBeDefined();
     expect(sch.id).toBeDefined();

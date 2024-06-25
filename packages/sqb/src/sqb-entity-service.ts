@@ -115,8 +115,8 @@ export class SqbEntityService<T extends object = object> extends ServiceBase {
   protected _dataType: ComplexType;
   protected _dataTypeClass?: Type;
   protected _entityMetadata?: EntityMetadata;
-  protected _encoders: Record<string, IsObject.Validator<T>> = {};
-  protected _decoder?: IsObject.Validator<T>;
+  protected _inputCodecs: Record<string, IsObject.Validator<T>> = {};
+  protected _outputCodecs: Record<string, IsObject.Validator<T>> = {};
 
   /**
    * Represents a SqbClient or SqbConnection object
@@ -223,32 +223,32 @@ export class SqbEntityService<T extends object = object> extends ServiceBase {
   }
 
   /**
-   * Retrieves the encoder for the specified operation.
+   * Retrieves the codec for the specified operation.
    *
    * @param operation - The operation to retrieve the encoder for. Valid values are 'create' and 'update'.
    */
-  getEncoder(operation: 'create' | 'update'): IsObject.Validator<T> {
-    let encoder = this._encoders[operation];
-    if (encoder) return encoder;
+  getInputCodec(operation: string): IsObject.Validator<T> {
+    let validator = this._inputCodecs[operation];
+    if (validator) return validator;
     const options: DataType.GenerateCodecOptions = { projection: '*' };
     if (operation === 'update') options.partial = 'deep';
     const dataType = this.dataType;
-    encoder = dataType.generateCodec('encode', options) as IsObject.Validator<T>;
-    this._encoders[operation] = encoder;
-    return encoder;
+    validator = dataType.generateCodec('decode', options) as IsObject.Validator<T>;
+    this._inputCodecs[operation] = validator;
+    return validator;
   }
 
   /**
-   * Retrieves the decoder.
+   * Retrieves the codec.
    */
-  getDecoder(): IsObject.Validator<T> {
-    let decoder = this._decoder;
-    if (decoder) return decoder;
+  getOutputCodec(operation: string): IsObject.Validator<T> {
+    let validator = this._outputCodecs[operation];
+    if (validator) return validator;
     const options: DataType.GenerateCodecOptions = { projection: '*', partial: 'deep' };
     const dataType = this.dataType;
-    decoder = dataType.generateCodec('decode', options) as IsObject.Validator<T>;
-    this._decoder = decoder;
-    return decoder;
+    validator = dataType.generateCodec('decode', options) as IsObject.Validator<T>;
+    this._outputCodecs[operation] = validator;
+    return validator;
   }
 
   /**
@@ -261,10 +261,11 @@ export class SqbEntityService<T extends object = object> extends ServiceBase {
    * @protected
    */
   protected async _create(input: PartialDTO<T>, options?: SqbEntityService.CreateOptions): Promise<PartialDTO<T>> {
-    const encode = this.getEncoder('create');
-    const data: any = encode(input);
+    const inputCodec = this.getInputCodec('create');
+    const outputCodec = this.getOutputCodec('create');
+    const data: any = inputCodec(input);
     const out = await this._dbCreate(data, options);
-    if (out) return out;
+    if (out) return outputCodec(out);
     throw new InternalServerError(`Unknown error while creating document for "${this.getResourceName()}"`);
   }
 
@@ -337,7 +338,7 @@ export class SqbEntityService<T extends object = object> extends ServiceBase {
     id: SQBAdapter.Id,
     options?: SqbEntityService.FindOneOptions,
   ): Promise<PartialDTO<T> | undefined> {
-    const decode = this.getDecoder();
+    const decode = this.getOutputCodec('find');
     const out = await this._dbFindById(id, options);
     return out ? (decode(out) as PartialDTO<T>) : undefined;
   }
@@ -350,7 +351,7 @@ export class SqbEntityService<T extends object = object> extends ServiceBase {
    * @protected
    */
   protected async _findOne(options?: SqbEntityService.FindOneOptions): Promise<PartialDTO<T> | undefined> {
-    const decode = this.getDecoder();
+    const decode = this.getOutputCodec('find');
     const out = await this._dbFindOne(options);
     return out ? (decode(out) as PartialDTO<T>) : undefined;
   }
@@ -363,7 +364,7 @@ export class SqbEntityService<T extends object = object> extends ServiceBase {
    * @protected
    */
   protected async _findMany(options?: SqbEntityService.FindManyOptions): Promise<PartialDTO<T>[]> {
-    const decode = this.getDecoder();
+    const decode = this.getOutputCodec('find');
     const out: any[] = await this._dbFindMany(options);
     if (out?.length) {
       return out.map(x => decode(x)) as any;
@@ -386,11 +387,11 @@ export class SqbEntityService<T extends object = object> extends ServiceBase {
     input: PatchDTO<T>,
     options?: SqbEntityService.UpdateOptions,
   ): Promise<PartialDTO<T> | undefined> {
-    const encode = this.getEncoder('update');
-    const decode = this.getDecoder();
-    const data: any = encode(input);
+    const inputCodec = this.getInputCodec('update');
+    const data: any = inputCodec(input);
     const out = await this._dbUpdate(id, data, options);
-    if (out) return decode(out);
+    const outputCodec = this.getOutputCodec('update');
+    if (out) return outputCodec(out);
   }
 
   /**
@@ -407,8 +408,8 @@ export class SqbEntityService<T extends object = object> extends ServiceBase {
     input: PatchDTO<T>,
     options?: SqbEntityService.UpdateOptions,
   ): Promise<boolean> {
-    const encode = this.getEncoder('create');
-    const data: any = encode(input);
+    const inputCodec = this.getInputCodec('create');
+    const data: any = inputCodec(input);
     return await this._dbUpdateOnly(id, data, options);
   }
 
@@ -421,8 +422,8 @@ export class SqbEntityService<T extends object = object> extends ServiceBase {
    * @protected
    */
   protected async _updateMany(input: PatchDTO<T>, options?: SqbEntityService.UpdateManyOptions): Promise<number> {
-    const encode = this.getEncoder('update');
-    const data: any = encode(input);
+    const inputCodec = this.getInputCodec('update');
+    const data: any = inputCodec(input);
     return await this._dbUpdateMany(data, options);
   }
 

@@ -105,7 +105,7 @@ class ApiFieldClass extends DocumentElement {
   toJSON(): OpraSchema.Field {
     const typeName = this.type ? this.node.getDataTypeNameWithNs(this.type) : undefined;
     return omitUndefined<OpraSchema.Field>({
-      type: this.type ? (typeName ? typeName : (this.type?.toJSON() as any)) : undefined,
+      type: typeName ? typeName : (this.type?.toJSON() as any),
       description: this.description,
       isArray: this.isArray,
       default: this.default,

@@ -5,7 +5,7 @@ export const ENCODER = Symbol('opra.type.encoder');
 export const DECORATOR = Symbol.for('DECORATOR');
 export const BUILTIN = Symbol.for('BUILTIN');
 
-export const NAMESPACE_PATTERN = /([a-z$_]\w+)(:.+)/i;
+export const NAMESPACE_PATTERN = /([a-z$_]\w+):(.+)/i;
 export const CLASS_NAME_PATTERN = /^[a-z][\w_]*$/i;
 export const EXTRACT_TYPENAME_PATTERN = /^(.*)Type(\d*)$/;
 
