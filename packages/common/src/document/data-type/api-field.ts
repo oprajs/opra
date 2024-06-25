@@ -80,6 +80,8 @@ export const ApiField = function (this: ApiField | void, ...args: any[]) {
   _this.exclusive = initArgs.exclusive;
   _this.translatable = initArgs.translatable;
   _this.deprecated = initArgs.deprecated;
+  _this.readonly = initArgs.readonly;
+  _this.writeonly = initArgs.writeonly;
   _this.examples = initArgs.examples;
 } as ApiFieldConstructor;
 
@@ -100,6 +102,8 @@ class ApiFieldClass extends DocumentElement {
   readonly exclusive?: boolean;
   readonly translatable?: boolean;
   readonly deprecated?: boolean | string;
+  readonly readonly?: boolean;
+  readonly writeonly?: boolean;
   readonly examples?: any[] | Record<string, any>;
 
   toJSON(): OpraSchema.Field {
@@ -114,6 +118,8 @@ class ApiFieldClass extends DocumentElement {
       exclusive: this.exclusive,
       translatable: this.translatable,
       deprecated: this.deprecated,
+      readonly: this.readonly,
+      writeonly: this.writeonly,
       examples: this.examples,
     }) as OpraSchema.Field;
   }

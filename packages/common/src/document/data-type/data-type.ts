@@ -27,6 +27,8 @@ export namespace DataType {
     caseInSensitive?: boolean;
     partial?: boolean | 'deep';
     projection?: string[] | FieldsProjection | '*';
+    ignoreReadonlyFields?: boolean;
+    ignoreWriteonlyFields?: boolean;
   }
 }
 

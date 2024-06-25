@@ -207,6 +207,10 @@ abstract class ComplexTypeBaseClass extends DataType {
     // Process fields
     let fieldName: string;
     for (const field of this.fields.values()) {
+      if ((context.ignoreReadonlyFields && field.readonly) || (context.ignoreWriteonlyFields && field.writeonly)) {
+        schema[field.name] = vg.isUndefined({ coerce: true });
+        continue;
+      }
       fieldName = field.name;
       let p: any;
       if (projection !== '*') {
