@@ -4,6 +4,10 @@ import { SimpleType } from '../simple-type.js';
 
 @SimpleType({
   description: 'A stream of bytes, base64 encoded',
+  nameMappings: {
+    js: 'string',
+    json: 'string',
+  },
 })
 export class Base64Type {
   constructor(attributes?: Partial<Base64Type>) {

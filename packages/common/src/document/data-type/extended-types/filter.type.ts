@@ -9,6 +9,10 @@ import { SimpleType } from '../simple-type.js';
 
 @SimpleType({
   description: 'A query filter',
+  nameMappings: {
+    js: 'object',
+    json: 'string',
+  },
 })
 export class FilterType {
   constructor(attributes?: Partial<FilterType>) {

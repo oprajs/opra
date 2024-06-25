@@ -5,6 +5,10 @@ import { NumberType } from './number.type.js';
 
 @SimpleType({
   description: 'BigInt number',
+  nameMappings: {
+    js: 'bigint',
+    json: 'string',
+  },
 })
 export class BigintType extends NumberType {
   constructor(attributes?: Partial<BigintType>) {

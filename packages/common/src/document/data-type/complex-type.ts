@@ -137,7 +137,8 @@ abstract class ComplexTypeClass extends ComplexTypeBase {
   readonly base?: ComplexType | MappedType | MixinType;
   declare readonly ctor?: Type;
 
-  extendsFrom(baseType: DataType): boolean {
+  extendsFrom(baseType: DataType | string | Type | object): boolean {
+    if (!(baseType instanceof DataType)) baseType = this.node.getDataType(baseType);
     if (!(baseType instanceof ComplexTypeBase)) return false;
     if (baseType === this) return true;
     return !!this.base?.extendsFrom(baseType);

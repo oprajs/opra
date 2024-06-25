@@ -8,7 +8,7 @@ import type { DocumentInitContext } from '../common/document-init-context';
 import { ApiField } from './api-field.js';
 import type { ComplexType } from './complex-type.js';
 import { ComplexTypeBase } from './complex-type-base.js';
-import type { DataType } from './data-type.js';
+import { DataType } from './data-type.js';
 import type { MixinType } from './mixin-type';
 import { getIsInheritedPredicateFn } from './utils/get-is-inherited-predicate-fn.js';
 
@@ -147,7 +147,8 @@ class MappedTypeClass extends ComplexTypeBase {
   readonly partial?: Field.Name[] | boolean;
   readonly required?: Field.Name[] | boolean;
 
-  extendsFrom(baseType: DataType): boolean {
+  extendsFrom(baseType: DataType | string | Type | object): boolean {
+    if (!(baseType instanceof DataType)) baseType = this.node.getDataType(baseType);
     if (!(baseType instanceof ComplexTypeBase)) return false;
     if (baseType === this) return true;
     return !!this.base?.extendsFrom(baseType);

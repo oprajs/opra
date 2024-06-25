@@ -22,7 +22,7 @@ export namespace SimpleType {
       OpraSchema.SimpleType
     > {}
 
-  export interface Options extends DataType.Options {}
+  export interface Options extends Combine<Pick<OpraSchema.SimpleType, 'nameMappings'>, DataType.Options> {}
 
   export interface InitArguments
     extends Combine<
@@ -92,6 +92,7 @@ export const SimpleType = function (this: SimpleType | void, ...args: any[]) {
   }
 
   _this.properties = initArgs.properties;
+  _this.nameMappings = { ...initArgs.nameMappings };
   _this.ownAttributes = cloneObject(initArgs.attributes || {});
   _this.attributes = _this.base ? cloneObject(_this.base.attributes) : {};
   if (_this.ownAttributes) {
@@ -113,11 +114,13 @@ abstract class SimpleTypeClass extends DataType {
   readonly base?: SimpleType;
   readonly attributes: Record<string, SimpleType.Attribute>;
   readonly ownAttributes: Record<string, SimpleType.Attribute>;
+  readonly nameMappings: Record<string, string>;
   protected _generateDecoder?: SimpleType.ValidatorGenerator;
   protected _generateEncoder?: SimpleType.ValidatorGenerator;
   properties?: any;
 
-  extendsFrom(baseType: DataType): boolean {
+  extendsFrom(baseType: DataType | string | Type | object): boolean {
+    if (!(baseType instanceof DataType)) baseType = this.node.getDataType(baseType);
     if (!(baseType instanceof SimpleType)) return false;
     if (baseType === this) return true;
     return !!this.base?.extendsFrom(baseType);

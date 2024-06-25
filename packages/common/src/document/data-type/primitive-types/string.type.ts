@@ -4,6 +4,10 @@ import { SimpleType } from '../simple-type.js';
 
 @SimpleType({
   description: 'A sequence of characters',
+  nameMappings: {
+    js: 'string',
+    json: 'string',
+  },
 })
 export class StringType {
   constructor(properties?: Partial<StringType>) {

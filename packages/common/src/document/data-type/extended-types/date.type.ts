@@ -4,6 +4,10 @@ import { SimpleType } from '../simple-type.js';
 
 @SimpleType({
   description: 'A date without time',
+  nameMappings: {
+    js: 'Date',
+    json: 'string',
+  },
 }).Example('2021-04-18', 'Full date value')
 export class DateType {
   constructor(attributes?: Partial<DateType>) {

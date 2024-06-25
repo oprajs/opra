@@ -4,6 +4,10 @@ import { SimpleType } from '../simple-type.js';
 
 @SimpleType({
   description: 'Both Integer as well as Floating-Point numbers',
+  nameMappings: {
+    js: 'number',
+    json: 'number',
+  },
 })
 export class NumberType {
   constructor(properties?: Partial<NumberType>) {

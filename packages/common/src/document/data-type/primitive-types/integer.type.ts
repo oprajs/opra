@@ -5,6 +5,10 @@ import { NumberType } from './number.type.js';
 
 @SimpleType({
   description: 'An integer number',
+  nameMappings: {
+    js: 'number',
+    json: 'number',
+  },
 })
 export class IntegerType extends NumberType {
   constructor(properties?: Partial<IntegerType>) {

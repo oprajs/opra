@@ -1,5 +1,5 @@
 import 'reflect-metadata';
-import { asMutable, Combine } from 'ts-gems';
+import { asMutable, Combine, Type } from 'ts-gems';
 import { Validator, vg } from 'valgen';
 import { cloneObject, omitUndefined } from '../../helpers/index.js';
 import { OpraSchema } from '../../schema/index.js';
@@ -116,7 +116,8 @@ class EnumTypeClass extends DataType {
   readonly attributes: Record<string | number, OpraSchema.EnumType.ValueInfo>;
   readonly ownAttributes: Record<string | number, OpraSchema.EnumType.ValueInfo>;
 
-  extendsFrom(baseType: DataType): boolean {
+  extendsFrom(baseType: DataType | string | Type | object): boolean {
+    if (!(baseType instanceof DataType)) baseType = this.node.getDataType(baseType);
     if (!(baseType instanceof EnumType)) return false;
     if (baseType === this) return true;
     return !!this.base?.extendsFrom(baseType);

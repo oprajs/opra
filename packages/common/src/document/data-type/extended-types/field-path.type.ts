@@ -6,6 +6,10 @@ import { SimpleType } from '../simple-type.js';
 
 @SimpleType({
   description: 'Field path',
+  nameMappings: {
+    js: 'string',
+    json: 'string',
+  },
 })
 export class FieldPathType {
   constructor(attributes?: Partial<FieldPathType>) {

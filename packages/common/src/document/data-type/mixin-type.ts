@@ -8,7 +8,7 @@ import { DATATYPE_METADATA, DECORATOR } from '../constants.js';
 import { ApiField } from './api-field.js';
 import type { ComplexType } from './complex-type.js';
 import { ComplexTypeBase } from './complex-type-base.js';
-import type { DataType } from './data-type.js';
+import { DataType } from './data-type.js';
 import type { MappedType } from './mapped-type.js';
 
 /**
@@ -172,7 +172,8 @@ class MixinTypeClass extends ComplexTypeBase {
   declare readonly kind: OpraSchema.MixinType.Kind;
   readonly types: (ComplexType | MixinType | MappedType)[];
 
-  extendsFrom(baseType: DataType): boolean {
+  extendsFrom(baseType: DataType | string | Type | object): boolean {
+    if (!(baseType instanceof DataType)) baseType = this.node.getDataType(baseType);
     if (!(baseType instanceof ComplexTypeBase)) return false;
     if (baseType === this) return true;
     for (const t of this.types) {

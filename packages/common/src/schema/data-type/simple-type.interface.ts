@@ -10,6 +10,10 @@ export interface SimpleType extends StrictOmit<DataTypeBase, 'kind'> {
   base?: DataType.Name;
   attributes?: Record<string, Attribute>;
   properties?: Record<string, any>;
+  /**
+   * Naming alternatives across software languages
+   */
+  nameMappings?: Record<string, string>;
 }
 
 export namespace SimpleType {

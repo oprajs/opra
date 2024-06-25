@@ -4,6 +4,10 @@ import { SimpleType } from '../simple-type.js';
 
 @SimpleType({
   description: 'A full datetime value',
+  nameMappings: {
+    js: 'string',
+    json: 'string',
+  },
 })
   .Example('2021-04-18T22:30:15')
   .Example('2021-04-18 22:30:15')

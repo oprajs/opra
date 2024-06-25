@@ -1,4 +1,4 @@
-import { asMutable, StrictOmit } from 'ts-gems';
+import { asMutable, StrictOmit, Type } from 'ts-gems';
 import { ValidationOptions, Validator } from 'valgen';
 import { FieldsProjection, omitUndefined } from '../../helpers/index.js';
 import type { DataTypeBase } from '../../schema/data-type/data-type.interface.js';
@@ -84,7 +84,7 @@ abstract class DataTypeClass extends DocumentElement {
     return !this.name;
   }
 
-  abstract extendsFrom(baseType: DataType): boolean;
+  abstract extendsFrom(baseType: DataType | string | Type | object): boolean;
 
   toJSON(): OpraSchema.DataType {
     return omitUndefined({

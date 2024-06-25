@@ -4,6 +4,10 @@ import { SimpleType } from '../simple-type.js';
 
 @SimpleType({
   description: 'A Universal Unique Identifier (UUID) value',
+  nameMappings: {
+    js: 'string',
+    json: 'string',
+  },
 })
 export class UuidType {
   constructor(attributes?: Partial<UuidType>) {

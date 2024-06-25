@@ -4,6 +4,10 @@ import { SimpleType } from '../simple-type.js';
 
 @SimpleType({
   description: 'A Null value',
+  nameMappings: {
+    js: 'null',
+    json: 'null',
+  },
 })
 export class NullType {
   constructor(properties?: Partial<NullType>) {

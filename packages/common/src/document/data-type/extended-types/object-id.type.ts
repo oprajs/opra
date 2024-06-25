@@ -4,6 +4,10 @@ import { SimpleType } from '../simple-type.js';
 
 @SimpleType({
   description: 'A MongoDB ObjectID value',
+  nameMappings: {
+    js: 'object',
+    json: 'string',
+  },
 })
 export class ObjectIdType {
   constructor(attributes?: Partial<ObjectIdType>) {

@@ -4,6 +4,10 @@ import { SimpleType } from '../simple-type.js';
 
 @SimpleType({
   description: 'A Uniform Resource Identifier Reference (RFC 3986 icon) value',
+  nameMappings: {
+    js: 'string',
+    json: 'string',
+  },
 }).Example('http://tempuri.org')
 export class UrlType {
   constructor(attributes?: Partial<UrlType>) {

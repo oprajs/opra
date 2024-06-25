@@ -4,6 +4,10 @@ import { SimpleType } from '../simple-type.js';
 
 @SimpleType({
   description: 'An email value',
+  nameMappings: {
+    js: 'string',
+    json: 'string',
+  },
 }).Example('some.body@example.com')
 export class EmailType {
   constructor(attributes?: Partial<EmailType>) {
