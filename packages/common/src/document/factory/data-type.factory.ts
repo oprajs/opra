@@ -28,6 +28,7 @@ export namespace DataTypeFactory {
   export interface ComplexTypeInit
     extends Combine<
       {
+        _instance?: ComplexType;
         base?: string | ComplexTypeInit | MappedTypeInit | MixinTypeInit;
         fields?: Record<string, ApiFieldInit>;
         additionalFields?: boolean | string | DataTypeFactory.DataTypeInitArguments | ['error'] | ['error', string];
@@ -35,11 +36,19 @@ export namespace DataTypeFactory {
       ComplexType.InitArguments
     > {}
 
-  export interface EnumTypeInit extends Combine<{ base?: string | EnumTypeInit }, EnumType.InitArguments> {}
+  export interface EnumTypeInit
+    extends Combine<
+      {
+        _instance?: MappedType;
+        base?: string | EnumTypeInit;
+      },
+      EnumType.InitArguments
+    > {}
 
   export interface MappedTypeInit
     extends Combine<
       {
+        _instance?: MappedType;
         base: string | ComplexTypeInit | MappedTypeInit | MixinTypeInit;
       },
       MappedType.InitArguments
@@ -48,12 +57,20 @@ export namespace DataTypeFactory {
   export interface MixinTypeInit
     extends Combine<
       {
+        _instance?: MixinType;
         types: (string | ComplexTypeInit | MappedTypeInit | MixinTypeInit)[];
       },
       MixinType.InitArguments
     > {}
 
-  export interface SimpleTypeInit extends Combine<{ base?: string | SimpleTypeInit }, SimpleType.InitArguments> {}
+  export interface SimpleTypeInit
+    extends Combine<
+      {
+        _instance?: SimpleType;
+        base?: string | SimpleTypeInit;
+      },
+      SimpleType.InitArguments
+    > {}
 
   export interface ApiFieldInit
     extends Combine<
@@ -182,6 +199,7 @@ export class DataTypeFactory {
         importQueue.set(name, typeof thunk === 'object' ? { ...thunk, name } : thunk);
       }
     }
+
     for (const name of Array.from(importQueue.keys())) {
       if (!importQueue.has(name)) continue;
       const dt = await this._importDataTypeArgs(context, owner, name);
@@ -209,7 +227,7 @@ export class DataTypeFactory {
 
     // Check if data type already exist (maybe a builtin type or already imported)
     const dataType = owner.node.findDataType(thunk);
-    if (dataType) return dataType.name!;
+    if (dataType instanceof DataType) return dataType.name!;
 
     let metadata: any;
     let ctor: Type | undefined;
@@ -282,12 +300,16 @@ export class DataTypeFactory {
       /** Mark "out" object as initializing. This will help us to detect circular dependencies */
       out[initializingSymbol] = true;
       try {
-        if (out.name && importQueue?.has(out.name)) {
-          initArgsMap?.set(metadata.name, out);
-        } else if (out.name)
-          return context.addError(
-            `Data Type (${out.name}) must be explicitly added to type list in the document scope`,
-          );
+        if (out.name) {
+          if (importQueue?.has(out.name)) {
+            initArgsMap?.set(metadata.name, out);
+            out._instance = { name: metadata.name } as any;
+            out[kDataTypeMap] = owner.node[kDataTypeMap];
+          } else
+            return context.addError(
+              `Data Type (${out.name}) must be explicitly added to type list in the document scope`,
+            );
+        }
 
         switch (out.kind) {
           case OpraSchema.ComplexType.Kind:
@@ -485,18 +507,29 @@ export class DataTypeFactory {
     owner: DocumentElement,
     args: DataTypeFactory.DataTypeInitArguments | string,
   ): ComplexType | EnumType | MappedType | MixinType | SimpleType | undefined {
+    let dataType = owner.node.findDataType(typeof args === 'string' ? args : args.name || '');
+    if (dataType instanceof DataType) return dataType as any;
     const initArgs = typeof args === 'string' ? context.initArgsMap?.get(args) : args;
-    switch (initArgs?.kind) {
-      case OpraSchema.ComplexType.Kind:
-        return this._createComplexType(context, owner, initArgs);
-      case OpraSchema.EnumType.Kind:
-        return this._createEnumType(context, owner, initArgs);
-      case OpraSchema.MappedType.Kind:
-        return this._createMappedType(context, owner, initArgs);
-      case OpraSchema.MixinType.Kind:
-        return this._createMixinType(context, owner, initArgs);
-      case OpraSchema.SimpleType.Kind:
-        return this._createSimpleType(context, owner, initArgs);
+    if (initArgs) {
+      const dataTypeMap: DataTypeMap | undefined = initArgs[kDataTypeMap];
+      if (!dataTypeMap) delete initArgs._instance;
+      dataType = initArgs._instance;
+      if (dataType?.name && dataTypeMap) {
+        dataTypeMap.set(dataType.name, dataType);
+      }
+
+      switch (initArgs?.kind) {
+        case OpraSchema.ComplexType.Kind:
+          return this._createComplexType(context, owner, initArgs);
+        case OpraSchema.EnumType.Kind:
+          return this._createEnumType(context, owner, initArgs);
+        case OpraSchema.MappedType.Kind:
+          return this._createMappedType(context, owner, initArgs);
+        case OpraSchema.MixinType.Kind:
+          return this._createMixinType(context, owner, initArgs);
+        case OpraSchema.SimpleType.Kind:
+          return this._createSimpleType(context, owner, initArgs);
+      }
     }
     context.addError(`Unknown data type (${String(args)})`);
   }
@@ -506,11 +539,13 @@ export class DataTypeFactory {
     owner: DocumentElement,
     args: DataTypeFactory.ComplexTypeInit,
   ): ComplexType {
+    const dataType = args._instance || ({} as any);
+    Object.setPrototypeOf(dataType, ComplexType.prototype);
+
     const initArgs = cloneObject(args) as ComplexType.InitArguments;
     if (args.base) {
       context.enter('.base', () => {
-        initArgs.base = (owner.node.findDataType(args.base!) ||
-          this._createDataType(context, owner, args.base!)) as any;
+        initArgs.base = this._createDataType(context, owner, args.base!) as any;
       });
     }
     /** Set additionalFields */
@@ -519,13 +554,7 @@ export class DataTypeFactory {
         if (typeof args.additionalFields === 'boolean' || Array.isArray(args.additionalFields))
           initArgs.additionalFields = args.additionalFields;
         else {
-          if (typeof args.additionalFields === 'string') {
-            initArgs.additionalFields =
-              owner.node.findDataType(args.additionalFields!) ||
-              (this._createDataType(context, owner, args.additionalFields!) as any);
-          } else {
-            initArgs.additionalFields = this._createDataType(context, owner, args.additionalFields!) as any;
-          }
+          initArgs.additionalFields = this._createDataType(context, owner, args.additionalFields!) as any;
         }
       });
     }
@@ -535,7 +564,7 @@ export class DataTypeFactory {
       context.enter('.fields', () => {
         for (const [k, v] of Object.entries(args.fields!)) {
           context.enter(`[${k}]`, () => {
-            const type = owner.node.findDataType(v.type) || this._createDataType(context, owner, v.type);
+            const type = this._createDataType(context, owner, v.type);
             if (type)
               initArgs.fields![k] = {
                 ...v,
@@ -546,7 +575,8 @@ export class DataTypeFactory {
         }
       });
     }
-    return new ComplexType(owner, initArgs);
+    ComplexType.apply(dataType, [owner, initArgs] as any);
+    return dataType;
   }
 
   protected static _createEnumType(
@@ -554,15 +584,18 @@ export class DataTypeFactory {
     owner: DocumentElement,
     args: DataTypeFactory.EnumTypeInit,
   ): EnumType {
+    const dataType = args._instance || ({} as any);
+    Object.setPrototypeOf(dataType, EnumType.prototype);
+
     const initArgs = cloneObject(args) as EnumType.InitArguments;
     if (args.base) {
       context.enter('.base', () => {
-        initArgs.base = (owner.node.findDataType(args.base!) ||
-          this._createDataType(context, owner, args.base!)) as any;
+        initArgs.base = this._createDataType(context, owner, args.base!) as any;
       });
     }
     initArgs.attributes = args.attributes;
-    return new EnumType(owner, initArgs);
+    EnumType.apply(dataType, [owner, initArgs] as any);
+    return dataType;
   }
 
   protected static _createMappedType(
@@ -570,13 +603,17 @@ export class DataTypeFactory {
     owner: DocumentElement,
     args: DataTypeFactory.MappedTypeInit,
   ): MappedType {
+    const dataType = args._instance || ({} as any);
+    Object.setPrototypeOf(dataType, MappedType.prototype);
+
     const initArgs = cloneObject(args) as MappedType.InitArguments;
     if (args.base) {
       context.enter('.base', () => {
-        initArgs.base = (owner.node.findDataType(args.base!) || this._createDataType(context, owner, args.base)) as any;
+        initArgs.base = this._createDataType(context, owner, args.base) as any;
       });
     }
-    return new MappedType(owner, initArgs);
+    MappedType.apply(dataType, [owner, initArgs] as any);
+    return dataType;
   }
 
   protected static _createMixinType(
@@ -584,6 +621,9 @@ export class DataTypeFactory {
     owner: DocumentElement,
     args: DataTypeFactory.MixinTypeInit,
   ): MixinType {
+    const dataType = args._instance || ({} as any);
+    Object.setPrototypeOf(dataType, MixinType.prototype);
+
     const initArgs = cloneObject(args) as MixinType.InitArguments;
     if (args.types) {
       context.enter('.types', () => {
@@ -591,7 +631,7 @@ export class DataTypeFactory {
         let i = 0;
         for (const t of args.types) {
           context.enter(`[${i++}]`, () => {
-            const base = owner.node.findDataType(t) || this._createDataType(context, owner, t);
+            const base = this._createDataType(context, owner, t);
             if (!(base instanceof ComplexTypeBase))
               throw new TypeError(`"${base?.kind}" can't be set as base for a "${initArgs.kind}"`);
             (initArgs as any).types.push(base);
@@ -599,7 +639,8 @@ export class DataTypeFactory {
         }
       });
     }
-    return new MixinType(owner, initArgs);
+    MixinType.apply(dataType, [owner, initArgs] as any);
+    return dataType;
   }
 
   protected static _createSimpleType(
@@ -607,14 +648,17 @@ export class DataTypeFactory {
     owner: DocumentElement,
     args: DataTypeFactory.SimpleTypeInit,
   ): SimpleType {
+    const dataType = args._instance || ({} as any);
+    Object.setPrototypeOf(dataType, SimpleType.prototype);
+
     const initArgs = cloneObject(args) as SimpleType.InitArguments;
     if (args.base) {
       context.enter('.base', () => {
-        initArgs.base = (owner.node.findDataType(args.base!) ||
-          this._createDataType(context, owner, args.base!)) as any;
+        initArgs.base = this._createDataType(context, owner, args.base!) as any;
       });
     }
-    return new SimpleType(owner, initArgs);
+    SimpleType.apply(dataType, [owner, initArgs] as any);
+    return dataType;
   }
 }
 
