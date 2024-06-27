@@ -17,6 +17,11 @@ export interface HttpParameter extends Value {
   name: string | RegExp;
 
   /**
+   * Determines if parameter is key
+   */
+  keyParam?: boolean;
+
+  /**
    * Defines array separator
    */
   arraySeparator?: string;

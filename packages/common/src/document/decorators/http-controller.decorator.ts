@@ -30,6 +30,11 @@ export interface HttpControllerDecorator<T extends HttpControllerDecorator<any> 
     optionsOrType?: StrictOmit<HttpParameter.Options, 'location'> | string | TypeThunkAsync | false,
   ): T;
 
+  KeyParam(
+    name: string | RegExp,
+    optionsOrType?: StrictOmit<HttpParameter.Options, 'location'> | string | TypeThunkAsync | false,
+  ): T;
+
   UseType(...type: TypeThunkAsync[]): T;
 }
 
@@ -148,6 +153,35 @@ export function HttpControllerDecoratorFactory<O extends HttpController.Options>
               type: arg1,
             }
           : { ...arg1, name, location: 'path' };
+      meta.parameters = meta.parameters || [];
+      meta.parameters.push(paramMeta);
+    });
+    return decorator;
+  };
+
+  /**
+   *
+   */
+  decorator.KeyParam = (
+    name: string | RegExp,
+    arg1?: StrictOmit<HttpParameter.Options, 'location'> | string | Type | false,
+  ) => {
+    decoratorChain.push((meta: HttpController.Metadata): void => {
+      if (!meta.path?.includes(':' + name)) meta.path = (meta.path || '') + '@:' + name;
+      const paramMeta: HttpParameter.Metadata =
+        typeof arg1 === 'string' || typeof arg1 === 'function'
+          ? {
+              name,
+              location: 'path',
+              type: arg1,
+              keyParam: true,
+            }
+          : {
+              ...arg1,
+              name,
+              location: 'path',
+              keyParam: true,
+            };
       meta.parameters = meta.parameters || [];
       meta.parameters.push(paramMeta);
     });

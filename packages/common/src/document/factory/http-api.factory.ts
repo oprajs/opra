@@ -36,6 +36,7 @@ export class HttpApiFactory {
     init: HttpApiFactory.InitArguments,
   ): Promise<HttpApi> {
     const api = new HttpApi(document);
+    api.name = init.name;
     api.description = init.description;
     api.url = init.url;
     if (init.controllers) {

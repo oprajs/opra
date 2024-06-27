@@ -144,6 +144,7 @@ export class HttpContext extends ExecutionContext {
             mediaType.type?.generateCodec('decode', {
               partial: operation.requestBody?.partial,
               projection: '*',
+              ignoreReadonlyFields: true,
             }) || vg.isAny();
           this.adapter[kAssetCache].set(mediaType, 'decode', decode);
         }

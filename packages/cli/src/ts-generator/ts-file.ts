@@ -1,19 +1,22 @@
 import path from 'path';
 import flattenText from 'putil-flattentext';
+import { CodeBlock } from '../code-block.js';
 
 export class TsFile {
   readonly dirname: string;
   imports: Record<string, { items: string[]; typeImport?: boolean }> = {};
   exportFiles: Record<string, string[]> = {};
   exportTypes: string[] = [];
-  header: string = '';
-  content: string = '';
+  code = new CodeBlock();
 
   constructor(readonly filename: string) {
     this.dirname = path.dirname(filename);
+    this.code.header = '';
+    this.code.imports = '';
+    this.code.exports = '';
   }
 
-  addImport = (filename: string, items?: string[], typeImport?: boolean) => {
+  addImport(filename: string, items?: string[], typeImport?: boolean) {
     if (isLocalFile(filename)) {
       filename = path.relative(this.dirname, path.resolve(this.dirname, filename));
       if (!filename.startsWith('.')) filename = './' + filename;
@@ -25,9 +28,9 @@ export class TsFile {
     items?.forEach(x => {
       if (!imp.items.includes(x)) imp.items.push(x);
     });
-  };
+  }
 
-  addExport = (filename: string, types?: string[]) => {
+  addExport(filename: string, types?: string[]) {
     if (isLocalFile(filename)) {
       filename = path.relative(this.dirname, path.resolve(this.dirname, filename));
       if (!filename.startsWith('.')) filename = './' + filename;
@@ -38,14 +41,10 @@ export class TsFile {
     types?.forEach(x => {
       if (!this.exportFiles[filename].includes(x)) this.exportFiles[filename].push(x);
     });
-  };
+  }
 
   generate(options?: { importExt?: boolean }): string {
-    let output =
-      '/* #!oprimp_auto_generated!# !! Do NOT remove this line */\n' +
-      (this.header ? flattenText(this.header) + '\n\n' : '\n');
-
-    const importStr = Object.keys(this.imports)
+    this.code.imports = Object.keys(this.imports)
       .sort((a, b) => {
         if (a.startsWith('@')) return -1;
         if (b.startsWith('@')) return 1;
@@ -62,23 +61,23 @@ export class TsFile {
         return `import${imp.typeImport ? ' type' : ''} ${imp.items.length ? '{ ' + imp.items.join(', ') + ' } from ' : ''}'${relFile}';`;
       })
       .join('\n');
-    if (importStr) output += flattenText(importStr) + '\n';
 
-    output += flattenText(this.content);
-
-    const exportStr = Object.keys(this.exportFiles)
+    this.code.exports = Object.keys(this.exportFiles)
       .sort((a, b) => a.toLowerCase().localeCompare(b.toLowerCase()))
       .map(filename => {
         const types = this.exportFiles[filename];
-        let relFile = filename;
         if (!isPackageName(filename)) {
-          if (options?.importExt) relFile += '.js';
+          if (options?.importExt) filename += '.js';
         }
-        return `export ${types.length ? '{ ' + types.join(', ') + ' }' : '*'} from '${relFile}';`;
+        return `export ${types.length ? '{ ' + types.join(', ') + ' }' : '*'} from '${filename}';`;
       })
       .join('\n');
-    if (exportStr) output += flattenText(exportStr) + '\n';
-    return output;
+    if (this.code.imports || this.code.exports) this.code.exports += '\n\n';
+
+    return (
+      '/* #!oprimp_auto_generated!# !! Do NOT remove this line */\n/* eslint-disable */\n' +
+      flattenText(String(this.code))
+    );
   }
 }
 

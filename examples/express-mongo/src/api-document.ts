@@ -3,7 +3,6 @@ import { Db } from 'mongodb';
 import { ApiDocument, ApiDocumentFactory } from '@opra/common';
 import { AuthController } from './api/auth.controller.js';
 import { CustomerController } from './api/customer.controller.js';
-import { CustomerNotesController } from './api/customer-notes.controller.js';
 import { CustomersController } from './api/customers-controller.js';
 
 export namespace CustomerApiDocument {
@@ -19,12 +18,7 @@ export namespace CustomerApiDocument {
       api: {
         name: 'CustomerApi',
         protocol: 'http',
-        controllers: [
-          new AuthController(db),
-          new CustomerController(db),
-          new CustomersController(db),
-          new CustomerNotesController(db),
-        ],
+        controllers: [new AuthController(db), new CustomerController(db), new CustomersController(db)],
       },
     });
   }

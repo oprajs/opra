@@ -41,8 +41,8 @@ export class HttpApi extends ApiBase {
       url: this.url,
       controllers: {},
     };
-    for (const [name, v] of this.controllers.entries()) {
-      out.controllers[name] = v.toJSON();
+    for (const v of this.controllers.values()) {
+      out.controllers[v.name] = v.toJSON();
     }
     return out;
   }

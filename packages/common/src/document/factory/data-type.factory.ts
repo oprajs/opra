@@ -443,6 +443,7 @@ export class DataTypeFactory {
       initArgs.ctor = initArgs.ctor || baseArgs.ctor;
     });
     initArgs.properties = metadata.properties;
+    initArgs.nameMappings = metadata.nameMappings;
     if (!initArgs.properties && initArgs.ctor) initArgs.properties = new initArgs.ctor();
     if (metadata.attributes) initArgs.attributes = cloneObject(metadata.attributes);
     if (typeof initArgs.properties?.[DECODER] === 'function')

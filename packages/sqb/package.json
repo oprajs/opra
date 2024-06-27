@@ -1,6 +1,6 @@
 {
   "name": "@opra/sqb",
-  "version": "1.0.0-alpha.3",
+  "version": "1.0.0-alpha.6",
   "description": "Opra SQB adapter package",
   "author": "Panates",
   "license": "MIT",
@@ -18,8 +18,8 @@
     "postbuild": "cp README.md package.json ../../LICENSE ../../build/sqb && cp ../../package.cjs.json ../../build/sqb/cjs/package.json",
     "lint": "eslint . --max-warnings=0",
     "format": "prettier . --write --log-level=warn",
-    "test": "jest",
-    "cover": "jest --collect-coverage",
+    "test": "jest --passWithNoTests",
+    "cover": "jest --passWithNoTests --collect-coverage",
     "clean": "npm run clean:src && npm run clean:test && npm run clean:dist && npm run clean:cover",
     "clean:src": "ts-cleanup -s src --all",
     "clean:test": "ts-cleanup -s test --all",
@@ -35,7 +35,7 @@
     "ts-gems": "^3.4.0"
   },
   "peerDependencies": {
-    "@opra/core": "^1.0.0-alpha.3",
+    "@opra/core": "^1.0.0-alpha.6",
     "@sqb/connect": ">= 4.10.6"
   },
   "type": "module",

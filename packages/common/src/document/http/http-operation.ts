@@ -1,3 +1,4 @@
+import nodePath from 'node:path';
 import { asMutable, Combine, StrictOmit, ThunkAsync, Type } from 'ts-gems';
 import { cloneObject, omitUndefined } from '../../helpers/index.js';
 import { OpraSchema } from '../../schema/index.js';
@@ -124,14 +125,21 @@ class HttpOperationClass extends DocumentElement {
   compositionOptions?: Record<string, any>;
 
   findParameter(paramName: string, location?: OpraSchema.HttpParameterLocation): HttpParameter | undefined {
-    paramName = paramName.toLowerCase();
-    for (const prm of this.parameters) {
-      if (
-        (!location || location === prm.location) &&
-        ((prm.name instanceof RegExp && prm.name.test(paramName)) || prm.name === paramName)
-      )
-        return prm;
+    const paramNameLower = paramName.toLowerCase();
+    let prm: any;
+    for (prm of this.parameters) {
+      if (location && location !== prm.location) continue;
+      if (typeof prm.name === 'string') {
+        prm._nameLower = prm._nameLower || prm.name.toLowerCase();
+        if (prm._nameLower === paramNameLower) return prm;
+      }
+      if (prm.name instanceof RegExp && prm.name.test(paramName)) return prm;
     }
+  }
+
+  getFullUrl(): string {
+    const out = this.owner.getFullUrl();
+    return out ? (this.path ? nodePath.posix.join(out, this.path) : out) : this.path || '/';
   }
 
   toJSON(): OpraSchema.HttpOperation {

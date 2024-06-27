@@ -19,6 +19,10 @@ describe('SimpleType', function () {
     expect(x).toStrictEqual({
       kind: 'SimpleType',
       description: 'A sequence of characters',
+      nameMappings: {
+        js: 'string',
+        json: 'string',
+      },
       attributes: {
         maxLength: {
           format: 'number',

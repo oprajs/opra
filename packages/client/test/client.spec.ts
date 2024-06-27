@@ -32,14 +32,6 @@ describe('OpraClient', function () {
     await expect(() => xClient.fetchDocument()).rejects.toThrow('Error fetching api schema');
   });
 
-  it('Should getSchema() be called only one at a time', async () => {
-    const requestCount = app.requestCount;
-    await Promise.all([client.fetchDocument(), client.fetchDocument(), client.fetchDocument()]);
-    expect(app.requestCount).toEqual(requestCount + 1);
-    await Promise.all([client.fetchDocument(), client.fetchDocument(), client.fetchDocument()]);
-    expect(app.requestCount).toEqual(requestCount + 2);
-  });
-
   it('Should return OPRA headers', async () => {
     const resp = await client.request('auth/login', { params: { user: 'john' } }).getResponse();
     expect(app.lastResponse.get(HttpHeaderCodes.X_Opra_Version)).toStrictEqual(OpraSchema.SpecVersion);

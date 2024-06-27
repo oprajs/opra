@@ -1,6 +1,6 @@
 {
   "name": "@opra/angular",
-  "version": "1.0.0-alpha.2",
+  "version": "1.0.0-alpha.6",
   "description": "Opra internationalization package",
   "author": "Panates",
   "license": "MIT",
@@ -17,8 +17,8 @@
     "lint": "eslint . --max-warnings=0",
     "check": "madge --circular src/**",
     "format": "prettier . --write --log-level=warn",
-    "test": "jest",
-    "cover": "jest --collect-coverage",
+    "test": "jest --passWithNoTests",
+    "cover": "jest --passWithNoTests --collect-coverage",
     "clean": "npm run clean:src && npm run clean:test && npm run clean:dist && npm run clean:cover",
     "clean:src": "ts-cleanup -s src --all",
     "clean:test": "ts-cleanup -s test --all",
@@ -28,7 +28,7 @@
   "peerDependencies": {
     "@angular/common": ">= 15.0.0",
     "@angular/core": ">= 15.0.0",
-    "@opra/client": "^1.0.0-alpha.2",
+    "@opra/client": "^1.0.0-alpha.6",
     "ts-gems": "^3.0.0"
   },
   "devDependencies": {

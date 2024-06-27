@@ -146,17 +146,22 @@ class HttpControllerClass extends DocumentElement {
   }
 
   findParameter(paramName: string, location?: OpraSchema.HttpParameterLocation): HttpParameter | undefined {
-    paramName = paramName.toLowerCase();
-    for (const prm of this.parameters) {
-      if (
-        (!location || location === prm.location) &&
-        ((prm.name instanceof RegExp && prm.name.test(paramName)) ||
-          (typeof prm.name === 'string' && prm.name.toLowerCase() === paramName))
-      )
-        return prm;
+    const paramNameLower = paramName.toLowerCase();
+    let prm: any;
+    for (prm of this.parameters) {
+      if (location && location !== prm.location) continue;
+      if (typeof prm.name === 'string') {
+        prm._nameLower = prm._nameLower || prm.name.toLowerCase();
+        if (prm._nameLower === paramNameLower) return prm;
+      }
+      if (prm.name instanceof RegExp && prm.name.test(paramName)) return prm;
     }
     if (this.node.parent && this.node.parent.element instanceof HttpController)
       return this.node.parent.element.findParameter(paramName, location);
+  }
+
+  getFullUrl(): string {
+    return (this.owner instanceof HttpController ? this.owner.getFullUrl() : '/') + this.path;
   }
 
   /**
@@ -177,20 +182,20 @@ class HttpControllerClass extends DocumentElement {
     });
     if (this.operations.size) {
       out.operations = {};
-      for (const [name, v] of this.operations.entries()) {
-        out.operations[name] = v.toJSON();
+      for (const v of this.operations.values()) {
+        out.operations[v.name] = v.toJSON();
       }
     }
     if (this.controllers.size) {
       out.controllers = {};
-      for (const [name, v] of this.controllers.entries()) {
-        out.controllers[name] = v.toJSON();
+      for (const v of this.controllers.values()) {
+        out.controllers[v.name] = v.toJSON();
       }
     }
     if (this.types.size) {
       out.types = {};
-      for (const [name, v] of this.types.entries()) {
-        out.types[name] = v.toJSON();
+      for (const v of this.types.values()) {
+        out.types[v.name!] = v.toJSON();
       }
     }
     if (this.parameters.length) {

@@ -50,7 +50,7 @@ describe('SQBAdapter.parseRequest', function () {
     const operation = document.api?.findOperation('Customer', 'delete');
     expect(operation).toBeDefined();
     const context = createContext(app.adapter, operation);
-    context.pathParams._id = 1;
+    context.pathParams.customerId = 1;
 
     const o = await SQBAdapter.parseRequest(context);
     expect(o.method).toStrictEqual('delete');
@@ -74,7 +74,7 @@ describe('SQBAdapter.parseRequest', function () {
     const operation = document.api?.findOperation('Customer', 'get');
     expect(operation).toBeDefined();
     const context = createContext(app.adapter, operation);
-    context.pathParams._id = 1;
+    context.pathParams.customerId = 1;
     context.queryParams.projection = 'givenName,gender';
 
     const o = await SQBAdapter.parseRequest(context);
@@ -131,7 +131,7 @@ describe('SQBAdapter.parseRequest', function () {
         ),
       ),
     );
-    context.pathParams._id = 1;
+    context.pathParams.customerId = 1;
     context.queryParams.projection = 'givenName,gender';
 
     const o = await SQBAdapter.parseRequest(context);

@@ -287,7 +287,7 @@ export class MongoService<T extends mongodb.Document = mongodb.Document> extends
   getInputCodec(operation: string): IsObject.Validator<T> {
     let validator = this._inputCodecs[operation];
     if (validator) return validator;
-    const options: DataType.GenerateCodecOptions = { projection: '*', ignoreReadonlyFields: true };
+    const options: DataType.GenerateCodecOptions = { projection: '*' };
     if (operation === 'update') options.partial = 'deep';
     const dataType = this.dataType;
     validator = dataType.generateCodec('decode', options) as IsObject.Validator<T>;
@@ -301,7 +301,7 @@ export class MongoService<T extends mongodb.Document = mongodb.Document> extends
   getOutputCodec(operation: string): IsObject.Validator<T> {
     let validator = this._outputCodecs[operation];
     if (validator) return validator;
-    const options: DataType.GenerateCodecOptions = { projection: '*', partial: 'deep', ignoreWriteonlyFields: true };
+    const options: DataType.GenerateCodecOptions = { projection: '*', partial: 'deep' };
     const dataType = this.dataType;
     validator = dataType.generateCodec('decode', options) as IsObject.Validator<T>;
     this._outputCodecs[operation] = validator;

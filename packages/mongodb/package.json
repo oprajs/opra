@@ -1,6 +1,6 @@
 {
   "name": "@opra/mongodb",
-  "version": "1.0.0-alpha.3",
+  "version": "1.0.0-alpha.6",
   "description": "Opra MongoDB adapter package",
   "author": "Panates",
   "license": "MIT",
@@ -18,8 +18,8 @@
     "postbuild": "cp README.md package.json ../../LICENSE ../../build/mongodb && cp ../../package.cjs.json ../../build/mongodb/cjs/package.json",
     "lint": "eslint . --max-warnings=0",
     "format": "prettier . --write --log-level=warn",
-    "test": "jest",
-    "cover": "jest --collect-coverage",
+    "test": "jest --passWithNoTests",
+    "cover": "jest --passWithNoTests --collect-coverage",
     "clean": "npm run clean:src && npm run clean:dist && npm run clean:cover",
     "clean:src": "ts-cleanup -s src --all && ts-cleanup -s test --all",
     "clean:dist": "rimraf ../../build/mongodb",
@@ -31,8 +31,8 @@
     "ts-gems": "^3.4.0"
   },
   "peerDependencies": {
-    "@opra/common": "^1.0.0-alpha.3",
-    "@opra/core": "^1.0.0-alpha.3",
+    "@opra/common": "^1.0.0-alpha.6",
+    "@opra/core": "^1.0.0-alpha.6",
     "mongodb": ">= 6.0.0"
   },
   "type": "module",

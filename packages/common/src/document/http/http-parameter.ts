@@ -1,7 +1,6 @@
 import { asMutable, Combine, StrictOmit, TypeThunkAsync } from 'ts-gems';
 import { omitUndefined } from '../../helpers/index.js';
 import type { OpraSchema } from '../../schema/index.js';
-import { HttpParameterLocation } from '../../schema/types.js';
 import { DocumentElement } from '../common/document-element.js';
 import { Value } from '../common/value.js';
 import { DataType } from '../data-type/data-type.js';
@@ -15,6 +14,7 @@ export namespace HttpParameter {
   export interface Metadata extends StrictOmit<OpraSchema.HttpParameter, 'type'> {
     name: string | RegExp;
     type?: string | TypeThunkAsync | EnumType.EnumObject | EnumType.EnumArray | object;
+    keyParam?: boolean;
   }
 
   export interface Options extends Partial<StrictOmit<Metadata, 'type'>> {
@@ -69,6 +69,7 @@ export const HttpParameter = function (
   _this.deprecated = initArgs.deprecated;
   _this.required = initArgs.required;
   _this.arraySeparator = initArgs.arraySeparator;
+  _this.keyParam = initArgs.keyParam;
 } as Function as HttpParameterStatic;
 
 /**
@@ -76,10 +77,11 @@ export const HttpParameter = function (
  */
 class HttpParameterClass extends Value {
   declare readonly owner: DocumentElement;
+  keyParam?: boolean;
   deprecated?: boolean | string;
   required?: boolean;
   arraySeparator?: string;
-  location: HttpParameterLocation;
+  location: OpraSchema.HttpParameterLocation;
 
   toJSON(): OpraSchema.HttpParameter {
     return omitUndefined<OpraSchema.HttpParameter>({
@@ -87,6 +89,7 @@ class HttpParameterClass extends Value {
       name: this.name,
       location: this.location,
       arraySeparator: this.arraySeparator,
+      keyParam: this.keyParam,
       required: this.required,
       deprecated: this.deprecated,
     });

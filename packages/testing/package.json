@@ -1,6 +1,6 @@
 {
   "name": "@opra/testing",
-  "version": "1.0.0-alpha.3",
+  "version": "1.0.0-alpha.6",
   "description": "Opra testing package",
   "author": "Panates",
   "license": "MIT",
@@ -18,8 +18,8 @@
     "postbuild": "cp README.md package.json ../../LICENSE ../../build/testing && cp ../../package.cjs.json ../../build/testing/cjs/package.json",
     "lint": "eslint . --max-warnings=0",
     "format": "prettier . --write --log-level=warn",
-    "test": "jest",
-    "cover": "jest --collect-coverage",
+    "test": "jest --passWithNoTests",
+    "cover": "jest --passWithNoTests --collect-coverage",
     "clean": "npm run clean:src && npm run clean:test && npm run clean:dist && npm run clean:cover",
     "clean:src": "ts-cleanup -s src --all",
     "clean:test": "ts-cleanup -s test --all",
@@ -27,8 +27,8 @@
     "clean:cover": "rimraf ../../coverage/testing"
   },
   "dependencies": {
-    "@opra/client": "^1.0.0-alpha.3",
-    "@opra/common": "^1.0.0-alpha.3",
+    "@opra/client": "^1.0.0-alpha.6",
+    "@opra/common": "^1.0.0-alpha.6",
     "ansi-colors": "^4.1.3",
     "rule-judgment": "^1.1.5"
   },

@@ -28,7 +28,7 @@ export namespace MongoAdapter {
   export async function parseRequest(context: HttpContext): Promise<TransformedRequest> {
     const { operation } = context;
     if (operation.composition?.startsWith('Entity.') && operation.compositionOptions?.type) {
-      const { compositionOptions } = operation;
+      const controller = operation.owner;
       switch (operation.composition) {
         case 'Entity.Create': {
           const data = await context.getBody<any>();
@@ -38,7 +38,8 @@ export namespace MongoAdapter {
           return { method: 'create', data, options } satisfies TransformedRequest;
         }
         case 'Entity.Delete': {
-          const key = context.pathParams[compositionOptions.keyParameter];
+          const keyParam = operation.parameters.find(p => p.keyParam) || controller.parameters.find(p => p.keyParam);
+          const key = keyParam && context.pathParams[String(keyParam.name)];
           const options = {
             filter: context.queryParams.filter,
           };
@@ -62,7 +63,8 @@ export namespace MongoAdapter {
           return { method: 'findMany', options } satisfies TransformedRequest;
         }
         case 'Entity.Get': {
-          const key = context.pathParams[compositionOptions.keyParameter];
+          const keyParam = operation.parameters.find(p => p.keyParam) || controller.parameters.find(p => p.keyParam);
+          const key = keyParam && context.pathParams[String(keyParam.name)];
           const options = {
             projection: context.queryParams.projection,
             filter: context.queryParams.filter,
@@ -71,7 +73,8 @@ export namespace MongoAdapter {
         }
         case 'Entity.Update': {
           const data = await context.getBody<any>();
-          const key = context.pathParams[compositionOptions.keyParameter];
+          const keyParam = operation.parameters.find(p => p.keyParam) || controller.parameters.find(p => p.keyParam);
+          const key = keyParam && context.pathParams[String(keyParam.name)];
           const options = {
             projection: context.queryParams.projection,
             filter: context.queryParams.filter,

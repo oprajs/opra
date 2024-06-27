@@ -277,11 +277,23 @@ HttpOperation.Entity.Delete = function (arg0: any, arg1?: any): HttpOperation.En
    *
    */
   decorator.KeyParam = (name: string, prmOptions?: StrictOmit<HttpParameter.Options, 'location'> | string | Type) => {
-    decorator.PathParam(name, prmOptions);
+    const paramMeta: HttpParameter.Metadata =
+      typeof prmOptions === 'string' || typeof prmOptions === 'function'
+        ? {
+            name,
+            location: 'path',
+            type: prmOptions,
+            keyParam: true,
+          }
+        : {
+            ...prmOptions,
+            name,
+            location: 'path',
+            keyParam: true,
+          };
+    decorator.PathParam(name, paramMeta);
     decoratorChain.push((meta: HttpOperation.Metadata): void => {
-      meta.path = (meta.path || '') + '@:' + name;
-      meta.compositionOptions = meta.compositionOptions || {};
-      meta.compositionOptions.keyParameter = name;
+      if (!meta.path?.includes(':' + name)) meta.path = (meta.path || '') + '@:' + name;
     });
     return decorator;
   };
@@ -499,11 +511,23 @@ HttpOperation.Entity.Get = function (arg0: any, arg1?: any): HttpOperation.Entit
    *
    */
   decorator.KeyParam = (name: string, prmOptions?: StrictOmit<HttpParameter.Options, 'location'> | string | Type) => {
-    decorator.PathParam(name, prmOptions);
+    const paramMeta: HttpParameter.Metadata =
+      typeof prmOptions === 'string' || typeof prmOptions === 'function'
+        ? {
+            name,
+            location: 'path',
+            type: prmOptions,
+            keyParam: true,
+          }
+        : {
+            ...prmOptions,
+            name,
+            location: 'path',
+            keyParam: true,
+          };
+    decorator.PathParam(name, paramMeta);
     decoratorChain.push((meta: HttpOperation.Metadata): void => {
-      meta.path = (meta.path || '') + '@:' + name;
-      meta.compositionOptions = meta.compositionOptions || {};
-      meta.compositionOptions.keyParameter = name;
+      if (!meta.path?.includes(':' + name)) meta.path = (meta.path || '') + '@:' + name;
     });
     return decorator;
   };
@@ -643,11 +667,23 @@ HttpOperation.Entity.Update = function (arg0: any, arg1?: any): HttpOperation.En
    *
    */
   decorator.KeyParam = (name: string, prmOptions?: StrictOmit<HttpParameter.Options, 'location'> | string | Type) => {
-    decorator.PathParam(name, prmOptions);
+    const paramMeta: HttpParameter.Metadata =
+      typeof prmOptions === 'string' || typeof prmOptions === 'function'
+        ? {
+            name,
+            location: 'path',
+            type: prmOptions,
+            keyParam: true,
+          }
+        : {
+            ...prmOptions,
+            name,
+            location: 'path',
+            keyParam: true,
+          };
+    decorator.PathParam(name, paramMeta);
     decoratorChain.push((meta: HttpOperation.Metadata): void => {
-      meta.path = (meta.path || '') + '@:' + name;
-      meta.compositionOptions = meta.compositionOptions || {};
-      meta.compositionOptions.keyParameter = name;
+      if (!meta.path?.includes(':' + name)) meta.path = (meta.path || '') + '@:' + name;
     });
     return decorator;
   };

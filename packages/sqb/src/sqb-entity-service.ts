@@ -230,7 +230,7 @@ export class SqbEntityService<T extends object = object> extends ServiceBase {
   getInputCodec(operation: string): IsObject.Validator<T> {
     let validator = this._inputCodecs[operation];
     if (validator) return validator;
-    const options: DataType.GenerateCodecOptions = { projection: '*', ignoreReadonlyFields: true };
+    const options: DataType.GenerateCodecOptions = { projection: '*' };
     if (operation === 'update') options.partial = 'deep';
     const dataType = this.dataType;
     validator = dataType.generateCodec('decode', options) as IsObject.Validator<T>;
@@ -244,7 +244,7 @@ export class SqbEntityService<T extends object = object> extends ServiceBase {
   getOutputCodec(operation: string): IsObject.Validator<T> {
     let validator = this._outputCodecs[operation];
     if (validator) return validator;
-    const options: DataType.GenerateCodecOptions = { projection: '*', partial: 'deep', ignoreWriteonlyFields: true };
+    const options: DataType.GenerateCodecOptions = { projection: '*', partial: 'deep' };
     const dataType = this.dataType;
     validator = dataType.generateCodec('decode', options) as IsObject.Validator<T>;
     this._outputCodecs[operation] = validator;

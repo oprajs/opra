@@ -1,1 +1,1 @@
-export * from './api-exporter/api-exporter.js';
+export * from './ts-generator/index.js';

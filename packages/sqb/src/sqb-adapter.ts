@@ -25,7 +25,7 @@ export namespace SQBAdapter {
       const dataType = context.document.node.getComplexType(operation.compositionOptions?.type);
       const entityMetadata = EntityMetadata.get(dataType.ctor!);
       if (!entityMetadata) throw new Error(`Type class "${dataType.ctor}" is not an SQB entity`);
-      const { compositionOptions } = operation;
+      const controller = operation.owner;
       switch (operation.composition) {
         case 'Entity.Create': {
           const data = await context.getBody<any>();
@@ -35,7 +35,8 @@ export namespace SQBAdapter {
           return { method: 'create', data, options } satisfies TransformedRequest;
         }
         case 'Entity.Delete': {
-          const key = context.pathParams[compositionOptions.keyParameter];
+          const keyParam = operation.parameters.find(p => p.keyParam) || controller.parameters.find(p => p.keyParam);
+          const key = keyParam && context.pathParams[String(keyParam.name)];
           const options = {
             filter: parseFilter(context.queryParams.filter),
           };
@@ -59,7 +60,8 @@ export namespace SQBAdapter {
           return { method: 'findMany', options } satisfies TransformedRequest;
         }
         case 'Entity.Get': {
-          const key = context.pathParams[compositionOptions.keyParameter];
+          const keyParam = operation.parameters.find(p => p.keyParam) || controller.parameters.find(p => p.keyParam);
+          const key = keyParam && context.pathParams[String(keyParam.name)];
           const options = {
             projection: context.queryParams.projection,
             filter: parseFilter(context.queryParams.filter),
@@ -68,7 +70,8 @@ export namespace SQBAdapter {
         }
         case 'Entity.Update': {
           const data = await context.getBody<any>();
-          const key = context.pathParams[compositionOptions.keyParameter];
+          const keyParam = operation.parameters.find(p => p.keyParam) || controller.parameters.find(p => p.keyParam);
+          const key = keyParam && context.pathParams[String(keyParam.name)];
           const options = {
             projection: context.queryParams.projection,
             filter: parseFilter(context.queryParams.filter),
