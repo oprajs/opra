@@ -116,10 +116,9 @@ export class HttpHandler {
       } else e = wrapException(e);
       response.status(e.statusCode || e.status || HttpStatusCode.INTERNAL_SERVER_ERROR);
       response.contentType(MimeTypes.opra_response_json);
-      await this._sendResponse(context, new OperationResult({ errors: [e] })).finally(() => {
+      await this._sendResponse(context, new OperationResult({ errors: [e.toJSON()] })).finally(() => {
         if (!response.finished) response.end();
       });
-      // if (!outgoing.writableEnded) await this._sendErrorResponse(context.response, [error]);
     } finally {
       await context.emitAsync('finish');
     }

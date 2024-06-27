@@ -18,6 +18,7 @@ export class CustomerController {
 
   @HttpOperation.Entity.Get(Customer).Header('lang', 'string')
   async get(context: HttpOperation.Context): Promise<PartialDTO<Customer> | undefined> {
+    throw new Error('calisiyoooor');
     const { key, options } = await MongoAdapter.parseRequest(context);
     return this.service.for(context).findById(key, options);
   }
