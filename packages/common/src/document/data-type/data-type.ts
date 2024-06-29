@@ -55,8 +55,9 @@ export const DataType = function (
   context?: DocumentInitContext,
 ) {
   if (!this) throw new TypeError('"this" should be passed to call class constructor');
-  if (initArgs?.name && !CLASS_NAME_PATTERN.test(initArgs.name))
+  if (initArgs?.name && !CLASS_NAME_PATTERN.test(initArgs.name)) {
     throw new TypeError(`"${initArgs.name}" is not a valid DataType name`);
+  }
   DocumentElement.call(this, owner);
   const _this = asMutable(this);
   _this.kind = initArgs.kind;

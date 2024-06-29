@@ -1,8 +1,8 @@
+import { HttpController, HttpOperation, OmitType, OperationResult } from '@opra/common';
+import { MongoAdapter } from '@opra/mongodb';
 import { CustomerNotesService, Note } from 'customer-mongo';
 import { Db } from 'mongodb';
 import { PartialDTO } from 'ts-gems';
-import { HttpController, HttpOperation, OmitType, OperationResult } from '@opra/common';
-import { MongoAdapter } from '@opra/mongodb';
 
 @HttpController({
   path: 'Notes',

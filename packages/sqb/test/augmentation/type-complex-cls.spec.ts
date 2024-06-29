@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-non-null-assertion */
 import '@opra/sqb';
 import { ApiDocumentFactory, ApiField, ComplexType, EnumType } from '@opra/common';
 import { Column, DataType, Link } from '@sqb/connect';
@@ -10,7 +9,7 @@ export enum GenderEnum {
 
 EnumType(GenderEnum, { name: 'GenderEnum' });
 
-describe('Augmentation (DataTypeFactory)', function () {
+describe('Augmentation (DataTypeFactory)', () => {
   it('Should copy data type info (enum)', async () => {
     @ComplexType()
     class Type1 {

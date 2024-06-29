@@ -1,9 +1,9 @@
-import { CustomerApplication } from 'express-mongo';
-import { Validator } from 'valgen';
 import { ApiDocument, HttpController } from '@opra/common';
 import { MongoAdapter } from '@opra/mongodb';
+import { CustomerApplication } from 'express-mongo';
+import { Validator } from 'valgen';
 
-describe('MongoAdapter.prepareFilter', function () {
+describe('MongoAdapter.prepareFilter', () => {
   let document: ApiDocument;
   let customers: HttpController;
   let filterDecoder: Validator;
@@ -18,7 +18,7 @@ describe('MongoAdapter.prepareFilter', function () {
 
   afterAll(() => global.gc && global.gc());
 
-  describe('Convert Ast to mongo filter', function () {
+  describe('Convert Ast to mongo filter', () => {
     it('Should convert ComparisonExpression (=)', async () => {
       let out = MongoAdapter.prepareFilter(filterDecoder('givenName="Demons"'));
       expect(out).toStrictEqual({ givenName: 'Demons' });
@@ -134,7 +134,7 @@ describe('MongoAdapter.prepareFilter', function () {
     });
   });
 
-  describe('Merge multiple filters', function () {
+  describe('Merge multiple filters', () => {
     it('Should merge fields', async () => {
       const out = MongoAdapter.prepareFilter([{ a: 1 }, { b: 2 }]);
       expect(out).toStrictEqual({

@@ -1,6 +1,6 @@
-import { lastValueFrom, Observable } from 'rxjs';
 import typeIs from '@browsery/type-is';
 import { MimeTypes, URLSearchParamsInit } from '@opra/common';
+import { lastValueFrom, Observable } from 'rxjs';
 import { kBackend, kContext } from '../constants.js';
 import { ClientError } from '../core/client-error.js';
 import { HttpObserveType } from './enums/http-observable-type.enum.js';

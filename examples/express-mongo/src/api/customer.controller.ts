@@ -1,8 +1,8 @@
+import { HttpController, HttpOperation } from '@opra/common';
+import { MongoAdapter } from '@opra/mongodb';
 import { Customer, CustomersService } from 'customer-mongo';
 import { Db } from 'mongodb';
 import { PartialDTO } from 'ts-gems';
-import { HttpController, HttpOperation } from '@opra/common';
-import { MongoAdapter } from '@opra/mongodb';
 import { CustomerNotesController } from './customer-notes.controller.js';
 
 @HttpController({
@@ -16,9 +16,8 @@ export class CustomerController {
     this.service = new CustomersService({ db });
   }
 
-  @HttpOperation.Entity.Get(Customer).Header('lang', 'string')
+  @HttpOperation.Entity.Get(Customer).QueryParam('xId')
   async get(context: HttpOperation.Context): Promise<PartialDTO<Customer> | undefined> {
-    throw new Error('calisiyoooor');
     const { key, options } = await MongoAdapter.parseRequest(context);
     return this.service.for(context).findById(key, options);
   }

@@ -1,7 +1,7 @@
 import { OpraTestClient } from '@opra/testing';
 
 export function collectionGetTests(args: { client: OpraTestClient }) {
-  describe('Collection:get', function () {
+  describe('Collection:get', () => {
     afterAll(() => global.gc && global.gc());
 
     it('Should return object', async () => {

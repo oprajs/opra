@@ -4,7 +4,7 @@ import { Test } from '@nestjs/testing';
 import { OpraNestAdapter } from '@opra/nestjs';
 import { TestModule } from './_support/customer-app/test.module.js';
 
-describe('OpraModule', function () {
+describe('OpraModule', () => {
   let nestApplication: INestApplication;
   let moduleRef: ModuleRef;
 
@@ -23,7 +23,7 @@ describe('OpraModule', function () {
     await nestApplication.close();
   });
 
-  it('Should register OpraNestAdapter', async function () {
+  it('Should register OpraNestAdapter', async () => {
     const adapter = moduleRef.get(OpraNestAdapter, { strict: false });
     expect(adapter).toBeDefined();
     expect(adapter.document).toBeDefined();

@@ -1,6 +1,6 @@
+import { ApiDocument, HttpApi, HttpController, HttpOperation, NotFoundError } from '@opra/common';
 import { Application, NextFunction, Request, Response, Router } from 'express';
 import * as nodePath from 'path';
-import { ApiDocument, HttpApi, HttpController, HttpOperation, NotFoundError } from '@opra/common';
 import { kHandler } from '../constants.js';
 import { HttpAdapter } from './http-adapter.js';
 import { HttpContext } from './http-context.js';
@@ -34,12 +34,13 @@ export class ExpressAdapter extends HttpAdapter {
       }
       if (resource.onShutdown) {
         const instance = this._controllerInstances.get(resource) || resource.instance;
-        if (instance)
+        if (instance) {
           try {
             await resource.onShutdown.call(instance, resource);
           } catch (e) {
             this.logger.error(e);
           }
+        }
       }
     };
     for (const c of this.api.controllers.values()) await processResource(c);

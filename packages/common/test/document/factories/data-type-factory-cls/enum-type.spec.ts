@@ -1,7 +1,6 @@
-/* eslint-disable @typescript-eslint/no-non-null-assertion */
 import { ApiDocumentFactory, EnumType, OpraSchema } from '@opra/common';
 
-describe('DataTypeFactory - EnumType (Class)', function () {
+describe('DataTypeFactory - EnumType (Class)', () => {
   afterAll(() => global.gc && global.gc());
 
   it('Should import EnumType', async () => {

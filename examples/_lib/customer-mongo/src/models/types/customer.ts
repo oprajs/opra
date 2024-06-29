@@ -1,5 +1,5 @@
-import { PartialDTO } from 'ts-gems';
 import { ApiField, ComplexType, MixinType } from '@opra/common';
+import { PartialDTO } from 'ts-gems';
 import { Address } from './address.js';
 import { Country } from './country.js';
 import { Note } from './note.js';

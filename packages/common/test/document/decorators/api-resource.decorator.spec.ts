@@ -1,11 +1,11 @@
 import 'reflect-metadata';
 import { HTTP_CONTROLLER_METADATA, HttpController } from '@opra/common';
 
-describe('HttpResource decorator', function () {
+describe('HttpResource decorator', () => {
   afterAll(() => global.gc && global.gc());
 
   /* ***************************************************** */
-  it('Should define Collection resource metadata', async function () {
+  it('Should define Collection resource metadata', async () => {
     const opts: HttpController.Options = {
       name: 'Countries',
       description: 'Countries resource',
@@ -23,7 +23,7 @@ describe('HttpResource decorator', function () {
     });
   });
 
-  it('Should set resource name from class name', async function () {
+  it('Should set resource name from class name', async () => {
     @HttpController()
     class CountryResource {}
 

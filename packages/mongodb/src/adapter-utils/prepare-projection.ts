@@ -1,5 +1,5 @@
-import mongodb, { Document } from 'mongodb';
 import { ApiField, ComplexType, FieldsProjection, parseFieldsProjection } from '@opra/common';
+import mongodb, { Document } from 'mongodb';
 
 export default function prepareProjection(
   dataType: ComplexType,

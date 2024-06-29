@@ -1,6 +1,6 @@
-import { Maybe } from 'ts-gems';
 import { classes, cloneObject, ComplexType, DocumentElement, OpraSchema } from '@opra/common';
 import { DataType as SqbDataType, EntityMetadata, isAssociationField, isColumnField } from '@sqb/connect';
+import { Maybe } from 'ts-gems';
 import DataTypeFactory = classes.DataTypeFactory;
 
 const _prepareComplexTypeArgs = (DataTypeFactory as any)._prepareComplexTypeArgs;
@@ -54,15 +54,21 @@ const _prepareComplexTypeArgs = (DataTypeFactory as any)._prepareComplexTypeArgs
           case SqbDataType.TIME:
             if (hasNoType || fieldSchema.type === String) fieldSchema.type = 'time';
             break;
+          default:
+            break;
         }
       }
 
       if (isAssociationField(sqbField)) {
         if (sqbField.association.returnsMany()) fieldSchema.isArray = true;
-        if (!fieldSchema.hasOwnProperty('exclusive')) fieldSchema.exclusive = true;
+        if (!Object.prototype.hasOwnProperty.call(fieldSchema, 'exclusive')) fieldSchema.exclusive = true;
       }
-      if (!fieldSchema.hasOwnProperty('exclusive') && sqbField.hasOwnProperty('exclusive'))
+      if (
+        !Object.prototype.hasOwnProperty.call(fieldSchema, 'exclusive') &&
+        Object.prototype.hasOwnProperty.call(sqbField, 'exclusive')
+      ) {
         fieldSchema.exclusive = sqbField.exclusive;
+      }
     }
   }
   return _prepareComplexTypeArgs.apply(DataTypeFactory, [context, owner, initArgs, metadata]);

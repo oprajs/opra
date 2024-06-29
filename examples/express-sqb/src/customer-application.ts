@@ -1,9 +1,9 @@
 /* eslint-disable no-console */
 import '@sqb/postgres';
-import express from 'express';
 import { ApiDocument } from '@opra/common';
 import { ExpressAdapter, HttpAdapter } from '@opra/core';
 import { SqbClient } from '@sqb/connect';
+import express from 'express';
 import { CustomerApiDocument } from './api-document.js';
 
 export class CustomerApplication {

@@ -1,5 +1,5 @@
-import { AsyncEventEmitter } from 'strict-typed-events';
 import { ApiDocument, OpraSchema } from '@opra/common';
+import { AsyncEventEmitter } from 'strict-typed-events';
 
 /**
  * @namespace ExecutionContext

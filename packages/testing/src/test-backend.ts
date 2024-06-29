@@ -1,7 +1,7 @@
-import { createServer, IncomingMessage, Server, ServerResponse } from 'http';
-import { AddressInfo } from 'net';
 import * as path from 'node:path';
 import { FetchBackend, HttpResponse } from '@opra/client';
+import { createServer, IncomingMessage, Server, ServerResponse } from 'http';
+import { AddressInfo } from 'net';
 import { ApiExpect } from './api-expect/api-expect.js';
 import type { OpraTestClient } from './test-client.js';
 

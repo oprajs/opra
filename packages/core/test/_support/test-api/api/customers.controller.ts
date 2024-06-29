@@ -1,7 +1,7 @@
-import { Customer } from 'customer-mongo/models';
-import merge from 'putil-merge';
 import { HttpController, HttpOperation, OperationResult } from '@opra/common';
 import { HttpContext } from '@opra/core';
+import { Customer } from 'customer-mongo/models';
+import merge from 'putil-merge';
 import { Data } from '../../../../../../examples/_lib/data/customers-data.js';
 
 @HttpController({

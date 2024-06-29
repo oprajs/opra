@@ -1,7 +1,7 @@
+import { ComplexType, NotAcceptableError, ResourceNotAvailableError } from '@opra/common';
 import omit from 'lodash.omit';
 import mongodb from 'mongodb';
 import { PartialDTO, PatchDTO, Type } from 'ts-gems';
-import { ComplexType, NotAcceptableError, ResourceNotAvailableError } from '@opra/common';
 import { MongoAdapter } from './mongo-adapter.js';
 import { MongoCollectionService } from './mongo-collection-service.js';
 import { MongoService } from './mongo-service.js';
@@ -140,8 +140,9 @@ export class MongoNestedService<T extends mongodb.Document> extends MongoService
     id: MongoAdapter.AnyId,
     options?: MongoNestedService.ExistsOptions<T>,
   ): Promise<void> {
-    if (!(await this.exists(documentId, id, options)))
+    if (!(await this.exists(documentId, id, options))) {
       throw new ResourceNotAvailableError(this.getResourceName() + '.' + this.nestedKey, documentId + '/' + id);
+    }
   }
 
   /**
@@ -636,8 +637,9 @@ export class MongoNestedService<T extends mongodb.Document> extends MongoService
     options?: MongoNestedService.FindOneOptions<T>,
   ): Promise<PartialDTO<T>> {
     const out = await this.findById(documentId, nestedId, options);
-    if (!out)
+    if (!out) {
       throw new ResourceNotAvailableError(this.getResourceName() + '.' + this.nestedKey, documentId + '/' + nestedId);
+    }
     return out;
   }
 

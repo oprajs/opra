@@ -28,20 +28,24 @@
   "peerDependencies": {
     "@angular/common": ">= 15.0.0",
     "@angular/core": ">= 15.0.0",
+    "@browsery/type-is": "^1.6.18-r3",
     "@opra/client": "^1.0.0-alpha.7",
+    "rxjs": "^7.8.1",
     "ts-gems": "^3.0.0"
   },
   "devDependencies": {
-    "@angular-devkit/build-angular": "^18.0.5",
-    "@angular/cli": "^18.0.5",
+    "@angular-devkit/build-angular": "^18.0.6",
+    "@angular/cli": "^18.0.6",
     "@angular/compiler": "^18.0.2",
-    "@angular/compiler-cli": "^18.0.4",
+    "@angular/compiler-cli": "^18.0.5",
     "@angular/platform-browser": "^18.0.2",
-    "@angular/platform-browser-dynamic": "^18.0.4",
+    "@angular/platform-browser-dynamic": "^18.0.5",
     "core-js": "^3.37.1",
     "cross-fetch": "^4.0.0",
     "express": "^4.19.2",
     "ng-packagr": "^18.0.0",
+    "superagent": "^9.0.2",
+    "supertest": "^7.0.0",
     "ts-gems": "^3.4.0",
     "zone.js": "^0.14.7"
   },

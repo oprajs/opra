@@ -1,7 +1,7 @@
 import '@opra/sqb';
-import { PartialDTO } from 'ts-gems';
 import { ApiField, ComplexType, MixinType } from '@opra/common';
 import { Column, Entity, Link } from '@sqb/connect';
+import { PartialDTO } from 'ts-gems';
 import { Address } from './address.js';
 import { Country } from './country.js';
 import { Note } from './note.js';

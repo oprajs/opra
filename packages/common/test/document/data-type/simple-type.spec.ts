@@ -1,8 +1,7 @@
-/* eslint-disable @typescript-eslint/no-non-null-assertion */
 import { ApiDocument } from '@opra/common';
 import { TestApiDocument } from '../../_support/test-api/index.js';
 
-describe('SimpleType', function () {
+describe('SimpleType', () => {
   let doc: ApiDocument;
 
   beforeAll(async () => {

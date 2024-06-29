@@ -1,9 +1,8 @@
-/* eslint-disable @typescript-eslint/no-non-null-assertion */
-import { Country, Gender } from 'customer-mongo/models';
 import { ApiDocument, ComplexType, DataType, EnumType, SimpleType } from '@opra/common';
+import { Country, Gender } from 'customer-mongo/models';
 import { TestApiDocument } from '../_support/test-api/index.js';
 
-describe('DocumentNode', function () {
+describe('DocumentNode', () => {
   let doc: ApiDocument;
   afterAll(() => global.gc && global.gc());
 

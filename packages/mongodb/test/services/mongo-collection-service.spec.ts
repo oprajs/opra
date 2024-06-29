@@ -1,10 +1,10 @@
-import { CustomerApplication } from 'express-mongo';
 import { faker } from '@faker-js/faker';
 import { ResourceNotAvailableError } from '@opra/common';
 import { MongoCollectionService } from '@opra/mongodb';
+import { CustomerApplication } from 'express-mongo';
 import { createContext } from '../_support/create-context.js';
 
-describe('MongoCollectionService', function () {
+describe('MongoCollectionService', () => {
   let app: CustomerApplication;
   let service: MongoCollectionService<any>;
   const tempRecords: any[] = [];
@@ -43,7 +43,7 @@ describe('MongoCollectionService', function () {
 
   afterAll(() => global.gc && global.gc());
 
-  describe('assert()', function () {
+  describe('assert()', () => {
     it('Should not throw if document exists', async () => {
       const ctx = createContext(app.adapter);
       await service.for(ctx).assert(1);
@@ -62,7 +62,7 @@ describe('MongoCollectionService', function () {
     });
   });
 
-  describe('count()', function () {
+  describe('count()', () => {
     it('Should count number of elements in array field', async () => {
       const ctx = createContext(app.adapter);
       const result = await service.for(ctx).count();
@@ -91,7 +91,7 @@ describe('MongoCollectionService', function () {
     });
   });
 
-  describe('distinct()', function () {
+  describe('distinct()', () => {
     it('Should return distinct values of given field', async () => {
       const ctx = createContext(app.adapter);
       const result = await service.for(ctx).distinct('countryCode');
@@ -126,7 +126,7 @@ describe('MongoCollectionService', function () {
     });
   });
 
-  describe('findById()', function () {
+  describe('findById()', () => {
     it('Should return single object', async () => {
       const ctx = createContext(app.adapter);
       const result: any = await service.for(ctx).findById(1);
@@ -165,7 +165,7 @@ describe('MongoCollectionService', function () {
     });
   });
 
-  describe('findOne()', function () {
+  describe('findOne()', () => {
     it('Should return single document', async () => {
       const ctx = createContext(app.adapter);
       const result: any = await service.for(ctx).findOne();
@@ -259,7 +259,7 @@ describe('MongoCollectionService', function () {
     });
   });
 
-  describe('findMany()', function () {
+  describe('findMany()', () => {
     it('Should return documents', async () => {
       const ctx = createContext(app.adapter);
       const result: any = await service.for(ctx).findMany();
@@ -398,7 +398,7 @@ describe('MongoCollectionService', function () {
     });
   });
 
-  describe('get()', function () {
+  describe('get()', () => {
     it('Should return single document', async () => {
       const ctx = createContext(app.adapter);
       const result: any = await service.for(ctx).get(1);
@@ -431,7 +431,7 @@ describe('MongoCollectionService', function () {
     });
   });
 
-  describe('create()', function () {
+  describe('create()', () => {
     it('Should insert document', async () => {
       const ctx = createContext(app.adapter);
       const doc = { _id: 100, uid: faker.string.uuid() };
@@ -451,7 +451,7 @@ describe('MongoCollectionService', function () {
     });
   });
 
-  describe('updateOnly()', function () {
+  describe('updateOnly()', () => {
     it('Should update object in the array field', async () => {
       const ctx = createContext(app.adapter);
       const doc = { uid: faker.string.uuid() };
@@ -485,7 +485,7 @@ describe('MongoCollectionService', function () {
     });
   });
 
-  describe('update()', function () {
+  describe('update()', () => {
     it('Should update object in the array field', async () => {
       const ctx = createContext(app.adapter);
       const doc = { uid: faker.string.uuid() };
@@ -521,7 +521,7 @@ describe('MongoCollectionService', function () {
     });
   });
 
-  describe('updateMany()', function () {
+  describe('updateMany()', () => {
     it('Should update all objects in the array field', async () => {
       const ctx = createContext(app.adapter);
       const update = { uid: faker.string.uuid() };
@@ -567,7 +567,7 @@ describe('MongoCollectionService', function () {
     });
   });
 
-  describe('delete()', function () {
+  describe('delete()', () => {
     it('Should delete document', async () => {
       const ctx = createContext(app.adapter);
       const doc = tempRecords[0];
@@ -603,7 +603,7 @@ describe('MongoCollectionService', function () {
     });
   });
 
-  describe('deleteMany()', function () {
+  describe('deleteMany()', () => {
     it('Should apply filter returned by documentFilter', async () => {
       const ctx = createContext(app.adapter);
       const result = await service.for(ctx, { $documentFilter: '_id=999' }).deleteMany();

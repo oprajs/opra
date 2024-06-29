@@ -1,4 +1,4 @@
-/* eslint-disable camelcase,no-bitwise */
+/* eslint-disable */
 // Generated from ./src/filter/antlr/OpraFilter.g4 by ANTLR 4.12.0
 // noinspection ES6UnusedImports,JSUnusedGlobalSymbols,JSUnusedLocalSymbols
 
@@ -1006,9 +1006,8 @@ export class RootContext extends ParserRuleContext {
   public accept<Result>(visitor: OpraFilterVisitor<Result>): Result {
     if (visitor.visitRoot) {
       return visitor.visitRoot(this);
-    } else {
-      return visitor.visitChildren(this);
     }
+    return visitor.visitChildren(this);
   }
 }
 
@@ -1053,9 +1052,8 @@ export class ParenthesizedExpressionContext extends ExpressionContext {
   public accept<Result>(visitor: OpraFilterVisitor<Result>): Result {
     if (visitor.visitParenthesizedExpression) {
       return visitor.visitParenthesizedExpression(this);
-    } else {
-      return visitor.visitChildren(this);
     }
+    return visitor.visitChildren(this);
   }
 }
 
@@ -1085,9 +1083,8 @@ export class NegativeExpressionContext extends ExpressionContext {
   public accept<Result>(visitor: OpraFilterVisitor<Result>): Result {
     if (visitor.visitNegativeExpression) {
       return visitor.visitNegativeExpression(this);
-    } else {
-      return visitor.visitChildren(this);
     }
+    return visitor.visitChildren(this);
   }
 }
 
@@ -1129,9 +1126,8 @@ export class ComparisonExpressionContext extends ExpressionContext {
   public accept<Result>(visitor: OpraFilterVisitor<Result>): Result {
     if (visitor.visitComparisonExpression) {
       return visitor.visitComparisonExpression(this);
-    } else {
-      return visitor.visitChildren(this);
     }
+    return visitor.visitChildren(this);
   }
 }
 
@@ -1171,9 +1167,8 @@ export class LogicalExpressionContext extends ExpressionContext {
   public accept<Result>(visitor: OpraFilterVisitor<Result>): Result {
     if (visitor.visitLogicalExpression) {
       return visitor.visitLogicalExpression(this);
-    } else {
-      return visitor.visitChildren(this);
     }
+    return visitor.visitChildren(this);
   }
 }
 
@@ -1207,9 +1202,8 @@ export class ComparisonLeftContext extends ParserRuleContext {
   public accept<Result>(visitor: OpraFilterVisitor<Result>): Result {
     if (visitor.visitComparisonLeft) {
       return visitor.visitComparisonLeft(this);
-    } else {
-      return visitor.visitChildren(this);
     }
+    return visitor.visitChildren(this);
   }
 }
 
@@ -1255,9 +1249,8 @@ export class ComparisonRightContext extends ParserRuleContext {
   public accept<Result>(visitor: OpraFilterVisitor<Result>): Result {
     if (visitor.visitComparisonRight) {
       return visitor.visitComparisonRight(this);
-    } else {
-      return visitor.visitChildren(this);
     }
+    return visitor.visitChildren(this);
   }
 }
 
@@ -1291,9 +1284,8 @@ export class ParenthesizedItemContext extends ParserRuleContext {
   public accept<Result>(visitor: OpraFilterVisitor<Result>): Result {
     if (visitor.visitParenthesizedItem) {
       return visitor.visitParenthesizedItem(this);
-    } else {
-      return visitor.visitChildren(this);
     }
+    return visitor.visitChildren(this);
   }
 }
 
@@ -1338,9 +1330,8 @@ export class TimeLiteralContext extends ValueContext {
   public accept<Result>(visitor: OpraFilterVisitor<Result>): Result {
     if (visitor.visitTimeLiteral) {
       return visitor.visitTimeLiteral(this);
-    } else {
-      return visitor.visitChildren(this);
     }
+    return visitor.visitChildren(this);
   }
 }
 
@@ -1370,9 +1361,8 @@ export class NullLiteralContext extends ValueContext {
   public accept<Result>(visitor: OpraFilterVisitor<Result>): Result {
     if (visitor.visitNullLiteral) {
       return visitor.visitNullLiteral(this);
-    } else {
-      return visitor.visitChildren(this);
     }
+    return visitor.visitChildren(this);
   }
 }
 
@@ -1402,9 +1392,8 @@ export class DateTimeLiteralContext extends ValueContext {
   public accept<Result>(visitor: OpraFilterVisitor<Result>): Result {
     if (visitor.visitDateTimeLiteral) {
       return visitor.visitDateTimeLiteral(this);
-    } else {
-      return visitor.visitChildren(this);
     }
+    return visitor.visitChildren(this);
   }
 }
 
@@ -1434,9 +1423,8 @@ export class StringLiteralContext extends ValueContext {
   public accept<Result>(visitor: OpraFilterVisitor<Result>): Result {
     if (visitor.visitStringLiteral) {
       return visitor.visitStringLiteral(this);
-    } else {
-      return visitor.visitChildren(this);
     }
+    return visitor.visitChildren(this);
   }
 }
 
@@ -1466,9 +1454,8 @@ export class DateLiteralContext extends ValueContext {
   public accept<Result>(visitor: OpraFilterVisitor<Result>): Result {
     if (visitor.visitDateLiteral) {
       return visitor.visitDateLiteral(this);
-    } else {
-      return visitor.visitChildren(this);
     }
+    return visitor.visitChildren(this);
   }
 }
 
@@ -1498,9 +1485,8 @@ export class InfinityLiteralContext extends ValueContext {
   public accept<Result>(visitor: OpraFilterVisitor<Result>): Result {
     if (visitor.visitInfinityLiteral) {
       return visitor.visitInfinityLiteral(this);
-    } else {
-      return visitor.visitChildren(this);
     }
+    return visitor.visitChildren(this);
   }
 }
 
@@ -1530,9 +1516,8 @@ export class BooleanLiteralContext extends ValueContext {
   public accept<Result>(visitor: OpraFilterVisitor<Result>): Result {
     if (visitor.visitBooleanLiteral) {
       return visitor.visitBooleanLiteral(this);
-    } else {
-      return visitor.visitChildren(this);
     }
+    return visitor.visitChildren(this);
   }
 }
 
@@ -1562,9 +1547,8 @@ export class NumberLiteralContext extends ValueContext {
   public accept<Result>(visitor: OpraFilterVisitor<Result>): Result {
     if (visitor.visitNumberLiteral) {
       return visitor.visitNumberLiteral(this);
-    } else {
-      return visitor.visitChildren(this);
     }
+    return visitor.visitChildren(this);
   }
 }
 
@@ -1602,9 +1586,8 @@ export class QualifiedIdentifierContext extends ParserRuleContext {
   public accept<Result>(visitor: OpraFilterVisitor<Result>): Result {
     if (visitor.visitQualifiedIdentifier) {
       return visitor.visitQualifiedIdentifier(this);
-    } else {
-      return visitor.visitChildren(this);
     }
+    return visitor.visitChildren(this);
   }
 }
 
@@ -1638,9 +1621,8 @@ export class ExternalConstantContext extends ParserRuleContext {
   public accept<Result>(visitor: OpraFilterVisitor<Result>): Result {
     if (visitor.visitExternalConstant) {
       return visitor.visitExternalConstant(this);
-    } else {
-      return visitor.visitChildren(this);
     }
+    return visitor.visitChildren(this);
   }
 }
 
@@ -1674,9 +1656,8 @@ export class IdentifierContext extends ParserRuleContext {
   public accept<Result>(visitor: OpraFilterVisitor<Result>): Result {
     if (visitor.visitIdentifier) {
       return visitor.visitIdentifier(this);
-    } else {
-      return visitor.visitChildren(this);
     }
+    return visitor.visitChildren(this);
   }
 }
 
@@ -1714,9 +1695,8 @@ export class ArrayValueContext extends ParserRuleContext {
   public accept<Result>(visitor: OpraFilterVisitor<Result>): Result {
     if (visitor.visitArrayValue) {
       return visitor.visitArrayValue(this);
-    } else {
-      return visitor.visitChildren(this);
     }
+    return visitor.visitChildren(this);
   }
 }
 
@@ -1746,9 +1726,8 @@ export class BooleanContext extends ParserRuleContext {
   public accept<Result>(visitor: OpraFilterVisitor<Result>): Result {
     if (visitor.visitBoolean) {
       return visitor.visitBoolean(this);
-    } else {
-      return visitor.visitChildren(this);
     }
+    return visitor.visitChildren(this);
   }
 }
 
@@ -1778,9 +1757,8 @@ export class NullContext extends ParserRuleContext {
   public accept<Result>(visitor: OpraFilterVisitor<Result>): Result {
     if (visitor.visitNull) {
       return visitor.visitNull(this);
-    } else {
-      return visitor.visitChildren(this);
     }
+    return visitor.visitChildren(this);
   }
 }
 
@@ -1810,9 +1788,8 @@ export class InfinityContext extends ParserRuleContext {
   public accept<Result>(visitor: OpraFilterVisitor<Result>): Result {
     if (visitor.visitInfinity) {
       return visitor.visitInfinity(this);
-    } else {
-      return visitor.visitChildren(this);
     }
+    return visitor.visitChildren(this);
   }
 }
 
@@ -1842,9 +1819,8 @@ export class ArithmeticOperatorContext extends ParserRuleContext {
   public accept<Result>(visitor: OpraFilterVisitor<Result>): Result {
     if (visitor.visitArithmeticOperator) {
       return visitor.visitArithmeticOperator(this);
-    } else {
-      return visitor.visitChildren(this);
     }
+    return visitor.visitChildren(this);
   }
 }
 
@@ -1874,9 +1850,8 @@ export class ComparisonOperatorContext extends ParserRuleContext {
   public accept<Result>(visitor: OpraFilterVisitor<Result>): Result {
     if (visitor.visitComparisonOperator) {
       return visitor.visitComparisonOperator(this);
-    } else {
-      return visitor.visitChildren(this);
     }
+    return visitor.visitChildren(this);
   }
 }
 
@@ -1906,9 +1881,8 @@ export class LogicalOperatorContext extends ParserRuleContext {
   public accept<Result>(visitor: OpraFilterVisitor<Result>): Result {
     if (visitor.visitLogicalOperator) {
       return visitor.visitLogicalOperator(this);
-    } else {
-      return visitor.visitChildren(this);
     }
+    return visitor.visitChildren(this);
   }
 }
 
@@ -1942,8 +1916,7 @@ export class PolarityOperatorContext extends ParserRuleContext {
   public accept<Result>(visitor: OpraFilterVisitor<Result>): Result {
     if (visitor.visitPolarityOperator) {
       return visitor.visitPolarityOperator(this);
-    } else {
-      return visitor.visitChildren(this);
     }
+    return visitor.visitChildren(this);
   }
 }

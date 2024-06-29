@@ -3,8 +3,8 @@ import '@opra/sqb';
 import { ApiField, ComplexType, DATATYPE_METADATA, OmitType, PickType } from '@opra/common';
 import { Column, Entity } from '@sqb/connect';
 
-describe('MappedType augmentation', function () {
-  it('Should inject into OmitType() decorator', async function () {
+describe('MappedType augmentation', () => {
+  it('Should inject into OmitType() decorator', async () => {
     @ComplexType()
     class Type1 {
       @ApiField()
@@ -38,7 +38,7 @@ describe('MappedType augmentation', function () {
     expect(keys).toEqual(['field1', 'field3', 'field4']);
   });
 
-  it('Should inject into PickType() decorator', async function () {
+  it('Should inject into PickType() decorator', async () => {
     @ComplexType()
     class Type1 {
       @ApiField()

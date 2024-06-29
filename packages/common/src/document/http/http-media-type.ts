@@ -67,8 +67,9 @@ export const HttpMediaType = function (
   _this.maxFileSize = initArgs.maxFileSize;
   _this.maxTotalFileSize = initArgs.maxTotalFileSize;
   _this.minFileSize = initArgs.minFileSize;
-  if (initArgs?.type)
+  if (initArgs?.type) {
     _this.type = initArgs?.type instanceof DataType ? initArgs.type : _this.owner.node.getDataType(initArgs.type);
+  }
   _this.isArray = initArgs.isArray;
 } as Function as HttpMediaTypeStatic;
 
@@ -98,8 +99,9 @@ class HttpMediaTypeClass extends DocumentElement {
       if (
         (!fieldType || fieldType === f.fieldType) &&
         ((f.fieldName instanceof RegExp && f.fieldName.test(fieldName)) || f.fieldName === fieldName)
-      )
+      ) {
         return f;
+      }
     }
   }
 

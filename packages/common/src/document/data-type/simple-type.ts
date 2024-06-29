@@ -86,8 +86,9 @@ export const SimpleType = function (this: SimpleType | void, ...args: any[]) {
   _this.kind = OpraSchema.SimpleType.Kind;
   if (initArgs.base) {
     // noinspection SuspiciousTypeOfGuard
-    if (!(initArgs.base instanceof SimpleType))
+    if (!(initArgs.base instanceof SimpleType)) {
       throw new TypeError(`"${(initArgs.base as DataType).kind}" can't be set as base for a "${this.kind}"`);
+    }
     _this.base = initArgs.base;
   }
 
@@ -144,14 +145,13 @@ abstract class SimpleTypeClass extends DataType {
         t = this.base;
       }
       return isAny;
-    } else {
-      let t: SimpleType | undefined = this;
-      while (t) {
-        if (t._generateEncoder) return t._generateEncoder(prop, options?.documentElement || this.owner);
-        t = this.base;
-      }
-      return isAny;
     }
+    let t: SimpleType | undefined = this;
+    while (t) {
+      if (t._generateEncoder) return t._generateEncoder(prop, options?.documentElement || this.owner);
+      t = this.base;
+    }
+    return isAny;
   }
 
   toJSON(): OpraSchema.SimpleType {

@@ -1,6 +1,6 @@
-import mongodb, { ClientSession, ObjectId } from 'mongodb';
 import { OpraFilter } from '@opra/common';
 import { HttpContext } from '@opra/core';
+import mongodb, { ClientSession, ObjectId } from 'mongodb';
 import _prepareFilter from './adapter-utils/prepare-filter.js';
 import _prepareKeyValues from './adapter-utils/prepare-key-values.js';
 import _preparePatch from './adapter-utils/prepare-patch.js';
@@ -88,6 +88,8 @@ export namespace MongoAdapter {
           };
           return { method: 'updateMany', data, options } satisfies TransformedRequest;
         }
+        default:
+          break;
       }
     }
     throw new Error(`This operation is not compatible to MongoDB adapter`);

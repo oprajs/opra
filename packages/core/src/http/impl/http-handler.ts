@@ -1,9 +1,4 @@
-import { parse as parseContentType } from 'content-type';
-import { splitString } from 'fast-tokenizer';
 import * as process from 'node:process';
-import { asMutable } from 'ts-gems';
-import { toArray, ValidationError, Validator, vg } from 'valgen';
-import type { ErrorIssue } from 'valgen/typings/core/types';
 import typeIs from '@browsery/type-is';
 import {
   BadRequestError,
@@ -23,6 +18,11 @@ import {
   OpraSchema,
   translate,
 } from '@opra/common';
+import { parse as parseContentType } from 'content-type';
+import { splitString } from 'fast-tokenizer';
+import { asMutable } from 'ts-gems';
+import { toArray, ValidationError, Validator, vg } from 'valgen';
+import type { ErrorIssue } from 'valgen/typings/core/types';
 import { kAssetCache } from '../../constants.js';
 import type { HttpAdapter } from '../http-adapter.js';
 import { HttpContext } from '../http-context.js';
@@ -103,7 +103,8 @@ export class HttpHandler {
         };
         await next();
       } else await this._executeRequest(context);
-    } catch (e: any) {
+    } catch (error: any) {
+      let e = error;
       if (e instanceof ValidationError) {
         e = new InternalServerError(
           {
@@ -151,10 +152,10 @@ export class HttpHandler {
    */
   protected async _parseParameters(context: HttpContext) {
     const { operation, request } = context;
-    let prmName: string = '';
+    let key: string = '';
     try {
       const onFail = (issue: ErrorIssue) => {
-        issue.location = prmName;
+        issue.location = key;
         return issue;
       };
       /** prepare decoders */
@@ -172,67 +173,70 @@ export class HttpHandler {
 
       /** parse cookie parameters */
       if (request.cookies) {
-        for (prmName of Object.keys(request.cookies)) {
-          const oprPrm = operation.findParameter(prmName, 'cookie');
-          const cntPrm = operation.owner.findParameter(prmName, 'cookie');
+        for (key of Object.keys(request.cookies)) {
+          const oprPrm = operation.findParameter(key, 'cookie');
+          const cntPrm = operation.owner.findParameter(key, 'cookie');
           const prm = oprPrm || cntPrm;
           if (!prm) continue;
           if (oprPrm) paramsLeft.delete(oprPrm);
           if (cntPrm) paramsLeft.delete(cntPrm);
           const decode = getDecoder(prm);
-          const v: any = decode(request.cookies[prmName], { coerce: true, label: prmName, onFail });
+          const v: any = decode(request.cookies[key], { coerce: true, label: key, onFail });
+          const prmName = typeof prm.name === 'string' ? prm.name : key;
           if (v !== undefined) context.cookies[prmName] = v;
         }
       }
 
       /** parse headers */
       if (request.headers) {
-        for (prmName of Object.keys(request.headers)) {
-          const oprPrm = operation.findParameter(prmName, 'header');
-          const cntPrm = operation.owner.findParameter(prmName, 'header');
+        for (key of Object.keys(request.headers)) {
+          const oprPrm = operation.findParameter(key, 'header');
+          const cntPrm = operation.owner.findParameter(key, 'header');
           const prm = oprPrm || cntPrm;
           if (!prm) continue;
           if (oprPrm) paramsLeft.delete(oprPrm);
           if (cntPrm) paramsLeft.delete(cntPrm);
           const decode = getDecoder(prm);
-          const v: any = decode(request.headers[prmName], { coerce: true, label: prmName, onFail });
+          const v: any = decode(request.headers[key], { coerce: true, label: key, onFail });
+          const prmName = typeof prm.name === 'string' ? prm.name : key;
           if (v !== undefined) context.headers[prmName] = v;
         }
       }
 
       /** parse path parameters */
       if (request.params) {
-        for (prmName of Object.keys(request.params)) {
-          const oprPrm = operation.findParameter(prmName, 'path');
-          const cntPrm = operation.owner.findParameter(prmName, 'path');
+        for (key of Object.keys(request.params)) {
+          const oprPrm = operation.findParameter(key, 'path');
+          const cntPrm = operation.owner.findParameter(key, 'path');
           const prm = oprPrm || cntPrm;
           if (!prm) continue;
           if (oprPrm) paramsLeft.delete(oprPrm);
           if (cntPrm) paramsLeft.delete(cntPrm);
           const decode = getDecoder(prm);
-          const v: any = decode(request.params[prmName], { coerce: true, label: prmName, onFail });
-          if (v !== undefined) context.pathParams[prmName] = v;
+          const v: any = decode(request.params[key], { coerce: true, label: key, onFail });
+          if (v !== undefined) context.pathParams[key] = v;
         }
       }
 
       /** parse query parameters */
       const url = new URL(request.originalUrl || request.url || '/', 'http://tempuri.org');
       const { searchParams } = url;
-      for (prmName of searchParams.keys()) {
-        const oprPrm = operation.findParameter(prmName, 'query');
-        const cntPrm = operation.owner.findParameter(prmName, 'query');
+      for (key of searchParams.keys()) {
+        const oprPrm = operation.findParameter(key, 'query');
+        const cntPrm = operation.owner.findParameter(key, 'query');
         const prm = oprPrm || cntPrm;
         if (!prm) continue;
         if (oprPrm) paramsLeft.delete(oprPrm);
         if (cntPrm) paramsLeft.delete(cntPrm);
         const decode = getDecoder(prm);
-        let values: any[] = searchParams?.getAll(prmName);
+        let values: any[] = searchParams?.getAll(key);
+        const prmName = typeof prm.name === 'string' ? prm.name : key;
         if (values?.length && prm.isArray) {
           values = values.map(v => splitString(v, { delimiters: prm.arraySeparator, quotes: true })).flat();
-          values = values.map(v => decode(v, { coerce: true, label: prmName, onFail }));
+          values = values.map(v => decode(v, { coerce: true, label: key, onFail }));
           if (values.length) context.queryParams[prmName] = values;
         } else {
-          const v = decode(values[0], { coerce: true, label: prmName, onFail });
+          const v = decode(values[0], { coerce: true, label: key, onFail });
           if (values.length) context.queryParams[prmName] = v;
         }
       }
@@ -246,9 +250,9 @@ export class HttpHandler {
       }
     } catch (e: any) {
       if (e instanceof ValidationError) {
-        e = new BadRequestError(
+        throw new BadRequestError(
           {
-            message: `Invalid parameter (${prmName}) value. ` + e.message,
+            message: `Invalid parameter (${key}) value. ` + e.message,
             code: 'REQUEST_VALIDATION',
             details: e.issues,
           },
@@ -271,11 +275,11 @@ export class HttpHandler {
       let contentType = request.header('content-type');
       if (contentType) {
         contentType = parseContentType(contentType).type;
-        mediaType = operation.requestBody.content.find(mc => {
-          return (
-            mc.contentType && typeIs.is(contentType!, Array.isArray(mc.contentType) ? mc.contentType : [mc.contentType])
-          );
-        });
+        mediaType = operation.requestBody.content.find(
+          mc =>
+            mc.contentType &&
+            typeIs.is(contentType!, Array.isArray(mc.contentType) ? mc.contentType : [mc.contentType]),
+        );
       }
       if (!mediaType) {
         const contentTypes = operation.requestBody.content.map(mc => mc.contentType).flat();
@@ -294,10 +298,11 @@ export class HttpHandler {
     if (!context.operationHandler) throw new MethodNotAllowedError();
     const responseValue = await context.operationHandler.call(context.controllerInstance, context);
     const { response } = context;
-    if (!response.writableEnded)
+    if (!response.writableEnded) {
       await this._sendResponse(context, responseValue).finally(() => {
         if (!response.writableEnded) response.end();
       });
+    }
   }
 
   /**
@@ -424,10 +429,11 @@ export class HttpHandler {
         );
 
         /** Throw InternalServerError if controller returns non-configured status code */
-        if (!filteredResponses.length && statusCode < 400)
+        if (!filteredResponses.length && statusCode < 400) {
           throw new InternalServerError(
             `No responses defined for status code ${statusCode} in operation "${operation.name}"`,
           );
+        }
 
         /** We search for content-type in filtered HttpOperationResponse array */
         if (filteredResponses.length) {
@@ -442,8 +448,9 @@ export class HttpHandler {
             if (contentType) {
               // Find HttpEndpointResponse instance according to content-type header
               operationResponse = filteredResponses.find(r => typeIs.is(contentType!, toArray(r.contentType)));
-              if (!operationResponse)
+              if (!operationResponse) {
                 throw new InternalServerError(`Operation didn't configured to return "${contentType}" content`);
+              }
             } else {
               /** Select first HttpOperationResponse if content-type header has not been set */
               operationResponse = filteredResponses[0];
@@ -475,25 +482,28 @@ export class HttpHandler {
         case 'Entity.Get':
         case 'Entity.FindMany':
         case 'Entity.Update': {
-          if (!(body instanceof OperationResult))
+          if (!(body instanceof OperationResult)) {
             body = new OperationResult({
               payload: body,
             });
+          }
           if (
             (composition === 'Entity.Create' || composition === 'Entity.Update') &&
             composition &&
             body.affected == null
-          )
+          ) {
             body.affected = 1;
+          }
           break;
         }
         case 'Entity.Delete':
         case 'Entity.DeleteMany':
         case 'Entity.UpdateMany': {
-          if (!(body instanceof OperationResult))
+          if (!(body instanceof OperationResult)) {
             body = new OperationResult({
               affected: body,
             });
+          }
           body.affected =
             typeof body.affected === 'number'
               ? body.affected
@@ -504,18 +514,22 @@ export class HttpHandler {
                 : undefined;
           break;
         }
+        default:
+          break;
       }
     }
 
-    if (responseArgs.contentType && responseArgs.contentType !== parsedContentType?.type)
+    if (responseArgs.contentType && responseArgs.contentType !== parsedContentType?.type) {
       response.setHeader('content-type', responseArgs.contentType);
+    }
     if (
       responseArgs.contentType &&
       body != null &&
       !(body instanceof OperationResult) &&
       typeIs.is(responseArgs.contentType!, [MimeTypes.opra_response_json])
-    )
+    ) {
       body = new OperationResult({ payload: body });
+    }
 
     if (hasBody) responseArgs.body = body;
     return responseArgs;
@@ -529,12 +543,13 @@ export class HttpHandler {
     const { searchParams } = url;
     const documentId = searchParams.get('id');
     const doc = documentId ? document.findDocument(documentId) : document;
-    if (!doc)
+    if (!doc) {
       return this.sendErrorResponse(response, [
         new BadRequestError({
           message: `Document with given id [${documentId}] does not exists`,
         }),
       ]);
+    }
     /** Check if response cache exists */
     let responseBody = this[kAssetCache].get(doc, `$schema`);
     /** Create response if response cache does not exists */

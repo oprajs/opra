@@ -94,8 +94,9 @@ export const EnumType = function (this: EnumType | void, ...args: any[]) {
   _this.kind = OpraSchema.EnumType.Kind;
   if (initArgs.base) {
     // noinspection SuspiciousTypeOfGuard
-    if (!(initArgs.base instanceof EnumType))
-      throw new TypeError(`"${(initArgs.base as DataType).kind}" can't be set as base for a "${this.kind}"`);
+    if (!(initArgs.base instanceof EnumType)) {
+      throw new TypeError(`"${(initArgs.base as DataType).kind}" can't be set as base for a "${_this.kind}"`);
+    }
     _this.base = initArgs.base;
   }
   _this.instance = initArgs.instance;

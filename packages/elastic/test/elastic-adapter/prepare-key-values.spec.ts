@@ -1,6 +1,6 @@
 import { ElasticAdapter } from '@opra/elastic';
 
-describe('MongoAdapter.prepareKeyValues', function () {
+describe('MongoAdapter.prepareKeyValues', () => {
   afterAll(() => global.gc && global.gc());
 
   it('Should prepare single key', async () => {

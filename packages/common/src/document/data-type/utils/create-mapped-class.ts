@@ -29,8 +29,9 @@ export function createMappedClass(source: string | Type, config: any, options?: 
         m.kind === OpraSchema.MappedType.Kind ||
         m.kind === OpraSchema.MixinType.Kind
       )
-    )
+    ) {
       throw new TypeError(`Class "${source}" is not a ${OpraSchema.ComplexType.Kind}`);
+    }
   }
 
   const metadata: MappedType.Metadata = {

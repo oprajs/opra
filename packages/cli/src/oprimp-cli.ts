@@ -1,10 +1,10 @@
+import { getStackFileName } from '@opra/common';
 import chalk from 'chalk';
 import { program } from 'commander';
 import * as console from 'console';
 import * as fs from 'fs';
 import path from 'path';
 import * as process from 'process';
-import { getStackFileName } from '@opra/common';
 import { TsGenerator } from './ts-generator/ts-generator.js';
 
 const dirname = path.dirname(getStackFileName());

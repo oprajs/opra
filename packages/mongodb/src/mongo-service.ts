@@ -1,9 +1,9 @@
-import mongodb, { Document, MongoClient, ObjectId, TransactionOptions } from 'mongodb';
-import { PartialDTO, StrictOmit, Type } from 'ts-gems';
-import { IsObject } from 'valgen';
 import * as OpraCommon from '@opra/common';
 import { ComplexType, DataType, DATATYPE_METADATA } from '@opra/common';
 import { ServiceBase } from '@opra/core';
+import mongodb, { Document, MongoClient, ObjectId, TransactionOptions } from 'mongodb';
+import { PartialDTO, StrictOmit, Type } from 'ts-gems';
+import { IsObject } from 'valgen';
 import { MongoAdapter } from './mongo-adapter.js';
 
 /**
@@ -319,7 +319,7 @@ export class MongoService<T extends mongodb.Document = mongodb.Document> extends
     if (session) return callback(session);
 
     // Backup old session property
-    const hasOldSession = this.hasOwnProperty('session');
+    const hasOldSession = Object.prototype.hasOwnProperty.call(this, 'session');
     const oldSessionGetter = hasOldSession ? this.session : undefined;
 
     const db = this.getDatabase();

@@ -133,9 +133,8 @@ function comparisonExpression(op: ComparisonOperator, left: EntryValue, right: E
   return new ComparisonExpression({ op, left: lex, right: rex });
 }
 
-const wrapEntryValue = (v: EntryValue): Expression => {
-  return Array.isArray(v) ? $array(...v.map(_wrapEntryValue)) : _wrapEntryValue(v);
-};
+const wrapEntryValue = (v: EntryValue): Expression =>
+  Array.isArray(v) ? $array(...v.map(_wrapEntryValue)) : _wrapEntryValue(v);
 
 const _wrapEntryValue = (v: EntryValue): Expression => {
   if (v instanceof Expression) return v;

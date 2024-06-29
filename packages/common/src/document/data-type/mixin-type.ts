@@ -232,10 +232,11 @@ function MixinTypeFactory(...args: any[]): Type {
           itemMeta.kind === OpraSchema.MixinType.Kind ||
           itemMeta.kind === OpraSchema.MappedType.Kind)
       )
-    )
+    ) {
       throw new TypeError(
         `Class "${c.name}" is not a ${OpraSchema.ComplexType.Kind}, ${OpraSchema.MixinType.Kind} or ${OpraSchema.MappedType.Kind}`,
       );
+    }
     metadata.types.push(c);
     mergePrototype(MixinClass.prototype, c.prototype);
   }

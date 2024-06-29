@@ -100,11 +100,13 @@ export const ComplexType = function (this: ComplexType | void, ...args: any[]) {
   if (initArgs.base) {
     context.enter('.base', () => {
       // noinspection SuspiciousTypeOfGuard
-      if (!(initArgs.base instanceof ComplexTypeBase))
+      if (!(initArgs.base instanceof ComplexTypeBase)) {
         throw new TypeError(`"${(initArgs.base! as DataType).kind}" can't be set as base for a "${this.kind}"`);
+      }
       _this.base = initArgs.base;
-      if (_this.additionalFields == null && _this.base.additionalFields)
+      if (_this.additionalFields == null && _this.base.additionalFields) {
         _this.additionalFields = _this.base.additionalFields;
+      }
 
       /** Copy fields from base */
       for (const v of _this.base.fields.values()) {

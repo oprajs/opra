@@ -1,7 +1,7 @@
-import { MyProfileService, Profile } from 'customer-sqb';
 import { HttpController, HttpOperation, OmitType } from '@opra/common';
 import { SQBAdapter } from '@opra/sqb';
 import { SqbClient } from '@sqb/connect';
+import { MyProfileService, Profile } from 'customer-sqb';
 
 @HttpController()
 export class MyProfileController {

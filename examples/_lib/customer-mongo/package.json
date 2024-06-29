@@ -6,7 +6,9 @@
   "module": "./index.js",
   "dependencies": {
     "@opra/common": "^1.0.0-alpha.7",
-    "@opra/mongodb": "^1.0.0-alpha.7"
+    "@opra/mongodb": "^1.0.0-alpha.7",
+    "mongodb": "^6.8.0",
+    "ts-gems": "^3.4.0"
   },
   "scripts": {
     "_build": "tsc && npm run check && npm run lint && npm run format",

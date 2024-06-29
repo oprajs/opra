@@ -10,7 +10,7 @@ import { OpraClientModuleOptions } from '../src/interfaces/module-options.interf
 
 class TestApi {}
 
-describe('OpraClientModule', function () {
+describe('OpraClientModule', () => {
   let app;
   let config: OpraClientModuleOptions;
 

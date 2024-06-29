@@ -68,8 +68,9 @@ export const ApiField = function (this: ApiField | void, ...args: any[]) {
   _this.name = initArgs.name;
   const origin = initArgs.origin || owner;
   /* istanbul ignore next */
-  if (!(origin instanceof ComplexTypeBase))
+  if (!(origin instanceof ComplexTypeBase)) {
     throw new Error('Field origin should be one of ComplexType, MappedType or MixinType');
+  }
   _this.origin = origin;
   _this.type = initArgs.type || owner.node.getDataType('any');
   _this.description = initArgs.description;

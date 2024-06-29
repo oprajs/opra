@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-non-null-assertion */
 import {
   ApiDocumentFactory,
   ApiField,
@@ -10,7 +9,7 @@ import {
   RequiredType,
 } from '@opra/common';
 
-describe('DataTypeFactory - MappedType (Class)', function () {
+describe('DataTypeFactory - MappedType (Class)', () => {
   afterAll(() => global.gc && global.gc());
 
   it('Should PickType(class, keys) create a new MappedType class', async () => {

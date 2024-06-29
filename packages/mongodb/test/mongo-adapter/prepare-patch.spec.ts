@@ -1,6 +1,6 @@
 import { MongoAdapter } from '@opra/mongodb';
 
-describe('MongoAdapter.preparePatch', function () {
+describe('MongoAdapter.preparePatch', () => {
   afterAll(() => global.gc && global.gc());
 
   it('Should convert simple values', async () => {

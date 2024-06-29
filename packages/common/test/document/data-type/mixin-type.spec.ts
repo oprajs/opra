@@ -1,9 +1,9 @@
 import 'reflect-metadata';
-import { Country, Note, Record } from 'customer-mongo/models';
 import { ApiDocument, ApiDocumentFactory, MixinType, OpraSchema } from '@opra/common';
+import { Country, Note, Record } from 'customer-mongo/models';
 import { TestApiDocument } from '../../_support/test-api/index.js';
 
-describe('MixinType', function () {
+describe('MixinType', () => {
   let doc: ApiDocument;
 
   beforeAll(async () => {
@@ -20,7 +20,7 @@ describe('MixinType', function () {
     });
   });
 
-  it('Should create MixinType with two types', async function () {
+  it('Should create MixinType with two types', async () => {
     const dt = doc.node.getMixinType('MixinType1');
     expect(dt).toBeDefined();
     expect(dt.name).toEqual('MixinType1');
@@ -31,7 +31,7 @@ describe('MixinType', function () {
     expect(dt.findField('phoneCode')).toBeDefined();
   });
 
-  it('Should create MixinType with three types', async function () {
+  it('Should create MixinType with three types', async () => {
     const dt = doc.node.getMixinType('MixinType2');
     expect(dt).toBeDefined();
     expect(dt.name).toEqual('MixinType2');

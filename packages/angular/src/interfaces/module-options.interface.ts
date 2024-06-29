@@ -1,5 +1,5 @@
-import type { StrictOmit } from 'ts-gems';
 import { InjectionToken, NgModule, Type } from '@angular/core';
+import type { StrictOmit } from 'ts-gems';
 import { AngularBackend } from '../angular-backend.js';
 
 export type OpraClientModuleOptions = AngularBackend.Options & {

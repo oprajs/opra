@@ -1,3 +1,4 @@
+/* eslint-disable camelcase */
 import '@opra/core';
 import { OpraFilter } from '@opra/common';
 
@@ -115,6 +116,8 @@ function _transformComparisonExpression(ast: OpraFilter.ComparisonExpression, ne
         },
         !negative,
       );
+    default:
+      break;
   }
   throw new Error(`ComparisonExpression operator (${ast.op}) not implemented yet`);
 }

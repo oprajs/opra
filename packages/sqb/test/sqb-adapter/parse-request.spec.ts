@@ -1,11 +1,11 @@
-import { CustomerApplication } from 'express-sqb';
 import { ApiDocument } from '@opra/common';
 import { HttpIncoming, NodeIncomingMessage } from '@opra/core';
 import { SQBAdapter } from '@opra/sqb';
 import { op } from '@sqb/builder';
+import { CustomerApplication } from 'express-sqb';
 import { createContext } from '../_support/create-context.js';
 
-describe('SQBAdapter.parseRequest', function () {
+describe('SQBAdapter.parseRequest', () => {
   let app: CustomerApplication;
   let document: ApiDocument;
 

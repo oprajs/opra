@@ -1,9 +1,9 @@
-import path from 'path';
+import path from 'node:path';
 import { getStackFileName, i18n, translate } from '@opra/common';
 
 const dirname = path.dirname(getStackFileName());
 
-describe('I18n', function () {
+describe('I18n', () => {
   afterAll(() => global.gc && global.gc());
 
   beforeAll(async () => {

@@ -1,6 +1,6 @@
-import chalk from 'chalk';
 import fs from 'node:fs';
 import path from 'node:path';
+import chalk from 'chalk';
 import type { TsGenerator } from '../ts-generator';
 
 export function cleanDirectory(this: TsGenerator, dirname: string) {

@@ -1,9 +1,9 @@
-import chalk from 'chalk';
 import { EventEmitter } from 'node:events';
 import fs from 'node:fs';
 import path from 'node:path';
 import process from 'node:process';
 import { ApiDocument } from '@opra/common';
+import chalk from 'chalk';
 import { FileWriter } from '../file-writer.js';
 import { IFileWriter } from '../interfaces/file-writer.interface.js';
 import { ILogger } from '../interfaces/logger.interface.js';

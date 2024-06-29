@@ -1,7 +1,7 @@
 import 'reflect-metadata';
 import { parseFieldsProjection } from '@opra/common';
 
-describe('parseFieldsProjection()', function () {
+describe('parseFieldsProjection()', () => {
   afterAll(() => global.gc && global.gc());
 
   it('Should parse comma seperated field names', async () => {

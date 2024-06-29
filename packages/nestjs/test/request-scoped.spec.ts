@@ -1,6 +1,6 @@
-import request from 'supertest';
 import { INestApplication } from '@nestjs/common';
 import { Test } from '@nestjs/testing';
+import request from 'supertest';
 import { CatsController } from './_support/request-scoped-app/cats.controller.js';
 import { CatsService } from './_support/request-scoped-app/cats.service.js';
 import { HelloModule } from './_support/request-scoped-app/hello.module.js';

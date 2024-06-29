@@ -82,9 +82,7 @@ export class ApiDocumentFactory {
         context.error.message = `(${l}) error${l > 1 ? 's' : ''} found in document schema.`;
         if (context.showErrorDetails) {
           context.error.message += context.error.details
-            .map(d => {
-              return `\n\n  - ${d.message}` + (d.path ? `\n    @${d.path}` : '');
-            })
+            .map(d => `\n\n  - ${d.message}` + (d.path ? `\n    @${d.path}` : ''))
             .join('');
         }
       }

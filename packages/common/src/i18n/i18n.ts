@@ -1,7 +1,5 @@
-import { splitString, tokenize } from 'fast-tokenizer';
-import { Type } from 'ts-gems';
 import i18next, {
-  FallbackLng,
+  FallbackLng as I18nextFallbackLng,
   Formatter as I18nextFormatter,
   i18n,
   InitOptions as I18nextInitOptions,
@@ -10,33 +8,38 @@ import i18next, {
   TOptions,
 } from '@browsery/i18next';
 import * as I18next from '@browsery/i18next';
+import { splitString, tokenize } from 'fast-tokenizer';
+import { Type } from 'ts-gems';
 import { unescapeString } from './string-utils.js';
 
 export interface BaseI18n extends Type<I18next.i18n> {}
 
-export const BaseI18n = Object.getPrototypeOf(i18next.createInstance()).constructor as BaseI18n;
-export type DeepTranslateOptions = TOptions & { ignore?: (input: any, inst: i18n) => boolean };
-export type InitCallback = I18next.Callback;
-export type TranslateFunction = I18nextTFunction;
-export type Formatter = I18nextFormatter;
-export type LanguageResource = I18nextResource;
-export type { FallbackLng };
+export namespace I18n {
+  export interface InitOptions extends I18nextInitOptions {
+    resourceDirs?: string[];
+  }
 
-export interface InitOptions extends I18nextInitOptions {
-  resourceDirs?: string[];
+  export type DeepTranslateOptions = TOptions & { ignore?: (input: any, inst: i18n) => boolean };
+  export type InitCallback = I18next.Callback;
+  export type TranslateFunction = I18nextTFunction;
+  export type Formatter = I18nextFormatter;
+  export type LanguageResource = I18nextResource;
+  export type FallbackLng = I18nextFallbackLng;
 }
 
+export const BaseI18n = Object.getPrototypeOf(i18next.createInstance()).constructor as BaseI18n;
+
 export class I18n extends BaseI18n {
-  async init(callback?: InitCallback): Promise<TranslateFunction>;
-  async init(options: InitOptions, callback?: InitCallback): Promise<TranslateFunction>;
-  async init(arg0?: InitOptions | InitCallback, arg1?: InitCallback): Promise<TranslateFunction> {
-    const options: InitOptions = typeof arg0 === 'object' ? arg0 : {};
+  async init(callback?: I18n.InitCallback): Promise<I18n.TranslateFunction>;
+  async init(options: I18n.InitOptions, callback?: I18n.InitCallback): Promise<I18n.TranslateFunction>;
+  async init(arg0?: I18n.InitOptions | I18n.InitCallback, arg1?: I18n.InitCallback): Promise<I18n.TranslateFunction> {
+    const options: I18n.InitOptions = typeof arg0 === 'object' ? arg0 : {};
     const callback = typeof arg0 === 'function' ? arg0 : arg1;
     try {
       const t = await super.init(options, callback);
 
       // Add formatters
-      const formatter = this.services.formatter as Formatter;
+      const formatter = this.services.formatter as I18n.Formatter;
       formatter.add('lowercase', (value, lng) => value.toLocaleLowerCase(lng));
       formatter.add('uppercase', (value, lng) => value.toLocaleUpperCase(lng));
       formatter.add('upperFirst', (value, lng) => value.charAt(0).toLocaleUpperCase(lng) + value.substring(1));
@@ -58,21 +61,21 @@ export class I18n extends BaseI18n {
     }
   }
 
-  deep(input: any, options?: DeepTranslateOptions): any {
+  deep(input: any, options?: I18n.DeepTranslateOptions): any {
     if (input == null) return input;
     const objectStack = new WeakMap();
     return this._deepTranslate(input, objectStack, options);
   }
 
-  createInstance(options = {}, callback): I18n {
+  createInstance(options?: I18n.InitOptions, callback?: I18n.InitCallback): I18n {
     return new I18n(options, callback);
   }
 
-  static createInstance(options?: InitOptions, callback?: InitCallback): I18n {
+  static createInstance(options?: I18n.InitOptions, callback?: I18n.InitCallback): I18n {
     return new I18n(options, callback);
   }
 
-  protected _deepTranslate(input: any, objectStack: WeakMap<object, any>, options?: DeepTranslateOptions): any {
+  protected _deepTranslate(input: any, objectStack: WeakMap<object, any>, options?: I18n.DeepTranslateOptions): any {
     if (input == null) return input;
 
     if (options?.ignore && options.ignore(input, this)) return input;
@@ -134,8 +137,9 @@ export class I18n extends BaseI18n {
         input instanceof Set ||
         input instanceof WeakMap ||
         input instanceof WeakSet
-      )
+      ) {
         return input;
+      }
 
       const out = {};
       objectStack.set(input, out);

@@ -92,21 +92,23 @@ export const MappedType = function (this: MappedType, ...args: any[]) {
   _this.kind = OpraSchema.MappedType.Kind;
   if (initArgs.base) {
     // noinspection SuspiciousTypeOfGuard
-    if (!(initArgs.base instanceof ComplexTypeBase))
+    if (!(initArgs.base instanceof ComplexTypeBase)) {
       throw new TypeError(`"${(initArgs.base as DataType).kind}" can't be set as base for a "${this.kind}"`);
+    }
     _this.base = initArgs.base;
     _this.ctor = initArgs.ctor || _this.base.ctor;
 
     if (initArgs.pick) _this.pick = initArgs.pick.map(f => _this.base.normalizeFieldPath(f));
     else if (initArgs.omit) _this.omit = initArgs.omit.map(f => _this.base.normalizeFieldPath(f));
-    else if (initArgs.partial)
+    else if (initArgs.partial) {
       _this.partial = Array.isArray(initArgs.partial)
         ? initArgs.partial.map(f => _this.base.normalizeFieldPath(f))
         : initArgs.partial;
-    else if (initArgs.required)
+    } else if (initArgs.required) {
       _this.required = Array.isArray(initArgs.required)
         ? initArgs.required.map(f => _this.base.normalizeFieldPath(f))
         : initArgs.required;
+    }
 
     /** Copy fields from base */
     const isInheritedPredicate = getIsInheritedPredicateFn(_this.pick, _this.omit);
@@ -128,8 +130,9 @@ export const MappedType = function (this: MappedType, ...args: any[]) {
       !_this.pick ||
       _this.base.additionalFields === false ||
       (Array.isArray(_this.base.additionalFields) && _this.base.additionalFields?.[0] === 'error')
-    )
+    ) {
       _this.additionalFields = _this.base.additionalFields;
+    }
     if (initArgs.base.keyField && isInheritedPredicate(initArgs.base.keyField)) _this.keyField = initArgs.base.keyField;
   }
 } as Function as MappedTypeStatic;
@@ -169,4 +172,4 @@ class MappedTypeClass extends ComplexTypeBase {
 }
 
 MappedType.prototype = MappedTypeClass.prototype;
-MappedType._applyMixin = () => void 0;
+MappedType._applyMixin = () => undefined;

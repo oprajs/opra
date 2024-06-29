@@ -1,5 +1,5 @@
-import { Db } from 'mongodb';
 import { HttpController, HttpOperation, OperationResult } from '@opra/common';
+import { Db } from 'mongodb';
 import { MyProfileController } from './my-profile.controller.js';
 
 @HttpController({

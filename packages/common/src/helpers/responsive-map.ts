@@ -56,11 +56,12 @@ export class ResponsiveMap<V> implements Map<string, V> {
       },
       enumerable: false,
     });
-    if (options?.wellKnownKeys)
+    if (options?.wellKnownKeys) {
       options.wellKnownKeys.forEach(k => {
         if (caseSensitive) this[kWellKnownKeys][k] = k;
         else this[kWellKnownKeys][k.toLowerCase()] = k;
       });
+    }
     this.clear();
     if (init) this.setAll(init);
   }
@@ -88,13 +89,13 @@ export class ResponsiveMap<V> implements Map<string, V> {
 
   has(key: string): boolean {
     if (!key) return false;
-    return this[kEntries].hasOwnProperty(this._getStoringKey(key));
+    return Object.prototype.hasOwnProperty.call(this[kEntries], this._getStoringKey(key));
   }
 
   set(key: string, value: V): this {
     const storeKey = this._getStoringKey(key);
     key = this._getOriginalKey(key);
-    const exists = this[kEntries].hasOwnProperty(storeKey);
+    const exists = Object.prototype.hasOwnProperty.call(this[kEntries], storeKey);
     this[kEntries][storeKey] = value;
     if (!exists) this[kSize]++;
     this[kKeyMap][storeKey] = key;
@@ -121,7 +122,7 @@ export class ResponsiveMap<V> implements Map<string, V> {
 
   delete(key: string): boolean {
     const storeKey = this._getStoringKey(key);
-    const exists = this[kEntries].hasOwnProperty(storeKey);
+    const exists = Object.prototype.hasOwnProperty.call(this[kEntries], storeKey);
     delete this[kEntries][storeKey];
     delete this[kKeyMap][storeKey];
     if (!exists) this[kSize]--;

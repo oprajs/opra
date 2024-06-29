@@ -26,6 +26,9 @@
     "clean:dist": "rimraf ../../build/client",
     "clean:cover": "rimraf ../../coverage/client"
   },
+  "dependencies": {
+    "putil-isplainobject": "^1.1.5"
+  },
   "devDependencies": {
     "@elastic/elasticsearch": "^8.14.0",
     "@faker-js/faker": "^8.4.1",

@@ -8,6 +8,7 @@ export function locateNamedType(type?: DataType): DataType | undefined {
     type instanceof ComplexType ||
     type instanceof EnumType ||
     type instanceof MappedType
-  )
+  ) {
     return locateNamedType(type.base);
+  }
 }

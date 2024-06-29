@@ -1,6 +1,6 @@
-import { Db, MongoClient } from 'mongodb';
 import { Global, Module, OnApplicationShutdown } from '@nestjs/common';
 import { OnApplicationBootstrap } from '@nestjs/common/interfaces/hooks/on-application-bootstrap.interface';
+import { Db, MongoClient } from 'mongodb';
 
 @Global()
 @Module({
@@ -23,9 +23,7 @@ import { OnApplicationBootstrap } from '@nestjs/common/interfaces/hooks/on-appli
     {
       provide: Db,
       inject: [MongoClient],
-      useFactory: async (client: MongoClient): Promise<Db> => {
-        return client.db(process.env.MONGO_DATABASE || 'customer_app');
-      },
+      useFactory: async (client: MongoClient): Promise<Db> => client.db(process.env.MONGO_DATABASE || 'customer_app'),
     },
   ],
   exports: [MongoClient, Db],

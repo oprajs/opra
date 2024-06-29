@@ -1,5 +1,5 @@
-import { PartialDTO, PatchDTO, Type } from 'ts-gems';
 import { ResourceNotAvailableError } from '@opra/common';
+import { PartialDTO, PatchDTO, Type } from 'ts-gems';
 import { SQBAdapter } from './sqb-adapter.js';
 import { SqbEntityService } from './sqb-entity-service.js';
 

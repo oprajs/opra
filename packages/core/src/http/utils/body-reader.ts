@@ -1,14 +1,14 @@
+import nodeStream from 'node:stream';
+import typeIs from '@browsery/type-is';
+import { BadRequestError, InternalServerError, OpraHttpError } from '@opra/common';
 import { Base64Decode } from 'base64-stream';
 import byteParser from 'bytes';
 import { parse as parseContentType } from 'content-type';
 import { EventEmitter } from 'events';
 import { BufferEncoding } from 'formidable';
 import iconv from 'iconv-lite';
-import nodeStream from 'node:stream';
 import { Writable } from 'stream';
 import * as zlib from 'zlib';
-import typeIs from '@browsery/type-is';
-import { BadRequestError, InternalServerError, OpraHttpError } from '@opra/common';
 import type { HttpIncoming } from '../interfaces/http-incoming.interface.js';
 
 /**
@@ -56,11 +56,12 @@ export class BodyReader extends EventEmitter {
 
   async read() {
     /* istanbul ignore next */
-    if (this._completed)
+    if (this._completed) {
       throw new InternalServerError({
         message: 'Stream already read',
         code: 'STREAM_ALREADY_READ',
       });
+    }
 
     if (!this.req.readable) {
       throw new InternalServerError({
@@ -86,8 +87,9 @@ export class BodyReader extends EventEmitter {
        * http://www.w3.org/Protocols/rfc2616/rfc2616-sec4.html#sec4.3
        */
       const contentLength = parseInt(this.req.headers['content-length'] || '0', 10);
-      if (this.req.headers['transfer-encoding'] === undefined && !(contentLength && !isNaN(contentLength)))
+      if (this.req.headers['transfer-encoding'] === undefined && !(contentLength && !isNaN(contentLength))) {
         return this.onEnd();
+      }
 
       // check the length and limit options.
       // note: we intentionally leave the stream paused,

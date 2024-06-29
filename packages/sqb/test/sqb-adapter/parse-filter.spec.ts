@@ -1,11 +1,11 @@
 import '@opra/core';
-import { CustomerApplication } from 'express-sqb';
-import { Validator } from 'valgen';
 import { ApiDocument, HttpController } from '@opra/common';
 import { SQBAdapter } from '@opra/sqb';
 import { And, Eq, Gt, Gte, Ilike, In, Like, Lt, Lte, Ne, Nin, NLike, Not, NotILike, Or } from '@sqb/builder';
+import { CustomerApplication } from 'express-sqb';
+import { Validator } from 'valgen';
 
-describe('SQBAdapter.parseFilter', function () {
+describe('SQBAdapter.parseFilter', () => {
   let document: ApiDocument;
   let customers: HttpController;
   let filterDecoder: Validator;

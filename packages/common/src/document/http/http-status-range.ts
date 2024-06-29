@@ -35,7 +35,7 @@ export class HttpStatusRange {
 
   toString(): string {
     if (this.start === this.end) return String(this.start);
-    else return String(this.start) + '-' + String(this.end);
+    return String(this.start) + '-' + String(this.end);
   }
 
   toJSON(): OpraSchema.HttpStatusRange | number {

@@ -1,6 +1,6 @@
 import { HttpOutgoing, NodeOutgoingMessage } from '@opra/core';
 
-describe('HttpOutgoing', function () {
+describe('HttpOutgoing', () => {
   afterAll(() => global.gc && global.gc());
 
   it('Should wrap HttpOutgoingMessage', async () => {

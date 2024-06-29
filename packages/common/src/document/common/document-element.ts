@@ -24,12 +24,13 @@ export const DocumentElement = function (this: DocumentElement, owner?: Document
     enumerable: false,
     writable: true,
   });
-  if (owner)
+  if (owner) {
     Object.defineProperty(_this, 'owner', {
       value: owner,
       enumerable: false,
       writable: true,
     });
+  }
 } as Function as DocumentElementConstructor;
 
 /**

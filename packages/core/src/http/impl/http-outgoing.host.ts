@@ -3,6 +3,7 @@
   https://github.com/expressjs
  */
 
+import { HttpStatusCode } from '@opra/common';
 import contentDisposition from 'content-disposition';
 import contentType from 'content-type';
 import cookie from 'cookie';
@@ -13,7 +14,6 @@ import mime from 'mime-types';
 import path from 'path';
 import { toString } from 'putil-varhelpers';
 import vary from 'vary';
-import { HttpStatusCode } from '@opra/common';
 import type { CookieOptions, HttpOutgoing } from '../interfaces/http-outgoing.interface';
 
 const charsetRegExp = /;\s*charset\s*=/;
@@ -181,7 +181,7 @@ export class HttpOutgoingHost {
     if (req?.fresh) this.statusCode = 304;
 
     // strip irrelevant headers
-    if (204 === this.statusCode || 304 === this.statusCode) {
+    if (this.statusCode === 204 || this.statusCode === 304) {
       this.removeHeader('Content-Type');
       this.removeHeader('Content-Length');
       this.removeHeader('Transfer-Encoding');

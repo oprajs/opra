@@ -26,6 +26,9 @@
     "clean:dist": "rimraf ../../build/client",
     "clean:cover": "rimraf ../../coverage/client"
   },
+  "dependencies": {
+    "reflect-metadata": "^0.2.2"
+  },
   "devDependencies": {
     "@faker-js/faker": "^8.4.1",
     "@sqb/builder": "^4.12.0",

@@ -59,8 +59,9 @@ export class FilterRules {
     const ast = typeof filter === 'string' ? OpraFilter.parse(filter) : filter;
     if (ast instanceof OpraFilter.ComparisonExpression) {
       this.normalizeFilter(ast.left, dataType);
-      if (!(ast.left instanceof OpraFilter.QualifiedIdentifier && ast.left.field))
+      if (!(ast.left instanceof OpraFilter.QualifiedIdentifier && ast.left.field)) {
         throw new TypeError(`Invalid filter query. Left side should be a data field.`);
+      }
       // Check if filtering accepted for given field
       // const findManyOp = this.getOperation('findMany');
       const rule = this._rules.get(ast.left.value);
@@ -74,7 +75,7 @@ export class FilterRules {
         });
       }
       // Check if filtering endpoint accepted for given field
-      if (rule.operators && !rule.operators.includes(ast.op))
+      if (rule.operators && !rule.operators.includes(ast.op)) {
         throw new OpraException({
           message: translate('error:UNACCEPTED_FILTER_OPERATION', { field: ast.left.value }),
           code: 'UNACCEPTED_FILTER_OPERATION',
@@ -83,6 +84,7 @@ export class FilterRules {
             operator: ast.op,
           },
         });
+      }
       this.normalizeFilter(ast.right, dataType);
       return ast;
     }

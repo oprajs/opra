@@ -65,8 +65,9 @@ export class HttpOperationResponse extends HttpMediaType {
       if (
         (!location || location === prm.location) &&
         ((prm.name instanceof RegExp && prm.name.test(paramName)) || prm.name === paramName)
-      )
+      ) {
         return prm;
+      }
     }
   }
 

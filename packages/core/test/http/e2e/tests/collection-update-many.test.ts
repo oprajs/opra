@@ -2,16 +2,14 @@ import { faker } from '@faker-js/faker';
 import { OpraTestClient } from '@opra/testing';
 
 export function collectionUpdateManyTests(args: { client: OpraTestClient }) {
-  describe('Collection:updateMany', function () {
+  describe('Collection:updateMany', () => {
     afterAll(() => global.gc && global.gc());
-    const generateData = (v?: any) => {
-      return {
-        givenName: faker.person.firstName(),
-        familyName: faker.person.lastName(),
-        gender: 'M',
-        ...v,
-      };
-    };
+    const generateData = (v?: any) => ({
+      givenName: faker.person.firstName(),
+      familyName: faker.person.lastName(),
+      gender: 'M',
+      ...v,
+    });
 
     it('Should update many instances with filter', async () => {
       const data = generateData({

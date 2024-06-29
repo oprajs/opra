@@ -2,16 +2,14 @@ import { faker } from '@faker-js/faker';
 import { OpraTestClient } from '@opra/testing';
 
 export function singletonCreateTests(args: { client: OpraTestClient }) {
-  describe('Singleton:create', function () {
-    const generateData = (v?: any) => {
-      return {
-        givenName: faker.person.firstName(),
-        familyName: faker.person.lastName(),
-        gender: 'M',
-        address: { city: 'Izmir' },
-        ...v,
-      };
-    };
+  describe('Singleton:create', () => {
+    const generateData = (v?: any) => ({
+      givenName: faker.person.firstName(),
+      familyName: faker.person.lastName(),
+      gender: 'M',
+      address: { city: 'Izmir' },
+      ...v,
+    });
 
     afterAll(() => global.gc && global.gc());
 

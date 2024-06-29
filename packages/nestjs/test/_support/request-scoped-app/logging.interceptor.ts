@@ -1,5 +1,5 @@
-import { Observable } from 'rxjs';
 import { CallHandler, ExecutionContext, Inject, Injectable, NestInterceptor, Scope } from '@nestjs/common';
+import { Observable } from 'rxjs';
 
 @Injectable({ scope: Scope.REQUEST })
 export class Interceptor implements NestInterceptor {

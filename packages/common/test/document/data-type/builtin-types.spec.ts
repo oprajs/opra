@@ -1,9 +1,8 @@
-/* eslint-disable @typescript-eslint/no-non-null-assertion */
 import { ApiDocument, BigintType } from '@opra/common';
 import { ComparisonExpression } from '@opra/common/filter/ast/index';
 import { TestApiDocument } from '../../_support/test-api/index.js';
 
-describe('Built-in types', function () {
+describe('Built-in types', () => {
   let doc: ApiDocument;
 
   beforeAll(async () => {
@@ -16,7 +15,7 @@ describe('Built-in types', function () {
    * Primitive Types
    */
 
-  describe('"any"', function () {
+  describe('"any"', () => {
     it('Should decode', async () => {
       const dt = doc.node.getSimpleType('any');
       expect(dt).toBeDefined();
@@ -33,7 +32,7 @@ describe('Built-in types', function () {
     });
   });
 
-  describe('"bigint"', function () {
+  describe('"bigint"', () => {
     it('Should decode', async () => {
       const dt = doc.node.getSimpleType('bigint');
       expect(dt).toBeDefined();
@@ -63,7 +62,7 @@ describe('Built-in types', function () {
     });
   });
 
-  describe('"boolean"', function () {
+  describe('"boolean"', () => {
     it('Should decode', async () => {
       const dt = doc.node.getSimpleType('boolean');
       const decode = dt.generateCodec('decode');
@@ -81,7 +80,7 @@ describe('Built-in types', function () {
     });
   });
 
-  describe('"integer"', function () {
+  describe('"integer"', () => {
     it('Should decode', async () => {
       const dt = doc.node.getSimpleType('integer');
       const decode = dt.generateCodec('decode');
@@ -119,7 +118,7 @@ describe('Built-in types', function () {
     });
   });
 
-  describe('"null"', function () {
+  describe('"null"', () => {
     it('Should decode', async () => {
       const dt = doc.node.getSimpleType('null');
       const decode = dt.generateCodec('decode');
@@ -135,7 +134,7 @@ describe('Built-in types', function () {
     });
   });
 
-  describe('"number"', function () {
+  describe('"number"', () => {
     it('Should decode', async () => {
       const dt = doc.node.getSimpleType('number');
       const decode = dt.generateCodec('decode');
@@ -165,7 +164,7 @@ describe('Built-in types', function () {
     });
   });
 
-  describe('"object"', function () {
+  describe('"object"', () => {
     it('Should decode', async () => {
       const dt = doc.node.getComplexType('object');
       const decode = dt.generateCodec('decode');
@@ -181,7 +180,7 @@ describe('Built-in types', function () {
     });
   });
 
-  describe('"string"', function () {
+  describe('"string"', () => {
     it('Should decode', async () => {
       const dt = doc.node.getSimpleType('string');
       const decode = dt.generateCodec('decode');
@@ -223,7 +222,7 @@ describe('Built-in types', function () {
    * Extended Types
    */
 
-  describe('"datestring"', function () {
+  describe('"datestring"', () => {
     it('Should decode', async () => {
       const dt = doc.node.getSimpleType('datestring');
       const decode = dt.generateCodec('decode');
@@ -253,7 +252,7 @@ describe('Built-in types', function () {
     });
   });
 
-  describe('"datetimestring"', function () {
+  describe('"datetimestring"', () => {
     it('Should decode', async () => {
       const dt = doc.node.getSimpleType('datetimestring');
       const decode = dt.generateCodec('decode');
@@ -284,7 +283,7 @@ describe('Built-in types', function () {
     });
   });
 
-  describe('"base64"', function () {
+  describe('"base64"', () => {
     it('Should decode', async () => {
       const dt = doc.node.getSimpleType('base64');
       const decode = dt.generateCodec('decode');
@@ -298,7 +297,7 @@ describe('Built-in types', function () {
     });
   });
 
-  describe('"date"', function () {
+  describe('"date"', () => {
     it('Should decode', async () => {
       const dt = doc.node.getSimpleType('date');
       const decode = dt.generateCodec('decode');
@@ -343,7 +342,7 @@ describe('Built-in types', function () {
     });
   });
 
-  describe('"datetime"', function () {
+  describe('"datetime"', () => {
     it('Should decode', async () => {
       const dt = doc.node.getSimpleType('datetime');
       const decode = dt.generateCodec('decode');
@@ -388,7 +387,7 @@ describe('Built-in types', function () {
     });
   });
 
-  describe('"email"', function () {
+  describe('"email"', () => {
     it('Should decode', async () => {
       const dt = doc.node.getSimpleType('email');
       const decode = dt.generateCodec('decode');
@@ -396,7 +395,7 @@ describe('Built-in types', function () {
     });
   });
 
-  describe('"fieldPath"', function () {
+  describe('"fieldPath"', () => {
     it('Should decode', async () => {
       const dt = doc.node.getSimpleType('fieldPath');
       const decode = dt.generateCodec('decode', { documentElement: doc }, { dataType: 'customer' });
@@ -405,7 +404,7 @@ describe('Built-in types', function () {
     });
   });
 
-  describe('"filter"', function () {
+  describe('"filter"', () => {
     it('Should decode', async () => {
       const dt = doc.node.getSimpleType('filter');
       const decode = dt.generateCodec(
@@ -423,7 +422,7 @@ describe('Built-in types', function () {
     });
   });
 
-  describe('"time"', function () {
+  describe('"time"', () => {
     it('Should decode', async () => {
       const dt = doc.node.getSimpleType('time');
       const decode = dt.generateCodec('decode');
@@ -453,7 +452,7 @@ describe('Built-in types', function () {
     });
   });
 
-  describe('"url"', function () {
+  describe('"url"', () => {
     it('Should decode', async () => {
       const dt = doc.node.getSimpleType('url');
       const decode = dt.generateCodec('decode');
@@ -462,7 +461,7 @@ describe('Built-in types', function () {
     });
   });
 
-  describe('"uuid"', function () {
+  describe('"uuid"', () => {
     it('Should decode', async () => {
       const dt = doc.node.getSimpleType('uuid');
       const decode = dt.generateCodec('decode');

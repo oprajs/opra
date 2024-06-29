@@ -1,8 +1,8 @@
 /* eslint-disable no-console */
-import express from 'express';
-import { Db, MongoClient } from 'mongodb';
 import { ApiDocument } from '@opra/common';
 import { ExpressAdapter, HttpAdapter } from '@opra/core';
+import express from 'express';
+import { Db, MongoClient } from 'mongodb';
 import { CustomerApiDocument } from './api-document.js';
 
 export class CustomerApplication {

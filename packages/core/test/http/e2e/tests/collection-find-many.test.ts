@@ -1,7 +1,7 @@
 import { OpraTestClient } from '@opra/testing';
 
 export function collectionFindManyTests(args: { client: OpraTestClient }) {
-  describe('Collection:findMany', function () {
+  describe('Collection:findMany', () => {
     afterAll(() => global.gc && global.gc());
 
     it('Should return list object', async () => {

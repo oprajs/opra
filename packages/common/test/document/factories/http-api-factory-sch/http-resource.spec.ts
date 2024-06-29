@@ -1,8 +1,8 @@
+import { ApiDocumentFactory, OpraSchema } from '@opra/common';
 import assert from 'assert';
 import { Country } from 'customer-mongo/models';
-import { ApiDocumentFactory, OpraSchema } from '@opra/common';
 
-describe('HttpApiFactory - HttpResource (Schema)', function () {
+describe('HttpApiFactory - HttpResource (Schema)', () => {
   afterAll(() => global.gc && global.gc());
 
   it('Should import resource schema', async () => {

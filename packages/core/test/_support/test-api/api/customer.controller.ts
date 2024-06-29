@@ -1,6 +1,6 @@
+import { HttpController, HttpOperation } from '@opra/common';
 import { Customer } from 'customer-mongo/models';
 import merge from 'putil-merge';
-import { HttpController, HttpOperation } from '@opra/common';
 import { Data } from '../../../../../../examples/_lib/data/customers-data.js';
 import { CustomerAddressController } from './customer-address.controller.js';
 import { CustomerAddressesController } from './customer-addresses.controller.js';

@@ -16,11 +16,12 @@ function _objectMatches(received, expected: any, path: string) {
       }
     } else if (ev && typeof ev === 'object') {
       _objectMatches(rv, ev, path ? path + '.' + k : k);
-    } else
+    } else {
       try {
         expect(rv).toEqual(ev);
       } catch {
         throw new Error(`Property "${k}" does not match`);
       }
+    }
   }
 }

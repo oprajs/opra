@@ -1,6 +1,6 @@
 import { ApiField, DATATYPE_METADATA } from '@opra/common';
 
-describe('ApiField() decorator', function () {
+describe('ApiField() decorator', () => {
   afterAll(() => global.gc && global.gc());
 
   it('Should define field metadata', async () => {

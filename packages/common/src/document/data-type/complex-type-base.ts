@@ -173,9 +173,9 @@ abstract class ComplexTypeBaseClass extends DataType {
     const schema = this._generateSchema(codec, { ...options, projection, currentPath: '' });
 
     let additionalFields: any;
-    if (this.additionalFields instanceof DataType)
+    if (this.additionalFields instanceof DataType) {
       additionalFields = this.additionalFields.generateCodec(codec, options);
-    else if (typeof this.additionalFields === 'boolean') additionalFields = this.additionalFields;
+    } else if (typeof this.additionalFields === 'boolean') additionalFields = this.additionalFields;
     else if (Array.isArray(this.additionalFields)) {
       if (this.additionalFields.length < 2) additionalFields = 'error';
       else {

@@ -1,6 +1,6 @@
 import { ElasticAdapter } from '@opra/elastic';
 
-describe('ElasticAdapter.transformSort', function () {
+describe('ElasticAdapter.transformSort', () => {
   afterAll(() => global.gc && global.gc());
 
   it('Should convert sort fields', async () => {

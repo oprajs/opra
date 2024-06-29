@@ -1,10 +1,10 @@
 /* eslint-disable camelcase */
-import { CustomerApplication } from 'express-mongo';
-import { Validator } from 'valgen';
 import { ApiDocument, HttpController } from '@opra/common';
 import { ElasticAdapter } from '@opra/elastic';
+import { CustomerApplication } from 'express-mongo';
+import { Validator } from 'valgen';
 
-describe('ElasticAdapter.prepareFilter', function () {
+describe('ElasticAdapter.prepareFilter', () => {
   let document: ApiDocument;
   let customers: HttpController;
   let filterDecoder: Validator;

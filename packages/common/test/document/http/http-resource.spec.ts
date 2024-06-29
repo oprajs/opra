@@ -1,8 +1,7 @@
-/* eslint-disable @typescript-eslint/no-non-null-assertion */
 import { ApiDocument, OpraSchema } from '@opra/common';
 import { TestApiDocument } from '../../_support/test-api/index.js';
 
-describe('HttpResource', function () {
+describe('HttpResource', () => {
   let doc: ApiDocument;
   afterAll(() => global.gc && global.gc());
 

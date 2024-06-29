@@ -2,17 +2,15 @@ import { faker } from '@faker-js/faker';
 import { OpraTestClient } from '@opra/testing';
 
 export function collectionCreateTests(args: { client: OpraTestClient }) {
-  describe('Collection:create', function () {
+  describe('Collection:create', () => {
     afterAll(() => global.gc && global.gc());
-    const generateData = (v?: any) => {
-      return {
-        givenName: faker.person.firstName(),
-        familyName: faker.person.lastName(),
-        gender: 'M',
-        address: { city: 'Izmir' },
-        ...v,
-      };
-    };
+    const generateData = (v?: any) => ({
+      givenName: faker.person.firstName(),
+      familyName: faker.person.lastName(),
+      gender: 'M',
+      address: { city: 'Izmir' },
+      ...v,
+    });
 
     it('Should create instance', async () => {
       const data = generateData();

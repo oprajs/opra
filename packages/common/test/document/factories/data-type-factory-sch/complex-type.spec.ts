@@ -1,7 +1,6 @@
-/* eslint-disable @typescript-eslint/no-non-null-assertion */
 import { ApiDocumentFactory, ApiField, OpraSchema } from '@opra/common';
 
-describe('DataTypeFactory - ComplexType (Schema)', function () {
+describe('DataTypeFactory - ComplexType (Schema)', () => {
   afterAll(() => global.gc && global.gc());
 
   it('Should import ComplexType', async () => {

@@ -26,9 +26,7 @@ export class MultipartReader extends EventEmitter {
     this._incoming = incoming;
     const form = (this._form = formidable({
       ...options,
-      filter: (part: formidable.Part) => {
-        return !this._cancelled && (!options?.filter || options.filter(part));
-      },
+      filter: (part: formidable.Part) => !this._cancelled && (!options?.filter || options.filter(part)),
     }));
     form.once('error', () => {
       this._cancelled = true;
@@ -81,7 +79,7 @@ export class MultipartReader extends EventEmitter {
   }
 
   resume() {
-    if (!this._started) this._form.parse(this._incoming as any, () => void 0);
+    if (!this._started) this._form.parse(this._incoming as any, () => undefined);
     if ((this._form as any).req) (this._form as any).resume();
   }
 
@@ -99,12 +97,8 @@ export class MultipartReader extends EventEmitter {
           if (file._writeStream.closed) return resolve();
           file._writeStream.once('close', resolve);
         })
-          .then(() => {
-            return fs.unlink(file.filepath);
-          })
-          .then(() => {
-            return 0;
-          }),
+          .then(() => fs.unlink(file.filepath))
+          .then(() => 0),
       );
     });
     return Promise.allSettled(promises);

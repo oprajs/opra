@@ -1,7 +1,7 @@
-import { Country } from 'customer-mongo/models';
 import { ApiDocumentFactory, ComplexType, HttpApi, HttpController, HttpOperation, HttpStatusRange } from '@opra/common';
+import { Country } from 'customer-mongo/models';
 
-describe('HttpApiFactory - HttpOperation (Class)', function () {
+describe('HttpApiFactory - HttpOperation (Class)', () => {
   afterAll(() => global.gc && global.gc());
 
   it('Should import resource class', async () => {

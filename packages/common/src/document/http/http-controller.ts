@@ -156,8 +156,9 @@ class HttpControllerClass extends DocumentElement {
       }
       if (prm.name instanceof RegExp && prm.name.test(paramName)) return prm;
     }
-    if (this.node.parent && this.node.parent.element instanceof HttpController)
+    if (this.node.parent && this.node.parent.element instanceof HttpController) {
       return this.node.parent.element.findParameter(paramName, location);
+    }
   }
 
   getFullUrl(): string {

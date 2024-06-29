@@ -1,8 +1,8 @@
-import { PartialDTO, PatchDTO, Type } from 'ts-gems';
-import { IsObject } from 'valgen';
 import { ComplexType, DataType, InternalServerError } from '@opra/common';
 import { ServiceBase } from '@opra/core';
 import { EntityMetadata, Repository, SqbClient, SqbConnection } from '@sqb/connect';
+import { PartialDTO, PatchDTO, Type } from 'ts-gems';
+import { IsObject } from 'valgen';
 import { SQBAdapter } from './sqb-adapter.js';
 
 /**

@@ -1,12 +1,11 @@
-/* eslint-disable @typescript-eslint/no-non-null-assertion */
-import express, { Express } from 'express';
-import supertest from 'supertest';
 import { ApiDocument } from '@opra/common';
 import { ExpressAdapter } from '@opra/core';
 import { OpraTestClient } from '@opra/testing';
+import express, { Express } from 'express';
+import supertest from 'supertest';
 import { createTestApi } from '../../_support/test-api/index.js';
 
-describe('e2e:HttpOperation.Entity endpoints', function (this: any) {
+describe('e2e:HttpOperation.Entity endpoints', (this: any) => {
   let document: ApiDocument;
   let app: Express;
   let adapter: ExpressAdapter;

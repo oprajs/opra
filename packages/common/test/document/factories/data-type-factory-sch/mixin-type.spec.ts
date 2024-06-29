@@ -1,7 +1,6 @@
-/* eslint-disable @typescript-eslint/no-non-null-assertion */
 import { ApiDocumentFactory, MixinType, OpraSchema } from '@opra/common';
 
-describe('DataTypeFactory - MixinType (Schema)', function () {
+describe('DataTypeFactory - MixinType (Schema)', () => {
   afterAll(() => global.gc && global.gc());
 
   it('Should import MixinType', async () => {

@@ -1,5 +1,5 @@
-import mongodb from 'mongodb';
 import { OpraFilter } from '@opra/common';
+import mongodb from 'mongodb';
 import type { MongoAdapter } from '../mongo-adapter.js';
 
 const opMap = {
@@ -183,6 +183,8 @@ function prepareFilterAst(ast: OpraFilter.Expression | undefined, negative?: boo
             !negative,
           ),
         };
+      default:
+        break;
     }
 
     throw new Error(`Unimplemented ComparisonExpression operation (right side is ${ast.right.kind})`);

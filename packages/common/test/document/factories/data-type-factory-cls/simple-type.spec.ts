@@ -1,7 +1,6 @@
-/* eslint-disable @typescript-eslint/no-non-null-assertion */
 import { ApiDocumentFactory, SimpleType, StringType } from '@opra/common';
 
-describe('DataTypeFactory - SimpleType (Class)', function () {
+describe('DataTypeFactory - SimpleType (Class)', () => {
   afterAll(() => global.gc && global.gc());
 
   it('Should import SimpleType', async () => {

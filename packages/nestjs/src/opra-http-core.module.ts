@@ -1,4 +1,3 @@
-import { asMutable } from 'ts-gems';
 import {
   DynamicModule,
   Global,
@@ -9,6 +8,7 @@ import {
   RequestMethod,
 } from '@nestjs/common';
 import { ApiDocumentFactory } from '@opra/common';
+import { asMutable } from 'ts-gems';
 import type { OpraHttpModule } from './opra-http.module';
 import { OpraNestAdapter } from './opra-nestjs-adapter.js';
 import { OpraMiddleware } from './services/opra-middleware.js';
@@ -42,11 +42,12 @@ export class OpraHttpCoreModule implements OnModuleDestroy, NestModule {
         },
       },
     ];
-    if (token !== OpraNestAdapter)
+    if (token !== OpraNestAdapter) {
       providers.push({
         provide: token,
         useValue: opraAdapter,
       });
+    }
     return {
       module: OpraHttpCoreModule,
       controllers: opraAdapter.controllers,

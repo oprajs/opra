@@ -1,6 +1,6 @@
-import ruleJudgmentLib from 'rule-judgment';
 import typeIs from '@browsery/type-is';
 import { MimeTypes, omitNullish, OpraFilter } from '@opra/common';
+import ruleJudgmentLib from 'rule-judgment';
 import { ApiExpectBase } from './api-expect-base.js';
 
 // @ts-ignore

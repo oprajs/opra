@@ -1,6 +1,6 @@
 import { ApiDocumentFactory, OpraSchema } from '@opra/common';
 
-describe('DataTypeFactory - SimpleType (Schema)', function () {
+describe('DataTypeFactory - SimpleType (Schema)', () => {
   afterAll(() => global.gc && global.gc());
 
   it('Should import SimpleType', async () => {

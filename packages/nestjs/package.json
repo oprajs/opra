@@ -42,6 +42,8 @@
     "@nestjs/testing": "^10.3.9",
     "@types/lodash.head": "^4.0.9",
     "filedirname": "^3.4.0",
+    "rxjs": "^7.8.1",
+    "supertest": "^7.0.0",
     "ts-gems": "^3.4.0"
   },
   "type": "module",

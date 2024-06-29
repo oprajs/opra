@@ -1,6 +1,6 @@
 import { ResponsiveMap } from '@opra/common';
 
-describe('ResponsiveMap', function () {
+describe('ResponsiveMap', () => {
   afterAll(() => global.gc && global.gc());
 
   it('Should get value with string key in case-insensitive way', async () => {

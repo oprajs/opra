@@ -1,5 +1,5 @@
-import { finalize, Observable } from 'rxjs';
 import { ApiDocument, HttpHeaderCodes, OpraSchema } from '@opra/common';
+import { finalize, Observable } from 'rxjs';
 import {
   FetchBackend,
   HttpEvent,
@@ -11,7 +11,7 @@ import {
 } from '../src/index.js';
 import { createMockServer, MockServer } from './_support/create-mock-server.js';
 
-describe('OpraClient', function () {
+describe('OpraClient', () => {
   let app: MockServer;
   let client: OpraHttpClient;
 

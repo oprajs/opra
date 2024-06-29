@@ -1,7 +1,6 @@
-/* eslint-disable @typescript-eslint/no-non-null-assertion */
 import { ApiDocument, ApiDocumentFactory, OpraDocumentError, OpraSchema } from '@opra/common';
 
-describe('ApiDocumentFactory', function () {
+describe('ApiDocumentFactory', () => {
   afterAll(() => global.gc && global.gc());
 
   it('Should create ApiDocument', async () => {

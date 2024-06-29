@@ -1,10 +1,10 @@
 import 'reflect-metadata';
 import { ComplexType, DATATYPE_METADATA } from '@opra/common';
 
-describe('ComplexType() decorator', function () {
+describe('ComplexType() decorator', () => {
   afterAll(() => global.gc && global.gc());
 
-  it('Should define ComplexType metadata', async function () {
+  it('Should define ComplexType metadata', async () => {
     const opts: ComplexType.Options = {
       description: 'Animal schema',
       abstract: false,

@@ -1,6 +1,6 @@
 import { translate } from '@opra/common';
 
-describe('translate()', function () {
+describe('translate()', () => {
   afterAll(() => global.gc && global.gc());
 
   it('translate(key)', () => {

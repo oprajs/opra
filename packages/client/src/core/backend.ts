@@ -1,5 +1,5 @@
-import { Observable } from 'rxjs';
 import { ApiDocument } from '@opra/common';
+import { Observable } from 'rxjs';
 import { HttpEvent } from '../http/interfaces/http-event.js';
 
 export abstract class Backend implements Backend {

@@ -1,14 +1,14 @@
-import cookieParser from 'cookie-parser';
-import express, { Express } from 'express';
-import supertest from 'supertest';
 import { ApiDocument, HttpOperation } from '@opra/common';
 import { ExpressAdapter, HttpIncoming, HttpOutgoing } from '@opra/core';
 import { kHandler } from '@opra/core/constants';
 import { HttpContext } from '@opra/core/http/http-context';
 import { HttpHandler } from '@opra/core/http/impl/http-handler';
+import cookieParser from 'cookie-parser';
+import express, { Express } from 'express';
+import supertest from 'supertest';
 import { createTestApi } from '../_support/test-api/index.js';
 
-describe('HttpHandler', function () {
+describe('HttpHandler', () => {
   let document: ApiDocument;
   let app: Express;
   let adapter: ExpressAdapter;

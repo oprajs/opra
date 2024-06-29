@@ -1,5 +1,5 @@
-import path from 'path';
 import { ComplexType, DataType, EnumType, MappedType, MixinType, SimpleType } from '@opra/common';
+import path from 'path';
 import { CodeBlock } from '../../code-block.js';
 import { TsFile } from '../ts-file.js';
 import type { TsGenerator } from '../ts-generator';
@@ -49,15 +49,15 @@ export async function processDataType(this: TsGenerator, dataType: DataType): Pr
 export `;
 
   if (dataType instanceof EnumType) codeBlock.typeDef = await this.generateEnumTypeDefinition(dataType, 'scope');
-  else if (dataType instanceof ComplexType)
+  else if (dataType instanceof ComplexType) {
     codeBlock.typeDef = await this.generateComplexTypeDefinition(dataType, file, 'scope');
-  else if (dataType instanceof SimpleType)
+  } else if (dataType instanceof SimpleType) {
     codeBlock.typeDef = await this.generateSimpleTypeDefinition(dataType, 'scope');
-  else if (dataType instanceof MappedType)
+  } else if (dataType instanceof MappedType) {
     codeBlock.typeDef = await this.generateMappedTypeDefinition(dataType, file, 'scope');
-  else if (dataType instanceof MixinType)
+  } else if (dataType instanceof MixinType) {
     codeBlock.typeDef = await this.generateMixinTypeDefinition(dataType, file, 'scope');
-  else throw new TypeError(`${dataType.kind} data type (${typeName}) can not be directly exported`);
+  } else throw new TypeError(`${dataType.kind} data type (${typeName}) can not be directly exported`);
 
   typesIndexTs.addExport(file.filename);
   return file;
@@ -71,7 +71,7 @@ export async function generateEnumTypeDefinition(
   dataType: EnumType,
   intent: Intent,
 ): Promise<string> {
-  if (intent === 'field')
+  if (intent === 'field') {
     return (
       '(' +
       Object.keys(dataType.attributes)
@@ -79,6 +79,7 @@ export async function generateEnumTypeDefinition(
         .join(' | ') +
       ')'
     );
+  }
 
   if (intent !== 'scope') throw new TypeError(`Can't generate EnumType for "${intent}" intent`);
 
@@ -108,8 +109,9 @@ export async function generateComplexTypeDefinition(
   file: TsFile,
   intent: Intent,
 ): Promise<string> {
-  if (intent === 'scope' && !dataType.name)
+  if (intent === 'scope' && !dataType.name) {
     throw new TypeError(`Name required to generate ComplexType for "${intent}" intent`);
+  }
 
   let out = intent === 'scope' ? `interface ${dataType.name} ` : '';
 
@@ -142,8 +144,9 @@ export async function generateComplexTypeDefinition(
     if (field.exclusive) out += ` * @exclusive\n`;
     if (field.readonly) out += ` * @readonly\n`;
     if (field.writeonly) out += ` * @writeonly\n`;
-    if (field.deprecated)
+    if (field.deprecated) {
       out += ` * @deprecated ` + (typeof field.deprecated === 'string' ? field.deprecated : '') + '\n';
+    }
     out += ' */\n';
 
     // Print field name
@@ -169,8 +172,9 @@ export async function generateSimpleTypeDefinition(
   dataType: SimpleType,
   intent: Intent,
 ): Promise<string> {
-  if (intent === 'scope' && !dataType.name)
+  if (intent === 'scope' && !dataType.name) {
     throw new TypeError(`Name required to generate SimpleType for "${intent}" intent`);
+  }
   let out = intent === 'scope' ? `type ${dataType.name} = ` : '';
   out += dataType.nameMappings.js || 'any';
   return intent === 'scope' ? out + ';' : out;
@@ -225,7 +229,7 @@ export async function generateMappedTypeDefinition(
   if (pick) out += 'Pick<';
   else if (omit) out += 'Omit<';
   out += typeDef;
-  if (omit || pick)
+  if (omit || pick) {
     out +=
       ', ' +
       (omit || pick)!
@@ -233,14 +237,16 @@ export async function generateMappedTypeDefinition(
         .map(x => `'${x}'`)
         .join(' | ') +
       '>';
+  }
   if (partial) {
-    if (Array.isArray(partial))
+    if (Array.isArray(partial)) {
       out +=
         ', ' +
         partial
           .filter(x => !!x)
           .map(x => `'${x}'`)
           .join(' | ');
+    }
     out += '>';
   }
   return out;

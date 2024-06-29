@@ -1,10 +1,10 @@
-import { CustomerApplication } from 'express-mongo';
 import { faker } from '@faker-js/faker';
 import { ResourceNotAvailableError } from '@opra/common';
 import { MongoSingletonService } from '@opra/mongodb';
+import { CustomerApplication } from 'express-mongo';
 import { createContext } from '../_support/create-context.js';
 
-describe('MongoSingletonService', function () {
+describe('MongoSingletonService', () => {
   let app: CustomerApplication;
   let service: MongoSingletonService<any>;
   let tempRecord: any;
@@ -41,7 +41,7 @@ describe('MongoSingletonService', function () {
   afterAll(() => global.gc && global.gc());
   beforeEach(() => (service._id = 1));
 
-  describe('assert()', function () {
+  describe('assert()', () => {
     it('Should not throw if document exists', async () => {
       const ctx = createContext(app.adapter);
       await service.for(ctx).assert();
@@ -61,7 +61,7 @@ describe('MongoSingletonService', function () {
     });
   });
 
-  describe('findOne()', function () {
+  describe('findOne()', () => {
     it('Should return single document', async () => {
       const ctx = createContext(app.adapter);
       const result: any = await service.for(ctx).find();
@@ -136,7 +136,7 @@ describe('MongoSingletonService', function () {
     });
   });
 
-  describe('get()', function () {
+  describe('get()', () => {
     it('Should return single document', async () => {
       const ctx = createContext(app.adapter);
       const result: any = await service.for(ctx).get();
@@ -171,7 +171,7 @@ describe('MongoSingletonService', function () {
     });
   });
 
-  describe('create()', function () {
+  describe('create()', () => {
     it('Should insert document', async () => {
       service._id = 2;
       const ctx = createContext(app.adapter);
@@ -193,7 +193,7 @@ describe('MongoSingletonService', function () {
     });
   });
 
-  describe('updateOnly()', function () {
+  describe('updateOnly()', () => {
     it('Should update object in the array field', async () => {
       const ctx = createContext(app.adapter);
       const doc = { uid: faker.string.uuid() };
@@ -226,7 +226,7 @@ describe('MongoSingletonService', function () {
     });
   });
 
-  describe('update()', function () {
+  describe('update()', () => {
     it('Should update object in the array field', async () => {
       const ctx = createContext(app.adapter);
       const doc = { uid: faker.string.uuid() };
@@ -261,7 +261,7 @@ describe('MongoSingletonService', function () {
     });
   });
 
-  describe('delete()', function () {
+  describe('delete()', () => {
     it('Should return "0" if parent record not found', async () => {
       service._id = 99;
       const ctx = createContext(app.adapter);

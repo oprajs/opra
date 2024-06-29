@@ -1,8 +1,8 @@
+import { OpraHttpClient } from '@opra/client';
+import { ApiDocument, HttpApi } from '@opra/common';
 import chalk from 'chalk';
 import path from 'path';
 import { pascalCase } from 'putil-varhelpers';
-import { OpraHttpClient } from '@opra/client';
-import { ApiDocument, HttpApi } from '@opra/common';
 import type { TsGenerator } from '../ts-generator';
 
 export async function processDocument(

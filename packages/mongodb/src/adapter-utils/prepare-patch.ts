@@ -12,7 +12,7 @@ export default function preparePatch(
 
 function _preparePatch(
   src: any,
-  trg: any = {},
+  trg: any,
   path: string,
   options?: {
     fieldPrefix?: string;
@@ -21,6 +21,7 @@ function _preparePatch(
   let f: string;
   let key: string;
   let field: string;
+  trg = trg || {};
   const fieldPrefix = options?.fieldPrefix;
   for (const [k, v] of Object.entries(src)) {
     f = k.startsWith('*') ? k.substring(1) : k;

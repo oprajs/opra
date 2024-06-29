@@ -1,6 +1,6 @@
+import { ApiField, ComplexType } from '@opra/common';
 import { Column } from '@sqb/connect';
 import { PartialDTO } from 'ts-gems';
-import { ApiField, ComplexType } from '@opra/common';
 import { Record } from './record.js';
 
 @ComplexType({

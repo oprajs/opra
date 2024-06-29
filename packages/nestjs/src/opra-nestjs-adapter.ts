@@ -1,5 +1,3 @@
-import nodePath from 'path';
-import { asMutable } from 'ts-gems';
 import {
   Controller,
   Delete,
@@ -24,6 +22,8 @@ import {
   NotFoundError,
 } from '@opra/common';
 import { HttpAdapter, HttpContext } from '@opra/core';
+import nodePath from 'path';
+import { asMutable } from 'ts-gems';
 import type { OpraHttpModule } from './opra-http.module';
 import { OpraExceptionFilter } from './services/opra-exception-filter.js';
 
@@ -76,7 +76,7 @@ export class OpraNestAdapter extends HttpAdapter {
             const controller = api.findController(newClass);
             const operation = controller?.operations.get(k);
             const context = asMutable<HttpContext>(_req.opraContext);
-            if (!(context && operation && typeof operationHandler === 'function'))
+            if (!(context && operation && typeof operationHandler === 'function')) {
               throw new NotFoundError({
                 message: `No endpoint found for [${_req.method}]${_req.baseUrl}`,
                 details: {
@@ -84,6 +84,7 @@ export class OpraNestAdapter extends HttpAdapter {
                   method: _req.method,
                 },
               });
+            }
             /** Configure the HttpContext */
             context.adapter = adapter;
             context.document = adapter.document;
@@ -141,6 +142,8 @@ export class OpraNestAdapter extends HttpAdapter {
           case 'SEARCH':
             /** Call @Search decorator over new property */
             Search(operationPath)(newClass.prototype, k, descriptor);
+            break;
+          default:
             break;
         }
       }

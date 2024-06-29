@@ -2,8 +2,9 @@ import { Type } from 'ts-gems';
 
 export function mergePrototype(targetProto: any, baseProto: any, filter?: (k: string) => boolean) {
   for (const k of Object.getOwnPropertyNames(baseProto)) {
-    if (k === 'constructor' || k === '__proto__' || k === 'toJSON' || k === 'toString' || (filter && !filter(k)))
+    if (k === 'constructor' || k === '__proto__' || k === 'toJSON' || k === 'toString' || (filter && !filter(k))) {
       continue;
+    }
     Object.defineProperty(targetProto, k, Object.getOwnPropertyDescriptor(baseProto, k) || Object.create(null));
   }
 }

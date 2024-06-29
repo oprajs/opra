@@ -1,6 +1,6 @@
 import './augmentation/18n.augmentation.js';
-import { AsyncEventEmitter } from 'strict-typed-events';
 import { ApiDocument, I18n, OpraSchema } from '@opra/common';
+import { AsyncEventEmitter } from 'strict-typed-events';
 import { kAssetCache } from './constants.js';
 import { Logger } from './helpers/logger.js';
 import { AssetCache } from './http/impl/asset-cache.js';

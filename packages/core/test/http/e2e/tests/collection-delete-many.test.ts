@@ -2,7 +2,7 @@ import { HttpStatusCode } from '@opra/common';
 import { OpraTestClient } from '@opra/testing';
 
 export function collectionDeleteManyTests(args: { client: OpraTestClient }) {
-  describe('Collection:deleteMany', function () {
+  describe('Collection:deleteMany', () => {
     afterAll(() => global.gc && global.gc());
 
     it('Should delete many instances by filter', async () => {

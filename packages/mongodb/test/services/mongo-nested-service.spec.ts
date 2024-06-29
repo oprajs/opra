@@ -1,10 +1,10 @@
-import { CustomerApplication } from 'express-mongo';
 import { faker } from '@faker-js/faker';
 import { ResourceNotAvailableError } from '@opra/common';
 import { MongoNestedService } from '@opra/mongodb';
+import { CustomerApplication } from 'express-mongo';
 import { createContext } from '../_support/create-context.js';
 
-describe('MongoNestedService', function () {
+describe('MongoNestedService', () => {
   let app: CustomerApplication;
   let service: MongoNestedService<any>;
   const tempRecords: any[] = [];
@@ -48,7 +48,7 @@ describe('MongoNestedService', function () {
 
   afterAll(() => global.gc && global.gc());
 
-  describe('assert()', function () {
+  describe('assert()', () => {
     it('Should not throw if document exists', async () => {
       const ctx = createContext(app.adapter);
       await service.for(ctx).assert(1, 1);
@@ -75,7 +75,7 @@ describe('MongoNestedService', function () {
     });
   });
 
-  describe('count()', function () {
+  describe('count()', () => {
     it('Should count number of elements in array field', async () => {
       const ctx = createContext(app.adapter);
       const result = await service.for(ctx).count(1);
@@ -110,7 +110,7 @@ describe('MongoNestedService', function () {
     });
   });
 
-  describe('findById()', function () {
+  describe('findById()', () => {
     it('Should return single object', async () => {
       const ctx = createContext(app.adapter);
       const result: any = await service.for(ctx).findById(1, 1);
@@ -150,7 +150,7 @@ describe('MongoNestedService', function () {
     });
   });
 
-  describe('findOne()', function () {
+  describe('findOne()', () => {
     it('Should return single object', async () => {
       const ctx = createContext(app.adapter);
       const result: any = await service.for(ctx).findOne(1);
@@ -255,7 +255,7 @@ describe('MongoNestedService', function () {
     });
   });
 
-  describe('findMany()', function () {
+  describe('findMany()', () => {
     it('Should return objects', async () => {
       const ctx = createContext(app.adapter);
       const result: any = await service.for(ctx).findMany(1);
@@ -402,7 +402,7 @@ describe('MongoNestedService', function () {
     });
   });
 
-  describe('get()', function () {
+  describe('get()', () => {
     it('Should return single object', async () => {
       const ctx = createContext(app.adapter);
       const result: any = await service.for(ctx).get(1, 1);
@@ -435,7 +435,7 @@ describe('MongoNestedService', function () {
     });
   });
 
-  describe('create()', function () {
+  describe('create()', () => {
     it('Should insert object into array field', async () => {
       const ctx = createContext(app.adapter);
       const doc = { _id: 100, title: faker.lorem.text() };
@@ -469,7 +469,7 @@ describe('MongoNestedService', function () {
     });
   });
 
-  describe('updateOnly()', function () {
+  describe('updateOnly()', () => {
     it('Should update object in the array field', async () => {
       const ctx = createContext(app.adapter);
       const doc = { title: faker.lorem.text() };
@@ -510,7 +510,7 @@ describe('MongoNestedService', function () {
     });
   });
 
-  describe('update()', function () {
+  describe('update()', () => {
     it('Should update object in the array field', async () => {
       const ctx = createContext(app.adapter);
       const doc = { title: faker.lorem.text() };
@@ -553,7 +553,7 @@ describe('MongoNestedService', function () {
     });
   });
 
-  describe('updateMany()', function () {
+  describe('updateMany()', () => {
     it('Should update all objects in the array field', async () => {
       const ctx = createContext(app.adapter);
       const update = { title: faker.lorem.text() };
@@ -613,7 +613,7 @@ describe('MongoNestedService', function () {
     });
   });
 
-  describe('delete()', function () {
+  describe('delete()', () => {
     it('Should delete object from the array field', async () => {
       const ctx = createContext(app.adapter);
       const doc = tempRecords[0];
@@ -655,7 +655,7 @@ describe('MongoNestedService', function () {
     });
   });
 
-  describe('deleteMany()', function () {
+  describe('deleteMany()', () => {
     it('Should apply filter returned by documentFilter', async () => {
       const ctx = createContext(app.adapter);
       const result = await service.for(ctx, { $documentFilter: '_id=999' }).deleteMany(1);

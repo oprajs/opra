@@ -1,8 +1,8 @@
-import { CustomerApplication } from 'express-mongo';
 import { ApiDocument } from '@opra/common';
 import { MongoAdapter } from '@opra/mongodb';
+import { CustomerApplication } from 'express-mongo';
 
-describe('MongoAdapter.prepareProjection', function () {
+describe('MongoAdapter.prepareProjection', () => {
   let document: ApiDocument;
 
   beforeAll(async () => {

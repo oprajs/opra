@@ -1,6 +1,6 @@
-import { PartialDTO, PatchDTO, Type } from 'ts-gems';
 import { ResourceNotAvailableError } from '@opra/common';
 import { ColumnFieldMetadata, EntityMetadata } from '@sqb/connect';
+import { PartialDTO, PatchDTO, Type } from 'ts-gems';
 import { SQBAdapter } from './sqb-adapter.js';
 import { SqbEntityService } from './sqb-entity-service.js';
 
@@ -110,10 +110,11 @@ export abstract class SqbSingletonService<T extends object = object> extends Sqb
       const primaryFields = EntityMetadata.getPrimaryIndexColumns(this.entityMetadata);
       const data = { ...input };
       if (primaryFields.length > 1) {
-        if (typeof primaryFields !== 'object')
+        if (typeof primaryFields !== 'object') {
           throw new TypeError(
             `"${this.entityMetadata.name}" should has multiple primary key fields. So you should provide and object that contains key fields`,
           );
+        }
         for (const field of primaryFields) {
           data[field.name] = this.id[field.name];
         }

@@ -1,7 +1,6 @@
-/* eslint-disable @typescript-eslint/no-non-null-assertion */
 import { ApiDocumentFactory, OpraSchema } from '@opra/common';
 
-describe('DataTypeFactory - MappedType (Schema)', function () {
+describe('DataTypeFactory - MappedType (Schema)', () => {
   afterAll(() => global.gc && global.gc());
 
   it('Should MappedType(pick) extend given ComplexType and pick given fields only', async () => {

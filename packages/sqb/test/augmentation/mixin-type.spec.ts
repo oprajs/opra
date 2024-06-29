@@ -3,8 +3,8 @@ import '@opra/sqb';
 import { ApiField, ComplexType, DATATYPE_METADATA, MixinType } from '@opra/common';
 import { Column, Entity } from '@sqb/connect';
 
-describe('MixinType augmentation', function () {
-  it('Should inject into MixinType() decorator', async function () {
+describe('MixinType augmentation', () => {
+  it('Should inject into MixinType() decorator', async () => {
     @ComplexType()
     class Type1 {
       @ApiField()

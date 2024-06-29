@@ -1,9 +1,9 @@
+import { ApiDocument } from '@opra/common';
+import { ExpressAdapter } from '@opra/core';
 import bodyParser from 'body-parser';
 import express from 'express';
 import http from 'http';
 import { AddressInfo } from 'net';
-import { ApiDocument } from '@opra/common';
-import { ExpressAdapter } from '@opra/core';
 import { createTestApi } from '../../../core/test/_support/test-api/index.js';
 
 export interface MockServer extends express.Express {

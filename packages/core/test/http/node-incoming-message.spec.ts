@@ -1,6 +1,6 @@
 import { NodeIncomingMessage } from '@opra/core';
 
-describe('NodeIncomingMessage', function () {
+describe('NodeIncomingMessage', () => {
   afterAll(() => global.gc && global.gc());
 
   it('Should create using init object (raw headers)', async () => {

@@ -1,8 +1,8 @@
+import * as assert from 'node:assert';
+import { InternalServerError } from '@opra/common';
 import omit from 'lodash.omit';
 import mongodb, { UpdateFilter } from 'mongodb';
-import * as assert from 'node:assert';
 import { PartialDTO, PatchDTO, Type } from 'ts-gems';
-import { InternalServerError } from '@opra/common';
 import { MongoAdapter } from './mongo-adapter.js';
 import { MongoService } from './mongo-service.js';
 
@@ -278,8 +278,9 @@ export class MongoEntityService<T extends mongodb.Document> extends MongoService
   ): Promise<PartialDTO<T> | undefined> {
     const isUpdateFilter = Array.isArray(input) || !!Object.keys(input).find(x => x.startsWith('$'));
     const isDocument = !Array.isArray(input) && !!Object.keys(input).find(x => !x.startsWith('$'));
-    if (isUpdateFilter && isDocument)
+    if (isUpdateFilter && isDocument) {
       throw new TypeError('You must pass one of MongoDB UpdateFilter or a partial document, not both');
+    }
     let update: UpdateFilter<T>;
     if (isDocument) {
       const inputCodec = this.getInputCodec('update');
@@ -317,8 +318,9 @@ export class MongoEntityService<T extends mongodb.Document> extends MongoService
   ): Promise<number> {
     const isUpdateFilter = Array.isArray(input) || !!Object.keys(input).find(x => x.startsWith('$'));
     const isDocument = !Array.isArray(input) && !!Object.keys(input).find(x => !x.startsWith('$'));
-    if (isUpdateFilter && isDocument)
+    if (isUpdateFilter && isDocument) {
       throw new TypeError('You must pass one of MongoDB UpdateFilter or a partial document, not both');
+    }
     let update: UpdateFilter<T>;
     if (isDocument) {
       const inputCodec = this.getInputCodec('update');
@@ -353,8 +355,9 @@ export class MongoEntityService<T extends mongodb.Document> extends MongoService
   ): Promise<number> {
     const isUpdateFilter = Array.isArray(input) || !!Object.keys(input).find(x => x.startsWith('$'));
     const isDocument = !Array.isArray(input) && !!Object.keys(input).find(x => !x.startsWith('$'));
-    if (isUpdateFilter && isDocument)
+    if (isUpdateFilter && isDocument) {
       throw new TypeError('You must pass one of MongoDB UpdateFilter or a partial document, not both');
+    }
     let update: UpdateFilter<T>;
     if (isDocument) {
       const inputCodec = this.getInputCodec('update');

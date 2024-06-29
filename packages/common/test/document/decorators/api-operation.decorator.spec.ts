@@ -1,11 +1,11 @@
 import 'reflect-metadata';
-import { Customer } from 'customer-mongo/models';
 import { ApiField, ComplexType, HTTP_CONTROLLER_METADATA, HttpOperation, HttpStatusCode } from '@opra/common';
+import { Customer } from 'customer-mongo/models';
 
-describe('HttpOperation decorator', function () {
+describe('HttpOperation decorator', () => {
   afterAll(() => global.gc && global.gc());
 
-  it('Should define operation metadata', async function () {
+  it('Should define operation metadata', async () => {
     class CustomersResource {
       @HttpOperation({ description: 'any description' })
       getMessage() {}
@@ -22,7 +22,7 @@ describe('HttpOperation decorator', function () {
     });
   });
 
-  it('Should .Cookie() define cookie parameter', async function () {
+  it('Should .Cookie() define cookie parameter', async () => {
     class CustomersResource {
       @HttpOperation({
         method: 'POST',
@@ -48,7 +48,7 @@ describe('HttpOperation decorator', function () {
     });
   });
 
-  it('Should .Header() define header parameter', async function () {
+  it('Should .Header() define header parameter', async () => {
     class CustomersResource {
       @HttpOperation({
         method: 'POST',
@@ -74,7 +74,7 @@ describe('HttpOperation decorator', function () {
     });
   });
 
-  it('Should .QueryParam() define query parameter', async function () {
+  it('Should .QueryParam() define query parameter', async () => {
     class CustomersResource {
       @HttpOperation({
         method: 'POST',
@@ -100,7 +100,7 @@ describe('HttpOperation decorator', function () {
     });
   });
 
-  it('Should .PathParam() define path parameter', async function () {
+  it('Should .PathParam() define path parameter', async () => {
     class CustomersResource {
       @HttpOperation({
         method: 'POST',
@@ -126,7 +126,7 @@ describe('HttpOperation decorator', function () {
     });
   });
 
-  it('Should .UseType() add type to metadata', async function () {
+  it('Should .UseType() add type to metadata', async () => {
     @ComplexType()
     class Message {
       @ApiField()
@@ -152,7 +152,7 @@ describe('HttpOperation decorator', function () {
     });
   });
 
-  it('Should Response(Type) define response options', async function () {
+  it('Should Response(Type) define response options', async () => {
     class CustomersResource {
       @HttpOperation().Response(HttpStatusCode.OK, { type: String })
       getMessage() {}
@@ -176,7 +176,7 @@ describe('HttpOperation decorator', function () {
     });
   });
 
-  it('Should Response({args}) define response options', async function () {
+  it('Should Response({args}) define response options', async () => {
     class CustomersResource {
       @HttpOperation().Response(HttpStatusCode.OK, {
         type: String,
@@ -204,7 +204,7 @@ describe('HttpOperation decorator', function () {
     });
   });
 
-  it('Should RequestContent(Type) define request content options', async function () {
+  it('Should RequestContent(Type) define request content options', async () => {
     class CustomersResource {
       @HttpOperation().RequestContent(Customer)
       sendMessage() {}
@@ -230,7 +230,7 @@ describe('HttpOperation decorator', function () {
     });
   });
 
-  it('Should MultipartContent({args}) define request content options', async function () {
+  it('Should MultipartContent({args}) define request content options', async () => {
     class CustomersResource {
       @HttpOperation().MultipartContent(
         {

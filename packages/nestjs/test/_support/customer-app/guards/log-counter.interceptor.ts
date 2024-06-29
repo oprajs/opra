@@ -1,5 +1,5 @@
-import { Observable } from 'rxjs';
 import { CallHandler, ExecutionContext, Injectable, NestInterceptor } from '@nestjs/common';
+import { Observable } from 'rxjs';
 
 @Injectable()
 export class LogCounterInterceptor implements NestInterceptor {

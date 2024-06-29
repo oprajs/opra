@@ -63,8 +63,9 @@ export class HttpApiFactory {
     thunk: Type | object | Function | OpraSchema.HttpController,
     name?: string,
   ): Promise<HttpController | undefined | void> {
-    if (typeof thunk === 'function' && !isConstructor(thunk))
+    if (typeof thunk === 'function' && !isConstructor(thunk)) {
       thunk = parent instanceof HttpController ? thunk(parent.instance) : thunk();
+    }
     thunk = await resolveThunk(thunk);
     let ctor: Type;
     let metadata: HttpController.Metadata | OpraSchema.HttpController;

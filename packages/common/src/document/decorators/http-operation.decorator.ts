@@ -97,9 +97,9 @@ export function HttpOperationDecoratorFactory(
               type: arg1,
             }
           : { ...arg1, name, location: 'cookie' };
-      if (meta.parameters)
+      if (meta.parameters) {
         meta.parameters = meta.parameters.filter(p => !(p.location === 'cookie' && String(p.name) === String(name)));
-      else meta.parameters = [];
+      } else meta.parameters = [];
       meta.parameters.push(paramMeta);
     });
     return decorator;
@@ -118,9 +118,9 @@ export function HttpOperationDecoratorFactory(
               type: arg1,
             }
           : { ...arg1, name, location: 'header' };
-      if (meta.parameters)
+      if (meta.parameters) {
         meta.parameters = meta.parameters.filter(p => !(p.location === 'header' && String(p.name) === String(name)));
-      else meta.parameters = [];
+      } else meta.parameters = [];
       meta.parameters.push(paramMeta);
     });
     return decorator;
@@ -142,9 +142,9 @@ export function HttpOperationDecoratorFactory(
               type: arg1,
             }
           : { ...arg1, name, location: 'query' };
-      if (meta.parameters)
+      if (meta.parameters) {
         meta.parameters = meta.parameters.filter(p => !(p.location === 'query' && String(p.name) === String(name)));
-      else meta.parameters = [];
+      } else meta.parameters = [];
       meta.parameters.push(paramMeta);
     });
     return decorator;
@@ -166,9 +166,9 @@ export function HttpOperationDecoratorFactory(
               type: arg1,
             }
           : { ...arg1, name, location: 'path' };
-      if (meta.parameters)
+      if (meta.parameters) {
         meta.parameters = meta.parameters.filter(p => !(p.location === 'path' && String(p.name) === String(name)));
-      else meta.parameters = [];
+      } else meta.parameters = [];
       meta.parameters.push(paramMeta);
     });
     return decorator;

@@ -1,5 +1,5 @@
-import { Connection } from 'postgresql-client';
 import { Insert } from '@sqb/builder';
+import { Connection } from 'postgresql-client';
 import type { Country, Customer } from './models/index.js';
 
 export async function initDatabase(options: {
@@ -31,8 +31,6 @@ export async function initDatabase(options: {
       }
       await connection.execute(lines.join(';\n'));
     }
-  } catch (e) {
-    throw e;
   } finally {
     await connection.close(0);
   }

@@ -2,10 +2,10 @@
   This file contains code blocks from open source NodeJs project
   https://github.com/nodejs/
  */
-import { IncomingHttpHeaders } from 'http';
-import { Duplex, Readable } from 'stream';
 import { HTTPParserJS } from '@browsery/http-parser';
 import { isAsyncIterable, isIterable } from '@opra/common';
+import { IncomingHttpHeaders } from 'http';
+import { Duplex, Readable } from 'stream';
 import type { NodeIncomingMessage } from '../interfaces/node-incoming-message.interface';
 import { convertToHeaders, convertToHeadersDistinct } from '../utils/convert-to-headers.js';
 import { convertToRawHeaders } from '../utils/convert-to-raw-headers.js';
@@ -55,10 +55,12 @@ export class NodeIncomingMessageHost extends Duplex implements NodeIncomingMessa
         else if (typeof init.body === 'string') this.body = Buffer.from(init.body, 'utf-8');
         else this.body = Buffer.from(JSON.stringify(init.body), 'utf-8');
       }
-      if (init.headers)
+      if (init.headers) {
         this.rawHeaders = Array.isArray(init.headers) ? init.headers : convertToRawHeaders(init.headers);
-      if (init.trailers)
+      }
+      if (init.trailers) {
         this.rawTrailers = Array.isArray(init.trailers) ? init.trailers : convertToRawHeaders(init.trailers);
+      }
       this.ip = init.ip || '';
       this.ips = init.ips || (this.ip ? [this.ip] : []);
       if (this.body && !this.headers['content-length']) this.headers['content-length'] = String(this.body.length);

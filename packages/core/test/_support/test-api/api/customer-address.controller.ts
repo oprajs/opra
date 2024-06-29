@@ -1,5 +1,5 @@
-import { Address } from 'customer-mongo/models';
 import { HttpController, HttpOperation } from '@opra/common';
+import { Address } from 'customer-mongo/models';
 import { Data } from '../../../../../../examples/_lib/data/customers-data.js';
 
 @HttpController({

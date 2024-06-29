@@ -1,9 +1,9 @@
 // /// <reference lib="dom" />
+import typeIs from '@browsery/type-is';
+import { isBlob, isFormData } from '@opra/common';
 import { Observable } from 'rxjs';
 import { isReadableStreamLike } from 'rxjs/internal/util/isReadableStreamLike';
 import { Combine, StrictOmit } from 'ts-gems';
-import typeIs from '@browsery/type-is';
-import { isBlob, isFormData } from '@opra/common';
 import { HttpBackend } from './http-backend.js';
 import { HttpResponse } from './http-response.js';
 import {

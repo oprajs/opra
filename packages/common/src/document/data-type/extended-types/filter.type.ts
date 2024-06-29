@@ -53,8 +53,8 @@ export class FilterType {
   }
 }
 
-const decodeFilter = (dataType: ComplexType, rules?: FilterRules) => {
-  return validator('decodeFilter', function (input, context, _this) {
+const decodeFilter = (dataType: ComplexType, rules?: FilterRules) =>
+  validator('decodeFilter', (input, context, _this) => {
     if (typeof input === 'string') {
       try {
         const filter = OpraFilter.parse(input as string);
@@ -67,9 +67,8 @@ const decodeFilter = (dataType: ComplexType, rules?: FilterRules) => {
     }
     context.fail(_this, `Nt a valid filter expression string`, input);
   });
-};
 
-const encodeFilter = validator('encodeFilter', function (input, context, _this) {
+const encodeFilter = validator('encodeFilter', (input, context, _this) => {
   if (input instanceof OpraFilter.Ast) {
     return input.toString();
   }

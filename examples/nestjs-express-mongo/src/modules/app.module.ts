@@ -1,6 +1,6 @@
-import { CustomerModelsDocument } from 'customer-mongo';
 import { Module } from '@nestjs/common';
 import { OpraHttpModule } from '@opra/nestjs';
+import { CustomerModelsDocument } from 'customer-mongo';
 import { AuthController } from '../api/auth.controller.js';
 import { CustomerController } from '../api/customer.controller.js';
 import { CustomerNotesController } from '../api/customer-notes.controller.js';

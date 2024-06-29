@@ -1,4 +1,3 @@
-import { Validator, vg } from 'valgen';
 import typeIs from '@browsery/type-is';
 import {
   BadRequestError,
@@ -9,6 +8,7 @@ import {
   NotAcceptableError,
   OpraSchema,
 } from '@opra/common';
+import { Validator, vg } from 'valgen';
 import { kAssetCache } from '../constants.js';
 import { ExecutionContext } from '../execution-context.js';
 import type { HttpAdapter } from './http-adapter';
@@ -116,10 +116,11 @@ export class HttpContext extends ExecutionContext {
         }
         /** Check required fields */
         for (const field of multipartFields) {
-          if (field.required && !fieldsFound.get(field))
+          if (field.required && !fieldsFound.get(field)) {
             throw new BadRequestError({
               message: `Multipart field (${field.fieldName}) is required`,
             });
+          }
         }
       }
       return this._body;
@@ -128,8 +129,9 @@ export class HttpContext extends ExecutionContext {
     this._body = await this.request.readBody({ limit: operation.requestBody?.maxContentSize });
     if (this._body != null) {
       // Convert Buffer to string if media is text
-      if (Buffer.isBuffer(this._body) && request.is(['json', 'xml', 'txt', 'text']))
+      if (Buffer.isBuffer(this._body) && request.is(['json', 'xml', 'txt', 'text'])) {
         this._body = this._body.toString('utf-8');
+      }
 
       // Transform text to Object if media is JSON
       if (typeof this._body === 'string' && request.is(['json'])) this._body = JSON.parse(this._body);

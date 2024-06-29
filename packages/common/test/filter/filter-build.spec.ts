@@ -24,7 +24,7 @@ const {
   $time,
 } = OpraFilter;
 
-describe('Building Filter', function () {
+describe('Building Filter', () => {
   afterAll(() => global.gc && global.gc());
 
   it('Should $eq() create ComparisonExpression', () => {

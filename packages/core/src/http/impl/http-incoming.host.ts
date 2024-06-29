@@ -2,10 +2,10 @@
   Some parts of this file contains codes from open source express library
   https://github.com/expressjs
  */
+import typeIs from '@browsery/type-is';
 import accepts from 'accepts';
 import fresh from 'fresh';
 import parseRange from 'range-parser';
-import typeIs from '@browsery/type-is';
 import type { HttpIncoming } from '../interfaces/http-incoming.interface';
 import { BodyReader } from '../utils/body-reader.js';
 
@@ -46,10 +46,10 @@ export class HttpIncomingHost implements HttpIncoming {
   get fresh(): boolean {
     const method = this.method;
     // GET or HEAD for weak freshness validation only
-    if ('GET' !== method && 'HEAD' !== method) return false;
+    if (method !== 'GET' && method !== 'HEAD') return false;
     const status = this.res?.statusCode;
     // 2xx or 304 as per rfc2616 14.26
-    if ((status >= 200 && status < 300) || 304 === status) {
+    if ((status >= 200 && status < 300) || status === 304) {
       return fresh(this.headers, {
         etag: this.res.getHeader('ETag'),
         'last-modified': this.res.getHeader('Last-Modified'),

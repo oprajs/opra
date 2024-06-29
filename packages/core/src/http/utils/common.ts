@@ -63,6 +63,7 @@ export const validateHeaderValue = hideStackFrames((name, value) => {
 });
 
 export function validateString(value: any, name?: string) {
-  if (typeof value !== 'string')
+  if (typeof value !== 'string') {
     throw new TypeError(`Invalid ${name ? name + ' ' : ''}argument. Value must be a string`);
+  }
 }

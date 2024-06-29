@@ -1,12 +1,12 @@
-import express, { Express } from 'express';
-import supertest from 'supertest';
 import { ApiDocument } from '@opra/common';
 import { ExpressAdapter } from '@opra/core';
 import { OpraTestClient } from '@opra/testing';
+import express, { Express } from 'express';
+import supertest from 'supertest';
 import { FilesController } from '../../_support/test-api/api/files.controller.js';
 import { createTestApi } from '../../_support/test-api/index.js';
 
-describe('e2e:Storage', function () {
+describe('e2e:Storage', () => {
   let document: ApiDocument;
   let app: Express;
   let adapter: ExpressAdapter;

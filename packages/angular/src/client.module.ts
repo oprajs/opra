@@ -88,7 +88,7 @@ export class OpraClientModule {
   private static _createAsyncProviders(options: OpraClientModuleAsyncOptions): Provider[] {
     if (options.useExisting || options.useFactory) return [this._createAsyncOptionsProvider(options)];
 
-    if (options.useClass)
+    if (options.useClass) {
       return [
         this._createAsyncOptionsProvider(options),
         {
@@ -96,6 +96,7 @@ export class OpraClientModule {
           useClass: options.useClass,
         },
       ];
+    }
 
     throw new Error('Invalid configuration. Must provide useFactory, useClass or useExisting');
   }

@@ -1,5 +1,5 @@
-import { PartialDTO } from 'ts-gems';
 import { ApiField, ComplexType } from '@opra/common';
+import { PartialDTO } from 'ts-gems';
 
 @ComplexType({
   abstract: true,

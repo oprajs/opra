@@ -85,6 +85,8 @@ export namespace SQBAdapter {
           };
           return { method: 'updateMany', data, options } satisfies TransformedRequest;
         }
+        default:
+          break;
       }
     }
     throw new Error(`This operation is not compatible to SQB Adapter`);

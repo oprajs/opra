@@ -1,5 +1,3 @@
-import cookieParser from 'cookie-parser';
-import express, { Express } from 'express';
 import { ApiDocument, HttpOperation } from '@opra/common';
 import {
   ExpressAdapter,
@@ -11,9 +9,11 @@ import {
 } from '@opra/core';
 import { kHandler } from '@opra/core/constants';
 import { HttpHandler } from '@opra/core/http/impl/http-handler';
+import cookieParser from 'cookie-parser';
+import express, { Express } from 'express';
 import { createTestApi } from '../_support/test-api/index.js';
 
-describe('HttpContext', function () {
+describe('HttpContext', () => {
   let document: ApiDocument;
   let app: Express;
   let adapter: ExpressAdapter;

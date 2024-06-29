@@ -1,9 +1,9 @@
 import 'reflect-metadata';
-import { Country } from 'customer-mongo/models';
 import { ApiDocument, ApiDocumentFactory, OmitType, OpraSchema, PartialType, PickType } from '@opra/common';
+import { Country } from 'customer-mongo/models';
 import { TestApiDocument } from '../../_support/test-api/index.js';
 
-describe('MappedType', function () {
+describe('MappedType', () => {
   let doc: ApiDocument;
 
   beforeAll(async () => {
@@ -22,7 +22,7 @@ describe('MappedType', function () {
     });
   });
 
-  it('Should OmitType() create MappedType that omits given fields', async function () {
+  it('Should OmitType() create MappedType that omits given fields', async () => {
     const dt = doc.node.getMappedType('OmitType1');
     expect(dt).toBeDefined();
     expect(dt.name).toEqual('OmitType1');
@@ -39,7 +39,7 @@ describe('MappedType', function () {
     expect(Object.keys(x)).toStrictEqual(['code', 'name']);
   });
 
-  it('Should PickType() create MappedType that picks given fields', async function () {
+  it('Should PickType() create MappedType that picks given fields', async () => {
     const dt = doc.node.getMappedType('PickType1');
     expect(dt).toBeDefined();
     expect(dt.name).toEqual('PickType1');
@@ -56,7 +56,7 @@ describe('MappedType', function () {
     expect(Object.keys(x)).toStrictEqual(['phoneCode']);
   });
 
-  it('Should PartialType() create MappedType that makes all fields partial', async function () {
+  it('Should PartialType() create MappedType that makes all fields partial', async () => {
     const dt = doc.node.getMappedType('PartialType1');
     expect(dt).toBeDefined();
     expect(dt.name).toEqual('PartialType1');
@@ -66,7 +66,7 @@ describe('MappedType', function () {
     expect(dt.getField('phoneCode').required).toEqual(false);
   });
 
-  it('Should PartialType() create MappedType that makes selected fields partial', async function () {
+  it('Should PartialType() create MappedType that makes selected fields partial', async () => {
     const dt = doc.node.getMappedType('PartialType2');
     expect(dt).toBeDefined();
     expect(dt.name).toEqual('PartialType2');

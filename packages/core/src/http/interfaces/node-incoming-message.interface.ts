@@ -1,7 +1,7 @@
-import http from 'http';
-import { Readable } from 'stream';
 import { HeaderInfo, HTTPParser } from '@browsery/http-parser';
 import { isAsyncIterable, isIterable } from '@opra/common';
+import http from 'http';
+import { Readable } from 'stream';
 import { CRLF, kHttpParser, NodeIncomingMessageHost } from '../impl/node-incoming-message.host.js';
 import { concatReadable } from '../utils/concat-readable.js';
 
@@ -48,8 +48,9 @@ export namespace NodeIncomingMessage {
    * @param iterable
    */
   export function from(iterable: string | Iterable<any> | AsyncIterable<any> | Initiator): NodeIncomingMessage {
-    if (typeof iterable === 'object' && !(isIterable(iterable) || isAsyncIterable(iterable)))
+    if (typeof iterable === 'object' && !(isIterable(iterable) || isAsyncIterable(iterable))) {
       return new NodeIncomingMessageHost(iterable as Initiator);
+    }
     const msg = new NodeIncomingMessageHost();
     const parser = (msg[kHttpParser] = new HTTPParser(HTTPParser.REQUEST));
     let bodyChunks: Buffer[] | undefined;

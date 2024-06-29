@@ -34,9 +34,9 @@ export class FieldPathType {
       ? element.node.getComplexType(properties.dataType)
       : element.node.getComplexType('object');
     const allowSigns = properties.allowSigns;
-    const decodeFieldPath = validator('decodeFieldPath', function (input: string) {
-      return dataType.normalizeFieldPath(input, { allowSigns });
-    });
+    const decodeFieldPath = validator('decodeFieldPath', (input: string) =>
+      dataType.normalizeFieldPath(input, { allowSigns }),
+    );
     return vg.pipe([toString, decodeFieldPath]);
   }
 

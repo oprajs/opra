@@ -1,8 +1,7 @@
-/* eslint-disable @typescript-eslint/no-non-null-assertion */
 import { ApiDocument, parseFieldsProjection } from '@opra/common';
 import { TestApiDocument } from '../../_support/test-api/index.js';
 
-describe('ComplexType', function () {
+describe('ComplexType', () => {
   let doc: ApiDocument;
 
   beforeAll(async () => {

@@ -1,6 +1,6 @@
 import path from 'node:path';
-import { camelCase, pascalCase } from 'putil-varhelpers';
 import { HttpApi } from '@opra/common';
+import { camelCase, pascalCase } from 'putil-varhelpers';
 import { CodeBlock } from '../../code-block.js';
 import { httpControllerNodeScript } from '../http-controller-node.js';
 import type { TsGenerator } from '../ts-generator';

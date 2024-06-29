@@ -10,12 +10,12 @@ import { Profile } from './types/profile.js';
 import { Record } from './types/record.js';
 
 export * from './enums/gender.js';
+export * from './types/address.js';
 export * from './types/country.js';
 export * from './types/customer.js';
-export * from './types/profile.js';
-export * from './types/address.js';
 export * from './types/note.js';
 export * from './types/person.js';
+export * from './types/profile.js';
 export * from './types/record.js';
 
 export namespace CustomerModelsDocument {

@@ -1,6 +1,6 @@
+import { getStackFileName, I18n as I18n_ } from '@opra/common';
 import fs from 'fs';
 import path from 'path';
-import { FallbackLng, getStackFileName, I18n as I18n_, LanguageResource } from '@opra/common';
 
 declare module '@opra/common' {
   export interface I18n {

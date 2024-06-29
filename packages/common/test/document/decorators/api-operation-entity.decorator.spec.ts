@@ -1,8 +1,8 @@
 import 'reflect-metadata';
-import { Customer } from 'customer-mongo/models';
 import { FieldPathType, FilterType, HTTP_CONTROLLER_METADATA, HttpOperation, IntegerType } from '@opra/common';
+import { Customer } from 'customer-mongo/models';
 
-describe('HttpOperation.Entity.* decorators', function () {
+describe('HttpOperation.Entity.* decorators', () => {
   afterAll(() => global.gc && global.gc());
 
   const queryParams = {
@@ -56,8 +56,8 @@ describe('HttpOperation.Entity.* decorators', function () {
   };
 
   /* ***************************************************** */
-  describe('"Create" decorator', function () {
-    it('Should define Create operation metadata', async function () {
+  describe('"Create" decorator', () => {
+    it('Should define Create operation metadata', async () => {
       class CustomerResource {
         @HttpOperation.Entity.Create({
           type: Customer,
@@ -120,8 +120,8 @@ describe('HttpOperation.Entity.* decorators', function () {
   });
 
   /* ***************************************************** */
-  describe('"Delete" decorator', function () {
-    it('Should define Delete operation metadata', async function () {
+  describe('"Delete" decorator', () => {
+    it('Should define Delete operation metadata', async () => {
       class CustomerResource {
         @HttpOperation.Entity.Delete({
           type: Customer,
@@ -163,8 +163,8 @@ describe('HttpOperation.Entity.* decorators', function () {
   });
 
   /* ***************************************************** */
-  describe('"DeleteMany" decorator', function () {
-    it('Should define DeleteMany operation metadata', async function () {
+  describe('"DeleteMany" decorator', () => {
+    it('Should define DeleteMany operation metadata', async () => {
       class CustomerResource {
         @HttpOperation.Entity.DeleteMany({ type: Customer, description: 'operation description' })
         deleteMany() {}
@@ -194,7 +194,7 @@ describe('HttpOperation.Entity.* decorators', function () {
       ]);
     });
 
-    it('Should Filter() define filter parameter', async function () {
+    it('Should Filter() define filter parameter', async () => {
       class CustomerResource {
         @HttpOperation.Entity.DeleteMany({ type: Customer })
           .Filter('_id', ['=', '!='])
@@ -228,8 +228,8 @@ describe('HttpOperation.Entity.* decorators', function () {
   });
 
   /* ***************************************************** */
-  describe('"FindMany" decorator', function () {
-    it('Should define FindMany operation metadata', async function () {
+  describe('"FindMany" decorator', () => {
+    it('Should define FindMany operation metadata', async () => {
       class CustomerResource {
         @HttpOperation.Entity.FindMany({ type: Customer, description: 'operation description' })
         findMany() {}
@@ -277,7 +277,7 @@ describe('HttpOperation.Entity.* decorators', function () {
       ]);
     });
 
-    it('Should Filter() define metadata value', async function () {
+    it('Should Filter() define metadata value', async () => {
       class CustomerResource {
         @HttpOperation.Entity.FindMany({ type: Customer })
           .Filter('_id', '=, !=')
@@ -328,7 +328,7 @@ describe('HttpOperation.Entity.* decorators', function () {
       ]);
     });
 
-    it('Should SortFields() define metadata value', async function () {
+    it('Should SortFields() define metadata value', async () => {
       class CustomerResource {
         @HttpOperation.Entity.FindMany({ type: Customer }).SortFields('_id', 'givenName')
         findMany() {}
@@ -370,7 +370,7 @@ describe('HttpOperation.Entity.* decorators', function () {
       ]);
     });
 
-    it('Should DefaultSort() define metadata value', async function () {
+    it('Should DefaultSort() define metadata value', async () => {
       class CustomerResource {
         @HttpOperation.Entity.FindMany({ type: Customer }).DefaultSort('givenName')
         findMany() {}
@@ -406,8 +406,8 @@ describe('HttpOperation.Entity.* decorators', function () {
   });
 
   /* ***************************************************** */
-  describe('"Get" decorator', function () {
-    it('Should define Get operation metadata', async function () {
+  describe('"Get" decorator', () => {
+    it('Should define Get operation metadata', async () => {
       class CustomerResource {
         @HttpOperation.Entity.Get({
           type: Customer,
@@ -463,8 +463,8 @@ describe('HttpOperation.Entity.* decorators', function () {
   });
 
   /* ***************************************************** */
-  describe('"UpdateMany" decorator', function () {
-    it('Should define UpdateMany operation metadata', async function () {
+  describe('"UpdateMany" decorator', () => {
+    it('Should define UpdateMany operation metadata', async () => {
       class CustomerResource {
         @HttpOperation.Entity.UpdateMany({
           type: Customer,
@@ -514,7 +514,7 @@ describe('HttpOperation.Entity.* decorators', function () {
       ]);
     });
 
-    it('Should Filter() define metadata value', async function () {
+    it('Should Filter() define metadata value', async () => {
       class CustomerResource {
         @HttpOperation.Entity.UpdateMany({ type: Customer })
           .Filter('_id', '=, !=')
@@ -550,8 +550,8 @@ describe('HttpOperation.Entity.* decorators', function () {
   });
 
   /* ***************************************************** */
-  describe('"Update" decorator', function () {
-    it('Should define Update operation metadata', async function () {
+  describe('"Update" decorator', () => {
+    it('Should define Update operation metadata', async () => {
       class CustomerResource {
         @HttpOperation.Entity.Update({
           type: Customer,
@@ -629,7 +629,7 @@ describe('HttpOperation.Entity.* decorators', function () {
       ]);
     });
 
-    it('Should Filter() define metadata value', async function () {
+    it('Should Filter() define metadata value', async () => {
       class CustomerResource {
         @HttpOperation.Entity.Update({
           type: Customer,

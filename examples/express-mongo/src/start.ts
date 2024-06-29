@@ -1,5 +1,5 @@
 /* eslint-disable no-console */
-import { CustomerApplication } from './customer-application';
+import { CustomerApplication } from './customer-application.js';
 
 CustomerApplication.create()
   .then((app: CustomerApplication) => {

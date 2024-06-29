@@ -1,11 +1,11 @@
+import { ApiDocument, OpraSchema } from '@opra/common';
+import { ExpressAdapter } from '@opra/core';
 import cookieParser from 'cookie-parser';
 import express, { Express } from 'express';
 import supertest from 'supertest';
-import { ApiDocument, OpraSchema } from '@opra/common';
-import { ExpressAdapter } from '@opra/core';
 import { createTestApi, CustomersController } from '../_support/test-api/index.js';
 
-describe('ExpressAdapter', function () {
+describe('ExpressAdapter', () => {
   let document: ApiDocument;
   let app: Express;
   let adapter: ExpressAdapter;
@@ -33,9 +33,7 @@ describe('ExpressAdapter', function () {
     expect(routerStack).toBeDefined();
     const paths = routerStack.handle.stack
       .filter(x => x.route)
-      .map(x => {
-        return x.route.path + ' | ' + Object.keys(x.route.methods).join(',').toUpperCase();
-      });
+      .map(x => x.route.path + ' | ' + Object.keys(x.route.methods).join(',').toUpperCase());
 
     expect(paths).toEqual([
       '* | GET',
