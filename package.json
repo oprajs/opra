@@ -37,7 +37,6 @@
     "@rollup/plugin-json": "^6.1.0",
     "@rollup/plugin-node-resolve": "^15.2.3",
     "@rollup/plugin-strip": "^3.0.4",
-    "@tsconfig/recommended": "^1.0.6",
     "@types/jest": "^29.5.12",
     "@types/node": "^20.14.9",
     "@types/supertest": "^6.0.2",
