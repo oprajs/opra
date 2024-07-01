@@ -3,6 +3,7 @@ import {
   Delete,
   Get,
   Head,
+  Next,
   Options,
   Patch,
   Post,
@@ -30,7 +31,7 @@ import { OpraExceptionFilter } from './services/opra-exception-filter.js';
 export const kHandler = Symbol.for('kHandler');
 
 export class OpraNestAdapter extends HttpAdapter {
-  readonly controllers: Type[] = [];
+  readonly nestControllers: Type[] = [];
 
   constructor(options: OpraHttpModule.Options) {
     super(
@@ -43,19 +44,36 @@ export class OpraNestAdapter extends HttpAdapter {
     );
     let basePath = options.basePath || '/';
     if (!basePath.startsWith('/')) basePath = '/' + basePath;
-    if (options.controllers) options.controllers.forEach(c => this._createNestControllers(c, basePath));
+    this._addRootController(basePath);
+    if (options.controllers) options.controllers.forEach(c => this._addToNestControllers(c, basePath));
   }
 
   async close() {
     //
   }
 
-  protected _createNestControllers(source: Type, currentPath: string) {
-    const metadata: HttpController.Metadata = Reflect.getMetadata(HTTP_CONTROLLER_METADATA, source);
+  protected _addRootController(basePath: string) {
+    const _this = this;
+
+    @Controller({
+      path: basePath,
+    })
+    class RootController {
+      @Get('/\\$schema')
+      schema(@Req() _req: any, @Next() next: Function) {
+        _this[kHandler].sendDocumentSchema(_req.opraContext).catch(next);
+      }
+    }
+
+    this.nestControllers.push(RootController);
+  }
+
+  protected _addToNestControllers(sourceClass: Type, currentPath: string) {
+    const metadata: HttpController.Metadata = Reflect.getMetadata(HTTP_CONTROLLER_METADATA, sourceClass);
     if (!metadata) return;
     const newClass = {
-      [source.name]: class extends source {},
-    }[source.name];
+      [sourceClass.name]: class extends sourceClass {},
+    }[sourceClass.name];
 
     const newPath = metadata.path ? nodePath.join(currentPath, metadata.path) : currentPath;
     const adapter = this;
@@ -64,16 +82,16 @@ export class OpraNestAdapter extends HttpAdapter {
     UseFilters(new OpraExceptionFilter(adapter))(newClass);
 
     Controller()(newClass);
-    this.controllers.push(newClass);
+    this.nestControllers.push(newClass);
     if (metadata.operations) {
       for (const [k, v] of Object.entries(metadata.operations)) {
-        const operationHandler = source.prototype[k];
+        const operationHandler = sourceClass.prototype[k];
         Object.defineProperty(newClass.prototype, k, {
           writable: true,
           /** NestJS handler method */
           async value(this: any, _req: any) {
             const api = adapter.document.api as HttpApi;
-            const controller = api.findController(newClass);
+            const controller = api.findController(sourceClass);
             const operation = controller?.operations.get(k);
             const context = asMutable<HttpContext>(_req.opraContext);
             if (!(context && operation && typeof operationHandler === 'function')) {
@@ -151,7 +169,7 @@ export class OpraNestAdapter extends HttpAdapter {
     if (metadata.controllers) {
       for (const child of metadata.controllers) {
         if (!isConstructor(child)) throw new TypeError('Controllers should be injectable a class');
-        this._createNestControllers(child, newPath);
+        this._addToNestControllers(child, newPath);
       }
     }
   }

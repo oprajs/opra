@@ -1,3 +1,7 @@
 {
-  "extends": "../tsconfig.json"
+  "extends": "../tsconfig.json",
+  "ts-node": {
+    // Tell ts-node CLI to install the --loader automatically, explained below
+    "esm": true
+  }
 }

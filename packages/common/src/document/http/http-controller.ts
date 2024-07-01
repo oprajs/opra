@@ -125,7 +125,7 @@ class HttpControllerClass extends DocumentElement {
         if (c.controllers.size) {
           controller = c.findController(arg0);
           if (controller) {
-            this._controllerReverseMap.set(arg0, c);
+            this._controllerReverseMap.set(arg0, controller);
             return controller;
           }
         }

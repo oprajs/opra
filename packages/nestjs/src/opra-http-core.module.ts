@@ -36,7 +36,7 @@ export class OpraHttpCoreModule implements OnModuleDestroy, NestModule {
         useFactory: async () => {
           asMutable(opraAdapter).document = await ApiDocumentFactory.createDocument({
             ...options,
-            api: { protocol: 'http', name: options.name, controllers: opraAdapter.controllers },
+            api: { protocol: 'http', name: options.name, controllers: options.controllers! },
           });
           return opraAdapter;
         },
@@ -50,7 +50,7 @@ export class OpraHttpCoreModule implements OnModuleDestroy, NestModule {
     }
     return {
       module: OpraHttpCoreModule,
-      controllers: opraAdapter.controllers,
+      controllers: opraAdapter.nestControllers,
       imports: [...(options?.imports || [])],
       exports: [...(options?.exports || []), token],
       providers,

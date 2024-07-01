@@ -41,6 +41,7 @@ export const resolve = async (specifier, ctx, defaultResolve) => {
   if (specifier.endsWith('.js.js'))
     specifier = specifier.substring(0, specifier.length - 3);
 
+
   return resolveTs(specifier, ctx, defaultResolve);
 };
 

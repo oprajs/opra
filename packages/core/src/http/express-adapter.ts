@@ -84,16 +84,10 @@ export class ExpressAdapter extends HttpAdapter {
     };
 
     /** Add an endpoint that returns document schema */
-    router.get('*', (_req, _res, next) => {
-      if (_req.url.includes('/$schema')) {
-        const url = (_req.url.includes('?') ? _req.url.substring(0, _req.url.indexOf('?')) : _req.url).toLowerCase();
-        if (url === '/$schema') {
-          const context = createContext(_req, _res);
-          this[kHandler].sendDocumentSchema(context).catch(next);
-          return;
-        }
-      }
-      next();
+    router.get('/\\$schema', (_req, _res, next) => {
+      const context = createContext(_req, _res);
+      this[kHandler].sendDocumentSchema(context).catch(next);
+      return;
     });
 
     /** Add operation endpoints */

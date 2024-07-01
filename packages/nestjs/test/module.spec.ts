@@ -27,6 +27,6 @@ describe('OpraModule', () => {
     const adapter = moduleRef.get(OpraNestAdapter, { strict: false });
     expect(adapter).toBeDefined();
     expect(adapter.document).toBeDefined();
-    expect(adapter.controllers.length).toBeGreaterThan(0);
+    expect(adapter.nestControllers.length).toBeGreaterThan(0);
   });
 });
