@@ -17,6 +17,7 @@
     "build:esm": "tsc -b tsconfig-build-esm.json",
     "_postbuild": "cp README.md package.json ../../LICENSE ../../build/elastic && cp ../../package.cjs.json ../../build/elastic/cjs/package.json",
     "lint": "eslint . --max-warnings=0",
+    "lint:fix": "eslint . --max-warnings=0 --fix",
     "format": "prettier . --write --log-level=warn",
     "test": "jest --passWithNoTests",
     "cover": "jest --passWithNoTests --collect-coverage",
