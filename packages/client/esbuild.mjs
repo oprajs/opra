@@ -1,11 +1,13 @@
+/* eslint-disable import-x/no-extraneous-dependencies */
+import { createRequire } from 'node:module';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { createRequire } from 'node:module';
 import * as esbuild from 'esbuild';
 
 const require = createRequire(import.meta.url);
 
 const pkgJson = require('./package.json');
+
 const dirname = path.dirname(fileURLToPath(import.meta.url));
 const appName = path.basename(dirname);
 const buildRoot = path.resolve(dirname, '../../build');

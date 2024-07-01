@@ -1,7 +1,7 @@
-import { readFile } from 'fs/promises';
+import { readFileSync } from 'node:fs';
 
 const packageJson = JSON.parse(
-  await readFile(new URL('./package.json', import.meta.url)),
+  readFileSync(new URL('./package.json', import.meta.url)),
 );
 
 export default {
