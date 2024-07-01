@@ -22,7 +22,6 @@ workflows:
 
 jobs:
   test:
-    executor: node/default
     parameters:
       version:
         type: string
