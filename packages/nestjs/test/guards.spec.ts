@@ -40,13 +40,22 @@ describe('OpraModule - Guards', () => {
   });
 
   it('Should use global guards', async () => {
+    const counter = TestGlobalGuard.counter;
     await request(server).post('/api/auth/MyProfile').set('Authorization', 'reject-auth').send({ id: 100 });
-    expect(TestGlobalGuard.counter).toBeGreaterThan(0);
+    expect(TestGlobalGuard.counter).toEqual(counter + 1);
   });
 
   it('Should use global interceptors', async () => {
-    const i = LogCounterInterceptor.logCount;
+    const logCount = LogCounterInterceptor.logCount;
     await request(server).get('/api/auth/MyProfile');
-    expect(LogCounterInterceptor.logCount).toEqual(i + 1);
+    expect(LogCounterInterceptor.logCount).toEqual(logCount + 1);
+  });
+
+  it('Should be able to disable guards for $schema route', async () => {
+    const counter = TestGlobalGuard.counter;
+    const publicCounter = TestGlobalGuard.publicCounter;
+    await request(server).get('/api/$schema');
+    expect(TestGlobalGuard.counter).toEqual(counter);
+    expect(TestGlobalGuard.publicCounter).toEqual(publicCounter + 1);
   });
 });

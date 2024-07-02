@@ -25,6 +25,7 @@ import {
 import { HttpAdapter, HttpContext } from '@opra/core';
 import nodePath from 'path';
 import { asMutable } from 'ts-gems';
+import { Public } from './decorators/public.decorator';
 import type { OpraHttpModule } from './opra-http.module';
 import { OpraExceptionFilter } from './services/opra-exception-filter.js';
 
@@ -32,8 +33,9 @@ export const kHandler = Symbol.for('kHandler');
 
 export class OpraNestAdapter extends HttpAdapter {
   readonly nestControllers: Type[] = [];
+  readonly options?: OpraHttpModule.Options;
 
-  constructor(options: OpraHttpModule.Options) {
+  constructor(init: OpraHttpModule.Initiator, options?: OpraHttpModule.Options) {
     super(
       (function () {
         const document = new ApiDocument();
@@ -42,10 +44,11 @@ export class OpraNestAdapter extends HttpAdapter {
       })(),
       options,
     );
-    let basePath = options.basePath || '/';
+    this.options = options;
+    let basePath = options?.basePath || '/';
     if (!basePath.startsWith('/')) basePath = '/' + basePath;
     this._addRootController(basePath);
-    if (options.controllers) options.controllers.forEach(c => this._addToNestControllers(c, basePath));
+    if (init.controllers) init.controllers.forEach(c => this._addToNestControllers(c, basePath));
   }
 
   async close() {
@@ -63,6 +66,14 @@ export class OpraNestAdapter extends HttpAdapter {
       schema(@Req() _req: any, @Next() next: Function) {
         _this[kHandler].sendDocumentSchema(_req.opraContext).catch(next);
       }
+    }
+
+    if (this.options?.schemaRouteIsPublic) {
+      Public()(
+        RootController.prototype,
+        'schema',
+        Object.getOwnPropertyDescriptor(RootController.prototype, 'schema')!,
+      );
     }
 
     this.nestControllers.push(RootController);

@@ -25,18 +25,18 @@ export class OpraHttpCoreModule implements OnModuleDestroy, NestModule {
     });
   }
 
-  static forRoot(options: OpraHttpModule.Options): DynamicModule {
-    const opraAdapter = new OpraNestAdapter(options);
-    const token = options?.id || OpraNestAdapter;
+  static forRoot(init: OpraHttpModule.Initiator, options?: OpraHttpModule.Options): DynamicModule {
+    const opraAdapter = new OpraNestAdapter(init, options);
+    const token = init?.id || OpraNestAdapter;
 
     const providers = [
-      ...(options?.providers || []),
+      ...(init?.providers || []),
       {
         provide: OpraNestAdapter,
         useFactory: async () => {
           asMutable(opraAdapter).document = await ApiDocumentFactory.createDocument({
-            ...options,
-            api: { protocol: 'http', name: options.name, controllers: options.controllers! },
+            ...init,
+            api: { protocol: 'http', name: init.name, controllers: init.controllers! },
           });
           return opraAdapter;
         },
@@ -51,8 +51,8 @@ export class OpraHttpCoreModule implements OnModuleDestroy, NestModule {
     return {
       module: OpraHttpCoreModule,
       controllers: opraAdapter.nestControllers,
-      imports: [...(options?.imports || [])],
-      exports: [...(options?.exports || []), token],
+      imports: [...(init?.imports || [])],
+      exports: [...(init?.exports || []), token],
       providers,
     };
   }
