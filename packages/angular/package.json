@@ -35,12 +35,12 @@
     "ts-gems": "^3.0.0"
   },
   "devDependencies": {
-    "@angular-devkit/build-angular": "^18.0.6",
-    "@angular/cli": "^18.0.6",
+    "@angular-devkit/build-angular": "^18.0.7",
+    "@angular/cli": "^18.0.7",
     "@angular/compiler": "^18.0.2",
-    "@angular/compiler-cli": "^18.0.5",
+    "@angular/compiler-cli": "^18.0.6",
     "@angular/platform-browser": "^18.0.2",
-    "@angular/platform-browser-dynamic": "^18.0.5",
+    "@angular/platform-browser-dynamic": "^18.0.6",
     "core-js": "^3.37.1",
     "cross-fetch": "^4.0.0",
     "express": "^4.19.2",

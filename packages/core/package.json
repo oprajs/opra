@@ -48,7 +48,7 @@
     "fresh": "^0.5.2",
     "iconv-lite": "^0.6.3",
     "mime-types": "^2.1.35",
-    "power-tasks": "^1.7.3",
+    "power-tasks": "^1.7.4",
     "putil-isplainobject": "^1.1.5",
     "putil-merge": "^3.12.1",
     "putil-varhelpers": "^1.6.5",
