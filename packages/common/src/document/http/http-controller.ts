@@ -1,3 +1,4 @@
+import nodePath from 'node:path';
 import { asMutable, Combine, ThunkAsync, Type } from 'ts-gems';
 import { omitUndefined, ResponsiveMap } from '../../helpers/index.js';
 import { OpraSchema } from '../../schema/index.js';
@@ -162,7 +163,7 @@ class HttpControllerClass extends DocumentElement {
   }
 
   getFullUrl(): string {
-    return (this.owner instanceof HttpController ? this.owner.getFullUrl() : '/') + this.path;
+    return nodePath.posix.join(this.owner instanceof HttpController ? this.owner.getFullUrl() : '/', this.path);
   }
 
   /**

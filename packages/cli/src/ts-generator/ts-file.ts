@@ -75,7 +75,7 @@ export class TsFile {
     if (this.code.imports || this.code.exports) this.code.exports += '\n\n';
 
     return (
-      '/* #!oprimp_auto_generated!# !! Do NOT remove this line */\n/* eslint-disable */\n' +
+      '/* #!oprimp_auto_generated!# !! Do NOT remove this line */\n/* eslint-disable */\n// noinspection SpellCheckingInspection\n\n' +
       flattenText(String(this.code))
     );
   }

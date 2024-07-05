@@ -94,8 +94,9 @@ export async function processHttpController(this: TsGenerator, controller: HttpC
     let argIndex = 0;
     for (const prm of pathParams) {
       const type = locateNamedType(prm.type);
+      const typeName = type ? await this.resolveTypeNameOrDef(type, file, 'field') : 'any';
       if (argIndex++ > 0) operationBlock.head += ', ';
-      operationBlock.head += `${prm.name}: ${type?.name || 'any'}`;
+      operationBlock.head += `${prm.name}: ${typeName}`;
     }
 
     let hasBody = false;
@@ -104,13 +105,8 @@ export async function processHttpController(this: TsGenerator, controller: HttpC
       let typeArr: string[] = [];
       for (const content of operation.requestBody.content) {
         if (content.type) {
-          const dtFile = this._filesMap.get(content.type);
-          if (dtFile) {
-            const typeName = await this.resolveTypeNameOrDef(content.type, dtFile, 'field');
-            typeArr.push(typeName);
-            file.addImport(dtFile.filename, [typeName]);
-            continue;
-          }
+          const typeName = await this.resolveTypeNameOrDef(content.type, file, 'field');
+          typeArr.push(typeName);
         }
         typeArr = [];
         break;
