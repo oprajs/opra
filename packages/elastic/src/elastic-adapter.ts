@@ -4,13 +4,13 @@
 // import { omitNullish } from '@opra/common';
 import _prepareFilter from './adapter-utils/prepare-filter.js';
 import _prepareKeyValues from './adapter-utils/prepare-key-values.js';
-import _prepareProjection from './adapter-utils/prepare-projection.js';
+// import _prepareProjection from './adapter-utils/prepare-projection.js';
 import _prepareSort from './adapter-utils/prepare-sort.js';
 
 export namespace ElasticAdapter {
   export const prepareFilter = _prepareFilter;
   export const prepareKeyValues = _prepareKeyValues;
-  export const prepareProjection = _prepareProjection;
+  // export const prepareProjection = _prepareProjection;
   export const prepareSort = _prepareSort;
 
   // export function transformRequest(request: Request): any {

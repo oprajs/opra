@@ -59,7 +59,7 @@
     "ts-cleanup": "^0.3.2",
     "ts-jest": "^29.1.5",
     "ts-loader": "^9.5.1",
-    "ts-node": "^11.0.0-beta.1",
+    "ts-node": "github:TypeStrong/ts-node#main",
     "tsconfig-paths": "^4.2.0",
     "tslib": "^2.6.3",
     "typescript": "5.4.5"

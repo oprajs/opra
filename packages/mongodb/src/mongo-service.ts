@@ -194,7 +194,7 @@ export class MongoService<T extends mongodb.Document = mongodb.Document> extends
   $onError?: (error: unknown, _this: any) => void | Promise<void>;
 
   /**
-   * Represents a common filter function for a MongoEntityService.
+   * Represents a common filter function for a MongoService.
    *
    * @type {FilterInput | Function}
    */
@@ -258,7 +258,7 @@ export class MongoService<T extends mongodb.Document = mongodb.Document> extends
    *
    * @protected
    * @returns {string} The resource name.
-   * @throws {Error} If the collection name is not defined.
+   * @throws {Error} If the resource name is not defined.
    */
   getResourceName(): string {
     const out =
