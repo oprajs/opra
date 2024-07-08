@@ -147,6 +147,7 @@ class HttpOperationClass extends DocumentElement {
       kind: OpraSchema.HttpOperation.Kind,
       description: this.description,
       method: this.method,
+      path: this.path,
       composition: this.composition,
       requestBody: this.requestBody?.toJSON(),
     });
