@@ -408,7 +408,7 @@ export class SqbEntityService<T extends object = object> extends ServiceBase {
     input: PatchDTO<T>,
     options?: SqbEntityService.UpdateOptions,
   ): Promise<boolean> {
-    const inputCodec = this.getInputCodec('create');
+    const inputCodec = this.getInputCodec('update');
     const data: any = inputCodec(input);
     return await this._dbUpdateOnly(id, data, options);
   }
