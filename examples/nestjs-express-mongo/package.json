@@ -7,9 +7,9 @@
   "dependencies": {
     "@nestjs/common": "^10.3.10",
     "@nestjs/core": "^10.3.10",
-    "@opra/common": "^1.0.0-alpha.10",
-    "@opra/core": "^1.0.0-alpha.10",
-    "@opra/mongodb": "^1.0.0-alpha.10",
+    "@opra/common": "^1.0.0-alpha.11",
+    "@opra/core": "^1.0.0-alpha.11",
+    "@opra/mongodb": "^1.0.0-alpha.11",
     "mongodb": "^6.8.0",
     "ts-gems": "^3.4.0"
   },
