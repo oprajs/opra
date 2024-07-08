@@ -139,13 +139,13 @@ describe('HttpOperation.Entity.* decorators', () => {
       expect(opr.composition).toEqual('Entity.Delete');
       expect(opr.compositionOptions).toEqual({
         type: 'Customer',
-        keyParameter: 'id',
       });
       expect(opr.parameters.map(prm => prm.name)).toStrictEqual(['id']);
       expect(opr.parameters.find(prm => prm.name === 'id')).toEqual({
         location: 'path',
         name: 'id',
         type: 'number',
+        keyParam: true,
       });
       expect(opr.responses).toEqual([
         {
@@ -425,7 +425,6 @@ describe('HttpOperation.Entity.* decorators', () => {
       expect(opr.composition).toEqual('Entity.Get');
       expect(opr.compositionOptions).toEqual({
         type: 'Customer',
-        keyParameter: 'id',
       });
       expect(opr.parameters.map(prm => prm.name)).toStrictEqual(['projection', 'id']);
       expect(opr.parameters.find(prm => prm.name === 'projection')).toEqual({
@@ -439,6 +438,7 @@ describe('HttpOperation.Entity.* decorators', () => {
       expect(opr.parameters.find(prm => prm.name === 'id')).toEqual({
         location: 'path',
         name: 'id',
+        keyParam: true,
       });
       expect(opr.responses).toEqual([
         {
@@ -572,7 +572,6 @@ describe('HttpOperation.Entity.* decorators', () => {
       expect(opr.composition).toEqual('Entity.Update');
       expect(opr.compositionOptions).toEqual({
         type: 'Customer',
-        keyParameter: 'id',
       });
       expect(opr.types).toEqual([Customer]);
       expect(opr.parameters.map(prm => prm.name)).toStrictEqual(['projection', 'filter', 'id']);
@@ -594,6 +593,7 @@ describe('HttpOperation.Entity.* decorators', () => {
         location: 'path',
         name: 'id',
         type: 'number',
+        keyParam: true,
       });
       expect(opr.requestBody).toEqual({
         content: [
@@ -646,7 +646,6 @@ describe('HttpOperation.Entity.* decorators', () => {
       expect(opr.method).toEqual('PATCH');
       expect(opr.compositionOptions).toEqual({
         type: 'Customer',
-        keyParameter: 'id',
       });
       expect(opr.parameters.find(prm => prm.name === 'filter')).toEqual({
         location: 'query',
