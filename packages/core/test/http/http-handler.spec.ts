@@ -94,7 +94,7 @@ describe('HttpHandler', () => {
       }),
     );
     await httpHandler.parseRequest(context);
-    expect(context.headers.accesstoken).toEqual('gWEGnjkwegew');
+    expect(context.headers.accessToken).toEqual('gWEGnjkwegew');
     expect(context.headers.cid).toEqual(123);
     expect(context.headers.other).not.toBeDefined();
   });

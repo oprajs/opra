@@ -36,7 +36,7 @@ describe('ExpressAdapter', () => {
       .map(x => x.route.path + ' | ' + Object.keys(x.route.methods).join(',').toUpperCase());
 
     expect(paths).toEqual([
-      '* | GET',
+      '/\\$schema | GET',
       '/ping | GET',
       '/Auth/login | GET',
       '/Auth/logout | GET',
