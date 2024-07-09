@@ -1,3 +1,4 @@
+import crypto from 'node:crypto';
 import { asMutable } from 'ts-gems';
 import { DocumentNode } from './document-node.js';
 
@@ -19,6 +20,7 @@ export interface DocumentElement extends DocumentElementClass {}
 export const DocumentElement = function (this: DocumentElement, owner?: DocumentElement) {
   if (!this) throw new TypeError('"this" should be passed to call class constructor');
   const _this = asMutable(this);
+  _this.id = crypto.randomBytes(16).toString('base64url');
   Object.defineProperty(_this, 'node', {
     value: new DocumentNode(this, owner?.node),
     enumerable: false,
@@ -37,6 +39,7 @@ export const DocumentElement = function (this: DocumentElement, owner?: Document
  * @class DocumentElement
  */
 abstract class DocumentElementClass {
+  readonly id: string;
   readonly owner?: DocumentElement;
   readonly node: DocumentNode;
 }

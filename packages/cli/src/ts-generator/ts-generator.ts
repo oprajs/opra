@@ -14,8 +14,8 @@ import {
   generateMappedTypeDefinition,
   generateMixinTypeDefinition,
   generateSimpleTypeDefinition,
+  generateTypeDefinition,
   processDataType,
-  resolveTypeNameOrDef,
 } from './processors/process-data-types.js';
 import { processDocument } from './processors/process-document.js';
 import { processHttpApi } from './processors/process-http-api.js';
@@ -44,14 +44,15 @@ export class TsGenerator extends EventEmitter {
   protected cleanDirectory: typeof cleanDirectory;
   protected processDocument: typeof processDocument;
   protected processDataType: typeof processDataType;
-  protected processHttpApi: typeof processHttpApi;
-  protected processHttpController: typeof processHttpController;
+  protected generateTypeDefinition: typeof generateTypeDefinition;
   protected generateEnumTypeDefinition: typeof generateEnumTypeDefinition;
   protected generateComplexTypeDefinition: typeof generateComplexTypeDefinition;
   protected generateSimpleTypeDefinition: typeof generateSimpleTypeDefinition;
   protected generateMappedTypeDefinition: typeof generateMappedTypeDefinition;
   protected generateMixinTypeDefinition: typeof generateMixinTypeDefinition;
-  protected resolveTypeNameOrDef: typeof resolveTypeNameOrDef;
+  // protected resolveTypeNameOrDef: typeof resolveTypeNameOrDef;
+  protected processHttpApi: typeof processHttpApi;
+  protected processHttpController: typeof processHttpController;
   protected _started = false;
   protected _document?: ApiDocument;
   protected _documentRoot: string;
@@ -153,11 +154,12 @@ export class TsGenerator extends EventEmitter {
     TsGenerator.prototype.processDataType = processDataType;
     TsGenerator.prototype.processHttpApi = processHttpApi;
     TsGenerator.prototype.processHttpController = processHttpController;
+    TsGenerator.prototype.generateTypeDefinition = generateTypeDefinition;
     TsGenerator.prototype.generateEnumTypeDefinition = generateEnumTypeDefinition;
     TsGenerator.prototype.generateComplexTypeDefinition = generateComplexTypeDefinition;
     TsGenerator.prototype.generateSimpleTypeDefinition = generateSimpleTypeDefinition;
     TsGenerator.prototype.generateMappedTypeDefinition = generateMappedTypeDefinition;
     TsGenerator.prototype.generateMixinTypeDefinition = generateMixinTypeDefinition;
-    TsGenerator.prototype.resolveTypeNameOrDef = resolveTypeNameOrDef;
+    // TsGenerator.prototype.resolveTypeNameOrDef = resolveTypeNameOrDef;
   }
 }

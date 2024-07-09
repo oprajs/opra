@@ -107,9 +107,14 @@ export class ApiDocumentFactory {
     } else init = schemaOrUrl;
 
     // Add builtin data types if this document is the root
+    let builtinDocument: ApiDocument | undefined;
     if (!document[BUILTIN]) {
-      const builtinDocument = await this.createBuiltinDocument(context);
-      document.references.set('opra', builtinDocument);
+      const t = document.node.findDataType('string');
+      builtinDocument = t?.node.getDocument();
+      if (!builtinDocument) {
+        builtinDocument = await this.createBuiltinDocument(context);
+        document.references.set('opra', builtinDocument);
+      }
     }
 
     init.spec = init.spec || OpraSchema.SpecVersion;
@@ -130,6 +135,7 @@ export class ApiDocumentFactory {
               return;
             }
             const refDoc = new ApiDocument();
+            if (builtinDocument) refDoc.references.set('opra', builtinDocument);
             await this.initDocument(refDoc, context, r);
             document.references.set(ns, refDoc);
           });

@@ -93,8 +93,11 @@ export async function processHttpController(this: TsGenerator, controller: HttpC
 
     let argIndex = 0;
     for (const prm of pathParams) {
-      const type = locateNamedType(prm.type);
-      const typeName = type ? await this.resolveTypeNameOrDef(type, file, 'field') : 'any';
+      let typeName: string;
+      if (prm.type) {
+        const xt = await this.processDataType(prm.type, file);
+        typeName = xt.kind === 'embedded' ? xt.code : xt.typeName;
+      } else typeName = `any`;
       if (argIndex++ > 0) operationBlock.head += ', ';
       operationBlock.head += `${prm.name}: ${typeName}`;
     }
@@ -105,8 +108,10 @@ export async function processHttpController(this: TsGenerator, controller: HttpC
       let typeArr: string[] = [];
       for (const content of operation.requestBody.content) {
         if (content.type) {
-          const typeName = await this.resolveTypeNameOrDef(content.type, file, 'field');
+          const xt = await this.processDataType(content.type, file);
+          const typeName = xt.kind === 'embedded' ? xt.code : xt.typeName;
           typeArr.push(typeName);
+          continue;
         }
         typeArr = [];
         break;
@@ -132,18 +137,13 @@ export async function processHttpController(this: TsGenerator, controller: HttpC
       operationBlock.head += '\n\t$params' + (isHeadersRequired || isQueryRequired ? '' : '?') + ': {\n\t';
 
       for (const prm of queryParams) {
-        const type = locateNamedType(prm.type);
         operationBlock.head += `/**\n * ${prm.description || ''}\n */\n`;
         operationBlock.head += `${prm.name}${prm.required ? '' : '?'}: `;
-        if (type?.name) {
-          const typeFile = await this.processDataType(type);
-          if (typeFile) {
-            file.addImport(typeFile.filename, [type.name]);
-            operationBlock.head += `${type.name};\n`;
-            continue;
-          }
-        }
-        operationBlock.head += `${type?.name || 'any'};\n`;
+        if (prm.type) {
+          const xt = await this.processDataType(prm.type, file);
+          const typeDef = xt.kind === 'embedded' ? xt.code : xt.typeName;
+          operationBlock.head += `${typeDef};\n`;
+        } else operationBlock.head += `any;\n`;
       }
       operationBlock.head += '\b}\b';
     }
@@ -154,21 +154,29 @@ export async function processHttpController(this: TsGenerator, controller: HttpC
       operationBlock.head += '\t$headers' + (isHeadersRequired ? '' : '?') + ': {\n\t';
 
       for (const prm of headerParams) {
-        const type = locateNamedType(prm.type);
         operationBlock.head += `/**\n * ${prm.description || ''}\n */\n`;
         operationBlock.head += `${prm.name}${prm.required ? '' : '?'}: `;
-        if (type?.name) {
-          const typeFile = await this.processDataType(type);
-          if (typeFile) {
-            file.addImport(typeFile.filename, [type.name]);
-            operationBlock.head += `${type.name};\n`;
-            continue;
-          }
-        }
-        operationBlock.head += `${type?.name || 'any'};\n`;
+        if (prm.type) {
+          const xt = await this.processDataType(prm.type, file);
+          const typeDef = xt.kind === 'embedded' ? xt.code : xt.typeName;
+          operationBlock.head += `${typeDef};\n`;
+        } else operationBlock.head += `any;\n`;
       }
       operationBlock.head += '\b}\b';
     }
+
+    /* Determine return type */
+    // let returnType = '';
+    // for (const resp of operation.responses) {
+    //   if (resp.type) {
+    //     const typeFile = await this.processDataType(resp.type);
+    //     // if (typeFile) {
+    //     //   file.addImport(typeFile.filename, [resp.type.name!]);
+    //     //   operationBlock.head += `${type.name};\n`;
+    //     //   continue;
+    //     // }
+    //   }
+    // }
 
     operationBlock.head += `\n): HttpRequestObservable<any>{`;
 
@@ -176,10 +184,10 @@ export async function processHttpController(this: TsGenerator, controller: HttpC
     operationBlock.body +=
       `const url = this._prepareUrl('${operation.getFullUrl()}', {` + pathParams.map(p => p.name).join(', ') + '});';
     operationBlock.body +=
-      `\nreturn this[kClient].request(url, {` +
-      (hasBody ? ' body: $body,' : '') +
-      (queryParams.length ? ' params: $params as any,' : '') +
-      (headerParams.length ? ' headers: $headers as any,' : '') +
+      `\nreturn this[kClient].request(url, { method: '${operation.method}'` +
+      (hasBody ? ', body: $body' : '') +
+      (queryParams.length ? ', params: $params as any' : '') +
+      (headerParams.length ? ', headers: $headers as any' : '') +
       '});';
 
     operationBlock.tail = `\b\n};\n`;
