@@ -181,13 +181,6 @@ export async function generateHttpController(this: TsGenerator, controller: Http
       if (resp.type) {
         const xt = await this.generateDataType(resp.type, 'typeDef', file);
         typeDef = xt.kind === 'embedded' ? xt.code : xt.typeName;
-      } else if (resp.contentType && typeIs.is(String(resp.contentType), [MimeTypes.opra_response_json])) {
-        file.addImport('@opra/common', ['OperationResult']);
-        typeDef = 'OperationResult';
-      }
-      if (typeDef === 'any') {
-        returnTypes = [];
-        break;
       }
       if (typeDef) {
         if (typeDef !== 'OperationResult') {
@@ -199,6 +192,10 @@ export async function generateHttpController(this: TsGenerator, controller: Http
             typeDef = `DTO<${typeDef}>`;
           }
         }
+      }
+      if (resp.contentType && typeIs.is(String(resp.contentType), [MimeTypes.opra_response_json])) {
+        file.addImport('@opra/common', ['OperationResult']);
+        typeDef = typeDef ? `OperationResult<${typeDef}>` : 'OperationResult';
       }
       typeDef = typeDef || 'undefined';
       if (!returnTypes.includes(typeDef)) returnTypes.push(typeDef);
