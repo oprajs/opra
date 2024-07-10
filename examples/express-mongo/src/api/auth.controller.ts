@@ -11,7 +11,7 @@ export class AuthController {
   constructor(readonly db: Db) {}
 
   @HttpOperation({
-    path: '/login',
+    path: 'login',
   })
     .QueryParam('user', String)
     .QueryParam('password', 'string')
