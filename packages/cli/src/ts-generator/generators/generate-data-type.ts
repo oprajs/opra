@@ -7,9 +7,9 @@ import { wrapJSDocString } from '../utils/string-utils.js';
 
 const internalTypeNames = ['any', 'boolean', 'bigint', 'number', 'null', 'string', 'object'];
 
-type Intent = 'root' | 'extends' | 'property';
+type Intent = 'root' | 'extends' | 'typeDef';
 
-export type ProcessDataTypeResult =
+export type generateDataTypeResult =
   | {
       kind: 'internal';
       typeName: string;
@@ -24,16 +24,16 @@ export type ProcessDataTypeResult =
       code: string;
     };
 
-export async function processDataType(
+export async function generateDataType(
   this: TsGenerator,
   dataType: DataType,
+  intent: Intent,
   currentFile?: TsFile,
-  intent?: Intent,
-): Promise<ProcessDataTypeResult> {
+): Promise<generateDataTypeResult> {
   const doc = dataType.node.getDocument();
   if (doc.id !== this._document?.id) {
-    const { generator } = await this.processDocument(doc);
-    return await generator.processDataType(dataType, currentFile, intent);
+    const { generator } = await this.generateDocument(doc);
+    return await generator.generateDataType(dataType, intent, currentFile);
   }
 
   const typeName = dataType.name;
@@ -67,7 +67,7 @@ export async function processDataType(
  * @url ${path.posix.join(doc.url || this.serviceUrl, '$schema', '#types/' + typeName)}
  */
 export `;
-    codeBlock.typeDef = (await this.generateTypeDefinition(file, dataType, 'root')) + '\n\n';
+    codeBlock.typeDef = (await this._generateTypeCode(file, dataType, 'root')) + '\n\n';
     typesIndexTs.addExport(file.filename);
 
     if (currentFile) currentFile.addImport(file.filename, [typeName]);
@@ -75,14 +75,14 @@ export `;
   }
 
   if (!currentFile) throw new TypeError(`You must provide currentFile to generate data type`);
-  const code = await this.generateTypeDefinition(currentFile, dataType, intent);
+  const code = await this._generateTypeCode(currentFile, dataType, intent);
   return { kind: 'embedded', code };
 }
 
 /**
  *
  */
-export async function generateTypeDefinition(
+export async function _generateTypeCode(
   this: TsGenerator,
   currentFile: TsFile,
   dataType: DataType,
@@ -92,19 +92,19 @@ export async function generateTypeDefinition(
     throw new TypeError(`Name required to generate data type code to root intent`);
   }
   if (dataType instanceof EnumType) {
-    return await this.generateEnumTypeDefinition(currentFile, dataType, intent);
+    return await this._generateEnumTypeCode(currentFile, dataType, intent);
   }
   if (dataType instanceof ComplexType) {
-    return await this.generateComplexTypeDefinition(currentFile, dataType, intent);
+    return await this._generateComplexTypeCode(currentFile, dataType, intent);
   }
   if (dataType instanceof SimpleType) {
-    return await this.generateSimpleTypeDefinition(currentFile, dataType, intent);
+    return await this._generateSimpleTypeCode(currentFile, dataType, intent);
   }
   if (dataType instanceof MappedType) {
-    return await this.generateMappedTypeDefinition(currentFile, dataType, intent);
+    return await this._generateMappedTypeCode(currentFile, dataType, intent);
   }
   if (dataType instanceof MixinType) {
-    return await this.generateMixinTypeDefinition(currentFile, dataType, intent);
+    return await this._generateMixinTypeCode(currentFile, dataType, intent);
   }
   /* istanbul ignore next */
   throw new TypeError(`${dataType.kind} data types can not be directly exported`);
@@ -113,7 +113,7 @@ export async function generateTypeDefinition(
 /**
  *
  */
-export async function generateEnumTypeDefinition(
+export async function _generateEnumTypeCode(
   this: TsGenerator,
   currentFile: TsFile,
   dataType: EnumType,
@@ -148,7 +148,7 @@ export async function generateEnumTypeDefinition(
 /**
  *
  */
-export async function generateComplexTypeDefinition(
+export async function _generateComplexTypeCode(
   this: TsGenerator,
   currentFile: TsFile,
   dataType: ComplexType,
@@ -159,7 +159,7 @@ export async function generateComplexTypeDefinition(
   const ownFields = [...dataType.fields.values()].filter(f => f.origin === dataType);
 
   if (dataType.base) {
-    const base = await this.processDataType(dataType.base, currentFile, 'extends');
+    const base = await this.generateDataType(dataType.base, 'extends', currentFile);
     let baseDef = base.kind === 'embedded' ? base.code : base.typeName;
     const omitBaseFields = ownFields.filter(f => dataType.base!.fields.has(f.name));
     if (omitBaseFields.length) baseDef = `Omit<${baseDef}, ${omitBaseFields.map(x => "'" + x.name + "'").join(' | ')}>`;
@@ -198,7 +198,7 @@ export async function generateComplexTypeDefinition(
       const t = typeof field.fixed;
       out += `${t === 'number' || t === 'boolean' || t === 'bigint' ? field.fixed : "'" + field.fixed + "'"}\n`;
     } else {
-      const x = await this.processDataType(field.type, currentFile);
+      const x = await this.generateDataType(field.type, 'typeDef', currentFile);
       out += (x.kind === 'embedded' ? x.code : x.typeName) + `${field.isArray ? '[]' : ''};\n`;
     }
   }
@@ -209,7 +209,7 @@ export async function generateComplexTypeDefinition(
 /**
  *
  */
-export async function generateSimpleTypeDefinition(
+export async function _generateSimpleTypeCode(
   this: TsGenerator,
   currentFile: TsFile,
   dataType: SimpleType,
@@ -223,7 +223,7 @@ export async function generateSimpleTypeDefinition(
 /**
  *
  */
-export async function generateMixinTypeDefinition(
+export async function _generateMixinTypeCode(
   this: TsGenerator,
   currentFile: TsFile,
   dataType: MixinType,
@@ -231,7 +231,7 @@ export async function generateMixinTypeDefinition(
 ): Promise<string> {
   const outArray: string[] = [];
   for (const t of dataType.types) {
-    const x = await this.processDataType(t, currentFile);
+    const x = await this.generateDataType(t, 'typeDef', currentFile);
     if (x.kind === 'embedded') {
       outArray.push(x.code.includes('|') ? '(' + x.code + ')' : x.code);
     } else outArray.push(x.typeName);
@@ -244,7 +244,7 @@ export async function generateMixinTypeDefinition(
 /**
  *
  */
-export async function generateMappedTypeDefinition(
+export async function _generateMappedTypeCode(
   this: TsGenerator,
   currentFile: TsFile,
   dataType: MappedType,
@@ -252,7 +252,7 @@ export async function generateMappedTypeDefinition(
 ): Promise<string> {
   let out = intent === 'root' ? `type ${dataType.name} = ` : '';
 
-  const base = await this.processDataType(dataType.base, currentFile);
+  const base = await this.generateDataType(dataType.base, 'typeDef', currentFile);
   const typeDef = base.kind === 'embedded' ? base.code : base.typeName;
   const pick = dataType.pick?.length ? dataType.pick : undefined;
   const omit = !pick && dataType.omit?.length ? dataType.omit : undefined;

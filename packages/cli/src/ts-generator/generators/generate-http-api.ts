@@ -6,7 +6,7 @@ import { httpControllerNodeScript } from '../http-controller-node.js';
 import type { TsGenerator } from '../ts-generator';
 import { wrapJSDocString } from '../utils/string-utils.js';
 
-export async function processHttpApi(this: TsGenerator, api: HttpApi) {
+export async function generateHttpApi(this: TsGenerator, api: HttpApi) {
   let file = this._filesMap.get(api);
   if (file) return file;
 
@@ -37,7 +37,7 @@ export async function processHttpApi(this: TsGenerator, api: HttpApi) {
 
   for (const controller of api.controllers.values()) {
     const generator = this.extend();
-    const f = await generator.processHttpController(controller);
+    const f = await generator.generateHttpController(controller);
     const childClassName = pascalCase(controller.name) + 'Controller';
     file.addImport('.' + f.filename, [childClassName]);
     const property = '$' + controller.name.charAt(0).toLowerCase() + camelCase(controller.name.substring(1));

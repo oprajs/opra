@@ -186,6 +186,9 @@ export function HttpOperationDecoratorFactory(
       responseMeta.contentType = responseMeta.contentType || MimeTypes.opra_response_json;
       responseMeta.contentEncoding = responseMeta.contentEncoding || 'utf-8';
     }
+    if (responseMeta.contentType === MimeTypes.opra_response_json) {
+      responseMeta.contentEncoding = responseMeta.contentEncoding || 'utf-8';
+    }
     decoratorChain.push((meta: HttpOperation.Metadata): void => {
       meta.responses = meta.responses || [];
       meta.responses.push(responseMeta);

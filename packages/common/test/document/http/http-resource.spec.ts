@@ -47,14 +47,16 @@ describe('HttpResource', () => {
       composition: 'Entity.Delete',
       responses: [
         {
+          statusCode: 200,
           description: expect.any(String),
           contentType: 'application/opra.response+json',
-          statusCode: 200,
+          contentEncoding: 'utf-8',
         },
         {
+          statusCode: 422,
           contentType: 'application/opra.response+json',
           description: expect.any(String),
-          statusCode: 422,
+          contentEncoding: 'utf-8',
         },
       ],
     });
@@ -81,21 +83,22 @@ describe('HttpResource', () => {
       ],
       responses: [
         {
+          statusCode: 200,
           description: expect.any(String),
           contentType: 'application/opra.response+json',
           contentEncoding: 'utf-8',
-          statusCode: 200,
           type: 'ns1:Customer',
           partial: 'deep',
         },
         {
-          description: expect.any(String),
           statusCode: 204,
+          description: expect.any(String),
         },
         {
-          contentType: 'application/opra.response+json',
-          description: expect.any(String),
           statusCode: 422,
+          contentType: 'application/opra.response+json',
+          contentEncoding: 'utf-8',
+          description: expect.any(String),
         },
       ],
     });

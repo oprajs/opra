@@ -7,19 +7,19 @@ import chalk from 'chalk';
 import { FileWriter } from '../file-writer.js';
 import { IFileWriter } from '../interfaces/file-writer.interface.js';
 import { ILogger } from '../interfaces/logger.interface.js';
-import { cleanDirectory } from './processors/clean-directory.js';
+import { cleanDirectory } from './generators/clean-directory.js';
 import {
-  generateComplexTypeDefinition,
-  generateEnumTypeDefinition,
-  generateMappedTypeDefinition,
-  generateMixinTypeDefinition,
-  generateSimpleTypeDefinition,
-  generateTypeDefinition,
-  processDataType,
-} from './processors/process-data-types.js';
-import { processDocument } from './processors/process-document.js';
-import { processHttpApi } from './processors/process-http-api.js';
-import { processHttpController } from './processors/process-http-controller.js';
+  _generateComplexTypeCode,
+  _generateEnumTypeCode,
+  _generateMappedTypeCode,
+  _generateMixinTypeCode,
+  _generateSimpleTypeCode,
+  _generateTypeCode,
+  generateDataType,
+} from './generators/generate-data-type.js';
+import { generateDocument } from './generators/generate-document.js';
+import { generateHttpApi } from './generators/generate-http-api.js';
+import { generateHttpController } from './generators/generate-http-controller.js';
 import { TsFile } from './ts-file.js';
 
 /**
@@ -42,17 +42,16 @@ export namespace TsGenerator {
  */
 export class TsGenerator extends EventEmitter {
   protected cleanDirectory: typeof cleanDirectory;
-  protected processDocument: typeof processDocument;
-  protected processDataType: typeof processDataType;
-  protected generateTypeDefinition: typeof generateTypeDefinition;
-  protected generateEnumTypeDefinition: typeof generateEnumTypeDefinition;
-  protected generateComplexTypeDefinition: typeof generateComplexTypeDefinition;
-  protected generateSimpleTypeDefinition: typeof generateSimpleTypeDefinition;
-  protected generateMappedTypeDefinition: typeof generateMappedTypeDefinition;
-  protected generateMixinTypeDefinition: typeof generateMixinTypeDefinition;
-  // protected resolveTypeNameOrDef: typeof resolveTypeNameOrDef;
-  protected processHttpApi: typeof processHttpApi;
-  protected processHttpController: typeof processHttpController;
+  protected generateDocument: typeof generateDocument;
+  protected generateDataType: typeof generateDataType;
+  protected _generateTypeCode: typeof _generateTypeCode;
+  protected _generateEnumTypeCode: typeof _generateEnumTypeCode;
+  protected _generateComplexTypeCode: typeof _generateComplexTypeCode;
+  protected _generateSimpleTypeCode: typeof _generateSimpleTypeCode;
+  protected _generateMappedTypeCode: typeof _generateMappedTypeCode;
+  protected _generateMixinTypeCode: typeof _generateMixinTypeCode;
+  protected generateHttpApi: typeof generateHttpApi;
+  protected generateHttpController: typeof generateHttpController;
   protected _started = false;
   protected _document?: ApiDocument;
   protected _documentRoot: string;
@@ -106,7 +105,7 @@ export class TsGenerator extends EventEmitter {
       this.emit('log', chalk.cyan('Removing old files..'));
       this.cleanDirectory(this.outDir);
       this._apiPath = '/api';
-      await this.processDocument();
+      await this.generateDocument();
       const { importExt } = this.options;
       // Write files
       for (const file of Object.values(this._files)) {
@@ -150,16 +149,15 @@ export class TsGenerator extends EventEmitter {
 
   static {
     TsGenerator.prototype.cleanDirectory = cleanDirectory;
-    TsGenerator.prototype.processDocument = processDocument;
-    TsGenerator.prototype.processDataType = processDataType;
-    TsGenerator.prototype.processHttpApi = processHttpApi;
-    TsGenerator.prototype.processHttpController = processHttpController;
-    TsGenerator.prototype.generateTypeDefinition = generateTypeDefinition;
-    TsGenerator.prototype.generateEnumTypeDefinition = generateEnumTypeDefinition;
-    TsGenerator.prototype.generateComplexTypeDefinition = generateComplexTypeDefinition;
-    TsGenerator.prototype.generateSimpleTypeDefinition = generateSimpleTypeDefinition;
-    TsGenerator.prototype.generateMappedTypeDefinition = generateMappedTypeDefinition;
-    TsGenerator.prototype.generateMixinTypeDefinition = generateMixinTypeDefinition;
-    // TsGenerator.prototype.resolveTypeNameOrDef = resolveTypeNameOrDef;
+    TsGenerator.prototype.generateDocument = generateDocument;
+    TsGenerator.prototype.generateDataType = generateDataType;
+    TsGenerator.prototype._generateTypeCode = _generateTypeCode;
+    TsGenerator.prototype._generateEnumTypeCode = _generateEnumTypeCode;
+    TsGenerator.prototype._generateComplexTypeCode = _generateComplexTypeCode;
+    TsGenerator.prototype._generateSimpleTypeCode = _generateSimpleTypeCode;
+    TsGenerator.prototype._generateMappedTypeCode = _generateMappedTypeCode;
+    TsGenerator.prototype._generateMixinTypeCode = _generateMixinTypeCode;
+    TsGenerator.prototype.generateHttpApi = generateHttpApi;
+    TsGenerator.prototype.generateHttpController = generateHttpController;
   }
 }

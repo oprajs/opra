@@ -5,7 +5,7 @@ import path from 'path';
 import { pascalCase } from 'putil-varhelpers';
 import type { TsGenerator } from '../ts-generator';
 
-export async function processDocument(
+export async function generateDocument(
   this: TsGenerator,
   document?: string | ApiDocument,
   options?: {
@@ -45,7 +45,7 @@ export async function processDocument(
       generator._document = ref;
       generator._documentRoot = '/references/' + (ref.info.title ? pascalCase(ref.info.title) : ref.id);
       generator._typesRoot = path.join(generator._documentRoot, 'models');
-      await generator.processDocument(ref, { typesOnly: true });
+      await generator.generateDocument(ref, { typesOnly: true });
     }
   }
 
@@ -59,14 +59,14 @@ export async function processDocument(
   if (document.types.size) {
     this.emit('log', chalk.white('[' + document.id + ']'), chalk.cyan(`Processing data types`));
     for (const t of document.types.values()) {
-      await this.processDataType(t);
+      await this.generateDataType(t, 'root');
     }
   }
 
   if (options?.typesOnly) return out;
 
   if (document.api instanceof HttpApi) {
-    await this.processHttpApi(document.api);
+    await this.generateHttpApi(document.api);
   }
   return out;
 }

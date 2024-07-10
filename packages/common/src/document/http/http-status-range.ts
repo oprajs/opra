@@ -29,8 +29,12 @@ export class HttpStatusRange {
     }
   }
 
-  get distance(): number {
-    return this.end - this.start;
+  includes(statusCode: number): boolean {
+    return statusCode >= this.start && statusCode <= this.end;
+  }
+
+  intersects(start: number, end: number): boolean {
+    return end >= this.start && start <= this.end;
   }
 
   toString(): string {

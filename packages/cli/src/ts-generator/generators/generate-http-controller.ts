@@ -1,12 +1,13 @@
 import path from 'node:path';
-import { HttpController, HttpParameter } from '@opra/common';
+import typeIs from '@browsery/type-is';
+import { HttpController, HttpParameter, MimeTypes } from '@opra/common';
 import { camelCase, pascalCase } from 'putil-varhelpers';
 import { CodeBlock } from '../../code-block.js';
 import type { TsGenerator } from '../ts-generator';
 import { locateNamedType } from '../utils/locate-named-type.js';
 import { wrapJSDocString } from '../utils/string-utils.js';
 
-export async function processHttpController(this: TsGenerator, controller: HttpController) {
+export async function generateHttpController(this: TsGenerator, controller: HttpController) {
   let file = this._filesMap.get(controller);
   if (file) return file;
 
@@ -34,7 +35,7 @@ export async function processHttpController(this: TsGenerator, controller: HttpC
     for (const child of controller.controllers.values()) {
       const generator = this.extend();
       generator._apiPath = path.join(this._apiPath, className);
-      const f = await generator.processHttpController(child);
+      const f = await generator.generateHttpController(child);
       const childClassName = pascalCase(child.name) + 'Controller';
       file.addImport(f.filename, [childClassName]);
       const property = '$' + child.name.charAt(0).toLowerCase() + camelCase(child.name.substring(1));
@@ -95,7 +96,7 @@ export async function processHttpController(this: TsGenerator, controller: HttpC
     for (const prm of pathParams) {
       let typeName: string;
       if (prm.type) {
-        const xt = await this.processDataType(prm.type, file);
+        const xt = await this.generateDataType(prm.type, 'typeDef', file);
         typeName = xt.kind === 'embedded' ? xt.code : xt.typeName;
       } else typeName = `any`;
       if (argIndex++ > 0) operationBlock.head += ', ';
@@ -108,23 +109,29 @@ export async function processHttpController(this: TsGenerator, controller: HttpC
       let typeArr: string[] = [];
       for (const content of operation.requestBody.content) {
         if (content.type) {
-          const xt = await this.processDataType(content.type, file);
-          const typeName = xt.kind === 'embedded' ? xt.code : xt.typeName;
-          typeArr.push(typeName);
+          const xt = await this.generateDataType(content.type, 'typeDef', file);
+          let typeDef = xt.kind === 'embedded' ? xt.code : xt.typeName;
+          if (typeDef === 'any') {
+            typeArr = [];
+            break;
+          }
+          if (typeDef) {
+            if (operation.requestBody.partial) {
+              file.addImport('ts-gems', ['PartialDTO']);
+              typeDef = `PartialDTO<${typeDef}>`;
+            } else {
+              file.addImport('ts-gems', ['DTO']);
+              typeDef = `DTO<${typeDef}>`;
+            }
+          }
+          typeDef = typeDef || 'undefined';
+          if (!typeArr.includes(typeDef)) typeArr.push(typeDef);
           continue;
         }
         typeArr = [];
         break;
       }
-      if (typeArr.length) {
-        if (operation.requestBody.partial) {
-          file.addImport('ts-gems', ['PartialDTO']);
-          operationBlock.head += `$body: PartialDTO<${typeArr.join(' | ')}>`;
-        } else {
-          file.addImport('ts-gems', ['DTO']);
-          operationBlock.head += `$body: DTO<${typeArr.join(' | ')}>`;
-        }
-      } else operationBlock.head += `$body: any`;
+      operationBlock.head += `$body: ${typeArr.join(' | ') || 'any'}`;
       hasBody = true;
     }
 
@@ -140,7 +147,7 @@ export async function processHttpController(this: TsGenerator, controller: HttpC
         operationBlock.head += `/**\n * ${prm.description || ''}\n */\n`;
         operationBlock.head += `${prm.name}${prm.required ? '' : '?'}: `;
         if (prm.type) {
-          const xt = await this.processDataType(prm.type, file);
+          const xt = await this.generateDataType(prm.type, 'typeDef', file);
           const typeDef = xt.kind === 'embedded' ? xt.code : xt.typeName;
           operationBlock.head += `${typeDef};\n`;
         } else operationBlock.head += `any;\n`;
@@ -157,7 +164,7 @@ export async function processHttpController(this: TsGenerator, controller: HttpC
         operationBlock.head += `/**\n * ${prm.description || ''}\n */\n`;
         operationBlock.head += `${prm.name}${prm.required ? '' : '?'}: `;
         if (prm.type) {
-          const xt = await this.processDataType(prm.type, file);
+          const xt = await this.generateDataType(prm.type, 'typeDef', file);
           const typeDef = xt.kind === 'embedded' ? xt.code : xt.typeName;
           operationBlock.head += `${typeDef};\n`;
         } else operationBlock.head += `any;\n`;
@@ -166,19 +173,38 @@ export async function processHttpController(this: TsGenerator, controller: HttpC
     }
 
     /* Determine return type */
-    // let returnType = '';
-    // for (const resp of operation.responses) {
-    //   if (resp.type) {
-    //     const typeFile = await this.processDataType(resp.type);
-    //     // if (typeFile) {
-    //     //   file.addImport(typeFile.filename, [resp.type.name!]);
-    //     //   operationBlock.head += `${type.name};\n`;
-    //     //   continue;
-    //     // }
-    //   }
-    // }
+    let returnTypes: string[] = [];
+    let typeDef = '';
+    for (const resp of operation.responses) {
+      if (!resp.statusCode.find(r => r.intersects(200, 299))) continue;
+      typeDef = '';
+      if (resp.type) {
+        const xt = await this.generateDataType(resp.type, 'typeDef', file);
+        typeDef = xt.kind === 'embedded' ? xt.code : xt.typeName;
+      } else if (resp.contentType && typeIs.is(String(resp.contentType), [MimeTypes.opra_response_json])) {
+        file.addImport('@opra/common', ['OperationResult']);
+        typeDef = 'OperationResult';
+      }
+      if (typeDef === 'any') {
+        returnTypes = [];
+        break;
+      }
+      if (typeDef) {
+        if (typeDef !== 'OperationResult') {
+          if (resp.partial) {
+            file.addImport('ts-gems', ['PartialDTO']);
+            typeDef = `PartialDTO<${typeDef}>`;
+          } else {
+            file.addImport('ts-gems', ['DTO']);
+            typeDef = `DTO<${typeDef}>`;
+          }
+        }
+      }
+      typeDef = typeDef || 'undefined';
+      if (!returnTypes.includes(typeDef)) returnTypes.push(typeDef);
+    }
 
-    operationBlock.head += `\n): HttpRequestObservable<any>{`;
+    operationBlock.head += `\n): HttpRequestObservable<${returnTypes.join(' | ') || 'any'}>{`;
 
     operationBlock.body = `\n\t`;
     operationBlock.body +=

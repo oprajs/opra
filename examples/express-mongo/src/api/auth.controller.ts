@@ -1,4 +1,4 @@
-import { HttpController, HttpOperation, OperationResult } from '@opra/common';
+import { HttpController, HttpOperation, MimeTypes, OperationResult } from '@opra/common';
 import { Db } from 'mongodb';
 import { MyProfileController } from './my-profile.controller.js';
 
@@ -15,6 +15,7 @@ export class AuthController {
   })
     .QueryParam('user', String)
     .QueryParam('password', 'string')
+    .Response(200, { type: OperationResult })
   login() {
     return new OperationResult({
       message: 'You are logged in',
@@ -23,7 +24,7 @@ export class AuthController {
 
   @HttpOperation({
     path: '/logout',
-  })
+  }).Response(200, { type: OperationResult })
   logout() {
     return new OperationResult({
       message: 'You are logged out',

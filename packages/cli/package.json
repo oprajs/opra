@@ -31,6 +31,7 @@
     "clean:cover": "rimraf ../../coverage/client"
   },
   "dependencies": {
+    "@browsery/type-is": "^1.6.18-r3",
     "@opra/client": "^1.0.0-alpha.12",
     "@opra/common": "^1.0.0-alpha.12",
     "chalk": "^5.3.0",

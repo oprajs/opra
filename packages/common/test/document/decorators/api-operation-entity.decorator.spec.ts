@@ -105,17 +105,18 @@ describe('HttpOperation.Entity.* decorators', () => {
       });
       expect(opr.responses).toEqual([
         {
+          statusCode: 201,
           description: expect.any(String),
           contentType: 'application/opra.response+json',
           contentEncoding: 'utf-8',
-          statusCode: 201,
           type: expect.any(Function),
           partial: 'deep',
         },
         {
+          statusCode: 422,
           description: expect.any(String),
           contentType: 'application/opra.response+json',
-          statusCode: 422,
+          contentEncoding: 'utf-8',
         },
       ]);
     });
@@ -157,11 +158,13 @@ describe('HttpOperation.Entity.* decorators', () => {
         {
           description: expect.any(String),
           contentType: 'application/opra.response+json',
+          contentEncoding: 'utf-8',
           statusCode: 200,
         },
         {
           description: expect.any(String),
           contentType: 'application/opra.response+json',
+          contentEncoding: 'utf-8',
           statusCode: 422,
         },
       ]);
@@ -190,14 +193,16 @@ describe('HttpOperation.Entity.* decorators', () => {
       });
       expect(opr.responses).toEqual([
         {
+          statusCode: 200,
           description: expect.any(String),
           contentType: 'application/opra.response+json',
-          statusCode: 200,
+          contentEncoding: 'utf-8',
         },
         {
+          statusCode: 422,
           description: expect.any(String),
           contentType: 'application/opra.response+json',
-          statusCode: 422,
+          contentEncoding: 'utf-8',
         },
       ]);
     });
@@ -287,9 +292,10 @@ describe('HttpOperation.Entity.* decorators', () => {
           isArray: true,
         },
         {
+          statusCode: 422,
           description: expect.any(String),
           contentType: 'application/opra.response+json',
-          statusCode: 422,
+          contentEncoding: 'utf-8',
         },
       ]);
     });
@@ -332,18 +338,19 @@ describe('HttpOperation.Entity.* decorators', () => {
       });
       expect(opr.responses).toEqual([
         {
+          statusCode: 200,
           description: expect.any(String),
           contentType: 'application/opra.response+json',
           contentEncoding: 'utf-8',
-          statusCode: 200,
           type: expect.any(Function),
           partial: 'deep',
           isArray: true,
         },
         {
+          statusCode: 422,
           description: expect.any(String),
           contentType: 'application/opra.response+json',
-          statusCode: 422,
+          contentEncoding: 'utf-8',
         },
       ]);
     });
@@ -377,18 +384,19 @@ describe('HttpOperation.Entity.* decorators', () => {
       });
       expect(opr.responses).toEqual([
         {
+          statusCode: 200,
           description: expect.any(String),
           contentType: 'application/opra.response+json',
           contentEncoding: 'utf-8',
-          statusCode: 200,
           type: expect.any(Function),
           partial: 'deep',
           isArray: true,
         },
         {
+          statusCode: 422,
           description: expect.any(String),
           contentType: 'application/opra.response+json',
-          statusCode: 422,
+          contentEncoding: 'utf-8',
         },
       ]);
     });
@@ -414,18 +422,19 @@ describe('HttpOperation.Entity.* decorators', () => {
       });
       expect(opr.responses).toEqual([
         {
+          statusCode: 200,
           description: expect.any(String),
           contentType: 'application/opra.response+json',
           contentEncoding: 'utf-8',
-          statusCode: 200,
           type: expect.any(Function),
           partial: 'deep',
           isArray: true,
         },
         {
+          statusCode: 422,
           description: expect.any(String),
           contentType: 'application/opra.response+json',
-          statusCode: 422,
+          contentEncoding: 'utf-8',
         },
       ]);
     });
@@ -473,21 +482,22 @@ describe('HttpOperation.Entity.* decorators', () => {
       });
       expect(opr.responses).toEqual([
         {
+          statusCode: 200,
           description: expect.any(String),
           contentType: 'application/opra.response+json',
           contentEncoding: 'utf-8',
-          statusCode: 200,
           type: expect.any(Function),
           partial: 'deep',
         },
         {
-          description: expect.any(String),
           statusCode: 204,
+          description: expect.any(String),
         },
         {
+          statusCode: 422,
           description: expect.any(String),
           contentType: 'application/opra.response+json',
-          statusCode: 422,
+          contentEncoding: 'utf-8',
         },
       ]);
     });
@@ -535,14 +545,16 @@ describe('HttpOperation.Entity.* decorators', () => {
       });
       expect(opr.responses).toEqual([
         {
+          statusCode: 200,
           description: expect.any(String),
           contentType: 'application/opra.response+json',
-          statusCode: 200,
+          contentEncoding: 'utf-8',
         },
         {
+          statusCode: 422,
           description: expect.any(String),
           contentType: 'application/opra.response+json',
-          statusCode: 422,
+          contentEncoding: 'utf-8',
         },
       ]);
     });
@@ -647,10 +659,10 @@ describe('HttpOperation.Entity.* decorators', () => {
       });
       expect(opr.responses).toEqual([
         {
+          statusCode: 200,
           description: expect.any(String),
           contentType: 'application/opra.response+json',
           contentEncoding: 'utf-8',
-          statusCode: 200,
           type: expect.any(Function),
           partial: 'deep',
         },
@@ -659,9 +671,10 @@ describe('HttpOperation.Entity.* decorators', () => {
           statusCode: 204,
         },
         {
+          statusCode: 422,
           description: expect.any(String),
           contentType: 'application/opra.response+json',
-          statusCode: 422,
+          contentEncoding: 'utf-8',
         },
       ]);
     });

@@ -360,7 +360,11 @@ export class HttpHandler {
           } else body = encode(body);
         }
 
-        if (body instanceof OperationResult && operationResponse.type) {
+        if (
+          body instanceof OperationResult &&
+          operationResponse.type &&
+          operationResponse.type !== document.node.getDataType(OperationResult)
+        ) {
           body.type = operationResponse.type.name ? operationResponse.type.name : '#embedded';
         }
       }
