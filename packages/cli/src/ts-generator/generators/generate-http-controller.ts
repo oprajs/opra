@@ -92,17 +92,20 @@ export async function generateHttpController(this: TsGenerator, controller: Http
       headerParams.push(...Object.values(headerParamsMap));
     }
 
+    /** Process path parameters and add as function arguments */
     let argIndex = 0;
     for (const prm of pathParams) {
-      let typeName: string;
+      let typeDef: string;
       if (prm.type) {
         const xt = await this.generateDataType(prm.type, 'typeDef', file);
-        typeName = xt.kind === 'embedded' ? xt.code : xt.typeName;
-      } else typeName = `any`;
+        typeDef = xt.kind === 'embedded' ? xt.code : xt.typeName;
+      } else typeDef = `any`;
+      if (prm.isArray) typeDef += '[]';
       if (argIndex++ > 0) operationBlock.head += ', ';
-      operationBlock.head += `${prm.name}: ${typeName}`;
+      operationBlock.head += `${prm.name}: ${typeDef}`;
     }
 
+    /** Process requestBody and add as function argument ($body) */
     let hasBody = false;
     if (operation.requestBody?.content.length) {
       if (argIndex++ > 0) operationBlock.head += ', ';
@@ -124,6 +127,7 @@ export async function generateHttpController(this: TsGenerator, controller: Http
               typeDef = `DTO<${typeDef}>`;
             }
           }
+          if (typeDef && content.isArray) typeDef += '[]';
           typeDef = typeDef || 'undefined';
           if (!typeArr.includes(typeDef)) typeArr.push(typeDef);
           continue;
@@ -148,7 +152,8 @@ export async function generateHttpController(this: TsGenerator, controller: Http
         operationBlock.head += `${prm.name}${prm.required ? '' : '?'}: `;
         if (prm.type) {
           const xt = await this.generateDataType(prm.type, 'typeDef', file);
-          const typeDef = xt.kind === 'embedded' ? xt.code : xt.typeName;
+          let typeDef = xt.kind === 'embedded' ? xt.code : xt.typeName;
+          if (prm.isArray) typeDef += '[]';
           operationBlock.head += `${typeDef};\n`;
         } else operationBlock.head += `any;\n`;
       }
@@ -165,7 +170,8 @@ export async function generateHttpController(this: TsGenerator, controller: Http
         operationBlock.head += `${prm.name}${prm.required ? '' : '?'}: `;
         if (prm.type) {
           const xt = await this.generateDataType(prm.type, 'typeDef', file);
-          const typeDef = xt.kind === 'embedded' ? xt.code : xt.typeName;
+          let typeDef = xt.kind === 'embedded' ? xt.code : xt.typeName;
+          if (prm.isArray) typeDef += '[]';
           operationBlock.head += `${typeDef};\n`;
         } else operationBlock.head += `any;\n`;
       }
@@ -173,7 +179,7 @@ export async function generateHttpController(this: TsGenerator, controller: Http
     }
 
     /* Determine return type */
-    let returnTypes: string[] = [];
+    const returnTypes: string[] = [];
     let typeDef = '';
     for (const resp of operation.responses) {
       if (!resp.statusCode.find(r => r.intersects(200, 299))) continue;
@@ -197,6 +203,7 @@ export async function generateHttpController(this: TsGenerator, controller: Http
         file.addImport('@opra/common', ['OperationResult']);
         typeDef = typeDef ? `OperationResult<${typeDef}>` : 'OperationResult';
       }
+      if (typeDef && resp.isArray) typeDef += '[]';
       typeDef = typeDef || 'undefined';
       if (!returnTypes.includes(typeDef)) returnTypes.push(typeDef);
     }
