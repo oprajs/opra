@@ -5,8 +5,6 @@ import * as TB from '@elastic/elasticsearch/lib/api/typesWithBodyKey';
 import { TransportRequestOptions } from '@elastic/transport';
 import { ComplexType, DataType } from '@opra/common';
 import { ServiceBase } from '@opra/core';
-import { MongoAdapter, MongoCollectionService } from '@opra/mongodb/src/index';
-import { MongoEntityService } from '@opra/mongodb/src/mongo-entity-service';
 import { Type } from 'ts-gems';
 import { IsObject } from 'valgen';
 
