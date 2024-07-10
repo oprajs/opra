@@ -242,6 +242,7 @@ describe('HttpApiFactory - HttpOperation (Class)', () => {
     expect(opr?.requestBody?.content).toBeDefined();
     expect(opr?.requestBody?.content.length).toEqual(1);
     expect(opr?.requestBody?.content[0]).toEqual({
+      id: expect.any(String),
       contentType: 'application/json',
       contentEncoding: 'utf-8',
       type: expect.any(ComplexType),

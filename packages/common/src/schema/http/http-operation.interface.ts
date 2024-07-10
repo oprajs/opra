@@ -12,6 +12,10 @@ export interface HttpOperation extends DataTypeContainer {
   method: HttpMethod;
   description?: string;
   path?: string;
+  /**
+   * Determines if the `path` will be joined or merged to parent path.
+   */
+  mergePath?: boolean;
   parameters?: HttpParameter[];
   responses?: HttpOperationResponse[];
   requestBody?: HttpRequestBody;

@@ -18,7 +18,10 @@ import type { HttpRequestBody } from './http-request-body.js';
  */
 export namespace HttpOperation {
   export interface Metadata
-    extends Pick<OpraSchema.HttpOperation, 'description' | 'path' | 'method' | 'composition' | 'compositionOptions'> {
+    extends Pick<
+      OpraSchema.HttpOperation,
+      'description' | 'method' | 'path' | 'mergePath' | 'composition' | 'compositionOptions'
+    > {
     types?: ThunkAsync<Type | EnumType.EnumObject | EnumType.EnumArray>[];
     parameters?: HttpParameter.Metadata[];
     responses?: HttpOperationResponse.Metadata[];
@@ -36,7 +39,10 @@ export namespace HttpOperation {
         name: string;
         types?: DataType[];
       },
-      Pick<Metadata, 'description' | 'path' | 'method' | 'composition' | 'compositionOptions' | 'immediateFetch'>
+      Pick<
+        Metadata,
+        'description' | 'method' | 'path' | 'mergePath' | 'composition' | 'compositionOptions' | 'immediateFetch'
+      >
     > {}
 }
 
@@ -102,6 +108,7 @@ export const HttpOperation = function (this: HttpOperation, ...args: any[]) {
   _this.types = _this.node[kDataTypeMap] = new DataTypeMap();
   _this.name = initArgs.name;
   _this.path = initArgs.path;
+  _this.mergePath = initArgs.mergePath;
   _this.method = initArgs.method || 'GET';
   _this.description = initArgs.description;
   _this.composition = initArgs.composition;
@@ -117,6 +124,7 @@ class HttpOperationClass extends DocumentElement {
   method: OpraSchema.HttpMethod;
   description?: string;
   path?: string;
+  mergePath?: boolean;
   types: DataTypeMap;
   parameters: HttpParameter[];
   responses: HttpOperationResponse[];
@@ -139,7 +147,14 @@ class HttpOperationClass extends DocumentElement {
 
   getFullUrl(): string {
     const out = this.owner.getFullUrl();
-    return out ? (this.path ? nodePath.posix.join(out, this.path) : out) : this.path || '/';
+    if (out) {
+      if (this.path) {
+        if (this.mergePath) return out + this.path;
+        return nodePath.posix.join(out, this.path);
+      }
+      return out;
+    }
+    return this.path || '/';
   }
 
   toJSON(): OpraSchema.HttpOperation {
@@ -148,6 +163,7 @@ class HttpOperationClass extends DocumentElement {
       description: this.description,
       method: this.method,
       path: this.path,
+      mergePath: this.mergePath,
       composition: this.composition,
       requestBody: this.requestBody?.toJSON(),
     });

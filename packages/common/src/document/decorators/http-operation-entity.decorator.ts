@@ -234,7 +234,6 @@ HttpOperation.Entity.Create = function (arg0: any, arg1?: any): HttpOperation.En
       description: 'The request was well-formed but was unable to process operation due to one or many errors.',
       contentType: MimeTypes.opra_response_json,
     });
-  if (typeof args.type === 'function') decorator.UseType(args.type);
 
   decoratorChain.push((operationMeta: HttpOperation.Metadata) => {
     const compositionOptions = (operationMeta.compositionOptions = operationMeta.compositionOptions || {});
@@ -271,7 +270,6 @@ HttpOperation.Entity.Delete = function (arg0: any, arg1?: any): HttpOperation.En
       description: 'The request was well-formed but was unable to process operation due to one or many errors.',
       contentType: MimeTypes.opra_response_json,
     });
-  if (typeof args.type === 'function') decorator.UseType(args.type);
 
   /**
    *
@@ -294,6 +292,7 @@ HttpOperation.Entity.Delete = function (arg0: any, arg1?: any): HttpOperation.En
     decorator.PathParam(name, paramMeta);
     decoratorChain.push((meta: HttpOperation.Metadata): void => {
       if (!meta.path?.includes(':' + name)) meta.path = (meta.path || '') + '@:' + name;
+      meta.mergePath = true;
     });
     return decorator;
   };
@@ -340,7 +339,7 @@ HttpOperation.Entity.DeleteMany = function (arg0: any, arg1?: any): HttpOperatio
       type: filterType,
       description: 'Determines filter fields',
     });
-  if (typeof args.type === 'function') decorator.UseType(args.type);
+
   decoratorChain.push((operationMeta: HttpOperation.Metadata) => {
     const compositionOptions = (operationMeta.compositionOptions = operationMeta.compositionOptions || {});
     compositionOptions.type = getDataTypeName(args.type);
@@ -428,7 +427,6 @@ HttpOperation.Entity.FindMany = function (arg0: any, arg1?: any): HttpOperation.
       isArray: true,
       arraySeparator: ',',
     });
-  if (typeof args.type === 'function') decorator.UseType(args.type);
 
   decoratorChain.push((operationMeta: HttpOperation.Metadata) => {
     const compositionOptions = (operationMeta.compositionOptions = operationMeta.compositionOptions || {});
@@ -505,7 +503,6 @@ HttpOperation.Entity.Get = function (arg0: any, arg1?: any): HttpOperation.Entit
       description: 'The request was well-formed but was unable to process operation due to one or many errors.',
       contentType: MimeTypes.opra_response_json,
     });
-  if (typeof args.type === 'function') decorator.UseType(args.type);
 
   /**
    *
@@ -528,6 +525,7 @@ HttpOperation.Entity.Get = function (arg0: any, arg1?: any): HttpOperation.Entit
     decorator.PathParam(name, paramMeta);
     decoratorChain.push((meta: HttpOperation.Metadata): void => {
       if (!meta.path?.includes(':' + name)) meta.path = (meta.path || '') + '@:' + name;
+      meta.mergePath = true;
     });
     return decorator;
   };
@@ -567,10 +565,8 @@ HttpOperation.Entity.UpdateMany = function (arg0: any, arg1?: any): HttpOperatio
       },
     }),
   ) as HttpOperation.Entity.UpdateManyDecorator;
-  decorator.RequestContent(args.requestBody?.type || args.type);
-  if (typeof args.type === 'function') decorator.UseType(args.type);
-
   decorator
+    .RequestContent(args.requestBody?.type || args.type)
     .Response(HttpStatusCode.OK, {
       description: 'Operation is successful. Returns OperationResult with "affected" field.',
       contentType: MimeTypes.opra_response_json,
@@ -661,8 +657,6 @@ HttpOperation.Entity.Update = function (arg0: any, arg1?: any): HttpOperation.En
       contentType: MimeTypes.opra_response_json,
     });
 
-  if (typeof args.type === 'function') decorator.UseType(args.type);
-
   /**
    *
    */
@@ -684,6 +678,7 @@ HttpOperation.Entity.Update = function (arg0: any, arg1?: any): HttpOperation.En
     decorator.PathParam(name, paramMeta);
     decoratorChain.push((meta: HttpOperation.Metadata): void => {
       if (!meta.path?.includes(':' + name)) meta.path = (meta.path || '') + '@:' + name;
+      meta.mergePath = true;
     });
     return decorator;
   };

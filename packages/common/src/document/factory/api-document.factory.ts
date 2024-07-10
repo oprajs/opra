@@ -137,7 +137,9 @@ export class ApiDocumentFactory {
             const refDoc = new ApiDocument();
             if (builtinDocument) refDoc.references.set('opra', builtinDocument);
             await this.initDocument(refDoc, context, r);
-            document.references.set(ns, refDoc);
+            /** If same document already exists in document tree, we use it except the new one */
+            const preDoc = document.findDocument(refDoc.id);
+            document.references.set(ns, preDoc || refDoc);
           });
         }
       });
@@ -157,8 +159,7 @@ export class ApiDocumentFactory {
         } else context.addError(`Unknown service protocol (${init.api!.protocol})`);
       });
     }
-    const x = document.export();
-    asMutable(document).id = crypto.createHash('md5').update(JSON.stringify(x)).digest('base64url');
+    document.invalidate();
   }
 
   /**

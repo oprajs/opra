@@ -1,4 +1,5 @@
-import { Type } from 'ts-gems';
+import crypto from 'node:crypto';
+import { Mutable, Type } from 'ts-gems';
 import { cloneObject, omitUndefined, ResponsiveMap } from '../helpers/index.js';
 import { OpraSchema } from '../schema/index.js';
 import { DataTypeMap } from './common/data-type-map.js';
@@ -84,6 +85,15 @@ export class ApiDocument extends DocumentElement {
     }
     if (this.api) out.api = this.api.toJSON();
     return out;
+  }
+
+  invalidate(): void {
+    /** Generate id */
+    const x = this.export();
+    delete (x as any).id;
+    (this as Mutable<ApiDocument>).id = crypto.createHash('md5').update(JSON.stringify(x)).digest('base64url');
+    /** Clear [kTypeNSMap] */
+    this[kTypeNSMap] = new WeakMap<DataType, string>();
   }
 
   protected _findDataType(
