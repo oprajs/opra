@@ -5,9 +5,9 @@
   "type": "module",
   "module": "./start.js",
   "dependencies": {
-    "@opra/common": "^1.0.0-alpha.15",
-    "@opra/core": "^1.0.0-alpha.15",
-    "@opra/mongodb": "^1.0.0-alpha.15",
+    "@opra/common": "^1.0.0-alpha.16",
+    "@opra/core": "^1.0.0-alpha.16",
+    "@opra/mongodb": "^1.0.0-alpha.16",
     "express": "^4.19.2",
     "mongodb": "^6.8.0",
     "ts-gems": "^3.4.0"

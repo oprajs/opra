@@ -199,11 +199,11 @@ export async function generateHttpController(this: TsGenerator, controller: Http
           }
         }
       }
+      if (typeDef && resp.isArray) typeDef += '[]';
       if (resp.contentType && typeIs.is(String(resp.contentType), [MimeTypes.opra_response_json])) {
         file.addImport('@opra/common', ['OperationResult']);
         typeDef = typeDef ? `OperationResult<${typeDef}>` : 'OperationResult';
       }
-      if (typeDef && resp.isArray) typeDef += '[]';
       typeDef = typeDef || 'undefined';
       if (!returnTypes.includes(typeDef)) returnTypes.push(typeDef);
     }
