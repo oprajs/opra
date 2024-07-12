@@ -11,10 +11,10 @@ import { SQBAdapter } from './sqb-adapter.js';
 export namespace SqbEntityService {
   export interface Options {
     db?: SqbEntityService<any>['db'];
-    resourceName?: SqbEntityService<any>['$resourceName'];
-    onError?: SqbEntityService<any>['$onError'];
-    commonFilter?: SqbEntityService<any>['$commonFilter'];
-    interceptor?: SqbEntityService<any>['$interceptor'];
+    resourceName?: SqbEntityService<any>['resourceName'];
+    onError?: SqbEntityService<any>['onError'];
+    commonFilter?: SqbEntityService<any>['commonFilter'];
+    interceptor?: SqbEntityService<any>['interceptor'];
   }
 
   export type CrudOp = 'create' | 'read' | 'update' | 'delete';
@@ -126,14 +126,14 @@ export class SqbEntityService<T extends object = object> extends ServiceBase {
    * Represents the name of a resource.
    * @type {string}
    */
-  $resourceName?: string | ((_this: any) => string);
+  resourceName?: string | ((_this: any) => string);
 
   /**
    * Represents a common filter function for a service.
    *
    * @type {SqbEntityService.Filter | Function}
    */
-  $commonFilter?:
+  commonFilter?:
     | SQBAdapter.FilterInput
     | ((
         args: SqbEntityService.CommandInfo,
@@ -148,7 +148,7 @@ export class SqbEntityService<T extends object = object> extends ServiceBase {
    * @param {SqbEntityService} _this - The reference to the current object.
    * @returns - The promise that resolves to the result of the callback execution.
    */
-  $interceptor?: (callback: () => any, info: SqbEntityService.CommandInfo, _this: any) => Promise<any>;
+  interceptor?: (callback: () => any, info: SqbEntityService.CommandInfo, _this: any) => Promise<any>;
 
   /**
    * Callback function for handling errors.
@@ -156,7 +156,7 @@ export class SqbEntityService<T extends object = object> extends ServiceBase {
    * @param {unknown} error - The error object.
    * @param {SqbEntityService} _this - The context object.
    */
-  $onError?: (error: unknown, _this: any) => void | Promise<void>;
+  onError?: (error: unknown, _this: any) => void | Promise<void>;
 
   /**
    * Constructs a new instance
@@ -169,9 +169,9 @@ export class SqbEntityService<T extends object = object> extends ServiceBase {
     super();
     this._dataType_ = dataType;
     this.db = options?.db;
-    this.$resourceName = options?.resourceName;
-    this.$commonFilter = this.$commonFilter || options?.commonFilter;
-    this.$interceptor = this.$interceptor || options?.interceptor;
+    this.resourceName = options?.resourceName;
+    this.commonFilter = this.commonFilter || options?.commonFilter;
+    this.interceptor = this.interceptor || options?.interceptor;
   }
 
   /**
@@ -217,7 +217,7 @@ export class SqbEntityService<T extends object = object> extends ServiceBase {
    */
   getResourceName(): string {
     const out =
-      typeof this.$resourceName === 'function' ? this.$resourceName(this) : this.$resourceName || this.dataType.name;
+      typeof this.resourceName === 'function' ? this.resourceName(this) : this.resourceName || this.dataType.name;
     if (out) return out;
     throw new Error('resourceName is not defined');
   }
@@ -631,26 +631,27 @@ export class SqbEntityService<T extends object = object> extends ServiceBase {
     input?: Object;
     options?: Record<string, any>;
   }): SQBAdapter.FilterInput | Promise<SQBAdapter.FilterInput> | undefined {
-    return typeof this.$commonFilter === 'function' ? this.$commonFilter(args, this) : this.$commonFilter;
+    return typeof this.commonFilter === 'function' ? this.commonFilter(args, this) : this.commonFilter;
   }
 
-  protected async _intercept(
-    callback: (...args: any[]) => any,
-    args: {
-      crud: SqbEntityService.CrudOp;
-      method: string;
-      byId: boolean;
-      documentId?: any;
-      input?: Object;
-      options?: Record<string, any>;
-    },
-  ): Promise<any> {
+  protected async _executeCommand(commandFn: () => any, info: SqbEntityService.CommandInfo): Promise<any> {
+    let proto: any;
+    const next = async () => {
+      proto = proto ? Object.getPrototypeOf(proto) : this;
+      while (proto) {
+        if (proto.interceptor) {
+          return await proto.interceptor.call(this, next, info, this);
+        }
+        proto = Object.getPrototypeOf(proto);
+        if (!(proto instanceof SqbEntityService)) break;
+      }
+      return commandFn();
+    };
     try {
-      if (this.$interceptor) return this.$interceptor(callback, args, this);
-      return callback();
+      return await next();
     } catch (e: any) {
-      Error.captureStackTrace(e, this._intercept);
-      await this.$onError?.(e, this);
+      Error.captureStackTrace(e, this._executeCommand);
+      await this.onError?.(e, this);
       throw e;
     }
   }

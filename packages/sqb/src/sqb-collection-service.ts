@@ -9,7 +9,7 @@ import { SqbEntityService } from './sqb-entity-service.js';
 export namespace SqbCollectionService {
   export interface Options extends SqbEntityService.Options {
     defaultLimit?: SqbCollectionService<any>['defaultLimit'];
-    interceptor?: SqbCollectionService<any>['$interceptor'];
+    interceptor?: SqbCollectionService<any>['interceptor'];
   }
 
   /**
@@ -141,7 +141,7 @@ export abstract class SqbCollectionService<T extends object = object> extends Sq
       input,
       options,
     };
-    return this._intercept(() => this._create(input, options), info);
+    return this._executeCommand(() => this._create(input, options), info);
   }
 
   /**
@@ -157,7 +157,7 @@ export abstract class SqbCollectionService<T extends object = object> extends Sq
       byId: false,
       options,
     };
-    return this._intercept(async () => {
+    return this._executeCommand(async () => {
       const filter = SQBAdapter.parseFilter([await this._getCommonFilter(info), options?.filter]);
       return this._count({ ...options, filter });
     }, info);
@@ -178,7 +178,7 @@ export abstract class SqbCollectionService<T extends object = object> extends Sq
       documentId: id,
       options,
     };
-    return this._intercept(async () => {
+    return this._executeCommand(async () => {
       const filter = SQBAdapter.parseFilter([await this._getCommonFilter(info), options?.filter]);
       return this._delete(id, { ...options, filter });
     }, info);
@@ -197,7 +197,7 @@ export abstract class SqbCollectionService<T extends object = object> extends Sq
       byId: false,
       options,
     };
-    return this._intercept(async () => {
+    return this._executeCommand(async () => {
       const filter = SQBAdapter.parseFilter([await this._getCommonFilter(info), options?.filter]);
       return this._deleteMany({ ...options, filter });
     }, info);
@@ -218,7 +218,7 @@ export abstract class SqbCollectionService<T extends object = object> extends Sq
       documentId: id,
       options,
     };
-    return this._intercept(async () => {
+    return this._executeCommand(async () => {
       const filter = SQBAdapter.parseFilter([await this._getCommonFilter(info), options?.filter]);
       return this._exists(id, { ...options, filter });
     }, info);
@@ -237,7 +237,7 @@ export abstract class SqbCollectionService<T extends object = object> extends Sq
       byId: false,
       options,
     };
-    return this._intercept(async () => {
+    return this._executeCommand(async () => {
       const filter = SQBAdapter.parseFilter([await this._getCommonFilter(info), options?.filter]);
       return this._existsOne({ ...options, filter });
     }, info);
@@ -258,7 +258,7 @@ export abstract class SqbCollectionService<T extends object = object> extends Sq
       documentId: id,
       options,
     };
-    return this._intercept(async () => {
+    return this._executeCommand(async () => {
       const documentFilter = await this._getCommonFilter(info);
       const filter = SQBAdapter.parseFilter([documentFilter, options?.filter]);
       return this._findById(id, { ...options, filter });
@@ -278,7 +278,7 @@ export abstract class SqbCollectionService<T extends object = object> extends Sq
       byId: false,
       options,
     };
-    return this._intercept(async () => {
+    return this._executeCommand(async () => {
       const filter = SQBAdapter.parseFilter([await this._getCommonFilter(info), options?.filter]);
       return this._findOne({ ...options, filter });
     }, info);
@@ -297,7 +297,7 @@ export abstract class SqbCollectionService<T extends object = object> extends Sq
       byId: false,
       options,
     };
-    return this._intercept(async () => {
+    return this._executeCommand(async () => {
       const filter = SQBAdapter.parseFilter([await this._getCommonFilter(info), options?.filter]);
       return this._findMany({ ...options, filter });
     }, info);
@@ -355,7 +355,7 @@ export abstract class SqbCollectionService<T extends object = object> extends Sq
       input,
       options,
     };
-    return this._intercept(async () => {
+    return this._executeCommand(async () => {
       const filter = SQBAdapter.parseFilter([await this._getCommonFilter(info), options?.filter]);
       return this._update(id, input, { ...options, filter });
     }, info);
@@ -382,7 +382,7 @@ export abstract class SqbCollectionService<T extends object = object> extends Sq
       input,
       options,
     };
-    return this._intercept(async () => {
+    return this._executeCommand(async () => {
       const filter = SQBAdapter.parseFilter([await this._getCommonFilter(info), options?.filter]);
       return this._updateOnly(id, input, { ...options, filter });
     }, info);
@@ -403,7 +403,7 @@ export abstract class SqbCollectionService<T extends object = object> extends Sq
       input,
       options,
     };
-    return this._intercept(async () => {
+    return this._executeCommand(async () => {
       const filter = SQBAdapter.parseFilter([await this._getCommonFilter(info), options?.filter]);
       return this._updateMany(input, { ...options, filter });
     }, info);

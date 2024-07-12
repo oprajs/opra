@@ -106,7 +106,7 @@ export abstract class SqbSingletonService<T extends object = object> extends Sqb
       input,
       options,
     };
-    return this._intercept(async () => {
+    return this._executeCommand(async () => {
       const primaryFields = EntityMetadata.getPrimaryIndexColumns(this.entityMetadata);
       const data = { ...input };
       if (primaryFields.length > 1) {
@@ -137,7 +137,7 @@ export abstract class SqbSingletonService<T extends object = object> extends Sqb
       documentId: this.id,
       options,
     };
-    return this._intercept(async () => {
+    return this._executeCommand(async () => {
       const filter = SQBAdapter.parseFilter([await this._getCommonFilter(info), options?.filter]);
       return this._delete(this.id, { ...options, filter });
     }, info);
@@ -157,7 +157,7 @@ export abstract class SqbSingletonService<T extends object = object> extends Sqb
       documentId: this.id,
       options,
     };
-    return this._intercept(async () => {
+    return this._executeCommand(async () => {
       const filter = SQBAdapter.parseFilter([await this._getCommonFilter(info), options?.filter]);
       return this._exists(this.id, { ...options, filter });
     }, info);
@@ -177,7 +177,7 @@ export abstract class SqbSingletonService<T extends object = object> extends Sqb
       documentId: this.id,
       options,
     };
-    return this._intercept(async () => {
+    return this._executeCommand(async () => {
       const filter = SQBAdapter.parseFilter([await this._getCommonFilter(info), options?.filter]);
       return this._findById(this.id, { ...options, filter });
     }, info);
@@ -214,7 +214,7 @@ export abstract class SqbSingletonService<T extends object = object> extends Sqb
       input,
       options,
     };
-    return this._intercept(async () => {
+    return this._executeCommand(async () => {
       const filter = SQBAdapter.parseFilter([await this._getCommonFilter(info), options?.filter]);
       return this._update(this.id, input, { ...options, filter });
     }, info);
@@ -236,7 +236,7 @@ export abstract class SqbSingletonService<T extends object = object> extends Sqb
       input,
       options,
     };
-    return this._intercept(async () => {
+    return this._executeCommand(async () => {
       const filter = SQBAdapter.parseFilter([await this._getCommonFilter(info), options?.filter]);
       return this._updateOnly(this.id, input, { ...options, filter });
     }, info);

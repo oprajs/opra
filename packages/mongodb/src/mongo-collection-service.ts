@@ -1,5 +1,5 @@
 import { ResourceNotAvailableError } from '@opra/common';
-import mongodb, { ObjectId, UpdateFilter } from 'mongodb';
+import mongodb, { UpdateFilter } from 'mongodb';
 import { PartialDTO, PatchDTO, Type } from 'ts-gems';
 import { MongoAdapter } from './mongo-adapter.js';
 import { MongoEntityService } from './mongo-entity-service.js';
@@ -100,7 +100,7 @@ export class MongoCollectionService<T extends mongodb.Document> extends MongoEnt
       input,
       options,
     };
-    return this._intercept(() => this._create(input, options), info);
+    return this._executeCommand(() => this._create(input, options), info);
   }
 
   /**
@@ -116,7 +116,7 @@ export class MongoCollectionService<T extends mongodb.Document> extends MongoEnt
       byId: false,
       options,
     };
-    return this._intercept(async () => {
+    return this._executeCommand(async () => {
       const filter = MongoAdapter.prepareFilter([await this._getDocumentFilter(info), options?.filter]);
       return this._count({ ...options, filter });
     }, info);
@@ -137,7 +137,7 @@ export class MongoCollectionService<T extends mongodb.Document> extends MongoEnt
       documentId: id,
       options,
     };
-    return this._intercept(async () => {
+    return this._executeCommand(async () => {
       const filter = MongoAdapter.prepareFilter([await this._getDocumentFilter(info), options?.filter]);
       return this._delete(id, { ...options, filter });
     }, info);
@@ -156,7 +156,7 @@ export class MongoCollectionService<T extends mongodb.Document> extends MongoEnt
       byId: false,
       options,
     };
-    return this._intercept(async () => {
+    return this._executeCommand(async () => {
       const filter = MongoAdapter.prepareFilter([await this._getDocumentFilter(info), options?.filter]);
       return this._deleteMany({ ...options, filter });
     }, info);
@@ -175,7 +175,7 @@ export class MongoCollectionService<T extends mongodb.Document> extends MongoEnt
       byId: true,
       options,
     };
-    return this._intercept(async () => {
+    return this._executeCommand(async () => {
       const filter = MongoAdapter.prepareFilter([await this._getDocumentFilter(info), options?.filter]);
       return this._distinct(field, { ...options, filter });
     }, info);
@@ -220,7 +220,7 @@ export class MongoCollectionService<T extends mongodb.Document> extends MongoEnt
       documentId: id,
       options,
     };
-    return this._intercept(async () => {
+    return this._executeCommand(async () => {
       const documentFilter = await this._getDocumentFilter(info);
       const filter = MongoAdapter.prepareFilter([documentFilter, options?.filter]);
       return this._findById(id, { ...options, filter });
@@ -240,7 +240,7 @@ export class MongoCollectionService<T extends mongodb.Document> extends MongoEnt
       byId: false,
       options,
     };
-    return this._intercept(async () => {
+    return this._executeCommand(async () => {
       const filter = MongoAdapter.prepareFilter([await this._getDocumentFilter(info), options?.filter]);
       return this._findOne({ ...options, filter });
     }, info);
@@ -259,7 +259,7 @@ export class MongoCollectionService<T extends mongodb.Document> extends MongoEnt
       byId: false,
       options,
     };
-    return this._intercept(async () => {
+    return this._executeCommand(async () => {
       const filter = MongoAdapter.prepareFilter([await this._getDocumentFilter(info), options?.filter]);
       return this._findMany({ ...options, filter, limit: options?.limit || this.defaultLimit });
     }, info);
@@ -282,7 +282,7 @@ export class MongoCollectionService<T extends mongodb.Document> extends MongoEnt
       byId: false,
       options,
     };
-    return this._intercept(async () => {
+    return this._executeCommand(async () => {
       const filter = MongoAdapter.prepareFilter([await this._getDocumentFilter(info), options?.filter]);
       return this._findManyWithCount({ ...options, filter, limit: options?.limit || this.defaultLimit });
     }, info);
@@ -325,7 +325,7 @@ export class MongoCollectionService<T extends mongodb.Document> extends MongoEnt
       input,
       options,
     };
-    return this._intercept(async () => {
+    return this._executeCommand(async () => {
       const filter = MongoAdapter.prepareFilter([await this._getDocumentFilter(info), options?.filter]);
       return this._update(id, input, { ...options, filter });
     }, info);
@@ -352,7 +352,7 @@ export class MongoCollectionService<T extends mongodb.Document> extends MongoEnt
       input,
       options,
     };
-    return this._intercept(async () => {
+    return this._executeCommand(async () => {
       const filter = MongoAdapter.prepareFilter([await this._getDocumentFilter(info), options?.filter]);
       return this._updateOnly(id, input, { ...options, filter });
     }, info);
@@ -376,19 +376,9 @@ export class MongoCollectionService<T extends mongodb.Document> extends MongoEnt
       input,
       options,
     };
-    return this._intercept(async () => {
+    return this._executeCommand(async () => {
       const filter = MongoAdapter.prepareFilter([await this._getDocumentFilter(info), options?.filter]);
       return this._updateMany(input, { ...options, filter });
     }, info);
-  }
-
-  /**
-   * Generates an ID.
-   *
-   * @protected
-   * @returns {MongoAdapter.AnyId} The generated ID.
-   */
-  protected _generateId(): MongoAdapter.AnyId {
-    return typeof this.$idGenerator === 'function' ? this.$idGenerator(this) : new ObjectId();
   }
 }

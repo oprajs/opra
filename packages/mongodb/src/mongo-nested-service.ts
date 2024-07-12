@@ -19,7 +19,7 @@ export namespace MongoNestedService {
   export interface Options extends MongoService.Options {
     defaultLimit?: number;
     nestedKey?: string;
-    $nestedFilter?:
+    nestedFilter?:
       | FilterInput
       | ((args: MongoService.CommandInfo, _this: this) => FilterInput | Promise<FilterInput> | undefined);
   }
@@ -93,7 +93,7 @@ export class MongoNestedService<T extends mongodb.Document> extends MongoService
    *
    * @type {FilterInput | Function}
    */
-  $nestedFilter?:
+  nestedFilter?:
     | FilterInput
     | ((args: MongoService.CommandInfo, _this: this) => FilterInput | Promise<FilterInput> | undefined);
 
@@ -110,7 +110,7 @@ export class MongoNestedService<T extends mongodb.Document> extends MongoService
     this.fieldName = fieldName;
     this.nestedKey = options?.nestedKey || '_id';
     this.defaultLimit = options?.defaultLimit || 10;
-    this.$nestedFilter = options?.$nestedFilter;
+    this.nestedFilter = options?.nestedFilter;
   }
 
   /**
@@ -170,7 +170,7 @@ export class MongoNestedService<T extends mongodb.Document> extends MongoService
       input,
       options,
     };
-    return this._intercept(() => this._create(documentId, input, options), info);
+    return this._executeCommand(() => this._create(documentId, input, options), info);
   }
 
   protected async _create(
@@ -218,7 +218,7 @@ export class MongoNestedService<T extends mongodb.Document> extends MongoService
       documentId,
       options,
     };
-    return this._intercept(async () => {
+    return this._executeCommand(async () => {
       const documentFilter = MongoAdapter.prepareFilter([await this._getDocumentFilter(info)]);
       const filter = MongoAdapter.prepareFilter([await this._getNestedFilter(info), options?.filter]);
       return this._count(documentId, { ...options, filter, documentFilter });
@@ -274,7 +274,7 @@ export class MongoNestedService<T extends mongodb.Document> extends MongoService
       nestedId,
       options,
     };
-    return this._intercept(async () => {
+    return this._executeCommand(async () => {
       const documentFilter = MongoAdapter.prepareFilter([await this._getDocumentFilter(info)]);
       const filter = MongoAdapter.prepareFilter([await this._getNestedFilter(info), options?.filter]);
       return this._delete(documentId, nestedId, { ...options, filter, documentFilter });
@@ -317,7 +317,7 @@ export class MongoNestedService<T extends mongodb.Document> extends MongoService
       documentId,
       options,
     };
-    return this._intercept(async () => {
+    return this._executeCommand(async () => {
       const documentFilter = MongoAdapter.prepareFilter([await this._getDocumentFilter(info)]);
       const filter = MongoAdapter.prepareFilter([await this._getNestedFilter(info), options?.filter]);
       return this._deleteMany(documentId, { ...options, filter, documentFilter });
@@ -397,7 +397,7 @@ export class MongoNestedService<T extends mongodb.Document> extends MongoService
       nestedId,
       options,
     };
-    return this._intercept(async () => {
+    return this._executeCommand(async () => {
       const documentFilter = MongoAdapter.prepareFilter([await this._getDocumentFilter(info)]);
       const filter = MongoAdapter.prepareFilter([await this._getNestedFilter(info), options?.filter]);
       return this._findById(documentId, nestedId, { ...options, filter, documentFilter });
@@ -441,7 +441,7 @@ export class MongoNestedService<T extends mongodb.Document> extends MongoService
       documentId,
       options,
     };
-    return this._intercept(async () => {
+    return this._executeCommand(async () => {
       const documentFilter = MongoAdapter.prepareFilter([await this._getDocumentFilter(info)]);
       const filter = MongoAdapter.prepareFilter([await this._getNestedFilter(info), options?.filter]);
       return this._findOne(documentId, { ...options, filter, documentFilter });
@@ -477,7 +477,7 @@ export class MongoNestedService<T extends mongodb.Document> extends MongoService
       documentId,
       options,
     };
-    return this._intercept(async () => {
+    return this._executeCommand(async () => {
       const documentFilter = await this._getDocumentFilter(args);
       const nestedFilter = await this._getNestedFilter(args);
       return this._findMany(documentId, {
@@ -552,7 +552,7 @@ export class MongoNestedService<T extends mongodb.Document> extends MongoService
       documentId,
       options,
     };
-    return this._intercept(async () => {
+    return this._executeCommand(async () => {
       const documentFilter = await this._getDocumentFilter(args);
       const nestedFilter = await this._getNestedFilter(args);
       return this._findManyWithCount(documentId, {
@@ -692,7 +692,7 @@ export class MongoNestedService<T extends mongodb.Document> extends MongoService
       nestedId,
       options,
     };
-    return this._intercept(async () => {
+    return this._executeCommand(async () => {
       const documentFilter = MongoAdapter.prepareFilter([await this._getDocumentFilter(info)]);
       const filter = MongoAdapter.prepareFilter([await this._getNestedFilter(info), options?.filter]);
       return this._updateOnly(documentId, nestedId, input, { ...options, filter, documentFilter });
@@ -731,7 +731,7 @@ export class MongoNestedService<T extends mongodb.Document> extends MongoService
       input,
       options,
     };
-    return this._intercept(async () => {
+    return this._executeCommand(async () => {
       const documentFilter = MongoAdapter.prepareFilter([await this._getDocumentFilter(info)]);
       const filter = MongoAdapter.prepareFilter([await this._getNestedFilter(info), options?.filter]);
       return this._updateMany(documentId, input, { ...options, filter, documentFilter });
@@ -774,6 +774,6 @@ export class MongoNestedService<T extends mongodb.Document> extends MongoService
    * that resolves to the common filter, or undefined if not available.
    */
   protected _getNestedFilter(args: MongoService.CommandInfo): FilterInput | Promise<FilterInput> | undefined {
-    return typeof this.$nestedFilter === 'function' ? this.$nestedFilter(args, this) : this.$nestedFilter;
+    return typeof this.nestedFilter === 'function' ? this.nestedFilter(args, this) : this.nestedFilter;
   }
 }

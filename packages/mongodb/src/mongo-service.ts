@@ -15,13 +15,23 @@ export namespace MongoService {
   export interface Options {
     db?: MongoService<any>['db'];
     session?: MongoService<any>['session'];
-    collectionName?: MongoService<any>['$collectionName'];
-    resourceName?: MongoService<any>['$resourceName'];
-    documentFilter?: MongoService<any>['$documentFilter'];
-    interceptor?: MongoService<any>['$interceptor'];
-    idGenerator?: MongoService<any>['$idGenerator'];
-    onError?: MongoService<any>['$onError'];
+    collectionName?: MongoService<any>['collectionName'];
+    resourceName?: MongoService<any>['resourceName'];
+    documentFilter?: MongoService<any>['documentFilter'];
+    interceptor?: MongoService<any>['interceptor'];
+    idGenerator?: MongoService<any>['idGenerator'];
+    onError?: MongoService<any>['onError'];
   }
+
+  /**
+   * Interceptor function for handling callback execution with provided arguments.
+   * @type Function
+   * @param next - The callback function to be intercepted.
+   * @param {MongoService.CommandInfo} info - The arguments object containing the following properties:
+   * @param _this - The reference to the current object.
+   * @returns - The promise that resolves to the result of the callback execution.
+   */
+  export type InterceptorFunction = (next: () => any, info: MongoService.CommandInfo, _this: any) => Promise<any>;
 
   export type CrudOp = 'create' | 'read' | 'update' | 'delete';
 
@@ -161,13 +171,13 @@ export class MongoService<T extends mongodb.Document = mongodb.Document> extends
   /**
    * Represents the name of a collection in MongoDB
    */
-  $collectionName?: string | ((_this: any) => string);
+  collectionName?: string | ((_this: any) => string);
 
   /**
    * Represents the name of a resource.
    * @type {string}
    */
-  $resourceName?: string | ((_this: any) => string);
+  resourceName?: string | ((_this: any) => string);
 
   /**
    * Represents a MongoDB database object.
@@ -183,7 +193,7 @@ export class MongoService<T extends mongodb.Document = mongodb.Document> extends
    * Generates a new id for new inserting Document.
    *
    */
-  $idGenerator?: (_this: any) => MongoAdapter.AnyId;
+  idGenerator?: (_this: any) => MongoAdapter.AnyId;
 
   /**
    * Callback function for handling errors.
@@ -191,14 +201,14 @@ export class MongoService<T extends mongodb.Document = mongodb.Document> extends
    * @param {unknown} error - The error object.
    * @param _this - The context object.
    */
-  $onError?: (error: unknown, _this: any) => void | Promise<void>;
+  onError?: (error: unknown, _this: any) => void | Promise<void>;
 
   /**
    * Represents a common filter function for a MongoService.
    *
    * @type {FilterInput | Function}
    */
-  $documentFilter?:
+  documentFilter?:
     | MongoAdapter.FilterInput
     | ((
         args: MongoService.CommandInfo,
@@ -208,12 +218,9 @@ export class MongoService<T extends mongodb.Document = mongodb.Document> extends
   /**
    * Interceptor function for handling callback execution with provided arguments.
    *
-   * @param callback - The callback function to be intercepted.
-   * @param {MongoService.CommandInfo} info - The arguments object containing the following properties:
-   * @param _this - The reference to the current object.
-   * @returns - The promise that resolves to the result of the callback execution.
+   * @type {MongoService.InterceptorFunction}
    */
-  $interceptor?: (callback: () => any, info: MongoService.CommandInfo, _this: any) => Promise<any>;
+  interceptor?: MongoService.InterceptorFunction;
 
   /**
    * Constructs a new instance
@@ -226,18 +233,18 @@ export class MongoService<T extends mongodb.Document = mongodb.Document> extends
     super();
     this._dataType_ = dataType;
     this.db = options?.db;
-    this.$documentFilter = this.$documentFilter || options?.documentFilter;
-    this.$interceptor = this.$interceptor || options?.interceptor;
-    this.$collectionName = options?.collectionName;
-    if (!this.$collectionName) {
-      if (typeof dataType === 'string') this.$collectionName = dataType;
+    this.documentFilter = this.documentFilter || options?.documentFilter;
+    this.interceptor = this.interceptor || options?.interceptor;
+    this.collectionName = options?.collectionName;
+    if (!this.collectionName) {
+      if (typeof dataType === 'string') this.collectionName = dataType;
       if (typeof dataType === 'function') {
         const metadata = Reflect.getMetadata(DATATYPE_METADATA, dataType);
-        if (metadata) this.$collectionName = metadata.name;
+        if (metadata) this.collectionName = metadata.name;
       }
     }
-    this.$resourceName = options?.resourceName;
-    this.$idGenerator = options?.idGenerator;
+    this.resourceName = options?.resourceName;
+    this.idGenerator = options?.idGenerator;
   }
 
   /**
@@ -248,7 +255,7 @@ export class MongoService<T extends mongodb.Document = mongodb.Document> extends
    * @throws {Error} If the collection name is not defined.
    */
   getCollectionName(): string {
-    const out = typeof this.$collectionName === 'function' ? this.$collectionName(this) : this.$collectionName;
+    const out = typeof this.collectionName === 'function' ? this.collectionName(this) : this.collectionName;
     if (out) return out;
     throw new Error('collectionName is not defined');
   }
@@ -262,9 +269,7 @@ export class MongoService<T extends mongodb.Document = mongodb.Document> extends
    */
   getResourceName(): string {
     const out =
-      typeof this.$resourceName === 'function'
-        ? this.$resourceName(this)
-        : this.$resourceName || this.getCollectionName();
+      typeof this.resourceName === 'function' ? this.resourceName(this) : this.resourceName || this.getCollectionName();
     if (out) return out;
     throw new Error('resourceName is not defined');
   }
@@ -599,7 +604,7 @@ export class MongoService<T extends mongodb.Document = mongodb.Document> extends
    * @returns {MongoAdapter.AnyId} The generated ID.
    */
   protected _generateId(): MongoAdapter.AnyId {
-    return typeof this.$idGenerator === 'function' ? this.$idGenerator(this) : new ObjectId();
+    return typeof this.idGenerator === 'function' ? this.idGenerator(this) : new ObjectId();
   }
 
   /**
@@ -613,16 +618,27 @@ export class MongoService<T extends mongodb.Document = mongodb.Document> extends
   protected _getDocumentFilter(
     info: MongoService.CommandInfo,
   ): MongoAdapter.FilterInput | Promise<MongoAdapter.FilterInput> | undefined {
-    return typeof this.$documentFilter === 'function' ? this.$documentFilter(info, this) : this.$documentFilter;
+    return typeof this.documentFilter === 'function' ? this.documentFilter(info, this) : this.documentFilter;
   }
 
-  protected async _intercept(callback: (...args: any[]) => any, info: MongoService.CommandInfo): Promise<any> {
+  protected async _executeCommand(commandFn: () => any, info: MongoService.CommandInfo): Promise<any> {
+    let proto: any;
+    const next = async () => {
+      proto = proto ? Object.getPrototypeOf(proto) : this;
+      while (proto) {
+        if (proto.interceptor) {
+          return await proto.interceptor.call(this, next, info, this);
+        }
+        proto = Object.getPrototypeOf(proto);
+        if (!(proto instanceof MongoService)) break;
+      }
+      return commandFn();
+    };
     try {
-      if (this.$interceptor) return this.$interceptor(callback, info, this);
-      return callback();
+      return await next();
     } catch (e: any) {
-      Error.captureStackTrace(e, this._intercept);
-      await this.$onError?.(e, this);
+      Error.captureStackTrace(e, this._executeCommand);
+      await this.onError?.(e, this);
       throw e;
     }
   }

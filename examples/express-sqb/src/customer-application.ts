@@ -4,7 +4,6 @@ import { ApiDocument } from '@opra/common';
 import { ExpressAdapter, HttpAdapter } from '@opra/core';
 import { SqbClient } from '@sqb/connect';
 import express from 'express';
-import { inspect } from 'util';
 import { CustomerApiDocument } from './api-document.js';
 
 export class CustomerApplication {
@@ -24,21 +23,21 @@ export class CustomerApplication {
       await app.close();
       throw e;
     }
-    app.db.on('execute', r => {
-      let s = `Executing sql expression\n\x1b[32m${r.sql}`;
-      if (r.params) {
-        s += `${
-          '\n' +
-          '\x1b[36m' + // Cyan
-          'Params:' +
-          '\x1b[0m'
-        }${
-          // Reset color
-          inspect(r.params, { depth: 10, colors: true })
-        }`;
-      }
-      console.log(s);
-    });
+    // app.db.on('execute', r => {
+    //   let s = `Executing sql expression\n\x1b[32m${r.sql}`;
+    //   if (r.params) {
+    //     s += `${
+    //       '\n' +
+    //       '\x1b[36m' + // Cyan
+    //       'Params:' +
+    //       '\x1b[0m'
+    //     }${
+    //       // Reset color
+    //       inspect(r.params, { depth: 10, colors: true })
+    //     }`;
+    //   }
+    //   console.log(s);
+    // });
     app.document = await CustomerApiDocument.create(app.db);
     app.express = express();
     app.adapter = new ExpressAdapter(app.express, app.document, options);
