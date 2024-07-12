@@ -1,3 +1,4 @@
+import { UseGuards } from '@nestjs/common';
 import { HttpController, HttpOperation } from '@opra/common';
 import { MongoAdapter } from '@opra/mongodb';
 import { Customer, CustomersService } from 'customer-mongo';

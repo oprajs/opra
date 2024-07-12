@@ -1,7 +1,5 @@
-import { UseGuards } from '@nestjs/common';
 import { HttpController, HttpOperation, OperationResult } from '@opra/common';
 import { Db } from 'mongodb';
-import { AppAuthGuard } from '../guards/app-auth.guard';
 import { MyProfileController } from './my-profile.controller.js';
 
 @HttpController({
@@ -9,7 +7,6 @@ import { MyProfileController } from './my-profile.controller.js';
   controllers: [MyProfileController],
   path: 'auth',
 })
-@UseGuards(AppAuthGuard)
 export class AuthController {
   constructor(readonly db: Db) {}
 
