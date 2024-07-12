@@ -79,12 +79,22 @@ export class OpraNestAdapter extends HttpAdapter {
     this.nestControllers.push(RootController);
   }
 
-  protected _addToNestControllers(sourceClass: Type, currentPath: string) {
+  protected _addToNestControllers(sourceClass: Type, currentPath: string, parentClass?: Type) {
     const metadata: HttpController.Metadata = Reflect.getMetadata(HTTP_CONTROLLER_METADATA, sourceClass);
     if (!metadata) return;
     const newClass = {
       [sourceClass.name]: class extends sourceClass {},
     }[sourceClass.name];
+
+    /** Copy metadata keys from source class to new one */
+    let metadataKeys: any[];
+    if (parentClass) {
+      metadataKeys = Reflect.getOwnMetadataKeys(parentClass);
+      for (const key of metadataKeys) {
+        const m = Reflect.getMetadata(key, parentClass);
+        Reflect.defineMetadata(key, m, newClass);
+      }
+    }
 
     const newPath = metadata.path ? nodePath.join(currentPath, metadata.path) : currentPath;
     const adapter = this;
@@ -127,7 +137,7 @@ export class OpraNestAdapter extends HttpAdapter {
         });
 
         /** Copy metadata keys from source function to new one */
-        const metadataKeys = Reflect.getOwnMetadataKeys(operationHandler);
+        metadataKeys = Reflect.getOwnMetadataKeys(operationHandler);
         const newFn = newClass.prototype[k];
         for (const key of metadataKeys) {
           const m = Reflect.getMetadata(key, operationHandler);
@@ -180,7 +190,7 @@ export class OpraNestAdapter extends HttpAdapter {
     if (metadata.controllers) {
       for (const child of metadata.controllers) {
         if (!isConstructor(child)) throw new TypeError('Controllers should be injectable a class');
-        this._addToNestControllers(child, newPath);
+        this._addToNestControllers(child, newPath, sourceClass);
       }
     }
   }
