@@ -1,8 +1,5 @@
 import { Client } from '@elastic/elasticsearch';
-import * as T from '@elastic/elasticsearch/lib/api/types';
 import { QueryDslQueryContainer } from '@elastic/elasticsearch/lib/api/types';
-import * as TB from '@elastic/elasticsearch/lib/api/typesWithBodyKey';
-import { TransportRequestOptions } from '@elastic/transport';
 import { ComplexType, DataType } from '@opra/common';
 import { ServiceBase } from '@opra/core';
 import { Type } from 'ts-gems';
@@ -217,7 +214,7 @@ export class ElasticService<T extends object> extends ServiceBase {
    * @param [options] - The options for the service
    * @constructor
    */
-  constructor(dataType: Type | string, options?: ElasticService.Options) {
+  constructor(dataType: Type | string, indexName: string, options?: ElasticService.Options) {
     super();
     this._dataType_ = dataType;
     this.client = options?.client;

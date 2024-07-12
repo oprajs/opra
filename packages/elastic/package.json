@@ -1,6 +1,6 @@
 {
   "name": "@opra/elastic",
-  "version": "1.0.0-alpha.16",
+  "version": "1.0.0-alpha.17",
   "description": "Opra Elastic Search adapter package",
   "author": "Panates",
   "license": "MIT",
@@ -11,11 +11,11 @@
   },
   "scripts": {
     "compile": "tsc",
-    "_prebuild": "npm run lint && npm run clean",
-    "_build": "npm run build:cjs && npm run build:esm",
+    "prebuild": "npm run lint && npm run clean",
+    "build": "npm run build:cjs && npm run build:esm",
     "build:cjs": "tsc -b tsconfig-build-cjs.json",
     "build:esm": "tsc -b tsconfig-build-esm.json",
-    "_postbuild": "cp README.md package.json ../../LICENSE ../../build/elastic && cp ../../package.cjs.json ../../build/elastic/cjs/package.json",
+    "postbuild": "cp README.md package.json ../../LICENSE ../../build/elastic && cp ../../package.cjs.json ../../build/elastic/cjs/package.json",
     "lint": "eslint . --max-warnings=0",
     "lint:fix": "eslint . --max-warnings=0 --fix",
     "format": "prettier . --write --log-level=warn",
@@ -37,8 +37,8 @@
   },
   "peerDependencies": {
     "@elastic/elasticsearch": ">=8.7.0",
-    "@opra/common": "^1.0.0-alpha.16",
-    "@opra/core": "^1.0.0-alpha.16"
+    "@opra/common": "^1.0.0-alpha.17",
+    "@opra/core": "^1.0.0-alpha.17"
   },
   "type": "module",
   "module": "./esm/index.js",

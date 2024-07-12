@@ -1,4 +1,5 @@
 /* eslint-disable camelcase */
+import { HttpContext } from '@opra/core';
 // import { SearchRequest } from '@elastic/elasticsearch/lib/api/types';
 // import { TransportRequestOptions } from '@elastic/transport';
 // import { omitNullish } from '@opra/common';
@@ -13,34 +14,80 @@ export namespace ElasticAdapter {
   // export const prepareProjection = _prepareProjection;
   export const prepareSort = _prepareSort;
 
-  // export function transformRequest(request: Request): any {
-  //   const { resource } = request;
-  //
-  //   if (resource instanceof Collection || resource instanceof Singleton) {
-  //     const { params, endpoint } = request;
-  //     let options: TransportRequestOptions = {};
-  //     switch (endpoint.name) {
-  //       case 'findMany': {
-  //         let searchRequest: SearchRequest = {};
-  //         const filter = transformFilter(params?.filter);
-  //         if (filter) searchRequest.query = filter;
-  //         if (params?.limit != null) searchRequest.size = params.limit;
-  //         if (params?.skip != null) searchRequest.from = params.skip;
-  //         if (params?.count) searchRequest.track_total_hits = true;
-  //         if (params?.pick || params?.include || params?.omit)
-  //           searchRequest._source = _transformProjection(resource.type, params);
-  //         if (params?.sort) searchRequest.sort = _transformSort(params.sort);
-  //         searchRequest = omitNullish(searchRequest);
-  //         options = omitNullish(options);
-  //         return {
-  //           method: 'search',
-  //           params: searchRequest,
-  //           options,
-  //           args: [searchRequest, options],
-  //         };
-  //       }
-  //     }
-  //   }
-  //   throw new TypeError(`Unimplemented request (${request.resource.kind}.${request.endpoint.name})`);
-  // }
+  export interface TransformedRequest {
+    method: 'create' | 'delete' | 'deleteMany' | 'get' | 'findMany' | 'update' | 'updateMany';
+    key?: any;
+    data?: any;
+    options: any;
+  }
+
+  export async function parseRequest(context: HttpContext): Promise<TransformedRequest> {
+    const { operation } = context;
+    if (operation.composition?.startsWith('Entity.') && operation.compositionOptions?.type) {
+      const controller = operation.owner;
+      switch (operation.composition) {
+        case 'Entity.Create': {
+          const data = await context.getBody<any>();
+          const options = {
+            projection: context.queryParams.projection,
+          };
+          return { method: 'create', data, options } satisfies TransformedRequest;
+        }
+        case 'Entity.Delete': {
+          const keyParam = operation.parameters.find(p => p.keyParam) || controller.parameters.find(p => p.keyParam);
+          const key = keyParam && context.pathParams[String(keyParam.name)];
+          const options = {
+            filter: context.queryParams.filter,
+          };
+          return { method: 'delete', key, options } satisfies TransformedRequest;
+        }
+        case 'Entity.DeleteMany': {
+          const options = {
+            filter: context.queryParams.filter,
+          };
+          return { method: 'deleteMany', options } satisfies TransformedRequest;
+        }
+        case 'Entity.FindMany': {
+          const options = {
+            filter: context.queryParams.filter,
+            projection: context.queryParams.projection,
+            count: context.queryParams.count,
+            limit: context.queryParams.limit,
+            skip: context.queryParams.skip,
+            sort: context.queryParams.sort,
+          };
+          return { method: 'findMany', options } satisfies TransformedRequest;
+        }
+        case 'Entity.Get': {
+          const keyParam = operation.parameters.find(p => p.keyParam) || controller.parameters.find(p => p.keyParam);
+          const key = keyParam && context.pathParams[String(keyParam.name)];
+          const options = {
+            projection: context.queryParams.projection,
+            filter: context.queryParams.filter,
+          };
+          return { method: 'get', key, options } satisfies TransformedRequest;
+        }
+        case 'Entity.Update': {
+          const data = await context.getBody<any>();
+          const keyParam = operation.parameters.find(p => p.keyParam) || controller.parameters.find(p => p.keyParam);
+          const key = keyParam && context.pathParams[String(keyParam.name)];
+          const options = {
+            projection: context.queryParams.projection,
+            filter: context.queryParams.filter,
+          };
+          return { method: 'update', key, data, options } satisfies TransformedRequest;
+        }
+        case 'Entity.UpdateMany': {
+          const data = await context.getBody<any>();
+          const options = {
+            filter: context.queryParams.filter,
+          };
+          return { method: 'updateMany', data, options } satisfies TransformedRequest;
+        }
+        default:
+          break;
+      }
+    }
+    throw new Error(`This operation is not compatible to Elastic adapter`);
+  }
 }
