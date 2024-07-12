@@ -46,8 +46,9 @@ export async function generateDataType(
     }
 
     if (dataType instanceof SimpleType) file = this.addFile(path.join(this._documentRoot, '/simple-types.ts'), true);
-    else if (dataType instanceof EnumType) file = this.addFile(path.join(this._typesRoot, 'enums', typeName + '.ts'));
-    else file = this.addFile(path.join(this._typesRoot, 'types', typeName + '.ts'));
+    else if (dataType instanceof EnumType) {
+      file = this.addFile(path.join(this._typesRoot, 'enums', typeName + '.ts'), true);
+    } else file = this.addFile(path.join(this._typesRoot, 'types', typeName + '.ts'), true);
     this._filesMap.set(dataType, file);
 
     if (file.exportTypes.includes(typeName)) {
