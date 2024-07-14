@@ -3,7 +3,7 @@ import { Options as RangeParserOptions, Ranges as RangeParserRanges, Result as R
 import { isHttpIncoming, isNodeIncomingMessage } from '../../type-guards.js';
 import { HttpIncomingHost } from '../impl/http-incoming.host.js';
 import { BodyReader } from '../utils/body-reader.js';
-import type { HttpOutgoing } from './http-outgoing.interface';
+import type { HttpOutgoing } from './http-outgoing.interface.js';
 import { NodeIncomingMessage } from './node-incoming-message.interface.js';
 
 /**

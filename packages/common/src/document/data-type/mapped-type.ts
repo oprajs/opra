@@ -1,7 +1,7 @@
 import 'reflect-metadata';
 import { asMutable, Combine, Type } from 'ts-gems';
 import { omitUndefined } from '../../helpers/index.js';
-import type { Field } from '../../schema/data-type/field.interface';
+import type { Field } from '../../schema/data-type/field.interface.js';
 import { OpraSchema } from '../../schema/index.js';
 import { DocumentElement } from '../common/document-element.js';
 import type { DocumentInitContext } from '../common/document-init-context';

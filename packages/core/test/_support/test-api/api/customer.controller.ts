@@ -5,24 +5,24 @@ import { Data } from '../../../../../../examples/_lib/data/customers-data.js';
 import { CustomerAddressController } from './customer-address.controller.js';
 import { CustomerAddressesController } from './customer-addresses.controller.js';
 
-@HttpController({
+@(HttpController({
   description: 'Customer resource',
   path: 'Customers@:customerId',
   controllers: [CustomerAddressesController, CustomerAddressController],
 })
   .PathParam('customerId', Number)
   .Cookie('accessToken', String)
-  .Header('accessToken', String)
+  .Header('accessToken', String))
 export class CustomerController {
   initialized = false;
   closed = false;
 
-  @HttpOperation.Entity.Get(Customer)
+  @(HttpOperation.Entity.Get(Customer)
     .QueryParam(/^a\d+$/, Number)
     .QueryParam(/^b\d+$/, { type: Number, isArray: true, arraySeparator: ',' })
     .Header('access-key', { type: Number, isArray: true, arraySeparator: ',' })
     .Cookie('cid', 'integer')
-    .Header('cid', 'integer')
+    .Header('cid', 'integer'))
   async get(context: HttpOperation.Context) {
     return Data.customers.find(x => x._id === context.pathParams.customerId);
   }
@@ -44,7 +44,7 @@ export class CustomerController {
     return customer;
   }
 
-  @HttpOperation({ path: '/sendMessage' }).QueryParam('message', String)
+  @(HttpOperation({ path: '/sendMessage' }).QueryParam('message', String))
   async sendMessage(context: HttpOperation.Context) {
     return { sent: 1, message: context.queryParams.message };
   }

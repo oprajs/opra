@@ -1,6 +1,6 @@
 import type { HttpMediaType } from './http-media-type.interface.js';
-import type { HttpParameter } from './http-parameter.interface';
-import type { HttpStatusRange } from './http-status-range.interface';
+import type { HttpParameter } from './http-parameter.interface.js';
+import type { HttpStatusRange } from './http-status-range.interface.js';
 
 /**
  *

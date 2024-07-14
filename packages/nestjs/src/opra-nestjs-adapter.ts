@@ -25,8 +25,8 @@ import {
 import { HttpAdapter, HttpContext } from '@opra/core';
 import nodePath from 'path';
 import { asMutable } from 'ts-gems';
-import { Public } from './decorators/public.decorator';
-import type { OpraHttpModule } from './opra-http.module';
+import { Public } from './decorators/public.decorator.js';
+import type { OpraHttpModule } from './opra-http.module.js';
 import { OpraExceptionFilter } from './services/opra-exception-filter.js';
 
 export const kHandler = Symbol.for('kHandler');

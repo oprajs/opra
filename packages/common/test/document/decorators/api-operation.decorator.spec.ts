@@ -24,9 +24,9 @@ describe('HttpOperation decorator', () => {
 
   it('Should .Cookie() define cookie parameter', async () => {
     class CustomersResource {
-      @HttpOperation({
+      @(HttpOperation({
         method: 'POST',
-      }).Cookie('customerId', String)
+      }).Cookie('customerId', String))
       sendMessage() {}
     }
 
@@ -50,9 +50,9 @@ describe('HttpOperation decorator', () => {
 
   it('Should .Header() define header parameter', async () => {
     class CustomersResource {
-      @HttpOperation({
+      @(HttpOperation({
         method: 'POST',
-      }).Header('customerId', String)
+      }).Header('customerId', String))
       sendMessage() {}
     }
 
@@ -76,9 +76,9 @@ describe('HttpOperation decorator', () => {
 
   it('Should .QueryParam() define query parameter', async () => {
     class CustomersResource {
-      @HttpOperation({
+      @(HttpOperation({
         method: 'POST',
-      }).QueryParam('customerId', String)
+      }).QueryParam('customerId', String))
       sendMessage() {}
     }
 
@@ -102,9 +102,9 @@ describe('HttpOperation decorator', () => {
 
   it('Should .PathParam() define path parameter', async () => {
     class CustomersResource {
-      @HttpOperation({
+      @(HttpOperation({
         method: 'POST',
-      }).PathParam('customerId', String)
+      }).PathParam('customerId', String))
       sendMessage() {}
     }
 
@@ -134,9 +134,9 @@ describe('HttpOperation decorator', () => {
     }
 
     class CustomersResource {
-      @HttpOperation({
+      @(HttpOperation({
         method: 'POST',
-      }).UseType(Message)
+      }).UseType(Message))
       sendMessage() {}
     }
 
@@ -154,7 +154,7 @@ describe('HttpOperation decorator', () => {
 
   it('Should Response(Type) define response options', async () => {
     class CustomersResource {
-      @HttpOperation().Response(HttpStatusCode.OK, { type: String })
+      @(HttpOperation().Response(HttpStatusCode.OK, { type: String }))
       getMessage() {}
     }
 
@@ -178,10 +178,10 @@ describe('HttpOperation decorator', () => {
 
   it('Should Response({args}) define response options', async () => {
     class CustomersResource {
-      @HttpOperation().Response(HttpStatusCode.OK, {
+      @(HttpOperation().Response(HttpStatusCode.OK, {
         type: String,
         description: 'response description',
-      })
+      }))
       sendMessage() {}
     }
 
@@ -206,7 +206,7 @@ describe('HttpOperation decorator', () => {
 
   it('Should RequestContent(Type) define request content options', async () => {
     class CustomersResource {
-      @HttpOperation().RequestContent(Customer)
+      @(HttpOperation().RequestContent(Customer))
       sendMessage() {}
     }
 
@@ -232,7 +232,7 @@ describe('HttpOperation decorator', () => {
 
   it('Should MultipartContent({args}) define request content options', async () => {
     class CustomersResource {
-      @HttpOperation().MultipartContent(
+      @(HttpOperation().MultipartContent(
         {
           description: 'description',
         },
@@ -242,7 +242,7 @@ describe('HttpOperation decorator', () => {
           config.Field('imageY_name');
           config.File(/^imageY\d/, { contentType: ['img/jpeg, img/png', 'img/gif'] });
         },
-      )
+      ))
       sendMessage() {}
     }
 

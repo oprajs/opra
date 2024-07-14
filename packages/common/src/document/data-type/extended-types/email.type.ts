@@ -2,13 +2,13 @@ import { Validator, vg } from 'valgen';
 import { DECODER, ENCODER } from '../../constants.js';
 import { SimpleType } from '../simple-type.js';
 
-@SimpleType({
+@(SimpleType({
   description: 'An email value',
   nameMappings: {
     js: 'string',
     json: 'string',
   },
-}).Example('some.body@example.com')
+}).Example('some.body@example.com'))
 export class EmailType {
   constructor(attributes?: Partial<EmailType>) {
     if (attributes) Object.assign(this, attributes);

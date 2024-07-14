@@ -6,11 +6,11 @@ import { MyProfileController } from './my-profile.controller.js';
   controllers: [MyProfileController],
 })
 export class AuthController {
-  @HttpOperation({
+  @(HttpOperation({
     path: 'login',
   })
     .QueryParam('user', String)
-    .QueryParam('password', 'string')
+    .QueryParam('password', 'string'))
   login() {
     //
   }

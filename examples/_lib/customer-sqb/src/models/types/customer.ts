@@ -42,6 +42,6 @@ export class Customer extends MixinType(Record, Person) {
   notes?: Note[];
 
   @ApiField({ exclusive: true })
-  @Link({ exclusive: true }).toOne(Country, { sourceKey: 'countryCode', targetKey: 'code' })
+  @(Link({ exclusive: true }).toOne(Country, { sourceKey: 'countryCode', targetKey: 'code' }))
   readonly country?: Country;
 }

@@ -17,10 +17,10 @@ export class CustomerAddressesController {
     return address;
   }
 
-  @HttpOperation.Entity.FindMany(Address)
+  @(HttpOperation.Entity.FindMany(Address)
     .Filter('_id', '= >  <  >= <=')
     .Filter('city', ['=', 'like', '!like'])
-    .Filter('countryCode', ['='])
+    .Filter('countryCode', ['=']))
   async findMany(context: HttpOperation.Context) {
     const subData = Data.addresses[context.pathParams.customerId];
     if (!subData) return;

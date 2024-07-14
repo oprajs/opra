@@ -19,10 +19,10 @@ export class CustomersController {
     return customer;
   }
 
-  @HttpOperation.Entity.DeleteMany(Customer)
+  @(HttpOperation.Entity.DeleteMany(Customer)
     .Filter('_id', '= >  <  >= <=')
     .Filter('gender', '=')
-    .Filter('address.countryCode', '=')
+    .Filter('address.countryCode', '='))
   async deleteMany() {
     // It is hard to produce a filtering operation. We delete 10 records instead of this
     const oldLen = Data.customers.length;
@@ -30,10 +30,10 @@ export class CustomersController {
     return oldLen - Data.customers.length;
   }
 
-  @HttpOperation.Entity.UpdateMany(Customer)
+  @(HttpOperation.Entity.UpdateMany(Customer)
     .Filter('_id', '= >  <  >= <=')
     .Filter('gender', '=')
-    .Filter('address.countryCode', '=')
+    .Filter('address.countryCode', '='))
   async updateMany(context: HttpOperation.Context) {
     // It is hard to produce a filtering operation. We update 5 records instead of this
     const body = await context.getBody<Customer>();
@@ -43,14 +43,14 @@ export class CustomersController {
     return 5;
   }
 
-  @HttpOperation.Entity.FindMany(Customer)
+  @(HttpOperation.Entity.FindMany(Customer)
     .SortFields('_id', 'givenName', 'familyName', 'gender', 'address.countryCode')
     .DefaultSort('givenName')
     .Filter('_id', '= >  <  >= <=')
     .Filter('givenName', ['=', 'like', '!like'])
     .Filter('familyName', ['=', 'like', '!like'])
     .Filter('gender', '=')
-    .Filter('address.countryCode', '=')
+    .Filter('address.countryCode', '='))
   async findMany(ctx: HttpOperation.Context) {
     const { queryParams } = ctx;
     const skip = queryParams.skip || 0;
@@ -61,7 +61,7 @@ export class CustomersController {
     });
   }
 
-  @HttpOperation({ path: '/sendMessageAll' }).QueryParam('message', String)
+  @(HttpOperation({ path: '/sendMessageAll' }).QueryParam('message', String))
   async sendMessageAll(context: HttpContext) {
     return { sent: 10, message: context.queryParams.message };
   }

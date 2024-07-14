@@ -1,4 +1,4 @@
-import type { DataType } from './data-type/data-type.interface';
+import type { DataType } from './data-type/data-type.interface.js';
 
 /**
  * @interface DataTypeContainer

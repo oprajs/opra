@@ -11,15 +11,15 @@ class LoginResult {
   token: string;
 }
 
-@HttpController({
+@(HttpController({
   description: 'Auth container',
   resources: [MyProfileController],
-}).UseType(LoginResult)
+}).UseType(LoginResult))
 export class AuthController {
-  @HttpOperation({ path: '/login' })
+  @(HttpOperation({ path: '/login' })
     .QueryParam('user', String)
     .QueryParam('password', 'string')
-    .Response(200, { type: LoginResult })
+    .Response(200, { type: LoginResult }))
   login(ctx: HttpOperation.Context) {
     return { user: ctx.queryParams.user, token: '123456' };
   }
@@ -29,14 +29,14 @@ export class AuthController {
     //
   }
 
-  @HttpOperation({ path: '/getToken' }).Response(200, { type: String })
+  @(HttpOperation({ path: '/getToken' }).Response(200, { type: String }))
   getToken() {
     return '123456';
   }
 
-  @HttpOperation({ path: '/getRawToken' }).Response(200, {
+  @(HttpOperation({ path: '/getRawToken' }).Response(200, {
     contentType: 'text/plain',
-  })
+  }))
   getRawToken() {
     return '123456';
   }

@@ -3,7 +3,7 @@ import { MongoAdapter } from '@opra/mongodb';
 import { MyProfileService, Profile } from 'customer-mongo';
 import { Db } from 'mongodb';
 
-@HttpController().Header('accessToken', 'string')
+@(HttpController().Header('accessToken', 'string'))
 export class MyProfileController {
   service: MyProfileService;
 

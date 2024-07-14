@@ -1,6 +1,6 @@
 import type { DataTypeContainer } from '../data-type-container.interface.js';
-import type { HttpOperation } from './http-operation.interface';
-import type { HttpParameter } from './http-parameter.interface';
+import type { HttpOperation } from './http-operation.interface.js';
+import type { HttpParameter } from './http-parameter.interface.js';
 
 /**
  *

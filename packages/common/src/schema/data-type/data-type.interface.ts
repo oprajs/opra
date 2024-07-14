@@ -1,7 +1,7 @@
 import type { ComplexType } from './complex-type.interface.js';
 import type { EnumType } from './enum-type.interface.js';
 import type { MappedType } from './mapped-type.interface.js';
-import type { MixinType } from './mixin-type.interface';
+import type { MixinType } from './mixin-type.interface.js';
 import type { SimpleType } from './simple-type.interface.js';
 
 export type DataType = SimpleType | EnumType | ComplexType | MappedType | MixinType;

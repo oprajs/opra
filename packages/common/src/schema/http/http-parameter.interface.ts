@@ -1,5 +1,5 @@
 import { HttpParameterLocation } from '../types.js';
-import type { Value } from '../value.interface';
+import type { Value } from '../value.interface.js';
 
 /**
  *

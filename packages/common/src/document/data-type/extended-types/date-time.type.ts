@@ -2,7 +2,7 @@ import { isDateString, toString, Validator, vg } from 'valgen';
 import { DECODER, ENCODER } from '../../constants.js';
 import { SimpleType } from '../simple-type.js';
 
-@SimpleType({
+@(SimpleType({
   description: 'A full datetime value',
   nameMappings: {
     js: 'string',
@@ -11,7 +11,7 @@ import { SimpleType } from '../simple-type.js';
 })
   .Example('2021-04-18T22:30:15')
   .Example('2021-04-18 22:30:15')
-  .Example('2021-04-18 22:30')
+  .Example('2021-04-18 22:30'))
 export class DateTimeType {
   constructor(attributes?: Partial<DateTimeType>) {
     if (attributes) Object.assign(this, attributes);

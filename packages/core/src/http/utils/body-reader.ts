@@ -184,7 +184,6 @@ export class BodyReader extends EventEmitter {
         message: 'request aborted',
         code: 'ECONNABORTED',
         details: {
-          length,
           received: this._receivedSize,
         },
       }),

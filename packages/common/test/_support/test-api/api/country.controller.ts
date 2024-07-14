@@ -1,10 +1,10 @@
 import { HttpController, HttpOperation } from '@opra/common';
 import { Country } from 'customer-mongo/models';
 
-@HttpController({
+@(HttpController({
   description: 'Country resource',
   path: 'Countries@:countryCode',
-}).PathParam('countryCode', String)
+}).PathParam('countryCode', String))
 export class CountryController {
   @HttpOperation.Entity.Get(Country)
   get() {

@@ -4,7 +4,7 @@ import { AsyncEventEmitter } from 'strict-typed-events';
 import { kAssetCache } from './constants.js';
 import { Logger } from './helpers/logger.js';
 import { AssetCache } from './http/impl/asset-cache.js';
-import type { ILogger } from './interfaces/logger.interface';
+import type { ILogger } from './interfaces/logger.interface.js';
 
 /**
  * @namespace PlatformAdapter

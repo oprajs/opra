@@ -2,7 +2,7 @@ import { mergePrototype } from '@opra/common';
 import { StrictOmit } from 'ts-gems';
 import { isHttpOutgoing, isNodeOutgoingMessage } from '../../type-guards.js';
 import { HttpOutgoingHost } from '../impl/http-outgoing.host.js';
-import type { HttpIncoming } from './http-incoming.interface';
+import type { HttpIncoming } from './http-incoming.interface.js';
 import { NodeOutgoingMessage } from './node-outgoing-message.interface.js';
 
 export interface HttpOutgoing extends StrictOmit<NodeOutgoingMessage, 'req' | 'appendHeader' | 'setHeader'> {

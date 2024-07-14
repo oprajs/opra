@@ -5,10 +5,10 @@ import { Db } from 'mongodb';
 import { PartialDTO } from 'ts-gems';
 import { CustomerNotesController } from './customer-notes.controller.js';
 
-@HttpController({
+@(HttpController({
   path: 'Customers',
   controllers: [(parent: CustomerController) => new CustomerNotesController(parent.db)],
-}).KeyParam('customerId', 'number')
+}).KeyParam('customerId', 'number'))
 export class CustomerController {
   service: CustomersService;
 
@@ -16,7 +16,7 @@ export class CustomerController {
     this.service = new CustomersService({ db });
   }
 
-  @HttpOperation.Entity.Get(Customer).QueryParam('xId')
+  @(HttpOperation.Entity.Get(Customer).QueryParam('xId'))
   async get(context: HttpOperation.Context): Promise<PartialDTO<Customer> | undefined> {
     const { key, options } = await MongoAdapter.parseRequest(context);
     return this.service.for(context).findById(key, options);

@@ -24,7 +24,7 @@ export class CustomersController {
     return this.service.for(context).create(data, options);
   }
 
-  @HttpOperation.Entity.FindMany(Customer)
+  @(HttpOperation.Entity.FindMany(Customer)
     .SortFields('_id', 'givenName', 'familyName', 'gender', 'address.countryCode')
     .DefaultSort('givenName')
     .Filter('_id')
@@ -36,7 +36,7 @@ export class CustomersController {
     .Filter('deleted')
     .Filter('active')
     .Filter('birthDate')
-    .Filter('rate')
+    .Filter('rate'))
   async findMany(context: HttpOperation.Context) {
     const { options } = await MongoAdapter.parseRequest(context);
     if (options.count) {
@@ -49,13 +49,13 @@ export class CustomersController {
     return this.service.for(context).findMany(options);
   }
 
-  @HttpOperation.Entity.DeleteMany(Customer).Filter('_id')
+  @(HttpOperation.Entity.DeleteMany(Customer).Filter('_id'))
   async deleteMany(context: HttpOperation.Context) {
     const { options } = await MongoAdapter.parseRequest(context);
     return this.service.for(context).deleteMany(options);
   }
 
-  @HttpOperation.Entity.UpdateMany(Customer).Filter('_id')
+  @(HttpOperation.Entity.UpdateMany(Customer).Filter('_id'))
   async updateMany(context: HttpOperation.Context) {
     const { data, options } = await MongoAdapter.parseRequest(context);
     return this.service.for(context).updateMany(data, options);

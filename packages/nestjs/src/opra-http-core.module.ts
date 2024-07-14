@@ -9,7 +9,7 @@ import {
 } from '@nestjs/common';
 import { ApiDocumentFactory } from '@opra/common';
 import { asMutable } from 'ts-gems';
-import type { OpraHttpModule } from './opra-http.module';
+import type { OpraHttpModule } from './opra-http.module.js';
 import { OpraNestAdapter } from './opra-nestjs-adapter.js';
 import { OpraMiddleware } from './services/opra-middleware.js';
 

@@ -14,9 +14,9 @@ export class CatsController {
 
   @UseGuards(Guard)
   @UseInterceptors(Interceptor)
-  @HttpOperation({
+  @(HttpOperation({
     path: '@:id',
-  }).PathParam('id')
+  }).PathParam('id'))
   get(): any[] {
     return this.catsService.getCats();
   }

@@ -5,8 +5,8 @@
 
 import { OutgoingHttpHeaders } from 'http';
 import { Duplex } from 'stream';
-import type { NodeIncomingMessage } from '../interfaces/node-incoming-message.interface';
-import type { NodeOutgoingMessage } from '../interfaces/node-outgoing-message.interface';
+import type { NodeIncomingMessage } from '../interfaces/node-incoming-message.interface.js';
+import type { NodeOutgoingMessage } from '../interfaces/node-outgoing-message.interface.js';
 import { validateHeaderName, validateHeaderValue, validateString } from '../utils/common.js';
 
 export const kOutHeaders = Symbol.for('kOutHeaders');

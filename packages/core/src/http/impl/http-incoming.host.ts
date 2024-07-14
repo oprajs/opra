@@ -6,7 +6,7 @@ import typeIs from '@browsery/type-is';
 import accepts from 'accepts';
 import fresh from 'fresh';
 import parseRange from 'range-parser';
-import type { HttpIncoming } from '../interfaces/http-incoming.interface';
+import type { HttpIncoming } from '../interfaces/http-incoming.interface.js';
 import { BodyReader } from '../utils/body-reader.js';
 
 export interface HttpIncomingHost extends HttpIncoming {}

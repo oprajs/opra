@@ -106,6 +106,18 @@ export namespace SqbEntityService {
   export interface UpdateManyOptions extends Repository.UpdateManyOptions {}
 }
 
+export interface SqbEntityService {
+  /**
+   * Interceptor function for handling callback execution with provided arguments.
+   * @type Function
+   * @param next - The callback function to be intercepted.
+   * @param {SqbEntityService.CommandInfo} info - The arguments object containing the following properties:
+   * @param _this - The reference to the current object.
+   * @returns - The promise that resolves to the result of the callback execution.
+   */
+  interceptor?(next: () => any, info: SqbEntityService.CommandInfo, _this: any): Promise<any>;
+}
+
 /**
  * @class SqbEntityService
  * @template T - The data type class type of the resource
@@ -141,16 +153,6 @@ export class SqbEntityService<T extends object = object> extends ServiceBase {
       ) => SQBAdapter.FilterInput | Promise<SQBAdapter.FilterInput> | undefined);
 
   /**
-   * Interceptor function for handling callback execution with provided arguments.
-   *
-   * @param {Function} callback - The callback function to be intercepted.
-   * @param {SqbEntityService.CommandInfo} info - The arguments object containing the following properties:
-   * @param {SqbEntityService} _this - The reference to the current object.
-   * @returns - The promise that resolves to the result of the callback execution.
-   */
-  interceptor?: (callback: () => any, info: SqbEntityService.CommandInfo, _this: any) => Promise<any>;
-
-  /**
    * Callback function for handling errors.
    *
    * @param {unknown} error - The error object.
@@ -170,8 +172,8 @@ export class SqbEntityService<T extends object = object> extends ServiceBase {
     this._dataType_ = dataType;
     this.db = options?.db;
     this.resourceName = options?.resourceName;
-    this.commonFilter = this.commonFilter || options?.commonFilter;
-    this.interceptor = this.interceptor || options?.interceptor;
+    this.commonFilter = options?.commonFilter;
+    this.interceptor = options?.interceptor;
   }
 
   /**

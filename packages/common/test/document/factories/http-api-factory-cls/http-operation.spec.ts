@@ -41,9 +41,9 @@ describe('HttpApiFactory - HttpOperation (Class)', () => {
       description: 'Country collection',
     })
     class CountriesResource {
-      @HttpOperation.GET({
+      @(HttpOperation.GET({
         description: 'Returns single country',
-      }).Cookie('access-token', { type: 'uuid', required: true })
+      }).Cookie('access-token', { type: 'uuid', required: true }))
       findOne() {}
     }
 
@@ -72,9 +72,9 @@ describe('HttpApiFactory - HttpOperation (Class)', () => {
       description: 'Country collection',
     })
     class CountriesResource {
-      @HttpOperation.GET({
+      @(HttpOperation.GET({
         description: 'Returns single country',
-      }).Header('access-token', { type: 'uuid', required: true })
+      }).Header('access-token', { type: 'uuid', required: true }))
       findOne() {}
     }
 
@@ -103,9 +103,9 @@ describe('HttpApiFactory - HttpOperation (Class)', () => {
       description: 'Country collection',
     })
     class CountriesResource {
-      @HttpOperation.GET({
+      @(HttpOperation.GET({
         description: 'Returns single country',
-      }).QueryParam('access-token', { type: 'uuid', required: true })
+      }).QueryParam('access-token', { type: 'uuid', required: true }))
       findOne() {}
     }
 
@@ -134,9 +134,9 @@ describe('HttpApiFactory - HttpOperation (Class)', () => {
       description: 'Country collection',
     })
     class CountriesResource {
-      @HttpOperation.GET({
+      @(HttpOperation.GET({
         description: 'Returns single country',
-      }).PathParam('access-token', { type: 'uuid', required: true })
+      }).PathParam('access-token', { type: 'uuid', required: true }))
       findOne() {}
     }
 
@@ -165,7 +165,7 @@ describe('HttpApiFactory - HttpOperation (Class)', () => {
       description: 'Country collection',
     })
     class CountriesResource {
-      @HttpOperation.GET({
+      @(HttpOperation.GET({
         description: 'Returns single country',
       })
         .Response(200)
@@ -175,7 +175,7 @@ describe('HttpApiFactory - HttpOperation (Class)', () => {
           contentEncoding: 'utf-8',
           description: 'xyz',
         })
-        .Response('400-401', { type: 'object' })
+        .Response('400-401', { type: 'object' }))
       findOne() {}
     }
 
@@ -218,7 +218,7 @@ describe('HttpApiFactory - HttpOperation (Class)', () => {
       description: 'Country collection',
     })
     class CountriesResource {
-      @HttpOperation.POST({}).RequestContent(Country)
+      @(HttpOperation.POST({}).RequestContent(Country))
       findOne() {}
     }
 

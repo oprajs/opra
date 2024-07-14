@@ -1,8 +1,8 @@
-import type { DataTypeContainer } from '../data-type-container.interface';
+import type { DataTypeContainer } from '../data-type-container.interface.js';
 import type { HttpMethod } from '../types.js';
-import type { HttpOperationResponse } from './http-operation-response.interface';
-import type { HttpParameter } from './http-parameter.interface';
-import type { HttpRequestBody } from './http-request-body.interface';
+import type { HttpOperationResponse } from './http-operation-response.interface.js';
+import type { HttpParameter } from './http-parameter.interface.js';
+import type { HttpRequestBody } from './http-request-body.interface.js';
 
 /**
  * @interface HttpOperation

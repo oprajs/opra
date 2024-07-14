@@ -52,9 +52,9 @@ describe('HttpApiFactory - HttpController (Class)', () => {
   });
 
   it('Should import cookie parameters', async () => {
-    @HttpController({
+    @(HttpController({
       description: 'Country collection',
-    }).Cookie('access-token', { type: 'uuid', required: true })
+    }).Cookie('access-token', { type: 'uuid', required: true }))
     class CountriesResource {}
 
     const doc = await ApiDocumentFactory.createDocument({
@@ -75,9 +75,9 @@ describe('HttpApiFactory - HttpController (Class)', () => {
   });
 
   it('Should import headers', async () => {
-    @HttpController({
+    @(HttpController({
       description: 'Country collection',
-    }).Header('access-token', { type: 'uuid', required: true })
+    }).Header('access-token', { type: 'uuid', required: true }))
     class CountriesResource {}
 
     const doc = await ApiDocumentFactory.createDocument({
@@ -98,9 +98,9 @@ describe('HttpApiFactory - HttpController (Class)', () => {
   });
 
   it('Should import query parameters', async () => {
-    @HttpController({
+    @(HttpController({
       description: 'Country collection',
-    }).QueryParam('access-token', { type: 'uuid', required: true })
+    }).QueryParam('access-token', { type: 'uuid', required: true }))
     class CountriesResource {}
 
     const doc = await ApiDocumentFactory.createDocument({
@@ -121,9 +121,9 @@ describe('HttpApiFactory - HttpController (Class)', () => {
   });
 
   it('Should import path parameters', async () => {
-    @HttpController({
+    @(HttpController({
       description: 'Country collection',
-    }).PathParam('access-token', { type: 'uuid', required: true })
+    }).PathParam('access-token', { type: 'uuid', required: true }))
     class CountriesResource {}
 
     const doc = await ApiDocumentFactory.createDocument({

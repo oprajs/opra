@@ -29,16 +29,16 @@ export class MyProfileController {
     }
   }
 
-  @HttpOperation.Entity.Get(Profile)
+  @(HttpOperation.Entity.Get(Profile)
     .Header('h1', { type: Boolean })
     .Header('h2', { type: 'integer', isArray: true })
-    .Header('h3', { type: 'integer', required: true })
+    .Header('h3', { type: 'integer', required: true }))
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   async get(context: HttpOperation.Context) {
     return this.data;
   }
 
-  @HttpOperation.Entity.Update(Profile).QueryParam('p1', { required: true })
+  @(HttpOperation.Entity.Update(Profile).QueryParam('p1', { required: true }))
   async update(context: HttpOperation.Context) {
     if (this.data) {
       const body = await context.getBody<Profile>();

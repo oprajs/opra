@@ -1,12 +1,12 @@
 import { UseGuards } from '@nestjs/common';
 import { HttpController, HttpOperation, OmitType } from '@opra/common';
 import { MongoAdapter } from '@opra/mongodb';
-import { AuthGuard } from '@opra/nestjs/test/_support/customer-app/guards/auth.guard';
 import { MyProfileService, Profile } from 'customer-mongo';
 import { Db } from 'mongodb';
+import { AppAuthGuard } from '../guards/app-auth.guard.js';
 
 @HttpController()
-@UseGuards(AuthGuard)
+@UseGuards(AppAuthGuard)
 export class MyProfileController {
   service: MyProfileService;
 

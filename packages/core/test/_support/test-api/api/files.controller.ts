@@ -7,12 +7,12 @@ import { Note } from 'customer-mongo/models';
 export class FilesController {
   static lastPost: any;
 
-  @HttpOperation.POST()
+  @(HttpOperation.POST()
     .MultipartContent({}, config => {
       config.Field('notes', { required: true });
       config.File(/^file\d+/, { contentType: 'text/*' });
     })
-    .Response(200, { type: Note })
+    .Response(200, { type: Note }))
   async post(context: HttpOperation.Context) {
     const reader = await context.getMultipartReader();
     const parts = await reader.getAll();

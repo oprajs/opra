@@ -180,10 +180,10 @@ describe('Augmentation (DataTypeFactory)', () => {
     @ComplexType()
     class Type1 {
       @ApiField()
-      @Link({}).toOne(Type2)
+      @(Link({}).toOne(Type2))
       field1: Type2;
       @ApiField()
-      @Link({}).toMany(Type2)
+      @(Link({}).toMany(Type2))
       field2: Type2[];
     }
 

@@ -126,10 +126,10 @@ describe('HttpOperation.Entity.* decorators', () => {
   describe('"Delete" decorator', () => {
     it('Should define Delete operation metadata', async () => {
       class CustomerResource {
-        @HttpOperation.Entity.Delete({
+        @(HttpOperation.Entity.Delete({
           type: Customer,
           description: 'operation description',
-        }).KeyParam('id', 'number')
+        }).KeyParam('id', 'number'))
         delete() {}
       }
 
@@ -209,9 +209,9 @@ describe('HttpOperation.Entity.* decorators', () => {
 
     it('Should Filter() define filter parameter', async () => {
       class CustomerResource {
-        @HttpOperation.Entity.DeleteMany({ type: Customer })
+        @(HttpOperation.Entity.DeleteMany({ type: Customer })
           .Filter('_id', ['=', '!='])
-          .Filter('givenName', ['=', '!=', 'like'])
+          .Filter('givenName', ['=', '!=', 'like']))
         deleteMany() {}
       }
 
@@ -302,9 +302,9 @@ describe('HttpOperation.Entity.* decorators', () => {
 
     it('Should Filter() define metadata value', async () => {
       class CustomerResource {
-        @HttpOperation.Entity.FindMany({ type: Customer })
+        @(HttpOperation.Entity.FindMany({ type: Customer })
           .Filter('_id', '=, !=')
-          .Filter('givenName', ['=', '!=', 'like'])
+          .Filter('givenName', ['=', '!=', 'like']))
         findMany() {}
       }
 
@@ -357,7 +357,7 @@ describe('HttpOperation.Entity.* decorators', () => {
 
     it('Should SortFields() define metadata value', async () => {
       class CustomerResource {
-        @HttpOperation.Entity.FindMany({ type: Customer }).SortFields('_id', 'givenName')
+        @(HttpOperation.Entity.FindMany({ type: Customer }).SortFields('_id', 'givenName'))
         findMany() {}
       }
 
@@ -403,7 +403,7 @@ describe('HttpOperation.Entity.* decorators', () => {
 
     it('Should DefaultSort() define metadata value', async () => {
       class CustomerResource {
-        @HttpOperation.Entity.FindMany({ type: Customer }).DefaultSort('givenName')
+        @(HttpOperation.Entity.FindMany({ type: Customer }).DefaultSort('givenName'))
         findMany() {}
       }
 
@@ -444,10 +444,10 @@ describe('HttpOperation.Entity.* decorators', () => {
   describe('"Get" decorator', () => {
     it('Should define Get operation metadata', async () => {
       class CustomerResource {
-        @HttpOperation.Entity.Get({
+        @(HttpOperation.Entity.Get({
           type: Customer,
           description: 'operation description',
-        }).KeyParam('id')
+        }).KeyParam('id'))
         get() {}
       }
 
@@ -561,9 +561,9 @@ describe('HttpOperation.Entity.* decorators', () => {
 
     it('Should Filter() define metadata value', async () => {
       class CustomerResource {
-        @HttpOperation.Entity.UpdateMany({ type: Customer })
+        @(HttpOperation.Entity.UpdateMany({ type: Customer })
           .Filter('_id', '=, !=')
-          .Filter('givenName', ['=', '!=', 'like'])
+          .Filter('givenName', ['=', '!=', 'like']))
         updateMany() {}
       }
 
@@ -598,13 +598,13 @@ describe('HttpOperation.Entity.* decorators', () => {
   describe('"Update" decorator', () => {
     it('Should define Update operation metadata', async () => {
       class CustomerResource {
-        @HttpOperation.Entity.Update({
+        @(HttpOperation.Entity.Update({
           type: Customer,
           description: 'operation description',
           requestBody: {
             maxContentSize: 1000,
           },
-        }).KeyParam('id', 'number')
+        }).KeyParam('id', 'number'))
         updateOne() {}
       }
 
@@ -681,12 +681,12 @@ describe('HttpOperation.Entity.* decorators', () => {
 
     it('Should Filter() define metadata value', async () => {
       class CustomerResource {
-        @HttpOperation.Entity.Update({
+        @(HttpOperation.Entity.Update({
           type: Customer,
         })
           .KeyParam('id', 'number')
           .Filter('_id', '=, !=')
-          .Filter('givenName', ['=', '!=', 'like'])
+          .Filter('givenName', ['=', '!=', 'like']))
         updateOne() {}
       }
 

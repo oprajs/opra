@@ -10,21 +10,21 @@ import { MyProfileController } from './my-profile.controller.js';
 export class AuthController {
   constructor(readonly db: SqbClient) {}
 
-  @HttpOperation({
+  @(HttpOperation({
     path: 'login',
   })
     .QueryParam('user', String)
     .QueryParam('password', 'string')
-    .Response(200, { type: OperationResult })
+    .Response(200, { type: OperationResult }))
   login() {
     return new OperationResult({
       message: 'You are logged in',
     });
   }
 
-  @HttpOperation({
+  @(HttpOperation({
     path: '/logout',
-  }).Response(200, { type: OperationResult })
+  }).Response(200, { type: OperationResult }))
   logout() {
     return new OperationResult({
       message: 'You are logged out',

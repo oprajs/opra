@@ -5,9 +5,9 @@ import { Customer } from 'customer-mongo/models';
   description: 'Customers collection',
 })
 export class CustomersController {
-  @HttpOperation.Entity.FindMany({ type: Customer })
+  @(HttpOperation.Entity.FindMany({ type: Customer })
     .SortFields('_id', 'givenName', 'familyName', 'gender', 'address.city')
-    .Filter('givenName', ['=', '!=', 'like', '!like'])
+    .Filter('givenName', ['=', '!=', 'like', '!like']))
   findMany() {
     //
   }

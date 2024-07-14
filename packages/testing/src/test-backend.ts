@@ -38,7 +38,7 @@ export class TestBackend extends FetchBackend {
           const address = this._server.address() as AddressInfo;
           url.host = '127.0.0.1';
           url.port = address.port.toString();
-          return fetch(url.toString(), req);
+          return fetch(url.toString(), req as any);
         })
         .then(res => {
           if (!this._server.listening) return resolve(res);

@@ -4,7 +4,7 @@ import { SimpleType } from '../simple-type.js';
 
 const TIME_PATTERN = /^([0-1][0-9]|2[0-4]):([0-5][0-9])(?::([0-5][0-9]))?$/;
 
-@SimpleType({
+@(SimpleType({
   description: 'Time string in 24h format',
   nameMappings: {
     js: 'string',
@@ -12,7 +12,7 @@ const TIME_PATTERN = /^([0-1][0-9]|2[0-4]):([0-5][0-9])(?::([0-5][0-9]))?$/;
   },
 })
   .Example('18:23:00', 'Full time value')
-  .Example('18:23:00', 'Time value without seconds')
+  .Example('18:23:00', 'Time value without seconds'))
 export class TimeType {
   constructor(attributes?: Partial<TimeType>) {
     if (attributes) Object.assign(this, attributes);

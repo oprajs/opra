@@ -23,16 +23,6 @@ export namespace MongoService {
     onError?: MongoService<any>['onError'];
   }
 
-  /**
-   * Interceptor function for handling callback execution with provided arguments.
-   * @type Function
-   * @param next - The callback function to be intercepted.
-   * @param {MongoService.CommandInfo} info - The arguments object containing the following properties:
-   * @param _this - The reference to the current object.
-   * @returns - The promise that resolves to the result of the callback execution.
-   */
-  export type InterceptorFunction = (next: () => any, info: MongoService.CommandInfo, _this: any) => Promise<any>;
-
   export type CrudOp = 'create' | 'read' | 'update' | 'delete';
 
   export interface CommandInfo {
@@ -157,6 +147,18 @@ export namespace MongoService {
   }
 }
 
+export interface MongoService {
+  /**
+   * Interceptor function for handling callback execution with provided arguments.
+   * @type Function
+   * @param next - The callback function to be intercepted.
+   * @param {MongoService.CommandInfo} info - The arguments object containing the following properties:
+   * @param _this - The reference to the current object.
+   * @returns - The promise that resolves to the result of the callback execution.
+   */
+  interceptor?(next: () => any, info: MongoService.CommandInfo, _this: any): Promise<any>;
+}
+
 /**
  * Class representing a MongoDB service for interacting with a collection.
  * @extends ServiceBase
@@ -216,13 +218,6 @@ export class MongoService<T extends mongodb.Document = mongodb.Document> extends
       ) => MongoAdapter.FilterInput | Promise<MongoAdapter.FilterInput> | undefined);
 
   /**
-   * Interceptor function for handling callback execution with provided arguments.
-   *
-   * @type {MongoService.InterceptorFunction}
-   */
-  interceptor?: MongoService.InterceptorFunction;
-
-  /**
    * Constructs a new instance
    *
    * @param dataType - The data type of the returning results
@@ -233,8 +228,8 @@ export class MongoService<T extends mongodb.Document = mongodb.Document> extends
     super();
     this._dataType_ = dataType;
     this.db = options?.db;
-    this.documentFilter = this.documentFilter || options?.documentFilter;
-    this.interceptor = this.interceptor || options?.interceptor;
+    this.documentFilter = options?.documentFilter;
+    this.interceptor = options?.interceptor;
     this.collectionName = options?.collectionName;
     if (!this.collectionName) {
       if (typeof dataType === 'string') this.collectionName = dataType;

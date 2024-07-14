@@ -2,13 +2,13 @@ import { isDateString, toString, Validator, vg } from 'valgen';
 import { DECODER, ENCODER } from '../../constants.js';
 import { SimpleType } from '../simple-type.js';
 
-@SimpleType({
+@(SimpleType({
   description: 'A date without time',
   nameMappings: {
     js: 'Date',
     json: 'string',
   },
-}).Example('2021-04-18', 'Full date value')
+}).Example('2021-04-18', 'Full date value'))
 export class DateType {
   constructor(attributes?: Partial<DateType>) {
     if (attributes) Object.assign(this, attributes);

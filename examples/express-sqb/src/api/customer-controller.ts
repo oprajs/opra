@@ -4,10 +4,10 @@ import { SqbClient } from '@sqb/connect';
 import { Customer, CustomersService } from 'customer-sqb';
 import { PartialDTO } from 'ts-gems';
 
-@HttpController({
+@(HttpController({
   path: 'Customers',
   controllers: [],
-}).KeyParam('customerId', Number)
+}).KeyParam('customerId', Number))
 export class CustomerController {
   service: CustomersService;
 

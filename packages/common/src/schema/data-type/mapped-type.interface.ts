@@ -1,6 +1,6 @@
 import { StrictOmit } from 'ts-gems';
-import type { ComplexType } from './complex-type.interface';
-import type { DataType, DataTypeBase } from './data-type.interface';
+import type { ComplexType } from './complex-type.interface.js';
+import type { DataType, DataTypeBase } from './data-type.interface.js';
 import type { Field } from './field.interface.js';
 import type { MixinType } from './mixin-type.interface.js';
 

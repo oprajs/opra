@@ -2,10 +2,10 @@ import { HttpController, HttpOperation } from '@opra/common';
 import { Address } from 'customer-mongo/models';
 import { Data } from '../../../../../../examples/_lib/data/customers-data.js';
 
-@HttpController({
+@(HttpController({
   description: 'Customer addresses resource',
   path: 'Addresses@:addressId',
-}).PathParam('addressId', Number)
+}).PathParam('addressId', Number))
 export class CustomerAddressController {
   @HttpOperation.Entity.Get(Address)
   async get(context: HttpOperation.Context) {

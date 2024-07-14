@@ -13,8 +13,8 @@ import { kAssetCache } from '../constants.js';
 import { ExecutionContext } from '../execution-context.js';
 import type { HttpAdapter } from './http-adapter';
 import { MultipartReader } from './impl/multipart-reader.js';
-import type { HttpIncoming } from './interfaces/http-incoming.interface';
-import type { HttpOutgoing } from './interfaces/http-outgoing.interface';
+import type { HttpIncoming } from './interfaces/http-incoming.interface.js';
+import type { HttpOutgoing } from './interfaces/http-outgoing.interface.js';
 
 export namespace HttpContext {
   export interface Initiator extends Omit<ExecutionContext.Initiator, 'document' | 'protocol'> {
