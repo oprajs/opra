@@ -1,8 +1,8 @@
 import { ComplexType, DataType, InternalServerError } from '@opra/common';
 import { ServiceBase } from '@opra/core';
 import { EntityMetadata, Repository, SqbClient, SqbConnection } from '@sqb/connect';
-import { PartialDTO, PatchDTO, Type } from 'ts-gems';
-import { IsObject } from 'valgen';
+import { PartialDTO, PatchDTO, RequiredSome, StrictOmit, Type } from 'ts-gems';
+import { isNotNullish, IsObject } from 'valgen';
 import { SQBAdapter } from './sqb-adapter.js';
 
 /**
@@ -89,14 +89,7 @@ export namespace SqbEntityService {
    *
    * @interface
    */
-  export interface UpdateOptions extends Repository.UpdateOptions {}
-
-  /**
-   * Represents options for "updateOnly" operation
-   *
-   * @interface
-   */
-  export interface UpdateOnlyOptions extends Repository.UpdateOptions {}
+  export interface UpdateOneOptions extends Repository.UpdateOptions {}
 
   /**
    * Represents options for "updateMany" operation
@@ -104,6 +97,53 @@ export namespace SqbEntityService {
    * @interface
    */
   export interface UpdateManyOptions extends Repository.UpdateManyOptions {}
+
+  export interface CreateCommand extends StrictOmit<RequiredSome<CommandInfo, 'input'>, 'documentId'> {
+    crud: 'create';
+    options?: CreateOptions;
+  }
+
+  export interface CountCommand extends StrictOmit<CommandInfo, 'documentId' | 'input'> {
+    crud: 'read';
+    options?: CountOptions;
+  }
+
+  export interface DeleteOneCommand extends StrictOmit<CommandInfo, 'input'> {
+    crud: 'delete';
+    options?: DeleteOptions;
+  }
+
+  export interface DeleteManyCommand extends StrictOmit<CommandInfo, 'input'> {
+    crud: 'delete';
+    options?: DeleteManyOptions;
+  }
+
+  export interface ExistsCommand extends StrictOmit<CommandInfo, 'input'> {
+    crud: 'read';
+    options?: ExistsOptions;
+  }
+
+  export interface FindOneCommand extends StrictOmit<CommandInfo, 'input'> {
+    crud: 'read';
+    options?: FindOneOptions;
+  }
+
+  export interface FindManyCommand extends StrictOmit<CommandInfo, 'input'> {
+    crud: 'read';
+    options?: FindManyOptions;
+  }
+
+  export interface UpdateOneCommand<T> extends CommandInfo {
+    crud: 'update';
+    input: PatchDTO<T>;
+    options?: UpdateOneOptions;
+  }
+
+  export interface UpdateManyCommand<T> extends CommandInfo {
+    crud: 'update';
+    input: PatchDTO<T>;
+    options?: UpdateManyOptions;
+  }
 }
 
 export interface SqbEntityService {
@@ -256,13 +296,13 @@ export class SqbEntityService<T extends object = object> extends ServiceBase {
   /**
    * Insert a new record into database
    *
-   * @param {PartialDTO<T>} input - The input data
-   * @param {SqbEntityService.CreateOptions} [options] - The options object
-   * @returns {Promise<PartialDTO<T>>} A promise that resolves to the created resource
-   * @throws {InternalServerError} if an unknown error occurs while creating the resource
+   * @param command
+   * @returns - A promise that resolves to the created resource
    * @protected
    */
-  protected async _create(input: PartialDTO<T>, options?: SqbEntityService.CreateOptions): Promise<PartialDTO<T>> {
+  protected async _create(command: SqbEntityService.CreateCommand): Promise<PartialDTO<T>> {
+    const { input, options } = command;
+    isNotNullish(command.input, { label: 'input' });
     const inputCodec = this.getInputCodec('create');
     const outputCodec = this.getOutputCodec('create');
     const data: any = inputCodec(input);
@@ -274,100 +314,96 @@ export class SqbEntityService<T extends object = object> extends ServiceBase {
   /**
    * Returns the count of records based on the provided options
    *
-   * @param {SqbEntityService.CountOptions} options - The options for the count operation.
-   * @return {Promise<number>} - A promise that resolves to the count of records
+   * @param command
+   * @return - A promise that resolves to the count of records
    * @protected
    */
-  protected async _count(options?: SqbEntityService.CountOptions): Promise<number> {
-    return this._dbCount(options);
+  protected async _count(command: SqbEntityService.CountCommand): Promise<number> {
+    return this._dbCount(command.options);
   }
 
   /**
    * Deletes a record from the collection.
    *
-   * @param {SQBAdapter.IdOrIds} id - The ID of the document to delete.
-   * @param {SqbEntityService.DeleteOptions} [options] - Optional delete options.
-   * @return {Promise<number>} - A Promise that resolves to the number of documents deleted.
+   * @param command
+   * @return - A Promise that resolves to the number of documents deleted.
    * @protected
    */
-  protected async _delete(id: SQBAdapter.IdOrIds, options?: SqbEntityService.DeleteOptions): Promise<number> {
-    return this._dbDelete(id, options);
+  protected async _delete(command: SqbEntityService.DeleteOneCommand): Promise<number> {
+    isNotNullish(command.documentId, { label: 'documentId' });
+    return this._dbDelete(command.documentId!, command.options);
   }
 
   /**
    * Deletes multiple documents from the collection that meet the specified filter criteria.
    *
-   * @param {SqbEntityService.DeleteManyOptions} options - The options for the delete operation.
-   * @return {Promise<number>} - A promise that resolves to the number of documents deleted.
+   * @param command
+   * @return - A promise that resolves to the number of documents deleted.
    * @protected
    */
-  protected async _deleteMany(options?: SqbEntityService.DeleteManyOptions): Promise<number> {
-    return await this._dbDeleteMany(options);
+  protected async _deleteMany(command: SqbEntityService.DeleteManyCommand): Promise<number> {
+    return await this._dbDeleteMany(command.options);
   }
 
   /**
    * Checks if a record with the given id exists.
    *
-   * @param {SQBAdapter.IdOrIds} id - The id of the object to check.
-   * @param {SqbEntityService.ExistsOptions} [options] - The options for the query (optional).
-   * @return {Promise<boolean>} - A Promise that resolves to a boolean indicating whether the record exists or not.
+   * @param command
    * @protected
    */
-  protected async _exists(id: SQBAdapter.IdOrIds, options?: SqbEntityService.ExistsOptions): Promise<boolean> {
-    return await this._dbExists(id, options);
+  protected async _exists(command: SqbEntityService.ExistsCommand): Promise<boolean> {
+    isNotNullish(command.documentId, { label: 'documentId' });
+    return await this._dbExists(command.documentId!, command.options);
   }
 
   /**
    * Checks if a record with the given arguments exists.
    *
-   * @param {SqbEntityService.ExistsOneOptions} [options] - The options for the query (optional).
-   * @return {Promise<boolean>} - A Promise that resolves to a boolean indicating whether the record exists or not.
+   * @param command
+   * @return - A Promise that resolves to a boolean indicating whether the record exists or not.
    * @protected
    */
-  protected async _existsOne(options?: SqbEntityService.ExistsOptions): Promise<boolean> {
-    return await this._dbExistsOne(options);
+  protected async _existsOne(command: SqbEntityService.ExistsCommand): Promise<boolean> {
+    return await this._dbExistsOne(command.options);
   }
 
   /**
    * Finds a record by ID.
    *
-   * @param {SQBAdapter.Id} id - The ID of the record.
-   * @param {SqbEntityService.FindOneOptions} [options] - The options for the find query.
-   * @return {Promise<PartialDTO<T | undefined>>} - A promise resolving to the found document, or undefined if not found.
+   * @param command
+   * @return - A promise resolving to the found document, or undefined if not found.
    * @protected
    */
-  protected async _findById(
-    id: SQBAdapter.Id,
-    options?: SqbEntityService.FindOneOptions,
-  ): Promise<PartialDTO<T> | undefined> {
+  protected async _findById(command: SqbEntityService.FindOneCommand): Promise<PartialDTO<T> | undefined> {
+    isNotNullish(command.documentId, { label: 'documentId' });
     const decode = this.getOutputCodec('find');
-    const out = await this._dbFindById(id, options);
+    const out = await this._dbFindById(command.documentId!, command.options);
     return out ? (decode(out) as PartialDTO<T>) : undefined;
   }
 
   /**
    * Finds a record in the collection that matches the specified options.
    *
-   * @param {SqbEntityService.FindOneOptions} [options] - The options for the query.
-   * @return {Promise<PartialDTO<T> | undefined>} A promise that resolves with the found document or undefined if no document is found.
+   * @param command
+   * @return - A promise that resolves with the found document or undefined if no document is found.
    * @protected
    */
-  protected async _findOne(options?: SqbEntityService.FindOneOptions): Promise<PartialDTO<T> | undefined> {
+  protected async _findOne(command: SqbEntityService.FindOneCommand): Promise<PartialDTO<T> | undefined> {
     const decode = this.getOutputCodec('find');
-    const out = await this._dbFindOne(options);
+    const out = await this._dbFindOne(command.options);
     return out ? (decode(out) as PartialDTO<T>) : undefined;
   }
 
   /**
    * Finds multiple records in collection.
    *
-   * @param {SqbEntityService.FindManyOptions} [options] - The options for the find operation.
-   * @return A Promise that resolves to an array of partial outputs of type T.
+   * @param command
+   * @return - A Promise that resolves to an array of partial outputs of type T.
    * @protected
    */
-  protected async _findMany(options?: SqbEntityService.FindManyOptions): Promise<PartialDTO<T>[]> {
+  protected async _findMany(command: SqbEntityService.FindManyCommand): Promise<PartialDTO<T>[]> {
     const decode = this.getOutputCodec('find');
-    const out: any[] = await this._dbFindMany(options);
+    const out: any[] = await this._dbFindMany(command.options);
     if (out?.length) {
       return out.map(x => decode(x)) as any;
     }
@@ -377,21 +413,17 @@ export class SqbEntityService<T extends object = object> extends ServiceBase {
   /**
    * Updates a record with the given id in the collection.
    *
-   * @param {SQBAdapter.IdOrIds} id - The id of the document to update.
-   * @param {PatchDTO<T>} input - The partial input object containing the fields to update.
-   * @param {SqbEntityService.UpdateOptions} [options] - The options for the update operation.
-   * @returns {Promise<PartialDTO<T> | undefined>} A promise that resolves to the updated document or
-   * undefined if the document was not found.
+   * @param command
+   * @returns  A promise that resolves to the updated document or undefined if the document was not found.
    * @protected
    */
-  protected async _update(
-    id: SQBAdapter.IdOrIds,
-    input: PatchDTO<T>,
-    options?: SqbEntityService.UpdateOptions,
-  ): Promise<PartialDTO<T> | undefined> {
+  protected async _update(command: SqbEntityService.UpdateOneCommand<T>): Promise<PartialDTO<T> | undefined> {
+    isNotNullish(command.documentId, { label: 'documentId' });
+    isNotNullish(command.input, { label: 'input' });
+    const { documentId, input, options } = command;
     const inputCodec = this.getInputCodec('update');
     const data: any = inputCodec(input);
-    const out = await this._dbUpdate(id, data, options);
+    const out = await this._dbUpdate(documentId!, data, options);
     const outputCodec = this.getOutputCodec('update');
     if (out) return outputCodec(out);
   }
@@ -399,34 +431,31 @@ export class SqbEntityService<T extends object = object> extends ServiceBase {
   /**
    * Updates a record in the collection with the specified ID and returns updated record count
    *
-   * @param {any} id - The ID of the document to update.
-   * @param {PatchDTO<T>} input - The partial input data to update the document with.
-   * @param {SqbEntityService.UpdateOptions} options - The options for updating the document.
-   * @returns {Promise<number>} - A promise that resolves to the number of documents modified.
+   * @param command
+   * @returns - A promise that resolves to the number of documents modified.
    * @protected
    */
-  protected async _updateOnly(
-    id: SQBAdapter.IdOrIds,
-    input: PatchDTO<T>,
-    options?: SqbEntityService.UpdateOptions,
-  ): Promise<boolean> {
+  protected async _updateOnly(command: SqbEntityService.UpdateOneCommand<T>): Promise<boolean> {
+    isNotNullish(command.documentId, { label: 'documentId' });
+    isNotNullish(command.input, { label: 'input' });
+    const { documentId, input, options } = command;
     const inputCodec = this.getInputCodec('update');
     const data: any = inputCodec(input);
-    return await this._dbUpdateOnly(id, data, options);
+    return await this._dbUpdateOnly(documentId!, data, options);
   }
 
   /**
    * Updates multiple records in the collection based on the specified input and options.
    *
-   * @param {PatchDTO<T>} input - The partial input to update the documents with.
-   * @param {SqbEntityService.UpdateManyOptions} options - The options for updating the documents.
-   * @return {Promise<number>} - A promise that resolves to the number of documents matched and modified.
+   * @param command
+   * @return - A promise that resolves to the number of documents matched and modified.
    * @protected
    */
-  protected async _updateMany(input: PatchDTO<T>, options?: SqbEntityService.UpdateManyOptions): Promise<number> {
+  protected async _updateMany(command: SqbEntityService.UpdateOneCommand<T>): Promise<number> {
+    isNotNullish(command.input, { label: 'input' });
     const inputCodec = this.getInputCodec('update');
-    const data: any = inputCodec(input);
-    return await this._dbUpdateMany(data, options);
+    const data: any = inputCodec(command.input);
+    return await this._dbUpdateMany(data, command.options);
   }
 
   /**
@@ -636,13 +665,13 @@ export class SqbEntityService<T extends object = object> extends ServiceBase {
     return typeof this.commonFilter === 'function' ? this.commonFilter(args, this) : this.commonFilter;
   }
 
-  protected async _executeCommand(commandFn: () => any, info: SqbEntityService.CommandInfo): Promise<any> {
+  protected async _executeCommand(command: SqbEntityService.CommandInfo, commandFn: () => any): Promise<any> {
     let proto: any;
     const next = async () => {
       proto = proto ? Object.getPrototypeOf(proto) : this;
       while (proto) {
         if (proto.interceptor) {
-          return await proto.interceptor.call(this, next, info, this);
+          return await proto.interceptor.call(this, next, command, this);
         }
         proto = Object.getPrototypeOf(proto);
         if (!(proto instanceof SqbEntityService)) break;

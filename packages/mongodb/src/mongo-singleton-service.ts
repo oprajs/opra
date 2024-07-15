@@ -1,9 +1,8 @@
 import { ResourceNotAvailableError } from '@opra/common';
-import mongodb, { ObjectId } from 'mongodb';
+import mongodb, { ObjectId, UpdateFilter } from 'mongodb';
 import { PartialDTO, PatchDTO, Type } from 'ts-gems';
 import { MongoAdapter } from './mongo-adapter.js';
 import { MongoEntityService } from './mongo-entity-service.js';
-import { MongoService } from './mongo-service.js';
 
 /**
  *
@@ -19,16 +18,6 @@ export namespace MongoSingletonService {
   export interface Options extends MongoEntityService.Options {
     _id?: MongoAdapter.AnyId;
   }
-
-  export interface CreateOptions extends MongoEntityService.CreateOptions {}
-
-  export interface DeleteOptions<T> extends MongoEntityService.DeleteOptions<T> {}
-
-  export interface ExistsOptions<T> extends MongoService.ExistsOptions<T> {}
-
-  export interface FindOneOptions<T> extends MongoEntityService.FindOneOptions<T> {}
-
-  export interface UpdateOptions<T> extends MongoEntityService.UpdateOptions<T> {}
 }
 
 /**
@@ -59,11 +48,11 @@ export class MongoSingletonService<T extends mongodb.Document> extends MongoEnti
   /**
    * Asserts the existence of a resource based on the given options.
    *
-   * @param {MongoSingletonService.ExistsOptions<T>} [options]
+   * @param {MongoEntityService.ExistsOptions<T>} [options]
    * @returns {Promise<void>} A Promise that resolves when the resource exists.
    * @throws {ResourceNotAvailableError} If the resource does not exist.
    */
-  async assert(options?: MongoSingletonService.ExistsOptions<T>): Promise<void> {
+  async assert(options?: MongoEntityService.ExistsOptions<T>): Promise<void> {
     if (!(await this.exists(options))) throw new ResourceNotAvailableError(this.getResourceName());
   }
 
@@ -71,80 +60,96 @@ export class MongoSingletonService<T extends mongodb.Document> extends MongoEnti
    * Creates the document in the database.
    *
    * @param {PartialDTO<T>} input - The partial input to create the document with.
-   * @param {MongoSingletonService.CreateOptions} [options] - The options for creating the document.
+   * @param {MongoEntityService.CreateOptions} [options] - The options for creating the document.
    * @return {Promise<PartialDTO<T>>} A promise that resolves to the partial output of the created document.
    * @throws {Error} Throws an error if an unknown error occurs while creating the document.
    */
-  async create(input: PartialDTO<T>, options?: MongoSingletonService.CreateOptions): Promise<PartialDTO<T>> {
-    (input as any)._id = this._id;
-    const info: MongoService.CommandInfo = {
+  async create(input: PartialDTO<T>, options?: MongoEntityService.CreateOptions): Promise<PartialDTO<T>> {
+    const command: MongoEntityService.CreateCommand = {
       crud: 'create',
       method: 'create',
       byId: false,
-      documentId: this._id,
       input,
       options,
     };
-    return this._executeCommand(() => this._create(input, options), info);
+    (input as any)._id = this._id;
+    return this._executeCommand(command, () => this._create(command));
   }
 
   /**
    * Deletes a record from the database
    *
-   * @param {MongoSingletonService.DeleteOptions<T>} options - The options for deleting the record
+   * @param {MongoEntityService.DeleteOptions<T>} options - The options for deleting the record
    * @returns {Promise<number>} The number of records deleted
    */
-  async delete(options?: MongoSingletonService.DeleteOptions<T>): Promise<number> {
-    const info: MongoService.CommandInfo = {
+  async delete(options?: MongoEntityService.DeleteOptions<T>): Promise<number> {
+    const command: MongoEntityService.DeleteCommand<T> = {
       crud: 'delete',
       method: 'delete',
       byId: true,
       documentId: this._id,
       options,
     };
-    return this._executeCommand(async () => {
-      const filter = MongoAdapter.prepareFilter([await this._getDocumentFilter(info), options?.filter]);
-      return this._delete(this._id, { ...options, filter });
-    }, info);
+    return this._executeCommand(command, async () => {
+      const filter = MongoAdapter.prepareFilter([await this._getDocumentFilter(command), command.options?.filter]);
+      command.options = { ...command.options, filter };
+      return this._delete(command);
+    });
   }
 
   /**
    * Checks if the document exists in the database.
    *
+   * @param {MongoEntityService.FindOneOptions<T>} [options] - The options for finding the document.
    * @return {Promise<boolean>} - A promise that resolves to a boolean value indicating if the document exists.
    */
-  async exists(options?: MongoSingletonService.ExistsOptions<T>): Promise<boolean> {
-    return !!(await this.find({ ...options, projection: ['_id'], skip: undefined }));
+  async exists(options?: MongoEntityService.ExistsOptions<T>): Promise<boolean> {
+    const command: MongoEntityService.ExistsCommand<T> = {
+      crud: 'read',
+      method: 'exists',
+      byId: true,
+      documentId: this._id,
+      options,
+    };
+    return this._executeCommand(command, async () => {
+      const documentFilter = await this._getDocumentFilter(command);
+      const filter = MongoAdapter.prepareFilter([documentFilter, command.options?.filter]);
+      const findCommand = command as MongoEntityService.FindOneCommand<T>;
+      findCommand.options = { ...command.options, filter, projection: ['_id'] };
+      return !!(await this._findById(findCommand));
+    });
   }
 
   /**
    * Fetches the document if it exists. Returns undefined if not found.
    *
-   * @param {MongoSingletonService.FindOneOptions<T>} [options] - The options for finding the document.
+   * @param {MongoEntityService.FindOneOptions<T>} [options] - The options for finding the document.
    * @returns {Promise<PartialDTO<T> | undefined>} - A promise that resolves to the found document or undefined if not found.
    */
-  async find(options?: MongoSingletonService.FindOneOptions<T>): Promise<PartialDTO<T> | undefined> {
-    const info: MongoService.CommandInfo = {
+  async find(options?: MongoEntityService.FindOneOptions<T>): Promise<PartialDTO<T> | undefined> {
+    const command: MongoEntityService.FindOneCommand<T> = {
       crud: 'read',
-      method: 'findOne',
+      method: 'findById',
       byId: true,
       documentId: this._id,
       options,
     };
-    return this._executeCommand(async () => {
-      const filter = MongoAdapter.prepareFilter([await this._getDocumentFilter(info), options?.filter]);
-      return this._findById(this._id, { ...options, filter });
-    }, info);
+    return this._executeCommand(command, async () => {
+      const documentFilter = await this._getDocumentFilter(command);
+      const filter = MongoAdapter.prepareFilter([documentFilter, command.options?.filter]);
+      command.options = { ...command.options, filter };
+      return this._findById(command);
+    });
   }
 
   /**
    * Fetches the document from the Mongo collection service. Throws error if not found.
    *
-   * @param {MongoSingletonService.FindOneOptions<T>} options - The options to customize the query.
+   * @param {MongoEntityService.FindOneOptions<T>} options - The options to customize the query.
    * @return {Promise<PartialDTO<T>>} - A promise that resolves to the fetched document.
    * @throws {ResourceNotAvailableError} - If the document is not found in the collection.
    */
-  async get(options?: MongoSingletonService.FindOneOptions<T>): Promise<PartialDTO<T>> {
+  async get(options?: MongoEntityService.FindOneOptions<T>): Promise<PartialDTO<T>> {
     const out = await this.find(options);
     if (!out) throw new ResourceNotAvailableError(this.getResourceName());
     return out;
@@ -154,48 +159,55 @@ export class MongoSingletonService<T extends mongodb.Document> extends MongoEnti
    * Updates a document in the MongoDB collection.
    *
    * @param {PatchDTO<T>} input - The partial input to update the document.
-   * @param {MongoSingletonService.UpdateOptions<T>} [options] - The update options.
+   * @param {MongoEntityService.UpdateOneOptions<T>} [options] - The update options.
    *
-   * @return {Promise<number>} - A promise that resolves to the updated document or undefined if not found.
+   * @return {Promise<PartialDTO<T> | undefined>} - A promise that resolves to the updated document or undefined if not found.
    */
-  async updateOnly(input: PatchDTO<T>, options?: MongoSingletonService.UpdateOptions<T>): Promise<number> {
-    const info: MongoService.CommandInfo = {
+  async update(
+    input: PatchDTO<T> | UpdateFilter<T>,
+    options?: MongoEntityService.UpdateOneOptions<T>,
+  ): Promise<PartialDTO<T> | undefined> {
+    const isUpdateFilter = Array.isArray(input) || !!Object.keys(input).find(x => x.startsWith('$'));
+    const command: MongoEntityService.UpdateOneCommand<T> = {
       crud: 'update',
       method: 'update',
-      byId: true,
       documentId: this._id,
-      input,
+      byId: true,
+      input: isUpdateFilter ? undefined : input,
+      inputRaw: isUpdateFilter ? input : undefined,
       options,
     };
-    return this._executeCommand(async () => {
-      const filter = MongoAdapter.prepareFilter([await this._getDocumentFilter(info), options?.filter]);
-      return this._updateOnly(this._id, input, { ...options, filter });
-    }, info);
+    return this._executeCommand(command, async () => {
+      const filter = MongoAdapter.prepareFilter([await this._getDocumentFilter(command), command.options?.filter]);
+      command.options = { ...command.options, filter };
+      return this._update(command);
+    });
   }
 
   /**
    * Updates a document in the MongoDB collection.
    *
    * @param {PatchDTO<T>} input - The partial input to update the document.
-   * @param {MongoSingletonService.UpdateOptions<T>} [options] - The update options.
+   * @param {MongoEntityService.UpdateOneOptions<T>} [options] - The update options.
    *
-   * @return {Promise<PartialDTO<T> | undefined>} - A promise that resolves to the updated document or undefined if not found.
+   * @return {Promise<number>} - A promise that resolves to the updated document or undefined if not found.
    */
-  async update(
-    input: PatchDTO<T>,
-    options?: MongoSingletonService.UpdateOptions<T>,
-  ): Promise<PartialDTO<T> | undefined> {
-    const info: MongoService.CommandInfo = {
+  async updateOnly(
+    input: PatchDTO<T> | UpdateFilter<T>,
+    options?: MongoEntityService.UpdateOneOptions<T>,
+  ): Promise<number> {
+    const command: MongoEntityService.UpdateOneCommand<T> = {
       crud: 'update',
-      method: 'update',
-      byId: true,
+      method: 'updateOnly',
       documentId: this._id,
+      byId: true,
       input,
       options,
     };
-    return this._executeCommand(async () => {
-      const filter = MongoAdapter.prepareFilter([await this._getDocumentFilter(info), options?.filter]);
-      return this._update(this._id, input, { ...options, filter });
-    }, info);
+    return this._executeCommand(command, async () => {
+      const filter = MongoAdapter.prepareFilter([await this._getDocumentFilter(command), command.options?.filter]);
+      command.options = { ...command.options, filter };
+      return this._updateOnly(command);
+    });
   }
 }

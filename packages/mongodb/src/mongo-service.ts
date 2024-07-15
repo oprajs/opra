@@ -31,8 +31,8 @@ export namespace MongoService {
     byId: boolean;
     documentId?: MongoAdapter.AnyId;
     nestedId?: MongoAdapter.AnyId;
-    input?: Record<string, any>;
-    options?: Record<string, any>;
+    input?: any;
+    options?: any;
   }
 
   /**
@@ -130,7 +130,7 @@ export namespace MongoService {
    * @interface
    * @template T - The type of the document.
    */
-  export interface UpdateOptions<T>
+  export interface UpdateOneOptions<T>
     extends StrictOmit<mongodb.FindOneAndUpdateOptions, 'projection' | 'returnDocument' | 'includeResultMetadata'> {
     projection?: string | string[] | Document;
     filter?: mongodb.Filter<T> | OpraCommon.OpraFilter.Ast | string;
@@ -195,7 +195,7 @@ export class MongoService<T extends mongodb.Document = mongodb.Document> extends
    * Generates a new id for new inserting Document.
    *
    */
-  idGenerator?: (_this: any) => MongoAdapter.AnyId;
+  idGenerator?: (command: MongoService.CommandInfo, _this: any) => MongoAdapter.AnyId;
 
   /**
    * Callback function for handling errors.
@@ -598,8 +598,8 @@ export class MongoService<T extends mongodb.Document = mongodb.Document> extends
    * @protected
    * @returns {MongoAdapter.AnyId} The generated ID.
    */
-  protected _generateId(): MongoAdapter.AnyId {
-    return typeof this.idGenerator === 'function' ? this.idGenerator(this) : new ObjectId();
+  protected _generateId(command: MongoService.CommandInfo): MongoAdapter.AnyId {
+    return typeof this.idGenerator === 'function' ? this.idGenerator(command, this) : new ObjectId();
   }
 
   /**
@@ -611,18 +611,18 @@ export class MongoService<T extends mongodb.Document = mongodb.Document> extends
    * that resolves to the common filter, or undefined if not available.
    */
   protected _getDocumentFilter(
-    info: MongoService.CommandInfo,
+    command: MongoService.CommandInfo,
   ): MongoAdapter.FilterInput | Promise<MongoAdapter.FilterInput> | undefined {
-    return typeof this.documentFilter === 'function' ? this.documentFilter(info, this) : this.documentFilter;
+    return typeof this.documentFilter === 'function' ? this.documentFilter(command, this) : this.documentFilter;
   }
 
-  protected async _executeCommand(commandFn: () => any, info: MongoService.CommandInfo): Promise<any> {
+  protected async _executeCommand(command: MongoService.CommandInfo, commandFn: () => any): Promise<any> {
     let proto: any;
     const next = async () => {
       proto = proto ? Object.getPrototypeOf(proto) : this;
       while (proto) {
         if (proto.interceptor) {
-          return await proto.interceptor.call(this, next, info, this);
+          return await proto.interceptor.call(this, next, command, this);
         }
         proto = Object.getPrototypeOf(proto);
         if (!(proto instanceof MongoService)) break;

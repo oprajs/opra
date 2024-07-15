@@ -1,8 +1,8 @@
-import * as assert from 'node:assert';
 import { InternalServerError } from '@opra/common';
 import omit from 'lodash.omit';
 import mongodb, { UpdateFilter } from 'mongodb';
-import { PartialDTO, PatchDTO, Type } from 'ts-gems';
+import { PartialDTO, PatchDTO, RequiredSome, StrictOmit, Type } from 'ts-gems';
+import { isNotNullish } from 'valgen';
 import { MongoAdapter } from './mongo-adapter.js';
 import { MongoService } from './mongo-service.js';
 
@@ -31,13 +31,65 @@ export namespace MongoEntityService {
 
   export interface DistinctOptions<T> extends MongoService.DistinctOptions<T> {}
 
+  export interface ExistsOptions<T> extends MongoService.ExistsOptions<T> {}
+
   export interface FindOneOptions<T> extends MongoService.FindOneOptions<T> {}
 
   export interface FindManyOptions<T> extends MongoService.FindManyOptions<T> {}
 
-  export interface UpdateOptions<T> extends MongoService.UpdateOptions<T> {}
+  export interface UpdateOneOptions<T> extends MongoService.UpdateOneOptions<T> {}
 
   export interface UpdateManyOptions<T> extends MongoService.UpdateManyOptions<T> {}
+
+  export interface CreateCommand extends StrictOmit<RequiredSome<CommandInfo, 'input'>, 'documentId' | 'nestedId'> {
+    crud: 'create';
+    options?: CreateOptions;
+  }
+
+  export interface CountCommand<T> extends StrictOmit<CommandInfo, 'documentId' | 'nestedId' | 'input'> {
+    crud: 'read';
+    options?: CountOptions<T>;
+  }
+
+  export interface DeleteCommand<T> extends StrictOmit<CommandInfo, 'nestedId' | 'input'> {
+    crud: 'delete';
+    options?: DeleteOptions<T>;
+  }
+
+  export interface DistinctCommand<T> extends StrictOmit<CommandInfo, 'documentId' | 'nestedId' | 'input'> {
+    crud: 'read';
+    field: string;
+    options?: DistinctOptions<T>;
+  }
+
+  export interface ExistsCommand<T> extends StrictOmit<CommandInfo, 'nestedId' | 'input'> {
+    crud: 'read';
+    options?: ExistsOptions<T>;
+  }
+
+  export interface FindOneCommand<T> extends StrictOmit<CommandInfo, 'nestedId' | 'input'> {
+    crud: 'read';
+    options?: FindOneOptions<T>;
+  }
+
+  export interface FindManyCommand<T> extends StrictOmit<CommandInfo, 'nestedId' | 'input'> {
+    crud: 'read';
+    options?: FindManyOptions<T>;
+  }
+
+  export interface UpdateOneCommand<T> extends StrictOmit<CommandInfo, 'nestedId'> {
+    crud: 'update';
+    input?: PatchDTO<T>;
+    inputRaw?: mongodb.UpdateFilter<T>;
+    options?: UpdateOneOptions<T>;
+  }
+
+  export interface UpdateManyCommand<T> extends StrictOmit<CommandInfo, 'nestedId'> {
+    crud: 'update';
+    input?: PatchDTO<T>;
+    inputRaw?: mongodb.UpdateFilter<T>;
+    options?: UpdateManyOptions<T>;
+  }
 }
 
 /**
@@ -59,18 +111,26 @@ export class MongoEntityService<T extends mongodb.Document> extends MongoService
   /**
    * Creates a new document in the MongoDB collection.
    *
-   * @param {PartialDTO<T>} input
-   * @param {MongoEntityService.CreateOptions} options
+   * @param command
    * @protected
    */
-  protected async _create(input: PartialDTO<T>, options?: MongoEntityService.CreateOptions): Promise<PartialDTO<T>> {
+  protected async _create(command: MongoEntityService.CreateCommand): Promise<PartialDTO<T>> {
+    isNotNullish(command.input, { label: 'input' });
+    isNotNullish(command.input._id, { label: 'input._id' });
     const inputCodec = this.getInputCodec('create');
-    const doc: any = inputCodec(input);
-    assert.ok(doc._id, 'You must provide the "_id" field');
+    const doc: any = inputCodec(command.input);
+    const { options } = command;
     const r = await this._dbInsertOne(doc, options);
     if (r.insertedId) {
-      if (!options) return doc;
-      const out = await this._findById(doc._id, omit(options, 'filter'));
+      if (!command.options) return doc;
+      const findCommand: MongoEntityService.FindOneCommand<T> = {
+        ...command,
+        crud: 'read',
+        byId: true,
+        documentId: doc._id,
+        options: omit(options, 'filter'),
+      };
+      const out = await this._findById(findCommand);
       if (out) return out;
     }
     /* istanbul ignore next */
@@ -80,10 +140,11 @@ export class MongoEntityService<T extends mongodb.Document> extends MongoService
   /**
    * Returns the count of documents in the collection based on the provided options.
    *
-   * @param {MongoEntityService.CountOptions<T>} options - The options for the count operation.
-   * @return {Promise<number>} - A promise that resolves to the count of documents in the collection.
+   * @param command
+   * @protected
    */
-  protected async _count(options?: MongoEntityService.CountOptions<T>): Promise<number> {
+  protected async _count(command: MongoEntityService.CountCommand<T>): Promise<number> {
+    const { options } = command;
     const filter = MongoAdapter.prepareFilter(options?.filter);
     return this._dbCountDocuments(filter, omit(options, 'filter'));
   }
@@ -91,13 +152,16 @@ export class MongoEntityService<T extends mongodb.Document> extends MongoService
   /**
    * Deletes a document from the collection.
    *
-   * @param {MongoAdapter.AnyId} id - The ID of the document to delete.
-   * @param {MongoEntityService.DeleteOptions<T>} [options] - Optional delete options.
-   * @return {Promise<number>} - A Promise that resolves to the number of documents deleted.
+   * @param command
+   * @protected
    */
-  protected async _delete(id: MongoAdapter.AnyId, options?: MongoEntityService.DeleteOptions<T>): Promise<number> {
-    assert.ok(id, 'You must provide an id');
-    const filter = MongoAdapter.prepareFilter([MongoAdapter.prepareKeyValues(id, ['_id']), options?.filter]);
+  protected async _delete(command: MongoEntityService.DeleteCommand<T>): Promise<number> {
+    isNotNullish(command.documentId, { label: 'documentId' });
+    const { options } = command;
+    const filter = MongoAdapter.prepareFilter([
+      MongoAdapter.prepareKeyValues(command.documentId, ['_id']),
+      options?.filter,
+    ]);
     const r = await this._dbDeleteOne(filter, options);
     return r.deletedCount;
   }
@@ -105,10 +169,11 @@ export class MongoEntityService<T extends mongodb.Document> extends MongoService
   /**
    * Deletes multiple documents from the collection that meet the specified filter criteria.
    *
-   * @param {MongoEntityService.DeleteManyOptions<T>} options - The options for the delete operation.
-   * @return {Promise<number>} - A promise that resolves to the number of documents deleted.
+   * @param command
+   * @protected
    */
-  protected async _deleteMany(options?: MongoEntityService.DeleteManyOptions<T>): Promise<number> {
+  protected async _deleteMany(command: MongoEntityService.DeleteCommand<T>): Promise<number> {
+    const { options } = command;
     const filter = MongoAdapter.prepareFilter(options?.filter);
     const r = await this._dbDeleteMany(filter, omit(options, 'filter'));
     return r.deletedCount;
@@ -116,11 +181,12 @@ export class MongoEntityService<T extends mongodb.Document> extends MongoService
 
   /**
    * The distinct command returns a list of distinct values for the given key across a collection.
-   * @param {string} field
-   * @param {MongoEntityService.DistinctOptions<T>} options
+   *
+   * @param command
    * @protected
    */
-  protected async _distinct(field: string, options?: MongoEntityService.DistinctOptions<T>): Promise<any[]> {
+  protected async _distinct(command: MongoEntityService.DistinctCommand<T>): Promise<any[]> {
+    const { options, field } = command;
     const filter = MongoAdapter.prepareFilter(options?.filter);
     return await this._dbDistinct(field, filter, omit(options, 'filter'));
   }
@@ -128,15 +194,15 @@ export class MongoEntityService<T extends mongodb.Document> extends MongoService
   /**
    * Finds a document by its ID.
    *
-   * @param {MongoAdapter.AnyId} id - The ID of the document.
-   * @param {MongoEntityService.FindOneOptions<T>} [options] - The options for the find query.
-   * @return {Promise<PartialDTO<T | undefined>>} - A promise resolving to the found document, or undefined if not found.
+   * @param command
    */
-  protected async _findById(
-    id: MongoAdapter.AnyId,
-    options?: MongoEntityService.FindOneOptions<T>,
-  ): Promise<PartialDTO<T> | undefined> {
-    const filter = MongoAdapter.prepareFilter([MongoAdapter.prepareKeyValues(id, ['_id']), options?.filter]);
+  protected async _findById(command: MongoEntityService.FindOneCommand<T>): Promise<PartialDTO<T> | undefined> {
+    isNotNullish(command.documentId, { label: 'documentId' });
+    const filter = MongoAdapter.prepareFilter([
+      MongoAdapter.prepareKeyValues(command.documentId, ['_id']),
+      command.options?.filter,
+    ]);
+    const { options } = command;
     const mongoOptions: mongodb.FindOptions = {
       ...options,
       projection: MongoAdapter.prepareProjection(this.dataType, options?.projection),
@@ -152,10 +218,10 @@ export class MongoEntityService<T extends mongodb.Document> extends MongoService
   /**
    * Finds a document in the collection that matches the specified options.
    *
-   * @param {MongoEntityService.FindOneOptions} [options] - The options for the query.
-   * @return {Promise<PartialDTO<T> | undefined>} A promise that resolves with the found document or undefined if no document is found.
+   * @param command
    */
-  protected async _findOne(options?: MongoEntityService.FindOneOptions<T>): Promise<PartialDTO<T> | undefined> {
+  protected async _findOne(command: MongoEntityService.FindOneCommand<T>): Promise<PartialDTO<T> | undefined> {
+    const { options } = command;
     const filter = MongoAdapter.prepareFilter(options?.filter);
     const mongoOptions: mongodb.FindOptions = {
       ...omit(options, 'filter'),
@@ -171,10 +237,10 @@ export class MongoEntityService<T extends mongodb.Document> extends MongoService
   /**
    * Finds multiple documents in the MongoDB collection.
    *
-   * @param {MongoEntityService.FindManyOptions<T>} [options] - The options for the find operation.
-   * @return A Promise that resolves to an array of partial outputs of type T.
+   * @param command
    */
-  protected async _findMany(options?: MongoEntityService.FindManyOptions<T>): Promise<PartialDTO<T>[]> {
+  protected async _findMany(command: MongoEntityService.FindManyCommand<T>): Promise<PartialDTO<T>[]> {
+    const { options } = command;
     const mongoOptions: mongodb.AggregateOptions = {
       ...omit(options, ['projection', 'sort', 'skip', 'limit', 'filter']),
     };
@@ -209,13 +275,13 @@ export class MongoEntityService<T extends mongodb.Document> extends MongoService
    * Finds multiple documents in the collection and returns both records (max limit)
    * and total count that matched the given criteria
    *
-   * @param {MongoEntityService.FindManyOptions<T>} [options] - The options for the find operation.
-   * @return A Promise that resolves to an array of partial outputs of type T.
+   * @param command
    */
-  protected async _findManyWithCount(options?: MongoEntityService.FindManyOptions<T>): Promise<{
+  protected async _findManyWithCount(command: MongoEntityService.FindManyCommand<T>): Promise<{
     count: number;
     items: PartialDTO<T>[];
   }> {
+    const { options } = command;
     const mongoOptions: mongodb.AggregateOptions = {
       ...omit(options, ['projection', 'sort', 'skip', 'limit', 'filter']),
     };
@@ -265,32 +331,28 @@ export class MongoEntityService<T extends mongodb.Document> extends MongoService
   /**
    * Updates a document with the given id in the collection.
    *
-   * @param {AnyId} id - The id of the document to update.
-   * @param {PatchDTO<T>|UpdateFilter<T>} input - The partial input object containing the fields to update.
-   * @param {MongoEntityService.UpdateOptions<T>} [options] - The options for the update operation.
-   * @returns {Promise<PartialDTO<T> | undefined>} A promise that resolves to the updated document or
-   * undefined if the document was not found.
+   * @param command
    */
-  protected async _update(
-    id: MongoAdapter.AnyId,
-    input: PatchDTO<T> | mongodb.UpdateFilter<T>,
-    options?: MongoEntityService.UpdateOptions<T>,
-  ): Promise<PartialDTO<T> | undefined> {
-    const isUpdateFilter = Array.isArray(input) || !!Object.keys(input).find(x => x.startsWith('$'));
-    const isDocument = !Array.isArray(input) && !!Object.keys(input).find(x => !x.startsWith('$'));
-    if (isUpdateFilter && isDocument) {
+  protected async _update(command: MongoEntityService.UpdateOneCommand<T>): Promise<PartialDTO<T> | undefined> {
+    isNotNullish(command.documentId, { label: 'documentId' });
+    const { input, inputRaw, options } = command;
+    isNotNullish(input || inputRaw, { label: 'input' });
+    if (input && inputRaw) {
       throw new TypeError('You must pass one of MongoDB UpdateFilter or a partial document, not both');
     }
     let update: UpdateFilter<T>;
-    if (isDocument) {
+    if (input) {
       const inputCodec = this.getInputCodec('update');
       const doc = inputCodec(input);
       delete doc._id;
       update = MongoAdapter.preparePatch(doc);
       update.$set = update.$set || ({} as any);
-    } else update = input as UpdateFilter<T>;
+    } else update = inputRaw!;
 
-    const filter = MongoAdapter.prepareFilter([MongoAdapter.prepareKeyValues(id, ['_id']), options?.filter]);
+    const filter = MongoAdapter.prepareFilter([
+      MongoAdapter.prepareKeyValues(command.documentId!, ['_id']),
+      options?.filter,
+    ]);
 
     const mongoOptions: mongodb.FindOneAndUpdateOptions = {
       ...options,
@@ -306,31 +368,28 @@ export class MongoEntityService<T extends mongodb.Document> extends MongoService
   /**
    * Updates a document in the collection with the specified ID.
    *
-   * @param {MongoAdapter.AnyId} id - The ID of the document to update.
-   * @param {PatchDTO<T>|UpdateFilter<T>} input - The partial input data to update the document with.
-   * @param {MongoEntityService.UpdateOptions<T>} [options] - The options for updating the document.
-   * @returns {Promise<number>} - A promise that resolves to the number of documents modified.
+   * @param command
    */
-  protected async _updateOnly(
-    id: MongoAdapter.AnyId,
-    input: PatchDTO<T> | mongodb.UpdateFilter<T>,
-    options?: MongoEntityService.UpdateOptions<T>,
-  ): Promise<number> {
-    const isUpdateFilter = Array.isArray(input) || !!Object.keys(input).find(x => x.startsWith('$'));
-    const isDocument = !Array.isArray(input) && !!Object.keys(input).find(x => !x.startsWith('$'));
-    if (isUpdateFilter && isDocument) {
+  protected async _updateOnly(command: MongoEntityService.UpdateOneCommand<T>): Promise<number> {
+    isNotNullish(command.documentId, { label: 'documentId' });
+    const { input, inputRaw, options } = command;
+    isNotNullish(input || inputRaw, { label: 'input' });
+    if (input && inputRaw) {
       throw new TypeError('You must pass one of MongoDB UpdateFilter or a partial document, not both');
     }
     let update: UpdateFilter<T>;
-    if (isDocument) {
+    if (input) {
       const inputCodec = this.getInputCodec('update');
       const doc = inputCodec(input);
       delete doc._id;
       update = MongoAdapter.preparePatch(doc);
       if (!Object.keys(doc).length) return 0;
-    } else update = input as UpdateFilter<T>;
+    } else update = inputRaw!;
 
-    const filter = MongoAdapter.prepareFilter([MongoAdapter.prepareKeyValues(id, ['_id']), options?.filter]);
+    const filter = MongoAdapter.prepareFilter([
+      MongoAdapter.prepareKeyValues(command.documentId, ['_id']),
+      options?.filter,
+    ]);
 
     const mongoOptions: mongodb.FindOneAndUpdateOptions = {
       ...options,
@@ -345,27 +404,23 @@ export class MongoEntityService<T extends mongodb.Document> extends MongoService
   /**
    * Updates multiple documents in the collection based on the specified input and options.
    *
-   * @param {PatchDTO<T>|UpdateFilter<T>} input - The partial input to update the documents with.
-   * @param {MongoEntityService.UpdateManyOptions<T>} [options] - The options for updating the documents.
-   * @return {Promise<number>} - A promise that resolves to the number of documents matched and modified.
+   * @param command
    */
-  protected async _updateMany(
-    input: PatchDTO<T> | mongodb.UpdateFilter<T>,
-    options?: MongoEntityService.UpdateManyOptions<T>,
-  ): Promise<number> {
-    const isUpdateFilter = Array.isArray(input) || !!Object.keys(input).find(x => x.startsWith('$'));
-    const isDocument = !Array.isArray(input) && !!Object.keys(input).find(x => !x.startsWith('$'));
-    if (isUpdateFilter && isDocument) {
+  protected async _updateMany(command: MongoEntityService.UpdateManyCommand<T>): Promise<number> {
+    isNotNullish(command.input, { label: 'input' });
+    const { input, inputRaw, options } = command;
+    isNotNullish(input || inputRaw, { label: 'input' });
+    if (input && inputRaw) {
       throw new TypeError('You must pass one of MongoDB UpdateFilter or a partial document, not both');
     }
     let update: UpdateFilter<T>;
-    if (isDocument) {
+    if (input) {
       const inputCodec = this.getInputCodec('update');
       const doc = inputCodec(input);
       delete doc._id;
       update = MongoAdapter.preparePatch(doc);
       if (!Object.keys(doc).length) return 0;
-    } else update = input as UpdateFilter<T>;
+    } else update = inputRaw!;
 
     const mongoOptions: mongodb.UpdateOptions = {
       ...omit(options, 'filter'),

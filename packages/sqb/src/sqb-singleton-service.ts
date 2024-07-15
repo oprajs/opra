@@ -45,14 +45,14 @@ export namespace SqbSingletonService {
    *
    * @interface
    */
-  export interface UpdateOptions extends SqbEntityService.UpdateOptions {}
+  export interface UpdateOptions extends SqbEntityService.UpdateOneOptions {}
 
   /**
    * Represents options for "updateOnly" operation
    *
    * @interface
    */
-  export interface UpdateOnlyOptions extends SqbEntityService.UpdateOptions {}
+  export interface UpdateOnlyOptions extends SqbEntityService.UpdateOneOptions {}
 }
 
 /**
@@ -64,9 +64,9 @@ export abstract class SqbSingletonService<T extends object = object> extends Sqb
 
   /**
    * Represents a unique identifier for singleton record
-   * @property {SQBAdapter.Id}
+   * @property {SQBAdapter.IdOrIds}
    */
-  id: SQBAdapter.Id;
+  id: SQBAdapter.IdOrIds;
 
   /**
    * Constructs a new instance
@@ -99,16 +99,16 @@ export abstract class SqbSingletonService<T extends object = object> extends Sqb
    * @throws {Error} if an unknown error occurs while creating the resource
    */
   async create(input: PartialDTO<T>, options?: SqbSingletonService.CreateOptions): Promise<PartialDTO<T>> {
-    const info: SqbEntityService.CommandInfo = {
+    const command: SqbEntityService.CreateCommand = {
       crud: 'create',
       method: 'create',
       byId: false,
       input,
       options,
     };
-    return this._executeCommand(async () => {
+    return this._executeCommand(command, async () => {
       const primaryFields = EntityMetadata.getPrimaryIndexColumns(this.entityMetadata);
-      const data = { ...input };
+      const data = { ...command.input };
       if (primaryFields.length > 1) {
         if (typeof primaryFields !== 'object') {
           throw new TypeError(
@@ -119,8 +119,9 @@ export abstract class SqbSingletonService<T extends object = object> extends Sqb
           data[field.name] = this.id[field.name];
         }
       } else data[primaryFields[0].name] = this.id;
-      return await this._create(data, options);
-    }, info);
+      command.input = data;
+      return await this._create(command);
+    });
   }
 
   /**
@@ -130,17 +131,18 @@ export abstract class SqbSingletonService<T extends object = object> extends Sqb
    * @return {Promise<number>} - A Promise that resolves to the number of records deleted
    */
   async delete(options?: SqbSingletonService.DeleteOptions): Promise<number> {
-    const info: any = {
+    const command: SqbEntityService.DeleteOneCommand = {
       crud: 'delete',
       method: 'delete',
       byId: true,
       documentId: this.id,
       options,
     };
-    return this._executeCommand(async () => {
-      const filter = SQBAdapter.parseFilter([await this._getCommonFilter(info), options?.filter]);
-      return this._delete(this.id, { ...options, filter });
-    }, info);
+    return this._executeCommand(command, async () => {
+      const filter = SQBAdapter.parseFilter([await this._getCommonFilter(command), command.options?.filter]);
+      command.options = { ...command.options, filter };
+      return this._delete(command);
+    });
   }
 
   /**
@@ -150,17 +152,18 @@ export abstract class SqbSingletonService<T extends object = object> extends Sqb
    * @return {Promise<boolean>} - A Promise that resolves to a boolean indicating whether the record exists or not.
    */
   async exists(options?: SqbSingletonService.ExistsOptions): Promise<boolean> {
-    const info: SqbEntityService.CommandInfo = {
+    const command: SqbEntityService.ExistsCommand = {
       crud: 'read',
       method: 'exists',
       byId: true,
       documentId: this.id,
       options,
     };
-    return this._executeCommand(async () => {
-      const filter = SQBAdapter.parseFilter([await this._getCommonFilter(info), options?.filter]);
-      return this._exists(this.id, { ...options, filter });
-    }, info);
+    return this._executeCommand(command, async () => {
+      const filter = SQBAdapter.parseFilter([await this._getCommonFilter(command), command.options?.filter]);
+      command.options = { ...command.options, filter };
+      return this._exists(command);
+    });
   }
 
   /**
@@ -170,17 +173,18 @@ export abstract class SqbSingletonService<T extends object = object> extends Sqb
    * @return {Promise<PartialDTO<T> | undefined>} A promise that resolves with the found document or undefined if no document is found.
    */
   async find(options?: SqbSingletonService.FindOptions): Promise<PartialDTO<T> | undefined> {
-    const info: SqbEntityService.CommandInfo = {
+    const command: SqbEntityService.FindOneCommand = {
       crud: 'read',
       method: 'findById',
       byId: true,
       documentId: this.id,
       options,
     };
-    return this._executeCommand(async () => {
-      const filter = SQBAdapter.parseFilter([await this._getCommonFilter(info), options?.filter]);
-      return this._findById(this.id, { ...options, filter });
-    }, info);
+    return this._executeCommand(command, async () => {
+      const filter = SQBAdapter.parseFilter([await this._getCommonFilter(command), command.options?.filter]);
+      command.options = { ...command.options, filter };
+      return this._findById(command);
+    });
   }
 
   /**
@@ -206,7 +210,7 @@ export abstract class SqbSingletonService<T extends object = object> extends Sqb
    * undefined if the document was not found.
    */
   async update(input: PatchDTO<T>, options?: SqbSingletonService.UpdateOptions): Promise<PartialDTO<T> | undefined> {
-    const info: SqbEntityService.CommandInfo = {
+    const command: SqbEntityService.UpdateOneCommand<T> = {
       crud: 'update',
       method: 'update',
       documentId: this.id,
@@ -214,10 +218,11 @@ export abstract class SqbSingletonService<T extends object = object> extends Sqb
       input,
       options,
     };
-    return this._executeCommand(async () => {
-      const filter = SQBAdapter.parseFilter([await this._getCommonFilter(info), options?.filter]);
-      return this._update(this.id, input, { ...options, filter });
-    }, info);
+    return this._executeCommand(command, async () => {
+      const filter = SQBAdapter.parseFilter([await this._getCommonFilter(command), command.options?.filter]);
+      command.options = { ...command.options, filter };
+      return this._update(command);
+    });
   }
 
   /**
@@ -228,7 +233,7 @@ export abstract class SqbSingletonService<T extends object = object> extends Sqb
    * @returns {Promise<number>} - A promise that resolves to the number of documents modified.
    */
   async updateOnly(input: PatchDTO<T>, options?: SqbSingletonService.UpdateOnlyOptions): Promise<number> {
-    const info: SqbEntityService.CommandInfo = {
+    const command: SqbEntityService.UpdateOneCommand<T> = {
       crud: 'update',
       method: 'update',
       documentId: this.id,
@@ -236,9 +241,10 @@ export abstract class SqbSingletonService<T extends object = object> extends Sqb
       input,
       options,
     };
-    return this._executeCommand(async () => {
-      const filter = SQBAdapter.parseFilter([await this._getCommonFilter(info), options?.filter]);
-      return this._updateOnly(this.id, input, { ...options, filter });
-    }, info);
+    return this._executeCommand(command, async () => {
+      const filter = SQBAdapter.parseFilter([await this._getCommonFilter(command), command.options?.filter]);
+      command.options = { ...command.options, filter };
+      return this._updateOnly(command);
+    });
   }
 }

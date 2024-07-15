@@ -67,7 +67,7 @@ describe('MongoNestedService', () => {
       );
     });
 
-    it('Should apply filter returned by nestedFilter', async () => {
+    it('Should apply nestedFilter', async () => {
       const ctx = createContext(app.adapter);
       await expect(() => service.for(ctx, { nestedFilter: () => 'rank=99' }).assert(1, 1)).rejects.toThrow(
         ResourceNotAvailableError,
@@ -521,25 +521,26 @@ describe('MongoNestedService', () => {
       expect(result).toEqual(r);
     });
 
-    it('Should return "undefined" if parent record not found', async () => {
+    it('Should throw error if parent record not found', async () => {
       const ctx = createContext(app.adapter);
       const doc = { title: faker.lorem.text() };
-      const r = await service.for(ctx).update(9999, 1, doc);
-      expect(r).not.toBeDefined();
+      await expect(() => service.for(ctx).update(9999, 1, doc)).rejects.toThrow(ResourceNotAvailableError);
     });
 
-    it('Should apply filter returned by documentFilter', async () => {
+    it('Should apply documentFilter', async () => {
       const ctx = createContext(app.adapter);
       const doc = { uid: faker.string.uuid() };
-      const result = await service.for(ctx, { documentFilter: '_id=999' }).update(2, 1, doc);
-      expect(result).not.toBeDefined();
+      await expect(() => service.for(ctx, { documentFilter: '_id=999' }).update(2, 1, doc)).rejects.toThrow(
+        ResourceNotAvailableError,
+      );
     });
 
-    it('Should apply filter returned by nestedFilter', async () => {
+    it('Should apply nestedFilter', async () => {
       const ctx = createContext(app.adapter);
       const doc = { uid: faker.string.uuid() };
-      const result = await service.for(ctx, { nestedFilter: 'rank=99' }).update(2, 1, doc);
-      expect(result).not.toBeDefined();
+      await expect(() => service.for(ctx, { nestedFilter: 'rank=99' }).update(2, 1, doc)).rejects.toThrow(
+        ResourceNotAvailableError,
+      );
     });
 
     it('Should run in interceptor', async () => {
