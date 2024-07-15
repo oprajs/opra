@@ -111,7 +111,7 @@ export class MongoEntityService<T extends mongodb.Document> extends MongoService
   /**
    * Creates a new document in the MongoDB collection.
    *
-   * @param command
+   * @param {MongoEntityService.CreateCommand} command
    * @protected
    */
   protected async _create(command: MongoEntityService.CreateCommand): Promise<PartialDTO<T>> {
@@ -140,7 +140,7 @@ export class MongoEntityService<T extends mongodb.Document> extends MongoService
   /**
    * Returns the count of documents in the collection based on the provided options.
    *
-   * @param command
+   * @param {MongoEntityService.CountCommand<T>} command
    * @protected
    */
   protected async _count(command: MongoEntityService.CountCommand<T>): Promise<number> {
@@ -152,7 +152,7 @@ export class MongoEntityService<T extends mongodb.Document> extends MongoService
   /**
    * Deletes a document from the collection.
    *
-   * @param command
+   * @param {MongoEntityService.DeleteCommand<T>} command
    * @protected
    */
   protected async _delete(command: MongoEntityService.DeleteCommand<T>): Promise<number> {
@@ -169,7 +169,7 @@ export class MongoEntityService<T extends mongodb.Document> extends MongoService
   /**
    * Deletes multiple documents from the collection that meet the specified filter criteria.
    *
-   * @param command
+   * @param {MongoEntityService.DeleteCommand<T>} command
    * @protected
    */
   protected async _deleteMany(command: MongoEntityService.DeleteCommand<T>): Promise<number> {
@@ -182,7 +182,7 @@ export class MongoEntityService<T extends mongodb.Document> extends MongoService
   /**
    * The distinct command returns a list of distinct values for the given key across a collection.
    *
-   * @param command
+   * @param {MongoEntityService.DistinctCommand<T>} command
    * @protected
    */
   protected async _distinct(command: MongoEntityService.DistinctCommand<T>): Promise<any[]> {
@@ -194,7 +194,7 @@ export class MongoEntityService<T extends mongodb.Document> extends MongoService
   /**
    * Finds a document by its ID.
    *
-   * @param command
+   * @param { MongoEntityService.FindOneCommand<T>} command
    */
   protected async _findById(command: MongoEntityService.FindOneCommand<T>): Promise<PartialDTO<T> | undefined> {
     isNotNullish(command.documentId, { label: 'documentId' });
@@ -218,7 +218,7 @@ export class MongoEntityService<T extends mongodb.Document> extends MongoService
   /**
    * Finds a document in the collection that matches the specified options.
    *
-   * @param command
+   * @param {MongoEntityService.FindOneCommand<T>} command
    */
   protected async _findOne(command: MongoEntityService.FindOneCommand<T>): Promise<PartialDTO<T> | undefined> {
     const { options } = command;
@@ -237,7 +237,7 @@ export class MongoEntityService<T extends mongodb.Document> extends MongoService
   /**
    * Finds multiple documents in the MongoDB collection.
    *
-   * @param command
+   * @param {MongoEntityService.FindManyCommand<T>} command
    */
   protected async _findMany(command: MongoEntityService.FindManyCommand<T>): Promise<PartialDTO<T>[]> {
     const { options } = command;
@@ -275,7 +275,7 @@ export class MongoEntityService<T extends mongodb.Document> extends MongoService
    * Finds multiple documents in the collection and returns both records (max limit)
    * and total count that matched the given criteria
    *
-   * @param command
+   * @param {MongoEntityService.FindManyCommand<T>} command
    */
   protected async _findManyWithCount(command: MongoEntityService.FindManyCommand<T>): Promise<{
     count: number;
@@ -331,7 +331,7 @@ export class MongoEntityService<T extends mongodb.Document> extends MongoService
   /**
    * Updates a document with the given id in the collection.
    *
-   * @param command
+   * @param {MongoEntityService.UpdateOneCommand<T>} command
    */
   protected async _update(command: MongoEntityService.UpdateOneCommand<T>): Promise<PartialDTO<T> | undefined> {
     isNotNullish(command.documentId, { label: 'documentId' });
@@ -368,7 +368,7 @@ export class MongoEntityService<T extends mongodb.Document> extends MongoService
   /**
    * Updates a document in the collection with the specified ID.
    *
-   * @param command
+   * @param {MongoEntityService.UpdateOneCommand<T>} command
    */
   protected async _updateOnly(command: MongoEntityService.UpdateOneCommand<T>): Promise<number> {
     isNotNullish(command.documentId, { label: 'documentId' });
@@ -404,7 +404,7 @@ export class MongoEntityService<T extends mongodb.Document> extends MongoService
   /**
    * Updates multiple documents in the collection based on the specified input and options.
    *
-   * @param command
+   * @param {MongoEntityService.UpdateManyCommand<T>} command
    */
   protected async _updateMany(command: MongoEntityService.UpdateManyCommand<T>): Promise<number> {
     isNotNullish(command.input, { label: 'input' });
