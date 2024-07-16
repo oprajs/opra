@@ -69,6 +69,7 @@ export abstract class HttpClientBase<TRequestOptions = {}, TResponseExt = {}> {
   }
 
   request<TBody = any>(path: string, options?: OpraClientBase.RequestOptions) {
+    path = /^(\/*)(.+)/.exec(path)?.[2] || '';
     const observable = new HttpRequestObservable<TBody, TBody, TRequestOptions, TResponseExt>(this[kBackend], {
       ...options,
       method: options?.method || 'GET',
