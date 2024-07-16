@@ -14,6 +14,7 @@ import {
   Type,
   UseFilters,
 } from '@nestjs/common';
+import { EXCEPTION_FILTERS_METADATA, GUARDS_METADATA, INTERCEPTORS_METADATA } from '@nestjs/common/constants';
 import {
   ApiDocument,
   HTTP_CONTROLLER_METADATA,
@@ -89,11 +90,7 @@ export class OpraNestAdapter extends HttpAdapter {
     /** Copy metadata keys from source class to new one */
     let metadataKeys: any[];
     if (parentClass) {
-      metadataKeys = Reflect.getOwnMetadataKeys(parentClass);
-      for (const key of metadataKeys) {
-        const m = Reflect.getMetadata(key, parentClass);
-        Reflect.defineMetadata(key, m, newClass);
-      }
+      OpraNestAdapter.copyDecoratorMetadataToChild(newClass, sourceClass, parentClass);
     }
 
     const newPath = metadata.path ? nodePath.join(currentPath, metadata.path) : currentPath;
@@ -191,6 +188,17 @@ export class OpraNestAdapter extends HttpAdapter {
       for (const child of metadata.controllers) {
         if (!isConstructor(child)) throw new TypeError('Controllers should be injectable a class');
         this._addToNestControllers(child, newPath, sourceClass);
+      }
+    }
+  }
+
+  static copyDecoratorMetadataToChild(target: Type, source: Type, parent: Type) {
+    const metadataKeys = Reflect.getOwnMetadataKeys(parent);
+    for (const key of metadataKeys) {
+      if (key === GUARDS_METADATA || key === INTERCEPTORS_METADATA || key === EXCEPTION_FILTERS_METADATA) {
+        const m1 = Reflect.getMetadata(key, source) || [];
+        const m2 = Reflect.getMetadata(key, parent) || [];
+        Reflect.defineMetadata(key, [...m1, ...m2], target);
       }
     }
   }
