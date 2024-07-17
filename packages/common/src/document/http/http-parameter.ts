@@ -67,7 +67,8 @@ export const HttpParameter = function (
   }
   _this.location = initArgs.location;
   _this.deprecated = initArgs.deprecated;
-  _this.required = initArgs.required || initArgs.location === 'path';
+  _this.required = initArgs.required;
+  if (_this.required == null && initArgs.location === 'path') _this.required = true;
   _this.arraySeparator = initArgs.arraySeparator;
   _this.keyParam = initArgs.keyParam;
 } as Function as HttpParameterStatic;

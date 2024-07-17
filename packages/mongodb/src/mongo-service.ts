@@ -621,7 +621,7 @@ export class MongoService<T extends mongodb.Document = mongodb.Document> extends
     const next = async () => {
       proto = proto ? Object.getPrototypeOf(proto) : this;
       while (proto) {
-        if (proto.interceptor) {
+        if (proto.interceptor && Object.prototype.hasOwnProperty.call(proto, 'interceptor')) {
           return await proto.interceptor.call(this, next, command, this);
         }
         proto = Object.getPrototypeOf(proto);
