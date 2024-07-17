@@ -152,11 +152,11 @@ export interface MongoService {
    * Interceptor function for handling callback execution with provided arguments.
    * @type Function
    * @param next - The callback function to be intercepted.
-   * @param {MongoService.CommandInfo} info - The arguments object containing the following properties:
+   * @param {MongoService.CommandInfo} command - The arguments object containing the following properties:
    * @param _this - The reference to the current object.
    * @returns - The promise that resolves to the result of the callback execution.
    */
-  interceptor?(next: () => any, info: MongoService.CommandInfo, _this: any): Promise<any>;
+  interceptor?(next: () => any, command: MongoService.CommandInfo, _this: any): Promise<any>;
 }
 
 /**

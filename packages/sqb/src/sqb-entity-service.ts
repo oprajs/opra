@@ -151,11 +151,11 @@ export interface SqbEntityService {
    * Interceptor function for handling callback execution with provided arguments.
    * @type Function
    * @param next - The callback function to be intercepted.
-   * @param {SqbEntityService.CommandInfo} info - The arguments object containing the following properties:
+   * @param {SqbEntityService.CommandInfo} command - The arguments object containing the following properties:
    * @param _this - The reference to the current object.
    * @returns - The promise that resolves to the result of the callback execution.
    */
-  interceptor?(next: () => any, info: SqbEntityService.CommandInfo, _this: any): Promise<any>;
+  interceptor?(next: () => any, command: SqbEntityService.CommandInfo, _this: any): Promise<any>;
 }
 
 /**
