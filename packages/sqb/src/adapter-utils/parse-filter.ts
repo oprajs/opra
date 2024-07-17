@@ -80,13 +80,13 @@ function prepareFilterAst(ast?: OpraFilter.Expression): any {
       case '!in':
         return sqb.Nin(left, right);
       case 'like':
-        return sqb.Like(left, String(right).replace(/\*/, '%'));
+        return sqb.Like(left, String(right).replace(/\*/g, '%'));
       case 'ilike':
-        return sqb.Ilike(left, String(right).replace(/\*/, '%'));
+        return sqb.Ilike(left, String(right).replace(/\*/g, '%'));
       case '!like':
-        return sqb.NotLike(left, String(right).replace(/\*/, '%'));
+        return sqb.NotLike(left, String(right).replace(/\*/g, '%'));
       case '!ilike':
-        return sqb.NotILike(left, String(right).replace(/\*/, '%'));
+        return sqb.NotILike(left, String(right).replace(/\*/g, '%'));
       default:
         throw new Error(`ComparisonExpression operator (${ast.op}) not implemented yet`);
     }
