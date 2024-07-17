@@ -90,7 +90,7 @@ export class OpraNestAdapter extends HttpAdapter {
     /** Copy metadata keys from source class to new one */
     let metadataKeys: any[];
     if (parentClass) {
-      OpraNestAdapter.copyDecoratorMetadataToChild(newClass, sourceClass, parentClass);
+      OpraNestAdapter.copyDecoratorMetadataToChild(newClass, parentClass);
     }
 
     const newPath = metadata.path ? nodePath.join(currentPath, metadata.path) : currentPath;
@@ -192,14 +192,18 @@ export class OpraNestAdapter extends HttpAdapter {
     }
   }
 
-  static copyDecoratorMetadataToChild(target: Type, source: Type, parent: Type) {
+  static copyDecoratorMetadataToChild(target: Type, parent: Type) {
     const metadataKeys = Reflect.getOwnMetadataKeys(parent);
     for (const key of metadataKeys) {
       if (key === GUARDS_METADATA || key === INTERCEPTORS_METADATA || key === EXCEPTION_FILTERS_METADATA) {
-        const m1 = Reflect.getMetadata(key, source) || [];
-        const m2 = Reflect.getMetadata(key, parent) || [];
+        const m1 = Reflect.getMetadata(key, target) || [];
+        const m2 = Reflect.getOwnMetadata(key, parent) || [];
         Reflect.defineMetadata(key, [...m1, ...m2], target);
       }
+    }
+    const subParent = Object.getPrototypeOf(parent.prototype).constructor;
+    if (subParent && subParent !== Object) {
+      this.copyDecoratorMetadataToChild(target, subParent);
     }
   }
 }
