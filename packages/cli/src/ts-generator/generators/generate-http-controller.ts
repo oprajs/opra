@@ -45,14 +45,26 @@ export async function generateHttpController(this: TsGenerator, controller: Http
   }
 
   /** Process operations */
+  const mergedControllerParams = [...controller.parameters];
+  let _base: HttpController | undefined = controller;
+  while (_base.owner instanceof HttpController) {
+    _base = _base.owner;
+    mergedControllerParams.unshift(..._base?.parameters);
+  }
+
   for (const operation of controller.operations.values()) {
+    const mergedParams = [...mergedControllerParams, ...operation.parameters];
+
     const operationBlock = (classBlock['operation_' + operation.name] = new CodeBlock());
 
-    operationBlock.doc = `
+    operationBlock.doc = new CodeBlock();
+
+    operationBlock.doc.header = `
 /** 
  * ${wrapJSDocString(operation.description || operation.name + ' operation')}`;
+    operationBlock.doc.parameters = new CodeBlock();
 
-    if (operation.parameters.length) {
+    if (mergedParams.length) {
       const block = new CodeBlock();
       block.doc = '\n *\n * RegExp parameters:';
       let i = 0;
@@ -66,14 +78,13 @@ export async function generateHttpController(this: TsGenerator, controller: Http
           (prm.required ? `\n *      required: ${prm.required}` : '') +
           (prm.deprecated ? `\n *      deprecated: ${prm.deprecated}` : '');
       }
-      if (i) operationBlock.doc += block;
+      if (i) operationBlock.doc.regExParameters = block;
     }
-    operationBlock.doc += `\n */\n`;
+    operationBlock.doc.tail = `\n */\n`;
 
     operationBlock.head = `${operation.name}(`;
 
     /** Process operation parameters */
-    const mergedParams = [...controller.parameters, ...operation.parameters];
     const pathParams: HttpParameter[] = [];
     const queryParams: HttpParameter[] = [];
     const headerParams: HttpParameter[] = [];
@@ -103,6 +114,10 @@ export async function generateHttpController(this: TsGenerator, controller: Http
       if (prm.isArray) typeDef += '[]';
       if (argIndex++ > 0) operationBlock.head += ', ';
       operationBlock.head += `${prm.name}: ${typeDef}`;
+      operationBlock.doc.parameters +=
+        `\n * @param {${typeDef}} ` +
+        (prm.required ? prm.name : `[${prm.name}]`) +
+        (prm.description ? ' - ' + wrapJSDocString(prm.description || '') : '');
     }
 
     /** Process requestBody and add as function argument ($body) */
@@ -131,11 +146,17 @@ export async function generateHttpController(this: TsGenerator, controller: Http
           typeDef = typeDef || 'undefined';
           if (!typeArr.includes(typeDef)) typeArr.push(typeDef);
           continue;
+        } else if (content.contentType && typeIs.is(String(content.contentType), ['multipart/*'])) {
+          const typeDef = 'FormData';
+          if (!typeArr.includes(typeDef)) typeArr.push(typeDef);
+          continue;
         }
         typeArr = [];
         break;
       }
-      operationBlock.head += `$body: ${typeArr.join(' | ') || 'any'}`;
+      const typeDef = typeArr.join(' | ') || 'any';
+      operationBlock.head += `$body: ${typeDef}`;
+      operationBlock.doc.parameters += `\n * @param {${typeDef}} $body - Http body`;
       hasBody = true;
     }
 
@@ -146,6 +167,7 @@ export async function generateHttpController(this: TsGenerator, controller: Http
     if (queryParams.length) {
       if (argIndex++ > 0) operationBlock.head += ', ';
       operationBlock.head += '\n\t$params' + (isHeadersRequired || isQueryRequired ? '' : '?') + ': {\n\t';
+      operationBlock.doc.parameters += '\n * @param {object} $params - Available parameters for the operation';
 
       for (const prm of queryParams) {
         operationBlock.head += `/**\n * ${prm.description || ''}\n */\n`;
