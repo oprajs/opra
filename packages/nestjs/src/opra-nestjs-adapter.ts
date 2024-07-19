@@ -49,7 +49,7 @@ export class OpraNestAdapter extends HttpAdapter {
     let basePath = options?.basePath || '/';
     if (!basePath.startsWith('/')) basePath = '/' + basePath;
     this._addRootController(basePath);
-    if (init.controllers) init.controllers.forEach(c => this._addToNestControllers(c, basePath));
+    if (init.controllers) init.controllers.forEach(c => this._addToNestControllers(c, basePath, []));
   }
 
   async close() {
@@ -80,7 +80,7 @@ export class OpraNestAdapter extends HttpAdapter {
     this.nestControllers.push(RootController);
   }
 
-  protected _addToNestControllers(sourceClass: Type, currentPath: string, parentClass?: Type) {
+  protected _addToNestControllers(sourceClass: Type, currentPath: string, parentTree: Type[]) {
     const metadata: HttpController.Metadata = Reflect.getMetadata(HTTP_CONTROLLER_METADATA, sourceClass);
     if (!metadata) return;
     const newClass = {
@@ -89,9 +89,7 @@ export class OpraNestAdapter extends HttpAdapter {
 
     /** Copy metadata keys from source class to new one */
     let metadataKeys: any[];
-    if (parentClass) {
-      OpraNestAdapter.copyDecoratorMetadataToChild(newClass, parentClass);
-    }
+    OpraNestAdapter.copyDecoratorMetadataToChild(newClass, parentTree);
 
     const newPath = metadata.path ? nodePath.join(currentPath, metadata.path) : currentPath;
     const adapter = this;
@@ -187,23 +185,27 @@ export class OpraNestAdapter extends HttpAdapter {
     if (metadata.controllers) {
       for (const child of metadata.controllers) {
         if (!isConstructor(child)) throw new TypeError('Controllers should be injectable a class');
-        this._addToNestControllers(child, newPath, sourceClass);
+        this._addToNestControllers(child, newPath, [...parentTree, sourceClass]);
       }
     }
   }
 
-  static copyDecoratorMetadataToChild(target: Type, parent: Type) {
-    const metadataKeys = Reflect.getOwnMetadataKeys(parent);
-    for (const key of metadataKeys) {
-      if (key === GUARDS_METADATA || key === INTERCEPTORS_METADATA || key === EXCEPTION_FILTERS_METADATA) {
-        const m1 = Reflect.getMetadata(key, target) || [];
-        const m2 = Reflect.getOwnMetadata(key, parent) || [];
-        Reflect.defineMetadata(key, [...m1, ...m2], target);
+  static copyDecoratorMetadataToChild(target: Type, parentTree: Type[]) {
+    for (const parent of parentTree) {
+      const metadataKeys = Reflect.getOwnMetadataKeys(parent);
+      for (const key of metadataKeys) {
+        if (key === GUARDS_METADATA || key === INTERCEPTORS_METADATA || key === EXCEPTION_FILTERS_METADATA) {
+          const m1 = Reflect.getMetadata(key, target) || [];
+          const m2 = Reflect.getOwnMetadata(key, parent) || [];
+          const metadata = [...m1];
+          m2.forEach((t: any) => {
+            if (!metadata.includes(t)) {
+              metadata.push(t);
+            }
+          });
+          Reflect.defineMetadata(key, metadata, target);
+        }
       }
-    }
-    const subParent = Object.getPrototypeOf(parent.prototype).constructor;
-    if (subParent && subParent !== Object) {
-      this.copyDecoratorMetadataToChild(target, subParent);
     }
   }
 }
