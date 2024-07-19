@@ -1,6 +1,6 @@
 import path from 'node:path';
 import typeIs from '@browsery/type-is';
-import { HttpController, HttpParameter, MimeTypes } from '@opra/common';
+import { ComplexType, DataType, HttpController, HttpParameter, MimeTypes } from '@opra/common';
 import { camelCase, pascalCase } from 'putil-varhelpers';
 import { CodeBlock } from '../../code-block.js';
 import type { TsGenerator } from '../ts-generator';
@@ -10,6 +10,31 @@ import { wrapJSDocString } from '../utils/string-utils.js';
 export async function generateHttpController(this: TsGenerator, controller: HttpController) {
   let file = this._filesMap.get(controller);
   if (file) return file;
+
+  const generateParamDoc = async (
+    name: string,
+    type?: DataType,
+    options?: {
+      isArray?: boolean;
+      required?: boolean;
+      description?: string;
+    },
+  ): Promise<string> => {
+    let typeDef: string;
+    if (type) {
+      const xt = await this.generateDataType(type, 'typeDef', file);
+      typeDef = xt.kind === 'embedded' ? 'object' : xt.typeName;
+    } else typeDef = 'any';
+    if (options?.isArray) typeDef += '[]';
+    let out = `\n * @param {${typeDef}} ` + (options?.required ? name : `[${name}]`);
+    if (options?.description) out += `  - ${wrapJSDocString(options?.description)}`;
+    if (type instanceof ComplexType && type.embedded) {
+      for (const f of type.fields.values()) {
+        out += await generateParamDoc(name + '.' + f.name, f.type, f);
+      }
+    }
+    return out;
+  };
 
   const className = pascalCase(controller.name) + 'Controller';
   file = this.addFile(path.join(this._apiPath, className + '.ts'));
@@ -21,13 +46,17 @@ export async function generateHttpController(this: TsGenerator, controller: Http
   classBlock.doc = `/** 
  * ${wrapJSDocString(controller.description || '')}
  * @class ${className}
- * @url ${path.posix.join(this.serviceUrl, '$schema', '#resources/' + className)}
+ * @apiUrl ${path.posix.join(this.serviceUrl, controller.getFullUrl())}
  */`;
   classBlock.head = `\nexport class ${className} extends HttpControllerNode {\n\t`;
   classBlock.properties = '';
 
   const classConstBlock = (classBlock.classConstBlock = new CodeBlock());
-  classConstBlock.head = `\n\nconstructor(client: OpraHttpClient) {`;
+  classConstBlock.head = `\n/**
+ * @param {OpraHttpClient} client - OpraHttpClient instance to operate
+ * @constructor
+ */  
+constructor(client: OpraHttpClient) {`;
   classConstBlock.body = `\n\tsuper(client);`;
   classConstBlock.tail = `\b\n}\n`;
 
@@ -80,7 +109,9 @@ export async function generateHttpController(this: TsGenerator, controller: Http
       }
       if (i) operationBlock.doc.regExParameters = block;
     }
-    operationBlock.doc.tail = `\n */\n`;
+    operationBlock.doc.tail = `
+ * @apiUrl ${path.posix.join(this.serviceUrl, operation.getFullUrl())}    
+ */\n`;
 
     operationBlock.head = `${operation.name}(`;
 
@@ -127,13 +158,19 @@ export async function generateHttpController(this: TsGenerator, controller: Http
       let typeArr: string[] = [];
       for (const content of operation.requestBody.content) {
         if (content.type) {
+          /** Generate JSDoc for parameter */
+          operationBlock.doc.parameters += await generateParamDoc('$body', content.type, {
+            required: operation.requestBody.required,
+            description: content.description || content.type.description,
+          });
+          /**  */
           const xt = await this.generateDataType(content.type, 'typeDef', file);
           let typeDef = xt.kind === 'embedded' ? xt.code : xt.typeName;
           if (typeDef === 'any') {
             typeArr = [];
             break;
           }
-          if (typeDef) {
+          if (xt.kind === 'named') {
             if (operation.requestBody.partial) {
               file.addImport('ts-gems', ['PartialDTO']);
               typeDef = `PartialDTO<${typeDef}>`;
@@ -156,7 +193,7 @@ export async function generateHttpController(this: TsGenerator, controller: Http
       }
       const typeDef = typeArr.join(' | ') || 'any';
       operationBlock.head += `$body: ${typeDef}`;
-      operationBlock.doc.parameters += `\n * @param {${typeDef}} $body - Http body`;
+      // operationBlock.doc.parameters += `\n * @param {${typeDef}} $body - Http body` + bodyFields;
       hasBody = true;
     }
 
@@ -169,8 +206,13 @@ export async function generateHttpController(this: TsGenerator, controller: Http
       operationBlock.head += '\n\t$params' + (isHeadersRequired || isQueryRequired ? '' : '?') + ': {\n\t';
       operationBlock.doc.parameters += '\n * @param {object} $params - Available parameters for the operation';
 
+      let hasAdditionalFields = false;
       for (const prm of queryParams) {
-        operationBlock.head += `/**\n * ${prm.description || ''}\n */\n`;
+        if (typeof prm.name !== 'string') {
+          hasAdditionalFields = true;
+          continue;
+        }
+        operationBlock.doc.parameters += await generateParamDoc('$params.' + prm.name, prm.type, prm);
         operationBlock.head += `${prm.name}${prm.required ? '' : '?'}: `;
         if (prm.type) {
           const xt = await this.generateDataType(prm.type, 'typeDef', file);
@@ -178,6 +220,9 @@ export async function generateHttpController(this: TsGenerator, controller: Http
           if (prm.isArray) typeDef += '[]';
           operationBlock.head += `${typeDef};\n`;
         } else operationBlock.head += `any;\n`;
+      }
+      if (hasAdditionalFields) {
+        operationBlock.head += '[index: string]: any;\n';
       }
       operationBlock.head += '\b}\b';
     }
