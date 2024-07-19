@@ -3,6 +3,7 @@ import { createRequire } from 'node:module';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import * as esbuild from 'esbuild';
+import fs from 'fs';
 
 const require = createRequire(import.meta.url);
 
@@ -12,20 +13,23 @@ const dirname = path.dirname(fileURLToPath(import.meta.url));
 const appName = path.basename(dirname);
 const buildRoot = path.resolve(dirname, '../../build');
 const targetPath = path.resolve(buildRoot, appName);
+const entryPoint = path.resolve(targetPath, 'esm/index.js');
 const external = [
   ...Object.keys(pkgJson.dependencies),
   ...Object.keys(pkgJson.devDependencies || {}),
 ];
 
-await esbuild.build({
-  entryPoints: [path.resolve(targetPath, 'esm/index.js')],
+/**
+ * @type BuildOptions
+ */
+const commonConfig = {
+  entryPoints: [entryPoint],
   bundle: true,
   platform: 'node',
-  target: ['chrome58'],
+  target: ['chrome85'],
   outfile: path.join(targetPath, './browser.js'),
   logLevel: 'info',
   format: 'esm',
-  minify: true,
   keepNames: true,
   alias: {
     fs: '@browsery/fs',
@@ -35,6 +39,7 @@ await esbuild.build({
     'node:stream': '@browsery/stream',
     path: 'path-browserify',
     crypto: 'crypto-browserify',
+    buffer: 'buffer',
   },
   external,
   // legalComments: 'external',
@@ -45,4 +50,59 @@ await esbuild.build({
 *****************************************/
 `,
   },
+};
+
+await esbuild.build({
+  ...commonConfig,
+  target: ['chrome85'],
+  outfile: path.join(targetPath, './browser/index.mjs'),
+  plugins: [
+    {
+      name: 'Custom',
+      setup(build) {
+        build.onLoad({ filter: /.*/ }, args => {
+          if (args.path === entryPoint) {
+            const contents =
+              `import { Buffer } from 'buffer';\nglobalThis.Buffer = Buffer;\n` +
+              fs.readFileSync(entryPoint, 'utf-8');
+            // eslint-disable-next-line no-console
+            console.log(contents);
+            return {
+              contents,
+            };
+          }
+        });
+      },
+    },
+  ],
 });
+
+await esbuild.build({
+  ...commonConfig,
+  target: ['chrome85'],
+  outfile: path.join(targetPath, './browser/index.min.mjs'),
+  minify: true,
+});
+
+await esbuild.build({
+  ...commonConfig,
+  target: ['chrome85'],
+  outfile: path.join(targetPath, './browser/index.cjs'),
+  format: 'cjs',
+});
+
+await esbuild.build({
+  ...commonConfig,
+  target: ['chrome85'],
+  outfile: path.join(targetPath, './browser/index.min.cjs'),
+  format: 'cjs',
+  minify: true,
+});
+
+const newPkgJson = { ...pkgJson };
+delete newPkgJson.scripts;
+fs.writeFileSync(
+  path.join(targetPath, 'package.json'),
+  JSON.stringify(newPkgJson, undefined, 2),
+  'utf-8',
+);

@@ -28,7 +28,6 @@
           "builder": "@angular-devkit/build-angular:jest",
           "options": {
             "tsConfig": "./tsconfig.spec.json",
-            "jestConfig": "./jest.config.cjs",
             "polyfills": ["zone.js", "zone.js/testing"]
           }
         }
