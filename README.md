@@ -1,5 +1,5 @@
 # @OPRA
-Object Protocol for Restful APIs
+Open Protocol for Rich APIs
 
 [![NPM Version][npm-image]][npm-url]
 [![NPM Downloads][downloads-image]][downloads-url]
@@ -7,7 +7,7 @@ Object Protocol for Restful APIs
 [![Test Coverage][coveralls-image]][coveralls-url]
 
 ## Support
-You can report bugs and discuss features on the [GitHub issues](https://github.com/panates/postgresql-client/issues) page
+You can report bugs and discuss features on the [GitHub issues](https://github.com/oprajs/opra/issues) page
 When you open an issue please provide version of NodeJS.
 
 ## Node Compatibility

@@ -1,5 +1,5 @@
 import { Insert } from '@sqb/builder';
-import { Connection } from 'postgresql-client';
+import { Connection } from 'postgrejs';
 import type { Country, Customer } from './models/index.js';
 
 export async function initDatabase(options: {
