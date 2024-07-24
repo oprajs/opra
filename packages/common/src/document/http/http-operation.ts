@@ -29,7 +29,8 @@ export namespace HttpOperation {
     immediateFetch?: boolean;
   }
 
-  export interface Options extends Partial<Pick<Metadata, 'path' | 'description' | 'method' | 'immediateFetch'>> {
+  export interface Options
+    extends Partial<Pick<Metadata, 'path' | 'mergePath' | 'description' | 'method' | 'immediateFetch'>> {
     requestBody?: HttpRequestBody.Options;
   }
 

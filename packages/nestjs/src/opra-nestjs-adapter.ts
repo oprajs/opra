@@ -1,19 +1,4 @@
-import {
-  Controller,
-  Delete,
-  Get,
-  Head,
-  Next,
-  Options,
-  Patch,
-  Post,
-  Put,
-  Req,
-  Res,
-  Search,
-  Type,
-  UseFilters,
-} from '@nestjs/common';
+import { Controller, Delete, Get, Head, Next, Options, Patch, Post, Put, Req, Res, Search, Type } from '@nestjs/common';
 import { EXCEPTION_FILTERS_METADATA, GUARDS_METADATA, INTERCEPTORS_METADATA } from '@nestjs/common/constants';
 import {
   ApiDocument,
@@ -28,9 +13,6 @@ import nodePath from 'path';
 import { asMutable } from 'ts-gems';
 import { Public } from './decorators/public.decorator.js';
 import type { OpraHttpModule } from './opra-http.module.js';
-import { OpraExceptionFilter } from './services/opra-exception-filter.js';
-
-export const kHandler = Symbol.for('kHandler');
 
 export class OpraNestAdapter extends HttpAdapter {
   readonly nestControllers: Type[] = [];
@@ -48,6 +30,8 @@ export class OpraNestAdapter extends HttpAdapter {
     this.options = options;
     let basePath = options?.basePath || '/';
     if (!basePath.startsWith('/')) basePath = '/' + basePath;
+    if (options?.onError) this.on('error', options.onError);
+    if (options?.onRequest) this.on('request', options.onRequest);
     this._addRootController(basePath);
     if (init.controllers) init.controllers.forEach(c => this._addToNestControllers(c, basePath, []));
   }
@@ -65,7 +49,7 @@ export class OpraNestAdapter extends HttpAdapter {
     class RootController {
       @Get('/\\$schema')
       schema(@Req() _req: any, @Next() next: Function) {
-        _this[kHandler].sendDocumentSchema(_req.opraContext).catch(next);
+        _this.handler.sendDocumentSchema(_req.opraContext).catch(() => next());
       }
     }
 
@@ -93,9 +77,11 @@ export class OpraNestAdapter extends HttpAdapter {
 
     const newPath = metadata.path ? nodePath.join(currentPath, metadata.path) : currentPath;
     const adapter = this;
-
-    /** Inject exception filter */
-    UseFilters(new OpraExceptionFilter(adapter))(newClass);
+    // adapter.logger =
+    /** Disable default error handler. Errors will be handled by OpraExceptionFilter */
+    adapter.handler.onError = (context, error) => {
+      throw error;
+    };
 
     Controller()(newClass);
     this.nestControllers.push(newClass);
@@ -127,7 +113,7 @@ export class OpraNestAdapter extends HttpAdapter {
             context.controllerInstance = this;
             context.operationHandler = operationHandler;
             /** Handle request */
-            await adapter[kHandler].handleRequest(context);
+            await adapter.handler.handleRequest(context);
           },
         });
 
@@ -143,7 +129,7 @@ export class OpraNestAdapter extends HttpAdapter {
         Res()(newClass.prototype, k, 1);
 
         const descriptor = Object.getOwnPropertyDescriptor(newClass.prototype, k)!;
-        const operationPath = newPath + (v.path || '');
+        const operationPath = v.mergePath ? newPath + (v.path || '') : nodePath.posix.join(newPath, v.path || '');
         switch (v.method || 'GET') {
           case 'DELETE':
             /** Call @Delete decorator over new property */

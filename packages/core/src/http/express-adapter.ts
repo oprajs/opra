@@ -1,11 +1,11 @@
 import { ApiDocument, HttpApi, HttpController, HttpOperation, NotFoundError } from '@opra/common';
 import { Application, NextFunction, Request, Response, Router } from 'express';
 import * as nodePath from 'path';
-import { kHandler } from '../constants.js';
 import { HttpAdapter } from './http-adapter.js';
 import { HttpContext } from './http-context.js';
 import { HttpIncoming } from './interfaces/http-incoming.interface.js';
 import { HttpOutgoing } from './interfaces/http-outgoing.interface.js';
+import { wrapException } from './utils/wrap-exception';
 
 export class ExpressAdapter extends HttpAdapter {
   readonly app: Application;
@@ -38,7 +38,7 @@ export class ExpressAdapter extends HttpAdapter {
           try {
             await resource.onShutdown.call(instance, resource);
           } catch (e) {
-            this.logger.error(e);
+            if (this.listenerCount('error')) this.emit('error', wrapException(e));
           }
         }
       }
@@ -86,7 +86,7 @@ export class ExpressAdapter extends HttpAdapter {
     /** Add an endpoint that returns document schema */
     router.get('/\\$schema', (_req, _res, next) => {
       const context = createContext(_req, _res);
-      this[kHandler].sendDocumentSchema(context).catch(next);
+      this.handler.sendDocumentSchema(context).catch(next);
     });
 
     /** Add operation endpoints */
@@ -106,12 +106,12 @@ export class ExpressAdapter extends HttpAdapter {
               operation,
               operationHandler,
             });
-            this[kHandler]
+            this.handler
               .handleRequest(context)
               .then(() => {
                 if (!_res.headersSent) _next();
               })
-              .catch((e: unknown) => this.logger.fatal(e));
+              .catch((e: unknown) => this.emit('error', e));
           });
         }
         if (controller.controllers.size) {
@@ -123,19 +123,17 @@ export class ExpressAdapter extends HttpAdapter {
 
     /** Add an endpoint that returns 404 error at last */
     router.use('*', (_req: Request, _res: Response, next: NextFunction) => {
-      const res = HttpOutgoing.from(_res);
-      // const url = new URL(_req.originalUrl, '')
-      this[kHandler]
-        .sendErrorResponse(res, [
-          new NotFoundError({
-            message: `No endpoint found for [${_req.method}]${_req.baseUrl}`,
-            details: {
-              path: _req.baseUrl,
-              method: _req.method,
-            },
-          }),
-        ])
-        .catch(next);
+      const context = createContext(_req, _res);
+      context.errors.push(
+        new NotFoundError({
+          message: `No endpoint found at [${_req.method}]${_req.baseUrl}`,
+          details: {
+            path: _req.baseUrl,
+            method: _req.method,
+          },
+        }),
+      );
+      this.handler.sendResponse(context).catch(next);
     });
   }
 

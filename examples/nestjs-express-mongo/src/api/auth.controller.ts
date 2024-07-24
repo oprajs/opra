@@ -1,4 +1,4 @@
-import { HttpController, HttpOperation, OperationResult } from '@opra/common';
+import { HttpController, HttpOperation, OperationResult, UnauthorizedError } from '@opra/common';
 import { Db } from 'mongodb';
 import { MyProfileController } from './my-profile.controller.js';
 
@@ -16,10 +16,13 @@ export class AuthController {
     .QueryParam('user', String)
     .QueryParam('password', 'string')
     .Response(200, { type: OperationResult }))
-  login() {
-    return new OperationResult({
-      message: 'You are logged in',
-    });
+  login(ctx: HttpOperation.Context) {
+    if (ctx.queryParams.user) {
+      return new OperationResult({
+        message: `User "${ctx.queryParams.user}" is logged in`,
+      });
+    }
+    throw new UnauthorizedError();
   }
 
   @(HttpOperation({

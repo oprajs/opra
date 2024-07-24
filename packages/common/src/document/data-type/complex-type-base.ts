@@ -185,7 +185,7 @@ abstract class ComplexTypeBaseClass extends DataType {
     }
 
     return vg.isObject(schema, {
-      ctor: this.ctor,
+      ctor: this.name === 'object' ? Object : this.ctor,
       additionalFields,
       name: this.name,
       coerce: true,
@@ -230,7 +230,7 @@ abstract class ComplexTypeBaseClass extends DataType {
       const fn = this._generateFieldCodec(codec, field, {
         ...context,
         partial: context.partial === 'deep' ? context.partial : undefined,
-        projection: projection !== '*' ? projection : p?.projection,
+        projection,
         currentPath: currentPath + (currentPath ? '.' : '') + fieldName,
       });
       schema[fieldName] = context.partial || !field.required ? vg.optional(fn) : vg.required(fn);
@@ -243,7 +243,7 @@ abstract class ComplexTypeBaseClass extends DataType {
     field: ApiField,
     context: StrictOmit<DataType.GenerateCodecOptions, 'projection'> & {
       currentPath: string;
-      projection?: FieldsProjection;
+      projection?: FieldsProjection | '*';
     },
   ): Validator {
     let fn = field.type.generateCodec(codec, context);

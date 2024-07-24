@@ -395,7 +395,7 @@ HttpOperation.Entity.FindMany = function (arg0: any, arg1?: any): HttpOperation.
     })
     .QueryParam('limit', {
       description: 'Determines number of returning instances',
-      type: new IntegerType({ minValue: 1 }),
+      type: new IntegerType({ minValue: 1, maxValue: args.maxLimit }),
     })
     .QueryParam('skip', {
       description: 'Determines number of returning instances',

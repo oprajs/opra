@@ -123,14 +123,14 @@ describe('Built-in types', () => {
       const dt = doc.node.getSimpleType('null');
       const decode = dt.generateCodec('decode');
       expect(decode(null)).toStrictEqual(null);
-      expect(() => decode('')).toThrow('"" is not null');
+      expect(() => decode('')).toThrow('Value is not null');
     });
 
     it('Should encode', async () => {
       const dt = doc.node.getSimpleType('null');
       const encode = dt.generateCodec('encode');
       expect(encode(null)).toStrictEqual(null);
-      expect(() => encode('')).toThrow('"" is not null');
+      expect(() => encode('')).toThrow('Value is not null');
     });
   });
 

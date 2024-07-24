@@ -1,4 +1,3 @@
-import { DATATYPE_METADATA } from '../../constants.js';
 import { ComplexType } from '../complex-type.js';
 
 @ComplexType({
@@ -11,6 +10,3 @@ export class ObjectType {
     if (properties) Object.assign(this, properties);
   }
 }
-
-const metadata = Reflect.getMetadata(DATATYPE_METADATA, ObjectType);
-metadata.ctor = Object;

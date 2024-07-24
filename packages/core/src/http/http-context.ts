@@ -37,7 +37,7 @@ export namespace HttpContext {
 export class HttpContext extends ExecutionContext {
   protected _body?: any;
   protected _multipartReader?: MultipartReader;
-  readonly protocol: OpraSchema.Protocol; // todo
+  readonly protocol: OpraSchema.Protocol;
   readonly adapter: HttpAdapter;
   readonly controller: HttpController;
   readonly controllerInstance?: any;
@@ -67,6 +67,9 @@ export class HttpContext extends ExecutionContext {
     this.pathParams = init.pathParams || {};
     this.queryParams = init.queryParams || {};
     this._body = init.body;
+    this.on('finish', () => {
+      if (this._multipartReader) this._multipartReader.purge().catch(() => undefined);
+    });
   }
 
   get isMultipart(): boolean {
@@ -76,20 +79,24 @@ export class HttpContext extends ExecutionContext {
   async getMultipartReader(): Promise<MultipartReader> {
     if (!this.isMultipart) throw new InternalServerError('Request content is not a multipart content');
     if (this._multipartReader) return this._multipartReader;
-    const { request, mediaType } = this;
+    const { mediaType } = this;
     if (mediaType?.contentType) {
       const arr = Array.isArray(mediaType.contentType) ? mediaType.contentType : [mediaType.contentType];
       const contentType = arr.find(ct => typeIs.is(ct, ['multipart']));
       if (!contentType) throw new NotAcceptableError('This endpoint does not accept multipart requests');
     }
-    const reader = new MultipartReader(request, {
-      maxFields: mediaType?.maxFields,
-      maxFieldsSize: mediaType?.maxFieldsSize,
-      maxFiles: mediaType?.maxFiles,
-      maxFileSize: mediaType?.maxFileSize,
-      maxTotalFileSize: mediaType?.maxTotalFileSize,
-      minFileSize: mediaType?.minFileSize,
-    });
+    const reader = new MultipartReader(
+      this,
+      {
+        limits: {
+          fields: mediaType?.maxFields,
+          fieldSize: mediaType?.maxFieldsSize,
+          files: mediaType?.maxFiles,
+          fileSize: mediaType?.maxFileSize,
+        },
+      },
+      mediaType,
+    );
     this._multipartReader = reader;
     return reader;
   }
@@ -108,7 +115,7 @@ export class HttpContext extends ExecutionContext {
       if (mediaType && multipartFields?.length) {
         const fieldsFound = new Map();
         for (const item of parts) {
-          const field = mediaType.findMultipartField(item.fieldName, item.type);
+          const field = mediaType.findMultipartField(item.field, item.kind);
           if (field) {
             fieldsFound.set(field, true);
             this._body.push(item);

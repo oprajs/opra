@@ -255,7 +255,8 @@ export class MongoCollectionService<T extends mongodb.Document> extends MongoEnt
     };
     return this._executeCommand(command, async () => {
       const filter = MongoAdapter.prepareFilter([await this._getDocumentFilter(command), command.options?.filter]);
-      command.options = { ...command.options, filter, limit: command.options?.limit || this.defaultLimit };
+      const limit = command.options?.limit || this.defaultLimit;
+      command.options = { ...command.options, filter, limit };
       return this._findMany(command);
     });
   }

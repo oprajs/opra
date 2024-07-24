@@ -36,6 +36,7 @@ describe('HttpResource', () => {
           location: 'path',
           name: 'customerId',
           type: 'uuid',
+          required: true,
         },
       ],
       operations: expect.any(Object),

@@ -1,5 +1,6 @@
 import { DynamicModule, Module } from '@nestjs/common';
 import { ApiDocumentFactory } from '@opra/common';
+import { HttpAdapter } from '@opra/core';
 import { OpraHttpCoreModule } from './opra-http-core.module.js';
 
 export namespace OpraHttpModule {
@@ -13,6 +14,8 @@ export namespace OpraHttpModule {
   export interface Options {
     basePath?: string;
     schemaRouteIsPublic?: boolean;
+    onRequest?: HttpAdapter.Events['request'];
+    onError?: HttpAdapter.Events['error'];
   }
 }
 

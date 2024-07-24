@@ -5,7 +5,6 @@ import { Base64Decode } from 'base64-stream';
 import byteParser from 'bytes';
 import { parse as parseContentType } from 'content-type';
 import { EventEmitter } from 'events';
-import { BufferEncoding } from 'formidable';
 import iconv from 'iconv-lite';
 import { Writable } from 'stream';
 import * as zlib from 'zlib';

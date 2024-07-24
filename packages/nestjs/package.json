@@ -41,6 +41,7 @@
     "@nestjs/platform-express": "^10.3.10",
     "@nestjs/testing": "^10.3.10",
     "@types/lodash.head": "^4.0.9",
+    "express": "^4.19.2",
     "filedirname": "^3.4.0",
     "rxjs": "^7.8.1",
     "supertest": "^7.0.0",

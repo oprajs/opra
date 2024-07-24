@@ -7,8 +7,6 @@ import {
   MultipartItem,
   NodeIncomingMessage,
 } from '@opra/core';
-import { kHandler } from '@opra/core/constants';
-import { HttpHandler } from '@opra/core/http/impl/http-handler';
 import cookieParser from 'cookie-parser';
 import express, { Express } from 'express';
 import { createTestApi } from '../_support/test-api/index.js';
@@ -17,7 +15,6 @@ describe('HttpContext', () => {
   let document: ApiDocument;
   let app: Express;
   let adapter: ExpressAdapter;
-  let httpHandler: HttpHandler;
 
   function createContext(operation: HttpOperation, request: HttpIncoming) {
     const response = HttpOutgoing.from({ req: request });
@@ -36,7 +33,6 @@ describe('HttpContext', () => {
     app = express();
     app.use(cookieParser());
     adapter = new ExpressAdapter(app, document);
-    httpHandler = adapter[kHandler];
   });
 
   afterAll(async () => adapter.close());
@@ -50,7 +46,7 @@ describe('HttpContext', () => {
       HttpIncoming.from(
         await NodeIncomingMessage.fromAsync(
           [
-            'PATCH /Customer HTTP/1.1',
+            'PATCH /Customer@1 HTTP/1.1',
             'Content-Type: application/json',
             'Transfer-Encoding: chunked',
             '',
@@ -62,7 +58,8 @@ describe('HttpContext', () => {
         ),
       ),
     );
-    await httpHandler.parseRequest(context);
+    context.request.params.customerId = 1;
+    await adapter.handler.parseRequest(context);
     const body = await context.getBody();
     expect(body).toEqual({ active: true });
   });
@@ -87,7 +84,7 @@ describe('HttpContext', () => {
         ),
       ),
     );
-    await await expect(() => httpHandler.parseRequest(context)).rejects.toThrow('not a valid number');
+    await await expect(() => adapter.handler.parseRequest(context)).rejects.toThrow('not a valid number');
   });
 
   it('Should return MultipartReader if content is multipart', async () => {
@@ -126,7 +123,7 @@ describe('HttpContext', () => {
         ),
       ),
     );
-    await httpHandler.parseRequest(context);
+    await adapter.handler.parseRequest(context);
     const reader = await context.getMultipartReader();
     let parts = await reader.getAll();
     expect(parts).toBeDefined();

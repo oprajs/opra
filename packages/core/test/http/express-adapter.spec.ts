@@ -69,7 +69,7 @@ describe('ExpressAdapter', () => {
       errors: [
         {
           code: 'NOT_FOUND',
-          message: 'No endpoint found for [GET]/api/notexist',
+          message: 'No endpoint found at [GET]/api/notexist',
           severity: 'error',
           details: {
             method: 'GET',

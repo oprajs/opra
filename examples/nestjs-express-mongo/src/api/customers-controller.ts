@@ -24,7 +24,9 @@ export class CustomersController {
     return this.service.for(context).create(data, options);
   }
 
-  @(HttpOperation.Entity.FindMany(Customer)
+  @(HttpOperation.Entity.FindMany(Customer, {
+    maxLimit: 10,
+  })
     .SortFields('_id', 'givenName', 'familyName', 'gender', 'address.countryCode')
     .DefaultSort('givenName')
     .Filter('_id')

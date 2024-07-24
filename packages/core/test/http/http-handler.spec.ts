@@ -1,8 +1,6 @@
 import { ApiDocument, HttpOperation } from '@opra/common';
 import { ExpressAdapter, HttpIncoming, HttpOutgoing } from '@opra/core';
-import { kHandler } from '@opra/core/constants';
 import { HttpContext } from '@opra/core/http/http-context';
-import { HttpHandler } from '@opra/core/http/impl/http-handler';
 import cookieParser from 'cookie-parser';
 import express, { Express } from 'express';
 import supertest from 'supertest';
@@ -12,7 +10,6 @@ describe('HttpHandler', () => {
   let document: ApiDocument;
   let app: Express;
   let adapter: ExpressAdapter;
-  let httpHandler: HttpHandler;
 
   function createContext(operation: HttpOperation, request: HttpIncoming) {
     const response = HttpOutgoing.from({ req: request });
@@ -31,7 +28,6 @@ describe('HttpHandler', () => {
     app = express();
     app.use(cookieParser());
     adapter = new ExpressAdapter(app, document);
-    httpHandler = adapter[kHandler];
   });
 
   afterAll(async () => adapter.close());
@@ -47,7 +43,7 @@ describe('HttpHandler', () => {
         url: '/Customers?limit=5&xyz=1',
       }),
     );
-    await httpHandler.parseRequest(context);
+    await adapter.handler.parseRequest(context);
     expect(context.queryParams.limit).toEqual(5);
     expect(context.queryParams.xyz).not.toBeDefined();
   });
@@ -62,7 +58,7 @@ describe('HttpHandler', () => {
         params: { customerId: '123', addressId: '456' },
       }),
     );
-    await httpHandler.parseRequest(context);
+    await adapter.handler.parseRequest(context);
     expect(context.pathParams.customerId).toEqual(123);
     expect(context.pathParams.addressId).toEqual(456);
   });
@@ -74,10 +70,11 @@ describe('HttpHandler', () => {
       operation,
       HttpIncoming.from({
         method: 'GET',
+        params: { customerId: '123' },
         cookies: { accessToken: 'gWEGnjkwegew', cid: '123', other: 'xyz' },
       }),
     );
-    await httpHandler.parseRequest(context);
+    await adapter.handler.parseRequest(context);
     expect(context.cookies.accessToken).toEqual('gWEGnjkwegew');
     expect(context.cookies.cid).toEqual(123);
     expect(context.cookies.other).not.toBeDefined();
@@ -93,7 +90,8 @@ describe('HttpHandler', () => {
         headers: { accessToken: 'gWEGnjkwegew', cid: '123', other: 'xyz' },
       }),
     );
-    await httpHandler.parseRequest(context);
+    context.request.params.customerId = 1;
+    await adapter.handler.parseRequest(context);
     expect(context.headers.accessToken).toEqual('gWEGnjkwegew');
     expect(context.headers.cid).toEqual(123);
     expect(context.headers.other).not.toBeDefined();
@@ -109,7 +107,7 @@ describe('HttpHandler', () => {
         url: '/Customers?limit=abc',
       }),
     );
-    await expect(() => httpHandler.parseRequest(context)).rejects.toThrow('Invalid parameter');
+    await expect(() => adapter.handler.parseRequest(context)).rejects.toThrow('Invalid parameter');
   });
 
   it('Should parse content-type', async () => {
@@ -122,7 +120,7 @@ describe('HttpHandler', () => {
         headers: { 'content-type': 'application/json; charset=UTF-8' },
       }),
     );
-    await httpHandler.parseRequest(context);
+    await adapter.handler.parseRequest(context);
     expect(context.mediaType).toBeDefined();
     expect(context.mediaType?.contentType).toEqual('application/json');
     expect(context.mediaType?.contentEncoding).toEqual('utf-8');
@@ -138,7 +136,9 @@ describe('HttpHandler', () => {
         headers: { 'content-type': 'text/plain; charset=UTF-8' },
       }),
     );
-    await expect(() => httpHandler.parseRequest(context)).rejects.toThrow('should be one of required content types');
+    await expect(() => adapter.handler.parseRequest(context)).rejects.toThrow(
+      'should be one of required content types',
+    );
   });
 
   it('Should call interceptors', async () => {

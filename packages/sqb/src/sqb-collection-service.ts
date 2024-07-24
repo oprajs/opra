@@ -309,7 +309,8 @@ export abstract class SqbCollectionService<T extends object = object> extends Sq
     };
     return this._executeCommand(command, async () => {
       const filter = SQBAdapter.parseFilter([await this._getCommonFilter(command), command.options?.filter]);
-      command.options = { ...command.options, filter };
+      const limit = command.options?.limit || this.defaultLimit;
+      command.options = { ...command.options, filter, limit };
       return this._findMany(command);
     });
   }

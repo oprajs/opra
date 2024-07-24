@@ -4,8 +4,11 @@ import { MongoAdapter } from '@opra/mongodb';
 import { MyProfileService, Profile } from 'customer-mongo';
 import { Db } from 'mongodb';
 import { AppAuthGuard } from '../guards/app-auth.guard.js';
+import { AtavarController } from './avatar.controller.js';
 
-@HttpController()
+@HttpController({
+  controllers: [AtavarController],
+})
 @UseGuards(AppAuthGuard)
 export class MyProfileController {
   service: MyProfileService;

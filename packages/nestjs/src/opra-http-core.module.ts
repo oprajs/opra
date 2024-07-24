@@ -7,10 +7,12 @@ import {
   OnModuleDestroy,
   RequestMethod,
 } from '@nestjs/common';
+import { APP_FILTER } from '@nestjs/core';
 import { ApiDocumentFactory } from '@opra/common';
 import { asMutable } from 'ts-gems';
 import type { OpraHttpModule } from './opra-http.module.js';
 import { OpraNestAdapter } from './opra-nestjs-adapter.js';
+import { OpraExceptionFilter } from './services/opra-exception-filter';
 import { OpraMiddleware } from './services/opra-middleware.js';
 
 @Module({})
@@ -40,6 +42,10 @@ export class OpraHttpCoreModule implements OnModuleDestroy, NestModule {
           });
           return opraAdapter;
         },
+      },
+      {
+        provide: APP_FILTER,
+        useClass: OpraExceptionFilter,
       },
     ];
     if (token !== OpraNestAdapter) {

@@ -16,19 +16,17 @@ import {
   OperationResult,
   OpraException,
   OpraSchema,
-  translate,
 } from '@opra/common';
 import { parse as parseContentType } from 'content-type';
 import { splitString } from 'fast-tokenizer';
 import { asMutable } from 'ts-gems';
 import { toArray, ValidationError, Validator, vg } from 'valgen';
 import type { ErrorIssue } from 'valgen/typings/core/types';
-import { kAssetCache } from '../../constants.js';
-import type { HttpAdapter } from '../http-adapter.js';
-import { HttpContext } from '../http-context.js';
-import { HttpOutgoing } from '../interfaces/http-outgoing.interface.js';
-import { wrapException } from '../utils/wrap-exception.js';
-import { AssetCache } from './asset-cache.js';
+import { kAssetCache } from '../constants';
+import type { HttpAdapter } from './http-adapter';
+import { HttpContext } from './http-context';
+import { AssetCache } from './impl/asset-cache';
+import { wrapException } from './utils/wrap-exception';
 
 /**
  * @namespace
@@ -50,6 +48,7 @@ export namespace HttpHandler {
  */
 export class HttpHandler {
   protected [kAssetCache]: AssetCache;
+  onError?: (context: HttpContext, error: OpraException) => void | Promise<void>;
 
   constructor(readonly adapter: HttpAdapter) {
     this[kAssetCache] = adapter[kAssetCache];
@@ -81,7 +80,7 @@ export class HttpHandler {
         if (e instanceof ValidationError) {
           throw new BadRequestError(
             {
-              message: translate('error:RESPONSE_VALIDATION,', 'Response validation failed'),
+              message: 'Response validation failed',
               code: 'RESPONSE_VALIDATION',
               details: e.issues,
             },
@@ -108,18 +107,16 @@ export class HttpHandler {
       if (e instanceof ValidationError) {
         e = new InternalServerError(
           {
-            message: translate('error:RESPONSE_VALIDATION,', 'Response validation failed'),
+            message: 'Response validation failed',
             code: 'RESPONSE_VALIDATION',
             details: e.issues,
           },
           e,
         );
       } else e = wrapException(e);
-      response.status(e.statusCode || e.status || HttpStatusCode.INTERNAL_SERVER_ERROR);
-      response.contentType(MimeTypes.opra_response_json);
-      await this._sendResponse(context, new OperationResult({ errors: [e.toJSON()] })).finally(() => {
-        if (!response.finished) response.end();
-      });
+      if (this.onError) await this.onError(context, error);
+      context.errors.push(e);
+      await this.sendResponse(context);
     } finally {
       await context.emitAsync('finish');
     }
@@ -242,6 +239,7 @@ export class HttpHandler {
       }
 
       for (const prm of paramsLeft) {
+        key = String(prm.name);
         // Throw error for required parameters
         if (prm.required) {
           const decode = getDecoder(prm);
@@ -299,7 +297,7 @@ export class HttpHandler {
     const responseValue = await context.operationHandler.call(context.controllerInstance, context);
     const { response } = context;
     if (!response.writableEnded) {
-      await this._sendResponse(context, responseValue).finally(() => {
+      await this.sendResponse(context, responseValue).finally(() => {
         if (!response.writableEnded) response.end();
       });
     }
@@ -311,7 +309,9 @@ export class HttpHandler {
    * @param responseValue
    * @protected
    */
-  protected async _sendResponse(context: HttpContext, responseValue: any): Promise<void> {
+  async sendResponse(context: HttpContext, responseValue?: any): Promise<void> {
+    if (context.errors.length) return this.sendErrorResponse(context, context.errors);
+
     const { response } = context;
     const { document } = this.adapter;
     const responseArgs = this._determineResponseArgs(context, responseValue);
@@ -397,6 +397,58 @@ export class HttpHandler {
     else if (typeof body === 'object') x = JSON.stringify(body);
     else x = String(body);
     response.end(x);
+  }
+
+  async sendErrorResponse(context: HttpContext, errors: any[]): Promise<void> {
+    const { response } = context;
+    if (response.headersSent) {
+      response.end();
+      return;
+    }
+    errors = errors || context.errors;
+    const wrappedErrors = errors.map(wrapException);
+    if (!wrappedErrors.length) wrappedErrors.push(new InternalServerError());
+    // Sort errors from fatal to info
+    wrappedErrors.sort((a, b) => {
+      const i = IssueSeverity.Keys.indexOf(a.severity) - IssueSeverity.Keys.indexOf(b.severity);
+      if (i === 0) return b.status - a.status;
+      return i;
+    });
+    context.errors = wrappedErrors;
+
+    let status = response.statusCode || 0;
+    if (!status || status < Number(HttpStatusCode.BAD_REQUEST)) {
+      status = wrappedErrors[0].status;
+      if (status < Number(HttpStatusCode.BAD_REQUEST)) status = HttpStatusCode.INTERNAL_SERVER_ERROR;
+    }
+    response.statusCode = status;
+
+    this.adapter.emitAsync('error', wrappedErrors[0], context).catch(() => undefined);
+
+    const { document } = this.adapter;
+    const dt = document.node.getComplexType('OperationResult');
+    let encode = this[kAssetCache].get<Validator>(dt, 'encode');
+    if (!encode) {
+      encode = dt.generateCodec('encode', { ignoreWriteonlyFields: true });
+      this[kAssetCache].set(dt, 'encode', encode);
+    }
+    const { i18n } = this.adapter;
+    const bodyObject = new OperationResult({
+      errors: wrappedErrors.map(x => {
+        const o = x.toJSON();
+        if (!(process.env.NODE_ENV === 'dev' || process.env.NODE_ENV === 'development')) delete o.stack;
+        return i18n.deep(o);
+      }),
+    });
+    const body = encode(bodyObject);
+
+    response.setHeader(HttpHeaderCodes.Content_Type, MimeTypes.opra_response_json + '; charset=utf-8');
+    response.setHeader(HttpHeaderCodes.Cache_Control, 'no-cache');
+    response.setHeader(HttpHeaderCodes.Pragma, 'no-cache');
+    response.setHeader(HttpHeaderCodes.Expires, '-1');
+    response.setHeader(HttpHeaderCodes.X_Opra_Version, OpraSchema.SpecVersion);
+    response.send(JSON.stringify(body));
+    response.end();
   }
 
   /**
@@ -548,11 +600,12 @@ export class HttpHandler {
     const documentId = searchParams.get('id');
     const doc = documentId ? document.findDocument(documentId) : document;
     if (!doc) {
-      return this.sendErrorResponse(response, [
+      context.errors.push(
         new BadRequestError({
           message: `Document with given id [${documentId}] does not exists`,
         }),
-      ]);
+      );
+      return this.sendResponse(context);
     }
     /** Check if response cache exists */
     let responseBody = this[kAssetCache].get(doc, `$schema`);
@@ -563,68 +616,5 @@ export class HttpHandler {
       this[kAssetCache].set(doc, `$schema`, responseBody);
     }
     response.end(responseBody);
-  }
-
-  async sendErrorResponse(response: HttpOutgoing, errors: any[]): Promise<void> {
-    if (response.headersSent) {
-      response.end();
-      return;
-    }
-    if (!errors.length) errors.push(wrapException({ status: response.statusCode || 500 }));
-    const { logger } = this.adapter;
-    errors.forEach(x => {
-      if (x instanceof OpraException) {
-        switch (x.severity) {
-          case 'fatal':
-            logger.fatal(x);
-            break;
-          case 'warning':
-            logger.warn(x);
-            break;
-          default:
-            logger.error(x);
-        }
-      } else logger.fatal(x);
-    });
-
-    const wrappedErrors = errors.map(wrapException);
-    // Sort errors from fatal to info
-    wrappedErrors.sort((a, b) => {
-      const i = IssueSeverity.Keys.indexOf(a.severity) - IssueSeverity.Keys.indexOf(b.severity);
-      if (i === 0) return b.status - a.status;
-      return i;
-    });
-
-    let status = response.statusCode || 0;
-    if (!status || status < Number(HttpStatusCode.BAD_REQUEST)) {
-      status = wrappedErrors[0].status;
-      if (status < Number(HttpStatusCode.BAD_REQUEST)) status = HttpStatusCode.INTERNAL_SERVER_ERROR;
-    }
-    response.statusCode = status;
-
-    const { document } = this.adapter;
-    const dt = document.node.getComplexType('OperationResult');
-    let encode = this[kAssetCache].get<Validator>(dt, 'encode');
-    if (!encode) {
-      encode = dt.generateCodec('encode', { ignoreWriteonlyFields: true });
-      this[kAssetCache].set(dt, 'encode', encode);
-    }
-    const { i18n } = this.adapter;
-    const bodyObject = new OperationResult({
-      errors: wrappedErrors.map(x => {
-        const o = x.toJSON();
-        if (!(process.env.NODE_ENV === 'dev' || process.env.NODE_ENV === 'development')) delete o.stack;
-        return i18n.deep(o);
-      }),
-    });
-    const body = encode(bodyObject);
-
-    response.setHeader(HttpHeaderCodes.Content_Type, MimeTypes.opra_response_json + '; charset=utf-8');
-    response.setHeader(HttpHeaderCodes.Cache_Control, 'no-cache');
-    response.setHeader(HttpHeaderCodes.Pragma, 'no-cache');
-    response.setHeader(HttpHeaderCodes.Expires, '-1');
-    response.setHeader(HttpHeaderCodes.X_Opra_Version, OpraSchema.SpecVersion);
-    response.send(JSON.stringify(body));
-    response.end();
   }
 }

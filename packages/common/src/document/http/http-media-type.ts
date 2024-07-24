@@ -1,4 +1,6 @@
+import typeIs from '@browsery/type-is';
 import { asMutable, Combine, StrictOmit, Type } from 'ts-gems';
+import { isAny, Validator, vg } from 'valgen';
 import { omitUndefined } from '../../helpers/index.js';
 import { OpraSchema } from '../../schema/index.js';
 import { DocumentElement } from '../common/document-element.js';
@@ -66,7 +68,6 @@ export const HttpMediaType = function (
   _this.maxFiles = initArgs.maxFiles;
   _this.maxFileSize = initArgs.maxFileSize;
   _this.maxTotalFileSize = initArgs.maxTotalFileSize;
-  _this.minFileSize = initArgs.minFileSize;
   if (initArgs?.type) {
     _this.type = initArgs?.type instanceof DataType ? initArgs.type : _this.owner.node.getDataType(initArgs.type);
   }
@@ -91,7 +92,6 @@ class HttpMediaTypeClass extends DocumentElement {
   maxFiles?: number;
   maxFileSize?: number;
   maxTotalFileSize?: number;
-  minFileSize?: number;
 
   findMultipartField(fieldName: string, fieldType?: OpraSchema.HttpMultipartFieldType): HttpMultipartField | undefined {
     if (!this.multipartFields) return;
@@ -120,12 +120,25 @@ class HttpMediaTypeClass extends DocumentElement {
       maxFiles: this.maxFiles,
       maxFileSize: this.maxFileSize,
       maxTotalFileSize: this.maxTotalFileSize,
-      minFileSize: this.minFileSize,
     });
     if (this.multipartFields?.length) {
       out.multipartFields = this.multipartFields.map(x => x.toJSON());
     }
     return out;
+  }
+
+  generateCodec(codec: 'encode' | 'decode', options?: DataType.GenerateCodecOptions): Validator {
+    let fn: Validator | undefined;
+    if (this.type) {
+      fn = this.type.generateCodec(codec, options);
+    } else if (this.contentType) {
+      const arr = Array.isArray(this.contentType) ? this.contentType : [this.contentType];
+      if (arr.find(ct => typeIs.is(ct, ['json']))) {
+        fn = this.node.findDataType('object')!.generateCodec(codec);
+      }
+    }
+    fn = fn || isAny;
+    return this.isArray ? vg.isArray(fn) : fn;
   }
 }
 

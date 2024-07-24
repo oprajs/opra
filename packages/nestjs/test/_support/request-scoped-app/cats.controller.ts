@@ -16,6 +16,7 @@ export class CatsController {
   @UseInterceptors(Interceptor)
   @(HttpOperation({
     path: '@:id',
+    mergePath: true,
   }).PathParam('id'))
   get(): any[] {
     return this.catsService.getCats();
