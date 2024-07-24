@@ -14,7 +14,6 @@ export class AtavarController {
     const reader = await context.getMultipartReader();
     const parts = await reader.getAll();
     if (parts) {
-
     }
   }
 }
