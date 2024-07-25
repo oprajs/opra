@@ -310,102 +310,107 @@ export class HttpHandler {
    * @protected
    */
   async sendResponse(context: HttpContext, responseValue?: any): Promise<void> {
-    if (context.errors.length) return this.sendErrorResponse(context, context.errors);
-
+    if (context.errors.length) return this._sendErrorResponse(context);
     const { response } = context;
     const { document } = this.adapter;
-    const responseArgs = this._determineResponseArgs(context, responseValue);
+    try {
+      const responseArgs = this._determineResponseArgs(context, responseValue);
 
-    const { operationResponse, statusCode } = responseArgs;
-    let { contentType, body } = responseArgs;
+      const { operationResponse, statusCode } = responseArgs;
+      let { contentType, body } = responseArgs;
 
-    const operationResultType = document.node.getDataType(OperationResult);
-    let operationResultEncoder = this[kAssetCache].get<Validator>(operationResultType, 'encode');
-    if (!operationResultEncoder) {
-      operationResultEncoder = operationResultType.generateCodec('encode', { ignoreWriteonlyFields: true });
-      this[kAssetCache].set(operationResultType, 'encode', operationResultEncoder);
-    }
+      const operationResultType = document.node.getDataType(OperationResult);
+      let operationResultEncoder = this[kAssetCache].get<Validator>(operationResultType, 'encode');
+      if (!operationResultEncoder) {
+        operationResultEncoder = operationResultType.generateCodec('encode', { ignoreWriteonlyFields: true });
+        this[kAssetCache].set(operationResultType, 'encode', operationResultEncoder);
+      }
 
-    /** Validate response */
-    if (operationResponse?.type) {
-      if (!(body == null && (statusCode as HttpStatusCode) === HttpStatusCode.NO_CONTENT)) {
-        /** Generate encoder */
-        let encode = this[kAssetCache].get<Validator>(operationResponse, 'encode');
-        if (!encode) {
-          encode = operationResponse.type.generateCodec('encode', {
-            partial: operationResponse.partial,
-            projection: '*',
-            ignoreWriteonlyFields: true,
-          });
-          if (operationResponse) {
-            if (operationResponse.isArray) encode = vg.isArray(encode);
-            this[kAssetCache].set(operationResponse, 'encode', encode);
+      /** Validate response */
+      if (operationResponse?.type) {
+        if (!(body == null && (statusCode as HttpStatusCode) === HttpStatusCode.NO_CONTENT)) {
+          /** Generate encoder */
+          let encode = this[kAssetCache].get<Validator>(operationResponse, 'encode');
+          if (!encode) {
+            encode = operationResponse.type.generateCodec('encode', {
+              partial: operationResponse.partial,
+              projection: '*',
+              ignoreWriteonlyFields: true,
+              onFail: issue => `Response body validation failed: ` + issue.message,
+            });
+            if (operationResponse) {
+              if (operationResponse.isArray) encode = vg.isArray(encode);
+              this[kAssetCache].set(operationResponse, 'encode', encode);
+            }
           }
-        }
-        /** Encode body */
-        if (operationResponse.type.extendsFrom(operationResultType)) {
-          if (body instanceof OperationResult) body = encode(body);
-          else {
-            body.payload = encode(body.payload);
-            body = operationResultEncoder(body);
+          /** Encode body */
+          if (operationResponse.type.extendsFrom(operationResultType)) {
+            if (body instanceof OperationResult) body = encode(body);
+            else {
+              body.payload = encode(body.payload);
+              body = operationResultEncoder(body);
+            }
+          } else {
+            if (
+              body instanceof OperationResult &&
+              contentType &&
+              typeIs.is(contentType, [MimeTypes.opra_response_json])
+            ) {
+              body.payload = encode(body.payload);
+              body = operationResultEncoder(body);
+            } else {
+              body = encode(body);
+            }
           }
-        } else {
+
           if (
             body instanceof OperationResult &&
-            contentType &&
-            typeIs.is(contentType, [MimeTypes.opra_response_json])
+            operationResponse.type &&
+            operationResponse.type !== document.node.getDataType(OperationResult)
           ) {
-            body.payload = encode(body.payload);
-            body = operationResultEncoder(body);
-          } else body = encode(body);
+            body.type = operationResponse.type.name ? operationResponse.type.name : '#embedded';
+          }
         }
-
-        if (
-          body instanceof OperationResult &&
-          operationResponse.type &&
-          operationResponse.type !== document.node.getDataType(OperationResult)
-        ) {
-          body.type = operationResponse.type.name ? operationResponse.type.name : '#embedded';
+      } else if (body != null) {
+        if (body instanceof OperationResult) {
+          body = operationResultEncoder(body);
+          contentType = MimeTypes.opra_response_json;
+        } else if (Buffer.isBuffer(body)) contentType = MimeTypes.binary;
+        else if (typeof body === 'object') {
+          contentType = contentType || MimeTypes.json;
+          if (typeof body.toJSON === 'function') body = body.toJSON();
+        } else {
+          contentType = contentType || MimeTypes.text;
+          body = String(body);
         }
       }
-    } else if (body != null) {
-      if (body instanceof OperationResult) {
-        body = operationResultEncoder(body);
-        contentType = MimeTypes.opra_response_json;
-      } else if (Buffer.isBuffer(body)) contentType = MimeTypes.binary;
-      else if (typeof body === 'object') {
-        contentType = contentType || MimeTypes.json;
-        if (typeof body.toJSON === 'function') body = body.toJSON();
-      } else {
-        contentType = contentType || MimeTypes.text;
-        body = String(body);
+      /** Set content-type header value if not set */
+      if (contentType && contentType !== responseArgs.contentType) response.setHeader('content-type', contentType);
+
+      response.status(statusCode);
+      if (body == null) {
+        response.end();
+        return;
       }
+
+      let x: any;
+      if (Buffer.isBuffer(body) || isReadableStream(body)) x = body;
+      else if (isBlob(body)) x = body.stream();
+      else if (typeof body === 'object') x = JSON.stringify(body);
+      else x = String(body);
+      response.end(x);
+    } catch (error: any) {
+      context.errors.push(error);
+      return this._sendErrorResponse(context);
     }
-
-    /** Set content-type header value if not set */
-    if (contentType && contentType !== responseArgs.contentType) response.setHeader('content-type', contentType);
-
-    response.status(statusCode);
-    if (body == null) {
-      response.end();
-      return;
-    }
-
-    let x: any;
-    if (Buffer.isBuffer(body) || isReadableStream(body)) x = body;
-    else if (isBlob(body)) x = body.stream();
-    else if (typeof body === 'object') x = JSON.stringify(body);
-    else x = String(body);
-    response.end(x);
   }
 
-  async sendErrorResponse(context: HttpContext, errors: any[]): Promise<void> {
-    const { response } = context;
+  protected async _sendErrorResponse(context: HttpContext): Promise<void> {
+    const { response, errors } = context;
     if (response.headersSent) {
       response.end();
       return;
     }
-    errors = errors || context.errors;
     const wrappedErrors = errors.map(wrapException);
     if (!wrappedErrors.length) wrappedErrors.push(new InternalServerError());
     // Sort errors from fatal to info
@@ -517,6 +522,7 @@ export class HttpHandler {
                     : operationResponse.contentType,
                 );
                 if (typeof ct === 'string') responseArgs.contentType = contentType = ct;
+                else if (operationResponse.type) responseArgs.contentType = MimeTypes.opra_response_json;
               }
             }
           }

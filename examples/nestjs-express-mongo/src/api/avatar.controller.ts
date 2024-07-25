@@ -1,19 +1,30 @@
-import { HttpController, HttpOperation } from '@opra/common';
+import { ApiField, ComplexType, HttpController, HttpOperation, OmitType } from '@opra/common';
+import { MultipartReader } from '@opra/core';
 
-@HttpController({
+@ComplexType()
+class AvatarMetadata {
+  @ApiField({ required: true })
+  name: string;
+  @ApiField({ type: String, isArray: true })
+  tags?: string[];
+}
+
+@(HttpController({
   path: 'avatar',
-})
-export class AtavarController {
-  @(HttpOperation.POST().MultipartContent({}, content => {
-    content.Field('name', { type: String, required: true });
-    content.Field('metadata', { type: 'object' });
-    content.Field('metadata2', { contentType: 'application/json' });
-    content.File('image', { contentType: 'image/*', required: true });
-  }))
+}).UseType(AvatarMetadata))
+export class AvatarController {
+  @(HttpOperation.POST({})
+    .MultipartContent({}, content => {
+      content.Field('name', { type: String, required: true });
+      content.Field('metadata', { type: OmitType(AvatarMetadata, ['name']) });
+      content.Field('metadata2', { contentType: 'application/json' });
+      content.File('image', { contentType: 'image/*', required: true });
+    })
+    .Response(200, { type: AvatarMetadata }))
   async update(context: HttpOperation.Context) {
     const reader = await context.getMultipartReader();
     const parts = await reader.getAll();
-    if (parts) {
-    }
+    const part = parts.find(x => x.field === 'metadata') as MultipartReader.FieldInfo;
+    return part.value;
   }
 }

@@ -19,7 +19,7 @@ export namespace MultipartReader {
   export interface FieldInfo {
     kind: 'field';
     field: string;
-    value?: string;
+    value?: any;
     mimeType?: string;
     encoding?: string;
   }
@@ -123,8 +123,10 @@ export class MultipartReader extends EventEmitter {
       const field = this.mediaType.findMultipartField(item.field);
       if (!field) throw new BadRequestError(`Unknown multipart field (${item.field})`);
       if (item.kind === 'field') {
-        const codec = field.generateCodec('decode');
-        item!.value = codec(item!.value);
+        const decode = field.generateCodec('decode');
+        item!.value = decode(item!.value, {
+          onFail: issue => `Multipart field (${item.field}) validation failed: ` + issue.message,
+        });
       } else if (item.kind === 'file') {
         if (field.contentType) {
           const arr = Array.isArray(field.contentType) ? field.contentType : [field.contentType];
@@ -136,7 +138,7 @@ export class MultipartReader extends EventEmitter {
     }
 
     /** if all items received we check for required items */
-    if (!item && this.mediaType && this.mediaType.multipartFields?.length > 0) {
+    if (this._finished && this.mediaType && this.mediaType.multipartFields?.length > 0) {
       const fieldsLeft = new Set(this.mediaType.multipartFields);
       for (const x of this._items) {
         const field = this.mediaType.findMultipartField(x.field);
@@ -199,15 +201,7 @@ export class MultipartReader extends EventEmitter {
     const promises: Promise<any>[] = [];
     this._items.forEach(item => {
       if (item.kind !== 'file') return;
-      const file: any = item.storedPath;
-      promises.push(
-        new Promise<void>(resolve => {
-          if (file._writeStream.closed) return resolve();
-          file._writeStream.once('close', resolve);
-        })
-          .then(() => fsPromise.unlink(file.filepath))
-          .then(() => 0),
-      );
+      promises.push(fsPromise.unlink(item.storedPath));
     });
     return Promise.allSettled(promises);
   }
