@@ -43,8 +43,8 @@ describe('e2e:Storage', () => {
       );
     expect(FilesController.lastPost).toBeDefined();
     expect(Array.isArray(FilesController.lastPost)).toBeTruthy();
-    expect(FilesController.lastPost[0].fieldName).toStrictEqual('notes');
-    expect(FilesController.lastPost[1].fieldName).toStrictEqual('file1');
+    expect(FilesController.lastPost[0].field).toStrictEqual('notes');
+    expect(FilesController.lastPost[1].field).toStrictEqual('file1');
     expect(resp.type).toStrictEqual('application/opra.response+json');
     expect(resp.body).toBeDefined();
     expect(resp.body.errors).not.toBeDefined();

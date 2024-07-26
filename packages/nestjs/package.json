@@ -1,6 +1,6 @@
 {
   "name": "@opra/nestjs",
-  "version": "1.0.0-alpha.25",
+  "version": "1.0.0-alpha.26",
   "description": "Opra NestJS module",
   "author": "Panates",
   "license": "MIT",
@@ -27,8 +27,8 @@
     "clean:cover": "rimraf ../../coverage/client"
   },
   "dependencies": {
-    "@opra/common": "^1.0.0-alpha.25",
-    "@opra/core": "^1.0.0-alpha.25",
+    "@opra/common": "^1.0.0-alpha.26",
+    "@opra/core": "^1.0.0-alpha.26",
     "fast-tokenizer": "^1.3.0",
     "lodash.head": "^4.0.1",
     "reflect-metadata": "^0.2.2"

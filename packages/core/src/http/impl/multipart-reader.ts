@@ -107,13 +107,18 @@ export class MultipartReader extends EventEmitter {
     if (!item && !this._finished) {
       this.resume();
       item = await new Promise<any>((resolve, reject) => {
+        let resolved = false;
         if (this._stack.length) return resolve(this._stack.shift());
         if ((this._form as any).ended) return resolve(undefined);
         this._form.once('close', () => {
+          if (resolved) return;
+          resolved = true;
           resolve(this._stack.shift());
         });
         this.once('item', () => {
           this.pause();
+          if (resolved) return;
+          resolved = true;
           resolve(this._stack.shift());
         });
         this.once('error', e => reject(e));
@@ -146,6 +151,7 @@ export class MultipartReader extends EventEmitter {
       }
       let issues: any[] | undefined;
       for (const field of fieldsLeft) {
+        if (!field.required) continue;
         try {
           isNotNullish(null, { onFail: () => `Multi part field "${String(field.fieldName)}" is required` });
         } catch (e: any) {
@@ -161,7 +167,7 @@ export class MultipartReader extends EventEmitter {
   }
 
   async getAll(): Promise<MultipartReader.Item[]> {
-    const items: MultipartReader.Item[] = [];
+    const items: MultipartReader.Item[] = [...this._items];
     let item: MultipartReader.Item | undefined;
     while (!this._cancelled && (item = await this.getNext())) {
       items.push(item);

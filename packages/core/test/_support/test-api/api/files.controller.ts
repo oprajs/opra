@@ -10,6 +10,7 @@ export class FilesController {
   @(HttpOperation.POST()
     .MultipartContent({}, config => {
       config.Field('notes', { required: true });
+      config.Field('notes2');
       config.File(/^file\d+/, { contentType: 'text/*' });
     })
     .Response(200, { type: Note }))
@@ -19,7 +20,7 @@ export class FilesController {
     FilesController.lastPost = parts;
     return new Note({
       title: 'title',
-      text: parts[0].fieldName,
+      text: parts[0].field,
     });
   }
 }

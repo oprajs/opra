@@ -1,4 +1,4 @@
-import { ApiDocument, OpraException, OpraSchema } from '@opra/common';
+import { ApiDocument, OpraHttpError, OpraSchema } from '@opra/common';
 import { AsyncEventEmitter } from 'strict-typed-events';
 
 /**
@@ -21,7 +21,7 @@ export abstract class ExecutionContext extends AsyncEventEmitter {
   readonly document: ApiDocument;
   readonly protocol: OpraSchema.Protocol;
   readonly platform: string;
-  errors: OpraException[] = [];
+  errors: OpraHttpError[] = [];
 
   protected constructor(init: ExecutionContext.Initiator) {
     super();

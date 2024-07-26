@@ -15,6 +15,7 @@ import {
   MimeTypes,
   OperationResult,
   OpraException,
+  OpraHttpError,
   OpraSchema,
 } from '@opra/common';
 import { parse as parseContentType } from 'content-type';
@@ -406,29 +407,26 @@ export class HttpHandler {
   }
 
   protected async _sendErrorResponse(context: HttpContext): Promise<void> {
+    context.errors = this._wrapExceptions(context.errors);
+    try {
+      await this.adapter.emitAsync('error', context.errors, context);
+      context.errors = this._wrapExceptions(context.errors);
+    } catch (e) {
+      context.errors = this._wrapExceptions([e, ...context.errors]);
+    }
+
     const { response, errors } = context;
     if (response.headersSent) {
       response.end();
       return;
     }
-    const wrappedErrors = errors.map(wrapException);
-    if (!wrappedErrors.length) wrappedErrors.push(new InternalServerError());
-    // Sort errors from fatal to info
-    wrappedErrors.sort((a, b) => {
-      const i = IssueSeverity.Keys.indexOf(a.severity) - IssueSeverity.Keys.indexOf(b.severity);
-      if (i === 0) return b.status - a.status;
-      return i;
-    });
-    context.errors = wrappedErrors;
 
     let status = response.statusCode || 0;
     if (!status || status < Number(HttpStatusCode.BAD_REQUEST)) {
-      status = wrappedErrors[0].status;
+      status = errors[0].status;
       if (status < Number(HttpStatusCode.BAD_REQUEST)) status = HttpStatusCode.INTERNAL_SERVER_ERROR;
     }
     response.statusCode = status;
-
-    this.adapter.emitAsync('error', wrappedErrors[0], context).catch(() => undefined);
 
     const { document } = this.adapter;
     const dt = document.node.getComplexType('OperationResult');
@@ -439,7 +437,7 @@ export class HttpHandler {
     }
     const { i18n } = this.adapter;
     const bodyObject = new OperationResult({
-      errors: wrappedErrors.map(x => {
+      errors: errors.map(x => {
         const o = x.toJSON();
         if (!(process.env.NODE_ENV === 'dev' || process.env.NODE_ENV === 'development')) delete o.stack;
         return i18n.deep(o);
@@ -454,6 +452,33 @@ export class HttpHandler {
     response.setHeader(HttpHeaderCodes.X_Opra_Version, OpraSchema.SpecVersion);
     response.send(JSON.stringify(body));
     response.end();
+  }
+
+  async sendDocumentSchema(context: HttpContext): Promise<void> {
+    const { request, response } = context;
+    const { document } = this.adapter;
+    response.setHeader('content-type', MimeTypes.json);
+    const url = new URL(request.originalUrl || request.url || '/', 'http://tempuri.org');
+    const { searchParams } = url;
+    const documentId = searchParams.get('id');
+    const doc = documentId ? document.findDocument(documentId) : document;
+    if (!doc) {
+      context.errors.push(
+        new BadRequestError({
+          message: `Document with given id [${documentId}] does not exists`,
+        }),
+      );
+      return this.sendResponse(context);
+    }
+    /** Check if response cache exists */
+    let responseBody = this[kAssetCache].get(doc, `$schema`);
+    /** Create response if response cache does not exists */
+    if (!responseBody) {
+      const schema = doc.export();
+      responseBody = JSON.stringify(schema);
+      this[kAssetCache].set(doc, `$schema`, responseBody);
+    }
+    response.end(responseBody);
   }
 
   /**
@@ -597,30 +622,15 @@ export class HttpHandler {
     return responseArgs;
   }
 
-  async sendDocumentSchema(context: HttpContext): Promise<void> {
-    const { request, response } = context;
-    const { document } = this.adapter;
-    response.setHeader('content-type', MimeTypes.json);
-    const url = new URL(request.originalUrl || request.url || '/', 'http://tempuri.org');
-    const { searchParams } = url;
-    const documentId = searchParams.get('id');
-    const doc = documentId ? document.findDocument(documentId) : document;
-    if (!doc) {
-      context.errors.push(
-        new BadRequestError({
-          message: `Document with given id [${documentId}] does not exists`,
-        }),
-      );
-      return this.sendResponse(context);
-    }
-    /** Check if response cache exists */
-    let responseBody = this[kAssetCache].get(doc, `$schema`);
-    /** Create response if response cache does not exists */
-    if (!responseBody) {
-      const schema = doc.export();
-      responseBody = JSON.stringify(schema);
-      this[kAssetCache].set(doc, `$schema`, responseBody);
-    }
-    response.end(responseBody);
+  protected _wrapExceptions(exceptions: any[]): OpraHttpError[] {
+    const wrappedErrors = exceptions.map(wrapException);
+    if (!wrappedErrors.length) wrappedErrors.push(new InternalServerError());
+    // Sort errors from fatal to info
+    wrappedErrors.sort((a, b) => {
+      const i = IssueSeverity.Keys.indexOf(a.severity) - IssueSeverity.Keys.indexOf(b.severity);
+      if (i === 0) return b.status - a.status;
+      return i;
+    });
+    return wrappedErrors;
   }
 }

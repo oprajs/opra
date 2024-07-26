@@ -1,12 +1,5 @@
 import { ApiDocument, HttpOperation } from '@opra/common';
-import {
-  ExpressAdapter,
-  HttpContext,
-  HttpIncoming,
-  HttpOutgoing,
-  MultipartItem,
-  NodeIncomingMessage,
-} from '@opra/core';
+import { ExpressAdapter, HttpContext, HttpIncoming, HttpOutgoing, NodeIncomingMessage } from '@opra/core';
 import cookieParser from 'cookie-parser';
 import express, { Express } from 'express';
 import { createTestApi } from '../_support/test-api/index.js';
@@ -128,8 +121,8 @@ describe('HttpContext', () => {
     let parts = await reader.getAll();
     expect(parts).toBeDefined();
     expect(parts.length).toEqual(3);
-    parts = await context.getBody<MultipartItem[]>();
+    parts = await context.getBody();
     expect(parts).toBeDefined();
-    expect(parts.length).toEqual(2);
+    expect(parts.length).toEqual(3);
   });
 });

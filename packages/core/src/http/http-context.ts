@@ -1,6 +1,5 @@
 import typeIs from '@browsery/type-is';
 import {
-  BadRequestError,
   HttpController,
   HttpMediaType,
   HttpOperation,
@@ -110,26 +109,7 @@ export class HttpContext extends ExecutionContext {
       /** Retrieve all fields */
       const parts = await reader.getAll();
       /** Filter fields according to configuration */
-      this._body = [];
-      const multipartFields = mediaType?.multipartFields;
-      if (mediaType && multipartFields?.length) {
-        const fieldsFound = new Map();
-        for (const item of parts) {
-          const field = mediaType.findMultipartField(item.field, item.kind);
-          if (field) {
-            fieldsFound.set(field, true);
-            this._body.push(item);
-          }
-        }
-        /** Check required fields */
-        for (const field of multipartFields) {
-          if (field.required && !fieldsFound.get(field)) {
-            throw new BadRequestError({
-              message: `Multipart field (${field.fieldName}) is required`,
-            });
-          }
-        }
-      }
+      this._body = [...parts];
       return this._body;
     }
 
