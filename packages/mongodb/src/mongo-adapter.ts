@@ -54,11 +54,11 @@ export namespace MongoAdapter {
         case 'Entity.FindMany': {
           const options = {
             filter: context.queryParams.filter,
-            projection: context.queryParams.projection,
+            projection: context.queryParams.projection || operation.compositionOptions.defaultProjection,
             count: context.queryParams.count,
-            limit: context.queryParams.limit,
+            limit: context.queryParams.limit || operation.compositionOptions.defaultLimit,
             skip: context.queryParams.skip,
-            sort: context.queryParams.sort,
+            sort: context.queryParams.sort || operation.compositionOptions.defaultSort,
           };
           return { method: 'findMany', options } satisfies TransformedRequest;
         }

@@ -127,6 +127,7 @@ declare module '../http/http-operation' {
       export interface FindManyArgs extends StrictOmit<HttpOperation.Options, 'method' | 'requestBody'> {
         type: Type | string;
         defaultLimit?: number;
+        defaultProjection?: string[];
         maxLimit?: number;
       }
 
@@ -431,6 +432,9 @@ HttpOperation.Entity.FindMany = function (arg0: any, arg1?: any): HttpOperation.
   decoratorChain.push((operationMeta: HttpOperation.Metadata) => {
     const compositionOptions = (operationMeta.compositionOptions = operationMeta.compositionOptions || {});
     compositionOptions.type = getDataTypeName(args.type);
+    if (args.defaultLimit) compositionOptions.defaultLimit = args.defaultLimit;
+    if (args.defaultProjection) compositionOptions.defaultProjection = args.defaultProjection;
+    if (args.maxLimit) compositionOptions.maxLimit = args.maxLimit;
   });
   decorator.DefaultSort = (...fields: OpraSchema.Field.QualifiedName[]) => {
     decoratorChain.push((operationMeta: HttpOperation.Metadata) => {

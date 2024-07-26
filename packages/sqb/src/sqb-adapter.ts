@@ -52,10 +52,10 @@ export namespace SQBAdapter {
           const options = {
             count: context.queryParams.count,
             filter: parseFilter(context.queryParams.filter),
-            limit: context.queryParams.limit,
+            projection: context.queryParams.projection || operation.compositionOptions.defaultProjection,
+            limit: context.queryParams.limit || operation.compositionOptions.defaultLimit,
             offset: context.queryParams.skip,
-            projection: context.queryParams.projection,
-            sort: context.queryParams.sort,
+            sort: context.queryParams.sort || operation.compositionOptions.defaultSort,
           };
           return { method: 'findMany', options } satisfies TransformedRequest;
         }

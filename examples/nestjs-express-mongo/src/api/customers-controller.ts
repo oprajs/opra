@@ -25,6 +25,8 @@ export class CustomersController {
   }
 
   @(HttpOperation.Entity.FindMany(Customer, {
+    defaultProjection: ['_id', 'givenName', 'familyName'],
+    defaultLimit: 5,
     maxLimit: 10,
   })
     .SortFields('_id', 'givenName', 'familyName', 'gender', 'address.countryCode')
