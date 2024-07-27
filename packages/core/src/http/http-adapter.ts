@@ -15,7 +15,7 @@ export namespace HttpAdapter {
   }
 
   export interface Events {
-    error: (error: OpraException, context: HttpContext) => void | Promise<void>;
+    error: (context: HttpContext) => void | Promise<void>;
     request: (context: HttpContext) => void | Promise<void>;
   }
 }

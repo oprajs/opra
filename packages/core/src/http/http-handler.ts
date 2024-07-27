@@ -409,7 +409,7 @@ export class HttpHandler {
   protected async _sendErrorResponse(context: HttpContext): Promise<void> {
     context.errors = this._wrapExceptions(context.errors);
     try {
-      await this.adapter.emitAsync('error', context.errors, context);
+      await this.adapter.emitAsync('error', context);
       context.errors = this._wrapExceptions(context.errors);
     } catch (e) {
       context.errors = this._wrapExceptions([e, ...context.errors]);
