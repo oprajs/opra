@@ -180,10 +180,15 @@ export class OpraNestAdapter extends HttpAdapter {
     for (const parent of parentTree) {
       const metadataKeys = Reflect.getOwnMetadataKeys(parent);
       for (const key of metadataKeys) {
+        if (typeof key === 'string' && key.startsWith('opra:') && !Reflect.hasOwnMetadata(key, target)) {
+          const metadata = Reflect.getMetadata(key, parent);
+          Reflect.defineMetadata(key, metadata, target);
+          continue;
+        }
         if (key === GUARDS_METADATA || key === INTERCEPTORS_METADATA || key === EXCEPTION_FILTERS_METADATA) {
           const m1 = Reflect.getMetadata(key, target) || [];
-          const m2 = Reflect.getOwnMetadata(key, parent) || [];
           const metadata = [...m1];
+          const m2 = Reflect.getOwnMetadata(key, parent) || [];
           m2.forEach((t: any) => {
             if (!metadata.includes(t)) {
               metadata.push(t);

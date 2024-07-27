@@ -1,4 +1,4 @@
-import { ApiDocument, HttpApi, OpraException, OpraSchema } from '@opra/common';
+import { ApiDocument, HttpApi, OpraSchema } from '@opra/common';
 import { PlatformAdapter } from '../platform-adapter.js';
 import { HttpContext } from './http-context.js';
 import { HttpHandler } from './http-handler.js';
