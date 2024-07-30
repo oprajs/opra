@@ -45,7 +45,7 @@ describe('OpraModule - Guards', () => {
     expect(TestGlobalGuard.counter).toEqual(counter + 1);
   });
 
-  it('Should use global interceptors', async () => {
+  it('Should use global NextJS interceptors', async () => {
     const logCount = LogCounterInterceptor.logCount;
     await request(server).get('/api/auth/MyProfile');
     expect(LogCounterInterceptor.logCount).toEqual(logCount + 1);

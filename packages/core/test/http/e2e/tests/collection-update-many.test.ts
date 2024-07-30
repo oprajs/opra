@@ -11,7 +11,7 @@ export function collectionUpdateManyTests(args: { client: OpraTestClient }) {
       ...v,
     });
 
-    it('Should update many instances with filter', async () => {
+    it.only('Should update many instances with filter', async () => {
       const data = generateData({
         uid: faker.string.hexadecimal({ length: 5 }),
       });

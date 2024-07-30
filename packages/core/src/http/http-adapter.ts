@@ -4,19 +4,31 @@ import { HttpContext } from './http-context.js';
 import { HttpHandler } from './http-handler.js';
 
 export namespace HttpAdapter {
+  export type NextCallback = () => Promise<void>;
+
   /**
-   * @type Interceptor
+   * @type InterceptorFunction
    */
-  export type Interceptor = (context: HttpContext, next: () => Promise<void>) => Promise<void>;
+  export type InterceptorFunction = IHttpInterceptor['intercept'];
+
+  /**
+   * @interface IHttpInterceptor
+   */
+  export type IHttpInterceptor = {
+    intercept(context: HttpContext, next: NextCallback): Promise<void>;
+  };
 
   export interface Options extends PlatformAdapter.Options {
     basePath?: string;
-    interceptors?: HttpAdapter.Interceptor[];
+    interceptors?: (InterceptorFunction | IHttpInterceptor)[];
   }
 
+  export type EventFunction = (context: HttpContext) => void | Promise<void>;
+
   export interface Events {
-    error: (context: HttpContext) => void | Promise<void>;
-    request: (context: HttpContext) => void | Promise<void>;
+    createContext: EventFunction;
+    error: EventFunction;
+    request: EventFunction;
   }
 }
 
@@ -57,7 +69,7 @@ export interface HttpAdapter {
 export abstract class HttpAdapter extends PlatformAdapter {
   readonly handler: HttpHandler;
   readonly protocol: OpraSchema.Protocol = 'http';
-  interceptors: HttpAdapter.Interceptor[];
+  interceptors: (HttpAdapter.InterceptorFunction | HttpAdapter.IHttpInterceptor)[];
 
   protected constructor(document: ApiDocument, options?: HttpAdapter.Options) {
     super(document, options);

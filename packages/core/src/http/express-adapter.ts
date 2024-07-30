@@ -59,7 +59,7 @@ export class ExpressAdapter extends HttpAdapter {
       if (basePath) this.app.use(basePath, router);
     } else this.app.use(router);
 
-    const createContext = (
+    const createContext = async (
       _req: Request,
       _res: Response,
       args?: {
@@ -68,10 +68,10 @@ export class ExpressAdapter extends HttpAdapter {
         operation?: HttpOperation;
         operationHandler: Function;
       },
-    ): HttpContext => {
+    ): Promise<HttpContext> => {
       const request = HttpIncoming.from(_req);
       const response = HttpOutgoing.from(_res);
-      return new HttpContext({
+      const ctx = new HttpContext({
         adapter: this,
         platform: this.platform,
         request,
@@ -81,12 +81,15 @@ export class ExpressAdapter extends HttpAdapter {
         operation: args?.operation,
         operationHandler: args?.operationHandler,
       });
+      await this.emitAsync('createContext', ctx);
+      return ctx;
     };
 
     /** Add an endpoint that returns document schema */
     router.get('/\\$schema', (_req, _res, next) => {
-      const context = createContext(_req, _res);
-      this.handler.sendDocumentSchema(context).catch(next);
+      createContext(_req, _res)
+        .then(ctx => this.handler.sendDocumentSchema(ctx).catch(next))
+        .catch(next);
     });
 
     /** Add operation endpoints */
@@ -100,14 +103,13 @@ export class ExpressAdapter extends HttpAdapter {
           if (!operationHandler) continue;
           /** Define router callback */
           router[operation.method.toLowerCase()](routePath, (_req: Request, _res: Response, _next: NextFunction) => {
-            const context = createContext(_req, _res, {
+            createContext(_req, _res, {
               controller,
               controllerInstance,
               operation,
               operationHandler,
-            });
-            this.handler
-              .handleRequest(context)
+            })
+              .then(ctx => this.handler.handleRequest(ctx))
               .then(() => {
                 if (!_res.headersSent) _next();
               })
@@ -123,17 +125,20 @@ export class ExpressAdapter extends HttpAdapter {
 
     /** Add an endpoint that returns 404 error at last */
     router.use('*', (_req: Request, _res: Response, next: NextFunction) => {
-      const context = createContext(_req, _res);
-      context.errors.push(
-        new NotFoundError({
-          message: `No endpoint found at [${_req.method}]${_req.baseUrl}`,
-          details: {
-            path: _req.baseUrl,
-            method: _req.method,
-          },
-        }),
-      );
-      this.handler.sendResponse(context).catch(next);
+      createContext(_req, _res)
+        .then(ctx => {
+          ctx.errors.push(
+            new NotFoundError({
+              message: `No endpoint found at [${_req.method}]${_req.baseUrl}`,
+              details: {
+                path: _req.baseUrl,
+                method: _req.method,
+              },
+            }),
+          );
+          this.handler.sendResponse(ctx).catch(next);
+        })
+        .catch(next);
     });
   }
 

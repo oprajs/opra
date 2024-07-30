@@ -25,13 +25,14 @@ export class OpraNestAdapter extends HttpAdapter {
         document.api = new HttpApi(document);
         return document;
       })(),
-      options,
+      {
+        ...options,
+        interceptors: options?.interceptors as any,
+      },
     );
     this.options = options;
     let basePath = options?.basePath || '/';
     if (!basePath.startsWith('/')) basePath = '/' + basePath;
-    if (options?.onError) this.on('error', options.onError);
-    if (options?.onRequest) this.on('request', options.onRequest);
     this._addRootController(basePath);
     if (init.controllers) init.controllers.forEach(c => this._addToNestControllers(c, basePath, []));
   }
@@ -106,8 +107,6 @@ export class OpraNestAdapter extends HttpAdapter {
               });
             }
             /** Configure the HttpContext */
-            context.adapter = adapter;
-            context.document = adapter.document;
             context.operation = operation;
             context.controller = operation.owner;
             context.controllerInstance = this;

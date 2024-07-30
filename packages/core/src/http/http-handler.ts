@@ -95,10 +95,12 @@ export class HttpHandler {
 
       // Call interceptors than execute request
       if (this.adapter.interceptors) {
+        const interceptors = this.adapter.interceptors;
         let i = 0;
         const next = async () => {
-          const interceptor = this.adapter.interceptors[i++];
-          if (interceptor) await interceptor(context, next);
+          const interceptor = interceptors[i++];
+          if (typeof interceptor === 'function') await interceptor(context, next);
+          else if (typeof interceptor?.intercept === 'function') await interceptor.intercept(context, next);
           await this._executeRequest(context);
         };
         await next();
