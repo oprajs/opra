@@ -256,17 +256,19 @@ export namespace FetchBackend {
   }
 
   export interface RequestOptions
-    extends Pick<
-      RequestInit,
-      | 'cache'
-      | 'credentials'
-      | 'integrity'
-      | 'keepalive'
-      | 'mode'
-      | 'redirect'
-      | 'referrer'
-      | 'referrerPolicy'
-      | 'reportProgress'
+    extends Partial<
+      Pick<
+        RequestInit,
+        | 'cache'
+        | 'credentials'
+        | 'integrity'
+        | 'keepalive'
+        | 'mode'
+        | 'redirect'
+        | 'referrer'
+        | 'referrerPolicy'
+        | 'reportProgress'
+      >
     > {}
 
   export type RequestDefaults = RequestOptions & {
