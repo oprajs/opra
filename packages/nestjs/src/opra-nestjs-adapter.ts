@@ -92,7 +92,8 @@ export class OpraNestAdapter extends HttpAdapter {
         Object.defineProperty(newClass.prototype, k, {
           writable: true,
           /** NestJS handler method */
-          async value(this: any, _req: any) {
+          async value(this: any, _req: any, _res) {
+            _res.statusCode = 200;
             const api = adapter.document.api as HttpApi;
             const controller = api.findController(sourceClass);
             const operation = controller?.operations.get(k);
