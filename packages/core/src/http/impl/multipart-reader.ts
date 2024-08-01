@@ -215,5 +215,5 @@ export class MultipartReader extends EventEmitter {
 
 function generateFileName() {
   const buf = Buffer.alloc(10);
-  return new Date().toISOString().substring(0, 10).replaceAll('-', '') + randomFillSync(buf).toString('hex');
+  return new Date().toISOString().substring(0, 10).replace(/-/g, '') + randomFillSync(buf).toString('hex');
 }
