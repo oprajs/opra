@@ -128,7 +128,7 @@ export class MultipartReader extends EventEmitter {
       const field = this.mediaType.findMultipartField(item.field);
       if (!field) throw new BadRequestError(`Unknown multipart field (${item.field})`);
       if (item.kind === 'field') {
-        const decode = field.generateCodec('decode');
+        const decode = field.generateCodec('decode', { ignoreReadonlyFields: true, projection: '*' });
         item!.value = decode(item!.value, {
           onFail: issue => `Multipart field (${item.field}) validation failed: ` + issue.message,
         });
