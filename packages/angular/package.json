@@ -26,6 +26,9 @@
     "clean:dist": "rimraf ../../build/angular",
     "clean:cover": "rimraf ../../coverage/angular"
   },
+  "dependencies": {
+    "tslib": "^2.6.3"
+  },
   "peerDependencies": {
     "@angular/common": ">= 15.0.0",
     "@angular/core": ">= 15.0.0",

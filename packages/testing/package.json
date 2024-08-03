@@ -33,7 +33,8 @@
     "@opra/common": "^1.0.0-alpha.29",
     "ansi-colors": "^4.1.3",
     "jest-matcher-utils": "^29.7.0",
-    "rule-judgment": "^1.1.5"
+    "rule-judgment": "^1.1.5",
+    "tslib": "^2.6.3"
   },
   "type": "module",
   "module": "./esm/index.js",

@@ -28,7 +28,8 @@
     "clean:cover": "rimraf ../../coverage/client"
   },
   "dependencies": {
-    "putil-isplainobject": "^1.1.5"
+    "putil-isplainobject": "^1.1.5",
+    "tslib": "^2.6.3"
   },
   "devDependencies": {
     "@elastic/elasticsearch": "^8.14.0",

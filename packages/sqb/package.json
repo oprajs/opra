@@ -28,7 +28,8 @@
     "clean:cover": "rimraf ../../coverage/client"
   },
   "dependencies": {
-    "reflect-metadata": "^0.2.2"
+    "reflect-metadata": "^0.2.2",
+    "tslib": "^2.6.3"
   },
   "devDependencies": {
     "@faker-js/faker": "^8.4.1",

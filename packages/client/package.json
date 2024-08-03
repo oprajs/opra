@@ -48,7 +48,7 @@
     "reflect-metadata": "^0.2.2",
     "rxjs": ">=7.0.0",
     "ts-gems": "^3.4.0",
-    "ts-lib": "^0.0.5",
+    "tslib": "^2.6.3",
     "uid": "^2.0.1"
   },
   "devDependencies": {

@@ -55,6 +55,7 @@
     "raw-body": "^3.0.0",
     "reflect-metadata": "^0.2.2",
     "strict-typed-events": "^2.4.0",
+    "tslib": "^2.6.3",
     "vary": "^1.1.2"
   },
   "optionalDependencies": {
