@@ -32,5 +32,5 @@ module.exports = {
     '^express-sqb': ['<rootDir>/../../examples/express-sqb'],
     '^nestjs-express-mongo$': ['<rootDir>/../../examples/nestjs-express-mongo'],
     '^(\\.{1,2}/.*)\\.js$': '$1',
-  }
+  },
 };
