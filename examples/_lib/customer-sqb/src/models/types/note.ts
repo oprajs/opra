@@ -14,17 +14,17 @@ export class Note extends Record {
 
   @ApiField()
   @Column()
-  title: string;
+  declare title: string;
 
   @ApiField()
   @Column()
-  text: string;
+  declare text: string;
 
   @ApiField()
   @Column()
-  rank: number;
+  declare rank: number;
 
   @ApiField({ exclusive: true })
   @Column({ exclusive: true })
-  largeContent: string;
+  declare largeContent: string;
 }

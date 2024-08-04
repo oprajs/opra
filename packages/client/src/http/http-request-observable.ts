@@ -23,8 +23,8 @@ export class HttpRequestObservable<
   /* Determines type of object which extending HttpResponse */
   TResponseExt = {},
 > extends Observable<T> {
-  [kBackend]: HttpBackend;
-  [kContext]: {
+  declare [kBackend]: HttpBackend;
+  declare [kContext]: {
     observe: HttpObserveType;
     method: string;
     url: URL;

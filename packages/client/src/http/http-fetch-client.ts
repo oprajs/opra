@@ -10,7 +10,7 @@ export class HttpFetchClient<
   TRequestOptions extends FetchBackend.RequestOptions = FetchBackend.RequestOptions,
   TResponseExt = {},
 > extends HttpClientBase<TRequestOptions, TResponseExt> {
-  [kBackend]: FetchBackend;
+  declare [kBackend]: FetchBackend;
 
   constructor(serviceUrl: string, options?: FetchBackend.Options) {
     super(new FetchBackend(serviceUrl, options));

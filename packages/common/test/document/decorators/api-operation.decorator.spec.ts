@@ -130,7 +130,7 @@ describe('HttpOperation decorator', () => {
     @ComplexType()
     class Message {
       @ApiField()
-      text: string;
+      declare text: string;
     }
 
     class CustomersResource {

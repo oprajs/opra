@@ -8,7 +8,7 @@ import { IssueSeverity } from './issue-severity.enum.js';
  */
 export class OpraException extends Error {
   cause?: Error;
-  severity: IssueSeverity.Type;
+  severity: IssueSeverity.Type = 'error';
   system?: string;
   code?: string;
   details?: any;

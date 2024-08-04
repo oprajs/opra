@@ -121,17 +121,17 @@ export const HttpOperation = function (this: HttpOperation, ...args: any[]) {
  */
 class HttpOperationClass extends DocumentElement {
   declare readonly owner: HttpController;
-  readonly name: string;
-  method: OpraSchema.HttpMethod;
-  description?: string;
-  path?: string;
-  mergePath?: boolean;
-  types: DataTypeMap;
-  parameters: HttpParameter[];
-  responses: HttpOperationResponse[];
-  requestBody?: HttpRequestBody;
-  composition?: string;
-  compositionOptions?: Record<string, any>;
+  declare readonly name: string;
+  declare method: OpraSchema.HttpMethod;
+  declare description?: string;
+  declare path?: string;
+  declare mergePath?: boolean;
+  declare types: DataTypeMap;
+  declare parameters: HttpParameter[];
+  declare responses: HttpOperationResponse[];
+  declare requestBody?: HttpRequestBody;
+  declare composition?: string;
+  declare compositionOptions?: Record<string, any>;
 
   findParameter(paramName: string, location?: OpraSchema.HttpParameterLocation): HttpParameter | undefined {
     const paramNameLower = paramName.toLowerCase();

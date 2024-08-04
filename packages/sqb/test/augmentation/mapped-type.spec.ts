@@ -9,20 +9,20 @@ describe('MappedType augmentation', () => {
     class Type1 {
       @ApiField()
       @Column()
-      field1: number;
+      declare field1: number;
       @ApiField()
       @Column()
-      field2: any;
+      declare field2: any;
       @ApiField()
       @Column()
-      field3: number;
+      declare field3: number;
     }
 
     @ComplexType()
     class Type2 extends OmitType(Type1, ['field2']) {
       @ApiField()
       @Column()
-      field4: number;
+      declare field4: number;
     }
 
     const base = Object.getPrototypeOf(Type2);
@@ -43,20 +43,20 @@ describe('MappedType augmentation', () => {
     class Type1 {
       @ApiField()
       @Column()
-      field1: number;
+      declare field1: number;
       @ApiField()
       @Column()
-      field2: any;
+      declare field2: any;
       @ApiField()
       @Column()
-      field3: number;
+      declare field3: number;
     }
 
     @ComplexType()
     class Type2 extends PickType(Type1, ['field2']) {
       @ApiField()
       @Column()
-      field4: number;
+      declare field4: number;
     }
 
     const base = Object.getPrototypeOf(Type2);

@@ -15,9 +15,9 @@ import type { HttpApi } from './http/http-api.js';
  */
 export class ApiDocument extends DocumentElement {
   protected [kTypeNSMap] = new WeakMap<DataType, string>();
-  readonly id: string;
+  readonly id: string = '';
   url?: string;
-  info: OpraSchema.DocumentInfo;
+  info: OpraSchema.DocumentInfo = {};
   references = new ResponsiveMap<ApiDocument>();
   types = new DataTypeMap();
   api?: HttpApi;

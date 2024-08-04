@@ -59,7 +59,7 @@ export const Value = function (this: Value, owner: DocumentElement, initArgs: Va
  */
 class ValueClass extends DocumentElement {
   declare readonly owner: DocumentElement;
-  readonly name: string | RegExp;
+  declare readonly name: string | RegExp;
   type?: DataType;
   description?: string;
   examples?: any[] | Record<string, any>;

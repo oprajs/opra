@@ -1,4 +1,3 @@
-import { omitUndefined } from '../../helpers/index.js';
 import { OpraSchema } from '../../schema/index.js';
 import { DATATYPE_METADATA } from '../constants.js';
 import type { ApiField } from '../data-type/api-field';
@@ -23,6 +22,6 @@ export function ApiFieldDecorator(options?: ApiField.Options): PropertyDecorator
     if (designType === Array) {
       elemMeta.isArray = true;
     } else elemMeta.type = elemMeta.type || designType;
-    Reflect.defineMetadata(DATATYPE_METADATA, omitUndefined(metadata), target.constructor);
+    Reflect.defineMetadata(DATATYPE_METADATA, metadata, target.constructor);
   };
 }

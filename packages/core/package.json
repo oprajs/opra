@@ -49,7 +49,7 @@
     "mime-types": "^2.1.35",
     "power-tasks": "^1.7.7",
     "putil-isplainobject": "^1.1.5",
-    "putil-merge": "^3.12.1",
+    "putil-merge": "^3.13.0",
     "putil-varhelpers": "^1.6.5",
     "range-parser": "^1.2.1",
     "raw-body": "^3.0.0",

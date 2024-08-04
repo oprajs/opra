@@ -13,7 +13,7 @@ describe('ComplexType() decorator', () => {
 
     @ComplexType(opts)
     class Animal {
-      id: string;
+      declare id: string;
     }
 
     const schema = Reflect.getMetadata(DATATYPE_METADATA, Animal);
@@ -23,7 +23,7 @@ describe('ComplexType() decorator', () => {
   it('Should set alternate name', async () => {
     @ComplexType({ description: 'Animal schema', name: 'Cat' })
     class Animal {
-      id: string;
+      declare id: string;
     }
 
     const schema = Reflect.getMetadata(DATATYPE_METADATA, Animal);
@@ -33,12 +33,12 @@ describe('ComplexType() decorator', () => {
   it('Should not overwrite while extending', async () => {
     @ComplexType({ description: 'Animal schema' })
     class Animal {
-      id: string;
+      declare id: string;
     }
 
     @ComplexType()
     class Cat extends Animal {
-      name: string;
+      declare name: string;
     }
 
     const animalSchema = Reflect.getMetadata(DATATYPE_METADATA, Animal);

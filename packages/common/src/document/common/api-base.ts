@@ -11,7 +11,7 @@ export namespace ApiBase {
 
 export abstract class ApiBase extends DocumentElement {
   abstract readonly protocol: OpraSchema.Protocol;
-  name: string;
+  name: string = 'OpraApi';
   description?: string;
 
   protected constructor(readonly owner: ApiDocument | ApiBase) {

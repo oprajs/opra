@@ -8,13 +8,13 @@ describe('DataTypeFactory - MixinType (Class)', () => {
     @ComplexType()
     class Type1 {
       @ApiField()
-      id: number;
+      declare id: number;
     }
 
     @ComplexType()
     class Type2 {
       @ApiField()
-      name: string;
+      declare name: string;
     }
 
     @ComplexType({
@@ -22,7 +22,7 @@ describe('DataTypeFactory - MixinType (Class)', () => {
     })
     class Type3 {
       @ApiField()
-      age: number;
+      declare age: number;
     }
 
     @ComplexType()

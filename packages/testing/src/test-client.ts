@@ -15,7 +15,7 @@ export namespace OpraTestClient {
 }
 
 export class OpraTestClient extends HttpClientBase<FetchBackend.RequestOptions, ResponseExt> {
-  [kBackend]: TestBackend;
+  declare [kBackend]: TestBackend;
 
   constructor(app: Server | RequestListener, options?: OpraTestClient.Options) {
     super(new TestBackend(app, options));

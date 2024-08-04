@@ -48,9 +48,9 @@ describe('DataTypeFactory - ComplexType (Class)', () => {
     })
     class Type1 {
       @ApiField()
-      id: number;
+      declare id: number;
       @ApiField({ type: 'uuid' })
-      cid: number;
+      declare cid: number;
     }
 
     const doc = await ApiDocumentFactory.createDocument({
@@ -74,7 +74,7 @@ describe('DataTypeFactory - ComplexType (Class)', () => {
     })
     class Type1 {
       @ApiField()
-      id: number;
+      declare id: number;
     }
 
     @ComplexType({
@@ -82,7 +82,7 @@ describe('DataTypeFactory - ComplexType (Class)', () => {
     })
     class Type2 extends Type1 {
       @ApiField({ type: 'uuid' })
-      cid: number;
+      declare cid: number;
     }
 
     const doc = await ApiDocumentFactory.createDocument({

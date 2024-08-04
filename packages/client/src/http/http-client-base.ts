@@ -26,7 +26,7 @@ export namespace OpraClientBase {
  * @abstract
  */
 export abstract class HttpClientBase<TRequestOptions = {}, TResponseExt = {}> {
-  protected [kBackend]: HttpBackend;
+  protected declare [kBackend]: HttpBackend;
 
   protected constructor(backend: HttpBackend) {
     Object.defineProperty(this, kBackend, {

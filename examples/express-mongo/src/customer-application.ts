@@ -6,11 +6,11 @@ import { Db, MongoClient } from 'mongodb';
 import { CustomerApiDocument } from './api-document.js';
 
 export class CustomerApplication {
-  adapter: ExpressAdapter;
-  document: ApiDocument;
-  dbClient: MongoClient;
-  express: express.Express;
-  db: Db;
+  declare adapter: ExpressAdapter;
+  declare document: ApiDocument;
+  declare dbClient: MongoClient;
+  declare express: express.Express;
+  declare db: Db;
 
   static async create(options?: HttpAdapter.Options): Promise<CustomerApplication> {
     const app = new CustomerApplication();

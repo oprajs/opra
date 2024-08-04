@@ -5,10 +5,10 @@ import { MyProfileController } from './my-profile.controller.js';
 @ComplexType()
 class LoginResult {
   @ApiField()
-  user: string;
+  declare user: string;
 
   @ApiField()
-  token: string;
+  declare token: string;
 }
 
 @(HttpController({

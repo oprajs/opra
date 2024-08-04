@@ -27,7 +27,7 @@ export namespace MongoAdapter {
 
   export async function parseRequest(context: HttpContext): Promise<TransformedRequest> {
     const { operation } = context;
-    if (operation.composition?.startsWith('Entity.') && operation.compositionOptions?.type) {
+    if (operation?.composition?.startsWith('Entity.') && operation.compositionOptions?.type) {
       const controller = operation.owner;
       switch (operation.composition) {
         case 'Entity.Create': {

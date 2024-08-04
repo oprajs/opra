@@ -9,7 +9,7 @@ describe('ApiField() decorator', () => {
         type: 'integer',
         description: 'description',
       })
-      id: number;
+      declare id: number;
     }
 
     const metadata = Reflect.getMetadata(DATATYPE_METADATA, Animal);
@@ -25,14 +25,14 @@ describe('ApiField() decorator', () => {
   it('Should determine design type if "type" is not defined', async () => {
     class Country {
       @ApiField()
-      id: number;
+      declare id: number;
       @ApiField()
-      name: string;
+      declare name: string;
     }
 
     class Person {
       @ApiField()
-      country: Country;
+      declare country: Country;
     }
 
     const metadata = Reflect.getMetadata(DATATYPE_METADATA, Person);

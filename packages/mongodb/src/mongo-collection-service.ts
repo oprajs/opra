@@ -41,7 +41,7 @@ export class MongoCollectionService<T extends mongodb.Document> extends MongoEnt
    */
   constructor(dataType: Type | string, options?: MongoCollectionService.Options) {
     super(dataType, options);
-    this.defaultLimit = this.defaultLimit || options?.defaultLimit || 10;
+    this.defaultLimit = options?.defaultLimit || 10;
   }
 
   /**

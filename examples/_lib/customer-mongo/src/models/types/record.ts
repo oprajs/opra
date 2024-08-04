@@ -12,14 +12,14 @@ export class Record {
   }
 
   @ApiField()
-  _id: number;
+  declare _id: number;
 
   @ApiField()
-  deleted?: boolean;
+  declare deleted?: boolean;
 
   @ApiField()
-  createdAt: Date;
+  declare createdAt: Date;
 
   @ApiField()
-  updatedAt?: Date;
+  declare updatedAt?: Date;
 }

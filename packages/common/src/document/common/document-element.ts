@@ -39,9 +39,9 @@ export const DocumentElement = function (this: DocumentElement, owner?: Document
  * @class DocumentElement
  */
 abstract class DocumentElementClass {
-  readonly id: string;
-  readonly owner?: DocumentElement;
-  readonly node: DocumentNode;
+  declare readonly id: string;
+  declare readonly owner?: DocumentElement;
+  declare readonly node: DocumentNode;
 }
 
 DocumentElement.prototype = DocumentElementClass.prototype;

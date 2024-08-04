@@ -1,5 +1,5 @@
 import { ResourceNotAvailableError } from '@opra/common';
-import { ColumnFieldMetadata, EntityMetadata } from '@sqb/connect';
+import { EntityMetadata } from '@sqb/connect';
 import { PartialDTO, PatchDTO, Type } from 'ts-gems';
 import { SQBAdapter } from './sqb-adapter.js';
 import { SqbEntityService } from './sqb-entity-service.js';
@@ -60,8 +60,6 @@ export namespace SqbSingletonService {
  * @template T - The data type class type of the resource
  */
 export abstract class SqbSingletonService<T extends object = object> extends SqbEntityService {
-  protected _primaryKeyFields?: ColumnFieldMetadata[];
-
   /**
    * Represents a unique identifier for singleton record
    * @property {SQBAdapter.IdOrIds}
@@ -77,7 +75,7 @@ export abstract class SqbSingletonService<T extends object = object> extends Sqb
    */
   constructor(dataType: Type<T> | string, options?: SqbSingletonService.Options) {
     super(dataType, options);
-    this.id = this.id || options?.id || 1;
+    this.id = options?.id || 1;
   }
 
   /**

@@ -38,9 +38,9 @@ export class HttpContext extends ExecutionContext {
   protected _multipartReader?: MultipartReader;
   readonly protocol: OpraSchema.Protocol;
   readonly adapter: HttpAdapter;
-  readonly controller: HttpController;
+  readonly controller?: HttpController;
   readonly controllerInstance?: any;
-  readonly operation: HttpOperation;
+  readonly operation?: HttpOperation;
   readonly operationHandler?: Function;
   readonly request: HttpIncoming;
   readonly response: HttpOutgoing;
@@ -113,7 +113,7 @@ export class HttpContext extends ExecutionContext {
       return this._body;
     }
 
-    this._body = await this.request.readBody({ limit: operation.requestBody?.maxContentSize });
+    this._body = await this.request.readBody({ limit: operation?.requestBody?.maxContentSize });
     if (this._body != null) {
       // Convert Buffer to string if media is text
       if (Buffer.isBuffer(this._body) && request.is(['json', 'xml', 'txt', 'text'])) {
@@ -131,7 +131,7 @@ export class HttpContext extends ExecutionContext {
         if (!decode) {
           decode =
             mediaType.type?.generateCodec('decode', {
-              partial: operation.requestBody?.partial,
+              partial: operation?.requestBody?.partial,
               projection: '*',
               ignoreReadonlyFields: true,
             }) || vg.isAny();

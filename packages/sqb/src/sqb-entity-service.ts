@@ -164,7 +164,7 @@ export interface SqbEntityService {
  */
 export class SqbEntityService<T extends object = object> extends ServiceBase {
   protected _dataType_: Type | string;
-  protected _dataType: ComplexType;
+  protected _dataType?: ComplexType;
   protected _dataTypeClass?: Type;
   protected _entityMetadata?: EntityMetadata;
   protected _inputCodecs: Record<string, IsObject.Validator<T>> = {};

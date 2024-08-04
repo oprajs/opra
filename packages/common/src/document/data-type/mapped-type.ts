@@ -143,7 +143,7 @@ export const MappedType = function (this: MappedType, ...args: any[]) {
  */
 class MappedTypeClass extends ComplexTypeBase {
   declare readonly kind: OpraSchema.MappedType.Kind;
-  readonly base: ComplexType | MappedType | MixinType;
+  declare readonly base: ComplexType | MappedType | MixinType;
   declare readonly ctor?: Type;
   readonly omit?: Field.Name[];
   readonly pick?: Field.Name[];

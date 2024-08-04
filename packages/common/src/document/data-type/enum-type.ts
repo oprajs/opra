@@ -112,10 +112,10 @@ export const EnumType = function (this: EnumType | void, ...args: any[]) {
  */
 class EnumTypeClass extends DataType {
   declare readonly kind: OpraSchema.EnumType.Kind;
-  readonly base?: EnumType;
-  readonly instance?: object;
-  readonly attributes: Record<string | number, OpraSchema.EnumType.ValueInfo>;
-  readonly ownAttributes: Record<string | number, OpraSchema.EnumType.ValueInfo>;
+  declare readonly base?: EnumType;
+  declare readonly instance?: object;
+  declare readonly attributes: Record<string | number, OpraSchema.EnumType.ValueInfo>;
+  declare readonly ownAttributes: Record<string | number, OpraSchema.EnumType.ValueInfo>;
 
   extendsFrom(baseType: DataType | string | Type | object): boolean {
     if (!(baseType instanceof DataType)) baseType = this.node.getDataType(baseType);

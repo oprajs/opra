@@ -15,23 +15,23 @@ export class Customer extends MixinType(Record, Person) {
   }
 
   @ApiField()
-  uid?: string;
+  declare uid?: string;
 
   @ApiField()
-  active: boolean;
+  declare active: boolean;
 
   @ApiField()
-  countryCode: string;
+  declare countryCode: string;
 
   @ApiField()
-  rate: number;
+  declare rate: number;
 
   @ApiField({ exclusive: true })
-  address?: Address;
+  declare address?: Address;
 
   @ApiField({ type: Note, exclusive: true })
-  notes?: Note[];
+  declare notes?: Note[];
 
   @ApiField({ exclusive: true })
-  readonly country?: Country;
+  declare readonly country?: Country;
 }

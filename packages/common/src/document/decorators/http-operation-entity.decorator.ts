@@ -1,7 +1,6 @@
 import { StrictOmit, Type, TypeThunkAsync } from 'ts-gems';
 import { FilterRules } from '../../filter/filter-rules.js';
 import { OpraFilter } from '../../filter/index.js';
-import { omitUndefined } from '../../helpers/index.js';
 import { HttpStatusCode, MimeTypes } from '../../http/index.js';
 import { OpraSchema } from '../../schema/index.js';
 import { DATATYPE_METADATA } from '../constants.js';
@@ -200,19 +199,16 @@ HttpOperation.Entity.Create = function (arg0: any, arg1?: any): HttpOperation.En
 
   /** Initialize the decorator and the chain */
   const decoratorChain: Function[] = [];
-  const decorator = HttpOperationDecoratorFactory(
-    decoratorChain,
-    omitUndefined({
-      method: 'POST',
-      ...args,
-      composition: 'Entity.Create',
-      requestBody: {
-        immediateFetch: true,
-        ...args.requestBody,
-        required: true,
-      },
-    }),
-  ) as HttpOperation.Entity.CreateDecorator;
+  const decorator = HttpOperationDecoratorFactory(decoratorChain, {
+    method: 'POST',
+    ...args,
+    composition: 'Entity.Create',
+    requestBody: {
+      immediateFetch: true,
+      ...args.requestBody,
+      required: true,
+    },
+  }) as HttpOperation.Entity.CreateDecorator;
   decorator
     .QueryParam('projection', {
       description: 'Determines fields projection',
@@ -254,14 +250,11 @@ HttpOperation.Entity.Delete = function (arg0: any, arg1?: any): HttpOperation.En
 
   /** Initialize the decorator and the chain */
   const decoratorChain: Function[] = [];
-  const decorator = HttpOperationDecoratorFactory(
-    decoratorChain,
-    omitUndefined({
-      method: 'DELETE',
-      ...args,
-      composition: 'Entity.Delete',
-    }),
-  ) as HttpOperation.Entity.DeleteDecorator;
+  const decorator = HttpOperationDecoratorFactory(decoratorChain, {
+    method: 'DELETE',
+    ...args,
+    composition: 'Entity.Delete',
+  }) as HttpOperation.Entity.DeleteDecorator;
   decorator
     .Response(HttpStatusCode.OK, {
       description: 'Operation is successful. Returns OperationResult with "affected" field.',
@@ -319,14 +312,11 @@ HttpOperation.Entity.DeleteMany = function (arg0: any, arg1?: any): HttpOperatio
   const filterRules = new FilterRules();
   const filterType = new FilterType({ dataType: args.type });
   filterType.rules = {};
-  const decorator = HttpOperationDecoratorFactory(
-    decoratorChain,
-    omitUndefined({
-      method: 'DELETE',
-      ...args,
-      composition: 'Entity.DeleteMany',
-    }),
-  ) as HttpOperation.Entity.DeleteManyDecorator;
+  const decorator = HttpOperationDecoratorFactory(decoratorChain, {
+    method: 'DELETE',
+    ...args,
+    composition: 'Entity.DeleteMany',
+  }) as HttpOperation.Entity.DeleteManyDecorator;
   decorator
     .Response(HttpStatusCode.OK, {
       description: 'Operation is successful. Returns OperationResult with "affected" field.',
@@ -373,14 +363,11 @@ HttpOperation.Entity.FindMany = function (arg0: any, arg1?: any): HttpOperation.
   const filterRules = new FilterRules();
   const filterType = new FilterType({ dataType: args.type });
   filterType.rules = {};
-  const decorator = HttpOperationDecoratorFactory(
-    decoratorChain,
-    omitUndefined({
-      method: 'GET',
-      ...args,
-      composition: 'Entity.FindMany',
-    }),
-  ) as HttpOperation.Entity.FindManyDecorator;
+  const decorator = HttpOperationDecoratorFactory(decoratorChain, {
+    method: 'GET',
+    ...args,
+    composition: 'Entity.FindMany',
+  }) as HttpOperation.Entity.FindManyDecorator;
   decorator
     .Response(HttpStatusCode.OK, {
       description:
@@ -475,14 +462,11 @@ HttpOperation.Entity.Get = function (arg0: any, arg1?: any): HttpOperation.Entit
 
   /** Initialize the decorator and the chain */
   const decoratorChain: Function[] = [];
-  const decorator = HttpOperationDecoratorFactory(
-    decoratorChain,
-    omitUndefined({
-      method: 'GET',
-      ...args,
-      composition: 'Entity.Get',
-    }),
-  ) as HttpOperation.Entity.GetDecorator;
+  const decorator = HttpOperationDecoratorFactory(decoratorChain, {
+    method: 'GET',
+    ...args,
+    composition: 'Entity.Get',
+  }) as HttpOperation.Entity.GetDecorator;
   decorator
     .QueryParam('projection', {
       description: 'Determines fields projection',
@@ -555,20 +539,17 @@ HttpOperation.Entity.UpdateMany = function (arg0: any, arg1?: any): HttpOperatio
   const filterType = new FilterType({ dataType: args.type });
   filterType.rules = {};
   const filterRules = new FilterRules();
-  const decorator = HttpOperationDecoratorFactory(
-    decoratorChain,
-    omitUndefined({
-      method: 'PATCH',
-      ...args,
-      composition: 'Entity.UpdateMany',
-      requestBody: {
-        immediateFetch: true,
-        partial: 'deep',
-        ...args.requestBody,
-        required: true,
-      },
-    }),
-  ) as HttpOperation.Entity.UpdateManyDecorator;
+  const decorator = HttpOperationDecoratorFactory(decoratorChain, {
+    method: 'PATCH',
+    ...args,
+    composition: 'Entity.UpdateMany',
+    requestBody: {
+      immediateFetch: true,
+      partial: 'deep',
+      ...args.requestBody,
+      required: true,
+    },
+  }) as HttpOperation.Entity.UpdateManyDecorator;
   decorator
     .RequestContent(args.requestBody?.type || args.type)
     .Response(HttpStatusCode.OK, {
@@ -617,20 +598,17 @@ HttpOperation.Entity.Update = function (arg0: any, arg1?: any): HttpOperation.En
   const filterRules = new FilterRules();
   const filterType = new FilterType({ dataType: args.type });
   filterType.rules = {};
-  const decorator = HttpOperationDecoratorFactory(
-    decoratorChain,
-    omitUndefined({
-      method: 'PATCH',
-      ...args,
-      composition: 'Entity.Update',
-      requestBody: {
-        partial: 'deep',
-        immediateFetch: true,
-        ...args.requestBody,
-        required: true,
-      },
-    }),
-  ) as HttpOperation.Entity.UpdateDecorator;
+  const decorator = HttpOperationDecoratorFactory(decoratorChain, {
+    method: 'PATCH',
+    ...args,
+    composition: 'Entity.Update',
+    requestBody: {
+      partial: 'deep',
+      immediateFetch: true,
+      ...args.requestBody,
+      required: true,
+    },
+  }) as HttpOperation.Entity.UpdateDecorator;
   decorator
     .QueryParam('projection', {
       description: 'Determines fields projection',

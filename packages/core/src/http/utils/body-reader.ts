@@ -28,7 +28,7 @@ type Callback = (...args: any[]) => any;
  */
 export class BodyReader extends EventEmitter {
   limit?: number;
-  protected _stream: nodeStream.Readable;
+  protected _stream?: nodeStream.Readable;
   protected _buffer?: string | Buffer[];
   protected _completed? = false;
   protected _receivedSize = 0;

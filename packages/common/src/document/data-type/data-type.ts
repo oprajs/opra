@@ -29,6 +29,7 @@ export namespace DataType {
     projection?: string[] | FieldsProjection | '*';
     ignoreReadonlyFields?: boolean;
     ignoreWriteonlyFields?: boolean;
+    ignoreHiddenFields?: boolean;
   }
 }
 
@@ -72,12 +73,12 @@ export const DataType = function (
  * @class DataType
  */
 abstract class DataTypeClass extends DocumentElement {
-  readonly kind: OpraSchema.DataType.Kind;
+  declare readonly kind: OpraSchema.DataType.Kind;
   declare readonly owner: DocumentElement;
-  readonly name?: string;
-  readonly description?: string;
-  readonly abstract?: boolean;
-  readonly examples?: OpraSchema.DataTypeExample[];
+  declare readonly name?: string;
+  declare readonly description?: string;
+  declare readonly abstract?: boolean;
+  declare readonly examples?: OpraSchema.DataTypeExample[];
 
   abstract generateCodec(codec: 'encode' | 'decode', options?: DataType.GenerateCodecOptions): Validator;
 

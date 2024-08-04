@@ -78,11 +78,11 @@ export const HttpParameter = function (
  */
 class HttpParameterClass extends Value {
   declare readonly owner: DocumentElement;
-  keyParam?: boolean;
-  deprecated?: boolean | string;
-  required?: boolean;
-  arraySeparator?: string;
-  location: OpraSchema.HttpParameterLocation;
+  declare location: OpraSchema.HttpParameterLocation;
+  declare keyParam?: boolean;
+  declare deprecated?: boolean | string;
+  declare required?: boolean;
+  declare arraySeparator?: string;
 
   toJSON(): OpraSchema.HttpParameter {
     return omitUndefined<OpraSchema.HttpParameter>({

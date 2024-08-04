@@ -35,7 +35,7 @@ export function collectionCreateTests(args: { client: OpraTestClient }) {
     it('Should fetch exclusive fields if requested', async () => {
       const data = generateData({ _id: 1003 });
       const resp = await args.client.post('Customers', data).param('projection', '+address').getResponse();
-      resp.expect.toSuccess().toReturnObject().toContainFields(['_id', 'givenName', 'address']);
+      resp.expect.toSuccess().toReturnObject().toContainFields(['_id', 'givenName', 'familyName', 'gender', 'address']);
     });
 
     it('Should pick fields to be returned', async () => {

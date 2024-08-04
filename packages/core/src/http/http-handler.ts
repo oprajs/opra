@@ -41,6 +41,7 @@ export namespace HttpHandler {
     contentType?: string;
     operationResponse?: HttpOperationResponse;
     body?: any;
+    projection?: string[] | '*';
   }
 }
 
@@ -132,7 +133,7 @@ export class HttpHandler {
   async parseRequest(context: HttpContext): Promise<void> {
     await this._parseParameters(context);
     await this._parseContentType(context);
-    if (context.operation.requestBody?.immediateFetch) await context.getBody();
+    if (context.operation?.requestBody?.immediateFetch) await context.getBody();
     /** Set default status code as the first status code between 200 and 299 */
     if (context.operation) {
       for (const r of context.operation.responses) {
@@ -152,6 +153,8 @@ export class HttpHandler {
    */
   protected async _parseParameters(context: HttpContext) {
     const { operation, request } = context;
+    if (!operation) return;
+
     let key: string = '';
     try {
       const onFail = (issue: ErrorIssue) => {
@@ -271,6 +274,7 @@ export class HttpHandler {
    */
   protected async _parseContentType(context: HttpContext) {
     const { request, operation } = context;
+    if (!operation) return;
     if (operation.requestBody?.content.length) {
       let mediaType: HttpMediaType | undefined;
       let contentType = request.header('content-type');
@@ -325,7 +329,10 @@ export class HttpHandler {
       const operationResultType = document.node.getDataType(OperationResult);
       let operationResultEncoder = this[kAssetCache].get<Validator>(operationResultType, 'encode');
       if (!operationResultEncoder) {
-        operationResultEncoder = operationResultType.generateCodec('encode', { ignoreWriteonlyFields: true });
+        operationResultEncoder = operationResultType.generateCodec('encode', {
+          ignoreWriteonlyFields: true,
+          ignoreHiddenFields: true,
+        });
         this[kAssetCache].set(operationResultType, 'encode', operationResultEncoder);
       }
 
@@ -337,8 +344,9 @@ export class HttpHandler {
           if (!encode) {
             encode = operationResponse.type.generateCodec('encode', {
               partial: operationResponse.partial,
-              projection: '*',
+              projection: responseArgs.projection || '*',
               ignoreWriteonlyFields: true,
+              ignoreHiddenFields: true,
               onFail: issue => `Response body validation failed: ` + issue.message,
             });
             if (operationResponse) {
@@ -510,7 +518,7 @@ export class HttpHandler {
     if (!responseArgs) {
       responseArgs = { statusCode, contentType } as HttpHandler.ResponseArgs;
 
-      if (operation.responses.length) {
+      if (operation?.responses.length) {
         /** Filter available HttpOperationResponse instances according to status code. */
         const filteredResponses = operation.responses.filter(r =>
           r.statusCode.find(sc => sc.start <= statusCode && sc.end >= statusCode),
@@ -560,6 +568,9 @@ export class HttpHandler {
         }
       }
       if (!hasBody) delete responseArgs.contentType;
+      if (operation?.composition?.startsWith('Entity.')) {
+        if (context.queryParams.projection) responseArgs.projection = context.queryParams.projection;
+      }
       this[kAssetCache].set(response, cacheKey, { ...responseArgs });
     }
 

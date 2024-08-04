@@ -79,19 +79,19 @@ export const HttpMediaType = function (
  */
 class HttpMediaTypeClass extends DocumentElement {
   declare readonly owner: DocumentElement;
-  description?: string;
-  contentType?: string | string[];
-  contentEncoding?: string;
-  type?: DataType;
-  isArray?: boolean;
-  example?: string;
-  examples?: Record<string, string>;
-  multipartFields: HttpMultipartField[];
-  maxFields?: number;
-  maxFieldsSize?: number;
-  maxFiles?: number;
-  maxFileSize?: number;
-  maxTotalFileSize?: number;
+  declare description?: string;
+  declare contentType?: string | string[];
+  declare contentEncoding?: string;
+  declare type?: DataType;
+  declare isArray?: boolean;
+  declare example?: string;
+  declare examples?: Record<string, string>;
+  declare multipartFields: HttpMultipartField[];
+  declare maxFields?: number;
+  declare maxFieldsSize?: number;
+  declare maxFiles?: number;
+  declare maxFileSize?: number;
+  declare maxTotalFileSize?: number;
 
   findMultipartField(fieldName: string, fieldType?: OpraSchema.HttpMultipartFieldType): HttpMultipartField | undefined {
     if (!this.multipartFields) return;

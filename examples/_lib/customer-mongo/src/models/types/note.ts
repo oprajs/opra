@@ -12,14 +12,14 @@ export class Note extends Record {
   }
 
   @ApiField()
-  title: string;
+  declare title: string;
 
   @ApiField()
-  text: string;
+  declare text: string;
 
   @ApiField()
-  rank: number;
+  declare rank: number;
 
   @ApiField({ exclusive: true })
-  largeContent: string;
+  declare largeContent: string;
 }

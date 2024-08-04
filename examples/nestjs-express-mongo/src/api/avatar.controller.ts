@@ -4,7 +4,7 @@ import { MultipartReader } from '@opra/core';
 @ComplexType()
 class AvatarMetadata {
   @ApiField({ required: true })
-  name: string;
+  declare name: string;
   @ApiField({ type: String, isArray: true })
   tags?: string[];
 }

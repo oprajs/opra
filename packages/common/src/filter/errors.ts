@@ -11,11 +11,11 @@ export class FilterValidationError extends TypeError {
 }
 
 export class FilterParseError extends Error {
-  recognizer: Recognizer<any>;
-  offendingSymbol?: any;
-  line: number;
-  column: number;
-  e: RecognitionException | undefined;
+  declare recognizer: Recognizer<any>;
+  declare offendingSymbol?: any;
+  declare line: number;
+  declare column: number;
+  declare e: RecognitionException | undefined;
 
   constructor(
     message: string,

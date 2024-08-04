@@ -113,11 +113,11 @@ export const SimpleType = function (this: SimpleType | void, ...args: any[]) {
  */
 abstract class SimpleTypeClass extends DataType {
   declare readonly kind: OpraSchema.SimpleType.Kind;
-  readonly base?: SimpleType;
-  readonly attributes: Record<string, SimpleType.Attribute>;
-  readonly nameMappings: Record<string, string>;
-  readonly ownAttributes: Record<string, SimpleType.Attribute>;
-  readonly ownNameMappings: Record<string, string>;
+  declare readonly base?: SimpleType;
+  declare readonly attributes: Record<string, SimpleType.Attribute>;
+  declare readonly nameMappings: Record<string, string>;
+  declare readonly ownAttributes: Record<string, SimpleType.Attribute>;
+  declare readonly ownNameMappings: Record<string, string>;
   protected _generateDecoder?: SimpleType.ValidatorGenerator;
   protected _generateEncoder?: SimpleType.ValidatorGenerator;
   properties?: any;
@@ -159,11 +159,7 @@ abstract class SimpleTypeClass extends DataType {
     let properties: any;
     if (this.properties && typeof this.properties.toJSON === 'function') {
       properties = this.properties.toJSON(this.properties, this.owner);
-    } else properties = this.properties || {};
-    properties = Object.keys(this.attributes).reduce((o, k) => {
-      if (properties[k] !== undefined) o[k] = properties[k];
-      return o;
-    }, {});
+    } else properties = this.properties ? cloneObject(this.properties) : {};
     const baseName = this.base ? this.node.getDataTypeNameWithNs(this.base) : undefined;
     const out = omitUndefined<OpraSchema.SimpleType>({
       ...(DataType.prototype.toJSON.apply(this) as any),

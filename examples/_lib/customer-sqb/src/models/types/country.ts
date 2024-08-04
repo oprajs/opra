@@ -8,13 +8,13 @@ import { Column, Entity } from '@sqb/connect';
 export class Country {
   @ApiField()
   @Column()
-  code: string;
+  declare code: string;
 
   @ApiField()
   @Column()
-  name: string;
+  declare name: string;
 
   @ApiField()
   @Column()
-  phoneCode?: string;
+  declare phoneCode?: string;
 }

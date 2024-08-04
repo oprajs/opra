@@ -35,13 +35,13 @@ describe('Augmentation (DataTypeFactory)', () => {
     class Type1 {
       @ApiField()
       @Column({ dataType: DataType.INTEGER })
-      field1: number;
+      declare field1: number;
       @ApiField()
       @Column({ dataType: DataType.INTEGER })
-      field2: any;
+      declare field2: any;
       @ApiField({ type: 'number' })
       @Column({ dataType: DataType.INTEGER })
-      field3: number;
+      declare field3: number;
     }
 
     const doc = await ApiDocumentFactory.createDocument({
@@ -64,10 +64,10 @@ describe('Augmentation (DataTypeFactory)', () => {
     class Type1 {
       @ApiField()
       @Column({ dataType: DataType.GUID })
-      field1: string;
+      declare field1: string;
       @ApiField()
       @Column({ dataType: DataType.GUID })
-      field2: any;
+      declare field2: any;
     }
 
     const doc = await ApiDocumentFactory.createDocument({
@@ -88,13 +88,13 @@ describe('Augmentation (DataTypeFactory)', () => {
     class Type1 {
       @ApiField()
       @Column({ dataType: DataType.DATE })
-      field1: string;
+      declare field1: string;
       @ApiField()
       @Column({ dataType: DataType.DATE })
-      field2: any;
+      declare field2: any;
       @ApiField()
       @Column({ dataType: DataType.DATE })
-      field3: Date;
+      declare field3: Date;
     }
 
     const doc = await ApiDocumentFactory.createDocument({
@@ -117,13 +117,13 @@ describe('Augmentation (DataTypeFactory)', () => {
     class Type1 {
       @ApiField()
       @Column({ dataType: DataType.TIMESTAMP })
-      field1: string;
+      declare field1: string;
       @ApiField()
       @Column({ dataType: DataType.TIMESTAMP })
-      field2: any;
+      declare field2: any;
       @ApiField()
       @Column({ dataType: DataType.TIMESTAMP })
-      field3: Date;
+      declare field3: Date;
     }
 
     const doc = await ApiDocumentFactory.createDocument({
@@ -146,13 +146,13 @@ describe('Augmentation (DataTypeFactory)', () => {
     class Type1 {
       @ApiField()
       @Column({ dataType: DataType.TIMESTAMPTZ })
-      field1: string;
+      declare field1: string;
       @ApiField()
       @Column({ dataType: DataType.TIMESTAMPTZ })
-      field2: any;
+      declare field2: any;
       @ApiField()
       @Column({ dataType: DataType.TIMESTAMPTZ })
-      field3: Date;
+      declare field3: Date;
     }
 
     const doc = await ApiDocumentFactory.createDocument({
@@ -174,17 +174,17 @@ describe('Augmentation (DataTypeFactory)', () => {
     @ComplexType()
     class Type2 {
       @Column()
-      id: string;
+      declare id: string;
     }
 
     @ComplexType()
     class Type1 {
       @ApiField()
       @(Link({}).toOne(Type2))
-      field1: Type2;
+      declare field1: Type2;
       @ApiField()
       @(Link({}).toMany(Type2))
-      field2: Type2[];
+      declare field2: Type2[];
     }
 
     const doc = await ApiDocumentFactory.createDocument({
@@ -206,13 +206,16 @@ describe('Augmentation (DataTypeFactory)', () => {
     class Type1 {
       @ApiField()
       @Column({ exclusive: true })
-      field1: number;
+      declare field1: number;
       @ApiField()
       @Column({ exclusive: false })
-      field2: number;
+      declare field2: number;
       @ApiField({ exclusive: false })
       @Column({ exclusive: true })
-      field3: number;
+      declare field3: number;
+      @ApiField({ exclusive: undefined })
+      @Column({ exclusive: true })
+      declare field4: number;
     }
 
     const doc = await ApiDocumentFactory.createDocument({

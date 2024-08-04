@@ -58,7 +58,7 @@ export const ComplexTypeBase = function (this: ComplexTypeBase | void, ...args: 
  */
 abstract class ComplexTypeBaseClass extends DataType {
   readonly ctor?: Type;
-  readonly fields: ResponsiveMap<ApiField>;
+  declare readonly fields: ResponsiveMap<ApiField>;
   readonly additionalFields?: boolean | DataType | ['error'] | ['error', string];
   readonly keyField?: Field.Name;
 
@@ -207,7 +207,11 @@ abstract class ComplexTypeBaseClass extends DataType {
     // Process fields
     let fieldName: string;
     for (const field of this.fields.values()) {
-      if ((context.ignoreReadonlyFields && field.readonly) || (context.ignoreWriteonlyFields && field.writeonly)) {
+      if (
+        (context.ignoreReadonlyFields && field.readonly) ||
+        (context.ignoreWriteonlyFields && field.writeonly) ||
+        (context.ignoreHiddenFields && field.hidden)
+      ) {
         schema[field.name] = vg.isUndefined({ coerce: true });
         continue;
       }

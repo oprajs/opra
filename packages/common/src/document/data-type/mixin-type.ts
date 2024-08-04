@@ -170,7 +170,7 @@ export const MixinType = function (this: MixinType, ...args: any[]) {
  */
 class MixinTypeClass extends ComplexTypeBase {
   declare readonly kind: OpraSchema.MixinType.Kind;
-  readonly types: (ComplexType | MixinType | MappedType)[];
+  declare readonly types: (ComplexType | MixinType | MappedType)[];
 
   extendsFrom(baseType: DataType | string | Type | object): boolean {
     if (!(baseType instanceof DataType)) baseType = this.node.getDataType(baseType);

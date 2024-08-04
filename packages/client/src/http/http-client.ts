@@ -7,7 +7,7 @@ import { HttpClientBase } from './http-client-base.js';
  * @class OpraHttpClient
  */
 export class OpraHttpClient extends HttpClientBase<FetchBackend.RequestOptions> {
-  [kBackend]: FetchBackend;
+  declare [kBackend]: FetchBackend;
 
   constructor(serviceUrl: string, options?: FetchBackend.Options) {
     super(new FetchBackend(serviceUrl, options));

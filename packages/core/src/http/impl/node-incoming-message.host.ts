@@ -28,10 +28,10 @@ export class NodeIncomingMessageHost extends Duplex implements NodeIncomingMessa
   protected [kTrailersDistinct]?: NodeJS.Dict<string[]>;
   protected [kHttpParser]: HTTPParserJS | undefined;
   protected _readStream?: Readable;
-  httpVersionMajor: number;
-  httpVersionMinor: number;
-  method: string;
-  url: string;
+  declare httpVersionMajor: number;
+  declare httpVersionMinor: number;
+  declare method: string;
+  declare url: string;
   rawHeaders: string[] = [];
   rawTrailers: string[] = [];
   params?: Record<string, any>;

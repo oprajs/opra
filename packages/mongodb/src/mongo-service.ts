@@ -166,7 +166,7 @@ export interface MongoService {
  */
 export class MongoService<T extends mongodb.Document = mongodb.Document> extends ServiceBase {
   protected _dataType_: Type | string;
-  protected _dataType: ComplexType;
+  protected _dataType?: ComplexType;
   protected _inputCodecs: Record<string, IsObject.Validator<T>> = {};
   protected _outputCodecs: Record<string, IsObject.Validator<T>> = {};
 

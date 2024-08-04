@@ -15,17 +15,17 @@ export class Record {
   @ApiField()
   @Column()
   @PrimaryKey()
-  _id: number;
+  declare _id: number;
 
   @ApiField()
   @Column()
-  deleted?: boolean;
+  declare deleted?: boolean;
 
   @ApiField()
   @Column()
-  createdAt: Date;
+  declare createdAt: Date;
 
   @ApiField()
   @Column()
-  updatedAt?: Date;
+  declare updatedAt?: Date;
 }

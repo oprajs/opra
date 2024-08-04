@@ -8,17 +8,17 @@ import { Record } from './record.js';
 export class Address extends Record {
   @ApiField()
   @Column()
-  city: string;
+  declare city: string;
 
   @ApiField()
   @Column()
-  countryCode: string;
+  declare countryCode: string;
 
   @ApiField()
   @Column()
-  street: string;
+  declare street: string;
 
   @ApiField()
   @Column()
-  zipCode: string;
+  declare zipCode: string;
 }

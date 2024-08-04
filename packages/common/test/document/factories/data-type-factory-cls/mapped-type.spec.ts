@@ -18,13 +18,13 @@ describe('DataTypeFactory - MappedType (Class)', () => {
     })
     class Type1 {
       @ApiField()
-      id: number;
+      declare id: number;
       @ApiField()
-      name: string;
+      declare name: string;
       @ApiField()
-      age: number;
+      declare age: number;
       @ApiField()
-      gender: string;
+      declare gender: string;
     }
 
     @ComplexType()
@@ -46,17 +46,17 @@ describe('DataTypeFactory - MappedType (Class)', () => {
     @ComplexType()
     class Type1 {
       @ApiField()
-      field1: number;
+      declare field1: number;
       @ApiField()
-      field2: string;
+      declare field2: string;
     }
 
     @ComplexType()
     class Type2 {
       @ApiField({ type: PickType('type1', ['field1']) })
-      a: Type1;
+      declare a: Type1;
       @ApiField({ type: PickType(Type1, ['field2']) })
-      b: Type1;
+      declare b: Type1;
     }
 
     const doc = await ApiDocumentFactory.createDocument({
@@ -81,13 +81,13 @@ describe('DataTypeFactory - MappedType (Class)', () => {
     })
     class Type1 {
       @ApiField()
-      id: number;
+      declare id: number;
       @ApiField()
-      name: string;
+      declare name: string;
       @ApiField()
-      age: number;
+      declare age: number;
       @ApiField()
-      gender: string;
+      declare gender: string;
     }
 
     @ComplexType()
@@ -110,17 +110,17 @@ describe('DataTypeFactory - MappedType (Class)', () => {
     @ComplexType()
     class Type1 {
       @ApiField()
-      field1: number;
+      declare field1: number;
       @ApiField()
-      field2: string;
+      declare field2: string;
     }
 
     @ComplexType()
     class Type2 {
       @ApiField({ type: OmitType('type1', ['field1']) })
-      a: Type1;
+      declare a: Type1;
       @ApiField({ type: OmitType(Type1, ['field2']) })
-      b: Type1;
+      declare b: Type1;
     }
 
     const doc = await ApiDocumentFactory.createDocument({
@@ -145,13 +145,13 @@ describe('DataTypeFactory - MappedType (Class)', () => {
     })
     class Type1 {
       @ApiField({ required: true })
-      id: number;
+      declare id: number;
       @ApiField({ required: true })
-      name: string;
+      declare name: string;
       @ApiField({ required: true })
-      age: number;
+      declare age: number;
       @ApiField({ required: true })
-      gender: string;
+      declare gender: string;
     }
 
     @ComplexType()
@@ -178,13 +178,13 @@ describe('DataTypeFactory - MappedType (Class)', () => {
     })
     class Type1 {
       @ApiField({ required: true })
-      id: number;
+      declare id: number;
       @ApiField({ required: true })
-      name: string;
+      declare name: string;
       @ApiField({ required: true })
-      age: number;
+      declare age: number;
       @ApiField({ required: true })
-      gender: string;
+      declare gender: string;
     }
 
     @ComplexType()
@@ -209,17 +209,17 @@ describe('DataTypeFactory - MappedType (Class)', () => {
     @ComplexType()
     class Type1 {
       @ApiField({ required: true })
-      field1: number;
+      declare field1: number;
       @ApiField({ required: true })
-      field2: string;
+      declare field2: string;
     }
 
     @ComplexType()
     class Type2 {
       @ApiField({ type: PartialType('type1', ['field1']) })
-      a: Type1;
+      declare a: Type1;
       @ApiField({ type: PartialType(Type1, ['field2']) })
-      b: Type1;
+      declare b: Type1;
     }
 
     const doc = await ApiDocumentFactory.createDocument({
@@ -244,13 +244,13 @@ describe('DataTypeFactory - MappedType (Class)', () => {
     })
     class Type1 {
       @ApiField()
-      id: number;
+      declare id: number;
       @ApiField({ required: false })
-      name: string;
+      declare name: string;
       @ApiField({ required: false })
-      age: number;
+      declare age: number;
       @ApiField()
-      gender: string;
+      declare gender: string;
     }
 
     @ComplexType()
@@ -277,13 +277,13 @@ describe('DataTypeFactory - MappedType (Class)', () => {
     })
     class Type1 {
       @ApiField()
-      id: number;
+      declare id: number;
       @ApiField({ required: false })
-      name: string;
+      declare name: string;
       @ApiField({ required: false })
-      age: number;
+      declare age: number;
       @ApiField()
-      gender: string;
+      declare gender: string;
     }
 
     @ComplexType()
@@ -308,17 +308,17 @@ describe('DataTypeFactory - MappedType (Class)', () => {
     @ComplexType()
     class Type1 {
       @ApiField({ required: false })
-      field1: number;
+      declare field1: number;
       @ApiField()
-      field2: string;
+      declare field2: string;
     }
 
     @ComplexType()
     class Type2 {
       @ApiField({ type: RequiredType('type1', ['field1']) })
-      a: Type1;
+      declare a: Type1;
       @ApiField({ type: RequiredType(Type1, ['field2']) })
-      b: Type1;
+      declare b: Type1;
     }
 
     const doc = await ApiDocumentFactory.createDocument({

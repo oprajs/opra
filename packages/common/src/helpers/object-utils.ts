@@ -6,12 +6,10 @@ import { DATATYPE_METADATA } from '../document/constants.js';
 export function cloneObject<T extends {}>(obj: T, jsonOnly?: boolean): T {
   return merge({}, obj, {
     deep: v => isPlainObject(v) && !v[DATATYPE_METADATA],
+    descriptor: true,
     filter: (source: object, key: string) => {
       const v = source[key];
-      return (
-        (v != null && !jsonOnly) ||
-        (typeof v !== 'function' && (typeof v !== 'object' || isPlainObject(v) || Array.isArray(v)))
-      );
+      return !jsonOnly || (typeof v !== 'function' && (typeof v !== 'object' || isPlainObject(v) || Array.isArray(v)));
     },
   }) as T;
 }

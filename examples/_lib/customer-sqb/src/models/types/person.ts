@@ -8,17 +8,17 @@ import { Gender } from '../enums/gender.js';
 export class Person {
   @ApiField()
   @Column()
-  givenName: string;
+  declare givenName: string;
 
   @ApiField()
   @Column()
-  familyName: string;
+  declare familyName: string;
 
   @ApiField({ type: Gender })
   @Column()
-  gender: Gender;
+  declare gender: Gender;
 
   @ApiField()
   @Column()
-  birthDate?: Date;
+  declare birthDate?: Date;
 }

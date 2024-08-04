@@ -11,5 +11,5 @@ import { Record } from './record.js';
 export class Profile extends MixinType(Record, Person) {
   @ApiField()
   @Column({ type: Address, exclusive: true })
-  address?: Address;
+  declare address?: Address;
 }

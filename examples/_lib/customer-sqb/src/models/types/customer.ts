@@ -19,29 +19,29 @@ export class Customer extends MixinType(Record, Person) {
 
   @ApiField()
   @Column()
-  uid?: string;
+  declare uid?: string;
 
   @ApiField()
   @Column()
-  active: boolean;
+  declare active: boolean;
 
   @ApiField()
   @Column()
-  countryCode: string;
+  declare countryCode: string;
 
   @ApiField()
   @Column()
-  rate: number;
+  declare rate: number;
 
   @ApiField({ exclusive: true })
   @Column({ type: Address, exclusive: true })
-  address?: Address;
+  declare address?: Address;
 
   @ApiField({ type: Note, exclusive: true })
   @Column({ type: Note, exclusive: true })
-  notes?: Note[];
+  declare notes?: Note[];
 
   @ApiField({ exclusive: true })
   @(Link({ exclusive: true }).toOne(Country, { sourceKey: 'countryCode', targetKey: 'code' }))
-  readonly country?: Country;
+  declare readonly country?: Country;
 }

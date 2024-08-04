@@ -21,7 +21,7 @@ export namespace SQBAdapter {
   export async function parseRequest(context: HttpContext): Promise<TransformedRequest> {
     const { operation } = context;
 
-    if (operation.composition?.startsWith('Entity.') && operation.compositionOptions?.type) {
+    if (operation?.composition?.startsWith('Entity.') && operation.compositionOptions?.type) {
       const dataType = context.document.node.getComplexType(operation.compositionOptions?.type);
       const entityMetadata = EntityMetadata.get(dataType.ctor!);
       if (!entityMetadata) throw new Error(`Type class "${dataType.ctor}" is not an SQB entity`);

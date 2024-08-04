@@ -5,11 +5,11 @@ import { ApiField, ComplexType } from '@opra/common';
 })
 export class Country {
   @ApiField()
-  code: string;
+  declare code: string;
 
   @ApiField()
-  name: string;
+  declare name: string;
 
   @ApiField()
-  phoneCode?: string;
+  declare phoneCode?: string;
 }

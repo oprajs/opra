@@ -2,7 +2,7 @@ import { Nullish } from 'ts-gems';
 import type { HttpContext } from '../http/http-context';
 
 export abstract class ServiceBase {
-  protected _context: HttpContext;
+  protected declare _context: HttpContext;
 
   get context(): HttpContext {
     if (!this._context) throw new Error(`No context assigned for ${Object.getPrototypeOf(this).constructor.name}`);

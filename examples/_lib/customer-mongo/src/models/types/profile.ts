@@ -8,5 +8,5 @@ import { Record } from './record.js';
 })
 export class Profile extends MixinType(Record, Person) {
   @ApiField()
-  address?: Address;
+  declare address?: Address;
 }

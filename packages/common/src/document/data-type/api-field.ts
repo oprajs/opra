@@ -21,7 +21,13 @@ export namespace ApiField {
         type?: string | OpraSchema.DataType | TypeThunkAsync | EnumType.EnumObject | EnumType.EnumArray | object;
       },
       OpraSchema.Field
-    > {}
+    > {
+    /**
+     * If set true, field will be available for server side only and
+     * will be removed while encoding to send to the client
+     */
+    hidden?: boolean;
+  }
 
   export interface Options extends Partial<Metadata> {}
 
@@ -84,6 +90,7 @@ export const ApiField = function (this: ApiField | void, ...args: any[]) {
   _this.readonly = initArgs.readonly;
   _this.writeonly = initArgs.writeonly;
   _this.examples = initArgs.examples;
+  _this.hidden = initArgs.hidden;
 } as ApiFieldConstructor;
 
 /**
@@ -93,34 +100,39 @@ export const ApiField = function (this: ApiField | void, ...args: any[]) {
 class ApiFieldClass extends DocumentElement {
   declare readonly owner: ComplexType | MappedType | MixinType;
   readonly origin?: ComplexType | MappedType | MixinType;
-  readonly name: string;
-  readonly type: DataType;
-  readonly description?: string;
-  readonly isArray?: boolean; // todo this can be a separate type
-  readonly default?: any;
-  readonly fixed?: any;
-  readonly required?: boolean;
-  readonly exclusive?: boolean;
-  readonly translatable?: boolean;
-  readonly deprecated?: boolean | string;
-  readonly readonly?: boolean;
-  readonly writeonly?: boolean;
-  readonly examples?: any[] | Record<string, any>;
+  declare readonly name: string;
+  declare readonly type: DataType;
+  declare readonly description?: string;
+  declare readonly isArray?: boolean; // todo this can be a separate type
+  declare readonly default?: any;
+  declare readonly fixed?: any;
+  declare readonly required?: boolean;
+  declare readonly exclusive?: boolean;
+  declare readonly translatable?: boolean;
+  declare readonly deprecated?: boolean | string;
+  declare readonly readonly?: boolean;
+  declare readonly writeonly?: boolean;
+  declare readonly examples?: any[] | Record<string, any>;
+  /**
+   * If set true, field will be available for server side only and
+   * will be removed while encoding to send to the client
+   */
+  readonly hidden?: boolean;
 
   toJSON(): OpraSchema.Field {
     const typeName = this.type ? this.node.getDataTypeNameWithNs(this.type) : undefined;
     return omitUndefined<OpraSchema.Field>({
       type: typeName ? typeName : (this.type?.toJSON() as any),
       description: this.description,
-      isArray: this.isArray,
+      isArray: this.isArray || undefined,
       default: this.default,
       fixed: this.fixed,
-      required: this.required,
-      exclusive: this.exclusive,
-      translatable: this.translatable,
-      deprecated: this.deprecated,
-      readonly: this.readonly,
-      writeonly: this.writeonly,
+      required: this.required || undefined,
+      exclusive: this.exclusive || undefined,
+      translatable: this.translatable || undefined,
+      deprecated: this.deprecated || undefined,
+      readonly: this.readonly || undefined,
+      writeonly: this.writeonly || undefined,
       examples: this.examples,
     }) as OpraSchema.Field;
   }

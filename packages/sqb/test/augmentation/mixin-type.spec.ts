@@ -9,24 +9,24 @@ describe('MixinType augmentation', () => {
     class Type1 {
       @ApiField()
       @Column()
-      field1: number;
+      declare field1: number;
       @ApiField()
       @Column()
-      field2: any;
+      declare field2: any;
     }
 
     @ComplexType()
     class Type2 {
       @ApiField()
       @Column()
-      field3: number;
+      declare field3: number;
     }
 
     @ComplexType()
     class Type3 extends MixinType(Type1, Type2) {
       @ApiField()
       @Column()
-      field4: number;
+      declare field4: number;
     }
 
     const base = Object.getPrototypeOf(Type3);

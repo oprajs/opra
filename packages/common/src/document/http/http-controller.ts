@@ -91,17 +91,17 @@ export const HttpController = function (this: HttpController | void, ...args: an
  * @class HttpController
  */
 class HttpControllerClass extends DocumentElement {
-  protected _controllerReverseMap: WeakMap<Type, HttpController | null>;
+  protected declare _controllerReverseMap: WeakMap<Type, HttpController | null>;
   declare readonly kind: OpraSchema.HttpController.Kind;
-  readonly name: string;
-  description?: string;
-  path: string;
-  instance?: any;
-  ctor?: Type;
-  parameters: HttpParameter[];
-  operations: ResponsiveMap<HttpOperation>;
-  controllers: ResponsiveMap<HttpController>;
-  types: DataTypeMap;
+  declare readonly name: string;
+  declare description?: string;
+  declare path: string;
+  declare instance?: any;
+  declare ctor?: Type;
+  declare parameters: HttpParameter[];
+  declare operations: ResponsiveMap<HttpOperation>;
+  declare controllers: ResponsiveMap<HttpController>;
+  declare types: DataTypeMap;
 
   /**
    * @property isRoot

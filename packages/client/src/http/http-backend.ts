@@ -8,7 +8,7 @@ import type { HttpInterceptor } from './interfaces/http-interceptor.js';
  */
 export abstract class HttpBackend extends Backend implements HttpHandler {
   readonly serviceUrl: string;
-  interceptors: HttpInterceptor<any>[];
+  interceptors?: HttpInterceptor<any>[];
 
   protected constructor(serviceUrl: string, options?: HttpBackend.Options) {
     super(options);

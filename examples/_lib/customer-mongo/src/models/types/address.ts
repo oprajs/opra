@@ -6,14 +6,14 @@ import { Record } from './record.js';
 })
 export class Address extends Record {
   @ApiField()
-  city: string;
+  declare city: string;
 
   @ApiField()
-  countryCode: string;
+  declare countryCode: string;
 
   @ApiField()
-  street: string;
+  declare street: string;
 
   @ApiField()
-  zipCode: string;
+  declare zipCode: string;
 }

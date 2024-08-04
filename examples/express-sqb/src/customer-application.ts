@@ -7,10 +7,10 @@ import express from 'express';
 import { CustomerApiDocument } from './api-document.js';
 
 export class CustomerApplication {
-  adapter: ExpressAdapter;
-  document: ApiDocument;
-  express: express.Express;
-  db: SqbClient;
+  declare adapter: ExpressAdapter;
+  declare document: ApiDocument;
+  declare express: express.Express;
+  declare db: SqbClient;
 
   static async create(options?: HttpAdapter.Options): Promise<CustomerApplication> {
     const app = new CustomerApplication();

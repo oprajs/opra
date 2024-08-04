@@ -42,7 +42,7 @@ export class MongoSingletonService<T extends mongodb.Document> extends MongoEnti
    */
   constructor(dataType: Type | string, options?: MongoSingletonService.Options) {
     super(dataType, options);
-    this._id = this._id || options?._id || new ObjectId('655608925cad472b75fc6485');
+    this._id = options?._id || new ObjectId('655608925cad472b75fc6485');
   }
 
   /**

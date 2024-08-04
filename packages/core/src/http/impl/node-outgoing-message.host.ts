@@ -27,18 +27,18 @@ declare global {
  * @class NodeOutgoingMessageHost
  */
 export class NodeOutgoingMessageHost extends Duplex implements NodeOutgoingMessage {
-  protected [kOutHeaders]: Record<string, any>;
-  protected [kOutTrailers]: Record<string, any>;
+  protected [kOutHeaders]?: Record<string, any>;
+  protected [kOutTrailers]?: Record<string, any>;
   protected _headersSent: boolean = false;
   protected _httpVersionMajor?: number;
   protected _httpVersionMinor?: number;
   finished: boolean = false;
-  req: NodeIncomingMessage;
-  statusCode: number;
-  statusMessage: string;
-  chunkedEncoding: boolean;
-  sendDate: boolean;
-  strictContentLength: boolean;
+  declare req: NodeIncomingMessage;
+  declare statusCode: number;
+  declare statusMessage: string;
+  declare chunkedEncoding: boolean;
+  declare sendDate: boolean;
+  declare strictContentLength: boolean;
   body?: any;
 
   constructor(init?: NodeOutgoingMessage.Initiator) {
