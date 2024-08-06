@@ -12,11 +12,12 @@ import type { HttpOperation } from './http-operation.js';
 export class HttpApi extends ApiBase {
   // noinspection JSUnusedGlobalSymbols
   protected _controllerReverseMap: WeakMap<Type, HttpController | null> = new WeakMap();
+  declare readonly owner: ApiDocument;
   readonly protocol = 'http';
   controllers: ResponsiveMap<HttpController> = new ResponsiveMap();
   url?: string;
 
-  constructor(readonly owner: ApiDocument) {
+  constructor(owner: ApiDocument) {
     super(owner);
   }
 

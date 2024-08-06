@@ -43,14 +43,12 @@ export namespace HttpOperationResponse {
  * @class HttpOperationResponse
  */
 export class HttpOperationResponse extends HttpMediaType {
+  declare readonly owner: HttpOperation;
   statusCode: HttpStatusRange[];
   parameters: HttpParameter[];
   partial?: boolean | 'deep';
 
-  constructor(
-    readonly owner: HttpOperation,
-    init: HttpOperationResponse.InitArguments,
-  ) {
+  constructor(owner: HttpOperation, init: HttpOperationResponse.InitArguments) {
     super(owner, init);
     this.parameters = [];
     this.statusCode = (Array.isArray(init.statusCode) ? init.statusCode : [init.statusCode]).map(x =>

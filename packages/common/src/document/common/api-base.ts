@@ -11,10 +11,11 @@ export namespace ApiBase {
 
 export abstract class ApiBase extends DocumentElement {
   abstract readonly protocol: OpraSchema.Protocol;
+  declare readonly owner: ApiDocument | ApiBase;
   name: string = 'OpraApi';
   description?: string;
 
-  protected constructor(readonly owner: ApiDocument | ApiBase) {
+  protected constructor(owner: ApiDocument | ApiBase) {
     super(owner);
   }
 

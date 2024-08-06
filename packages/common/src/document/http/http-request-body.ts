@@ -23,6 +23,7 @@ export namespace HttpRequestBody {
  * @class HttpRequestBody
  */
 export class HttpRequestBody extends DocumentElement {
+  declare readonly owner: HttpOperation;
   description?: string;
   content: HttpMediaType[] = [];
   required?: boolean;
@@ -30,7 +31,7 @@ export class HttpRequestBody extends DocumentElement {
   immediateFetch?: boolean;
   partial?: boolean | 'deep';
 
-  constructor(readonly owner: HttpOperation) {
+  constructor(owner: HttpOperation) {
     super(owner);
   }
 

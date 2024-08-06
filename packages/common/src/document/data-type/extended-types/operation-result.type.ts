@@ -12,25 +12,25 @@ export class OperationResult<TPayload = any> {
   }
 
   @ApiField()
-  affected?: number;
+  declare affected?: number;
 
   @ApiField()
-  totalMatches?: number;
+  declare totalMatches?: number;
 
   @ApiField()
-  context?: string;
+  declare context?: string;
 
   @ApiField()
-  type?: string;
+  declare type?: string;
 
   @ApiField()
-  message?: string;
+  declare message?: string;
 
   @ApiField({ type: 'any' })
-  payload?: TPayload;
+  declare payload?: TPayload;
 
   @ApiField({ type: 'object' })
-  errors?: ErrorIssue[];
+  declare errors?: ErrorIssue[];
 }
 
 export namespace OperationResult {
@@ -42,7 +42,7 @@ export namespace OperationResult {
       }
 
       @ApiField({ type, required: true })
-      payload: any;
+      declare payload: any;
     }
 
     return OperationResult_;
