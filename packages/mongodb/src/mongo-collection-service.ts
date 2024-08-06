@@ -1,6 +1,6 @@
 import { ResourceNotAvailableError } from '@opra/common';
 import mongodb, { UpdateFilter } from 'mongodb';
-import { PartialDTO, PatchDTO, RequiredSome, StrictOmit, Type } from 'ts-gems';
+import { PartialDTO, PatchDTO, RequiredSome, Type } from 'ts-gems';
 import { MongoAdapter } from './mongo-adapter.js';
 import { MongoEntityService } from './mongo-entity-service.js';
 
