@@ -5,7 +5,7 @@ import { CodeBlock } from '../code-block.js';
 export class TsFile {
   readonly dirname: string;
   imports: Record<string, { items: string[]; typeImport?: boolean }> = {};
-  exportFiles: Record<string, string[]> = {};
+  exportFiles: Record<string, { filename: string; items: string[]; namespace?: string }> = {};
   exportTypes: string[] = [];
   code = new CodeBlock();
 
@@ -30,16 +30,17 @@ export class TsFile {
     });
   }
 
-  addExport(filename: string, types?: string[]) {
+  addExport(filename: string, types?: string[], namespace?: string) {
     if (isLocalFile(filename)) {
       filename = path.relative(this.dirname, path.resolve(this.dirname, filename));
       if (!filename.startsWith('.')) filename = './' + filename;
     }
     if (filename.endsWith('.d.ts')) filename = filename.substring(0, filename.length - 5);
     if (filename.endsWith('.ts') || filename.endsWith('.js')) filename = filename.substring(0, filename.length - 3);
-    this.exportFiles[filename] = this.exportFiles[filename] || [];
+    const key = (namespace ? namespace + ':' : '') + filename;
+    this.exportFiles[key] = this.exportFiles[key] || { filename, items: [], namespace };
     types?.forEach(x => {
-      if (!this.exportFiles[filename].includes(x)) this.exportFiles[filename].push(x);
+      if (!this.exportFiles[filename].items.includes(x)) this.exportFiles[filename].items.push(x);
     });
   }
 
@@ -64,12 +65,16 @@ export class TsFile {
 
     this.code.exports = Object.keys(this.exportFiles)
       .sort((a, b) => a.toLowerCase().localeCompare(b.toLowerCase()))
-      .map(filename => {
-        const types = this.exportFiles[filename];
+      .map(key => {
+        const exportFile = this.exportFiles[key];
+        const types = exportFile.items;
+        let filename = exportFile.filename;
         if (!isPackageName(filename)) {
           if (options?.importExt) filename += '.js';
         }
-        return `export ${types.length ? '{ ' + types.join(', ') + ' }' : '*'} from '${filename}';`;
+        let out = `export ${types.length ? '{ ' + types.join(', ') + ' }' : '*'}`;
+        if (exportFile.namespace) out += ` as ${exportFile.namespace}`;
+        return out + ` from '${filename}';`;
       })
       .join('\n');
     if (this.code.imports || this.code.exports) this.code.exports += '\n\n';

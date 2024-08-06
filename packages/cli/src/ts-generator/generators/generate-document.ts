@@ -1,5 +1,5 @@
 import { OpraHttpClient } from '@opra/client';
-import { ApiDocument, HttpApi } from '@opra/common';
+import { ApiDocument, BUILTIN, HttpApi } from '@opra/common';
 import chalk from 'chalk';
 import path from 'path';
 import { pascalCase } from 'putil-varhelpers';
@@ -39,13 +39,17 @@ export async function generateDocument(
   );
 
   if (document.references.size) {
+    let refIdGenerator = (options as any)?.refIdGenerator || 1;
     this.emit('log', chalk.white('[' + document.id + '] ') + chalk.cyan(`Processing references`));
     for (const ref of document.references.values()) {
       const generator = this.extend();
       generator._document = ref;
-      generator._documentRoot = '/references/' + (ref.info.title ? pascalCase(ref.info.title) : ref.id);
+      const typesNamespace =
+        ref.api?.name || (ref.info.title ? pascalCase(ref.info.title) : `Reference${refIdGenerator++}`);
+      generator._documentRoot = '/references/' + typesNamespace;
       generator._typesRoot = path.join(generator._documentRoot, 'models');
-      await generator.generateDocument(ref, { typesOnly: true });
+      generator._typesNamespace = !this.options.referenceNamespaces || ref[BUILTIN] ? '' : typesNamespace;
+      await generator.generateDocument(ref, { typesOnly: true, refIdGenerator } as any);
     }
   }
 

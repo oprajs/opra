@@ -34,6 +34,7 @@ export namespace TsGenerator {
     writer?: IFileWriter;
     fileHeader?: string;
     importExt?: boolean;
+    referenceNamespaces?: boolean;
   }
 }
 
@@ -54,6 +55,7 @@ export class TsGenerator extends EventEmitter {
   protected declare generateHttpController: typeof generateHttpController;
   protected declare _documentRoot: string;
   protected declare _typesRoot: string;
+  protected declare _typesNamespace: string;
   protected declare _apiPath: string;
   protected declare _fileHeaderDocInfo: string;
   protected _files: Record<string, TsFile> = {};
@@ -73,6 +75,7 @@ export class TsGenerator extends EventEmitter {
   readonly writer: IFileWriter;
   readonly options: {
     importExt: boolean;
+    referenceNamespaces?: boolean;
   };
   fileHeader: string;
 
@@ -87,7 +90,7 @@ export class TsGenerator extends EventEmitter {
     this.outDir = init.outDir ? path.resolve(this.cwd, init.outDir) : this.cwd;
     this.fileHeader = init.fileHeader || '';
     this.writer = init.writer || new FileWriter();
-    this.options = { importExt: !!init.importExt };
+    this.options = { importExt: !!init.importExt, referenceNamespaces: init.referenceNamespaces };
     this._documentsMap = new Map();
     this._filesMap = new WeakMap();
     this.on('log', (message: string, ...args) => init.logger?.log?.(message, ...args));

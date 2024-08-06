@@ -59,7 +59,7 @@ export async function generateDataType(
 
     const typesIndexTs = this.addFile(path.join(this._typesRoot, 'index.ts'), true);
     const indexTs = this.addFile('/index.ts', true);
-    indexTs.addExport(typesIndexTs.filename);
+    indexTs.addExport(typesIndexTs.filename, undefined, this._typesNamespace);
 
     const codeBlock = (file.code['type_' + typeName] = new CodeBlock());
     codeBlock.head = `/**\n * ${wrapJSDocString(dataType.description || '')}\n *`;
