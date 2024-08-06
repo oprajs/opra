@@ -49,10 +49,10 @@
     "cross-fetch": "^4.0.0",
     "express": "^4.19.2",
     "ng-packagr": "^18.1.0",
-    "superagent": "^9.0.2",
+    "superagent": "^10.0.0",
     "supertest": "^7.0.0",
     "ts-gems": "^3.4.0",
-    "zone.js": "^0.14.8"
+    "zone.js": "^0.14.10"
   },
   "engines": {
     "node": ">=16.0",

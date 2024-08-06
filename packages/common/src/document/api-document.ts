@@ -1,4 +1,4 @@
-import crypto from 'node:crypto';
+import { md5 } from 'super-fast-md5';
 import { Mutable, Type } from 'ts-gems';
 import { cloneObject, omitUndefined, ResponsiveMap } from '../helpers/index.js';
 import { OpraSchema } from '../schema/index.js';
@@ -91,7 +91,7 @@ export class ApiDocument extends DocumentElement {
     /** Generate id */
     const x = this.export();
     delete (x as any).id;
-    (this as Mutable<ApiDocument>).id = crypto.createHash('md5').update(JSON.stringify(x)).digest('base64url');
+    (this as Mutable<ApiDocument>).id = md5(JSON.stringify(x));
     /** Clear [kTypeNSMap] */
     this[kTypeNSMap] = new WeakMap<DataType, string>();
   }
