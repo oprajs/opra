@@ -1,6 +1,6 @@
 import { ResourceNotAvailableError } from '@opra/common';
 import mongodb, { ObjectId, UpdateFilter } from 'mongodb';
-import { PartialDTO, PatchDTO, Type } from 'ts-gems';
+import { PartialDTO, PatchDTO, RequiredSome, Type } from 'ts-gems';
 import { MongoAdapter } from './mongo-adapter.js';
 import { MongoEntityService } from './mongo-entity-service.js';
 
@@ -64,7 +64,12 @@ export class MongoSingletonService<T extends mongodb.Document> extends MongoEnti
    * @return {Promise<PartialDTO<T>>} A promise that resolves to the partial output of the created document.
    * @throws {Error} Throws an error if an unknown error occurs while creating the document.
    */
-  async create(input: PartialDTO<T>, options?: MongoEntityService.CreateOptions): Promise<PartialDTO<T>> {
+  async create(
+    input: PartialDTO<T>,
+    options: RequiredSome<MongoEntityService.CreateOptions, 'projection'>,
+  ): Promise<PartialDTO<T>>;
+  async create(input: PartialDTO<T>, options?: MongoEntityService.CreateOptions): Promise<T>;
+  async create(input: PartialDTO<T>, options?: MongoEntityService.CreateOptions): Promise<PartialDTO<T> | T> {
     const command: MongoEntityService.CreateCommand = {
       crud: 'create',
       method: 'create',
@@ -126,6 +131,10 @@ export class MongoSingletonService<T extends mongodb.Document> extends MongoEnti
    * @param {MongoEntityService.FindOneOptions<T>} [options] - The options for finding the document.
    * @returns {Promise<PartialDTO<T> | undefined>} - A promise that resolves to the found document or undefined if not found.
    */
+  async find(
+    options: RequiredSome<MongoEntityService.FindOneOptions<T>, 'projection'>,
+  ): Promise<PartialDTO<T> | undefined>;
+  async find(options?: MongoEntityService.FindOneOptions<T>): Promise<T | undefined>;
   async find(options?: MongoEntityService.FindOneOptions<T>): Promise<PartialDTO<T> | undefined> {
     const command: MongoEntityService.FindOneCommand<T> = {
       crud: 'read',
@@ -149,7 +158,9 @@ export class MongoSingletonService<T extends mongodb.Document> extends MongoEnti
    * @return {Promise<PartialDTO<T>>} - A promise that resolves to the fetched document.
    * @throws {ResourceNotAvailableError} - If the document is not found in the collection.
    */
-  async get(options?: MongoEntityService.FindOneOptions<T>): Promise<PartialDTO<T>> {
+  async get(options: RequiredSome<MongoEntityService.FindOneOptions<T>, 'projection'>): Promise<PartialDTO<T>>;
+  async get(options?: MongoEntityService.FindOneOptions<T>): Promise<T>;
+  async get(options?: MongoEntityService.FindOneOptions<T>): Promise<PartialDTO<T> | T> {
     const out = await this.find(options);
     if (!out) throw new ResourceNotAvailableError(this.getResourceName());
     return out;
@@ -165,8 +176,16 @@ export class MongoSingletonService<T extends mongodb.Document> extends MongoEnti
    */
   async update(
     input: PatchDTO<T> | UpdateFilter<T>,
+    options: RequiredSome<MongoEntityService.UpdateOneOptions<T>, 'projection'>,
+  ): Promise<PartialDTO<T> | undefined>;
+  async update(
+    input: PatchDTO<T> | UpdateFilter<T>,
     options?: MongoEntityService.UpdateOneOptions<T>,
-  ): Promise<PartialDTO<T> | undefined> {
+  ): Promise<T | undefined>;
+  async update(
+    input: PatchDTO<T> | UpdateFilter<T>,
+    options?: MongoEntityService.UpdateOneOptions<T>,
+  ): Promise<PartialDTO<T> | T | undefined> {
     const isUpdateFilter = Array.isArray(input) || !!Object.keys(input).find(x => x.startsWith('$'));
     const command: MongoEntityService.UpdateOneCommand<T> = {
       crud: 'update',

@@ -1,6 +1,6 @@
 import { ResourceNotAvailableError } from '@opra/common';
 import { EntityMetadata } from '@sqb/connect';
-import { PartialDTO, PatchDTO, Type } from 'ts-gems';
+import { PartialDTO, PatchDTO, RequiredSome, Type } from 'ts-gems';
 import { SQBAdapter } from './sqb-adapter.js';
 import { SqbEntityService } from './sqb-entity-service.js';
 
@@ -96,6 +96,11 @@ export abstract class SqbSingletonService<T extends object = object> extends Sqb
    * @returns {Promise<PartialDTO<T>>} A promise that resolves to the created resource
    * @throws {Error} if an unknown error occurs while creating the resource
    */
+  async create(
+    input: PartialDTO<T>,
+    options: RequiredSome<SqbSingletonService.CreateOptions, 'projection'>,
+  ): Promise<PartialDTO<T>>;
+  async create(input: PartialDTO<T>, options?: SqbSingletonService.CreateOptions): Promise<T>;
   async create(input: PartialDTO<T>, options?: SqbSingletonService.CreateOptions): Promise<PartialDTO<T>> {
     const command: SqbEntityService.CreateCommand = {
       crud: 'create',
@@ -170,7 +175,9 @@ export abstract class SqbSingletonService<T extends object = object> extends Sqb
    * @param {SqbSingletonService.FindOneOptions} options - The options for the query.
    * @return {Promise<PartialDTO<T> | undefined>} A promise that resolves with the found document or undefined if no document is found.
    */
-  async find(options?: SqbSingletonService.FindOptions): Promise<PartialDTO<T> | undefined> {
+  async find(options: RequiredSome<SqbSingletonService.FindOptions, 'projection'>): Promise<PartialDTO<T> | undefined>;
+  async find(options?: SqbSingletonService.FindOptions): Promise<T | undefined>;
+  async find(options?: SqbSingletonService.FindOptions): Promise<PartialDTO<T> | T | undefined> {
     const command: SqbEntityService.FindOneCommand = {
       crud: 'read',
       method: 'findById',
@@ -193,7 +200,9 @@ export abstract class SqbSingletonService<T extends object = object> extends Sqb
    *    or rejects with a ResourceNotFoundError if the document does not exist.
    * @throws {ResourceNotAvailableError} - If the document does not exist.
    */
-  async get(options?: SqbSingletonService.FindOptions): Promise<PartialDTO<T>> {
+  async get(options: RequiredSome<SqbSingletonService.FindOptions, 'projection'>): Promise<PartialDTO<T>>;
+  async get(options?: SqbSingletonService.FindOptions): Promise<T>;
+  async get(options?: SqbSingletonService.FindOptions): Promise<PartialDTO<T> | T> {
     const out = await this.find(options);
     if (!out) throw new ResourceNotAvailableError(this.getResourceName());
     return out;
@@ -207,7 +216,15 @@ export abstract class SqbSingletonService<T extends object = object> extends Sqb
    * @returns {Promise<PartialDTO<T> | undefined>} A promise that resolves to the updated document or
    * undefined if the document was not found.
    */
-  async update(input: PatchDTO<T>, options?: SqbSingletonService.UpdateOptions): Promise<PartialDTO<T> | undefined> {
+  async update(
+    input: PatchDTO<T>,
+    options: RequiredSome<SqbSingletonService.UpdateOptions, 'projection'>,
+  ): Promise<PartialDTO<T> | undefined>;
+  async update(input: PatchDTO<T>, options?: SqbSingletonService.UpdateOptions): Promise<T | undefined>;
+  async update(
+    input: PatchDTO<T>,
+    options?: SqbSingletonService.UpdateOptions,
+  ): Promise<PartialDTO<T> | T | undefined> {
     const command: SqbEntityService.UpdateOneCommand<T> = {
       crud: 'update',
       method: 'update',

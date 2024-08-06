@@ -201,6 +201,16 @@ export class MongoNestedService<T extends mongodb.Document> extends MongoService
   async create(
     documentId: MongoAdapter.AnyId,
     input: PartialDTO<T>,
+    options: RequiredSome<MongoNestedService.CreateOptions, 'projection'>,
+  ): Promise<PartialDTO<T>>;
+  async create(
+    documentId: MongoAdapter.AnyId,
+    input: PartialDTO<T>,
+    options?: MongoNestedService.CreateOptions,
+  ): Promise<T>;
+  async create(
+    documentId: MongoAdapter.AnyId,
+    input: PartialDTO<T>,
     options?: MongoNestedService.CreateOptions,
   ): Promise<PartialDTO<T>> {
     const command: MongoNestedService.CreateCommand = {
@@ -458,6 +468,16 @@ export class MongoNestedService<T extends mongodb.Document> extends MongoService
   async findById(
     documentId: MongoAdapter.AnyId,
     nestedId: MongoAdapter.AnyId,
+    options: RequiredSome<MongoNestedService.FindOneOptions<T>, 'projection'>,
+  ): Promise<PartialDTO<T> | undefined>;
+  async findById(
+    documentId: MongoAdapter.AnyId,
+    nestedId: MongoAdapter.AnyId,
+    options?: MongoNestedService.FindOneOptions<T>,
+  ): Promise<T | undefined>;
+  async findById(
+    documentId: MongoAdapter.AnyId,
+    nestedId: MongoAdapter.AnyId,
     options?: MongoNestedService.FindOneOptions<T>,
   ): Promise<PartialDTO<T> | undefined> {
     const command: MongoNestedService.FindOneCommand<T> = {
@@ -507,8 +527,13 @@ export class MongoNestedService<T extends mongodb.Document> extends MongoService
    */
   async findOne(
     documentId: MongoAdapter.AnyId,
+    options: RequiredSome<MongoNestedService.FindOneOptions<T>, 'projection'>,
+  ): Promise<PartialDTO<T> | undefined>;
+  async findOne(documentId: MongoAdapter.AnyId, options?: MongoNestedService.FindOneOptions<T>): Promise<T | undefined>;
+  async findOne(
+    documentId: MongoAdapter.AnyId,
     options?: MongoNestedService.FindOneOptions<T>,
-  ): Promise<PartialDTO<T> | undefined> {
+  ): Promise<PartialDTO<T> | T | undefined> {
     const command: MongoNestedService.FindOneCommand<T> = {
       crud: 'read',
       method: 'findOne',
@@ -547,8 +572,13 @@ export class MongoNestedService<T extends mongodb.Document> extends MongoService
    */
   async findMany(
     documentId: MongoAdapter.AnyId,
+    options: RequiredSome<MongoNestedService.FindManyOptions<T>, 'projection'>,
+  ): Promise<PartialDTO<T>[]>;
+  async findMany(documentId: MongoAdapter.AnyId, options?: MongoNestedService.FindManyOptions<T>): Promise<T[]>;
+  async findMany(
+    documentId: MongoAdapter.AnyId,
     options?: MongoNestedService.FindManyOptions<T>,
-  ): Promise<PartialDTO<T>[]> {
+  ): Promise<(PartialDTO<T> | T)[]> {
     const command: MongoNestedService.FindManyCommand<T> = {
       crud: 'read',
       method: 'findMany',
@@ -619,10 +649,24 @@ export class MongoNestedService<T extends mongodb.Document> extends MongoService
    */
   async findManyWithCount(
     documentId: MongoAdapter.AnyId,
-    options?: MongoNestedService.FindManyOptions<T>,
+    options: RequiredSome<MongoNestedService.FindManyOptions<T>, 'projection'>,
   ): Promise<{
     count: number;
     items: PartialDTO<T>[];
+  }>;
+  async findManyWithCount(
+    documentId: MongoAdapter.AnyId,
+    options?: MongoNestedService.FindManyOptions<T>,
+  ): Promise<{
+    count: number;
+    items: T[];
+  }>;
+  async findManyWithCount(
+    documentId: MongoAdapter.AnyId,
+    options?: MongoNestedService.FindManyOptions<T>,
+  ): Promise<{
+    count: number;
+    items: (PartialDTO<T> | T)[];
   }> {
     const command: MongoNestedService.FindManyCommand<T> = {
       crud: 'read',
@@ -713,8 +757,18 @@ export class MongoNestedService<T extends mongodb.Document> extends MongoService
   async get(
     documentId: MongoAdapter.AnyId,
     nestedId: MongoAdapter.AnyId,
+    options: RequiredSome<MongoNestedService.FindOneOptions<T>, 'projection'>,
+  ): Promise<PartialDTO<T>>;
+  async get(
+    documentId: MongoAdapter.AnyId,
+    nestedId: MongoAdapter.AnyId,
     options?: MongoNestedService.FindOneOptions<T>,
-  ): Promise<PartialDTO<T>> {
+  ): Promise<T>;
+  async get(
+    documentId: MongoAdapter.AnyId,
+    nestedId: MongoAdapter.AnyId,
+    options?: MongoNestedService.FindOneOptions<T>,
+  ): Promise<PartialDTO<T> | T> {
     const out = await this.findById(documentId, nestedId, options);
     if (!out) {
       throw new ResourceNotAvailableError(this.getResourceName() + '.' + this.nestedKey, documentId + '/' + nestedId);
@@ -736,8 +790,20 @@ export class MongoNestedService<T extends mongodb.Document> extends MongoService
     documentId: MongoAdapter.AnyId,
     nestedId: MongoAdapter.AnyId,
     input: PatchDTO<T>,
+    options: RequiredSome<MongoNestedService.UpdateOneOptions<T>, 'projection'>,
+  ): Promise<PartialDTO<T> | undefined>;
+  async update(
+    documentId: MongoAdapter.AnyId,
+    nestedId: MongoAdapter.AnyId,
+    input: PatchDTO<T>,
     options?: MongoNestedService.UpdateOneOptions<T>,
-  ): Promise<PartialDTO<T> | undefined> {
+  ): Promise<T | undefined>;
+  async update(
+    documentId: MongoAdapter.AnyId,
+    nestedId: MongoAdapter.AnyId,
+    input: PatchDTO<T>,
+    options?: MongoNestedService.UpdateOneOptions<T>,
+  ): Promise<PartialDTO<T> | T | undefined> {
     const command: MongoNestedService.UpdateOneCommand<T> = {
       crud: 'update',
       method: 'update',

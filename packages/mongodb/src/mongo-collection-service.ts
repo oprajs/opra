@@ -1,6 +1,6 @@
 import { ResourceNotAvailableError } from '@opra/common';
 import mongodb, { UpdateFilter } from 'mongodb';
-import { PartialDTO, PatchDTO, Type } from 'ts-gems';
+import { PartialDTO, PatchDTO, RequiredSome, StrictOmit, Type } from 'ts-gems';
 import { MongoAdapter } from './mongo-adapter.js';
 import { MongoEntityService } from './mongo-entity-service.js';
 
@@ -66,7 +66,12 @@ export class MongoCollectionService<T extends mongodb.Document> extends MongoEnt
    * @returns {Promise<PartialDTO<T>>} A promise that resolves to the created document.
    * @throws {Error} if an unknown error occurs while creating the document.
    */
-  async create(input: PartialDTO<T>, options?: MongoEntityService.CreateOptions): Promise<PartialDTO<T>> {
+  async create(
+    input: PartialDTO<T>,
+    options: RequiredSome<MongoEntityService.CreateOptions, 'projection'>,
+  ): Promise<PartialDTO<T>>;
+  async create(input: PartialDTO<T>, options?: MongoEntityService.CreateOptions): Promise<T>;
+  async create(input: PartialDTO<T>, options?: MongoEntityService.CreateOptions): Promise<PartialDTO<T> | T> {
     const command: MongoEntityService.CreateCommand = {
       crud: 'create',
       method: 'create',
@@ -203,8 +208,13 @@ export class MongoCollectionService<T extends mongodb.Document> extends MongoEnt
    */
   async findById(
     id: MongoAdapter.AnyId,
+    options: RequiredSome<MongoEntityService.FindOneOptions<T>, 'projection'>,
+  ): Promise<PartialDTO<T> | undefined>;
+  async findById(id: MongoAdapter.AnyId, options?: MongoEntityService.FindOneOptions<T>): Promise<T | undefined>;
+  async findById(
+    id: MongoAdapter.AnyId,
     options?: MongoEntityService.FindOneOptions<T>,
-  ): Promise<PartialDTO<T> | undefined> {
+  ): Promise<PartialDTO<T> | T | undefined> {
     const command: MongoEntityService.FindOneCommand<T> = {
       crud: 'read',
       method: 'findById',
@@ -226,7 +236,11 @@ export class MongoCollectionService<T extends mongodb.Document> extends MongoEnt
    * @param {MongoEntityService.FindOneOptions<T>} [options] - The options for the query.
    * @return {Promise<PartialDTO<T> | undefined>} A promise that resolves with the found document or undefined if no document is found.
    */
-  async findOne(options?: MongoEntityService.FindOneOptions<T>): Promise<PartialDTO<T> | undefined> {
+  async findOne(
+    options: RequiredSome<MongoEntityService.FindOneOptions<T>, 'projection'>,
+  ): Promise<PartialDTO<T> | undefined>;
+  async findOne(options?: MongoEntityService.FindOneOptions<T>): Promise<T | undefined>;
+  async findOne(options?: MongoEntityService.FindOneOptions<T>): Promise<PartialDTO<T> | T | undefined> {
     const command: MongoEntityService.FindOneCommand<T> = {
       crud: 'read',
       method: 'findOne',
@@ -246,7 +260,9 @@ export class MongoCollectionService<T extends mongodb.Document> extends MongoEnt
    * @param {MongoEntityService.FindManyOptions<T>} options - The options for the find operation.
    * @return A Promise that resolves to an array of partial outputs of type T.
    */
-  async findMany(options?: MongoEntityService.FindManyOptions<T>): Promise<PartialDTO<T>[]> {
+  async findMany(options: RequiredSome<MongoEntityService.FindManyOptions<T>, 'projection'>): Promise<PartialDTO<T>[]>;
+  async findMany(options?: MongoEntityService.FindManyOptions<T>): Promise<T[]>;
+  async findMany(options?: MongoEntityService.FindManyOptions<T>): Promise<(PartialDTO<T> | T)[]> {
     const command: MongoEntityService.FindManyCommand<T> = {
       crud: 'read',
       method: 'findMany',
@@ -268,9 +284,17 @@ export class MongoCollectionService<T extends mongodb.Document> extends MongoEnt
    * @param {MongoEntityService.FindManyOptions<T>} [options] - The options for the find operation.
    * @return A Promise that resolves to an array of partial outputs of type T.
    */
-  async findManyWithCount(options?: MongoEntityService.FindManyOptions<T>): Promise<{
+  async findManyWithCount(options: RequiredSome<MongoEntityService.FindManyOptions<T>, 'projection'>): Promise<{
     count: number;
     items: PartialDTO<T>[];
+  }>;
+  async findManyWithCount(options?: MongoEntityService.FindManyOptions<T>): Promise<{
+    count: number;
+    items: T[];
+  }>;
+  async findManyWithCount(options?: MongoEntityService.FindManyOptions<T>): Promise<{
+    count: number;
+    items: (PartialDTO<T> | T)[];
   }> {
     const command: MongoEntityService.FindManyCommand<T> = {
       crud: 'read',
@@ -294,7 +318,12 @@ export class MongoCollectionService<T extends mongodb.Document> extends MongoEnt
    *    or rejects with a ResourceNotFoundError if the document does not exist.
    * @throws {ResourceNotAvailableError} - If the document with the specified ID does not exist.
    */
-  async get(id: MongoAdapter.AnyId, options?: MongoEntityService.FindOneOptions<T>): Promise<PartialDTO<T>> {
+  async get(
+    id: MongoAdapter.AnyId,
+    options: RequiredSome<MongoEntityService.FindOneOptions<T>, 'projection'>,
+  ): Promise<PartialDTO<T>>;
+  async get(id: MongoAdapter.AnyId, options?: MongoEntityService.FindOneOptions<T>): Promise<T>;
+  async get(id: MongoAdapter.AnyId, options?: MongoEntityService.FindOneOptions<T>): Promise<PartialDTO<T> | T> {
     const out = await this.findById(id, options);
     if (!out) throw new ResourceNotAvailableError(this.getResourceName(), id);
     return out;
@@ -312,8 +341,18 @@ export class MongoCollectionService<T extends mongodb.Document> extends MongoEnt
   async update(
     id: MongoAdapter.AnyId,
     input: PatchDTO<T> | UpdateFilter<T>,
+    options: RequiredSome<MongoEntityService.UpdateOneOptions<T>, 'projection'>,
+  ): Promise<PartialDTO<T> | undefined>;
+  async update(
+    id: MongoAdapter.AnyId,
+    input: PatchDTO<T> | UpdateFilter<T>,
     options?: MongoEntityService.UpdateOneOptions<T>,
-  ): Promise<PartialDTO<T> | undefined> {
+  ): Promise<T | undefined>;
+  async update(
+    id: MongoAdapter.AnyId,
+    input: PatchDTO<T> | UpdateFilter<T>,
+    options?: MongoEntityService.UpdateOneOptions<T>,
+  ): Promise<PartialDTO<T> | T | undefined> {
     const isUpdateFilter = Array.isArray(input) || !!Object.keys(input).find(x => x.startsWith('$'));
     const command: MongoEntityService.UpdateOneCommand<T> = {
       crud: 'update',
