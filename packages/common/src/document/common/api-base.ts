@@ -1,6 +1,6 @@
 import { omitUndefined } from '../../helpers/index.js';
 import { OpraSchema } from '../../schema/index.js';
-import type { ApiDocument } from '../api-document';
+import type { ApiDocument } from '../api-document.js';
 import { CLASS_NAME_PATTERN } from '../constants.js';
 import { DocumentElement } from './document-element.js';
 import type { DocumentInitContext } from './document-init-context';

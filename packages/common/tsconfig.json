@@ -2,10 +2,6 @@
   "extends": "../../tsconfig-base.json",
   "include": ["src"],
   "compilerOptions": {
-    "baseUrl": "./",
-    "paths": {
-      "@opra/common": ["./packages/common/src"],
-      "@opra/client": ["./packages/client/src"]
-    }
+    "baseUrl": "./"
   }
 }

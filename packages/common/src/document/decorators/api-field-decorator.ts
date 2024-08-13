@@ -1,7 +1,7 @@
 import { OpraSchema } from '../../schema/index.js';
 import { DATATYPE_METADATA } from '../constants.js';
-import type { ApiField } from '../data-type/api-field';
-import type { ComplexType } from '../data-type/complex-type';
+import type { ApiField } from '../data-type/api-field.js';
+import type { ComplexType } from '../data-type/complex-type.js';
 
 export interface ApiFieldDecorator {
   (options?: ApiField.Options): PropertyDecorator;

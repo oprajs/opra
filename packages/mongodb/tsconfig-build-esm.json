@@ -1,6 +1,8 @@
 {
   "extends": ["./tsconfig.json", "../../tsconfig-build.json"],
   "compilerOptions": {
+    "module": "ES2020",
+    "moduleResolution": "Node",
     "rootDir": "src",
     "outDir": "../../build/mongodb/esm",
     "declarationDir": "../../build/mongodb/types"

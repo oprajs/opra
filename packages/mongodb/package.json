@@ -1,21 +1,16 @@
 {
   "name": "@opra/mongodb",
-  "version": "1.0.0-alpha.32",
+  "version": "1.0.0-alpha.33",
   "description": "Opra MongoDB adapter package",
   "author": "Panates",
   "license": "MIT",
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/panates/opra.git",
-    "directory": "packages/mongodb"
-  },
   "scripts": {
     "compile": "tsc",
     "prebuild": "npm run lint && npm run clean",
     "build": "npm run build:cjs && npm run build:esm",
-    "build:cjs": "tsc -b tsconfig-build-cjs.json",
-    "build:esm": "tsc -b tsconfig-build-esm.json",
-    "postbuild": "cp README.md package.json ../../LICENSE ../../build/mongodb && cp ../../package.cjs.json ../../build/mongodb/cjs/package.json",
+    "build:cjs": "tsc -b tsconfig-build-cjs.json && cp ../../support/package.cjs.json ../../build/mongodb/cjs/package.json",
+    "build:esm": "tsc -b tsconfig-build-esm.json && cp ../../support/package.esm.json ../../build/mongodb/esm/package.json",
+    "postbuild": "cp README.md package.json ../../LICENSE ../../build/mongodb && node ../../support/postbuild.cjs",
     "lint": "eslint . --max-warnings=0",
     "lint:fix": "eslint . --max-warnings=0 --fix",
     "format": "prettier . --write --log-level=warn",
@@ -30,22 +25,41 @@
     "lodash.omit": "^4.5.0",
     "putil-isplainobject": "^1.1.5",
     "tslib": "^2.6.3",
-    "valgen": "^5.6.0"
+    "valgen": "^5.8.2"
   },
   "devDependencies": {
     "@faker-js/faker": "^8.4.1",
     "mongodb": "^6.8.0",
-    "ts-gems": "^3.4.0"
+    "ts-gems": "^3.5.0"
   },
   "peerDependencies": {
-    "@opra/common": "^1.0.0-alpha.32",
-    "@opra/core": "^1.0.0-alpha.32",
+    "@opra/common": "^1.0.0-alpha.33",
+    "@opra/core": "^1.0.0-alpha.33",
     "mongodb": ">= 6.0.0"
   },
   "type": "module",
-  "module": "./esm/index.js",
+  "exports": {
+    ".": {
+      "import": {
+        "types": "./types/index.d.ts",
+        "default": "./esm/index.js"
+      },
+      "require": {
+        "types": "./types/index.d.ts",
+        "default": "./cjs/index.js"
+      },
+      "default": "./esm/index.js"
+    },
+    "./package.json": "./package.json"
+  },
   "main": "./cjs/index.js",
+  "module": "./esm/index.js",
   "types": "./types/index.d.ts",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/panates/opra.git",
+    "directory": "packages/mongodb"
+  },
   "engines": {
     "node": ">=16.0",
     "npm": ">=7.0.0"

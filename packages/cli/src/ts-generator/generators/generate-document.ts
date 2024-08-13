@@ -1,6 +1,6 @@
 import { OpraHttpClient } from '@opra/client';
 import { ApiDocument, BUILTIN, HttpApi } from '@opra/common';
-import chalk from 'chalk';
+import colors from 'ansi-colors';
 import path from 'path';
 import { pascalCase } from 'putil-varhelpers';
 import type { TsGenerator } from '../ts-generator';
@@ -20,7 +20,7 @@ export async function generateDocument(
       const out = this._documentsMap.get(document);
       if (out) return out;
     }
-    this.emit('log', chalk.cyan('Fetching document schema from ') + chalk.blueBright(this.serviceUrl));
+    this.emit('log', colors.cyan('Fetching document schema from ') + colors.blueBright(this.serviceUrl));
     const client = new OpraHttpClient(this.serviceUrl);
     document = await client.fetchDocument({ documentId: document });
   }
@@ -35,12 +35,14 @@ export async function generateDocument(
 
   this.emit(
     'log',
-    chalk.white('[' + document.id + '] ') + chalk.cyan('Processing document ') + chalk.magenta(document.info.title),
+    colors.white('[' + document.id + '] ') +
+      colors.cyan('Processing document ') +
+      colors.magenta(document.info.title || ''),
   );
 
   if (document.references.size) {
     let refIdGenerator = (options as any)?.refIdGenerator || 1;
-    this.emit('log', chalk.white('[' + document.id + '] ') + chalk.cyan(`Processing references`));
+    this.emit('log', colors.white('[' + document.id + '] ') + colors.cyan(`Processing references`));
     for (const ref of document.references.values()) {
       const generator = this.extend();
       generator._document = ref;
@@ -61,7 +63,7 @@ export async function generateDocument(
  */`;
 
   if (document.types.size) {
-    this.emit('log', chalk.white('[' + document.id + ']'), chalk.cyan(`Processing data types`));
+    this.emit('log', colors.white('[' + document.id + ']'), colors.cyan(`Processing data types`));
     for (const t of document.types.values()) {
       await this.generateDataType(t, 'root');
     }

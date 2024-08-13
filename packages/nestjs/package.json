@@ -1,21 +1,16 @@
 {
   "name": "@opra/nestjs",
-  "version": "1.0.0-alpha.32",
+  "version": "1.0.0-alpha.33",
   "description": "Opra NestJS module",
   "author": "Panates",
   "license": "MIT",
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/panates/opra.git",
-    "directory": "packages/nestjs"
-  },
   "scripts": {
     "compile": "tsc",
     "prebuild": "npm run lint && npm run clean",
     "build": "npm run build:cjs && npm run build:esm",
-    "build:cjs": "tsc -b tsconfig-build-cjs.json",
-    "build:esm": "tsc -b tsconfig-build-esm.json",
-    "postbuild": "cp README.md package.json ../../LICENSE ../../build/nestjs && cp ../../package.cjs.json ../../build/nestjs/cjs/package.json",
+    "build:cjs": "tsc -b tsconfig-build-cjs.json && cp ../../support/package.cjs.json ../../build/nestjs/cjs/package.json",
+    "build:esm": "tsc -b tsconfig-build-esm.json && cp ../../support/package.esm.json ../../build/nestjs/esm/package.json",
+    "postbuild": "cp README.md package.json ../../LICENSE ../../build/nestjs && node ../../support/postbuild.cjs",
     "lint": "eslint . --max-warnings=0",
     "format": "prettier . --write --log-level=warn",
     "test": "jest --passWithNoTests",
@@ -23,36 +18,55 @@
     "clean": "npm run clean:src && npm run clean:test && npm run clean:dist && npm run clean:cover",
     "clean:src": "ts-cleanup -s src --all",
     "clean:test": "ts-cleanup -s test --all",
-    "clean:dist": "rimraf ../../build/client",
-    "clean:cover": "rimraf ../../coverage/client"
+    "clean:dist": "rimraf ../../build/nestjs",
+    "clean:cover": "rimraf ../../coverage/nestjs"
   },
   "dependencies": {
-    "@opra/common": "^1.0.0-alpha.32",
-    "@opra/core": "^1.0.0-alpha.32",
-    "fast-tokenizer": "^1.3.0",
+    "@opra/common": "^1.0.0-alpha.33",
+    "@opra/core": "^1.0.0-alpha.33",
+    "fast-tokenizer": "^1.6.1",
     "lodash.head": "^4.0.1",
     "putil-promisify": "^1.10.1",
     "reflect-metadata": "^0.2.2",
     "tslib": "^2.6.3"
   },
   "peerDependencies": {
-    "@nestjs/common": "^10.3.10",
-    "@nestjs/core": "^10.3.10"
+    "@nestjs/common": "^10.4.1",
+    "@nestjs/core": "^10.4.1"
   },
   "devDependencies": {
-    "@nestjs/platform-express": "^10.3.10",
-    "@nestjs/testing": "^10.3.10",
+    "@nestjs/platform-express": "^10.4.1",
+    "@nestjs/testing": "^10.4.1",
     "@types/lodash.head": "^4.0.9",
     "express": "^4.19.2",
     "filedirname": "^3.4.0",
     "rxjs": "^7.8.1",
     "supertest": "^7.0.0",
-    "ts-gems": "^3.4.0"
+    "ts-gems": "^3.5.0"
   },
   "type": "module",
-  "module": "./esm/index.js",
+  "exports": {
+    ".": {
+      "import": {
+        "types": "./types/index.d.ts",
+        "default": "./esm/index.js"
+      },
+      "require": {
+        "types": "./types/index.d.ts",
+        "default": "./cjs/index.js"
+      },
+      "default": "./esm/index.js"
+    },
+    "./package.json": "./package.json"
+  },
   "main": "./cjs/index.js",
+  "module": "./esm/index.js",
   "types": "./types/index.d.ts",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/panates/opra.git",
+    "directory": "packages/nestjs"
+  },
   "engines": {
     "node": ">=16.0",
     "npm": ">=7.0.0"

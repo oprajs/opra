@@ -21,13 +21,12 @@ import {
 import { parse as parseContentType } from 'content-type';
 import { splitString } from 'fast-tokenizer';
 import { asMutable } from 'ts-gems';
-import { toArray, ValidationError, Validator, vg } from 'valgen';
-import type { ErrorIssue } from 'valgen/typings/core/types';
-import { kAssetCache } from '../constants';
-import type { HttpAdapter } from './http-adapter';
-import { HttpContext } from './http-context';
-import { AssetCache } from './impl/asset-cache';
-import { wrapException } from './utils/wrap-exception';
+import { ErrorIssue, toArray, ValidationError, Validator, vg } from 'valgen';
+import { kAssetCache } from '../constants.js';
+import type { HttpAdapter } from './http-adapter.js';
+import { HttpContext } from './http-context.js';
+import { AssetCache } from './impl/asset-cache.js';
+import { wrapException } from './utils/wrap-exception.js';
 
 /**
  * @namespace

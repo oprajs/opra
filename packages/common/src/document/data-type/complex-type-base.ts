@@ -5,8 +5,8 @@ import { translate } from '../../i18n/index.js';
 import { OpraSchema } from '../../schema/index.js';
 import type { DocumentElement } from '../common/document-element.js';
 import { DocumentInitContext } from '../common/document-init-context.js';
-import type { ApiField } from './api-field';
-import type { ComplexType } from './complex-type';
+import type { ApiField } from './api-field.js';
+import type { ComplexType } from './complex-type.js';
 import { DataType } from './data-type.js';
 import Field = OpraSchema.Field;
 

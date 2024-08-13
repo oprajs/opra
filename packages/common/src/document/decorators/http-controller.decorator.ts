@@ -3,8 +3,8 @@ import merge from 'putil-merge';
 import { StrictOmit, Type, TypeThunkAsync } from 'ts-gems';
 import { OpraSchema } from '../../schema/index.js';
 import { HTTP_CONTROLLER_METADATA } from '../constants.js';
-import type { HttpController } from '../http/http-controller';
-import type { HttpParameter } from '../http/http-parameter';
+import type { HttpController } from '../http/http-controller.js';
+import type { HttpParameter } from '../http/http-parameter.js';
 
 const CLASS_NAME_PATTERN = /^(.*)(Collection|Singleton|Resource|Controller)$/;
 

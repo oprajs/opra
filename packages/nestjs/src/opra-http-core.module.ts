@@ -11,10 +11,10 @@ import { APP_FILTER, ModuleRef } from '@nestjs/core';
 import { ApiDocumentFactory, isConstructor } from '@opra/common';
 import { ExecutionContext, HttpAdapter } from '@opra/core';
 import { asMutable } from 'ts-gems';
-import { OPRA_HTTP_MODULE_OPTIONS } from './constants';
+import { OPRA_HTTP_MODULE_OPTIONS } from './constants.js';
 import type { OpraHttpModule } from './opra-http.module.js';
 import { OpraNestAdapter } from './opra-nestjs-adapter.js';
-import { OpraExceptionFilter } from './services/opra-exception-filter';
+import { OpraExceptionFilter } from './services/opra-exception-filter.js';
 import { OpraMiddleware } from './services/opra-middleware.js';
 
 @Module({})

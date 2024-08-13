@@ -1,5 +1,5 @@
 import { Controller, Delete, Get, Head, Next, Options, Patch, Post, Put, Req, Res, Search, Type } from '@nestjs/common';
-import { EXCEPTION_FILTERS_METADATA, GUARDS_METADATA, INTERCEPTORS_METADATA } from '@nestjs/common/constants';
+import { EXCEPTION_FILTERS_METADATA, GUARDS_METADATA, INTERCEPTORS_METADATA } from '@nestjs/common/constants.js';
 import {
   ApiDocument,
   HTTP_CONTROLLER_METADATA,

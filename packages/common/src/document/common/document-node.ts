@@ -2,14 +2,14 @@ import { Type } from 'ts-gems';
 import { OpraSchema } from '../../schema/index.js';
 import type { ApiDocument } from '../api-document.js';
 import { DATATYPE_METADATA, kDataTypeMap, kTypeNSMap } from '../constants.js';
-import type { ComplexType } from '../data-type/complex-type';
-import type { DataType } from '../data-type/data-type';
-import type { EnumType } from '../data-type/enum-type';
-import type { MappedType } from '../data-type/mapped-type';
-import type { MixinType } from '../data-type/mixin-type';
-import type { SimpleType } from '../data-type/simple-type';
+import type { ComplexType } from '../data-type/complex-type.js';
+import type { DataType } from '../data-type/data-type.js';
+import type { EnumType } from '../data-type/enum-type.js';
+import type { MappedType } from '../data-type/mapped-type.js';
+import type { MixinType } from '../data-type/mixin-type.js';
+import type { SimpleType } from '../data-type/simple-type.js';
 import type { DataTypeMap } from './data-type-map.js';
-import type { DocumentElement } from './document-element';
+import type { DocumentElement } from './document-element.js';
 
 /**
  * @class DocumentNode

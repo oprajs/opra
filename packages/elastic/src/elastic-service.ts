@@ -1,5 +1,5 @@
 import { Client } from '@elastic/elasticsearch';
-import { QueryDslQueryContainer } from '@elastic/elasticsearch/lib/api/types';
+import { QueryDslQueryContainer } from '@elastic/elasticsearch/lib/api/types.js';
 import { ComplexType, DataType } from '@opra/common';
 import { ServiceBase } from '@opra/core';
 import { Type } from 'ts-gems';

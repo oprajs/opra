@@ -1,7 +1,7 @@
 import { Inject, Injectable, NestMiddleware } from '@nestjs/common';
 import { HttpContext, HttpIncoming, HttpOutgoing } from '@opra/core';
 import type { NextFunction, Request, Response } from 'express';
-import { OPRA_HTTP_MODULE_OPTIONS } from '../constants';
+import { OPRA_HTTP_MODULE_OPTIONS } from '../constants.js';
 import type { OpraHttpModule } from '../opra-http.module.js';
 import { OpraNestAdapter } from '../opra-nestjs-adapter.js';
 

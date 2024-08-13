@@ -3,7 +3,7 @@ import { asMutable, Class, Combine, Type } from 'ts-gems';
 import { inheritPropertyInitializers, mergePrototype, omitUndefined } from '../../helpers/index.js';
 import { OpraSchema } from '../../schema/index.js';
 import type { DocumentElement } from '../common/document-element.js';
-import type { DocumentInitContext } from '../common/document-init-context';
+import type { DocumentInitContext } from '../common/document-init-context.js';
 import { DATATYPE_METADATA, DECORATOR } from '../constants.js';
 import { ApiField } from './api-field.js';
 import type { ComplexType } from './complex-type.js';

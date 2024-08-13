@@ -4,9 +4,7 @@
   "compilerOptions": {
     "baseUrl": "./",
     "paths": {
-      "@opra/common": ["../common/src"],
-      "@opra/client": ["../../client/src"],
-      "@opra/testing": ["../../testing/src"]
+      "@opra/common": ["../common/src/index.ts"]
     }
   }
 }

@@ -3,7 +3,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import process from 'node:process';
 import { ApiDocument } from '@opra/common';
-import chalk from 'chalk';
+import colors from 'ansi-colors';
 import { FileWriter } from '../file-writer.js';
 import { IFileWriter } from '../interfaces/file-writer.interface.js';
 import { ILogger } from '../interfaces/logger.interface.js';
@@ -105,7 +105,7 @@ export class TsGenerator extends EventEmitter {
     this.emit('start');
     try {
       this._started = true;
-      this.emit('log', chalk.cyan('Removing old files..'));
+      this.emit('log', colors.cyan('Removing old files..'));
       this.cleanDirectory(this.outDir);
       this._apiPath = '/api';
       await this.generateDocument();

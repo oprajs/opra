@@ -12,7 +12,7 @@ import { HttpRequestBody } from '../http/http-request-body.js';
 import { HttpOperationDecorator, HttpOperationDecoratorFactory } from './http-operation.decorator.js';
 
 /** Augmentation **/
-declare module '../http/http-operation' {
+declare module '../http/http-operation.js' {
   /**
    * HttpOperationConstructor
    */

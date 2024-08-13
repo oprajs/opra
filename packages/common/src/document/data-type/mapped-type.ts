@@ -4,12 +4,12 @@ import { omitUndefined } from '../../helpers/index.js';
 import type { Field } from '../../schema/data-type/field.interface.js';
 import { OpraSchema } from '../../schema/index.js';
 import { DocumentElement } from '../common/document-element.js';
-import type { DocumentInitContext } from '../common/document-init-context';
+import type { DocumentInitContext } from '../common/document-init-context.js';
 import { ApiField } from './api-field.js';
 import type { ComplexType } from './complex-type.js';
 import { ComplexTypeBase } from './complex-type-base.js';
 import { DataType } from './data-type.js';
-import type { MixinType } from './mixin-type';
+import type { MixinType } from './mixin-type.js';
 import { getIsInheritedPredicateFn } from './utils/get-is-inherited-predicate-fn.js';
 
 /**

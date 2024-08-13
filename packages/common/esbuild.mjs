@@ -3,6 +3,7 @@ import { createRequire } from 'node:module';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import * as esbuild from 'esbuild';
+import esbuildPluginTsc from 'eslint-tsc';
 
 const require = createRequire(import.meta.url);
 
@@ -19,16 +20,13 @@ const external = [
   'mime-db',
 ].filter(x => !noExternal.includes(x));
 
-await esbuild.build({
-  entryPoints: [path.resolve(targetPath, 'esm/index.js')],
+const defaultCofig = {
+  entryPoints: [path.resolve(dirname, 'src/index.ts')],
   bundle: true,
-  platform: 'node',
-  target: ['node18'],
-  outfile: path.join(targetPath, './browser.js'),
   logLevel: 'info',
-  format: 'esm',
   // minify: true,
   keepNames: true,
+  plugins: [esbuildPluginTsc({ force: true })],
   alias: {
     fs: '@browsery/fs',
     highland: '@browsery/highland',
@@ -37,6 +35,7 @@ await esbuild.build({
     stream: '@browsery/stream',
     'node:stream': '@browsery/stream',
     path: 'path-browserify',
+    'node:path': 'path-browserify',
     crypto: 'crypto-browserify',
   },
   external,
@@ -48,4 +47,22 @@ await esbuild.build({
 *****************************************/
 `,
   },
+};
+
+await esbuild.build({
+  ...defaultCofig,
+  outfile: path.join(targetPath, './browser/index.cjs'),
+  platform: 'browser',
+  target: ['es2020', 'chrome80'],
+  format: 'cjs',
+  tsconfig: './tsconfig-build-cjs.json',
+});
+
+await esbuild.build({
+  ...defaultCofig,
+  outfile: path.join(targetPath, './browser/index.mjs'),
+  platform: 'browser',
+  target: ['es2020', 'chrome80'],
+  format: 'esm',
+  tsconfig: './tsconfig-build-esm.json',
 });

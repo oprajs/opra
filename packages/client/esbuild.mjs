@@ -1,9 +1,10 @@
 /* eslint-disable import-x/no-extraneous-dependencies */
+import fs from 'node:fs';
 import { createRequire } from 'node:module';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import * as esbuild from 'esbuild';
-import fs from 'fs';
+import esbuildPluginTsc from 'eslint-tsc';
 
 const require = createRequire(import.meta.url);
 
@@ -22,7 +23,7 @@ const external = [
 /**
  * @type BuildOptions
  */
-const commonConfig = {
+const defaultCofig = {
   entryPoints: [entryPoint],
   bundle: true,
   platform: 'node',
@@ -31,6 +32,7 @@ const commonConfig = {
   logLevel: 'info',
   format: 'esm',
   keepNames: true,
+  plugins: [esbuildPluginTsc({ force: true })],
   alias: {
     fs: '@browsery/fs',
     highland: '@browsery/highland',
@@ -53,7 +55,7 @@ const commonConfig = {
 };
 
 await esbuild.build({
-  ...commonConfig,
+  ...defaultCofig,
   target: ['chrome85'],
   outfile: path.join(targetPath, './browser/index.mjs'),
   plugins: [
@@ -78,31 +80,19 @@ await esbuild.build({
 });
 
 await esbuild.build({
-  ...commonConfig,
-  target: ['chrome85'],
-  outfile: path.join(targetPath, './browser/index.min.mjs'),
-  minify: true,
-});
-
-await esbuild.build({
-  ...commonConfig,
-  target: ['chrome85'],
+  ...defaultCofig,
   outfile: path.join(targetPath, './browser/index.cjs'),
+  platform: 'browser',
+  target: ['es2020', 'chrome80'],
   format: 'cjs',
+  tsconfig: './tsconfig-build-cjs.json',
 });
 
 await esbuild.build({
-  ...commonConfig,
-  target: ['chrome85'],
-  outfile: path.join(targetPath, './browser/index.min.cjs'),
-  format: 'cjs',
-  minify: true,
+  ...defaultCofig,
+  outfile: path.join(targetPath, './browser/index.mjs'),
+  platform: 'browser',
+  target: ['es2020', 'chrome80'],
+  format: 'esm',
+  tsconfig: './tsconfig-build-esm.json',
 });
-
-const newPkgJson = { ...pkgJson };
-delete newPkgJson.scripts;
-fs.writeFileSync(
-  path.join(targetPath, 'package.json'),
-  JSON.stringify(newPkgJson, undefined, 2),
-  'utf-8',
-);

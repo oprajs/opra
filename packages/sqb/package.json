@@ -1,21 +1,16 @@
 {
   "name": "@opra/sqb",
-  "version": "1.0.0-alpha.32",
+  "version": "1.0.0-alpha.33",
   "description": "Opra SQB adapter package",
   "author": "Panates",
   "license": "MIT",
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/panates/opra.git",
-    "directory": "packages/sqb"
-  },
   "scripts": {
     "compile": "tsc",
     "prebuild": "npm run lint && npm run clean",
     "build": "npm run build:cjs && npm run build:esm",
-    "build:cjs": "tsc -b tsconfig-build-cjs.json",
-    "build:esm": "tsc -b tsconfig-build-esm.json",
-    "postbuild": "cp README.md package.json ../../LICENSE ../../build/sqb && cp ../../package.cjs.json ../../build/sqb/cjs/package.json",
+    "build:cjs": "tsc -b tsconfig-build-cjs.json && cp ../../support/package.cjs.json ../../build/sqb/cjs/package.json",
+    "build:esm": "tsc -b tsconfig-build-esm.json && cp ../../support/package.esm.json ../../build/sqb/esm/package.json",
+    "postbuild": "cp README.md package.json ../../LICENSE ../../build/sqb && node ../../support/postbuild.cjs",
     "lint": "eslint . --max-warnings=0",
     "lint:fix": "eslint . --max-warnings=0 --fix",
     "format": "prettier . --write --log-level=warn",
@@ -24,29 +19,49 @@
     "clean": "npm run clean:src && npm run clean:test && npm run clean:dist && npm run clean:cover",
     "clean:src": "ts-cleanup -s src --all",
     "clean:test": "ts-cleanup -s test --all",
-    "clean:dist": "rimraf ../../build/client",
-    "clean:cover": "rimraf ../../coverage/client"
+    "clean:dist": "rimraf ../../build/sqb",
+    "clean:cover": "rimraf ../../coverage/sqb"
   },
   "dependencies": {
     "reflect-metadata": "^0.2.2",
-    "tslib": "^2.6.3"
+    "tslib": "^2.6.3",
+    "valgen": "^5.8.2"
   },
   "devDependencies": {
     "@faker-js/faker": "^8.4.1",
-    "@sqb/builder": "^4.14.1",
-    "@sqb/connect": "^4.14.1",
-    "@sqb/postgres": "^4.14.1",
-    "postgrejs": "^2.15.4",
-    "ts-gems": "^3.4.0"
+    "@sqb/builder": "^4.16.1",
+    "@sqb/connect": "^4.16.1",
+    "@sqb/postgres": "^4.16.1",
+    "postgrejs": "^2.18.1",
+    "ts-gems": "^3.5.0"
   },
   "peerDependencies": {
-    "@opra/core": "^1.0.0-alpha.32",
+    "@opra/core": "^1.0.0-alpha.33",
     "@sqb/connect": ">= 4.10.6"
   },
   "type": "module",
-  "module": "./esm/index.js",
+  "exports": {
+    ".": {
+      "import": {
+        "types": "./types/index.d.ts",
+        "default": "./esm/index.js"
+      },
+      "require": {
+        "types": "./types/index.d.ts",
+        "default": "./cjs/index.js"
+      },
+      "default": "./esm/index.js"
+    },
+    "./package.json": "./package.json"
+  },
   "main": "./cjs/index.js",
+  "module": "./esm/index.js",
   "types": "./types/index.d.ts",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/panates/opra.git",
+    "directory": "packages/sqb"
+  },
   "engines": {
     "node": ">=16.0",
     "npm": ">=7.0.0"

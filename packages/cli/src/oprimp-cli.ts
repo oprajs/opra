@@ -1,5 +1,5 @@
 import { getStackFileName } from '@opra/common';
-import chalk from 'chalk';
+import colors from 'ansi-colors';
 import { program } from 'commander';
 import * as console from 'console';
 import * as fs from 'fs';
@@ -18,7 +18,7 @@ program
   .option('--refns', 'Exports references with namespaces')
   .option('--no-color', 'Disables colors in logs messages')
   .action(async (serviceUrl, outDir, options) => {
-    if (!options.color) chalk.level = 0;
+    if (!options.color) colors.enabled = false;
     const generator = new TsGenerator({
       serviceUrl,
       logger: console,
@@ -29,7 +29,7 @@ program
     });
     await generator
       .generate()
-      .then(() => console.log(chalk.greenBright('Completed')))
+      .then(() => console.log(colors.greenBright('Completed')))
       .catch(e => console.error(e.message));
   });
 

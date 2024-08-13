@@ -2,7 +2,7 @@ import { Type } from 'ts-gems';
 import { inheritPropertyInitializers, mergePrototype } from '../../../helpers/index.js';
 import { OpraSchema } from '../../../schema/index.js';
 import { DATATYPE_METADATA } from '../../constants.js';
-import type { DataType } from '../data-type';
+import type { DataType } from '../data-type.js';
 import { MappedType } from '../mapped-type.js';
 import { getIsInheritedPredicateFn } from './get-is-inherited-predicate-fn.js';
 

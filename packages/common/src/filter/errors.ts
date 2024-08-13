@@ -1,5 +1,4 @@
-import { RecognitionException } from '@browsery/antlr4';
-import { Recognizer } from '@browsery/antlr4/typings/Recognizer';
+import { Recognizer } from '@browsery/antlr4';
 
 export class SyntaxError extends TypeError {}
 
@@ -15,7 +14,7 @@ export class FilterParseError extends Error {
   declare offendingSymbol?: any;
   declare line: number;
   declare column: number;
-  declare e: RecognitionException | undefined;
+  declare e: Error | undefined;
 
   constructor(
     message: string,
@@ -24,7 +23,7 @@ export class FilterParseError extends Error {
       offendingSymbol?: any;
       line: number;
       column: number;
-      e: RecognitionException | undefined;
+      e: Error | undefined;
     },
   ) {
     super(message);
