@@ -3,7 +3,7 @@ import { createRequire } from 'node:module';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import * as esbuild from 'esbuild';
-import esbuildPluginTsc from 'eslint-tsc';
+import esbuildPluginTsc from 'esbuild-tsc';
 
 const require = createRequire(import.meta.url);
 
