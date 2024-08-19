@@ -32,7 +32,11 @@ const defaultCofig = {
   logLevel: 'info',
   format: 'esm',
   keepNames: true,
-  plugins: [esbuildPluginTsc({ force: true })],
+  plugins: [
+    esbuildPluginTsc({
+      tsconfigPath: 'tsconfig-build-esm.json',
+    }),
+  ],
   alias: {
     fs: '@browsery/fs',
     highland: '@browsery/highland',

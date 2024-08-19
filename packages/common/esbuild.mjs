@@ -20,13 +20,17 @@ const external = [
   'mime-db',
 ].filter(x => !noExternal.includes(x));
 
-const defaultCofig = {
+const defaultConfig = {
   entryPoints: [path.resolve(dirname, 'src/index.ts')],
   bundle: true,
   logLevel: 'info',
   // minify: true,
   keepNames: true,
-  plugins: [esbuildPluginTsc({ force: true })],
+  plugins: [
+    esbuildPluginTsc({
+      tsconfigPath: 'tsconfig-build-esm.json',
+    }),
+  ],
   alias: {
     fs: '@browsery/fs',
     highland: '@browsery/highland',
@@ -50,7 +54,7 @@ const defaultCofig = {
 };
 
 await esbuild.build({
-  ...defaultCofig,
+  ...defaultConfig,
   outfile: path.join(targetPath, './browser/index.cjs'),
   platform: 'browser',
   target: ['es2020', 'chrome80'],
@@ -59,7 +63,7 @@ await esbuild.build({
 });
 
 await esbuild.build({
-  ...defaultCofig,
+  ...defaultConfig,
   outfile: path.join(targetPath, './browser/index.mjs'),
   platform: 'browser',
   target: ['es2020', 'chrome80'],
