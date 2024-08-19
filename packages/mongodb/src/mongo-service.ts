@@ -1,8 +1,8 @@
 import * as OpraCommon from '@opra/common';
 import { ComplexType, DataType, DATATYPE_METADATA } from '@opra/common';
-import { ServiceBase } from '@opra/core';
+import { HttpContext, ServiceBase } from '@opra/core';
 import mongodb, { Document, MongoClient, ObjectId, TransactionOptions } from 'mongodb';
-import { PartialDTO, StrictOmit, Type } from 'ts-gems';
+import { Nullish, PartialDTO, StrictOmit, Type } from 'ts-gems';
 import { IsObject } from 'valgen';
 import { MongoAdapter } from './mongo-adapter.js';
 
@@ -34,6 +34,13 @@ export namespace MongoService {
     input?: any;
     options?: any;
   }
+
+  export type CommonFilter =
+    | MongoAdapter.FilterInput
+    | ((
+        args: MongoService.CommandInfo,
+        _this: MongoService<any>,
+      ) => MongoAdapter.FilterInput | Promise<MongoAdapter.FilterInput> | undefined);
 
   /**
    * Represents options for "create" operation
@@ -210,12 +217,7 @@ export class MongoService<T extends mongodb.Document = mongodb.Document> extends
    *
    * @type {FilterInput | Function}
    */
-  documentFilter?:
-    | MongoAdapter.FilterInput
-    | ((
-        args: MongoService.CommandInfo,
-        _this: this,
-      ) => MongoAdapter.FilterInput | Promise<MongoAdapter.FilterInput> | undefined);
+  documentFilter?: MongoService.CommonFilter | MongoService.CommonFilter[];
 
   /**
    * Constructs a new instance
@@ -240,6 +242,22 @@ export class MongoService<T extends mongodb.Document = mongodb.Document> extends
     }
     this.resourceName = options?.resourceName;
     this.idGenerator = options?.idGenerator;
+  }
+
+  for<C extends HttpContext, P extends Partial<this>>(
+    context: C,
+    overwriteProperties?: Nullish<P>,
+    overwriteContext?: Partial<C>,
+  ): this & Required<P> {
+    if (overwriteProperties?.documentFilter && this.documentFilter) {
+      overwriteProperties.documentFilter = [
+        ...(Array.isArray(this.documentFilter) ? this.documentFilter : [this.documentFilter]),
+        ...(Array.isArray(overwriteProperties?.documentFilter)
+          ? overwriteProperties?.documentFilter
+          : [overwriteProperties?.documentFilter]),
+      ];
+    }
+    return super.for(context, overwriteProperties, overwriteContext);
   }
 
   /**
@@ -613,7 +631,9 @@ export class MongoService<T extends mongodb.Document = mongodb.Document> extends
   protected _getDocumentFilter(
     command: MongoService.CommandInfo,
   ): MongoAdapter.FilterInput | Promise<MongoAdapter.FilterInput> | undefined {
-    return typeof this.documentFilter === 'function' ? this.documentFilter(command, this) : this.documentFilter;
+    const commonFilter = Array.isArray(this.documentFilter) ? this.documentFilter : [this.documentFilter];
+    const mapped = commonFilter.map(f => (typeof f === 'function' ? f(command, this) : f));
+    return mapped.length > 1 ? MongoAdapter.prepareFilter(mapped) : mapped[0];
   }
 
   protected async _executeCommand(command: MongoService.CommandInfo, commandFn: () => any): Promise<any> {
