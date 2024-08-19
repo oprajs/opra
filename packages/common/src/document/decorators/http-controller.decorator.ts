@@ -6,7 +6,7 @@ import { HTTP_CONTROLLER_METADATA } from '../constants.js';
 import type { HttpController } from '../http/http-controller.js';
 import type { HttpParameter } from '../http/http-parameter.js';
 
-const CLASS_NAME_PATTERN = /^(.*)(Collection|Singleton|Resource|Controller)$/;
+const CLASS_NAME_PATTERN = /^(.*)(Controller)$/;
 
 export interface HttpControllerDecorator<T extends HttpControllerDecorator<any> = HttpControllerDecorator<any>>
   extends ClassDecorator {
