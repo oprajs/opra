@@ -1,7 +1,8 @@
 import { ComplexType, DataType, InternalServerError } from '@opra/common';
-import { ServiceBase } from '@opra/core';
+import { HttpContext, ServiceBase } from '@opra/core';
+import { op } from '@sqb/builder';
 import { EntityMetadata, Repository, SqbClient, SqbConnection } from '@sqb/connect';
-import { PartialDTO, PatchDTO, RequiredSome, StrictOmit, Type } from 'ts-gems';
+import { Nullish, PartialDTO, PatchDTO, RequiredSome, StrictOmit, Type } from 'ts-gems';
 import { isNotNullish, IsObject } from 'valgen';
 import { SQBAdapter } from './sqb-adapter.js';
 
@@ -27,6 +28,13 @@ export namespace SqbEntityService {
     input?: Record<string, any>;
     options?: Record<string, any>;
   }
+
+  export type CommonFilter =
+    | SQBAdapter.FilterInput
+    | ((
+        args: SqbEntityService.CommandInfo,
+        _this: SqbEntityService<any>,
+      ) => SQBAdapter.FilterInput | Promise<SQBAdapter.FilterInput> | undefined);
 
   /**
    * Represents options for "create" operation
@@ -173,24 +181,19 @@ export class SqbEntityService<T extends object = object> extends ServiceBase {
   /**
    * Represents a SqbClient or SqbConnection object
    */
-  db?: (SqbClient | SqbConnection) | ((_this: any) => SqbClient | SqbConnection);
+  db?: (SqbClient | SqbConnection) | ((_this: this) => SqbClient | SqbConnection);
   /**
    * Represents the name of a resource.
    * @type {string}
    */
-  resourceName?: string | ((_this: any) => string);
+  resourceName?: string | ((_this: this) => string);
 
   /**
    * Represents a common filter function for a service.
    *
    * @type {SqbEntityService.Filter | Function}
    */
-  commonFilter?:
-    | SQBAdapter.FilterInput
-    | ((
-        args: SqbEntityService.CommandInfo,
-        _this: this,
-      ) => SQBAdapter.FilterInput | Promise<SQBAdapter.FilterInput> | undefined);
+  commonFilter?: SqbEntityService.CommonFilter | SqbEntityService.CommonFilter[];
 
   /**
    * Callback function for handling errors.
@@ -249,6 +252,22 @@ export class SqbEntityService<T extends object = object> extends ServiceBase {
       this._entityMetadata = metadata;
     }
     return this._entityMetadata!;
+  }
+
+  for<C extends HttpContext, P extends Partial<this>>(
+    context: C,
+    overwriteProperties?: Nullish<P>,
+    overwriteContext?: Partial<C>,
+  ): this & Required<P> {
+    if (overwriteProperties?.commonFilter && this.commonFilter) {
+      overwriteProperties.commonFilter = [
+        ...(Array.isArray(this.commonFilter) ? this.commonFilter : [this.commonFilter]),
+        ...(Array.isArray(overwriteProperties?.commonFilter)
+          ? overwriteProperties?.commonFilter
+          : [overwriteProperties?.commonFilter]),
+      ];
+    }
+    return super.for(context, overwriteProperties, overwriteContext);
   }
 
   /**
@@ -654,15 +673,12 @@ export class SqbEntityService<T extends object = object> extends ServiceBase {
    * @returns {FilterInput | Promise<FilterInput> | undefined} The common filter or a Promise
    * that resolves to the common filter, or undefined if not available.
    */
-  protected _getCommonFilter(args: {
-    crud: SqbEntityService.CrudOp;
-    method: string;
-    byId: boolean;
-    documentId?: SQBAdapter.IdOrIds;
-    input?: Object;
-    options?: Record<string, any>;
-  }): SQBAdapter.FilterInput | Promise<SQBAdapter.FilterInput> | undefined {
-    return typeof this.commonFilter === 'function' ? this.commonFilter(args, this) : this.commonFilter;
+  protected _getCommonFilter(
+    command: SqbEntityService.CommandInfo,
+  ): SQBAdapter.FilterInput | Promise<SQBAdapter.FilterInput> | undefined {
+    const commonFilter = Array.isArray(this.commonFilter) ? this.commonFilter : [this.commonFilter];
+    const mapped = commonFilter.map(f => (typeof f === 'function' ? f(command, this) : f));
+    return mapped.length > 1 ? op.and(...mapped) : mapped[0];
   }
 
   protected async _executeCommand(command: SqbEntityService.CommandInfo, commandFn: () => any): Promise<any> {
