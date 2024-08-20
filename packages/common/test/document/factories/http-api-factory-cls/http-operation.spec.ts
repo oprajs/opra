@@ -8,7 +8,7 @@ describe('HttpApiFactory - HttpOperation (Class)', () => {
     @HttpController({
       description: 'Country collection',
     })
-    class CountriesResource {
+    class CountriesController {
       @HttpOperation.GET({
         description: 'Returns single country',
         path: ':id',
@@ -21,14 +21,14 @@ describe('HttpApiFactory - HttpOperation (Class)', () => {
       api: {
         protocol: 'http',
         name: 'TestService',
-        controllers: [CountriesResource],
+        controllers: [CountriesController],
       },
     });
     expect(doc).toBeDefined();
     expect(doc.api).toBeDefined();
     const r = (doc.api as HttpApi).findController('countries');
     expect(r).toBeDefined();
-    expect(r!.ctor).toBe(CountriesResource);
+    expect(r!.ctor).toBe(CountriesController);
     const opr = r!.operations.get('findOne');
     expect(opr).toBeDefined();
     expect(opr?.method).toEqual('GET');
@@ -40,7 +40,7 @@ describe('HttpApiFactory - HttpOperation (Class)', () => {
     @HttpController({
       description: 'Country collection',
     })
-    class CountriesResource {
+    class CountriesController {
       @(HttpOperation.GET({
         description: 'Returns single country',
       }).Cookie('access-token', { type: 'uuid', required: true }))
@@ -52,14 +52,14 @@ describe('HttpApiFactory - HttpOperation (Class)', () => {
       api: {
         protocol: 'http',
         name: 'TestService',
-        controllers: [CountriesResource],
+        controllers: [CountriesController],
       },
     });
     expect(doc).toBeDefined();
     expect(doc.api).toBeDefined();
     const r = (doc.api as HttpApi).findController('countries');
     expect(r).toBeDefined();
-    expect(r!.ctor).toBe(CountriesResource);
+    expect(r!.ctor).toBe(CountriesController);
     const opr = r!.operations.get('findOne');
     expect(opr).toBeDefined();
     expect(opr!.parameters.map(x => x.name)).toEqual(['access-token']);
@@ -71,7 +71,7 @@ describe('HttpApiFactory - HttpOperation (Class)', () => {
     @HttpController({
       description: 'Country collection',
     })
-    class CountriesResource {
+    class CountriesController {
       @(HttpOperation.GET({
         description: 'Returns single country',
       }).Header('access-token', { type: 'uuid', required: true }))
@@ -83,14 +83,14 @@ describe('HttpApiFactory - HttpOperation (Class)', () => {
       api: {
         protocol: 'http',
         name: 'TestService',
-        controllers: [CountriesResource],
+        controllers: [CountriesController],
       },
     });
     expect(doc).toBeDefined();
     expect(doc.api).toBeDefined();
     const r = (doc.api as HttpApi).findController('countries');
     expect(r).toBeDefined();
-    expect(r!.ctor).toBe(CountriesResource);
+    expect(r!.ctor).toBe(CountriesController);
     const opr = r!.operations.get('findOne');
     expect(opr).toBeDefined();
     expect(opr!.parameters.map(x => x.name)).toEqual(['access-token']);
@@ -102,7 +102,7 @@ describe('HttpApiFactory - HttpOperation (Class)', () => {
     @HttpController({
       description: 'Country collection',
     })
-    class CountriesResource {
+    class CountriesController {
       @(HttpOperation.GET({
         description: 'Returns single country',
       }).QueryParam('access-token', { type: 'uuid', required: true }))
@@ -114,14 +114,14 @@ describe('HttpApiFactory - HttpOperation (Class)', () => {
       api: {
         protocol: 'http',
         name: 'TestService',
-        controllers: [CountriesResource],
+        controllers: [CountriesController],
       },
     });
     expect(doc).toBeDefined();
     expect(doc.api).toBeDefined();
     const r = (doc.api as HttpApi).findController('countries');
     expect(r).toBeDefined();
-    expect(r!.ctor).toBe(CountriesResource);
+    expect(r!.ctor).toBe(CountriesController);
     const opr = r!.operations.get('findOne');
     expect(opr).toBeDefined();
     expect(opr!.parameters.map(x => x.name)).toEqual(['access-token']);
@@ -133,7 +133,7 @@ describe('HttpApiFactory - HttpOperation (Class)', () => {
     @HttpController({
       description: 'Country collection',
     })
-    class CountriesResource {
+    class CountriesController {
       @(HttpOperation.GET({
         description: 'Returns single country',
       }).PathParam('access-token', { type: 'uuid', required: true }))
@@ -145,14 +145,14 @@ describe('HttpApiFactory - HttpOperation (Class)', () => {
       api: {
         protocol: 'http',
         name: 'TestService',
-        controllers: [CountriesResource],
+        controllers: [CountriesController],
       },
     });
     expect(doc).toBeDefined();
     expect(doc.api).toBeDefined();
     const r = (doc.api as HttpApi).findController('countries');
     expect(r).toBeDefined();
-    expect(r!.ctor).toBe(CountriesResource);
+    expect(r!.ctor).toBe(CountriesController);
     const opr = r!.operations.get('findOne');
     expect(opr).toBeDefined();
     expect(opr!.parameters.map(x => x.name)).toEqual(['access-token']);
@@ -164,7 +164,7 @@ describe('HttpApiFactory - HttpOperation (Class)', () => {
     @HttpController({
       description: 'Country collection',
     })
-    class CountriesResource {
+    class CountriesController {
       @(HttpOperation.GET({
         description: 'Returns single country',
       })
@@ -184,14 +184,14 @@ describe('HttpApiFactory - HttpOperation (Class)', () => {
       api: {
         protocol: 'http',
         name: 'TestService',
-        controllers: [CountriesResource],
+        controllers: [CountriesController],
       },
     });
     expect(doc).toBeDefined();
     expect(doc.api).toBeDefined();
     const r = (doc.api as HttpApi).findController('countries');
     expect(r).toBeDefined();
-    expect(r!.ctor).toBe(CountriesResource);
+    expect(r!.ctor).toBe(CountriesController);
     const opr = r!.operations.get('findOne');
     expect(opr).toBeDefined();
     expect(opr?.responses.length).toEqual(3);
@@ -217,7 +217,7 @@ describe('HttpApiFactory - HttpOperation (Class)', () => {
     @HttpController({
       description: 'Country collection',
     })
-    class CountriesResource {
+    class CountriesController {
       @(HttpOperation.POST({}).RequestContent(Country))
       findOne() {}
     }
@@ -227,14 +227,14 @@ describe('HttpApiFactory - HttpOperation (Class)', () => {
       api: {
         protocol: 'http',
         name: 'TestService',
-        controllers: [CountriesResource],
+        controllers: [CountriesController],
       },
     });
     expect(doc).toBeDefined();
     expect(doc.api).toBeDefined();
     const r = (doc.api as HttpApi).findController('countries');
     expect(r).toBeDefined();
-    expect(r!.ctor).toBe(CountriesResource);
+    expect(r!.ctor).toBe(CountriesController);
     const opr = r!.operations.get('findOne');
     expect(opr).toBeDefined();
     expect(opr?.requestBody).toBeDefined();
