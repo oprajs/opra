@@ -1,6 +1,6 @@
 {
   "name": "@opra/mongodb",
-  "version": "1.0.0-alpha.34",
+  "version": "1.0.0-alpha.35",
   "description": "Opra MongoDB adapter package",
   "author": "Panates",
   "license": "MIT",
@@ -25,7 +25,7 @@
     "lodash.omit": "^4.5.0",
     "putil-isplainobject": "^1.1.5",
     "tslib": "^2.6.3",
-    "valgen": "^5.8.2"
+    "valgen": "^5.9.0"
   },
   "devDependencies": {
     "@faker-js/faker": "^8.4.1",
@@ -33,8 +33,8 @@
     "ts-gems": "^3.5.0"
   },
   "peerDependencies": {
-    "@opra/common": "^1.0.0-alpha.34",
-    "@opra/core": "^1.0.0-alpha.34",
+    "@opra/common": "^1.0.0-alpha.35",
+    "@opra/core": "^1.0.0-alpha.35",
     "mongodb": ">= 6.0.0"
   },
   "type": "module",
@@ -45,7 +45,7 @@
         "default": "./esm/index.js"
       },
       "require": {
-        "types": "./types/index.d.ts",
+        "types": "./types/index.d.cts",
         "default": "./cjs/index.js"
       },
       "default": "./esm/index.js"
