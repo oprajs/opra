@@ -8,21 +8,21 @@ describe('HttpApiFactory - HttpController (Class)', () => {
     @HttpController({
       description: 'Country collection',
     })
-    class CountriesResource {}
+    class CountriesController {}
 
     const doc = await ApiDocumentFactory.createDocument({
       types: [Country],
       api: {
         protocol: 'http',
         name: 'TestService',
-        controllers: [CountriesResource],
+        controllers: [CountriesController],
       },
     });
     expect(doc).toBeDefined();
     expect(doc.api).toBeDefined();
     const r = (doc.api as HttpApi).findController('countries');
     expect(r).toBeDefined();
-    expect(r!.ctor).toBe(CountriesResource);
+    expect(r!.ctor).toBe(CountriesController);
     expect(r!.description).toEqual('Country collection');
   });
 
@@ -32,21 +32,21 @@ describe('HttpApiFactory - HttpController (Class)', () => {
       path: '/My/Countries',
       description: 'Country collection',
     })
-    class CountriesResource {}
+    class CountriesController {}
 
     const doc = await ApiDocumentFactory.createDocument({
       types: [Country],
       api: {
         protocol: 'http',
         name: 'TestService',
-        controllers: [CountriesResource],
+        controllers: [CountriesController],
       },
     });
     expect(doc).toBeDefined();
     expect(doc.api).toBeDefined();
     const r = (doc.api as HttpApi).findController('MyCountries');
     expect(r).toBeDefined();
-    expect(r!.ctor).toBe(CountriesResource);
+    expect(r!.ctor).toBe(CountriesController);
     expect(r!.name).toEqual('MyCountries');
     expect(r!.path).toEqual('/My/Countries');
   });
@@ -55,14 +55,14 @@ describe('HttpApiFactory - HttpController (Class)', () => {
     @(HttpController({
       description: 'Country collection',
     }).Cookie('access-token', { type: 'uuid', required: true }))
-    class CountriesResource {}
+    class CountriesController {}
 
     const doc = await ApiDocumentFactory.createDocument({
       types: [Country],
       api: {
         protocol: 'http',
         name: 'TestService',
-        controllers: [CountriesResource],
+        controllers: [CountriesController],
       },
     });
     expect(doc).toBeDefined();
@@ -78,14 +78,14 @@ describe('HttpApiFactory - HttpController (Class)', () => {
     @(HttpController({
       description: 'Country collection',
     }).Header('access-token', { type: 'uuid', required: true }))
-    class CountriesResource {}
+    class CountriesController {}
 
     const doc = await ApiDocumentFactory.createDocument({
       types: [Country],
       api: {
         protocol: 'http',
         name: 'TestService',
-        controllers: [CountriesResource],
+        controllers: [CountriesController],
       },
     });
     expect(doc).toBeDefined();
@@ -101,14 +101,14 @@ describe('HttpApiFactory - HttpController (Class)', () => {
     @(HttpController({
       description: 'Country collection',
     }).QueryParam('access-token', { type: 'uuid', required: true }))
-    class CountriesResource {}
+    class CountriesController {}
 
     const doc = await ApiDocumentFactory.createDocument({
       types: [Country],
       api: {
         protocol: 'http',
         name: 'TestService',
-        controllers: [CountriesResource],
+        controllers: [CountriesController],
       },
     });
     expect(doc).toBeDefined();
@@ -124,14 +124,14 @@ describe('HttpApiFactory - HttpController (Class)', () => {
     @(HttpController({
       description: 'Country collection',
     }).PathParam('access-token', { type: 'uuid', required: true }))
-    class CountriesResource {}
+    class CountriesController {}
 
     const doc = await ApiDocumentFactory.createDocument({
       types: [Country],
       api: {
         protocol: 'http',
         name: 'TestService',
-        controllers: [CountriesResource],
+        controllers: [CountriesController],
       },
     });
     expect(doc).toBeDefined();
@@ -147,20 +147,20 @@ describe('HttpApiFactory - HttpController (Class)', () => {
     @HttpController({
       description: 'Cities collection',
     })
-    class CitiesResource {}
+    class CitiesController {}
 
     @HttpController({
       description: 'Country collection',
-      controllers: [CitiesResource],
+      controllers: [CitiesController],
     })
-    class CountriesResource {}
+    class CountriesController {}
 
     const doc = await ApiDocumentFactory.createDocument({
       types: [Country],
       api: {
         protocol: 'http',
         name: 'TestService',
-        controllers: [CountriesResource],
+        controllers: [CountriesController],
       },
     });
     expect(doc).toBeDefined();
@@ -168,6 +168,6 @@ describe('HttpApiFactory - HttpController (Class)', () => {
     const r = (doc.api as HttpApi).findController('countries');
     expect(r).toBeDefined();
     expect(Array.from(r!.controllers.keys())).toEqual(['Cities']);
-    expect(r!.controllers.get('cities')!.ctor).toEqual(CitiesResource);
+    expect(r!.controllers.get('cities')!.ctor).toEqual(CitiesController);
   });
 });

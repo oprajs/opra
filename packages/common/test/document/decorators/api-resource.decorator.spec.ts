@@ -13,9 +13,9 @@ describe('HttpResource decorator', () => {
     };
 
     @HttpController(opts)
-    class CountryResource {}
+    class CountriesController {}
 
-    const metadata = Reflect.getMetadata(HTTP_CONTROLLER_METADATA, CountryResource);
+    const metadata = Reflect.getMetadata(HTTP_CONTROLLER_METADATA, CountriesController);
     expect(metadata).toStrictEqual({
       kind: 'HttpController',
       name: 'Countries',
@@ -25,9 +25,9 @@ describe('HttpResource decorator', () => {
 
   it('Should set resource name from class name', async () => {
     @HttpController()
-    class CountryResource {}
+    class CountryController {}
 
-    const metadata = Reflect.getMetadata(HTTP_CONTROLLER_METADATA, CountryResource);
+    const metadata = Reflect.getMetadata(HTTP_CONTROLLER_METADATA, CountryController);
     expect(metadata).toStrictEqual({
       kind: 'HttpController',
       name: 'Country',
