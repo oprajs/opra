@@ -5,7 +5,7 @@ import { HttpAdapter } from './http-adapter.js';
 import { HttpContext } from './http-context.js';
 import { HttpIncoming } from './interfaces/http-incoming.interface.js';
 import { HttpOutgoing } from './interfaces/http-outgoing.interface.js';
-import { wrapException } from './utils/wrap-exception';
+import { wrapException } from './utils/wrap-exception.js';
 
 export class ExpressAdapter extends HttpAdapter {
   readonly app: Application;

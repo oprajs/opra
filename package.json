@@ -28,9 +28,9 @@
   },
   "devDependencies": {
     "@jest/test-sequencer": "^29.7.0",
-    "@panates/eslint-config": "^1.0.18",
-    "@panates/eslint-config-ts": "^1.0.18",
-    "@panates/tsconfig": "^1.0.18",
+    "@panates/eslint-config": "^1.0.19",
+    "@panates/eslint-config-ts": "^1.0.19",
+    "@panates/tsconfig": "^1.0.19",
     "@rollup-extras/plugin-clean": "^1.3.9",
     "@rollup/plugin-alias": "^5.1.0",
     "@rollup/plugin-commonjs": "^26.0.1",

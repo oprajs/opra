@@ -9,7 +9,7 @@ import { EventEmitter } from 'events';
 import fsPromise from 'fs/promises';
 import { StrictOmit } from 'ts-gems';
 import { isNotNullish, ValidationError } from 'valgen';
-import { HttpContext } from '../http-context';
+import { HttpContext } from '../http-context.js';
 
 export namespace MultipartReader {
   export interface Options extends StrictOmit<busboy.BusboyConfig, 'headers'> {
