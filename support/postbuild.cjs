@@ -10,12 +10,12 @@ function clearPackageJson() {
   delete json.scripts;
   delete json.devDependencies;
   fs.writeFileSync(
-      path.resolve(targetPath, 'package.json'),
-      JSON.stringify(json, undefined, 2),
+    path.resolve(targetPath, 'package.json'),
+    JSON.stringify(json, undefined, 2),
   );
   fs.copyFileSync(
-      path.resolve(targetPath, './types/index.d.ts'),
-      path.resolve(targetPath, './types/index.d.cts'),
+    path.resolve(targetPath, './types/index.d.ts'),
+    path.resolve(targetPath, './types/index.d.cts'),
   );
 }
 
