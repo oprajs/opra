@@ -25,11 +25,6 @@ const defaultConfig = {
   logLevel: 'info',
   minify: true,
   keepNames: true,
-  // plugins: [
-  //   esbuildPluginTsc({
-  //     tsconfigPath: 'tsconfig-build-esm.json',
-  //   }),
-  // ],
   alias: {
     fs: '@browsery/fs',
     highland: '@browsery/highland',
