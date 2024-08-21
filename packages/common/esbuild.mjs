@@ -3,7 +3,6 @@ import { createRequire } from 'node:module';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import * as esbuild from 'esbuild';
-import esbuildPluginTsc from 'esbuild-tsc';
 
 const require = createRequire(import.meta.url);
 
@@ -21,16 +20,16 @@ const external = [
 ].filter(x => !noExternal.includes(x));
 
 const defaultConfig = {
-  entryPoints: [path.resolve(dirname, 'src/index.ts')],
+  entryPoints: [path.resolve(targetPath, 'esm/index.js')],
   bundle: true,
   logLevel: 'info',
-  // minify: true,
+  minify: true,
   keepNames: true,
-  plugins: [
-    esbuildPluginTsc({
-      tsconfigPath: 'tsconfig-build-esm.json',
-    }),
-  ],
+  // plugins: [
+  //   esbuildPluginTsc({
+  //     tsconfigPath: 'tsconfig-build-esm.json',
+  //   }),
+  // ],
   alias: {
     fs: '@browsery/fs',
     highland: '@browsery/highland',

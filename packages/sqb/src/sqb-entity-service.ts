@@ -692,7 +692,28 @@ export class SqbEntityService<T extends object = object> extends ServiceBase {
         proto = Object.getPrototypeOf(proto);
         if (!(proto instanceof SqbEntityService)) break;
       }
-      return commandFn();
+      if (command.crud === 'create') await this._beforeCreate(command as SqbEntityService.CreateCommand);
+      else if (command.crud === 'update' && command.byId) {
+        await this._beforeUpdate(command as SqbEntityService.UpdateOneCommand<T>);
+      } else if (command.crud === 'update' && !command.byId) {
+        await this._beforeUpdate(command as SqbEntityService.UpdateOneCommand<T>);
+      } else if (command.crud === 'delete' && command.byId) {
+        await this._beforeDelete(command as SqbEntityService.DeleteOneCommand);
+      } else if (command.crud === 'delete' && !command.byId) {
+        await this._beforeDeleteMany(command as SqbEntityService.DeleteManyCommand);
+      }
+      const result = await commandFn();
+      if (command.crud === 'create') await this._afterCreate(command as SqbEntityService.CreateCommand, result);
+      else if (command.crud === 'update' && command.byId) {
+        await this._afterUpdate(command as SqbEntityService.UpdateOneCommand<T>, result);
+      } else if (command.crud === 'update' && !command.byId) {
+        await this._afterUpdate(command as SqbEntityService.UpdateOneCommand<T>, result);
+      } else if (command.crud === 'delete' && command.byId) {
+        await this._afterDelete(command as SqbEntityService.DeleteOneCommand, result);
+      } else if (command.crud === 'delete' && !command.byId) {
+        await this._afterDeleteMany(command as SqbEntityService.DeleteManyCommand, result);
+      }
+      return result;
     };
     try {
       return await next();
@@ -701,5 +722,55 @@ export class SqbEntityService<T extends object = object> extends ServiceBase {
       await this.onError?.(e, this);
       throw e;
     }
+  }
+
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  protected async _beforeCreate(command: SqbEntityService.CreateCommand): Promise<void> {
+    // Do nothing
+  }
+
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  protected async _beforeUpdate(command: SqbEntityService.UpdateOneCommand<T>): Promise<void> {
+    // Do nothing
+  }
+
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  protected async _beforeUpdateMany(command: SqbEntityService.UpdateManyCommand<T>): Promise<void> {
+    // Do nothing
+  }
+
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  protected async _beforeDelete(command: SqbEntityService.DeleteOneCommand): Promise<void> {
+    // Do nothing
+  }
+
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  protected async _beforeDeleteMany(command: SqbEntityService.DeleteManyCommand): Promise<void> {
+    // Do nothing
+  }
+
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  protected async _afterCreate(command: SqbEntityService.CreateCommand, result: PartialDTO<T>): Promise<void> {
+    // Do nothing
+  }
+
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  protected async _afterUpdate(command: SqbEntityService.UpdateOneCommand<T>, result?: PartialDTO<T>): Promise<void> {
+    // Do nothing
+  }
+
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  protected async _afterUpdateMany(command: SqbEntityService.UpdateManyCommand<T>, affected: number): Promise<void> {
+    // Do nothing
+  }
+
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  protected async _afterDelete(command: SqbEntityService.DeleteOneCommand, affected: number): Promise<void> {
+    // Do nothing
+  }
+
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  protected async _afterDeleteMany(command: SqbEntityService.DeleteManyCommand, affected: number): Promise<void> {
+    // Do nothing
   }
 }
