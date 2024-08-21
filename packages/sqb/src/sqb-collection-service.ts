@@ -139,7 +139,7 @@ export abstract class SqbCollectionService<T extends object = object> extends Sq
   ): Promise<PartialDTO<T>>;
   async create(input: PartialDTO<T>, options?: SqbCollectionService.CreateOptions): Promise<T>;
   async create(input: PartialDTO<T>, options?: SqbCollectionService.CreateOptions): Promise<PartialDTO<T>> {
-    const command: SqbEntityService.CreateCommand = {
+    const command: SqbEntityService.CreateCommand<T> = {
       crud: 'create',
       method: 'create',
       byId: false,

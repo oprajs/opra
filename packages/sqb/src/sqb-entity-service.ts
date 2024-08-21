@@ -106,8 +106,9 @@ export namespace SqbEntityService {
    */
   export interface UpdateManyOptions extends Repository.UpdateManyOptions {}
 
-  export interface CreateCommand extends StrictOmit<RequiredSome<CommandInfo, 'input'>, 'documentId'> {
+  export interface CreateCommand<T> extends StrictOmit<RequiredSome<CommandInfo, 'input'>, 'documentId'> {
     crud: 'create';
+    input: PatchDTO<T>;
     options?: CreateOptions;
   }
 
@@ -319,7 +320,7 @@ export class SqbEntityService<T extends object = object> extends ServiceBase {
    * @returns - A promise that resolves to the created resource
    * @protected
    */
-  protected async _create(command: SqbEntityService.CreateCommand): Promise<PartialDTO<T>> {
+  protected async _create(command: SqbEntityService.CreateCommand<T>): Promise<PartialDTO<T>> {
     const { input, options } = command;
     isNotNullish(command.input, { label: 'input' });
     const inputCodec = this.getInputCodec('create');
@@ -693,7 +694,7 @@ export class SqbEntityService<T extends object = object> extends ServiceBase {
         if (!(proto instanceof SqbEntityService)) break;
       }
       /** Call before[X] hooks */
-      if (command.crud === 'create') await this._beforeCreate(command as SqbEntityService.CreateCommand);
+      if (command.crud === 'create') await this._beforeCreate(command as SqbEntityService.CreateCommand<T>);
       else if (command.crud === 'update' && command.byId) {
         await this._beforeUpdate(command as SqbEntityService.UpdateOneCommand<T>);
       } else if (command.crud === 'update' && !command.byId) {
@@ -709,7 +710,7 @@ export class SqbEntityService<T extends object = object> extends ServiceBase {
     try {
       const result = await next();
       /** Call after[X] hooks */
-      if (command.crud === 'create') await this._afterCreate(command as SqbEntityService.CreateCommand, result);
+      if (command.crud === 'create') await this._afterCreate(command as SqbEntityService.CreateCommand<T>, result);
       else if (command.crud === 'update' && command.byId) {
         await this._afterUpdate(command as SqbEntityService.UpdateOneCommand<T>, result);
       } else if (command.crud === 'update' && !command.byId) {
@@ -728,7 +729,7 @@ export class SqbEntityService<T extends object = object> extends ServiceBase {
   }
 
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  protected async _beforeCreate(command: SqbEntityService.CreateCommand): Promise<void> {
+  protected async _beforeCreate(command: SqbEntityService.CreateCommand<T>): Promise<void> {
     // Do nothing
   }
 
@@ -753,7 +754,7 @@ export class SqbEntityService<T extends object = object> extends ServiceBase {
   }
 
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  protected async _afterCreate(command: SqbEntityService.CreateCommand, result: PartialDTO<T>): Promise<void> {
+  protected async _afterCreate(command: SqbEntityService.CreateCommand<T>, result: PartialDTO<T>): Promise<void> {
     // Do nothing
   }
 
