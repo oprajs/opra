@@ -1,6 +1,6 @@
 {
   "name": "@opra/common",
-  "version": "1.0.0-alpha.35",
+  "version": "1.0.0-alpha.36",
   "description": "Opra common package",
   "author": "Panates",
   "license": "MIT",
@@ -57,14 +57,6 @@
   "type": "module",
   "exports": {
     ".": {
-      "import": {
-        "types": "./types/index.d.ts",
-        "default": "./esm/index.js"
-      },
-      "require": {
-        "types": "./types/index.d.cts",
-        "default": "./cjs/index.js"
-      },
       "browser": {
         "import": {
           "types": "./types/index.d.ts",
@@ -75,6 +67,14 @@
           "default": "./browser/index.cjs"
         },
         "default": "./browser/index.mjs"
+      },
+      "import": {
+        "types": "./types/index.d.ts",
+        "default": "./esm/index.js"
+      },
+      "require": {
+        "types": "./types/index.d.cts",
+        "default": "./cjs/index.js"
       },
       "default": "./esm/index.js"
     },
