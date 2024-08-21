@@ -430,4 +430,90 @@ export class MongoEntityService<T extends mongodb.Document> extends MongoService
     const r = await this._dbUpdateMany(filter, update, mongoOptions);
     return r.matchedCount;
   }
+
+  protected async _executeCommand(command: MongoEntityService.CommandInfo, commandFn: () => any): Promise<any> {
+    try {
+      const result = await super._executeCommand(command, async () => {
+        /** Call before[X] hooks */
+        if (command.crud === 'create') await this._beforeCreate(command as MongoEntityService.CreateCommand);
+        else if (command.crud === 'update' && command.byId) {
+          await this._beforeUpdate(command as MongoEntityService.UpdateOneCommand<T>);
+        } else if (command.crud === 'update' && !command.byId) {
+          await this._beforeUpdateMany(command as MongoEntityService.UpdateOneCommand<T>);
+        } else if (command.crud === 'delete' && command.byId) {
+          await this._beforeDelete(command as MongoEntityService.DeleteCommand<T>);
+        } else if (command.crud === 'delete' && !command.byId) {
+          await this._beforeDeleteMany(command as MongoEntityService.DeleteCommand<T>);
+        }
+        /** Call command function */
+        return commandFn();
+      });
+      /** Call after[X] hooks */
+      if (command.crud === 'create') await this._afterCreate(command as MongoEntityService.CreateCommand, result);
+      else if (command.crud === 'update' && command.byId) {
+        await this._afterUpdate(command as MongoEntityService.UpdateOneCommand<T>, result);
+      } else if (command.crud === 'update' && !command.byId) {
+        await this._afterUpdateMany(command as MongoEntityService.UpdateOneCommand<T>, result);
+      } else if (command.crud === 'delete' && command.byId) {
+        await this._afterDelete(command as MongoEntityService.DeleteCommand<T>, result);
+      } else if (command.crud === 'delete' && !command.byId) {
+        await this._afterDeleteMany(command as MongoEntityService.DeleteCommand<T>, result);
+      }
+      return result;
+    } catch (e: any) {
+      Error.captureStackTrace(e, this._executeCommand);
+      await this.onError?.(e, this);
+      throw e;
+    }
+  }
+
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  protected async _beforeCreate(command: MongoEntityService.CreateCommand): Promise<void> {
+    // Do nothing
+  }
+
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  protected async _beforeUpdate(command: MongoEntityService.UpdateOneCommand<T>): Promise<void> {
+    // Do nothing
+  }
+
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  protected async _beforeUpdateMany(command: MongoEntityService.UpdateManyCommand<T>): Promise<void> {
+    // Do nothing
+  }
+
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  protected async _beforeDelete(command: MongoEntityService.DeleteCommand<T>): Promise<void> {
+    // Do nothing
+  }
+
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  protected async _beforeDeleteMany(command: MongoEntityService.DeleteCommand<T>): Promise<void> {
+    // Do nothing
+  }
+
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  protected async _afterCreate(command: MongoEntityService.CreateCommand, result: PartialDTO<T>): Promise<void> {
+    // Do nothing
+  }
+
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  protected async _afterUpdate(command: MongoEntityService.UpdateOneCommand<T>, result?: PartialDTO<T>): Promise<void> {
+    // Do nothing
+  }
+
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  protected async _afterUpdateMany(command: MongoEntityService.UpdateManyCommand<T>, affected: number): Promise<void> {
+    // Do nothing
+  }
+
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  protected async _afterDelete(command: MongoEntityService.DeleteCommand<T>, affected: number): Promise<void> {
+    // Do nothing
+  }
+
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  protected async _afterDeleteMany(command: MongoEntityService.DeleteCommand<T>, affected: number): Promise<void> {
+    // Do nothing
+  }
 }

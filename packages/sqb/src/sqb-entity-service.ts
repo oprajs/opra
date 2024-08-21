@@ -692,31 +692,34 @@ export class SqbEntityService<T extends object = object> extends ServiceBase {
         proto = Object.getPrototypeOf(proto);
         if (!(proto instanceof SqbEntityService)) break;
       }
+      /** Call before[X] hooks */
       if (command.crud === 'create') await this._beforeCreate(command as SqbEntityService.CreateCommand);
       else if (command.crud === 'update' && command.byId) {
         await this._beforeUpdate(command as SqbEntityService.UpdateOneCommand<T>);
       } else if (command.crud === 'update' && !command.byId) {
-        await this._beforeUpdate(command as SqbEntityService.UpdateOneCommand<T>);
+        await this._beforeUpdateMany(command as SqbEntityService.UpdateOneCommand<T>);
       } else if (command.crud === 'delete' && command.byId) {
         await this._beforeDelete(command as SqbEntityService.DeleteOneCommand);
       } else if (command.crud === 'delete' && !command.byId) {
         await this._beforeDeleteMany(command as SqbEntityService.DeleteManyCommand);
       }
-      const result = await commandFn();
+      /** Call command function */
+      return commandFn();
+    };
+    try {
+      const result = await next();
+      /** Call after[X] hooks */
       if (command.crud === 'create') await this._afterCreate(command as SqbEntityService.CreateCommand, result);
       else if (command.crud === 'update' && command.byId) {
         await this._afterUpdate(command as SqbEntityService.UpdateOneCommand<T>, result);
       } else if (command.crud === 'update' && !command.byId) {
-        await this._afterUpdate(command as SqbEntityService.UpdateOneCommand<T>, result);
+        await this._afterUpdateMany(command as SqbEntityService.UpdateOneCommand<T>, result);
       } else if (command.crud === 'delete' && command.byId) {
         await this._afterDelete(command as SqbEntityService.DeleteOneCommand, result);
       } else if (command.crud === 'delete' && !command.byId) {
         await this._afterDeleteMany(command as SqbEntityService.DeleteManyCommand, result);
       }
       return result;
-    };
-    try {
-      return await next();
     } catch (e: any) {
       Error.captureStackTrace(e, this._executeCommand);
       await this.onError?.(e, this);
