@@ -1,6 +1,6 @@
 import { omitUndefined } from '../helpers/index.js';
 import { i18n } from '../i18n/index.js';
-import { ErrorIssue } from './error-issue.js';
+import type { ErrorIssue } from './error-issue.js';
 import { IssueSeverity } from './issue-severity.enum.js';
 
 /**

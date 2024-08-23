@@ -1,9 +1,9 @@
 import * as OpraCommon from '@opra/common';
 import { ComplexType, DataType, DATATYPE_METADATA } from '@opra/common';
 import { HttpContext, ServiceBase } from '@opra/core';
-import mongodb, { Document, MongoClient, ObjectId, TransactionOptions } from 'mongodb';
-import { Nullish, PartialDTO, StrictOmit, Type } from 'ts-gems';
-import { IsObject } from 'valgen';
+import mongodb, { type Document, MongoClient, ObjectId, type TransactionOptions } from 'mongodb';
+import type { Nullish, PartialDTO, StrictOmit, Type } from 'ts-gems';
+import type { IsObject } from 'valgen';
 import { MongoAdapter } from './mongo-adapter.js';
 
 /**

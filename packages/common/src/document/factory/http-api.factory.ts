@@ -1,4 +1,4 @@
-import { StrictOmit, Type } from 'ts-gems';
+import type { StrictOmit, Type } from 'ts-gems';
 import { isConstructor, resolveThunk } from '../../helpers/index.js';
 import { OpraSchema } from '../../schema/index.js';
 import { ApiDocument } from '../api-document.js';

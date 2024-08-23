@@ -1,4 +1,4 @@
-import { asMutable, Combine, StrictOmit, TypeThunkAsync } from 'ts-gems';
+import { asMutable, type Combine, type StrictOmit, type TypeThunkAsync } from 'ts-gems';
 import { omitUndefined } from '../../helpers/index.js';
 import type { OpraSchema } from '../../schema/index.js';
 import { DocumentElement } from '../common/document-element.js';

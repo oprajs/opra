@@ -5,9 +5,9 @@ import type { HttpController } from './http/http-controller.interface.js';
 export type Protocol = 'http' | 'ws' | 'rpc';
 
 /**
- * @interface Document
+ * @interface ApiDocument
  */
-export interface Document extends DataTypeContainer {
+export interface ApiDocument extends DataTypeContainer {
   spec: SpecVersion;
   id: string;
   url?: string;
@@ -49,7 +49,7 @@ export interface LicenseInfo {
 /**
  * @interface DocumentReference
  */
-export interface DocumentReference extends Pick<Document, 'id' | 'url' | 'info'> {}
+export interface DocumentReference extends Pick<ApiDocument, 'id' | 'url' | 'info'> {}
 
 /**
  * @interface Api

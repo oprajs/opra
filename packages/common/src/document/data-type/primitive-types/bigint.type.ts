@@ -1,4 +1,4 @@
-import { toBigint, Validator, vg } from 'valgen';
+import { toBigint, type Validator, vg } from 'valgen';
 import { DECODER, ENCODER } from '../../constants.js';
 import { SimpleType } from '../simple-type.js';
 import { NumberType } from './number.type.js';

@@ -1,5 +1,5 @@
-import { Type } from 'ts-gems';
-import { Validator, validator } from 'valgen';
+import type { Type } from 'ts-gems';
+import { type Validator, validator } from 'valgen';
 import { FilterRules } from '../../../filter/filter-rules.js';
 import { OpraFilter } from '../../../filter/index.js';
 import type { DocumentElement } from '../../common/document-element.js';

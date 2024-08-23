@@ -1,4 +1,4 @@
-import { Nullish } from 'ts-gems';
+import type { Nullish } from 'ts-gems';
 import type { HttpContext } from '../http/http-context';
 
 export abstract class ServiceBase {

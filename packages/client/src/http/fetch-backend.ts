@@ -3,19 +3,19 @@ import typeIs from '@browsery/type-is';
 import { isBlob, isFormData } from '@opra/common';
 import { Observable } from 'rxjs';
 import { isReadableStreamLike } from 'rxjs/internal/util/isReadableStreamLike';
-import { Combine, StrictOmit } from 'ts-gems';
+import type { Combine, StrictOmit } from 'ts-gems';
 import { HttpBackend } from './http-backend.js';
 import { HttpResponse } from './http-response.js';
 import {
-  HttpDownloadProgressEvent,
-  HttpEvent,
+  type HttpDownloadProgressEvent,
+  type HttpEvent,
   HttpEventType,
-  HttpResponseEvent,
-  HttpResponseHeaderEvent,
-  HttpSentEvent,
-  HttpUploadProgressEvent,
+  type HttpResponseEvent,
+  type HttpResponseHeaderEvent,
+  type HttpSentEvent,
+  type HttpUploadProgressEvent,
 } from './interfaces/http-event.js';
-import { HttpInterceptor } from './interfaces/http-interceptor.js';
+import type { HttpInterceptor } from './interfaces/http-interceptor.js';
 
 /**
  *

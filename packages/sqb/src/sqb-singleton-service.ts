@@ -1,6 +1,6 @@
 import { ResourceNotAvailableError } from '@opra/common';
 import { EntityMetadata } from '@sqb/connect';
-import { PartialDTO, PatchDTO, RequiredSome, Type } from 'ts-gems';
+import type { PartialDTO, PatchDTO, RequiredSome, Type } from 'ts-gems';
 import { SQBAdapter } from './sqb-adapter.js';
 import { SqbEntityService } from './sqb-entity-service.js';
 

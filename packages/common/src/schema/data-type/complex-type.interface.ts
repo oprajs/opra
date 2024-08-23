@@ -1,4 +1,4 @@
-import { StrictOmit, Type } from 'ts-gems';
+import type { StrictOmit, Type } from 'ts-gems';
 import type { DataType, DataTypeBase } from './data-type.interface.js';
 import type { Field } from './field.interface.js';
 import type { MappedType } from './mapped-type.interface.js';

@@ -1,5 +1,6 @@
 import '@opra/sqb';
 import { OpraTestClient } from '@opra/testing';
+// eslint-disable-next-line import-x/no-extraneous-dependencies
 import { CustomerApplication } from 'express-mongo';
 import { entityTests } from '../../../core/test/http/e2e/tests/index.js';
 

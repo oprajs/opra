@@ -5,8 +5,8 @@ import process from 'node:process';
 import { ApiDocument } from '@opra/common';
 import colors from 'ansi-colors';
 import { FileWriter } from '../file-writer.js';
-import { IFileWriter } from '../interfaces/file-writer.interface.js';
-import { ILogger } from '../interfaces/logger.interface.js';
+import type { IFileWriter } from '../interfaces/file-writer.interface.js';
+import type { ILogger } from '../interfaces/logger.interface.js';
 import { cleanDirectory } from './generators/clean-directory.js';
 import {
   _generateComplexTypeCode,

@@ -1,8 +1,8 @@
 import { Observable } from 'rxjs';
 import { HttpBackend } from './http-backend.js';
-import { HttpEvent } from './interfaces/http-event.js';
-import { HttpHandler, HttpHandlerFn } from './interfaces/http-handler.js';
-import { HttpInterceptor } from './interfaces/http-interceptor.js';
+import type { HttpEvent } from './interfaces/http-event.js';
+import type { HttpHandler, HttpHandlerFn } from './interfaces/http-handler.js';
+import type { HttpInterceptor } from './interfaces/http-interceptor.js';
 
 type InterceptorChain<TRequest extends HttpBackend.RequestInit> = (
   req: TRequest,

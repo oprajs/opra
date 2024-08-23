@@ -1,5 +1,5 @@
-import { Type } from 'ts-gems';
-import { toString, Validator, validator, vg } from 'valgen';
+import type { Type } from 'ts-gems';
+import { toString, type Validator, validator, vg } from 'valgen';
 import { DocumentElement } from '../../common/document-element.js';
 import { DECODER, ENCODER } from '../../constants.js';
 import { SimpleType } from '../simple-type.js';

@@ -3,7 +3,7 @@ import {
   ArrayExpression,
   BooleanLiteral,
   ComparisonExpression,
-  ComparisonOperator,
+  type ComparisonOperator,
   DateLiteral,
   Expression,
   LogicalExpression,

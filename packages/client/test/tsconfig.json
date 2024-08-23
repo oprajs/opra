@@ -2,6 +2,7 @@
   "extends": "../tsconfig.json",
   "include": ["."],
   "compilerOptions": {
+    "verbatimModuleSyntax": false,
     "emitDecoratorMetadata": true,
     "baseUrl": "./",
     "paths": {

@@ -3,7 +3,7 @@
   https://github.com/nodejs/
  */
 
-import { OutgoingHttpHeaders } from 'http';
+import type { OutgoingHttpHeaders } from 'http';
 import { Duplex } from 'stream';
 import type { NodeIncomingMessage } from '../interfaces/node-incoming-message.interface.js';
 import type { NodeOutgoingMessage } from '../interfaces/node-outgoing-message.interface.js';

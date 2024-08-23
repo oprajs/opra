@@ -1,4 +1,4 @@
-import { Combine, StrictOmit } from 'ts-gems';
+import type { Combine, StrictOmit } from 'ts-gems';
 import { omitUndefined } from '../../helpers/index.js';
 import { OpraSchema } from '../../schema/index.js';
 import { HttpMediaType } from './http-media-type.js';

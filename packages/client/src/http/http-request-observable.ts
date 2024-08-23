@@ -1,5 +1,5 @@
 import typeIs from '@browsery/type-is';
-import { MimeTypes, URLSearchParamsInit } from '@opra/common';
+import { MimeTypes, type URLSearchParamsInit } from '@opra/common';
 import { lastValueFrom, Observable } from 'rxjs';
 import { kBackend, kContext } from '../constants.js';
 import { ClientError } from '../core/client-error.js';
@@ -7,7 +7,7 @@ import { HttpObserveType } from './enums/http-observable-type.enum.js';
 import { HttpBackend } from './http-backend.js';
 import { HttpInterceptorHandler } from './http-interceptor-handler.js';
 import { HttpResponse } from './http-response.js';
-import { HttpEvent, HttpEventType } from './interfaces/http-event.js';
+import { type HttpEvent, HttpEventType } from './interfaces/http-event.js';
 
 /**
  *

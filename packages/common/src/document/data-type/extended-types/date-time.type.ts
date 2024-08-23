@@ -1,4 +1,4 @@
-import { isDateString, toString, Validator, vg } from 'valgen';
+import { isDateString, toString, type Validator, vg } from 'valgen';
 import { DECODER, ENCODER } from '../../constants.js';
 import { SimpleType } from '../simple-type.js';
 

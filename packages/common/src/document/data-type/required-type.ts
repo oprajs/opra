@@ -1,4 +1,4 @@
-import { Class, RequiredSome, Type } from 'ts-gems';
+import type { Class, RequiredSome, Type } from 'ts-gems';
 import type { DataType } from './data-type.js';
 import { createMappedClass } from './utils/create-mapped-class.js';
 

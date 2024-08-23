@@ -2,8 +2,8 @@ import { ComplexType, DataType, InternalServerError } from '@opra/common';
 import { HttpContext, ServiceBase } from '@opra/core';
 import { op } from '@sqb/builder';
 import { EntityMetadata, Repository, SqbClient, SqbConnection } from '@sqb/connect';
-import { Nullish, PartialDTO, PatchDTO, RequiredSome, StrictOmit, Type } from 'ts-gems';
-import { isNotNullish, IsObject } from 'valgen';
+import type { Nullish, PartialDTO, PatchDTO, RequiredSome, StrictOmit, Type } from 'ts-gems';
+import { isNotNullish, type IsObject } from 'valgen';
 import { SQBAdapter } from './sqb-adapter.js';
 
 /**

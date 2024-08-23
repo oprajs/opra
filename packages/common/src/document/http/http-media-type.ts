@@ -1,6 +1,7 @@
 import typeIs from '@browsery/type-is';
-import { asMutable, Combine, StrictOmit, Type } from 'ts-gems';
-import { isAny, Validator, vg } from 'valgen';
+import type { Combine, StrictOmit, Type } from 'ts-gems';
+import { asMutable } from 'ts-gems';
+import { isAny, type Validator, vg } from 'valgen';
 import { omitUndefined } from '../../helpers/index.js';
 import { OpraSchema } from '../../schema/index.js';
 import { DocumentElement } from '../common/document-element.js';

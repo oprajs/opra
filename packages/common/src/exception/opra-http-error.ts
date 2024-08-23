@@ -1,4 +1,4 @@
-import { ErrorIssue } from './error-issue.js';
+import type { ErrorIssue } from './error-issue.js';
 import { OpraException } from './opra-exception.js';
 
 /**

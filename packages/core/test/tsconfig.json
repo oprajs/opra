@@ -3,6 +3,7 @@
   "include": ["."],
   "compilerOptions": {
     "emitDecoratorMetadata": true,
+    "verbatimModuleSyntax": false,
     "baseUrl": "./",
     "paths": {
       "@opra/core": ["../src"],

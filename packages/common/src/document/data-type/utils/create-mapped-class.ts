@@ -1,4 +1,4 @@
-import { Type } from 'ts-gems';
+import type { Type } from 'ts-gems';
 import { inheritPropertyInitializers, mergePrototype } from '../../../helpers/index.js';
 import { OpraSchema } from '../../../schema/index.js';
 import { DATATYPE_METADATA } from '../../constants.js';

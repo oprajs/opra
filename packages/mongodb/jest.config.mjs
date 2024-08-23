@@ -12,6 +12,6 @@ export default async function config() {
   return {
     ...base,
     displayName: packageJson.name,
-    globalSetup: '<rootDir>/test/jest-setup.ts',
+    globalSetup: '<rootDir>/test/_support/global-setup.ts',
   };
 }

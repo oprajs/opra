@@ -1,4 +1,4 @@
-import { Combine } from 'ts-gems';
+import type { Combine } from 'ts-gems';
 import { omitUndefined } from '../../helpers/index.js';
 import { OpraSchema } from '../../schema/index.js';
 import { parseRegExp } from '../utils/parse-regexp.util.js';

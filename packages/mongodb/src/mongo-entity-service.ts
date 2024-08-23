@@ -1,7 +1,7 @@
 import { InternalServerError } from '@opra/common';
 import omit from 'lodash.omit';
-import mongodb, { UpdateFilter } from 'mongodb';
-import { PartialDTO, PatchDTO, RequiredSome, StrictOmit, Type } from 'ts-gems';
+import mongodb, { type UpdateFilter } from 'mongodb';
+import type { PartialDTO, PatchDTO, RequiredSome, StrictOmit, Type } from 'ts-gems';
 import { isNotNullish } from 'valgen';
 import { MongoAdapter } from './mongo-adapter.js';
 import { MongoService } from './mongo-service.js';

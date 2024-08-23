@@ -1,5 +1,5 @@
-import { DeepPartial, Type } from 'ts-gems';
-import { ErrorIssue } from '../../../exception/index.js';
+import type { DeepPartial, Type } from 'ts-gems';
+import type { ErrorIssue } from '../../../exception/index.js';
 import { ApiField } from '../api-field.js';
 import { ComplexType } from '../complex-type.js';
 

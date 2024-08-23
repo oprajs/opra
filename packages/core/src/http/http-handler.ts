@@ -21,7 +21,7 @@ import {
 import { parse as parseContentType } from 'content-type';
 import { splitString } from 'fast-tokenizer';
 import { asMutable } from 'ts-gems';
-import { ErrorIssue, toArray, ValidationError, Validator, vg } from 'valgen';
+import { type ErrorIssue, toArray, ValidationError, type Validator, vg } from 'valgen';
 import { kAssetCache } from '../constants.js';
 import type { HttpAdapter } from './http-adapter.js';
 import { HttpContext } from './http-context.js';

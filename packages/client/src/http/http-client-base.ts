@@ -1,5 +1,5 @@
-import { ApiDocument, ApiDocumentFactory, OpraSchema, URLSearchParamsInit } from '@opra/common';
-import { StrictOmit } from 'ts-gems';
+import { ApiDocument, ApiDocumentFactory, OpraSchema, type URLSearchParamsInit } from '@opra/common';
+import type { StrictOmit } from 'ts-gems';
 import { kBackend } from '../constants.js';
 import { HttpBackend } from './http-backend.js';
 import { HttpRequestObservable } from './http-request-observable.js';

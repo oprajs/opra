@@ -1,4 +1,4 @@
-import path from 'path';
+import path from 'node:path';
 import flattenText from 'putil-flattentext';
 import { CodeBlock } from '../code-block.js';
 

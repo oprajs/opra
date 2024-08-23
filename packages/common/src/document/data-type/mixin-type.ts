@@ -1,5 +1,6 @@
 import 'reflect-metadata';
-import { asMutable, Class, Combine, Type } from 'ts-gems';
+import type { Class, Combine, Type } from 'ts-gems';
+import { asMutable } from 'ts-gems';
 import { inheritPropertyInitializers, mergePrototype, omitUndefined } from '../../helpers/index.js';
 import { OpraSchema } from '../../schema/index.js';
 import type { DocumentElement } from '../common/document-element.js';

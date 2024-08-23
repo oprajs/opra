@@ -1,4 +1,4 @@
-import { HttpParameterLocation } from '../types.js';
+import type { HttpParameterLocation } from '../types.js';
 import type { Value } from '../value.interface.js';
 
 /**

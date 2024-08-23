@@ -1,4 +1,4 @@
-import { Type } from 'ts-gems';
+import type { Type } from 'ts-gems';
 import { ResponsiveMap } from '../../helpers/index.js';
 import { OpraSchema } from '../../schema/index.js';
 import type { ApiDocument } from '../api-document';

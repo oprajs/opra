@@ -1,7 +1,7 @@
+import path from 'node:path';
 import { OpraHttpClient } from '@opra/client';
 import { ApiDocument, BUILTIN, HttpApi } from '@opra/common';
 import colors from 'ansi-colors';
-import path from 'path';
 import { pascalCase } from 'putil-varhelpers';
 import type { TsGenerator } from '../ts-generator';
 

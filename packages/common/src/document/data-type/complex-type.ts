@@ -1,5 +1,6 @@
 import 'reflect-metadata';
-import { asMutable, Combine, Type, TypeThunkAsync } from 'ts-gems';
+import type { Combine, Type, TypeThunkAsync } from 'ts-gems';
+import { asMutable } from 'ts-gems';
 import { omitUndefined } from '../../helpers/index.js';
 import { OpraSchema } from '../../schema/index.js';
 import type { DocumentElement } from '../common/document-element.js';

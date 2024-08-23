@@ -1,12 +1,10 @@
 import { ComplexType, NotAcceptableError, ResourceNotAvailableError } from '@opra/common';
 import omit from 'lodash.omit';
 import mongodb from 'mongodb';
-import { PartialDTO, PatchDTO, RequiredSome, StrictOmit, Type } from 'ts-gems';
+import type { PartialDTO, PatchDTO, RequiredSome, StrictOmit, Type } from 'ts-gems';
 import { isNotNullish } from 'valgen';
 import { MongoAdapter } from './mongo-adapter.js';
 import { MongoService } from './mongo-service.js';
-
-import FilterInput = MongoAdapter.FilterInput;
 
 /**
  *
@@ -20,8 +18,11 @@ export namespace MongoNestedService {
     defaultLimit?: number;
     nestedKey?: string;
     nestedFilter?:
-      | FilterInput
-      | ((args: MongoService.CommandInfo, _this: this) => FilterInput | Promise<FilterInput> | undefined);
+      | MongoAdapter.FilterInput
+      | ((
+          args: MongoService.CommandInfo,
+          _this: this,
+        ) => MongoAdapter.FilterInput | Promise<MongoAdapter.FilterInput> | undefined);
   }
 
   export interface CommandInfo extends MongoService.CommandInfo {}
@@ -29,15 +30,15 @@ export namespace MongoNestedService {
   export interface CreateOptions extends MongoService.CreateOptions {}
 
   export interface CountOptions<T> extends MongoService.CountOptions<T> {
-    documentFilter?: FilterInput;
+    documentFilter?: MongoAdapter.FilterInput;
   }
 
   export interface DeleteOptions<T> extends MongoService.DeleteOptions<T> {
-    documentFilter?: FilterInput;
+    documentFilter?: MongoAdapter.FilterInput;
   }
 
   export interface DeleteManyOptions<T> extends MongoService.DeleteManyOptions<T> {
-    documentFilter?: FilterInput;
+    documentFilter?: MongoAdapter.FilterInput;
   }
 
   export interface ExistsOptions<T> extends MongoService.ExistsOptions<T> {}
@@ -45,20 +46,20 @@ export namespace MongoNestedService {
   export interface ExistsOneOptions<T> extends MongoService.ExistsOneOptions<T> {}
 
   export interface FindOneOptions<T> extends MongoService.FindOneOptions<T> {
-    documentFilter?: FilterInput;
+    documentFilter?: MongoAdapter.FilterInput;
   }
 
   export interface FindManyOptions<T> extends MongoService.FindManyOptions<T> {
-    documentFilter?: FilterInput;
-    nestedFilter?: FilterInput;
+    documentFilter?: MongoAdapter.FilterInput;
+    nestedFilter?: MongoAdapter.FilterInput;
   }
 
   export interface UpdateOneOptions<T> extends MongoService.UpdateOneOptions<T> {
-    documentFilter?: FilterInput;
+    documentFilter?: MongoAdapter.FilterInput;
   }
 
   export interface UpdateManyOptions<T> extends MongoService.UpdateManyOptions<T> {
-    documentFilter?: FilterInput;
+    documentFilter?: MongoAdapter.FilterInput;
     count?: boolean;
   }
 
@@ -138,8 +139,11 @@ export class MongoNestedService<T extends mongodb.Document> extends MongoService
    * @type {FilterInput | Function}
    */
   nestedFilter?:
-    | FilterInput
-    | ((args: MongoService.CommandInfo, _this: this) => FilterInput | Promise<FilterInput> | undefined);
+    | MongoAdapter.FilterInput
+    | ((
+        args: MongoService.CommandInfo,
+        _this: this,
+      ) => MongoAdapter.FilterInput | Promise<MongoAdapter.FilterInput> | undefined);
 
   /**
    * Constructs a new instance
@@ -221,6 +225,7 @@ export class MongoNestedService<T extends mongodb.Document> extends MongoService
       input,
       options,
     };
+    command.input._id = command.input._id ?? this._generateId(command);
     return this._executeCommand(command, () => this._create(command));
   }
 
@@ -228,7 +233,6 @@ export class MongoNestedService<T extends mongodb.Document> extends MongoService
     const inputCodec = this.getInputCodec('create');
     const { documentId, options } = command;
     const doc: any = inputCodec(command.input);
-    doc._id = doc._id || this._generateId(command);
 
     const docFilter = MongoAdapter.prepareKeyValues(documentId, ['_id']);
     const r = await this._dbUpdateOne(
@@ -959,10 +963,12 @@ export class MongoNestedService<T extends mongodb.Document> extends MongoService
    * This method is mostly used for security issues like securing multi-tenant applications.
    *
    * @protected
-   * @returns {FilterInput | Promise<FilterInput> | undefined} The common filter or a Promise
+   * @returns {MongoAdapter.FilterInput | Promise<MongoAdapter.FilterInput> | undefined} The common filter or a Promise
    * that resolves to the common filter, or undefined if not available.
    */
-  protected _getNestedFilter(args: MongoService.CommandInfo): FilterInput | Promise<FilterInput> | undefined {
+  protected _getNestedFilter(
+    args: MongoService.CommandInfo,
+  ): MongoAdapter.FilterInput | Promise<MongoAdapter.FilterInput> | undefined {
     return typeof this.nestedFilter === 'function' ? this.nestedFilter(args, this) : this.nestedFilter;
   }
 }

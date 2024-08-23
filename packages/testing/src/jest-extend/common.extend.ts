@@ -1,5 +1,5 @@
 import colors from 'ansi-colors';
-import { matcherHint, MatcherHintOptions, printExpected, printReceived } from 'jest-matcher-utils';
+import { matcherHint, type MatcherHintOptions, printExpected, printReceived } from 'jest-matcher-utils';
 
 declare global {
   namespace jest {

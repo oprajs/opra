@@ -1,4 +1,4 @@
-import i18next, {
+import type {
   FallbackLng as I18nextFallbackLng,
   Formatter as I18nextFormatter,
   i18n,
@@ -7,9 +7,10 @@ import i18next, {
   TFunction as I18nextTFunction,
   TOptions,
 } from '@browsery/i18next';
+import i18next from '@browsery/i18next';
 import * as I18next from '@browsery/i18next';
 import { splitString, tokenize } from 'fast-tokenizer';
-import { Type } from 'ts-gems';
+import type { Type } from 'ts-gems';
 import { unescapeString } from './string-utils.js';
 
 export interface BaseI18n extends Type<I18next.i18n> {}

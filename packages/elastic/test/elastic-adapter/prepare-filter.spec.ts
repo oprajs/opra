@@ -1,8 +1,8 @@
 /* eslint-disable camelcase */
-import { ApiDocument, HttpController } from '@opra/common';
+import { ApiDocument, type HttpController } from '@opra/common';
 import { ElasticAdapter } from '@opra/elastic';
 import { CustomerApplication } from 'express-mongo';
-import { Validator } from 'valgen';
+import { type Validator } from 'valgen';
 
 describe('ElasticAdapter.prepareFilter', () => {
   let document: ApiDocument;

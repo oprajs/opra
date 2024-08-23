@@ -1,4 +1,4 @@
-import { StrictOmit } from 'ts-gems';
+import type { StrictOmit } from 'ts-gems';
 import type { ComplexType } from './complex-type.interface.js';
 import type { DataType, DataTypeBase } from './data-type.interface.js';
 import type { Field } from './field.interface.js';

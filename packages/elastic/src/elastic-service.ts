@@ -1,9 +1,9 @@
 import { Client } from '@elastic/elasticsearch';
-import { QueryDslQueryContainer } from '@elastic/elasticsearch/lib/api/types.js';
+import type { QueryDslQueryContainer } from '@elastic/elasticsearch/lib/api/types.js';
 import { ComplexType, DataType } from '@opra/common';
 import { ServiceBase } from '@opra/core';
-import { Type } from 'ts-gems';
-import { IsObject } from 'valgen';
+import type { Type } from 'ts-gems';
+import type { IsObject } from 'valgen';
 
 /**
  * The namespace for the ElasticService.

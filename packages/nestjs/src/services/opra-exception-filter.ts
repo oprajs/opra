@@ -1,4 +1,4 @@
-import { ArgumentsHost, Catch } from '@nestjs/common';
+import { type ArgumentsHost, Catch } from '@nestjs/common';
 import { BaseExceptionFilter, ModuleRef } from '@nestjs/core';
 import { OpraNestAdapter } from '../opra-nestjs-adapter.js';
 

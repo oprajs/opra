@@ -1,6 +1,6 @@
+import fs from 'node:fs';
+import path from 'node:path';
 import { getStackFileName, I18n as I18n_ } from '@opra/common';
-import fs from 'fs';
-import path from 'path';
 
 declare module '@opra/common' {
   export interface I18n {
