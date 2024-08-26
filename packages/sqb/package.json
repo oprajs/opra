@@ -1,6 +1,6 @@
 {
   "name": "@opra/sqb",
-  "version": "1.0.0-alpha.38",
+  "version": "1.0.0-alpha.39",
   "description": "Opra SQB adapter package",
   "author": "Panates",
   "license": "MIT",
@@ -24,7 +24,7 @@
   },
   "dependencies": {
     "reflect-metadata": "^0.2.2",
-    "tslib": "^2.6.3",
+    "tslib": "^2.7.0",
     "valgen": "^5.9.0"
   },
   "devDependencies": {
@@ -36,7 +36,7 @@
     "ts-gems": "^3.5.0"
   },
   "peerDependencies": {
-    "@opra/core": "^1.0.0-alpha.38",
+    "@opra/core": "^1.0.0-alpha.39",
     "@sqb/connect": ">= 4.10.6"
   },
   "type": "module",

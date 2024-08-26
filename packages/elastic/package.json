@@ -1,6 +1,6 @@
 {
   "name": "@opra/elastic",
-  "version": "1.0.0-alpha.38",
+  "version": "1.0.0-alpha.39",
   "description": "Opra Elastic Search adapter package",
   "author": "Panates",
   "license": "MIT",
@@ -24,7 +24,7 @@
   },
   "dependencies": {
     "putil-isplainobject": "^1.1.5",
-    "tslib": "^2.6.3",
+    "tslib": "^2.7.0",
     "valgen": "^5.9.0"
   },
   "devDependencies": {
@@ -34,8 +34,8 @@
   },
   "peerDependencies": {
     "@elastic/elasticsearch": ">=8.7.0",
-    "@opra/common": "^1.0.0-alpha.38",
-    "@opra/core": "^1.0.0-alpha.38"
+    "@opra/common": "^1.0.0-alpha.39",
+    "@opra/core": "^1.0.0-alpha.39"
   },
   "type": "module",
   "exports": {

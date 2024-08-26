@@ -1,6 +1,6 @@
 {
   "name": "@opra/angular",
-  "version": "1.0.0-alpha.38",
+  "version": "1.0.0-alpha.39",
   "description": "Opra internationalization package",
   "author": "Panates",
   "license": "MIT",
@@ -22,13 +22,13 @@
     "clean:cover": "rimraf ../../coverage/angular"
   },
   "dependencies": {
-    "tslib": "^2.6.3"
+    "tslib": "^2.7.0"
   },
   "peerDependencies": {
     "@angular/common": ">= 15.0.0",
     "@angular/core": ">= 15.0.0",
     "@browsery/type-is": "^1.6.18-r5",
-    "@opra/client": "^1.0.0-alpha.38",
+    "@opra/client": "^1.0.0-alpha.39",
     "rxjs": "^7.8.1",
     "ts-gems": "^3.0.0"
   },
@@ -39,12 +39,12 @@
     "@angular/compiler-cli": "^18.2.1",
     "@angular/platform-browser": "^18.0.2",
     "@angular/platform-browser-dynamic": "^18.2.1",
-    "@opra/client": "^1.0.0-alpha.38",
+    "@opra/client": "^1.0.0-alpha.39",
     "core-js": "^3.38.1",
     "cross-fetch": "^4.0.0",
     "express": "^4.19.2",
     "ng-packagr": "^18.2.1",
-    "superagent": "^10.0.2",
+    "superagent": "^10.1.0",
     "supertest": "^7.0.0",
     "ts-gems": "^3.5.0",
     "zone.js": "^0.15.0"

@@ -61,7 +61,7 @@ const decodeFilter = (dataType: ComplexType, rules?: FilterRules) =>
         if (rules) return rules.normalizeFilter(filter, dataType);
         return filter;
       } catch (e: any) {
-        context.fail(_this, `Not a valid filter expression. ${e.message}`, input, e.errors);
+        context.fail(_this, `Not a valid filter expression. ${e.message}`, input);
         return;
       }
     }

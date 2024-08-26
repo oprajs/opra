@@ -17,6 +17,7 @@ import {
   OpraException,
   OpraHttpError,
   OpraSchema,
+  safeJsonStringify,
 } from '@opra/common';
 import { parse as parseContentType } from 'content-type';
 import { splitString } from 'fast-tokenizer';
@@ -447,12 +448,12 @@ export class HttpHandler {
       encode = dt.generateCodec('encode', { ignoreWriteonlyFields: true });
       this[kAssetCache].set(dt, 'encode', encode);
     }
-    const { i18n } = this.adapter;
+    // const { i18n } = this.adapter;
     const bodyObject = new OperationResult({
       errors: errors.map(x => {
         const o = x.toJSON();
         if (!(process.env.NODE_ENV === 'dev' || process.env.NODE_ENV === 'development')) delete o.stack;
-        return i18n.deep(o);
+        return o; // i18n.deep(o);
       }),
     });
     const body = encode(bodyObject);
@@ -462,7 +463,7 @@ export class HttpHandler {
     response.setHeader(HttpHeaderCodes.Pragma, 'no-cache');
     response.setHeader(HttpHeaderCodes.Expires, '-1');
     response.setHeader(HttpHeaderCodes.X_Opra_Version, OpraSchema.SpecVersion);
-    response.send(JSON.stringify(body));
+    response.send(safeJsonStringify(body));
     response.end();
   }
 

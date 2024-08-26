@@ -39,7 +39,7 @@
     "@rollup/plugin-node-resolve": "^15.2.3",
     "@rollup/plugin-strip": "^3.0.4",
     "@swc-node/jest": "^1.8.12",
-    "@swc/core": "^1.7.14",
+    "@swc/core": "^1.7.18",
     "@swc/helpers": "^0.5.12",
     "@types/jest": "^29.5.12",
     "@types/node": "^22.5.0",
@@ -52,7 +52,7 @@
     "jest-environment-jsdom": "^29.7.0",
     "jest-preset-angular": "^14.2.2",
     "madge": "^8.0.0",
-    "npm-run-path": "^5.3.0",
+    "npm-run-path": "^6.0.0",
     "prettier": "^3.3.3",
     "putil-merge": "^3.13.0",
     "putil-varhelpers": "^1.6.5",
@@ -65,7 +65,7 @@
     "ts-loader": "^9.5.1",
     "ts-node": "github:TypeStrong/ts-node#main",
     "tsconfig-paths": "^4.2.0",
-    "tslib": "^2.6.3",
+    "tslib": "^2.7.0",
     "typescript": "^5.5.4"
   }
 }
