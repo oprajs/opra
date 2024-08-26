@@ -233,7 +233,7 @@ abstract class ComplexTypeBaseClass extends DataType {
       const fn = this._generateFieldCodec(codec, field, {
         ...context,
         partial: context.partial === 'deep' ? context.partial : undefined,
-        projection,
+        projection: typeof projection === 'object' ? projection[fieldName]?.projection || '*' : projection,
         currentPath: currentPath + (currentPath ? '.' : '') + fieldName,
       });
       schema[fieldName] = context.partial || !field.required ? vg.optional(fn) : vg.required(fn);
