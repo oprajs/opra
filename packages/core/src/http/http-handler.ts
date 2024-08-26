@@ -20,6 +20,7 @@ import {
 } from '@opra/common';
 import { parse as parseContentType } from 'content-type';
 import { splitString } from 'fast-tokenizer';
+import { md5 } from 'super-fast-md5';
 import { asMutable } from 'ts-gems';
 import { type ErrorIssue, toArray, ValidationError, type Validator, vg } from 'valgen';
 import { kAssetCache } from '../constants.js';
@@ -339,18 +340,20 @@ export class HttpHandler {
       if (operationResponse?.type) {
         if (!(body == null && (statusCode as HttpStatusCode) === HttpStatusCode.NO_CONTENT)) {
           /** Generate encoder */
-          let encode = this[kAssetCache].get<Validator>(operationResponse, 'encode');
+          const projection = responseArgs.projection || '*';
+          const assetKey = md5(String(projection));
+          let encode = this[kAssetCache].get<Validator>(operationResponse, 'encode:' + assetKey);
           if (!encode) {
             encode = operationResponse.type.generateCodec('encode', {
               partial: operationResponse.partial,
-              projection: responseArgs.projection || '*',
+              projection,
               ignoreWriteonlyFields: true,
               ignoreHiddenFields: true,
               onFail: issue => `Response body validation failed: ` + issue.message,
             });
             if (operationResponse) {
               if (operationResponse.isArray) encode = vg.isArray(encode);
-              this[kAssetCache].set(operationResponse, 'encode', encode);
+              this[kAssetCache].set(operationResponse, 'encode:' + assetKey, encode);
             }
           }
           /** Encode body */

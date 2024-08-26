@@ -52,6 +52,7 @@
     "raw-body": "^3.0.0",
     "reflect-metadata": "^0.2.2",
     "strict-typed-events": "^2.8.0",
+    "super-fast-md5": "^1.0.3",
     "tslib": "^2.6.3",
     "valgen": "^5.9.0",
     "vary": "^1.1.2"
