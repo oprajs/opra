@@ -2,7 +2,7 @@ import { HttpController, HttpOperation, OmitType, OperationResult } from '@opra/
 import { MongoAdapter } from '@opra/mongodb';
 import { Customer, CustomersService } from 'customer-mongo';
 import { Db } from 'mongodb';
-import { PartialDTO } from 'ts-gems';
+import { type PartialDTO } from 'ts-gems';
 
 @HttpController({
   path: 'Customers',

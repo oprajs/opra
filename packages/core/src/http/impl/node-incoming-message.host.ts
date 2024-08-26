@@ -2,7 +2,7 @@
   This file contains code blocks from open source NodeJs project
   https://github.com/nodejs/
  */
-import { HTTPParserJS } from '@browsery/http-parser';
+import { type HTTPParserJS } from '@browsery/http-parser';
 import { isAsyncIterable, isIterable } from '@opra/common';
 import type { IncomingHttpHeaders } from 'http';
 import { Duplex, Readable } from 'stream';

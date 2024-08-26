@@ -1,5 +1,4 @@
-import * as OpraCommon from '@opra/common';
-import { ComplexType, DataType, DATATYPE_METADATA } from '@opra/common';
+import { ComplexType, DataType, DATATYPE_METADATA, type OpraFilter } from '@opra/common';
 import { HttpContext, ServiceBase } from '@opra/core';
 import mongodb, { type Document, MongoClient, ObjectId, type TransactionOptions } from 'mongodb';
 import type { Nullish, PartialDTO, StrictOmit, Type } from 'ts-gems';
@@ -35,10 +34,10 @@ export namespace MongoService {
     options?: any;
   }
 
-  export type CommonFilter =
+  export type DocumentFilter =
     | MongoAdapter.FilterInput
     | ((
-        args: MongoService.CommandInfo,
+        args: CommandInfo,
         _this: MongoService<any>,
       ) => MongoAdapter.FilterInput | Promise<MongoAdapter.FilterInput> | undefined);
 
@@ -58,7 +57,7 @@ export namespace MongoService {
    * @template T - The type of the document.
    */
   export interface CountOptions<T> extends mongodb.CountOptions {
-    filter?: mongodb.Filter<T> | OpraCommon.OpraFilter.Ast | string;
+    filter?: mongodb.Filter<T> | OpraFilter.Ast | string;
   }
 
   /**
@@ -68,7 +67,7 @@ export namespace MongoService {
    * @template T - The type of the document.
    */
   export interface DeleteOptions<T> extends mongodb.DeleteOptions {
-    filter?: mongodb.Filter<T> | OpraCommon.OpraFilter.Ast | string;
+    filter?: mongodb.Filter<T> | OpraFilter.Ast | string;
   }
 
   /**
@@ -78,7 +77,7 @@ export namespace MongoService {
    * @template T - The type of the document.
    */
   export interface DeleteManyOptions<T> extends mongodb.DeleteOptions {
-    filter?: mongodb.Filter<T> | OpraCommon.OpraFilter.Ast | string;
+    filter?: mongodb.Filter<T> | OpraFilter.Ast | string;
   }
 
   /**
@@ -88,7 +87,7 @@ export namespace MongoService {
    * @template T - The type of the document.
    */
   export interface DistinctOptions<T> extends mongodb.DistinctOptions {
-    filter?: mongodb.Filter<T> | OpraCommon.OpraFilter.Ast | string;
+    filter?: mongodb.Filter<T> | OpraFilter.Ast | string;
   }
 
   /**
@@ -97,7 +96,7 @@ export namespace MongoService {
    * @interface
    */
   export interface ExistsOptions<T> extends Omit<mongodb.CommandOperationOptions, 'writeConcern'> {
-    filter?: mongodb.Filter<T> | OpraCommon.OpraFilter.Ast | string;
+    filter?: mongodb.Filter<T> | OpraFilter.Ast | string;
   }
 
   /**
@@ -106,7 +105,7 @@ export namespace MongoService {
    * @interface
    */
   export interface ExistsOneOptions<T> extends Omit<mongodb.CommandOperationOptions, 'writeConcern'> {
-    filter?: mongodb.Filter<T> | OpraCommon.OpraFilter.Ast | string;
+    filter?: mongodb.Filter<T> | OpraFilter.Ast | string;
   }
 
   /**
@@ -124,7 +123,7 @@ export namespace MongoService {
    * @template T - The type of the document.
    */
   export interface FindManyOptions<T> extends mongodb.AggregateOptions {
-    filter?: mongodb.Filter<T> | OpraCommon.OpraFilter.Ast | string;
+    filter?: mongodb.Filter<T> | OpraFilter.Ast | string;
     projection?: string | string[] | Document;
     sort?: string[];
     limit?: number;
@@ -140,7 +139,7 @@ export namespace MongoService {
   export interface UpdateOneOptions<T>
     extends StrictOmit<mongodb.FindOneAndUpdateOptions, 'projection' | 'returnDocument' | 'includeResultMetadata'> {
     projection?: string | string[] | Document;
-    filter?: mongodb.Filter<T> | OpraCommon.OpraFilter.Ast | string;
+    filter?: mongodb.Filter<T> | OpraFilter.Ast | string;
   }
 
   /**
@@ -150,7 +149,7 @@ export namespace MongoService {
    * @template T - The type of the document.
    */
   export interface UpdateManyOptions<T> extends StrictOmit<mongodb.UpdateOptions, 'upsert'> {
-    filter?: mongodb.Filter<T> | OpraCommon.OpraFilter.Ast | string;
+    filter?: mongodb.Filter<T> | OpraFilter.Ast | string;
   }
 }
 
@@ -217,7 +216,7 @@ export class MongoService<T extends mongodb.Document = mongodb.Document> extends
    *
    * @type {FilterInput | Function}
    */
-  documentFilter?: MongoService.CommonFilter | MongoService.CommonFilter[];
+  documentFilter?: MongoService.DocumentFilter | MongoService.DocumentFilter[];
 
   /**
    * Constructs a new instance
@@ -232,8 +231,8 @@ export class MongoService<T extends mongodb.Document = mongodb.Document> extends
     this.db = options?.db;
     this.documentFilter = options?.documentFilter;
     this.interceptor = options?.interceptor;
-    this.collectionName = options?.collectionName;
-    if (!this.collectionName) {
+    if (options?.collectionName) this.collectionName = options?.collectionName;
+    else {
       if (typeof dataType === 'string') this.collectionName = dataType;
       if (typeof dataType === 'function') {
         const metadata = Reflect.getMetadata(DATATYPE_METADATA, dataType);

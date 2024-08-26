@@ -5,7 +5,7 @@
 import {
   ATN,
   ATNDeserializer,
-  DecisionState,
+  type DecisionState,
   DFA,
   FailedPredicateException,
   NoViableAltException,
@@ -14,10 +14,10 @@ import {
   ParserRuleContext,
   PredictionContextCache,
   RecognitionException,
-  RuleContext,
-  TerminalNode,
+  type RuleContext,
+  type TerminalNode,
   Token,
-  TokenStream,
+  type TokenStream,
 } from '@browsery/antlr4';
 import type OpraFilterListener from './OpraFilterListener.js';
 import type OpraFilterVisitor from './OpraFilterVisitor.js';
