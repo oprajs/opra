@@ -1,0 +1,22 @@
+{
+  "name": "express-elastic",
+  "private": true,
+  "version": "0.0.1",
+  "type": "module",
+  "module": "./start.js",
+  "dependencies": {
+    "@elastic/elasticsearch": "^8.15.0",
+    "@opra/common": "^1.0.0-alpha.39",
+    "@opra/core": "^1.0.0-alpha.39",
+    "@opra/mongodb": "^1.0.0-alpha.39",
+    "express": "^4.19.2",
+    "ts-gems": "^3.5.0"
+  },
+  "scripts": {
+    "_build": "tsc && npm run check && npm run lint && npm run format",
+    "lint": "eslint . --max-warnings=0",
+    "check": "madge --circular src/**",
+    "format": "prettier . --write --log-level=warn",
+    "start": "node --loader ../../support/esloader.mjs --experimental-specifier-resolution=node --import=./logerror.js src/start.ts"
+  }
+}
