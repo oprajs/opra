@@ -1,17 +1,33 @@
 /* eslint-disable camelcase */
 import '@opra/core';
+import type { QueryDslQueryContainer } from '@elastic/elasticsearch/lib/api/types';
 import { OpraFilter } from '@opra/common';
+import { type ElasticAdapter } from '../elastic-adapter.js';
 
-const isNil = (v: any) => v == null;
+export default function prepareFilter(
+  filters: ElasticAdapter.FilterInput | ElasticAdapter.FilterInput[],
+): QueryDslQueryContainer | undefined {
+  const filtersArray = Array.isArray(filters) ? filters : [filters];
+  if (!filtersArray.length) return;
+  const out: QueryDslQueryContainer[] = [];
+  for (const filter of filtersArray) {
+    if (!filter) continue;
+    let x: any = filter;
+    if (typeof filter === 'string') x = prepareFilterAst(OpraFilter.parse(filter));
+    else if (filter instanceof OpraFilter.Expression) x = prepareFilterAst(filter);
+    out.push(x);
+  }
+  if (out.length > 1) {
+    return { bool: { must: [...out] } };
+  }
+  return out[0] ? out[0] : undefined;
+}
 
-export default function prepareFilter(ast: OpraFilter.Expression | undefined, negative?: boolean): any {
+function prepareFilterAst(ast: OpraFilter.Expression | undefined, negative?: boolean): any {
   if (!ast) return;
 
-  if (ast instanceof OpraFilter.QualifiedIdentifier) {
-    return ast.value;
-  }
-
   if (
+    ast instanceof OpraFilter.QualifiedIdentifier ||
     ast instanceof OpraFilter.NumberLiteral ||
     ast instanceof OpraFilter.StringLiteral ||
     ast instanceof OpraFilter.BooleanLiteral ||
@@ -23,103 +39,82 @@ export default function prepareFilter(ast: OpraFilter.Expression | undefined, ne
   }
 
   if (ast instanceof OpraFilter.ArrayExpression) {
-    return ast.items.map(x => prepareFilter(x, negative)).filter(x => !isNil(x));
+    return ast.items.map(x => prepareFilterAst(x, negative));
   }
 
   if (ast instanceof OpraFilter.NegativeExpression) {
-    return prepareFilter(ast.expression, !negative);
+    return prepareFilterAst(ast.expression, !negative);
   }
 
   if (ast instanceof OpraFilter.LogicalExpression) {
-    const v = ast.items.map(x => prepareFilter(x)).filter(x => !isNil(x));
-    if (ast.op === 'and') {
-      return {
-        bool: {
-          [negative ? 'must_not' : 'must']: v,
-        },
-      };
-    }
-    return wrapNot(
-      {
-        bool: { should: v },
-      },
-      negative,
-    );
+    const items = ast.items
+      .map(x => prepareFilterAst(x))
+      /** Filter nullish items */
+      .filter(x => x != null);
+    const k = (ast.op === 'or' ? 'should' : 'must') + (negative ? '_not' : '');
+    return { bool: { [k]: items } };
   }
 
   if (ast instanceof OpraFilter.ParenthesizedExpression) {
-    return prepareFilter(ast.expression, negative);
+    return prepareFilterAst(ast.expression, negative);
   }
 
-  if (ast instanceof OpraFilter.ComparisonExpression) return _transformComparisonExpression(ast, !!negative);
+  if (ast instanceof OpraFilter.ComparisonExpression) {
+    if (!(ast.left instanceof OpraFilter.QualifiedIdentifier)) {
+      throw new Error('Left side of ComparisonExpression must be a QualifiedIdentifier');
+    }
+    const left = prepareFilterAst(ast.left);
+    const right = prepareFilterAst(ast.right);
+
+    let out: any;
+    if (right == null) {
+      negative = !negative;
+      out = { exists: { field: left } };
+    } else {
+      switch (ast.op) {
+        case '!=':
+        case '=':
+        case 'in':
+        case '!in': {
+          out = { match: { [left]: right } };
+          break;
+        }
+        case '>': {
+          out = { range: { [left]: { gt: right } } };
+          break;
+        }
+        case '>=': {
+          out = { range: { [left]: { gte: right } } };
+          break;
+        }
+        case '<': {
+          out = { range: { [left]: { lt: right } } };
+          break;
+        }
+        case '<=': {
+          out = { range: { [left]: { lte: right } } };
+          break;
+        }
+        case '!like':
+        case 'like': {
+          out = { wildcard: { [left]: { value: String(right).replace(/%/g, '*') } } };
+          break;
+        }
+        case '!ilike':
+        case 'ilike': {
+          out = { wildcard: { [left]: { value: String(right).replace(/%/g, '*'), case_insensitive: true } } };
+          break;
+        }
+        default:
+          /* istanbul ignore next */
+          throw new TypeError(`Unknown ComparisonExpression operation (${ast.op})`);
+      }
+    }
+    if ((ast.op.startsWith('!') && !negative) || (!ast.op.startsWith('!') && negative)) {
+      return { bool: { must_not: { ...out } } };
+    }
+    return out;
+  }
 
   throw new Error(`${ast.kind} is not implemented yet`);
 }
-
-function _transformComparisonExpression(ast: OpraFilter.ComparisonExpression, negative: boolean): any {
-  const left = prepareFilter(ast.left, negative);
-
-  if (ast.right instanceof OpraFilter.QualifiedIdentifier) {
-    throw new TypeError('not implemented yet');
-  }
-
-  const right = prepareFilter(ast.right);
-
-  if (right == null) {
-    const op = ast.op === '=' ? (negative ? '!=' : '=') : negative ? '=' : '!=';
-    if (op === '=') return { bool: { must_not: { exists: { field: left } } } };
-    if (op === '!=') return { bool: { exists: { field: left } } };
-  }
-
-  switch (ast.op) {
-    case '=':
-      return wrapNot({ term: { [left]: right } }, negative);
-    case '!=':
-      return wrapNot({ term: { [left]: right } }, !negative);
-    case '>':
-      return wrapNot({ range: { [left]: { gt: right } } }, negative);
-    case '>=':
-      return wrapNot({ range: { [left]: { gte: right } } }, negative);
-    case '<':
-      return wrapNot({ range: { [left]: { lt: right } } }, negative);
-    case '<=':
-      return wrapNot({ range: { [left]: { lte: right } } }, negative);
-    case 'in':
-      return wrapNot({ terms: { [left]: Array.isArray(right) ? right : [right] } }, negative);
-    case '!in':
-      return wrapNot({ terms: { [left]: Array.isArray(right) ? right : [right] } }, !negative);
-    case 'like':
-      return wrapNot({ wildcard: { [left]: String(right) } }, negative);
-    case '!like':
-      return wrapNot({ wildcard: { [left]: String(right) } }, !negative);
-    case 'ilike':
-      return wrapNot(
-        {
-          wildcard: {
-            [left]: {
-              value: String(right),
-              case_insensitive: true,
-            },
-          },
-        },
-        negative,
-      );
-    case '!ilike':
-      return wrapNot(
-        {
-          wildcard: {
-            [left]: {
-              value: String(right),
-              case_insensitive: true,
-            },
-          },
-        },
-        !negative,
-      );
-    default:
-      break;
-  }
-  throw new Error(`ComparisonExpression operator (${ast.op}) not implemented yet`);
-}
-
-const wrapNot = (o: object, negative?: boolean) => (negative ? { bool: { must_not: o } } : o);

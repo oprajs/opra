@@ -7,10 +7,10 @@
   "scripts": {
     "compile": "tsc",
     "prebuild": "npm run lint && npm run clean",
-    "_build": "npm run build:cjs && npm run build:esm",
-    "_build:cjs": "tsc -b tsconfig-build-cjs.json && cp ../../support/package.cjs.json ../../build/elastic/cjs/package.json",
-    "_build:esm": "tsc -b tsconfig-build-esm.json && cp ../../support/package.esm.json ../../build/elastic/esm/package.json",
-    "_postbuild": "cp README.md package.json ../../LICENSE ../../build/elastic && node ../../support/postbuild.cjs",
+    "build": "npm run build:cjs && npm run build:esm",
+    "build:cjs": "tsc -b tsconfig-build-cjs.json && cp ../../support/package.cjs.json ../../build/elastic/cjs/package.json",
+    "build:esm": "tsc -b tsconfig-build-esm.json && cp ../../support/package.esm.json ../../build/elastic/esm/package.json",
+    "postbuild": "cp README.md package.json ../../LICENSE ../../build/elastic && node ../../support/postbuild.cjs",
     "lint": "eslint . --max-warnings=0",
     "lint:fix": "eslint . --max-warnings=0 --fix",
     "format": "prettier . --write --log-level=warn",
@@ -23,6 +23,7 @@
     "clean:cover": "rimraf ../../coverage/elastic"
   },
   "dependencies": {
+    "lodash.omit": "^4.5.0",
     "putil-isplainobject": "^1.1.5",
     "tslib": "^2.7.0",
     "valgen": "^5.9.0"
