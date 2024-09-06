@@ -22,12 +22,12 @@ const opMap = {
  *
  * @returns {mongodb.Filter<any>} - The prepared MongoDB filter.
  */
-export default function prepareFilter(
-  filters: MongoAdapter.FilterInput | MongoAdapter.FilterInput[],
+export default function prepareFilter<T = any>(
+  filters: MongoAdapter.FilterInput<T> | MongoAdapter.FilterInput<T>[],
   options?: {
     fieldPrefix?: string;
   },
-): mongodb.Filter<any> {
+): mongodb.Filter<T> {
   const filtersArray = Array.isArray(filters) ? filters : [filters];
   if (!filtersArray.length) return {};
   let i = 0;

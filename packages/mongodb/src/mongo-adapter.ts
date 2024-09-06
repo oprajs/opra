@@ -9,7 +9,7 @@ import _prepareSort from './adapter-utils/prepare-sort.js';
 
 export namespace MongoAdapter {
   export type AnyId = string | number | ObjectId;
-  export type FilterInput = OpraFilter.Expression | mongodb.Filter<any> | string | undefined;
+  export type FilterInput<T = any> = OpraFilter.Expression | mongodb.Filter<T> | string | undefined;
   export type WithTransactionCallback = (session: ClientSession) => any;
 
   export const prepareFilter = _prepareFilter;

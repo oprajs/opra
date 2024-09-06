@@ -1,4 +1,4 @@
-import { ComplexType, DataType, DATATYPE_METADATA, type OpraFilter } from '@opra/common';
+import { ComplexType, DataType, DATATYPE_METADATA } from '@opra/common';
 import { HttpContext, ServiceBase } from '@opra/core';
 import mongodb, { type Document, MongoClient, ObjectId, type TransactionOptions } from 'mongodb';
 import type { Nullish, PartialDTO, StrictOmit, Type } from 'ts-gems';
@@ -57,7 +57,7 @@ export namespace MongoService {
    * @template T - The type of the document.
    */
   export interface CountOptions<T> extends mongodb.CountOptions {
-    filter?: mongodb.Filter<T> | OpraFilter.Ast | string;
+    filter?: MongoAdapter.FilterInput<T>;
   }
 
   /**
@@ -67,7 +67,7 @@ export namespace MongoService {
    * @template T - The type of the document.
    */
   export interface DeleteOptions<T> extends mongodb.DeleteOptions {
-    filter?: mongodb.Filter<T> | OpraFilter.Ast | string;
+    filter?: MongoAdapter.FilterInput<T>;
   }
 
   /**
@@ -77,7 +77,7 @@ export namespace MongoService {
    * @template T - The type of the document.
    */
   export interface DeleteManyOptions<T> extends mongodb.DeleteOptions {
-    filter?: mongodb.Filter<T> | OpraFilter.Ast | string;
+    filter?: MongoAdapter.FilterInput<T>;
   }
 
   /**
@@ -87,7 +87,7 @@ export namespace MongoService {
    * @template T - The type of the document.
    */
   export interface DistinctOptions<T> extends mongodb.DistinctOptions {
-    filter?: mongodb.Filter<T> | OpraFilter.Ast | string;
+    filter?: MongoAdapter.FilterInput<T>;
   }
 
   /**
@@ -96,16 +96,7 @@ export namespace MongoService {
    * @interface
    */
   export interface ExistsOptions<T> extends Omit<mongodb.CommandOperationOptions, 'writeConcern'> {
-    filter?: mongodb.Filter<T> | OpraFilter.Ast | string;
-  }
-
-  /**
-   * Represents options for checking the document exists
-   *
-   * @interface
-   */
-  export interface ExistsOneOptions<T> extends Omit<mongodb.CommandOperationOptions, 'writeConcern'> {
-    filter?: mongodb.Filter<T> | OpraFilter.Ast | string;
+    filter?: MongoAdapter.FilterInput<T>;
   }
 
   /**
@@ -123,7 +114,7 @@ export namespace MongoService {
    * @template T - The type of the document.
    */
   export interface FindManyOptions<T> extends mongodb.AggregateOptions {
-    filter?: mongodb.Filter<T> | OpraFilter.Ast | string;
+    filter?: MongoAdapter.FilterInput<T>;
     projection?: string | string[] | Document;
     sort?: string[];
     limit?: number;
@@ -139,7 +130,7 @@ export namespace MongoService {
   export interface UpdateOneOptions<T>
     extends StrictOmit<mongodb.FindOneAndUpdateOptions, 'projection' | 'returnDocument' | 'includeResultMetadata'> {
     projection?: string | string[] | Document;
-    filter?: mongodb.Filter<T> | OpraFilter.Ast | string;
+    filter?: MongoAdapter.FilterInput<T>;
   }
 
   /**
@@ -149,7 +140,7 @@ export namespace MongoService {
    * @template T - The type of the document.
    */
   export interface UpdateManyOptions<T> extends StrictOmit<mongodb.UpdateOptions, 'upsert'> {
-    filter?: mongodb.Filter<T> | OpraFilter.Ast | string;
+    filter?: MongoAdapter.FilterInput<T>;
   }
 }
 
@@ -241,6 +232,7 @@ export class MongoService<T extends mongodb.Document = mongodb.Document> extends
     }
     this.resourceName = options?.resourceName;
     this.idGenerator = options?.idGenerator;
+    this.onError = options?.onError;
   }
 
   for<C extends HttpContext, P extends Partial<this>>(
@@ -294,35 +286,6 @@ export class MongoService<T extends mongodb.Document = mongodb.Document> extends
   get dataType(): ComplexType {
     if (!this._dataType) this._dataType = this.context.document.node.getComplexType(this._dataType_);
     return this._dataType;
-  }
-
-  /**
-   * Retrieves the codec for the specified operation.
-   *
-   * @param operation - The operation to retrieve the encoder for. Valid values are 'create' and 'update'.
-   */
-  getInputCodec(operation: string): IsObject.Validator<T> {
-    let validator = this._inputCodecs[operation];
-    if (validator) return validator;
-    const options: DataType.GenerateCodecOptions = { projection: '*' };
-    if (operation === 'update') options.partial = 'deep';
-    const dataType = this.dataType;
-    validator = dataType.generateCodec('decode', options) as IsObject.Validator<T>;
-    this._inputCodecs[operation] = validator;
-    return validator;
-  }
-
-  /**
-   * Retrieves the codec.
-   */
-  getOutputCodec(operation: string): IsObject.Validator<T> {
-    let validator = this._outputCodecs[operation];
-    if (validator) return validator;
-    const options: DataType.GenerateCodecOptions = { projection: '*', partial: 'deep' };
-    const dataType = this.dataType;
-    validator = dataType.generateCodec('decode', options) as IsObject.Validator<T>;
-    this._outputCodecs[operation] = validator;
-    return validator;
   }
 
   /**
@@ -655,5 +618,34 @@ export class MongoService<T extends mongodb.Document = mongodb.Document> extends
       await this.onError?.(e, this);
       throw e;
     }
+  }
+
+  /**
+   * Retrieves the codec for the specified operation.
+   *
+   * @param operation - The operation to retrieve the encoder for. Valid values are 'create' and 'update'.
+   */
+  protected _getInputCodec(operation: string): IsObject.Validator<T> {
+    let validator = this._inputCodecs[operation];
+    if (validator) return validator;
+    const options: DataType.GenerateCodecOptions = { projection: '*' };
+    if (operation === 'update') options.partial = 'deep';
+    const dataType = this.dataType;
+    validator = dataType.generateCodec('decode', options) as IsObject.Validator<T>;
+    this._inputCodecs[operation] = validator;
+    return validator;
+  }
+
+  /**
+   * Retrieves the codec.
+   */
+  protected _getOutputCodec(operation: string): IsObject.Validator<T> {
+    let validator = this._outputCodecs[operation];
+    if (validator) return validator;
+    const options: DataType.GenerateCodecOptions = { projection: '*', partial: 'deep' };
+    const dataType = this.dataType;
+    validator = dataType.generateCodec('decode', options) as IsObject.Validator<T>;
+    this._outputCodecs[operation] = validator;
+    return validator;
   }
 }

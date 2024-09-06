@@ -1,4 +1,4 @@
-export * from './api-document.interface';
+export * from './api-document.interface.js';
 export * from './constants.js';
 export * from './data-type/complex-type.interface.js';
 export * from './data-type/data-type.interface.js';

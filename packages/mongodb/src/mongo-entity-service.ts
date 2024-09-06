@@ -1,7 +1,7 @@
 import { InternalServerError } from '@opra/common';
 import omit from 'lodash.omit';
 import mongodb, { type UpdateFilter } from 'mongodb';
-import type { PartialDTO, PatchDTO, RequiredSome, StrictOmit, Type } from 'ts-gems';
+import type { DTO, PartialDTO, PatchDTO, StrictOmit, Type } from 'ts-gems';
 import { isNotNullish } from 'valgen';
 import { MongoAdapter } from './mongo-adapter.js';
 import { MongoService } from './mongo-service.js';
@@ -41,8 +41,9 @@ export namespace MongoEntityService {
 
   export interface UpdateManyOptions<T> extends MongoService.UpdateManyOptions<T> {}
 
-  export interface CreateCommand extends StrictOmit<RequiredSome<CommandInfo, 'input'>, 'documentId' | 'nestedId'> {
+  export interface CreateCommand<T> extends StrictOmit<CommandInfo, 'documentId' | 'nestedId' | 'input'> {
     crud: 'create';
+    input: DTO<T>;
     options?: CreateOptions;
   }
 
@@ -114,11 +115,12 @@ export class MongoEntityService<T extends mongodb.Document> extends MongoService
    * @param {MongoEntityService.CreateCommand} command
    * @protected
    */
-  protected async _create(command: MongoEntityService.CreateCommand): Promise<PartialDTO<T>> {
-    isNotNullish(command.input, { label: 'input' });
-    isNotNullish(command.input._id, { label: 'input._id' });
-    const inputCodec = this.getInputCodec('create');
-    const doc: any = inputCodec(command.input);
+  protected async _create(command: MongoEntityService.CreateCommand<T>): Promise<PartialDTO<T>> {
+    const input: any = command;
+    isNotNullish(input, { label: 'input' });
+    isNotNullish(input._id, { label: 'input._id' });
+    const inputCodec = this._getInputCodec('create');
+    const doc: any = inputCodec(input);
     const { options } = command;
     const r = await this._dbInsertOne(doc, options);
     if (r.insertedId) {
@@ -127,7 +129,7 @@ export class MongoEntityService<T extends mongodb.Document> extends MongoService
         ...command,
         crud: 'read',
         byId: true,
-        documentId: doc._id,
+        documentId: r.insertedId,
         options: omit(options, 'filter'),
       };
       const out = await this._findById(findCommand);
@@ -211,8 +213,10 @@ export class MongoEntityService<T extends mongodb.Document> extends MongoService
       sort: undefined,
     };
     const out = await this._dbFindOne(filter, mongoOptions);
-    const outputCodec = this.getOutputCodec('find');
-    if (out) return outputCodec(out);
+    if (out) {
+      const outputCodec = this._getOutputCodec('find');
+      return outputCodec(out);
+    }
   }
 
   /**
@@ -230,8 +234,10 @@ export class MongoEntityService<T extends mongodb.Document> extends MongoService
       limit: undefined,
     };
     const out = await this._dbFindOne(filter, mongoOptions);
-    const outputCodec = this.getOutputCodec('find');
-    if (out) return outputCodec(out);
+    if (out) {
+      const outputCodec = this._getOutputCodec('find');
+      return outputCodec(out);
+    }
   }
 
   /**
@@ -246,8 +252,8 @@ export class MongoEntityService<T extends mongodb.Document> extends MongoService
     };
     const limit = options?.limit || 10;
     const stages: mongodb.Document[] = [];
-    let filter: mongodb.Filter<any> | undefined;
-    if (options?.filter) filter = MongoAdapter.prepareFilter(options?.filter);
+    let filter: mongodb.Filter<T> | undefined;
+    if (options?.filter) filter = MongoAdapter.prepareFilter<T>(options?.filter);
 
     if (filter) stages.push({ $match: filter });
     if (options?.skip) stages.push({ $skip: options.skip });
@@ -264,7 +270,7 @@ export class MongoEntityService<T extends mongodb.Document> extends MongoService
     /** Execute db command */
     try {
       /** Fetch the cursor and decode the result objects */
-      const outputCodec = this.getOutputCodec('find');
+      const outputCodec = this._getOutputCodec('find');
       return (await cursor.toArray()).map((r: any) => outputCodec(r));
     } finally {
       if (!cursor.closed) await cursor.close();
@@ -286,8 +292,8 @@ export class MongoEntityService<T extends mongodb.Document> extends MongoService
       ...omit(options, ['projection', 'sort', 'skip', 'limit', 'filter']),
     };
     const limit = options?.limit || 10;
-    let filter: mongodb.Filter<any> | undefined;
-    if (options?.filter) filter = MongoAdapter.prepareFilter(options?.filter);
+    let filter: mongodb.Filter<T> | undefined;
+    if (options?.filter) filter = MongoAdapter.prepareFilter<T>(options?.filter);
 
     const dataStages: mongodb.Document[] = [];
     const countStages: any[] = [];
@@ -313,7 +319,7 @@ export class MongoEntityService<T extends mongodb.Document> extends MongoService
     const dataType = this.dataType;
     const projection = MongoAdapter.prepareProjection(dataType, options?.projection);
     if (projection) dataStages.push({ $project: projection });
-    const outputCodec = this.getOutputCodec('find');
+    const outputCodec = this._getOutputCodec('find');
     /** Execute db command */
     const cursor = await this._dbAggregate(stages, mongoOptions);
     try {
@@ -342,7 +348,7 @@ export class MongoEntityService<T extends mongodb.Document> extends MongoService
     }
     let update: UpdateFilter<T>;
     if (input) {
-      const inputCodec = this.getInputCodec('update');
+      const inputCodec = this._getInputCodec('update');
       const doc = inputCodec(input);
       delete doc._id;
       update = MongoAdapter.preparePatch(doc);
@@ -361,7 +367,7 @@ export class MongoEntityService<T extends mongodb.Document> extends MongoService
       projection: MongoAdapter.prepareProjection(this.dataType, options?.projection),
     };
     const out = await this._dbFindOneAndUpdate(filter, update, mongoOptions);
-    const outputCodec = this.getOutputCodec('update');
+    const outputCodec = this._getOutputCodec('update');
     if (out) return outputCodec(out);
   }
 
@@ -379,7 +385,7 @@ export class MongoEntityService<T extends mongodb.Document> extends MongoService
     }
     let update: UpdateFilter<T>;
     if (input) {
-      const inputCodec = this.getInputCodec('update');
+      const inputCodec = this._getInputCodec('update');
       const doc = inputCodec(input);
       delete doc._id;
       update = MongoAdapter.preparePatch(doc);
@@ -415,7 +421,7 @@ export class MongoEntityService<T extends mongodb.Document> extends MongoService
     }
     let update: UpdateFilter<T>;
     if (input) {
-      const inputCodec = this.getInputCodec('update');
+      const inputCodec = this._getInputCodec('update');
       const doc = inputCodec(input);
       delete doc._id;
       update = MongoAdapter.preparePatch(doc);
@@ -435,11 +441,11 @@ export class MongoEntityService<T extends mongodb.Document> extends MongoService
     try {
       const result = await super._executeCommand(command, async () => {
         /** Call before[X] hooks */
-        if (command.crud === 'create') await this._beforeCreate(command as MongoEntityService.CreateCommand);
+        if (command.crud === 'create') await this._beforeCreate(command as MongoEntityService.CreateCommand<T>);
         else if (command.crud === 'update' && command.byId) {
           await this._beforeUpdate(command as MongoEntityService.UpdateOneCommand<T>);
         } else if (command.crud === 'update' && !command.byId) {
-          await this._beforeUpdateMany(command as MongoEntityService.UpdateOneCommand<T>);
+          await this._beforeUpdateMany(command as MongoEntityService.UpdateManyCommand<T>);
         } else if (command.crud === 'delete' && command.byId) {
           await this._beforeDelete(command as MongoEntityService.DeleteCommand<T>);
         } else if (command.crud === 'delete' && !command.byId) {
@@ -449,11 +455,11 @@ export class MongoEntityService<T extends mongodb.Document> extends MongoService
         return commandFn();
       });
       /** Call after[X] hooks */
-      if (command.crud === 'create') await this._afterCreate(command as MongoEntityService.CreateCommand, result);
+      if (command.crud === 'create') await this._afterCreate(command as MongoEntityService.CreateCommand<T>, result);
       else if (command.crud === 'update' && command.byId) {
         await this._afterUpdate(command as MongoEntityService.UpdateOneCommand<T>, result);
       } else if (command.crud === 'update' && !command.byId) {
-        await this._afterUpdateMany(command as MongoEntityService.UpdateOneCommand<T>, result);
+        await this._afterUpdateMany(command as MongoEntityService.UpdateManyCommand<T>, result);
       } else if (command.crud === 'delete' && command.byId) {
         await this._afterDelete(command as MongoEntityService.DeleteCommand<T>, result);
       } else if (command.crud === 'delete' && !command.byId) {
@@ -468,7 +474,7 @@ export class MongoEntityService<T extends mongodb.Document> extends MongoService
   }
 
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  protected async _beforeCreate(command: MongoEntityService.CreateCommand): Promise<void> {
+  protected async _beforeCreate(command: MongoEntityService.CreateCommand<T>): Promise<void> {
     // Do nothing
   }
 
@@ -493,7 +499,7 @@ export class MongoEntityService<T extends mongodb.Document> extends MongoService
   }
 
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  protected async _afterCreate(command: MongoEntityService.CreateCommand, result: PartialDTO<T>): Promise<void> {
+  protected async _afterCreate(command: MongoEntityService.CreateCommand<T>, result: PartialDTO<T>): Promise<void> {
     // Do nothing
   }
 

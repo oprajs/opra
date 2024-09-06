@@ -43,8 +43,6 @@ export namespace MongoNestedService {
 
   export interface ExistsOptions<T> extends MongoService.ExistsOptions<T> {}
 
-  export interface ExistsOneOptions<T> extends MongoService.ExistsOneOptions<T> {}
-
   export interface FindOneOptions<T> extends MongoService.FindOneOptions<T> {
     documentFilter?: MongoAdapter.FilterInput;
   }
@@ -230,7 +228,7 @@ export class MongoNestedService<T extends mongodb.Document> extends MongoService
   }
 
   protected async _create(command: MongoNestedService.CreateCommand): Promise<PartialDTO<T>> {
-    const inputCodec = this.getInputCodec('create');
+    const inputCodec = this._getInputCodec('create');
     const { documentId, options } = command;
     const doc: any = inputCodec(command.input);
 
@@ -441,10 +439,10 @@ export class MongoNestedService<T extends mongodb.Document> extends MongoService
    * Checks if an object with the given arguments exists.
    *
    * @param {MongoAdapter.AnyId} documentId - The ID of the parent document.
-   * @param {MongoNestedService.ExistsOneOptions} [options] - The options for the query (optional).
+   * @param {MongoNestedService.ExistsOptions} [options] - The options for the query (optional).
    * @return {Promise<boolean>} - A Promise that resolves to a boolean indicating whether the object exists or not.
    */
-  async existsOne(documentId: MongoAdapter.AnyId, options?: MongoNestedService.ExistsOneOptions<T>): Promise<boolean> {
+  async existsOne(documentId: MongoAdapter.AnyId, options?: MongoNestedService.ExistsOptions<T>): Promise<boolean> {
     const command: MongoNestedService.ExistsCommand<T> = {
       crud: 'read',
       method: 'exists',
@@ -636,7 +634,7 @@ export class MongoNestedService<T extends mongodb.Document> extends MongoService
     if (projection) stages.push({ $project: projection });
     const cursor = await this._dbAggregate(stages, mongoOptions);
     try {
-      const outputCodec = this.getOutputCodec('find');
+      const outputCodec = this._getOutputCodec('find');
       const out = await (await cursor.toArray()).map((r: any) => outputCodec(r));
       return out;
     } finally {
@@ -739,7 +737,7 @@ export class MongoNestedService<T extends mongodb.Document> extends MongoService
     });
     try {
       const facetResult = await cursor.toArray();
-      const outputCodec = this.getOutputCodec('find');
+      const outputCodec = this._getOutputCodec('find');
       return {
         count: facetResult[0].count[0].totalMatches || 0,
         items: facetResult[0].data.map((r: any) => outputCodec(r)),
@@ -927,7 +925,7 @@ export class MongoNestedService<T extends mongodb.Document> extends MongoService
     const { documentId, input } = command;
     isNotNullish(documentId, { label: 'documentId' });
     let options = command.options;
-    const inputCodec = this.getInputCodec('update');
+    const inputCodec = this._getInputCodec('update');
     const doc = inputCodec(input);
     if (!Object.keys(doc).length) return 0;
     const matchFilter = MongoAdapter.prepareFilter([

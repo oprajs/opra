@@ -36,10 +36,7 @@ export class HttpMultipartField extends HttpMediaType {
   fieldType: OpraSchema.HttpMultipartFieldType;
   required?: boolean;
 
-  constructor(
-    readonly owner: HttpMediaType | HttpMultipartField,
-    initArgs: HttpMultipartField.InitArguments,
-  ) {
+  constructor(owner: HttpMediaType | HttpMultipartField, initArgs: HttpMultipartField.InitArguments) {
     super(owner, initArgs);
     this.fieldName =
       initArgs.fieldName instanceof RegExp

@@ -63,7 +63,7 @@ describe('MongoCollectionService', () => {
   });
 
   describe('count()', () => {
-    it('Should count number of elements in array field', async () => {
+    it('Should count number of documents', async () => {
       const ctx = createContext(app.adapter);
       const result = await service.for(ctx).count();
       expect(result).toBeGreaterThan(0);
@@ -522,7 +522,7 @@ describe('MongoCollectionService', () => {
   });
 
   describe('updateMany()', () => {
-    it('Should update all objects in the array field', async () => {
+    it('Should update multiple records', async () => {
       const ctx = createContext(app.adapter);
       const update = { uid: faker.string.uuid() };
       const r = await service.for(ctx).updateMany(update);
