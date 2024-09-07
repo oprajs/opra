@@ -5,7 +5,7 @@
   "author": "Panates",
   "license": "MIT",
   "scripts": {
-    "compile": "tsc",
+    "compile": "tsc --noEmit",
     "prebuild": "npm run check && npm run lint && npm run clean",
     "build": "ng build",
     "postbuild": "cp ../../LICENSE ../../build/angular",
@@ -33,12 +33,12 @@
     "ts-gems": "^3.0.0"
   },
   "devDependencies": {
-    "@angular-devkit/build-angular": "^18.2.1",
-    "@angular/cli": "^18.2.1",
+    "@angular-devkit/build-angular": "^18.2.3",
+    "@angular/cli": "^18.2.3",
     "@angular/compiler": "^18.0.2",
-    "@angular/compiler-cli": "^18.2.1",
+    "@angular/compiler-cli": "^18.2.3",
     "@angular/platform-browser": "^18.0.2",
-    "@angular/platform-browser-dynamic": "^18.2.1",
+    "@angular/platform-browser-dynamic": "^18.2.3",
     "@opra/client": "^1.0.0-alpha.39",
     "core-js": "^3.38.1",
     "cross-fetch": "^4.0.0",

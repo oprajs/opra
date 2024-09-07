@@ -38,10 +38,11 @@ export const resolve = async (specifier, ctx, defaultResolve) => {
       specifier = match.endsWith('.js') ? match : `${match}.js`;
     }
   }
-  if (specifier.endsWith('.js.js'))
+  if (specifier.endsWith('.js.js')) {
     specifier = specifier.substring(0, specifier.length - 3);
+  }
 
   return resolveTs(specifier, ctx, defaultResolve);
 };
 
-export { transformSource, load } from 'ts-node/esm';
+export { load, transformSource } from 'ts-node/esm';
