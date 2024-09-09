@@ -8,13 +8,7 @@ workflows:
   main:
     jobs:
       - test:
-          version: '18.17'
-          filters:
-            branches:
-              only:
-                - main
-      - test:
-          version: '20.5'
+          version: '20.14'
           filters:
             branches:
               only:
@@ -45,7 +39,7 @@ jobs:
           - network.host: 127.0.0.1
           - http.port: 9200
           - discovery.type: single-node
-          - ES_JAVA_OPTIONS=-Xms512m -Xmx512m
+          - ES_JAVA_OPTS=-Xms512m -Xmx512m
     environment:
       NODE_ENV: test
       POSTGRES_USER: postgres
