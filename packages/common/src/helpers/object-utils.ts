@@ -1,6 +1,6 @@
 import isPlainObject from 'putil-isplainobject';
 import merge from 'putil-merge';
-import { DeeperOmitTypes } from 'ts-gems';
+import type { DeeperOmitTypes } from 'ts-gems';
 import { DATATYPE_METADATA } from '../document/constants.js';
 
 export function cloneObject<T extends {}>(obj: T, jsonOnly?: boolean): T {

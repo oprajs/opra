@@ -7,7 +7,7 @@ import { BadRequestError, HttpMediaType } from '@opra/common';
 import busboy from 'busboy';
 import { EventEmitter } from 'events';
 import fsPromise from 'fs/promises';
-import { StrictOmit } from 'ts-gems';
+import type { StrictOmit } from 'ts-gems';
 import { isNotNullish, ValidationError } from 'valgen';
 import { HttpContext } from '../http-context.js';
 

@@ -1,6 +1,6 @@
+import * as nodePath from 'node:path';
 import { ApiDocument, HttpApi, HttpController, HttpOperation, NotFoundError } from '@opra/common';
-import { Application, NextFunction, Request, Response, Router } from 'express';
-import * as nodePath from 'path';
+import { type Application, type NextFunction, type Request, type Response, Router } from 'express';
 import { HttpAdapter } from './http-adapter.js';
 import { HttpContext } from './http-context.js';
 import { HttpIncoming } from './interfaces/http-incoming.interface.js';

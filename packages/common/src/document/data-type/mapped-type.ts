@@ -1,5 +1,5 @@
 import 'reflect-metadata';
-import { asMutable, Combine, Type } from 'ts-gems';
+import { asMutable, type Combine, type Type } from 'ts-gems';
 import { omitUndefined } from '../../helpers/index.js';
 import type { Field } from '../../schema/data-type/field.interface.js';
 import { OpraSchema } from '../../schema/index.js';

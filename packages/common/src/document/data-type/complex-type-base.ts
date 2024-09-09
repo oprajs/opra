@@ -1,5 +1,5 @@
-import { asMutable, StrictOmit, Type } from 'ts-gems';
-import { IsObject, Validator, validator, vg } from 'valgen';
+import { asMutable, type StrictOmit, type Type } from 'ts-gems';
+import { type IsObject, type Validator, validator, vg } from 'valgen';
 import { FieldsProjection, parseFieldsProjection, ResponsiveMap } from '../../helpers/index.js';
 import { translate } from '../../i18n/index.js';
 import { OpraSchema } from '../../schema/index.js';
@@ -8,7 +8,6 @@ import { DocumentInitContext } from '../common/document-init-context.js';
 import type { ApiField } from './api-field.js';
 import type { ComplexType } from './complex-type.js';
 import { DataType } from './data-type.js';
-import Field = OpraSchema.Field;
 
 export const FIELD_PATH_PATTERN = /^([+-])?([a-z$_][\w.]*)$/i;
 
@@ -60,7 +59,7 @@ abstract class ComplexTypeBaseClass extends DataType {
   readonly ctor?: Type;
   declare readonly fields: ResponsiveMap<ApiField>;
   readonly additionalFields?: boolean | DataType | ['error'] | ['error', string];
-  readonly keyField?: Field.Name;
+  readonly keyField?: OpraSchema.Field.Name;
 
   /**
    *
@@ -234,7 +233,7 @@ abstract class ComplexTypeBaseClass extends DataType {
       const fn = this._generateFieldCodec(codec, field, {
         ...context,
         partial: context.partial === 'deep' ? context.partial : undefined,
-        projection,
+        projection: typeof projection === 'object' ? projection[fieldName]?.projection || '*' : projection,
         currentPath: currentPath + (currentPath ? '.' : '') + fieldName,
       });
       schema[fieldName] = context.partial || !field.required ? vg.optional(fn) : vg.required(fn);

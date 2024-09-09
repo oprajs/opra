@@ -1,12 +1,11 @@
 import { ComplexType, NotAcceptableError, ResourceNotAvailableError } from '@opra/common';
 import omit from 'lodash.omit';
 import mongodb from 'mongodb';
-import { PartialDTO, PatchDTO, RequiredSome, StrictOmit, Type } from 'ts-gems';
+import type { DTO, PartialDTO, PatchDTO, RequiredSome, StrictOmit, Type } from 'ts-gems';
 import { isNotNullish } from 'valgen';
 import { MongoAdapter } from './mongo-adapter.js';
+import type { MongoEntityService } from './mongo-entity-service';
 import { MongoService } from './mongo-service.js';
-
-import FilterInput = MongoAdapter.FilterInput;
 
 /**
  *
@@ -20,8 +19,11 @@ export namespace MongoNestedService {
     defaultLimit?: number;
     nestedKey?: string;
     nestedFilter?:
-      | FilterInput
-      | ((args: MongoService.CommandInfo, _this: this) => FilterInput | Promise<FilterInput> | undefined);
+      | MongoAdapter.FilterInput
+      | ((
+          args: MongoService.CommandInfo,
+          _this: this,
+        ) => MongoAdapter.FilterInput | Promise<MongoAdapter.FilterInput> | undefined);
   }
 
   export interface CommandInfo extends MongoService.CommandInfo {}
@@ -29,41 +31,39 @@ export namespace MongoNestedService {
   export interface CreateOptions extends MongoService.CreateOptions {}
 
   export interface CountOptions<T> extends MongoService.CountOptions<T> {
-    documentFilter?: FilterInput;
+    documentFilter?: MongoAdapter.FilterInput;
   }
 
   export interface DeleteOptions<T> extends MongoService.DeleteOptions<T> {
-    documentFilter?: FilterInput;
+    documentFilter?: MongoAdapter.FilterInput;
   }
 
   export interface DeleteManyOptions<T> extends MongoService.DeleteManyOptions<T> {
-    documentFilter?: FilterInput;
+    documentFilter?: MongoAdapter.FilterInput;
   }
 
   export interface ExistsOptions<T> extends MongoService.ExistsOptions<T> {}
 
-  export interface ExistsOneOptions<T> extends MongoService.ExistsOneOptions<T> {}
-
   export interface FindOneOptions<T> extends MongoService.FindOneOptions<T> {
-    documentFilter?: FilterInput;
+    documentFilter?: MongoAdapter.FilterInput;
   }
 
   export interface FindManyOptions<T> extends MongoService.FindManyOptions<T> {
-    documentFilter?: FilterInput;
-    nestedFilter?: FilterInput;
+    documentFilter?: MongoAdapter.FilterInput;
+    nestedFilter?: MongoAdapter.FilterInput;
   }
 
   export interface UpdateOneOptions<T> extends MongoService.UpdateOneOptions<T> {
-    documentFilter?: FilterInput;
+    documentFilter?: MongoAdapter.FilterInput;
   }
 
   export interface UpdateManyOptions<T> extends MongoService.UpdateManyOptions<T> {
-    documentFilter?: FilterInput;
-    count?: boolean;
+    documentFilter?: MongoAdapter.FilterInput;
   }
 
-  export interface CreateCommand extends RequiredSome<CommandInfo, 'documentId' | 'input'> {
+  export interface CreateCommand<T> extends RequiredSome<CommandInfo, 'documentId' | 'input'> {
     crud: 'create';
+    input: DTO<T>;
     options?: CreateOptions;
   }
 
@@ -138,8 +138,11 @@ export class MongoNestedService<T extends mongodb.Document> extends MongoService
    * @type {FilterInput | Function}
    */
   nestedFilter?:
-    | FilterInput
-    | ((args: MongoService.CommandInfo, _this: this) => FilterInput | Promise<FilterInput> | undefined);
+    | MongoAdapter.FilterInput
+    | ((
+        args: MongoService.CommandInfo,
+        _this: this,
+      ) => MongoAdapter.FilterInput | Promise<MongoAdapter.FilterInput> | undefined);
 
   /**
    * Constructs a new instance
@@ -163,7 +166,7 @@ export class MongoNestedService<T extends mongodb.Document> extends MongoService
    * @returns {ComplexType} The complex data type of the field.
    * @throws {NotAcceptableError} If the data type is not a ComplexType.
    */
-  get dataType(): ComplexType {
+  override get dataType(): ComplexType {
     const t = super.dataType.getField(this.fieldName).type;
     if (!(t instanceof ComplexType)) throw new NotAcceptableError(`Data type "${t.name}" is not a ComplexType`);
     return t;
@@ -193,27 +196,23 @@ export class MongoNestedService<T extends mongodb.Document> extends MongoService
    * Adds a single item into the array field.
    *
    * @param {MongoAdapter.AnyId} documentId - The ID of the parent document.
-   * @param {T} input - The item to be added to the array field.
-   * @param {MongoNestedService.CreateOptions} [options] - Optional options for the create operation.
+   * @param {DTO<T>} input - The item to be added to the array field.
+   * @param {MongoNestedService.CreateOptions<T>} [options] - Optional options for the create operation.
    * @return {Promise<PartialDTO<T>>} - A promise that resolves with the partial output of the created item.
    * @throws {ResourceNotAvailableError} - If the parent document is not found.
    */
   async create(
     documentId: MongoAdapter.AnyId,
-    input: PartialDTO<T>,
+    input: DTO<T>,
     options: RequiredSome<MongoNestedService.CreateOptions, 'projection'>,
   ): Promise<PartialDTO<T>>;
+  async create(documentId: MongoAdapter.AnyId, input: DTO<T>, options?: MongoNestedService.CreateOptions): Promise<T>;
   async create(
     documentId: MongoAdapter.AnyId,
-    input: PartialDTO<T>,
-    options?: MongoNestedService.CreateOptions,
-  ): Promise<T>;
-  async create(
-    documentId: MongoAdapter.AnyId,
-    input: PartialDTO<T>,
+    input: any,
     options?: MongoNestedService.CreateOptions,
   ): Promise<PartialDTO<T>> {
-    const command: MongoNestedService.CreateCommand = {
+    const command: MongoNestedService.CreateCommand<T> = {
       crud: 'create',
       method: 'create',
       byId: false,
@@ -221,31 +220,16 @@ export class MongoNestedService<T extends mongodb.Document> extends MongoService
       input,
       options,
     };
-    return this._executeCommand(command, () => this._create(command));
-  }
-
-  protected async _create(command: MongoNestedService.CreateCommand): Promise<PartialDTO<T>> {
-    const inputCodec = this.getInputCodec('create');
-    const { documentId, options } = command;
-    const doc: any = inputCodec(command.input);
-    doc._id = doc._id || this._generateId(command);
-
-    const docFilter = MongoAdapter.prepareKeyValues(documentId, ['_id']);
-    const r = await this._dbUpdateOne(
-      docFilter,
-      {
-        $push: { [this.fieldName]: doc } as any,
-      },
-      options,
-    );
-    if (r.matchedCount) {
-      if (!options) return doc;
+    input[this.nestedKey] = input[this.nestedKey] ?? this._generateId(command);
+    return this._executeCommand(command, async () => {
+      const r = await this._create(command);
+      if (!options?.projection) return r;
       const findCommand: MongoNestedService.FindOneCommand<T> = {
         crud: 'read',
         method: 'findById',
         byId: true,
         documentId,
-        nestedId: doc[this.nestedKey],
+        nestedId: r[this.nestedKey],
         options: {
           ...options,
           sort: undefined,
@@ -255,8 +239,58 @@ export class MongoNestedService<T extends mongodb.Document> extends MongoService
       };
       const out = await this._findById(findCommand);
       if (out) return out;
+    });
+  }
+
+  /**
+   * Adds a single item into the array field.
+   *
+   * @param {MongoAdapter.AnyId} documentId - The ID of the parent document.
+   * @param {DTO<T>} input - The item to be added to the array field.
+   * @param {MongoNestedService.CreateOptions} [options] - Optional options for the create operation.
+   * @return {Promise<PartialDTO<T>>} - A promise that resolves create operation result
+   * @throws {ResourceNotAvailableError} - If the parent document is not found.
+   */
+  async createOnly(
+    documentId: MongoAdapter.AnyId,
+    input: DTO<T>,
+    options?: MongoNestedService.CreateOptions,
+  ): Promise<PartialDTO<T>> {
+    const command: MongoNestedService.CreateCommand<T> = {
+      crud: 'create',
+      method: 'create',
+      byId: false,
+      documentId,
+      input,
+      options,
+    };
+    (input as any)[this.nestedKey] = (input as any)[this.nestedKey] ?? this._generateId(command);
+    return this._executeCommand(command, () => this._create(command));
+  }
+
+  protected async _create(command: MongoNestedService.CreateCommand<T>): Promise<T> {
+    const inputCodec = this._getInputCodec('create');
+    const { documentId, options } = command;
+    const input: any = command.input;
+    isNotNullish(input, { label: 'input' });
+    isNotNullish(input[this.nestedKey], { label: `input.${this.nestedKey}` });
+    const document: any = inputCodec(input);
+
+    const docFilter = MongoAdapter.prepareKeyValues(documentId, ['_id']);
+    const db = this.getDatabase();
+    const collection = await this.getCollection(db);
+    const update = {
+      $push: { [this.fieldName]: document } as any,
+    };
+    const r = await collection.updateOne(docFilter, update, {
+      ...options,
+      session: options?.session || this.getSession(),
+      upsert: undefined,
+    });
+    if (!r.matchedCount) {
+      throw new ResourceNotAvailableError(this.getResourceName(), documentId);
     }
-    throw new ResourceNotAvailableError(this.getResourceName(), documentId);
+    return document;
   }
 
   /**
@@ -298,13 +332,17 @@ export class MongoNestedService<T extends mongodb.Document> extends MongoService
       stages.push({ $match: filter });
     }
     stages.push({ $count: '*' });
-
-    const r = await this._dbAggregate(stages, options);
+    const db = this.getDatabase();
+    const collection = await this.getCollection(db);
+    const cursor = collection.aggregate<T>(stages, {
+      ...omit(options, ['documentFilter', 'nestedFilter', 'projection', 'sort', 'skip', 'limit', 'filter', 'count']),
+      session: options?.session || this.getSession(),
+    });
     try {
-      const n = await r.next();
+      const n = await cursor.next();
       return n?.['*'] || 0;
     } finally {
-      await r.close();
+      await cursor.close();
     }
   }
 
@@ -347,13 +385,16 @@ export class MongoNestedService<T extends mongodb.Document> extends MongoService
     ]);
     const pullFilter =
       MongoAdapter.prepareFilter([MongoAdapter.prepareKeyValues(nestedId, [this.nestedKey]), options?.filter]) || {};
-    const r = await this._dbUpdateOne(
-      matchFilter,
-      {
-        $pull: { [this.fieldName]: pullFilter } as any,
-      },
-      options,
-    );
+    const update = {
+      $pull: { [this.fieldName]: pullFilter } as any,
+    };
+    const db = this.getDatabase();
+    const collection = await this.getCollection(db);
+    const r = await collection.updateOne(matchFilter, update, {
+      ...options,
+      session: options?.session || this.getSession(),
+      upsert: undefined,
+    });
     return r.modifiedCount ? 1 : 0;
   }
 
@@ -387,17 +428,26 @@ export class MongoNestedService<T extends mongodb.Document> extends MongoService
       options?.documentFilter,
     ]);
     // Count matching items, we will use this as result
-    const matchCount = await this.count(documentId, options);
-    const pullFilter = MongoAdapter.prepareFilter(options?.filter) || {};
-    const r = await this._dbUpdateOne(
-      matchFilter,
-      {
-        $pull: { [this.fieldName]: pullFilter } as any,
-      },
+    const countCommand: MongoNestedService.CountCommand<T> = {
+      crud: 'read',
+      method: 'count',
+      byId: false,
+      documentId,
       options,
-    );
-    if (r.matchedCount) return matchCount;
-    return 0;
+    };
+    const matchCount = await this._count(countCommand);
+    const pullFilter = MongoAdapter.prepareFilter(options?.filter) || {};
+    const update = {
+      $pull: { [this.fieldName]: pullFilter } as any,
+    };
+    const db = this.getDatabase();
+    const collection = await this.getCollection(db);
+    await collection.updateOne(matchFilter, update, {
+      ...options,
+      session: options?.session || this.getSession(),
+      upsert: undefined,
+    });
+    return matchCount;
   }
 
   /**
@@ -437,10 +487,10 @@ export class MongoNestedService<T extends mongodb.Document> extends MongoService
    * Checks if an object with the given arguments exists.
    *
    * @param {MongoAdapter.AnyId} documentId - The ID of the parent document.
-   * @param {MongoNestedService.ExistsOneOptions} [options] - The options for the query (optional).
+   * @param {MongoNestedService.ExistsOptions} [options] - The options for the query (optional).
    * @return {Promise<boolean>} - A Promise that resolves to a boolean indicating whether the object exists or not.
    */
-  async existsOne(documentId: MongoAdapter.AnyId, options?: MongoNestedService.ExistsOneOptions<T>): Promise<boolean> {
+  async existsOne(documentId: MongoAdapter.AnyId, options?: MongoNestedService.ExistsOptions<T>): Promise<boolean> {
     const command: MongoNestedService.ExistsCommand<T> = {
       crud: 'read',
       method: 'exists',
@@ -606,9 +656,6 @@ export class MongoNestedService<T extends mongodb.Document> extends MongoService
       MongoAdapter.prepareKeyValues(documentId, ['_id']),
       options?.documentFilter,
     ]);
-    const mongoOptions: mongodb.AggregateOptions = {
-      ...omit(options, ['documentFilter', 'nestedFilter', 'projection', 'sort', 'skip', 'limit', 'filter', 'count']),
-    };
     const limit = options?.limit || this.defaultLimit;
     const stages: mongodb.Document[] = [
       { $match: matchFilter },
@@ -630,11 +677,15 @@ export class MongoNestedService<T extends mongodb.Document> extends MongoService
     const dataType = this.dataType;
     const projection = MongoAdapter.prepareProjection(dataType, options?.projection);
     if (projection) stages.push({ $project: projection });
-    const cursor = await this._dbAggregate(stages, mongoOptions);
+    const db = this.getDatabase();
+    const collection = await this.getCollection(db);
+    const cursor = collection.aggregate<T>(stages, {
+      ...omit(options, ['documentFilter', 'nestedFilter', 'projection', 'sort', 'skip', 'limit', 'filter', 'count']),
+      session: options?.session || this.getSession(),
+    });
     try {
-      const outputCodec = this.getOutputCodec('find');
-      const out = await (await cursor.toArray()).map((r: any) => outputCodec(r));
-      return out;
+      const outputCodec = this._getOutputCodec('find');
+      return (await cursor.toArray()).map((r: any) => outputCodec(r));
     } finally {
       if (!cursor.closed) await cursor.close();
     }
@@ -698,9 +749,6 @@ export class MongoNestedService<T extends mongodb.Document> extends MongoService
       MongoAdapter.prepareKeyValues(documentId, ['_id']),
       options?.documentFilter,
     ]);
-    const mongoOptions: mongodb.AggregateOptions = {
-      ...omit(options, ['pick', 'include', 'omit', 'sort', 'skip', 'limit', 'filter', 'count']),
-    };
     const limit = options?.limit || this.defaultLimit;
     const dataStages: mongodb.Document[] = [];
     const stages: mongodb.Document[] = [
@@ -729,13 +777,15 @@ export class MongoNestedService<T extends mongodb.Document> extends MongoService
     const dataType = this.dataType;
     const projection = MongoAdapter.prepareProjection(dataType, options?.projection);
     if (projection) dataStages.push({ $project: projection });
-
-    const cursor: mongodb.AggregationCursor = await this._dbAggregate(stages, {
-      ...mongoOptions,
+    const db = this.getDatabase();
+    const collection = await this.getCollection(db);
+    const cursor = collection.aggregate<T>(stages, {
+      ...omit(options, ['documentFilter', 'nestedFilter', 'projection', 'sort', 'skip', 'limit', 'filter', 'count']),
+      session: options?.session || this.getSession(),
     });
     try {
       const facetResult = await cursor.toArray();
-      const outputCodec = this.getOutputCodec('find');
+      const outputCodec = this._getOutputCodec('find');
       return {
         count: facetResult[0].count[0].totalMatches || 0,
         items: facetResult[0].data.map((r: any) => outputCodec(r)),
@@ -821,8 +871,8 @@ export class MongoNestedService<T extends mongodb.Document> extends MongoService
         filter,
         documentFilter,
       };
-      const r = await this._updateOnly(command);
-      if (r) {
+      const matchCount = await this._updateOnly(command);
+      if (matchCount) {
         const findCommand: MongoNestedService.FindOneCommand<T> = {
           crud: 'read',
           method: 'findById',
@@ -922,8 +972,8 @@ export class MongoNestedService<T extends mongodb.Document> extends MongoService
   protected async _updateMany(command: MongoNestedService.UpdateManyCommand<T>): Promise<number> {
     const { documentId, input } = command;
     isNotNullish(documentId, { label: 'documentId' });
-    let options = command.options;
-    const inputCodec = this.getInputCodec('update');
+    const options = { ...command.options };
+    const inputCodec = this._getInputCodec('update');
     const doc = inputCodec(input);
     if (!Object.keys(doc).length) return 0;
     const matchFilter = MongoAdapter.prepareFilter([
@@ -933,25 +983,27 @@ export class MongoNestedService<T extends mongodb.Document> extends MongoService
     ]);
     if (options?.filter) {
       const elemMatch = MongoAdapter.prepareFilter([options?.filter], { fieldPrefix: 'elem.' });
-      options = options || {};
       options.arrayFilters = [elemMatch];
     }
     const update: any = MongoAdapter.preparePatch(doc, {
       fieldPrefix: this.fieldName + (options?.filter ? '.$[elem].' : '.$[].'),
     });
-
-    const r = await this._dbUpdateOne(matchFilter, update, options);
-    if (options?.count) {
-      const countCommand: MongoNestedService.CountCommand<T> = {
-        crud: 'read',
-        method: 'count',
-        byId: false,
-        documentId,
-        options,
-      };
-      return await this._count(countCommand);
-    }
-    return r.modifiedCount || 0;
+    // Count matching items, we will use this as result
+    const count = await this._count({
+      crud: 'read',
+      method: 'count',
+      byId: false,
+      documentId,
+      options,
+    });
+    const db = this.getDatabase();
+    const collection = await this.getCollection(db);
+    await collection.updateOne(matchFilter, update, {
+      ...options,
+      session: options?.session || this.getSession(),
+      upsert: undefined,
+    });
+    return count;
   }
 
   /**
@@ -959,10 +1011,101 @@ export class MongoNestedService<T extends mongodb.Document> extends MongoService
    * This method is mostly used for security issues like securing multi-tenant applications.
    *
    * @protected
-   * @returns {FilterInput | Promise<FilterInput> | undefined} The common filter or a Promise
+   * @returns {MongoAdapter.FilterInput | Promise<MongoAdapter.FilterInput> | undefined} The common filter or a Promise
    * that resolves to the common filter, or undefined if not available.
    */
-  protected _getNestedFilter(args: MongoService.CommandInfo): FilterInput | Promise<FilterInput> | undefined {
+  protected _getNestedFilter(
+    args: MongoService.CommandInfo,
+  ): MongoAdapter.FilterInput | Promise<MongoAdapter.FilterInput> | undefined {
     return typeof this.nestedFilter === 'function' ? this.nestedFilter(args, this) : this.nestedFilter;
+  }
+
+  protected override async _executeCommand(
+    command: MongoEntityService.CommandInfo,
+    commandFn: () => any,
+  ): Promise<any> {
+    try {
+      const result = await super._executeCommand(command, async () => {
+        /** Call before[X] hooks */
+        if (command.crud === 'create') await this._beforeCreate(command as MongoNestedService.CreateCommand<T>);
+        else if (command.crud === 'update' && command.byId) {
+          await this._beforeUpdate(command as MongoNestedService.UpdateOneCommand<T>);
+        } else if (command.crud === 'update' && !command.byId) {
+          await this._beforeUpdateMany(command as MongoNestedService.UpdateManyCommand<T>);
+        } else if (command.crud === 'delete' && command.byId) {
+          await this._beforeDelete(command as MongoNestedService.DeleteCommand<T>);
+        } else if (command.crud === 'delete' && !command.byId) {
+          await this._beforeDeleteMany(command as MongoNestedService.DeleteCommand<T>);
+        }
+        /** Call command function */
+        return commandFn();
+      });
+      /** Call after[X] hooks */
+      if (command.crud === 'create') await this._afterCreate(command as MongoNestedService.CreateCommand<T>, result);
+      else if (command.crud === 'update' && command.byId) {
+        await this._afterUpdate(command as MongoNestedService.UpdateOneCommand<T>, result);
+      } else if (command.crud === 'update' && !command.byId) {
+        await this._afterUpdateMany(command as MongoNestedService.UpdateManyCommand<T>, result);
+      } else if (command.crud === 'delete' && command.byId) {
+        await this._afterDelete(command as MongoNestedService.DeleteCommand<T>, result);
+      } else if (command.crud === 'delete' && !command.byId) {
+        await this._afterDeleteMany(command as MongoNestedService.DeleteCommand<T>, result);
+      }
+      return result;
+    } catch (e: any) {
+      Error.captureStackTrace(e, this._executeCommand);
+      await this.onError?.(e, this);
+      throw e;
+    }
+  }
+
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  protected async _beforeCreate(command: MongoNestedService.CreateCommand<T>): Promise<void> {
+    // Do nothing
+  }
+
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  protected async _beforeUpdate(command: MongoNestedService.UpdateOneCommand<T>): Promise<void> {
+    // Do nothing
+  }
+
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  protected async _beforeUpdateMany(command: MongoNestedService.UpdateManyCommand<T>): Promise<void> {
+    // Do nothing
+  }
+
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  protected async _beforeDelete(command: MongoNestedService.DeleteCommand<T>): Promise<void> {
+    // Do nothing
+  }
+
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  protected async _beforeDeleteMany(command: MongoNestedService.DeleteCommand<T>): Promise<void> {
+    // Do nothing
+  }
+
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  protected async _afterCreate(command: MongoNestedService.CreateCommand<T>, result: PartialDTO<T>): Promise<void> {
+    // Do nothing
+  }
+
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  protected async _afterUpdate(command: MongoNestedService.UpdateOneCommand<T>, result?: PartialDTO<T>): Promise<void> {
+    // Do nothing
+  }
+
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  protected async _afterUpdateMany(command: MongoNestedService.UpdateManyCommand<T>, affected: number): Promise<void> {
+    // Do nothing
+  }
+
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  protected async _afterDelete(command: MongoNestedService.DeleteCommand<T>, affected: number): Promise<void> {
+    // Do nothing
+  }
+
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  protected async _afterDeleteMany(command: MongoNestedService.DeleteCommand<T>, affected: number): Promise<void> {
+    // Do nothing
   }
 }

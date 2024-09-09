@@ -1,6 +1,7 @@
 import 'reflect-metadata';
-import { asMutable, Combine, Type } from 'ts-gems';
-import { isAny, Validator } from 'valgen';
+import type { Combine, Type } from 'ts-gems';
+import { asMutable } from 'ts-gems';
+import { isAny, type Validator } from 'valgen';
 import { cloneObject, omitUndefined } from '../../helpers/index.js';
 import { OpraSchema } from '../../schema/index.js';
 import type { DocumentElement } from '../common/document-element';

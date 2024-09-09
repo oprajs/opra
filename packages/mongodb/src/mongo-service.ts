@@ -1,9 +1,8 @@
-import * as OpraCommon from '@opra/common';
 import { ComplexType, DataType, DATATYPE_METADATA } from '@opra/common';
 import { HttpContext, ServiceBase } from '@opra/core';
-import mongodb, { Document, MongoClient, ObjectId, TransactionOptions } from 'mongodb';
-import { Nullish, PartialDTO, StrictOmit, Type } from 'ts-gems';
-import { IsObject } from 'valgen';
+import mongodb, { type Document, MongoClient, ObjectId, type TransactionOptions } from 'mongodb';
+import type { Nullish, StrictOmit, Type } from 'ts-gems';
+import type { IsObject } from 'valgen';
 import { MongoAdapter } from './mongo-adapter.js';
 
 /**
@@ -35,10 +34,10 @@ export namespace MongoService {
     options?: any;
   }
 
-  export type CommonFilter =
+  export type DocumentFilter =
     | MongoAdapter.FilterInput
     | ((
-        args: MongoService.CommandInfo,
+        args: CommandInfo,
         _this: MongoService<any>,
       ) => MongoAdapter.FilterInput | Promise<MongoAdapter.FilterInput> | undefined);
 
@@ -58,7 +57,7 @@ export namespace MongoService {
    * @template T - The type of the document.
    */
   export interface CountOptions<T> extends mongodb.CountOptions {
-    filter?: mongodb.Filter<T> | OpraCommon.OpraFilter.Ast | string;
+    filter?: MongoAdapter.FilterInput<T>;
   }
 
   /**
@@ -68,7 +67,7 @@ export namespace MongoService {
    * @template T - The type of the document.
    */
   export interface DeleteOptions<T> extends mongodb.DeleteOptions {
-    filter?: mongodb.Filter<T> | OpraCommon.OpraFilter.Ast | string;
+    filter?: MongoAdapter.FilterInput<T>;
   }
 
   /**
@@ -78,7 +77,7 @@ export namespace MongoService {
    * @template T - The type of the document.
    */
   export interface DeleteManyOptions<T> extends mongodb.DeleteOptions {
-    filter?: mongodb.Filter<T> | OpraCommon.OpraFilter.Ast | string;
+    filter?: MongoAdapter.FilterInput<T>;
   }
 
   /**
@@ -88,7 +87,7 @@ export namespace MongoService {
    * @template T - The type of the document.
    */
   export interface DistinctOptions<T> extends mongodb.DistinctOptions {
-    filter?: mongodb.Filter<T> | OpraCommon.OpraFilter.Ast | string;
+    filter?: MongoAdapter.FilterInput<T>;
   }
 
   /**
@@ -97,16 +96,7 @@ export namespace MongoService {
    * @interface
    */
   export interface ExistsOptions<T> extends Omit<mongodb.CommandOperationOptions, 'writeConcern'> {
-    filter?: mongodb.Filter<T> | OpraCommon.OpraFilter.Ast | string;
-  }
-
-  /**
-   * Represents options for checking the document exists
-   *
-   * @interface
-   */
-  export interface ExistsOneOptions<T> extends Omit<mongodb.CommandOperationOptions, 'writeConcern'> {
-    filter?: mongodb.Filter<T> | OpraCommon.OpraFilter.Ast | string;
+    filter?: MongoAdapter.FilterInput<T>;
   }
 
   /**
@@ -124,7 +114,7 @@ export namespace MongoService {
    * @template T - The type of the document.
    */
   export interface FindManyOptions<T> extends mongodb.AggregateOptions {
-    filter?: mongodb.Filter<T> | OpraCommon.OpraFilter.Ast | string;
+    filter?: MongoAdapter.FilterInput<T>;
     projection?: string | string[] | Document;
     sort?: string[];
     limit?: number;
@@ -140,7 +130,7 @@ export namespace MongoService {
   export interface UpdateOneOptions<T>
     extends StrictOmit<mongodb.FindOneAndUpdateOptions, 'projection' | 'returnDocument' | 'includeResultMetadata'> {
     projection?: string | string[] | Document;
-    filter?: mongodb.Filter<T> | OpraCommon.OpraFilter.Ast | string;
+    filter?: MongoAdapter.FilterInput<T>;
   }
 
   /**
@@ -150,7 +140,7 @@ export namespace MongoService {
    * @template T - The type of the document.
    */
   export interface UpdateManyOptions<T> extends StrictOmit<mongodb.UpdateOptions, 'upsert'> {
-    filter?: mongodb.Filter<T> | OpraCommon.OpraFilter.Ast | string;
+    filter?: MongoAdapter.FilterInput<T>;
   }
 }
 
@@ -217,7 +207,7 @@ export class MongoService<T extends mongodb.Document = mongodb.Document> extends
    *
    * @type {FilterInput | Function}
    */
-  documentFilter?: MongoService.CommonFilter | MongoService.CommonFilter[];
+  documentFilter?: MongoService.DocumentFilter | MongoService.DocumentFilter[];
 
   /**
    * Constructs a new instance
@@ -232,8 +222,8 @@ export class MongoService<T extends mongodb.Document = mongodb.Document> extends
     this.db = options?.db;
     this.documentFilter = options?.documentFilter;
     this.interceptor = options?.interceptor;
-    this.collectionName = options?.collectionName;
-    if (!this.collectionName) {
+    if (options?.collectionName) this.collectionName = options?.collectionName;
+    else {
       if (typeof dataType === 'string') this.collectionName = dataType;
       if (typeof dataType === 'function') {
         const metadata = Reflect.getMetadata(DATATYPE_METADATA, dataType);
@@ -242,6 +232,7 @@ export class MongoService<T extends mongodb.Document = mongodb.Document> extends
     }
     this.resourceName = options?.resourceName;
     this.idGenerator = options?.idGenerator;
+    this.onError = options?.onError;
   }
 
   for<C extends HttpContext, P extends Partial<this>>(
@@ -298,35 +289,6 @@ export class MongoService<T extends mongodb.Document = mongodb.Document> extends
   }
 
   /**
-   * Retrieves the codec for the specified operation.
-   *
-   * @param operation - The operation to retrieve the encoder for. Valid values are 'create' and 'update'.
-   */
-  getInputCodec(operation: string): IsObject.Validator<T> {
-    let validator = this._inputCodecs[operation];
-    if (validator) return validator;
-    const options: DataType.GenerateCodecOptions = { projection: '*' };
-    if (operation === 'update') options.partial = 'deep';
-    const dataType = this.dataType;
-    validator = dataType.generateCodec('decode', options) as IsObject.Validator<T>;
-    this._inputCodecs[operation] = validator;
-    return validator;
-  }
-
-  /**
-   * Retrieves the codec.
-   */
-  getOutputCodec(operation: string): IsObject.Validator<T> {
-    let validator = this._outputCodecs[operation];
-    if (validator) return validator;
-    const options: DataType.GenerateCodecOptions = { projection: '*', partial: 'deep' };
-    const dataType = this.dataType;
-    validator = dataType.generateCodec('decode', options) as IsObject.Validator<T>;
-    this._outputCodecs[operation] = validator;
-    return validator;
-  }
-
-  /**
    * Executes the provided function within a transaction.
    *
    * @param callback - The function to be executed within the transaction.
@@ -359,221 +321,6 @@ export class MongoService<T extends mongodb.Document = mongodb.Document> extends
       else delete this.session;
       if (!oldInTransaction) await session.endSession();
     }
-  }
-
-  /**
-   * Gets the number of documents matching the filter.
-   *
-   * @param filter - The filter used to match documents.
-   * @param options - The options for counting documents.
-   * @protected
-   */
-  protected async _dbCountDocuments(filter?: mongodb.Filter<T>, options?: mongodb.CountOptions): Promise<number> {
-    const db = this.getDatabase();
-    const collection = await this.getCollection(db);
-    options = {
-      ...options,
-      limit: undefined,
-      session: options?.session || this.getSession(),
-    };
-    return (await collection.countDocuments(filter || {}, options)) || 0;
-  }
-
-  /**
-   * Acquires a connection and performs Collection.deleteOne operation
-   *
-   * @param filter - The filter used to select the document to remove
-   * @param options - Optional settings for the command
-   * @protected
-   */
-  protected async _dbDeleteOne(filter?: mongodb.Filter<T>, options?: mongodb.DeleteOptions) {
-    const db = this.getDatabase();
-    const collection = await this.getCollection(db);
-    options = {
-      ...options,
-      session: options?.session || this.getSession(),
-    };
-    return await collection.deleteOne(filter || {}, options);
-  }
-
-  /**
-   * Acquires a connection and performs Collection.deleteMany operation
-   *
-   * @param filter - The filter used to select the documents to remove
-   * @param options - Optional settings for the command
-   * @protected
-   */
-  protected async _dbDeleteMany(filter?: mongodb.Filter<T>, options?: mongodb.DeleteOptions) {
-    const db = this.getDatabase();
-    const collection = await this.getCollection(db);
-    options = {
-      ...options,
-      session: options?.session || this.getSession(),
-    };
-    return await collection.deleteMany(filter || {}, options);
-  }
-
-  /**
-   * Acquires a connection and performs Collection.distinct operation
-   *
-   * @param field - Field of the document to find distinct values for
-   * @param filter - The filter for filtering the set of documents to which we apply the distinct filter.
-   * @param options - Optional settings for the command
-   * @protected
-   */
-  protected async _dbDistinct(
-    field: string,
-    filter?: mongodb.Filter<T>,
-    options?: mongodb.DistinctOptions,
-  ): Promise<any[]> {
-    const db = this.getDatabase();
-    const collection = await this.getCollection(db);
-    options = {
-      ...options,
-      session: options?.session || this.getSession(),
-    };
-    return await collection.distinct(field, filter || {}, options);
-  }
-
-  /**
-   * Acquires a connection and performs Collection.aggregate operation
-   *
-   * @param pipeline - An array of aggregation pipelines to execute
-   * @param options - Optional settings for the command
-   * @protected
-   */
-  protected async _dbAggregate(pipeline?: mongodb.Document[], options?: mongodb.AggregateOptions) {
-    const db = this.getDatabase();
-    const collection = await this.getCollection(db);
-    options = {
-      ...options,
-      session: options?.session || this.getSession(),
-    };
-    return await collection.aggregate<T>(pipeline, options);
-  }
-
-  /**
-   * Acquires a connection and performs Collection.findOne operation
-   *
-   * @param filter - Query for find Operation
-   * @param options - Optional settings for the command
-   * @protected
-   */
-  protected async _dbFindOne(
-    filter: mongodb.Filter<T>,
-    options?: mongodb.FindOptions,
-  ): Promise<PartialDTO<T> | undefined> {
-    const db = this.getDatabase();
-    const collection = await this.getCollection(db);
-    options = {
-      ...options,
-      session: options?.session || this.getSession(),
-    };
-    return (await collection.findOne<T>(filter || {}, options)) as PartialDTO<T>;
-  }
-
-  /**
-   * Acquires a connection and performs Collection.find operation
-   *
-   * @param filter - The filter predicate. If unspecified,
-   * then all documents in the collection will match the predicate
-   * @param options - Optional settings for the command
-   * @protected
-   */
-  protected async _dbFind(filter: mongodb.Filter<T>, options?: mongodb.FindOptions) {
-    const db = this.getDatabase();
-    const collection = await this.getCollection(db);
-    options = {
-      ...options,
-      session: options?.session || this.getSession(),
-    };
-    return collection.find<T>(filter || {}, options);
-  }
-
-  /**
-   * Acquires a connection and performs Collection.insertOne operation
-   *
-   * @param doc - The document to insert
-   * @param options - Optional settings for the command
-   * @protected
-   */
-  protected async _dbInsertOne(doc: mongodb.OptionalUnlessRequiredId<T>, options?: mongodb.InsertOneOptions) {
-    const db = this.getDatabase();
-    const collection = await this.getCollection(db);
-    options = {
-      ...options,
-      session: options?.session || this.getSession(),
-    };
-    return await collection.insertOne(doc, options);
-  }
-
-  /**
-   * Acquires a connection and performs Collection.updateOne operation
-   *
-   * @param filter - The filter used to select the document to update
-   * @param update - The update operations to be applied to the document
-   * @param options - Optional settings for the command
-   * @protected
-   */
-  protected async _dbUpdateOne(
-    filter: mongodb.Filter<T>,
-    update: mongodb.UpdateFilter<T>,
-    options?: mongodb.UpdateOptions,
-  ) {
-    const db = this.getDatabase();
-    const collection = await this.getCollection(db);
-    options = {
-      ...options,
-      session: options?.session || this.getSession(),
-    };
-    return collection.updateOne(filter || {}, update, options);
-  }
-
-  /**
-   * Acquires a connection and performs Collection.findOneAndUpdate operation
-   *
-   * @param filter - The filter used to select the document to update
-   * @param update - Update operations to be performed on the document
-   * @param options - Optional settings for the command
-   * @protected
-   */
-  protected async _dbFindOneAndUpdate(
-    filter: mongodb.Filter<T>,
-    update: mongodb.UpdateFilter<T>,
-    options?: mongodb.FindOneAndUpdateOptions,
-  ) {
-    const db = this.getDatabase();
-    const collection = await this.getCollection(db);
-    const opts: mongodb.FindOneAndUpdateOptions = {
-      returnDocument: 'after',
-      includeResultMetadata: false,
-      ...options,
-      session: options?.session || this.getSession(),
-    };
-    return await collection.findOneAndUpdate(filter || {}, update, opts);
-  }
-
-  /**
-   * Acquires a connection and performs Collection.updateMany operation
-   *
-   * @param filter - The filter used to select the documents to update
-   * @param update - The update operations to be applied to the documents
-   * @param options - Optional settings for the command
-   * @protected
-   */
-  protected async _dbUpdateMany(
-    filter: mongodb.Filter<T>,
-    update: mongodb.UpdateFilter<T> | Partial<T>,
-    options?: StrictOmit<mongodb.UpdateOptions, 'upsert'>,
-  ) {
-    const db = this.getDatabase();
-    const collection = await this.getCollection(db);
-    options = {
-      ...options,
-      session: options?.session || this.getSession(),
-      upsert: false,
-    } as mongodb.UpdateOptions;
-    return await collection.updateMany(filter || {}, update, options);
   }
 
   /**
@@ -656,5 +403,34 @@ export class MongoService<T extends mongodb.Document = mongodb.Document> extends
       await this.onError?.(e, this);
       throw e;
     }
+  }
+
+  /**
+   * Retrieves the codec for the specified operation.
+   *
+   * @param operation - The operation to retrieve the encoder for. Valid values are 'create' and 'update'.
+   */
+  protected _getInputCodec(operation: string): IsObject.Validator<T> {
+    let validator = this._inputCodecs[operation];
+    if (validator) return validator;
+    const options: DataType.GenerateCodecOptions = { projection: '*' };
+    if (operation === 'update') options.partial = 'deep';
+    const dataType = this.dataType;
+    validator = dataType.generateCodec('decode', options) as IsObject.Validator<T>;
+    this._inputCodecs[operation] = validator;
+    return validator;
+  }
+
+  /**
+   * Retrieves the codec.
+   */
+  protected _getOutputCodec(operation: string): IsObject.Validator<T> {
+    let validator = this._outputCodecs[operation];
+    if (validator) return validator;
+    const options: DataType.GenerateCodecOptions = { projection: '*', partial: 'deep' };
+    const dataType = this.dataType;
+    validator = dataType.generateCodec('decode', options) as IsObject.Validator<T>;
+    this._outputCodecs[operation] = validator;
+    return validator;
   }
 }

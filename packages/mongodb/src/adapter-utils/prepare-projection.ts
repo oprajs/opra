@@ -1,5 +1,5 @@
 import { ApiField, ComplexType, FieldsProjection, parseFieldsProjection } from '@opra/common';
-import mongodb, { Document } from 'mongodb';
+import mongodb, { type Document } from 'mongodb';
 
 export default function prepareProjection(
   dataType: ComplexType,
@@ -16,7 +16,7 @@ export default function prepareProjection(
 
 export function prepare(dataType: ComplexType, target: mongodb.Document, projection?: FieldsProjection) {
   const defaultFields = !projection || !Object.values(projection).find(p => !p.sign);
-  const projectionKeys = projection && Object.keys(projection).map(x => x.toLowerCase());
+  const projectionKeys = projection && Object.keys(projection);
   const projectionKeysSet = new Set(projectionKeys);
   let fieldName: string;
   let field: ApiField;
@@ -30,9 +30,9 @@ export function prepare(dataType: ComplexType, target: mongodb.Document, project
     if (
       /** Ignore if field is omitted */
       p?.sign === '-' ||
-      /** Ignore if default fields and field is not in projection */
+      /** Ignore if defaultFields is false and field is not in projection */
       (!defaultFields && !p) ||
-      /** Ignore if default fields enabled and fields is exclusive */
+      /** Ignore if defaultFields is true and fields is exclusive */
       (defaultFields && field.exclusive && !p)
     ) {
       continue;
@@ -48,7 +48,7 @@ export function prepare(dataType: ComplexType, target: mongodb.Document, project
   /** Add additional fields */
   if (dataType.additionalFields) {
     for (k of projectionKeysSet.values()) {
-      const n = projectionKeysSet[k];
+      const n = projection?.[k];
       if (n?.sign !== '-') target[k] = 1;
     }
   }

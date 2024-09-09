@@ -22,7 +22,7 @@ declare module '@opra/common' {
   }
 
   namespace HttpOperation {
-    interface Context extends HttpContext {}
+    type Context = HttpContext;
   }
 }
 

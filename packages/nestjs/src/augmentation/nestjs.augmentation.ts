@@ -1,4 +1,4 @@
-import { ArgumentsHost } from '@nestjs/common';
+import { type ArgumentsHost } from '@nestjs/common';
 import { ExternalExceptionFilter } from '@nestjs/core/exceptions/external-exception-filter.js';
 
 const oldCatchMethod = ExternalExceptionFilter.prototype.catch;

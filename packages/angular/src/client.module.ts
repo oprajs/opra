@@ -1,10 +1,10 @@
 /* eslint-disable import-x/extensions */
 import { HttpClient } from '@angular/common/http';
-import { ModuleWithProviders, NgModule, Provider, Type } from '@angular/core';
+import { type ModuleWithProviders, NgModule, type Provider, Type } from '@angular/core';
 import { kClient } from '@opra/client';
 import { OpraAngularClient } from './angular-client';
 import { OPRA_CLIENT_MODULE_OPTIONS } from './constants';
-import { OpraClientModuleAsyncOptions, OpraClientModuleOptions } from './interfaces/module-options.interface';
+import type { OpraClientModuleAsyncOptions, OpraClientModuleOptions } from './interfaces/module-options.interface';
 
 @NgModule({})
 export class OpraClientModule {

@@ -1,7 +1,7 @@
 import { ApiDocument } from '@opra/common';
 import { ExpressAdapter } from '@opra/core';
 import { OpraTestClient } from '@opra/testing';
-import express, { Express } from 'express';
+import express, { type Express } from 'express';
 import supertest from 'supertest';
 import { createTestApi } from '../../_support/test-api/index.js';
 

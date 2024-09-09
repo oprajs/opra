@@ -1,4 +1,4 @@
-import { Recognizer } from '@browsery/antlr4';
+import { type Recognizer } from '@browsery/antlr4';
 
 export class SyntaxError extends TypeError {}
 

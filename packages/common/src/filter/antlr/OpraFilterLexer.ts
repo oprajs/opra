@@ -4,7 +4,7 @@ import {
   ATN,
   ATNDeserializer,
   CharStream,
-  DecisionState,
+  type DecisionState,
   DFA,
   Lexer,
   LexerATNSimulator,

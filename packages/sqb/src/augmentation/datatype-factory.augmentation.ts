@@ -1,6 +1,6 @@
 import { classes, cloneObject, ComplexType, DocumentElement, OpraSchema } from '@opra/common';
 import { DataType as SqbDataType, EntityMetadata, isAssociationField, isColumnField } from '@sqb/connect';
-import { Maybe } from 'ts-gems';
+import type { Maybe } from 'ts-gems';
 import DataTypeFactory = classes.DataTypeFactory;
 
 const _prepareComplexTypeArgs = (DataTypeFactory as any)._prepareComplexTypeArgs;

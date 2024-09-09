@@ -5,11 +5,11 @@
   "type": "module",
   "module": "./start.js",
   "dependencies": {
-    "@opra/common": "^1.0.0-alpha.28",
-    "@opra/core": "^1.0.0-alpha.28",
-    "@opra/mongodb": "^1.0.0-alpha.28",
+    "@opra/common": "^1.0.0-beta.1",
+    "@opra/core": "^1.0.0-beta.1",
+    "@opra/mongodb": "^1.0.0-beta.1",
     "express": "^4.19.2",
-    "mongodb": "^6.8.0",
+    "mongodb": "^6.8.1",
     "ts-gems": "^3.5.0"
   },
   "scripts": {

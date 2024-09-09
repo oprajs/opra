@@ -17,11 +17,13 @@ import {
   OpraException,
   OpraHttpError,
   OpraSchema,
+  safeJsonStringify,
 } from '@opra/common';
 import { parse as parseContentType } from 'content-type';
 import { splitString } from 'fast-tokenizer';
+import { md5 } from 'super-fast-md5';
 import { asMutable } from 'ts-gems';
-import { ErrorIssue, toArray, ValidationError, Validator, vg } from 'valgen';
+import { type ErrorIssue, toArray, ValidationError, type Validator, vg } from 'valgen';
 import { kAssetCache } from '../constants.js';
 import type { HttpAdapter } from './http-adapter.js';
 import { HttpContext } from './http-context.js';
@@ -339,18 +341,20 @@ export class HttpHandler {
       if (operationResponse?.type) {
         if (!(body == null && (statusCode as HttpStatusCode) === HttpStatusCode.NO_CONTENT)) {
           /** Generate encoder */
-          let encode = this[kAssetCache].get<Validator>(operationResponse, 'encode');
+          const projection = responseArgs.projection || '*';
+          const assetKey = md5(String(projection));
+          let encode = this[kAssetCache].get<Validator>(operationResponse, 'encode:' + assetKey);
           if (!encode) {
             encode = operationResponse.type.generateCodec('encode', {
               partial: operationResponse.partial,
-              projection: responseArgs.projection || '*',
+              projection,
               ignoreWriteonlyFields: true,
               ignoreHiddenFields: true,
               onFail: issue => `Response body validation failed: ` + issue.message,
             });
             if (operationResponse) {
               if (operationResponse.isArray) encode = vg.isArray(encode);
-              this[kAssetCache].set(operationResponse, 'encode', encode);
+              this[kAssetCache].set(operationResponse, 'encode:' + assetKey, encode);
             }
           }
           /** Encode body */
@@ -444,12 +448,12 @@ export class HttpHandler {
       encode = dt.generateCodec('encode', { ignoreWriteonlyFields: true });
       this[kAssetCache].set(dt, 'encode', encode);
     }
-    const { i18n } = this.adapter;
+    // const { i18n } = this.adapter;
     const bodyObject = new OperationResult({
       errors: errors.map(x => {
         const o = x.toJSON();
         if (!(process.env.NODE_ENV === 'dev' || process.env.NODE_ENV === 'development')) delete o.stack;
-        return i18n.deep(o);
+        return o; // i18n.deep(o);
       }),
     });
     const body = encode(bodyObject);
@@ -459,7 +463,7 @@ export class HttpHandler {
     response.setHeader(HttpHeaderCodes.Pragma, 'no-cache');
     response.setHeader(HttpHeaderCodes.Expires, '-1');
     response.setHeader(HttpHeaderCodes.X_Opra_Version, OpraSchema.SpecVersion);
-    response.send(JSON.stringify(body));
+    response.send(safeJsonStringify(body));
     response.end();
   }
 

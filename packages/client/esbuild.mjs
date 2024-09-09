@@ -4,7 +4,6 @@ import { createRequire } from 'node:module';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import * as esbuild from 'esbuild';
-import esbuildPluginTsc from 'esbuild-tsc';
 
 const require = createRequire(import.meta.url);
 
@@ -31,12 +30,8 @@ const defaultCofig = {
   outfile: path.join(targetPath, './browser.js'),
   logLevel: 'info',
   format: 'esm',
+  minify: true,
   keepNames: true,
-  plugins: [
-    esbuildPluginTsc({
-      tsconfigPath: 'tsconfig-build-esm.json',
-    }),
-  ],
   alias: {
     fs: '@browsery/fs',
     highland: '@browsery/highland',

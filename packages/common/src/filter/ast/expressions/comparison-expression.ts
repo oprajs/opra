@@ -1,4 +1,4 @@
-import { StrictOmit } from 'ts-gems';
+import type { StrictOmit } from 'ts-gems';
 import { Expression } from '../abstract/expression.js';
 
 export type ComparisonOperator =

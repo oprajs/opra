@@ -1,6 +1,6 @@
 import { MappedType } from '@opra/common';
 import { Entity, EntityMetadata } from '@sqb/connect';
-import { Type } from 'ts-gems';
+import type { Type } from 'ts-gems';
 
 const _applyMixin = MappedType._applyMixin;
 MappedType._applyMixin = function (targetType: Type, sourceType: Type, options) {

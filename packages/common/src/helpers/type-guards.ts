@@ -1,6 +1,6 @@
 /// <reference lib="dom" />
 import { Readable, Stream } from 'stream';
-import { Type } from 'ts-gems';
+import type { Type } from 'ts-gems';
 
 export function isConstructor(fn: any): fn is Type {
   return (

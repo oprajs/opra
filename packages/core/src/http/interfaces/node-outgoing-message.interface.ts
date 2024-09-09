@@ -1,4 +1,4 @@
-import http, { OutgoingHttpHeaders } from 'http';
+import http, { type OutgoingHttpHeaders } from 'http';
 import { Writable } from 'stream';
 import { NodeOutgoingMessageHost } from '../impl/node-outgoing-message.host.js';
 import { NodeIncomingMessage } from './node-incoming-message.interface.js';

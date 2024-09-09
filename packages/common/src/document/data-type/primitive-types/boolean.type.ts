@@ -1,4 +1,4 @@
-import { toBoolean, Validator } from 'valgen';
+import { toBoolean, type Validator } from 'valgen';
 import { DECODER, ENCODER } from '../../constants.js';
 import { SimpleType } from '../simple-type.js';
 

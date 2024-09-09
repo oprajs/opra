@@ -1,4 +1,4 @@
-import { PartialSome, StrictOmit, ThunkAsync } from 'ts-gems';
+import type { PartialSome, StrictOmit, ThunkAsync } from 'ts-gems';
 import { resolveThunk } from '../../helpers/index.js';
 import { OpraSchema } from '../../schema/index.js';
 import { ApiDocument } from '../api-document.js';
@@ -53,6 +53,8 @@ export namespace ApiDocumentFactory {
  * @class ApiDocumentFactory
  */
 export class ApiDocumentFactory {
+  private _allDocuments: Record<string, ApiDocument> = {};
+
   /**
    * Creates ApiDocument instance from given schema object
    */
@@ -136,9 +138,7 @@ export class ApiDocumentFactory {
             const refDoc = new ApiDocument();
             if (builtinDocument) refDoc.references.set('opra', builtinDocument);
             await this.initDocument(refDoc, context, r);
-            /** If same document already exists in document tree, we use it except the new one */
-            const preDoc = document.findDocument(refDoc.id);
-            document.references.set(ns, preDoc || refDoc);
+            document.references.set(ns, this._allDocuments[refDoc.id]);
           });
         }
       });
@@ -159,6 +159,8 @@ export class ApiDocumentFactory {
       });
     }
     document.invalidate();
+    /** Add document to global registry */
+    if (!this._allDocuments[document.id]) this._allDocuments[document.id] = document;
   }
 
   /**

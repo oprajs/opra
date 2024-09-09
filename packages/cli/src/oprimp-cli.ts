@@ -1,10 +1,10 @@
+import * as console from 'node:console';
+import * as fs from 'node:fs';
+import path from 'node:path';
+import * as process from 'node:process';
 import { getStackFileName } from '@opra/common';
 import colors from 'ansi-colors';
 import { program } from 'commander';
-import * as console from 'console';
-import * as fs from 'fs';
-import path from 'path';
-import * as process from 'process';
 import { TsGenerator } from './ts-generator/ts-generator.js';
 
 const dirname = path.dirname(getStackFileName());

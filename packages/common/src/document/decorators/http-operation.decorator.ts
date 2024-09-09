@@ -1,5 +1,5 @@
 import omit from 'lodash.omit';
-import { StrictOmit, Type, TypeThunkAsync } from 'ts-gems';
+import type { StrictOmit, Type, TypeThunkAsync } from 'ts-gems';
 import { MimeTypes } from '../../http/index.js';
 import { OpraSchema } from '../../schema/index.js';
 import { HTTP_CONTROLLER_METADATA } from '../constants.js';

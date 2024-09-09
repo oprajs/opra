@@ -1,6 +1,6 @@
 import { ResourceNotAvailableError } from '@opra/common';
 import { EntityMetadata } from '@sqb/connect';
-import { PartialDTO, PatchDTO, RequiredSome, Type } from 'ts-gems';
+import type { PartialDTO, PatchDTO, RequiredSome, Type } from 'ts-gems';
 import { SQBAdapter } from './sqb-adapter.js';
 import { SqbEntityService } from './sqb-entity-service.js';
 
@@ -102,7 +102,7 @@ export abstract class SqbSingletonService<T extends object = object> extends Sqb
   ): Promise<PartialDTO<T>>;
   async create(input: PartialDTO<T>, options?: SqbSingletonService.CreateOptions): Promise<T>;
   async create(input: PartialDTO<T>, options?: SqbSingletonService.CreateOptions): Promise<PartialDTO<T>> {
-    const command: SqbEntityService.CreateCommand = {
+    const command: SqbEntityService.CreateCommand<T> = {
       crud: 'create',
       method: 'create',
       byId: false,

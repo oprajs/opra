@@ -1,6 +1,6 @@
 import { MongoAdapter } from '@opra/mongodb';
 
-describe('MongoAdapter.transformSort', () => {
+describe('MongoAdapter.prepareSort', () => {
   afterAll(() => global.gc && global.gc());
 
   it('Should convert sort fields', async () => {

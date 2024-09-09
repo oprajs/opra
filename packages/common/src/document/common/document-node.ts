@@ -1,4 +1,4 @@
-import { Type } from 'ts-gems';
+import type { Type } from 'ts-gems';
 import { OpraSchema } from '../../schema/index.js';
 import type { ApiDocument } from '../api-document.js';
 import { DATATYPE_METADATA, kDataTypeMap, kTypeNSMap } from '../constants.js';

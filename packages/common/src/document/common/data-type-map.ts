@@ -1,4 +1,4 @@
-import { Type } from 'ts-gems';
+import type { Type } from 'ts-gems';
 import { ResponsiveMap } from '../../helpers/index.js';
 import { DATATYPE_METADATA } from '../constants.js';
 import { DataType } from '../data-type/data-type.js';

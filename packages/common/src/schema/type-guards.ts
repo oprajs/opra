@@ -1,5 +1,5 @@
 import { ComplexType } from './data-type/complex-type.interface.js';
-import { DataType } from './data-type/data-type.interface.js';
+import type { DataType } from './data-type/data-type.interface.js';
 import { EnumType } from './data-type/enum-type.interface.js';
 import { MappedType } from './data-type/mapped-type.interface.js';
 import { MixinType } from './data-type/mixin-type.interface.js';

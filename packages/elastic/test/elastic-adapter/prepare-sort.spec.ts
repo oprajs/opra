@@ -1,16 +1,16 @@
 import { ElasticAdapter } from '@opra/elastic';
 
-describe('ElasticAdapter.transformSort', () => {
+describe('ElasticAdapter.prepareSort', () => {
   afterAll(() => global.gc && global.gc());
 
-  it('Should convert sort fields', async () => {
-    const o: any = ElasticAdapter.prepareSort(['_id', 'givenName']);
-    expect(o).toEqual(['_id', 'givenName']);
+  it('Should convert ascending sort fields', async () => {
+    const o: any = ElasticAdapter.prepareSort(['id', '+address.city']);
+    expect(o).toEqual([{ id: { order: 'asc' } }, { 'address.city': { order: 'asc' } }]);
   });
 
-  it('Should parse (+) ascending, (-) descending symbols', async () => {
-    const o: any = ElasticAdapter.prepareSort(['+_id', '-givenName']);
-    expect(o).toEqual(['_id', { givenName: 'desc' }]);
+  it('Should convert descending sort fields', async () => {
+    const o: any = ElasticAdapter.prepareSort(['-id', '-address.city']);
+    expect(o).toEqual([{ id: { order: 'desc' } }, { 'address.city': { order: 'desc' } }]);
   });
 
   it('Should return undefined if array is empty', async () => {

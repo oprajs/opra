@@ -1,17 +1,17 @@
-/* eslint-disable camelcase */
+import type { QueryDslQueryContainer } from '@elastic/elasticsearch/lib/api/types.js';
+import { OpraFilter } from '@opra/common';
 import { HttpContext } from '@opra/core';
-// import { SearchRequest } from '@elastic/elasticsearch/lib/api/types';
-// import { TransportRequestOptions } from '@elastic/transport';
-// import { omitNullish } from '@opra/common';
 import _prepareFilter from './adapter-utils/prepare-filter.js';
-import _prepareKeyValues from './adapter-utils/prepare-key-values.js';
-// import _prepareProjection from './adapter-utils/prepare-projection.js';
+import _preparePatch from './adapter-utils/prepare-patch.js';
+import _prepareProjection from './adapter-utils/prepare-projection.js';
 import _prepareSort from './adapter-utils/prepare-sort.js';
 
 export namespace ElasticAdapter {
+  export type FilterInput = OpraFilter.Expression | QueryDslQueryContainer | string | undefined;
+
   export const prepareFilter = _prepareFilter;
-  export const prepareKeyValues = _prepareKeyValues;
-  // export const prepareProjection = _prepareProjection;
+  export const preparePatch = _preparePatch;
+  export const prepareProjection = _prepareProjection;
   export const prepareSort = _prepareSort;
 
   export interface TransformedRequest {

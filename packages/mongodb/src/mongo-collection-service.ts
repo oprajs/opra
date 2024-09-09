@@ -1,6 +1,7 @@
 import { ResourceNotAvailableError } from '@opra/common';
-import mongodb, { UpdateFilter } from 'mongodb';
-import { PartialDTO, PatchDTO, RequiredSome, Type } from 'ts-gems';
+import omit from 'lodash.omit';
+import mongodb, { type UpdateFilter } from 'mongodb';
+import type { DTO, PartialDTO, PatchDTO, RequiredSome, Type } from 'ts-gems';
 import { MongoAdapter } from './mongo-adapter.js';
 import { MongoEntityService } from './mongo-entity-service.js';
 
@@ -67,19 +68,32 @@ export class MongoCollectionService<T extends mongodb.Document> extends MongoEnt
    * @throws {Error} if an unknown error occurs while creating the document.
    */
   async create(
-    input: PartialDTO<T>,
+    input: DTO<T>,
     options: RequiredSome<MongoEntityService.CreateOptions, 'projection'>,
   ): Promise<PartialDTO<T>>;
-  async create(input: PartialDTO<T>, options?: MongoEntityService.CreateOptions): Promise<T>;
-  async create(input: PartialDTO<T>, options?: MongoEntityService.CreateOptions): Promise<PartialDTO<T> | T> {
-    const command: MongoEntityService.CreateCommand = {
+  async create(input: DTO<T>, options?: MongoEntityService.CreateOptions): Promise<T>;
+  async create(input: any, options?: MongoEntityService.CreateOptions): Promise<PartialDTO<T> | T> {
+    const command: MongoEntityService.CreateCommand<T> = {
       crud: 'create',
       method: 'create',
       byId: false,
       input,
       options,
     };
-    return this._executeCommand(command, () => this._create(command));
+    input._id = input._id ?? this._generateId(command);
+    return this._executeCommand(command, async () => {
+      const r = await this._create(command);
+      if (!command.options?.projection) return r;
+      const findCommand: MongoEntityService.FindOneCommand<T> = {
+        ...command,
+        crud: 'read',
+        byId: true,
+        documentId: r._id,
+        options: omit(options, 'filter'),
+      };
+      const out = await this._findById(findCommand);
+      if (out) return out;
+    });
   }
 
   /**
@@ -192,7 +206,7 @@ export class MongoCollectionService<T extends mongodb.Document> extends MongoEnt
   /**
    * Checks if an object with the given arguments exists.
    *
-   * @param {MongoEntityService.ExistsOneOptions} [options] - The options for the query (optional).
+   * @param {MongoEntityService.ExistsOptions} [options] - The options for the query (optional).
    * @return {Promise<boolean>} - A Promise that resolves to a boolean indicating whether the object exists or not.
    */
   async existsOne(options?: MongoEntityService.ExistsOptions<T>): Promise<boolean> {

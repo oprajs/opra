@@ -1,5 +1,9 @@
 import { mergePrototype } from '@opra/common';
-import { Options as RangeParserOptions, Ranges as RangeParserRanges, Result as RangeParserResult } from 'range-parser';
+import type {
+  Options as RangeParserOptions,
+  Ranges as RangeParserRanges,
+  Result as RangeParserResult,
+} from 'range-parser';
 import { isHttpIncoming, isNodeIncomingMessage } from '../../type-guards.js';
 import { HttpIncomingHost } from '../impl/http-incoming.host.js';
 import { BodyReader } from '../utils/body-reader.js';

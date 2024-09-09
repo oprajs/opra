@@ -3,15 +3,15 @@
   https://github.com/expressjs
  */
 
+import type { CipherKey } from 'node:crypto';
+import path from 'node:path';
 import { HttpStatusCode } from '@opra/common';
 import contentDisposition from 'content-disposition';
 import contentType from 'content-type';
 import cookie from 'cookie';
 import cookieSignature from 'cookie-signature';
-import { CipherKey } from 'crypto';
 import encodeUrl from 'encodeurl';
 import mime from 'mime-types';
-import path from 'path';
 import { toString } from 'putil-varhelpers';
 import vary from 'vary';
 import type { CookieOptions, HttpOutgoing } from '../interfaces/http-outgoing.interface.js';

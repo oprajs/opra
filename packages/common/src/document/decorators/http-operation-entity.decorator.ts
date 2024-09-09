@@ -1,4 +1,4 @@
-import { StrictOmit, Type, TypeThunkAsync } from 'ts-gems';
+import type { StrictOmit, Type, TypeThunkAsync } from 'ts-gems';
 import { FilterRules } from '../../filter/filter-rules.js';
 import { OpraFilter } from '../../filter/index.js';
 import { HttpStatusCode, MimeTypes } from '../../http/index.js';
@@ -9,12 +9,12 @@ import { IntegerType } from '../data-type/primitive-types/index.js';
 import { HttpOperation } from '../http/http-operation.js';
 import type { HttpParameter } from '../http/http-parameter.js';
 import { HttpRequestBody } from '../http/http-request-body.js';
-import { HttpOperationDecorator, HttpOperationDecoratorFactory } from './http-operation.decorator.js';
+import { type HttpOperationDecorator, HttpOperationDecoratorFactory } from './http-operation.decorator.js';
 
 /** Augmentation **/
 declare module '../http/http-operation.js' {
   /**
-   * HttpOperationConstructor
+   * HttpOperationStatic
    */
   interface HttpOperationStatic {
     Entity: HttpOperationEntity;

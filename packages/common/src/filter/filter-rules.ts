@@ -1,10 +1,20 @@
-import { StrictOmit } from 'ts-gems';
+import type { StrictOmit } from 'ts-gems';
 import type { ComplexType } from '../document/index.js';
 import { OpraException } from '../exception/index.js';
-import { OpraFilter } from '../filter/index.js';
 import { omitUndefined, ResponsiveMap } from '../helpers/index.js';
 import { translate } from '../i18n/index.js';
 import { OpraSchema } from '../schema/index.js';
+import {
+  ArithmeticExpression,
+  ArrayExpression,
+  ComparisonExpression,
+  type ComparisonOperator,
+  Expression,
+  LogicalExpression,
+  ParenthesizedExpression,
+  QualifiedIdentifier,
+} from './ast/index.js';
+import { parse } from './parse.js';
 
 export namespace FilterRules {
   export interface Options {
@@ -12,7 +22,7 @@ export namespace FilterRules {
   }
 
   export interface Rule {
-    operators?: OpraFilter.ComparisonOperator[];
+    operators?: ComparisonOperator[];
     description?: string;
   }
 }
@@ -35,12 +45,12 @@ export class FilterRules {
   set(
     fieldName: string,
     options?: Partial<StrictOmit<FilterRules.Rule, 'operators'>> & {
-      operators?: OpraFilter.ComparisonOperator[] | string;
+      operators?: ComparisonOperator[] | string;
     },
   ) {
     const operators =
       typeof options?.operators === 'string'
-        ? (options.operators.split(/\s*[,| ]\s*/) as OpraFilter.ComparisonOperator[])
+        ? (options.operators.split(/\s*[,| ]\s*/) as ComparisonOperator[])
         : options?.operators;
     this._rules.set(
       fieldName,
@@ -51,15 +61,12 @@ export class FilterRules {
     );
   }
 
-  normalizeFilter(
-    filter: OpraSchema.Field.QualifiedName | OpraFilter.Expression,
-    dataType?: ComplexType,
-  ): OpraFilter.Expression | undefined {
+  normalizeFilter(filter: OpraSchema.Field.QualifiedName | Expression, dataType?: ComplexType): Expression | undefined {
     if (!filter) return;
-    const ast = typeof filter === 'string' ? OpraFilter.parse(filter) : filter;
-    if (ast instanceof OpraFilter.ComparisonExpression) {
+    const ast = typeof filter === 'string' ? parse(filter) : filter;
+    if (ast instanceof ComparisonExpression) {
       this.normalizeFilter(ast.left, dataType);
-      if (!(ast.left instanceof OpraFilter.QualifiedIdentifier && ast.left.field)) {
+      if (!(ast.left instanceof QualifiedIdentifier && ast.left.field)) {
         throw new TypeError(`Invalid filter query. Left side should be a data field.`);
       }
       // Check if filtering accepted for given field
@@ -88,23 +95,23 @@ export class FilterRules {
       this.normalizeFilter(ast.right, dataType);
       return ast;
     }
-    if (ast instanceof OpraFilter.LogicalExpression) {
+    if (ast instanceof LogicalExpression) {
       ast.items.forEach(item => this.normalizeFilter(item, dataType));
       return ast;
     }
-    if (ast instanceof OpraFilter.ArithmeticExpression) {
+    if (ast instanceof ArithmeticExpression) {
       ast.items.forEach(item => this.normalizeFilter(item.expression, dataType));
       return ast;
     }
-    if (ast instanceof OpraFilter.ArrayExpression) {
+    if (ast instanceof ArrayExpression) {
       ast.items.forEach(item => this.normalizeFilter(item, dataType));
       return ast;
     }
-    if (ast instanceof OpraFilter.ParenthesizedExpression) {
+    if (ast instanceof ParenthesizedExpression) {
       this.normalizeFilter(ast.expression, dataType);
       return ast;
     }
-    if (ast instanceof OpraFilter.QualifiedIdentifier && dataType) {
+    if (ast instanceof QualifiedIdentifier && dataType) {
       ast.value = dataType.normalizeFieldPath(ast.value);
       ast.field = dataType.getField(ast.value);
       ast.dataType = ast.field.type;

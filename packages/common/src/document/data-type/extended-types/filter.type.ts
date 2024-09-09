@@ -1,5 +1,5 @@
-import { Type } from 'ts-gems';
-import { Validator, validator } from 'valgen';
+import type { Type } from 'ts-gems';
+import { type Validator, validator } from 'valgen';
 import { FilterRules } from '../../../filter/filter-rules.js';
 import { OpraFilter } from '../../../filter/index.js';
 import type { DocumentElement } from '../../common/document-element.js';
@@ -61,7 +61,7 @@ const decodeFilter = (dataType: ComplexType, rules?: FilterRules) =>
         if (rules) return rules.normalizeFilter(filter, dataType);
         return filter;
       } catch (e: any) {
-        context.fail(_this, `Not a valid filter expression. ${e.message}`, input, e.errors);
+        context.fail(_this, `Not a valid filter expression. ${e.message}`, input);
         return;
       }
     }

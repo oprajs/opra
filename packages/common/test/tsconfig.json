@@ -2,6 +2,7 @@
   "extends": "../tsconfig.json",
   "include": ["."],
   "compilerOptions": {
+    "verbatimModuleSyntax": false,
     "baseUrl": "./",
     "paths": {
       "@opra/common": ["../src"],

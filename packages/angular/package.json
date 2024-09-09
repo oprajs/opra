@@ -1,11 +1,11 @@
 {
   "name": "@opra/angular",
-  "version": "1.0.0-alpha.34",
+  "version": "1.0.0-beta.1",
   "description": "Opra internationalization package",
   "author": "Panates",
   "license": "MIT",
   "scripts": {
-    "compile": "tsc",
+    "compile": "tsc --noEmit",
     "prebuild": "npm run check && npm run lint && npm run clean",
     "build": "ng build",
     "postbuild": "cp ../../LICENSE ../../build/angular",
@@ -22,32 +22,32 @@
     "clean:cover": "rimraf ../../coverage/angular"
   },
   "dependencies": {
-    "tslib": "^2.6.3"
+    "tslib": "^2.7.0"
   },
   "peerDependencies": {
     "@angular/common": ">= 15.0.0",
     "@angular/core": ">= 15.0.0",
     "@browsery/type-is": "^1.6.18-r5",
-    "@opra/client": "^1.0.0-alpha.34",
+    "@opra/client": "^1.0.0-beta.1",
     "rxjs": "^7.8.1",
     "ts-gems": "^3.0.0"
   },
   "devDependencies": {
-    "@angular-devkit/build-angular": "^18.2.0",
-    "@angular/cli": "^18.2.0",
+    "@angular-devkit/build-angular": "^18.2.3",
+    "@angular/cli": "^18.2.3",
     "@angular/compiler": "^18.0.2",
-    "@angular/compiler-cli": "^18.2.0",
+    "@angular/compiler-cli": "^18.2.3",
     "@angular/platform-browser": "^18.0.2",
-    "@angular/platform-browser-dynamic": "^18.2.0",
-    "@opra/client": "^1.0.0-alpha.34",
+    "@angular/platform-browser-dynamic": "^18.2.3",
+    "@opra/client": "^1.0.0-beta.1",
     "core-js": "^3.38.1",
     "cross-fetch": "^4.0.0",
     "express": "^4.19.2",
-    "ng-packagr": "^18.2.0",
-    "superagent": "^10.0.0",
+    "ng-packagr": "^18.2.1",
+    "superagent": "^10.1.0",
     "supertest": "^7.0.0",
     "ts-gems": "^3.5.0",
-    "zone.js": "^0.14.10"
+    "zone.js": "^0.15.0"
   },
   "repository": {
     "type": "git",

@@ -3,6 +3,7 @@
   "include": ["./test/**/*.ts"],
   "compilerOptions": {
     "emitDecoratorMetadata": true,
+    "verbatimModuleSyntax": false,
     "module": "CommonJS",
     "target": "ES2016",
     "lib": [],

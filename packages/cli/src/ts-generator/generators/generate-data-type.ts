@@ -1,5 +1,5 @@
+import path from 'node:path';
 import { ComplexType, DataType, EnumType, MappedType, MixinType, SimpleType } from '@opra/common';
-import path from 'path';
 import { CodeBlock } from '../../code-block.js';
 import { TsFile } from '../ts-file.js';
 import type { TsGenerator } from '../ts-generator';

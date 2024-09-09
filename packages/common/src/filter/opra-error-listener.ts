@@ -1,4 +1,4 @@
-import { ErrorListener, RecognitionException, Recognizer } from '@browsery/antlr4';
+import { ErrorListener, RecognitionException, type Recognizer } from '@browsery/antlr4';
 import { FilterParseError } from './errors.js';
 
 export class OpraErrorListener extends ErrorListener<any> {

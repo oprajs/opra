@@ -199,23 +199,23 @@ describe('MongoSingletonService', () => {
     it('Should update object in the array field', async () => {
       const ctx = createContext(app.adapter);
       const doc = { uid: faker.string.uuid() };
-      const result = await service.for(ctx).updateOnly(doc);
-      expect(result).toEqual(1);
+      const r = await service.for(ctx).updateOnly(doc);
+      expect(r).toEqual(1);
     });
 
     it('Should return "0" if parent record not found', async () => {
       service._id = 99;
       const ctx = createContext(app.adapter);
       const doc = { uid: faker.string.uuid() };
-      const result = await service.for(ctx).updateOnly(doc);
-      expect(result).toEqual(0);
+      const r = await service.for(ctx).updateOnly(doc);
+      expect(r).toEqual(0);
     });
 
     it('Should apply filter returned by documentFilter', async () => {
       const ctx = createContext(app.adapter);
       const doc = { uid: faker.string.uuid() };
-      const result = await service.for(ctx, { documentFilter: 'rate=99' }).updateOnly(doc);
-      expect(result).toEqual(0);
+      const r = await service.for(ctx, { documentFilter: 'rate=99' }).updateOnly(doc);
+      expect(r).toEqual(0);
     });
 
     it('Should run interceptors', async () => {
@@ -275,20 +275,20 @@ describe('MongoSingletonService', () => {
 
     it('Should apply filter returned by documentFilter', async () => {
       const ctx = createContext(app.adapter);
-      const result = await service.for(ctx, { documentFilter: 'rate=999' }).delete();
-      expect(result).toEqual(0);
+      const r = await service.for(ctx, { documentFilter: 'rate=999' }).delete();
+      expect(r).toEqual(0);
     });
 
     it('Should delete document', async () => {
       const ctx = createContext(app.adapter);
-      let r = await service.for(ctx).find();
-      expect(r).toBeDefined();
+      let x = await service.for(ctx).find();
+      expect(x).toBeDefined();
 
-      const result: any = await service.for(ctx).delete();
-      expect(result).toEqual(1);
+      const r = await service.for(ctx).delete();
+      expect(r).toEqual(1);
 
-      r = await service.for(ctx).find();
-      expect(r).not.toBeDefined();
+      x = await service.for(ctx).find();
+      expect(x).not.toBeDefined();
     });
 
     it('Should run interceptors', async () => {

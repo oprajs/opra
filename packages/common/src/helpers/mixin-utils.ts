@@ -1,4 +1,4 @@
-import { Type } from 'ts-gems';
+import type { Type } from 'ts-gems';
 
 export function mergePrototype(targetProto: any, baseProto: any, filter?: (k: string) => boolean) {
   for (const k of Object.getOwnPropertyNames(baseProto)) {

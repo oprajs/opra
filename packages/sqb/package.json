@@ -1,11 +1,11 @@
 {
   "name": "@opra/sqb",
-  "version": "1.0.0-alpha.34",
+  "version": "1.0.0-beta.1",
   "description": "Opra SQB adapter package",
   "author": "Panates",
   "license": "MIT",
   "scripts": {
-    "compile": "tsc",
+    "compile": "tsc --noEmit",
     "prebuild": "npm run lint && npm run clean",
     "build": "npm run build:cjs && npm run build:esm",
     "build:cjs": "tsc -b tsconfig-build-cjs.json && cp ../../support/package.cjs.json ../../build/sqb/cjs/package.json",
@@ -24,20 +24,20 @@
   },
   "dependencies": {
     "reflect-metadata": "^0.2.2",
-    "tslib": "^2.6.3",
-    "valgen": "^5.8.2"
+    "tslib": "^2.7.0",
+    "valgen": "^5.9.0"
   },
   "devDependencies": {
-    "@faker-js/faker": "^8.4.1",
-    "@sqb/builder": "^4.16.1",
-    "@sqb/connect": "^4.16.1",
-    "@sqb/postgres": "^4.16.1",
-    "postgrejs": "^2.18.1",
+    "@faker-js/faker": "^9.0.0",
+    "@sqb/builder": "^4.18.0",
+    "@sqb/connect": "^4.18.0",
+    "@sqb/postgres": "^4.18.0",
+    "postgrejs": "^2.19.0",
     "ts-gems": "^3.5.0"
   },
   "peerDependencies": {
-    "@opra/core": "^1.0.0-alpha.34",
-    "@sqb/connect": ">= 4.10.6"
+    "@opra/core": "^1.0.0-beta.1",
+    "@sqb/connect": ">= 4.18.0"
   },
   "type": "module",
   "exports": {
@@ -47,7 +47,7 @@
         "default": "./esm/index.js"
       },
       "require": {
-        "types": "./types/index.d.ts",
+        "types": "./types/index.d.cts",
         "default": "./cjs/index.js"
       },
       "default": "./esm/index.js"

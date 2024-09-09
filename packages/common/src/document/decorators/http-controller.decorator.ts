@@ -1,6 +1,6 @@
 import omit from 'lodash.omit';
 import merge from 'putil-merge';
-import { StrictOmit, Type, TypeThunkAsync } from 'ts-gems';
+import type { StrictOmit, Type, TypeThunkAsync } from 'ts-gems';
 import { OpraSchema } from '../../schema/index.js';
 import { HTTP_CONTROLLER_METADATA } from '../constants.js';
 import type { HttpController } from '../http/http-controller.js';

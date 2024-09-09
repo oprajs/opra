@@ -3,19 +3,19 @@ import * as Angular from '@angular/common/http';
 import typeIs from '@browsery/type-is';
 import {
   HttpBackend,
-  HttpDownloadProgressEvent,
-  HttpEvent,
+  type HttpDownloadProgressEvent,
+  type HttpEvent,
   HttpEventType,
   HttpResponse,
-  HttpResponseEvent,
-  HttpResponseHeaderEvent,
-  HttpSentEvent,
-  HttpUploadProgressEvent,
+  type HttpResponseEvent,
+  type HttpResponseHeaderEvent,
+  type HttpSentEvent,
+  type HttpUploadProgressEvent,
 } from '@opra/client';
 import { isBlob } from '@opra/common';
 import { Observable } from 'rxjs';
 import { isReadableStreamLike } from 'rxjs/internal/util/isReadableStreamLike';
-import { StrictOmit } from 'ts-gems';
+import type { StrictOmit } from 'ts-gems';
 
 /**
  *

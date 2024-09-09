@@ -1,4 +1,4 @@
-import { isAny, Validator } from 'valgen';
+import { isAny, type Validator } from 'valgen';
 import { DECODER, ENCODER } from '../../constants.js';
 import { SimpleType } from '../simple-type.js';
 

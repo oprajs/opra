@@ -1,4 +1,4 @@
-import { Combine, ThunkAsync, Type } from 'ts-gems';
+import type { Combine, ThunkAsync, Type } from 'ts-gems';
 import { cloneObject, resolveThunk, ResponsiveMap } from '../../helpers/index.js';
 import { OpraSchema } from '../../schema/index.js';
 import { DataTypeMap } from '../common/data-type-map.js';

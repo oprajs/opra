@@ -4,8 +4,8 @@
   "compilerOptions": {
     "baseUrl": "./",
     "paths": {
-      "@opra/common": ["../common/src/index.ts"],
-      "@opra/core": ["../core/src/index.ts"]
+      "@opra/common": ["../common/src"],
+      "@opra/core": ["../core/src"]
     },
     "emitDecoratorMetadata": true
   }

@@ -1,4 +1,4 @@
-import { TOptions } from '@browsery/i18next';
+import type { TOptions } from '@browsery/i18next';
 import { escapeString } from './string-utils.js';
 
 const bracketRegEx = /(\))/g;

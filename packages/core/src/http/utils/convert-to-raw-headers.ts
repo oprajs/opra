@@ -1,4 +1,4 @@
-import { IncomingHttpHeaders } from 'http';
+import type { IncomingHttpHeaders } from 'http';
 import {
   ARRAY_FIELD,
   COMMA_DELIMITED_FIELD,

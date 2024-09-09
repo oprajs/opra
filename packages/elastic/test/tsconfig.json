@@ -3,6 +3,7 @@
   "include": ["."],
   "compilerOptions": {
     "emitDecoratorMetadata": true,
+    "verbatimModuleSyntax": false,
     "baseUrl": "./",
     "paths": {
       "@opra/elastic": ["../src"],
@@ -11,8 +12,8 @@
       "@opra/core": ["../../core/src"],
       "@opra/mongodb": ["../../mongodb/src"],
       "@opra/testing": ["../../testing/src"],
-      "customer-mongo": ["../../../examples/_lib/customer-mongo"],
-      "express-mongo": ["../../../examples/express-mongo"]
+      "customer-elastic": ["../../../examples/_lib/customer-elastic"],
+      "express-elastic": ["../../../examples/express-elastic"]
     }
   }
 }

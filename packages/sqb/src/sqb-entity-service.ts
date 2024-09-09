@@ -2,8 +2,8 @@ import { ComplexType, DataType, InternalServerError } from '@opra/common';
 import { HttpContext, ServiceBase } from '@opra/core';
 import { op } from '@sqb/builder';
 import { EntityMetadata, Repository, SqbClient, SqbConnection } from '@sqb/connect';
-import { Nullish, PartialDTO, PatchDTO, RequiredSome, StrictOmit, Type } from 'ts-gems';
-import { isNotNullish, IsObject } from 'valgen';
+import type { Nullish, PartialDTO, PatchDTO, RequiredSome, StrictOmit, Type } from 'ts-gems';
+import { isNotNullish, type IsObject } from 'valgen';
 import { SQBAdapter } from './sqb-adapter.js';
 
 /**
@@ -106,8 +106,9 @@ export namespace SqbEntityService {
    */
   export interface UpdateManyOptions extends Repository.UpdateManyOptions {}
 
-  export interface CreateCommand extends StrictOmit<RequiredSome<CommandInfo, 'input'>, 'documentId'> {
+  export interface CreateCommand<T> extends StrictOmit<RequiredSome<CommandInfo, 'input'>, 'documentId'> {
     crud: 'create';
+    input: PatchDTO<T>;
     options?: CreateOptions;
   }
 
@@ -319,15 +320,34 @@ export class SqbEntityService<T extends object = object> extends ServiceBase {
    * @returns - A promise that resolves to the created resource
    * @protected
    */
-  protected async _create(command: SqbEntityService.CreateCommand): Promise<PartialDTO<T>> {
+  protected async _create(command: SqbEntityService.CreateCommand<T>): Promise<PartialDTO<T>> {
     const { input, options } = command;
     isNotNullish(command.input, { label: 'input' });
     const inputCodec = this.getInputCodec('create');
     const outputCodec = this.getOutputCodec('create');
-    const data: any = inputCodec(input);
-    const out = await this._dbCreate(data, options);
+    const data = inputCodec(input);
+    const conn = await this.getConnection();
+    const repo = conn.getRepository(this.dataTypeClass);
+    const out = await repo.create(data, options);
     if (out) return outputCodec(out);
     throw new InternalServerError(`Unknown error while creating document for "${this.getResourceName()}"`);
+  }
+
+  /**
+   * Insert a new record into database
+   *
+   * @param command
+   * @returns - A promise that resolves to the created resource
+   * @protected
+   */
+  protected async _createOnly(command: SqbEntityService.CreateCommand<T>): Promise<any> {
+    const { input, options } = command;
+    isNotNullish(command.input, { label: 'input' });
+    const inputCodec = this.getInputCodec('create');
+    const data = inputCodec(input);
+    const conn = await this.getConnection();
+    const repo = conn.getRepository(this.dataTypeClass);
+    return await repo.createOnly(data, options);
   }
 
   /**
@@ -692,14 +712,88 @@ export class SqbEntityService<T extends object = object> extends ServiceBase {
         proto = Object.getPrototypeOf(proto);
         if (!(proto instanceof SqbEntityService)) break;
       }
+      /** Call before[X] hooks */
+      if (command.crud === 'create') await this._beforeCreate(command as SqbEntityService.CreateCommand<T>);
+      else if (command.crud === 'update' && command.byId) {
+        await this._beforeUpdate(command as SqbEntityService.UpdateOneCommand<T>);
+      } else if (command.crud === 'update' && !command.byId) {
+        await this._beforeUpdateMany(command as SqbEntityService.UpdateOneCommand<T>);
+      } else if (command.crud === 'delete' && command.byId) {
+        await this._beforeDelete(command as SqbEntityService.DeleteOneCommand);
+      } else if (command.crud === 'delete' && !command.byId) {
+        await this._beforeDeleteMany(command as SqbEntityService.DeleteManyCommand);
+      }
+      /** Call command function */
       return commandFn();
     };
     try {
-      return await next();
+      const result = await next();
+      /** Call after[X] hooks */
+      if (command.crud === 'create') await this._afterCreate(command as SqbEntityService.CreateCommand<T>, result);
+      else if (command.crud === 'update' && command.byId) {
+        await this._afterUpdate(command as SqbEntityService.UpdateOneCommand<T>, result);
+      } else if (command.crud === 'update' && !command.byId) {
+        await this._afterUpdateMany(command as SqbEntityService.UpdateOneCommand<T>, result);
+      } else if (command.crud === 'delete' && command.byId) {
+        await this._afterDelete(command as SqbEntityService.DeleteOneCommand, result);
+      } else if (command.crud === 'delete' && !command.byId) {
+        await this._afterDeleteMany(command as SqbEntityService.DeleteManyCommand, result);
+      }
+      return result;
     } catch (e: any) {
       Error.captureStackTrace(e, this._executeCommand);
       await this.onError?.(e, this);
       throw e;
     }
+  }
+
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  protected async _beforeCreate(command: SqbEntityService.CreateCommand<T>): Promise<void> {
+    // Do nothing
+  }
+
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  protected async _beforeUpdate(command: SqbEntityService.UpdateOneCommand<T>): Promise<void> {
+    // Do nothing
+  }
+
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  protected async _beforeUpdateMany(command: SqbEntityService.UpdateManyCommand<T>): Promise<void> {
+    // Do nothing
+  }
+
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  protected async _beforeDelete(command: SqbEntityService.DeleteOneCommand): Promise<void> {
+    // Do nothing
+  }
+
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  protected async _beforeDeleteMany(command: SqbEntityService.DeleteManyCommand): Promise<void> {
+    // Do nothing
+  }
+
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  protected async _afterCreate(command: SqbEntityService.CreateCommand<T>, result: PartialDTO<T>): Promise<void> {
+    // Do nothing
+  }
+
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  protected async _afterUpdate(command: SqbEntityService.UpdateOneCommand<T>, result?: PartialDTO<T>): Promise<void> {
+    // Do nothing
+  }
+
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  protected async _afterUpdateMany(command: SqbEntityService.UpdateManyCommand<T>, affected: number): Promise<void> {
+    // Do nothing
+  }
+
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  protected async _afterDelete(command: SqbEntityService.DeleteOneCommand, affected: number): Promise<void> {
+    // Do nothing
+  }
+
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  protected async _afterDeleteMany(command: SqbEntityService.DeleteManyCommand, affected: number): Promise<void> {
+    // Do nothing
   }
 }

@@ -2,7 +2,7 @@ import { HttpController, HttpOperation, OmitType, OperationResult } from '@opra/
 import { SQBAdapter } from '@opra/sqb';
 import { SqbClient } from '@sqb/connect';
 import { Customer, CustomersService } from 'customer-sqb';
-import { PartialDTO } from 'ts-gems';
+import { type PartialDTO } from 'ts-gems';
 
 @HttpController({
   path: 'Customers',

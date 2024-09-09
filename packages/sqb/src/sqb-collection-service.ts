@@ -1,5 +1,5 @@
 import { ResourceNotAvailableError } from '@opra/common';
-import { PartialDTO, PatchDTO, RequiredSome, Type } from 'ts-gems';
+import type { PartialDTO, PatchDTO, RequiredSome, Type } from 'ts-gems';
 import { SQBAdapter } from './sqb-adapter.js';
 import { SqbEntityService } from './sqb-entity-service.js';
 
@@ -139,7 +139,7 @@ export abstract class SqbCollectionService<T extends object = object> extends Sq
   ): Promise<PartialDTO<T>>;
   async create(input: PartialDTO<T>, options?: SqbCollectionService.CreateOptions): Promise<T>;
   async create(input: PartialDTO<T>, options?: SqbCollectionService.CreateOptions): Promise<PartialDTO<T>> {
-    const command: SqbEntityService.CreateCommand = {
+    const command: SqbEntityService.CreateCommand<T> = {
       crud: 'create',
       method: 'create',
       byId: false,
@@ -147,6 +147,25 @@ export abstract class SqbCollectionService<T extends object = object> extends Sq
       options,
     };
     return this._executeCommand(command, () => this._create(command));
+  }
+
+  /**
+   * Creates a new resource
+   *
+   * @param {PartialDTO<T>} input - The input data
+   * @param {SqbCollectionService.CreateOptions} [options] - The options object
+   * @returns {Promise<void>} A promise that resolves create operation result
+   * @throws {Error} if an unknown error occurs while creating the resource
+   */
+  async createOnly(input: PartialDTO<T>, options?: SqbCollectionService.CreateOptions): Promise<void> {
+    const command: SqbEntityService.CreateCommand<T> = {
+      crud: 'create',
+      method: 'createOnly',
+      byId: false,
+      input,
+      options,
+    };
+    return this._executeCommand(command, () => this._createOnly(command));
   }
 
   /**

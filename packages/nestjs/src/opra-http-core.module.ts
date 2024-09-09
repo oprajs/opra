@@ -1,10 +1,10 @@
 import {
-  DynamicModule,
+  type DynamicModule,
   Global,
-  MiddlewareConsumer,
+  type MiddlewareConsumer,
   Module,
-  NestModule,
-  OnModuleDestroy,
+  type NestModule,
+  type OnModuleDestroy,
   RequestMethod,
 } from '@nestjs/common';
 import { APP_FILTER, ModuleRef } from '@nestjs/core';

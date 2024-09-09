@@ -2,9 +2,9 @@
   This file contains code blocks from open source NodeJs project
   https://github.com/nodejs/
  */
-import { HTTPParserJS } from '@browsery/http-parser';
+import { type HTTPParserJS } from '@browsery/http-parser';
 import { isAsyncIterable, isIterable } from '@opra/common';
-import { IncomingHttpHeaders } from 'http';
+import type { IncomingHttpHeaders } from 'http';
 import { Duplex, Readable } from 'stream';
 import type { NodeIncomingMessage } from '../interfaces/node-incoming-message.interface.js';
 import { convertToHeaders, convertToHeadersDistinct } from '../utils/convert-to-headers.js';

@@ -1,11 +1,11 @@
 {
   "name": "@opra/mongodb",
-  "version": "1.0.0-alpha.34",
+  "version": "1.0.0-beta.1",
   "description": "Opra MongoDB adapter package",
   "author": "Panates",
   "license": "MIT",
   "scripts": {
-    "compile": "tsc",
+    "compile": "tsc --noEmit",
     "prebuild": "npm run lint && npm run clean",
     "build": "npm run build:cjs && npm run build:esm",
     "build:cjs": "tsc -b tsconfig-build-cjs.json && cp ../../support/package.cjs.json ../../build/mongodb/cjs/package.json",
@@ -24,17 +24,17 @@
   "dependencies": {
     "lodash.omit": "^4.5.0",
     "putil-isplainobject": "^1.1.5",
-    "tslib": "^2.6.3",
-    "valgen": "^5.8.2"
+    "tslib": "^2.7.0",
+    "valgen": "^5.9.0"
   },
   "devDependencies": {
-    "@faker-js/faker": "^8.4.1",
-    "mongodb": "^6.8.0",
+    "@faker-js/faker": "^9.0.0",
+    "mongodb": "^6.8.1",
     "ts-gems": "^3.5.0"
   },
   "peerDependencies": {
-    "@opra/common": "^1.0.0-alpha.34",
-    "@opra/core": "^1.0.0-alpha.34",
+    "@opra/common": "^1.0.0-beta.1",
+    "@opra/core": "^1.0.0-beta.1",
     "mongodb": ">= 6.0.0"
   },
   "type": "module",
@@ -45,7 +45,7 @@
         "default": "./esm/index.js"
       },
       "require": {
-        "types": "./types/index.d.ts",
+        "types": "./types/index.d.cts",
         "default": "./cjs/index.js"
       },
       "default": "./esm/index.js"

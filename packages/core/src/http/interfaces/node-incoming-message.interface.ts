@@ -1,4 +1,4 @@
-import { HeaderInfo, HTTPParser } from '@browsery/http-parser';
+import { type HeaderInfo, HTTPParser } from '@browsery/http-parser';
 import { isAsyncIterable, isIterable } from '@opra/common';
 import http from 'http';
 import { Readable } from 'stream';
