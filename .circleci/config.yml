@@ -39,12 +39,13 @@ jobs:
           xpack.security.enabled: false
       - image: docker.elastic.co/elasticsearch/elasticsearch:8.15.0
         environment:
-          - cluster.name: opra-test-cluster
+          - cluster.name: es-test-cluster
           - xpack.security.enabled: false
           - transport.host: localhost
           - network.host: 127.0.0.1
           - http.port: 9200
           - discovery.type: single-node
+          - ES_JAVA_OPTIONS=-Xms512m -Xmx512m
     environment:
       NODE_ENV: test
       POSTGRES_USER: postgres
