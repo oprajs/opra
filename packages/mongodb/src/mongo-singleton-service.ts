@@ -1,4 +1,5 @@
 import { ResourceNotAvailableError } from '@opra/common';
+import omit from 'lodash.omit';
 import mongodb, { ObjectId, type UpdateFilter } from 'mongodb';
 import type { DTO, PartialDTO, PatchDTO, RequiredSome, Type } from 'ts-gems';
 import { MongoAdapter } from './mongo-adapter.js';
@@ -73,6 +74,38 @@ export class MongoSingletonService<T extends mongodb.Document> extends MongoEnti
     const command: MongoEntityService.CreateCommand<T> = {
       crud: 'create',
       method: 'create',
+      byId: false,
+      input,
+      options,
+    };
+    (input as any)._id = this._id;
+    return this._executeCommand(command, async () => {
+      const r = await this._create(command);
+      if (!command.options?.projection) return r;
+      const findCommand: MongoEntityService.FindOneCommand<T> = {
+        ...command,
+        crud: 'read',
+        byId: true,
+        documentId: r._id,
+        options: omit(options, 'filter'),
+      };
+      const out = await this._findById(findCommand);
+      if (out) return out;
+    });
+  }
+
+  /**
+   * Creates the document in the database.
+   *
+   * @param {DTO<T>} input - The partial input to create the document with.
+   * @param {MongoEntityService.CreateOptions} [options] - The options for creating the document.
+   * @returns {Promise<MongoEntityService.CreateResult<T>>} A promise that resolves create operation result
+   * @throws {Error} Throws an error if an unknown error occurs while creating the document.
+   */
+  async createOnly(input: DTO<T>, options?: MongoEntityService.CreateOptions): Promise<T> {
+    const command: MongoEntityService.CreateCommand<T> = {
+      crud: 'create',
+      method: 'createOnly',
       byId: false,
       input,
       options,
@@ -199,7 +232,18 @@ export class MongoSingletonService<T extends mongodb.Document> extends MongoEnti
     return this._executeCommand(command, async () => {
       const filter = MongoAdapter.prepareFilter([await this._getDocumentFilter(command), command.options?.filter]);
       command.options = { ...command.options, filter };
-      return this._update(command);
+      const matchCount = await this._updateOnly(command);
+      if (matchCount) {
+        const findCommand: MongoEntityService.FindOneCommand<T> = {
+          ...command,
+          crud: 'read',
+          byId: true,
+          documentId: this._id,
+          options: omit(options, ['filter', 'sort']),
+        };
+        const out = await this._findById(findCommand);
+        if (out) return out;
+      }
     });
   }
 

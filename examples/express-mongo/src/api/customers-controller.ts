@@ -52,12 +52,12 @@ export class CustomersController {
   @(HttpOperation.Entity.DeleteMany(Customer).Filter('_id'))
   async deleteMany(context: HttpOperation.Context) {
     const { options } = await MongoAdapter.parseRequest(context);
-    return this.service.for(context).deleteMany(options);
+    return await this.service.for(context).deleteMany(options);
   }
 
   @(HttpOperation.Entity.UpdateMany(Customer).Filter('_id'))
   async updateMany(context: HttpOperation.Context) {
     const { data, options } = await MongoAdapter.parseRequest(context);
-    return this.service.for(context).updateMany(data, options);
+    return await this.service.for(context).updateMany(data, options);
   }
 }

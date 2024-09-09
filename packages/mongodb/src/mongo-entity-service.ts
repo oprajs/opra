@@ -1,6 +1,6 @@
 import { InternalServerError } from '@opra/common';
 import omit from 'lodash.omit';
-import mongodb, { type UpdateFilter } from 'mongodb';
+import mongodb, { type UpdateFilter, UpdateResult } from 'mongodb';
 import type { DTO, PartialDTO, PatchDTO, StrictOmit, Type } from 'ts-gems';
 import { isNotNullish } from 'valgen';
 import { MongoAdapter } from './mongo-adapter.js';
@@ -95,7 +95,7 @@ export namespace MongoEntityService {
 
 /**
  * @class MongoEntityService
- * @template T - The type of the documents in the collection.
+ * @template T - The type of the documents in the collection
  */
 export class MongoEntityService<T extends mongodb.Document> extends MongoService<T> {
   /**
@@ -110,33 +110,29 @@ export class MongoEntityService<T extends mongodb.Document> extends MongoService
   }
 
   /**
-   * Creates a new document in the MongoDB collection.
+   * Creates a new document in the MongoDB collection
    *
    * @param {MongoEntityService.CreateCommand} command
    * @protected
    */
-  protected async _create(command: MongoEntityService.CreateCommand<T>): Promise<PartialDTO<T>> {
-    const input: any = command;
+  protected async _create(command: MongoEntityService.CreateCommand<T>): Promise<T> {
+    const input: any = command.input;
     isNotNullish(input, { label: 'input' });
     isNotNullish(input._id, { label: 'input._id' });
     const inputCodec = this._getInputCodec('create');
-    const doc: any = inputCodec(input);
+    const document: any = inputCodec(input);
     const { options } = command;
-    const r = await this._dbInsertOne(doc, options);
-    if (r.insertedId) {
-      if (!command.options) return doc;
-      const findCommand: MongoEntityService.FindOneCommand<T> = {
-        ...command,
-        crud: 'read',
-        byId: true,
-        documentId: r.insertedId,
-        options: omit(options, 'filter'),
-      };
-      const out = await this._findById(findCommand);
-      if (out) return out;
-    }
+    const db = this.getDatabase();
+    const collection = await this.getCollection(db);
+    const r = await collection.insertOne(document, {
+      ...options,
+      session: options?.session || this.getSession(),
+    });
     /* istanbul ignore next */
-    throw new InternalServerError(`Unknown error while creating document for "${this.getResourceName()}"`);
+    if (!r.insertedId) {
+      throw new InternalServerError(`Unknown error while creating document for "${this.getResourceName()}"`);
+    }
+    return document;
   }
 
   /**
@@ -148,11 +144,19 @@ export class MongoEntityService<T extends mongodb.Document> extends MongoService
   protected async _count(command: MongoEntityService.CountCommand<T>): Promise<number> {
     const { options } = command;
     const filter = MongoAdapter.prepareFilter(options?.filter);
-    return this._dbCountDocuments(filter, omit(options, 'filter'));
+    const db = this.getDatabase();
+    const collection = await this.getCollection(db);
+    return (
+      (await collection.countDocuments(filter || {}, {
+        ...options,
+        limit: undefined,
+        session: options?.session || this.getSession(),
+      })) || 0
+    );
   }
 
   /**
-   * Deletes a document from the collection.
+   * Deletes a document from the collection
    *
    * @param {MongoEntityService.DeleteCommand<T>} command
    * @protected
@@ -164,8 +168,14 @@ export class MongoEntityService<T extends mongodb.Document> extends MongoService
       MongoAdapter.prepareKeyValues(command.documentId, ['_id']),
       options?.filter,
     ]);
-    const r = await this._dbDeleteOne(filter, options);
-    return r.deletedCount;
+    const db = this.getDatabase();
+    const collection = await this.getCollection(db);
+    return (
+      await collection.deleteOne(filter || {}, {
+        ...options,
+        session: options?.session || this.getSession(),
+      })
+    ).deletedCount;
   }
 
   /**
@@ -177,12 +187,18 @@ export class MongoEntityService<T extends mongodb.Document> extends MongoService
   protected async _deleteMany(command: MongoEntityService.DeleteCommand<T>): Promise<number> {
     const { options } = command;
     const filter = MongoAdapter.prepareFilter(options?.filter);
-    const r = await this._dbDeleteMany(filter, omit(options, 'filter'));
-    return r.deletedCount;
+    const db = this.getDatabase();
+    const collection = await this.getCollection(db);
+    return (
+      await collection.deleteMany(filter || {}, {
+        ...options,
+        session: options?.session || this.getSession(),
+      })
+    ).deletedCount;
   }
 
   /**
-   * The distinct command returns a list of distinct values for the given key across a collection.
+   * The distinct command returns a list of distinct values for the given key across a collection
    *
    * @param {MongoEntityService.DistinctCommand<T>} command
    * @protected
@@ -190,7 +206,12 @@ export class MongoEntityService<T extends mongodb.Document> extends MongoService
   protected async _distinct(command: MongoEntityService.DistinctCommand<T>): Promise<any[]> {
     const { options, field } = command;
     const filter = MongoAdapter.prepareFilter(options?.filter);
-    return await this._dbDistinct(field, filter, omit(options, 'filter'));
+    const db = this.getDatabase();
+    const collection = await this.getCollection(db);
+    return await collection.distinct(field, filter || {}, {
+      ...options,
+      session: options?.session || this.getSession(),
+    });
   }
 
   /**
@@ -205,14 +226,16 @@ export class MongoEntityService<T extends mongodb.Document> extends MongoService
       command.options?.filter,
     ]);
     const { options } = command;
-    const mongoOptions: mongodb.FindOptions = {
-      ...options,
+    const db = this.getDatabase();
+    const collection = await this.getCollection(db);
+    const out = await collection.findOne<PartialDTO<T>>(filter || {}, {
+      ...omit(options, 'filter'),
+      session: options?.session || this.getSession(),
       projection: MongoAdapter.prepareProjection(this.dataType, options?.projection),
       limit: undefined,
       skip: undefined,
       sort: undefined,
-    };
-    const out = await this._dbFindOne(filter, mongoOptions);
+    });
     if (out) {
       const outputCodec = this._getOutputCodec('find');
       return outputCodec(out);
@@ -227,13 +250,15 @@ export class MongoEntityService<T extends mongodb.Document> extends MongoService
   protected async _findOne(command: MongoEntityService.FindOneCommand<T>): Promise<PartialDTO<T> | undefined> {
     const { options } = command;
     const filter = MongoAdapter.prepareFilter(options?.filter);
-    const mongoOptions: mongodb.FindOptions = {
+    const db = this.getDatabase();
+    const collection = await this.getCollection(db);
+    const out = await collection.findOne<PartialDTO<T>>(filter || {}, {
       ...omit(options, 'filter'),
+      session: options?.session || this.getSession(),
       sort: options?.sort ? MongoAdapter.prepareSort(options.sort) : undefined,
       projection: MongoAdapter.prepareProjection(this.dataType, options?.projection),
       limit: undefined,
-    };
-    const out = await this._dbFindOne(filter, mongoOptions);
+    });
     if (out) {
       const outputCodec = this._getOutputCodec('find');
       return outputCodec(out);
@@ -241,15 +266,12 @@ export class MongoEntityService<T extends mongodb.Document> extends MongoService
   }
 
   /**
-   * Finds multiple documents in the MongoDB collection.
+   * Finds multiple documents in the MongoDB collection
    *
    * @param {MongoEntityService.FindManyCommand<T>} command
    */
   protected async _findMany(command: MongoEntityService.FindManyCommand<T>): Promise<PartialDTO<T>[]> {
     const { options } = command;
-    const mongoOptions: mongodb.AggregateOptions = {
-      ...omit(options, ['projection', 'sort', 'skip', 'limit', 'filter']),
-    };
     const limit = options?.limit || 10;
     const stages: mongodb.Document[] = [];
     let filter: mongodb.Filter<T> | undefined;
@@ -266,7 +288,12 @@ export class MongoEntityService<T extends mongodb.Document> extends MongoService
     const dataType = this.dataType;
     const projection = MongoAdapter.prepareProjection(dataType, options?.projection);
     if (projection) stages.push({ $project: projection });
-    const cursor = await this._dbAggregate(stages, mongoOptions);
+    const db = this.getDatabase();
+    const collection = await this.getCollection(db);
+    const cursor = collection.aggregate<T>(stages, {
+      ...omit(options, ['projection', 'sort', 'skip', 'limit', 'filter']),
+      session: options?.session || this.getSession(),
+    });
     /** Execute db command */
     try {
       /** Fetch the cursor and decode the result objects */
@@ -288,9 +315,6 @@ export class MongoEntityService<T extends mongodb.Document> extends MongoService
     items: PartialDTO<T>[];
   }> {
     const { options } = command;
-    const mongoOptions: mongodb.AggregateOptions = {
-      ...omit(options, ['projection', 'sort', 'skip', 'limit', 'filter']),
-    };
     const limit = options?.limit || 10;
     let filter: mongodb.Filter<T> | undefined;
     if (options?.filter) filter = MongoAdapter.prepareFilter<T>(options?.filter);
@@ -321,9 +345,14 @@ export class MongoEntityService<T extends mongodb.Document> extends MongoService
     if (projection) dataStages.push({ $project: projection });
     const outputCodec = this._getOutputCodec('find');
     /** Execute db command */
-    const cursor = await this._dbAggregate(stages, mongoOptions);
+    const db = this.getDatabase();
+    const collection = await this.getCollection(db);
+    const cursor = collection.aggregate<T>(stages, {
+      ...omit(options, ['projection', 'sort', 'skip', 'limit', 'filter']),
+      session: options?.session || this.getSession(),
+    });
+    /** Fetch the cursor and decode the result objects */
     try {
-      /** Fetch the cursor and decode the result objects */
       const facetResult = await cursor.toArray();
       return {
         count: facetResult[0].count[0]?.totalMatches || 0,
@@ -335,7 +364,7 @@ export class MongoEntityService<T extends mongodb.Document> extends MongoService
   }
 
   /**
-   * Updates a document with the given id in the collection.
+   * Updates a document with the given id in the collection
    *
    * @param {MongoEntityService.UpdateOneCommand<T>} command
    */
@@ -359,14 +388,16 @@ export class MongoEntityService<T extends mongodb.Document> extends MongoService
       MongoAdapter.prepareKeyValues(command.documentId!, ['_id']),
       options?.filter,
     ]);
-
-    const mongoOptions: mongodb.FindOneAndUpdateOptions = {
-      ...options,
-      includeResultMetadata: false,
+    const db = this.getDatabase();
+    const collection = await this.getCollection(db);
+    const out = await collection.findOneAndUpdate(filter || {}, update, {
       upsert: undefined,
+      ...options,
+      returnDocument: 'after',
+      includeResultMetadata: false,
+      session: options?.session || this.getSession(),
       projection: MongoAdapter.prepareProjection(this.dataType, options?.projection),
-    };
-    const out = await this._dbFindOneAndUpdate(filter, update, mongoOptions);
+    });
     const outputCodec = this._getOutputCodec('update');
     if (out) return outputCodec(out);
   }
@@ -396,15 +427,15 @@ export class MongoEntityService<T extends mongodb.Document> extends MongoService
       MongoAdapter.prepareKeyValues(command.documentId, ['_id']),
       options?.filter,
     ]);
-
-    const mongoOptions: mongodb.FindOneAndUpdateOptions = {
-      ...options,
-      includeResultMetadata: false,
-      upsert: undefined,
-      projection: MongoAdapter.prepareProjection(this.dataType, options?.projection),
-    };
-    const out = await this._dbUpdateOne(filter, update, mongoOptions);
-    return out.matchedCount;
+    const db = this.getDatabase();
+    const collection = await this.getCollection(db);
+    return (
+      await collection.updateOne(filter || {}, update, {
+        ...options,
+        session: options?.session || this.getSession(),
+        upsert: undefined,
+      })
+    ).matchedCount;
   }
 
   /**
@@ -433,11 +464,21 @@ export class MongoEntityService<T extends mongodb.Document> extends MongoService
       upsert: undefined,
     };
     const filter = MongoAdapter.prepareFilter(options?.filter);
-    const r = await this._dbUpdateMany(filter, update, mongoOptions);
-    return r.matchedCount;
+    const db = this.getDatabase();
+    const collection = await this.getCollection(db);
+    return (
+      await collection.updateMany(filter || {}, update, {
+        ...omit(options, 'filter'),
+        session: options?.session || this.getSession(),
+        upsert: false,
+      })
+    ).matchedCount;
   }
 
-  protected async _executeCommand(command: MongoEntityService.CommandInfo, commandFn: () => any): Promise<any> {
+  protected override async _executeCommand(
+    command: MongoEntityService.CommandInfo,
+    commandFn: () => any,
+  ): Promise<any> {
     try {
       const result = await super._executeCommand(command, async () => {
         /** Call before[X] hooks */

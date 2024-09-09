@@ -24,7 +24,7 @@ export class CustomerNotesController {
   @(HttpOperation.Entity.Delete(Note).KeyParam('_id', Number))
   async delete(context: HttpOperation.Context) {
     const { key, options } = await MongoAdapter.parseRequest(context);
-    return this.service.for(context).delete(context.pathParams.customerId, key, options);
+    return await this.service.for(context).delete(context.pathParams.customerId, key, options);
   }
 
   @(HttpOperation.Entity.Update(Note).KeyParam('_id', Number))
@@ -65,12 +65,12 @@ export class CustomerNotesController {
   @(HttpOperation.Entity.DeleteMany(Note).Filter('_id').Filter('rank'))
   async deleteMany(context: HttpOperation.Context) {
     const { options } = await MongoAdapter.parseRequest(context);
-    return this.service.for(context).deleteMany(context.pathParams.customerId, options);
+    return await this.service.for(context).deleteMany(context.pathParams.customerId, options);
   }
 
   @(HttpOperation.Entity.UpdateMany(Note).Filter('_id').Filter('rank'))
   async updateMany(context: HttpOperation.Context) {
     const { data, options } = await MongoAdapter.parseRequest(context);
-    return this.service.for(context).updateMany(context.pathParams.customerId, data, options);
+    return await this.service.for(context).updateMany(context.pathParams.customerId, data, options);
   }
 }

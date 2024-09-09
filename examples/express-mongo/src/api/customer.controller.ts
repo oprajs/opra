@@ -25,7 +25,7 @@ export class CustomerController {
   @HttpOperation.Entity.Delete(Customer)
   async delete(context: HttpOperation.Context) {
     const { key, options } = await MongoAdapter.parseRequest(context);
-    return this.service.for(context).delete(key, options);
+    return await this.service.for(context).delete(key, options);
   }
 
   @HttpOperation.Entity.Update(Customer)

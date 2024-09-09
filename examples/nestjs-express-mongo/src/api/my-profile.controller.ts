@@ -30,7 +30,7 @@ export class MyProfileController {
   @HttpOperation.Entity.Delete(Profile)
   async delete(context: HttpOperation.Context) {
     const { options } = await MongoAdapter.parseRequest(context);
-    return this.service.for(context).delete(options);
+    return await this.service.for(context).delete(options);
   }
 
   @HttpOperation.Entity.Get(Profile)

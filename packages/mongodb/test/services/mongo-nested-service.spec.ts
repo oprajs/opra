@@ -439,7 +439,7 @@ describe('MongoNestedService', () => {
     it('Should insert object into array field', async () => {
       const ctx = createContext(app.adapter);
       const doc = { _id: 100, title: faker.lorem.text() };
-      const result: any = await service.for(ctx).create(1, doc);
+      const result = await service.for(ctx).create(1, doc);
       expect(result).toBeDefined();
       const r = await service.for(ctx).findById(1, 100);
       expect(result).toEqual(r);
@@ -474,29 +474,29 @@ describe('MongoNestedService', () => {
       const ctx = createContext(app.adapter);
       const doc = { title: faker.lorem.text() };
       const srcDoc = tempRecords[5];
-      const result = await service.for(ctx).updateOnly(srcDoc._id, srcDoc.notes[0]._id, doc);
-      expect(result).toEqual(1);
+      const r = await service.for(ctx).updateOnly(srcDoc._id, srcDoc.notes[0]._id, doc);
+      expect(r).toEqual(1);
     });
 
     it('Should return "0" if parent record not found', async () => {
       const ctx = createContext(app.adapter);
       const doc = { title: faker.lorem.text() };
-      const result = await service.for(ctx).updateOnly(9999, 1, doc);
-      expect(result).toEqual(0);
+      const r = await service.for(ctx).updateOnly(9999, 1, doc);
+      expect(r).toEqual(0);
     });
 
     it('Should apply filter returned by documentFilter', async () => {
       const ctx = createContext(app.adapter);
       const doc = { uid: faker.string.uuid() };
-      const result = await service.for(ctx, { documentFilter: '_id=999' }).updateOnly(2, 1, doc);
-      expect(result).toEqual(0);
+      const r = await service.for(ctx, { documentFilter: '_id=999' }).updateOnly(2, 1, doc);
+      expect(r).toEqual(0);
     });
 
     it('Should apply filter returned by nestedFilter', async () => {
       const ctx = createContext(app.adapter);
       const doc = { uid: faker.string.uuid() };
-      const result = await service.for(ctx, { nestedFilter: 'rank=99' }).updateOnly(2, 1, doc);
-      expect(result).toEqual(0);
+      const r = await service.for(ctx, { nestedFilter: 'rank=99' }).updateOnly(2, 1, doc);
+      expect(r).toEqual(0);
     });
 
     it('Should run in interceptor', async () => {
@@ -504,8 +504,8 @@ describe('MongoNestedService', () => {
       const ctx = createContext(app.adapter);
       const doc = { uid: faker.string.uuid() };
       const srcDoc = tempRecords[5];
-      const result = await service.for(ctx, { interceptor: mockFn }).updateOnly(srcDoc._id, srcDoc.notes[0]._id, doc);
-      expect(result).toEqual(1);
+      const r = await service.for(ctx, { interceptor: mockFn }).updateOnly(srcDoc._id, srcDoc.notes[0]._id, doc);
+      expect(r).toEqual(1);
       expect(mockFn).toBeCalled();
     });
   });
@@ -515,10 +515,10 @@ describe('MongoNestedService', () => {
       const ctx = createContext(app.adapter);
       const doc = { title: faker.lorem.text() };
       const srcDoc = tempRecords[5];
-      const result: any = await service.for(ctx).update(srcDoc._id, srcDoc.notes[0]._id, doc);
-      expect(result).toBeDefined();
-      const r = await service.for(ctx).findById(srcDoc._id, srcDoc.notes[0]._id);
-      expect(result).toEqual(r);
+      const r = await service.for(ctx).update(srcDoc._id, srcDoc.notes[0]._id, doc);
+      expect(r).toBeDefined();
+      const x = await service.for(ctx).findById(srcDoc._id, srcDoc.notes[0]._id);
+      expect(x).toEqual(r);
     });
 
     it('Should throw error if parent record not found', async () => {
@@ -548,8 +548,7 @@ describe('MongoNestedService', () => {
       const ctx = createContext(app.adapter);
       const doc = { uid: faker.string.uuid() };
       const srcDoc = tempRecords[5];
-      const result: any = await service.for(ctx, { interceptor: mockFn }).update(srcDoc._id, srcDoc.notes[0]._id, doc);
-      expect(result).toBeDefined();
+      await service.for(ctx, { interceptor: mockFn }).update(srcDoc._id, srcDoc.notes[0]._id, doc);
       expect(mockFn).toBeCalled();
     });
   });
@@ -560,8 +559,8 @@ describe('MongoNestedService', () => {
       const update = { title: faker.lorem.text() };
       const r = await service.for(ctx).updateMany(tempRecords[3]._id, update);
       expect(r).toBeGreaterThan(0);
-      const result = await service.for(ctx).findMany(tempRecords[3]._id);
-      expect(result).toEqual(
+      const recs = await service.for(ctx).findMany(tempRecords[3]._id);
+      expect(recs).toEqual(
         expect.arrayContaining([
           expect.objectContaining({
             title: update.title,
@@ -573,43 +572,42 @@ describe('MongoNestedService', () => {
     it('Should apply filter', async () => {
       const ctx = createContext(app.adapter);
       const update = { title: faker.lorem.text() };
-      let r: any = await service.for(ctx).updateMany(tempRecords[3]._id, update, { filter: 'rank>5' });
+      const r = await service.for(ctx).updateMany(tempRecords[3]._id, update, { filter: 'rank>5' });
       expect(r).toBeGreaterThan(0);
-      const result = await service.for(ctx).findMany(tempRecords[3]._id);
-      expect(result).toBeDefined();
-      for (r of result!) {
-        if (r.rank <= 5) expect(r.title).not.toEqual(update.title);
-        else expect(r.title).toEqual(update.title);
+      const recs = await service.for(ctx).findMany(tempRecords[3]._id);
+      expect(recs).toBeDefined();
+      for (const x of recs!) {
+        if (x.rank <= 5) expect(x.title).not.toEqual(update.title);
+        else expect(x.title).toEqual(update.title);
       }
     });
 
     it('Should apply filter returned by documentFilter', async () => {
       const ctx = createContext(app.adapter);
       const doc = { uid: faker.string.uuid() };
-      const result = await service.for(ctx, { documentFilter: '_id=999' }).updateMany(2, doc);
-      expect(result).toEqual(0);
+      const r = await service.for(ctx, { documentFilter: '_id=999' }).updateMany(2, doc);
+      expect(r).toEqual(0);
     });
 
     it('Should apply filter returned by nestedFilter', async () => {
       const ctx = createContext(app.adapter);
       const doc = { uid: faker.string.uuid() };
-      const result = await service.for(ctx, { nestedFilter: 'rank=99' }).updateMany(2, doc);
-      expect(result).toEqual(0);
+      const r = await service.for(ctx, { nestedFilter: 'rank=99' }).updateMany(2, doc);
+      expect(r).toEqual(0);
     });
 
     it('Should count exact number of updated items', async () => {
       const ctx = createContext(app.adapter);
       const doc = { uid: faker.string.uuid() };
-      const result = await service.for(ctx).updateMany(2, doc, { count: true });
-      expect(result).toBeGreaterThan(1);
+      const r = await service.for(ctx).updateMany(2, doc);
+      expect(r).toBeGreaterThan(1);
     });
 
     it('Should run in interceptor', async () => {
       const mockFn = jest.fn(interceptorFn);
       const ctx = createContext(app.adapter);
       const update = { uid: faker.string.uuid() };
-      const r = await service.for(ctx, { interceptor: mockFn }).updateMany(tempRecords[3]._id, update);
-      expect(r).toBeGreaterThan(0);
+      await service.for(ctx, { interceptor: mockFn }).updateMany(tempRecords[3]._id, update);
       expect(mockFn).toBeCalled();
     });
   });
@@ -618,14 +616,14 @@ describe('MongoNestedService', () => {
     it('Should delete object from the array field', async () => {
       const ctx = createContext(app.adapter);
       const doc = tempRecords[0];
-      let r = await service.for(ctx).findById(doc._id, doc.notes[0]._id);
-      expect(r).toBeDefined();
+      let x = await service.for(ctx).findById(doc._id, doc.notes[0]._id);
+      expect(x).toBeDefined();
 
-      const result: any = await service.for(ctx).delete(doc._id, doc.notes[0]._id);
-      expect(result).toEqual(1);
+      const r = await service.for(ctx).delete(doc._id, doc.notes[0]._id);
+      expect(r).toEqual(1);
 
-      r = await service.for(ctx).findById(doc._id, doc.notes[0]._id);
-      expect(r).not.toBeDefined();
+      x = await service.for(ctx).findById(doc._id, doc.notes[0]._id);
+      expect(x).not.toBeDefined();
     });
 
     it('Should return "0" if parent record not found', async () => {
@@ -636,22 +634,21 @@ describe('MongoNestedService', () => {
 
     it('Should apply filter returned by documentFilter', async () => {
       const ctx = createContext(app.adapter);
-      const result = await service.for(ctx, { documentFilter: '_id=999' }).delete(3, 1);
-      expect(result).toEqual(0);
+      const r = await service.for(ctx, { documentFilter: '_id=999' }).delete(3, 1);
+      expect(r).toEqual(0);
     });
 
     it('Should apply filter returned by nestedFilter', async () => {
       const ctx = createContext(app.adapter);
-      const result = await service.for(ctx, { nestedFilter: 'rank=99' }).delete(3, 1);
-      expect(result).toEqual(0);
+      const r = await service.for(ctx, { nestedFilter: 'rank=99' }).delete(3, 1);
+      expect(r).toEqual(0);
     });
 
     it('Should run in interceptor', async () => {
       const mockFn = jest.fn(interceptorFn);
       const ctx = createContext(app.adapter);
       const doc = tempRecords[2];
-      const result: any = await service.for(ctx, { interceptor: mockFn }).delete(doc._id, doc.notes[0]._id);
-      expect(result).toEqual(1);
+      await service.for(ctx, { interceptor: mockFn }).delete(doc._id, doc.notes[0]._id);
       expect(mockFn).toBeCalled();
     });
   });
@@ -659,37 +656,36 @@ describe('MongoNestedService', () => {
   describe('deleteMany()', () => {
     it('Should apply filter returned by documentFilter', async () => {
       const ctx = createContext(app.adapter);
-      const result = await service.for(ctx, { documentFilter: '_id=999' }).deleteMany(1);
-      expect(result).toEqual(0);
+      const r = await service.for(ctx, { documentFilter: '_id=999' }).deleteMany(1);
+      expect(r).toEqual(0);
     });
 
     it('Should apply filter returned by nestedFilter', async () => {
       const ctx = createContext(app.adapter);
-      const result = await service.for(ctx, { nestedFilter: 'rank=99' }).deleteMany(3);
-      expect(result).toEqual(0);
+      const r = await service.for(ctx, { nestedFilter: 'rank=99' }).deleteMany(3);
+      expect(r).toEqual(0);
     });
 
     it('Should apply filter', async () => {
       const ctx = createContext(app.adapter);
-      const result: any = await service.for(ctx).deleteMany(tempRecords[1]._id, { filter: { rank: { $gt: 5 } } });
-      expect(result).toBeGreaterThan(0);
-      const r = await service.for(ctx).count(tempRecords[1]._id);
+      const r = await service.for(ctx).deleteMany(tempRecords[1]._id, { filter: { rank: { $gt: 5 } } });
       expect(r).toBeGreaterThan(0);
+      const c = await service.for(ctx).count(tempRecords[1]._id);
+      expect(c).toBeGreaterThan(0);
     });
 
     it('Should delete all object from the array field', async () => {
       const ctx = createContext(app.adapter);
-      const result: any = await service.for(ctx).deleteMany(tempRecords[0]._id);
-      expect(result).toBeGreaterThan(0);
-      const r = await service.for(ctx).count(tempRecords[0]._id);
-      expect(r).toEqual(0);
+      const r = await service.for(ctx).deleteMany(tempRecords[0]._id);
+      expect(r).toBeGreaterThan(0);
+      const c = await service.for(ctx).count(tempRecords[0]._id);
+      expect(c).toEqual(0);
     });
 
     it('Should run in interceptor', async () => {
       const mockFn = jest.fn(interceptorFn);
       const ctx = createContext(app.adapter);
-      const result: any = await service.for(ctx, { interceptor: mockFn }).deleteMany(1);
-      expect(result).toBeGreaterThanOrEqual(0);
+      await service.for(ctx, { interceptor: mockFn }).deleteMany(1);
       expect(mockFn).toBeCalled();
     });
   });

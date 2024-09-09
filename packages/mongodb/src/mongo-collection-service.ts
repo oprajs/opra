@@ -1,4 +1,5 @@
 import { ResourceNotAvailableError } from '@opra/common';
+import omit from 'lodash.omit';
 import mongodb, { type UpdateFilter } from 'mongodb';
 import type { DTO, PartialDTO, PatchDTO, RequiredSome, Type } from 'ts-gems';
 import { MongoAdapter } from './mongo-adapter.js';
@@ -80,7 +81,19 @@ export class MongoCollectionService<T extends mongodb.Document> extends MongoEnt
       options,
     };
     input._id = input._id ?? this._generateId(command);
-    return this._executeCommand(command, () => this._create(command));
+    return this._executeCommand(command, async () => {
+      const r = await this._create(command);
+      if (!command.options?.projection) return r;
+      const findCommand: MongoEntityService.FindOneCommand<T> = {
+        ...command,
+        crud: 'read',
+        byId: true,
+        documentId: r._id,
+        options: omit(options, 'filter'),
+      };
+      const out = await this._findById(findCommand);
+      if (out) return out;
+    });
   }
 
   /**

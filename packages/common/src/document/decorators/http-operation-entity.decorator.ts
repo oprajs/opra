@@ -14,7 +14,7 @@ import { type HttpOperationDecorator, HttpOperationDecoratorFactory } from './ht
 /** Augmentation **/
 declare module '../http/http-operation.js' {
   /**
-   * HttpOperationConstructor
+   * HttpOperationStatic
    */
   interface HttpOperationStatic {
     Entity: HttpOperationEntity;

@@ -325,10 +325,29 @@ export class SqbEntityService<T extends object = object> extends ServiceBase {
     isNotNullish(command.input, { label: 'input' });
     const inputCodec = this.getInputCodec('create');
     const outputCodec = this.getOutputCodec('create');
-    const data: any = inputCodec(input);
-    const out = await this._dbCreate(data, options);
+    const data = inputCodec(input);
+    const conn = await this.getConnection();
+    const repo = conn.getRepository(this.dataTypeClass);
+    const out = await repo.create(data, options);
     if (out) return outputCodec(out);
     throw new InternalServerError(`Unknown error while creating document for "${this.getResourceName()}"`);
+  }
+
+  /**
+   * Insert a new record into database
+   *
+   * @param command
+   * @returns - A promise that resolves to the created resource
+   * @protected
+   */
+  protected async _createOnly(command: SqbEntityService.CreateCommand<T>): Promise<any> {
+    const { input, options } = command;
+    isNotNullish(command.input, { label: 'input' });
+    const inputCodec = this.getInputCodec('create');
+    const data = inputCodec(input);
+    const conn = await this.getConnection();
+    const repo = conn.getRepository(this.dataTypeClass);
+    return await repo.createOnly(data, options);
   }
 
   /**

@@ -150,6 +150,25 @@ export abstract class SqbCollectionService<T extends object = object> extends Sq
   }
 
   /**
+   * Creates a new resource
+   *
+   * @param {PartialDTO<T>} input - The input data
+   * @param {SqbCollectionService.CreateOptions} [options] - The options object
+   * @returns {Promise<void>} A promise that resolves create operation result
+   * @throws {Error} if an unknown error occurs while creating the resource
+   */
+  async createOnly(input: PartialDTO<T>, options?: SqbCollectionService.CreateOptions): Promise<void> {
+    const command: SqbEntityService.CreateCommand<T> = {
+      crud: 'create',
+      method: 'createOnly',
+      byId: false,
+      input,
+      options,
+    };
+    return this._executeCommand(command, () => this._createOnly(command));
+  }
+
+  /**
    * Returns the count of records based on the provided options
    *
    * @param {SqbCollectionService.CountOptions} options - The options for the count operation.
