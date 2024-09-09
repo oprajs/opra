@@ -540,13 +540,13 @@ describe('MongoCollectionService', () => {
     it('Should apply filter', async () => {
       const ctx = createContext(app.adapter);
       const update = { uid: faker.string.uuid() };
-      let r = await service.for(ctx).updateMany(update, { filter: 'rate>5' });
+      const r = await service.for(ctx).updateMany(update, { filter: 'rate>5' });
       expect(r).toBeGreaterThan(0);
       const recs = await service.for(ctx).findMany(tempRecords[3]._id);
       expect(recs).toBeDefined();
-      for (const r of recs!) {
-        if (r.rate <= 5) expect(r.uid).not.toEqual(update.uid);
-        else expect(r.uid).toEqual(update.uid);
+      for (const x of recs!) {
+        if (x.rate <= 5) expect(x.uid).not.toEqual(update.uid);
+        else expect(x.uid).toEqual(update.uid);
       }
     });
 

@@ -1,6 +1,6 @@
 import { InternalServerError } from '@opra/common';
 import omit from 'lodash.omit';
-import mongodb, { type UpdateFilter, UpdateResult } from 'mongodb';
+import mongodb, { type UpdateFilter } from 'mongodb';
 import type { DTO, PartialDTO, PatchDTO, StrictOmit, Type } from 'ts-gems';
 import { isNotNullish } from 'valgen';
 import { MongoAdapter } from './mongo-adapter.js';
@@ -458,11 +458,6 @@ export class MongoEntityService<T extends mongodb.Document> extends MongoService
       update = MongoAdapter.preparePatch(doc);
       if (!Object.keys(doc).length) return 0;
     } else update = inputRaw!;
-
-    const mongoOptions: mongodb.UpdateOptions = {
-      ...omit(options, 'filter'),
-      upsert: undefined,
-    };
     const filter = MongoAdapter.prepareFilter(options?.filter);
     const db = this.getDatabase();
     const collection = await this.getCollection(db);

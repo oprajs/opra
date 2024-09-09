@@ -428,14 +428,21 @@ export class MongoNestedService<T extends mongodb.Document> extends MongoService
       options?.documentFilter,
     ]);
     // Count matching items, we will use this as result
-    const matchCount = await this.count(documentId, options);
+    const countCommand: MongoNestedService.CountCommand<T> = {
+      crud: 'read',
+      method: 'count',
+      byId: false,
+      documentId,
+      options,
+    };
+    const matchCount = await this._count(countCommand);
     const pullFilter = MongoAdapter.prepareFilter(options?.filter) || {};
     const update = {
       $pull: { [this.fieldName]: pullFilter } as any,
     };
     const db = this.getDatabase();
     const collection = await this.getCollection(db);
-    const r = await collection.updateOne(matchFilter, update, {
+    await collection.updateOne(matchFilter, update, {
       ...options,
       session: options?.session || this.getSession(),
       upsert: undefined,
