@@ -1,7 +1,7 @@
 import { ResourceNotAvailableError } from '@opra/common';
 import omit from 'lodash.omit';
 import mongodb, { ObjectId, type UpdateFilter } from 'mongodb';
-import type { DTO, PartialDTO, PatchDTO, RequiredSome, Type } from 'ts-gems';
+import type { PartialDTO, PatchDTO, RequiredSome, Type } from 'ts-gems';
 import { MongoAdapter } from './mongo-adapter.js';
 import { MongoEntityService } from './mongo-entity-service.js';
 
@@ -60,17 +60,17 @@ export class MongoSingletonService<T extends mongodb.Document> extends MongoEnti
   /**
    * Creates the document in the database.
    *
-   * @param {DTO<T>} input - The partial input to create the document with.
+   * @param {PartialDTO<T>} input - The partial input to create the document with.
    * @param {MongoEntityService.CreateOptions} [options] - The options for creating the document.
    * @return {Promise<PartialDTO<T>>} A promise that resolves to the partial output of the created document.
    * @throws {Error} Throws an error if an unknown error occurs while creating the document.
    */
   async create(
-    input: DTO<T>,
+    input: PartialDTO<T>,
     options: RequiredSome<MongoEntityService.CreateOptions, 'projection'>,
   ): Promise<PartialDTO<T>>;
-  async create(input: DTO<T>, options?: MongoEntityService.CreateOptions): Promise<T>;
-  async create(input: DTO<T>, options?: MongoEntityService.CreateOptions): Promise<PartialDTO<T> | T> {
+  async create(input: PartialDTO<T>, options?: MongoEntityService.CreateOptions): Promise<T>;
+  async create(input: PartialDTO<T>, options?: MongoEntityService.CreateOptions): Promise<PartialDTO<T> | T> {
     const command: MongoEntityService.CreateCommand<T> = {
       crud: 'create',
       method: 'create',
@@ -99,10 +99,10 @@ export class MongoSingletonService<T extends mongodb.Document> extends MongoEnti
    *
    * @param {DTO<T>} input - The partial input to create the document with.
    * @param {MongoEntityService.CreateOptions} [options] - The options for creating the document.
-   * @returns {Promise<MongoEntityService.CreateResult<T>>} A promise that resolves create operation result
+   * @returns {Promise<T>} A promise that resolves create operation result
    * @throws {Error} Throws an error if an unknown error occurs while creating the document.
    */
-  async createOnly(input: DTO<T>, options?: MongoEntityService.CreateOptions): Promise<T> {
+  async createOnly(input: PartialDTO<T>, options?: MongoEntityService.CreateOptions): Promise<T> {
     const command: MongoEntityService.CreateCommand<T> = {
       crud: 'create',
       method: 'createOnly',

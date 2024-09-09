@@ -1,7 +1,7 @@
 import { ResourceNotAvailableError } from '@opra/common';
 import omit from 'lodash.omit';
 import mongodb, { type UpdateFilter } from 'mongodb';
-import type { DTO, PartialDTO, PatchDTO, RequiredSome, Type } from 'ts-gems';
+import type { PartialDTO, PatchDTO, RequiredSome, Type } from 'ts-gems';
 import { MongoAdapter } from './mongo-adapter.js';
 import { MongoEntityService } from './mongo-entity-service.js';
 
@@ -68,10 +68,10 @@ export class MongoCollectionService<T extends mongodb.Document> extends MongoEnt
    * @throws {Error} if an unknown error occurs while creating the document.
    */
   async create(
-    input: DTO<T>,
+    input: PartialDTO<T>,
     options: RequiredSome<MongoEntityService.CreateOptions, 'projection'>,
   ): Promise<PartialDTO<T>>;
-  async create(input: DTO<T>, options?: MongoEntityService.CreateOptions): Promise<T>;
+  async create(input: PartialDTO<T>, options?: MongoEntityService.CreateOptions): Promise<T>;
   async create(input: any, options?: MongoEntityService.CreateOptions): Promise<PartialDTO<T> | T> {
     const command: MongoEntityService.CreateCommand<T> = {
       crud: 'create',

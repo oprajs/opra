@@ -2,7 +2,7 @@
 import type * as elastic from '@elastic/elasticsearch/lib/api/types';
 import { ResourceNotAvailableError } from '@opra/common';
 import { HttpContext } from '@opra/core';
-import type { DTO, Nullish, PartialDTO, PatchDTO, RequiredSome, Type } from 'ts-gems';
+import type { Nullish, PartialDTO, PatchDTO, RequiredSome, Type } from 'ts-gems';
 import { ElasticAdapter } from './elastic-adapter.js';
 import { ElasticEntityService } from './elastic-entity-service.js';
 import { ElasticService } from './elastic-service.js';
@@ -106,7 +106,7 @@ export class ElasticCollectionService<T extends object = any> extends ElasticEnt
    * @returns {Promise<PartialDTO<T>>} A promise that resolves to the created document.
    * @throws {Error} if an unknown error occurs while creating the document.
    */
-  async create(input: DTO<T>, options?: ElasticEntityService.CreateOptions): Promise<elastic.CreateResponse> {
+  async create(input: PartialDTO<T>, options?: ElasticEntityService.CreateOptions): Promise<elastic.CreateResponse> {
     const command: ElasticEntityService.CreateCommand = {
       crud: 'create',
       method: 'createOnly',
