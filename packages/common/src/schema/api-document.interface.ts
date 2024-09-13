@@ -2,7 +2,7 @@ import type { SpecVersion } from './constants.js';
 import type { DataTypeContainer } from './data-type-container.interface.js';
 import type { HttpController } from './http/http-controller.interface.js';
 
-export type Protocol = 'http' | 'ws' | 'rpc';
+export type Protocol = 'http' | 'ws' | 'rpc' | 'kafka';
 
 /**
  * @interface ApiDocument

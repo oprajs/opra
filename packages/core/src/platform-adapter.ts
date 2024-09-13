@@ -1,8 +1,8 @@
 import './augmentation/18n.augmentation.js';
 import { ApiDocument, I18n, OpraSchema } from '@opra/common';
 import { AsyncEventEmitter } from 'strict-typed-events';
+import { AssetCache } from './asset-cache.js';
 import { kAssetCache } from './constants.js';
-import { AssetCache } from './http/impl/asset-cache.js';
 
 /**
  * @namespace PlatformAdapter

@@ -1,0 +1,21 @@
+{
+  "BAD_REQUEST": "Bad request",
+  "FAILED_DEPENDENCY": "The request failed due to failure of a previous request",
+  "FORBIDDEN": "You are not authorized to perform this action",
+  "INTERNAL_SERVER_ERROR": "Internal server error",
+  "METHOD_NOT_ALLOWED": "Method not allowed",
+  "NOT_ACCEPTABLE": "Not acceptable",
+  "NOT_FOUND": "Not found",
+  "UNAUTHORIZED": "You have not been authenticated to perform this action",
+  "UNPROCESSABLE_ENTITY": "Unprocessable entity",
+  "REQUEST_VALIDATION": "Request validation failed",
+  "RESPONSE_VALIDATION": "Response validation failed",
+  "RESOURCE_NOT_AVAILABLE": "Resource is not available or you dont have access",
+  "RESOURCE_CONFLICT": "There is already an other {{resource}} resource with same field values ({{fields}})",
+  "OPERATION_FORBIDDEN": "The {{resource}} resource does not accept '{{operation}}' operations",
+  "ACTION_NOT_FOUND": "The {{resource}} resource doesn't have an action named '{{action}}'",
+  "UNKNOWN_FIELD": "Unknown field '{{field}}'",
+  "UNACCEPTED_SORT_FIELD": "Field '{{field}}' is not available for sort operation",
+  "UNACCEPTED_FILTER_FIELD": "Field '{{field}}' is not available for filter operation",
+  "UNACCEPTED_FILTER_OPERATION": "'{{operation}}' for field '{{field}}' is not available for filter operation"
+}
