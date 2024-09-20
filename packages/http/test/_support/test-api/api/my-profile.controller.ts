@@ -1,4 +1,5 @@
 import { HttpController, HttpOperation } from '@opra/common';
+import { HttpContext } from '@opra/http';
 import { Gender, Profile } from 'customer-mongo/models';
 
 @HttpController({
@@ -15,7 +16,7 @@ export class MyProfileController {
   };
 
   @HttpOperation.Entity.Create(Profile)
-  async create(context: HttpOperation.Context) {
+  async create(context: HttpContext) {
     const body = await context.getBody<Profile>();
     this.data = { ...body, _id: ++this.idGen };
     return this.data;
@@ -34,12 +35,12 @@ export class MyProfileController {
     .Header('h2', { type: 'integer', isArray: true })
     .Header('h3', { type: 'integer', required: true }))
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  async get(context: HttpOperation.Context) {
+  async get(context: HttpContext) {
     return this.data;
   }
 
   @(HttpOperation.Entity.Update(Profile).QueryParam('p1', { required: true }))
-  async update(context: HttpOperation.Context) {
+  async update(context: HttpContext) {
     if (this.data) {
       const body = await context.getBody<Profile>();
       this.data = { ...this.data, ...body, _id: this.data._id };

@@ -2,7 +2,7 @@ import { ApiDocument, HttpOperation } from '@opra/common';
 import { ExpressAdapter, HttpContext, HttpIncoming, HttpOutgoing, NodeIncomingMessage } from '@opra/http';
 import cookieParser from 'cookie-parser';
 import express, { Express } from 'express';
-import { createTestApi } from './_support/test-api/index';
+import { createTestApi } from './_support/test-api/index.js';
 
 describe('HttpContext', () => {
   let document: ApiDocument;
@@ -32,7 +32,7 @@ describe('HttpContext', () => {
   afterAll(() => global.gc && global.gc());
 
   it('Should getBody() retrieve body content', async () => {
-    const controller = document.api?.findController('Customer');
+    const controller = document.httpApi?.findController('Customer');
     const operation = controller!.operations.get('update')!;
     const context = createContext(
       operation,
@@ -58,7 +58,7 @@ describe('HttpContext', () => {
   });
 
   it('Should validate body content', async () => {
-    const controller = document.api?.findController('Customer');
+    const controller = document.httpApi?.findController('Customer');
     const operation = controller!.operations.get('update')!;
     const context = createContext(
       operation,
@@ -81,7 +81,7 @@ describe('HttpContext', () => {
   });
 
   it('Should return MultipartReader if content is multipart', async () => {
-    const controller = document.api?.findController('Files');
+    const controller = document.httpApi?.findController('Files');
     const operation = controller!.operations.get('post')!;
     const s = [
       '--AaB03x',

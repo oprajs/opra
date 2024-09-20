@@ -1,13 +1,13 @@
 import 'reflect-metadata';
 import { ApiDocument, ApiDocumentFactory, OmitType, OpraSchema, PartialType, PickType } from '@opra/common';
 import { Country } from 'customer-mongo/models';
-import { TestApiDocument } from '../../_support/test-api/index.js';
+import { TestHttpApiDocument } from '../../_support/test-http-api/index.js';
 
 describe('MappedType', () => {
   let doc: ApiDocument;
 
   beforeAll(async () => {
-    const baseDoc = await TestApiDocument.create();
+    const baseDoc = await TestHttpApiDocument.create();
     doc = await ApiDocumentFactory.createDocument({
       spec: OpraSchema.SpecVersion,
       references: {

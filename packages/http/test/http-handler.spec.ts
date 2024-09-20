@@ -1,9 +1,9 @@
 import { ApiDocument, HttpOperation } from '@opra/common';
-import { ExpressAdapter, HttpIncoming, HttpOutgoing, HttpContext } from '@opra/http';
+import { ExpressAdapter, HttpContext, HttpIncoming, HttpOutgoing } from '@opra/http';
 import cookieParser from 'cookie-parser';
 import express, { Express } from 'express';
 import supertest from 'supertest';
-import { createTestApi } from './_support/test-api/index';
+import { createTestApi } from './_support/test-api/index.js';
 
 describe('HttpHandler', () => {
   let document: ApiDocument;
@@ -33,7 +33,7 @@ describe('HttpHandler', () => {
   afterAll(() => global.gc && global.gc());
 
   it('Should parse query parameters', async () => {
-    const resource = document.api?.findController('Customers');
+    const resource = document.httpApi?.findController('Customers');
     const operation = resource!.operations.get('findMany')!;
     const context = createContext(
       operation,
@@ -48,7 +48,7 @@ describe('HttpHandler', () => {
   });
 
   it('Should parse path parameters', async () => {
-    const resource = document.api?.findController('Customer/CustomerAddress');
+    const resource = document.httpApi?.findController('Customer/CustomerAddress');
     const operation = resource!.operations.get('get')!;
     const context = createContext(
       operation,
@@ -63,7 +63,7 @@ describe('HttpHandler', () => {
   });
 
   it('Should parse cookie parameters', async () => {
-    const resource = document.api?.findController('Customer');
+    const resource = document.httpApi?.findController('Customer');
     const operation = resource!.operations.get('get')!;
     const context = createContext(
       operation,
@@ -80,7 +80,7 @@ describe('HttpHandler', () => {
   });
 
   it('Should parse header parameters', async () => {
-    const resource = document.api?.findController('Customer');
+    const resource = document.httpApi?.findController('Customer');
     const operation = resource!.operations.get('get')!;
     const context = createContext(
       operation,
@@ -97,7 +97,7 @@ describe('HttpHandler', () => {
   });
 
   it('Should validate parameters', async () => {
-    const resource = document.api?.findController('Customers');
+    const resource = document.httpApi?.findController('Customers');
     const operation = resource!.operations.get('findMany')!;
     const context = createContext(
       operation,
@@ -110,7 +110,7 @@ describe('HttpHandler', () => {
   });
 
   it('Should parse content-type', async () => {
-    const resource = document.api?.findController('Customers');
+    const resource = document.httpApi?.findController('Customers');
     const operation = resource!.operations.get('create')!;
     const context = createContext(
       operation,
@@ -126,7 +126,7 @@ describe('HttpHandler', () => {
   });
 
   it('Should throw if content-type does not matches', async () => {
-    const resource = document.api?.findController('Customers');
+    const resource = document.httpApi?.findController('Customers');
     const operation = resource!.operations.get('create')!;
     const context = createContext(
       operation,

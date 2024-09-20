@@ -1,5 +1,5 @@
 import { HttpOperation } from '@opra/common';
-import { HttpAdapter, HttpContext, HttpIncoming, HttpOutgoing } from '@opra/core';
+import { HttpAdapter, HttpContext, HttpIncoming, HttpOutgoing } from '@opra/http';
 
 export function createContext(adapter: HttpAdapter, operation?: HttpOperation, request?: HttpIncoming) {
   request = request || HttpIncoming.from({ method: 'GET', url: '/' });

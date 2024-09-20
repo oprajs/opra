@@ -7,7 +7,8 @@ import { DocumentElement } from './common/document-element.js';
 import { BUILTIN, kDataTypeMap, kTypeNSMap, NAMESPACE_PATTERN } from './constants.js';
 import { DataType } from './data-type/data-type.js';
 import type { EnumType } from './data-type/enum-type.js';
-import type { HttpApi } from './http/http-api.js';
+import { HttpApi } from './http/http-api.js';
+import { MsgApi } from './msg/msg-api.js';
 
 /**
  *
@@ -20,7 +21,7 @@ export class ApiDocument extends DocumentElement {
   info: OpraSchema.DocumentInfo = {};
   references = new ResponsiveMap<ApiDocument>();
   types = new DataTypeMap();
-  api?: HttpApi;
+  api?: HttpApi | MsgApi;
 
   constructor() {
     super(null as any);
@@ -47,6 +48,20 @@ export class ApiDocument extends DocumentElement {
       const d = doc.findDocument(id);
       if (d) return d;
     }
+  }
+
+  get httpApi(): HttpApi {
+    if (!(this.api && this.api instanceof HttpApi)) {
+      throw new TypeError('The document do not contains HttpApi instance');
+    }
+    return this.api as HttpApi;
+  }
+
+  get msgApi(): MsgApi {
+    if (!(this.api && this.api instanceof MsgApi)) {
+      throw new TypeError('The document do not contains MsgApi instance');
+    }
+    return this.api as MsgApi;
   }
 
   toJSON(): OpraSchema.ApiDocument {

@@ -6,9 +6,9 @@ import { type HTTPParserJS } from '@browsery/http-parser';
 import { isAsyncIterable, isIterable } from '@opra/common';
 import type { IncomingHttpHeaders } from 'http';
 import { Duplex, Readable } from 'stream';
-import type { NodeIncomingMessage } from '../interfaces/node-incoming-message.interface';
-import { convertToHeaders, convertToHeadersDistinct } from '../utils/convert-to-headers';
-import { convertToRawHeaders } from '../utils/convert-to-raw-headers';
+import type { NodeIncomingMessage } from '../interfaces/node-incoming-message.interface.js';
+import { convertToHeaders, convertToHeadersDistinct } from '../utils/convert-to-headers.js';
+import { convertToRawHeaders } from '../utils/convert-to-raw-headers.js';
 
 export const CRLF = Buffer.from('\r\n');
 export const kHeaders = Symbol.for('kHeaders');

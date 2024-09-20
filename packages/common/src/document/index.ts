@@ -1,4 +1,5 @@
 import 'reflect-metadata';
+import * as MsgOperationDecorator_ from './decorators/msg-operation.decorator.js';
 import * as DataTypeFactory_ from './factory/data-type.factory.js';
 import * as HttpApiFactory_ from './factory/http-api.factory.js';
 
@@ -24,6 +25,7 @@ export * from './data-type/primitive-types/index.js';
 export * from './data-type/required-type.js';
 export * from './data-type/simple-type.js';
 export * from './decorators/http-operation-entity.decorator.js';
+export type { MsgOperationDecorator } from './decorators/msg-operation.decorator.js';
 export * from './factory/api-document.factory.js';
 export * from './http/http-api.js';
 export * from './http/http-controller.js';
@@ -34,8 +36,14 @@ export * from './http/http-operation-response.js';
 export * from './http/http-parameter.js';
 export * from './http/http-request-body.js';
 export * from './http/http-status-range.js';
+export * from './msg/msg-api.js';
+export * from './msg/msg-controller.js';
+export * from './msg/msg-header.js';
+export * from './msg/msg-operation.js';
+export type { MsgOperationResponse } from './msg/msg-operation-response.js';
 
 export namespace classes {
   export import HttpApiFactory = HttpApiFactory_.HttpApiFactory;
   export import DataTypeFactory = DataTypeFactory_.DataTypeFactory;
+  export import MsgOperationDecoratorFactory = MsgOperationDecorator_.MsgOperationDecoratorFactory;
 }

@@ -67,7 +67,7 @@ export function HttpControllerDecoratorFactory<O extends HttpController.Options>
       { deep: true },
     );
     Reflect.defineMetadata(HTTP_CONTROLLER_METADATA, metadata, target);
-    for (const fn of decoratorChain) fn(metadata);
+    for (const fn of decoratorChain) fn(metadata, target);
     Reflect.defineMetadata(HTTP_CONTROLLER_METADATA, metadata, target);
   } as HttpControllerDecorator;
 

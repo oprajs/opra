@@ -2,7 +2,7 @@ import '@opra/sqb';
 import { INestApplication } from '@nestjs/common';
 import { Test } from '@nestjs/testing';
 import { OpraTestClient } from '@opra/testing';
-import { entityTests } from '../../../core/test/http/e2e/tests/index.js';
+import { entityTests } from '../../../http/test/e2e/tests/index.js';
 import { TestModule } from '../_support/customer-app/test.module.js';
 
 describe('e2e tests', function () {

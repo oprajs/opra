@@ -3,7 +3,7 @@ import {
   COMMA_DELIMITED_FIELD,
   matchKnownFields,
   SEMICOLON_DELIMITED_FIELD,
-} from './match-known-fields';
+} from './match-known-fields.js';
 
 export function convertToHeaders<T>(src: string[], dst: T, joinDuplicateHeaders?: boolean): T {
   for (let n: number = 0; n < src.length; n += 2) {

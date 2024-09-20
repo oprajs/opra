@@ -1,13 +1,13 @@
 import 'reflect-metadata';
 import { ApiDocument, ApiDocumentFactory, MixinType, OpraSchema } from '@opra/common';
 import { Country, Note, Record } from 'customer-mongo/models';
-import { TestApiDocument } from '../../_support/test-api/index.js';
+import { TestHttpApiDocument } from '../../_support/test-http-api/index.js';
 
 describe('MixinType', () => {
   let doc: ApiDocument;
 
   beforeAll(async () => {
-    const baseDoc = await TestApiDocument.create();
+    const baseDoc = await TestHttpApiDocument.create();
     doc = await ApiDocumentFactory.createDocument({
       spec: OpraSchema.SpecVersion,
       references: {

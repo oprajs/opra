@@ -9,7 +9,8 @@ import {
 } from '@nestjs/common';
 import { APP_FILTER, ModuleRef } from '@nestjs/core';
 import { ApiDocumentFactory, isConstructor } from '@opra/common';
-import { ExecutionContext, HttpAdapter } from '@opra/core';
+import type { ExecutionContext } from '@opra/core';
+import type { HttpAdapter } from '@opra/http';
 import { asMutable } from 'ts-gems';
 import { OPRA_HTTP_MODULE_OPTIONS } from './constants.js';
 import type { OpraHttpModule } from './opra-http.module.js';
@@ -45,7 +46,7 @@ export class OpraHttpCoreModule implements OnModuleDestroy, NestModule {
         useFactory: async (moduleRef: ModuleRef) => {
           asMutable(opraAdapter).document = await ApiDocumentFactory.createDocument({
             ...init,
-            api: { protocol: 'http', name: init.name, controllers: init.controllers! },
+            api: { transport: 'http', name: init.name, controllers: init.controllers as any },
           });
           opraAdapter.interceptors.map(x => {
             if (isConstructor(x)) {

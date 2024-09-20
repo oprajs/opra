@@ -19,15 +19,15 @@ import {
   OpraSchema,
   safeJsonStringify,
 } from '@opra/common';
+import { AssetCache, kAssetCache } from '@opra/core';
 import { parse as parseContentType } from 'content-type';
 import { splitString } from 'fast-tokenizer';
 import { md5 } from 'super-fast-md5';
 import { asMutable } from 'ts-gems';
 import { type ErrorIssue, toArray, ValidationError, type Validator, vg } from 'valgen';
-import { kAssetCache, AssetCache } from '@opra/core';
 import type { HttpAdapter } from './http-adapter';
-import { HttpContext } from './http-context';
-import { wrapException } from './utils/wrap-exception';
+import { HttpContext } from './http-context.js';
+import { wrapException } from './utils/wrap-exception.js';
 
 /**
  * @namespace
@@ -122,7 +122,7 @@ export class HttpHandler {
       context.errors.push(e);
       await this.sendResponse(context);
     } finally {
-      await context.emitAsync('finish');
+      await context.emitAsync('finish', context);
     }
   }
 

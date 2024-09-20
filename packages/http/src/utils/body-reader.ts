@@ -8,7 +8,7 @@ import { EventEmitter } from 'events';
 import iconv from 'iconv-lite';
 import { Writable } from 'stream';
 import * as zlib from 'zlib';
-import type { HttpIncoming } from '../interfaces/http-incoming.interface';
+import type { HttpIncoming } from '../interfaces/http-incoming.interface.js';
 
 /**
  *

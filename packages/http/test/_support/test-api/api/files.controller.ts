@@ -1,4 +1,5 @@
 import { HttpController, HttpOperation } from '@opra/common';
+import { HttpContext } from '@opra/http';
 import { Note } from 'customer-mongo/models';
 
 @HttpController({
@@ -14,7 +15,7 @@ export class FilesController {
       config.File(/^file\d+/, { contentType: 'text/*' });
     })
     .Response(200, { type: Note }))
-  async post(context: HttpOperation.Context) {
+  async post(context: HttpContext) {
     const reader = await context.getMultipartReader();
     const parts = await reader.getAll();
     FilesController.lastPost = parts;

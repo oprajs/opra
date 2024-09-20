@@ -1,5 +1,5 @@
 import { ComplexType, DataType, DATATYPE_METADATA } from '@opra/common';
-import { HttpContext, ServiceBase } from '@opra/core';
+import { ExecutionContext, ServiceBase } from '@opra/core';
 import mongodb, { type Document, MongoClient, ObjectId, type TransactionOptions } from 'mongodb';
 import type { Nullish, StrictOmit, Type } from 'ts-gems';
 import type { IsObject } from 'valgen';
@@ -235,7 +235,7 @@ export class MongoService<T extends mongodb.Document = mongodb.Document> extends
     this.onError = options?.onError;
   }
 
-  for<C extends HttpContext, P extends Partial<this>>(
+  for<C extends ExecutionContext, P extends Partial<this>>(
     context: C,
     overwriteProperties?: Nullish<P>,
     overwriteContext?: Partial<C>,

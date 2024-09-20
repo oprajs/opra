@@ -3,8 +3,8 @@ import { ExpressAdapter } from '@opra/http';
 import { OpraTestClient } from '@opra/testing';
 import express, { Express } from 'express';
 import supertest from 'supertest';
-import { FilesController } from '../_support/test-api/api/files.controller';
-import { createTestApi } from '../_support/test-api/index';
+import { FilesController } from '../_support/test-api/api/files.controller.js';
+import { createTestApi } from '../_support/test-api/index.js';
 
 describe('e2e:Storage', () => {
   let document: ApiDocument;

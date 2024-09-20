@@ -1,11 +1,11 @@
 import { ApiDocument } from '@opra/common';
-import { TestApiDocument } from '../../_support/test-api/index.js';
+import { TestHttpApiDocument } from '../../_support/test-http-api/index.js';
 
 describe('SimpleType', () => {
   let doc: ApiDocument;
 
   beforeAll(async () => {
-    doc = await TestApiDocument.create();
+    doc = await TestHttpApiDocument.create();
   });
 
   afterAll(() => global.gc && global.gc());

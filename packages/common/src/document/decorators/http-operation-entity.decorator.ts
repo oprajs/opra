@@ -1,7 +1,7 @@
 import type { StrictOmit, Type, TypeThunkAsync } from 'ts-gems';
+import { HttpStatusCode, MimeTypes } from '../../enums/index.js';
 import { FilterRules } from '../../filter/filter-rules.js';
 import { OpraFilter } from '../../filter/index.js';
-import { HttpStatusCode, MimeTypes } from '../../http/index.js';
 import { OpraSchema } from '../../schema/index.js';
 import { DATATYPE_METADATA } from '../constants.js';
 import { FieldPathType, FilterType } from '../data-type/extended-types/index.js';

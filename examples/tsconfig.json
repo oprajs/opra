@@ -11,6 +11,7 @@
     "paths": {
       "@opra/common": ["../packages/common/src"],
       "@opra/core": ["../packages/core/src"],
+      "@opra/http": ["../packages/http/src"],
       "@opra/mongodb": ["../packages/mongodb/src"],
       "@opra/sqb": ["../packages/sqb/src"],
       "@opra/nestjs": ["../packages/nestjs/src"],

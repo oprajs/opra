@@ -4,7 +4,7 @@ import {
   COMMA_DELIMITED_FIELD,
   matchKnownFields,
   SEMICOLON_DELIMITED_FIELD,
-} from './match-known-fields';
+} from './match-known-fields.js';
 
 export function convertToRawHeaders(src: IncomingHttpHeaders | Record<string, any>): string[] {
   return Object.entries(src).reduce((a, [field, v]) => {

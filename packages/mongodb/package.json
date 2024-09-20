@@ -25,16 +25,17 @@
     "lodash.omit": "^4.5.0",
     "putil-isplainobject": "^1.1.5",
     "tslib": "^2.7.0",
-    "valgen": "^5.9.0"
+    "valgen": "^5.10.0"
   },
   "devDependencies": {
-    "@faker-js/faker": "^9.0.0",
-    "mongodb": "^6.8.1",
+    "@faker-js/faker": "^9.0.1",
+    "mongodb": "^6.9.0",
     "ts-gems": "^3.5.0"
   },
   "peerDependencies": {
     "@opra/common": "^1.0.0-beta.2",
     "@opra/core": "^1.0.0-beta.2",
+    "@opra/http": "^1.0.0-beta.2",
     "mongodb": ">= 6.0.0"
   },
   "type": "module",

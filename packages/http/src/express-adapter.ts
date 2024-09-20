@@ -24,26 +24,26 @@ export class ExpressAdapter extends HttpAdapter {
   }
 
   async close() {
-    const processResource = async (resource: HttpController) => {
-      if (resource.controllers.size) {
-        const subResources = Array.from(resource.controllers.values());
+    const processInstance = async (controller: HttpController) => {
+      if (controller.controllers.size) {
+        const subResources = Array.from(controller.controllers.values());
         subResources.reverse();
         for (const subResource of subResources) {
-          await processResource(subResource);
+          await processInstance(subResource);
         }
       }
-      if (resource.onShutdown) {
-        const instance = this._controllerInstances.get(resource) || resource.instance;
+      if (controller.onShutdown) {
+        const instance = this._controllerInstances.get(controller) || controller.instance;
         if (instance) {
           try {
-            await resource.onShutdown.call(instance, resource);
+            await controller.onShutdown.call(instance, controller);
           } catch (e) {
             if (this.listenerCount('error')) this.emit('error', wrapException(e));
           }
         }
       }
     };
-    for (const c of this.api.controllers.values()) await processResource(c);
+    for (const c of this.api.controllers.values()) await processInstance(c);
     this._controllerInstances.clear();
   }
 
@@ -146,7 +146,7 @@ export class ExpressAdapter extends HttpAdapter {
     let instance = controller.instance;
     if (!instance && controller.ctor) instance = new controller.ctor();
     if (instance) {
-      if (typeof instance.onInit === 'function') instance.onInit.call(instance, this);
+      if (typeof controller.onInit === 'function') controller.onInit.call(instance, controller);
       this._controllerInstances.set(controller, instance);
       // Initialize sub resources
       for (const r of controller.controllers.values()) {

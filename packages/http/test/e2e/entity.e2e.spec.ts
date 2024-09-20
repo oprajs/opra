@@ -3,7 +3,7 @@ import { ExpressAdapter } from '@opra/http';
 import { OpraTestClient } from '@opra/testing';
 import express, { type Express } from 'express';
 import supertest from 'supertest';
-import { createTestApi } from '../_support/test-api/index';
+import { createTestApi } from '../_support/test-api/index.js';
 
 describe('e2e:HttpOperation.Entity endpoints', () => {
   let document: ApiDocument;

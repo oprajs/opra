@@ -23,7 +23,7 @@ import {
   isConstructor,
   NotFoundError,
 } from '@opra/common';
-import { HttpAdapter, HttpContext } from '@opra/core';
+import { HttpAdapter, HttpContext } from '@opra/http';
 import { asMutable } from 'ts-gems';
 import { Public } from './decorators/public.decorator.js';
 import type { OpraHttpModule } from './opra-http.module.js';
@@ -36,7 +36,7 @@ export class OpraNestAdapter extends HttpAdapter {
     super(
       (function () {
         const document = new ApiDocument();
-        document.api = new HttpApi(document);
+        document.api = new HttpApi({ owner: document, name: init.name, transport: 'http' });
         return document;
       })(),
       {

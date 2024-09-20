@@ -4,11 +4,11 @@ import type {
   Ranges as RangeParserRanges,
   Result as RangeParserResult,
 } from 'range-parser';
-import { isHttpIncoming, isNodeIncomingMessage } from '../type-guards';
-import { HttpIncomingHost } from '../impl/http-incoming.host';
-import { BodyReader } from '../utils/body-reader';
-import type { HttpOutgoing } from './http-outgoing.interface';
-import { NodeIncomingMessage } from './node-incoming-message.interface';
+import { HttpIncomingHost } from '../impl/http-incoming.host.js';
+import { isHttpIncoming, isNodeIncomingMessage } from '../type-guards.js';
+import { BodyReader } from '../utils/body-reader.js';
+import type { HttpOutgoing } from './http-outgoing.interface.js';
+import { NodeIncomingMessage } from './node-incoming-message.interface.js';
 
 /**
  * @interface HttpIncoming

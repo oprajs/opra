@@ -1,4 +1,5 @@
 import { HttpController, HttpOperation, OmitType, OperationResult } from '@opra/common';
+import { HttpContext } from '@opra/http';
 import { SQBAdapter } from '@opra/sqb';
 import { SqbClient } from '@sqb/connect';
 import { Customer, CustomersService } from 'customer-sqb';
@@ -19,7 +20,7 @@ export class CustomersController {
       type: OmitType(Customer, ['_id']),
     },
   })
-  async create(context: HttpOperation.Context): Promise<PartialDTO<Customer>> {
+  async create(context: HttpContext): Promise<PartialDTO<Customer>> {
     const { data, options } = await SQBAdapter.parseRequest(context);
     return this.service.for(context).create(data, options);
   }
@@ -37,7 +38,7 @@ export class CustomersController {
     .Filter('active')
     .Filter('birthDate')
     .Filter('rate'))
-  async findMany(context: HttpOperation.Context) {
+  async findMany(context: HttpContext) {
     const { options } = await SQBAdapter.parseRequest(context);
     if (options.count) {
       const { items, count } = await this.service.for(context).findManyWithCount(options);
@@ -50,13 +51,13 @@ export class CustomersController {
   }
 
   @(HttpOperation.Entity.DeleteMany(Customer).Filter('_id'))
-  async deleteMany(context: HttpOperation.Context) {
+  async deleteMany(context: HttpContext) {
     const { options } = await SQBAdapter.parseRequest(context);
     return this.service.for(context).deleteMany(options);
   }
 
   @(HttpOperation.Entity.UpdateMany(Customer).Filter('_id'))
-  async updateMany(context: HttpOperation.Context) {
+  async updateMany(context: HttpContext) {
     const { data, options } = await SQBAdapter.parseRequest(context);
     return this.service.for(context).updateMany(data, options);
   }

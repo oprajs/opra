@@ -1,10 +1,16 @@
-import type { Type } from 'ts-gems';
+import type { StrictOmit, Type } from 'ts-gems';
 import { ResponsiveMap } from '../../helpers/index.js';
 import { OpraSchema } from '../../schema/index.js';
 import type { ApiDocument } from '../api-document';
 import { ApiBase } from '../common/api-base.js';
 import { HttpController } from './http-controller.js';
 import type { HttpOperation } from './http-operation.js';
+
+export namespace HttpApi {
+  export interface InitArguments extends ApiBase.InitArguments, StrictOmit<OpraSchema.HttpApi, 'controllers'> {
+    transport: 'http';
+  }
+}
 
 /**
  * @class HttpApi
@@ -13,12 +19,13 @@ export class HttpApi extends ApiBase {
   // noinspection JSUnusedGlobalSymbols
   protected _controllerReverseMap: WeakMap<Type, HttpController | null> = new WeakMap();
   declare readonly owner: ApiDocument;
-  readonly protocol = 'http';
+  readonly transport = 'http';
   controllers: ResponsiveMap<HttpController> = new ResponsiveMap();
   url?: string;
 
-  constructor(owner: ApiDocument) {
-    super(owner);
+  constructor(init: HttpApi.InitArguments) {
+    super(init);
+    this.url = init.url;
   }
 
   findController(controller: Type): HttpController | undefined;
@@ -38,7 +45,7 @@ export class HttpApi extends ApiBase {
     const schema = super.toJSON();
     const out: OpraSchema.HttpApi = {
       ...schema,
-      protocol: this.protocol,
+      transport: this.transport,
       url: this.url,
       controllers: {},
     };

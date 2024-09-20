@@ -1,6 +1,6 @@
 import { type DynamicModule, Module, type Type } from '@nestjs/common';
 import { ApiDocumentFactory } from '@opra/common';
-import { HttpAdapter } from '@opra/core';
+import { HttpAdapter } from '@opra/http';
 import { OpraHttpCoreModule } from './opra-http-core.module.js';
 
 export namespace OpraHttpModule {

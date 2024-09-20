@@ -26,11 +26,11 @@
     "lodash.omit": "^4.5.0",
     "putil-isplainobject": "^1.1.5",
     "tslib": "^2.7.0",
-    "valgen": "^5.9.0"
+    "valgen": "^5.10.0"
   },
   "devDependencies": {
     "@elastic/elasticsearch": "^8.15.0",
-    "@faker-js/faker": "^9.0.0",
+    "@faker-js/faker": "^9.0.1",
     "ts-gems": "^3.5.0"
   },
   "peerDependencies": {

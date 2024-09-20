@@ -19,14 +19,14 @@ describe('HttpApiFactory - HttpOperation (Schema)', () => {
     const doc = await ApiDocumentFactory.createDocument({
       types: [Country],
       api: {
-        protocol: 'http',
+        transport: 'http',
         name: 'TestService',
         controllers: { countries },
       },
     });
     expect(doc).toBeDefined();
     expect(doc.api).toBeDefined();
-    const r = doc.api!.findController('countries');
+    const r = doc.httpApi!.findController('countries');
     expect(r).toBeDefined();
     assert(r);
     expect(r).toBeDefined();
@@ -57,14 +57,14 @@ describe('HttpApiFactory - HttpOperation (Schema)', () => {
     const doc = await ApiDocumentFactory.createDocument({
       types: [Country],
       api: {
-        protocol: 'http',
+        transport: 'http',
         name: 'TestService',
         controllers: { countries },
       },
     });
     expect(doc).toBeDefined();
     expect(doc.api).toBeDefined();
-    const r = doc.api!.findController('countries');
+    const r = doc.httpApi!.findController('countries');
     expect(r).toBeDefined();
     assert(r);
     const opr = r!.operations.get('findOne');

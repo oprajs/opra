@@ -1,5 +1,6 @@
 import '../../../../src/index.js';
 import { ApiField, ComplexType, HttpController, HttpOperation } from '@opra/common';
+import { HttpContext } from '@opra/http';
 import { MyProfileController } from './my-profile.controller.js';
 
 @ComplexType()
@@ -20,7 +21,7 @@ export class AuthController {
     .QueryParam('user', String)
     .QueryParam('password', 'string')
     .Response(200, { type: LoginResult }))
-  login(ctx: HttpOperation.Context) {
+  login(ctx: HttpContext) {
     return { user: ctx.queryParams.user, token: '123456' };
   }
 

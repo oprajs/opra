@@ -1,7 +1,7 @@
 import '@opra/sqb';
 import { OpraTestClient } from '@opra/testing';
 import { CustomerApplication } from 'express-sqb';
-import { entityTests } from '../../../core/test/http/e2e/tests/index.js';
+import { entityTests } from '../../../http/test/e2e/tests/index.js';
 
 describe('e2e tests', function () {
   let app: CustomerApplication;

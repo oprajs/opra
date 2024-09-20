@@ -1,5 +1,4 @@
 import 'reflect-metadata';
-import './augmentation/http-controller.augmentation.js';
 import * as HttpIncomingHost_ from './impl/http-incoming.host.js';
 import * as HttpOutgoingHost_ from './impl/http-outgoing.host.js';
 import * as NodeIncomingMessageHost_ from './impl/node-incoming-message.host.js';

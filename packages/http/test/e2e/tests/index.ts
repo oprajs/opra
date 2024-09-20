@@ -1,15 +1,15 @@
 import { OpraTestClient } from '@opra/testing';
-import { collectionCreateTests } from './collection-create.test';
-import { collectionDeleteTests } from './collection-delete.test';
-import { collectionDeleteManyTests } from './collection-delete-many.test';
-import { collectionFindManyTests } from './collection-find-many.test';
-import { collectionGetTests } from './collection-get.test';
-import { collectionUpdateTests } from './collection-update.test';
-import { collectionUpdateManyTests } from './collection-update-many.test';
-import { singletonCreateTests } from './singleton-create.test';
-import { singletonDeleteTests } from './singleton-delete.test';
-import { singletonGetTests } from './singleton-get.test';
-import { singletonUpdateTests } from './singleton-update.test';
+import { collectionCreateTests } from './collection-create.test.js';
+import { collectionDeleteTests } from './collection-delete.test.js';
+import { collectionDeleteManyTests } from './collection-delete-many.test.js';
+import { collectionFindManyTests } from './collection-find-many.test.js';
+import { collectionGetTests } from './collection-get.test.js';
+import { collectionUpdateTests } from './collection-update.test.js';
+import { collectionUpdateManyTests } from './collection-update-many.test.js';
+import { singletonCreateTests } from './singleton-create.test.js';
+import { singletonDeleteTests } from './singleton-delete.test.js';
+import { singletonGetTests } from './singleton-get.test.js';
+import { singletonUpdateTests } from './singleton-update.test.js';
 
 export function entityTests(args: { client: OpraTestClient }) {
   collectionCreateTests(args);

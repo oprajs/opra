@@ -1,13 +1,13 @@
 import { ApiDocument, ComplexType, DataType, EnumType, SimpleType } from '@opra/common';
 import { Country, Gender } from 'customer-mongo/models';
-import { TestApiDocument } from '../_support/test-api/index.js';
+import { TestHttpApiDocument } from '../_support/test-http-api/index.js';
 
 describe('DocumentNode', () => {
   let doc: ApiDocument;
   afterAll(() => global.gc && global.gc());
 
   beforeAll(async () => {
-    doc = await TestApiDocument.create();
+    doc = await TestHttpApiDocument.create();
   });
 
   it('Should findDataType(name) return DataType instance', async () => {

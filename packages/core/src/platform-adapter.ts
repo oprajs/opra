@@ -1,6 +1,6 @@
 import './augmentation/18n.augmentation.js';
 import { ApiDocument, I18n, OpraSchema } from '@opra/common';
-import { AsyncEventEmitter } from 'strict-typed-events';
+import { AsyncEventEmitter } from 'node-events-async';
 import { AssetCache } from './asset-cache.js';
 import { kAssetCache } from './constants.js';
 
@@ -19,7 +19,7 @@ export namespace PlatformAdapter {
 export abstract class PlatformAdapter extends AsyncEventEmitter {
   protected [kAssetCache]: AssetCache;
   readonly document: ApiDocument;
-  abstract readonly protocol: OpraSchema.Protocol;
+  abstract readonly protocol: OpraSchema.Transport;
   i18n: I18n;
 
   protected constructor(document: ApiDocument, options?: PlatformAdapter.Options) {

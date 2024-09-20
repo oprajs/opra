@@ -112,7 +112,7 @@ describe('ApiDocumentFactory', () => {
     const doc = await ApiDocumentFactory.createDocument({
       spec: OpraSchema.SpecVersion,
       api: {
-        protocol: 'http',
+        transport: 'http',
         description: 'Test api',
         name: 'Api1',
         controllers: {},

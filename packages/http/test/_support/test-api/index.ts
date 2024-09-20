@@ -29,7 +29,7 @@ export async function createTestApi() {
       customer: customerDoc,
     },
     api: {
-      protocol: 'http',
+      transport: 'http',
       name: 'TestApi',
       controllers: [
         RootController,

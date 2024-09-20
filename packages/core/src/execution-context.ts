@@ -1,5 +1,5 @@
 import { ApiDocument, OpraHttpError, OpraSchema } from '@opra/common';
-import { AsyncEventEmitter } from 'strict-typed-events';
+import { AsyncEventEmitter } from 'node-events-async';
 
 /**
  * @namespace ExecutionContext
@@ -7,11 +7,9 @@ import { AsyncEventEmitter } from 'strict-typed-events';
 export namespace ExecutionContext {
   export interface Initiator {
     document: ApiDocument;
-    protocol: OpraSchema.Protocol;
+    protocol: OpraSchema.Transport;
     platform: string;
   }
-
-  export type OnFinishListener = (error: Error | undefined, context: ExecutionContext) => void | Promise<void>;
 }
 
 /**
@@ -19,7 +17,7 @@ export namespace ExecutionContext {
  */
 export abstract class ExecutionContext extends AsyncEventEmitter {
   readonly document: ApiDocument;
-  readonly protocol: OpraSchema.Protocol;
+  readonly protocol: OpraSchema.Transport;
   readonly platform: string;
   errors: OpraHttpError[] = [];
 
@@ -28,21 +26,5 @@ export abstract class ExecutionContext extends AsyncEventEmitter {
     this.document = init.document;
     this.protocol = init.protocol;
     this.platform = init.platform;
-  }
-
-  addListener(event: 'finish', listener: ExecutionContext.OnFinishListener): this {
-    return super.addListener(event, listener);
-  }
-
-  removeListener(event: 'finish', listener: ExecutionContext.OnFinishListener): this {
-    return super.removeListener(event, listener);
-  }
-
-  on(event: 'finish', listener: ExecutionContext.OnFinishListener): this {
-    return super.on(event, listener);
-  }
-
-  off(event: 'finish', listener: ExecutionContext.OnFinishListener): this {
-    return super.off(event, listener);
   }
 }

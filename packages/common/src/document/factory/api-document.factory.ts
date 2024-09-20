@@ -32,6 +32,7 @@ import {
 } from '../data-type/primitive-types/index.js';
 import { DataTypeFactory } from './data-type.factory.js';
 import { HttpApiFactory } from './http-api.factory.js';
+import { MsgApiFactory } from './msg-api.factory.js';
 
 const OPRA_SPEC_URL = 'https://oprajs.com/spec/v' + OpraSchema.SpecVersion;
 
@@ -40,7 +41,7 @@ export namespace ApiDocumentFactory {
     extends PartialSome<StrictOmit<OpraSchema.ApiDocument, 'id' | 'references' | 'types' | 'api'>, 'spec'> {
     references?: Record<string, ReferenceThunk>;
     types?: DataTypeInitSources;
-    api?: HttpApiFactory.InitArguments;
+    api?: StrictOmit<HttpApiFactory.InitArguments, 'owner'> | StrictOmit<MsgApiFactory.InitArguments, 'owner'>;
   }
 
   export type ReferenceSource = string | OpraSchema.ApiDocument | InitArguments | ApiDocument;
@@ -152,10 +153,13 @@ export class ApiDocumentFactory {
 
     if (init.api) {
       await context.enterAsync(`.api`, async () => {
-        if (init.api!.protocol === 'http') {
-          const api = await HttpApiFactory.createApi(context, document, init.api!);
+        if (init.api && init.api.transport === 'http') {
+          const api = await HttpApiFactory.createApi(context, { ...init.api, owner: document });
           if (api) document.api = api;
-        } else context.addError(`Unknown service protocol (${init.api!.protocol})`);
+        } else if (init.api && init.api.transport === 'msg') {
+          const api = await MsgApiFactory.createApi(context, { ...init.api, owner: document });
+          if (api) document.api = api;
+        } else context.addError(`Unknown service transport (${init.api!.transport})`);
       });
     }
     document.invalidate();

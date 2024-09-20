@@ -14,7 +14,7 @@ import encodeUrl from 'encodeurl';
 import mime from 'mime-types';
 import { toString } from 'putil-varhelpers';
 import vary from 'vary';
-import type { CookieOptions, HttpOutgoing } from '../interfaces/http-outgoing.interface';
+import type { CookieOptions, HttpOutgoing } from '../interfaces/http-outgoing.interface.js';
 
 const charsetRegExp = /;\s*charset\s*=/;
 

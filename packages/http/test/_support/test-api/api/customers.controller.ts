@@ -12,7 +12,7 @@ export class CustomersController {
   public closed = false;
 
   @HttpOperation.Entity.Create(Customer)
-  async create(context: HttpOperation.Context) {
+  async create(context: HttpContext) {
     const body = await context.getBody<Customer>();
     const customer: Customer = { ...body, _id: ++Data.idGen };
     Data.customers.push(customer);
@@ -34,7 +34,7 @@ export class CustomersController {
     .Filter('_id', '= >  <  >= <=')
     .Filter('gender', '=')
     .Filter('address.countryCode', '='))
-  async updateMany(context: HttpOperation.Context) {
+  async updateMany(context: HttpContext) {
     // It is hard to produce a filtering operation. We update 5 records instead of this
     const body = await context.getBody<Customer>();
     for (let i = Data.customers.length - 5; i < Data.customers.length; i++) {
@@ -51,7 +51,7 @@ export class CustomersController {
     .Filter('familyName', ['=', 'like', '!like'])
     .Filter('gender', '=')
     .Filter('address.countryCode', '='))
-  async findMany(ctx: HttpOperation.Context) {
+  async findMany(ctx: HttpContext) {
     const { queryParams } = ctx;
     const skip = queryParams.skip || 0;
     const limit = queryParams.limit || 10;

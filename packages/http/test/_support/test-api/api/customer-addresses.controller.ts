@@ -1,4 +1,5 @@
 import { HttpController, HttpOperation, NotFoundError, OperationResult } from '@opra/common';
+import { HttpContext } from '@opra/http';
 import { Address } from 'customer-mongo/models';
 import { Data } from '../../../../../../examples/_lib/data/customers-data.js';
 
@@ -8,7 +9,7 @@ import { Data } from '../../../../../../examples/_lib/data/customers-data.js';
 })
 export class CustomerAddressesController {
   @HttpOperation.Entity.Create(Address)
-  async create(context: HttpOperation.Context) {
+  async create(context: HttpContext) {
     const subData = Data.addresses[context.pathParams.customerId];
     if (!subData) throw new NotFoundError();
     const body = await context.getBody<Address>();
@@ -21,7 +22,7 @@ export class CustomerAddressesController {
     .Filter('_id', '= >  <  >= <=')
     .Filter('city', ['=', 'like', '!like'])
     .Filter('countryCode', ['=']))
-  async findMany(context: HttpOperation.Context) {
+  async findMany(context: HttpContext) {
     const subData = Data.addresses[context.pathParams.customerId];
     if (!subData) return;
     const { queryParams } = context;

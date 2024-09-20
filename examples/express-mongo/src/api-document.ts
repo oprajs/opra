@@ -17,7 +17,7 @@ export namespace CustomerApiDocument {
       },
       api: {
         name: 'CustomerApi',
-        protocol: 'http',
+        transport: 'http',
         controllers: [new AuthController(db), new CustomerController(db), new CustomersController(db)],
       },
     });

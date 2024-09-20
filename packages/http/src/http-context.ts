@@ -7,12 +7,12 @@ import {
   NotAcceptableError,
   OpraSchema,
 } from '@opra/common';
-import { type Validator, vg } from 'valgen';
 import { ExecutionContext, kAssetCache } from '@opra/core';
+import { type Validator, vg } from 'valgen';
 import type { HttpAdapter } from './http-adapter';
-import { MultipartReader } from './impl/multipart-reader';
-import type { HttpIncoming } from './interfaces/http-incoming.interface';
-import type { HttpOutgoing } from './interfaces/http-outgoing.interface';
+import { MultipartReader } from './impl/multipart-reader.js';
+import type { HttpIncoming } from './interfaces/http-incoming.interface.js';
+import type { HttpOutgoing } from './interfaces/http-outgoing.interface.js';
 
 export namespace HttpContext {
   export interface Initiator extends Omit<ExecutionContext.Initiator, 'document' | 'protocol'> {
@@ -35,7 +35,7 @@ export namespace HttpContext {
 export class HttpContext extends ExecutionContext {
   protected _body?: any;
   protected _multipartReader?: MultipartReader;
-  readonly protocol: OpraSchema.Protocol;
+  readonly protocol: OpraSchema.Transport;
   readonly adapter: HttpAdapter;
   readonly controller?: HttpController;
   readonly controllerInstance?: any;

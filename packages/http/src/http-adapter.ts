@@ -22,44 +22,6 @@ export namespace HttpAdapter {
     basePath?: string;
     interceptors?: (InterceptorFunction | IHttpInterceptor)[];
   }
-
-  export type EventFunction = (context: HttpContext) => void | Promise<void>;
-
-  export interface Events {
-    createContext: EventFunction;
-    error: EventFunction;
-    request: EventFunction;
-  }
-}
-
-export interface HttpAdapter {
-  addListener<Event extends keyof HttpAdapter.Events>(event: Event, listener: HttpAdapter.Events[Event]): this;
-
-  addListener(event: string | symbol, listener: (...args: any[]) => void): this;
-
-  on<Event extends keyof HttpAdapter.Events>(event: Event, listener: HttpAdapter.Events[Event]): this;
-
-  on(event: string | symbol, listener: (...args: any[]) => void): this;
-
-  once<Event extends keyof HttpAdapter.Events>(event: Event, listener: HttpAdapter.Events[Event]): this;
-
-  once(event: string | symbol, listener: (...args: any[]) => void): this;
-
-  removeListener<Event extends keyof HttpAdapter.Events>(event: Event, listener: HttpAdapter.Events[Event]): this;
-
-  removeListener(event: string | symbol, listener: (...args: any[]) => void): this;
-
-  off<Event extends keyof HttpAdapter.Events>(event: Event, listener: HttpAdapter.Events[Event]): this;
-
-  off(event: string | symbol, listener: (...args: any[]) => void): this;
-
-  prependListener<Event extends keyof HttpAdapter.Events>(event: Event, listener: HttpAdapter.Events[Event]): this;
-
-  prependListener(event: string | symbol, listener: (...args: any[]) => void): this;
-
-  prependOnceListener<Event extends keyof HttpAdapter.Events>(event: Event, listener: HttpAdapter.Events[Event]): this;
-
-  prependOnceListener(event: string | symbol, listener: (...args: any[]) => void): this;
 }
 
 /**
@@ -68,7 +30,7 @@ export interface HttpAdapter {
  */
 export abstract class HttpAdapter extends PlatformAdapter {
   readonly handler: HttpHandler;
-  readonly protocol: OpraSchema.Protocol = 'http';
+  readonly protocol: OpraSchema.Transport = 'http';
   interceptors: (HttpAdapter.InterceptorFunction | HttpAdapter.IHttpInterceptor)[];
 
   protected constructor(document: ApiDocument, options?: HttpAdapter.Options) {
@@ -79,6 +41,6 @@ export abstract class HttpAdapter extends PlatformAdapter {
   }
 
   get api(): HttpApi {
-    return this.document.api!;
+    return this.document.httpApi;
   }
 }

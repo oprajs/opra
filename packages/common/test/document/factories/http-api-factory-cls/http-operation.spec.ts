@@ -19,7 +19,7 @@ describe('HttpApiFactory - HttpOperation (Class)', () => {
     const doc = await ApiDocumentFactory.createDocument({
       types: [Country],
       api: {
-        protocol: 'http',
+        transport: 'http',
         name: 'TestService',
         controllers: [CountriesController],
       },
@@ -50,7 +50,7 @@ describe('HttpApiFactory - HttpOperation (Class)', () => {
     const doc = await ApiDocumentFactory.createDocument({
       types: [Country],
       api: {
-        protocol: 'http',
+        transport: 'http',
         name: 'TestService',
         controllers: [CountriesController],
       },
@@ -81,7 +81,7 @@ describe('HttpApiFactory - HttpOperation (Class)', () => {
     const doc = await ApiDocumentFactory.createDocument({
       types: [Country],
       api: {
-        protocol: 'http',
+        transport: 'http',
         name: 'TestService',
         controllers: [CountriesController],
       },
@@ -112,7 +112,7 @@ describe('HttpApiFactory - HttpOperation (Class)', () => {
     const doc = await ApiDocumentFactory.createDocument({
       types: [Country],
       api: {
-        protocol: 'http',
+        transport: 'http',
         name: 'TestService',
         controllers: [CountriesController],
       },
@@ -143,7 +143,7 @@ describe('HttpApiFactory - HttpOperation (Class)', () => {
     const doc = await ApiDocumentFactory.createDocument({
       types: [Country],
       api: {
-        protocol: 'http',
+        transport: 'http',
         name: 'TestService',
         controllers: [CountriesController],
       },
@@ -182,7 +182,7 @@ describe('HttpApiFactory - HttpOperation (Class)', () => {
     const doc = await ApiDocumentFactory.createDocument({
       types: [Country],
       api: {
-        protocol: 'http',
+        transport: 'http',
         name: 'TestService',
         controllers: [CountriesController],
       },
@@ -225,7 +225,7 @@ describe('HttpApiFactory - HttpOperation (Class)', () => {
     const doc = await ApiDocumentFactory.createDocument({
       types: [Country],
       api: {
-        protocol: 'http',
+        transport: 'http',
         name: 'TestService',
         controllers: [CountriesController],
       },

@@ -3,7 +3,7 @@ import { ExpressAdapter } from '@opra/http';
 import cookieParser from 'cookie-parser';
 import express, { Express } from 'express';
 import supertest from 'supertest';
-import { createTestApi, CustomersController } from './_support/test-api/index';
+import { createTestApi, CustomersController } from './_support/test-api/index.js';
 
 describe('ExpressAdapter', () => {
   let document: ApiDocument;

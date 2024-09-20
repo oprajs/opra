@@ -1,5 +1,5 @@
 import { ComplexType, DataType, InternalServerError } from '@opra/common';
-import { HttpContext, ServiceBase } from '@opra/core';
+import { ExecutionContext, ServiceBase } from '@opra/core';
 import { op } from '@sqb/builder';
 import { EntityMetadata, Repository, SqbClient, SqbConnection } from '@sqb/connect';
 import type { Nullish, PartialDTO, PatchDTO, RequiredSome, StrictOmit, Type } from 'ts-gems';
@@ -255,7 +255,7 @@ export class SqbEntityService<T extends object = object> extends ServiceBase {
     return this._entityMetadata!;
   }
 
-  for<C extends HttpContext, P extends Partial<this>>(
+  for<C extends ExecutionContext, P extends Partial<this>>(
     context: C,
     overwriteProperties?: Nullish<P>,
     overwriteContext?: Partial<C>,

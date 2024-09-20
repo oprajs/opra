@@ -1,4 +1,5 @@
 import { HttpController, HttpOperation } from '@opra/common';
+import { HttpContext } from '@opra/http';
 import { Customer } from 'customer-mongo/models';
 import merge from 'putil-merge';
 import { Data } from '../../../../../../examples/_lib/data/customers-data.js';
@@ -23,19 +24,19 @@ export class CustomerController {
     .Header('access-key', { type: Number, isArray: true, arraySeparator: ',' })
     .Cookie('cid', 'integer')
     .Header('cid', 'integer'))
-  async get(context: HttpOperation.Context) {
+  async get(context: HttpContext) {
     return Data.customers.find(x => x._id === context.pathParams.customerId);
   }
 
   @HttpOperation.Entity.Delete(Customer)
-  async delete(context: HttpOperation.Context) {
+  async delete(context: HttpContext) {
     const oldLen = Data.customers.length;
     Data.customers = Data.customers.filter(x => x._id !== context.pathParams.customerId);
     return oldLen - Data.customers.length;
   }
 
   @HttpOperation.Entity.Update(Customer)
-  async update(context: HttpOperation.Context) {
+  async update(context: HttpContext) {
     const customer = Data.customers.find(x => x._id === context.pathParams.customerId);
     if (customer) {
       const body = await context.getBody<Customer>();
@@ -45,7 +46,7 @@ export class CustomerController {
   }
 
   @(HttpOperation({ path: '/sendMessage' }).QueryParam('message', String))
-  async sendMessage(context: HttpOperation.Context) {
+  async sendMessage(context: HttpContext) {
     return { sent: 1, message: context.queryParams.message };
   }
 
