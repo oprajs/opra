@@ -93,7 +93,7 @@ jobs:
         run: npm list
 
       - name: Install NodeJS dependencies
-      - uses: 'dudeofawesome/npm-install@v1'
+        uses: 'dudeofawesome/npm-install@v1'
 
       - name: Install rman
         run: npm install rman -g
