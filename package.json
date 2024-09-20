@@ -54,7 +54,6 @@
     "jest-preset-angular": "^14.2.4",
     "madge": "^8.0.0",
     "npm-run-path": "^6.0.0",
-    "rman": "^0.32.0",
     "prettier": "^3.3.3",
     "putil-merge": "^3.13.0",
     "putil-varhelpers": "^1.6.5",
