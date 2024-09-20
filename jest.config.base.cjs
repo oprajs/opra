@@ -1,6 +1,6 @@
 module.exports = {
   testEnvironment: 'node',
-  maxWorkers: '50%',
+  maxWorkers: 1,
   moduleFileExtensions: ['ts', 'js', 'mjs', 'cjs'],
   transform: {
     '^.+\\.m?[tj]sx?$': [
