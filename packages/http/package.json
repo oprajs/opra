@@ -45,6 +45,7 @@
     "fresh": "^0.5.2",
     "iconv-lite": "^0.6.3",
     "mime-types": "^2.1.35",
+    "node-events-async": "^1.0.0",
     "power-tasks": "^1.11.0",
     "putil-isplainobject": "^1.1.5",
     "putil-merge": "^3.13.0",
@@ -52,7 +53,6 @@
     "range-parser": "^1.2.1",
     "raw-body": "^3.0.0",
     "reflect-metadata": "^0.2.2",
-    "node-events-async": "^1.0.0",
     "super-fast-md5": "^1.0.3",
     "tslib": "^2.7.0",
     "valgen": "^5.10.0",
@@ -60,7 +60,7 @@
   },
   "optionalDependencies": {
     "express": "^4.x.x || ^5.x.x",
-    "fastify": "^4.x.x"
+    "fastify": "^4.x.x || ^5.x.x"
   },
   "devDependencies": {
     "@faker-js/faker": "^9.0.1",
@@ -85,7 +85,7 @@
     "fastify": "^4.28.1",
     "path-browserify": "^1.0.1",
     "supertest": "^7.0.0",
-    "ts-gems": "^3.5.0"
+    "ts-gems": "^3.5.1"
   },
   "type": "module",
   "exports": {

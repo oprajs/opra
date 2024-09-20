@@ -51,7 +51,7 @@
     "@types/lodash.omit": "^4.5.9",
     "@types/validator": "^13.12.2",
     "path-browserify": "^1.0.1",
-    "ts-gems": "^3.5.0"
+    "ts-gems": "^3.5.1"
   },
   "type": "module",
   "exports": {

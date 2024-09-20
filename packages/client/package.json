@@ -38,7 +38,7 @@
     "putil-varhelpers": "^1.6.5",
     "reflect-metadata": "^0.2.2",
     "rxjs": ">=7.0.0",
-    "ts-gems": "^3.5.0",
+    "ts-gems": "^3.5.1",
     "tslib": "^2.7.0",
     "uid": "^2.0.1"
   },
