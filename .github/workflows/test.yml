@@ -3,9 +3,6 @@ name: test
 on:
   push:
     branches: [ main, dev ]
-    paths:
-      - 'packages/**'
-      - 'examples/**'
   pull_request:
     branches: [ main, dev ]
     paths:
