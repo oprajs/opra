@@ -2,9 +2,19 @@ name: test
 
 on:
   push:
-    branches: [ main ]
+    branches: [ main, dev ]
+    paths:
+      - 'packages/**'
+      - 'examples/**'
   pull_request:
-    branches: [ main ]
+    branches: [ main, dev ]
+    paths:
+      - 'packages/**'
+      - 'examples/**'
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
 
 jobs:
   test:
