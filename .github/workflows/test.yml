@@ -58,7 +58,7 @@ jobs:
         run: npm install
 
       - name: Install rman
-      - run: npm install rman -g
+        run: npm install rman -g
 
       - name: Run lint
         run: rman run lint
