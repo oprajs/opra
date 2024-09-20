@@ -49,13 +49,13 @@ jobs:
           security-enabled: false
 
       - name: Setup NodeJS
-      - uses: actions/setup-node@v4
+        uses: actions/setup-node@v4
         with:
           node-version: ${{ matrix.node }}
           cache: npm
 
       - name: Install NodeJS dependencies
-      - run: npm install
+        run: npm install
 
       - name: Run lint
         run: rman run lint
