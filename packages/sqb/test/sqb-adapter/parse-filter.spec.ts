@@ -12,7 +12,7 @@ describe('SQBAdapter.parseFilter', () => {
 
   beforeAll(async () => {
     document = (await CustomerApplication.create()).document;
-    customers = document.api!.findController('customers')!;
+    customers = document.httpApi!.findController('customers')!;
     const findMany = customers.operations.get('findMany');
     const filterParam = findMany!.findParameter('filter');
     filterDecoder = filterParam!.type!.generateCodec('decode');

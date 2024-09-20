@@ -2,8 +2,6 @@ import { Client } from '@elastic/elasticsearch';
 import { ApiDocument, ApiDocumentFactory } from '@opra/common';
 import { CustomerModelsDocument } from 'customer-elastic';
 import { AuthController } from './api/auth.controller.js';
-// import { CustomerController } from './api/customer.controller.js';
-// import { CustomersController } from './api/customers-controller.js';
 
 export namespace CustomerApiDocument {
   export async function create(client: Client): Promise<ApiDocument> {
@@ -17,11 +15,8 @@ export namespace CustomerApiDocument {
       },
       api: {
         name: 'CustomerApi',
-        protocol: 'http',
-        controllers: [
-          new AuthController(client),
-          // new CustomerController(client), new CustomersController(client)
-        ],
+        transport: 'http',
+        controllers: [new AuthController(client)],
       },
     });
   }

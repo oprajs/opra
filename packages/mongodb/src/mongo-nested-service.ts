@@ -196,17 +196,21 @@ export class MongoNestedService<T extends mongodb.Document> extends MongoService
    * Adds a single item into the array field.
    *
    * @param {MongoAdapter.AnyId} documentId - The ID of the parent document.
-   * @param {DTO<T>} input - The item to be added to the array field.
+   * @param {PartialDTO<T>} input - The item to be added to the array field.
    * @param {MongoNestedService.CreateOptions<T>} [options] - Optional options for the create operation.
    * @return {Promise<PartialDTO<T>>} - A promise that resolves with the partial output of the created item.
    * @throws {ResourceNotAvailableError} - If the parent document is not found.
    */
   async create(
     documentId: MongoAdapter.AnyId,
-    input: DTO<T>,
+    input: PartialDTO<T>,
     options: RequiredSome<MongoNestedService.CreateOptions, 'projection'>,
   ): Promise<PartialDTO<T>>;
-  async create(documentId: MongoAdapter.AnyId, input: DTO<T>, options?: MongoNestedService.CreateOptions): Promise<T>;
+  async create(
+    documentId: MongoAdapter.AnyId,
+    input: PartialDTO<T>,
+    options?: MongoNestedService.CreateOptions,
+  ): Promise<T>;
   async create(
     documentId: MongoAdapter.AnyId,
     input: any,

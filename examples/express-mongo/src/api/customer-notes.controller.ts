@@ -1,4 +1,5 @@
 import { HttpController, HttpOperation, OmitType, OperationResult } from '@opra/common';
+import { HttpContext } from '@opra/http';
 import { MongoAdapter } from '@opra/mongodb';
 import { CustomerNotesService, Note } from 'customer-mongo';
 import { Db } from 'mongodb';
@@ -16,19 +17,19 @@ export class CustomerNotesController {
   }
 
   @(HttpOperation.Entity.Get(Note).KeyParam('_id', Number))
-  async get(context: HttpOperation.Context): Promise<PartialDTO<Note> | undefined> {
+  async get(context: HttpContext): Promise<PartialDTO<Note> | undefined> {
     const { key, options } = await MongoAdapter.parseRequest(context);
     return this.service.for(context).findById(context.pathParams.customerId, key, options);
   }
 
   @(HttpOperation.Entity.Delete(Note).KeyParam('_id', Number))
-  async delete(context: HttpOperation.Context) {
+  async delete(context: HttpContext) {
     const { key, options } = await MongoAdapter.parseRequest(context);
     return await this.service.for(context).delete(context.pathParams.customerId, key, options);
   }
 
   @(HttpOperation.Entity.Update(Note).KeyParam('_id', Number))
-  async update(context: HttpOperation.Context) {
+  async update(context: HttpContext) {
     const { key, data, options } = await MongoAdapter.parseRequest(context);
     return this.service.for(context).update(context.pathParams.customerId, key, data, options);
   }
@@ -38,7 +39,7 @@ export class CustomerNotesController {
       type: OmitType(Note, ['_id']),
     },
   })
-  async create(context: HttpOperation.Context): Promise<PartialDTO<Note>> {
+  async create(context: HttpContext): Promise<PartialDTO<Note>> {
     const { data, options } = await MongoAdapter.parseRequest(context);
     return this.service.for(context).create(context.pathParams.customerId, data, options);
   }
@@ -50,7 +51,7 @@ export class CustomerNotesController {
     .Filter('title')
     .Filter('text')
     .Filter('rank'))
-  async findMany(context: HttpOperation.Context) {
+  async findMany(context: HttpContext) {
     const { options } = await MongoAdapter.parseRequest(context);
     if (options.count) {
       const { items, count } = await this.service.for(context).findManyWithCount(options);
@@ -63,13 +64,13 @@ export class CustomerNotesController {
   }
 
   @(HttpOperation.Entity.DeleteMany(Note).Filter('_id').Filter('rank'))
-  async deleteMany(context: HttpOperation.Context) {
+  async deleteMany(context: HttpContext) {
     const { options } = await MongoAdapter.parseRequest(context);
     return await this.service.for(context).deleteMany(context.pathParams.customerId, options);
   }
 
   @(HttpOperation.Entity.UpdateMany(Note).Filter('_id').Filter('rank'))
-  async updateMany(context: HttpOperation.Context) {
+  async updateMany(context: HttpContext) {
     const { data, options } = await MongoAdapter.parseRequest(context);
     return await this.service.for(context).updateMany(context.pathParams.customerId, data, options);
   }

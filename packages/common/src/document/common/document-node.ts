@@ -60,7 +60,10 @@ export class DocumentNode {
       const metadata = nameOrCtor[DATATYPE_METADATA];
       name = metadata?.name;
     }
-    if (typeof nameOrCtor === 'string') name = nameOrCtor;
+    if (!name) {
+      if (nameOrCtor && typeof nameOrCtor === 'string') name = nameOrCtor;
+      else if (typeof nameOrCtor === 'function') name = nameOrCtor.name;
+    }
     throw new TypeError(`Unknown data type` + (name ? ' (' + name + ')' : ''));
   }
 

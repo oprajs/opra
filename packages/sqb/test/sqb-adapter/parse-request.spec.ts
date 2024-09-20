@@ -1,5 +1,5 @@
 import { ApiDocument } from '@opra/common';
-import { HttpIncoming, NodeIncomingMessage } from '@opra/core';
+import { HttpIncoming, NodeIncomingMessage } from '@opra/http';
 import { SQBAdapter } from '@opra/sqb';
 import { op } from '@sqb/builder';
 import { CustomerApplication } from 'express-sqb';
@@ -17,7 +17,7 @@ describe('SQBAdapter.parseRequest', () => {
   it('Should parse "create" request', async () => {
     const data = { _id: 1001 };
     const dataStr = JSON.stringify(data);
-    const operation = document.api?.findOperation('Customers', 'create');
+    const operation = document.httpApi?.findOperation('Customers', 'create');
     const context = createContext(
       app.adapter,
       operation,
@@ -47,7 +47,7 @@ describe('SQBAdapter.parseRequest', () => {
   });
 
   it('Should parse "delete" request', async () => {
-    const operation = document.api?.findOperation('Customer', 'delete');
+    const operation = document.httpApi?.findOperation('Customer', 'delete');
     expect(operation).toBeDefined();
     const context = createContext(app.adapter, operation);
     context.pathParams.customerId = 1;
@@ -58,7 +58,7 @@ describe('SQBAdapter.parseRequest', () => {
   });
 
   it('Should parse "deleteMany" request', async () => {
-    const operation = document.api?.findOperation('Customers', 'deleteMany');
+    const operation = document.httpApi?.findOperation('Customers', 'deleteMany');
     expect(operation).toBeDefined();
     const context = createContext(app.adapter, operation);
     context.queryParams.filter = '_id>5';
@@ -71,7 +71,7 @@ describe('SQBAdapter.parseRequest', () => {
   });
 
   it('Should parse "get" request', async () => {
-    const operation = document.api?.findOperation('Customer', 'get');
+    const operation = document.httpApi?.findOperation('Customer', 'get');
     expect(operation).toBeDefined();
     const context = createContext(app.adapter, operation);
     context.pathParams.customerId = 1;
@@ -86,7 +86,7 @@ describe('SQBAdapter.parseRequest', () => {
   });
 
   it('Should parse "findMany" request', async () => {
-    const operation = document.api?.findOperation('Customers', 'findMany');
+    const operation = document.httpApi?.findOperation('Customers', 'findMany');
     expect(operation).toBeDefined();
     const context = createContext(app.adapter, operation);
     context.queryParams.projection = 'givenName,gender';
@@ -109,7 +109,7 @@ describe('SQBAdapter.parseRequest', () => {
   });
 
   it('Should parse "update" request', async () => {
-    const operation = document.api?.findOperation('Customer', 'update');
+    const operation = document.httpApi?.findOperation('Customer', 'update');
     expect(operation).toBeDefined();
     const data = { _id: 1001 };
     const dataStr = JSON.stringify(data);
@@ -144,7 +144,7 @@ describe('SQBAdapter.parseRequest', () => {
   });
 
   it('Should parse "updateMany" request', async () => {
-    const operation = document.api?.findOperation('Customers', 'updateMany');
+    const operation = document.httpApi?.findOperation('Customers', 'updateMany');
     expect(operation).toBeDefined();
     const data = { _id: 1001 };
     const dataStr = JSON.stringify(data);

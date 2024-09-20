@@ -1,6 +1,6 @@
 {
   "name": "@opra/common",
-  "version": "1.0.0-beta.1",
+  "version": "1.0.0-beta.2",
   "description": "Opra common package",
   "author": "Panates",
   "license": "MIT",
@@ -41,7 +41,7 @@
     "super-fast-md5": "^1.0.3",
     "tslib": "^2.7.0",
     "uid": "^2.0.1",
-    "valgen": "^5.9.0"
+    "valgen": "^5.10.0"
   },
   "devDependencies": {
     "@browsery/fs": "^0.5.1-r1",
@@ -49,9 +49,9 @@
     "@browsery/util": "^0.12.6-r1",
     "@types/encodeurl": "^1.0.2",
     "@types/lodash.omit": "^4.5.9",
-    "@types/validator": "^13.12.1",
+    "@types/validator": "^13.12.2",
     "path-browserify": "^1.0.1",
-    "ts-gems": "^3.5.0"
+    "ts-gems": "^3.5.1"
   },
   "type": "module",
   "exports": {

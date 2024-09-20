@@ -1,7 +1,7 @@
 import { InternalServerError } from '@opra/common';
 import omit from 'lodash.omit';
 import mongodb, { type UpdateFilter } from 'mongodb';
-import type { DTO, PartialDTO, PatchDTO, StrictOmit, Type } from 'ts-gems';
+import type { PartialDTO, PatchDTO, StrictOmit, Type } from 'ts-gems';
 import { isNotNullish } from 'valgen';
 import { MongoAdapter } from './mongo-adapter.js';
 import { MongoService } from './mongo-service.js';
@@ -43,7 +43,7 @@ export namespace MongoEntityService {
 
   export interface CreateCommand<T> extends StrictOmit<CommandInfo, 'documentId' | 'nestedId' | 'input'> {
     crud: 'create';
-    input: DTO<T>;
+    input: PartialDTO<T>;
     options?: CreateOptions;
   }
 

@@ -88,10 +88,11 @@ describe('MongoSingletonService', () => {
     });
 
     it('Should apply filter returned by documentFilter', async () => {
-      jest.spyOn(service as any, '_getDocumentFilter').mockResolvedValueOnce('_id=2');
+      const spy = jest.spyOn(service as any, '_getDocumentFilter').mockResolvedValueOnce('_id=2');
       const ctx = createContext(app.adapter);
       const result: any = await service.for(ctx, { documentFilter: '_id=2' }).find();
       expect(result).not.toBeDefined();
+      spy.mockRestore();
     });
 
     it('Should include exclusive fields', async () => {
@@ -156,11 +157,12 @@ describe('MongoSingletonService', () => {
     });
 
     it('Should apply filter returned by documentFilter', async () => {
-      jest.spyOn(service as any, '_getDocumentFilter').mockResolvedValueOnce('rate=999');
+      const spy = jest.spyOn(service as any, '_getDocumentFilter').mockResolvedValueOnce('rate=999');
       const ctx = createContext(app.adapter);
       await expect(() => service.for(ctx, { documentFilter: 'rate=99' }).get()).rejects.toThrow(
         ResourceNotAvailableError,
       );
+      spy.mockRestore();
     });
 
     it('Should run interceptors', async () => {

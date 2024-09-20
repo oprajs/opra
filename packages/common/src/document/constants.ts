@@ -1,5 +1,6 @@
 export const DATATYPE_METADATA = Symbol.for('opra.type.metadata');
 export const HTTP_CONTROLLER_METADATA = Symbol('opra.http-controller.metadata');
+export const MSG_CONTROLLER_METADATA = Symbol('opra.msg-controller.metadata');
 export const DECODER = Symbol.for('opra.type.decoder');
 export const ENCODER = Symbol('opra.type.encoder');
 export const DECORATOR = Symbol.for('DECORATOR');

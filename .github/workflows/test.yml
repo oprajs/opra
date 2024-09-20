@@ -1,0 +1,116 @@
+name: test
+
+on:
+  push:
+    branches: [ main, dev ]
+    paths:
+      - 'packages/**'
+      - 'examples/**'
+  pull_request:
+    branches: [ main, dev ]
+    paths:
+      - 'packages/**'
+      - 'examples/**'
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  test:
+    name: Node v${{ matrix.node }}
+    strategy:
+      fail-fast: false
+      matrix:
+        node: [ '20' ]
+
+    runs-on: ubuntu-latest
+
+    services:
+      postgres:
+        image: postgres
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_HOST_AUTH_METHOD: trust
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+    steps:
+      - name: Start MongoDB
+        uses: supercharge/mongodb-github-action@1.11.0
+        with:
+          mongodb-version: 8.0
+          mongodb-replica-set: test-rs
+
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Configure sysctl limits
+        run: |
+          sudo swapoff -a
+          sudo sysctl -w vm.swappiness=1
+          sudo sysctl -w fs.file-max=262144
+          sudo sysctl -w vm.max_map_count=262144
+
+      - name: Runs Elasticsearch
+        uses: elastic/elastic-github-actions/elasticsearch@master
+        with:
+          stack-version: 8.2.0
+          security-enabled: false
+
+      - name: Run Kafka KRaft Broker
+        uses: spicyparrot/kafka-kraft-action@v1.1.0
+        with:
+          kafka-version: "7.7.0"
+
+      - name: Setup NodeJS
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node }}
+          cache: npm
+
+      - name: Cache + Restore node_modules
+        uses: actions/cache@v4
+        env:
+          cache-name: cache-node-modules
+        with:
+          # Cache node_modules and Puppeteer chrome
+          path: |
+            ~/.cache
+          key: ${{ runner.os }}-build-${{ env.cache-name }}-${{ hashFiles('**/package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-build-${{ env.cache-name }}-
+            ${{ runner.os }}-build-
+            ${{ runner.os }}-
+
+      - if: ${{ steps.cache-npm.outputs.cache-hit != 'true' }}
+        name: List the state of node modules
+        continue-on-error: true
+        run: npm list
+
+      - name: Install NodeJS dependencies
+        run: npm install
+
+      - name: Install rman
+        run: npm install rman -g
+
+      - name: Run lint
+        run: rman run lint
+
+      - name: Check for circular imports
+        run: rman run check
+
+      - name: Run tests
+        run: npm run citest
+        env:
+          NODE_OPTIONS: "--max_old_space_size=4096"
+          KAFKA_BROKER: localhost:9092
+
+      - name: Coveralls
+        uses: coverallsapp/github-action@v2
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}

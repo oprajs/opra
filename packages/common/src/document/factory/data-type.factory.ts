@@ -108,6 +108,28 @@ export class DataTypeFactory {
     }
   }
 
+  static async resolveDataType(
+    context: DocumentInitContext | undefined,
+    owner: DocumentElement,
+    v: any,
+  ): Promise<DataType> {
+    if (v) {
+      const dt = owner.node.findDataType(v);
+      if (dt) return dt;
+    }
+    if (typeof v === 'object' || typeof v === 'function') {
+      const dt = await DataTypeFactory.createDataType(context, owner, v);
+      if (dt) return dt;
+    }
+    if (v) {
+      /** To throw not found error */
+      const dt = owner.node.getDataType(v);
+      /** istanbul ignore next */
+      if (dt) return dt;
+    }
+    return owner.node.getDataType('any');
+  }
+
   /**
    *
    * @param context

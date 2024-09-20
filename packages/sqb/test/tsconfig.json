@@ -11,6 +11,7 @@
       "@opra/client": ["../../client/src"],
       "@opra/common": ["../../common/src"],
       "@opra/core": ["../../core/src"],
+      "@opra/http": ["../../http/src"],
       "@opra/testing": ["../../testing/src"],
       "customer-sqb": ["../../../examples/_lib/customer-sqb"],
       "express-sqb": ["../../../examples/express-sqb"]

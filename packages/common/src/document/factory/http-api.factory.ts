@@ -1,7 +1,6 @@
-import type { StrictOmit, Type } from 'ts-gems';
+import type { Type } from 'ts-gems';
 import { isConstructor, resolveThunk } from '../../helpers/index.js';
 import { OpraSchema } from '../../schema/index.js';
-import { ApiDocument } from '../api-document.js';
 import { DocumentInitContext } from '../common/document-init-context.js';
 import { HTTP_CONTROLLER_METADATA } from '../constants.js';
 import { HttpApi } from '../http/http-api.js';
@@ -15,7 +14,7 @@ import { HttpRequestBody } from '../http/http-request-body.js';
 import { DataTypeFactory } from './data-type.factory.js';
 
 export namespace HttpApiFactory {
-  export interface InitArguments extends StrictOmit<OpraSchema.HttpApi, 'controllers'> {
+  export interface InitArguments extends HttpApi.InitArguments {
     controllers: Type[] | any[] | ((parent: any) => any) | OpraSchema.HttpApi['controllers'];
   }
 }
@@ -27,42 +26,76 @@ export class HttpApiFactory {
   /**
    * Generates HttpApi
    * @param context
-   * @param document
    * @param init
    */
-  static async createApi(
-    context: DocumentInitContext,
-    document: ApiDocument,
-    init: HttpApiFactory.InitArguments,
-  ): Promise<HttpApi> {
-    const api = new HttpApi(document);
-    api.name = init.name;
-    api.description = init.description;
-    api.url = init.url;
+  static async createApi(context: DocumentInitContext, init: HttpApiFactory.InitArguments): Promise<HttpApi> {
+    const api = new HttpApi(init);
     if (init.controllers) {
       await context.enterAsync('.controllers', async () => {
-        if (Array.isArray(init.controllers)) {
-          for (const c of init.controllers) {
-            const controller = await this._createController(context, api, c);
-            if (controller) api.controllers.set(controller.name, controller);
-          }
-        } else {
-          for (const [k, v] of Object.entries(init.controllers)) {
-            const controller = await this._createController(context, api, v, k);
-            if (controller) api.controllers.set(controller.name, controller);
-          }
-        }
+        await this._createControllers(context, api, init.controllers);
       });
     }
     return api;
   }
 
-  protected static async _createController(
+  protected static async _createControllers(
+    context: DocumentInitContext,
+    parent: HttpApi | HttpController,
+    controllers: Type[] | any[] | ((parent: any) => any) | OpraSchema.HttpApi['controllers'],
+  ) {
+    if (Array.isArray(controllers)) {
+      let i = 0;
+      for (const c of controllers) {
+        let r: any;
+        await context.enterAsync(`[${i++}]`, async () => {
+          r = await this._resolveControllerMetadata(context, parent, c);
+        });
+        if (!r) continue;
+        await context.enterAsync(`[${r.metadata.name}]`, async () => {
+          const controller = await this._createController(context, parent, r.metadata, r.instance, r.ctor);
+          if (controller) {
+            if (parent.controllers.get(controller.name)) context.addError(`Duplicate controller name (${r.name})`);
+            parent.controllers.set(controller.name, controller);
+          }
+        });
+      }
+      return;
+    }
+    for (const [k, c] of Object.entries(controllers)) {
+      await context.enterAsync(`[${k}]`, async () => {
+        const r = await this._resolveControllerMetadata(context, parent, c);
+        if (!r) return;
+        const controller = await this._createController(
+          context,
+          parent,
+          {
+            ...r.metadata,
+            name: k,
+          },
+          r.instance,
+          r.ctor,
+        );
+        if (controller) {
+          if (parent.controllers.get(controller.name)) context.addError(`Duplicate controller name (${k})`);
+          parent.controllers.set(controller.name, controller);
+        }
+      });
+    }
+  }
+
+  protected static async _resolveControllerMetadata(
     context: DocumentInitContext,
     parent: HttpApi | HttpController,
     thunk: Type | object | Function | OpraSchema.HttpController,
-    name?: string,
-  ): Promise<HttpController | undefined | void> {
+  ): Promise<
+    | {
+        metadata: HttpController.Metadata | OpraSchema.HttpController;
+        instance: any;
+        ctor: Type;
+      }
+    | undefined
+    | void
+  > {
     if (typeof thunk === 'function' && !isConstructor(thunk)) {
       thunk = parent instanceof HttpController ? thunk(parent.instance) : thunk();
     }
@@ -91,12 +124,19 @@ export class HttpApiFactory {
       }
     }
     if (!metadata) return context.addError(`Class "${ctor.name}" is not decorated with HttpController()`);
-    name = name || (metadata as any).name;
-    if (!name) throw new TypeError(`Controller name required`);
+    return { metadata, instance, ctor };
+  }
 
+  protected static async _createController(
+    context: DocumentInitContext,
+    parent: HttpApi | HttpController,
+    metadata: HttpController.Metadata | OpraSchema.HttpController,
+    instance: any,
+    ctor: Type,
+  ): Promise<HttpController | undefined | void> {
+    if (!(metadata as any).name) throw new TypeError(`Controller name required`);
     const controller = new HttpController(parent, {
-      ...metadata,
-      name,
+      ...(metadata as any),
       instance,
       ctor,
     });
@@ -113,11 +153,7 @@ export class HttpApiFactory {
           await context.enterAsync(`[${i++}]`, async () => {
             const prmArgs = { ...v } as HttpParameter.InitArguments;
             await context.enterAsync('.type', async () => {
-              if (v.type) prmArgs.type = controller.node.findDataType(v.type);
-              if (!prmArgs.type && typeof v.type === 'object') {
-                prmArgs.type = await DataTypeFactory.createDataType(context, controller, v.type);
-              }
-              if (!prmArgs.type) prmArgs.type = controller.node.getDataType('any');
+              prmArgs.type = await DataTypeFactory.resolveDataType(context, controller, v.type);
             });
             const prm = new HttpParameter(controller, prmArgs);
             controller.parameters.push(prm);
@@ -140,29 +176,7 @@ export class HttpApiFactory {
 
     if (metadata.controllers) {
       await context.enterAsync('.controllers', async () => {
-        if (Array.isArray(metadata.controllers)) {
-          let k = 0;
-          for (const v of metadata.controllers!) {
-            await context.enterAsync(`[${k}]`, async () => {
-              const r = await this._createController(context, controller, v);
-              if (r) {
-                if (controller.controllers.get(r.name)) context.addError(`Duplicate controller name (${r.name})`);
-                controller.controllers.set(r.name, r);
-              }
-            });
-            k++;
-          }
-        } else {
-          for (const [k, v] of Object.entries<any>(metadata.controllers!)) {
-            await context.enterAsync(`[${k}]`, async () => {
-              const r = await this._createController(context, controller, v, k);
-              if (r) {
-                if (controller.controllers.get(r.name)) context.addError(`Duplicate controller name (${r.name})`);
-                controller.controllers.set(r.name, r);
-              }
-            });
-          }
-        }
+        await this._createControllers(context, controller, metadata.controllers!);
       });
     }
 
@@ -200,11 +214,7 @@ export class HttpApiFactory {
           await context.enterAsync(`[${i++}]`, async () => {
             const prmArgs = { ...v } as HttpParameter.InitArguments;
             await context.enterAsync('.type', async () => {
-              if (v.type) prmArgs.type = operation.node.findDataType(v.type);
-              if (!prmArgs.type && typeof v.type === 'object') {
-                prmArgs.type = await DataTypeFactory.createDataType(context, operation, v.type);
-              }
-              if (!prmArgs.type) prmArgs.type = operation.node.getDataType('any');
+              prmArgs.type = await DataTypeFactory.resolveDataType(context, operation, v.type);
             });
             const prm = new HttpParameter(operation, prmArgs);
             operation.parameters.push(prm);
@@ -254,11 +264,7 @@ export class HttpApiFactory {
     });
     if (metadata.type) {
       await context.enterAsync('.type', async () => {
-        if (metadata.type) target.type = target.node.findDataType(metadata.type);
-        if (!target.type && (typeof metadata.type === 'object' || typeof metadata.type === 'function')) {
-          target.type = await DataTypeFactory.createDataType(context, target, metadata.type);
-        }
-        if (!target.type) target.type = target.node.getDataType('any');
+        target.type = await DataTypeFactory.resolveDataType(context, target, metadata.type);
       });
     }
     if (metadata.multipartFields) {
@@ -296,11 +302,7 @@ export class HttpApiFactory {
           await context.enterAsync(`[${i++}]`, async () => {
             const prmArgs = { ...v } as HttpParameter.InitArguments;
             await context.enterAsync('.type', async () => {
-              if (v.type) prmArgs.type = target.node.findDataType(v.type);
-              if (!prmArgs.type && typeof v.type === 'object') {
-                prmArgs.type = await DataTypeFactory.createDataType(context, target, v.type);
-              }
-              if (!prmArgs.type) prmArgs.type = target.node.getDataType('any');
+              prmArgs.type = await DataTypeFactory.resolveDataType(context, target, v.type);
             });
             const prm = new HttpParameter(target, prmArgs);
             target.parameters.push(prm);

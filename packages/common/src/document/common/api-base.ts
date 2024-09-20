@@ -6,22 +6,26 @@ import { DocumentElement } from './document-element.js';
 import type { DocumentInitContext } from './document-init-context';
 
 export namespace ApiBase {
-  export interface InitArguments extends Pick<OpraSchema.Api, 'description' | 'name'> {}
+  export interface InitArguments extends Pick<OpraSchema.Api, 'description' | 'name'> {
+    owner: ApiDocument | ApiBase;
+  }
 }
 
 export abstract class ApiBase extends DocumentElement {
-  abstract readonly protocol: OpraSchema.Protocol;
+  abstract readonly transport: OpraSchema.Transport;
   declare readonly owner: ApiDocument | ApiBase;
   name: string = 'OpraApi';
   description?: string;
 
-  protected constructor(owner: ApiDocument | ApiBase) {
-    super(owner);
+  protected constructor(init: ApiBase.InitArguments) {
+    super(init.owner);
+    this.name = init.name;
+    this.description = init.description;
   }
 
   toJSON(): OpraSchema.Api {
     return omitUndefined<OpraSchema.Api>({
-      protocol: this.protocol,
+      transport: this.transport,
       name: this.name,
       description: this.description,
     });

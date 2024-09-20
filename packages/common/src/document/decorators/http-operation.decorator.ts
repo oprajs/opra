@@ -1,14 +1,14 @@
 import omit from 'lodash.omit';
 import type { StrictOmit, Type, TypeThunkAsync } from 'ts-gems';
-import { MimeTypes } from '../../http/index.js';
+import { MimeTypes } from '../../enums/index.js';
 import { OpraSchema } from '../../schema/index.js';
 import { HTTP_CONTROLLER_METADATA } from '../constants.js';
-import type { HttpController } from '../http/http-controller';
+import type { HttpController } from '../http/http-controller.js';
 import { HttpMediaType } from '../http/http-media-type.js';
 import { HttpMultipartField } from '../http/http-multipart-field.js';
-import type { HttpOperation } from '../http/http-operation';
-import type { HttpOperationResponse } from '../http/http-operation-response';
-import type { HttpParameter } from '../http/http-parameter';
+import type { HttpOperation } from '../http/http-operation.js';
+import type { HttpOperationResponse } from '../http/http-operation-response.js';
+import type { HttpParameter } from '../http/http-parameter.js';
 
 export interface HttpOperationDecorator {
   (target: Object, propertyKey: string): void;
@@ -76,12 +76,12 @@ export function HttpOperationDecoratorFactory(
       ...omit(options, ['kind']),
     } as HttpOperation.Metadata;
 
-    const resourceMetadata = (Reflect.getOwnMetadata(HTTP_CONTROLLER_METADATA, target.constructor) ||
+    const controllerMetadata = (Reflect.getOwnMetadata(HTTP_CONTROLLER_METADATA, target.constructor) ||
       {}) as HttpController.Metadata;
-    resourceMetadata.operations = resourceMetadata.operations || {};
-    resourceMetadata.operations[propertyKey] = operationMetadata;
+    controllerMetadata.operations = controllerMetadata.operations || {};
+    controllerMetadata.operations[propertyKey] = operationMetadata;
     for (const fn of decoratorChain) fn(operationMetadata);
-    Reflect.defineMetadata(HTTP_CONTROLLER_METADATA, resourceMetadata, target.constructor);
+    Reflect.defineMetadata(HTTP_CONTROLLER_METADATA, controllerMetadata, target.constructor);
   }) as HttpOperationDecorator;
 
   /**

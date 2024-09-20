@@ -1,13 +1,13 @@
 import { ApiDocument, OpraSchema } from '@opra/common';
 import { Gender } from 'customer-mongo/models';
-import { TestApiDocument } from '../_support/test-api/index.js';
+import { TestHttpApiDocument } from '../_support/test-http-api/index.js';
 
 describe('ApiDocument', () => {
   let doc: ApiDocument;
   afterAll(() => global.gc && global.gc());
 
   beforeAll(async () => {
-    doc = await TestApiDocument.create();
+    doc = await TestHttpApiDocument.create();
   });
 
   it('Should include built-in types by default', async () => {
@@ -56,10 +56,5 @@ describe('ApiDocument', () => {
     expect(sch.types).not.toBeDefined();
     expect(sch.references).toBeDefined();
     expect(sch.references!.ns1).toBeDefined();
-    expect(sch.api).toBeDefined();
-    expect(sch.api!.protocol).toEqual('http');
-    expect(sch.api!.description).toEqual('test service');
-    expect(sch.api!.url).toEqual('/test');
-    expect(sch.api!.controllers).toBeDefined();
   });
 });

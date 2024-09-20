@@ -1,0 +1,135 @@
+{
+  "name": "@opra/http",
+  "version": "1.0.0-beta.2",
+  "description": "Opra Http Server Adapter",
+  "author": "Panates",
+  "license": "MIT",
+  "scripts": {
+    "compile": "tsc --noEmit",
+    "prebuild": "npm run lint && npm run clean",
+    "build": "npm run build:cjs && npm run build:esm",
+    "build:cjs": "tsc -b tsconfig-build-cjs.json && cp ../../support/package.cjs.json ../../build/http/cjs/package.json",
+    "build:esm": "tsc -b tsconfig-build-esm.json && cp ../../support/package.esm.json ../../build/http/esm/package.json",
+    "postbuild": "npm run postbuild:copy_1 && npm run postbuild:copy_2 && node ../../support/postbuild.cjs",
+    "postbuild:copy_1": "cp README.md package.json ../../LICENSE ../../build/http",
+    "postbuild:copy_2": "cp -R i18n ../../build/http/i18n",
+    "lint": "eslint . --max-warnings=0",
+    "lint:fix": "eslint . --max-warnings=0 --fix",
+    "format": "prettier . --write --log-level=warn",
+    "check": "madge --circular src/**",
+    "test": "jest --passWithNoTests",
+    "cover": "jest --passWithNoTests --collect-coverage",
+    "clean": "npm run clean:src && npm run clean:test && npm run clean:dist && npm run clean:cover",
+    "clean:src": "ts-cleanup -s src --all",
+    "clean:test": "ts-cleanup -s test --all",
+    "clean:dist": "rimraf ../../build/http",
+    "clean:cover": "rimraf ../../coverage/http"
+  },
+  "dependencies": {
+    "@browsery/antlr4": "^4.13.3-r1",
+    "@browsery/http-parser": "^0.5.9-r1",
+    "@browsery/type-is": "^1.6.18-r5",
+    "@opra/common": "^1.0.0-beta.2",
+    "@opra/core": "^1.0.0-beta.2",
+    "accepts": "^1.3.8",
+    "base64-stream": "^1.0.0",
+    "busboy": "^1.6.0",
+    "bytes": "^3.1.2",
+    "content-disposition": "^0.5.4",
+    "content-type": "^1.0.5",
+    "cookie": "^0.6.0",
+    "cookie-signature": "^1.2.1",
+    "cppzst": "^2.0.12",
+    "encodeurl": "^2.0.0",
+    "fast-tokenizer": "^1.7.0",
+    "fresh": "^0.5.2",
+    "iconv-lite": "^0.6.3",
+    "mime-types": "^2.1.35",
+    "node-events-async": "^1.0.0",
+    "power-tasks": "^1.11.0",
+    "putil-isplainobject": "^1.1.5",
+    "putil-merge": "^3.13.0",
+    "putil-varhelpers": "^1.6.5",
+    "range-parser": "^1.2.1",
+    "raw-body": "^3.0.0",
+    "reflect-metadata": "^0.2.2",
+    "super-fast-md5": "^1.0.3",
+    "tslib": "^2.7.0",
+    "valgen": "^5.10.0",
+    "vary": "^1.1.2"
+  },
+  "optionalDependencies": {
+    "express": "^4.x.x || ^5.x.x",
+    "fastify": "^4.x.x || ^5.x.x"
+  },
+  "devDependencies": {
+    "@faker-js/faker": "^9.0.1",
+    "@types/accepts": "^1.3.7",
+    "@types/base64-stream": "^1.0.5",
+    "@types/busboy": "^1.5.4",
+    "@types/bytes": "^3.1.4",
+    "@types/content-disposition": "^0.5.8",
+    "@types/content-type": "^1.1.8",
+    "@types/cookie": "^0.6.0",
+    "@types/cookie-parser": "^1.4.7",
+    "@types/cookie-signature": "^1.1.2",
+    "@types/encodeurl": "^1.0.2",
+    "@types/express": "^4.17.21",
+    "@types/fresh": "^0.5.2",
+    "@types/mime-types": "^2.1.4",
+    "@types/range-parser": "^1.2.7",
+    "@types/vary": "^1.1.3",
+    "cookie-parser": "^1.4.6",
+    "crypto-browserify": "^3.12.0",
+    "express": "^4.19.2",
+    "fastify": "^4.28.1",
+    "path-browserify": "^1.0.1",
+    "supertest": "^7.0.0",
+    "ts-gems": "^3.5.1"
+  },
+  "type": "module",
+  "exports": {
+    ".": {
+      "import": {
+        "types": "./types/index.d.ts",
+        "default": "./esm/index.js"
+      },
+      "require": {
+        "types": "./types/index.d.cts",
+        "default": "./cjs/index.js"
+      },
+      "default": "./esm/index.js"
+    },
+    "./package.json": "./package.json"
+  },
+  "main": "./cjs/index.js",
+  "module": "./esm/index.js",
+  "types": "./types/index.d.ts",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/panates/opra.git",
+    "directory": "packages/http"
+  },
+  "engines": {
+    "node": ">=16.0",
+    "npm": ">=7.0.0"
+  },
+  "files": [
+    "cjs/",
+    "esm/",
+    "i18n/",
+    "types/",
+    "LICENSE",
+    "README.md"
+  ],
+  "keywords": [
+    "opra",
+    "rest",
+    "api",
+    "openapi",
+    "http",
+    "web",
+    "swagger",
+    "raml"
+  ]
+}

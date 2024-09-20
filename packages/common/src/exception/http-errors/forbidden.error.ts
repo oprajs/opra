@@ -1,4 +1,4 @@
-import { HttpStatusCode } from '../../http/index.js';
+import { HttpStatusCode } from '../../enums/index.js';
 import { translate } from '../../i18n/index.js';
 import type { ErrorIssue } from '../error-issue.js';
 import { OpraHttpError } from '../opra-http-error.js';
