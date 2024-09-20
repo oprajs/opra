@@ -56,11 +56,8 @@ jobs:
           stack-version: 8.2.0
           security-enabled: false
 
-      - name: Run Kafka KRaft Broker
-        uses: spicyparrot/kafka-kraft-action@v1.1.0
-        with:
-          kafka-version: "3.7.0"
-          kafka-topics: "test"
+      - name: Start Bitname Kafka
+        uses: bbcCorp/kafka-actions@v1
 
       - name: Checkout
         uses: actions/checkout@v4
