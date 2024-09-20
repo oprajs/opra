@@ -1,6 +1,10 @@
 name: test
 
-on: [ push, pull_request ]
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
 
 jobs:
   test:
@@ -48,6 +52,11 @@ jobs:
           stack-version: 8.2.0
           security-enabled: false
 
+      - name: Run Kafka KRaft Broker
+        uses: spicyparrot/kafka-kraft-action@v1.1.0
+        with:
+          kafka-version: "7.7.0"
+
       - name: Setup NodeJS
         uses: actions/setup-node@v4
         with:
@@ -64,9 +73,9 @@ jobs:
             ~/.cache
           key: ${{ runner.os }}-build-${{ env.cache-name }}-${{ hashFiles('**/package-lock.json') }}
           restore-keys: |
-              ${{ runner.os }}-build-${{ env.cache-name }}-
-              ${{ runner.os }}-build-
-              ${{ runner.os }}-
+            ${{ runner.os }}-build-${{ env.cache-name }}-
+            ${{ runner.os }}-build-
+            ${{ runner.os }}-
 
       - if: ${{ steps.cache-npm.outputs.cache-hit != 'true' }}
         name: List the state of node modules
@@ -89,8 +98,9 @@ jobs:
         run: npm run citest
         env:
           NODE_OPTIONS: "--max_old_space_size=4096"
+          KAFKA_BROKER: localhost:9092
 
-#      - name: Coveralls
-#        uses: coverallsapp/github-action@v2
-#        with:
-#          github-token: ${{ secrets.GITHUB_TOKEN }}
+      - name: Coveralls
+        uses: coverallsapp/github-action@v2
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
