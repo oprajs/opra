@@ -33,7 +33,7 @@ jobs:
           mongodb-replica-set: test-rs
 
       - name: Checkout
-      - uses: actions/checkout@v4
+        uses: actions/checkout@v4
 
       - name: Configure sysctl limits
         run: |
