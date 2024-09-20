@@ -57,6 +57,9 @@ jobs:
       - name: Install NodeJS dependencies
         run: npm install
 
+      - name: Install rman
+      - run: npm install rman -g
+
       - name: Run lint
         run: rman run lint
 
