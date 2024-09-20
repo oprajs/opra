@@ -57,7 +57,12 @@ jobs:
           security-enabled: false
 
       - name: Start Bitname Kafka
-        uses: bbcCorp/kafka-actions@v1
+        uses: 280780363/kafka-action@v1.0
+        with:
+          kafka version: "latest" # Optional, kafka version
+          zookeeper version: "latest" # Optional, zookeeper version
+          kafka port: 9092 # Optional, kafka port
+          auto create topic: "true" # Optional, auto create kafka topic
 
       - name: Checkout
         uses: actions/checkout@v4
@@ -88,7 +93,7 @@ jobs:
         run: npm list
 
       - name: Install NodeJS dependencies
-        run: npm install
+      - uses: 'dudeofawesome/npm-install@v1'
 
       - name: Install rman
         run: npm install rman -g
