@@ -1,8 +1,8 @@
 import { MsgController, MsgOperation, OpraSchema } from '@opra/common';
 import { ExecutionContext } from '@opra/core';
-import { KafkaMessage } from 'kafkajs';
-import { AsyncEventEmitter } from 'node-events-async';
-import { KafkaAdapter } from './kafka-adapter.js';
+import type { KafkaMessage } from 'kafkajs';
+import type { AsyncEventEmitter } from 'node-events-async';
+import type { KafkaAdapter } from './kafka-adapter.js';
 
 export namespace KafkaContext {
   export interface Initiator extends Omit<ExecutionContext.Initiator, 'document' | 'protocol'> {
