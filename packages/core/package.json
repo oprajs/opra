@@ -31,8 +31,7 @@
     "reflect-metadata": "^0.2.2",
     "tslib": "^2.7.0"
   },
-  "optionalDependencies": {
-  },
+  "optionalDependencies": {},
   "devDependencies": {
     "ts-gems": "^3.5.1"
   },
