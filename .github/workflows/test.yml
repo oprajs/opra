@@ -65,7 +65,7 @@ jobs:
       - name: Run Kafka KRaft Broker
         uses: spicyparrot/kafka-kraft-action@v1.1.0
         with:
-          kafka-version: "7.7.0"
+          kafka-version: "3.7.0"
 
       - name: Setup NodeJS
         uses: actions/setup-node@v4
