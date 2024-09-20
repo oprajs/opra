@@ -17,6 +17,7 @@ jobs:
         image: postgres
         env:
           POSTGRES_USER: postgres
+          POSTGRES_PORT: 5432
           POSTGRES_HOST_AUTH_METHOD: trust
         ports:
           - 5433:5432
@@ -53,6 +54,21 @@ jobs:
         with:
           node-version: ${{ matrix.node }}
           cache: npm
+
+      - name: Cache + Restore node_modules
+        uses: actions/cache@v4
+        with:
+          # Cache node_modules and Puppeteer chrome
+          path: |
+            ~/.cache
+            node_modules
+            nmg-analytics/node_modules
+            slate-app/node_modules
+            slate-extension/node_modules
+            master-analytics-scripts/node_modules
+          key: ${{ runner.os }}-node_modules-${{ hashFiles('**/package-lock.json') }}
+          restore-keys: |
+              ${{ runner.os }}-node_modules-
 
       - name: Install NodeJS dependencies
         run: npm install
