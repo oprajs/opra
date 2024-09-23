@@ -6,6 +6,8 @@ packages/*/dist
 *.cache.json
 .angular
 /support/docker/data
+junit.xml
+/reports
 
 # environment variables
 .env

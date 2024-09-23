@@ -7,9 +7,10 @@ import { AsyncEventEmitter } from 'node-events-async';
 import { MailController } from './_support/test-msg-api/api/mail-controller.js';
 import { TestMsgApiDocument } from './_support/test-msg-api/index.js';
 
-const broker = process.env.KAFKA_BROKER || 'localhost:9092';
+const broker = process.env.KAFKA_BROKER;
+const describeIf = (condition: boolean) => (condition ? describe : describe.skip);
 
-describe('e2e', () => {
+describeIf(!!broker)('e2e', () => {
   let document: ApiDocument;
   let adapter: KafkaAdapter;
   let producer: Producer;
@@ -19,11 +20,10 @@ describe('e2e', () => {
   };
 
   beforeAll(async () => {
-    if (!process.env.KAFKA_BROKER) return;
     document = await TestMsgApiDocument.create();
     adapter = new KafkaAdapter({
       document,
-      brokers: [broker],
+      brokers: [broker!],
       logger,
       clientId: 'opra-test',
     });
@@ -38,13 +38,6 @@ describe('e2e', () => {
     await adapter?.close();
   }, 20000);
   afterAll(() => global.gc && global.gc());
-
-  if (!process.env.KAFKA_BROKER) {
-    it('KAFKA_BROKER environment not set', async () => {
-      //
-    });
-    return;
-  }
 
   it('Should receive message', async () => {
     await adapter.start();
