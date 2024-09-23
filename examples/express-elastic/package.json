@@ -6,13 +6,13 @@
   "module": "./start.js",
   "dependencies": {
     "@elastic/elasticsearch": "^8.15.0",
-    "@opra/common": "^1.0.0-beta.2",
-    "@opra/core": "^1.0.0-beta.2",
-    "@opra/http": "^1.0.0-beta.2",
-    "@opra/mongodb": "^1.0.0-beta.2",
+    "@opra/common": "^1.0.0-beta.3",
+    "@opra/core": "^1.0.0-beta.3",
+    "@opra/http": "^1.0.0-beta.3",
+    "@opra/mongodb": "^1.0.0-beta.3",
     "express": "^4.19.2",
     "mongodb": "^6.9.0",
-    "ts-gems": "^3.5.0"
+    "ts-gems": "^3.5.1"
   },
   "scripts": {
     "_build": "tsc && npm run check && npm run lint && npm run format",
