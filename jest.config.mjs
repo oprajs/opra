@@ -8,11 +8,4 @@ export default {
   reporters: ['default'],
   coverageReporters: ['lcov'],
   coverageDirectory: '<rootDir>/reports/',
-  coveragePathIgnorePatterns: [
-    '<rootDir>/build/',
-    '<rootDir>/dist/',
-    '<rootDir>/test/',
-    '/node_modules/',
-    '_support',
-  ],
 };

@@ -36,4 +36,11 @@ module.exports = {
     '^nestjs-express-mongo$': ['<rootDir>/../../examples/nestjs-express-mongo'],
     '^(\\.{1,2}/.*)\\.js$': '$1',
   },
+  coveragePathIgnorePatterns: [
+    '<rootDir>/build/',
+    '<rootDir>/dist/',
+    '<rootDir>/test/',
+    '/node_modules/',
+    '_support',
+  ],
 };

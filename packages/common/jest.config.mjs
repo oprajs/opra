@@ -8,4 +8,8 @@ const packageJson = JSON.parse(
 export default {
   ...base,
   displayName: packageJson.name,
+  coveragePathIgnorePatterns: [
+    ...base.coveragePathIgnorePatterns,
+    '<rootDir>/src/filter/antlr',
+  ],
 };
