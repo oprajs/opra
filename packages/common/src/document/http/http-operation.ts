@@ -169,6 +169,12 @@ class HttpOperationClass extends DocumentElement {
       composition: this.composition,
       requestBody: this.requestBody?.toJSON(),
     });
+    if (this.types.size) {
+      out.types = {};
+      for (const v of this.types.values()) {
+        out.types[v.name!] = v.toJSON();
+      }
+    }
     if (this.parameters.length) {
       out.parameters = [];
       for (const prm of this.parameters) {
