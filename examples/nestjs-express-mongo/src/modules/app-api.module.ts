@@ -11,22 +11,20 @@ import { AppDbModule } from './app-db.module.js';
 @Module({
   imports: [
     AppDbModule,
-    OpraHttpModule.forRoot(
-      {
-        info: {
-          title: 'Customer Application',
-          version: '1.0',
-        },
-        references: {
-          cm: () => CustomerModelsDocument.create(),
-        },
-        name: 'CustomerApi',
-        controllers: [AuthController, CustomerController, CustomersController, CustomerNotesController],
+    OpraHttpModule.forRoot({
+      info: {
+        title: 'Customer Application',
+        version: '1.0',
       },
-      {
+      references: {
+        cm: () => CustomerModelsDocument.create(),
+      },
+      name: 'CustomerApi',
+      controllers: [AuthController, CustomerController, CustomersController, CustomerNotesController],
+      options: {
         schemaRouteIsPublic: true,
       },
-    ),
+    }),
   ],
 })
 export class AppApiModule {

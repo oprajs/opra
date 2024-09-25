@@ -4,10 +4,11 @@ import { HttpAdapter } from '@opra/http';
 import { OpraHttpCoreModule } from './opra-http-core.module.js';
 
 export namespace OpraHttpModule {
-  export interface Initiator extends Pick<DynamicModule, 'imports' | 'providers' | 'exports' | 'controllers'> {
+  export interface Initiator
+    extends Pick<DynamicModule, 'imports' | 'providers' | 'exports' | 'controllers'>,
+      Pick<ApiDocumentFactory.InitArguments, 'types' | 'references' | 'info'> {
     id?: any;
     name: string;
-    document?: Pick<ApiDocumentFactory.InitArguments, 'types' | 'references' | 'info'>;
     options?: Options;
   }
 

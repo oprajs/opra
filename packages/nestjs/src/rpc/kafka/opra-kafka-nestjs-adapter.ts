@@ -37,8 +37,9 @@ export class OpraKafkaNestjsAdapter {
   async initialize(init: OpraKafkaModule.Initiator) {
     const controllers = this._scanControllers();
     this._document = await ApiDocumentFactory.createDocument({
-      ...init.document,
+      info: init.info,
       types: init.types,
+      references: init.references,
       api: {
         name: init.name,
         description: init.description,

@@ -57,7 +57,7 @@ export function RpcControllerDecoratorFactory<O extends RpcController.Options>(o
       { deep: true },
     );
     Reflect.defineMetadata(RPC_CONTROLLER_METADATA, metadata, target);
-    for (const fn of decoratorChain) fn(metadata);
+    for (const fn of decoratorChain) fn(metadata, target);
     Reflect.defineMetadata(RPC_CONTROLLER_METADATA, metadata, target);
   } as RpcControllerDecorator;
 

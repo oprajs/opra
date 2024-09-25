@@ -11,12 +11,12 @@ describe('RpcOperation', () => {
   });
 
   it('Should findController(Type) return RpcController instance', async () => {
-    const opr = doc.RpcApi.findOperation(MailConsumer, 'sendMail');
+    const opr = doc.rpcApi.findOperation(MailConsumer, 'sendMail');
     expect(opr).toBeDefined();
   });
 
   it('Should toJSON() return operation schema', async () => {
-    const opr = doc.RpcApi.findOperation(MailConsumer, 'sendMail3')!;
+    const opr = doc.rpcApi.findOperation(MailConsumer, 'sendMail3')!;
     expect(opr).toBeDefined();
     const sch = opr.toJSON();
     expect(sch).toEqual({

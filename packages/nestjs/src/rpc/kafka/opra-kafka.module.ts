@@ -7,11 +7,11 @@ import { OpraKafkaCoreModule } from './opra-kafka-core.module.js';
 export namespace OpraKafkaModule {
   export interface Initiator
     extends Pick<DynamicModule, 'imports' | 'providers' | 'exports' | 'controllers'>,
+      Pick<ApiDocumentFactory.InitArguments, 'types' | 'references' | 'info'>,
       StrictOmit<KafkaAdapter.Config, 'document' | 'logger' | 'interceptors'> {
     id?: any;
     name: string;
     description?: string;
-    document?: Pick<ApiDocumentFactory.InitArguments, 'references' | 'info'>;
     types?: ApiDocumentFactory.InitArguments['types'];
     logger?: Logger;
     interceptors?: (
