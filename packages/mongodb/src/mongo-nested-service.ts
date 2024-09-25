@@ -288,7 +288,7 @@ export class MongoNestedService<T extends mongodb.Document> extends MongoService
     };
     const r = await collection.updateOne(docFilter, update, {
       ...options,
-      session: options?.session || this.getSession(),
+      session: options?.session ?? this.getSession(),
       upsert: undefined,
     });
     if (!r.matchedCount) {
@@ -340,7 +340,7 @@ export class MongoNestedService<T extends mongodb.Document> extends MongoService
     const collection = await this.getCollection(db);
     const cursor = collection.aggregate<T>(stages, {
       ...omit(options, ['documentFilter', 'nestedFilter', 'projection', 'sort', 'skip', 'limit', 'filter', 'count']),
-      session: options?.session || this.getSession(),
+      session: options?.session ?? this.getSession(),
     });
     try {
       const n = await cursor.next();
@@ -396,7 +396,7 @@ export class MongoNestedService<T extends mongodb.Document> extends MongoService
     const collection = await this.getCollection(db);
     const r = await collection.updateOne(matchFilter, update, {
       ...options,
-      session: options?.session || this.getSession(),
+      session: options?.session ?? this.getSession(),
       upsert: undefined,
     });
     return r.modifiedCount ? 1 : 0;
@@ -448,7 +448,7 @@ export class MongoNestedService<T extends mongodb.Document> extends MongoService
     const collection = await this.getCollection(db);
     await collection.updateOne(matchFilter, update, {
       ...options,
-      session: options?.session || this.getSession(),
+      session: options?.session ?? this.getSession(),
       upsert: undefined,
     });
     return matchCount;
@@ -685,7 +685,7 @@ export class MongoNestedService<T extends mongodb.Document> extends MongoService
     const collection = await this.getCollection(db);
     const cursor = collection.aggregate<T>(stages, {
       ...omit(options, ['documentFilter', 'nestedFilter', 'projection', 'sort', 'skip', 'limit', 'filter', 'count']),
-      session: options?.session || this.getSession(),
+      session: options?.session ?? this.getSession(),
     });
     try {
       const outputCodec = this._getOutputCodec('find');
@@ -785,7 +785,7 @@ export class MongoNestedService<T extends mongodb.Document> extends MongoService
     const collection = await this.getCollection(db);
     const cursor = collection.aggregate<T>(stages, {
       ...omit(options, ['documentFilter', 'nestedFilter', 'projection', 'sort', 'skip', 'limit', 'filter', 'count']),
-      session: options?.session || this.getSession(),
+      session: options?.session ?? this.getSession(),
     });
     try {
       const facetResult = await cursor.toArray();
@@ -1004,7 +1004,7 @@ export class MongoNestedService<T extends mongodb.Document> extends MongoService
     const collection = await this.getCollection(db);
     await collection.updateOne(matchFilter, update, {
       ...options,
-      session: options?.session || this.getSession(),
+      session: options?.session ?? this.getSession(),
       upsert: undefined,
     });
     return count;

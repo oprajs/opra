@@ -1,7 +1,7 @@
 import { OpraFilter } from '@opra/common';
 import type { ExecutionContext } from '@opra/core';
 import type { HttpContext } from '@opra/http';
-import mongodb, { ClientSession, ObjectId } from 'mongodb';
+import mongodb, { ObjectId } from 'mongodb';
 import _prepareFilter from './adapter-utils/prepare-filter.js';
 import _prepareKeyValues from './adapter-utils/prepare-key-values.js';
 import _preparePatch from './adapter-utils/prepare-patch.js';
@@ -11,7 +11,6 @@ import _prepareSort from './adapter-utils/prepare-sort.js';
 export namespace MongoAdapter {
   export type AnyId = string | number | ObjectId;
   export type FilterInput<T = any> = OpraFilter.Expression | mongodb.Filter<T> | string | undefined;
-  export type WithTransactionCallback = (session: ClientSession) => any;
 
   export const prepareFilter = _prepareFilter;
   export const prepareKeyValues = _prepareKeyValues;

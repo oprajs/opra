@@ -5,7 +5,7 @@ export abstract class ServiceBase {
   protected declare _context: ExecutionContext;
 
   get context(): ExecutionContext {
-    if (!this._context) throw new Error(`No context assigned for ${Object.getPrototypeOf(this).constructor.name}`);
+    this._assertContext();
     return this._context;
   }
 
@@ -24,6 +24,10 @@ export abstract class ServiceBase {
     if (overwriteProperties) Object.assign(instance, overwriteProperties);
     if (this[ServiceBase.extendSymbol]) this[ServiceBase.extendSymbol](instance);
     return instance as any;
+  }
+
+  protected _assertContext() {
+    if (!this._context) throw new Error(`No context assigned for ${Object.getPrototypeOf(this).constructor.name}`);
   }
 }
 

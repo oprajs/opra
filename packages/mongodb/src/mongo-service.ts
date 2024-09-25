@@ -1,6 +1,6 @@
 import { ComplexType, DataType, DATATYPE_METADATA } from '@opra/common';
 import { ExecutionContext, ServiceBase } from '@opra/core';
-import mongodb, { type Document, MongoClient, ObjectId, type TransactionOptions } from 'mongodb';
+import mongodb, { ClientSession, type Document, MongoClient, ObjectId, type TransactionOptions } from 'mongodb';
 import type { Nullish, StrictOmit, Type } from 'ts-gems';
 import type { IsObject } from 'valgen';
 import { MongoAdapter } from './mongo-adapter.js';
@@ -294,32 +294,37 @@ export class MongoService<T extends mongodb.Document = mongodb.Document> extends
    * @param callback - The function to be executed within the transaction.
    * @param [options] - Optional options for the transaction.
    */
-  async withTransaction(callback: MongoAdapter.WithTransactionCallback, options?: TransactionOptions): Promise<any> {
-    let session = this.getSession();
-    if (session) return callback(session);
-
+  async withTransaction(
+    callback: (session: ClientSession, _this: this) => any,
+    options?: TransactionOptions,
+  ): Promise<any> {
+    this._assertContext();
     // Backup old session property
-    const hasOldSession = Object.prototype.hasOwnProperty.call(this, 'session');
-    const oldSessionGetter = hasOldSession ? this.session : undefined;
+    const hasOwnSession = Object.prototype.hasOwnProperty.call(this, 'session');
+    const ownSession = hasOwnSession ? this.session : undefined;
 
     const db = this.getDatabase();
     const client = (db as any).client as MongoClient;
-    session = client.startSession();
+    let session = this.getSession();
+    let newSessionStarted = false;
+    if (!session) {
+      session = client.startSession();
+      newSessionStarted = true;
+    }
     this.session = session;
     const oldInTransaction = session.inTransaction();
     try {
       if (!oldInTransaction) session.startTransaction(options);
-      const out = await callback(session);
-      if (!oldInTransaction) await session.commitTransaction();
+      const out = await callback(session, this);
+      if (!oldInTransaction && session.inTransaction()) await session.commitTransaction();
       return out;
     } catch (e) {
-      if (!oldInTransaction) await session.abortTransaction();
+      if (!oldInTransaction && session.inTransaction()) await session.abortTransaction();
       throw e;
     } finally {
-      // Restore old session property
-      if (hasOldSession) this.session = oldSessionGetter;
+      if (ownSession) this.session = ownSession;
       else delete this.session;
-      if (!oldInTransaction) await session.endSession();
+      if (newSessionStarted) await session.endSession();
     }
   }
 
@@ -331,6 +336,7 @@ export class MongoService<T extends mongodb.Document = mongodb.Document> extends
    * @throws {Error} If the context or database is not set.
    */
   protected getDatabase(): mongodb.Db {
+    this._assertContext();
     const db = typeof this.db === 'function' ? this.db(this) : this.db;
     if (!db) throw new Error(`Database not set!`);
     return db;

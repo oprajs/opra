@@ -126,7 +126,7 @@ export class MongoEntityService<T extends mongodb.Document> extends MongoService
     const collection = await this.getCollection(db);
     const r = await collection.insertOne(document, {
       ...options,
-      session: options?.session || this.getSession(),
+      session: options?.session ?? this.getSession(),
     });
     /* istanbul ignore next */
     if (!r.insertedId) {
@@ -150,7 +150,7 @@ export class MongoEntityService<T extends mongodb.Document> extends MongoService
       (await collection.countDocuments(filter || {}, {
         ...options,
         limit: undefined,
-        session: options?.session || this.getSession(),
+        session: options?.session ?? this.getSession(),
       })) || 0
     );
   }
@@ -170,10 +170,11 @@ export class MongoEntityService<T extends mongodb.Document> extends MongoService
     ]);
     const db = this.getDatabase();
     const collection = await this.getCollection(db);
+    const session = options?.session ?? this.getSession();
     return (
       await collection.deleteOne(filter || {}, {
         ...options,
-        session: options?.session || this.getSession(),
+        session,
       })
     ).deletedCount;
   }
@@ -192,7 +193,7 @@ export class MongoEntityService<T extends mongodb.Document> extends MongoService
     return (
       await collection.deleteMany(filter || {}, {
         ...options,
-        session: options?.session || this.getSession(),
+        session: options?.session ?? this.getSession(),
       })
     ).deletedCount;
   }
@@ -210,7 +211,7 @@ export class MongoEntityService<T extends mongodb.Document> extends MongoService
     const collection = await this.getCollection(db);
     return await collection.distinct(field, filter || {}, {
       ...options,
-      session: options?.session || this.getSession(),
+      session: options?.session ?? this.getSession(),
     });
   }
 
@@ -230,7 +231,7 @@ export class MongoEntityService<T extends mongodb.Document> extends MongoService
     const collection = await this.getCollection(db);
     const out = await collection.findOne<PartialDTO<T>>(filter || {}, {
       ...omit(options, 'filter'),
-      session: options?.session || this.getSession(),
+      session: options?.session ?? this.getSession(),
       projection: MongoAdapter.prepareProjection(this.dataType, options?.projection),
       limit: undefined,
       skip: undefined,
@@ -254,7 +255,7 @@ export class MongoEntityService<T extends mongodb.Document> extends MongoService
     const collection = await this.getCollection(db);
     const out = await collection.findOne<PartialDTO<T>>(filter || {}, {
       ...omit(options, 'filter'),
-      session: options?.session || this.getSession(),
+      session: options?.session ?? this.getSession(),
       sort: options?.sort ? MongoAdapter.prepareSort(options.sort) : undefined,
       projection: MongoAdapter.prepareProjection(this.dataType, options?.projection),
       limit: undefined,
@@ -292,7 +293,7 @@ export class MongoEntityService<T extends mongodb.Document> extends MongoService
     const collection = await this.getCollection(db);
     const cursor = collection.aggregate<T>(stages, {
       ...omit(options, ['projection', 'sort', 'skip', 'limit', 'filter']),
-      session: options?.session || this.getSession(),
+      session: options?.session ?? this.getSession(),
     });
     /** Execute db command */
     try {
@@ -349,7 +350,7 @@ export class MongoEntityService<T extends mongodb.Document> extends MongoService
     const collection = await this.getCollection(db);
     const cursor = collection.aggregate<T>(stages, {
       ...omit(options, ['projection', 'sort', 'skip', 'limit', 'filter']),
-      session: options?.session || this.getSession(),
+      session: options?.session ?? this.getSession(),
     });
     /** Fetch the cursor and decode the result objects */
     try {
@@ -395,7 +396,7 @@ export class MongoEntityService<T extends mongodb.Document> extends MongoService
       ...options,
       returnDocument: 'after',
       includeResultMetadata: false,
-      session: options?.session || this.getSession(),
+      session: options?.session ?? this.getSession(),
       projection: MongoAdapter.prepareProjection(this.dataType, options?.projection),
     });
     const outputCodec = this._getOutputCodec('update');
@@ -432,7 +433,7 @@ export class MongoEntityService<T extends mongodb.Document> extends MongoService
     return (
       await collection.updateOne(filter || {}, update, {
         ...options,
-        session: options?.session || this.getSession(),
+        session: options?.session ?? this.getSession(),
         upsert: undefined,
       })
     ).matchedCount;
@@ -464,7 +465,7 @@ export class MongoEntityService<T extends mongodb.Document> extends MongoService
     return (
       await collection.updateMany(filter || {}, update, {
         ...omit(options, 'filter'),
-        session: options?.session || this.getSession(),
+        session: options?.session ?? this.getSession(),
         upsert: false,
       })
     ).matchedCount;

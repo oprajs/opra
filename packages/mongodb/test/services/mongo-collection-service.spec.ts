@@ -43,6 +43,24 @@ describe('MongoCollectionService', () => {
 
   afterAll(() => global.gc && global.gc());
 
+  describe('withTransaction()', () => {
+    it('Should abortTransaction', async () => {
+      const ctx = createContext(app.adapter);
+      const svc = service.for(ctx);
+      const c1 = await svc.count();
+      const doc = tempRecords[0];
+      await svc.withTransaction(async session => {
+        const r = await svc.delete(doc._id);
+        expect(r).toBeGreaterThan(0);
+        const c2 = await svc.count();
+        expect(c2).toBeLessThan(c1);
+        await session.abortTransaction();
+      });
+      const c3 = await svc.count();
+      expect(c3).toEqual(c1);
+    });
+  });
+
   describe('assert()', () => {
     it('Should not throw if document exists', async () => {
       const ctx = createContext(app.adapter);

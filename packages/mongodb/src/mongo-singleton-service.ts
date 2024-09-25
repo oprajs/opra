@@ -189,7 +189,7 @@ export class MongoSingletonService<T extends mongodb.Document> extends MongoEnti
    *
    * @param {MongoEntityService.FindOneOptions<T>} options - The options to customize the query.
    * @return {Promise<PartialDTO<T>>} - A promise that resolves to the fetched document.
-   * @throws {ResourceNotAvailableError} - If the document is not found in the collection.
+   * @throws {ResourceNotAvailableError} - If the document is not found in the collection
    */
   async get(options: RequiredSome<MongoEntityService.FindOneOptions<T>, 'projection'>): Promise<PartialDTO<T>>;
   async get(options?: MongoEntityService.FindOneOptions<T>): Promise<T>;
@@ -200,7 +200,7 @@ export class MongoSingletonService<T extends mongodb.Document> extends MongoEnti
   }
 
   /**
-   * Updates a document in the MongoDB collection.
+   * Updates a document in the MongoDB collection
    *
    * @param {PatchDTO<T>} input - The partial input to update the document.
    * @param {MongoEntityService.UpdateOneOptions<T>} [options] - The update options.
@@ -248,7 +248,7 @@ export class MongoSingletonService<T extends mongodb.Document> extends MongoEnti
   }
 
   /**
-   * Updates a document in the MongoDB collection.
+   * Updates a document in the MongoDB collection
    *
    * @param {PatchDTO<T>} input - The partial input to update the document.
    * @param {MongoEntityService.UpdateOneOptions<T>} [options] - The update options.
