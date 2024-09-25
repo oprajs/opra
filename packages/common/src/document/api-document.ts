@@ -8,7 +8,7 @@ import { BUILTIN, kDataTypeMap, kTypeNSMap, NAMESPACE_PATTERN } from './constant
 import { DataType } from './data-type/data-type.js';
 import type { EnumType } from './data-type/enum-type.js';
 import { HttpApi } from './http/http-api.js';
-import { MsgApi } from './msg/msg-api.js';
+import { RpcApi } from './rpc/rpc-api.js';
 
 /**
  *
@@ -21,7 +21,7 @@ export class ApiDocument extends DocumentElement {
   info: OpraSchema.DocumentInfo = {};
   references = new ResponsiveMap<ApiDocument>();
   types = new DataTypeMap();
-  api?: HttpApi | MsgApi;
+  api?: HttpApi | RpcApi;
 
   constructor() {
     super(null as any);
@@ -57,11 +57,11 @@ export class ApiDocument extends DocumentElement {
     return this.api as HttpApi;
   }
 
-  get msgApi(): MsgApi {
-    if (!(this.api && this.api instanceof MsgApi)) {
-      throw new TypeError('The document do not contains MsgApi instance');
+  get rpcApi(): RpcApi {
+    if (!(this.api && this.api instanceof RpcApi)) {
+      throw new TypeError('The document do not contains RpcApi instance');
     }
-    return this.api as MsgApi;
+    return this.api as RpcApi;
   }
 
   toJSON(): OpraSchema.ApiDocument {

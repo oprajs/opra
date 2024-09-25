@@ -4,8 +4,8 @@ import { ILogger } from '@opra/core';
 import { KafkaAdapter, KafkaContext } from '@opra/kafka';
 import { Producer } from 'kafkajs';
 import { AsyncEventEmitter } from 'node-events-async';
-import { MailController } from './_support/test-msg-api/api/mail-controller.js';
-import { TestMsgApiDocument } from './_support/test-msg-api/index.js';
+import { MailController } from './_support/test-api/api/mail-controller.js';
+import { TestRpcApiDocument } from './_support/test-api/index.js';
 
 const broker = process.env.KAFKA_BROKER;
 const describeIf = (condition: boolean) => (condition ? describe : describe.skip);
@@ -20,12 +20,14 @@ describeIf(!!broker)('e2e', () => {
   };
 
   beforeAll(async () => {
-    document = await TestMsgApiDocument.create();
+    document = await TestRpcApiDocument.create();
     adapter = new KafkaAdapter({
       document,
-      brokers: [broker!],
+      client: {
+        brokers: [broker!],
+        clientId: 'opra-test',
+      },
       logger,
-      clientId: 'opra-test',
     });
     producer = adapter.kafka.producer({
       allowAutoTopicCreation: true,

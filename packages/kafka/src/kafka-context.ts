@@ -1,4 +1,4 @@
-import { MsgController, MsgOperation, OpraSchema } from '@opra/common';
+import { OpraSchema, RpcController, RpcOperation } from '@opra/common';
 import { ExecutionContext } from '@opra/core';
 import type { KafkaMessage } from 'kafkajs';
 import type { AsyncEventEmitter } from 'node-events-async';
@@ -7,9 +7,9 @@ import type { KafkaAdapter } from './kafka-adapter.js';
 export namespace KafkaContext {
   export interface Initiator extends Omit<ExecutionContext.Initiator, 'document' | 'protocol'> {
     adapter: KafkaAdapter;
-    controller?: MsgController;
+    controller?: RpcController;
     controllerInstance?: any;
-    operation?: MsgOperation;
+    operation?: RpcOperation;
     operationHandler?: Function;
     topic: string;
     partition: number;
@@ -28,9 +28,9 @@ export class KafkaContext extends ExecutionContext implements AsyncEventEmitter 
   readonly protocol: OpraSchema.Transport;
   readonly platform: string;
   readonly adapter: KafkaAdapter;
-  readonly controller?: MsgController;
+  readonly controller?: RpcController;
   readonly controllerInstance?: any;
-  readonly operation?: MsgOperation;
+  readonly operation?: RpcOperation;
   readonly operationHandler?: Function;
   readonly key: any;
   readonly payload: any;
@@ -41,10 +41,10 @@ export class KafkaContext extends ExecutionContext implements AsyncEventEmitter 
   readonly pause: () => void;
 
   constructor(init: KafkaContext.Initiator) {
-    super({ ...init, document: init.adapter.document, protocol: 'msg' });
+    super({ ...init, document: init.adapter.document, protocol: 'rpc' });
     this.adapter = init.adapter;
     this.platform = init.adapter.platform;
-    this.protocol = 'msg';
+    this.protocol = 'rpc';
     if (init.controller) this.controller = init.controller;
     if (init.controllerInstance) this.controllerInstance = init.controllerInstance;
     if (init.operation) this.operation = init.operation;

@@ -1,54 +1,92 @@
-import { ApiDocument, MsgApi, MsgController, MsgOperation, OpraSchema } from '@opra/common';
+import { ApiDocument, OpraSchema, RpcApi, RpcController, RpcOperation } from '@opra/common';
 import { type ILogger, kAssetCache, PlatformAdapter } from '@opra/core';
-import { type Consumer, Kafka, type KafkaConfig, logLevel } from 'kafkajs';
+import { type Consumer, ConsumerConfig, Kafka, type KafkaConfig, logLevel } from 'kafkajs';
 import type { StrictOmit } from 'ts-gems';
 import { Validator, vg } from 'valgen';
 import { KAFKA_DEFAULT_GROUP, KAFKA_OPERATION_METADATA, KAFKA_OPERATION_METADATA_RESOLVER } from './constants.js';
 import { KafkaContext } from './kafka-context.js';
 import { RequestParser } from './request-parser.js';
-import type { KafkaOperationOptions } from './types.js';
 
 const globalErrorTypes = ['unhandledRejection', 'uncaughtException'];
 const signalTraps = ['SIGTERM', 'SIGINT', 'SIGUSR2'];
+
+/**
+ * @namespace KafkaAdapter
+ */
+export namespace KafkaAdapter {
+  export type NextCallback = () => Promise<any>;
+
+  export interface Config extends PlatformAdapter.Options {
+    client: StrictOmit<KafkaConfig, 'logCreator' | 'logLevel'>;
+    consumers?: Record<string, StrictOmit<ConsumerConfig, 'groupId'>>;
+    document: ApiDocument;
+    interceptors?: (InterceptorFunction | IKafkaInterceptor)[];
+    logger?: ILogger;
+    logExtra?: boolean;
+  }
+
+  export interface OperationOptions {
+    /**
+     * groupId or ConsumerConfig
+     */
+    consumer?: string | ConsumerConfig;
+    fromBeginning?: boolean;
+  }
+
+  /**
+   * @type InterceptorFunction
+   */
+  export type InterceptorFunction = IKafkaInterceptor['intercept'];
+
+  /**
+   * @interface IKafkaInterceptor
+   */
+  export type IKafkaInterceptor = {
+    intercept(context: KafkaContext, next: NextCallback): Promise<any>;
+  };
+}
 
 /**
  *
  * @class KafkaAdapter
  */
 export class KafkaAdapter extends PlatformAdapter {
-  protected _controllerInstances = new Map<MsgController, any>();
+  static readonly PlatformName = 'kafka';
+  protected _config: KafkaAdapter.Config;
+  protected _controllerInstances = new Map<RpcController, any>();
   protected _consumers = new Map<
-    Consumer,
+    string, // consumer id
     {
       consumer: Consumer;
-      controller: MsgController;
+      controller: RpcController;
       instance: any;
-      operation: MsgOperation;
-      options: KafkaOperationOptions;
+      operation: RpcOperation;
+      options: KafkaAdapter.OperationOptions;
     }
   >();
   protected _logger?: ILogger;
   readonly kafka: Kafka;
-  readonly protocol: OpraSchema.Transport = 'msg';
+  readonly protocol: OpraSchema.Transport = 'rpc';
   readonly platform = KafkaAdapter.PlatformName;
   interceptors: (KafkaAdapter.InterceptorFunction | KafkaAdapter.IKafkaInterceptor)[];
 
   /**
    *
-   * @param init
+   * @param config
    * @constructor
    */
-  constructor(init: KafkaAdapter.InitArguments) {
-    super(init.document, init);
-    if (!(init.document.api instanceof MsgApi && init.document.api.platform === KafkaAdapter.PlatformName)) {
+  constructor(config: KafkaAdapter.Config) {
+    super(config.document, config);
+    if (!(config.document.api instanceof RpcApi && config.document.api.platform === KafkaAdapter.PlatformName)) {
       throw new TypeError(`The document doesn't expose a Kafka Api`);
     }
-    this.interceptors = [...(init.interceptors || [])];
+    this._config = config;
+    this.interceptors = [...(config.interceptors || [])];
     this.kafka = new Kafka({
-      ...init,
-      logCreator: init.logger ? () => this._createLogCreator(init.logger!) : undefined,
+      ...config.client,
+      logCreator: config.logger ? () => this._createLogCreator(config.logger!, config.logExtra) : undefined,
     });
-    this._logger = init.logger;
+    this._logger = config.logger;
     globalErrorTypes.forEach(type => {
       process.on(type, e => {
         this._emitError(e);
@@ -60,8 +98,8 @@ export class KafkaAdapter extends PlatformAdapter {
     });
   }
 
-  get api(): MsgApi {
-    return this.document.msgApi;
+  get api(): RpcApi {
+    return this.document.rpcApi;
   }
 
   /**
@@ -87,7 +125,7 @@ export class KafkaAdapter extends PlatformAdapter {
         }
       }
     }
-    await Promise.allSettled(Array.from(this._consumers.keys()).map(c => c.disconnect()));
+    await Promise.allSettled(Array.from(this._consumers.values()).map(c => c.consumer.disconnect()));
     this._consumers.clear();
     this._controllerInstances.clear();
   }
@@ -106,7 +144,7 @@ export class KafkaAdapter extends PlatformAdapter {
     /* istanbul ignore next */
     if (this._consumers.size > 0) return;
     /** Create consumers */
-    for (const controller of this.document.msgApi.controllers.values()) {
+    for (const controller of this.document.rpcApi.controllers.values()) {
       let instance = controller.instance;
       if (!instance && controller.ctor) instance = new controller.ctor();
       if (!instance) continue;
@@ -122,10 +160,11 @@ export class KafkaAdapter extends PlatformAdapter {
    *
    * @protected
    */
-  protected async _initConsumer(controller: MsgController, instance: any, operation: MsgOperation) {
+  protected async _initConsumer(controller: RpcController, instance: any, operation: RpcOperation) {
     if (typeof instance[operation.name] !== 'function') return;
     const proto = controller.ctor?.prototype || Object.getPrototypeOf(controller.instance);
-    let operationOptions: KafkaOperationOptions | undefined = Reflect.getMetadata(
+    // this._config.consumers
+    let operationOptions: KafkaAdapter.OperationOptions | undefined = Reflect.getMetadata(
       KAFKA_OPERATION_METADATA,
       proto,
       operation.name,
@@ -135,10 +174,27 @@ export class KafkaAdapter extends PlatformAdapter {
       const cfg = await configResolver();
       operationOptions = { ...operationOptions, ...cfg };
     }
-    const groupId = operationOptions?.groupId || KAFKA_DEFAULT_GROUP;
-    const options = { ...operationOptions, groupId };
-    const consumer = this.kafka.consumer(options);
-    this._consumers.set(consumer, { consumer, controller, instance, operation, options });
+    const consumerConfig: ConsumerConfig = {
+      groupId: KAFKA_DEFAULT_GROUP,
+    };
+    if (typeof operationOptions?.consumer === 'object') {
+      if (this._consumers.has(operationOptions.consumer.groupId)) {
+        throw new Error(`Operation consumer for groupId (${operationOptions.consumer.groupId}) already exists`);
+      }
+      Object.assign(consumerConfig, operationOptions?.consumer);
+    } else if (operationOptions?.consumer) {
+      const x = this._config.consumers?.[operationOptions.consumer];
+      Object.assign(consumerConfig, { ...x, groupId: operationOptions.consumer });
+    }
+
+    const consumer = this.kafka.consumer(consumerConfig);
+    this._consumers.set(consumerConfig.groupId, {
+      consumer,
+      controller,
+      instance,
+      operation,
+      options: { ...operationOptions },
+    });
     if (typeof controller.onInit === 'function') controller.onInit.call(instance, controller);
   }
 
@@ -157,10 +213,10 @@ export class KafkaAdapter extends PlatformAdapter {
    */
   protected async _startConsumer(args: {
     consumer: Consumer;
-    controller: MsgController;
+    controller: RpcController;
     instance: any;
-    operation: MsgOperation;
-    options: KafkaOperationOptions;
+    operation: RpcOperation;
+    options: KafkaAdapter.OperationOptions;
   }) {
     const { consumer, controller, instance, operation, options } = args;
     /** Prepare parsers */
@@ -288,32 +344,4 @@ export class KafkaAdapter extends PlatformAdapter {
       });
     };
   }
-}
-
-/**
- * @namespace KafkaAdapter
- */
-export namespace KafkaAdapter {
-  export const PlatformName = 'kafka';
-
-  export type NextCallback = () => Promise<void>;
-
-  export interface InitArguments extends StrictOmit<KafkaConfig, 'logCreator' | 'logLevel'>, PlatformAdapter.Options {
-    document: ApiDocument;
-    interceptors?: (InterceptorFunction | IKafkaInterceptor)[];
-    logger?: ILogger;
-    logExtra?: boolean;
-  }
-
-  /**
-   * @type InterceptorFunction
-   */
-  export type InterceptorFunction = IKafkaInterceptor['intercept'];
-
-  /**
-   * @interface IKafkaInterceptor
-   */
-  export type IKafkaInterceptor = {
-    intercept(context: KafkaContext, next: NextCallback): Promise<void>;
-  };
 }

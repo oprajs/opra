@@ -6,7 +6,8 @@
     "paths": {
       "@opra/common": ["../common/src"],
       "@opra/core": ["../core/src"],
-      "@opra/http": ["../http/src"]
+      "@opra/http": ["../http/src"],
+      "@opra/kafka": ["../kafka/src"]
     },
     "emitDecoratorMetadata": true
   }

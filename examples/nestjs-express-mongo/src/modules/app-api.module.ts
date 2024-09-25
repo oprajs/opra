@@ -1,6 +1,6 @@
 import * as process from 'node:process';
 import { Logger, Module } from '@nestjs/common';
-import { OpraHttpModule, OpraNestAdapter } from '@opra/nestjs';
+import { OpraHttpModule, OpraHttpNestjsAdapter } from '@opra/nestjs';
 import { CustomerModelsDocument } from 'customer-mongo';
 import { AuthController } from '../api/auth.controller.js';
 import { CustomerController } from '../api/customer.controller.js';
@@ -32,7 +32,7 @@ import { AppDbModule } from './app-db.module.js';
 export class AppApiModule {
   readonly logger: Logger;
 
-  constructor(readonly opraAdapter: OpraNestAdapter) {
+  constructor(readonly opraAdapter: OpraHttpNestjsAdapter) {
     this.logger = new Logger(opraAdapter.document.api!.name!);
     opraAdapter.on('request', context => {
       if (process.env.NODE_ENV !== 'test') {

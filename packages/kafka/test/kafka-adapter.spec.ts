@@ -1,8 +1,8 @@
-import { ApiDocument, MsgController, MsgOperation } from '@opra/common';
+import { ApiDocument, RpcController, RpcOperation } from '@opra/common';
 import { ILogger } from '@opra/core';
 import { KafkaAdapter } from '@opra/kafka';
-import { MailController } from './_support/test-msg-api/api/mail-controller.js';
-import { TestMsgApiDocument } from './_support/test-msg-api/index.js';
+import { MailController } from './_support/test-api/api/mail-controller.js';
+import { TestRpcApiDocument } from './_support/test-api/index.js';
 
 describe('KafkaAdapter', () => {
   let document: ApiDocument;
@@ -13,20 +13,29 @@ describe('KafkaAdapter', () => {
   };
 
   beforeAll(async () => {
-    document = await TestMsgApiDocument.create();
+    document = await TestRpcApiDocument.create();
   });
 
   afterAll(async () => adapter?.close());
   afterAll(() => global.gc && global.gc());
 
   it('Should initialize consumers', async () => {
-    adapter = new KafkaAdapter({ document, brokers: ['localhost'], logger });
+    adapter = new KafkaAdapter({
+      client: { brokers: ['localhost'] },
+      document,
+      logger,
+      consumers: {
+        'group-1': {
+          sessionTimeout: 1000,
+        },
+      },
+    });
     let config: any;
     const originalFn = (adapter as any)._initConsumer;
     jest
       .spyOn(adapter as any, '_initConsumer')
       // @ts-ignore
-      .mockImplementation((controller: MsgController, instance: any, operation: MsgOperation) => {
+      .mockImplementation((controller: RpcController, instance: any, operation: RpcOperation) => {
         if (controller.name === 'Mail' && operation.name === 'sendMail') {
           jest.spyOn(adapter.kafka, 'consumer').mockImplementationOnce(cfg => {
             config = cfg;
@@ -39,23 +48,28 @@ describe('KafkaAdapter', () => {
     expect(config).toBeDefined();
     expect(config).toEqual({
       groupId: 'group-1',
+      sessionTimeout: 1000,
     });
   });
 
   it('Should start consumers', async () => {
-    adapter = new KafkaAdapter({ document, brokers: ['localhost'], logger });
+    adapter = new KafkaAdapter({
+      client: { brokers: ['localhost'] },
+      document,
+      logger,
+    });
     await (adapter as any)._initConsumers();
     const spys: Record<
       string,
       {
-        operation: MsgOperation;
+        operation: RpcOperation;
         connectCalled?: boolean;
         subscribeCalled?: boolean;
         subscribeArgs?: any;
         runCalled?: boolean;
       }
     > = {};
-    for (const [consumer, { controller, operation }] of (adapter as any)._consumers.entries()) {
+    for (const { consumer, controller, operation } of (adapter as any)._consumers.values()) {
       const x: any = { operation };
       jest.spyOn(consumer, 'connect').mockImplementationOnce(() => {
         x.connectCalled = true;
@@ -82,8 +96,12 @@ describe('KafkaAdapter', () => {
     });
   });
 
-  it('Should call MsgController onInit method while init', async () => {
-    adapter = new KafkaAdapter({ document, brokers: ['localhost'], logger });
+  it('Should call RpcController onInit method while init', async () => {
+    adapter = new KafkaAdapter({
+      client: { brokers: ['localhost'] },
+      document,
+      logger,
+    });
     await (adapter as any)._initConsumers();
     const instance = adapter.getControllerInstance<MailController>('Mail');
     expect(instance).toBeDefined();
@@ -92,8 +110,12 @@ describe('KafkaAdapter', () => {
     expect(instance!.closed).toEqual(false);
   });
 
-  it('Should call MsgController onShutdown method while close', async () => {
-    adapter = new KafkaAdapter({ document, brokers: ['localhost'], logger });
+  it('Should call RpcController onShutdown method while close', async () => {
+    adapter = new KafkaAdapter({
+      client: { brokers: ['localhost'] },
+      document,
+      logger,
+    });
     await (adapter as any)._initConsumers();
     const instance = adapter.getControllerInstance<MailController>('Mail');
     await adapter.close();
