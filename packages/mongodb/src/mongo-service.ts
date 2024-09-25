@@ -310,6 +310,7 @@ export class MongoService<T extends mongodb.Document = mongodb.Document> extends
     if (!session) {
       session = client.startSession();
       newSessionStarted = true;
+      this.context.assetCache.set(db, 'session', session);
     }
     this.session = session;
     const oldInTransaction = session.inTransaction();
@@ -324,7 +325,10 @@ export class MongoService<T extends mongodb.Document = mongodb.Document> extends
     } finally {
       if (ownSession) this.session = ownSession;
       else delete this.session;
-      if (newSessionStarted) await session.endSession();
+      if (newSessionStarted) {
+        await session.endSession();
+        this.context.assetCache.delete(db, 'session');
+      }
     }
   }
 
@@ -350,7 +354,10 @@ export class MongoService<T extends mongodb.Document = mongodb.Document> extends
    * @throws {Error} If the context or database is not set.
    */
   protected getSession(): mongodb.ClientSession | undefined {
-    return typeof this.session === 'function' ? this.session(this) : this.session;
+    const session = typeof this.session === 'function' ? this.session(this) : this.session;
+    if (session) return session;
+    const db = this.getDatabase();
+    return this.context.assetCache.get(db, 'session');
   }
 
   /**
