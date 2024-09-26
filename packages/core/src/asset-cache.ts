@@ -14,4 +14,10 @@ export class AssetCache {
     }
     cache[name] = asset;
   }
+
+  delete(obj: any, name: string): void {
+    const cache = this._items.get(obj);
+    if (!cache) return;
+    delete cache[name];
+  }
 }

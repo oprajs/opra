@@ -59,7 +59,7 @@ export namespace SQBAdapter {
             filter: parseFilter(ctx.queryParams.filter),
             projection: ctx.queryParams.projection || operation.compositionOptions.defaultProjection,
             limit: ctx.queryParams.limit || operation.compositionOptions.defaultLimit,
-            offset: ctx.queryParams.skip,
+            skip: ctx.queryParams.skip,
             sort: ctx.queryParams.sort || operation.compositionOptions.defaultSort,
           };
           return { method: 'findMany', options } satisfies TransformedRequest;

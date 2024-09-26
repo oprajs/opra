@@ -85,5 +85,28 @@ CREATE TABLE ${schema}.customers
         ON DELETE NO ACTION
 );
 
+CREATE TABLE ${schema}.temp_customers
+(
+ _id SERIAL PRIMARY KEY,
+    givenName character varying(64),
+    familyName character varying(64),
+    gender char(1),
+    birthDate date,
+    uid character varying(36),
+    countryCode character varying(5),
+    active boolean not null default true,   
+    vip boolean not null default false,
+    rate numeric,
+    address jsonb,
+    notes jsonb,
+    deleted boolean not null default false,
+    createdAt timestamp default NOW(),
+    updatedAt timestamp,
+    CONSTRAINT fk_customers_country_code FOREIGN KEY (countryCode)
+        REFERENCES ${schema}.countries (code) MATCH SIMPLE
+        ON UPDATE NO ACTION
+        ON DELETE NO ACTION
+);
+
 `;
 }

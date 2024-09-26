@@ -94,7 +94,7 @@ export namespace SqbCollectionService {
  * @class SqbCollectionService
  * @template T - The data type class type of the resource
  */
-export abstract class SqbCollectionService<T extends object = object> extends SqbEntityService {
+export class SqbCollectionService<T extends object = object> extends SqbEntityService {
   /**
    * Represents default limit for findMany operation
    */

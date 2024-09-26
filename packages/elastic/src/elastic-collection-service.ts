@@ -1,7 +1,7 @@
 /* eslint-disable camelcase */
 import type * as elastic from '@elastic/elasticsearch/lib/api/types';
 import { ResourceNotAvailableError } from '@opra/common';
-import type { ExecutionContext } from '@opra/core';
+import { ExecutionContext, ServiceBase } from '@opra/core';
 import type { Nullish, PartialDTO, PatchDTO, RequiredSome, Type } from 'ts-gems';
 import { ElasticAdapter } from './elastic-adapter.js';
 import { ElasticEntityService } from './elastic-entity-service.js';
@@ -70,7 +70,7 @@ export class ElasticCollectionService<T extends object = any> extends ElasticEnt
   }
 
   for<C extends ExecutionContext, P extends Partial<this>>(
-    context: C,
+    context: C | ServiceBase,
     overwriteProperties?: Nullish<P>,
     overwriteContext?: Partial<C>,
   ): this & Required<P> {

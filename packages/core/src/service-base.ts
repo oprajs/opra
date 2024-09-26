@@ -10,15 +10,16 @@ export abstract class ServiceBase {
   }
 
   for<C extends ExecutionContext, P extends Partial<this>>(
-    context: C,
+    context: C | ServiceBase,
     overwriteProperties?: Nullish<P>,
     overwriteContext?: Partial<C>,
   ): this & Required<P> {
-    // Create new context instance
+    if (context instanceof ServiceBase) context = context.context as C;
+    /** Create new context instance */
     const ctx = {} as ExecutionContext;
     Object.setPrototypeOf(ctx, context);
     if (overwriteContext) Object.assign(ctx, overwriteContext);
-    // Create new service instance
+    /** Create new service instance */
     const instance = { _context: ctx } as unknown as ServiceBase;
     Object.setPrototypeOf(instance, this);
     if (overwriteProperties) Object.assign(instance, overwriteProperties);

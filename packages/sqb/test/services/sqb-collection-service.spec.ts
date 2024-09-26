@@ -1,26 +1,28 @@
 import { faker } from '@faker-js/faker';
 import { ResourceNotAvailableError } from '@opra/common';
-import { MongoCollectionService } from '@opra/mongodb';
-import { CustomerApplication } from 'express-mongo';
+import { SqbCollectionService } from '@opra/sqb';
+import { TempCustomer } from 'customer-sqb';
+import { CustomerApplication } from 'express-sqb';
 import { createContext } from '../_support/create-context.js';
 
-describe('MongoCollectionService', () => {
+describe('SqbCollectionService', () => {
   let app: CustomerApplication;
-  let service1: MongoCollectionService<any>;
-  let service2: MongoCollectionService<any>;
+  let service1: SqbCollectionService<any>;
+  let service2: SqbCollectionService<any>;
   const tempRecords: any[] = [];
   const interceptorFn = fn => fn();
 
   beforeAll(async () => {
     app = await CustomerApplication.create();
-    service1 = new MongoCollectionService<any>('Customer', {
+    service1 = new SqbCollectionService<any>(TempCustomer, {
       db: app.db,
-      collectionName: 'MongoCollectionService',
     });
-    service2 = new MongoCollectionService<any>('Customer', {
+    service2 = new SqbCollectionService<any>(TempCustomer, {
       db: app.db,
-      collectionName: 'MongoCollectionService',
     });
+
+    const customerRepository = app.db.getRepository(TempCustomer);
+    await customerRepository.deleteMany();
 
     for (let i = 1; i <= 20; i++) {
       const record: any = {
@@ -36,10 +38,8 @@ describe('MongoCollectionService', () => {
         },
       };
       tempRecords.push(record);
+      await customerRepository.create(record);
     }
-    const collection = app.db.collection('MongoCollectionService');
-    await collection.deleteMany();
-    await collection.insertMany(tempRecords);
   });
 
   afterAll(async () => {
@@ -50,33 +50,33 @@ describe('MongoCollectionService', () => {
 
   describe('withTransaction()', () => {
     it('Should service work in transaction', async () => {
-      const ctx = createContext(app.adapter);
-      const svc = service1.for(ctx);
+      const context = createContext(app.adapter);
+      const svc = service1.for(context);
       const c1 = await svc.count();
       const doc = tempRecords[0];
-      await svc.withTransaction(async session => {
+      await svc.withTransaction(async connection => {
         const r = await svc.delete(doc._id);
         expect(r).toBeGreaterThan(0);
         const c2 = await svc.count();
         expect(c2).toBeLessThan(c1);
-        await session.abortTransaction();
+        await connection.rollback();
       });
       const c3 = await svc.count();
       expect(c3).toEqual(c1);
     });
 
     it('Should use transaction in context', async () => {
-      const ctx = createContext(app.adapter);
-      const svc = service1.for(ctx);
+      const context = createContext(app.adapter);
+      const svc = service1.for(context);
       const c1 = await svc.count();
       const doc = tempRecords[0];
-      await svc.withTransaction(async session => {
+      await svc.withTransaction(async connection => {
         const svc2 = service2.for(svc);
         const r = await svc2.delete(doc._id);
         expect(r).toBeGreaterThan(0);
         const c2 = await svc2.count();
         expect(c2).toBeLessThan(c1);
-        await session.abortTransaction();
+        await connection.rollback();
       });
       const c3 = await svc.count();
       expect(c3).toEqual(c1);
@@ -94,9 +94,9 @@ describe('MongoCollectionService', () => {
       await expect(() => service1.for(ctx).assert(9999)).rejects.toThrow(ResourceNotAvailableError);
     });
 
-    it('Should apply filter returned by documentFilter', async () => {
+    it('Should apply filter returned by commonFilter', async () => {
       const ctx = createContext(app.adapter);
-      await expect(() => service1.for(ctx, { documentFilter: () => '_id=2' }).assert(1)).rejects.toThrow(
+      await expect(() => service1.for(ctx, { commonFilter: () => '_id=2' }).assert(1)).rejects.toThrow(
         ResourceNotAvailableError,
       );
     });
@@ -112,13 +112,13 @@ describe('MongoCollectionService', () => {
     it('Should apply filter', async () => {
       const ctx = createContext(app.adapter);
       const result1 = await service1.for(ctx).count();
-      const result2 = await service1.for(ctx).count({ filter: { rate: { $gt: 5 } } });
+      const result2 = await service1.for(ctx).count({ filter: 'rate>5' });
       expect(result1).toBeGreaterThan(result2);
     });
 
-    it('Should apply filter returned by documentFilter', async () => {
+    it('Should apply filter returned by commonFilter', async () => {
       const ctx = createContext(app.adapter);
-      const result: any = await service1.for(ctx, { documentFilter: '_id=2' }).count();
+      const result: any = await service1.for(ctx, { commonFilter: '_id=2' }).count();
       expect(result).toEqual(1);
     });
 
@@ -127,41 +127,6 @@ describe('MongoCollectionService', () => {
       const ctx = createContext(app.adapter);
       const result = await service1.for(ctx, { interceptor: mockFn }).count();
       expect(result).toBeGreaterThan(0);
-      expect(mockFn).toBeCalled();
-    });
-  });
-
-  describe('distinct()', () => {
-    it('Should return distinct values of given field', async () => {
-      const ctx = createContext(app.adapter);
-      const result = await service1.for(ctx).distinct('countryCode');
-      expect(Array.isArray(result)).toBeTruthy();
-      expect(result.length).toBeGreaterThan(1);
-    });
-
-    it('Should apply filter', async () => {
-      const ctx = createContext(app.adapter);
-      const result = await service1
-        .for(ctx)
-        .distinct('countryCode', { filter: { countryCode: tempRecords[0].countryCode } });
-      expect(Array.isArray(result)).toBeTruthy();
-      expect(result.length).toEqual(1);
-    });
-
-    it('Should apply filter returned by documentFilter', async () => {
-      const ctx = createContext(app.adapter);
-      const result: any = await service1
-        .for(ctx, { documentFilter: { countryCode: tempRecords[0].countryCode } })
-        .distinct('countryCode');
-      expect(Array.isArray(result)).toBeTruthy();
-      expect(result.length).toEqual(1);
-    });
-
-    it('Should run in interceptor', async () => {
-      const mockFn = jest.fn(interceptorFn);
-      const ctx = createContext(app.adapter);
-      const result = await service1.for(ctx, { interceptor: mockFn }).distinct('countryCode');
-      expect(Array.isArray(result)).toBeTruthy();
       expect(mockFn).toBeCalled();
     });
   });
@@ -190,9 +155,9 @@ describe('MongoCollectionService', () => {
       expect(r).not.toBeDefined();
     });
 
-    it('Should apply filter returned by documentFilter', async () => {
+    it('Should apply filter returned by commonFilter', async () => {
       const ctx = createContext(app.adapter);
-      const result: any = await service1.for(ctx, { documentFilter: '_id=2' }).findById(1);
+      const result: any = await service1.for(ctx, { commonFilter: '_id=2' }).findById(1);
       expect(result).not.toBeDefined();
     });
 
@@ -225,9 +190,7 @@ describe('MongoCollectionService', () => {
 
     it('Should apply filter', async () => {
       const ctx = createContext(app.adapter);
-      const result: any = await service1.for(ctx).findOne({
-        filter: { rate: { $gt: 5 } },
-      });
+      const result: any = await service1.for(ctx).findOne({ filter: 'rate>5' });
       expect(result).toBeDefined();
       expect(result).toMatchObject({
         _id: expect.any(Number),
@@ -237,9 +200,9 @@ describe('MongoCollectionService', () => {
       expect(result.rate).toBeGreaterThan(5);
     });
 
-    it('Should apply filter returned by documentFilter', async () => {
+    it('Should apply filter returned by commonFilter', async () => {
       const ctx = createContext(app.adapter);
-      const result: any = await service1.for(ctx, { documentFilter: '_id=2' }).findOne();
+      const result: any = await service1.for(ctx, { commonFilter: '_id=2' }).findOne();
       expect(result._id).toEqual(2);
     });
 
@@ -317,17 +280,15 @@ describe('MongoCollectionService', () => {
 
     it('Should apply filter', async () => {
       const ctx = createContext(app.adapter);
-      const result: any = await service1.for(ctx).findMany({
-        filter: { rate: { $gt: 5 } },
-      });
+      const result: any = await service1.for(ctx).findMany({ filter: 'rate>5' });
       expect(result).toBeDefined();
       expect(result.length).toBeGreaterThan(0);
       for (const r of result) expect(r.rate).toBeGreaterThan(5);
     });
 
-    it('Should apply filter returned by documentFilter', async () => {
+    it('Should apply filter returned by commonFilter', async () => {
       const ctx = createContext(app.adapter);
-      const result: any = await service1.for(ctx, { documentFilter: '_id=2' }).findMany();
+      const result: any = await service1.for(ctx, { commonFilter: '_id=2' }).findMany();
       expect(result.length).toEqual(1);
       expect(result[0]._id).toEqual(2);
     });
@@ -418,7 +379,7 @@ describe('MongoCollectionService', () => {
     it('Should count total matches', async () => {
       const ctx = createContext(app.adapter);
       const result = await service1.for(ctx).findManyWithCount({
-        filter: { rate: { $gt: 5 } },
+        filter: 'rate>5',
         limit: 5,
       });
       expect(result).toBeDefined();
@@ -455,9 +416,9 @@ describe('MongoCollectionService', () => {
       await expect(() => service1.for(ctx).get(9999)).rejects.toThrow(ResourceNotAvailableError);
     });
 
-    it('Should apply filter returned by documentFilter', async () => {
+    it('Should apply filter returned by commonFilter', async () => {
       const ctx = createContext(app.adapter);
-      await expect(() => service1.for(ctx, { documentFilter: '_id=999' }).get(1)).rejects.toThrow(
+      await expect(() => service1.for(ctx, { commonFilter: '_id=999' }).get(1)).rejects.toThrow(
         ResourceNotAvailableError,
       );
     });
@@ -466,26 +427,6 @@ describe('MongoCollectionService', () => {
       const mockFn = jest.fn(interceptorFn);
       const ctx = createContext(app.adapter);
       const result: any = await service1.for(ctx, { interceptor: mockFn }).get(1);
-      expect(result).toBeDefined();
-      expect(mockFn).toBeCalled();
-    });
-  });
-
-  describe('create()', () => {
-    it('Should insert document', async () => {
-      const ctx = createContext(app.adapter);
-      const doc = { _id: 100, uid: faker.string.uuid() };
-      const result: any = await service1.for(ctx).create(doc);
-      expect(result).toBeDefined();
-      const r = await service1.for(ctx).get(100);
-      expect(result).toEqual(r);
-    });
-
-    it('Should run in interceptor', async () => {
-      const mockFn = jest.fn(interceptorFn);
-      const ctx = createContext(app.adapter);
-      const doc = { _id: 101, uid: faker.string.uuid() };
-      const result: any = await service1.for(ctx, { interceptor: mockFn }).create(doc);
       expect(result).toBeDefined();
       expect(mockFn).toBeCalled();
     });
@@ -507,10 +448,10 @@ describe('MongoCollectionService', () => {
       expect(r).toEqual(0);
     });
 
-    it('Should apply filter returned by documentFilter', async () => {
+    it('Should apply filter returned by commonFilter', async () => {
       const ctx = createContext(app.adapter);
       const doc = { uid: faker.string.uuid() };
-      const r = await service1.for(ctx, { documentFilter: '_id=999' }).updateOnly(2, doc);
+      const r = await service1.for(ctx, { commonFilter: '_id=999' }).updateOnly(2, doc);
       expect(r).toEqual(0);
     });
 
@@ -543,10 +484,10 @@ describe('MongoCollectionService', () => {
       expect(r).not.toBeDefined();
     });
 
-    it('Should apply filter returned by documentFilter', async () => {
+    it('Should apply filter returned by commonFilter', async () => {
       const ctx = createContext(app.adapter);
       const doc = { uid: faker.string.uuid() };
-      const result = await service1.for(ctx, { documentFilter: '_id=999' }).update(2, doc);
+      const result = await service1.for(ctx, { commonFilter: '_id=999' }).update(2, doc);
       expect(result).not.toBeDefined();
     });
 
@@ -590,10 +531,10 @@ describe('MongoCollectionService', () => {
       }
     });
 
-    it('Should apply filter returned by documentFilter', async () => {
+    it('Should apply filter returned by commonFilter', async () => {
       const ctx = createContext(app.adapter);
       const doc = { uid: faker.string.uuid() };
-      const r = await service1.for(ctx, { documentFilter: '_id=2' }).updateMany(doc);
+      const r = await service1.for(ctx, { commonFilter: '_id=2' }).updateMany(doc);
       expect(r).toEqual(1);
     });
 
@@ -603,6 +544,26 @@ describe('MongoCollectionService', () => {
       const update = { uid: faker.string.uuid() };
       const r = await service1.for(ctx, { interceptor: mockFn }).updateMany(update);
       expect(r).toBeGreaterThan(0);
+      expect(mockFn).toBeCalled();
+    });
+  });
+
+  describe('create()', () => {
+    it('Should insert document', async () => {
+      const ctx = createContext(app.adapter);
+      const doc = { _id: 100, uid: faker.string.uuid() };
+      const result: any = await service1.for(ctx).create(doc);
+      expect(result).toBeDefined();
+      const r = await service1.for(ctx).get(100);
+      expect(result).toEqual(r);
+    });
+
+    it('Should run in interceptor', async () => {
+      const mockFn = jest.fn(interceptorFn);
+      const ctx = createContext(app.adapter);
+      const doc = { _id: 101, uid: faker.string.uuid() };
+      const result: any = await service1.for(ctx, { interceptor: mockFn }).create(doc);
+      expect(result).toBeDefined();
       expect(mockFn).toBeCalled();
     });
   });
@@ -627,9 +588,9 @@ describe('MongoCollectionService', () => {
       expect(r).toEqual(0);
     });
 
-    it('Should apply filter returned by documentFilter', async () => {
+    it('Should apply filter returned by commonFilter', async () => {
       const ctx = createContext(app.adapter);
-      const r = await service1.for(ctx, { documentFilter: '_id=999' }).delete(3);
+      const r = await service1.for(ctx, { commonFilter: '_id=999' }).delete(3);
       expect(r).toEqual(0);
     });
 
@@ -644,15 +605,15 @@ describe('MongoCollectionService', () => {
   });
 
   describe('deleteMany()', () => {
-    it('Should apply filter returned by documentFilter', async () => {
+    it('Should apply filter returned by commonFilter', async () => {
       const ctx = createContext(app.adapter);
-      const r = await service1.for(ctx, { documentFilter: '_id=999' }).deleteMany();
+      const r = await service1.for(ctx, { commonFilter: '_id=999' }).deleteMany();
       expect(r).toEqual(0);
     });
 
     it('Should apply filter', async () => {
       const ctx = createContext(app.adapter);
-      const r = await service1.for(ctx).deleteMany({ filter: { rate: { $gt: 5 } } });
+      const r = await service1.for(ctx).deleteMany({ filter: 'rate>5' });
       expect(r).toBeGreaterThan(0);
       const c = await service1.for(ctx).count();
       expect(c).toBeGreaterThan(0);

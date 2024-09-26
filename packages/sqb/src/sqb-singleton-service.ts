@@ -59,7 +59,7 @@ export namespace SqbSingletonService {
  * @class SqbSingletonService
  * @template T - The data type class type of the resource
  */
-export abstract class SqbSingletonService<T extends object = object> extends SqbEntityService {
+export class SqbSingletonService<T extends object = object> extends SqbEntityService {
   /**
    * Represents a unique identifier for singleton record
    * @property {SQBAdapter.IdOrIds}

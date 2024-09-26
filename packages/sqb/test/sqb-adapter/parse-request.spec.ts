@@ -102,7 +102,7 @@ describe('SQBAdapter.parseRequest', () => {
       projection: 'givenName,gender',
       filter: op.gt('_id', 5),
       limit: 10,
-      offset: 1,
+      skip: 1,
       count: true,
       sort: 'sort',
     });

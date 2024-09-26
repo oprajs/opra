@@ -8,6 +8,7 @@ import { Note } from './types/note.js';
 import { Person } from './types/person.js';
 import { Profile } from './types/profile.js';
 import { Record } from './types/record.js';
+import { TempCustomer } from './types/temp-customer.js';
 
 export * from './enums/gender.js';
 export * from './types/address.js';
@@ -17,6 +18,7 @@ export * from './types/note.js';
 export * from './types/person.js';
 export * from './types/profile.js';
 export * from './types/record.js';
+export * from './types/temp-customer.js';
 
 export namespace CustomerModelsDocument {
   let document: ApiDocument | undefined;
@@ -27,7 +29,7 @@ export namespace CustomerModelsDocument {
       version: 'v1',
       description: 'This document contains model definitions of customer app',
     },
-    types: [Record, Person, Gender, Address, Note, Country, Customer, Profile],
+    types: [Record, Person, Gender, Address, Note, Country, Customer, Profile, TempCustomer],
   };
 
   export async function create(): Promise<ApiDocument> {

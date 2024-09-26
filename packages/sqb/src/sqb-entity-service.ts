@@ -6,6 +6,8 @@ import type { Nullish, PartialDTO, PatchDTO, RequiredSome, StrictOmit, Type } fr
 import { isNotNullish, type IsObject } from 'valgen';
 import { SQBAdapter } from './sqb-adapter.js';
 
+const transactionKey = Symbol.for('transaction');
+
 /**
  * @namespace SqbEntityService
  */
@@ -48,63 +50,74 @@ export namespace SqbEntityService {
    *
    * @interface
    */
-  export interface CountOptions extends Repository.CountOptions {}
+  export interface CountOptions extends StrictOmit<Repository.CountOptions, 'filter'> {
+    filter?: Repository.CountOptions['filter'] | string;
+  }
 
   /**
    * Represents options for "delete" operation
    *
    * @interface
    */
-  export interface DeleteOptions extends Repository.DeleteOptions {}
+  export interface DeleteOptions extends StrictOmit<Repository.DeleteOptions, 'filter'> {
+    filter?: Repository.DeleteOptions['filter'] | string;
+  }
 
   /**
    * Represents options for "deleteMany" operation
    *
    * @interface
    */
-  export interface DeleteManyOptions extends Repository.DeleteManyOptions {}
+  export interface DeleteManyOptions extends StrictOmit<Repository.DeleteManyOptions, 'filter'> {
+    filter?: Repository.DeleteManyOptions['filter'] | string;
+  }
 
   /**
    * Represents options for "exists" operation
    *
    * @interface
    */
-  export interface ExistsOptions extends Repository.ExistsOptions {}
-
-  /**
-   * Represents options for "existsOne" operation
-   *
-   * @interface
-   */
-  export interface ExistsOneOptions extends Repository.ExistsOptions {}
+  export interface ExistsOptions extends StrictOmit<Repository.ExistsOptions, 'filter'> {
+    filter?: Repository.ExistsOptions['filter'] | string;
+  }
 
   /**
    * Represents options for "findOne" operation
    *
    * @interface
    */
-  export interface FindOneOptions extends Repository.FindOneOptions {}
+  export interface FindOneOptions extends StrictOmit<Repository.FindOneOptions, 'filter' | 'offset'> {
+    filter?: Repository.FindOneOptions['filter'] | string;
+    skip?: number;
+  }
 
   /**
    * Represents options for "findMany" operation
    *
    * @interface
    */
-  export interface FindManyOptions extends Repository.FindManyOptions {}
+  export interface FindManyOptions extends StrictOmit<Repository.FindManyOptions, 'filter' | 'offset'> {
+    filter?: Repository.FindManyOptions['filter'] | string;
+    skip?: number;
+  }
 
   /**
    * Represents options for "update" operation
    *
    * @interface
    */
-  export interface UpdateOneOptions extends Repository.UpdateOptions {}
+  export interface UpdateOneOptions extends StrictOmit<Repository.UpdateOptions, 'filter'> {
+    filter?: Repository.UpdateOptions['filter'] | string;
+  }
 
   /**
    * Represents options for "updateMany" operation
    *
    * @interface
    */
-  export interface UpdateManyOptions extends Repository.UpdateManyOptions {}
+  export interface UpdateManyOptions extends StrictOmit<Repository.UpdateManyOptions, 'filter'> {
+    filter?: Repository.UpdateManyOptions['filter'] | string;
+  }
 
   export interface CreateCommand<T> extends StrictOmit<RequiredSome<CommandInfo, 'input'>, 'documentId'> {
     crud: 'create';
@@ -256,7 +269,7 @@ export class SqbEntityService<T extends object = object> extends ServiceBase {
   }
 
   for<C extends ExecutionContext, P extends Partial<this>>(
-    context: C,
+    context: C | ServiceBase,
     overwriteProperties?: Nullish<P>,
     overwriteContext?: Partial<C>,
   ): this & Required<P> {
@@ -269,6 +282,49 @@ export class SqbEntityService<T extends object = object> extends ServiceBase {
       ];
     }
     return super.for(context, overwriteProperties, overwriteContext);
+  }
+
+  /**
+   * Executes the provided function within a transaction.
+   *
+   * @param callback - The function to be executed within the transaction.
+   */
+  async withTransaction(callback: (connection: SqbConnection, _this: this) => any): Promise<any> {
+    const ctx = this.context;
+    let closeSessionOnFinish = false;
+
+    let connection: SqbConnection | undefined = ctx[transactionKey];
+    if (!connection) {
+      /** Determine the SqbClient or SqbConnection instance */
+      const db = await this.getConnection();
+      if (db instanceof SqbConnection) {
+        connection = db;
+      } else {
+        /** Acquire a connection. New connection should be at the end */
+        connection = await db.acquire({ autoCommit: false });
+        closeSessionOnFinish = true;
+      }
+      /** Store transaction connection in current context */
+      ctx[transactionKey] = connection;
+    }
+
+    const oldInTransaction = connection.inTransaction;
+    connection.retain();
+    try {
+      if (!oldInTransaction) await connection.startTransaction();
+      const out = await callback(connection, this);
+      if (!oldInTransaction && connection.inTransaction) await connection.rollback();
+      return out;
+    } catch (e) {
+      if (!oldInTransaction && connection.inTransaction) await connection.rollback();
+      throw e;
+    } finally {
+      delete ctx[transactionKey];
+      /** Release connection */
+      if (closeSessionOnFinish) {
+        await connection.close();
+      } else connection.release();
+    }
   }
 
   /**
@@ -358,7 +414,8 @@ export class SqbEntityService<T extends object = object> extends ServiceBase {
    * @protected
    */
   protected async _count(command: SqbEntityService.CountCommand): Promise<number> {
-    return this._dbCount(command.options);
+    const filter = command.options?.filter ? SQBAdapter.parseFilter(command.options.filter) : undefined;
+    return this._dbCount({ ...command.options, filter });
   }
 
   /**
@@ -370,7 +427,8 @@ export class SqbEntityService<T extends object = object> extends ServiceBase {
    */
   protected async _delete(command: SqbEntityService.DeleteOneCommand): Promise<number> {
     isNotNullish(command.documentId, { label: 'documentId' });
-    return this._dbDelete(command.documentId!, command.options);
+    const filter = command.options?.filter ? SQBAdapter.parseFilter(command.options.filter) : undefined;
+    return this._dbDelete(command.documentId!, { ...command.options, filter });
   }
 
   /**
@@ -381,7 +439,8 @@ export class SqbEntityService<T extends object = object> extends ServiceBase {
    * @protected
    */
   protected async _deleteMany(command: SqbEntityService.DeleteManyCommand): Promise<number> {
-    return await this._dbDeleteMany(command.options);
+    const filter = command.options?.filter ? SQBAdapter.parseFilter(command.options.filter) : undefined;
+    return await this._dbDeleteMany({ ...command.options, filter });
   }
 
   /**
@@ -392,7 +451,8 @@ export class SqbEntityService<T extends object = object> extends ServiceBase {
    */
   protected async _exists(command: SqbEntityService.ExistsCommand): Promise<boolean> {
     isNotNullish(command.documentId, { label: 'documentId' });
-    return await this._dbExists(command.documentId!, command.options);
+    const filter = command.options?.filter ? SQBAdapter.parseFilter(command.options.filter) : undefined;
+    return await this._dbExists(command.documentId!, { ...command.options, filter });
   }
 
   /**
@@ -403,7 +463,8 @@ export class SqbEntityService<T extends object = object> extends ServiceBase {
    * @protected
    */
   protected async _existsOne(command: SqbEntityService.ExistsCommand): Promise<boolean> {
-    return await this._dbExistsOne(command.options);
+    const filter = command.options?.filter ? SQBAdapter.parseFilter(command.options.filter) : undefined;
+    return await this._dbExistsOne({ ...command.options, filter });
   }
 
   /**
@@ -416,7 +477,8 @@ export class SqbEntityService<T extends object = object> extends ServiceBase {
   protected async _findById(command: SqbEntityService.FindOneCommand): Promise<PartialDTO<T> | undefined> {
     isNotNullish(command.documentId, { label: 'documentId' });
     const decode = this.getOutputCodec('find');
-    const out = await this._dbFindById(command.documentId!, command.options);
+    const filter = command.options?.filter ? SQBAdapter.parseFilter(command.options.filter) : undefined;
+    const out = await this._dbFindById(command.documentId!, { ...command.options, filter });
     return out ? (decode(out) as PartialDTO<T>) : undefined;
   }
 
@@ -429,7 +491,8 @@ export class SqbEntityService<T extends object = object> extends ServiceBase {
    */
   protected async _findOne(command: SqbEntityService.FindOneCommand): Promise<PartialDTO<T> | undefined> {
     const decode = this.getOutputCodec('find');
-    const out = await this._dbFindOne(command.options);
+    const filter = command.options?.filter ? SQBAdapter.parseFilter(command.options.filter) : undefined;
+    const out = await this._dbFindOne({ ...command.options, filter });
     return out ? (decode(out) as PartialDTO<T>) : undefined;
   }
 
@@ -442,7 +505,8 @@ export class SqbEntityService<T extends object = object> extends ServiceBase {
    */
   protected async _findMany(command: SqbEntityService.FindManyCommand): Promise<PartialDTO<T>[]> {
     const decode = this.getOutputCodec('find');
-    const out: any[] = await this._dbFindMany(command.options);
+    const filter = command.options?.filter ? SQBAdapter.parseFilter(command.options.filter) : undefined;
+    const out: any[] = await this._dbFindMany({ ...command.options, filter });
     if (out?.length) {
       return out.map(x => decode(x)) as any;
     }
@@ -462,7 +526,8 @@ export class SqbEntityService<T extends object = object> extends ServiceBase {
     const { documentId, input, options } = command;
     const inputCodec = this.getInputCodec('update');
     const data: any = inputCodec(input);
-    const out = await this._dbUpdate(documentId!, data, options);
+    const filter = command.options?.filter ? SQBAdapter.parseFilter(command.options.filter) : undefined;
+    const out = await this._dbUpdate(documentId!, data, { ...options, filter });
     const outputCodec = this.getOutputCodec('update');
     if (out) return outputCodec(out);
   }
@@ -474,13 +539,14 @@ export class SqbEntityService<T extends object = object> extends ServiceBase {
    * @returns - A promise that resolves to the number of documents modified.
    * @protected
    */
-  protected async _updateOnly(command: SqbEntityService.UpdateOneCommand<T>): Promise<boolean> {
+  protected async _updateOnly(command: SqbEntityService.UpdateOneCommand<T>): Promise<number> {
     isNotNullish(command.documentId, { label: 'documentId' });
     isNotNullish(command.input, { label: 'input' });
     const { documentId, input, options } = command;
     const inputCodec = this.getInputCodec('update');
     const data: any = inputCodec(input);
-    return await this._dbUpdateOnly(documentId!, data, options);
+    const filter = command.options?.filter ? SQBAdapter.parseFilter(command.options.filter) : undefined;
+    return await this._dbUpdateOnly(documentId!, data, { ...options, filter });
   }
 
   /**
@@ -494,7 +560,8 @@ export class SqbEntityService<T extends object = object> extends ServiceBase {
     isNotNullish(command.input, { label: 'input' });
     const inputCodec = this.getInputCodec('update');
     const data: any = inputCodec(command.input);
-    return await this._dbUpdateMany(data, command.options);
+    const filter = command.options?.filter ? SQBAdapter.parseFilter(command.options.filter) : undefined;
+    return await this._dbUpdateMany(data, { ...command.options, filter });
   }
 
   /**
@@ -600,11 +667,13 @@ export class SqbEntityService<T extends object = object> extends ServiceBase {
    * @param options - Optional settings for the command
    * @protected
    */
-  protected async _dbFindOne(options?: Repository.FindOneOptions): Promise<PartialDTO<T> | undefined> {
+  protected async _dbFindOne(
+    options?: StrictOmit<Repository.FindOneOptions, 'offset'> & { skip?: number },
+  ): Promise<PartialDTO<T> | undefined> {
     const conn = await this.getConnection();
     const repo = conn.getRepository(this.dataTypeClass);
     if (options?.filter) options.filter = SQBAdapter.parseFilter(options.filter);
-    return await repo.findOne(options);
+    return await repo.findOne({ ...options, offset: options?.skip });
   }
 
   /**
@@ -613,11 +682,15 @@ export class SqbEntityService<T extends object = object> extends ServiceBase {
    * @param options - Optional settings for the command
    * @protected
    */
-  protected async _dbFindMany(options?: Repository.FindManyOptions): Promise<PartialDTO<T>[]> {
+  protected async _dbFindMany(
+    options?: StrictOmit<Repository.FindManyOptions, 'offset'> & {
+      skip?: number;
+    },
+  ): Promise<PartialDTO<T>[]> {
     const conn = await this.getConnection();
     const repo = conn.getRepository(this.dataTypeClass);
     if (options?.filter) options.filter = SQBAdapter.parseFilter(options.filter);
-    return await repo.findMany(options);
+    return await repo.findMany({ ...options, offset: options?.skip });
   }
 
   /**
@@ -651,11 +724,11 @@ export class SqbEntityService<T extends object = object> extends ServiceBase {
     id: SQBAdapter.IdOrIds,
     data: PatchDTO<T>,
     options?: Repository.UpdateOptions,
-  ): Promise<boolean> {
+  ): Promise<number> {
     const conn = await this.getConnection();
     const repo = conn.getRepository(this.dataTypeClass);
     if (options?.filter) options.filter = SQBAdapter.parseFilter(options.filter);
-    return await repo.updateOnly(id, data, options);
+    return (await repo.updateOnly(id, data, options)) ? 1 : 0;
   }
 
   /**
@@ -679,10 +752,13 @@ export class SqbEntityService<T extends object = object> extends ServiceBase {
    *
    * @throws {Error} If the context or database is not set.
    */
-  protected getConnection(): SqbConnection | SqbClient | Promise<SqbConnection | SqbClient> {
-    const db = typeof this.db === 'function' ? this.db(this) : this.db;
-    if (!db) throw new Error(`Database not set!`);
-    return db;
+  getConnection(): SqbConnection | SqbClient | Promise<SqbConnection | SqbClient> {
+    const ctx = this.context;
+    let db = ctx[transactionKey];
+    if (db) return db;
+    db = typeof this.db === 'function' ? this.db(this) : this.db;
+    if (db) return db;
+    throw new Error(`Database not set!`);
   }
 
   /**

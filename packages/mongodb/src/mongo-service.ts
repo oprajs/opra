@@ -5,6 +5,8 @@ import type { Nullish, StrictOmit, Type } from 'ts-gems';
 import type { IsObject } from 'valgen';
 import { MongoAdapter } from './mongo-adapter.js';
 
+const transactionKey = Symbol.for('transaction');
+
 /**
  * The namespace for the MongoService.
  *
@@ -236,7 +238,7 @@ export class MongoService<T extends mongodb.Document = mongodb.Document> extends
   }
 
   for<C extends ExecutionContext, P extends Partial<this>>(
-    context: C,
+    context: C | ServiceBase,
     overwriteProperties?: Nullish<P>,
     overwriteContext?: Partial<C>,
   ): this & Required<P> {
@@ -298,21 +300,26 @@ export class MongoService<T extends mongodb.Document = mongodb.Document> extends
     callback: (session: ClientSession, _this: this) => any,
     options?: TransactionOptions,
   ): Promise<any> {
-    this._assertContext();
-    // Backup old session property
-    const hasOwnSession = Object.prototype.hasOwnProperty.call(this, 'session');
-    const ownSession = hasOwnSession ? this.session : undefined;
+    const ctx = this.context;
+    let closeSessionOnFinish = false;
 
-    const db = this.getDatabase();
-    const client = (db as any).client as MongoClient;
-    let session = this.getSession();
-    let newSessionStarted = false;
-    if (!session) {
+    let transaction = ctx[transactionKey];
+    let session: mongodb.ClientSession;
+
+    if (transaction) {
+      session = transaction.session;
+    } else {
+      const db = this.getDatabase();
+      const client = (db as any).client as MongoClient;
       session = client.startSession();
-      newSessionStarted = true;
-      this.context.assetCache.set(db, 'session', session);
+      closeSessionOnFinish = true;
+      transaction = {
+        db,
+        session,
+      };
+      ctx[transactionKey] = transaction;
     }
-    this.session = session;
+
     const oldInTransaction = session.inTransaction();
     try {
       if (!oldInTransaction) session.startTransaction(options);
@@ -323,11 +330,9 @@ export class MongoService<T extends mongodb.Document = mongodb.Document> extends
       if (!oldInTransaction && session.inTransaction()) await session.abortTransaction();
       throw e;
     } finally {
-      if (ownSession) this.session = ownSession;
-      else delete this.session;
-      if (newSessionStarted) {
+      delete ctx[transactionKey];
+      if (closeSessionOnFinish) {
         await session.endSession();
-        this.context.assetCache.delete(db, 'session');
       }
     }
   }
@@ -340,10 +345,12 @@ export class MongoService<T extends mongodb.Document = mongodb.Document> extends
    * @throws {Error} If the context or database is not set.
    */
   protected getDatabase(): mongodb.Db {
-    this._assertContext();
+    const ctx = this.context;
+    const transaction = ctx[transactionKey];
+    if (transaction) return transaction.db;
     const db = typeof this.db === 'function' ? this.db(this) : this.db;
-    if (!db) throw new Error(`Database not set!`);
-    return db;
+    if (db) return db;
+    throw new Error(`Database not set!`);
   }
 
   /**
@@ -354,10 +361,11 @@ export class MongoService<T extends mongodb.Document = mongodb.Document> extends
    * @throws {Error} If the context or database is not set.
    */
   protected getSession(): mongodb.ClientSession | undefined {
+    const ctx = this.context;
+    const transaction = ctx[transactionKey];
+    if (transaction) return transaction.session;
     const session = typeof this.session === 'function' ? this.session(this) : this.session;
     if (session) return session;
-    const db = this.getDatabase();
-    return this.context.assetCache.get(db, 'session');
   }
 
   /**
