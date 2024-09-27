@@ -78,7 +78,7 @@ describe('MongoCollectionService', () => {
         expect(c2).toBeLessThan(c1);
         await session.abortTransaction();
       });
-      const c3 = await svc.count();
+      const c3 = await service1.for(ctx).count();
       expect(c3).toEqual(c1);
     });
   });

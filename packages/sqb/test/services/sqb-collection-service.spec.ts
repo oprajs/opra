@@ -78,7 +78,7 @@ describe('SqbCollectionService', () => {
         expect(c2).toBeLessThan(c1);
         await connection.rollback();
       });
-      const c3 = await svc.count();
+      const c3 = await service1.for(context).count();
       expect(c3).toEqual(c1);
     });
   });
