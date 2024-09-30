@@ -313,7 +313,7 @@ export class SqbEntityService<T extends object = object> extends ServiceBase {
     try {
       if (!oldInTransaction) await connection.startTransaction();
       const out = await callback(connection, this);
-      if (!oldInTransaction && connection.inTransaction) await connection.rollback();
+      if (!oldInTransaction && connection.inTransaction) await connection.commit();
       return out;
     } catch (e) {
       if (!oldInTransaction && connection.inTransaction) await connection.rollback();
