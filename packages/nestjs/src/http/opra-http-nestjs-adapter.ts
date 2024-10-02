@@ -26,40 +26,37 @@ import {
 import { HttpAdapter, HttpContext } from '@opra/http';
 import { asMutable } from 'ts-gems';
 import { Public } from '../decorators/public.decorator.js';
-import type { OpraHttpModule } from './opra-http.module.js';
 
 export class OpraHttpNestjsAdapter extends HttpAdapter {
   readonly nestControllers: Type[] = [];
-  readonly options?: OpraHttpModule.Options;
 
-  constructor(init: OpraHttpModule.Initiator) {
+  constructor(
+    options: HttpAdapter.Options & {
+      schemaIsPublic?: boolean;
+      controllers?: Type[];
+    },
+  ) {
     super(
       (function () {
         const document = new ApiDocument();
-        document.api = new HttpApi({ owner: document, name: init.name, transport: 'http' });
+        document.api = new HttpApi({ owner: document, name: '', transport: 'http' });
         return document;
       })(),
-      {
-        ...init.options,
-        interceptors: init.options?.interceptors as any,
-      },
+      options,
     );
-    this.options = init.options;
-    let basePath = init.options?.basePath || '/';
-    if (!basePath.startsWith('/')) basePath = '/' + basePath;
-    this._addRootController(basePath);
-    if (init.controllers) init.controllers.forEach(c => this._addToNestControllers(c, basePath, []));
+    this._addRootController(options.schemaIsPublic);
+    if (options.controllers) options.controllers.forEach(c => this._addToNestControllers(c, this.basePath, []));
   }
 
   async close() {
     //
   }
 
-  protected _addRootController(basePath: string) {
+  protected _addRootController(isPublic?: boolean) {
     const _this = this;
 
     @Controller({
-      path: basePath,
+      path: this.basePath,
     })
     class RootController {
       @Get('/\\$schema')
@@ -68,7 +65,7 @@ export class OpraHttpNestjsAdapter extends HttpAdapter {
       }
     }
 
-    if (this.options?.schemaRouteIsPublic) {
+    if (isPublic) {
       Public()(
         RootController.prototype,
         'schema',

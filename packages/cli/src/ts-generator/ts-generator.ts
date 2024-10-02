@@ -108,6 +108,7 @@ export class TsGenerator extends EventEmitter {
       this.emit('log', colors.cyan('Removing old files..'));
       this.cleanDirectory(this.outDir);
       this._apiPath = '/api';
+      this._typesRoot = '/models';
       await this.generateDocument();
       const { importExt } = this.options;
       // Write files

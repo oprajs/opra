@@ -35,49 +35,53 @@ export async function generateDataType(
     const { generator } = await this.generateDocument(doc);
     return await generator.generateDataType(dataType, intent, currentFile);
   }
+  try {
+    const typeName = dataType.name;
+    if (typeName) {
+      if (internalTypeNames.includes(typeName)) return { kind: 'internal', typeName: dataType.name };
+      let file = this._filesMap.get(dataType);
+      if (file) {
+        if (currentFile) currentFile.addImport(file.filename, [typeName]);
+        return { kind: 'named', file, typeName: dataType.name };
+      }
 
-  const typeName = dataType.name;
-  if (typeName) {
-    if (internalTypeNames.includes(typeName)) return { kind: 'internal', typeName: dataType.name };
-    let file = this._filesMap.get(dataType);
-    if (file) {
-      if (currentFile) currentFile.addImport(file.filename, [typeName]);
-      return { kind: 'named', file, typeName: dataType.name };
-    }
+      if (dataType instanceof SimpleType) file = this.addFile(path.join(this._documentRoot, '/simple-types.ts'), true);
+      else if (dataType instanceof EnumType) {
+        file = this.addFile(path.join(this._typesRoot, 'enums', typeName + '.ts'), true);
+      } else file = this.addFile(path.join(this._typesRoot, 'types', typeName + '.ts'), true);
+      this._filesMap.set(dataType, file);
 
-    if (dataType instanceof SimpleType) file = this.addFile(path.join(this._documentRoot, '/simple-types.ts'), true);
-    else if (dataType instanceof EnumType) {
-      file = this.addFile(path.join(this._typesRoot, 'enums', typeName + '.ts'), true);
-    } else file = this.addFile(path.join(this._typesRoot, 'types', typeName + '.ts'), true);
-    this._filesMap.set(dataType, file);
+      if (file.exportTypes.includes(typeName)) {
+        if (currentFile) currentFile.addImport(file.filename, [typeName]);
+        return { kind: 'named', file, typeName: dataType.name };
+      }
+      file.exportTypes.push(typeName);
 
-    if (file.exportTypes.includes(typeName)) {
-      if (currentFile) currentFile.addImport(file.filename, [typeName]);
-      return { kind: 'named', file, typeName: dataType.name };
-    }
-    file.exportTypes.push(typeName);
+      const typesIndexTs = this.addFile(path.join(this._typesRoot, 'index.ts'), true);
+      const indexTs = this.addFile('/index.ts', true);
+      indexTs.addExport(typesIndexTs.filename, undefined, this._typesNamespace);
 
-    const typesIndexTs = this.addFile(path.join(this._typesRoot, 'index.ts'), true);
-    const indexTs = this.addFile('/index.ts', true);
-    indexTs.addExport(typesIndexTs.filename, undefined, this._typesNamespace);
+      const codeBlock = (file.code['type_' + typeName] = new CodeBlock());
+      codeBlock.head = `/**\n * ${wrapJSDocString(dataType.description || '')}\n *`;
 
-    const codeBlock = (file.code['type_' + typeName] = new CodeBlock());
-    codeBlock.head = `/**\n * ${wrapJSDocString(dataType.description || '')}\n *`;
-
-    codeBlock.head += `
+      codeBlock.head += `
  * @url ${path.posix.join(doc.url || this.serviceUrl, '$schema', '#types/' + typeName)}
  */
 export `;
-    codeBlock.typeDef = (await this._generateTypeCode(file, dataType, 'root')) + '\n\n';
-    typesIndexTs.addExport(file.filename);
+      codeBlock.typeDef = (await this._generateTypeCode(file, dataType, 'root')) + '\n\n';
+      typesIndexTs.addExport(file.filename);
 
-    if (currentFile) currentFile.addImport(file.filename, [typeName]);
-    return { kind: 'named', file, typeName };
+      if (currentFile) currentFile.addImport(file.filename, [typeName]);
+      return { kind: 'named', file, typeName };
+    }
+
+    if (!currentFile) throw new TypeError(`You must provide currentFile to generate data type`);
+    const code = await this._generateTypeCode(currentFile, dataType, intent);
+    return { kind: 'embedded', code };
+  } catch (e: any) {
+    e.message = `(${dataType.name}) ` + e.message;
+    throw e;
   }
-
-  if (!currentFile) throw new TypeError(`You must provide currentFile to generate data type`);
-  const code = await this._generateTypeCode(currentFile, dataType, intent);
-  return { kind: 'embedded', code };
 }
 
 /**

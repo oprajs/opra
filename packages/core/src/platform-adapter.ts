@@ -3,6 +3,7 @@ import { ApiDocument, I18n, OpraSchema } from '@opra/common';
 import { AsyncEventEmitter } from 'node-events-async';
 import { AssetCache } from './asset-cache.js';
 import { kAssetCache } from './constants.js';
+import { ILogger } from './interfaces/logger.interface.js';
 
 /**
  * @namespace PlatformAdapter
@@ -10,6 +11,7 @@ import { kAssetCache } from './constants.js';
 export namespace PlatformAdapter {
   export interface Options {
     i18n?: I18n;
+    logger?: ILogger;
   }
 }
 
@@ -21,6 +23,7 @@ export abstract class PlatformAdapter extends AsyncEventEmitter {
   readonly document: ApiDocument;
   abstract readonly protocol: OpraSchema.Transport;
   i18n: I18n;
+  logger?: ILogger;
 
   protected constructor(document: ApiDocument, options?: PlatformAdapter.Options) {
     super();

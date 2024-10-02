@@ -337,8 +337,8 @@ export class KafkaAdapter extends PlatformAdapter {
           break;
       }
       if (!fn) return;
-      if (!logExtra) return fn(message);
-      return fn(message, {
+      if (!logExtra) return fn.call(logger, message);
+      return fn.call(logger, message, {
         ...extra,
         namespace,
       });

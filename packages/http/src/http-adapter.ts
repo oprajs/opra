@@ -31,6 +31,7 @@ export namespace HttpAdapter {
 export abstract class HttpAdapter extends PlatformAdapter {
   readonly handler: HttpHandler;
   readonly protocol: OpraSchema.Transport = 'http';
+  readonly basePath: string;
   interceptors: (HttpAdapter.InterceptorFunction | HttpAdapter.IHttpInterceptor)[];
 
   protected constructor(document: ApiDocument, options?: HttpAdapter.Options) {
@@ -38,6 +39,8 @@ export abstract class HttpAdapter extends PlatformAdapter {
     if (!(document.api instanceof HttpApi)) throw new TypeError(`The document does not expose an HTTP Api`);
     this.handler = new HttpHandler(this);
     this.interceptors = [...(options?.interceptors || [])];
+    this.basePath = options?.basePath || '/';
+    if (!this.basePath.startsWith('/')) this.basePath = '/' + this.basePath;
   }
 
   get api(): HttpApi {

@@ -16,7 +16,7 @@ export class ExpressAdapter extends HttpAdapter {
     this.app = app;
     if (!(this.document.api instanceof HttpApi)) throw new TypeError('document.api must be instance of HttpApi');
     for (const c of this.api.controllers.values()) this._createControllers(c);
-    this._initRouter(options?.basePath);
+    this._initRouter();
   }
 
   get platform(): string {
@@ -52,12 +52,9 @@ export class ExpressAdapter extends HttpAdapter {
     return controller && this._controllerInstances.get(controller);
   }
 
-  protected _initRouter(basePath?: string) {
+  protected _initRouter() {
     const router = Router();
-    if (basePath) {
-      if (!basePath.startsWith('/')) basePath = '/' + basePath;
-      if (basePath) this.app.use(basePath, router);
-    } else this.app.use(router);
+    this.app.use(this.basePath, router);
 
     const createContext = async (
       _req: Request,
