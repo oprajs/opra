@@ -66,16 +66,15 @@ export class OpraKafkaNestjsAdapter {
       controllers.forEach(wrapper => {
         const ctor = Object.getPrototypeOf(wrapper.instance).constructor;
         const metadata = Reflect.getMetadata(RPC_CONTROLLER_METADATA, ctor);
-        if (metadata) {
-          const instance = {};
-          Object.setPrototypeOf(instance, wrapper.instance);
-          controllerInstances.push(instance);
-          if (metadata.operations) {
-            // for (const [k, _] of Object.keys(metadata.operations)) {
-            //   const fn = instance[k];
-            //   instance[k] = fn;
-            // }
-          }
+        if (!metadata) return;
+        const instance = {};
+        Object.setPrototypeOf(instance, wrapper.instance);
+        controllerInstances.push(instance);
+        if (metadata.operations) {
+          // for (const [k, _] of Object.keys(metadata.operations)) {
+          //   const fn = instance[k];
+          //   instance[k] = fn;
+          // }
         }
       });
     });

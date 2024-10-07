@@ -1,6 +1,6 @@
 import { ApiDocument, OpraSchema, RpcApi, RpcController, RpcOperation } from '@opra/common';
 import { type ILogger, kAssetCache, PlatformAdapter } from '@opra/core';
-import { type Consumer, ConsumerConfig, Kafka, type KafkaConfig, logLevel } from 'kafkajs';
+import { type Consumer, ConsumerConfig, EachMessageHandler, Kafka, type KafkaConfig, logLevel } from 'kafkajs';
 import type { StrictOmit } from 'ts-gems';
 import { Validator, vg } from 'valgen';
 import { KAFKA_DEFAULT_GROUP, KAFKA_OPERATION_METADATA, KAFKA_OPERATION_METADATA_RESOLVER } from './constants.js';
@@ -9,6 +9,7 @@ import { RequestParser } from './request-parser.js';
 
 const globalErrorTypes = ['unhandledRejection', 'uncaughtException'];
 const signalTraps = ['SIGTERM', 'SIGINT', 'SIGUSR2'];
+const kGroupId = Symbol('kGroupId');
 
 /**
  * @namespace KafkaAdapter
@@ -46,6 +47,16 @@ export namespace KafkaAdapter {
   };
 }
 
+interface HandlerArguments {
+  consumer: Consumer;
+  controller: RpcController;
+  instance: any;
+  operation: RpcOperation;
+  operationOptions: KafkaAdapter.OperationOptions;
+  handler: EachMessageHandler;
+  topics: (string | RegExp)[];
+}
+
 /**
  *
  * @class KafkaAdapter
@@ -54,16 +65,7 @@ export class KafkaAdapter extends PlatformAdapter {
   static readonly PlatformName = 'kafka';
   protected _config: KafkaAdapter.Config;
   protected _controllerInstances = new Map<RpcController, any>();
-  protected _consumers = new Map<
-    string, // consumer id
-    {
-      consumer: Consumer;
-      controller: RpcController;
-      instance: any;
-      operation: RpcOperation;
-      options: KafkaAdapter.OperationOptions;
-    }
-  >();
+  protected _consumers = new Map<string, Consumer>();
   protected _logger?: ILogger;
   readonly kafka: Kafka;
   readonly protocol: OpraSchema.Transport = 'rpc';
@@ -108,8 +110,80 @@ export class KafkaAdapter extends PlatformAdapter {
   async start() {
     /* istanbul ignore next */
     if (this._consumers.size > 0) return;
-    await this._initConsumers();
-    return this._start();
+    /* istanbul ignore next */
+    if (this._consumers.size > 0) return;
+    /** Collect operation configurations */
+    const allHandlerArgs: HandlerArguments[] = [];
+    for (const controller of this.document.rpcApi.controllers.values()) {
+      let instance = controller.instance;
+      if (!instance && controller.ctor) instance = new controller.ctor();
+      if (!instance) continue;
+      this._controllerInstances.set(controller, instance);
+
+      /** Build HandlerData array */
+      for (const operation of controller.operations.values()) {
+        const operationOptions = await this._getOperationOptions(controller, instance, operation);
+        if (!operationOptions) continue;
+        // const consumerConfig = this._getConsumerConfig(operationOptions);
+        const args: HandlerArguments = {
+          consumer: null as any,
+          controller,
+          instance,
+          operation,
+          operationOptions,
+          handler: null as any,
+          topics: null as any,
+        };
+        this._initHandler(args);
+        allHandlerArgs.push(args);
+      }
+    }
+
+    /** Initialize consumers */
+    for (const args of allHandlerArgs) {
+      await this._initConsumer(args);
+    }
+
+    /** Start consumer listeners */
+    const topicMap = new Map<string, HandlerArguments[]>();
+    for (const consumer of this._consumers.values()) {
+      const groupId: string = consumer[kGroupId];
+      await consumer
+        .run({
+          eachMessage: async payload => {
+            await this.emitAsync('message', payload);
+            const { topic } = payload;
+            const topicCacheKey = groupId + ':' + topic;
+            let handlerArgsArray = topicMap.get(topicCacheKey);
+            if (!handlerArgsArray) {
+              handlerArgsArray = allHandlerArgs.filter(
+                args =>
+                  args.consumer === consumer &&
+                  args.topics.find(t => (t instanceof RegExp ? t.test(topic) : t === topic)),
+              );
+              /* istanbul ignore next */
+              if (!handlerArgsArray) {
+                this._emitError(new Error(`Unhandled topic (${topic})`));
+                return;
+              }
+              topicMap.set(topicCacheKey, handlerArgsArray);
+            }
+            /** Iterate and call all matching handlers */
+            for (const args of handlerArgsArray) {
+              try {
+                await args.handler(payload);
+              } catch (e) {
+                this._emitError(e);
+              }
+            }
+            await this.emitAsync('message-finish', payload);
+          },
+        })
+        .catch(e => {
+          this._emitError(e);
+          throw e;
+        });
+    }
   }
 
   /**
@@ -125,7 +199,7 @@ export class KafkaAdapter extends PlatformAdapter {
         }
       }
     }
-    await Promise.allSettled(Array.from(this._consumers.values()).map(c => c.consumer.disconnect()));
+    await Promise.allSettled(Array.from(this._consumers.values()).map(c => c.disconnect()));
     this._consumers.clear();
     this._controllerInstances.clear();
   }
@@ -136,34 +210,19 @@ export class KafkaAdapter extends PlatformAdapter {
   }
 
   /**
-   * Creates and initializes all consumers
    *
+   * @param controller
+   * @param instance
+   * @param operation
    * @protected
    */
-  protected async _initConsumers() {
-    /* istanbul ignore next */
-    if (this._consumers.size > 0) return;
-    /** Create consumers */
-    for (const controller of this.document.rpcApi.controllers.values()) {
-      let instance = controller.instance;
-      if (!instance && controller.ctor) instance = new controller.ctor();
-      if (!instance) continue;
-      for (const operation of controller.operations.values()) {
-        await this._initConsumer(controller, instance, operation);
-      }
-      this._controllerInstances.set(controller, instance);
-    }
-  }
-
-  /**
-   * Creates and initializes a consumer for given operation
-   *
-   * @protected
-   */
-  protected async _initConsumer(controller: RpcController, instance: any, operation: RpcOperation) {
+  protected async _getOperationOptions(
+    controller: RpcController,
+    instance: any,
+    operation: RpcOperation,
+  ): Promise<KafkaAdapter.OperationOptions | undefined> {
     if (typeof instance[operation.name] !== 'function') return;
-    const proto = controller.ctor?.prototype || Object.getPrototypeOf(controller.instance);
-    // this._config.consumers
+    const proto = controller.ctor?.prototype || Object.getPrototypeOf(instance);
     let operationOptions: KafkaAdapter.OperationOptions | undefined = Reflect.getMetadata(
       KAFKA_OPERATION_METADATA,
       proto,
@@ -174,51 +233,59 @@ export class KafkaAdapter extends PlatformAdapter {
       const cfg = await configResolver();
       operationOptions = { ...operationOptions, ...cfg };
     }
-    const consumerConfig: ConsumerConfig = {
-      groupId: KAFKA_DEFAULT_GROUP,
-    };
-    if (typeof operationOptions?.consumer === 'object') {
-      if (this._consumers.has(operationOptions.consumer.groupId)) {
-        throw new Error(`Operation consumer for groupId (${operationOptions.consumer.groupId}) already exists`);
-      }
-      Object.assign(consumerConfig, operationOptions?.consumer);
-    } else if (operationOptions?.consumer) {
-      const x = this._config.consumers?.[operationOptions.consumer];
-      Object.assign(consumerConfig, { ...x, groupId: operationOptions.consumer });
-    }
-
-    const consumer = this.kafka.consumer(consumerConfig);
-    this._consumers.set(consumerConfig.groupId, {
-      consumer,
-      controller,
-      instance,
-      operation,
-      options: { ...operationOptions },
-    });
-    if (typeof controller.onInit === 'function') controller.onInit.call(instance, controller);
-  }
-
-  protected async _start() {
-    const arr = Array.from(this._consumers.values());
-    if (!arr.length) return;
-    /** Start first consumer to test if server is available */
-    await this._startConsumer(arr.shift()!);
-    /** if first connection is success than start all consumers at same time */
-    await Promise.allSettled(arr.map(x => this._startConsumer(x)));
+    return operationOptions;
   }
 
   /**
-   * Starts all consumers
+   *
+   * @param args
    * @protected
    */
-  protected async _startConsumer(args: {
-    consumer: Consumer;
-    controller: RpcController;
-    instance: any;
-    operation: RpcOperation;
-    options: KafkaAdapter.OperationOptions;
-  }) {
-    const { consumer, controller, instance, operation, options } = args;
+  protected async _initConsumer(args: HandlerArguments) {
+    const { operationOptions, operation } = args;
+    const consumerConfig: ConsumerConfig = {
+      groupId: KAFKA_DEFAULT_GROUP,
+    };
+    let consumer: Consumer | undefined;
+    if (typeof operationOptions.consumer === 'object') {
+      consumer = this._consumers.get(operationOptions.consumer.groupId);
+      if (consumer) {
+        throw new Error(`Operation consumer for groupId (${operationOptions.consumer.groupId}) already exists`);
+      }
+      Object.assign(consumerConfig, operationOptions.consumer);
+    } else if (operationOptions.consumer) {
+      const x = this._config.consumers?.[operationOptions.consumer];
+      Object.assign(consumerConfig, { ...x, groupId: operationOptions.consumer });
+    }
+    consumer = this._consumers.get(consumerConfig.groupId);
+
+    /** Create consumers */
+    if (!consumer) {
+      consumer = this.kafka.consumer(consumerConfig);
+      consumer[kGroupId] = consumerConfig.groupId;
+      /** Connect */
+      await consumer.connect().catch(e => {
+        this._emitError(e);
+        throw e;
+      });
+      this._consumers.set(consumerConfig.groupId, consumer);
+    }
+    args.consumer = consumer;
+    /** Subscribe to channels */
+    args.topics = Array.isArray(operation.channel) ? operation.channel : [operation.channel];
+    await consumer.subscribe({ topics: args.topics, fromBeginning: operationOptions.fromBeginning }).catch(e => {
+      this._emitError(e);
+      throw e;
+    });
+  }
+
+  /**
+   *
+   * @param args
+   * @protected
+   */
+  protected _initHandler(args: HandlerArguments) {
+    const { controller, instance, operation } = args;
     /** Prepare parsers */
     const parseKey = RequestParser.STRING;
     const parsePayload = RequestParser.STRING;
@@ -232,80 +299,57 @@ export class KafkaAdapter extends PlatformAdapter {
         this[kAssetCache].set(header, 'decode', decode);
       }
     });
-    /** Connect to Kafka server */
-    await consumer.connect().catch(e => {
-      this._emitError(e);
-      throw e;
-    });
-    /** Subscribe to channels */
-    if (Array.isArray(operation.channel)) {
-      await consumer.subscribe({ topics: operation.channel, fromBeginning: options.fromBeginning }).catch(e => {
-        this._emitError(e);
-        throw e;
-      });
-    } else {
-      await consumer.subscribe({ topic: operation.channel, fromBeginning: options.fromBeginning }).catch(e => {
-        this._emitError(e);
-        throw e;
-      });
-    }
-    /** Run message listener */
-    await consumer
-      .run({
-        eachMessage: async ({ topic, partition, message, heartbeat, pause }) => {
-          const operationHandler = instance[operation.name] as Function;
-          let key: any;
-          let payload: any;
-          const headers: any = {};
-          try {
-            /** Parse and decode `key` */
-            if (message.key) {
-              const s = parseKey(message.key);
-              key = decodeKey(s);
-            }
-            /** Parse and decode `payload` */
-            if (message.value != null) {
-              const s = parsePayload(message.value);
-              payload = decodePayload(s);
-            }
-            /** Parse and decode `headers` */
-            if (message.headers) {
-              for (const [k, v] of Object.entries(message.headers)) {
-                const header = operation.findHeader(k);
-                const decode = this[kAssetCache].get<Validator>(header, 'decode') || vg.isAny();
-                headers[k] = decode(Buffer.isBuffer(v) ? v.toString() : v);
-              }
-            }
-          } catch (e) {
-            this._emitError(e);
-            return;
-          }
-          /** Create context */
-          const ctx = new KafkaContext({
-            adapter: this,
-            platform: this.platform,
-            controller,
-            controllerInstance: instance,
-            operation,
-            operationHandler,
-            topic,
-            partition,
-            payload,
-            key,
-            headers,
-            rawMessage: message,
-            heartbeat,
-            pause,
-          });
-          await this.emitAsync('createContext', ctx);
 
-          await operationHandler(ctx);
-        },
-      })
-      .catch(e => {
+    args.handler = async ({ topic, partition, message, heartbeat, pause }) => {
+      const operationHandler = instance[operation.name] as Function;
+      let key: any;
+      let payload: any;
+      const headers: any = {};
+      try {
+        /** Parse and decode `key` */
+        if (message.key) {
+          const s = parseKey(message.key);
+          key = decodeKey(s);
+        }
+        /** Parse and decode `payload` */
+        if (message.value != null) {
+          const s = parsePayload(message.value);
+          payload = decodePayload(s);
+        }
+        /** Parse and decode `headers` */
+        if (message.headers) {
+          for (const [k, v] of Object.entries(message.headers)) {
+            const header = operation.findHeader(k);
+            const decode = this[kAssetCache].get<Validator>(header, 'decode') || vg.isAny();
+            headers[k] = decode(Buffer.isBuffer(v) ? v.toString() : v);
+          }
+        }
+      } catch (e) {
         this._emitError(e);
-        throw e;
+        return;
+      }
+      /** Create context */
+      const ctx = new KafkaContext({
+        adapter: this,
+        platform: this.platform,
+        controller,
+        controllerInstance: instance,
+        operation,
+        operationHandler,
+        topic,
+        partition,
+        payload,
+        key,
+        headers,
+        rawMessage: message,
+        heartbeat,
+        pause,
       });
+
+      await this.emitAsync('before-execute', ctx);
+      const result = await operationHandler.call(instance, ctx);
+      await this.emitAsync('after-execute', ctx, result);
+    };
   }
 
   protected _emitError(e: any) {

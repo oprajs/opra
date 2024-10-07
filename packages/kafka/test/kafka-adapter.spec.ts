@@ -1,7 +1,7 @@
 import { ApiDocument, RpcController, RpcOperation } from '@opra/common';
 import { ILogger } from '@opra/core';
 import { KafkaAdapter } from '@opra/kafka';
-import { MailController } from './_support/test-api/api/mail-controller.js';
+import { TestController } from './_support/test-api/api/test-controller';
 import { TestRpcApiDocument } from './_support/test-api/index.js';
 
 describe('KafkaAdapter', () => {
@@ -103,9 +103,9 @@ describe('KafkaAdapter', () => {
       logger,
     });
     await (adapter as any)._initConsumers();
-    const instance = adapter.getControllerInstance<MailController>('Mail');
+    const instance = adapter.getControllerInstance<TestController>('Mail');
     expect(instance).toBeDefined();
-    expect(instance).toBeInstanceOf(MailController);
+    expect(instance).toBeInstanceOf(TestController);
     expect(instance!.initialized).toEqual(true);
     expect(instance!.closed).toEqual(false);
   });
@@ -117,10 +117,10 @@ describe('KafkaAdapter', () => {
       logger,
     });
     await (adapter as any)._initConsumers();
-    const instance = adapter.getControllerInstance<MailController>('Mail');
+    const instance = adapter.getControllerInstance<TestController>('Mail');
     await adapter.close();
     expect(instance).toBeDefined();
-    expect(instance).toBeInstanceOf(MailController);
+    expect(instance).toBeInstanceOf(TestController);
     expect(instance!.initialized).toEqual(true);
     expect(instance!.closed).toEqual(true);
   });

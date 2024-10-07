@@ -32,6 +32,7 @@ export class KafkaContext extends ExecutionContext implements AsyncEventEmitter 
   readonly controllerInstance?: any;
   readonly operation?: RpcOperation;
   readonly operationHandler?: Function;
+  readonly topic: string;
   readonly key: any;
   readonly payload: any;
   readonly partition: number;
@@ -51,6 +52,7 @@ export class KafkaContext extends ExecutionContext implements AsyncEventEmitter 
     if (init.operationHandler) this.operationHandler = init.operationHandler;
     this.partition = init.partition;
     this.headers = init.headers || {};
+    this.topic = init.topic;
     this.key = init.key;
     this.payload = init.payload;
     this.heartbeat = init.heartbeat;
