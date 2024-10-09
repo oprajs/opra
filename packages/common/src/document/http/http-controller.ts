@@ -5,7 +5,7 @@ import { omitUndefined, ResponsiveMap } from '../../helpers/index.js';
 import { OpraSchema } from '../../schema/index.js';
 import { DataTypeMap } from '../common/data-type-map.js';
 import { DocumentElement } from '../common/document-element.js';
-import { CLASS_NAME_PATTERN, DECORATOR, HTTP_CONTROLLER_METADATA, kDataTypeMap } from '../constants.js';
+import { CLASS_NAME_PATTERN, DECORATOR, kDataTypeMap } from '../constants.js';
 import type { EnumType } from '../data-type/enum-type.js';
 import { HttpControllerDecoratorFactory } from '../decorators/http-controller.decorator.js';
 import { colorFgMagenta, colorFgYellow, colorReset, nodeInspectCustom } from '../utils/inspect.util.js';
@@ -23,8 +23,6 @@ export namespace HttpController {
     types?: ThunkAsync<Type | EnumType.EnumObject | EnumType.EnumArray>[];
     operations?: Record<string, HttpOperation.Metadata>;
     parameters?: HttpParameter.Metadata[];
-    onInit?: (resource: HttpController) => void;
-    onShutdown?: (resource: HttpController) => void | Promise<void>;
   }
 
   export interface Options extends Partial<Pick<OpraSchema.HttpController, 'description' | 'path'>> {
@@ -38,7 +36,7 @@ export namespace HttpController {
         instance?: object;
         ctor?: Type;
       },
-      Pick<Metadata, 'name' | 'description' | 'path' | 'onInit' | 'onShutdown'>
+      Pick<Metadata, 'name' | 'description' | 'path'>
     > {}
 }
 
@@ -55,10 +53,6 @@ export interface HttpControllerStatic extends HttpControllerDecoratorFactory {
   new (owner: HttpApi | HttpController, args: HttpController.InitArguments): HttpController;
 
   prototype: HttpController;
-
-  OnInit(): PropertyDecorator;
-
-  OnShutdown(): PropertyDecorator;
 }
 
 /**
@@ -91,8 +85,6 @@ export const HttpController = function (this: HttpController | void, ...args: an
   _this.ctor = initArgs.ctor;
   (_this as any)._controllerReverseMap = new WeakMap();
   (_this as any)._initialize?.(initArgs);
-  _this.onInit = initArgs.onInit;
-  _this.onShutdown = initArgs.onShutdown;
 } as HttpControllerStatic;
 
 /**
@@ -111,8 +103,6 @@ class HttpControllerClass extends DocumentElement {
   declare operations: ResponsiveMap<HttpOperation>;
   declare controllers: ResponsiveMap<HttpController>;
   declare types: DataTypeMap;
-  declare onInit?: (resource: HttpController) => void;
-  declare onShutdown?: (resource: HttpController) => void | Promise<void>;
 
   /**
    * @property isRoot
@@ -231,19 +221,3 @@ class HttpControllerClass extends DocumentElement {
 HttpController.prototype = HttpControllerClass.prototype;
 Object.assign(HttpController, HttpControllerDecoratorFactory);
 HttpController[DECORATOR] = HttpControllerDecoratorFactory;
-
-HttpController.OnInit = function () {
-  return (target: Object, propertyKey: string | symbol) => {
-    const sourceMetadata = (Reflect.getOwnMetadata(HTTP_CONTROLLER_METADATA, target.constructor) || {}) as any;
-    sourceMetadata.onInit = target[propertyKey];
-    Reflect.defineMetadata(HTTP_CONTROLLER_METADATA, target.constructor, sourceMetadata);
-  };
-};
-
-HttpController.OnShutdown = function () {
-  return (target: Object, propertyKey: string | symbol) => {
-    const sourceMetadata = (Reflect.getOwnMetadata(HTTP_CONTROLLER_METADATA, target.constructor) || {}) as any;
-    sourceMetadata.onShutdown = target[propertyKey];
-    Reflect.defineMetadata(HTTP_CONTROLLER_METADATA, target.constructor, sourceMetadata);
-  };
-};

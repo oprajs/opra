@@ -66,6 +66,7 @@ export class KafkaAdapter extends PlatformAdapter {
   protected _config: KafkaAdapter.Config;
   protected _controllerInstances = new Map<RpcController, any>();
   protected _consumers = new Map<string, Consumer>();
+  protected _handlerArgs: HandlerArguments[] = [];
   protected _logger?: ILogger;
   readonly kafka: Kafka;
   readonly protocol: OpraSchema.Transport = 'rpc';
@@ -112,36 +113,25 @@ export class KafkaAdapter extends PlatformAdapter {
     if (this._consumers.size > 0) return;
     /* istanbul ignore next */
     if (this._consumers.size > 0) return;
-    /** Collect operation configurations */
-    const allHandlerArgs: HandlerArguments[] = [];
-    for (const controller of this.document.rpcApi.controllers.values()) {
-      let instance = controller.instance;
-      if (!instance && controller.ctor) instance = new controller.ctor();
-      if (!instance) continue;
-      this._controllerInstances.set(controller, instance);
+    await this._createAllConsumers();
 
-      /** Build HandlerData array */
-      for (const operation of controller.operations.values()) {
-        const operationOptions = await this._getOperationOptions(controller, instance, operation);
-        if (!operationOptions) continue;
-        // const consumerConfig = this._getConsumerConfig(operationOptions);
-        const args: HandlerArguments = {
-          consumer: null as any,
-          controller,
-          instance,
-          operation,
-          operationOptions,
-          handler: null as any,
-          topics: null as any,
-        };
-        this._initHandler(args);
-        allHandlerArgs.push(args);
-      }
+    /** Connect all consumers */
+    for (const consumer of this._consumers.values()) {
+      await consumer.connect().catch(e => {
+        this._emitError(e);
+        throw e;
+      });
     }
 
-    /** Initialize consumers */
-    for (const args of allHandlerArgs) {
-      await this._initConsumer(args);
+    /** Subscribe to channels */
+    for (const args of this._handlerArgs) {
+      const { consumer, operation, operationOptions } = args;
+      args.topics = Array.isArray(operation.channel) ? operation.channel : [operation.channel];
+      await consumer.subscribe({ topics: args.topics, fromBeginning: operationOptions.fromBeginning }).catch(e => {
+        this._emitError(e);
+        throw e;
+      });
+      this.logger?.info?.(`Subscribed to topic${args.topics.length > 1 ? 's' : ''} "${args.topics}"`);
     }
 
     /** Start consumer listeners */
@@ -156,7 +146,7 @@ export class KafkaAdapter extends PlatformAdapter {
             const topicCacheKey = groupId + ':' + topic;
             let handlerArgsArray = topicMap.get(topicCacheKey);
             if (!handlerArgsArray) {
-              handlerArgsArray = allHandlerArgs.filter(
+              handlerArgsArray = this._handlerArgs.filter(
                 args =>
                   args.consumer === consumer &&
                   args.topics.find(t => (t instanceof RegExp ? t.test(topic) : t === topic)),
@@ -190,15 +180,6 @@ export class KafkaAdapter extends PlatformAdapter {
    * Closes all connections and stops the service
    */
   async close() {
-    for (const [controller, instance] of this._controllerInstances.entries()) {
-      if (controller.onShutdown) {
-        try {
-          await controller.onShutdown.call(instance, controller);
-        } catch (e) {
-          this._emitError(e);
-        }
-      }
-    }
     await Promise.allSettled(Array.from(this._consumers.values()).map(c => c.disconnect()));
     this._consumers.clear();
     this._controllerInstances.clear();
@@ -238,11 +219,47 @@ export class KafkaAdapter extends PlatformAdapter {
 
   /**
    *
+   * @protected
+   */
+  protected async _createAllConsumers() {
+    for (const controller of this.document.rpcApi.controllers.values()) {
+      let instance = controller.instance;
+      if (!instance && controller.ctor) instance = new controller.ctor();
+      if (!instance) continue;
+      this._controllerInstances.set(controller, instance);
+
+      /** Build HandlerData array */
+      for (const operation of controller.operations.values()) {
+        const operationOptions = await this._getOperationOptions(controller, instance, operation);
+        if (!operationOptions) continue;
+        // const consumerConfig = this._getConsumerConfig(operationOptions);
+        const args: HandlerArguments = {
+          consumer: null as any,
+          controller,
+          instance,
+          operation,
+          operationOptions,
+          handler: null as any,
+          topics: null as any,
+        };
+        this._createHandler(args);
+        this._handlerArgs.push(args);
+      }
+    }
+
+    /** Initialize consumers */
+    for (const args of this._handlerArgs) {
+      await this._createConsumer(args);
+    }
+  }
+
+  /**
+   *
    * @param args
    * @protected
    */
-  protected async _initConsumer(args: HandlerArguments) {
-    const { operationOptions, operation } = args;
+  protected async _createConsumer(args: HandlerArguments) {
+    const { operationOptions } = args;
     const consumerConfig: ConsumerConfig = {
       groupId: KAFKA_DEFAULT_GROUP,
     };
@@ -263,20 +280,9 @@ export class KafkaAdapter extends PlatformAdapter {
     if (!consumer) {
       consumer = this.kafka.consumer(consumerConfig);
       consumer[kGroupId] = consumerConfig.groupId;
-      /** Connect */
-      await consumer.connect().catch(e => {
-        this._emitError(e);
-        throw e;
-      });
       this._consumers.set(consumerConfig.groupId, consumer);
     }
     args.consumer = consumer;
-    /** Subscribe to channels */
-    args.topics = Array.isArray(operation.channel) ? operation.channel : [operation.channel];
-    await consumer.subscribe({ topics: args.topics, fromBeginning: operationOptions.fromBeginning }).catch(e => {
-      this._emitError(e);
-      throw e;
-    });
   }
 
   /**
@@ -284,7 +290,7 @@ export class KafkaAdapter extends PlatformAdapter {
    * @param args
    * @protected
    */
-  protected _initHandler(args: HandlerArguments) {
+  protected _createHandler(args: HandlerArguments) {
     const { controller, instance, operation } = args;
     /** Prepare parsers */
     const parseKey = RequestParser.STRING;
@@ -359,7 +365,7 @@ export class KafkaAdapter extends PlatformAdapter {
 
   protected _createLogCreator(logger: ILogger, logExtra?: boolean) {
     return ({ namespace, level, log }) => {
-      const { message, ...extra } = log;
+      const { message, error, ...extra } = log;
       delete extra.namespace;
       delete extra.timestamp;
       delete extra.logger;
@@ -381,8 +387,8 @@ export class KafkaAdapter extends PlatformAdapter {
           break;
       }
       if (!fn) return;
-      if (!logExtra) return fn.call(logger, message);
-      return fn.call(logger, message, {
+      if (!logExtra) return fn.call(logger, error || message);
+      return fn.call(logger, error || message, {
         ...extra,
         namespace,
       });

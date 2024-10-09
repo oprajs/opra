@@ -31,7 +31,7 @@ export class KafkaDogsController {
   // }))
   @UseGuards(AuthGuard)
   @UseInterceptors(TestInterceptor)
-  feedCat() {
+  feedDog() {
     this.dogsService.feedDog();
   }
 }

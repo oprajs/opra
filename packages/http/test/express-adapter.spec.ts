@@ -20,14 +20,6 @@ describe('ExpressAdapter', () => {
   afterAll(async () => adapter.close());
   afterAll(() => global.gc && global.gc());
 
-  it('Should call HttpController onInit method while init', async () => {
-    const instance = adapter.getControllerInstance<CustomersController>('/Customers');
-    expect(instance).toBeDefined();
-    expect(instance).toBeInstanceOf(CustomersController);
-    expect(instance!.initialized).toEqual(true);
-    expect(instance!.closed).toEqual(false);
-  });
-
   it('Should init all routes', async () => {
     const routerStack = app._router.stack.find(x => x.name === 'router');
     expect(routerStack).toBeDefined();
@@ -92,7 +84,5 @@ describe('ExpressAdapter', () => {
     await adapter.close();
     expect(instance).toBeDefined();
     expect(instance).toBeInstanceOf(CustomersController);
-    expect(instance!.initialized).toEqual(true);
-    expect(instance!.closed).toEqual(true);
   });
 });

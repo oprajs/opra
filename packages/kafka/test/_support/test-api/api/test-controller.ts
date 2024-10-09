@@ -7,9 +7,7 @@ import { SendMailDto } from '../dto/send-mail.dto.js';
   name: 'Test',
 }).Header('access-token', 'string'))
 export class TestController {
-  initialized = false;
-  closed = false;
-  counters = {
+  static counters = {
     mailChannel1: 0,
     mailChannel2: 0,
     smsChannel1: 0,
@@ -30,7 +28,7 @@ export class TestController {
       channel: 'test-send-email-response',
     }))
   mailChannel1(ctx: KafkaContext) {
-    this.counters.mailChannel1++;
+    TestController.counters.mailChannel1++;
     return 'OK:' + ctx.rawMessage.timestamp;
   }
 
@@ -45,7 +43,7 @@ export class TestController {
     }))
     .Header('header2', 'integer'))
   mailChannel2(ctx: KafkaContext) {
-    this.counters.mailChannel2++;
+    TestController.counters.mailChannel2++;
     return 'OK:' + ctx.rawMessage.timestamp;
   }
 
@@ -58,7 +56,7 @@ export class TestController {
     consumer: 'group-1',
   }))
   smsChannel1(ctx: KafkaContext) {
-    this.counters.smsChannel1++;
+    TestController.counters.smsChannel1++;
     return 'OK:' + ctx.rawMessage.timestamp;
   }
 
@@ -71,17 +69,7 @@ export class TestController {
     consumer: 'group-2',
   }))
   smsChannel2(ctx: KafkaContext) {
-    this.counters.smsChannel2++;
+    TestController.counters.smsChannel2++;
     return 'OK:' + ctx.rawMessage.timestamp;
-  }
-
-  @RpcController.OnInit()
-  async onInit() {
-    this.initialized = true;
-  }
-
-  @RpcController.OnShutdown()
-  async onShutdown() {
-    this.closed = true;
   }
 }

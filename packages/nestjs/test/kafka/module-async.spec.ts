@@ -1,8 +1,10 @@
+import { faker } from '@faker-js/faker';
 import { INestApplication } from '@nestjs/common';
 import { APP_GUARD, ModuleRef } from '@nestjs/core';
 import { APP_INTERCEPTOR } from '@nestjs/core/constants';
 import { Producer } from '@nestjs/microservices/external/kafka.interface';
 import { Test } from '@nestjs/testing';
+import { waitForMessage } from '@opra/kafka/test/_support/wait-for-message';
 import { OpraKafkaModule, OpraKafkaNestjsAdapter } from '@opra/nestjs';
 import { Kafka, logLevel } from 'kafkajs';
 import { CatsService } from '../_support/test-app/cats.service.js';
@@ -22,7 +24,35 @@ const kafkaBrokerHost = process.env.KAFKA_BROKER || 'localhost:9092';
 describe('OpraKafkaModule - async', () => {
   let nestApplication: INestApplication;
   let moduleRef: ModuleRef;
+  let adapter: OpraKafkaNestjsAdapter;
   let producer: Producer;
+
+  beforeAll(async () => {
+    const kafka = new Kafka({
+      clientId: 'opra-test',
+      brokers: [kafkaBrokerHost],
+      logLevel: logLevel.NOTHING,
+    });
+
+    const admin = kafka.admin();
+    await admin.connect();
+    for (const topic of ['feed-cat', 'feed-dog']) {
+      try {
+        const meta = await admin.fetchTopicMetadata({ topics: [topic] });
+        if (meta.topics[0]) {
+          await admin.deleteTopicRecords({ topic, partitions: [{ partition: 0, offset: '0' }] });
+        }
+      } catch {
+        //
+      }
+    }
+    await admin.disconnect();
+
+    producer = kafka.producer({
+      allowAutoTopicCreation: true,
+    });
+    await producer.connect();
+  });
 
   beforeAll(async () => {
     const module = await Test.createTestingModule({
@@ -56,24 +86,28 @@ describe('OpraKafkaModule - async', () => {
     nestApplication = module.createNestApplication();
     await nestApplication.init();
     moduleRef = nestApplication.get(ModuleRef);
+    adapter = moduleRef.get(OpraKafkaNestjsAdapter, { strict: false });
+  });
 
-    const kafka = new Kafka({
-      clientId: 'opra-test',
-      brokers: [kafkaBrokerHost],
-      logLevel: logLevel.NOTHING,
-    });
-    producer = kafka.producer();
-    await producer.connect();
+  beforeEach(() => {
+    CatsService.counters = {
+      getCat: 0,
+      getCats: 0,
+      feedCat: 0,
+    };
+    DogsService.counters = {
+      getDog: 0,
+      getDogs: 0,
+      feedDog: 0,
+    };
   });
 
   afterAll(async () => {
     await producer.disconnect().catch(() => undefined);
     await nestApplication?.close().catch(() => undefined);
-    // spy.mockRestore();
   });
 
   it('Should register adapter', async () => {
-    const adapter = moduleRef.get(OpraKafkaNestjsAdapter, { strict: false });
     expect(adapter).toBeDefined();
     expect(adapter.document).toBeDefined();
     expect(adapter.document.api).toBeDefined();
@@ -81,11 +115,31 @@ describe('OpraKafkaModule - async', () => {
   });
 
   it('Should call DEFAULT scoped api', async () => {
-    // const r = await request(server).get('/api/v1/cats');
-    // expect(r.status).toStrictEqual(200);
-    // await request(server).get('/api/v1/cats');
-    // expect(HttpCatsController.instanceCounter).toEqual(1);
-    // expect(CatsService.instanceCounter).toEqual(1);
+    const key = faker.string.alpha(5);
+    const payload: Cat = {
+      id: faker.number.int(),
+      name: faker.animal.cat(),
+      age: faker.number.int({ max: 12 }),
+    };
+    await producer.send({
+      topic: 'feed-cat',
+      messages: [
+        {
+          key,
+          value: JSON.stringify(payload),
+        },
+      ],
+    });
+    const ctx = await waitForMessage(adapter.adapter, 'feedCat', key);
+    expect(ctx).toBeDefined();
+    expect(ctx?.key).toStrictEqual(key);
+    expect(ctx?.payload).toEqual(payload);
+    expect(CatsService.counters).toEqual({
+      getCat: 0,
+      getCats: 0,
+      feedCat: 1,
+    });
+    expect(CatsService.instanceCounter).toEqual(1);
   });
 
   // it('Should call REQUEST scoped api', async () => {

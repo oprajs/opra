@@ -8,7 +8,7 @@ import path from 'node:path';
 import { HttpStatusCode } from '@opra/common';
 import contentDisposition from 'content-disposition';
 import contentType from 'content-type';
-import cookie from 'cookie';
+import * as cookie from 'cookie';
 import cookieSignature from 'cookie-signature';
 import encodeUrl from 'encodeurl';
 import mime from 'mime-types';

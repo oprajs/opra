@@ -15,9 +15,6 @@ import { CustomerAddressesController } from './customer-addresses.controller.js'
   .Cookie('accessToken', String)
   .Header('accessToken', String))
 export class CustomerController {
-  initialized = false;
-  closed = false;
-
   @(HttpOperation.Entity.Get(Customer)
     .QueryParam(/^a\d+$/, Number)
     .QueryParam(/^b\d+$/, { type: Number, isArray: true, arraySeparator: ',' })
@@ -48,15 +45,5 @@ export class CustomerController {
   @(HttpOperation({ path: '/sendMessage' }).QueryParam('message', String))
   async sendMessage(context: HttpContext) {
     return { sent: 1, message: context.queryParams.message };
-  }
-
-  @HttpController.OnInit()
-  async onInit() {
-    this.initialized = true;
-  }
-
-  @HttpController.OnShutdown()
-  async onShutdown() {
-    this.closed = true;
   }
 }

@@ -90,6 +90,7 @@ jobs:
         env:
           NODE_OPTIONS: "--max_old_space_size=4096"
           KAFKA_BROKER: localhost:9092
+          ELASTIC_HOST: http://localhost:9200
 
       - name: Send coverage to Coveralls
         uses: coverallsapp/github-action@v2

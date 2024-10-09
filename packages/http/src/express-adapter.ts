@@ -5,7 +5,6 @@ import { HttpAdapter } from './http-adapter.js';
 import { HttpContext } from './http-context.js';
 import { HttpIncoming } from './interfaces/http-incoming.interface.js';
 import { HttpOutgoing } from './interfaces/http-outgoing.interface.js';
-import { wrapException } from './utils/wrap-exception.js';
 
 export class ExpressAdapter extends HttpAdapter {
   readonly app: Application;
@@ -30,16 +29,6 @@ export class ExpressAdapter extends HttpAdapter {
         subResources.reverse();
         for (const subResource of subResources) {
           await processInstance(subResource);
-        }
-      }
-      if (controller.onShutdown) {
-        const instance = this._controllerInstances.get(controller) || controller.instance;
-        if (instance) {
-          try {
-            await controller.onShutdown.call(instance, controller);
-          } catch (e) {
-            if (this.listenerCount('error')) this.emit('error', wrapException(e));
-          }
         }
       }
     };
@@ -143,7 +132,6 @@ export class ExpressAdapter extends HttpAdapter {
     let instance = controller.instance;
     if (!instance && controller.ctor) instance = new controller.ctor();
     if (instance) {
-      if (typeof controller.onInit === 'function') controller.onInit.call(instance, controller);
       this._controllerInstances.set(controller, instance);
       // Initialize sub resources
       for (const r of controller.controllers.values()) {

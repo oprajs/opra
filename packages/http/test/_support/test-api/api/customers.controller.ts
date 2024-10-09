@@ -8,9 +8,6 @@ import { Data } from '../../../../../../examples/_lib/data/customers-data.js';
   description: 'Customer resource',
 })
 export class CustomersController {
-  public initialized = false;
-  public closed = false;
-
   @HttpOperation.Entity.Create(Customer)
   async create(context: HttpContext) {
     const body = await context.getBody<Customer>();
@@ -64,15 +61,5 @@ export class CustomersController {
   @(HttpOperation({ path: '/sendMessageAll' }).QueryParam('message', String))
   async sendMessageAll(context: HttpContext) {
     return { sent: 10, message: context.queryParams.message };
-  }
-
-  @HttpController.OnInit()
-  async onInit() {
-    this.initialized = true;
-  }
-
-  @HttpController.OnShutdown()
-  async onShutdown() {
-    this.closed = true;
   }
 }

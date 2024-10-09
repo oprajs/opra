@@ -2,16 +2,19 @@ import { ModuleRef, NestContainer } from '@nestjs/core';
 import { RuntimeException } from '@nestjs/core/errors/exceptions/index';
 import { ApiDocument, ApiDocumentFactory, RPC_CONTROLLER_METADATA } from '@opra/common';
 import { KafkaAdapter } from '@opra/kafka';
+import { BaseNestAdapter } from '../base-nestjs-adapter.js';
 import type { OpraKafkaModule } from './opra-kafka.module.js';
 
 /**
  * @class
  */
-export class OpraKafkaNestjsAdapter {
+export class OpraKafkaNestjsAdapter extends BaseNestAdapter {
   private _adapter?: KafkaAdapter;
   private _document?: ApiDocument;
 
-  constructor(protected moduleRef: ModuleRef) {}
+  constructor(moduleRef: ModuleRef) {
+    super(moduleRef);
+  }
 
   get document(): ApiDocument {
     if (!this._document) throw new RuntimeException('Not initialized yet');
@@ -61,7 +64,7 @@ export class OpraKafkaNestjsAdapter {
   protected _scanControllers() {
     const container = (this.moduleRef as any).container as NestContainer;
     const modules = container.getModules();
-    const controllerInstances: any[] = [];
+    const out: any[] = [];
     modules.forEach(({ controllers }) => {
       controllers.forEach(wrapper => {
         const ctor = Object.getPrototypeOf(wrapper.instance).constructor;
@@ -69,15 +72,16 @@ export class OpraKafkaNestjsAdapter {
         if (!metadata) return;
         const instance = {};
         Object.setPrototypeOf(instance, wrapper.instance);
-        controllerInstances.push(instance);
-        if (metadata.operations) {
-          // for (const [k, _] of Object.keys(metadata.operations)) {
-          //   const fn = instance[k];
-          //   instance[k] = fn;
-          // }
-        }
+        out.push(wrapper.instance);
+        // if (metadata.operations) {
+        //   for (const [k, _] of Object.keys(metadata.operations)) {
+        //     const isRequestScoped = !wrapper.isDependencyTreeStatic();
+        //     //   const fn = instance[k];
+        //     //   instance[k] = fn;
+        //   }
+        // }
       });
     });
-    return controllerInstances;
+    return out;
   }
 }
