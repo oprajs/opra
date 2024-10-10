@@ -1,6 +1,7 @@
 import '@opra/core';
 import { OpraFilter } from '@opra/common';
 import * as sqb from '@sqb/builder';
+import { isDate } from 'valgen';
 import type { SQBAdapter } from '../sqb-adapter.js';
 
 /**
@@ -36,10 +37,13 @@ function prepareFilterAst(ast?: OpraFilter.Expression): any {
     ast instanceof OpraFilter.StringLiteral ||
     ast instanceof OpraFilter.BooleanLiteral ||
     ast instanceof OpraFilter.NullLiteral ||
-    ast instanceof OpraFilter.DateLiteral ||
     ast instanceof OpraFilter.TimeLiteral
   ) {
     return ast.value;
+  }
+
+  if (ast instanceof OpraFilter.DateLiteral) {
+    return isDate(ast.value, { coerce: true });
   }
 
   if (ast instanceof OpraFilter.ArrayExpression) {

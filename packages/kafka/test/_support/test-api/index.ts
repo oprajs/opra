@@ -1,6 +1,6 @@
 import { ApiDocumentFactory, OpraSchema } from '@opra/common';
 import { KafkaAdapter } from '@opra/kafka';
-import { TestController } from './api/test-controller';
+import { TestController } from './api/test-controller.js';
 import { SendMailDto } from './dto/send-mail.dto.js';
 
 export namespace TestRpcApiDocument {

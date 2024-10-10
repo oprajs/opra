@@ -1,4 +1,5 @@
 import type { StrictOmit } from 'ts-gems';
+import { Validator } from 'valgen';
 import type { ComplexType } from '../document/index.js';
 import { OpraException } from '../exception/index.js';
 import { omitUndefined, ResponsiveMap } from '../helpers/index.js';
@@ -10,6 +11,7 @@ import {
   ComparisonExpression,
   type ComparisonOperator,
   Expression,
+  Literal,
   LogicalExpression,
   ParenthesizedExpression,
   QualifiedIdentifier,
@@ -29,6 +31,7 @@ export namespace FilterRules {
 
 export class FilterRules {
   protected _rules = new ResponsiveMap<FilterRules.Rule>();
+  protected _decoderCache = new WeakMap<any, Validator>();
 
   constructor(rules?: Record<string, FilterRules.Rule>, options?: FilterRules.Options) {
     Object.defineProperty(this, '_rules', {
@@ -61,11 +64,17 @@ export class FilterRules {
     );
   }
 
-  normalizeFilter(filter: OpraSchema.Field.QualifiedName | Expression, dataType?: ComplexType): Expression | undefined {
-    if (!filter) return;
+  normalizeFilter(
+    filter: OpraSchema.Field.QualifiedName | Expression,
+    currentType?: ComplexType,
+  ): Expression | undefined {
     const ast = typeof filter === 'string' ? parse(filter) : filter;
+    return this.normalizeFilterAst(ast, currentType);
+  }
+
+  protected normalizeFilterAst(ast: Expression, currentType?: ComplexType, left?: Expression): Expression | undefined {
     if (ast instanceof ComparisonExpression) {
-      this.normalizeFilter(ast.left, dataType);
+      this.normalizeFilterAst(ast.left, currentType);
       if (!(ast.left instanceof QualifiedIdentifier && ast.left.field)) {
         throw new TypeError(`Invalid filter query. Left side should be a data field.`);
       }
@@ -92,29 +101,43 @@ export class FilterRules {
           },
         });
       }
-      this.normalizeFilter(ast.right, dataType);
+      this.normalizeFilterAst(ast.right, currentType, ast.left);
       return ast;
     }
     if (ast instanceof LogicalExpression) {
-      ast.items.forEach(item => this.normalizeFilter(item, dataType));
+      ast.items.forEach(item => this.normalizeFilterAst(item, currentType, left));
       return ast;
     }
     if (ast instanceof ArithmeticExpression) {
-      ast.items.forEach(item => this.normalizeFilter(item.expression, dataType));
+      ast.items.forEach(item => this.normalizeFilterAst(item.expression, currentType, left));
       return ast;
     }
     if (ast instanceof ArrayExpression) {
-      ast.items.forEach(item => this.normalizeFilter(item, dataType));
+      ast.items.forEach(item => this.normalizeFilterAst(item, currentType, left));
       return ast;
     }
     if (ast instanceof ParenthesizedExpression) {
-      this.normalizeFilter(ast.expression, dataType);
+      this.normalizeFilterAst(ast.expression, currentType, left);
       return ast;
     }
-    if (ast instanceof QualifiedIdentifier && dataType) {
-      ast.value = dataType.normalizeFieldPath(ast.value);
-      ast.field = dataType.getField(ast.value);
+    if (ast instanceof QualifiedIdentifier && currentType) {
+      ast.value = currentType.normalizeFieldPath(ast.value);
+      ast.field = currentType.getField(ast.value);
       ast.dataType = ast.field.type;
+    }
+    if (ast instanceof Literal && left instanceof QualifiedIdentifier && left.field) {
+      if (ast.value == null && !left.field.required) return ast.value;
+      let decoder = this._decoderCache.get(left.field);
+      if (!decoder) {
+        decoder = left.field.type.generateCodec('decode', {
+          projection: '*',
+          ignoreWriteonlyFields: true,
+          ignoreHiddenFields: true,
+          coerce: true,
+        });
+        this._decoderCache.set(left.field, decoder);
+      }
+      ast.value = decoder(ast.value);
     }
     return ast;
   }
