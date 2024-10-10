@@ -83,29 +83,32 @@ describe('e2e', () => {
       to: faker.internet.email(),
       message: faker.string.alpha(5),
     };
-    setTimeout(() => {
-      producer
-        .send({
-          topic: 'email-channel-1',
-          messages: [
-            {
-              key,
-              value: JSON.stringify({
-                ...payload,
-                extraField: 12345,
-              }),
-              headers: {
-                header1: 'header1-value',
-                header2: '1234',
-              },
-            },
-          ],
-        })
-        .catch(() => undefined);
-    }, 500);
     const [ctx1, ctx2] = await Promise.all([
       waitForMessage(adapter, 'mailChannel1', key),
       waitForMessage(adapter, 'mailChannel2', key),
+      new Promise((resolve, reject) => {
+        setTimeout(() => {
+          producer
+            .send({
+              topic: 'email-channel-1',
+              messages: [
+                {
+                  key,
+                  value: JSON.stringify({
+                    ...payload,
+                    extraField: 12345,
+                  }),
+                  headers: {
+                    header1: 'header1-value',
+                    header2: '1234',
+                  },
+                },
+              ],
+            })
+            .then(resolve)
+            .catch(reject);
+        }, 250);
+      }),
     ]);
     expect(ctx1).toBeDefined();
     expect(ctx1?.key).toStrictEqual(key);
@@ -136,19 +139,28 @@ describe('e2e', () => {
       to: faker.internet.email(),
       message: faker.string.alpha(5),
     };
-    await producer.send({
-      topic: 'sms-channel-2',
-      messages: [
-        {
-          key,
-          value: JSON.stringify({
-            ...payload,
-            extraField: 12345,
-          }),
-        },
-      ],
-    });
-    const ctx1 = await waitForMessage(adapter, 'smsChannel2', key);
+    const [ctx1] = await Promise.all([
+      waitForMessage(adapter, 'smsChannel2', key),
+      new Promise((resolve, reject) => {
+        setTimeout(() => {
+          producer
+            .send({
+              topic: 'sms-channel-2',
+              messages: [
+                {
+                  key,
+                  value: JSON.stringify({
+                    ...payload,
+                    extraField: 12345,
+                  }),
+                },
+              ],
+            })
+            .then(resolve)
+            .catch(reject);
+        }, 250);
+      }),
+    ]);
     expect(ctx1).toBeDefined();
     expect(ctx1?.key).toStrictEqual(key);
     expect(ctx1?.payload).toEqual(payload);
@@ -167,21 +179,28 @@ describe('e2e', () => {
       to: faker.internet.email(),
       message: faker.string.alpha(5),
     };
-    await producer.send({
-      topic: 'sms-channel-1',
-      messages: [
-        {
-          key,
-          value: JSON.stringify({
-            ...payload,
-            extraField: 12345,
-          }),
-        },
-      ],
-    });
     const [ctx1, ctx2] = await Promise.all([
       waitForMessage(adapter, 'smsChannel1', key),
       waitForMessage(adapter, 'smsChannel2', key),
+      new Promise((resolve, reject) => {
+        setTimeout(() => {
+          producer
+            .send({
+              topic: 'sms-channel-1',
+              messages: [
+                {
+                  key,
+                  value: JSON.stringify({
+                    ...payload,
+                    extraField: 12345,
+                  }),
+                },
+              ],
+            })
+            .then(resolve)
+            .catch(reject);
+        }, 250);
+      }),
     ]);
     expect(ctx1).toBeDefined();
     expect(ctx1?.key).toStrictEqual(key);

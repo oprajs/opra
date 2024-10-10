@@ -121,16 +121,25 @@ describe('OpraKafkaModule - async', () => {
       name: faker.animal.cat(),
       age: faker.number.int({ max: 12 }),
     };
-    await producer.send({
-      topic: 'feed-cat',
-      messages: [
-        {
-          key,
-          value: JSON.stringify(payload),
-        },
-      ],
-    });
-    const ctx = await waitForMessage(adapter.adapter, 'feedCat', key);
+    const [ctx] = await Promise.all([
+      waitForMessage(adapter.adapter, 'feedCat', key),
+      new Promise((resolve, reject) => {
+        setTimeout(() => {
+          producer
+            .send({
+              topic: 'feed-cat',
+              messages: [
+                {
+                  key,
+                  value: JSON.stringify(payload),
+                },
+              ],
+            })
+            .then(resolve)
+            .catch(reject);
+        }, 250);
+      }),
+    ]);
     expect(ctx).toBeDefined();
     expect(ctx?.key).toStrictEqual(key);
     expect(ctx?.payload).toEqual(payload);
