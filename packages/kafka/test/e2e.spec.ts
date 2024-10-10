@@ -27,21 +27,6 @@ describe('e2e', () => {
       brokers: [kafkaBrokerHost],
       logLevel: logLevel.NOTHING,
     });
-
-    const admin = kafka.admin();
-    await admin.connect();
-    for (const topic of ['email-channel-1', 'email-channel-2', 'sms-channel-1', 'sms-channel-2']) {
-      try {
-        const meta = await admin.fetchTopicMetadata({ topics: [topic] });
-        if (meta.topics[0]) {
-          await admin.deleteTopicRecords({ topic, partitions: [{ partition: 0, offset: '0' }] });
-        }
-      } catch {
-        //
-      }
-    }
-    await admin.disconnect();
-
     producer = kafka.producer({
       allowAutoTopicCreation: true,
     });
