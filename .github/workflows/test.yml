@@ -71,7 +71,7 @@ jobs:
           cache: npm
 
       - name: Install NodeJS dependencies
-        run: npm ci
+        run: npm install
 
       - name: Install rman
         run: npm install rman -g
