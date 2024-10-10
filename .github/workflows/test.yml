@@ -53,7 +53,7 @@ jobs:
           stack-version: 8.2.0
           security-enabled: false
 
-      - name: Start Bitname Kafka
+      - name: Start Zookper
         uses: 280780363/kafka-action@v1.0
         with:
           kafka version: "latest" # Optional, kafka version
