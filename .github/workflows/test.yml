@@ -57,7 +57,7 @@ jobs:
         uses: spicyparrot/kafka-kraft-action@v1.1.0
         with:
           kafka-version: "3.7.0"
-          kafka-topics: "email-channel-1,1,email-channel-2,1,sms-channel-1,1,sms-channel-1,1"
+          kafka-topics: "email-channel-1,1,email-channel-2,1,sms-channel-1,1,sms-channel-2,1"
 
       - name: Checkout
         uses: actions/checkout@v4
