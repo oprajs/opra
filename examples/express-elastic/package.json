@@ -6,10 +6,10 @@
   "module": "./start.js",
   "dependencies": {
     "@elastic/elasticsearch": "^8.15.0",
-    "@opra/common": "^1.0.0-beta.6",
-    "@opra/core": "^1.0.0-beta.6",
-    "@opra/http": "^1.0.0-beta.6",
-    "@opra/mongodb": "^1.0.0-beta.6",
+    "@opra/common": "^1.0.1",
+    "@opra/core": "^1.0.1",
+    "@opra/http": "^1.0.1",
+    "@opra/mongodb": "^1.0.1",
     "express": "^4.21.1",
     "mongodb": "^6.9.0",
     "ts-gems": "^3.5.1"
