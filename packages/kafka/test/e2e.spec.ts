@@ -2,7 +2,7 @@ import { faker } from '@faker-js/faker';
 import { ApiDocument } from '@opra/common';
 import { ILogger } from '@opra/core';
 import { KafkaAdapter } from '@opra/kafka';
-import { Kafka, logLevel, Producer } from 'kafkajs';
+import { EachMessagePayload, Kafka, logLevel, Producer } from 'kafkajs';
 import { TestController } from './_support/test-api/api/test-controller.js';
 import { TestRpcApiDocument } from './_support/test-api/index.js';
 import { waitForMessage } from './_support/wait-for-message.js';
@@ -43,9 +43,9 @@ describe('e2e', () => {
       },
       logger,
     });
-    adapter.on('message', (message: any) => {
+    adapter.on('message', (payload: EachMessagePayload) => {
       // eslint-disable-next-line no-console
-      console.log('Kafka Message: ', message);
+      console.log('Kafka Message: ', payload.topic, payload.message.key?.toString());
     });
     await adapter.start();
   });

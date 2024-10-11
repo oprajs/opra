@@ -33,6 +33,25 @@ jobs:
           --health-interval 10s
           --health-timeout 5s
           --health-retries 5
+
+      zookeper:
+        image: confluentinc/cp-zookeeper:latest
+        env:
+          ZOOKEEPER_CLIENT_PORT: 2181
+          ZOOKEEPER_TICK_TIME: 2000
+        ports:
+          - 2181:2181
+
+      kafka:
+        image: confluentinc/cp-kafka:latest
+        env:
+          KAFKA_BROKER_ID: 1
+          KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+          KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://localhost:9092
+          KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+        ports:
+          - 9092:9092
+
     steps:
       - name: Start MongoDB
         uses: supercharge/mongodb-github-action@1.11.0
@@ -52,14 +71,6 @@ jobs:
         with:
           stack-version: 8.2.0
           security-enabled: false
-
-      - name: Start Kafka
-        uses: 280780363/kafka-action@v1.0
-        with:
-          kafka version: "latest" # Optional, kafka version
-          zookeeper version: "latest" # Optional, zookeeper version
-          kafka port: 9092 # Optional, kafka port
-          auto create topic: "true" # Optional, auto create kafka topic
 
       - name: Checkout
         uses: actions/checkout@v4
