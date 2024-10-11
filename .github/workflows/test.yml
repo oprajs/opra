@@ -57,7 +57,7 @@ jobs:
         uses: spicyparrot/kafka-kraft-action@v1.1.0
         with:
           kafka-version: "3.7.0"
-          kafka-topics: "example,1"
+          kafka-topics: "email-channel-1,1,email-channel-2,1,sms-channel-1,1,sms-channel-1,1"
 
       - name: Checkout
         uses: actions/checkout@v4
@@ -65,16 +65,12 @@ jobs:
       - name: Cache node modules
         id: cache-npm
         uses: actions/cache@v3
-        env:
-          cache-name: cache-node-modules
         with:
           # npm cache files are stored in `~/.npm` on Linux/macOS
-          path: ~/.npm
-          key: ${{ runner.os }}-build-${{ env.cache-name }}-${{ hashFiles('**/package-lock.json') }}
+          path: node_modules
+          key: node_modules-${{ runner.os }}-${{ hashFiles('**/package-lock.json') }}
           restore-keys: |
-            ${{ runner.os }}-build-${{ env.cache-name }}-
-            ${{ runner.os }}-build-
-            ${{ runner.os }}-
+            node_modules-${{ runner.os }}-            
 
       - name: Setup NodeJS
         uses: actions/setup-node@v4
