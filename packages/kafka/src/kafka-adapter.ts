@@ -141,7 +141,7 @@ export class KafkaAdapter extends PlatformAdapter {
       await consumer
         .run({
           eachMessage: async payload => {
-            await this.emitAsync('message', payload);
+            await this.emitAsync('message', payload).catch(() => undefined);
             const { topic } = payload;
             const topicCacheKey = groupId + ':' + topic;
             let handlerArgsArray = topicMap.get(topicCacheKey);
