@@ -43,10 +43,6 @@ describe('e2e', () => {
       },
       logger,
     });
-    adapter.on('message', (payload: EachMessagePayload) => {
-      // eslint-disable-next-line no-console
-      console.log('Kafka Message: ', payload.topic, payload.message.key?.toString());
-    });
     await adapter.start();
   });
 
