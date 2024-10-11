@@ -16,12 +16,12 @@ export async function waitForMessage(adapter: KafkaAdapter, oprname: string, key
         } else {
           if (waitList.has(waitKey)) return;
           // eslint-disable-next-line no-console
-          console.warn(`Warning: Waiting message with "${key}" key but god message with "${_ctx.key}"`);
+          console.log(`Warning: Waiting message with "${key}" key but god message with "${_ctx.key}"`);
         }
       } else {
         if (waitList.has(waitKey)) return;
         // eslint-disable-next-line no-console
-        console.warn(
+        console.log(
           `Warning: Waiting message for "${oprname}" operation but god message for "${_ctx.operation?.name}"`,
         );
       }
