@@ -1,5 +1,6 @@
+import '../polifils/array-find-last.js';
 import type { StrictOmit } from 'ts-gems';
-import { Validator } from 'valgen';
+import { isString, Validator } from 'valgen';
 import type { ComplexType } from '../document/index.js';
 import { OpraException } from '../exception/index.js';
 import { omitUndefined, ResponsiveMap } from '../helpers/index.js';
@@ -69,12 +70,18 @@ export class FilterRules {
     currentType?: ComplexType,
   ): Expression | undefined {
     const ast = typeof filter === 'string' ? parse(filter) : filter;
-    return this.normalizeFilterAst(ast, currentType);
+    return this.normalizeFilterAst(ast, [], currentType);
   }
 
-  protected normalizeFilterAst(ast: Expression, currentType?: ComplexType, left?: Expression): Expression | undefined {
+  protected normalizeFilterAst(
+    ast: Expression,
+    stack: Expression[],
+    currentType?: ComplexType,
+  ): Expression | undefined {
     if (ast instanceof ComparisonExpression) {
-      this.normalizeFilterAst(ast.left, currentType);
+      stack.push(ast);
+      this.normalizeFilterAst(ast.left, stack, currentType);
+
       if (!(ast.left instanceof QualifiedIdentifier && ast.left.field)) {
         throw new TypeError(`Invalid filter query. Left side should be a data field.`);
       }
@@ -101,43 +108,67 @@ export class FilterRules {
           },
         });
       }
-      this.normalizeFilterAst(ast.right, currentType, ast.left);
+      this.normalizeFilterAst(ast.right, stack, currentType);
+      stack.pop();
       return ast;
     }
     if (ast instanceof LogicalExpression) {
-      ast.items.forEach(item => this.normalizeFilterAst(item, currentType, left));
+      stack.push(ast);
+      ast.items.forEach(item => this.normalizeFilterAst(item, stack, currentType));
+      stack.pop();
       return ast;
     }
     if (ast instanceof ArithmeticExpression) {
-      ast.items.forEach(item => this.normalizeFilterAst(item.expression, currentType, left));
+      stack.push(ast);
+      ast.items.forEach(item => this.normalizeFilterAst(item.expression, stack, currentType));
+      stack.pop();
       return ast;
     }
     if (ast instanceof ArrayExpression) {
-      ast.items.forEach(item => this.normalizeFilterAst(item, currentType, left));
+      stack.push(ast);
+      ast.items.forEach(item => this.normalizeFilterAst(item, stack, currentType));
+      stack.pop();
       return ast;
     }
     if (ast instanceof ParenthesizedExpression) {
-      this.normalizeFilterAst(ast.expression, currentType, left);
+      stack.push(ast);
+      this.normalizeFilterAst(ast.expression, stack, currentType);
+      stack.pop();
       return ast;
     }
     if (ast instanceof QualifiedIdentifier && currentType) {
       ast.value = currentType.normalizeFieldPath(ast.value);
       ast.field = currentType.getField(ast.value);
       ast.dataType = ast.field.type;
+      return ast;
     }
-    if (ast instanceof Literal && left instanceof QualifiedIdentifier && left.field) {
-      if (ast.value == null && !left.field.required) return ast.value;
-      let decoder = this._decoderCache.get(left.field);
-      if (!decoder) {
-        decoder = left.field.type.generateCodec('decode', {
-          projection: '*',
-          ignoreWriteonlyFields: true,
-          ignoreHiddenFields: true,
-          coerce: true,
-        });
-        this._decoderCache.set(left.field, decoder);
+    if (ast instanceof Literal) {
+      /** Check if comparison expression has in stack */
+      const compIdx = stack.findLastIndex(x => x instanceof ComparisonExpression);
+      if (compIdx >= 0) {
+        const comp = stack[compIdx] as ComparisonExpression;
+        /** If calling for right side of comparison */
+        if (ast === comp.right || stack[compIdx + 1] === comp.right) {
+          /** Check if comparison expression left side is a field */
+          if (comp && comp.left instanceof QualifiedIdentifier && comp.left.field) {
+            if (ast.value == null && !comp.left.field.required) return ast.value;
+            let decoder: Validator | undefined;
+            if (comp.op === 'like' || comp.op === '!like' || comp.op === 'ilike' || comp.op === '!ilike') {
+              decoder = isString;
+            } else decoder = this._decoderCache.get(comp.left.field);
+            if (!decoder) {
+              decoder = comp.left.field.type.generateCodec('decode', {
+                projection: '*',
+                ignoreWriteonlyFields: true,
+                ignoreHiddenFields: true,
+                coerce: true,
+              });
+              this._decoderCache.set(comp.left.field, decoder);
+            }
+            ast.value = decoder(ast.value);
+          }
+        }
       }
-      ast.value = decoder(ast.value);
     }
     return ast;
   }
