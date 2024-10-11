@@ -13,11 +13,13 @@ describe('MongoAdapter.preparePatch', () => {
   });
 
   it('Should patch nested fields', async () => {
-    const o: any = MongoAdapter.preparePatch({ _id: 123, address: { city: 'Berlin' } });
+    const date = new Date();
+    const o: any = MongoAdapter.preparePatch({ _id: 123, address: { city: 'Berlin' }, date });
     expect(o).toEqual({
       $set: {
         _id: 123,
         'address.city': 'Berlin',
+        date,
       },
     });
   });

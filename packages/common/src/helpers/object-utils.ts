@@ -31,3 +31,22 @@ export function omitNullish<T>(obj: T, recursive?: boolean): DeeperOmitTypes<T, 
   }
   return obj as any;
 }
+
+const TypedArray = Object.getPrototypeOf(Uint8Array);
+
+export function isBuiltInObject(v: any): boolean {
+  return (
+    Array.isArray(v) ||
+    (typeof v === 'object' &&
+      (v instanceof Date ||
+        v instanceof RegExp ||
+        v instanceof Map ||
+        v instanceof Set ||
+        v instanceof ArrayBuffer ||
+        v instanceof SharedArrayBuffer ||
+        v instanceof Promise ||
+        v instanceof Error ||
+        v instanceof TypedArray ||
+        Buffer.isBuffer(v)))
+  );
+}
