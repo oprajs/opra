@@ -2,7 +2,7 @@ import { faker } from '@faker-js/faker';
 import { ApiDocument } from '@opra/common';
 import { ILogger } from '@opra/core';
 import { KafkaAdapter } from '@opra/kafka';
-import { EachMessagePayload, Kafka, logLevel, Producer } from 'kafkajs';
+import { Kafka, logLevel, Producer } from 'kafkajs';
 import { TestController } from './_support/test-api/api/test-controller.js';
 import { TestRpcApiDocument } from './_support/test-api/index.js';
 import { waitForMessage } from './_support/wait-for-message.js';
