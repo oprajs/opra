@@ -1,6 +1,6 @@
 {
   "name": "@opra/core",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "description": "Opra schema package",
   "author": "Panates",
   "license": "MIT",
@@ -26,7 +26,7 @@
     "clean:cover": "rimraf ../../coverage/core"
   },
   "dependencies": {
-    "@opra/common": "^1.0.2",
+    "@opra/common": "^1.0.3",
     "node-events-async": "^1.0.0",
     "reflect-metadata": "^0.2.2",
     "tslib": "^2.7.0"
