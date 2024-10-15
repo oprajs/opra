@@ -1,4 +1,4 @@
-import { ApiDocument, OpraSchema, RpcApi, RpcController, RpcOperation } from '@opra/common';
+import { ApiDocument, OpraSchema, RPC_CONTROLLER_METADATA, RpcApi, RpcController, RpcOperation } from '@opra/common';
 import { type ILogger, kAssetCache, PlatformAdapter } from '@opra/core';
 import { type Consumer, ConsumerConfig, EachMessageHandler, Kafka, type KafkaConfig, logLevel } from 'kafkajs';
 import type { StrictOmit } from 'ts-gems';
@@ -20,6 +20,12 @@ export namespace KafkaAdapter {
   export interface Config extends PlatformAdapter.Options {
     client: StrictOmit<KafkaConfig, 'logCreator' | 'logLevel'>;
     consumers?: Record<string, StrictOmit<ConsumerConfig, 'groupId'>>;
+    defaults?: {
+      consumer?: ConsumerConfig;
+      subscribe?: {
+        fromBeginning?: boolean;
+      };
+    };
     document: ApiDocument;
     interceptors?: (InterceptorFunction | IKafkaInterceptor)[];
     logger?: ILogger;
@@ -31,7 +37,9 @@ export namespace KafkaAdapter {
      * groupId or ConsumerConfig
      */
     consumer?: string | ConsumerConfig;
-    fromBeginning?: boolean;
+    subscribe?: {
+      fromBeginning?: boolean;
+    };
   }
 
   /**
@@ -47,12 +55,18 @@ export namespace KafkaAdapter {
   };
 }
 
+export interface OperationConfig {
+  consumer: ConsumerConfig;
+  selfConsumer?: boolean;
+  subscribe?: KafkaAdapter.OperationOptions['subscribe'];
+}
+
 interface HandlerArguments {
   consumer: Consumer;
   controller: RpcController;
   instance: any;
   operation: RpcOperation;
-  operationOptions: KafkaAdapter.OperationOptions;
+  operationConfig: OperationConfig;
   handler: EachMessageHandler;
   topics: (string | RegExp)[];
 }
@@ -125,12 +139,17 @@ export class KafkaAdapter extends PlatformAdapter {
 
     /** Subscribe to channels */
     for (const args of this._handlerArgs) {
-      const { consumer, operation, operationOptions } = args;
+      const { consumer, operation, operationConfig } = args;
       args.topics = Array.isArray(operation.channel) ? operation.channel : [operation.channel];
-      await consumer.subscribe({ topics: args.topics, fromBeginning: operationOptions.fromBeginning }).catch(e => {
-        this._emitError(e);
-        throw e;
-      });
+      await consumer
+        .subscribe({
+          ...operationConfig.subscribe,
+          topics: args.topics,
+        })
+        .catch(e => {
+          this._emitError(e);
+          throw e;
+        });
       this.logger?.info?.(`Subscribed to topic${args.topics.length > 1 ? 's' : ''} "${args.topics}"`);
     }
 
@@ -197,24 +216,57 @@ export class KafkaAdapter extends PlatformAdapter {
    * @param operation
    * @protected
    */
-  protected async _getOperationOptions(
+  protected async _getOperationConfig(
     controller: RpcController,
     instance: any,
     operation: RpcOperation,
-  ): Promise<KafkaAdapter.OperationOptions | undefined> {
+  ): Promise<OperationConfig | undefined> {
     if (typeof instance[operation.name] !== 'function') return;
     const proto = controller.ctor?.prototype || Object.getPrototypeOf(instance);
-    let operationOptions: KafkaAdapter.OperationOptions | undefined = Reflect.getMetadata(
+    if (Reflect.hasMetadata(RPC_CONTROLLER_METADATA, proto, operation.name)) return;
+    const operationConfig: OperationConfig = {
+      consumer: {
+        groupId: KAFKA_DEFAULT_GROUP,
+      },
+      subscribe: {},
+    };
+    if (this._config.defaults) {
+      if (this._config.defaults.subscribe) {
+        Object.assign(operationConfig.subscribe!, this._config.defaults.subscribe);
+      }
+      if (this._config.defaults.consumer) {
+        Object.assign(operationConfig.consumer, this._config.defaults.consumer);
+      }
+    }
+
+    let kafkaMetadata = Reflect.getMetadata(
       KAFKA_OPERATION_METADATA,
       proto,
       operation.name,
-    );
-    const configResolver = Reflect.getMetadata(KAFKA_OPERATION_METADATA_RESOLVER, proto, operation.name);
-    if (configResolver) {
-      const cfg = await configResolver();
-      operationOptions = { ...operationOptions, ...cfg };
+    ) as KafkaAdapter.OperationOptions;
+    if (!kafkaMetadata) {
+      const configResolver = Reflect.getMetadata(KAFKA_OPERATION_METADATA_RESOLVER, proto, operation.name);
+      if (configResolver) {
+        kafkaMetadata = await configResolver();
+      }
     }
-    return operationOptions;
+    if (kafkaMetadata) {
+      if (kafkaMetadata.subscribe) {
+        Object.assign(operationConfig.subscribe!, kafkaMetadata.subscribe);
+      }
+      if (kafkaMetadata.consumer) {
+        if (typeof kafkaMetadata.consumer === 'object') {
+          Object.assign(operationConfig.consumer, kafkaMetadata.consumer);
+          operationConfig.selfConsumer = true;
+        } else {
+          const x = this._config.consumers?.[kafkaMetadata.consumer];
+          if (x) {
+            Object.assign(operationConfig.consumer, x);
+          }
+        }
+      }
+    }
+    return operationConfig;
   }
 
   /**
@@ -230,15 +282,14 @@ export class KafkaAdapter extends PlatformAdapter {
 
       /** Build HandlerData array */
       for (const operation of controller.operations.values()) {
-        const operationOptions = await this._getOperationOptions(controller, instance, operation);
-        if (!operationOptions) continue;
-        // const consumerConfig = this._getConsumerConfig(operationOptions);
+        const operationConfig = await this._getOperationConfig(controller, instance, operation);
+        if (!operationConfig) continue;
         const args: HandlerArguments = {
           consumer: null as any,
           controller,
           instance,
           operation,
-          operationOptions,
+          operationConfig,
           handler: null as any,
           topics: null as any,
         };
@@ -259,28 +310,16 @@ export class KafkaAdapter extends PlatformAdapter {
    * @protected
    */
   protected async _createConsumer(args: HandlerArguments) {
-    const { operationOptions } = args;
-    const consumerConfig: ConsumerConfig = {
-      groupId: KAFKA_DEFAULT_GROUP,
-    };
-    let consumer: Consumer | undefined;
-    if (typeof operationOptions.consumer === 'object') {
-      consumer = this._consumers.get(operationOptions.consumer.groupId);
-      if (consumer) {
-        throw new Error(`Operation consumer for groupId (${operationOptions.consumer.groupId}) already exists`);
-      }
-      Object.assign(consumerConfig, operationOptions.consumer);
-    } else if (operationOptions.consumer) {
-      const x = this._config.consumers?.[operationOptions.consumer];
-      Object.assign(consumerConfig, { ...x, groupId: operationOptions.consumer });
+    const { operationConfig } = args;
+    let consumer = this._consumers.get(operationConfig.consumer.groupId);
+    if (consumer && operationConfig.selfConsumer) {
+      throw new Error(`Operation consumer for groupId (${operationConfig.consumer.groupId}) already exists`);
     }
-    consumer = this._consumers.get(consumerConfig.groupId);
-
     /** Create consumers */
     if (!consumer) {
-      consumer = this.kafka.consumer(consumerConfig);
-      consumer[kGroupId] = consumerConfig.groupId;
-      this._consumers.set(consumerConfig.groupId, consumer);
+      consumer = this.kafka.consumer(operationConfig.consumer);
+      consumer[kGroupId] = operationConfig.consumer.groupId;
+      this._consumers.set(operationConfig.consumer.groupId, consumer);
     }
     args.consumer = consumer;
   }

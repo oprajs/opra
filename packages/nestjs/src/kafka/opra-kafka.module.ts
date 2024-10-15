@@ -23,7 +23,7 @@ export namespace OpraKafkaModule {
 
   export interface ApiConfig
     extends Pick<ApiDocumentFactory.InitArguments, 'types' | 'references' | 'info'>,
-      Pick<KafkaAdapter.Config, 'client' | 'consumers' | 'logExtra'> {
+      Pick<KafkaAdapter.Config, 'client' | 'consumers' | 'logExtra' | 'defaults'> {
     name: string;
     description?: string;
     logger?: Logger;

@@ -58,6 +58,7 @@ export class OpraKafkaNestjsAdapter extends BaseNestAdapter {
       logExtra: init.logExtra,
       consumers: init.consumers,
       document: this._document,
+      defaults: init.defaults,
     });
   }
 
