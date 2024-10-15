@@ -261,6 +261,7 @@ export class KafkaAdapter extends PlatformAdapter {
         } else {
           const x = this._config.consumers?.[kafkaMetadata.consumer];
           if (x) {
+            operationConfig.consumer.groupId = kafkaMetadata.consumer;
             Object.assign(operationConfig.consumer, x);
           }
         }
