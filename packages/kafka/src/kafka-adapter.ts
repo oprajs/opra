@@ -1,4 +1,12 @@
-import { ApiDocument, OpraSchema, RPC_CONTROLLER_METADATA, RpcApi, RpcController, RpcOperation } from '@opra/common';
+import {
+  ApiDocument,
+  OpraException,
+  OpraSchema,
+  RPC_CONTROLLER_METADATA,
+  RpcApi,
+  RpcController,
+  RpcOperation,
+} from '@opra/common';
 import { type ILogger, kAssetCache, PlatformAdapter } from '@opra/core';
 import { type Consumer, ConsumerConfig, EachMessageHandler, Kafka, type KafkaConfig, logLevel } from 'kafkajs';
 import type { StrictOmit } from 'ts-gems';
@@ -10,6 +18,7 @@ import { RequestParser } from './request-parser.js';
 const globalErrorTypes = ['unhandledRejection', 'uncaughtException'];
 const signalTraps = ['SIGTERM', 'SIGINT', 'SIGUSR2'];
 const kGroupId = Symbol('kGroupId');
+const noOp = () => undefined;
 
 /**
  * @namespace KafkaAdapter
@@ -26,9 +35,7 @@ export namespace KafkaAdapter {
         fromBeginning?: boolean;
       };
     };
-    document: ApiDocument;
     interceptors?: (InterceptorFunction | IKafkaInterceptor)[];
-    logger?: ILogger;
     logExtra?: boolean;
   }
 
@@ -81,11 +88,11 @@ export class KafkaAdapter extends PlatformAdapter {
   protected _controllerInstances = new Map<RpcController, any>();
   protected _consumers = new Map<string, Consumer>();
   protected _handlerArgs: HandlerArguments[] = [];
-  protected _logger?: ILogger;
-  readonly kafka: Kafka;
+  protected _started = false;
+  protected declare _kafka: Kafka;
   readonly protocol: OpraSchema.Transport = 'rpc';
   readonly platform = KafkaAdapter.PlatformName;
-  interceptors: (KafkaAdapter.InterceptorFunction | KafkaAdapter.IKafkaInterceptor)[];
+  readonly interceptors: (KafkaAdapter.InterceptorFunction | KafkaAdapter.IKafkaInterceptor)[];
 
   /**
    *
@@ -93,17 +100,9 @@ export class KafkaAdapter extends PlatformAdapter {
    * @constructor
    */
   constructor(config: KafkaAdapter.Config) {
-    super(config.document, config);
-    if (!(config.document.api instanceof RpcApi && config.document.api.platform === KafkaAdapter.PlatformName)) {
-      throw new TypeError(`The document doesn't expose a Kafka Api`);
-    }
+    super(config);
     this._config = config;
     this.interceptors = [...(config.interceptors || [])];
-    this.kafka = new Kafka({
-      ...config.client,
-      logCreator: config.logger ? () => this._createLogCreator(config.logger!, config.logExtra) : undefined,
-    });
-    this._logger = config.logger;
     globalErrorTypes.forEach(type => {
       process.on(type, e => {
         this._emitError(e);
@@ -119,16 +118,30 @@ export class KafkaAdapter extends PlatformAdapter {
     return this.document.rpcApi;
   }
 
+  get kafka(): Kafka {
+    return this._kafka;
+  }
+
+  async initialize(document: ApiDocument) {
+    if (this._document) throw new TypeError(`${this.constructor.name} already initialized.`);
+    if (!(document.api instanceof RpcApi && document.api.platform === KafkaAdapter.PlatformName)) {
+      throw new TypeError(`The document doesn't expose a Kafka Api`);
+    }
+    this._document = document;
+    this._kafka = new Kafka({
+      ...this._config.client,
+      logCreator: this.logger ? () => this._createLogCreator(this.logger!, this._config.logExtra) : undefined,
+    });
+
+    await this._createAllConsumers();
+  }
+
   /**
    * Starts the service
    */
   async start() {
-    /* istanbul ignore next */
-    if (this._consumers.size > 0) return;
-    /* istanbul ignore next */
-    if (this._consumers.size > 0) return;
-    await this._createAllConsumers();
-
+    if (this._started) return;
+    this._started = true;
     /** Connect all consumers */
     for (const consumer of this._consumers.values()) {
       await consumer.connect().catch(e => {
@@ -375,7 +388,7 @@ export class KafkaAdapter extends PlatformAdapter {
         return;
       }
       /** Create context */
-      const ctx = new KafkaContext({
+      const context = new KafkaContext({
         adapter: this,
         platform: this.platform,
         controller,
@@ -392,15 +405,41 @@ export class KafkaAdapter extends PlatformAdapter {
         pause,
       });
 
-      await this.emitAsync('before-execute', ctx);
-      const result = await operationHandler.call(instance, ctx);
-      await this.emitAsync('after-execute', ctx, result);
+      await this.emitAsync('before-execute', context);
+      try {
+        /** Call operation handler */
+        const result = await operationHandler.call(instance, context);
+        await this.emitAsync('after-execute', context, result);
+      } catch (e: any) {
+        this._emitError(e, context);
+      }
     };
   }
 
-  protected _emitError(e: any) {
-    this._logger?.error(e);
-    if (this.listenerCount('error')) this.emit('error', e);
+  protected _emitError(e: any, context?: KafkaContext) {
+    Promise.resolve()
+      .then(async () => {
+        const logger = this.logger;
+        if (context) {
+          context.errors = this._wrapExceptions(context.errors);
+          if (context.listenerCount('error')) {
+            await this.emitAsync('error', context.errors[0], context);
+          }
+          if (logger?.error) {
+            context.errors.forEach(err => logger.error(err, context));
+          }
+          return;
+        }
+        this.logger?.error(e);
+        if (this.listenerCount('error')) this.emit('error', e);
+      })
+      .catch(noOp);
+  }
+
+  protected _wrapExceptions(exceptions: any[]): OpraException[] {
+    const wrappedErrors = exceptions.map(e => (e instanceof OpraException ? e : new OpraException(e)));
+    if (!wrappedErrors.length) wrappedErrors.push(new OpraException('Internal Server Error'));
+    return wrappedErrors;
   }
 
   protected _createLogCreator(logger: ILogger, logExtra?: boolean) {

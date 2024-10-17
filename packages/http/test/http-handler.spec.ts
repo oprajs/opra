@@ -26,7 +26,8 @@ describe('HttpHandler', () => {
     document = await createTestApi();
     app = express();
     app.use(cookieParser());
-    adapter = new ExpressAdapter(app, document);
+    adapter = new ExpressAdapter(app);
+    adapter.initialize(document);
   });
 
   afterAll(async () => adapter.close());

@@ -10,10 +10,10 @@ import {
 } from '@nestjs/common';
 import { ModuleRef } from '@nestjs/core';
 import { isConstructor } from '@opra/common';
-import { KafkaAdapter, KafkaContext } from '@opra/kafka';
+import { KafkaAdapter, type KafkaContext } from '@opra/kafka';
 import { OPRA_KAFKA_MODULE_CONFIG } from '../constants.js';
+import { initializeAdapter } from './helpers/initialize-adapter.js';
 import type { OpraKafkaModule } from './opra-kafka.module.js';
-import { OpraKafkaNestjsAdapter } from './opra-kafka-nestjs-adapter.js';
 
 const opraKafkaNestjsAdapterToken = Symbol('OpraKafkaNestjsAdapter');
 
@@ -21,10 +21,11 @@ const opraKafkaNestjsAdapterToken = Symbol('OpraKafkaNestjsAdapter');
 @Global()
 export class OpraKafkaCoreModule implements OnModuleInit, OnApplicationBootstrap, OnApplicationShutdown {
   constructor(
+    protected moduleRef: ModuleRef,
     @Inject(opraKafkaNestjsAdapterToken)
-    protected adapter: OpraKafkaNestjsAdapter,
+    protected adapter: KafkaAdapter,
     @Inject(OPRA_KAFKA_MODULE_CONFIG)
-    protected init: OpraKafkaModule.ApiConfig,
+    protected config: OpraKafkaModule.ApiConfig,
   ) {}
 
   static forRoot(moduleOptions: OpraKafkaModule.ModuleOptions): DynamicModule {
@@ -66,25 +67,23 @@ export class OpraKafkaCoreModule implements OnModuleInit, OnApplicationBootstrap
   protected static _getDynamicModule(
     moduleOptions: OpraKafkaModule.ModuleOptions | OpraKafkaModule.AsyncModuleOptions,
   ): DynamicModule {
-    const token = moduleOptions.id || OpraKafkaNestjsAdapter;
+    const token = moduleOptions.id || KafkaAdapter;
     const adapterProvider = {
       provide: token,
       inject: [ModuleRef, OPRA_KAFKA_MODULE_CONFIG],
       useFactory: async (moduleRef: ModuleRef, config: OpraKafkaModule.ApiConfig) => {
-        const adapter = new OpraKafkaNestjsAdapter(moduleRef);
-        await adapter.initialize(config);
-        if (moduleOptions.interceptors) {
-          adapter.adapter.interceptors = moduleOptions.interceptors.map(x => {
-            if (isConstructor(x)) {
-              return async (ctx: KafkaContext, next: KafkaAdapter.NextCallback) => {
-                const interceptor = moduleRef.get(x);
-                if (typeof interceptor.intercept === 'function') return interceptor.intercept(ctx, next);
-              };
-            }
-            return x;
-          });
-        }
-        return adapter;
+        const interceptors = moduleOptions.interceptors
+          ? moduleOptions.interceptors.map(x => {
+              if (isConstructor(x)) {
+                return async (ctx: KafkaContext, next: KafkaAdapter.NextCallback) => {
+                  const interceptor = moduleRef.get(x);
+                  if (typeof interceptor.intercept === 'function') return interceptor.intercept(ctx, next);
+                };
+              }
+              return x;
+            })
+          : undefined;
+        return new KafkaAdapter({ ...config, interceptors });
       },
     };
     return {
@@ -105,14 +104,17 @@ export class OpraKafkaCoreModule implements OnModuleInit, OnApplicationBootstrap
   }
 
   async onModuleInit() {
-    await this.adapter.initialize(this.init);
+    /** Check if not initialized before */
+    if (!this.adapter.document) {
+      await initializeAdapter(this.moduleRef, this.adapter, this.config);
+    }
   }
 
   async onApplicationBootstrap() {
-    await this.adapter.start();
+    if (this.adapter.document) await this.adapter.start();
   }
 
   async onApplicationShutdown() {
-    await this.adapter.stop();
+    await this.adapter.close();
   }
 }

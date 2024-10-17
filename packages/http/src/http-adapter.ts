@@ -1,4 +1,4 @@
-import { ApiDocument, HttpApi, OpraSchema } from '@opra/common';
+import { HttpApi, OpraSchema } from '@opra/common';
 import { PlatformAdapter } from '@opra/core';
 import { HttpContext } from './http-context.js';
 import { HttpHandler } from './http-handler.js';
@@ -34,9 +34,8 @@ export abstract class HttpAdapter extends PlatformAdapter {
   readonly basePath: string;
   interceptors: (HttpAdapter.InterceptorFunction | HttpAdapter.IHttpInterceptor)[];
 
-  protected constructor(document: ApiDocument, options?: HttpAdapter.Options) {
-    super(document, options);
-    if (!(document.api instanceof HttpApi)) throw new TypeError(`The document does not expose an HTTP Api`);
+  protected constructor(options?: HttpAdapter.Options) {
+    super(options);
     this.handler = new HttpHandler(this);
     this.interceptors = [...(options?.interceptors || [])];
     this.basePath = options?.basePath || '/';

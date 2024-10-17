@@ -14,7 +14,8 @@ describe('ExpressAdapter', () => {
     document = await createTestApi();
     app = express();
     app.use(cookieParser());
-    adapter = new ExpressAdapter(app, document, { basePath: 'api' });
+    adapter = new ExpressAdapter(app, { basePath: 'api' });
+    adapter.initialize(document);
   });
 
   afterAll(async () => adapter.close());

@@ -421,8 +421,20 @@ export class HttpHandler {
   protected async _sendErrorResponse(context: HttpContext): Promise<void> {
     context.errors = this._wrapExceptions(context.errors);
     try {
-      await this.adapter.emitAsync('error', context);
-      context.errors = this._wrapExceptions(context.errors);
+      if (context.listenerCount('error')) {
+        await this.adapter.emitAsync('error', context);
+        context.errors = this._wrapExceptions(context.errors);
+      }
+      if (this.adapter.listenerCount('error')) {
+        await this.adapter.emitAsync('error', context.errors[0], context);
+        context.errors = this._wrapExceptions(context.errors);
+      }
+      if (this.adapter.logger?.error) {
+        const logger = this.adapter.logger;
+        context.errors.forEach(e => {
+          if (e.status >= 500 && e.status < 600) logger.error(e);
+        });
+      }
     } catch (e) {
       context.errors = this._wrapExceptions([e, ...context.errors]);
     }

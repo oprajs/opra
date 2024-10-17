@@ -19,7 +19,7 @@ export interface MockServer extends express.Express {
 }
 
 export async function createMockServer(): Promise<MockServer> {
-  const api = await createTestApi();
+  const document = await createTestApi();
   const app = express() as MockServer;
   app.requestCount = 0;
   app.use(bodyParser.json());
@@ -29,7 +29,8 @@ export async function createMockServer(): Promise<MockServer> {
     app.requestCount++;
     next();
   });
-  app.adapter = new ExpressAdapter(app, api);
+  app.adapter = new ExpressAdapter(app);
+  await app.adapter.initialize(document);
 
   return await new Promise<void>(subResolve => {
     app.server = app.listen(0, '127.0.0.1', () => subResolve());

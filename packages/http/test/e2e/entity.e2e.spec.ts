@@ -14,7 +14,8 @@ describe('e2e:HttpOperation.Entity endpoints', () => {
   beforeAll(async () => {
     document = await createTestApi();
     app = express();
-    adapter = new ExpressAdapter(app, document);
+    adapter = new ExpressAdapter(app);
+    adapter.initialize(document);
     testArgs.app = app;
     testArgs.client = new OpraTestClient(app, { document });
   });

@@ -54,7 +54,7 @@
     "raw-body": "^3.0.0",
     "reflect-metadata": "^0.2.2",
     "super-fast-md5": "^1.0.3",
-    "tslib": "^2.7.0",
+    "tslib": "^2.8.0",
     "valgen": "^5.10.0",
     "vary": "^1.1.2"
   },

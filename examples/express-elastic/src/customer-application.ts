@@ -22,7 +22,8 @@ export class CustomerApplication {
     }
     app.document = await CustomerApiDocument.create(app.dbClient);
     app.express = express();
-    app.adapter = new ExpressAdapter(app.express, app.document, options);
+    app.adapter = new ExpressAdapter(app.express, options);
+    await app.adapter.initialize(app.document);
     return app;
   }
 

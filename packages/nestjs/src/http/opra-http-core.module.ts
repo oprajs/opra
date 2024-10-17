@@ -11,7 +11,6 @@ import {
 import { APP_FILTER, ModuleRef } from '@nestjs/core';
 import { ApiDocumentFactory, isConstructor } from '@opra/common';
 import { HttpAdapter, HttpContext } from '@opra/http';
-import { asMutable } from 'ts-gems';
 import { OPRA_HTTP_API_CONFIG } from '../constants.js';
 import type { OpraHttpModule } from './opra-http.module.js';
 import { OpraHttpNestjsAdapter } from './opra-http-nestjs-adapter.js';
@@ -74,7 +73,7 @@ export class OpraHttpCoreModule implements OnModuleDestroy, NestModule {
       inject: [ModuleRef, OPRA_HTTP_API_CONFIG],
       useFactory: async (moduleRef: ModuleRef, apiConfig: OpraHttpModule.ApiConfig) => {
         opraNestAdapter.logger = opraNestAdapter.logger || new Logger(apiConfig.name);
-        asMutable(opraNestAdapter).document = await ApiDocumentFactory.createDocument({
+        (opraNestAdapter as any)._document = await ApiDocumentFactory.createDocument({
           ...apiConfig,
           api: {
             transport: 'http',

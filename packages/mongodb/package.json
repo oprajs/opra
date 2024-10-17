@@ -24,7 +24,7 @@
   "dependencies": {
     "lodash.omit": "^4.5.0",
     "putil-isplainobject": "^1.1.5",
-    "tslib": "^2.7.0",
+    "tslib": "^2.8.0",
     "valgen": "^5.10.0"
   },
   "devDependencies": {

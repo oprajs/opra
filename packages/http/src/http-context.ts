@@ -5,6 +5,7 @@ import {
   HttpOperation,
   InternalServerError,
   NotAcceptableError,
+  OpraHttpError,
   OpraSchema,
 } from '@opra/common';
 import { ExecutionContext, kAssetCache } from '@opra/core';
@@ -48,6 +49,7 @@ export class HttpContext extends ExecutionContext {
   readonly headers: Record<string, any>;
   readonly pathParams: Record<string, any>;
   readonly queryParams: Record<string, any>;
+  declare errors: OpraHttpError[];
 
   constructor(init: HttpContext.Initiator) {
     super({ ...init, document: init.adapter.document, protocol: 'http' });

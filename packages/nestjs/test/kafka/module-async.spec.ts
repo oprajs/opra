@@ -4,8 +4,9 @@ import { APP_GUARD, ModuleRef } from '@nestjs/core';
 import { APP_INTERCEPTOR } from '@nestjs/core/constants';
 import { Producer } from '@nestjs/microservices/external/kafka.interface';
 import { Test } from '@nestjs/testing';
+import { KafkaAdapter } from '@opra/kafka';
 import { waitForMessage } from '@opra/kafka/test/_support/wait-for-message';
-import { OpraKafkaModule, OpraKafkaNestjsAdapter } from '@opra/nestjs';
+import { OpraKafkaModule } from '@opra/nestjs';
 import { Kafka, logLevel } from 'kafkajs';
 import { CatsService } from '../_support/test-app/cats.service.js';
 import { DogsService } from '../_support/test-app/dogs.service.js';
@@ -24,7 +25,7 @@ const kafkaBrokerHost = process.env.KAFKA_BROKER || 'localhost:9092';
 describe('OpraKafkaModule - async', () => {
   let nestApplication: INestApplication;
   let moduleRef: ModuleRef;
-  let adapter: OpraKafkaNestjsAdapter;
+  let adapter: KafkaAdapter;
   let producer: Producer;
 
   beforeAll(async () => {
@@ -71,7 +72,7 @@ describe('OpraKafkaModule - async', () => {
     nestApplication = module.createNestApplication();
     await nestApplication.init();
     moduleRef = nestApplication.get(ModuleRef);
-    adapter = moduleRef.get(OpraKafkaNestjsAdapter, { strict: false });
+    adapter = moduleRef.get(KafkaAdapter, { strict: false });
   });
 
   beforeEach(() => {
@@ -107,7 +108,7 @@ describe('OpraKafkaModule - async', () => {
       age: faker.number.int({ max: 12 }),
     };
     const [ctx] = await Promise.all([
-      waitForMessage(adapter.adapter, 'feedCat', key),
+      waitForMessage(adapter, 'feedCat', key),
       new Promise((resolve, reject) => {
         setTimeout(() => {
           producer
