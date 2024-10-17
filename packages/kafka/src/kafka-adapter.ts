@@ -427,7 +427,7 @@ export class KafkaAdapter extends PlatformAdapter {
             await this.emitAsync('error', context.errors[0], context);
           }
           if (logger?.error) {
-            context.errors.forEach(err => logger.error(err, context));
+            context.errors.forEach(err => logger.error(err));
           }
           return;
         }
