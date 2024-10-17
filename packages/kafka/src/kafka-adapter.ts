@@ -416,11 +416,12 @@ export class KafkaAdapter extends PlatformAdapter {
     };
   }
 
-  protected _emitError(e: any, context?: KafkaContext) {
+  protected _emitError(error: any, context?: KafkaContext) {
     Promise.resolve()
       .then(async () => {
         const logger = this.logger;
         if (context) {
+          if (!context.errors.length) context.errors.push(error);
           context.errors = this._wrapExceptions(context.errors);
           if (context.listenerCount('error')) {
             await this.emitAsync('error', context.errors[0], context);
@@ -430,8 +431,8 @@ export class KafkaAdapter extends PlatformAdapter {
           }
           return;
         }
-        this.logger?.error(e);
-        if (this.listenerCount('error')) this.emit('error', e);
+        this.logger?.error(error);
+        if (this.listenerCount('error')) this.emit('error', error);
       })
       .catch(noOp);
   }
