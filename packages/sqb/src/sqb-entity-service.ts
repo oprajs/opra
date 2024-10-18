@@ -5,6 +5,7 @@ import { EntityMetadata, Repository, SqbClient, SqbConnection } from '@sqb/conne
 import type { Nullish, PartialDTO, PatchDTO, RequiredSome, StrictOmit, Type } from 'ts-gems';
 import { isNotNullish, type IsObject } from 'valgen';
 import { SQBAdapter } from './sqb-adapter.js';
+import { SqbServiceBase } from './sqb-service-base.js';
 
 const transactionKey = Symbol.for('transaction');
 
@@ -12,8 +13,7 @@ const transactionKey = Symbol.for('transaction');
  * @namespace SqbEntityService
  */
 export namespace SqbEntityService {
-  export interface Options {
-    db?: SqbEntityService<any>['db'];
+  export interface Options extends SqbServiceBase.Options {
     resourceName?: SqbEntityService<any>['resourceName'];
     onError?: SqbEntityService<any>['onError'];
     commonFilter?: SqbEntityService<any>['commonFilter'];
@@ -184,7 +184,7 @@ export interface SqbEntityService {
  * @class SqbEntityService
  * @template T - The data type class type of the resource
  */
-export class SqbEntityService<T extends object = object> extends ServiceBase {
+export class SqbEntityService<T extends object = object> extends SqbServiceBase {
   protected _dataType_: Type | string;
   protected _dataType?: ComplexType;
   protected _dataTypeClass?: Type;
@@ -192,10 +192,6 @@ export class SqbEntityService<T extends object = object> extends ServiceBase {
   protected _inputCodecs: Record<string, IsObject.Validator<T>> = {};
   protected _outputCodecs: Record<string, IsObject.Validator<T>> = {};
 
-  /**
-   * Represents a SqbClient or SqbConnection object
-   */
-  db?: (SqbClient | SqbConnection) | ((_this: this) => SqbClient | SqbConnection);
   /**
    * Represents the name of a resource.
    * @type {string}
@@ -225,9 +221,8 @@ export class SqbEntityService<T extends object = object> extends ServiceBase {
    * @constructor
    */
   constructor(dataType: Type<T> | string, options?: SqbEntityService.Options) {
-    super();
+    super(options);
     this._dataType_ = dataType;
-    this.db = options?.db;
     this.resourceName = options?.resourceName;
     this.commonFilter = options?.commonFilter;
     this.interceptor = options?.interceptor;
