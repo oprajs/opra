@@ -80,7 +80,7 @@ export class MongoCollectionService<T extends mongodb.Document> extends MongoEnt
       input,
       options,
     };
-    input._id = input._id ?? this._generateId(command);
+    input._id = input._id == null || input._id === '' ? this._generateId(command) : input._id;
     return this._executeCommand(command, async () => {
       const r = await this._create(command);
       if (!command.options?.projection) return r;

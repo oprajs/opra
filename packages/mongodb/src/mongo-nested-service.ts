@@ -224,7 +224,10 @@ export class MongoNestedService<T extends mongodb.Document> extends MongoService
       input,
       options,
     };
-    input[this.nestedKey] = input[this.nestedKey] ?? this._generateId(command);
+    input[this.nestedKey] =
+      input[this.nestedKey] == null || (input as any)[this.nestedKey] === ''
+        ? this._generateId(command)
+        : (input as any)[this.nestedKey];
     return this._executeCommand(command, async () => {
       const r = await this._create(command);
       if (!options?.projection) return r;
@@ -268,7 +271,10 @@ export class MongoNestedService<T extends mongodb.Document> extends MongoService
       input,
       options,
     };
-    (input as any)[this.nestedKey] = (input as any)[this.nestedKey] ?? this._generateId(command);
+    (input as any)[this.nestedKey] =
+      (input as any)[this.nestedKey] == null || (input as any)[this.nestedKey] === ''
+        ? this._generateId(command)
+        : (input as any)[this.nestedKey];
     return this._executeCommand(command, () => this._create(command));
   }
 
