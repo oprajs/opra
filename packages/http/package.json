@@ -1,6 +1,6 @@
 {
   "name": "@opra/http",
-  "version": "1.0.6",
+  "version": "1.0.7",
   "description": "Opra Http Server Adapter",
   "author": "Panates",
   "license": "MIT",
@@ -29,8 +29,8 @@
     "@browsery/antlr4": "^4.13.3-r1",
     "@browsery/http-parser": "^0.5.9-r1",
     "@browsery/type-is": "^1.6.18-r5",
-    "@opra/common": "^1.0.6",
-    "@opra/core": "^1.0.6",
+    "@opra/common": "^1.0.7",
+    "@opra/core": "^1.0.7",
     "accepts": "^1.3.8",
     "base64-stream": "^1.0.0",
     "busboy": "^1.6.0",
