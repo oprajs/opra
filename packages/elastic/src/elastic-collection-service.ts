@@ -114,7 +114,8 @@ export class ElasticCollectionService<T extends object = any> extends ElasticEnt
       input,
       options,
     };
-    command.input._id = command.input._id ?? this._generateId(command);
+    command.input._id =
+      command.input._id == null || command.input._id === '' ? this._generateId(command) : command.input._id;
     return this._executeCommand(command, () => this._create(command));
   }
 
