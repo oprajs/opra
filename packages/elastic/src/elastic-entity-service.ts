@@ -252,6 +252,7 @@ export class ElasticEntityService<T extends object = any> extends ElasticService
     isNotNullish(input._id, { label: 'input._id' });
     const inputCodec = this._getInputCodec('create');
     const doc: any = inputCodec(input);
+    delete doc._id;
     const { options } = command;
     const request: elastic.CreateRequest = {
       ...options?.request,

@@ -60,7 +60,7 @@ function prepareFilterAst(ast: OpraFilter.Expression | undefined, negative?: boo
   }
 
   if (ast instanceof OpraFilter.ComparisonExpression) {
-    if (!(ast.left instanceof OpraFilter.QualifiedIdentifier)) {
+    if (!(ast.left instanceof OpraFilter.QualifiedIdentifier || ast.left instanceof OpraFilter.StringLiteral)) {
       throw new Error('Left side of ComparisonExpression must be a QualifiedIdentifier');
     }
     const left = prepareFilterAst(ast.left);
