@@ -232,7 +232,7 @@ export class SqbEntityService<T extends object = object> extends SqbServiceBase 
    * @throws {NotAcceptableError} If the data type is not a ComplexType.
    */
   get dataType(): ComplexType {
-    if (!this._dataType) this._dataType = this.context.document.node.getComplexType(this._dataType_);
+    if (!this._dataType) this._dataType = this.context.documentNode.getComplexType(this._dataType_);
     return this._dataType;
   }
 
