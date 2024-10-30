@@ -28,9 +28,9 @@
     "valgen": "^5.10.0"
   },
   "devDependencies": {
-    "@faker-js/faker": "^9.0.3",
-    "mongodb": "^6.9.0",
-    "ts-gems": "^3.5.1"
+    "@faker-js/faker": "^9.1.0",
+    "mongodb": "^6.10.0",
+    "ts-gems": "^3.6.0"
   },
   "peerDependencies": {
     "@opra/common": "^1.0.9",

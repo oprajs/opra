@@ -8,10 +8,10 @@
     "@opra/common": "^1.0.9",
     "@opra/core": "^1.0.9",
     "@opra/sqb": "^1.0.9",
-    "@sqb/connect": "^4.19.2",
-    "@sqb/postgres": "^4.19.2",
+    "@sqb/connect": "^4.19.4",
+    "@sqb/postgres": "^4.19.4",
     "express": "^4.21.1",
-    "ts-gems": "^3.5.1"
+    "ts-gems": "^3.6.0"
   },
   "scripts": {
     "_build": "tsc && npm run check && npm run lint && npm run format",

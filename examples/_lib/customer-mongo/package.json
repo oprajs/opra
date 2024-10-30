@@ -7,8 +7,8 @@
   "dependencies": {
     "@opra/common": "^1.0.9",
     "@opra/mongodb": "^1.0.9",
-    "mongodb": "^6.9.0",
-    "ts-gems": "^3.5.1"
+    "mongodb": "^6.10.0",
+    "ts-gems": "^3.6.0"
   },
   "scripts": {
     "_build": "tsc && npm run check && npm run lint && npm run format",

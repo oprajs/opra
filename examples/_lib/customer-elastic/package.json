@@ -8,7 +8,7 @@
     "@elastic/elasticsearch": "^8.15.1",
     "@opra/common": "^1.0.9",
     "@opra/mongodb": "^1.0.9",
-    "ts-gems": "^3.5.1"
+    "ts-gems": "^3.6.0"
   },
   "scripts": {
     "_build": "tsc && npm run check && npm run lint && npm run format",
