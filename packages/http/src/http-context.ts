@@ -16,7 +16,7 @@ import type { HttpIncoming } from './interfaces/http-incoming.interface.js';
 import type { HttpOutgoing } from './interfaces/http-outgoing.interface.js';
 
 export namespace HttpContext {
-  export interface Initiator extends Omit<ExecutionContext.Initiator, 'document' | 'protocol'> {
+  export interface Initiator extends Omit<ExecutionContext.Initiator, 'document' | 'protocol' | 'documentNode'> {
     adapter: HttpAdapter;
     request: HttpIncoming;
     response: HttpOutgoing;
@@ -52,7 +52,12 @@ export class HttpContext extends ExecutionContext {
   declare errors: OpraHttpError[];
 
   constructor(init: HttpContext.Initiator) {
-    super({ ...init, document: init.adapter.document, protocol: 'http' });
+    super({
+      ...init,
+      document: init.adapter.document,
+      documentNode: init.controller?.node,
+      protocol: 'http',
+    });
     this.adapter = init.adapter;
     this.protocol = 'http';
     if (init.controller) this.controller = init.controller;

@@ -5,7 +5,7 @@ import type { AsyncEventEmitter } from 'node-events-async';
 import type { KafkaAdapter } from './kafka-adapter.js';
 
 export namespace KafkaContext {
-  export interface Initiator extends Omit<ExecutionContext.Initiator, 'document' | 'protocol'> {
+  export interface Initiator extends Omit<ExecutionContext.Initiator, 'document' | 'protocol' | 'documentNode'> {
     adapter: KafkaAdapter;
     controller?: RpcController;
     controllerInstance?: any;
@@ -42,7 +42,12 @@ export class KafkaContext extends ExecutionContext implements AsyncEventEmitter 
   readonly pause: () => void;
 
   constructor(init: KafkaContext.Initiator) {
-    super({ ...init, document: init.adapter.document, protocol: 'rpc' });
+    super({
+      ...init,
+      document: init.adapter.document,
+      documentNode: init.controller?.node,
+      protocol: 'rpc',
+    });
     this.adapter = init.adapter;
     this.platform = init.adapter.platform;
     this.protocol = 'rpc';

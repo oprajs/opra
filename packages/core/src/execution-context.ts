@@ -1,4 +1,4 @@
-import { ApiDocument, OpraException, OpraSchema } from '@opra/common';
+import { ApiDocument, DocumentNode, OpraException, OpraSchema } from '@opra/common';
 import { AsyncEventEmitter } from 'node-events-async';
 
 /**
@@ -7,6 +7,7 @@ import { AsyncEventEmitter } from 'node-events-async';
 export namespace ExecutionContext {
   export interface Initiator {
     document: ApiDocument;
+    documentNode?: DocumentNode;
     protocol: OpraSchema.Transport;
     platform: string;
   }
@@ -18,6 +19,7 @@ export namespace ExecutionContext {
 export abstract class ExecutionContext extends AsyncEventEmitter {
   readonly shared = new Map();
   readonly document: ApiDocument;
+  documentNode: DocumentNode;
   readonly protocol: OpraSchema.Transport;
   readonly platform: string;
   errors: OpraException[] = [];
@@ -25,6 +27,7 @@ export abstract class ExecutionContext extends AsyncEventEmitter {
   protected constructor(init: ExecutionContext.Initiator) {
     super();
     this.document = init.document;
+    this.documentNode = init.documentNode || init.document.node;
     this.protocol = init.protocol;
     this.platform = init.platform;
   }
