@@ -17,7 +17,6 @@ export namespace ExecutionContext {
  * @class ExecutionContext
  */
 export abstract class ExecutionContext extends AsyncEventEmitter {
-  readonly shared = new Map();
   readonly document: ApiDocument;
   documentNode: DocumentNode;
   readonly protocol: OpraSchema.Transport;

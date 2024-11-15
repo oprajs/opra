@@ -9,7 +9,10 @@ export async function initDatabase(options: {
   countries?: Country[];
 }) {
   const schema = process.env.PG_SCHEMA || 'customer_app';
-  const connection = new Connection({ schema: options.schema || 'postgres' });
+  const connection = new Connection({
+    schema: options.schema || 'postgres',
+    password: process.env.PG_PASSWORD || 'postgres',
+  });
   await connection.connect();
   try {
     const sql = getSql(schema);

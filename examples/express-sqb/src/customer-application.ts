@@ -18,6 +18,7 @@ export class CustomerApplication {
       app.db = new SqbClient({
         dialect: 'postgres',
         schema: process.env.PG_DATABASE || 'customer_app',
+        password: process.env.PG_PASSWORD || 'postgres',
       });
     } catch (e) {
       await app.close();
