@@ -504,6 +504,69 @@ describe('HttpOperation.Entity.* decorators', () => {
   });
 
   /* ***************************************************** */
+  describe('"Replace" decorator', () => {
+    it('Should define Replace operation metadata', async () => {
+      class CustomerResource {
+        @(HttpOperation.Entity.Replace({
+          type: Customer,
+          description: 'operation description',
+        }).KeyParam('id'))
+        get() {}
+      }
+
+      const metadata = Reflect.getMetadata(HTTP_CONTROLLER_METADATA, CustomerResource);
+      const opr = metadata.operations?.get;
+      expect(opr).toBeDefined();
+      expect({ ...opr, parameters: undefined, responses: undefined }).toEqual({
+        kind: 'HttpOperation',
+        description: 'operation description',
+        method: 'POST',
+        path: '@:id',
+        mergePath: true,
+        composition: 'Entity.Replace',
+        compositionOptions: {
+          type: 'Customer',
+        },
+        type: Customer,
+      });
+      expect(opr.parameters.map(prm => prm.name)).toStrictEqual(['projection', 'id']);
+      expect(opr.parameters.find(prm => prm.name === 'projection')).toEqual({
+        location: 'query',
+        name: 'projection',
+        description: expect.any(String),
+        isArray: true,
+        arraySeparator: ',',
+        type: expect.any(FieldPathType),
+      });
+      expect(opr.parameters.find(prm => prm.name === 'id')).toEqual({
+        location: 'path',
+        name: 'id',
+        keyParam: true,
+      });
+      expect(opr.responses).toEqual([
+        {
+          statusCode: 200,
+          description: expect.any(String),
+          contentType: 'application/opra.response+json',
+          contentEncoding: 'utf-8',
+          type: expect.any(Function),
+          partial: 'deep',
+        },
+        {
+          statusCode: 204,
+          description: expect.any(String),
+        },
+        {
+          statusCode: 422,
+          description: expect.any(String),
+          contentType: 'application/opra.response+json',
+          contentEncoding: 'utf-8',
+        },
+      ]);
+    });
+  });
+
+  /* ***************************************************** */
   describe('"UpdateMany" decorator', () => {
     it('Should define UpdateMany operation metadata', async () => {
       class CustomerResource {

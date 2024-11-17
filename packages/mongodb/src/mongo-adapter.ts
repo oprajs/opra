@@ -19,7 +19,7 @@ export namespace MongoAdapter {
   export const prepareSort = _prepareSort;
 
   export interface TransformedRequest {
-    method: 'create' | 'delete' | 'deleteMany' | 'get' | 'findMany' | 'update' | 'updateMany';
+    method: 'create' | 'delete' | 'deleteMany' | 'get' | 'findMany' | 'replace' | 'update' | 'updateMany';
     key?: any;
     data?: any;
     options: any;
@@ -74,6 +74,16 @@ export namespace MongoAdapter {
             filter: ctx.queryParams.filter,
           };
           return { method: 'get', key, options } satisfies TransformedRequest;
+        }
+        case 'Entity.Replace': {
+          const data = await ctx.getBody<any>();
+          const keyParam = operation.parameters.find(p => p.keyParam) || controller.parameters.find(p => p.keyParam);
+          const key = keyParam && ctx.pathParams[String(keyParam.name)];
+          const options = {
+            projection: ctx.queryParams.projection,
+            filter: ctx.queryParams.filter,
+          };
+          return { method: 'replace', key, data, options } satisfies TransformedRequest;
         }
         case 'Entity.Update': {
           const data = await ctx.getBody<any>();

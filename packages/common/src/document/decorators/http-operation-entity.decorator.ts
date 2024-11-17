@@ -56,6 +56,13 @@ declare module '../http/http-operation.js' {
 
     Get(args: HttpOperation.Entity.GetArgs): HttpOperation.Entity.GetDecorator;
 
+    Replace(
+      type: Type | string,
+      options?: StrictOmit<HttpOperation.Entity.UpdateArgs, 'type'>,
+    ): HttpOperation.Entity.ReplaceDecorator;
+
+    Replace(args: HttpOperation.Entity.ReplaceArgs): HttpOperation.Entity.ReplaceDecorator;
+
     Update(
       type: Type | string,
       options?: StrictOmit<HttpOperation.Entity.UpdateArgs, 'type'>,
@@ -139,6 +146,18 @@ declare module '../http/http-operation.js' {
       }
 
       export interface GetArgs extends StrictOmit<HttpOperation.Options, 'method' | 'requestBody'> {
+        type: Type | string;
+      }
+
+      /** Replace */
+      export interface ReplaceDecorator extends HttpOperationDecorator {
+        KeyParam(
+          name: string,
+          optionsOrType?: StrictOmit<HttpParameter.Options, 'location'> | string | TypeThunkAsync,
+        ): this;
+      }
+
+      export interface ReplaceArgs extends StrictOmit<HttpOperation.Options, 'method' | 'requestBody'> {
         type: Type | string;
       }
 
@@ -467,6 +486,80 @@ HttpOperation.Entity.Get = function (arg0: any, arg1?: any): HttpOperation.Entit
     ...args,
     composition: 'Entity.Get',
   }) as HttpOperation.Entity.GetDecorator;
+  decorator
+    .QueryParam('projection', {
+      description: 'Determines fields projection',
+      type: new FieldPathType({
+        dataType: args.type,
+        allowSigns: 'each',
+      }),
+      isArray: true,
+      arraySeparator: ',',
+    })
+    .Response(HttpStatusCode.OK, {
+      description:
+        'Operation is successful. Returns OperationResult with "payload" field that contains the resource asked for.',
+      contentType: MimeTypes.opra_response_json,
+      type: args.type,
+      partial: 'deep',
+    })
+    .Response(HttpStatusCode.NO_CONTENT, {
+      description: 'Operation is successful but no resource found',
+    })
+    .Response(HttpStatusCode.UNPROCESSABLE_ENTITY, {
+      description: 'The request was well-formed but was unable to process operation due to one or many errors.',
+      contentType: MimeTypes.opra_response_json,
+    });
+
+  /**
+   *
+   */
+  decorator.KeyParam = (name: string, prmOptions?: StrictOmit<HttpParameter.Options, 'location'> | string | Type) => {
+    const paramMeta: HttpParameter.Metadata =
+      typeof prmOptions === 'string' || typeof prmOptions === 'function'
+        ? {
+            name,
+            location: 'path',
+            type: prmOptions,
+            keyParam: true,
+          }
+        : {
+            ...prmOptions,
+            name,
+            location: 'path',
+            keyParam: true,
+          };
+    decorator.PathParam(name, paramMeta);
+    decoratorChain.push((meta: HttpOperation.Metadata): void => {
+      if (!meta.path?.includes(':' + name)) meta.path = (meta.path || '') + '@:' + name;
+      meta.mergePath = true;
+    });
+    return decorator;
+  };
+
+  decoratorChain.push((operationMeta: HttpOperation.Metadata) => {
+    const compositionOptions = (operationMeta.compositionOptions = operationMeta.compositionOptions || {});
+    compositionOptions.type = getDataTypeName(args.type);
+  });
+  return decorator;
+};
+
+/**
+ * HttpOperation.Entity.Replace
+ */
+HttpOperation.Entity.Replace = function (arg0: any, arg1?: any): HttpOperation.Entity.ReplaceDecorator {
+  let args: HttpOperation.Entity.GetArgs;
+  if (typeof arg0 === 'object' && !arg0[DATATYPE_METADATA]) {
+    args = arg0;
+  } else args = { ...arg1, type: arg0 };
+
+  /** Initialize the decorator and the chain */
+  const decoratorChain: Function[] = [];
+  const decorator = HttpOperationDecoratorFactory(decoratorChain, {
+    method: 'POST',
+    ...args,
+    composition: 'Entity.Replace',
+  }) as HttpOperation.Entity.ReplaceDecorator;
   decorator
     .QueryParam('projection', {
       description: 'Determines fields projection',
