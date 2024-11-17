@@ -37,6 +37,8 @@ export namespace MongoEntityService {
 
   export interface FindManyOptions<T> extends MongoService.FindManyOptions<T> {}
 
+  export interface ReplaceOptions<T> extends MongoService.ReplaceOptions<T> {}
+
   export interface UpdateOneOptions<T> extends MongoService.UpdateOneOptions<T> {}
 
   export interface UpdateManyOptions<T> extends MongoService.UpdateManyOptions<T> {}
@@ -90,6 +92,12 @@ export namespace MongoEntityService {
     input?: PatchDTO<T>;
     inputRaw?: mongodb.UpdateFilter<T>;
     options?: UpdateManyOptions<T>;
+  }
+
+  export interface ReplaceCommand<T> extends StrictOmit<CommandInfo, 'nestedId'> {
+    crud: 'replace';
+    input: PartialDTO<T>;
+    options?: ReplaceOptions<T>;
   }
 }
 
@@ -229,10 +237,11 @@ export class MongoEntityService<T extends mongodb.Document> extends MongoService
     const { options } = command;
     const db = this.getDatabase();
     const collection = await this.getCollection(db);
+    const projection = MongoAdapter.prepareProjection(this.dataType, options?.projection);
     const out = await collection.findOne<PartialDTO<T>>(filter || {}, {
       ...omit(options, 'filter'),
       session: options?.session ?? this.getSession(),
-      projection: MongoAdapter.prepareProjection(this.dataType, options?.projection),
+      projection,
       limit: undefined,
       skip: undefined,
       sort: undefined,
@@ -404,6 +413,37 @@ export class MongoEntityService<T extends mongodb.Document> extends MongoService
   }
 
   /**
+   * Replaces a document with the given id in the collection
+   *
+   * @param {MongoEntityService.ReplaceCommand<T>} command
+   */
+  protected async _replace(command: MongoEntityService.ReplaceCommand<T>): Promise<PartialDTO<T> | undefined> {
+    const input: any = command.input;
+    isNotNullish(input, { label: 'input' });
+    isNotNullish(input._id, { label: 'input._id' });
+    const inputCodec = this._getInputCodec('create');
+    const document: any = inputCodec(input);
+    const { options } = command;
+
+    const filter = MongoAdapter.prepareFilter([
+      MongoAdapter.prepareKeyValues(command.documentId!, ['_id']),
+      options?.filter,
+    ]);
+    const db = this.getDatabase();
+    const collection = await this.getCollection(db);
+    const out = await collection.findOneAndReplace(filter || {}, document, {
+      upsert: undefined,
+      ...options,
+      returnDocument: 'after',
+      includeResultMetadata: false,
+      session: options?.session ?? this.getSession(),
+      projection: MongoAdapter.prepareProjection(this.dataType, options?.projection),
+    });
+    const outputCodec = this._getOutputCodec('create');
+    if (out) return outputCodec(out);
+  }
+
+  /**
    * Updates a document in the collection with the specified ID.
    *
    * @param {MongoEntityService.UpdateOneCommand<T>} command
@@ -479,28 +519,32 @@ export class MongoEntityService<T extends mongodb.Document> extends MongoService
       const result = await super._executeCommand(command, async () => {
         /** Call before[X] hooks */
         if (command.crud === 'create') await this._beforeCreate(command as MongoEntityService.CreateCommand<T>);
-        else if (command.crud === 'update' && command.byId) {
-          await this._beforeUpdate(command as MongoEntityService.UpdateOneCommand<T>);
-        } else if (command.crud === 'update' && !command.byId) {
-          await this._beforeUpdateMany(command as MongoEntityService.UpdateManyCommand<T>);
-        } else if (command.crud === 'delete' && command.byId) {
+        else if (command.crud === 'delete' && command.byId) {
           await this._beforeDelete(command as MongoEntityService.DeleteCommand<T>);
         } else if (command.crud === 'delete' && !command.byId) {
           await this._beforeDeleteMany(command as MongoEntityService.DeleteCommand<T>);
+        } else if (command.crud === 'replace') {
+          await this._beforeReplace(command as MongoEntityService.ReplaceCommand<T>);
+        } else if (command.crud === 'update' && command.byId) {
+          await this._beforeUpdate(command as MongoEntityService.UpdateOneCommand<T>);
+        } else if (command.crud === 'update' && !command.byId) {
+          await this._beforeUpdateMany(command as MongoEntityService.UpdateManyCommand<T>);
         }
         /** Call command function */
         return commandFn();
       });
       /** Call after[X] hooks */
       if (command.crud === 'create') await this._afterCreate(command as MongoEntityService.CreateCommand<T>, result);
-      else if (command.crud === 'update' && command.byId) {
-        await this._afterUpdate(command as MongoEntityService.UpdateOneCommand<T>, result);
-      } else if (command.crud === 'update' && !command.byId) {
-        await this._afterUpdateMany(command as MongoEntityService.UpdateManyCommand<T>, result);
-      } else if (command.crud === 'delete' && command.byId) {
+      else if (command.crud === 'delete' && command.byId) {
         await this._afterDelete(command as MongoEntityService.DeleteCommand<T>, result);
       } else if (command.crud === 'delete' && !command.byId) {
         await this._afterDeleteMany(command as MongoEntityService.DeleteCommand<T>, result);
+      } else if (command.crud === 'replace') {
+        await this._afterReplace(command as MongoEntityService.ReplaceCommand<T>, result);
+      } else if (command.crud === 'update' && command.byId) {
+        await this._afterUpdate(command as MongoEntityService.UpdateOneCommand<T>, result);
+      } else if (command.crud === 'update' && !command.byId) {
+        await this._afterUpdateMany(command as MongoEntityService.UpdateManyCommand<T>, result);
       }
       return result;
     } catch (e: any) {
@@ -516,16 +560,6 @@ export class MongoEntityService<T extends mongodb.Document> extends MongoService
   }
 
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  protected async _beforeUpdate(command: MongoEntityService.UpdateOneCommand<T>): Promise<void> {
-    // Do nothing
-  }
-
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  protected async _beforeUpdateMany(command: MongoEntityService.UpdateManyCommand<T>): Promise<void> {
-    // Do nothing
-  }
-
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   protected async _beforeDelete(command: MongoEntityService.DeleteCommand<T>): Promise<void> {
     // Do nothing
   }
@@ -536,17 +570,27 @@ export class MongoEntityService<T extends mongodb.Document> extends MongoService
   }
 
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  protected async _beforeReplace(command: MongoEntityService.ReplaceCommand<T>): Promise<void> {
+    // Do nothing
+  }
+
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  protected async _beforeUpdate(command: MongoEntityService.UpdateOneCommand<T>): Promise<void> {
+    // Do nothing
+  }
+
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  protected async _beforeUpdateMany(command: MongoEntityService.UpdateManyCommand<T>): Promise<void> {
+    // Do nothing
+  }
+
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   protected async _afterCreate(command: MongoEntityService.CreateCommand<T>, result: PartialDTO<T>): Promise<void> {
     // Do nothing
   }
 
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  protected async _afterUpdate(command: MongoEntityService.UpdateOneCommand<T>, result?: PartialDTO<T>): Promise<void> {
-    // Do nothing
-  }
-
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  protected async _afterUpdateMany(command: MongoEntityService.UpdateManyCommand<T>, affected: number): Promise<void> {
+  protected async _afterReplace(command: MongoEntityService.ReplaceCommand<T>, result: PartialDTO<T>): Promise<void> {
     // Do nothing
   }
 
@@ -557,6 +601,16 @@ export class MongoEntityService<T extends mongodb.Document> extends MongoService
 
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   protected async _afterDeleteMany(command: MongoEntityService.DeleteCommand<T>, affected: number): Promise<void> {
+    // Do nothing
+  }
+
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  protected async _afterUpdate(command: MongoEntityService.UpdateOneCommand<T>, result?: PartialDTO<T>): Promise<void> {
+    // Do nothing
+  }
+
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  protected async _afterUpdateMany(command: MongoEntityService.UpdateManyCommand<T>, affected: number): Promise<void> {
     // Do nothing
   }
 }

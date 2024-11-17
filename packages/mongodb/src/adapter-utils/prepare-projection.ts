@@ -3,8 +3,9 @@ import mongodb, { type Document } from 'mongodb';
 
 export default function prepareProjection(
   dataType: ComplexType,
-  projection?: string | string[] | Document,
+  projection?: string | string[] | Document | '*',
 ): mongodb.Document | undefined {
+  if (projection === '*') return undefined;
   if (projection && typeof projection === 'object' && !Array.isArray(projection)) return projection;
   const out: Record<string, boolean> = {};
   const projection_ =

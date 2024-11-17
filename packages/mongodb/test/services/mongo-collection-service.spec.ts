@@ -10,6 +10,18 @@ describe('MongoCollectionService', () => {
   let service2: MongoCollectionService<any>;
   const tempRecords: any[] = [];
   const interceptorFn = fn => fn();
+  const createResource = _id => ({
+    _id,
+    uid: faker.string.uuid(),
+    active: faker.datatype.boolean(),
+    countryCode: faker.location.countryCode(),
+    rate: faker.number.int({ max: 100 }),
+    givenName: faker.person.firstName(),
+    familyName: faker.person.lastName(),
+    address: {
+      city: faker.location.city(),
+    },
+  });
 
   beforeAll(async () => {
     app = await CustomerApplication.create();
@@ -24,16 +36,8 @@ describe('MongoCollectionService', () => {
 
     for (let i = 1; i <= 20; i++) {
       const record: any = {
-        _id: i,
-        uid: faker.string.uuid(),
-        active: faker.datatype.boolean(),
-        countryCode: faker.location.countryCode(),
+        ...createResource(i),
         rate: i,
-        givenName: faker.person.firstName(),
-        familyName: faker.person.lastName(),
-        address: {
-          city: faker.location.city(),
-        },
       };
       tempRecords.push(record);
     }
@@ -474,18 +478,52 @@ describe('MongoCollectionService', () => {
   describe('create()', () => {
     it('Should insert document', async () => {
       const ctx = createContext(app.adapter);
-      const doc = { _id: 100, uid: faker.string.uuid() };
+      const doc = createResource(100);
       const result: any = await service1.for(ctx).create(doc);
       expect(result).toBeDefined();
-      const r = await service1.for(ctx).get(100);
+      const r = await service1.for(ctx).get(100, { projection: '*' });
       expect(result).toEqual(r);
     });
 
     it('Should run in interceptor', async () => {
       const mockFn = jest.fn(interceptorFn);
       const ctx = createContext(app.adapter);
-      const doc = { _id: 101, uid: faker.string.uuid() };
+      const doc = createResource(101);
       const result: any = await service1.for(ctx, { interceptor: mockFn }).create(doc);
+      expect(result).toBeDefined();
+      expect(mockFn).toBeCalled();
+    });
+  });
+
+  describe('replace()', () => {
+    it('Should replace object in the array field', async () => {
+      const ctx = createContext(app.adapter);
+      const doc = createResource(tempRecords[10]._id);
+      const result: any = await service1.for(ctx).replace(doc._id, doc, { projection: '*' });
+      expect(result).toBeDefined();
+      const r = await service1.for(ctx).findById(doc._id, { projection: '*' });
+      expect(result).toEqual(r);
+    });
+
+    it('Should return "undefined" if record not found', async () => {
+      const ctx = createContext(app.adapter);
+      const doc = createResource(9999);
+      const r = await service1.for(ctx).replace(doc._id, doc);
+      expect(r).not.toBeDefined();
+    });
+
+    it('Should apply filter returned by documentFilter', async () => {
+      const ctx = createContext(app.adapter);
+      const doc = createResource(tempRecords[10]._id);
+      const result = await service1.for(ctx, { documentFilter: '_id=999' }).replace(doc._id, doc);
+      expect(result).not.toBeDefined();
+    });
+
+    it('Should run in interceptor', async () => {
+      const mockFn = jest.fn(interceptorFn);
+      const ctx = createContext(app.adapter);
+      const doc = createResource(tempRecords[10]._id);
+      const result: any = await service1.for(ctx, { interceptor: mockFn }).replace(doc._id, doc);
       expect(result).toBeDefined();
       expect(mockFn).toBeCalled();
     });

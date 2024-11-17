@@ -110,8 +110,11 @@ export class MongoCollectionService<T extends mongodb.Document> extends MongoEnt
       options,
     };
     return this._executeCommand(command, async () => {
-      const filter = MongoAdapter.prepareFilter([await this._getDocumentFilter(command), command.options?.filter]);
-      command.options = { ...command.options, filter };
+      const documentFilter = await this._getDocumentFilter(command);
+      if (documentFilter) {
+        const filter = MongoAdapter.prepareFilter([documentFilter, command.options?.filter]);
+        command.options = { ...command.options, filter };
+      }
       return this._count(command);
     });
   }
@@ -132,8 +135,11 @@ export class MongoCollectionService<T extends mongodb.Document> extends MongoEnt
       options,
     };
     return this._executeCommand(command, async () => {
-      const filter = MongoAdapter.prepareFilter([await this._getDocumentFilter(command), command.options?.filter]);
-      command.options = { ...command.options, filter };
+      const documentFilter = await this._getDocumentFilter(command);
+      if (documentFilter) {
+        const filter = MongoAdapter.prepareFilter([documentFilter, command.options?.filter]);
+        command.options = { ...command.options, filter };
+      }
       return this._delete(command);
     });
   }
@@ -152,8 +158,11 @@ export class MongoCollectionService<T extends mongodb.Document> extends MongoEnt
       options,
     };
     return this._executeCommand(command, async () => {
-      const filter = MongoAdapter.prepareFilter([await this._getDocumentFilter(command), command.options?.filter]);
-      command.options = { ...command.options, filter };
+      const documentFilter = await this._getDocumentFilter(command);
+      if (documentFilter) {
+        const filter = MongoAdapter.prepareFilter([documentFilter, command.options?.filter]);
+        command.options = { ...command.options, filter };
+      }
       return this._deleteMany(command);
     });
   }
@@ -173,8 +182,11 @@ export class MongoCollectionService<T extends mongodb.Document> extends MongoEnt
       options,
     };
     return this._executeCommand(command, async () => {
-      const filter = MongoAdapter.prepareFilter([await this._getDocumentFilter(command), command.options?.filter]);
-      command.options = { ...command.options, filter };
+      const documentFilter = await this._getDocumentFilter(command);
+      if (documentFilter) {
+        const filter = MongoAdapter.prepareFilter([documentFilter, command.options?.filter]);
+        command.options = { ...command.options, filter };
+      }
       return this._distinct(command);
     });
   }
@@ -195,10 +207,12 @@ export class MongoCollectionService<T extends mongodb.Document> extends MongoEnt
       options,
     };
     return this._executeCommand(command, async () => {
-      const documentFilter = await this._getDocumentFilter(command);
-      const filter = MongoAdapter.prepareFilter([documentFilter, command.options?.filter]);
       const findCommand = command as MongoEntityService.FindOneCommand<T>;
-      findCommand.options = { ...command.options, filter, projection: ['_id'] };
+      const documentFilter = await this._getDocumentFilter(command);
+      if (documentFilter) {
+        const filter = MongoAdapter.prepareFilter([documentFilter, command.options?.filter]);
+        findCommand.options = { ...command.options, filter, projection: ['_id'] };
+      }
       return !!(await this._findById(findCommand));
     });
   }
@@ -238,8 +252,10 @@ export class MongoCollectionService<T extends mongodb.Document> extends MongoEnt
     };
     return this._executeCommand(command, async () => {
       const documentFilter = await this._getDocumentFilter(command);
-      const filter = MongoAdapter.prepareFilter([documentFilter, command.options?.filter]);
-      command.options = { ...command.options, filter };
+      if (documentFilter) {
+        const filter = MongoAdapter.prepareFilter([documentFilter, command.options?.filter]);
+        command.options = { ...command.options, filter };
+      }
       return this._findById(command);
     });
   }
@@ -262,8 +278,11 @@ export class MongoCollectionService<T extends mongodb.Document> extends MongoEnt
       options,
     };
     return this._executeCommand(command, async () => {
-      const filter = MongoAdapter.prepareFilter([await this._getDocumentFilter(command), command.options?.filter]);
-      command.options = { ...command.options, filter };
+      const documentFilter = await this._getDocumentFilter(command);
+      if (documentFilter) {
+        const filter = MongoAdapter.prepareFilter([documentFilter, command.options?.filter]);
+        command.options = { ...command.options, filter };
+      }
       return this._findOne(command);
     });
   }
@@ -284,9 +303,13 @@ export class MongoCollectionService<T extends mongodb.Document> extends MongoEnt
       options,
     };
     return this._executeCommand(command, async () => {
-      const filter = MongoAdapter.prepareFilter([await this._getDocumentFilter(command), command.options?.filter]);
+      const documentFilter = await this._getDocumentFilter(command);
+      command.options = command.options || {};
+      if (documentFilter) {
+        command.options.filter = MongoAdapter.prepareFilter([documentFilter, command.options?.filter]);
+      }
       const limit = command.options?.limit || this.defaultLimit;
-      command.options = { ...command.options, filter, limit };
+      if (limit) command.options.limit = limit;
       return this._findMany(command);
     });
   }
@@ -317,8 +340,13 @@ export class MongoCollectionService<T extends mongodb.Document> extends MongoEnt
       options,
     };
     return this._executeCommand(command, async () => {
-      const filter = MongoAdapter.prepareFilter([await this._getDocumentFilter(command), command.options?.filter]);
-      command.options = { ...command.options, filter, limit: command.options?.limit || this.defaultLimit };
+      const documentFilter = await this._getDocumentFilter(command);
+      command.options = command.options || {};
+      if (documentFilter) {
+        command.options.filter = MongoAdapter.prepareFilter([documentFilter, command.options?.filter]);
+      }
+      const limit = command.options?.limit || this.defaultLimit;
+      if (limit) command.options.limit = limit;
       return this._findManyWithCount(command);
     });
   }
@@ -341,6 +369,46 @@ export class MongoCollectionService<T extends mongodb.Document> extends MongoEnt
     const out = await this.findById(id, options);
     if (!out) throw new ResourceNotAvailableError(this.getResourceName(), id);
     return out;
+  }
+
+  /**
+   * Replace a document in the MongoDB collection.
+   * Interceptors will be called before performing db operation
+   *
+   * @param {MongoAdapter.AnyId} id - The id of the document to replace.
+   * @param {PartialDTO<T>} input - The input data
+   * @param {MongoEntityService.ReplaceOptions} [options] - The options for replacing the document.
+   * @returns {Promise<PartialDTO<T>>} A promise that resolves to the replaced document.
+   * @throws {Error} if an unknown error occurs while replacing the document.
+   */
+  async replace(
+    id: MongoAdapter.AnyId,
+    input: PartialDTO<T>,
+    options: RequiredSome<MongoEntityService.ReplaceOptions<T>, 'projection'>,
+  ): Promise<PartialDTO<T>>;
+  async replace(id: MongoAdapter.AnyId, input: PartialDTO<T>, options?: MongoEntityService.CreateOptions): Promise<T>;
+  async replace(
+    id: MongoAdapter.AnyId,
+    input: any,
+    options?: MongoEntityService.CreateOptions,
+  ): Promise<PartialDTO<T> | T> {
+    const command: MongoEntityService.ReplaceCommand<T> = {
+      crud: 'replace',
+      method: 'replace',
+      documentId: id,
+      byId: true,
+      input,
+      options,
+    };
+    input._id = id;
+    return this._executeCommand(command, async () => {
+      const documentFilter = await this._getDocumentFilter(command);
+      if (documentFilter) {
+        const filter = MongoAdapter.prepareFilter([documentFilter, command.options?.filter]);
+        command.options = { ...command.options, filter };
+      }
+      return await this._replace(command);
+    });
   }
 
   /**
@@ -378,8 +446,11 @@ export class MongoCollectionService<T extends mongodb.Document> extends MongoEnt
       options,
     };
     return this._executeCommand(command, async () => {
-      const filter = MongoAdapter.prepareFilter([await this._getDocumentFilter(command), command.options?.filter]);
-      command.options = { ...command.options, filter };
+      const documentFilter = await this._getDocumentFilter(command);
+      if (documentFilter) {
+        const filter = MongoAdapter.prepareFilter([documentFilter, command.options?.filter]);
+        command.options = { ...command.options, filter };
+      }
       return this._update(command);
     });
   }
@@ -408,8 +479,11 @@ export class MongoCollectionService<T extends mongodb.Document> extends MongoEnt
       options,
     };
     return this._executeCommand(command, async () => {
-      const filter = MongoAdapter.prepareFilter([await this._getDocumentFilter(command), command.options?.filter]);
-      command.options = { ...command.options, filter };
+      const documentFilter = await this._getDocumentFilter(command);
+      if (documentFilter) {
+        const filter = MongoAdapter.prepareFilter([documentFilter, command.options?.filter]);
+        command.options = { ...command.options, filter };
+      }
       return this._updateOnly(command);
     });
   }
@@ -435,8 +509,11 @@ export class MongoCollectionService<T extends mongodb.Document> extends MongoEnt
       options,
     };
     return this._executeCommand(command, async () => {
-      const filter = MongoAdapter.prepareFilter([await this._getDocumentFilter(command), command.options?.filter]);
-      command.options = { ...command.options, filter };
+      const documentFilter = await this._getDocumentFilter(command);
+      if (documentFilter) {
+        const filter = MongoAdapter.prepareFilter([documentFilter, command.options?.filter]);
+        command.options = { ...command.options, filter };
+      }
       return this._updateMany(command);
     });
   }

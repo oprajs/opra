@@ -24,7 +24,7 @@ export namespace MongoService {
     onError?: MongoService<any>['onError'];
   }
 
-  export type CrudOp = 'create' | 'read' | 'update' | 'delete';
+  export type CrudOp = 'create' | 'read' | 'replace' | 'update' | 'delete';
 
   export interface CommandInfo {
     crud: CrudOp;
@@ -49,7 +49,7 @@ export namespace MongoService {
    * @interface
    */
   export interface CreateOptions extends mongodb.InsertOneOptions {
-    projection?: string[];
+    projection?: string | string[] | Document | '*';
   }
 
   /**
@@ -117,10 +117,20 @@ export namespace MongoService {
    */
   export interface FindManyOptions<T> extends mongodb.AggregateOptions {
     filter?: MongoAdapter.FilterInput<T>;
-    projection?: string | string[] | Document;
+    projection?: string | string[] | Document | '*';
     sort?: string[];
     limit?: number;
     skip?: number;
+  }
+
+  /**
+   * Represents options for "replace" operation
+   *
+   * @interface
+   */
+  export interface ReplaceOptions<T> extends StrictOmit<mongodb.FindOneAndReplaceOptions, 'projection'> {
+    projection?: string | string[] | Document | '*';
+    filter?: MongoAdapter.FilterInput<T>;
   }
 
   /**
@@ -131,7 +141,7 @@ export namespace MongoService {
    */
   export interface UpdateOneOptions<T>
     extends StrictOmit<mongodb.FindOneAndUpdateOptions, 'projection' | 'returnDocument' | 'includeResultMetadata'> {
-    projection?: string | string[] | Document;
+    projection?: string | string[] | Document | '*';
     filter?: MongoAdapter.FilterInput<T>;
   }
 
