@@ -421,7 +421,7 @@ export class MongoEntityService<T extends mongodb.Document> extends MongoService
     const input: any = command.input;
     isNotNullish(input, { label: 'input' });
     isNotNullish(input._id, { label: 'input._id' });
-    const inputCodec = this._getInputCodec('create');
+    const inputCodec = this._getInputCodec('replace');
     const document: any = inputCodec(input);
     const { options } = command;
 
@@ -439,7 +439,7 @@ export class MongoEntityService<T extends mongodb.Document> extends MongoService
       session: options?.session ?? this.getSession(),
       projection: MongoAdapter.prepareProjection(this.dataType, options?.projection),
     });
-    const outputCodec = this._getOutputCodec('create');
+    const outputCodec = this._getOutputCodec('replace');
     if (out) return outputCodec(out);
   }
 

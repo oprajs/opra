@@ -96,8 +96,6 @@ export const ComplexType = function (this: ComplexType | void, ...args: any[]) {
   ComplexTypeBase.call(this, owner, initArgs, context);
   const _this = asMutable(this);
   _this.kind = OpraSchema.ComplexType.Kind;
-  _this.additionalFields = initArgs.additionalFields;
-  _this.keyField = initArgs.keyField;
   if (initArgs.base) {
     context.enter('.base', () => {
       // noinspection SuspiciousTypeOfGuard
@@ -105,9 +103,8 @@ export const ComplexType = function (this: ComplexType | void, ...args: any[]) {
         throw new TypeError(`"${(initArgs.base! as DataType).kind}" can't be set as base for a "${this.kind}"`);
       }
       _this.base = initArgs.base;
-      if (_this.additionalFields == null && _this.base.additionalFields) {
-        _this.additionalFields = _this.base.additionalFields;
-      }
+      _this.additionalFields = _this.base.additionalFields;
+      _this.keyField = _this.base.keyField;
 
       /** Copy fields from base */
       for (const v of _this.base.fields.values()) {
@@ -115,6 +112,8 @@ export const ComplexType = function (this: ComplexType | void, ...args: any[]) {
       }
     });
   }
+  if (initArgs.additionalFields !== undefined) _this.additionalFields = initArgs.additionalFields;
+  if (initArgs.keyField !== undefined) _this.keyField = initArgs.keyField;
   _this.ctor = initArgs.ctor || _this.base?.ctor;
 
   /** Add own fields */

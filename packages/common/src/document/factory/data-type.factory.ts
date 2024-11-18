@@ -385,6 +385,7 @@ export class DataTypeFactory {
     metadata: ComplexType.Metadata | OpraSchema.ComplexType,
   ): Promise<void> {
     await this._prepareDataTypeArgs(context, initArgs, metadata);
+    initArgs.keyField = metadata.keyField;
 
     await context.enterAsync('.base', async () => {
       let baseArgs: any;
