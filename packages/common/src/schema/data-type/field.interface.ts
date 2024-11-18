@@ -50,9 +50,9 @@ export type Field = {
   isArray?: boolean;
 
   /**
-   * Indicates identifier field if this field is a ComplexType array
+   * Indicates key field when this field is a ComplexType array
    */
-  arrayIdField?: string;
+  keyField?: string;
 
   /**
    * If true, this Field is a candidate for translations
