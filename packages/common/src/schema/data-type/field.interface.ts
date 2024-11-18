@@ -14,11 +14,6 @@ export type Field = {
   description?: string;
 
   /**
-   * Indicates if the field value is an array
-   */
-  isArray?: boolean;
-
-  /**
    * Defines the default value of the field
    */
   default?: any;
@@ -48,6 +43,16 @@ export type Field = {
    * The client side should include the Field name in the "include" query parameter.
    */
   exclusive?: boolean;
+
+  /**
+   * Indicates if the field value is an array
+   */
+  isArray?: boolean;
+
+  /**
+   * Indicates identifier field if this field is a ComplexType array
+   */
+  arrayIdField?: string;
 
   /**
    * If true, this Field is a candidate for translations

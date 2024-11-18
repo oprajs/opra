@@ -87,6 +87,7 @@ export const ApiField = function (this: ApiField | void, ...args: any[]) {
   _this.required = initArgs.required;
   _this.exclusive = initArgs.exclusive;
   _this.translatable = initArgs.translatable;
+  _this.arrayIdField = initArgs.arrayIdField;
   _this.deprecated = initArgs.deprecated;
   _this.readonly = initArgs.readonly;
   _this.writeonly = initArgs.writeonly;
@@ -110,6 +111,7 @@ class ApiFieldClass extends DocumentElement {
   declare readonly required?: boolean;
   declare readonly exclusive?: boolean;
   declare readonly translatable?: boolean;
+  declare readonly arrayIdField?: string;
   declare readonly deprecated?: boolean | string;
   declare readonly readonly?: boolean;
   declare readonly writeonly?: boolean;
@@ -131,6 +133,7 @@ class ApiFieldClass extends DocumentElement {
       required: this.required || undefined,
       exclusive: this.exclusive || undefined,
       translatable: this.translatable || undefined,
+      arrayIdField: this.arrayIdField || undefined,
       deprecated: this.deprecated || undefined,
       readonly: this.readonly || undefined,
       writeonly: this.writeonly || undefined,
