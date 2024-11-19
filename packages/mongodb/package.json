@@ -1,6 +1,6 @@
 {
   "name": "@opra/mongodb",
-  "version": "1.2.0",
+  "version": "1.2.1",
   "description": "Opra MongoDB adapter package",
   "author": "Panates",
   "license": "MIT",
@@ -33,9 +33,9 @@
     "ts-gems": "^3.6.0"
   },
   "peerDependencies": {
-    "@opra/common": "^1.2.0",
-    "@opra/core": "^1.2.0",
-    "@opra/http": "^1.2.0",
+    "@opra/common": "^1.2.1",
+    "@opra/core": "^1.2.1",
+    "@opra/http": "^1.2.1",
     "mongodb": ">= 6.0.0"
   },
   "type": "module",
