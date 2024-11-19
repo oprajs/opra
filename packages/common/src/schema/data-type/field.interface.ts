@@ -55,9 +55,9 @@ export type Field = {
   keyField?: string;
 
   /**
-   * If true, this Field is a candidate for translations
+   * If true, this Field is a candidate for localisation
    */
-  translatable?: boolean;
+  localisation?: boolean;
 
   /**
    * Defines example values for the field
