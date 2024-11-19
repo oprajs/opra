@@ -35,7 +35,10 @@ export namespace MongoEntityService {
 
   export interface FindOneOptions<T> extends MongoService.FindOneOptions<T> {}
 
-  export interface FindManyOptions<T> extends MongoService.FindManyOptions<T> {}
+  export interface FindManyOptions<T> extends MongoService.FindManyOptions<T> {
+    preStages?: mongodb.Document[];
+    postStages?: mongodb.Document[];
+  }
 
   export interface ReplaceOptions<T> extends MongoService.ReplaceOptions<T> {}
 
@@ -235,21 +238,17 @@ export class MongoEntityService<T extends mongodb.Document> extends MongoService
       command.options?.filter,
     ]);
     const { options } = command;
-    const db = this.getDatabase();
-    const collection = await this.getCollection(db);
-    const projection = MongoAdapter.prepareProjection(this.dataType, options?.projection);
-    const out = await collection.findOne<PartialDTO<T>>(filter || {}, {
-      ...omit(options, 'filter'),
-      session: options?.session ?? this.getSession(),
-      projection,
-      limit: undefined,
-      skip: undefined,
-      sort: undefined,
-    });
-    if (out) {
-      const outputCodec = this._getOutputCodec('find');
-      return outputCodec(out);
-    }
+    const findManyCommand: MongoEntityService.FindManyCommand<T> = {
+      ...command,
+      options: {
+        ...options,
+        filter,
+        limit: 1,
+        skip: undefined,
+      },
+    };
+    const rows = await this._findMany(findManyCommand);
+    return rows?.[0];
   }
 
   /**
@@ -259,20 +258,15 @@ export class MongoEntityService<T extends mongodb.Document> extends MongoService
    */
   protected async _findOne(command: MongoEntityService.FindOneCommand<T>): Promise<PartialDTO<T> | undefined> {
     const { options } = command;
-    const filter = MongoAdapter.prepareFilter(options?.filter);
-    const db = this.getDatabase();
-    const collection = await this.getCollection(db);
-    const out = await collection.findOne<PartialDTO<T>>(filter || {}, {
-      ...omit(options, 'filter'),
-      session: options?.session ?? this.getSession(),
-      sort: options?.sort ? MongoAdapter.prepareSort(options.sort) : undefined,
-      projection: MongoAdapter.prepareProjection(this.dataType, options?.projection),
-      limit: undefined,
-    });
-    if (out) {
-      const outputCodec = this._getOutputCodec('find');
-      return outputCodec(out);
-    }
+    const findManyCommand: MongoEntityService.FindManyCommand<T> = {
+      ...command,
+      options: {
+        ...options,
+        limit: 1,
+      },
+    };
+    const rows = await this._findMany(findManyCommand);
+    return rows?.[0];
   }
 
   /**
@@ -282,18 +276,24 @@ export class MongoEntityService<T extends mongodb.Document> extends MongoService
    */
   protected async _findMany(command: MongoEntityService.FindManyCommand<T>): Promise<PartialDTO<T>[]> {
     const { options } = command;
-    const limit = options?.limit || 10;
     const stages: mongodb.Document[] = [];
+    /** Pre-Stages */
+    if (options?.preStages) stages.push(...options.preStages);
+    /** "Filter" stage */
     let filter: mongodb.Filter<T> | undefined;
     if (options?.filter) filter = MongoAdapter.prepareFilter<T>(options?.filter);
-
     if (filter) stages.push({ $match: filter });
+    /** "Skip" stage */
     if (options?.skip) stages.push({ $skip: options.skip });
+    /** "Sort" stage */
     if (options?.sort) {
       const sort = MongoAdapter.prepareSort(options.sort);
       if (sort) stages.push({ $sort: sort });
     }
-    stages.push({ $limit: limit });
+    /** "Limit" stage */
+    stages.push({ $limit: options?.limit || 10 });
+    /** Post-Stages */
+    if (options?.postStages) stages.push(...options.postStages);
 
     const dataType = this.dataType;
     const projection = MongoAdapter.prepareProjection(dataType, options?.projection);

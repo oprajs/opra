@@ -68,10 +68,10 @@ export class MongoCollectionService<T extends mongodb.Document> extends MongoEnt
    * @throws {Error} if an unknown error occurs while creating the document.
    */
   async create(
-    input: PartialDTO<T>,
+    input: PartialDTO<T> | T,
     options: RequiredSome<MongoEntityService.CreateOptions, 'projection'>,
   ): Promise<PartialDTO<T>>;
-  async create(input: PartialDTO<T>, options?: MongoEntityService.CreateOptions): Promise<T>;
+  async create(input: PartialDTO<T> | T, options?: MongoEntityService.CreateOptions): Promise<T>;
   async create(input: any, options?: MongoEntityService.CreateOptions): Promise<PartialDTO<T> | T> {
     const command: MongoEntityService.CreateCommand<T> = {
       crud: 'create',
