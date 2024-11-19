@@ -55,9 +55,9 @@ export type Field = {
   keyField?: string;
 
   /**
-   * If true, this Field is a candidate for localisation
+   * If true, this Field is a candidate for localization
    */
-  localisation?: boolean;
+  localization?: boolean;
 
   /**
    * Defines example values for the field

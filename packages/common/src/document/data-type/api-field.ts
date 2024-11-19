@@ -86,7 +86,7 @@ export const ApiField = function (this: ApiField | void, ...args: any[]) {
   _this.fixed = initArgs.fixed;
   _this.required = initArgs.required;
   _this.exclusive = initArgs.exclusive;
-  _this.localisation = initArgs.localisation;
+  _this.localization = initArgs.localization;
   _this.keyField = initArgs.keyField;
   _this.deprecated = initArgs.deprecated;
   _this.readonly = initArgs.readonly;
@@ -110,7 +110,7 @@ class ApiFieldClass extends DocumentElement {
   declare readonly fixed?: any;
   declare readonly required?: boolean;
   declare readonly exclusive?: boolean;
-  declare readonly localisation?: boolean;
+  declare readonly localization?: boolean;
   declare readonly keyField?: string;
   declare readonly deprecated?: boolean | string;
   declare readonly readonly?: boolean;
@@ -132,7 +132,7 @@ class ApiFieldClass extends DocumentElement {
       fixed: this.fixed,
       required: this.required || undefined,
       exclusive: this.exclusive || undefined,
-      localisation: this.localisation || undefined,
+      localization: this.localization || undefined,
       keyField: this.keyField || undefined,
       deprecated: this.deprecated || undefined,
       readonly: this.readonly || undefined,
