@@ -5,7 +5,7 @@
   "type": "module",
   "module": "./start.js",
   "dependencies": {
-    "@elastic/elasticsearch": "^8.16.1",
+    "@elastic/elasticsearch": "^8.16.2",
     "@opra/common": "^1.2.1",
     "@opra/core": "^1.2.1",
     "@opra/http": "^1.2.1",

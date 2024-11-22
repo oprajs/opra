@@ -1,5 +1,6 @@
+import { isConstructor } from '@jsopen/objects';
 import type { Type } from 'ts-gems';
-import { isConstructor, resolveThunk } from '../../helpers/index.js';
+import { resolveThunk } from '../../helpers/index.js';
 import { OpraSchema } from '../../schema/index.js';
 import { DocumentInitContext } from '../common/document-init-context.js';
 import { HTTP_CONTROLLER_METADATA } from '../constants.js';

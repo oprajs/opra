@@ -22,6 +22,7 @@
     "clean:cover": "rimraf ../../coverage/nestjs"
   },
   "dependencies": {
+    "@jsopen/objects": "^1.2.0",
     "@opra/common": "^1.2.1",
     "@opra/core": "^1.2.1",
     "fast-tokenizer": "^1.7.0",

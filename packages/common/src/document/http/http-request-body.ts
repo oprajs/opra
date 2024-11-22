@@ -1,5 +1,5 @@
+import { omitUndefined } from '@jsopen/objects';
 import type { StrictOmit } from 'ts-gems';
-import { omitUndefined } from '../../helpers/index.js';
 import { OpraSchema } from '../../schema/index.js';
 import { DocumentElement } from '../common/document-element.js';
 import { HttpMediaType } from './http-media-type.js';

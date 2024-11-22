@@ -1,6 +1,6 @@
 import 'reflect-metadata';
+import { omitUndefined } from '@jsopen/objects';
 import { asMutable, type Combine, type Type } from 'ts-gems';
-import { omitUndefined } from '../../helpers/index.js';
 import type { Field } from '../../schema/data-type/field.interface.js';
 import { OpraSchema } from '../../schema/index.js';
 import { DocumentElement } from '../common/document-element.js';

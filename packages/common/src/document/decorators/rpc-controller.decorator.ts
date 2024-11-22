@@ -1,5 +1,4 @@
-import omit from 'lodash.omit';
-import merge from 'putil-merge';
+import { merge } from '@jsopen/objects';
 import type { Type, TypeThunkAsync } from 'ts-gems';
 import { OpraSchema } from '../../schema/index.js';
 import { RPC_CONTROLLER_METADATA } from '../constants.js';
@@ -49,10 +48,10 @@ export function RpcControllerDecoratorFactory<O extends RpcController.Options>(o
     merge(
       metadata,
       {
+        ...options,
         kind: OpraSchema.RpcController.Kind,
         name,
         path: name,
-        ...omit(options, ['kind', 'name', 'instance', 'endpoints', 'key']),
       },
       { deep: true },
     );

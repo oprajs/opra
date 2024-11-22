@@ -1,4 +1,4 @@
-import { isBuiltInObject } from '@opra/common';
+import { isBuiltIn } from '@jsopen/objects';
 
 export default function preparePatch(
   doc: any,
@@ -35,7 +35,7 @@ function _preparePatch(
       trg.$unset[field] = '';
       continue;
     }
-    if (v && typeof v === 'object' && !isBuiltInObject(v)) {
+    if (v && typeof v === 'object' && !isBuiltIn(v)) {
       // If field name starts with "*", do "replace" operation except "merge"
       if (!k.startsWith('*')) {
         _preparePatch(v, trg, key);

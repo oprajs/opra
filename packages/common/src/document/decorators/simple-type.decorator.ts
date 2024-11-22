@@ -1,4 +1,3 @@
-import omit from 'lodash.omit';
 import { OpraSchema } from '../../schema/index.js';
 import { CLASS_NAME_PATTERN, DATATYPE_METADATA, EXTRACT_TYPENAME_PATTERN } from '../constants.js';
 import type { SimpleType } from '../data-type/simple-type';
@@ -32,9 +31,9 @@ export function SimpleTypeDecoratorFactory(options?: SimpleType.Options): Simple
       }
     }
     const metadata: SimpleType.Metadata = Reflect.getOwnMetadata(DATATYPE_METADATA, target) || ({} as any);
+    if (options) Object.assign(metadata, options);
     metadata.kind = OpraSchema.SimpleType.Kind;
     metadata.name = name;
-    if (options) Object.assign(metadata, omit(options, ['kind', 'name']));
     Reflect.defineMetadata(DATATYPE_METADATA, metadata, target);
   } as SimpleTypeDecorator;
 

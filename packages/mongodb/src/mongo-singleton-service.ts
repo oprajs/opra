@@ -1,5 +1,5 @@
+import { omit } from '@jsopen/objects';
 import { ResourceNotAvailableError } from '@opra/common';
-import omit from 'lodash.omit';
 import mongodb, { ObjectId, type UpdateFilter } from 'mongodb';
 import type { PartialDTO, PatchDTO, RequiredSome, Type } from 'ts-gems';
 import { MongoAdapter } from './mongo-adapter.js';
@@ -87,7 +87,7 @@ export class MongoSingletonService<T extends mongodb.Document> extends MongoEnti
         crud: 'read',
         byId: true,
         documentId: r._id,
-        options: omit(options, 'filter'),
+        options,
       };
       const out = await this._findById(findCommand);
       if (out) return out;
@@ -239,7 +239,7 @@ export class MongoSingletonService<T extends mongodb.Document> extends MongoEnti
           crud: 'read',
           byId: true,
           documentId: this._id,
-          options: omit(options, ['filter', 'sort']),
+          options: omit(options!, ['filter', 'sort']),
         };
         const out = await this._findById(findCommand);
         if (out) return out;

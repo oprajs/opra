@@ -1,4 +1,4 @@
-import { omitUndefined } from '../../helpers/index.js';
+import { omitUndefined } from '@jsopen/objects';
 import { OpraSchema } from '../../schema/index.js';
 import type { ApiDocument } from '../api-document.js';
 import { CLASS_NAME_PATTERN } from '../constants.js';

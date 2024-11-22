@@ -1,3 +1,4 @@
+import { isConstructor } from '@jsopen/objects';
 import {
   type DynamicModule,
   Global,
@@ -9,7 +10,6 @@ import {
   OnModuleInit,
 } from '@nestjs/common';
 import { ModuleRef } from '@nestjs/core';
-import { isConstructor } from '@opra/common';
 import { KafkaAdapter, type KafkaContext } from '@opra/kafka';
 import { OPRA_KAFKA_MODULE_CONFIG } from '../constants.js';
 import { initializeAdapter } from './helpers/initialize-adapter.js';

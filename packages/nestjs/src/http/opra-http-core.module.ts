@@ -1,3 +1,4 @@
+import { isConstructor } from '@jsopen/objects';
 import {
   type DynamicModule,
   Global,
@@ -9,7 +10,7 @@ import {
   RequestMethod,
 } from '@nestjs/common';
 import { APP_FILTER, ModuleRef } from '@nestjs/core';
-import { ApiDocumentFactory, isConstructor } from '@opra/common';
+import { ApiDocumentFactory } from '@opra/common';
 import { HttpAdapter, HttpContext } from '@opra/http';
 import { OPRA_HTTP_API_CONFIG } from '../constants.js';
 import type { OpraHttpModule } from './opra-http.module.js';

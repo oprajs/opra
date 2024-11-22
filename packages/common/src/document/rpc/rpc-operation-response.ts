@@ -1,6 +1,6 @@
+import { omitUndefined } from '@jsopen/objects';
 import type { Combine, Type } from 'ts-gems';
 import { TypeThunkAsync } from 'ts-gems/lib/types';
-import { omitUndefined } from '../../helpers/index.js';
 import { OpraSchema } from '../../schema/index.js';
 import { DocumentElement } from '../common/document-element.js';
 import { DataType } from '../data-type/data-type.js';

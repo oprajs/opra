@@ -1,8 +1,8 @@
 import typeIs from '@browsery/type-is';
+import { omitUndefined } from '@jsopen/objects';
 import type { Combine, StrictOmit, Type } from 'ts-gems';
 import { asMutable } from 'ts-gems';
 import { isAny, type Validator, vg } from 'valgen';
-import { omitUndefined } from '../../helpers/index.js';
 import { OpraSchema } from '../../schema/index.js';
 import { DocumentElement } from '../common/document-element.js';
 import { DataType } from '../data-type/data-type.js';

@@ -1,8 +1,9 @@
 import 'reflect-metadata';
+import { omitUndefined } from '@jsopen/objects';
 import type { Combine, Type } from 'ts-gems';
 import { asMutable } from 'ts-gems';
 import { isAny, type Validator } from 'valgen';
-import { cloneObject, omitUndefined } from '../../helpers/index.js';
+import { cloneObject } from '../../helpers/index.js';
 import { OpraSchema } from '../../schema/index.js';
 import type { DocumentElement } from '../common/document-element';
 import { DocumentInitContext } from '../common/document-init-context.js';
@@ -169,7 +170,7 @@ abstract class SimpleTypeClass extends DataType {
       properties: Object.keys(properties).length ? properties : undefined,
     });
     if (Object.keys(this.ownNameMappings).length) out.nameMappings = { ...this.ownNameMappings };
-    return out;
+    return omitUndefined(out, true);
   }
 }
 

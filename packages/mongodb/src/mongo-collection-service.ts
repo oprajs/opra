@@ -1,5 +1,4 @@
 import { ResourceNotAvailableError } from '@opra/common';
-import omit from 'lodash.omit';
 import mongodb, { type UpdateFilter } from 'mongodb';
 import type { PartialDTO, PatchDTO, RequiredSome, Type } from 'ts-gems';
 import { MongoAdapter } from './mongo-adapter.js';
@@ -89,7 +88,7 @@ export class MongoCollectionService<T extends mongodb.Document> extends MongoEnt
         crud: 'read',
         byId: true,
         documentId: r._id,
-        options: omit(options, 'filter'),
+        options,
       };
       const out = await this._findById(findCommand);
       if (out) return out;

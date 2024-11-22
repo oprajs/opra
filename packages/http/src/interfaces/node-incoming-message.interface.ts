@@ -1,5 +1,5 @@
 import { type HeaderInfo, HTTPParser } from '@browsery/http-parser';
-import { isAsyncIterable, isIterable } from '@opra/common';
+import { isAsyncIterable, isIterable } from '@jsopen/objects';
 import http from 'http';
 import { Readable } from 'stream';
 import { CRLF, kHttpParser, NodeIncomingMessageHost } from '../impl/node-incoming-message.host.js';

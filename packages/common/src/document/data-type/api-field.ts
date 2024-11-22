@@ -1,6 +1,6 @@
+import { omitUndefined } from '@jsopen/objects';
 import type { Combine, TypeThunkAsync } from 'ts-gems';
 import { asMutable } from 'ts-gems';
-import { omitUndefined } from '../../helpers/index.js';
 import { OpraSchema } from '../../schema/index.js';
 import { DocumentElement } from '../common/document-element.js';
 import { DECORATOR } from '../constants.js';

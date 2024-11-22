@@ -1,5 +1,5 @@
+import { omit } from '@jsopen/objects';
 import { ComplexType, NotAcceptableError, ResourceNotAvailableError } from '@opra/common';
-import omit from 'lodash.omit';
 import mongodb from 'mongodb';
 import type { DTO, PartialDTO, PatchDTO, RequiredSome, StrictOmit, Type } from 'ts-gems';
 import { isNotNullish } from 'valgen';
@@ -345,7 +345,7 @@ export class MongoNestedService<T extends mongodb.Document> extends MongoService
     const db = this.getDatabase();
     const collection = await this.getCollection(db);
     const cursor = collection.aggregate<T>(stages, {
-      ...omit(options, ['documentFilter', 'nestedFilter', 'projection', 'sort', 'skip', 'limit', 'filter', 'count']),
+      ...omit(options!, ['documentFilter', 'skip', 'limit', 'filter']),
       session: options?.session ?? this.getSession(),
     });
     try {
@@ -690,7 +690,7 @@ export class MongoNestedService<T extends mongodb.Document> extends MongoService
     const db = this.getDatabase();
     const collection = await this.getCollection(db);
     const cursor = collection.aggregate<T>(stages, {
-      ...omit(options, ['documentFilter', 'nestedFilter', 'projection', 'sort', 'skip', 'limit', 'filter', 'count']),
+      ...omit(options!, ['documentFilter', 'nestedFilter', 'projection', 'sort', 'skip', 'limit', 'filter']),
       session: options?.session ?? this.getSession(),
     });
     try {
@@ -790,7 +790,7 @@ export class MongoNestedService<T extends mongodb.Document> extends MongoService
     const db = this.getDatabase();
     const collection = await this.getCollection(db);
     const cursor = collection.aggregate<T>(stages, {
-      ...omit(options, ['documentFilter', 'nestedFilter', 'projection', 'sort', 'skip', 'limit', 'filter', 'count']),
+      ...omit(options!, ['documentFilter', 'nestedFilter', 'projection', 'sort', 'skip', 'limit', 'filter']),
       session: options?.session ?? this.getSession(),
     });
     try {

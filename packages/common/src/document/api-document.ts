@@ -1,6 +1,7 @@
+import { omitUndefined } from '@jsopen/objects';
 import { md5 } from 'super-fast-md5';
 import type { Mutable, Type } from 'ts-gems';
-import { cloneObject, omitUndefined, ResponsiveMap } from '../helpers/index.js';
+import { cloneObject, ResponsiveMap } from '../helpers/index.js';
 import { OpraSchema } from '../schema/index.js';
 import { DataTypeMap } from './common/data-type-map.js';
 import { DocumentElement } from './common/document-element.js';

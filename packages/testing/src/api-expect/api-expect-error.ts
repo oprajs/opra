@@ -1,5 +1,6 @@
 import '../jest-extend/index.js';
-import { type ErrorIssue, omitNullish } from '@opra/common';
+import { omitNullish } from '@jsopen/objects';
+import { type ErrorIssue } from '@opra/common';
 import { ApiExpectBase } from './api-expect-base.js';
 
 export interface MatchingErrorIssue {

@@ -1,5 +1,4 @@
-import omit from 'lodash.omit';
-import merge from 'putil-merge';
+import { merge, omit } from '@jsopen/objects';
 import type { StrictOmit, Type, TypeThunkAsync } from 'ts-gems';
 import { OpraSchema } from '../../schema/index.js';
 import { HTTP_CONTROLLER_METADATA } from '../constants.js';
@@ -62,7 +61,7 @@ export function HttpControllerDecoratorFactory<O extends HttpController.Options>
         kind: OpraSchema.HttpController.Kind,
         name,
         path: name,
-        ...omit(options, ['kind', 'name', 'instance', 'endpoints', 'key']),
+        ...omit(options as any, ['kind', 'name', 'instance', 'endpoints', 'key']),
       },
       { deep: true },
     );

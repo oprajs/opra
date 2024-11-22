@@ -1,4 +1,4 @@
-import omit from 'lodash.omit';
+import { omit } from '@jsopen/objects';
 import type { ThunkAsync, Type, TypeThunkAsync } from 'ts-gems';
 import { OpraSchema } from '../../schema/index.js';
 import { RPC_CONTROLLER_METADATA } from '../constants.js';
@@ -65,8 +65,8 @@ export function RpcOperationDecoratorFactory(
     const operationMetadata = {
       kind: OpraSchema.RpcOperation.Kind,
       channel: propertyKey,
-      ...omit(options, ['kind']),
       payloadType,
+      ...omit(options as any, ['kind', 'payloadType']),
     } as RpcOperation.Metadata;
 
     const controllerMetadata = (Reflect.getOwnMetadata(RPC_CONTROLLER_METADATA, target.constructor) ||

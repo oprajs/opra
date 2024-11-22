@@ -22,8 +22,7 @@
     "clean:cover": "rimraf ../../coverage/mongodb"
   },
   "dependencies": {
-    "lodash.omit": "^4.5.0",
-    "putil-isplainobject": "^1.1.5",
+    "@jsopen/objects": "^1.2.0",
     "tslib": "^2.8.1",
     "valgen": "^5.12.0"
   },

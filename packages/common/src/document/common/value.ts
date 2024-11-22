@@ -1,6 +1,6 @@
+import { omitUndefined } from '@jsopen/objects';
 import type { Combine, StrictOmit, TypeThunkAsync } from 'ts-gems';
 import { asMutable } from 'ts-gems';
-import { omitUndefined } from '../../helpers/index.js';
 import type { OpraSchema } from '../../schema/index.js';
 import { DataType } from '../data-type/data-type.js';
 import type { EnumType } from '../data-type/enum-type.js';

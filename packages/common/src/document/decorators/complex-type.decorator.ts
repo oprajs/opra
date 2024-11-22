@@ -1,4 +1,4 @@
-import omit from 'lodash.omit';
+import { omit } from '@jsopen/objects';
 import { OpraSchema } from '../../schema/index.js';
 import { CLASS_NAME_PATTERN, DATATYPE_METADATA, EXTRACT_TYPENAME_PATTERN } from '../constants.js';
 import type { ComplexType } from '../data-type/complex-type';
@@ -22,6 +22,6 @@ export function ComplexTypeDecorator(options?: ComplexType.Options) {
     metadata.kind = OpraSchema.ComplexType.Kind;
     metadata.name = name;
     // Merge options
-    if (options) Object.assign(metadata, omit(options, ['kind', 'name', 'base', 'fields']));
+    if (options) Object.assign(metadata, omit(options!, ['name']));
   };
 }

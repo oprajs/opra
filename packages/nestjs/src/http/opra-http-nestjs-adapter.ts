@@ -1,4 +1,5 @@
 import nodePath from 'node:path';
+import { isConstructor } from '@jsopen/objects';
 import {
   Controller,
   Delete,
@@ -15,7 +16,7 @@ import {
   type Type,
 } from '@nestjs/common';
 import { EXCEPTION_FILTERS_METADATA, GUARDS_METADATA, INTERCEPTORS_METADATA } from '@nestjs/common/constants.js';
-import { HTTP_CONTROLLER_METADATA, HttpApi, HttpController, isConstructor, NotFoundError } from '@opra/common';
+import { HTTP_CONTROLLER_METADATA, HttpApi, HttpController, NotFoundError } from '@opra/common';
 import { HttpAdapter, HttpContext } from '@opra/http';
 import { asMutable } from 'ts-gems';
 import { Public } from '../decorators/public.decorator.js';

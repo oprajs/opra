@@ -1,7 +1,8 @@
 import 'reflect-metadata';
+import { omitUndefined } from '@jsopen/objects';
 import type { Class, Combine, Type } from 'ts-gems';
 import { asMutable } from 'ts-gems';
-import { inheritPropertyInitializers, mergePrototype, omitUndefined } from '../../helpers/index.js';
+import { inheritPropertyInitializers, mergePrototype } from '../../helpers/index.js';
 import { OpraSchema } from '../../schema/index.js';
 import type { DocumentElement } from '../common/document-element.js';
 import type { DocumentInitContext } from '../common/document-init-context.js';

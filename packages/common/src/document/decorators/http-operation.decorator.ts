@@ -1,4 +1,3 @@
-import omit from 'lodash.omit';
 import type { StrictOmit, Type, TypeThunkAsync } from 'ts-gems';
 import { MimeTypes } from '../../enums/index.js';
 import { OpraSchema } from '../../schema/index.js';
@@ -72,8 +71,8 @@ export function HttpOperationDecoratorFactory(
     if (typeof propertyKey !== 'string') throw new TypeError(`Symbol properties can not be decorated`);
 
     const operationMetadata = {
+      ...options,
       kind: OpraSchema.HttpOperation.Kind,
-      ...omit(options, ['kind']),
     } as HttpOperation.Metadata;
 
     const controllerMetadata = (Reflect.getOwnMetadata(HTTP_CONTROLLER_METADATA, target.constructor) ||

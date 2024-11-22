@@ -1,7 +1,7 @@
 import 'reflect-metadata';
+import { omitUndefined } from '@jsopen/objects';
 import type { Combine, Type, TypeThunkAsync } from 'ts-gems';
 import { asMutable } from 'ts-gems';
-import { omitUndefined } from '../../helpers/index.js';
 import { OpraSchema } from '../../schema/index.js';
 import type { DocumentElement } from '../common/document-element.js';
 import { DocumentInitContext } from '../common/document-init-context.js';

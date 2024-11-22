@@ -1,4 +1,4 @@
-import isPlainObject from 'putil-isplainobject';
+import { isPlainObject } from '@jsopen/objects';
 
 const defaultPrimaryKey = ['_id'];
 

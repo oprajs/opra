@@ -1,6 +1,7 @@
+import { omitUndefined } from '@jsopen/objects';
 import { asMutable, type StrictOmit, type Type } from 'ts-gems';
 import type { ValidationOptions, Validator } from 'valgen';
-import { FieldsProjection, omitUndefined } from '../../helpers/index.js';
+import { FieldsProjection } from '../../helpers/index.js';
 import type { DataTypeBase } from '../../schema/data-type/data-type.interface.js';
 import { OpraSchema } from '../../schema/index.js';
 import { DocumentElement } from '../common/document-element.js';

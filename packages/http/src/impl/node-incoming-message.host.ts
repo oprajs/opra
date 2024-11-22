@@ -3,7 +3,7 @@
   https://github.com/nodejs/
  */
 import { type HTTPParserJS } from '@browsery/http-parser';
-import { isAsyncIterable, isIterable } from '@opra/common';
+import { isAsyncIterable, isIterable } from '@jsopen/objects';
 import type { IncomingHttpHeaders } from 'http';
 import { Duplex, Readable } from 'stream';
 import type { NodeIncomingMessage } from '../interfaces/node-incoming-message.interface.js';

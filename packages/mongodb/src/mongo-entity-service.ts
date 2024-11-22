@@ -1,5 +1,5 @@
+import { omit } from '@jsopen/objects';
 import { InternalServerError } from '@opra/common';
-import omit from 'lodash.omit';
 import mongodb, { type UpdateFilter } from 'mongodb';
 import type { PartialDTO, PatchDTO, StrictOmit, Type } from 'ts-gems';
 import { isNotNullish } from 'valgen';
@@ -301,7 +301,7 @@ export class MongoEntityService<T extends mongodb.Document> extends MongoService
     const db = this.getDatabase();
     const collection = await this.getCollection(db);
     const cursor = collection.aggregate<T>(stages, {
-      ...omit(options, ['projection', 'sort', 'skip', 'limit', 'filter']),
+      ...omit(options!, ['projection', 'sort', 'skip', 'limit', 'filter']),
       session: options?.session ?? this.getSession(),
     });
     /** Execute db command */
@@ -358,7 +358,7 @@ export class MongoEntityService<T extends mongodb.Document> extends MongoService
     const db = this.getDatabase();
     const collection = await this.getCollection(db);
     const cursor = collection.aggregate<T>(stages, {
-      ...omit(options, ['projection', 'sort', 'skip', 'limit', 'filter']),
+      ...omit(options!, ['projection', 'sort', 'skip', 'limit', 'filter']),
       session: options?.session ?? this.getSession(),
     });
     /** Fetch the cursor and decode the result objects */
@@ -504,7 +504,7 @@ export class MongoEntityService<T extends mongodb.Document> extends MongoService
     const collection = await this.getCollection(db);
     return (
       await collection.updateMany(filter || {}, update, {
-        ...omit(options, 'filter'),
+        ...omit(options!, ['filter']),
         session: options?.session ?? this.getSession(),
         upsert: false,
       })

@@ -1,9 +1,10 @@
 import '../polifils/array-find-last.js';
+import { omitUndefined } from '@jsopen/objects';
 import type { StrictOmit } from 'ts-gems';
 import { isString, Validator } from 'valgen';
 import type { ComplexType } from '../document/index.js';
 import { OpraException } from '../exception/index.js';
-import { omitUndefined, ResponsiveMap } from '../helpers/index.js';
+import { ResponsiveMap } from '../helpers/index.js';
 import { translate } from '../i18n/index.js';
 import { OpraSchema } from '../schema/index.js';
 import {
