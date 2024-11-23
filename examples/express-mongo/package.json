@@ -9,7 +9,7 @@
     "@opra/core": "^1.2.1",
     "@opra/mongodb": "^1.2.1",
     "express": "^4.21.1",
-    "mongodb": "^6.10.0",
+    "mongodb": "^6.11.0",
     "ts-gems": "^3.6.0"
   },
   "scripts": {
