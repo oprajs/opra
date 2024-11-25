@@ -24,7 +24,7 @@
   },
   "dependencies": {
     "@browsery/type-is": "^1.6.18-r5",
-    "@jsopen/objects": "^1.4.1",
+    "@jsopen/objects": "^1.4.2",
     "@opra/client": "^1.2.1",
     "@opra/common": "^1.2.1",
     "ansi-colors": "^4.1.3",
