@@ -35,10 +35,7 @@ export namespace MongoEntityService {
 
   export interface FindOneOptions<T> extends MongoService.FindOneOptions<T> {}
 
-  export interface FindManyOptions<T> extends MongoService.FindManyOptions<T> {
-    preStages?: mongodb.Document[];
-    postStages?: mongodb.Document[];
-  }
+  export interface FindManyOptions<T> extends MongoService.FindManyOptions<T> {}
 
   export interface ReplaceOptions<T> extends MongoService.ReplaceOptions<T> {}
 
@@ -331,8 +328,6 @@ export class MongoEntityService<T extends mongodb.Document> extends MongoService
 
     const dataStages: mongodb.Document[] = [];
     const countStages: any[] = [];
-    if (filter) countStages.push({ $match: filter });
-    countStages.push({ $count: 'totalMatches' });
     const stages: mongodb.Document[] = [
       {
         $facet: {
@@ -342,12 +337,24 @@ export class MongoEntityService<T extends mongodb.Document> extends MongoService
       },
     ];
 
-    if (filter) dataStages.push({ $match: filter });
-    if (options?.skip) dataStages.push({ $skip: options.skip });
+    /** Pre-Stages */
+    if (options?.preStages) dataStages.push(...options.preStages);
+
+    /** Filter */
+    if (filter) {
+      countStages.push({ $match: filter });
+      dataStages.push({ $match: filter });
+    }
+    countStages.push({ $count: 'totalMatches' });
+
+    /** Sort */
     if (options?.sort) {
       const sort = MongoAdapter.prepareSort(options.sort);
       if (sort) dataStages.push({ $sort: sort });
     }
+    /** Skip */
+    if (options?.skip) dataStages.push({ $skip: options.skip });
+    /** Limit */
     dataStages.push({ $limit: limit });
 
     const dataType = this.dataType;

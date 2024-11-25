@@ -97,7 +97,7 @@ export class MongoSingletonService<T extends mongodb.Document> extends MongoEnti
   /**
    * Creates the document in the database.
    *
-   * @param {DTO<T>} input - The partial input to create the document with.
+   * @param {PartialDTO<T>} input - The partial input to create the document with.
    * @param {MongoEntityService.CreateOptions} [options] - The options for creating the document.
    * @returns {Promise<T>} A promise that resolves create operation result
    * @throws {Error} Throws an error if an unknown error occurs while creating the document.

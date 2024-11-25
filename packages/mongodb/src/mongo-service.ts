@@ -121,6 +121,8 @@ export namespace MongoService {
     sort?: string[];
     limit?: number;
     skip?: number;
+    preStages?: mongodb.Document[];
+    postStages?: mongodb.Document[];
   }
 
   /**

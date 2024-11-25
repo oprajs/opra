@@ -672,21 +672,29 @@ export class MongoNestedService<T extends mongodb.Document> extends MongoService
       { $unwind: { path: '$' + this.fieldName } },
       { $replaceRoot: { newRoot: '$' + this.fieldName } },
     ];
-
+    /** Pre-Stages */
+    if (options?.preStages) stages.push(...options.preStages);
+    /** Filter */
     if (options?.filter || options?.nestedFilter) {
       const optionsFilter = MongoAdapter.prepareFilter([options?.filter, options.nestedFilter]);
       stages.push({ $match: optionsFilter });
     }
-    if (options?.skip) stages.push({ $skip: options.skip });
+    /** Sort */
     if (options?.sort) {
       const sort = MongoAdapter.prepareSort(options.sort);
       if (sort) stages.push({ $sort: sort });
     }
+    /** Skip */
+    if (options?.skip) stages.push({ $skip: options.skip });
+    /** Limit */
     stages.push({ $limit: limit });
 
     const dataType = this.dataType;
     const projection = MongoAdapter.prepareProjection(dataType, options?.projection);
     if (projection) stages.push({ $project: projection });
+    /** Post-Stages */
+    if (options?.postStages) stages.push(...options.postStages);
+
     const db = this.getDatabase();
     const collection = await this.getCollection(db);
     const cursor = collection.aggregate<T>(stages, {
@@ -773,16 +781,24 @@ export class MongoNestedService<T extends mongodb.Document> extends MongoService
       },
     ];
 
+    /** Pre-Stages */
+    if (options?.preStages) dataStages.push(...options.preStages);
+    /** Filter */
     if (options?.filter || options?.nestedFilter) {
       const optionsFilter = MongoAdapter.prepareFilter([options?.filter, options?.nestedFilter]);
       dataStages.push({ $match: optionsFilter });
     }
-    if (options?.skip) dataStages.push({ $skip: options.skip });
+    /** Sort */
     if (options?.sort) {
       const sort = MongoAdapter.prepareSort(options.sort);
       if (sort) dataStages.push({ $sort: sort });
     }
+    /** Skip */
+    if (options?.skip) dataStages.push({ $skip: options.skip });
+    /** Limit */
     dataStages.push({ $limit: limit });
+    /** Post-Stages */
+    if (options?.postStages) dataStages.push(...options.postStages);
 
     const dataType = this.dataType;
     const projection = MongoAdapter.prepareProjection(dataType, options?.projection);
