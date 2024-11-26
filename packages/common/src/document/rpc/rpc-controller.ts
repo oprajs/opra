@@ -88,7 +88,7 @@ export const RpcController = function (this: RpcController | void, ...args: any[
  * @class RpcController
  */
 class RpcControllerClass extends DocumentElement {
-  protected declare _controllerReverseMap: WeakMap<Type, RpcController | null>;
+  declare protected _controllerReverseMap: WeakMap<Type, RpcController | null>;
   declare readonly kind: OpraSchema.RpcController.Kind;
   declare readonly name: string;
   declare description?: string;

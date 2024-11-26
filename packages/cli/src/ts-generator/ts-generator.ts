@@ -42,22 +42,22 @@ export namespace TsGenerator {
  * @class TsGenerator
  */
 export class TsGenerator extends EventEmitter {
-  protected declare cleanDirectory: typeof cleanDirectory;
-  protected declare generateDocument: typeof generateDocument;
-  protected declare generateDataType: typeof generateDataType;
-  protected declare _generateTypeCode: typeof _generateTypeCode;
-  protected declare _generateEnumTypeCode: typeof _generateEnumTypeCode;
-  protected declare _generateComplexTypeCode: typeof _generateComplexTypeCode;
-  protected declare _generateSimpleTypeCode: typeof _generateSimpleTypeCode;
-  protected declare _generateMappedTypeCode: typeof _generateMappedTypeCode;
-  protected declare _generateMixinTypeCode: typeof _generateMixinTypeCode;
-  protected declare generateHttpApi: typeof generateHttpApi;
-  protected declare generateHttpController: typeof generateHttpController;
-  protected declare _documentRoot: string;
-  protected declare _typesRoot: string;
-  protected declare _typesNamespace: string;
-  protected declare _apiPath: string;
-  protected declare _fileHeaderDocInfo: string;
+  declare protected cleanDirectory: typeof cleanDirectory;
+  declare protected generateDocument: typeof generateDocument;
+  declare protected generateDataType: typeof generateDataType;
+  declare protected _generateTypeCode: typeof _generateTypeCode;
+  declare protected _generateEnumTypeCode: typeof _generateEnumTypeCode;
+  declare protected _generateComplexTypeCode: typeof _generateComplexTypeCode;
+  declare protected _generateSimpleTypeCode: typeof _generateSimpleTypeCode;
+  declare protected _generateMappedTypeCode: typeof _generateMappedTypeCode;
+  declare protected _generateMixinTypeCode: typeof _generateMixinTypeCode;
+  declare protected generateHttpApi: typeof generateHttpApi;
+  declare protected generateHttpController: typeof generateHttpController;
+  declare protected _documentRoot: string;
+  declare protected _typesRoot: string;
+  declare protected _typesNamespace: string;
+  declare protected _apiPath: string;
+  declare protected _fileHeaderDocInfo: string;
   protected _files: Record<string, TsFile> = {};
   protected _started = false;
   protected _document?: ApiDocument;

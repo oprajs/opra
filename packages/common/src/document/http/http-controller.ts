@@ -93,7 +93,7 @@ export const HttpController = function (this: HttpController | void, ...args: an
  * @class HttpController
  */
 class HttpControllerClass extends DocumentElement {
-  protected declare _controllerReverseMap: WeakMap<Type, HttpController | null>;
+  declare protected _controllerReverseMap: WeakMap<Type, HttpController | null>;
   declare readonly kind: OpraSchema.HttpController.Kind;
   declare readonly name: string;
   declare description?: string;

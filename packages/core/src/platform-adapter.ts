@@ -20,7 +20,7 @@ export namespace PlatformAdapter {
  */
 export abstract class PlatformAdapter extends AsyncEventEmitter {
   protected [kAssetCache]: AssetCache;
-  protected declare _document: ApiDocument;
+  declare protected _document: ApiDocument;
   abstract readonly protocol: OpraSchema.Transport;
   i18n: I18n;
   logger?: ILogger;

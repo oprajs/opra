@@ -2,7 +2,7 @@ import type { Nullish } from 'ts-gems';
 import type { ExecutionContext } from './execution-context.js';
 
 export abstract class ServiceBase {
-  protected declare _context: ExecutionContext;
+  declare protected _context: ExecutionContext;
 
   get context(): ExecutionContext {
     this._assertContext();

@@ -21,11 +21,11 @@ const kSize = Symbol.for('kSize');
  * A Map implementation that supports case-insensitivity and ordered keys
  */
 export class ResponsiveMap<V> implements Map<string, V> {
-  private declare [kSize]: number;
-  private declare [kEntries]: Record<string, V>;
-  private declare [kKeyMap]: Record<string, string>;
-  private declare [kWellKnownKeys]: Record<string, string>;
-  private declare [kOptions]: StrictOmit<ResponsiveMapOptions, 'wellKnownKeys'>;
+  declare private [kSize]: number;
+  declare private [kEntries]: Record<string, V>;
+  declare private [kKeyMap]: Record<string, string>;
+  declare private [kWellKnownKeys]: Record<string, string>;
+  declare private [kOptions]: StrictOmit<ResponsiveMapOptions, 'wellKnownKeys'>;
 
   constructor(init?: ResponsiveMapInit<V> | null, options?: ResponsiveMapOptions) {
     Object.defineProperty(this, kSize, {

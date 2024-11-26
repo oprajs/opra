@@ -89,7 +89,7 @@ export class KafkaAdapter extends PlatformAdapter {
   protected _consumers = new Map<string, Consumer>();
   protected _handlerArgs: HandlerArguments[] = [];
   protected _started = false;
-  protected declare _kafka: Kafka;
+  declare protected _kafka: Kafka;
   readonly protocol: OpraSchema.Transport = 'rpc';
   readonly platform = KafkaAdapter.PlatformName;
   readonly interceptors: (KafkaAdapter.InterceptorFunction | KafkaAdapter.IKafkaInterceptor)[];
