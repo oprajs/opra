@@ -33,7 +33,7 @@
     "@sqb/connect": "^4.19.5",
     "@sqb/postgres": "^4.19.5",
     "postgrejs": "^2.22.2",
-    "ts-gems": "^3.6.0"
+    "ts-gems": "^3.9.0"
   },
   "peerDependencies": {
     "@opra/core": "^1.2.2",
