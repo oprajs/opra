@@ -392,15 +392,7 @@ export class MongoEntityService<T extends mongodb.Document> extends MongoService
     if (input && inputRaw) {
       throw new TypeError('You must pass one of MongoDB UpdateFilter or a partial document, not both');
     }
-    let update: UpdateFilter<T>;
-    if (input) {
-      const inputCodec = this._getInputCodec('update');
-      const doc = inputCodec(input);
-      delete doc._id;
-      update = MongoAdapter.preparePatch(doc);
-      update.$set = update.$set || ({} as any);
-    } else update = inputRaw!;
-
+    const update = this._prepareUpdate(command);
     const filter = MongoAdapter.prepareFilter([
       MongoAdapter.prepareKeyValues(command.documentId!, ['_id']),
       options?.filter,
@@ -417,6 +409,59 @@ export class MongoEntityService<T extends mongodb.Document> extends MongoService
     });
     const outputCodec = this._getOutputCodec('update');
     if (out) return outputCodec(out);
+  }
+
+  /**
+   * Updates a document in the collection with the specified ID.
+   *
+   * @param {MongoEntityService.UpdateOneCommand<T>} command
+   */
+  protected async _updateOnly(command: MongoEntityService.UpdateOneCommand<T>): Promise<number> {
+    isNotNullish(command.documentId, { label: 'documentId' });
+    const { input, inputRaw, options } = command;
+    isNotNullish(input || inputRaw, { label: 'input' });
+    if (input && inputRaw) {
+      throw new TypeError('You must pass one of MongoDB UpdateFilter or a partial document, not both');
+    }
+    const update = this._prepareUpdate(command);
+    const filter = MongoAdapter.prepareFilter([
+      MongoAdapter.prepareKeyValues(command.documentId, ['_id']),
+      options?.filter,
+    ]);
+    const db = this.getDatabase();
+    const collection = await this.getCollection(db);
+    return (
+      await collection.updateOne(filter || {}, update, {
+        ...options,
+        session: options?.session ?? this.getSession(),
+        upsert: undefined,
+      })
+    ).matchedCount;
+  }
+
+  /**
+   * Updates multiple documents in the collection based on the specified input and options.
+   *
+   * @param {MongoEntityService.UpdateManyCommand<T>} command
+   */
+  protected async _updateMany(command: MongoEntityService.UpdateManyCommand<T>): Promise<number> {
+    isNotNullish(command.input, { label: 'input' });
+    const { input, inputRaw, options } = command;
+    isNotNullish(input || inputRaw, { label: 'input' });
+    if (input && inputRaw) {
+      throw new TypeError('You must pass one of MongoDB UpdateFilter or a partial document, not both');
+    }
+    const update = this._prepareUpdate(command);
+    const filter = MongoAdapter.prepareFilter(options?.filter);
+    const db = this.getDatabase();
+    const collection = await this.getCollection(db);
+    return (
+      await collection.updateMany(filter || {}, update, {
+        ...omit(options!, ['filter']),
+        session: options?.session ?? this.getSession(),
+        upsert: false,
+      })
+    ).matchedCount;
   }
 
   /**
@@ -450,72 +495,22 @@ export class MongoEntityService<T extends mongodb.Document> extends MongoService
     if (out) return outputCodec(out);
   }
 
-  /**
-   * Updates a document in the collection with the specified ID.
-   *
-   * @param {MongoEntityService.UpdateOneCommand<T>} command
-   */
-  protected async _updateOnly(command: MongoEntityService.UpdateOneCommand<T>): Promise<number> {
-    isNotNullish(command.documentId, { label: 'documentId' });
-    const { input, inputRaw, options } = command;
+  protected _prepareUpdate(
+    command: MongoEntityService.UpdateOneCommand<T> | MongoEntityService.UpdateManyCommand<T>,
+  ): UpdateFilter<T> {
+    const { input, inputRaw } = command;
     isNotNullish(input || inputRaw, { label: 'input' });
     if (input && inputRaw) {
       throw new TypeError('You must pass one of MongoDB UpdateFilter or a partial document, not both');
     }
-    let update: UpdateFilter<T>;
+    let update: UpdateFilter<T> = { ...inputRaw };
     if (input) {
       const inputCodec = this._getInputCodec('update');
       const doc = inputCodec(input);
       delete doc._id;
-      update = MongoAdapter.preparePatch(doc);
-      if (!Object.keys(doc).length) return 0;
-    } else update = inputRaw!;
-
-    const filter = MongoAdapter.prepareFilter([
-      MongoAdapter.prepareKeyValues(command.documentId, ['_id']),
-      options?.filter,
-    ]);
-    const db = this.getDatabase();
-    const collection = await this.getCollection(db);
-    return (
-      await collection.updateOne(filter || {}, update, {
-        ...options,
-        session: options?.session ?? this.getSession(),
-        upsert: undefined,
-      })
-    ).matchedCount;
-  }
-
-  /**
-   * Updates multiple documents in the collection based on the specified input and options.
-   *
-   * @param {MongoEntityService.UpdateManyCommand<T>} command
-   */
-  protected async _updateMany(command: MongoEntityService.UpdateManyCommand<T>): Promise<number> {
-    isNotNullish(command.input, { label: 'input' });
-    const { input, inputRaw, options } = command;
-    isNotNullish(input || inputRaw, { label: 'input' });
-    if (input && inputRaw) {
-      throw new TypeError('You must pass one of MongoDB UpdateFilter or a partial document, not both');
+      update = MongoAdapter.preparePatch(doc, {}, update);
     }
-    let update: UpdateFilter<T>;
-    if (input) {
-      const inputCodec = this._getInputCodec('update');
-      const doc = inputCodec(input);
-      delete doc._id;
-      update = MongoAdapter.preparePatch(doc);
-      if (!Object.keys(doc).length) return 0;
-    } else update = inputRaw!;
-    const filter = MongoAdapter.prepareFilter(options?.filter);
-    const db = this.getDatabase();
-    const collection = await this.getCollection(db);
-    return (
-      await collection.updateMany(filter || {}, update, {
-        ...omit(options!, ['filter']),
-        session: options?.session ?? this.getSession(),
-        upsert: false,
-      })
-    ).matchedCount;
+    return update;
   }
 
   protected override async _executeCommand(

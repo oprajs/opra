@@ -5,11 +5,12 @@ export default function preparePatch(
   options?: {
     fieldPrefix?: string;
   },
+  target?: any,
 ): any {
-  const trg: any = {};
-  _preparePatch(doc, trg, '', options);
-  trg.$set = trg.$set || {};
-  return trg;
+  target = target || {};
+  _preparePatch(doc, target, '', options);
+  target.$set = target.$set || {};
+  return target;
 }
 
 function _preparePatch(
