@@ -32,6 +32,12 @@ export class Customer extends MixinType(Record, Person) {
   @ApiField({ type: Note, exclusive: true })
   declare notes?: Note[];
 
-  @ApiField({ exclusive: true })
+  @ApiField({ exclusive: true, readonly: true })
   declare readonly country?: Country;
+
+  @ApiField({
+    type: String,
+    isArray: true,
+  })
+  declare tags?: string[];
 }

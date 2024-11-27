@@ -3,7 +3,7 @@ import { ExecutionContext, ServiceBase } from '@opra/core';
 import mongodb, { ClientSession, type Document, MongoClient, ObjectId, type TransactionOptions } from 'mongodb';
 import type { Nullish, StrictOmit, Type } from 'ts-gems';
 import type { IsObject } from 'valgen';
-import { MongoAdapter } from './mongo-adapter.js';
+import { MongoAdapter } from '../adapter/mongo-adapter.js';
 
 const transactionKey = Symbol.for('transaction');
 
@@ -447,7 +447,10 @@ export class MongoService<T extends mongodb.Document = mongodb.Document> extends
     let validator = this._inputCodecs[operation];
     if (validator) return validator;
     const options: DataType.GenerateCodecOptions = { projection: '*' };
-    if (operation === 'update') options.partial = 'deep';
+    if (operation === 'update') {
+      options.partial = 'deep';
+      options.allowPatchOperators = true;
+    }
     const dataType = this.dataType;
     validator = dataType.generateCodec('decode', options) as IsObject.Validator<T>;
     this._inputCodecs[operation] = validator;

@@ -1,6 +1,6 @@
 import { OpraFilter } from '@opra/common';
 import mongodb from 'mongodb';
-import type { MongoAdapter } from '../mongo-adapter.js';
+import type { MongoAdapter } from './mongo-adapter';
 
 const opMap = {
   '=': '$eq',

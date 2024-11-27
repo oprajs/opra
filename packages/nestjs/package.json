@@ -50,7 +50,7 @@
     "kafkajs": "^2.2.4",
     "rxjs": "^7.8.1",
     "supertest": "^7.0.0",
-    "ts-gems": "^3.9.0"
+    "ts-gems": "^3.10.0"
   },
   "type": "module",
   "exports": {

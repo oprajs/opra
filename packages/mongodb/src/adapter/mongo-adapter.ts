@@ -2,11 +2,10 @@ import { OpraFilter } from '@opra/common';
 import type { ExecutionContext } from '@opra/core';
 import type { HttpContext } from '@opra/http';
 import mongodb, { ObjectId } from 'mongodb';
-import _prepareFilter from './adapter-utils/prepare-filter.js';
-import _prepareKeyValues from './adapter-utils/prepare-key-values.js';
-import _preparePatch from './adapter-utils/prepare-patch.js';
-import _prepareProjection from './adapter-utils/prepare-projection.js';
-import _prepareSort from './adapter-utils/prepare-sort.js';
+import _prepareFilter from './prepare-filter.js';
+import _prepareKeyValues from './prepare-key-values.js';
+import _prepareProjection from './prepare-projection.js';
+import _prepareSort from './prepare-sort.js';
 
 export namespace MongoAdapter {
   export type AnyId = string | number | ObjectId;
@@ -14,7 +13,6 @@ export namespace MongoAdapter {
 
   export const prepareFilter = _prepareFilter;
   export const prepareKeyValues = _prepareKeyValues;
-  export const preparePatch = _preparePatch;
   export const prepareProjection = _prepareProjection;
   export const prepareSort = _prepareSort;
 

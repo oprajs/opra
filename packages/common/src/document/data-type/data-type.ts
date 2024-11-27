@@ -31,6 +31,7 @@ export namespace DataType {
     ignoreReadonlyFields?: boolean;
     ignoreWriteonlyFields?: boolean;
     ignoreHiddenFields?: boolean;
+    allowPatchOperators?: boolean;
   }
 }
 

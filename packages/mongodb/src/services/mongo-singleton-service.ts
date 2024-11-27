@@ -2,7 +2,7 @@ import { omit } from '@jsopen/objects';
 import { ResourceNotAvailableError } from '@opra/common';
 import mongodb, { ObjectId, type UpdateFilter } from 'mongodb';
 import type { PartialDTO, PatchDTO, RequiredSome, Type } from 'ts-gems';
-import { MongoAdapter } from './mongo-adapter.js';
+import { MongoAdapter } from '../adapter/mongo-adapter.js';
 import { MongoEntityService } from './mongo-entity-service.js';
 
 /**

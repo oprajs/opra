@@ -3,7 +3,8 @@ import { InternalServerError } from '@opra/common';
 import mongodb, { type UpdateFilter } from 'mongodb';
 import type { PartialDTO, PatchDTO, StrictOmit, Type } from 'ts-gems';
 import { isNotNullish } from 'valgen';
-import { MongoAdapter } from './mongo-adapter.js';
+import { MongoAdapter } from '../adapter/mongo-adapter.js';
+import { MongoPatchGenerator } from '../adapter/mongo-patch-generator.js';
 import { MongoService } from './mongo-service.js';
 
 /**
@@ -503,12 +504,23 @@ export class MongoEntityService<T extends mongodb.Document> extends MongoService
     if (input && inputRaw) {
       throw new TypeError('You must pass one of MongoDB UpdateFilter or a partial document, not both');
     }
-    let update: UpdateFilter<T> = { ...inputRaw };
-    if (input) {
-      const inputCodec = this._getInputCodec('update');
-      const doc = inputCodec(input);
-      delete doc._id;
-      update = MongoAdapter.preparePatch(doc, {}, update);
+    if (inputRaw) return inputRaw;
+    const inputCodec = this._getInputCodec('update');
+    const doc = inputCodec(input!);
+    delete doc._id;
+    return this._generatePatch(command, doc);
+  }
+
+  protected _generatePatch(
+    command: MongoEntityService.UpdateOneCommand<T> | MongoEntityService.UpdateManyCommand<T>,
+    doc: any,
+  ) {
+    const patchGenerator = new MongoPatchGenerator();
+    const { update, arrayFilters } = patchGenerator.generatePatch<T>(this.dataType, doc);
+    command.options = command.options || {};
+    if (arrayFilters) {
+      command.options.arrayFilters = command.options.arrayFilters || [];
+      command.options.arrayFilters.push(arrayFilters);
     }
     return update;
   }

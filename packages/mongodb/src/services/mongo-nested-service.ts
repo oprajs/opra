@@ -3,8 +3,9 @@ import { ComplexType, NotAcceptableError, ResourceNotAvailableError } from '@opr
 import mongodb from 'mongodb';
 import type { DTO, PartialDTO, PatchDTO, RequiredSome, StrictOmit, Type } from 'ts-gems';
 import { isNotNullish } from 'valgen';
-import { MongoAdapter } from './mongo-adapter.js';
-import type { MongoEntityService } from './mongo-entity-service';
+import { MongoAdapter } from '../adapter/mongo-adapter.js';
+import { MongoPatchGenerator } from '../adapter/mongo-patch-generator.js';
+import type { MongoEntityService } from './mongo-entity-service.js';
 import { MongoService } from './mongo-service.js';
 
 /**
@@ -1011,9 +1012,15 @@ export class MongoNestedService<T extends mongodb.Document> extends MongoService
       const elemMatch = MongoAdapter.prepareFilter([options?.filter], { fieldPrefix: 'elem.' });
       options.arrayFilters = [elemMatch];
     }
-    const update: any = MongoAdapter.preparePatch(doc, {
-      fieldPrefix: this.fieldName + (options?.filter ? '.$[elem].' : '.$[].'),
+    const patchGenerator = new MongoPatchGenerator();
+    const { update, arrayFilters } = patchGenerator.generatePatch<T>(this.dataType, doc, {
+      currentPath: this.fieldName + (options?.filter ? '.$[elem]' : '.$[]'),
     });
+    command.options = command.options || {};
+    if (arrayFilters) {
+      command.options.arrayFilters = command.options.arrayFilters || [];
+      command.options.arrayFilters.push(arrayFilters);
+    }
     // Count matching items, we will use this as result
     const count = await this._count({
       crud: 'read',
