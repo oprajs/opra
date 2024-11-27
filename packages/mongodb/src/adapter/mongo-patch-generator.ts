@@ -5,6 +5,7 @@ import type { PatchDTO } from 'ts-gems';
 interface Context {
   $set?: Record<string, any>;
   $unset?: Record<string, any>;
+  $push?: Record<string, any>;
   $pull?: Record<string, any>;
   arrayFilters?: Record<string, any>;
 }
@@ -26,6 +27,7 @@ export class MongoPatchGenerator {
     if (ctx.$pull) update.$pull = ctx.$pull;
     if (ctx.$unset) update.$unset = ctx.$unset;
     if (ctx.$set) update.$set = ctx.$set;
+    if (ctx.$push) update.$push = ctx.$push;
     return {
       update,
       arrayFilters: ctx.arrayFilters,
@@ -33,6 +35,9 @@ export class MongoPatchGenerator {
   }
 
   protected _processComplexType(ctx: Context, dataType: ComplexType, path: string, input: any) {
+    if (input.$add) {
+      this._processAdd(ctx, dataType, path, input.$add);
+    }
     if (input.$remove) {
       this._processRemove(ctx, dataType, path, input.$remove);
     }
@@ -100,6 +105,41 @@ export class MongoPatchGenerator {
       }
       ctx.$set = ctx.$set || {};
       ctx.$set[pathDot + field.name] = value;
+    }
+  }
+
+  protected _processAdd(ctx: Context, dataType: ComplexType, path: string, input: any) {
+    let field: ApiField | undefined;
+    let key: string;
+    let value: any;
+    const pathDot = path + (path ? '.' : '');
+    const keys = Object.keys(input);
+    let keyField: string | undefined;
+    for (key of keys) {
+      value = input[key];
+      field = dataType.fields.get(key);
+      if (!(field && field.isArray)) continue;
+      ctx.$push = ctx.$push || {};
+      if (field.type instanceof ComplexType) {
+        keyField = field.keyField || field.type.keyField;
+        if (keyField) {
+          if (Array.isArray(value)) {
+            value.forEach(v => {
+              if (!v[keyField!]) {
+                throw new TypeError(`You must provide a key value of ${field!.type.name} for $add operation.`);
+              }
+            });
+            ctx.$push[pathDot + key] = { $each: value };
+          } else {
+            if (!value[keyField]) {
+              throw new TypeError(`You must provide a key value of ${field!.type.name} for $add operation.`);
+            }
+            ctx.$push[pathDot + key] = value;
+          }
+        }
+        continue;
+      }
+      ctx.$push[pathDot + key] = Array.isArray(value) ? { $each: value } : value;
     }
   }
 

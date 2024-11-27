@@ -53,6 +53,6 @@
     "ts-node": "github:TypeStrong/ts-node#main",
     "tsconfig-paths": "^4.2.0",
     "tslib": "^2.8.1",
-    "typescript": "^5.5.4"
+    "typescript": "^5.6.3"
   }
 }

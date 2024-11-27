@@ -14,7 +14,7 @@ describe('MongoPatchGenerator', () => {
   afterAll(() => global.gc && global.gc());
 
   describe('Patch input', () => {
-    it('Should set simple fields', async () => {
+    it('Should update simple fields', async () => {
       const generator = new MongoPatchGenerator();
       const { update } = generator.generatePatch(customerType, {
         givenName: 'John',
@@ -28,7 +28,7 @@ describe('MongoPatchGenerator', () => {
       });
     });
 
-    it('Should not set if field is readonly', async () => {
+    it('Should not update if field is readonly', async () => {
       const generator = new MongoPatchGenerator();
       const { update } = generator.generatePatch(customerType, {
         country: {
@@ -87,7 +87,7 @@ describe('MongoPatchGenerator', () => {
       });
     });
 
-    it('Should set fields for nested objects', async () => {
+    it('Should update fields for nested objects', async () => {
       const generator = new MongoPatchGenerator();
       const { update } = generator.generatePatch(customerType, {
         address: {
@@ -101,7 +101,7 @@ describe('MongoPatchGenerator', () => {
       });
     });
 
-    it('Should not set fields if parent field is readonly', async () => {
+    it('Should not update fields if parent field is readonly', async () => {
       const generator = new MongoPatchGenerator();
       const { update } = generator.generatePatch(customerType, {
         country: {
@@ -116,7 +116,7 @@ describe('MongoPatchGenerator', () => {
       });
     });
 
-    it('Should set values for array fields', async () => {
+    it('Should update array fields', async () => {
       const generator = new MongoPatchGenerator();
       const { update } = generator.generatePatch(customerType, {
         tags: ['a', 'b'],
@@ -128,7 +128,7 @@ describe('MongoPatchGenerator', () => {
       });
     });
 
-    it('Should set nested values for array fields', async () => {
+    it('Should update nested values in array fields', async () => {
       const generator = new MongoPatchGenerator();
       const { update, arrayFilters } = generator.generatePatch(customerType, {
         notes: [{ _id: 1, text: 'text' }],
@@ -141,6 +141,92 @@ describe('MongoPatchGenerator', () => {
       expect(arrayFilters).toEqual({
         'f1._id': 1,
       });
+    });
+  });
+
+  /* ******************************************************************  */
+
+  describe('$add operator', () => {
+    it('Should add single value to array field', async () => {
+      const generator = new MongoPatchGenerator();
+      const { update } = generator.generatePatch(customerType, {
+        $add: {
+          tags: 'a',
+        },
+      });
+      expect(update).toEqual({
+        $push: {
+          tags: 'a',
+        },
+      });
+    });
+
+    it('Should add multiple values to array field', async () => {
+      const generator = new MongoPatchGenerator();
+      const { update } = generator.generatePatch(customerType, {
+        $add: {
+          tags: ['a', 'b'],
+        },
+      });
+      expect(update).toEqual({
+        $push: {
+          tags: { $each: ['a', 'b'] },
+        },
+      });
+    });
+
+    it('Should add a complextype to array field', async () => {
+      const generator = new MongoPatchGenerator();
+      const { update } = generator.generatePatch(customerType, {
+        $add: {
+          notes: { _id: 1, text: 'text' },
+        },
+      });
+      expect(update).toEqual({
+        $push: {
+          notes: { _id: 1, text: 'text' },
+        },
+      });
+    });
+
+    it('Should add multiple complextypes to array field', async () => {
+      const generator = new MongoPatchGenerator();
+      const { update } = generator.generatePatch(customerType, {
+        $add: {
+          notes: [
+            { _id: 1, text: 'text1' },
+            { _id: 2, text: 'text2' },
+          ],
+        },
+      });
+      expect(update).toEqual({
+        $push: {
+          notes: {
+            $each: [
+              { _id: 1, text: 'text1' },
+              { _id: 2, text: 'text2' },
+            ],
+          },
+        },
+      });
+    });
+
+    it('Should check if key value defined', async () => {
+      const generator = new MongoPatchGenerator();
+      expect(() =>
+        generator.generatePatch(customerType, {
+          $add: {
+            notes: { text: 'text' },
+          },
+        }),
+      ).toThrow('must provide');
+      expect(() =>
+        generator.generatePatch(customerType, {
+          $add: {
+            notes: [{ text: 'text' }],
+          },
+        }),
+      ).toThrow('must provide');
     });
   });
 
