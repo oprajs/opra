@@ -1,10 +1,11 @@
 import { omit } from '@jsopen/objects';
 import { InternalServerError } from '@opra/common';
 import mongodb, { type UpdateFilter } from 'mongodb';
-import type { PartialDTO, PatchDTO, StrictOmit, Type } from 'ts-gems';
+import type { PartialDTO, StrictOmit, Type } from 'ts-gems';
 import { isNotNullish } from 'valgen';
 import { MongoAdapter } from '../adapter/mongo-adapter.js';
 import { MongoPatchGenerator } from '../adapter/mongo-patch-generator.js';
+import type { MongoPatchDTO } from '../types.js';
 import { MongoService } from './mongo-service.js';
 
 /**
@@ -83,14 +84,14 @@ export namespace MongoEntityService {
 
   export interface UpdateOneCommand<T> extends StrictOmit<CommandInfo, 'nestedId'> {
     crud: 'update';
-    input?: PatchDTO<T>;
+    input?: MongoPatchDTO<T>;
     inputRaw?: mongodb.UpdateFilter<T>;
     options?: UpdateOneOptions<T>;
   }
 
   export interface UpdateManyCommand<T> extends StrictOmit<CommandInfo, 'nestedId'> {
     crud: 'update';
-    input?: PatchDTO<T>;
+    input?: MongoPatchDTO<T>;
     inputRaw?: mongodb.UpdateFilter<T>;
     options?: UpdateManyOptions<T>;
   }
@@ -388,12 +389,13 @@ export class MongoEntityService<T extends mongodb.Document> extends MongoService
    */
   protected async _update(command: MongoEntityService.UpdateOneCommand<T>): Promise<PartialDTO<T> | undefined> {
     isNotNullish(command.documentId, { label: 'documentId' });
-    const { input, inputRaw, options } = command;
+    const { input, inputRaw } = command;
     isNotNullish(input || inputRaw, { label: 'input' });
     if (input && inputRaw) {
       throw new TypeError('You must pass one of MongoDB UpdateFilter or a partial document, not both');
     }
     const update = this._prepareUpdate(command);
+    const options = command.options;
     const filter = MongoAdapter.prepareFilter([
       MongoAdapter.prepareKeyValues(command.documentId!, ['_id']),
       options?.filter,
@@ -419,12 +421,13 @@ export class MongoEntityService<T extends mongodb.Document> extends MongoService
    */
   protected async _updateOnly(command: MongoEntityService.UpdateOneCommand<T>): Promise<number> {
     isNotNullish(command.documentId, { label: 'documentId' });
-    const { input, inputRaw, options } = command;
+    const { input, inputRaw } = command;
     isNotNullish(input || inputRaw, { label: 'input' });
     if (input && inputRaw) {
       throw new TypeError('You must pass one of MongoDB UpdateFilter or a partial document, not both');
     }
     const update = this._prepareUpdate(command);
+    const options = command.options;
     const filter = MongoAdapter.prepareFilter([
       MongoAdapter.prepareKeyValues(command.documentId, ['_id']),
       options?.filter,
@@ -447,12 +450,13 @@ export class MongoEntityService<T extends mongodb.Document> extends MongoService
    */
   protected async _updateMany(command: MongoEntityService.UpdateManyCommand<T>): Promise<number> {
     isNotNullish(command.input, { label: 'input' });
-    const { input, inputRaw, options } = command;
+    const { input, inputRaw } = command;
     isNotNullish(input || inputRaw, { label: 'input' });
     if (input && inputRaw) {
       throw new TypeError('You must pass one of MongoDB UpdateFilter or a partial document, not both');
     }
     const update = this._prepareUpdate(command);
+    const options = command.options;
     const filter = MongoAdapter.prepareFilter(options?.filter);
     const db = this.getDatabase();
     const collection = await this.getCollection(db);
@@ -508,6 +512,9 @@ export class MongoEntityService<T extends mongodb.Document> extends MongoService
     const inputCodec = this._getInputCodec('update');
     const doc = inputCodec(input!);
     delete doc._id;
+    if (doc!._$push) {
+      (doc as any)._$push = inputCodec(doc!._$push);
+    }
     return this._generatePatch(command, doc);
   }
 
@@ -520,7 +527,7 @@ export class MongoEntityService<T extends mongodb.Document> extends MongoService
     command.options = command.options || {};
     if (arrayFilters) {
       command.options.arrayFilters = command.options.arrayFilters || [];
-      command.options.arrayFilters.push(arrayFilters);
+      command.options.arrayFilters.push(...arrayFilters);
     }
     return update;
   }

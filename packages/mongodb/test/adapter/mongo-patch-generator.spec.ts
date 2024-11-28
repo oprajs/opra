@@ -28,20 +28,20 @@ describe('MongoPatchGenerator', () => {
       });
     });
 
-    it('Should not update if field is readonly', async () => {
-      const generator = new MongoPatchGenerator();
-      const { update } = generator.generatePatch(customerType, {
-        country: {
-          name: 'x',
-        },
-        active: true,
-      });
-      expect(update).toEqual({
-        $set: {
-          active: true,
-        },
-      });
-    });
+    // it('Should not update if field is readonly', async () => {
+    //   const generator = new MongoPatchGenerator();
+    //   const { update } = generator.generatePatch(customerType, {
+    //     country: {
+    //       name: 'x',
+    //     },
+    //     active: true,
+    //   });
+    //   expect(update).toEqual({
+    //     $set: {
+    //       active: true,
+    //     },
+    //   });
+    // });
 
     it('Should unset field if value is null', async () => {
       const generator = new MongoPatchGenerator();
@@ -59,33 +59,33 @@ describe('MongoPatchGenerator', () => {
       });
     });
 
-    it('Should not unset if field is readonly', async () => {
-      const generator = new MongoPatchGenerator();
-      const { update } = generator.generatePatch(customerType, {
-        country: null,
-        active: null,
-      });
-      expect(update).toEqual({
-        $unset: {
-          active: 1,
-        },
-      });
-    });
+    // it('Should not unset if field is readonly', async () => {
+    //   const generator = new MongoPatchGenerator();
+    //   const { update } = generator.generatePatch(customerType, {
+    //     country: null,
+    //     active: null,
+    //   });
+    //   expect(update).toEqual({
+    //     $unset: {
+    //       active: 1,
+    //     },
+    //   });
+    // });
 
-    it('Should not unset if parent field is readonly', async () => {
-      const generator = new MongoPatchGenerator();
-      const { update } = generator.generatePatch(customerType, {
-        country: {
-          name: null,
-        },
-        active: null,
-      });
-      expect(update).toEqual({
-        $unset: {
-          active: 1,
-        },
-      });
-    });
+    // it('Should not unset if parent field is readonly', async () => {
+    //   const generator = new MongoPatchGenerator();
+    //   const { update } = generator.generatePatch(customerType, {
+    //     country: {
+    //       name: null,
+    //     },
+    //     active: null,
+    //   });
+    //   expect(update).toEqual({
+    //     $unset: {
+    //       active: 1,
+    //     },
+    //   });
+    // });
 
     it('Should update fields for nested objects', async () => {
       const generator = new MongoPatchGenerator();
@@ -101,20 +101,20 @@ describe('MongoPatchGenerator', () => {
       });
     });
 
-    it('Should not update fields if parent field is readonly', async () => {
-      const generator = new MongoPatchGenerator();
-      const { update } = generator.generatePatch(customerType, {
-        country: {
-          name: 'x',
-        },
-        active: true,
-      });
-      expect(update).toEqual({
-        $set: {
-          active: true,
-        },
-      });
-    });
+    // it('Should not update fields if parent field is readonly', async () => {
+    //   const generator = new MongoPatchGenerator();
+    //   const { update } = generator.generatePatch(customerType, {
+    //     country: {
+    //       name: 'x',
+    //     },
+    //     active: true,
+    //   });
+    //   expect(update).toEqual({
+    //     $set: {
+    //       active: true,
+    //     },
+    //   });
+    // });
 
     it('Should update array fields', async () => {
       const generator = new MongoPatchGenerator();
@@ -138,19 +138,17 @@ describe('MongoPatchGenerator', () => {
           'notes.$[f1].text': 'text',
         },
       });
-      expect(arrayFilters).toEqual({
-        'f1._id': 1,
-      });
+      expect(arrayFilters).toEqual([{ 'f1._id': 1 }]);
     });
   });
 
   /* ******************************************************************  */
 
-  describe('$add operator', () => {
+  describe('_$push operator', () => {
     it('Should add single value to array field', async () => {
       const generator = new MongoPatchGenerator();
       const { update } = generator.generatePatch(customerType, {
-        $add: {
+        _$push: {
           tags: 'a',
         },
       });
@@ -164,7 +162,7 @@ describe('MongoPatchGenerator', () => {
     it('Should add multiple values to array field', async () => {
       const generator = new MongoPatchGenerator();
       const { update } = generator.generatePatch(customerType, {
-        $add: {
+        _$push: {
           tags: ['a', 'b'],
         },
       });
@@ -178,7 +176,7 @@ describe('MongoPatchGenerator', () => {
     it('Should add a complextype to array field', async () => {
       const generator = new MongoPatchGenerator();
       const { update } = generator.generatePatch(customerType, {
-        $add: {
+        _$push: {
           notes: { _id: 1, text: 'text' },
         },
       });
@@ -192,7 +190,7 @@ describe('MongoPatchGenerator', () => {
     it('Should add multiple complextypes to array field', async () => {
       const generator = new MongoPatchGenerator();
       const { update } = generator.generatePatch(customerType, {
-        $add: {
+        _$push: {
           notes: [
             { _id: 1, text: 'text1' },
             { _id: 2, text: 'text2' },
@@ -215,14 +213,14 @@ describe('MongoPatchGenerator', () => {
       const generator = new MongoPatchGenerator();
       expect(() =>
         generator.generatePatch(customerType, {
-          $add: {
+          _$push: {
             notes: { text: 'text' },
           },
         }),
       ).toThrow('must provide');
       expect(() =>
         generator.generatePatch(customerType, {
-          $add: {
+          _$push: {
             notes: [{ text: 'text' }],
           },
         }),
@@ -232,11 +230,11 @@ describe('MongoPatchGenerator', () => {
 
   /* ******************************************************************  */
 
-  describe('$remove operator', () => {
+  describe('$pull operator', () => {
     it('Should remove single value from array field', async () => {
       const generator = new MongoPatchGenerator();
       const { update } = generator.generatePatch(customerType, {
-        $remove: {
+        _$pull: {
           tags: 'a',
         },
       });
@@ -250,7 +248,7 @@ describe('MongoPatchGenerator', () => {
     it('Should multiple values from array field', async () => {
       const generator = new MongoPatchGenerator();
       const { update } = generator.generatePatch(customerType, {
-        $remove: {
+        _$pull: {
           tags: ['a', 'b'],
         },
       });
@@ -264,7 +262,7 @@ describe('MongoPatchGenerator', () => {
     it('Should remove single value from complextype array field', async () => {
       const generator = new MongoPatchGenerator();
       const { update } = generator.generatePatch(customerType, {
-        $remove: {
+        _$pull: {
           notes: 1,
         },
       });

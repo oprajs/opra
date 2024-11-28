@@ -1,7 +1,8 @@
 import { ResourceNotAvailableError } from '@opra/common';
 import mongodb, { type UpdateFilter } from 'mongodb';
-import type { PartialDTO, PatchDTO, RequiredSome, Type } from 'ts-gems';
+import type { PartialDTO, RequiredSome, Type } from 'ts-gems';
 import { MongoAdapter } from '../adapter/mongo-adapter.js';
+import type { MongoPatchDTO } from '../types.js';
 import { MongoEntityService } from './mongo-entity-service.js';
 
 /**
@@ -82,7 +83,6 @@ export class MongoCollectionService<T extends mongodb.Document> extends MongoEnt
     input._id = input._id == null || input._id === '' ? this._generateId(command) : input._id;
     return this._executeCommand(command, async () => {
       const r = await this._create(command);
-      if (!command.options?.projection) return r;
       const findCommand: MongoEntityService.FindOneCommand<T> = {
         ...command,
         crud: 'read',
@@ -414,24 +414,24 @@ export class MongoCollectionService<T extends mongodb.Document> extends MongoEnt
    * Updates a document with the given id in the collection.
    *
    * @param {MongoAdapter.AnyId} id - The id of the document to update.
-   * @param {PatchDTO<T>|UpdateFilter<T>} input - The partial input object containing the fields to update.
+   * @param {MongoPatchDTO<T>|UpdateFilter<T>} input - The partial input object containing the fields to update.
    * @param {MongoEntityService.UpdateOneOptions<T>} [options] - The options for the update operation.
    * @returns {Promise<PartialDTO<T> | undefined>} A promise that resolves to the updated document or
    * undefined if the document was not found.
    */
   async update(
     id: MongoAdapter.AnyId,
-    input: PatchDTO<T> | UpdateFilter<T>,
+    input: MongoPatchDTO<T> | UpdateFilter<T>,
     options: RequiredSome<MongoEntityService.UpdateOneOptions<T>, 'projection'>,
   ): Promise<PartialDTO<T> | undefined>;
   async update(
     id: MongoAdapter.AnyId,
-    input: PatchDTO<T> | UpdateFilter<T>,
+    input: MongoPatchDTO<T> | UpdateFilter<T>,
     options?: MongoEntityService.UpdateOneOptions<T>,
   ): Promise<T | undefined>;
   async update(
     id: MongoAdapter.AnyId,
-    input: PatchDTO<T> | UpdateFilter<T>,
+    input: MongoPatchDTO<T> | UpdateFilter<T>,
     options?: MongoEntityService.UpdateOneOptions<T>,
   ): Promise<PartialDTO<T> | T | undefined> {
     const isUpdateFilter = Array.isArray(input) || !!Object.keys(input).find(x => x.startsWith('$'));
@@ -440,7 +440,7 @@ export class MongoCollectionService<T extends mongodb.Document> extends MongoEnt
       method: 'update',
       documentId: id,
       byId: true,
-      input: isUpdateFilter ? undefined : input,
+      input: isUpdateFilter ? undefined : (input as MongoPatchDTO<T>),
       inputRaw: isUpdateFilter ? input : undefined,
       options,
     };
@@ -458,13 +458,13 @@ export class MongoCollectionService<T extends mongodb.Document> extends MongoEnt
    * Updates a document in the collection with the specified ID.
    *
    * @param {MongoAdapter.AnyId} id - The ID of the document to update.
-   * @param {PatchDTO<T>|UpdateFilter<T>} input - The partial input data to update the document with.
+   * @param {MongoPatchDTO<T>|UpdateFilter<T>} input - The partial input data to update the document with.
    * @param {MongoEntityService.UpdateOneOptions<T>} [options] - The options for updating the document.
    * @returns {Promise<number>} - A promise that resolves to the number of documents modified.
    */
   async updateOnly(
     id: MongoAdapter.AnyId,
-    input: PatchDTO<T> | UpdateFilter<T>,
+    input: MongoPatchDTO<T> | UpdateFilter<T>,
     options?: MongoEntityService.UpdateOneOptions<T>,
   ): Promise<number> {
     const isUpdateFilter = Array.isArray(input) || !!Object.keys(input).find(x => x.startsWith('$'));
@@ -473,7 +473,7 @@ export class MongoCollectionService<T extends mongodb.Document> extends MongoEnt
       method: 'updateOnly',
       documentId: id,
       byId: true,
-      input: isUpdateFilter ? undefined : input,
+      input: isUpdateFilter ? undefined : (input as MongoPatchDTO<T>),
       inputRaw: isUpdateFilter ? input : undefined,
       options,
     };
@@ -490,12 +490,12 @@ export class MongoCollectionService<T extends mongodb.Document> extends MongoEnt
   /**
    * Updates multiple documents in the collection based on the specified input and options.
    *
-   * @param {PatchDTO<T>|UpdateFilter<T>} input - The partial input to update the documents with.
+   * @param {MongoPatchDTO<T>|UpdateFilter<T>} input - The partial input to update the documents with.
    * @param {MongoEntityService.UpdateManyOptions<T>} options - The options for updating the documents.
    * @return {Promise<number>} - A promise that resolves to the number of documents matched and modified.
    */
   async updateMany(
-    input: PatchDTO<T> | UpdateFilter<T>,
+    input: MongoPatchDTO<T> | UpdateFilter<T>,
     options?: MongoEntityService.UpdateManyOptions<T>,
   ): Promise<number> {
     const isUpdateFilter = Array.isArray(input) || !!Object.keys(input).find(x => x.startsWith('$'));
@@ -503,7 +503,7 @@ export class MongoCollectionService<T extends mongodb.Document> extends MongoEnt
       crud: 'update',
       method: 'updateMany',
       byId: false,
-      input: isUpdateFilter ? undefined : input,
+      input: isUpdateFilter ? undefined : (input as MongoPatchDTO<T>),
       inputRaw: isUpdateFilter ? input : undefined,
       options,
     };

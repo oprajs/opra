@@ -1,10 +1,11 @@
 import { omit } from '@jsopen/objects';
 import { ComplexType, NotAcceptableError, ResourceNotAvailableError } from '@opra/common';
 import mongodb from 'mongodb';
-import type { DTO, PartialDTO, PatchDTO, RequiredSome, StrictOmit, Type } from 'ts-gems';
+import type { DTO, PartialDTO, RequiredSome, StrictOmit, Type } from 'ts-gems';
 import { isNotNullish } from 'valgen';
 import { MongoAdapter } from '../adapter/mongo-adapter.js';
 import { MongoPatchGenerator } from '../adapter/mongo-patch-generator.js';
+import type { MongoPatchDTO } from '../types.js';
 import type { MongoEntityService } from './mongo-entity-service.js';
 import { MongoService } from './mongo-service.js';
 
@@ -95,13 +96,13 @@ export namespace MongoNestedService {
 
   export interface UpdateOneCommand<T> extends RequiredSome<CommandInfo, 'documentId'> {
     crud: 'update';
-    input: PatchDTO<T> | mongodb.UpdateFilter<T>;
+    input: MongoPatchDTO<T> | mongodb.UpdateFilter<T>;
     options?: MongoNestedService.UpdateOneOptions<T>;
   }
 
   export interface UpdateManyCommand<T> extends RequiredSome<CommandInfo, 'documentId'> {
     crud: 'update';
-    input: PatchDTO<T> | mongodb.UpdateFilter<T>;
+    input: MongoPatchDTO<T> | mongodb.UpdateFilter<T>;
     options?: MongoNestedService.UpdateManyOptions<T>;
   }
 }
@@ -858,7 +859,7 @@ export class MongoNestedService<T extends mongodb.Document> extends MongoService
    *
    * @param {AnyId} documentId - The ID of the document to update.
    * @param {AnyId} nestedId - The ID of the item to update within the document.
-   * @param {PatchDTO<T>} input - The new data to update the item with.
+   * @param {MongoPatchDTO<T>} input - The new data to update the item with.
    * @param {MongoNestedService.UpdateOneOptions<T>} [options] - Additional update options.
    * @returns {Promise<PartialDTO<T> | undefined>} The updated item or undefined if it does not exist.
    * @throws {Error} If an error occurs while updating the item.
@@ -866,19 +867,19 @@ export class MongoNestedService<T extends mongodb.Document> extends MongoService
   async update(
     documentId: MongoAdapter.AnyId,
     nestedId: MongoAdapter.AnyId,
-    input: PatchDTO<T>,
+    input: MongoPatchDTO<T>,
     options: RequiredSome<MongoNestedService.UpdateOneOptions<T>, 'projection'>,
   ): Promise<PartialDTO<T> | undefined>;
   async update(
     documentId: MongoAdapter.AnyId,
     nestedId: MongoAdapter.AnyId,
-    input: PatchDTO<T>,
+    input: MongoPatchDTO<T>,
     options?: MongoNestedService.UpdateOneOptions<T>,
   ): Promise<T | undefined>;
   async update(
     documentId: MongoAdapter.AnyId,
     nestedId: MongoAdapter.AnyId,
-    input: PatchDTO<T>,
+    input: MongoPatchDTO<T>,
     options?: MongoNestedService.UpdateOneOptions<T>,
   ): Promise<PartialDTO<T> | T | undefined> {
     const command: MongoNestedService.UpdateOneCommand<T> = {
@@ -920,14 +921,14 @@ export class MongoNestedService<T extends mongodb.Document> extends MongoService
    *
    * @param {MongoAdapter.AnyId} documentId - The ID of the parent document.
    * @param {MongoAdapter.AnyId} nestedId - The ID of the document to update.
-   * @param {PatchDTO<T>} input - The partial input object containing the fields to update.
+   * @param {MongoPatchDTO<T>} input - The partial input object containing the fields to update.
    * @param {MongoNestedService.UpdateOneOptions<T>} [options] - Optional update options.
    * @returns {Promise<number>} - A promise that resolves to the number of elements updated.
    */
   async updateOnly(
     documentId: MongoAdapter.AnyId,
     nestedId: MongoAdapter.AnyId,
-    input: PatchDTO<T>,
+    input: MongoPatchDTO<T>,
     options?: MongoNestedService.UpdateOneOptions<T>,
   ): Promise<number> {
     const command: MongoNestedService.UpdateOneCommand<T> = {
@@ -971,13 +972,13 @@ export class MongoNestedService<T extends mongodb.Document> extends MongoService
    * Updates multiple array elements in document
    *
    * @param {MongoAdapter.AnyId} documentId - The ID of the document to update.
-   * @param {PatchDTO<T>} input - The updated data for the document(s).
+   * @param {MongoPatchDTO<T>} input - The updated data for the document(s).
    * @param {MongoNestedService.UpdateManyOptions<T>} [options] - Additional options for the update operation.
    * @returns {Promise<number>} - A promise that resolves to the number of documents updated.
    */
   async updateMany(
     documentId: MongoAdapter.AnyId,
-    input: PatchDTO<T>,
+    input: MongoPatchDTO<T>,
     options?: MongoNestedService.UpdateManyOptions<T>,
   ): Promise<number> {
     const command: MongoNestedService.UpdateManyCommand<T> = {

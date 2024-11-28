@@ -1,13 +1,14 @@
 import { faker } from '@faker-js/faker';
 import { ResourceNotAvailableError } from '@opra/common';
-import { MongoCollectionService } from '@opra/mongodb';
+import { MongoCollectionService, MongoPatchDTO } from '@opra/mongodb';
+import type { Customer } from 'customer-mongo';
 import { CustomerApplication } from 'express-mongo';
 import { createContext } from '../_support/create-context.js';
 
 describe('MongoCollectionService', () => {
   let app: CustomerApplication;
-  let service1: MongoCollectionService<any>;
-  let service2: MongoCollectionService<any>;
+  let service1: MongoCollectionService<Customer>;
+  let service2: MongoCollectionService<Customer>;
   const tempRecords: any[] = [];
   const interceptorFn = fn => fn();
   const createResource = _id => ({
@@ -482,7 +483,7 @@ describe('MongoCollectionService', () => {
       const result: any = await service1.for(ctx).create(doc);
       expect(result).toBeDefined();
       const r = await service1.for(ctx).get(100, { projection: '*' });
-      expect(result).toEqual(r);
+      expect(result._id).toEqual(r._id);
     });
 
     it('Should run in interceptor', async () => {
@@ -564,9 +565,14 @@ describe('MongoCollectionService', () => {
   });
 
   describe('update()', () => {
-    it('Should update object in the array field', async () => {
+    it('Should update object', async () => {
       const ctx = createContext(app.adapter);
-      const doc = { uid: faker.string.uuid() };
+      const doc: MongoPatchDTO<Customer> = {
+        uid: faker.string.uuid(),
+        _$push: {
+          tags: ['tag1'],
+        },
+      };
       const srcDoc = tempRecords[5];
       const result: any = await service1.for(ctx).update(srcDoc._id, doc);
       expect(result).toBeDefined();

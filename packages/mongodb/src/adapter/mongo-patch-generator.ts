@@ -7,7 +7,7 @@ interface Context {
   $unset?: Record<string, any>;
   $push?: Record<string, any>;
   $pull?: Record<string, any>;
-  arrayFilters?: Record<string, any>;
+  arrayFilters?: Record<string, any>[];
 }
 
 const FIELD_NAME_PATTERN = /^([-><*:])?(.+)$/;
@@ -19,7 +19,7 @@ export class MongoPatchGenerator {
     options?: MongoPatchGenerator.Options,
   ): {
     update: UpdateFilter<T>;
-    arrayFilters?: Record<string, any>;
+    arrayFilters?: Record<string, any>[];
   } {
     const ctx: Context = {};
     this._processComplexType(ctx, dataType, options?.currentPath || '', doc);
@@ -35,11 +35,11 @@ export class MongoPatchGenerator {
   }
 
   protected _processComplexType(ctx: Context, dataType: ComplexType, path: string, input: any) {
-    if (input.$add) {
-      this._processAdd(ctx, dataType, path, input.$add);
+    if (input._$push) {
+      this._processPush(ctx, dataType, path, input._$push);
     }
-    if (input.$remove) {
-      this._processRemove(ctx, dataType, path, input.$remove);
+    if (input._$pull) {
+      this._processPull(ctx, dataType, path, input._$pull);
     }
     const keys = Object.keys(input);
     const pathDot = path + (path ? '.' : '');
@@ -57,18 +57,23 @@ export class MongoPatchGenerator {
       value = input[key];
       field = dataType.fields.get(key);
       if (!field) {
-        if (dataType.additionalFields === true) {
+        if (dataType.additionalFields) {
           if (value === null) {
             ctx.$unset = ctx.$unset || {};
             ctx.$unset[pathDot + key] = 1;
           } else {
             ctx.$set = ctx.$set || {};
+            if (dataType.additionalFields instanceof ComplexType) {
+              /** Process nested object */
+              this._processComplexType(ctx, dataType.additionalFields, pathDot + key, value);
+              continue;
+            }
             ctx.$set[pathDot + key] = value;
           }
         }
         continue;
       }
-      if (field.readonly) continue;
+      // if (field.readonly) continue;
       if (value === null) {
         ctx.$unset = ctx.$unset || {};
         ctx.$unset[pathDot + field.name] = 1;
@@ -90,8 +95,8 @@ export class MongoPatchGenerator {
               /** Remove key field from object */
               delete v[keyField];
               /** Add array filter */
-              ctx.arrayFilters = ctx.arrayFilters || {};
-              ctx.arrayFilters[`${arrayFilterName}.${keyField}`] = keyValue;
+              ctx.arrayFilters = ctx.arrayFilters || [];
+              ctx.arrayFilters.push({ [`${arrayFilterName}.${keyField}`]: keyValue });
               /** Process each object in array */
               this._processComplexType(ctx, field.type, pathDot + field.name + `.$[${arrayFilterName}]`, v);
             }
@@ -108,7 +113,7 @@ export class MongoPatchGenerator {
     }
   }
 
-  protected _processAdd(ctx: Context, dataType: ComplexType, path: string, input: any) {
+  protected _processPush(ctx: Context, dataType: ComplexType, path: string, input: any) {
     let field: ApiField | undefined;
     let key: string;
     let value: any;
@@ -126,13 +131,13 @@ export class MongoPatchGenerator {
           if (Array.isArray(value)) {
             value.forEach(v => {
               if (!v[keyField!]) {
-                throw new TypeError(`You must provide a key value of ${field!.type.name} for $add operation.`);
+                throw new TypeError(`You must provide a key value of ${field!.type.name} for $push operation.`);
               }
             });
             ctx.$push[pathDot + key] = { $each: value };
           } else {
             if (!value[keyField]) {
-              throw new TypeError(`You must provide a key value of ${field!.type.name} for $add operation.`);
+              throw new TypeError(`You must provide a key value of ${field!.type.name} for $push operation.`);
             }
             ctx.$push[pathDot + key] = value;
           }
@@ -143,7 +148,7 @@ export class MongoPatchGenerator {
     }
   }
 
-  protected _processRemove(ctx: Context, dataType: ComplexType, path: string, input: any) {
+  protected _processPull(ctx: Context, dataType: ComplexType, path: string, input: any) {
     let field: ApiField | undefined;
     let key: string;
     let value: any;

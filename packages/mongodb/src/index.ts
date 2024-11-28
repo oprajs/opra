@@ -5,3 +5,4 @@ export * from './services/mongo-entity-service.js';
 export * from './services/mongo-nested-service.js';
 export * from './services/mongo-service.js';
 export * from './services/mongo-singleton-service.js';
+export * from './types.js';

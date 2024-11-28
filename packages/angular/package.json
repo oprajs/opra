@@ -46,7 +46,7 @@
     "ng-packagr": "^19.0.1",
     "superagent": "^10.1.1",
     "supertest": "^7.0.0",
-    "ts-gems": "^3.10.0",
+    "ts-gems": "^3.11.2",
     "zone.js": "^0.15.0"
   },
   "repository": {

@@ -32,7 +32,7 @@
     "tslib": "^2.8.1"
   },
   "devDependencies": {
-    "ts-gems": "^3.10.0"
+    "ts-gems": "^3.11.2"
   },
   "type": "module",
   "exports": {
