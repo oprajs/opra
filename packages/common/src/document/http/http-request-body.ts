@@ -12,10 +12,12 @@ export namespace HttpRequestBody {
   export interface Metadata extends Partial<StrictOmit<OpraSchema.HttpRequestBody, 'content'>> {
     content: HttpMediaType.Metadata[];
     immediateFetch?: boolean;
+    allowPatchOperators?: boolean;
   }
 
   export interface Options extends Partial<StrictOmit<OpraSchema.HttpRequestBody, 'content'>> {
     immediateFetch?: boolean;
+    allowPatchOperators?: boolean;
   }
 }
 
@@ -30,6 +32,7 @@ export class HttpRequestBody extends DocumentElement {
   maxContentSize?: number;
   immediateFetch?: boolean;
   partial?: boolean | 'deep';
+  allowPatchOperators?: boolean;
 
   constructor(owner: HttpOperation) {
     super(owner);
@@ -42,6 +45,7 @@ export class HttpRequestBody extends DocumentElement {
       maxContentSize: this.maxContentSize,
       content: this.content.length ? this.content.map(x => x.toJSON()) : [],
       partial: this.partial,
+      allowPatchOperators: this.allowPatchOperators,
     });
   }
 }

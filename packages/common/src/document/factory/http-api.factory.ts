@@ -330,6 +330,7 @@ export class HttpApiFactory {
     target.maxContentSize = metadata.maxContentSize;
     target.immediateFetch = (metadata as HttpRequestBody.Metadata).immediateFetch;
     target.partial = metadata.partial;
+    target.allowPatchOperators = metadata.allowPatchOperators;
     if (metadata.content) {
       await context.enterAsync('.content', async () => {
         for (let i = 0; i < metadata.content.length; i++) {

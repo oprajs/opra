@@ -180,6 +180,7 @@ declare module '../http/http-operation.js' {
         requestBody?: Pick<HttpRequestBody.Options, 'description' | 'maxContentSize'> & {
           type?: Type | string;
           immediateFetch?: boolean;
+          allowPatchOperators?: boolean;
         };
       }
 
@@ -197,6 +198,7 @@ declare module '../http/http-operation.js' {
         requestBody?: Pick<HttpRequestBody.Options, 'description' | 'maxContentSize'> & {
           type?: Type | string;
           immediateFetch?: boolean;
+          allowPatchOperators?: boolean;
         };
       }
     }
@@ -639,6 +641,7 @@ HttpOperation.Entity.UpdateMany = function (arg0: any, arg1?: any): HttpOperatio
     requestBody: {
       immediateFetch: true,
       partial: 'deep',
+      allowPatchOperators: true,
       ...args.requestBody,
       required: true,
     },
@@ -698,6 +701,7 @@ HttpOperation.Entity.Update = function (arg0: any, arg1?: any): HttpOperation.En
     requestBody: {
       partial: 'deep',
       immediateFetch: true,
+      allowPatchOperators: true,
       ...args.requestBody,
       required: true,
     },

@@ -140,6 +140,7 @@ export class HttpContext extends ExecutionContext {
               partial: operation?.requestBody?.partial,
               projection: '*',
               ignoreReadonlyFields: true,
+              allowPatchOperators: operation?.requestBody?.allowPatchOperators,
             }) || vg.isAny();
           this.adapter[kAssetCache].set(mediaType, 'decode', decode);
         }

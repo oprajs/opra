@@ -29,10 +29,13 @@ export namespace HttpOperation {
     responses?: HttpOperationResponse.Metadata[];
     requestBody?: HttpRequestBody.Metadata;
     immediateFetch?: boolean;
+    allowPatchOperators?: boolean;
   }
 
   export interface Options
-    extends Partial<Pick<Metadata, 'path' | 'mergePath' | 'description' | 'method' | 'immediateFetch'>> {
+    extends Partial<
+      Pick<Metadata, 'path' | 'mergePath' | 'description' | 'method' | 'immediateFetch' | 'allowPatchOperators'>
+    > {
     requestBody?: HttpRequestBody.Options;
   }
 
@@ -44,7 +47,14 @@ export namespace HttpOperation {
       },
       Pick<
         Metadata,
-        'description' | 'method' | 'path' | 'mergePath' | 'composition' | 'compositionOptions' | 'immediateFetch'
+        | 'description'
+        | 'method'
+        | 'path'
+        | 'mergePath'
+        | 'composition'
+        | 'compositionOptions'
+        | 'immediateFetch'
+        | 'allowPatchOperators'
       >
     > {}
 }
