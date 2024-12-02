@@ -605,6 +605,7 @@ describe('HttpOperation.Entity.* decorators', () => {
         required: true,
         immediateFetch: true,
         partial: 'deep',
+        allowPatchOperators: true,
       });
       expect(opr.responses).toEqual([
         {
@@ -719,6 +720,7 @@ describe('HttpOperation.Entity.* decorators', () => {
         required: true,
         immediateFetch: true,
         partial: 'deep',
+        allowPatchOperators: true,
       });
       expect(opr.responses).toEqual([
         {
