@@ -1,6 +1,6 @@
 {
   "name": "@opra/nestjs",
-  "version": "1.4.0",
+  "version": "1.4.1",
   "description": "Opra NestJS module",
   "author": "Panates",
   "license": "MIT",
@@ -23,8 +23,8 @@
   },
   "dependencies": {
     "@jsopen/objects": "^1.5.0",
-    "@opra/common": "^1.4.0",
-    "@opra/core": "^1.4.0",
+    "@opra/common": "^1.4.1",
+    "@opra/core": "^1.4.1",
     "fast-tokenizer": "^1.7.0",
     "lodash.head": "^4.0.1",
     "putil-promisify": "^1.10.1",
@@ -37,8 +37,8 @@
   },
   "optionalDependencies": {
     "@nestjs/microservices": "^10.4.12",
-    "@opra/http": "^1.4.0",
-    "@opra/kafka": "^1.4.0"
+    "@opra/http": "^1.4.1",
+    "@opra/kafka": "^1.4.1"
   },
   "devDependencies": {
     "@faker-js/faker": "^9.2.0",
