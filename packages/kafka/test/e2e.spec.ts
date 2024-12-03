@@ -35,14 +35,13 @@ describe('e2e', () => {
 
   beforeAll(async () => {
     document = await TestRpcApiDocument.create();
-    adapter = new KafkaAdapter({
+    adapter = new KafkaAdapter(document, {
       client: {
         brokers: [kafkaBrokerHost!],
         clientId: 'opra-test',
       },
       logger,
     });
-    await adapter.initialize(document);
     await adapter.start();
   });
 

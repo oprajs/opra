@@ -10,9 +10,10 @@ import {
   OnModuleInit,
 } from '@nestjs/common';
 import { ModuleRef } from '@nestjs/core';
+import { ApiDocumentFactory } from '@opra/common';
 import { KafkaAdapter, type KafkaContext } from '@opra/kafka';
 import { OPRA_KAFKA_MODULE_CONFIG } from '../constants.js';
-import { initializeAdapter } from './helpers/initialize-adapter.js';
+import { RpcControllerFactory } from '../helpers/rpc-controller-factory.service.js';
 import type { OpraKafkaModule } from './opra-kafka.module.js';
 
 const opraKafkaNestjsAdapterToken = Symbol('OpraKafkaNestjsAdapter');
@@ -21,7 +22,7 @@ const opraKafkaNestjsAdapterToken = Symbol('OpraKafkaNestjsAdapter');
 @Global()
 export class OpraKafkaCoreModule implements OnModuleInit, OnApplicationBootstrap, OnApplicationShutdown {
   constructor(
-    protected moduleRef: ModuleRef,
+    private controllerFactory: RpcControllerFactory,
     @Inject(opraKafkaNestjsAdapterToken)
     protected adapter: KafkaAdapter,
     @Inject(OPRA_KAFKA_MODULE_CONFIG)
@@ -70,8 +71,26 @@ export class OpraKafkaCoreModule implements OnModuleInit, OnApplicationBootstrap
     const token = moduleOptions.id || KafkaAdapter;
     const adapterProvider = {
       provide: token,
-      inject: [ModuleRef, OPRA_KAFKA_MODULE_CONFIG],
-      useFactory: async (moduleRef: ModuleRef, config: OpraKafkaModule.ApiConfig) => {
+      inject: [RpcControllerFactory, ModuleRef, OPRA_KAFKA_MODULE_CONFIG],
+      useFactory: async (
+        controllerFactory: RpcControllerFactory,
+        moduleRef: ModuleRef,
+        config: OpraKafkaModule.ApiConfig,
+      ) => {
+        const controllers = controllerFactory.exploreControllers().map(x => x.wrapper.instance.constructor);
+        const document = await ApiDocumentFactory.createDocument({
+          info: config.info,
+          types: config.types,
+          references: config.references,
+          api: {
+            name: config.name,
+            description: config.description,
+            transport: 'rpc',
+            platform: 'kafka',
+            controllers,
+          },
+        });
+
         const interceptors = moduleOptions.interceptors
           ? moduleOptions.interceptors.map(x => {
               if (isConstructor(x)) {
@@ -83,7 +102,7 @@ export class OpraKafkaCoreModule implements OnModuleInit, OnApplicationBootstrap
               return x;
             })
           : undefined;
-        return new KafkaAdapter({ ...config, interceptors });
+        return new KafkaAdapter(document, { ...config, interceptors });
       },
     };
     return {
@@ -92,6 +111,7 @@ export class OpraKafkaCoreModule implements OnModuleInit, OnApplicationBootstrap
       controllers: moduleOptions.controllers,
       providers: [
         ...(moduleOptions?.providers || []),
+        RpcControllerFactory,
         adapterProvider,
         {
           provide: opraKafkaNestjsAdapterToken,
@@ -103,15 +123,22 @@ export class OpraKafkaCoreModule implements OnModuleInit, OnApplicationBootstrap
     };
   }
 
-  async onModuleInit() {
-    /** Check if not initialized before */
-    if (!this.adapter.document) {
-      await initializeAdapter(this.moduleRef, this.adapter, this.config);
+  onModuleInit(): any {
+    /** NestJS initialize controller instances on init stage.
+     * So we should update instance properties */
+    const rpcApi = this.adapter.document.rpcApi;
+    const controllers = Array.from(rpcApi.controllers.values());
+    for (const { wrapper } of this.controllerFactory.exploreControllers().values()) {
+      const ctor = wrapper.instance.constructor;
+      const controller = controllers.find(x => x.ctor === ctor);
+      if (controller) {
+        controller.instance = wrapper.instance;
+      }
     }
   }
 
   async onApplicationBootstrap() {
-    if (this.adapter.document) await this.adapter.start();
+    await this.adapter.start();
   }
 
   async onApplicationShutdown() {

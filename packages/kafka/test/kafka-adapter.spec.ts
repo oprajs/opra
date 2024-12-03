@@ -21,7 +21,7 @@ describe('KafkaAdapter', () => {
   afterAll(() => global.gc && global.gc());
 
   it('Should initialize consumers', async () => {
-    adapter = new KafkaAdapter({
+    adapter = new KafkaAdapter(document, {
       client: { brokers: ['localhost'] },
       logger,
       consumers: {
@@ -44,7 +44,7 @@ describe('KafkaAdapter', () => {
         }
         return originalFn.call(adapter, args);
       });
-    await adapter.initialize(document);
+    await adapter.initialize();
     expect((adapter as any)._consumers.size).toBeGreaterThan(0);
     expect(config).toBeDefined();
     expect(config).toEqual({
@@ -54,7 +54,7 @@ describe('KafkaAdapter', () => {
   });
 
   it('Should start consumers', async () => {
-    adapter = new KafkaAdapter({
+    adapter = new KafkaAdapter(document, {
       client: { brokers: ['localhost'] },
       logger,
     });
@@ -88,7 +88,7 @@ describe('KafkaAdapter', () => {
       });
       spys[controller.name + '.' + operation.name] = x;
     });
-    await adapter.initialize(document);
+    await adapter.initialize();
     await adapter.start();
     expect(Object.keys(spys)).toEqual([
       'Test.mailChannel1',

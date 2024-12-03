@@ -20,48 +20,6 @@ const signalTraps = ['SIGTERM', 'SIGINT', 'SIGUSR2'];
 const kGroupId = Symbol('kGroupId');
 const noOp = () => undefined;
 
-/**
- * @namespace KafkaAdapter
- */
-export namespace KafkaAdapter {
-  export type NextCallback = () => Promise<any>;
-
-  export interface Config extends PlatformAdapter.Options {
-    client: StrictOmit<KafkaConfig, 'logCreator' | 'logLevel'>;
-    consumers?: Record<string, StrictOmit<ConsumerConfig, 'groupId'>>;
-    defaults?: {
-      consumer?: ConsumerConfig;
-      subscribe?: {
-        fromBeginning?: boolean;
-      };
-    };
-    interceptors?: (InterceptorFunction | IKafkaInterceptor)[];
-    logExtra?: boolean;
-  }
-
-  export interface OperationOptions {
-    /**
-     * groupId or ConsumerConfig
-     */
-    consumer?: string | ConsumerConfig;
-    subscribe?: {
-      fromBeginning?: boolean;
-    };
-  }
-
-  /**
-   * @type InterceptorFunction
-   */
-  export type InterceptorFunction = IKafkaInterceptor['intercept'];
-
-  /**
-   * @interface IKafkaInterceptor
-   */
-  export type IKafkaInterceptor = {
-    intercept(context: KafkaContext, next: NextCallback): Promise<any>;
-  };
-}
-
 export interface OperationConfig {
   consumer: ConsumerConfig;
   selfConsumer?: boolean;
@@ -84,24 +42,32 @@ interface HandlerArguments {
  */
 export class KafkaAdapter extends PlatformAdapter {
   static readonly PlatformName = 'kafka';
+  // protected _config: KafkaAdapter.Config;
   protected _config: KafkaAdapter.Config;
   protected _controllerInstances = new Map<RpcController, any>();
   protected _consumers = new Map<string, Consumer>();
   protected _handlerArgs: HandlerArguments[] = [];
-  protected _started = false;
   declare protected _kafka: Kafka;
+  protected _status: KafkaAdapter.Status = 'idle';
+  protected _starting?: boolean;
   readonly protocol: OpraSchema.Transport = 'rpc';
   readonly platform = KafkaAdapter.PlatformName;
   readonly interceptors: (KafkaAdapter.InterceptorFunction | KafkaAdapter.IKafkaInterceptor)[];
 
   /**
    *
+   * @param document
    * @param config
    * @constructor
    */
-  constructor(config: KafkaAdapter.Config) {
+  constructor(document: ApiDocument, config: KafkaAdapter.Config) {
     super(config);
+    this._document = document;
     this._config = config;
+    if (!(this.document.api instanceof RpcApi && this.document.api.platform === KafkaAdapter.PlatformName)) {
+      throw new TypeError(`The document doesn't expose a Kafka Api`);
+    }
+    // this._config = config;
     this.interceptors = [...(config.interceptors || [])];
     globalErrorTypes.forEach(type => {
       process.on(type, e => {
@@ -122,17 +88,16 @@ export class KafkaAdapter extends PlatformAdapter {
     return this._kafka;
   }
 
-  async initialize(document: ApiDocument) {
-    if (this._document) throw new TypeError(`${this.constructor.name} already initialized.`);
-    if (!(document.api instanceof RpcApi && document.api.platform === KafkaAdapter.PlatformName)) {
-      throw new TypeError(`The document doesn't expose a Kafka Api`);
-    }
-    this._document = document;
+  get status(): KafkaAdapter.Status {
+    return this._status;
+  }
+
+  async initialize() {
+    if (this._kafka) return;
     this._kafka = new Kafka({
       ...this._config.client,
       logCreator: this.logger ? () => this._createLogCreator(this.logger!, this._config.logExtra) : undefined,
     });
-
     await this._createAllConsumers();
   }
 
@@ -140,71 +105,79 @@ export class KafkaAdapter extends PlatformAdapter {
    * Starts the service
    */
   async start() {
-    if (this._started) return;
-    this._started = true;
-    /** Connect all consumers */
-    for (const consumer of this._consumers.values()) {
-      await consumer.connect().catch(e => {
-        this._emitError(e);
-        throw e;
-      });
-    }
+    if (this.status !== 'idle') return;
+    await this.initialize();
+    this._status = 'starting';
 
-    /** Subscribe to channels */
-    for (const args of this._handlerArgs) {
-      const { consumer, operation, operationConfig } = args;
-      args.topics = Array.isArray(operation.channel) ? operation.channel : [operation.channel];
-      await consumer
-        .subscribe({
-          ...operationConfig.subscribe,
-          topics: args.topics,
-        })
-        .catch(e => {
+    try {
+      /** Connect all consumers */
+      for (const consumer of this._consumers.values()) {
+        await consumer.connect().catch(e => {
           this._emitError(e);
           throw e;
         });
-      this.logger?.info?.(`Subscribed to topic${args.topics.length > 1 ? 's' : ''} "${args.topics}"`);
-    }
+      }
 
-    /** Start consumer listeners */
-    const topicMap = new Map<string, HandlerArguments[]>();
-    for (const consumer of this._consumers.values()) {
-      const groupId: string = consumer[kGroupId];
-      await consumer
-        .run({
-          eachMessage: async payload => {
-            await this.emitAsync('message', payload).catch(() => undefined);
-            const { topic } = payload;
-            const topicCacheKey = groupId + ':' + topic;
-            let handlerArgsArray = topicMap.get(topicCacheKey);
-            if (!handlerArgsArray) {
-              handlerArgsArray = this._handlerArgs.filter(
-                args =>
-                  args.consumer === consumer &&
-                  args.topics.find(t => (t instanceof RegExp ? t.test(topic) : t === topic)),
-              );
-              /* istanbul ignore next */
+      /** Subscribe to channels */
+      for (const args of this._handlerArgs) {
+        const { consumer, operation, operationConfig } = args;
+        args.topics = Array.isArray(operation.channel) ? operation.channel : [operation.channel];
+        await consumer
+          .subscribe({
+            ...operationConfig.subscribe,
+            topics: args.topics,
+          })
+          .catch(e => {
+            this._emitError(e);
+            throw e;
+          });
+        this.logger?.info?.(`Subscribed to topic${args.topics.length > 1 ? 's' : ''} "${args.topics}"`);
+      }
+
+      /** Start consumer listeners */
+      const topicMap = new Map<string, HandlerArguments[]>();
+      for (const consumer of this._consumers.values()) {
+        const groupId: string = consumer[kGroupId];
+        await consumer
+          .run({
+            eachMessage: async payload => {
+              await this.emitAsync('message', payload).catch(() => undefined);
+              const { topic } = payload;
+              const topicCacheKey = groupId + ':' + topic;
+              let handlerArgsArray = topicMap.get(topicCacheKey);
               if (!handlerArgsArray) {
-                this._emitError(new Error(`Unhandled topic (${topic})`));
-                return;
+                handlerArgsArray = this._handlerArgs.filter(
+                  args =>
+                    args.consumer === consumer &&
+                    args.topics.find(t => (t instanceof RegExp ? t.test(topic) : t === topic)),
+                );
+                /* istanbul ignore next */
+                if (!handlerArgsArray) {
+                  this._emitError(new Error(`Unhandled topic (${topic})`));
+                  return;
+                }
+                topicMap.set(topicCacheKey, handlerArgsArray);
               }
-              topicMap.set(topicCacheKey, handlerArgsArray);
-            }
-            /** Iterate and call all matching handlers */
-            for (const args of handlerArgsArray) {
-              try {
-                await args.handler(payload);
-              } catch (e) {
-                this._emitError(e);
+              /** Iterate and call all matching handlers */
+              for (const args of handlerArgsArray) {
+                try {
+                  await args.handler(payload);
+                } catch (e) {
+                  this._emitError(e);
+                }
               }
-            }
-            await this.emitAsync('message-finish', payload);
-          },
-        })
-        .catch(e => {
-          this._emitError(e);
-          throw e;
-        });
+              await this.emitAsync('message-finish', payload);
+            },
+          })
+          .catch(e => {
+            this._emitError(e);
+            throw e;
+          });
+      }
+      this._status = 'started';
+    } catch (e) {
+      await this.close();
+      throw e;
     }
   }
 
@@ -215,6 +188,7 @@ export class KafkaAdapter extends PlatformAdapter {
     await Promise.allSettled(Array.from(this._consumers.values()).map(c => c.disconnect()));
     this._consumers.clear();
     this._controllerInstances.clear();
+    this._status = 'idle';
   }
 
   getControllerInstance<T>(controllerPath: string): T | undefined {
@@ -474,4 +448,48 @@ export class KafkaAdapter extends PlatformAdapter {
       });
     };
   }
+}
+
+/**
+ * @namespace KafkaAdapter
+ */
+export namespace KafkaAdapter {
+  export type NextCallback = () => Promise<any>;
+
+  export type Status = 'idle' | 'starting' | 'started';
+
+  export interface Config extends PlatformAdapter.Options {
+    client: StrictOmit<KafkaConfig, 'logCreator' | 'logLevel'>;
+    consumers?: Record<string, StrictOmit<ConsumerConfig, 'groupId'>>;
+    defaults?: {
+      consumer?: ConsumerConfig;
+      subscribe?: {
+        fromBeginning?: boolean;
+      };
+    };
+    interceptors?: (InterceptorFunction | IKafkaInterceptor)[];
+    logExtra?: boolean;
+  }
+
+  export interface OperationOptions {
+    /**
+     * groupId or ConsumerConfig
+     */
+    consumer?: string | ConsumerConfig;
+    subscribe?: {
+      fromBeginning?: boolean;
+    };
+  }
+
+  /**
+   * @type InterceptorFunction
+   */
+  export type InterceptorFunction = IKafkaInterceptor['intercept'];
+
+  /**
+   * @interface IKafkaInterceptor
+   */
+  export type IKafkaInterceptor = {
+    intercept(context: KafkaContext, next: NextCallback): Promise<any>;
+  };
 }

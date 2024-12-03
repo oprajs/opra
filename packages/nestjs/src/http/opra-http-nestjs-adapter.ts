@@ -15,11 +15,11 @@ import {
   Search,
   type Type,
 } from '@nestjs/common';
-import { EXCEPTION_FILTERS_METADATA, GUARDS_METADATA, INTERCEPTORS_METADATA } from '@nestjs/common/constants.js';
 import { HTTP_CONTROLLER_METADATA, HttpApi, HttpController, NotFoundError } from '@opra/common';
 import { HttpAdapter, HttpContext } from '@opra/http';
 import { asMutable } from 'ts-gems';
 import { Public } from '../decorators/public.decorator.js';
+import { BaseOpraNestFactory } from '../helpers/base-opra-nest-factory.js';
 
 export class OpraHttpNestjsAdapter extends HttpAdapter {
   readonly nestControllers: Type[] = [];
@@ -70,13 +70,13 @@ export class OpraHttpNestjsAdapter extends HttpAdapter {
   protected _addToNestControllers(sourceClass: Type, currentPath: string, parentTree: Type[]) {
     const metadata: HttpController.Metadata = Reflect.getMetadata(HTTP_CONTROLLER_METADATA, sourceClass);
     if (!metadata) return;
+    /** Create a new controller class */
     const newClass = {
       [sourceClass.name]: class extends sourceClass {},
     }[sourceClass.name];
-
     /** Copy metadata keys from source class to new one */
-    let metadataKeys: any[];
-    OpraHttpNestjsAdapter.copyDecoratorMetadataToChild(newClass, parentTree);
+    BaseOpraNestFactory.copyDecoratorMetadata(newClass, ...parentTree);
+    Controller()(newClass);
 
     const newPath = metadata.path ? nodePath.join(currentPath, metadata.path) : currentPath;
     const adapter = this;
@@ -86,8 +86,8 @@ export class OpraHttpNestjsAdapter extends HttpAdapter {
       throw error;
     };
 
-    Controller()(newClass);
     this.nestControllers.push(newClass);
+    let metadataKeys: any[];
     if (metadata.operations) {
       for (const [k, v] of Object.entries(metadata.operations)) {
         const operationHandler = sourceClass.prototype[k];
@@ -174,30 +174,6 @@ export class OpraHttpNestjsAdapter extends HttpAdapter {
       for (const child of metadata.controllers) {
         if (!isConstructor(child)) throw new TypeError('Controllers should be injectable a class');
         this._addToNestControllers(child, newPath, [...parentTree, sourceClass]);
-      }
-    }
-  }
-
-  static copyDecoratorMetadataToChild(target: Type, parentTree: Type[]) {
-    for (const parent of parentTree) {
-      const metadataKeys = Reflect.getOwnMetadataKeys(parent);
-      for (const key of metadataKeys) {
-        if (typeof key === 'string' && key.startsWith('opra:') && !Reflect.hasOwnMetadata(key, target)) {
-          const metadata = Reflect.getMetadata(key, parent);
-          Reflect.defineMetadata(key, metadata, target);
-          continue;
-        }
-        if (key === GUARDS_METADATA || key === INTERCEPTORS_METADATA || key === EXCEPTION_FILTERS_METADATA) {
-          const m1 = Reflect.getMetadata(key, target) || [];
-          const metadata = [...m1];
-          const m2 = Reflect.getOwnMetadata(key, parent) || [];
-          m2.forEach((t: any) => {
-            if (!metadata.includes(t)) {
-              metadata.push(t);
-            }
-          });
-          Reflect.defineMetadata(key, metadata, target);
-        }
       }
     }
   }
