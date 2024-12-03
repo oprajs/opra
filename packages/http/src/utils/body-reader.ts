@@ -49,7 +49,7 @@ export class BodyReader extends EventEmitter {
     this.limit = options?.limit
       ? typeof options.limit === 'number'
         ? options.limit
-        : byteParser(options.limit)
+        : byteParser(options.limit) || undefined
       : undefined;
   }
 
