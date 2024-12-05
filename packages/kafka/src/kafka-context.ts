@@ -4,26 +4,10 @@ import type { KafkaMessage } from 'kafkajs';
 import type { AsyncEventEmitter } from 'node-events-async';
 import type { KafkaAdapter } from './kafka-adapter.js';
 
-export namespace KafkaContext {
-  export interface Initiator extends Omit<ExecutionContext.Initiator, 'document' | 'protocol' | 'documentNode'> {
-    adapter: KafkaAdapter;
-    controller?: RpcController;
-    controllerInstance?: any;
-    operation?: RpcOperation;
-    operationHandler?: Function;
-    topic: string;
-    partition: number;
-    key: any;
-    payload: any;
-    headers: Record<string, any>;
-    rawMessage: KafkaMessage;
-
-    heartbeat(): Promise<void>;
-
-    pause(): () => void;
-  }
-}
-
+/**
+ * KafkaContext class provides the context for handling Kafka messages.
+ * It extends the ExecutionContext and implements the AsyncEventEmitter.
+ */
 export class KafkaContext extends ExecutionContext implements AsyncEventEmitter {
   readonly protocol: OpraSchema.Transport;
   readonly platform: string;
@@ -41,6 +25,10 @@ export class KafkaContext extends ExecutionContext implements AsyncEventEmitter 
   readonly heartbeat: () => Promise<void>;
   readonly pause: () => void;
 
+  /**
+   * Constructor
+   * @param init the context options
+   */
   constructor(init: KafkaContext.Initiator) {
     super({
       ...init,
@@ -63,5 +51,25 @@ export class KafkaContext extends ExecutionContext implements AsyncEventEmitter 
     this.heartbeat = init.heartbeat;
     this.pause = init.pause;
     this.rawMessage = init.rawMessage;
+  }
+}
+
+export namespace KafkaContext {
+  export interface Initiator extends Omit<ExecutionContext.Initiator, 'document' | 'protocol' | 'documentNode'> {
+    adapter: KafkaAdapter;
+    controller?: RpcController;
+    controllerInstance?: any;
+    operation?: RpcOperation;
+    operationHandler?: Function;
+    topic: string;
+    partition: number;
+    key: any;
+    payload: any;
+    headers: Record<string, any>;
+    rawMessage: KafkaMessage;
+
+    heartbeat(): Promise<void>;
+
+    pause(): void;
   }
 }
