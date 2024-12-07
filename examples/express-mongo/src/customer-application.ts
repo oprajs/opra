@@ -1,4 +1,3 @@
-/* eslint-disable no-console */
 import { ApiDocument } from '@opra/common';
 import { ExpressAdapter, HttpAdapter } from '@opra/http';
 import express from 'express';
