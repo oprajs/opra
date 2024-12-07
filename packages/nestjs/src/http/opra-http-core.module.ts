@@ -45,8 +45,11 @@ export class OpraHttpCoreModule implements OnModuleDestroy, NestModule {
     });
   }
 
-  static forRootAsync(moduleOptions: OpraHttpModule.AsyncModuleOptions): DynamicModule {
-    if (!moduleOptions.useFactory) throw new Error('Invalid configuration. Must provide "useFactory"');
+  static forRootAsync(
+    moduleOptions: OpraHttpModule.AsyncModuleOptions,
+  ): DynamicModule {
+    if (!moduleOptions.useFactory)
+      throw new Error('Invalid configuration. Must provide "useFactory"');
     return this._getDynamicModule({
       ...moduleOptions,
       providers: [
@@ -61,7 +64,9 @@ export class OpraHttpCoreModule implements OnModuleDestroy, NestModule {
   }
 
   protected static _getDynamicModule(
-    moduleOptions: OpraHttpModule.ModuleOptions | OpraHttpModule.AsyncModuleOptions,
+    moduleOptions:
+      | OpraHttpModule.ModuleOptions
+      | OpraHttpModule.AsyncModuleOptions,
   ): DynamicModule {
     const token = moduleOptions?.token || OpraHttpNestjsAdapter;
     const opraNestAdapter = new OpraHttpNestjsAdapter({
@@ -72,23 +77,32 @@ export class OpraHttpCoreModule implements OnModuleDestroy, NestModule {
     const adapterProvider = {
       provide: token,
       inject: [ModuleRef, OPRA_HTTP_API_CONFIG],
-      useFactory: async (moduleRef: ModuleRef, apiConfig: OpraHttpModule.ApiConfig) => {
-        opraNestAdapter.logger = opraNestAdapter.logger || new Logger(apiConfig.name);
-        (opraNestAdapter as any)._document = await ApiDocumentFactory.createDocument({
-          ...apiConfig,
-          api: {
-            transport: 'http',
-            name: apiConfig.name,
-            description: apiConfig.description,
-            controllers: moduleOptions.controllers as any,
-          },
-        });
+      useFactory: async (
+        moduleRef: ModuleRef,
+        apiConfig: OpraHttpModule.ApiConfig,
+      ) => {
+        opraNestAdapter.logger =
+          opraNestAdapter.logger || new Logger(apiConfig.name);
+        (opraNestAdapter as any)._document =
+          await ApiDocumentFactory.createDocument({
+            ...apiConfig,
+            api: {
+              transport: 'http',
+              name: apiConfig.name,
+              description: apiConfig.description,
+              controllers: moduleOptions.controllers as any,
+            },
+          });
         if (moduleOptions.interceptors) {
           opraNestAdapter.interceptors = moduleOptions.interceptors.map(x => {
             if (isConstructor(x)) {
-              return async (ctx: HttpContext, next: HttpAdapter.NextCallback) => {
+              return async (
+                ctx: HttpContext,
+                next: HttpAdapter.NextCallback,
+              ) => {
                 const interceptor = moduleRef.get(x);
-                if (typeof interceptor.intercept === 'function') return interceptor.intercept(ctx, next);
+                if (typeof interceptor.intercept === 'function')
+                  return interceptor.intercept(ctx, next);
               };
             }
             return x;

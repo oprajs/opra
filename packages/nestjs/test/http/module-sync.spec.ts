@@ -64,7 +64,10 @@ describe('OpraModule - sync', () => {
     expect(adapter.nestControllers.length).toBeGreaterThan(0);
     expect(adapter.document).toBeDefined();
     expect(adapter.document.api).toBeDefined();
-    expect(Array.from(adapter.document.httpApi.controllers.keys())).toEqual(['Cats', 'Dogs']);
+    expect(Array.from(adapter.document.httpApi.controllers.keys())).toEqual([
+      'Cats',
+      'Dogs',
+    ]);
   });
 
   it('Should call DEFAULT scoped api', async () => {
@@ -87,7 +90,9 @@ describe('OpraModule - sync', () => {
 
   it('Should use router guards', async () => {
     const callCounter = AuthGuard.callCounter;
-    const r = await request(server).get('/api/v1/cats').set('Authorization', 'reject-auth');
+    const r = await request(server)
+      .get('/api/v1/cats')
+      .set('Authorization', 'reject-auth');
     expect(r.status).toStrictEqual(401);
     expect(AuthGuard.callCounter).toEqual(callCounter + 1);
     expect(AuthGuard.instanceCounter).toEqual(1);
@@ -96,7 +101,9 @@ describe('OpraModule - sync', () => {
 
   it('Should use global guards', async () => {
     const callCounter = TestGlobalGuard.callCounter;
-    const r = await request(server).get('/api/v1/cats').set('Authorization', 'reject-auth');
+    const r = await request(server)
+      .get('/api/v1/cats')
+      .set('Authorization', 'reject-auth');
     expect(r.status).toStrictEqual(401);
     expect(TestGlobalGuard.callCounter).toEqual(callCounter + 1);
     expect(TestGlobalGuard.instanceCounter).toEqual(1);

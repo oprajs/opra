@@ -29,7 +29,17 @@ export namespace CustomerModelsDocument {
       version: 'v1',
       description: 'This document contains model definitions of customer app',
     },
-    types: [Record, Person, Gender, Address, Note, Country, Customer, Profile, TempCustomer],
+    types: [
+      Record,
+      Person,
+      Gender,
+      Address,
+      Note,
+      Country,
+      Customer,
+      Profile,
+      TempCustomer,
+    ],
   };
 
   export async function create(): Promise<ApiDocument> {

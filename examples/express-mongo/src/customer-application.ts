@@ -12,10 +12,14 @@ export class CustomerApplication {
   declare express: express.Express;
   declare db: Db;
 
-  static async create(options?: HttpAdapter.Options): Promise<CustomerApplication> {
+  static async create(
+    options?: HttpAdapter.Options,
+  ): Promise<CustomerApplication> {
     const app = new CustomerApplication();
     try {
-      const host = process.env.MONGO_HOST || 'mongodb://127.0.0.1:27017/?directConnection=true';
+      const host =
+        process.env.MONGO_HOST ||
+        'mongodb://127.0.0.1:27017/?directConnection=true';
       app.dbClient = new MongoClient(host);
       app.db = app.dbClient.db(process.env.MONGO_DATABASE || 'customer_app');
     } catch (e) {

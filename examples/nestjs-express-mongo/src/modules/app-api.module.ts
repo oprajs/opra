@@ -20,7 +20,12 @@ import { AppDbModule } from './app-db.module.js';
       references: {
         cm: () => CustomerModelsDocument.create(),
       },
-      controllers: [AuthController, CustomerController, CustomersController, CustomerNotesController],
+      controllers: [
+        AuthController,
+        CustomerController,
+        CustomersController,
+        CustomerNotesController,
+      ],
       schemaIsPublic: true,
     }),
   ],
@@ -33,13 +38,17 @@ export class AppApiModule {
     opraAdapter.on('request', context => {
       if (process.env.NODE_ENV !== 'test') {
         const { request } = context;
-        this.logger.verbose(`Request from: ${request.ip} | ${request.method} | ${request.url}`);
+        this.logger.verbose(
+          `Request from: ${request.ip} | ${request.method} | ${request.url}`,
+        );
       }
     });
     opraAdapter.on('error', context => {
       if (process.env.NODE_ENV !== 'test') {
         const { request, response, errors } = context;
-        errors.forEach(error => this.logger.error(`${response.statusCode}|${request.ip}|${error}`));
+        errors.forEach(error =>
+          this.logger.error(`${response.statusCode}|${request.ip}|${error}`),
+        );
       }
     });
   }

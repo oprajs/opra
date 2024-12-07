@@ -95,7 +95,10 @@ describe('OpraKafkaModule - sync', () => {
     expect(adapter).toBeDefined();
     expect(adapter.document).toBeDefined();
     expect(adapter.document.api).toBeDefined();
-    expect(Array.from(adapter.document.rpcApi.controllers.keys())).toEqual(['Cats', 'Dogs']);
+    expect(Array.from(adapter.document.rpcApi.controllers.keys())).toEqual([
+      'Cats',
+      'Dogs',
+    ]);
   });
 
   it('Should call DEFAULT scoped api', async () => {

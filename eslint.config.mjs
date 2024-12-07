@@ -9,6 +9,10 @@ export default [
         ...globals.jest,
       },
     },
-    ignores: ['build/**/*', 'node_modules/**/*', 'packages/**/node_modules/**/*'],
+    ignores: [
+      'build/**/*',
+      'node_modules/**/*',
+      'packages/**/node_modules/**/*',
+    ],
   },
 ];

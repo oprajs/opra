@@ -12,7 +12,9 @@ export class CustomerApplication {
   declare express: express.Express;
   declare db: SqbClient;
 
-  static async create(options?: HttpAdapter.Options): Promise<CustomerApplication> {
+  static async create(
+    options?: HttpAdapter.Options,
+  ): Promise<CustomerApplication> {
     const app = new CustomerApplication();
     try {
       app.db = new SqbClient({

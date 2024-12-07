@@ -1,4 +1,9 @@
-import { HttpController, HttpOperation, OmitType, OperationResult } from '@opra/common';
+import {
+  HttpController,
+  HttpOperation,
+  OmitType,
+  OperationResult,
+} from '@opra/common';
 import { HttpContext } from '@opra/http';
 import { MongoAdapter } from '@opra/mongodb';
 import { CustomerNotesService, Note } from 'customer-mongo';
@@ -53,7 +58,9 @@ export class CustomerNotesController {
   async findMany(context: HttpContext) {
     const { options } = await MongoAdapter.parseRequest(context);
     if (options.count) {
-      const { items, count } = await this.service.for(context).findManyWithCount(options);
+      const { items, count } = await this.service
+        .for(context)
+        .findManyWithCount(options);
       return new OperationResult({
         payload: items,
         totalMatches: count,

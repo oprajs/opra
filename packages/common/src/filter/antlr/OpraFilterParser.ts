@@ -23,7 +23,7 @@ import type OpraFilterListener from './OpraFilterListener.js';
 import type OpraFilterVisitor from './OpraFilterVisitor.js';
 
 // for running tests with parameters, TODO: discuss strategy for typed parameters in CI
- 
+
 type int = number;
 
 export default class OpraFilterParser extends Parser {
@@ -212,7 +212,10 @@ export default class OpraFilterParser extends Parser {
     return OpraFilterParser._serializedATN;
   }
 
-  protected createFailedPredicateException(predicate?: string, message?: string): FailedPredicateException {
+  protected createFailedPredicateException(
+    predicate?: string,
+    message?: string,
+  ): FailedPredicateException {
     return new FailedPredicateException(this, predicate, message);
   }
 
@@ -262,7 +265,11 @@ export default class OpraFilterParser extends Parser {
 
     const _parentctx: ParserRuleContext = this._ctx;
     const _parentState: number = this.state;
-    let localctx: ExpressionContext = new ExpressionContext(this, this._ctx, _parentState);
+    let localctx: ExpressionContext = new ExpressionContext(
+      this,
+      this._ctx,
+      _parentState,
+    );
     let _prevctx: ExpressionContext = localctx;
     const _startState: number = 2;
     this.enterRecursionRule(localctx, 2, OpraFilterParser.RULE_expression, _p);
@@ -281,11 +288,14 @@ export default class OpraFilterParser extends Parser {
               _prevctx = localctx;
 
               this.state = 38;
-              (localctx as ComparisonExpressionContext)._left = this.comparisonLeft();
+              (localctx as ComparisonExpressionContext)._left =
+                this.comparisonLeft();
               this.state = 39;
-              (localctx as ComparisonExpressionContext)._operator = this.comparisonOperator();
+              (localctx as ComparisonExpressionContext)._operator =
+                this.comparisonOperator();
               this.state = 40;
-              (localctx as ComparisonExpressionContext)._right = this.comparisonRight();
+              (localctx as ComparisonExpressionContext)._right =
+                this.comparisonRight();
             }
             break;
           case 1:
@@ -331,18 +341,28 @@ export default class OpraFilterParser extends Parser {
             if (this._parseListeners != null) {
               this.triggerExitRuleEvent();
             }
-             
+
             _prevctx = localctx;
             {
               {
-                localctx = new LogicalExpressionContext(this, new ExpressionContext(this, _parentctx, _parentState));
-                this.pushNewRecursionContext(localctx, _startState, OpraFilterParser.RULE_expression);
+                localctx = new LogicalExpressionContext(
+                  this,
+                  new ExpressionContext(this, _parentctx, _parentState),
+                );
+                this.pushNewRecursionContext(
+                  localctx,
+                  _startState,
+                  OpraFilterParser.RULE_expression,
+                );
                 this.state = 50;
                 if (!this.precpred(this._ctx, 3)) {
-                  throw this.createFailedPredicateException('this.precpred(this._ctx, 3)');
+                  throw this.createFailedPredicateException(
+                    'this.precpred(this._ctx, 3)',
+                  );
                 }
                 this.state = 51;
-                (localctx as LogicalExpressionContext)._op = this.logicalOperator();
+                (localctx as LogicalExpressionContext)._op =
+                  this.logicalOperator();
                 this.state = 52;
                 this.expression(4);
               }
@@ -369,7 +389,11 @@ export default class OpraFilterParser extends Parser {
 
   // @RuleVersion(0)
   public comparisonLeft(): ComparisonLeftContext {
-    const localctx: ComparisonLeftContext = new ComparisonLeftContext(this, this._ctx, this.state);
+    const localctx: ComparisonLeftContext = new ComparisonLeftContext(
+      this,
+      this._ctx,
+      this.state,
+    );
     this.enterRule(localctx, 4, OpraFilterParser.RULE_comparisonLeft);
     try {
       this.enterOuterAlt(localctx, 1);
@@ -393,7 +417,11 @@ export default class OpraFilterParser extends Parser {
 
   // @RuleVersion(0)
   public comparisonRight(): ComparisonRightContext {
-    const localctx: ComparisonRightContext = new ComparisonRightContext(this, this._ctx, this.state);
+    const localctx: ComparisonRightContext = new ComparisonRightContext(
+      this,
+      this._ctx,
+      this.state,
+    );
     this.enterRule(localctx, 6, OpraFilterParser.RULE_comparisonRight);
     try {
       this.state = 65;
@@ -455,7 +483,11 @@ export default class OpraFilterParser extends Parser {
 
   // @RuleVersion(0)
   public parenthesizedItem(): ParenthesizedItemContext {
-    const localctx: ParenthesizedItemContext = new ParenthesizedItemContext(this, this._ctx, this.state);
+    const localctx: ParenthesizedItemContext = new ParenthesizedItemContext(
+      this,
+      this._ctx,
+      this.state,
+    );
     this.enterRule(localctx, 8, OpraFilterParser.RULE_parenthesizedItem);
     try {
       this.enterOuterAlt(localctx, 1);
@@ -570,7 +602,11 @@ export default class OpraFilterParser extends Parser {
 
   // @RuleVersion(0)
   public qualifiedIdentifier(): QualifiedIdentifierContext {
-    const localctx: QualifiedIdentifierContext = new QualifiedIdentifierContext(this, this._ctx, this.state);
+    const localctx: QualifiedIdentifierContext = new QualifiedIdentifierContext(
+      this,
+      this._ctx,
+      this.state,
+    );
     this.enterRule(localctx, 12, OpraFilterParser.RULE_qualifiedIdentifier);
     try {
       let _alt: number;
@@ -613,7 +649,11 @@ export default class OpraFilterParser extends Parser {
 
   // @RuleVersion(0)
   public externalConstant(): ExternalConstantContext {
-    const localctx: ExternalConstantContext = new ExternalConstantContext(this, this._ctx, this.state);
+    const localctx: ExternalConstantContext = new ExternalConstantContext(
+      this,
+      this._ctx,
+      this.state,
+    );
     this.enterRule(localctx, 14, OpraFilterParser.RULE_externalConstant);
     try {
       this.enterOuterAlt(localctx, 1);
@@ -639,7 +679,11 @@ export default class OpraFilterParser extends Parser {
 
   // @RuleVersion(0)
   public identifier(): IdentifierContext {
-    const localctx: IdentifierContext = new IdentifierContext(this, this._ctx, this.state);
+    const localctx: IdentifierContext = new IdentifierContext(
+      this,
+      this._ctx,
+      this.state,
+    );
     this.enterRule(localctx, 16, OpraFilterParser.RULE_identifier);
     try {
       this.enterOuterAlt(localctx, 1);
@@ -663,7 +707,11 @@ export default class OpraFilterParser extends Parser {
 
   // @RuleVersion(0)
   public arrayValue(): ArrayValueContext {
-    const localctx: ArrayValueContext = new ArrayValueContext(this, this._ctx, this.state);
+    const localctx: ArrayValueContext = new ArrayValueContext(
+      this,
+      this._ctx,
+      this.state,
+    );
     this.enterRule(localctx, 18, OpraFilterParser.RULE_arrayValue);
     let _la: number;
     try {
@@ -708,7 +756,11 @@ export default class OpraFilterParser extends Parser {
 
   // @RuleVersion(0)
   public boolean_(): BooleanContext {
-    const localctx: BooleanContext = new BooleanContext(this, this._ctx, this.state);
+    const localctx: BooleanContext = new BooleanContext(
+      this,
+      this._ctx,
+      this.state,
+    );
     this.enterRule(localctx, 20, OpraFilterParser.RULE_boolean);
     let _la: number;
     try {
@@ -763,7 +815,11 @@ export default class OpraFilterParser extends Parser {
 
   // @RuleVersion(0)
   public infinity(): InfinityContext {
-    const localctx: InfinityContext = new InfinityContext(this, this._ctx, this.state);
+    const localctx: InfinityContext = new InfinityContext(
+      this,
+      this._ctx,
+      this.state,
+    );
     this.enterRule(localctx, 24, OpraFilterParser.RULE_infinity);
     let _la: number;
     try {
@@ -794,7 +850,11 @@ export default class OpraFilterParser extends Parser {
 
   // @RuleVersion(0)
   public arithmeticOperator(): ArithmeticOperatorContext {
-    const localctx: ArithmeticOperatorContext = new ArithmeticOperatorContext(this, this._ctx, this.state);
+    const localctx: ArithmeticOperatorContext = new ArithmeticOperatorContext(
+      this,
+      this._ctx,
+      this.state,
+    );
     this.enterRule(localctx, 26, OpraFilterParser.RULE_arithmeticOperator);
     let _la: number;
     try {
@@ -825,7 +885,11 @@ export default class OpraFilterParser extends Parser {
 
   // @RuleVersion(0)
   public comparisonOperator(): ComparisonOperatorContext {
-    const localctx: ComparisonOperatorContext = new ComparisonOperatorContext(this, this._ctx, this.state);
+    const localctx: ComparisonOperatorContext = new ComparisonOperatorContext(
+      this,
+      this._ctx,
+      this.state,
+    );
     this.enterRule(localctx, 28, OpraFilterParser.RULE_comparisonOperator);
     let _la: number;
     try {
@@ -856,7 +920,11 @@ export default class OpraFilterParser extends Parser {
 
   // @RuleVersion(0)
   public logicalOperator(): LogicalOperatorContext {
-    const localctx: LogicalOperatorContext = new LogicalOperatorContext(this, this._ctx, this.state);
+    const localctx: LogicalOperatorContext = new LogicalOperatorContext(
+      this,
+      this._ctx,
+      this.state,
+    );
     this.enterRule(localctx, 30, OpraFilterParser.RULE_logicalOperator);
     let _la: number;
     try {
@@ -887,7 +955,11 @@ export default class OpraFilterParser extends Parser {
 
   // @RuleVersion(0)
   public polarityOperator(): PolarityOperatorContext {
-    const localctx: PolarityOperatorContext = new PolarityOperatorContext(this, this._ctx, this.state);
+    const localctx: PolarityOperatorContext = new PolarityOperatorContext(
+      this,
+      this._ctx,
+      this.state,
+    );
     this.enterRule(localctx, 32, OpraFilterParser.RULE_polarityOperator);
     try {
       this.enterOuterAlt(localctx, 1);
@@ -909,15 +981,25 @@ export default class OpraFilterParser extends Parser {
     return localctx;
   }
 
-  public sempred(localctx: RuleContext, ruleIndex: number, predIndex: number): boolean {
+  public sempred(
+    localctx: RuleContext,
+    ruleIndex: number,
+    predIndex: number,
+  ): boolean {
     switch (ruleIndex) {
       case 1:
-        return this.expression_sempred(localctx as ExpressionContext, predIndex);
+        return this.expression_sempred(
+          localctx as ExpressionContext,
+          predIndex,
+        );
     }
     return true;
   }
 
-  private expression_sempred(localctx: ExpressionContext, predIndex: number): boolean {
+  private expression_sempred(
+    localctx: ExpressionContext,
+    predIndex: number,
+  ): boolean {
     switch (predIndex) {
       case 0:
         return this.precpred(this._ctx, 3);
@@ -926,42 +1008,59 @@ export default class OpraFilterParser extends Parser {
   }
 
   public static readonly _serializedATN: number[] = [
-    4, 1, 43, 120, 2, 0, 7, 0, 2, 1, 7, 1, 2, 2, 7, 2, 2, 3, 7, 3, 2, 4, 7, 4, 2, 5, 7, 5, 2, 6, 7, 6, 2, 7, 7, 7, 2, 8,
-    7, 8, 2, 9, 7, 9, 2, 10, 7, 10, 2, 11, 7, 11, 2, 12, 7, 12, 2, 13, 7, 13, 2, 14, 7, 14, 2, 15, 7, 15, 2, 16, 7, 16,
-    1, 0, 1, 0, 1, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 3, 1, 49, 8, 1, 1, 1, 1, 1, 1,
-    1, 1, 1, 5, 1, 55, 8, 1, 10, 1, 12, 1, 58, 9, 1, 1, 2, 1, 2, 1, 3, 1, 3, 1, 3, 1, 3, 3, 3, 66, 8, 3, 1, 4, 1, 4, 1,
-    5, 1, 5, 1, 5, 1, 5, 1, 5, 1, 5, 1, 5, 1, 5, 3, 5, 78, 8, 5, 1, 6, 1, 6, 1, 6, 5, 6, 83, 8, 6, 10, 6, 12, 6, 86, 9,
-    6, 1, 6, 1, 6, 1, 7, 1, 7, 1, 7, 1, 8, 1, 8, 1, 9, 1, 9, 1, 9, 1, 9, 5, 9, 99, 8, 9, 10, 9, 12, 9, 102, 9, 9, 1, 9,
-    1, 9, 1, 10, 1, 10, 1, 11, 1, 11, 1, 12, 1, 12, 1, 13, 1, 13, 1, 14, 1, 14, 1, 15, 1, 15, 1, 16, 1, 16, 1, 16, 0, 1,
-    2, 17, 0, 2, 4, 6, 8, 10, 12, 14, 16, 18, 20, 22, 24, 26, 28, 30, 32, 0, 6, 1, 0, 3, 4, 1, 0, 10, 11, 1, 0, 13, 14,
-    1, 0, 15, 18, 1, 0, 19, 30, 1, 0, 31, 34, 117, 0, 34, 1, 0, 0, 0, 2, 48, 1, 0, 0, 0, 4, 59, 1, 0, 0, 0, 6, 65, 1, 0,
-    0, 0, 8, 67, 1, 0, 0, 0, 10, 77, 1, 0, 0, 0, 12, 84, 1, 0, 0, 0, 14, 89, 1, 0, 0, 0, 16, 92, 1, 0, 0, 0, 18, 94, 1,
-    0, 0, 0, 20, 105, 1, 0, 0, 0, 22, 107, 1, 0, 0, 0, 24, 109, 1, 0, 0, 0, 26, 111, 1, 0, 0, 0, 28, 113, 1, 0, 0, 0,
-    30, 115, 1, 0, 0, 0, 32, 117, 1, 0, 0, 0, 34, 35, 3, 2, 1, 0, 35, 36, 5, 0, 0, 1, 36, 1, 1, 0, 0, 0, 37, 38, 6, 1,
-    -1, 0, 38, 39, 3, 4, 2, 0, 39, 40, 3, 28, 14, 0, 40, 41, 3, 6, 3, 0, 41, 49, 1, 0, 0, 0, 42, 43, 5, 1, 0, 0, 43, 44,
-    3, 8, 4, 0, 44, 45, 5, 2, 0, 0, 45, 49, 1, 0, 0, 0, 46, 47, 7, 0, 0, 0, 47, 49, 3, 2, 1, 1, 48, 37, 1, 0, 0, 0, 48,
-    42, 1, 0, 0, 0, 48, 46, 1, 0, 0, 0, 49, 56, 1, 0, 0, 0, 50, 51, 10, 3, 0, 0, 51, 52, 3, 30, 15, 0, 52, 53, 3, 2, 1,
-    4, 53, 55, 1, 0, 0, 0, 54, 50, 1, 0, 0, 0, 55, 58, 1, 0, 0, 0, 56, 54, 1, 0, 0, 0, 56, 57, 1, 0, 0, 0, 57, 3, 1, 0,
-    0, 0, 58, 56, 1, 0, 0, 0, 59, 60, 3, 12, 6, 0, 60, 5, 1, 0, 0, 0, 61, 66, 3, 10, 5, 0, 62, 66, 3, 12, 6, 0, 63, 66,
-    3, 14, 7, 0, 64, 66, 3, 18, 9, 0, 65, 61, 1, 0, 0, 0, 65, 62, 1, 0, 0, 0, 65, 63, 1, 0, 0, 0, 65, 64, 1, 0, 0, 0,
-    66, 7, 1, 0, 0, 0, 67, 68, 3, 2, 1, 0, 68, 9, 1, 0, 0, 0, 69, 78, 5, 40, 0, 0, 70, 78, 3, 24, 12, 0, 71, 78, 3, 20,
-    10, 0, 72, 78, 3, 22, 11, 0, 73, 78, 5, 37, 0, 0, 74, 78, 5, 38, 0, 0, 75, 78, 5, 39, 0, 0, 76, 78, 5, 42, 0, 0, 77,
-    69, 1, 0, 0, 0, 77, 70, 1, 0, 0, 0, 77, 71, 1, 0, 0, 0, 77, 72, 1, 0, 0, 0, 77, 73, 1, 0, 0, 0, 77, 74, 1, 0, 0, 0,
-    77, 75, 1, 0, 0, 0, 77, 76, 1, 0, 0, 0, 78, 11, 1, 0, 0, 0, 79, 80, 3, 16, 8, 0, 80, 81, 5, 5, 0, 0, 81, 83, 1, 0,
-    0, 0, 82, 79, 1, 0, 0, 0, 83, 86, 1, 0, 0, 0, 84, 82, 1, 0, 0, 0, 84, 85, 1, 0, 0, 0, 85, 87, 1, 0, 0, 0, 86, 84, 1,
-    0, 0, 0, 87, 88, 3, 16, 8, 0, 88, 13, 1, 0, 0, 0, 89, 90, 5, 6, 0, 0, 90, 91, 3, 16, 8, 0, 91, 15, 1, 0, 0, 0, 92,
-    93, 5, 35, 0, 0, 93, 17, 1, 0, 0, 0, 94, 95, 5, 7, 0, 0, 95, 100, 3, 10, 5, 0, 96, 97, 5, 8, 0, 0, 97, 99, 3, 10, 5,
-    0, 98, 96, 1, 0, 0, 0, 99, 102, 1, 0, 0, 0, 100, 98, 1, 0, 0, 0, 100, 101, 1, 0, 0, 0, 101, 103, 1, 0, 0, 0, 102,
-    100, 1, 0, 0, 0, 103, 104, 5, 9, 0, 0, 104, 19, 1, 0, 0, 0, 105, 106, 7, 1, 0, 0, 106, 21, 1, 0, 0, 0, 107, 108, 5,
-    12, 0, 0, 108, 23, 1, 0, 0, 0, 109, 110, 7, 2, 0, 0, 110, 25, 1, 0, 0, 0, 111, 112, 7, 3, 0, 0, 112, 27, 1, 0, 0, 0,
-    113, 114, 7, 4, 0, 0, 114, 29, 1, 0, 0, 0, 115, 116, 7, 5, 0, 0, 116, 31, 1, 0, 0, 0, 117, 118, 5, 36, 0, 0, 118,
-    33, 1, 0, 0, 0, 6, 48, 56, 65, 77, 84, 100,
+    4, 1, 43, 120, 2, 0, 7, 0, 2, 1, 7, 1, 2, 2, 7, 2, 2, 3, 7, 3, 2, 4, 7, 4,
+    2, 5, 7, 5, 2, 6, 7, 6, 2, 7, 7, 7, 2, 8, 7, 8, 2, 9, 7, 9, 2, 10, 7, 10, 2,
+    11, 7, 11, 2, 12, 7, 12, 2, 13, 7, 13, 2, 14, 7, 14, 2, 15, 7, 15, 2, 16, 7,
+    16, 1, 0, 1, 0, 1, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+    1, 1, 1, 1, 3, 1, 49, 8, 1, 1, 1, 1, 1, 1, 1, 1, 1, 5, 1, 55, 8, 1, 10, 1,
+    12, 1, 58, 9, 1, 1, 2, 1, 2, 1, 3, 1, 3, 1, 3, 1, 3, 3, 3, 66, 8, 3, 1, 4,
+    1, 4, 1, 5, 1, 5, 1, 5, 1, 5, 1, 5, 1, 5, 1, 5, 1, 5, 3, 5, 78, 8, 5, 1, 6,
+    1, 6, 1, 6, 5, 6, 83, 8, 6, 10, 6, 12, 6, 86, 9, 6, 1, 6, 1, 6, 1, 7, 1, 7,
+    1, 7, 1, 8, 1, 8, 1, 9, 1, 9, 1, 9, 1, 9, 5, 9, 99, 8, 9, 10, 9, 12, 9, 102,
+    9, 9, 1, 9, 1, 9, 1, 10, 1, 10, 1, 11, 1, 11, 1, 12, 1, 12, 1, 13, 1, 13, 1,
+    14, 1, 14, 1, 15, 1, 15, 1, 16, 1, 16, 1, 16, 0, 1, 2, 17, 0, 2, 4, 6, 8,
+    10, 12, 14, 16, 18, 20, 22, 24, 26, 28, 30, 32, 0, 6, 1, 0, 3, 4, 1, 0, 10,
+    11, 1, 0, 13, 14, 1, 0, 15, 18, 1, 0, 19, 30, 1, 0, 31, 34, 117, 0, 34, 1,
+    0, 0, 0, 2, 48, 1, 0, 0, 0, 4, 59, 1, 0, 0, 0, 6, 65, 1, 0, 0, 0, 8, 67, 1,
+    0, 0, 0, 10, 77, 1, 0, 0, 0, 12, 84, 1, 0, 0, 0, 14, 89, 1, 0, 0, 0, 16, 92,
+    1, 0, 0, 0, 18, 94, 1, 0, 0, 0, 20, 105, 1, 0, 0, 0, 22, 107, 1, 0, 0, 0,
+    24, 109, 1, 0, 0, 0, 26, 111, 1, 0, 0, 0, 28, 113, 1, 0, 0, 0, 30, 115, 1,
+    0, 0, 0, 32, 117, 1, 0, 0, 0, 34, 35, 3, 2, 1, 0, 35, 36, 5, 0, 0, 1, 36, 1,
+    1, 0, 0, 0, 37, 38, 6, 1, -1, 0, 38, 39, 3, 4, 2, 0, 39, 40, 3, 28, 14, 0,
+    40, 41, 3, 6, 3, 0, 41, 49, 1, 0, 0, 0, 42, 43, 5, 1, 0, 0, 43, 44, 3, 8, 4,
+    0, 44, 45, 5, 2, 0, 0, 45, 49, 1, 0, 0, 0, 46, 47, 7, 0, 0, 0, 47, 49, 3, 2,
+    1, 1, 48, 37, 1, 0, 0, 0, 48, 42, 1, 0, 0, 0, 48, 46, 1, 0, 0, 0, 49, 56, 1,
+    0, 0, 0, 50, 51, 10, 3, 0, 0, 51, 52, 3, 30, 15, 0, 52, 53, 3, 2, 1, 4, 53,
+    55, 1, 0, 0, 0, 54, 50, 1, 0, 0, 0, 55, 58, 1, 0, 0, 0, 56, 54, 1, 0, 0, 0,
+    56, 57, 1, 0, 0, 0, 57, 3, 1, 0, 0, 0, 58, 56, 1, 0, 0, 0, 59, 60, 3, 12, 6,
+    0, 60, 5, 1, 0, 0, 0, 61, 66, 3, 10, 5, 0, 62, 66, 3, 12, 6, 0, 63, 66, 3,
+    14, 7, 0, 64, 66, 3, 18, 9, 0, 65, 61, 1, 0, 0, 0, 65, 62, 1, 0, 0, 0, 65,
+    63, 1, 0, 0, 0, 65, 64, 1, 0, 0, 0, 66, 7, 1, 0, 0, 0, 67, 68, 3, 2, 1, 0,
+    68, 9, 1, 0, 0, 0, 69, 78, 5, 40, 0, 0, 70, 78, 3, 24, 12, 0, 71, 78, 3, 20,
+    10, 0, 72, 78, 3, 22, 11, 0, 73, 78, 5, 37, 0, 0, 74, 78, 5, 38, 0, 0, 75,
+    78, 5, 39, 0, 0, 76, 78, 5, 42, 0, 0, 77, 69, 1, 0, 0, 0, 77, 70, 1, 0, 0,
+    0, 77, 71, 1, 0, 0, 0, 77, 72, 1, 0, 0, 0, 77, 73, 1, 0, 0, 0, 77, 74, 1, 0,
+    0, 0, 77, 75, 1, 0, 0, 0, 77, 76, 1, 0, 0, 0, 78, 11, 1, 0, 0, 0, 79, 80, 3,
+    16, 8, 0, 80, 81, 5, 5, 0, 0, 81, 83, 1, 0, 0, 0, 82, 79, 1, 0, 0, 0, 83,
+    86, 1, 0, 0, 0, 84, 82, 1, 0, 0, 0, 84, 85, 1, 0, 0, 0, 85, 87, 1, 0, 0, 0,
+    86, 84, 1, 0, 0, 0, 87, 88, 3, 16, 8, 0, 88, 13, 1, 0, 0, 0, 89, 90, 5, 6,
+    0, 0, 90, 91, 3, 16, 8, 0, 91, 15, 1, 0, 0, 0, 92, 93, 5, 35, 0, 0, 93, 17,
+    1, 0, 0, 0, 94, 95, 5, 7, 0, 0, 95, 100, 3, 10, 5, 0, 96, 97, 5, 8, 0, 0,
+    97, 99, 3, 10, 5, 0, 98, 96, 1, 0, 0, 0, 99, 102, 1, 0, 0, 0, 100, 98, 1, 0,
+    0, 0, 100, 101, 1, 0, 0, 0, 101, 103, 1, 0, 0, 0, 102, 100, 1, 0, 0, 0, 103,
+    104, 5, 9, 0, 0, 104, 19, 1, 0, 0, 0, 105, 106, 7, 1, 0, 0, 106, 21, 1, 0,
+    0, 0, 107, 108, 5, 12, 0, 0, 108, 23, 1, 0, 0, 0, 109, 110, 7, 2, 0, 0, 110,
+    25, 1, 0, 0, 0, 111, 112, 7, 3, 0, 0, 112, 27, 1, 0, 0, 0, 113, 114, 7, 4,
+    0, 0, 114, 29, 1, 0, 0, 0, 115, 116, 7, 5, 0, 0, 116, 31, 1, 0, 0, 0, 117,
+    118, 5, 36, 0, 0, 118, 33, 1, 0, 0, 0, 6, 48, 56, 65, 77, 84, 100,
   ];
 
   private static __ATN: ATN;
   public static get _ATN(): ATN {
     if (!OpraFilterParser.__ATN) {
-      OpraFilterParser.__ATN = new ATNDeserializer().deserialize(OpraFilterParser._serializedATN);
+      OpraFilterParser.__ATN = new ATNDeserializer().deserialize(
+        OpraFilterParser._serializedATN,
+      );
     }
 
     return OpraFilterParser.__ATN;
@@ -973,7 +1072,11 @@ export default class OpraFilterParser extends Parser {
 }
 
 export class RootContext extends ParserRuleContext {
-  constructor(parser?: OpraFilterParser, parent?: ParserRuleContext, invokingState?: number) {
+  constructor(
+    parser?: OpraFilterParser,
+    parent?: ParserRuleContext,
+    invokingState?: number,
+  ) {
     super(parent, invokingState);
     this.parser = parser;
   }
@@ -1012,7 +1115,11 @@ export class RootContext extends ParserRuleContext {
 }
 
 export class ExpressionContext extends ParserRuleContext {
-  constructor(parser?: OpraFilterParser, parent?: ParserRuleContext, invokingState?: number) {
+  constructor(
+    parser?: OpraFilterParser,
+    parent?: ParserRuleContext,
+    invokingState?: number,
+  ) {
     super(parent, invokingState);
     this.parser = parser;
   }
@@ -1033,7 +1140,10 @@ export class ParenthesizedExpressionContext extends ExpressionContext {
   }
 
   public parenthesizedItem(): ParenthesizedItemContext {
-    return this.getTypedRuleContext(ParenthesizedItemContext, 0) as ParenthesizedItemContext;
+    return this.getTypedRuleContext(
+      ParenthesizedItemContext,
+      0,
+    ) as ParenthesizedItemContext;
   }
 
   public enterRule(listener: OpraFilterListener): void {
@@ -1099,15 +1209,24 @@ export class ComparisonExpressionContext extends ExpressionContext {
   }
 
   public comparisonLeft(): ComparisonLeftContext {
-    return this.getTypedRuleContext(ComparisonLeftContext, 0) as ComparisonLeftContext;
+    return this.getTypedRuleContext(
+      ComparisonLeftContext,
+      0,
+    ) as ComparisonLeftContext;
   }
 
   public comparisonOperator(): ComparisonOperatorContext {
-    return this.getTypedRuleContext(ComparisonOperatorContext, 0) as ComparisonOperatorContext;
+    return this.getTypedRuleContext(
+      ComparisonOperatorContext,
+      0,
+    ) as ComparisonOperatorContext;
   }
 
   public comparisonRight(): ComparisonRightContext {
-    return this.getTypedRuleContext(ComparisonRightContext, 0) as ComparisonRightContext;
+    return this.getTypedRuleContext(
+      ComparisonRightContext,
+      0,
+    ) as ComparisonRightContext;
   }
 
   public enterRule(listener: OpraFilterListener): void {
@@ -1148,7 +1267,10 @@ export class LogicalExpressionContext extends ExpressionContext {
   }
 
   public logicalOperator(): LogicalOperatorContext {
-    return this.getTypedRuleContext(LogicalOperatorContext, 0) as LogicalOperatorContext;
+    return this.getTypedRuleContext(
+      LogicalOperatorContext,
+      0,
+    ) as LogicalOperatorContext;
   }
 
   public enterRule(listener: OpraFilterListener): void {
@@ -1173,13 +1295,20 @@ export class LogicalExpressionContext extends ExpressionContext {
 }
 
 export class ComparisonLeftContext extends ParserRuleContext {
-  constructor(parser?: OpraFilterParser, parent?: ParserRuleContext, invokingState?: number) {
+  constructor(
+    parser?: OpraFilterParser,
+    parent?: ParserRuleContext,
+    invokingState?: number,
+  ) {
     super(parent, invokingState);
     this.parser = parser;
   }
 
   public qualifiedIdentifier(): QualifiedIdentifierContext {
-    return this.getTypedRuleContext(QualifiedIdentifierContext, 0) as QualifiedIdentifierContext;
+    return this.getTypedRuleContext(
+      QualifiedIdentifierContext,
+      0,
+    ) as QualifiedIdentifierContext;
   }
 
   public get ruleIndex(): number {
@@ -1208,7 +1337,11 @@ export class ComparisonLeftContext extends ParserRuleContext {
 }
 
 export class ComparisonRightContext extends ParserRuleContext {
-  constructor(parser?: OpraFilterParser, parent?: ParserRuleContext, invokingState?: number) {
+  constructor(
+    parser?: OpraFilterParser,
+    parent?: ParserRuleContext,
+    invokingState?: number,
+  ) {
     super(parent, invokingState);
     this.parser = parser;
   }
@@ -1218,11 +1351,17 @@ export class ComparisonRightContext extends ParserRuleContext {
   }
 
   public qualifiedIdentifier(): QualifiedIdentifierContext {
-    return this.getTypedRuleContext(QualifiedIdentifierContext, 0) as QualifiedIdentifierContext;
+    return this.getTypedRuleContext(
+      QualifiedIdentifierContext,
+      0,
+    ) as QualifiedIdentifierContext;
   }
 
   public externalConstant(): ExternalConstantContext {
-    return this.getTypedRuleContext(ExternalConstantContext, 0) as ExternalConstantContext;
+    return this.getTypedRuleContext(
+      ExternalConstantContext,
+      0,
+    ) as ExternalConstantContext;
   }
 
   public arrayValue(): ArrayValueContext {
@@ -1255,7 +1394,11 @@ export class ComparisonRightContext extends ParserRuleContext {
 }
 
 export class ParenthesizedItemContext extends ParserRuleContext {
-  constructor(parser?: OpraFilterParser, parent?: ParserRuleContext, invokingState?: number) {
+  constructor(
+    parser?: OpraFilterParser,
+    parent?: ParserRuleContext,
+    invokingState?: number,
+  ) {
     super(parent, invokingState);
     this.parser = parser;
   }
@@ -1290,7 +1433,11 @@ export class ParenthesizedItemContext extends ParserRuleContext {
 }
 
 export class ValueContext extends ParserRuleContext {
-  constructor(parser?: OpraFilterParser, parent?: ParserRuleContext, invokingState?: number) {
+  constructor(
+    parser?: OpraFilterParser,
+    parent?: ParserRuleContext,
+    invokingState?: number,
+  ) {
     super(parent, invokingState);
     this.parser = parser;
   }
@@ -1553,7 +1700,11 @@ export class NumberLiteralContext extends ValueContext {
 }
 
 export class QualifiedIdentifierContext extends ParserRuleContext {
-  constructor(parser?: OpraFilterParser, parent?: ParserRuleContext, invokingState?: number) {
+  constructor(
+    parser?: OpraFilterParser,
+    parent?: ParserRuleContext,
+    invokingState?: number,
+  ) {
     super(parent, invokingState);
     this.parser = parser;
   }
@@ -1592,7 +1743,11 @@ export class QualifiedIdentifierContext extends ParserRuleContext {
 }
 
 export class ExternalConstantContext extends ParserRuleContext {
-  constructor(parser?: OpraFilterParser, parent?: ParserRuleContext, invokingState?: number) {
+  constructor(
+    parser?: OpraFilterParser,
+    parent?: ParserRuleContext,
+    invokingState?: number,
+  ) {
     super(parent, invokingState);
     this.parser = parser;
   }
@@ -1627,7 +1782,11 @@ export class ExternalConstantContext extends ParserRuleContext {
 }
 
 export class IdentifierContext extends ParserRuleContext {
-  constructor(parser?: OpraFilterParser, parent?: ParserRuleContext, invokingState?: number) {
+  constructor(
+    parser?: OpraFilterParser,
+    parent?: ParserRuleContext,
+    invokingState?: number,
+  ) {
     super(parent, invokingState);
     this.parser = parser;
   }
@@ -1662,7 +1821,11 @@ export class IdentifierContext extends ParserRuleContext {
 }
 
 export class ArrayValueContext extends ParserRuleContext {
-  constructor(parser?: OpraFilterParser, parent?: ParserRuleContext, invokingState?: number) {
+  constructor(
+    parser?: OpraFilterParser,
+    parent?: ParserRuleContext,
+    invokingState?: number,
+  ) {
     super(parent, invokingState);
     this.parser = parser;
   }
@@ -1701,7 +1864,11 @@ export class ArrayValueContext extends ParserRuleContext {
 }
 
 export class BooleanContext extends ParserRuleContext {
-  constructor(parser?: OpraFilterParser, parent?: ParserRuleContext, invokingState?: number) {
+  constructor(
+    parser?: OpraFilterParser,
+    parent?: ParserRuleContext,
+    invokingState?: number,
+  ) {
     super(parent, invokingState);
     this.parser = parser;
   }
@@ -1732,7 +1899,11 @@ export class BooleanContext extends ParserRuleContext {
 }
 
 export class NullContext extends ParserRuleContext {
-  constructor(parser?: OpraFilterParser, parent?: ParserRuleContext, invokingState?: number) {
+  constructor(
+    parser?: OpraFilterParser,
+    parent?: ParserRuleContext,
+    invokingState?: number,
+  ) {
     super(parent, invokingState);
     this.parser = parser;
   }
@@ -1763,7 +1934,11 @@ export class NullContext extends ParserRuleContext {
 }
 
 export class InfinityContext extends ParserRuleContext {
-  constructor(parser?: OpraFilterParser, parent?: ParserRuleContext, invokingState?: number) {
+  constructor(
+    parser?: OpraFilterParser,
+    parent?: ParserRuleContext,
+    invokingState?: number,
+  ) {
     super(parent, invokingState);
     this.parser = parser;
   }
@@ -1794,7 +1969,11 @@ export class InfinityContext extends ParserRuleContext {
 }
 
 export class ArithmeticOperatorContext extends ParserRuleContext {
-  constructor(parser?: OpraFilterParser, parent?: ParserRuleContext, invokingState?: number) {
+  constructor(
+    parser?: OpraFilterParser,
+    parent?: ParserRuleContext,
+    invokingState?: number,
+  ) {
     super(parent, invokingState);
     this.parser = parser;
   }
@@ -1825,7 +2004,11 @@ export class ArithmeticOperatorContext extends ParserRuleContext {
 }
 
 export class ComparisonOperatorContext extends ParserRuleContext {
-  constructor(parser?: OpraFilterParser, parent?: ParserRuleContext, invokingState?: number) {
+  constructor(
+    parser?: OpraFilterParser,
+    parent?: ParserRuleContext,
+    invokingState?: number,
+  ) {
     super(parent, invokingState);
     this.parser = parser;
   }
@@ -1856,7 +2039,11 @@ export class ComparisonOperatorContext extends ParserRuleContext {
 }
 
 export class LogicalOperatorContext extends ParserRuleContext {
-  constructor(parser?: OpraFilterParser, parent?: ParserRuleContext, invokingState?: number) {
+  constructor(
+    parser?: OpraFilterParser,
+    parent?: ParserRuleContext,
+    invokingState?: number,
+  ) {
     super(parent, invokingState);
     this.parser = parser;
   }
@@ -1887,7 +2074,11 @@ export class LogicalOperatorContext extends ParserRuleContext {
 }
 
 export class PolarityOperatorContext extends ParserRuleContext {
-  constructor(parser?: OpraFilterParser, parent?: ParserRuleContext, invokingState?: number) {
+  constructor(
+    parser?: OpraFilterParser,
+    parent?: ParserRuleContext,
+    invokingState?: number,
+  ) {
     super(parent, invokingState);
     this.parser = parser;
   }

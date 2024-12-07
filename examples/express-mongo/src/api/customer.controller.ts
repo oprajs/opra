@@ -8,7 +8,9 @@ import { CustomerNotesController } from './customer-notes.controller.js';
 
 @(HttpController({
   path: 'Customers',
-  controllers: [(parent: CustomerController) => new CustomerNotesController(parent.db)],
+  controllers: [
+    (parent: CustomerController) => new CustomerNotesController(parent.db),
+  ],
 }).KeyParam('customerId', 'number'))
 export class CustomerController {
   service: CustomersService;

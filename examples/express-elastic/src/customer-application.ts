@@ -11,7 +11,9 @@ export class CustomerApplication {
   declare dbClient: Client;
   declare express: express.Express;
 
-  static async create(options?: HttpAdapter.Options): Promise<CustomerApplication> {
+  static async create(
+    options?: HttpAdapter.Options,
+  ): Promise<CustomerApplication> {
     const app = new CustomerApplication();
     try {
       const host = process.env.MONGO_HOST || 'http://127.0.0.1:9200';

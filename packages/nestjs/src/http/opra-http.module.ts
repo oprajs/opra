@@ -12,7 +12,10 @@ export namespace OpraHttpModule {
   }
 
   interface BaseModuleOptions
-    extends Pick<DynamicModule, 'imports' | 'providers' | 'exports' | 'controllers' | 'global'> {
+    extends Pick<
+      DynamicModule,
+      'imports' | 'providers' | 'exports' | 'controllers' | 'global'
+    > {
     token?: any;
     basePath?: string;
     schemaIsPublic?: boolean;
@@ -23,7 +26,11 @@ export namespace OpraHttpModule {
     )[];
   }
 
-  export interface ApiConfig extends Pick<ApiDocumentFactory.InitArguments, 'types' | 'references' | 'info'> {
+  export interface ApiConfig
+    extends Pick<
+      ApiDocumentFactory.InitArguments,
+      'types' | 'references' | 'info'
+    > {
     name: string;
     description?: string;
     logger?: Logger;
@@ -47,7 +54,9 @@ export class OpraHttpModule {
    *
    * @param options
    */
-  static forRootAsync(options: OpraHttpModule.AsyncModuleOptions): DynamicModule {
+  static forRootAsync(
+    options: OpraHttpModule.AsyncModuleOptions,
+  ): DynamicModule {
     return {
       module: OpraHttpModule,
       imports: [OpraHttpCoreModule.forRootAsync(options)],

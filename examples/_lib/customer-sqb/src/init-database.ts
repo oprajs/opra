@@ -21,7 +21,9 @@ export async function initDatabase(options: {
     if (countries) {
       const lines: string[] = [];
       for (const row of countries) {
-        const line = Insert(schema + '.countries', row).generate({ dialect: 'postgres' }).sql;
+        const line = Insert(schema + '.countries', row).generate({
+          dialect: 'postgres',
+        }).sql;
         lines.push(line);
       }
       await connection.execute(lines.join(';\n'));
@@ -29,7 +31,9 @@ export async function initDatabase(options: {
     if (customers) {
       const lines: string[] = [];
       for (const row of customers) {
-        const line = Insert(schema + '.customers', row).generate({ dialect: 'postgres' }).sql;
+        const line = Insert(schema + '.customers', row).generate({
+          dialect: 'postgres',
+        }).sql;
         lines.push(line);
       }
       await connection.execute(lines.join(';\n'));

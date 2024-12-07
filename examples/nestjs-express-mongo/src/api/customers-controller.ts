@@ -1,4 +1,9 @@
-import { HttpController, HttpOperation, OmitType, OperationResult } from '@opra/common';
+import {
+  HttpController,
+  HttpOperation,
+  OmitType,
+  OperationResult,
+} from '@opra/common';
 import { HttpContext } from '@opra/http';
 import { MongoAdapter } from '@opra/mongodb';
 import { Customer, CustomersService } from 'customer-mongo';
@@ -29,7 +34,13 @@ export class CustomersController {
     defaultLimit: 5,
     maxLimit: 10,
   })
-    .SortFields('_id', 'givenName', 'familyName', 'gender', 'address.countryCode')
+    .SortFields(
+      '_id',
+      'givenName',
+      'familyName',
+      'gender',
+      'address.countryCode',
+    )
     .DefaultSort('givenName')
     .Filter('_id')
     .Filter('givenName')
@@ -44,7 +55,9 @@ export class CustomersController {
   async findMany(context: HttpContext) {
     const { options } = await MongoAdapter.parseRequest(context);
     if (options.count) {
-      const { items, count } = await this.service.for(context).findManyWithCount(options);
+      const { items, count } = await this.service
+        .for(context)
+        .findManyWithCount(options);
       return new OperationResult({
         payload: items,
         totalMatches: count,

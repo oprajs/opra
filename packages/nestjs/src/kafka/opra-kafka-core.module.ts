@@ -20,7 +20,9 @@ const opraKafkaNestjsAdapterToken = Symbol('OpraKafkaNestjsAdapter');
 
 @Module({})
 @Global()
-export class OpraKafkaCoreModule implements OnModuleInit, OnApplicationBootstrap, OnApplicationShutdown {
+export class OpraKafkaCoreModule
+  implements OnModuleInit, OnApplicationBootstrap, OnApplicationShutdown
+{
   constructor(
     private controllerFactory: RpcControllerFactory,
     @Inject(opraKafkaNestjsAdapterToken)
@@ -45,8 +47,11 @@ export class OpraKafkaCoreModule implements OnModuleInit, OnApplicationBootstrap
     });
   }
 
-  static forRootAsync(moduleOptions: OpraKafkaModule.AsyncModuleOptions): DynamicModule {
-    if (!moduleOptions.useFactory) throw new Error('Invalid configuration. Must provide "useFactory"');
+  static forRootAsync(
+    moduleOptions: OpraKafkaModule.AsyncModuleOptions,
+  ): DynamicModule {
+    if (!moduleOptions.useFactory)
+      throw new Error('Invalid configuration. Must provide "useFactory"');
 
     return this._getDynamicModule({
       ...moduleOptions,
@@ -66,7 +71,9 @@ export class OpraKafkaCoreModule implements OnModuleInit, OnApplicationBootstrap
   }
 
   protected static _getDynamicModule(
-    moduleOptions: OpraKafkaModule.ModuleOptions | OpraKafkaModule.AsyncModuleOptions,
+    moduleOptions:
+      | OpraKafkaModule.ModuleOptions
+      | OpraKafkaModule.AsyncModuleOptions,
   ): DynamicModule {
     const token = moduleOptions.id || KafkaAdapter;
     const adapterProvider = {
@@ -77,7 +84,9 @@ export class OpraKafkaCoreModule implements OnModuleInit, OnApplicationBootstrap
         moduleRef: ModuleRef,
         config: OpraKafkaModule.ApiConfig,
       ) => {
-        const controllers = controllerFactory.exploreControllers().map(x => x.wrapper.instance.constructor);
+        const controllers = controllerFactory
+          .exploreControllers()
+          .map(x => x.wrapper.instance.constructor);
         const document = await ApiDocumentFactory.createDocument({
           info: config.info,
           types: config.types,
@@ -94,9 +103,13 @@ export class OpraKafkaCoreModule implements OnModuleInit, OnApplicationBootstrap
         const interceptors = moduleOptions.interceptors
           ? moduleOptions.interceptors.map(x => {
               if (isConstructor(x)) {
-                return async (ctx: KafkaContext, next: KafkaAdapter.NextCallback) => {
+                return async (
+                  ctx: KafkaContext,
+                  next: KafkaAdapter.NextCallback,
+                ) => {
                   const interceptor = moduleRef.get(x);
-                  if (typeof interceptor.intercept === 'function') return interceptor.intercept(ctx, next);
+                  if (typeof interceptor.intercept === 'function')
+                    return interceptor.intercept(ctx, next);
                 };
               }
               return x;
@@ -128,7 +141,9 @@ export class OpraKafkaCoreModule implements OnModuleInit, OnApplicationBootstrap
      * So we should update instance properties */
     const rpcApi = this.adapter.document.rpcApi;
     const controllers = Array.from(rpcApi.controllers.values());
-    for (const { wrapper } of this.controllerFactory.exploreControllers().values()) {
+    for (const { wrapper } of this.controllerFactory
+      .exploreControllers()
+      .values()) {
       const ctor = wrapper.instance.constructor;
       const controller = controllers.find(x => x.ctor === ctor);
       if (controller) {

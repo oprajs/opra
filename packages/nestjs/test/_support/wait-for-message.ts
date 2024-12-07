@@ -2,7 +2,11 @@ import { KafkaAdapter, KafkaContext } from '@opra/kafka';
 
 const waitList = new Set();
 
-export async function waitForMessage(adapter: KafkaAdapter, oprname: string, key: any): Promise<KafkaContext> {
+export async function waitForMessage(
+  adapter: KafkaAdapter,
+  oprname: string,
+  key: any,
+): Promise<KafkaContext> {
   return new Promise((resolve, reject) => {
     const waitKey = oprname + ':' + key;
     waitList.add(waitKey);
@@ -16,7 +20,9 @@ export async function waitForMessage(adapter: KafkaAdapter, oprname: string, key
         } else {
           if (waitList.has(waitKey)) return;
           // eslint-disable-next-line no-console
-          console.log(`Warning: Waiting message with "${key}" key but god message with "${_ctx.key}"`);
+          console.log(
+            `Warning: Waiting message with "${key}" key but god message with "${_ctx.key}"`,
+          );
         }
       } else {
         if (waitList.has(waitKey)) return;

@@ -1,9 +1,21 @@
-import { ContextType, Controller, Inject, Injectable, type Type } from '@nestjs/common';
+import {
+  ContextType,
+  Controller,
+  Inject,
+  Injectable,
+  type Type,
+} from '@nestjs/common';
 import { createContextId, ModulesContainer, REQUEST } from '@nestjs/core';
-import { ExternalContextCreator, type ExternalContextOptions } from '@nestjs/core/helpers/external-context-creator';
+import {
+  ExternalContextCreator,
+  type ExternalContextOptions,
+} from '@nestjs/core/helpers/external-context-creator';
 import type { ParamMetadata } from '@nestjs/core/helpers/interfaces/params-metadata.interface';
 import { Injector } from '@nestjs/core/injector/injector';
-import type { ContextId, InstanceWrapper } from '@nestjs/core/injector/instance-wrapper';
+import type {
+  ContextId,
+  InstanceWrapper,
+} from '@nestjs/core/injector/instance-wrapper';
 import { InternalCoreModule } from '@nestjs/core/injector/internal-core-module';
 import type { Module } from '@nestjs/core/injector/module.js';
 import { REQUEST_CONTEXT_ID } from '@nestjs/core/router/request/request-constants';
@@ -33,7 +45,10 @@ export class RpcControllerFactory extends BaseOpraNestFactory {
     for (const { module, wrapper } of this.exploreControllers()) {
       const instance = wrapper.instance;
       const sourceClass = instance.constructor;
-      const metadata: RpcController.Metadata = Reflect.getMetadata(RPC_CONTROLLER_METADATA, sourceClass);
+      const metadata: RpcController.Metadata = Reflect.getMetadata(
+        RPC_CONTROLLER_METADATA,
+        sourceClass,
+      );
       const isRequestScoped = !wrapper.isDependencyTreeStatic();
 
       /** Create a new controller class */
@@ -56,7 +71,12 @@ export class RpcControllerFactory extends BaseOpraNestFactory {
             isRequestScoped,
             'rpc',
           );
-          Reflect.defineMetadata(PARAM_ARGS_METADATA, [REQUEST], instance.constructor, operationName);
+          Reflect.defineMetadata(
+            PARAM_ARGS_METADATA,
+            [REQUEST],
+            instance.constructor,
+            operationName,
+          );
         }
       }
     }
@@ -84,7 +104,12 @@ export class RpcControllerFactory extends BaseOpraNestFactory {
         });
 
         this.registerContextProvider(opraContext, contextId);
-        const contextInstance = await this.injector.loadPerContext(instance, moduleRef, moduleRef.providers, contextId);
+        const contextInstance = await this.injector.loadPerContext(
+          instance,
+          moduleRef,
+          moduleRef.providers,
+          contextId,
+        );
         const contextCallback = this.externalContextCreator.create(
           contextInstance,
           contextInstance[methodName],
@@ -100,7 +125,10 @@ export class RpcControllerFactory extends BaseOpraNestFactory {
       };
     }
 
-    return this.externalContextCreator.create<Record<number, ParamMetadata>, ContextType>(
+    return this.externalContextCreator.create<
+      Record<number, ParamMetadata>,
+      ContextType
+    >(
       instance,
       instance[methodName],
       methodName,
@@ -118,7 +146,8 @@ export class RpcControllerFactory extends BaseOpraNestFactory {
       const coreModuleArray = [...this.modulesContainer.entries()]
         .filter(
           // eslint-disable-next-line @typescript-eslint/no-unused-vars
-          ([_, { metatype }]) => metatype && metatype.name === InternalCoreModule.name,
+          ([_, { metatype }]) =>
+            metatype && metatype.name === InternalCoreModule.name,
         )
         // eslint-disable-next-line @typescript-eslint/no-unused-vars
         .map(([_, value]) => value);
@@ -149,7 +178,10 @@ export class RpcControllerFactory extends BaseOpraNestFactory {
           wrapper.instance &&
           typeof wrapper.instance === 'object' &&
           wrapper.instance.constructor &&
-          Reflect.getMetadata(RPC_CONTROLLER_METADATA, wrapper.instance.constructor) &&
+          Reflect.getMetadata(
+            RPC_CONTROLLER_METADATA,
+            wrapper.instance.constructor,
+          ) &&
           !controllers.has(wrapper)
         ) {
           controllers.add({ module, wrapper });

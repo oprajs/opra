@@ -15,7 +15,12 @@ import {
   Search,
   type Type,
 } from '@nestjs/common';
-import { HTTP_CONTROLLER_METADATA, HttpApi, HttpController, NotFoundError } from '@opra/common';
+import {
+  HTTP_CONTROLLER_METADATA,
+  HttpApi,
+  HttpController,
+  NotFoundError,
+} from '@opra/common';
 import { HttpAdapter, HttpContext } from '@opra/http';
 import { asMutable } from 'ts-gems';
 import { Public } from '../decorators/public.decorator.js';
@@ -67,8 +72,15 @@ export class OpraHttpNestjsAdapter extends HttpAdapter {
     this.nestControllers.push(RootController);
   }
 
-  protected _addToNestControllers(sourceClass: Type, currentPath: string, parentTree: Type[]) {
-    const metadata: HttpController.Metadata = Reflect.getMetadata(HTTP_CONTROLLER_METADATA, sourceClass);
+  protected _addToNestControllers(
+    sourceClass: Type,
+    currentPath: string,
+    parentTree: Type[],
+  ) {
+    const metadata: HttpController.Metadata = Reflect.getMetadata(
+      HTTP_CONTROLLER_METADATA,
+      sourceClass,
+    );
     if (!metadata) return;
     /** Create a new controller class */
     const newClass = {
@@ -78,7 +90,9 @@ export class OpraHttpNestjsAdapter extends HttpAdapter {
     BaseOpraNestFactory.copyDecoratorMetadata(newClass, ...parentTree);
     Controller()(newClass);
 
-    const newPath = metadata.path ? nodePath.join(currentPath, metadata.path) : currentPath;
+    const newPath = metadata.path
+      ? nodePath.join(currentPath, metadata.path)
+      : currentPath;
     const adapter = this;
     // adapter.logger =
     /** Disable default error handler. Errors will be handled by OpraExceptionFilter */
@@ -100,7 +114,9 @@ export class OpraHttpNestjsAdapter extends HttpAdapter {
             const controller = api.findController(sourceClass);
             const operation = controller?.operations.get(k);
             const context = asMutable<HttpContext>(_req.opraContext);
-            if (!(context && operation && typeof operationHandler === 'function')) {
+            if (
+              !(context && operation && typeof operationHandler === 'function')
+            ) {
               throw new NotFoundError({
                 message: `No endpoint found for [${_req.method}]${_req.baseUrl}`,
                 details: {
@@ -130,8 +146,13 @@ export class OpraHttpNestjsAdapter extends HttpAdapter {
         Req()(newClass.prototype, k, 0);
         Res()(newClass.prototype, k, 1);
 
-        const descriptor = Object.getOwnPropertyDescriptor(newClass.prototype, k)!;
-        const operationPath = v.mergePath ? newPath + (v.path || '') : nodePath.posix.join(newPath, v.path || '');
+        const descriptor = Object.getOwnPropertyDescriptor(
+          newClass.prototype,
+          k,
+        )!;
+        const operationPath = v.mergePath
+          ? newPath + (v.path || '')
+          : nodePath.posix.join(newPath, v.path || '');
         switch (v.method || 'GET') {
           case 'DELETE':
             /** Call @Delete decorator over new property */
@@ -172,8 +193,12 @@ export class OpraHttpNestjsAdapter extends HttpAdapter {
     }
     if (metadata.controllers) {
       for (const child of metadata.controllers) {
-        if (!isConstructor(child)) throw new TypeError('Controllers should be injectable a class');
-        this._addToNestControllers(child, newPath, [...parentTree, sourceClass]);
+        if (!isConstructor(child))
+          throw new TypeError('Controllers should be injectable a class');
+        this._addToNestControllers(child, newPath, [
+          ...parentTree,
+          sourceClass,
+        ]);
       }
     }
   }

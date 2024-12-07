@@ -26,7 +26,11 @@ export async function initDatabase(options: {
       });
       let row: any;
       for (row of countries) {
-        await client.create({ index: 'countries', id: String(row.code), document: row });
+        await client.create({
+          index: 'countries',
+          id: String(row.code),
+          document: row,
+        });
       }
     }
     if (customers && (options?.recreate || !customersExists)) {
@@ -41,7 +45,11 @@ export async function initDatabase(options: {
       });
       let row: any;
       for (row of customers) {
-        await client.create({ index: 'customers', id: String(row.id), document: row });
+        await client.create({
+          index: 'customers',
+          id: String(row.id),
+          document: row,
+        });
       }
     }
   } finally {

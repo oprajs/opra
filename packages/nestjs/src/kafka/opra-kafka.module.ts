@@ -12,7 +12,10 @@ export namespace OpraKafkaModule {
   }
 
   interface BaseModuleOptions
-    extends Pick<DynamicModule, 'imports' | 'providers' | 'exports' | 'controllers' | 'global'> {
+    extends Pick<
+      DynamicModule,
+      'imports' | 'providers' | 'exports' | 'controllers' | 'global'
+    > {
     id?: any;
     interceptors?: (
       | KafkaAdapter.InterceptorFunction
@@ -22,8 +25,14 @@ export namespace OpraKafkaModule {
   }
 
   export interface ApiConfig
-    extends Pick<ApiDocumentFactory.InitArguments, 'types' | 'references' | 'info'>,
-      Pick<KafkaAdapter.Config, 'client' | 'consumers' | 'logExtra' | 'defaults'> {
+    extends Pick<
+        ApiDocumentFactory.InitArguments,
+        'types' | 'references' | 'info'
+      >,
+      Pick<
+        KafkaAdapter.Config,
+        'client' | 'consumers' | 'logExtra' | 'defaults'
+      > {
     name: string;
     description?: string;
     logger?: Logger;
@@ -47,7 +56,9 @@ export class OpraKafkaModule {
    *
    * @param options
    */
-  static forRootAsync(options: OpraKafkaModule.AsyncModuleOptions): DynamicModule {
+  static forRootAsync(
+    options: OpraKafkaModule.AsyncModuleOptions,
+  ): DynamicModule {
     return {
       module: OpraKafkaModule,
       imports: [OpraKafkaCoreModule.forRootAsync(options)],
