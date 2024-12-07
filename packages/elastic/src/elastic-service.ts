@@ -83,7 +83,9 @@ export class ElasticService extends ServiceBase {
   getClient(): Client {
     // @ts-ignore
     const db =
-      typeof this.client === 'function' ? this.client(this) : this.client;
+      typeof this.client === 'function'
+        ? (this.client as Function)(this)
+        : this.client;
     if (!db) throw new Error(`Client not set!`);
     return db;
   }
