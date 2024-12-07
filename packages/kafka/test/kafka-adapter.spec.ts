@@ -36,7 +36,10 @@ describe('KafkaAdapter', () => {
       .spyOn(adapter as any, '_createConsumer')
       // @ts-ignore
       .mockImplementation((args: HandlerArguments) => {
-        if (args.controller.name === 'Test' && args.operation.name === 'mailChannel1') {
+        if (
+          args.controller.name === 'Test' &&
+          args.operation.name === 'mailChannel1'
+        ) {
           jest.spyOn(adapter.kafka, 'consumer').mockImplementationOnce(cfg => {
             config = cfg;
             return { disconnect: () => undefined } as any;
@@ -69,25 +72,27 @@ describe('KafkaAdapter', () => {
       }
     > = {};
     const _createConsumer = (adapter as any)._createConsumer;
-    jest.spyOn(adapter as any, '_createConsumer').mockImplementation(async (args: any) => {
-      await _createConsumer.call(adapter, args);
-      const { operation, consumer, controller } = args;
-      const x: any = { operation };
-      jest.spyOn(consumer, 'connect').mockImplementationOnce(() => {
-        x.connectCalled = true;
-        return Promise.resolve();
+    jest
+      .spyOn(adapter as any, '_createConsumer')
+      .mockImplementation(async (args: any) => {
+        await _createConsumer.call(adapter, args);
+        const { operation, consumer, controller } = args;
+        const x: any = { operation };
+        jest.spyOn(consumer, 'connect').mockImplementationOnce(() => {
+          x.connectCalled = true;
+          return Promise.resolve();
+        });
+        jest.spyOn(consumer, 'subscribe').mockImplementationOnce(args2 => {
+          x.subscribeCalled = true;
+          x.subscribeArgs = args2;
+          return Promise.resolve();
+        });
+        jest.spyOn(consumer, 'run').mockImplementationOnce(() => {
+          x.runCalled = true;
+          return Promise.resolve();
+        });
+        spys[controller.name + '.' + operation.name] = x;
       });
-      jest.spyOn(consumer, 'subscribe').mockImplementationOnce(args2 => {
-        x.subscribeCalled = true;
-        x.subscribeArgs = args2;
-        return Promise.resolve();
-      });
-      jest.spyOn(consumer, 'run').mockImplementationOnce(() => {
-        x.runCalled = true;
-        return Promise.resolve();
-      });
-      spys[controller.name + '.' + operation.name] = x;
-    });
     await adapter.initialize();
     await adapter.start();
     expect(Object.keys(spys)).toEqual([

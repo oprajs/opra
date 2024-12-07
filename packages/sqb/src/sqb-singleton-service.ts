@@ -52,14 +52,17 @@ export namespace SqbSingletonService {
    *
    * @interface
    */
-  export interface UpdateOnlyOptions extends SqbEntityService.UpdateOneOptions {}
+  export interface UpdateOnlyOptions
+    extends SqbEntityService.UpdateOneOptions {}
 }
 
 /**
  * @class SqbSingletonService
  * @template T - The data type class type of the resource
  */
-export class SqbSingletonService<T extends object = object> extends SqbEntityService {
+export class SqbSingletonService<
+  T extends object = object,
+> extends SqbEntityService {
   /**
    * Represents a unique identifier for singleton record
    * @property {SQBAdapter.IdOrIds}
@@ -73,7 +76,10 @@ export class SqbSingletonService<T extends object = object> extends SqbEntitySer
    * @param {SqbSingletonService.Options} [options] - The options for the array service.
    * @constructor
    */
-  constructor(dataType: Type<T> | string, options?: SqbSingletonService.Options) {
+  constructor(
+    dataType: Type<T> | string,
+    options?: SqbSingletonService.Options,
+  ) {
     super(dataType, options);
     this.id = options?.id || 1;
   }
@@ -85,7 +91,8 @@ export class SqbSingletonService<T extends object = object> extends SqbEntitySer
    * @throws {ResourceNotAvailableError} If the resource does not exist.
    */
   async assert(options?: SqbSingletonService.ExistsOptions): Promise<void> {
-    if (!(await this.exists(options))) throw new ResourceNotAvailableError(this.getResourceName());
+    if (!(await this.exists(options)))
+      throw new ResourceNotAvailableError(this.getResourceName());
   }
 
   /**
@@ -100,8 +107,14 @@ export class SqbSingletonService<T extends object = object> extends SqbEntitySer
     input: PartialDTO<T>,
     options: RequiredSome<SqbSingletonService.CreateOptions, 'projection'>,
   ): Promise<PartialDTO<T>>;
-  async create(input: PartialDTO<T>, options?: SqbSingletonService.CreateOptions): Promise<T>;
-  async create(input: PartialDTO<T>, options?: SqbSingletonService.CreateOptions): Promise<PartialDTO<T>> {
+  async create(
+    input: PartialDTO<T>,
+    options?: SqbSingletonService.CreateOptions,
+  ): Promise<T>;
+  async create(
+    input: PartialDTO<T>,
+    options?: SqbSingletonService.CreateOptions,
+  ): Promise<PartialDTO<T>> {
     const command: SqbEntityService.CreateCommand<T> = {
       crud: 'create',
       method: 'create',
@@ -110,7 +123,9 @@ export class SqbSingletonService<T extends object = object> extends SqbEntitySer
       options,
     };
     return this._executeCommand(command, async () => {
-      const primaryFields = EntityMetadata.getPrimaryIndexColumns(this.entityMetadata);
+      const primaryFields = EntityMetadata.getPrimaryIndexColumns(
+        this.entityMetadata,
+      );
       const data = { ...command.input };
       if (primaryFields.length > 1) {
         if (typeof primaryFields !== 'object') {
@@ -142,7 +157,10 @@ export class SqbSingletonService<T extends object = object> extends SqbEntitySer
       options,
     };
     return this._executeCommand(command, async () => {
-      const filter = SQBAdapter.parseFilter([await this._getCommonFilter(command), command.options?.filter]);
+      const filter = SQBAdapter.parseFilter([
+        await this._getCommonFilter(command),
+        command.options?.filter,
+      ]);
       command.options = { ...command.options, filter };
       return this._delete(command);
     });
@@ -163,7 +181,10 @@ export class SqbSingletonService<T extends object = object> extends SqbEntitySer
       options,
     };
     return this._executeCommand(command, async () => {
-      const filter = SQBAdapter.parseFilter([await this._getCommonFilter(command), command.options?.filter]);
+      const filter = SQBAdapter.parseFilter([
+        await this._getCommonFilter(command),
+        command.options?.filter,
+      ]);
       command.options = { ...command.options, filter };
       return this._exists(command);
     });
@@ -175,9 +196,13 @@ export class SqbSingletonService<T extends object = object> extends SqbEntitySer
    * @param {SqbSingletonService.FindOneOptions} options - The options for the query.
    * @return {Promise<PartialDTO<T> | undefined>} A promise that resolves with the found document or undefined if no document is found.
    */
-  async find(options: RequiredSome<SqbSingletonService.FindOptions, 'projection'>): Promise<PartialDTO<T> | undefined>;
+  async find(
+    options: RequiredSome<SqbSingletonService.FindOptions, 'projection'>,
+  ): Promise<PartialDTO<T> | undefined>;
   async find(options?: SqbSingletonService.FindOptions): Promise<T | undefined>;
-  async find(options?: SqbSingletonService.FindOptions): Promise<PartialDTO<T> | T | undefined> {
+  async find(
+    options?: SqbSingletonService.FindOptions,
+  ): Promise<PartialDTO<T> | T | undefined> {
     const command: SqbEntityService.FindOneCommand = {
       crud: 'read',
       method: 'findById',
@@ -186,7 +211,10 @@ export class SqbSingletonService<T extends object = object> extends SqbEntitySer
       options,
     };
     return this._executeCommand(command, async () => {
-      const filter = SQBAdapter.parseFilter([await this._getCommonFilter(command), command.options?.filter]);
+      const filter = SQBAdapter.parseFilter([
+        await this._getCommonFilter(command),
+        command.options?.filter,
+      ]);
       command.options = { ...command.options, filter };
       return this._findById(command);
     });
@@ -200,9 +228,13 @@ export class SqbSingletonService<T extends object = object> extends SqbEntitySer
    *    or rejects with a ResourceNotFoundError if the document does not exist.
    * @throws {ResourceNotAvailableError} - If the document does not exist.
    */
-  async get(options: RequiredSome<SqbSingletonService.FindOptions, 'projection'>): Promise<PartialDTO<T>>;
+  async get(
+    options: RequiredSome<SqbSingletonService.FindOptions, 'projection'>,
+  ): Promise<PartialDTO<T>>;
   async get(options?: SqbSingletonService.FindOptions): Promise<T>;
-  async get(options?: SqbSingletonService.FindOptions): Promise<PartialDTO<T> | T> {
+  async get(
+    options?: SqbSingletonService.FindOptions,
+  ): Promise<PartialDTO<T> | T> {
     const out = await this.find(options);
     if (!out) throw new ResourceNotAvailableError(this.getResourceName());
     return out;
@@ -220,7 +252,10 @@ export class SqbSingletonService<T extends object = object> extends SqbEntitySer
     input: PatchDTO<T>,
     options: RequiredSome<SqbSingletonService.UpdateOptions, 'projection'>,
   ): Promise<PartialDTO<T> | undefined>;
-  async update(input: PatchDTO<T>, options?: SqbSingletonService.UpdateOptions): Promise<T | undefined>;
+  async update(
+    input: PatchDTO<T>,
+    options?: SqbSingletonService.UpdateOptions,
+  ): Promise<T | undefined>;
   async update(
     input: PatchDTO<T>,
     options?: SqbSingletonService.UpdateOptions,
@@ -234,7 +269,10 @@ export class SqbSingletonService<T extends object = object> extends SqbEntitySer
       options,
     };
     return this._executeCommand(command, async () => {
-      const filter = SQBAdapter.parseFilter([await this._getCommonFilter(command), command.options?.filter]);
+      const filter = SQBAdapter.parseFilter([
+        await this._getCommonFilter(command),
+        command.options?.filter,
+      ]);
       command.options = { ...command.options, filter };
       return this._update(command);
     });
@@ -247,7 +285,10 @@ export class SqbSingletonService<T extends object = object> extends SqbEntitySer
    * @param {SqbSingletonService.UpdateOptions} options - The options for updating the document.
    * @returns {Promise<number>} - A promise that resolves to the number of documents modified.
    */
-  async updateOnly(input: PatchDTO<T>, options?: SqbSingletonService.UpdateOnlyOptions): Promise<number> {
+  async updateOnly(
+    input: PatchDTO<T>,
+    options?: SqbSingletonService.UpdateOnlyOptions,
+  ): Promise<number> {
     const command: SqbEntityService.UpdateOneCommand<T> = {
       crud: 'update',
       method: 'update',
@@ -257,7 +298,10 @@ export class SqbSingletonService<T extends object = object> extends SqbEntitySer
       options,
     };
     return this._executeCommand(command, async () => {
-      const filter = SQBAdapter.parseFilter([await this._getCommonFilter(command), command.options?.filter]);
+      const filter = SQBAdapter.parseFilter([
+        await this._getCommonFilter(command),
+        command.options?.filter,
+      ]);
       command.options = { ...command.options, filter };
       return this._updateOnly(command);
     });

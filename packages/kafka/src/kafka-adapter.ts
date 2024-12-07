@@ -8,10 +8,21 @@ import {
   RpcOperation,
 } from '@opra/common';
 import { type ILogger, kAssetCache, PlatformAdapter } from '@opra/core';
-import { type Consumer, ConsumerConfig, EachMessageHandler, Kafka, type KafkaConfig, logLevel } from 'kafkajs';
+import {
+  type Consumer,
+  ConsumerConfig,
+  EachMessageHandler,
+  Kafka,
+  type KafkaConfig,
+  logLevel,
+} from 'kafkajs';
 import type { StrictOmit } from 'ts-gems';
 import { Validator, vg } from 'valgen';
-import { KAFKA_DEFAULT_GROUP, KAFKA_OPERATION_METADATA, KAFKA_OPERATION_METADATA_RESOLVER } from './constants.js';
+import {
+  KAFKA_DEFAULT_GROUP,
+  KAFKA_OPERATION_METADATA,
+  KAFKA_OPERATION_METADATA_RESOLVER,
+} from './constants.js';
 import { KafkaContext } from './kafka-context.js';
 import { RequestParser } from './request-parser.js';
 
@@ -52,7 +63,10 @@ export class KafkaAdapter extends PlatformAdapter {
   protected _starting?: boolean;
   readonly protocol: OpraSchema.Transport = 'rpc';
   readonly platform = KafkaAdapter.PlatformName;
-  readonly interceptors: (KafkaAdapter.InterceptorFunction | KafkaAdapter.IKafkaInterceptor)[];
+  readonly interceptors: (
+    | KafkaAdapter.InterceptorFunction
+    | KafkaAdapter.IKafkaInterceptor
+  )[];
 
   /**
    *
@@ -64,7 +78,12 @@ export class KafkaAdapter extends PlatformAdapter {
     super(config);
     this._document = document;
     this._config = config;
-    if (!(this.document.api instanceof RpcApi && this.document.api.platform === KafkaAdapter.PlatformName)) {
+    if (
+      !(
+        this.document.api instanceof RpcApi &&
+        this.document.api.platform === KafkaAdapter.PlatformName
+      )
+    ) {
       throw new TypeError(`The document doesn't expose a Kafka Api`);
     }
     // this._config = config;
@@ -96,7 +115,9 @@ export class KafkaAdapter extends PlatformAdapter {
     if (this._kafka) return;
     this._kafka = new Kafka({
       ...this._config.client,
-      logCreator: this.logger ? () => this._createLogCreator(this.logger!, this._config.logExtra) : undefined,
+      logCreator: this.logger
+        ? () => this._createLogCreator(this.logger!, this._config.logExtra)
+        : undefined,
     });
     await this._createAllConsumers();
   }
@@ -121,7 +142,9 @@ export class KafkaAdapter extends PlatformAdapter {
       /** Subscribe to channels */
       for (const args of this._handlerArgs) {
         const { consumer, operation, operationConfig } = args;
-        args.topics = Array.isArray(operation.channel) ? operation.channel : [operation.channel];
+        args.topics = Array.isArray(operation.channel)
+          ? operation.channel
+          : [operation.channel];
         await consumer
           .subscribe({
             ...operationConfig.subscribe,
@@ -131,7 +154,9 @@ export class KafkaAdapter extends PlatformAdapter {
             this._emitError(e);
             throw e;
           });
-        this.logger?.info?.(`Subscribed to topic${args.topics.length > 1 ? 's' : ''} "${args.topics}"`);
+        this.logger?.info?.(
+          `Subscribed to topic${args.topics.length > 1 ? 's' : ''} "${args.topics}"`,
+        );
       }
 
       /** Start consumer listeners */
@@ -149,7 +174,9 @@ export class KafkaAdapter extends PlatformAdapter {
                 handlerArgsArray = this._handlerArgs.filter(
                   args =>
                     args.consumer === consumer &&
-                    args.topics.find(t => (t instanceof RegExp ? t.test(topic) : t === topic)),
+                    args.topics.find(t =>
+                      t instanceof RegExp ? t.test(topic) : t === topic,
+                    ),
                 );
                 /* istanbul ignore next */
                 if (!handlerArgsArray) {
@@ -185,7 +212,9 @@ export class KafkaAdapter extends PlatformAdapter {
    * Closes all connections and stops the service
    */
   async close() {
-    await Promise.allSettled(Array.from(this._consumers.values()).map(c => c.disconnect()));
+    await Promise.allSettled(
+      Array.from(this._consumers.values()).map(c => c.disconnect()),
+    );
     this._consumers.clear();
     this._controllerInstances.clear();
     this._status = 'idle';
@@ -210,7 +239,8 @@ export class KafkaAdapter extends PlatformAdapter {
   ): Promise<OperationConfig | undefined> {
     if (typeof instance[operation.name] !== 'function') return;
     const proto = controller.ctor?.prototype || Object.getPrototypeOf(instance);
-    if (Reflect.hasMetadata(RPC_CONTROLLER_METADATA, proto, operation.name)) return;
+    if (Reflect.hasMetadata(RPC_CONTROLLER_METADATA, proto, operation.name))
+      return;
     const operationConfig: OperationConfig = {
       consumer: {
         groupId: KAFKA_DEFAULT_GROUP,
@@ -219,7 +249,10 @@ export class KafkaAdapter extends PlatformAdapter {
     };
     if (this._config.defaults) {
       if (this._config.defaults.subscribe) {
-        Object.assign(operationConfig.subscribe!, this._config.defaults.subscribe);
+        Object.assign(
+          operationConfig.subscribe!,
+          this._config.defaults.subscribe,
+        );
       }
       if (this._config.defaults.consumer) {
         Object.assign(operationConfig.consumer, this._config.defaults.consumer);
@@ -232,7 +265,11 @@ export class KafkaAdapter extends PlatformAdapter {
       operation.name,
     ) as KafkaAdapter.OperationOptions;
     if (!kafkaMetadata) {
-      const configResolver = Reflect.getMetadata(KAFKA_OPERATION_METADATA_RESOLVER, proto, operation.name);
+      const configResolver = Reflect.getMetadata(
+        KAFKA_OPERATION_METADATA_RESOLVER,
+        proto,
+        operation.name,
+      );
       if (configResolver) {
         kafkaMetadata = await configResolver();
       }
@@ -270,7 +307,11 @@ export class KafkaAdapter extends PlatformAdapter {
 
       /** Build HandlerData array */
       for (const operation of controller.operations.values()) {
-        const operationConfig = await this._getOperationConfig(controller, instance, operation);
+        const operationConfig = await this._getOperationConfig(
+          controller,
+          instance,
+          operation,
+        );
         if (!operationConfig) continue;
         const args: HandlerArguments = {
           consumer: null as any,
@@ -301,7 +342,9 @@ export class KafkaAdapter extends PlatformAdapter {
     const { operationConfig } = args;
     let consumer = this._consumers.get(operationConfig.consumer.groupId);
     if (consumer && operationConfig.selfConsumer) {
-      throw new Error(`Operation consumer for groupId (${operationConfig.consumer.groupId}) already exists`);
+      throw new Error(
+        `Operation consumer for groupId (${operationConfig.consumer.groupId}) already exists`,
+      );
     }
     /** Create consumers */
     if (!consumer) {
@@ -323,12 +366,21 @@ export class KafkaAdapter extends PlatformAdapter {
     const parseKey = RequestParser.STRING;
     const parsePayload = RequestParser.STRING;
     /** Prepare decoders */
-    const decodeKey = operation.keyType?.generateCodec('decode', { ignoreWriteonlyFields: true }) || vg.isAny();
-    const decodePayload = operation.payloadType?.generateCodec('decode', { ignoreWriteonlyFields: true }) || vg.isAny();
+    const decodeKey =
+      operation.keyType?.generateCodec('decode', {
+        ignoreWriteonlyFields: true,
+      }) || vg.isAny();
+    const decodePayload =
+      operation.payloadType?.generateCodec('decode', {
+        ignoreWriteonlyFields: true,
+      }) || vg.isAny();
     operation.headers.forEach(header => {
       let decode = this[kAssetCache].get<Validator>(header, 'decode');
       if (!decode) {
-        decode = header.type?.generateCodec('decode', { ignoreReadonlyFields: true }) || vg.isAny();
+        decode =
+          header.type?.generateCodec('decode', {
+            ignoreReadonlyFields: true,
+          }) || vg.isAny();
         this[kAssetCache].set(header, 'decode', decode);
       }
     });
@@ -353,7 +405,8 @@ export class KafkaAdapter extends PlatformAdapter {
         if (message.headers) {
           for (const [k, v] of Object.entries(message.headers)) {
             const header = operation.findHeader(k);
-            const decode = this[kAssetCache].get<Validator>(header, 'decode') || vg.isAny();
+            const decode =
+              this[kAssetCache].get<Validator>(header, 'decode') || vg.isAny();
             headers[k] = decode(Buffer.isBuffer(v) ? v.toString() : v);
           }
         }
@@ -412,8 +465,11 @@ export class KafkaAdapter extends PlatformAdapter {
   }
 
   protected _wrapExceptions(exceptions: any[]): OpraException[] {
-    const wrappedErrors = exceptions.map(e => (e instanceof OpraException ? e : new OpraException(e)));
-    if (!wrappedErrors.length) wrappedErrors.push(new OpraException('Internal Server Error'));
+    const wrappedErrors = exceptions.map(e =>
+      e instanceof OpraException ? e : new OpraException(e),
+    );
+    if (!wrappedErrors.length)
+      wrappedErrors.push(new OpraException('Internal Server Error'));
     return wrappedErrors;
   }
 

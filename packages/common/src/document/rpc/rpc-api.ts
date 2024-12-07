@@ -7,7 +7,9 @@ import { RpcController } from './rpc-controller.js';
 import { RpcOperation } from './rpc-operation.js';
 
 export namespace RpcApi {
-  export interface InitArguments extends ApiBase.InitArguments, StrictOmit<OpraSchema.RpcApi, 'controllers'> {}
+  export interface InitArguments
+    extends ApiBase.InitArguments,
+      StrictOmit<OpraSchema.RpcApi, 'controllers'> {}
 }
 
 /**
@@ -15,7 +17,8 @@ export namespace RpcApi {
  */
 export class RpcApi extends ApiBase {
   // noinspection JSUnusedGlobalSymbols
-  protected _controllerReverseMap: WeakMap<Type, RpcController | null> = new WeakMap();
+  protected _controllerReverseMap: WeakMap<Type, RpcController | null> =
+    new WeakMap();
   declare readonly owner: ApiDocument;
   readonly transport = 'rpc';
   platform: string;
@@ -46,9 +49,18 @@ export class RpcApi extends ApiBase {
     return this.controllers.get(arg0);
   }
 
-  findOperation(controller: Type, operationName: string): RpcOperation | undefined;
-  findOperation(controllerName: string, operationName: string): RpcOperation | undefined;
-  findOperation(arg0: string | Type, operationName: string): RpcOperation | undefined {
+  findOperation(
+    controller: Type,
+    operationName: string,
+  ): RpcOperation | undefined;
+  findOperation(
+    controllerName: string,
+    operationName: string,
+  ): RpcOperation | undefined;
+  findOperation(
+    arg0: string | Type,
+    operationName: string,
+  ): RpcOperation | undefined {
     const controller = this.findController(arg0 as any);
     return controller?.operations.get(operationName);
   }

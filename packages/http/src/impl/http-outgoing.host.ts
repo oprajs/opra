@@ -14,7 +14,10 @@ import encodeUrl from 'encodeurl';
 import mime from 'mime-types';
 import { toString } from 'putil-varhelpers';
 import vary from 'vary';
-import type { CookieOptions, HttpOutgoing } from '../interfaces/http-outgoing.interface.js';
+import type {
+  CookieOptions,
+  HttpOutgoing,
+} from '../interfaces/http-outgoing.interface.js';
 
 const charsetRegExp = /;\s*charset\s*=/;
 
@@ -69,7 +72,8 @@ export class HttpOutgoingHost {
 
   cookie(name: string, value: any, options?: CookieOptions): this {
     const opts = { ...options };
-    let val = typeof value === 'object' ? 'j:' + JSON.stringify(value) : String(value);
+    let val =
+      typeof value === 'object' ? 'j:' + JSON.stringify(value) : String(value);
 
     if (opts.signed) {
       const secret: CipherKey | undefined = opts.secret || this.req?.secret;

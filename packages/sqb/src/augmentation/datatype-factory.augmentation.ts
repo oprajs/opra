@@ -1,9 +1,21 @@
-import { classes, cloneObject, ComplexType, DocumentElement, OpraSchema } from '@opra/common';
-import { DataType as SqbDataType, EntityMetadata, isAssociationField, isColumnField } from '@sqb/connect';
+import {
+  classes,
+  cloneObject,
+  ComplexType,
+  DocumentElement,
+  OpraSchema,
+} from '@opra/common';
+import {
+  DataType as SqbDataType,
+  EntityMetadata,
+  isAssociationField,
+  isColumnField,
+} from '@sqb/connect';
 import type { Maybe } from 'ts-gems';
 import DataTypeFactory = classes.DataTypeFactory;
 
-const _prepareComplexTypeArgs = (DataTypeFactory as any)._prepareComplexTypeArgs;
+const _prepareComplexTypeArgs = (DataTypeFactory as any)
+  ._prepareComplexTypeArgs;
 (DataTypeFactory as any)._prepareComplexTypeArgs = async function (
   context: DataTypeFactory.Context,
   owner: DocumentElement,
@@ -11,7 +23,11 @@ const _prepareComplexTypeArgs = (DataTypeFactory as any)._prepareComplexTypeArgs
   metadata: ComplexType.Metadata | OpraSchema.ComplexType,
 ) {
   let sqbMeta: Maybe<EntityMetadata>;
-  if (initArgs.ctor && metadata.fields && (sqbMeta = EntityMetadata.get(initArgs.ctor))) {
+  if (
+    initArgs.ctor &&
+    metadata.fields &&
+    (sqbMeta = EntityMetadata.get(initArgs.ctor))
+  ) {
     metadata = cloneObject(metadata);
 
     for (const [fieldName, fieldSchema] of Object.entries(metadata.fields!)) {
@@ -34,25 +50,32 @@ const _prepareComplexTypeArgs = (DataTypeFactory as any)._prepareComplexTypeArgs
         switch (sqbField.dataType) {
           case SqbDataType.INTEGER:
           case SqbDataType.SMALLINT:
-            if (hasNoType || fieldSchema.type === Number) fieldSchema.type = 'integer';
+            if (hasNoType || fieldSchema.type === Number)
+              fieldSchema.type = 'integer';
             break;
           case SqbDataType.GUID:
-            if (hasNoType || fieldSchema.type === String) fieldSchema.type = 'uuid';
+            if (hasNoType || fieldSchema.type === String)
+              fieldSchema.type = 'uuid';
             break;
           case SqbDataType.DATE:
             if (fieldSchema.type === String) fieldSchema.type = 'datestring';
-            else if (hasNoType || fieldSchema.type === Date) fieldSchema.type = 'date';
+            else if (hasNoType || fieldSchema.type === Date)
+              fieldSchema.type = 'date';
             break;
           case SqbDataType.TIMESTAMP:
-            if (fieldSchema.type === String) fieldSchema.type = 'datetimestring';
-            else if (hasNoType || fieldSchema.type === Date) fieldSchema.type = 'datetime';
+            if (fieldSchema.type === String)
+              fieldSchema.type = 'datetimestring';
+            else if (hasNoType || fieldSchema.type === Date)
+              fieldSchema.type = 'datetime';
             break;
           case SqbDataType.TIMESTAMPTZ:
             if (fieldSchema.type === Date) fieldSchema.type = 'datetime';
-            else if (hasNoType || fieldSchema.type === String) fieldSchema.type = 'datetimestring';
+            else if (hasNoType || fieldSchema.type === String)
+              fieldSchema.type = 'datetimestring';
             break;
           case SqbDataType.TIME:
-            if (hasNoType || fieldSchema.type === String) fieldSchema.type = 'time';
+            if (hasNoType || fieldSchema.type === String)
+              fieldSchema.type = 'time';
             break;
           default:
             break;
@@ -61,7 +84,8 @@ const _prepareComplexTypeArgs = (DataTypeFactory as any)._prepareComplexTypeArgs
 
       if (isAssociationField(sqbField)) {
         if (sqbField.association.returnsMany()) fieldSchema.isArray = true;
-        if (!Object.prototype.hasOwnProperty.call(fieldSchema, 'exclusive')) fieldSchema.exclusive = true;
+        if (!Object.prototype.hasOwnProperty.call(fieldSchema, 'exclusive'))
+          fieldSchema.exclusive = true;
       }
       if (
         !Object.prototype.hasOwnProperty.call(fieldSchema, 'exclusive') &&
@@ -71,5 +95,10 @@ const _prepareComplexTypeArgs = (DataTypeFactory as any)._prepareComplexTypeArgs
       }
     }
   }
-  return _prepareComplexTypeArgs.apply(DataTypeFactory, [context, owner, initArgs, metadata]);
+  return _prepareComplexTypeArgs.apply(DataTypeFactory, [
+    context,
+    owner,
+    initArgs,
+    metadata,
+  ]);
 };

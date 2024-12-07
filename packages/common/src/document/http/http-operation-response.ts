@@ -51,18 +51,26 @@ export class HttpOperationResponse extends HttpMediaType {
   constructor(owner: HttpOperation, init: HttpOperationResponse.InitArguments) {
     super(owner, init);
     this.parameters = [];
-    this.statusCode = (Array.isArray(init.statusCode) ? init.statusCode : [init.statusCode]).map(x =>
-      typeof x === 'object' ? new HttpStatusRange(x.start, x.end) : new HttpStatusRange(x as any),
+    this.statusCode = (
+      Array.isArray(init.statusCode) ? init.statusCode : [init.statusCode]
+    ).map(x =>
+      typeof x === 'object'
+        ? new HttpStatusRange(x.start, x.end)
+        : new HttpStatusRange(x as any),
     );
     this.partial = init.partial;
   }
 
-  findParameter(paramName: string, location?: OpraSchema.HttpParameterLocation): HttpParameter | undefined {
+  findParameter(
+    paramName: string,
+    location?: OpraSchema.HttpParameterLocation,
+  ): HttpParameter | undefined {
     paramName = paramName.toLowerCase();
     for (const prm of this.parameters) {
       if (
         (!location || location === prm.location) &&
-        ((prm.name instanceof RegExp && prm.name.test(paramName)) || prm.name === paramName)
+        ((prm.name instanceof RegExp && prm.name.test(paramName)) ||
+          prm.name === paramName)
       ) {
         return prm;
       }
@@ -73,7 +81,10 @@ export class HttpOperationResponse extends HttpMediaType {
     const statusCode = this.statusCode.map(x => x.toJSON());
     const out = omitUndefined<OpraSchema.HttpOperationResponse>({
       ...super.toJSON(),
-      statusCode: statusCode.length === 1 && typeof statusCode[0] === 'number' ? statusCode[0] : statusCode,
+      statusCode:
+        statusCode.length === 1 && typeof statusCode[0] === 'number'
+          ? statusCode[0]
+          : statusCode,
       partial: this.partial,
     });
     if (this.parameters.length) {

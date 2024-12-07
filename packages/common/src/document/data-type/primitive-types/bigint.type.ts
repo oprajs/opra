@@ -19,7 +19,9 @@ export class BigintType extends NumberType {
     const x: Validator[] = [];
     if (properties.minValue) x.push(vg.isGte(properties.minValue));
     if (properties.maxValue) x.push(vg.isLte(properties.maxValue));
-    return x.length > 0 ? vg.pipe([toBigint, ...x], { returnIndex: 0 }) : toBigint;
+    return x.length > 0
+      ? vg.pipe([toBigint, ...x], { returnIndex: 0 })
+      : toBigint;
   }
 
   protected [ENCODER](properties: Partial<this>): Validator {

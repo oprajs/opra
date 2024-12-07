@@ -50,14 +50,16 @@ describe('MongoSingletonService', () => {
     it('Should throw error if not found', async () => {
       const ctx = createContext(app.adapter);
       service._id = 99;
-      await expect(() => service.for(ctx).assert()).rejects.toThrow(ResourceNotAvailableError);
+      await expect(() => service.for(ctx).assert()).rejects.toThrow(
+        ResourceNotAvailableError,
+      );
     });
 
     it('Should apply filter returned by documentFilter', async () => {
       const ctx = createContext(app.adapter);
-      await expect(() => service.for(ctx, { documentFilter: 'rate=99' }).assert()).rejects.toThrow(
-        ResourceNotAvailableError,
-      );
+      await expect(() =>
+        service.for(ctx, { documentFilter: 'rate=99' }).assert(),
+      ).rejects.toThrow(ResourceNotAvailableError);
     });
   });
 
@@ -75,7 +77,9 @@ describe('MongoSingletonService', () => {
 
     it('Should return "undefined" if not found', async () => {
       const ctx = createContext(app.adapter);
-      const result: any = await service.for(ctx).find({ filter: { _id: 9999 } });
+      const result: any = await service
+        .for(ctx)
+        .find({ filter: { _id: 9999 } });
       expect(result).not.toBeDefined();
     });
 
@@ -88,9 +92,13 @@ describe('MongoSingletonService', () => {
     });
 
     it('Should apply filter returned by documentFilter', async () => {
-      const spy = jest.spyOn(service as any, '_getDocumentFilter').mockResolvedValueOnce('_id=2');
+      const spy = jest
+        .spyOn(service as any, '_getDocumentFilter')
+        .mockResolvedValueOnce('_id=2');
       const ctx = createContext(app.adapter);
-      const result: any = await service.for(ctx, { documentFilter: '_id=2' }).find();
+      const result: any = await service
+        .for(ctx, { documentFilter: '_id=2' })
+        .find();
       expect(result).not.toBeDefined();
       spy.mockRestore();
     });
@@ -153,15 +161,19 @@ describe('MongoSingletonService', () => {
     it('Should throw error if not found', async () => {
       service._id = 99;
       const ctx = createContext(app.adapter);
-      await expect(() => service.for(ctx).get()).rejects.toThrow(ResourceNotAvailableError);
+      await expect(() => service.for(ctx).get()).rejects.toThrow(
+        ResourceNotAvailableError,
+      );
     });
 
     it('Should apply filter returned by documentFilter', async () => {
-      const spy = jest.spyOn(service as any, '_getDocumentFilter').mockResolvedValueOnce('rate=999');
+      const spy = jest
+        .spyOn(service as any, '_getDocumentFilter')
+        .mockResolvedValueOnce('rate=999');
       const ctx = createContext(app.adapter);
-      await expect(() => service.for(ctx, { documentFilter: 'rate=99' }).get()).rejects.toThrow(
-        ResourceNotAvailableError,
-      );
+      await expect(() =>
+        service.for(ctx, { documentFilter: 'rate=99' }).get(),
+      ).rejects.toThrow(ResourceNotAvailableError);
       spy.mockRestore();
     });
 
@@ -191,7 +203,9 @@ describe('MongoSingletonService', () => {
       const mockFn = jest.fn(interceptorFn);
       const ctx = createContext(app.adapter);
       const doc = { _id: 100, uid: faker.string.uuid() };
-      const result: any = await service.for(ctx, { interceptor: mockFn }).create(doc);
+      const result: any = await service
+        .for(ctx, { interceptor: mockFn })
+        .create(doc);
       expect(result).toBeDefined();
       expect(mockFn).toBeCalled();
     });
@@ -216,7 +230,9 @@ describe('MongoSingletonService', () => {
     it('Should apply filter returned by documentFilter', async () => {
       const ctx = createContext(app.adapter);
       const doc = { uid: faker.string.uuid() };
-      const r = await service.for(ctx, { documentFilter: 'rate=99' }).updateOnly(doc);
+      const r = await service
+        .for(ctx, { documentFilter: 'rate=99' })
+        .updateOnly(doc);
       expect(r).toEqual(0);
     });
 
@@ -252,7 +268,9 @@ describe('MongoSingletonService', () => {
     it('Should apply filter returned by documentFilter', async () => {
       const ctx = createContext(app.adapter);
       const doc = { uid: faker.string.uuid() };
-      const result = await service.for(ctx, { documentFilter: 'rate=999' }).update(doc);
+      const result = await service
+        .for(ctx, { documentFilter: 'rate=999' })
+        .update(doc);
       expect(result).not.toBeDefined();
     });
 

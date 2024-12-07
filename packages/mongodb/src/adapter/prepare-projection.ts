@@ -1,4 +1,9 @@
-import { ApiField, ComplexType, FieldsProjection, parseFieldsProjection } from '@opra/common';
+import {
+  ApiField,
+  ComplexType,
+  FieldsProjection,
+  parseFieldsProjection,
+} from '@opra/common';
 import mongodb, { type Document } from 'mongodb';
 
 export default function prepareProjection(
@@ -6,17 +11,29 @@ export default function prepareProjection(
   projection?: string | string[] | Document | '*',
 ): mongodb.Document | undefined {
   if (projection === '*') return undefined;
-  if (projection && typeof projection === 'object' && !Array.isArray(projection)) return projection;
+  if (
+    projection &&
+    typeof projection === 'object' &&
+    !Array.isArray(projection)
+  )
+    return projection;
   const out: Record<string, boolean> = {};
   const projection_ =
-    typeof projection === 'string' || Array.isArray(projection) ? parseFieldsProjection(projection) : projection;
+    typeof projection === 'string' || Array.isArray(projection)
+      ? parseFieldsProjection(projection)
+      : projection;
   // const exclusionProjection = !pick && !!omit;
   prepare(dataType, out, projection_);
   return Object.keys(out).length ? out : undefined;
 }
 
-export function prepare(dataType: ComplexType, target: mongodb.Document, projection?: FieldsProjection) {
-  const defaultFields = !projection || !Object.values(projection).find(p => !p.sign);
+export function prepare(
+  dataType: ComplexType,
+  target: mongodb.Document,
+  projection?: FieldsProjection,
+) {
+  const defaultFields =
+    !projection || !Object.values(projection).find(p => !p.sign);
   const projectionKeys = projection && Object.keys(projection);
   const projectionKeysSet = new Set(projectionKeys);
   let fieldName: string;
@@ -39,7 +56,10 @@ export function prepare(dataType: ComplexType, target: mongodb.Document, project
       continue;
     }
 
-    if (field.type instanceof ComplexType && typeof p?.projection === 'object') {
+    if (
+      field.type instanceof ComplexType &&
+      typeof p?.projection === 'object'
+    ) {
       target[fieldName] = {};
       prepare(field.type, target[fieldName], p.projection);
       continue;

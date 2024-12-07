@@ -10,7 +10,11 @@ import { AngularBackend } from './angular-backend';
 export class OpraAngularClient extends HttpClientBase<AngularBackend.RequestOptions> {
   declare [kBackend]: AngularBackend;
 
-  constructor(httpClient: HttpClient, serviceUrl: string, options?: AngularBackend.Options) {
+  constructor(
+    httpClient: HttpClient,
+    serviceUrl: string,
+    options?: AngularBackend.Options,
+  ) {
     super(new AngularBackend(httpClient, serviceUrl, options));
   }
 

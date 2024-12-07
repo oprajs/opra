@@ -45,10 +45,14 @@ export class AngularBackend extends HttpBackend {
 
   handle(init: AngularBackend.RequestInit): Observable<HttpEvent> {
     const requestInit = this.prepareRequest(init);
-    const request = new Angular.HttpRequest(requestInit.method, requestInit.url.toString(), {
-      ...requestInit,
-      headers: new HttpHeaders(requestInit.headers),
-    });
+    const request = new Angular.HttpRequest(
+      requestInit.method,
+      requestInit.url.toString(),
+      {
+        ...requestInit,
+        headers: new HttpHeaders(requestInit.headers),
+      },
+    );
 
     const _this = this;
     return new Observable<HttpEvent>(subscriber => {
@@ -71,7 +75,9 @@ export class AngularBackend extends HttpBackend {
               headers: requestInit.headers,
               status: event.status,
               statusText: event.statusText,
-              hasBody: event.headers.has('Content-Type') || event.headers.has('Content-Length'),
+              hasBody:
+                event.headers.has('Content-Type') ||
+                event.headers.has('Content-Length'),
             }) as HttpResponse<never>;
             subscriber.next({
               request,
@@ -103,7 +109,9 @@ export class AngularBackend extends HttpBackend {
 
           if (event.type === Angular.HttpEventType.Response) {
             const headers = new Headers();
-            event.headers.keys().forEach(k => headers.set(k, event.headers.get(k) || ''));
+            event.headers
+              .keys()
+              .forEach(k => headers.set(k, event.headers.get(k) || ''));
             const response = _this.createResponse({
               url: request.url,
               headers,
@@ -134,7 +142,9 @@ export class AngularBackend extends HttpBackend {
     return this.httpClient.request(request);
   }
 
-  protected prepareRequest(init: AngularBackend.RequestInit): AngularBackend.RequestInit {
+  protected prepareRequest(
+    init: AngularBackend.RequestInit,
+  ): AngularBackend.RequestInit {
     const headers = init.headers || new Headers();
     const requestInit: AngularBackend.RequestInit = {
       ...init,
@@ -177,7 +187,8 @@ export class AngularBackend extends HttpBackend {
         body = JSON.stringify(requestInit.body);
         headers.delete('Content-Size');
       }
-      if (!headers.has('Content-Type') && contentType) headers.set('Content-Type', contentType);
+      if (!headers.has('Content-Type') && contentType)
+        headers.set('Content-Type', contentType);
       requestInit.body = body;
     }
     return requestInit;
@@ -193,8 +204,10 @@ export class AngularBackend extends HttpBackend {
     if (typeIs.is(contentType, ['json', 'application/*+json'])) {
       body = await fetchResponse.json();
       if (typeof body === 'string') body = JSON.parse(body);
-    } else if (typeIs.is(contentType, ['text'])) body = await fetchResponse.text();
-    else if (typeIs.is(contentType, ['multipart'])) body = await fetchResponse.formData();
+    } else if (typeIs.is(contentType, ['text']))
+      body = await fetchResponse.text();
+    else if (typeIs.is(contentType, ['multipart']))
+      body = await fetchResponse.formData();
     else {
       const buf = await fetchResponse.arrayBuffer();
       if (buf.byteLength) body = buf;
@@ -219,7 +232,11 @@ export namespace AngularBackend {
     withCredentials?: boolean;
   }
 
-  export interface RequestOptions extends Pick<RequestInit, 'context' | 'reportProgress' | 'withCredentials'> {}
+  export interface RequestOptions
+    extends Pick<
+      RequestInit,
+      'context' | 'reportProgress' | 'withCredentials'
+    > {}
 
   export type RequestDefaults = StrictOmit<RequestOptions, 'context'> & {
     headers: Headers;

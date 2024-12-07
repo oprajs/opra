@@ -28,7 +28,9 @@ export namespace MongoSingletonService {
  * @extends MongoService
  * @template T - The type of document stored in the collection
  */
-export class MongoSingletonService<T extends mongodb.Document> extends MongoEntityService<T> {
+export class MongoSingletonService<
+  T extends mongodb.Document,
+> extends MongoEntityService<T> {
   /**
    * Represents a unique identifier for singleton record
    * @type {MongoAdapter.AnyId} _id
@@ -42,7 +44,10 @@ export class MongoSingletonService<T extends mongodb.Document> extends MongoEnti
    * @param {MongoSingletonService.Options} [options] - The options for the array service.
    * @constructor
    */
-  constructor(dataType: Type | string, options?: MongoSingletonService.Options) {
+  constructor(
+    dataType: Type | string,
+    options?: MongoSingletonService.Options,
+  ) {
     super(dataType, options);
     this._id = options?._id || new ObjectId('655608925cad472b75fc6485');
   }
@@ -55,7 +60,8 @@ export class MongoSingletonService<T extends mongodb.Document> extends MongoEnti
    * @throws {ResourceNotAvailableError} If the resource does not exist.
    */
   async assert(options?: MongoEntityService.ExistsOptions<T>): Promise<void> {
-    if (!(await this.exists(options))) throw new ResourceNotAvailableError(this.getResourceName());
+    if (!(await this.exists(options)))
+      throw new ResourceNotAvailableError(this.getResourceName());
   }
 
   /**
@@ -70,8 +76,14 @@ export class MongoSingletonService<T extends mongodb.Document> extends MongoEnti
     input: PartialDTO<T>,
     options: RequiredSome<MongoEntityService.CreateOptions, 'projection'>,
   ): Promise<PartialDTO<T>>;
-  async create(input: PartialDTO<T>, options?: MongoEntityService.CreateOptions): Promise<T>;
-  async create(input: PartialDTO<T>, options?: MongoEntityService.CreateOptions): Promise<PartialDTO<T> | T> {
+  async create(
+    input: PartialDTO<T>,
+    options?: MongoEntityService.CreateOptions,
+  ): Promise<T>;
+  async create(
+    input: PartialDTO<T>,
+    options?: MongoEntityService.CreateOptions,
+  ): Promise<PartialDTO<T> | T> {
     const command: MongoEntityService.CreateCommand<T> = {
       crud: 'create',
       method: 'create',
@@ -103,7 +115,10 @@ export class MongoSingletonService<T extends mongodb.Document> extends MongoEnti
    * @returns {Promise<T>} A promise that resolves create operation result
    * @throws {Error} Throws an error if an unknown error occurs while creating the document.
    */
-  async createOnly(input: PartialDTO<T>, options?: MongoEntityService.CreateOptions): Promise<T> {
+  async createOnly(
+    input: PartialDTO<T>,
+    options?: MongoEntityService.CreateOptions,
+  ): Promise<T> {
     const command: MongoEntityService.CreateCommand<T> = {
       crud: 'create',
       method: 'createOnly',
@@ -130,7 +145,10 @@ export class MongoSingletonService<T extends mongodb.Document> extends MongoEnti
       options,
     };
     return this._executeCommand(command, async () => {
-      const filter = MongoAdapter.prepareFilter([await this._getDocumentFilter(command), command.options?.filter]);
+      const filter = MongoAdapter.prepareFilter([
+        await this._getDocumentFilter(command),
+        command.options?.filter,
+      ]);
       command.options = { ...command.options, filter };
       return this._delete(command);
     });
@@ -142,7 +160,9 @@ export class MongoSingletonService<T extends mongodb.Document> extends MongoEnti
    * @param {MongoEntityService.FindOneOptions<T>} [options] - The options for finding the document.
    * @return {Promise<boolean>} - A promise that resolves to a boolean value indicating if the document exists.
    */
-  async exists(options?: MongoEntityService.ExistsOptions<T>): Promise<boolean> {
+  async exists(
+    options?: MongoEntityService.ExistsOptions<T>,
+  ): Promise<boolean> {
     const command: MongoEntityService.ExistsCommand<T> = {
       crud: 'read',
       method: 'exists',
@@ -152,7 +172,10 @@ export class MongoSingletonService<T extends mongodb.Document> extends MongoEnti
     };
     return this._executeCommand(command, async () => {
       const documentFilter = await this._getDocumentFilter(command);
-      const filter = MongoAdapter.prepareFilter([documentFilter, command.options?.filter]);
+      const filter = MongoAdapter.prepareFilter([
+        documentFilter,
+        command.options?.filter,
+      ]);
       const findCommand = command as MongoEntityService.FindOneCommand<T>;
       findCommand.options = { ...command.options, filter, projection: ['_id'] };
       return !!(await this._findById(findCommand));
@@ -168,8 +191,12 @@ export class MongoSingletonService<T extends mongodb.Document> extends MongoEnti
   async find(
     options: RequiredSome<MongoEntityService.FindOneOptions<T>, 'projection'>,
   ): Promise<PartialDTO<T> | undefined>;
-  async find(options?: MongoEntityService.FindOneOptions<T>): Promise<T | undefined>;
-  async find(options?: MongoEntityService.FindOneOptions<T>): Promise<PartialDTO<T> | undefined> {
+  async find(
+    options?: MongoEntityService.FindOneOptions<T>,
+  ): Promise<T | undefined>;
+  async find(
+    options?: MongoEntityService.FindOneOptions<T>,
+  ): Promise<PartialDTO<T> | undefined> {
     const command: MongoEntityService.FindOneCommand<T> = {
       crud: 'read',
       method: 'findById',
@@ -179,7 +206,10 @@ export class MongoSingletonService<T extends mongodb.Document> extends MongoEnti
     };
     return this._executeCommand(command, async () => {
       const documentFilter = await this._getDocumentFilter(command);
-      const filter = MongoAdapter.prepareFilter([documentFilter, command.options?.filter]);
+      const filter = MongoAdapter.prepareFilter([
+        documentFilter,
+        command.options?.filter,
+      ]);
       command.options = { ...command.options, filter };
       return this._findById(command);
     });
@@ -192,9 +222,13 @@ export class MongoSingletonService<T extends mongodb.Document> extends MongoEnti
    * @return {Promise<PartialDTO<T>>} - A promise that resolves to the fetched document.
    * @throws {ResourceNotAvailableError} - If the document is not found in the collection
    */
-  async get(options: RequiredSome<MongoEntityService.FindOneOptions<T>, 'projection'>): Promise<PartialDTO<T>>;
+  async get(
+    options: RequiredSome<MongoEntityService.FindOneOptions<T>, 'projection'>,
+  ): Promise<PartialDTO<T>>;
   async get(options?: MongoEntityService.FindOneOptions<T>): Promise<T>;
-  async get(options?: MongoEntityService.FindOneOptions<T>): Promise<PartialDTO<T> | T> {
+  async get(
+    options?: MongoEntityService.FindOneOptions<T>,
+  ): Promise<PartialDTO<T> | T> {
     const out = await this.find(options);
     if (!out) throw new ResourceNotAvailableError(this.getResourceName());
     return out;
@@ -220,7 +254,8 @@ export class MongoSingletonService<T extends mongodb.Document> extends MongoEnti
     input: MongoPatchDTO<T> | UpdateFilter<T>,
     options?: MongoEntityService.UpdateOneOptions<T>,
   ): Promise<PartialDTO<T> | T | undefined> {
-    const isUpdateFilter = Array.isArray(input) || !!Object.keys(input).find(x => x.startsWith('$'));
+    const isUpdateFilter =
+      Array.isArray(input) || !!Object.keys(input).find(x => x.startsWith('$'));
     const command: MongoEntityService.UpdateOneCommand<T> = {
       crud: 'update',
       method: 'update',
@@ -231,7 +266,10 @@ export class MongoSingletonService<T extends mongodb.Document> extends MongoEnti
       options,
     };
     return this._executeCommand(command, async () => {
-      const filter = MongoAdapter.prepareFilter([await this._getDocumentFilter(command), command.options?.filter]);
+      const filter = MongoAdapter.prepareFilter([
+        await this._getDocumentFilter(command),
+        command.options?.filter,
+      ]);
       command.options = { ...command.options, filter };
       const matchCount = await this._updateOnly(command);
       if (matchCount) {
@@ -269,7 +307,10 @@ export class MongoSingletonService<T extends mongodb.Document> extends MongoEnti
       options,
     };
     return this._executeCommand(command, async () => {
-      const filter = MongoAdapter.prepareFilter([await this._getDocumentFilter(command), command.options?.filter]);
+      const filter = MongoAdapter.prepareFilter([
+        await this._getDocumentFilter(command),
+        command.options?.filter,
+      ]);
       command.options = { ...command.options, filter };
       return this._updateOnly(command);
     });

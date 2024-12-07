@@ -11,7 +11,8 @@ export namespace IssueSeverity {
   export const Keys = Object.keys(IssueSeverity);
   export type Type = keyof typeof Enum;
   export const descriptions: Record<Enum, string> = {
-    fatal: 'The issue caused the action to fail and no further checking could be performed',
+    fatal:
+      'The issue caused the action to fail and no further checking could be performed',
     error: 'The issue is sufficiently important to cause the action to fail',
     warning:
       'The issue is not important enough to cause the action to fail but ' +

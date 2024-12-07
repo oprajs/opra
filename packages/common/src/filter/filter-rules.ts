@@ -35,7 +35,10 @@ export class FilterRules {
   protected _rules = new ResponsiveMap<FilterRules.Rule>();
   protected _decoderCache = new WeakMap<any, Validator>();
 
-  constructor(rules?: Record<string, FilterRules.Rule>, options?: FilterRules.Options) {
+  constructor(
+    rules?: Record<string, FilterRules.Rule>,
+    options?: FilterRules.Options,
+  ) {
     Object.defineProperty(this, '_rules', {
       value: new ResponsiveMap(null, { caseSensitive: options?.caseSensitive }),
       enumerable: false,
@@ -84,14 +87,18 @@ export class FilterRules {
       this.normalizeFilterAst(ast.left, stack, currentType);
 
       if (!(ast.left instanceof QualifiedIdentifier && ast.left.field)) {
-        throw new TypeError(`Invalid filter query. Left side should be a data field.`);
+        throw new TypeError(
+          `Invalid filter query. Left side should be a data field.`,
+        );
       }
       // Check if filtering accepted for given field
       // const findManyOp = this.getOperation('findMany');
       const rule = this._rules.get(ast.left.value);
       if (!rule) {
         throw new OpraException({
-          message: translate('error:UNACCEPTED_FILTER_FIELD', { field: ast.left.value }),
+          message: translate('error:UNACCEPTED_FILTER_FIELD', {
+            field: ast.left.value,
+          }),
           code: 'UNACCEPTED_FILTER_FIELD',
           details: {
             field: ast.left.value,
@@ -101,7 +108,9 @@ export class FilterRules {
       // Check if filtering endpoint accepted for given field
       if (rule.operators && !rule.operators.includes(ast.op)) {
         throw new OpraException({
-          message: translate('error:UNACCEPTED_FILTER_OPERATION', { field: ast.left.value }),
+          message: translate('error:UNACCEPTED_FILTER_OPERATION', {
+            field: ast.left.value,
+          }),
           code: 'UNACCEPTED_FILTER_OPERATION',
           details: {
             field: ast.left.value,
@@ -115,19 +124,25 @@ export class FilterRules {
     }
     if (ast instanceof LogicalExpression) {
       stack.push(ast);
-      ast.items.forEach(item => this.normalizeFilterAst(item, stack, currentType));
+      ast.items.forEach(item =>
+        this.normalizeFilterAst(item, stack, currentType),
+      );
       stack.pop();
       return ast;
     }
     if (ast instanceof ArithmeticExpression) {
       stack.push(ast);
-      ast.items.forEach(item => this.normalizeFilterAst(item.expression, stack, currentType));
+      ast.items.forEach(item =>
+        this.normalizeFilterAst(item.expression, stack, currentType),
+      );
       stack.pop();
       return ast;
     }
     if (ast instanceof ArrayExpression) {
       stack.push(ast);
-      ast.items.forEach(item => this.normalizeFilterAst(item, stack, currentType));
+      ast.items.forEach(item =>
+        this.normalizeFilterAst(item, stack, currentType),
+      );
       stack.pop();
       return ast;
     }
@@ -145,16 +160,28 @@ export class FilterRules {
     }
     if (ast instanceof Literal) {
       /** Check if comparison expression has in stack */
-      const compIdx = stack.findLastIndex(x => x instanceof ComparisonExpression);
+      const compIdx = stack.findLastIndex(
+        x => x instanceof ComparisonExpression,
+      );
       if (compIdx >= 0) {
         const comp = stack[compIdx] as ComparisonExpression;
         /** If calling for right side of comparison */
         if (ast === comp.right || stack[compIdx + 1] === comp.right) {
           /** Check if comparison expression left side is a field */
-          if (comp && comp.left instanceof QualifiedIdentifier && comp.left.field) {
-            if (ast.value == null && !comp.left.field.required) return ast.value;
+          if (
+            comp &&
+            comp.left instanceof QualifiedIdentifier &&
+            comp.left.field
+          ) {
+            if (ast.value == null && !comp.left.field.required)
+              return ast.value;
             let decoder: Validator | undefined;
-            if (comp.op === 'like' || comp.op === '!like' || comp.op === 'ilike' || comp.op === '!ilike') {
+            if (
+              comp.op === 'like' ||
+              comp.op === '!like' ||
+              comp.op === 'ilike' ||
+              comp.op === '!ilike'
+            ) {
               decoder = isString;
             } else decoder = this._decoderCache.get(comp.left.field);
             if (!decoder) {

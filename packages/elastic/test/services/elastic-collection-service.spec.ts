@@ -39,7 +39,11 @@ describe('ElasticCollectionService', () => {
         },
       };
       tempRecords.push({ _id, ...record });
-      await client.index({ index: 'collection-test', id: _id, document: record });
+      await client.index({
+        index: 'collection-test',
+        id: _id,
+        document: record,
+      });
     }
     await client.indices.refresh({ index: indexName });
   });
@@ -58,14 +62,18 @@ describe('ElasticCollectionService', () => {
 
     it('Should throw error if not found', async () => {
       const ctx = createContext(app.adapter);
-      await expect(() => service.for(ctx).assert('9999')).rejects.toThrow(ResourceNotAvailableError);
+      await expect(() => service.for(ctx).assert('9999')).rejects.toThrow(
+        ResourceNotAvailableError,
+      );
     });
 
     it('Should apply filter returned by documentFilter', async () => {
       const ctx = createContext(app.adapter);
-      await expect(() => service.for(ctx, { documentFilter: () => 'countryCode="XYZ"' }).assert('1')).rejects.toThrow(
-        ResourceNotAvailableError,
-      );
+      await expect(() =>
+        service
+          .for(ctx, { documentFilter: () => 'countryCode="XYZ"' })
+          .assert('1'),
+      ).rejects.toThrow(ResourceNotAvailableError);
     });
   });
 
@@ -85,7 +93,9 @@ describe('ElasticCollectionService', () => {
 
     it('Should apply filter returned by documentFilter', async () => {
       const ctx = createContext(app.adapter);
-      const result: any = await service.for(ctx, { documentFilter: 'id=2' }).count();
+      const result: any = await service
+        .for(ctx, { documentFilter: 'id=2' })
+        .count();
       expect(result).toEqual(1);
     });
 
@@ -124,14 +134,18 @@ describe('ElasticCollectionService', () => {
 
     it('Should apply filter returned by documentFilter', async () => {
       const ctx = createContext(app.adapter);
-      const result: any = await service.for(ctx, { documentFilter: 'id=2' }).findById('1');
+      const result: any = await service
+        .for(ctx, { documentFilter: 'id=2' })
+        .findById('1');
       expect(result).not.toBeDefined();
     });
 
     it('Should run in interceptor', async () => {
       const mockFn = jest.fn(interceptorFn);
       const ctx = createContext(app.adapter);
-      const result: any = await service.for(ctx, { interceptor: mockFn }).findById('1');
+      const result: any = await service
+        .for(ctx, { interceptor: mockFn })
+        .findById('1');
       expect(result).toBeDefined();
       expect(mockFn).toBeCalled();
     });
@@ -171,7 +185,9 @@ describe('ElasticCollectionService', () => {
 
     it('Should apply filter returned by documentFilter', async () => {
       const ctx = createContext(app.adapter);
-      const result: any = await service.for(ctx, { documentFilter: 'id=2' }).findOne();
+      const result: any = await service
+        .for(ctx, { documentFilter: 'id=2' })
+        .findOne();
       expect(result._id).toEqual('2');
     });
 
@@ -217,15 +233,21 @@ describe('ElasticCollectionService', () => {
 
     it('Should skip records', async () => {
       const ctx = createContext(app.adapter);
-      const result1: any = await service.for(ctx).findOne({ skip: 1, sort: ['id'] });
-      const result2: any = await service.for(ctx).findOne({ skip: 2, sort: ['id'] });
+      const result1: any = await service
+        .for(ctx)
+        .findOne({ skip: 1, sort: ['id'] });
+      const result2: any = await service
+        .for(ctx)
+        .findOne({ skip: 2, sort: ['id'] });
       expect(result1.id).toBeLessThan(result2.id);
     });
 
     it('Should run in interceptor', async () => {
       const mockFn = jest.fn(interceptorFn);
       const ctx = createContext(app.adapter);
-      const result: any = await service.for(ctx, { interceptor: mockFn }).findOne();
+      const result: any = await service
+        .for(ctx, { interceptor: mockFn })
+        .findOne();
       expect(result).toBeDefined();
       expect(mockFn).toBeCalled();
     });
@@ -259,7 +281,9 @@ describe('ElasticCollectionService', () => {
 
     it('Should apply filter returned by documentFilter', async () => {
       const ctx = createContext(app.adapter);
-      const result: any = await service.for(ctx, { documentFilter: 'id=2' }).findMany();
+      const result: any = await service
+        .for(ctx, { documentFilter: 'id=2' })
+        .findMany();
       expect(result.length).toEqual(1);
       expect(result[0].id).toEqual(2);
     });
@@ -365,7 +389,9 @@ describe('ElasticCollectionService', () => {
     it('Should run in interceptor', async () => {
       const mockFn = jest.fn(interceptorFn);
       const ctx = createContext(app.adapter);
-      const result: any = await service.for(ctx, { interceptor: mockFn }).findMany();
+      const result: any = await service
+        .for(ctx, { interceptor: mockFn })
+        .findMany();
       expect(result).toBeDefined();
       expect(result.length).toBeGreaterThan(0);
       expect(mockFn).toBeCalled();
@@ -386,20 +412,24 @@ describe('ElasticCollectionService', () => {
 
     it('Should throw error if not found', async () => {
       const ctx = createContext(app.adapter);
-      await expect(() => service.for(ctx).get('9999')).rejects.toThrow(ResourceNotAvailableError);
+      await expect(() => service.for(ctx).get('9999')).rejects.toThrow(
+        ResourceNotAvailableError,
+      );
     });
 
     it('Should apply filter returned by documentFilter', async () => {
       const ctx = createContext(app.adapter);
-      await expect(() => service.for(ctx, { documentFilter: '_id=999' }).get('1')).rejects.toThrow(
-        ResourceNotAvailableError,
-      );
+      await expect(() =>
+        service.for(ctx, { documentFilter: '_id=999' }).get('1'),
+      ).rejects.toThrow(ResourceNotAvailableError);
     });
 
     it('Should run in interceptor', async () => {
       const mockFn = jest.fn(interceptorFn);
       const ctx = createContext(app.adapter);
-      const result: any = await service.for(ctx, { interceptor: mockFn }).get('1');
+      const result: any = await service
+        .for(ctx, { interceptor: mockFn })
+        .get('1');
       expect(result).toBeDefined();
       expect(mockFn).toBeCalled();
     });
@@ -444,7 +474,9 @@ describe('ElasticCollectionService', () => {
       const ctx = createContext(app.adapter);
       const doc = { uid: faker.string.uuid() };
       const srcDoc = tempRecords[4];
-      const r = await service.for(ctx, { documentFilter: 'countryCode="XYZ"' }).update(srcDoc._id, doc);
+      const r = await service
+        .for(ctx, { documentFilter: 'countryCode="XYZ"' })
+        .update(srcDoc._id, doc);
       expect(r).toBeDefined();
       expect(r.updated).toStrictEqual(0);
       expect(r.total).toStrictEqual(0);
@@ -455,7 +487,9 @@ describe('ElasticCollectionService', () => {
       const ctx = createContext(app.adapter);
       const doc = { uid: faker.string.uuid() };
       const srcDoc = tempRecords[5];
-      const r = await service.for(ctx, { interceptor: mockFn }).update(srcDoc._id, doc);
+      const r = await service
+        .for(ctx, { interceptor: mockFn })
+        .update(srcDoc._id, doc);
       expect(r).toBeDefined();
       expect(r.updated).toStrictEqual(1);
       expect(r.total).toStrictEqual(1);
@@ -478,7 +512,9 @@ describe('ElasticCollectionService', () => {
     it('Should apply filter', async () => {
       const ctx = createContext(app.adapter);
       const update = { uid: faker.string.uuid() };
-      const r: any = await service.for(ctx).updateMany(update, { filter: 'rate<5' });
+      const r: any = await service
+        .for(ctx)
+        .updateMany(update, { filter: 'rate<5' });
       expect(r).toBeDefined();
       expect(r.updated).toBeGreaterThan(1);
       expect(r.updated).toBeLessThan(5);
@@ -489,7 +525,9 @@ describe('ElasticCollectionService', () => {
     it('Should apply filter returned by documentFilter', async () => {
       const ctx = createContext(app.adapter);
       const doc = { uid: faker.string.uuid() };
-      const r = await service.for(ctx, { documentFilter: 'countryCode="XYZ"' }).updateMany(doc);
+      const r = await service
+        .for(ctx, { documentFilter: 'countryCode="XYZ"' })
+        .updateMany(doc);
       expect(r).toBeDefined();
       expect(r.updated).toStrictEqual(0);
       expect(r.total).toStrictEqual(0);
@@ -499,7 +537,9 @@ describe('ElasticCollectionService', () => {
       const mockFn = jest.fn(interceptorFn);
       const ctx = createContext(app.adapter);
       const update = { uid: faker.string.uuid() };
-      const r = await service.for(ctx, { interceptor: mockFn }).updateMany(update);
+      const r = await service
+        .for(ctx, { interceptor: mockFn })
+        .updateMany(update);
       expect(r).toBeDefined();
       expect(mockFn).toBeCalled();
     });
@@ -531,7 +571,9 @@ describe('ElasticCollectionService', () => {
 
     it('Should apply filter returned by documentFilter', async () => {
       const ctx = createContext(app.adapter);
-      const r = await service.for(ctx, { documentFilter: 'countryCode="XYZ"' }).delete('3');
+      const r = await service
+        .for(ctx, { documentFilter: 'countryCode="XYZ"' })
+        .delete('3');
       expect(r).toBeDefined();
       expect(r.deleted).toEqual(0);
     });
@@ -551,7 +593,9 @@ describe('ElasticCollectionService', () => {
 
     it('Should apply filter returned by documentFilter', async () => {
       const ctx = createContext(app.adapter);
-      const r = await service.for(ctx, { documentFilter: 'countryCode="XYZ"' }).deleteMany();
+      const r = await service
+        .for(ctx, { documentFilter: 'countryCode="XYZ"' })
+        .deleteMany();
       expect(r).toBeDefined();
       expect(r.deleted).toEqual(0);
     });

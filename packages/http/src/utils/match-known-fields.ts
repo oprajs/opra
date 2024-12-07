@@ -34,7 +34,9 @@ const NO_DUPLICATES_HEADERS = [
 ];
 const SEMICOLON_DELIMITED_HEADERS = ['cookie'];
 
-const KNOWN_FIELDS: Record<string, [string, FIELD_FLAG]> = Object.values(HttpHeaderCodes).reduce((o, k) => {
+const KNOWN_FIELDS: Record<string, [string, FIELD_FLAG]> = Object.values(
+  HttpHeaderCodes,
+).reduce((o, k) => {
   const n = k.toLowerCase();
   o[n] = [
     k,

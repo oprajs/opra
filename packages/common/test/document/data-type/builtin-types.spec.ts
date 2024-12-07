@@ -50,15 +50,21 @@ describe('Built-in types', () => {
     it('Should validate "minValue"', async () => {
       const dt = doc.node.getSimpleType('bigint');
       expect(dt).toBeDefined();
-      const decode = dt.generateCodec<BigintType>('decode', null, { minValue: 10 });
-      expect(() => decode(9)).toThrow('Value must be greater than or equal to 10');
+      const decode = dt.generateCodec<BigintType>('decode', null, {
+        minValue: 10,
+      });
+      expect(() => decode(9)).toThrow(
+        'Value must be greater than or equal to 10',
+      );
     });
 
     it('Should validate "maxValue"', async () => {
       const dt = doc.node.getSimpleType('bigint');
       expect(dt).toBeDefined();
       const decode = dt.generateCodec('decode', null, { maxValue: 10 });
-      expect(() => decode(11)).toThrow('Value must be lover than or equal to 10');
+      expect(() => decode(11)).toThrow(
+        'Value must be lover than or equal to 10',
+      );
     });
   });
 
@@ -99,22 +105,30 @@ describe('Built-in types', () => {
       const dt = doc.node.getSimpleType('integer');
       expect(dt).toBeDefined();
       const decode = dt.generateCodec('decode');
-      expect(() => decode('abc')).toThrow('String "abc" is not a valid integer value');
-      expect(() => decode('abc')).toThrow('String "abc" is not a valid integer value');
+      expect(() => decode('abc')).toThrow(
+        'String "abc" is not a valid integer value',
+      );
+      expect(() => decode('abc')).toThrow(
+        'String "abc" is not a valid integer value',
+      );
     });
 
     it('Should validate "minValue"', async () => {
       const dt = doc.node.getSimpleType('integer');
       expect(dt).toBeDefined();
       const decode = dt.generateCodec('decode', null, { minValue: 10 });
-      expect(() => decode(9)).toThrow('Value must be greater than or equal to 10');
+      expect(() => decode(9)).toThrow(
+        'Value must be greater than or equal to 10',
+      );
     });
 
     it('Should validate "maxValue"', async () => {
       const dt = doc.node.getSimpleType('integer');
       expect(dt).toBeDefined();
       const decode = dt.generateCodec('decode', null, { maxValue: 10 });
-      expect(() => decode(11)).toThrow('Value must be lover than or equal to 10');
+      expect(() => decode(11)).toThrow(
+        'Value must be lover than or equal to 10',
+      );
     });
   });
 
@@ -153,14 +167,18 @@ describe('Built-in types', () => {
       const dt = doc.node.getSimpleType('number');
       expect(dt).toBeDefined();
       const decode = dt.generateCodec('decode', null, { minValue: 10 });
-      expect(() => decode(9)).toThrow('Value must be greater than or equal to 10');
+      expect(() => decode(9)).toThrow(
+        'Value must be greater than or equal to 10',
+      );
     });
 
     it('Should validate "maxValue"', async () => {
       const dt = doc.node.getSimpleType('number');
       expect(dt).toBeDefined();
       const decode = dt.generateCodec('decode', null, { maxValue: 10 });
-      expect(() => decode(11)).toThrow('Value must be lover than or equal to 10');
+      expect(() => decode(11)).toThrow(
+        'Value must be lover than or equal to 10',
+      );
     });
   });
 
@@ -199,20 +217,27 @@ describe('Built-in types', () => {
       const dt = doc.node.getSimpleType('string');
       expect(dt).toBeDefined();
       const decode = dt.generateCodec('decode', null, { minLength: 5 });
-      expect(() => decode('abc')).toThrow('The length of Value must be at least 5');
+      expect(() => decode('abc')).toThrow(
+        'The length of Value must be at least 5',
+      );
     });
 
     it('Should validate "maxLength"', async () => {
       const dt = doc.node.getSimpleType('string');
       expect(dt).toBeDefined();
       const decode = dt.generateCodec('decode', null, { maxLength: 3 });
-      expect(() => decode('abcef')).toThrow('The length of Value must be at most 3');
+      expect(() => decode('abcef')).toThrow(
+        'The length of Value must be at most 3',
+      );
     });
 
     it('Should validate "pattern"', async () => {
       const dt = doc.node.getSimpleType('string');
       expect(dt).toBeDefined();
-      const decode = dt.generateCodec('decode', null, { pattern: /\d+/, patternName: 'Decimal' });
+      const decode = dt.generateCodec('decode', null, {
+        pattern: /\d+/,
+        patternName: 'Decimal',
+      });
       expect(decode('123')).toStrictEqual('123');
       expect(() => decode('abcef')).toThrow('does not match Decimal format');
     });
@@ -234,21 +259,31 @@ describe('Built-in types', () => {
     it('Should encode', async () => {
       const dt = doc.node.getSimpleType('datestring');
       const encode = dt.generateCodec('encode');
-      expect(encode(new Date('2020-01-02T00:00:00'))).toStrictEqual('2020-01-02');
+      expect(encode(new Date('2020-01-02T00:00:00'))).toStrictEqual(
+        '2020-01-02',
+      );
     });
 
     it('Should validate "minValue"', async () => {
       const dt = doc.node.getSimpleType('datestring');
-      const decode = dt.generateCodec('decode', null, { minValue: '2021-02-10' });
+      const decode = dt.generateCodec('decode', null, {
+        minValue: '2021-02-10',
+      });
       expect(decode('2022-01-02T10:30:00')).toStrictEqual('2022-01-02');
-      expect(() => decode('2020-01-02T10:30:00')).toThrow('Value must be greater than or equal to');
+      expect(() => decode('2020-01-02T10:30:00')).toThrow(
+        'Value must be greater than or equal to',
+      );
     });
 
     it('Should validate "maxValue"', async () => {
       const dt = doc.node.getSimpleType('datestring');
-      const decode = dt.generateCodec('decode', null, { maxValue: '2021-02-10' });
+      const decode = dt.generateCodec('decode', null, {
+        maxValue: '2021-02-10',
+      });
       expect(decode('2020-01-02T10:30:00')).toStrictEqual('2020-01-02');
-      expect(() => decode('2022-01-02T10:30:00')).toThrow('Value must be lover than or equal to');
+      expect(() => decode('2022-01-02T10:30:00')).toThrow(
+        'Value must be lover than or equal to',
+      );
     });
   });
 
@@ -256,7 +291,9 @@ describe('Built-in types', () => {
     it('Should decode', async () => {
       const dt = doc.node.getSimpleType('datetimestring');
       const decode = dt.generateCodec('decode');
-      expect(decode('2020-01-02T10:30:00')).toStrictEqual('2020-01-02T10:30:00');
+      expect(decode('2020-01-02T10:30:00')).toStrictEqual(
+        '2020-01-02T10:30:00',
+      );
       expect(decode('2020-01-02T10:30')).toStrictEqual('2020-01-02T10:30');
       expect(decode('2020-02')).toStrictEqual('2020-02');
       expect(decode('2020')).toStrictEqual('2020');
@@ -265,21 +302,35 @@ describe('Built-in types', () => {
     it('Should encode', async () => {
       const dt = doc.node.getSimpleType('datetimestring');
       const encode = dt.generateCodec('encode');
-      expect(encode(new Date('2020-01-02T00:00:00'))).toStrictEqual('2020-01-02T00:00:00');
+      expect(encode(new Date('2020-01-02T00:00:00'))).toStrictEqual(
+        '2020-01-02T00:00:00',
+      );
     });
 
     it('Should validate "minValue"', async () => {
       const dt = doc.node.getSimpleType('datetimestring');
-      const decode = dt.generateCodec('decode', null, { minValue: '2021-02-10' });
-      expect(decode('2022-01-02T10:30:00')).toStrictEqual('2022-01-02T10:30:00');
-      expect(() => decode('2020-01-02T10:30:00')).toThrow('Value must be greater than or equal to');
+      const decode = dt.generateCodec('decode', null, {
+        minValue: '2021-02-10',
+      });
+      expect(decode('2022-01-02T10:30:00')).toStrictEqual(
+        '2022-01-02T10:30:00',
+      );
+      expect(() => decode('2020-01-02T10:30:00')).toThrow(
+        'Value must be greater than or equal to',
+      );
     });
 
     it('Should validate "maxValue"', async () => {
       const dt = doc.node.getSimpleType('datetimestring');
-      const decode = dt.generateCodec('decode', null, { maxValue: '2021-02-10' });
-      expect(decode('2020-01-02T10:30:00')).toStrictEqual('2020-01-02T10:30:00');
-      expect(() => decode('2022-01-02T10:30:00')).toThrow('Value must be lover than or equal to');
+      const decode = dt.generateCodec('decode', null, {
+        maxValue: '2021-02-10',
+      });
+      expect(decode('2020-01-02T10:30:00')).toStrictEqual(
+        '2020-01-02T10:30:00',
+      );
+      expect(() => decode('2022-01-02T10:30:00')).toThrow(
+        'Value must be lover than or equal to',
+      );
     });
   });
 
@@ -287,13 +338,17 @@ describe('Built-in types', () => {
     it('Should decode', async () => {
       const dt = doc.node.getSimpleType('base64');
       const decode = dt.generateCodec('decode');
-      expect(decode('dGhpcyBpcyBhIHRlc3Qgc3RyaW5n')).toStrictEqual('dGhpcyBpcyBhIHRlc3Qgc3RyaW5n');
+      expect(decode('dGhpcyBpcyBhIHRlc3Qgc3RyaW5n')).toStrictEqual(
+        'dGhpcyBpcyBhIHRlc3Qgc3RyaW5n',
+      );
     });
 
     it('Should encode', async () => {
       const dt = doc.node.getSimpleType('base64');
       const encode = dt.generateCodec('encode');
-      expect(encode('dGhpcyBpcyBhIHRlc3Qgc3RyaW5n')).toStrictEqual('dGhpcyBpcyBhIHRlc3Qgc3RyaW5n');
+      expect(encode('dGhpcyBpcyBhIHRlc3Qgc3RyaW5n')).toStrictEqual(
+        'dGhpcyBpcyBhIHRlc3Qgc3RyaW5n',
+      );
     });
   });
 
@@ -301,44 +356,76 @@ describe('Built-in types', () => {
     it('Should decode', async () => {
       const dt = doc.node.getSimpleType('date');
       const decode = dt.generateCodec('decode');
-      expect(decode('2020-01-02T10:30:00')).toStrictEqual(new Date('2020-01-02T00:00:00'));
-      expect(decode('2020-01-02')).toStrictEqual(new Date('2020-01-02T00:00:00'));
+      expect(decode('2020-01-02T10:30:00')).toStrictEqual(
+        new Date('2020-01-02T00:00:00'),
+      );
+      expect(decode('2020-01-02')).toStrictEqual(
+        new Date('2020-01-02T00:00:00'),
+      );
       expect(decode('2020')).toStrictEqual(new Date('2020-01-01T00:00:00'));
-      expect(decode('2020-01-02T10:30:00')).toStrictEqual(new Date('2020-01-02T00:00:00'));
+      expect(decode('2020-01-02T10:30:00')).toStrictEqual(
+        new Date('2020-01-02T00:00:00'),
+      );
     });
 
     it('Should encode', async () => {
       const dt = doc.node.getSimpleType('date');
       const encode = dt.generateCodec('encode');
-      expect(encode(new Date('2020-01-02T00:00:00'))).toStrictEqual('2020-01-02');
+      expect(encode(new Date('2020-01-02T00:00:00'))).toStrictEqual(
+        '2020-01-02',
+      );
     });
 
     it('Should decode() validate "minValue"', async () => {
       const dt = doc.node.getSimpleType('date');
-      const decode = dt.generateCodec('decode', null, { minValue: '2021-02-10' });
-      expect(decode('2022-01-02T10:30:00')).toStrictEqual(new Date('2022-01-02T00:00:00'));
-      expect(() => decode('2020-01-02T10:30:00')).toThrow('Value must be greater than or equal to');
+      const decode = dt.generateCodec('decode', null, {
+        minValue: '2021-02-10',
+      });
+      expect(decode('2022-01-02T10:30:00')).toStrictEqual(
+        new Date('2022-01-02T00:00:00'),
+      );
+      expect(() => decode('2020-01-02T10:30:00')).toThrow(
+        'Value must be greater than or equal to',
+      );
     });
 
     it('Should decode() validate "maxValue"', async () => {
       const dt = doc.node.getSimpleType('date');
-      const decode = dt.generateCodec('decode', null, { maxValue: '2021-02-10' });
-      expect(decode('2020-01-02T10:30:00')).toStrictEqual(new Date('2020-01-02T00:00:00'));
-      expect(() => decode('2022-01-02T10:30:00')).toThrow('Value must be lover than or equal to');
+      const decode = dt.generateCodec('decode', null, {
+        maxValue: '2021-02-10',
+      });
+      expect(decode('2020-01-02T10:30:00')).toStrictEqual(
+        new Date('2020-01-02T00:00:00'),
+      );
+      expect(() => decode('2022-01-02T10:30:00')).toThrow(
+        'Value must be lover than or equal to',
+      );
     });
 
     it('Should encode() validate "minValue"', async () => {
       const dt = doc.node.getSimpleType('date');
-      const encode = dt.generateCodec('encode', null, { minValue: '2021-02-10' });
-      expect(encode(new Date('2022-01-02T00:00:00'))).toStrictEqual('2022-01-02');
-      expect(() => encode(new Date('2020-01-02T00:00:00'))).toThrow('Value must be greater than or equal to');
+      const encode = dt.generateCodec('encode', null, {
+        minValue: '2021-02-10',
+      });
+      expect(encode(new Date('2022-01-02T00:00:00'))).toStrictEqual(
+        '2022-01-02',
+      );
+      expect(() => encode(new Date('2020-01-02T00:00:00'))).toThrow(
+        'Value must be greater than or equal to',
+      );
     });
 
     it('Should encode() validate "maxValue"', async () => {
       const dt = doc.node.getSimpleType('date');
-      const encode = dt.generateCodec('encode', null, { maxValue: '2021-02-10' });
-      expect(encode(new Date('2020-01-02T00:00:00'))).toStrictEqual('2020-01-02');
-      expect(() => encode(new Date('2022-01-02T00:00:00'))).toThrow('Value must be lover than or equal to');
+      const encode = dt.generateCodec('encode', null, {
+        maxValue: '2021-02-10',
+      });
+      expect(encode(new Date('2020-01-02T00:00:00'))).toStrictEqual(
+        '2020-01-02',
+      );
+      expect(() => encode(new Date('2022-01-02T00:00:00'))).toThrow(
+        'Value must be lover than or equal to',
+      );
     });
   });
 
@@ -346,44 +433,76 @@ describe('Built-in types', () => {
     it('Should decode', async () => {
       const dt = doc.node.getSimpleType('datetime');
       const decode = dt.generateCodec('decode');
-      expect(decode('2020-01-02T10:30:45')).toStrictEqual(new Date('2020-01-02T10:30:45'));
-      expect(decode('2020-01-02')).toStrictEqual(new Date('2020-01-02T00:00:00'));
+      expect(decode('2020-01-02T10:30:45')).toStrictEqual(
+        new Date('2020-01-02T10:30:45'),
+      );
+      expect(decode('2020-01-02')).toStrictEqual(
+        new Date('2020-01-02T00:00:00'),
+      );
       expect(decode('2020')).toStrictEqual(new Date('2020-01-01T00:00:00'));
-      expect(decode('2020-01-02T10:30:00')).toStrictEqual(new Date('2020-01-02T10:30:00'));
+      expect(decode('2020-01-02T10:30:00')).toStrictEqual(
+        new Date('2020-01-02T10:30:00'),
+      );
     });
 
     it('Should encode', async () => {
       const dt = doc.node.getSimpleType('datetime');
       const encode = dt.generateCodec('encode');
-      expect(encode(new Date('2020-01-02T10:30:45'))).toStrictEqual('2020-01-02T10:30:45');
+      expect(encode(new Date('2020-01-02T10:30:45'))).toStrictEqual(
+        '2020-01-02T10:30:45',
+      );
     });
 
     it('Should decode() validate "minValue"', async () => {
       const dt = doc.node.getSimpleType('datetime');
-      const decode = dt.generateCodec('decode', null, { minValue: '2021-02-10' });
-      expect(decode('2022-01-02T10:30:00')).toStrictEqual(new Date('2022-01-02T10:30:00'));
-      expect(() => decode('2020-01-02T10:30:00')).toThrow('Value must be greater than or equal to');
+      const decode = dt.generateCodec('decode', null, {
+        minValue: '2021-02-10',
+      });
+      expect(decode('2022-01-02T10:30:00')).toStrictEqual(
+        new Date('2022-01-02T10:30:00'),
+      );
+      expect(() => decode('2020-01-02T10:30:00')).toThrow(
+        'Value must be greater than or equal to',
+      );
     });
 
     it('Should decode() validate "maxValue"', async () => {
       const dt = doc.node.getSimpleType('datetime');
-      const decode = dt.generateCodec('decode', null, { maxValue: '2021-02-10' });
-      expect(decode('2020-01-02T10:30:00')).toStrictEqual(new Date('2020-01-02T10:30:00'));
-      expect(() => decode('2022-01-02T10:30:00')).toThrow('Value must be lover than or equal to');
+      const decode = dt.generateCodec('decode', null, {
+        maxValue: '2021-02-10',
+      });
+      expect(decode('2020-01-02T10:30:00')).toStrictEqual(
+        new Date('2020-01-02T10:30:00'),
+      );
+      expect(() => decode('2022-01-02T10:30:00')).toThrow(
+        'Value must be lover than or equal to',
+      );
     });
 
     it('Should encode() validate "minValue"', async () => {
       const dt = doc.node.getSimpleType('datetime');
-      const encode = dt.generateCodec('encode', null, { minValue: '2021-02-10' });
-      expect(encode(new Date('2022-01-02T00:00:00'))).toStrictEqual('2022-01-02T00:00:00');
-      expect(() => encode(new Date('2020-01-02T00:00:00'))).toThrow('Value must be greater than or equal to');
+      const encode = dt.generateCodec('encode', null, {
+        minValue: '2021-02-10',
+      });
+      expect(encode(new Date('2022-01-02T00:00:00'))).toStrictEqual(
+        '2022-01-02T00:00:00',
+      );
+      expect(() => encode(new Date('2020-01-02T00:00:00'))).toThrow(
+        'Value must be greater than or equal to',
+      );
     });
 
     it('Should encode() validate "maxValue"', async () => {
       const dt = doc.node.getSimpleType('datetime');
-      const encode = dt.generateCodec('encode', null, { maxValue: '2021-02-10' });
-      expect(encode(new Date('2020-01-02T00:00:00'))).toStrictEqual('2020-01-02T00:00:00');
-      expect(() => encode(new Date('2022-01-02T00:00:00'))).toThrow('Value must be lover than or equal to');
+      const encode = dt.generateCodec('encode', null, {
+        maxValue: '2021-02-10',
+      });
+      expect(encode(new Date('2020-01-02T00:00:00'))).toStrictEqual(
+        '2020-01-02T00:00:00',
+      );
+      expect(() => encode(new Date('2022-01-02T00:00:00'))).toThrow(
+        'Value must be lover than or equal to',
+      );
     });
   });
 
@@ -398,9 +517,17 @@ describe('Built-in types', () => {
   describe('"fieldPath"', () => {
     it('Should decode', async () => {
       const dt = doc.node.getSimpleType('fieldPath');
-      const decode = dt.generateCodec('decode', { documentElement: doc }, { dataType: 'customer' });
-      expect(decode('address.countrycode')).toStrictEqual('address.countryCode');
-      expect(() => decode('address.xyz')).toThrow('Unknown field (address.xyz)');
+      const decode = dt.generateCodec(
+        'decode',
+        { documentElement: doc },
+        { dataType: 'customer' },
+      );
+      expect(decode('address.countrycode')).toStrictEqual(
+        'address.countryCode',
+      );
+      expect(() => decode('address.xyz')).toThrow(
+        'Unknown field (address.xyz)',
+      );
     });
   });
 
@@ -417,8 +544,12 @@ describe('Built-in types', () => {
           },
         },
       );
-      expect(decode('address.city="Antalya"')).toBeInstanceOf(ComparisonExpression);
-      expect(() => decode('address.xyz=1')).toThrow('Unknown field (address.xyz)');
+      expect(decode('address.city="Antalya"')).toBeInstanceOf(
+        ComparisonExpression,
+      );
+      expect(() => decode('address.xyz=1')).toThrow(
+        'Unknown field (address.xyz)',
+      );
     });
   });
 
@@ -441,14 +572,18 @@ describe('Built-in types', () => {
       const dt = doc.node.getSimpleType('time');
       const decode = dt.generateCodec('decode', null, { minValue: '10:00:00' });
       expect(decode('10:30:45')).toStrictEqual('10:30:45');
-      expect(() => decode('09:30:45')).toThrow('Value must be greater than or equal to');
+      expect(() => decode('09:30:45')).toThrow(
+        'Value must be greater than or equal to',
+      );
     });
 
     it('Should validate "maxValue"', async () => {
       const dt = doc.node.getSimpleType('time');
       const decode = dt.generateCodec('decode', null, { maxValue: '10:00:00' });
       expect(decode('09:30:45')).toStrictEqual('09:30:45');
-      expect(() => decode('10:30:45')).toThrow('Value must be lover than or equal to');
+      expect(() => decode('10:30:45')).toThrow(
+        'Value must be lover than or equal to',
+      );
     });
   });
 
@@ -456,7 +591,9 @@ describe('Built-in types', () => {
     it('Should decode', async () => {
       const dt = doc.node.getSimpleType('url');
       const decode = dt.generateCodec('decode');
-      expect(decode('http://www.domain.com')).toStrictEqual('http://www.domain.com');
+      expect(decode('http://www.domain.com')).toStrictEqual(
+        'http://www.domain.com',
+      );
       expect(() => decode('domain')).toThrow('is not a valid URL');
     });
   });
@@ -465,14 +602,18 @@ describe('Built-in types', () => {
     it('Should decode', async () => {
       const dt = doc.node.getSimpleType('uuid');
       const decode = dt.generateCodec('decode');
-      expect(decode('3c6aed92-0a89-11ee-be56-0242ac120002')).toStrictEqual('3c6aed92-0a89-11ee-be56-0242ac120002');
+      expect(decode('3c6aed92-0a89-11ee-be56-0242ac120002')).toStrictEqual(
+        '3c6aed92-0a89-11ee-be56-0242ac120002',
+      );
       expect(() => decode('3c6aed92-0a89')).toThrow('is not a valid UUID');
     });
 
     it('Should define UUID version', async () => {
       const dt = doc.node.getSimpleType('uuid');
       const decode = dt.generateCodec('decode', null, { version: 4 });
-      expect(() => decode('3c6aed92-0a89-11ee-be56-0242ac120002')).toThrow('is not a valid UUID v4');
+      expect(() => decode('3c6aed92-0a89-11ee-be56-0242ac120002')).toThrow(
+        'is not a valid UUID v4',
+      );
     });
   });
 });

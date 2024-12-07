@@ -1,11 +1,19 @@
-import { createServer, IncomingMessage, Server, ServerResponse } from 'node:http';
+import {
+  createServer,
+  IncomingMessage,
+  Server,
+  ServerResponse,
+} from 'node:http';
 import type { AddressInfo } from 'node:net';
 import * as path from 'node:path';
 import { FetchBackend, HttpResponse } from '@opra/client';
 import { ApiExpect } from './api-expect/api-expect.js';
 import type { OpraTestClient } from './test-client.js';
 
-declare type RequestListener = (req: IncomingMessage, res: ServerResponse) => void;
+declare type RequestListener = (
+  req: IncomingMessage,
+  res: ServerResponse,
+) => void;
 
 export type ResponseExt = { expect: ApiExpect };
 
@@ -17,7 +25,12 @@ export class TestBackend extends FetchBackend {
   protected _server: Server;
 
   constructor(app: Server | RequestListener, options?: OpraTestClient.Options) {
-    super(options?.basePath ? path.join('http://tempuri.org', options.basePath) : 'http://tempuri.org', options);
+    super(
+      options?.basePath
+        ? path.join('http://tempuri.org', options.basePath)
+        : 'http://tempuri.org',
+      options,
+    );
     this._server = app instanceof Server ? app : createServer(app);
   }
 
@@ -28,7 +41,8 @@ export class TestBackend extends FetchBackend {
       url.protocol = 'http';
 
       // Apply original host to request header
-      if (url.host !== 'opra.test' && req.headers.get('host') == null) req.headers.set('host', url.host);
+      if (url.host !== 'opra.test' && req.headers.get('host') == null)
+        req.headers.set('host', url.host);
 
       new Promise<void>(subResolve => {
         if (this._server.listening) subResolve();

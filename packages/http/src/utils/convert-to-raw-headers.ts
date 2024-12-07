@@ -6,7 +6,9 @@ import {
   SEMICOLON_DELIMITED_FIELD,
 } from './match-known-fields.js';
 
-export function convertToRawHeaders(src: IncomingHttpHeaders | Record<string, any>): string[] {
+export function convertToRawHeaders(
+  src: IncomingHttpHeaders | Record<string, any>,
+): string[] {
   return Object.entries(src).reduce((a, [field, v]) => {
     const [name, flag] = matchKnownFields(field);
 
@@ -17,7 +19,9 @@ export function convertToRawHeaders(src: IncomingHttpHeaders | Record<string, an
     }
 
     if (flag === COMMA_DELIMITED_FIELD || flag === SEMICOLON_DELIMITED_FIELD) {
-      v = Array.isArray(v) ? v.join(flag === COMMA_DELIMITED_FIELD ? ', ' : '; ') : String(v);
+      v = Array.isArray(v)
+        ? v.join(flag === COMMA_DELIMITED_FIELD ? ', ' : '; ')
+        : String(v);
     } else v = Array.isArray(v) ? String(v[0]) : String(v);
 
     a.push(name, v);

@@ -24,7 +24,13 @@ export namespace TestHttpApiDocument {
         name: 'TestService',
         description: 'test service',
         url: '/test',
-        controllers: [AuthController, CountriesController, CountryController, CustomersController, CustomerController],
+        controllers: [
+          AuthController,
+          CountriesController,
+          CountryController,
+          CustomersController,
+          CustomerController,
+        ],
       },
     });
   }

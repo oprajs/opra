@@ -1,6 +1,10 @@
 import nodeStream from 'node:stream';
 import typeIs from '@browsery/type-is';
-import { BadRequestError, InternalServerError, OpraHttpError } from '@opra/common';
+import {
+  BadRequestError,
+  InternalServerError,
+  OpraHttpError,
+} from '@opra/common';
 import { Base64Decode } from 'base64-stream';
 import byteParser from 'bytes';
 import { parse as parseContentType } from 'content-type';
@@ -85,15 +89,25 @@ export class BodyReader extends EventEmitter {
        * or `content-length` headers set.
        * http://www.w3.org/Protocols/rfc2616/rfc2616-sec4.html#sec4.3
        */
-      const contentLength = parseInt(this.req.headers['content-length'] || '0', 10);
-      if (this.req.headers['transfer-encoding'] === undefined && !(contentLength && !isNaN(contentLength))) {
+      const contentLength = parseInt(
+        this.req.headers['content-length'] || '0',
+        10,
+      );
+      if (
+        this.req.headers['transfer-encoding'] === undefined &&
+        !(contentLength && !isNaN(contentLength))
+      ) {
         return this.onEnd();
       }
 
       // check the length and limit options.
       // note: we intentionally leave the stream paused,
       // so users should handle the stream themselves.
-      if (this.limit != null && contentLength != null && contentLength > this.limit) {
+      if (
+        this.limit != null &&
+        contentLength != null &&
+        contentLength > this.limit
+      ) {
         return this.onEnd(
           new OpraHttpError(
             {
@@ -112,7 +126,11 @@ export class BodyReader extends EventEmitter {
       // Pipe to a Writable stream to count received bytes
       const _this = this;
       sizeStream = new Writable({
-        write(chunk: any, encoding: BufferEncoding, callback: (error?: Error | null) => void) {
+        write(
+          chunk: any,
+          encoding: BufferEncoding,
+          callback: (error?: Error | null) => void,
+        ) {
           if (_this._completed) return;
           _this._receivedSize += chunk.length;
           if (_this.limit != null && _this._receivedSize > _this.limit) {
@@ -135,9 +153,12 @@ export class BodyReader extends EventEmitter {
       this.req.pipe(sizeStream);
 
       let stream = BodyReader.encoderPipeline(this.req);
-      const mediaType = parseContentType(this.req.headers['content-type'] || '');
+      const mediaType = parseContentType(
+        this.req.headers['content-type'] || '',
+      );
       let charset = (mediaType.parameters.charset || '').toLowerCase();
-      if (!charset && typeIs.is(mediaType.type, ['json', 'xml', 'txt'])) charset = 'utf-8';
+      if (!charset && typeIs.is(mediaType.type, ['json', 'xml', 'txt']))
+        charset = 'utf-8';
       if (charset) {
         const newStream = iconv.decodeStream(charset) as any;
         stream.pipe(newStream);
@@ -161,7 +182,8 @@ export class BodyReader extends EventEmitter {
       this._stream?.pause();
     }
     if (error) this.emit('finish', error);
-    else if (Array.isArray(this._buffer)) this.emit('finish', error, Buffer.concat(this._buffer));
+    else if (Array.isArray(this._buffer))
+      this.emit('finish', error, Buffer.concat(this._buffer));
     else this.emit('finish', error, this._buffer);
     this._cleanup();
   }
@@ -200,55 +222,66 @@ export class BodyReader extends EventEmitter {
     }
   }
 
-  static async read(req: HttpIncoming, options?: BodyReader.Options): Promise<string | Buffer | undefined> {
+  static async read(
+    req: HttpIncoming,
+    options?: BodyReader.Options,
+  ): Promise<string | Buffer | undefined> {
     const bodyReady = new BodyReader(req, options);
     return bodyReady.read();
   }
 
   protected static encoderPipeline(req: HttpIncoming): nodeStream.Readable {
-    const contentEncoding: string = req.headers['content-encoding'] || 'identity';
-    const contentEncodings = (Array.isArray(contentEncoding) ? contentEncoding : contentEncoding.split(/\s*,\s*/))
+    const contentEncoding: string =
+      req.headers['content-encoding'] || 'identity';
+    const contentEncodings = (
+      Array.isArray(contentEncoding)
+        ? contentEncoding
+        : contentEncoding.split(/\s*,\s*/)
+    )
       .map(s => s.toLowerCase())
       .reverse();
-    return contentEncodings.reduce((prev: nodeStream.Readable, encoding: string) => {
-      switch (encoding) {
-        case 'gzip':
-        case 'x-gzip': {
-          const newStream = zlib.createGunzip();
-          prev.pipe(newStream);
-          return newStream;
-        }
-        case 'deflate':
-        case 'x-deflate': {
-          const newStream = zlib.createInflate();
-          prev.pipe(newStream);
-          return newStream;
-        }
-        case 'br': {
-          const newStream = zlib.createBrotliDecompress();
-          prev.pipe(newStream);
-          return newStream;
-        }
-        case 'base64': {
-          const newStream = new Base64Decode();
-          prev.pipe(newStream);
-          return newStream;
-        }
-        case 'identity':
-          // prev.length = 0;
-          return prev;
-        default:
-          throw new BadRequestError(
-            {
-              message: 'unsupported content encoding "' + encoding + '"',
-              code: '',
-              details: {
-                encoding,
+    return contentEncodings.reduce(
+      (prev: nodeStream.Readable, encoding: string) => {
+        switch (encoding) {
+          case 'gzip':
+          case 'x-gzip': {
+            const newStream = zlib.createGunzip();
+            prev.pipe(newStream);
+            return newStream;
+          }
+          case 'deflate':
+          case 'x-deflate': {
+            const newStream = zlib.createInflate();
+            prev.pipe(newStream);
+            return newStream;
+          }
+          case 'br': {
+            const newStream = zlib.createBrotliDecompress();
+            prev.pipe(newStream);
+            return newStream;
+          }
+          case 'base64': {
+            const newStream = new Base64Decode();
+            prev.pipe(newStream);
+            return newStream;
+          }
+          case 'identity':
+            // prev.length = 0;
+            return prev;
+          default:
+            throw new BadRequestError(
+              {
+                message: 'unsupported content encoding "' + encoding + '"',
+                code: '',
+                details: {
+                  encoding,
+                },
               },
-            },
-            415,
-          );
-      }
-    }, req);
+              415,
+            );
+        }
+      },
+      req,
+    );
   }
 }

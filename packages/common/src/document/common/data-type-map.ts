@@ -17,12 +17,22 @@ export class DataTypeMap {
     return this[kMap].size;
   }
 
-  forEach(callbackFn: (value: DataType, key: string, map: ReadonlyMap<string, DataType>) => void, thisArg?: any): void {
+  forEach(
+    callbackFn: (
+      value: DataType,
+      key: string,
+      map: ReadonlyMap<string, DataType>,
+    ) => void,
+    thisArg?: any,
+  ): void {
     this[kMap].forEach(callbackFn, thisArg);
   }
 
   get(nameOrCtor: string | Type | Function | object): DataType | undefined {
-    let name = typeof nameOrCtor === 'string' ? nameOrCtor : this[kCtorMap].get(nameOrCtor);
+    let name =
+      typeof nameOrCtor === 'string'
+        ? nameOrCtor
+        : this[kCtorMap].get(nameOrCtor);
     if (!name && typeof nameOrCtor === 'function') {
       const metadata = Reflect.getMetadata(DATATYPE_METADATA, nameOrCtor);
       name = metadata?.name;
@@ -36,13 +46,19 @@ export class DataTypeMap {
 
   set(name: string, dataType: DataType) {
     this[kMap].set(name, dataType);
-    if ((dataType as any).ctor) this[kCtorMap].set((dataType as any).ctor, name);
-    else if ((dataType as any).instance) this[kCtorMap].set((dataType as any).instance, name);
+    if ((dataType as any).ctor)
+      this[kCtorMap].set((dataType as any).ctor, name);
+    else if ((dataType as any).instance)
+      this[kCtorMap].set((dataType as any).instance, name);
   }
 
   has(nameOrCtor: string | Type | Function | object | DataType): boolean {
-    if (nameOrCtor instanceof DataType) return !!nameOrCtor.name && this[kMap].has(nameOrCtor.name);
-    const name = typeof nameOrCtor === 'string' ? nameOrCtor : this[kCtorMap].get(nameOrCtor);
+    if (nameOrCtor instanceof DataType)
+      return !!nameOrCtor.name && this[kMap].has(nameOrCtor.name);
+    const name =
+      typeof nameOrCtor === 'string'
+        ? nameOrCtor
+        : this[kCtorMap].get(nameOrCtor);
     return name ? this[kMap].has(name) : false;
   }
 

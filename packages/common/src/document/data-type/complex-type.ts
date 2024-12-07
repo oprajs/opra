@@ -22,7 +22,12 @@ export namespace ComplexType {
       {
         kind: OpraSchema.ComplexType.Kind;
         fields?: Record<string, ApiField.Metadata>;
-        additionalFields?: boolean | string | TypeThunkAsync | ['error'] | ['error', string];
+        additionalFields?:
+          | boolean
+          | string
+          | TypeThunkAsync
+          | ['error']
+          | ['error', string];
       },
       DataType.Metadata,
       OpraSchema.ComplexType
@@ -69,13 +74,20 @@ export interface ComplexTypeStatic {
    * @param context
    * @constructor
    */
-  new (owner: DocumentElement, args?: ComplexType.InitArguments, context?: DocumentInitContext): ComplexType;
+  new (
+    owner: DocumentElement,
+    args?: ComplexType.InitArguments,
+    context?: DocumentInitContext,
+  ): ComplexType;
 
   (options?: ComplexType.Options): ClassDecorator;
 
   prototype: ComplexType;
 
-  extend<T extends Type>(typeClass: T, fields: Record<string, ApiField.Options>): T;
+  extend<T extends Type>(
+    typeClass: T,
+    fields: Record<string, ApiField.Options>,
+  ): T;
 }
 
 /**
@@ -91,8 +103,12 @@ export const ComplexType = function (this: ComplexType | void, ...args: any[]) {
   // Decorator
   if (!this) return ComplexType[DECORATOR].apply(undefined, args);
   // Constructor
-  const [owner, initArgs] = args as [DocumentElement, ComplexType.InitArguments];
-  const context: DocumentInitContext = args[2] || new DocumentInitContext({ maxErrors: 0 });
+  const [owner, initArgs] = args as [
+    DocumentElement,
+    ComplexType.InitArguments,
+  ];
+  const context: DocumentInitContext =
+    args[2] || new DocumentInitContext({ maxErrors: 0 });
   ComplexTypeBase.call(this, owner, initArgs, context);
   const _this = asMutable(this);
   _this.kind = OpraSchema.ComplexType.Kind;
@@ -100,7 +116,9 @@ export const ComplexType = function (this: ComplexType | void, ...args: any[]) {
     context.enter('.base', () => {
       // noinspection SuspiciousTypeOfGuard
       if (!(initArgs.base instanceof ComplexTypeBase)) {
-        throw new TypeError(`"${(initArgs.base! as DataType).kind}" can't be set as base for a "${this.kind}"`);
+        throw new TypeError(
+          `"${(initArgs.base! as DataType).kind}" can't be set as base for a "${this.kind}"`,
+        );
       }
       _this.base = initArgs.base;
       _this.additionalFields = _this.base.additionalFields;
@@ -112,7 +130,8 @@ export const ComplexType = function (this: ComplexType | void, ...args: any[]) {
       }
     });
   }
-  if (initArgs.additionalFields !== undefined) _this.additionalFields = initArgs.additionalFields;
+  if (initArgs.additionalFields !== undefined)
+    _this.additionalFields = initArgs.additionalFields;
   if (initArgs.keyField !== undefined) _this.keyField = initArgs.keyField;
   _this.ctor = initArgs.ctor || _this.base?.ctor;
 
@@ -140,14 +159,17 @@ abstract class ComplexTypeClass extends ComplexTypeBase {
   declare readonly ctor?: Type;
 
   extendsFrom(baseType: DataType | string | Type | object): boolean {
-    if (!(baseType instanceof DataType)) baseType = this.node.getDataType(baseType);
+    if (!(baseType instanceof DataType))
+      baseType = this.node.getDataType(baseType);
     if (!(baseType instanceof ComplexTypeBase)) return false;
     if (baseType === this) return true;
     return !!this.base?.extendsFrom(baseType);
   }
 
   toJSON(): OpraSchema.ComplexType {
-    const baseName = this.base ? this.node.getDataTypeNameWithNs(this.base) : undefined;
+    const baseName = this.base
+      ? this.node.getDataTypeNameWithNs(this.base)
+      : undefined;
     const out = omitUndefined<OpraSchema.ComplexType>({
       ...ComplexTypeBase.prototype.toJSON.call(this),
       kind: this.kind,
@@ -156,7 +178,9 @@ abstract class ComplexTypeClass extends ComplexTypeBase {
     if (this.additionalFields) {
       if (this.additionalFields instanceof DataType) {
         const typeName = this.node.getDataTypeNameWithNs(this.additionalFields);
-        out.additionalFields = typeName ? typeName : (this.additionalFields.toJSON() as OpraSchema.DataType);
+        out.additionalFields = typeName
+          ? typeName
+          : (this.additionalFields.toJSON() as OpraSchema.DataType);
       } else out.additionalFields = this.additionalFields;
     }
     if (this.fields.size) {

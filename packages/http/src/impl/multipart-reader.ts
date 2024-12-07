@@ -79,7 +79,10 @@ export class MultipartReader extends EventEmitter {
       this.emit('item', item);
     });
     form.on('file', (field: string, file, info: busboy.FileInfo) => {
-      const saveTo = nodePath.join(this.tempDirectory, `opra-${generateFileName()}`);
+      const saveTo = nodePath.join(
+        this.tempDirectory,
+        `opra-${generateFileName()}`,
+      );
       file.pipe(fs.createWriteStream(saveTo));
       file.once('end', () => {
         const item: MultipartReader.FileInfo = {
@@ -126,24 +129,40 @@ export class MultipartReader extends EventEmitter {
     }
     if (item && this.mediaType) {
       const field = this.mediaType.findMultipartField(item.field);
-      if (!field) throw new BadRequestError(`Unknown multipart field (${item.field})`);
+      if (!field)
+        throw new BadRequestError(`Unknown multipart field (${item.field})`);
       if (item.kind === 'field') {
-        const decode = field.generateCodec('decode', { ignoreReadonlyFields: true, projection: '*' });
+        const decode = field.generateCodec('decode', {
+          ignoreReadonlyFields: true,
+          projection: '*',
+        });
         item!.value = decode(item!.value, {
-          onFail: issue => `Multipart field (${item.field}) validation failed: ` + issue.message,
+          onFail: issue =>
+            `Multipart field (${item.field}) validation failed: ` +
+            issue.message,
         });
       } else if (item.kind === 'file') {
         if (field.contentType) {
-          const arr = Array.isArray(field.contentType) ? field.contentType : [field.contentType];
-          if (!(item.mimeType && arr.find(ct => typeIs.is(item.mimeType!, [ct])))) {
-            throw new BadRequestError(`Multipart field (${item.field}) do not accept this content type`);
+          const arr = Array.isArray(field.contentType)
+            ? field.contentType
+            : [field.contentType];
+          if (
+            !(item.mimeType && arr.find(ct => typeIs.is(item.mimeType!, [ct])))
+          ) {
+            throw new BadRequestError(
+              `Multipart field (${item.field}) do not accept this content type`,
+            );
           }
         }
       }
     }
 
     /** if all items received we check for required items */
-    if (this._finished && this.mediaType && this.mediaType.multipartFields?.length > 0) {
+    if (
+      this._finished &&
+      this.mediaType &&
+      this.mediaType.multipartFields?.length > 0
+    ) {
       const fieldsLeft = new Set(this.mediaType.multipartFields);
       for (const x of this._items) {
         const field = this.mediaType.findMultipartField(x.field);
@@ -153,7 +172,10 @@ export class MultipartReader extends EventEmitter {
       for (const field of fieldsLeft) {
         if (!field.required) continue;
         try {
-          isNotNullish(null, { onFail: () => `Multi part field "${String(field.fieldName)}" is required` });
+          isNotNullish(null, {
+            onFail: () =>
+              `Multi part field "${String(field.fieldName)}" is required`,
+          });
         } catch (e: any) {
           if (!issues) {
             issues = (e as ValidationError).issues;
@@ -215,5 +237,8 @@ export class MultipartReader extends EventEmitter {
 
 function generateFileName() {
   const buf = Buffer.alloc(10);
-  return new Date().toISOString().substring(0, 10).replace(/-/g, '') + randomFillSync(buf).toString('hex');
+  return (
+    new Date().toISOString().substring(0, 10).replace(/-/g, '') +
+    randomFillSync(buf).toString('hex')
+  );
 }

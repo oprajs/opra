@@ -41,7 +41,10 @@ export class OpraException extends Error {
         system: this.system,
         code: this.code,
         details: this.details,
-        stack: env === 'dev' || env === 'development' || env === 'test' ? this.stack?.split('\n') : undefined,
+        stack:
+          env === 'dev' || env === 'development' || env === 'test'
+            ? this.stack?.split('\n')
+            : undefined,
       },
       true,
     );

@@ -20,7 +20,9 @@ export namespace I18n {
     resourceDirs?: string[];
   }
 
-  export type DeepTranslateOptions = TOptions & { ignore?: (input: any, inst: i18n) => boolean };
+  export type DeepTranslateOptions = TOptions & {
+    ignore?: (input: any, inst: i18n) => boolean;
+  };
   export type InitCallback = I18next.Callback;
   export type TranslateFunction = I18nextTFunction;
   export type Formatter = I18nextFormatter;
@@ -28,12 +30,20 @@ export namespace I18n {
   export type FallbackLng = I18nextFallbackLng;
 }
 
-export const BaseI18n = Object.getPrototypeOf(i18next.createInstance()).constructor as BaseI18n;
+// eslint-disable-next-line import-x/no-named-as-default-member
+export const BaseI18n = Object.getPrototypeOf(i18next.createInstance())
+  .constructor as BaseI18n;
 
 export class I18n extends BaseI18n {
   async init(callback?: I18n.InitCallback): Promise<I18n.TranslateFunction>;
-  async init(options: I18n.InitOptions, callback?: I18n.InitCallback): Promise<I18n.TranslateFunction>;
-  async init(arg0?: I18n.InitOptions | I18n.InitCallback, arg1?: I18n.InitCallback): Promise<I18n.TranslateFunction> {
+  async init(
+    options: I18n.InitOptions,
+    callback?: I18n.InitCallback,
+  ): Promise<I18n.TranslateFunction>;
+  async init(
+    arg0?: I18n.InitOptions | I18n.InitCallback,
+    arg1?: I18n.InitCallback,
+  ): Promise<I18n.TranslateFunction> {
     const options: I18n.InitOptions = typeof arg0 === 'object' ? arg0 : {};
     const callback = typeof arg0 === 'function' ? arg0 : arg1;
     try {
@@ -43,7 +53,11 @@ export class I18n extends BaseI18n {
       const formatter = this.services.formatter as I18n.Formatter;
       formatter.add('lowercase', (value, lng) => value.toLocaleLowerCase(lng));
       formatter.add('uppercase', (value, lng) => value.toLocaleUpperCase(lng));
-      formatter.add('upperFirst', (value, lng) => value.charAt(0).toLocaleUpperCase(lng) + value.substring(1));
+      formatter.add(
+        'upperFirst',
+        (value, lng) =>
+          value.charAt(0).toLocaleUpperCase(lng) + value.substring(1),
+      );
 
       // overwrite existing resources with options.resources
       if (options?.resources) {
@@ -68,20 +82,31 @@ export class I18n extends BaseI18n {
     return this._deepTranslate(input, objectStack, options);
   }
 
-  createInstance(options?: I18n.InitOptions, callback?: I18n.InitCallback): I18n {
+  createInstance(
+    options?: I18n.InitOptions,
+    callback?: I18n.InitCallback,
+  ): I18n {
     return new I18n(options, callback);
   }
 
-  static createInstance(options?: I18n.InitOptions, callback?: I18n.InitCallback): I18n {
+  static createInstance(
+    options?: I18n.InitOptions,
+    callback?: I18n.InitCallback,
+  ): I18n {
     return new I18n(options, callback);
   }
 
-  protected _deepTranslate(input: any, objectStack: WeakMap<object, any>, options?: I18n.DeepTranslateOptions): any {
+  protected _deepTranslate(
+    input: any,
+    objectStack: WeakMap<object, any>,
+    options?: I18n.DeepTranslateOptions,
+  ): any {
     if (input == null) return input;
 
     if (options?.ignore && options.ignore(input, this)) return input;
 
-    if (typeof input === 'object' && objectStack.has(input)) return objectStack.get(input);
+    if (typeof input === 'object' && objectStack.has(input))
+      return objectStack.get(input);
 
     if (typeof input === 'string') {
       let s = '';
@@ -94,13 +119,23 @@ export class I18n extends BaseI18n {
       })) {
         if (token.startsWith('$t(') && token.endsWith(')')) {
           token = token.substring(3, token.length - 1);
-          const a = splitString(token, { delimiters: '?', quotes: true, brackets: { '{': '}' } });
-          const fallback = unescapeString(token.substring((a[0] || '').length + 1));
+          const a = splitString(token, {
+            delimiters: '?',
+            quotes: true,
+            brackets: { '{': '}' },
+          });
+          const fallback = unescapeString(
+            token.substring((a[0] || '').length + 1),
+          );
           token = a[0] || '';
 
           const keys: string[] = [];
           let opts: any = null;
-          for (const token2 of tokenize(token, { delimiters: ',', quotes: true, brackets: { '{': '}' } })) {
+          for (const token2 of tokenize(token, {
+            delimiters: ',',
+            quotes: true,
+            brackets: { '{': '}' },
+          })) {
             if (token2.startsWith('{')) {
               opts = JSON.parse(token2);
               continue;

@@ -9,7 +9,12 @@ import { DocumentElement } from '../common/document-element.js';
 import { CLASS_NAME_PATTERN, DECORATOR, kDataTypeMap } from '../constants.js';
 import type { EnumType } from '../data-type/enum-type.js';
 import { HttpControllerDecoratorFactory } from '../decorators/http-controller.decorator.js';
-import { colorFgMagenta, colorFgYellow, colorReset, nodeInspectCustom } from '../utils/inspect.util.js';
+import {
+  colorFgMagenta,
+  colorFgYellow,
+  colorReset,
+  nodeInspectCustom,
+} from '../utils/inspect.util.js';
 import type { HttpApi } from './http-api.js';
 import type { HttpOperation } from './http-operation';
 import { HttpParameter } from './http-parameter.js';
@@ -18,7 +23,8 @@ import { HttpParameter } from './http-parameter.js';
  * @namespace HttpController
  */
 export namespace HttpController {
-  export interface Metadata extends Pick<OpraSchema.HttpController, 'description' | 'path'> {
+  export interface Metadata
+    extends Pick<OpraSchema.HttpController, 'description' | 'path'> {
     name: string;
     controllers?: (Type | ((parent: any) => any))[];
     types?: ThunkAsync<Type | EnumType.EnumObject | EnumType.EnumArray>[];
@@ -26,7 +32,8 @@ export namespace HttpController {
     parameters?: HttpParameter.Metadata[];
   }
 
-  export interface Options extends Partial<Pick<OpraSchema.HttpController, 'description' | 'path'>> {
+  export interface Options
+    extends Partial<Pick<OpraSchema.HttpController, 'description' | 'path'>> {
     name?: string;
     controllers?: (Type | ((parent: any) => any))[];
   }
@@ -51,7 +58,10 @@ export interface HttpControllerStatic extends HttpControllerDecoratorFactory {
    * @param owner
    * @param args
    */
-  new (owner: HttpApi | HttpController, args: HttpController.InitArguments): HttpController;
+  new (
+    owner: HttpApi | HttpController,
+    args: HttpController.InitArguments,
+  ): HttpController;
 
   prototype: HttpController;
 }
@@ -65,14 +75,21 @@ export interface HttpController extends HttpControllerClass {}
 /**
  * HttpController
  */
-export const HttpController = function (this: HttpController | void, ...args: any[]) {
+export const HttpController = function (
+  this: HttpController | void,
+  ...args: any[]
+) {
   // ClassDecorator
   if (!this) return HttpController[DECORATOR].apply(undefined, args);
 
   // Constructor
-  const [owner, initArgs] = args as [HttpApi | HttpController, HttpController.InitArguments];
+  const [owner, initArgs] = args as [
+    HttpApi | HttpController,
+    HttpController.InitArguments,
+  ];
   DocumentElement.call(this, owner);
-  if (!CLASS_NAME_PATTERN.test(initArgs.name)) throw new TypeError(`Invalid resource name (${initArgs.name})`);
+  if (!CLASS_NAME_PATTERN.test(initArgs.name))
+    throw new TypeError(`Invalid resource name (${initArgs.name})`);
   const _this = asMutable(this);
   _this.kind = OpraSchema.HttpController.Kind;
   _this.types = _this.node[kDataTypeMap] = new DataTypeMap();
@@ -148,7 +165,10 @@ class HttpControllerClass extends DocumentElement {
     return this.controllers.get(arg0);
   }
 
-  findParameter(paramName: string, location?: OpraSchema.HttpParameterLocation): HttpParameter | undefined {
+  findParameter(
+    paramName: string,
+    location?: OpraSchema.HttpParameterLocation,
+  ): HttpParameter | undefined {
     const paramNameLower = paramName.toLowerCase();
     let prm: any;
     for (prm of this.parameters) {
@@ -159,13 +179,19 @@ class HttpControllerClass extends DocumentElement {
       }
       if (prm.name instanceof RegExp && prm.name.test(paramName)) return prm;
     }
-    if (this.node.parent && this.node.parent.element instanceof HttpController) {
+    if (
+      this.node.parent &&
+      this.node.parent.element instanceof HttpController
+    ) {
       return this.node.parent.element.findParameter(paramName, location);
     }
   }
 
   getFullUrl(): string {
-    return nodePath.posix.join(this.owner instanceof HttpController ? this.owner.getFullUrl() : '/', this.path);
+    return nodePath.posix.join(
+      this.owner instanceof HttpController ? this.owner.getFullUrl() : '/',
+      this.path,
+    );
   }
 
   /**

@@ -4,8 +4,10 @@ import { MimeTypes, OpraFilter } from '@opra/common';
 import ruleJudgmentLib from 'rule-judgment';
 import { ApiExpectBase } from './api-expect-base.js';
 
-// @ts-ignore
-const ruleJudgment = typeof ruleJudgmentLib === 'object' ? ruleJudgmentLib.default : ruleJudgmentLib;
+const ruleJudgment =
+  typeof ruleJudgmentLib === 'object'
+    ? (ruleJudgmentLib as any).default
+    : ruleJudgmentLib;
 
 export class ApiExpectCollection extends ApiExpectBase {
   get not(): ApiExpectCollection {
@@ -20,7 +22,9 @@ export class ApiExpectCollection extends ApiExpectBase {
   toReturnItems(min?: number, max?: number): this {
     let msg = '';
     try {
-      const data = typeIs.is(this.response.contentType, [MimeTypes.opra_response_json])
+      const data = typeIs.is(this.response.contentType, [
+        MimeTypes.opra_response_json,
+      ])
         ? this.response.body.payload
         : this.response.body;
       msg += `Payload should be array.`;
@@ -59,7 +63,9 @@ export class ApiExpectCollection extends ApiExpectBase {
   toMatch<T extends {}>(expected: T): this {
     try {
       expected = omitNullish(expected) as T;
-      const data = typeIs.is(this.response.contentType, [MimeTypes.opra_response_json])
+      const data = typeIs.is(this.response.contentType, [
+        MimeTypes.opra_response_json,
+      ])
         ? this.response.body.payload
         : this.response.body;
       for (const x of data) {
@@ -79,7 +85,9 @@ export class ApiExpectCollection extends ApiExpectBase {
   toContainFields(fields: string | string[]): this {
     try {
       fields = Array.isArray(fields) ? fields : [fields];
-      const data = typeIs.is(this.response.contentType, [MimeTypes.opra_response_json])
+      const data = typeIs.is(this.response.contentType, [
+        MimeTypes.opra_response_json,
+      ])
         ? this.response.body.payload
         : this.response.body;
       for (const item of data) {
@@ -99,7 +107,9 @@ export class ApiExpectCollection extends ApiExpectBase {
   toContainAllFields(fields: string | string[]): this {
     try {
       fields = Array.isArray(fields) ? fields : [fields];
-      const data = typeIs.is(this.response.contentType, [MimeTypes.opra_response_json])
+      const data = typeIs.is(this.response.contentType, [
+        MimeTypes.opra_response_json,
+      ])
         ? this.response.body.payload
         : this.response.body;
       for (const item of data) {
@@ -119,7 +129,9 @@ export class ApiExpectCollection extends ApiExpectBase {
   toBeSortedBy(fields: string | string[]): this {
     try {
       fields = Array.isArray(fields) ? fields : [fields];
-      const data = typeIs.is(this.response.contentType, [MimeTypes.opra_response_json])
+      const data = typeIs.is(this.response.contentType, [
+        MimeTypes.opra_response_json,
+      ])
         ? this.response.body.payload
         : this.response.body;
       (this._expect(data) as any).opraCollectionToBeSortedBy(fields);
@@ -138,7 +150,9 @@ export class ApiExpectCollection extends ApiExpectBase {
     const f = convertFilter(filter);
     if (f) {
       const j = ruleJudgment(f);
-      const data = typeIs.is(this.response.contentType, [MimeTypes.opra_response_json])
+      const data = typeIs.is(this.response.contentType, [
+        MimeTypes.opra_response_json,
+      ])
         ? this.response.body.payload
         : this.response.body;
       const filtered = data.filter(j);
@@ -179,7 +193,7 @@ expect.extend({
       });
       try {
         expect(received).toEqual(sorted);
-      } catch (e) {
+      } catch {
         pass = false;
         message = () => 'Items are not sorted as expected';
       }
@@ -192,7 +206,9 @@ expect.extend({
   },
 });
 
-export function convertFilter(str: string | OpraFilter.Expression | undefined): any {
+export function convertFilter(
+  str: string | OpraFilter.Expression | undefined,
+): any {
   const ast = typeof str === 'string' ? OpraFilter.parse(str) : str;
   if (!ast) return;
 
@@ -218,7 +234,9 @@ export function convertFilter(str: string | OpraFilter.Expression | undefined): 
       case '!in':
         return { $nin: { [left]: right } };
       default:
-        throw new Error(`ComparisonExpression operator (${ast.op}) not implemented yet`);
+        throw new Error(
+          `ComparisonExpression operator (${ast.op}) not implemented yet`,
+        );
     }
   }
   if (ast instanceof OpraFilter.QualifiedIdentifier) {

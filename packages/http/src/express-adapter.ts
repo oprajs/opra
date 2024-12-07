@@ -1,6 +1,18 @@
 import * as nodePath from 'node:path';
-import { ApiDocument, HttpApi, HttpController, HttpOperation, NotFoundError } from '@opra/common';
-import { type Application, type NextFunction, type Request, type Response, Router } from 'express';
+import {
+  ApiDocument,
+  HttpApi,
+  HttpController,
+  HttpOperation,
+  NotFoundError,
+} from '@opra/common';
+import {
+  type Application,
+  type NextFunction,
+  type Request,
+  type Response,
+  Router,
+} from 'express';
 import { HttpAdapter } from './http-adapter.js';
 import { HttpContext } from './http-context.js';
 import { HttpIncoming } from './interfaces/http-incoming.interface.js';
@@ -20,8 +32,10 @@ export class ExpressAdapter extends HttpAdapter {
   }
 
   initialize(document: ApiDocument) {
-    if (this._document) throw new TypeError(`${this.constructor.name} already initialized.`);
-    if (!(document.api instanceof HttpApi)) throw new TypeError(`The document does not expose an HTTP Api`);
+    if (this._document)
+      throw new TypeError(`${this.constructor.name} already initialized.`);
+    if (!(document.api instanceof HttpApi))
+      throw new TypeError(`The document does not expose an HTTP Api`);
     this._document = document;
     for (const c of this.api.controllers.values()) this._createControllers(c);
     this._initRouter();
@@ -85,7 +99,10 @@ export class ExpressAdapter extends HttpAdapter {
 
     /** Add operation endpoints */
     if (this.api.controllers.size) {
-      const processResource = (controller: HttpController, currentPath: string) => {
+      const processResource = (
+        controller: HttpController,
+        currentPath: string,
+      ) => {
         currentPath = nodePath.join(currentPath, controller.path);
         for (const operation of controller.operations.values()) {
           const routePath = currentPath + (operation.path || '');
@@ -93,22 +110,26 @@ export class ExpressAdapter extends HttpAdapter {
           const operationHandler = controllerInstance[operation.name];
           if (!operationHandler) continue;
           /** Define router callback */
-          router[operation.method.toLowerCase()](routePath, (_req: Request, _res: Response, _next: NextFunction) => {
-            createContext(_req, _res, {
-              controller,
-              controllerInstance,
-              operation,
-              operationHandler,
-            })
-              .then(ctx => this.handler.handleRequest(ctx))
-              .then(() => {
-                if (!_res.headersSent) _next();
+          router[operation.method.toLowerCase()](
+            routePath,
+            (_req: Request, _res: Response, _next: NextFunction) => {
+              createContext(_req, _res, {
+                controller,
+                controllerInstance,
+                operation,
+                operationHandler,
               })
-              .catch((e: unknown) => this.emit('error', e));
-          });
+                .then(ctx => this.handler.handleRequest(ctx))
+                .then(() => {
+                  if (!_res.headersSent) _next();
+                })
+                .catch((e: unknown) => this.emit('error', e));
+            },
+          );
         }
         if (controller.controllers.size) {
-          for (const child of controller.controllers.values()) processResource(child, currentPath);
+          for (const child of controller.controllers.values())
+            processResource(child, currentPath);
         }
       };
       for (const c of this.api.controllers.values()) processResource(c, '/');

@@ -3,7 +3,10 @@ import { ExpressAdapter } from '@opra/http';
 import cookieParser from 'cookie-parser';
 import express, { Express } from 'express';
 import supertest from 'supertest';
-import { createTestApi, CustomersController } from './_support/test-api/index.js';
+import {
+  createTestApi,
+  CustomersController,
+} from './_support/test-api/index.js';
 
 describe('ExpressAdapter', () => {
   let document: ApiDocument;
@@ -26,7 +29,12 @@ describe('ExpressAdapter', () => {
     expect(routerStack).toBeDefined();
     const paths = routerStack.handle.stack
       .filter(x => x.route)
-      .map(x => x.route.path + ' | ' + Object.keys(x.route.methods).join(',').toUpperCase());
+      .map(
+        x =>
+          x.route.path +
+          ' | ' +
+          Object.keys(x.route.methods).join(',').toUpperCase(),
+      );
 
     expect(paths).toEqual([
       '/\\$schema | GET',
@@ -81,7 +89,8 @@ describe('ExpressAdapter', () => {
   });
 
   it('Should call HttpController onShutdown method on close', async () => {
-    const instance = adapter.getControllerInstance<CustomersController>('/Customers');
+    const instance =
+      adapter.getControllerInstance<CustomersController>('/Customers');
     await adapter.close();
     expect(instance).toBeDefined();
     expect(instance).toBeInstanceOf(CustomersController);

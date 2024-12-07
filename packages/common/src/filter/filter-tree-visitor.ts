@@ -37,7 +37,10 @@ import {
 import { ExternalConstant } from './ast/terms/external-constant.js';
 import { unquoteFilterString } from './utils.js';
 
-export class FilterTreeVisitor extends ParseTreeVisitor<any> implements OpraFilterVisitor<any> {
+export class FilterTreeVisitor
+  extends ParseTreeVisitor<any>
+  implements OpraFilterVisitor<any>
+{
   private _timeZone?: string;
 
   constructor(options?: { timeZone?: string }) {
@@ -85,7 +88,10 @@ export class FilterTreeVisitor extends ParseTreeVisitor<any> implements OpraFilt
     const items: any[] = [];
     const wrapChildren = (arr: ExpressionContext[], op: string) => {
       for (const c of arr) {
-        if (c instanceof LogicalExpressionContext && c.logicalOperator().getText() === op) {
+        if (
+          c instanceof LogicalExpressionContext &&
+          c.logicalOperator().getText() === op
+        ) {
           wrapChildren(c.expression_list(), c.logicalOperator().getText());
           continue;
         }
@@ -141,7 +147,9 @@ export class FilterTreeVisitor extends ParseTreeVisitor<any> implements OpraFilt
   }
 
   visitArrayValue(ctx: ArrayValueContext) {
-    return new ArrayExpression(ctx.value_list().map(child => this.visit(child)));
+    return new ArrayExpression(
+      ctx.value_list().map(child => this.visit(child)),
+    );
   }
 
   //

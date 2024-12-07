@@ -5,7 +5,12 @@ import { cloneObject, ResponsiveMap } from '../helpers/index.js';
 import { OpraSchema } from '../schema/index.js';
 import { DataTypeMap } from './common/data-type-map.js';
 import { DocumentElement } from './common/document-element.js';
-import { BUILTIN, kDataTypeMap, kTypeNSMap, NAMESPACE_PATTERN } from './constants.js';
+import {
+  BUILTIN,
+  kDataTypeMap,
+  kTypeNSMap,
+  NAMESPACE_PATTERN,
+} from './constants.js';
 import { DataType } from './data-type/data-type.js';
 import type { EnumType } from './data-type/enum-type.js';
 import { HttpApi } from './http/http-api.js';
@@ -35,10 +40,18 @@ export class ApiDocument extends DocumentElement {
    * @param nameOrCtor
    */
   getDataTypeNs(
-    nameOrCtor: string | Type | Function | EnumType.EnumArray | EnumType.EnumObject | DataType,
+    nameOrCtor:
+      | string
+      | Type
+      | Function
+      | EnumType.EnumArray
+      | EnumType.EnumObject
+      | DataType,
   ): string | undefined {
     const dt =
-      nameOrCtor instanceof DataType ? this._findDataType(nameOrCtor.name || '') : this._findDataType(nameOrCtor);
+      nameOrCtor instanceof DataType
+        ? this._findDataType(nameOrCtor.name || '')
+        : this._findDataType(nameOrCtor);
     if (dt) return this[kTypeNSMap].get(dt);
   }
 
@@ -113,7 +126,12 @@ export class ApiDocument extends DocumentElement {
   }
 
   protected _findDataType(
-    nameOrCtor: string | Type | Function | EnumType.EnumArray | EnumType.EnumObject,
+    nameOrCtor:
+      | string
+      | Type
+      | Function
+      | EnumType.EnumArray
+      | EnumType.EnumObject,
     visitedRefs?: WeakMap<ApiDocument, boolean>,
   ): DataType | undefined {
     let result = this.types.get(nameOrCtor);

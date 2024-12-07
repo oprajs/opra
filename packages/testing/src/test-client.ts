@@ -3,7 +3,10 @@ import { IncomingMessage, Server, ServerResponse } from 'http';
 import { ApiExpect } from './api-expect/api-expect.js';
 import { TestBackend } from './test-backend.js';
 
-declare type RequestListener = (req: IncomingMessage, res: ServerResponse) => void;
+declare type RequestListener = (
+  req: IncomingMessage,
+  res: ServerResponse,
+) => void;
 export const kContext = Symbol.for('kContext');
 
 export type ResponseExt = { expect: ApiExpect };
@@ -14,7 +17,10 @@ export namespace OpraTestClient {
   }
 }
 
-export class OpraTestClient extends HttpClientBase<FetchBackend.RequestOptions, ResponseExt> {
+export class OpraTestClient extends HttpClientBase<
+  FetchBackend.RequestOptions,
+  ResponseExt
+> {
   declare [kBackend]: TestBackend;
 
   constructor(app: Server | RequestListener, options?: OpraTestClient.Options) {

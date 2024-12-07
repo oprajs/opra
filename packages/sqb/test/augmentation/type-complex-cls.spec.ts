@@ -1,5 +1,10 @@
 import '@opra/sqb';
-import { ApiDocumentFactory, ApiField, ComplexType, EnumType } from '@opra/common';
+import {
+  ApiDocumentFactory,
+  ApiField,
+  ComplexType,
+  EnumType,
+} from '@opra/common';
 import { Column, DataType, Link } from '@sqb/connect';
 
 export enum GenderEnum {

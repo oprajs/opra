@@ -7,31 +7,52 @@ import type { HttpParameter } from '../http/http-parameter.js';
 
 const CLASS_NAME_PATTERN = /^(.*)(Controller)$/;
 
-export interface HttpControllerDecorator<T extends HttpControllerDecorator<any> = HttpControllerDecorator<any>>
-  extends ClassDecorator {
+export interface HttpControllerDecorator<
+  T extends HttpControllerDecorator<any> = HttpControllerDecorator<any>,
+> extends ClassDecorator {
   Cookie(
     name: string | RegExp,
-    optionsOrType?: StrictOmit<HttpParameter.Options, 'location'> | string | Type | false,
+    optionsOrType?:
+      | StrictOmit<HttpParameter.Options, 'location'>
+      | string
+      | Type
+      | false,
   ): T;
 
   Header(
     name: string | RegExp,
-    optionsOrType?: StrictOmit<HttpParameter.Options, 'location'> | string | TypeThunkAsync | false,
+    optionsOrType?:
+      | StrictOmit<HttpParameter.Options, 'location'>
+      | string
+      | TypeThunkAsync
+      | false,
   ): T;
 
   QueryParam(
     name: string | RegExp,
-    optionsOrType?: StrictOmit<HttpParameter.Options, 'location'> | string | TypeThunkAsync | false,
+    optionsOrType?:
+      | StrictOmit<HttpParameter.Options, 'location'>
+      | string
+      | TypeThunkAsync
+      | false,
   ): T;
 
   PathParam(
     name: string | RegExp,
-    optionsOrType?: StrictOmit<HttpParameter.Options, 'location'> | string | TypeThunkAsync | false,
+    optionsOrType?:
+      | StrictOmit<HttpParameter.Options, 'location'>
+      | string
+      | TypeThunkAsync
+      | false,
   ): T;
 
   KeyParam(
     name: string | RegExp,
-    optionsOrType?: StrictOmit<HttpParameter.Options, 'location'> | string | TypeThunkAsync | false,
+    optionsOrType?:
+      | StrictOmit<HttpParameter.Options, 'location'>
+      | string
+      | TypeThunkAsync
+      | false,
   ): T;
 
   UseType(...type: TypeThunkAsync[]): T;
@@ -41,7 +62,9 @@ export interface HttpControllerDecoratorFactory {
   <T extends HttpController.Options>(options?: T): HttpControllerDecorator;
 }
 
-export function HttpControllerDecoratorFactory<O extends HttpController.Options>(options?: O): HttpControllerDecorator {
+export function HttpControllerDecoratorFactory<
+  O extends HttpController.Options,
+>(options?: O): HttpControllerDecorator {
   const decoratorChain: Function[] = [];
   /**
    *
@@ -51,9 +74,15 @@ export function HttpControllerDecoratorFactory<O extends HttpController.Options>
     if (!name) name = CLASS_NAME_PATTERN.exec(target.name)?.[1] || target.name;
 
     const metadata = {} as HttpController.Metadata;
-    const baseMetadata = Reflect.getOwnMetadata(HTTP_CONTROLLER_METADATA, Object.getPrototypeOf(target));
+    const baseMetadata = Reflect.getOwnMetadata(
+      HTTP_CONTROLLER_METADATA,
+      Object.getPrototypeOf(target),
+    );
     if (baseMetadata) merge(metadata, baseMetadata, { deep: true });
-    const oldMetadata = Reflect.getOwnMetadata(HTTP_CONTROLLER_METADATA, target);
+    const oldMetadata = Reflect.getOwnMetadata(
+      HTTP_CONTROLLER_METADATA,
+      target,
+    );
     if (oldMetadata) merge(metadata, oldMetadata, { deep: true });
     merge(
       metadata,
@@ -61,7 +90,13 @@ export function HttpControllerDecoratorFactory<O extends HttpController.Options>
         kind: OpraSchema.HttpController.Kind,
         name,
         path: name,
-        ...omit(options as any, ['kind', 'name', 'instance', 'endpoints', 'key']),
+        ...omit(options as any, [
+          'kind',
+          'name',
+          'instance',
+          'endpoints',
+          'key',
+        ]),
       },
       { deep: true },
     );
@@ -75,7 +110,11 @@ export function HttpControllerDecoratorFactory<O extends HttpController.Options>
    */
   decorator.Cookie = (
     name: string | RegExp,
-    arg1?: StrictOmit<HttpParameter.Options, 'location'> | string | Type | false,
+    arg1?:
+      | StrictOmit<HttpParameter.Options, 'location'>
+      | string
+      | Type
+      | false,
   ) => {
     decoratorChain.push((meta: HttpController.Metadata): void => {
       const paramMeta: HttpParameter.Metadata =
@@ -97,7 +136,11 @@ export function HttpControllerDecoratorFactory<O extends HttpController.Options>
    */
   decorator.Header = (
     name: string | RegExp,
-    arg1?: StrictOmit<HttpParameter.Options, 'location'> | string | Type | false,
+    arg1?:
+      | StrictOmit<HttpParameter.Options, 'location'>
+      | string
+      | Type
+      | false,
   ) => {
     decoratorChain.push((meta: HttpController.Metadata): void => {
       const paramMeta: HttpParameter.Metadata =
@@ -119,7 +162,11 @@ export function HttpControllerDecoratorFactory<O extends HttpController.Options>
    */
   decorator.QueryParam = (
     name: string | RegExp,
-    arg1?: StrictOmit<HttpParameter.Options, 'location'> | string | Type | false,
+    arg1?:
+      | StrictOmit<HttpParameter.Options, 'location'>
+      | string
+      | Type
+      | false,
   ) => {
     decoratorChain.push((meta: HttpController.Metadata): void => {
       const paramMeta: HttpParameter.Metadata =
@@ -141,7 +188,11 @@ export function HttpControllerDecoratorFactory<O extends HttpController.Options>
    */
   decorator.PathParam = (
     name: string | RegExp,
-    arg1?: StrictOmit<HttpParameter.Options, 'location'> | string | Type | false,
+    arg1?:
+      | StrictOmit<HttpParameter.Options, 'location'>
+      | string
+      | Type
+      | false,
   ) => {
     decoratorChain.push((meta: HttpController.Metadata): void => {
       const paramMeta: HttpParameter.Metadata =
@@ -163,10 +214,15 @@ export function HttpControllerDecoratorFactory<O extends HttpController.Options>
    */
   decorator.KeyParam = (
     name: string | RegExp,
-    arg1?: StrictOmit<HttpParameter.Options, 'location'> | string | Type | false,
+    arg1?:
+      | StrictOmit<HttpParameter.Options, 'location'>
+      | string
+      | Type
+      | false,
   ) => {
     decoratorChain.push((meta: HttpController.Metadata): void => {
-      if (!meta.path?.includes(':' + name)) meta.path = (meta.path || '') + '@:' + name;
+      if (!meta.path?.includes(':' + name))
+        meta.path = (meta.path || '') + '@:' + name;
       const paramMeta: HttpParameter.Metadata =
         typeof arg1 === 'string' || typeof arg1 === 'function'
           ? {

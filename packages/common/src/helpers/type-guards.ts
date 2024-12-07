@@ -6,7 +6,11 @@ export function isStream(x: any): x is Stream {
 }
 
 export function isReadable(x: any): x is Readable {
-  return (isStream(x) as any) && typeof x._read === 'function' && typeof x._readableState === 'object';
+  return (
+    (isStream(x) as any) &&
+    typeof x._read === 'function' &&
+    typeof x._readableState === 'object'
+  );
 }
 
 export function isWritable(x: any): x is Readable {
@@ -43,5 +47,10 @@ export function isFormData(x: any): x is FormData {
 }
 
 export function isURL(x: any): x is URL {
-  return x !== null && typeof x == 'object' && typeof x.host === 'string' && typeof x.href === 'string';
+  return (
+    x !== null &&
+    typeof x == 'object' &&
+    typeof x.host === 'string' &&
+    typeof x.href === 'string'
+  );
 }

@@ -28,17 +28,32 @@ export function singletonGetTests(args: { client: OpraTestClient }) {
 
     it('Should exclude exclusive fields by default', async () => {
       const resp = await args.client.get('auth/MyProfile').getResponse();
-      resp.expect.toSuccess().toReturnObject().not.toContainFields(['address', 'notes']);
+      resp.expect
+        .toSuccess()
+        .toReturnObject()
+        .not.toContainFields(['address', 'notes']);
     });
 
     it('Should fetch exclusive fields if requested', async () => {
-      const resp = await args.client.get('auth/MyProfile').param('projection', '+address').getResponse();
-      resp.expect.toSuccess().toReturnObject().toContainFields(['_id', 'givenName', 'address']);
+      const resp = await args.client
+        .get('auth/MyProfile')
+        .param('projection', '+address')
+        .getResponse();
+      resp.expect
+        .toSuccess()
+        .toReturnObject()
+        .toContainFields(['_id', 'givenName', 'address']);
     });
 
     it('Should pick fields to be returned', async () => {
-      const resp = await args.client.get('auth/MyProfile').param('projection', '_id,givenName').getResponse();
-      resp.expect.toSuccess().toReturnObject().toContainAllFields(['_id', 'givenName']);
+      const resp = await args.client
+        .get('auth/MyProfile')
+        .param('projection', '_id,givenName')
+        .getResponse();
+      resp.expect
+        .toSuccess()
+        .toReturnObject()
+        .toContainAllFields(['_id', 'givenName']);
     });
 
     it('Should return 204 NO-CONTENT status code if resource available', async () => {

@@ -14,7 +14,11 @@ describe('SimpleType() decorator', () => {
     class CustomStringType extends StringType {}
 
     const schema = Reflect.getMetadata(DATATYPE_METADATA, CustomStringType);
-    expect(schema).toStrictEqual({ kind: 'SimpleType', name: 'customstring', ...opts });
+    expect(schema).toStrictEqual({
+      kind: 'SimpleType',
+      name: 'customstring',
+      ...opts,
+    });
   });
 
   it('Should set alternate name', async () => {

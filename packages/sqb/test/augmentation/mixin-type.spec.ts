@@ -1,6 +1,11 @@
 import 'reflect-metadata';
 import '@opra/sqb';
-import { ApiField, ComplexType, DATATYPE_METADATA, MixinType } from '@opra/common';
+import {
+  ApiField,
+  ComplexType,
+  DATATYPE_METADATA,
+  MixinType,
+} from '@opra/common';
 import { Column, Entity } from '@sqb/connect';
 
 describe('MixinType augmentation', () => {

@@ -16,7 +16,11 @@ import { DataTypeFactory } from './data-type.factory.js';
 
 export namespace HttpApiFactory {
   export interface InitArguments extends HttpApi.InitArguments {
-    controllers: Type[] | any[] | ((parent: any) => any) | OpraSchema.HttpApi['controllers'];
+    controllers:
+      | Type[]
+      | any[]
+      | ((parent: any) => any)
+      | OpraSchema.HttpApi['controllers'];
   }
 }
 
@@ -29,7 +33,10 @@ export class HttpApiFactory {
    * @param context
    * @param init
    */
-  static async createApi(context: DocumentInitContext, init: HttpApiFactory.InitArguments): Promise<HttpApi> {
+  static async createApi(
+    context: DocumentInitContext,
+    init: HttpApiFactory.InitArguments,
+  ): Promise<HttpApi> {
     const api = new HttpApi(init);
     if (init.controllers) {
       await context.enterAsync('.controllers', async () => {
@@ -42,7 +49,11 @@ export class HttpApiFactory {
   protected static async _createControllers(
     context: DocumentInitContext,
     parent: HttpApi | HttpController,
-    controllers: Type[] | any[] | ((parent: any) => any) | OpraSchema.HttpApi['controllers'],
+    controllers:
+      | Type[]
+      | any[]
+      | ((parent: any) => any)
+      | OpraSchema.HttpApi['controllers'],
   ) {
     if (Array.isArray(controllers)) {
       let i = 0;
@@ -53,9 +64,16 @@ export class HttpApiFactory {
         });
         if (!r) continue;
         await context.enterAsync(`[${r.metadata.name}]`, async () => {
-          const controller = await this._createController(context, parent, r.metadata, r.instance, r.ctor);
+          const controller = await this._createController(
+            context,
+            parent,
+            r.metadata,
+            r.instance,
+            r.ctor,
+          );
           if (controller) {
-            if (parent.controllers.get(controller.name)) context.addError(`Duplicate controller name (${r.name})`);
+            if (parent.controllers.get(controller.name))
+              context.addError(`Duplicate controller name (${r.name})`);
             parent.controllers.set(controller.name, controller);
           }
         });
@@ -77,7 +95,8 @@ export class HttpApiFactory {
           r.ctor,
         );
         if (controller) {
-          if (parent.controllers.get(controller.name)) context.addError(`Duplicate controller name (${k})`);
+          if (parent.controllers.get(controller.name))
+            context.addError(`Duplicate controller name (${k})`);
           parent.controllers.set(controller.name, controller);
         }
       });
@@ -98,7 +117,8 @@ export class HttpApiFactory {
     | void
   > {
     if (typeof thunk === 'function' && !isConstructor(thunk)) {
-      thunk = parent instanceof HttpController ? thunk(parent.instance) : thunk();
+      thunk =
+        parent instanceof HttpController ? thunk(parent.instance) : thunk();
     }
     thunk = await resolveThunk(thunk);
     let ctor: Type;
@@ -108,7 +128,10 @@ export class HttpApiFactory {
     // If thunk is a class
     if (typeof thunk === 'function') {
       metadata = Reflect.getMetadata(HTTP_CONTROLLER_METADATA, thunk);
-      if (!metadata) return context.addError(`Class "${thunk.name}" doesn't have a valid HttpController metadata`);
+      if (!metadata)
+        return context.addError(
+          `Class "${thunk.name}" doesn't have a valid HttpController metadata`,
+        );
       ctor = thunk as Type;
     } else {
       // If thunk is an instance of a class decorated with HttpController()
@@ -124,7 +147,10 @@ export class HttpApiFactory {
         }
       }
     }
-    if (!metadata) return context.addError(`Class "${ctor.name}" is not decorated with HttpController()`);
+    if (!metadata)
+      return context.addError(
+        `Class "${ctor.name}" is not decorated with HttpController()`,
+      );
     return { metadata, instance, ctor };
   }
 
@@ -135,7 +161,8 @@ export class HttpApiFactory {
     instance: any,
     ctor: Type,
   ): Promise<HttpController | undefined | void> {
-    if (!(metadata as any).name) throw new TypeError(`Controller name required`);
+    if (!(metadata as any).name)
+      throw new TypeError(`Controller name required`);
     const controller = new HttpController(parent, {
       ...(metadata as any),
       instance,
@@ -143,7 +170,11 @@ export class HttpApiFactory {
     });
     if (metadata.types) {
       await context.enterAsync('.types', async () => {
-        await DataTypeFactory.addDataTypes(context, controller, metadata.types!);
+        await DataTypeFactory.addDataTypes(
+          context,
+          controller,
+          metadata.types!,
+        );
       });
     }
 
@@ -154,7 +185,11 @@ export class HttpApiFactory {
           await context.enterAsync(`[${i++}]`, async () => {
             const prmArgs = { ...v } as HttpParameter.InitArguments;
             await context.enterAsync('.type', async () => {
-              prmArgs.type = await DataTypeFactory.resolveDataType(context, controller, v.type);
+              prmArgs.type = await DataTypeFactory.resolveDataType(
+                context,
+                controller,
+                v.type,
+              );
             });
             const prm = new HttpParameter(controller, prmArgs);
             controller.parameters.push(prm);
@@ -167,7 +202,10 @@ export class HttpApiFactory {
       await context.enterAsync('.operations', async () => {
         for (const [k, v] of Object.entries<any>(metadata.operations!)) {
           await context.enterAsync(`[${k}]`, async () => {
-            const operation = new HttpOperation(controller, { name: k, method: 'GET' });
+            const operation = new HttpOperation(controller, {
+              name: k,
+              method: 'GET',
+            });
             await this._initHttpOperation(context, operation, v);
             controller.operations.set(k, operation);
           });
@@ -177,7 +215,11 @@ export class HttpApiFactory {
 
     if (metadata.controllers) {
       await context.enterAsync('.controllers', async () => {
-        await this._createControllers(context, controller, metadata.controllers!);
+        await this._createControllers(
+          context,
+          controller,
+          metadata.controllers!,
+        );
       });
     }
 
@@ -215,7 +257,11 @@ export class HttpApiFactory {
           await context.enterAsync(`[${i++}]`, async () => {
             const prmArgs = { ...v } as HttpParameter.InitArguments;
             await context.enterAsync('.type', async () => {
-              prmArgs.type = await DataTypeFactory.resolveDataType(context, operation, v.type);
+              prmArgs.type = await DataTypeFactory.resolveDataType(
+                context,
+                operation,
+                v.type,
+              );
             });
             const prm = new HttpParameter(operation, prmArgs);
             operation.parameters.push(prm);
@@ -229,7 +275,9 @@ export class HttpApiFactory {
         let i = 0;
         for (const v of metadata.responses!) {
           await context.enterAsync(`[${i++}]`, async () => {
-            const response = new HttpOperationResponse(operation, { statusCode: v.statusCode });
+            const response = new HttpOperationResponse(operation, {
+              statusCode: v.statusCode,
+            });
             await this._initHttpOperationResponse(context, response, v);
             operation.responses.push(response);
           });
@@ -239,7 +287,11 @@ export class HttpApiFactory {
     if (metadata.requestBody) {
       await context.enterAsync('.requestBody', async () => {
         const requestBody = new HttpRequestBody(operation);
-        await this._initHttpRequestBody(context, requestBody, metadata.requestBody!);
+        await this._initHttpRequestBody(
+          context,
+          requestBody,
+          metadata.requestBody!,
+        );
         operation.requestBody = requestBody;
       });
     }
@@ -265,7 +317,11 @@ export class HttpApiFactory {
     });
     if (metadata.type) {
       await context.enterAsync('.type', async () => {
-        target.type = await DataTypeFactory.resolveDataType(context, target, metadata.type);
+        target.type = await DataTypeFactory.resolveDataType(
+          context,
+          target,
+          metadata.type,
+        );
       });
     }
     if (metadata.multipartFields) {
@@ -273,7 +329,10 @@ export class HttpApiFactory {
         for (let i = 0; i < metadata.multipartFields!.length; i++) {
           await context.enterAsync(`[${i}]`, async () => {
             const src = metadata.multipartFields![i];
-            const field = new HttpMultipartField(target, { fieldName: src.fieldName, fieldType: src.fieldType });
+            const field = new HttpMultipartField(target, {
+              fieldName: src.fieldName,
+              fieldType: src.fieldType,
+            });
             await this._initHttpMediaType(context, field, src);
             target.multipartFields.push(field);
           });
@@ -303,7 +362,11 @@ export class HttpApiFactory {
           await context.enterAsync(`[${i++}]`, async () => {
             const prmArgs = { ...v } as HttpParameter.InitArguments;
             await context.enterAsync('.type', async () => {
-              prmArgs.type = await DataTypeFactory.resolveDataType(context, target, v.type);
+              prmArgs.type = await DataTypeFactory.resolveDataType(
+                context,
+                target,
+                v.type,
+              );
             });
             const prm = new HttpParameter(target, prmArgs);
             target.parameters.push(prm);
@@ -328,7 +391,9 @@ export class HttpApiFactory {
     target.description = metadata.description;
     target.required = metadata.required;
     target.maxContentSize = metadata.maxContentSize;
-    target.immediateFetch = (metadata as HttpRequestBody.Metadata).immediateFetch;
+    target.immediateFetch = (
+      metadata as HttpRequestBody.Metadata
+    ).immediateFetch;
     target.partial = metadata.partial;
     target.allowPatchOperators = metadata.allowPatchOperators;
     if (metadata.content) {

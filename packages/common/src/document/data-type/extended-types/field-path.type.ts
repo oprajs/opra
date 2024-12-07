@@ -48,7 +48,9 @@ export class FieldPathType {
     const dataType = properties.dataType
       ? element.node.getComplexType(properties.dataType)
       : element.node.getComplexType('object');
-    const typeName = dataType ? element.node.getDataTypeNameWithNs(dataType) : undefined;
+    const typeName = dataType
+      ? element.node.getDataTypeNameWithNs(dataType)
+      : undefined;
     return {
       dataType: typeName ? typeName : dataType.toJSON(),
       allowSigns: properties.allowSigns,

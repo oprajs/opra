@@ -15,13 +15,15 @@ export class EmailType {
   }
 
   @SimpleType.Attribute({
-    description: 'If set to `true`, the validator will also match `Display Name <email-address>',
+    description:
+      'If set to `true`, the validator will also match `Display Name <email-address>',
     default: false,
   })
   allowDisplayName?: boolean;
 
   @SimpleType.Attribute({
-    description: 'If set to `true`, the validator will reject strings without the format `Display Name <email-address>',
+    description:
+      'If set to `true`, the validator will reject strings without the format `Display Name <email-address>',
     default: false,
   })
   requireDisplayName?: boolean;
@@ -34,13 +36,15 @@ export class EmailType {
   utf8LocalPart?: boolean;
 
   @SimpleType.Attribute({
-    description: 'If set to `true`, the validator will not check for the standard max length of an email',
+    description:
+      'If set to `true`, the validator will not check for the standard max length of an email',
     default: false,
   })
   ignoreMaxLength?: boolean;
 
   @SimpleType.Attribute({
-    description: 'If set to `true`, the validator will allow IP addresses in the host part',
+    description:
+      'If set to `true`, the validator will allow IP addresses in the host part',
     default: false,
   })
   allowIpDomain?: boolean;

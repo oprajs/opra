@@ -1,5 +1,9 @@
 import { OpraSchema } from '../../schema/index.js';
-import { CLASS_NAME_PATTERN, DATATYPE_METADATA, EXTRACT_TYPENAME_PATTERN } from '../constants.js';
+import {
+  CLASS_NAME_PATTERN,
+  DATATYPE_METADATA,
+  EXTRACT_TYPENAME_PATTERN,
+} from '../constants.js';
 import type { SimpleType } from '../data-type/simple-type';
 
 export interface SimpleTypeDecorator extends ClassDecorator {
@@ -14,7 +18,9 @@ export interface SimpleTypeDecoratorFactory {
   (options?: SimpleType.Options): SimpleTypeDecorator;
 }
 
-export function SimpleTypeDecoratorFactory(options?: SimpleType.Options): SimpleTypeDecorator {
+export function SimpleTypeDecoratorFactory(
+  options?: SimpleType.Options,
+): SimpleTypeDecorator {
   const decoratorChain: Function[] = [];
   /**
    *
@@ -23,21 +29,26 @@ export function SimpleTypeDecoratorFactory(options?: SimpleType.Options): Simple
     let name: string | undefined;
     if (!options?.embedded) {
       if (options?.name) {
-        if (!CLASS_NAME_PATTERN.test(options.name)) throw new TypeError(`"${options.name}" is not a valid type name`);
+        if (!CLASS_NAME_PATTERN.test(options.name))
+          throw new TypeError(`"${options.name}" is not a valid type name`);
         name = options.name;
       } else {
         name = target.name.match(EXTRACT_TYPENAME_PATTERN)?.[1] || target.name;
         name = name.toLowerCase();
       }
     }
-    const metadata: SimpleType.Metadata = Reflect.getOwnMetadata(DATATYPE_METADATA, target) || ({} as any);
+    const metadata: SimpleType.Metadata =
+      Reflect.getOwnMetadata(DATATYPE_METADATA, target) || ({} as any);
     if (options) Object.assign(metadata, options);
     metadata.kind = OpraSchema.SimpleType.Kind;
     metadata.name = name;
     Reflect.defineMetadata(DATATYPE_METADATA, metadata, target);
   } as SimpleTypeDecorator;
 
-  decorator.Example = (value: any, description?: string): SimpleTypeDecorator => {
+  decorator.Example = (
+    value: any,
+    description?: string,
+  ): SimpleTypeDecorator => {
     decoratorChain.push((meta: SimpleType.Metadata) => {
       meta.examples = meta.examples || [];
       meta.examples.push({
@@ -59,10 +70,17 @@ export interface AttributeDecoratorFactory {
   (options?: Partial<OpraSchema.Attribute>): PropertyDecorator;
 }
 
-export function AttributeDecoratorFactory(options?: Partial<OpraSchema.Attribute>): PropertyDecorator {
+export function AttributeDecoratorFactory(
+  options?: Partial<OpraSchema.Attribute>,
+): PropertyDecorator {
   return (target: Object, propertyKey: string | symbol) => {
-    if (typeof propertyKey !== 'string') throw new TypeError(`Symbol properties can't be decorated with Attribute`);
-    const metadata: SimpleType.Metadata = Reflect.getOwnMetadata(DATATYPE_METADATA, target.constructor) || ({} as any);
+    if (typeof propertyKey !== 'string')
+      throw new TypeError(
+        `Symbol properties can't be decorated with Attribute`,
+      );
+    const metadata: SimpleType.Metadata =
+      Reflect.getOwnMetadata(DATATYPE_METADATA, target.constructor) ||
+      ({} as any);
     const designType = Reflect.getMetadata('design:type', target, propertyKey);
     let format = 'string' as any;
     if (designType === Boolean) format = 'boolean';

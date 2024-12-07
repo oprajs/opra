@@ -11,7 +11,9 @@ import type { SQBAdapter } from '../sqb-adapter.js';
  *
  * @returns {Expression} - The prepared SQB Expression.
  */
-export default function parseFilter(filters: SQBAdapter.FilterInput | SQBAdapter.FilterInput[]): any {
+export default function parseFilter(
+  filters: SQBAdapter.FilterInput | SQBAdapter.FilterInput[],
+): any {
   const filtersArray = Array.isArray(filters) ? filters : [filters];
   if (!filtersArray.length) return undefined;
 
@@ -20,8 +22,10 @@ export default function parseFilter(filters: SQBAdapter.FilterInput | SQBAdapter
     if (!filter) continue;
 
     let ast: any;
-    if (typeof filter === 'string') ast = prepareFilterAst(OpraFilter.parse(filter));
-    else if (filter instanceof OpraFilter.Expression) ast = prepareFilterAst(filter);
+    if (typeof filter === 'string')
+      ast = prepareFilterAst(OpraFilter.parse(filter));
+    else if (filter instanceof OpraFilter.Expression)
+      ast = prepareFilterAst(filter);
     else ast = filter;
     if (ast) arr.push(ast);
   }
@@ -92,7 +96,9 @@ function prepareFilterAst(ast?: OpraFilter.Expression): any {
       case '!ilike':
         return sqb.NotILike(left, String(right).replace(/\*/g, '%'));
       default:
-        throw new Error(`ComparisonExpression operator (${ast.op}) not implemented yet`);
+        throw new Error(
+          `ComparisonExpression operator (${ast.op}) not implemented yet`,
+        );
     }
   }
 

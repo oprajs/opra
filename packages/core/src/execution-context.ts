@@ -1,4 +1,9 @@
-import { ApiDocument, DocumentNode, OpraException, OpraSchema } from '@opra/common';
+import {
+  ApiDocument,
+  DocumentNode,
+  OpraException,
+  OpraSchema,
+} from '@opra/common';
 import { AsyncEventEmitter } from 'node-events-async';
 
 /**

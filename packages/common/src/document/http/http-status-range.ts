@@ -43,6 +43,8 @@ export class HttpStatusRange {
   }
 
   toJSON(): OpraSchema.HttpStatusRange | number {
-    return !this.end || this.start === this.end ? this.start : { start: this.start, end: this.end };
+    return !this.end || this.start === this.end
+      ? this.start
+      : { start: this.start, end: this.end };
   }
 }

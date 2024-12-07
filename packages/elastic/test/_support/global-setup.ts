@@ -7,6 +7,8 @@ export default async function globalSetup() {
   await initDatabase({
     // recreate: true,
     countries: countriesData,
-    customers: customersData.map(x => ({ ...x, id: x._id, _id: undefined }) as any),
+    customers: customersData.map(
+      x => ({ ...x, id: x._id, _id: undefined }) as any,
+    ),
   });
 }

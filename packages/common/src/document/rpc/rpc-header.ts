@@ -1,5 +1,10 @@
 import { omitUndefined } from '@jsopen/objects';
-import { asMutable, type Combine, type StrictOmit, type TypeThunkAsync } from 'ts-gems';
+import {
+  asMutable,
+  type Combine,
+  type StrictOmit,
+  type TypeThunkAsync,
+} from 'ts-gems';
 import type { OpraSchema } from '../../schema/index.js';
 import { DocumentElement } from '../common/document-element.js';
 import { Value } from '../common/value.js';
@@ -13,7 +18,12 @@ import { parseRegExp } from '../utils/parse-regexp.util.js';
 export namespace RpcHeader {
   export interface Metadata extends StrictOmit<OpraSchema.RpcHeader, 'type'> {
     name: string | RegExp;
-    type?: string | TypeThunkAsync | EnumType.EnumObject | EnumType.EnumArray | object;
+    type?:
+      | string
+      | TypeThunkAsync
+      | EnumType.EnumObject
+      | EnumType.EnumArray
+      | object;
   }
 
   export interface Options extends Partial<StrictOmit<Metadata, 'type'>> {
@@ -45,8 +55,13 @@ interface RpcHeaderStatic {
  */
 export interface RpcHeader extends RpcHeaderClass {}
 
-export const RpcHeader = function (this: RpcHeader, owner: DocumentElement, initArgs: RpcHeader.InitArguments) {
-  if (!this) throw new TypeError('"this" should be passed to call class constructor');
+export const RpcHeader = function (
+  this: RpcHeader,
+  owner: DocumentElement,
+  initArgs: RpcHeader.InitArguments,
+) {
+  if (!this)
+    throw new TypeError('"this" should be passed to call class constructor');
   Value.call(this, owner, initArgs);
   const _this = asMutable(this);
   if (initArgs.name) {

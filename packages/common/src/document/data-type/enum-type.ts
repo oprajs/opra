@@ -27,8 +27,12 @@ export namespace EnumType {
       OpraSchema.EnumType
     > {}
 
-  export interface Options<T, Keys extends string | number | symbol = T extends readonly any[] ? T[number] : keyof T>
-    extends Combine<
+  export interface Options<
+    T,
+    Keys extends string | number | symbol = T extends readonly any[]
+      ? T[number]
+      : keyof T,
+  > extends Combine<
       {
         base?: EnumObject | EnumArray | string;
         meanings?: Record<Keys, string>;
@@ -73,7 +77,10 @@ export interface EnumTypeStatic {
     options: EnumType.Options<T>,
   ): B & T;
 
-  <T extends EnumType.EnumObject | EnumType.EnumArray>(target: T, options: EnumType.Options<T>): T;
+  <T extends EnumType.EnumObject | EnumType.EnumArray>(
+    target: T,
+    options: EnumType.Options<T>,
+  ): T;
 }
 
 /**
@@ -89,14 +96,20 @@ export const EnumType = function (this: EnumType | void, ...args: any[]) {
   // Injector
   if (!this) return EnumType[DECORATOR].apply(undefined, args);
   // Constructor
-  const [owner, initArgs, context] = args as [DocumentElement, EnumType.InitArguments, DocumentInitContext | undefined];
+  const [owner, initArgs, context] = args as [
+    DocumentElement,
+    EnumType.InitArguments,
+    DocumentInitContext | undefined,
+  ];
   DataType.call(this, owner, initArgs, context);
   const _this = asMutable(this);
   _this.kind = OpraSchema.EnumType.Kind;
   if (initArgs.base) {
     // noinspection SuspiciousTypeOfGuard
     if (!(initArgs.base instanceof EnumType)) {
-      throw new TypeError(`"${(initArgs.base as DataType).kind}" can't be set as base for a "${_this.kind}"`);
+      throw new TypeError(
+        `"${(initArgs.base as DataType).kind}" can't be set as base for a "${_this.kind}"`,
+      );
     }
     _this.base = initArgs.base;
   }
@@ -115,11 +128,18 @@ class EnumTypeClass extends DataType {
   declare readonly kind: OpraSchema.EnumType.Kind;
   declare readonly base?: EnumType;
   declare readonly instance?: object;
-  declare readonly attributes: Record<string | number, OpraSchema.EnumType.ValueInfo>;
-  declare readonly ownAttributes: Record<string | number, OpraSchema.EnumType.ValueInfo>;
+  declare readonly attributes: Record<
+    string | number,
+    OpraSchema.EnumType.ValueInfo
+  >;
+  declare readonly ownAttributes: Record<
+    string | number,
+    OpraSchema.EnumType.ValueInfo
+  >;
 
   extendsFrom(baseType: DataType | string | Type | object): boolean {
-    if (!(baseType instanceof DataType)) baseType = this.node.getDataType(baseType);
+    if (!(baseType instanceof DataType))
+      baseType = this.node.getDataType(baseType);
     if (!(baseType instanceof EnumType)) return false;
     if (baseType === this) return true;
     return !!this.base?.extendsFrom(baseType);
@@ -130,7 +150,9 @@ class EnumTypeClass extends DataType {
   }
 
   toJSON(): OpraSchema.EnumType {
-    const baseName = this.base ? this.node.getDataTypeNameWithNs(this.base) : undefined;
+    const baseName = this.base
+      ? this.node.getDataTypeNameWithNs(this.base)
+      : undefined;
     return omitUndefined<OpraSchema.EnumType>({
       ...(DataType.prototype.toJSON.call(this) as any),
       base: this.base ? (baseName ? baseName : this.base.toJSON()) : undefined,
@@ -152,7 +174,10 @@ function EnumTypeFactory(enumSource: object, ...args: any[]) {
   let out = enumSource;
   if (Array.isArray(enumSource)) {
     if (base) {
-      if (!Array.isArray(base)) throw new TypeError('Both "target" and "base" arguments should be array');
+      if (!Array.isArray(base))
+        throw new TypeError(
+          'Both "target" and "base" arguments should be array',
+        );
       out = [...base, ...enumSource];
     }
     attributes = {};
@@ -162,7 +187,10 @@ function EnumTypeFactory(enumSource: object, ...args: any[]) {
     });
   } else {
     if (base) {
-      if (Array.isArray(base)) throw new TypeError('Both "target" and "base" arguments should be enum object');
+      if (Array.isArray(base))
+        throw new TypeError(
+          'Both "target" and "base" arguments should be enum object',
+        );
       out = { ...base, ...enumSource };
     }
     Object.keys(enumSource).forEach(k => {

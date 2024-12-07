@@ -20,7 +20,11 @@ export async function generateDocument(
       const out = this._documentsMap.get(document);
       if (out) return out;
     }
-    this.emit('log', colors.cyan('Fetching document schema from ') + colors.blueBright(this.serviceUrl));
+    this.emit(
+      'log',
+      colors.cyan('Fetching document schema from ') +
+        colors.blueBright(this.serviceUrl),
+    );
     const client = new OpraHttpClient(this.serviceUrl);
     document = await client.fetchDocument({ documentId: document });
   }
@@ -42,16 +46,27 @@ export async function generateDocument(
 
   if (document.references.size) {
     let refIdGenerator = (options as any)?.refIdGenerator || 1;
-    this.emit('log', colors.white('[' + document.id + '] ') + colors.cyan(`Processing references`));
+    this.emit(
+      'log',
+      colors.white('[' + document.id + '] ') +
+        colors.cyan(`Processing references`),
+    );
     for (const ref of document.references.values()) {
       const generator = this.extend();
       generator._document = ref;
       const typesNamespace =
-        ref.api?.name || (ref.info.title ? pascalCase(ref.info.title) : `Reference${refIdGenerator++}`);
+        ref.api?.name ||
+        (ref.info.title
+          ? pascalCase(ref.info.title)
+          : `Reference${refIdGenerator++}`);
       generator._documentRoot = '/references/' + typesNamespace;
       generator._typesRoot = path.join(generator._documentRoot, 'models');
-      generator._typesNamespace = !this.options.referenceNamespaces || ref[BUILTIN] ? '' : typesNamespace;
-      await generator.generateDocument(ref, { typesOnly: true, refIdGenerator } as any);
+      generator._typesNamespace =
+        !this.options.referenceNamespaces || ref[BUILTIN] ? '' : typesNamespace;
+      await generator.generateDocument(ref, {
+        typesOnly: true,
+        refIdGenerator,
+      } as any);
     }
   }
 
@@ -63,7 +78,11 @@ export async function generateDocument(
  */`;
 
   if (document.types.size) {
-    this.emit('log', colors.white('[' + document.id + ']'), colors.cyan(`Processing data types`));
+    this.emit(
+      'log',
+      colors.white('[' + document.id + ']'),
+      colors.cyan(`Processing data types`),
+    );
     for (const t of document.types.values()) {
       await this.generateDataType(t, 'root');
     }

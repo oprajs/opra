@@ -1,4 +1,11 @@
-import { ApiDocumentFactory, ComplexType, HttpApi, HttpController, HttpOperation, HttpStatusRange } from '@opra/common';
+import {
+  ApiDocumentFactory,
+  ComplexType,
+  HttpApi,
+  HttpController,
+  HttpOperation,
+  HttpStatusRange,
+} from '@opra/common';
 import { Country } from 'customer-mongo/models';
 
 describe('HttpApiFactory - HttpOperation (Class)', () => {

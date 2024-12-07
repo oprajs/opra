@@ -12,7 +12,10 @@ export class UnauthorizedError extends OpraHttpError {
 
   protected init(issue: Partial<ErrorIssue>) {
     super.init({
-      message: translate('error:UNAUTHORIZED', 'You have not been authenticated to perform this action'),
+      message: translate(
+        'error:UNAUTHORIZED',
+        'You have not been authenticated to perform this action',
+      ),
       code: 'UNAUTHORIZED',
       ...issue,
     });

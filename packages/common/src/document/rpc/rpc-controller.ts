@@ -8,7 +8,12 @@ import { DocumentElement } from '../common/document-element.js';
 import { CLASS_NAME_PATTERN, DECORATOR, kDataTypeMap } from '../constants.js';
 import type { EnumType } from '../data-type/enum-type.js';
 import { RpcControllerDecoratorFactory } from '../decorators/rpc-controller.decorator.js';
-import { colorFgMagenta, colorFgYellow, colorReset, nodeInspectCustom } from '../utils/inspect.util.js';
+import {
+  colorFgMagenta,
+  colorFgYellow,
+  colorReset,
+  nodeInspectCustom,
+} from '../utils/inspect.util.js';
 import type { RpcApi } from './rpc-api';
 import type { RpcHeader } from './rpc-header.js';
 import type { RpcOperation } from './rpc-operation';
@@ -17,14 +22,16 @@ import type { RpcOperation } from './rpc-operation';
  * @namespace RpcController
  */
 export namespace RpcController {
-  export interface Metadata extends Pick<OpraSchema.RpcController, 'description'> {
+  export interface Metadata
+    extends Pick<OpraSchema.RpcController, 'description'> {
     name: string;
     types?: ThunkAsync<Type | EnumType.EnumObject | EnumType.EnumArray>[];
     operations?: Record<string, RpcOperation.Metadata>;
     headers?: RpcHeader.Metadata[];
   }
 
-  export interface Options extends Partial<Pick<OpraSchema.RpcController, 'description'>> {
+  export interface Options
+    extends Partial<Pick<OpraSchema.RpcController, 'description'>> {
     name?: string;
   }
 
@@ -48,7 +55,10 @@ export interface RpcControllerStatic extends RpcControllerDecoratorFactory {
    * @param owner
    * @param args
    */
-  new (owner: RpcApi | RpcController, args: RpcController.InitArguments): RpcController;
+  new (
+    owner: RpcApi | RpcController,
+    args: RpcController.InitArguments,
+  ): RpcController;
 
   prototype: RpcController;
 }
@@ -62,14 +72,21 @@ export interface RpcController extends RpcControllerClass {}
 /**
  * RpcController
  */
-export const RpcController = function (this: RpcController | void, ...args: any[]) {
+export const RpcController = function (
+  this: RpcController | void,
+  ...args: any[]
+) {
   // ClassDecorator
   if (!this) return RpcController[DECORATOR].apply(undefined, args);
 
   // Constructor
-  const [owner, initArgs] = args as [RpcApi | RpcController, RpcController.InitArguments];
+  const [owner, initArgs] = args as [
+    RpcApi | RpcController,
+    RpcController.InitArguments,
+  ];
   DocumentElement.call(this, owner);
-  if (!CLASS_NAME_PATTERN.test(initArgs.name)) throw new TypeError(`Invalid resource name (${initArgs.name})`);
+  if (!CLASS_NAME_PATTERN.test(initArgs.name))
+    throw new TypeError(`Invalid resource name (${initArgs.name})`);
   const _this = asMutable(this);
   _this.kind = OpraSchema.RpcController.Kind;
   _this.types = _this.node[kDataTypeMap] = new DataTypeMap();
@@ -99,7 +116,10 @@ class RpcControllerClass extends DocumentElement {
   declare operations: ResponsiveMap<RpcOperation>;
   declare types: DataTypeMap;
 
-  findHeader(paramName: string, location?: OpraSchema.HttpParameterLocation): RpcHeader | undefined {
+  findHeader(
+    paramName: string,
+    location?: OpraSchema.HttpParameterLocation,
+  ): RpcHeader | undefined {
     const paramNameLower = paramName.toLowerCase();
     let prm: any;
     for (prm of this.headers) {

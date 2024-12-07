@@ -15,7 +15,14 @@ import {
   TimeLiteral,
 } from './ast/index.js';
 
-type _EntryValue = Expression | string | number | bigint | boolean | null | Date;
+type _EntryValue =
+  | Expression
+  | string
+  | number
+  | bigint
+  | boolean
+  | null
+  | Date;
 export type EntryValue = _EntryValue | _EntryValue[];
 
 export function $or(...items: Expression[]): LogicalExpression {
@@ -58,7 +65,10 @@ export function $gt(left: EntryValue, right: EntryValue): ComparisonExpression {
   return comparisonExpression('>', left, right);
 }
 
-export function $gte(left: EntryValue, right: EntryValue): ComparisonExpression {
+export function $gte(
+  left: EntryValue,
+  right: EntryValue,
+): ComparisonExpression {
   return comparisonExpression('>=', left, right);
 }
 
@@ -66,7 +76,10 @@ export function $lt(left: EntryValue, right: EntryValue): ComparisonExpression {
   return comparisonExpression('<', left, right);
 }
 
-export function $lte(left: EntryValue, right: EntryValue): ComparisonExpression {
+export function $lte(
+  left: EntryValue,
+  right: EntryValue,
+): ComparisonExpression {
   return comparisonExpression('<=', left, right);
 }
 
@@ -74,23 +87,38 @@ export function $in(left: EntryValue, right: EntryValue): ComparisonExpression {
   return comparisonExpression('in', left, right);
 }
 
-export function $notIn(left: EntryValue, right: EntryValue): ComparisonExpression {
+export function $notIn(
+  left: EntryValue,
+  right: EntryValue,
+): ComparisonExpression {
   return comparisonExpression('!in', left, right);
 }
 
-export function $like(left: EntryValue, right: EntryValue): ComparisonExpression {
+export function $like(
+  left: EntryValue,
+  right: EntryValue,
+): ComparisonExpression {
   return comparisonExpression('like', left, right);
 }
 
-export function $notLike(left: _EntryValue, right: _EntryValue): ComparisonExpression {
+export function $notLike(
+  left: _EntryValue,
+  right: _EntryValue,
+): ComparisonExpression {
   return comparisonExpression('!like', left, right);
 }
 
-export function $ilike(left: _EntryValue, right: _EntryValue): ComparisonExpression {
+export function $ilike(
+  left: _EntryValue,
+  right: _EntryValue,
+): ComparisonExpression {
   return comparisonExpression('ilike', left, right);
 }
 
-export function $notILike(left: _EntryValue, right: _EntryValue): ComparisonExpression {
+export function $notILike(
+  left: _EntryValue,
+  right: _EntryValue,
+): ComparisonExpression {
   return comparisonExpression('!ilike', left, right);
 }
 
@@ -127,7 +155,11 @@ export function $arithmetic(n: EntryValue): MathExpression {
   return exp;
 }
 
-function comparisonExpression(op: ComparisonOperator, left: EntryValue, right: EntryValue): ComparisonExpression {
+function comparisonExpression(
+  op: ComparisonOperator,
+  left: EntryValue,
+  right: EntryValue,
+): ComparisonExpression {
   const lex = wrapEntryValue(left);
   const rex = wrapEntryValue(right);
   return new ComparisonExpression({ op, left: lex, right: rex });
@@ -139,7 +171,8 @@ const wrapEntryValue = (v: EntryValue): Expression =>
 const _wrapEntryValue = (v: EntryValue): Expression => {
   if (v instanceof Expression) return v;
   if (typeof v === 'boolean') return new BooleanLiteral(v);
-  if (typeof v === 'number' || typeof v === 'bigint') return new NumberLiteral(v);
+  if (typeof v === 'number' || typeof v === 'bigint')
+    return new NumberLiteral(v);
   if (v == null) return new NullLiteral();
   if (v instanceof Date) return new DateLiteral(v);
   return new StringLiteral('' + v);

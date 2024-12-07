@@ -10,9 +10,15 @@ import type { RpcOperationResponse } from '../rpc/rpc-operation-response';
 export interface RpcOperationDecorator {
   (target: Object, propertyKey: string): void;
 
-  Header(name: string | RegExp, optionsOrType?: RpcHeader.Options | string | TypeThunkAsync): this;
+  Header(
+    name: string | RegExp,
+    optionsOrType?: RpcHeader.Options | string | TypeThunkAsync,
+  ): this;
 
-  Response(payloadType: TypeThunkAsync | string, options?: RpcOperationResponse.Options): RpcOperationResponseDecorator;
+  Response(
+    payloadType: TypeThunkAsync | string,
+    options?: RpcOperationResponse.Options,
+  ): RpcOperationResponseDecorator;
 
   UseType(...type: Type[]): this;
 }
@@ -20,7 +26,10 @@ export interface RpcOperationDecorator {
 export interface RpcOperationResponseDecorator {
   (target: Object, propertyKey: string): void;
 
-  Header(name: string | RegExp, optionsOrType?: RpcHeader.Options | string | TypeThunkAsync): this;
+  Header(
+    name: string | RegExp,
+    optionsOrType?: RpcHeader.Options | string | TypeThunkAsync,
+  ): this;
 }
 
 /**
@@ -48,7 +57,8 @@ export namespace RpcOperationDecoratorFactory {
   ) => void;
 }
 
-const augmentationRegistry: RpcOperationDecoratorFactory.AugmentationFunction[] = [];
+const augmentationRegistry: RpcOperationDecoratorFactory.AugmentationFunction[] =
+  [];
 
 export function RpcOperationDecoratorFactory(
   decoratorChain: Function[],
@@ -60,7 +70,8 @@ export function RpcOperationDecoratorFactory(
    *
    */
   const decorator = ((target: Object, propertyKey: any): void => {
-    if (typeof propertyKey !== 'string') throw new TypeError(`Symbol properties can not be decorated`);
+    if (typeof propertyKey !== 'string')
+      throw new TypeError(`Symbol properties can not be decorated`);
 
     const operationMetadata = {
       kind: OpraSchema.RpcOperation.Kind,
@@ -69,12 +80,18 @@ export function RpcOperationDecoratorFactory(
       ...omit(options as any, ['kind', 'payloadType']),
     } as RpcOperation.Metadata;
 
-    const controllerMetadata = (Reflect.getOwnMetadata(RPC_CONTROLLER_METADATA, target.constructor) ||
-      {}) as RpcController.Metadata;
+    const controllerMetadata = (Reflect.getOwnMetadata(
+      RPC_CONTROLLER_METADATA,
+      target.constructor,
+    ) || {}) as RpcController.Metadata;
     controllerMetadata.operations = controllerMetadata.operations || {};
     controllerMetadata.operations[propertyKey] = operationMetadata;
     for (const fn of decoratorChain) fn(operationMetadata, target, propertyKey);
-    Reflect.defineMetadata(RPC_CONTROLLER_METADATA, controllerMetadata, target.constructor);
+    Reflect.defineMetadata(
+      RPC_CONTROLLER_METADATA,
+      controllerMetadata,
+      target.constructor,
+    );
   }) as RpcOperationDecorator;
 
   /**
@@ -91,7 +108,10 @@ export function RpcOperationDecoratorFactory(
   /**
    *
    */
-  decorator.Header = (name: string | RegExp, arg1?: RpcHeader.Options | string | Type) => {
+  decorator.Header = (
+    name: string | RegExp,
+    arg1?: RpcHeader.Options | string | Type,
+  ) => {
     decoratorChain.push((meta: RpcOperation.Metadata): void => {
       const headerMetadata: RpcHeader.Metadata =
         typeof arg1 === 'string' || typeof arg1 === 'function'
@@ -102,7 +122,9 @@ export function RpcOperationDecoratorFactory(
           : { ...arg1, name };
       const subMeta = inResponse ? meta.response! : meta;
       if (subMeta.headers) {
-        subMeta.headers = subMeta.headers.filter(p => String(p.name) !== String(name));
+        subMeta.headers = subMeta.headers.filter(
+          p => String(p.name) !== String(name),
+        );
       } else subMeta.headers = [];
       subMeta.headers.push(headerMetadata);
     });
@@ -112,7 +134,10 @@ export function RpcOperationDecoratorFactory(
   /**
    *
    */
-  decorator.Response = (_payloadType: TypeThunkAsync | string, _options?: RpcOperationResponse.Options) => {
+  decorator.Response = (
+    _payloadType: TypeThunkAsync | string,
+    _options?: RpcOperationResponse.Options,
+  ) => {
     decoratorChain.push((meta: RpcOperation.Metadata): void => {
       inResponse = true;
       meta.response = {
@@ -123,11 +148,15 @@ export function RpcOperationDecoratorFactory(
     return decorator;
   };
 
-  augmentationRegistry.forEach(fn => fn(decorator, decoratorChain, payloadType, options));
+  augmentationRegistry.forEach(fn =>
+    fn(decorator, decoratorChain, payloadType, options),
+  );
 
   return decorator;
 }
 
-RpcOperationDecoratorFactory.augment = function (fn: RpcOperationDecoratorFactory.AugmentationFunction) {
+RpcOperationDecoratorFactory.augment = function (
+  fn: RpcOperationDecoratorFactory.AugmentationFunction,
+) {
   augmentationRegistry.push(fn);
 };

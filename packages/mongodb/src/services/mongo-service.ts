@@ -1,6 +1,12 @@
 import { ComplexType, DataType, DATATYPE_METADATA } from '@opra/common';
 import { ExecutionContext, ServiceBase } from '@opra/core';
-import mongodb, { ClientSession, type Document, MongoClient, ObjectId, type TransactionOptions } from 'mongodb';
+import mongodb, {
+  ClientSession,
+  type Document,
+  MongoClient,
+  ObjectId,
+  type TransactionOptions,
+} from 'mongodb';
 import type { Nullish, StrictOmit, Type } from 'ts-gems';
 import type { IsObject } from 'valgen';
 import { MongoAdapter } from '../adapter/mongo-adapter.js';
@@ -41,7 +47,10 @@ export namespace MongoService {
     | ((
         args: CommandInfo,
         _this: MongoService<any>,
-      ) => MongoAdapter.FilterInput | Promise<MongoAdapter.FilterInput> | undefined);
+      ) =>
+        | MongoAdapter.FilterInput
+        | Promise<MongoAdapter.FilterInput>
+        | undefined);
 
   /**
    * Represents options for "create" operation
@@ -97,7 +106,8 @@ export namespace MongoService {
    *
    * @interface
    */
-  export interface ExistsOptions<T> extends Omit<mongodb.CommandOperationOptions, 'writeConcern'> {
+  export interface ExistsOptions<T>
+    extends Omit<mongodb.CommandOperationOptions, 'writeConcern'> {
     filter?: MongoAdapter.FilterInput<T>;
   }
 
@@ -107,7 +117,8 @@ export namespace MongoService {
    * @interface
    * @template T - The type of the document.
    */
-  export interface FindOneOptions<T> extends StrictOmit<FindManyOptions<T>, 'limit'> {}
+  export interface FindOneOptions<T>
+    extends StrictOmit<FindManyOptions<T>, 'limit'> {}
 
   /**
    * Represents options for "findMany" operation
@@ -130,7 +141,8 @@ export namespace MongoService {
    *
    * @interface
    */
-  export interface ReplaceOptions<T> extends StrictOmit<mongodb.FindOneAndReplaceOptions, 'projection'> {
+  export interface ReplaceOptions<T>
+    extends StrictOmit<mongodb.FindOneAndReplaceOptions, 'projection'> {
     projection?: string | string[] | Document | '*';
     filter?: MongoAdapter.FilterInput<T>;
   }
@@ -142,7 +154,10 @@ export namespace MongoService {
    * @template T - The type of the document.
    */
   export interface UpdateOneOptions<T>
-    extends StrictOmit<mongodb.FindOneAndUpdateOptions, 'projection' | 'returnDocument' | 'includeResultMetadata'> {
+    extends StrictOmit<
+      mongodb.FindOneAndUpdateOptions,
+      'projection' | 'returnDocument' | 'includeResultMetadata'
+    > {
     projection?: string | string[] | Document | '*';
     filter?: MongoAdapter.FilterInput<T>;
   }
@@ -153,7 +168,8 @@ export namespace MongoService {
    * @interface
    * @template T - The type of the document.
    */
-  export interface UpdateManyOptions<T> extends StrictOmit<mongodb.UpdateOptions, 'upsert'> {
+  export interface UpdateManyOptions<T>
+    extends StrictOmit<mongodb.UpdateOptions, 'upsert'> {
     filter?: MongoAdapter.FilterInput<T>;
   }
 }
@@ -167,7 +183,11 @@ export interface MongoService {
    * @param _this - The reference to the current object.
    * @returns - The promise that resolves to the result of the callback execution.
    */
-  interceptor?(next: () => any, command: MongoService.CommandInfo, _this: any): Promise<any>;
+  interceptor?(
+    next: () => any,
+    command: MongoService.CommandInfo,
+    _this: any,
+  ): Promise<any>;
 }
 
 /**
@@ -175,7 +195,9 @@ export interface MongoService {
  * @extends ServiceBase
  * @template T - The type of the documents in the collection.
  */
-export class MongoService<T extends mongodb.Document = mongodb.Document> extends ServiceBase {
+export class MongoService<
+  T extends mongodb.Document = mongodb.Document,
+> extends ServiceBase {
   protected _dataType_: Type | string;
   protected _dataType?: ComplexType;
   protected _inputCodecs: Record<string, IsObject.Validator<T>> = {};
@@ -206,7 +228,10 @@ export class MongoService<T extends mongodb.Document = mongodb.Document> extends
    * Generates a new id for new inserting Document.
    *
    */
-  idGenerator?: (command: MongoService.CommandInfo, _this: any) => MongoAdapter.AnyId;
+  idGenerator?: (
+    command: MongoService.CommandInfo,
+    _this: any,
+  ) => MongoAdapter.AnyId;
 
   /**
    * Callback function for handling errors.
@@ -256,10 +281,12 @@ export class MongoService<T extends mongodb.Document = mongodb.Document> extends
   ): this & Required<P> {
     if (overwriteProperties?.documentFilter && this.documentFilter) {
       overwriteProperties.documentFilter = [
-        ...(Array.isArray(this.documentFilter) ? this.documentFilter : [this.documentFilter]),
+        ...(Array.isArray(this.documentFilter)
+          ? this.documentFilter
+          : [this.documentFilter]),
         ...(Array.isArray(overwriteProperties?.documentFilter)
-          ? overwriteProperties?.documentFilter
-          : [overwriteProperties?.documentFilter]),
+          ? overwriteProperties.documentFilter
+          : [overwriteProperties.documentFilter]),
       ];
     }
     return super.for(context, overwriteProperties, overwriteContext);
@@ -273,7 +300,10 @@ export class MongoService<T extends mongodb.Document = mongodb.Document> extends
    * @throws {Error} If the collection name is not defined.
    */
   getCollectionName(): string {
-    const out = typeof this.collectionName === 'function' ? this.collectionName(this) : this.collectionName;
+    const out =
+      typeof this.collectionName === 'function'
+        ? this.collectionName(this)
+        : this.collectionName;
     if (out) return out;
     throw new Error('collectionName is not defined');
   }
@@ -287,7 +317,9 @@ export class MongoService<T extends mongodb.Document = mongodb.Document> extends
    */
   getResourceName(): string {
     const out =
-      typeof this.resourceName === 'function' ? this.resourceName(this) : this.resourceName || this.getCollectionName();
+      typeof this.resourceName === 'function'
+        ? this.resourceName(this)
+        : this.resourceName || this.getCollectionName();
     if (out) return out;
     throw new Error('resourceName is not defined');
   }
@@ -298,7 +330,10 @@ export class MongoService<T extends mongodb.Document = mongodb.Document> extends
    * @throws {NotAcceptableError} If the data type is not a ComplexType.
    */
   get dataType(): ComplexType {
-    if (!this._dataType) this._dataType = this.context.documentNode.getComplexType(this._dataType_);
+    if (!this._dataType)
+      this._dataType = this.context.documentNode.getComplexType(
+        this._dataType_,
+      );
     return this._dataType;
   }
 
@@ -336,10 +371,12 @@ export class MongoService<T extends mongodb.Document = mongodb.Document> extends
     try {
       if (!oldInTransaction) session.startTransaction(options);
       const out = await callback(session, this);
-      if (!oldInTransaction && session.inTransaction()) await session.commitTransaction();
+      if (!oldInTransaction && session.inTransaction())
+        await session.commitTransaction();
       return out;
     } catch (e) {
-      if (!oldInTransaction && session.inTransaction()) await session.abortTransaction();
+      if (!oldInTransaction && session.inTransaction())
+        await session.abortTransaction();
       throw e;
     } finally {
       delete ctx[transactionKey];
@@ -376,7 +413,8 @@ export class MongoService<T extends mongodb.Document = mongodb.Document> extends
     const ctx = this.context;
     const transaction = ctx[transactionKey];
     if (transaction) return transaction.session;
-    const session = typeof this.session === 'function' ? this.session(this) : this.session;
+    const session =
+      typeof this.session === 'function' ? this.session(this) : this.session;
     if (session) return session;
   }
 
@@ -386,7 +424,9 @@ export class MongoService<T extends mongodb.Document = mongodb.Document> extends
    * @param db - The MongoDB database.
    * @protected
    */
-  protected async getCollection(db: mongodb.Db): Promise<mongodb.Collection<T>> {
+  protected async getCollection(
+    db: mongodb.Db,
+  ): Promise<mongodb.Collection<T>> {
     return db.collection<T>(this.getCollectionName());
   }
 
@@ -397,7 +437,9 @@ export class MongoService<T extends mongodb.Document = mongodb.Document> extends
    * @returns {MongoAdapter.AnyId} The generated ID.
    */
   protected _generateId(command: MongoService.CommandInfo): MongoAdapter.AnyId {
-    return typeof this.idGenerator === 'function' ? this.idGenerator(command, this) : new ObjectId();
+    return typeof this.idGenerator === 'function'
+      ? this.idGenerator(command, this)
+      : new ObjectId();
   }
 
   /**
@@ -411,17 +453,27 @@ export class MongoService<T extends mongodb.Document = mongodb.Document> extends
   protected _getDocumentFilter(
     command: MongoService.CommandInfo,
   ): MongoAdapter.FilterInput | Promise<MongoAdapter.FilterInput> | undefined {
-    const commonFilter = Array.isArray(this.documentFilter) ? this.documentFilter : [this.documentFilter];
-    const mapped = commonFilter.map(f => (typeof f === 'function' ? f(command, this) : f));
+    const commonFilter = Array.isArray(this.documentFilter)
+      ? this.documentFilter
+      : [this.documentFilter];
+    const mapped = commonFilter.map(f =>
+      typeof f === 'function' ? f(command, this) : f,
+    );
     return mapped.length > 1 ? MongoAdapter.prepareFilter(mapped) : mapped[0];
   }
 
-  protected async _executeCommand(command: MongoService.CommandInfo, commandFn: () => any): Promise<any> {
+  protected async _executeCommand(
+    command: MongoService.CommandInfo,
+    commandFn: () => any,
+  ): Promise<any> {
     let proto: any;
     const next = async () => {
       proto = proto ? Object.getPrototypeOf(proto) : this;
       while (proto) {
-        if (proto.interceptor && Object.prototype.hasOwnProperty.call(proto, 'interceptor')) {
+        if (
+          proto.interceptor &&
+          Object.prototype.hasOwnProperty.call(proto, 'interceptor')
+        ) {
           return await proto.interceptor.call(this, next, command, this);
         }
         proto = Object.getPrototypeOf(proto);
@@ -452,7 +504,10 @@ export class MongoService<T extends mongodb.Document = mongodb.Document> extends
       options.allowPatchOperators = true;
     }
     const dataType = this.dataType;
-    validator = dataType.generateCodec('decode', options) as IsObject.Validator<T>;
+    validator = dataType.generateCodec(
+      'decode',
+      options,
+    ) as IsObject.Validator<T>;
     this._inputCodecs[operation] = validator;
     return validator;
   }
@@ -463,9 +518,16 @@ export class MongoService<T extends mongodb.Document = mongodb.Document> extends
   protected _getOutputCodec(operation: string): IsObject.Validator<T> {
     let validator = this._outputCodecs[operation];
     if (validator) return validator;
-    const options: DataType.GenerateCodecOptions = { projection: '*', partial: 'deep', ignoreHiddenFields: true };
+    const options: DataType.GenerateCodecOptions = {
+      projection: '*',
+      partial: 'deep',
+      ignoreHiddenFields: true,
+    };
     const dataType = this.dataType;
-    validator = dataType.generateCodec('decode', options) as IsObject.Validator<T>;
+    validator = dataType.generateCodec(
+      'decode',
+      options,
+    ) as IsObject.Validator<T>;
     this._outputCodecs[operation] = validator;
     return validator;
   }

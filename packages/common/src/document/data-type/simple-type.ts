@@ -8,7 +8,10 @@ import { OpraSchema } from '../../schema/index.js';
 import type { DocumentElement } from '../common/document-element';
 import { DocumentInitContext } from '../common/document-init-context.js';
 import { DECORATOR } from '../constants.js';
-import { AttributeDecoratorFactory, SimpleTypeDecoratorFactory } from '../decorators/simple-type.decorator.js';
+import {
+  AttributeDecoratorFactory,
+  SimpleTypeDecoratorFactory,
+} from '../decorators/simple-type.decorator.js';
 import { DataType } from './data-type.js';
 
 /**
@@ -24,7 +27,11 @@ export namespace SimpleType {
       OpraSchema.SimpleType
     > {}
 
-  export interface Options extends Combine<Pick<OpraSchema.SimpleType, 'nameMappings'>, DataType.Options> {}
+  export interface Options
+    extends Combine<
+      Pick<OpraSchema.SimpleType, 'nameMappings'>,
+      DataType.Options
+    > {}
 
   export interface InitArguments
     extends Combine<
@@ -42,7 +49,10 @@ export namespace SimpleType {
 
   export interface Attribute extends OpraSchema.Attribute {}
 
-  export type ValidatorGenerator = (properties: Record<string, any>, element: DocumentElement) => Validator;
+  export type ValidatorGenerator = (
+    properties: Record<string, any>,
+    element: DocumentElement,
+  ) => Validator;
 }
 
 /**
@@ -58,7 +68,11 @@ export interface SimpleTypeStatic extends SimpleTypeDecoratorFactory {
    * @param context
    * @constructor
    */
-  new (owner: DocumentElement, initArgs: SimpleType.InitArguments, context?: DocumentInitContext): SimpleType;
+  new (
+    owner: DocumentElement,
+    initArgs: SimpleType.InitArguments,
+    context?: DocumentInitContext,
+  ): SimpleType;
 
   prototype: SimpleType;
 
@@ -89,19 +103,25 @@ export const SimpleType = function (this: SimpleType | void, ...args: any[]) {
   if (initArgs.base) {
     // noinspection SuspiciousTypeOfGuard
     if (!(initArgs.base instanceof SimpleType)) {
-      throw new TypeError(`"${(initArgs.base as DataType).kind}" can't be set as base for a "${this.kind}"`);
+      throw new TypeError(
+        `"${(initArgs.base as DataType).kind}" can't be set as base for a "${this.kind}"`,
+      );
     }
     _this.base = initArgs.base;
   }
 
   _this.properties = initArgs.properties;
   _this.ownNameMappings = { ...initArgs.nameMappings };
-  _this.nameMappings = { ..._this.base?.nameMappings, ...initArgs.nameMappings };
+  _this.nameMappings = {
+    ..._this.base?.nameMappings,
+    ...initArgs.nameMappings,
+  };
   _this.ownAttributes = cloneObject(initArgs.attributes || {});
   _this.attributes = _this.base ? cloneObject(_this.base.attributes) : {};
   if (_this.ownAttributes) {
     for (const [k, el] of Object.entries(_this.ownAttributes)) {
-      if (_this.attributes[k]?.sealed) throw new TypeError(`Sealed attribute "${k}" can not be overwritten`);
+      if (_this.attributes[k]?.sealed)
+        throw new TypeError(`Sealed attribute "${k}" can not be overwritten`);
       _this.attributes[k] = el;
     }
   }
@@ -125,7 +145,8 @@ abstract class SimpleTypeClass extends DataType {
   properties?: any;
 
   extendsFrom(baseType: DataType | string | Type | object): boolean {
-    if (!(baseType instanceof DataType)) baseType = this.node.getDataType(baseType);
+    if (!(baseType instanceof DataType))
+      baseType = this.node.getDataType(baseType);
     if (!(baseType instanceof SimpleType)) return false;
     if (baseType === this) return true;
     return !!this.base?.extendsFrom(baseType);
@@ -143,14 +164,19 @@ abstract class SimpleTypeClass extends DataType {
     if (codec === 'decode') {
       let t: SimpleType | undefined = this;
       while (t) {
-        if (t._generateDecoder) return t._generateDecoder(prop, options?.documentElement || this.owner);
+        if (t._generateDecoder)
+          return t._generateDecoder(
+            prop,
+            options?.documentElement || this.owner,
+          );
         t = this.base;
       }
       return isAny;
     }
     let t: SimpleType | undefined = this;
     while (t) {
-      if (t._generateEncoder) return t._generateEncoder(prop, options?.documentElement || this.owner);
+      if (t._generateEncoder)
+        return t._generateEncoder(prop, options?.documentElement || this.owner);
       t = this.base;
     }
     return isAny;
@@ -162,14 +188,18 @@ abstract class SimpleTypeClass extends DataType {
     if (this.properties && typeof this.properties.toJSON === 'function') {
       properties = this.properties.toJSON(this.properties, this.owner);
     } else properties = this.properties ? cloneObject(this.properties) : {};
-    const baseName = this.base ? this.node.getDataTypeNameWithNs(this.base) : undefined;
+    const baseName = this.base
+      ? this.node.getDataTypeNameWithNs(this.base)
+      : undefined;
     const out = omitUndefined<OpraSchema.SimpleType>({
       ...(DataType.prototype.toJSON.apply(this) as any),
       base: this.base ? (baseName ? baseName : this.base.toJSON()) : undefined,
-      attributes: attributes && Object.keys(attributes).length ? attributes : undefined,
+      attributes:
+        attributes && Object.keys(attributes).length ? attributes : undefined,
       properties: Object.keys(properties).length ? properties : undefined,
     });
-    if (Object.keys(this.ownNameMappings).length) out.nameMappings = { ...this.ownNameMappings };
+    if (Object.keys(this.ownNameMappings).length)
+      out.nameMappings = { ...this.ownNameMappings };
     return omitUndefined(out, true);
   }
 }

@@ -23,18 +23,23 @@ export class ApiExpect extends ApiExpectBase {
         expect(this.response.status).toBeLessThan(400);
       }
     } catch (e: any) {
-      e.message = "Request didn't succeeded as expected. " + msg + '\n\n' + e.message;
+      e.message =
+        "Request didn't succeeded as expected. " + msg + '\n\n' + e.message;
 
       const issues: ErrorIssue[] = this.response.body?.errors;
       if (issues) {
         e.message += '\n\n';
         issues.forEach((issue, i) => {
-          const stack = Array.isArray(issue.stack) ? issue.stack.join('\n') : issue.stack;
+          const stack = Array.isArray(issue.stack)
+            ? issue.stack.join('\n')
+            : issue.stack;
           e.message +=
             colors.yellow(issues.length > 1 ? `Error [${i}]: ` : 'Error: ') +
             issue.message +
             '\n' +
-            (stack ? '    ' + stack.substring(stack.indexOf('at ')) + '\n' : '');
+            (stack
+              ? '    ' + stack.substring(stack.indexOf('at ')) + '\n'
+              : '');
         });
       }
       Error.captureStackTrace(e, this.toSuccess);
@@ -58,17 +63,22 @@ export class ApiExpect extends ApiExpectBase {
         expect(this.response.status).toBeLessThanOrEqual(599);
       }
     } catch (e: any) {
-      e.message = "Request didn't failed as expected. " + msg + '\n\n' + e.message;
+      e.message =
+        "Request didn't failed as expected. " + msg + '\n\n' + e.message;
       const issues = this.response.body?.errors;
       if (issues) {
         e.message += '\n\n';
         issues.forEach((issue, i) => {
-          const stack = Array.isArray(issue.stack) ? issue.stack.join('\n') : issue.stack;
+          const stack = Array.isArray(issue.stack)
+            ? issue.stack.join('\n')
+            : issue.stack;
           e.message +=
             colors.yellow(issues.length > 1 ? `Error [${i}]: ` : 'Error: ') +
             issue.message +
             '\n' +
-            (stack ? '    ' + stack.substring(stack.indexOf('at ')) + '\n' : '');
+            (stack
+              ? '    ' + stack.substring(stack.indexOf('at ')) + '\n'
+              : '');
         });
       }
       Error.captureStackTrace(e, this.toSuccess);
@@ -84,16 +94,21 @@ export class ApiExpect extends ApiExpectBase {
     let msg = '';
     try {
       msg = 'Content-Type header value is not valid. ';
-      expect(this.response.contentType).toEqual('application/opra.response+json');
+      expect(this.response.contentType).toEqual(
+        'application/opra.response+json',
+      );
 
       msg = 'Type of response "body" is not valid. ';
       expect(typeof this.response.body).toEqual('object');
 
       msg = 'Type of "payload" is not an Array. ';
       const payload = this.response.body.payload;
-      expect(Array.isArray(payload) ? 'array' : typeof payload).toEqual('array');
+      expect(Array.isArray(payload) ? 'array' : typeof payload).toEqual(
+        'array',
+      );
     } catch (e: any) {
-      e.message = "Api didn't returned a Collection. " + msg + '\n\n' + e.message;
+      e.message =
+        "Api didn't returned a Collection. " + msg + '\n\n' + e.message;
       if (msg) e.message = msg + '\n\n' + e.message;
       Error.captureStackTrace(e, this.toReturnCollection);
       throw e;
@@ -108,7 +123,9 @@ export class ApiExpect extends ApiExpectBase {
     let msg = '';
     try {
       msg = 'Content-Type header value is not valid. ';
-      expect(this.response.contentType).toEqual(contentType || MimeTypes.opra_response_json);
+      expect(this.response.contentType).toEqual(
+        contentType || MimeTypes.opra_response_json,
+      );
 
       msg = 'Type of response "body" is not valid. ';
       expect(typeof this.response.body).toEqual('object');
@@ -141,7 +158,8 @@ export class ApiExpect extends ApiExpectBase {
       const payload = this.response.body.payload;
       expect(typeof payload).toEqual('undefined');
     } catch (e: any) {
-      e.message = "Api didn't returned a OperationResult. " + msg + '\n\n' + e.message;
+      e.message =
+        "Api didn't returned a OperationResult. " + msg + '\n\n' + e.message;
       if (msg) e.message = msg + '\n\n' + e.message;
       Error.captureStackTrace(e, this.toReturnCollection);
       throw e;

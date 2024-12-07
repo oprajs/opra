@@ -10,7 +10,7 @@
     "@opra/sqb": "^1.4.3",
     "@sqb/connect": "^4.19.5",
     "@sqb/postgres": "^4.19.5",
-    "express": "^4.21.1",
+    "express": "^4.21.2",
     "ts-gems": "^3.11.2"
   },
   "scripts": {

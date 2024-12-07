@@ -1,5 +1,11 @@
 import { ApiDocument, HttpOperation } from '@opra/common';
-import { ExpressAdapter, HttpContext, HttpIncoming, HttpOutgoing, NodeIncomingMessage } from '@opra/http';
+import {
+  ExpressAdapter,
+  HttpContext,
+  HttpIncoming,
+  HttpOutgoing,
+  NodeIncomingMessage,
+} from '@opra/http';
 import cookieParser from 'cookie-parser';
 import express, { Express } from 'express';
 import { createTestApi } from './_support/test-api/index.js';
@@ -78,7 +84,9 @@ describe('HttpContext', () => {
         ),
       ),
     );
-    await await expect(() => adapter.handler.parseRequest(context)).rejects.toThrow('not a valid number');
+    await await expect(() =>
+      adapter.handler.parseRequest(context),
+    ).rejects.toThrow('not a valid number');
   });
 
   it('Should return MultipartReader if content is multipart', async () => {

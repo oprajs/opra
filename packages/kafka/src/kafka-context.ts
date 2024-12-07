@@ -8,7 +8,10 @@ import type { KafkaAdapter } from './kafka-adapter.js';
  * KafkaContext class provides the context for handling Kafka messages.
  * It extends the ExecutionContext and implements the AsyncEventEmitter.
  */
-export class KafkaContext extends ExecutionContext implements AsyncEventEmitter {
+export class KafkaContext
+  extends ExecutionContext
+  implements AsyncEventEmitter
+{
   readonly protocol: OpraSchema.Transport;
   readonly platform: string;
   readonly adapter: KafkaAdapter;
@@ -40,7 +43,8 @@ export class KafkaContext extends ExecutionContext implements AsyncEventEmitter 
     this.platform = init.adapter.platform;
     this.protocol = 'rpc';
     if (init.controller) this.controller = init.controller;
-    if (init.controllerInstance) this.controllerInstance = init.controllerInstance;
+    if (init.controllerInstance)
+      this.controllerInstance = init.controllerInstance;
     if (init.operation) this.operation = init.operation;
     if (init.operationHandler) this.operationHandler = init.operationHandler;
     this.partition = init.partition;
@@ -55,7 +59,11 @@ export class KafkaContext extends ExecutionContext implements AsyncEventEmitter 
 }
 
 export namespace KafkaContext {
-  export interface Initiator extends Omit<ExecutionContext.Initiator, 'document' | 'protocol' | 'documentNode'> {
+  export interface Initiator
+    extends Omit<
+      ExecutionContext.Initiator,
+      'document' | 'protocol' | 'documentNode'
+    > {
     adapter: KafkaAdapter;
     controller?: RpcController;
     controllerInstance?: any;

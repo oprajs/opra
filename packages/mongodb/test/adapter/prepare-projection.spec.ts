@@ -12,11 +12,10 @@ describe('MongoAdapter.prepareProjection', () => {
   afterAll(() => global.gc && global.gc());
 
   it('Should process "pick"', async () => {
-    const o: any = MongoAdapter.prepareProjection(document.node.getComplexType('customer'), [
-      '_id',
-      'givenname',
-      'address.city',
-    ]);
+    const o: any = MongoAdapter.prepareProjection(
+      document.node.getComplexType('customer'),
+      ['_id', 'givenname', 'address.city'],
+    );
     expect(o).toEqual({
       _id: 1,
       givenName: 1,
@@ -27,7 +26,9 @@ describe('MongoAdapter.prepareProjection', () => {
   });
 
   it('Should ignore exclusive fields by default', async () => {
-    const o: any = MongoAdapter.prepareProjection(document.node.getComplexType('note'));
+    const o: any = MongoAdapter.prepareProjection(
+      document.node.getComplexType('note'),
+    );
     expect(o).toEqual({
       _id: 1,
       createdAt: 1,
@@ -40,7 +41,10 @@ describe('MongoAdapter.prepareProjection', () => {
   });
 
   it('Should include exclusive fields using projection', async () => {
-    const o: any = MongoAdapter.prepareProjection(document.node.getComplexType('note'), ['+largecontent']);
+    const o: any = MongoAdapter.prepareProjection(
+      document.node.getComplexType('note'),
+      ['+largecontent'],
+    );
     expect(o).toEqual({
       _id: 1,
       createdAt: 1,
@@ -54,7 +58,10 @@ describe('MongoAdapter.prepareProjection', () => {
   });
 
   it('Should omit fields using projection', async () => {
-    const o: any = MongoAdapter.prepareProjection(document.node.getComplexType('note'), ['-title']);
+    const o: any = MongoAdapter.prepareProjection(
+      document.node.getComplexType('note'),
+      ['-title'],
+    );
     expect(o).toEqual({
       _id: 1,
       createdAt: 1,

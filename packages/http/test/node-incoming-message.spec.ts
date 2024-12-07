@@ -64,7 +64,12 @@ describe('NodeIncomingMessage', () => {
     expect(msg.method).toStrictEqual('POST');
     expect(msg.httpVersionMajor).toStrictEqual(1);
     expect(msg.httpVersionMinor).toStrictEqual(1);
-    expect(msg.rawHeaders).toStrictEqual(['Content-Type', 'text/plain', 'Transfer-Encoding', 'chunked']);
+    expect(msg.rawHeaders).toStrictEqual([
+      'Content-Type',
+      'text/plain',
+      'Transfer-Encoding',
+      'chunked',
+    ]);
     expect(msg.rawTrailers).toStrictEqual(['Expires', 'x']);
   });
 });

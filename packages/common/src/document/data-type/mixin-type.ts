@@ -2,7 +2,10 @@ import 'reflect-metadata';
 import { omitUndefined } from '@jsopen/objects';
 import type { Class, Combine, Type } from 'ts-gems';
 import { asMutable } from 'ts-gems';
-import { inheritPropertyInitializers, mergePrototype } from '../../helpers/index.js';
+import {
+  inheritPropertyInitializers,
+  mergePrototype,
+} from '../../helpers/index.js';
 import { OpraSchema } from '../../schema/index.js';
 import type { DocumentElement } from '../common/document-element.js';
 import type { DocumentInitContext } from '../common/document-init-context.js';
@@ -60,15 +63,7 @@ export interface MixinTypeStatic {
    * @param c1
    * @param c2
    * @param options
-   */ <
-    A1 extends any[],
-    I1,
-    S1,
-    A2 extends any[],
-    I2,
-    S2,
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  >(
+   */ <A1 extends any[], I1, S1, A2 extends any[], I2, S2>(
     c1: Class<A1, I1, S1>,
     c2: Class<A2, I2, S2>,
     options?: DataType.Options,
@@ -90,7 +85,6 @@ export interface MixinTypeStatic {
     A3 extends any[],
     I3,
     S3,
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
   >(
     c1: Class<A1, I1, S1>,
     c2: Class<A2, I2, S2>,
@@ -118,7 +112,6 @@ export interface MixinTypeStatic {
     A4 extends any[],
     I4,
     S4,
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
   >(
     c1: Class<A1, I1, S1>,
     c2: Class<A2, I2, S2>,
@@ -155,7 +148,8 @@ export const MixinType = function (this: MixinType, ...args: any[]) {
   for (const base of initArgs.types) {
     if (_this.additionalFields !== true) {
       if (base.additionalFields === true) _this.additionalFields = true;
-      else if (!_this.additionalFields) _this.additionalFields = base.additionalFields;
+      else if (!_this.additionalFields)
+        _this.additionalFields = base.additionalFields;
     }
     for (const v of base.fields.values()) {
       const field = new ApiField(this, v);
@@ -175,7 +169,8 @@ class MixinTypeClass extends ComplexTypeBase {
   declare readonly types: (ComplexType | MixinType | MappedType)[];
 
   extendsFrom(baseType: DataType | string | Type | object): boolean {
-    if (!(baseType instanceof DataType)) baseType = this.node.getDataType(baseType);
+    if (!(baseType instanceof DataType))
+      baseType = this.node.getDataType(baseType);
     if (!(baseType instanceof ComplexTypeBase)) return false;
     if (baseType === this) return true;
     for (const t of this.types) {
@@ -205,7 +200,10 @@ MixinType[DECORATOR] = MixinTypeFactory;
 function MixinTypeFactory(...args: any[]): Type {
   // Filter undefined items
   const clasRefs = args.filter(x => typeof x === 'function') as [Type];
-  const options = typeof args[args.length - 1] === 'object' ? args[args.length - 1] : undefined;
+  const options =
+    typeof args[args.length - 1] === 'object'
+      ? args[args.length - 1]
+      : undefined;
   if (!clasRefs.length) throw new TypeError('No Class has been provided');
   if (clasRefs.length === 1) return clasRefs[0] as any;
   const className = clasRefs[0].name + 'Mixin';

@@ -32,7 +32,10 @@ export abstract class HttpAdapter extends PlatformAdapter {
   readonly handler: HttpHandler;
   readonly protocol: OpraSchema.Transport = 'http';
   readonly basePath: string;
-  interceptors: (HttpAdapter.InterceptorFunction | HttpAdapter.IHttpInterceptor)[];
+  interceptors: (
+    | HttpAdapter.InterceptorFunction
+    | HttpAdapter.IHttpInterceptor
+  )[];
 
   protected constructor(options?: HttpAdapter.Options) {
     super(options);

@@ -36,25 +36,46 @@ export function collectionUpdateTests(args: { client: OpraTestClient }) {
     it('Should exclude exclusive fields by default', async () => {
       const data = generateData();
       const resp = await args.client.patch('Customers@85', data).getResponse();
-      resp.expect.toSuccess().toReturnObject().not.toContainFields(['address', 'notes']);
+      resp.expect
+        .toSuccess()
+        .toReturnObject()
+        .not.toContainFields(['address', 'notes']);
     });
 
     it('Should fetch exclusive fields if requested', async () => {
       const data = generateData();
-      const resp = await args.client.patch('Customers@85', data).param('projection', '+address').getResponse();
-      resp.expect.toSuccess().toReturnObject().toContainFields(['_id', 'givenName', 'address']);
+      const resp = await args.client
+        .patch('Customers@85', data)
+        .param('projection', '+address')
+        .getResponse();
+      resp.expect
+        .toSuccess()
+        .toReturnObject()
+        .toContainFields(['_id', 'givenName', 'address']);
     });
 
     it('Should pick fields to be returned', async () => {
       const data = generateData();
-      const resp = await args.client.patch('Customers@85', data).param('projection', '_id,givenName').getResponse();
-      resp.expect.toSuccess().toReturnObject().toContainAllFields(['_id', 'givenName']);
+      const resp = await args.client
+        .patch('Customers@85', data)
+        .param('projection', '_id,givenName')
+        .getResponse();
+      resp.expect
+        .toSuccess()
+        .toReturnObject()
+        .toContainAllFields(['_id', 'givenName']);
     });
 
     it('Should omit fields to be returned', async () => {
       const data = generateData();
-      const resp = await args.client.patch('Customers@85', data).param('projection', '-_id,-givenName').getResponse();
-      resp.expect.toSuccess().toReturnObject().not.toContainAllFields(['_id', 'givenName']);
+      const resp = await args.client
+        .patch('Customers@85', data)
+        .param('projection', '-_id,-givenName')
+        .getResponse();
+      resp.expect
+        .toSuccess()
+        .toReturnObject()
+        .not.toContainAllFields(['_id', 'givenName']);
     });
 
     it('Should return 204 NO-CONTENT status code if resource available', async () => {

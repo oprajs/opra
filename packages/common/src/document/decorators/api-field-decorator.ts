@@ -7,11 +7,16 @@ export interface ApiFieldDecorator {
   (options?: ApiField.Options): PropertyDecorator;
 }
 
-export function ApiFieldDecorator(options?: ApiField.Options): PropertyDecorator {
+export function ApiFieldDecorator(
+  options?: ApiField.Options,
+): PropertyDecorator {
   return function (target: Object, propertyKey: string | symbol) {
-    if (typeof propertyKey !== 'string') throw new TypeError(`Symbol properties can't be used as a field`);
+    if (typeof propertyKey !== 'string')
+      throw new TypeError(`Symbol properties can't be used as a field`);
 
-    const metadata: ComplexType.Metadata = Reflect.getOwnMetadata(DATATYPE_METADATA, target.constructor) || ({} as any);
+    const metadata: ComplexType.Metadata =
+      Reflect.getOwnMetadata(DATATYPE_METADATA, target.constructor) ||
+      ({} as any);
     metadata.kind = OpraSchema.ComplexType.Kind;
     metadata.fields = metadata.fields || {};
 

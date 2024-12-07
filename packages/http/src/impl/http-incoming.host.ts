@@ -115,7 +115,9 @@ export class HttpIncomingHost implements HttpIncoming {
     return parseRange(size, range, options);
   }
 
-  async readBody(options: BodyReader.Options): Promise<string | Buffer | undefined> {
+  async readBody(
+    options: BodyReader.Options,
+  ): Promise<string | Buffer | undefined> {
     if (!this.complete) this.body = await BodyReader.read(this, options);
     return this.body;
   }

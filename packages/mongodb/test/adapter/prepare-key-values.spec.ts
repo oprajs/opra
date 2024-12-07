@@ -9,7 +9,10 @@ describe('MongoAdapter.prepareKeyValues', () => {
   });
 
   it('Should prepare multiple key', async () => {
-    const out = MongoAdapter.prepareKeyValues({ userId: 1, active: true }, ['userId', 'active']);
+    const out = MongoAdapter.prepareKeyValues({ userId: 1, active: true }, [
+      'userId',
+      'active',
+    ]);
     expect(out).toStrictEqual({ userId: 1, active: true });
   });
 });

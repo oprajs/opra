@@ -90,14 +90,27 @@ export class TsGenerator extends EventEmitter {
     this.outDir = init.outDir ? path.resolve(this.cwd, init.outDir) : this.cwd;
     this.fileHeader = init.fileHeader || '';
     this.writer = init.writer || new FileWriter();
-    this.options = { importExt: !!init.importExt, referenceNamespaces: init.referenceNamespaces };
+    this.options = {
+      importExt: !!init.importExt,
+      referenceNamespaces: init.referenceNamespaces,
+    };
     this._documentsMap = new Map();
     this._filesMap = new WeakMap();
-    this.on('log', (message: string, ...args) => init.logger?.log?.(message, ...args));
-    this.on('error', (message: string, ...args) => init.logger?.error?.(message, ...args));
-    this.on('debug', (message: string, ...args) => init.logger?.debug?.(message, ...args));
-    this.on('warn', (message: string, ...args) => init.logger?.warn?.(message, ...args));
-    this.on('verbose', (message: string, ...args) => init.logger?.verbose?.(message, ...args));
+    this.on('log', (message: string, ...args) =>
+      init.logger?.log?.(message, ...args),
+    );
+    this.on('error', (message: string, ...args) =>
+      init.logger?.error?.(message, ...args),
+    );
+    this.on('debug', (message: string, ...args) =>
+      init.logger?.debug?.(message, ...args),
+    );
+    this.on('warn', (message: string, ...args) =>
+      init.logger?.warn?.(message, ...args),
+    );
+    this.on('verbose', (message: string, ...args) =>
+      init.logger?.verbose?.(message, ...args),
+    );
   }
 
   async generate() {
@@ -131,14 +144,18 @@ export class TsGenerator extends EventEmitter {
   }
 
   protected addFile(filePath: string, returnExists?: boolean): TsFile {
-    if (!(filePath.startsWith('.') || filePath.startsWith('/'))) filePath = './' + filePath;
+    if (!(filePath.startsWith('.') || filePath.startsWith('/')))
+      filePath = './' + filePath;
     let file = this.getFile(filePath);
     if (file) {
       if (returnExists) return file;
       throw new Error(`File "${filePath}" already exists`);
     }
     file = new TsFile(filePath);
-    file.code.header = this.fileHeader + (this._fileHeaderDocInfo ? '\n' + this._fileHeaderDocInfo : '') + '\n\n';
+    file.code.header =
+      this.fileHeader +
+      (this._fileHeaderDocInfo ? '\n' + this._fileHeaderDocInfo : '') +
+      '\n\n';
     this._files[file.filename] = file;
     return file;
   }

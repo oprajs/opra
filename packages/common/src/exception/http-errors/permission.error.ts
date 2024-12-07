@@ -11,7 +11,10 @@ import { ForbiddenError } from './forbidden.error.js';
 export class PermissionError extends ForbiddenError {
   protected init(issue: Partial<ErrorIssue>) {
     super.init({
-      message: translate('error:PERMISSION_ERROR', 'You dont have permission for this operation'),
+      message: translate(
+        'error:PERMISSION_ERROR',
+        'You dont have permission for this operation',
+      ),
       code: 'PERMISSION_ERROR',
       ...issue,
     });

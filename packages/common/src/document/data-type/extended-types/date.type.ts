@@ -29,7 +29,11 @@ export class DateType {
   }
 
   protected [ENCODER](properties: Partial<this>): Validator {
-    const fn = vg.isDateString({ precision: 'date', trim: 'date', coerce: true });
+    const fn = vg.isDateString({
+      precision: 'date',
+      trim: 'date',
+      coerce: true,
+    });
     const x: Validator[] = [];
     if (properties.minValue) {
       isDateString(properties.minValue);

@@ -1,4 +1,9 @@
-import { ApiDocument, ApiDocumentFactory, OpraDocumentError, OpraSchema } from '@opra/common';
+import {
+  ApiDocument,
+  ApiDocumentFactory,
+  OpraDocumentError,
+  OpraSchema,
+} from '@opra/common';
 
 describe('ApiDocumentFactory', () => {
   afterAll(() => global.gc && global.gc());

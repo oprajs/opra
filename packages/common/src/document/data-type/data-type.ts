@@ -7,7 +7,12 @@ import { OpraSchema } from '../../schema/index.js';
 import { DocumentElement } from '../common/document-element.js';
 import { DocumentInitContext } from '../common/document-init-context.js';
 import { CLASS_NAME_PATTERN } from '../constants.js';
-import { colorFgMagenta, colorFgYellow, colorReset, nodeInspectCustom } from '../utils/inspect.util.js';
+import {
+  colorFgMagenta,
+  colorFgYellow,
+  colorReset,
+  nodeInspectCustom,
+} from '../utils/inspect.util.js';
 
 /**
  * @namespace DataType
@@ -17,7 +22,8 @@ export namespace DataType {
     name?: string;
   }
 
-  export interface Options extends Partial<StrictOmit<Metadata, 'kind' | 'examples'>> {
+  export interface Options
+    extends Partial<StrictOmit<Metadata, 'kind' | 'examples'>> {
     embedded?: boolean;
   }
 
@@ -36,7 +42,11 @@ export namespace DataType {
 }
 
 interface DataTypeStatic {
-  new (owner: DocumentElement, args?: DataType.InitArguments, context?: DocumentInitContext): DataType;
+  new (
+    owner: DocumentElement,
+    args?: DataType.InitArguments,
+    context?: DocumentInitContext,
+  ): DataType;
 
   prototype: DataType;
 }
@@ -57,7 +67,8 @@ export const DataType = function (
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   context?: DocumentInitContext,
 ) {
-  if (!this) throw new TypeError('"this" should be passed to call class constructor');
+  if (!this)
+    throw new TypeError('"this" should be passed to call class constructor');
   if (initArgs?.name && !CLASS_NAME_PATTERN.test(initArgs.name)) {
     throw new TypeError(`"${initArgs.name}" is not a valid DataType name`);
   }
@@ -82,7 +93,10 @@ abstract class DataTypeClass extends DocumentElement {
   declare readonly abstract?: boolean;
   declare readonly examples?: OpraSchema.DataTypeExample[];
 
-  abstract generateCodec(codec: 'encode' | 'decode', options?: DataType.GenerateCodecOptions): Validator;
+  abstract generateCodec(
+    codec: 'encode' | 'decode',
+    options?: DataType.GenerateCodecOptions,
+  ): Validator;
 
   get embedded(): any {
     return !this.name;

@@ -116,7 +116,8 @@ export class FetchBackend extends HttpBackend {
         if (fetchResponse.body) {
           if (init.reportProgress) {
             const fetchBody = fetchResponse.body;
-            const contentLength = fetchResponse.headers.get('content-length') || '0';
+            const contentLength =
+              fetchResponse.headers.get('content-length') || '0';
             const total = parseInt(contentLength, 10) || 0;
             let loaded = 0;
             const res = new Response(
@@ -189,7 +190,11 @@ export class FetchBackend extends HttpBackend {
     const body = requestInit.body;
     if (body) {
       let contentType = '';
-      if (typeof body === 'string' || typeof body === 'number' || typeof body === 'boolean') {
+      if (
+        typeof body === 'string' ||
+        typeof body === 'number' ||
+        typeof body === 'boolean'
+      ) {
         contentType = 'text/plain; charset="UTF-8"';
         requestInit.body = new Blob([String(body)], { type: contentType });
         headers.set('Content-Length', String(requestInit.body.size));
@@ -209,11 +214,14 @@ export class FetchBackend extends HttpBackend {
         delete requestInit.duplex;
       } else {
         contentType = 'application/json;charset="UTF-8"';
-        requestInit.body = new Blob([JSON.stringify(body)], { type: contentType });
+        requestInit.body = new Blob([JSON.stringify(body)], {
+          type: contentType,
+        });
         headers.set('Content-Length', String(requestInit.body.size));
         delete requestInit.duplex;
       }
-      if (contentType && !headers.has('Content-Type')) headers.set('Content-Type', contentType);
+      if (contentType && !headers.has('Content-Type'))
+        headers.set('Content-Type', contentType);
     }
     return new Request(url.toString(), requestInit);
   }
@@ -228,8 +236,10 @@ export class FetchBackend extends HttpBackend {
     if (typeIs.is(contentType, ['json', 'application/*+json'])) {
       body = await fetchResponse.json();
       if (typeof body === 'string') body = JSON.parse(body);
-    } else if (typeIs.is(contentType, ['text'])) body = await fetchResponse.text();
-    else if (typeIs.is(contentType, ['multipart'])) body = await fetchResponse.formData();
+    } else if (typeIs.is(contentType, ['text']))
+      body = await fetchResponse.text();
+    else if (typeIs.is(contentType, ['multipart']))
+      body = await fetchResponse.formData();
     else {
       const buf = await fetchResponse.arrayBuffer();
       if (buf.byteLength) body = buf;
@@ -250,7 +260,11 @@ export namespace FetchBackend {
     defaults?: RequestDefaults;
   }
 
-  export interface RequestInit extends Combine<StrictOmit<HttpBackend.RequestInit, 'body'>, DomRequestInit> {
+  export interface RequestInit
+    extends Combine<
+      StrictOmit<HttpBackend.RequestInit, 'body'>,
+      DomRequestInit
+    > {
     duplex?: string;
     reportProgress?: boolean;
   }

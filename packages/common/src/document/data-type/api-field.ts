@@ -19,7 +19,13 @@ export namespace ApiField {
   export interface Metadata
     extends Combine<
       {
-        type?: string | OpraSchema.DataType | TypeThunkAsync | EnumType.EnumObject | EnumType.EnumArray | object;
+        type?:
+          | string
+          | OpraSchema.DataType
+          | TypeThunkAsync
+          | EnumType.EnumObject
+          | EnumType.EnumArray
+          | object;
       },
       OpraSchema.Field
     > {
@@ -50,7 +56,10 @@ export namespace ApiField {
 export interface ApiFieldConstructor extends ApiFieldDecorator {
   prototype: ApiField;
 
-  new (owner: ComplexType | MappedType | MixinType, args: ApiField.InitArguments): ApiField;
+  new (
+    owner: ComplexType | MappedType | MixinType,
+    args: ApiField.InitArguments,
+  ): ApiField;
 }
 
 /**
@@ -76,7 +85,9 @@ export const ApiField = function (this: ApiField | void, ...args: any[]) {
   const origin = initArgs.origin || owner;
   /* istanbul ignore next */
   if (!(origin instanceof ComplexTypeBase)) {
-    throw new Error('Field origin should be one of ComplexType, MappedType or MixinType');
+    throw new Error(
+      'Field origin should be one of ComplexType, MappedType or MixinType',
+    );
   }
   _this.origin = origin;
   _this.type = initArgs.type || owner.node.getDataType('any');
@@ -123,7 +134,9 @@ class ApiFieldClass extends DocumentElement {
   readonly hidden?: boolean;
 
   toJSON(): OpraSchema.Field {
-    const typeName = this.type ? this.node.getDataTypeNameWithNs(this.type) : undefined;
+    const typeName = this.type
+      ? this.node.getDataTypeNameWithNs(this.type)
+      : undefined;
     return omitUndefined<OpraSchema.Field>({
       type: typeName ? typeName : (this.type?.toJSON() as any),
       description: this.description,

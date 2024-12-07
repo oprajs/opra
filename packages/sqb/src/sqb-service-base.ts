@@ -20,7 +20,9 @@ export class SqbServiceBase extends ServiceBase {
   /**
    * Represents a SqbClient or SqbConnection object
    */
-  db?: (SqbClient | SqbConnection) | ((_this: this) => SqbClient | SqbConnection);
+  db?:
+    | (SqbClient | SqbConnection)
+    | ((_this: this) => SqbClient | SqbConnection);
 
   /**
    * Constructs a new instance
@@ -38,7 +40,9 @@ export class SqbServiceBase extends ServiceBase {
    *
    * @param callback - The function to be executed within the transaction.
    */
-  async withTransaction(callback: (connection: SqbConnection, _this: this) => any): Promise<any> {
+  async withTransaction(
+    callback: (connection: SqbConnection, _this: this) => any,
+  ): Promise<any> {
     const ctx = this.context;
     let closeSessionOnFinish = false;
 
@@ -62,10 +66,12 @@ export class SqbServiceBase extends ServiceBase {
     try {
       if (!oldInTransaction) await connection.startTransaction();
       const out = await callback(connection, this);
-      if (!oldInTransaction && connection.inTransaction) await connection.commit();
+      if (!oldInTransaction && connection.inTransaction)
+        await connection.commit();
       return out;
     } catch (e) {
-      if (!oldInTransaction && connection.inTransaction) await connection.rollback();
+      if (!oldInTransaction && connection.inTransaction)
+        await connection.rollback();
       throw e;
     } finally {
       delete ctx[transactionKey];
@@ -83,7 +89,10 @@ export class SqbServiceBase extends ServiceBase {
    *
    * @throws {Error} If the context or database is not set.
    */
-  getConnection(): SqbConnection | SqbClient | Promise<SqbConnection | SqbClient> {
+  getConnection():
+    | SqbConnection
+    | SqbClient
+    | Promise<SqbConnection | SqbClient> {
     const ctx = this.context;
     let db = ctx[transactionKey];
     if (db) return db;

@@ -34,7 +34,12 @@ export class MongoPatchGenerator {
     };
   }
 
-  protected _processComplexType(ctx: Context, dataType: ComplexType, path: string, input: any) {
+  protected _processComplexType(
+    ctx: Context,
+    dataType: ComplexType,
+    path: string,
+    input: any,
+  ) {
     if (input._$push) {
       this._processPush(ctx, dataType, path, input._$push);
     }
@@ -65,7 +70,12 @@ export class MongoPatchGenerator {
             ctx.$set = ctx.$set || {};
             if (dataType.additionalFields instanceof ComplexType) {
               /** Process nested object */
-              this._processComplexType(ctx, dataType.additionalFields, pathDot + key, value);
+              this._processComplexType(
+                ctx,
+                dataType.additionalFields,
+                pathDot + key,
+                value,
+              );
               continue;
             }
             ctx.$set[pathDot + key] = value;
@@ -96,9 +106,16 @@ export class MongoPatchGenerator {
               delete v[keyField];
               /** Add array filter */
               ctx.arrayFilters = ctx.arrayFilters || [];
-              ctx.arrayFilters.push({ [`${arrayFilterName}.${keyField}`]: keyValue });
+              ctx.arrayFilters.push({
+                [`${arrayFilterName}.${keyField}`]: keyValue,
+              });
               /** Process each object in array */
-              this._processComplexType(ctx, field.type, pathDot + field.name + `.$[${arrayFilterName}]`, v);
+              this._processComplexType(
+                ctx,
+                field.type,
+                pathDot + field.name + `.$[${arrayFilterName}]`,
+                v,
+              );
             }
             continue;
           }
@@ -113,7 +130,12 @@ export class MongoPatchGenerator {
     }
   }
 
-  protected _processPush(ctx: Context, dataType: ComplexType, path: string, input: any) {
+  protected _processPush(
+    ctx: Context,
+    dataType: ComplexType,
+    path: string,
+    input: any,
+  ) {
     let field: ApiField | undefined;
     let key: string;
     let value: any;
@@ -131,24 +153,35 @@ export class MongoPatchGenerator {
           if (Array.isArray(value)) {
             value.forEach(v => {
               if (!v[keyField!]) {
-                throw new TypeError(`You must provide a key value of ${field!.type.name} for $push operation.`);
+                throw new TypeError(
+                  `You must provide a key value of ${field!.type.name} for $push operation.`,
+                );
               }
             });
             ctx.$push[pathDot + key] = { $each: value };
           } else {
             if (!value[keyField]) {
-              throw new TypeError(`You must provide a key value of ${field!.type.name} for $push operation.`);
+              throw new TypeError(
+                `You must provide a key value of ${field!.type.name} for $push operation.`,
+              );
             }
             ctx.$push[pathDot + key] = value;
           }
         }
         continue;
       }
-      ctx.$push[pathDot + key] = Array.isArray(value) ? { $each: value } : value;
+      ctx.$push[pathDot + key] = Array.isArray(value)
+        ? { $each: value }
+        : value;
     }
   }
 
-  protected _processPull(ctx: Context, dataType: ComplexType, path: string, input: any) {
+  protected _processPull(
+    ctx: Context,
+    dataType: ComplexType,
+    path: string,
+    input: any,
+  ) {
     let field: ApiField | undefined;
     let key: string;
     let value: any;
@@ -163,9 +196,15 @@ export class MongoPatchGenerator {
       if (field.type instanceof ComplexType) {
         keyField = field.keyField || field.type.keyField;
         if (!keyField) continue;
-        ctx.$pull[pathDot + key] = { $elemMatch: { [keyField]: Array.isArray(value) ? { $in: value } : value } };
+        ctx.$pull[pathDot + key] = {
+          $elemMatch: {
+            [keyField]: Array.isArray(value) ? { $in: value } : value,
+          },
+        };
       } else {
-        ctx.$pull[pathDot + key] = Array.isArray(value) ? { $in: value } : value;
+        ctx.$pull[pathDot + key] = Array.isArray(value)
+          ? { $in: value }
+          : value;
       }
     }
   }

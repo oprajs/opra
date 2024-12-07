@@ -8,7 +8,11 @@ export function cloneObject<T extends {}>(obj: T, jsonOnly?: boolean): T {
     ignoreUndefined: true,
     filter(key, source) {
       const v = source[key];
-      return !jsonOnly || (typeof v !== 'function' && (typeof v !== 'object' || isPlainObject(v) || Array.isArray(v)));
+      return (
+        !jsonOnly ||
+        (typeof v !== 'function' &&
+          (typeof v !== 'object' || isPlainObject(v) || Array.isArray(v)))
+      );
     },
   }) as T;
 }

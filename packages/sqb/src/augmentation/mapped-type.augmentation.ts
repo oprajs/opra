@@ -3,7 +3,11 @@ import { Entity, EntityMetadata } from '@sqb/connect';
 import type { Type } from 'ts-gems';
 
 const _applyMixin = MappedType._applyMixin;
-MappedType._applyMixin = function (targetType: Type, sourceType: Type, options) {
+MappedType._applyMixin = function (
+  targetType: Type,
+  sourceType: Type,
+  options,
+) {
   _applyMixin.call(null, targetType, sourceType, options);
   const srcMeta = Entity.getMetadata(sourceType);
   if (srcMeta) {

@@ -38,7 +38,9 @@ import {
  * @param <Result> The return type of the visit operation. Use `void` for
  * operations with no return type.
  */
-export default class OpraFilterVisitor<Result> extends ParseTreeVisitor<Result> {
+export default class OpraFilterVisitor<
+  Result,
+> extends ParseTreeVisitor<Result> {
   /**
    * Visit a parse tree produced by `OpraFilterParser.root`.
    * @param ctx the parse tree
@@ -51,7 +53,9 @@ export default class OpraFilterVisitor<Result> extends ParseTreeVisitor<Result> 
    * @param ctx the parse tree
    * @return the visitor result
    */
-  visitParenthesizedExpression?: (ctx: ParenthesizedExpressionContext) => Result;
+  visitParenthesizedExpression?: (
+    ctx: ParenthesizedExpressionContext,
+  ) => Result;
   /**
    * Visit a parse tree produced by the `negativeExpression`
    * labeled alternative in `OpraFilterParser.expression`.

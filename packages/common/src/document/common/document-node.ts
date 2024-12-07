@@ -39,7 +39,9 @@ export class DocumentNode {
     return this.parent ? this.parent.hasDataType(nameOrCtor) : false;
   }
 
-  findDataType(nameOrCtor: string | Type | Function | object | any[]): DataType | undefined {
+  findDataType(
+    nameOrCtor: string | Type | Function | object | any[],
+  ): DataType | undefined {
     const result = this[kDataTypeMap]?.get(nameOrCtor);
     if (result) return result;
     return this.parent ? this.parent.findDataType(nameOrCtor) : undefined;

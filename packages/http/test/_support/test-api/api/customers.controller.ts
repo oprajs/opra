@@ -41,7 +41,13 @@ export class CustomersController {
   }
 
   @(HttpOperation.Entity.FindMany(Customer)
-    .SortFields('_id', 'givenName', 'familyName', 'gender', 'address.countryCode')
+    .SortFields(
+      '_id',
+      'givenName',
+      'familyName',
+      'gender',
+      'address.countryCode',
+    )
     .DefaultSort('givenName')
     .Filter('_id', '= >  <  >= <=')
     .Filter('givenName', ['=', 'like', '!like'])

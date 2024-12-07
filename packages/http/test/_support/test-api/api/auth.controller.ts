@@ -1,5 +1,10 @@
 import '../../../../src/index.js';
-import { ApiField, ComplexType, HttpController, HttpOperation } from '@opra/common';
+import {
+  ApiField,
+  ComplexType,
+  HttpController,
+  HttpOperation,
+} from '@opra/common';
 import { HttpContext } from '@opra/http';
 import { MyProfileController } from './my-profile.controller.js';
 

@@ -13,10 +13,13 @@ export interface OpraModuleOptionsFactory {
   createOptions(): Promise<_OpraClientModuleOptions> | _OpraClientModuleOptions;
 }
 
-export interface OpraClientModuleAsyncOptions extends Pick<NgModule, 'imports' | 'providers'> {
+export interface OpraClientModuleAsyncOptions
+  extends Pick<NgModule, 'imports' | 'providers'> {
   token?: string | InjectionToken<any>;
   useExisting?: Type<OpraModuleOptionsFactory>;
   useClass?: Type<any>;
-  useFactory?: (...args: any[]) => Promise<_OpraClientModuleOptions> | _OpraClientModuleOptions;
+  useFactory?: (
+    ...args: any[]
+  ) => Promise<_OpraClientModuleOptions> | _OpraClientModuleOptions;
   deps?: any[];
 }

@@ -1,6 +1,12 @@
 import 'reflect-metadata';
 import '@opra/sqb';
-import { ApiField, ComplexType, DATATYPE_METADATA, OmitType, PickType } from '@opra/common';
+import {
+  ApiField,
+  ComplexType,
+  DATATYPE_METADATA,
+  OmitType,
+  PickType,
+} from '@opra/common';
 import { Column, Entity } from '@sqb/connect';
 
 describe('MappedType augmentation', () => {

@@ -1,4 +1,3 @@
-/* eslint-disable camelcase */
 import '@opra/core';
 import type { QueryDslQueryContainer } from '@elastic/elasticsearch/lib/api/types';
 import { OpraFilter } from '@opra/common';
@@ -13,8 +12,10 @@ export default function prepareFilter(
   for (const filter of filtersArray) {
     if (!filter) continue;
     let x: any = filter;
-    if (typeof filter === 'string') x = prepareFilterAst(OpraFilter.parse(filter));
-    else if (filter instanceof OpraFilter.Expression) x = prepareFilterAst(filter);
+    if (typeof filter === 'string')
+      x = prepareFilterAst(OpraFilter.parse(filter));
+    else if (filter instanceof OpraFilter.Expression)
+      x = prepareFilterAst(filter);
     out.push(x);
   }
   if (out.length > 1) {
@@ -23,7 +24,10 @@ export default function prepareFilter(
   return out[0] ? out[0] : undefined;
 }
 
-function prepareFilterAst(ast: OpraFilter.Expression | undefined, negative?: boolean): any {
+function prepareFilterAst(
+  ast: OpraFilter.Expression | undefined,
+  negative?: boolean,
+): any {
   if (!ast) return;
 
   if (
@@ -60,8 +64,15 @@ function prepareFilterAst(ast: OpraFilter.Expression | undefined, negative?: boo
   }
 
   if (ast instanceof OpraFilter.ComparisonExpression) {
-    if (!(ast.left instanceof OpraFilter.QualifiedIdentifier || ast.left instanceof OpraFilter.StringLiteral)) {
-      throw new Error('Left side of ComparisonExpression must be a QualifiedIdentifier');
+    if (
+      !(
+        ast.left instanceof OpraFilter.QualifiedIdentifier ||
+        ast.left instanceof OpraFilter.StringLiteral
+      )
+    ) {
+      throw new Error(
+        'Left side of ComparisonExpression must be a QualifiedIdentifier',
+      );
     }
     const left = prepareFilterAst(ast.left);
     const right = prepareFilterAst(ast.right);
@@ -97,20 +108,34 @@ function prepareFilterAst(ast: OpraFilter.Expression | undefined, negative?: boo
         }
         case '!like':
         case 'like': {
-          out = { wildcard: { [left]: { value: String(right).replace(/%/g, '*') } } };
+          out = {
+            wildcard: { [left]: { value: String(right).replace(/%/g, '*') } },
+          };
           break;
         }
         case '!ilike':
         case 'ilike': {
-          out = { wildcard: { [left]: { value: String(right).replace(/%/g, '*'), case_insensitive: true } } };
+          out = {
+            wildcard: {
+              [left]: {
+                value: String(right).replace(/%/g, '*'),
+                case_insensitive: true,
+              },
+            },
+          };
           break;
         }
         default:
           /* istanbul ignore next */
-          throw new TypeError(`Unknown ComparisonExpression operation (${ast.op})`);
+          throw new TypeError(
+            `Unknown ComparisonExpression operation (${ast.op})`,
+          );
       }
     }
-    if ((ast.op.startsWith('!') && !negative) || (!ast.op.startsWith('!') && negative)) {
+    if (
+      (ast.op.startsWith('!') && !negative) ||
+      (!ast.op.startsWith('!') && negative)
+    ) {
       return { bool: { must_not: { ...out } } };
     }
     return out;

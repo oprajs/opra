@@ -11,7 +11,12 @@ import { DocumentElement } from './document-element.js';
  */
 export namespace Value {
   export interface Metadata extends StrictOmit<OpraSchema.Value, 'type'> {
-    type?: string | TypeThunkAsync | EnumType.EnumObject | EnumType.EnumArray | object;
+    type?:
+      | string
+      | TypeThunkAsync
+      | EnumType.EnumObject
+      | EnumType.EnumArray
+      | object;
   }
 
   export interface Options extends Partial<StrictOmit<Metadata, 'type'>> {
@@ -43,8 +48,13 @@ interface ValueStatic {
  */
 export interface Value extends ValueClass {}
 
-export const Value = function (this: Value, owner: DocumentElement, initArgs: Value.InitArguments) {
-  if (!this) throw new TypeError('"this" should be passed to call class constructor');
+export const Value = function (
+  this: Value,
+  owner: DocumentElement,
+  initArgs: Value.InitArguments,
+) {
+  if (!this)
+    throw new TypeError('"this" should be passed to call class constructor');
   DocumentElement.call(this, owner);
   // if (args.name && !PARAMETER_NAME_PATTERN.test(args.name))
   //   throw new TypeError(`"${args.name}" is not a valid parameter name`);
@@ -67,7 +77,9 @@ class ValueClass extends DocumentElement {
   isArray?: boolean;
 
   toJSON(): OpraSchema.Value {
-    const typeName = this.type ? this.node.getDataTypeNameWithNs(this.type) : undefined;
+    const typeName = this.type
+      ? this.node.getDataTypeNameWithNs(this.type)
+      : undefined;
     return omitUndefined<OpraSchema.Value>({
       type: this.type ? (typeName ? typeName : this.type.toJSON()) : 'any',
       description: this.description,

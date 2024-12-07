@@ -2,7 +2,11 @@ import { type HeaderInfo, HTTPParser } from '@browsery/http-parser';
 import { isAsyncIterable, isIterable } from '@jsopen/objects';
 import http from 'http';
 import { Readable } from 'stream';
-import { CRLF, kHttpParser, NodeIncomingMessageHost } from '../impl/node-incoming-message.host.js';
+import {
+  CRLF,
+  kHttpParser,
+  NodeIncomingMessageHost,
+} from '../impl/node-incoming-message.host.js';
 import { concatReadable } from '../utils/concat-readable.js';
 
 /**
@@ -47,8 +51,13 @@ export namespace NodeIncomingMessage {
    * Creates a new NodeIncomingMessage from given argument
    * @param iterable
    */
-  export function from(iterable: string | Iterable<any> | AsyncIterable<any> | Initiator): NodeIncomingMessage {
-    if (typeof iterable === 'object' && !(isIterable(iterable) || isAsyncIterable(iterable))) {
+  export function from(
+    iterable: string | Iterable<any> | AsyncIterable<any> | Initiator,
+  ): NodeIncomingMessage {
+    if (
+      typeof iterable === 'object' &&
+      !(isIterable(iterable) || isAsyncIterable(iterable))
+    ) {
       return new NodeIncomingMessageHost(iterable as Initiator);
     }
     const msg = new NodeIncomingMessageHost();
@@ -65,11 +74,18 @@ export namespace NodeIncomingMessage {
     parser[HTTPParser.kOnHeaders] = (trailers: string[]) => {
       msg.rawTrailers = trailers;
     };
-    parser[HTTPParser.kOnBody] = (chunk: Buffer, offset: number, length: number) => {
+    parser[HTTPParser.kOnBody] = (
+      chunk: Buffer,
+      offset: number,
+      length: number,
+    ) => {
       bodyChunks = bodyChunks || [];
       bodyChunks.push(chunk.subarray(offset, offset + length));
     };
-    const readable = concatReadable(Readable.from(iterable as any), Readable.from(CRLF));
+    const readable = concatReadable(
+      Readable.from(iterable as any),
+      Readable.from(CRLF),
+    );
     msg.once('finish', () => {
       parser.finish();
       msg.complete = true;

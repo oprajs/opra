@@ -11,7 +11,12 @@ export default function preparePatch(doc: any): Script {
   };
 }
 
-function _preparePatch(src: any, script: string[], params: Record<string, any>, path: string) {
+function _preparePatch(
+  src: any,
+  script: string[],
+  params: Record<string, any>,
+  path: string,
+) {
   let f: string;
   let field: string;
   for (const [k, v] of Object.entries(src)) {

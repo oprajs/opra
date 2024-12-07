@@ -57,6 +57,9 @@ describe('DataTypeFactory - EnumType (Schema)', () => {
     expect(t1.name).toStrictEqual('AdministrativeGender');
     expect(t1.description).toStrictEqual(AdministrativeGender.description);
     expect(t1.description).toStrictEqual(AdministrativeGender.description);
-    expect(t1.attributes).toStrictEqual({ ...Gender.attributes, ...AdministrativeGender.attributes });
+    expect(t1.attributes).toStrictEqual({
+      ...Gender.attributes,
+      ...AdministrativeGender.attributes,
+    });
   });
 });

@@ -4,9 +4,19 @@ import { getStackFileName, I18n as I18n_ } from '@opra/common';
 
 declare module '@opra/common' {
   export interface I18n {
-    loadResourceDir(dirnames: string | string[], deep?: boolean, overwrite?: boolean): Promise<void>;
+    loadResourceDir(
+      dirnames: string | string[],
+      deep?: boolean,
+      overwrite?: boolean,
+    ): Promise<void>;
 
-    loadResourceBundle(lang: string, ns: string, filePath: string, deep?: boolean, overwrite?: boolean): Promise<void>;
+    loadResourceBundle(
+      lang: string,
+      ns: string,
+      filePath: string,
+      deep?: boolean,
+      overwrite?: boolean,
+    ): Promise<void>;
   }
 
   namespace I18n {
@@ -53,8 +63,11 @@ I18n_.load = async function (options?: I18n_.Options) {
   delete opts.resourceDirs;
   const instance = I18n_.createInstance(opts);
   await instance.init();
-  await instance.loadResourceDir(path.resolve(getStackFileName(), '../../../i18n'));
-  if (options?.resourceDirs) for (const dir of options.resourceDirs) await instance.loadResourceDir(dir);
+  await instance.loadResourceDir(
+    path.resolve(getStackFileName(), '../../../i18n'),
+  );
+  if (options?.resourceDirs)
+    for (const dir of options.resourceDirs) await instance.loadResourceDir(dir);
   return instance;
 };
 
@@ -67,7 +80,9 @@ I18n_.prototype.loadResourceBundle = async function (
 ): Promise<void> {
   let obj;
   if (URL.canParse(filePath)) {
-    obj = (await fetch(filePath, { headers: { accept: 'application/json' } })).json();
+    obj = (
+      await fetch(filePath, { headers: { accept: 'application/json' } })
+    ).json();
   } else {
     const content = fs.readFileSync(filePath, 'utf8');
     obj = JSON.parse(content);
@@ -75,7 +90,11 @@ I18n_.prototype.loadResourceBundle = async function (
   this.addResourceBundle(lang, ns, obj, deep, overwrite);
 };
 
-I18n_.prototype.loadResourceDir = async function (dirnames: string | string[], deep?: boolean, overwrite?: boolean) {
+I18n_.prototype.loadResourceDir = async function (
+  dirnames: string | string[],
+  deep?: boolean,
+  overwrite?: boolean,
+) {
   for (const dirname of Array.isArray(dirnames) ? dirnames : [dirnames]) {
     /* istanbul ignore next */
     if (!fs.existsSync(dirname)) continue;
@@ -89,7 +108,13 @@ I18n_.prototype.loadResourceDir = async function (dirnames: string | string[], d
           const ext = path.extname(nsfile);
           if (ext === '.json' && fs.statSync(nsFilePath).isFile()) {
             const ns = path.basename(nsfile, ext);
-            await this.loadResourceBundle(lang, ns, nsFilePath, deep, overwrite);
+            await this.loadResourceBundle(
+              lang,
+              ns,
+              nsFilePath,
+              deep,
+              overwrite,
+            );
           }
         }
       }

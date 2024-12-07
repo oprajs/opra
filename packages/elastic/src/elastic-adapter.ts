@@ -8,7 +8,11 @@ import _prepareProjection from './adapter-utils/prepare-projection.js';
 import _prepareSort from './adapter-utils/prepare-sort.js';
 
 export namespace ElasticAdapter {
-  export type FilterInput = OpraFilter.Expression | QueryDslQueryContainer | string | undefined;
+  export type FilterInput =
+    | OpraFilter.Expression
+    | QueryDslQueryContainer
+    | string
+    | undefined;
 
   export const prepareFilter = _prepareFilter;
   export const preparePatch = _preparePatch;
@@ -16,19 +20,32 @@ export namespace ElasticAdapter {
   export const prepareSort = _prepareSort;
 
   export interface TransformedRequest {
-    method: 'create' | 'delete' | 'deleteMany' | 'get' | 'replace' | 'findMany' | 'update' | 'updateMany';
+    method:
+      | 'create'
+      | 'delete'
+      | 'deleteMany'
+      | 'get'
+      | 'replace'
+      | 'findMany'
+      | 'update'
+      | 'updateMany';
     key?: any;
     data?: any;
     options: any;
   }
 
-  export async function parseRequest(context: ExecutionContext): Promise<TransformedRequest> {
+  export async function parseRequest(
+    context: ExecutionContext,
+  ): Promise<TransformedRequest> {
     if (context.protocol !== 'http') {
       throw new TypeError('ElasticAdapter can parse only HttpContext');
     }
     const ctx = context as HttpContext;
     const { operation } = ctx;
-    if (operation?.composition?.startsWith('Entity.') && operation.compositionOptions?.type) {
+    if (
+      operation?.composition?.startsWith('Entity.') &&
+      operation.compositionOptions?.type
+    ) {
       const controller = operation.owner;
       switch (operation.composition) {
         case 'Entity.Create': {
@@ -36,15 +53,25 @@ export namespace ElasticAdapter {
           const options = {
             projection: ctx.queryParams.projection,
           };
-          return { method: 'create', data, options } satisfies TransformedRequest;
+          return {
+            method: 'create',
+            data,
+            options,
+          } satisfies TransformedRequest;
         }
         case 'Entity.Delete': {
-          const keyParam = operation.parameters.find(p => p.keyParam) || controller.parameters.find(p => p.keyParam);
+          const keyParam =
+            operation.parameters.find(p => p.keyParam) ||
+            controller.parameters.find(p => p.keyParam);
           const key = keyParam && ctx.pathParams[String(keyParam.name)];
           const options = {
             filter: ctx.queryParams.filter,
           };
-          return { method: 'delete', key, options } satisfies TransformedRequest;
+          return {
+            method: 'delete',
+            key,
+            options,
+          } satisfies TransformedRequest;
         }
         case 'Entity.DeleteMany': {
           const options = {
@@ -64,7 +91,9 @@ export namespace ElasticAdapter {
           return { method: 'findMany', options } satisfies TransformedRequest;
         }
         case 'Entity.Get': {
-          const keyParam = operation.parameters.find(p => p.keyParam) || controller.parameters.find(p => p.keyParam);
+          const keyParam =
+            operation.parameters.find(p => p.keyParam) ||
+            controller.parameters.find(p => p.keyParam);
           const key = keyParam && ctx.pathParams[String(keyParam.name)];
           const options = {
             projection: ctx.queryParams.projection,
@@ -74,30 +103,48 @@ export namespace ElasticAdapter {
         }
         case 'Entity.Replace': {
           const data = await ctx.getBody<any>();
-          const keyParam = operation.parameters.find(p => p.keyParam) || controller.parameters.find(p => p.keyParam);
+          const keyParam =
+            operation.parameters.find(p => p.keyParam) ||
+            controller.parameters.find(p => p.keyParam);
           const key = keyParam && ctx.pathParams[String(keyParam.name)];
           const options = {
             projection: ctx.queryParams.projection,
             filter: ctx.queryParams.filter,
           };
-          return { method: 'replace', key, data, options } satisfies TransformedRequest;
+          return {
+            method: 'replace',
+            key,
+            data,
+            options,
+          } satisfies TransformedRequest;
         }
         case 'Entity.Update': {
           const data = await ctx.getBody<any>();
-          const keyParam = operation.parameters.find(p => p.keyParam) || controller.parameters.find(p => p.keyParam);
+          const keyParam =
+            operation.parameters.find(p => p.keyParam) ||
+            controller.parameters.find(p => p.keyParam);
           const key = keyParam && ctx.pathParams[String(keyParam.name)];
           const options = {
             projection: ctx.queryParams.projection,
             filter: ctx.queryParams.filter,
           };
-          return { method: 'update', key, data, options } satisfies TransformedRequest;
+          return {
+            method: 'update',
+            key,
+            data,
+            options,
+          } satisfies TransformedRequest;
         }
         case 'Entity.UpdateMany': {
           const data = await ctx.getBody<any>();
           const options = {
             filter: ctx.queryParams.filter,
           };
-          return { method: 'updateMany', data, options } satisfies TransformedRequest;
+          return {
+            method: 'updateMany',
+            data,
+            options,
+          } satisfies TransformedRequest;
         }
         default:
           break;

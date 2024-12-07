@@ -1,4 +1,10 @@
-import { ApiDocument, ComplexType, DataType, EnumType, SimpleType } from '@opra/common';
+import {
+  ApiDocument,
+  ComplexType,
+  DataType,
+  EnumType,
+  SimpleType,
+} from '@opra/common';
 import { Country, Gender } from 'customer-mongo/models';
 import { TestHttpApiDocument } from '../_support/test-http-api/index.js';
 
@@ -35,7 +41,9 @@ describe('DocumentNode', () => {
   });
 
   it('Should getDataType(unknown: string) throw if not found', async () => {
-    expect(() => doc.node.getDataType('notexists')).toThrow('Unknown data type');
+    expect(() => doc.node.getDataType('notexists')).toThrow(
+      'Unknown data type',
+    );
   });
 
   it('Should getSimpleType(name) return DataType instance', async () => {
@@ -61,7 +69,9 @@ describe('DocumentNode', () => {
   it('Should getComplexType(name) return DataType instance', async () => {
     expect(doc.node.getComplexType('country')).toBeInstanceOf(ComplexType);
     expect(doc.node.getComplexType('country').name).toStrictEqual('Country');
-    expect(doc.node.getComplexType('country').kind).toStrictEqual('ComplexType');
+    expect(doc.node.getComplexType('country').kind).toStrictEqual(
+      'ComplexType',
+    );
   });
 
   it('Should getComplexType(ctor: Class) return DataType instance', async () => {

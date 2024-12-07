@@ -24,7 +24,13 @@ import { parse as parseContentType } from 'content-type';
 import { splitString } from 'fast-tokenizer';
 import { md5 } from 'super-fast-md5';
 import { asMutable } from 'ts-gems';
-import { type ErrorIssue, toArray, ValidationError, type Validator, vg } from 'valgen';
+import {
+  type ErrorIssue,
+  toArray,
+  ValidationError,
+  type Validator,
+  vg,
+} from 'valgen';
 import type { HttpAdapter } from './http-adapter';
 import { HttpContext } from './http-context.js';
 import { wrapException } from './utils/wrap-exception.js';
@@ -50,7 +56,10 @@ export namespace HttpHandler {
  */
 export class HttpHandler {
   protected [kAssetCache]: AssetCache;
-  onError?: (context: HttpContext, error: OpraException) => void | Promise<void>;
+  onError?: (
+    context: HttpContext,
+    error: OpraException,
+  ) => void | Promise<void>;
 
   constructor(readonly adapter: HttpAdapter) {
     this[kAssetCache] = adapter[kAssetCache];
@@ -64,13 +73,18 @@ export class HttpHandler {
   async handleRequest(context: HttpContext): Promise<void> {
     const { response } = context;
     try {
-      response.setHeader(HttpHeaderCodes.X_Opra_Version, OpraSchema.SpecVersion);
+      response.setHeader(
+        HttpHeaderCodes.X_Opra_Version,
+        OpraSchema.SpecVersion,
+      );
       // Expose headers if cors enabled
       if (response.getHeader(HttpHeaderCodes.Access_Control_Allow_Origin)) {
         // Expose X-Opra-* headers
         response.appendHeader(
           HttpHeaderCodes.Access_Control_Expose_Headers,
-          Object.values(HttpHeaderCodes).filter(k => k.toLowerCase().startsWith('x-opra-')),
+          Object.values(HttpHeaderCodes).filter(k =>
+            k.toLowerCase().startsWith('x-opra-'),
+          ),
         );
       }
 
@@ -100,8 +114,10 @@ export class HttpHandler {
         let i = 0;
         const next = async () => {
           const interceptor = interceptors[i++];
-          if (typeof interceptor === 'function') await interceptor(context, next);
-          else if (typeof interceptor?.intercept === 'function') await interceptor.intercept(context, next);
+          if (typeof interceptor === 'function')
+            await interceptor(context, next);
+          else if (typeof interceptor?.intercept === 'function')
+            await interceptor.intercept(context, next);
           await this._executeRequest(context);
         };
         await next();
@@ -166,13 +182,18 @@ export class HttpHandler {
       const getDecoder = (prm: HttpParameter): Validator => {
         let decode = this[kAssetCache].get<Validator>(prm, 'decode');
         if (!decode) {
-          decode = prm.type?.generateCodec('decode', { ignoreReadonlyFields: true }) || vg.isAny();
+          decode =
+            prm.type?.generateCodec('decode', { ignoreReadonlyFields: true }) ||
+            vg.isAny();
           this[kAssetCache].set(prm, 'decode', decode);
         }
         return decode;
       };
 
-      const paramsLeft = new Set([...operation.parameters, ...operation.owner.parameters]);
+      const paramsLeft = new Set([
+        ...operation.parameters,
+        ...operation.owner.parameters,
+      ]);
 
       /** parse cookie parameters */
       if (request.cookies) {
@@ -184,7 +205,11 @@ export class HttpHandler {
           if (oprPrm) paramsLeft.delete(oprPrm);
           if (cntPrm) paramsLeft.delete(cntPrm);
           const decode = getDecoder(prm);
-          const v: any = decode(request.cookies[key], { coerce: true, label: key, onFail });
+          const v: any = decode(request.cookies[key], {
+            coerce: true,
+            label: key,
+            onFail,
+          });
           const prmName = typeof prm.name === 'string' ? prm.name : key;
           if (v !== undefined) context.cookies[prmName] = v;
         }
@@ -200,7 +225,11 @@ export class HttpHandler {
           if (oprPrm) paramsLeft.delete(oprPrm);
           if (cntPrm) paramsLeft.delete(cntPrm);
           const decode = getDecoder(prm);
-          const v: any = decode(request.headers[key], { coerce: true, label: key, onFail });
+          const v: any = decode(request.headers[key], {
+            coerce: true,
+            label: key,
+            onFail,
+          });
           const prmName = typeof prm.name === 'string' ? prm.name : key;
           if (v !== undefined) context.headers[prmName] = v;
         }
@@ -216,13 +245,20 @@ export class HttpHandler {
           if (oprPrm) paramsLeft.delete(oprPrm);
           if (cntPrm) paramsLeft.delete(cntPrm);
           const decode = getDecoder(prm);
-          const v: any = decode(request.params[key], { coerce: true, label: key, onFail });
+          const v: any = decode(request.params[key], {
+            coerce: true,
+            label: key,
+            onFail,
+          });
           if (v !== undefined) context.pathParams[key] = v;
         }
       }
 
       /** parse query parameters */
-      const url = new URL(request.originalUrl || request.url || '/', 'http://tempuri.org');
+      const url = new URL(
+        request.originalUrl || request.url || '/',
+        'http://tempuri.org',
+      );
       const { searchParams } = url;
       for (key of searchParams.keys()) {
         const oprPrm = operation.findParameter(key, 'query');
@@ -235,8 +271,14 @@ export class HttpHandler {
         let values: any[] = searchParams?.getAll(key);
         const prmName = typeof prm.name === 'string' ? prm.name : key;
         if (values?.length && prm.isArray) {
-          values = values.map(v => splitString(v, { delimiters: prm.arraySeparator, quotes: true })).flat();
-          values = values.map(v => decode(v, { coerce: true, label: key, onFail }));
+          values = values
+            .map(v =>
+              splitString(v, { delimiters: prm.arraySeparator, quotes: true }),
+            )
+            .flat();
+          values = values.map(v =>
+            decode(v, { coerce: true, label: key, onFail }),
+          );
           if (values.length) context.queryParams[prmName] = values;
         } else {
           const v = decode(values[0], { coerce: true, label: key, onFail });
@@ -283,12 +325,19 @@ export class HttpHandler {
         mediaType = operation.requestBody.content.find(
           mc =>
             mc.contentType &&
-            typeIs.is(contentType!, Array.isArray(mc.contentType) ? mc.contentType : [mc.contentType]),
+            typeIs.is(
+              contentType!,
+              Array.isArray(mc.contentType) ? mc.contentType : [mc.contentType],
+            ),
         );
       }
       if (!mediaType) {
-        const contentTypes = operation.requestBody.content.map(mc => mc.contentType).flat();
-        throw new BadRequestError(`Request body should be one of required content types (${contentTypes.join(', ')})`);
+        const contentTypes = operation.requestBody.content
+          .map(mc => mc.contentType)
+          .flat();
+        throw new BadRequestError(
+          `Request body should be one of required content types (${contentTypes.join(', ')})`,
+        );
       }
       asMutable(context).mediaType = mediaType;
     }
@@ -301,7 +350,10 @@ export class HttpHandler {
    */
   protected async _executeRequest(context: HttpContext): Promise<any> {
     if (!context.operationHandler) throw new MethodNotAllowedError();
-    const responseValue = await context.operationHandler.call(context.controllerInstance, context);
+    const responseValue = await context.operationHandler.call(
+      context.controllerInstance,
+      context,
+    );
     const { response } = context;
     if (!response.writableEnded) {
       await this.sendResponse(context, responseValue).finally(() => {
@@ -327,33 +379,53 @@ export class HttpHandler {
       let { contentType, body } = responseArgs;
 
       const operationResultType = document.node.getDataType(OperationResult);
-      let operationResultEncoder = this[kAssetCache].get<Validator>(operationResultType, 'encode');
+      let operationResultEncoder = this[kAssetCache].get<Validator>(
+        operationResultType,
+        'encode',
+      );
       if (!operationResultEncoder) {
         operationResultEncoder = operationResultType.generateCodec('encode', {
           ignoreWriteonlyFields: true,
           ignoreHiddenFields: true,
         });
-        this[kAssetCache].set(operationResultType, 'encode', operationResultEncoder);
+        this[kAssetCache].set(
+          operationResultType,
+          'encode',
+          operationResultEncoder,
+        );
       }
 
       /** Validate response */
       if (operationResponse?.type) {
-        if (!(body == null && (statusCode as HttpStatusCode) === HttpStatusCode.NO_CONTENT)) {
+        if (
+          !(
+            body == null &&
+            (statusCode as HttpStatusCode) === HttpStatusCode.NO_CONTENT
+          )
+        ) {
           /** Generate encoder */
           const projection = responseArgs.projection || '*';
           const assetKey = md5(String(projection));
-          let encode = this[kAssetCache].get<Validator>(operationResponse, 'encode:' + assetKey);
+          let encode = this[kAssetCache].get<Validator>(
+            operationResponse,
+            'encode:' + assetKey,
+          );
           if (!encode) {
             encode = operationResponse.type.generateCodec('encode', {
               partial: operationResponse.partial,
               projection,
               ignoreWriteonlyFields: true,
               ignoreHiddenFields: true,
-              onFail: issue => `Response body validation failed: ` + issue.message,
+              onFail: issue =>
+                `Response body validation failed: ` + issue.message,
             });
             if (operationResponse) {
               if (operationResponse.isArray) encode = vg.isArray(encode);
-              this[kAssetCache].set(operationResponse, 'encode:' + assetKey, encode);
+              this[kAssetCache].set(
+                operationResponse,
+                'encode:' + assetKey,
+                encode,
+              );
             }
           }
           /** Encode body */
@@ -379,9 +451,12 @@ export class HttpHandler {
           if (
             body instanceof OperationResult &&
             operationResponse.type &&
-            operationResponse.type !== document.node.getDataType(OperationResult)
+            operationResponse.type !==
+              document.node.getDataType(OperationResult)
           ) {
-            body.type = operationResponse.type.name ? operationResponse.type.name : '#embedded';
+            body.type = operationResponse.type.name
+              ? operationResponse.type.name
+              : '#embedded';
           }
         }
       } else if (body != null) {
@@ -398,7 +473,8 @@ export class HttpHandler {
         }
       }
       /** Set content-type header value if not set */
-      if (contentType && contentType !== responseArgs.contentType) response.setHeader('content-type', contentType);
+      if (contentType && contentType !== responseArgs.contentType)
+        response.setHeader('content-type', contentType);
 
       response.status(statusCode);
       if (body == null) {
@@ -448,7 +524,8 @@ export class HttpHandler {
     let status = response.statusCode || 0;
     if (!status || status < Number(HttpStatusCode.BAD_REQUEST)) {
       status = errors[0].status;
-      if (status < Number(HttpStatusCode.BAD_REQUEST)) status = HttpStatusCode.INTERNAL_SERVER_ERROR;
+      if (status < Number(HttpStatusCode.BAD_REQUEST))
+        status = HttpStatusCode.INTERNAL_SERVER_ERROR;
     }
     response.statusCode = status;
 
@@ -463,13 +540,22 @@ export class HttpHandler {
     const bodyObject = new OperationResult({
       errors: errors.map(x => {
         const o = x.toJSON();
-        if (!(process.env.NODE_ENV === 'dev' || process.env.NODE_ENV === 'development')) delete o.stack;
+        if (
+          !(
+            process.env.NODE_ENV === 'dev' ||
+            process.env.NODE_ENV === 'development'
+          )
+        )
+          delete o.stack;
         return o; // i18n.deep(o);
       }),
     });
     const body = encode(bodyObject);
 
-    response.setHeader(HttpHeaderCodes.Content_Type, MimeTypes.opra_response_json + '; charset=utf-8');
+    response.setHeader(
+      HttpHeaderCodes.Content_Type,
+      MimeTypes.opra_response_json + '; charset=utf-8',
+    );
     response.setHeader(HttpHeaderCodes.Cache_Control, 'no-cache');
     response.setHeader(HttpHeaderCodes.Pragma, 'no-cache');
     response.setHeader(HttpHeaderCodes.Expires, '-1');
@@ -482,7 +568,10 @@ export class HttpHandler {
     const { request, response } = context;
     const { document } = this.adapter;
     response.setHeader('content-type', MimeTypes.json);
-    const url = new URL(request.originalUrl || request.url || '/', 'http://tempuri.org');
+    const url = new URL(
+      request.originalUrl || request.url || '/',
+      'http://tempuri.org',
+    );
     const { searchParams } = url;
     const documentId = searchParams.get('id');
     const doc = documentId ? document.findDocument(documentId) : document;
@@ -511,31 +600,45 @@ export class HttpHandler {
    * @param body
    * @protected
    */
-  protected _determineResponseArgs(context: HttpContext, body: any): HttpHandler.ResponseArgs {
+  protected _determineResponseArgs(
+    context: HttpContext,
+    body: any,
+  ): HttpHandler.ResponseArgs {
     const { response, operation } = context;
 
     const hasBody = body != null;
     const statusCode =
-      !hasBody && (response.statusCode as any) === HttpStatusCode.OK ? HttpStatusCode.NO_CONTENT : response.statusCode;
+      !hasBody && (response.statusCode as any) === HttpStatusCode.OK
+        ? HttpStatusCode.NO_CONTENT
+        : response.statusCode;
     /** Parse content-type header */
-    const parsedContentType = hasBody && response.hasHeader('content-type') ? parseContentType(response) : undefined;
+    const parsedContentType =
+      hasBody && response.hasHeader('content-type')
+        ? parseContentType(response)
+        : undefined;
     let contentType = parsedContentType?.type;
     /** Estimate content type if not defined */
     if (hasBody && !contentType) {
-      if (body instanceof OperationResult) contentType = MimeTypes.opra_response_json;
+      if (body instanceof OperationResult)
+        contentType = MimeTypes.opra_response_json;
       else if (Buffer.isBuffer(body)) contentType = MimeTypes.binary;
     }
     let operationResponse: HttpOperationResponse | undefined;
 
     const cacheKey = `HttpOperationResponse:${statusCode}${contentType ? ':' + contentType : ''}`;
-    let responseArgs = this[kAssetCache].get<HttpHandler.ResponseArgs>(response, cacheKey);
+    let responseArgs = this[kAssetCache].get<HttpHandler.ResponseArgs>(
+      response,
+      cacheKey,
+    );
     if (!responseArgs) {
       responseArgs = { statusCode, contentType } as HttpHandler.ResponseArgs;
 
       if (operation?.responses.length) {
         /** Filter available HttpOperationResponse instances according to status code. */
         const filteredResponses = operation.responses.filter(r =>
-          r.statusCode.find(sc => sc.start <= statusCode && sc.end >= statusCode),
+          r.statusCode.find(
+            sc => sc.start <= statusCode && sc.end >= statusCode,
+          ),
         );
 
         /** Throw InternalServerError if controller returns non-configured status code */
@@ -557,9 +660,13 @@ export class HttpHandler {
             /** Find HttpOperationResponse according to content-type */
             if (contentType) {
               // Find HttpEndpointResponse instance according to content-type header
-              operationResponse = filteredResponses.find(r => typeIs.is(contentType!, toArray(r.contentType)));
+              operationResponse = filteredResponses.find(r =>
+                typeIs.is(contentType!, toArray(r.contentType)),
+              );
               if (!operationResponse) {
-                throw new InternalServerError(`Operation didn't configured to return "${contentType}" content`);
+                throw new InternalServerError(
+                  `Operation didn't configured to return "${contentType}" content`,
+                );
               }
             } else {
               /** Select first HttpOperationResponse if content-type header has not been set */
@@ -570,20 +677,27 @@ export class HttpHandler {
                     ? operationResponse.contentType[0]
                     : operationResponse.contentType,
                 );
-                if (typeof ct === 'string') responseArgs.contentType = contentType = ct;
-                else if (operationResponse.type) responseArgs.contentType = MimeTypes.opra_response_json;
+                if (typeof ct === 'string')
+                  responseArgs.contentType = contentType = ct;
+                else if (operationResponse.type)
+                  responseArgs.contentType = MimeTypes.opra_response_json;
               }
             }
           }
           responseArgs.operationResponse = operationResponse;
-          if (!operationResponse.statusCode.find(sc => sc.start <= statusCode && sc.end >= statusCode)) {
+          if (
+            !operationResponse.statusCode.find(
+              sc => sc.start <= statusCode && sc.end >= statusCode,
+            )
+          ) {
             responseArgs.statusCode = operationResponse.statusCode[0].start;
           }
         }
       }
       if (!hasBody) delete responseArgs.contentType;
       if (operation?.composition?.startsWith('Entity.')) {
-        if (context.queryParams.projection) responseArgs.projection = context.queryParams.projection;
+        if (context.queryParams.projection)
+          responseArgs.projection = context.queryParams.projection;
       }
       this[kAssetCache].set(response, cacheKey, { ...responseArgs });
     }
@@ -602,7 +716,8 @@ export class HttpHandler {
             });
           }
           if (
-            (composition === 'Entity.Create' || composition === 'Entity.Update') &&
+            (composition === 'Entity.Create' ||
+              composition === 'Entity.Update') &&
             composition &&
             body.affected == null
           ) {
@@ -633,7 +748,10 @@ export class HttpHandler {
       }
     }
 
-    if (responseArgs.contentType && responseArgs.contentType !== parsedContentType?.type) {
+    if (
+      responseArgs.contentType &&
+      responseArgs.contentType !== parsedContentType?.type
+    ) {
       response.setHeader('content-type', responseArgs.contentType);
     }
     if (
@@ -654,7 +772,9 @@ export class HttpHandler {
     if (!wrappedErrors.length) wrappedErrors.push(new InternalServerError());
     // Sort errors from fatal to info
     wrappedErrors.sort((a, b) => {
-      const i = IssueSeverity.Keys.indexOf(a.severity) - IssueSeverity.Keys.indexOf(b.severity);
+      const i =
+        IssueSeverity.Keys.indexOf(a.severity) -
+        IssueSeverity.Keys.indexOf(b.severity);
       if (i === 0) return b.status - a.status;
       return i;
     });

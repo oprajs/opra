@@ -35,8 +35,10 @@ export default function prepareFilter<T = any>(
   for (const filter of filtersArray) {
     if (!filter) continue;
     let x: any;
-    if (typeof filter === 'string') x = prepareFilterAst(OpraFilter.parse(filter));
-    else if (filter instanceof OpraFilter.Expression) x = prepareFilterAst(filter);
+    if (typeof filter === 'string')
+      x = prepareFilterAst(OpraFilter.parse(filter));
+    else if (filter instanceof OpraFilter.Expression)
+      x = prepareFilterAst(filter);
     else x = filter;
     if (Array.isArray(x)) x = { $and: out };
 
@@ -65,7 +67,11 @@ export default function prepareFilter<T = any>(
     }
     i++;
   }
-  return i ? (options?.fieldPrefix ? addPrefix(out, options.fieldPrefix) : out) : undefined;
+  return i
+    ? options?.fieldPrefix
+      ? addPrefix(out, options.fieldPrefix)
+      : out
+    : undefined;
 }
 
 function addPrefix(source: any, prefix: string): any {
@@ -79,7 +85,10 @@ function addPrefix(source: any, prefix: string): any {
   return out;
 }
 
-function prepareFilterAst(ast: OpraFilter.Expression | undefined, negative?: boolean): any {
+function prepareFilterAst(
+  ast: OpraFilter.Expression | undefined,
+  negative?: boolean,
+): any {
   if (!ast) return;
 
   if (
@@ -103,7 +112,9 @@ function prepareFilterAst(ast: OpraFilter.Expression | undefined, negative?: boo
   }
 
   if (ast instanceof OpraFilter.LogicalExpression) {
-    const items = ast.items.map(x => prepareFilterAst(x, negative)).filter(x => x != null) as mongodb.Filter<any>[];
+    const items = ast.items
+      .map(x => prepareFilterAst(x, negative))
+      .filter(x => x != null) as mongodb.Filter<any>[];
     if (ast.op === 'or') return { $or: items };
     return { $and: items };
   }
@@ -124,14 +135,20 @@ function prepareFilterAst(ast: OpraFilter.Expression | undefined, negative?: boo
 
     let right = prepareFilterAst(ast.right);
     if (right == null) {
-      const op = ast.op === '=' ? (negative ? '!=' : '=') : negative ? '=' : '!=';
-      if (op === '=') return { $or: [{ [left]: null }, { [left]: { $exists: false } }] };
-      if (op === '!=') return { $and: [{ $ne: { [left]: null } }, { [left]: { $exists: true } }] };
+      const op =
+        ast.op === '=' ? (negative ? '!=' : '=') : negative ? '=' : '!=';
+      if (op === '=')
+        return { $or: [{ [left]: null }, { [left]: { $exists: false } }] };
+      if (op === '!=')
+        return {
+          $and: [{ $ne: { [left]: null } }, { [left]: { $exists: true } }],
+        };
     }
 
     const mngOp = opMap[ast.op];
     if (mngOp) {
-      if (ast.op === 'in' || ast.op === '!in') right = Array.isArray(right) ? right : [right];
+      if (ast.op === 'in' || ast.op === '!in')
+        right = Array.isArray(right) ? right : [right];
       if (ast.op === '=' && !negative) return { [left]: right };
       return { [left]: wrapNot({ [mngOp]: right }, negative) };
     }
@@ -187,7 +204,9 @@ function prepareFilterAst(ast: OpraFilter.Expression | undefined, negative?: boo
         break;
     }
 
-    throw new Error(`Unimplemented ComparisonExpression operation (right side is ${ast.right.kind})`);
+    throw new Error(
+      `Unimplemented ComparisonExpression operation (right side is ${ast.right.kind})`,
+    );
   }
 
   throw new Error(`${ast.kind} is not implemented yet`);

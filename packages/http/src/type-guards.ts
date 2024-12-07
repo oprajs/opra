@@ -5,7 +5,12 @@ import type { NodeIncomingMessage } from './interfaces/node-incoming-message.int
 import type { NodeOutgoingMessage } from './interfaces/node-outgoing-message.interface.js';
 
 export function isNodeIncomingMessage(v: any): v is NodeIncomingMessage {
-  return v && typeof v.method === 'string' && Array.isArray(v.rawHeaders) && isReadable(v);
+  return (
+    v &&
+    typeof v.method === 'string' &&
+    Array.isArray(v.rawHeaders) &&
+    isReadable(v)
+  );
 }
 
 export function isHttpIncoming(v: any): v is HttpIncoming {
@@ -22,5 +27,9 @@ export function isNodeOutgoingMessage(v: any): v is NodeOutgoingMessage {
 }
 
 export function isHttpOutgoing(v: any): v is HttpOutgoing {
-  return (isNodeOutgoingMessage(v) as any) && typeof v.clearCookie === 'function' && typeof v.cookie === 'function';
+  return (
+    (isNodeOutgoingMessage(v) as any) &&
+    typeof v.clearCookie === 'function' &&
+    typeof v.cookie === 'function'
+  );
 }

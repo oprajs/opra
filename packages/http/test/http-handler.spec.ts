@@ -1,5 +1,10 @@
 import { ApiDocument, HttpOperation } from '@opra/common';
-import { ExpressAdapter, HttpContext, HttpIncoming, HttpOutgoing } from '@opra/http';
+import {
+  ExpressAdapter,
+  HttpContext,
+  HttpIncoming,
+  HttpOutgoing,
+} from '@opra/http';
 import cookieParser from 'cookie-parser';
 import express, { Express } from 'express';
 import supertest from 'supertest';
@@ -49,7 +54,9 @@ describe('HttpHandler', () => {
   });
 
   it('Should parse path parameters', async () => {
-    const resource = document.httpApi?.findController('Customer/CustomerAddress');
+    const resource = document.httpApi?.findController(
+      'Customer/CustomerAddress',
+    );
     const operation = resource!.operations.get('get')!;
     const context = createContext(
       operation,
@@ -107,7 +114,9 @@ describe('HttpHandler', () => {
         url: '/Customers?limit=abc',
       }),
     );
-    await expect(() => adapter.handler.parseRequest(context)).rejects.toThrow('Invalid parameter');
+    await expect(() => adapter.handler.parseRequest(context)).rejects.toThrow(
+      'Invalid parameter',
+    );
   });
 
   it('Should parse content-type', async () => {

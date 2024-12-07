@@ -1,4 +1,9 @@
-import { HttpController, HttpOperation, NotFoundError, OperationResult } from '@opra/common';
+import {
+  HttpController,
+  HttpOperation,
+  NotFoundError,
+  OperationResult,
+} from '@opra/common';
 import { HttpContext } from '@opra/http';
 import { Address } from 'customer-mongo/models';
 import { Data } from '../../../../../../examples/_lib/data/customers-data.js';

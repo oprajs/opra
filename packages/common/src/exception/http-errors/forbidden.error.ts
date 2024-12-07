@@ -14,7 +14,10 @@ export class ForbiddenError extends OpraHttpError {
 
   protected init(issue: Partial<ErrorIssue>) {
     super.init({
-      message: translate('error:FORBIDDEN', 'You are not authorized to perform this action'),
+      message: translate(
+        'error:FORBIDDEN',
+        'You are not authorized to perform this action',
+      ),
       code: 'FORBIDDEN',
       ...issue,
     });

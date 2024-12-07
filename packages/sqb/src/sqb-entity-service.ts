@@ -2,7 +2,14 @@ import { ComplexType, DataType, InternalServerError } from '@opra/common';
 import { ExecutionContext, ServiceBase } from '@opra/core';
 import { op } from '@sqb/builder';
 import { EntityMetadata, Repository } from '@sqb/connect';
-import type { Nullish, PartialDTO, PatchDTO, RequiredSome, StrictOmit, Type } from 'ts-gems';
+import type {
+  Nullish,
+  PartialDTO,
+  PatchDTO,
+  RequiredSome,
+  StrictOmit,
+  Type,
+} from 'ts-gems';
 import { isNotNullish, type IsObject } from 'valgen';
 import { SQBAdapter } from './sqb-adapter.js';
 import { SqbServiceBase } from './sqb-service-base.js';
@@ -34,7 +41,10 @@ export namespace SqbEntityService {
     | ((
         args: SqbEntityService.CommandInfo,
         _this: SqbEntityService<any>,
-      ) => SQBAdapter.FilterInput | Promise<SQBAdapter.FilterInput> | undefined);
+      ) =>
+        | SQBAdapter.FilterInput
+        | Promise<SQBAdapter.FilterInput>
+        | undefined);
 
   /**
    * Represents options for "create" operation
@@ -48,7 +58,8 @@ export namespace SqbEntityService {
    *
    * @interface
    */
-  export interface CountOptions extends StrictOmit<Repository.CountOptions, 'filter'> {
+  export interface CountOptions
+    extends StrictOmit<Repository.CountOptions, 'filter'> {
     filter?: Repository.CountOptions['filter'] | string;
   }
 
@@ -57,7 +68,8 @@ export namespace SqbEntityService {
    *
    * @interface
    */
-  export interface DeleteOptions extends StrictOmit<Repository.DeleteOptions, 'filter'> {
+  export interface DeleteOptions
+    extends StrictOmit<Repository.DeleteOptions, 'filter'> {
     filter?: Repository.DeleteOptions['filter'] | string;
   }
 
@@ -66,7 +78,8 @@ export namespace SqbEntityService {
    *
    * @interface
    */
-  export interface DeleteManyOptions extends StrictOmit<Repository.DeleteManyOptions, 'filter'> {
+  export interface DeleteManyOptions
+    extends StrictOmit<Repository.DeleteManyOptions, 'filter'> {
     filter?: Repository.DeleteManyOptions['filter'] | string;
   }
 
@@ -75,7 +88,8 @@ export namespace SqbEntityService {
    *
    * @interface
    */
-  export interface ExistsOptions extends StrictOmit<Repository.ExistsOptions, 'filter'> {
+  export interface ExistsOptions
+    extends StrictOmit<Repository.ExistsOptions, 'filter'> {
     filter?: Repository.ExistsOptions['filter'] | string;
   }
 
@@ -84,7 +98,8 @@ export namespace SqbEntityService {
    *
    * @interface
    */
-  export interface FindOneOptions extends StrictOmit<Repository.FindOneOptions, 'filter' | 'offset'> {
+  export interface FindOneOptions
+    extends StrictOmit<Repository.FindOneOptions, 'filter' | 'offset'> {
     filter?: Repository.FindOneOptions['filter'] | string;
     skip?: number;
   }
@@ -94,7 +109,8 @@ export namespace SqbEntityService {
    *
    * @interface
    */
-  export interface FindManyOptions extends StrictOmit<Repository.FindManyOptions, 'filter' | 'offset'> {
+  export interface FindManyOptions
+    extends StrictOmit<Repository.FindManyOptions, 'filter' | 'offset'> {
     filter?: Repository.FindManyOptions['filter'] | string;
     skip?: number;
   }
@@ -104,7 +120,8 @@ export namespace SqbEntityService {
    *
    * @interface
    */
-  export interface UpdateOneOptions extends StrictOmit<Repository.UpdateOptions, 'filter'> {
+  export interface UpdateOneOptions
+    extends StrictOmit<Repository.UpdateOptions, 'filter'> {
     filter?: Repository.UpdateOptions['filter'] | string;
   }
 
@@ -113,17 +130,20 @@ export namespace SqbEntityService {
    *
    * @interface
    */
-  export interface UpdateManyOptions extends StrictOmit<Repository.UpdateManyOptions, 'filter'> {
+  export interface UpdateManyOptions
+    extends StrictOmit<Repository.UpdateManyOptions, 'filter'> {
     filter?: Repository.UpdateManyOptions['filter'] | string;
   }
 
-  export interface CreateCommand<T> extends StrictOmit<RequiredSome<CommandInfo, 'input'>, 'documentId'> {
+  export interface CreateCommand<T>
+    extends StrictOmit<RequiredSome<CommandInfo, 'input'>, 'documentId'> {
     crud: 'create';
     input: PatchDTO<T>;
     options?: CreateOptions;
   }
 
-  export interface CountCommand extends StrictOmit<CommandInfo, 'documentId' | 'input'> {
+  export interface CountCommand
+    extends StrictOmit<CommandInfo, 'documentId' | 'input'> {
     crud: 'read';
     options?: CountOptions;
   }
@@ -175,14 +195,20 @@ export interface SqbEntityService {
    * @param _this - The reference to the current object.
    * @returns - The promise that resolves to the result of the callback execution.
    */
-  interceptor?(next: () => any, command: SqbEntityService.CommandInfo, _this: any): Promise<any>;
+  interceptor?(
+    next: () => any,
+    command: SqbEntityService.CommandInfo,
+    _this: any,
+  ): Promise<any>;
 }
 
 /**
  * @class SqbEntityService
  * @template T - The data type class type of the resource
  */
-export class SqbEntityService<T extends object = object> extends SqbServiceBase {
+export class SqbEntityService<
+  T extends object = object,
+> extends SqbServiceBase {
   protected _dataType_: Type | string;
   protected _dataType?: ComplexType;
   protected _dataTypeClass?: Type;
@@ -201,7 +227,9 @@ export class SqbEntityService<T extends object = object> extends SqbServiceBase 
    *
    * @type {SqbEntityService.Filter | Function}
    */
-  commonFilter?: SqbEntityService.CommonFilter | SqbEntityService.CommonFilter[];
+  commonFilter?:
+    | SqbEntityService.CommonFilter
+    | SqbEntityService.CommonFilter[];
 
   /**
    * Callback function for handling errors.
@@ -232,7 +260,10 @@ export class SqbEntityService<T extends object = object> extends SqbServiceBase 
    * @throws {NotAcceptableError} If the data type is not a ComplexType.
    */
   get dataType(): ComplexType {
-    if (!this._dataType) this._dataType = this.context.documentNode.getComplexType(this._dataType_);
+    if (!this._dataType)
+      this._dataType = this.context.documentNode.getComplexType(
+        this._dataType_,
+      );
     return this._dataType;
   }
 
@@ -255,7 +286,10 @@ export class SqbEntityService<T extends object = object> extends SqbServiceBase 
     if (!this._entityMetadata) {
       const t = this.dataType.ctor!;
       const metadata = EntityMetadata.get(t);
-      if (!metadata) throw new TypeError(`Class (${t}) is not decorated with $Entity() decorator`);
+      if (!metadata)
+        throw new TypeError(
+          `Class (${t}) is not decorated with $Entity() decorator`,
+        );
       this._entityMetadata = metadata;
     }
     return this._entityMetadata!;
@@ -268,10 +302,12 @@ export class SqbEntityService<T extends object = object> extends SqbServiceBase 
   ): this & Required<P> {
     if (overwriteProperties?.commonFilter && this.commonFilter) {
       overwriteProperties.commonFilter = [
-        ...(Array.isArray(this.commonFilter) ? this.commonFilter : [this.commonFilter]),
+        ...(Array.isArray(this.commonFilter)
+          ? this.commonFilter
+          : [this.commonFilter]),
         ...(Array.isArray(overwriteProperties?.commonFilter)
-          ? overwriteProperties?.commonFilter
-          : [overwriteProperties?.commonFilter]),
+          ? overwriteProperties.commonFilter
+          : [overwriteProperties.commonFilter]),
       ];
     }
     return super.for(context, overwriteProperties, overwriteContext);
@@ -285,7 +321,9 @@ export class SqbEntityService<T extends object = object> extends SqbServiceBase 
    */
   getResourceName(): string {
     const out =
-      typeof this.resourceName === 'function' ? this.resourceName(this) : this.resourceName || this.dataType.name;
+      typeof this.resourceName === 'function'
+        ? this.resourceName(this)
+        : this.resourceName || this.dataType.name;
     if (out) return out;
     throw new Error('resourceName is not defined');
   }
@@ -301,7 +339,10 @@ export class SqbEntityService<T extends object = object> extends SqbServiceBase 
     const options: DataType.GenerateCodecOptions = { projection: '*' };
     if (operation === 'update') options.partial = 'deep';
     const dataType = this.dataType;
-    validator = dataType.generateCodec('decode', options) as IsObject.Validator<T>;
+    validator = dataType.generateCodec(
+      'decode',
+      options,
+    ) as IsObject.Validator<T>;
     this._inputCodecs[operation] = validator;
     return validator;
   }
@@ -312,9 +353,15 @@ export class SqbEntityService<T extends object = object> extends SqbServiceBase 
   getOutputCodec(operation: string): IsObject.Validator<T> {
     let validator = this._outputCodecs[operation];
     if (validator) return validator;
-    const options: DataType.GenerateCodecOptions = { projection: '*', partial: 'deep' };
+    const options: DataType.GenerateCodecOptions = {
+      projection: '*',
+      partial: 'deep',
+    };
     const dataType = this.dataType;
-    validator = dataType.generateCodec('decode', options) as IsObject.Validator<T>;
+    validator = dataType.generateCodec(
+      'decode',
+      options,
+    ) as IsObject.Validator<T>;
     this._outputCodecs[operation] = validator;
     return validator;
   }
@@ -326,7 +373,9 @@ export class SqbEntityService<T extends object = object> extends SqbServiceBase 
    * @returns - A promise that resolves to the created resource
    * @protected
    */
-  protected async _create(command: SqbEntityService.CreateCommand<T>): Promise<PartialDTO<T>> {
+  protected async _create(
+    command: SqbEntityService.CreateCommand<T>,
+  ): Promise<PartialDTO<T>> {
     const { input, options } = command;
     isNotNullish(command.input, { label: 'input' });
     const inputCodec = this.getInputCodec('create');
@@ -336,7 +385,9 @@ export class SqbEntityService<T extends object = object> extends SqbServiceBase 
     const repo = conn.getRepository(this.dataTypeClass);
     const out = await repo.create(data, options);
     if (out) return outputCodec(out);
-    throw new InternalServerError(`Unknown error while creating document for "${this.getResourceName()}"`);
+    throw new InternalServerError(
+      `Unknown error while creating document for "${this.getResourceName()}"`,
+    );
   }
 
   /**
@@ -346,7 +397,9 @@ export class SqbEntityService<T extends object = object> extends SqbServiceBase 
    * @returns - A promise that resolves to the created resource
    * @protected
    */
-  protected async _createOnly(command: SqbEntityService.CreateCommand<T>): Promise<any> {
+  protected async _createOnly(
+    command: SqbEntityService.CreateCommand<T>,
+  ): Promise<any> {
     const { input, options } = command;
     isNotNullish(command.input, { label: 'input' });
     const inputCodec = this.getInputCodec('create');
@@ -363,8 +416,12 @@ export class SqbEntityService<T extends object = object> extends SqbServiceBase 
    * @return - A promise that resolves to the count of records
    * @protected
    */
-  protected async _count(command: SqbEntityService.CountCommand): Promise<number> {
-    const filter = command.options?.filter ? SQBAdapter.parseFilter(command.options.filter) : undefined;
+  protected async _count(
+    command: SqbEntityService.CountCommand,
+  ): Promise<number> {
+    const filter = command.options?.filter
+      ? SQBAdapter.parseFilter(command.options.filter)
+      : undefined;
     return this._dbCount({ ...command.options, filter });
   }
 
@@ -375,9 +432,13 @@ export class SqbEntityService<T extends object = object> extends SqbServiceBase 
    * @return - A Promise that resolves to the number of documents deleted.
    * @protected
    */
-  protected async _delete(command: SqbEntityService.DeleteOneCommand): Promise<number> {
+  protected async _delete(
+    command: SqbEntityService.DeleteOneCommand,
+  ): Promise<number> {
     isNotNullish(command.documentId, { label: 'documentId' });
-    const filter = command.options?.filter ? SQBAdapter.parseFilter(command.options.filter) : undefined;
+    const filter = command.options?.filter
+      ? SQBAdapter.parseFilter(command.options.filter)
+      : undefined;
     return this._dbDelete(command.documentId!, { ...command.options, filter });
   }
 
@@ -388,8 +449,12 @@ export class SqbEntityService<T extends object = object> extends SqbServiceBase 
    * @return - A promise that resolves to the number of documents deleted.
    * @protected
    */
-  protected async _deleteMany(command: SqbEntityService.DeleteManyCommand): Promise<number> {
-    const filter = command.options?.filter ? SQBAdapter.parseFilter(command.options.filter) : undefined;
+  protected async _deleteMany(
+    command: SqbEntityService.DeleteManyCommand,
+  ): Promise<number> {
+    const filter = command.options?.filter
+      ? SQBAdapter.parseFilter(command.options.filter)
+      : undefined;
     return await this._dbDeleteMany({ ...command.options, filter });
   }
 
@@ -399,10 +464,17 @@ export class SqbEntityService<T extends object = object> extends SqbServiceBase 
    * @param command
    * @protected
    */
-  protected async _exists(command: SqbEntityService.ExistsCommand): Promise<boolean> {
+  protected async _exists(
+    command: SqbEntityService.ExistsCommand,
+  ): Promise<boolean> {
     isNotNullish(command.documentId, { label: 'documentId' });
-    const filter = command.options?.filter ? SQBAdapter.parseFilter(command.options.filter) : undefined;
-    return await this._dbExists(command.documentId!, { ...command.options, filter });
+    const filter = command.options?.filter
+      ? SQBAdapter.parseFilter(command.options.filter)
+      : undefined;
+    return await this._dbExists(command.documentId!, {
+      ...command.options,
+      filter,
+    });
   }
 
   /**
@@ -412,8 +484,12 @@ export class SqbEntityService<T extends object = object> extends SqbServiceBase 
    * @return - A Promise that resolves to a boolean indicating whether the record exists or not.
    * @protected
    */
-  protected async _existsOne(command: SqbEntityService.ExistsCommand): Promise<boolean> {
-    const filter = command.options?.filter ? SQBAdapter.parseFilter(command.options.filter) : undefined;
+  protected async _existsOne(
+    command: SqbEntityService.ExistsCommand,
+  ): Promise<boolean> {
+    const filter = command.options?.filter
+      ? SQBAdapter.parseFilter(command.options.filter)
+      : undefined;
     return await this._dbExistsOne({ ...command.options, filter });
   }
 
@@ -424,11 +500,18 @@ export class SqbEntityService<T extends object = object> extends SqbServiceBase 
    * @return - A promise resolving to the found document, or undefined if not found.
    * @protected
    */
-  protected async _findById(command: SqbEntityService.FindOneCommand): Promise<PartialDTO<T> | undefined> {
+  protected async _findById(
+    command: SqbEntityService.FindOneCommand,
+  ): Promise<PartialDTO<T> | undefined> {
     isNotNullish(command.documentId, { label: 'documentId' });
     const decode = this.getOutputCodec('find');
-    const filter = command.options?.filter ? SQBAdapter.parseFilter(command.options.filter) : undefined;
-    const out = await this._dbFindById(command.documentId!, { ...command.options, filter });
+    const filter = command.options?.filter
+      ? SQBAdapter.parseFilter(command.options.filter)
+      : undefined;
+    const out = await this._dbFindById(command.documentId!, {
+      ...command.options,
+      filter,
+    });
     return out ? (decode(out) as PartialDTO<T>) : undefined;
   }
 
@@ -439,9 +522,13 @@ export class SqbEntityService<T extends object = object> extends SqbServiceBase 
    * @return - A promise that resolves with the found document or undefined if no document is found.
    * @protected
    */
-  protected async _findOne(command: SqbEntityService.FindOneCommand): Promise<PartialDTO<T> | undefined> {
+  protected async _findOne(
+    command: SqbEntityService.FindOneCommand,
+  ): Promise<PartialDTO<T> | undefined> {
     const decode = this.getOutputCodec('find');
-    const filter = command.options?.filter ? SQBAdapter.parseFilter(command.options.filter) : undefined;
+    const filter = command.options?.filter
+      ? SQBAdapter.parseFilter(command.options.filter)
+      : undefined;
     const out = await this._dbFindOne({ ...command.options, filter });
     return out ? (decode(out) as PartialDTO<T>) : undefined;
   }
@@ -453,9 +540,13 @@ export class SqbEntityService<T extends object = object> extends SqbServiceBase 
    * @return - A Promise that resolves to an array of partial outputs of type T.
    * @protected
    */
-  protected async _findMany(command: SqbEntityService.FindManyCommand): Promise<PartialDTO<T>[]> {
+  protected async _findMany(
+    command: SqbEntityService.FindManyCommand,
+  ): Promise<PartialDTO<T>[]> {
     const decode = this.getOutputCodec('find');
-    const filter = command.options?.filter ? SQBAdapter.parseFilter(command.options.filter) : undefined;
+    const filter = command.options?.filter
+      ? SQBAdapter.parseFilter(command.options.filter)
+      : undefined;
     const out: any[] = await this._dbFindMany({ ...command.options, filter });
     if (out?.length) {
       return out.map(x => decode(x)) as any;
@@ -470,13 +561,17 @@ export class SqbEntityService<T extends object = object> extends SqbServiceBase 
    * @returns  A promise that resolves to the updated document or undefined if the document was not found.
    * @protected
    */
-  protected async _update(command: SqbEntityService.UpdateOneCommand<T>): Promise<PartialDTO<T> | undefined> {
+  protected async _update(
+    command: SqbEntityService.UpdateOneCommand<T>,
+  ): Promise<PartialDTO<T> | undefined> {
     isNotNullish(command.documentId, { label: 'documentId' });
     isNotNullish(command.input, { label: 'input' });
     const { documentId, input, options } = command;
     const inputCodec = this.getInputCodec('update');
     const data: any = inputCodec(input);
-    const filter = command.options?.filter ? SQBAdapter.parseFilter(command.options.filter) : undefined;
+    const filter = command.options?.filter
+      ? SQBAdapter.parseFilter(command.options.filter)
+      : undefined;
     const out = await this._dbUpdate(documentId!, data, { ...options, filter });
     const outputCodec = this.getOutputCodec('update');
     if (out) return outputCodec(out);
@@ -489,13 +584,17 @@ export class SqbEntityService<T extends object = object> extends SqbServiceBase 
    * @returns - A promise that resolves to the number of documents modified.
    * @protected
    */
-  protected async _updateOnly(command: SqbEntityService.UpdateOneCommand<T>): Promise<number> {
+  protected async _updateOnly(
+    command: SqbEntityService.UpdateOneCommand<T>,
+  ): Promise<number> {
     isNotNullish(command.documentId, { label: 'documentId' });
     isNotNullish(command.input, { label: 'input' });
     const { documentId, input, options } = command;
     const inputCodec = this.getInputCodec('update');
     const data: any = inputCodec(input);
-    const filter = command.options?.filter ? SQBAdapter.parseFilter(command.options.filter) : undefined;
+    const filter = command.options?.filter
+      ? SQBAdapter.parseFilter(command.options.filter)
+      : undefined;
     return await this._dbUpdateOnly(documentId!, data, { ...options, filter });
   }
 
@@ -506,11 +605,15 @@ export class SqbEntityService<T extends object = object> extends SqbServiceBase 
    * @return - A promise that resolves to the number of documents matched and modified.
    * @protected
    */
-  protected async _updateMany(command: SqbEntityService.UpdateOneCommand<T>): Promise<number> {
+  protected async _updateMany(
+    command: SqbEntityService.UpdateOneCommand<T>,
+  ): Promise<number> {
     isNotNullish(command.input, { label: 'input' });
     const inputCodec = this.getInputCodec('update');
     const data: any = inputCodec(command.input);
-    const filter = command.options?.filter ? SQBAdapter.parseFilter(command.options.filter) : undefined;
+    const filter = command.options?.filter
+      ? SQBAdapter.parseFilter(command.options.filter)
+      : undefined;
     return await this._dbUpdateMany(data, { ...command.options, filter });
   }
 
@@ -521,7 +624,10 @@ export class SqbEntityService<T extends object = object> extends SqbServiceBase 
    * @param options - Optional settings for the command
    * @protected
    */
-  protected async _dbCreate(input: PartialDTO<T>, options?: Repository.CreateOptions): Promise<PartialDTO<T>> {
+  protected async _dbCreate(
+    input: PartialDTO<T>,
+    options?: Repository.CreateOptions,
+  ): Promise<PartialDTO<T>> {
     const conn = await this.getConnection();
     const repo = conn.getRepository(this.dataTypeClass);
     return await repo.create(input as any, options);
@@ -536,7 +642,8 @@ export class SqbEntityService<T extends object = object> extends SqbServiceBase 
   protected async _dbCount(options?: Repository.CountOptions): Promise<number> {
     const conn = await this.getConnection();
     const repo = conn.getRepository(this.dataTypeClass);
-    if (options?.filter) options.filter = SQBAdapter.parseFilter(options.filter);
+    if (options?.filter)
+      options.filter = SQBAdapter.parseFilter(options.filter);
     return await repo.count(options);
   }
 
@@ -547,10 +654,14 @@ export class SqbEntityService<T extends object = object> extends SqbServiceBase 
    * @param options - Optional settings for the command
    * @protected
    */
-  protected async _dbDelete(id: SQBAdapter.IdOrIds, options?: Repository.DeleteOptions): Promise<number> {
+  protected async _dbDelete(
+    id: SQBAdapter.IdOrIds,
+    options?: Repository.DeleteOptions,
+  ): Promise<number> {
     const conn = await this.getConnection();
     const repo = conn.getRepository(this.dataTypeClass);
-    if (options?.filter) options.filter = SQBAdapter.parseFilter(options.filter);
+    if (options?.filter)
+      options.filter = SQBAdapter.parseFilter(options.filter);
     return (await repo.delete(id, options)) ? 1 : 0;
   }
 
@@ -560,10 +671,13 @@ export class SqbEntityService<T extends object = object> extends SqbServiceBase 
    * @param options - Optional settings for the command
    * @protected
    */
-  protected async _dbDeleteMany(options?: Repository.DeleteManyOptions): Promise<number> {
+  protected async _dbDeleteMany(
+    options?: Repository.DeleteManyOptions,
+  ): Promise<number> {
     const conn = await this.getConnection();
     const repo = conn.getRepository(this.dataTypeClass);
-    if (options?.filter) options.filter = SQBAdapter.parseFilter(options.filter);
+    if (options?.filter)
+      options.filter = SQBAdapter.parseFilter(options.filter);
     return await repo.deleteMany(options);
   }
 
@@ -574,10 +688,14 @@ export class SqbEntityService<T extends object = object> extends SqbServiceBase 
    * @param options - Optional settings for the command
    * @protected
    */
-  protected async _dbExists(id: SQBAdapter.IdOrIds, options?: Repository.ExistsOptions): Promise<boolean> {
+  protected async _dbExists(
+    id: SQBAdapter.IdOrIds,
+    options?: Repository.ExistsOptions,
+  ): Promise<boolean> {
     const conn = await this.getConnection();
     const repo = conn.getRepository(this.dataTypeClass);
-    if (options?.filter) options.filter = SQBAdapter.parseFilter(options.filter);
+    if (options?.filter)
+      options.filter = SQBAdapter.parseFilter(options.filter);
     return await repo.exists(id, options);
   }
 
@@ -587,10 +705,13 @@ export class SqbEntityService<T extends object = object> extends SqbServiceBase 
    * @param options - Optional settings for the command
    * @protected
    */
-  protected async _dbExistsOne(options?: Repository.ExistsOptions): Promise<boolean> {
+  protected async _dbExistsOne(
+    options?: Repository.ExistsOptions,
+  ): Promise<boolean> {
     const conn = await this.getConnection();
     const repo = conn.getRepository(this.dataTypeClass);
-    if (options?.filter) options.filter = SQBAdapter.parseFilter(options.filter);
+    if (options?.filter)
+      options.filter = SQBAdapter.parseFilter(options.filter);
     return await repo.existsOne(options);
   }
 
@@ -607,7 +728,8 @@ export class SqbEntityService<T extends object = object> extends SqbServiceBase 
   ): Promise<PartialDTO<T> | undefined> {
     const conn = await this.getConnection();
     const repo = conn.getRepository(this.dataTypeClass);
-    if (options?.filter) options.filter = SQBAdapter.parseFilter(options.filter);
+    if (options?.filter)
+      options.filter = SQBAdapter.parseFilter(options.filter);
     return await repo.findById(id, options);
   }
 
@@ -618,11 +740,14 @@ export class SqbEntityService<T extends object = object> extends SqbServiceBase 
    * @protected
    */
   protected async _dbFindOne(
-    options?: StrictOmit<Repository.FindOneOptions, 'offset'> & { skip?: number },
+    options?: StrictOmit<Repository.FindOneOptions, 'offset'> & {
+      skip?: number;
+    },
   ): Promise<PartialDTO<T> | undefined> {
     const conn = await this.getConnection();
     const repo = conn.getRepository(this.dataTypeClass);
-    if (options?.filter) options.filter = SQBAdapter.parseFilter(options.filter);
+    if (options?.filter)
+      options.filter = SQBAdapter.parseFilter(options.filter);
     return await repo.findOne({ ...options, offset: options?.skip });
   }
 
@@ -639,7 +764,8 @@ export class SqbEntityService<T extends object = object> extends SqbServiceBase 
   ): Promise<PartialDTO<T>[]> {
     const conn = await this.getConnection();
     const repo = conn.getRepository(this.dataTypeClass);
-    if (options?.filter) options.filter = SQBAdapter.parseFilter(options.filter);
+    if (options?.filter)
+      options.filter = SQBAdapter.parseFilter(options.filter);
     return await repo.findMany({ ...options, offset: options?.skip });
   }
 
@@ -658,7 +784,8 @@ export class SqbEntityService<T extends object = object> extends SqbServiceBase 
   ): Promise<PartialDTO<T> | undefined> {
     const conn = await this.getConnection();
     const repo = conn.getRepository(this.dataTypeClass);
-    if (options?.filter) options.filter = SQBAdapter.parseFilter(options.filter);
+    if (options?.filter)
+      options.filter = SQBAdapter.parseFilter(options.filter);
     return await repo.update(id, data, options);
   }
 
@@ -677,7 +804,8 @@ export class SqbEntityService<T extends object = object> extends SqbServiceBase 
   ): Promise<number> {
     const conn = await this.getConnection();
     const repo = conn.getRepository(this.dataTypeClass);
-    if (options?.filter) options.filter = SQBAdapter.parseFilter(options.filter);
+    if (options?.filter)
+      options.filter = SQBAdapter.parseFilter(options.filter);
     return (await repo.updateOnly(id, data, options)) ? 1 : 0;
   }
 
@@ -688,10 +816,14 @@ export class SqbEntityService<T extends object = object> extends SqbServiceBase 
    * @param options - Optional settings for the command
    * @protected
    */
-  protected async _dbUpdateMany(data: PatchDTO<T>, options?: Repository.UpdateManyOptions): Promise<number> {
+  protected async _dbUpdateMany(
+    data: PatchDTO<T>,
+    options?: Repository.UpdateManyOptions,
+  ): Promise<number> {
     const conn = await this.getConnection();
     const repo = conn.getRepository(this.dataTypeClass);
-    if (options?.filter) options.filter = SQBAdapter.parseFilter(options.filter);
+    if (options?.filter)
+      options.filter = SQBAdapter.parseFilter(options.filter);
     return await repo.updateMany(data as any, options);
   }
 
@@ -706,32 +838,49 @@ export class SqbEntityService<T extends object = object> extends SqbServiceBase 
   protected _getCommonFilter(
     command: SqbEntityService.CommandInfo,
   ): SQBAdapter.FilterInput | Promise<SQBAdapter.FilterInput> | undefined {
-    const commonFilter = Array.isArray(this.commonFilter) ? this.commonFilter : [this.commonFilter];
-    const mapped = commonFilter.map(f => (typeof f === 'function' ? f(command, this) : f));
+    const commonFilter = Array.isArray(this.commonFilter)
+      ? this.commonFilter
+      : [this.commonFilter];
+    const mapped = commonFilter.map(f =>
+      typeof f === 'function' ? f(command, this) : f,
+    );
     return mapped.length > 1 ? op.and(...mapped) : mapped[0];
   }
 
-  protected async _executeCommand(command: SqbEntityService.CommandInfo, commandFn: () => any): Promise<any> {
+  protected async _executeCommand(
+    command: SqbEntityService.CommandInfo,
+    commandFn: () => any,
+  ): Promise<any> {
     let proto: any;
     const next = async () => {
       proto = proto ? Object.getPrototypeOf(proto) : this;
       while (proto) {
-        if (proto.interceptor && Object.prototype.hasOwnProperty.call(proto, 'interceptor')) {
+        if (
+          proto.interceptor &&
+          Object.prototype.hasOwnProperty.call(proto, 'interceptor')
+        ) {
           return await proto.interceptor.call(this, next, command, this);
         }
         proto = Object.getPrototypeOf(proto);
         if (!(proto instanceof SqbEntityService)) break;
       }
       /** Call before[X] hooks */
-      if (command.crud === 'create') await this._beforeCreate(command as SqbEntityService.CreateCommand<T>);
+      if (command.crud === 'create')
+        await this._beforeCreate(command as SqbEntityService.CreateCommand<T>);
       else if (command.crud === 'update' && command.byId) {
-        await this._beforeUpdate(command as SqbEntityService.UpdateOneCommand<T>);
+        await this._beforeUpdate(
+          command as SqbEntityService.UpdateOneCommand<T>,
+        );
       } else if (command.crud === 'update' && !command.byId) {
-        await this._beforeUpdateMany(command as SqbEntityService.UpdateOneCommand<T>);
+        await this._beforeUpdateMany(
+          command as SqbEntityService.UpdateOneCommand<T>,
+        );
       } else if (command.crud === 'delete' && command.byId) {
         await this._beforeDelete(command as SqbEntityService.DeleteOneCommand);
       } else if (command.crud === 'delete' && !command.byId) {
-        await this._beforeDeleteMany(command as SqbEntityService.DeleteManyCommand);
+        await this._beforeDeleteMany(
+          command as SqbEntityService.DeleteManyCommand,
+        );
       }
       /** Call command function */
       return commandFn();
@@ -739,15 +888,31 @@ export class SqbEntityService<T extends object = object> extends SqbServiceBase 
     try {
       const result = await next();
       /** Call after[X] hooks */
-      if (command.crud === 'create') await this._afterCreate(command as SqbEntityService.CreateCommand<T>, result);
+      if (command.crud === 'create')
+        await this._afterCreate(
+          command as SqbEntityService.CreateCommand<T>,
+          result,
+        );
       else if (command.crud === 'update' && command.byId) {
-        await this._afterUpdate(command as SqbEntityService.UpdateOneCommand<T>, result);
+        await this._afterUpdate(
+          command as SqbEntityService.UpdateOneCommand<T>,
+          result,
+        );
       } else if (command.crud === 'update' && !command.byId) {
-        await this._afterUpdateMany(command as SqbEntityService.UpdateOneCommand<T>, result);
+        await this._afterUpdateMany(
+          command as SqbEntityService.UpdateOneCommand<T>,
+          result,
+        );
       } else if (command.crud === 'delete' && command.byId) {
-        await this._afterDelete(command as SqbEntityService.DeleteOneCommand, result);
+        await this._afterDelete(
+          command as SqbEntityService.DeleteOneCommand,
+          result,
+        );
       } else if (command.crud === 'delete' && !command.byId) {
-        await this._afterDeleteMany(command as SqbEntityService.DeleteManyCommand, result);
+        await this._afterDeleteMany(
+          command as SqbEntityService.DeleteManyCommand,
+          result,
+        );
       }
       return result;
     } catch (e: any) {
@@ -757,53 +922,83 @@ export class SqbEntityService<T extends object = object> extends SqbServiceBase 
     }
   }
 
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  protected async _beforeCreate(command: SqbEntityService.CreateCommand<T>): Promise<void> {
+  protected async _beforeCreate(
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    command: SqbEntityService.CreateCommand<T>,
+  ): Promise<void> {
     // Do nothing
   }
 
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  protected async _beforeUpdate(command: SqbEntityService.UpdateOneCommand<T>): Promise<void> {
+  protected async _beforeUpdate(
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    command: SqbEntityService.UpdateOneCommand<T>,
+  ): Promise<void> {
     // Do nothing
   }
 
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  protected async _beforeUpdateMany(command: SqbEntityService.UpdateManyCommand<T>): Promise<void> {
+  protected async _beforeUpdateMany(
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    command: SqbEntityService.UpdateManyCommand<T>,
+  ): Promise<void> {
     // Do nothing
   }
 
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  protected async _beforeDelete(command: SqbEntityService.DeleteOneCommand): Promise<void> {
+  protected async _beforeDelete(
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    command: SqbEntityService.DeleteOneCommand,
+  ): Promise<void> {
     // Do nothing
   }
 
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  protected async _beforeDeleteMany(command: SqbEntityService.DeleteManyCommand): Promise<void> {
+  protected async _beforeDeleteMany(
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    command: SqbEntityService.DeleteManyCommand,
+  ): Promise<void> {
     // Do nothing
   }
 
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  protected async _afterCreate(command: SqbEntityService.CreateCommand<T>, result: PartialDTO<T>): Promise<void> {
+  protected async _afterCreate(
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    command: SqbEntityService.CreateCommand<T>,
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    result: PartialDTO<T>,
+  ): Promise<void> {
     // Do nothing
   }
 
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  protected async _afterUpdate(command: SqbEntityService.UpdateOneCommand<T>, result?: PartialDTO<T>): Promise<void> {
+  protected async _afterUpdate(
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    command: SqbEntityService.UpdateOneCommand<T>,
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    result?: PartialDTO<T>,
+  ): Promise<void> {
     // Do nothing
   }
 
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  protected async _afterUpdateMany(command: SqbEntityService.UpdateManyCommand<T>, affected: number): Promise<void> {
+  protected async _afterUpdateMany(
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    command: SqbEntityService.UpdateManyCommand<T>,
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    affected: number,
+  ): Promise<void> {
     // Do nothing
   }
 
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  protected async _afterDelete(command: SqbEntityService.DeleteOneCommand, affected: number): Promise<void> {
+  protected async _afterDelete(
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    command: SqbEntityService.DeleteOneCommand,
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    affected: number,
+  ): Promise<void> {
     // Do nothing
   }
 
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  protected async _afterDeleteMany(command: SqbEntityService.DeleteManyCommand, affected: number): Promise<void> {
+  protected async _afterDeleteMany(
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    command: SqbEntityService.DeleteManyCommand,
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    affected: number,
+  ): Promise<void> {
     // Do nothing
   }
 }

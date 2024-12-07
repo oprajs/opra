@@ -38,13 +38,22 @@ const OPRA_SPEC_URL = 'https://oprajs.com/spec/v' + OpraSchema.SpecVersion;
 
 export namespace ApiDocumentFactory {
   export interface InitArguments
-    extends PartialSome<StrictOmit<OpraSchema.ApiDocument, 'id' | 'references' | 'types' | 'api'>, 'spec'> {
+    extends PartialSome<
+      StrictOmit<OpraSchema.ApiDocument, 'id' | 'references' | 'types' | 'api'>,
+      'spec'
+    > {
     references?: Record<string, ReferenceThunk>;
     types?: DataTypeInitSources;
-    api?: StrictOmit<HttpApiFactory.InitArguments, 'owner'> | StrictOmit<RpcApiFactory.InitArguments, 'owner'>;
+    api?:
+      | StrictOmit<HttpApiFactory.InitArguments, 'owner'>
+      | StrictOmit<RpcApiFactory.InitArguments, 'owner'>;
   }
 
-  export type ReferenceSource = string | OpraSchema.ApiDocument | InitArguments | ApiDocument;
+  export type ReferenceSource =
+    | string
+    | OpraSchema.ApiDocument
+    | InitArguments
+    | ApiDocument;
   export type ReferenceThunk = ThunkAsync<ReferenceSource>;
 
   export type DataTypeInitSources = DataTypeFactory.DataTypeSources;
@@ -60,12 +69,19 @@ export class ApiDocumentFactory {
    * Creates ApiDocument instance from given schema object
    */
   static async createDocument(
-    schemaOrUrl: string | PartialSome<OpraSchema.ApiDocument, 'spec'> | ApiDocumentFactory.InitArguments,
-    options?: Partial<Pick<DocumentInitContext, 'maxErrors' | 'showErrorDetails'>> | DocumentInitContext,
+    schemaOrUrl:
+      | string
+      | PartialSome<OpraSchema.ApiDocument, 'spec'>
+      | ApiDocumentFactory.InitArguments,
+    options?:
+      | Partial<Pick<DocumentInitContext, 'maxErrors' | 'showErrorDetails'>>
+      | DocumentInitContext,
   ): Promise<ApiDocument> {
     const factory = new ApiDocumentFactory();
     const context: DocumentInitContext =
-      options instanceof DocumentInitContext ? options : new DocumentInitContext(options);
+      options instanceof DocumentInitContext
+        ? options
+        : new DocumentInitContext(options);
     try {
       const document = new ApiDocument();
       await factory.initDocument(document, context, schemaOrUrl);
@@ -84,7 +100,9 @@ export class ApiDocumentFactory {
         context.error.message = `(${l}) error${l > 1 ? 's' : ''} found in document schema.`;
         if (context.showErrorDetails) {
           context.error.message += context.error.details
-            .map(d => `\n\n  - ${d.message}` + (d.path ? `\n    @${d.path}` : ''))
+            .map(
+              d => `\n\n  - ${d.message}` + (d.path ? `\n    @${d.path}` : ''),
+            )
             .join('');
         }
       }
@@ -104,7 +122,10 @@ export class ApiDocumentFactory {
     if (typeof schemaOrUrl === 'string') {
       const resp = await fetch(schemaOrUrl, { method: 'GET' });
       init = await resp.json();
-      if (!init) return context.addError(`Invalid response returned from url: ${schemaOrUrl}`);
+      if (!init)
+        return context.addError(
+          `Invalid response returned from url: ${schemaOrUrl}`,
+        );
       init.url = schemaOrUrl;
     } else init = schemaOrUrl;
 
@@ -131,7 +152,8 @@ export class ApiDocumentFactory {
         for ([ns, r] of Object.entries(init.references!)) {
           r = await resolveThunk(r);
           await context.enterAsync(`[${ns}]`, async () => {
-            if (!CLASS_NAME_PATTERN.test(ns)) throw new TypeError(`Invalid namespace (${ns})`);
+            if (!CLASS_NAME_PATTERN.test(ns))
+              throw new TypeError(`Invalid namespace (${ns})`);
             if (r instanceof ApiDocument) {
               document.references.set(ns, r);
               return;
@@ -154,17 +176,27 @@ export class ApiDocumentFactory {
     if (init.api) {
       await context.enterAsync(`.api`, async () => {
         if (init.api && init.api.transport === 'http') {
-          const api = await HttpApiFactory.createApi(context, { ...init.api, owner: document });
+          const api = await HttpApiFactory.createApi(context, {
+            ...init.api,
+            owner: document,
+          });
           if (api) document.api = api;
         } else if (init.api && init.api.transport === 'rpc') {
-          const api = await RpcApiFactory.createApi(context, { ...init.api, owner: document });
+          const api = await RpcApiFactory.createApi(context, {
+            ...init.api,
+            owner: document,
+          });
           if (api) document.api = api;
-        } else context.addError(`Unknown service transport (${init.api!.transport})`);
+        } else
+          context.addError(
+            `Unknown service transport (${init.api!.transport})`,
+          );
       });
     }
     document.invalidate();
     /** Add document to global registry */
-    if (!this._allDocuments[document.id]) this._allDocuments[document.id] = document;
+    if (!this._allDocuments[document.id])
+      this._allDocuments[document.id] = document;
   }
 
   /**
@@ -172,7 +204,9 @@ export class ApiDocumentFactory {
    * @param context
    * @protected
    */
-  protected async createBuiltinDocument(context: DocumentInitContext): Promise<ApiDocument> {
+  protected async createBuiltinDocument(
+    context: DocumentInitContext,
+  ): Promise<ApiDocument> {
     const init: ApiDocumentFactory.InitArguments = {
       spec: OpraSchema.SpecVersion,
       url: OPRA_SPEC_URL,

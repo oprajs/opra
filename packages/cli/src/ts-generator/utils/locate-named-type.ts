@@ -1,4 +1,10 @@
-import { ComplexType, DataType, EnumType, MappedType, SimpleType } from '@opra/common';
+import {
+  ComplexType,
+  DataType,
+  EnumType,
+  MappedType,
+  SimpleType,
+} from '@opra/common';
 
 export function locateNamedType(type?: DataType): DataType | undefined {
   if (!type) return;

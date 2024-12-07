@@ -28,13 +28,17 @@ export class CustomerController {
   @HttpOperation.Entity.Delete(Customer)
   async delete(context: HttpContext) {
     const oldLen = Data.customers.length;
-    Data.customers = Data.customers.filter(x => x._id !== context.pathParams.customerId);
+    Data.customers = Data.customers.filter(
+      x => x._id !== context.pathParams.customerId,
+    );
     return oldLen - Data.customers.length;
   }
 
   @HttpOperation.Entity.Update(Customer)
   async update(context: HttpContext) {
-    const customer = Data.customers.find(x => x._id === context.pathParams.customerId);
+    const customer = Data.customers.find(
+      x => x._id === context.pathParams.customerId,
+    );
     if (customer) {
       const body = await context.getBody<Customer>();
       merge(customer, body);

@@ -1,1 +1,5 @@
-export type URLSearchParamsInit = string[][] | Record<string, string> | string | URLSearchParams;
+export type URLSearchParamsInit =
+  | string[][]
+  | Record<string, string>
+  | string
+  | URLSearchParams;

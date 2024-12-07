@@ -5,7 +5,11 @@ import {
   SEMICOLON_DELIMITED_FIELD,
 } from './match-known-fields.js';
 
-export function convertToHeaders<T>(src: string[], dst: T, joinDuplicateHeaders?: boolean): T {
+export function convertToHeaders<T>(
+  src: string[],
+  dst: T,
+  joinDuplicateHeaders?: boolean,
+): T {
   for (let n: number = 0; n < src.length; n += 2) {
     addHeaderLine(src[n], src[n + 1], dst, joinDuplicateHeaders);
   }
@@ -20,7 +24,12 @@ export function convertToHeadersDistinct<T>(src: string[], dst: T): T {
   return dst;
 }
 
-function addHeaderLine(field: string, value: any, dest: any, joinDuplicateHeaders?: boolean) {
+function addHeaderLine(
+  field: string,
+  value: any,
+  dest: any,
+  joinDuplicateHeaders?: boolean,
+) {
   if (value == null) return;
   field = field.toLowerCase();
   const [, flag] = matchKnownFields(field);

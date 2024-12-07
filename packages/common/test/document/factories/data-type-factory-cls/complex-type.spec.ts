@@ -1,4 +1,10 @@
-import { ApiDocument, ApiDocumentFactory, ApiField, ComplexType, OpraSchema } from '@opra/common';
+import {
+  ApiDocument,
+  ApiDocumentFactory,
+  ApiField,
+  ComplexType,
+  OpraSchema,
+} from '@opra/common';
 
 describe('DataTypeFactory - ComplexType (Class)', () => {
   afterAll(() => global.gc && global.gc());

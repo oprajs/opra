@@ -10,19 +10,28 @@ import { HttpMediaType } from './http-media-type.js';
 export namespace HttpMultipartField {
   export interface Metadata
     extends Combine<
-      Pick<OpraSchema.HttpMultipartField, 'fieldName' | 'fieldType' | 'required'>,
+      Pick<
+        OpraSchema.HttpMultipartField,
+        'fieldName' | 'fieldType' | 'required'
+      >,
       HttpMediaType.Metadata
     > {}
 
   export interface Options
     extends Combine<
-      Pick<OpraSchema.HttpMultipartField, 'fieldName' | 'fieldType' | 'required'>,
+      Pick<
+        OpraSchema.HttpMultipartField,
+        'fieldName' | 'fieldType' | 'required'
+      >,
       HttpMediaType.Options
     > {}
 
   export interface InitArguments
     extends Combine<
-      Pick<OpraSchema.HttpMultipartField, 'fieldName' | 'fieldType' | 'required'>,
+      Pick<
+        OpraSchema.HttpMultipartField,
+        'fieldName' | 'fieldType' | 'required'
+      >,
       HttpMediaType.InitArguments
     > {}
 }
@@ -36,7 +45,10 @@ export class HttpMultipartField extends HttpMediaType {
   fieldType: OpraSchema.HttpMultipartFieldType;
   required?: boolean;
 
-  constructor(owner: HttpMediaType | HttpMultipartField, initArgs: HttpMultipartField.InitArguments) {
+  constructor(
+    owner: HttpMediaType | HttpMultipartField,
+    initArgs: HttpMultipartField.InitArguments,
+  ) {
     super(owner, initArgs);
     this.fieldName =
       initArgs.fieldName instanceof RegExp

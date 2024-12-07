@@ -5,7 +5,10 @@ export interface ResponsiveMapOptions {
   caseSensitive?: boolean;
 }
 
-export type ResponsiveMapInit<V> = ResponsiveMap<V> | Map<string, V> | Record<any, V>;
+export type ResponsiveMapInit<V> =
+  | ResponsiveMap<V>
+  | Map<string, V>
+  | Record<any, V>;
 
 function isMap(v): v is Map<any, any> {
   return v && typeof v.forEach === 'function';
@@ -27,7 +30,10 @@ export class ResponsiveMap<V> implements Map<string, V> {
   declare private [kWellKnownKeys]: Record<string, string>;
   declare private [kOptions]: StrictOmit<ResponsiveMapOptions, 'wellKnownKeys'>;
 
-  constructor(init?: ResponsiveMapInit<V> | null, options?: ResponsiveMapOptions) {
+  constructor(
+    init?: ResponsiveMapInit<V> | null,
+    options?: ResponsiveMapOptions,
+  ) {
     Object.defineProperty(this, kSize, {
       value: 0,
       enumerable: false,
@@ -75,7 +81,10 @@ export class ResponsiveMap<V> implements Map<string, V> {
     this[kSize] = 0;
   }
 
-  forEach(callbackfn: (value: V, key: string, map: Map<string, V>) => void, thisArg?: any): void {
+  forEach(
+    callbackfn: (value: V, key: string, map: Map<string, V>) => void,
+    thisArg?: any,
+  ): void {
     for (const [k, v] of this.entries()) {
       callbackfn.call(thisArg, v, k, this);
     }
@@ -88,13 +97,19 @@ export class ResponsiveMap<V> implements Map<string, V> {
 
   has(key: string): boolean {
     if (!key) return false;
-    return Object.prototype.hasOwnProperty.call(this[kEntries], this._getStoringKey(key));
+    return Object.prototype.hasOwnProperty.call(
+      this[kEntries],
+      this._getStoringKey(key),
+    );
   }
 
   set(key: string, value: V): this {
     const storeKey = this._getStoringKey(key);
     key = this._getOriginalKey(key);
-    const exists = Object.prototype.hasOwnProperty.call(this[kEntries], storeKey);
+    const exists = Object.prototype.hasOwnProperty.call(
+      this[kEntries],
+      storeKey,
+    );
     this[kEntries][storeKey] = value;
     if (!exists) this[kSize]++;
     this[kKeyMap][storeKey] = key;
@@ -121,7 +136,10 @@ export class ResponsiveMap<V> implements Map<string, V> {
 
   delete(key: string): boolean {
     const storeKey = this._getStoringKey(key);
-    const exists = Object.prototype.hasOwnProperty.call(this[kEntries], storeKey);
+    const exists = Object.prototype.hasOwnProperty.call(
+      this[kEntries],
+      storeKey,
+    );
     delete this[kEntries][storeKey];
     delete this[kKeyMap][storeKey];
     if (!exists) this[kSize]--;

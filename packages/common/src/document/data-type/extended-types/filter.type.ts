@@ -30,11 +30,16 @@ export class FilterType {
   })
   rules?: Record<string, FilterRules.Rule>;
 
-  protected [DECODER](properties: Partial<this>, element: DocumentElement): Validator {
+  protected [DECODER](
+    properties: Partial<this>,
+    element: DocumentElement,
+  ): Validator {
     const dataType = properties.dataType
       ? element.node.getComplexType(properties.dataType)
       : element.node.getComplexType('object');
-    const rules = properties.rules ? new FilterRules(properties.rules) : undefined;
+    const rules = properties.rules
+      ? new FilterRules(properties.rules)
+      : undefined;
     return decodeFilter(dataType, rules);
   }
 
@@ -61,7 +66,11 @@ const decodeFilter = (dataType: ComplexType, rules?: FilterRules) =>
         if (rules) return rules.normalizeFilter(filter, dataType);
         return filter;
       } catch (e: any) {
-        context.fail(_this, `Not a valid filter expression. ${e.message}`, input);
+        context.fail(
+          _this,
+          `Not a valid filter expression. ${e.message}`,
+          input,
+        );
         return;
       }
     }

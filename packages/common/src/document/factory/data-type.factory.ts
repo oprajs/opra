@@ -1,10 +1,20 @@
 import type { Combine, ThunkAsync, Type } from 'ts-gems';
-import { cloneObject, resolveThunk, ResponsiveMap } from '../../helpers/index.js';
+import {
+  cloneObject,
+  resolveThunk,
+  ResponsiveMap,
+} from '../../helpers/index.js';
 import { OpraSchema } from '../../schema/index.js';
 import { DataTypeMap } from '../common/data-type-map.js';
 import { DocumentElement } from '../common/document-element.js';
 import { DocumentInitContext } from '../common/document-init-context.js';
-import { DATATYPE_METADATA, DECODER, ENCODER, kCtorMap, kDataTypeMap } from '../constants.js';
+import {
+  DATATYPE_METADATA,
+  DECODER,
+  ENCODER,
+  kCtorMap,
+  kDataTypeMap,
+} from '../constants.js';
 import { ApiField } from '../data-type/api-field.js';
 import { ComplexType } from '../data-type/complex-type.js';
 import { ComplexTypeBase } from '../data-type/complex-type-base.js';
@@ -23,7 +33,11 @@ export namespace DataTypeFactory {
     | ThunkAsync<Type | EnumType.EnumObject | EnumType.EnumArray | object>[]
     | Record<string, OpraSchema.DataType>;
 
-  export type DataTypeThunk = Type | EnumType.EnumObject | EnumType.EnumArray | object;
+  export type DataTypeThunk =
+    | Type
+    | EnumType.EnumObject
+    | EnumType.EnumArray
+    | object;
 
   export interface ComplexTypeInit
     extends Combine<
@@ -31,7 +45,12 @@ export namespace DataTypeFactory {
         _instance?: ComplexType;
         base?: string | ComplexTypeInit | MappedTypeInit | MixinTypeInit;
         fields?: Record<string, ApiFieldInit>;
-        additionalFields?: boolean | string | DataTypeFactory.DataTypeInitArguments | ['error'] | ['error', string];
+        additionalFields?:
+          | boolean
+          | string
+          | DataTypeFactory.DataTypeInitArguments
+          | ['error']
+          | ['error', string];
       },
       ComplexType.InitArguments
     > {}
@@ -80,7 +99,12 @@ export namespace DataTypeFactory {
       ApiField.InitArguments
     > {}
 
-  export type DataTypeInitArguments = ComplexTypeInit | EnumTypeInit | MappedTypeInit | MixinTypeInit | SimpleTypeInit;
+  export type DataTypeInitArguments =
+    | ComplexTypeInit
+    | EnumTypeInit
+    | MappedTypeInit
+    | MixinTypeInit
+    | SimpleTypeInit;
 
   export interface Context extends DocumentInitContext {
     importQueue?: ResponsiveMap<any>;
@@ -142,7 +166,8 @@ export class DataTypeFactory {
     types: DataTypeFactory.DataTypeSources,
   ) {
     const dataTypeMap = target.node[kDataTypeMap] as DataTypeMap;
-    if (!dataTypeMap) throw new TypeError('DocumentElement should has [kDataTypeMap] property');
+    if (!dataTypeMap)
+      throw new TypeError('DocumentElement should has [kDataTypeMap] property');
     const importedTypes = await this.createAllDataTypes(context, target, types);
     if (!importedTypes) return;
     for (const dataType of importedTypes) {
@@ -166,7 +191,8 @@ export class DataTypeFactory {
     context = context || new DocumentInitContext({ maxErrors: 0 });
     const initArgs = await this._prepareAllInitArgs(context, owner, types);
     if (!initArgs) return;
-    const initArgsMap = new ResponsiveMap<DataTypeFactory.DataTypeInitArguments>();
+    const initArgsMap =
+      new ResponsiveMap<DataTypeFactory.DataTypeInitArguments>();
     for (const initArg of initArgs) {
       initArgsMap.set(initArg.name!, initArg);
     }
@@ -194,22 +220,30 @@ export class DataTypeFactory {
     types: DataTypeFactory.DataTypeSources,
   ): Promise<DataTypeFactory.DataTypeInitArguments[] | void> {
     const importQueue = new ResponsiveMap<any>();
-    const initArgsMap = new ResponsiveMap<DataTypeFactory.DataTypeInitArguments>();
+    const initArgsMap =
+      new ResponsiveMap<DataTypeFactory.DataTypeInitArguments>();
     const context = ctx.extend({ owner, importQueue, initArgsMap });
     // istanbul ignore next
-    if (!owner.node[kDataTypeMap]) throw new TypeError('DocumentElement should has [kDataTypeMap] property');
+    if (!owner.node[kDataTypeMap])
+      throw new TypeError('DocumentElement should has [kDataTypeMap] property');
     // Add type sources into typeQueue
     if (Array.isArray(types)) {
       let i = 0;
       for (let thunk of types) {
         await context.enterAsync(`$[${i++}]`, async () => {
           thunk = await resolveThunk(thunk);
-          const metadata = Reflect.getMetadata(DATATYPE_METADATA, thunk) || thunk[DATATYPE_METADATA];
+          const metadata =
+            Reflect.getMetadata(DATATYPE_METADATA, thunk) ||
+            thunk[DATATYPE_METADATA];
           if (!(metadata && metadata.name)) {
             if (typeof thunk === 'function') {
-              return context.addError(`Class "${thunk.name}" doesn't have a valid data type metadata`);
+              return context.addError(
+                `Class "${thunk.name}" doesn't have a valid data type metadata`,
+              );
             }
-            return context.addError(`Object doesn't have a valid data type metadata`);
+            return context.addError(
+              `Object doesn't have a valid data type metadata`,
+            );
           }
           importQueue.set(metadata.name, thunk);
         });
@@ -219,7 +253,10 @@ export class DataTypeFactory {
       let name: string;
       for ([name, thunk] of Object.entries(types)) {
         thunk = await resolveThunk(thunk);
-        importQueue.set(name, typeof thunk === 'object' ? { ...thunk, name } : thunk);
+        importQueue.set(
+          name,
+          typeof thunk === 'object' ? { ...thunk, name } : thunk,
+        );
       }
     }
 
@@ -228,7 +265,9 @@ export class DataTypeFactory {
       const dt = await this._importDataTypeArgs(context, owner, name);
       // istanbul ignore next
       if (dt && typeof dt !== 'string') {
-        context.addError(`Embedded data type can't be loaded into document node directly`);
+        context.addError(
+          `Embedded data type can't be loaded into document node directly`,
+        );
       }
     }
     return Array.from(initArgsMap.values());
@@ -274,7 +313,10 @@ export class DataTypeFactory {
     if (typeof thunk === 'function') {
       // Check if class has metadata
       metadata = Reflect.getMetadata(DATATYPE_METADATA, thunk);
-      if (!metadata) return context.addError(`Class "${thunk.name}" doesn't have a valid DataType metadata`);
+      if (!metadata)
+        return context.addError(
+          `Class "${thunk.name}" doesn't have a valid DataType metadata`,
+        );
       ctor = thunk as Type;
     } else if (typeof thunk === 'object') {
       // It may be an enum object or enum array
@@ -291,9 +333,16 @@ export class DataTypeFactory {
         metadata = ctor && Reflect.getMetadata(DATATYPE_METADATA, ctor);
         if (metadata) {
           if (metadata.kind === OpraSchema.SimpleType.Kind) {
-            const baseArgs = await this._importDataTypeArgs(context, owner, metadata.name);
+            const baseArgs = await this._importDataTypeArgs(
+              context,
+              owner,
+              metadata.name,
+            );
             if (!baseArgs) return;
-            if (typeof baseArgs === 'object' && baseArgs.kind !== OpraSchema.SimpleType.Kind) {
+            if (
+              typeof baseArgs === 'object' &&
+              baseArgs.kind !== OpraSchema.SimpleType.Kind
+            ) {
               return context.addError('Kind of base data type is not same');
             }
             return {
@@ -308,64 +357,70 @@ export class DataTypeFactory {
     }
     if (!metadata) return context.addError(`No DataType metadata found`);
 
-    return context.enterAsync(metadata.name ? `[${metadata.name}]` : '', async () => {
-      /** Check for circular dependencies */
-      if (metadata.name) {
-        const curr = initArgsMap?.get(metadata.name);
-        if (curr) {
-          if (curr[initializingSymbol]) return context.addError('Circular reference detected');
-          return metadata.name;
-        }
-      }
-
-      const out = {
-        kind: metadata.kind,
-        name: metadata.name,
-      } as DataTypeFactory.DataTypeInitArguments;
-      /** Mark "out" object as initializing. This will help us to detect circular dependencies */
-      out[initializingSymbol] = true;
-      try {
-        if (out.name) {
-          if (importQueue?.has(out.name)) {
-            initArgsMap?.set(metadata.name, out);
-            out._instance = { name: metadata.name } as any;
-            out[kDataTypeMap] = owner.node[kDataTypeMap];
-          } else {
-            return context.addError(
-              `Data Type (${out.name}) must be explicitly added to type list in the document scope`,
-            );
+    return context.enterAsync(
+      metadata.name ? `[${metadata.name}]` : '',
+      async () => {
+        /** Check for circular dependencies */
+        if (metadata.name) {
+          const curr = initArgsMap?.get(metadata.name);
+          if (curr) {
+            if (curr[initializingSymbol])
+              return context.addError('Circular reference detected');
+            return metadata.name;
           }
         }
 
-        switch (out.kind) {
-          case OpraSchema.ComplexType.Kind:
-            out.ctor = ctor;
-            await this._prepareComplexTypeArgs(context, owner, out, metadata);
-            break;
-          case OpraSchema.EnumType.Kind:
-            out.instance = instance;
-            await this._prepareEnumTypeArgs(context, owner, out, metadata);
-            break;
-          case OpraSchema.MappedType.Kind:
-            await this._prepareMappedTypeArgs(context, owner, out, metadata);
-            break;
-          case OpraSchema.MixinType.Kind:
-            await this._prepareMixinTypeArgs(context, owner, out, metadata);
-            break;
-          case OpraSchema.SimpleType.Kind:
-            out.ctor = ctor;
-            await this._prepareSimpleTypeArgs(context, owner, out, metadata);
-            break;
-          default:
-            /** istanbul ignore next */
-            return context.addError(`Invalid data type kind ${metadata.kind}`);
+        const out = {
+          kind: metadata.kind,
+          name: metadata.name,
+        } as DataTypeFactory.DataTypeInitArguments;
+        /** Mark "out" object as initializing. This will help us to detect circular dependencies */
+        out[initializingSymbol] = true;
+        try {
+          if (out.name) {
+            if (importQueue?.has(out.name)) {
+              initArgsMap?.set(metadata.name, out);
+              out._instance = { name: metadata.name } as any;
+              out[kDataTypeMap] = owner.node[kDataTypeMap];
+            } else {
+              return context.addError(
+                `Data Type (${out.name}) must be explicitly added to type list in the document scope`,
+              );
+            }
+          }
+
+          switch (out.kind) {
+            case OpraSchema.ComplexType.Kind:
+              out.ctor = ctor;
+              await this._prepareComplexTypeArgs(context, owner, out, metadata);
+              break;
+            case OpraSchema.EnumType.Kind:
+              out.instance = instance;
+              await this._prepareEnumTypeArgs(context, owner, out, metadata);
+              break;
+            case OpraSchema.MappedType.Kind:
+              await this._prepareMappedTypeArgs(context, owner, out, metadata);
+              break;
+            case OpraSchema.MixinType.Kind:
+              await this._prepareMixinTypeArgs(context, owner, out, metadata);
+              break;
+            case OpraSchema.SimpleType.Kind:
+              out.ctor = ctor;
+              await this._prepareSimpleTypeArgs(context, owner, out, metadata);
+              break;
+            default:
+              /** istanbul ignore next */
+              return context.addError(
+                `Invalid data type kind ${metadata.kind}`,
+              );
+          }
+        } finally {
+          if (out.name) importQueue?.delete(out.name);
+          delete out[initializingSymbol];
         }
-      } finally {
-        if (out.name) importQueue?.delete(out.name);
-        delete out[initializingSymbol];
-      }
-      return importQueue && out.name ? out.name : out;
-    });
+        return importQueue && out.name ? out.name : out;
+      },
+    );
   }
 
   protected static async _prepareDataTypeArgs(
@@ -390,9 +445,15 @@ export class DataTypeFactory {
     await context.enterAsync('.base', async () => {
       let baseArgs: any;
       if (metadata.base) {
-        baseArgs = await this._importDataTypeArgs(context, owner, metadata.base!);
+        baseArgs = await this._importDataTypeArgs(
+          context,
+          owner,
+          metadata.base!,
+        );
       } else if (initArgs.ctor) {
-        const baseClass = Object.getPrototypeOf(initArgs.ctor.prototype).constructor;
+        const baseClass = Object.getPrototypeOf(
+          initArgs.ctor.prototype,
+        ).constructor;
         if (Reflect.hasMetadata(DATATYPE_METADATA, baseClass)) {
           baseArgs = await this._importDataTypeArgs(context, owner, baseClass);
         }
@@ -404,11 +465,18 @@ export class DataTypeFactory {
 
     // Initialize additionalFields
     if (metadata.additionalFields != null) {
-      if (typeof metadata.additionalFields === 'boolean' || Array.isArray(metadata.additionalFields)) {
+      if (
+        typeof metadata.additionalFields === 'boolean' ||
+        Array.isArray(metadata.additionalFields)
+      ) {
         initArgs.additionalFields = metadata.additionalFields;
       } else {
         await context.enterAsync('.additionalFields', async () => {
-          const t = await this._importDataTypeArgs(context, owner, metadata.additionalFields as any);
+          const t = await this._importDataTypeArgs(
+            context,
+            owner,
+            metadata.additionalFields as any,
+          );
           if (t) initArgs.additionalFields = preferName(t);
         });
       }
@@ -421,9 +489,15 @@ export class DataTypeFactory {
           await context.enterAsync(`[${k}]`, async () => {
             const fieldMeta = typeof v === 'string' ? { type: v } : v;
             if (fieldMeta.isArray && !fieldMeta.type) {
-              return context.addError(`"type" must be defined explicitly for array fields`);
+              return context.addError(
+                `"type" must be defined explicitly for array fields`,
+              );
             }
-            const t = await this._importDataTypeArgs(context, owner, fieldMeta.type || 'any');
+            const t = await this._importDataTypeArgs(
+              context,
+              owner,
+              fieldMeta.type || 'any',
+            );
             if (!t) return;
             initArgs.fields![k] = {
               ...fieldMeta,
@@ -444,7 +518,11 @@ export class DataTypeFactory {
     await this._prepareDataTypeArgs(context, initArgs, metadata);
     if (metadata.base) {
       await context.enterAsync('.base', async () => {
-        const baseArgs = await this._importDataTypeArgs(context, owner, metadata.base!);
+        const baseArgs = await this._importDataTypeArgs(
+          context,
+          owner,
+          metadata.base!,
+        );
         if (!baseArgs) return;
         initArgs.base = preferName(baseArgs) as any;
       });
@@ -462,9 +540,15 @@ export class DataTypeFactory {
     await context.enterAsync('.base', async () => {
       let baseArgs: any;
       if (metadata.base) {
-        baseArgs = await this._importDataTypeArgs(context, owner, metadata.base!);
+        baseArgs = await this._importDataTypeArgs(
+          context,
+          owner,
+          metadata.base!,
+        );
       } else if (initArgs.ctor) {
-        const baseClass = Object.getPrototypeOf(initArgs.ctor.prototype).constructor;
+        const baseClass = Object.getPrototypeOf(
+          initArgs.ctor.prototype,
+        ).constructor;
         if (Reflect.hasMetadata(DATATYPE_METADATA, baseClass)) {
           baseArgs = await this._importDataTypeArgs(context, owner, baseClass);
         }
@@ -475,13 +559,19 @@ export class DataTypeFactory {
     });
     initArgs.properties = metadata.properties;
     initArgs.nameMappings = metadata.nameMappings;
-    if (!initArgs.properties && initArgs.ctor) initArgs.properties = new initArgs.ctor();
-    if (metadata.attributes) initArgs.attributes = cloneObject(metadata.attributes);
+    if (!initArgs.properties && initArgs.ctor)
+      initArgs.properties = new initArgs.ctor();
+    if (metadata.attributes)
+      initArgs.attributes = cloneObject(metadata.attributes);
     if (typeof initArgs.properties?.[DECODER] === 'function') {
-      initArgs.generateDecoder = initArgs.properties?.[DECODER].bind(initArgs.properties);
+      initArgs.generateDecoder = initArgs.properties?.[DECODER].bind(
+        initArgs.properties,
+      );
     }
     if (typeof initArgs.properties?.[ENCODER] === 'function') {
-      initArgs.generateEncoder = initArgs.properties?.[ENCODER].bind(initArgs.properties);
+      initArgs.generateEncoder = initArgs.properties?.[ENCODER].bind(
+        initArgs.properties,
+      );
     }
   }
 
@@ -496,9 +586,15 @@ export class DataTypeFactory {
     await context.enterAsync('.base', async () => {
       let baseArgs: any;
       if (metadata.base) {
-        baseArgs = await this._importDataTypeArgs(context, owner, metadata.base!);
+        baseArgs = await this._importDataTypeArgs(
+          context,
+          owner,
+          metadata.base!,
+        );
       } else if (initArgs.ctor) {
-        const baseClass = Object.getPrototypeOf(initArgs.ctor.prototype).constructor;
+        const baseClass = Object.getPrototypeOf(
+          initArgs.ctor.prototype,
+        ).constructor;
         if (Reflect.hasMetadata(DATATYPE_METADATA, baseClass)) {
           baseArgs = await this._importDataTypeArgs(context, owner, baseClass);
         }
@@ -511,9 +607,13 @@ export class DataTypeFactory {
     if (metadata.pick) initArgs.pick = [...metadata.pick];
     else if (metadata.omit) initArgs.omit = [...metadata.omit];
     else if (metadata.partial) {
-      initArgs.partial = Array.isArray(metadata.partial) ? [...metadata.partial] : metadata.partial;
+      initArgs.partial = Array.isArray(metadata.partial)
+        ? [...metadata.partial]
+        : metadata.partial;
     } else if (metadata.required) {
-      initArgs.required = Array.isArray(metadata.required) ? [...metadata.required] : metadata.required;
+      initArgs.required = Array.isArray(metadata.required)
+        ? [...metadata.required]
+        : metadata.required;
     }
   }
 
@@ -539,13 +639,18 @@ export class DataTypeFactory {
   }
 
   protected static _createDataType(
-    context: DocumentInitContext & { initArgsMap?: ResponsiveMap<DataTypeFactory.DataTypeInitArguments> },
+    context: DocumentInitContext & {
+      initArgsMap?: ResponsiveMap<DataTypeFactory.DataTypeInitArguments>;
+    },
     owner: DocumentElement,
     args: DataTypeFactory.DataTypeInitArguments | string,
   ): ComplexType | EnumType | MappedType | MixinType | SimpleType | undefined {
-    let dataType = owner.node.findDataType(typeof args === 'string' ? args : args.name || '');
+    let dataType = owner.node.findDataType(
+      typeof args === 'string' ? args : args.name || '',
+    );
     if (dataType instanceof DataType) return dataType as any;
-    const initArgs = typeof args === 'string' ? context.initArgsMap?.get(args) : args;
+    const initArgs =
+      typeof args === 'string' ? context.initArgsMap?.get(args) : args;
     if (initArgs) {
       const dataTypeMap: DataTypeMap | undefined = initArgs[kDataTypeMap];
       if (!dataTypeMap) delete initArgs._instance;
@@ -589,10 +694,17 @@ export class DataTypeFactory {
     /** Set additionalFields */
     if (args.additionalFields) {
       context.enter('.additionalFields', () => {
-        if (typeof args.additionalFields === 'boolean' || Array.isArray(args.additionalFields)) {
+        if (
+          typeof args.additionalFields === 'boolean' ||
+          Array.isArray(args.additionalFields)
+        ) {
           initArgs.additionalFields = args.additionalFields;
         } else {
-          initArgs.additionalFields = this._createDataType(context, owner, args.additionalFields!) as any;
+          initArgs.additionalFields = this._createDataType(
+            context,
+            owner,
+            args.additionalFields!,
+          ) as any;
         }
       });
     }
@@ -672,7 +784,9 @@ export class DataTypeFactory {
           context.enter(`[${i++}]`, () => {
             const base = this._createDataType(context, owner, t);
             if (!(base instanceof ComplexTypeBase)) {
-              throw new TypeError(`"${base?.kind}" can't be set as base for a "${initArgs.kind}"`);
+              throw new TypeError(
+                `"${base?.kind}" can't be set as base for a "${initArgs.kind}"`,
+              );
             }
             (initArgs as any).types.push(base);
           });
@@ -705,5 +819,9 @@ export class DataTypeFactory {
 function preferName(
   initArgs: DataTypeFactory.DataTypeInitArguments | string,
 ): DataTypeFactory.DataTypeInitArguments | string {
-  return typeof initArgs === 'object' ? (initArgs.name ? initArgs.name : initArgs) : initArgs;
+  return typeof initArgs === 'object'
+    ? initArgs.name
+      ? initArgs.name
+      : initArgs
+    : initArgs;
 }

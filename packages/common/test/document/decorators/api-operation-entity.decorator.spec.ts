@@ -1,5 +1,11 @@
 import 'reflect-metadata';
-import { FieldPathType, FilterType, HTTP_CONTROLLER_METADATA, HttpOperation, IntegerType } from '@opra/common';
+import {
+  FieldPathType,
+  FilterType,
+  HTTP_CONTROLLER_METADATA,
+  HttpOperation,
+  IntegerType,
+} from '@opra/common';
 import { Customer } from 'customer-mongo/models';
 
 describe('HttpOperation.Entity.* decorators', () => {
@@ -69,10 +75,18 @@ describe('HttpOperation.Entity.* decorators', () => {
         create() {}
       }
 
-      const metadata = Reflect.getMetadata(HTTP_CONTROLLER_METADATA, CustomerResource);
+      const metadata = Reflect.getMetadata(
+        HTTP_CONTROLLER_METADATA,
+        CustomerResource,
+      );
       const opr = metadata.operations?.create;
       expect(opr).toBeDefined();
-      expect({ ...opr, parameters: undefined, responses: undefined, requestBody: undefined }).toEqual({
+      expect({
+        ...opr,
+        parameters: undefined,
+        responses: undefined,
+        requestBody: undefined,
+      }).toEqual({
         kind: 'HttpOperation',
         description: 'operation description',
         method: 'POST',
@@ -133,7 +147,10 @@ describe('HttpOperation.Entity.* decorators', () => {
         delete() {}
       }
 
-      const metadata = Reflect.getMetadata(HTTP_CONTROLLER_METADATA, CustomerResource);
+      const metadata = Reflect.getMetadata(
+        HTTP_CONTROLLER_METADATA,
+        CustomerResource,
+      );
       const opr = metadata.operations?.delete;
       expect({ ...opr, parameters: undefined, responses: undefined }).toEqual({
         kind: 'HttpOperation',
@@ -175,11 +192,17 @@ describe('HttpOperation.Entity.* decorators', () => {
   describe('"DeleteMany" decorator', () => {
     it('Should define DeleteMany operation metadata', async () => {
       class CustomerResource {
-        @HttpOperation.Entity.DeleteMany({ type: Customer, description: 'operation description' })
+        @HttpOperation.Entity.DeleteMany({
+          type: Customer,
+          description: 'operation description',
+        })
         deleteMany() {}
       }
 
-      const metadata = Reflect.getMetadata(HTTP_CONTROLLER_METADATA, CustomerResource);
+      const metadata = Reflect.getMetadata(
+        HTTP_CONTROLLER_METADATA,
+        CustomerResource,
+      );
       const opr = metadata.operations?.deleteMany;
       expect({ ...opr, parameters: undefined, responses: undefined }).toEqual({
         kind: 'HttpOperation',
@@ -215,7 +238,10 @@ describe('HttpOperation.Entity.* decorators', () => {
         deleteMany() {}
       }
 
-      const metadata = Reflect.getMetadata(HTTP_CONTROLLER_METADATA, CustomerResource);
+      const metadata = Reflect.getMetadata(
+        HTTP_CONTROLLER_METADATA,
+        CustomerResource,
+      );
       const opr = metadata.operations?.deleteMany;
       expect({ ...opr, parameters: undefined, responses: undefined }).toEqual({
         kind: 'HttpOperation',
@@ -250,11 +276,17 @@ describe('HttpOperation.Entity.* decorators', () => {
   describe('"FindMany" decorator', () => {
     it('Should define FindMany operation metadata', async () => {
       class CustomerResource {
-        @HttpOperation.Entity.FindMany({ type: Customer, description: 'operation description' })
+        @HttpOperation.Entity.FindMany({
+          type: Customer,
+          description: 'operation description',
+        })
         findMany() {}
       }
 
-      const metadata = Reflect.getMetadata(HTTP_CONTROLLER_METADATA, CustomerResource);
+      const metadata = Reflect.getMetadata(
+        HTTP_CONTROLLER_METADATA,
+        CustomerResource,
+      );
       const opr = metadata.operations?.findMany;
       expect(opr).toBeDefined();
       expect({ ...opr, parameters: undefined, responses: undefined }).toEqual({
@@ -275,12 +307,24 @@ describe('HttpOperation.Entity.* decorators', () => {
         'filter',
         'sort',
       ]);
-      expect(opr.parameters.find(prm => prm.name === 'limit')).toEqual(queryParams.limit);
-      expect(opr.parameters.find(prm => prm.name === 'skip')).toEqual(queryParams.skip);
-      expect(opr.parameters.find(prm => prm.name === 'count')).toEqual(queryParams.count);
-      expect(opr.parameters.find(prm => prm.name === 'projection')).toEqual(queryParams.projection);
-      expect(opr.parameters.find(prm => prm.name === 'filter')).toEqual(queryParams.filter);
-      expect(opr.parameters.find(prm => prm.name === 'sort')).toEqual(queryParams.sort);
+      expect(opr.parameters.find(prm => prm.name === 'limit')).toEqual(
+        queryParams.limit,
+      );
+      expect(opr.parameters.find(prm => prm.name === 'skip')).toEqual(
+        queryParams.skip,
+      );
+      expect(opr.parameters.find(prm => prm.name === 'count')).toEqual(
+        queryParams.count,
+      );
+      expect(opr.parameters.find(prm => prm.name === 'projection')).toEqual(
+        queryParams.projection,
+      );
+      expect(opr.parameters.find(prm => prm.name === 'filter')).toEqual(
+        queryParams.filter,
+      );
+      expect(opr.parameters.find(prm => prm.name === 'sort')).toEqual(
+        queryParams.sort,
+      );
       expect(opr.responses).toEqual([
         {
           description: expect.any(String),
@@ -308,7 +352,10 @@ describe('HttpOperation.Entity.* decorators', () => {
         findMany() {}
       }
 
-      const metadata = Reflect.getMetadata(HTTP_CONTROLLER_METADATA, CustomerResource);
+      const metadata = Reflect.getMetadata(
+        HTTP_CONTROLLER_METADATA,
+        CustomerResource,
+      );
       const opr = metadata.operations?.findMany;
       expect(opr).toBeDefined();
       expect({ ...opr, parameters: undefined, responses: undefined }).toEqual({
@@ -357,11 +404,17 @@ describe('HttpOperation.Entity.* decorators', () => {
 
     it('Should SortFields() define metadata value', async () => {
       class CustomerResource {
-        @(HttpOperation.Entity.FindMany({ type: Customer }).SortFields('_id', 'givenName'))
+        @(HttpOperation.Entity.FindMany({ type: Customer }).SortFields(
+          '_id',
+          'givenName',
+        ))
         findMany() {}
       }
 
-      const metadata = Reflect.getMetadata(HTTP_CONTROLLER_METADATA, CustomerResource);
+      const metadata = Reflect.getMetadata(
+        HTTP_CONTROLLER_METADATA,
+        CustomerResource,
+      );
       const opr = metadata.operations?.findMany;
       expect(opr).toBeDefined();
       expect({ ...opr, parameters: undefined, responses: undefined }).toEqual({
@@ -403,11 +456,16 @@ describe('HttpOperation.Entity.* decorators', () => {
 
     it('Should DefaultSort() define metadata value', async () => {
       class CustomerResource {
-        @(HttpOperation.Entity.FindMany({ type: Customer }).DefaultSort('givenName'))
+        @(HttpOperation.Entity.FindMany({ type: Customer }).DefaultSort(
+          'givenName',
+        ))
         findMany() {}
       }
 
-      const metadata = Reflect.getMetadata(HTTP_CONTROLLER_METADATA, CustomerResource);
+      const metadata = Reflect.getMetadata(
+        HTTP_CONTROLLER_METADATA,
+        CustomerResource,
+      );
       const opr = metadata.operations?.findMany;
       expect(opr).toBeDefined();
       expect({ ...opr, parameters: undefined, responses: undefined }).toEqual({
@@ -451,7 +509,10 @@ describe('HttpOperation.Entity.* decorators', () => {
         get() {}
       }
 
-      const metadata = Reflect.getMetadata(HTTP_CONTROLLER_METADATA, CustomerResource);
+      const metadata = Reflect.getMetadata(
+        HTTP_CONTROLLER_METADATA,
+        CustomerResource,
+      );
       const opr = metadata.operations?.get;
       expect(opr).toBeDefined();
       expect({ ...opr, parameters: undefined, responses: undefined }).toEqual({
@@ -466,7 +527,10 @@ describe('HttpOperation.Entity.* decorators', () => {
         },
         type: Customer,
       });
-      expect(opr.parameters.map(prm => prm.name)).toStrictEqual(['projection', 'id']);
+      expect(opr.parameters.map(prm => prm.name)).toStrictEqual([
+        'projection',
+        'id',
+      ]);
       expect(opr.parameters.find(prm => prm.name === 'projection')).toEqual({
         location: 'query',
         name: 'projection',
@@ -514,7 +578,10 @@ describe('HttpOperation.Entity.* decorators', () => {
         get() {}
       }
 
-      const metadata = Reflect.getMetadata(HTTP_CONTROLLER_METADATA, CustomerResource);
+      const metadata = Reflect.getMetadata(
+        HTTP_CONTROLLER_METADATA,
+        CustomerResource,
+      );
       const opr = metadata.operations?.get;
       expect(opr).toBeDefined();
       expect({ ...opr, parameters: undefined, responses: undefined }).toEqual({
@@ -529,7 +596,10 @@ describe('HttpOperation.Entity.* decorators', () => {
         },
         type: Customer,
       });
-      expect(opr.parameters.map(prm => prm.name)).toStrictEqual(['projection', 'id']);
+      expect(opr.parameters.map(prm => prm.name)).toStrictEqual([
+        'projection',
+        'id',
+      ]);
       expect(opr.parameters.find(prm => prm.name === 'projection')).toEqual({
         location: 'query',
         name: 'projection',
@@ -580,10 +650,18 @@ describe('HttpOperation.Entity.* decorators', () => {
         updateMany() {}
       }
 
-      const metadata = Reflect.getMetadata(HTTP_CONTROLLER_METADATA, CustomerResource);
+      const metadata = Reflect.getMetadata(
+        HTTP_CONTROLLER_METADATA,
+        CustomerResource,
+      );
       const opr = metadata.operations?.updateMany;
       expect(opr).toBeDefined();
-      expect({ ...opr, parameters: undefined, responses: undefined, requestBody: undefined }).toEqual({
+      expect({
+        ...opr,
+        parameters: undefined,
+        responses: undefined,
+        requestBody: undefined,
+      }).toEqual({
         kind: 'HttpOperation',
         description: 'operation description',
         method: 'PATCH',
@@ -631,7 +709,10 @@ describe('HttpOperation.Entity.* decorators', () => {
         updateMany() {}
       }
 
-      const metadata = Reflect.getMetadata(HTTP_CONTROLLER_METADATA, CustomerResource);
+      const metadata = Reflect.getMetadata(
+        HTTP_CONTROLLER_METADATA,
+        CustomerResource,
+      );
       const opr = metadata.operations?.updateMany;
       expect(opr).toBeDefined();
       expect(opr.method).toEqual('PATCH');
@@ -672,10 +753,18 @@ describe('HttpOperation.Entity.* decorators', () => {
         updateOne() {}
       }
 
-      const metadata = Reflect.getMetadata(HTTP_CONTROLLER_METADATA, CustomerResource);
+      const metadata = Reflect.getMetadata(
+        HTTP_CONTROLLER_METADATA,
+        CustomerResource,
+      );
       const opr = metadata.operations?.updateOne;
       expect(opr).toBeDefined();
-      expect({ ...opr, parameters: undefined, responses: undefined, requestBody: undefined }).toEqual({
+      expect({
+        ...opr,
+        parameters: undefined,
+        responses: undefined,
+        requestBody: undefined,
+      }).toEqual({
         kind: 'HttpOperation',
         description: 'operation description',
         method: 'PATCH',
@@ -687,7 +776,11 @@ describe('HttpOperation.Entity.* decorators', () => {
         },
         type: Customer,
       });
-      expect(opr.parameters.map(prm => prm.name)).toStrictEqual(['projection', 'filter', 'id']);
+      expect(opr.parameters.map(prm => prm.name)).toStrictEqual([
+        'projection',
+        'filter',
+        'id',
+      ]);
       expect(opr.parameters.find(prm => prm.name === 'projection')).toEqual({
         location: 'query',
         name: 'projection',
@@ -755,10 +848,18 @@ describe('HttpOperation.Entity.* decorators', () => {
         updateOne() {}
       }
 
-      const metadata = Reflect.getMetadata(HTTP_CONTROLLER_METADATA, CustomerResource);
+      const metadata = Reflect.getMetadata(
+        HTTP_CONTROLLER_METADATA,
+        CustomerResource,
+      );
       const opr = metadata.operations?.updateOne;
       expect(opr).toBeDefined();
-      expect({ ...opr, parameters: undefined, responses: undefined, requestBody: undefined }).toEqual({
+      expect({
+        ...opr,
+        parameters: undefined,
+        responses: undefined,
+        requestBody: undefined,
+      }).toEqual({
         kind: 'HttpOperation',
         method: 'PATCH',
         path: '@:id',

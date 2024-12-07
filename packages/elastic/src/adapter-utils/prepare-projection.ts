@@ -1,4 +1,9 @@
-import { ApiField, ComplexType, FieldsProjection, parseFieldsProjection } from '@opra/common';
+import {
+  ApiField,
+  ComplexType,
+  FieldsProjection,
+  parseFieldsProjection,
+} from '@opra/common';
 
 export interface ElasticProjection {
   includes?: string[];
@@ -13,7 +18,9 @@ export default function prepareProjection(
   const includes: string[] = [];
   const excludes: string[] = [];
   const projection_ =
-    typeof projection === 'string' || Array.isArray(projection) ? parseFieldsProjection(projection) : projection;
+    typeof projection === 'string' || Array.isArray(projection)
+      ? parseFieldsProjection(projection)
+      : projection;
   prepare(dataType, includes, excludes, '', projection_);
   if (includes.length) out.includes = includes;
   if (excludes.length) out.excludes = excludes;
@@ -60,7 +67,10 @@ export function prepare(
         includes.push(fieldPath);
       }
     }
-    if (field.type instanceof ComplexType && typeof p?.projection === 'object') {
+    if (
+      field.type instanceof ComplexType &&
+      typeof p?.projection === 'object'
+    ) {
       prepare(field.type, includes, excludes, fieldPath, p.projection);
     }
   }
