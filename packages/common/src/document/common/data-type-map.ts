@@ -1,6 +1,7 @@
 import type { Type } from 'ts-gems';
 import { ResponsiveMap } from '../../helpers/index.js';
 import { DATATYPE_METADATA } from '../constants.js';
+import type { ComplexType } from '../data-type/complex-type.js';
 import { DataType } from '../data-type/data-type.js';
 
 const kMap = Symbol.for('kMap');
@@ -41,7 +42,12 @@ export class DataTypeMap {
       const metadata = nameOrCtor[DATATYPE_METADATA];
       name = metadata?.name;
     }
-    return name ? this[kMap].get(name) : undefined;
+    if (!name) return;
+    const out = this[kMap].get(name);
+    if (!out) return;
+    if (typeof nameOrCtor === 'function' && out.kind === 'ComplexType')
+      return (out as ComplexType).ctor === nameOrCtor ? out : undefined;
+    return out;
   }
 
   set(name: string, dataType: DataType) {
