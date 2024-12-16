@@ -4,6 +4,7 @@ import { asMutable, type Combine, type Type } from 'ts-gems';
 import { type Validator, vg } from 'valgen';
 import { cloneObject } from '../../helpers/index.js';
 import { OpraSchema } from '../../schema/index.js';
+import type { ApiDocument } from '../api-document.js';
 import type { DocumentElement } from '../common/document-element.js';
 import { DocumentInitContext } from '../common/document-init-context.js';
 import { DATATYPE_METADATA, DECORATOR } from '../constants.js';
@@ -149,13 +150,22 @@ class EnumTypeClass extends DataType {
     return vg.isEnum(Object.keys(this.attributes) as any);
   }
 
-  toJSON(): OpraSchema.EnumType {
+  toJSON(options?: ApiDocument.ExportOptions): OpraSchema.EnumType {
     const baseName = this.base
       ? this.node.getDataTypeNameWithNs(this.base)
       : undefined;
+    if (options?.scopes && !this.base?.inScope(options?.scopes))
+      throw new TypeError(
+        `Base type ${baseName ? '(' + baseName + ')' : ''} of ${this.name ? +this.name : 'embedded'} type ` +
+          `is not in required scope(s) [${options.scopes}`,
+      );
     return omitUndefined<OpraSchema.EnumType>({
       ...(DataType.prototype.toJSON.call(this) as any),
-      base: this.base ? (baseName ? baseName : this.base.toJSON()) : undefined,
+      base: this.base
+        ? baseName
+          ? baseName
+          : this.base.toJSON(options)
+        : undefined,
       attributes: cloneObject(this.ownAttributes),
     });
   }

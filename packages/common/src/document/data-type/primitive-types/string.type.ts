@@ -3,6 +3,7 @@ import { DATATYPE_METADATA, DECODER, ENCODER } from '../../constants.js';
 import { SimpleType } from '../simple-type.js';
 
 @SimpleType({
+  name: 'string',
   description: 'A sequence of characters',
   nameMappings: {
     js: 'string',

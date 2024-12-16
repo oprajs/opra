@@ -385,8 +385,8 @@ export class HttpHandler {
       );
       if (!operationResultEncoder) {
         operationResultEncoder = operationResultType.generateCodec('encode', {
+          scope: this.adapter.document.scopes,
           ignoreWriteonlyFields: true,
-          ignoreHiddenFields: true,
         });
         this[kAssetCache].set(
           operationResultType,
@@ -412,10 +412,10 @@ export class HttpHandler {
           );
           if (!encode) {
             encode = operationResponse.type.generateCodec('encode', {
+              scope: this.adapter.document.scopes,
               partial: operationResponse.partial,
               projection,
               ignoreWriteonlyFields: true,
-              ignoreHiddenFields: true,
               onFail: issue =>
                 `Response body validation failed: ` + issue.message,
             });

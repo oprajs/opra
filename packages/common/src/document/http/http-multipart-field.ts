@@ -1,6 +1,7 @@
 import { omitUndefined } from '@jsopen/objects';
 import type { Combine } from 'ts-gems';
 import { OpraSchema } from '../../schema/index.js';
+import type { ApiDocument } from '../api-document';
 import { parseRegExp } from '../utils/parse-regexp.util.js';
 import { HttpMediaType } from './http-media-type.js';
 
@@ -60,12 +61,12 @@ export class HttpMultipartField extends HttpMediaType {
     this.required = initArgs.required;
   }
 
-  toJSON(): OpraSchema.HttpMultipartField {
+  toJSON(options?: ApiDocument.ExportOptions): OpraSchema.HttpMultipartField {
     return omitUndefined({
       fieldName: this.fieldName,
       fieldType: this.fieldType,
       required: this.required,
-      ...super.toJSON(),
+      ...super.toJSON(options),
     });
   }
 }

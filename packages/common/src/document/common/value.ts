@@ -2,6 +2,7 @@ import { omitUndefined } from '@jsopen/objects';
 import type { Combine, StrictOmit, TypeThunkAsync } from 'ts-gems';
 import { asMutable } from 'ts-gems';
 import type { OpraSchema } from '../../schema/index.js';
+import type { ApiDocument } from '../api-document';
 import { DataType } from '../data-type/data-type.js';
 import type { EnumType } from '../data-type/enum-type.js';
 import { DocumentElement } from './document-element.js';
@@ -76,12 +77,16 @@ class ValueClass extends DocumentElement {
   examples?: any[] | Record<string, any>;
   isArray?: boolean;
 
-  toJSON(): OpraSchema.Value {
+  toJSON(options?: ApiDocument.ExportOptions): OpraSchema.Value {
     const typeName = this.type
       ? this.node.getDataTypeNameWithNs(this.type)
       : undefined;
     return omitUndefined<OpraSchema.Value>({
-      type: this.type ? (typeName ? typeName : this.type.toJSON()) : 'any',
+      type: this.type
+        ? typeName
+          ? typeName
+          : this.type.toJSON(options)
+        : 'any',
       description: this.description,
       isArray: this.isArray,
       examples: this.examples,

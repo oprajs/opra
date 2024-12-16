@@ -3,6 +3,7 @@ import { DECODER, ENCODER } from '../../constants.js';
 import { SimpleType } from '../simple-type.js';
 
 @(SimpleType({
+  name: 'email',
   description: 'An email value',
   nameMappings: {
     js: 'string',

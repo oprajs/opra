@@ -33,6 +33,7 @@ export namespace OpraHttpModule {
     > {
     name: string;
     description?: string;
+    scopes?: string[];
     logger?: Logger;
   }
 }

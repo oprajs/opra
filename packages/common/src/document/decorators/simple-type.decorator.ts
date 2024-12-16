@@ -1,9 +1,5 @@
 import { OpraSchema } from '../../schema/index.js';
-import {
-  CLASS_NAME_PATTERN,
-  DATATYPE_METADATA,
-  EXTRACT_TYPENAME_PATTERN,
-} from '../constants.js';
+import { CLASS_NAME_PATTERN, DATATYPE_METADATA } from '../constants.js';
 import type { SimpleType } from '../data-type/simple-type';
 
 export interface SimpleTypeDecorator extends ClassDecorator {
@@ -33,7 +29,7 @@ export function SimpleTypeDecoratorFactory(
           throw new TypeError(`"${options.name}" is not a valid type name`);
         name = options.name;
       } else {
-        name = target.name.match(EXTRACT_TYPENAME_PATTERN)?.[1] || target.name;
+        name = target.name;
         name = name.toLowerCase();
       }
     }

@@ -4,6 +4,7 @@ import type { Combine, StrictOmit, Type } from 'ts-gems';
 import { asMutable } from 'ts-gems';
 import { isAny, type Validator, vg } from 'valgen';
 import { OpraSchema } from '../../schema/index.js';
+import type { ApiDocument } from '../api-document.js';
 import { DocumentElement } from '../common/document-element.js';
 import { DataType } from '../data-type/data-type.js';
 import type { HttpMultipartField } from './http-multipart-field.js';
@@ -125,7 +126,7 @@ class HttpMediaTypeClass extends DocumentElement {
     }
   }
 
-  toJSON(): OpraSchema.HttpMediaType {
+  toJSON(options?: ApiDocument.ExportOptions): OpraSchema.HttpMediaType {
     const typeName = this.type
       ? this.node.getDataTypeNameWithNs(this.type)
       : undefined;
@@ -133,7 +134,7 @@ class HttpMediaTypeClass extends DocumentElement {
       description: this.description,
       contentType: this.contentType,
       contentEncoding: this.contentEncoding,
-      type: typeName ? typeName : this.type?.toJSON(),
+      type: typeName ? typeName : this.type?.toJSON(options),
       isArray: this.isArray,
       example: this.example,
       examples: this.examples,
@@ -144,7 +145,7 @@ class HttpMediaTypeClass extends DocumentElement {
       maxTotalFileSize: this.maxTotalFileSize,
     });
     if (this.multipartFields?.length) {
-      out.multipartFields = this.multipartFields.map(x => x.toJSON());
+      out.multipartFields = this.multipartFields.map(x => x.toJSON(options));
     }
     return out;
   }

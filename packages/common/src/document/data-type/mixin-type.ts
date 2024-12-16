@@ -7,6 +7,7 @@ import {
   mergePrototype,
 } from '../../helpers/index.js';
 import { OpraSchema } from '../../schema/index.js';
+import type { ApiDocument } from '../api-document.js';
 import type { DocumentElement } from '../common/document-element.js';
 import type { DocumentInitContext } from '../common/document-init-context.js';
 import { DATATYPE_METADATA, DECORATOR } from '../constants.js';
@@ -179,13 +180,18 @@ class MixinTypeClass extends ComplexTypeBase {
     return false;
   }
 
-  toJSON(): OpraSchema.MixinType {
+  toJSON(options?: ApiDocument.ExportOptions): OpraSchema.MixinType {
     return omitUndefined<OpraSchema.MixinType>({
       ...ComplexTypeBase.prototype.toJSON.call(this),
       kind: this.kind as any,
-      types: this.types.map(t => {
-        const baseName = this.node.getDataTypeNameWithNs(t);
-        return baseName ? baseName : t.toJSON();
+      types: this.types.map(base => {
+        const baseName = this.node.getDataTypeNameWithNs(base);
+        if (options?.scopes && !base?.inScope(options?.scopes))
+          throw new TypeError(
+            `Base type ${baseName ? '(' + baseName + ')' : ''} of ${this.name ? +this.name : 'embedded'} type ` +
+              `is not in required scope(s) [${options.scopes}`,
+          );
+        return baseName ? baseName : base.toJSON(options);
       }),
     });
   }

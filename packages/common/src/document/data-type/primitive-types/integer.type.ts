@@ -4,6 +4,7 @@ import { SimpleType } from '../simple-type.js';
 import { NumberType } from './number.type.js';
 
 @SimpleType({
+  name: 'integer',
   description: 'An integer number',
   nameMappings: {
     js: 'number',

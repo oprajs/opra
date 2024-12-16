@@ -5,6 +5,7 @@ import { SimpleType } from '../simple-type.js';
 const TIME_PATTERN = /^([0-1][0-9]|2[0-4]):([0-5][0-9])(?::([0-5][0-9]))?$/;
 
 @(SimpleType({
+  name: 'time',
   description: 'Time string in 24h format',
   nameMappings: {
     js: 'string',

@@ -3,6 +3,7 @@ import { omitUndefined } from '@jsopen/objects';
 import { asMutable, type Combine, type Type } from 'ts-gems';
 import type { Field } from '../../schema/data-type/field.interface.js';
 import { OpraSchema } from '../../schema/index.js';
+import type { ApiDocument } from '../api-document.js';
 import { DocumentElement } from '../common/document-element.js';
 import type { DocumentInitContext } from '../common/document-init-context.js';
 import { ApiField } from './api-field.js';
@@ -178,13 +179,18 @@ class MappedTypeClass extends ComplexTypeBase {
     return !!this.base?.extendsFrom(baseType);
   }
 
-  toJSON(): OpraSchema.MappedType {
+  toJSON(options?: ApiDocument.ExportOptions): OpraSchema.MappedType {
     const baseName = this.base
       ? this.node.getDataTypeNameWithNs(this.base)
       : undefined;
+    if (options?.scopes && !this.base?.inScope(options?.scopes))
+      throw new TypeError(
+        `Base type ${baseName ? '(' + baseName + ')' : ''} of ${this.name ? +this.name : 'embedded'} type ` +
+          `is not in required scope(s) [${options.scopes}`,
+      );
     return omitUndefined<OpraSchema.MappedType>({
-      ...ComplexTypeBase.prototype.toJSON.call(this),
-      base: baseName ? baseName : this.base.toJSON(),
+      ...ComplexTypeBase.prototype.toJSON.call(this, options),
+      base: baseName ? baseName : this.base.toJSON(options),
       kind: this.kind as any,
       pick: this.pick,
       omit: this.omit,

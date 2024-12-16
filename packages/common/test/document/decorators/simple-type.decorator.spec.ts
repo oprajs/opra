@@ -7,6 +7,7 @@ describe('SimpleType() decorator', () => {
 
   it('Should define SimpleType metadata', async () => {
     const opts: SimpleType.Options = {
+      name: 'customstring',
       description: 'Custom string schema',
     };
 
@@ -31,13 +32,13 @@ describe('SimpleType() decorator', () => {
 
   it('Should not overwrite while extending', async () => {
     @SimpleType({ description: 'Custom string schema' })
-    class CustomStringType extends StringType {}
+    class CustomString extends StringType {}
 
     @SimpleType()
-    class MyStringType extends CustomStringType {}
+    class MyString extends CustomString {}
 
-    const sch1 = Reflect.getMetadata(DATATYPE_METADATA, CustomStringType);
-    const sch2 = Reflect.getMetadata(DATATYPE_METADATA, MyStringType);
+    const sch1 = Reflect.getMetadata(DATATYPE_METADATA, CustomString);
+    const sch2 = Reflect.getMetadata(DATATYPE_METADATA, MyString);
     expect(sch1.name).toStrictEqual('customstring');
     expect(sch2.name).toStrictEqual('mystring');
   });

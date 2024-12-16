@@ -2,6 +2,7 @@ import { omitUndefined } from '@jsopen/objects';
 import type { Combine, TypeThunkAsync } from 'ts-gems';
 import { asMutable } from 'ts-gems';
 import { OpraSchema } from '../../schema/index.js';
+import type { ApiDocument } from '../api-document.js';
 import { DocumentElement } from '../common/document-element.js';
 import { DECORATOR } from '../constants.js';
 import { ApiFieldDecorator } from '../decorators/api-field-decorator.js';
@@ -28,15 +29,11 @@ export namespace ApiField {
           | object;
       },
       OpraSchema.Field
-    > {
-    /**
-     * If set true, field will be available for server side only and
-     * will be removed while encoding to send to the client
-     */
-    hidden?: boolean;
-  }
+    > {}
 
-  export interface Options extends Partial<Metadata> {}
+  export interface Options extends Partial<Metadata> {
+    scopes?: (string | RegExp)[];
+  }
 
   export interface InitArguments
     extends Combine<
@@ -46,7 +43,9 @@ export namespace ApiField {
         type?: DataType;
       },
       Metadata
-    > {}
+    > {
+    scopes?: (string | RegExp)[];
+  }
 }
 
 /**
@@ -90,6 +89,7 @@ export const ApiField = function (this: ApiField | void, ...args: any[]) {
     );
   }
   _this.origin = origin;
+  _this.scopes = initArgs.scopes;
   _this.type = initArgs.type || owner.node.getDataType('any');
   _this.description = initArgs.description;
   _this.isArray = initArgs.isArray;
@@ -103,7 +103,6 @@ export const ApiField = function (this: ApiField | void, ...args: any[]) {
   _this.readonly = initArgs.readonly;
   _this.writeonly = initArgs.writeonly;
   _this.examples = initArgs.examples;
-  _this.hidden = initArgs.hidden;
 } as ApiFieldConstructor;
 
 /**
@@ -113,10 +112,11 @@ export const ApiField = function (this: ApiField | void, ...args: any[]) {
 class ApiFieldClass extends DocumentElement {
   declare readonly owner: ComplexType | MappedType | MixinType;
   readonly origin?: ComplexType | MappedType | MixinType;
+  declare readonly scopes?: (string | RegExp)[];
   declare readonly name: string;
   declare readonly type: DataType;
   declare readonly description?: string;
-  declare readonly isArray?: boolean; // todo this can be a separate type
+  declare readonly isArray?: boolean;
   declare readonly default?: any;
   declare readonly fixed?: any;
   declare readonly required?: boolean;
@@ -127,18 +127,28 @@ class ApiFieldClass extends DocumentElement {
   declare readonly readonly?: boolean;
   declare readonly writeonly?: boolean;
   declare readonly examples?: any[] | Record<string, any>;
-  /**
-   * If set true, field will be available for server side only and
-   * will be removed while encoding to send to the client
-   */
-  readonly hidden?: boolean;
 
-  toJSON(): OpraSchema.Field {
+  inScope(scopes?: string | string[]): boolean {
+    if (!this.scopes?.length || !scopes) return true;
+    /** this.scope should match all required scopes */
+    scopes = Array.isArray(scopes) ? scopes : [scopes];
+    for (const scope of scopes) {
+      if (
+        !this.scopes.some(s => {
+          return typeof s === 'string' ? scope === s : s.test(scope);
+        })
+      )
+        return false;
+    }
+    return true;
+  }
+
+  toJSON(options?: ApiDocument.ExportOptions): OpraSchema.Field {
     const typeName = this.type
       ? this.node.getDataTypeNameWithNs(this.type)
       : undefined;
     return omitUndefined<OpraSchema.Field>({
-      type: typeName ? typeName : (this.type?.toJSON() as any),
+      type: typeName ? typeName : (this.type?.toJSON(options) as any),
       description: this.description,
       isArray: this.isArray || undefined,
       default: this.default,

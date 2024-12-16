@@ -1,6 +1,7 @@
 import { omitUndefined } from '@jsopen/objects';
 import type { StrictOmit } from 'ts-gems';
 import { OpraSchema } from '../../schema/index.js';
+import type { ApiDocument } from '../api-document';
 import { DocumentElement } from '../common/document-element.js';
 import { HttpMediaType } from './http-media-type.js';
 import type { HttpOperation } from './http-operation';
@@ -40,12 +41,14 @@ export class HttpRequestBody extends DocumentElement {
     super(owner);
   }
 
-  toJSON(): OpraSchema.HttpRequestBody {
+  toJSON(options?: ApiDocument.ExportOptions): OpraSchema.HttpRequestBody {
     return omitUndefined<OpraSchema.HttpRequestBody>({
       description: this.description,
       required: this.required,
       maxContentSize: this.maxContentSize,
-      content: this.content.length ? this.content.map(x => x.toJSON()) : [],
+      content: this.content.length
+        ? this.content.map(x => x.toJSON(options))
+        : [],
       partial: this.partial,
       allowPatchOperators: this.allowPatchOperators,
     });

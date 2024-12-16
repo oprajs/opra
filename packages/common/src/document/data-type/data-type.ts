@@ -4,6 +4,7 @@ import type { ValidationOptions, Validator } from 'valgen';
 import { FieldsProjection } from '../../helpers/index.js';
 import type { DataTypeBase } from '../../schema/data-type/data-type.interface.js';
 import { OpraSchema } from '../../schema/index.js';
+import type { ApiDocument } from '../api-document.js';
 import { DocumentElement } from '../common/document-element.js';
 import { DocumentInitContext } from '../common/document-init-context.js';
 import { CLASS_NAME_PATTERN } from '../constants.js';
@@ -25,18 +26,21 @@ export namespace DataType {
   export interface Options
     extends Partial<StrictOmit<Metadata, 'kind' | 'examples'>> {
     embedded?: boolean;
+    scopes?: (string | RegExp)[];
   }
 
-  export interface InitArguments extends DataType.Metadata {}
+  export interface InitArguments extends DataType.Metadata {
+    scopes?: (string | RegExp)[];
+  }
 
   export interface GenerateCodecOptions extends ValidationOptions {
     documentElement?: DocumentElement;
+    scope?: string | string[];
     caseInSensitive?: boolean;
     partial?: boolean | 'deep';
     projection?: string[] | FieldsProjection | '*';
     ignoreReadonlyFields?: boolean;
     ignoreWriteonlyFields?: boolean;
-    ignoreHiddenFields?: boolean;
     allowPatchOperators?: boolean;
   }
 }
@@ -75,6 +79,7 @@ export const DataType = function (
   DocumentElement.call(this, owner);
   const _this = asMutable(this);
   _this.kind = initArgs.kind;
+  _this.scopes = initArgs.scopes;
   _this.name = initArgs.name;
   _this.description = initArgs.description;
   _this.abstract = initArgs.abstract;
@@ -88,6 +93,7 @@ export const DataType = function (
 abstract class DataTypeClass extends DocumentElement {
   declare readonly kind: OpraSchema.DataType.Kind;
   declare readonly owner: DocumentElement;
+  declare readonly scopes?: (string | RegExp)[];
   declare readonly name?: string;
   declare readonly description?: string;
   declare readonly abstract?: boolean;
@@ -104,7 +110,23 @@ abstract class DataTypeClass extends DocumentElement {
 
   abstract extendsFrom(baseType: DataType | string | Type | object): boolean;
 
-  toJSON(): OpraSchema.DataType {
+  inScope(scopes?: string | string[]): boolean {
+    if (!this.scopes?.length || !scopes) return true;
+    /** this.scope should match all required scopes */
+    scopes = Array.isArray(scopes) ? scopes : [scopes];
+    for (const scope of scopes) {
+      if (
+        !this.scopes.some(s => {
+          return typeof s === 'string' ? scope === s : s.test(scope);
+        })
+      )
+        return false;
+    }
+    return true;
+  }
+
+  // eslint-disable-next-line
+  toJSON(options?: ApiDocument.ExportOptions): OpraSchema.DataType {
     return omitUndefined({
       kind: this.kind,
       description: this.description,

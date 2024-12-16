@@ -238,13 +238,21 @@ abstract class ComplexTypeBaseClass extends DataType {
     const pickList = !!(
       projection && Object.values(projection).find(p => !p.sign)
     );
+    const scope = context.scope
+      ? Array.isArray(context.scope)
+        ? context.scope
+        : [context.scope]
+      : undefined;
     // Process fields
     let fieldName: string;
     for (const field of this.fields.values()) {
       if (
+        /** Ignore field if required scope(s) do not match field scopes */
+        (scope && !field.inScope(scope)) ||
+        /** Ignore field if readonly and ignoreReadonlyFields option true */
         (context.ignoreReadonlyFields && field.readonly) ||
-        (context.ignoreWriteonlyFields && field.writeonly) ||
-        (context.ignoreHiddenFields && field.hidden)
+        /** Ignore field if writeonly and ignoreWriteonlyFields option true */
+        (context.ignoreWriteonlyFields && field.writeonly)
       ) {
         schema[field.name] = vg.isUndefined({ coerce: true });
         continue;

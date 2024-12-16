@@ -3,6 +3,7 @@ import { omitUndefined } from '@jsopen/objects';
 import type { Combine, Type, TypeThunkAsync } from 'ts-gems';
 import { asMutable } from 'ts-gems';
 import { OpraSchema } from '../../schema/index.js';
+import type { ApiDocument } from '../api-document.js';
 import type { DocumentElement } from '../common/document-element.js';
 import { DocumentInitContext } from '../common/document-init-context.js';
 import { DECORATOR } from '../constants.js';
@@ -166,29 +167,38 @@ abstract class ComplexTypeClass extends ComplexTypeBase {
     return !!this.base?.extendsFrom(baseType);
   }
 
-  toJSON(): OpraSchema.ComplexType {
+  toJSON(options?: ApiDocument.ExportOptions): OpraSchema.ComplexType {
     const baseName = this.base
       ? this.node.getDataTypeNameWithNs(this.base)
       : undefined;
+    if (options?.scopes && !this.base?.inScope(options?.scopes))
+      throw new TypeError(
+        `Base type ${baseName ? '(' + baseName + ')' : ''} of ${this.name ? +this.name : 'embedded'} type ` +
+          `is not in required scope(s) [${options.scopes}`,
+      );
     const out = omitUndefined<OpraSchema.ComplexType>({
       ...ComplexTypeBase.prototype.toJSON.call(this),
       kind: this.kind,
-      base: this.base ? (baseName ? baseName : this.base.toJSON()) : undefined,
+      base: this.base
+        ? baseName
+          ? baseName
+          : this.base.toJSON(options)
+        : undefined,
     });
     if (this.additionalFields) {
       if (this.additionalFields instanceof DataType) {
         const typeName = this.node.getDataTypeNameWithNs(this.additionalFields);
         out.additionalFields = typeName
           ? typeName
-          : (this.additionalFields.toJSON() as OpraSchema.DataType);
+          : (this.additionalFields.toJSON(options) as OpraSchema.DataType);
       } else out.additionalFields = this.additionalFields;
     }
     if (this.fields.size) {
       const fields = {};
       let i = 0;
       for (const field of this.fields.values()) {
-        if (field.origin === this) {
-          fields[field.name] = field.toJSON();
+        if (field.origin === this && field.inScope(options?.scopes)) {
+          fields[field.name] = field.toJSON(options);
           i++;
         }
       }

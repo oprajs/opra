@@ -2,12 +2,14 @@ import type { Type } from 'ts-gems';
 import { type Validator, validator } from 'valgen';
 import { FilterRules } from '../../../filter/filter-rules.js';
 import { OpraFilter } from '../../../filter/index.js';
+import type { ApiDocument } from '../../api-document.js';
 import type { DocumentElement } from '../../common/document-element.js';
 import { DECODER, ENCODER } from '../../constants.js';
 import type { ComplexType } from '../complex-type.js';
 import { SimpleType } from '../simple-type.js';
 
 @SimpleType({
+  name: 'filter',
   description: 'A query filter',
   nameMappings: {
     js: 'object',
@@ -47,23 +49,39 @@ export class FilterType {
     return encodeFilter;
   }
 
-  toJSON(properties: Partial<FilterType>, element: DocumentElement) {
+  toJSON(
+    properties: Partial<FilterType>,
+    element: DocumentElement,
+    options?: ApiDocument.ExportOptions,
+  ) {
     const dataType = properties.dataType
       ? element.node.getComplexType(properties.dataType)
       : element.node.getComplexType('object');
+    const typeName = dataType
+      ? element.node.getDataTypeNameWithNs(dataType)
+      : undefined;
+    if (options?.scopes && !dataType.inScope(options?.scopes))
+      throw new TypeError(
+        `Data type ${typeName ? '(' + typeName + ')' : ''} ` +
+          `is not in required scope(s) [${options.scopes}`,
+      );
     return {
-      dataType: dataType.name ? dataType.name : dataType.toJSON(),
+      dataType: typeName ? typeName : dataType.toJSON(options),
       rules: properties.rules,
     };
   }
 }
 
-const decodeFilter = (dataType: ComplexType, rules?: FilterRules) =>
+const decodeFilter = (
+  dataType: ComplexType,
+  rules?: FilterRules,
+  element?: DocumentElement,
+) =>
   validator('decodeFilter', (input, context, _this) => {
     if (typeof input === 'string') {
       try {
         const filter = OpraFilter.parse(input as string);
-        if (rules) return rules.normalizeFilter(filter, dataType);
+        if (rules) return rules.normalizeFilter(filter, dataType, element);
         return filter;
       } catch (e: any) {
         context.fail(

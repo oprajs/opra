@@ -23,6 +23,7 @@ import { RpcApi } from './rpc/rpc-api.js';
 export class ApiDocument extends DocumentElement {
   protected [kTypeNSMap] = new WeakMap<DataType, string>();
   readonly id: string = '';
+  scopes?: string[];
   url?: string;
   info: OpraSchema.DocumentInfo = {};
   references = new ResponsiveMap<ApiDocument>();
@@ -85,13 +86,14 @@ export class ApiDocument extends DocumentElement {
   /**
    * Export as Opra schema definition object
    */
-  export(): OpraSchema.ApiDocument {
+  export(options?: ApiDocument.ExportOptions): OpraSchema.ApiDocument {
     const out = omitUndefined<OpraSchema.ApiDocument>({
       spec: OpraSchema.SpecVersion,
       id: this.id,
       url: this.url,
       info: cloneObject(this.info, true),
     });
+    options = options || { scopes: this.scopes };
     if (this.references.size) {
       let i = 0;
       const references: Record<string, OpraSchema.DocumentReference> = {};
@@ -109,16 +111,17 @@ export class ApiDocument extends DocumentElement {
     if (this.types.size) {
       out.types = {};
       for (const v of this.types.values()) {
-        out.types[v.name!] = v.toJSON();
+        if (!v.inScope(options.scopes)) continue;
+        out.types[v.name!] = v.toJSON(options);
       }
     }
-    if (this.api) out.api = this.api.toJSON();
+    if (this.api) out.api = this.api.toJSON(options);
     return out;
   }
 
   invalidate(): void {
     /** Generate id */
-    const x = this.export();
+    const x = this.export({});
     delete (x as any).id;
     (this as Mutable<ApiDocument>).id = md5(JSON.stringify(x));
     /** Clear [kTypeNSMap] */
@@ -132,12 +135,12 @@ export class ApiDocument extends DocumentElement {
       | Function
       | EnumType.EnumArray
       | EnumType.EnumObject,
+    scope?: string | string[],
     visitedRefs?: WeakMap<ApiDocument, boolean>,
   ): DataType | undefined {
     let result = this.types.get(nameOrCtor);
-
-    if (result || !this.references.size) return result;
-
+    if (result && result.inScope(scope)) return result;
+    if (!this.references.size) return;
     // Lookup for references
     if (typeof nameOrCtor === 'string') {
       // If given string has namespace pattern (ns:type_name)
@@ -150,7 +153,7 @@ export class ApiDocument extends DocumentElement {
           visitedRefs = visitedRefs || new WeakMap<ApiDocument, boolean>();
           visitedRefs.set(this, true);
           visitedRefs.set(ref, true);
-          return ref._findDataType(m[2], visitedRefs);
+          return ref._findDataType(m[2], scope, visitedRefs);
         }
         nameOrCtor = m[2];
       }
@@ -173,11 +176,17 @@ export class ApiDocument extends DocumentElement {
     for (const refNs of references) {
       const ref = this.references.get(refNs);
       visitedRefs.set(ref!, true);
-      result = ref!._findDataType(nameOrCtor, visitedRefs);
+      result = ref!._findDataType(nameOrCtor, scope, visitedRefs);
       if (result) {
         this[kTypeNSMap].set(result, ref?.[BUILTIN] ? '' : refNs);
         return result;
       }
     }
+  }
+}
+
+export namespace ApiDocument {
+  export interface ExportOptions {
+    scopes?: string[];
   }
 }

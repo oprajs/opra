@@ -24,7 +24,8 @@ export abstract class ApiBase extends DocumentElement {
     this.description = init.description;
   }
 
-  toJSON(): OpraSchema.Api {
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  toJSON(options?: ApiDocument.ExportOptions): OpraSchema.Api {
     return omitUndefined<OpraSchema.Api>({
       transport: this.transport,
       name: this.name,

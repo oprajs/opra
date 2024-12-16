@@ -3,6 +3,7 @@ import { DECODER, ENCODER } from '../../constants.js';
 import { SimpleType } from '../simple-type.js';
 
 @SimpleType({
+  name: 'number',
   description: 'Both Integer as well as Floating-Point numbers',
   nameMappings: {
     js: 'number',

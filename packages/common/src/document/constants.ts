@@ -8,7 +8,6 @@ export const BUILTIN = Symbol.for('BUILTIN');
 
 export const NAMESPACE_PATTERN = /([a-z$_]\w+):(.+)/i;
 export const CLASS_NAME_PATTERN = /^[a-z][\w_]*$/i;
-export const EXTRACT_TYPENAME_PATTERN = /^(.*)Type(\d*)$/;
 
 export const kDataTypeMap = Symbol.for('kDataTypeMap');
 export const kCtorMap = Symbol.for('kCtorMap');

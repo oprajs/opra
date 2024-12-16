@@ -4,6 +4,7 @@ import type { Combine, ThunkAsync, Type } from 'ts-gems';
 import { asMutable } from 'ts-gems';
 import { ResponsiveMap } from '../../helpers/index.js';
 import { OpraSchema } from '../../schema/index.js';
+import type { ApiDocument } from '../api-document.js';
 import { DataTypeMap } from '../common/data-type-map.js';
 import { DocumentElement } from '../common/document-element.js';
 import { CLASS_NAME_PATTERN, DECORATOR, kDataTypeMap } from '../constants.js';
@@ -204,7 +205,7 @@ class HttpControllerClass extends DocumentElement {
   /**
    *
    */
-  toJSON(): OpraSchema.HttpController {
+  toJSON(options?: ApiDocument.ExportOptions): OpraSchema.HttpController {
     const out = omitUndefined<OpraSchema.HttpController>({
       kind: this.kind,
       description: this.description,
@@ -213,25 +214,25 @@ class HttpControllerClass extends DocumentElement {
     if (this.operations.size) {
       out.operations = {};
       for (const v of this.operations.values()) {
-        out.operations[v.name] = v.toJSON();
+        out.operations[v.name] = v.toJSON(options);
       }
     }
     if (this.controllers.size) {
       out.controllers = {};
       for (const v of this.controllers.values()) {
-        out.controllers[v.name] = v.toJSON();
+        out.controllers[v.name] = v.toJSON(options);
       }
     }
     if (this.types.size) {
       out.types = {};
       for (const v of this.types.values()) {
-        out.types[v.name!] = v.toJSON();
+        out.types[v.name!] = v.toJSON(options);
       }
     }
     if (this.parameters.length) {
       out.parameters = [];
       for (const prm of this.parameters) {
-        out.parameters.push(prm.toJSON());
+        out.parameters.push(prm.toJSON(options));
       }
     }
     return out;

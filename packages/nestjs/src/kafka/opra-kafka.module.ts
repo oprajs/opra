@@ -35,6 +35,7 @@ export namespace OpraKafkaModule {
       > {
     name: string;
     description?: string;
+    scopes?: string[];
     logger?: Logger;
   }
 }

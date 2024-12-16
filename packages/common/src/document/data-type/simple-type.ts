@@ -5,6 +5,7 @@ import { asMutable } from 'ts-gems';
 import { isAny, type Validator } from 'valgen';
 import { cloneObject } from '../../helpers/index.js';
 import { OpraSchema } from '../../schema/index.js';
+import type { ApiDocument } from '../api-document.js';
 import type { DocumentElement } from '../common/document-element';
 import { DocumentInitContext } from '../common/document-init-context.js';
 import { DECORATOR } from '../constants.js';
@@ -182,18 +183,27 @@ abstract class SimpleTypeClass extends DataType {
     return isAny;
   }
 
-  toJSON(): OpraSchema.SimpleType {
+  toJSON(options?: ApiDocument.ExportOptions): OpraSchema.SimpleType {
     const attributes = omitUndefined<any>(this.ownAttributes);
     let properties: any;
     if (this.properties && typeof this.properties.toJSON === 'function') {
-      properties = this.properties.toJSON(this.properties, this.owner);
+      properties = this.properties.toJSON(this.properties, this.owner, options);
     } else properties = this.properties ? cloneObject(this.properties) : {};
     const baseName = this.base
       ? this.node.getDataTypeNameWithNs(this.base)
       : undefined;
+    if (options?.scopes && !this.base?.inScope(options?.scopes))
+      throw new TypeError(
+        `Base type ${baseName ? '(' + baseName + ')' : ''} of ${this.name ? +this.name : 'embedded'} type ` +
+          `is not in required scope(s) [${options.scopes}`,
+      );
     const out = omitUndefined<OpraSchema.SimpleType>({
       ...(DataType.prototype.toJSON.apply(this) as any),
-      base: this.base ? (baseName ? baseName : this.base.toJSON()) : undefined,
+      base: this.base
+        ? baseName
+          ? baseName
+          : this.base.toJSON(options)
+        : undefined,
       attributes:
         attributes && Object.keys(attributes).length ? attributes : undefined,
       properties: Object.keys(properties).length ? properties : undefined,

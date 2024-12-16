@@ -3,6 +3,7 @@ import { DECODER, ENCODER } from '../../constants.js';
 import { SimpleType } from '../simple-type.js';
 
 @SimpleType({
+  name: 'null',
   description: 'A Null value',
   nameMappings: {
     js: 'null',

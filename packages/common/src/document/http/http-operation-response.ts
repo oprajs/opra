@@ -1,6 +1,7 @@
 import { omitUndefined } from '@jsopen/objects';
 import type { Combine, StrictOmit } from 'ts-gems';
 import { OpraSchema } from '../../schema/index.js';
+import type { ApiDocument } from '../api-document';
 import { HttpMediaType } from './http-media-type.js';
 import { HttpOperation } from './http-operation.js';
 import type { HttpParameter } from './http-parameter.js';
@@ -77,10 +78,12 @@ export class HttpOperationResponse extends HttpMediaType {
     }
   }
 
-  toJSON(): OpraSchema.HttpOperationResponse {
+  toJSON(
+    options?: ApiDocument.ExportOptions,
+  ): OpraSchema.HttpOperationResponse {
     const statusCode = this.statusCode.map(x => x.toJSON());
     const out = omitUndefined<OpraSchema.HttpOperationResponse>({
-      ...super.toJSON(),
+      ...super.toJSON(options),
       statusCode:
         statusCode.length === 1 && typeof statusCode[0] === 'number'
           ? statusCode[0]
@@ -90,7 +93,7 @@ export class HttpOperationResponse extends HttpMediaType {
     if (this.parameters.length) {
       out.parameters = [];
       for (const prm of this.parameters) {
-        out.parameters.push(prm.toJSON());
+        out.parameters.push(prm.toJSON(options));
       }
     }
     return out;

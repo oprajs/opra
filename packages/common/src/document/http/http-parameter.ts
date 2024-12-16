@@ -6,6 +6,7 @@ import {
   type TypeThunkAsync,
 } from 'ts-gems';
 import type { OpraSchema } from '../../schema/index.js';
+import type { ApiDocument } from '../api-document';
 import { DocumentElement } from '../common/document-element.js';
 import { Value } from '../common/value.js';
 import { DataType } from '../data-type/data-type.js';
@@ -100,9 +101,9 @@ class HttpParameterClass extends Value {
   declare required?: boolean;
   declare arraySeparator?: string;
 
-  toJSON(): OpraSchema.HttpParameter {
+  toJSON(options?: ApiDocument.ExportOptions): OpraSchema.HttpParameter {
     return omitUndefined<OpraSchema.HttpParameter>({
-      ...super.toJSON(),
+      ...super.toJSON(options),
       name: this.name,
       location: this.location,
       arraySeparator: this.arraySeparator,

@@ -40,4 +40,9 @@ export class Customer extends MixinType(Record, Person) {
     isArray: true,
   })
   declare tags?: string[];
+
+  @ApiField({
+    scopes: ['db'],
+  })
+  dbField?: string;
 }

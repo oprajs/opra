@@ -2,7 +2,7 @@ import '../polifils/array-find-last.js';
 import { omitUndefined } from '@jsopen/objects';
 import type { StrictOmit } from 'ts-gems';
 import { isString, Validator } from 'valgen';
-import type { ComplexType } from '../document/index.js';
+import type { ComplexType, DocumentElement } from '../document/index.js';
 import { OpraException } from '../exception/index.js';
 import { ResponsiveMap } from '../helpers/index.js';
 import { translate } from '../i18n/index.js';
@@ -72,15 +72,18 @@ export class FilterRules {
   normalizeFilter(
     filter: OpraSchema.Field.QualifiedName | Expression,
     currentType?: ComplexType,
+    element?: DocumentElement,
   ): Expression | undefined {
     const ast = typeof filter === 'string' ? parse(filter) : filter;
-    return this.normalizeFilterAst(ast, [], currentType);
+    const doc = element?.node.getDocument();
+    return this.normalizeFilterAst(ast, [], currentType, doc?.scopes);
   }
 
   protected normalizeFilterAst(
     ast: Expression,
     stack: Expression[],
     currentType?: ComplexType,
+    scopes?: string[],
   ): Expression | undefined {
     if (ast instanceof ComparisonExpression) {
       stack.push(ast);
@@ -186,9 +189,9 @@ export class FilterRules {
             } else decoder = this._decoderCache.get(comp.left.field);
             if (!decoder) {
               decoder = comp.left.field.type.generateCodec('decode', {
+                scope: scopes,
                 projection: '*',
                 ignoreWriteonlyFields: true,
-                ignoreHiddenFields: true,
                 coerce: true,
               });
               this._decoderCache.set(comp.left.field, decoder);
