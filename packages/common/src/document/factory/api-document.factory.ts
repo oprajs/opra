@@ -47,7 +47,6 @@ export namespace ApiDocumentFactory {
     api?:
       | StrictOmit<HttpApiFactory.InitArguments, 'owner'>
       | StrictOmit<RpcApiFactory.InitArguments, 'owner'>;
-    scopes?: string | string[];
   }
 
   export type ReferenceSource =

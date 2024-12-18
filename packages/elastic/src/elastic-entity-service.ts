@@ -32,6 +32,7 @@ export namespace ElasticEntityService {
     indexName?: ElasticEntityService['indexName'];
     resourceName?: ElasticEntityService['resourceName'];
     idGenerator?: ElasticEntityService['idGenerator'];
+    scope?: ElasticEntityService['scope'];
   }
 
   export interface CommandInfo extends ElasticService.CommandInfo {}
@@ -171,10 +172,16 @@ export namespace ElasticEntityService {
 export class ElasticEntityService<
   T extends object = any,
 > extends ElasticService {
+  protected _dataTypeScope?: string;
   protected _dataType_: Type | string;
   protected _dataType?: ComplexType;
   protected _inputCodecs: Record<string, IsObject.Validator<T>> = {};
   protected _outputCodecs: Record<string, IsObject.Validator<T>> = {};
+
+  /**
+   * Defines comma delimited scopes for api document
+   */
+  scope?: string;
 
   /**
    * Represents the name of a index in ElasticDB
@@ -253,10 +260,13 @@ export class ElasticEntityService<
    * @throws {NotAcceptableError} If the data type is not a ComplexType.
    */
   get dataType(): ComplexType {
+    if (this._dataType && this._dataTypeScope !== this.scope)
+      this._dataType = undefined;
     if (!this._dataType)
       this._dataType = this.context.documentNode.getComplexType(
         this._dataType_,
       );
+    this._dataTypeScope = this.scope;
     return this._dataType;
   }
 
@@ -500,7 +510,10 @@ export class ElasticEntityService<
   protected _getInputCodec(operation: string): IsObject.Validator<T> {
     let validator = this._inputCodecs[operation];
     if (validator) return validator;
-    const options: DataType.GenerateCodecOptions = { projection: '*' };
+    const options: DataType.GenerateCodecOptions = {
+      projection: '*',
+      scope: this._dataTypeScope,
+    };
     if (operation === 'update') options.partial = 'deep';
     const dataType = this.dataType;
     validator = dataType.generateCodec(
@@ -520,6 +533,7 @@ export class ElasticEntityService<
     const options: DataType.GenerateCodecOptions = {
       projection: '*',
       partial: 'deep',
+      scope: this._dataTypeScope,
     };
     const dataType = this.dataType;
     validator = dataType.generateCodec(

@@ -23,6 +23,7 @@ export namespace SqbEntityService {
     onError?: SqbEntityService<any>['onError'];
     commonFilter?: SqbEntityService<any>['commonFilter'];
     interceptor?: SqbEntityService<any>['interceptor'];
+    scope?: SqbEntityService<any>['scope'];
   }
 
   export type CrudOp = 'create' | 'read' | 'update' | 'delete';
@@ -209,12 +210,18 @@ export interface SqbEntityService {
 export class SqbEntityService<
   T extends object = object,
 > extends SqbServiceBase {
+  protected _dataTypeScope?: string;
   protected _dataType_: Type | string;
   protected _dataType?: ComplexType;
   protected _dataTypeClass?: Type;
   protected _entityMetadata?: EntityMetadata;
   protected _inputCodecs: Record<string, IsObject.Validator<T>> = {};
   protected _outputCodecs: Record<string, IsObject.Validator<T>> = {};
+
+  /**
+   * Defines comma delimited scopes for api document
+   */
+  scope?: string;
 
   /**
    * Represents the name of a resource.
@@ -260,10 +267,13 @@ export class SqbEntityService<
    * @throws {NotAcceptableError} If the data type is not a ComplexType.
    */
   get dataType(): ComplexType {
+    if (this._dataType && this._dataTypeScope !== this.scope)
+      this._dataType = undefined;
     if (!this._dataType)
       this._dataType = this.context.documentNode.getComplexType(
         this._dataType_,
       );
+    this._dataTypeScope = this.scope;
     return this._dataType;
   }
 
@@ -336,7 +346,10 @@ export class SqbEntityService<
   getInputCodec(operation: string): IsObject.Validator<T> {
     let validator = this._inputCodecs[operation];
     if (validator) return validator;
-    const options: DataType.GenerateCodecOptions = { projection: '*' };
+    const options: DataType.GenerateCodecOptions = {
+      projection: '*',
+      scope: this._dataTypeScope,
+    };
     if (operation === 'update') options.partial = 'deep';
     const dataType = this.dataType;
     validator = dataType.generateCodec(
@@ -356,6 +369,7 @@ export class SqbEntityService<
     const options: DataType.GenerateCodecOptions = {
       projection: '*',
       partial: 'deep',
+      scope: this._dataTypeScope,
     };
     const dataType = this.dataType;
     validator = dataType.generateCodec(

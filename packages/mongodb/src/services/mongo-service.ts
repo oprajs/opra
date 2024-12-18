@@ -27,6 +27,7 @@ export namespace MongoService {
     documentFilter?: MongoService<any>['documentFilter'];
     interceptor?: MongoService<any>['interceptor'];
     idGenerator?: MongoService<any>['idGenerator'];
+    scope?: MongoService<any>['scope'];
     onError?: MongoService<any>['onError'];
   }
 
@@ -507,8 +508,10 @@ export class MongoService<
   protected _getInputCodec(operation: string): IsObject.Validator<T> {
     let validator = this._inputCodecs[operation];
     if (validator) return validator;
-    const options: DataType.GenerateCodecOptions = { projection: '*' };
-    options.scope = this._dataTypeScope;
+    const options: DataType.GenerateCodecOptions = {
+      projection: '*',
+      scope: this._dataTypeScope,
+    };
     if (operation === 'update') {
       options.partial = 'deep';
       options.allowPatchOperators = true;
