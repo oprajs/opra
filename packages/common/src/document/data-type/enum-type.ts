@@ -151,23 +151,25 @@ class EnumTypeClass extends DataType {
   }
 
   toJSON(options?: ApiDocument.ExportOptions): OpraSchema.EnumType {
+    const superJson = super.toJSON(options);
     const baseName = this.base
       ? this.node.getDataTypeNameWithNs(this.base)
       : undefined;
-    if (options?.scopes && !this.base?.inScope(options?.scopes))
-      throw new TypeError(
-        `Base type ${baseName ? '(' + baseName + ')' : ''} of ${this.name ? +this.name : 'embedded'} type ` +
-          `is not in required scope(s) [${options.scopes}`,
-      );
     return omitUndefined<OpraSchema.EnumType>({
-      ...(DataType.prototype.toJSON.call(this) as any),
-      base: this.base
-        ? baseName
-          ? baseName
-          : this.base.toJSON(options)
-        : undefined,
+      ...superJson,
+      kind: this.kind,
+      base: baseName,
       attributes: cloneObject(this.ownAttributes),
     });
+  }
+
+  protected _locateBase(
+    callback: (base: EnumType) => boolean,
+  ): EnumType | undefined {
+    if (!this.base) return;
+    if (callback(this.base)) return this.base;
+    if ((this.base as any)._locateBase)
+      return (this.base as any)._locateBase(callback);
   }
 }
 

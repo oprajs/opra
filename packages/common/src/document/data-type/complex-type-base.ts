@@ -5,7 +5,6 @@ import {
   parseFieldsProjection,
   ResponsiveMap,
 } from '../../helpers/index.js';
-import { translate } from '../../i18n/index.js';
 import { OpraSchema } from '../../schema/index.js';
 import type { DocumentElement } from '../common/document-element.js';
 import { DocumentInitContext } from '../common/document-init-context.js';
@@ -80,22 +79,33 @@ abstract class ComplexTypeBaseClass extends DataType {
   /**
    *
    */
-  findField(nameOrPath: string): ApiField | undefined {
+  findField(nameOrPath: string, scope?: string): ApiField | undefined {
     if (nameOrPath.includes('.')) {
-      const fieldPath = this.parseFieldPath(nameOrPath);
+      const fieldPath = this.parseFieldPath(nameOrPath, { scope });
+      if (fieldPath.length === 0)
+        throw new Error(
+          `Field "${nameOrPath}" does not exist in scope "${scope}"`,
+        );
       const lastItem = fieldPath.pop();
       return lastItem?.field;
     }
-    return this.fields.get(nameOrPath);
+    const field = this.fields.get(nameOrPath);
+    if (field && scope && !field.inScope(scope)) return;
+    return field;
   }
 
   /**
    *
    */
-  getField(nameOrPath: string): ApiField {
+  getField(nameOrPath: string, scope?: string): ApiField {
     const field = this.findField(nameOrPath);
-    if (!field)
-      throw new Error(translate('error:UNKNOWN_FIELD', { field: nameOrPath }));
+    if (field && scope && !field.inScope(scope))
+      throw new Error(
+        `Field "${nameOrPath}" does not exist in scope "${scope}"`,
+      );
+    if (!field) {
+      throw new Error(`Field (${nameOrPath}) does not exist`);
+    }
     return field as ApiField;
   }
 
@@ -106,6 +116,7 @@ abstract class ComplexTypeBaseClass extends DataType {
     fieldPath: string,
     options?: {
       allowSigns?: 'first' | 'each';
+      scope?: string;
     },
   ): ComplexType.ParsedFieldPath[] {
     let dataType: DataType | undefined = this;
@@ -134,7 +145,7 @@ abstract class ComplexTypeBaseClass extends DataType {
 
       if (dataType) {
         if (dataType instanceof ComplexTypeBase) {
-          field = dataType.fields.get(item.fieldName);
+          field = dataType.getField(item.fieldName, options?.scope);
           if (field) {
             item.fieldName = field.name;
             item.field = field;
@@ -178,6 +189,7 @@ abstract class ComplexTypeBaseClass extends DataType {
     fieldPath: string,
     options?: {
       allowSigns?: 'first' | 'each';
+      scope?: string;
     },
   ): string {
     return this.parseFieldPath(fieldPath, options)
@@ -238,17 +250,12 @@ abstract class ComplexTypeBaseClass extends DataType {
     const pickList = !!(
       projection && Object.values(projection).find(p => !p.sign)
     );
-    const scope = context.scope
-      ? Array.isArray(context.scope)
-        ? context.scope
-        : [context.scope]
-      : undefined;
     // Process fields
     let fieldName: string;
     for (const field of this.fields.values()) {
       if (
         /** Ignore field if required scope(s) do not match field scopes */
-        (scope && !field.inScope(scope)) ||
+        (context.scope && !field.inScope(context.scope)) ||
         /** Ignore field if readonly and ignoreReadonlyFields option true */
         (context.ignoreReadonlyFields && field.readonly) ||
         /** Ignore field if writeonly and ignoreWriteonlyFields option true */

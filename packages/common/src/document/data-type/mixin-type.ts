@@ -181,19 +181,27 @@ class MixinTypeClass extends ComplexTypeBase {
   }
 
   toJSON(options?: ApiDocument.ExportOptions): OpraSchema.MixinType {
+    const superJson = super.toJSON(options);
     return omitUndefined<OpraSchema.MixinType>({
-      ...ComplexTypeBase.prototype.toJSON.call(this),
+      ...superJson,
       kind: this.kind as any,
       types: this.types.map(base => {
         const baseName = this.node.getDataTypeNameWithNs(base);
-        if (options?.scopes && !base?.inScope(options?.scopes))
-          throw new TypeError(
-            `Base type ${baseName ? '(' + baseName + ')' : ''} of ${this.name ? +this.name : 'embedded'} type ` +
-              `is not in required scope(s) [${options.scopes}`,
-          );
         return baseName ? baseName : base.toJSON(options);
       }),
     });
+  }
+
+  protected _locateBase(
+    callback: (base: ComplexTypeBase) => boolean,
+  ): ComplexTypeBase | undefined {
+    for (const t of this.types) {
+      if (callback(t)) return t;
+      if ((t as any)._locateBase) {
+        const x = (t as any)._locateBase(callback);
+        if (x) return x;
+      }
+    }
   }
 }
 

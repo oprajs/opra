@@ -14,6 +14,7 @@ import type { HttpContext } from '../http-context.js';
 export namespace MultipartReader {
   export interface Options extends StrictOmit<busboy.BusboyConfig, 'headers'> {
     tempDirectory?: string;
+    scope?: string;
   }
 
   export interface FieldInfo {
@@ -44,6 +45,7 @@ export class MultipartReader extends EventEmitter {
   protected _items: MultipartReader.Item[] = [];
   protected _stack: MultipartReader.Item[] = [];
   protected tempDirectory: string;
+  scope?: string;
 
   constructor(
     protected context: HttpContext,
@@ -53,6 +55,7 @@ export class MultipartReader extends EventEmitter {
     super();
     this.setMaxListeners(1000);
     this.tempDirectory = options?.tempDirectory || os.tmpdir();
+    this.scope = options?.scope;
 
     const { request } = context;
     const form = busboy({ headers: request.headers });
@@ -133,6 +136,7 @@ export class MultipartReader extends EventEmitter {
         throw new BadRequestError(`Unknown multipart field (${item.field})`);
       if (item.kind === 'field') {
         const decode = field.generateCodec('decode', {
+          scope: this.scope,
           ignoreReadonlyFields: true,
           projection: '*',
         });

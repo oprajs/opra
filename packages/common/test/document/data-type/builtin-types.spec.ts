@@ -525,9 +525,7 @@ describe('Built-in types', () => {
       expect(decode('address.countrycode')).toStrictEqual(
         'address.countryCode',
       );
-      expect(() => decode('address.xyz')).toThrow(
-        'Unknown field (address.xyz)',
-      );
+      expect(() => decode('address.xyz')).toThrow('does not exist');
     });
   });
 
@@ -547,9 +545,7 @@ describe('Built-in types', () => {
       expect(decode('address.city="Antalya"')).toBeInstanceOf(
         ComparisonExpression,
       );
-      expect(() => decode('address.xyz=1')).toThrow(
-        'Unknown field (address.xyz)',
-      );
+      expect(() => decode('address.xyz=1')).toThrow('does not exist');
     });
   });
 

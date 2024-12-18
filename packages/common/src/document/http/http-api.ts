@@ -53,7 +53,7 @@ export class HttpApi extends ApiBase {
     return controller?.operations.get(operationName);
   }
 
-  toJSON(options: ApiDocument.ExportOptions): OpraSchema.HttpApi {
+  toJSON(options?: ApiDocument.ExportOptions): OpraSchema.HttpApi {
     const schema = super.toJSON();
     const out: OpraSchema.HttpApi = {
       ...schema,

@@ -199,7 +199,6 @@ export class MongoService<
   T extends mongodb.Document = mongodb.Document,
 > extends ServiceBase {
   protected _dataTypeScope?: string;
-  protected _dataTypeScopes?: string[];
   protected _dataType_: Type | string;
   protected _dataType?: ComplexType;
   protected _inputCodecs: Record<string, IsObject.Validator<T>> = {};
@@ -208,7 +207,7 @@ export class MongoService<
   /**
    * Defines comma delimited scopes for api document
    */
-  scopes?: string;
+  scope?: string;
 
   /**
    * Represents the name of a collection in MongoDB
@@ -337,16 +336,13 @@ export class MongoService<
    * @throws {NotAcceptableError} If the data type is not a ComplexType.
    */
   get dataType(): ComplexType {
-    if (this._dataType && this._dataTypeScope !== this.scopes)
+    if (this._dataType && this._dataTypeScope !== this.scope)
       this._dataType = undefined;
     if (!this._dataType)
       this._dataType = this.context.documentNode.getComplexType(
         this._dataType_,
       );
-    this._dataTypeScope = this.scopes;
-    this._dataTypeScopes = this.scopes
-      ? this.scopes?.split(/\s*,\s*/)
-      : undefined;
+    this._dataTypeScope = this.scope;
     return this._dataType;
   }
 
@@ -512,7 +508,7 @@ export class MongoService<
     let validator = this._inputCodecs[operation];
     if (validator) return validator;
     const options: DataType.GenerateCodecOptions = { projection: '*' };
-    options.scope = this._dataTypeScopes;
+    options.scope = this._dataTypeScope;
     if (operation === 'update') {
       options.partial = 'deep';
       options.allowPatchOperators = true;
@@ -535,7 +531,7 @@ export class MongoService<
     const options: DataType.GenerateCodecOptions = {
       projection: '*',
       partial: 'deep',
-      scope: this._dataTypeScopes,
+      scope: this._dataTypeScope,
     };
     const dataType = this.dataType;
     validator = dataType.generateCodec(

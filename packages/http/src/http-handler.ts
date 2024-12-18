@@ -183,8 +183,10 @@ export class HttpHandler {
         let decode = this[kAssetCache].get<Validator>(prm, 'decode');
         if (!decode) {
           decode =
-            prm.type?.generateCodec('decode', { ignoreReadonlyFields: true }) ||
-            vg.isAny();
+            prm.type?.generateCodec('decode', {
+              scope: this.adapter.scope,
+              ignoreReadonlyFields: true,
+            }) || vg.isAny();
           this[kAssetCache].set(prm, 'decode', decode);
         }
         return decode;
@@ -385,7 +387,7 @@ export class HttpHandler {
       );
       if (!operationResultEncoder) {
         operationResultEncoder = operationResultType.generateCodec('encode', {
-          scope: this.adapter.document.scopes,
+          scope: this.adapter.scope,
           ignoreWriteonlyFields: true,
         });
         this[kAssetCache].set(
@@ -412,7 +414,7 @@ export class HttpHandler {
           );
           if (!encode) {
             encode = operationResponse.type.generateCodec('encode', {
-              scope: this.adapter.document.scopes,
+              scope: this.adapter.scope,
               partial: operationResponse.partial,
               projection,
               ignoreWriteonlyFields: true,
@@ -533,7 +535,10 @@ export class HttpHandler {
     const dt = document.node.getComplexType('OperationResult');
     let encode = this[kAssetCache].get<Validator>(dt, 'encode');
     if (!encode) {
-      encode = dt.generateCodec('encode', { ignoreWriteonlyFields: true });
+      encode = dt.generateCodec('encode', {
+        scope: this.adapter.scope,
+        ignoreWriteonlyFields: true,
+      });
       this[kAssetCache].set(dt, 'encode', encode);
     }
     // const { i18n } = this.adapter;

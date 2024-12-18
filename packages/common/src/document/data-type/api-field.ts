@@ -1,11 +1,12 @@
 import { omitUndefined } from '@jsopen/objects';
-import type { Combine, TypeThunkAsync } from 'ts-gems';
+import type { Combine, StrictOmit, TypeThunkAsync } from 'ts-gems';
 import { asMutable } from 'ts-gems';
 import { OpraSchema } from '../../schema/index.js';
 import type { ApiDocument } from '../api-document.js';
 import { DocumentElement } from '../common/document-element.js';
 import { DECORATOR } from '../constants.js';
-import { ApiFieldDecorator } from '../decorators/api-field-decorator.js';
+import { ApiFieldDecoratorFactory } from '../decorators/api-field-decorator.js';
+import { testScopeMatch } from '../utils/test-scope-match.js';
 import type { ComplexType } from './complex-type.js';
 import { ComplexTypeBase } from './complex-type-base.js';
 import type { DataType } from './data-type.js';
@@ -14,45 +15,10 @@ import type { MappedType } from './mapped-type.js';
 import type { MixinType } from './mixin-type.js';
 
 /**
- * @namespace ApiField
- */
-export namespace ApiField {
-  export interface Metadata
-    extends Combine<
-      {
-        type?:
-          | string
-          | OpraSchema.DataType
-          | TypeThunkAsync
-          | EnumType.EnumObject
-          | EnumType.EnumArray
-          | object;
-      },
-      OpraSchema.Field
-    > {}
-
-  export interface Options extends Partial<Metadata> {
-    scopes?: (string | RegExp)[];
-  }
-
-  export interface InitArguments
-    extends Combine<
-      {
-        name: string;
-        origin?: ComplexType | MappedType | MixinType;
-        type?: DataType;
-      },
-      Metadata
-    > {
-    scopes?: (string | RegExp)[];
-  }
-}
-
-/**
  * Type definition of ComplexType constructor type
  * @type ApiFieldConstructor
  */
-export interface ApiFieldConstructor extends ApiFieldDecorator {
+export interface ApiFieldConstructor extends ApiFieldDecoratorFactory {
   prototype: ApiField;
 
   new (
@@ -62,12 +28,15 @@ export interface ApiFieldConstructor extends ApiFieldDecorator {
 }
 
 /**
+ * The ApiField represents a descriptive metadata structure for API fields,
+ * supporting features like data type definition, scoping, localization, and constraints.
+ * This class extends DocumentElement, inheriting base document structure capabilities.
+ *
  * @class ApiField
  */
 export interface ApiField extends ApiFieldClass {}
 
 /**
- * @constructor ApiField
  * @decorator ApiField
  */
 export const ApiField = function (this: ApiField | void, ...args: any[]) {
@@ -89,7 +58,7 @@ export const ApiField = function (this: ApiField | void, ...args: any[]) {
     );
   }
   _this.origin = origin;
-  _this.scopes = initArgs.scopes;
+  _this.scopePattern = initArgs.scopePattern;
   _this.type = initArgs.type || owner.node.getDataType('any');
   _this.description = initArgs.description;
   _this.isArray = initArgs.isArray;
@@ -106,13 +75,14 @@ export const ApiField = function (this: ApiField | void, ...args: any[]) {
 } as ApiFieldConstructor;
 
 /**
- *
- * @class ApiField
+ * The ApiFieldClass represents a descriptive metadata structure for API fields,
+ * supporting features like data type definition, scoping, localization, and constraints.
+ * This class extends DocumentElement, inheriting base document structure capabilities.
  */
 class ApiFieldClass extends DocumentElement {
   declare readonly owner: ComplexType | MappedType | MixinType;
   readonly origin?: ComplexType | MappedType | MixinType;
-  declare readonly scopes?: (string | RegExp)[];
+  declare readonly scopePattern?: (string | RegExp)[];
   declare readonly name: string;
   declare readonly type: DataType;
   declare readonly description?: string;
@@ -128,19 +98,8 @@ class ApiFieldClass extends DocumentElement {
   declare readonly writeonly?: boolean;
   declare readonly examples?: any[] | Record<string, any>;
 
-  inScope(scopes?: string | string[]): boolean {
-    if (!this.scopes?.length || !scopes) return true;
-    /** this.scope should match all required scopes */
-    scopes = Array.isArray(scopes) ? scopes : [scopes];
-    for (const scope of scopes) {
-      if (
-        !this.scopes.some(s => {
-          return typeof s === 'string' ? scope === s : s.test(scope);
-        })
-      )
-        return false;
-    }
-    return true;
+  inScope(scope: string): boolean {
+    return testScopeMatch(scope, this.scopePattern);
   }
 
   toJSON(options?: ApiDocument.ExportOptions): OpraSchema.Field {
@@ -166,5 +125,51 @@ class ApiFieldClass extends DocumentElement {
 }
 
 ApiField.prototype = ApiFieldClass.prototype;
-Object.assign(ApiField, ApiFieldDecorator);
-ApiField[DECORATOR] = ApiFieldDecorator;
+Object.assign(ApiField, ApiFieldDecoratorFactory);
+ApiField[DECORATOR] = ApiFieldDecoratorFactory;
+
+/**
+ * @namespace ApiField
+ */
+export namespace ApiField {
+  export interface Metadata
+    extends Combine<
+      {
+        type?:
+          | string
+          | OpraSchema.DataType
+          | TypeThunkAsync
+          | EnumType.EnumObject
+          | EnumType.EnumArray
+          | object;
+      },
+      OpraSchema.Field
+    > {
+    scopePattern?: (string | RegExp)[];
+    overrides?: StrictOmit<Metadata, 'overrides' | 'type' | 'isArray'>[];
+  }
+
+  export interface Options
+    extends Partial<StrictOmit<Metadata, 'overrides' | 'scopePattern'>> {
+    /**
+     * A variable that defines the pattern or patterns used to determine scope.
+     * This can either be a single string or regular expression, or an array containing multiple strings or regular expressions.
+     *
+     * - If a single string or RegExp is provided, it is directly used as the scope pattern.
+     * - If an array is provided, each element within the array is used as a valid scope pattern.
+     */
+    scopePattern?: (string | RegExp) | (string | RegExp)[];
+  }
+
+  export interface InitArguments
+    extends Combine<
+      {
+        name: string;
+        origin?: ComplexType | MappedType | MixinType;
+        type?: DataType;
+      },
+      Metadata
+    > {
+    scopePattern?: (string | RegExp)[];
+  }
+}

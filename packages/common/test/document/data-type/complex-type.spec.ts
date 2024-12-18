@@ -44,7 +44,7 @@ describe('ComplexType', () => {
   it('Should getField(path) throw if field not found', async () => {
     const dt = doc.node.getComplexType('customer');
     expect(dt).toBeDefined();
-    expect(() => dt!.getField('nofield')).toThrow('UNKNOWN_FIELD');
+    expect(() => dt!.getField('nofield')).toThrow('does not exist');
   });
 
   it('Should getField(path) throw if given path is not valid', async () => {

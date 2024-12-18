@@ -3,6 +3,7 @@ import { toString, type Validator, validator, vg } from 'valgen';
 import type { ApiDocument } from '../../api-document.js';
 import { DocumentElement } from '../../common/document-element.js';
 import { DECODER, ENCODER } from '../../constants.js';
+import { DataType } from '../data-type.js';
 import { SimpleType } from '../simple-type.js';
 
 @SimpleType({
@@ -31,19 +32,27 @@ export class FieldPathType {
   })
   allowSigns?: 'first' | 'each';
 
-  [DECODER](properties: Partial<this>, element: DocumentElement): Validator {
+  [DECODER](
+    properties: Partial<this>,
+    element: DocumentElement,
+    scope?: string,
+  ): Validator {
     const dataType = properties.dataType
       ? element.node.getComplexType(properties.dataType)
       : element.node.getComplexType('object');
     const allowSigns = properties.allowSigns;
     const decodeFieldPath = validator('decodeFieldPath', (input: string) =>
-      dataType.normalizeFieldPath(input, { allowSigns }),
+      dataType.normalizeFieldPath(input, { allowSigns, scope }),
     );
     return vg.pipe([toString, decodeFieldPath]);
   }
 
-  [ENCODER](properties: Partial<this>, element: DocumentElement): Validator {
-    return this[DECODER](properties, element);
+  [ENCODER](
+    properties: Partial<this>,
+    element: DocumentElement,
+    scope?: string,
+  ): Validator {
+    return this[DECODER](properties, element, scope);
   }
 
   toJSON(
@@ -54,14 +63,12 @@ export class FieldPathType {
     const dataType = properties.dataType
       ? element.node.getComplexType(properties.dataType)
       : element.node.getComplexType('object');
+    /** Test scope */
+    DataType.prototype.toJSON.call(dataType, options);
+
     const typeName = dataType
       ? element.node.getDataTypeNameWithNs(dataType)
       : undefined;
-    if (options?.scopes && !dataType.inScope(options?.scopes))
-      throw new TypeError(
-        `Data type ${typeName ? '(' + typeName + ')' : ''} ` +
-          `is not in required scope(s) [${options.scopes}`,
-      );
     return {
       dataType: typeName ? typeName : dataType.toJSON(options),
       allowSigns: properties.allowSigns,

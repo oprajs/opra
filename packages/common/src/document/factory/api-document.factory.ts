@@ -75,9 +75,7 @@ export class ApiDocumentFactory {
       | PartialSome<OpraSchema.ApiDocument, 'spec'>
       | ApiDocumentFactory.InitArguments,
     options?:
-      | Partial<
-          Pick<DocumentInitContext, 'maxErrors' | 'showErrorDetails' | 'scopes'>
-        >
+      | Partial<Pick<DocumentInitContext, 'maxErrors' | 'showErrorDetails'>>
       | DocumentInitContext,
   ): Promise<ApiDocument> {
     const factory = new ApiDocumentFactory();
@@ -87,7 +85,6 @@ export class ApiDocumentFactory {
         : new DocumentInitContext(options);
     try {
       const document = new ApiDocument();
-      document.scopes = context.scopes;
       await factory.initDocument(document, context, schemaOrUrl);
       if (context.error.details.length) throw context.error;
       return document;

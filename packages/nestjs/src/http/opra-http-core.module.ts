@@ -81,6 +81,7 @@ export class OpraHttpCoreModule implements OnModuleDestroy, NestModule {
         moduleRef: ModuleRef,
         apiConfig: OpraHttpModule.ApiConfig,
       ) => {
+        opraNestAdapter.scope = apiConfig.scope;
         opraNestAdapter.logger =
           opraNestAdapter.logger || new Logger(apiConfig.name);
         (opraNestAdapter as any)._document =

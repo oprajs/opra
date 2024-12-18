@@ -42,7 +42,7 @@ export class Customer extends MixinType(Record, Person) {
   declare tags?: string[];
 
   @ApiField({
-    scopes: ['db'],
+    scopePattern: 'db',
   })
   dbField?: string;
 }

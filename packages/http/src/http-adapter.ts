@@ -21,6 +21,7 @@ export namespace HttpAdapter {
   export interface Options extends PlatformAdapter.Options {
     basePath?: string;
     interceptors?: (InterceptorFunction | IHttpInterceptor)[];
+    scope?: string;
   }
 }
 
@@ -32,6 +33,7 @@ export abstract class HttpAdapter extends PlatformAdapter {
   readonly handler: HttpHandler;
   readonly protocol: OpraSchema.Transport = 'http';
   readonly basePath: string;
+  scope?: string;
   interceptors: (
     | HttpAdapter.InterceptorFunction
     | HttpAdapter.IHttpInterceptor
@@ -43,6 +45,7 @@ export abstract class HttpAdapter extends PlatformAdapter {
     this.interceptors = [...(options?.interceptors || [])];
     this.basePath = options?.basePath || '/';
     if (!this.basePath.startsWith('/')) this.basePath = '/' + this.basePath;
+    this.scope = options?.scope;
   }
 
   get api(): HttpApi {

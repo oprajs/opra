@@ -199,7 +199,7 @@ export class MongoNestedService<
    * @throws {NotAcceptableError} If the data type is not a ComplexType.
    */
   override get dataType(): ComplexType {
-    const t = super.dataType.getField(this.fieldName).type;
+    const t = super.dataType.getField(this.fieldName, this.scope).type;
     if (!(t instanceof ComplexType))
       throw new NotAcceptableError(
         `Data type "${t.name}" is not a ComplexType`,

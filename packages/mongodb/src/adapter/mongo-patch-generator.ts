@@ -22,7 +22,13 @@ export class MongoPatchGenerator {
     arrayFilters?: Record<string, any>[];
   } {
     const ctx: Context = {};
-    this._processComplexType(ctx, dataType, options?.currentPath || '', doc);
+    this._processComplexType(
+      ctx,
+      dataType,
+      options?.currentPath || '',
+      doc,
+      options?.scope,
+    );
     const update: any = {};
     if (ctx.$pull) update.$pull = ctx.$pull;
     if (ctx.$unset) update.$unset = ctx.$unset;
@@ -39,12 +45,13 @@ export class MongoPatchGenerator {
     dataType: ComplexType,
     path: string,
     input: any,
+    scope?: string,
   ) {
     if (input._$push) {
-      this._processPush(ctx, dataType, path, input._$push);
+      this._processPush(ctx, dataType, path, input._$push, scope);
     }
     if (input._$pull) {
-      this._processPull(ctx, dataType, path, input._$pull);
+      this._processPull(ctx, dataType, path, input._$pull, scope);
     }
     const keys = Object.keys(input);
     const pathDot = path + (path ? '.' : '');
@@ -59,8 +66,9 @@ export class MongoPatchGenerator {
       const m = FIELD_NAME_PATTERN.exec(key);
       if (!m) continue;
       key = m[2];
+      if (key === '_$push' || key === '_$pull') continue;
       value = input[key];
-      field = dataType.fields.get(key);
+      field = dataType.getField(key, scope);
       if (!field) {
         if (dataType.additionalFields) {
           if (value === null) {
@@ -75,6 +83,7 @@ export class MongoPatchGenerator {
                 dataType.additionalFields,
                 pathDot + key,
                 value,
+                scope,
               );
               continue;
             }
@@ -115,6 +124,7 @@ export class MongoPatchGenerator {
                 field.type,
                 pathDot + field.name + `.$[${arrayFilterName}]`,
                 v,
+                scope,
               );
             }
             continue;
@@ -122,7 +132,13 @@ export class MongoPatchGenerator {
         }
         if (!(typeof value === 'object')) continue;
         /** Process nested object */
-        this._processComplexType(ctx, field.type, pathDot + field.name, value);
+        this._processComplexType(
+          ctx,
+          field.type,
+          pathDot + field.name,
+          value,
+          scope,
+        );
         continue;
       }
       ctx.$set = ctx.$set || {};
@@ -135,6 +151,7 @@ export class MongoPatchGenerator {
     dataType: ComplexType,
     path: string,
     input: any,
+    scope?: string,
   ) {
     let field: ApiField | undefined;
     let key: string;
@@ -144,7 +161,7 @@ export class MongoPatchGenerator {
     let keyField: string | undefined;
     for (key of keys) {
       value = input[key];
-      field = dataType.fields.get(key);
+      field = dataType.getField(key, scope);
       if (!(field && field.isArray)) continue;
       ctx.$push = ctx.$push || {};
       if (field.type instanceof ComplexType) {
@@ -181,6 +198,7 @@ export class MongoPatchGenerator {
     dataType: ComplexType,
     path: string,
     input: any,
+    scope?: string,
   ) {
     let field: ApiField | undefined;
     let key: string;
@@ -190,7 +208,7 @@ export class MongoPatchGenerator {
     let keyField: string | undefined;
     for (key of keys) {
       value = input[key];
-      field = dataType.fields.get(key);
+      field = dataType.getField(key, scope);
       if (!(field && field.isArray)) continue;
       ctx.$pull = ctx.$pull || {};
       if (field.type instanceof ComplexType) {
@@ -213,5 +231,6 @@ export class MongoPatchGenerator {
 export namespace MongoPatchGenerator {
   export interface Options {
     currentPath?: string;
+    scope?: string;
   }
 }

@@ -7,28 +7,23 @@ import { CustomersController } from './api/customers-controller.js';
 
 export namespace CustomerApiDocument {
   export async function create(db: Db): Promise<ApiDocument> {
-    return ApiDocumentFactory.createDocument(
-      {
-        info: {
-          title: 'Customer Application',
-          version: '1.0',
-        },
-        references: {
-          cm: () => CustomerModelsDocument.create(),
-        },
-        api: {
-          name: 'CustomerApi',
-          transport: 'http',
-          controllers: [
-            new AuthController(db),
-            new CustomerController(db),
-            new CustomersController(db),
-          ],
-        },
+    return ApiDocumentFactory.createDocument({
+      info: {
+        title: 'Customer Application',
+        version: '1.0',
       },
-      {
-        scopes: ['api'],
+      references: {
+        cm: () => CustomerModelsDocument.create(),
       },
-    );
+      api: {
+        name: 'CustomerApi',
+        transport: 'http',
+        controllers: [
+          new AuthController(db),
+          new CustomerController(db),
+          new CustomersController(db),
+        ],
+      },
+    });
   }
 }

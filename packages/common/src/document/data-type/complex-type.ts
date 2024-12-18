@@ -168,23 +168,19 @@ abstract class ComplexTypeClass extends ComplexTypeBase {
   }
 
   toJSON(options?: ApiDocument.ExportOptions): OpraSchema.ComplexType {
+    const superJson = super.toJSON(options);
     const baseName = this.base
       ? this.node.getDataTypeNameWithNs(this.base)
       : undefined;
-    if (options?.scopes && !this.base?.inScope(options?.scopes))
-      throw new TypeError(
-        `Base type ${baseName ? '(' + baseName + ')' : ''} of ${this.name ? +this.name : 'embedded'} type ` +
-          `is not in required scope(s) [${options.scopes}`,
-      );
-    const out = omitUndefined<OpraSchema.ComplexType>({
-      ...ComplexTypeBase.prototype.toJSON.call(this),
+    const out: OpraSchema.ComplexType = {
+      ...superJson,
       kind: this.kind,
       base: this.base
         ? baseName
           ? baseName
           : this.base.toJSON(options)
         : undefined,
-    });
+    };
     if (this.additionalFields) {
       if (this.additionalFields instanceof DataType) {
         const typeName = this.node.getDataTypeNameWithNs(this.additionalFields);
@@ -197,7 +193,10 @@ abstract class ComplexTypeClass extends ComplexTypeBase {
       const fields = {};
       let i = 0;
       for (const field of this.fields.values()) {
-        if (field.origin === this && field.inScope(options?.scopes)) {
+        if (
+          field.origin === this &&
+          (!options?.scope || field.inScope(options?.scope))
+        ) {
           fields[field.name] = field.toJSON(options);
           i++;
         }
@@ -205,6 +204,15 @@ abstract class ComplexTypeClass extends ComplexTypeBase {
       if (i) out.fields = fields;
     }
     return omitUndefined(out);
+  }
+
+  protected _locateBase(
+    callback: (base: ComplexTypeBase) => boolean,
+  ): ComplexTypeBase | undefined {
+    if (!this.base) return;
+    if (callback(this.base)) return this.base;
+    if ((this.base as any)._locateBase)
+      return (this.base as any)._locateBase(callback);
   }
 }
 

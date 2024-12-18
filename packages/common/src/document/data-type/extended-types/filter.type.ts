@@ -6,6 +6,7 @@ import type { ApiDocument } from '../../api-document.js';
 import type { DocumentElement } from '../../common/document-element.js';
 import { DECODER, ENCODER } from '../../constants.js';
 import type { ComplexType } from '../complex-type.js';
+import { DataType } from '../data-type.js';
 import { SimpleType } from '../simple-type.js';
 
 @SimpleType({
@@ -57,14 +58,11 @@ export class FilterType {
     const dataType = properties.dataType
       ? element.node.getComplexType(properties.dataType)
       : element.node.getComplexType('object');
+    /** Test scope */
+    DataType.prototype.toJSON.call(dataType, options);
     const typeName = dataType
       ? element.node.getDataTypeNameWithNs(dataType)
       : undefined;
-    if (options?.scopes && !dataType.inScope(options?.scopes))
-      throw new TypeError(
-        `Data type ${typeName ? '(' + typeName + ')' : ''} ` +
-          `is not in required scope(s) [${options.scopes}`,
-      );
     return {
       dataType: typeName ? typeName : dataType.toJSON(options),
       rules: properties.rules,
@@ -75,13 +73,13 @@ export class FilterType {
 const decodeFilter = (
   dataType: ComplexType,
   rules?: FilterRules,
-  element?: DocumentElement,
+  scope?: any,
 ) =>
   validator('decodeFilter', (input, context, _this) => {
     if (typeof input === 'string') {
       try {
         const filter = OpraFilter.parse(input as string);
-        if (rules) return rules.normalizeFilter(filter, dataType, element);
+        if (rules) return rules.normalizeFilter(filter, dataType, scope);
         return filter;
       } catch (e: any) {
         context.fail(

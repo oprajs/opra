@@ -2,7 +2,7 @@ import '../polifils/array-find-last.js';
 import { omitUndefined } from '@jsopen/objects';
 import type { StrictOmit } from 'ts-gems';
 import { isString, Validator } from 'valgen';
-import type { ComplexType, DocumentElement } from '../document/index.js';
+import type { ComplexType } from '../document/index.js';
 import { OpraException } from '../exception/index.js';
 import { ResponsiveMap } from '../helpers/index.js';
 import { translate } from '../i18n/index.js';
@@ -72,18 +72,17 @@ export class FilterRules {
   normalizeFilter(
     filter: OpraSchema.Field.QualifiedName | Expression,
     currentType?: ComplexType,
-    element?: DocumentElement,
+    scope?: any,
   ): Expression | undefined {
     const ast = typeof filter === 'string' ? parse(filter) : filter;
-    const doc = element?.node.getDocument();
-    return this.normalizeFilterAst(ast, [], currentType, doc?.scopes);
+    return this.normalizeFilterAst(ast, [], currentType, scope);
   }
 
   protected normalizeFilterAst(
     ast: Expression,
     stack: Expression[],
     currentType?: ComplexType,
-    scopes?: string[],
+    scope?: string,
   ): Expression | undefined {
     if (ast instanceof ComparisonExpression) {
       stack.push(ast);
@@ -156,8 +155,8 @@ export class FilterRules {
       return ast;
     }
     if (ast instanceof QualifiedIdentifier && currentType) {
-      ast.value = currentType.normalizeFieldPath(ast.value);
-      ast.field = currentType.getField(ast.value);
+      ast.value = currentType.normalizeFieldPath(ast.value, { scope });
+      ast.field = currentType.getField(ast.value, scope);
       ast.dataType = ast.field.type;
       return ast;
     }
@@ -189,7 +188,7 @@ export class FilterRules {
             } else decoder = this._decoderCache.get(comp.left.field);
             if (!decoder) {
               decoder = comp.left.field.type.generateCodec('decode', {
-                scope: scopes,
+                scope,
                 projection: '*',
                 ignoreWriteonlyFields: true,
                 coerce: true,

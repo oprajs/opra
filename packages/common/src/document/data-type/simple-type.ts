@@ -53,6 +53,7 @@ export namespace SimpleType {
   export type ValidatorGenerator = (
     properties: Record<string, any>,
     element: DocumentElement,
+    scope?: string,
   ) => Validator;
 }
 
@@ -169,6 +170,7 @@ abstract class SimpleTypeClass extends DataType {
           return t._generateDecoder(
             prop,
             options?.documentElement || this.owner,
+            options?.scope,
           );
         t = this.base;
       }
@@ -177,37 +179,34 @@ abstract class SimpleTypeClass extends DataType {
     let t: SimpleType | undefined = this;
     while (t) {
       if (t._generateEncoder)
-        return t._generateEncoder(prop, options?.documentElement || this.owner);
+        return t._generateEncoder(
+          prop,
+          options?.documentElement || this.owner,
+          options?.scope,
+        );
       t = this.base;
     }
     return isAny;
   }
 
   toJSON(options?: ApiDocument.ExportOptions): OpraSchema.SimpleType {
+    const superJson = super.toJSON(options);
+    const baseName = this.base
+      ? this.node.getDataTypeNameWithNs(this.base)
+      : undefined;
     const attributes = omitUndefined<any>(this.ownAttributes);
     let properties: any;
     if (this.properties && typeof this.properties.toJSON === 'function') {
       properties = this.properties.toJSON(this.properties, this.owner, options);
     } else properties = this.properties ? cloneObject(this.properties) : {};
-    const baseName = this.base
-      ? this.node.getDataTypeNameWithNs(this.base)
-      : undefined;
-    if (options?.scopes && !this.base?.inScope(options?.scopes))
-      throw new TypeError(
-        `Base type ${baseName ? '(' + baseName + ')' : ''} of ${this.name ? +this.name : 'embedded'} type ` +
-          `is not in required scope(s) [${options.scopes}`,
-      );
-    const out = omitUndefined<OpraSchema.SimpleType>({
-      ...(DataType.prototype.toJSON.apply(this) as any),
-      base: this.base
-        ? baseName
-          ? baseName
-          : this.base.toJSON(options)
-        : undefined,
+    const out: OpraSchema.SimpleType = {
+      ...superJson,
+      kind: this.kind,
+      base: baseName,
       attributes:
         attributes && Object.keys(attributes).length ? attributes : undefined,
       properties: Object.keys(properties).length ? properties : undefined,
-    });
+    };
     if (Object.keys(this.ownNameMappings).length)
       out.nameMappings = { ...this.ownNameMappings };
     return omitUndefined(out, true);

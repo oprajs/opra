@@ -53,14 +53,12 @@ interface HandlerArguments {
  */
 export class KafkaAdapter extends PlatformAdapter {
   static readonly PlatformName = 'kafka';
-  // protected _config: KafkaAdapter.Config;
   protected _config: KafkaAdapter.Config;
   protected _controllerInstances = new Map<RpcController, any>();
   protected _consumers = new Map<string, Consumer>();
   protected _handlerArgs: HandlerArguments[] = [];
   declare protected _kafka: Kafka;
   protected _status: KafkaAdapter.Status = 'idle';
-  protected _starting?: boolean;
   readonly protocol: OpraSchema.Transport = 'rpc';
   readonly platform = KafkaAdapter.PlatformName;
   readonly interceptors: (
@@ -105,6 +103,10 @@ export class KafkaAdapter extends PlatformAdapter {
 
   get kafka(): Kafka {
     return this._kafka;
+  }
+
+  get scope(): string | undefined {
+    return this._config.scope;
   }
 
   get status(): KafkaAdapter.Status {
@@ -368,10 +370,12 @@ export class KafkaAdapter extends PlatformAdapter {
     /** Prepare decoders */
     const decodeKey =
       operation.keyType?.generateCodec('decode', {
+        scope: this.scope,
         ignoreWriteonlyFields: true,
       }) || vg.isAny();
     const decodePayload =
       operation.payloadType?.generateCodec('decode', {
+        scope: this.scope,
         ignoreWriteonlyFields: true,
       }) || vg.isAny();
     operation.headers.forEach(header => {
@@ -379,6 +383,7 @@ export class KafkaAdapter extends PlatformAdapter {
       if (!decode) {
         decode =
           header.type?.generateCodec('decode', {
+            scope: this.scope,
             ignoreReadonlyFields: true,
           }) || vg.isAny();
         this[kAssetCache].set(header, 'decode', decode);
@@ -523,6 +528,7 @@ export namespace KafkaAdapter {
         fromBeginning?: boolean;
       };
     };
+    scope?: string;
     interceptors?: (InterceptorFunction | IKafkaInterceptor)[];
     logExtra?: boolean;
   }

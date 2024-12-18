@@ -9,7 +9,7 @@ import mongodb, { type Document } from 'mongodb';
 export default function prepareProjection(
   dataType: ComplexType,
   projection?: string | string[] | Document | '*',
-  scopes?: string[],
+  scope?: string,
 ): mongodb.Document | undefined {
   if (projection === '*') return undefined;
   if (
@@ -23,7 +23,7 @@ export default function prepareProjection(
     typeof projection === 'string' || Array.isArray(projection)
       ? parseFieldsProjection(projection)
       : projection;
-  prepare(dataType, out, projection_, scopes);
+  prepare(dataType, out, projection_, scope);
   return Object.keys(out).length ? out : undefined;
 }
 
@@ -31,7 +31,7 @@ export function prepare(
   dataType: ComplexType,
   target: mongodb.Document,
   projection?: FieldsProjection,
-  scopes?: string[],
+  scope?: string,
 ) {
   const defaultFields =
     !projection || !Object.values(projection).find(p => !p.sign);
@@ -46,7 +46,7 @@ export function prepare(
     k = fieldName.toLowerCase();
     projectionKeysSet.delete(k);
     /** Ignore if field is not in scope */
-    if (!field.inScope(scopes)) continue;
+    if (scope && !field.inScope(scope)) continue;
     const p = projection?.[k];
     if (
       /** Ignore if field is omitted */

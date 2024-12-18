@@ -160,6 +160,7 @@ export class HttpContext extends ExecutionContext {
         if (!decode) {
           decode =
             mediaType.type?.generateCodec('decode', {
+              scope: this.adapter.scope,
               partial: operation?.requestBody?.partial,
               projection: '*',
               ignoreReadonlyFields: true,

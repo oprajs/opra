@@ -23,7 +23,6 @@ import { RpcApi } from './rpc/rpc-api.js';
 export class ApiDocument extends DocumentElement {
   protected [kTypeNSMap] = new WeakMap<DataType, string>();
   readonly id: string = '';
-  scopes?: string[];
   url?: string;
   info: OpraSchema.DocumentInfo = {};
   references = new ResponsiveMap<ApiDocument>();
@@ -93,7 +92,6 @@ export class ApiDocument extends DocumentElement {
       url: this.url,
       info: cloneObject(this.info, true),
     });
-    options = options || { scopes: this.scopes };
     if (this.references.size) {
       let i = 0;
       const references: Record<string, OpraSchema.DocumentReference> = {};
@@ -111,7 +109,7 @@ export class ApiDocument extends DocumentElement {
     if (this.types.size) {
       out.types = {};
       for (const v of this.types.values()) {
-        if (!v.inScope(options.scopes)) continue;
+        if (options?.scope && !v.inScope(options?.scope)) continue;
         out.types[v.name!] = v.toJSON(options);
       }
     }
@@ -135,11 +133,11 @@ export class ApiDocument extends DocumentElement {
       | Function
       | EnumType.EnumArray
       | EnumType.EnumObject,
-    scope?: string | string[],
+    scope?: string,
     visitedRefs?: WeakMap<ApiDocument, boolean>,
   ): DataType | undefined {
     let result = this.types.get(nameOrCtor);
-    if (result && result.inScope(scope)) return result;
+    if (result && (!scope || result.inScope(scope))) return result;
     if (!this.references.size) return;
     // Lookup for references
     if (typeof nameOrCtor === 'string') {
@@ -187,6 +185,6 @@ export class ApiDocument extends DocumentElement {
 
 export namespace ApiDocument {
   export interface ExportOptions {
-    scopes?: string[];
+    scope?: string;
   }
 }

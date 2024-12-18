@@ -91,7 +91,6 @@ export class OpraKafkaCoreModule
           info: config.info,
           types: config.types,
           references: config.references,
-          scopes: config.scopes,
           api: {
             name: config.name,
             description: config.description,

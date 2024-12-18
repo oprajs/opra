@@ -595,6 +595,9 @@ export class MongoEntityService<
     const { update, arrayFilters } = patchGenerator.generatePatch<T>(
       this.dataType,
       doc,
+      {
+        scope: this._dataTypeScope,
+      },
     );
     command.options = command.options || {};
     if (arrayFilters) {

@@ -14,6 +14,7 @@ import {
   colorReset,
   nodeInspectCustom,
 } from '../utils/inspect.util.js';
+import { testScopeMatch } from '../utils/test-scope-match.js';
 
 /**
  * @namespace DataType
@@ -26,16 +27,16 @@ export namespace DataType {
   export interface Options
     extends Partial<StrictOmit<Metadata, 'kind' | 'examples'>> {
     embedded?: boolean;
-    scopes?: (string | RegExp)[];
+    scopePattern?: (string | RegExp) | (string | RegExp)[];
   }
 
   export interface InitArguments extends DataType.Metadata {
-    scopes?: (string | RegExp)[];
+    scopePattern?: (string | RegExp)[];
   }
 
   export interface GenerateCodecOptions extends ValidationOptions {
     documentElement?: DocumentElement;
-    scope?: string | string[];
+    scope?: string;
     caseInSensitive?: boolean;
     partial?: boolean | 'deep';
     projection?: string[] | FieldsProjection | '*';
@@ -79,7 +80,7 @@ export const DataType = function (
   DocumentElement.call(this, owner);
   const _this = asMutable(this);
   _this.kind = initArgs.kind;
-  _this.scopes = initArgs.scopes;
+  _this.scopePattern = initArgs.scopePattern;
   _this.name = initArgs.name;
   _this.description = initArgs.description;
   _this.abstract = initArgs.abstract;
@@ -93,7 +94,7 @@ export const DataType = function (
 abstract class DataTypeClass extends DocumentElement {
   declare readonly kind: OpraSchema.DataType.Kind;
   declare readonly owner: DocumentElement;
-  declare readonly scopes?: (string | RegExp)[];
+  declare readonly scopePattern?: (string | RegExp)[];
   declare readonly name?: string;
   declare readonly description?: string;
   declare readonly abstract?: boolean;
@@ -110,23 +111,21 @@ abstract class DataTypeClass extends DocumentElement {
 
   abstract extendsFrom(baseType: DataType | string | Type | object): boolean;
 
-  inScope(scopes?: string | string[]): boolean {
-    if (!this.scopes?.length || !scopes) return true;
-    /** this.scope should match all required scopes */
-    scopes = Array.isArray(scopes) ? scopes : [scopes];
-    for (const scope of scopes) {
-      if (
-        !this.scopes.some(s => {
-          return typeof s === 'string' ? scope === s : s.test(scope);
-        })
-      )
-        return false;
-    }
-    return true;
+  inScope(scope: string): boolean {
+    return testScopeMatch(scope, this.scopePattern);
   }
 
-  // eslint-disable-next-line
   toJSON(options?: ApiDocument.ExportOptions): OpraSchema.DataType {
+    if (options?.scope) {
+      /** Locate base model which is not available for given scope */
+      const outOfScope = this._locateBase(dt => !dt.inScope(options.scope!));
+      if (outOfScope) {
+        const baseName = this.node.getDataTypeNameWithNs(outOfScope);
+        throw new TypeError(
+          `"${baseName}" model is not available for "${options.scope}" scope`,
+        );
+      }
+    }
     return omitUndefined({
       kind: this.kind,
       description: this.description,
@@ -138,6 +137,10 @@ abstract class DataTypeClass extends DocumentElement {
   toString(): string {
     return `[${Object.getPrototypeOf(this).constructor.name} ${this.name || '#Embedded'}]`;
   }
+
+  protected abstract _locateBase(
+    callback: (base: DataType) => boolean,
+  ): DataType | undefined;
 
   [nodeInspectCustom](): string {
     return (

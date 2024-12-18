@@ -35,18 +35,17 @@ export class DocumentNode {
 
   hasDataType(
     nameOrCtor: string | Type | Function | object | any[],
-    scope?: string | string[],
+    scope?: string,
   ): boolean {
     return !!this.findDataType(nameOrCtor, scope);
   }
 
   findDataType(
     nameOrCtor: string | Type | Function | object | any[],
-    scope?: string | string[],
+    scope?: string,
   ): DataType | undefined {
-    scope = scope || this.getDocument().scopes;
     const dt = this[kDataTypeMap]?.get(nameOrCtor);
-    if (dt && dt.inScope(scope)) return dt;
+    if (dt && (!scope || dt.inScope(scope))) return dt;
     return this.parent
       ? this.parent.findDataType(nameOrCtor, scope)
       : undefined;
@@ -57,10 +56,10 @@ export class DocumentNode {
    */
   getDataType(
     nameOrCtor: string | Type | Function | object | any[],
-    scope?: string | string[],
+    scope?: string,
   ): DataType {
     const dt = this.findDataType(nameOrCtor);
-    if (dt && dt.inScope(scope)) return dt;
+    if (dt && (!scope || dt.inScope(scope))) return dt;
     let name = '';
     if (typeof nameOrCtor === 'function') {
       const metadata = Reflect.getMetadata(DATATYPE_METADATA, nameOrCtor);
@@ -93,7 +92,7 @@ export class DocumentNode {
    */
   getComplexType(
     nameOrCtor: string | Type | Function,
-    scope?: string | string[],
+    scope?: string,
   ): ComplexType {
     const t = this.getDataType(nameOrCtor, scope);
     if (t.kind === OpraSchema.ComplexType.Kind) return t as ComplexType;
@@ -105,10 +104,7 @@ export class DocumentNode {
    * Returns undefined if not found
    * Throws error if data type is not a SimpleType
    */
-  getSimpleType(
-    nameOrCtor: string | Type,
-    scope?: string | string[],
-  ): SimpleType {
+  getSimpleType(nameOrCtor: string | Type, scope?: string): SimpleType {
     const t = this.getDataType(nameOrCtor, scope);
     if (t.kind === OpraSchema.SimpleType.Kind) return t as SimpleType;
     throw new TypeError(`Data type "${t.name || t}" is not a SimpleType`);
@@ -119,10 +115,7 @@ export class DocumentNode {
    * Returns undefined if not found
    * Throws error if data type is not a EnumType
    */
-  getEnumType(
-    nameOrCtor: string | object | any[],
-    scope?: string | string[],
-  ): EnumType {
+  getEnumType(nameOrCtor: string | object | any[], scope?: string): EnumType {
     const t = this.getDataType(nameOrCtor, scope);
     if (t.kind === OpraSchema.EnumType.Kind) return t as EnumType;
     throw new TypeError(`Data type "${t.name || t}" is not a EnumType`);
@@ -135,7 +128,7 @@ export class DocumentNode {
    */
   getMappedType(
     nameOrCtor: string | object | any[],
-    scope?: string | string[],
+    scope?: string,
   ): MappedType {
     const t = this.getDataType(nameOrCtor, scope);
     if (t.kind === OpraSchema.MappedType.Kind) return t as MappedType;
@@ -147,10 +140,7 @@ export class DocumentNode {
    * Returns undefined if not found
    * Throws error if data type is not a MixinType
    */
-  getMixinType(
-    nameOrCtor: string | object | any[],
-    scope?: string | string[],
-  ): MixinType {
+  getMixinType(nameOrCtor: string | object | any[], scope?: string): MixinType {
     const t = this.getDataType(nameOrCtor, scope);
     if (t.kind === OpraSchema.MixinType.Kind) return t as MixinType;
     throw new TypeError(`Data type "${t.name || t}" is not a MixinType`);
