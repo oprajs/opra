@@ -426,11 +426,12 @@ export class DataTypeFactory {
   protected static async _prepareDataTypeArgs(
     context: DataTypeFactory.Context,
     initArgs: DataTypeFactory.DataTypeInitArguments,
-    metadata: OpraSchema.DataTypeBase,
+    metadata: OpraSchema.DataTypeBase | DataType.Metadata,
   ): Promise<void> {
     initArgs.description = metadata.description;
     initArgs.abstract = metadata.abstract;
     initArgs.examples = metadata.examples;
+    initArgs.scopePattern = (metadata as DataType.Metadata).scopePattern;
   }
 
   protected static async _prepareComplexTypeArgs(

@@ -20,6 +20,7 @@ export class FilesController {
     const parts = await reader.getAll();
     FilesController.lastPost = parts;
     return new Note({
+      _id: Math.round(Math.random() * 1000),
       title: 'title',
       text: parts[0].field,
     });

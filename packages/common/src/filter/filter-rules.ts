@@ -72,7 +72,7 @@ export class FilterRules {
   normalizeFilter(
     filter: OpraSchema.Field.QualifiedName | Expression,
     currentType?: ComplexType,
-    scope?: any,
+    scope?: string | '*',
   ): Expression | undefined {
     const ast = typeof filter === 'string' ? parse(filter) : filter;
     return this.normalizeFilterAst(ast, [], currentType, scope);
@@ -82,7 +82,7 @@ export class FilterRules {
     ast: Expression,
     stack: Expression[],
     currentType?: ComplexType,
-    scope?: string,
+    scope?: string | '*',
   ): Expression | undefined {
     if (ast instanceof ComparisonExpression) {
       stack.push(ast);

@@ -77,7 +77,7 @@ abstract class ComplexTypeBaseClass extends DataType {
   readonly keyField?: OpraSchema.Field.Name;
 
   fieldCount(scope?: string): number {
-    if (!scope) return this._fields.size;
+    if (scope === '*') return this._fields.size;
     let count = 0;
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     for (const i of this.fields(scope)) count++;
@@ -87,7 +87,7 @@ abstract class ComplexTypeBaseClass extends DataType {
   fieldEntries(scope?: string): IterableIterator<[string, ApiField]> {
     let iterator: IterableIterator<[string, ApiField]> | undefined =
       this._fields.entries();
-    if (!scope) return iterator;
+    if (scope === '*') return iterator;
     let r: IteratorResult<[string, ApiField]>;
     return {
       next() {
@@ -109,7 +109,7 @@ abstract class ComplexTypeBaseClass extends DataType {
   }
 
   fields(scope?: string): IterableIterator<ApiField> {
-    if (!scope) return this._fields.values();
+    if (scope === '*') return this._fields.values();
     let iterator: IterableIterator<[string, ApiField]> | undefined =
       this.fieldEntries(scope);
     let r: IteratorResult<[string, ApiField]>;
@@ -117,7 +117,7 @@ abstract class ComplexTypeBaseClass extends DataType {
       next() {
         if (!iterator) return { done: true, value: undefined };
         r = iterator!.next();
-        return { done: r.done, value: r.value[1] };
+        return { done: r.done, value: r.value?.[1] };
       },
       return(value?: ApiField) {
         iterator = undefined;
@@ -130,7 +130,7 @@ abstract class ComplexTypeBaseClass extends DataType {
   }
 
   fieldNames(scope?: string): IterableIterator<string> {
-    if (!scope) return this._fields.keys();
+    if (scope === '*') return this._fields.keys();
     let iterator: IterableIterator<[string, ApiField]> | undefined =
       this.fieldEntries(scope);
     let r: IteratorResult<[string, ApiField]>;
@@ -138,7 +138,7 @@ abstract class ComplexTypeBaseClass extends DataType {
       next() {
         if (!iterator) return { done: true, value: undefined };
         r = iterator!.next();
-        return { done: r.done, value: r.value[0] };
+        return { done: r.done, value: r.value?.[0] };
       },
       return(value?: string) {
         iterator = undefined;
@@ -153,7 +153,7 @@ abstract class ComplexTypeBaseClass extends DataType {
   /**
    *
    */
-  findField(nameOrPath: string, scope?: string): ApiField | undefined {
+  findField(nameOrPath: string, scope?: string | '*'): ApiField | undefined {
     if (nameOrPath.includes('.')) {
       const fieldPath = this.parseFieldPath(nameOrPath, { scope });
       if (fieldPath.length === 0)
@@ -171,7 +171,7 @@ abstract class ComplexTypeBaseClass extends DataType {
    *
    */
   getField(nameOrPath: string, scope?: string): ApiField {
-    const field = this.findField(nameOrPath);
+    const field = this.findField(nameOrPath, '*');
     if (field && !field.inScope(scope))
       throw new Error(
         `Field "${nameOrPath}" does not exist in scope "${scope || 'null'}"`,
@@ -189,7 +189,7 @@ abstract class ComplexTypeBaseClass extends DataType {
     fieldPath: string,
     options?: {
       allowSigns?: 'first' | 'each';
-      scope?: string;
+      scope?: string | '*';
     },
   ): ComplexType.ParsedFieldPath[] {
     let dataType: DataType | undefined = this;
@@ -218,7 +218,7 @@ abstract class ComplexTypeBaseClass extends DataType {
 
       if (dataType) {
         if (dataType instanceof ComplexTypeBase) {
-          field = dataType.getField(item.fieldName, options?.scope);
+          field = dataType.findField(item.fieldName, options?.scope);
           if (field) {
             item.fieldName = field.name;
             item.field = field;
@@ -325,7 +325,7 @@ abstract class ComplexTypeBaseClass extends DataType {
     );
     // Process fields
     let fieldName: string;
-    for (const field of this._fields.values()) {
+    for (const field of this.fields('*')) {
       if (
         /** Ignore field if required scope(s) do not match field scopes */
         !field.inScope(context.scope) ||

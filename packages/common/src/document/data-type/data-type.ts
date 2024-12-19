@@ -22,17 +22,15 @@ import { testScopeMatch } from '../utils/test-scope-match.js';
 export namespace DataType {
   export interface Metadata extends DataTypeBase {
     name?: string;
+    scopePattern?: (string | RegExp) | (string | RegExp)[];
   }
 
   export interface Options
     extends Partial<StrictOmit<Metadata, 'kind' | 'examples'>> {
     embedded?: boolean;
-    scopePattern?: (string | RegExp) | (string | RegExp)[];
   }
 
-  export interface InitArguments extends DataType.Metadata {
-    scopePattern?: (string | RegExp) | (string | RegExp)[];
-  }
+  export interface InitArguments extends DataType.Metadata {}
 
   export interface GenerateCodecOptions extends ValidationOptions {
     documentElement?: DocumentElement;
@@ -115,7 +113,7 @@ abstract class DataTypeClass extends DocumentElement {
 
   abstract extendsFrom(baseType: DataType | string | Type | object): boolean;
 
-  inScope(scope?: string): boolean {
+  inScope(scope?: string | '*'): boolean {
     return testScopeMatch(scope, this.scopePattern);
   }
 

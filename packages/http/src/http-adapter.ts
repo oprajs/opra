@@ -21,7 +21,7 @@ export namespace HttpAdapter {
   export interface Options extends PlatformAdapter.Options {
     basePath?: string;
     interceptors?: (InterceptorFunction | IHttpInterceptor)[];
-    scope?: string;
+    scope?: string | '*';
   }
 }
 

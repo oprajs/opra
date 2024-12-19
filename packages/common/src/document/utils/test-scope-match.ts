@@ -2,7 +2,7 @@ export function testScopeMatch(
   scope?: string,
   pattern?: (string | RegExp) | (string | RegExp)[],
 ) {
-  if (!pattern) return true;
+  if (!pattern || scope === '*') return true;
   if (!scope) return false;
   if (Array.isArray(pattern)) {
     return pattern.some(x => {

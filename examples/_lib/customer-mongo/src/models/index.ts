@@ -1,6 +1,7 @@
 import { ApiDocument, ApiDocumentFactory, OpraSchema } from '@opra/common';
 import { Gender } from './enums/gender.js';
 import { Address } from './types/address.js';
+import { Config } from './types/config.js';
 import { Country } from './types/country.js';
 import { Customer } from './types/customer.js';
 import { Note } from './types/note.js';
@@ -10,6 +11,7 @@ import { Record } from './types/record.js';
 
 export * from './enums/gender.js';
 export * from './types/address.js';
+export * from './types/config.js';
 export * from './types/country.js';
 export * from './types/customer.js';
 export * from './types/note.js';
@@ -26,7 +28,17 @@ export namespace CustomerModelsDocument {
       version: 'v1',
       description: 'This document contains model definitions of customer app',
     },
-    types: [Record, Person, Gender, Address, Note, Country, Customer, Profile],
+    types: [
+      Record,
+      Person,
+      Gender,
+      Address,
+      Note,
+      Country,
+      Customer,
+      Profile,
+      Config,
+    ],
   };
 
   export async function create(): Promise<ApiDocument> {
