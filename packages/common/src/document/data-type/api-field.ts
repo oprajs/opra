@@ -58,7 +58,11 @@ export const ApiField = function (this: ApiField | void, ...args: any[]) {
     );
   }
   _this.origin = origin;
-  _this.scopePattern = initArgs.scopePattern;
+  _this.scopePattern = initArgs.scopePattern
+    ? Array.isArray(initArgs.scopePattern)
+      ? initArgs.scopePattern
+      : [initArgs.scopePattern]
+    : undefined;
   _this.type = initArgs.type || owner.node.getDataType('any');
   _this.description = initArgs.description;
   _this.isArray = initArgs.isArray;
@@ -145,7 +149,7 @@ export namespace ApiField {
       },
       OpraSchema.Field
     > {
-    scopePattern?: (string | RegExp)[];
+    scopePattern?: (string | RegExp) | (string | RegExp)[];
     overrides?: StrictOmit<Metadata, 'overrides' | 'type' | 'isArray'>[];
   }
 
@@ -169,7 +173,5 @@ export namespace ApiField {
         type?: DataType;
       },
       Metadata
-    > {
-    scopePattern?: (string | RegExp)[];
-  }
+    > {}
 }

@@ -509,7 +509,9 @@ export class ElasticEntityService<
    * @param operation - The operation to retrieve the encoder for. Valid values are 'create' and 'update'.
    */
   protected _getInputCodec(operation: string): IsObject.Validator<T> {
-    let validator = this._inputCodecs[operation];
+    const cacheKey =
+      operation + (this._dataTypeScope ? ':' + this._dataTypeScope : '');
+    let validator = this._inputCodecs[cacheKey];
     if (validator) return validator;
     const options: DataType.GenerateCodecOptions = {
       projection: '*',
@@ -521,7 +523,7 @@ export class ElasticEntityService<
       'decode',
       options,
     ) as IsObject.Validator<T>;
-    this._inputCodecs[operation] = validator;
+    this._inputCodecs[cacheKey] = validator;
     return validator;
   }
 
@@ -529,7 +531,9 @@ export class ElasticEntityService<
    * Retrieves the codec.
    */
   protected _getOutputCodec(operation: string): IsObject.Validator<T> {
-    let validator = this._outputCodecs[operation];
+    const cacheKey =
+      operation + (this._dataTypeScope ? ':' + this._dataTypeScope : '');
+    let validator = this._outputCodecs[cacheKey];
     if (validator) return validator;
     const options: DataType.GenerateCodecOptions = {
       projection: '*',
@@ -541,7 +545,7 @@ export class ElasticEntityService<
       'decode',
       options,
     ) as IsObject.Validator<T>;
-    this._outputCodecs[operation] = validator;
+    this._outputCodecs[cacheKey] = validator;
     return validator;
   }
 

@@ -8,6 +8,7 @@ describe('ApiField() decorator', () => {
       @ApiField({
         type: 'integer',
         description: 'description',
+        scopePattern: 'public',
       })
       declare id: number;
     }
@@ -18,6 +19,7 @@ describe('ApiField() decorator', () => {
       id: {
         type: 'integer',
         description: 'description',
+        scopePattern: 'public',
       },
     });
   });

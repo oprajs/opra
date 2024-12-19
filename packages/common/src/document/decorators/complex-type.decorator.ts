@@ -26,6 +26,7 @@ export function ComplexTypeDecorator(options?: ComplexType.Options) {
     metadata.kind = OpraSchema.ComplexType.Kind;
     metadata.name = name;
     // Merge options
-    if (options) Object.assign(metadata, omit(options!, ['name']));
+    if (options)
+      Object.assign(metadata, omit(options!, ['name']));
   };
 }

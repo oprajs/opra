@@ -9,6 +9,7 @@ describe('ComplexType() decorator', () => {
       description: 'Animal schema',
       abstract: false,
       additionalFields: true,
+      scopePattern: 'public',
     };
 
     @ComplexType(opts)
@@ -21,6 +22,7 @@ describe('ComplexType() decorator', () => {
       kind: 'ComplexType',
       name: 'Animal',
       ...opts,
+      scopePattern: 'public',
       additionalFields: true,
     });
   });

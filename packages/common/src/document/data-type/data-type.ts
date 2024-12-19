@@ -31,7 +31,7 @@ export namespace DataType {
   }
 
   export interface InitArguments extends DataType.Metadata {
-    scopePattern?: (string | RegExp)[];
+    scopePattern?: (string | RegExp) | (string | RegExp)[];
   }
 
   export interface GenerateCodecOptions extends ValidationOptions {
@@ -80,7 +80,11 @@ export const DataType = function (
   DocumentElement.call(this, owner);
   const _this = asMutable(this);
   _this.kind = initArgs.kind;
-  _this.scopePattern = initArgs.scopePattern;
+  _this.scopePattern = initArgs.scopePattern
+    ? Array.isArray(initArgs.scopePattern)
+      ? initArgs.scopePattern
+      : [initArgs.scopePattern]
+    : undefined;
   _this.name = initArgs.name;
   _this.description = initArgs.description;
   _this.abstract = initArgs.abstract;

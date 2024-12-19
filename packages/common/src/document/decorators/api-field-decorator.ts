@@ -45,11 +45,6 @@ export function ApiFieldDecoratorFactory(
     const designType = Reflect.getMetadata('design:type', target, propertyKey);
     const elemMeta: ApiField.Metadata = (metadata.fields[propertyKey] = {
       ...options,
-      scopePattern: options?.scopePattern
-        ? Array.isArray(options.scopePattern)
-          ? options.scopePattern
-          : [options.scopePattern]
-        : undefined,
     });
     if (designType === Array) {
       elemMeta.isArray = true;

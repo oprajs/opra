@@ -26,6 +26,14 @@ describe('ComplexType', () => {
     expect(f!.name).toStrictEqual('countryCode');
   });
 
+  it('Should findField(name, scope) return field instance', async () => {
+    const dt = doc.node.getComplexType('customer');
+    expect(dt).toBeDefined();
+    const f = dt!.findField('dbField', 'db');
+    expect(f).toBeDefined();
+    expect(f!.name).toStrictEqual('dbField');
+  });
+
   it('Should findField(path) return nested fields', async () => {
     const dt = doc.node.getComplexType('customer');
     expect(dt).toBeDefined();
