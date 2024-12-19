@@ -1,6 +1,6 @@
 {
   "name": "@opra/sqb",
-  "version": "1.5.2",
+  "version": "1.5.3",
   "description": "Opra SQB adapter package",
   "author": "Panates",
   "license": "MIT",
@@ -36,8 +36,8 @@
     "ts-gems": "^3.11.2"
   },
   "peerDependencies": {
-    "@opra/core": "^1.5.2",
-    "@opra/http": "^1.5.2",
+    "@opra/core": "^1.5.3",
+    "@opra/http": "^1.5.3",
     "@sqb/connect": ">= 4.19.1"
   },
   "type": "module",
