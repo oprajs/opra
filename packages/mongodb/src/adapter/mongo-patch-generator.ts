@@ -46,12 +46,15 @@ export class MongoPatchGenerator {
     path: string,
     input: any,
     scope?: string,
-  ) {
+  ): boolean {
+    let result = false;
     if (input._$push) {
-      this._processPush(ctx, dataType, path, input._$push, scope);
+      result =
+        result || this._processPush(ctx, dataType, path, input._$push, scope);
     }
     if (input._$pull) {
-      this._processPull(ctx, dataType, path, input._$pull, scope);
+      result =
+        result || this._processPull(ctx, dataType, path, input._$pull, scope);
     }
     const keys = Object.keys(input);
     const pathDot = path + (path ? '.' : '');
@@ -68,34 +71,42 @@ export class MongoPatchGenerator {
       key = m[2];
       if (key === '_$push' || key === '_$pull') continue;
       value = input[key];
-      field = dataType.getField(key, scope);
+      field = dataType.findField(key, scope);
+      if (field && !field.inScope(scope)) continue;
       if (!field) {
         if (dataType.additionalFields) {
           if (value === null) {
             ctx.$unset = ctx.$unset || {};
             ctx.$unset[pathDot + key] = 1;
+            result = true;
           } else {
             ctx.$set = ctx.$set || {};
             if (dataType.additionalFields instanceof ComplexType) {
               /** Process nested object */
-              this._processComplexType(
-                ctx,
-                dataType.additionalFields,
-                pathDot + key,
-                value,
-                scope,
-              );
+              if (
+                this._processComplexType(
+                  ctx,
+                  dataType.additionalFields,
+                  pathDot + key,
+                  value,
+                  scope,
+                )
+              ) {
+                result = true;
+              }
               continue;
             }
             ctx.$set[pathDot + key] = value;
+            result = true;
           }
         }
         continue;
       }
-      // if (field.readonly) continue;
+      // if (field.readonly) continue; todo
       if (value === null) {
         ctx.$unset = ctx.$unset || {};
         ctx.$unset[pathDot + field.name] = 1;
+        result = true;
         continue;
       }
       if (field.type instanceof ComplexType) {
@@ -113,37 +124,47 @@ export class MongoPatchGenerator {
               v = { ...v };
               /** Remove key field from object */
               delete v[keyField];
-              /** Add array filter */
-              ctx.arrayFilters = ctx.arrayFilters || [];
-              ctx.arrayFilters.push({
-                [`${arrayFilterName}.${keyField}`]: keyValue,
-              });
               /** Process each object in array */
-              this._processComplexType(
-                ctx,
-                field.type,
-                pathDot + field.name + `.$[${arrayFilterName}]`,
-                v,
-                scope,
-              );
+              if (
+                this._processComplexType(
+                  ctx,
+                  field.type,
+                  pathDot + field.name + `.$[${arrayFilterName}]`,
+                  v,
+                  scope,
+                )
+              ) {
+                result = true;
+                /** Add array filter */
+                ctx.arrayFilters = ctx.arrayFilters || [];
+                ctx.arrayFilters.unshift({
+                  [`${arrayFilterName}.${keyField}`]: keyValue,
+                });
+              }
             }
             continue;
           }
         }
         if (!(typeof value === 'object')) continue;
         /** Process nested object */
-        this._processComplexType(
-          ctx,
-          field.type,
-          pathDot + field.name,
-          value,
-          scope,
-        );
+        if (
+          this._processComplexType(
+            ctx,
+            field.type,
+            pathDot + field.name,
+            value,
+            scope,
+          )
+        ) {
+          result = true;
+        }
         continue;
       }
       ctx.$set = ctx.$set || {};
       ctx.$set[pathDot + field.name] = value;
+      result = true;
     }
+    return result;
   }
 
   protected _processPush(
@@ -152,7 +173,8 @@ export class MongoPatchGenerator {
     path: string,
     input: any,
     scope?: string,
-  ) {
+  ): boolean {
+    let result = false;
     let field: ApiField | undefined;
     let key: string;
     let value: any;
@@ -176,6 +198,7 @@ export class MongoPatchGenerator {
               }
             });
             ctx.$push[pathDot + key] = { $each: value };
+            result = true;
           } else {
             if (!value[keyField]) {
               throw new TypeError(
@@ -183,6 +206,7 @@ export class MongoPatchGenerator {
               );
             }
             ctx.$push[pathDot + key] = value;
+            result = true;
           }
         }
         continue;
@@ -190,7 +214,9 @@ export class MongoPatchGenerator {
       ctx.$push[pathDot + key] = Array.isArray(value)
         ? { $each: value }
         : value;
+      result = true;
     }
+    return result;
   }
 
   protected _processPull(
@@ -199,7 +225,8 @@ export class MongoPatchGenerator {
     path: string,
     input: any,
     scope?: string,
-  ) {
+  ): boolean {
+    let result = false;
     let field: ApiField | undefined;
     let key: string;
     let value: any;
@@ -219,12 +246,15 @@ export class MongoPatchGenerator {
             [keyField]: Array.isArray(value) ? { $in: value } : value,
           },
         };
+        result = true;
       } else {
         ctx.$pull[pathDot + key] = Array.isArray(value)
           ? { $in: value }
           : value;
+        result = true;
       }
     }
+    return result;
   }
 }
 

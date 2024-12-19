@@ -1,8 +1,9 @@
 export function testScopeMatch(
-  scope: string,
+  scope?: string,
   pattern?: (string | RegExp) | (string | RegExp)[],
 ) {
-  if (!(scope && pattern)) return true;
+  if (!pattern) return true;
+  if (!scope) return false;
   if (Array.isArray(pattern)) {
     return pattern.some(x => {
       return typeof x === 'string' ? scope === x : x.test(scope);

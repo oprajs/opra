@@ -126,8 +126,8 @@ export const ComplexType = function (this: ComplexType | void, ...args: any[]) {
       _this.keyField = _this.base.keyField;
 
       /** Copy fields from base */
-      for (const v of _this.base.fields.values()) {
-        this.fields.set(v.name, new ApiField(this, v));
+      for (const v of _this.base.fields()) {
+        (_this as any)._fields.set(v.name, new ApiField(this, v));
       }
     });
   }
@@ -144,7 +144,7 @@ export const ComplexType = function (this: ComplexType | void, ...args: any[]) {
           ...v,
           name: k,
         });
-        this.fields.set(field.name, field);
+        (this as any)._fields.set(field.name, field);
       }
     });
   }
@@ -189,14 +189,11 @@ abstract class ComplexTypeClass extends ComplexTypeBase {
           : (this.additionalFields.toJSON(options) as OpraSchema.DataType);
       } else out.additionalFields = this.additionalFields;
     }
-    if (this.fields.size) {
+    if (this._fields.size) {
       const fields = {};
       let i = 0;
-      for (const field of this.fields.values()) {
-        if (
-          field.origin === this &&
-          (!options?.scope || field.inScope(options?.scope))
-        ) {
+      for (const field of this._fields.values()) {
+        if (field.origin === this && field.inScope(options?.scope)) {
           fields[field.name] = field.toJSON(options);
           i++;
         }

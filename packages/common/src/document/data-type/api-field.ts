@@ -98,7 +98,7 @@ class ApiFieldClass extends DocumentElement {
   declare readonly writeonly?: boolean;
   declare readonly examples?: any[] | Record<string, any>;
 
-  inScope(scope: string): boolean {
+  inScope(scope?: string): boolean {
     return testScopeMatch(scope, this.scopePattern);
   }
 

@@ -111,20 +111,18 @@ abstract class DataTypeClass extends DocumentElement {
 
   abstract extendsFrom(baseType: DataType | string | Type | object): boolean;
 
-  inScope(scope: string): boolean {
+  inScope(scope?: string): boolean {
     return testScopeMatch(scope, this.scopePattern);
   }
 
   toJSON(options?: ApiDocument.ExportOptions): OpraSchema.DataType {
-    if (options?.scope) {
-      /** Locate base model which is not available for given scope */
-      const outOfScope = this._locateBase(dt => !dt.inScope(options.scope!));
-      if (outOfScope) {
-        const baseName = this.node.getDataTypeNameWithNs(outOfScope);
-        throw new TypeError(
-          `"${baseName}" model is not available for "${options.scope}" scope`,
-        );
-      }
+    /** Locate base model which is not available for given scope */
+    const outOfScope = this._locateBase(dt => !dt.inScope(options?.scope));
+    if (outOfScope) {
+      const baseName = this.node.getDataTypeNameWithNs(outOfScope);
+      throw new TypeError(
+        `"${baseName}" model is not available for "${options?.scope || 'null'}" scope`,
+      );
     }
     return omitUndefined({
       kind: this.kind,

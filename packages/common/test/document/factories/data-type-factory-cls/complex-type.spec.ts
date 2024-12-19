@@ -67,9 +67,9 @@ describe('DataTypeFactory - ComplexType (Class)', () => {
     expect(doc.types.size).toBeGreaterThan(0);
     const t = doc.node.getComplexType('type2');
     expect(t).toBeDefined();
-    expect(t.fields.size).toEqual(2);
-    expect(t.fields.get('id')).toBeDefined();
-    expect(t.fields.get('cid')).toBeDefined();
+    expect(t.fieldCount()).toEqual(2);
+    expect(t.getField('id')).toBeDefined();
+    expect(t.getField('cid')).toBeDefined();
   });
 
   it('Should extend ComplexType', async () => {
@@ -99,10 +99,10 @@ describe('DataTypeFactory - ComplexType (Class)', () => {
     expect(t).toBeDefined();
     expect(t.kind).toStrictEqual('ComplexType');
     expect(t.name).toStrictEqual('Type2');
-    expect(t.fields.get('id')).toBeDefined();
-    expect(t.fields.get('id')?.type.name).toStrictEqual('number');
-    expect(t.fields.get('cid')).toBeDefined();
-    expect(t.fields.get('cid')?.type.name).toStrictEqual('uuid');
+    expect(t.findField('id')).toBeDefined();
+    expect(t.getField('id').type.name).toStrictEqual('number');
+    expect(t.getField('cid')).toBeDefined();
+    expect(t.getField('cid').type.name).toStrictEqual('uuid');
   });
 
   it('Should use any data type in "additionalFields"', async () => {

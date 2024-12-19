@@ -41,12 +41,10 @@ export function prepare(
   let field: ApiField;
   let k: string;
   /** Add fields from data type */
-  for (field of dataType.fields.values()) {
+  for (field of dataType.fields(scope)) {
     fieldName = field.name;
     k = fieldName.toLowerCase();
     projectionKeysSet.delete(k);
-    /** Ignore if field is not in scope */
-    if (scope && !field.inScope(scope)) continue;
     const p = projection?.[k];
     if (
       /** Ignore if field is omitted */

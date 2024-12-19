@@ -30,9 +30,9 @@ describe('Augmentation (DataTypeFactory)', () => {
     const t = doc.types.get('type1') as ComplexType;
     expect(t).toBeDefined();
     expect(t.kind).toStrictEqual('ComplexType');
-    expect(t.fields.get('field1')).toBeDefined();
-    expect(t.fields.get('field1')?.type.name).toStrictEqual('GenderEnum');
-    expect(t.fields.get('field1')?.type.kind).toStrictEqual('EnumType');
+    expect(t.findField('field1')).toBeDefined();
+    expect(t.getField('field1').type.name).toStrictEqual('GenderEnum');
+    expect(t.getField('field1').type.kind).toStrictEqual('EnumType');
   });
 
   it('Should copy data type info (INTEGER)', async () => {
@@ -56,12 +56,12 @@ describe('Augmentation (DataTypeFactory)', () => {
     const t = doc.types.get('type1') as ComplexType;
     expect(t).toBeDefined();
     expect(t.kind).toStrictEqual('ComplexType');
-    expect(t.fields.get('field1')).toBeDefined();
-    expect(t.fields.get('field1')?.type.name).toStrictEqual('integer');
-    expect(t.fields.get('field2')).toBeDefined();
-    expect(t.fields.get('field2')?.type.name).toStrictEqual('integer');
-    expect(t.fields.get('field3')).toBeDefined();
-    expect(t.fields.get('field3')?.type.name).toStrictEqual('number');
+    expect(t.findField('field1')).toBeDefined();
+    expect(t.getField('field1')?.type.name).toStrictEqual('integer');
+    expect(t.findField('field2')).toBeDefined();
+    expect(t.getField('field2')?.type.name).toStrictEqual('integer');
+    expect(t.findField('field3')).toBeDefined();
+    expect(t.getField('field3')?.type.name).toStrictEqual('number');
   });
 
   it('Should copy data type info (GUID)', async () => {
@@ -82,10 +82,10 @@ describe('Augmentation (DataTypeFactory)', () => {
     const t = doc.types.get('type1') as ComplexType;
     expect(t).toBeDefined();
     expect(t.kind).toStrictEqual('ComplexType');
-    expect(t.fields.get('field1')).toBeDefined();
-    expect(t.fields.get('field1')?.type.name).toStrictEqual('uuid');
-    expect(t.fields.get('field2')).toBeDefined();
-    expect(t.fields.get('field2')?.type.name).toStrictEqual('uuid');
+    expect(t.findField('field1')).toBeDefined();
+    expect(t.getField('field1')?.type.name).toStrictEqual('uuid');
+    expect(t.findField('field2')).toBeDefined();
+    expect(t.getField('field2')?.type.name).toStrictEqual('uuid');
   });
 
   it('Should copy data type info (date)', async () => {
@@ -109,12 +109,12 @@ describe('Augmentation (DataTypeFactory)', () => {
     const t = doc.types.get('type1') as ComplexType;
     expect(t).toBeDefined();
     expect(t.kind).toStrictEqual('ComplexType');
-    expect(t.fields.get('field1')).toBeDefined();
-    expect(t.fields.get('field1')?.type.name).toStrictEqual('datestring');
-    expect(t.fields.get('field2')).toBeDefined();
-    expect(t.fields.get('field2')?.type.name).toStrictEqual('date');
-    expect(t.fields.get('field3')).toBeDefined();
-    expect(t.fields.get('field3')?.type.name).toStrictEqual('date');
+    expect(t.findField('field1')).toBeDefined();
+    expect(t.getField('field1')?.type.name).toStrictEqual('datestring');
+    expect(t.findField('field2')).toBeDefined();
+    expect(t.getField('field2')?.type.name).toStrictEqual('date');
+    expect(t.findField('field3')).toBeDefined();
+    expect(t.getField('field3')?.type.name).toStrictEqual('date');
   });
 
   it('Should copy data type info (TIMESTAMP)', async () => {
@@ -138,12 +138,12 @@ describe('Augmentation (DataTypeFactory)', () => {
     const t = doc.types.get('type1') as ComplexType;
     expect(t).toBeDefined();
     expect(t.kind).toStrictEqual('ComplexType');
-    expect(t.fields.get('field1')).toBeDefined();
-    expect(t.fields.get('field1')?.type.name).toStrictEqual('datetimestring');
-    expect(t.fields.get('field2')).toBeDefined();
-    expect(t.fields.get('field2')?.type.name).toStrictEqual('datetime');
-    expect(t.fields.get('field3')).toBeDefined();
-    expect(t.fields.get('field3')?.type.name).toStrictEqual('datetime');
+    expect(t.findField('field1')).toBeDefined();
+    expect(t.getField('field1')?.type.name).toStrictEqual('datetimestring');
+    expect(t.findField('field2')).toBeDefined();
+    expect(t.getField('field2')?.type.name).toStrictEqual('datetime');
+    expect(t.findField('field3')).toBeDefined();
+    expect(t.getField('field3')?.type.name).toStrictEqual('datetime');
   });
 
   it('Should copy data type info (TIMESTAMPTZ)', async () => {
@@ -167,12 +167,12 @@ describe('Augmentation (DataTypeFactory)', () => {
     const t = doc.types.get('type1') as ComplexType;
     expect(t).toBeDefined();
     expect(t.kind).toStrictEqual('ComplexType');
-    expect(t.fields.get('field1')).toBeDefined();
-    expect(t.fields.get('field1')?.type.name).toStrictEqual('datetimestring');
-    expect(t.fields.get('field2')).toBeDefined();
-    expect(t.fields.get('field2')?.type.name).toStrictEqual('datetimestring');
-    expect(t.fields.get('field3')).toBeDefined();
-    expect(t.fields.get('field3')?.type.name).toStrictEqual('datetime');
+    expect(t.findField('field1')).toBeDefined();
+    expect(t.getField('field1')?.type.name).toStrictEqual('datetimestring');
+    expect(t.findField('field2')).toBeDefined();
+    expect(t.getField('field2')?.type.name).toStrictEqual('datetimestring');
+    expect(t.findField('field3')).toBeDefined();
+    expect(t.getField('field3')?.type.name).toStrictEqual('datetime');
   });
 
   it('Should copy data type info from Association', async () => {
@@ -198,12 +198,12 @@ describe('Augmentation (DataTypeFactory)', () => {
     expect(doc).toBeDefined();
     const t = doc.types.get('type1') as ComplexType;
     expect(t).toBeDefined();
-    expect(t.fields.get('field1')).toBeDefined();
-    expect(t.fields.get('field1')?.type.name).toStrictEqual('Type2');
-    expect(t.fields.get('field1')?.exclusive).toStrictEqual(true);
-    expect(t.fields.get('field2')).toBeDefined();
-    expect(t.fields.get('field2')?.type.name).toStrictEqual('Type2');
-    expect(t.fields.get('field2')?.isArray).toStrictEqual(true);
+    expect(t.findField('field1')).toBeDefined();
+    expect(t.getField('field1')?.type.name).toStrictEqual('Type2');
+    expect(t.getField('field1')?.exclusive).toStrictEqual(true);
+    expect(t.findField('field2')).toBeDefined();
+    expect(t.getField('field2')?.type.name).toStrictEqual('Type2');
+    expect(t.getField('field2')?.isArray).toStrictEqual(true);
   });
 
   it('Should copy "exclusive" property', async () => {
@@ -230,11 +230,11 @@ describe('Augmentation (DataTypeFactory)', () => {
     const t = doc.types.get('type1') as ComplexType;
     expect(t).toBeDefined();
     expect(t.kind).toStrictEqual('ComplexType');
-    expect(t.fields.get('field1')).toBeDefined();
-    expect(t.fields.get('field1')?.exclusive).toStrictEqual(true);
-    expect(t.fields.get('field2')).toBeDefined();
-    expect(t.fields.get('field2')?.exclusive).toStrictEqual(false);
-    expect(t.fields.get('field3')).toBeDefined();
-    expect(t.fields.get('field3')?.exclusive).toStrictEqual(false);
+    expect(t.findField('field1')).toBeDefined();
+    expect(t.getField('field1')?.exclusive).toStrictEqual(true);
+    expect(t.findField('field2')).toBeDefined();
+    expect(t.getField('field2')?.exclusive).toStrictEqual(false);
+    expect(t.findField('field3')).toBeDefined();
+    expect(t.getField('field3')?.exclusive).toStrictEqual(false);
   });
 });

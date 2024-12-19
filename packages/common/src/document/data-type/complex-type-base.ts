@@ -60,7 +60,7 @@ export const ComplexTypeBase = function (
   ];
   DataType.call(this, owner, initArgs, context);
   const _this = asMutable(this);
-  _this.fields = new ResponsiveMap();
+  (_this as any)._fields = new ResponsiveMap();
 } as Function as ComplexTypeBaseStatic;
 
 /**
@@ -68,13 +68,87 @@ export const ComplexTypeBase = function (
  */
 abstract class ComplexTypeBaseClass extends DataType {
   readonly ctor?: Type;
-  declare readonly fields: ResponsiveMap<ApiField>;
+  declare protected _fields: ResponsiveMap<ApiField>;
   readonly additionalFields?:
     | boolean
     | DataType
     | ['error']
     | ['error', string];
   readonly keyField?: OpraSchema.Field.Name;
+
+  fieldCount(scope?: string): number {
+    if (!scope) return this._fields.size;
+    let count = 0;
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    for (const i of this.fields(scope)) count++;
+    return count;
+  }
+
+  fieldEntries(scope?: string): IterableIterator<[string, ApiField]> {
+    let iterator: IterableIterator<[string, ApiField]> | undefined =
+      this._fields.entries();
+    if (!scope) return iterator;
+    let r: IteratorResult<[string, ApiField]>;
+    return {
+      next() {
+        while (iterator) {
+          r = iterator.next();
+          if (r.done) break;
+          if (r.value && r.value[1].inScope(scope)) break;
+        }
+        return r;
+      },
+      return(value?: [string, ApiField]) {
+        iterator = undefined;
+        return { done: true, value };
+      },
+      [Symbol.iterator]() {
+        return this;
+      },
+    };
+  }
+
+  fields(scope?: string): IterableIterator<ApiField> {
+    if (!scope) return this._fields.values();
+    let iterator: IterableIterator<[string, ApiField]> | undefined =
+      this.fieldEntries(scope);
+    let r: IteratorResult<[string, ApiField]>;
+    return {
+      next() {
+        if (!iterator) return { done: true, value: undefined };
+        r = iterator!.next();
+        return { done: r.done, value: r.value[1] };
+      },
+      return(value?: ApiField) {
+        iterator = undefined;
+        return { done: true, value };
+      },
+      [Symbol.iterator]() {
+        return this;
+      },
+    };
+  }
+
+  fieldNames(scope?: string): IterableIterator<string> {
+    if (!scope) return this._fields.keys();
+    let iterator: IterableIterator<[string, ApiField]> | undefined =
+      this.fieldEntries(scope);
+    let r: IteratorResult<[string, ApiField]>;
+    return {
+      next() {
+        if (!iterator) return { done: true, value: undefined };
+        r = iterator!.next();
+        return { done: r.done, value: r.value[0] };
+      },
+      return(value?: string) {
+        iterator = undefined;
+        return { done: true, value };
+      },
+      [Symbol.iterator]() {
+        return this;
+      },
+    };
+  }
 
   /**
    *
@@ -89,9 +163,8 @@ abstract class ComplexTypeBaseClass extends DataType {
       const lastItem = fieldPath.pop();
       return lastItem?.field;
     }
-    const field = this.fields.get(nameOrPath);
-    if (field && scope && !field.inScope(scope)) return;
-    return field;
+    const field = this._fields.get(nameOrPath);
+    if (field && field.inScope(scope)) return field;
   }
 
   /**
@@ -99,9 +172,9 @@ abstract class ComplexTypeBaseClass extends DataType {
    */
   getField(nameOrPath: string, scope?: string): ApiField {
     const field = this.findField(nameOrPath);
-    if (field && scope && !field.inScope(scope))
+    if (field && !field.inScope(scope))
       throw new Error(
-        `Field "${nameOrPath}" does not exist in scope "${scope}"`,
+        `Field "${nameOrPath}" does not exist in scope "${scope || 'null'}"`,
       );
     if (!field) {
       throw new Error(`Field (${nameOrPath}) does not exist`);
@@ -252,10 +325,10 @@ abstract class ComplexTypeBaseClass extends DataType {
     );
     // Process fields
     let fieldName: string;
-    for (const field of this.fields.values()) {
+    for (const field of this._fields.values()) {
       if (
         /** Ignore field if required scope(s) do not match field scopes */
-        (context.scope && !field.inScope(context.scope)) ||
+        !field.inScope(context.scope) ||
         /** Ignore field if readonly and ignoreReadonlyFields option true */
         (context.ignoreReadonlyFields && field.readonly) ||
         /** Ignore field if writeonly and ignoreWriteonlyFields option true */

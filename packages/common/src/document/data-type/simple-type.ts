@@ -211,6 +211,15 @@ abstract class SimpleTypeClass extends DataType {
       out.nameMappings = { ...this.ownNameMappings };
     return omitUndefined(out, true);
   }
+
+  protected _locateBase(
+    callback: (base: SimpleType) => boolean,
+  ): SimpleType | undefined {
+    if (!this.base) return;
+    if (callback(this.base)) return this.base;
+    if ((this.base as any)._locateBase)
+      return (this.base as any)._locateBase(callback);
+  }
 }
 
 SimpleType.prototype = SimpleTypeClass.prototype;

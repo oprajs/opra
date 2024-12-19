@@ -45,7 +45,7 @@ export class DocumentNode {
     scope?: string,
   ): DataType | undefined {
     const dt = this[kDataTypeMap]?.get(nameOrCtor);
-    if (dt && (!scope || dt.inScope(scope))) return dt;
+    if (dt && dt.inScope(scope)) return dt;
     return this.parent
       ? this.parent.findDataType(nameOrCtor, scope)
       : undefined;
@@ -59,7 +59,7 @@ export class DocumentNode {
     scope?: string,
   ): DataType {
     const dt = this.findDataType(nameOrCtor);
-    if (dt && (!scope || dt.inScope(scope))) return dt;
+    if (dt && dt.inScope(scope)) return dt;
     let name = '';
     if (typeof nameOrCtor === 'function') {
       const metadata = Reflect.getMetadata(DATATYPE_METADATA, nameOrCtor);

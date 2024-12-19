@@ -200,9 +200,7 @@ export async function _generateComplexTypeCode(
 ): Promise<string> {
   let out = intent === 'root' ? `interface ${dataType.name} ` : '';
 
-  const ownFields = [...dataType.fields.values()].filter(
-    f => f.origin === dataType,
-  );
+  const ownFields = [...dataType.fields()].filter(f => f.origin === dataType);
 
   if (dataType.base) {
     const base = await this.generateDataType(
@@ -212,7 +210,7 @@ export async function _generateComplexTypeCode(
     );
     let baseDef = base.kind === 'embedded' ? base.code : base.typeName;
     const omitBaseFields = ownFields.filter(f =>
-      dataType.base!.fields.has(f.name),
+      dataType.base!.findField(f.name),
     );
     if (omitBaseFields.length)
       baseDef = `Omit<${baseDef}, ${omitBaseFields.map(x => "'" + x.name + "'").join(' | ')}>`;

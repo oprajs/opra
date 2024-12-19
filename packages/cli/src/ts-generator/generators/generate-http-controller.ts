@@ -40,7 +40,7 @@ export async function generateHttpController(
     if (options?.description)
       out += `  - ${wrapJSDocString(options?.description)}`;
     if (type instanceof ComplexType && type.embedded) {
-      for (const f of type.fields.values()) {
+      for (const f of type.fields()) {
         out += await generateParamDoc(name + '.' + f.name, f.type, f);
       }
     }

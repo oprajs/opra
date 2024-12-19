@@ -109,7 +109,7 @@ export class ApiDocument extends DocumentElement {
     if (this.types.size) {
       out.types = {};
       for (const v of this.types.values()) {
-        if (options?.scope && !v.inScope(options?.scope)) continue;
+        if (!v.inScope(options?.scope)) continue;
         out.types[v.name!] = v.toJSON(options);
       }
     }
@@ -137,7 +137,7 @@ export class ApiDocument extends DocumentElement {
     visitedRefs?: WeakMap<ApiDocument, boolean>,
   ): DataType | undefined {
     let result = this.types.get(nameOrCtor);
-    if (result && (!scope || result.inScope(scope))) return result;
+    if (result && result.inScope(scope)) return result;
     if (!this.references.size) return;
     // Lookup for references
     if (typeof nameOrCtor === 'string') {

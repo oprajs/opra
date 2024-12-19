@@ -31,7 +31,7 @@ describe('DataTypeFactory - MappedType (Schema)', () => {
     expect(t1.base).toBeDefined();
     expect(t1.base.name).toStrictEqual('type1');
     expect(t1.pick).toStrictEqual(['id', 'name']);
-    expect(Array.from(t1.fields.keys())).toStrictEqual(['id', 'name']);
+    expect(Array.from(t1.fieldNames())).toStrictEqual(['id', 'name']);
   });
 
   it('Should MappedType(omit) extend given ComplexType and omit given fields', async () => {
@@ -62,6 +62,6 @@ describe('DataTypeFactory - MappedType (Schema)', () => {
     expect(t1.base).toBeDefined();
     expect(t1.base.name).toStrictEqual('type1');
     expect(t1.omit).toStrictEqual(['gender', 'age']);
-    expect(Array.from(t1.fields.keys())).toStrictEqual(['id', 'name']);
+    expect(Array.from(t1.fieldNames())).toStrictEqual(['id', 'name']);
   });
 });
