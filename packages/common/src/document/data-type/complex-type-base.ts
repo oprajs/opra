@@ -96,7 +96,11 @@ abstract class ComplexTypeBaseClass extends DataType {
           if (r.done) break;
           if (r.value && r.value[1].inScope(scope)) break;
         }
-        return r;
+        if (r.done) return { done: r.done, value: undefined };
+        return {
+          done: r.done,
+          value: [r.value[0], r.value[1].forScope(scope)],
+        };
       },
       return(value?: [string, ApiField]) {
         iterator = undefined;
@@ -109,7 +113,6 @@ abstract class ComplexTypeBaseClass extends DataType {
   }
 
   fields(scope?: string): IterableIterator<ApiField> {
-    if (scope === '*') return this._fields.values();
     let iterator: IterableIterator<[string, ApiField]> | undefined =
       this.fieldEntries(scope);
     let r: IteratorResult<[string, ApiField]>;
@@ -164,7 +167,7 @@ abstract class ComplexTypeBaseClass extends DataType {
       return lastItem?.field;
     }
     const field = this._fields.get(nameOrPath);
-    if (field && field.inScope(scope)) return field;
+    if (field && field.inScope(scope)) return field.forScope(scope);
   }
 
   /**
@@ -179,7 +182,7 @@ abstract class ComplexTypeBaseClass extends DataType {
     if (!field) {
       throw new Error(`Field (${nameOrPath}) does not exist`);
     }
-    return field as ApiField;
+    return field.forScope(scope);
   }
 
   /**

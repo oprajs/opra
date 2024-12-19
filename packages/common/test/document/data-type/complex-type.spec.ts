@@ -41,6 +41,15 @@ describe('ComplexType', () => {
     expect(f).not.toBeDefined();
   });
 
+  it('Should findField(name, scope) return override field instance', async () => {
+    const dt = doc.node.getComplexType('customer');
+    expect(dt).toBeDefined();
+    let f = dt!.getField('createdAt');
+    expect(f.readonly).toEqual(true);
+    f = dt!.getField('createdAt', 'db');
+    expect(f!.readonly).toEqual(false);
+  });
+
   it('Should findField(path) return nested fields', async () => {
     const dt = doc.node.getComplexType('customer');
     expect(dt).toBeDefined();

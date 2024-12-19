@@ -76,6 +76,7 @@ export const ApiField = function (this: ApiField | void, ...args: any[]) {
   _this.readonly = initArgs.readonly;
   _this.writeonly = initArgs.writeonly;
   _this.examples = initArgs.examples;
+  _this.override = initArgs.override;
 } as ApiFieldConstructor;
 
 /**
@@ -84,6 +85,7 @@ export const ApiField = function (this: ApiField | void, ...args: any[]) {
  * This class extends DocumentElement, inheriting base document structure capabilities.
  */
 class ApiFieldClass extends DocumentElement {
+  declare protected _overrideCache?: Record<string, this>;
   declare readonly owner: ComplexType | MappedType | MixinType;
   readonly origin?: ComplexType | MappedType | MixinType;
   declare readonly scopePattern?: (string | RegExp)[];
@@ -101,9 +103,40 @@ class ApiFieldClass extends DocumentElement {
   declare readonly readonly?: boolean;
   declare readonly writeonly?: boolean;
   declare readonly examples?: any[] | Record<string, any>;
+  declare readonly override: ApiField.InitArguments['override'];
 
   inScope(scope?: string | '*'): boolean {
     return testScopeMatch(scope, this.scopePattern);
+  }
+
+  forScope(scope?: string): this {
+    if (!(scope && this.override)) return this;
+    this._overrideCache = this._overrideCache || {};
+    let field = this._overrideCache[scope];
+    if (field) return field;
+    if (scope !== '*') {
+      for (const o of this.override) {
+        if (testScopeMatch(scope, o.scopePattern)) {
+          field = omitUndefined({
+            ...o,
+            id: undefined,
+            owner: undefined,
+            node: undefined,
+            origin: undefined,
+            name: undefined,
+            type: undefined,
+            override: undefined,
+            _overrideCache: undefined,
+            scopePattern: o.scopePattern,
+          }) as this;
+          Object.setPrototypeOf(field, this);
+          break;
+        }
+      }
+    }
+    field = field || this;
+    this._overrideCache[scope] = field;
+    return field;
   }
 
   toJSON(options?: ApiDocument.ExportOptions): OpraSchema.Field {
@@ -150,11 +183,11 @@ export namespace ApiField {
       OpraSchema.Field
     > {
     scopePattern?: (string | RegExp) | (string | RegExp)[];
-    overrides?: StrictOmit<Metadata, 'overrides' | 'type' | 'isArray'>[];
+    override?: StrictOmit<Metadata, 'override' | 'type' | 'isArray'>[];
   }
 
   export interface Options
-    extends Partial<StrictOmit<Metadata, 'overrides' | 'scopePattern'>> {
+    extends Partial<StrictOmit<Metadata, 'override' | 'scopePattern'>> {
     /**
      * A variable that defines the pattern or patterns used to determine scope.
      * This can either be a single string or regular expression, or an array containing multiple strings or regular expressions.

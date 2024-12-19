@@ -53,4 +53,31 @@ describe('ApiField() decorator', () => {
 
     expect(() => ApiField({})(Person.prototype, sym)).toThrow("can't be used");
   });
+
+  it('Should define override', async () => {
+    class Animal {
+      @(ApiField({
+        type: 'integer',
+        readonly: true,
+      }).Override('db', {
+        readonly: false,
+      }))
+      declare id: number;
+    }
+
+    const metadata = Reflect.getMetadata(DATATYPE_METADATA, Animal);
+    expect(metadata).toBeDefined();
+    expect(metadata.fields).toMatchObject({
+      id: {
+        type: 'integer',
+        readonly: true,
+        override: [
+          {
+            scopePattern: ['db'],
+            readonly: false,
+          },
+        ],
+      },
+    });
+  });
 });

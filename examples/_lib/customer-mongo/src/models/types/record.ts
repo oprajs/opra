@@ -11,15 +11,31 @@ export class Record {
     Object.assign(this, init);
   }
 
-  @ApiField()
+  @(ApiField({
+    readonly: true,
+  }).Override('db', {
+    readonly: false,
+  }))
   declare _id: number;
 
-  @ApiField()
+  @(ApiField({
+    readonly: true,
+  }).Override('db', {
+    readonly: false,
+  }))
   declare deleted?: boolean;
 
-  @ApiField()
+  @(ApiField({
+    readonly: true,
+  }).Override('db', {
+    readonly: false,
+  }))
   declare createdAt: Date;
 
-  @ApiField()
+  @(ApiField({
+    readonly: true,
+  }).Override('db', {
+    readonly: false,
+  }))
   declare updatedAt?: Date;
 }
