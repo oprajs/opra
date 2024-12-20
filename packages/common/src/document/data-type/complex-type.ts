@@ -126,7 +126,7 @@ export const ComplexType = function (this: ComplexType | void, ...args: any[]) {
       _this.keyField = _this.base.keyField;
 
       /** Copy fields from base */
-      for (const v of _this.base.fields()) {
+      for (const v of _this.base.fields('*')) {
         (_this as any)._fields.set(v.name, new ApiField(this, v));
       }
     });

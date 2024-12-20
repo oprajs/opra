@@ -5,13 +5,13 @@
   "type": "module",
   "module": "./start.js",
   "dependencies": {
-    "@elastic/elasticsearch": "^8.16.2",
+    "@elastic/elasticsearch": "^8.17.0",
     "@opra/common": "^1.5.5",
     "@opra/core": "^1.5.5",
     "@opra/http": "^1.5.5",
     "@opra/mongodb": "^1.5.5",
     "express": "^4.21.2",
-    "mongodb": "^6.11.0",
+    "mongodb": "^6.12.0",
     "ts-gems": "^3.11.2"
   },
   "scripts": {

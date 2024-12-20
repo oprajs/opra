@@ -200,7 +200,9 @@ export async function _generateComplexTypeCode(
 ): Promise<string> {
   let out = intent === 'root' ? `interface ${dataType.name} ` : '';
 
-  const ownFields = [...dataType.fields()].filter(f => f.origin === dataType);
+  const ownFields = [...dataType.fields('*')].filter(
+    f => f.origin === dataType,
+  );
 
   if (dataType.base) {
     const base = await this.generateDataType(

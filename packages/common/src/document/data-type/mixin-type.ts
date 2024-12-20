@@ -152,7 +152,7 @@ export const MixinType = function (this: MixinType, ...args: any[]) {
       else if (!_this.additionalFields)
         _this.additionalFields = base.additionalFields;
     }
-    for (const v of base.fields()) {
+    for (const v of base.fields('*')) {
       const field = new ApiField(this, v);
       (_this as any)._fields.set(field.name, field);
     }
