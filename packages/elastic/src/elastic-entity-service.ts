@@ -421,7 +421,7 @@ export class ElasticEntityService<
       _source: ElasticAdapter.prepareProjection(
         this.dataType,
         options?.projection,
-        this.scope,
+        this._dataTypeScope,
       ),
       index: this.getIndexName(),
       ...options?.request,

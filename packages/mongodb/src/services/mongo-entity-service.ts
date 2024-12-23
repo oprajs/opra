@@ -332,6 +332,7 @@ export class MongoEntityService<
     const projection = MongoAdapter.prepareProjection(
       dataType,
       options?.projection,
+      this._dataTypeScope,
     );
     if (projection) stages.push({ $project: projection });
     const db = this.getDatabase();
@@ -403,6 +404,7 @@ export class MongoEntityService<
     const projection = MongoAdapter.prepareProjection(
       dataType,
       options?.projection,
+      this._dataTypeScope,
     );
     if (projection) dataStages.push({ $project: projection });
     const outputCodec = this._getOutputCodec('find');
@@ -458,6 +460,7 @@ export class MongoEntityService<
       projection: MongoAdapter.prepareProjection(
         this.dataType,
         options?.projection,
+        this._dataTypeScope,
       ),
     });
     const outputCodec = this._getOutputCodec('update');
@@ -557,6 +560,7 @@ export class MongoEntityService<
       projection: MongoAdapter.prepareProjection(
         this.dataType,
         options?.projection,
+        this._dataTypeScope,
       ),
     });
     const outputCodec = this._getOutputCodec('replace');
