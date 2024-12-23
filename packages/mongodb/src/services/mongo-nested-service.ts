@@ -802,7 +802,7 @@ export class MongoNestedService<
     const projection = MongoAdapter.prepareProjection(
       dataType,
       options?.projection,
-      this._dataTypeScope
+      this._dataTypeScope,
     );
     if (projection) stages.push({ $project: projection });
     /** Post-Stages */
@@ -930,7 +930,7 @@ export class MongoNestedService<
     const projection = MongoAdapter.prepareProjection(
       dataType,
       options?.projection,
-      this._dataTypeScope
+      this._dataTypeScope,
     );
     if (projection) dataStages.push({ $project: projection });
     const db = this.getDatabase();
