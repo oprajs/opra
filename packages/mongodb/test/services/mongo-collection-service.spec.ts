@@ -579,6 +579,17 @@ describe('MongoCollectionService', () => {
       expect(r).toEqual(1);
     });
 
+    it('Should not throw error when trying to update non exists array field', async () => {
+      const ctx = createContext(app.adapter);
+      const doc = {
+        uid: faker.string.uuid(),
+        notes: [{ _id: 1, text: 'note1' }],
+      };
+      const srcDoc = tempRecords[5];
+      const r = await service1.for(ctx).updateOnly(srcDoc._id, doc);
+      expect(r).toEqual(1);
+    });
+
     it('Should return "0" if parent record not found', async () => {
       const ctx = createContext(app.adapter);
       const doc = { uid: faker.string.uuid() };
@@ -657,6 +668,24 @@ describe('MongoCollectionService', () => {
     it('Should update multiple records', async () => {
       const ctx = createContext(app.adapter);
       const update = { uid: faker.string.uuid() };
+      const r = await service1.for(ctx).updateMany(update);
+      expect(r).toBeGreaterThan(0);
+      const result = await service1.for(ctx).findMany();
+      expect(result).toEqual(
+        expect.arrayContaining([
+          expect.objectContaining({
+            uid: update.uid,
+          }),
+        ]),
+      );
+    });
+
+    it('Should not throw error when trying to update non exists array field', async () => {
+      const ctx = createContext(app.adapter);
+      const update = {
+        uid: faker.string.uuid(),
+        notes: [{ _id: 1, text: 'note1' }],
+      };
       const r = await service1.for(ctx).updateMany(update);
       expect(r).toBeGreaterThan(0);
       const result = await service1.for(ctx).findMany();

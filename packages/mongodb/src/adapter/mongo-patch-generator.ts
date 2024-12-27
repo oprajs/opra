@@ -8,6 +8,7 @@ interface Context {
   $push?: Record<string, any>;
   $pull?: Record<string, any>;
   arrayFilters?: Record<string, any>[];
+  initArrayFields?: string[];
 }
 
 const FIELD_NAME_PATTERN = /^([-><*:])?(.+)$/;
@@ -20,6 +21,7 @@ export class MongoPatchGenerator {
   ): {
     update: UpdateFilter<T>;
     arrayFilters?: Record<string, any>[];
+    initArrayFields?: string[];
   } {
     const ctx: Context = {};
     this._processComplexType(
@@ -37,6 +39,7 @@ export class MongoPatchGenerator {
     return {
       update,
       arrayFilters: ctx.arrayFilters,
+      initArrayFields: ctx.initArrayFields,
     };
   }
 
@@ -112,6 +115,8 @@ export class MongoPatchGenerator {
       if (field.type instanceof ComplexType) {
         if (!value) continue;
         if (field.isArray) {
+          ctx.initArrayFields = ctx.initArrayFields || [];
+          ctx.initArrayFields.push(pathDot + field.name);
           if (!value.length) continue;
           keyField = field.keyField || field.type.keyField;
           if (keyField) {

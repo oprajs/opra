@@ -43,10 +43,14 @@ export namespace MongoEntityService {
   export interface ReplaceOptions<T> extends MongoService.ReplaceOptions<T> {}
 
   export interface UpdateOneOptions<T>
-    extends MongoService.UpdateOneOptions<T> {}
+    extends MongoService.UpdateOneOptions<T> {
+    initArrayFields?: string[];
+  }
 
   export interface UpdateManyOptions<T>
-    extends MongoService.UpdateManyOptions<T> {}
+    extends MongoService.UpdateManyOptions<T> {
+    initArrayFields?: string[];
+  }
 
   export interface CreateCommand<T>
     extends StrictOmit<CommandInfo, 'documentId' | 'nestedId' | 'input'> {
@@ -491,6 +495,21 @@ export class MongoEntityService<
     ]);
     const db = this.getDatabase();
     const collection = await this.getCollection(db);
+    /** Create array fields if not exists */
+    if (options?.initArrayFields) {
+      const $set = options.initArrayFields.reduce((a, k) => {
+        a[k] = { $ifNull: ['$' + k, []] };
+        return a;
+      }, {} as any);
+      await collection.updateOne(filter || {}, [{ $set }], {
+        ...options,
+        session: options?.session ?? this.getSession(),
+        arrayFilters: undefined,
+        upsert: false,
+      });
+      delete options.initArrayFields;
+    }
+    /** Execute update operation */
     return (
       await collection.updateOne(filter || {}, update, {
         ...options,
@@ -521,6 +540,21 @@ export class MongoEntityService<
     const filter = MongoAdapter.prepareFilter(options?.filter);
     const db = this.getDatabase();
     const collection = await this.getCollection(db);
+    /** Create array fields if not exists */
+    if (options?.initArrayFields) {
+      const $set = options.initArrayFields.reduce((a, k) => {
+        a[k] = { $ifNull: ['$' + k, []] };
+        return a;
+      }, {} as any);
+      await collection.updateMany(filter || {}, [{ $set }], {
+        ...omit(options!, ['filter']),
+        session: options?.session ?? this.getSession(),
+        arrayFilters: undefined,
+        upsert: false,
+      });
+      delete options.initArrayFields;
+    }
+    /** Execute update operation */
     return (
       await collection.updateMany(filter || {}, update, {
         ...omit(options!, ['filter']),
@@ -596,17 +630,15 @@ export class MongoEntityService<
     doc: any,
   ) {
     const patchGenerator = new MongoPatchGenerator();
-    const { update, arrayFilters } = patchGenerator.generatePatch<T>(
-      this.dataType,
-      doc,
-      {
+    const { update, arrayFilters, initArrayFields } =
+      patchGenerator.generatePatch<T>(this.dataType, doc, {
         scope: this._dataTypeScope,
-      },
-    );
+      });
     command.options = command.options || {};
     if (arrayFilters) {
       command.options.arrayFilters = command.options.arrayFilters || [];
       command.options.arrayFilters.push(...arrayFilters);
+      command.options.initArrayFields = initArrayFields;
     }
     return update;
   }
