@@ -233,7 +233,7 @@ export class ElasticCollectionService<
     id: string,
     options?: ElasticEntityService.FindOneOptions,
   ): Promise<boolean> {
-    const command: ElasticEntityService.SearchCommand = {
+    const command: ElasticEntityService.FindManyCommand = {
       crud: 'read',
       method: 'exists',
       byId: true,
@@ -251,7 +251,7 @@ export class ElasticCollectionService<
         command.options?.filter,
       ]);
       command.options = { ...options, request, filter };
-      const r = await this._search(command);
+      const r = await this._findMany(command);
       return !!(typeof r.hits.total === 'number'
         ? r.hits.total
         : r.hits.total?.value);
@@ -267,7 +267,7 @@ export class ElasticCollectionService<
   async existsOne(
     options?: ElasticEntityService.FindOneOptions,
   ): Promise<boolean> {
-    const command: ElasticEntityService.SearchCommand = {
+    const command: ElasticEntityService.FindManyCommand = {
       crud: 'read',
       method: 'exists',
       byId: false,
@@ -280,7 +280,7 @@ export class ElasticCollectionService<
         size: 0,
       };
       command.options = { ...options, request };
-      const r = await this._search(command);
+      const r = await this._findMany(command);
       return !!(typeof r.hits.total === 'number'
         ? r.hits.total
         : r.hits.total?.value);
@@ -316,7 +316,7 @@ export class ElasticCollectionService<
     id: string,
     options?: ElasticEntityService.FindOneOptions,
   ): Promise<PartialDTO<T> | T | undefined> {
-    const command: ElasticEntityService.SearchCommand = {
+    const command: ElasticEntityService.FindManyCommand = {
       crud: 'read',
       method: 'findById',
       byId: true,
@@ -333,8 +333,8 @@ export class ElasticCollectionService<
         ...command,
         limit: 1,
         options: { ...command.options, filter },
-      } as ElasticEntityService.SearchCommand;
-      const r = await this._search(newCommand);
+      } as ElasticEntityService.FindManyCommand;
+      const r = await this._findMany(newCommand);
       if (r.hits.hits?.length) {
         const outputCodec = this._getOutputCodec('find');
         return {
@@ -369,7 +369,7 @@ export class ElasticCollectionService<
   async findOne(
     options?: ElasticEntityService.FindOneOptions,
   ): Promise<PartialDTO<T> | T | undefined> {
-    const command: ElasticEntityService.SearchCommand = {
+    const command: ElasticEntityService.FindManyCommand = {
       crud: 'read',
       method: 'findOne',
       byId: false,
@@ -384,8 +384,8 @@ export class ElasticCollectionService<
         ...command,
         limit: 1,
         options: { ...command.options, filter },
-      } as ElasticEntityService.SearchCommand;
-      const r = await this._search(newCommand);
+      } as ElasticEntityService.FindManyCommand;
+      const r = await this._findMany(newCommand);
       if (r.hits.hits?.length) {
         const outputCodec = this._getOutputCodec('find');
         return {
@@ -399,26 +399,26 @@ export class ElasticCollectionService<
   /**
    * Finds multiple documents in the ElasticDB collection.
    *
-   * @param {ElasticEntityService.SearchOptions} options - The options for the find operation.
+   * @param {ElasticEntityService.FindManyOptions} options - The options for the find operation.
    * @return {Promise<PartialDTO<T> | undefined>} A Promise that resolves to an array of partial outputs of type T.
    */
   async findMany(
-    options: RequiredSome<ElasticEntityService.SearchOptions, 'projection'>,
+    options: RequiredSome<ElasticEntityService.FindManyOptions, 'projection'>,
   ): Promise<PartialDTO<T>[]>;
   /**
    * Finds multiple documents in the ElasticDB collection.
    *
-   * @param {ElasticEntityService.SearchOptions} options - The options for the find operation.
+   * @param {ElasticEntityService.FindManyOptions} options - The options for the find operation.
    * @return {Promise<T | undefined>} A Promise that resolves to an array of partial outputs of type T.
    */
-  async findMany(options?: ElasticEntityService.SearchOptions): Promise<T[]>;
+  async findMany(options?: ElasticEntityService.FindManyOptions): Promise<T[]>;
   /**
    *
    */
   async findMany(
-    options?: ElasticEntityService.SearchOptions,
+    options?: ElasticEntityService.FindManyOptions,
   ): Promise<(PartialDTO<T> | T)[]> {
-    const command: ElasticEntityService.SearchCommand = {
+    const command: ElasticEntityService.FindManyCommand = {
       crud: 'read',
       method: 'findMany',
       byId: false,
@@ -431,7 +431,7 @@ export class ElasticCollectionService<
       ]);
       const limit = command.options?.limit || this.defaultLimit;
       command.options = { ...command.options, filter, limit };
-      const r = await this._search(command);
+      const r = await this._findMany(command);
       if (r.hits.hits?.length) {
         const outputCodec = this._getOutputCodec('find');
         return r.hits.hits.map((x: any) => ({
@@ -447,32 +447,32 @@ export class ElasticCollectionService<
    * Finds multiple documents in the collection and returns both records (max limit)
    * and total count that matched the given criteria
    *
-   * @param {ElasticEntityService.SearchOptions} [options] - The options for the find operation.
+   * @param {ElasticEntityService.FindManyOptions} [options] - The options for the find operation.
    * @return {ElasticCollectionService.FindManyWithCountResult<PartialDTO<T>>} A Promise that resolves to an array of partial outputs of type T.
    */
   async findManyWithCount(
-    options: RequiredSome<ElasticEntityService.SearchOptions, 'projection'>,
+    options: RequiredSome<ElasticEntityService.FindManyOptions, 'projection'>,
   ): Promise<ElasticCollectionService.FindManyWithCountResult<PartialDTO<T>>>;
   /**
    * Finds multiple documents in the collection and returns both records (max limit)
    * and total count that matched the given criteria
    *
-   * @param {ElasticEntityService.SearchOptions} [options] - The options for the find operation.
+   * @param {ElasticEntityService.FindManyOptions} [options] - The options for the find operation.
    * @return {ElasticCollectionService.FindManyWithCountResult<T>} A Promise that resolves to an array of partial outputs of type T.
    */
   async findManyWithCount(
-    options?: ElasticEntityService.SearchOptions,
+    options?: ElasticEntityService.FindManyOptions,
   ): Promise<ElasticCollectionService.FindManyWithCountResult<T>>;
   /**
    *
    */
   async findManyWithCount(
-    options?: ElasticEntityService.SearchOptions,
+    options?: ElasticEntityService.FindManyOptions,
   ): Promise<{
     count: number;
     items: (PartialDTO<T> | T)[];
   }> {
-    const command: ElasticEntityService.SearchCommand = {
+    const command: ElasticEntityService.FindManyCommand = {
       crud: 'read',
       method: 'findManyWithCount',
       byId: false,
@@ -490,7 +490,7 @@ export class ElasticCollectionService<
         limit,
         request: { ...command.options?.request, track_total_hits: true },
       };
-      const r = await this._search(command);
+      const r = await this._findMany(command);
       const out = {} as ElasticCollectionService.FindManyWithCountResult<any>;
       if (r.hits.hits?.length) {
         const outputCodec = this._getOutputCodec('find');

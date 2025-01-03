@@ -89,7 +89,8 @@ export namespace ElasticEntityService {
    * @interface
    * @template T - The type of the document.
    */
-  export interface FindOneOptions extends StrictOmit<SearchOptions, 'limit'> {}
+  export interface FindOneOptions
+    extends StrictOmit<FindManyOptions, 'limit'> {}
 
   /**
    * Represents options for "findMany" operation
@@ -97,7 +98,7 @@ export namespace ElasticEntityService {
    * @interface
    * @template T - The type of the document.
    */
-  export interface SearchOptions {
+  export interface FindManyOptions {
     filter?: ElasticAdapter.FilterInput;
     projection?: string | string[];
     sort?: string[];
@@ -153,9 +154,9 @@ export namespace ElasticEntityService {
     options?: DeleteManyOptions;
   }
 
-  export interface SearchCommand extends StrictOmit<CommandInfo, 'input'> {
+  export interface FindManyCommand extends StrictOmit<CommandInfo, 'input'> {
     crud: 'read';
-    options?: SearchOptions;
+    options?: FindManyOptions;
   }
 
   export interface UpdateCommand<T> extends CommandInfo {
@@ -394,10 +395,10 @@ export class ElasticEntityService<
   /**
    * Returns search hits that match the query defined in the request
    *
-   * @param {ElasticEntityService.SearchCommand} command
+   * @param {ElasticEntityService.FindManyCommand} command
    */
-  protected async _search(
-    command: ElasticEntityService.SearchCommand,
+  protected async _findMany(
+    command: ElasticEntityService.FindManyCommand,
   ): Promise<elastic.SearchResponse> {
     const { options } = command;
     const filterQuery = ElasticAdapter.prepareFilter([
