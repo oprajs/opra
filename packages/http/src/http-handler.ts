@@ -96,8 +96,8 @@ export class HttpHandler {
         if (e instanceof ValidationError) {
           throw new BadRequestError(
             {
-              message: 'Response validation failed',
-              code: 'RESPONSE_VALIDATION',
+              message: 'Request validation failed',
+              code: 'REQUEST_VALIDATION',
               details: e.issues,
             },
             e,
