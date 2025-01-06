@@ -1,14 +1,19 @@
 import nodePath from 'node:path';
+import { omitUndefined } from '@jsopen/objects';
 import type { Combine, StrictOmit, ThunkAsync, Type } from 'ts-gems';
 import { asMutable } from 'ts-gems';
-import { cloneObject, omitUndefined } from '../../helpers/index.js';
+import { cloneObject } from '../../helpers/index.js';
 import { OpraSchema } from '../../schema/index.js';
+import type { ApiDocument } from '../api-document';
 import { DataTypeMap } from '../common/data-type-map.js';
 import { DocumentElement } from '../common/document-element.js';
 import { CLASS_NAME_PATTERN, DECORATOR, kDataTypeMap } from '../constants.js';
 import type { DataType } from '../data-type/data-type.js';
 import type { EnumType } from '../data-type/enum-type.js';
-import { type HttpOperationDecorator, HttpOperationDecoratorFactory } from '../decorators/http-operation.decorator.js';
+import {
+  type HttpOperationDecorator,
+  HttpOperationDecoratorFactory,
+} from '../decorators/http-operation.decorator.js';
 import type { HttpController } from './http-controller.js';
 import type { HttpOperationResponse } from './http-operation-response.js';
 import type { HttpParameter } from './http-parameter.js';
@@ -21,17 +26,33 @@ export namespace HttpOperation {
   export interface Metadata
     extends Pick<
       OpraSchema.HttpOperation,
-      'description' | 'method' | 'path' | 'mergePath' | 'composition' | 'compositionOptions'
+      | 'description'
+      | 'method'
+      | 'path'
+      | 'mergePath'
+      | 'composition'
+      | 'compositionOptions'
     > {
     types?: ThunkAsync<Type | EnumType.EnumObject | EnumType.EnumArray>[];
     parameters?: HttpParameter.Metadata[];
     responses?: HttpOperationResponse.Metadata[];
     requestBody?: HttpRequestBody.Metadata;
     immediateFetch?: boolean;
+    allowPatchOperators?: boolean;
   }
 
   export interface Options
-    extends Partial<Pick<Metadata, 'path' | 'mergePath' | 'description' | 'method' | 'immediateFetch'>> {
+    extends Partial<
+      Pick<
+        Metadata,
+        | 'path'
+        | 'mergePath'
+        | 'description'
+        | 'method'
+        | 'immediateFetch'
+        | 'allowPatchOperators'
+      >
+    > {
     requestBody?: HttpRequestBody.Options;
   }
 
@@ -43,7 +64,14 @@ export namespace HttpOperation {
       },
       Pick<
         Metadata,
-        'description' | 'method' | 'path' | 'mergePath' | 'composition' | 'compositionOptions' | 'immediateFetch'
+        | 'description'
+        | 'method'
+        | 'path'
+        | 'mergePath'
+        | 'composition'
+        | 'compositionOptions'
+        | 'immediateFetch'
+        | 'allowPatchOperators'
       >
     > {}
 }
@@ -58,7 +86,10 @@ export interface HttpOperationStatic {
    * @param controller
    * @param args
    */
-  new (controller: HttpController, args: HttpOperation.InitArguments): HttpOperation;
+  new (
+    controller: HttpController,
+    args: HttpOperation.InitArguments,
+  ): HttpOperation;
 
   /**
    * Property decorator
@@ -67,21 +98,37 @@ export interface HttpOperationStatic {
 
   prototype: HttpOperation;
 
-  GET(options?: StrictOmit<HttpOperation.Options, 'method'>): HttpOperationDecorator;
+  GET(
+    options?: StrictOmit<HttpOperation.Options, 'method'>,
+  ): HttpOperationDecorator;
 
-  DELETE(options?: StrictOmit<HttpOperation.Options, 'method'>): HttpOperationDecorator;
+  DELETE(
+    options?: StrictOmit<HttpOperation.Options, 'method'>,
+  ): HttpOperationDecorator;
 
-  HEAD(options?: StrictOmit<HttpOperation.Options, 'method'>): HttpOperationDecorator;
+  HEAD(
+    options?: StrictOmit<HttpOperation.Options, 'method'>,
+  ): HttpOperationDecorator;
 
-  OPTIONS(options?: StrictOmit<HttpOperation.Options, 'method'>): HttpOperationDecorator;
+  OPTIONS(
+    options?: StrictOmit<HttpOperation.Options, 'method'>,
+  ): HttpOperationDecorator;
 
-  PATCH(options?: StrictOmit<HttpOperation.Options, 'method'>): HttpOperationDecorator;
+  PATCH(
+    options?: StrictOmit<HttpOperation.Options, 'method'>,
+  ): HttpOperationDecorator;
 
-  POST(options?: StrictOmit<HttpOperation.Options, 'method'>): HttpOperationDecorator;
+  POST(
+    options?: StrictOmit<HttpOperation.Options, 'method'>,
+  ): HttpOperationDecorator;
 
-  PUT(options?: StrictOmit<HttpOperation.Options, 'method'>): HttpOperationDecorator;
+  PUT(
+    options?: StrictOmit<HttpOperation.Options, 'method'>,
+  ): HttpOperationDecorator;
 
-  SEARCH(options?: StrictOmit<HttpOperation.Options, 'method'>): HttpOperationDecorator;
+  SEARCH(
+    options?: StrictOmit<HttpOperation.Options, 'method'>,
+  ): HttpOperationDecorator;
 }
 
 /**
@@ -97,13 +144,21 @@ export const HttpOperation = function (this: HttpOperation, ...args: any[]) {
   if (!this) {
     const [options] = args as [options: HttpOperation.Options];
     const decoratorChain: Function[] = [];
-    return (HttpOperation[DECORATOR] as HttpOperationDecoratorFactory).call(undefined, decoratorChain, options);
+    return (HttpOperation[DECORATOR] as HttpOperationDecoratorFactory).call(
+      undefined,
+      decoratorChain,
+      options,
+    );
   }
 
   // Constructor
-  const [resource, initArgs] = args as [HttpController, HttpOperation.InitArguments];
+  const [resource, initArgs] = args as [
+    HttpController,
+    HttpOperation.InitArguments,
+  ];
   DocumentElement.call(this, resource);
-  if (!CLASS_NAME_PATTERN.test(initArgs.name)) throw new TypeError(`Invalid operation name (${initArgs.name})`);
+  if (!CLASS_NAME_PATTERN.test(initArgs.name))
+    throw new TypeError(`Invalid operation name (${initArgs.name})`);
   const _this = asMutable(this);
   _this.parameters = [];
   _this.responses = [];
@@ -114,7 +169,9 @@ export const HttpOperation = function (this: HttpOperation, ...args: any[]) {
   _this.method = initArgs.method || 'GET';
   _this.description = initArgs.description;
   _this.composition = initArgs.composition;
-  _this.compositionOptions = initArgs.compositionOptions ? cloneObject(initArgs.compositionOptions) : undefined;
+  _this.compositionOptions = initArgs.compositionOptions
+    ? cloneObject(initArgs.compositionOptions)
+    : undefined;
 } as HttpOperationStatic;
 
 /**
@@ -134,7 +191,10 @@ class HttpOperationClass extends DocumentElement {
   declare composition?: string;
   declare compositionOptions?: Record<string, any>;
 
-  findParameter(paramName: string, location?: OpraSchema.HttpParameterLocation): HttpParameter | undefined {
+  findParameter(
+    paramName: string,
+    location?: OpraSchema.HttpParameterLocation,
+  ): HttpParameter | undefined {
     const paramNameLower = paramName.toLowerCase();
     let prm: any;
     for (prm of this.parameters) {
@@ -159,7 +219,7 @@ class HttpOperationClass extends DocumentElement {
     return this.path || '/';
   }
 
-  toJSON(): OpraSchema.HttpOperation {
+  toJSON(options?: ApiDocument.ExportOptions): OpraSchema.HttpOperation {
     const out = omitUndefined<OpraSchema.HttpOperation>({
       kind: OpraSchema.HttpOperation.Kind,
       description: this.description,
@@ -167,21 +227,22 @@ class HttpOperationClass extends DocumentElement {
       path: this.path,
       mergePath: this.mergePath,
       composition: this.composition,
-      requestBody: this.requestBody?.toJSON(),
+      requestBody: this.requestBody?.toJSON(options),
     });
     if (this.types.size) {
       out.types = {};
       for (const v of this.types.values()) {
-        out.types[v.name!] = v.toJSON();
+        out.types[v.name!] = v.toJSON(options);
       }
     }
     if (this.parameters.length) {
       out.parameters = [];
       for (const prm of this.parameters) {
-        out.parameters.push(prm.toJSON());
+        out.parameters.push(prm.toJSON(options));
       }
     }
-    if (this.responses.length) out.responses = this.responses.map(r => r.toJSON());
+    if (this.responses.length)
+      out.responses = this.responses.map(r => r.toJSON(options));
     return out;
   }
 }
@@ -189,34 +250,50 @@ class HttpOperationClass extends DocumentElement {
 HttpOperation.prototype = HttpOperationClass.prototype;
 HttpOperation[DECORATOR] = HttpOperationDecoratorFactory;
 
-HttpOperation.GET = function (options?: StrictOmit<HttpOperation.Options, 'method'>): HttpOperationDecorator {
+HttpOperation.GET = function (
+  options?: StrictOmit<HttpOperation.Options, 'method'>,
+): HttpOperationDecorator {
   return HttpOperationDecoratorFactory([], { ...options, method: 'GET' });
 };
 
-HttpOperation.DELETE = function (options?: StrictOmit<HttpOperation.Options, 'method'>): HttpOperationDecorator {
+HttpOperation.DELETE = function (
+  options?: StrictOmit<HttpOperation.Options, 'method'>,
+): HttpOperationDecorator {
   return HttpOperationDecoratorFactory([], { ...options, method: 'DELETE' });
 };
 
-HttpOperation.HEAD = function (options?: StrictOmit<HttpOperation.Options, 'method'>): HttpOperationDecorator {
+HttpOperation.HEAD = function (
+  options?: StrictOmit<HttpOperation.Options, 'method'>,
+): HttpOperationDecorator {
   return HttpOperationDecoratorFactory([], { ...options, method: 'HEAD' });
 };
 
-HttpOperation.OPTIONS = function (options?: StrictOmit<HttpOperation.Options, 'method'>): HttpOperationDecorator {
+HttpOperation.OPTIONS = function (
+  options?: StrictOmit<HttpOperation.Options, 'method'>,
+): HttpOperationDecorator {
   return HttpOperationDecoratorFactory([], { ...options, method: 'OPTIONS' });
 };
 
-HttpOperation.PATCH = function (options?: StrictOmit<HttpOperation.Options, 'method'>): HttpOperationDecorator {
+HttpOperation.PATCH = function (
+  options?: StrictOmit<HttpOperation.Options, 'method'>,
+): HttpOperationDecorator {
   return HttpOperationDecoratorFactory([], { ...options, method: 'PATCH' });
 };
 
-HttpOperation.POST = function (options?: StrictOmit<HttpOperation.Options, 'method'>): HttpOperationDecorator {
+HttpOperation.POST = function (
+  options?: StrictOmit<HttpOperation.Options, 'method'>,
+): HttpOperationDecorator {
   return HttpOperationDecoratorFactory([], { ...options, method: 'POST' });
 };
 
-HttpOperation.PUT = function (options?: StrictOmit<HttpOperation.Options, 'method'>): HttpOperationDecorator {
+HttpOperation.PUT = function (
+  options?: StrictOmit<HttpOperation.Options, 'method'>,
+): HttpOperationDecorator {
   return HttpOperationDecoratorFactory([], { ...options, method: 'PUT' });
 };
 
-HttpOperation.SEARCH = function (options?: StrictOmit<HttpOperation.Options, 'method'>): HttpOperationDecorator {
+HttpOperation.SEARCH = function (
+  options?: StrictOmit<HttpOperation.Options, 'method'>,
+): HttpOperationDecorator {
   return HttpOperationDecoratorFactory([], { ...options, method: 'SEARCH' });
 };

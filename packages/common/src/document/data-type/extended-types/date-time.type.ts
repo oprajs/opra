@@ -3,6 +3,7 @@ import { DECODER, ENCODER } from '../../constants.js';
 import { SimpleType } from '../simple-type.js';
 
 @(SimpleType({
+  name: 'datetime',
   description: 'A full datetime value',
   nameMappings: {
     js: 'string',
@@ -32,7 +33,11 @@ export class DateTimeType {
   }
 
   protected [ENCODER](properties: Partial<this>): Validator {
-    const fn = vg.isDateString({ precision: 'time', trim: 'time', coerce: true });
+    const fn = vg.isDateString({
+      precision: 'time',
+      trim: 'time',
+      coerce: true,
+    });
     const x: Validator[] = [];
     if (properties.minValue) {
       isDateString(properties.minValue);

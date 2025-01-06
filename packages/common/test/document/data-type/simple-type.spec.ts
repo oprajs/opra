@@ -46,7 +46,9 @@ describe('SimpleType', () => {
   it('Should generate decoder', async () => {
     const dt = doc.node.getSimpleType('date');
     const decode = dt.generateCodec('decode');
-    expect(decode('2020-01-02T10:30:00')).toStrictEqual(new Date('2020-01-02T00:00:00'));
+    expect(decode('2020-01-02T10:30:00')).toStrictEqual(
+      new Date('2020-01-02T00:00:00'),
+    );
   });
 
   it('Should generate encoder', async () => {

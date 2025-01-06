@@ -8,7 +8,10 @@ export class CustomersService extends SqbCollectionService<Customer> {
   constructor(options?: SqbCollectionService.Options) {
     super(Customer, {
       ...options,
-      interceptor: async (callback: () => any, info: SqbEntityService.CommandInfo) => {
+      interceptor: async (
+        callback: () => any,
+        info: SqbEntityService.CommandInfo,
+      ) => {
         if (info.crud === 'create') info.input!._id = ++CustomersService.idGen;
         return callback();
       },

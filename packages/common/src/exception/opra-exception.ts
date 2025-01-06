@@ -1,4 +1,4 @@
-import { omitUndefined } from '../helpers/index.js';
+import { omitUndefined } from '@jsopen/objects';
 import { i18n } from '../i18n/index.js';
 import type { ErrorIssue } from './error-issue.js';
 import { IssueSeverity } from './issue-severity.enum.js';
@@ -41,7 +41,10 @@ export class OpraException extends Error {
         system: this.system,
         code: this.code,
         details: this.details,
-        stack: env === 'dev' || env === 'development' || env === 'test' ? this.stack?.split('\n') : undefined,
+        stack:
+          env === 'dev' || env === 'development' || env === 'test'
+            ? this.stack?.split('\n')
+            : undefined,
       },
       true,
     );

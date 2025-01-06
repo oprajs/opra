@@ -38,7 +38,8 @@ export namespace SqbCollectionService {
    *
    * @interface
    */
-  export interface DeleteManyOptions extends SqbEntityService.DeleteManyOptions {}
+  export interface DeleteManyOptions
+    extends SqbEntityService.DeleteManyOptions {}
 
   /**
    * Represents options for "exists" operation
@@ -80,21 +81,25 @@ export namespace SqbCollectionService {
    *
    * @interface
    */
-  export interface UpdateOnlyOptions extends SqbEntityService.UpdateOneOptions {}
+  export interface UpdateOnlyOptions
+    extends SqbEntityService.UpdateOneOptions {}
 
   /**
    * Represents options for "updateMany" operation
    *
    * @interface
    */
-  export interface UpdateManyOptions extends SqbEntityService.UpdateManyOptions {}
+  export interface UpdateManyOptions
+    extends SqbEntityService.UpdateManyOptions {}
 }
 
 /**
  * @class SqbCollectionService
  * @template T - The data type class type of the resource
  */
-export class SqbCollectionService<T extends object = object> extends SqbEntityService {
+export class SqbCollectionService<
+  T extends object = object,
+> extends SqbEntityService {
   /**
    * Represents default limit for findMany operation
    */
@@ -107,7 +112,10 @@ export class SqbCollectionService<T extends object = object> extends SqbEntitySe
    * @param {SqbCollectionService.Options} [options] - The options for the array service.
    * @constructor
    */
-  constructor(dataType: Type<T> | string, options?: SqbCollectionService.Options) {
+  constructor(
+    dataType: Type<T> | string,
+    options?: SqbCollectionService.Options,
+  ) {
     super(dataType, options);
     this.defaultLimit = options?.defaultLimit || 100;
   }
@@ -121,8 +129,12 @@ export class SqbCollectionService<T extends object = object> extends SqbEntitySe
    * @returns {Promise<void>} - A Promise that resolves when the resource exists.
    * @throws {ResourceNotAvailableError} - If the resource does not exist.
    */
-  async assert(id: SQBAdapter.IdOrIds, options?: SqbCollectionService.ExistsOptions): Promise<void> {
-    if (!(await this.exists(id, options))) throw new ResourceNotAvailableError(this.getResourceName(), id);
+  async assert(
+    id: SQBAdapter.IdOrIds,
+    options?: SqbCollectionService.ExistsOptions,
+  ): Promise<void> {
+    if (!(await this.exists(id, options)))
+      throw new ResourceNotAvailableError(this.getResourceName(), id);
   }
 
   /**
@@ -137,8 +149,14 @@ export class SqbCollectionService<T extends object = object> extends SqbEntitySe
     input: PartialDTO<T>,
     options: RequiredSome<SqbCollectionService.CreateOptions, 'projection'>,
   ): Promise<PartialDTO<T>>;
-  async create(input: PartialDTO<T>, options?: SqbCollectionService.CreateOptions): Promise<T>;
-  async create(input: PartialDTO<T>, options?: SqbCollectionService.CreateOptions): Promise<PartialDTO<T>> {
+  async create(
+    input: PartialDTO<T>,
+    options?: SqbCollectionService.CreateOptions,
+  ): Promise<T>;
+  async create(
+    input: PartialDTO<T>,
+    options?: SqbCollectionService.CreateOptions,
+  ): Promise<PartialDTO<T>> {
     const command: SqbEntityService.CreateCommand<T> = {
       crud: 'create',
       method: 'create',
@@ -157,7 +175,10 @@ export class SqbCollectionService<T extends object = object> extends SqbEntitySe
    * @returns {Promise<void>} A promise that resolves create operation result
    * @throws {Error} if an unknown error occurs while creating the resource
    */
-  async createOnly(input: PartialDTO<T>, options?: SqbCollectionService.CreateOptions): Promise<void> {
+  async createOnly(
+    input: PartialDTO<T>,
+    options?: SqbCollectionService.CreateOptions,
+  ): Promise<void> {
     const command: SqbEntityService.CreateCommand<T> = {
       crud: 'create',
       method: 'createOnly',
@@ -182,7 +203,10 @@ export class SqbCollectionService<T extends object = object> extends SqbEntitySe
       options,
     };
     return this._executeCommand(command, async () => {
-      const filter = SQBAdapter.parseFilter([await this._getCommonFilter(command), command.options?.filter]);
+      const filter = SQBAdapter.parseFilter([
+        await this._getCommonFilter(command),
+        command.options?.filter,
+      ]);
       command.options = { ...command.options, filter };
       return this._count(command);
     });
@@ -195,7 +219,10 @@ export class SqbCollectionService<T extends object = object> extends SqbEntitySe
    * @param {SqbCollectionService.DeleteOptions} [options] - Optional delete options.
    * @return {Promise<number>} - A Promise that resolves to the number of documents deleted.
    */
-  async delete(id: SQBAdapter.IdOrIds, options?: SqbCollectionService.DeleteOptions): Promise<number> {
+  async delete(
+    id: SQBAdapter.IdOrIds,
+    options?: SqbCollectionService.DeleteOptions,
+  ): Promise<number> {
     const command: SqbEntityService.DeleteOneCommand = {
       crud: 'delete',
       method: 'delete',
@@ -204,7 +231,10 @@ export class SqbCollectionService<T extends object = object> extends SqbEntitySe
       options,
     };
     return this._executeCommand(command, async () => {
-      const filter = SQBAdapter.parseFilter([await this._getCommonFilter(command), command.options?.filter]);
+      const filter = SQBAdapter.parseFilter([
+        await this._getCommonFilter(command),
+        command.options?.filter,
+      ]);
       command.options = { ...command.options, filter };
       return this._delete(command);
     });
@@ -216,7 +246,9 @@ export class SqbCollectionService<T extends object = object> extends SqbEntitySe
    * @param {SqbCollectionService.DeleteManyOptions} options - The options for the delete operation.
    * @return {Promise<number>} - A promise that resolves to the number of documents deleted.
    */
-  async deleteMany(options?: SqbCollectionService.DeleteManyOptions): Promise<number> {
+  async deleteMany(
+    options?: SqbCollectionService.DeleteManyOptions,
+  ): Promise<number> {
     const command: SqbEntityService.DeleteManyCommand = {
       crud: 'delete',
       method: 'deleteMany',
@@ -224,7 +256,10 @@ export class SqbCollectionService<T extends object = object> extends SqbEntitySe
       options,
     };
     return this._executeCommand(command, async () => {
-      const filter = SQBAdapter.parseFilter([await this._getCommonFilter(command), command.options?.filter]);
+      const filter = SQBAdapter.parseFilter([
+        await this._getCommonFilter(command),
+        command.options?.filter,
+      ]);
       command.options = { ...command.options, filter };
       return this._deleteMany(command);
     });
@@ -237,7 +272,10 @@ export class SqbCollectionService<T extends object = object> extends SqbEntitySe
    * @param {SqbCollectionService.ExistsOptions} [options] - The options for the query (optional).
    * @return {Promise<boolean>} - A Promise that resolves to a boolean indicating whether the record exists or not.
    */
-  async exists(id: SQBAdapter.IdOrIds, options?: SqbCollectionService.ExistsOptions): Promise<boolean> {
+  async exists(
+    id: SQBAdapter.IdOrIds,
+    options?: SqbCollectionService.ExistsOptions,
+  ): Promise<boolean> {
     const command: SqbEntityService.ExistsCommand = {
       crud: 'read',
       method: 'exists',
@@ -246,7 +284,10 @@ export class SqbCollectionService<T extends object = object> extends SqbEntitySe
       options,
     };
     return this._executeCommand(command, async () => {
-      const filter = SQBAdapter.parseFilter([await this._getCommonFilter(command), command.options?.filter]);
+      const filter = SQBAdapter.parseFilter([
+        await this._getCommonFilter(command),
+        command.options?.filter,
+      ]);
       command.options = { ...command.options, filter };
       return this._exists(command);
     });
@@ -258,7 +299,9 @@ export class SqbCollectionService<T extends object = object> extends SqbEntitySe
    * @param {SqbCollectionService.ExistsOneOptions} [options] - The options for the query (optional).
    * @return {Promise<boolean>} - A Promise that resolves to a boolean indicating whether the record exists or not.
    */
-  async existsOne(options?: SqbCollectionService.ExistsOneOptions): Promise<boolean> {
+  async existsOne(
+    options?: SqbCollectionService.ExistsOneOptions,
+  ): Promise<boolean> {
     const command: SqbEntityService.ExistsCommand = {
       crud: 'read',
       method: 'existsOne',
@@ -266,7 +309,10 @@ export class SqbCollectionService<T extends object = object> extends SqbEntitySe
       options,
     };
     return this._executeCommand(command, async () => {
-      const filter = SQBAdapter.parseFilter([await this._getCommonFilter(command), command.options?.filter]);
+      const filter = SQBAdapter.parseFilter([
+        await this._getCommonFilter(command),
+        command.options?.filter,
+      ]);
       command.options = { ...command.options, filter };
       return this._existsOne(command);
     });
@@ -292,7 +338,10 @@ export class SqbCollectionService<T extends object = object> extends SqbEntitySe
     };
     return this._executeCommand(command, async () => {
       const documentFilter = await this._getCommonFilter(command);
-      const filter = SQBAdapter.parseFilter([documentFilter, command.options?.filter]);
+      const filter = SQBAdapter.parseFilter([
+        documentFilter,
+        command.options?.filter,
+      ]);
       command.options = { ...command.options, filter };
       return this._findById(command);
     });
@@ -304,7 +353,9 @@ export class SqbCollectionService<T extends object = object> extends SqbEntitySe
    * @param {SqbCollectionService.FindOneOptions} options - The options for the query.
    * @return {Promise<PartialDTO<T> | undefined>} A promise that resolves with the found document or undefined if no document is found.
    */
-  async findOne(options?: SqbCollectionService.FindOneOptions): Promise<PartialDTO<T> | undefined> {
+  async findOne(
+    options?: SqbCollectionService.FindOneOptions,
+  ): Promise<PartialDTO<T> | undefined> {
     const command: SqbEntityService.FindOneCommand = {
       crud: 'read',
       method: 'findOne',
@@ -312,7 +363,10 @@ export class SqbCollectionService<T extends object = object> extends SqbEntitySe
       options,
     };
     return this._executeCommand(command, async () => {
-      const filter = SQBAdapter.parseFilter([await this._getCommonFilter(command), command.options?.filter]);
+      const filter = SQBAdapter.parseFilter([
+        await this._getCommonFilter(command),
+        command.options?.filter,
+      ]);
       command.options = { ...command.options, filter };
       return this._findOne(command);
     });
@@ -324,7 +378,9 @@ export class SqbCollectionService<T extends object = object> extends SqbEntitySe
    * @param {SqbCollectionService.FindManyOptions} options - The options for the find operation.
    * @return A Promise that resolves to an array of partial outputs of type T.
    */
-  async findMany(options?: SqbCollectionService.FindManyOptions): Promise<PartialDTO<T>[]> {
+  async findMany(
+    options?: SqbCollectionService.FindManyOptions,
+  ): Promise<PartialDTO<T>[]> {
     const command: SqbEntityService.FindManyCommand = {
       crud: 'read',
       method: 'findMany',
@@ -332,7 +388,10 @@ export class SqbCollectionService<T extends object = object> extends SqbEntitySe
       options,
     };
     return this._executeCommand(command, async () => {
-      const filter = SQBAdapter.parseFilter([await this._getCommonFilter(command), command.options?.filter]);
+      const filter = SQBAdapter.parseFilter([
+        await this._getCommonFilter(command),
+        command.options?.filter,
+      ]);
       const limit = command.options?.limit || this.defaultLimit;
       command.options = { ...command.options, filter, limit };
       return this._findMany(command);
@@ -346,11 +405,16 @@ export class SqbCollectionService<T extends object = object> extends SqbEntitySe
    * @param {SqbCollectionService.FindManyOptions} options - The options for the find operation.
    * @return A Promise that resolves to an array of partial outputs of type T and total count.
    */
-  async findManyWithCount(options?: SqbCollectionService.FindManyOptions): Promise<{
+  async findManyWithCount(
+    options?: SqbCollectionService.FindManyOptions,
+  ): Promise<{
     count: number;
     items: PartialDTO<T>[];
   }> {
-    const [items, count] = await Promise.all([this.findMany(options), this.count(options)]);
+    const [items, count] = await Promise.all([
+      this.findMany(options),
+      this.count(options),
+    ]);
     return { count, items };
   }
 
@@ -363,7 +427,10 @@ export class SqbCollectionService<T extends object = object> extends SqbEntitySe
    *    or rejects with a ResourceNotFoundError if the document does not exist.
    * @throws {ResourceNotAvailableError} - If the document with the specified ID does not exist.
    */
-  async get(id: SQBAdapter.IdOrIds, options?: SqbCollectionService.FindOneOptions): Promise<PartialDTO<T>> {
+  async get(
+    id: SQBAdapter.IdOrIds,
+    options?: SqbCollectionService.FindOneOptions,
+  ): Promise<PartialDTO<T>> {
     const out = await this.findById(id, options);
     if (!out) throw new ResourceNotAvailableError(this.getResourceName(), id);
     return out;
@@ -392,7 +459,10 @@ export class SqbCollectionService<T extends object = object> extends SqbEntitySe
       options,
     };
     return this._executeCommand(command, async () => {
-      const filter = SQBAdapter.parseFilter([await this._getCommonFilter(command), command.options?.filter]);
+      const filter = SQBAdapter.parseFilter([
+        await this._getCommonFilter(command),
+        command.options?.filter,
+      ]);
       command.options = { ...command.options, filter };
       return this._update(command);
     });
@@ -420,7 +490,10 @@ export class SqbCollectionService<T extends object = object> extends SqbEntitySe
       options,
     };
     return this._executeCommand(command, async () => {
-      const filter = SQBAdapter.parseFilter([await this._getCommonFilter(command), command.options?.filter]);
+      const filter = SQBAdapter.parseFilter([
+        await this._getCommonFilter(command),
+        command.options?.filter,
+      ]);
       command.options = { ...command.options, filter };
       return this._updateOnly(command);
     });
@@ -433,7 +506,10 @@ export class SqbCollectionService<T extends object = object> extends SqbEntitySe
    * @param {SqbCollectionService.UpdateManyOptions} options - The options for updating the documents.
    * @return {Promise<number>} - A promise that resolves to the number of documents matched and modified.
    */
-  async updateMany(input: PatchDTO<T>, options?: SqbCollectionService.UpdateManyOptions): Promise<number> {
+  async updateMany(
+    input: PatchDTO<T>,
+    options?: SqbCollectionService.UpdateManyOptions,
+  ): Promise<number> {
     const command: SqbEntityService.UpdateManyCommand<T> = {
       crud: 'update',
       method: 'updateMany',
@@ -442,7 +518,10 @@ export class SqbCollectionService<T extends object = object> extends SqbEntitySe
       options,
     };
     return this._executeCommand(command, async () => {
-      const filter = SQBAdapter.parseFilter([await this._getCommonFilter(command), command.options?.filter]);
+      const filter = SQBAdapter.parseFilter([
+        await this._getCommonFilter(command),
+        command.options?.filter,
+      ]);
       command.options = { ...command.options, filter };
       return this._updateMany(command);
     });

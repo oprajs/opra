@@ -217,7 +217,10 @@ export interface HttpIncoming extends NodeIncomingMessage {
   /**
    * Parse Range header field, capping to the given `size`.
    */
-  range(size: number, options?: RangeParserOptions): RangeParserRanges | RangeParserResult | undefined;
+  range(
+    size: number,
+    options?: RangeParserOptions,
+  ): RangeParserRanges | RangeParserResult | undefined;
 
   /**
    * Receives the body
@@ -231,10 +234,16 @@ export interface HttpIncoming extends NodeIncomingMessage {
  */
 export namespace HttpIncoming {
   export function from(
-    instance: HttpIncoming | NodeIncomingMessage.Initiator | string | Iterable<any> | AsyncIterable<any>,
+    instance:
+      | HttpIncoming
+      | NodeIncomingMessage.Initiator
+      | string
+      | Iterable<any>
+      | AsyncIterable<any>,
   ): HttpIncoming {
     if (isHttpIncoming(instance)) return instance;
-    if (!isNodeIncomingMessage(instance)) instance = NodeIncomingMessage.from(instance);
+    if (!isNodeIncomingMessage(instance))
+      instance = NodeIncomingMessage.from(instance);
     mergePrototype(instance, HttpIncomingHost.prototype);
     const req = instance as HttpIncoming;
     req.baseUrl = req.baseUrl || '';

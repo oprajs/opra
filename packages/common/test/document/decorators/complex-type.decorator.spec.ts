@@ -9,6 +9,7 @@ describe('ComplexType() decorator', () => {
       description: 'Animal schema',
       abstract: false,
       additionalFields: true,
+      scopePattern: 'public',
     };
 
     @ComplexType(opts)
@@ -17,7 +18,13 @@ describe('ComplexType() decorator', () => {
     }
 
     const schema = Reflect.getMetadata(DATATYPE_METADATA, Animal);
-    expect(schema).toStrictEqual({ kind: 'ComplexType', name: 'Animal', ...opts, additionalFields: true });
+    expect(schema).toStrictEqual({
+      kind: 'ComplexType',
+      name: 'Animal',
+      ...opts,
+      scopePattern: 'public',
+      additionalFields: true,
+    });
   });
 
   it('Should set alternate name', async () => {

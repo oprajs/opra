@@ -1,7 +1,23 @@
 import '@opra/core';
 import { ApiDocument, HttpController } from '@opra/common';
 import { SQBAdapter } from '@opra/sqb';
-import { And, Eq, Gt, Gte, Ilike, In, Like, Lt, Lte, Ne, Nin, NLike, Not, NotILike, Or } from '@sqb/builder';
+import {
+  And,
+  Eq,
+  Gt,
+  Gte,
+  Ilike,
+  In,
+  Like,
+  Lt,
+  Lte,
+  Ne,
+  Nin,
+  NLike,
+  Not,
+  NotILike,
+  Or,
+} from '@sqb/builder';
 import { CustomerApplication } from 'express-sqb';
 import { Validator } from 'valgen';
 
@@ -40,8 +56,10 @@ describe('SQBAdapter.parseFilter', () => {
     expect(out).toStrictEqual(Eq('active', true));
     out = SQBAdapter.parseFilter(filterDecoder('active=false'));
     expect(out).toStrictEqual(Eq('active', false));
-    out = SQBAdapter.parseFilter(filterDecoder('birthDate="2020-06-11T12:30:15"'));
-    expect(out).toStrictEqual(Eq('birthDate', '2020-06-11T12:30:15'));
+    out = SQBAdapter.parseFilter(
+      filterDecoder('birthDate="2020-06-11T12:30:15"'),
+    );
+    expect(out).toStrictEqual(Eq('birthDate', new Date('2020-06-11T12:30:15')));
   });
 
   it('Should convert ComparisonExpression (!=)', async () => {
@@ -80,22 +98,30 @@ describe('SQBAdapter.parseFilter', () => {
   });
 
   it('Should convert ComparisonExpression (like)', async () => {
-    const out = SQBAdapter.parseFilter(filterDecoder('givenName like "Demons*"'));
+    const out = SQBAdapter.parseFilter(
+      filterDecoder('givenName like "Demons*"'),
+    );
     expect(out).toStrictEqual(Like('givenName', 'Demons%'));
   });
 
   it('Should convert ComparisonExpression (!like)', async () => {
-    const out = SQBAdapter.parseFilter(filterDecoder('givenName !like "*Demons"'));
+    const out = SQBAdapter.parseFilter(
+      filterDecoder('givenName !like "*Demons"'),
+    );
     expect(out).toStrictEqual(NLike('givenName', '%Demons'));
   });
 
   it('Should convert ComparisonExpression (ilike)', async () => {
-    const out = SQBAdapter.parseFilter(filterDecoder('givenName ilike "Demons"'));
+    const out = SQBAdapter.parseFilter(
+      filterDecoder('givenName ilike "Demons"'),
+    );
     expect(out).toStrictEqual(Ilike('givenName', 'Demons'));
   });
 
   it('Should convert ComparisonExpression (!ilike)', async () => {
-    const out = SQBAdapter.parseFilter(filterDecoder('givenName !ilike "Demons"'));
+    const out = SQBAdapter.parseFilter(
+      filterDecoder('givenName !ilike "Demons"'),
+    );
     expect(out).toStrictEqual(NotILike('givenName', 'Demons'));
   });
 
@@ -117,7 +143,11 @@ describe('SQBAdapter.parseFilter', () => {
   });
 
   it('Should convert ParenthesesExpression', async () => {
-    const out = SQBAdapter.parseFilter(filterDecoder('(rate=1 or rate=2) and givenName = "Demons"'));
-    expect(out).toStrictEqual(And(Or(Eq('rate', 1), Eq('rate', 2)), Eq('givenName', 'Demons')));
+    const out = SQBAdapter.parseFilter(
+      filterDecoder('(rate=1 or rate=2) and givenName = "Demons"'),
+    );
+    expect(out).toStrictEqual(
+      And(Or(Eq('rate', 1), Eq('rate', 2)), Eq('givenName', 'Demons')),
+    );
   });
 });

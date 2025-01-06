@@ -1,4 +1,3 @@
-/* eslint-disable no-console */
 import '@sqb/postgres';
 import { ApiDocument } from '@opra/common';
 import { ExpressAdapter, HttpAdapter } from '@opra/http';
@@ -12,12 +11,15 @@ export class CustomerApplication {
   declare express: express.Express;
   declare db: SqbClient;
 
-  static async create(options?: HttpAdapter.Options): Promise<CustomerApplication> {
+  static async create(
+    options?: HttpAdapter.Options,
+  ): Promise<CustomerApplication> {
     const app = new CustomerApplication();
     try {
       app.db = new SqbClient({
         dialect: 'postgres',
         schema: process.env.PG_DATABASE || 'customer_app',
+        password: process.env.PG_PASSWORD || 'postgres',
       });
     } catch (e) {
       await app.close();
@@ -40,7 +42,8 @@ export class CustomerApplication {
     // });
     app.document = await CustomerApiDocument.create(app.db);
     app.express = express();
-    app.adapter = new ExpressAdapter(app.express, app.document, options);
+    app.adapter = new ExpressAdapter(app.express, options);
+    await app.adapter.initialize(app.document);
     return app;
   }
 

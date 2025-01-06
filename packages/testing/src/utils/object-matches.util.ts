@@ -3,7 +3,8 @@ export function objectMatches(received, expected: any) {
 }
 
 function _objectMatches(received, expected: any, path: string) {
-  if (typeof received !== typeof expected) expect(typeof received).toStrictEqual('object');
+  if (typeof received !== typeof expected)
+    expect(typeof received).toStrictEqual('object');
   const keys = Object.keys(expected);
   for (const k of keys) {
     const rv = received[k];

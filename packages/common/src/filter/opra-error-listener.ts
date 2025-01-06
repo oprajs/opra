@@ -1,4 +1,8 @@
-import { ErrorListener, RecognitionException, type Recognizer } from '@browsery/antlr4';
+import {
+  ErrorListener,
+  RecognitionException,
+  type Recognizer,
+} from '@browsery/antlr4';
 import { FilterParseError } from './errors.js';
 
 export class OpraErrorListener extends ErrorListener<any> {
@@ -14,6 +18,14 @@ export class OpraErrorListener extends ErrorListener<any> {
     msg: string,
     e: RecognitionException,
   ): void {
-    this.errors.push(new FilterParseError(msg, { recognizer, offendingSymbol, line, column, e }));
+    this.errors.push(
+      new FilterParseError(msg, {
+        recognizer,
+        offendingSymbol,
+        line,
+        column,
+        e,
+      }),
+    );
   }
 }

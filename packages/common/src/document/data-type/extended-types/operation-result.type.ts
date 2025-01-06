@@ -4,6 +4,7 @@ import { ApiField } from '../api-field.js';
 import { ComplexType } from '../complex-type.js';
 
 @ComplexType({
+  name: 'OperationResult',
   description: 'Operation result',
 })
 export class OperationResult<TPayload = any> {

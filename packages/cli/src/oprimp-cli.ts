@@ -8,7 +8,9 @@ import { program } from 'commander';
 import { TsGenerator } from './ts-generator/ts-generator.js';
 
 const dirname = path.dirname(getStackFileName());
-const pkgJson = JSON.parse(fs.readFileSync(path.resolve(dirname, '../package.json'), 'utf-8'));
+const pkgJson = JSON.parse(
+  fs.readFileSync(path.resolve(dirname, '../package.json'), 'utf-8'),
+);
 
 program
   .version(pkgJson.version)

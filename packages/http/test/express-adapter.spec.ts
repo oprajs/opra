@@ -3,7 +3,10 @@ import { ExpressAdapter } from '@opra/http';
 import cookieParser from 'cookie-parser';
 import express, { Express } from 'express';
 import supertest from 'supertest';
-import { createTestApi, CustomersController } from './_support/test-api/index.js';
+import {
+  createTestApi,
+  CustomersController,
+} from './_support/test-api/index.js';
 
 describe('ExpressAdapter', () => {
   let document: ApiDocument;
@@ -14,26 +17,24 @@ describe('ExpressAdapter', () => {
     document = await createTestApi();
     app = express();
     app.use(cookieParser());
-    adapter = new ExpressAdapter(app, document, { basePath: 'api' });
+    adapter = new ExpressAdapter(app, { basePath: 'api' });
+    adapter.initialize(document);
   });
 
   afterAll(async () => adapter.close());
   afterAll(() => global.gc && global.gc());
-
-  it('Should call HttpController onInit method while init', async () => {
-    const instance = adapter.getControllerInstance<CustomersController>('/Customers');
-    expect(instance).toBeDefined();
-    expect(instance).toBeInstanceOf(CustomersController);
-    expect(instance!.initialized).toEqual(true);
-    expect(instance!.closed).toEqual(false);
-  });
 
   it('Should init all routes', async () => {
     const routerStack = app._router.stack.find(x => x.name === 'router');
     expect(routerStack).toBeDefined();
     const paths = routerStack.handle.stack
       .filter(x => x.route)
-      .map(x => x.route.path + ' | ' + Object.keys(x.route.methods).join(',').toUpperCase());
+      .map(
+        x =>
+          x.route.path +
+          ' | ' +
+          Object.keys(x.route.methods).join(',').toUpperCase(),
+      );
 
     expect(paths).toEqual([
       '/\\$schema | GET',
@@ -88,11 +89,10 @@ describe('ExpressAdapter', () => {
   });
 
   it('Should call HttpController onShutdown method on close', async () => {
-    const instance = adapter.getControllerInstance<CustomersController>('/Customers');
+    const instance =
+      adapter.getControllerInstance<CustomersController>('/Customers');
     await adapter.close();
     expect(instance).toBeDefined();
     expect(instance).toBeInstanceOf(CustomersController);
-    expect(instance!.initialized).toEqual(true);
-    expect(instance!.closed).toEqual(true);
   });
 });

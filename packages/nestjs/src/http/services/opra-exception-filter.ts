@@ -15,5 +15,6 @@ export class OpraExceptionFilter extends BaseExceptionFilter {
       ctx.errors.push(exception);
       return adapter.handler.sendResponse(ctx);
     }
+    super.catch(exception, host);
   }
 }

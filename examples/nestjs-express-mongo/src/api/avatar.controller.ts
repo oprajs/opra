@@ -1,4 +1,10 @@
-import { ApiField, ComplexType, HttpController, HttpOperation, OmitType } from '@opra/common';
+import {
+  ApiField,
+  ComplexType,
+  HttpController,
+  HttpOperation,
+  OmitType,
+} from '@opra/common';
 import { HttpContext, MultipartReader } from '@opra/http';
 
 @ComplexType()
@@ -24,7 +30,9 @@ export class AvatarController {
   async update(context: HttpContext) {
     const reader = await context.getMultipartReader();
     const parts = await reader.getAll();
-    const part = parts.find(x => x.field === 'metadata') as MultipartReader.FieldInfo;
+    const part = parts.find(
+      x => x.field === 'metadata',
+    ) as MultipartReader.FieldInfo;
     return part.value;
   }
 }

@@ -20,7 +20,13 @@ describe('HttpApi', () => {
   it('Should create controller instances', async () => {
     const api = doc.api as RpcApi;
     expect(api.controllers.size).toBeGreaterThan(0);
-    expect(Array.from(api.controllers.keys())).toStrictEqual(['Auth', 'Countries', 'Country', 'Customers', 'Customer']);
+    expect(Array.from(api.controllers.keys())).toStrictEqual([
+      'Auth',
+      'Countries',
+      'Country',
+      'Customers',
+      'Customer',
+    ]);
     expect(api.controllers.get('Customers')).toBeInstanceOf(HttpController);
   });
 });

@@ -1,4 +1,9 @@
-import { HttpController, HttpOperation, OmitType, OperationResult } from '@opra/common';
+import {
+  HttpController,
+  HttpOperation,
+  OmitType,
+  OperationResult,
+} from '@opra/common';
 import { HttpContext } from '@opra/http';
 import { SQBAdapter } from '@opra/sqb';
 import { SqbClient } from '@sqb/connect';
@@ -26,7 +31,13 @@ export class CustomersController {
   }
 
   @(HttpOperation.Entity.FindMany(Customer)
-    .SortFields('_id', 'givenName', 'familyName', 'gender', 'address.countryCode')
+    .SortFields(
+      '_id',
+      'givenName',
+      'familyName',
+      'gender',
+      'address.countryCode',
+    )
     .DefaultSort('givenName')
     .Filter('_id')
     .Filter('givenName')
@@ -41,7 +52,9 @@ export class CustomersController {
   async findMany(context: HttpContext) {
     const { options } = await SQBAdapter.parseRequest(context);
     if (options.count) {
-      const { items, count } = await this.service.for(context).findManyWithCount(options);
+      const { items, count } = await this.service
+        .for(context)
+        .findManyWithCount(options);
       return new OperationResult({
         payload: items,
         totalMatches: count,

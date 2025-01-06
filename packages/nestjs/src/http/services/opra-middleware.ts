@@ -1,17 +1,11 @@
-import { Inject, Injectable, type NestMiddleware } from '@nestjs/common';
+import { Injectable, type NestMiddleware } from '@nestjs/common';
 import { HttpContext, HttpIncoming, HttpOutgoing } from '@opra/http';
 import type { NextFunction, Request, Response } from 'express';
-import { OPRA_HTTP_MODULE_OPTIONS } from '../../constants.js';
-import type { OpraHttpModule } from '../opra-http.module.js';
 import { OpraHttpNestjsAdapter } from '../opra-http-nestjs-adapter.js';
 
 @Injectable()
 export class OpraMiddleware implements NestMiddleware {
-  constructor(
-    protected opraAdapter: OpraHttpNestjsAdapter,
-    @Inject(OPRA_HTTP_MODULE_OPTIONS)
-    protected options: OpraHttpModule.Options,
-  ) {}
+  constructor(protected opraAdapter: OpraHttpNestjsAdapter) {}
 
   use(req: Request, res: Response, next: NextFunction) {
     const request = HttpIncoming.from(req);

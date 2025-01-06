@@ -20,7 +20,9 @@ export class ArithmeticExpression extends Expression {
   }
 
   toString(): string {
-    return this.items.map((child, i) => (i > 0 ? child.op : '') + child.expression).join('');
+    return this.items
+      .map((child, i) => (i > 0 ? child.op : '') + child.expression)
+      .join('');
   }
 }
 

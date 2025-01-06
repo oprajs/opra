@@ -1,4 +1,9 @@
-import { HttpController, HttpOperation, OperationResult, UnauthorizedError } from '@opra/common';
+import {
+  HttpController,
+  HttpOperation,
+  OperationResult,
+  UnauthorizedError,
+} from '@opra/common';
 import { HttpContext } from '@opra/http';
 import { Db } from 'mongodb';
 import { MyProfileController } from './my-profile.controller.js';

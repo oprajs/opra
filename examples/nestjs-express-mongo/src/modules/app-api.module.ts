@@ -12,6 +12,7 @@ import { AppDbModule } from './app-db.module.js';
   imports: [
     AppDbModule,
     OpraHttpModule.forRoot({
+      name: 'CustomerApi',
       info: {
         title: 'Customer Application',
         version: '1.0',
@@ -19,11 +20,13 @@ import { AppDbModule } from './app-db.module.js';
       references: {
         cm: () => CustomerModelsDocument.create(),
       },
-      name: 'CustomerApi',
-      controllers: [AuthController, CustomerController, CustomersController, CustomerNotesController],
-      options: {
-        schemaRouteIsPublic: true,
-      },
+      controllers: [
+        AuthController,
+        CustomerController,
+        CustomersController,
+        CustomerNotesController,
+      ],
+      schemaIsPublic: true,
     }),
   ],
 })
@@ -35,13 +38,17 @@ export class AppApiModule {
     opraAdapter.on('request', context => {
       if (process.env.NODE_ENV !== 'test') {
         const { request } = context;
-        this.logger.verbose(`Request from: ${request.ip} | ${request.method} | ${request.url}`);
+        this.logger.verbose(
+          `Request from: ${request.ip} | ${request.method} | ${request.url}`,
+        );
       }
     });
     opraAdapter.on('error', context => {
       if (process.env.NODE_ENV !== 'test') {
         const { request, response, errors } = context;
-        errors.forEach(error => this.logger.error(`${response.statusCode}|${request.ip}|${error}`));
+        errors.forEach(error =>
+          this.logger.error(`${response.statusCode}|${request.ip}|${error}`),
+        );
       }
     });
   }

@@ -1,4 +1,3 @@
-/* eslint-disable camelcase */
 import { ElasticAdapter } from '@opra/elastic';
 
 describe('ElasticAdapter.prepareFilter', () => {
@@ -13,23 +12,33 @@ describe('ElasticAdapter.prepareFilter', () => {
       out = ElasticAdapter.prepareFilter('active=false');
       expect(out).toStrictEqual({ match: { active: false } });
       out = ElasticAdapter.prepareFilter('deleted=null');
-      expect(out).toStrictEqual({ bool: { must_not: { exists: { field: 'deleted' } } } });
+      expect(out).toStrictEqual({
+        bool: { must_not: { exists: { field: 'deleted' } } },
+      });
     });
 
     it('Should convert ComparisonExpression (not =)', async () => {
       let out = ElasticAdapter.prepareFilter('not rate=10');
-      expect(out).toStrictEqual({ bool: { must_not: { match: { rate: 10 } } } });
+      expect(out).toStrictEqual({
+        bool: { must_not: { match: { rate: 10 } } },
+      });
       out = ElasticAdapter.prepareFilter('not active=false');
-      expect(out).toStrictEqual({ bool: { must_not: { match: { active: false } } } });
+      expect(out).toStrictEqual({
+        bool: { must_not: { match: { active: false } } },
+      });
       out = ElasticAdapter.prepareFilter('not deleted=null');
       expect(out).toStrictEqual({ exists: { field: 'deleted' } });
     });
 
     it('Should convert ComparisonExpression (!=)', async () => {
       let out = ElasticAdapter.prepareFilter('rate!=10');
-      expect(out).toStrictEqual({ bool: { must_not: { match: { rate: 10 } } } });
+      expect(out).toStrictEqual({
+        bool: { must_not: { match: { rate: 10 } } },
+      });
       out = ElasticAdapter.prepareFilter('active!=false');
-      expect(out).toStrictEqual({ bool: { must_not: { match: { active: false } } } });
+      expect(out).toStrictEqual({
+        bool: { must_not: { match: { active: false } } },
+      });
       out = ElasticAdapter.prepareFilter('deleted!=null');
       expect(out).toStrictEqual({ exists: { field: 'deleted' } });
     });
@@ -40,7 +49,9 @@ describe('ElasticAdapter.prepareFilter', () => {
       out = ElasticAdapter.prepareFilter('not active!=false');
       expect(out).toStrictEqual({ match: { active: false } });
       out = ElasticAdapter.prepareFilter('not deleted!=null');
-      expect(out).toStrictEqual({ bool: { must_not: { exists: { field: 'deleted' } } } });
+      expect(out).toStrictEqual({
+        bool: { must_not: { exists: { field: 'deleted' } } },
+      });
     });
 
     it('Should convert ComparisonExpression (>)', async () => {
@@ -50,7 +61,9 @@ describe('ElasticAdapter.prepareFilter', () => {
 
     it('Should convert ComparisonExpression (not >)', async () => {
       const out = ElasticAdapter.prepareFilter('not rate>5');
-      expect(out).toStrictEqual({ bool: { must_not: { range: { rate: { gt: 5 } } } } });
+      expect(out).toStrictEqual({
+        bool: { must_not: { range: { rate: { gt: 5 } } } },
+      });
     });
 
     it('Should convert ComparisonExpression (>=)', async () => {
@@ -60,7 +73,9 @@ describe('ElasticAdapter.prepareFilter', () => {
 
     it('Should convert ComparisonExpression (not >=)', async () => {
       const out = ElasticAdapter.prepareFilter('not rate>=5');
-      expect(out).toStrictEqual({ bool: { must_not: { range: { rate: { gte: 5 } } } } });
+      expect(out).toStrictEqual({
+        bool: { must_not: { range: { rate: { gte: 5 } } } },
+      });
     });
 
     it('Should convert ComparisonExpression (<)', async () => {
@@ -70,7 +85,9 @@ describe('ElasticAdapter.prepareFilter', () => {
 
     it('Should convert ComparisonExpression (not <)', async () => {
       const out = ElasticAdapter.prepareFilter('not rate<5');
-      expect(out).toStrictEqual({ bool: { must_not: { range: { rate: { lt: 5 } } } } });
+      expect(out).toStrictEqual({
+        bool: { must_not: { range: { rate: { lt: 5 } } } },
+      });
     });
 
     it('Should convert ComparisonExpression (<=)', async () => {
@@ -80,7 +97,9 @@ describe('ElasticAdapter.prepareFilter', () => {
 
     it('Should convert ComparisonExpression (not <=)', async () => {
       const out = ElasticAdapter.prepareFilter('not rate<=5');
-      expect(out).toStrictEqual({ bool: { must_not: { range: { rate: { lte: 5 } } } } });
+      expect(out).toStrictEqual({
+        bool: { must_not: { range: { rate: { lte: 5 } } } },
+      });
     });
 
     it('Should convert ComparisonExpression (in)', async () => {
@@ -92,14 +111,18 @@ describe('ElasticAdapter.prepareFilter', () => {
 
     it('Should convert ComparisonExpression (not in)', async () => {
       let out = ElasticAdapter.prepareFilter('not rate in [5,6]');
-      expect(out).toStrictEqual({ bool: { must_not: { match: { rate: [5, 6] } } } });
+      expect(out).toStrictEqual({
+        bool: { must_not: { match: { rate: [5, 6] } } },
+      });
       out = ElasticAdapter.prepareFilter('not rate in 5');
       expect(out).toStrictEqual({ bool: { must_not: { match: { rate: 5 } } } });
     });
 
     it('Should convert ComparisonExpression (!in)', async () => {
       let out = ElasticAdapter.prepareFilter('rate !in [5,6]');
-      expect(out).toStrictEqual({ bool: { must_not: { match: { rate: [5, 6] } } } });
+      expect(out).toStrictEqual({
+        bool: { must_not: { match: { rate: [5, 6] } } },
+      });
       out = ElasticAdapter.prepareFilter('rate !in 5');
       expect(out).toStrictEqual({ bool: { must_not: { match: { rate: 5 } } } });
     });
@@ -113,27 +136,37 @@ describe('ElasticAdapter.prepareFilter', () => {
 
     it('Should convert ComparisonExpression (like)', async () => {
       const out = ElasticAdapter.prepareFilter('givenName like "Demons%"');
-      expect(out).toStrictEqual({ wildcard: { givenName: { value: 'Demons*' } } });
+      expect(out).toStrictEqual({
+        wildcard: { givenName: { value: 'Demons*' } },
+      });
     });
 
     it('Should convert ComparisonExpression (not like)', async () => {
       const out = ElasticAdapter.prepareFilter('not givenName like "Demons%"');
-      expect(out).toStrictEqual({ bool: { must_not: { wildcard: { givenName: { value: 'Demons*' } } } } });
+      expect(out).toStrictEqual({
+        bool: { must_not: { wildcard: { givenName: { value: 'Demons*' } } } },
+      });
     });
 
     it('Should convert ComparisonExpression (!like)', async () => {
       const out = ElasticAdapter.prepareFilter('givenName !like "Demons%"');
-      expect(out).toStrictEqual({ bool: { must_not: { wildcard: { givenName: { value: 'Demons*' } } } } });
+      expect(out).toStrictEqual({
+        bool: { must_not: { wildcard: { givenName: { value: 'Demons*' } } } },
+      });
     });
 
     it('Should convert ComparisonExpression (not !like)', async () => {
       const out = ElasticAdapter.prepareFilter('not givenName !like "Demons%"');
-      expect(out).toStrictEqual({ wildcard: { givenName: { value: 'Demons*' } } });
+      expect(out).toStrictEqual({
+        wildcard: { givenName: { value: 'Demons*' } },
+      });
     });
 
     it('Should convert ComparisonExpression (ilike)', async () => {
       const out = ElasticAdapter.prepareFilter('givenName ilike "Demons%"');
-      expect(out).toStrictEqual({ wildcard: { givenName: { value: 'Demons*', case_insensitive: true } } });
+      expect(out).toStrictEqual({
+        wildcard: { givenName: { value: 'Demons*', case_insensitive: true } },
+      });
     });
 
     it('Should convert ComparisonExpression (not ilike)', async () => {
@@ -169,8 +202,12 @@ describe('ElasticAdapter.prepareFilter', () => {
     });
 
     it('Should convert ComparisonExpression (not !ilike)', async () => {
-      const out = ElasticAdapter.prepareFilter('not givenName !ilike "Demons%"');
-      expect(out).toStrictEqual({ wildcard: { givenName: { value: 'Demons*', case_insensitive: true } } });
+      const out = ElasticAdapter.prepareFilter(
+        'not givenName !ilike "Demons%"',
+      );
+      expect(out).toStrictEqual({
+        wildcard: { givenName: { value: 'Demons*', case_insensitive: true } },
+      });
     });
 
     it('Should convert LogicalExpression (and)', async () => {
@@ -221,7 +258,10 @@ describe('ElasticAdapter.prepareFilter', () => {
     });
 
     it('Should merge fields', async () => {
-      const out = ElasticAdapter.prepareFilter(['rate=1', { match: { rate: 2 } }]);
+      const out = ElasticAdapter.prepareFilter([
+        'rate=1',
+        { match: { rate: 2 } },
+      ]);
       expect(out).toStrictEqual({
         bool: {
           must: [{ match: { rate: 1 } }, { match: { rate: 2 } }],

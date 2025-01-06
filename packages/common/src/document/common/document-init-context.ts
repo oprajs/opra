@@ -3,6 +3,7 @@ import { OpraDocumentError } from './opra-document-error.js';
 export namespace DocumentInitContext {
   export interface Options {
     maxErrors?: number;
+    scopes?: string | string[];
   }
 }
 

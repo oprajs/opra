@@ -3,6 +3,7 @@ import { DATATYPE_METADATA, DECODER, ENCODER } from '../../constants.js';
 import { SimpleType } from '../simple-type.js';
 
 @SimpleType({
+  name: 'string',
   description: 'A sequence of characters',
   nameMappings: {
     js: 'string',
@@ -39,14 +40,19 @@ export class StringType {
     if (properties.pattern) {
       let formatName: string | undefined = properties.patternName;
       if (!formatName) {
-        const meta = Reflect.getMetadata(DATATYPE_METADATA, Object.getPrototypeOf(this).constructor);
+        const meta = Reflect.getMetadata(
+          DATATYPE_METADATA,
+          Object.getPrototypeOf(this).constructor,
+        );
         formatName = meta.name;
       }
       x.push(vg.matches(properties.pattern, { formatName }));
     }
     if (properties.minLength) x.push(vg.lengthMin(properties.minLength));
     if (properties.maxLength) x.push(vg.lengthMax(properties.maxLength));
-    return x.length > 0 ? vg.pipe([toString, ...x], { returnIndex: 0 }) : toString;
+    return x.length > 0
+      ? vg.pipe([toString, ...x], { returnIndex: 0 })
+      : toString;
   }
 
   protected [ENCODER](properties: Partial<this>): Validator {

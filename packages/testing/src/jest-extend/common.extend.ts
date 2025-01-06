@@ -1,5 +1,10 @@
 import colors from 'ansi-colors';
-import { matcherHint, type MatcherHintOptions, printExpected, printReceived } from 'jest-matcher-utils';
+import {
+  matcherHint,
+  type MatcherHintOptions,
+  printExpected,
+  printReceived,
+} from 'jest-matcher-utils';
 
 declare global {
   namespace jest {
@@ -30,7 +35,9 @@ declare global {
 
 expect.extend({
   toHaveFields(received, expected: string[]) {
-    const expectedKeys = (Array.isArray(expected) ? expected : Object.keys(expected)).map(x => x.toLowerCase());
+    const expectedKeys = (
+      Array.isArray(expected) ? expected : Object.keys(expected)
+    ).map(x => x.toLowerCase());
     const objectKeys = Object.keys(received).map(x => x.toLowerCase());
     const filteredKeys = expectedKeys.filter(x => !objectKeys.includes(x));
     const pass = !filteredKeys.length === !this.isNot;
@@ -44,7 +51,9 @@ expect.extend({
   },
 
   toHaveFieldsOnly(received, expected: string[]) {
-    const expectedKeys = (Array.isArray(expected) ? expected : Object.keys(expected)).map(x => x.toLowerCase());
+    const expectedKeys = (
+      Array.isArray(expected) ? expected : Object.keys(expected)
+    ).map(x => x.toLowerCase());
     const objectKeys = Object.keys(received).map(x => x.toLowerCase());
     const filteredKeys = objectKeys.filter(x => !expectedKeys.includes(x));
     const pass = !filteredKeys.length === !this.isNot;
@@ -82,7 +91,10 @@ expect.extend({
       () => received > expected,
     );
   },
-  toBeGreaterThanOrEqualAny(received, expected: number | bigint | string | Date) {
+  toBeGreaterThanOrEqualAny(
+    received,
+    expected: number | bigint | string | Date,
+  ) {
     return compare(
       'toBeGreaterThanOrEqual',
       {

@@ -1,13 +1,19 @@
+import { omitUndefined } from '@jsopen/objects';
 import type { Combine, ThunkAsync, Type } from 'ts-gems';
 import { asMutable } from 'ts-gems';
-import { omitUndefined, ResponsiveMap } from '../../helpers/index.js';
+import { ResponsiveMap } from '../../helpers/index.js';
 import { OpraSchema } from '../../schema/index.js';
 import { DataTypeMap } from '../common/data-type-map.js';
 import { DocumentElement } from '../common/document-element.js';
-import { CLASS_NAME_PATTERN, DECORATOR, kDataTypeMap, RPC_CONTROLLER_METADATA } from '../constants.js';
+import { CLASS_NAME_PATTERN, DECORATOR, kDataTypeMap } from '../constants.js';
 import type { EnumType } from '../data-type/enum-type.js';
 import { RpcControllerDecoratorFactory } from '../decorators/rpc-controller.decorator.js';
-import { colorFgMagenta, colorFgYellow, colorReset, nodeInspectCustom } from '../utils/inspect.util.js';
+import {
+  colorFgMagenta,
+  colorFgYellow,
+  colorReset,
+  nodeInspectCustom,
+} from '../utils/inspect.util.js';
 import type { RpcApi } from './rpc-api';
 import type { RpcHeader } from './rpc-header.js';
 import type { RpcOperation } from './rpc-operation';
@@ -16,16 +22,16 @@ import type { RpcOperation } from './rpc-operation';
  * @namespace RpcController
  */
 export namespace RpcController {
-  export interface Metadata extends Pick<OpraSchema.RpcController, 'description'> {
+  export interface Metadata
+    extends Pick<OpraSchema.RpcController, 'description'> {
     name: string;
     types?: ThunkAsync<Type | EnumType.EnumObject | EnumType.EnumArray>[];
     operations?: Record<string, RpcOperation.Metadata>;
     headers?: RpcHeader.Metadata[];
-    onInit?: (resource: RpcController) => void;
-    onShutdown?: (resource: RpcController) => void | Promise<void>;
   }
 
-  export interface Options extends Partial<Pick<OpraSchema.RpcController, 'description'>> {
+  export interface Options
+    extends Partial<Pick<OpraSchema.RpcController, 'description'>> {
     name?: string;
   }
 
@@ -35,7 +41,7 @@ export namespace RpcController {
         instance?: object;
         ctor?: Type;
       },
-      Pick<Metadata, 'name' | 'description' | 'onInit' | 'onShutdown'>
+      Pick<Metadata, 'name' | 'description'>
     > {}
 }
 
@@ -49,13 +55,12 @@ export interface RpcControllerStatic extends RpcControllerDecoratorFactory {
    * @param owner
    * @param args
    */
-  new (owner: RpcApi | RpcController, args: RpcController.InitArguments): RpcController;
+  new (
+    owner: RpcApi | RpcController,
+    args: RpcController.InitArguments,
+  ): RpcController;
 
   prototype: RpcController;
-
-  OnInit(): PropertyDecorator;
-
-  OnShutdown(): PropertyDecorator;
 }
 
 /**
@@ -67,14 +72,21 @@ export interface RpcController extends RpcControllerClass {}
 /**
  * RpcController
  */
-export const RpcController = function (this: RpcController | void, ...args: any[]) {
+export const RpcController = function (
+  this: RpcController | void,
+  ...args: any[]
+) {
   // ClassDecorator
   if (!this) return RpcController[DECORATOR].apply(undefined, args);
 
   // Constructor
-  const [owner, initArgs] = args as [RpcApi | RpcController, RpcController.InitArguments];
+  const [owner, initArgs] = args as [
+    RpcApi | RpcController,
+    RpcController.InitArguments,
+  ];
   DocumentElement.call(this, owner);
-  if (!CLASS_NAME_PATTERN.test(initArgs.name)) throw new TypeError(`Invalid resource name (${initArgs.name})`);
+  if (!CLASS_NAME_PATTERN.test(initArgs.name))
+    throw new TypeError(`Invalid resource name (${initArgs.name})`);
   const _this = asMutable(this);
   _this.kind = OpraSchema.RpcController.Kind;
   _this.types = _this.node[kDataTypeMap] = new DataTypeMap();
@@ -86,8 +98,6 @@ export const RpcController = function (this: RpcController | void, ...args: any[
   _this.ctor = initArgs.ctor;
   (_this as any)._controllerReverseMap = new WeakMap();
   (_this as any)._initialize?.(initArgs);
-  _this.onInit = initArgs.onInit;
-  _this.onShutdown = initArgs.onShutdown;
 } as RpcControllerStatic;
 
 /**
@@ -95,7 +105,7 @@ export const RpcController = function (this: RpcController | void, ...args: any[
  * @class RpcController
  */
 class RpcControllerClass extends DocumentElement {
-  protected declare _controllerReverseMap: WeakMap<Type, RpcController | null>;
+  declare protected _controllerReverseMap: WeakMap<Type, RpcController | null>;
   declare readonly kind: OpraSchema.RpcController.Kind;
   declare readonly name: string;
   declare description?: string;
@@ -105,10 +115,11 @@ class RpcControllerClass extends DocumentElement {
   declare headers: RpcHeader[];
   declare operations: ResponsiveMap<RpcOperation>;
   declare types: DataTypeMap;
-  declare onInit?: (resource: RpcController) => void;
-  declare onShutdown?: (resource: RpcController) => void | Promise<void>;
 
-  findHeader(paramName: string, location?: OpraSchema.HttpParameterLocation): RpcHeader | undefined {
+  findHeader(
+    paramName: string,
+    location?: OpraSchema.HttpParameterLocation,
+  ): RpcHeader | undefined {
     const paramNameLower = paramName.toLowerCase();
     let prm: any;
     for (prm of this.headers) {
@@ -170,19 +181,3 @@ class RpcControllerClass extends DocumentElement {
 RpcController.prototype = RpcControllerClass.prototype;
 Object.assign(RpcController, RpcControllerDecoratorFactory);
 RpcController[DECORATOR] = RpcControllerDecoratorFactory;
-
-RpcController.OnInit = function () {
-  return (target: Object, propertyKey: string | symbol) => {
-    const sourceMetadata = (Reflect.getOwnMetadata(RPC_CONTROLLER_METADATA, target.constructor) || {}) as any;
-    sourceMetadata.onInit = target[propertyKey];
-    Reflect.defineMetadata(RPC_CONTROLLER_METADATA, target.constructor, sourceMetadata);
-  };
-};
-
-RpcController.OnShutdown = function () {
-  return (target: Object, propertyKey: string | symbol) => {
-    const sourceMetadata = (Reflect.getOwnMetadata(RPC_CONTROLLER_METADATA, target.constructor) || {}) as any;
-    sourceMetadata.onShutdown = target[propertyKey];
-    Reflect.defineMetadata(RPC_CONTROLLER_METADATA, target.constructor, sourceMetadata);
-  };
-};

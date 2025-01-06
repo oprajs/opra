@@ -1,14 +1,17 @@
+import { omitUndefined } from '@jsopen/objects';
 import type { Combine, ThunkAsync, Type } from 'ts-gems';
 import { asMutable } from 'ts-gems';
 import { TypeThunkAsync } from 'ts-gems/lib/types';
-import { omitUndefined } from '../../helpers/index.js';
 import { OpraSchema } from '../../schema/index.js';
 import { DataTypeMap } from '../common/data-type-map.js';
 import { DocumentElement } from '../common/document-element.js';
 import { CLASS_NAME_PATTERN, DECORATOR, kDataTypeMap } from '../constants.js';
 import { DataType } from '../data-type/data-type.js';
 import type { EnumType } from '../data-type/enum-type.js';
-import { RpcOperationDecorator, RpcOperationDecoratorFactory } from '../decorators/rpc-operation.decorator.js';
+import {
+  RpcOperationDecorator,
+  RpcOperationDecoratorFactory,
+} from '../decorators/rpc-operation.decorator.js';
 import type { RpcController } from './rpc-controller';
 import type { RpcHeader } from './rpc-header';
 import type { RpcOperationResponse } from './rpc-operation-response';
@@ -17,7 +20,8 @@ import type { RpcOperationResponse } from './rpc-operation-response';
  * @namespace RpcOperation
  */
 export namespace RpcOperation {
-  export interface Metadata extends Pick<OpraSchema.RpcOperation, 'description' | 'channel'> {
+  export interface Metadata
+    extends Pick<OpraSchema.RpcOperation, 'description' | 'channel'> {
     payloadType: TypeThunkAsync | string;
     keyType?: TypeThunkAsync | string;
     types?: ThunkAsync<Type | EnumType.EnumObject | EnumType.EnumArray>[];
@@ -25,7 +29,8 @@ export namespace RpcOperation {
     response?: RpcOperationResponse.Metadata;
   }
 
-  export interface Options extends Partial<Pick<Metadata, 'description' | 'keyType'>> {
+  export interface Options
+    extends Partial<Pick<Metadata, 'description' | 'keyType'>> {
     channel?: (string | RegExp) | (string | RegExp)[];
   }
 
@@ -51,13 +56,19 @@ export interface RpcOperationStatic {
    * @param controller
    * @param args
    */
-  new (controller: RpcController, args: RpcOperation.InitArguments): RpcOperation;
+  new (
+    controller: RpcController,
+    args: RpcOperation.InitArguments,
+  ): RpcOperation;
 
   /**
    * Property decorator
    * @param payloadType
    * @param options
-   */ <T extends RpcOperation.Options>(payloadType: ThunkAsync<Type> | string, options?: T): RpcOperationDecorator;
+   */ <T extends RpcOperation.Options>(
+    payloadType: ThunkAsync<Type> | string,
+    options?: T,
+  ): RpcOperationDecorator;
 
   prototype: RpcOperation;
 }
@@ -73,7 +84,10 @@ export interface RpcOperation extends RpcOperationClass {}
 export const RpcOperation = function (this: RpcOperation, ...args: any[]) {
   // Decorator
   if (!this) {
-    const [payloadType, options] = args as [type: ThunkAsync<Type> | string, options: RpcOperation.Options];
+    const [payloadType, options] = args as [
+      type: ThunkAsync<Type> | string,
+      options: RpcOperation.Options,
+    ];
     const decoratorChain: Function[] = [];
     return (RpcOperation[DECORATOR] as RpcOperationDecoratorFactory).call(
       undefined,
@@ -84,9 +98,13 @@ export const RpcOperation = function (this: RpcOperation, ...args: any[]) {
   }
 
   // Constructor
-  const [resource, initArgs] = args as [RpcController, RpcOperation.InitArguments];
+  const [resource, initArgs] = args as [
+    RpcController,
+    RpcOperation.InitArguments,
+  ];
   DocumentElement.call(this, resource);
-  if (!CLASS_NAME_PATTERN.test(initArgs.name)) throw new TypeError(`Invalid operation name (${initArgs.name})`);
+  if (!CLASS_NAME_PATTERN.test(initArgs.name))
+    throw new TypeError(`Invalid operation name (${initArgs.name})`);
   const _this = asMutable(this);
   _this.headers = [];
   _this.types = _this.node[kDataTypeMap] = new DataTypeMap();
@@ -101,7 +119,9 @@ export const RpcOperation = function (this: RpcOperation, ...args: any[]) {
   }
   if (initArgs?.keyType) {
     _this.keyType =
-      initArgs?.keyType instanceof DataType ? initArgs.keyType : _this.owner.node.getDataType(initArgs.keyType);
+      initArgs?.keyType instanceof DataType
+        ? initArgs.keyType
+        : _this.owner.node.getDataType(initArgs.keyType);
   }
 } as RpcOperationStatic;
 
@@ -136,8 +156,14 @@ class RpcOperationClass extends DocumentElement {
       kind: OpraSchema.RpcOperation.Kind,
       description: this.description,
       channel: this.channel,
-      payloadType: this.payloadType.name ? this.payloadType.name : this.payloadType.toJSON(),
-      keyType: this.keyType ? (this.keyType.name ? this.keyType.name : this.keyType.toJSON()) : undefined,
+      payloadType: this.payloadType.name
+        ? this.payloadType.name
+        : this.payloadType.toJSON(),
+      keyType: this.keyType
+        ? this.keyType.name
+          ? this.keyType.name
+          : this.keyType.toJSON()
+        : undefined,
       response: this.response?.toJSON(),
     });
     if (this.headers.length) {

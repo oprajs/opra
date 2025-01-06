@@ -38,28 +38,37 @@ describe('I18n', () => {
   beforeEach(() => i18n.changeLanguage('en'));
 
   it('Should translate nested text', async () => {
-    expect(i18n.deep(translate('HELLO', { name: 'John' }))).toStrictEqual('Hello John');
+    expect(i18n.deep(translate('HELLO', { name: 'John' }))).toStrictEqual(
+      'Hello John',
+    );
     expect(i18n.deep(null)).toStrictEqual(null);
   });
 
   it('Should translate to fallback string if key not found', async () => {
-    expect(i18n.deep(translate('HI', { name: 'John' }, 'Hi (there)'))).toStrictEqual('Hi (there)');
-    expect(i18n.deep('$t(error:INTERNAL_SERVER_ERROR?Internal server error)')).toStrictEqual('Internal server error');
+    expect(
+      i18n.deep(translate('HI', { name: 'John' }, 'Hi (there)')),
+    ).toStrictEqual('Hi (there)');
+    expect(
+      i18n.deep('$t(error:INTERNAL_SERVER_ERROR?Internal server error)'),
+    ).toStrictEqual('Internal server error');
   });
 
   it('Should translate text using "deep" method', async () => {
-    expect(i18n.deep('$t(HELLO). How are you', { name: 'John' })).toStrictEqual('Hello John. How are you');
+    expect(i18n.deep('$t(HELLO). How are you', { name: 'John' })).toStrictEqual(
+      'Hello John. How are you',
+    );
   });
 
   it('Should translate array using "deep" method', async () => {
-    expect(i18n.deep(['HELLO', '$t(HELLO). How are you'], { name: 'John' })).toStrictEqual([
-      'HELLO',
-      'Hello John. How are you',
-    ]);
+    expect(
+      i18n.deep(['HELLO', '$t(HELLO). How are you'], { name: 'John' }),
+    ).toStrictEqual(['HELLO', 'Hello John. How are you']);
   });
 
   it('Should translate object using "deep" method', async () => {
-    expect(i18n.deep({ a: 'HELLO', b: '$t(HELLO). How are you' }, { name: 'John' })).toStrictEqual({
+    expect(
+      i18n.deep({ a: 'HELLO', b: '$t(HELLO). How are you' }, { name: 'John' }),
+    ).toStrictEqual({
       a: 'HELLO',
       b: 'Hello John. How are you',
     });
@@ -77,14 +86,26 @@ describe('I18n', () => {
   });
 
   it('Should "deep" method ignore built-in objects', async () => {
-    const input = [Buffer.from(''), () => 0, Symbol('x'), /a/, new Map(), new Set(), new WeakMap(), new WeakSet()];
+    const input = [
+      Buffer.from(''),
+      () => 0,
+      Symbol('x'),
+      /a/,
+      new Map(),
+      new Set(),
+      new WeakMap(),
+      new WeakSet(),
+    ];
     expect(i18n.deep(input)).toStrictEqual(input);
   });
 
   it('Should "deep" method ignore key using custom function', async () => {
     const input = ['$t(ok)', '$t(OK)'];
     await i18n.changeLanguage('tr');
-    expect(i18n.deep(input, { ignore: v => v === '$t(OK)' })).toStrictEqual(['tamam', '$t(OK)']);
+    expect(i18n.deep(input, { ignore: v => v === '$t(OK)' })).toStrictEqual([
+      'tamam',
+      '$t(OK)',
+    ]);
   });
 
   it('Should handle circular referenced objects', async () => {

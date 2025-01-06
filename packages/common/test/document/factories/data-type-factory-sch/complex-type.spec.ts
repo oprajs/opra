@@ -41,8 +41,8 @@ describe('DataTypeFactory - ComplexType (Schema)', () => {
     expect(t).toBeDefined();
     expect(t.kind).toStrictEqual(OpraSchema.ComplexType.Kind);
     expect(t.name).toStrictEqual('type1');
-    expect(t.fields.get('id')).toBeDefined();
-    expect(t.fields.get('id')?.type.name).toStrictEqual('string');
+    expect(t.findField('id')).toBeDefined();
+    expect(t.getField('id')?.type.name).toStrictEqual('string');
   });
 
   it('Should define fields by schema object', async () => {
@@ -71,7 +71,7 @@ describe('DataTypeFactory - ComplexType (Schema)', () => {
     expect(t).toBeDefined();
     expect(t.kind).toStrictEqual(OpraSchema.ComplexType.Kind);
     expect(t.name).toStrictEqual('type1');
-    const idEl = t.fields.get('id') as ApiField;
+    const idEl = t.findField('id') as ApiField;
     expect(idEl).toBeDefined();
     expect(idEl.type.name).toStrictEqual('string');
     expect(idEl.isArray).toStrictEqual(id.isArray);
@@ -116,8 +116,8 @@ describe('DataTypeFactory - ComplexType (Schema)', () => {
     expect(t1.name).toStrictEqual('type1');
     expect(t1.additionalFields).toStrictEqual(true);
     expect(t1.ctor).toStrictEqual(Type2);
-    expect(Array.from(t1.fields.keys())).toStrictEqual(['id', 'name']);
-    const f = t1.fields.get('id');
+    expect(Array.from(t1.fieldNames())).toStrictEqual(['id', 'name']);
+    const f = t1.findField('id');
     expect(f).toBeDefined();
     expect(f!.origin).toEqual(t2);
     expect(f!.owner).toEqual(t1);
@@ -152,9 +152,9 @@ describe('DataTypeFactory - ComplexType (Schema)', () => {
     expect(t1.name).toStrictEqual('type1');
     expect(t1.additionalFields).toStrictEqual(true);
     expect(t1.ctor).toStrictEqual(Type2);
-    expect(Array.from(t1.fields.keys())).toStrictEqual(['id', 'name']);
-    expect(t1.fields.get('id')?.origin).not.toEqual(t1);
-    expect(t1.fields.get('id')?.owner).toEqual(t1);
+    expect(Array.from(t1.fieldNames())).toStrictEqual(['id', 'name']);
+    expect(t1.getField('id')?.origin).not.toEqual(t1);
+    expect(t1.getField('id')?.owner).toEqual(t1);
   });
 
   it('Should detect circular references', async () => {

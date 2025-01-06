@@ -1,5 +1,11 @@
 import 'reflect-metadata';
-import { ApiField, ComplexType, HTTP_CONTROLLER_METADATA, HttpOperation, HttpStatusCode } from '@opra/common';
+import {
+  ApiField,
+  ComplexType,
+  HTTP_CONTROLLER_METADATA,
+  HttpOperation,
+  HttpStatusCode,
+} from '@opra/common';
 import { Customer } from 'customer-mongo/models';
 
 describe('HttpOperation decorator', () => {
@@ -11,7 +17,10 @@ describe('HttpOperation decorator', () => {
       getMessage() {}
     }
 
-    const metadata = Reflect.getMetadata(HTTP_CONTROLLER_METADATA, CustomersResource);
+    const metadata = Reflect.getMetadata(
+      HTTP_CONTROLLER_METADATA,
+      CustomersResource,
+    );
     expect(metadata).toStrictEqual({
       operations: {
         getMessage: {
@@ -30,7 +39,10 @@ describe('HttpOperation decorator', () => {
       sendMessage() {}
     }
 
-    const metadata = Reflect.getMetadata(HTTP_CONTROLLER_METADATA, CustomersResource);
+    const metadata = Reflect.getMetadata(
+      HTTP_CONTROLLER_METADATA,
+      CustomersResource,
+    );
     expect(metadata).toStrictEqual({
       operations: {
         sendMessage: {
@@ -56,7 +68,10 @@ describe('HttpOperation decorator', () => {
       sendMessage() {}
     }
 
-    const metadata = Reflect.getMetadata(HTTP_CONTROLLER_METADATA, CustomersResource);
+    const metadata = Reflect.getMetadata(
+      HTTP_CONTROLLER_METADATA,
+      CustomersResource,
+    );
     expect(metadata).toStrictEqual({
       operations: {
         sendMessage: {
@@ -82,7 +97,10 @@ describe('HttpOperation decorator', () => {
       sendMessage() {}
     }
 
-    const metadata = Reflect.getMetadata(HTTP_CONTROLLER_METADATA, CustomersResource);
+    const metadata = Reflect.getMetadata(
+      HTTP_CONTROLLER_METADATA,
+      CustomersResource,
+    );
     expect(metadata).toStrictEqual({
       operations: {
         sendMessage: {
@@ -108,7 +126,10 @@ describe('HttpOperation decorator', () => {
       sendMessage() {}
     }
 
-    const metadata = Reflect.getMetadata(HTTP_CONTROLLER_METADATA, CustomersResource);
+    const metadata = Reflect.getMetadata(
+      HTTP_CONTROLLER_METADATA,
+      CustomersResource,
+    );
     expect(metadata).toStrictEqual({
       operations: {
         sendMessage: {
@@ -140,7 +161,10 @@ describe('HttpOperation decorator', () => {
       sendMessage() {}
     }
 
-    const metadata = Reflect.getMetadata(HTTP_CONTROLLER_METADATA, CustomersResource);
+    const metadata = Reflect.getMetadata(
+      HTTP_CONTROLLER_METADATA,
+      CustomersResource,
+    );
     expect(metadata).toStrictEqual({
       operations: {
         sendMessage: {
@@ -158,7 +182,10 @@ describe('HttpOperation decorator', () => {
       getMessage() {}
     }
 
-    const metadata = Reflect.getMetadata(HTTP_CONTROLLER_METADATA, CustomersResource);
+    const metadata = Reflect.getMetadata(
+      HTTP_CONTROLLER_METADATA,
+      CustomersResource,
+    );
     expect(metadata).toStrictEqual({
       operations: {
         getMessage: {
@@ -185,7 +212,10 @@ describe('HttpOperation decorator', () => {
       sendMessage() {}
     }
 
-    const metadata = Reflect.getMetadata(HTTP_CONTROLLER_METADATA, CustomersResource);
+    const metadata = Reflect.getMetadata(
+      HTTP_CONTROLLER_METADATA,
+      CustomersResource,
+    );
     expect(metadata).toStrictEqual({
       operations: {
         sendMessage: {
@@ -210,7 +240,10 @@ describe('HttpOperation decorator', () => {
       sendMessage() {}
     }
 
-    const metadata = Reflect.getMetadata(HTTP_CONTROLLER_METADATA, CustomersResource);
+    const metadata = Reflect.getMetadata(
+      HTTP_CONTROLLER_METADATA,
+      CustomersResource,
+    );
     expect(metadata).toEqual({
       operations: {
         sendMessage: {
@@ -240,13 +273,18 @@ describe('HttpOperation decorator', () => {
           config.Field('imageX_name');
           config.File(/^imageX\d/, { contentType: 'img/jpeg, img/png' });
           config.Field('imageY_name');
-          config.File(/^imageY\d/, { contentType: ['img/jpeg, img/png', 'img/gif'] });
+          config.File(/^imageY\d/, {
+            contentType: ['img/jpeg, img/png', 'img/gif'],
+          });
         },
       ))
       sendMessage() {}
     }
 
-    const metadata = Reflect.getMetadata(HTTP_CONTROLLER_METADATA, CustomersResource);
+    const metadata = Reflect.getMetadata(
+      HTTP_CONTROLLER_METADATA,
+      CustomersResource,
+    );
     expect(metadata).toEqual({
       operations: {
         sendMessage: {

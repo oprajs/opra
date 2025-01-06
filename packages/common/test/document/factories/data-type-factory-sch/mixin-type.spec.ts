@@ -46,6 +46,6 @@ describe('DataTypeFactory - MixinType (Schema)', () => {
     expect(t1.kind).toStrictEqual(OpraSchema.MixinType.Kind);
     expect(t1.name).toStrictEqual('mixin1');
     expect(t1.additionalFields).toStrictEqual(true);
-    expect(Array.from(t1.fields.keys())).toStrictEqual(['id', 'name', 'age']);
+    expect(Array.from(t1.fieldNames())).toStrictEqual(['id', 'name', 'age']);
   });
 });

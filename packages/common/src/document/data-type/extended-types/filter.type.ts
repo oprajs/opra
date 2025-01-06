@@ -2,12 +2,15 @@ import type { Type } from 'ts-gems';
 import { type Validator, validator } from 'valgen';
 import { FilterRules } from '../../../filter/filter-rules.js';
 import { OpraFilter } from '../../../filter/index.js';
+import type { ApiDocument } from '../../api-document.js';
 import type { DocumentElement } from '../../common/document-element.js';
 import { DECODER, ENCODER } from '../../constants.js';
 import type { ComplexType } from '../complex-type.js';
+import { DataType } from '../data-type.js';
 import { SimpleType } from '../simple-type.js';
 
 @SimpleType({
+  name: 'filter',
   description: 'A query filter',
   nameMappings: {
     js: 'object',
@@ -30,11 +33,16 @@ export class FilterType {
   })
   rules?: Record<string, FilterRules.Rule>;
 
-  protected [DECODER](properties: Partial<this>, element: DocumentElement): Validator {
+  protected [DECODER](
+    properties: Partial<this>,
+    element: DocumentElement,
+  ): Validator {
     const dataType = properties.dataType
       ? element.node.getComplexType(properties.dataType)
       : element.node.getComplexType('object');
-    const rules = properties.rules ? new FilterRules(properties.rules) : undefined;
+    const rules = properties.rules
+      ? new FilterRules(properties.rules)
+      : undefined;
     return decodeFilter(dataType, rules);
   }
 
@@ -42,26 +50,43 @@ export class FilterType {
     return encodeFilter;
   }
 
-  toJSON(properties: Partial<FilterType>, element: DocumentElement) {
+  toJSON(
+    properties: Partial<FilterType>,
+    element: DocumentElement,
+    options?: ApiDocument.ExportOptions,
+  ) {
     const dataType = properties.dataType
       ? element.node.getComplexType(properties.dataType)
       : element.node.getComplexType('object');
+    /** Test scope */
+    DataType.prototype.toJSON.call(dataType, options);
+    const typeName = dataType
+      ? element.node.getDataTypeNameWithNs(dataType)
+      : undefined;
     return {
-      dataType: dataType.name ? dataType.name : dataType.toJSON(),
+      dataType: typeName ? typeName : dataType.toJSON(options),
       rules: properties.rules,
     };
   }
 }
 
-const decodeFilter = (dataType: ComplexType, rules?: FilterRules) =>
+const decodeFilter = (
+  dataType: ComplexType,
+  rules?: FilterRules,
+  scope?: any,
+) =>
   validator('decodeFilter', (input, context, _this) => {
     if (typeof input === 'string') {
       try {
         const filter = OpraFilter.parse(input as string);
-        if (rules) return rules.normalizeFilter(filter, dataType);
+        if (rules) return rules.normalizeFilter(filter, dataType, scope);
         return filter;
       } catch (e: any) {
-        context.fail(_this, `Not a valid filter expression. ${e.message}`, input);
+        context.fail(
+          _this,
+          `Not a valid filter expression. ${e.message}`,
+          input,
+        );
         return;
       }
     }

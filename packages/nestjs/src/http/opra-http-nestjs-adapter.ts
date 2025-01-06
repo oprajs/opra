@@ -1,4 +1,5 @@
 import nodePath from 'node:path';
+import { isConstructor } from '@jsopen/objects';
 import {
   Controller,
   Delete,
@@ -14,52 +15,44 @@ import {
   Search,
   type Type,
 } from '@nestjs/common';
-import { EXCEPTION_FILTERS_METADATA, GUARDS_METADATA, INTERCEPTORS_METADATA } from '@nestjs/common/constants.js';
 import {
-  ApiDocument,
   HTTP_CONTROLLER_METADATA,
   HttpApi,
   HttpController,
-  isConstructor,
   NotFoundError,
 } from '@opra/common';
 import { HttpAdapter, HttpContext } from '@opra/http';
 import { asMutable } from 'ts-gems';
 import { Public } from '../decorators/public.decorator.js';
-import type { OpraHttpModule } from './opra-http.module.js';
+import { BaseOpraNestFactory } from '../helpers/base-opra-nest-factory.js';
 
 export class OpraHttpNestjsAdapter extends HttpAdapter {
   readonly nestControllers: Type[] = [];
-  readonly options?: OpraHttpModule.Options;
 
-  constructor(init: OpraHttpModule.Initiator) {
-    super(
-      (function () {
-        const document = new ApiDocument();
-        document.api = new HttpApi({ owner: document, name: init.name, transport: 'http' });
-        return document;
-      })(),
-      {
-        ...init.options,
-        interceptors: init.options?.interceptors as any,
-      },
-    );
-    this.options = init.options;
-    let basePath = init.options?.basePath || '/';
-    if (!basePath.startsWith('/')) basePath = '/' + basePath;
-    this._addRootController(basePath);
-    if (init.controllers) init.controllers.forEach(c => this._addToNestControllers(c, basePath, []));
+  constructor(
+    options: HttpAdapter.Options & {
+      schemaIsPublic?: boolean;
+      controllers?: Type[];
+    },
+  ) {
+    super(options);
+    this._addRootController(options.schemaIsPublic);
+    if (options.controllers) {
+      for (const c of options.controllers) {
+        this._addToNestControllers(c, this.basePath, []);
+      }
+    }
   }
 
   async close() {
     //
   }
 
-  protected _addRootController(basePath: string) {
+  protected _addRootController(isPublic?: boolean) {
     const _this = this;
 
     @Controller({
-      path: basePath,
+      path: this.basePath,
     })
     class RootController {
       @Get('/\\$schema')
@@ -68,7 +61,7 @@ export class OpraHttpNestjsAdapter extends HttpAdapter {
       }
     }
 
-    if (this.options?.schemaRouteIsPublic) {
+    if (isPublic) {
       Public()(
         RootController.prototype,
         'schema',
@@ -79,18 +72,27 @@ export class OpraHttpNestjsAdapter extends HttpAdapter {
     this.nestControllers.push(RootController);
   }
 
-  protected _addToNestControllers(sourceClass: Type, currentPath: string, parentTree: Type[]) {
-    const metadata: HttpController.Metadata = Reflect.getMetadata(HTTP_CONTROLLER_METADATA, sourceClass);
+  protected _addToNestControllers(
+    sourceClass: Type,
+    currentPath: string,
+    parentTree: Type[],
+  ) {
+    const metadata: HttpController.Metadata = Reflect.getMetadata(
+      HTTP_CONTROLLER_METADATA,
+      sourceClass,
+    );
     if (!metadata) return;
+    /** Create a new controller class */
     const newClass = {
       [sourceClass.name]: class extends sourceClass {},
     }[sourceClass.name];
-
     /** Copy metadata keys from source class to new one */
-    let metadataKeys: any[];
-    OpraHttpNestjsAdapter.copyDecoratorMetadataToChild(newClass, parentTree);
+    BaseOpraNestFactory.copyDecoratorMetadata(newClass, ...parentTree);
+    Controller()(newClass);
 
-    const newPath = metadata.path ? nodePath.join(currentPath, metadata.path) : currentPath;
+    const newPath = metadata.path
+      ? nodePath.join(currentPath, metadata.path)
+      : currentPath;
     const adapter = this;
     // adapter.logger =
     /** Disable default error handler. Errors will be handled by OpraExceptionFilter */
@@ -98,8 +100,8 @@ export class OpraHttpNestjsAdapter extends HttpAdapter {
       throw error;
     };
 
-    Controller()(newClass);
     this.nestControllers.push(newClass);
+    let metadataKeys: any[];
     if (metadata.operations) {
       for (const [k, v] of Object.entries(metadata.operations)) {
         const operationHandler = sourceClass.prototype[k];
@@ -112,7 +114,9 @@ export class OpraHttpNestjsAdapter extends HttpAdapter {
             const controller = api.findController(sourceClass);
             const operation = controller?.operations.get(k);
             const context = asMutable<HttpContext>(_req.opraContext);
-            if (!(context && operation && typeof operationHandler === 'function')) {
+            if (
+              !(context && operation && typeof operationHandler === 'function')
+            ) {
               throw new NotFoundError({
                 message: `No endpoint found for [${_req.method}]${_req.baseUrl}`,
                 details: {
@@ -142,8 +146,13 @@ export class OpraHttpNestjsAdapter extends HttpAdapter {
         Req()(newClass.prototype, k, 0);
         Res()(newClass.prototype, k, 1);
 
-        const descriptor = Object.getOwnPropertyDescriptor(newClass.prototype, k)!;
-        const operationPath = v.mergePath ? newPath + (v.path || '') : nodePath.posix.join(newPath, v.path || '');
+        const descriptor = Object.getOwnPropertyDescriptor(
+          newClass.prototype,
+          k,
+        )!;
+        const operationPath = v.mergePath
+          ? newPath + (v.path || '')
+          : nodePath.posix.join(newPath, v.path || '');
         switch (v.method || 'GET') {
           case 'DELETE':
             /** Call @Delete decorator over new property */
@@ -184,32 +193,12 @@ export class OpraHttpNestjsAdapter extends HttpAdapter {
     }
     if (metadata.controllers) {
       for (const child of metadata.controllers) {
-        if (!isConstructor(child)) throw new TypeError('Controllers should be injectable a class');
-        this._addToNestControllers(child, newPath, [...parentTree, sourceClass]);
-      }
-    }
-  }
-
-  static copyDecoratorMetadataToChild(target: Type, parentTree: Type[]) {
-    for (const parent of parentTree) {
-      const metadataKeys = Reflect.getOwnMetadataKeys(parent);
-      for (const key of metadataKeys) {
-        if (typeof key === 'string' && key.startsWith('opra:') && !Reflect.hasOwnMetadata(key, target)) {
-          const metadata = Reflect.getMetadata(key, parent);
-          Reflect.defineMetadata(key, metadata, target);
-          continue;
-        }
-        if (key === GUARDS_METADATA || key === INTERCEPTORS_METADATA || key === EXCEPTION_FILTERS_METADATA) {
-          const m1 = Reflect.getMetadata(key, target) || [];
-          const metadata = [...m1];
-          const m2 = Reflect.getOwnMetadata(key, parent) || [];
-          m2.forEach((t: any) => {
-            if (!metadata.includes(t)) {
-              metadata.push(t);
-            }
-          });
-          Reflect.defineMetadata(key, metadata, target);
-        }
+        if (!isConstructor(child))
+          throw new TypeError('Controllers should be injectable a class');
+        this._addToNestControllers(child, newPath, [
+          ...parentTree,
+          sourceClass,
+        ]);
       }
     }
   }

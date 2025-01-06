@@ -46,12 +46,16 @@ export function hideStackFrames(fn: Function) {
   return fn;
 }
 
-export const validateHeaderName = hideStackFrames((name: string, label?: string) => {
-  // noinspection SuspiciousTypeOfGuard
-  if (typeof name !== 'string' || !name || !checkIsHttpToken(name)) {
-    throw new TypeError(`${label || 'Header name'} must be a valid HTTP token ["${name}"]`);
-  }
-});
+export const validateHeaderName = hideStackFrames(
+  (name: string, label?: string) => {
+    // noinspection SuspiciousTypeOfGuard
+    if (typeof name !== 'string' || !name || !checkIsHttpToken(name)) {
+      throw new TypeError(
+        `${label || 'Header name'} must be a valid HTTP token ["${name}"]`,
+      );
+    }
+  },
+);
 
 export const validateHeaderValue = hideStackFrames((name, value) => {
   if (value === undefined) {
@@ -64,6 +68,8 @@ export const validateHeaderValue = hideStackFrames((name, value) => {
 
 export function validateString(value: any, name?: string) {
   if (typeof value !== 'string') {
-    throw new TypeError(`Invalid ${name ? name + ' ' : ''}argument. Value must be a string`);
+    throw new TypeError(
+      `Invalid ${name ? name + ' ' : ''}argument. Value must be a string`,
+    );
   }
 }

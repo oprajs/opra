@@ -11,7 +11,10 @@ export class FailedDependencyError extends OpraHttpError {
 
   protected init(issue: Partial<ErrorIssue>) {
     super.init({
-      message: translate('error:FAILED_DEPENDENCY', 'The request failed due to failure of a previous request'),
+      message: translate(
+        'error:FAILED_DEPENDENCY',
+        'The request failed due to failure of a previous request',
+      ),
       code: 'FAILED_DEPENDENCY',
       ...issue,
     });

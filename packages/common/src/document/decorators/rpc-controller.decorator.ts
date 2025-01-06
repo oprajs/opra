@@ -1,5 +1,4 @@
-import omit from 'lodash.omit';
-import merge from 'putil-merge';
+import { merge } from '@jsopen/objects';
 import type { Type, TypeThunkAsync } from 'ts-gems';
 import { OpraSchema } from '../../schema/index.js';
 import { RPC_CONTROLLER_METADATA } from '../constants.js';
@@ -8,9 +7,13 @@ import type { RpcHeader } from '../rpc/rpc-header';
 
 const CLASS_NAME_PATTERN = /^(.*)(Controller)$/;
 
-export interface RpcControllerDecorator<T extends RpcControllerDecorator<any> = RpcControllerDecorator<any>>
-  extends ClassDecorator {
-  Header(name: string | RegExp, optionsOrType?: RpcHeader.Options | string | TypeThunkAsync | false): T;
+export interface RpcControllerDecorator<
+  T extends RpcControllerDecorator<any> = RpcControllerDecorator<any>,
+> extends ClassDecorator {
+  Header(
+    name: string | RegExp,
+    optionsOrType?: RpcHeader.Options | string | TypeThunkAsync | false,
+  ): T;
 
   UseType(...type: TypeThunkAsync[]): T;
 }
@@ -30,9 +33,12 @@ export namespace RpcControllerDecoratorFactory {
   ) => void;
 }
 
-const augmentationRegistry: RpcControllerDecoratorFactory.AugmentationFunction[] = [];
+const augmentationRegistry: RpcControllerDecoratorFactory.AugmentationFunction[] =
+  [];
 
-export function RpcControllerDecoratorFactory<O extends RpcController.Options>(options?: O): RpcControllerDecorator {
+export function RpcControllerDecoratorFactory<O extends RpcController.Options>(
+  options?: O,
+): RpcControllerDecorator {
   const decoratorChain: Function[] = [];
   /**
    *
@@ -42,17 +48,20 @@ export function RpcControllerDecoratorFactory<O extends RpcController.Options>(o
     if (!name) name = CLASS_NAME_PATTERN.exec(target.name)?.[1] || target.name;
 
     const metadata = {} as RpcController.Metadata;
-    const baseMetadata = Reflect.getOwnMetadata(RPC_CONTROLLER_METADATA, Object.getPrototypeOf(target));
+    const baseMetadata = Reflect.getOwnMetadata(
+      RPC_CONTROLLER_METADATA,
+      Object.getPrototypeOf(target),
+    );
     if (baseMetadata) merge(metadata, baseMetadata, { deep: true });
     const oldMetadata = Reflect.getOwnMetadata(RPC_CONTROLLER_METADATA, target);
     if (oldMetadata) merge(metadata, oldMetadata, { deep: true });
     merge(
       metadata,
       {
+        ...options,
         kind: OpraSchema.RpcController.Kind,
         name,
         path: name,
-        ...omit(options, ['kind', 'name', 'instance', 'endpoints', 'key']),
       },
       { deep: true },
     );
@@ -64,7 +73,10 @@ export function RpcControllerDecoratorFactory<O extends RpcController.Options>(o
   /**
    *
    */
-  decorator.Header = (name: string | RegExp, arg1?: RpcHeader.Options | string | Type | false) => {
+  decorator.Header = (
+    name: string | RegExp,
+    arg1?: RpcHeader.Options | string | Type | false,
+  ) => {
     decoratorChain.push((meta: RpcController.Metadata): void => {
       const paramMeta: RpcHeader.Metadata =
         typeof arg1 === 'string' || typeof arg1 === 'function'
@@ -95,6 +107,8 @@ export function RpcControllerDecoratorFactory<O extends RpcController.Options>(o
   return decorator;
 }
 
-RpcControllerDecoratorFactory.augment = function (fn: RpcControllerDecoratorFactory.AugmentationFunction) {
+RpcControllerDecoratorFactory.augment = function (
+  fn: RpcControllerDecoratorFactory.AugmentationFunction,
+) {
   augmentationRegistry.push(fn);
 };

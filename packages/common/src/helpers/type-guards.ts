@@ -1,23 +1,16 @@
 /// <reference lib="dom" />
 import { Readable, Stream } from 'stream';
-import type { Type } from 'ts-gems';
-
-export function isConstructor(fn: any): fn is Type {
-  return (
-    typeof fn === 'function' &&
-    fn.prototype &&
-    fn.prototype.constructor === fn &&
-    fn.prototype.constructor.name !== 'Function' &&
-    fn.prototype.constructor.name !== 'embedded'
-  );
-}
 
 export function isStream(x: any): x is Stream {
   return x !== null && typeof x === 'object' && typeof x.pipe === 'function';
 }
 
 export function isReadable(x: any): x is Readable {
-  return (isStream(x) as any) && typeof x._read === 'function' && typeof x._readableState === 'object';
+  return (
+    (isStream(x) as any) &&
+    typeof x._read === 'function' &&
+    typeof x._readableState === 'object'
+  );
 }
 
 export function isWritable(x: any): x is Readable {
@@ -54,13 +47,10 @@ export function isFormData(x: any): x is FormData {
 }
 
 export function isURL(x: any): x is URL {
-  return x !== null && typeof x == 'object' && typeof x.host === 'string' && typeof x.href === 'string';
-}
-
-export function isIterable<T = unknown>(x: any): x is Iterable<T> {
-  return Symbol.iterator in x;
-}
-
-export function isAsyncIterable<T = unknown>(x: any): x is AsyncIterableIterator<T> {
-  return Symbol.asyncIterator in x;
+  return (
+    x !== null &&
+    typeof x == 'object' &&
+    typeof x.host === 'string' &&
+    typeof x.href === 'string'
+  );
 }

@@ -3,6 +3,7 @@ import { DECODER, ENCODER } from '../../constants.js';
 import { SimpleType } from '../simple-type.js';
 
 @SimpleType({
+  name: 'boolean',
   description: 'Simple true/false value',
   nameMappings: {
     js: 'boolean',

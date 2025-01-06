@@ -1,5 +1,10 @@
 import 'reflect-metadata';
-import { ApiDocument, ApiDocumentFactory, MixinType, OpraSchema } from '@opra/common';
+import {
+  ApiDocument,
+  ApiDocumentFactory,
+  MixinType,
+  OpraSchema,
+} from '@opra/common';
 import { Country, Note, Record } from 'customer-mongo/models';
 import { TestHttpApiDocument } from '../../_support/test-http-api/index.js';
 

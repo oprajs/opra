@@ -1,4 +1,3 @@
-/* eslint-disable no-console */
 import { Client } from '@elastic/elasticsearch';
 import { ApiDocument } from '@opra/common';
 import { ExpressAdapter, HttpAdapter } from '@opra/http';
@@ -11,7 +10,9 @@ export class CustomerApplication {
   declare dbClient: Client;
   declare express: express.Express;
 
-  static async create(options?: HttpAdapter.Options): Promise<CustomerApplication> {
+  static async create(
+    options?: HttpAdapter.Options,
+  ): Promise<CustomerApplication> {
     const app = new CustomerApplication();
     try {
       const host = process.env.MONGO_HOST || 'http://127.0.0.1:9200';
@@ -22,7 +23,8 @@ export class CustomerApplication {
     }
     app.document = await CustomerApiDocument.create(app.dbClient);
     app.express = express();
-    app.adapter = new ExpressAdapter(app.express, app.document, options);
+    app.adapter = new ExpressAdapter(app.express, options);
+    await app.adapter.initialize(app.document);
     return app;
   }
 

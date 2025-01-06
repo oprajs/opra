@@ -38,7 +38,7 @@ describe('DataTypeFactory - MappedType (Class)', () => {
     expect(t1).toBeDefined();
     expect(t1.kind).toStrictEqual('ComplexType');
     expect(t1.name).toStrictEqual('Type2');
-    expect(Array.from(t1.fields.keys())).toStrictEqual(['id', 'name']);
+    expect(Array.from(t1.fieldNames())).toStrictEqual(['id', 'name']);
     expect(t1.base).toBeInstanceOf(MappedType);
   });
 
@@ -68,11 +68,15 @@ describe('DataTypeFactory - MappedType (Class)', () => {
     const a = t1.getField('a');
     expect(a.type.kind).toStrictEqual('MappedType');
     expect(a.type.embedded).toEqual(true);
-    expect(Array.from((a.type as MappedType).fields.keys())).toStrictEqual(['field1']);
+    expect(Array.from((a.type as MappedType).fieldNames())).toStrictEqual([
+      'field1',
+    ]);
     const b = t1.getField('b');
     expect(b.type.kind).toStrictEqual('MappedType');
     expect(b.type.embedded).toEqual(true);
-    expect(Array.from((b.type as MappedType).fields.keys())).toStrictEqual(['field2']);
+    expect(Array.from((b.type as MappedType).fieldNames())).toStrictEqual([
+      'field2',
+    ]);
   });
 
   it('Should import MappedType build with OmitType()', async () => {
@@ -102,7 +106,7 @@ describe('DataTypeFactory - MappedType (Class)', () => {
     expect(t1.kind).toStrictEqual('ComplexType');
     expect(t1.name).toStrictEqual('Type2');
     expect(t1.additionalFields).toStrictEqual(true);
-    expect(Array.from(t1.fields.keys())).toStrictEqual(['id', 'name']);
+    expect(Array.from(t1.fieldNames())).toStrictEqual(['id', 'name']);
     expect(t1.base).toBeInstanceOf(MappedType);
   });
 
@@ -132,11 +136,15 @@ describe('DataTypeFactory - MappedType (Class)', () => {
     const a = t1.getField('a');
     expect(a.type.kind).toStrictEqual('MappedType');
     expect(a.type.embedded).toEqual(true);
-    expect(Array.from((a.type as MappedType).fields.keys())).toStrictEqual(['field2']);
+    expect(Array.from((a.type as MappedType).fieldNames())).toStrictEqual([
+      'field2',
+    ]);
     const b = t1.getField('b');
     expect(b.type.kind).toStrictEqual('MappedType');
     expect(b.type.embedded).toEqual(true);
-    expect(Array.from((b.type as MappedType).fields.keys())).toStrictEqual(['field1']);
+    expect(Array.from((b.type as MappedType).fieldNames())).toStrictEqual([
+      'field1',
+    ]);
   });
 
   it('Should PartialType(class, keys) create a new MappedType class', async () => {
@@ -231,11 +239,19 @@ describe('DataTypeFactory - MappedType (Class)', () => {
     const a = t1.getField('a');
     expect(a.type.kind).toStrictEqual('MappedType');
     expect(a.type.embedded).toEqual(true);
-    expect((a.type as MappedType).getField('field1').required).toStrictEqual(false);
-    expect((a.type as MappedType).getField('field2').required).toStrictEqual(true);
+    expect((a.type as MappedType).getField('field1').required).toStrictEqual(
+      false,
+    );
+    expect((a.type as MappedType).getField('field2').required).toStrictEqual(
+      true,
+    );
     const b = t1.getField('b');
-    expect((b.type as MappedType).getField('field1').required).toStrictEqual(true);
-    expect((b.type as MappedType).getField('field2').required).toStrictEqual(false);
+    expect((b.type as MappedType).getField('field1').required).toStrictEqual(
+      true,
+    );
+    expect((b.type as MappedType).getField('field2').required).toStrictEqual(
+      false,
+    );
   });
 
   it('Should RequiredType(class, keys) create a new MappedType class', async () => {
@@ -330,10 +346,18 @@ describe('DataTypeFactory - MappedType (Class)', () => {
     const a = t1.getField('a');
     expect(a.type.kind).toStrictEqual('MappedType');
     expect(a.type.embedded).toEqual(true);
-    expect((a.type as MappedType).getField('field1').required).toStrictEqual(true);
-    expect((a.type as MappedType).getField('field2').required).toStrictEqual(undefined);
+    expect((a.type as MappedType).getField('field1').required).toStrictEqual(
+      true,
+    );
+    expect((a.type as MappedType).getField('field2').required).toStrictEqual(
+      undefined,
+    );
     const b = t1.getField('b');
-    expect((b.type as MappedType).getField('field1').required).toStrictEqual(false);
-    expect((b.type as MappedType).getField('field2').required).toStrictEqual(true);
+    expect((b.type as MappedType).getField('field1').required).toStrictEqual(
+      false,
+    );
+    expect((b.type as MappedType).getField('field2').required).toStrictEqual(
+      true,
+    );
   });
 });

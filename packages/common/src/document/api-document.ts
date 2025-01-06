@@ -1,10 +1,16 @@
+import { omitUndefined } from '@jsopen/objects';
 import { md5 } from 'super-fast-md5';
 import type { Mutable, Type } from 'ts-gems';
-import { cloneObject, omitUndefined, ResponsiveMap } from '../helpers/index.js';
+import { cloneObject, ResponsiveMap } from '../helpers/index.js';
 import { OpraSchema } from '../schema/index.js';
 import { DataTypeMap } from './common/data-type-map.js';
 import { DocumentElement } from './common/document-element.js';
-import { BUILTIN, kDataTypeMap, kTypeNSMap, NAMESPACE_PATTERN } from './constants.js';
+import {
+  BUILTIN,
+  kDataTypeMap,
+  kTypeNSMap,
+  NAMESPACE_PATTERN,
+} from './constants.js';
 import { DataType } from './data-type/data-type.js';
 import type { EnumType } from './data-type/enum-type.js';
 import { HttpApi } from './http/http-api.js';
@@ -34,10 +40,18 @@ export class ApiDocument extends DocumentElement {
    * @param nameOrCtor
    */
   getDataTypeNs(
-    nameOrCtor: string | Type | Function | EnumType.EnumArray | EnumType.EnumObject | DataType,
+    nameOrCtor:
+      | string
+      | Type
+      | Function
+      | EnumType.EnumArray
+      | EnumType.EnumObject
+      | DataType,
   ): string | undefined {
     const dt =
-      nameOrCtor instanceof DataType ? this._findDataType(nameOrCtor.name || '') : this._findDataType(nameOrCtor);
+      nameOrCtor instanceof DataType
+        ? this._findDataType(nameOrCtor.name || '')
+        : this._findDataType(nameOrCtor);
     if (dt) return this[kTypeNSMap].get(dt);
   }
 
@@ -71,7 +85,7 @@ export class ApiDocument extends DocumentElement {
   /**
    * Export as Opra schema definition object
    */
-  export(): OpraSchema.ApiDocument {
+  export(options?: ApiDocument.ExportOptions): OpraSchema.ApiDocument {
     const out = omitUndefined<OpraSchema.ApiDocument>({
       spec: OpraSchema.SpecVersion,
       id: this.id,
@@ -95,16 +109,17 @@ export class ApiDocument extends DocumentElement {
     if (this.types.size) {
       out.types = {};
       for (const v of this.types.values()) {
-        out.types[v.name!] = v.toJSON();
+        if (!v.inScope(options?.scope)) continue;
+        out.types[v.name!] = v.toJSON(options);
       }
     }
-    if (this.api) out.api = this.api.toJSON();
+    if (this.api) out.api = this.api.toJSON(options);
     return out;
   }
 
   invalidate(): void {
     /** Generate id */
-    const x = this.export();
+    const x = this.export({});
     delete (x as any).id;
     (this as Mutable<ApiDocument>).id = md5(JSON.stringify(x));
     /** Clear [kTypeNSMap] */
@@ -112,13 +127,18 @@ export class ApiDocument extends DocumentElement {
   }
 
   protected _findDataType(
-    nameOrCtor: string | Type | Function | EnumType.EnumArray | EnumType.EnumObject,
+    nameOrCtor:
+      | string
+      | Type
+      | Function
+      | EnumType.EnumArray
+      | EnumType.EnumObject,
+    scope?: string,
     visitedRefs?: WeakMap<ApiDocument, boolean>,
   ): DataType | undefined {
     let result = this.types.get(nameOrCtor);
-
-    if (result || !this.references.size) return result;
-
+    if (result && result.inScope(scope)) return result;
+    if (!this.references.size) return;
     // Lookup for references
     if (typeof nameOrCtor === 'string') {
       // If given string has namespace pattern (ns:type_name)
@@ -131,7 +151,7 @@ export class ApiDocument extends DocumentElement {
           visitedRefs = visitedRefs || new WeakMap<ApiDocument, boolean>();
           visitedRefs.set(this, true);
           visitedRefs.set(ref, true);
-          return ref._findDataType(m[2], visitedRefs);
+          return ref._findDataType(m[2], scope, visitedRefs);
         }
         nameOrCtor = m[2];
       }
@@ -154,11 +174,17 @@ export class ApiDocument extends DocumentElement {
     for (const refNs of references) {
       const ref = this.references.get(refNs);
       visitedRefs.set(ref!, true);
-      result = ref!._findDataType(nameOrCtor, visitedRefs);
+      result = ref!._findDataType(nameOrCtor, scope, visitedRefs);
       if (result) {
         this[kTypeNSMap].set(result, ref?.[BUILTIN] ? '' : refNs);
         return result;
       }
     }
+  }
+}
+
+export namespace ApiDocument {
+  export interface ExportOptions {
+    scope?: string;
   }
 }

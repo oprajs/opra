@@ -13,11 +13,15 @@ describe('ElasticAdapter.preparePatch', () => {
   });
 
   it('Should patch nested fields', async () => {
-    const o: any = ElasticAdapter.preparePatch({ age: 21, address: { city: 'Berlin' } });
+    const o: any = ElasticAdapter.preparePatch({
+      age: 21,
+      address: { city: 'Berlin' },
+    });
     expect(o).toEqual({
-      source: [`ctx._source['age'] = params['age'];`, `ctx._source['address.city'] = params['address.city'];`].join(
-        '\n',
-      ),
+      source: [
+        `ctx._source['age'] = params['age'];`,
+        `ctx._source['address.city'] = params['address.city'];`,
+      ].join('\n'),
       params: {
         age: 21,
         'address.city': 'Berlin',
@@ -27,9 +31,15 @@ describe('ElasticAdapter.preparePatch', () => {
   });
 
   it('Should replace nested fields if starts with *', async () => {
-    const o: any = ElasticAdapter.preparePatch({ age: 21, '*address': { city: 'Berlin' } });
+    const o: any = ElasticAdapter.preparePatch({
+      age: 21,
+      '*address': { city: 'Berlin' },
+    });
     expect(o).toEqual({
-      source: [`ctx._source['age'] = params['age'];`, `ctx._source['address'] = params['address'];`].join('\n'),
+      source: [
+        `ctx._source['age'] = params['age'];`,
+        `ctx._source['address'] = params['address'];`,
+      ].join('\n'),
       params: {
         age: 21,
         address: { city: 'Berlin' },
@@ -39,9 +49,15 @@ describe('ElasticAdapter.preparePatch', () => {
   });
 
   it('Should unset fields', async () => {
-    const o: any = ElasticAdapter.preparePatch({ gender: null, address: { city: null } });
+    const o: any = ElasticAdapter.preparePatch({
+      gender: null,
+      address: { city: null },
+    });
     expect(o).toEqual({
-      source: [`ctx._source.remove('gender');`, `ctx._source.remove('address.city');`].join('\n'),
+      source: [
+        `ctx._source.remove('gender');`,
+        `ctx._source.remove('address.city');`,
+      ].join('\n'),
       params: {},
       lang: 'painless',
     });

@@ -23,35 +23,53 @@ describe('ElasticAdapter.prepareProjection', () => {
   });
 
   it('Test-2', async () => {
-    const o: any = ElasticAdapter.prepareProjection(customerType, ['id', 'givenname', 'address']);
+    const o: any = ElasticAdapter.prepareProjection(customerType, [
+      'id',
+      'givenname',
+      'address',
+    ]);
     expect(o).toStrictEqual({
       includes: ['id', 'givenName', 'address'],
     });
   });
 
   it('Test-3', async () => {
-    const o: any = ElasticAdapter.prepareProjection(customerType, ['id', '+givenname', '+address']);
+    const o: any = ElasticAdapter.prepareProjection(customerType, [
+      'id',
+      '+givenname',
+      '+address',
+    ]);
     expect(o).toStrictEqual({
       includes: ['id', 'givenName', 'address'],
     });
   });
 
   it('Test-4', async () => {
-    const o: any = ElasticAdapter.prepareProjection(customerType, ['id', '-givenname', '-address']);
+    const o: any = ElasticAdapter.prepareProjection(customerType, [
+      'id',
+      '-givenname',
+      '-address',
+    ]);
     expect(o).toStrictEqual({
       includes: ['id'],
     });
   });
 
   it('Test-5', async () => {
-    const o: any = ElasticAdapter.prepareProjection(customerType, ['id', 'address.city']);
+    const o: any = ElasticAdapter.prepareProjection(customerType, [
+      'id',
+      'address.city',
+    ]);
     expect(o).toStrictEqual({
       includes: ['id', 'address.city'],
     });
   });
 
   it('Test-6', async () => {
-    const o: any = ElasticAdapter.prepareProjection(customerType, ['id', 'address.+city']);
+    const o: any = ElasticAdapter.prepareProjection(customerType, [
+      'id',
+      'address.+city',
+    ]);
     expect(o).toStrictEqual({
       includes: ['id', 'address'],
     });
@@ -65,7 +83,11 @@ describe('ElasticAdapter.prepareProjection', () => {
   });
 
   it('Test-8', async () => {
-    const o: any = ElasticAdapter.prepareProjection(customerType, ['id', '-givenname', 'address.-city']);
+    const o: any = ElasticAdapter.prepareProjection(customerType, [
+      'id',
+      '-givenname',
+      'address.-city',
+    ]);
     expect(o).toStrictEqual({
       includes: ['id', 'address'],
       excludes: ['address.city'],
@@ -73,28 +95,41 @@ describe('ElasticAdapter.prepareProjection', () => {
   });
 
   it('Test-9', async () => {
-    const o: any = ElasticAdapter.prepareProjection(customerType, ['id', '-address', 'address.city']);
+    const o: any = ElasticAdapter.prepareProjection(customerType, [
+      'id',
+      '-address',
+      'address.city',
+    ]);
     expect(o).toStrictEqual({
       includes: ['id'],
     });
   });
 
   it('Test-10', async () => {
-    const o: any = ElasticAdapter.prepareProjection(customerType, ['id', '-address.+city']);
+    const o: any = ElasticAdapter.prepareProjection(customerType, [
+      'id',
+      '-address.+city',
+    ]);
     expect(o).toStrictEqual({
       includes: ['id'],
     });
   });
 
   it('Test-11', async () => {
-    const o: any = ElasticAdapter.prepareProjection(noteType, ['extra1', 'extra2']);
+    const o: any = ElasticAdapter.prepareProjection(noteType, [
+      'extra1',
+      'extra2',
+    ]);
     expect(o).toStrictEqual({
       includes: ['extra1', 'extra2'],
     });
   });
 
   it('Test-12', async () => {
-    const o: any = ElasticAdapter.prepareProjection(noteType, ['extra1', '-extra2']);
+    const o: any = ElasticAdapter.prepareProjection(noteType, [
+      'extra1',
+      '-extra2',
+    ]);
     expect(o).toStrictEqual({
       includes: ['extra1'],
     });

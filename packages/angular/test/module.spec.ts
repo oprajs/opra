@@ -134,7 +134,11 @@ describe('OpraClientModule', () => {
         OpraClientModule.registerClient(config),
         OpraClientModule.registerClient({ ...config, token: CLIENT2 }),
       ],
-      providers: [provideHttpClient(), provideHttpClientTesting(), TestComponent],
+      providers: [
+        provideHttpClient(),
+        provideHttpClientTesting(),
+        TestComponent,
+      ],
     }).compileComponents();
     const test = TestBed.inject(TestComponent);
     expect(test).toBeDefined();
@@ -157,9 +161,16 @@ describe('OpraClientModule', () => {
     await TestBed.configureTestingModule({
       imports: [
         OpraClientModule.registerService(TestApi, config),
-        OpraClientModule.registerService(TestApi, { ...config, token: SERVICE2 }),
+        OpraClientModule.registerService(TestApi, {
+          ...config,
+          token: SERVICE2,
+        }),
       ],
-      providers: [provideHttpClient(), provideHttpClientTesting(), TestComponent],
+      providers: [
+        provideHttpClient(),
+        provideHttpClientTesting(),
+        TestComponent,
+      ],
     }).compileComponents();
     const test = TestBed.inject(TestComponent);
     expect(test).toBeDefined();

@@ -12,7 +12,9 @@
       "@opra/core": ["../../core/src"],
       "@opra/http": ["../../http/src"],
       "@opra/testing": ["../../testing/src"],
-      "customer-mongo/models": ["../../../examples/_lib/customer-mongo/src/models/index"]
+      "customer-mongo/models": [
+        "../../../examples/_lib/customer-mongo/src/models/index"
+      ]
     }
   }
 }

@@ -1,6 +1,6 @@
+import { omitUndefined } from '@jsopen/objects';
 import type { Combine, Type } from 'ts-gems';
 import { TypeThunkAsync } from 'ts-gems/lib/types';
-import { omitUndefined } from '../../helpers/index.js';
 import { OpraSchema } from '../../schema/index.js';
 import { DocumentElement } from '../common/document-element.js';
 import { DataType } from '../data-type/data-type.js';
@@ -50,7 +50,10 @@ export class RpcOperationResponse extends DocumentElement {
   keyType?: DataType;
   headers: RpcHeader[] = [];
 
-  constructor(owner: RpcOperation, initArgs?: RpcOperationResponse.InitArguments) {
+  constructor(
+    owner: RpcOperation,
+    initArgs?: RpcOperationResponse.InitArguments,
+  ) {
     super(owner);
     this.channel = initArgs?.channel;
     this.description = initArgs?.description;
@@ -62,7 +65,9 @@ export class RpcOperationResponse extends DocumentElement {
     } else this.payloadType = this.owner.node.getDataType('any');
     if (initArgs?.keyType) {
       this.keyType =
-        initArgs?.keyType instanceof DataType ? initArgs.keyType : this.owner.node.getDataType(initArgs.keyType);
+        initArgs?.keyType instanceof DataType
+          ? initArgs.keyType
+          : this.owner.node.getDataType(initArgs.keyType);
     }
   }
 
@@ -82,8 +87,14 @@ export class RpcOperationResponse extends DocumentElement {
     const out = omitUndefined<OpraSchema.RpcOperationResponse>({
       description: this.description,
       channel: this.channel,
-      payloadType: this.payloadType.name ? this.payloadType.name : this.payloadType.toJSON(),
-      keyType: this.keyType ? (this.keyType.name ? this.keyType.name : this.keyType.toJSON()) : undefined,
+      payloadType: this.payloadType.name
+        ? this.payloadType.name
+        : this.payloadType.toJSON(),
+      keyType: this.keyType
+        ? this.keyType.name
+          ? this.keyType.name
+          : this.keyType.toJSON()
+        : undefined,
     });
     if (this.headers.length) {
       out.headers = [];

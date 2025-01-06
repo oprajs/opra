@@ -1,5 +1,9 @@
 import assert from 'node:assert';
-import { MongoCollectionService, MongoNestedService, MongoService } from '@opra/mongodb';
+import {
+  MongoCollectionService,
+  MongoNestedService,
+  MongoService,
+} from '@opra/mongodb';
 import { Note } from '../models/index.js';
 
 export class CustomerNotesService extends MongoNestedService<Note> {
@@ -9,7 +13,8 @@ export class CustomerNotesService extends MongoNestedService<Note> {
     super(Note, 'notes', {
       collectionName: 'Customers',
       interceptor: (callback: () => any, info: MongoService.CommandInfo) => {
-        if (info.crud === 'create') info.input!._id = ++CustomerNotesService.idGen;
+        if (info.crud === 'create')
+          info.input!._id = ++CustomerNotesService.idGen;
         return callback();
       },
       ...options,

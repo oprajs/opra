@@ -1,4 +1,3 @@
-/* eslint-disable no-console */
 import { CustomerApplication } from './customer-application.js';
 
 CustomerApplication.create()

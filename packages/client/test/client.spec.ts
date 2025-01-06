@@ -29,18 +29,28 @@ describe('OpraClient', () => {
 
   it('Should getSchema() reject promise on error', async () => {
     const xClient = new OpraHttpClient('http://127.0.0.1:1001');
-    await expect(() => xClient.fetchDocument()).rejects.toThrow('Error fetching api schema');
+    await expect(() => xClient.fetchDocument()).rejects.toThrow(
+      'Error fetching api schema',
+    );
   });
 
   it('Should return OPRA headers', async () => {
-    const resp = await client.request('auth/login', { params: { user: 'john' } }).getResponse();
-    expect(app.lastResponse.get(HttpHeaderCodes.X_Opra_Version)).toStrictEqual(OpraSchema.SpecVersion);
+    const resp = await client
+      .request('auth/login', { params: { user: 'john' } })
+      .getResponse();
+    expect(app.lastResponse.get(HttpHeaderCodes.X_Opra_Version)).toStrictEqual(
+      OpraSchema.SpecVersion,
+    );
     expect(app.lastRequest.query.user).toStrictEqual('john');
-    expect(resp.headers.get(HttpHeaderCodes.X_Opra_Version)).toStrictEqual(OpraSchema.SpecVersion);
+    expect(resp.headers.get(HttpHeaderCodes.X_Opra_Version)).toStrictEqual(
+      OpraSchema.SpecVersion,
+    );
   });
 
   it('Should return body if observe=body or undefined', async () => {
-    const body = await client.request('auth/login', { params: { user: 'john' } }).getBody();
+    const body = await client
+      .request('auth/login', { params: { user: 'john' } })
+      .getBody();
     expect(app.lastRequest).toBeDefined();
     expect(app.lastRequest.method).toStrictEqual('GET');
     expect(app.lastRequest.url).toStrictEqual('/auth/login?user=john');
@@ -51,7 +61,9 @@ describe('OpraClient', () => {
   });
 
   it('Should return Response object if observe=response or undefined', async () => {
-    const resp = await client.request('auth/login', { params: { user: 'john' } }).getResponse();
+    const resp = await client
+      .request('auth/login', { params: { user: 'john' } })
+      .getResponse();
     expect(app.lastRequest).toBeDefined();
     expect(app.lastRequest.method).toStrictEqual('GET');
     expect(app.lastRequest.url).toStrictEqual('/auth/login?user=john');
@@ -68,7 +80,10 @@ describe('OpraClient', () => {
       document: app.api,
       interceptors: [
         {
-          intercept(request: FetchBackend.RequestInit, next: HttpHandler): Observable<HttpEvent> {
+          intercept(
+            request: FetchBackend.RequestInit,
+            next: HttpHandler,
+          ): Observable<HttpEvent> {
             callStack.push('a1');
             return next.handle(request).pipe(
               finalize(() => {
@@ -78,7 +93,10 @@ describe('OpraClient', () => {
           },
         },
         {
-          intercept(request: FetchBackend.RequestInit, next: HttpHandler): Observable<HttpEvent> {
+          intercept(
+            request: FetchBackend.RequestInit,
+            next: HttpHandler,
+          ): Observable<HttpEvent> {
             callStack.push('b1');
             return next.handle(request).pipe(
               finalize(() => {

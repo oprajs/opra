@@ -1,6 +1,6 @@
 import '@opra/sqb';
 import { ApiField, ComplexType, MixinType } from '@opra/common';
-import { Column, Entity, Link } from '@sqb/connect';
+import { Column, DataType, Entity, Link } from '@sqb/connect';
 import { type PartialDTO } from 'ts-gems';
 import { Address } from './address.js';
 import { Country } from './country.js';
@@ -38,10 +38,13 @@ export class TempCustomer extends MixinType(Record, Person) {
   declare address?: Address;
 
   @ApiField({ type: Note, exclusive: true })
-  @Column({ type: Note, exclusive: true })
+  @Column({ type: Note, exclusive: true, dataType: DataType.JSON })
   declare notes?: Note[];
 
   @ApiField({ exclusive: true })
-  @(Link({ exclusive: true }).toOne(Country, { sourceKey: 'countryCode', targetKey: 'code' }))
+  @(Link({ exclusive: true }).toOne(Country, {
+    sourceKey: 'countryCode',
+    targetKey: 'code',
+  }))
   declare readonly country?: Country;
 }

@@ -1,8 +1,9 @@
 import 'reflect-metadata';
+import { omitUndefined } from '@jsopen/objects';
 import { asMutable, type Combine, type Type } from 'ts-gems';
-import { omitUndefined } from '../../helpers/index.js';
 import type { Field } from '../../schema/data-type/field.interface.js';
 import { OpraSchema } from '../../schema/index.js';
+import type { ApiDocument } from '../api-document.js';
 import { DocumentElement } from '../common/document-element.js';
 import type { DocumentInitContext } from '../common/document-init-context.js';
 import { ApiField } from './api-field.js';
@@ -80,7 +81,8 @@ export interface MappedType extends MappedTypeClass {}
  * MappedType constructor
  */
 export const MappedType = function (this: MappedType, ...args: any[]) {
-  if (!this) throw new TypeError('"this" should be passed to call class constructor');
+  if (!this)
+    throw new TypeError('"this" should be passed to call class constructor');
   // Constructor
   const [owner, initArgs, context] = args as [
     DocumentElement,
@@ -93,13 +95,17 @@ export const MappedType = function (this: MappedType, ...args: any[]) {
   if (initArgs.base) {
     // noinspection SuspiciousTypeOfGuard
     if (!(initArgs.base instanceof ComplexTypeBase)) {
-      throw new TypeError(`"${(initArgs.base as DataType).kind}" can't be set as base for a "${this.kind}"`);
+      throw new TypeError(
+        `"${(initArgs.base as DataType).kind}" can't be set as base for a "${this.kind}"`,
+      );
     }
     _this.base = initArgs.base;
     _this.ctor = initArgs.ctor || _this.base.ctor;
 
-    if (initArgs.pick) _this.pick = initArgs.pick.map(f => _this.base.normalizeFieldPath(f));
-    else if (initArgs.omit) _this.omit = initArgs.omit.map(f => _this.base.normalizeFieldPath(f));
+    if (initArgs.pick)
+      _this.pick = initArgs.pick.map(f => _this.base.normalizeFieldPath(f));
+    else if (initArgs.omit)
+      _this.omit = initArgs.omit.map(f => _this.base.normalizeFieldPath(f));
     else if (initArgs.partial) {
       _this.partial = Array.isArray(initArgs.partial)
         ? initArgs.partial.map(f => _this.base.normalizeFieldPath(f))
@@ -111,29 +117,44 @@ export const MappedType = function (this: MappedType, ...args: any[]) {
     }
 
     /** Copy fields from base */
-    const isInheritedPredicate = getIsInheritedPredicateFn(_this.pick, _this.omit);
-    const partial = Array.isArray(_this.partial) ? _this.partial.map(x => x.toLowerCase()) : _this.partial;
-    const required = Array.isArray(_this.required) ? _this.required.map(x => x.toLowerCase()) : _this.required;
-    for (const [k, v] of _this.base.fields.entries()) {
+    const isInheritedPredicate = getIsInheritedPredicateFn(
+      _this.pick,
+      _this.omit,
+    );
+    const partial = Array.isArray(_this.partial)
+      ? _this.partial.map(x => x.toLowerCase())
+      : _this.partial;
+    const required = Array.isArray(_this.required)
+      ? _this.required.map(x => x.toLowerCase())
+      : _this.required;
+    for (const [k, v] of _this.base.fieldEntries()) {
       if (!isInheritedPredicate(k)) continue;
       const meta = { ...v } as ApiField.InitArguments;
-      if (partial === true || (Array.isArray(partial) && partial.includes(v.name.toLowerCase()))) {
+      if (
+        partial === true ||
+        (Array.isArray(partial) && partial.includes(v.name.toLowerCase()))
+      ) {
         meta.required = false;
-      } else if (required === true || (Array.isArray(required) && required.includes(v.name.toLowerCase()))) {
+      } else if (
+        required === true ||
+        (Array.isArray(required) && required.includes(v.name.toLowerCase()))
+      ) {
         meta.required = true;
       }
       const field = new ApiField(this, meta);
-      _this.fields.set(field.name, field);
+      (_this as any)._fields.set(field.name, field);
     }
 
     if (
       !_this.pick ||
       _this.base.additionalFields === false ||
-      (Array.isArray(_this.base.additionalFields) && _this.base.additionalFields?.[0] === 'error')
+      (Array.isArray(_this.base.additionalFields) &&
+        _this.base.additionalFields?.[0] === 'error')
     ) {
       _this.additionalFields = _this.base.additionalFields;
     }
-    if (initArgs.base.keyField && isInheritedPredicate(initArgs.base.keyField)) _this.keyField = initArgs.base.keyField;
+    if (initArgs.base.keyField && isInheritedPredicate(initArgs.base.keyField))
+      _this.keyField = initArgs.base.keyField;
   }
 } as Function as MappedTypeStatic;
 
@@ -151,23 +172,36 @@ class MappedTypeClass extends ComplexTypeBase {
   readonly required?: Field.Name[] | boolean;
 
   extendsFrom(baseType: DataType | string | Type | object): boolean {
-    if (!(baseType instanceof DataType)) baseType = this.node.getDataType(baseType);
+    if (!(baseType instanceof DataType))
+      baseType = this.node.getDataType(baseType);
     if (!(baseType instanceof ComplexTypeBase)) return false;
     if (baseType === this) return true;
     return !!this.base?.extendsFrom(baseType);
   }
 
-  toJSON(): OpraSchema.MappedType {
-    const baseName = this.base ? this.node.getDataTypeNameWithNs(this.base) : undefined;
+  toJSON(options?: ApiDocument.ExportOptions): OpraSchema.MappedType {
+    const superJson = super.toJSON(options);
+    const baseName = this.base
+      ? this.node.getDataTypeNameWithNs(this.base)
+      : undefined;
     return omitUndefined<OpraSchema.MappedType>({
-      ...ComplexTypeBase.prototype.toJSON.call(this),
-      base: baseName ? baseName : this.base.toJSON(),
+      ...superJson,
+      base: baseName ? baseName : this.base.toJSON(options),
       kind: this.kind as any,
       pick: this.pick,
       omit: this.omit,
       partial: this.partial,
       required: this.required,
     });
+  }
+
+  protected _locateBase(
+    callback: (base: ComplexTypeBase) => boolean,
+  ): ComplexTypeBase | undefined {
+    if (!this.base) return;
+    if (callback(this.base)) return this.base;
+    if ((this.base as any)._locateBase)
+      return (this.base as any)._locateBase(callback);
   }
 }
 

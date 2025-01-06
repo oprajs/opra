@@ -56,7 +56,8 @@ export interface LicenseInfo {
 /**
  * @interface DocumentReference
  */
-export interface DocumentReference extends Pick<ApiDocument, 'id' | 'url' | 'info'> {}
+export interface DocumentReference
+  extends Pick<ApiDocument, 'id' | 'url' | 'info'> {}
 
 /**
  * @interface Api

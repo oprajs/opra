@@ -40,7 +40,9 @@ describe('HttpOutgoing', () => {
   it('Should attachment(name) set Content-Disposition header', async () => {
     const msg = HttpOutgoing.from({ req: {} as any });
     msg.attachment('path/to/logo.png');
-    expect(msg.getHeader('Content-Disposition')).toStrictEqual('attachment; filename="logo.png"');
+    expect(msg.getHeader('Content-Disposition')).toStrictEqual(
+      'attachment; filename="logo.png"',
+    );
   });
 
   it('Should cookie() set Set-Cookie header', async () => {
@@ -60,15 +62,21 @@ describe('HttpOutgoing', () => {
   it('Should contentType(type) or type(type) set Content-Type header', async () => {
     const msg = HttpOutgoing.from({ req: {} as any });
     msg.contentType('text/xml');
-    expect(msg.getHeader('Content-Type')).toStrictEqual('text/xml; charset=utf-8');
+    expect(msg.getHeader('Content-Type')).toStrictEqual(
+      'text/xml; charset=utf-8',
+    );
     msg.contentType('text/html');
-    expect(msg.getHeader('Content-Type')).toStrictEqual('text/html; charset=utf-8');
+    expect(msg.getHeader('Content-Type')).toStrictEqual(
+      'text/html; charset=utf-8',
+    );
   });
 
   it('Should links() set Link header', async () => {
     const msg = HttpOutgoing.from({ req: {} as any });
     msg.links({ next: '/next', prior: '/prior' });
-    expect(msg.getHeader('Link')).toStrictEqual('</next>; rel="next", </prior>; rel="prior"');
+    expect(msg.getHeader('Link')).toStrictEqual(
+      '</next>; rel="next", </prior>; rel="prior"',
+    );
   });
 
   it('Should redirect() set Location and statusCode', async () => {

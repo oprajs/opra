@@ -42,22 +42,22 @@ export namespace TsGenerator {
  * @class TsGenerator
  */
 export class TsGenerator extends EventEmitter {
-  protected declare cleanDirectory: typeof cleanDirectory;
-  protected declare generateDocument: typeof generateDocument;
-  protected declare generateDataType: typeof generateDataType;
-  protected declare _generateTypeCode: typeof _generateTypeCode;
-  protected declare _generateEnumTypeCode: typeof _generateEnumTypeCode;
-  protected declare _generateComplexTypeCode: typeof _generateComplexTypeCode;
-  protected declare _generateSimpleTypeCode: typeof _generateSimpleTypeCode;
-  protected declare _generateMappedTypeCode: typeof _generateMappedTypeCode;
-  protected declare _generateMixinTypeCode: typeof _generateMixinTypeCode;
-  protected declare generateHttpApi: typeof generateHttpApi;
-  protected declare generateHttpController: typeof generateHttpController;
-  protected declare _documentRoot: string;
-  protected declare _typesRoot: string;
-  protected declare _typesNamespace: string;
-  protected declare _apiPath: string;
-  protected declare _fileHeaderDocInfo: string;
+  declare protected cleanDirectory: typeof cleanDirectory;
+  declare protected generateDocument: typeof generateDocument;
+  declare protected generateDataType: typeof generateDataType;
+  declare protected _generateTypeCode: typeof _generateTypeCode;
+  declare protected _generateEnumTypeCode: typeof _generateEnumTypeCode;
+  declare protected _generateComplexTypeCode: typeof _generateComplexTypeCode;
+  declare protected _generateSimpleTypeCode: typeof _generateSimpleTypeCode;
+  declare protected _generateMappedTypeCode: typeof _generateMappedTypeCode;
+  declare protected _generateMixinTypeCode: typeof _generateMixinTypeCode;
+  declare protected generateHttpApi: typeof generateHttpApi;
+  declare protected generateHttpController: typeof generateHttpController;
+  declare protected _documentRoot: string;
+  declare protected _typesRoot: string;
+  declare protected _typesNamespace: string;
+  declare protected _apiPath: string;
+  declare protected _fileHeaderDocInfo: string;
   protected _files: Record<string, TsFile> = {};
   protected _started = false;
   protected _document?: ApiDocument;
@@ -90,14 +90,27 @@ export class TsGenerator extends EventEmitter {
     this.outDir = init.outDir ? path.resolve(this.cwd, init.outDir) : this.cwd;
     this.fileHeader = init.fileHeader || '';
     this.writer = init.writer || new FileWriter();
-    this.options = { importExt: !!init.importExt, referenceNamespaces: init.referenceNamespaces };
+    this.options = {
+      importExt: !!init.importExt,
+      referenceNamespaces: init.referenceNamespaces,
+    };
     this._documentsMap = new Map();
     this._filesMap = new WeakMap();
-    this.on('log', (message: string, ...args) => init.logger?.log?.(message, ...args));
-    this.on('error', (message: string, ...args) => init.logger?.error?.(message, ...args));
-    this.on('debug', (message: string, ...args) => init.logger?.debug?.(message, ...args));
-    this.on('warn', (message: string, ...args) => init.logger?.warn?.(message, ...args));
-    this.on('verbose', (message: string, ...args) => init.logger?.verbose?.(message, ...args));
+    this.on('log', (message: string, ...args) =>
+      init.logger?.log?.(message, ...args),
+    );
+    this.on('error', (message: string, ...args) =>
+      init.logger?.error?.(message, ...args),
+    );
+    this.on('debug', (message: string, ...args) =>
+      init.logger?.debug?.(message, ...args),
+    );
+    this.on('warn', (message: string, ...args) =>
+      init.logger?.warn?.(message, ...args),
+    );
+    this.on('verbose', (message: string, ...args) =>
+      init.logger?.verbose?.(message, ...args),
+    );
   }
 
   async generate() {
@@ -108,6 +121,7 @@ export class TsGenerator extends EventEmitter {
       this.emit('log', colors.cyan('Removing old files..'));
       this.cleanDirectory(this.outDir);
       this._apiPath = '/api';
+      this._typesRoot = '/models';
       await this.generateDocument();
       const { importExt } = this.options;
       // Write files
@@ -130,14 +144,18 @@ export class TsGenerator extends EventEmitter {
   }
 
   protected addFile(filePath: string, returnExists?: boolean): TsFile {
-    if (!(filePath.startsWith('.') || filePath.startsWith('/'))) filePath = './' + filePath;
+    if (!(filePath.startsWith('.') || filePath.startsWith('/')))
+      filePath = './' + filePath;
     let file = this.getFile(filePath);
     if (file) {
       if (returnExists) return file;
       throw new Error(`File "${filePath}" already exists`);
     }
     file = new TsFile(filePath);
-    file.code.header = this.fileHeader + (this._fileHeaderDocInfo ? '\n' + this._fileHeaderDocInfo : '') + '\n\n';
+    file.code.header =
+      this.fileHeader +
+      (this._fileHeaderDocInfo ? '\n' + this._fileHeaderDocInfo : '') +
+      '\n\n';
     this._files[file.filename] = file;
     return file;
   }

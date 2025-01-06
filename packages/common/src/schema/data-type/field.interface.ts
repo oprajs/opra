@@ -14,11 +14,6 @@ export type Field = {
   description?: string;
 
   /**
-   * Indicates if the field value is an array
-   */
-  isArray?: boolean;
-
-  /**
    * Defines the default value of the field
    */
   default?: any;
@@ -50,9 +45,19 @@ export type Field = {
   exclusive?: boolean;
 
   /**
-   * If true, this Field is a candidate for translations
+   * Indicates if the field value is an array
    */
-  translatable?: boolean;
+  isArray?: boolean;
+
+  /**
+   * Indicates key field when this field is a ComplexType array
+   */
+  keyField?: string;
+
+  /**
+   * If true, this Field is a candidate for localization
+   */
+  localization?: boolean;
 
   /**
    * Defines example values for the field

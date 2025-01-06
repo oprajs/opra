@@ -1,16 +1,13 @@
+import { merge } from '@jsopen/objects';
 import { HttpController, HttpOperation, OperationResult } from '@opra/common';
 import { HttpContext } from '@opra/http';
 import { Customer } from 'customer-mongo/models';
-import merge from 'putil-merge';
 import { Data } from '../../../../../../examples/_lib/data/customers-data.js';
 
 @HttpController({
   description: 'Customer resource',
 })
 export class CustomersController {
-  public initialized = false;
-  public closed = false;
-
   @HttpOperation.Entity.Create(Customer)
   async create(context: HttpContext) {
     const body = await context.getBody<Customer>();
@@ -44,7 +41,13 @@ export class CustomersController {
   }
 
   @(HttpOperation.Entity.FindMany(Customer)
-    .SortFields('_id', 'givenName', 'familyName', 'gender', 'address.countryCode')
+    .SortFields(
+      '_id',
+      'givenName',
+      'familyName',
+      'gender',
+      'address.countryCode',
+    )
     .DefaultSort('givenName')
     .Filter('_id', '= >  <  >= <=')
     .Filter('givenName', ['=', 'like', '!like'])
@@ -64,15 +67,5 @@ export class CustomersController {
   @(HttpOperation({ path: '/sendMessageAll' }).QueryParam('message', String))
   async sendMessageAll(context: HttpContext) {
     return { sent: 10, message: context.queryParams.message };
-  }
-
-  @HttpController.OnInit()
-  async onInit() {
-    this.initialized = true;
-  }
-
-  @HttpController.OnShutdown()
-  async onShutdown() {
-    this.closed = true;
   }
 }

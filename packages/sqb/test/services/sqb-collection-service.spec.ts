@@ -78,7 +78,7 @@ describe('SqbCollectionService', () => {
         expect(c2).toBeLessThan(c1);
         await connection.rollback();
       });
-      const c3 = await svc.count();
+      const c3 = await service1.for(context).count();
       expect(c3).toEqual(c1);
     });
   });
@@ -91,14 +91,16 @@ describe('SqbCollectionService', () => {
 
     it('Should throw error if not found', async () => {
       const ctx = createContext(app.adapter);
-      await expect(() => service1.for(ctx).assert(9999)).rejects.toThrow(ResourceNotAvailableError);
+      await expect(() => service1.for(ctx).assert(9999)).rejects.toThrow(
+        ResourceNotAvailableError,
+      );
     });
 
     it('Should apply filter returned by commonFilter', async () => {
       const ctx = createContext(app.adapter);
-      await expect(() => service1.for(ctx, { commonFilter: () => '_id=2' }).assert(1)).rejects.toThrow(
-        ResourceNotAvailableError,
-      );
+      await expect(() =>
+        service1.for(ctx, { commonFilter: () => '_id=2' }).assert(1),
+      ).rejects.toThrow(ResourceNotAvailableError);
     });
   });
 
@@ -118,7 +120,9 @@ describe('SqbCollectionService', () => {
 
     it('Should apply filter returned by commonFilter', async () => {
       const ctx = createContext(app.adapter);
-      const result: any = await service1.for(ctx, { commonFilter: '_id=2' }).count();
+      const result: any = await service1
+        .for(ctx, { commonFilter: '_id=2' })
+        .count();
       expect(result).toEqual(1);
     });
 
@@ -157,14 +161,18 @@ describe('SqbCollectionService', () => {
 
     it('Should apply filter returned by commonFilter', async () => {
       const ctx = createContext(app.adapter);
-      const result: any = await service1.for(ctx, { commonFilter: '_id=2' }).findById(1);
+      const result: any = await service1
+        .for(ctx, { commonFilter: '_id=2' })
+        .findById(1);
       expect(result).not.toBeDefined();
     });
 
     it('Should run in interceptor', async () => {
       const mockFn = jest.fn(interceptorFn);
       const ctx = createContext(app.adapter);
-      const result: any = await service1.for(ctx, { interceptor: mockFn }).findById(1);
+      const result: any = await service1
+        .for(ctx, { interceptor: mockFn })
+        .findById(1);
       expect(result).toBeDefined();
       expect(mockFn).toBeCalled();
     });
@@ -184,7 +192,9 @@ describe('SqbCollectionService', () => {
 
     it('Should return "undefined" if not found', async () => {
       const ctx = createContext(app.adapter);
-      const result: any = await service1.for(ctx).findOne({ filter: { _id: 9999 } });
+      const result: any = await service1
+        .for(ctx)
+        .findOne({ filter: { _id: 9999 } });
       expect(result).not.toBeDefined();
     });
 
@@ -202,7 +212,9 @@ describe('SqbCollectionService', () => {
 
     it('Should apply filter returned by commonFilter', async () => {
       const ctx = createContext(app.adapter);
-      const result: any = await service1.for(ctx, { commonFilter: '_id=2' }).findOne();
+      const result: any = await service1
+        .for(ctx, { commonFilter: '_id=2' })
+        .findOne();
       expect(result._id).toEqual(2);
     });
 
@@ -248,15 +260,21 @@ describe('SqbCollectionService', () => {
 
     it('Should skip records', async () => {
       const ctx = createContext(app.adapter);
-      const result1: any = await service1.for(ctx).findOne({ skip: 1, sort: ['_id'] });
-      const result2: any = await service1.for(ctx).findOne({ skip: 2, sort: ['_id'] });
+      const result1: any = await service1
+        .for(ctx)
+        .findOne({ skip: 1, sort: ['_id'] });
+      const result2: any = await service1
+        .for(ctx)
+        .findOne({ skip: 2, sort: ['_id'] });
       expect(result1._id).toBeLessThan(result2._id);
     });
 
     it('Should run in interceptor', async () => {
       const mockFn = jest.fn(interceptorFn);
       const ctx = createContext(app.adapter);
-      const result: any = await service1.for(ctx, { interceptor: mockFn }).findOne();
+      const result: any = await service1
+        .for(ctx, { interceptor: mockFn })
+        .findOne();
       expect(result).toBeDefined();
       expect(mockFn).toBeCalled();
     });
@@ -280,7 +298,9 @@ describe('SqbCollectionService', () => {
 
     it('Should apply filter', async () => {
       const ctx = createContext(app.adapter);
-      const result: any = await service1.for(ctx).findMany({ filter: 'rate>5' });
+      const result: any = await service1
+        .for(ctx)
+        .findMany({ filter: 'rate>5' });
       expect(result).toBeDefined();
       expect(result.length).toBeGreaterThan(0);
       for (const r of result) expect(r.rate).toBeGreaterThan(5);
@@ -288,7 +308,9 @@ describe('SqbCollectionService', () => {
 
     it('Should apply filter returned by commonFilter', async () => {
       const ctx = createContext(app.adapter);
-      const result: any = await service1.for(ctx, { commonFilter: '_id=2' }).findMany();
+      const result: any = await service1
+        .for(ctx, { commonFilter: '_id=2' })
+        .findMany();
       expect(result.length).toEqual(1);
       expect(result[0]._id).toEqual(2);
     });
@@ -392,7 +414,9 @@ describe('SqbCollectionService', () => {
     it('Should run in interceptor', async () => {
       const mockFn = jest.fn(interceptorFn);
       const ctx = createContext(app.adapter);
-      const result: any = await service1.for(ctx, { interceptor: mockFn }).findMany();
+      const result: any = await service1
+        .for(ctx, { interceptor: mockFn })
+        .findMany();
       expect(result).toBeDefined();
       expect(result.length).toBeGreaterThan(0);
       expect(mockFn).toBeCalled();
@@ -413,20 +437,24 @@ describe('SqbCollectionService', () => {
 
     it('Should throw error if not found', async () => {
       const ctx = createContext(app.adapter);
-      await expect(() => service1.for(ctx).get(9999)).rejects.toThrow(ResourceNotAvailableError);
+      await expect(() => service1.for(ctx).get(9999)).rejects.toThrow(
+        ResourceNotAvailableError,
+      );
     });
 
     it('Should apply filter returned by commonFilter', async () => {
       const ctx = createContext(app.adapter);
-      await expect(() => service1.for(ctx, { commonFilter: '_id=999' }).get(1)).rejects.toThrow(
-        ResourceNotAvailableError,
-      );
+      await expect(() =>
+        service1.for(ctx, { commonFilter: '_id=999' }).get(1),
+      ).rejects.toThrow(ResourceNotAvailableError);
     });
 
     it('Should run in interceptor', async () => {
       const mockFn = jest.fn(interceptorFn);
       const ctx = createContext(app.adapter);
-      const result: any = await service1.for(ctx, { interceptor: mockFn }).get(1);
+      const result: any = await service1
+        .for(ctx, { interceptor: mockFn })
+        .get(1);
       expect(result).toBeDefined();
       expect(mockFn).toBeCalled();
     });
@@ -451,7 +479,9 @@ describe('SqbCollectionService', () => {
     it('Should apply filter returned by commonFilter', async () => {
       const ctx = createContext(app.adapter);
       const doc = { uid: faker.string.uuid() };
-      const r = await service1.for(ctx, { commonFilter: '_id=999' }).updateOnly(2, doc);
+      const r = await service1
+        .for(ctx, { commonFilter: '_id=999' })
+        .updateOnly(2, doc);
       expect(r).toEqual(0);
     });
 
@@ -460,7 +490,9 @@ describe('SqbCollectionService', () => {
       const ctx = createContext(app.adapter);
       const doc = { uid: faker.string.uuid() };
       const srcDoc = tempRecords[5];
-      const r = await service1.for(ctx, { interceptor: mockFn }).updateOnly(srcDoc._id, doc);
+      const r = await service1
+        .for(ctx, { interceptor: mockFn })
+        .updateOnly(srcDoc._id, doc);
       expect(r).toEqual(1);
       expect(mockFn).toBeCalled();
     });
@@ -487,7 +519,9 @@ describe('SqbCollectionService', () => {
     it('Should apply filter returned by commonFilter', async () => {
       const ctx = createContext(app.adapter);
       const doc = { uid: faker.string.uuid() };
-      const result = await service1.for(ctx, { commonFilter: '_id=999' }).update(2, doc);
+      const result = await service1
+        .for(ctx, { commonFilter: '_id=999' })
+        .update(2, doc);
       expect(result).not.toBeDefined();
     });
 
@@ -496,7 +530,9 @@ describe('SqbCollectionService', () => {
       const ctx = createContext(app.adapter);
       const doc = { uid: faker.string.uuid() };
       const srcDoc = tempRecords[5];
-      const result: any = await service1.for(ctx, { interceptor: mockFn }).update(srcDoc._id, doc);
+      const result: any = await service1
+        .for(ctx, { interceptor: mockFn })
+        .update(srcDoc._id, doc);
       expect(result).toBeDefined();
       expect(mockFn).toBeCalled();
     });
@@ -521,7 +557,9 @@ describe('SqbCollectionService', () => {
     it('Should apply filter', async () => {
       const ctx = createContext(app.adapter);
       const update = { uid: faker.string.uuid() };
-      const r = await service1.for(ctx).updateMany(update, { filter: 'rate>5' });
+      const r = await service1
+        .for(ctx)
+        .updateMany(update, { filter: 'rate>5' });
       expect(r).toBeGreaterThan(0);
       const recs = await service1.for(ctx).findMany();
       expect(recs).toBeDefined();
@@ -534,7 +572,9 @@ describe('SqbCollectionService', () => {
     it('Should apply filter returned by commonFilter', async () => {
       const ctx = createContext(app.adapter);
       const doc = { uid: faker.string.uuid() };
-      const r = await service1.for(ctx, { commonFilter: '_id=2' }).updateMany(doc);
+      const r = await service1
+        .for(ctx, { commonFilter: '_id=2' })
+        .updateMany(doc);
       expect(r).toEqual(1);
     });
 
@@ -542,7 +582,9 @@ describe('SqbCollectionService', () => {
       const mockFn = jest.fn(interceptorFn);
       const ctx = createContext(app.adapter);
       const update = { uid: faker.string.uuid() };
-      const r = await service1.for(ctx, { interceptor: mockFn }).updateMany(update);
+      const r = await service1
+        .for(ctx, { interceptor: mockFn })
+        .updateMany(update);
       expect(r).toBeGreaterThan(0);
       expect(mockFn).toBeCalled();
     });
@@ -562,7 +604,9 @@ describe('SqbCollectionService', () => {
       const mockFn = jest.fn(interceptorFn);
       const ctx = createContext(app.adapter);
       const doc = { _id: 101, uid: faker.string.uuid() };
-      const result: any = await service1.for(ctx, { interceptor: mockFn }).create(doc);
+      const result: any = await service1
+        .for(ctx, { interceptor: mockFn })
+        .create(doc);
       expect(result).toBeDefined();
       expect(mockFn).toBeCalled();
     });
@@ -598,7 +642,9 @@ describe('SqbCollectionService', () => {
       const mockFn = jest.fn(interceptorFn);
       const ctx = createContext(app.adapter);
       const doc = tempRecords[2];
-      const r = await service1.for(ctx, { interceptor: mockFn }).delete(doc._id);
+      const r = await service1
+        .for(ctx, { interceptor: mockFn })
+        .delete(doc._id);
       expect(r).toEqual(1);
       expect(mockFn).toBeCalled();
     });
@@ -607,7 +653,9 @@ describe('SqbCollectionService', () => {
   describe('deleteMany()', () => {
     it('Should apply filter returned by commonFilter', async () => {
       const ctx = createContext(app.adapter);
-      const r = await service1.for(ctx, { commonFilter: '_id=999' }).deleteMany();
+      const r = await service1
+        .for(ctx, { commonFilter: '_id=999' })
+        .deleteMany();
       expect(r).toEqual(0);
     });
 

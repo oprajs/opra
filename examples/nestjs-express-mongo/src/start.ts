@@ -1,4 +1,3 @@
-/* eslint-disable no-console */
 import { NestFactory } from '@nestjs/core';
 import { ApplicationModule } from './modules/app.module.js';
 

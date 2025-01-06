@@ -9,7 +9,10 @@ export async function initDatabase(options: {
   countries?: Country[];
 }) {
   const schema = process.env.PG_SCHEMA || 'customer_app';
-  const connection = new Connection({ schema: options.schema || 'postgres' });
+  const connection = new Connection({
+    schema: options.schema || 'postgres',
+    password: process.env.PG_PASSWORD || 'postgres',
+  });
   await connection.connect();
   try {
     const sql = getSql(schema);
@@ -18,7 +21,9 @@ export async function initDatabase(options: {
     if (countries) {
       const lines: string[] = [];
       for (const row of countries) {
-        const line = Insert(schema + '.countries', row).generate({ dialect: 'postgres' }).sql;
+        const line = Insert(schema + '.countries', row).generate({
+          dialect: 'postgres',
+        }).sql;
         lines.push(line);
       }
       await connection.execute(lines.join(';\n'));
@@ -26,7 +31,9 @@ export async function initDatabase(options: {
     if (customers) {
       const lines: string[] = [];
       for (const row of customers) {
-        const line = Insert(schema + '.customers', row).generate({ dialect: 'postgres' }).sql;
+        const line = Insert(schema + '.customers', row).generate({
+          dialect: 'postgres',
+        }).sql;
         lines.push(line);
       }
       await connection.execute(lines.join(';\n'));

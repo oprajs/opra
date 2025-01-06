@@ -1,6 +1,7 @@
+import { omitUndefined } from '@jsopen/objects';
 import type { Combine } from 'ts-gems';
-import { omitUndefined } from '../../helpers/index.js';
 import { OpraSchema } from '../../schema/index.js';
+import type { ApiDocument } from '../api-document';
 import { parseRegExp } from '../utils/parse-regexp.util.js';
 import { HttpMediaType } from './http-media-type.js';
 
@@ -10,19 +11,28 @@ import { HttpMediaType } from './http-media-type.js';
 export namespace HttpMultipartField {
   export interface Metadata
     extends Combine<
-      Pick<OpraSchema.HttpMultipartField, 'fieldName' | 'fieldType' | 'required'>,
+      Pick<
+        OpraSchema.HttpMultipartField,
+        'fieldName' | 'fieldType' | 'required'
+      >,
       HttpMediaType.Metadata
     > {}
 
   export interface Options
     extends Combine<
-      Pick<OpraSchema.HttpMultipartField, 'fieldName' | 'fieldType' | 'required'>,
+      Pick<
+        OpraSchema.HttpMultipartField,
+        'fieldName' | 'fieldType' | 'required'
+      >,
       HttpMediaType.Options
     > {}
 
   export interface InitArguments
     extends Combine<
-      Pick<OpraSchema.HttpMultipartField, 'fieldName' | 'fieldType' | 'required'>,
+      Pick<
+        OpraSchema.HttpMultipartField,
+        'fieldName' | 'fieldType' | 'required'
+      >,
       HttpMediaType.InitArguments
     > {}
 }
@@ -36,7 +46,10 @@ export class HttpMultipartField extends HttpMediaType {
   fieldType: OpraSchema.HttpMultipartFieldType;
   required?: boolean;
 
-  constructor(owner: HttpMediaType | HttpMultipartField, initArgs: HttpMultipartField.InitArguments) {
+  constructor(
+    owner: HttpMediaType | HttpMultipartField,
+    initArgs: HttpMultipartField.InitArguments,
+  ) {
     super(owner, initArgs);
     this.fieldName =
       initArgs.fieldName instanceof RegExp
@@ -48,12 +61,12 @@ export class HttpMultipartField extends HttpMediaType {
     this.required = initArgs.required;
   }
 
-  toJSON(): OpraSchema.HttpMultipartField {
+  toJSON(options?: ApiDocument.ExportOptions): OpraSchema.HttpMultipartField {
     return omitUndefined({
       fieldName: this.fieldName,
       fieldType: this.fieldType,
       required: this.required,
-      ...super.toJSON(),
+      ...super.toJSON(options),
     });
   }
 }

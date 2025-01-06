@@ -1,14 +1,24 @@
 /* eslint-disable import-x/extensions */
 import { HttpClient } from '@angular/common/http';
-import { type ModuleWithProviders, NgModule, type Provider, Type } from '@angular/core';
+import {
+  type ModuleWithProviders,
+  NgModule,
+  type Provider,
+  Type,
+} from '@angular/core';
 import { kClient } from '@opra/client';
 import { OpraAngularClient } from './angular-client';
 import { OPRA_CLIENT_MODULE_OPTIONS } from './constants';
-import type { OpraClientModuleAsyncOptions, OpraClientModuleOptions } from './interfaces/module-options.interface';
+import type {
+  OpraClientModuleAsyncOptions,
+  OpraClientModuleOptions,
+} from './interfaces/module-options.interface';
 
 @NgModule({})
 export class OpraClientModule {
-  public static registerClient(options: OpraClientModuleOptions): ModuleWithProviders<OpraClientModule> {
+  public static registerClient(
+    options: OpraClientModuleOptions,
+  ): ModuleWithProviders<OpraClientModule> {
     const CLIENT_TOKEN = options.token || OpraAngularClient;
     return {
       ngModule: OpraClientModule,
@@ -16,7 +26,8 @@ export class OpraClientModule {
         {
           provide: CLIENT_TOKEN,
           deps: [HttpClient],
-          useFactory: (httpClient: HttpClient) => new OpraAngularClient(httpClient, options.serviceUrl, options),
+          useFactory: (httpClient: HttpClient) =>
+            new OpraAngularClient(httpClient, options.serviceUrl, options),
         },
       ],
     };
@@ -34,7 +45,11 @@ export class OpraClientModule {
           provide: SERVICE_TOKEN,
           deps: [HttpClient],
           useFactory: (httpClient: HttpClient) => {
-            const opraAngularClient = new OpraAngularClient(httpClient, options.serviceUrl, options);
+            const opraAngularClient = new OpraAngularClient(
+              httpClient,
+              options.serviceUrl,
+              options,
+            );
             const service = new serviceClass(opraAngularClient);
             service[kClient] = opraAngularClient;
             return service;
@@ -44,7 +59,9 @@ export class OpraClientModule {
     };
   }
 
-  public static registerClientAsync(options: OpraClientModuleAsyncOptions): ModuleWithProviders<OpraClientModule> {
+  public static registerClientAsync(
+    options: OpraClientModuleAsyncOptions,
+  ): ModuleWithProviders<OpraClientModule> {
     const CLIENT_TOKEN = options.token || OpraAngularClient;
     const asyncProviders = this._createAsyncProviders(options);
     return {
@@ -74,8 +91,15 @@ export class OpraClientModule {
         {
           provide: SERVICE_TOKEN,
           deps: [HttpClient, OPRA_CLIENT_MODULE_OPTIONS],
-          useFactory: (httpClient: HttpClient, opts: OpraClientModuleOptions) => {
-            const opraAngularClient = new OpraAngularClient(httpClient, opts.serviceUrl, opts);
+          useFactory: (
+            httpClient: HttpClient,
+            opts: OpraClientModuleOptions,
+          ) => {
+            const opraAngularClient = new OpraAngularClient(
+              httpClient,
+              opts.serviceUrl,
+              opts,
+            );
             const service = new serviceClass(opraAngularClient);
             service[kClient] = opraAngularClient;
             return service;
@@ -85,8 +109,11 @@ export class OpraClientModule {
     };
   }
 
-  private static _createAsyncProviders(options: OpraClientModuleAsyncOptions): Provider[] {
-    if (options.useExisting || options.useFactory) return [this._createAsyncOptionsProvider(options)];
+  private static _createAsyncProviders(
+    options: OpraClientModuleAsyncOptions,
+  ): Provider[] {
+    if (options.useExisting || options.useFactory)
+      return [this._createAsyncOptionsProvider(options)];
 
     if (options.useClass) {
       return [
@@ -98,10 +125,14 @@ export class OpraClientModule {
       ];
     }
 
-    throw new Error('Invalid configuration. Must provide useFactory, useClass or useExisting');
+    throw new Error(
+      'Invalid configuration. Must provide useFactory, useClass or useExisting',
+    );
   }
 
-  private static _createAsyncOptionsProvider(options: OpraClientModuleAsyncOptions): Provider {
+  private static _createAsyncOptionsProvider(
+    options: OpraClientModuleAsyncOptions,
+  ): Provider {
     if (options.useFactory) {
       return {
         provide: OPRA_CLIENT_MODULE_OPTIONS,
@@ -117,6 +148,8 @@ export class OpraClientModule {
         deps: [useClass],
       };
     }
-    throw new Error('Invalid configuration. Must provide useFactory, useClass or useExisting');
+    throw new Error(
+      'Invalid configuration. Must provide useFactory, useClass or useExisting',
+    );
   }
 }

@@ -17,8 +17,12 @@ export interface DocumentElement extends DocumentElementClass {}
  *
  * @constructor DocumentElement
  */
-export const DocumentElement = function (this: DocumentElement, owner?: DocumentElement) {
-  if (!this) throw new TypeError('"this" should be passed to call class constructor');
+export const DocumentElement = function (
+  this: DocumentElement,
+  owner?: DocumentElement,
+) {
+  if (!this)
+    throw new TypeError('"this" should be passed to call class constructor');
   const _this = asMutable(this);
   _this.id = uid(16);
   Object.defineProperty(_this, 'node', {

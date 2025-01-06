@@ -49,12 +49,39 @@ describe('ApiDocument', () => {
   });
 
   it('Should export() return document schema', async () => {
-    const sch = doc.export();
+    const sch = doc.references.get('ns1')!.export();
     expect(sch.spec).toStrictEqual(OpraSchema.SpecVersion);
     expect(sch.info).toBeDefined();
     expect(sch.id).toBeDefined();
-    expect(sch.types).not.toBeDefined();
-    expect(sch.references).toBeDefined();
-    expect(sch.references!.ns1).toBeDefined();
+    expect(sch.types).toBeDefined();
+    expect(Object.keys(sch.types!)).toEqual([
+      'Record',
+      'Person',
+      'Gender',
+      'Address',
+      'Note',
+      'Country',
+      'Customer',
+      'Profile',
+    ]);
+  });
+
+  it('Should export(scope) return document schema for scope', async () => {
+    const sch = doc.references.get('ns1')!.export({ scope: 'db' });
+    expect(sch.spec).toStrictEqual(OpraSchema.SpecVersion);
+    expect(sch.info).toBeDefined();
+    expect(sch.id).toBeDefined();
+    expect(sch.types).toBeDefined();
+    expect(Object.keys(sch.types!)).toEqual([
+      'Record',
+      'Person',
+      'Gender',
+      'Address',
+      'Note',
+      'Country',
+      'Customer',
+      'Profile',
+      'Config',
+    ]);
   });
 });

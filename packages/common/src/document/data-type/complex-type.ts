@@ -1,8 +1,9 @@
 import 'reflect-metadata';
+import { omitUndefined } from '@jsopen/objects';
 import type { Combine, Type, TypeThunkAsync } from 'ts-gems';
 import { asMutable } from 'ts-gems';
-import { omitUndefined } from '../../helpers/index.js';
 import { OpraSchema } from '../../schema/index.js';
+import type { ApiDocument } from '../api-document.js';
 import type { DocumentElement } from '../common/document-element.js';
 import { DocumentInitContext } from '../common/document-init-context.js';
 import { DECORATOR } from '../constants.js';
@@ -22,7 +23,12 @@ export namespace ComplexType {
       {
         kind: OpraSchema.ComplexType.Kind;
         fields?: Record<string, ApiField.Metadata>;
-        additionalFields?: boolean | string | TypeThunkAsync | ['error'] | ['error', string];
+        additionalFields?:
+          | boolean
+          | string
+          | TypeThunkAsync
+          | ['error']
+          | ['error', string];
       },
       DataType.Metadata,
       OpraSchema.ComplexType
@@ -69,13 +75,20 @@ export interface ComplexTypeStatic {
    * @param context
    * @constructor
    */
-  new (owner: DocumentElement, args?: ComplexType.InitArguments, context?: DocumentInitContext): ComplexType;
+  new (
+    owner: DocumentElement,
+    args?: ComplexType.InitArguments,
+    context?: DocumentInitContext,
+  ): ComplexType;
 
   (options?: ComplexType.Options): ClassDecorator;
 
   prototype: ComplexType;
 
-  extend<T extends Type>(typeClass: T, fields: Record<string, ApiField.Options>): T;
+  extend<T extends Type>(
+    typeClass: T,
+    fields: Record<string, ApiField.Options>,
+  ): T;
 }
 
 /**
@@ -91,30 +104,36 @@ export const ComplexType = function (this: ComplexType | void, ...args: any[]) {
   // Decorator
   if (!this) return ComplexType[DECORATOR].apply(undefined, args);
   // Constructor
-  const [owner, initArgs] = args as [DocumentElement, ComplexType.InitArguments];
-  const context: DocumentInitContext = args[2] || new DocumentInitContext({ maxErrors: 0 });
+  const [owner, initArgs] = args as [
+    DocumentElement,
+    ComplexType.InitArguments,
+  ];
+  const context: DocumentInitContext =
+    args[2] || new DocumentInitContext({ maxErrors: 0 });
   ComplexTypeBase.call(this, owner, initArgs, context);
   const _this = asMutable(this);
   _this.kind = OpraSchema.ComplexType.Kind;
-  _this.additionalFields = initArgs.additionalFields;
-  _this.keyField = initArgs.keyField;
   if (initArgs.base) {
     context.enter('.base', () => {
       // noinspection SuspiciousTypeOfGuard
       if (!(initArgs.base instanceof ComplexTypeBase)) {
-        throw new TypeError(`"${(initArgs.base! as DataType).kind}" can't be set as base for a "${this.kind}"`);
+        throw new TypeError(
+          `"${(initArgs.base! as DataType).kind}" can't be set as base for a "${this.kind}"`,
+        );
       }
       _this.base = initArgs.base;
-      if (_this.additionalFields == null && _this.base.additionalFields) {
-        _this.additionalFields = _this.base.additionalFields;
-      }
+      _this.additionalFields = _this.base.additionalFields;
+      _this.keyField = _this.base.keyField;
 
       /** Copy fields from base */
-      for (const v of _this.base.fields.values()) {
-        this.fields.set(v.name, new ApiField(this, v));
+      for (const v of _this.base.fields('*')) {
+        (_this as any)._fields.set(v.name, new ApiField(this, v));
       }
     });
   }
+  if (initArgs.additionalFields !== undefined)
+    _this.additionalFields = initArgs.additionalFields;
+  if (initArgs.keyField !== undefined) _this.keyField = initArgs.keyField;
   _this.ctor = initArgs.ctor || _this.base?.ctor;
 
   /** Add own fields */
@@ -125,7 +144,7 @@ export const ComplexType = function (this: ComplexType | void, ...args: any[]) {
           ...v,
           name: k,
         });
-        this.fields.set(field.name, field);
+        (this as any)._fields.set(field.name, field);
       }
     });
   }
@@ -141,37 +160,56 @@ abstract class ComplexTypeClass extends ComplexTypeBase {
   declare readonly ctor?: Type;
 
   extendsFrom(baseType: DataType | string | Type | object): boolean {
-    if (!(baseType instanceof DataType)) baseType = this.node.getDataType(baseType);
+    if (!(baseType instanceof DataType))
+      baseType = this.node.getDataType(baseType);
     if (!(baseType instanceof ComplexTypeBase)) return false;
     if (baseType === this) return true;
     return !!this.base?.extendsFrom(baseType);
   }
 
-  toJSON(): OpraSchema.ComplexType {
-    const baseName = this.base ? this.node.getDataTypeNameWithNs(this.base) : undefined;
-    const out = omitUndefined<OpraSchema.ComplexType>({
-      ...ComplexTypeBase.prototype.toJSON.call(this),
+  toJSON(options?: ApiDocument.ExportOptions): OpraSchema.ComplexType {
+    const superJson = super.toJSON(options);
+    const baseName = this.base
+      ? this.node.getDataTypeNameWithNs(this.base)
+      : undefined;
+    const out: OpraSchema.ComplexType = {
+      ...superJson,
       kind: this.kind,
-      base: this.base ? (baseName ? baseName : this.base.toJSON()) : undefined,
-    });
+      base: this.base
+        ? baseName
+          ? baseName
+          : this.base.toJSON(options)
+        : undefined,
+    };
     if (this.additionalFields) {
       if (this.additionalFields instanceof DataType) {
         const typeName = this.node.getDataTypeNameWithNs(this.additionalFields);
-        out.additionalFields = typeName ? typeName : (this.additionalFields.toJSON() as OpraSchema.DataType);
+        out.additionalFields = typeName
+          ? typeName
+          : (this.additionalFields.toJSON(options) as OpraSchema.DataType);
       } else out.additionalFields = this.additionalFields;
     }
-    if (this.fields.size) {
+    if (this._fields.size) {
       const fields = {};
       let i = 0;
-      for (const field of this.fields.values()) {
-        if (field.origin === this) {
-          fields[field.name] = field.toJSON();
+      for (const field of this._fields.values()) {
+        if (field.origin === this && field.inScope(options?.scope)) {
+          fields[field.name] = field.toJSON(options);
           i++;
         }
       }
       if (i) out.fields = fields;
     }
     return omitUndefined(out);
+  }
+
+  protected _locateBase(
+    callback: (base: ComplexTypeBase) => boolean,
+  ): ComplexTypeBase | undefined {
+    if (!this.base) return;
+    if (callback(this.base)) return this.base;
+    if ((this.base as any)._locateBase)
+      return (this.base as any)._locateBase(callback);
   }
 }
 

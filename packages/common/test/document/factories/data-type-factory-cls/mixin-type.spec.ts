@@ -1,5 +1,9 @@
-/* eslint-disable @typescript-eslint/no-non-null-assertion */
-import { ApiDocumentFactory, ApiField, ComplexType, MixinType } from '@opra/common';
+import {
+  ApiDocumentFactory,
+  ApiField,
+  ComplexType,
+  MixinType,
+} from '@opra/common';
 
 describe('DataTypeFactory - MixinType (Class)', () => {
   afterAll(() => global.gc && global.gc());
@@ -37,6 +41,6 @@ describe('DataTypeFactory - MixinType (Class)', () => {
     expect(t1.kind).toStrictEqual('ComplexType');
     expect(t1.name).toStrictEqual('Mixed1');
     expect(t1.additionalFields).toStrictEqual(true);
-    expect(Array.from(t1.fields.keys())).toStrictEqual(['id', 'name', 'age']);
+    expect(Array.from(t1.fieldNames())).toStrictEqual(['id', 'name', 'age']);
   });
 });

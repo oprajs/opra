@@ -1,7 +1,10 @@
 import { asMutable, type StrictOmit, type Type } from 'ts-gems';
 import { type IsObject, type Validator, validator, vg } from 'valgen';
-import { FieldsProjection, parseFieldsProjection, ResponsiveMap } from '../../helpers/index.js';
-import { translate } from '../../i18n/index.js';
+import {
+  FieldsProjection,
+  parseFieldsProjection,
+  ResponsiveMap,
+} from '../../helpers/index.js';
 import { OpraSchema } from '../../schema/index.js';
 import type { DocumentElement } from '../common/document-element.js';
 import { DocumentInitContext } from '../common/document-init-context.js';
@@ -24,7 +27,11 @@ interface ComplexTypeBaseStatic {
    * @param context
    * @constructor
    */
-  new (owner: DocumentElement, initArgs: DataType.InitArguments, context?: DocumentInitContext): ComplexTypeBase;
+  new (
+    owner: DocumentElement,
+    initArgs: DataType.InitArguments,
+    context?: DocumentInitContext,
+  ): ComplexTypeBase;
 
   prototype: ComplexTypeBase;
 }
@@ -39,8 +46,12 @@ export interface ComplexTypeBase extends ComplexTypeBaseClass {}
  *
  * @constructor
  */
-export const ComplexTypeBase = function (this: ComplexTypeBase | void, ...args: any[]) {
-  if (!this) throw new TypeError('"this" should be passed to call class constructor');
+export const ComplexTypeBase = function (
+  this: ComplexTypeBase | void,
+  ...args: any[]
+) {
+  if (!this)
+    throw new TypeError('"this" should be passed to call class constructor');
   // Constructor
   const [owner, initArgs, context] = args as [
     DocumentElement,
@@ -49,7 +60,7 @@ export const ComplexTypeBase = function (this: ComplexTypeBase | void, ...args: 
   ];
   DataType.call(this, owner, initArgs, context);
   const _this = asMutable(this);
-  _this.fields = new ResponsiveMap();
+  (_this as any)._fields = new ResponsiveMap();
 } as Function as ComplexTypeBaseStatic;
 
 /**
@@ -57,29 +68,121 @@ export const ComplexTypeBase = function (this: ComplexTypeBase | void, ...args: 
  */
 abstract class ComplexTypeBaseClass extends DataType {
   readonly ctor?: Type;
-  declare readonly fields: ResponsiveMap<ApiField>;
-  readonly additionalFields?: boolean | DataType | ['error'] | ['error', string];
+  declare protected _fields: ResponsiveMap<ApiField>;
+  readonly additionalFields?:
+    | boolean
+    | DataType
+    | ['error']
+    | ['error', string];
   readonly keyField?: OpraSchema.Field.Name;
 
-  /**
-   *
-   */
-  findField(nameOrPath: string): ApiField | undefined {
-    if (nameOrPath.includes('.')) {
-      const fieldPath = this.parseFieldPath(nameOrPath);
-      const lastItem = fieldPath.pop();
-      return lastItem?.field;
-    }
-    return this.fields.get(nameOrPath);
+  fieldCount(scope?: string): number {
+    if (scope === '*') return this._fields.size;
+    let count = 0;
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    for (const i of this.fields(scope)) count++;
+    return count;
+  }
+
+  fieldEntries(scope?: string): IterableIterator<[string, ApiField]> {
+    let iterator: IterableIterator<[string, ApiField]> | undefined =
+      this._fields.entries();
+    if (scope === '*') return iterator;
+    let r: IteratorResult<[string, ApiField]>;
+    return {
+      next() {
+        while (iterator) {
+          r = iterator.next();
+          if (r.done) break;
+          if (r.value && r.value[1].inScope(scope)) break;
+        }
+        if (r.done) return { done: r.done, value: undefined };
+        return {
+          done: r.done,
+          value: [r.value[0], r.value[1].forScope(scope)],
+        };
+      },
+      return(value?: [string, ApiField]) {
+        iterator = undefined;
+        return { done: true, value };
+      },
+      [Symbol.iterator]() {
+        return this;
+      },
+    };
+  }
+
+  fields(scope?: string): IterableIterator<ApiField> {
+    let iterator: IterableIterator<[string, ApiField]> | undefined =
+      this.fieldEntries(scope);
+    let r: IteratorResult<[string, ApiField]>;
+    return {
+      next() {
+        if (!iterator) return { done: true, value: undefined };
+        r = iterator!.next();
+        return { done: r.done, value: r.value?.[1] };
+      },
+      return(value?: ApiField) {
+        iterator = undefined;
+        return { done: true, value };
+      },
+      [Symbol.iterator]() {
+        return this;
+      },
+    };
+  }
+
+  fieldNames(scope?: string): IterableIterator<string> {
+    if (scope === '*') return this._fields.keys();
+    let iterator: IterableIterator<[string, ApiField]> | undefined =
+      this.fieldEntries(scope);
+    let r: IteratorResult<[string, ApiField]>;
+    return {
+      next() {
+        if (!iterator) return { done: true, value: undefined };
+        r = iterator!.next();
+        return { done: r.done, value: r.value?.[0] };
+      },
+      return(value?: string) {
+        iterator = undefined;
+        return { done: true, value };
+      },
+      [Symbol.iterator]() {
+        return this;
+      },
+    };
   }
 
   /**
    *
    */
-  getField(nameOrPath: string): ApiField {
-    const field = this.findField(nameOrPath);
-    if (!field) throw new Error(translate('error:UNKNOWN_FIELD', { field: nameOrPath }));
-    return field as ApiField;
+  findField(nameOrPath: string, scope?: string | '*'): ApiField | undefined {
+    if (nameOrPath.includes('.')) {
+      const fieldPath = this.parseFieldPath(nameOrPath, { scope });
+      if (fieldPath.length === 0)
+        throw new Error(
+          `Field "${nameOrPath}" does not exist in scope "${scope}"`,
+        );
+      const lastItem = fieldPath.pop();
+      return lastItem?.field;
+    }
+    const field = this._fields.get(nameOrPath);
+    if (field && field.inScope(scope)) return field.forScope(scope);
+  }
+
+  /**
+   *
+   */
+  getField(nameOrPath: string, scope?: string): ApiField {
+    const field = this.findField(nameOrPath, '*');
+    if (field && !field.inScope(scope))
+      throw new Error(
+        `Field "${nameOrPath}" does not exist in scope "${scope || 'null'}"`,
+      );
+    if (!field) {
+      throw new Error(`Field (${nameOrPath}) does not exist`);
+    }
+    return field.forScope(scope);
   }
 
   /**
@@ -89,6 +192,7 @@ abstract class ComplexTypeBaseClass extends DataType {
     fieldPath: string,
     options?: {
       allowSigns?: 'first' | 'each';
+      scope?: string | '*';
     },
   ): ComplexType.ParsedFieldPath[] {
     let dataType: DataType | undefined = this;
@@ -110,13 +214,14 @@ abstract class ComplexTypeBaseClass extends DataType {
       const m = FIELD_PATH_PATTERN.exec(arr[i]);
       if (!m) throw new TypeError(`Invalid field name (${getStrPath()})`);
       if (m[1]) {
-        if ((i === 0 && allowSigns === 'first') || allowSigns === 'each') item.sign = m[1] as any;
+        if ((i === 0 && allowSigns === 'first') || allowSigns === 'each')
+          item.sign = m[1] as any;
         item.fieldName = m[2];
       }
 
       if (dataType) {
         if (dataType instanceof ComplexTypeBase) {
-          field = dataType.fields.get(item.fieldName);
+          field = dataType.findField(item.fieldName, options?.scope);
           if (field) {
             item.fieldName = field.name;
             item.field = field;
@@ -130,13 +235,18 @@ abstract class ComplexTypeBaseClass extends DataType {
             dataType = undefined;
             continue;
           }
-          if (dataType.additionalFields?.[0] === 'type' && dataType.additionalFields?.[1] instanceof DataType) {
+          if (
+            dataType.additionalFields?.[0] === 'type' &&
+            dataType.additionalFields?.[1] instanceof DataType
+          ) {
             item.additionalField = true;
             item.dataType = dataType.additionalFields[1];
             dataType = dataType.additionalFields[1];
             continue;
           }
-          throw new Error(`Unknown field (${out.map(x => x.fieldName).join('.')})`);
+          throw new Error(
+            `Unknown field (${out.map(x => x.fieldName).join('.')})`,
+          );
         }
         throw new TypeError(
           `"${out.map(x => x.fieldName).join('.')}" field is not a complex type and has no child fields`,
@@ -155,6 +265,7 @@ abstract class ComplexTypeBaseClass extends DataType {
     fieldPath: string,
     options?: {
       allowSigns?: 'first' | 'each';
+      scope?: string;
     },
   ): string {
     return this.parseFieldPath(fieldPath, options)
@@ -165,21 +276,31 @@ abstract class ComplexTypeBaseClass extends DataType {
   /**
    *
    */
-  generateCodec(codec: 'encode' | 'decode', options?: DataType.GenerateCodecOptions): Validator {
+  generateCodec(
+    codec: 'encode' | 'decode',
+    options?: DataType.GenerateCodecOptions,
+  ): Validator {
     const projection = Array.isArray(options?.projection)
       ? parseFieldsProjection(options.projection)
       : options?.projection;
-    const schema = this._generateSchema(codec, { ...options, projection, currentPath: '' });
+    const schema = this._generateSchema(codec, {
+      ...options,
+      projection,
+      currentPath: '',
+    });
 
     let additionalFields: any;
     if (this.additionalFields instanceof DataType) {
       additionalFields = this.additionalFields.generateCodec(codec, options);
-    } else if (typeof this.additionalFields === 'boolean') additionalFields = this.additionalFields;
+    } else if (typeof this.additionalFields === 'boolean')
+      additionalFields = this.additionalFields;
     else if (Array.isArray(this.additionalFields)) {
       if (this.additionalFields.length < 2) additionalFields = 'error';
       else {
         const message = additionalFields[1] as string;
-        additionalFields = validator((input, context, _this) => context.fail(_this, message, input));
+        additionalFields = validator((input, context, _this) =>
+          context.fail(_this, message, input),
+        );
       }
     }
 
@@ -202,14 +323,20 @@ abstract class ComplexTypeBaseClass extends DataType {
   ) {
     const schema: IsObject.Schema = {};
     const { currentPath, projection } = context;
-    const pickList = !!(projection && Object.values(projection).find(p => !p.sign));
+    const pickList = !!(
+      projection && Object.values(projection).find(p => !p.sign)
+    );
     // Process fields
     let fieldName: string;
-    for (const field of this.fields.values()) {
+    for (const field of this.fields('*')) {
       if (
-        (context.ignoreReadonlyFields && field.readonly) ||
-        (context.ignoreWriteonlyFields && field.writeonly) ||
-        (context.ignoreHiddenFields && field.hidden)
+        /** Ignore field if required scope(s) do not match field scopes */
+        !field.inScope(context.scope) ||
+        (!(context.keepKeyFields && this.keyField) &&
+          /** Ignore field if readonly and ignoreReadonlyFields option true */
+          ((context.ignoreReadonlyFields && field.readonly) ||
+            /** Ignore field if writeonly and ignoreWriteonlyFields option true */
+            (context.ignoreWriteonlyFields && field.writeonly)))
       ) {
         schema[field.name] = vg.isUndefined({ coerce: true });
         continue;
@@ -233,10 +360,18 @@ abstract class ComplexTypeBaseClass extends DataType {
       const fn = this._generateFieldCodec(codec, field, {
         ...context,
         partial: context.partial === 'deep' ? context.partial : undefined,
-        projection: typeof projection === 'object' ? projection[fieldName]?.projection || '*' : projection,
+        projection:
+          typeof projection === 'object'
+            ? projection[fieldName]?.projection || '*'
+            : projection,
         currentPath: currentPath + (currentPath ? '.' : '') + fieldName,
       });
-      schema[fieldName] = context.partial || !field.required ? vg.optional(fn) : vg.required(fn);
+      schema[fieldName] =
+        context.partial || !field.required ? vg.optional(fn) : vg.required(fn);
+    }
+    if (context.allowPatchOperators) {
+      schema._$pull = vg.optional(vg.isAny());
+      schema._$push = vg.optional(vg.isAny());
     }
     return schema;
   }

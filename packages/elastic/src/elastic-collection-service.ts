@@ -1,8 +1,13 @@
-/* eslint-disable camelcase */
 import type * as elastic from '@elastic/elasticsearch/lib/api/types';
 import { ResourceNotAvailableError } from '@opra/common';
 import { ExecutionContext, ServiceBase } from '@opra/core';
-import type { Nullish, PartialDTO, PatchDTO, RequiredSome, Type } from 'ts-gems';
+import type {
+  Nullish,
+  PartialDTO,
+  PatchDTO,
+  RequiredSome,
+  Type,
+} from 'ts-gems';
 import { ElasticAdapter } from './elastic-adapter.js';
 import { ElasticEntityService } from './elastic-entity-service.js';
 import { ElasticService } from './elastic-service.js';
@@ -28,7 +33,10 @@ export namespace ElasticCollectionService {
     | ((
         args: ElasticEntityService.CommandInfo,
         _this: ElasticCollectionService,
-      ) => ElasticAdapter.FilterInput | Promise<ElasticAdapter.FilterInput> | undefined);
+      ) =>
+        | ElasticAdapter.FilterInput
+        | Promise<ElasticAdapter.FilterInput>
+        | undefined);
 
   export interface FindManyWithCountResult<X> {
     items: X[];
@@ -41,13 +49,17 @@ export namespace ElasticCollectionService {
  * @class ElasticCollectionService
  * @template T - The type of the documents in the collection.
  */
-export class ElasticCollectionService<T extends object = any> extends ElasticEntityService<T> {
+export class ElasticCollectionService<
+  T extends object = any,
+> extends ElasticEntityService<T> {
   /**
    * Represents a common filter function for a ElasticService.
    *
    * @type {FilterInput | Function}
    */
-  documentFilter?: ElasticCollectionService.DocumentFilter | ElasticCollectionService.DocumentFilter[];
+  documentFilter?:
+    | ElasticCollectionService.DocumentFilter
+    | ElasticCollectionService.DocumentFilter[];
 
   /**
    * Represents the default limit value for a certain operation.
@@ -63,7 +75,10 @@ export class ElasticCollectionService<T extends object = any> extends ElasticEnt
    * @param {ElasticCollectionService.Options} [options] - The options for the array service.
    * @constructor
    */
-  constructor(dataType: Type | string, options?: ElasticCollectionService.Options) {
+  constructor(
+    dataType: Type | string,
+    options?: ElasticCollectionService.Options,
+  ) {
     super(dataType, options);
     this.documentFilter = options?.documentFilter;
     this.defaultLimit = options?.defaultLimit || 10;
@@ -76,10 +91,12 @@ export class ElasticCollectionService<T extends object = any> extends ElasticEnt
   ): this & Required<P> {
     if (overwriteProperties?.documentFilter && this.documentFilter) {
       overwriteProperties.documentFilter = [
-        ...(Array.isArray(this.documentFilter) ? this.documentFilter : [this.documentFilter]),
+        ...(Array.isArray(this.documentFilter)
+          ? this.documentFilter
+          : [this.documentFilter]),
         ...(Array.isArray(overwriteProperties?.documentFilter)
-          ? overwriteProperties?.documentFilter
-          : [overwriteProperties?.documentFilter]),
+          ? overwriteProperties.documentFilter
+          : [overwriteProperties.documentFilter]),
       ];
     }
     return super.for(context, overwriteProperties, overwriteContext);
@@ -94,8 +111,12 @@ export class ElasticCollectionService<T extends object = any> extends ElasticEnt
    * @returns {Promise<void>} - A Promise that resolves when the resource exists.
    * @throws {ResourceNotAvailableError} - If the resource does not exist.
    */
-  async assert(id: string, options?: ElasticEntityService.FindOneOptions): Promise<void> {
-    if (!(await this.exists(id, options))) throw new ResourceNotAvailableError(this.getResourceName(), id);
+  async assert(
+    id: string,
+    options?: ElasticEntityService.FindOneOptions,
+  ): Promise<void> {
+    if (!(await this.exists(id, options)))
+      throw new ResourceNotAvailableError(this.getResourceName(), id);
   }
 
   /**
@@ -106,7 +127,10 @@ export class ElasticCollectionService<T extends object = any> extends ElasticEnt
    * @returns {Promise<PartialDTO<T>>} A promise that resolves to the created document.
    * @throws {Error} if an unknown error occurs while creating the document.
    */
-  async create(input: PartialDTO<T>, options?: ElasticEntityService.CreateOptions): Promise<elastic.CreateResponse> {
+  async create(
+    input: PartialDTO<T>,
+    options?: ElasticEntityService.CreateOptions,
+  ): Promise<elastic.CreateResponse> {
     const command: ElasticEntityService.CreateCommand = {
       crud: 'create',
       method: 'createOnly',
@@ -114,7 +138,10 @@ export class ElasticCollectionService<T extends object = any> extends ElasticEnt
       input,
       options,
     };
-    command.input._id = command.input._id ?? this._generateId(command);
+    command.input._id =
+      command.input._id == null || command.input._id === ''
+        ? this._generateId(command)
+        : command.input._id;
     return this._executeCommand(command, () => this._create(command));
   }
 
@@ -132,7 +159,10 @@ export class ElasticCollectionService<T extends object = any> extends ElasticEnt
       options,
     };
     return this._executeCommand(command, async () => {
-      const filter = ElasticAdapter.prepareFilter([await this._getDocumentFilter(command), command.options?.filter]);
+      const filter = ElasticAdapter.prepareFilter([
+        await this._getDocumentFilter(command),
+        command.options?.filter,
+      ]);
       command.options = { ...command.options, filter };
       const r = await this._count(command);
       return r.count;
@@ -146,7 +176,10 @@ export class ElasticCollectionService<T extends object = any> extends ElasticEnt
    * @param {ElasticEntityService.DeleteOptions} [options] - Optional delete options.
    * @return {Promise<number>} - A Promise that resolves to the number of documents deleted.
    */
-  async delete(id: string, options?: ElasticEntityService.DeleteOptions): Promise<elastic.DeleteByQueryResponse> {
+  async delete(
+    id: string,
+    options?: ElasticEntityService.DeleteOptions,
+  ): Promise<elastic.DeleteByQueryResponse> {
     const command: ElasticEntityService.DeleteCommand = {
       crud: 'delete',
       method: 'delete',
@@ -155,7 +188,10 @@ export class ElasticCollectionService<T extends object = any> extends ElasticEnt
       options,
     };
     return this._executeCommand(command, async () => {
-      const filter = ElasticAdapter.prepareFilter([await this._getDocumentFilter(command), command.options?.filter]);
+      const filter = ElasticAdapter.prepareFilter([
+        await this._getDocumentFilter(command),
+        command.options?.filter,
+      ]);
       command.options = { ...command.options, filter };
       return this._delete(command);
     });
@@ -167,7 +203,9 @@ export class ElasticCollectionService<T extends object = any> extends ElasticEnt
    * @param {ElasticEntityService.DeleteManyOptions} options - The options for the delete operation.
    * @return {Promise<number>} - A promise that resolves to the number of documents deleted.
    */
-  async deleteMany(options?: ElasticEntityService.DeleteManyOptions): Promise<elastic.DeleteByQueryResponse> {
+  async deleteMany(
+    options?: ElasticEntityService.DeleteManyOptions,
+  ): Promise<elastic.DeleteByQueryResponse> {
     const command: ElasticEntityService.DeleteManyCommand = {
       crud: 'delete',
       method: 'deleteMany',
@@ -175,7 +213,10 @@ export class ElasticCollectionService<T extends object = any> extends ElasticEnt
       options,
     };
     return this._executeCommand(command, async () => {
-      const filter = ElasticAdapter.prepareFilter([await this._getDocumentFilter(command), command.options?.filter]);
+      const filter = ElasticAdapter.prepareFilter([
+        await this._getDocumentFilter(command),
+        command.options?.filter,
+      ]);
       command.options = { ...command.options, filter };
       return this._deleteMany(command);
     });
@@ -188,8 +229,11 @@ export class ElasticCollectionService<T extends object = any> extends ElasticEnt
    * @param {ElasticEntityService.FindOneOptions} [options] - The options for the query (optional).
    * @return {Promise<boolean>} - A Promise that resolves to a boolean indicating whether the object exists or not.
    */
-  async exists(id: string, options?: ElasticEntityService.FindOneOptions): Promise<boolean> {
-    const command: ElasticEntityService.SearchCommand = {
+  async exists(
+    id: string,
+    options?: ElasticEntityService.FindOneOptions,
+  ): Promise<boolean> {
+    const command: ElasticEntityService.FindManyCommand = {
       crud: 'read',
       method: 'exists',
       byId: true,
@@ -202,10 +246,15 @@ export class ElasticCollectionService<T extends object = any> extends ElasticEnt
         terminate_after: 1,
         size: 0,
       };
-      const filter = ElasticAdapter.prepareFilter([await this._getDocumentFilter(command), command.options?.filter]);
+      const filter = ElasticAdapter.prepareFilter([
+        await this._getDocumentFilter(command),
+        command.options?.filter,
+      ]);
       command.options = { ...options, request, filter };
-      const r = await this._search(command);
-      return !!(typeof r.hits.total === 'number' ? r.hits.total : r.hits.total?.value);
+      const r = await this._findMany(command);
+      return !!(typeof r.hits.total === 'number'
+        ? r.hits.total
+        : r.hits.total?.value);
     });
   }
 
@@ -215,8 +264,10 @@ export class ElasticCollectionService<T extends object = any> extends ElasticEnt
    * @param {ElasticEntityService.FindOneOptions} [options] - The options for the query (optional).
    * @return {Promise<boolean>} - A Promise that resolves to a boolean indicating whether the object exists or not.
    */
-  async existsOne(options?: ElasticEntityService.FindOneOptions): Promise<boolean> {
-    const command: ElasticEntityService.SearchCommand = {
+  async existsOne(
+    options?: ElasticEntityService.FindOneOptions,
+  ): Promise<boolean> {
+    const command: ElasticEntityService.FindManyCommand = {
       crud: 'read',
       method: 'exists',
       byId: false,
@@ -229,8 +280,10 @@ export class ElasticCollectionService<T extends object = any> extends ElasticEnt
         size: 0,
       };
       command.options = { ...options, request };
-      const r = await this._search(command);
-      return !!(typeof r.hits.total === 'number' ? r.hits.total : r.hits.total?.value);
+      const r = await this._findMany(command);
+      return !!(typeof r.hits.total === 'number'
+        ? r.hits.total
+        : r.hits.total?.value);
     });
   }
 
@@ -252,12 +305,18 @@ export class ElasticCollectionService<T extends object = any> extends ElasticEnt
    * @param {ElasticEntityService.FindOneOptions} [options] - The options for the find query.
    * @return {Promise<T | undefined>} - A promise resolving to the found document, or undefined if not found.
    */
-  async findById(id: string, options?: ElasticEntityService.FindOneOptions): Promise<T | undefined>;
+  async findById(
+    id: string,
+    options?: ElasticEntityService.FindOneOptions,
+  ): Promise<T | undefined>;
   /**
    *
    */
-  async findById(id: string, options?: ElasticEntityService.FindOneOptions): Promise<PartialDTO<T> | T | undefined> {
-    const command: ElasticEntityService.SearchCommand = {
+  async findById(
+    id: string,
+    options?: ElasticEntityService.FindOneOptions,
+  ): Promise<PartialDTO<T> | T | undefined> {
+    const command: ElasticEntityService.FindManyCommand = {
       crud: 'read',
       method: 'findById',
       byId: true,
@@ -266,13 +325,16 @@ export class ElasticCollectionService<T extends object = any> extends ElasticEnt
     };
     return this._executeCommand(command, async () => {
       const documentFilter = await this._getDocumentFilter(command);
-      const filter = ElasticAdapter.prepareFilter([documentFilter, command.options?.filter]);
+      const filter = ElasticAdapter.prepareFilter([
+        documentFilter,
+        command.options?.filter,
+      ]);
       const newCommand = {
         ...command,
         limit: 1,
         options: { ...command.options, filter },
-      } as ElasticEntityService.SearchCommand;
-      const r = await this._search(newCommand);
+      } as ElasticEntityService.FindManyCommand;
+      const r = await this._findMany(newCommand);
       if (r.hits.hits?.length) {
         const outputCodec = this._getOutputCodec('find');
         return {
@@ -298,25 +360,32 @@ export class ElasticCollectionService<T extends object = any> extends ElasticEnt
    * @param {ElasticEntityService.FindOneOptions} [options] - The options for the query.
    * @return {Promise<T | undefined>} A promise that resolves with the found document or undefined if no document is found.
    */
-  async findOne(options?: ElasticEntityService.FindOneOptions): Promise<T | undefined>;
+  async findOne(
+    options?: ElasticEntityService.FindOneOptions,
+  ): Promise<T | undefined>;
   /**
    *
    */
-  async findOne(options?: ElasticEntityService.FindOneOptions): Promise<PartialDTO<T> | T | undefined> {
-    const command: ElasticEntityService.SearchCommand = {
+  async findOne(
+    options?: ElasticEntityService.FindOneOptions,
+  ): Promise<PartialDTO<T> | T | undefined> {
+    const command: ElasticEntityService.FindManyCommand = {
       crud: 'read',
       method: 'findOne',
       byId: false,
       options,
     };
     return this._executeCommand(command, async () => {
-      const filter = ElasticAdapter.prepareFilter([await this._getDocumentFilter(command), command.options?.filter]);
+      const filter = ElasticAdapter.prepareFilter([
+        await this._getDocumentFilter(command),
+        command.options?.filter,
+      ]);
       const newCommand = {
         ...command,
         limit: 1,
         options: { ...command.options, filter },
-      } as ElasticEntityService.SearchCommand;
-      const r = await this._search(newCommand);
+      } as ElasticEntityService.FindManyCommand;
+      const r = await this._findMany(newCommand);
       if (r.hits.hits?.length) {
         const outputCodec = this._getOutputCodec('find');
         return {
@@ -330,32 +399,39 @@ export class ElasticCollectionService<T extends object = any> extends ElasticEnt
   /**
    * Finds multiple documents in the ElasticDB collection.
    *
-   * @param {ElasticEntityService.SearchOptions} options - The options for the find operation.
+   * @param {ElasticEntityService.FindManyOptions} options - The options for the find operation.
    * @return {Promise<PartialDTO<T> | undefined>} A Promise that resolves to an array of partial outputs of type T.
    */
-  async findMany(options: RequiredSome<ElasticEntityService.SearchOptions, 'projection'>): Promise<PartialDTO<T>[]>;
+  async findMany(
+    options: RequiredSome<ElasticEntityService.FindManyOptions, 'projection'>,
+  ): Promise<PartialDTO<T>[]>;
   /**
    * Finds multiple documents in the ElasticDB collection.
    *
-   * @param {ElasticEntityService.SearchOptions} options - The options for the find operation.
+   * @param {ElasticEntityService.FindManyOptions} options - The options for the find operation.
    * @return {Promise<T | undefined>} A Promise that resolves to an array of partial outputs of type T.
    */
-  async findMany(options?: ElasticEntityService.SearchOptions): Promise<T[]>;
+  async findMany(options?: ElasticEntityService.FindManyOptions): Promise<T[]>;
   /**
    *
    */
-  async findMany(options?: ElasticEntityService.SearchOptions): Promise<(PartialDTO<T> | T)[]> {
-    const command: ElasticEntityService.SearchCommand = {
+  async findMany(
+    options?: ElasticEntityService.FindManyOptions,
+  ): Promise<(PartialDTO<T> | T)[]> {
+    const command: ElasticEntityService.FindManyCommand = {
       crud: 'read',
       method: 'findMany',
       byId: false,
       options,
     };
     return this._executeCommand(command, async () => {
-      const filter = ElasticAdapter.prepareFilter([await this._getDocumentFilter(command), command.options?.filter]);
+      const filter = ElasticAdapter.prepareFilter([
+        await this._getDocumentFilter(command),
+        command.options?.filter,
+      ]);
       const limit = command.options?.limit || this.defaultLimit;
       command.options = { ...command.options, filter, limit };
-      const r = await this._search(command);
+      const r = await this._findMany(command);
       if (r.hits.hits?.length) {
         const outputCodec = this._getOutputCodec('find');
         return r.hits.hits.map((x: any) => ({
@@ -371,37 +447,42 @@ export class ElasticCollectionService<T extends object = any> extends ElasticEnt
    * Finds multiple documents in the collection and returns both records (max limit)
    * and total count that matched the given criteria
    *
-   * @param {ElasticEntityService.SearchOptions} [options] - The options for the find operation.
+   * @param {ElasticEntityService.FindManyOptions} [options] - The options for the find operation.
    * @return {ElasticCollectionService.FindManyWithCountResult<PartialDTO<T>>} A Promise that resolves to an array of partial outputs of type T.
    */
   async findManyWithCount(
-    options: RequiredSome<ElasticEntityService.SearchOptions, 'projection'>,
+    options: RequiredSome<ElasticEntityService.FindManyOptions, 'projection'>,
   ): Promise<ElasticCollectionService.FindManyWithCountResult<PartialDTO<T>>>;
   /**
    * Finds multiple documents in the collection and returns both records (max limit)
    * and total count that matched the given criteria
    *
-   * @param {ElasticEntityService.SearchOptions} [options] - The options for the find operation.
+   * @param {ElasticEntityService.FindManyOptions} [options] - The options for the find operation.
    * @return {ElasticCollectionService.FindManyWithCountResult<T>} A Promise that resolves to an array of partial outputs of type T.
    */
   async findManyWithCount(
-    options?: ElasticEntityService.SearchOptions,
+    options?: ElasticEntityService.FindManyOptions,
   ): Promise<ElasticCollectionService.FindManyWithCountResult<T>>;
   /**
    *
    */
-  async findManyWithCount(options?: ElasticEntityService.SearchOptions): Promise<{
+  async findManyWithCount(
+    options?: ElasticEntityService.FindManyOptions,
+  ): Promise<{
     count: number;
     items: (PartialDTO<T> | T)[];
   }> {
-    const command: ElasticEntityService.SearchCommand = {
+    const command: ElasticEntityService.FindManyCommand = {
       crud: 'read',
       method: 'findManyWithCount',
       byId: false,
       options,
     };
     return this._executeCommand(command, async () => {
-      const filter = ElasticAdapter.prepareFilter([await this._getDocumentFilter(command), command.options?.filter]);
+      const filter = ElasticAdapter.prepareFilter([
+        await this._getDocumentFilter(command),
+        command.options?.filter,
+      ]);
       const limit = command.options?.limit || this.defaultLimit;
       command.options = {
         ...command.options,
@@ -409,7 +490,7 @@ export class ElasticCollectionService<T extends object = any> extends ElasticEnt
         limit,
         request: { ...command.options?.request, track_total_hits: true },
       };
-      const r = await this._search(command);
+      const r = await this._findMany(command);
       const out = {} as ElasticCollectionService.FindManyWithCountResult<any>;
       if (r.hits.hits?.length) {
         const outputCodec = this._getOutputCodec('find');
@@ -448,11 +529,17 @@ export class ElasticCollectionService<T extends object = any> extends ElasticEnt
    *    or rejects with a ResourceNotFoundError if the document does not exist.
    * @throws {ResourceNotAvailableError} - If the document with the specified ID does not exist.
    */
-  async get(id: string, options?: ElasticEntityService.FindOneOptions): Promise<T>;
+  async get(
+    id: string,
+    options?: ElasticEntityService.FindOneOptions,
+  ): Promise<T>;
   /**
    *
    */
-  async get(id: string, options?: ElasticEntityService.FindOneOptions): Promise<PartialDTO<T> | T> {
+  async get(
+    id: string,
+    options?: ElasticEntityService.FindOneOptions,
+  ): Promise<PartialDTO<T> | T> {
     const out = await this.findById(id, options);
     if (!out) throw new ResourceNotAvailableError(this.getResourceName(), id);
     return out;
@@ -480,7 +567,10 @@ export class ElasticCollectionService<T extends object = any> extends ElasticEnt
       options,
     };
     return this._executeCommand(command, async () => {
-      const filter = ElasticAdapter.prepareFilter([await this._getDocumentFilter(command), command.options?.filter]);
+      const filter = ElasticAdapter.prepareFilter([
+        await this._getDocumentFilter(command),
+        command.options?.filter,
+      ]);
       command.options = { ...command.options, filter };
       return await this._updateMany(command);
     });
@@ -505,7 +595,10 @@ export class ElasticCollectionService<T extends object = any> extends ElasticEnt
       options,
     };
     return this._executeCommand(command, async () => {
-      const filter = ElasticAdapter.prepareFilter([await this._getDocumentFilter(command), command.options?.filter]);
+      const filter = ElasticAdapter.prepareFilter([
+        await this._getDocumentFilter(command),
+        command.options?.filter,
+      ]);
       command.options = { ...command.options, filter };
       return this._updateMany(command);
     });
@@ -521,8 +614,13 @@ export class ElasticCollectionService<T extends object = any> extends ElasticEnt
    */
   protected _getDocumentFilter(
     command: ElasticService.CommandInfo,
-  ): ElasticAdapter.FilterInput | Promise<ElasticAdapter.FilterInput> | undefined {
-    const commonFilter = Array.isArray(this.documentFilter) ? this.documentFilter : [this.documentFilter];
+  ):
+    | ElasticAdapter.FilterInput
+    | Promise<ElasticAdapter.FilterInput>
+    | undefined {
+    const commonFilter = Array.isArray(this.documentFilter)
+      ? this.documentFilter
+      : [this.documentFilter];
     const mapped = commonFilter.map(f =>
       typeof f === 'function' ? f(command, this) : f,
     ) as ElasticAdapter.FilterInput[];

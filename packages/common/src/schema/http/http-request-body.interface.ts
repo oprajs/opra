@@ -31,4 +31,9 @@ export interface HttpRequestBody {
    * Determines if the request body object is partial
    */
   partial?: boolean | 'deep';
+
+  /**
+   *
+   */
+  allowPatchOperators?: boolean;
 }

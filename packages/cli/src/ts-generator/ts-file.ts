@@ -5,7 +5,10 @@ import { CodeBlock } from '../code-block.js';
 export class TsFile {
   readonly dirname: string;
   imports: Record<string, { items: string[]; typeImport?: boolean }> = {};
-  exportFiles: Record<string, { filename: string; items: string[]; namespace?: string }> = {};
+  exportFiles: Record<
+    string,
+    { filename: string; items: string[]; namespace?: string }
+  > = {};
   exportTypes: string[] = [];
   code = new CodeBlock();
 
@@ -18,12 +21,20 @@ export class TsFile {
 
   addImport(filename: string, items?: string[], typeImport?: boolean) {
     if (isLocalFile(filename)) {
-      filename = path.relative(this.dirname, path.resolve(this.dirname, filename));
+      filename = path.relative(
+        this.dirname,
+        path.resolve(this.dirname, filename),
+      );
       if (!filename.startsWith('.')) filename = './' + filename;
     }
-    if (filename.endsWith('.d.ts')) filename = filename.substring(0, filename.length - 5);
-    if (filename.endsWith('.ts') || filename.endsWith('.js')) filename = filename.substring(0, filename.length - 3);
-    const imp = (this.imports[filename] = this.imports[filename] || { items: [], typeImport });
+    if (filename.endsWith('.d.ts'))
+      filename = filename.substring(0, filename.length - 5);
+    if (filename.endsWith('.ts') || filename.endsWith('.js'))
+      filename = filename.substring(0, filename.length - 3);
+    const imp = (this.imports[filename] = this.imports[filename] || {
+      items: [],
+      typeImport,
+    });
     if (!typeImport) imp.typeImport = false;
     items?.forEach(x => {
       if (!imp.items.includes(x)) imp.items.push(x);
@@ -32,15 +43,25 @@ export class TsFile {
 
   addExport(filename: string, types?: string[], namespace?: string) {
     if (isLocalFile(filename)) {
-      filename = path.relative(this.dirname, path.resolve(this.dirname, filename));
+      filename = path.relative(
+        this.dirname,
+        path.resolve(this.dirname, filename),
+      );
       if (!filename.startsWith('.')) filename = './' + filename;
     }
-    if (filename.endsWith('.d.ts')) filename = filename.substring(0, filename.length - 5);
-    if (filename.endsWith('.ts') || filename.endsWith('.js')) filename = filename.substring(0, filename.length - 3);
+    if (filename.endsWith('.d.ts'))
+      filename = filename.substring(0, filename.length - 5);
+    if (filename.endsWith('.ts') || filename.endsWith('.js'))
+      filename = filename.substring(0, filename.length - 3);
     const key = (namespace ? namespace + ':' : '') + filename;
-    this.exportFiles[key] = this.exportFiles[key] || { filename, items: [], namespace };
+    this.exportFiles[key] = this.exportFiles[key] || {
+      filename,
+      items: [],
+      namespace,
+    };
     types?.forEach(x => {
-      if (!this.exportFiles[filename].items.includes(x)) this.exportFiles[filename].items.push(x);
+      if (!this.exportFiles[filename].items.includes(x))
+        this.exportFiles[filename].items.push(x);
     });
   }
 
@@ -90,7 +111,8 @@ function isLocalFile(s: string): boolean {
   return typeof s === 'string' && (s.startsWith('.') || s.startsWith('/'));
 }
 
-const PACKAGENAME_PATTERN = /^(@[a-z0-9-~][a-z0-9-._~]*\/)?[a-z0-9-~][a-z0-9-._~]*$/;
+const PACKAGENAME_PATTERN =
+  /^(@[a-z0-9-~][a-z0-9-._~]*\/)?[a-z0-9-~][a-z0-9-._~]*$/;
 
 function isPackageName(s: string): boolean {
   return PACKAGENAME_PATTERN.test(s);

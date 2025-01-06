@@ -1,16 +1,16 @@
 {
   "name": "express-mongo",
   "private": true,
-  "version": "0.0.1",
+  "version": "1.6.0",
   "type": "module",
   "module": "./start.js",
   "dependencies": {
-    "@opra/common": "^1.0.0-beta.3",
-    "@opra/core": "^1.0.0-beta.3",
-    "@opra/mongodb": "^1.0.0-beta.3",
-    "express": "^4.19.2",
-    "mongodb": "^6.9.0",
-    "ts-gems": "^3.5.1"
+    "@opra/common": "^1.6.0",
+    "@opra/core": "^1.6.0",
+    "@opra/mongodb": "^1.6.0",
+    "express": "^4.21.2",
+    "mongodb": "^6.12.0",
+    "ts-gems": "^3.11.2"
   },
   "scripts": {
     "_build": "tsc && npm run check && npm run lint && npm run format",

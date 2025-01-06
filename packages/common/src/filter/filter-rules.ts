@@ -1,7 +1,10 @@
+import '../polifils/array-find-last.js';
+import { omitUndefined } from '@jsopen/objects';
 import type { StrictOmit } from 'ts-gems';
+import { isString, Validator } from 'valgen';
 import type { ComplexType } from '../document/index.js';
 import { OpraException } from '../exception/index.js';
-import { omitUndefined, ResponsiveMap } from '../helpers/index.js';
+import { ResponsiveMap } from '../helpers/index.js';
 import { translate } from '../i18n/index.js';
 import { OpraSchema } from '../schema/index.js';
 import {
@@ -10,6 +13,7 @@ import {
   ComparisonExpression,
   type ComparisonOperator,
   Expression,
+  Literal,
   LogicalExpression,
   ParenthesizedExpression,
   QualifiedIdentifier,
@@ -29,8 +33,12 @@ export namespace FilterRules {
 
 export class FilterRules {
   protected _rules = new ResponsiveMap<FilterRules.Rule>();
+  protected _decoderCache = new WeakMap<any, Validator>();
 
-  constructor(rules?: Record<string, FilterRules.Rule>, options?: FilterRules.Options) {
+  constructor(
+    rules?: Record<string, FilterRules.Rule>,
+    options?: FilterRules.Options,
+  ) {
     Object.defineProperty(this, '_rules', {
       value: new ResponsiveMap(null, { caseSensitive: options?.caseSensitive }),
       enumerable: false,
@@ -61,20 +69,38 @@ export class FilterRules {
     );
   }
 
-  normalizeFilter(filter: OpraSchema.Field.QualifiedName | Expression, dataType?: ComplexType): Expression | undefined {
-    if (!filter) return;
+  normalizeFilter(
+    filter: OpraSchema.Field.QualifiedName | Expression,
+    currentType?: ComplexType,
+    scope?: string | '*',
+  ): Expression | undefined {
     const ast = typeof filter === 'string' ? parse(filter) : filter;
+    return this.normalizeFilterAst(ast, [], currentType, scope);
+  }
+
+  protected normalizeFilterAst(
+    ast: Expression,
+    stack: Expression[],
+    currentType?: ComplexType,
+    scope?: string | '*',
+  ): Expression | undefined {
     if (ast instanceof ComparisonExpression) {
-      this.normalizeFilter(ast.left, dataType);
+      stack.push(ast);
+      this.normalizeFilterAst(ast.left, stack, currentType);
+
       if (!(ast.left instanceof QualifiedIdentifier && ast.left.field)) {
-        throw new TypeError(`Invalid filter query. Left side should be a data field.`);
+        throw new TypeError(
+          `Invalid filter query. Left side should be a data field.`,
+        );
       }
       // Check if filtering accepted for given field
       // const findManyOp = this.getOperation('findMany');
       const rule = this._rules.get(ast.left.value);
       if (!rule) {
         throw new OpraException({
-          message: translate('error:UNACCEPTED_FILTER_FIELD', { field: ast.left.value }),
+          message: translate('error:UNACCEPTED_FILTER_FIELD', {
+            field: ast.left.value,
+          }),
           code: 'UNACCEPTED_FILTER_FIELD',
           details: {
             field: ast.left.value,
@@ -84,7 +110,9 @@ export class FilterRules {
       // Check if filtering endpoint accepted for given field
       if (rule.operators && !rule.operators.includes(ast.op)) {
         throw new OpraException({
-          message: translate('error:UNACCEPTED_FILTER_OPERATION', { field: ast.left.value }),
+          message: translate('error:UNACCEPTED_FILTER_OPERATION', {
+            field: ast.left.value,
+          }),
           code: 'UNACCEPTED_FILTER_OPERATION',
           details: {
             field: ast.left.value,
@@ -92,29 +120,85 @@ export class FilterRules {
           },
         });
       }
-      this.normalizeFilter(ast.right, dataType);
+      this.normalizeFilterAst(ast.right, stack, currentType);
+      stack.pop();
       return ast;
     }
     if (ast instanceof LogicalExpression) {
-      ast.items.forEach(item => this.normalizeFilter(item, dataType));
+      stack.push(ast);
+      ast.items.forEach(item =>
+        this.normalizeFilterAst(item, stack, currentType),
+      );
+      stack.pop();
       return ast;
     }
     if (ast instanceof ArithmeticExpression) {
-      ast.items.forEach(item => this.normalizeFilter(item.expression, dataType));
+      stack.push(ast);
+      ast.items.forEach(item =>
+        this.normalizeFilterAst(item.expression, stack, currentType),
+      );
+      stack.pop();
       return ast;
     }
     if (ast instanceof ArrayExpression) {
-      ast.items.forEach(item => this.normalizeFilter(item, dataType));
+      stack.push(ast);
+      ast.items.forEach(item =>
+        this.normalizeFilterAst(item, stack, currentType),
+      );
+      stack.pop();
       return ast;
     }
     if (ast instanceof ParenthesizedExpression) {
-      this.normalizeFilter(ast.expression, dataType);
+      stack.push(ast);
+      this.normalizeFilterAst(ast.expression, stack, currentType);
+      stack.pop();
       return ast;
     }
-    if (ast instanceof QualifiedIdentifier && dataType) {
-      ast.value = dataType.normalizeFieldPath(ast.value);
-      ast.field = dataType.getField(ast.value);
+    if (ast instanceof QualifiedIdentifier && currentType) {
+      ast.value = currentType.normalizeFieldPath(ast.value, { scope });
+      ast.field = currentType.getField(ast.value, scope);
       ast.dataType = ast.field.type;
+      return ast;
+    }
+    if (ast instanceof Literal) {
+      /** Check if comparison expression has in stack */
+      const compIdx = stack.findLastIndex(
+        x => x instanceof ComparisonExpression,
+      );
+      if (compIdx >= 0) {
+        const comp = stack[compIdx] as ComparisonExpression;
+        /** If calling for right side of comparison */
+        if (ast === comp.right || stack[compIdx + 1] === comp.right) {
+          /** Check if comparison expression left side is a field */
+          if (
+            comp &&
+            comp.left instanceof QualifiedIdentifier &&
+            comp.left.field
+          ) {
+            if (ast.value == null && !comp.left.field.required)
+              return ast.value;
+            let decoder: Validator | undefined;
+            if (
+              comp.op === 'like' ||
+              comp.op === '!like' ||
+              comp.op === 'ilike' ||
+              comp.op === '!ilike'
+            ) {
+              decoder = isString;
+            } else decoder = this._decoderCache.get(comp.left.field);
+            if (!decoder) {
+              decoder = comp.left.field.type.generateCodec('decode', {
+                scope,
+                projection: '*',
+                ignoreWriteonlyFields: true,
+                coerce: true,
+              });
+              this._decoderCache.set(comp.left.field, decoder);
+            }
+            ast.value = decoder(ast.value);
+          }
+        }
+      }
     }
     return ast;
   }

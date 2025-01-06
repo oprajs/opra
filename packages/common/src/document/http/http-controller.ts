@@ -1,14 +1,21 @@
 import nodePath from 'node:path';
+import { omitUndefined } from '@jsopen/objects';
 import type { Combine, ThunkAsync, Type } from 'ts-gems';
 import { asMutable } from 'ts-gems';
-import { omitUndefined, ResponsiveMap } from '../../helpers/index.js';
+import { ResponsiveMap } from '../../helpers/index.js';
 import { OpraSchema } from '../../schema/index.js';
+import type { ApiDocument } from '../api-document.js';
 import { DataTypeMap } from '../common/data-type-map.js';
 import { DocumentElement } from '../common/document-element.js';
-import { CLASS_NAME_PATTERN, DECORATOR, HTTP_CONTROLLER_METADATA, kDataTypeMap } from '../constants.js';
+import { CLASS_NAME_PATTERN, DECORATOR, kDataTypeMap } from '../constants.js';
 import type { EnumType } from '../data-type/enum-type.js';
 import { HttpControllerDecoratorFactory } from '../decorators/http-controller.decorator.js';
-import { colorFgMagenta, colorFgYellow, colorReset, nodeInspectCustom } from '../utils/inspect.util.js';
+import {
+  colorFgMagenta,
+  colorFgYellow,
+  colorReset,
+  nodeInspectCustom,
+} from '../utils/inspect.util.js';
 import type { HttpApi } from './http-api.js';
 import type { HttpOperation } from './http-operation';
 import { HttpParameter } from './http-parameter.js';
@@ -17,17 +24,17 @@ import { HttpParameter } from './http-parameter.js';
  * @namespace HttpController
  */
 export namespace HttpController {
-  export interface Metadata extends Pick<OpraSchema.HttpController, 'description' | 'path'> {
+  export interface Metadata
+    extends Pick<OpraSchema.HttpController, 'description' | 'path'> {
     name: string;
     controllers?: (Type | ((parent: any) => any))[];
     types?: ThunkAsync<Type | EnumType.EnumObject | EnumType.EnumArray>[];
     operations?: Record<string, HttpOperation.Metadata>;
     parameters?: HttpParameter.Metadata[];
-    onInit?: (resource: HttpController) => void;
-    onShutdown?: (resource: HttpController) => void | Promise<void>;
   }
 
-  export interface Options extends Partial<Pick<OpraSchema.HttpController, 'description' | 'path'>> {
+  export interface Options
+    extends Partial<Pick<OpraSchema.HttpController, 'description' | 'path'>> {
     name?: string;
     controllers?: (Type | ((parent: any) => any))[];
   }
@@ -38,7 +45,7 @@ export namespace HttpController {
         instance?: object;
         ctor?: Type;
       },
-      Pick<Metadata, 'name' | 'description' | 'path' | 'onInit' | 'onShutdown'>
+      Pick<Metadata, 'name' | 'description' | 'path'>
     > {}
 }
 
@@ -52,13 +59,12 @@ export interface HttpControllerStatic extends HttpControllerDecoratorFactory {
    * @param owner
    * @param args
    */
-  new (owner: HttpApi | HttpController, args: HttpController.InitArguments): HttpController;
+  new (
+    owner: HttpApi | HttpController,
+    args: HttpController.InitArguments,
+  ): HttpController;
 
   prototype: HttpController;
-
-  OnInit(): PropertyDecorator;
-
-  OnShutdown(): PropertyDecorator;
 }
 
 /**
@@ -70,14 +76,21 @@ export interface HttpController extends HttpControllerClass {}
 /**
  * HttpController
  */
-export const HttpController = function (this: HttpController | void, ...args: any[]) {
+export const HttpController = function (
+  this: HttpController | void,
+  ...args: any[]
+) {
   // ClassDecorator
   if (!this) return HttpController[DECORATOR].apply(undefined, args);
 
   // Constructor
-  const [owner, initArgs] = args as [HttpApi | HttpController, HttpController.InitArguments];
+  const [owner, initArgs] = args as [
+    HttpApi | HttpController,
+    HttpController.InitArguments,
+  ];
   DocumentElement.call(this, owner);
-  if (!CLASS_NAME_PATTERN.test(initArgs.name)) throw new TypeError(`Invalid resource name (${initArgs.name})`);
+  if (!CLASS_NAME_PATTERN.test(initArgs.name))
+    throw new TypeError(`Invalid resource name (${initArgs.name})`);
   const _this = asMutable(this);
   _this.kind = OpraSchema.HttpController.Kind;
   _this.types = _this.node[kDataTypeMap] = new DataTypeMap();
@@ -91,8 +104,6 @@ export const HttpController = function (this: HttpController | void, ...args: an
   _this.ctor = initArgs.ctor;
   (_this as any)._controllerReverseMap = new WeakMap();
   (_this as any)._initialize?.(initArgs);
-  _this.onInit = initArgs.onInit;
-  _this.onShutdown = initArgs.onShutdown;
 } as HttpControllerStatic;
 
 /**
@@ -100,7 +111,7 @@ export const HttpController = function (this: HttpController | void, ...args: an
  * @class HttpController
  */
 class HttpControllerClass extends DocumentElement {
-  protected declare _controllerReverseMap: WeakMap<Type, HttpController | null>;
+  declare protected _controllerReverseMap: WeakMap<Type, HttpController | null>;
   declare readonly kind: OpraSchema.HttpController.Kind;
   declare readonly name: string;
   declare description?: string;
@@ -111,8 +122,6 @@ class HttpControllerClass extends DocumentElement {
   declare operations: ResponsiveMap<HttpOperation>;
   declare controllers: ResponsiveMap<HttpController>;
   declare types: DataTypeMap;
-  declare onInit?: (resource: HttpController) => void;
-  declare onShutdown?: (resource: HttpController) => void | Promise<void>;
 
   /**
    * @property isRoot
@@ -157,7 +166,10 @@ class HttpControllerClass extends DocumentElement {
     return this.controllers.get(arg0);
   }
 
-  findParameter(paramName: string, location?: OpraSchema.HttpParameterLocation): HttpParameter | undefined {
+  findParameter(
+    paramName: string,
+    location?: OpraSchema.HttpParameterLocation,
+  ): HttpParameter | undefined {
     const paramNameLower = paramName.toLowerCase();
     let prm: any;
     for (prm of this.parameters) {
@@ -168,13 +180,19 @@ class HttpControllerClass extends DocumentElement {
       }
       if (prm.name instanceof RegExp && prm.name.test(paramName)) return prm;
     }
-    if (this.node.parent && this.node.parent.element instanceof HttpController) {
+    if (
+      this.node.parent &&
+      this.node.parent.element instanceof HttpController
+    ) {
       return this.node.parent.element.findParameter(paramName, location);
     }
   }
 
   getFullUrl(): string {
-    return nodePath.posix.join(this.owner instanceof HttpController ? this.owner.getFullUrl() : '/', this.path);
+    return nodePath.posix.join(
+      this.owner instanceof HttpController ? this.owner.getFullUrl() : '/',
+      this.path,
+    );
   }
 
   /**
@@ -187,7 +205,7 @@ class HttpControllerClass extends DocumentElement {
   /**
    *
    */
-  toJSON(): OpraSchema.HttpController {
+  toJSON(options?: ApiDocument.ExportOptions): OpraSchema.HttpController {
     const out = omitUndefined<OpraSchema.HttpController>({
       kind: this.kind,
       description: this.description,
@@ -196,25 +214,25 @@ class HttpControllerClass extends DocumentElement {
     if (this.operations.size) {
       out.operations = {};
       for (const v of this.operations.values()) {
-        out.operations[v.name] = v.toJSON();
+        out.operations[v.name] = v.toJSON(options);
       }
     }
     if (this.controllers.size) {
       out.controllers = {};
       for (const v of this.controllers.values()) {
-        out.controllers[v.name] = v.toJSON();
+        out.controllers[v.name] = v.toJSON(options);
       }
     }
     if (this.types.size) {
       out.types = {};
       for (const v of this.types.values()) {
-        out.types[v.name!] = v.toJSON();
+        out.types[v.name!] = v.toJSON(options);
       }
     }
     if (this.parameters.length) {
       out.parameters = [];
       for (const prm of this.parameters) {
-        out.parameters.push(prm.toJSON());
+        out.parameters.push(prm.toJSON(options));
       }
     }
     return out;
@@ -231,19 +249,3 @@ class HttpControllerClass extends DocumentElement {
 HttpController.prototype = HttpControllerClass.prototype;
 Object.assign(HttpController, HttpControllerDecoratorFactory);
 HttpController[DECORATOR] = HttpControllerDecoratorFactory;
-
-HttpController.OnInit = function () {
-  return (target: Object, propertyKey: string | symbol) => {
-    const sourceMetadata = (Reflect.getOwnMetadata(HTTP_CONTROLLER_METADATA, target.constructor) || {}) as any;
-    sourceMetadata.onInit = target[propertyKey];
-    Reflect.defineMetadata(HTTP_CONTROLLER_METADATA, target.constructor, sourceMetadata);
-  };
-};
-
-HttpController.OnShutdown = function () {
-  return (target: Object, propertyKey: string | symbol) => {
-    const sourceMetadata = (Reflect.getOwnMetadata(HTTP_CONTROLLER_METADATA, target.constructor) || {}) as any;
-    sourceMetadata.onShutdown = target[propertyKey];
-    Reflect.defineMetadata(HTTP_CONTROLLER_METADATA, target.constructor, sourceMetadata);
-  };
-};

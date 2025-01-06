@@ -34,7 +34,11 @@ export interface ElasticService {
    * @param _this - The reference to the current object.
    * @returns - The promise that resolves to the result of the callback execution.
    */
-  interceptor?(next: () => any, command: ElasticService.CommandInfo, _this: any): Promise<any>;
+  interceptor?(
+    next: () => any,
+    command: ElasticService.CommandInfo,
+    _this: any,
+  ): Promise<any>;
 }
 
 /**
@@ -78,17 +82,26 @@ export class ElasticService extends ServiceBase {
    */
   getClient(): Client {
     // @ts-ignore
-    const db = typeof this.client === 'function' ? this.client(this) : this.client;
+    const db =
+      typeof this.client === 'function'
+        ? (this.client as Function)(this)
+        : this.client;
     if (!db) throw new Error(`Client not set!`);
     return db;
   }
 
-  protected async _executeCommand(command: ElasticService.CommandInfo, commandFn: () => any): Promise<any> {
+  protected async _executeCommand(
+    command: ElasticService.CommandInfo,
+    commandFn: () => any,
+  ): Promise<any> {
     let proto: any;
     const next = async () => {
       proto = proto ? Object.getPrototypeOf(proto) : this;
       while (proto) {
-        if (proto.interceptor && Object.prototype.hasOwnProperty.call(proto, 'interceptor')) {
+        if (
+          proto.interceptor &&
+          Object.prototype.hasOwnProperty.call(proto, 'interceptor')
+        ) {
           return await proto.interceptor.call(this, next, command, this);
         }
         proto = Object.getPrototypeOf(proto);

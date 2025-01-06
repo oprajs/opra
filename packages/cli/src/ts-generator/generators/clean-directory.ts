@@ -13,7 +13,12 @@ export function cleanDirectory(this: TsGenerator, dirname: string) {
       if (fs.statSync(absolutePath).isDirectory()) {
         _cleanDirectory(absolutePath);
         if (!fs.readdirSync(absolutePath).length) {
-          this.emit('verbose', colors.cyan(`Removing directory ${path.relative(absolutePath, rootDir)}`));
+          this.emit(
+            'verbose',
+            colors.cyan(
+              `Removing directory ${path.relative(absolutePath, rootDir)}`,
+            ),
+          );
           fs.rmdirSync(absolutePath);
         }
         continue;
@@ -21,7 +26,12 @@ export function cleanDirectory(this: TsGenerator, dirname: string) {
       if (path.extname(f) === '.ts') {
         const contents = fs.readFileSync(absolutePath, 'utf-8');
         if (contents.includes('#!oprimp_auto_generated!#')) {
-          this.emit('verbose', colors.cyan(`Removing file ${path.relative(absolutePath, rootDir)}`));
+          this.emit(
+            'verbose',
+            colors.cyan(
+              `Removing file ${path.relative(absolutePath, rootDir)}`,
+            ),
+          );
           fs.unlinkSync(absolutePath);
         }
       }

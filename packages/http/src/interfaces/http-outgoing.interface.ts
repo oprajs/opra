@@ -5,7 +5,11 @@ import { isHttpOutgoing, isNodeOutgoingMessage } from '../type-guards.js';
 import type { HttpIncoming } from './http-incoming.interface.js';
 import { NodeOutgoingMessage } from './node-outgoing-message.interface.js';
 
-export interface HttpOutgoing extends StrictOmit<NodeOutgoingMessage, 'req' | 'appendHeader' | 'setHeader'> {
+export interface HttpOutgoing
+  extends StrictOmit<
+    NodeOutgoingMessage,
+    'req' | 'appendHeader' | 'setHeader'
+  > {
   req: HttpIncoming;
 
   readonly finished?: boolean;
@@ -162,9 +166,12 @@ export interface CookieOptions {
  * @namespace HttpIncoming
  */
 export namespace HttpOutgoing {
-  export function from(instance: HttpOutgoing | NodeOutgoingMessage.Initiator): HttpOutgoing {
+  export function from(
+    instance: HttpOutgoing | NodeOutgoingMessage.Initiator,
+  ): HttpOutgoing {
     if (isHttpOutgoing(instance)) return instance;
-    if (!isNodeOutgoingMessage(instance)) instance = NodeOutgoingMessage.from(instance);
+    if (!isNodeOutgoingMessage(instance))
+      instance = NodeOutgoingMessage.from(instance);
     mergePrototype(instance, HttpOutgoingHost.prototype);
     return instance as HttpOutgoing;
   }

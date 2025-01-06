@@ -11,7 +11,10 @@ export class InternalServerError extends OpraHttpError {
 
   protected init(issue: Partial<ErrorIssue>) {
     super.init({
-      message: translate('error:INTERNAL_SERVER_ERROR', 'Internal server error'),
+      message: translate(
+        'error:INTERNAL_SERVER_ERROR',
+        'Internal server error',
+      ),
       code: 'INTERNAL_SERVER_ERROR',
       severity: 'fatal',
       ...issue,

@@ -26,6 +26,30 @@ describe('ComplexType', () => {
     expect(f!.name).toStrictEqual('countryCode');
   });
 
+  it('Should findField(name, scope) return field instance', async () => {
+    const dt = doc.node.getComplexType('customer');
+    expect(dt).toBeDefined();
+    const f = dt!.findField('dbField', 'db');
+    expect(f).toBeDefined();
+    expect(f!.name).toStrictEqual('dbField');
+  });
+
+  it('Should findField(name, scope) not return out of scope field instance', async () => {
+    const dt = doc.node.getComplexType('customer');
+    expect(dt).toBeDefined();
+    const f = dt!.findField('dbField', 'api');
+    expect(f).not.toBeDefined();
+  });
+
+  it('Should findField(name, scope) return override field instance', async () => {
+    const dt = doc.node.getComplexType('customer');
+    expect(dt).toBeDefined();
+    let f = dt!.getField('createdAt');
+    expect(f.readonly).toEqual(true);
+    f = dt!.getField('createdAt', 'db');
+    expect(f!.readonly).toEqual(false);
+  });
+
   it('Should findField(path) return nested fields', async () => {
     const dt = doc.node.getComplexType('customer');
     expect(dt).toBeDefined();
@@ -44,13 +68,21 @@ describe('ComplexType', () => {
   it('Should getField(path) throw if field not found', async () => {
     const dt = doc.node.getComplexType('customer');
     expect(dt).toBeDefined();
-    expect(() => dt!.getField('nofield')).toThrow('UNKNOWN_FIELD');
+    expect(() => dt!.getField('nofield')).toThrow('does not exist');
   });
 
   it('Should getField(path) throw if given path is not valid', async () => {
     const dt = doc.node.getComplexType('customer');
     expect(dt).toBeDefined();
     expect(() => dt!.getField('givenName.code')).toThrow('field is not');
+  });
+
+  it('Should getField(name, scope) return field instance', async () => {
+    const dt = doc.node.getComplexType('customer');
+    expect(dt).toBeDefined();
+    const f = dt!.getField('dbField', 'db');
+    expect(f).toBeDefined();
+    expect(f!.name).toStrictEqual('dbField');
   });
 
   it('Should normalizeFieldPath() return normalized field name array', async () => {
@@ -65,7 +97,7 @@ describe('ComplexType', () => {
     expect(x).toStrictEqual('address.countryCode');
   });
 
-  it('Should exportSchema() return schema', async () => {
+  it('Should toJSON() return schema', async () => {
     const dt = doc.node.getComplexType('country');
     expect(dt).toBeDefined();
     const x = dt!.toJSON();
@@ -87,21 +119,74 @@ describe('ComplexType', () => {
     });
   });
 
+  it('Should toJSON(scope) return schema', async () => {
+    const dt = doc.node.getComplexType('customer');
+    expect(dt).toBeDefined();
+    let x = dt!.toJSON();
+    expect(x).toBeDefined();
+    expect(x.fields!.dbField).not.toBeDefined();
+    x = dt!.toJSON({ scope: 'db' });
+    expect(x).toBeDefined();
+    expect(x.fields!.dbField).toBeDefined();
+  });
+
   describe('_generateSchema()', () => {
     it('Should _generate ValGen schema', async () => {
-      const dt = doc.node.getComplexType('Note');
+      const dt = doc.node.getComplexType('Customer');
       const x: any = (dt as any)._generateSchema('decode', {});
       expect(x).toBeDefined();
-      expect(Object.keys(x)).toStrictEqual([
-        '_id',
-        'deleted',
-        'createdAt',
-        'updatedAt',
-        'title',
-        'text',
-        'rank',
-        'largeContent',
-      ]);
+      const o = Object.keys(x).reduce((a, k) => {
+        a[k] = x[k].name;
+        return a;
+      }, {});
+      expect(o).toStrictEqual({
+        _id: 'optional',
+        deleted: 'optional',
+        createdAt: 'optional',
+        updatedAt: 'optional',
+        givenName: 'optional',
+        familyName: 'optional',
+        gender: 'optional',
+        birthDate: 'optional',
+        uid: 'optional',
+        active: 'optional',
+        countryCode: 'optional',
+        rate: 'optional',
+        address: 'isUndefined',
+        notes: 'isUndefined',
+        country: 'isUndefined',
+        tags: 'optional',
+        dbField: 'isUndefined',
+      });
+    });
+
+    it('Should _generate ValGen schema for given scope', async () => {
+      const dt = doc.node.getComplexType('Customer');
+      const x: any = (dt as any)._generateSchema('decode', { scope: 'db' });
+      expect(x).toBeDefined();
+      const o = Object.keys(x).reduce((a, k) => {
+        a[k] = x[k].name;
+        return a;
+      }, {});
+      expect(o).toStrictEqual({
+        _id: 'optional',
+        deleted: 'optional',
+        createdAt: 'optional',
+        updatedAt: 'optional',
+        givenName: 'optional',
+        familyName: 'optional',
+        gender: 'optional',
+        birthDate: 'optional',
+        uid: 'optional',
+        active: 'optional',
+        countryCode: 'optional',
+        rate: 'optional',
+        address: 'isUndefined',
+        notes: 'isUndefined',
+        country: 'isUndefined',
+        tags: 'optional',
+        dbField: 'optional',
+      });
     });
 
     it('Should ignore exclusive fields by default', async () => {

@@ -3,6 +3,7 @@ import { DECODER, ENCODER } from '../../constants.js';
 import { SimpleType } from '../simple-type.js';
 
 @(SimpleType({
+  name: 'url',
   description: 'A Uniform Resource Identifier Reference (RFC 3986 icon) value',
   nameMappings: {
     js: 'string',

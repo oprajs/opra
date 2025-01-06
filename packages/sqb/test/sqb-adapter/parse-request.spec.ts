@@ -58,7 +58,10 @@ describe('SQBAdapter.parseRequest', () => {
   });
 
   it('Should parse "deleteMany" request', async () => {
-    const operation = document.httpApi?.findOperation('Customers', 'deleteMany');
+    const operation = document.httpApi?.findOperation(
+      'Customers',
+      'deleteMany',
+    );
     expect(operation).toBeDefined();
     const context = createContext(app.adapter, operation);
     context.queryParams.filter = '_id>5';
@@ -144,7 +147,10 @@ describe('SQBAdapter.parseRequest', () => {
   });
 
   it('Should parse "updateMany" request', async () => {
-    const operation = document.httpApi?.findOperation('Customers', 'updateMany');
+    const operation = document.httpApi?.findOperation(
+      'Customers',
+      'updateMany',
+    );
     expect(operation).toBeDefined();
     const data = { _id: 1001 };
     const dataStr = JSON.stringify(data);

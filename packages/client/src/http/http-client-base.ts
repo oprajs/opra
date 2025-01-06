@@ -1,4 +1,9 @@
-import { ApiDocument, ApiDocumentFactory, OpraSchema, type URLSearchParamsInit } from '@opra/common';
+import {
+  ApiDocument,
+  ApiDocumentFactory,
+  OpraSchema,
+  type URLSearchParamsInit,
+} from '@opra/common';
 import type { StrictOmit } from 'ts-gems';
 import { kBackend } from '../constants.js';
 import { HttpBackend } from './http-backend.js';
@@ -15,7 +20,9 @@ export namespace OpraClientBase {
     document?: ApiDocument;
   }
 
-  export type RequestOptions = Partial<StrictOmit<HttpBackend.RequestInit, 'url'>> & {
+  export type RequestOptions = Partial<
+    StrictOmit<HttpBackend.RequestInit, 'url'>
+  > & {
     params?: URLSearchParamsInit;
   };
 }
@@ -26,7 +33,7 @@ export namespace OpraClientBase {
  * @abstract
  */
 export abstract class HttpClientBase<TRequestOptions = {}, TResponseExt = {}> {
-  protected declare [kBackend]: HttpBackend;
+  declare protected [kBackend]: HttpBackend;
 
   protected constructor(backend: HttpBackend) {
     Object.defineProperty(this, kBackend, {
@@ -47,14 +54,21 @@ export abstract class HttpClientBase<TRequestOptions = {}, TResponseExt = {}> {
       });
       if (documentId) req.param('id', documentId);
       const body = await req.getBody().catch(e => {
-        e.message = 'Error fetching api schema from url (' + this.serviceUrl + ').\n' + e.message;
+        e.message =
+          'Error fetching api schema from url (' +
+          this.serviceUrl +
+          ').\n' +
+          e.message;
         throw e;
       });
       if (body.references) {
         const oldReferences = body.references;
         body.references = {};
-        for (const [ns, obj] of Object.entries<OpraSchema.DocumentReference>(oldReferences)) {
-          if (documentMap[obj.id] === null) throw new Error('Circular reference detected');
+        for (const [ns, obj] of Object.entries<OpraSchema.DocumentReference>(
+          oldReferences,
+        )) {
+          if (documentMap[obj.id] === null)
+            throw new Error('Circular reference detected');
           documentMap[obj.id] = null;
           const x = await getDocument(obj.id);
           body.references[ns] = documentMap[obj.id] = x;
@@ -73,7 +87,12 @@ export abstract class HttpClientBase<TRequestOptions = {}, TResponseExt = {}> {
   request<TBody = any>(path: string, options?: OpraClientBase.RequestOptions) {
     /** Remove leading backslashes */
     path = SPLIT_BACKSLASH_PATTERN.exec(path)?.[2] || '';
-    const observable = new HttpRequestObservable<TBody, TBody, TRequestOptions, TResponseExt>(this[kBackend], {
+    const observable = new HttpRequestObservable<
+      TBody,
+      TBody,
+      TRequestOptions,
+      TResponseExt
+    >(this[kBackend], {
       ...options,
       method: options?.method || 'GET',
       url: new URL(path, this.serviceUrl),
@@ -82,14 +101,20 @@ export abstract class HttpClientBase<TRequestOptions = {}, TResponseExt = {}> {
     return observable;
   }
 
-  delete<TBody = any>(path: string, options?: StrictOmit<OpraClientBase.RequestOptions, 'method' | 'body'>) {
+  delete<TBody = any>(
+    path: string,
+    options?: StrictOmit<OpraClientBase.RequestOptions, 'method' | 'body'>,
+  ) {
     return this.request<TBody>(path, {
       ...options,
       method: 'DELETE',
     });
   }
 
-  get<TBody = any>(path: string, options?: StrictOmit<OpraClientBase.RequestOptions, 'method' | 'body'>) {
+  get<TBody = any>(
+    path: string,
+    options?: StrictOmit<OpraClientBase.RequestOptions, 'method' | 'body'>,
+  ) {
     return this.request<TBody>(path, {
       ...options,
       method: 'GET',

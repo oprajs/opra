@@ -1,5 +1,6 @@
 import typeIs from '@browsery/type-is';
-import { MimeTypes, omitNullish } from '@opra/common';
+import { omitNullish } from '@jsopen/objects';
+import { MimeTypes } from '@opra/common';
 import { ApiExpectBase } from './api-expect-base.js';
 
 export class ApiExpectObject extends ApiExpectBase {
@@ -14,7 +15,9 @@ export class ApiExpectObject extends ApiExpectBase {
   toMatch<T extends {}>(expected: T): this {
     try {
       expected = omitNullish(expected) as T;
-      const data = typeIs.is(this.response.contentType, [MimeTypes.opra_response_json])
+      const data = typeIs.is(this.response.contentType, [
+        MimeTypes.opra_response_json,
+      ])
         ? this.response.body.payload
         : this.response.body;
       this._expect(data).toEqual(expect.objectContaining(expected));
@@ -32,7 +35,9 @@ export class ApiExpectObject extends ApiExpectBase {
   toContainFields(fields: string | string[]): this {
     try {
       fields = Array.isArray(fields) ? fields : [fields];
-      const data = typeIs.is(this.response.contentType, [MimeTypes.opra_response_json])
+      const data = typeIs.is(this.response.contentType, [
+        MimeTypes.opra_response_json,
+      ])
         ? this.response.body.payload
         : this.response.body;
       this._expect(Object.keys(data)).toEqual(expect.arrayContaining(fields));
@@ -50,7 +55,9 @@ export class ApiExpectObject extends ApiExpectBase {
   toContainAllFields(fields: string | string[]): this {
     try {
       fields = Array.isArray(fields) ? fields : [fields];
-      const data = typeIs.is(this.response.contentType, [MimeTypes.opra_response_json])
+      const data = typeIs.is(this.response.contentType, [
+        MimeTypes.opra_response_json,
+      ])
         ? this.response.body.payload
         : this.response.body;
       this._expect(Object.keys(data)).toEqual(fields);

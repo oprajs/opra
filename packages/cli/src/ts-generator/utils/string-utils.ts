@@ -1,9 +1,15 @@
 import jsStringEscape from 'js-string-escape';
 
-export function wrapJSDocString(s: string, indent?: number, currentColumn?: number): string {
+export function wrapJSDocString(
+  s: string,
+  indent?: number,
+  currentColumn?: number,
+): string {
   const arr: string[] = (s || '')
     .split(/[ \n\r]/)
-    .map((x: string, i: number, a: string[]) => (i < a.length - 1 ? x + ' ' : x));
+    .map((x: string, i: number, a: string[]) =>
+      i < a.length - 1 ? x + ' ' : x,
+    );
   return _printLines(arr, {
     indent,
     currentColumn,
@@ -12,10 +18,16 @@ export function wrapJSDocString(s: string, indent?: number, currentColumn?: numb
   });
 }
 
-export function wrapQuotedString(s: string, indent?: number, currentColumn?: number): string {
+export function wrapQuotedString(
+  s: string,
+  indent?: number,
+  currentColumn?: number,
+): string {
   const arr: string[] = jsStringEscape(s || '')
     .split(' ')
-    .map((x: string, i: number, a: string[]) => (i < a.length - 1 ? x + ' ' : x));
+    .map((x: string, i: number, a: string[]) =>
+      i < a.length - 1 ? x + ' ' : x,
+    );
   return (
     "'" +
     _printLines(arr, {
@@ -28,13 +40,26 @@ export function wrapQuotedString(s: string, indent?: number, currentColumn?: num
   );
 }
 
-export function wrapStringArray(arr: string[], indent?: number, currentColumn?: number): string {
-  const ar1: string[] = arr.map((x: string, i: number, a: string[]) => "'" + x + "'" + (i < a.length - 1 ? ', ' : ''));
+export function wrapStringArray(
+  arr: string[],
+  indent?: number,
+  currentColumn?: number,
+): string {
+  const ar1: string[] = arr.map(
+    (x: string, i: number, a: string[]) =>
+      "'" + x + "'" + (i < a.length - 1 ? ', ' : ''),
+  );
   return '[' + _printLines(ar1, { indent, currentColumn }) + ']';
 }
 
-export function wrapTypeArray(arr: string[], indent?: number, currentColumn?: number): string {
-  const ar1: string[] = arr.map((x: string, i: number, a: string[]) => x + (i < a.length - 1 ? ' | ' : ''));
+export function wrapTypeArray(
+  arr: string[],
+  indent?: number,
+  currentColumn?: number,
+): string {
+  const ar1: string[] = arr.map(
+    (x: string, i: number, a: string[]) => x + (i < a.length - 1 ? ' | ' : ''),
+  );
   return _printLines(ar1, { indent, currentColumn });
 }
 
@@ -55,7 +80,11 @@ function _printLines(
   const l = arr.length;
   const printLine = (eof: boolean): void => {
     s +=
-      (s ? '\n' + ' '.repeat(indent || 0) + (opts.lineStart ? opts.lineStart : '') : '') +
+      (s
+        ? '\n' +
+          ' '.repeat(indent || 0) +
+          (opts.lineStart ? opts.lineStart : '')
+        : '') +
       line +
       (!eof ? (opts.lineEnd ? opts.lineEnd : '') : '');
     line = '';

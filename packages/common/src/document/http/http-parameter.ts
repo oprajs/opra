@@ -1,6 +1,12 @@
-import { asMutable, type Combine, type StrictOmit, type TypeThunkAsync } from 'ts-gems';
-import { omitUndefined } from '../../helpers/index.js';
+import { omitUndefined } from '@jsopen/objects';
+import {
+  asMutable,
+  type Combine,
+  type StrictOmit,
+  type TypeThunkAsync,
+} from 'ts-gems';
 import type { OpraSchema } from '../../schema/index.js';
+import type { ApiDocument } from '../api-document';
 import { DocumentElement } from '../common/document-element.js';
 import { Value } from '../common/value.js';
 import { DataType } from '../data-type/data-type.js';
@@ -11,9 +17,15 @@ import { parseRegExp } from '../utils/parse-regexp.util.js';
  * @namespace HttpParameter
  */
 export namespace HttpParameter {
-  export interface Metadata extends StrictOmit<OpraSchema.HttpParameter, 'type'> {
+  export interface Metadata
+    extends StrictOmit<OpraSchema.HttpParameter, 'type'> {
     name: string | RegExp;
-    type?: string | TypeThunkAsync | EnumType.EnumObject | EnumType.EnumArray | object;
+    type?:
+      | string
+      | TypeThunkAsync
+      | EnumType.EnumObject
+      | EnumType.EnumArray
+      | object;
     keyParam?: boolean;
   }
 
@@ -35,7 +47,10 @@ export namespace HttpParameter {
  * @class HttpParameter
  */
 interface HttpParameterStatic {
-  new (owner: DocumentElement, args: HttpParameter.InitArguments): HttpParameter;
+  new (
+    owner: DocumentElement,
+    args: HttpParameter.InitArguments,
+  ): HttpParameter;
 
   prototype: HttpParameter;
 }
@@ -51,7 +66,8 @@ export const HttpParameter = function (
   owner: DocumentElement,
   initArgs: HttpParameter.InitArguments,
 ) {
-  if (!this) throw new TypeError('"this" should be passed to call class constructor');
+  if (!this)
+    throw new TypeError('"this" should be passed to call class constructor');
   Value.call(this, owner, initArgs);
   const _this = asMutable(this);
   if (initArgs.name) {
@@ -68,7 +84,8 @@ export const HttpParameter = function (
   _this.location = initArgs.location;
   _this.deprecated = initArgs.deprecated;
   _this.required = initArgs.required;
-  if (_this.required == null && initArgs.location === 'path') _this.required = true;
+  if (_this.required == null && initArgs.location === 'path')
+    _this.required = true;
   _this.arraySeparator = initArgs.arraySeparator;
   _this.keyParam = initArgs.keyParam;
 } as Function as HttpParameterStatic;
@@ -84,9 +101,9 @@ class HttpParameterClass extends Value {
   declare required?: boolean;
   declare arraySeparator?: string;
 
-  toJSON(): OpraSchema.HttpParameter {
+  toJSON(options?: ApiDocument.ExportOptions): OpraSchema.HttpParameter {
     return omitUndefined<OpraSchema.HttpParameter>({
-      ...super.toJSON(),
+      ...super.toJSON(options),
       name: this.name,
       location: this.location,
       arraySeparator: this.arraySeparator,

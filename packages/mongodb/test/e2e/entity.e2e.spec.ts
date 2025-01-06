@@ -1,6 +1,5 @@
 import '@opra/sqb';
 import { OpraTestClient } from '@opra/testing';
-// eslint-disable-next-line import-x/no-extraneous-dependencies
 import { CustomerApplication } from 'express-mongo';
 import { entityTests } from '../../../http/test/e2e/tests/index.js';
 
@@ -11,7 +10,10 @@ describe('e2e tests', function () {
 
   beforeAll(async () => {
     app = await CustomerApplication.create({ basePath: '/api/v1' });
-    client = new OpraTestClient(app.adapter.app, { document: app.document, basePath: '/api/v1' });
+    client = new OpraTestClient(app.adapter.app, {
+      document: app.document,
+      basePath: '/api/v1',
+    });
     testArgs.app = app;
     testArgs.client = client;
   });

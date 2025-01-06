@@ -1,26 +1,44 @@
 import * as nodePath from 'node:path';
-import { ApiDocument, HttpApi, HttpController, HttpOperation, NotFoundError } from '@opra/common';
-import { type Application, type NextFunction, type Request, type Response, Router } from 'express';
+import {
+  ApiDocument,
+  HttpApi,
+  HttpController,
+  HttpOperation,
+  NotFoundError,
+} from '@opra/common';
+import {
+  type Application,
+  type NextFunction,
+  type Request,
+  type Response,
+  Router,
+} from 'express';
 import { HttpAdapter } from './http-adapter.js';
 import { HttpContext } from './http-context.js';
 import { HttpIncoming } from './interfaces/http-incoming.interface.js';
 import { HttpOutgoing } from './interfaces/http-outgoing.interface.js';
-import { wrapException } from './utils/wrap-exception.js';
 
 export class ExpressAdapter extends HttpAdapter {
   readonly app: Application;
   protected _controllerInstances = new Map<HttpController, any>();
 
-  constructor(app: Application, document: ApiDocument, options?: HttpAdapter.Options) {
-    super(document, options);
+  constructor(app: Application, options?: HttpAdapter.Options) {
+    super(options);
     this.app = app;
-    if (!(this.document.api instanceof HttpApi)) throw new TypeError('document.api must be instance of HttpApi');
-    for (const c of this.api.controllers.values()) this._createControllers(c);
-    this._initRouter(options?.basePath);
   }
 
   get platform(): string {
     return 'express';
+  }
+
+  initialize(document: ApiDocument) {
+    if (this._document)
+      throw new TypeError(`${this.constructor.name} already initialized.`);
+    if (!(document.api instanceof HttpApi))
+      throw new TypeError(`The document does not expose an HTTP Api`);
+    this._document = document;
+    for (const c of this.api.controllers.values()) this._createControllers(c);
+    this._initRouter();
   }
 
   async close() {
@@ -30,16 +48,6 @@ export class ExpressAdapter extends HttpAdapter {
         subResources.reverse();
         for (const subResource of subResources) {
           await processInstance(subResource);
-        }
-      }
-      if (controller.onShutdown) {
-        const instance = this._controllerInstances.get(controller) || controller.instance;
-        if (instance) {
-          try {
-            await controller.onShutdown.call(instance, controller);
-          } catch (e) {
-            if (this.listenerCount('error')) this.emit('error', wrapException(e));
-          }
         }
       }
     };
@@ -52,12 +60,9 @@ export class ExpressAdapter extends HttpAdapter {
     return controller && this._controllerInstances.get(controller);
   }
 
-  protected _initRouter(basePath?: string) {
+  protected _initRouter() {
     const router = Router();
-    if (basePath) {
-      if (!basePath.startsWith('/')) basePath = '/' + basePath;
-      if (basePath) this.app.use(basePath, router);
-    } else this.app.use(router);
+    this.app.use(this.basePath, router);
 
     const createContext = async (
       _req: Request,
@@ -94,7 +99,10 @@ export class ExpressAdapter extends HttpAdapter {
 
     /** Add operation endpoints */
     if (this.api.controllers.size) {
-      const processResource = (controller: HttpController, currentPath: string) => {
+      const processResource = (
+        controller: HttpController,
+        currentPath: string,
+      ) => {
         currentPath = nodePath.join(currentPath, controller.path);
         for (const operation of controller.operations.values()) {
           const routePath = currentPath + (operation.path || '');
@@ -102,22 +110,26 @@ export class ExpressAdapter extends HttpAdapter {
           const operationHandler = controllerInstance[operation.name];
           if (!operationHandler) continue;
           /** Define router callback */
-          router[operation.method.toLowerCase()](routePath, (_req: Request, _res: Response, _next: NextFunction) => {
-            createContext(_req, _res, {
-              controller,
-              controllerInstance,
-              operation,
-              operationHandler,
-            })
-              .then(ctx => this.handler.handleRequest(ctx))
-              .then(() => {
-                if (!_res.headersSent) _next();
+          router[operation.method.toLowerCase()](
+            routePath,
+            (_req: Request, _res: Response, _next: NextFunction) => {
+              createContext(_req, _res, {
+                controller,
+                controllerInstance,
+                operation,
+                operationHandler,
               })
-              .catch((e: unknown) => this.emit('error', e));
-          });
+                .then(ctx => this.handler.handleRequest(ctx))
+                .then(() => {
+                  if (!_res.headersSent) _next();
+                })
+                .catch((e: unknown) => this.emit('error', e));
+            },
+          );
         }
         if (controller.controllers.size) {
-          for (const child of controller.controllers.values()) processResource(child, currentPath);
+          for (const child of controller.controllers.values())
+            processResource(child, currentPath);
         }
       };
       for (const c of this.api.controllers.values()) processResource(c, '/');
@@ -146,7 +158,6 @@ export class ExpressAdapter extends HttpAdapter {
     let instance = controller.instance;
     if (!instance && controller.ctor) instance = new controller.ctor();
     if (instance) {
-      if (typeof controller.onInit === 'function') controller.onInit.call(instance, controller);
       this._controllerInstances.set(controller, instance);
       // Initialize sub resources
       for (const r of controller.controllers.values()) {

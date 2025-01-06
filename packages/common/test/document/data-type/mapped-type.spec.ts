@@ -1,5 +1,12 @@
 import 'reflect-metadata';
-import { ApiDocument, ApiDocumentFactory, OmitType, OpraSchema, PartialType, PickType } from '@opra/common';
+import {
+  ApiDocument,
+  ApiDocumentFactory,
+  OmitType,
+  OpraSchema,
+  PartialType,
+  PickType,
+} from '@opra/common';
 import { Country } from 'customer-mongo/models';
 import { TestHttpApiDocument } from '../../_support/test-http-api/index.js';
 

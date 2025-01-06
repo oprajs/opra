@@ -26,7 +26,9 @@ export function parse(text: string, visitor?: ParseTreeVisitor<any>) {
     for (const err of errors) {
       errMsgs.push(
         err.message +
-          (text.includes('\n') ? ' at line: ' + err.line + ' column: ' + err.column : ' at column: ' + err.column),
+          (text.includes('\n')
+            ? ' at line: ' + err.line + ' column: ' + err.column
+            : ' at column: ' + err.column),
       );
     }
     const e = new SyntaxError(errMsgs.join('\n'));

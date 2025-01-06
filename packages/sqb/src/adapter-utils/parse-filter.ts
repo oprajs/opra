@@ -1,6 +1,7 @@
 import '@opra/core';
 import { OpraFilter } from '@opra/common';
 import * as sqb from '@sqb/builder';
+import { isDate } from 'valgen';
 import type { SQBAdapter } from '../sqb-adapter.js';
 
 /**
@@ -10,7 +11,9 @@ import type { SQBAdapter } from '../sqb-adapter.js';
  *
  * @returns {Expression} - The prepared SQB Expression.
  */
-export default function parseFilter(filters: SQBAdapter.FilterInput | SQBAdapter.FilterInput[]): any {
+export default function parseFilter(
+  filters: SQBAdapter.FilterInput | SQBAdapter.FilterInput[],
+): any {
   const filtersArray = Array.isArray(filters) ? filters : [filters];
   if (!filtersArray.length) return undefined;
 
@@ -19,8 +22,10 @@ export default function parseFilter(filters: SQBAdapter.FilterInput | SQBAdapter
     if (!filter) continue;
 
     let ast: any;
-    if (typeof filter === 'string') ast = prepareFilterAst(OpraFilter.parse(filter));
-    else if (filter instanceof OpraFilter.Expression) ast = prepareFilterAst(filter);
+    if (typeof filter === 'string')
+      ast = prepareFilterAst(OpraFilter.parse(filter));
+    else if (filter instanceof OpraFilter.Expression)
+      ast = prepareFilterAst(filter);
     else ast = filter;
     if (ast) arr.push(ast);
   }
@@ -36,10 +41,13 @@ function prepareFilterAst(ast?: OpraFilter.Expression): any {
     ast instanceof OpraFilter.StringLiteral ||
     ast instanceof OpraFilter.BooleanLiteral ||
     ast instanceof OpraFilter.NullLiteral ||
-    ast instanceof OpraFilter.DateLiteral ||
     ast instanceof OpraFilter.TimeLiteral
   ) {
     return ast.value;
+  }
+
+  if (ast instanceof OpraFilter.DateLiteral) {
+    return isDate(ast.value, { coerce: true });
   }
 
   if (ast instanceof OpraFilter.ArrayExpression) {
@@ -88,7 +96,9 @@ function prepareFilterAst(ast?: OpraFilter.Expression): any {
       case '!ilike':
         return sqb.NotILike(left, String(right).replace(/\*/g, '%'));
       default:
-        throw new Error(`ComparisonExpression operator (${ast.op}) not implemented yet`);
+        throw new Error(
+          `ComparisonExpression operator (${ast.op}) not implemented yet`,
+        );
     }
   }
 

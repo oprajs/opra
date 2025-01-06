@@ -1,6 +1,6 @@
 import { ApiDocumentFactory, OpraSchema } from '@opra/common';
 import { KafkaAdapter } from '@opra/kafka';
-import { MailController } from './api/mail-controller.js';
+import { TestController } from './api/test-controller.js';
 import { SendMailDto } from './dto/send-mail.dto.js';
 
 export namespace TestRpcApiDocument {
@@ -18,7 +18,7 @@ export namespace TestRpcApiDocument {
         platform: KafkaAdapter.PlatformName,
         name: 'TestService',
         description: 'test service',
-        controllers: [MailController],
+        controllers: [TestController],
       },
     });
   }

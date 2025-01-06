@@ -1,4 +1,3 @@
-/* eslint-disable no-console */
 import { ApiDocument } from '@opra/common';
 import { ExpressAdapter, HttpAdapter } from '@opra/http';
 import express from 'express';
@@ -12,10 +11,14 @@ export class CustomerApplication {
   declare express: express.Express;
   declare db: Db;
 
-  static async create(options?: HttpAdapter.Options): Promise<CustomerApplication> {
+  static async create(
+    options?: HttpAdapter.Options,
+  ): Promise<CustomerApplication> {
     const app = new CustomerApplication();
     try {
-      const host = process.env.MONGO_HOST || 'mongodb://127.0.0.1:27017/?directConnection=true';
+      const host =
+        process.env.MONGO_HOST ||
+        'mongodb://127.0.0.1:27017/?directConnection=true';
       app.dbClient = new MongoClient(host);
       app.db = app.dbClient.db(process.env.MONGO_DATABASE || 'customer_app');
     } catch (e) {
@@ -24,7 +27,11 @@ export class CustomerApplication {
     }
     app.document = await CustomerApiDocument.create(app.db);
     app.express = express();
-    app.adapter = new ExpressAdapter(app.express, app.document, options);
+    app.adapter = new ExpressAdapter(app.express, {
+      scope: 'api',
+      ...options,
+    });
+    await app.adapter.initialize(app.document);
     return app;
   }
 

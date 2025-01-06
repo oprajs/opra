@@ -40,7 +40,10 @@ export async function generateHttpApi(this: TsGenerator, api: HttpApi) {
     const f = await generator.generateHttpController(controller);
     const childClassName = pascalCase(controller.name) + 'Controller';
     file.addImport('.' + f.filename, [childClassName]);
-    const property = '$' + controller.name.charAt(0).toLowerCase() + camelCase(controller.name.substring(1));
+    const property =
+      '$' +
+      controller.name.charAt(0).toLowerCase() +
+      camelCase(controller.name.substring(1));
     classBlock.properties += `\nreadonly ${property}: ${childClassName};`;
     classConstBlock.body += `\nthis.${property} = new ${childClassName}(client);`;
   }

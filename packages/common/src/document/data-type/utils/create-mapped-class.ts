@@ -1,28 +1,49 @@
 import type { Type } from 'ts-gems';
-import { inheritPropertyInitializers, mergePrototype } from '../../../helpers/index.js';
+import {
+  inheritPropertyInitializers,
+  mergePrototype,
+} from '../../../helpers/index.js';
 import { OpraSchema } from '../../../schema/index.js';
 import { DATATYPE_METADATA } from '../../constants.js';
 import type { DataType } from '../data-type.js';
 import { MappedType } from '../mapped-type.js';
 import { getIsInheritedPredicateFn } from './get-is-inherited-predicate-fn.js';
 
-export function createMappedClass(source: string | Type, config: any, options?: DataType.Options) {
-  const isInheritedPredicate = getIsInheritedPredicateFn(config.pick as any, config.omit as any);
-  const sourceName = typeof source === 'string' ? source.charAt(0).toUpperCase() + source.substring(1) : source.name;
+export function createMappedClass(
+  source: string | Type,
+  config: any,
+  options?: DataType.Options,
+) {
+  const isInheritedPredicate = getIsInheritedPredicateFn(
+    config.pick as any,
+    config.omit as any,
+  );
+  const sourceName =
+    typeof source === 'string'
+      ? source.charAt(0).toUpperCase() + source.substring(1)
+      : source.name;
   const className = options?.name || sourceName + 'Mapped';
   const MappedClass = {
     [className]: class {
       constructor() {
-        if (typeof source === 'function') inheritPropertyInitializers(this, source, isInheritedPredicate);
+        if (typeof source === 'function')
+          inheritPropertyInitializers(this, source, isInheritedPredicate);
       }
     },
   }[className];
 
-  if (typeof source === 'function') mergePrototype(MappedClass.prototype, source.prototype);
+  if (typeof source === 'function')
+    mergePrototype(MappedClass.prototype, source.prototype);
 
   if (typeof source === 'function') {
-    const m = Reflect.getOwnMetadata(DATATYPE_METADATA, source) as OpraSchema.DataType;
-    if (!m) throw new TypeError(`Class "${source}" doesn't have datatype metadata information`);
+    const m = Reflect.getOwnMetadata(
+      DATATYPE_METADATA,
+      source,
+    ) as OpraSchema.DataType;
+    if (!m)
+      throw new TypeError(
+        `Class "${source}" doesn't have datatype metadata information`,
+      );
     if (
       !(
         m.kind === OpraSchema.ComplexType.Kind ||
@@ -30,7 +51,9 @@ export function createMappedClass(source: string | Type, config: any, options?: 
         m.kind === OpraSchema.MixinType.Kind
       )
     ) {
-      throw new TypeError(`Class "${source}" is not a ${OpraSchema.ComplexType.Kind}`);
+      throw new TypeError(
+        `Class "${source}" is not a ${OpraSchema.ComplexType.Kind}`,
+      );
     }
   }
 

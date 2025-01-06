@@ -7,7 +7,9 @@ import { HttpController } from './http-controller.js';
 import type { HttpOperation } from './http-operation.js';
 
 export namespace HttpApi {
-  export interface InitArguments extends ApiBase.InitArguments, StrictOmit<OpraSchema.HttpApi, 'controllers'> {
+  export interface InitArguments
+    extends ApiBase.InitArguments,
+      StrictOmit<OpraSchema.HttpApi, 'controllers'> {
     transport: 'http';
   }
 }
@@ -17,7 +19,8 @@ export namespace HttpApi {
  */
 export class HttpApi extends ApiBase {
   // noinspection JSUnusedGlobalSymbols
-  protected _controllerReverseMap: WeakMap<Type, HttpController | null> = new WeakMap();
+  protected _controllerReverseMap: WeakMap<Type, HttpController | null> =
+    new WeakMap();
   declare readonly owner: ApiDocument;
   readonly transport = 'http';
   controllers: ResponsiveMap<HttpController> = new ResponsiveMap();
@@ -34,14 +37,23 @@ export class HttpApi extends ApiBase {
     return HttpController.prototype.findController.call(this, arg0 as any);
   }
 
-  findOperation(controller: Type, operationName: string): HttpOperation | undefined;
-  findOperation(resourcePath: string, operationName: string): HttpOperation | undefined;
-  findOperation(arg0: string | Type, operationName: string): HttpOperation | undefined {
+  findOperation(
+    controller: Type,
+    operationName: string,
+  ): HttpOperation | undefined;
+  findOperation(
+    resourcePath: string,
+    operationName: string,
+  ): HttpOperation | undefined;
+  findOperation(
+    arg0: string | Type,
+    operationName: string,
+  ): HttpOperation | undefined {
     const controller = this.findController(arg0 as any);
     return controller?.operations.get(operationName);
   }
 
-  toJSON(): OpraSchema.HttpApi {
+  toJSON(options?: ApiDocument.ExportOptions): OpraSchema.HttpApi {
     const schema = super.toJSON();
     const out: OpraSchema.HttpApi = {
       ...schema,
@@ -50,7 +62,7 @@ export class HttpApi extends ApiBase {
       controllers: {},
     };
     for (const v of this.controllers.values()) {
-      out.controllers[v.name] = v.toJSON();
+      out.controllers[v.name] = v.toJSON(options);
     }
     return out;
   }

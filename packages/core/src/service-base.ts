@@ -2,7 +2,7 @@ import type { Nullish } from 'ts-gems';
 import type { ExecutionContext } from './execution-context.js';
 
 export abstract class ServiceBase {
-  protected declare _context: ExecutionContext;
+  declare protected _context: ExecutionContext;
 
   get context(): ExecutionContext {
     this._assertContext();
@@ -23,12 +23,16 @@ export abstract class ServiceBase {
     const instance = { _context: ctx } as unknown as ServiceBase;
     Object.setPrototypeOf(instance, this);
     if (overwriteProperties) Object.assign(instance, overwriteProperties);
-    if (this[ServiceBase.extendSymbol]) this[ServiceBase.extendSymbol](instance);
+    if (this[ServiceBase.extendSymbol])
+      this[ServiceBase.extendSymbol](instance);
     return instance as any;
   }
 
   protected _assertContext() {
-    if (!this._context) throw new Error(`No context assigned for ${Object.getPrototypeOf(this).constructor.name}`);
+    if (!this._context)
+      throw new Error(
+        `No context assigned for ${Object.getPrototypeOf(this).constructor.name}`,
+      );
   }
 }
 

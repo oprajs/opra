@@ -3,8 +3,15 @@ import { escapeString } from './string-utils.js';
 
 const bracketRegEx = /(\))/g;
 
-export function translate(key: string, options?: TOptions<Record<string, any>>): string;
-export function translate(key: string, options: TOptions<Record<string, any>>, fallback: string): string;
+export function translate(
+  key: string,
+  options?: TOptions<Record<string, any>>,
+): string;
+export function translate(
+  key: string,
+  options: TOptions<Record<string, any>>,
+  fallback: string,
+): string;
 export function translate(key: string, fallback: string): string;
 export function translate(key: string, arg0?, arg1?): string {
   const options = arg0 && typeof arg0 === 'object' ? arg0 : undefined;
@@ -13,7 +20,9 @@ export function translate(key: string, arg0?, arg1?): string {
     '$t(' +
     key +
     (options ? ',' + JSON.stringify(options) : '') +
-    (fallback ? '?' + escapeString(fallback).replace(bracketRegEx, '\\$1') : '') +
+    (fallback
+      ? '?' + escapeString(fallback).replace(bracketRegEx, '\\$1')
+      : '') +
     ')'
   );
 }

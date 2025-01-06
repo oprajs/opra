@@ -1,7 +1,8 @@
+import { omitUndefined } from '@jsopen/objects';
 import type { Combine, StrictOmit, TypeThunkAsync } from 'ts-gems';
 import { asMutable } from 'ts-gems';
-import { omitUndefined } from '../../helpers/index.js';
 import type { OpraSchema } from '../../schema/index.js';
+import type { ApiDocument } from '../api-document';
 import { DataType } from '../data-type/data-type.js';
 import type { EnumType } from '../data-type/enum-type.js';
 import { DocumentElement } from './document-element.js';
@@ -11,7 +12,12 @@ import { DocumentElement } from './document-element.js';
  */
 export namespace Value {
   export interface Metadata extends StrictOmit<OpraSchema.Value, 'type'> {
-    type?: string | TypeThunkAsync | EnumType.EnumObject | EnumType.EnumArray | object;
+    type?:
+      | string
+      | TypeThunkAsync
+      | EnumType.EnumObject
+      | EnumType.EnumArray
+      | object;
   }
 
   export interface Options extends Partial<StrictOmit<Metadata, 'type'>> {
@@ -43,8 +49,13 @@ interface ValueStatic {
  */
 export interface Value extends ValueClass {}
 
-export const Value = function (this: Value, owner: DocumentElement, initArgs: Value.InitArguments) {
-  if (!this) throw new TypeError('"this" should be passed to call class constructor');
+export const Value = function (
+  this: Value,
+  owner: DocumentElement,
+  initArgs: Value.InitArguments,
+) {
+  if (!this)
+    throw new TypeError('"this" should be passed to call class constructor');
   DocumentElement.call(this, owner);
   // if (args.name && !PARAMETER_NAME_PATTERN.test(args.name))
   //   throw new TypeError(`"${args.name}" is not a valid parameter name`);
@@ -66,10 +77,16 @@ class ValueClass extends DocumentElement {
   examples?: any[] | Record<string, any>;
   isArray?: boolean;
 
-  toJSON(): OpraSchema.Value {
-    const typeName = this.type ? this.node.getDataTypeNameWithNs(this.type) : undefined;
+  toJSON(options?: ApiDocument.ExportOptions): OpraSchema.Value {
+    const typeName = this.type
+      ? this.node.getDataTypeNameWithNs(this.type)
+      : undefined;
     return omitUndefined<OpraSchema.Value>({
-      type: this.type ? (typeName ? typeName : this.type.toJSON()) : 'any',
+      type: this.type
+        ? typeName
+          ? typeName
+          : this.type.toJSON(options)
+        : 'any',
       description: this.description,
       isArray: this.isArray,
       examples: this.examples,

@@ -1,14 +1,14 @@
 {
   "name": "customer-elastic",
   "private": true,
-  "version": "0.0.1",
+  "version": "1.6.0",
   "type": "module",
   "module": "./index.js",
   "dependencies": {
-    "@elastic/elasticsearch": "^8.15.0",
-    "@opra/common": "^1.0.0-beta.3",
-    "@opra/mongodb": "^1.0.0-beta.3",
-    "ts-gems": "^3.5.1"
+    "@elastic/elasticsearch": "^8.17.0",
+    "@opra/common": "^1.6.0",
+    "@opra/mongodb": "^1.6.0",
+    "ts-gems": "^3.11.2"
   },
   "scripts": {
     "_build": "tsc && npm run check && npm run lint && npm run format",

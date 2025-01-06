@@ -15,7 +15,11 @@ export function quoteFilterString(s: string): string {
 }
 
 export function unquoteFilterString(s: string): string {
-  if (s && (s.startsWith("'") || s.startsWith('"')) && s.endsWith(s.charAt(0))) {
+  if (
+    s &&
+    (s.startsWith("'") || s.startsWith('"')) &&
+    s.endsWith(s.charAt(0))
+  ) {
     return unescapeString(s.substring(1, s.length - 1));
   }
   /* istanbul ignore next */

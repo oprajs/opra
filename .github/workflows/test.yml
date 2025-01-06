@@ -1,4 +1,4 @@
-name: test
+name: Unit Tests
 
 on:
   push:
@@ -53,13 +53,11 @@ jobs:
           stack-version: 8.2.0
           security-enabled: false
 
-      - name: Start Bitname Kafka
-        uses: 280780363/kafka-action@v1.0
+      - name: Run Kafka KRaft Broker
+        uses: spicyparrot/kafka-kraft-action@v1.1.0
         with:
-          kafka version: "latest" # Optional, kafka version
-          zookeeper version: "latest" # Optional, zookeeper version
-          kafka port: 9092 # Optional, kafka port
-          auto create topic: "true" # Optional, auto create kafka topic
+          kafka-version: "3.7.0"
+          kafka-topics: "feed-cat,1,feed-dog,1,email-channel-1,1,email-channel-2,1,sms-channel-1,1,sms-channel-2,1"
 
       - name: Checkout
         uses: actions/checkout@v4
@@ -70,8 +68,17 @@ jobs:
           node-version: ${{ matrix.node }}
           cache: npm
 
+      - name: Cache node modules
+        id: cache-npm
+        uses: actions/cache@v3
+        with:
+          path: node_modules
+          key: node_modules-${{ runner.os }}-${{ hashFiles('**/package-lock.json') }}
+          restore-keys: |
+            node_modules-${{ runner.os }}-            
+
       - name: Install NodeJS dependencies
-        run: npm ci
+        run: npm install
 
       - name: Install rman
         run: npm install rman -g
@@ -90,6 +97,7 @@ jobs:
         env:
           NODE_OPTIONS: "--max_old_space_size=4096"
           KAFKA_BROKER: localhost:9092
+          ELASTIC_HOST: http://localhost:9200
 
       - name: Send coverage to Coveralls
         uses: coverallsapp/github-action@v2

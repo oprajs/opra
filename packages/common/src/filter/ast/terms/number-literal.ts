@@ -29,6 +29,8 @@ export class NumberLiteral extends Literal {
   }
 
   toString(): string {
-    return typeof this.value === 'bigint' ? ('' + this.value).replace(/n$/, '') : '' + this.value;
+    return typeof this.value === 'bigint'
+      ? ('' + this.value).replace(/n$/, '')
+      : '' + this.value;
   }
 }

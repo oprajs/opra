@@ -66,7 +66,7 @@ await esbuild.build({
             const contents =
               `import { Buffer } from 'buffer';\nglobalThis.Buffer = Buffer;\n` +
               fs.readFileSync(entryPoint, 'utf-8');
-            // eslint-disable-next-line no-console
+
             console.log(contents);
             return {
               contents,

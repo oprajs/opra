@@ -1,4 +1,4 @@
-import { ApiDocument, HttpApi, OpraSchema } from '@opra/common';
+import { HttpApi, OpraSchema } from '@opra/common';
 import { PlatformAdapter } from '@opra/core';
 import { HttpContext } from './http-context.js';
 import { HttpHandler } from './http-handler.js';
@@ -21,6 +21,7 @@ export namespace HttpAdapter {
   export interface Options extends PlatformAdapter.Options {
     basePath?: string;
     interceptors?: (InterceptorFunction | IHttpInterceptor)[];
+    scope?: string | '*';
   }
 }
 
@@ -31,13 +32,20 @@ export namespace HttpAdapter {
 export abstract class HttpAdapter extends PlatformAdapter {
   readonly handler: HttpHandler;
   readonly protocol: OpraSchema.Transport = 'http';
-  interceptors: (HttpAdapter.InterceptorFunction | HttpAdapter.IHttpInterceptor)[];
+  readonly basePath: string;
+  scope?: string;
+  interceptors: (
+    | HttpAdapter.InterceptorFunction
+    | HttpAdapter.IHttpInterceptor
+  )[];
 
-  protected constructor(document: ApiDocument, options?: HttpAdapter.Options) {
-    super(document, options);
-    if (!(document.api instanceof HttpApi)) throw new TypeError(`The document does not expose an HTTP Api`);
+  protected constructor(options?: HttpAdapter.Options) {
+    super(options);
     this.handler = new HttpHandler(this);
     this.interceptors = [...(options?.interceptors || [])];
+    this.basePath = options?.basePath || '/';
+    if (!this.basePath.startsWith('/')) this.basePath = '/' + this.basePath;
+    this.scope = options?.scope;
   }
 
   get api(): HttpApi {
