@@ -1,14 +1,14 @@
 import '@opra/core';
-import type { QueryDslQueryContainer } from '@elastic/elasticsearch/lib/api/types';
+import type { estypes } from '@elastic/elasticsearch';
 import { OpraFilter } from '@opra/common';
 import { type ElasticAdapter } from '../elastic-adapter.js';
 
 export default function prepareFilter(
   filters: ElasticAdapter.FilterInput | ElasticAdapter.FilterInput[],
-): QueryDslQueryContainer | undefined {
+): estypes.QueryDslQueryContainer | undefined {
   const filtersArray = Array.isArray(filters) ? filters : [filters];
   if (!filtersArray.length) return;
-  const out: QueryDslQueryContainer[] = [];
+  const out: estypes.QueryDslQueryContainer[] = [];
   for (const filter of filtersArray) {
     if (!filter) continue;
     let x: any = filter;
