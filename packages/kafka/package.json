@@ -1,6 +1,6 @@
 {
   "name": "@opra/kafka",
-  "version": "1.5.7",
+  "version": "1.6.0",
   "description": "Opra Kafka package",
   "author": "Panates",
   "license": "MIT",
@@ -25,8 +25,8 @@
     "clean:cover": "rimraf ../../coverage/kafka"
   },
   "dependencies": {
-    "@opra/common": "^1.5.7",
-    "@opra/core": "^1.5.7",
+    "@opra/common": "^1.6.0",
+    "@opra/core": "^1.6.0",
     "node-events-async": "^1.0.0",
     "tslib": "^2.8.1",
     "valgen": "^5.12.0"
