@@ -332,10 +332,11 @@ abstract class ComplexTypeBaseClass extends DataType {
       if (
         /** Ignore field if required scope(s) do not match field scopes */
         !field.inScope(context.scope) ||
-        /** Ignore field if readonly and ignoreReadonlyFields option true */
-        (context.ignoreReadonlyFields && field.readonly) ||
-        /** Ignore field if writeonly and ignoreWriteonlyFields option true */
-        (context.ignoreWriteonlyFields && field.writeonly)
+        (!(context.keepKeyFields && this.keyField) &&
+          /** Ignore field if readonly and ignoreReadonlyFields option true */
+          ((context.ignoreReadonlyFields && field.readonly) ||
+            /** Ignore field if writeonly and ignoreWriteonlyFields option true */
+            (context.ignoreWriteonlyFields && field.writeonly)))
       ) {
         schema[field.name] = vg.isUndefined({ coerce: true });
         continue;

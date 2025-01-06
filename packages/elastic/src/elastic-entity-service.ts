@@ -518,7 +518,10 @@ export class ElasticEntityService<
       projection: '*',
       scope: this._dataTypeScope,
     };
-    if (operation === 'update') options.partial = 'deep';
+    if (operation === 'update') {
+      options.partial = 'deep';
+      options.keepKeyFields = true;
+    }
     const dataType = this.dataType;
     validator = dataType.generateCodec(
       'decode',

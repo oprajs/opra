@@ -517,6 +517,7 @@ export class MongoService<
     if (operation === 'update') {
       options.partial = 'deep';
       options.allowPatchOperators = true;
+      options.keepKeyFields = true;
     }
     const dataType = this.dataType;
     validator = dataType.generateCodec(

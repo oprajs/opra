@@ -15,12 +15,14 @@ export namespace HttpRequestBody {
     content: HttpMediaType.Metadata[];
     immediateFetch?: boolean;
     allowPatchOperators?: boolean;
+    keepKeyFields?: boolean;
   }
 
   export interface Options
     extends Partial<StrictOmit<OpraSchema.HttpRequestBody, 'content'>> {
     immediateFetch?: boolean;
     allowPatchOperators?: boolean;
+    keepKeyFields?: boolean;
   }
 }
 
@@ -36,6 +38,7 @@ export class HttpRequestBody extends DocumentElement {
   immediateFetch?: boolean;
   partial?: boolean | 'deep';
   allowPatchOperators?: boolean;
+  keepKeyFields?: boolean;
 
   constructor(owner: HttpOperation) {
     super(owner);

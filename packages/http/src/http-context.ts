@@ -165,6 +165,7 @@ export class HttpContext extends ExecutionContext {
               projection: '*',
               ignoreReadonlyFields: true,
               allowPatchOperators: operation?.requestBody?.allowPatchOperators,
+              keepKeyFields: operation?.requestBody?.keepKeyFields,
             }) || vg.isAny();
           this.adapter[kAssetCache].set(mediaType, 'decode', decode);
         }
