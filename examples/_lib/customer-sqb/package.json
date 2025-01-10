@@ -11,7 +11,7 @@
     "@sqb/connect": "^4.19.5",
     "@sqb/postgres": "^4.19.5",
     "postgrejs": "^2.22.2",
-    "ts-gems": "^3.11.2"
+    "ts-gems": "^3.11.3"
   },
   "scripts": {
     "_build": "tsc && npm run check && npm run lint && npm run format",

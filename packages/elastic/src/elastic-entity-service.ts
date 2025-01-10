@@ -106,6 +106,17 @@ export namespace ElasticEntityService {
     skip?: number;
     request?: estypes.SearchRequest;
     transport?: TransportRequestOptions;
+    noDecode?: boolean;
+  }
+
+  /**
+   * Represents options for "search" operation
+   *
+   * @interface
+   */
+  export interface SearchOptions {
+    transport?: TransportRequestOptions;
+    noDecode?: boolean;
   }
 
   /**
@@ -159,11 +170,19 @@ export namespace ElasticEntityService {
     options?: FindManyOptions;
   }
 
+  export interface SearchCommand extends StrictOmit<CommandInfo, 'input'> {
+    crud: 'read';
+    request: estypes.SearchRequest;
+    options?: SearchOptions;
+  }
+
   export interface UpdateCommand<T> extends CommandInfo {
     crud: 'update';
     input: PatchDTO<T>;
     options?: UpdateOneOptions;
   }
+
+  export type SearchResponse<T> = estypes.SearchResponse<T>;
 }
 
 /**
@@ -399,7 +418,7 @@ export class ElasticEntityService<
    */
   protected async _findMany(
     command: ElasticEntityService.FindManyCommand,
-  ): Promise<estypes.SearchResponse> {
+  ): Promise<ElasticEntityService.SearchResponse<PartialDTO<T>>> {
     const { options } = command;
     const filterQuery = ElasticAdapter.prepareFilter([
       command.documentId
@@ -429,7 +448,48 @@ export class ElasticEntityService<
       query,
     };
     const client = this.getClient();
-    return client.search(request, options?.transport);
+    const r = await client.search<T>(request, options?.transport);
+    if (options?.noDecode) return r;
+    if (r.hits.hits?.length) {
+      const outputCodec = this.getOutputCodec('find');
+      r.hits.hits = r.hits!.hits.map((x: any) => ({
+        ...x,
+        _source: {
+          _id: x._id,
+          ...outputCodec(x._source!),
+        },
+      }));
+    }
+    return r;
+  }
+
+  /**
+   * Executes a search operation on the Elasticsearch index using the provided search command.
+   *
+   * @param {ElasticEntityService.SearchCommand} command - The search command containing the request configuration and optional transport settings.
+   * @return {Promise<ElasticEntityService.SearchResponse>} A promise resolving to the search response from Elasticsearch.
+   */
+  protected async _search(
+    command: ElasticEntityService.SearchCommand,
+  ): Promise<ElasticEntityService.SearchResponse<PartialDTO<T>>> {
+    const { options } = command;
+    const request: estypes.SearchRequest = {
+      index: this.getIndexName(),
+      ...command.request,
+    };
+    const client = this.getClient();
+    const r = await client.search<T>(request, options?.transport);
+    if (r.hits.hits?.length) {
+      const outputCodec = this.getOutputCodec('find');
+      r.hits.hits = r.hits!.hits.map((x: any) => ({
+        ...x,
+        _source: {
+          _id: x._id,
+          ...outputCodec(x._source!),
+        },
+      }));
+    }
+    return r;
   }
 
   /**
@@ -534,7 +594,7 @@ export class ElasticEntityService<
   /**
    * Retrieves the codec.
    */
-  protected _getOutputCodec(operation: string): IsObject.Validator<T> {
+  getOutputCodec(operation: string): IsObject.Validator<T> {
     const cacheKey =
       operation + (this._dataTypeScope ? ':' + this._dataTypeScope : '');
     let validator = this._outputCodecs[cacheKey];

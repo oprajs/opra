@@ -83,7 +83,7 @@
     "fastify": "^5.2.1",
     "path-browserify": "^1.0.1",
     "supertest": "^7.0.0",
-    "ts-gems": "^3.11.2"
+    "ts-gems": "^3.11.3"
   },
   "type": "module",
   "exports": {

@@ -38,7 +38,9 @@ export namespace MongoEntityService {
 
   export interface FindOneOptions<T> extends MongoService.FindOneOptions<T> {}
 
-  export interface FindManyOptions<T> extends MongoService.FindManyOptions<T> {}
+  export interface FindManyOptions<T> extends MongoService.FindManyOptions<T> {
+    noDecode?: boolean;
+  }
 
   export interface ReplaceOptions<T> extends MongoService.ReplaceOptions<T> {}
 
@@ -347,7 +349,9 @@ export class MongoEntityService<
     });
     /** Execute db command */
     try {
-      /** Fetch the cursor and decode the result objects */
+      /** Fetch the cursor */
+      if (options?.noDecode) return cursor.toArray();
+      /** Decode result objects */
       const outputCodec = this._getOutputCodec('find');
       return (await cursor.toArray()).map((r: any) => outputCodec(r));
     } finally {
@@ -424,7 +428,9 @@ export class MongoEntityService<
       const facetResult = await cursor.toArray();
       return {
         count: facetResult[0].count[0]?.totalMatches || 0,
-        items: facetResult[0].data?.map((r: any) => outputCodec(r)),
+        items: options?.noDecode
+          ? facetResult[0].data
+          : facetResult[0].data?.map((r: any) => outputCodec(r)),
       };
     } finally {
       if (!cursor.closed) await cursor.close();

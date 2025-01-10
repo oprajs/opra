@@ -336,7 +336,7 @@ export class ElasticCollectionService<
       } as ElasticEntityService.FindManyCommand;
       const r = await this._findMany(newCommand);
       if (r.hits.hits?.length) {
-        const outputCodec = this._getOutputCodec('find');
+        const outputCodec = this.getOutputCodec('find');
         return {
           _id: r.hits.hits[0]._id,
           ...outputCodec(r.hits.hits[0]._source!),
@@ -387,7 +387,7 @@ export class ElasticCollectionService<
       } as ElasticEntityService.FindManyCommand;
       const r = await this._findMany(newCommand);
       if (r.hits.hits?.length) {
-        const outputCodec = this._getOutputCodec('find');
+        const outputCodec = this.getOutputCodec('find');
         return {
           _id: r.hits.hits[0]._id,
           ...outputCodec(r.hits.hits[0]._source!),
@@ -432,15 +432,22 @@ export class ElasticCollectionService<
       const limit = command.options?.limit || this.defaultLimit;
       command.options = { ...command.options, filter, limit };
       const r = await this._findMany(command);
-      if (r.hits.hits?.length) {
-        const outputCodec = this._getOutputCodec('find');
-        return r.hits.hits.map((x: any) => ({
-          _id: x._id,
-          ...outputCodec(x._source!),
-        }));
-      }
-      return [];
+      return r.hits?.hits.map((x: any) => x._source) || [];
     });
+  }
+
+  async search(
+    request: estypes.SearchRequest,
+    options?: ElasticEntityService.SearchOptions,
+  ): Promise<estypes.SearchResponse<PartialDTO<T>>> {
+    const command: ElasticEntityService.SearchCommand = {
+      crud: 'read',
+      method: 'search',
+      byId: false,
+      request,
+      options,
+    };
+    return this._executeCommand(command, async () => this._search(command));
   }
 
   /**
@@ -493,7 +500,7 @@ export class ElasticCollectionService<
       const r = await this._findMany(command);
       const out = {} as ElasticCollectionService.FindManyWithCountResult<any>;
       if (r.hits.hits?.length) {
-        const outputCodec = this._getOutputCodec('find');
+        const outputCodec = this.getOutputCodec('find');
         out.items = r.hits.hits.map((x: any) => ({
           _id: x._id,
           ...outputCodec(x._source!),

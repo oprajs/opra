@@ -48,7 +48,7 @@
     "@types/encodeurl": "^1.0.2",
     "@types/validator": "^13.12.2",
     "path-browserify": "^1.0.1",
-    "ts-gems": "^3.11.2"
+    "ts-gems": "^3.11.3"
   },
   "type": "module",
   "exports": {

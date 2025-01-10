@@ -11,7 +11,7 @@
     "@opra/core": "^1.6.0",
     "@opra/mongodb": "^1.6.0",
     "mongodb": "^6.12.0",
-    "ts-gems": "^3.11.2"
+    "ts-gems": "^3.11.3"
   },
   "scripts": {
     "_build": "tsc && npm run check && npm run lint && npm run format",
