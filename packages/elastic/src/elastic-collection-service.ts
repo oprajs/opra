@@ -436,18 +436,18 @@ export class ElasticCollectionService<
     });
   }
 
-  async search(
+  async searchRaw(
     request: estypes.SearchRequest,
     options?: ElasticEntityService.SearchOptions,
   ): Promise<estypes.SearchResponse<PartialDTO<T>>> {
     const command: ElasticEntityService.SearchCommand = {
       crud: 'read',
-      method: 'search',
+      method: 'searchRaw',
       byId: false,
       request,
       options,
     };
-    return this._executeCommand(command, async () => this._search(command));
+    return this._executeCommand(command, async () => this._searchRaw(command));
   }
 
   /**

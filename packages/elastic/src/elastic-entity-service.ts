@@ -469,7 +469,7 @@ export class ElasticEntityService<
    * @param {ElasticEntityService.SearchCommand} command - The search command containing the request configuration and optional transport settings.
    * @return {Promise<ElasticEntityService.SearchResponse>} A promise resolving to the search response from Elasticsearch.
    */
-  protected async _search(
+  protected async _searchRaw(
     command: ElasticEntityService.SearchCommand,
   ): Promise<ElasticEntityService.SearchResponse<PartialDTO<T>>> {
     const { options } = command;
