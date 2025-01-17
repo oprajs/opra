@@ -1,12 +1,12 @@
 {
   "name": "customer-mongo",
   "private": true,
-  "version": "1.7.1",
+  "version": "1.7.2",
   "type": "module",
   "module": "./index.js",
   "dependencies": {
-    "@opra/common": "^1.7.1",
-    "@opra/mongodb": "^1.7.1",
+    "@opra/common": "^1.7.2",
+    "@opra/mongodb": "^1.7.2",
     "mongodb": "^6.12.0",
     "ts-gems": "^3.11.3"
   },
