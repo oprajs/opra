@@ -58,8 +58,8 @@
     "vary": "^1.1.2"
   },
   "optionalDependencies": {
-    "express": "^4.x.x || ^5.x.x",
-    "fastify": "^4.x.x || ^5.x.x"
+    "express": "^4.0.0 || ^5.0.0",
+    "fastify": "^4.0.0 || ^5.0.0"
   },
   "devDependencies": {
     "@faker-js/faker": "^9.3.0",

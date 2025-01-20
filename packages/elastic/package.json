@@ -33,7 +33,7 @@
     "ts-gems": "^3.11.3"
   },
   "peerDependencies": {
-    "@elastic/elasticsearch": ">=8.7.0",
+    "@elastic/elasticsearch": ">=8.7.0 <9",
     "@opra/common": "^1.7.2",
     "@opra/core": "^1.7.2"
   },

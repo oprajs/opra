@@ -35,7 +35,7 @@
     "@opra/common": "^1.7.2",
     "@opra/core": "^1.7.2",
     "@opra/http": "^1.7.2",
-    "mongodb": ">= 6.0.0"
+    "mongodb": "^6.0.0"
   },
   "type": "module",
   "exports": {
