@@ -24,6 +24,7 @@ import {
   ComparisonExpression,
   type ComparisonOperator,
   DateLiteral,
+  DateTimeLiteral,
   LogicalExpression,
   type LogicalOperator,
   NegativeExpression,
@@ -139,7 +140,7 @@ export class FilterTreeVisitor
   }
 
   visitDateTimeLiteral(ctx: DateTimeLiteralContext) {
-    return new DateLiteral(unquoteFilterString(ctx.getText()));
+    return new DateTimeLiteral(unquoteFilterString(ctx.getText()));
   }
 
   visitTimeLiteral(ctx: TimeLiteralContext) {

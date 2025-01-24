@@ -87,7 +87,9 @@ function prepareFilterAst(
         case '=':
         case 'in':
         case '!in': {
-          out = { match: { [left]: right } };
+          out = Array.isArray(right)
+            ? { terms: { [left]: right } }
+            : { match: { [left]: right } };
           break;
         }
         case '>': {

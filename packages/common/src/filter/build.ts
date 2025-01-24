@@ -160,7 +160,10 @@ function comparisonExpression(
   left: EntryValue,
   right: EntryValue,
 ): ComparisonExpression {
-  const lex = wrapEntryValue(left);
+  const lex =
+    typeof left === 'string'
+      ? new QualifiedIdentifier(left)
+      : wrapEntryValue(left);
   const rex = wrapEntryValue(right);
   return new ComparisonExpression({ op, left: lex, right: rex });
 }

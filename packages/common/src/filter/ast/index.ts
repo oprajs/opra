@@ -10,6 +10,7 @@ export * from './expressions/negative-expression.js';
 export * from './expressions/parenthesized-expression.js';
 export * from './terms/boolean-literal.js';
 export * from './terms/date-literal.js';
+export * from './terms/date-time-literal.js';
 export * from './terms/null-literal.js';
 export * from './terms/number-literal.js';
 export * from './terms/qualified-identifier.js';

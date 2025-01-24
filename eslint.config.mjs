@@ -8,6 +8,7 @@ export default [
       'build/**/*',
       'node_modules/**/*',
       'packages/**/node_modules/**/*',
+      'packages/common/src/filter/antlr/**/*',
     ],
   },
   ...panatesEslint.configs.node,

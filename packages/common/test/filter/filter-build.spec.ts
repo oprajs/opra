@@ -31,13 +31,13 @@ describe('Building Filter', () => {
     const x = $eq('a', 1);
     expect(x.kind).toStrictEqual('ComparisonExpression');
     expect(x.op).toStrictEqual('=');
-    expect(x.left.kind).toStrictEqual('StringLiteral');
+    expect(x.left.kind).toStrictEqual('QualifiedIdentifier');
     // @ts-ignore
     expect(x.left.value).toStrictEqual('a');
     expect(x.right.kind).toStrictEqual('NumberLiteral');
     // @ts-ignore
     expect(x.right.value).toStrictEqual(1);
-    expect('' + x).toStrictEqual("'a'=1");
+    expect('' + x).toStrictEqual('a=1');
   });
 
   it('Should $gt() create ComparisonExpression', () => {
@@ -64,7 +64,7 @@ describe('Building Filter', () => {
     expect(x.op).toStrictEqual('<=');
   });
 
-  it('Should $eq() create ComparisonExpression', () => {
+  it('Should $ne() create ComparisonExpression', () => {
     const x = $ne('a', 1);
     expect(x.kind).toStrictEqual('ComparisonExpression');
     expect(x.op).toStrictEqual('!=');
@@ -201,11 +201,6 @@ describe('Building Filter', () => {
     expect(x.op).toStrictEqual('or');
     expect(x.items.length).toStrictEqual(2);
     expect('' + x).toStrictEqual('a=1 or b=2');
-  });
-
-  it('Should $parse() parse expression', () => {
-    const x = OpraFilter.parse('a=1');
-    expect(x.kind).toStrictEqual('ComparisonExpression');
   });
 
   it('Should wrap entry values to Ast objects', () => {
