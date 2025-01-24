@@ -275,7 +275,10 @@ export class HttpHandler {
         if (values?.length && prm.isArray) {
           values = values
             .map(v =>
-              splitString(v, { delimiters: prm.arraySeparator, quotes: true }),
+              splitString(v, {
+                delimiters: prm.arraySeparator || ',',
+                quotes: true,
+              }),
             )
             .flat();
           values = values.map(v =>
