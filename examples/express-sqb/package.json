@@ -1,13 +1,13 @@
 {
   "name": "express-sqb",
   "private": true,
-  "version": "1.7.3",
+  "version": "1.7.4",
   "type": "module",
   "module": "./index.js",
   "dependencies": {
-    "@opra/common": "^1.7.3",
-    "@opra/core": "^1.7.3",
-    "@opra/sqb": "^1.7.3",
+    "@opra/common": "^1.7.4",
+    "@opra/core": "^1.7.4",
+    "@opra/sqb": "^1.7.4",
     "@sqb/connect": "^4.19.5",
     "@sqb/postgres": "^4.19.5",
     "express": "^4.21.2",
