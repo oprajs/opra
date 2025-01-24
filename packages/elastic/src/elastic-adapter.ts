@@ -1,4 +1,4 @@
-import type { QueryDslQueryContainer } from '@elastic/elasticsearch/lib/api/types.js';
+import type { estypes } from '@elastic/elasticsearch';
 import { OpraFilter } from '@opra/common';
 import type { ExecutionContext } from '@opra/core';
 import { HttpContext } from '@opra/http/src/index';
@@ -10,7 +10,7 @@ import _prepareSort from './adapter-utils/prepare-sort.js';
 export namespace ElasticAdapter {
   export type FilterInput =
     | OpraFilter.Expression
-    | QueryDslQueryContainer
+    | estypes.QueryDslQueryContainer
     | string
     | undefined;
 

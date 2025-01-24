@@ -1,4 +1,4 @@
-import type * as elastic from '@elastic/elasticsearch/lib/api/types';
+import type { estypes } from '@elastic/elasticsearch';
 import { ResourceNotAvailableError } from '@opra/common';
 import { ExecutionContext, ServiceBase } from '@opra/core';
 import type {
@@ -41,7 +41,7 @@ export namespace ElasticCollectionService {
   export interface FindManyWithCountResult<X> {
     items: X[];
     count: number;
-    relation: elastic.SearchTotalHitsRelation;
+    relation: estypes.SearchTotalHitsRelation;
   }
 }
 
@@ -130,7 +130,7 @@ export class ElasticCollectionService<
   async create(
     input: PartialDTO<T>,
     options?: ElasticEntityService.CreateOptions,
-  ): Promise<elastic.CreateResponse> {
+  ): Promise<estypes.CreateResponse> {
     const command: ElasticEntityService.CreateCommand = {
       crud: 'create',
       method: 'createOnly',
@@ -179,7 +179,7 @@ export class ElasticCollectionService<
   async delete(
     id: string,
     options?: ElasticEntityService.DeleteOptions,
-  ): Promise<elastic.DeleteByQueryResponse> {
+  ): Promise<estypes.DeleteByQueryResponse> {
     const command: ElasticEntityService.DeleteCommand = {
       crud: 'delete',
       method: 'delete',
@@ -205,7 +205,7 @@ export class ElasticCollectionService<
    */
   async deleteMany(
     options?: ElasticEntityService.DeleteManyOptions,
-  ): Promise<elastic.DeleteByQueryResponse> {
+  ): Promise<estypes.DeleteByQueryResponse> {
     const command: ElasticEntityService.DeleteManyCommand = {
       crud: 'delete',
       method: 'deleteMany',
@@ -336,7 +336,7 @@ export class ElasticCollectionService<
       } as ElasticEntityService.FindManyCommand;
       const r = await this._findMany(newCommand);
       if (r.hits.hits?.length) {
-        const outputCodec = this._getOutputCodec('find');
+        const outputCodec = this.getOutputCodec('find');
         return {
           _id: r.hits.hits[0]._id,
           ...outputCodec(r.hits.hits[0]._source!),
@@ -387,7 +387,7 @@ export class ElasticCollectionService<
       } as ElasticEntityService.FindManyCommand;
       const r = await this._findMany(newCommand);
       if (r.hits.hits?.length) {
-        const outputCodec = this._getOutputCodec('find');
+        const outputCodec = this.getOutputCodec('find');
         return {
           _id: r.hits.hits[0]._id,
           ...outputCodec(r.hits.hits[0]._source!),
@@ -432,15 +432,22 @@ export class ElasticCollectionService<
       const limit = command.options?.limit || this.defaultLimit;
       command.options = { ...command.options, filter, limit };
       const r = await this._findMany(command);
-      if (r.hits.hits?.length) {
-        const outputCodec = this._getOutputCodec('find');
-        return r.hits.hits.map((x: any) => ({
-          _id: x._id,
-          ...outputCodec(x._source!),
-        }));
-      }
-      return [];
+      return r.hits?.hits.map((x: any) => x._source) || [];
     });
+  }
+
+  async searchRaw(
+    request: estypes.SearchRequest,
+    options?: ElasticEntityService.SearchOptions,
+  ): Promise<estypes.SearchResponse<PartialDTO<T>>> {
+    const command: ElasticEntityService.SearchCommand = {
+      crud: 'read',
+      method: 'searchRaw',
+      byId: false,
+      request,
+      options,
+    };
+    return this._executeCommand(command, async () => this._searchRaw(command));
   }
 
   /**
@@ -493,7 +500,7 @@ export class ElasticCollectionService<
       const r = await this._findMany(command);
       const out = {} as ElasticCollectionService.FindManyWithCountResult<any>;
       if (r.hits.hits?.length) {
-        const outputCodec = this._getOutputCodec('find');
+        const outputCodec = this.getOutputCodec('find');
         out.items = r.hits.hits.map((x: any) => ({
           _id: x._id,
           ...outputCodec(x._source!),
@@ -551,13 +558,13 @@ export class ElasticCollectionService<
    * @param {string} id - The ID of the document to update.
    * @param {PatchDTO<T>} input - The partial input data to update the document with.
    * @param {ElasticEntityService.UpdateOneOptions} [options] - The options for updating the document.
-   * @returns {Promise<elastic.UpdateResponse>} - A promise that resolves to the number of documents modified.
+   * @returns {Promise<estypes.UpdateResponse>} - A promise that resolves to the number of documents modified.
    */
   async update(
     id: string,
     input: PatchDTO<T>,
     options?: ElasticEntityService.UpdateOneOptions,
-  ): Promise<elastic.UpdateByQueryResponse> {
+  ): Promise<estypes.UpdateByQueryResponse> {
     const command: ElasticEntityService.UpdateCommand<T> = {
       crud: 'update',
       method: 'update',
@@ -586,7 +593,7 @@ export class ElasticCollectionService<
   async updateMany(
     input: PatchDTO<T>,
     options?: ElasticEntityService.UpdateManyOptions,
-  ): Promise<elastic.UpdateByQueryResponse> {
+  ): Promise<estypes.UpdateByQueryResponse> {
     const command: ElasticEntityService.UpdateCommand<T> = {
       crud: 'update',
       method: 'updateMany',

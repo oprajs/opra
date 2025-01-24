@@ -1,6 +1,6 @@
 {
   "name": "@opra/elastic",
-  "version": "1.6.0",
+  "version": "1.7.4",
   "description": "Opra Elastic Search adapter package",
   "author": "Panates",
   "license": "MIT",
@@ -29,13 +29,13 @@
   },
   "devDependencies": {
     "@elastic/elasticsearch": "^8.17.0",
-    "@faker-js/faker": "^9.3.0",
-    "ts-gems": "^3.11.2"
+    "@faker-js/faker": "^9.4.0",
+    "ts-gems": "^3.11.3"
   },
   "peerDependencies": {
-    "@elastic/elasticsearch": ">=8.7.0",
-    "@opra/common": "^1.6.0",
-    "@opra/core": "^1.6.0"
+    "@elastic/elasticsearch": ">=8.7.0 <9",
+    "@opra/common": "^1.7.4",
+    "@opra/core": "^1.7.4"
   },
   "type": "module",
   "exports": {
