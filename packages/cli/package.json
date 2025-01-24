@@ -26,11 +26,11 @@
     "clean:cover": "rimraf ../../coverage/cli"
   },
   "dependencies": {
-    "@browsery/type-is": "^1.6.18-r5",
+    "@browsery/type-is": "^1.6.18-r8",
     "@opra/client": "^1.7.3",
     "@opra/common": "^1.7.3",
     "ansi-colors": "^4.1.3",
-    "commander": "^13.0.0",
+    "commander": "^13.1.0",
     "js-string-escape": "^1.0.1",
     "putil-flattentext": "^2.1.1",
     "putil-varhelpers": "^1.6.5",

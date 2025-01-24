@@ -40,9 +40,10 @@
     "@opra/kafka": "^1.7.3"
   },
   "devDependencies": {
-    "@faker-js/faker": "^9.3.0",
-    "@nestjs/platform-express": "^11.0.1",
-    "@nestjs/testing": "^11.0.1",
+    "@faker-js/faker": "^9.4.0",
+    "@nestjs/platform-express": "^11.0.5",
+    "@nestjs/microservices": "^11.0.5",
+    "@nestjs/testing": "^11.0.5",
     "@types/lodash.head": "^4.0.9",
     "express": "^4.21.2",
     "filedirname": "^3.4.0",
