@@ -3,33 +3,33 @@
 import {ParseTreeVisitor} from '@browsery/antlr4';
 
 
-import { RootContext } from "./OpraFilterParser.js";
-import { ParenthesizedExpressionContext } from "./OpraFilterParser.js";
-import { NegativeExpressionContext } from "./OpraFilterParser.js";
-import { ComparisonExpressionContext } from "./OpraFilterParser.js";
-import { LogicalExpressionContext } from "./OpraFilterParser.js";
-import { ComparisonLeftContext } from "./OpraFilterParser.js";
-import { ComparisonRightContext } from "./OpraFilterParser.js";
-import { ParenthesizedItemContext } from "./OpraFilterParser.js";
-import { NumberLiteralContext } from "./OpraFilterParser.js";
-import { InfinityLiteralContext } from "./OpraFilterParser.js";
-import { BooleanLiteralContext } from "./OpraFilterParser.js";
-import { NullLiteralContext } from "./OpraFilterParser.js";
-import { DateTimeLiteralContext } from "./OpraFilterParser.js";
-import { DateLiteralContext } from "./OpraFilterParser.js";
-import { TimeLiteralContext } from "./OpraFilterParser.js";
-import { StringLiteralContext } from "./OpraFilterParser.js";
-import { QualifiedIdentifierContext } from "./OpraFilterParser.js";
-import { ExternalConstantContext } from "./OpraFilterParser.js";
-import { IdentifierContext } from "./OpraFilterParser.js";
-import { ArrayValueContext } from "./OpraFilterParser.js";
-import { BooleanContext } from "./OpraFilterParser.js";
-import { NullContext } from "./OpraFilterParser.js";
-import { InfinityContext } from "./OpraFilterParser.js";
-import { ArithmeticOperatorContext } from "./OpraFilterParser.js";
-import { ComparisonOperatorContext } from "./OpraFilterParser.js";
-import { LogicalOperatorContext } from "./OpraFilterParser.js";
-import { PolarityOperatorContext } from "./OpraFilterParser.js";
+import type { RootContext } from "./OpraFilterParser.js";
+import type { ParenthesizedExpressionContext } from "./OpraFilterParser.js";
+import type { NegativeExpressionContext } from "./OpraFilterParser.js";
+import type { ComparisonExpressionContext } from "./OpraFilterParser.js";
+import type { LogicalExpressionContext } from "./OpraFilterParser.js";
+import type { ComparisonLeftContext } from "./OpraFilterParser.js";
+import type { ComparisonRightContext } from "./OpraFilterParser.js";
+import type { ParenthesizedItemContext } from "./OpraFilterParser.js";
+import type { NumberLiteralContext } from "./OpraFilterParser.js";
+import type { InfinityLiteralContext } from "./OpraFilterParser.js";
+import type { BooleanLiteralContext } from "./OpraFilterParser.js";
+import type { NullLiteralContext } from "./OpraFilterParser.js";
+import type { DateTimeLiteralContext } from "./OpraFilterParser.js";
+import type { DateLiteralContext } from "./OpraFilterParser.js";
+import type { TimeLiteralContext } from "./OpraFilterParser.js";
+import type { StringLiteralContext } from "./OpraFilterParser.js";
+import type { QualifiedIdentifierContext } from "./OpraFilterParser.js";
+import type { ExternalConstantContext } from "./OpraFilterParser.js";
+import type { IdentifierContext } from "./OpraFilterParser.js";
+import type { ArrayValueContext } from "./OpraFilterParser.js";
+import type { BooleanContext } from "./OpraFilterParser.js";
+import type { NullContext } from "./OpraFilterParser.js";
+import type { InfinityContext } from "./OpraFilterParser.js";
+import type { ArithmeticOperatorContext } from "./OpraFilterParser.js";
+import type { ComparisonOperatorContext } from "./OpraFilterParser.js";
+import type { LogicalOperatorContext } from "./OpraFilterParser.js";
+import type { PolarityOperatorContext } from "./OpraFilterParser.js";
 
 
 /**
