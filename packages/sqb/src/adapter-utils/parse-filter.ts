@@ -37,11 +37,7 @@ function prepareFilterAst(ast?: OpraFilter.Expression): any {
 
   if (
     ast instanceof OpraFilter.QualifiedIdentifier ||
-    ast instanceof OpraFilter.NumberLiteral ||
-    ast instanceof OpraFilter.StringLiteral ||
-    ast instanceof OpraFilter.BooleanLiteral ||
-    ast instanceof OpraFilter.NullLiteral ||
-    ast instanceof OpraFilter.TimeLiteral
+    ast instanceof OpraFilter.Literal
   ) {
     return ast.value;
   }

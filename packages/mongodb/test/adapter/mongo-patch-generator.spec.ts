@@ -28,21 +28,6 @@ describe('MongoPatchGenerator', () => {
       });
     });
 
-    // it('Should not update if field is readonly', async () => {
-    //   const generator = new MongoPatchGenerator();
-    //   const { update } = generator.generatePatch(customerType, {
-    //     country: {
-    //       name: 'x',
-    //     },
-    //     active: true,
-    //   });
-    //   expect(update).toEqual({
-    //     $set: {
-    //       active: true,
-    //     },
-    //   });
-    // });
-
     it('Should unset field if value is null', async () => {
       const generator = new MongoPatchGenerator();
       const { update } = generator.generatePatch(customerType, {
@@ -59,34 +44,6 @@ describe('MongoPatchGenerator', () => {
       });
     });
 
-    // it('Should not unset if field is readonly', async () => {
-    //   const generator = new MongoPatchGenerator();
-    //   const { update } = generator.generatePatch(customerType, {
-    //     country: null,
-    //     active: null,
-    //   });
-    //   expect(update).toEqual({
-    //     $unset: {
-    //       active: 1,
-    //     },
-    //   });
-    // });
-
-    // it('Should not unset if parent field is readonly', async () => {
-    //   const generator = new MongoPatchGenerator();
-    //   const { update } = generator.generatePatch(customerType, {
-    //     country: {
-    //       name: null,
-    //     },
-    //     active: null,
-    //   });
-    //   expect(update).toEqual({
-    //     $unset: {
-    //       active: 1,
-    //     },
-    //   });
-    // });
-
     it('Should update fields for nested objects', async () => {
       const generator = new MongoPatchGenerator();
       const { update } = generator.generatePatch(customerType, {
@@ -101,21 +58,6 @@ describe('MongoPatchGenerator', () => {
       });
     });
 
-    // it('Should not update fields if parent field is readonly', async () => {
-    //   const generator = new MongoPatchGenerator();
-    //   const { update } = generator.generatePatch(customerType, {
-    //     country: {
-    //       name: 'x',
-    //     },
-    //     active: true,
-    //   });
-    //   expect(update).toEqual({
-    //     $set: {
-    //       active: true,
-    //     },
-    //   });
-    // });
-
     it('Should update array fields', async () => {
       const generator = new MongoPatchGenerator();
       const { update } = generator.generatePatch(customerType, {
@@ -128,7 +70,7 @@ describe('MongoPatchGenerator', () => {
       });
     });
 
-    it('Should update nested values in array fields', async () => {
+    it('Should update nested entity values in array fields', async () => {
       const generator = new MongoPatchGenerator();
       const { update, arrayFilters } = generator.generatePatch(customerType, {
         notes: [{ _id: 1, text: 'text' }],
@@ -139,6 +81,18 @@ describe('MongoPatchGenerator', () => {
         },
       });
       expect(arrayFilters).toEqual([{ 'f1._id': 1 }]);
+    });
+
+    it('Should replaces non nested values in array fields', async () => {
+      const generator = new MongoPatchGenerator();
+      const { update } = generator.generatePatch(customerType, {
+        phoneNumbers: [{ areaCode: '90', phoneNumber: '1234567' }],
+      });
+      expect(update).toEqual({
+        $set: {
+          phoneNumbers: [{ areaCode: '90', phoneNumber: '1234567' }],
+        },
+      });
     });
   });
 

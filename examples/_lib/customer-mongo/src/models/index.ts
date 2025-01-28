@@ -6,6 +6,7 @@ import { Country } from './types/country.js';
 import { Customer } from './types/customer.js';
 import { Note } from './types/note.js';
 import { Person } from './types/person.js';
+import { PhoneNumber } from './types/phone-number.js';
 import { Profile } from './types/profile.js';
 import { Record } from './types/record.js';
 
@@ -16,6 +17,7 @@ export * from './types/country.js';
 export * from './types/customer.js';
 export * from './types/note.js';
 export * from './types/person.js';
+export * from './types/phone-number.js';
 export * from './types/profile.js';
 export * from './types/record.js';
 
@@ -29,15 +31,16 @@ export namespace CustomerModelsDocument {
       description: 'This document contains model definitions of customer app',
     },
     types: [
-      Record,
-      Person,
       Gender,
       Address,
-      Note,
+      Config,
       Country,
       Customer,
+      Note,
+      Person,
+      PhoneNumber,
       Profile,
-      Config,
+      Record,
     ],
   };
 

@@ -66,6 +66,7 @@ export const ApiField = function (this: ApiField | void, ...args: any[]) {
   _this.type = initArgs.type || owner.node.getDataType('any');
   _this.description = initArgs.description;
   _this.isArray = initArgs.isArray;
+  _this.isNestedEntity = initArgs.isNestedEntity;
   _this.default = initArgs.default;
   _this.fixed = initArgs.fixed;
   _this.required = initArgs.required;
@@ -93,6 +94,7 @@ class ApiFieldClass extends DocumentElement {
   declare readonly type: DataType;
   declare readonly description?: string;
   declare readonly isArray?: boolean;
+  declare readonly isNestedEntity?: boolean;
   declare readonly default?: any;
   declare readonly fixed?: any;
   declare readonly required?: boolean;
@@ -147,6 +149,7 @@ class ApiFieldClass extends DocumentElement {
       type: typeName ? typeName : (this.type?.toJSON(options) as any),
       description: this.description,
       isArray: this.isArray || undefined,
+      isNestedEntity: this.isNestedEntity || undefined,
       default: this.default,
       fixed: this.fixed,
       required: this.required || undefined,
@@ -183,7 +186,10 @@ export namespace ApiField {
       OpraSchema.Field
     > {
     scopePattern?: (string | RegExp) | (string | RegExp)[];
-    override?: StrictOmit<Metadata, 'override' | 'type' | 'isArray'>[];
+    override?: StrictOmit<
+      Metadata,
+      'override' | 'type' | 'isArray' | 'isNestedEntity'
+    >[];
   }
 
   export interface Options

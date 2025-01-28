@@ -49,6 +49,7 @@ describe('DataTypeFactory - ComplexType (Schema)', () => {
     const id: OpraSchema.Field = {
       type: 'string',
       isArray: false,
+      isNestedEntity: false,
       description: 'id field',
       default: 'x',
       deprecated: false,
@@ -75,6 +76,7 @@ describe('DataTypeFactory - ComplexType (Schema)', () => {
     expect(idEl).toBeDefined();
     expect(idEl.type.name).toStrictEqual('string');
     expect(idEl.isArray).toStrictEqual(id.isArray);
+    expect(idEl.isNestedEntity).toStrictEqual(id.isNestedEntity);
     expect(idEl.description).toStrictEqual(id.description);
     expect(idEl.default).toStrictEqual(id.default);
     expect(idEl.deprecated).toStrictEqual(id.deprecated);

@@ -104,7 +104,7 @@ describe('ElasticAdapter.prepareFilter', () => {
 
     it('Should convert ComparisonExpression (in)', async () => {
       let out = ElasticAdapter.prepareFilter('rate in [5,6]');
-      expect(out).toStrictEqual({ match: { rate: [5, 6] } });
+      expect(out).toStrictEqual({ terms: { rate: [5, 6] } });
       out = ElasticAdapter.prepareFilter('rate in 5');
       expect(out).toStrictEqual({ match: { rate: 5 } });
     });
@@ -112,7 +112,7 @@ describe('ElasticAdapter.prepareFilter', () => {
     it('Should convert ComparisonExpression (not in)', async () => {
       let out = ElasticAdapter.prepareFilter('not rate in [5,6]');
       expect(out).toStrictEqual({
-        bool: { must_not: { match: { rate: [5, 6] } } },
+        bool: { must_not: { terms: { rate: [5, 6] } } },
       });
       out = ElasticAdapter.prepareFilter('not rate in 5');
       expect(out).toStrictEqual({ bool: { must_not: { match: { rate: 5 } } } });
@@ -121,7 +121,7 @@ describe('ElasticAdapter.prepareFilter', () => {
     it('Should convert ComparisonExpression (!in)', async () => {
       let out = ElasticAdapter.prepareFilter('rate !in [5,6]');
       expect(out).toStrictEqual({
-        bool: { must_not: { match: { rate: [5, 6] } } },
+        bool: { must_not: { terms: { rate: [5, 6] } } },
       });
       out = ElasticAdapter.prepareFilter('rate !in 5');
       expect(out).toStrictEqual({ bool: { must_not: { match: { rate: 5 } } } });
@@ -129,7 +129,7 @@ describe('ElasticAdapter.prepareFilter', () => {
 
     it('Should convert ComparisonExpression (not !in)', async () => {
       let out = ElasticAdapter.prepareFilter('not rate !in [5,6]');
-      expect(out).toStrictEqual({ match: { rate: [5, 6] } });
+      expect(out).toStrictEqual({ terms: { rate: [5, 6] } });
       out = ElasticAdapter.prepareFilter('not rate !in 5');
       expect(out).toStrictEqual({ match: { rate: 5 } });
     });
