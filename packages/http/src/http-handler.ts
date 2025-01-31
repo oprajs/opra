@@ -284,9 +284,11 @@ export class HttpHandler {
           values = values.map(v =>
             decode(v, { coerce: true, label: key, onFail }),
           );
+          if (prm.parser) values = prm.parser(values);
           if (values.length) context.queryParams[prmName] = values;
         } else {
-          const v = decode(values[0], { coerce: true, label: key, onFail });
+          let v = decode(values[0], { coerce: true, label: key, onFail });
+          if (prm.parser) v = prm.parser(v);
           if (values.length) context.queryParams[prmName] = v;
         }
       }

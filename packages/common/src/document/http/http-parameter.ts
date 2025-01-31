@@ -31,6 +31,7 @@ export namespace HttpParameter {
 
   export interface Options extends Partial<StrictOmit<Metadata, 'type'>> {
     type?: string | TypeThunkAsync | object;
+    parser?: (v: any) => any;
   }
 
   export interface InitArguments
@@ -39,7 +40,9 @@ export namespace HttpParameter {
         type?: DataType;
       },
       Metadata
-    > {}
+    > {
+    parser?: (v: any) => any;
+  }
 }
 
 /**
@@ -88,6 +91,7 @@ export const HttpParameter = function (
     _this.required = true;
   _this.arraySeparator = initArgs.arraySeparator;
   _this.keyParam = initArgs.keyParam;
+  _this.parser = initArgs.parser;
 } as Function as HttpParameterStatic;
 
 /**
@@ -100,6 +104,7 @@ class HttpParameterClass extends Value {
   declare deprecated?: boolean | string;
   declare required?: boolean;
   declare arraySeparator?: string;
+  declare parser?: (v: any) => any;
 
   toJSON(options?: ApiDocument.ExportOptions): OpraSchema.HttpParameter {
     return omitUndefined<OpraSchema.HttpParameter>({

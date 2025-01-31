@@ -57,7 +57,8 @@ describe('HttpOperation.Entity.* decorators', () => {
       description: 'Determines sort fields',
       isArray: true,
       arraySeparator: ',',
-      type: expect.any(FieldPathType),
+      type: expect.any(Object),
+      parser: expect.any(Function),
     },
   };
 
@@ -276,10 +277,12 @@ describe('HttpOperation.Entity.* decorators', () => {
   describe('"FindMany" decorator', () => {
     it('Should define FindMany operation metadata', async () => {
       class CustomerResource {
-        @HttpOperation.Entity.FindMany({
+        @(HttpOperation.Entity.FindMany({
           type: Customer,
           description: 'operation description',
         })
+          .Filter('_id', ['=', '!='])
+          .SortFields('givenName', 'familyName'))
         findMany() {}
       }
 
@@ -296,6 +299,10 @@ describe('HttpOperation.Entity.* decorators', () => {
         composition: 'Entity.FindMany',
         compositionOptions: {
           type: 'Customer',
+          sortFields: {
+            familyName: 'familyName',
+            givenName: 'givenName',
+          },
         },
         type: Customer,
       });
@@ -319,7 +326,7 @@ describe('HttpOperation.Entity.* decorators', () => {
       expect(opr.parameters.find(prm => prm.name === 'projection')).toEqual(
         queryParams.projection,
       );
-      expect(opr.parameters.find(prm => prm.name === 'filter')).toEqual(
+      expect(opr.parameters.find(prm => prm.name === 'filter')).toMatchObject(
         queryParams.filter,
       );
       expect(opr.parameters.find(prm => prm.name === 'sort')).toEqual(
@@ -423,18 +430,13 @@ describe('HttpOperation.Entity.* decorators', () => {
         composition: 'Entity.FindMany',
         compositionOptions: {
           type: 'Customer',
-          sortFields: ['_id', 'givenName'],
+          sortFields: { _id: '_id', givenName: 'givenName' },
         },
         type: Customer,
       });
-      expect(opr.parameters.find(prm => prm.name === 'sort')).toEqual({
-        location: 'query',
-        name: 'sort',
-        description: 'Determines sort fields',
-        isArray: true,
-        arraySeparator: ',',
-        type: expect.any(FieldPathType),
-      });
+      expect(opr.parameters.find(prm => prm.name === 'sort')).toEqual(
+        queryParams.sort,
+      );
       expect(opr.responses).toEqual([
         {
           statusCode: 200,

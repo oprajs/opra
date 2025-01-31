@@ -4,6 +4,8 @@ import { FilterRules } from '../../filter/filter-rules.js';
 import { OpraFilter } from '../../filter/index.js';
 import { OpraSchema } from '../../schema/index.js';
 import { DATATYPE_METADATA } from '../constants.js';
+import { FIELD_PATH_PATTERN } from '../data-type/complex-type-base.js';
+import { EnumType } from '../data-type/enum-type.js';
 import {
   FieldPathType,
   FilterType,
@@ -150,6 +152,13 @@ declare module '../http/http-operation.js' {
       export interface FindManyDecorator extends HttpOperationDecorator {
         SortFields(
           ...fields: OpraSchema.Field.QualifiedName[]
+        ): FindManyDecorator;
+
+        SortFields(
+          fieldsMap: Record<
+            OpraSchema.Field.QualifiedName,
+            OpraSchema.Field.QualifiedName
+          >,
         ): FindManyDecorator;
 
         DefaultSort(
@@ -500,19 +509,6 @@ HttpOperation.Entity.FindMany = function (
       }),
       isArray: true,
       arraySeparator: ',',
-    })
-    .QueryParam('filter', {
-      type: filterType,
-      description: 'Determines filter fields',
-    })
-    .QueryParam('sort', {
-      description: 'Determines sort fields',
-      type: new FieldPathType({
-        dataType: args.type,
-        allowSigns: 'first',
-      }),
-      isArray: true,
-      arraySeparator: ',',
     });
 
   decoratorChain.push((operationMeta: HttpOperation.Metadata) => {
@@ -524,6 +520,10 @@ HttpOperation.Entity.FindMany = function (
       compositionOptions.defaultProjection = args.defaultProjection;
     if (args.maxLimit) compositionOptions.maxLimit = args.maxLimit;
   });
+
+  /**
+   *
+   */
   decorator.DefaultSort = (...fields: OpraSchema.Field.QualifiedName[]) => {
     decoratorChain.push((operationMeta: HttpOperation.Metadata) => {
       const compositionOptions = (operationMeta.compositionOptions =
@@ -532,14 +532,60 @@ HttpOperation.Entity.FindMany = function (
     });
     return decorator;
   };
-  decorator.SortFields = (...fields: OpraSchema.Field.QualifiedName[]) => {
+
+  /**
+   *
+   */
+  decorator.SortFields = (...varargs: any[]) => {
+    const defObj: Record<
+      OpraSchema.Field.QualifiedName,
+      OpraSchema.Field.QualifiedName
+    > =
+      typeof varargs[0] === 'object'
+        ? varargs[0]
+        : varargs.reduce((acc, k: string) => {
+            const a = k.split(':');
+            acc[a[0]] = a[1] || a[0];
+            return acc;
+          }, {});
+    const fieldsMap = Object.keys(defObj).reduce((acc, k) => {
+      const m1 = FIELD_PATH_PATTERN.exec(k);
+      const m2 = FIELD_PATH_PATTERN.exec(defObj[k]);
+      if (m1 && m2) {
+        acc[m1[2]] = m2[2];
+      }
+      return acc;
+    }, {});
+    const prmEnum = Object.keys(defObj).reduce((acc, k) => {
+      const m = FIELD_PATH_PATTERN.exec(k);
+      if (m) {
+        if (m[1] != '-') acc[m[2]] = m[2];
+        if (m[1] != '+') acc['-' + m[2]] = '-' + m[2];
+      }
+      return acc;
+    }, {});
     decoratorChain.push((operationMeta: HttpOperation.Metadata) => {
       const compositionOptions = (operationMeta.compositionOptions =
         operationMeta.compositionOptions || {});
-      compositionOptions.sortFields = fields;
+      compositionOptions.sortFields = fieldsMap;
+    });
+    decorator.QueryParam('sort', {
+      description: 'Determines sort fields',
+      type: EnumType(prmEnum),
+      isArray: true,
+      arraySeparator: ',',
+      parser: (v: string[]) =>
+        v.map(x => {
+          const m = FIELD_PATH_PATTERN.exec(x);
+          return m ? (m[1] || '') + fieldsMap[m[2]] : x;
+        }),
     });
     return decorator;
   };
+
+  /**
+   *
+   */
   decorator.Filter = (
     field: OpraSchema.Field.QualifiedName,
     operators?: OpraFilter.ComparisonOperator[] | string,
@@ -549,8 +595,13 @@ HttpOperation.Entity.FindMany = function (
       filterRules.set(field, { operators, description });
       filterType.rules = filterRules.toJSON();
     });
+    decorator.QueryParam('filter', {
+      type: filterType,
+      description: 'Determines filter fields',
+    });
     return decorator;
   };
+
   return decorator;
 };
 
