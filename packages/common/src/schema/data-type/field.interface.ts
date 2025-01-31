@@ -2,7 +2,7 @@ import type { DataType } from './data-type.interface.js';
 
 export namespace Field {
   export type Name = string;
-  export type QualifiedName = string; // a.b.c
+  export type QualifiedName = string;
 }
 
 /**

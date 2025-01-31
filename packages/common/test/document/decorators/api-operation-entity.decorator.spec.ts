@@ -235,7 +235,9 @@ describe('HttpOperation.Entity.* decorators', () => {
       class CustomerResource {
         @(HttpOperation.Entity.DeleteMany({ type: Customer })
           .Filter('_id', ['=', '!='])
-          .Filter('givenName', ['=', '!=', 'like']))
+          .Filter('name', {
+            operators: ['=', '!=', 'like'],
+          }))
         deleteMany() {}
       }
 
@@ -264,8 +266,9 @@ describe('HttpOperation.Entity.* decorators', () => {
             _id: {
               operators: ['=', '!='],
             },
-            givenName: {
+            name: {
               operators: ['=', '!=', 'like'],
+              mappedField: 'givenName',
             },
           },
         },
@@ -354,7 +357,7 @@ describe('HttpOperation.Entity.* decorators', () => {
     it('Should Filter() define metadata value', async () => {
       class CustomerResource {
         @(HttpOperation.Entity.FindMany({ type: Customer })
-          .Filter('_id', '=, !=')
+          .Filter('_id', ['=', '!='])
           .Filter('givenName', ['=', '!=', 'like']))
         findMany() {}
       }
@@ -707,7 +710,7 @@ describe('HttpOperation.Entity.* decorators', () => {
     it('Should Filter() define metadata value', async () => {
       class CustomerResource {
         @(HttpOperation.Entity.UpdateMany({ type: Customer })
-          .Filter('_id', '=, !=')
+          .Filter('_id', ['=', '!='])
           .Filter('givenName', ['=', '!=', 'like']))
         updateMany() {}
       }
@@ -752,7 +755,9 @@ describe('HttpOperation.Entity.* decorators', () => {
           requestBody: {
             maxContentSize: 1000,
           },
-        }).KeyParam('id', 'number'))
+        })
+          .KeyParam('id', 'number')
+          .Filter('gender', ['=', '!=']))
         updateOne() {}
       }
 
@@ -781,8 +786,8 @@ describe('HttpOperation.Entity.* decorators', () => {
       });
       expect(opr.parameters.map(prm => prm.name)).toStrictEqual([
         'projection',
-        'filter',
         'id',
+        'filter',
       ]);
       expect(opr.parameters.find(prm => prm.name === 'projection')).toEqual({
         location: 'query',
@@ -847,7 +852,7 @@ describe('HttpOperation.Entity.* decorators', () => {
           type: Customer,
         })
           .KeyParam('id', 'number')
-          .Filter('_id', '=, !=')
+          .Filter('_id', ['=', '!='])
           .Filter('givenName', ['=', '!=', 'like']))
         updateOne() {}
       }

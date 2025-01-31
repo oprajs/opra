@@ -20,6 +20,7 @@ export class ComparisonExpression extends Expression {
   op!: ComparisonOperator;
   left!: Expression;
   right!: Expression;
+  prepare?: (value: any, op: ComparisonOperator) => any;
 
   constructor(o: StrictOmit<ComparisonExpression, 'kind'>) {
     super();
