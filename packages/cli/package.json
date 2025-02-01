@@ -1,6 +1,6 @@
 {
   "name": "@opra/cli",
-  "version": "1.9.0",
+  "version": "1.9.1",
   "description": "Opra CLI tools",
   "author": "Panates",
   "license": "MIT",
@@ -27,8 +27,8 @@
   },
   "dependencies": {
     "@browsery/type-is": "^1.6.18-r8",
-    "@opra/client": "^1.9.0",
-    "@opra/common": "^1.9.0",
+    "@opra/client": "^1.9.1",
+    "@opra/common": "^1.9.1",
     "ansi-colors": "^4.1.3",
     "commander": "^13.1.0",
     "js-string-escape": "^1.0.1",
