@@ -268,7 +268,6 @@ describe('HttpOperation.Entity.* decorators', () => {
             },
             name: {
               operators: ['=', '!=', 'like'],
-              mappedField: 'givenName',
             },
           },
         },

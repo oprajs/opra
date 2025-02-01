@@ -24,7 +24,7 @@ export class CustomerAddressesController {
   }
 
   @(HttpOperation.Entity.FindMany(Address)
-    .Filter('_id', '= >  <  >= <=')
+    .Filter('_id', ['=', '>', '<', '>=', '<='])
     .Filter('city', ['=', 'like', '!like'])
     .Filter('countryCode', ['=']))
   async findMany(context: HttpContext) {

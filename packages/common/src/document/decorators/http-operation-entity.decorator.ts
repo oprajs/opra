@@ -130,13 +130,13 @@ declare module '../http/http-operation.js' {
       export interface FilterOptions {
         operators?: OpraFilter.ComparisonOperator[];
         notes?: string;
-        prepare?: (value: any, op: OpraFilter.ComparisonOperator) => any;
+        prepare?: (args: OpraFilter.ComparisonExpression.PrepareArgs) => any;
       }
 
       export interface DeleteManyDecorator extends HttpOperationDecorator {
         Filter(
           field: string,
-          operators?: OpraFilter.ComparisonOperator[],
+          operators?: OpraFilter.ComparisonOperator[] | string,
         ): this;
 
         Filter(field: string, options?: FilterOptions): this;
@@ -166,7 +166,7 @@ declare module '../http/http-operation.js' {
 
         Filter(
           field: OpraSchema.Field.QualifiedName,
-          operators?: OpraFilter.ComparisonOperator[],
+          operators?: OpraFilter.ComparisonOperator[] | string,
         ): this;
 
         Filter(field: string, options?: FilterOptions): this;
@@ -224,7 +224,7 @@ declare module '../http/http-operation.js' {
 
         Filter(
           field: OpraSchema.Field.QualifiedName,
-          operators?: OpraFilter.ComparisonOperator[],
+          operators?: OpraFilter.ComparisonOperator[] | string,
         ): this;
 
         Filter(field: string, options?: FilterOptions): this;
@@ -247,7 +247,7 @@ declare module '../http/http-operation.js' {
       export interface UpdateManyDecorator extends HttpOperationDecorator {
         Filter(
           field: OpraSchema.Field.QualifiedName,
-          operators?: OpraFilter.ComparisonOperator[],
+          operators?: OpraFilter.ComparisonOperator[] | string,
         ): this;
 
         Filter(field: string, options?: FilterOptions): this;
@@ -402,14 +402,22 @@ export function createFilterDecorator<T extends HttpOperationDecorator>(
 
   return (
     field: string,
-    arg0?: OpraFilter.ComparisonOperator[] | HttpOperation.Entity.FilterOptions,
+    arg0?:
+      | OpraFilter.ComparisonOperator[]
+      | string
+      | HttpOperation.Entity.FilterOptions,
   ) => {
     const filterOptions: HttpOperation.Entity.FilterOptions | undefined =
       (Array.isArray(arg0)
         ? { operators: arg0 }
         : typeof arg0 === 'string'
-          ? { operators: [arg0] }
+          ? {
+              operators: arg0.split(
+                /\s*,\s*/,
+              ) as OpraFilter.ComparisonOperator[],
+            }
           : arg0) || {};
+    filterOptions.operators = filterOptions.operators || ['=', '!='];
     decoratorChain.push(() => {
       filterRules.set(field, filterOptions);
       filterType.rules = filterRules.toJSON();

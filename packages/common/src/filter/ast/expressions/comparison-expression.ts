@@ -20,7 +20,7 @@ export class ComparisonExpression extends Expression {
   op!: ComparisonOperator;
   left!: Expression;
   right!: Expression;
-  prepare?: (value: any, op: ComparisonOperator) => any;
+  prepare?: (args: ComparisonExpression.PrepareArgs) => any;
 
   constructor(o: StrictOmit<ComparisonExpression, 'kind'>) {
     super();
@@ -29,5 +29,14 @@ export class ComparisonExpression extends Expression {
 
   toString(): string {
     return `${this.left}${WORD_PATTERN.test(this.op) ? ' ' + this.op + ' ' : this.op}${this.right}`;
+  }
+}
+
+export namespace ComparisonExpression {
+  export interface PrepareArgs {
+    left: string;
+    right: any;
+    op: ComparisonOperator;
+    adapter: string;
   }
 }

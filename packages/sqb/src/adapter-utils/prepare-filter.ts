@@ -11,7 +11,7 @@ import type { SQBAdapter } from '../sqb-adapter.js';
  *
  * @returns {Expression} - The prepared SQB Expression.
  */
-export default function parseFilter(
+export default function prepareFilter(
   filters: SQBAdapter.FilterInput | SQBAdapter.FilterInput[],
 ): any {
   const filtersArray = Array.isArray(filters) ? filters : [filters];
@@ -66,6 +66,15 @@ function prepareFilterAst(ast?: OpraFilter.Expression): any {
   if (ast instanceof OpraFilter.ComparisonExpression) {
     const left = String(ast.left);
     const right = prepareFilterAst(ast.right);
+    if (ast.prepare) {
+      const x = ast.prepare({
+        left,
+        right,
+        op: ast.op,
+        adapter: 'sqb',
+      });
+      if (x) return x;
+    }
     switch (ast.op) {
       case '=':
         return sqb.Eq(left, right);

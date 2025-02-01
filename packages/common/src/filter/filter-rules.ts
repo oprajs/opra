@@ -28,7 +28,7 @@ export namespace FilterRules {
   export interface Rule {
     operators?: ComparisonOperator[];
     description?: string;
-    prepare?: (value: any, op: ComparisonOperator) => any;
+    prepare?: (args: ComparisonExpression.PrepareArgs) => any;
   }
 }
 

@@ -78,7 +78,12 @@ function prepareFilterAst(
       out = { exists: { field: left } };
     } else {
       if (ast.prepare) {
-        out = ast.prepare(right, ast.op);
+        out = ast.prepare({
+          left,
+          right,
+          op: ast.op,
+          adapter: 'elastic',
+        });
       }
       if (!out) {
         switch (ast.op) {

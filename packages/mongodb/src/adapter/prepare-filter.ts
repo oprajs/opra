@@ -140,6 +140,16 @@ function prepareFilterAst(
         };
     }
 
+    if (ast.prepare) {
+      const x = ast.prepare({
+        left,
+        right,
+        op: ast.op,
+        adapter: 'mongodb',
+      });
+      if (x) return x;
+    }
+
     const mngOp = opMap[ast.op];
     if (mngOp) {
       if (ast.op === 'in' || ast.op === '!in')
