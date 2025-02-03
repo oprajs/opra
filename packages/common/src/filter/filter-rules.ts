@@ -29,6 +29,7 @@ export namespace FilterRules {
     operators?: ComparisonOperator[];
     description?: string;
     prepare?: (args: ComparisonExpression.PrepareArgs) => any;
+    mappedField?: string;
   }
 }
 
@@ -120,6 +121,7 @@ export class FilterRules {
           },
         });
       }
+      if (rule.mappedField) ast.left.value = rule.mappedField;
       if (rule.prepare) ast.prepare = rule.prepare;
       this.normalizeFilterAst(ast.right, stack, currentType);
       stack.pop();

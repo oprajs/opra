@@ -128,6 +128,7 @@ declare module '../http/http-operation.js' {
 
       /** DeleteMany */
       export interface FilterOptions {
+        mappedField?: string;
         operators?: OpraFilter.ComparisonOperator[];
         notes?: string;
         prepare?: (args: OpraFilter.ComparisonExpression.PrepareArgs) => any;
@@ -418,6 +419,12 @@ export function createFilterDecorator<T extends HttpOperationDecorator>(
             }
           : arg0) || {};
     filterOptions.operators = filterOptions.operators || ['=', '!='];
+    if (field.includes(':')) {
+      const a = field.split(':');
+      field = a[0];
+      filterOptions.mappedField = a[1];
+    }
+
     decoratorChain.push(() => {
       filterRules.set(field, filterOptions);
       filterType.rules = filterRules.toJSON();
