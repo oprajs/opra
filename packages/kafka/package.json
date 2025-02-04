@@ -29,7 +29,7 @@
     "@opra/core": "^1.9.2",
     "node-events-async": "^1.0.0",
     "tslib": "^2.8.1",
-    "valgen": "^5.12.0"
+    "valgen": "^5.13.0"
   },
   "peerDependencies": {
     "kafkajs": ">=2.2.4 <3"

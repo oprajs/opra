@@ -105,12 +105,8 @@ describe('Built-in types', () => {
       const dt = doc.node.getSimpleType('integer');
       expect(dt).toBeDefined();
       const decode = dt.generateCodec('decode');
-      expect(() => decode('abc')).toThrow(
-        'String "abc" is not a valid integer value',
-      );
-      expect(() => decode('abc')).toThrow(
-        'String "abc" is not a valid integer value',
-      );
+      expect(() => decode('abc')).toThrow('must be a valid integer value');
+      expect(() => decode('abc')).toThrow('must be a valid integer value');
     });
 
     it('Should validate "minValue"', async () => {
@@ -137,14 +133,14 @@ describe('Built-in types', () => {
       const dt = doc.node.getSimpleType('null');
       const decode = dt.generateCodec('decode');
       expect(decode(null)).toStrictEqual(null);
-      expect(() => decode('')).toThrow('Value is not null');
+      expect(() => decode('')).toThrow('must be null');
     });
 
     it('Should encode', async () => {
       const dt = doc.node.getSimpleType('null');
       const encode = dt.generateCodec('encode');
       expect(encode(null)).toStrictEqual(null);
-      expect(() => encode('')).toThrow('Value is not null');
+      expect(() => encode('')).toThrow('must be null');
     });
   });
 
@@ -217,9 +213,7 @@ describe('Built-in types', () => {
       const dt = doc.node.getSimpleType('string');
       expect(dt).toBeDefined();
       const decode = dt.generateCodec('decode', null, { minLength: 5 });
-      expect(() => decode('abc')).toThrow(
-        'The length of Value must be at least 5',
-      );
+      expect(() => decode('abc')).toThrow('length must be at least 5');
     });
 
     it('Should validate "maxLength"', async () => {
@@ -239,7 +233,7 @@ describe('Built-in types', () => {
         patternName: 'Decimal',
       });
       expect(decode('123')).toStrictEqual('123');
-      expect(() => decode('abcef')).toThrow('does not match Decimal format');
+      expect(() => decode('abcef')).toThrow('must match Decimal format');
     });
   });
 
@@ -590,7 +584,7 @@ describe('Built-in types', () => {
       expect(decode('http://www.domain.com')).toStrictEqual(
         'http://www.domain.com',
       );
-      expect(() => decode('domain')).toThrow('is not a valid URL');
+      expect(() => decode('domain')).toThrow('must be a valid URL');
     });
   });
 
@@ -601,14 +595,14 @@ describe('Built-in types', () => {
       expect(decode('3c6aed92-0a89-11ee-be56-0242ac120002')).toStrictEqual(
         '3c6aed92-0a89-11ee-be56-0242ac120002',
       );
-      expect(() => decode('3c6aed92-0a89')).toThrow('is not a valid UUID');
+      expect(() => decode('3c6aed92-0a89')).toThrow('must be a valid UUID');
     });
 
     it('Should define UUID version', async () => {
       const dt = doc.node.getSimpleType('uuid');
       const decode = dt.generateCodec('decode', null, { version: 4 });
       expect(() => decode('3c6aed92-0a89-11ee-be56-0242ac120002')).toThrow(
-        'is not a valid UUID v4',
+        'must be a valid UUID v4',
       );
     });
   });

@@ -86,7 +86,7 @@ describe('HttpContext', () => {
     );
     await await expect(() =>
       adapter.handler.parseRequest(context),
-    ).rejects.toThrow('not a valid number');
+    ).rejects.toThrow('Value must be a number');
   });
 
   it('Should return MultipartReader if content is multipart', async () => {
