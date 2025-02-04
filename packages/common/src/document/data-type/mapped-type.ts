@@ -127,7 +127,7 @@ export const MappedType = function (this: MappedType, ...args: any[]) {
     const required = Array.isArray(_this.required)
       ? _this.required.map(x => x.toLowerCase())
       : _this.required;
-    for (const [k, v] of _this.base.fieldEntries()) {
+    for (const [k, v] of _this.base.fieldEntries('*')) {
       if (!isInheritedPredicate(k)) continue;
       const meta = { ...v } as ApiField.InitArguments;
       if (
