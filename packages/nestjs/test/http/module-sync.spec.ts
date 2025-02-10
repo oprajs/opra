@@ -1,6 +1,6 @@
 import { INestApplication } from '@nestjs/common';
 import { APP_GUARD, ModuleRef } from '@nestjs/core';
-import { APP_INTERCEPTOR } from '@nestjs/core/constants';
+import { APP_INTERCEPTOR } from '@nestjs/core/constants.js';
 import { Test } from '@nestjs/testing';
 import { OpraHttpModule, OpraHttpNestjsAdapter } from '@opra/nestjs';
 import { Server } from 'http';

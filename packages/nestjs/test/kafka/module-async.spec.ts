@@ -1,8 +1,8 @@
 import { faker } from '@faker-js/faker';
 import { INestApplication } from '@nestjs/common';
 import { APP_GUARD, ModuleRef } from '@nestjs/core';
-import { APP_INTERCEPTOR } from '@nestjs/core/constants';
-import { Producer } from '@nestjs/microservices/external/kafka.interface';
+import { APP_INTERCEPTOR } from '@nestjs/core/constants.js';
+import type { Producer } from '@nestjs/microservices/external/kafka.interface.js';
 import { Test } from '@nestjs/testing';
 import { KafkaAdapter } from '@opra/kafka';
 import { waitForMessage } from '@opra/kafka/test/_support/wait-for-message';

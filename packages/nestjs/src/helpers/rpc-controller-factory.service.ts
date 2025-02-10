@@ -9,17 +9,17 @@ import { createContextId, ModulesContainer, REQUEST } from '@nestjs/core';
 import {
   ExternalContextCreator,
   type ExternalContextOptions,
-} from '@nestjs/core/helpers/external-context-creator';
-import type { ParamMetadata } from '@nestjs/core/helpers/interfaces/params-metadata.interface';
-import { Injector } from '@nestjs/core/injector/injector';
+} from '@nestjs/core/helpers/external-context-creator.js';
+import type { ParamMetadata } from '@nestjs/core/helpers/interfaces/params-metadata.interface.js';
+import { Injector } from '@nestjs/core/injector/injector.js';
 import type {
   ContextId,
   InstanceWrapper,
-} from '@nestjs/core/injector/instance-wrapper';
-import { InternalCoreModule } from '@nestjs/core/injector/internal-core-module';
+} from '@nestjs/core/injector/instance-wrapper.js';
+import { InternalCoreModule } from '@nestjs/core/injector/internal-core-module/index.js';
 import type { Module } from '@nestjs/core/injector/module.js';
-import { REQUEST_CONTEXT_ID } from '@nestjs/core/router/request/request-constants';
-import { PARAM_ARGS_METADATA } from '@nestjs/microservices/constants';
+import { REQUEST_CONTEXT_ID } from '@nestjs/core/router/request/request-constants.js';
+import { PARAM_ARGS_METADATA } from '@nestjs/microservices/constants.js';
 import { RPC_CONTROLLER_METADATA, type RpcController } from '@opra/common';
 import type { ExecutionContext as OpraExecutionContext } from '@opra/core';
 import { BaseOpraNestFactory } from './base-opra-nest-factory.js';

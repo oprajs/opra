@@ -3,7 +3,7 @@ import {
   EXCEPTION_FILTERS_METADATA,
   GUARDS_METADATA,
   INTERCEPTORS_METADATA,
-} from '@nestjs/common/constants';
+} from '@nestjs/common/constants.js';
 
 export class BaseOpraNestFactory {
   static copyDecoratorMetadata(target: Type, ...source: Type[]) {
