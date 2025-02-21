@@ -84,7 +84,7 @@ describe('OpraRabbitmqModule - sync', () => {
   });
 
   afterAll(async () => {
-    await connection.close().catch(() => undefined);
+    await connection?.close().catch(() => undefined);
     await nestApplication?.close().catch(() => undefined);
   });
 
