@@ -11,33 +11,35 @@ import {
 } from '@nestjs/common';
 import { ModuleRef } from '@nestjs/core';
 import { ApiDocumentFactory } from '@opra/common';
-import { KafkaAdapter, type KafkaContext } from '@opra/kafka';
-import { OPRA_KAFKA_MODULE_CONFIG } from '../constants.js';
+import { RabbitmqAdapter, type RabbitmqContext } from '@opra/rabbitmq';
+import { OPRA_RMQ_MODULE_CONFIG } from '../constants.js';
 import { RpcControllerFactory } from '../helpers/rpc-controller-factory.service.js';
-import type { OpraKafkaModule } from './opra-kafka.module.js';
+import type { OpraRabbitmqModule } from './opra-rabbitmq.module.js';
 
-const opraKafkaNestjsAdapterToken = Symbol('OpraKafkaNestjsAdapter');
+const opraRabbitmqNestjsAdapterToken = Symbol('OpraRabbitmqNestjsAdapter');
 
 @Module({})
 @Global()
-export class OpraKafkaCoreModule
+export class OpraRabbitmqCoreModule
   implements OnModuleInit, OnApplicationBootstrap, OnApplicationShutdown
 {
   constructor(
     private controllerFactory: RpcControllerFactory,
-    @Inject(opraKafkaNestjsAdapterToken)
-    protected adapter: KafkaAdapter,
-    @Inject(OPRA_KAFKA_MODULE_CONFIG)
-    protected config: OpraKafkaModule.ApiConfig,
+    @Inject(opraRabbitmqNestjsAdapterToken)
+    protected adapter: RabbitmqAdapter,
+    @Inject(OPRA_RMQ_MODULE_CONFIG)
+    protected config: OpraRabbitmqModule.ApiConfig,
   ) {}
 
-  static forRoot(moduleOptions: OpraKafkaModule.ModuleOptions): DynamicModule {
+  static forRoot(
+    moduleOptions: OpraRabbitmqModule.ModuleOptions,
+  ): DynamicModule {
     return this._getDynamicModule({
       ...moduleOptions,
       providers: [
         ...(moduleOptions?.providers || []),
         {
-          provide: OPRA_KAFKA_MODULE_CONFIG,
+          provide: OPRA_RMQ_MODULE_CONFIG,
           useValue: {
             ...moduleOptions,
             logger: moduleOptions.logger || new Logger(moduleOptions.name),
@@ -48,7 +50,7 @@ export class OpraKafkaCoreModule
   }
 
   static forRootAsync(
-    moduleOptions: OpraKafkaModule.AsyncModuleOptions,
+    moduleOptions: OpraRabbitmqModule.AsyncModuleOptions,
   ): DynamicModule {
     if (!moduleOptions.useFactory)
       throw new Error('Invalid configuration. Must provide "useFactory"');
@@ -58,7 +60,7 @@ export class OpraKafkaCoreModule
       providers: [
         ...(moduleOptions?.providers || []),
         {
-          provide: OPRA_KAFKA_MODULE_CONFIG,
+          provide: OPRA_RMQ_MODULE_CONFIG,
           inject: moduleOptions.inject,
           useFactory: async (...args: any[]) => {
             const result = await moduleOptions.useFactory!(...args);
@@ -72,17 +74,17 @@ export class OpraKafkaCoreModule
 
   protected static _getDynamicModule(
     moduleOptions:
-      | OpraKafkaModule.ModuleOptions
-      | OpraKafkaModule.AsyncModuleOptions,
+      | OpraRabbitmqModule.ModuleOptions
+      | OpraRabbitmqModule.AsyncModuleOptions,
   ): DynamicModule {
-    const token = moduleOptions.id || KafkaAdapter;
+    const token = moduleOptions.id || RabbitmqAdapter;
     const adapterProvider = {
       provide: token,
-      inject: [RpcControllerFactory, ModuleRef, OPRA_KAFKA_MODULE_CONFIG],
+      inject: [RpcControllerFactory, ModuleRef, OPRA_RMQ_MODULE_CONFIG],
       useFactory: async (
         controllerFactory: RpcControllerFactory,
         moduleRef: ModuleRef,
-        config: OpraKafkaModule.ApiConfig,
+        config: OpraRabbitmqModule.ApiConfig,
       ) => {
         const controllers = controllerFactory
           .exploreControllers()
@@ -95,7 +97,7 @@ export class OpraKafkaCoreModule
             name: config.name,
             description: config.description,
             transport: 'rpc',
-            platform: KafkaAdapter.PlatformName,
+            platform: RabbitmqAdapter.PlatformName,
             controllers,
           },
         });
@@ -104,8 +106,8 @@ export class OpraKafkaCoreModule
           ? moduleOptions.interceptors.map(x => {
               if (isConstructor(x)) {
                 return async (
-                  ctx: KafkaContext,
-                  next: KafkaAdapter.NextCallback,
+                  ctx: RabbitmqContext,
+                  next: RabbitmqAdapter.NextCallback,
                 ) => {
                   const interceptor = moduleRef.get(x);
                   if (typeof interceptor.intercept === 'function')
@@ -115,19 +117,19 @@ export class OpraKafkaCoreModule
               return x;
             })
           : undefined;
-        return new KafkaAdapter(document, { ...config, interceptors });
+        return new RabbitmqAdapter(document, { ...config, interceptors });
       },
     };
     return {
       global: moduleOptions.global,
-      module: OpraKafkaCoreModule,
+      module: OpraRabbitmqCoreModule,
       controllers: moduleOptions.controllers,
       providers: [
         ...(moduleOptions?.providers || []),
         RpcControllerFactory,
         adapterProvider,
         {
-          provide: opraKafkaNestjsAdapterToken,
+          provide: opraRabbitmqNestjsAdapterToken,
           useExisting: token,
         },
       ],

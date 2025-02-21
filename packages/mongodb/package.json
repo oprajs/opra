@@ -27,7 +27,7 @@
     "valgen": "^5.13.0"
   },
   "devDependencies": {
-    "@faker-js/faker": "^9.4.0",
+    "@faker-js/faker": "^9.5.0",
     "mongodb": "^6.13.0",
     "ts-gems": "^3.11.3"
   },

@@ -13,6 +13,7 @@
       "@opra/core": ["../../core/src"],
       "@opra/http": ["../../http/src"],
       "@opra/kafka": ["../../kafka/src"],
+      "@opra/rabbitmq": ["../../rabbitmq/src"],
       "@opra/mongodb": ["../../mongodb/src"],
       "@opra/testing": ["../../testing/src"],
       "customer-mongo": ["../../../examples/_lib/customer-mongo"],

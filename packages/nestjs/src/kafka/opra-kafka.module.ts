@@ -1,6 +1,6 @@
 import { type DynamicModule, Logger, Module, type Type } from '@nestjs/common';
 import { ApiDocumentFactory } from '@opra/common';
-import { KafkaAdapter } from '@opra/kafka';
+import type { KafkaAdapter } from '@opra/kafka';
 import { OpraKafkaCoreModule } from './opra-kafka-core.module.js';
 
 export namespace OpraKafkaModule {

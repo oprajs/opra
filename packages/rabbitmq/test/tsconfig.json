@@ -1,0 +1,16 @@
+{
+  "extends": "../tsconfig.json",
+  "include": ["."],
+  "compilerOptions": {
+    "emitDecoratorMetadata": true,
+    "verbatimModuleSyntax": false,
+    "baseUrl": "./",
+    "paths": {
+      "@opra/rabbitmq": ["../src"],
+      "@opra/common": ["../../common/src"],
+      "@opra/core": ["../../core/src"],
+      "@opra/client": ["../../client/src"],
+      "@opra/testing": ["../../testing/src"]
+    }
+  }
+}

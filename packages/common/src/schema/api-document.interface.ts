@@ -4,6 +4,8 @@ import type { HttpController } from './http/http-controller.interface.js';
 import type { RpcController } from './rpc/rpc-controller.interface.js';
 
 export type Transport =
+  /** Custom **/
+  | 'custom'
   /** HTTP **/
   | 'http'
   /** WebSocket*/
