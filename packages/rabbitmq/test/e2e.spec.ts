@@ -10,7 +10,7 @@ import { waitForMessage } from './_support/wait-for-message.js';
 // set timeout to be longer (especially for the after hook)
 jest.setTimeout(30000);
 
-const rabbitHost = process.env.RABBITMQ_HOST || 'localhost';
+const rabbitHost = process.env.RABBITMQ_HOST || 'amqp://localhost:5672';
 
 describe('e2e', () => {
   let document: ApiDocument;
@@ -23,9 +23,7 @@ describe('e2e', () => {
   };
 
   beforeAll(async () => {
-    connection = await amqplib.connect({
-      hostname: rabbitHost,
-    });
+    connection = await amqplib.connect(rabbitHost);
     channel = await connection.createChannel();
     await channel.assertQueue('email-channel', { durable: true });
     await channel.assertQueue('sms-channel', { durable: true });
@@ -34,9 +32,7 @@ describe('e2e', () => {
   beforeAll(async () => {
     document = await TestRpcApiDocument.create();
     adapter = new RabbitmqAdapter(document, {
-      connection: {
-        hostname: rabbitHost,
-      },
+      connection: [rabbitHost],
       logger,
     });
     await adapter.start();

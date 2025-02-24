@@ -19,7 +19,7 @@ import { RabbitmqDogsController } from '../_support/test-app/rabbitmq/rabbitmq-d
 // set timeout to be longer (especially for the after hook)
 jest.setTimeout(30000);
 
-const rabbitHost = process.env.RABBITMQ_HOST || 'localhost';
+const rabbitHost = process.env.RABBITMQ_HOST || 'amqp://localhost:5672';
 
 describe('OpraRabbitmqModule - async', () => {
   let nestApplication: INestApplication;
@@ -29,9 +29,7 @@ describe('OpraRabbitmqModule - async', () => {
   let channel: amqplib.Channel;
 
   beforeAll(async () => {
-    connection = await amqplib.connect({
-      hostname: rabbitHost,
-    });
+    connection = await amqplib.connect(rabbitHost);
     channel = await connection.createChannel();
     await channel.assertQueue('email-channel', { durable: true });
     await channel.assertQueue('sms-channel', { durable: true });
@@ -44,9 +42,7 @@ describe('OpraRabbitmqModule - async', () => {
           controllers: [RabbitmqCatsController, RabbitmqDogsController],
           providers: [CatsService, DogsService],
           useFactory: () => ({
-            connection: {
-              hostname: rabbitHost,
-            },
+            connection: [rabbitHost],
             name: 'test',
             types: [Cat, Dog],
           }),

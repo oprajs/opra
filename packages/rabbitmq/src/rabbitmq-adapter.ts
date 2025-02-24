@@ -53,7 +53,7 @@ export class RabbitmqAdapter extends PlatformAdapter {
   static readonly PlatformName = 'rabbitmq';
   protected _config: RabbitmqAdapter.Config;
   protected _controllerInstances = new Map<RpcController, any>();
-  declare protected _connection: amqplib.Connection;
+  protected _connections: amqplib.Connection[] = [];
   protected _status: RabbitmqAdapter.Status = 'idle';
   readonly protocol: OpraSchema.Transport = 'rpc';
   readonly platform = RabbitmqAdapter.PlatformName;
@@ -95,11 +95,6 @@ export class RabbitmqAdapter extends PlatformAdapter {
 
   get api(): RpcApi {
     return this.document.rpcApi;
-  }
-
-  get connection(): amqplib.Connection {
-    if (!this._connection) throw new Error('Not connected to RabbitMQ server');
-    return this._connection;
   }
 
   get scope(): string | undefined {
@@ -151,42 +146,49 @@ export class RabbitmqAdapter extends PlatformAdapter {
       }
 
       /** Connect to server */
-      this._connection = await this._connect();
-
-      /** Subscribe to channels */
-      for (const args of handlerArgs) {
-        /** Create channel per operation */
-        const channel = await this._connection.createChannel();
-        for (const topic of args.topics) {
-          const opts = this._config.queues?.[topic];
-          if (opts) await channel.assertQueue(topic, opts);
-        }
-        for (const topic of args.topics) {
-          await channel.assertQueue(topic);
-          await channel
-            .consume(
-              topic,
-              async (msg: ConsumeMessage | null) => {
-                if (!msg) return;
-                await this.emitAsync('message', msg).catch(() => undefined);
-                try {
-                  await args.handler(msg);
-                  // channel.ack(msg);
-                } catch (e) {
-                  this._emitError(e);
-                }
-                await this.emitAsync('message-finish', msg);
-              },
-              /** Consume options */
-              args.operationConfig.consumer,
-            )
-            .catch(e => {
-              this._emitError(e);
-              throw e;
-            });
-          this.logger?.info?.(
-            `Subscribed to topic${args.topics.length > 1 ? 's' : ''} "${args.topics}"`,
-          );
+      for (const connectionOptions of this._config.connection) {
+        const connection = await amqplib.connect(connectionOptions);
+        this._connections.push(connection);
+        const hostname =
+          typeof connectionOptions === 'object'
+            ? connectionOptions.hostname
+            : connectionOptions;
+        this.logger?.info?.(`Connected to ${hostname}`);
+        /** Subscribe to channels */
+        for (const args of handlerArgs) {
+          /** Create channel per operation */
+          const channel = await connection.createChannel();
+          for (const topic of args.topics) {
+            const opts = this._config.queues?.[topic];
+            if (opts) await channel.assertQueue(topic, opts);
+          }
+          for (const topic of args.topics) {
+            await channel.assertQueue(topic);
+            await channel
+              .consume(
+                topic,
+                async (msg: ConsumeMessage | null) => {
+                  if (!msg) return;
+                  await this.emitAsync('message', msg).catch(() => undefined);
+                  try {
+                    await args.handler(msg);
+                    // channel.ack(msg);
+                  } catch (e) {
+                    this._emitError(e);
+                  }
+                  await this.emitAsync('message-finish', msg);
+                },
+                /** Consume options */
+                args.operationConfig.consumer,
+              )
+              .catch(e => {
+                this._emitError(e);
+                throw e;
+              });
+            this.logger?.info?.(
+              `Subscribed to topic${args.topics.length > 1 ? 's' : ''} "${args.topics}"`,
+            );
+          }
         }
       }
       this._status = 'started';
@@ -196,17 +198,18 @@ export class RabbitmqAdapter extends PlatformAdapter {
     }
   }
 
-  protected async _connect() {
-    if (!this._connection)
-      this._connection = await amqplib.connect(this._config.connection);
-    return this._connection;
-  }
+  // protected async _connect() {
+  //   if (!this._connection)
+  //     this._connection = await amqplib.connect(this._config.connection);
+  //   return this._connection;
+  // }
 
   /**
    * Closes all connections and stops the service
    */
   async close() {
-    await this._connection?.close();
+    await Promise.all(this._connections.map(c => c.close()));
+    this._connections = [];
     this._controllerInstances.clear();
     this._status = 'idle';
   }
@@ -423,8 +426,10 @@ export namespace RabbitmqAdapter {
 
   export type Status = 'idle' | 'starting' | 'started';
 
+  export type ConnectionOptions = amqplib.Options.Connect;
+
   export interface Config extends PlatformAdapter.Options {
-    connection: amqplib.Options.Connect & {};
+    connection: (string | ConnectionOptions)[];
     queues?: Record<string, amqplib.Options.AssertQueue>;
     defaults?: {
       consumer?: amqplib.Options.Consume;

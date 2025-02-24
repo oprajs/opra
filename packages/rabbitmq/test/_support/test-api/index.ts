@@ -8,7 +8,7 @@ export namespace TestRpcApiDocument {
     return ApiDocumentFactory.createDocument({
       spec: OpraSchema.SpecVersion,
       info: {
-        title: 'TestKafkaApi',
+        title: 'TestRMQApi',
         version: 'v1',
         description: 'Document description',
       },
