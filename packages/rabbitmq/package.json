@@ -1,6 +1,6 @@
 {
   "name": "@opra/rabbitmq",
-  "version": "1.10.0",
+  "version": "1.11.0",
   "description": "Opra RabbitMQ package",
   "author": "Panates",
   "license": "MIT",
@@ -26,8 +26,8 @@
   },
   "dependencies": {
     "@browsery/type-is": "^1.6.18-r8",
-    "@opra/common": "^1.10.0",
-    "@opra/core": "^1.10.0",
+    "@opra/common": "^1.11.0",
+    "@opra/core": "^1.11.0",
     "content-type": "^1.0.5",
     "iconv-lite": "^0.6.3",
     "node-events-async": "^1.0.0",
