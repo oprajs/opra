@@ -27,15 +27,15 @@
     "tslib": "^2.8.1",
     "valgen": "^5.13.0"
   },
-  "devDependencies": {
-    "@elastic/elasticsearch": "^8.17.1",
-    "@faker-js/faker": "^9.5.0",
-    "ts-gems": "^3.11.3"
-  },
   "peerDependencies": {
     "@elastic/elasticsearch": ">=8.7.0 <9",
     "@opra/common": "^1.11.0",
     "@opra/core": "^1.11.0"
+  },
+  "devDependencies": {
+    "@elastic/elasticsearch": "^8.17.1",
+    "@faker-js/faker": "^9.5.0",
+    "ts-gems": "^3.11.3"
   },
   "type": "module",
   "exports": {

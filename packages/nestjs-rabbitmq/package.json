@@ -28,6 +28,7 @@
   "peerDependencies": {
     "@opra/common": "^1.11.0",
     "@opra/core": "^1.11.0",
+    "@opra/nestjs": "^1.11.0",
     "@opra/rabbitmq": "^1.11.0",
     "@nestjs/common": "^10.0.0 || ^11.0.0",
     "@nestjs/core": "^10.0.0 || ^11.0.0",

@@ -15,7 +15,8 @@ const buildRoot = path.resolve(dirname, '../../build');
 const targetPath = path.resolve(buildRoot, appName);
 const entryPoint = path.resolve(targetPath, 'esm/index.js');
 const external = [
-  ...Object.keys(pkgJson.dependencies),
+  ...Object.keys(pkgJson.dependencies || {}),
+  ...Object.keys(pkgJson.peerDependencies || {}),
   ...Object.keys(pkgJson.devDependencies || {}),
 ];
 

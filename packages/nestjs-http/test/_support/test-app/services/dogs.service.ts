@@ -1,5 +1,5 @@
 import { Injectable, Scope } from '@nestjs/common';
-import { Dog } from '../models/dog';
+import { Dog } from '../models/dog.js';
 
 @Injectable({ scope: Scope.REQUEST })
 export class DogsService {

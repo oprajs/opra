@@ -14,8 +14,9 @@ const buildRoot = path.resolve(dirname, '../../build');
 const targetPath = path.resolve(buildRoot, appName);
 const noExternal = [];
 const external = [
-  ...Object.keys(pkgJson.dependencies),
-  ...Object.keys(pkgJson.devDependencies),
+  ...Object.keys(pkgJson.dependencies || {}),
+  ...Object.keys(pkgJson.peerDependencies || {}),
+  ...Object.keys(pkgJson.devDependencies || {}),
   'mime-db',
 ].filter(x => !noExternal.includes(x));
 

@@ -1,7 +1,7 @@
 import { type DynamicModule, Logger, Module, type Type } from '@nestjs/common';
 import type { ApiDocumentFactory } from '@opra/common';
 import type { HttpAdapter } from '@opra/http';
-import { OpraHttpCoreModule } from './opra-http-core.module';
+import { OpraHttpCoreModule } from './opra-http-core.module.js';
 
 export namespace OpraHttpModule {
   export interface ModuleOptions extends BaseModuleOptions, ApiConfig {}

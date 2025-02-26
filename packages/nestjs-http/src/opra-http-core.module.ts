@@ -13,9 +13,9 @@ import { APP_FILTER, ModuleRef } from '@nestjs/core';
 import { ApiDocumentFactory } from '@opra/common';
 import { HttpAdapter, HttpContext } from '@opra/http';
 import { OPRA_HTTP_API_CONFIG } from './constants.js';
+import { OpraExceptionFilter } from './opra-exception-filter.js';
 import type { OpraHttpModule } from './opra-http.module.js';
 import { OpraHttpNestjsAdapter } from './opra-http-nestjs-adapter.js';
-import { OpraExceptionFilter } from './opra-exception-filter.js';
 import { OpraMiddleware } from './opra-middleware.js';
 
 const opraHttpNestjsAdapterToken = Symbol('OpraHttpNestjsAdapter');

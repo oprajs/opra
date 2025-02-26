@@ -1,8 +1,8 @@
 import { UseGuards, UseInterceptors } from '@nestjs/common';
 import { HttpController, HttpOperation } from '@opra/common';
-import { CatsService } from '../services/cats.service';
 import { AuthGuard } from '../providers/auth.guard.js';
 import { TestInterceptor } from '../providers/test.interceptor.js';
+import { CatsService } from '../services/cats.service.js';
 
 @HttpController({
   path: 'cats',
