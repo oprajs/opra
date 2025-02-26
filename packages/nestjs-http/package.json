@@ -1,16 +1,16 @@
 {
-  "name": "@opra/nestjs",
+  "name": "@opra/nestjs-http",
   "version": "1.10.0",
-  "description": "Opra NestJS module",
+  "description": "Opra NestJS Http Module",
   "author": "Panates",
   "license": "MIT",
   "scripts": {
     "compile": "tsc --noEmit",
     "prebuild": "npm run lint && npm run clean",
     "build": "npm run build:cjs && npm run build:esm",
-    "build:cjs": "tsc -b tsconfig-build-cjs.json && cp ../../support/package.cjs.json ../../build/nestjs/cjs/package.json",
-    "build:esm": "tsc -b tsconfig-build-esm.json && cp ../../support/package.esm.json ../../build/nestjs/esm/package.json",
-    "postbuild": "cp README.md package.json ../../LICENSE ../../build/nestjs && node ../../support/postbuild.cjs",
+    "build:cjs": "tsc -b tsconfig-build-cjs.json && cp ../../support/package.cjs.json ../../build/nestjs-http/cjs/package.json",
+    "build:esm": "tsc -b tsconfig-build-esm.json && cp ../../support/package.esm.json ../../build/nestjs-http/esm/package.json",
+    "postbuild": "cp README.md package.json ../../LICENSE ../../build/nestjs-http && node ../../support/postbuild.cjs",
     "lint": "eslint . --max-warnings=0",
     "format": "prettier . --write --log-level=warn",
     "test": "jest --passWithNoTests",
@@ -18,24 +18,23 @@
     "clean": "npm run clean:src && npm run clean:test && npm run clean:dist && npm run clean:cover",
     "clean:src": "ts-cleanup -s src --all",
     "clean:test": "ts-cleanup -s test --all",
-    "clean:dist": "rimraf ../../build/nestjs",
-    "clean:cover": "rimraf ../../coverage/nestjs"
+    "clean:dist": "rimraf ../../build/nestjs-http",
+    "clean:cover": "rimraf ../../coverage/nestjs-http"
   },
   "dependencies": {
     "@jsopen/objects": "^1.5.0",
-    "reflect-metadata": "^0.2.2",
+    "@opra/common": "^1.10.0",
+    "@opra/core": "^1.10.0",
     "tslib": "^2.8.1"
   },
   "peerDependencies": {
-    "@opra/common": "^1.10.0",
-    "@opra/core": "^1.10.0",
-    "@opra/nestjs": "^1.10.0",
     "@nestjs/common": "^10.0.0 || ^11.0.0",
     "@nestjs/core": "^10.0.0 || ^11.0.0"
   },
   "devDependencies": {
     "@faker-js/faker": "^9.5.0",
     "@nestjs/platform-express": "^11.0.10",
+    "@nestjs/microservices": "^11.0.10",
     "@nestjs/testing": "^11.0.10",
     "express": "^4.21.2",
     "rxjs": "^7.8.2",
@@ -63,7 +62,7 @@
   "repository": {
     "type": "git",
     "url": "https://github.com/panates/opra.git",
-    "directory": "packages/nestjs"
+    "directory": "packages/nestjs-http"
   },
   "engines": {
     "node": ">=16.0",
@@ -80,7 +79,7 @@
   "keywords": [
     "opra",
     "nestjs",
-    "common"
+    "http"
   ],
   "publishConfig": {
     "access": "public"

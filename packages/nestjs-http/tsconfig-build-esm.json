@@ -1,0 +1,11 @@
+{
+  "extends": ["./tsconfig.json", "../../tsconfig-build.json"],
+  "compilerOptions": {
+    "module": "ES2020",
+    "moduleResolution": "Node",
+    "rootDir": "src",
+    "outDir": "../../build/nestjs/esm",
+    "declarationDir": "../../build/nestjs/types"
+  },
+  "include": ["src"]
+}

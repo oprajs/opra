@@ -1,0 +1,1 @@
+export const OPRA_HTTP_API_CONFIG = 'OPRA_HTTP_API_CONFIG';
