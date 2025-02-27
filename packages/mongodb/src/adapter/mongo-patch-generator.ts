@@ -76,7 +76,10 @@ export class MongoPatchGenerator {
       value = input[key];
       field = dataType.findField(key, scope);
       if (field && !field.inScope(scope)) continue;
+
+      /** Field not found */
       if (!field) {
+        /** Additional fields will be updated */
         if (dataType.additionalFields) {
           if (value === null) {
             ctx.$unset = ctx.$unset || {};
@@ -105,65 +108,70 @@ export class MongoPatchGenerator {
         }
         continue;
       }
-      // if (field.readonly) continue; todo
+
+      /** Unset field value if null */
       if (value === null) {
         ctx.$unset = ctx.$unset || {};
         ctx.$unset[pathDot + field.name] = 1;
         result = true;
         continue;
       }
+
       if (field.type instanceof ComplexType) {
         if (!value) continue;
         if (field.isArray) {
-          ctx.initArrayFields = ctx.initArrayFields || [];
-          ctx.initArrayFields.push(pathDot + field.name);
-          if (!value.length) continue;
-          keyField = field.keyField || field.type.keyField;
-          if (keyField) {
-            for (let v of value) {
-              /** Increase arrayIndex and determine a new name for array filter  */
-              arrayFilterName = 'f' + String(++arrayIndex);
-              /** Extract key value from object */
-              keyValue = v[keyField];
-              if (keyValue == null) continue;
-              v = { ...v };
-              /** Remove key field from object */
-              delete v[keyField];
-              /** Process each object in array */
-              if (
-                this._processComplexType(
-                  ctx,
-                  field.type,
-                  pathDot + field.name + `.$[${arrayFilterName}]`,
-                  v,
-                  scope,
-                )
-              ) {
-                result = true;
-                /** Add array filter */
-                ctx.arrayFilters = ctx.arrayFilters || [];
-                ctx.arrayFilters.unshift({
-                  [`${arrayFilterName}.${keyField}`]: keyValue,
-                });
+          if (field.isNestedEntity) {
+            ctx.initArrayFields = ctx.initArrayFields || [];
+            ctx.initArrayFields.push(pathDot + field.name);
+            if (!value.length) continue;
+            keyField = field.keyField || field.type.keyField;
+            if (keyField) {
+              for (let v of value) {
+                /** Increase arrayIndex and determine a new name for array filter  */
+                arrayFilterName = 'f' + String(++arrayIndex);
+                /** Extract key value from object */
+                keyValue = v[keyField];
+                if (keyValue == null) continue;
+                v = { ...v };
+                /** Remove key field from object */
+                delete v[keyField];
+                /** Process each object in array */
+                if (
+                  this._processComplexType(
+                    ctx,
+                    field.type,
+                    pathDot + field.name + `.$[${arrayFilterName}]`,
+                    v,
+                    scope,
+                  )
+                ) {
+                  result = true;
+                  /** Add array filter */
+                  ctx.arrayFilters = ctx.arrayFilters || [];
+                  ctx.arrayFilters.unshift({
+                    [`${arrayFilterName}.${keyField}`]: keyValue,
+                  });
+                }
               }
+              continue;
             }
-            continue;
           }
+        } else {
+          if (!(typeof value === 'object')) continue;
+          /** Process nested object */
+          if (
+            this._processComplexType(
+              ctx,
+              field.type,
+              pathDot + field.name,
+              value,
+              scope,
+            )
+          ) {
+            result = true;
+          }
+          continue;
         }
-        if (!(typeof value === 'object')) continue;
-        /** Process nested object */
-        if (
-          this._processComplexType(
-            ctx,
-            field.type,
-            pathDot + field.name,
-            value,
-            scope,
-          )
-        ) {
-          result = true;
-        }
-        continue;
       }
       ctx.$set = ctx.$set || {};
       ctx.$set[pathDot + field.name] = value;

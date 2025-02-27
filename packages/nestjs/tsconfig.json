@@ -7,7 +7,8 @@
       "@opra/common": ["../common/src"],
       "@opra/core": ["../core/src"],
       "@opra/http": ["../http/src"],
-      "@opra/kafka": ["../kafka/src"]
+      "@opra/kafka": ["../kafka/src"],
+      "@opra/rabbitmq": ["../rabbitmq/src"]
     },
     "emitDecoratorMetadata": true
   }

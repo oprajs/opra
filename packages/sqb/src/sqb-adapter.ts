@@ -2,7 +2,7 @@ import type { OpraFilter } from '@opra/common';
 import type { ExecutionContext } from '@opra/core';
 import type { HttpContext } from '@opra/http';
 import { EntityMetadata, type Repository } from '@sqb/connect';
-import _parseFilter from './adapter-utils/parse-filter.js';
+import _prepareFilter from './adapter-utils/prepare-filter.js';
 
 export namespace SQBAdapter {
   export type Id = string | number | boolean | Date;
@@ -14,7 +14,11 @@ export namespace SQBAdapter {
     | string
     | undefined;
 
-  export const parseFilter = _parseFilter;
+  /**
+   * @deprecated Use prepareFilter instead
+   */
+  export const parseFilter = _prepareFilter;
+  export const prepareFilter = _prepareFilter;
 
   export interface TransformedRequest {
     method:

@@ -425,13 +425,12 @@ export class ElasticEntityService<
         ? { ids: { values: [command.documentId] } }
         : undefined,
       options?.filter,
-      options?.request?.query,
+      // options?.request?.query,
     ]);
-    let query: estypes.QueryDslQueryContainer | undefined = {
-      ...options?.request?.query,
-      ...filterQuery,
-    };
-    if (!Object.keys(query).length) query = { match_all: {} };
+
+    let query = this._mergeQueries(options?.request?.query, filterQuery);
+    if (!(query && Object.keys(query).length)) query = { match_all: {} };
+
     const request: estypes.SearchRequest = {
       from: options?.skip,
       size: options?.limit,
@@ -677,6 +676,66 @@ export class ElasticEntityService<
       await this.onError?.(e, this);
       throw e;
     }
+  }
+
+  protected _mergeQueries(
+    requestQuery?: estypes.QueryDslQueryContainer,
+    filterQuery?: estypes.QueryDslQueryContainer,
+  ): estypes.QueryDslQueryContainer | undefined {
+    if (requestQuery) {
+      let subQuery = false;
+      if (requestQuery.function_score) {
+        subQuery = true;
+        if (Array.isArray(requestQuery.function_score)) {
+          requestQuery.function_score.forEach(item => {
+            item.filter = this._mergeQueries(item.filter, filterQuery);
+          });
+        } else {
+          requestQuery.function_score.query = this._mergeQueries(
+            requestQuery.function_score.query,
+            filterQuery,
+          );
+        }
+      }
+      if (requestQuery.dis_max) {
+        subQuery = true;
+        requestQuery.dis_max.queries?.map(q =>
+          this._mergeQueries(q, filterQuery),
+        );
+      }
+      if (requestQuery.constant_score) {
+        subQuery = true;
+        requestQuery.constant_score.filter = this._mergeQueries(
+          requestQuery.constant_score.filter,
+          filterQuery,
+        )!;
+      }
+      if (requestQuery.has_child) {
+        subQuery = true;
+        requestQuery.has_child.query = this._mergeQueries(
+          requestQuery.has_child.query,
+          filterQuery,
+        )!;
+      }
+      if (requestQuery.has_parent) {
+        subQuery = true;
+        requestQuery.has_parent.query = this._mergeQueries(
+          requestQuery.has_parent.query,
+          filterQuery,
+        )!;
+      }
+      if (requestQuery.script_score) {
+        subQuery = true;
+        requestQuery.script_score.query = this._mergeQueries(
+          requestQuery.script_score.query,
+          filterQuery,
+        )!;
+      }
+      return subQuery
+        ? requestQuery
+        : ElasticAdapter.prepareFilter([requestQuery, filterQuery]);
+    }
+    return filterQuery;
   }
 
   protected async _beforeCreate(

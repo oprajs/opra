@@ -1,0 +1,14 @@
+{
+  "extends": "../../tsconfig-base.json",
+  "include": ["src"],
+  "compilerOptions": {
+    "baseUrl": "./",
+    "paths": {
+      "@opra/common": ["../common/src"],
+      "@opra/core": ["../core/src"],
+      "@opra/http": ["../http/src"],
+      "@opra/nestjs": ["../nestjs/src"],
+    },
+    "emitDecoratorMetadata": true
+  }
+}

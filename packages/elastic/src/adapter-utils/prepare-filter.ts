@@ -32,12 +32,7 @@ function prepareFilterAst(
 
   if (
     ast instanceof OpraFilter.QualifiedIdentifier ||
-    ast instanceof OpraFilter.NumberLiteral ||
-    ast instanceof OpraFilter.StringLiteral ||
-    ast instanceof OpraFilter.BooleanLiteral ||
-    ast instanceof OpraFilter.NullLiteral ||
-    ast instanceof OpraFilter.DateLiteral ||
-    ast instanceof OpraFilter.TimeLiteral
+    ast instanceof OpraFilter.Literal
   ) {
     return ast.value;
   }
@@ -82,54 +77,66 @@ function prepareFilterAst(
       negative = !negative;
       out = { exists: { field: left } };
     } else {
-      switch (ast.op) {
-        case '!=':
-        case '=':
-        case 'in':
-        case '!in': {
-          out = { match: { [left]: right } };
-          break;
-        }
-        case '>': {
-          out = { range: { [left]: { gt: right } } };
-          break;
-        }
-        case '>=': {
-          out = { range: { [left]: { gte: right } } };
-          break;
-        }
-        case '<': {
-          out = { range: { [left]: { lt: right } } };
-          break;
-        }
-        case '<=': {
-          out = { range: { [left]: { lte: right } } };
-          break;
-        }
-        case '!like':
-        case 'like': {
-          out = {
-            wildcard: { [left]: { value: String(right).replace(/%/g, '*') } },
-          };
-          break;
-        }
-        case '!ilike':
-        case 'ilike': {
-          out = {
-            wildcard: {
-              [left]: {
-                value: String(right).replace(/%/g, '*'),
-                case_insensitive: true,
+      if (ast.prepare) {
+        out = ast.prepare({
+          left,
+          right,
+          op: ast.op,
+          adapter: 'elastic',
+        });
+      }
+      if (!out) {
+        switch (ast.op) {
+          case '!=':
+          case '=':
+          case 'in':
+          case '!in': {
+            out = Array.isArray(right)
+              ? { terms: { [left]: right } }
+              : { match: { [left]: right } };
+            break;
+          }
+          case '>': {
+            out = { range: { [left]: { gt: right } } };
+            break;
+          }
+          case '>=': {
+            out = { range: { [left]: { gte: right } } };
+            break;
+          }
+          case '<': {
+            out = { range: { [left]: { lt: right } } };
+            break;
+          }
+          case '<=': {
+            out = { range: { [left]: { lte: right } } };
+            break;
+          }
+          case '!like':
+          case 'like': {
+            out = {
+              wildcard: { [left]: { value: String(right).replace(/%/g, '*') } },
+            };
+            break;
+          }
+          case '!ilike':
+          case 'ilike': {
+            out = {
+              wildcard: {
+                [left]: {
+                  value: String(right).replace(/%/g, '*'),
+                  case_insensitive: true,
+                },
               },
-            },
-          };
-          break;
+            };
+            break;
+          }
+          default:
+            /* istanbul ignore next */
+            throw new TypeError(
+              `Unknown ComparisonExpression operation (${ast.op})`,
+            );
         }
-        default:
-          /* istanbul ignore next */
-          throw new TypeError(
-            `Unknown ComparisonExpression operation (${ast.op})`,
-          );
       }
     }
     if (

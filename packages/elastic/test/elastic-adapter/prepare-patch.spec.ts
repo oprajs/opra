@@ -12,7 +12,7 @@ describe('ElasticAdapter.preparePatch', () => {
     });
   });
 
-  it('Should patch nested fields', async () => {
+  it('Should patch objects fields', async () => {
     const o: any = ElasticAdapter.preparePatch({
       age: 21,
       address: { city: 'Berlin' },
@@ -30,7 +30,7 @@ describe('ElasticAdapter.preparePatch', () => {
     });
   });
 
-  it('Should replace nested fields if starts with *', async () => {
+  it('Should replace objects fields if starts with *', async () => {
     const o: any = ElasticAdapter.preparePatch({
       age: 21,
       '*address': { city: 'Berlin' },

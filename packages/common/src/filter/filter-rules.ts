@@ -28,6 +28,8 @@ export namespace FilterRules {
   export interface Rule {
     operators?: ComparisonOperator[];
     description?: string;
+    prepare?: (args: ComparisonExpression.PrepareArgs) => any;
+    mappedField?: string;
   }
 }
 
@@ -94,7 +96,6 @@ export class FilterRules {
         );
       }
       // Check if filtering accepted for given field
-      // const findManyOp = this.getOperation('findMany');
       const rule = this._rules.get(ast.left.value);
       if (!rule) {
         throw new OpraException({
@@ -120,6 +121,8 @@ export class FilterRules {
           },
         });
       }
+      if (rule.mappedField) ast.left.value = rule.mappedField;
+      if (rule.prepare) ast.prepare = rule.prepare;
       this.normalizeFilterAst(ast.right, stack, currentType);
       stack.pop();
       return ast;

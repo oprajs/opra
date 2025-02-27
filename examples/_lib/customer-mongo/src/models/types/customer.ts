@@ -4,6 +4,7 @@ import { Address } from './address.js';
 import { Country } from './country.js';
 import { Note } from './note.js';
 import { Person } from './person.js';
+import { PhoneNumber } from './phone-number.js';
 import { Record } from './record.js';
 
 @ComplexType({
@@ -29,8 +30,11 @@ export class Customer extends MixinType(Record, Person) {
   @ApiField({ exclusive: true })
   declare address?: Address;
 
-  @ApiField({ type: Note, exclusive: true })
+  @ApiField({ type: Note, exclusive: true, isNestedEntity: true })
   declare notes?: Note[];
+
+  @ApiField({ type: PhoneNumber, exclusive: true })
+  declare phoneNumbers?: PhoneNumber[];
 
   @ApiField({ exclusive: true, readonly: true })
   declare readonly country?: Country;

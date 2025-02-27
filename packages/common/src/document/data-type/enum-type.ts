@@ -68,19 +68,19 @@ export interface EnumTypeStatic {
 
   <T extends EnumType.EnumObject, B extends EnumType.EnumObject>(
     enumSource: T,
-    base: B,
-    options: EnumType.Options<T>,
+    base?: B,
+    options?: EnumType.Options<T>,
   ): B & T;
 
   <T extends EnumType.EnumArray, B extends EnumType.EnumArray>(
     enumSource: T,
-    base: B,
-    options: EnumType.Options<T>,
+    base?: B,
+    options?: EnumType.Options<T>,
   ): B & T;
 
   <T extends EnumType.EnumObject | EnumType.EnumArray>(
     target: T,
-    options: EnumType.Options<T>,
+    options?: EnumType.Options<T>,
   ): T;
 }
 
@@ -213,8 +213,8 @@ function EnumTypeFactory(enumSource: object, ...args: any[]) {
   const metadata: EnumType.Metadata = {
     kind: OpraSchema.EnumType.Kind,
     attributes,
-    base: options.base,
-    name: options.name,
+    base: options?.base,
+    name: options?.name,
     description: options?.description,
   };
   Object.defineProperty(enumSource, DATATYPE_METADATA, {

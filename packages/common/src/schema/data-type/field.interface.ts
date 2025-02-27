@@ -2,9 +2,14 @@ import type { DataType } from './data-type.interface.js';
 
 export namespace Field {
   export type Name = string;
-  export type QualifiedName = string; // a.b.c
+  export type QualifiedName = string;
 }
 
+/**
+ * Represents a Field type used to define properties and behaviors of a data structure.
+ *
+ * The `Field` type allows describing the characteristics, constraints, and metadata of a field within an entity or data type.
+ */
 export type Field = {
   type?: DataType.Name | DataType;
 
@@ -45,9 +50,20 @@ export type Field = {
   exclusive?: boolean;
 
   /**
-   * Indicates if the field value is an array
+   * A boolean variable that indicates whether the value represents an array or not.
+   * If true, the value is recognized as an array.
+   * If false, the value is not an array.
+   * This property is optional and may be undefined.
    */
   isArray?: boolean;
+
+  /**
+   * Determines whether the field is a nested entity within a parent structure.
+   * If set to true, the field is considered to be part of a hierarchical or
+   * composite structure. If false or undefined, the field is considered
+   * standalone or root-level.
+   */
+  isNestedEntity?: boolean;
 
   /**
    * Indicates key field when this field is a ComplexType array

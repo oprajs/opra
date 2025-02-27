@@ -251,6 +251,12 @@ export class BodyReader extends EventEmitter {
           }
           case 'deflate':
           case 'x-deflate': {
+            const newStream = zlib.createDeflate();
+            prev.pipe(newStream);
+            return newStream;
+          }
+          case 'inflate':
+          case 'x-inflate': {
             const newStream = zlib.createInflate();
             prev.pipe(newStream);
             return newStream;

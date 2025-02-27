@@ -1,5 +1,5 @@
 import { Global, Module, OnApplicationShutdown } from '@nestjs/common';
-import { OnApplicationBootstrap } from '@nestjs/common/interfaces/hooks/on-application-bootstrap.interface';
+import type { OnApplicationBootstrap } from '@nestjs/common/interfaces/hooks/on-application-bootstrap.interface.js';
 import { Db, MongoClient } from 'mongodb';
 
 @Global()

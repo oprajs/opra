@@ -10,8 +10,8 @@ import {
 import { type ILogger, kAssetCache, PlatformAdapter } from '@opra/core';
 import {
   type Consumer,
-  ConsumerConfig,
-  EachMessageHandler,
+  type ConsumerConfig,
+  type EachMessageHandler,
   Kafka,
   type KafkaConfig,
   logLevel,

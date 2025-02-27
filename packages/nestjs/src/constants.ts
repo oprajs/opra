@@ -1,3 +1,1 @@
 export const IS_PUBLIC_KEY = 'opra:isPublic';
-export const OPRA_HTTP_API_CONFIG = 'OPRA_HTTP_API_CONFIG';
-export const OPRA_KAFKA_MODULE_CONFIG = 'OPRA_KAFKA_MODULE_CONFIG';

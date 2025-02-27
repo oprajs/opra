@@ -11,13 +11,16 @@ export interface ApiFieldDecorator extends PropertyDecorator {
    *
    * @param {string | RegExp | (string | RegExp)[]} scopePattern - A pattern or array of patterns that defines the scope
    *        within which the override applies. Patterns can be strings or regular expressions.
-   * @param {StrictOmit<ApiField.Options, 'isArray' | 'type' | 'scopePattern'>} options - Configuration options to override
+   * @param {StrictOmit<ApiField.Options, 'isArray' | 'isNestedEntity' | 'type' | 'scopePattern'>} options - Configuration options to override
    *        the default API field behavior, excluding the properties 'isArray', 'type', and 'scopePattern'.
    * @return {ApiFieldDecorator} The decorated API field after applying the override configuration.
    */
   Override(
     scopePattern: (string | RegExp) | (string | RegExp)[],
-    options: StrictOmit<ApiField.Options, 'isArray' | 'type' | 'scopePattern'>,
+    options: StrictOmit<
+      ApiField.Options,
+      'isArray' | 'isNestedEntity' | 'type' | 'scopePattern'
+    >,
   ): ApiFieldDecorator;
 }
 
@@ -58,7 +61,10 @@ export function ApiFieldDecoratorFactory(
    */
   decorator.Override = (
     scopes: (string | RegExp) | (string | RegExp)[],
-    opts: StrictOmit<ApiField.Options, 'isArray' | 'type' | 'scopePattern'>,
+    opts: StrictOmit<
+      ApiField.Options,
+      'isArray' | 'isNestedEntity' | 'type' | 'scopePattern'
+    >,
   ): any => {
     decoratorChain.push((meta: ApiField.Metadata): void => {
       meta.override = meta.override || [];
@@ -68,6 +74,7 @@ export function ApiFieldDecoratorFactory(
           scopePattern: Array.isArray(scopes) ? scopes : [scopes],
           type: undefined,
           isArray: undefined,
+          isNestedEntity: undefined,
         }),
       );
     });

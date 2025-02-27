@@ -57,7 +57,8 @@ describe('HttpOperation.Entity.* decorators', () => {
       description: 'Determines sort fields',
       isArray: true,
       arraySeparator: ',',
-      type: expect.any(FieldPathType),
+      type: expect.any(Object),
+      parser: expect.any(Function),
     },
   };
 
@@ -234,7 +235,9 @@ describe('HttpOperation.Entity.* decorators', () => {
       class CustomerResource {
         @(HttpOperation.Entity.DeleteMany({ type: Customer })
           .Filter('_id', ['=', '!='])
-          .Filter('givenName', ['=', '!=', 'like']))
+          .Filter('name', {
+            operators: ['=', '!=', 'like'],
+          }))
         deleteMany() {}
       }
 
@@ -263,7 +266,7 @@ describe('HttpOperation.Entity.* decorators', () => {
             _id: {
               operators: ['=', '!='],
             },
-            givenName: {
+            name: {
               operators: ['=', '!=', 'like'],
             },
           },
@@ -276,10 +279,12 @@ describe('HttpOperation.Entity.* decorators', () => {
   describe('"FindMany" decorator', () => {
     it('Should define FindMany operation metadata', async () => {
       class CustomerResource {
-        @HttpOperation.Entity.FindMany({
+        @(HttpOperation.Entity.FindMany({
           type: Customer,
           description: 'operation description',
         })
+          .Filter('_id', ['=', '!='])
+          .SortFields('givenName', 'familyName'))
         findMany() {}
       }
 
@@ -296,6 +301,10 @@ describe('HttpOperation.Entity.* decorators', () => {
         composition: 'Entity.FindMany',
         compositionOptions: {
           type: 'Customer',
+          sortFields: {
+            familyName: 'familyName',
+            givenName: 'givenName',
+          },
         },
         type: Customer,
       });
@@ -319,7 +328,7 @@ describe('HttpOperation.Entity.* decorators', () => {
       expect(opr.parameters.find(prm => prm.name === 'projection')).toEqual(
         queryParams.projection,
       );
-      expect(opr.parameters.find(prm => prm.name === 'filter')).toEqual(
+      expect(opr.parameters.find(prm => prm.name === 'filter')).toMatchObject(
         queryParams.filter,
       );
       expect(opr.parameters.find(prm => prm.name === 'sort')).toEqual(
@@ -347,7 +356,7 @@ describe('HttpOperation.Entity.* decorators', () => {
     it('Should Filter() define metadata value', async () => {
       class CustomerResource {
         @(HttpOperation.Entity.FindMany({ type: Customer })
-          .Filter('_id', '=, !=')
+          .Filter('_id', ['=', '!='])
           .Filter('givenName', ['=', '!=', 'like']))
         findMany() {}
       }
@@ -423,18 +432,13 @@ describe('HttpOperation.Entity.* decorators', () => {
         composition: 'Entity.FindMany',
         compositionOptions: {
           type: 'Customer',
-          sortFields: ['_id', 'givenName'],
+          sortFields: { _id: '_id', givenName: 'givenName' },
         },
         type: Customer,
       });
-      expect(opr.parameters.find(prm => prm.name === 'sort')).toEqual({
-        location: 'query',
-        name: 'sort',
-        description: 'Determines sort fields',
-        isArray: true,
-        arraySeparator: ',',
-        type: expect.any(FieldPathType),
-      });
+      expect(opr.parameters.find(prm => prm.name === 'sort')).toEqual(
+        queryParams.sort,
+      );
       expect(opr.responses).toEqual([
         {
           statusCode: 200,
@@ -705,7 +709,7 @@ describe('HttpOperation.Entity.* decorators', () => {
     it('Should Filter() define metadata value', async () => {
       class CustomerResource {
         @(HttpOperation.Entity.UpdateMany({ type: Customer })
-          .Filter('_id', '=, !=')
+          .Filter('_id', ['=', '!='])
           .Filter('givenName', ['=', '!=', 'like']))
         updateMany() {}
       }
@@ -750,7 +754,9 @@ describe('HttpOperation.Entity.* decorators', () => {
           requestBody: {
             maxContentSize: 1000,
           },
-        }).KeyParam('id', 'number'))
+        })
+          .KeyParam('id', 'number')
+          .Filter('gender', ['=', '!=']))
         updateOne() {}
       }
 
@@ -779,8 +785,8 @@ describe('HttpOperation.Entity.* decorators', () => {
       });
       expect(opr.parameters.map(prm => prm.name)).toStrictEqual([
         'projection',
-        'filter',
         'id',
+        'filter',
       ]);
       expect(opr.parameters.find(prm => prm.name === 'projection')).toEqual({
         location: 'query',
@@ -845,7 +851,7 @@ describe('HttpOperation.Entity.* decorators', () => {
           type: Customer,
         })
           .KeyParam('id', 'number')
-          .Filter('_id', '=, !=')
+          .Filter('_id', ['=', '!='])
           .Filter('givenName', ['=', '!=', 'like']))
         updateOne() {}
       }

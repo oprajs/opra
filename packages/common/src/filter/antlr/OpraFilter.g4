@@ -34,8 +34,8 @@ value
     | infinity                                              #infinityLiteral
     | boolean                                               #booleanLiteral
     | null                                                  #nullLiteral
-    | DATE                                                  #dateLiteral
     | DATETIME                                              #dateTimeLiteral
+    | DATE                                                  #dateLiteral
     | TIME                                                  #timeLiteral
     | STRING                                                #stringLiteral
     ;
@@ -111,7 +111,13 @@ DATE
 
 DATETIME
     : '\'' DATEFORMAT 'T' TIMEFORMAT TIMEZONEOFFSETFORMAT '\''
+    '\'' DATEFORMAT ' ' TIMEFORMAT TIMEZONEOFFSETFORMAT '\''
+    '\'' DATEFORMAT 'T' TIMEFORMAT '\''
+    '\'' DATEFORMAT ' ' TIMEFORMAT '\''
     | '"' DATEFORMAT 'T' TIMEFORMAT TIMEZONEOFFSETFORMAT '"'
+    | '"' DATEFORMAT ' ' TIMEFORMAT TIMEZONEOFFSETFORMAT '"'
+    | '"' DATEFORMAT 'T' TIMEFORMAT '"'
+    | '"' DATEFORMAT ' ' TIMEFORMAT '"'
     ;
 
 TIME
