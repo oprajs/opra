@@ -8,7 +8,7 @@
     "compile": "tsc --noEmit",
     "prebuild": "npm run check && npm run lint && npm run clean",
     "build": "ng build",
-    "postbuild": "cp ../../LICENSE ../../build/angular",
+    "postbuild": "cp ../../LICENSE ./build",
     "lint": "eslint . --max-warnings=0",
     "lint:fix": "eslint . --max-warnings=0 --fix",
     "format": "prettier . --write --log-level=warn",
@@ -18,7 +18,7 @@
     "clean": "npm run clean:src && npm run clean:test && npm run clean:dist && npm run clean:cover",
     "clean:src": "ts-cleanup -s src --all",
     "clean:test": "ts-cleanup -s test --all",
-    "clean:dist": "rimraf ../../build/angular",
+    "clean:dist": "rimraf ./build",
     "clean:cover": "rimraf ../../coverage/angular"
   },
   "dependencies": {

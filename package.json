@@ -10,7 +10,7 @@
     "url": "https://github.com/panates/opra.git"
   },
   "workspaces": [
-    "packages/**",
+    "packages/*",
     "examples/_lib/*",
     "examples/*"
   ],

@@ -7,8 +7,8 @@
     "rootDir": "src",
     "baseUrl": "./",
     "paths": {
-      "@opra/client": ["../../build/client"],
-      "@opra/common": ["../../build/common"]
+      "@opra/client": ["../client/build"],
+      "@opra/common": ["../common/build"]
     },
     "resolveJsonModule": true,
     "esModuleInterop": true,

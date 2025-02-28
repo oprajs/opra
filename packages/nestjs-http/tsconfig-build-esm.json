@@ -4,8 +4,8 @@
     "module": "ES2020",
     "moduleResolution": "Node",
     "rootDir": "src",
-    "outDir": "../../build/nestjs-http/esm",
-    "declarationDir": "../../build/nestjs-http/types"
+    "outDir": "./build/esm",
+    "declarationDir": "./build/types"
   },
   "include": ["src"]
 }

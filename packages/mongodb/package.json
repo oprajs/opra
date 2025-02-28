@@ -8,9 +8,9 @@
     "compile": "tsc --noEmit",
     "prebuild": "npm run lint && npm run clean",
     "build": "npm run build:cjs && npm run build:esm",
-    "build:cjs": "tsc -b tsconfig-build-cjs.json && cp ../../support/package.cjs.json ../../build/mongodb/cjs/package.json",
-    "build:esm": "tsc -b tsconfig-build-esm.json && cp ../../support/package.esm.json ../../build/mongodb/esm/package.json",
-    "postbuild": "cp README.md package.json ../../LICENSE ../../build/mongodb && node ../../support/postbuild.cjs",
+    "build:cjs": "tsc -b tsconfig-build-cjs.json && cp ../../support/package.cjs.json ./build/cjs/package.json",
+    "build:esm": "tsc -b tsconfig-build-esm.json && cp ../../support/package.esm.json ./build/esm/package.json",
+    "postbuild": "cp README.md package.json ../../LICENSE ./build && node ../../support/postbuild.cjs",
     "lint": "eslint . --max-warnings=0",
     "lint:fix": "eslint . --max-warnings=0 --fix",
     "format": "prettier . --write --log-level=warn",
@@ -18,7 +18,7 @@
     "cover": "jest --passWithNoTests --collect-coverage",
     "clean": "npm run clean:src && npm run clean:dist && npm run clean:cover",
     "clean:src": "ts-cleanup -s src --all && ts-cleanup -s test --all",
-    "clean:dist": "rimraf ../../build/mongodb",
+    "clean:dist": "rimraf ./build",
     "clean:cover": "rimraf ../../coverage/mongodb"
   },
   "dependencies": {
