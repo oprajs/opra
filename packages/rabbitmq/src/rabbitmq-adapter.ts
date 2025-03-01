@@ -41,7 +41,7 @@ interface HandlerArguments {
   instance: any;
   operation: RpcOperation;
   operationConfig: OperationConfig;
-  handler: (msg: ConsumeMessage | null) => void | Promise<void>;
+  handler: (queue: string, msg: ConsumeMessage | null) => void | Promise<void>;
   topics: string[];
 }
 
@@ -171,7 +171,7 @@ export class RabbitmqAdapter extends PlatformAdapter {
                   if (!msg) return;
                   await this.emitAsync('message', msg).catch(() => undefined);
                   try {
-                    await args.handler(msg);
+                    await args.handler(topic, msg);
                     // channel.ack(msg);
                   } catch (e) {
                     this._emitError(e);
@@ -197,12 +197,6 @@ export class RabbitmqAdapter extends PlatformAdapter {
       throw e;
     }
   }
-
-  // protected async _connect() {
-  //   if (!this._connection)
-  //     this._connection = await amqplib.connect(this._config.connection);
-  //   return this._connection;
-  // }
 
   /**
    * Closes all connections and stops the service
@@ -293,7 +287,7 @@ export class RabbitmqAdapter extends PlatformAdapter {
       }
     });
 
-    args.handler = async (message: ConsumeMessage | null) => {
+    args.handler = async (queue: string, message: ConsumeMessage | null) => {
       if (!message) return;
       const operationHandler = instance[operation.name] as Function;
       let content: any;
@@ -327,6 +321,7 @@ export class RabbitmqAdapter extends PlatformAdapter {
         controllerInstance: instance,
         operation,
         operationHandler,
+        queue,
         fields: message.fields,
         properties: message.properties,
         content,

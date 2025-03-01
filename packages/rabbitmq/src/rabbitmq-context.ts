@@ -19,6 +19,7 @@ export class RabbitmqContext
   readonly controllerInstance?: any;
   readonly operation?: RpcOperation;
   readonly operationHandler?: Function;
+  readonly queue: string;
   readonly fields: amqplib.MessageFields;
   readonly properties: amqplib.MessageProperties;
   readonly content: any;
@@ -43,6 +44,7 @@ export class RabbitmqContext
       this.controllerInstance = init.controllerInstance;
     if (init.operation) this.operation = init.operation;
     if (init.operationHandler) this.operationHandler = init.operationHandler;
+    this.queue = init.queue;
     this.fields = init.fields;
     this.properties = init.properties;
     this.headers = init.headers || {};
@@ -63,6 +65,7 @@ export namespace RabbitmqContext {
     operationHandler?: Function;
     content: any;
     headers: Record<string, any>;
+    queue: string;
     fields: amqplib.MessageFields;
     properties: amqplib.MessageProperties;
   }
