@@ -1,6 +1,6 @@
 {
   "name": "@opra/rabbitmq",
-  "version": "1.11.0",
+  "version": "1.11.1",
   "description": "Opra RabbitMQ package",
   "author": "Panates",
   "license": "MIT",
@@ -33,8 +33,8 @@
     "valgen": "^5.13.0"
   },
   "peerDependencies": {
-    "@opra/common": "^1.11.0",
-    "@opra/core": "^1.11.0",
+    "@opra/common": "^1.11.1",
+    "@opra/core": "^1.11.1",
     "amqplib": "^0.10.5"
   },
   "devDependencies": {
