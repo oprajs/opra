@@ -456,14 +456,12 @@ export class KafkaAdapter extends PlatformAdapter {
           if (!context.errors.length) context.errors.push(error);
           context.errors = this._wrapExceptions(context.errors);
           if (context.listenerCount('error')) {
-            await this.emitAsync('error', context.errors[0], context);
+            await context.emitAsync('error', context.errors[0], context);
           }
           if (logger?.error) {
             context.errors.forEach(err => logger.error(err));
           }
-          return;
-        }
-        this.logger?.error(error);
+        } else logger?.error(error);
         if (this.listenerCount('error')) this.emit('error', error);
       })
       .catch(noOp);
