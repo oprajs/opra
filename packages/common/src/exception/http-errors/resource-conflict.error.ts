@@ -1,4 +1,3 @@
-import { translate } from '../../i18n/index.js';
 import { OpraHttpError } from '../opra-http-error.js';
 
 export class ResourceConflictError extends OpraHttpError {
@@ -7,11 +6,7 @@ export class ResourceConflictError extends OpraHttpError {
   constructor(resource: string, fields: string | string[], cause?: Error) {
     super(
       {
-        message: translate(
-          `error:RESOURCE_CONFLICT`,
-          { resource, fields },
-          `There is already an other {{resource}} resource with same values ({{fields}})`,
-        ),
+        message: `There is already an other "${resource}" resource with same values for field(s) [${fields}]`,
         severity: 'error',
         code: 'RESOURCE_CONFLICT',
         details: {

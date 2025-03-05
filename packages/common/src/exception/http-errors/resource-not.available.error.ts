@@ -1,5 +1,4 @@
 import { HttpStatusCode } from '../../enums/index.js';
-import { translate } from '../../i18n/index.js';
 import { OpraHttpError } from '../opra-http-error.js';
 
 /**
@@ -10,10 +9,7 @@ export class ResourceNotAvailableError extends OpraHttpError {
   constructor(resource: string, keyValue?: any, cause?: Error) {
     super(
       {
-        message: translate(
-          `error:RESOURCE_NOT_AVAILABLE`,
-          `Resource "${resource}${keyValue ? '/' + keyValue : ''}" is not available`,
-        ),
+        message: `Resource "${resource}${keyValue ? '/' + keyValue : ''}" is not available`,
         severity: 'error',
         code: 'RESOURCE_NOT_AVAILABLE',
         details: {

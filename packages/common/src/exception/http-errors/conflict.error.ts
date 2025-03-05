@@ -1,4 +1,3 @@
-import { translate } from '../../i18n/index.js';
 import type { ErrorIssue } from '../error-issue.js';
 import { OpraHttpError } from '../opra-http-error.js';
 
@@ -11,7 +10,7 @@ export class ConflictError extends OpraHttpError {
 
   protected init(issue: Partial<ErrorIssue>) {
     super.init({
-      message: translate('error:CONFLICT', 'Conflict'),
+      message: 'Conflict',
       code: 'CONFLICT',
       ...issue,
     });

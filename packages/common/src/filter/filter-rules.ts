@@ -5,7 +5,6 @@ import { isString, Validator } from 'valgen';
 import type { ComplexType } from '../document/index.js';
 import { OpraException } from '../exception/index.js';
 import { ResponsiveMap } from '../helpers/index.js';
-import { translate } from '../i18n/index.js';
 import { OpraSchema } from '../schema/index.js';
 import {
   ArithmeticExpression,
@@ -99,9 +98,7 @@ export class FilterRules {
       const rule = this._rules.get(ast.left.value);
       if (!rule) {
         throw new OpraException({
-          message: translate('error:UNACCEPTED_FILTER_FIELD', {
-            field: ast.left.value,
-          }),
+          message: `Field '${ast.left.value}' is not available for filter operation`,
           code: 'UNACCEPTED_FILTER_FIELD',
           details: {
             field: ast.left.value,
@@ -111,9 +108,7 @@ export class FilterRules {
       // Check if filtering endpoint accepted for given field
       if (rule.operators && !rule.operators.includes(ast.op)) {
         throw new OpraException({
-          message: translate('error:UNACCEPTED_FILTER_OPERATION', {
-            field: ast.left.value,
-          }),
+          message: `'${ast.left.value}' field do not accept '${ast.op}' filter operator`,
           code: 'UNACCEPTED_FILTER_OPERATION',
           details: {
             field: ast.left.value,

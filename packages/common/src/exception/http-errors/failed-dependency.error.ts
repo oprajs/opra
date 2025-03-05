@@ -1,4 +1,3 @@
-import { translate } from '../../i18n/index.js';
 import type { ErrorIssue } from '../error-issue.js';
 import { OpraHttpError } from '../opra-http-error.js';
 
@@ -11,10 +10,7 @@ export class FailedDependencyError extends OpraHttpError {
 
   protected init(issue: Partial<ErrorIssue>) {
     super.init({
-      message: translate(
-        'error:FAILED_DEPENDENCY',
-        'The request failed due to failure of a previous request',
-      ),
+      message: 'The request failed due to failure of a previous request',
       code: 'FAILED_DEPENDENCY',
       ...issue,
     });
