@@ -505,7 +505,7 @@ export class HttpHandler {
     context.errors = this._wrapExceptions(context.errors);
     try {
       if (context.listenerCount('error')) {
-        await context.emitAsync('error', context);
+        await context.emitAsync('error', context.errors[0], context);
         context.errors = this._wrapExceptions(context.errors);
       }
       if (this.adapter.listenerCount('error')) {
