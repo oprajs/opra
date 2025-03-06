@@ -53,7 +53,7 @@ export class RabbitmqAdapter extends PlatformAdapter {
   static readonly PlatformName = 'rabbitmq';
   protected _config: RabbitmqAdapter.Config;
   protected _controllerInstances = new Map<RpcController, any>();
-  protected _connections: amqplib.Connection[] = [];
+  protected _connections: amqplib.ChannelModel[] = [];
   protected _status: RabbitmqAdapter.Status = 'idle';
   readonly protocol: OpraSchema.Transport = 'rpc';
   readonly platform = RabbitmqAdapter.PlatformName;

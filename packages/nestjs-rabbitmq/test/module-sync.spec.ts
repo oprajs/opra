@@ -27,7 +27,7 @@ describe('OpraRabbitmqModule - sync', () => {
   let nestApplication: INestApplication;
   let moduleRef: ModuleRef;
   let adapter: RabbitmqAdapter;
-  let connection: amqplib.Connection;
+  let connection: amqplib.ChannelModel;
   let channel: amqplib.Channel;
 
   beforeAll(async () => {

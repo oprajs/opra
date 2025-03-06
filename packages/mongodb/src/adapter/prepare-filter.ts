@@ -27,7 +27,7 @@ export default function prepareFilter<T = any>(
   options?: {
     fieldPrefix?: string;
   },
-): mongodb.Filter<T> {
+): mongodb.Filter<T> | undefined {
   const filtersArray = Array.isArray(filters) ? filters : [filters];
   if (!filtersArray.length) return {};
   let i = 0;
