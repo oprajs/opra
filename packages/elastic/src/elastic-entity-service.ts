@@ -45,6 +45,7 @@ export namespace ElasticEntityService {
   export interface CreateOptions {
     request?: estypes.CreateRequest;
     transport?: TransportRequestOptions;
+    replaceIfExists?: boolean;
   }
 
   /**
@@ -315,7 +316,9 @@ export class ElasticEntityService<
       document: doc,
     };
     const client = this.getClient();
-    const r = await client.create(request, options?.transport);
+    const r = options?.replaceIfExists
+      ? await client.index(request, options?.transport)
+      : await client.create(request, options?.transport);
     /* istanbul ignore next */
     if (!(r._id && (r.result === 'created' || r.result === 'updated'))) {
       throw new InternalServerError(
