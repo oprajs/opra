@@ -1,6 +1,6 @@
 {
   "name": "@opra/mongodb",
-  "version": "1.11.0",
+  "version": "1.12.0",
   "description": "Opra MongoDB adapter package",
   "author": "Panates",
   "license": "MIT",
@@ -8,9 +8,9 @@
     "compile": "tsc --noEmit",
     "prebuild": "npm run lint && npm run clean",
     "build": "npm run build:cjs && npm run build:esm",
-    "build:cjs": "tsc -b tsconfig-build-cjs.json && cp ../../support/package.cjs.json ../../build/mongodb/cjs/package.json",
-    "build:esm": "tsc -b tsconfig-build-esm.json && cp ../../support/package.esm.json ../../build/mongodb/esm/package.json",
-    "postbuild": "cp README.md package.json ../../LICENSE ../../build/mongodb && node ../../support/postbuild.cjs",
+    "build:cjs": "tsc -b tsconfig-build-cjs.json && cp ../../support/package.cjs.json ./build/cjs/package.json",
+    "build:esm": "tsc -b tsconfig-build-esm.json && cp ../../support/package.esm.json ./build/esm/package.json",
+    "postbuild": "cp README.md package.json ../../LICENSE ./build && node ../../support/postbuild.cjs",
     "lint": "eslint . --max-warnings=0",
     "lint:fix": "eslint . --max-warnings=0 --fix",
     "format": "prettier . --write --log-level=warn",
@@ -18,22 +18,22 @@
     "cover": "jest --passWithNoTests --collect-coverage",
     "clean": "npm run clean:src && npm run clean:dist && npm run clean:cover",
     "clean:src": "ts-cleanup -s src --all && ts-cleanup -s test --all",
-    "clean:dist": "rimraf ../../build/mongodb",
+    "clean:dist": "rimraf ./build",
     "clean:cover": "rimraf ../../coverage/mongodb"
   },
   "dependencies": {
-    "@jsopen/objects": "^1.5.0",
+    "@jsopen/objects": "^1.5.2",
     "tslib": "^2.8.1",
     "valgen": "^5.13.0"
   },
   "peerDependencies": {
-    "@opra/common": "^1.11.0",
-    "@opra/core": "^1.11.0",
-    "@opra/http": "^1.11.0",
-    "mongodb": "^6.0.0"
+    "@opra/common": "^1.12.0",
+    "@opra/core": "^1.12.0",
+    "@opra/http": "^1.12.0",
+    "mongodb": "^6.14.2"
   },
   "devDependencies": {
-    "@faker-js/faker": "^9.5.0",
+    "@faker-js/faker": "^9.5.1",
     "mongodb": "^6.13.1",
     "ts-gems": "^3.11.3"
   },

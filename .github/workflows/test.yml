@@ -2,9 +2,8 @@ name: Unit Tests
 
 on:
   push:
-    branches: [ main, dev ]
-  pull_request:
-    branches: [ main, dev ]
+    branches-ignore:
+      - main
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
@@ -12,12 +11,6 @@ concurrency:
 
 jobs:
   test:
-    name: Node v${{ matrix.node }}
-    strategy:
-      fail-fast: false
-      matrix:
-        node: [ '20' ]
-
     runs-on: ubuntu-latest
 
     services:
@@ -74,12 +67,12 @@ jobs:
       - name: Setup NodeJS
         uses: actions/setup-node@v4
         with:
-          node-version: ${{ matrix.node }}
+          node-version: '20'
           cache: npm
 
       - name: Cache node modules
         id: cache-npm
-        uses: actions/cache@v3
+        uses: actions/cache@v4
         with:
           path: node_modules
           key: node_modules-${{ runner.os }}-${{ hashFiles('**/package-lock.json') }}
@@ -87,7 +80,7 @@ jobs:
             node_modules-${{ runner.os }}-            
 
       - name: Install NodeJS dependencies
-        run: npm install
+        run: npm install --no-save
 
       - name: Install rman
         run: npm install rman -g
@@ -110,7 +103,5 @@ jobs:
 
       - name: Send coverage to Coveralls
         uses: coverallsapp/github-action@v2
-        # Run only once
-        if: ${{ matrix.node == '20' }}
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}

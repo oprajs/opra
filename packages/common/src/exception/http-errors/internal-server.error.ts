@@ -1,4 +1,3 @@
-import { translate } from '../../i18n/index.js';
 import type { ErrorIssue } from '../error-issue.js';
 import { OpraHttpError } from '../opra-http-error.js';
 
@@ -11,10 +10,7 @@ export class InternalServerError extends OpraHttpError {
 
   protected init(issue: Partial<ErrorIssue>) {
     super.init({
-      message: translate(
-        'error:INTERNAL_SERVER_ERROR',
-        'Internal server error',
-      ),
+      message: 'Internal server error',
       code: 'INTERNAL_SERVER_ERROR',
       severity: 'fatal',
       ...issue,

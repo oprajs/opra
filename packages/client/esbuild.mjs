@@ -10,9 +10,7 @@ const require = createRequire(import.meta.url);
 const pkgJson = require('./package.json');
 
 const dirname = path.dirname(fileURLToPath(import.meta.url));
-const appName = path.basename(dirname);
-const buildRoot = path.resolve(dirname, '../../build');
-const targetPath = path.resolve(buildRoot, appName);
+const targetPath = path.resolve(dirname, 'build');
 const entryPoint = path.resolve(targetPath, 'esm/index.js');
 const external = [
   ...Object.keys(pkgJson.dependencies || {}),
@@ -23,7 +21,7 @@ const external = [
 /**
  * @type BuildOptions
  */
-const defaultCofig = {
+const defaultConfig = {
   entryPoints: [entryPoint],
   bundle: true,
   platform: 'node',
@@ -55,7 +53,7 @@ const defaultCofig = {
 };
 
 await esbuild.build({
-  ...defaultCofig,
+  ...defaultConfig,
   target: ['chrome85'],
   outfile: path.join(targetPath, './browser/index.mjs'),
   plugins: [
@@ -80,7 +78,7 @@ await esbuild.build({
 });
 
 await esbuild.build({
-  ...defaultCofig,
+  ...defaultConfig,
   outfile: path.join(targetPath, './browser/index.cjs'),
   platform: 'browser',
   target: ['es2020', 'chrome80'],
@@ -89,7 +87,7 @@ await esbuild.build({
 });
 
 await esbuild.build({
-  ...defaultCofig,
+  ...defaultConfig,
   outfile: path.join(targetPath, './browser/index.mjs'),
   platform: 'browser',
   target: ['es2020', 'chrome80'],

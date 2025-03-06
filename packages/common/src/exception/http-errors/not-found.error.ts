@@ -1,4 +1,3 @@
-import { translate } from '../../i18n/index.js';
 import type { ErrorIssue } from '../error-issue.js';
 import { OpraHttpError } from '../opra-http-error.js';
 
@@ -15,7 +14,7 @@ export class NotFoundError extends OpraHttpError {
 
   protected init(issue: Partial<ErrorIssue>) {
     super.init({
-      message: translate('error:NOT_FOUND', 'Not found'),
+      message: 'Not found',
       code: 'NOT_FOUND',
       ...issue,
     });

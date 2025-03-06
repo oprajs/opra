@@ -1,6 +1,6 @@
 {
   "name": "@opra/core",
-  "version": "1.11.0",
+  "version": "1.12.0",
   "description": "Opra schema package",
   "author": "Panates",
   "license": "MIT",
@@ -8,11 +8,11 @@
     "compile": "tsc --noEmit",
     "prebuild": "npm run lint && npm run clean",
     "build": "npm run build:cjs && npm run build:esm",
-    "build:cjs": "tsc -b tsconfig-build-cjs.json && cp ../../support/package.cjs.json ../../build/core/cjs/package.json",
-    "build:esm": "tsc -b tsconfig-build-esm.json && cp ../../support/package.esm.json ../../build/core/esm/package.json",
+    "build:cjs": "tsc -b tsconfig-build-cjs.json && cp ../../support/package.cjs.json ./build/cjs/package.json",
+    "build:esm": "tsc -b tsconfig-build-esm.json && cp ../../support/package.esm.json ./build/esm/package.json",
     "postbuild": "npm run postbuild:copy_1 && npm run postbuild:copy_2 && node ../../support/postbuild.cjs",
-    "postbuild:copy_1": "cp README.md package.json ../../LICENSE ../../build/core",
-    "postbuild:copy_2": "cp -R i18n ../../build/core/i18n",
+    "postbuild:copy_1": "cp README.md package.json ../../LICENSE ./build",
+    "postbuild:copy_2": "cp -R i18n ./build/i18n",
     "lint": "eslint . --max-warnings=0",
     "lint:fix": "eslint . --max-warnings=0 --fix",
     "format": "prettier . --write --log-level=warn",
@@ -22,7 +22,7 @@
     "clean": "npm run clean:src && npm run clean:test && npm run clean:dist && npm run clean:cover",
     "clean:src": "ts-cleanup -s src --all",
     "clean:test": "ts-cleanup -s test --all",
-    "clean:dist": "rimraf ../../build/core",
+    "clean:dist": "rimraf ./build",
     "clean:cover": "rimraf ../../coverage/core"
   },
   "dependencies": {
@@ -31,7 +31,7 @@
     "tslib": "^2.8.1"
   },
   "peerDependencies": {
-    "@opra/common": "^1.11.0"
+    "@opra/common": "^1.12.0"
   },
   "devDependencies": {
     "ts-gems": "^3.11.3"

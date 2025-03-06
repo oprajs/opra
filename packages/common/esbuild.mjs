@@ -9,9 +9,7 @@ const require = createRequire(import.meta.url);
 const pkgJson = require('./package.json');
 
 const dirname = path.dirname(fileURLToPath(import.meta.url));
-const appName = path.basename(dirname);
-const buildRoot = path.resolve(dirname, '../../build');
-const targetPath = path.resolve(buildRoot, appName);
+const targetPath = path.resolve(dirname, 'build');
 const noExternal = [];
 const external = [
   ...Object.keys(pkgJson.dependencies || {}),

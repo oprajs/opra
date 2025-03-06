@@ -1,5 +1,4 @@
 import { HttpStatusCode } from '../../enums/index.js';
-import { translate } from '../../i18n/index.js';
 import type { ErrorIssue } from '../error-issue.js';
 import { OpraHttpError } from '../opra-http-error.js';
 
@@ -14,10 +13,7 @@ export class ForbiddenError extends OpraHttpError {
 
   protected init(issue: Partial<ErrorIssue>) {
     super.init({
-      message: translate(
-        'error:FORBIDDEN',
-        'You are not authorized to perform this action',
-      ),
+      message: 'You are not authorized to perform this action',
       code: 'FORBIDDEN',
       ...issue,
     });

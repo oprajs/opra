@@ -450,7 +450,7 @@ export class MongoNestedService<
     const matchFilter = MongoAdapter.prepareFilter([
       MongoAdapter.prepareKeyValues(documentId, ['_id']),
       options?.documentFilter,
-    ]);
+    ])!;
     const pullFilter =
       MongoAdapter.prepareFilter([
         MongoAdapter.prepareKeyValues(nestedId, [this.nestedKey]),
@@ -507,7 +507,7 @@ export class MongoNestedService<
     const matchFilter = MongoAdapter.prepareFilter([
       MongoAdapter.prepareKeyValues(documentId, ['_id']),
       options?.documentFilter,
-    ]);
+    ])!;
     // Count matching items, we will use this as result
     const countCommand: MongoNestedService.CountCommand<T> = {
       crud: 'read',
@@ -1112,7 +1112,7 @@ export class MongoNestedService<
     isNotNullish(nestedId, { label: 'nestedId' });
     let filter = MongoAdapter.prepareKeyValues(nestedId, [this.nestedKey]);
     if (options?.filter)
-      filter = MongoAdapter.prepareFilter([filter, options?.filter]);
+      filter = MongoAdapter.prepareFilter([filter, options?.filter])!;
     const updateManyCommand: MongoNestedService.UpdateManyCommand<T> = {
       ...command,
       options: {
@@ -1170,11 +1170,11 @@ export class MongoNestedService<
       MongoAdapter.prepareKeyValues(documentId, ['_id']),
       options?.documentFilter,
       { [this.fieldName]: { $exists: true } },
-    ]);
+    ])!;
     if (options?.filter) {
       const elemMatch = MongoAdapter.prepareFilter([options?.filter], {
         fieldPrefix: 'elem.',
-      });
+      })!;
       options.arrayFilters = [elemMatch];
     }
     const patchGenerator = new MongoPatchGenerator();

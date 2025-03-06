@@ -1,4 +1,3 @@
-import { translate } from '../../i18n/index.js';
 import type { ErrorIssue } from '../error-issue.js';
 import { OpraHttpError } from '../opra-http-error.js';
 
@@ -12,7 +11,7 @@ export class MethodNotAllowedError extends OpraHttpError {
 
   protected init(issue: Partial<ErrorIssue>) {
     super.init({
-      message: translate('error:METHOD_NOT_ALLOWED', 'Method not allowed'),
+      message: 'Method not allowed',
       code: 'METHOD_NOT_ALLOWED',
       ...issue,
     });

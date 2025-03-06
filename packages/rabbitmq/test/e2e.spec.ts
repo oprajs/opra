@@ -15,7 +15,7 @@ const rabbitHost = process.env.RABBITMQ_HOST || 'amqp://localhost:5672';
 describe('e2e', () => {
   let document: ApiDocument;
   let adapter: RabbitmqAdapter;
-  let connection: amqplib.Connection;
+  let connection: amqplib.ChannelModel;
   let channel: amqplib.Channel;
   const logger: ILogger = {
     log() {},

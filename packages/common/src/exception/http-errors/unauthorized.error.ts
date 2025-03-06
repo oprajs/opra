@@ -1,4 +1,3 @@
-import { translate } from '../../i18n/index.js';
 import type { ErrorIssue } from '../error-issue.js';
 import { OpraHttpError } from '../opra-http-error.js';
 
@@ -12,10 +11,7 @@ export class UnauthorizedError extends OpraHttpError {
 
   protected init(issue: Partial<ErrorIssue>) {
     super.init({
-      message: translate(
-        'error:UNAUTHORIZED',
-        'You have not been authenticated to perform this action',
-      ),
+      message: `You don't have permission to perform this action`,
       code: 'UNAUTHORIZED',
       ...issue,
     });

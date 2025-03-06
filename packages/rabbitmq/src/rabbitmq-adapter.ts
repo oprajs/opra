@@ -41,7 +41,7 @@ interface HandlerArguments {
   instance: any;
   operation: RpcOperation;
   operationConfig: OperationConfig;
-  handler: (msg: ConsumeMessage | null) => void | Promise<void>;
+  handler: (queue: string, msg: ConsumeMessage | null) => void | Promise<void>;
   topics: string[];
 }
 
@@ -53,7 +53,7 @@ export class RabbitmqAdapter extends PlatformAdapter {
   static readonly PlatformName = 'rabbitmq';
   protected _config: RabbitmqAdapter.Config;
   protected _controllerInstances = new Map<RpcController, any>();
-  protected _connections: amqplib.Connection[] = [];
+  protected _connections: amqplib.ChannelModel[] = [];
   protected _status: RabbitmqAdapter.Status = 'idle';
   readonly protocol: OpraSchema.Transport = 'rpc';
   readonly platform = RabbitmqAdapter.PlatformName;
@@ -171,7 +171,7 @@ export class RabbitmqAdapter extends PlatformAdapter {
                   if (!msg) return;
                   await this.emitAsync('message', msg).catch(() => undefined);
                   try {
-                    await args.handler(msg);
+                    await args.handler(topic, msg);
                     // channel.ack(msg);
                   } catch (e) {
                     this._emitError(e);
@@ -197,12 +197,6 @@ export class RabbitmqAdapter extends PlatformAdapter {
       throw e;
     }
   }
-
-  // protected async _connect() {
-  //   if (!this._connection)
-  //     this._connection = await amqplib.connect(this._config.connection);
-  //   return this._connection;
-  // }
 
   /**
    * Closes all connections and stops the service
@@ -293,7 +287,7 @@ export class RabbitmqAdapter extends PlatformAdapter {
       }
     });
 
-    args.handler = async (message: ConsumeMessage | null) => {
+    args.handler = async (queue: string, message: ConsumeMessage | null) => {
       if (!message) return;
       const operationHandler = instance[operation.name] as Function;
       let content: any;
@@ -327,6 +321,7 @@ export class RabbitmqAdapter extends PlatformAdapter {
         controllerInstance: instance,
         operation,
         operationHandler,
+        queue,
         fields: message.fields,
         properties: message.properties,
         content,
@@ -395,14 +390,12 @@ export class RabbitmqAdapter extends PlatformAdapter {
           if (!context.errors.length) context.errors.push(error);
           context.errors = this._wrapExceptions(context.errors);
           if (context.listenerCount('error')) {
-            await this.emitAsync('error', context.errors[0], context);
+            await context.emitAsync('error', context.errors[0], context);
           }
           if (logger?.error) {
             context.errors.forEach(err => logger.error(err));
           }
-          return;
-        }
-        this.logger?.error(error);
+        } else logger?.error(error);
         if (this.listenerCount('error')) this.emit('error', error);
       })
       .catch(noOp);

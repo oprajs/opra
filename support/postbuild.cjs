@@ -2,9 +2,9 @@ const fs = require('node:fs');
 const path = require('node:path');
 
 function clearPackageJson() {
-  const project = path.basename(process.cwd());
-  const targetPath = path.resolve(__dirname, '../build', project);
-  const filename = path.resolve(__dirname, '../build', project, 'package.json');
+  const projectDir = process.cwd();
+  const targetPath = path.resolve(projectDir, 'build');
+  const filename = path.resolve(targetPath, 'package.json');
   const json = JSON.parse(fs.readFileSync(filename, 'utf-8'));
   delete json.private;
   delete json.scripts;

@@ -3,7 +3,7 @@
   "compilerOptions": {
     "baseUrl": "./",
     "paths": {
-      "@opra/*": ["./build/*/types/index.js"]
+      "@opra/*": ["./packages/*/build/types/index.js"]
     }
   }
 }
