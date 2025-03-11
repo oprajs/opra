@@ -33,7 +33,7 @@
     "@sqb/connect": "^4.19.5"
   },
   "devDependencies": {
-    "@faker-js/faker": "^9.5.1",
+    "@faker-js/faker": "^9.6.0",
     "@sqb/builder": "^4.19.5",
     "@sqb/connect": "^4.19.5",
     "@sqb/postgres": "^4.19.5",

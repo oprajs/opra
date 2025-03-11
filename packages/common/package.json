@@ -29,7 +29,7 @@
     "@browsery/antlr4": "^4.13.3-r4",
     "@browsery/highland": "^2.13.6-r4",
     "@browsery/http-parser": "^0.5.9-r4",
-    "@browsery/i18next": "^24.2.1-r1",
+    "@browsery/i18next": "^24.2.2",
     "@browsery/type-is": "^1.6.18-r8",
     "@jsopen/objects": "^1.5.2",
     "fast-tokenizer": "^1.7.0",
