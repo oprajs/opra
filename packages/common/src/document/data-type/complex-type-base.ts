@@ -367,7 +367,9 @@ abstract class ComplexTypeBaseClass extends DataType {
         currentPath: currentPath + (currentPath ? '.' : '') + fieldName,
       });
       schema[fieldName] =
-        context.partial || !field.required ? vg.optional(fn) : vg.required(fn);
+        context.partial || !field.required
+          ? vg.optional(fn)
+          : vg.pipe([vg.required(fn), vg.isNotEmpty()]);
     }
     if (context.allowPatchOperators) {
       schema._$pull = vg.optional(vg.isAny());
