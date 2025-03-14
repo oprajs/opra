@@ -43,7 +43,7 @@ export namespace ElasticEntityService {
    * @interface
    */
   export interface CreateOptions {
-    request?: CreateRequest;
+    request?: StrictOmit<CreateRequest, 'id' | 'index' | 'document'>;
     transport?: TransportRequestOptions;
     replaceIfExists?: boolean;
   }
@@ -56,7 +56,7 @@ export namespace ElasticEntityService {
    */
   export interface CountOptions {
     filter?: ElasticAdapter.FilterInput;
-    request?: CountRequest;
+    request?: StrictOmit<CountRequest, 'index'>;
     transport?: TransportRequestOptions;
   }
 
@@ -68,7 +68,7 @@ export namespace ElasticEntityService {
    */
   export interface DeleteOptions {
     filter?: ElasticAdapter.FilterInput;
-    request?: DeleteByQueryRequest;
+    request?: StrictOmit<DeleteByQueryRequest, 'index'>;
     transport?: TransportRequestOptions;
   }
 
@@ -80,7 +80,7 @@ export namespace ElasticEntityService {
    */
   export interface DeleteManyOptions {
     filter?: ElasticAdapter.FilterInput;
-    request?: DeleteByQueryRequest;
+    request?: StrictOmit<DeleteByQueryRequest, 'index'>;
     transport?: TransportRequestOptions;
   }
 
@@ -105,7 +105,10 @@ export namespace ElasticEntityService {
     sort?: string[];
     limit?: number;
     skip?: number;
-    request?: SearchRequest;
+    request?: StrictOmit<
+      SearchRequest,
+      'index' | 'from' | 'size' | 'sort' | '_source'
+    >;
     transport?: TransportRequestOptions;
     noDecode?: boolean;
   }
@@ -128,7 +131,7 @@ export namespace ElasticEntityService {
    */
   export interface UpdateOneOptions {
     filter?: ElasticAdapter.FilterInput;
-    request?: UpdateByQueryRequest;
+    request?: StrictOmit<UpdateByQueryRequest, 'index'>;
     transport?: TransportRequestOptions;
   }
 
@@ -140,7 +143,7 @@ export namespace ElasticEntityService {
    */
   export interface UpdateManyOptions {
     filter?: ElasticAdapter.FilterInput;
-    request?: UpdateByQueryRequest;
+    request?: StrictOmit<UpdateByQueryRequest, 'index'>;
     transport?: TransportRequestOptions;
   }
 
