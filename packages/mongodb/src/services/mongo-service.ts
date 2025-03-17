@@ -506,6 +506,7 @@ export class MongoService<
    * @param operation - The operation to retrieve the encoder for. Valid values are 'create' and 'update'.
    */
   protected _getInputCodec(operation: string): IsObject.Validator<T> {
+    const dataType = this.dataType;
     const cacheKey =
       operation + (this._dataTypeScope ? ':' + this._dataTypeScope : '');
     let validator = this._inputCodecs[cacheKey];
@@ -519,7 +520,6 @@ export class MongoService<
       options.allowPatchOperators = true;
       options.keepKeyFields = true;
     }
-    const dataType = this.dataType;
     validator = dataType.generateCodec(
       'decode',
       options,
