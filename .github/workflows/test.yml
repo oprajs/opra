@@ -88,7 +88,7 @@ jobs:
         uses: panates/ghac-setup-node@v1
         with:
           node-version: '20.18.1'
-          PERSONAL_ACCESS_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Install rman
         run: npm install rman -g
