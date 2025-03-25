@@ -74,7 +74,7 @@
     "@types/cookie-parser": "^1.4.8",
     "@types/cookie-signature": "^1.1.2",
     "@types/encodeurl": "^1.0.2",
-    "@types/express": "^5.0.0",
+    "@types/express": "^5.0.1",
     "@types/fresh": "^0.5.2",
     "@types/mime-types": "^2.1.4",
     "@types/range-parser": "^1.2.7",
@@ -84,7 +84,7 @@
     "express": "^4.21.2",
     "fastify": "^5.2.1",
     "path-browserify": "^1.0.1",
-    "supertest": "^7.0.0",
+    "supertest": "^7.1.0",
     "ts-gems": "^3.11.3"
   },
   "type": "module",
