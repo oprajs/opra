@@ -147,7 +147,18 @@ export class RabbitmqAdapter extends PlatformAdapter {
 
       /** Connect to server */
       for (const connectionOptions of this._config.connection) {
-        const connection = await amqplib.connect(connectionOptions);
+        const connection = await amqplib.connect(connectionOptions).catch(e => {
+          e.message = 'Unable to connect to RabbitMQ server';
+          throw new Error(
+            'Unable to connect to RabbitMQ server (' +
+              (typeof connectionOptions == 'object'
+                ? connectionOptions.hostname + ':' + connectionOptions.port
+                : connectionOptions) +
+              ')',
+            // @ts-ignore
+            e,
+          );
+        });
         this._connections.push(connection);
         const hostname =
           typeof connectionOptions === 'object'
