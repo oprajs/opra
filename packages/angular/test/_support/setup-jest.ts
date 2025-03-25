@@ -1,6 +1,5 @@
-/* eslint-disable */
+import fetch, { Headers, Request, Response } from 'cross-fetch';
 import { setupZoneTestEnv } from 'jest-preset-angular/setup-env/zone';
-import fetch, { Request, Response, Headers } from 'cross-fetch';
 
 setupZoneTestEnv();
 globalThis.fetch = fetch;

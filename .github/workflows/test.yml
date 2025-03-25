@@ -1,17 +1,40 @@
-name: Unit Tests
-
+name: Test
 on:
-  push:
-    branches-ignore:
-      - main
+  # Can be called from other workflows
+  workflow_call:
+    secrets:
+      PERSONAL_ACCESS_TOKEN:
+        required: true
 
+  # Can be run manually
+  workflow_dispatch:
+
+  # on git push
+  push:
+    branches:
+      - main
+      - dev
+    paths:
+      - 'packages/*/src/**'
+      - 'packages/*/test/**'
+      - 'packages/*/*.{json,js,mjs,cjs}'
+      - 'support/test/**'
+      - 'jest.*'
+      - 'package.json'
+      - 'tsconfig*.json'
+
+# Only one run per branch at a time
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
 
 jobs:
   test:
+    if: >
+      (github.event_name != 'pull_request' || github.head_ref != 'dev')
+      && !contains(github.event.head_commit.message, 'no-test')
     runs-on: ubuntu-latest
+    timeout-minutes: 10
 
     services:
       postgres:
@@ -64,35 +87,17 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Setup NodeJS
-        uses: actions/setup-node@v4
+      - name: 'Setup Environment'
+        uses: panates/ghac-setup-node@v1
         with:
-          node-version: '20'
-          cache: npm
-
-      - name: Cache node modules
-        id: cache-npm
-        uses: actions/cache@v4
-        with:
-          path: node_modules
-          key: node_modules-${{ runner.os }}-${{ hashFiles('**/package-lock.json') }}
-          restore-keys: |
-            node_modules-${{ runner.os }}-            
-
-      - name: Install NodeJS dependencies
-        run: npm install --no-save
+          node-version: '20.18.1'
+          token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Install rman
         run: npm install rman -g
 
-      - name: Run linter tests
-        run: rman run lint
-
-      - name: Run circular dependency tests
-        run: rman run check
-
-      - name: Run compile tests
-        run: rman run compile
+      - name: Run qc tests
+        run: rman run qc
 
       - name: Run unit tests
         run: npm run citest

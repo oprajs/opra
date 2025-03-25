@@ -43,7 +43,7 @@ export namespace ElasticEntityService {
    * @interface
    */
   export interface CreateOptions {
-    request?: estypes.CreateRequest;
+    request?: StrictOmit<CreateRequest, 'id' | 'index' | 'document'>;
     transport?: TransportRequestOptions;
     replaceIfExists?: boolean;
   }
@@ -56,7 +56,7 @@ export namespace ElasticEntityService {
    */
   export interface CountOptions {
     filter?: ElasticAdapter.FilterInput;
-    request?: estypes.CountRequest;
+    request?: StrictOmit<CountRequest, 'index'>;
     transport?: TransportRequestOptions;
   }
 
@@ -68,7 +68,7 @@ export namespace ElasticEntityService {
    */
   export interface DeleteOptions {
     filter?: ElasticAdapter.FilterInput;
-    request?: estypes.DeleteByQueryRequest;
+    request?: StrictOmit<DeleteByQueryRequest, 'index'>;
     transport?: TransportRequestOptions;
   }
 
@@ -80,7 +80,7 @@ export namespace ElasticEntityService {
    */
   export interface DeleteManyOptions {
     filter?: ElasticAdapter.FilterInput;
-    request?: estypes.DeleteByQueryRequest;
+    request?: StrictOmit<DeleteByQueryRequest, 'index'>;
     transport?: TransportRequestOptions;
   }
 
@@ -105,7 +105,10 @@ export namespace ElasticEntityService {
     sort?: string[];
     limit?: number;
     skip?: number;
-    request?: estypes.SearchRequest;
+    request?: StrictOmit<
+      SearchRequest,
+      'index' | 'from' | 'size' | 'sort' | '_source'
+    >;
     transport?: TransportRequestOptions;
     noDecode?: boolean;
   }
@@ -128,7 +131,7 @@ export namespace ElasticEntityService {
    */
   export interface UpdateOneOptions {
     filter?: ElasticAdapter.FilterInput;
-    request?: estypes.UpdateByQueryRequest;
+    request?: StrictOmit<UpdateByQueryRequest, 'index'>;
     transport?: TransportRequestOptions;
   }
 
@@ -140,7 +143,7 @@ export namespace ElasticEntityService {
    */
   export interface UpdateManyOptions {
     filter?: ElasticAdapter.FilterInput;
-    request?: estypes.UpdateByQueryRequest;
+    request?: StrictOmit<UpdateByQueryRequest, 'index'>;
     transport?: TransportRequestOptions;
   }
 
@@ -173,7 +176,7 @@ export namespace ElasticEntityService {
 
   export interface SearchCommand extends StrictOmit<CommandInfo, 'input'> {
     crud: 'read';
-    request: estypes.SearchRequest;
+    request: SearchRequest;
     options?: SearchOptions;
   }
 
@@ -183,7 +186,18 @@ export namespace ElasticEntityService {
     options?: UpdateOneOptions;
   }
 
+  export type CreateRequest = estypes.CreateRequest;
+  export type CreateResponse = estypes.CreateResponse;
+  export type CountRequest = estypes.CountRequest;
+  export type CountResponse = estypes.CountResponse;
+  export type DeleteByQueryRequest = estypes.DeleteByQueryRequest;
+  export type DeleteByQueryResponse = estypes.DeleteByQueryResponse;
+  export type SearchRequest = estypes.SearchRequest;
   export type SearchResponse<T> = estypes.SearchResponse<T>;
+  export type UpdateByQueryRequest = estypes.UpdateByQueryRequest;
+  export type UpdateByQueryResponse = estypes.UpdateByQueryResponse;
+  export type QueryDslQueryContainer = estypes.QueryDslQueryContainer;
+  export type Script = estypes.Script;
 }
 
 /**
@@ -301,7 +315,7 @@ export class ElasticEntityService<
    */
   protected async _create(
     command: ElasticEntityService.CreateCommand,
-  ): Promise<estypes.CreateResponse> {
+  ): Promise<ElasticEntityService.CreateResponse> {
     const input = command.input;
     isNotNullish(input, { label: 'input' });
     isNotNullish(input._id, { label: 'input._id' });
@@ -309,7 +323,7 @@ export class ElasticEntityService<
     const doc: any = inputCodec(input);
     delete doc._id;
     const { options } = command;
-    const request: estypes.CreateRequest = {
+    const request: ElasticEntityService.CreateRequest = {
       ...options?.request,
       index: this.getIndexName(),
       id: input._id,
@@ -336,18 +350,18 @@ export class ElasticEntityService<
    */
   protected async _count(
     command: ElasticEntityService.CountCommand,
-  ): Promise<estypes.CountResponse> {
+  ): Promise<ElasticEntityService.CountResponse> {
     const { options } = command;
     const filterQuery = ElasticAdapter.prepareFilter([
       options?.filter,
       options?.request?.query,
     ]);
-    let query: estypes.QueryDslQueryContainer | undefined = {
+    let query: ElasticEntityService.QueryDslQueryContainer | undefined = {
       ...options?.request?.query,
       ...filterQuery,
     };
     if (!Object.keys(query).length) query = undefined;
-    const request: estypes.CountRequest = {
+    const request: ElasticEntityService.CountRequest = {
       index: this.getIndexName(),
       ...options?.request,
       query,
@@ -364,7 +378,7 @@ export class ElasticEntityService<
    */
   protected async _delete(
     command: ElasticEntityService.DeleteCommand,
-  ): Promise<estypes.DeleteByQueryResponse> {
+  ): Promise<ElasticEntityService.DeleteByQueryResponse> {
     isNotNullish(command.documentId, { label: 'documentId' });
     const { options } = command;
     const filterQuery = ElasticAdapter.prepareFilter([
@@ -372,12 +386,12 @@ export class ElasticEntityService<
       options?.filter,
       options?.request?.query,
     ]);
-    let query: estypes.QueryDslQueryContainer | undefined = {
+    let query: ElasticEntityService.QueryDslQueryContainer | undefined = {
       ...options?.request?.query,
       ...filterQuery,
     };
     if (!Object.keys(query).length) query = { match_all: {} };
-    const request: estypes.DeleteByQueryRequest = {
+    const request: ElasticEntityService.DeleteByQueryRequest = {
       index: this.getIndexName(),
       ...options?.request,
       query,
@@ -394,18 +408,18 @@ export class ElasticEntityService<
    */
   protected async _deleteMany(
     command: ElasticEntityService.DeleteManyCommand,
-  ): Promise<estypes.DeleteByQueryResponse> {
+  ): Promise<ElasticEntityService.DeleteByQueryResponse> {
     const { options } = command;
     const filterQuery = ElasticAdapter.prepareFilter([
       options?.filter,
       options?.request?.query,
     ]);
-    let query: estypes.QueryDslQueryContainer | undefined = {
+    let query: ElasticEntityService.QueryDslQueryContainer | undefined = {
       ...options?.request?.query,
       ...filterQuery,
     };
     if (!Object.keys(query).length) query = { match_all: {} };
-    const request: estypes.DeleteByQueryRequest = {
+    const request: ElasticEntityService.DeleteByQueryRequest = {
       ...options?.request,
       index: this.getIndexName(),
       query,
@@ -434,7 +448,7 @@ export class ElasticEntityService<
     let query = this._mergeQueries(options?.request?.query, filterQuery);
     if (!(query && Object.keys(query).length)) query = { match_all: {} };
 
-    const request: estypes.SearchRequest = {
+    const request: ElasticEntityService.SearchRequest = {
       from: options?.skip,
       size: options?.limit,
       sort: options?.sort
@@ -475,7 +489,7 @@ export class ElasticEntityService<
     command: ElasticEntityService.SearchCommand,
   ): Promise<ElasticEntityService.SearchResponse<PartialDTO<T>>> {
     const { options } = command;
-    const request: estypes.SearchRequest = {
+    const request: ElasticEntityService.SearchRequest = {
       index: this.getIndexName(),
       ...command.request,
     };
@@ -501,12 +515,12 @@ export class ElasticEntityService<
    */
   protected async _updateMany(
     command: ElasticEntityService.UpdateCommand<T>,
-  ): Promise<estypes.UpdateByQueryResponse> {
+  ): Promise<ElasticEntityService.UpdateByQueryResponse> {
     if (command.byId) isNotNullish(command.documentId, { label: 'documentId' });
     const { options } = command;
     const input: any = command.input;
     const requestScript = command.options?.request?.script;
-    let script: estypes.Script | undefined;
+    let script: ElasticEntityService.Script | undefined;
     const inputKeysLen = Object.keys(input).length;
     isNotNullish(inputKeysLen || script, { label: 'input' });
     if (requestScript) {
@@ -539,12 +553,12 @@ export class ElasticEntityService<
       options?.filter,
       options?.request?.query,
     ]);
-    let query: estypes.QueryDslQueryContainer | undefined = {
+    let query: ElasticEntityService.QueryDslQueryContainer | undefined = {
       ...options?.request?.query,
       ...filterQuery,
     };
     if (!Object.keys(query).length) query = { match_all: {} };
-    const request: estypes.UpdateByQueryRequest = {
+    const request: ElasticEntityService.UpdateByQueryRequest = {
       ...options?.request,
       index: this.getIndexName(),
       script,
@@ -572,6 +586,7 @@ export class ElasticEntityService<
    * @param operation - The operation to retrieve the encoder for. Valid values are 'create' and 'update'.
    */
   protected _getInputCodec(operation: string): IsObject.Validator<T> {
+    const dataType = this.dataType;
     const cacheKey =
       operation + (this._dataTypeScope ? ':' + this._dataTypeScope : '');
     let validator = this._inputCodecs[cacheKey];
@@ -584,7 +599,6 @@ export class ElasticEntityService<
       options.partial = 'deep';
       options.keepKeyFields = true;
     }
-    const dataType = this.dataType;
     validator = dataType.generateCodec(
       'decode',
       options,
@@ -682,9 +696,9 @@ export class ElasticEntityService<
   }
 
   protected _mergeQueries(
-    requestQuery?: estypes.QueryDslQueryContainer,
-    filterQuery?: estypes.QueryDslQueryContainer,
-  ): estypes.QueryDslQueryContainer | undefined {
+    requestQuery?: ElasticEntityService.QueryDslQueryContainer,
+    filterQuery?: ElasticEntityService.QueryDslQueryContainer,
+  ): ElasticEntityService.QueryDslQueryContainer | undefined {
     if (requestQuery) {
       let subQuery = false;
       if (requestQuery.function_score) {
