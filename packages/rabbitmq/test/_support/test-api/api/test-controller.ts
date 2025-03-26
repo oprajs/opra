@@ -24,7 +24,8 @@ export class TestController {
     }))
   mailChannel(ctx: RabbitmqContext) {
     TestController.counters.mailChannel++;
-    return 'OK:' + ctx.properties.timestamp;
+    ctx.ack();
+    return 'OK:' + ctx.message.properties.timestamp;
   }
 
   /**
@@ -39,6 +40,7 @@ export class TestController {
   }))
   smsChannel(ctx: RabbitmqContext) {
     TestController.counters.smsChannel++;
-    return 'OK:' + ctx.properties.timestamp;
+    ctx.ack();
+    return 'OK:' + ctx.message.properties.timestamp;
   }
 }

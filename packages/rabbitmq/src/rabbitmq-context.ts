@@ -1,6 +1,7 @@
 import { OpraSchema, RpcController, RpcOperation } from '@opra/common';
 import { ExecutionContext } from '@opra/core';
-import amqplib from 'amqplib';
+import type { Channel } from 'amqplib';
+import type { ConsumeMessage } from 'amqplib/properties';
 import type { AsyncEventEmitter } from 'node-events-async';
 import type { RabbitmqAdapter } from './rabbitmq-adapter';
 
@@ -12,6 +13,7 @@ export class RabbitmqContext
   extends ExecutionContext
   implements AsyncEventEmitter
 {
+  private _ackSent = false;
   readonly protocol: OpraSchema.Transport;
   readonly platform: string;
   readonly adapter: RabbitmqAdapter;
@@ -20,8 +22,8 @@ export class RabbitmqContext
   readonly operation?: RpcOperation;
   readonly operationHandler?: Function;
   readonly queue: string;
-  readonly fields: amqplib.MessageFields;
-  readonly properties: amqplib.MessageProperties;
+  readonly channel: Channel;
+  readonly message: ConsumeMessage;
   readonly content: any;
   readonly headers: Record<string, any>;
 
@@ -44,11 +46,31 @@ export class RabbitmqContext
       this.controllerInstance = init.controllerInstance;
     if (init.operation) this.operation = init.operation;
     if (init.operationHandler) this.operationHandler = init.operationHandler;
+    this.channel = init.channel;
     this.queue = init.queue;
-    this.fields = init.fields;
-    this.properties = init.properties;
+    this.message = init.message;
     this.headers = init.headers || {};
     this.content = init.content;
+  }
+
+  get properties() {
+    return this.message.properties;
+  }
+
+  get fields() {
+    return this.message.fields;
+  }
+
+  ack() {
+    if (this._ackSent) return;
+    this._ackSent = true;
+    this.channel.ack(this.message);
+  }
+
+  nack() {
+    if (this._ackSent) return;
+    this._ackSent = true;
+    this.channel.nack(this.message);
   }
 }
 
@@ -59,6 +81,7 @@ export namespace RabbitmqContext {
       'document' | 'protocol' | 'documentNode'
     > {
     adapter: RabbitmqAdapter;
+    channel: Channel;
     controller?: RpcController;
     controllerInstance?: any;
     operation?: RpcOperation;
@@ -66,7 +89,6 @@ export namespace RabbitmqContext {
     content: any;
     headers: Record<string, any>;
     queue: string;
-    fields: amqplib.MessageFields;
-    properties: amqplib.MessageProperties;
+    message: ConsumeMessage;
   }
 }

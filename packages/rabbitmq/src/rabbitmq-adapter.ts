@@ -10,7 +10,7 @@ import {
   RpcOperation,
 } from '@opra/common';
 import { kAssetCache, PlatformAdapter } from '@opra/core';
-import amqplib from 'amqplib';
+import amqplib, { Channel } from 'amqplib';
 import { ConsumeMessage } from 'amqplib/properties';
 import { parse as parseContentType } from 'content-type';
 import iconv from 'iconv-lite';
@@ -41,7 +41,11 @@ interface HandlerArguments {
   instance: any;
   operation: RpcOperation;
   operationConfig: OperationConfig;
-  handler: (queue: string, msg: ConsumeMessage | null) => void | Promise<void>;
+  handler: (
+    channel: Channel,
+    queue: string,
+    msg: ConsumeMessage | null,
+  ) => void | Promise<void>;
   topics: string[];
 }
 
@@ -182,8 +186,7 @@ export class RabbitmqAdapter extends PlatformAdapter {
                   if (!msg) return;
                   await this.emitAsync('message', msg).catch(() => undefined);
                   try {
-                    await args.handler(topic, msg);
-                    // channel.ack(msg);
+                    await args.handler(channel, topic, msg);
                   } catch (e) {
                     this._emitError(e);
                   }
@@ -242,7 +245,7 @@ export class RabbitmqAdapter extends PlatformAdapter {
       return;
     const operationConfig: OperationConfig = {
       consumer: {
-        noAck: true,
+        noAck: false,
       },
     };
     if (this._config.defaults) {
@@ -298,14 +301,31 @@ export class RabbitmqAdapter extends PlatformAdapter {
       }
     });
 
-    args.handler = async (queue: string, message: ConsumeMessage | null) => {
+    args.handler = async (
+      channel: Channel,
+      queue: string,
+      message: ConsumeMessage | null,
+    ) => {
       if (!message) return;
       const operationHandler = instance[operation.name] as Function;
-      let content: any;
       const headers: any = {};
+      /** Create context */
+      const context = new RabbitmqContext({
+        adapter: this,
+        platform: this.platform,
+        controller,
+        controllerInstance: instance,
+        operation,
+        operationHandler,
+        queue,
+        channel,
+        message,
+        content: undefined,
+        headers,
+      });
       try {
         /** Parse and decode `payload` */
-        content = await this._parseContent(message);
+        let content = await this._parseContent(message);
         if (content && decodePayload) {
           if (Buffer.isBuffer(content)) content = content.toString('utf-8');
           content = decodePayload(content);
@@ -320,24 +340,11 @@ export class RabbitmqAdapter extends PlatformAdapter {
             headers[k] = decode(Buffer.isBuffer(v) ? v.toString() : v);
           }
         }
+        (context as any).content = content;
       } catch (e) {
-        this._emitError(e);
+        this._emitError(e, context);
         return;
       }
-      /** Create context */
-      const context = new RabbitmqContext({
-        adapter: this,
-        platform: this.platform,
-        controller,
-        controllerInstance: instance,
-        operation,
-        operationHandler,
-        queue,
-        fields: message.fields,
-        properties: message.properties,
-        content,
-        headers,
-      });
 
       await this.emitAsync('before-execute', context);
       try {
@@ -407,7 +414,7 @@ export class RabbitmqAdapter extends PlatformAdapter {
             context.errors.forEach(err => logger.error(err));
           }
         } else logger?.error(error);
-        if (this.listenerCount('error')) this.emit('error', error);
+        if (this.listenerCount('error')) this.emit('error', error, context);
       })
       .catch(noOp);
   }

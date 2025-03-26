@@ -1,6 +1,7 @@
 import '../jest-extend/index.js';
 import { omitNullish } from '@jsopen/objects';
 import { type ErrorIssue } from '@opra/common';
+import { expect } from 'expect';
 import { ApiExpectBase } from './api-expect-base.js';
 
 export interface MatchingErrorIssue {
@@ -20,8 +21,8 @@ export class ApiExpectError extends ApiExpectBase {
         expected = { message: expected } as MatchingErrorIssue;
       else if (expected instanceof RegExp) {
         expected = {
-          message: expect.stringMatching(expected),
-        } as MatchingErrorIssue;
+          message: expect.stringMatching(expected) as any,
+        };
       } else expected = omitNullish(expected);
       this._expect(this.response.body.errors).toEqual(
         expect.arrayContaining([expect.objectContaining(expected)]),
