@@ -1,4 +1,5 @@
 import colors from 'ansi-colors';
+import { expect } from 'expect';
 import {
   matcherHint,
   type MatcherHintOptions,
