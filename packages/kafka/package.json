@@ -1,6 +1,6 @@
 {
   "name": "@opra/kafka",
-  "version": "1.12.4",
+  "version": "1.12.5",
   "description": "Opra Kafka package",
   "author": "Panates",
   "license": "MIT",
@@ -30,8 +30,8 @@
     "valgen": "^5.13.4"
   },
   "peerDependencies": {
-    "@opra/common": "^1.12.4",
-    "@opra/core": "^1.12.4",
+    "@opra/common": "^1.12.5",
+    "@opra/core": "^1.12.5",
     "kafkajs": ">=2.2.4 <3"
   },
   "devDependencies": {
