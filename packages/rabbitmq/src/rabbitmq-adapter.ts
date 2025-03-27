@@ -342,6 +342,7 @@ export class RabbitmqAdapter extends PlatformAdapter {
         }
         (context as any).content = content;
       } catch (e) {
+        context.ack();
         this._emitError(e, context);
         return;
       }

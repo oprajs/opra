@@ -24,7 +24,7 @@
   "dependencies": {
     "@jsopen/objects": "^1.5.2",
     "tslib": "^2.8.1",
-    "valgen": "^5.13.3"
+    "valgen": "^5.13.4"
   },
   "peerDependencies": {
     "@opra/common": "^1.12.4",
