@@ -329,10 +329,7 @@ export class ElasticEntityService<
       id: input._id,
       document: doc,
     };
-    const client = this.getClient();
-    const r = options?.replaceIfExists
-      ? await client.index(request, options?.transport)
-      : await client.create(request, options?.transport);
+    const r = await this.__create(request, options);
     /* istanbul ignore next */
     if (!(r._id && (r.result === 'created' || r.result === 'updated'))) {
       throw new InternalServerError(
@@ -340,6 +337,16 @@ export class ElasticEntityService<
       );
     }
     return r;
+  }
+
+  protected async __create(
+    request: ElasticEntityService.CreateRequest,
+    options?: ElasticEntityService.CreateOptions,
+  ) {
+    const client = this.getClient();
+    return options?.replaceIfExists
+      ? await client.index(request, options?.transport)
+      : await client.create(request, options?.transport);
   }
 
   /**
@@ -366,6 +373,13 @@ export class ElasticEntityService<
       ...options?.request,
       query,
     };
+    return this.__count(request, options);
+  }
+
+  protected __count(
+    request: ElasticEntityService.CountRequest,
+    options?: ElasticEntityService.CountOptions,
+  ) {
     const client = this.getClient();
     return client.count(request, options?.transport);
   }
@@ -396,8 +410,7 @@ export class ElasticEntityService<
       ...options?.request,
       query,
     };
-    const client = this.getClient();
-    return client.deleteByQuery(request, options?.transport);
+    return this.__delete(request, options);
   }
 
   /**
@@ -424,6 +437,13 @@ export class ElasticEntityService<
       index: this.getIndexName(),
       query,
     };
+    return await this.__delete(request, options);
+  }
+
+  protected async __delete(
+    request: ElasticEntityService.DeleteByQueryRequest,
+    options?: ElasticEntityService.DeleteOptions,
+  ) {
     const client = this.getClient();
     return client.deleteByQuery(request, options?.transport);
   }
@@ -463,8 +483,7 @@ export class ElasticEntityService<
       ...options?.request,
       query,
     };
-    const client = this.getClient();
-    const r = await client.search<T>(request, options?.transport);
+    const r = await this.__findMany(request, options);
     if (options?.noDecode) return r;
     if (r.hits.hits?.length) {
       const outputCodec = this.getOutputCodec('find');
@@ -477,6 +496,14 @@ export class ElasticEntityService<
       }));
     }
     return r;
+  }
+
+  protected async __findMany(
+    request: ElasticEntityService.SearchRequest,
+    options?: ElasticEntityService.FindManyOptions,
+  ) {
+    const client = this.getClient();
+    return client.search<T>(request, options?.transport);
   }
 
   /**
@@ -564,6 +591,13 @@ export class ElasticEntityService<
       script,
       query,
     };
+    return await this.__update(request, options);
+  }
+
+  protected async __update(
+    request: ElasticEntityService.UpdateByQueryRequest,
+    options?: ElasticEntityService.UpdateManyOptions,
+  ) {
     const client = this.getClient();
     return client.updateByQuery(request, options?.transport);
   }
