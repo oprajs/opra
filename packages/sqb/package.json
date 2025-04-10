@@ -25,7 +25,7 @@
   "dependencies": {
     "reflect-metadata": "^0.2.2",
     "tslib": "^2.8.1",
-    "valgen": "^5.13.4"
+    "valgen": "^5.14.0"
   },
   "peerDependencies": {
     "@opra/core": "^1.12.6",
@@ -37,7 +37,7 @@
     "@sqb/builder": "^4.19.5",
     "@sqb/connect": "^4.19.5",
     "@sqb/postgres": "^4.19.5",
-    "postgrejs": "^2.22.3",
+    "postgrejs": "^2.22.4",
     "ts-gems": "^3.11.3"
   },
   "type": "module",

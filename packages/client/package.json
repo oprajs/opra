@@ -35,7 +35,7 @@
   "devDependencies": {
     "@browsery/type-is": "^1.6.18-r8",
     "body-parser": "^2.2.0",
-    "express": "^4.21.2",
+    "express": "^5.1.0",
     "ts-gems": "^3.11.3"
   },
   "type": "module",

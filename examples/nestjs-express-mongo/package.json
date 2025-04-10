@@ -5,8 +5,8 @@
   "type": "module",
   "module": "./index.js",
   "dependencies": {
-    "@nestjs/common": "^11.0.12",
-    "@nestjs/core": "^11.0.12",
+    "@nestjs/common": "^11.0.14",
+    "@nestjs/core": "^11.0.14",
     "@opra/common": "^1.12.6",
     "@opra/core": "^1.12.6",
     "@opra/mongodb": "^1.12.6",

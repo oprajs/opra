@@ -10,7 +10,7 @@
     "@sqb/builder": "^4.19.5",
     "@sqb/connect": "^4.19.5",
     "@sqb/postgres": "^4.19.5",
-    "postgrejs": "^2.22.3",
+    "postgrejs": "^2.22.4",
     "ts-gems": "^3.11.3"
   },
   "scripts": {
