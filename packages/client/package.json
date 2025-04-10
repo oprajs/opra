@@ -1,6 +1,6 @@
 {
   "name": "@opra/client",
-  "version": "1.12.4",
+  "version": "1.13.0",
   "description": "Opra Client package",
   "author": "Panates",
   "license": "MIT",
@@ -29,13 +29,13 @@
     "tslib": "^2.8.1"
   },
   "peerDependencies": {
-    "@opra/common": "^1.12.4",
+    "@opra/common": "^1.13.0",
     "rxjs": "^7.0.0 || ^8.0.0"
   },
   "devDependencies": {
     "@browsery/type-is": "^1.6.18-r8",
-    "body-parser": "^1.20.3",
-    "express": "^4.21.2",
+    "body-parser": "^2.2.0",
+    "express": "^5.1.0",
     "ts-gems": "^3.11.3"
   },
   "type": "module",

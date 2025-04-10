@@ -23,7 +23,7 @@ export async function createMockServer(): Promise<MockServer> {
   const app = express() as MockServer;
   app.requestCount = 0;
   app.use(bodyParser.json());
-  app.use('*', (_req, _res, next) => {
+  app.use('/{*splat}', (_req, _res, next) => {
     app.lastRequest = _req;
     app.lastResponse = _res;
     app.requestCount++;

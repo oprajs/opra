@@ -1,6 +1,7 @@
 import '../jest-extend/index.js';
 import { type ErrorIssue, MimeTypes } from '@opra/common';
 import colors from 'ansi-colors';
+import { expect } from 'expect';
 import { ApiExpectBase } from './api-expect-base.js';
 import { ApiExpectCollection } from './api-expect-collection.js';
 import { ApiExpectError } from './api-expect-error.js';

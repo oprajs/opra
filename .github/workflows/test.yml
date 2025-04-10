@@ -34,7 +34,7 @@ jobs:
       (github.event_name != 'pull_request' || github.head_ref != 'dev')
       && !contains(github.event.head_commit.message, 'no-test')
     runs-on: ubuntu-latest
-    timeout-minutes: 10
+    timeout-minutes: 60
 
     services:
       postgres:
@@ -79,7 +79,7 @@ jobs:
           security-enabled: false
 
       - name: Run Kafka KRaft Broker
-        uses: spicyparrot/kafka-kraft-action@v1.1.0
+        uses: spicyparrot/kafka-kraft-action@v1.1.3
         with:
           kafka-version: "3.7.0"
           kafka-topics: "feed-cat,1,feed-dog,1,email-channel-1,1,email-channel-2,1,sms-channel-1,1,sms-channel-2,1"

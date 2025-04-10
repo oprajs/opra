@@ -1,6 +1,7 @@
 import typeIs from '@browsery/type-is';
 import { omitNullish } from '@jsopen/objects';
 import { MimeTypes } from '@opra/common';
+import { expect } from 'expect';
 import { ApiExpectBase } from './api-expect-base.js';
 
 export class ApiExpectObject extends ApiExpectBase {

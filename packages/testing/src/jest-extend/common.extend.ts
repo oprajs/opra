@@ -7,6 +7,31 @@ import {
   printReceived,
 } from 'jest-matcher-utils';
 
+declare module 'expect' {
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  interface Matchers<R> {
+    toBeArray();
+
+    toBeGreaterThanAny(expected: number | bigint | string | Date);
+
+    toBeGreaterThanOrEqualAny(expected: number | bigint | string | Date);
+
+    toBeLessThanAny(expected: number | bigint | string | Date);
+
+    toBeLessThanOrEqualAny(expected: number | bigint | string | Date);
+  }
+
+  interface InverseAsymmetricMatchers {
+    toBeGreaterThanAny(expected: number | bigint | string | Date);
+
+    toBeGreaterThanOrEqualAny(expected: number | bigint | string | Date);
+
+    toBeLessThanAny(expected: number | bigint | string | Date);
+
+    toBeLessThanOrEqualAny(expected: number | bigint | string | Date);
+  }
+}
+
 declare global {
   namespace jest {
     // eslint-disable-next-line @typescript-eslint/no-unused-vars

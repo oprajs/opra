@@ -1,3 +1,5 @@
+import { expect } from 'expect';
+
 export function objectMatches(received, expected: any) {
   _objectMatches(received, expected, '');
 }

@@ -1,5 +1,6 @@
 import '../jest-extend/index.js';
 import { HttpResponse } from '@opra/client';
+import { expect } from 'expect';
 
 export class ApiExpectBase {
   readonly response: HttpResponse;
@@ -10,7 +11,7 @@ export class ApiExpectBase {
     this.isNot = isNot;
   }
 
-  protected _expect(expected: any): jest.Matchers<any> {
+  protected _expect(expected: any) {
     const out = expect(expected);
     if (this.isNot) return out.not;
     return out;
