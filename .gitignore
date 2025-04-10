@@ -1,14 +1,13 @@
 # compiled output
-/build
 /node_modules
-packages/*/node_modules
-packages/*/dist
-packages/*/build
+**/node_modules
 *.cache.json
 .angular
-/support/docker/data
 junit.xml
 /reports
+packages/*/dist
+packages/*/build
+/support/docker/data
 
 # environment variables
 .env
