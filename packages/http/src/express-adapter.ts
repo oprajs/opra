@@ -136,22 +136,25 @@ export class ExpressAdapter extends HttpAdapter {
     }
 
     /** Add an endpoint that returns 404 error at last */
-    router.use('*', (_req: Request, _res: Response, next: NextFunction) => {
-      createContext(_req, _res)
-        .then(ctx => {
-          ctx.errors.push(
-            new NotFoundError({
-              message: `No endpoint found at [${_req.method}]${_req.baseUrl}`,
-              details: {
-                path: _req.baseUrl,
-                method: _req.method,
-              },
-            }),
-          );
-          this.handler.sendResponse(ctx).catch(next);
-        })
-        .catch(next);
-    });
+    router.use(
+      '/{*splat}',
+      (_req: Request, _res: Response, next: NextFunction) => {
+        createContext(_req, _res)
+          .then(ctx => {
+            ctx.errors.push(
+              new NotFoundError({
+                message: `No endpoint found at [${_req.method}]${_req.baseUrl}`,
+                details: {
+                  path: _req.baseUrl,
+                  method: _req.method,
+                },
+              }),
+            );
+            this.handler.sendResponse(ctx).catch(next);
+          })
+          .catch(next);
+      },
+    );
   }
 
   protected _createControllers(controller: HttpController): void {

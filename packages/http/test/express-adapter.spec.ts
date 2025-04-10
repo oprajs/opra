@@ -25,9 +25,9 @@ describe('ExpressAdapter', () => {
   afterAll(() => global.gc && global.gc());
 
   it('Should init all routes', async () => {
-    const routerStack = app._router.stack.find(x => x.name === 'router');
+    const routerStack = app.router.stack.find(x => x.name === 'router');
     expect(routerStack).toBeDefined();
-    const paths = routerStack.handle.stack
+    const paths = (routerStack!.handle as any).stack
       .filter(x => x.route)
       .map(
         x =>
