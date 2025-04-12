@@ -51,7 +51,7 @@
   "type": "module",
   "repository": {
     "type": "git",
-    "url": "https://github.com/panates/opra.git",
+    "url": "git+https://github.com/panates/opra.git",
     "directory": "packages/angular"
   },
   "engines": {
@@ -64,5 +64,8 @@
     "angular",
     "request",
     "fetch"
-  ]
+  ],
+  "publishConfig": {
+    "access": "public"
+  }
 }
