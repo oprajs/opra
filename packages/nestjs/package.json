@@ -61,7 +61,7 @@
   "types": "./types/index.d.ts",
   "repository": {
     "type": "git",
-    "url": "https://github.com/panates/opra.git",
+    "url": "git+https://github.com/panates/opra.git",
     "directory": "packages/nestjs"
   },
   "engines": {
