@@ -2,13 +2,11 @@ import { faker } from '@faker-js/faker';
 import { ApiDocument } from '@opra/common';
 import { ILogger } from '@opra/core';
 import { KafkaAdapter } from '@opra/kafka';
+import { expect } from 'expect';
 import { Kafka, logLevel, Producer } from 'kafkajs';
 import { TestController } from './_support/test-api/api/test-controller.js';
 import { TestRpcApiDocument } from './_support/test-api/index.js';
 import { waitForMessage } from './_support/wait-for-message.js';
-
-// set timeout to be longer (especially for the after hook)
-jest.setTimeout(30000);
 
 const kafkaBrokerHost = process.env.KAFKA_BROKER || 'localhost:9092';
 
@@ -21,7 +19,7 @@ describe('e2e', () => {
     error() {},
   };
 
-  beforeAll(async () => {
+  before(async () => {
     const kafka = new Kafka({
       clientId: 'opra-test',
       brokers: [kafkaBrokerHost],
@@ -33,7 +31,7 @@ describe('e2e', () => {
     await producer.connect();
   });
 
-  beforeAll(async () => {
+  before(async () => {
     document = await TestRpcApiDocument.create();
     adapter = new KafkaAdapter(document, {
       client: {
@@ -45,11 +43,11 @@ describe('e2e', () => {
     await adapter.start();
   });
 
-  afterAll(async () => {
+  after(async function () {
+    this.timeout(20000);
     await producer?.disconnect();
     await adapter?.close();
-  }, 20000);
-  afterAll(() => global.gc && global.gc());
+  });
 
   beforeEach(() => {
     TestController.counters = {

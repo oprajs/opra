@@ -1,17 +1,16 @@
 import { ApiDocument, ComplexType } from '@opra/common';
 import { MongoPatchGenerator } from '@opra/mongodb';
+import { expect } from 'expect';
 import { CustomerApplication } from 'express-mongo';
 
 describe('MongoPatchGenerator', () => {
   let document: ApiDocument;
   let customerType: ComplexType;
 
-  beforeAll(async () => {
+  before(async () => {
     document = (await CustomerApplication.create()).document;
     customerType = document.node.getComplexType('Customer');
   });
-
-  afterAll(() => global.gc && global.gc());
 
   describe('Patch input', () => {
     it('Should update simple fields', async () => {

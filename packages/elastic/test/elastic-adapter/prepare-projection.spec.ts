@@ -1,5 +1,6 @@
 import { ApiDocument, ComplexType } from '@opra/common';
 import { ElasticAdapter } from '@opra/elastic';
+import { expect } from 'expect';
 import { CustomerApplication } from 'express-elastic';
 
 describe('ElasticAdapter.prepareProjection', () => {
@@ -7,13 +8,11 @@ describe('ElasticAdapter.prepareProjection', () => {
   let customerType: ComplexType;
   let noteType: ComplexType;
 
-  beforeAll(async () => {
+  before(async () => {
     document = (await CustomerApplication.create()).document;
     customerType = document.node.getComplexType('customer');
     noteType = document.node.getComplexType('note');
   });
-
-  afterAll(() => global.gc && global.gc());
 
   it('Test-1', async () => {
     const o: any = ElasticAdapter.prepareProjection(customerType);

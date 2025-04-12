@@ -4,8 +4,9 @@ import { APP_GUARD, ModuleRef } from '@nestjs/core';
 import { APP_INTERCEPTOR } from '@nestjs/core/constants.js';
 import { Test } from '@nestjs/testing';
 import { RabbitmqAdapter } from '@opra/rabbitmq';
-import { waitForMessage } from '@opra/rabbitmq/test/_support/wait-for-message';
 import amqplib from 'amqplib';
+import { expect } from 'expect';
+import { waitForMessage } from '../../rabbitmq/test/_support/wait-for-message.js';
 import { OpraRabbitmqModule } from '../src/index.js';
 import {
   Cat,
@@ -18,9 +19,6 @@ import {
   TestGlobalGuard,
 } from './_support/test-app/index.js';
 
-// set timeout to be longer (especially for the after hook)
-jest.setTimeout(30000);
-
 const rabbitHost = process.env.RABBITMQ_HOST || 'amqp://localhost:5672';
 
 describe('OpraRabbitmqModule - async', () => {
@@ -30,14 +28,16 @@ describe('OpraRabbitmqModule - async', () => {
   let connection: amqplib.ChannelModel;
   let channel: amqplib.Channel;
 
-  beforeAll(async () => {
+  before(async () => {
     connection = await amqplib.connect(rabbitHost);
     channel = await connection.createChannel();
     await channel.assertQueue('email-channel', { durable: true });
     await channel.assertQueue('sms-channel', { durable: true });
   });
 
-  beforeAll(async () => {
+  before(async () => {
+    CatsService.instanceCounter = 0;
+    DogsService.instanceCounter = 0;
     const module = await Test.createTestingModule({
       imports: [
         OpraRabbitmqModule.forRootAsync({
@@ -83,7 +83,7 @@ describe('OpraRabbitmqModule - async', () => {
     };
   });
 
-  afterAll(async () => {
+  after(async () => {
     await connection?.close().catch(() => undefined);
     await nestApplication?.close().catch(() => undefined);
   });
@@ -129,7 +129,7 @@ describe('OpraRabbitmqModule - async', () => {
     ]);
     expect(ctx).toBeDefined();
     expect(ctx?.properties.messageId).toStrictEqual(key);
-    expect(ctx?.content).toMatchObject(payload);
+    expect(ctx?.content).toMatchObject(payload as any);
     expect(CatsService.counters).toEqual({
       getCat: 0,
       getCats: 0,

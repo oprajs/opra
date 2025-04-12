@@ -1,23 +1,4 @@
 {
-  "extends": "../tsconfig.json",
-  "include": ["."],
-  "compilerOptions": {
-    "emitDecoratorMetadata": true,
-    "verbatimModuleSyntax": false,
-    "baseUrl": "./",
-    "paths": {
-      "@opra/nestjs": ["../src"],
-      "@opra/nestjs/*": ["../src/*"],
-      "@opra/client": ["../../client/src"],
-      "@opra/common": ["../../common/src"],
-      "@opra/core": ["../../core/src"],
-      "@opra/http": ["../../http/src"],
-      "@opra/kafka": ["../../kafka/src"],
-      "@opra/rabbitmq": ["../../rabbitmq/src"],
-      "@opra/mongodb": ["../../mongodb/src"],
-      "@opra/testing": ["../../testing/src"],
-      "customer-mongo": ["../../../examples/_lib/customer-mongo"],
-      "nestjs-express-mongo": ["../../../examples/nestjs-express-mongo"]
-    }
-  }
+  "extends": "../../../tsconfig-test.json",
+  "include": ["."]
 }

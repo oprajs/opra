@@ -1,5 +1,6 @@
 // /// <reference lib="dom" />
 import typeIs from '@browsery/type-is';
+import { omit } from '@jsopen/objects';
 import { isBlob, isFormData } from '@opra/common';
 import { Observable } from 'rxjs';
 import { isReadableStreamLike } from 'rxjs/internal/util/isReadableStreamLike';
@@ -175,6 +176,7 @@ export class FetchBackend extends HttpBackend {
     const headers = init.headers || new Headers();
     const requestInit: FetchBackend.RequestInit = {
       ...init,
+      ...omit(this.defaults, ['headers', 'params']),
       headers,
     };
     this.defaults.headers.forEach((val, key) => {

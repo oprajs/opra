@@ -1,4 +1,4 @@
-import '../jest-extend/index.js';
+import '../expect-extend/index.js';
 import { omitNullish } from '@jsopen/objects';
 import { type ErrorIssue } from '@opra/common';
 import { expect } from 'expect';

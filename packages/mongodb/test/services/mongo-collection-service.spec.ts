@@ -2,7 +2,9 @@ import { faker } from '@faker-js/faker';
 import { ResourceNotAvailableError } from '@opra/common';
 import { MongoCollectionService, MongoPatchDTO } from '@opra/mongodb';
 import type { Customer } from 'customer-mongo';
+import { expect } from 'expect';
 import { CustomerApplication } from 'express-mongo';
+import * as sinon from 'sinon';
 import { createContext } from '../_support/create-context.js';
 
 describe('MongoCollectionService', () => {
@@ -24,7 +26,7 @@ describe('MongoCollectionService', () => {
     },
   });
 
-  beforeAll(async () => {
+  before(async () => {
     app = await CustomerApplication.create();
     service1 = new MongoCollectionService<any>('Customer', {
       db: app.db,
@@ -47,11 +49,8 @@ describe('MongoCollectionService', () => {
     await collection.insertMany(tempRecords);
   });
 
-  afterAll(async () => {
-    await app?.close();
-  });
-
-  afterAll(() => global.gc && global.gc());
+  after(() => app?.close());
+  afterEach(() => sinon.restore());
 
   describe('withTransaction()', () => {
     it('Should service work in transaction', async () => {
@@ -134,11 +133,11 @@ describe('MongoCollectionService', () => {
     });
 
     it('Should run in interceptor', async () => {
-      const mockFn = jest.fn(interceptorFn);
+      const mockFn = sinon.spy(interceptorFn);
       const ctx = createContext(app.adapter);
       const result = await service1.for(ctx, { interceptor: mockFn }).count();
       expect(result).toBeGreaterThan(0);
-      expect(mockFn).toBeCalled();
+      expect(mockFn.callCount).toEqual(1);
     });
   });
 
@@ -171,13 +170,13 @@ describe('MongoCollectionService', () => {
     });
 
     it('Should run in interceptor', async () => {
-      const mockFn = jest.fn(interceptorFn);
+      const mockFn = sinon.spy(interceptorFn);
       const ctx = createContext(app.adapter);
       const result = await service1
         .for(ctx, { interceptor: mockFn })
         .distinct('countryCode');
       expect(Array.isArray(result)).toBeTruthy();
-      expect(mockFn).toBeCalled();
+      expect(mockFn.callCount).toEqual(1);
     });
   });
 
@@ -214,13 +213,13 @@ describe('MongoCollectionService', () => {
     });
 
     it('Should run in interceptor', async () => {
-      const mockFn = jest.fn(interceptorFn);
+      const mockFn = sinon.spy(interceptorFn);
       const ctx = createContext(app.adapter);
       const result: any = await service1
         .for(ctx, { interceptor: mockFn })
         .findById(1);
       expect(result).toBeDefined();
-      expect(mockFn).toBeCalled();
+      expect(mockFn.callCount).toEqual(1);
     });
   });
 
@@ -318,13 +317,13 @@ describe('MongoCollectionService', () => {
     });
 
     it('Should run in interceptor', async () => {
-      const mockFn = jest.fn(interceptorFn);
+      const mockFn = sinon.spy(interceptorFn);
       const ctx = createContext(app.adapter);
       const result: any = await service1
         .for(ctx, { interceptor: mockFn })
         .findOne();
       expect(result).toBeDefined();
-      expect(mockFn).toBeCalled();
+      expect(mockFn.callCount).toEqual(1);
     });
   });
 
@@ -460,14 +459,14 @@ describe('MongoCollectionService', () => {
     });
 
     it('Should run in interceptor', async () => {
-      const mockFn = jest.fn(interceptorFn);
+      const mockFn = sinon.spy(interceptorFn);
       const ctx = createContext(app.adapter);
       const result: any = await service1
         .for(ctx, { interceptor: mockFn })
         .findMany();
       expect(result).toBeDefined();
       expect(result.length).toBeGreaterThan(0);
-      expect(mockFn).toBeCalled();
+      expect(mockFn.callCount).toEqual(1);
     });
   });
 
@@ -498,13 +497,13 @@ describe('MongoCollectionService', () => {
     });
 
     it('Should run in interceptor', async () => {
-      const mockFn = jest.fn(interceptorFn);
+      const mockFn = sinon.spy(interceptorFn);
       const ctx = createContext(app.adapter);
       const result: any = await service1
         .for(ctx, { interceptor: mockFn })
         .get(1);
       expect(result).toBeDefined();
-      expect(mockFn).toBeCalled();
+      expect(mockFn.callCount).toEqual(1);
     });
   });
 
@@ -519,14 +518,14 @@ describe('MongoCollectionService', () => {
     });
 
     it('Should run in interceptor', async () => {
-      const mockFn = jest.fn(interceptorFn);
+      const mockFn = sinon.spy(interceptorFn);
       const ctx = createContext(app.adapter);
       const doc = createResource(101);
       const result: any = await service1
         .for(ctx, { interceptor: mockFn })
         .create(doc);
       expect(result).toBeDefined();
-      expect(mockFn).toBeCalled();
+      expect(mockFn.callCount).toEqual(1);
     });
   });
 
@@ -559,14 +558,14 @@ describe('MongoCollectionService', () => {
     });
 
     it('Should run in interceptor', async () => {
-      const mockFn = jest.fn(interceptorFn);
+      const mockFn = sinon.spy(interceptorFn);
       const ctx = createContext(app.adapter);
       const doc = createResource(tempRecords[10]._id);
       const result: any = await service1
         .for(ctx, { interceptor: mockFn })
         .replace(doc._id, doc);
       expect(result).toBeDefined();
-      expect(mockFn).toBeCalled();
+      expect(mockFn.callCount).toEqual(1);
     });
   });
 
@@ -607,7 +606,7 @@ describe('MongoCollectionService', () => {
     });
 
     it('Should run in interceptor', async () => {
-      const mockFn = jest.fn(interceptorFn);
+      const mockFn = sinon.spy(interceptorFn);
       const ctx = createContext(app.adapter);
       const doc = { uid: faker.string.uuid() };
       const srcDoc = tempRecords[5];
@@ -615,7 +614,7 @@ describe('MongoCollectionService', () => {
         .for(ctx, { interceptor: mockFn })
         .updateOnly(srcDoc._id, doc);
       expect(r).toEqual(1);
-      expect(mockFn).toBeCalled();
+      expect(mockFn.callCount).toEqual(1);
     });
   });
 
@@ -652,7 +651,7 @@ describe('MongoCollectionService', () => {
     });
 
     it('Should run in interceptor', async () => {
-      const mockFn = jest.fn(interceptorFn);
+      const mockFn = sinon.spy(interceptorFn);
       const ctx = createContext(app.adapter);
       const doc = { uid: faker.string.uuid() };
       const srcDoc = tempRecords[5];
@@ -660,7 +659,7 @@ describe('MongoCollectionService', () => {
         .for(ctx, { interceptor: mockFn })
         .update(srcDoc._id, doc);
       expect(result).toBeDefined();
-      expect(mockFn).toBeCalled();
+      expect(mockFn.callCount).toEqual(1);
     });
   });
 
@@ -723,14 +722,14 @@ describe('MongoCollectionService', () => {
     });
 
     it('Should run in interceptor', async () => {
-      const mockFn = jest.fn(interceptorFn);
+      const mockFn = sinon.spy(interceptorFn);
       const ctx = createContext(app.adapter);
       const update = { uid: faker.string.uuid() };
       const r = await service1
         .for(ctx, { interceptor: mockFn })
         .updateMany(update);
       expect(r).toBeGreaterThan(0);
-      expect(mockFn).toBeCalled();
+      expect(mockFn.callCount).toEqual(1);
     });
   });
 
@@ -763,14 +762,14 @@ describe('MongoCollectionService', () => {
     });
 
     it('Should run in interceptor', async () => {
-      const mockFn = jest.fn(interceptorFn);
+      const mockFn = sinon.spy(interceptorFn);
       const ctx = createContext(app.adapter);
       const doc = tempRecords[2];
       const r = await service1
         .for(ctx, { interceptor: mockFn })
         .delete(doc._id);
       expect(r).toEqual(1);
-      expect(mockFn).toBeCalled();
+      expect(mockFn.callCount).toEqual(1);
     });
   });
 
@@ -802,11 +801,11 @@ describe('MongoCollectionService', () => {
     });
 
     it('Should run in interceptor', async () => {
-      const mockFn = jest.fn(interceptorFn);
+      const mockFn = sinon.spy(interceptorFn);
       const ctx = createContext(app.adapter);
       const r = await service1.for(ctx, { interceptor: mockFn }).deleteMany();
       expect(r).toBeGreaterThanOrEqual(0);
-      expect(mockFn).toBeCalled();
+      expect(mockFn.callCount).toEqual(1);
     });
   });
 });

@@ -1,4 +1,4 @@
-import '../jest-extend/index.js';
+import '../expect-extend/index.js';
 import { ApiExpectBase } from './api-expect-base.js';
 
 export class ApiExpectOperationResult extends ApiExpectBase {

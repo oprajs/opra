@@ -1,8 +1,7 @@
 import { HttpIncoming, NodeIncomingMessage } from '@opra/http';
+import { expect } from 'expect';
 
 describe('HttpIncoming', () => {
-  afterAll(() => global.gc && global.gc());
-
   it('Should wrap HttpIncomingMessage', async () => {
     const msg = HttpIncoming.from(
       NodeIncomingMessage.from({

@@ -3,8 +3,6 @@ import { OpraTestClient } from '@opra/testing';
 
 export function collectionDeleteTests(args: { client: OpraTestClient }) {
   describe('Collection:delete', () => {
-    afterAll(() => global.gc && global.gc());
-
     it('Should delete instance', async () => {
       let resp = await args.client
         .get('Customers?sort=-_id&limit=1&projection=_id')

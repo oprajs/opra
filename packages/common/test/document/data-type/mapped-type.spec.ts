@@ -8,12 +8,13 @@ import {
   PickType,
 } from '@opra/common';
 import { Country } from 'customer-mongo/models';
+import { expect } from 'expect';
 import { TestHttpApiDocument } from '../../_support/test-http-api/index.js';
 
 describe('MappedType', () => {
   let doc: ApiDocument;
 
-  beforeAll(async () => {
+  before(async () => {
     const baseDoc = await TestHttpApiDocument.create();
     doc = await ApiDocumentFactory.createDocument({
       spec: OpraSchema.SpecVersion,

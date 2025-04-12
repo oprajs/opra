@@ -1,10 +1,9 @@
 import { ApiDocumentFactory, OpraSchema } from '@opra/common';
 import assert from 'assert';
 import { Country } from 'customer-mongo/models';
+import { expect } from 'expect';
 
 describe('HttpApiFactory - HttpOperation (Schema)', () => {
-  afterAll(() => global.gc && global.gc());
-
   it('Should import resource schema', async () => {
     const countries: OpraSchema.HttpController = {
       kind: 'HttpController',

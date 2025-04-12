@@ -12,9 +12,7 @@ export function singletonDeleteTests(args: { client: OpraTestClient }) {
       ...v,
     });
 
-    afterAll(() => global.gc && global.gc());
-
-    beforeAll(async () => {
+    before(async () => {
       await args.client.delete('auth/MyProfile').getResponse();
       await args.client.post('auth/MyProfile', generateData()).getResponse();
     });

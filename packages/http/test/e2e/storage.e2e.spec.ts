@@ -1,6 +1,7 @@
 import { ApiDocument } from '@opra/common';
 import { ExpressAdapter } from '@opra/http';
 import { OpraTestClient } from '@opra/testing';
+import { expect } from 'expect';
 import express, { Express } from 'express';
 import supertest from 'supertest';
 import { FilesController } from '../_support/test-api/api/files.controller.js';
@@ -12,7 +13,7 @@ describe('e2e:Storage', () => {
   let adapter: ExpressAdapter;
   const testArgs: any = {};
 
-  beforeAll(async () => {
+  before(async () => {
     document = await createTestApi();
     app = express();
     adapter = new ExpressAdapter(app);
@@ -21,8 +22,7 @@ describe('e2e:Storage', () => {
     testArgs.client = new OpraTestClient(app, { document });
   });
 
-  afterAll(async () => adapter.close());
-  afterAll(() => global.gc && global.gc());
+  after(async () => adapter.close());
 
   it('Should execute "post" operation', async () => {
     const resp = await supertest(adapter.app)

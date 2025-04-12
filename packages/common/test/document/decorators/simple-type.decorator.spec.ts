@@ -1,10 +1,9 @@
 import 'reflect-metadata';
 import { DATATYPE_METADATA, SimpleType } from '@opra/common';
-import { StringType } from '@opra/common/document/data-type/primitive-types/index';
+import { expect } from 'expect';
+import { StringType } from '../../../src/document/data-type/primitive-types/index.js';
 
 describe('SimpleType() decorator', () => {
-  afterAll(() => global.gc && global.gc());
-
   it('Should define SimpleType metadata', async () => {
     const opts: SimpleType.Options = {
       name: 'customstring',

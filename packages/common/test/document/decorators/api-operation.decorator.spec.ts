@@ -7,10 +7,9 @@ import {
   HttpStatusCode,
 } from '@opra/common';
 import { Customer } from 'customer-mongo/models';
+import { expect } from 'expect';
 
 describe('HttpOperation decorator', () => {
-  afterAll(() => global.gc && global.gc());
-
   it('Should define operation metadata', async () => {
     class CustomersResource {
       @HttpOperation({ description: 'any description' })

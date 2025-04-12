@@ -1,14 +1,13 @@
 import { ApiDocument } from '@opra/common';
+import { expect } from 'expect';
 import { TestHttpApiDocument } from '../../_support/test-http-api/index.js';
 
 describe('SimpleType', () => {
   let doc: ApiDocument;
 
-  beforeAll(async () => {
+  before(async () => {
     doc = await TestHttpApiDocument.create();
   });
-
-  afterAll(() => global.gc && global.gc());
 
   it('Should exportSchema() return schema', async () => {
     const dt = doc.node.getSimpleType('string');

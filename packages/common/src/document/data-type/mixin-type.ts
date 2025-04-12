@@ -135,7 +135,9 @@ export interface MixinType extends MixinTypeClass {}
  */
 export const MixinType = function (this: MixinType, ...args: any[]) {
   // MixinType factory
-  if (!this) return MixinType[DECORATOR].apply(undefined, args);
+  if (!this) {
+    return MixinType[DECORATOR].apply(undefined, args);
+  }
   // Constructor
   const [owner, initArgs, context] = args as [
     DocumentElement,

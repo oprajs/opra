@@ -1,6 +1,7 @@
 import { ApiDocument, OpraSchema } from '@opra/common';
 import { ExpressAdapter } from '@opra/http';
 import cookieParser from 'cookie-parser';
+import { expect } from 'expect';
 import express, { Express } from 'express';
 import supertest from 'supertest';
 import {
@@ -13,7 +14,7 @@ describe('ExpressAdapter', () => {
   let app: Express;
   let adapter: ExpressAdapter;
 
-  beforeAll(async () => {
+  before(async () => {
     document = await createTestApi();
     app = express();
     app.use(cookieParser());
@@ -21,8 +22,7 @@ describe('ExpressAdapter', () => {
     adapter.initialize(document);
   });
 
-  afterAll(async () => adapter.close());
-  afterAll(() => global.gc && global.gc());
+  after(async () => adapter.close());
 
   it('Should init all routes', async () => {
     const routerStack = app.router.stack.find(x => x.name === 'router');

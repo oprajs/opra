@@ -1,7 +1,9 @@
 import { faker } from '@faker-js/faker';
 import { ResourceNotAvailableError } from '@opra/common';
 import { MongoNestedService } from '@opra/mongodb';
+import { expect } from 'expect';
 import { CustomerApplication } from 'express-mongo';
+import * as sinon from 'sinon';
 import { createContext } from '../_support/create-context.js';
 
 describe('MongoNestedService', () => {
@@ -10,7 +12,7 @@ describe('MongoNestedService', () => {
   const tempRecords: any[] = [];
   const interceptorFn = fn => fn();
 
-  beforeAll(async () => {
+  before(async () => {
     app = await CustomerApplication.create();
     service = new MongoNestedService<any>('Customer', 'notes', {
       db: app.db,
@@ -42,11 +44,8 @@ describe('MongoNestedService', () => {
     await collection.insertMany(tempRecords);
   });
 
-  afterAll(async () => {
-    await app?.close();
-  });
-
-  afterAll(() => global.gc && global.gc());
+  after(() => app?.close());
+  afterEach(() => sinon.restore());
 
   describe('assert()', () => {
     it('Should not throw if document exists', async () => {
@@ -112,11 +111,11 @@ describe('MongoNestedService', () => {
     });
 
     it('Should run in interceptor', async () => {
-      const mockFn = jest.fn(interceptorFn);
+      const mockFn = sinon.spy(interceptorFn);
       const ctx = createContext(app.adapter);
       const result = await service.for(ctx, { interceptor: mockFn }).count(1);
       expect(result).toBeGreaterThan(0);
-      expect(mockFn).toBeCalled();
+      expect(mockFn.callCount).toEqual(1);
     });
   });
 
@@ -156,13 +155,13 @@ describe('MongoNestedService', () => {
     });
 
     it('Should run in interceptor', async () => {
-      const mockFn = jest.fn(interceptorFn);
+      const mockFn = sinon.spy(interceptorFn);
       const ctx = createContext(app.adapter);
       const result: any = await service
         .for(ctx, { interceptor: mockFn })
         .findById(1, 1);
       expect(result).toBeDefined();
-      expect(mockFn).toBeCalled();
+      expect(mockFn.callCount).toEqual(1);
     });
   });
 
@@ -276,13 +275,13 @@ describe('MongoNestedService', () => {
     });
 
     it('Should run in interceptor', async () => {
-      const mockFn = jest.fn(interceptorFn);
+      const mockFn = sinon.spy(interceptorFn);
       const ctx = createContext(app.adapter);
       const result: any = await service
         .for(ctx, { interceptor: mockFn })
         .findOne(1);
       expect(result).toBeDefined();
-      expect(mockFn).toBeCalled();
+      expect(mockFn.callCount).toEqual(1);
     });
   });
 
@@ -429,14 +428,14 @@ describe('MongoNestedService', () => {
     });
 
     it('Should run in interceptor', async () => {
-      const mockFn = jest.fn(interceptorFn);
+      const mockFn = sinon.spy(interceptorFn);
       const ctx = createContext(app.adapter);
       const result: any = await service
         .for(ctx, { interceptor: mockFn })
         .findMany(1);
       expect(result).toBeDefined();
       expect(result.length).toBeGreaterThan(0);
-      expect(mockFn).toBeCalled();
+      expect(mockFn.callCount).toEqual(1);
     });
   });
 
@@ -494,24 +493,24 @@ describe('MongoNestedService', () => {
     });
 
     it('Should run in interceptor', async () => {
-      const mockFn = jest.fn(interceptorFn);
+      const mockFn = sinon.spy(interceptorFn);
       const ctx = createContext(app.adapter);
       const doc = { _id: 101, title: faker.lorem.text() };
       const result: any = await service
         .for(ctx, { interceptor: mockFn })
         .create(1, doc);
       expect(result).toBeDefined();
-      expect(mockFn).toBeCalled();
+      expect(mockFn.callCount).toEqual(1);
     });
 
     it('Should run in interceptor', async () => {
-      const mockFn = jest.fn(interceptorFn);
+      const mockFn = sinon.spy(interceptorFn);
       const ctx = createContext(app.adapter);
       const result: any = await service
         .for(ctx, { interceptor: mockFn })
         .get(1, 1);
       expect(result).toBeDefined();
-      expect(mockFn).toBeCalled();
+      expect(mockFn.callCount).toEqual(1);
     });
   });
 
@@ -552,7 +551,7 @@ describe('MongoNestedService', () => {
     });
 
     it('Should run in interceptor', async () => {
-      const mockFn = jest.fn(interceptorFn);
+      const mockFn = sinon.spy(interceptorFn);
       const ctx = createContext(app.adapter);
       const doc = { text: faker.string.sample(10) };
       const srcDoc = tempRecords[5];
@@ -560,7 +559,7 @@ describe('MongoNestedService', () => {
         .for(ctx, { interceptor: mockFn })
         .updateOnly(srcDoc._id, srcDoc.notes[0]._id, doc);
       expect(r).toEqual(1);
-      expect(mockFn).toBeCalled();
+      expect(mockFn.callCount).toEqual(1);
     });
   });
 
@@ -604,14 +603,14 @@ describe('MongoNestedService', () => {
     });
 
     it('Should run in interceptor', async () => {
-      const mockFn = jest.fn(interceptorFn);
+      const mockFn = sinon.spy(interceptorFn);
       const ctx = createContext(app.adapter);
       const doc = { text: faker.string.sample(10) };
       const srcDoc = tempRecords[5];
       await service
         .for(ctx, { interceptor: mockFn })
         .update(srcDoc._id, srcDoc.notes[0]._id, doc);
-      expect(mockFn).toBeCalled();
+      expect(mockFn.callCount).toEqual(1);
     });
   });
 
@@ -672,13 +671,13 @@ describe('MongoNestedService', () => {
     });
 
     it('Should run in interceptor', async () => {
-      const mockFn = jest.fn(interceptorFn);
+      const mockFn = sinon.spy(interceptorFn);
       const ctx = createContext(app.adapter);
       const update = { text: faker.string.sample(10) };
       await service
         .for(ctx, { interceptor: mockFn })
         .updateMany(tempRecords[3]._id, update);
-      expect(mockFn).toBeCalled();
+      expect(mockFn.callCount).toEqual(1);
     });
   });
 
@@ -719,13 +718,13 @@ describe('MongoNestedService', () => {
     });
 
     it('Should run in interceptor', async () => {
-      const mockFn = jest.fn(interceptorFn);
+      const mockFn = sinon.spy(interceptorFn);
       const ctx = createContext(app.adapter);
       const doc = tempRecords[2];
       await service
         .for(ctx, { interceptor: mockFn })
         .delete(doc._id, doc.notes[0]._id);
-      expect(mockFn).toBeCalled();
+      expect(mockFn.callCount).toEqual(1);
     });
   });
 
@@ -765,10 +764,10 @@ describe('MongoNestedService', () => {
     });
 
     it('Should run in interceptor', async () => {
-      const mockFn = jest.fn(interceptorFn);
+      const mockFn = sinon.spy(interceptorFn);
       const ctx = createContext(app.adapter);
       await service.for(ctx, { interceptor: mockFn }).deleteMany(1);
-      expect(mockFn).toBeCalled();
+      expect(mockFn.callCount).toEqual(1);
     });
   });
 });

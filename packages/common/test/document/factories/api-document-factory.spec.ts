@@ -4,10 +4,9 @@ import {
   OpraDocumentError,
   OpraSchema,
 } from '@opra/common';
+import { expect } from 'expect';
 
 describe('ApiDocumentFactory', () => {
-  afterAll(() => global.gc && global.gc());
-
   it('Should create ApiDocument', async () => {
     const doc = await ApiDocumentFactory.createDocument({
       spec: OpraSchema.SpecVersion,

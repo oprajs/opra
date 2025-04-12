@@ -8,7 +8,7 @@ describe('e2e tests', function () {
   let client: OpraTestClient;
   const testArgs: any = {};
 
-  beforeAll(async () => {
+  before(async () => {
     app = await CustomerApplication.create({ basePath: '/api/v1' });
     client = new OpraTestClient(app.adapter.app, {
       document: app.document,
@@ -18,7 +18,7 @@ describe('e2e tests', function () {
     testArgs.client = client;
   });
 
-  afterAll(async () => {
+  after(async () => {
     await app?.close();
   });
 

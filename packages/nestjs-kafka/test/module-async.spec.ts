@@ -5,8 +5,9 @@ import { APP_INTERCEPTOR } from '@nestjs/core/constants.js';
 import type { Producer } from '@nestjs/microservices/external/kafka.interface.js';
 import { Test } from '@nestjs/testing';
 import { KafkaAdapter } from '@opra/kafka';
-import { waitForMessage } from '@opra/kafka/test/_support/wait-for-message';
+import { expect } from 'expect';
 import { Kafka, logLevel } from 'kafkajs';
+import { waitForMessage } from '../../kafka/test/_support/wait-for-message.js';
 import { OpraKafkaModule } from '../src/index.js';
 import {
   Cat,
@@ -19,9 +20,6 @@ import {
   TestGlobalGuard,
 } from './_support/test-app/index.js';
 
-// set timeout to be longer (especially for the after hook)
-jest.setTimeout(30000);
-
 const kafkaBrokerHost = process.env.KAFKA_BROKER || 'localhost:9092';
 
 describe('OpraKafkaModule - async', () => {
@@ -30,7 +28,9 @@ describe('OpraKafkaModule - async', () => {
   let adapter: KafkaAdapter;
   let producer: Producer;
 
-  beforeAll(async () => {
+  before(async () => {
+    CatsService.instanceCounter = 0;
+    DogsService.instanceCounter = 0;
     const kafka = new Kafka({
       clientId: 'opra-test',
       brokers: [kafkaBrokerHost],
@@ -42,7 +42,7 @@ describe('OpraKafkaModule - async', () => {
     await producer.connect();
   });
 
-  beforeAll(async () => {
+  before(async () => {
     const module = await Test.createTestingModule({
       imports: [
         OpraKafkaModule.forRootAsync({
@@ -90,7 +90,7 @@ describe('OpraKafkaModule - async', () => {
     };
   });
 
-  afterAll(async () => {
+  after(async () => {
     await producer.disconnect().catch(() => undefined);
     await nestApplication?.close().catch(() => undefined);
   });

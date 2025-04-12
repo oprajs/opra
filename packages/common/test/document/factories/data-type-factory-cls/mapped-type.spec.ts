@@ -8,10 +8,9 @@ import {
   PickType,
   RequiredType,
 } from '@opra/common';
+import { expect } from 'expect';
 
 describe('DataTypeFactory - MappedType (Class)', () => {
-  afterAll(() => global.gc && global.gc());
-
   it('Should PickType(class, keys) create a new MappedType class', async () => {
     @ComplexType({
       additionalFields: true,

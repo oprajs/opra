@@ -1,4 +1,4 @@
-import '../jest-extend/index.js';
+import '../expect-extend/index.js';
 import { type ErrorIssue, MimeTypes } from '@opra/common';
 import colors from 'ansi-colors';
 import { expect } from 'expect';

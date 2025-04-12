@@ -3,12 +3,10 @@ import { ApiDocument } from '@opra/common';
 import { ILogger } from '@opra/core';
 import { RabbitmqAdapter } from '@opra/rabbitmq';
 import amqplib from 'amqplib';
+import { expect } from 'expect';
 import { TestController } from './_support/test-api/api/test-controller.js';
 import { TestRpcApiDocument } from './_support/test-api/index.js';
 import { waitForMessage } from './_support/wait-for-message.js';
-
-// set timeout to be longer (especially for the after hook)
-jest.setTimeout(30000);
 
 const rabbitHost = process.env.RABBITMQ_HOST || 'amqp://localhost:5672';
 
@@ -22,14 +20,14 @@ describe('e2e', () => {
     error() {},
   };
 
-  beforeAll(async () => {
+  before(async () => {
     connection = await amqplib.connect(rabbitHost);
     channel = await connection.createChannel();
     await channel.assertQueue('email-channel', { durable: true });
     await channel.assertQueue('sms-channel', { durable: true });
   });
 
-  beforeAll(async () => {
+  before(async () => {
     document = await TestRpcApiDocument.create();
     adapter = new RabbitmqAdapter(document, {
       connection: [rabbitHost],
@@ -38,11 +36,10 @@ describe('e2e', () => {
     await adapter.start();
   });
 
-  afterAll(async () => {
+  after(async () => {
     await connection?.close();
     await adapter?.close();
-  }, 20000);
-  afterAll(() => global.gc && global.gc());
+  }).timeout(20000);
 
   beforeEach(() => {
     TestController.counters = {

@@ -16,8 +16,7 @@
     "lint:fix": "eslint . --max-warnings=0 --fix",
     "format": "prettier . --write --log-level=warn",
     "check": "madge --circular src/**",
-    "test": "jest --passWithNoTests",
-    "cover": "jest --passWithNoTests --collect-coverage",
+    "test": "mocha",
     "clean": "npm run clean:src && npm run clean:test && npm run clean:dist && npm run clean:cover",
     "clean:src": "ts-cleanup -s src --all",
     "clean:test": "ts-cleanup -s test --all",
@@ -47,6 +46,7 @@
     "@browsery/util": "^0.12.6-r2",
     "@types/encodeurl": "^1.0.2",
     "@types/validator": "^13.12.3",
+    "expect": "^29.7.0",
     "path-browserify": "^1.0.1",
     "ts-gems": "^3.11.3"
   },

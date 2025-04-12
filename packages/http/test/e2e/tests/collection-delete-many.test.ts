@@ -1,10 +1,9 @@
 import { HttpStatusCode } from '@opra/common';
 import { OpraTestClient } from '@opra/testing';
+import { expect } from 'expect';
 
 export function collectionDeleteManyTests(args: { client: OpraTestClient }) {
   describe('Collection:deleteMany', () => {
-    afterAll(() => global.gc && global.gc());
-
     it('Should delete many instances by filter', async () => {
       /** Total count of records which id<990 */
       let resp = await args.client

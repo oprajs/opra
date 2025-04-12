@@ -4,10 +4,9 @@ import {
   ComplexType,
   MixinType,
 } from '@opra/common';
+import { expect } from 'expect';
 
 describe('DataTypeFactory - MixinType (Class)', () => {
-  afterAll(() => global.gc && global.gc());
-
   it('Should import MixinType', async () => {
     @ComplexType()
     class Type1 {

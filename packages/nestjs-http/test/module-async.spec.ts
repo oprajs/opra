@@ -2,6 +2,7 @@ import { INestApplication } from '@nestjs/common';
 import { APP_GUARD, ModuleRef } from '@nestjs/core';
 import { APP_INTERCEPTOR } from '@nestjs/core/constants.js';
 import { Test } from '@nestjs/testing';
+import { expect } from 'expect';
 import { Server } from 'http';
 import request from 'supertest';
 import { OpraHttpModule, OpraHttpNestjsAdapter } from '../src/index.js';
@@ -23,7 +24,19 @@ describe('OpraModule - async', () => {
   let moduleRef: ModuleRef;
   let server: Server;
 
-  beforeAll(async () => {
+  before(async () => {
+    TestGlobalGuard.publicCounter = 0;
+    TestGlobalGuard.callCounter = 0;
+    TestGlobalGuard.instanceCounter = 0;
+    AuthGuard.callCounter = 0;
+    AuthGuard.instanceCounter = 0;
+    HttpCatsController.instanceCounter = 0;
+    GlobalInterceptor.callCounter = 0;
+    GlobalInterceptor.instanceCounter = 0;
+    TestInterceptor.callCounter = 0;
+    TestInterceptor.instanceCounter = 0;
+    HttpCatsController.instanceCounter = 0;
+    CatsService.instanceCounter = 0;
     const module = await Test.createTestingModule({
       imports: [
         OpraHttpModule.forRootAsync({
@@ -58,9 +71,7 @@ describe('OpraModule - async', () => {
     moduleRef = nestApplication.get(ModuleRef);
   });
 
-  afterAll(async () => {
-    await nestApplication.close();
-  });
+  after(() => nestApplication.close());
 
   it('Should register adapter', async () => {
     const adapter = moduleRef.get(OpraHttpNestjsAdapter, { strict: false });

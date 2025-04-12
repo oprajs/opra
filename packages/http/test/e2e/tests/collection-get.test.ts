@@ -2,8 +2,6 @@ import { OpraTestClient } from '@opra/testing';
 
 export function collectionGetTests(args: { client: OpraTestClient }) {
   describe('Collection:get', () => {
-    afterAll(() => global.gc && global.gc());
-
     it('Should return object', async () => {
       const resp = await args.client.get('Customers@1').getResponse();
       resp.expect.toSuccess().toReturnObject().toMatch({ _id: 1 });

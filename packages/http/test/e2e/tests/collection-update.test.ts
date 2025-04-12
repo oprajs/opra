@@ -11,8 +11,6 @@ export function collectionUpdateTests(args: { client: OpraTestClient }) {
       ...v,
     });
 
-    afterAll(() => global.gc && global.gc());
-
     it('Should update instance', async () => {
       const data = generateData();
 

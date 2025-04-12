@@ -1,6 +1,7 @@
 import { ApiDocument } from '@opra/common';
 import { ExpressAdapter } from '@opra/http';
 import { OpraTestClient } from '@opra/testing';
+import { expect } from 'expect';
 import express, { type Express } from 'express';
 import supertest from 'supertest';
 import { createTestApi } from '../_support/test-api/index.js';
@@ -11,7 +12,7 @@ describe('e2e:HttpOperation.Entity endpoints', () => {
   let adapter: ExpressAdapter;
   const testArgs: any = {};
 
-  beforeAll(async () => {
+  before(async () => {
     document = await createTestApi();
     app = express();
     adapter = new ExpressAdapter(app);
@@ -20,8 +21,7 @@ describe('e2e:HttpOperation.Entity endpoints', () => {
     testArgs.client = new OpraTestClient(app, { document });
   });
 
-  afterAll(async () => adapter.close());
-  afterAll(() => global.gc && global.gc());
+  after(async () => adapter.close());
 
   it('Should execute "create" endpoint', async () => {
     const resp = await supertest(adapter.app).post('/Customers').send({

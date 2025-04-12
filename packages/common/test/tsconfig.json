@@ -1,15 +1,4 @@
 {
-  "extends": "../tsconfig.json",
-  "include": ["."],
-  "compilerOptions": {
-    "verbatimModuleSyntax": false,
-    "baseUrl": "./",
-    "paths": {
-      "@opra/common": ["../src"],
-      "@opra/common/*": ["../src/*"],
-      "customer-mongo/models": [
-        "../../../examples/_lib/customer-mongo/src/models/index"
-      ]
-    }
-  }
+  "extends": "../../../tsconfig-test.json",
+  "include": ["."]
 }

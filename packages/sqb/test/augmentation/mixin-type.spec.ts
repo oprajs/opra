@@ -7,6 +7,7 @@ import {
   MixinType,
 } from '@opra/common';
 import { Column, Entity } from '@sqb/connect';
+import { expect } from 'expect';
 
 describe('MixinType augmentation', () => {
   it('Should inject into MixinType() decorator', async () => {

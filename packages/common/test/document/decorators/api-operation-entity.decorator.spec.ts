@@ -7,10 +7,9 @@ import {
   IntegerType,
 } from '@opra/common';
 import { Customer } from 'customer-mongo/models';
+import { expect } from 'expect';
 
 describe('HttpOperation.Entity.* decorators', () => {
-  afterAll(() => global.gc && global.gc());
-
   const queryParams = {
     limit: {
       location: 'query',

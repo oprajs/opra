@@ -1,8 +1,7 @@
 import { NodeOutgoingMessage } from '@opra/http';
+import { expect } from 'expect';
 
 describe('NodeOutgoingMessage', () => {
-  afterAll(() => global.gc && global.gc());
-
   it('Should create using init object', async () => {
     const msg = NodeOutgoingMessage.from({
       req: {} as any,

@@ -1,14 +1,4 @@
 {
-  "extends": "../tsconfig.json",
-  "include": ["."],
-  "compilerOptions": {
-    "emitDecoratorMetadata": true,
-    "verbatimModuleSyntax": false,
-    "baseUrl": "./",
-    "paths": {
-      "@opra/cli": ["../src"],
-      "@opra/cli/*": ["../src/*"],
-      "@opra/common": ["../../common/src"]
-    }
-  }
+  "extends": "../../../tsconfig-test.json",
+  "include": ["."]
 }

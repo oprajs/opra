@@ -1,8 +1,7 @@
 import { OpraFilter } from '@opra/common';
+import { expect } from 'expect';
 
 describe('Parse Filter', () => {
-  afterAll(() => global.gc && global.gc());
-
   it('Should parse NumberLiteral', () => {
     let x = OpraFilter.parse('a=1');
     expect(x.right.kind).toStrictEqual('NumberLiteral');

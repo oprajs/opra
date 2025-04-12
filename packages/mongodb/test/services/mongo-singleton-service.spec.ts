@@ -1,7 +1,9 @@
 import { faker } from '@faker-js/faker';
 import { ResourceNotAvailableError } from '@opra/common';
 import { MongoSingletonService } from '@opra/mongodb';
+import { expect } from 'expect';
 import { CustomerApplication } from 'express-mongo';
+import * as sinon from 'sinon';
 import { createContext } from '../_support/create-context.js';
 
 describe('MongoSingletonService', () => {
@@ -10,7 +12,7 @@ describe('MongoSingletonService', () => {
   let tempRecord: any;
   const interceptorFn = fn => fn();
 
-  beforeAll(async () => {
+  before(async () => {
     app = await CustomerApplication.create();
     service = new MongoSingletonService<any>('Customer', {
       db: app.db,
@@ -34,11 +36,8 @@ describe('MongoSingletonService', () => {
     await collection.insertOne(tempRecord);
   });
 
-  afterAll(async () => {
-    await app?.close();
-  });
-
-  afterAll(() => global.gc && global.gc());
+  after(() => app?.close());
+  afterEach(() => sinon.restore());
   beforeEach(() => (service._id = 1));
 
   describe('assert()', () => {
@@ -92,15 +91,12 @@ describe('MongoSingletonService', () => {
     });
 
     it('Should apply filter returned by documentFilter', async () => {
-      const spy = jest
-        .spyOn(service as any, '_getDocumentFilter')
-        .mockResolvedValueOnce('_id=2');
+      sinon.stub(service as any, '_getDocumentFilter').resolves('_id=2');
       const ctx = createContext(app.adapter);
       const result: any = await service
         .for(ctx, { documentFilter: '_id=2' })
         .find();
       expect(result).not.toBeDefined();
-      spy.mockRestore();
     });
 
     it('Should include exclusive fields', async () => {
@@ -137,12 +133,12 @@ describe('MongoSingletonService', () => {
     });
 
     it('Should run interceptors', async () => {
-      const mockFn = jest.fn(interceptorFn);
+      const mockFn = sinon.spy(interceptorFn);
       const ctx = createContext(app.adapter);
       const newService = service.for(ctx, { interceptor: mockFn });
       const result = await newService.find();
       expect(result).toBeDefined();
-      expect(mockFn).toBeCalled();
+      expect(mockFn.callCount).toEqual(1);
     });
   });
 
@@ -167,23 +163,20 @@ describe('MongoSingletonService', () => {
     });
 
     it('Should apply filter returned by documentFilter', async () => {
-      const spy = jest
-        .spyOn(service as any, '_getDocumentFilter')
-        .mockResolvedValueOnce('rate=999');
+      sinon.stub(service as any, '_getDocumentFilter').resolves('rate=999');
       const ctx = createContext(app.adapter);
       await expect(() =>
         service.for(ctx, { documentFilter: 'rate=99' }).get(),
       ).rejects.toThrow(ResourceNotAvailableError);
-      spy.mockRestore();
     });
 
     it('Should run interceptors', async () => {
-      const mockFn = jest.fn(interceptorFn);
+      const mockFn = sinon.spy(interceptorFn);
       const ctx = createContext(app.adapter);
       const newService = service.for(ctx, { interceptor: mockFn });
       const result = await newService.get();
       expect(result).toBeDefined();
-      expect(mockFn).toBeCalled();
+      expect(mockFn.callCount).toEqual(1);
     });
   });
 
@@ -200,14 +193,14 @@ describe('MongoSingletonService', () => {
 
     it('Should run interceptors', async () => {
       service._id = 3;
-      const mockFn = jest.fn(interceptorFn);
+      const mockFn = sinon.spy(interceptorFn);
       const ctx = createContext(app.adapter);
       const doc = { _id: 100, uid: faker.string.uuid() };
       const result: any = await service
         .for(ctx, { interceptor: mockFn })
         .create(doc);
       expect(result).toBeDefined();
-      expect(mockFn).toBeCalled();
+      expect(mockFn.callCount).toEqual(1);
     });
   });
 
@@ -237,13 +230,13 @@ describe('MongoSingletonService', () => {
     });
 
     it('Should run interceptors', async () => {
-      const mockFn = jest.fn(interceptorFn);
+      const mockFn = sinon.spy(interceptorFn);
       const ctx = createContext(app.adapter);
       const doc = { uid: faker.string.uuid() };
       const newService = service.for(ctx, { interceptor: mockFn });
       const result = await newService.updateOnly(doc);
       expect(result).toBeDefined();
-      expect(mockFn).toBeCalled();
+      expect(mockFn.callCount).toEqual(1);
     });
   });
 
@@ -275,13 +268,13 @@ describe('MongoSingletonService', () => {
     });
 
     it('Should run interceptors', async () => {
-      const mockFn = jest.fn(interceptorFn);
+      const mockFn = sinon.spy(interceptorFn);
       const ctx = createContext(app.adapter);
       const doc = { uid: faker.string.uuid() };
       const newService = service.for(ctx, { interceptor: mockFn });
       const result: any = await newService.update(doc);
       expect(result).toBeDefined();
-      expect(mockFn).toBeCalled();
+      expect(mockFn.callCount).toEqual(1);
     });
   });
 
@@ -312,11 +305,11 @@ describe('MongoSingletonService', () => {
     });
 
     it('Should run interceptors', async () => {
-      const mockFn = jest.fn(interceptorFn);
+      const mockFn = sinon.spy(interceptorFn);
       const ctx = createContext(app.adapter);
       const newService = service.for(ctx, { interceptor: mockFn });
       await newService.delete();
-      expect(mockFn).toBeCalled();
+      expect(mockFn.callCount).toEqual(1);
     });
   });
 });
