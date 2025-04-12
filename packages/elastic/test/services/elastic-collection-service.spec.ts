@@ -1,7 +1,9 @@
 import { faker } from '@faker-js/faker';
 import { ResourceNotAvailableError } from '@opra/common';
 import { Customer } from 'customer-elastic';
+import { expect } from 'expect';
 import { CustomerApplication } from 'express-elastic';
+import * as sinon from 'sinon';
 import { ElasticCollectionService } from '../../src/index.js';
 import { createContext } from '../_support/create-context.js';
 
@@ -12,7 +14,7 @@ describe('ElasticCollectionService', () => {
   const tempRecords: any[] = [];
   const interceptorFn = fn => fn();
 
-  beforeAll(async () => {
+  before(async () => {
     app = await CustomerApplication.create();
     /** Recreate index to be use in tests */
     const client = app.dbClient;
@@ -48,11 +50,8 @@ describe('ElasticCollectionService', () => {
     await client.indices.refresh({ index: indexName });
   });
 
-  afterAll(async () => {
-    await app?.close();
-  });
-
-  afterAll(() => global.gc && global.gc());
+  after(async () => app?.close());
+  afterEach(() => sinon.restore());
 
   describe('assert()', () => {
     it('Should not throw if document exists', async () => {
@@ -100,11 +99,11 @@ describe('ElasticCollectionService', () => {
     });
 
     it('Should run in interceptor', async () => {
-      const mockFn = jest.fn(interceptorFn);
+      const mockFn = sinon.spy(interceptorFn);
       const ctx = createContext(app.adapter);
       const result = await service.for(ctx, { interceptor: mockFn }).count();
       expect(result).toBeGreaterThan(0);
-      expect(mockFn).toBeCalled();
+      expect(mockFn.callCount).toEqual(1);
     });
   });
 
@@ -141,13 +140,13 @@ describe('ElasticCollectionService', () => {
     });
 
     it('Should run in interceptor', async () => {
-      const mockFn = jest.fn(interceptorFn);
+      const mockFn = sinon.spy(interceptorFn);
       const ctx = createContext(app.adapter);
       const result: any = await service
         .for(ctx, { interceptor: mockFn })
         .findById('1');
       expect(result).toBeDefined();
-      expect(mockFn).toBeCalled();
+      expect(mockFn.callCount).toEqual(1);
     });
   });
 
@@ -243,13 +242,13 @@ describe('ElasticCollectionService', () => {
     });
 
     it('Should run in interceptor', async () => {
-      const mockFn = jest.fn(interceptorFn);
+      const mockFn = sinon.spy(interceptorFn);
       const ctx = createContext(app.adapter);
       const result: any = await service
         .for(ctx, { interceptor: mockFn })
         .findOne();
       expect(result).toBeDefined();
-      expect(mockFn).toBeCalled();
+      expect(mockFn.callCount).toEqual(1);
     });
   });
 
@@ -387,14 +386,14 @@ describe('ElasticCollectionService', () => {
     });
 
     it('Should run in interceptor', async () => {
-      const mockFn = jest.fn(interceptorFn);
+      const mockFn = sinon.spy(interceptorFn);
       const ctx = createContext(app.adapter);
       const result: any = await service
         .for(ctx, { interceptor: mockFn })
         .findMany();
       expect(result).toBeDefined();
       expect(result.length).toBeGreaterThan(0);
-      expect(mockFn).toBeCalled();
+      expect(mockFn.callCount).toEqual(1);
     });
   });
 
@@ -425,13 +424,13 @@ describe('ElasticCollectionService', () => {
     });
 
     it('Should run in interceptor', async () => {
-      const mockFn = jest.fn(interceptorFn);
+      const mockFn = sinon.spy(interceptorFn);
       const ctx = createContext(app.adapter);
       const result: any = await service
         .for(ctx, { interceptor: mockFn })
         .get('1');
       expect(result).toBeDefined();
-      expect(mockFn).toBeCalled();
+      expect(mockFn.callCount).toEqual(1);
     });
   });
 
@@ -446,14 +445,14 @@ describe('ElasticCollectionService', () => {
     });
 
     it('Should run interceptors', async () => {
-      const mockFn = jest.fn(interceptorFn);
+      const mockFn = sinon.spy(interceptorFn);
       const ctx = createContext(app.adapter);
       const doc = { _id: '101', uid: faker.string.uuid() };
       const r = await service.for(ctx, { interceptor: mockFn }).create(doc);
       expect(r).toBeDefined();
       expect(r._id).toStrictEqual('101');
       expect(r.result).toStrictEqual('created');
-      expect(mockFn).toBeCalled();
+      expect(mockFn.callCount).toEqual(1);
     });
   });
 
@@ -483,7 +482,7 @@ describe('ElasticCollectionService', () => {
     });
 
     it('Should run in interceptor', async () => {
-      const mockFn = jest.fn(interceptorFn);
+      const mockFn = sinon.spy(interceptorFn);
       const ctx = createContext(app.adapter);
       const doc = { uid: faker.string.uuid() };
       const srcDoc = tempRecords[5];
@@ -493,7 +492,7 @@ describe('ElasticCollectionService', () => {
       expect(r).toBeDefined();
       expect(r.updated).toStrictEqual(1);
       expect(r.total).toStrictEqual(1);
-      expect(mockFn).toBeCalled();
+      expect(mockFn.callCount).toEqual(1);
     });
   });
 
@@ -534,14 +533,14 @@ describe('ElasticCollectionService', () => {
     });
 
     it('Should run in interceptor', async () => {
-      const mockFn = jest.fn(interceptorFn);
+      const mockFn = sinon.spy(interceptorFn);
       const ctx = createContext(app.adapter);
       const update = { uid: faker.string.uuid() };
       const r = await service
         .for(ctx, { interceptor: mockFn })
         .updateMany(update);
       expect(r).toBeDefined();
-      expect(mockFn).toBeCalled();
+      expect(mockFn.callCount).toEqual(1);
     });
   });
 
@@ -579,12 +578,12 @@ describe('ElasticCollectionService', () => {
     });
 
     it('Should run in interceptor', async () => {
-      const mockFn = jest.fn(interceptorFn);
+      const mockFn = sinon.spy(interceptorFn);
       const ctx = createContext(app.adapter);
       const r = await service.for(ctx, { interceptor: mockFn }).delete('0');
       expect(r).toBeDefined();
       expect(r.deleted).toEqual(0);
-      expect(mockFn).toBeCalled();
+      expect(mockFn.callCount).toEqual(1);
     });
   });
 
@@ -619,10 +618,10 @@ describe('ElasticCollectionService', () => {
     });
 
     it('Should run in interceptor', async () => {
-      const mockFn = jest.fn(interceptorFn);
+      const mockFn = sinon.spy(interceptorFn);
       const ctx = createContext(app.adapter);
       await service.for(ctx, { interceptor: mockFn }).deleteMany();
-      expect(mockFn).toBeCalled();
+      expect(mockFn.callCount).toEqual(1);
     });
   });
 });

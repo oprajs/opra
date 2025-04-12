@@ -1,10 +1,4 @@
-import {
-  ContextType,
-  Controller,
-  Inject,
-  Injectable,
-  type Type,
-} from '@nestjs/common';
+import { ContextType, Controller, Injectable, type Type } from '@nestjs/common';
 import { createContextId, ModulesContainer, REQUEST } from '@nestjs/core';
 import {
   ExternalContextCreator,
@@ -32,9 +26,7 @@ export class RpcControllerFactory {
   private readonly injector = new Injector();
 
   constructor(
-    @Inject()
     private readonly modulesContainer: ModulesContainer,
-    @Inject()
     private readonly externalContextCreator: ExternalContextCreator,
   ) {}
 

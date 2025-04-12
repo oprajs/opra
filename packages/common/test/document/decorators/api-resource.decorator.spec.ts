@@ -1,9 +1,7 @@
-import 'reflect-metadata';
 import { HTTP_CONTROLLER_METADATA, HttpController } from '@opra/common';
+import { expect } from 'expect';
 
 describe('HttpResource decorator', () => {
-  afterAll(() => global.gc && global.gc());
-
   /* ***************************************************** */
   it('Should define Collection resource metadata', async () => {
     const opts: HttpController.Options = {

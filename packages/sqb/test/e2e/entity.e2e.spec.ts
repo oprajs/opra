@@ -8,14 +8,14 @@ describe('e2e tests', function () {
   let client: OpraTestClient;
   const testArgs: any = {};
 
-  beforeAll(async () => {
+  before(async () => {
     app = await CustomerApplication.create();
     client = new OpraTestClient(app.adapter.app, { document: app.document });
     testArgs.app = app;
     testArgs.client = client;
   });
 
-  afterAll(async () => {
+  after(async () => {
     await app?.close();
   });
 

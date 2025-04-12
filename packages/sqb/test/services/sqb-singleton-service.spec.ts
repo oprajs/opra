@@ -2,7 +2,9 @@ import { faker } from '@faker-js/faker';
 import { ResourceNotAvailableError } from '@opra/common';
 import { SqbSingletonService } from '@opra/sqb';
 import { TempCustomer } from 'customer-sqb';
+import { expect } from 'expect';
 import { CustomerApplication } from 'express-sqb';
+import * as sinon from 'sinon';
 import { createContext } from '../_support/create-context.js';
 
 describe('SqbSingletonService', () => {
@@ -11,7 +13,7 @@ describe('SqbSingletonService', () => {
   let tempRecord: any;
   const interceptorFn = fn => fn();
 
-  beforeAll(async () => {
+  before(async () => {
     app = await CustomerApplication.create();
     service = new SqbSingletonService<any>(TempCustomer, {
       db: app.db,
@@ -34,11 +36,9 @@ describe('SqbSingletonService', () => {
     await customerRepository.create(tempRecord);
   });
 
-  afterAll(async () => {
-    await app?.close();
-  });
+  after(() => app?.close());
+  afterEach(() => sinon.restore());
 
-  afterAll(() => global.gc && global.gc());
   beforeEach(() => (service.id = 1));
 
   describe('assert()', () => {
@@ -92,15 +92,12 @@ describe('SqbSingletonService', () => {
     });
 
     it('Should apply filter returned by commonFilter', async () => {
-      const spy = jest
-        .spyOn(service as any, '_getCommonFilter')
-        .mockResolvedValueOnce('_id=2');
+      sinon.stub(service as any, '_getCommonFilter').resolves('_id=2');
       const ctx = createContext(app.adapter);
       const result: any = await service
         .for(ctx, { commonFilter: '_id=2' })
         .find();
       expect(result).not.toBeDefined();
-      spy.mockRestore();
     });
 
     it('Should include exclusive fields', async () => {
@@ -137,12 +134,12 @@ describe('SqbSingletonService', () => {
     });
 
     it('Should run interceptors', async () => {
-      const mockFn = jest.fn(interceptorFn);
+      const mockFn = sinon.spy(interceptorFn);
       const ctx = createContext(app.adapter);
       const newService = service.for(ctx, { interceptor: mockFn });
       const result = await newService.find();
       expect(result).toBeDefined();
-      expect(mockFn).toBeCalled();
+      expect(mockFn.callCount).toEqual(1);
     });
   });
 
@@ -167,23 +164,20 @@ describe('SqbSingletonService', () => {
     });
 
     it('Should apply filter returned by commonFilter', async () => {
-      const spy = jest
-        .spyOn(service as any, '_getCommonFilter')
-        .mockResolvedValueOnce('rate=999');
+      sinon.stub(service as any, '_getCommonFilter').resolves('rate=999');
       const ctx = createContext(app.adapter);
       await expect(() =>
         service.for(ctx, { commonFilter: 'rate=99' }).get(),
       ).rejects.toThrow(ResourceNotAvailableError);
-      spy.mockRestore();
     });
 
     it('Should run interceptors', async () => {
-      const mockFn = jest.fn(interceptorFn);
+      const mockFn = sinon.spy(interceptorFn);
       const ctx = createContext(app.adapter);
       const newService = service.for(ctx, { interceptor: mockFn });
       const result = await newService.get();
       expect(result).toBeDefined();
-      expect(mockFn).toBeCalled();
+      expect(mockFn.callCount).toEqual(1);
     });
   });
 
@@ -200,14 +194,14 @@ describe('SqbSingletonService', () => {
 
     it('Should run interceptors', async () => {
       service.id = 3;
-      const mockFn = jest.fn(interceptorFn);
+      const mockFn = sinon.spy(interceptorFn);
       const ctx = createContext(app.adapter);
       const doc = { _id: 100, uid: faker.string.uuid() };
       const result: any = await service
         .for(ctx, { interceptor: mockFn })
         .create(doc);
       expect(result).toBeDefined();
-      expect(mockFn).toBeCalled();
+      expect(mockFn.callCount).toEqual(1);
     });
   });
 
@@ -237,13 +231,13 @@ describe('SqbSingletonService', () => {
     });
 
     it('Should run interceptors', async () => {
-      const mockFn = jest.fn(interceptorFn);
+      const mockFn = sinon.spy(interceptorFn);
       const ctx = createContext(app.adapter);
       const doc = { uid: faker.string.uuid() };
       const newService = service.for(ctx, { interceptor: mockFn });
       const result = await newService.updateOnly(doc);
       expect(result).toBeDefined();
-      expect(mockFn).toBeCalled();
+      expect(mockFn.callCount).toEqual(1);
     });
   });
 
@@ -275,13 +269,13 @@ describe('SqbSingletonService', () => {
     });
 
     it('Should run interceptors', async () => {
-      const mockFn = jest.fn(interceptorFn);
+      const mockFn = sinon.spy(interceptorFn);
       const ctx = createContext(app.adapter);
       const doc = { uid: faker.string.uuid() };
       const newService = service.for(ctx, { interceptor: mockFn });
       const result: any = await newService.update(doc);
       expect(result).toBeDefined();
-      expect(mockFn).toBeCalled();
+      expect(mockFn.callCount).toEqual(1);
     });
   });
 
@@ -312,11 +306,11 @@ describe('SqbSingletonService', () => {
     });
 
     it('Should run interceptors', async () => {
-      const mockFn = jest.fn(interceptorFn);
+      const mockFn = sinon.spy(interceptorFn);
       const ctx = createContext(app.adapter);
       const newService = service.for(ctx, { interceptor: mockFn });
       await newService.delete();
-      expect(mockFn).toBeCalled();
+      expect(mockFn.callCount).toEqual(1);
     });
   });
 });

@@ -3,7 +3,6 @@ import { OpraTestClient } from '@opra/testing';
 
 export function collectionUpdateManyTests(args: { client: OpraTestClient }) {
   describe('Collection:updateMany', () => {
-    afterAll(() => global.gc && global.gc());
     const generateData = (v?: any) => ({
       givenName: faker.person.firstName(),
       familyName: faker.person.lastName(),

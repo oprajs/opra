@@ -1,9 +1,8 @@
 import 'reflect-metadata';
 import { parseFieldsProjection } from '@opra/common';
+import { expect } from 'expect';
 
 describe('parseFieldsProjection()', () => {
-  afterAll(() => global.gc && global.gc());
-
   it('Should parse comma seperated field names', async () => {
     const out = parseFieldsProjection('a,b,c');
     expect(out).toEqual({

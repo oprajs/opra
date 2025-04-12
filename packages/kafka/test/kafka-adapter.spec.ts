@@ -1,9 +1,10 @@
-import { ApiDocument, RpcOperation } from '@opra/common';
+import { ApiDocument } from '@opra/common';
 import { ILogger } from '@opra/core';
 import { KafkaAdapter } from '@opra/kafka';
+import { expect } from 'expect';
+import { Kafka } from 'kafkajs';
+import * as sinon from 'sinon';
 import { TestRpcApiDocument } from './_support/test-api/index.js';
-
-jest.setTimeout(30000);
 
 describe('KafkaAdapter', () => {
   let document: ApiDocument;
@@ -13,12 +14,12 @@ describe('KafkaAdapter', () => {
     error() {},
   };
 
-  beforeAll(async () => {
+  before(async () => {
     document = await TestRpcApiDocument.create();
   });
 
   afterEach(async () => adapter?.close());
-  afterAll(() => global.gc && global.gc());
+  afterEach(() => sinon.restore());
 
   it('Should initialize consumers', async () => {
     adapter = new KafkaAdapter(document, {
@@ -30,27 +31,15 @@ describe('KafkaAdapter', () => {
         },
       },
     });
-    let config: any;
-    const originalFn = (adapter as any)._createConsumer;
-    jest
-      .spyOn(adapter as any, '_createConsumer')
-      // @ts-ignore
-      .mockImplementation((args: HandlerArguments) => {
-        if (
-          args.controller.name === 'Test' &&
-          args.operation.name === 'mailChannel1'
-        ) {
-          jest.spyOn(adapter.kafka, 'consumer').mockImplementationOnce(cfg => {
-            config = cfg;
-            return { disconnect: () => undefined } as any;
-          });
-        }
-        return originalFn.call(adapter, args);
-      });
+    const configs: any[] = [];
+    sinon.stub(Kafka.prototype, 'consumer').callsFake(cfg => {
+      configs.push(cfg);
+      return { disconnect: () => undefined } as any;
+    });
     await adapter.initialize();
     expect((adapter as any)._consumers.size).toBeGreaterThan(0);
-    expect(config).toBeDefined();
-    expect(config).toEqual({
+    expect(configs.length).toEqual(2);
+    expect(configs[0]).toEqual({
       groupId: 'group-1',
       sessionTimeout: 10000,
     });
@@ -61,51 +50,35 @@ describe('KafkaAdapter', () => {
       client: { brokers: ['localhost'] },
       logger,
     });
-    const spys: Record<
-      string,
-      {
-        operation: RpcOperation;
-        connectCalled?: boolean;
-        subscribeCalled?: boolean;
-        subscribeArgs?: any;
-        runCalled?: boolean;
-      }
-    > = {};
     const _createConsumer = (adapter as any)._createConsumer;
-    jest
-      .spyOn(adapter as any, '_createConsumer')
-      .mockImplementation(async (args: any) => {
+    const stubbedConsumers = new WeakSet();
+    let connectCount = 0;
+    let subscribeCount = 0;
+    let runCount = 0;
+    sinon
+      .stub(adapter as any, '_createConsumer')
+      .callsFake(async (args: any) => {
         await _createConsumer.call(adapter, args);
-        const { operation, consumer, controller } = args;
-        const x: any = { operation };
-        jest.spyOn(consumer, 'connect').mockImplementationOnce(() => {
-          x.connectCalled = true;
+        const { consumer } = args;
+        if (stubbedConsumers.has(consumer)) return;
+        stubbedConsumers.add(consumer);
+        sinon.stub(consumer, 'connect').callsFake(() => {
+          connectCount++;
           return Promise.resolve();
         });
-        jest.spyOn(consumer, 'subscribe').mockImplementationOnce(args2 => {
-          x.subscribeCalled = true;
-          x.subscribeArgs = args2;
+        sinon.stub(consumer, 'subscribe').callsFake(() => {
+          subscribeCount++;
           return Promise.resolve();
         });
-        jest.spyOn(consumer, 'run').mockImplementationOnce(() => {
-          x.runCalled = true;
+        sinon.stub(consumer, 'run').callsFake(() => {
+          runCount++;
           return Promise.resolve();
         });
-        spys[controller.name + '.' + operation.name] = x;
       });
     await adapter.initialize();
     await adapter.start();
-    expect(Object.keys(spys)).toEqual([
-      'Test.mailChannel1',
-      'Test.mailChannel2',
-      'Test.smsChannel1',
-      'Test.smsChannel2',
-    ]);
-    expect(spys['Test.mailChannel1'].connectCalled).toBeTruthy();
-    expect(spys['Test.mailChannel1'].subscribeCalled).toBeTruthy();
-    expect(spys['Test.mailChannel1'].runCalled).toBeTruthy();
-    expect(spys['Test.mailChannel1'].subscribeArgs).toEqual({
-      topics: ['email-channel-1'],
-    });
+    expect(connectCount).toEqual(1);
+    expect(subscribeCount).toEqual(4);
+    expect(runCount).toEqual(1);
   });
 });

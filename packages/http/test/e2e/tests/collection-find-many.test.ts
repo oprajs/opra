@@ -1,9 +1,8 @@
 import { OpraTestClient } from '@opra/testing';
+import { expect } from 'expect';
 
 export function collectionFindManyTests(args: { client: OpraTestClient }) {
   describe('Collection:findMany', () => {
-    afterAll(() => global.gc && global.gc());
-
     it('Should return list object', async () => {
       const resp = await args.client.get('Customers').getResponse();
       resp.expect.toSuccess().toReturnCollection().toReturnItems();

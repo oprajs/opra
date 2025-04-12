@@ -6,6 +6,7 @@ import {
   EnumType,
 } from '@opra/common';
 import { Column, DataType, Link } from '@sqb/connect';
+import { expect } from 'expect';
 
 export enum GenderEnum {
   MALE = 'M',

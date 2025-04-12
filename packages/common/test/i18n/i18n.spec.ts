@@ -1,12 +1,11 @@
 import path from 'node:path';
 import { getStackFileName, i18n, translate } from '@opra/common';
+import { expect } from 'expect';
 
 const dirname = path.dirname(getStackFileName());
 
 describe('I18n', () => {
-  afterAll(() => global.gc && global.gc());
-
-  beforeAll(async () => {
+  before(async () => {
     await i18n.init({
       defaultNS: 'translate',
       lng: 'en',

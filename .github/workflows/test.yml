@@ -19,7 +19,7 @@ on:
       - 'packages/*/test/**'
       - 'packages/*/*.{json,js,mjs,cjs}'
       - 'support/test/**'
-      - 'jest.*'
+      - '.mocharc.cjs'
       - 'package.json'
       - 'tsconfig*.json'
 

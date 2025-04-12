@@ -1,16 +1,4 @@
 {
-  "extends": "../tsconfig.json",
-  "include": ["."],
-  "compilerOptions": {
-    "emitDecoratorMetadata": true,
-    "verbatimModuleSyntax": false,
-    "baseUrl": "./",
-    "paths": {
-      "@opra/kafka": ["../src"],
-      "@opra/common": ["../../common/src"],
-      "@opra/core": ["../../core/src"],
-      "@opra/client": ["../../client/src"],
-      "@opra/testing": ["../../testing/src"]
-    }
-  }
+  "extends": "../../../tsconfig-test.json",
+  "include": ["."]
 }

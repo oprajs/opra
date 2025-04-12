@@ -1,8 +1,7 @@
 import { ResponsiveMap } from '@opra/common';
+import { expect } from 'expect';
 
 describe('ResponsiveMap', () => {
-  afterAll(() => global.gc && global.gc());
-
   it('Should get value with string key in case-insensitive way', async () => {
     const map = new ResponsiveMap();
     map.set('key1', 1);

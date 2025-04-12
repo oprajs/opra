@@ -1,14 +1,13 @@
 import { ApiDocument, parseFieldsProjection } from '@opra/common';
+import { expect } from 'expect';
 import { TestHttpApiDocument } from '../../_support/test-http-api/index.js';
 
 describe('ComplexType', () => {
   let doc: ApiDocument;
 
-  beforeAll(async () => {
+  before(async () => {
     doc = await TestHttpApiDocument.create();
   });
-
-  afterAll(() => global.gc && global.gc());
 
   it('Should findField(name) return field instance', async () => {
     const dt = doc.node.getComplexType('customer');

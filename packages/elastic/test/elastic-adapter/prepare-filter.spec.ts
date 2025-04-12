@@ -1,8 +1,7 @@
 import { ElasticAdapter } from '@opra/elastic';
+import { expect } from 'expect';
 
 describe('ElasticAdapter.prepareFilter', () => {
-  afterAll(() => global.gc && global.gc());
-
   describe('Convert Ast to elastic filter', () => {
     it('Should convert ComparisonExpression (=)', async () => {
       let out = ElasticAdapter.prepareFilter('givenName="Demons"');

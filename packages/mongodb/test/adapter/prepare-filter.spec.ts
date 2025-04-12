@@ -1,5 +1,6 @@
 import { ApiDocument, HttpController } from '@opra/common';
 import { MongoAdapter } from '@opra/mongodb';
+import { expect } from 'expect';
 import { CustomerApplication } from 'express-mongo';
 import { Validator } from 'valgen';
 
@@ -8,15 +9,13 @@ describe('MongoAdapter.prepareFilter', () => {
   let customers: HttpController;
   let filterDecoder: Validator;
 
-  beforeAll(async () => {
+  before(async () => {
     document = (await CustomerApplication.create()).document;
     customers = document.httpApi!.findController('customers')!;
     const findMany = customers.operations.get('findMany');
     const filterParam = findMany!.findParameter('filter');
     filterDecoder = filterParam!.type!.generateCodec('decode');
   });
-
-  afterAll(() => global.gc && global.gc());
 
   describe('Convert Ast to mongo filter', () => {
     it('Should convert ComparisonExpression (=)', async () => {

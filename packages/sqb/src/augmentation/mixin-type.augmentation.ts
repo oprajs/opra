@@ -4,8 +4,10 @@ import type { Type } from 'ts-gems';
 
 const oldDecorator = MixinType[DECORATOR];
 MixinType[DECORATOR] = function (...sources: [Type]) {
-  sources = sources.filter(x => typeof x === 'function') as [Type];
+  const filteredSources = sources.filter(x => typeof x === 'function') as [
+    Type,
+  ];
   const target = oldDecorator(...sources);
-  Entity.mixin(target, ...sources);
+  Entity.mixin(target, ...filteredSources);
   return target;
 };

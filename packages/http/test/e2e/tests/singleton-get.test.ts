@@ -11,9 +11,7 @@ export function singletonGetTests(args: { client: OpraTestClient }) {
       address: { city: 'Izmir' },
     };
 
-    afterAll(() => global.gc && global.gc());
-
-    beforeAll(async () => {
+    before(async () => {
       await args.client.delete('auth/MyProfile').getResponse();
       await args.client.post('auth/MyProfile', data).getResponse();
     });

@@ -7,6 +7,7 @@ import {
   NodeIncomingMessage,
 } from '@opra/http';
 import cookieParser from 'cookie-parser';
+import { expect } from 'expect';
 import express, { Express } from 'express';
 import { createTestApi } from './_support/test-api/index.js';
 
@@ -27,7 +28,7 @@ describe('HttpContext', () => {
     });
   }
 
-  beforeAll(async () => {
+  before(async () => {
     document = await createTestApi();
     app = express();
     app.use(cookieParser());
@@ -35,8 +36,7 @@ describe('HttpContext', () => {
     adapter.initialize(document);
   });
 
-  afterAll(async () => adapter.close());
-  afterAll(() => global.gc && global.gc());
+  after(async () => adapter.close());
 
   it('Should getBody() retrieve body content', async () => {
     const controller = document.httpApi?.findController('Customer');

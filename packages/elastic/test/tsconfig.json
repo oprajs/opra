@@ -1,20 +1,4 @@
 {
-  "extends": "../tsconfig.json",
-  "include": ["."],
-  "compilerOptions": {
-    "emitDecoratorMetadata": true,
-    "verbatimModuleSyntax": false,
-    "baseUrl": "./",
-    "paths": {
-      "@opra/elastic": ["../src"],
-      "@opra/client": ["../../client/src"],
-      "@opra/common": ["../../common/src"],
-      "@opra/core": ["../../core/src"],
-      "@opra/http": ["../../http/src"],
-      "@opra/mongodb": ["../../mongodb/src"],
-      "@opra/testing": ["../../testing/src"],
-      "customer-elastic": ["../../../examples/_lib/customer-elastic"],
-      "express-elastic": ["../../../examples/express-elastic"]
-    }
-  }
+  "extends": "../../../tsconfig-test.json",
+  "include": ["."]
 }

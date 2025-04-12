@@ -1,15 +1,14 @@
 import { ApiDocument, BigintType } from '@opra/common';
-import { ComparisonExpression } from '@opra/common/filter/ast/index';
+import { expect } from 'expect';
+import { ComparisonExpression } from '../../../src/filter/ast/index.js';
 import { TestHttpApiDocument } from '../../_support/test-http-api/index.js';
 
 describe('Built-in types', () => {
   let doc: ApiDocument;
 
-  beforeAll(async () => {
+  before(async () => {
     doc = await TestHttpApiDocument.create();
   });
-
-  afterAll(() => global.gc && global.gc());
 
   /**
    * Primitive Types

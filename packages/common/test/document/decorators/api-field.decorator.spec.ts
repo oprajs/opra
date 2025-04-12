@@ -1,8 +1,7 @@
 import { ApiField, DATATYPE_METADATA } from '@opra/common';
+import { expect } from 'expect';
 
 describe('ApiField() decorator', () => {
-  afterAll(() => global.gc && global.gc());
-
   it('Should define field metadata', async () => {
     class Animal {
       @ApiField({

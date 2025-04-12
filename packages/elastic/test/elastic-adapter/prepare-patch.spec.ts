@@ -1,8 +1,7 @@
 import { ElasticAdapter } from '@opra/elastic';
+import { expect } from 'expect';
 
 describe('ElasticAdapter.preparePatch', () => {
-  afterAll(() => global.gc && global.gc());
-
   it('Should convert simple values', async () => {
     const o: any = ElasticAdapter.preparePatch({ age: 21 });
     expect(o).toEqual({

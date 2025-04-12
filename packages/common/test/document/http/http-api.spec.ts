@@ -1,11 +1,11 @@
 import { ApiDocument, HttpApi, HttpController, RpcApi } from '@opra/common';
+import { expect } from 'expect';
 import { TestHttpApiDocument } from '../../_support/test-http-api/index.js';
 
 describe('HttpApi', () => {
   let doc: ApiDocument;
-  afterAll(() => global.gc && global.gc());
 
-  beforeAll(async () => {
+  before(async () => {
     doc = await TestHttpApiDocument.create();
   });
 

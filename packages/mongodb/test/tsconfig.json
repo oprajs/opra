@@ -1,20 +1,4 @@
 {
-  "extends": "../tsconfig.json",
-  "include": ["."],
-  "compilerOptions": {
-    "emitDecoratorMetadata": true,
-    "verbatimModuleSyntax": false,
-    "baseUrl": "./",
-    "paths": {
-      "@opra/mongodb": ["../src"],
-      "@opra/mongodb/*": ["../src/*"],
-      "@opra/client": ["../../client/src"],
-      "@opra/common": ["../../common/src"],
-      "@opra/core": ["../../core/src"],
-      "@opra/http": ["../../http/src"],
-      "@opra/testing": ["../../testing/src"],
-      "customer-mongo": ["../../../examples/_lib/customer-mongo"],
-      "express-mongo": ["../../../examples/express-mongo"]
-    }
-  }
+  "extends": "../../../tsconfig-test.json",
+  "include": ["."]
 }

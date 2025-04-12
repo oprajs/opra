@@ -1,8 +1,7 @@
 import { ElasticAdapter } from '@opra/elastic';
+import { expect } from 'expect';
 
 describe('ElasticAdapter.prepareSort', () => {
-  afterAll(() => global.gc && global.gc());
-
   it('Should convert ascending sort fields', async () => {
     const o: any = ElasticAdapter.prepareSort(['id', '+address.city']);
     expect(o).toEqual([

@@ -11,8 +11,6 @@ export function singletonCreateTests(args: { client: OpraTestClient }) {
       ...v,
     });
 
-    afterAll(() => global.gc && global.gc());
-
     beforeEach(async () => {
       await args.client.delete('auth/MyProfile').getResponse();
     });

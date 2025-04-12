@@ -1,6 +1,6 @@
 {
   "name": "@opra/testing",
-  "version": "1.13.0",
+  "version": "1.14.0",
   "description": "Opra testing package",
   "author": "Panates",
   "license": "MIT",
@@ -14,8 +14,7 @@
     "lint": "eslint . --max-warnings=0",
     "lint:fix": "eslint . --max-warnings=0 --fix",
     "format": "prettier . --write --log-level=warn",
-    "test": "jest --passWithNoTests",
-    "cover": "jest --passWithNoTests --collect-coverage",
+    "test": "mocha",
     "clean": "npm run clean:src && npm run clean:test && npm run clean:dist && npm run clean:cover",
     "clean:src": "ts-cleanup -s src --all",
     "clean:test": "ts-cleanup -s test --all",
@@ -30,8 +29,8 @@
     "tslib": "^2.8.1"
   },
   "peerDependencies": {
-    "@opra/client": "^1.13.0",
-    "@opra/common": "^1.13.0",
+    "@opra/client": "^1.14.0",
+    "@opra/common": "^1.14.0",
     "expect": "^29.0.0 || ^30.0.0",
     "jest-matcher-utils": "^29.0.0 || ^30.0.0"
   },

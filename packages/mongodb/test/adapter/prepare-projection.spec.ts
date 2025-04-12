@@ -1,15 +1,14 @@
 import { ApiDocument } from '@opra/common';
 import { MongoAdapter } from '@opra/mongodb';
+import { expect } from 'expect';
 import { CustomerApplication } from 'express-mongo';
 
 describe('MongoAdapter.prepareProjection', () => {
   let document: ApiDocument;
 
-  beforeAll(async () => {
+  before(async () => {
     document = (await CustomerApplication.create()).document;
   });
-
-  afterAll(() => global.gc && global.gc());
 
   it('Should process "pick"', async () => {
     const o: any = MongoAdapter.prepareProjection(

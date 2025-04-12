@@ -1,6 +1,6 @@
 {
   "name": "@opra/http",
-  "version": "1.13.0",
+  "version": "1.14.0",
   "description": "Opra Http Server Adapter",
   "author": "Panates",
   "license": "MIT",
@@ -17,8 +17,7 @@
     "lint:fix": "eslint . --max-warnings=0 --fix",
     "format": "prettier . --write --log-level=warn",
     "check": "madge --circular src/**",
-    "test": "jest --passWithNoTests",
-    "cover": "jest --passWithNoTests --collect-coverage",
+    "test": "mocha",
     "clean": "npm run clean:src && npm run clean:test && npm run clean:dist && npm run clean:cover",
     "clean:src": "ts-cleanup -s src --all",
     "clean:test": "ts-cleanup -s test --all",
@@ -40,6 +39,7 @@
     "cookie-signature": "^1.2.2",
     "cppzst": "^2.0.12",
     "encodeurl": "^2.0.0",
+    "expect": "^29.7.0",
     "fast-tokenizer": "^1.7.0",
     "fresh": "^0.5.2",
     "iconv-lite": "^0.6.3",
@@ -56,8 +56,8 @@
     "vary": "^1.1.2"
   },
   "peerDependencies": {
-    "@opra/common": "^1.13.0",
-    "@opra/core": "^1.13.0"
+    "@opra/common": "^1.14.0",
+    "@opra/core": "^1.14.0"
   },
   "optionalDependencies": {
     "express": "^4.0.0 || ^5.0.0",

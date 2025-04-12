@@ -1,8 +1,7 @@
 import { ApiDocumentFactory, EnumType, OpraSchema } from '@opra/common';
+import { expect } from 'expect';
 
 describe('DataTypeFactory - EnumType (Class)', () => {
-  afterAll(() => global.gc && global.gc());
-
   it('Should import EnumType', async () => {
     enum Gender {
       MALE = 'M',

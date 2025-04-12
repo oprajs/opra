@@ -3,7 +3,6 @@ import { OpraTestClient } from '@opra/testing';
 
 export function collectionCreateTests(args: { client: OpraTestClient }) {
   describe('Collection:create', () => {
-    afterAll(() => global.gc && global.gc());
     const generateData = (v?: any) => ({
       givenName: faker.person.firstName(),
       familyName: faker.person.lastName(),

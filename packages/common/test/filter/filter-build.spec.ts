@@ -1,4 +1,5 @@
 import { OpraFilter } from '@opra/common';
+import { expect } from 'expect';
 
 const {
   $and,
@@ -25,8 +26,6 @@ const {
 } = OpraFilter;
 
 describe('Building Filter', () => {
-  afterAll(() => global.gc && global.gc());
-
   it('Should $eq() create ComparisonExpression', () => {
     const x = $eq('a', 1);
     expect(x.kind).toStrictEqual('ComparisonExpression');

@@ -8,6 +8,7 @@ import {
   PickType,
 } from '@opra/common';
 import { Column, Entity } from '@sqb/connect';
+import { expect } from 'expect';
 
 describe('MappedType augmentation', () => {
   it('Should inject into OmitType() decorator', async () => {

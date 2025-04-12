@@ -1,4 +1,4 @@
-import '../jest-extend/index.js';
+import '../expect-extend/index.js';
 import { HttpResponse } from '@opra/client';
 import { expect } from 'expect';
 

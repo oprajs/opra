@@ -1,4 +1,5 @@
 import { ApiDocument, HttpHeaderCodes, OpraSchema } from '@opra/common';
+import { expect } from 'expect';
 import { finalize, Observable } from 'rxjs';
 import {
   FetchBackend,
@@ -15,10 +16,9 @@ describe('OpraClient', () => {
   let app: MockServer;
   let client: OpraHttpClient;
 
-  afterAll(() => app.server.close());
-  afterAll(() => global.gc && global.gc());
+  after(() => app.server.close());
 
-  beforeAll(async () => {
+  before(async () => {
     app = await createMockServer();
     client = new OpraHttpClient(app.baseUrl, { document: app.api });
   });

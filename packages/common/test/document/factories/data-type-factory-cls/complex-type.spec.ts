@@ -5,10 +5,9 @@ import {
   ComplexType,
   OpraSchema,
 } from '@opra/common';
+import { expect } from 'expect';
 
 describe('DataTypeFactory - ComplexType (Class)', () => {
-  afterAll(() => global.gc && global.gc());
-
   it('Should import ComplexType', async () => {
     @ComplexType({
       description: 'test type',

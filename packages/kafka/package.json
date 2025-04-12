@@ -1,6 +1,6 @@
 {
   "name": "@opra/kafka",
-  "version": "1.13.0",
+  "version": "1.14.0",
   "description": "Opra Kafka package",
   "author": "Panates",
   "license": "MIT",
@@ -16,8 +16,7 @@
     "lint:fix": "eslint . --max-warnings=0 --fix",
     "format": "prettier . --write --log-level=warn",
     "check": "madge --circular src/**",
-    "test": "jest --passWithNoTests",
-    "cover": "jest --passWithNoTests --collect-coverage",
+    "test": "mocha",
     "clean": "npm run clean:src && npm run clean:test && npm run clean:dist && npm run clean:cover",
     "clean:src": "ts-cleanup -s src --all",
     "clean:test": "ts-cleanup -s test --all",
@@ -30,13 +29,15 @@
     "valgen": "^5.14.0"
   },
   "peerDependencies": {
-    "@opra/common": "^1.13.0",
-    "@opra/core": "^1.13.0",
+    "@opra/common": "^1.14.0",
+    "@opra/core": "^1.14.0",
     "kafkajs": ">=2.2.4 <3"
   },
   "devDependencies": {
     "@faker-js/faker": "^9.6.0",
     "@types/accepts": "^1.3.7",
+    "expect": "^29.7.0",
+    "sinon": "^20.0.0",
     "ts-gems": "^3.11.3"
   },
   "type": "module",

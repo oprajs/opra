@@ -1,8 +1,7 @@
 import { MongoAdapter } from '@opra/mongodb';
+import { expect } from 'expect';
 
 describe('MongoAdapter.prepareKeyValues', () => {
-  afterAll(() => global.gc && global.gc());
-
   it('Should prepare single key', async () => {
     const out = MongoAdapter.prepareKeyValues(1);
     expect(out).toStrictEqual({ _id: 1 });

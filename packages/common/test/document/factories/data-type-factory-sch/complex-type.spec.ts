@@ -1,8 +1,7 @@
 import { ApiDocumentFactory, ApiField, OpraSchema } from '@opra/common';
+import { expect } from 'expect';
 
 describe('DataTypeFactory - ComplexType (Schema)', () => {
-  afterAll(() => global.gc && global.gc());
-
   it('Should import ComplexType', async () => {
     const type1: OpraSchema.ComplexType = {
       kind: 'ComplexType',

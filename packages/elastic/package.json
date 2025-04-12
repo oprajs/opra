@@ -1,6 +1,6 @@
 {
   "name": "@opra/elastic",
-  "version": "1.13.0",
+  "version": "1.14.0",
   "description": "Opra Elastic Search adapter package",
   "author": "Panates",
   "license": "MIT",
@@ -14,8 +14,7 @@
     "lint": "eslint . --max-warnings=0",
     "lint:fix": "eslint . --max-warnings=0 --fix",
     "format": "prettier . --write --log-level=warn",
-    "test": "jest --passWithNoTests",
-    "cover": "jest --passWithNoTests --collect-coverage",
+    "test": "mocha",
     "clean": "npm run clean:src && npm run clean:test && npm run clean:dist && npm run clean:cover",
     "clean:src": "ts-cleanup -s src --all",
     "clean:test": "ts-cleanup -s test --all",
@@ -29,12 +28,14 @@
   },
   "peerDependencies": {
     "@elastic/elasticsearch": ">=8.7.0 <9",
-    "@opra/common": "^1.13.0",
-    "@opra/core": "^1.13.0"
+    "@opra/common": "^1.14.0",
+    "@opra/core": "^1.14.0"
   },
   "devDependencies": {
     "@elastic/elasticsearch": "^8.17.1",
     "@faker-js/faker": "^9.6.0",
+    "expect": "^29.7.0",
+    "sinon": "^20.0.0",
     "ts-gems": "^3.11.3"
   },
   "type": "module",

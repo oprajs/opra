@@ -6,6 +6,7 @@ import {
   HttpOutgoing,
 } from '@opra/http';
 import cookieParser from 'cookie-parser';
+import { expect } from 'expect';
 import express, { Express } from 'express';
 import supertest from 'supertest';
 import { createTestApi } from './_support/test-api/index.js';
@@ -27,7 +28,7 @@ describe('HttpHandler', () => {
     });
   }
 
-  beforeAll(async () => {
+  before(async () => {
     document = await createTestApi();
     app = express();
     app.use(cookieParser());
@@ -35,8 +36,7 @@ describe('HttpHandler', () => {
     adapter.initialize(document);
   });
 
-  afterAll(async () => adapter.close());
-  afterAll(() => global.gc && global.gc());
+  after(async () => adapter.close());
 
   it('Should parse query parameters', async () => {
     const resource = document.httpApi?.findController('Customers');

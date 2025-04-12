@@ -1,3 +1,4 @@
+import 'reflect-metadata';
 import { IS_PUBLIC_KEY, OpraNestUtils, Public } from '@opra/nestjs';
 
 export * from './constants.js';
