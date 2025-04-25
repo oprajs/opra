@@ -24,9 +24,8 @@ const external = [
 const defaultConfig = {
   entryPoints: [entryPoint],
   bundle: true,
-  platform: 'node',
-  target: ['chrome85'],
-  outfile: path.join(targetPath, './browser.js'),
+  platform: 'browser',
+  target: ['es2020', 'chrome80'],
   logLevel: 'info',
   format: 'esm',
   minify: true,
@@ -50,12 +49,6 @@ const defaultConfig = {
 *****************************************/
 `,
   },
-};
-
-await esbuild.build({
-  ...defaultConfig,
-  target: ['chrome85'],
-  outfile: path.join(targetPath, './browser/index.mjs'),
   plugins: [
     {
       name: 'Custom',
@@ -75,22 +68,18 @@ await esbuild.build({
       },
     },
   ],
+};
+
+await esbuild.build({
+  ...defaultConfig,
+  format: 'esm',
+  outfile: path.join(targetPath, './browser/index.mjs'),
+  tsconfig: './tsconfig-build-esm.json',
 });
 
 await esbuild.build({
   ...defaultConfig,
   outfile: path.join(targetPath, './browser/index.cjs'),
-  platform: 'browser',
-  target: ['es2020', 'chrome80'],
   format: 'cjs',
   tsconfig: './tsconfig-build-cjs.json',
-});
-
-await esbuild.build({
-  ...defaultConfig,
-  outfile: path.join(targetPath, './browser/index.mjs'),
-  platform: 'browser',
-  target: ['es2020', 'chrome80'],
-  format: 'esm',
-  tsconfig: './tsconfig-build-esm.json',
 });

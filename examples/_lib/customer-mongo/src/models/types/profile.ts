@@ -6,7 +6,7 @@ import { Record } from './record.js';
 @ComplexType({
   description: 'Profile information',
 })
-export class Profile extends MixinType(Record, Person) {
+export class Profile extends MixinType([Record, Person]) {
   @ApiField()
   declare address?: Address;
 }

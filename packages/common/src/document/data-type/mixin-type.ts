@@ -61,20 +61,16 @@ export interface MixinTypeStatic {
 
   /**
    * Create a new mixin type from given two types
-   * @param c1
-   * @param c2
+   * @param types
    * @param options
    */ <A1 extends any[], I1, S1, A2 extends any[], I2, S2>(
-    c1: Class<A1, I1, S1>,
-    c2: Class<A2, I2, S2>,
+    types: [Class<A1, I1, S1>, Class<A2, I2, S2>],
     options?: DataType.Options,
   ): Class<any[], I1 & I2, S1 & S2>;
 
   /**
    * Helper method that mixes given types
-   * @param c1
-   * @param c2
-   * @param c3
+   * @param types
    * @param options
    */ <
     A1 extends any[],
@@ -87,18 +83,13 @@ export interface MixinTypeStatic {
     I3,
     S3,
   >(
-    c1: Class<A1, I1, S1>,
-    c2: Class<A2, I2, S2>,
-    c3?: Class<A3, I3, S3>,
+    types: [Class<A1, I1, S1>, Class<A2, I2, S2>, Class<A3, I3, S3>],
     options?: DataType.Options,
   ): Class<any[], I1 & I2 & I3, S1 & S2 & S3>;
 
   /**
    * Helper method that mixes given types
-   * @param c1
-   * @param c2
-   * @param c3
-   * @param c4
+   * @param types
    * @param options
    */ <
     A1 extends any[],
@@ -114,12 +105,45 @@ export interface MixinTypeStatic {
     I4,
     S4,
   >(
-    c1: Class<A1, I1, S1>,
-    c2: Class<A2, I2, S2>,
-    c3?: Class<A3, I3, S3>,
-    c4?: Class<A4, I4, S4>,
+    types: [
+      Class<A1, I1, S1>,
+      Class<A2, I2, S2>,
+      Class<A3, I3, S3>,
+      Class<A4, I4, S4>,
+    ],
     options?: DataType.Options,
   ): Class<any[], I1 & I2 & I3 & I4, S1 & S2 & S3 & S4>;
+
+  /**
+   * Helper method that mixes given types
+   * @param types
+   * @param options
+   */ <
+    A1 extends any[],
+    I1,
+    S1,
+    A2 extends any[],
+    I2,
+    S2,
+    A3 extends any[],
+    I3,
+    S3,
+    A4 extends any[],
+    I4,
+    S4,
+    A5 extends any[],
+    I5,
+    S5,
+  >(
+    types: [
+      Class<A1, I1, S1>,
+      Class<A2, I2, S2>,
+      Class<A3, I3, S3>,
+      Class<A4, I4, S4>,
+      Class<A5, I5, S5>,
+    ],
+    options?: DataType.Options,
+  ): Class<any[], I1 & I2 & I3 & I4 & I5, S1 & S2 & S3 & S4 & S5>;
 
   prototype: MixinType;
 }
@@ -213,13 +237,9 @@ MixinType[DECORATOR] = MixinTypeFactory;
 /**
  *
  */
-function MixinTypeFactory(...args: any[]): Type {
+function MixinTypeFactory(clasRefs: Type[], options?: DataType.Options): Type {
   // Filter undefined items
-  const clasRefs = args.filter(x => typeof x === 'function') as [Type];
-  const options =
-    typeof args[args.length - 1] === 'object'
-      ? args[args.length - 1]
-      : undefined;
+  clasRefs = clasRefs.filter(x => typeof x === 'function') as [Type];
   if (!clasRefs.length) throw new TypeError('No Class has been provided');
   if (clasRefs.length === 1) return clasRefs[0] as any;
   const className = clasRefs[0].name + 'Mixin';

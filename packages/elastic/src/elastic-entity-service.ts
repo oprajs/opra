@@ -198,6 +198,7 @@ export namespace ElasticEntityService {
   export type UpdateByQueryResponse = estypes.UpdateByQueryResponse;
   export type QueryDslQueryContainer = estypes.QueryDslQueryContainer;
   export type Script = estypes.Script;
+  export type ScriptSource = estypes.ScriptSource;
 }
 
 /**
@@ -551,10 +552,11 @@ export class ElasticEntityService<
     const inputKeysLen = Object.keys(input).length;
     isNotNullish(inputKeysLen || script, { label: 'input' });
     if (requestScript) {
-      script =
-        typeof requestScript === 'string'
-          ? { source: requestScript }
-          : { ...requestScript };
+      if (typeof requestScript === 'string') script = { source: requestScript };
+      else if ((requestScript as any).source || (requestScript as any).id)
+        script = { ...(requestScript as ElasticEntityService.Script) };
+      else
+        script = { source: requestScript as ElasticEntityService.ScriptSource };
       script.lang = script.lang || 'painless';
       if (inputKeysLen > 0 && script.lang !== 'painless') {
         throw new TypeError(

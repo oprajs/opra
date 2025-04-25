@@ -29,7 +29,7 @@ describe('DataTypeFactory - MixinType (Class)', () => {
     }
 
     @ComplexType()
-    class Mixed1 extends MixinType(Type1, MixinType(Type2, Type3)) {}
+    class Mixed1 extends MixinType([Type1, MixinType([Type2, Type3])]) {}
 
     const doc = await ApiDocumentFactory.createDocument({
       types: [Type1, Type2, Type3, Mixed1],

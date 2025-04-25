@@ -34,6 +34,7 @@ export * from './data-type/pick-type.js';
 export * from './data-type/primitive-types/index.js';
 export * from './data-type/required-type.js';
 export * from './data-type/simple-type.js';
+export * from './data-type/union-type.js';
 export type { RpcControllerDecorator } from './decorators/rpc-controller.decorator.js';
 export type { RpcOperationDecorator } from './decorators/rpc-operation.decorator.js';
 export * from './factory/api-document.factory.js';

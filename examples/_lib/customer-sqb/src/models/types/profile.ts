@@ -8,7 +8,7 @@ import { Record } from './record.js';
   description: 'Profile information',
 })
 @Entity('my_profile')
-export class Profile extends MixinType(Record, Person) {
+export class Profile extends MixinType([Record, Person]) {
   @ApiField()
   @Column({ type: Address, exclusive: true })
   declare address?: Address;

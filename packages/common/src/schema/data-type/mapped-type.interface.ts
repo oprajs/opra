@@ -11,6 +11,8 @@ export interface MappedType extends StrictOmit<DataTypeBase, 'kind'> {
   pick?: Field.Name[];
   partial?: Field.Name[] | boolean;
   required?: Field.Name[] | boolean;
+  discriminatorField?: string;
+  discriminatorValue?: string;
 }
 
 export namespace MappedType {

@@ -16,6 +16,8 @@ export interface ComplexType extends StrictOmit<DataTypeBase, 'kind'> {
     | ['error']
     | ['error', string];
   keyField?: Field.Name;
+  discriminatorField?: string;
+  discriminatorValue?: string;
 }
 
 export namespace ComplexType {

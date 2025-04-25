@@ -8,6 +8,7 @@ import type { EnumType } from '../data-type/enum-type.js';
 import type { MappedType } from '../data-type/mapped-type.js';
 import type { MixinType } from '../data-type/mixin-type.js';
 import type { SimpleType } from '../data-type/simple-type.js';
+import type { UnionType } from '../data-type/union-type.js';
 import type { DataTypeMap } from './data-type-map.js';
 import type { DocumentElement } from './document-element.js';
 
@@ -149,6 +150,20 @@ export class DocumentNode {
   ): MixinType {
     const t = this.getDataType(nameOrCtor, scope);
     if (t.kind === OpraSchema.MixinType.Kind) return t as MixinType;
+    throw new TypeError(`Data type "${t.name || t}" is not a MixinType`);
+  }
+
+  /**
+   * Returns EnumType instance by name or Constructor.
+   * Returns undefined if not found
+   * Throws error if data type is not a UnionType
+   */
+  getUnionType(
+    nameOrCtor: string | object | any[],
+    scope?: string | '*',
+  ): UnionType {
+    const t = this.getDataType(nameOrCtor, scope);
+    if (t.kind === OpraSchema.UnionType.Kind) return t as UnionType;
     throw new TypeError(`Data type "${t.name || t}" is not a MixinType`);
   }
 }

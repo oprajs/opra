@@ -155,6 +155,8 @@ export const MappedType = function (this: MappedType, ...args: any[]) {
     }
     if (initArgs.base.keyField && isInheritedPredicate(initArgs.base.keyField))
       _this.keyField = initArgs.base.keyField;
+    _this.discriminatorField = (initArgs.base as any).discriminatorField;
+    _this.discriminatorValue = (initArgs.base as any).discriminatorValue;
   }
 } as Function as MappedTypeStatic;
 
@@ -170,6 +172,8 @@ class MappedTypeClass extends ComplexTypeBase {
   readonly pick?: Field.Name[];
   readonly partial?: Field.Name[] | boolean;
   readonly required?: Field.Name[] | boolean;
+  declare discriminatorField?: string;
+  declare discriminatorValue?: string;
 
   extendsFrom(baseType: DataType | string | Type | object): boolean {
     if (!(baseType instanceof DataType))
@@ -192,6 +196,8 @@ class MappedTypeClass extends ComplexTypeBase {
       omit: this.omit,
       partial: this.partial,
       required: this.required,
+      discriminatorField: this.discriminatorField,
+      discriminatorValue: this.discriminatorValue,
     });
   }
 
