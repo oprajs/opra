@@ -24,6 +24,8 @@ const defaultConfig = {
   logLevel: 'info',
   minify: true,
   keepNames: true,
+  platform: 'browser',
+  target: ['es2020', 'chrome80'],
   alias: {
     fs: '@browsery/fs',
     highland: '@browsery/highland',
@@ -49,8 +51,6 @@ const defaultConfig = {
 await esbuild.build({
   ...defaultConfig,
   outfile: path.join(targetPath, './browser/index.cjs'),
-  platform: 'browser',
-  target: ['es2020', 'chrome80'],
   format: 'cjs',
   tsconfig: './tsconfig-build-cjs.json',
 });
@@ -58,8 +58,6 @@ await esbuild.build({
 await esbuild.build({
   ...defaultConfig,
   outfile: path.join(targetPath, './browser/index.mjs'),
-  platform: 'browser',
-  target: ['es2020', 'chrome80'],
   format: 'esm',
   tsconfig: './tsconfig-build-esm.json',
 });
