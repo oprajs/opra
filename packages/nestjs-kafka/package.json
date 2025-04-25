@@ -38,9 +38,9 @@
     "kafkajs": "^2.2.4"
   },
   "devDependencies": {
-    "@faker-js/faker": "^9.6.0",
-    "@nestjs/platform-express": "^11.0.14",
-    "@nestjs/testing": "^11.0.14",
+    "@faker-js/faker": "^9.7.0",
+    "@nestjs/platform-express": "^11.1.0",
+    "@nestjs/testing": "^11.1.0",
     "@types/amqplib": "^0.10.7",
     "expect": "^29.7.0",
     "express": "^5.1.0",
