@@ -12,7 +12,7 @@ import { Record } from './record.js';
   description: 'Customer temp table',
 })
 @Entity('temp_customers')
-export class TempCustomer extends MixinType(Record, Person) {
+export class TempCustomer extends MixinType([Record, Person]) {
   constructor(init?: PartialDTO<TempCustomer>) {
     super(init);
   }

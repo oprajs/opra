@@ -4,6 +4,7 @@ import { EnumType } from './data-type/enum-type.interface.js';
 import { MappedType } from './data-type/mapped-type.interface.js';
 import { MixinType } from './data-type/mixin-type.interface.js';
 import { SimpleType } from './data-type/simple-type.interface.js';
+import { UnionType } from './data-type/union-type.interface.js';
 import { HttpController } from './http/http-controller.interface.js';
 
 export function isDataType(obj: any): obj is DataType {
@@ -14,7 +15,8 @@ export function isDataType(obj: any): obj is DataType {
       obj.kind === EnumType.Kind ||
       obj.kind === MappedType.Kind ||
       obj.kind === SimpleType.Kind ||
-      obj.kind === MixinType.Kind)
+      obj.kind === MixinType.Kind ||
+      obj.kind === UnionType.Kind)
   );
 }
 
@@ -36,6 +38,10 @@ export function isMappedType(obj: any): obj is MappedType {
 
 export function isEnumType(obj: any): obj is EnumType {
   return obj && typeof obj === 'object' && obj.kind === EnumType.Kind;
+}
+
+export function isUnionType(obj: any): obj is UnionType {
+  return obj && typeof obj === 'object' && obj.kind === UnionType.Kind;
 }
 
 export function isHttpController(obj: any): obj is HttpController {
