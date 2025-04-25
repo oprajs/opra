@@ -7,6 +7,7 @@ export * from './data-type/field.interface.js';
 export * from './data-type/mapped-type.interface.js';
 export * from './data-type/mixin-type.interface.js';
 export * from './data-type/simple-type.interface.js';
+export * from './data-type/union-type.interface.js';
 export * from './data-type-container.interface.js';
 export * from './http/http-controller.interface.js';
 export * from './http/http-media-type.interface.js';

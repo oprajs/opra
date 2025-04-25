@@ -387,7 +387,7 @@ abstract class ComplexTypeBaseClass extends DataType {
     },
   ): Validator {
     let fn = field.type.generateCodec(codec, context);
-    if (field.fixed) fn = vg.isEnum([field.fixed]);
+    if (field.fixed) fn = vg.isEqual(field.fixed);
     if (field.isArray) fn = vg.isArray(fn);
     return fn;
   }

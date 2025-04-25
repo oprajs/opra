@@ -36,7 +36,13 @@ export namespace ComplexType {
 
   export interface Options
     extends Combine<
-      Pick<Metadata, 'additionalFields' | 'keyField'>,
+      Pick<
+        Metadata,
+        | 'additionalFields'
+        | 'keyField'
+        | 'discriminatorField'
+        | 'discriminatorValue'
+      >,
       DataType.Options,
       Pick<OpraSchema.ComplexType, 'abstract'>
     > {}
@@ -113,6 +119,8 @@ export const ComplexType = function (this: ComplexType | void, ...args: any[]) {
   ComplexTypeBase.call(this, owner, initArgs, context);
   const _this = asMutable(this);
   _this.kind = OpraSchema.ComplexType.Kind;
+  _this.discriminatorField = initArgs.discriminatorField;
+  _this.discriminatorValue = initArgs.discriminatorValue;
   if (initArgs.base) {
     context.enter('.base', () => {
       // noinspection SuspiciousTypeOfGuard
@@ -158,6 +166,8 @@ abstract class ComplexTypeClass extends ComplexTypeBase {
   declare readonly kind: OpraSchema.ComplexType.Kind;
   readonly base?: ComplexType | MappedType | MixinType;
   declare readonly ctor?: Type;
+  declare discriminatorField?: string;
+  declare discriminatorValue?: string;
 
   extendsFrom(baseType: DataType | string | Type | object): boolean {
     if (!(baseType instanceof DataType))
@@ -180,6 +190,8 @@ abstract class ComplexTypeClass extends ComplexTypeBase {
           ? baseName
           : this.base.toJSON(options)
         : undefined,
+      discriminatorField: this.discriminatorField,
+      discriminatorValue: this.discriminatorValue,
     };
     if (this.additionalFields) {
       if (this.additionalFields instanceof DataType) {

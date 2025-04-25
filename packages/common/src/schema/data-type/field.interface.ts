@@ -14,6 +14,11 @@ export type Field = {
   type?: DataType.Name | DataType;
 
   /**
+   * Defines the label of the field. Mostly used for UI.
+   */
+  label?: string;
+
+  /**
    * Defines the description of the field
    */
   description?: string;

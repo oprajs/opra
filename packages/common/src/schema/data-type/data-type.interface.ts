@@ -3,13 +3,15 @@ import type { EnumType } from './enum-type.interface.js';
 import type { MappedType } from './mapped-type.interface.js';
 import type { MixinType } from './mixin-type.interface.js';
 import type { SimpleType } from './simple-type.interface.js';
+import type { UnionType } from './union-type.interface.js';
 
 export type DataType =
   | SimpleType
   | EnumType
   | ComplexType
   | MappedType
-  | MixinType;
+  | MixinType
+  | UnionType;
 
 export namespace DataType {
   export type Name = string;
@@ -18,7 +20,8 @@ export namespace DataType {
     | EnumType.Kind
     | MappedType.Kind
     | SimpleType.Kind
-    | MixinType.Kind;
+    | MixinType.Kind
+    | UnionType.Kind;
 }
 
 export interface DataTypeBase {

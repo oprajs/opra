@@ -1,5 +1,5 @@
 <component name="ProjectRunConfigurationManager">
-  <configuration default="false" name="example:express-elastic" type="NodeJSConfigurationType" node-parameters="--loader &quot;../../support/esloader.mjs&quot; --experimental-specifier-resolution=node --import=./logerror.js" path-to-js-file="src/start.ts" working-dir="$PROJECT_DIR$/examples/express-elastic">
+  <configuration default="false" name="example:express-elastic" type="NodeJSConfigurationType" node-parameters="--import @swc-node/register/esm-register" path-to-js-file="src/start.ts" working-dir="$PROJECT_DIR$/examples/express-elastic">
     <method v="2" />
   </configuration>
 </component>

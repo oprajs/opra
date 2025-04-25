@@ -23,6 +23,7 @@ import { EnumType } from '../data-type/enum-type.js';
 import { MappedType } from '../data-type/mapped-type.js';
 import { MixinType } from '../data-type/mixin-type.js';
 import { SimpleType } from '../data-type/simple-type.js';
+import { UnionType } from '../data-type/union-type.js';
 
 /**
  *
@@ -91,6 +92,15 @@ export namespace DataTypeFactory {
       SimpleType.InitArguments
     > {}
 
+  export interface UnionTypeInit
+    extends Combine<
+      {
+        _instance?: MixinType;
+        types: (string | ComplexTypeInit | MappedTypeInit | MixinTypeInit)[];
+      },
+      UnionType.InitArguments
+    > {}
+
   export interface ApiFieldInit
     extends Combine<
       {
@@ -104,7 +114,8 @@ export namespace DataTypeFactory {
     | EnumTypeInit
     | MappedTypeInit
     | MixinTypeInit
-    | SimpleTypeInit;
+    | SimpleTypeInit
+    | UnionTypeInit;
 
   export interface Context extends DocumentInitContext {
     importQueue?: ResponsiveMap<any>;
@@ -408,6 +419,9 @@ export class DataTypeFactory {
               out.ctor = ctor;
               await this._prepareSimpleTypeArgs(context, owner, out, metadata);
               break;
+            case OpraSchema.UnionType.Kind:
+              await this._prepareUnionTypeArgs(context, owner, out, metadata);
+              break;
             default:
               /** istanbul ignore next */
               return context.addError(
@@ -442,6 +456,8 @@ export class DataTypeFactory {
   ): Promise<void> {
     await this._prepareDataTypeArgs(context, initArgs, metadata);
     initArgs.keyField = metadata.keyField;
+    initArgs.discriminatorField = metadata.discriminatorField;
+    initArgs.discriminatorValue = metadata.discriminatorValue;
 
     await context.enterAsync('.base', async () => {
       let baseArgs: any;
@@ -583,6 +599,8 @@ export class DataTypeFactory {
     metadata: DataTypeFactory.MappedTypeInit | OpraSchema.MappedType,
   ): Promise<void> {
     await this._prepareDataTypeArgs(context, initArgs, metadata);
+    initArgs.discriminatorField = metadata.discriminatorField;
+    initArgs.discriminatorValue = metadata.discriminatorValue;
 
     await context.enterAsync('.base', async () => {
       let baseArgs: any;
@@ -639,13 +657,41 @@ export class DataTypeFactory {
     });
   }
 
+  protected static async _prepareUnionTypeArgs(
+    context: DataTypeFactory.Context,
+    owner: DocumentElement,
+    initArgs: DataTypeFactory.UnionTypeInit,
+    metadata: (UnionType.Metadata | OpraSchema.UnionType) & { ctor?: Type },
+  ): Promise<void> {
+    await this._prepareDataTypeArgs(context, initArgs, metadata);
+    initArgs.types = [];
+    await context.enterAsync('.types', async () => {
+      const _initTypes = metadata.types as any[];
+      let i = 0;
+      for (const t of _initTypes) {
+        await context.enterAsync(`[${i++}]`, async () => {
+          const baseArgs = await this._importDataTypeArgs(context, owner, t);
+          if (!baseArgs) return;
+          initArgs.types.push(preferName(baseArgs) as any);
+        });
+      }
+    });
+  }
+
   protected static _createDataType(
     context: DocumentInitContext & {
       initArgsMap?: ResponsiveMap<DataTypeFactory.DataTypeInitArguments>;
     },
     owner: DocumentElement,
     args: DataTypeFactory.DataTypeInitArguments | string,
-  ): ComplexType | EnumType | MappedType | MixinType | SimpleType | undefined {
+  ):
+    | ComplexType
+    | EnumType
+    | MappedType
+    | MixinType
+    | SimpleType
+    | UnionType
+    | undefined {
     let dataType = owner.node.findDataType(
       typeof args === 'string' ? args : args.name || '',
     );
@@ -671,6 +717,8 @@ export class DataTypeFactory {
           return this._createMixinType(context, owner, initArgs);
         case OpraSchema.SimpleType.Kind:
           return this._createSimpleType(context, owner, initArgs);
+        case OpraSchema.UnionType.Kind:
+          return this._createUnionType(context, owner, initArgs);
         default:
           break;
       }
@@ -813,6 +861,31 @@ export class DataTypeFactory {
       });
     }
     SimpleType.apply(dataType, [owner, initArgs] as any);
+    return dataType;
+  }
+
+  protected static _createUnionType(
+    context: DocumentInitContext,
+    owner: DocumentElement,
+    args: DataTypeFactory.UnionTypeInit,
+  ): UnionType {
+    const dataType = args._instance || ({} as any);
+    Object.setPrototypeOf(dataType, UnionType.prototype);
+
+    const initArgs = cloneObject(args) as UnionType.InitArguments;
+    if (args.types) {
+      context.enter('.types', () => {
+        initArgs.types = [];
+        let i = 0;
+        for (const t of args.types) {
+          context.enter(`[${i++}]`, () => {
+            const base = this._createDataType(context, owner, t);
+            (initArgs as any).types.push(base);
+          });
+        }
+      });
+    }
+    UnionType.apply(dataType, [owner, initArgs] as any);
     return dataType;
   }
 }

@@ -29,7 +29,7 @@ describe('MixinType augmentation', () => {
     }
 
     @ComplexType()
-    class Type3 extends MixinType(Type1, Type2) {
+    class Type3 extends MixinType([Type1, Type2]) {
       @ApiField()
       @Column()
       declare field4: number;

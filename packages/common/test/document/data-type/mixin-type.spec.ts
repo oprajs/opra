@@ -20,8 +20,8 @@ describe('MixinType', () => {
         base: baseDoc,
       },
       types: [
-        MixinType(Record, Country, { name: 'MixinType1' }),
-        MixinType(Record, Country, Note, { name: 'MixinType2' }),
+        MixinType([Record, Country], { name: 'MixinType1' }),
+        MixinType([Record, Country, Note], { name: 'MixinType2' }),
       ],
     });
   });
