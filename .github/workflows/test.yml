@@ -84,7 +84,7 @@ jobs:
       - name: Runs Elasticsearch
         uses: elastic/elastic-github-actions/elasticsearch@master
         with:
-          stack-version: 8.2.0
+          stack-version: 9.0.0
           security-enabled: false
 
       - name: Run Kafka KRaft Broker
