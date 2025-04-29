@@ -14,7 +14,7 @@ export async function waitForMessage(
       if (_ctx.operation?.name === oprname) {
         if (_ctx.properties.messageId === key) {
           adapter.removeListener('error', onError);
-          adapter.removeListener('after-execute', onMessage);
+          adapter.removeListener('finish', onMessage);
           waitList.delete(waitKey);
           resolve(_ctx);
         } else {
@@ -34,10 +34,10 @@ export async function waitForMessage(
     };
     const onError = (e: any) => {
       waitList.delete(waitKey);
-      adapter.removeListener('after-execute', onMessage);
+      adapter.removeListener('finish', onMessage);
       reject(e);
     };
-    adapter.on('after-execute', onMessage);
+    adapter.on('finish', onMessage);
     adapter.once('error', onError);
   });
 }
