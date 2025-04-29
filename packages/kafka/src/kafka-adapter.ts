@@ -12,6 +12,7 @@ import {
   type Consumer,
   type ConsumerConfig,
   type EachMessageHandler,
+  EachMessagePayload,
   Kafka,
   type KafkaConfig,
   logLevel,
@@ -51,7 +52,7 @@ interface HandlerArguments {
  *
  * @class KafkaAdapter
  */
-export class KafkaAdapter extends PlatformAdapter {
+export class KafkaAdapter extends PlatformAdapter<KafkaAdapter.Events> {
   static readonly PlatformName = 'kafka';
   protected _config: KafkaAdapter.Config;
   protected _controllerInstances = new Map<RpcController, any>();
@@ -195,7 +196,6 @@ export class KafkaAdapter extends PlatformAdapter {
                   this._emitError(e);
                 }
               }
-              await this.emitAsync('message-finish', payload);
             },
           })
           .catch(e => {
@@ -437,11 +437,11 @@ export class KafkaAdapter extends PlatformAdapter {
         pause,
       });
 
-      await this.emitAsync('before-execute', context);
+      await this.emitAsync('execute', context);
       try {
         /** Call operation handler */
         const result = await operationHandler.call(instance, context);
-        await this.emitAsync('after-execute', context, result);
+        await this.emitAsync('finish', context, result);
       } catch (e: any) {
         this._emitError(e, context);
       }
@@ -456,13 +456,15 @@ export class KafkaAdapter extends PlatformAdapter {
           if (!context.errors.length) context.errors.push(error);
           context.errors = this._wrapExceptions(context.errors);
           if (context.listenerCount('error')) {
-            await context.emitAsync('error', context.errors[0], context);
+            await context
+              .emitAsync('error', context.errors[0], context)
+              .catch(noOp);
           }
           if (logger?.error) {
             context.errors.forEach(err => logger.error(err));
           }
         } else logger?.error(error);
-        if (this.listenerCount('error')) this.emit('error', error);
+        if (this.listenerCount('error')) this._emitError(error);
       })
       .catch(noOp);
   }
@@ -552,4 +554,11 @@ export namespace KafkaAdapter {
   export type IKafkaInterceptor = {
     intercept(context: KafkaContext, next: NextCallback): Promise<any>;
   };
+
+  export interface Events {
+    error: [Error, KafkaContext | undefined];
+    finish: [KafkaContext, any];
+    execute: [KafkaContext];
+    message: [EachMessagePayload];
+  }
 }
