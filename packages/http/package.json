@@ -44,7 +44,7 @@
     "fresh": "^0.5.2",
     "iconv-lite": "^0.6.3",
     "mime-types": "^3.0.1",
-    "node-events-async": "^1.0.0",
+    "node-events-async": "^1.1.1",
     "power-tasks": "^1.11.0",
     "putil-varhelpers": "^1.6.5",
     "range-parser": "^1.2.1",

@@ -1,7 +1,38 @@
 import { HttpApi, OpraSchema } from '@opra/common';
 import { PlatformAdapter } from '@opra/core';
+import { EventMap } from 'node-events-async';
 import { HttpContext } from './http-context.js';
 import { HttpHandler } from './http-handler.js';
+
+/**
+ *
+ * @class HttpAdapter
+ */
+export abstract class HttpAdapter<
+  T extends HttpAdapter.Events = HttpAdapter.Events,
+> extends PlatformAdapter<EventMap<T>> {
+  readonly handler: HttpHandler;
+  readonly protocol: OpraSchema.Transport = 'http';
+  readonly basePath: string;
+  scope?: string;
+  interceptors: (
+    | HttpAdapter.InterceptorFunction
+    | HttpAdapter.IHttpInterceptor
+  )[];
+
+  protected constructor(options?: HttpAdapter.Options) {
+    super(options);
+    this.handler = new HttpHandler(this);
+    this.interceptors = [...(options?.interceptors || [])];
+    this.basePath = options?.basePath || '/';
+    if (!this.basePath.startsWith('/')) this.basePath = '/' + this.basePath;
+    this.scope = options?.scope;
+  }
+
+  get api(): HttpApi {
+    return this.document.httpApi;
+  }
+}
 
 export namespace HttpAdapter {
   export type NextCallback = () => Promise<void>;
@@ -23,32 +54,11 @@ export namespace HttpAdapter {
     interceptors?: (InterceptorFunction | IHttpInterceptor)[];
     scope?: string | '*';
   }
-}
 
-/**
- *
- * @class HttpAdapter
- */
-export abstract class HttpAdapter extends PlatformAdapter {
-  readonly handler: HttpHandler;
-  readonly protocol: OpraSchema.Transport = 'http';
-  readonly basePath: string;
-  scope?: string;
-  interceptors: (
-    | HttpAdapter.InterceptorFunction
-    | HttpAdapter.IHttpInterceptor
-  )[];
-
-  protected constructor(options?: HttpAdapter.Options) {
-    super(options);
-    this.handler = new HttpHandler(this);
-    this.interceptors = [...(options?.interceptors || [])];
-    this.basePath = options?.basePath || '/';
-    if (!this.basePath.startsWith('/')) this.basePath = '/' + this.basePath;
-    this.scope = options?.scope;
-  }
-
-  get api(): HttpApi {
-    return this.document.httpApi;
+  export interface Events {
+    createContext: [HttpContext];
+    error: [Error, HttpContext];
+    request: [HttpContext];
+    finish: [HttpContext];
   }
 }
