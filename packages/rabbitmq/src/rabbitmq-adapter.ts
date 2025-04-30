@@ -181,36 +181,36 @@ export class RabbitmqAdapter extends PlatformAdapter<RabbitmqAdapter.Events> {
       this.logger?.info?.(`Connected RabbitMQ at ${connectionOptions.urls}`);
       for (const args of handlerArgs) {
         /** Create channel per operation */
-        const channel = this._client.createChannel();
-        for (const topic of args.topics) {
-          const opts = this._config.queues?.[topic];
-          if (opts) await channel.assertQueue(topic, opts);
-        }
-        for (const topic of args.topics) {
-          await channel.assertQueue(topic);
-          await channel
-            .consume(
-              topic,
-              async (msg: ConsumeMessage | null) => {
-                if (!msg) return;
-                await this.emitAsync('message', msg, topic).catch(noOp);
-                try {
-                  await args.handler(channel, topic, msg);
-                } catch (e) {
+        this._client.createChannel({
+          setup: async channel => {
+            for (const topic of args.topics) {
+              const opts = this._config.queues?.[topic];
+              await channel.assertQueue(topic, opts);
+              await channel
+                .consume(
+                  topic,
+                  async (msg: ConsumeMessage | null) => {
+                    if (!msg) return;
+                    await this.emitAsync('message', msg, topic).catch(noOp);
+                    try {
+                      await args.handler(channel, topic, msg);
+                    } catch (e) {
+                      this._emitError(e);
+                    }
+                  },
+                  /** Consume options */
+                  args.operationConfig.consumer,
+                )
+                .catch(e => {
                   this._emitError(e);
-                }
-              },
-              /** Consume options */
-              args.operationConfig.consumer,
-            )
-            .catch(e => {
-              this._emitError(e);
-              throw e;
-            });
-          this.logger?.info?.(
-            `Subscribed to topic${args.topics.length > 1 ? 's' : ''} "${args.topics}"`,
-          );
-        }
+                  throw e;
+                });
+              this.logger?.info?.(
+                `Subscribed to topic${args.topics.length > 1 ? 's' : ''} "${args.topics}"`,
+              );
+            }
+          },
+        });
       }
 
       this._status = 'started';

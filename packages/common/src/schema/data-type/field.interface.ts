@@ -1,16 +1,11 @@
 import type { DataType } from './data-type.interface.js';
 
-export namespace Field {
-  export type Name = string;
-  export type QualifiedName = string;
-}
-
 /**
  * Represents a Field type used to define properties and behaviors of a data structure.
  *
  * The `Field` type allows describing the characteristics, constraints, and metadata of a field within an entity or data type.
  */
-export type Field = {
+export interface Field {
   type?: DataType.Name | DataType;
 
   /**
@@ -89,4 +84,9 @@ export type Field = {
    * Indicates if the field is deprecated and can be removed in the next
    */
   deprecated?: boolean | string;
-};
+}
+
+export namespace Field {
+  export type Name = string;
+  export type QualifiedName = string;
+}
