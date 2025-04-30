@@ -33,6 +33,8 @@ describe('OpraRabbitmqModule - sync', () => {
     channel = await connection.createChannel();
     await channel.assertQueue('email-channel', { durable: true });
     await channel.assertQueue('sms-channel', { durable: true });
+    await channel.assertQueue('feed-cat', { durable: true });
+    await channel.assertQueue('feed-dog', { durable: true });
   });
 
   before(async () => {
@@ -103,8 +105,6 @@ describe('OpraRabbitmqModule - sync', () => {
       name: faker.animal.cat(),
       age: faker.number.int({ max: 12 }),
     };
-    await channel.assertQueue('feed-cat', { durable: true });
-    await channel.assertQueue('feed-dog', { durable: true });
     const [ctx] = await Promise.all([
       waitForMessage(adapter, 'feedCat', key),
       new Promise((resolve, reject) => {
