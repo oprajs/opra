@@ -39,7 +39,7 @@
     "@angular/platform-browser": "^19.2.8",
     "@angular/platform-browser-dynamic": "^19.2.8",
     "@opra/client": "^1.15.1",
-    "core-js": "^3.41.0",
+    "core-js": "^3.42.0",
     "cross-fetch": "^4.1.0",
     "expect": "^29.7.0",
     "express": "^5.1.0",
