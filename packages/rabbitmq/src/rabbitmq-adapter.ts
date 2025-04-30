@@ -10,7 +10,14 @@ import {
   RpcOperation,
 } from '@opra/common';
 import { kAssetCache, PlatformAdapter } from '@opra/core';
-import amqplib, { Channel } from 'amqplib';
+import {
+  type AmqpConnectionManager,
+  AmqpConnectionManagerClass,
+  type AmqpConnectionManagerOptions,
+  type ChannelWrapper,
+  type ConnectionUrl,
+} from 'amqp-connection-manager';
+import amqplib from 'amqplib';
 import { ConsumeMessage } from 'amqplib/properties';
 import { parse as parseContentType } from 'content-type';
 import iconv from 'iconv-lite';
@@ -42,7 +49,7 @@ interface HandlerArguments {
   operation: RpcOperation;
   operationConfig: OperationConfig;
   handler: (
-    channel: Channel,
+    channel: ChannelWrapper,
     queue: string,
     msg: ConsumeMessage | null,
   ) => void | Promise<void>;
@@ -57,7 +64,7 @@ export class RabbitmqAdapter extends PlatformAdapter<RabbitmqAdapter.Events> {
   static readonly PlatformName = 'rabbitmq';
   protected _config: RabbitmqAdapter.Config;
   protected _controllerInstances = new Map<RpcController, any>();
-  protected _connections: amqplib.ChannelModel[] = [];
+  protected _client?: AmqpConnectionManager;
   protected _status: RabbitmqAdapter.Status = 'idle';
   readonly protocol: OpraSchema.Transport = 'rpc';
   readonly platform = RabbitmqAdapter.PlatformName;
@@ -149,61 +156,63 @@ export class RabbitmqAdapter extends PlatformAdapter<RabbitmqAdapter.Events> {
         }
       }
 
-      /** Connect to server */
-      for (const connectionOptions of this._config.connection) {
-        const connection = await amqplib.connect(connectionOptions).catch(e => {
-          e.message = 'Unable to connect to RabbitMQ server';
-          throw new Error(
-            'Unable to connect to RabbitMQ server (' +
-              (typeof connectionOptions == 'object'
-                ? connectionOptions.hostname + ':' + connectionOptions.port
-                : connectionOptions) +
-              ')',
-            // @ts-ignore
-            e,
+      const connectionOptions: RabbitmqAdapter.ConnectionOptions =
+        typeof this._config.connection === 'string'
+          ? {
+              urls: [this._config.connection],
+            }
+          : Array.isArray(this._config.connection)
+            ? {
+                urls: this._config.connection,
+              }
+            : this._config.connection;
+      this._client = new AmqpConnectionManagerClass(
+        connectionOptions.urls,
+        connectionOptions,
+      );
+      this._client.connect().catch(e => {
+        e.message =
+          'Unable to connect to RabbitMQ server at ' +
+          connectionOptions.urls +
+          '. ' +
+          e.message;
+        throw e;
+      });
+      this.logger?.info?.(`Connected RabbitMQ at ${connectionOptions.urls}`);
+      for (const args of handlerArgs) {
+        /** Create channel per operation */
+        const channel = this._client.createChannel();
+        for (const topic of args.topics) {
+          const opts = this._config.queues?.[topic];
+          if (opts) await channel.assertQueue(topic, opts);
+        }
+        for (const topic of args.topics) {
+          await channel.assertQueue(topic);
+          await channel
+            .consume(
+              topic,
+              async (msg: ConsumeMessage | null) => {
+                if (!msg) return;
+                await this.emitAsync('message', msg, topic).catch(noOp);
+                try {
+                  await args.handler(channel, topic, msg);
+                } catch (e) {
+                  this._emitError(e);
+                }
+              },
+              /** Consume options */
+              args.operationConfig.consumer,
+            )
+            .catch(e => {
+              this._emitError(e);
+              throw e;
+            });
+          this.logger?.info?.(
+            `Subscribed to topic${args.topics.length > 1 ? 's' : ''} "${args.topics}"`,
           );
-        });
-        this._connections.push(connection);
-        const hostname =
-          typeof connectionOptions === 'object'
-            ? connectionOptions.hostname
-            : connectionOptions;
-        this.logger?.info?.(`Connected to ${hostname}`);
-        /** Subscribe to channels */
-        for (const args of handlerArgs) {
-          /** Create channel per operation */
-          const channel = await connection.createChannel();
-          for (const topic of args.topics) {
-            const opts = this._config.queues?.[topic];
-            if (opts) await channel.assertQueue(topic, opts);
-          }
-          for (const topic of args.topics) {
-            await channel.assertQueue(topic);
-            await channel
-              .consume(
-                topic,
-                async (msg: ConsumeMessage | null) => {
-                  if (!msg) return;
-                  await this.emitAsync('message', msg, topic).catch(noOp);
-                  try {
-                    await args.handler(channel, topic, msg);
-                  } catch (e) {
-                    this._emitError(e);
-                  }
-                },
-                /** Consume options */
-                args.operationConfig.consumer,
-              )
-              .catch(e => {
-                this._emitError(e);
-                throw e;
-              });
-            this.logger?.info?.(
-              `Subscribed to topic${args.topics.length > 1 ? 's' : ''} "${args.topics}"`,
-            );
-          }
         }
       }
+
       this._status = 'started';
     } catch (e) {
       await this.close();
@@ -215,8 +224,8 @@ export class RabbitmqAdapter extends PlatformAdapter<RabbitmqAdapter.Events> {
    * Closes all connections and stops the service
    */
   async close() {
-    await Promise.all(this._connections.map(c => c.close()));
-    this._connections = [];
+    await this._client?.close();
+    this._client = undefined;
     this._controllerInstances.clear();
     this._status = 'idle';
   }
@@ -244,7 +253,7 @@ export class RabbitmqAdapter extends PlatformAdapter<RabbitmqAdapter.Events> {
       return;
     const operationConfig: OperationConfig = {
       consumer: {
-        noAck: false,
+        noAck: true,
       },
     };
     if (this._config.defaults) {
@@ -301,7 +310,7 @@ export class RabbitmqAdapter extends PlatformAdapter<RabbitmqAdapter.Events> {
     });
 
     args.handler = async (
-      channel: Channel,
+      channel: ChannelWrapper,
       queue: string,
       message: ConsumeMessage | null,
     ) => {
@@ -439,10 +448,12 @@ export namespace RabbitmqAdapter {
 
   export type Status = 'idle' | 'starting' | 'started';
 
-  export type ConnectionOptions = amqplib.Options.Connect;
+  export interface ConnectionOptions extends AmqpConnectionManagerOptions {
+    urls?: ConnectionUrl[];
+  }
 
   export interface Config extends PlatformAdapter.Options {
-    connection: (string | ConnectionOptions)[];
+    connection: string | string[] | ConnectionOptions;
     queues?: Record<string, amqplib.Options.AssertQueue>;
     defaults?: {
       consumer?: amqplib.Options.Consume;

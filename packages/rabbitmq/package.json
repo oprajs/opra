@@ -34,6 +34,7 @@
   "peerDependencies": {
     "@opra/common": "^1.15.1",
     "@opra/core": "^1.15.1",
+    "amqp-connection-manager": "^4.1.14",
     "amqplib": "^0.10.7"
   },
   "devDependencies": {
