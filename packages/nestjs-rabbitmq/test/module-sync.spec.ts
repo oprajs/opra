@@ -33,6 +33,8 @@ describe('OpraRabbitmqModule - sync', () => {
     channel = await connection.createChannel();
     await channel.assertQueue('email-channel', { durable: true });
     await channel.assertQueue('sms-channel', { durable: true });
+    await channel.assertQueue('feed-cat', { durable: true });
+    await channel.assertQueue('feed-dog', { durable: true });
   });
 
   before(async () => {

@@ -1,6 +1,6 @@
 import { OpraSchema, RpcController, RpcOperation } from '@opra/common';
 import { ExecutionContext } from '@opra/core';
-import type { Channel } from 'amqplib';
+import type { ChannelWrapper } from 'amqp-connection-manager';
 import type { ConsumeMessage } from 'amqplib/properties';
 import type { AsyncEventEmitter } from 'node-events-async';
 import type { RabbitmqAdapter } from './rabbitmq-adapter';
@@ -22,7 +22,7 @@ export class RabbitmqContext
   readonly operation?: RpcOperation;
   readonly operationHandler?: Function;
   readonly queue: string;
-  readonly channel: Channel;
+  readonly channel: ChannelWrapper;
   readonly message: ConsumeMessage;
   readonly content: any;
   readonly headers: Record<string, any>;
@@ -81,7 +81,7 @@ export namespace RabbitmqContext {
       'document' | 'protocol' | 'documentNode'
     > {
     adapter: RabbitmqAdapter;
-    channel: Channel;
+    channel: ChannelWrapper;
     controller?: RpcController;
     controllerInstance?: any;
     operation?: RpcOperation;

@@ -257,7 +257,6 @@ export class ApiDocumentFactory {
     _ctorTypeMap.set(Date, 'datetime');
     _ctorTypeMap.set(BigIntConstructor, 'bigint');
     _ctorTypeMap.set(ArrayBuffer, 'base64');
-    _ctorTypeMap.set(SharedArrayBuffer, 'base64');
     _ctorTypeMap.set(BufferConstructor, 'base64');
     await this.initDocument(document, context, init);
     return document;
