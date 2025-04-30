@@ -103,6 +103,8 @@ describe('OpraRabbitmqModule - sync', () => {
       name: faker.animal.cat(),
       age: faker.number.int({ max: 12 }),
     };
+    await channel.assertQueue('feed-cat', { durable: true });
+    await channel.assertQueue('feed-dog', { durable: true });
     const [ctx] = await Promise.all([
       waitForMessage(adapter, 'feedCat', key),
       new Promise((resolve, reject) => {
