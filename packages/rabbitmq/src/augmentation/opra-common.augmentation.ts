@@ -10,10 +10,10 @@ declare module '@opra/common' {
   interface RpcOperationDecorator {
     RabbitMQ(
       config:
-        | RabbitmqAdapter.OperationOptions
+        | RabbitmqAdapter.ConsumerConfig
         | (() =>
-            | RabbitmqAdapter.OperationOptions
-            | Promise<RabbitmqAdapter.OperationOptions>),
+            | RabbitmqAdapter.ConsumerConfig
+            | Promise<RabbitmqAdapter.ConsumerConfig>),
     ): this;
   }
 }
@@ -22,7 +22,7 @@ declare module '@opra/common' {
 
 classes.RpcOperationDecoratorFactory.augment(
   (decorator: any, decoratorChain) => {
-    decorator.RabbitMQ = (config: RabbitmqAdapter.OperationOptions): any => {
+    decorator.RabbitMQ = (config: RabbitmqAdapter.ConsumerConfig): any => {
       decoratorChain.push(
         (
           _: RpcOperation.Metadata,

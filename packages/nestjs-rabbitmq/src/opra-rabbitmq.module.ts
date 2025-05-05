@@ -29,8 +29,7 @@ export namespace OpraRabbitmqModule {
       ApiDocumentFactory.InitArguments,
       'types' | 'references' | 'info'
     > {
-    connection: RabbitmqAdapter.Config['connection'];
-    queues?: RabbitmqAdapter.Config['queues'];
+    connection?: RabbitmqAdapter.Config['connection'];
     logExtra?: RabbitmqAdapter.Config['logExtra'];
     defaults?: RabbitmqAdapter.Config['defaults'];
     name: string;

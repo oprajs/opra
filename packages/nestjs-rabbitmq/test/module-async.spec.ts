@@ -4,8 +4,8 @@ import { APP_GUARD, ModuleRef } from '@nestjs/core';
 import { APP_INTERCEPTOR } from '@nestjs/core/constants.js';
 import { Test } from '@nestjs/testing';
 import { RabbitmqAdapter } from '@opra/rabbitmq';
-import amqplib from 'amqplib';
 import { expect } from 'expect';
+import * as rabbit from 'rabbitmq-client';
 import { waitForMessage } from '../../rabbitmq/test/_support/wait-for-message.js';
 import { OpraRabbitmqModule } from '../src/index.js';
 import {
@@ -25,16 +25,20 @@ describe('OpraRabbitmqModule - async', () => {
   let nestApplication: INestApplication;
   let moduleRef: ModuleRef;
   let adapter: RabbitmqAdapter;
-  let connection: amqplib.ChannelModel;
-  let channel: amqplib.Channel;
+  let connection: rabbit.Connection;
+  let publisher: rabbit.Publisher;
 
   before(async () => {
-    connection = await amqplib.connect(rabbitHost);
-    channel = await connection.createChannel();
-    await channel.assertQueue('email-channel', { durable: true });
-    await channel.assertQueue('sms-channel', { durable: true });
-    await channel.assertQueue('feed-cat', { durable: true });
-    await channel.assertQueue('feed-dog', { durable: true });
+    connection = new rabbit.Connection(process.env.RABBITMQ_HOS);
+    publisher = connection.createPublisher({
+      exchanges: [
+        { exchange: 'email-channel', type: 'topic' },
+        { exchange: 'sms-channel', type: 'topic' },
+        { exchange: 'feed-cat', type: 'topic' },
+        { exchange: 'feed-dog', type: 'topic' },
+      ],
+    });
+    await connection.onConnect(5000);
   });
 
   before(async () => {
@@ -86,6 +90,7 @@ describe('OpraRabbitmqModule - async', () => {
   });
 
   after(async () => {
+    await publisher?.close().catch(() => undefined);
     await connection?.close().catch(() => undefined);
     await nestApplication?.close().catch(() => undefined);
   });
@@ -111,26 +116,24 @@ describe('OpraRabbitmqModule - async', () => {
       waitForMessage(adapter, 'feedCat', key),
       new Promise((resolve, reject) => {
         setTimeout(() => {
-          const b = channel.sendToQueue(
-            'feed-cat',
-            Buffer.from(
-              JSON.stringify({
+          publisher
+            .send(
+              {
+                routingKey: 'feed-cat',
+                messageId: key,
+              },
+              {
                 ...payload,
                 extraField: 12345,
-              }),
-            ),
-            {
-              messageId: key,
-              contentType: 'application/json',
-            },
-          );
-          if (b) resolve(true);
-          else reject(new Error('Failed to send message'));
+              },
+            )
+            .then(resolve)
+            .catch(reject);
         }, 250);
       }),
     ]);
     expect(ctx).toBeDefined();
-    expect(ctx?.properties.messageId).toStrictEqual(key);
+    expect(ctx?.message.messageId).toStrictEqual(key);
     expect(ctx?.content).toMatchObject(payload as any);
     expect(CatsService.counters).toEqual({
       getCat: 0,

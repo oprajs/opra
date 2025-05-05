@@ -32,13 +32,12 @@
     "@nestjs/common": "^10.0.0 || ^11.0.0",
     "@nestjs/core": "^10.0.0 || ^11.0.0",
     "@nestjs/microservices": "^10.0.0 || ^11.0.0",
-    "amqplib": ">=0.10.0 <1.0.0"
+    "rabbitmq-client": ">=5.0.0 <6"
   },
   "devDependencies": {
     "@faker-js/faker": "^9.7.0",
     "@nestjs/platform-express": "^11.1.0",
     "@nestjs/testing": "^11.1.0",
-    "@types/amqplib": "^0.10.7",
     "expect": "^29.7.0",
     "express": "^5.1.0",
     "kafkajs": "^2.2.4",
