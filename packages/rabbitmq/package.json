@@ -35,7 +35,6 @@
   "peerDependencies": {
     "@opra/common": "^1.16.1",
     "@opra/core": "^1.16.1",
-    "amqplib": "^0.10.7",
     "rabbitmq-client": ">=5.0.0 <6"
   },
   "devDependencies": {
@@ -81,8 +80,6 @@
   "keywords": [
     "opra",
     "rabbitmq",
-    "amqp",
-    "amqplib",
     "message",
     "queue",
     "consumer"
