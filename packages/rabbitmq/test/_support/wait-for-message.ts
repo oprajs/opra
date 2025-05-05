@@ -12,7 +12,7 @@ export async function waitForMessage(
     waitList.add(waitKey);
     const onMessage = async (_ctx: RabbitmqContext) => {
       if (_ctx.operation?.name === oprname) {
-        if (_ctx.properties.messageId === key) {
+        if (_ctx.message.messageId === key) {
           adapter.removeListener('error', onError);
           adapter.removeListener('finish', onMessage);
           waitList.delete(waitKey);
@@ -21,7 +21,7 @@ export async function waitForMessage(
           if (waitList.has(waitKey)) return;
 
           console.log(
-            `Warning: Waiting message with "${key}" key but god message with "${_ctx.fields.routingKey}"`,
+            `Warning: Waiting message with "${key}" key but god message with "${_ctx.message.routingKey}"`,
           );
         }
       } else {

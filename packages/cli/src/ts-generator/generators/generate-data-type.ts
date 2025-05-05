@@ -274,7 +274,8 @@ export async function _generateSimpleTypeCode(
   intent?: Intent,
 ): Promise<string> {
   let out = intent === 'root' ? `type ${dataType.name} = ` : '';
-  out += dataType.nameMappings.js || 'any';
+  const nameMapping = dataType.nameMappings.js || 'any';
+  out += nameMapping === 'Date' ? 'string' : nameMapping;
   return intent === 'root' ? out + ';' : out;
 }
 

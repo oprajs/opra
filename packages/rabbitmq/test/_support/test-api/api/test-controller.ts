@@ -1,5 +1,4 @@
 import { RpcController, RpcOperation } from '@opra/common';
-import { RabbitmqContext } from '@opra/rabbitmq';
 import { SendMailDto } from '../dto/send-mail.dto.js';
 
 @(RpcController({
@@ -22,10 +21,8 @@ export class TestController {
     .Response('string', {
       channel: 'test-send-email-response',
     }))
-  mailChannel(ctx: RabbitmqContext) {
+  mailChannel() {
     TestController.counters.mailChannel++;
-    ctx.ack();
-    return 'OK:' + ctx.message.properties.timestamp;
   }
 
   /**
@@ -33,14 +30,8 @@ export class TestController {
    */
   @(RpcOperation(SendMailDto, {
     channel: 'sms-channel',
-  }).RabbitMQ({
-    consumer: {
-      priority: 1,
-    },
-  }))
-  smsChannel(ctx: RabbitmqContext) {
+  }).RabbitMQ({}))
+  smsChannel() {
     TestController.counters.smsChannel++;
-    ctx.ack();
-    return 'OK:' + ctx.message.properties.timestamp;
   }
 }
