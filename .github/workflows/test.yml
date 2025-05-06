@@ -12,7 +12,6 @@ on:
   # on git push
   push:
     branches:
-      - main
       - dev
     paths:
       - 'packages/*/src/**'
