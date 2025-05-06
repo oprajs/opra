@@ -34,7 +34,7 @@ export class RabbitmqAdapter extends PlatformAdapter<RabbitmqAdapter.Events> {
   static readonly PlatformName = 'rabbitmq';
   protected _config: RabbitmqAdapter.Config;
   protected _controllerInstances = new Map<RpcController, any>();
-  protected _client?: rabbit.Connection;
+  protected _connection?: rabbit.Connection;
   protected _consumers: rabbit.Consumer[] = [];
   protected _status: RabbitmqAdapter.Status = 'idle';
   readonly protocol: OpraSchema.Transport = 'rpc';
@@ -78,6 +78,10 @@ export class RabbitmqAdapter extends PlatformAdapter<RabbitmqAdapter.Events> {
     return this.document.rpcApi;
   }
 
+  get connection(): rabbit.Connection | undefined {
+    return this._connection;
+  }
+
   get scope(): string | undefined {
     return this._config.scope;
   }
@@ -95,10 +99,10 @@ export class RabbitmqAdapter extends PlatformAdapter<RabbitmqAdapter.Events> {
     // const handlerArgs: HandlerArguments[] = [];
     const configBuilder = new ConfigBuilder(this.document, this._config);
     await configBuilder.build();
-    this._client = new rabbit.Connection(configBuilder.connectionOptions);
+    this._connection = new rabbit.Connection(configBuilder.connectionOptions);
     try {
       /** Establish connection */
-      await this._client.onConnect().catch(e => {
+      await this._connection.onConnect().catch(e => {
         e.message = `RabbitMQ connection error. ${e.message}`;
         throw e;
       });
@@ -113,7 +117,7 @@ export class RabbitmqAdapter extends PlatformAdapter<RabbitmqAdapter.Events> {
           const handler = this._createHandler(args);
           promises.push(
             new Promise<void>((resolve, reject) => {
-              const consumer = this._client!.createConsumer(
+              const consumer = this._connection!.createConsumer(
                 {
                   ...args.consumerConfig,
                   queueOptions: {
@@ -161,8 +165,8 @@ export class RabbitmqAdapter extends PlatformAdapter<RabbitmqAdapter.Events> {
       await Promise.allSettled(
         this._consumers.map(consumer => consumer.close()),
       );
-    await this._client?.close();
-    this._client = undefined;
+    await this._connection?.close();
+    this._connection = undefined;
     this._consumers = [];
     this._controllerInstances.clear();
     this._status = 'idle';
@@ -355,13 +359,17 @@ export namespace RabbitmqAdapter {
   export interface ConnectionOptions
     extends Pick<
       rabbit.ConnectionOptions,
+      | 'username'
+      | 'password'
       | 'acquireTimeout'
       | 'connectionName'
+      | 'connectionTimeout'
       | 'frameMax'
       | 'heartbeat'
       | 'maxChannels'
       | 'retryHigh'
       | 'retryLow'
+      | 'noDelay'
       | 'tls'
       | 'socket'
     > {
