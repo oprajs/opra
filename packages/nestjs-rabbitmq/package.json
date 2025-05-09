@@ -21,7 +21,7 @@
     "clean:cover": "rimraf ../../coverage/nestjs-rabbitmq"
   },
   "dependencies": {
-    "@jsopen/objects": "^1.5.2",
+    "@jsopen/objects": "^1.6.0",
     "tslib": "^2.8.1"
   },
   "peerDependencies": {

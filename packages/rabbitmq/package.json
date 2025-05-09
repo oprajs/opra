@@ -24,7 +24,7 @@
     "clean:cover": "rimraf ../../coverage/rabbitmq"
   },
   "dependencies": {
-    "@jsopen/objects": "^1.5.2",
+    "@jsopen/objects": "^1.6.0",
     "@browsery/type-is": "^1.6.18-r8",
     "content-type": "^1.0.5",
     "iconv-lite": "^0.6.3",
