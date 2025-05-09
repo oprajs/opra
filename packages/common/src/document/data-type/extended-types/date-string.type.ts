@@ -21,8 +21,8 @@ export class DateStringType {
   protected [DECODER](properties: Partial<this>): Validator {
     const fn = vg.isDateString({ trim: 'date', coerce: true });
     const x: Validator[] = [];
-    if (properties.minValue) x.push(vg.isGte(properties.minValue));
-    if (properties.maxValue) x.push(vg.isLte(properties.maxValue));
+    if (properties.minValue != null) x.push(vg.isGte(properties.minValue));
+    if (properties.maxValue != null) x.push(vg.isLte(properties.maxValue));
     return x.length > 0 ? vg.pipe([fn, ...x], { returnIndex: 0 }) : fn;
   }
 

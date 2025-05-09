@@ -18,11 +18,11 @@ export class DateType {
   protected [DECODER](properties: Partial<this>): Validator {
     const fn = vg.isDate({ precision: 'date', coerce: true });
     const x: Validator[] = [];
-    if (properties.minValue) {
+    if (properties.minValue != null) {
       isDateString(properties.minValue);
       x.push(toString, vg.isGte(properties.minValue));
     }
-    if (properties.maxValue) {
+    if (properties.maxValue != null) {
       isDateString(properties.maxValue);
       x.push(toString, vg.isLte(properties.maxValue));
     }
@@ -36,11 +36,11 @@ export class DateType {
       coerce: true,
     });
     const x: Validator[] = [];
-    if (properties.minValue) {
+    if (properties.minValue != null) {
       isDateString(properties.minValue);
       x.push(vg.isGte(properties.minValue));
     }
-    if (properties.maxValue) {
+    if (properties.maxValue != null) {
       isDateString(properties.maxValue);
       x.push(vg.isLte(properties.maxValue));
     }
