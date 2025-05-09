@@ -1,6 +1,6 @@
 {
   "name": "@opra/common",
-  "version": "1.17.1",
+  "version": "1.17.2",
   "description": "Opra common package",
   "author": "Panates",
   "license": "MIT",
@@ -30,7 +30,7 @@
     "@browsery/http-parser": "^0.5.9-r4",
     "@browsery/i18next": "^24.2.2",
     "@browsery/type-is": "^1.6.18-r8",
-    "@jsopen/objects": "^1.5.2",
+    "@jsopen/objects": "^1.6.0",
     "fast-tokenizer": "^1.7.0",
     "putil-promisify": "^1.10.1",
     "putil-varhelpers": "^1.6.5",
