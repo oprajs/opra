@@ -5,7 +5,7 @@
   "type": "module",
   "module": "./index.js",
   "dependencies": {
-    "@elastic/elasticsearch": "^9.0.1",
+    "@elastic/elasticsearch": "^9.0.2",
     "@opra/common": "^1.17.2",
     "@opra/mongodb": "^1.17.2",
     "ts-gems": "^3.11.3"
