@@ -295,6 +295,7 @@ export class DataTypeFactory {
     context: DataTypeFactory.Context,
     owner: DocumentElement,
     thunk: string | Type | OpraSchema.DataType | object,
+    checkCircularDeps?: boolean,
   ): Promise<DataTypeFactory.DataTypeInitArguments | string | void> {
     thunk = await resolveThunk(thunk);
     const { importQueue, initArgsMap } = context;
@@ -375,7 +376,7 @@ export class DataTypeFactory {
         if (metadata.name) {
           const curr = initArgsMap?.get(metadata.name);
           if (curr) {
-            if (curr[initializingSymbol])
+            if (checkCircularDeps && curr[initializingSymbol])
               return context.addError('Circular reference detected');
             return metadata.name;
           }
@@ -466,6 +467,7 @@ export class DataTypeFactory {
           context,
           owner,
           metadata.base!,
+          true,
         );
       } else if (initArgs.ctor) {
         const baseClass = Object.getPrototypeOf(
@@ -561,6 +563,7 @@ export class DataTypeFactory {
           context,
           owner,
           metadata.base!,
+          true,
         );
       } else if (initArgs.ctor) {
         const baseClass = Object.getPrototypeOf(
@@ -609,6 +612,7 @@ export class DataTypeFactory {
           context,
           owner,
           metadata.base!,
+          true,
         );
       } else if (initArgs.ctor) {
         const baseClass = Object.getPrototypeOf(
