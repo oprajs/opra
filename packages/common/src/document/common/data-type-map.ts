@@ -22,7 +22,7 @@ export class DataTypeMap {
     callbackFn: (
       value: DataType,
       key: string,
-      map: ReadonlyMap<string, DataType>,
+      map: ResponsiveMap<DataType>,
     ) => void,
     thisArg?: any,
   ): void {

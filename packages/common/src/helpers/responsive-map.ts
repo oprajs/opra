@@ -23,7 +23,7 @@ const kSize = Symbol.for('kSize');
 /**
  * A Map implementation that supports case-insensitivity and ordered keys
  */
-export class ResponsiveMap<V> implements Map<string, V> {
+export class ResponsiveMap<V> {
   declare private [kSize]: number;
   declare private [kEntries]: Record<string, V>;
   declare private [kKeyMap]: Record<string, string>;
@@ -82,7 +82,7 @@ export class ResponsiveMap<V> implements Map<string, V> {
   }
 
   forEach(
-    callbackfn: (value: V, key: string, map: Map<string, V>) => void,
+    callbackfn: (value: V, key: string, map: ResponsiveMap<V>) => void,
     thisArg?: any,
   ): void {
     for (const [k, v] of this.entries()) {
