@@ -1,3 +1,4 @@
+import hashObject from 'hash-object';
 import { asMutable, type StrictOmit, type Type } from 'ts-gems';
 import { type IsObject, type Validator, validator, vg } from 'valgen';
 import {
@@ -280,14 +281,17 @@ abstract class ComplexTypeBaseClass extends DataType {
     codec: 'encode' | 'decode',
     options?: DataType.GenerateCodecOptions,
   ): Validator {
-    const projection = Array.isArray(options?.projection)
-      ? parseFieldsProjection(options.projection)
-      : options?.projection;
-    const schema = this._generateSchema(codec, {
-      ...options,
-      projection,
-      currentPath: '',
-    });
+    const context: GenerateCodecContext = (options as any)?.cache
+      ? (options as GenerateCodecContext)
+      : {
+          ...options,
+          projection: Array.isArray(options?.projection)
+            ? parseFieldsProjection(options.projection)
+            : options?.projection,
+          currentPath: '',
+        };
+
+    const schema = this._generateSchema(codec, context);
 
     let additionalFields: any;
     if (this.additionalFields instanceof DataType) {
@@ -298,13 +302,13 @@ abstract class ComplexTypeBaseClass extends DataType {
       if (this.additionalFields.length < 2) additionalFields = 'error';
       else {
         const message = additionalFields[1] as string;
-        additionalFields = validator((input, context, _this) =>
-          context.fail(_this, message, input),
+        additionalFields = validator((input, ctx, _this) =>
+          ctx.fail(_this, message, input),
         );
       }
     }
 
-    return vg.isObject(schema, {
+    const fn = vg.isObject(schema, {
       ctor: this.name === 'object' ? Object : this.ctor,
       additionalFields,
       name: this.name,
@@ -312,15 +316,21 @@ abstract class ComplexTypeBaseClass extends DataType {
       caseInSensitive: options?.caseInSensitive,
       onFail: options?.onFail,
     });
+    if (context.level === 0 && context.forwardCallbacks?.size) {
+      for (const cb of context.forwardCallbacks) {
+        cb();
+      }
+    }
+    return fn;
   }
 
   protected _generateSchema(
     codec: 'encode' | 'decode',
-    context: StrictOmit<DataType.GenerateCodecOptions, 'projection'> & {
-      currentPath: string;
-      projection?: FieldsProjection | '*';
-    },
-  ) {
+    context: GenerateCodecContext,
+  ): IsObject.Schema {
+    context.cache = context.cache || new Map();
+    context.level = context.level || 0;
+    context.forwardCallbacks = context.forwardCallbacks || new Set();
     const schema: IsObject.Schema = {};
     const { currentPath, projection } = context;
     const pickList = !!(
@@ -357,15 +367,41 @@ abstract class ComplexTypeBaseClass extends DataType {
           continue;
         }
       }
-      const fn = this._generateFieldCodec(codec, field, {
-        ...context,
-        partial: context.partial === 'deep' ? context.partial : undefined,
-        projection:
-          typeof projection === 'object'
-            ? projection[fieldName]?.projection || '*'
-            : projection,
-        currentPath: currentPath + (currentPath ? '.' : '') + fieldName,
-      });
+      const subProjection =
+        typeof projection === 'object'
+          ? projection[fieldName]?.projection || '*'
+          : projection;
+      let cacheItem = context.cache.get(field.type);
+      const cacheKey =
+        typeof subProjection === 'string'
+          ? subProjection
+          : hashObject(subProjection || {});
+      if (!cacheItem) {
+        cacheItem = {};
+        context.cache.set(field.type, cacheItem);
+      }
+      let fn = cacheItem[cacheKey];
+      /** If in progress (circular) */
+      if (fn === null) {
+        // Temporary set any
+        fn = vg.isAny();
+        context.forwardCallbacks.add(() => {
+          fn = cacheItem[cacheKey];
+          schema[fieldName] =
+            context.partial || !field.required
+              ? vg.optional(fn!)
+              : vg.required(fn!);
+        });
+      } else if (!fn) {
+        cacheItem[cacheKey] = null;
+        fn = this._generateFieldCodec(codec, field, {
+          ...context,
+          partial: context.partial === 'deep' ? context.partial : undefined,
+          projection: subProjection,
+          currentPath: currentPath + (currentPath ? '.' : '') + fieldName,
+        });
+        cacheItem[cacheKey] = fn;
+      }
       schema[fieldName] =
         context.partial || !field.required ? vg.optional(fn) : vg.required(fn);
     }
@@ -379,12 +415,12 @@ abstract class ComplexTypeBaseClass extends DataType {
   protected _generateFieldCodec(
     codec: 'encode' | 'decode',
     field: ApiField,
-    context: StrictOmit<DataType.GenerateCodecOptions, 'projection'> & {
-      currentPath: string;
-      projection?: FieldsProjection | '*';
-    },
+    context: GenerateCodecContext,
   ): Validator {
-    let fn = field.type.generateCodec(codec, context);
+    let fn = field.type.generateCodec(codec, {
+      ...context,
+      level: context.level! + 1,
+    } as GenerateCodecContext);
     if (field.fixed) fn = vg.isEqual(field.fixed);
     if (field.isArray) fn = vg.isArray(fn);
     return fn;
@@ -392,3 +428,14 @@ abstract class ComplexTypeBaseClass extends DataType {
 }
 
 ComplexTypeBase.prototype = ComplexTypeBaseClass.prototype;
+
+type GenerateCodecContext = StrictOmit<
+  DataType.GenerateCodecOptions,
+  'projection'
+> & {
+  currentPath: string;
+  projection?: FieldsProjection | '*';
+  level?: number;
+  cache?: Map<DataType, Record<string, Validator | null>>;
+  forwardCallbacks?: Set<Function>;
+};
