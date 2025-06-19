@@ -36,7 +36,7 @@
     "@sqb/builder": "^4.19.6",
     "@sqb/connect": "^4.19.6",
     "@sqb/postgres": "^4.19.6",
-    "expect": "^30.0.0",
+    "expect": "^30.0.2",
     "postgrejs": "^2.22.4",
     "sinon": "^21.0.0",
     "ts-gems": "^3.11.3"

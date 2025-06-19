@@ -33,7 +33,7 @@
   },
   "devDependencies": {
     "@faker-js/faker": "^9.8.0",
-    "expect": "^30.0.0",
+    "expect": "^30.0.2",
     "sinon": "^21.0.0",
     "ts-gems": "^3.11.3"
   },
