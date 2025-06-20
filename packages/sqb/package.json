@@ -1,6 +1,6 @@
 {
   "name": "@opra/sqb",
-  "version": "1.17.4",
+  "version": "1.17.5",
   "description": "Opra SQB adapter package",
   "author": "Panates",
   "license": "MIT",
@@ -27,8 +27,8 @@
     "valgen": "^5.15.2"
   },
   "peerDependencies": {
-    "@opra/core": "^1.17.4",
-    "@opra/http": "^1.17.4",
+    "@opra/core": "^1.17.5",
+    "@opra/http": "^1.17.5",
     "@sqb/connect": "^4.19.6"
   },
   "devDependencies": {
@@ -36,7 +36,7 @@
     "@sqb/builder": "^4.19.6",
     "@sqb/connect": "^4.19.6",
     "@sqb/postgres": "^4.19.6",
-    "expect": "^30.0.0",
+    "expect": "^30.0.2",
     "postgrejs": "^2.22.4",
     "sinon": "^21.0.0",
     "ts-gems": "^3.11.3"

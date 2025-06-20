@@ -1,6 +1,6 @@
 {
   "name": "@opra/common",
-  "version": "1.17.4",
+  "version": "1.17.5",
   "description": "Opra common package",
   "author": "Panates",
   "license": "MIT",
@@ -32,6 +32,7 @@
     "@browsery/type-is": "^1.6.18-r8",
     "@jsopen/objects": "^1.6.2",
     "fast-tokenizer": "^1.7.0",
+    "hash-object": "^5.0.1",
     "putil-promisify": "^1.10.1",
     "putil-varhelpers": "^1.6.5",
     "reflect-metadata": "^0.2.2",
@@ -45,8 +46,8 @@
     "@browsery/stream": "^4.7.0-r1",
     "@browsery/util": "^0.12.6-r2",
     "@types/encodeurl": "^1.0.3",
-    "@types/validator": "^13.15.1",
-    "expect": "^30.0.0",
+    "@types/validator": "^13.15.2",
+    "expect": "^30.0.2",
     "path-browserify": "^1.0.1",
     "ts-gems": "^3.11.3"
   },
