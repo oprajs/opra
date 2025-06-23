@@ -1,4 +1,4 @@
-import hashObject from 'hash-object';
+import hashObject from 'object-hash';
 import { asMutable, type StrictOmit, type Type } from 'ts-gems';
 import { type IsObject, type Validator, validator, vg } from 'valgen';
 import {
@@ -291,7 +291,13 @@ abstract class ComplexTypeBaseClass extends DataType {
           currentPath: '',
         };
 
-    const schema = this._generateSchema(codec, context);
+    let schema = this._generateSchema(codec, context);
+    if (context.generateSchemaHook)
+      schema = context.generateSchemaHook(
+        schema,
+        this as unknown as ComplexType,
+        context.currentPath,
+      );
 
     let additionalFields: any;
     if (this.additionalFields instanceof DataType) {
@@ -328,7 +334,7 @@ abstract class ComplexTypeBaseClass extends DataType {
     codec: 'encode' | 'decode',
     context: GenerateCodecContext,
   ): IsObject.Schema {
-    context.cache = context.cache || new Map();
+    context.fieldCache = context.fieldCache || new Map();
     context.level = context.level || 0;
     context.forwardCallbacks = context.forwardCallbacks || new Set();
     const schema: IsObject.Schema = {};
@@ -371,14 +377,14 @@ abstract class ComplexTypeBaseClass extends DataType {
         typeof projection === 'object'
           ? projection[fieldName]?.projection || '*'
           : projection;
-      let cacheItem = context.cache.get(field.type);
+      let cacheItem = context.fieldCache.get(field);
       const cacheKey =
         typeof subProjection === 'string'
           ? subProjection
           : hashObject(subProjection || {});
       if (!cacheItem) {
         cacheItem = {};
-        context.cache.set(field.type, cacheItem);
+        context.fieldCache.set(field, cacheItem);
       }
       let fn = cacheItem[cacheKey];
       /** If in progress (circular) */
@@ -436,6 +442,6 @@ type GenerateCodecContext = StrictOmit<
   currentPath: string;
   projection?: FieldsProjection | '*';
   level?: number;
-  cache?: Map<DataType, Record<string, Validator | null>>;
+  fieldCache?: Map<ApiField, Record<string, Validator | null>>;
   forwardCallbacks?: Set<Function>;
 };
