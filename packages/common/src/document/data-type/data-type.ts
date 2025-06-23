@@ -1,6 +1,6 @@
 import { omitUndefined } from '@jsopen/objects';
 import { asMutable, type StrictOmit, type Type } from 'ts-gems';
-import type { ValidationOptions, Validator } from 'valgen';
+import type { IsObject, ValidationOptions, Validator } from 'valgen';
 import { FieldsProjection } from '../../helpers/index.js';
 import type { DataTypeBase } from '../../schema/data-type/data-type.interface.js';
 import { OpraSchema } from '../../schema/index.js';
@@ -15,6 +15,7 @@ import {
   nodeInspectCustom,
 } from '../utils/inspect.util.js';
 import { testScopeMatch } from '../utils/test-scope-match.js';
+import type { ComplexType } from './complex-type.js';
 
 /**
  * @namespace DataType
@@ -42,6 +43,11 @@ export namespace DataType {
     ignoreReadonlyFields?: boolean;
     ignoreWriteonlyFields?: boolean;
     allowPatchOperators?: boolean;
+    generateSchemaHook?: (
+      schema: IsObject.Schema,
+      dataType: ComplexType,
+      path: string,
+    ) => IsObject.Schema;
   }
 }
 
