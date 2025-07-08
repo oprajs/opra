@@ -597,7 +597,9 @@ export class HttpHandler {
     let responseBody = this[kAssetCache].get(doc, `$schema`);
     /** Create response if response cache does not exists */
     if (!responseBody) {
-      const schema = doc.export();
+      const schema = doc.export({
+        scope: this.adapter.scope,
+      });
       responseBody = JSON.stringify(schema);
       this[kAssetCache].set(doc, `$schema`, responseBody);
     }
