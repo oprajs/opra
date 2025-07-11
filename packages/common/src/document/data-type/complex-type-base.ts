@@ -291,13 +291,7 @@ abstract class ComplexTypeBaseClass extends DataType {
           currentPath: '',
         };
 
-    let schema = this._generateSchema(codec, context);
-    if (context.generateSchemaHook)
-      schema = context.generateSchemaHook(
-        schema,
-        this as unknown as ComplexType,
-        context.currentPath,
-      );
+    const schema = this._generateSchema(codec, context);
 
     let additionalFields: any;
     if (this.additionalFields instanceof DataType) {
@@ -399,17 +393,27 @@ abstract class ComplexTypeBaseClass extends DataType {
               : vg.required(fn!);
         });
       } else if (!fn) {
-        cacheItem[cacheKey] = null;
-        fn = this._generateFieldCodec(codec, field, {
-          ...context,
-          partial: context.partial === 'deep' ? context.partial : undefined,
-          projection: subProjection,
-          currentPath: currentPath + (currentPath ? '.' : '') + fieldName,
-        });
-        cacheItem[cacheKey] = fn;
+        const defaultGenerator = () => {
+          cacheItem[cacheKey] = null;
+          const xfn = this._generateFieldCodec(codec, field, {
+            ...context,
+            partial: context.partial === 'deep' ? context.partial : undefined,
+            projection: subProjection,
+            currentPath: currentPath + (currentPath ? '.' : '') + fieldName,
+          });
+          cacheItem[cacheKey] = xfn;
+          return xfn;
+        };
+        if (context.fieldHook)
+          fn = context.fieldHook(field, context.currentPath, defaultGenerator);
+        else fn = defaultGenerator();
       }
       schema[fieldName] =
-        context.partial || !field.required ? vg.optional(fn) : vg.required(fn);
+        context.partial || !(field.required || fn.id === 'required')
+          ? vg.optional(fn)
+          : fn.id === 'required'
+            ? fn
+            : vg.required(fn);
     }
     if (context.allowPatchOperators) {
       schema._$pull = vg.optional(vg.isAny());

@@ -2,11 +2,6 @@ import type { Class, PartialSome, Type } from 'ts-gems';
 import type { DataType } from './data-type.js';
 import { createMappedClass } from './utils/create-mapped-class.js';
 
-export function PartialType(
-  baseType: string | Type,
-  keys: string[],
-  options?: DataType.Options,
-): Type;
 /**
  * Create a new MappedType that marks given or all fields as optional
  * @param baseType
@@ -49,6 +44,11 @@ export function PartialType<Args extends any[], Instance, Static>(
  * @param keys
  * @param options
  */
+export function PartialType(
+  baseType: string | Type,
+  keys: string[],
+  options?: DataType.Options,
+): Type;
 /**
  *
  */

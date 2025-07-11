@@ -2,17 +2,13 @@ import type { Class, Type } from 'ts-gems';
 import type { DataType } from './data-type.js';
 import { createMappedClass } from './utils/create-mapped-class.js';
 
-export function OmitType(
-  baseType: string | Type,
-  keys: string[],
-  options?: DataType.Options,
-): Type;
 /**
  * Create a new MappedType that omits given fields from base type
  * @param baseType
  * @param keys
  * @param options
- */ export function OmitType<
+ */
+export function OmitType<
   Args extends any[],
   Instance,
   Static,
@@ -29,6 +25,11 @@ export function OmitType(
  * @param keys
  * @param options
  */
+export function OmitType(
+  baseType: string | Type,
+  keys: string[],
+  options?: DataType.Options,
+): Type;
 /**
  *
  */
