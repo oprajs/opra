@@ -9,7 +9,7 @@ import { Country, Note, Record } from 'customer-mongo/models';
 import { expect } from 'expect';
 import { TestHttpApiDocument } from '../../_support/test-http-api/index.js';
 
-describe('MixinType', () => {
+describe('common:MixinType', () => {
   let doc: ApiDocument;
 
   before(async () => {

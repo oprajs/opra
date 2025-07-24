@@ -8,7 +8,7 @@ import { TestController } from './_support/test-api/api/test-controller.js';
 import { TestRpcApiDocument } from './_support/test-api/index.js';
 import { waitForMessage } from './_support/wait-for-message.js';
 
-describe('e2e', () => {
+describe('rabbitmq:RabbitmqAdapter:e2e', () => {
   let document: ApiDocument;
   let adapter: RabbitmqAdapter;
   let connection: rabbit.Connection;
@@ -94,5 +94,5 @@ describe('e2e', () => {
       mailChannel: 1,
       smsChannel: 0,
     });
-  });
+  }).slow(800);
 });

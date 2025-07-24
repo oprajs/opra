@@ -21,7 +21,7 @@ import {
 
 const rabbitHost = process.env.RABBITMQ_HOST || 'amqp://localhost:5672';
 
-describe('OpraRabbitmqModule - async', () => {
+describe('nestjs-rabbitmq:OpraRabbitmqModule - async', () => {
   let nestApplication: INestApplication;
   let moduleRef: ModuleRef;
   let adapter: RabbitmqAdapter;
@@ -141,7 +141,7 @@ describe('OpraRabbitmqModule - async', () => {
       feedCat: 1,
     });
     expect(CatsService.instanceCounter).toEqual(1);
-  });
+  }).slow(800);
 
   // it('Should call REQUEST scoped api', async () => {
   //   const instanceCounter1 = HttpDogsController.instanceCounter;

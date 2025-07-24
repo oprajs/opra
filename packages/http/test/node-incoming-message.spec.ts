@@ -1,7 +1,7 @@
 import { NodeIncomingMessage } from '@opra/http';
 import { expect } from 'expect';
 
-describe('NodeIncomingMessage', () => {
+describe('http:NodeIncomingMessage', () => {
   it('Should create using init object (raw headers)', async () => {
     const msg = NodeIncomingMessage.from({
       url: '/test',

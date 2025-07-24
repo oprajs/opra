@@ -2,7 +2,7 @@ import { faker } from '@faker-js/faker';
 import { OpraTestClient } from '@opra/testing';
 
 export function singletonCreateTests(args: { client: OpraTestClient }) {
-  describe('Singleton:create', () => {
+  describe('http:Singleton:create', () => {
     const generateData = (v?: any) => ({
       givenName: faker.person.firstName(),
       familyName: faker.person.lastName(),

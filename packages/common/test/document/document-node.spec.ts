@@ -9,7 +9,7 @@ import { Country, Gender } from 'customer-mongo/models';
 import { expect } from 'expect';
 import { TestHttpApiDocument } from '../_support/test-http-api/index.js';
 
-describe('DocumentNode', () => {
+describe('common:DocumentNode', () => {
   let doc: ApiDocument;
 
   before(async () => {

@@ -193,7 +193,7 @@ export class FilterRules {
               });
               this._decoderCache.set(comp.left.field, decoder);
             }
-            ast.value = decoder(ast.value);
+            ast.value = decoder(ast.value, { coerce: true });
           }
         }
       }

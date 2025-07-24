@@ -1,7 +1,7 @@
 import { MongoAdapter } from '@opra/mongodb';
 import { expect } from 'expect';
 
-describe('MongoAdapter.prepareSort', () => {
+describe('mongodb:MongoAdapter.prepareSort', () => {
   it('Should convert sort fields', async () => {
     const o: any = MongoAdapter.prepareSort(['_id', 'givenName']);
     expect(o).toEqual({

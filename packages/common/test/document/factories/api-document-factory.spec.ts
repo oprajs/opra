@@ -6,7 +6,7 @@ import {
 } from '@opra/common';
 import { expect } from 'expect';
 
-describe('ApiDocumentFactory', () => {
+describe('common:ApiDocumentFactory', () => {
   it('Should create ApiDocument', async () => {
     const doc = await ApiDocumentFactory.createDocument({
       spec: OpraSchema.SpecVersion,
@@ -44,14 +44,14 @@ describe('ApiDocumentFactory', () => {
     expect(ref?.node.getDataType('number')).toBeDefined();
     expect(ref?.node.getDataType('object')).toBeDefined();
     expect(ref?.node.getDataType('string')).toBeDefined();
-    expect(ref?.node.getDataType('datestring')).toBeDefined();
-    expect(ref?.node.getDataType('datetimestring')).toBeDefined();
     expect(ref?.node.getDataType('base64')).toBeDefined();
     expect(ref?.node.getDataType('date')).toBeDefined();
     expect(ref?.node.getDataType('datetime')).toBeDefined();
     expect(ref?.node.getDataType('email')).toBeDefined();
     expect(ref?.node.getDataType('fieldpath')).toBeDefined();
     expect(ref?.node.getDataType('objectid')).toBeDefined();
+    expect(ref?.node.getDataType('OperationResult')).toBeDefined();
+    expect(ref?.node.getDataType('partialdate')).toBeDefined();
     expect(ref?.node.getDataType('time')).toBeDefined();
     expect(ref?.node.getDataType('url')).toBeDefined();
     expect(ref?.node.getDataType('uuid')).toBeDefined();

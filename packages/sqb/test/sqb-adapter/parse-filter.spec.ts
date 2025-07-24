@@ -22,7 +22,7 @@ import { expect } from 'expect';
 import { CustomerApplication } from 'express-sqb';
 import { Validator } from 'valgen';
 
-describe('SQBAdapter.prepareFilter', () => {
+describe('sqb:SQBAdapter.prepareFilter', () => {
   let document: ApiDocument;
   let customers: HttpController;
   let filterDecoder: Validator;

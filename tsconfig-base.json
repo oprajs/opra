@@ -2,5 +2,6 @@
   "extends": "@panates/tsconfig/node.json",
   "compilerOptions": {
     "types": ["node"],
+    "module": "NodeNext",
   }
 }

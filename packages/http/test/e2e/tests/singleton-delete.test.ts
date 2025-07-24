@@ -3,7 +3,7 @@ import { HttpStatusCode } from '@opra/common';
 import { OpraTestClient } from '@opra/testing';
 
 export function singletonDeleteTests(args: { client: OpraTestClient }) {
-  describe('Singleton:delete', () => {
+  describe('http:Singleton:delete', () => {
     const generateData = (v?: any) => ({
       givenName: faker.person.firstName(),
       familyName: faker.person.lastName(),

@@ -3,7 +3,7 @@ import { MongoAdapter } from '@opra/mongodb';
 import { expect } from 'expect';
 import { CustomerApplication } from 'express-mongo';
 
-describe('MongoAdapter.prepareProjection', () => {
+describe('mongodb:MongoAdapter.prepareProjection', () => {
   let document: ApiDocument;
 
   before(async () => {

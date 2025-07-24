@@ -11,7 +11,7 @@ import express, { Express } from 'express';
 import supertest from 'supertest';
 import { createTestApi } from './_support/test-api/index.js';
 
-describe('HttpHandler', () => {
+describe('http:HttpHandler', () => {
   let document: ApiDocument;
   let app: Express;
   let adapter: ExpressAdapter;

@@ -6,7 +6,7 @@ import { CustomerApplication } from 'express-mongo';
 import * as sinon from 'sinon';
 import { createContext } from '../_support/create-context.js';
 
-describe('MongoNestedService', () => {
+describe('mongodb:MongoNestedService', () => {
   let app: CustomerApplication;
   let service: MongoNestedService<any>;
   const tempRecords: any[] = [];
@@ -47,7 +47,7 @@ describe('MongoNestedService', () => {
   after(() => app?.close());
   afterEach(() => sinon.restore());
 
-  describe('assert()', () => {
+  describe('mongodb:assert()', () => {
     it('Should not throw if document exists', async () => {
       const ctx = createContext(app.adapter);
       await service.for(ctx).assert(1, 1);
@@ -78,7 +78,7 @@ describe('MongoNestedService', () => {
     });
   });
 
-  describe('count()', () => {
+  describe('mongodb:count()', () => {
     it('Should count number of elements in array field', async () => {
       const ctx = createContext(app.adapter);
       const result = await service.for(ctx).count(1);
@@ -119,7 +119,7 @@ describe('MongoNestedService', () => {
     });
   });
 
-  describe('findById()', () => {
+  describe('mongodb:findById()', () => {
     it('Should return single object', async () => {
       const ctx = createContext(app.adapter);
       const result: any = await service.for(ctx).findById(1, 1);
@@ -165,7 +165,7 @@ describe('MongoNestedService', () => {
     });
   });
 
-  describe('findOne()', () => {
+  describe('mongodb:findOne()', () => {
     it('Should return single object', async () => {
       const ctx = createContext(app.adapter);
       const result: any = await service.for(ctx).findOne(1);
@@ -285,7 +285,7 @@ describe('MongoNestedService', () => {
     });
   });
 
-  describe('findMany()', () => {
+  describe('mongodb:findMany()', () => {
     it('Should return objects', async () => {
       const ctx = createContext(app.adapter);
       const result: any = await service.for(ctx).findMany(1);
@@ -439,7 +439,7 @@ describe('MongoNestedService', () => {
     });
   });
 
-  describe('get()', () => {
+  describe('mongodb:get()', () => {
     it('Should return single object', async () => {
       const ctx = createContext(app.adapter);
       const result: any = await service.for(ctx).get(1, 1);
@@ -474,7 +474,7 @@ describe('MongoNestedService', () => {
     });
   });
 
-  describe('create()', () => {
+  describe('mongodb:create()', () => {
     it('Should insert object into array field', async () => {
       const ctx = createContext(app.adapter);
       const doc = { _id: 100, title: faker.lorem.text() };
@@ -514,7 +514,7 @@ describe('MongoNestedService', () => {
     });
   });
 
-  describe('updateOnly()', () => {
+  describe('mongodb:updateOnly()', () => {
     it('Should update object in the array field', async () => {
       const ctx = createContext(app.adapter);
       const doc = { title: faker.lorem.text() };
@@ -563,7 +563,7 @@ describe('MongoNestedService', () => {
     });
   });
 
-  describe('update()', () => {
+  describe('mongodb:update()', () => {
     it('Should update object in the array field', async () => {
       const ctx = createContext(app.adapter);
       const doc = { title: faker.lorem.text() };
@@ -614,7 +614,7 @@ describe('MongoNestedService', () => {
     });
   });
 
-  describe('updateMany()', () => {
+  describe('mongodb:updateMany()', () => {
     it('Should update all objects in the array field', async () => {
       const ctx = createContext(app.adapter);
       const update = { title: faker.lorem.text() };
@@ -681,7 +681,7 @@ describe('MongoNestedService', () => {
     });
   });
 
-  describe('delete()', () => {
+  describe('mongodb:delete()', () => {
     it('Should delete object from the array field', async () => {
       const ctx = createContext(app.adapter);
       const doc = tempRecords[0];
@@ -728,7 +728,7 @@ describe('MongoNestedService', () => {
     });
   });
 
-  describe('deleteMany()', () => {
+  describe('mongodb:deleteMany()', () => {
     it('Should apply filter returned by documentFilter', async () => {
       const ctx = createContext(app.adapter);
       const r = await service

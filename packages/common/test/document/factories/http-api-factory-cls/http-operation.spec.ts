@@ -9,7 +9,7 @@ import {
 import { Country } from 'customer-mongo/models';
 import { expect } from 'expect';
 
-describe('HttpApiFactory - HttpOperation (Class)', () => {
+describe('common:HttpApiFactory - HttpOperation (Class)', () => {
   it('Should import resource class', async () => {
     @HttpController({
       description: 'Country collection',

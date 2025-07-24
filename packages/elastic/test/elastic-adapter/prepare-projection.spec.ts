@@ -3,7 +3,7 @@ import { ElasticAdapter } from '@opra/elastic';
 import { expect } from 'expect';
 import { CustomerApplication } from 'express-elastic';
 
-describe('ElasticAdapter.prepareProjection', () => {
+describe('elastic:ElasticAdapter.prepareProjection', () => {
   let document: ApiDocument;
   let customerType: ComplexType;
   let noteType: ComplexType;

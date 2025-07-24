@@ -2,7 +2,7 @@ import { OpraTestClient } from '@opra/testing';
 import { expect } from 'expect';
 
 export function collectionFindManyTests(args: { client: OpraTestClient }) {
-  describe('Collection:findMany', () => {
+  describe('http:Collection:findMany', () => {
     it('Should return list object', async () => {
       const resp = await args.client.get('Customers').getResponse();
       resp.expect.toSuccess().toReturnCollection().toReturnItems();

@@ -6,7 +6,7 @@ import express, { type Express } from 'express';
 import supertest from 'supertest';
 import { createTestApi } from '../_support/test-api/index.js';
 
-describe('e2e:HttpOperation.Entity endpoints', () => {
+describe('http:e2e:HttpOperation.Entity endpoints', () => {
   let document: ApiDocument;
   let app: Express;
   let adapter: ExpressAdapter;

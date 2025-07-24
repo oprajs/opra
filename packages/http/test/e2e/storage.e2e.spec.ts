@@ -7,7 +7,7 @@ import supertest from 'supertest';
 import { FilesController } from '../_support/test-api/api/files.controller.js';
 import { createTestApi } from '../_support/test-api/index.js';
 
-describe('e2e:Storage', () => {
+describe('http:e2e:Storage', () => {
   let document: ApiDocument;
   let app: Express;
   let adapter: ExpressAdapter;

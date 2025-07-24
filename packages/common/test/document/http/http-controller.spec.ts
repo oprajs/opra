@@ -3,7 +3,7 @@ import { expect } from 'expect';
 import { MyProfileController } from '../../_support/test-http-api/api/my-profile.controller.js';
 import { TestHttpApiDocument } from '../../_support/test-http-api/index.js';
 
-describe('HttpController', () => {
+describe('common:HttpController', () => {
   let doc: ApiDocument;
 
   before(async () => {

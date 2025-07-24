@@ -7,7 +7,7 @@ import { CustomerApplication } from 'express-sqb';
 import * as sinon from 'sinon';
 import { createContext } from '../_support/create-context.js';
 
-describe('SqbCollectionService', () => {
+describe('sqb:SqbCollectionService', () => {
   let app: CustomerApplication;
   let service1: SqbCollectionService<any>;
   let service2: SqbCollectionService<any>;
@@ -47,7 +47,7 @@ describe('SqbCollectionService', () => {
   after(() => app?.close());
   afterEach(() => sinon.restore());
 
-  describe('withTransaction()', () => {
+  describe('sqb:withTransaction()', () => {
     it('Should service work in transaction', async () => {
       const context = createContext(app.adapter);
       const svc = service1.for(context);
@@ -82,7 +82,7 @@ describe('SqbCollectionService', () => {
     });
   });
 
-  describe('assert()', () => {
+  describe('sqb:assert()', () => {
     it('Should not throw if document exists', async () => {
       const ctx = createContext(app.adapter);
       await service1.for(ctx).assert(1);
@@ -103,7 +103,7 @@ describe('SqbCollectionService', () => {
     });
   });
 
-  describe('count()', () => {
+  describe('sqb:count()', () => {
     it('Should count number of documents', async () => {
       const ctx = createContext(app.adapter);
       const result = await service1.for(ctx).count();
@@ -134,7 +134,7 @@ describe('SqbCollectionService', () => {
     });
   });
 
-  describe('findById()', () => {
+  describe('sqb:findById()', () => {
     it('Should return single object', async () => {
       const ctx = createContext(app.adapter);
       const result: any = await service1.for(ctx).findById(1);
@@ -177,7 +177,7 @@ describe('SqbCollectionService', () => {
     });
   });
 
-  describe('findOne()', () => {
+  describe('sqb:findOne()', () => {
     it('Should return single document', async () => {
       const ctx = createContext(app.adapter);
       const result: any = await service1.for(ctx).findOne();
@@ -279,7 +279,7 @@ describe('SqbCollectionService', () => {
     });
   });
 
-  describe('findMany()', () => {
+  describe('sqb:findMany()', () => {
     it('Should return documents', async () => {
       const ctx = createContext(app.adapter);
       const result: any = await service1.for(ctx).findMany();
@@ -422,7 +422,7 @@ describe('SqbCollectionService', () => {
     });
   });
 
-  describe('get()', () => {
+  describe('sqb:get()', () => {
     it('Should return single document', async () => {
       const ctx = createContext(app.adapter);
       const result: any = await service1.for(ctx).get(1);
@@ -459,7 +459,7 @@ describe('SqbCollectionService', () => {
     });
   });
 
-  describe('updateOnly()', () => {
+  describe('sqb:updateOnly()', () => {
     it('Should update object in the array field', async () => {
       const ctx = createContext(app.adapter);
       const doc = { uid: faker.string.uuid() };
@@ -497,7 +497,7 @@ describe('SqbCollectionService', () => {
     });
   });
 
-  describe('update()', () => {
+  describe('sqb:update()', () => {
     it('Should update object in the array field', async () => {
       const ctx = createContext(app.adapter);
       const doc = { uid: faker.string.uuid() };
@@ -537,7 +537,7 @@ describe('SqbCollectionService', () => {
     });
   });
 
-  describe('updateMany()', () => {
+  describe('sqb:updateMany()', () => {
     it('Should update multiple records', async () => {
       const ctx = createContext(app.adapter);
       const update = { uid: faker.string.uuid() };
@@ -589,7 +589,7 @@ describe('SqbCollectionService', () => {
     });
   });
 
-  describe('create()', () => {
+  describe('sqb:create()', () => {
     it('Should insert document', async () => {
       const ctx = createContext(app.adapter);
       const doc = { _id: 100, uid: faker.string.uuid() };
@@ -611,7 +611,7 @@ describe('SqbCollectionService', () => {
     });
   });
 
-  describe('delete()', () => {
+  describe('sqb:delete()', () => {
     it('Should delete document', async () => {
       const ctx = createContext(app.adapter);
       const doc = tempRecords[0];
@@ -649,7 +649,7 @@ describe('SqbCollectionService', () => {
     });
   });
 
-  describe('deleteMany()', () => {
+  describe('sqb:deleteMany()', () => {
     it('Should apply filter returned by commonFilter', async () => {
       const ctx = createContext(app.adapter);
       const r = await service1

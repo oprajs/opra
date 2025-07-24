@@ -9,7 +9,7 @@ import {
 import { Customer } from 'customer-mongo/models';
 import { expect } from 'expect';
 
-describe('HttpOperation decorator', () => {
+describe('common:HttpOperation decorator', () => {
   it('Should define operation metadata', async () => {
     class CustomersResource {
       @HttpOperation({ description: 'any description' })

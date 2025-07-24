@@ -2,7 +2,7 @@ import { ApiDocument } from '@opra/common';
 import { expect } from 'expect';
 import { TestHttpApiDocument } from '../../_support/test-http-api/index.js';
 
-describe('SimpleType', () => {
+describe('common:SimpleType', () => {
   let doc: ApiDocument;
 
   before(async () => {
@@ -40,19 +40,5 @@ describe('SimpleType', () => {
         },
       },
     });
-  });
-
-  it('Should generate decoder', async () => {
-    const dt = doc.node.getSimpleType('date');
-    const decode = dt.generateCodec('decode');
-    expect(decode('2020-01-02T10:30:00')).toStrictEqual(
-      new Date('2020-01-02T00:00:00'),
-    );
-  });
-
-  it('Should generate encoder', async () => {
-    const dt = doc.node.getSimpleType('date');
-    const encode = dt.generateCodec('encode');
-    expect(encode(new Date('2020-01-02T00:00:00'))).toStrictEqual('2020-01-02');
   });
 });

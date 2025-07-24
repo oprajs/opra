@@ -9,7 +9,7 @@ import {
   CustomersController,
 } from './_support/test-api/index.js';
 
-describe('ExpressAdapter', () => {
+describe('http:ExpressAdapter', () => {
   let document: ApiDocument;
   let app: Express;
   let adapter: ExpressAdapter;

@@ -10,7 +10,7 @@ import {
 } from '@opra/common';
 import { expect } from 'expect';
 
-describe('DataTypeFactory - MappedType (Class)', () => {
+describe('common:DataTypeFactory - MappedType (Class)', () => {
   it('Should PickType(class, keys) create a new MappedType class', async () => {
     @ComplexType({
       additionalFields: true,

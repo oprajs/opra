@@ -1,7 +1,7 @@
 import { ApiDocumentFactory, SimpleType, StringType } from '@opra/common';
 import { expect } from 'expect';
 
-describe('DataTypeFactory - SimpleType (Class)', () => {
+describe('common:DataTypeFactory - SimpleType (Class)', () => {
   it('Should import SimpleType', async () => {
     @SimpleType()
     class Type1 {}

@@ -15,7 +15,7 @@ export enum GenderEnum {
 
 EnumType(GenderEnum, { name: 'GenderEnum' });
 
-describe('Augmentation (DataTypeFactory)', () => {
+describe('sqb:Augmentation (DataTypeFactory)', () => {
   it('Should copy data type info (enum)', async () => {
     @ComplexType()
     class Type1 {
@@ -111,7 +111,7 @@ describe('Augmentation (DataTypeFactory)', () => {
     expect(t).toBeDefined();
     expect(t.kind).toStrictEqual('ComplexType');
     expect(t.findField('field1')).toBeDefined();
-    expect(t.getField('field1')?.type.name).toStrictEqual('datestring');
+    expect(t.getField('field1')?.type.name).toStrictEqual('date');
     expect(t.findField('field2')).toBeDefined();
     expect(t.getField('field2')?.type.name).toStrictEqual('date');
     expect(t.findField('field3')).toBeDefined();
@@ -140,7 +140,7 @@ describe('Augmentation (DataTypeFactory)', () => {
     expect(t).toBeDefined();
     expect(t.kind).toStrictEqual('ComplexType');
     expect(t.findField('field1')).toBeDefined();
-    expect(t.getField('field1')?.type.name).toStrictEqual('datetimestring');
+    expect(t.getField('field1')?.type.name).toStrictEqual('datetime');
     expect(t.findField('field2')).toBeDefined();
     expect(t.getField('field2')?.type.name).toStrictEqual('datetime');
     expect(t.findField('field3')).toBeDefined();
@@ -169,11 +169,11 @@ describe('Augmentation (DataTypeFactory)', () => {
     expect(t).toBeDefined();
     expect(t.kind).toStrictEqual('ComplexType');
     expect(t.findField('field1')).toBeDefined();
-    expect(t.getField('field1')?.type.name).toStrictEqual('datetimestring');
+    expect(t.getField('field1')?.type.name).toStrictEqual('datetimetz');
     expect(t.findField('field2')).toBeDefined();
-    expect(t.getField('field2')?.type.name).toStrictEqual('datetimestring');
+    expect(t.getField('field2')?.type.name).toStrictEqual('datetimetz');
     expect(t.findField('field3')).toBeDefined();
-    expect(t.getField('field3')?.type.name).toStrictEqual('datetime');
+    expect(t.getField('field3')?.type.name).toStrictEqual('datetimetz');
   });
 
   it('Should copy data type info from Association', async () => {

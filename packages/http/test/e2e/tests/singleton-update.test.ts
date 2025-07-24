@@ -3,7 +3,7 @@ import { HttpStatusCode } from '@opra/common';
 import { OpraTestClient } from '@opra/testing';
 
 export function singletonUpdateTests(args: { client: OpraTestClient }) {
-  describe('Singleton:update', () => {
+  describe('http:Singleton:update', () => {
     const generateData = (v?: any) => ({
       givenName: faker.person.firstName(),
       familyName: faker.person.lastName(),

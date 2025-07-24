@@ -3,7 +3,7 @@ import { expect } from 'expect';
 import { MailConsumer } from '../../_support/test-rpc-api/api/mail-consumer.js';
 import { TestRpcApiDocument } from '../../_support/test-rpc-api/index.js';
 
-describe('RpcController', () => {
+describe('common:RpcController', () => {
   let doc: ApiDocument;
 
   before(async () => {

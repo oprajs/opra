@@ -6,7 +6,7 @@ import { expect } from 'expect';
 import { CustomerApplication } from 'express-sqb';
 import { createContext } from '../_support/create-context.js';
 
-describe('SQBAdapter.parseRequest', () => {
+describe('sqb:SQBAdapter.parseRequest', () => {
   let app: CustomerApplication;
   let document: ApiDocument;
 

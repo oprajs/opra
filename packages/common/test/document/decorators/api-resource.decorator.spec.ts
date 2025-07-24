@@ -1,7 +1,7 @@
 import { HTTP_CONTROLLER_METADATA, HttpController } from '@opra/common';
 import { expect } from 'expect';
 
-describe('HttpResource decorator', () => {
+describe('common:HttpResource decorator', () => {
   /* ***************************************************** */
   it('Should define Collection resource metadata', async () => {
     const opts: HttpController.Options = {

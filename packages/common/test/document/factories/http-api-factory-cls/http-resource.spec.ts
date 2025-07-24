@@ -2,7 +2,7 @@ import { ApiDocumentFactory, HttpApi, HttpController } from '@opra/common';
 import { Country } from 'customer-mongo/models';
 import { expect } from 'expect';
 
-describe('HttpApiFactory - HttpController (Class)', () => {
+describe('common:HttpApiFactory - HttpController (Class)', () => {
   it('Should import resource class', async () => {
     @HttpController({
       description: 'Country collection',

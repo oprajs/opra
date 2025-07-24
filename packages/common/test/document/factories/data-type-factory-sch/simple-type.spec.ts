@@ -1,7 +1,7 @@
 import { ApiDocumentFactory, OpraSchema } from '@opra/common';
 import { expect } from 'expect';
 
-describe('DataTypeFactory - SimpleType (Schema)', () => {
+describe('common:DataTypeFactory - SimpleType (Schema)', () => {
   it('Should import SimpleType', async () => {
     const type1: OpraSchema.SimpleType = {
       kind: 'SimpleType',

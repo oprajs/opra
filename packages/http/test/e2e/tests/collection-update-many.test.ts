@@ -2,7 +2,7 @@ import { faker } from '@faker-js/faker';
 import { OpraTestClient } from '@opra/testing';
 
 export function collectionUpdateManyTests(args: { client: OpraTestClient }) {
-  describe('Collection:updateMany', () => {
+  describe('http:Collection:updateMany', () => {
     const generateData = (v?: any) => ({
       givenName: faker.person.firstName(),
       familyName: faker.person.lastName(),
