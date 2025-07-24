@@ -1,7 +1,7 @@
 import { HttpOutgoing, NodeOutgoingMessage } from '@opra/http';
 import { expect } from 'expect';
 
-describe('HttpOutgoing', () => {
+describe('http:HttpOutgoing', () => {
   it('Should wrap HttpOutgoingMessage', async () => {
     const msg = HttpOutgoing.from(
       NodeOutgoingMessage.from({

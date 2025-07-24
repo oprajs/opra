@@ -7,7 +7,7 @@ import { CustomerApplication } from 'express-sqb';
 import * as sinon from 'sinon';
 import { createContext } from '../_support/create-context.js';
 
-describe('SqbSingletonService', () => {
+describe('sqb:SqbSingletonService', () => {
   let app: CustomerApplication;
   let service: SqbSingletonService<any>;
   let tempRecord: any;
@@ -41,7 +41,7 @@ describe('SqbSingletonService', () => {
 
   beforeEach(() => (service.id = 1));
 
-  describe('assert()', () => {
+  describe('sqb:assert()', () => {
     it('Should not throw if document exists', async () => {
       const ctx = createContext(app.adapter);
       await service.for(ctx).assert();
@@ -63,7 +63,7 @@ describe('SqbSingletonService', () => {
     });
   });
 
-  describe('findOne()', () => {
+  describe('sqb:findOne()', () => {
     it('Should return single document', async () => {
       const ctx = createContext(app.adapter);
       const result: any = await service.for(ctx).find();
@@ -143,7 +143,7 @@ describe('SqbSingletonService', () => {
     });
   });
 
-  describe('get()', () => {
+  describe('sqb:get()', () => {
     it('Should return single document', async () => {
       const ctx = createContext(app.adapter);
       const result: any = await service.for(ctx).get();
@@ -181,7 +181,7 @@ describe('SqbSingletonService', () => {
     });
   });
 
-  describe('create()', () => {
+  describe('sqb:create()', () => {
     it('Should insert document', async () => {
       service.id = 2;
       const ctx = createContext(app.adapter);
@@ -205,7 +205,7 @@ describe('SqbSingletonService', () => {
     });
   });
 
-  describe('updateOnly()', () => {
+  describe('sqb:updateOnly()', () => {
     it('Should update object in the array field', async () => {
       const ctx = createContext(app.adapter);
       const doc = { uid: faker.string.uuid() };
@@ -241,7 +241,7 @@ describe('SqbSingletonService', () => {
     });
   });
 
-  describe('update()', () => {
+  describe('sqb:update()', () => {
     it('Should update object in the array field', async () => {
       const ctx = createContext(app.adapter);
       const doc = { uid: faker.string.uuid() };
@@ -279,7 +279,7 @@ describe('SqbSingletonService', () => {
     });
   });
 
-  describe('delete()', () => {
+  describe('sqb:delete()', () => {
     it('Should return "0" if parent record not found', async () => {
       service.id = 99;
       const ctx = createContext(app.adapter);

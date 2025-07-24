@@ -3,7 +3,7 @@ import { OpraTestClient } from '@opra/testing';
 import { expect } from 'expect';
 
 export function collectionDeleteManyTests(args: { client: OpraTestClient }) {
-  describe('Collection:deleteMany', () => {
+  describe('http:Collection:deleteMany', () => {
     it('Should delete many instances by filter', async () => {
       /** Total count of records which id<990 */
       let resp = await args.client
@@ -47,6 +47,6 @@ export function collectionDeleteManyTests(args: { client: OpraTestClient }) {
         .getResponse();
       resp.expect.toSuccess().toReturnCollection();
       expect(resp.body.totalMatches).toEqual(0);
-    });
+    }).slow(800);
   });
 }

@@ -1,7 +1,7 @@
 import { ComplexType, DATATYPE_METADATA } from '@opra/common';
 import { expect } from 'expect';
 
-describe('ComplexType() decorator', () => {
+describe('common:ComplexType() decorator', () => {
   it('Should define ComplexType metadata', async () => {
     const opts: ComplexType.Options = {
       description: 'Animal schema',

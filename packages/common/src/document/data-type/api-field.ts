@@ -58,11 +58,6 @@ export const ApiField = function (this: ApiField | void, ...args: any[]) {
     );
   }
   _this.origin = origin;
-  _this.scopePattern = initArgs.scopePattern
-    ? Array.isArray(initArgs.scopePattern)
-      ? initArgs.scopePattern
-      : [initArgs.scopePattern]
-    : undefined;
   _this.type = initArgs.type || owner.node.getDataType('any');
   _this.description = initArgs.description;
   _this.isArray = initArgs.isArray;
@@ -78,6 +73,17 @@ export const ApiField = function (this: ApiField | void, ...args: any[]) {
   _this.writeonly = initArgs.writeonly;
   _this.examples = initArgs.examples;
   _this.override = initArgs.override;
+  _this.scopePattern = initArgs.scopePattern
+    ? Array.isArray(initArgs.scopePattern)
+      ? initArgs.scopePattern
+      : [initArgs.scopePattern]
+    : undefined;
+  _this.convertToNative =
+    initArgs.convertToNative ??
+    (_this.type.kind === 'SimpleType' &&
+      typeof initArgs.designType === 'function' &&
+      initArgs.designType !== Object);
+  _this.override = initArgs.override;
 } as ApiFieldConstructor;
 
 /**
@@ -90,6 +96,7 @@ class ApiFieldClass extends DocumentElement {
   declare readonly owner: ComplexType | MappedType | MixinType;
   readonly origin?: ComplexType | MappedType | MixinType;
   declare readonly scopePattern?: (string | RegExp)[];
+  declare readonly convertToNative?: boolean;
   declare readonly name: string;
   declare readonly type: DataType;
   declare readonly description?: string;
@@ -186,10 +193,12 @@ export namespace ApiField {
       OpraSchema.Field
     > {
     scopePattern?: (string | RegExp) | (string | RegExp)[];
+    convertToNative?: boolean;
     override?: StrictOmit<
       Metadata,
       'override' | 'type' | 'isArray' | 'isNestedEntity'
     >[];
+    designType?: Function;
   }
 
   export interface Options
@@ -202,6 +211,11 @@ export namespace ApiField {
      * - If an array is provided, each element within the array is used as a valid scope pattern.
      */
     scopePattern?: (string | RegExp) | (string | RegExp)[];
+    /**
+     * Convert values to native objects. If enabled, some simple types
+     * like "date" will be decoded as Date instances
+     */
+    convertToNative?: boolean;
   }
 
   export interface InitArguments

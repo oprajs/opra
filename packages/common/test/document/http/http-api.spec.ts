@@ -2,7 +2,7 @@ import { ApiDocument, HttpApi, HttpController, RpcApi } from '@opra/common';
 import { expect } from 'expect';
 import { TestHttpApiDocument } from '../../_support/test-http-api/index.js';
 
-describe('HttpApi', () => {
+describe('common:HttpApi', () => {
   let doc: ApiDocument;
 
   before(async () => {

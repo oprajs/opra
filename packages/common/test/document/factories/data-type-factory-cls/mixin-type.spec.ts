@@ -6,7 +6,7 @@ import {
 } from '@opra/common';
 import { expect } from 'expect';
 
-describe('DataTypeFactory - MixinType (Class)', () => {
+describe('common:DataTypeFactory - MixinType (Class)', () => {
   it('Should import MixinType', async () => {
     @ComplexType()
     class Type1 {

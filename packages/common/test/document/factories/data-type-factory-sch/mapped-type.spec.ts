@@ -1,7 +1,7 @@
 import { ApiDocumentFactory, OpraSchema } from '@opra/common';
 import { expect } from 'expect';
 
-describe('DataTypeFactory - MappedType (Schema)', () => {
+describe('common:DataTypeFactory - MappedType (Schema)', () => {
   it('Should MappedType(pick) extend given ComplexType and pick given fields only', async () => {
     const type1: OpraSchema.ComplexType = {
       kind: 'ComplexType',

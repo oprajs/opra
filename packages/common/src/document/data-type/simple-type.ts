@@ -6,7 +6,7 @@ import { isAny, type Validator } from 'valgen';
 import { cloneObject } from '../../helpers/index.js';
 import { OpraSchema } from '../../schema/index.js';
 import type { ApiDocument } from '../api-document.js';
-import type { DocumentElement } from '../common/document-element';
+import type { DocumentElement } from '../common/document-element.js';
 import { DocumentInitContext } from '../common/document-init-context.js';
 import { DECORATOR } from '../constants.js';
 import {
@@ -41,6 +41,7 @@ export namespace SimpleType {
         base?: SimpleType;
         ctor?: Type;
         properties?: object;
+        convertToNative?: boolean;
         generateDecoder?: SimpleType.ValidatorGenerator;
         generateEncoder?: SimpleType.ValidatorGenerator;
       },
@@ -145,6 +146,11 @@ abstract class SimpleTypeClass extends DataType {
   protected _generateDecoder?: SimpleType.ValidatorGenerator;
   protected _generateEncoder?: SimpleType.ValidatorGenerator;
   properties?: any;
+
+  extend<T>(properties: Partial<T>): SimpleType & T {
+    Object.setPrototypeOf(properties, this);
+    return properties as any;
+  }
 
   extendsFrom(baseType: DataType | string | Type | object): boolean {
     if (!(baseType instanceof DataType))

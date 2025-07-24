@@ -3,7 +3,7 @@ import assert from 'assert';
 import { Country } from 'customer-mongo/models';
 import { expect } from 'expect';
 
-describe('HttpApiFactory - HttpOperation (Schema)', () => {
+describe('common:HttpApiFactory - HttpOperation (Schema)', () => {
   it('Should import resource schema', async () => {
     const countries: OpraSchema.HttpController = {
       kind: 'HttpController',

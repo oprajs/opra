@@ -3,7 +3,7 @@ import { DATATYPE_METADATA, SimpleType } from '@opra/common';
 import { expect } from 'expect';
 import { StringType } from '../../../src/document/data-type/primitive-types/index.js';
 
-describe('SimpleType() decorator', () => {
+describe('common:SimpleType() decorator', () => {
   it('Should define SimpleType metadata', async () => {
     const opts: SimpleType.Options = {
       name: 'customstring',

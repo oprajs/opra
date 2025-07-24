@@ -12,7 +12,7 @@ import {
 } from '../src/index.js';
 import { createMockServer, MockServer } from './_support/create-mock-server.js';
 
-describe('OpraClient', () => {
+describe('client:OpraClient', () => {
   let app: MockServer;
   let client: OpraHttpClient;
 

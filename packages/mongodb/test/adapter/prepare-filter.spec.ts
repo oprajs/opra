@@ -4,7 +4,7 @@ import { expect } from 'expect';
 import { CustomerApplication } from 'express-mongo';
 import { Validator } from 'valgen';
 
-describe('MongoAdapter.prepareFilter', () => {
+describe('mongodb:MongoAdapter.prepareFilter', () => {
   let document: ApiDocument;
   let customers: HttpController;
   let filterDecoder: Validator;
@@ -17,7 +17,7 @@ describe('MongoAdapter.prepareFilter', () => {
     filterDecoder = filterParam!.type!.generateCodec('decode');
   });
 
-  describe('Convert Ast to mongo filter', () => {
+  describe('mongodb:Convert Ast to mongo filter', () => {
     it('Should convert ComparisonExpression (=)', async () => {
       let out = MongoAdapter.prepareFilter(filterDecoder('givenName="Demons"'));
       expect(out).toStrictEqual({ givenName: 'Demons' });
@@ -180,7 +180,7 @@ describe('MongoAdapter.prepareFilter', () => {
     });
   });
 
-  describe('Merge multiple filters', () => {
+  describe('mongodb:Merge multiple filters', () => {
     it('Should merge fields', async () => {
       const out = MongoAdapter.prepareFilter([{ a: 1 }, { b: 2 }]);
       expect(out).toStrictEqual({

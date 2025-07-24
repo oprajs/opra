@@ -5,31 +5,8 @@ import { ApiDocument } from '../api-document.js';
 import { DocumentInitContext } from '../common/document-init-context.js';
 import { OpraDocumentError } from '../common/opra-document-error.js';
 import { BUILTIN, CLASS_NAME_PATTERN, kCtorMap } from '../constants.js';
-import {
-  Base64Type,
-  DateStringType,
-  DateTimeStringType,
-  DateTimeType,
-  DateType,
-  EmailType,
-  FieldPathType,
-  FilterType,
-  ObjectIdType,
-  OperationResult,
-  TimeType,
-  UrlType,
-  UuidType,
-} from '../data-type/extended-types/index.js';
-import {
-  AnyType,
-  BigintType,
-  BooleanType,
-  IntegerType,
-  NullType,
-  NumberType,
-  ObjectType,
-  StringType,
-} from '../data-type/primitive-types/index.js';
+import * as extendedTypes from '../data-type/extended-types/index.js';
+import * as primitiveTypes from '../data-type/primitive-types/index.js';
 import { DataTypeFactory } from './data-type.factory.js';
 import { HttpApiFactory } from './http-api.factory.js';
 import { RpcApiFactory } from './rpc-api.factory.js';
@@ -219,29 +196,8 @@ export class ApiDocumentFactory {
         },
       },
       types: [
-        // Primitive types
-        AnyType,
-        BigintType,
-        BooleanType,
-        IntegerType,
-        NullType,
-        NumberType,
-        ObjectType,
-        StringType,
-        // Extended types
-        Base64Type,
-        DateType,
-        DateStringType,
-        DateTimeType,
-        DateTimeStringType,
-        EmailType,
-        FieldPathType,
-        FilterType,
-        ObjectIdType,
-        OperationResult,
-        TimeType,
-        UrlType,
-        UuidType,
+        ...Object.values(primitiveTypes),
+        ...Object.values(extendedTypes),
       ],
     };
     const document = new ApiDocument();

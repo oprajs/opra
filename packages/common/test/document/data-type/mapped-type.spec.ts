@@ -11,7 +11,7 @@ import { Country } from 'customer-mongo/models';
 import { expect } from 'expect';
 import { TestHttpApiDocument } from '../../_support/test-http-api/index.js';
 
-describe('MappedType', () => {
+describe('common:MappedType', () => {
   let doc: ApiDocument;
 
   before(async () => {

@@ -6,7 +6,7 @@ import { Kafka } from 'kafkajs';
 import * as sinon from 'sinon';
 import { TestRpcApiDocument } from './_support/test-api/index.js';
 
-describe('KafkaAdapter', () => {
+describe('kafka:KafkaAdapter', () => {
   let document: ApiDocument;
   let adapter: KafkaAdapter;
   const logger: ILogger = {

@@ -9,7 +9,7 @@ import {
 import { Customer } from 'customer-mongo/models';
 import { expect } from 'expect';
 
-describe('HttpOperation.Entity.* decorators', () => {
+describe('common:HttpOperation.Entity.* decorators', () => {
   const queryParams = {
     limit: {
       location: 'query',
@@ -62,7 +62,7 @@ describe('HttpOperation.Entity.* decorators', () => {
   };
 
   /* ***************************************************** */
-  describe('"Create" decorator', () => {
+  describe('common:"Create" decorator', () => {
     it('Should define Create operation metadata', async () => {
       class CustomerResource {
         @HttpOperation.Entity.Create({
@@ -137,7 +137,7 @@ describe('HttpOperation.Entity.* decorators', () => {
   });
 
   /* ***************************************************** */
-  describe('"Delete" decorator', () => {
+  describe('common:"Delete" decorator', () => {
     it('Should define Delete operation metadata', async () => {
       class CustomerResource {
         @(HttpOperation.Entity.Delete({
@@ -189,7 +189,7 @@ describe('HttpOperation.Entity.* decorators', () => {
   });
 
   /* ***************************************************** */
-  describe('"DeleteMany" decorator', () => {
+  describe('common:"DeleteMany" decorator', () => {
     it('Should define DeleteMany operation metadata', async () => {
       class CustomerResource {
         @HttpOperation.Entity.DeleteMany({
@@ -275,7 +275,7 @@ describe('HttpOperation.Entity.* decorators', () => {
   });
 
   /* ***************************************************** */
-  describe('"FindMany" decorator', () => {
+  describe('common:"FindMany" decorator', () => {
     it('Should define FindMany operation metadata', async () => {
       class CustomerResource {
         @(HttpOperation.Entity.FindMany({
@@ -502,7 +502,7 @@ describe('HttpOperation.Entity.* decorators', () => {
   });
 
   /* ***************************************************** */
-  describe('"Get" decorator', () => {
+  describe('common:"Get" decorator', () => {
     it('Should define Get operation metadata', async () => {
       class CustomerResource {
         @(HttpOperation.Entity.Get({
@@ -571,7 +571,7 @@ describe('HttpOperation.Entity.* decorators', () => {
   });
 
   /* ***************************************************** */
-  describe('"Replace" decorator', () => {
+  describe('common:"Replace" decorator', () => {
     it('Should define Replace operation metadata', async () => {
       class CustomerResource {
         @(HttpOperation.Entity.Replace({
@@ -640,7 +640,7 @@ describe('HttpOperation.Entity.* decorators', () => {
   });
 
   /* ***************************************************** */
-  describe('"UpdateMany" decorator', () => {
+  describe('common:"UpdateMany" decorator', () => {
     it('Should define UpdateMany operation metadata', async () => {
       class CustomerResource {
         @HttpOperation.Entity.UpdateMany({
@@ -744,7 +744,7 @@ describe('HttpOperation.Entity.* decorators', () => {
   });
 
   /* ***************************************************** */
-  describe('"Update" decorator', () => {
+  describe('common:"Update" decorator', () => {
     it('Should define Update operation metadata', async () => {
       class CustomerResource {
         @(HttpOperation.Entity.Update({

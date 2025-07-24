@@ -1,8 +1,8 @@
 import { ElasticAdapter } from '@opra/elastic';
 import { expect } from 'expect';
 
-describe('ElasticAdapter.prepareFilter', () => {
-  describe('Convert Ast to elastic filter', () => {
+describe('elastic:ElasticAdapter.prepareFilter', () => {
+  describe('elastic:Convert Ast to elastic filter', () => {
     it('Should convert ComparisonExpression (=)', async () => {
       let out = ElasticAdapter.prepareFilter('givenName="Demons"');
       expect(out).toStrictEqual({ match: { givenName: 'Demons' } });
@@ -246,7 +246,7 @@ describe('ElasticAdapter.prepareFilter', () => {
     });
   });
 
-  describe('Merge multiple filters', () => {
+  describe('elastic:Merge multiple filters', () => {
     it('Should merge fields', async () => {
       const out = ElasticAdapter.prepareFilter(['rate=1', 'rate=2']);
       expect(out).toStrictEqual({

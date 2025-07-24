@@ -1,7 +1,7 @@
 import { ElasticAdapter } from '@opra/elastic';
 import { expect } from 'expect';
 
-describe('ElasticAdapter.preparePatch', () => {
+describe('elastic:ElasticAdapter.preparePatch', () => {
   it('Should convert simple values', async () => {
     const o: any = ElasticAdapter.preparePatch({ age: 21 });
     expect(o).toEqual({

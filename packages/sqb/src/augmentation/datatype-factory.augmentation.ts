@@ -58,20 +58,31 @@ const _prepareComplexTypeArgs = (DataTypeFactory as any)
               fieldSchema.type = 'uuid';
             break;
           case SqbDataType.DATE:
-            if (fieldSchema.type === String) fieldSchema.type = 'datestring';
-            else if (hasNoType || fieldSchema.type === Date)
+            if (
+              hasNoType ||
+              fieldSchema.type === String ||
+              fieldSchema.type === Date
+            ) {
               fieldSchema.type = 'date';
+            }
             break;
           case SqbDataType.TIMESTAMP:
-            if (fieldSchema.type === String)
-              fieldSchema.type = 'datetimestring';
-            else if (hasNoType || fieldSchema.type === Date)
+            if (
+              hasNoType ||
+              fieldSchema.type === String ||
+              fieldSchema.type === Date
+            ) {
               fieldSchema.type = 'datetime';
+            }
             break;
           case SqbDataType.TIMESTAMPTZ:
-            if (fieldSchema.type === Date) fieldSchema.type = 'datetime';
-            else if (hasNoType || fieldSchema.type === String)
-              fieldSchema.type = 'datetimestring';
+            if (
+              hasNoType ||
+              fieldSchema.type === String ||
+              fieldSchema.type === Date
+            ) {
+              fieldSchema.type = 'datetimetz';
+            }
             break;
           case SqbDataType.TIME:
             if (hasNoType || fieldSchema.type === String)

@@ -3,7 +3,7 @@ import { Gender } from 'customer-mongo/models';
 import { expect } from 'expect';
 import { TestHttpApiDocument } from '../_support/test-http-api/index.js';
 
-describe('ApiDocument', () => {
+describe('common:ApiDocument', () => {
   let doc: ApiDocument;
 
   before(async () => {

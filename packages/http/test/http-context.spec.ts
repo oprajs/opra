@@ -11,7 +11,7 @@ import { expect } from 'expect';
 import express, { Express } from 'express';
 import { createTestApi } from './_support/test-api/index.js';
 
-describe('HttpContext', () => {
+describe('http:HttpContext', () => {
   let document: ApiDocument;
   let app: Express;
   let adapter: ExpressAdapter;

@@ -48,6 +48,7 @@ export function ApiFieldDecoratorFactory(
     const designType = Reflect.getMetadata('design:type', target, propertyKey);
     const elemMeta: ApiField.Metadata = (metadata.fields[propertyKey] = {
       ...options,
+      designType,
     });
     if (designType === Array) {
       elemMeta.isArray = true;

@@ -3,7 +3,7 @@ import { OpraTestClient } from '@opra/testing';
 import { CustomerApplication } from 'express-mongo';
 import { entityTests } from '../../../http/test/e2e/tests/index.js';
 
-describe('e2e tests', function () {
+describe('mongodb:e2e', function () {
   let app: CustomerApplication;
   let client: OpraTestClient;
   const testArgs: any = {};

@@ -3,7 +3,7 @@ import { HttpStatusCode } from '@opra/common';
 import { OpraTestClient } from '@opra/testing';
 
 export function singletonGetTests(args: { client: OpraTestClient }) {
-  describe('Singleton:get', () => {
+  describe('http:Singleton:get', () => {
     const data = {
       givenName: faker.person.firstName(),
       familyName: faker.person.lastName(),

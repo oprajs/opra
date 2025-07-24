@@ -22,7 +22,7 @@ import {
 
 const kafkaBrokerHost = process.env.KAFKA_BROKER || 'localhost:9092';
 
-describe('OpraKafkaModule - async', () => {
+describe('nestjs-kafka:OpraKafkaModule - async', () => {
   let nestApplication: INestApplication;
   let moduleRef: ModuleRef;
   let adapter: KafkaAdapter;
@@ -140,7 +140,7 @@ describe('OpraKafkaModule - async', () => {
       feedCat: 1,
     });
     expect(CatsService.instanceCounter).toEqual(1);
-  });
+  }).slow(800);
 
   // it('Should call REQUEST scoped api', async () => {
   //   const instanceCounter1 = HttpDogsController.instanceCounter;

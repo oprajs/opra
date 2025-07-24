@@ -1,7 +1,7 @@
 import { translate } from '@opra/common';
 import { expect } from 'expect';
 
-describe('translate()', () => {
+describe('common:translate()', () => {
   it('translate(key)', () => {
     expect(translate('HELLO')).toStrictEqual('$t(HELLO)');
   });

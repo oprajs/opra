@@ -19,7 +19,7 @@ import {
   TestInterceptor,
 } from './_support/test-app/index.js';
 
-describe('OpraModule - sync', () => {
+describe('nestjs-http:OpraModule - sync', () => {
   let nestApplication: INestApplication;
   let moduleRef: ModuleRef;
   let server: Server;
@@ -89,7 +89,7 @@ describe('OpraModule - sync', () => {
     await request(server).get('/api/v1/cats');
     expect(HttpCatsController.instanceCounter).toEqual(1);
     expect(CatsService.instanceCounter).toEqual(1);
-  });
+  }).slow(800);
 
   it('Should call REQUEST scoped api', async () => {
     const instanceCounter1 = HttpDogsController.instanceCounter;

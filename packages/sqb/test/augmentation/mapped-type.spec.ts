@@ -10,7 +10,7 @@ import {
 import { Column, Entity } from '@sqb/connect';
 import { expect } from 'expect';
 
-describe('MappedType augmentation', () => {
+describe('sqb:MappedType augmentation', () => {
   it('Should inject into OmitType() decorator', async () => {
     @ComplexType()
     class Type1 {

@@ -10,7 +10,7 @@ import {
 import { expect } from 'expect';
 import { TestHttpApiDocument } from '../../_support/test-http-api/index.js';
 
-describe('UnionType', () => {
+describe('common:UnionType', () => {
   let doc: ApiDocument;
 
   before(async () => {

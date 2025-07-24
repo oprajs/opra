@@ -7,7 +7,7 @@ import {
 } from '@opra/common';
 import { expect } from 'expect';
 
-describe('DataTypeFactory - ComplexType (Class)', () => {
+describe('common:DataTypeFactory - ComplexType (Class)', () => {
   it('Should import ComplexType', async () => {
     @ComplexType({
       description: 'test type',

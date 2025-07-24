@@ -19,7 +19,7 @@ import {
   TestGlobalGuard,
 } from './_support/test-app/index.js';
 
-describe('OpraRabbitmqModule - sync', () => {
+describe('nestjs-rabbitmq:OpraRabbitmqModule - sync', () => {
   let nestApplication: INestApplication;
   let moduleRef: ModuleRef;
   let adapter: RabbitmqAdapter;
@@ -137,7 +137,7 @@ describe('OpraRabbitmqModule - sync', () => {
       feedCat: 1,
     });
     expect(CatsService.instanceCounter).toEqual(1);
-  });
+  }).slow(800);
 
   // it('Should call REQUEST scoped api', async () => {
   //   const key = faker.string.alpha(5);

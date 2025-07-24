@@ -112,6 +112,7 @@ abstract class DataTypeClass extends DocumentElement {
   abstract generateCodec(
     codec: 'encode' | 'decode',
     options?: DataType.GenerateCodecOptions,
+    properties?: any,
   ): Validator;
 
   get embedded(): any {

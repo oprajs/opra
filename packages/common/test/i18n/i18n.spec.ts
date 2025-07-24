@@ -4,7 +4,7 @@ import { expect } from 'expect';
 
 const dirname = path.dirname(getStackFileName());
 
-describe('I18n', () => {
+describe('common:I18n', () => {
   before(async () => {
     await i18n.init({
       defaultNS: 'translate',

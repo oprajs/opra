@@ -289,6 +289,7 @@ export class DataTypeFactory {
    * @param context
    * @param owner
    * @param thunk
+   * @param checkCircularDeps
    * @protected
    */
   protected static async _importDataTypeArgs(

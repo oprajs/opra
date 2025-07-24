@@ -427,10 +427,16 @@ abstract class ComplexTypeBaseClass extends DataType {
     field: ApiField,
     context: GenerateCodecContext,
   ): Validator {
-    let fn = field.type.generateCodec(codec, {
-      ...context,
-      level: context.level! + 1,
-    } as GenerateCodecContext);
+    let fn = field.type.generateCodec(
+      codec,
+      {
+        ...context,
+        level: context.level! + 1,
+      } as GenerateCodecContext,
+      {
+        convertToNative: field.convertToNative,
+      },
+    );
     if (field.fixed) fn = vg.isEqual(field.fixed);
     if (field.isArray) fn = vg.isArray(fn);
     return fn;

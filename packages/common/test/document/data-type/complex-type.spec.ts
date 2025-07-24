@@ -2,7 +2,7 @@ import { ApiDocument, parseFieldsProjection } from '@opra/common';
 import { expect } from 'expect';
 import { TestHttpApiDocument } from '../../_support/test-http-api/index.js';
 
-describe('ComplexType', () => {
+describe('common:ComplexType', () => {
   let doc: ApiDocument;
 
   before(async () => {
@@ -142,6 +142,8 @@ describe('ComplexType', () => {
         _id: 'optional',
         deleted: 'optional',
         createdAt: 'optional',
+        date2: 'optional',
+        date3: 'optional',
         updatedAt: 'optional',
         givenName: 'optional',
         familyName: 'optional',
@@ -173,6 +175,8 @@ describe('ComplexType', () => {
         deleted: 'optional',
         createdAt: 'optional',
         updatedAt: 'optional',
+        date2: 'optional',
+        date3: 'optional',
         givenName: 'optional',
         familyName: 'optional',
         gender: 'optional',
@@ -234,6 +238,35 @@ describe('ComplexType', () => {
       expect(x.largeContent(1)).toStrictEqual('1');
       expect(x.text(1)).toStrictEqual('1');
       expect(x.rank(1)).toStrictEqual(1);
+    });
+
+    it('Should generate decoder', async () => {
+      const dt = doc.node.getComplexType('Customer');
+      const fn = dt.generateCodec('decode', {
+        projection: ['+address'],
+      });
+      const x = fn({
+        givenName: 'John',
+        familyName: 'Doe',
+        gender: 'M',
+        birthDate: '1980-03-22',
+        date2: '1980-03-22 09:21:48',
+        date3: '1980-03-22',
+        uid: '1234567890',
+        active: true,
+        countryCode: 'US',
+        rate: '100',
+        address: {
+          street: '123 Main St',
+        },
+      });
+      expect(x).toBeDefined();
+      expect(x.givenName).toStrictEqual('John');
+      expect(x.birthDate).toStrictEqual(new Date('1980-03-22T00:00:00'));
+      expect(x.date2).toStrictEqual('1980-03-22 09:21:48');
+      expect(x.date3).toStrictEqual(new Date('1980-03-22T00:00:00'));
+      expect(x.rate).toStrictEqual(100);
+      expect(x.address).toEqual({ street: '123 Main St' });
     });
   });
 });

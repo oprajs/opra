@@ -22,7 +22,7 @@ import {
 
 const kafkaBrokerHost = process.env.KAFKA_BROKER || 'localhost:9092';
 
-describe('OpraKafkaModule - sync', () => {
+describe('nestjs-kafka:OpraKafkaModule - sync', () => {
   let nestApplication: INestApplication;
   let moduleRef: ModuleRef;
   let adapter: KafkaAdapter;
@@ -138,7 +138,7 @@ describe('OpraKafkaModule - sync', () => {
       feedCat: 1,
     });
     expect(CatsService.instanceCounter).toEqual(1);
-  });
+  }).slow(800);
 
   // it('Should call REQUEST scoped api', async () => {
   //   const key = faker.string.alpha(5);
@@ -207,4 +207,4 @@ describe('OpraKafkaModule - sync', () => {
   //   expect(r.status).toStrictEqual(200);
   //   expect(TestGlobalGuard.publicCounter).toEqual(publicCounter + 1);
   // });
-});
+}).slow(500);

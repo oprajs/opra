@@ -1,7 +1,7 @@
 import { ApiDocumentFactory, MixinType, OpraSchema } from '@opra/common';
 import { expect } from 'expect';
 
-describe('DataTypeFactory - MixinType (Schema)', () => {
+describe('common:DataTypeFactory - MixinType (Schema)', () => {
   it('Should import MixinType', async () => {
     const type1: OpraSchema.ComplexType = {
       kind: 'ComplexType',

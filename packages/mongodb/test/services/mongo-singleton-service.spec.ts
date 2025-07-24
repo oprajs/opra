@@ -6,7 +6,7 @@ import { CustomerApplication } from 'express-mongo';
 import * as sinon from 'sinon';
 import { createContext } from '../_support/create-context.js';
 
-describe('MongoSingletonService', () => {
+describe('mongodb:MongoSingletonService', () => {
   let app: CustomerApplication;
   let service: MongoSingletonService<any>;
   let tempRecord: any;
@@ -40,7 +40,7 @@ describe('MongoSingletonService', () => {
   afterEach(() => sinon.restore());
   beforeEach(() => (service._id = 1));
 
-  describe('assert()', () => {
+  describe('mongodb:assert()', () => {
     it('Should not throw if document exists', async () => {
       const ctx = createContext(app.adapter);
       await service.for(ctx).assert();
@@ -62,7 +62,7 @@ describe('MongoSingletonService', () => {
     });
   });
 
-  describe('findOne()', () => {
+  describe('mongodb:findOne()', () => {
     it('Should return single document', async () => {
       const ctx = createContext(app.adapter);
       const result: any = await service.for(ctx).find();
@@ -142,7 +142,7 @@ describe('MongoSingletonService', () => {
     });
   });
 
-  describe('get()', () => {
+  describe('mongodb:get()', () => {
     it('Should return single document', async () => {
       const ctx = createContext(app.adapter);
       const result: any = await service.for(ctx).get();
@@ -180,7 +180,7 @@ describe('MongoSingletonService', () => {
     });
   });
 
-  describe('create()', () => {
+  describe('mongodb:create()', () => {
     it('Should insert document', async () => {
       service._id = 2;
       const ctx = createContext(app.adapter);
@@ -204,7 +204,7 @@ describe('MongoSingletonService', () => {
     });
   });
 
-  describe('updateOnly()', () => {
+  describe('mongodb:updateOnly()', () => {
     it('Should update object in the array field', async () => {
       const ctx = createContext(app.adapter);
       const doc = { uid: faker.string.uuid() };
@@ -240,7 +240,7 @@ describe('MongoSingletonService', () => {
     });
   });
 
-  describe('update()', () => {
+  describe('mongodb:update()', () => {
     it('Should update object in the array field', async () => {
       const ctx = createContext(app.adapter);
       const doc = { uid: faker.string.uuid() };
@@ -278,7 +278,7 @@ describe('MongoSingletonService', () => {
     });
   });
 
-  describe('delete()', () => {
+  describe('mongodb:delete()', () => {
     it('Should return "0" if parent record not found', async () => {
       service._id = 99;
       const ctx = createContext(app.adapter);

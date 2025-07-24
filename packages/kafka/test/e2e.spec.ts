@@ -10,7 +10,7 @@ import { waitForMessage } from './_support/wait-for-message.js';
 
 const kafkaBrokerHost = process.env.KAFKA_BROKER || 'localhost:9092';
 
-describe('e2e', () => {
+describe('kafka:e2e', () => {
   let document: ApiDocument;
   let adapter: KafkaAdapter;
   let producer: Producer;
@@ -112,7 +112,7 @@ describe('e2e', () => {
       smsChannel1: 0,
       smsChannel2: 0,
     });
-  });
+  }).slow(800);
 
   it('Should listen regexp channel', async () => {
     const key = faker.string.alpha(5);
@@ -152,8 +152,7 @@ describe('e2e', () => {
       smsChannel1: 0,
       smsChannel2: 1,
     });
-  });
-
+  }).slow(800);
   it('Should receive message from same groupId', async () => {
     const key = faker.string.alpha(5);
     const payload = {
@@ -196,5 +195,5 @@ describe('e2e', () => {
       smsChannel1: 1,
       smsChannel2: 1,
     });
-  });
+  }).slow(800);
 });

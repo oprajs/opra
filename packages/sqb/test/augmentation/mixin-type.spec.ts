@@ -9,7 +9,7 @@ import {
 import { Column, Entity } from '@sqb/connect';
 import { expect } from 'expect';
 
-describe('MixinType augmentation', () => {
+describe('sqb:MixinType augmentation', () => {
   it('Should inject into MixinType() decorator', async () => {
     @ComplexType()
     class Type1 {

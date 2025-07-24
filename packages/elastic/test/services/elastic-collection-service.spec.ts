@@ -7,7 +7,7 @@ import * as sinon from 'sinon';
 import { ElasticCollectionService } from '../../src/index.js';
 import { createContext } from '../_support/create-context.js';
 
-describe('ElasticCollectionService', () => {
+describe('elastic:ElasticCollectionService', () => {
   let app: CustomerApplication;
   let service: ElasticCollectionService<any>;
   const indexName = 'collection-test';
@@ -53,7 +53,7 @@ describe('ElasticCollectionService', () => {
   after(async () => app?.close());
   afterEach(() => sinon.restore());
 
-  describe('assert()', () => {
+  describe('elastic:assert()', () => {
     it('Should not throw if document exists', async () => {
       const ctx = createContext(app.adapter);
       await service.for(ctx).assert('1');
@@ -76,7 +76,7 @@ describe('ElasticCollectionService', () => {
     });
   });
 
-  describe('count()', () => {
+  describe('elastic:count()', () => {
     it('Should count number of documents', async () => {
       const ctx = createContext(app.adapter);
       const result = await service.for(ctx).count();
@@ -107,7 +107,7 @@ describe('ElasticCollectionService', () => {
     });
   });
 
-  describe('findById()', () => {
+  describe('elastic:findById()', () => {
     it('Should return single object', async () => {
       const ctx = createContext(app.adapter);
       const result: any = await service.for(ctx).findById('1');
@@ -150,7 +150,7 @@ describe('ElasticCollectionService', () => {
     });
   });
 
-  describe('findOne()', () => {
+  describe('elastic:findOne()', () => {
     it('Should return single document', async () => {
       const ctx = createContext(app.adapter);
       const result: any = await service.for(ctx).findOne();
@@ -252,7 +252,7 @@ describe('ElasticCollectionService', () => {
     });
   });
 
-  describe('findMany()', () => {
+  describe('elastic:findMany()', () => {
     it('Should return documents', async () => {
       const ctx = createContext(app.adapter);
       const result: any = await service.for(ctx).findMany();
@@ -371,7 +371,7 @@ describe('ElasticCollectionService', () => {
     });
   });
 
-  describe('findManyWithCount()', () => {
+  describe('elastic:findManyWithCount()', () => {
     it('Should count total matches', async () => {
       const ctx = createContext(app.adapter);
       const result = await service.for(ctx).findManyWithCount({
@@ -397,7 +397,7 @@ describe('ElasticCollectionService', () => {
     });
   });
 
-  describe('get()', () => {
+  describe('elastic:get()', () => {
     it('Should return single document', async () => {
       const ctx = createContext(app.adapter);
       const result: any = await service.for(ctx).get('1');
@@ -434,7 +434,7 @@ describe('ElasticCollectionService', () => {
     });
   });
 
-  describe('create()', () => {
+  describe('elastic:create()', () => {
     it('Should insert document', async () => {
       const ctx = createContext(app.adapter);
       const doc = { _id: '100', uid: faker.string.uuid() };
@@ -456,7 +456,7 @@ describe('ElasticCollectionService', () => {
     });
   });
 
-  describe('update()', () => {
+  describe('elastic:update()', () => {
     beforeEach(() => app.dbClient.indices.refresh({ index: indexName }));
 
     it('Should update object in the array field', async () => {
@@ -496,7 +496,7 @@ describe('ElasticCollectionService', () => {
     });
   });
 
-  describe('updateMany()', () => {
+  describe('elastic:updateMany()', () => {
     beforeEach(() => app.dbClient.indices.refresh({ index: indexName }));
 
     it('Should update multiple records', async () => {
@@ -544,7 +544,7 @@ describe('ElasticCollectionService', () => {
     });
   });
 
-  describe('delete()', () => {
+  describe('elastic:delete()', () => {
     beforeEach(() => app.dbClient.indices.refresh({ index: indexName }));
 
     it('Should delete document', async () => {
@@ -587,7 +587,7 @@ describe('ElasticCollectionService', () => {
     });
   });
 
-  describe('deleteMany()', () => {
+  describe('elastic:deleteMany()', () => {
     beforeEach(() => app.dbClient.indices.refresh({ index: indexName }));
 
     it('Should apply filter returned by documentFilter', async () => {
@@ -624,4 +624,4 @@ describe('ElasticCollectionService', () => {
       expect(mockFn.callCount).toEqual(1);
     });
   });
-});
+}).slow(500);

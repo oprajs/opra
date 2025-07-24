@@ -3,7 +3,7 @@ import { MongoPatchGenerator } from '@opra/mongodb';
 import { expect } from 'expect';
 import { CustomerApplication } from 'express-mongo';
 
-describe('MongoPatchGenerator', () => {
+describe('mongodb:MongoPatchGenerator', () => {
   let document: ApiDocument;
   let customerType: ComplexType;
 
@@ -12,7 +12,7 @@ describe('MongoPatchGenerator', () => {
     customerType = document.node.getComplexType('Customer');
   });
 
-  describe('Patch input', () => {
+  describe('mongodb:Patch input', () => {
     it('Should update simple fields', async () => {
       const generator = new MongoPatchGenerator();
       const { update } = generator.generatePatch(customerType, {
@@ -97,7 +97,7 @@ describe('MongoPatchGenerator', () => {
 
   /* ******************************************************************  */
 
-  describe('_$push operator', () => {
+  describe('mongodb:_$push operator', () => {
     it('Should add single value to array field', async () => {
       const generator = new MongoPatchGenerator();
       const { update } = generator.generatePatch(customerType, {
@@ -183,7 +183,7 @@ describe('MongoPatchGenerator', () => {
 
   /* ******************************************************************  */
 
-  describe('$pull operator', () => {
+  describe('mongodb:$pull operator', () => {
     it('Should remove single value from array field', async () => {
       const generator = new MongoPatchGenerator();
       const { update } = generator.generatePatch(customerType, {
