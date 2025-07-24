@@ -52,9 +52,7 @@ describe('common:Builtin type: date', () => {
     expect(decode('2020-01-02 10:30', { coerce: true })).toStrictEqual(
       '2020-01-02',
     );
-    expect(
-      decode('2020-01-02', { coerce: true })
-    ).toStrictEqual('2020-01-02');
+    expect(decode('2020-01-02', { coerce: true })).toStrictEqual('2020-01-02');
   });
 
   it('Should validate "minValue"', async () => {

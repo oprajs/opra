@@ -1,4 +1,4 @@
-import { isDateString, toString, type Validator, vg } from 'valgen';
+import { isDateString, toString, validator, type Validator, vg } from 'valgen';
 import { DECODER, ENCODER } from '../../constants.js';
 import { SimpleType } from '../simple-type.js';
 
@@ -16,28 +16,12 @@ import { SimpleType } from '../simple-type.js';
   .Example('2021-04-18')
   .Example('2021'))
 export class PartialDateType {
-  convertToNative?: boolean;
-
   constructor(attributes?: Partial<PartialDateType>) {
     if (attributes) Object.assign(this, attributes);
   }
 
   protected [DECODER](properties: Partial<this>): Validator {
-    const fn = vg.isDateString({
-      format: [
-        "yyyy-MM-dd'T'HH:mm:ss.SSSSxxx",
-        "yyyy-MM-dd'T'HH:mm:ss.SSSS",
-        "yyyy-MM-dd'T'HH:mm:ssxxx",
-        "yyyy-MM-dd'T'HH:mm:ss",
-        "yyyy-MM-dd'T'HH:mm",
-        "yyyy-MM-dd'T'HH",
-        'yyyy-MM-dd',
-        'yyyy-MM',
-        'yyyy',
-      ],
-      coerce: properties?.convertToNative ?? false,
-      parseISO: false,
-    });
+    const fn = toPartialDate;
     const x: Validator[] = [];
     if (properties.minValue != null) {
       isDateString(properties.minValue);
@@ -51,20 +35,7 @@ export class PartialDateType {
   }
 
   protected [ENCODER](properties: Partial<this>): Validator {
-    const fn = vg.isDateString({
-      format: [
-        "yyyy-MM-dd'T'HH:mm:ss.SSSSxxx",
-        "yyyy-MM-dd'T'HH:mm:ss.SSSS",
-        "yyyy-MM-dd'T'HH:mm:ssxxx",
-        "yyyy-MM-dd'T'HH:mm:ss",
-        "yyyy-MM-dd'T'HH:mm",
-        "yyyy-MM-dd'T'HH",
-        'yyyy-MM-dd',
-        'yyyy-MM',
-        'yyyy',
-      ],
-      coerce: true,
-    });
+    const fn = toPartialDate;
     const x: Validator[] = [];
     if (properties.minValue != null) {
       isDateString(properties.minValue);
@@ -87,3 +58,19 @@ export class PartialDateType {
   })
   maxValue?: string;
 }
+
+const _isDateString = vg.isDateString({
+  precisionMin: 'year',
+});
+
+const toPartialDate = validator((input: string | Date) => {
+  if (input instanceof Date) {
+    let s = _isDateString(input, { coerce: true });
+    if (s.endsWith('Z')) s = s.substring(0, s.length - 1);
+    if (s.endsWith('.000')) s = s.substring(0, s.length - 4);
+    if (s.endsWith(':00')) s = s.substring(0, s.length - 3);
+    if (s.endsWith('00:00')) s = s.substring(0, s.length - 6);
+    return s;
+  }
+  return _isDateString(input, { coerce: false });
+});
