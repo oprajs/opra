@@ -207,4 +207,4 @@ describe('nestjs-kafka:OpraKafkaModule - sync', () => {
   //   expect(r.status).toStrictEqual(200);
   //   expect(TestGlobalGuard.publicCounter).toEqual(publicCounter + 1);
   // });
-}).slow(500);
+});

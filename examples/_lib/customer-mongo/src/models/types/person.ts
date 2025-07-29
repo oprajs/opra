@@ -14,7 +14,9 @@ export class Person {
   @ApiField({ type: Gender })
   declare gender: Gender;
 
-  @ApiField()
+  @ApiField({
+    type: 'date',
+  })
   declare birthDate?: Date;
 
   @ApiField()

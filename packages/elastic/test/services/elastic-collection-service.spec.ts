@@ -624,4 +624,4 @@ describe('elastic:ElasticCollectionService', () => {
       expect(mockFn.callCount).toEqual(1);
     });
   });
-}).slow(500);
+});
