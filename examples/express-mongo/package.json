@@ -1,13 +1,13 @@
 {
   "name": "express-mongo",
   "private": true,
-  "version": "1.19.0",
+  "version": "1.19.1",
   "type": "module",
   "module": "./start.js",
   "dependencies": {
-    "@opra/common": "^1.19.0",
-    "@opra/core": "^1.19.0",
-    "@opra/mongodb": "^1.19.0",
+    "@opra/common": "^1.19.1",
+    "@opra/core": "^1.19.1",
+    "@opra/mongodb": "^1.19.1",
     "express": "^5.1.0",
     "mongodb": "^6.18.0",
     "ts-gems": "^3.11.3"
