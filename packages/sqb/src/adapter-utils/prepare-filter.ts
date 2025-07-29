@@ -1,7 +1,7 @@
 import '@opra/core';
 import { OpraFilter } from '@opra/common';
 import * as sqb from '@sqb/builder';
-import { isDate } from 'valgen';
+import { vg } from 'valgen';
 import type { SQBAdapter } from '../sqb-adapter.js';
 
 /**
@@ -32,18 +32,18 @@ export default function prepareFilter(
   return arr.length > 1 ? sqb.And(...arr) : arr[0];
 }
 
+const _isDate = vg.isDate({ trim: 'day' });
+const _isDateTime = vg.isDate();
+
 function prepareFilterAst(ast?: OpraFilter.Expression): any {
   if (!ast) return;
 
-  if (
-    ast instanceof OpraFilter.QualifiedIdentifier ||
-    ast instanceof OpraFilter.Literal
-  ) {
-    return ast.value;
+  if (ast instanceof OpraFilter.DateLiteral) {
+    return _isDate(ast.value, { coerce: true });
   }
 
-  if (ast instanceof OpraFilter.DateLiteral) {
-    return isDate(ast.value, { coerce: true });
+  if (ast instanceof OpraFilter.DateTimeLiteral) {
+    return _isDateTime(ast.value, { coerce: true });
   }
 
   if (ast instanceof OpraFilter.ArrayExpression) {
@@ -105,6 +105,13 @@ function prepareFilterAst(ast?: OpraFilter.Expression): any {
           `ComparisonExpression operator (${ast.op}) not implemented yet`,
         );
     }
+  }
+
+  if (
+    ast instanceof OpraFilter.QualifiedIdentifier ||
+    ast instanceof OpraFilter.Literal
+  ) {
+    return ast.value;
   }
 
   throw new Error(`${ast.kind} is not implemented yet`);

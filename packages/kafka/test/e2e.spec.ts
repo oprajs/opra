@@ -153,6 +153,7 @@ describe('kafka:e2e', () => {
       smsChannel2: 1,
     });
   }).slow(800);
+
   it('Should receive message from same groupId', async () => {
     const key = faker.string.alpha(5);
     const payload = {

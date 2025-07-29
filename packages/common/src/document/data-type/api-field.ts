@@ -81,6 +81,7 @@ export const ApiField = function (this: ApiField | void, ...args: any[]) {
   _this.convertToNative =
     initArgs.convertToNative ??
     (_this.type.kind === 'SimpleType' &&
+      initArgs.designType !== String &&
       typeof initArgs.designType === 'function' &&
       initArgs.designType !== Object);
   _this.override = initArgs.override;

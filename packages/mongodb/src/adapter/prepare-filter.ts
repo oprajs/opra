@@ -91,13 +91,6 @@ function prepareFilterAst(
 ): any {
   if (!ast) return;
 
-  if (
-    ast instanceof OpraFilter.QualifiedIdentifier ||
-    ast instanceof OpraFilter.Literal
-  ) {
-    return ast.value;
-  }
-
   if (ast instanceof OpraFilter.ArrayExpression) {
     return ast.items.map(x => prepareFilterAst(x, negative));
   }
@@ -212,6 +205,13 @@ function prepareFilterAst(
     throw new Error(
       `Unimplemented ComparisonExpression operation (right side is ${ast.right.kind})`,
     );
+  }
+
+  if (
+    ast instanceof OpraFilter.QualifiedIdentifier ||
+    ast instanceof OpraFilter.Literal
+  ) {
+    return ast.value;
   }
 
   throw new Error(`${ast.kind} is not implemented yet`);

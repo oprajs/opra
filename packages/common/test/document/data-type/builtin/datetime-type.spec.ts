@@ -14,10 +14,10 @@ describe('common:Builtin type: datetime', () => {
     const decode = dt.generateCodec('decode');
 
     expect(decode(new Date('2020-01-02T15:32:18'))).toStrictEqual(
-      new Date('2020-01-02T15:32:18'),
+      '2020-01-02T15:32:18',
     );
     expect(decode(new Date('2020-01-02 15:32:18'))).toStrictEqual(
-      new Date('2020-01-02T15:32:18'),
+      '2020-01-02T15:32:18',
     );
   });
 

@@ -13,12 +13,8 @@ describe('common:Builtin type: date', () => {
     const dt = doc.node.getSimpleType('date');
     const decode = dt.generateCodec('decode');
 
-    expect(decode(new Date('2020-01-02'))).toStrictEqual(
-      new Date('2020-01-02T00:00:00'),
-    );
-    expect(decode(new Date('2020-01-02 12:43'))).toStrictEqual(
-      new Date('2020-01-02T00:00:00'),
-    );
+    expect(decode(new Date('2020-01-02'))).toStrictEqual('2020-01-02');
+    expect(decode(new Date('2020-01-02 12:43'))).toStrictEqual('2020-01-02');
   });
 
   it('Should generate decoder with convertToNative=true', async () => {

@@ -60,7 +60,7 @@ describe('sqb:SQBAdapter.prepareFilter', () => {
     out = SQBAdapter.prepareFilter(
       filterDecoder('birthDate="2020-06-11T12:30:15"'),
     );
-    expect(out).toStrictEqual(Eq('birthDate', new Date('2020-06-11T12:30:15')));
+    expect(out).toStrictEqual(Eq('birthDate', new Date('2020-06-11T00:00:00')));
   });
 
   it('Should convert ComparisonExpression (!=)', async () => {

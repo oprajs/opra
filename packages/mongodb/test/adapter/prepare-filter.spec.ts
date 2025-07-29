@@ -30,7 +30,7 @@ describe('mongodb:MongoAdapter.prepareFilter', () => {
       out = MongoAdapter.prepareFilter(
         filterDecoder('birthDate="2020-06-11T12:30:15"')!,
       );
-      expect(out).toStrictEqual({ birthDate: new Date('2020-06-11T12:30:15') });
+      expect(out).toStrictEqual({ birthDate: '2020-06-11' });
       out = MongoAdapter.prepareFilter(filterDecoder('deleted=null')!);
       expect(out).toStrictEqual({
         $or: [{ deleted: null }, { deleted: { $exists: false } }],

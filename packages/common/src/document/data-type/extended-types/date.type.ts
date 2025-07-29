@@ -1,9 +1,13 @@
-import { isDateString, toString, type Validator, vg } from 'valgen';
+import { type Validator, vg } from 'valgen';
 import { DECODER, ENCODER } from '../../constants.js';
 import { SimpleType } from '../simple-type.js';
 
 const _isDateString = vg.isDateString({
   precisionMin: 'day',
+  trim: 'day',
+  coerce: true,
+});
+const _isDate = vg.isDate({
   trim: 'day',
   coerce: true,
 });
@@ -24,35 +28,32 @@ export class DateType {
   }
 
   protected [DECODER](properties: Partial<this>): Validator {
-    const fn = vg.isDate({
-      trim: 'day',
-      coerce: properties?.convertToNative,
-    });
-    const x: Validator[] = [];
+    let fn: Validator;
+    if (properties.convertToNative) {
+      fn = _isDate;
+    } else {
+      fn = _isDateString;
+    }
+    const x: Validator[] = [fn];
     if (properties.minValue != null) {
-      _isDateString(properties.minValue);
-      x.push(toString, vg.isGte(properties.minValue));
+      x.push(vg.isGte(fn(properties.minValue)));
     }
     if (properties.maxValue != null) {
-      _isDateString(properties.maxValue);
-      x.push(toString, vg.isLte(properties.maxValue));
+      x.push(vg.isLte(fn(properties.maxValue)));
     }
-    return x.length > 0 ? vg.pipe([fn, ...x], { returnIndex: 0 }) : fn;
+    return x.length > 0 ? vg.pipe(x, { returnIndex: 0 }) : fn;
   }
 
   protected [ENCODER](properties: Partial<this>): Validator {
-    const x: Validator[] = [];
+    const fn: Validator = _isDateString;
+    const x: Validator[] = [fn];
     if (properties.minValue != null) {
-      isDateString(properties.minValue);
-      x.push(vg.isGte(properties.minValue));
+      x.push(vg.isGte(fn(properties.minValue)));
     }
     if (properties.maxValue != null) {
-      isDateString(properties.maxValue);
-      x.push(vg.isLte(properties.maxValue));
+      x.push(vg.isLte(fn(properties.maxValue)));
     }
-    return x.length > 0
-      ? vg.pipe([_isDateString, ...x], { returnIndex: 0 })
-      : _isDateString;
+    return x.length > 0 ? vg.pipe(x, { returnIndex: 0 }) : fn;
   }
 
   @SimpleType.Attribute({
