@@ -48,7 +48,7 @@ describe('elastic:ElasticCollectionService', () => {
       });
     }
     await client.indices.refresh({ index: indexName });
-  });
+  }).timeout(60000);
 
   after(async () => app?.close());
   afterEach(() => sinon.restore());
