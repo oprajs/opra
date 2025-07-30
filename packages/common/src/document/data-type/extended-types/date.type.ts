@@ -16,7 +16,7 @@ const _isDate = vg.isDate({
   name: 'date',
   description: 'A date without time',
   nameMappings: {
-    js: 'Date',
+    js: 'string',
     json: 'string',
   },
 }).Example('2021-04-18', 'Full date value'))
