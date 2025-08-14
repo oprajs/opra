@@ -1,6 +1,6 @@
 {
   "name": "@opra/rabbitmq",
-  "version": "1.19.2",
+  "version": "1.19.3",
   "description": "Opra RabbitMQ package",
   "author": "Panates",
   "license": "MIT",
@@ -24,17 +24,17 @@
     "clean:cover": "rimraf ../../coverage/rabbitmq"
   },
   "dependencies": {
-    "@jsopen/objects": "^1.6.3",
+    "@jsopen/objects": "^2.0.1",
     "@browsery/type-is": "^1.6.18-r8",
     "content-type": "^1.0.5",
     "iconv-lite": "^0.6.3",
     "node-events-async": "^1.2.0",
     "tslib": "^2.8.1",
-    "valgen": "^5.17.2"
+    "valgen": "^5.18.0"
   },
   "peerDependencies": {
-    "@opra/common": "^1.19.2",
-    "@opra/core": "^1.19.2",
+    "@opra/common": "^1.19.3",
+    "@opra/core": "^1.19.3",
     "rabbitmq-client": ">=5.0.0 <6"
   },
   "devDependencies": {

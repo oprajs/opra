@@ -368,7 +368,9 @@ export class DataTypeFactory {
         }
       }
     }
-    if (!metadata) return context.addError(`No DataType metadata found`);
+    if (!metadata) {
+      return context.addError(`No DataType metadata found`);
+    }
 
     return context.enterAsync(
       metadata.name ? `[${metadata.name}]` : '',
