@@ -98,7 +98,7 @@ jobs:
       - name: 'Setup Environment'
         uses: panates/ghac-setup-node@v1
         with:
-          node-version: '20.18.1'
+          node-version: '20.19.2'
           token: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
 
       - name: Install rman
