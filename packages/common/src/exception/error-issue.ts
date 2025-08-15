@@ -1,3 +1,4 @@
+import { JsonType } from 'ts-gems';
 import { IssueSeverity } from './issue-severity.enum.js';
 
 export interface ErrorIssue {
@@ -21,4 +22,6 @@ export interface ErrorIssue {
 
   // Additional information for debugging issues. This property only available in debug mode
   stack?: string[];
+
+  [index: string]: JsonType | undefined;
 }
