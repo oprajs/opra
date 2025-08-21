@@ -4,21 +4,21 @@ import { TypeThunkAsync } from 'ts-gems/lib/types';
 import { OpraSchema } from '../../schema/index.js';
 import { DocumentElement } from '../common/document-element.js';
 import { DataType } from '../data-type/data-type.js';
-import type { RpcHeader } from './rpc-header';
-import type { RpcOperation } from './rpc-operation';
+import type { MQHeader } from './mq-header';
+import type { MQOperation } from './mq-operation.js';
 
 /**
- * @namespace RpcOperationResponse
+ * @namespace MQOperationResponse
  */
-export namespace RpcOperationResponse {
+export namespace MQOperationResponse {
   export interface Metadata
     extends Combine<
       {
         payloadType?: TypeThunkAsync | string;
         keyType?: TypeThunkAsync | string;
-        headers?: RpcHeader.Metadata[];
+        headers?: MQHeader.Metadata[];
       },
-      OpraSchema.RpcOperationResponse
+      OpraSchema.MQOperationResponse
     > {}
 
   export interface Options
@@ -40,19 +40,19 @@ export namespace RpcOperationResponse {
 }
 
 /**
- * @class RpcOperationResponse
+ * @class MQOperationResponse
  */
-export class RpcOperationResponse extends DocumentElement {
-  declare readonly owner: RpcOperation;
+export class MQOperationResponse extends DocumentElement {
+  declare readonly owner: MQOperation;
   channel?: string | RegExp | (string | RegExp)[];
   description?: string;
   payloadType: DataType;
   keyType?: DataType;
-  headers: RpcHeader[] = [];
+  headers: MQHeader[] = [];
 
   constructor(
-    owner: RpcOperation,
-    initArgs?: RpcOperationResponse.InitArguments,
+    owner: MQOperation,
+    initArgs?: MQOperationResponse.InitArguments,
   ) {
     super(owner);
     this.channel = initArgs?.channel;
@@ -71,7 +71,7 @@ export class RpcOperationResponse extends DocumentElement {
     }
   }
 
-  findHeader(paramName: string): RpcHeader | undefined {
+  findHeader(paramName: string): MQHeader | undefined {
     const paramNameLower = paramName.toLowerCase();
     let prm: any;
     for (prm of this.headers) {
@@ -83,8 +83,8 @@ export class RpcOperationResponse extends DocumentElement {
     }
   }
 
-  toJSON(): OpraSchema.RpcOperationResponse {
-    const out = omitUndefined<OpraSchema.RpcOperationResponse>({
+  toJSON(): OpraSchema.MQOperationResponse {
+    const out = omitUndefined<OpraSchema.MQOperationResponse>({
       description: this.description,
       channel: this.channel,
       payloadType: this.payloadType.name

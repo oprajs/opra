@@ -1,11 +1,11 @@
 import {
   ApiDocument,
+  MQ_CONTROLLER_METADATA,
+  MQApi,
+  MQController,
+  MQOperation,
   OpraException,
   OpraSchema,
-  RPC_CONTROLLER_METADATA,
-  RpcApi,
-  RpcController,
-  RpcOperation,
 } from '@opra/common';
 import { type ILogger, kAssetCache, PlatformAdapter } from '@opra/core';
 import {
@@ -40,9 +40,9 @@ export interface OperationConfig {
 
 interface HandlerArguments {
   consumer: Consumer;
-  controller: RpcController;
+  controller: MQController;
   instance: any;
-  operation: RpcOperation;
+  operation: MQOperation;
   operationConfig: OperationConfig;
   handler: EachMessageHandler;
   topics: (string | RegExp)[];
@@ -55,12 +55,12 @@ interface HandlerArguments {
 export class KafkaAdapter extends PlatformAdapter<KafkaAdapter.Events> {
   static readonly PlatformName = 'kafka';
   protected _config: KafkaAdapter.Config;
-  protected _controllerInstances = new Map<RpcController, any>();
+  protected _controllerInstances = new Map<MQController, any>();
   protected _consumers = new Map<string, Consumer>();
   protected _handlerArgs: HandlerArguments[] = [];
   declare protected _kafka: Kafka;
   protected _status: KafkaAdapter.Status = 'idle';
-  readonly protocol: OpraSchema.Transport = 'rpc';
+  readonly protocol: OpraSchema.Transport = 'mq';
   readonly platform = KafkaAdapter.PlatformName;
   readonly interceptors: (
     | KafkaAdapter.InterceptorFunction
@@ -79,7 +79,7 @@ export class KafkaAdapter extends PlatformAdapter<KafkaAdapter.Events> {
     this._config = config;
     if (
       !(
-        this.document.api instanceof RpcApi &&
+        this.document.api instanceof MQApi &&
         this.document.api.platform === KafkaAdapter.PlatformName
       )
     ) {
@@ -98,8 +98,8 @@ export class KafkaAdapter extends PlatformAdapter<KafkaAdapter.Events> {
     });
   }
 
-  get api(): RpcApi {
-    return this.document.rpcApi;
+  get api(): MQApi {
+    return this.document.mqApi;
   }
 
   get kafka(): Kafka {
@@ -235,13 +235,13 @@ export class KafkaAdapter extends PlatformAdapter<KafkaAdapter.Events> {
    * @protected
    */
   protected async _getOperationConfig(
-    controller: RpcController,
+    controller: MQController,
     instance: any,
-    operation: RpcOperation,
+    operation: MQOperation,
   ): Promise<OperationConfig | undefined> {
     if (typeof instance[operation.name] !== 'function') return;
     const proto = controller.ctor?.prototype || Object.getPrototypeOf(instance);
-    if (Reflect.hasMetadata(RPC_CONTROLLER_METADATA, proto, operation.name))
+    if (Reflect.hasMetadata(MQ_CONTROLLER_METADATA, proto, operation.name))
       return;
     const operationConfig: OperationConfig = {
       consumer: {
@@ -301,7 +301,7 @@ export class KafkaAdapter extends PlatformAdapter<KafkaAdapter.Events> {
    * @protected
    */
   protected async _createAllConsumers() {
-    for (const controller of this.document.rpcApi.controllers.values()) {
+    for (const controller of this.document.mqApi.controllers.values()) {
       let instance = controller.instance;
       if (!instance && controller.ctor) instance = new controller.ctor();
       if (!instance) continue;

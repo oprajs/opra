@@ -1,8 +1,8 @@
 import { type ArgumentsHost, Controller } from '@nestjs/common';
 import { ExternalExceptionFilter } from '@nestjs/core/exceptions/external-exception-filter.js';
-import { classes, type RpcControllerDecorator } from '@opra/common';
+import { classes, type MQControllerDecorator } from '@opra/common';
 
-const { RpcControllerDecoratorFactory } = classes;
+const { MQControllerDecoratorFactory } = classes;
 
 const oldCatchMethod = ExternalExceptionFilter.prototype.catch;
 ExternalExceptionFilter.prototype.catch = function (
@@ -16,8 +16,8 @@ ExternalExceptionFilter.prototype.catch = function (
   oldCatchMethod(exception, host);
 };
 
-RpcControllerDecoratorFactory.augment(
-  (decorator: RpcControllerDecorator, decoratorChain: Function[]) => {
+MQControllerDecoratorFactory.augment(
+  (decorator: MQControllerDecorator, decoratorChain: Function[]) => {
     decoratorChain.push((_: any, target: Function) => {
       Controller()(target);
     });

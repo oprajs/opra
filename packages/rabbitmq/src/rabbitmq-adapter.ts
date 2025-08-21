@@ -2,10 +2,10 @@ import zlib from 'node:zlib';
 import typeIs from '@browsery/type-is';
 import {
   ApiDocument,
+  MQApi,
+  MQController,
   OpraException,
   OpraSchema,
-  RpcApi,
-  RpcController,
 } from '@opra/common';
 import { kAssetCache, PlatformAdapter } from '@opra/core';
 import { parse as parseContentType } from 'content-type';
@@ -33,11 +33,11 @@ const noOp = () => undefined;
 export class RabbitmqAdapter extends PlatformAdapter<RabbitmqAdapter.Events> {
   static readonly PlatformName = 'rabbitmq';
   protected _config: RabbitmqAdapter.Config;
-  protected _controllerInstances = new Map<RpcController, any>();
+  protected _controllerInstances = new Map<MQController, any>();
   protected _connection?: rabbit.Connection;
   protected _consumers: rabbit.Consumer[] = [];
   protected _status: RabbitmqAdapter.Status = 'idle';
-  readonly protocol: OpraSchema.Transport = 'rpc';
+  readonly protocol: OpraSchema.Transport = 'mq';
   readonly platform = RabbitmqAdapter.PlatformName;
   readonly interceptors: (
     | RabbitmqAdapter.InterceptorFunction
@@ -56,7 +56,7 @@ export class RabbitmqAdapter extends PlatformAdapter<RabbitmqAdapter.Events> {
     this._config = config;
     if (
       !(
-        this.document.api instanceof RpcApi &&
+        this.document.api instanceof MQApi &&
         this.document.api.platform === RabbitmqAdapter.PlatformName
       )
     ) {
@@ -74,8 +74,8 @@ export class RabbitmqAdapter extends PlatformAdapter<RabbitmqAdapter.Events> {
     });
   }
 
-  get api(): RpcApi {
-    return this.document.rpcApi;
+  get api(): MQApi {
+    return this.document.mqApi;
   }
 
   get connection(): rabbit.Connection | undefined {

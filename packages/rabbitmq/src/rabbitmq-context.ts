@@ -1,4 +1,4 @@
-import { OpraSchema, RpcController, RpcOperation } from '@opra/common';
+import { MQController, MQOperation, OpraSchema } from '@opra/common';
 import { ExecutionContext } from '@opra/core';
 import type { AsyncEventEmitter } from 'node-events-async';
 import * as rabbit from 'rabbitmq-client';
@@ -15,9 +15,9 @@ export class RabbitmqContext
   readonly protocol: OpraSchema.Transport;
   readonly platform: string;
   readonly adapter: RabbitmqAdapter;
-  readonly controller?: RpcController;
+  readonly controller?: MQController;
   readonly controllerInstance?: any;
-  readonly operation?: RpcOperation;
+  readonly operation?: MQOperation;
   readonly operationHandler?: Function;
   readonly queue: string;
   readonly consumer: rabbit.Consumer;
@@ -35,11 +35,11 @@ export class RabbitmqContext
       ...init,
       document: init.adapter.document,
       documentNode: init.controller?.node,
-      protocol: 'rpc',
+      protocol: 'mq',
     });
     this.adapter = init.adapter;
     this.platform = init.adapter.platform;
-    this.protocol = 'rpc';
+    this.protocol = 'mq';
     if (init.controller) this.controller = init.controller;
     if (init.controllerInstance)
       this.controllerInstance = init.controllerInstance;
@@ -62,9 +62,9 @@ export namespace RabbitmqContext {
     > {
     adapter: RabbitmqAdapter;
     consumer: rabbit.Consumer;
-    controller?: RpcController;
+    controller?: MQController;
     controllerInstance?: any;
-    operation?: RpcOperation;
+    operation?: MQOperation;
     operationHandler?: Function;
     content: any;
     headers: Record<string, any>;

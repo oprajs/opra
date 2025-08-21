@@ -14,7 +14,7 @@ import {
 import { DataType } from './data-type/data-type.js';
 import type { EnumType } from './data-type/enum-type.js';
 import { HttpApi } from './http/http-api.js';
-import { RpcApi } from './rpc/rpc-api.js';
+import { MQApi } from './mq/mq-api.js';
 
 /**
  *
@@ -27,7 +27,7 @@ export class ApiDocument extends DocumentElement {
   info: OpraSchema.DocumentInfo = {};
   references = new ResponsiveMap<ApiDocument>();
   types = new DataTypeMap();
-  api?: HttpApi | RpcApi;
+  api?: HttpApi | MQApi;
 
   constructor() {
     super(null as any);
@@ -71,11 +71,11 @@ export class ApiDocument extends DocumentElement {
     return this.api as HttpApi;
   }
 
-  get rpcApi(): RpcApi {
-    if (!(this.api && this.api instanceof RpcApi)) {
-      throw new TypeError('The document do not contains RpcApi instance');
+  get mqApi(): MQApi {
+    if (!(this.api && this.api instanceof MQApi)) {
+      throw new TypeError('The document do not contains MQApi instance');
     }
-    return this.api as RpcApi;
+    return this.api as MQApi;
   }
 
   toJSON(): OpraSchema.ApiDocument {

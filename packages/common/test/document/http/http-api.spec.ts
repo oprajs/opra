@@ -1,4 +1,4 @@
-import { ApiDocument, HttpApi, HttpController, RpcApi } from '@opra/common';
+import { ApiDocument, HttpApi, HttpController, MQApi } from '@opra/common';
 import { expect } from 'expect';
 import { TestHttpApiDocument } from '../../_support/test-http-api/index.js';
 
@@ -18,7 +18,7 @@ describe('common:HttpApi', () => {
   });
 
   it('Should create controller instances', async () => {
-    const api = doc.api as RpcApi;
+    const api = doc.api as MQApi;
     expect(api.controllers.size).toBeGreaterThan(0);
     expect(Array.from(api.controllers.keys())).toStrictEqual([
       'Auth',

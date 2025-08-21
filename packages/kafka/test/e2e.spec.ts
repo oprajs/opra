@@ -5,7 +5,7 @@ import { KafkaAdapter } from '@opra/kafka';
 import { expect } from 'expect';
 import { Kafka, logLevel, Producer } from 'kafkajs';
 import { TestController } from './_support/test-api/api/test-controller.js';
-import { TestRpcApiDocument } from './_support/test-api/index.js';
+import { TestMQApiDocument } from './_support/test-api/index.js';
 import { waitForMessage } from './_support/wait-for-message.js';
 
 const kafkaBrokerHost = process.env.KAFKA_BROKER || 'localhost:9092';
@@ -32,7 +32,7 @@ describe('kafka:e2e', () => {
   });
 
   before(async () => {
-    document = await TestRpcApiDocument.create();
+    document = await TestMQApiDocument.create();
     adapter = new KafkaAdapter(document, {
       client: {
         brokers: [kafkaBrokerHost!],

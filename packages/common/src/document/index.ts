@@ -8,8 +8,8 @@ import './decorators/http-operation-entity-get.decorator.js';
 import './decorators/http-operation-entity-replace.decorator.js';
 import './decorators/http-operation-entity-update.decorator.js';
 import './decorators/http-operation-entity-update-many.decorator.js';
-import * as RpcControllerDecorator_ from './decorators/rpc-controller.decorator.js';
-import * as RpcOperationDecorator_ from './decorators/rpc-operation.decorator.js';
+import * as MQControllerDecorator_ from './decorators/mq-controller.decorator.js';
+import * as MQOperationDecorator_ from './decorators/mq-operation.decorator.js';
 import * as DataTypeFactory_ from './factory/data-type.factory.js';
 import * as HttpApiFactory_ from './factory/http-api.factory.js';
 
@@ -35,8 +35,8 @@ export * from './data-type/primitive-types/index.js';
 export * from './data-type/required-type.js';
 export * from './data-type/simple-type.js';
 export * from './data-type/union-type.js';
-export type { RpcControllerDecorator } from './decorators/rpc-controller.decorator.js';
-export type { RpcOperationDecorator } from './decorators/rpc-operation.decorator.js';
+export type { MQControllerDecorator } from './decorators/mq-controller.decorator.js';
+export type { MQOperationDecorator } from './decorators/mq-operation.decorator.js';
 export * from './factory/api-document.factory.js';
 export * from './http/http-api.js';
 export * from './http/http-controller.js';
@@ -47,15 +47,15 @@ export * from './http/http-operation-response.js';
 export * from './http/http-parameter.js';
 export * from './http/http-request-body.js';
 export * from './http/http-status-range.js';
-export * from './rpc/rpc-api.js';
-export * from './rpc/rpc-controller.js';
-export * from './rpc/rpc-header.js';
-export * from './rpc/rpc-operation.js';
-export type { RpcOperationResponse } from './rpc/rpc-operation-response';
+export * from './mq/mq-api.js';
+export * from './mq/mq-controller.js';
+export * from './mq/mq-header.js';
+export * from './mq/mq-operation.js';
+export type { MQOperationResponse } from './mq/mq-operation-response.js';
 
 export namespace classes {
   export import HttpApiFactory = HttpApiFactory_.HttpApiFactory;
   export import DataTypeFactory = DataTypeFactory_.DataTypeFactory;
-  export import RpcOperationDecoratorFactory = RpcOperationDecorator_.RpcOperationDecoratorFactory;
-  export import RpcControllerDecoratorFactory = RpcControllerDecorator_.RpcControllerDecoratorFactory;
+  export import MQOperationDecoratorFactory = MQOperationDecorator_.MQOperationDecoratorFactory;
+  export import MQControllerDecoratorFactory = MQControllerDecorator_.MQControllerDecoratorFactory;
 }

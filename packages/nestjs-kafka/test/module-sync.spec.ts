@@ -97,7 +97,7 @@ describe('nestjs-kafka:OpraKafkaModule - sync', () => {
     expect(adapter).toBeDefined();
     expect(adapter.document).toBeDefined();
     expect(adapter.document.api).toBeDefined();
-    expect(Array.from(adapter.document.rpcApi.controllers.keys())).toEqual([
+    expect(Array.from(adapter.document.mqApi.controllers.keys())).toEqual([
       'Cats',
       'Dogs',
     ]);

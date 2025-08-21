@@ -1,7 +1,7 @@
 {
   "name": "@opra/rabbitmq",
   "version": "1.19.4",
-  "description": "Opra RabbitMQ package",
+  "description": "Opra RabbitMQ adapter",
   "author": "Panates",
   "license": "MIT",
   "scripts": {

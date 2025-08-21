@@ -9,24 +9,24 @@ import { CLASS_NAME_PATTERN, DECORATOR, kDataTypeMap } from '../constants.js';
 import { DataType } from '../data-type/data-type.js';
 import type { EnumType } from '../data-type/enum-type.js';
 import {
-  RpcOperationDecorator,
-  RpcOperationDecoratorFactory,
-} from '../decorators/rpc-operation.decorator.js';
-import type { RpcController } from './rpc-controller';
-import type { RpcHeader } from './rpc-header';
-import type { RpcOperationResponse } from './rpc-operation-response';
+  MQOperationDecorator,
+  MQOperationDecoratorFactory,
+} from '../decorators/mq-operation.decorator.js';
+import type { MQController } from './mq-controller.js';
+import type { MQHeader } from './mq-header';
+import type { MQOperationResponse } from './mq-operation-response.js';
 
 /**
- * @namespace RpcOperation
+ * @namespace MQOperation
  */
-export namespace RpcOperation {
+export namespace MQOperation {
   export interface Metadata
-    extends Pick<OpraSchema.RpcOperation, 'description' | 'channel'> {
+    extends Pick<OpraSchema.MQOperation, 'description' | 'channel'> {
     payloadType: TypeThunkAsync | string;
     keyType?: TypeThunkAsync | string;
     types?: ThunkAsync<Type | EnumType.EnumObject | EnumType.EnumArray>[];
-    headers?: RpcHeader.Metadata[];
-    response?: RpcOperationResponse.Metadata;
+    headers?: MQHeader.Metadata[];
+    response?: MQOperationResponse.Metadata;
   }
 
   export interface Options
@@ -47,49 +47,46 @@ export namespace RpcOperation {
 }
 
 /**
- * Type definition for RpcOperation
- * @class RpcOperation
+ * Type definition for MQOperation
+ * @class MQOperation
  */
-export interface RpcOperationStatic {
+export interface MQOperationStatic {
   /**
-   * Class constructor of RpcOperation
+   * Class constructor of MQOperation
    * @param controller
    * @param args
    */
-  new (
-    controller: RpcController,
-    args: RpcOperation.InitArguments,
-  ): RpcOperation;
+  new (controller: MQController, args: MQOperation.InitArguments): MQOperation;
 
   /**
    * Property decorator
    * @param payloadType
    * @param options
-   */ <T extends RpcOperation.Options>(
+   */ <T extends MQOperation.Options>(
     payloadType: ThunkAsync<Type> | string,
     options?: T,
-  ): RpcOperationDecorator;
+  ): MQOperationDecorator;
 
-  prototype: RpcOperation;
+  prototype: MQOperation;
 }
 
 /**
- * @class RpcOperation
+ * @class MQOperation
  */
-export interface RpcOperation extends RpcOperationClass {}
+export interface MQOperation extends MQOperationClass {}
 
 /**
- *  RpcOperation
+ *  MQOperation
  */
-export const RpcOperation = function (this: RpcOperation, ...args: any[]) {
+export const MQOperation = function (this: MQOperation, ...args: any[]) {
   // Decorator
   if (!this) {
     const [payloadType, options] = args as [
       type: ThunkAsync<Type> | string,
-      options: RpcOperation.Options,
+      options: MQOperation.Options,
     ];
     const decoratorChain: Function[] = [];
-    return (RpcOperation[DECORATOR] as RpcOperationDecoratorFactory).call(
+    return (MQOperation[DECORATOR] as MQOperationDecoratorFactory).call(
       undefined,
       decoratorChain,
       payloadType,
@@ -99,8 +96,8 @@ export const RpcOperation = function (this: RpcOperation, ...args: any[]) {
 
   // Constructor
   const [resource, initArgs] = args as [
-    RpcController,
-    RpcOperation.InitArguments,
+    MQController,
+    MQOperation.InitArguments,
   ];
   DocumentElement.call(this, resource);
   if (!CLASS_NAME_PATTERN.test(initArgs.name))
@@ -123,23 +120,23 @@ export const RpcOperation = function (this: RpcOperation, ...args: any[]) {
         ? initArgs.keyType
         : _this.owner.node.getDataType(initArgs.keyType);
   }
-} as RpcOperationStatic;
+} as MQOperationStatic;
 
 /**
- * @class RpcOperation
+ * @class MQOperation
  */
-class RpcOperationClass extends DocumentElement {
-  declare readonly owner: RpcController;
+class MQOperationClass extends DocumentElement {
+  declare readonly owner: MQController;
   declare readonly name: string;
   declare channel: string | RegExp | (string | RegExp)[];
   declare description?: string;
   declare payloadType: DataType;
   declare keyType?: DataType;
   declare types: DataTypeMap;
-  declare headers: RpcHeader[];
-  declare response: RpcOperationResponse;
+  declare headers: MQHeader[];
+  declare response: MQOperationResponse;
 
-  findHeader(paramName: string): RpcHeader | undefined {
+  findHeader(paramName: string): MQHeader | undefined {
     const paramNameLower = paramName.toLowerCase();
     let prm: any;
     for (prm of this.headers) {
@@ -151,9 +148,9 @@ class RpcOperationClass extends DocumentElement {
     }
   }
 
-  toJSON(): OpraSchema.RpcOperation {
-    const out = omitUndefined<OpraSchema.RpcOperation>({
-      kind: OpraSchema.RpcOperation.Kind,
+  toJSON(): OpraSchema.MQOperation {
+    const out = omitUndefined<OpraSchema.MQOperation>({
+      kind: OpraSchema.MQOperation.Kind,
       description: this.description,
       channel: this.channel,
       payloadType: this.payloadType.name
@@ -176,5 +173,5 @@ class RpcOperationClass extends DocumentElement {
   }
 }
 
-RpcOperation.prototype = RpcOperationClass.prototype;
-RpcOperation[DECORATOR] = RpcOperationDecoratorFactory;
+MQOperation.prototype = MQOperationClass.prototype;
+MQOperation[DECORATOR] = MQOperationDecoratorFactory;

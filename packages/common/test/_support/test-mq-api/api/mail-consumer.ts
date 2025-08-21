@@ -1,14 +1,14 @@
-import { RpcController, RpcOperation } from '@opra/common';
+import { MQController, MQOperation } from '@opra/common';
 import { SendMailDto } from '../dto/send-mail.dto.js';
 
-@(RpcController({
+@(MQController({
   description: 'Mail consumer controller',
 }).Header('access-token', 'string'))
 export class MailConsumer {
   /**
    *
    */
-  @RpcOperation(SendMailDto, {
+  @MQOperation(SendMailDto, {
     channel: 'send-email',
     groupId: 'test-group',
     keyType: 'uuid',
@@ -20,7 +20,7 @@ export class MailConsumer {
   /**
    *
    */
-  @(RpcOperation(SendMailDto, {
+  @(MQOperation(SendMailDto, {
     channel: 'send-email',
     groupId: 'test-group',
     keyType: 'uuid',
@@ -32,7 +32,7 @@ export class MailConsumer {
   /**
    *
    */
-  @(RpcOperation(SendMailDto, {
+  @(MQOperation(SendMailDto, {
     channel: 'send-email',
     groupId: 'test-group',
     keyType: 'uuid',

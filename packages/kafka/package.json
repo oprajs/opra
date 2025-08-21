@@ -1,7 +1,7 @@
 {
   "name": "@opra/kafka",
   "version": "1.19.4",
-  "description": "Opra Kafka package",
+  "description": "Opra Kafka adapter",
   "author": "Panates",
   "license": "MIT",
   "scripts": {

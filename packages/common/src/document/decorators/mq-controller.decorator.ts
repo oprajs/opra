@@ -1,44 +1,44 @@
 import { merge } from '@jsopen/objects';
 import type { Type, TypeThunkAsync } from 'ts-gems';
 import { OpraSchema } from '../../schema/index.js';
-import { RPC_CONTROLLER_METADATA } from '../constants.js';
-import type { RpcController } from '../rpc/rpc-controller';
-import type { RpcHeader } from '../rpc/rpc-header';
+import { MQ_CONTROLLER_METADATA } from '../constants.js';
+import type { MQController } from '../mq/mq-controller.js';
+import type { MQHeader } from '../mq/mq-header';
 
 const CLASS_NAME_PATTERN = /^(.*)(Controller)$/;
 
-export interface RpcControllerDecorator<
-  T extends RpcControllerDecorator<any> = RpcControllerDecorator<any>,
+export interface MQControllerDecorator<
+  T extends MQControllerDecorator<any> = MQControllerDecorator<any>,
 > extends ClassDecorator {
   Header(
     name: string | RegExp,
-    optionsOrType?: RpcHeader.Options | string | TypeThunkAsync | false,
+    optionsOrType?: MQHeader.Options | string | TypeThunkAsync | false,
   ): T;
 
   UseType(...type: TypeThunkAsync[]): T;
 }
 
-export interface RpcControllerDecoratorFactory {
-  <T extends RpcController.Options>(options?: T): RpcControllerDecorator;
+export interface MQControllerDecoratorFactory {
+  <T extends MQController.Options>(options?: T): MQControllerDecorator;
 }
 
 /**
- * @namespace RpcControllerDecoratorFactory
+ * @namespace MQControllerDecoratorFactory
  */
-export namespace RpcControllerDecoratorFactory {
+export namespace MQControllerDecoratorFactory {
   export type AugmentationFunction = (
-    decorator: RpcControllerDecorator,
+    decorator: MQControllerDecorator,
     decoratorChain: Function[],
-    options?: RpcController.Options,
+    options?: MQController.Options,
   ) => void;
 }
 
-const augmentationRegistry: RpcControllerDecoratorFactory.AugmentationFunction[] =
+const augmentationRegistry: MQControllerDecoratorFactory.AugmentationFunction[] =
   [];
 
-export function RpcControllerDecoratorFactory<O extends RpcController.Options>(
+export function MQControllerDecoratorFactory<O extends MQController.Options>(
   options?: O,
-): RpcControllerDecorator {
+): MQControllerDecorator {
   const decoratorChain: Function[] = [];
   /**
    *
@@ -47,38 +47,38 @@ export function RpcControllerDecoratorFactory<O extends RpcController.Options>(
     let name = options?.name;
     if (!name) name = CLASS_NAME_PATTERN.exec(target.name)?.[1] || target.name;
 
-    const metadata = {} as RpcController.Metadata;
+    const metadata = {} as MQController.Metadata;
     const baseMetadata = Reflect.getOwnMetadata(
-      RPC_CONTROLLER_METADATA,
+      MQ_CONTROLLER_METADATA,
       Object.getPrototypeOf(target),
     );
     if (baseMetadata) merge(metadata, baseMetadata, { deep: true });
-    const oldMetadata = Reflect.getOwnMetadata(RPC_CONTROLLER_METADATA, target);
+    const oldMetadata = Reflect.getOwnMetadata(MQ_CONTROLLER_METADATA, target);
     if (oldMetadata) merge(metadata, oldMetadata, { deep: true });
     merge(
       metadata,
       {
         ...options,
-        kind: OpraSchema.RpcController.Kind,
+        kind: OpraSchema.MQController.Kind,
         name,
         path: name,
       },
       { deep: true },
     );
-    Reflect.defineMetadata(RPC_CONTROLLER_METADATA, metadata, target);
+    Reflect.defineMetadata(MQ_CONTROLLER_METADATA, metadata, target);
     for (const fn of decoratorChain) fn(metadata, target);
-    Reflect.defineMetadata(RPC_CONTROLLER_METADATA, metadata, target);
-  } as RpcControllerDecorator;
+    Reflect.defineMetadata(MQ_CONTROLLER_METADATA, metadata, target);
+  } as MQControllerDecorator;
 
   /**
    *
    */
   decorator.Header = (
     name: string | RegExp,
-    arg1?: RpcHeader.Options | string | Type | false,
+    arg1?: MQHeader.Options | string | Type | false,
   ) => {
-    decoratorChain.push((meta: RpcController.Metadata): void => {
-      const paramMeta: RpcHeader.Metadata =
+    decoratorChain.push((meta: MQController.Metadata): void => {
+      const paramMeta: MQHeader.Metadata =
         typeof arg1 === 'string' || typeof arg1 === 'function'
           ? {
               name,
@@ -95,7 +95,7 @@ export function RpcControllerDecoratorFactory<O extends RpcController.Options>(
    *
    */
   decorator.UseType = (...type: Type[]): any => {
-    decoratorChain.push((meta: RpcController.Metadata): void => {
+    decoratorChain.push((meta: MQController.Metadata): void => {
       meta.types = meta.types || [];
       meta.types.push(...type);
     });
@@ -107,8 +107,8 @@ export function RpcControllerDecoratorFactory<O extends RpcController.Options>(
   return decorator;
 }
 
-RpcControllerDecoratorFactory.augment = function (
-  fn: RpcControllerDecoratorFactory.AugmentationFunction,
+MQControllerDecoratorFactory.augment = function (
+  fn: MQControllerDecoratorFactory.AugmentationFunction,
 ) {
   augmentationRegistry.push(fn);
 };

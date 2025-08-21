@@ -1,9 +1,9 @@
 import { merge } from '@jsopen/objects';
 import {
   ApiDocument,
-  RPC_CONTROLLER_METADATA,
-  RpcController,
-  RpcOperation,
+  MQ_CONTROLLER_METADATA,
+  MQController,
+  MQOperation,
 } from '@opra/common';
 import * as rabbit from 'rabbitmq-client';
 import {
@@ -14,7 +14,7 @@ import type { RabbitmqAdapter } from './rabbitmq-adapter.js';
 
 export class ConfigBuilder {
   declare connectionOptions: RabbitmqAdapter.ConnectionOptions;
-  declare controllerInstances: Map<RpcController, any>;
+  declare controllerInstances: Map<MQController, any>;
   declare handlerArgs: ConfigBuilder.OperationArguments[];
 
   constructor(
@@ -28,7 +28,7 @@ export class ConfigBuilder {
     this._prepareConnectionOptions();
 
     /** Initialize consumers */
-    for (const controller of this.document.rpcApi.controllers.values()) {
+    for (const controller of this.document.mqApi.controllers.values()) {
       let instance = controller.instance;
       if (!instance && controller.ctor) instance = new controller.ctor();
       if (!instance) continue;
@@ -79,13 +79,13 @@ export class ConfigBuilder {
    * @protected
    */
   protected async _getConsumerConfig(
-    controller: RpcController,
+    controller: MQController,
     instance: any,
-    operation: RpcOperation,
+    operation: MQOperation,
   ): Promise<RabbitmqAdapter.ConsumerConfig | undefined> {
     if (typeof instance[operation.name] !== 'function') return;
     const proto = controller.ctor?.prototype || Object.getPrototypeOf(instance);
-    if (Reflect.hasMetadata(RPC_CONTROLLER_METADATA, proto, operation.name))
+    if (Reflect.hasMetadata(MQ_CONTROLLER_METADATA, proto, operation.name))
       return;
     const operationConfig: rabbit.ConsumerProps = {};
     if (this.config.defaults) {
@@ -119,9 +119,9 @@ export class ConfigBuilder {
 
 export namespace ConfigBuilder {
   export interface OperationArguments {
-    controller: RpcController;
+    controller: MQController;
     instance: any;
-    operation: RpcOperation;
+    operation: MQOperation;
     consumerConfig: RabbitmqAdapter.ConsumerConfig;
     topics: string[];
   }

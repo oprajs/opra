@@ -3,7 +3,7 @@ import { KafkaAdapter } from '@opra/kafka';
 import { TestController } from './api/test-controller.js';
 import { SendMailDto } from './dto/send-mail.dto.js';
 
-export namespace TestRpcApiDocument {
+export namespace TestMQApiDocument {
   export async function create() {
     return ApiDocumentFactory.createDocument({
       spec: OpraSchema.SpecVersion,
@@ -14,7 +14,7 @@ export namespace TestRpcApiDocument {
       },
       types: [SendMailDto],
       api: {
-        transport: 'rpc',
+        transport: 'mq',
         platform: KafkaAdapter.PlatformName,
         name: 'TestService',
         description: 'test service',

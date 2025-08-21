@@ -12,7 +12,7 @@ import {
 import { ModuleRef } from '@nestjs/core';
 import { ApiDocumentFactory } from '@opra/common';
 import { KafkaAdapter, type KafkaContext } from '@opra/kafka';
-import { RpcControllerFactory } from '@opra/nestjs';
+import { MQControllerFactory } from '@opra/nestjs';
 import { OPRA_KAFKA_MODULE_CONFIG } from './constants.js';
 import type { OpraKafkaModule } from './opra-kafka.module.js';
 
@@ -24,7 +24,7 @@ export class OpraKafkaCoreModule
   implements OnModuleInit, OnApplicationBootstrap, OnApplicationShutdown
 {
   constructor(
-    private controllerFactory: RpcControllerFactory,
+    private controllerFactory: MQControllerFactory,
     @Inject(opraKafkaNestjsAdapterToken)
     protected adapter: KafkaAdapter,
     @Inject(OPRA_KAFKA_MODULE_CONFIG)
@@ -78,9 +78,9 @@ export class OpraKafkaCoreModule
     const token = moduleOptions.id || KafkaAdapter;
     const adapterProvider = {
       provide: token,
-      inject: [RpcControllerFactory, ModuleRef, OPRA_KAFKA_MODULE_CONFIG],
+      inject: [MQControllerFactory, ModuleRef, OPRA_KAFKA_MODULE_CONFIG],
       useFactory: async (
-        controllerFactory: RpcControllerFactory,
+        controllerFactory: MQControllerFactory,
         moduleRef: ModuleRef,
         config: OpraKafkaModule.ApiConfig,
       ) => {
@@ -94,7 +94,7 @@ export class OpraKafkaCoreModule
           api: {
             name: config.name,
             description: config.description,
-            transport: 'rpc',
+            transport: 'mq',
             platform: KafkaAdapter.PlatformName,
             controllers,
           },
@@ -124,7 +124,7 @@ export class OpraKafkaCoreModule
       controllers: moduleOptions.controllers,
       providers: [
         ...(moduleOptions?.providers || []),
-        RpcControllerFactory,
+        MQControllerFactory,
         adapterProvider,
         {
           provide: opraKafkaNestjsAdapterToken,
@@ -139,8 +139,8 @@ export class OpraKafkaCoreModule
   onModuleInit(): any {
     /** NestJS initialize controller instances on init stage.
      * So we should update instance properties */
-    const rpcApi = this.adapter.document.rpcApi;
-    const controllers = Array.from(rpcApi.controllers.values());
+    const mqApi = this.adapter.document.mqApi;
+    const controllers = Array.from(mqApi.controllers.values());
     for (const { wrapper } of this.controllerFactory
       .exploreControllers()
       .values()) {

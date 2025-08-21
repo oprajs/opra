@@ -2,9 +2,9 @@ import type { Value } from '../value.interface.js';
 
 /**
  *
- * @interface RpcHeader
+ * @interface MQHeader
  */
-export interface RpcHeader extends Value {
+export interface MQHeader extends Value {
   /**
    * Name of the parameter. RegExp pattern can be used matching parameter name
    */
