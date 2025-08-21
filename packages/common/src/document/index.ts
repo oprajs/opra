@@ -10,6 +10,8 @@ import './decorators/http-operation-entity-update.decorator.js';
 import './decorators/http-operation-entity-update-many.decorator.js';
 import * as MQControllerDecorator_ from './decorators/mq-controller.decorator.js';
 import * as MQOperationDecorator_ from './decorators/mq-operation.decorator.js';
+import * as WSControllerDecorator_ from './decorators/ws-controller.decorator.js';
+import * as WSOperationDecorator_ from './decorators/ws-operation.decorator.js';
 import * as DataTypeFactory_ from './factory/data-type.factory.js';
 import * as HttpApiFactory_ from './factory/http-api.factory.js';
 
@@ -37,6 +39,8 @@ export * from './data-type/simple-type.js';
 export * from './data-type/union-type.js';
 export type { MQControllerDecorator } from './decorators/mq-controller.decorator.js';
 export type { MQOperationDecorator } from './decorators/mq-operation.decorator.js';
+export type { WSControllerDecorator } from './decorators/ws-controller.decorator.js';
+export type { WSOperationDecorator } from './decorators/ws-operation.decorator.js';
 export * from './factory/api-document.factory.js';
 export * from './http/http-api.js';
 export * from './http/http-controller.js';
@@ -58,4 +62,6 @@ export namespace classes {
   export import DataTypeFactory = DataTypeFactory_.DataTypeFactory;
   export import MQOperationDecoratorFactory = MQOperationDecorator_.MQOperationDecoratorFactory;
   export import MQControllerDecoratorFactory = MQControllerDecorator_.MQControllerDecoratorFactory;
+  export import WSOperationDecoratorFactory = WSOperationDecorator_.WSOperationDecoratorFactory;
+  export import WSControllerDecoratorFactory = WSControllerDecorator_.WSControllerDecoratorFactory;
 }

@@ -10,6 +10,7 @@ import * as primitiveTypes from '../data-type/primitive-types/index.js';
 import { DataTypeFactory } from './data-type.factory.js';
 import { HttpApiFactory } from './http-api.factory.js';
 import { MQApiFactory } from './mq-api.factory.js';
+import { WSApiFactory } from './ws-api.factory.js';
 
 const OPRA_SPEC_URL = 'https://oprajs.com/spec/v' + OpraSchema.SpecVersion;
 
@@ -23,7 +24,8 @@ export namespace ApiDocumentFactory {
     types?: DataTypeInitSources;
     api?:
       | StrictOmit<HttpApiFactory.InitArguments, 'owner'>
-      | StrictOmit<MQApiFactory.InitArguments, 'owner'>;
+      | StrictOmit<MQApiFactory.InitArguments, 'owner'>
+      | StrictOmit<WSApiFactory.InitArguments, 'owner'>;
   }
 
   export type ReferenceSource =
