@@ -556,9 +556,9 @@ export namespace KafkaAdapter {
   };
 
   export interface Events {
-    error: [Error, KafkaContext | undefined];
-    finish: [KafkaContext, any];
-    execute: [KafkaContext];
-    message: [EachMessagePayload];
+    error: [error: Error, context: KafkaContext | undefined];
+    finish: [context: KafkaContext, result: any];
+    execute: [context: KafkaContext];
+    message: [content: EachMessagePayload];
   }
 }

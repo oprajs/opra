@@ -411,9 +411,9 @@ export namespace RabbitmqAdapter {
   };
 
   export interface Events {
-    error: [Error, RabbitmqContext | undefined];
-    execute: [RabbitmqContext];
-    finish: [RabbitmqContext, any];
-    message: [rabbit.AsyncMessage, string];
+    error: [error: Error, context: RabbitmqContext | undefined];
+    execute: [context: RabbitmqContext];
+    finish: [context: RabbitmqContext, result: any];
+    message: [message: rabbit.AsyncMessage, queue: string];
   }
 }

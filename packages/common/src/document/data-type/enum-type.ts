@@ -194,6 +194,7 @@ function EnumTypeFactory(enumSource: object, ...args: any[]) {
     }
     attributes = {};
     enumSource.forEach(k => {
+      if (!isNaN(Number(k))) return;
       const description = options?.meanings?.[k];
       attributes[k] = omitUndefined({ description });
     });
@@ -206,6 +207,7 @@ function EnumTypeFactory(enumSource: object, ...args: any[]) {
       out = { ...base, ...enumSource };
     }
     Object.keys(enumSource).forEach(k => {
+      if (!isNaN(Number(k))) return;
       const description = options?.meanings?.[k];
       attributes[enumSource[k]] = omitUndefined({ alias: k, description });
     });
