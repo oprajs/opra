@@ -60,7 +60,7 @@ export async function generateDocument(
           ? pascalCase(ref.info.title)
           : `Reference${refIdGenerator++}`);
       generator._documentRoot = '/references/' + typesNamespace;
-      generator._typesRoot = path.join(generator._documentRoot, 'models');
+      generator._typesRoot = path.posix.join(generator._documentRoot, 'models');
       generator._typesNamespace =
         !this.options.referenceNamespaces || ref[BUILTIN] ? '' : typesNamespace;
       await generator.generateDocument(ref, {

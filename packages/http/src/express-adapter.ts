@@ -102,7 +102,7 @@ export class ExpressAdapter extends HttpAdapter {
         controller: HttpController,
         currentPath: string,
       ) => {
-        currentPath = nodePath.join(currentPath, controller.path);
+        currentPath = nodePath.posix.join(currentPath, controller.path);
         for (const operation of controller.operations.values()) {
           const routePath = currentPath + (operation.path || '');
           const controllerInstance = this._controllerInstances.get(controller);
