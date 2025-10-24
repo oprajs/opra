@@ -1,13 +1,13 @@
 {
   "name": "example-websocket",
   "private": true,
-  "version": "1.19.4",
+  "version": "1.19.5",
   "type": "module",
   "module": "./start.js",
   "dependencies": {
-    "@opra/common": "^1.19.4",
-    "@opra/core": "^1.19.4",
-    "@opra/mongodb": "^1.19.4",
+    "@opra/common": "^1.19.5",
+    "@opra/core": "^1.19.5",
+    "@opra/mongodb": "^1.19.5",
     "express": "^5.1.0",
     "mongodb": "^6.20.0",
     "ts-gems": "^3.11.3"
