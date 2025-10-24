@@ -1,5 +1,5 @@
 import { ApiDocument, ApiDocumentFactory } from '@opra/common';
-import { CustomerModelsDocument } from 'customer-mongo';
+import { CustomerModelsDocument } from 'example-customer-mongo';
 import { Db } from 'mongodb';
 import { AuthController } from './api/auth.controller.js';
 import { CustomerController } from './api/customer.controller.js';

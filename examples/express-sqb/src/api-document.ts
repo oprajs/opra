@@ -1,6 +1,6 @@
 import { ApiDocument, ApiDocumentFactory } from '@opra/common';
 import { SqbClient } from '@sqb/connect';
-import { CustomerModelsDocument } from 'customer-sqb';
+import { CustomerModelsDocument } from 'example-customer-sqb';
 import { AuthController } from './api/auth.controller.js';
 import { CustomerController } from './api/customer-controller.js';
 import { CustomersController } from './api/customers-controller.js';

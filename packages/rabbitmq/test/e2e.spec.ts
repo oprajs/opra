@@ -5,7 +5,7 @@ import { RabbitmqAdapter } from '@opra/rabbitmq';
 import { expect } from 'expect';
 import * as rabbit from 'rabbitmq-client';
 import { TestController } from './_support/test-api/api/test-controller.js';
-import { TestRpcApiDocument } from './_support/test-api/index.js';
+import { TestMQApiDocument } from './_support/test-api/index.js';
 import { waitForMessage } from './_support/wait-for-message.js';
 
 describe('rabbitmq:RabbitmqAdapter:e2e', () => {
@@ -30,7 +30,7 @@ describe('rabbitmq:RabbitmqAdapter:e2e', () => {
   });
 
   before(async () => {
-    document = await TestRpcApiDocument.create();
+    document = await TestMQApiDocument.create();
     adapter = new RabbitmqAdapter(document, {
       connection: process.env.RABBITMQ_HOST,
       logger,

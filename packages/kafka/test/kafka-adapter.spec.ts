@@ -4,7 +4,7 @@ import { KafkaAdapter } from '@opra/kafka';
 import { expect } from 'expect';
 import { Kafka } from 'kafkajs';
 import * as sinon from 'sinon';
-import { TestRpcApiDocument } from './_support/test-api/index.js';
+import { TestMQApiDocument } from './_support/test-api/index.js';
 
 describe('kafka:KafkaAdapter', () => {
   let document: ApiDocument;
@@ -15,7 +15,7 @@ describe('kafka:KafkaAdapter', () => {
   };
 
   before(async () => {
-    document = await TestRpcApiDocument.create();
+    document = await TestMQApiDocument.create();
   });
 
   afterEach(async () => adapter?.close());

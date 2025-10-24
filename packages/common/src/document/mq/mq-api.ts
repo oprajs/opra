@@ -3,35 +3,35 @@ import { ResponsiveMap } from '../../helpers/index.js';
 import { OpraSchema } from '../../schema/index.js';
 import type { ApiDocument } from '../api-document';
 import { ApiBase } from '../common/api-base.js';
-import { RpcController } from './rpc-controller.js';
-import { RpcOperation } from './rpc-operation.js';
+import { MQController } from './mq-controller.js';
+import { MQOperation } from './mq-operation.js';
 
-export namespace RpcApi {
+export namespace MQApi {
   export interface InitArguments
     extends ApiBase.InitArguments,
-      StrictOmit<OpraSchema.RpcApi, 'controllers'> {}
+      StrictOmit<OpraSchema.MQApi, 'controllers'> {}
 }
 
 /**
- * @class RpcApi
+ * @class MQApi
  */
-export class RpcApi extends ApiBase {
+export class MQApi extends ApiBase {
   // noinspection JSUnusedGlobalSymbols
-  protected _controllerReverseMap: WeakMap<Type, RpcController | null> =
+  protected _controllerReverseMap: WeakMap<Type, MQController | null> =
     new WeakMap();
   declare readonly owner: ApiDocument;
-  readonly transport = 'rpc';
+  readonly transport = 'mq';
   platform: string;
-  controllers: ResponsiveMap<RpcController> = new ResponsiveMap();
+  controllers: ResponsiveMap<MQController> = new ResponsiveMap();
 
-  constructor(init: RpcApi.InitArguments) {
+  constructor(init: MQApi.InitArguments) {
     super(init);
     this.platform = init.platform;
   }
 
-  findController(controller: Type): RpcController | undefined;
-  findController(name: string): RpcController | undefined;
-  findController(arg0: string | Type): RpcController | undefined {
+  findController(controller: Type): MQController | undefined;
+  findController(name: string): MQController | undefined;
+  findController(arg0: string | Type): MQController | undefined {
     if (typeof arg0 === 'function') {
       /** Check for cached mapping */
       const controller = this._controllerReverseMap.get(arg0);
@@ -52,22 +52,22 @@ export class RpcApi extends ApiBase {
   findOperation(
     controller: Type,
     operationName: string,
-  ): RpcOperation | undefined;
+  ): MQOperation | undefined;
   findOperation(
     controllerName: string,
     operationName: string,
-  ): RpcOperation | undefined;
+  ): MQOperation | undefined;
   findOperation(
     arg0: string | Type,
     operationName: string,
-  ): RpcOperation | undefined {
+  ): MQOperation | undefined {
     const controller = this.findController(arg0 as any);
     return controller?.operations.get(operationName);
   }
 
-  toJSON(): OpraSchema.RpcApi {
+  toJSON(): OpraSchema.MQApi {
     const schema = super.toJSON();
-    const out: OpraSchema.RpcApi = {
+    const out: OpraSchema.MQApi = {
       ...schema,
       transport: this.transport,
       platform: this.platform,

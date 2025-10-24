@@ -11,7 +11,7 @@ import {
 } from '@nestjs/common';
 import { ModuleRef } from '@nestjs/core';
 import { ApiDocumentFactory } from '@opra/common';
-import { RpcControllerFactory } from '@opra/nestjs';
+import { MQControllerFactory } from '@opra/nestjs';
 import { RabbitmqAdapter, type RabbitmqContext } from '@opra/rabbitmq';
 import { OPRA_RMQ_MODULE_CONFIG } from './constants.js';
 import type { OpraRabbitmqModule } from './opra-rabbitmq.module.js';
@@ -24,7 +24,7 @@ export class OpraRabbitmqCoreModule
   implements OnModuleInit, OnApplicationBootstrap, OnApplicationShutdown
 {
   constructor(
-    private controllerFactory: RpcControllerFactory,
+    private controllerFactory: MQControllerFactory,
     @Inject(opraRabbitmqNestjsAdapterToken)
     protected adapter: RabbitmqAdapter,
     @Inject(OPRA_RMQ_MODULE_CONFIG)
@@ -80,9 +80,9 @@ export class OpraRabbitmqCoreModule
     const token = moduleOptions.id || RabbitmqAdapter;
     const adapterProvider = {
       provide: token,
-      inject: [RpcControllerFactory, ModuleRef, OPRA_RMQ_MODULE_CONFIG],
+      inject: [MQControllerFactory, ModuleRef, OPRA_RMQ_MODULE_CONFIG],
       useFactory: async (
-        controllerFactory: RpcControllerFactory,
+        controllerFactory: MQControllerFactory,
         moduleRef: ModuleRef,
         config: OpraRabbitmqModule.ApiConfig,
       ) => {
@@ -96,7 +96,7 @@ export class OpraRabbitmqCoreModule
           api: {
             name: config.name,
             description: config.description,
-            transport: 'rpc',
+            transport: 'mq',
             platform: RabbitmqAdapter.PlatformName,
             controllers,
           },
@@ -126,7 +126,7 @@ export class OpraRabbitmqCoreModule
       controllers: moduleOptions.controllers,
       providers: [
         ...(moduleOptions?.providers || []),
-        RpcControllerFactory,
+        MQControllerFactory,
         adapterProvider,
         {
           provide: opraRabbitmqNestjsAdapterToken,
@@ -141,8 +141,8 @@ export class OpraRabbitmqCoreModule
   onModuleInit(): any {
     /** NestJS initialize controller instances on init stage.
      * So we should update instance properties */
-    const rpcApi = this.adapter.document.rpcApi;
-    const controllers = Array.from(rpcApi.controllers.values());
+    const mqApi = this.adapter.document.mqApi;
+    const controllers = Array.from(mqApi.controllers.values());
     for (const { wrapper } of this.controllerFactory
       .exploreControllers()
       .values()) {

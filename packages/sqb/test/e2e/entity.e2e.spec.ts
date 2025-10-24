@@ -1,6 +1,6 @@
 import '@opra/sqb';
 import { OpraTestClient } from '@opra/testing';
-import { CustomerApplication } from 'express-sqb';
+import { CustomerApplication } from 'example-express-sqb';
 import { entityTests } from '../../../http/test/e2e/tests/index.js';
 
 describe('sqb:e2e tests', function () {

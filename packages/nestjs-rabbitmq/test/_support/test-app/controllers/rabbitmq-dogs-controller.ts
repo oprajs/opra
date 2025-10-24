@@ -1,11 +1,11 @@
 import { UseGuards, UseInterceptors } from '@nestjs/common';
-import { RpcController, RpcOperation } from '@opra/common';
+import { MQController, MQOperation } from '@opra/common';
 import { Cat } from '../models/cat.js';
 import { AuthGuard } from '../providers/auth.guard.js';
 import { TestInterceptor } from '../providers/test.interceptor.js';
 import { DogsService } from '../services/dogs.service.js';
 
-@(RpcController({
+@(MQController({
   name: 'Dogs',
   description: 'Dog consumer controller',
 }).Header('access-token', 'string'))
@@ -19,7 +19,7 @@ export class RabbitmqDogsController {
   /**
    *
    */
-  @(RpcOperation(Cat, {
+  @(MQOperation(Cat, {
     channel: 'feed-dog',
   }).Header('header1', 'integer'))
   // .Response('string', {

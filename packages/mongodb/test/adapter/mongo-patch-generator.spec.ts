@@ -1,7 +1,7 @@
 import { ApiDocument, ComplexType } from '@opra/common';
 import { MongoPatchGenerator } from '@opra/mongodb';
+import { CustomerApplication } from 'example-express-mongo';
 import { expect } from 'expect';
-import { CustomerApplication } from 'express-mongo';
 
 describe('mongodb:MongoPatchGenerator', () => {
   let document: ApiDocument;

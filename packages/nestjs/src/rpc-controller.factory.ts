@@ -14,13 +14,14 @@ import { InternalCoreModule } from '@nestjs/core/injector/internal-core-module/i
 import type { Module } from '@nestjs/core/injector/module.js';
 import { REQUEST_CONTEXT_ID } from '@nestjs/core/router/request/request-constants.js';
 import { PARAM_ARGS_METADATA } from '@nestjs/microservices/constants.js';
-import { RPC_CONTROLLER_METADATA, type RpcController } from '@opra/common';
+import { type MQController, RPC_CONTROLLER_METADATA } from '@opra/common';
 import type { ExecutionContext as OpraExecutionContext } from '@opra/core';
 import { OpraNestUtils } from './opra-nest-utils.js';
 import { RpcParamsFactory } from './rpc-params.factory.js';
 
 @Injectable()
 export class RpcControllerFactory {
+  protected _metadataKey = RPC_CONTROLLER_METADATA;
   private _coreModuleRef?: Module;
   private readonly paramsFactory = new RpcParamsFactory();
   private readonly injector = new Injector();
@@ -35,8 +36,8 @@ export class RpcControllerFactory {
     for (const { module, wrapper } of this.exploreControllers()) {
       const instance = wrapper.instance;
       const sourceClass = instance.constructor;
-      const metadata: RpcController.Metadata = Reflect.getMetadata(
-        RPC_CONTROLLER_METADATA,
+      const metadata: MQController.Metadata = Reflect.getMetadata(
+        this._metadataKey,
         sourceClass,
       );
       const isRequestScoped = !wrapper.isDependencyTreeStatic();
@@ -169,7 +170,7 @@ export class RpcControllerFactory {
           typeof wrapper.instance === 'object' &&
           wrapper.instance.constructor &&
           Reflect.getMetadata(
-            RPC_CONTROLLER_METADATA,
+            this._metadataKey,
             wrapper.instance.constructor,
           ) &&
           !controllers.has(wrapper)

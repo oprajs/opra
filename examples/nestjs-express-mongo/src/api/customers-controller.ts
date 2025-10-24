@@ -6,7 +6,7 @@ import {
 } from '@opra/common';
 import { HttpContext } from '@opra/http';
 import { MongoAdapter } from '@opra/mongodb';
-import { Customer, CustomersService } from 'customer-mongo';
+import { Customer, CustomersService } from 'example-customer-mongo';
 import { Db } from 'mongodb';
 import { type PartialDTO } from 'ts-gems';
 

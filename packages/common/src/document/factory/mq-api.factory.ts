@@ -3,38 +3,38 @@ import type { Type } from 'ts-gems';
 import { resolveThunk } from '../../helpers/index.js';
 import { OpraSchema } from '../../schema/index.js';
 import { DocumentInitContext } from '../common/document-init-context.js';
-import { RPC_CONTROLLER_METADATA } from '../constants.js';
-import { RpcApi } from '../rpc/rpc-api.js';
-import { RpcController } from '../rpc/rpc-controller.js';
-import { RpcHeader } from '../rpc/rpc-header.js';
-import { RpcOperation } from '../rpc/rpc-operation.js';
-import { RpcOperationResponse } from '../rpc/rpc-operation-response.js';
+import { MQ_CONTROLLER_METADATA } from '../constants.js';
+import { MQApi } from '../mq/mq-api.js';
+import { MQController } from '../mq/mq-controller.js';
+import { MQHeader } from '../mq/mq-header.js';
+import { MQOperation } from '../mq/mq-operation.js';
+import { MQOperationResponse } from '../mq/mq-operation-response.js';
 import { DataTypeFactory } from './data-type.factory.js';
 
-export namespace RpcApiFactory {
-  export interface InitArguments extends RpcApi.InitArguments {
+export namespace MQApiFactory {
+  export interface InitArguments extends MQApi.InitArguments {
     controllers:
       | Type[]
       | any[]
       | ((parent: any) => any)
-      | OpraSchema.RpcApi['controllers'];
+      | OpraSchema.MQApi['controllers'];
   }
 }
 
 /**
- * @class RpcApiFactory
+ * @class MQApiFactory
  */
-export class RpcApiFactory {
+export class MQApiFactory {
   /**
-   * Generates RpcApi
+   * Generates MQApi
    * @param context
    * @param init
    */
   static async createApi(
     context: DocumentInitContext,
-    init: RpcApiFactory.InitArguments,
-  ): Promise<RpcApi> {
-    const api = new RpcApi(init);
+    init: MQApiFactory.InitArguments,
+  ): Promise<MQApi> {
+    const api = new MQApi(init);
     if (init.controllers) {
       await context.enterAsync('.controllers', async () => {
         if (Array.isArray(init.controllers)) {
@@ -55,34 +55,34 @@ export class RpcApiFactory {
 
   protected static async _createController(
     context: DocumentInitContext,
-    parent: RpcApi,
-    thunk: Type | object | Function | OpraSchema.RpcController,
+    parent: MQApi,
+    thunk: Type | object | Function | OpraSchema.MQController,
     name?: string,
-  ): Promise<RpcController | undefined | void> {
+  ): Promise<MQController | undefined | void> {
     if (typeof thunk === 'function' && !isConstructor(thunk)) {
       thunk = thunk();
     }
     thunk = await resolveThunk(thunk);
     let ctor: Type;
-    let metadata: RpcController.Metadata | OpraSchema.RpcController;
+    let metadata: MQController.Metadata | OpraSchema.MQController;
     let instance: any;
 
     // If thunk is a class
     if (typeof thunk === 'function') {
-      metadata = Reflect.getMetadata(RPC_CONTROLLER_METADATA, thunk);
+      metadata = Reflect.getMetadata(MQ_CONTROLLER_METADATA, thunk);
       if (!metadata)
         return context.addError(
-          `Class "${thunk.name}" doesn't have a valid RpcController metadata`,
+          `Class "${thunk.name}" doesn't have a valid MQController metadata`,
         );
       ctor = thunk as Type;
     } else {
-      // If thunk is an instance of a class decorated with RpcController()
+      // If thunk is an instance of a class decorated with MQController()
       ctor = Object.getPrototypeOf(thunk).constructor;
-      metadata = Reflect.getMetadata(RPC_CONTROLLER_METADATA, ctor);
+      metadata = Reflect.getMetadata(MQ_CONTROLLER_METADATA, ctor);
       if (metadata) instance = thunk;
       else {
         // If thunk is a DecoratorMetadata or InitArguments
-        metadata = thunk as RpcController.Metadata;
+        metadata = thunk as MQController.Metadata;
         if ((thunk as any).instance === 'object') {
           instance = (thunk as any).instance;
           ctor = Object.getPrototypeOf(instance).constructor;
@@ -91,12 +91,12 @@ export class RpcApiFactory {
     }
     if (!metadata)
       return context.addError(
-        `Class "${ctor.name}" is not decorated with RpcController()`,
+        `Class "${ctor.name}" is not decorated with MQController()`,
       );
     name = name || (metadata as any).name;
     if (!name) throw new TypeError(`Controller name required`);
 
-    const controller = new RpcController(parent, {
+    const controller = new MQController(parent, {
       ...metadata,
       name,
       instance,
@@ -117,7 +117,7 @@ export class RpcApiFactory {
         let i = 0;
         for (const v of metadata.headers!) {
           await context.enterAsync(`[${i++}]`, async () => {
-            const prmArgs = { ...v } as RpcHeader.InitArguments;
+            const prmArgs = { ...v } as MQHeader.InitArguments;
             await context.enterAsync('.type', async () => {
               if (v.type) prmArgs.type = controller.node.findDataType(v.type);
               if (!prmArgs.type && typeof v.type === 'object') {
@@ -130,7 +130,7 @@ export class RpcApiFactory {
               if (!prmArgs.type)
                 prmArgs.type = controller.node.getDataType('any');
             });
-            const prm = new RpcHeader(controller, prmArgs);
+            const prm = new MQHeader(controller, prmArgs);
             controller.headers.push(prm);
           });
         }
@@ -143,14 +143,14 @@ export class RpcApiFactory {
           metadata.operations!,
         )) {
           await context.enterAsync(`[${operationName}]`, async () => {
-            const operation = new RpcOperation(controller, {
+            const operation = new MQOperation(controller, {
               ...operationMeta,
               name: operationName,
               types: undefined,
               payloadType: undefined,
               keyType: undefined,
             });
-            await this._initRpcOperation(context, operation, operationMeta);
+            await this._initMQOperation(context, operation, operationMeta);
             controller.operations.set(operation.name, operation);
           });
         }
@@ -161,16 +161,16 @@ export class RpcApiFactory {
   }
 
   /**
-   * Initializes RpcOperation
+   * Initializes MQOperation
    * @param context
    * @param operation
    * @param metadata
    * @protected
    */
-  protected static async _initRpcOperation(
+  protected static async _initMQOperation(
     context: DocumentInitContext,
-    operation: RpcOperation,
-    metadata: RpcOperation.Metadata | OpraSchema.RpcOperation,
+    operation: MQOperation,
+    metadata: MQOperation.Metadata | OpraSchema.MQOperation,
   ): Promise<void> {
     if (metadata.types) {
       await context.enterAsync('.types', async () => {
@@ -196,7 +196,7 @@ export class RpcApiFactory {
         let i = 0;
         for (const v of metadata.headers!) {
           await context.enterAsync(`[${i++}]`, async () => {
-            const prmArgs = { ...v } as RpcHeader.InitArguments;
+            const prmArgs = { ...v } as MQHeader.InitArguments;
             await context.enterAsync('.type', async () => {
               prmArgs.type = await DataTypeFactory.resolveDataType(
                 context,
@@ -204,7 +204,7 @@ export class RpcApiFactory {
                 v.type,
               );
             });
-            const prm = new RpcHeader(operation, prmArgs);
+            const prm = new MQHeader(operation, prmArgs);
             operation.headers.push(prm);
           });
         }
@@ -213,12 +213,12 @@ export class RpcApiFactory {
 
     if (metadata.response) {
       await context.enterAsync('.response', async () => {
-        const response = new RpcOperationResponse(operation, {
+        const response = new MQOperationResponse(operation, {
           ...metadata.response!,
           payloadType: undefined,
           keyType: undefined,
         });
-        await this._initRpcOperationResponse(
+        await this._initMQOperationResponse(
           context,
           response,
           metadata.response!,
@@ -229,16 +229,16 @@ export class RpcApiFactory {
   }
 
   /**
-   * Initializes RpcOperationResponse
+   * Initializes MQOperationResponse
    * @param context
    * @param response
    * @param metadata
    * @protected
    */
-  protected static async _initRpcOperationResponse(
+  protected static async _initMQOperationResponse(
     context: DocumentInitContext,
-    response: RpcOperationResponse,
-    metadata: RpcOperationResponse.Metadata | OpraSchema.RpcOperationResponse,
+    response: MQOperationResponse,
+    metadata: MQOperationResponse.Metadata | OpraSchema.MQOperationResponse,
   ): Promise<void> {
     (response as any).payloadType = await DataTypeFactory.resolveDataType(
       context,
@@ -258,7 +258,7 @@ export class RpcApiFactory {
         let i = 0;
         for (const v of metadata.headers!) {
           await context.enterAsync(`[${i++}]`, async () => {
-            const prmArgs = { ...v } as RpcHeader.InitArguments;
+            const prmArgs = { ...v } as MQHeader.InitArguments;
             await context.enterAsync('.type', async () => {
               prmArgs.type = await DataTypeFactory.resolveDataType(
                 context,
@@ -266,7 +266,7 @@ export class RpcApiFactory {
                 v.type,
               );
             });
-            const prm = new RpcHeader(response, prmArgs);
+            const prm = new MQHeader(response, prmArgs);
             response.headers.push(prm);
           });
         }

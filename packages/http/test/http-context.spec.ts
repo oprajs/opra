@@ -32,8 +32,7 @@ describe('http:HttpContext', () => {
     document = await createTestApi();
     app = express();
     app.use(cookieParser());
-    adapter = new ExpressAdapter(app);
-    adapter.initialize(document);
+    adapter = new ExpressAdapter(app, document);
   });
 
   after(async () => adapter.close());

@@ -22,23 +22,22 @@ export class ExpressAdapter extends HttpAdapter {
   readonly app: Application;
   protected _controllerInstances = new Map<HttpController, any>();
 
-  constructor(app: Application, options?: HttpAdapter.Options) {
+  constructor(
+    app: Application,
+    document: ApiDocument,
+    options?: HttpAdapter.Options,
+  ) {
     super(options);
     this.app = app;
-  }
-
-  get platform(): string {
-    return 'express';
-  }
-
-  initialize(document: ApiDocument) {
-    if (this._document)
-      throw new TypeError(`${this.constructor.name} already initialized.`);
     if (!(document.api instanceof HttpApi))
       throw new TypeError(`The document does not expose an HTTP Api`);
     this._document = document;
     for (const c of this.api.controllers.values()) this._createControllers(c);
     this._initRouter();
+  }
+
+  get platform(): string {
+    return 'express';
   }
 
   async close() {

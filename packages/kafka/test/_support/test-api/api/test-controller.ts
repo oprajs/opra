@@ -1,8 +1,8 @@
-import { RpcController, RpcOperation } from '@opra/common';
+import { MQController, MQOperation } from '@opra/common';
 import { KafkaContext } from '@opra/kafka';
 import { SendMailDto } from '../dto/send-mail.dto.js';
 
-@(RpcController({
+@(MQController({
   description: 'Test controller',
   name: 'Test',
 }).Header('access-token', 'string'))
@@ -17,7 +17,7 @@ export class TestController {
   /**
    *
    */
-  @(RpcOperation(SendMailDto, {
+  @(MQOperation(SendMailDto, {
     channel: 'email-channel-1',
   })
     .Kafka({
@@ -35,7 +35,7 @@ export class TestController {
   /**
    *
    */
-  @(RpcOperation(SendMailDto, {
+  @(MQOperation(SendMailDto, {
     channel: 'email-channel-1',
   })
     .Kafka(() => ({
@@ -50,7 +50,7 @@ export class TestController {
   /**
    *
    */
-  @(RpcOperation(SendMailDto, {
+  @(MQOperation(SendMailDto, {
     channel: 'sms-channel-1',
   }).Kafka({
     consumer: 'group-1',
@@ -63,7 +63,7 @@ export class TestController {
   /**
    *
    */
-  @(RpcOperation(SendMailDto, {
+  @(MQOperation(SendMailDto, {
     channel: /^sms-channel-\d+/,
   }).Kafka({
     consumer: 'group-2',

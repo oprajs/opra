@@ -255,9 +255,10 @@ export async function _generateComplexTypeCode(
       out += `${t === 'number' || t === 'boolean' || t === 'bigint' ? field.fixed : "'" + field.fixed + "'"}\n`;
     } else {
       const x = await this.generateDataType(field.type, 'typeDef', currentFile);
-      out +=
-        (x.kind === 'embedded' ? x.code : x.typeName) +
-        `${field.isArray ? '[]' : ''};\n`;
+      const s = x.kind === 'embedded' ? x.code : x.typeName;
+      if (field.isArray) {
+        out += /[a-zA-Z]\w*/.test(s) ? s + '[]' : '(' + s + ')[]';
+      }
     }
   }
   if (dataType.additionalFields) out += '[key: string]: any;\n';

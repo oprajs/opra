@@ -1,6 +1,6 @@
 import { ApiDocumentFactory, OpraSchema } from '@opra/common';
 import assert from 'assert';
-import { Country } from 'customer-mongo/models';
+import { Country } from 'example-customer-mongo/models';
 import { expect } from 'expect';
 
 describe('common:HttpApiFactory - HttpOperation (Schema)', () => {

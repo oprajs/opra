@@ -1,6 +1,6 @@
 {
   "name": "@opra/angular",
-  "version": "1.19.4",
+  "version": "1.19.5",
   "description": "Opra internationalization package",
   "author": "Panates",
   "license": "MIT",
@@ -26,8 +26,8 @@
   "peerDependencies": {
     "@angular/common": ">=18.0.0",
     "@angular/core": ">=18.0.0",
-    "@browsery/type-is": "^1.6.18-r8",
-    "@opra/client": "^1.19.4",
+    "@browsery/type-is": "^2.0.1",
+    "@opra/client": "^1.19.5",
     "rxjs": ">=7.8.0 <8",
     "ts-gems": "^3.11.3"
   },
@@ -38,11 +38,11 @@
     "@angular/compiler-cli": "19.2.14",
     "@angular/platform-browser": "19.2.14",
     "@angular/platform-browser-dynamic": "19.2.14",
-    "@opra/client": "^1.19.4",
+    "@opra/client": "^1.19.5",
     "rxjs": "^7.8.2",
-    "core-js": "^3.45.0",
+    "core-js": "^3.46.0",
     "cross-fetch": "^4.1.0",
-    "expect": "^30.0.5",
+    "expect": "^30.2.0",
     "express": "^5.1.0",
     "ng-packagr": "19.2.2",
     "superagent": "^10.2.3",

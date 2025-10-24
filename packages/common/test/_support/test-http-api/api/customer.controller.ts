@@ -1,5 +1,5 @@
 import { HttpController, HttpOperation } from '@opra/common';
-import { Customer } from 'customer-mongo/models';
+import { Customer } from 'example-customer-mongo/models';
 
 @(HttpController({
   description: 'Customer resource',

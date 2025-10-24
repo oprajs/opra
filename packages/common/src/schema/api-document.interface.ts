@@ -1,17 +1,8 @@
 import type { SpecVersion } from './constants.js';
 import type { DataTypeContainer } from './data-type-container.interface.js';
-import type { HttpController } from './http/http-controller.interface.js';
-import type { RpcController } from './rpc/rpc-controller.interface.js';
-
-export type Transport =
-  /** Custom **/
-  | 'custom'
-  /** HTTP **/
-  | 'http'
-  /** WebSocket*/
-  | 'ws'
-  /** Remote Procedure Call (Kafka, RabbitMQ, MQTT etc) */
-  | 'rpc';
+import type { HttpApi } from './http/http-api.interface.js';
+import type { MQApi } from './mq/mq-api.interface.js';
+import type { WSApi } from './ws/ws-api.interface.js';
 
 /**
  * @interface ApiDocument
@@ -22,7 +13,7 @@ export interface ApiDocument extends DataTypeContainer {
   url?: string;
   info?: DocumentInfo;
   references?: Record<string, DocumentReference>;
-  api?: HttpApi | RpcApi;
+  api?: HttpApi | MQApi | WSApi;
 }
 
 /**
@@ -60,40 +51,3 @@ export interface LicenseInfo {
  */
 export interface DocumentReference
   extends Pick<ApiDocument, 'id' | 'url' | 'info'> {}
-
-/**
- * @interface Api
- */
-export interface Api extends DataTypeContainer {
-  transport: Transport;
-  /**
-   * Name of the api. Should be a computer friendly name
-   */
-  name: string;
-  description?: string;
-}
-
-/**
- * HTTP Api
- * @interface HttpApi
- */
-export interface HttpApi extends Api {
-  transport: 'http';
-  description?: string;
-  url?: string;
-  controllers: Record<string, HttpController>;
-}
-
-/**
- * Message Api (Kafka, RabbitMQ, MQTT etc)
- * @interface RpcApi
- */
-export interface RpcApi extends Api {
-  transport: 'rpc';
-  /**
-   * Name of the platform. (Kafka, RabbitMQ, etc.)
-   */
-  platform: string;
-  description?: string;
-  controllers: Record<string, RpcController>;
-}

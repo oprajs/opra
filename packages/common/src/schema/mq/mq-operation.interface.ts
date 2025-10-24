@@ -1,29 +1,29 @@
 import { DataType } from '../data-type/data-type.interface.js';
 import type { DataTypeContainer } from '../data-type-container.interface.js';
-import type { RpcHeader } from './rpc-header.interface.js';
+import type { MQHeader } from './mq-header.interface.js';
 
 /**
- * @interface RpcOperation
+ * @interface MQOperation
  */
-export interface RpcOperation extends DataTypeContainer {
-  kind: RpcOperation.Kind;
+export interface MQOperation extends DataTypeContainer {
+  kind: MQOperation.Kind;
   description?: string;
   channel: string | RegExp | (string | RegExp)[];
   payloadType: string | DataType;
   keyType?: string | DataType;
-  headers?: RpcHeader[];
-  response?: RpcOperationResponse;
+  headers?: MQHeader[];
+  response?: MQOperationResponse;
 }
 
-export interface RpcOperationResponse {
+export interface MQOperationResponse {
   description?: string;
   channel?: string | RegExp | (string | RegExp)[];
   payloadType: string | DataType;
   keyType?: string | DataType;
-  headers?: RpcHeader[];
+  headers?: MQHeader[];
 }
 
-export namespace RpcOperation {
-  export const Kind = 'RpcOperation';
-  export type Kind = 'RpcOperation';
+export namespace MQOperation {
+  export const Kind = 'MQOperation';
+  export type Kind = 'MQOperation';
 }

@@ -13,10 +13,10 @@ import type { EnumType } from '../data-type/enum-type.js';
 import { parseRegExp } from '../utils/parse-regexp.util.js';
 
 /**
- * @namespace RpcHeader
+ * @namespace MQHeader
  */
-export namespace RpcHeader {
-  export interface Metadata extends StrictOmit<OpraSchema.RpcHeader, 'type'> {
+export namespace MQHeader {
+  export interface Metadata extends StrictOmit<OpraSchema.MQHeader, 'type'> {
     name: string | RegExp;
     type?:
       | string
@@ -40,25 +40,25 @@ export namespace RpcHeader {
 }
 
 /**
- * Type definition for RpcHeader
- * @class RpcHeader
+ * Type definition for MQHeader
+ * @class MQHeader
  */
-interface RpcHeaderStatic {
-  new (owner: DocumentElement, args: RpcHeader.InitArguments): RpcHeader;
+interface MQHeaderStatic {
+  new (owner: DocumentElement, args: MQHeader.InitArguments): MQHeader;
 
-  prototype: RpcHeader;
+  prototype: MQHeader;
 }
 
 /**
- * Type definition of RpcHeader prototype
- * @interface RpcHeader
+ * Type definition of MQHeader prototype
+ * @interface MQHeader
  */
-export interface RpcHeader extends RpcHeaderClass {}
+export interface MQHeader extends MQHeaderClass {}
 
-export const RpcHeader = function (
-  this: RpcHeader,
+export const MQHeader = function (
+  this: MQHeader,
   owner: DocumentElement,
-  initArgs: RpcHeader.InitArguments,
+  initArgs: MQHeader.InitArguments,
 ) {
   if (!this)
     throw new TypeError('"this" should be passed to call class constructor');
@@ -77,18 +77,18 @@ export const RpcHeader = function (
   }
   _this.deprecated = initArgs.deprecated;
   _this.required = initArgs.required;
-} as Function as RpcHeaderStatic;
+} as Function as MQHeaderStatic;
 
 /**
- * @class RpcHeader
+ * @class MQHeader
  */
-class RpcHeaderClass extends Value {
+class MQHeaderClass extends Value {
   declare readonly owner: DocumentElement;
   declare deprecated?: boolean | string;
   declare required?: boolean;
 
-  toJSON(): OpraSchema.RpcHeader {
-    return omitUndefined<OpraSchema.RpcHeader>({
+  toJSON(): OpraSchema.MQHeader {
+    return omitUndefined<OpraSchema.MQHeader>({
       ...super.toJSON(),
       name: this.name,
       required: this.required,
@@ -97,4 +97,4 @@ class RpcHeaderClass extends Value {
   }
 }
 
-RpcHeader.prototype = RpcHeaderClass.prototype;
+MQHeader.prototype = MQHeaderClass.prototype;

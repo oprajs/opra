@@ -1,7 +1,7 @@
-import { RpcController, RpcOperation } from '@opra/common';
+import { MQController, MQOperation } from '@opra/common';
 import { SendMailDto } from '../dto/send-mail.dto.js';
 
-@(RpcController({
+@(MQController({
   description: 'Test controller',
   name: 'Test',
 }).Header('access-token', 'string'))
@@ -14,7 +14,7 @@ export class TestController {
   /**
    *
    */
-  @(RpcOperation(SendMailDto, {
+  @(MQOperation(SendMailDto, {
     channel: 'email-channel',
   })
     .Header('header2', 'integer')
@@ -28,7 +28,7 @@ export class TestController {
   /**
    *
    */
-  @(RpcOperation(SendMailDto, {
+  @(MQOperation(SendMailDto, {
     channel: 'sms-channel',
   }).RabbitMQ({}))
   smsChannel() {

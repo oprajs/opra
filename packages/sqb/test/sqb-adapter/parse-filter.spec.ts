@@ -18,8 +18,8 @@ import {
   NotILike,
   Or,
 } from '@sqb/builder';
+import { CustomerApplication } from 'example-express-sqb';
 import { expect } from 'expect';
-import { CustomerApplication } from 'express-sqb';
 import { Validator } from 'valgen';
 
 describe('sqb:SQBAdapter.prepareFilter', () => {

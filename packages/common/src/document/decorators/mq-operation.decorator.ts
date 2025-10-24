@@ -1,70 +1,70 @@
 import { omit } from '@jsopen/objects';
 import type { ThunkAsync, Type, TypeThunkAsync } from 'ts-gems';
 import { OpraSchema } from '../../schema/index.js';
-import { RPC_CONTROLLER_METADATA } from '../constants.js';
-import type { RpcController } from '../rpc/rpc-controller';
-import type { RpcHeader } from '../rpc/rpc-header';
-import type { RpcOperation } from '../rpc/rpc-operation';
-import type { RpcOperationResponse } from '../rpc/rpc-operation-response';
+import { MQ_CONTROLLER_METADATA } from '../constants.js';
+import type { MQController } from '../mq/mq-controller.js';
+import type { MQHeader } from '../mq/mq-header';
+import type { MQOperation } from '../mq/mq-operation.js';
+import type { MQOperationResponse } from '../mq/mq-operation-response.js';
 
-export interface RpcOperationDecorator {
+export interface MQOperationDecorator {
   (target: Object, propertyKey: string): void;
 
   Header(
     name: string | RegExp,
-    optionsOrType?: RpcHeader.Options | string | TypeThunkAsync,
+    optionsOrType?: MQHeader.Options | string | TypeThunkAsync,
   ): this;
 
   Response(
     payloadType: TypeThunkAsync | string,
-    options?: RpcOperationResponse.Options,
-  ): RpcOperationResponseDecorator;
+    options?: MQOperationResponse.Options,
+  ): MQOperationResponseDecorator;
 
   UseType(...type: Type[]): this;
 }
 
-export interface RpcOperationResponseDecorator {
+export interface MQOperationResponseDecorator {
   (target: Object, propertyKey: string): void;
 
   Header(
     name: string | RegExp,
-    optionsOrType?: RpcHeader.Options | string | TypeThunkAsync,
+    optionsOrType?: MQHeader.Options | string | TypeThunkAsync,
   ): this;
 }
 
 /**
- * @namespace RpcOperationDecoratorFactory
+ * @namespace MQOperationDecoratorFactory
  */
-export interface RpcOperationDecoratorFactory {
+export interface MQOperationDecoratorFactory {
   /**
    * Property decorator
    * @param decoratorChain
    * @param payloadType
    * @param options
-   */ <T extends RpcOperation.Options>(
+   */ <T extends MQOperation.Options>(
     decoratorChain: Function[],
     payloadType: ThunkAsync<Type> | string,
     options?: T,
-  ): RpcOperationDecorator;
+  ): MQOperationDecorator;
 }
 
-export namespace RpcOperationDecoratorFactory {
+export namespace MQOperationDecoratorFactory {
   export type AugmentationFunction = (
-    decorator: RpcOperationDecorator,
+    decorator: MQOperationDecorator,
     decoratorChain: Function[],
     payloadType: ThunkAsync<Type> | string,
-    options?: RpcOperation.Options,
+    options?: MQOperation.Options,
   ) => void;
 }
 
-const augmentationRegistry: RpcOperationDecoratorFactory.AugmentationFunction[] =
+const augmentationRegistry: MQOperationDecoratorFactory.AugmentationFunction[] =
   [];
 
-export function RpcOperationDecoratorFactory(
+export function MQOperationDecoratorFactory(
   decoratorChain: Function[],
   payloadType: ThunkAsync<Type> | string | TypeThunkAsync,
-  options?: RpcOperation.Options,
-): RpcOperationDecorator {
+  options?: MQOperation.Options,
+): MQOperationDecorator {
   let inResponse = false;
   /**
    *
@@ -74,31 +74,31 @@ export function RpcOperationDecoratorFactory(
       throw new TypeError(`Symbol properties can not be decorated`);
 
     const operationMetadata = {
-      kind: OpraSchema.RpcOperation.Kind,
+      kind: OpraSchema.MQOperation.Kind,
       channel: propertyKey,
       payloadType,
       ...omit(options as any, ['kind', 'payloadType']),
-    } as RpcOperation.Metadata;
+    } as MQOperation.Metadata;
 
     const controllerMetadata = (Reflect.getOwnMetadata(
-      RPC_CONTROLLER_METADATA,
+      MQ_CONTROLLER_METADATA,
       target.constructor,
-    ) || {}) as RpcController.Metadata;
+    ) || {}) as MQController.Metadata;
     controllerMetadata.operations = controllerMetadata.operations || {};
     controllerMetadata.operations[propertyKey] = operationMetadata;
     for (const fn of decoratorChain) fn(operationMetadata, target, propertyKey);
     Reflect.defineMetadata(
-      RPC_CONTROLLER_METADATA,
+      MQ_CONTROLLER_METADATA,
       controllerMetadata,
       target.constructor,
     );
-  }) as RpcOperationDecorator;
+  }) as MQOperationDecorator;
 
   /**
    *
    */
   decorator.UseType = (...type: Type[]): any => {
-    decoratorChain.push((meta: RpcOperation.Metadata): void => {
+    decoratorChain.push((meta: MQOperation.Metadata): void => {
       meta.types = meta.types || [];
       meta.types.push(...type);
     });
@@ -110,10 +110,10 @@ export function RpcOperationDecoratorFactory(
    */
   decorator.Header = (
     name: string | RegExp,
-    arg1?: RpcHeader.Options | string | Type,
+    arg1?: MQHeader.Options | string | Type,
   ) => {
-    decoratorChain.push((meta: RpcOperation.Metadata): void => {
-      const headerMetadata: RpcHeader.Metadata =
+    decoratorChain.push((meta: MQOperation.Metadata): void => {
+      const headerMetadata: MQHeader.Metadata =
         typeof arg1 === 'string' || typeof arg1 === 'function'
           ? {
               name,
@@ -136,9 +136,9 @@ export function RpcOperationDecoratorFactory(
    */
   decorator.Response = (
     _payloadType: TypeThunkAsync | string,
-    _options?: RpcOperationResponse.Options,
+    _options?: MQOperationResponse.Options,
   ) => {
-    decoratorChain.push((meta: RpcOperation.Metadata): void => {
+    decoratorChain.push((meta: MQOperation.Metadata): void => {
       inResponse = true;
       meta.response = {
         ..._options,
@@ -155,8 +155,8 @@ export function RpcOperationDecoratorFactory(
   return decorator;
 }
 
-RpcOperationDecoratorFactory.augment = function (
-  fn: RpcOperationDecoratorFactory.AugmentationFunction,
+MQOperationDecoratorFactory.augment = function (
+  fn: MQOperationDecoratorFactory.AugmentationFunction,
 ) {
   augmentationRegistry.push(fn);
 };

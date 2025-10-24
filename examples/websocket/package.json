@@ -1,0 +1,22 @@
+{
+  "name": "example-websocket",
+  "private": true,
+  "version": "1.19.5",
+  "type": "module",
+  "module": "./start.js",
+  "dependencies": {
+    "@opra/common": "^1.19.5",
+    "@opra/core": "^1.19.5",
+    "@opra/mongodb": "^1.19.5",
+    "express": "^5.1.0",
+    "mongodb": "^6.20.0",
+    "ts-gems": "^3.11.3"
+  },
+  "scripts": {
+    "_build": "tsc && npm run check && npm run lint && npm run format",
+    "lint": "eslint . --max-warnings=0",
+    "check": "madge --circular src/**",
+    "format": "prettier . --write --log-level=warn",
+    "start": "node --loader ../../support/esloader.mjs --experimental-specifier-resolution=node --import=./logerror.js src/start.ts"
+  }
+}

@@ -7,31 +7,31 @@ import { DataTypeMap } from '../common/data-type-map.js';
 import { DocumentElement } from '../common/document-element.js';
 import { CLASS_NAME_PATTERN, DECORATOR, kDataTypeMap } from '../constants.js';
 import type { EnumType } from '../data-type/enum-type.js';
-import { RpcControllerDecoratorFactory } from '../decorators/rpc-controller.decorator.js';
+import { MQControllerDecoratorFactory } from '../decorators/mq-controller.decorator.js';
 import {
   colorFgMagenta,
   colorFgYellow,
   colorReset,
   nodeInspectCustom,
 } from '../utils/inspect.util.js';
-import type { RpcApi } from './rpc-api';
-import type { RpcHeader } from './rpc-header.js';
-import type { RpcOperation } from './rpc-operation';
+import type { MQApi } from './mq-api.js';
+import type { MQHeader } from './mq-header';
+import type { MQOperation } from './mq-operation.js';
 
 /**
- * @namespace RpcController
+ * @namespace MQController
  */
-export namespace RpcController {
+export namespace MQController {
   export interface Metadata
-    extends Pick<OpraSchema.RpcController, 'description'> {
+    extends Pick<OpraSchema.MQController, 'description'> {
     name: string;
     types?: ThunkAsync<Type | EnumType.EnumObject | EnumType.EnumArray>[];
-    operations?: Record<string, RpcOperation.Metadata>;
-    headers?: RpcHeader.Metadata[];
+    operations?: Record<string, MQOperation.Metadata>;
+    headers?: MQHeader.Metadata[];
   }
 
   export interface Options
-    extends Partial<Pick<OpraSchema.RpcController, 'description'>> {
+    extends Partial<Pick<OpraSchema.MQController, 'description'>> {
     name?: string;
   }
 
@@ -46,49 +46,49 @@ export namespace RpcController {
 }
 
 /**
- * Type definition for RpcController
- * @class RpcController
+ * Type definition for MQController
+ * @class MQController
  */
-export interface RpcControllerStatic extends RpcControllerDecoratorFactory {
+export interface MQControllerStatic extends MQControllerDecoratorFactory {
   /**
-   * Class constructor of RpcController
+   * Class constructor of MQController
    * @param owner
    * @param args
    */
   new (
-    owner: RpcApi | RpcController,
-    args: RpcController.InitArguments,
-  ): RpcController;
+    owner: MQApi | MQController,
+    args: MQController.InitArguments,
+  ): MQController;
 
-  prototype: RpcController;
+  prototype: MQController;
 }
 
 /**
- * Type definition of RpcController prototype
- * @interface RpcController
+ * Type definition of MQController prototype
+ * @interface MQController
  */
-export interface RpcController extends RpcControllerClass {}
+export interface MQController extends MQControllerClass {}
 
 /**
- * RpcController
+ * MQController
  */
-export const RpcController = function (
-  this: RpcController | void,
+export const MQController = function (
+  this: MQController | void,
   ...args: any[]
 ) {
   // ClassDecorator
-  if (!this) return RpcController[DECORATOR].apply(undefined, args);
+  if (!this) return MQController[DECORATOR].apply(undefined, args);
 
   // Constructor
   const [owner, initArgs] = args as [
-    RpcApi | RpcController,
-    RpcController.InitArguments,
+    MQApi | MQController,
+    MQController.InitArguments,
   ];
   DocumentElement.call(this, owner);
   if (!CLASS_NAME_PATTERN.test(initArgs.name))
     throw new TypeError(`Invalid resource name (${initArgs.name})`);
   const _this = asMutable(this);
-  _this.kind = OpraSchema.RpcController.Kind;
+  _this.kind = OpraSchema.MQController.Kind;
   _this.types = _this.node[kDataTypeMap] = new DataTypeMap();
   _this.operations = new ResponsiveMap();
   _this.headers = [];
@@ -98,28 +98,28 @@ export const RpcController = function (
   _this.ctor = initArgs.ctor;
   (_this as any)._controllerReverseMap = new WeakMap();
   (_this as any)._initialize?.(initArgs);
-} as RpcControllerStatic;
+} as MQControllerStatic;
 
 /**
  *
- * @class RpcController
+ * @class MQController
  */
-class RpcControllerClass extends DocumentElement {
-  declare protected _controllerReverseMap: WeakMap<Type, RpcController | null>;
-  declare readonly kind: OpraSchema.RpcController.Kind;
+class MQControllerClass extends DocumentElement {
+  declare protected _controllerReverseMap: WeakMap<Type, MQController | null>;
+  declare readonly kind: OpraSchema.MQController.Kind;
   declare readonly name: string;
   declare description?: string;
   declare path: string;
   declare instance?: any;
   declare ctor?: Type;
-  declare headers: RpcHeader[];
-  declare operations: ResponsiveMap<RpcOperation>;
+  declare headers: MQHeader[];
+  declare operations: ResponsiveMap<MQOperation>;
   declare types: DataTypeMap;
 
   findHeader(
     paramName: string,
     location?: OpraSchema.HttpParameterLocation,
-  ): RpcHeader | undefined {
+  ): MQHeader | undefined {
     const paramNameLower = paramName.toLowerCase();
     let prm: any;
     for (prm of this.headers) {
@@ -129,7 +129,7 @@ class RpcControllerClass extends DocumentElement {
       }
       if (prm.name instanceof RegExp && prm.name.test(paramName)) return prm;
     }
-    if (this.node.parent && this.node.parent.element instanceof RpcController) {
+    if (this.node.parent && this.node.parent.element instanceof MQController) {
       return this.node.parent.element.findHeader(paramName, location);
     }
   }
@@ -138,14 +138,14 @@ class RpcControllerClass extends DocumentElement {
    *
    */
   toString(): string {
-    return `[RpcController ${this.name}]`;
+    return `[MQController ${this.name}]`;
   }
 
   /**
    *
    */
-  toJSON(): OpraSchema.RpcController {
-    const out = omitUndefined<OpraSchema.RpcController>({
+  toJSON(): OpraSchema.MQController {
+    const out = omitUndefined<OpraSchema.MQController>({
       kind: this.kind,
       description: this.description,
     });
@@ -174,10 +174,10 @@ class RpcControllerClass extends DocumentElement {
    *
    */
   protected [nodeInspectCustom](): string {
-    return `[${colorFgYellow}RpcController${colorFgMagenta + this.name + colorReset}]`;
+    return `[${colorFgYellow}MQController${colorFgMagenta + this.name + colorReset}]`;
   }
 }
 
-RpcController.prototype = RpcControllerClass.prototype;
-Object.assign(RpcController, RpcControllerDecoratorFactory);
-RpcController[DECORATOR] = RpcControllerDecoratorFactory;
+MQController.prototype = MQControllerClass.prototype;
+Object.assign(MQController, MQControllerDecoratorFactory);
+MQController[DECORATOR] = MQControllerDecoratorFactory;

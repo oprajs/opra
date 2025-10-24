@@ -1,4 +1,4 @@
-import { OpraSchema, RpcController, RpcOperation } from '@opra/common';
+import { MQController, MQOperation, OpraSchema } from '@opra/common';
 import { ExecutionContext } from '@opra/core';
 import type { KafkaMessage } from 'kafkajs';
 import type { AsyncEventEmitter } from 'node-events-async';
@@ -15,9 +15,9 @@ export class KafkaContext
   readonly protocol: OpraSchema.Transport;
   readonly platform: string;
   readonly adapter: KafkaAdapter;
-  readonly controller?: RpcController;
+  readonly controller?: MQController;
   readonly controllerInstance?: any;
-  readonly operation?: RpcOperation;
+  readonly operation?: MQOperation;
   readonly operationHandler?: Function;
   readonly topic: string;
   readonly key: any;
@@ -37,11 +37,11 @@ export class KafkaContext
       ...init,
       document: init.adapter.document,
       documentNode: init.controller?.node,
-      protocol: 'rpc',
+      protocol: 'mq',
     });
     this.adapter = init.adapter;
     this.platform = init.adapter.platform;
-    this.protocol = 'rpc';
+    this.protocol = 'mq';
     if (init.controller) this.controller = init.controller;
     if (init.controllerInstance)
       this.controllerInstance = init.controllerInstance;
@@ -65,9 +65,9 @@ export namespace KafkaContext {
       'document' | 'protocol' | 'documentNode'
     > {
     adapter: KafkaAdapter;
-    controller?: RpcController;
+    controller?: MQController;
     controllerInstance?: any;
-    operation?: RpcOperation;
+    operation?: MQOperation;
     operationHandler?: Function;
     topic: string;
     partition: number;

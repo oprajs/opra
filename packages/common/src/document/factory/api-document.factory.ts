@@ -9,7 +9,8 @@ import * as extendedTypes from '../data-type/extended-types/index.js';
 import * as primitiveTypes from '../data-type/primitive-types/index.js';
 import { DataTypeFactory } from './data-type.factory.js';
 import { HttpApiFactory } from './http-api.factory.js';
-import { RpcApiFactory } from './rpc-api.factory.js';
+import { MQApiFactory } from './mq-api.factory.js';
+import { WSApiFactory } from './ws-api.factory.js';
 
 const OPRA_SPEC_URL = 'https://oprajs.com/spec/v' + OpraSchema.SpecVersion;
 
@@ -23,7 +24,8 @@ export namespace ApiDocumentFactory {
     types?: DataTypeInitSources;
     api?:
       | StrictOmit<HttpApiFactory.InitArguments, 'owner'>
-      | StrictOmit<RpcApiFactory.InitArguments, 'owner'>;
+      | StrictOmit<MQApiFactory.InitArguments, 'owner'>
+      | StrictOmit<WSApiFactory.InitArguments, 'owner'>;
   }
 
   export type ReferenceSource =
@@ -158,8 +160,8 @@ export class ApiDocumentFactory {
             owner: document,
           });
           if (api) document.api = api;
-        } else if (init.api && init.api.transport === 'rpc') {
-          const api = await RpcApiFactory.createApi(context, {
+        } else if (init.api && init.api.transport === 'mq') {
+          const api = await MQApiFactory.createApi(context, {
             ...init.api,
             owner: document,
           });

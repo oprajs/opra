@@ -1,7 +1,7 @@
 import { HttpController, HttpOperation, OmitType } from '@opra/common';
 import { HttpContext } from '@opra/http';
 import { MongoAdapter } from '@opra/mongodb';
-import { MyProfileService, Profile } from 'customer-mongo';
+import { MyProfileService, Profile } from 'example-customer-mongo';
 import { Db } from 'mongodb';
 
 @(HttpController().Header('accessToken', 'string'))

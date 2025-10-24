@@ -1,5 +1,5 @@
 import '@opra/core';
-import { classes, RpcOperation } from '@opra/common';
+import { classes, MQOperation } from '@opra/common';
 import {
   RMQ_OPERATION_METADATA,
   RMQ_OPERATION_METADATA_RESOLVER,
@@ -7,7 +7,7 @@ import {
 import { RabbitmqAdapter } from '../rabbitmq-adapter.js';
 
 declare module '@opra/common' {
-  interface RpcOperationDecorator {
+  interface MQOperationDecorator {
     RabbitMQ(
       config:
         | RabbitmqAdapter.ConsumerConfig
@@ -20,12 +20,12 @@ declare module '@opra/common' {
 
 /** Implementation **/
 
-classes.RpcOperationDecoratorFactory.augment(
+classes.MQOperationDecoratorFactory.augment(
   (decorator: any, decoratorChain) => {
     decorator.RabbitMQ = (config: RabbitmqAdapter.ConsumerConfig): any => {
       decoratorChain.push(
         (
-          _: RpcOperation.Metadata,
+          _: MQOperation.Metadata,
           target: Object,
           propertyKey: string | symbol,
         ): void => {
