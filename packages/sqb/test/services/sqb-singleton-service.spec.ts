@@ -1,9 +1,9 @@
 import { faker } from '@faker-js/faker';
 import { ResourceNotAvailableError } from '@opra/common';
 import { SqbSingletonService } from '@opra/sqb';
-import { TempCustomer } from 'customer-sqb';
+import { TempCustomer } from 'example-customer-sqb';
+import { CustomerApplication } from 'example-express-sqb';
 import { expect } from 'expect';
-import { CustomerApplication } from 'express-sqb';
 import * as sinon from 'sinon';
 import { createContext } from '../_support/create-context.js';
 

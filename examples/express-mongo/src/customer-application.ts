@@ -27,11 +27,10 @@ export class CustomerApplication {
     }
     app.document = await CustomerApiDocument.create(app.db);
     app.express = express();
-    app.adapter = new ExpressAdapter(app.express, {
+    app.adapter = new ExpressAdapter(app.express, app.document, {
       scope: 'api',
       ...options,
     });
-    await app.adapter.initialize(app.document);
     return app;
   }
 

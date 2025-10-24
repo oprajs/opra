@@ -12,12 +12,13 @@
       "@opra/common": ["../packages/common/src"],
       "@opra/core": ["../packages/core/src"],
       "@opra/http": ["../packages/http/src"],
+      "@opra/ws": ["../packages/ws/src"],
       "@opra/mongodb": ["../packages/mongodb/src"],
       "@opra/sqb": ["../packages/sqb/src"],
       "@opra/nestjs": ["../packages/nestjs/src"],
-      "customer-elastic": ["./_lib/customer-elastic"],
-      "customer-mongo": ["./_lib/customer-mongo"],
-      "customer-sqb": ["./_lib/customer-sqb"]
+      "example-customer-elastic": ["./_lib/customer-elastic"],
+      "example-customer-mongo": ["./_lib/customer-mongo"],
+      "example-customer-sqb": ["./_lib/customer-sqb"]
     },
     "emitDecoratorMetadata": true
   }

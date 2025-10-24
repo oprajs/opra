@@ -5,7 +5,7 @@ import {
   MixinType,
   OpraSchema,
 } from '@opra/common';
-import { Country, Note, Record } from 'customer-mongo/models';
+import { Country, Note, Record } from 'example-customer-mongo/models';
 import { expect } from 'expect';
 import { TestHttpApiDocument } from '../../_support/test-http-api/index.js';
 

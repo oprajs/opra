@@ -1,5 +1,5 @@
 {
-  "name": "express-mongo",
+  "name": "example-express-mongo",
   "private": true,
   "version": "1.19.4",
   "type": "module",

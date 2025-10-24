@@ -2,7 +2,7 @@ import { HttpController, HttpOperation } from '@opra/common';
 import { HttpContext } from '@opra/http';
 import { SQBAdapter } from '@opra/sqb';
 import { SqbClient } from '@sqb/connect';
-import { Customer, CustomersService } from 'customer-sqb';
+import { Customer, CustomersService } from 'example-customer-sqb';
 import { type PartialDTO } from 'ts-gems';
 
 @(HttpController({

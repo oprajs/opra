@@ -6,7 +6,7 @@ import {
   HttpOperation,
   HttpStatusRange,
 } from '@opra/common';
-import { Country } from 'customer-mongo/models';
+import { Country } from 'example-customer-mongo/models';
 import { expect } from 'expect';
 
 describe('common:HttpApiFactory - HttpOperation (Class)', () => {

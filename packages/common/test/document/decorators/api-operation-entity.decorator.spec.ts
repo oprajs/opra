@@ -6,7 +6,7 @@ import {
   HttpOperation,
   IntegerType,
 } from '@opra/common';
-import { Customer } from 'customer-mongo/models';
+import { Customer } from 'example-customer-mongo/models';
 import { expect } from 'expect';
 
 describe('common:HttpOperation.Entity.* decorators', () => {

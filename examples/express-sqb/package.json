@@ -1,5 +1,5 @@
 {
-  "name": "express-sqb",
+  "name": "example-express-sqb",
   "private": true,
   "version": "1.19.4",
   "type": "module",

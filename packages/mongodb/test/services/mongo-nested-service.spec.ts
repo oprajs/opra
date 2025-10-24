@@ -1,8 +1,8 @@
 import { faker } from '@faker-js/faker';
 import { ResourceNotAvailableError } from '@opra/common';
 import { MongoNestedService } from '@opra/mongodb';
+import { CustomerApplication } from 'example-express-mongo';
 import { expect } from 'expect';
-import { CustomerApplication } from 'express-mongo';
 import * as sinon from 'sinon';
 import { createContext } from '../_support/create-context.js';
 

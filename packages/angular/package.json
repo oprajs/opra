@@ -26,7 +26,7 @@
   "peerDependencies": {
     "@angular/common": ">=18.0.0",
     "@angular/core": ">=18.0.0",
-    "@browsery/type-is": "^1.6.18-r8",
+    "@browsery/type-is": "^2.0.1",
     "@opra/client": "^1.19.4",
     "rxjs": ">=7.8.0 <8",
     "ts-gems": "^3.11.3"

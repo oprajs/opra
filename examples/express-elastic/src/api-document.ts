@@ -1,6 +1,6 @@
 import { Client } from '@elastic/elasticsearch';
 import { ApiDocument, ApiDocumentFactory } from '@opra/common';
-import { CustomerModelsDocument } from 'customer-elastic';
+import { CustomerModelsDocument } from 'example-customer-elastic';
 import { AuthController } from './api/auth.controller.js';
 
 export namespace CustomerApiDocument {

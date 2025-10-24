@@ -1,8 +1,8 @@
 import { faker } from '@faker-js/faker';
 import { ResourceNotAvailableError } from '@opra/common';
-import { Customer } from 'customer-elastic';
+import { Customer } from 'example-customer-elastic';
+import { CustomerApplication } from 'example-express-elastic';
 import { expect } from 'expect';
-import { CustomerApplication } from 'express-elastic';
 import * as sinon from 'sinon';
 import { ElasticCollectionService } from '../../src/index.js';
 import { createContext } from '../_support/create-context.js';

@@ -5,7 +5,7 @@ import {
   EnumType,
   SimpleType,
 } from '@opra/common';
-import { Country, Gender } from 'customer-mongo/models';
+import { Country, Gender } from 'example-customer-mongo/models';
 import { expect } from 'expect';
 import { TestHttpApiDocument } from '../_support/test-http-api/index.js';
 

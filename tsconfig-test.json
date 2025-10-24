@@ -6,9 +6,9 @@
     "sourceMap": true,
     "paths": {
       "@opra/*": ["./packages/*/src/index.js"],
-      "customer-mongo/models": [
+      "example-customer-mongo/models": [
         "./examples/_lib/customer-mongo/src/models/index.js"
-      ]
+      ],
     }
   }
 }

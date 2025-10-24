@@ -1,5 +1,5 @@
 import { HttpController, HttpOperation } from '@opra/common';
-import { Country } from 'customer-mongo/models';
+import { Country } from 'example-customer-mongo/models';
 
 @(HttpController({
   description: 'Country resource',

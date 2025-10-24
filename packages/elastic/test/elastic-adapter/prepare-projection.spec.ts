@@ -1,7 +1,7 @@
 import { ApiDocument, ComplexType } from '@opra/common';
 import { ElasticAdapter } from '@opra/elastic';
+import { CustomerApplication } from 'example-express-elastic';
 import { expect } from 'expect';
-import { CustomerApplication } from 'express-elastic';
 
 describe('elastic:ElasticAdapter.prepareProjection', () => {
   let document: ApiDocument;

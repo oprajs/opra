@@ -21,12 +21,10 @@ export class WSApi extends ApiBase {
     new WeakMap();
   declare readonly owner: ApiDocument;
   readonly transport = 'ws';
-  platform: string;
   controllers: ResponsiveMap<WSController> = new ResponsiveMap();
 
   constructor(init: WSApi.InitArguments) {
     super(init);
-    this.platform = init.platform;
   }
 
   findController(controller: Type): WSController | undefined;
@@ -70,7 +68,6 @@ export class WSApi extends ApiBase {
     const out: OpraSchema.WSApi = {
       ...schema,
       transport: this.transport,
-      platform: this.platform,
       controllers: {},
     };
     for (const v of this.controllers.values()) {

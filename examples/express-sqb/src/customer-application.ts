@@ -42,8 +42,7 @@ export class CustomerApplication {
     // });
     app.document = await CustomerApiDocument.create(app.db);
     app.express = express();
-    app.adapter = new ExpressAdapter(app.express, options);
-    await app.adapter.initialize(app.document);
+    app.adapter = new ExpressAdapter(app.express, app.document, options);
     return app;
   }
 

@@ -7,7 +7,7 @@ import {
   PartialType,
   PickType,
 } from '@opra/common';
-import { Country } from 'customer-mongo/models';
+import { Country } from 'example-customer-mongo/models';
 import { expect } from 'expect';
 import { TestHttpApiDocument } from '../../_support/test-http-api/index.js';
 

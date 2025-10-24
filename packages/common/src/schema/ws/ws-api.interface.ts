@@ -7,10 +7,6 @@ import { WSController } from './ws-controller.interface.js';
  */
 export interface WSApi extends Api {
   transport: 'ws';
-  /**
-   * Name of the platform. (ws, socketio.)
-   */
-  platform: string;
   description?: string;
   controllers: Record<string, WSController>;
 }

@@ -6,7 +6,7 @@ import {
   HttpOperation,
   HttpStatusCode,
 } from '@opra/common';
-import { Customer } from 'customer-mongo/models';
+import { Customer } from 'example-customer-mongo/models';
 import { expect } from 'expect';
 
 describe('common:HttpOperation decorator', () => {

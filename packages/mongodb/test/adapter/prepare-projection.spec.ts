@@ -1,7 +1,7 @@
 import { ApiDocument } from '@opra/common';
 import { MongoAdapter } from '@opra/mongodb';
+import { CustomerApplication } from 'example-express-mongo';
 import { expect } from 'expect';
-import { CustomerApplication } from 'express-mongo';
 
 describe('mongodb:MongoAdapter.prepareProjection', () => {
   let document: ApiDocument;

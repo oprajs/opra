@@ -1,5 +1,5 @@
 {
-  "name": "customer-sqb",
+  "name": "example-customer-sqb",
   "private": true,
   "version": "1.19.4",
   "type": "module",
@@ -10,7 +10,7 @@
     "@sqb/builder": "^4.20.2",
     "@sqb/connect": "^4.20.2",
     "@sqb/postgres": "^4.20.2",
-    "postgrejs": "^2.22.6",
+    "postgrejs": "^2.22.7",
     "ts-gems": "^3.11.3"
   },
   "scripts": {

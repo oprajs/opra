@@ -1,6 +1,6 @@
 import '@opra/sqb';
 import { OpraTestClient } from '@opra/testing';
-import { CustomerApplication } from 'express-mongo';
+import { CustomerApplication } from 'example-express-mongo';
 import { entityTests } from '../../../http/test/e2e/tests/index.js';
 
 describe('mongodb:e2e', function () {

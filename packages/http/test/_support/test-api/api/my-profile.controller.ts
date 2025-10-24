@@ -1,6 +1,6 @@
 import { HttpController, HttpOperation } from '@opra/common';
 import { HttpContext } from '@opra/http';
-import { Gender, Profile } from 'customer-mongo/models';
+import { Gender, Profile } from 'example-customer-mongo/models';
 
 @HttpController({
   description: 'My profile resource',

@@ -1,5 +1,5 @@
 import { ApiDocument, OpraSchema } from '@opra/common';
-import { Gender } from 'customer-mongo/models';
+import { Gender } from 'example-customer-mongo/models';
 import { expect } from 'expect';
 import { TestHttpApiDocument } from '../_support/test-http-api/index.js';
 

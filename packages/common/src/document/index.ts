@@ -55,10 +55,10 @@ export * from './mq/mq-api.js';
 export * from './mq/mq-controller.js';
 export * from './mq/mq-header.js';
 export * from './mq/mq-operation.js';
+export type { MQOperationResponse } from './mq/mq-operation-response.js';
 export * from './ws/ws-api.js';
 export * from './ws/ws-controller.js';
 export * from './ws/ws-operation.js';
-export type { MQOperationResponse } from './mq/mq-operation-response.js';
 
 export namespace classes {
   export import HttpApiFactory = HttpApiFactory_.HttpApiFactory;

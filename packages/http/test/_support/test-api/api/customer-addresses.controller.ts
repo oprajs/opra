@@ -5,7 +5,7 @@ import {
   OperationResult,
 } from '@opra/common';
 import { HttpContext } from '@opra/http';
-import { Address } from 'customer-mongo/models';
+import { Address } from 'example-customer-mongo/models';
 import { Data } from '../../../../../../examples/_lib/data/customers-data.js';
 
 @HttpController({
