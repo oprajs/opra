@@ -250,16 +250,17 @@ export async function _generateComplexTypeCode(
     if (field.readonly) out += 'readonly ';
     out += `${field.name}${field.required ? '' : '?'}: `;
 
+    let typ = '';
     if (field.fixed) {
       const t = typeof field.fixed;
-      out += `${t === 'number' || t === 'boolean' || t === 'bigint' ? field.fixed : "'" + field.fixed + "'"}\n`;
+      typ = `${t === 'number' || t === 'boolean' || t === 'bigint' ? field.fixed : "'" + field.fixed + "'"}\n`;
     } else {
       const x = await this.generateDataType(field.type, 'typeDef', currentFile);
-      const s = x.kind === 'embedded' ? x.code : x.typeName;
-      if (field.isArray) {
-        out += /[a-zA-Z]\w*/.test(s) ? s + '[]' : '(' + s + ')[]';
-      }
+      typ = x.kind === 'embedded' ? x.code : x.typeName;
     }
+    if (field.isArray) {
+      out += /[a-zA-Z]\w*/.test(typ) ? typ + '[];\n' : '(' + typ + ')[];\n';
+    } else out += typ + ';\n';
   }
   if (dataType.additionalFields) out += '[key: string]: any;\n';
   return out + '\b}';

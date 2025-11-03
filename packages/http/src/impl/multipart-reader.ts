@@ -82,7 +82,7 @@ export class MultipartReader extends EventEmitter {
       this.emit('item', item);
     });
     form.on('file', (field: string, file, info: busboy.FileInfo) => {
-      const saveTo = nodePath.join(
+      const saveTo = nodePath.posix.join(
         this.tempDirectory,
         `opra-${generateFileName()}`,
       );

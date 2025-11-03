@@ -90,7 +90,7 @@ export class OpraHttpNestjsAdapter extends HttpAdapter {
     Controller()(newClass);
 
     const newPath = metadata.path
-      ? nodePath.join(currentPath, metadata.path)
+      ? nodePath.posix.join(currentPath, metadata.path)
       : currentPath;
     const adapter = this;
     // adapter.logger =

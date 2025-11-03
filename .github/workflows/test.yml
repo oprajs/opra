@@ -67,6 +67,15 @@ jobs:
           - 5672:5672
 
     steps:
+      - name: Checkout
+        uses: actions/checkout@v5
+
+      - name: 'Setup Environment'
+        uses: panates/ghac-setup-node@v1
+        with:
+          node-version: '20.19.2'
+          token: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
+
       - name: Start MongoDB
         uses: supercharge/mongodb-github-action@1.11.0
         with:
@@ -91,15 +100,6 @@ jobs:
         with:
           kafka-version: "3.7.0"
           kafka-topics: "feed-cat,1,feed-dog,1,email-channel-1,1,email-channel-2,1,sms-channel-1,1,sms-channel-2,1"
-
-      - name: Checkout
-        uses: actions/checkout@v4
-
-      - name: 'Setup Environment'
-        uses: panates/ghac-setup-node@v1
-        with:
-          node-version: '20.19.2'
-          token: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
 
       - name: Install rman
         run: npm install rman -g

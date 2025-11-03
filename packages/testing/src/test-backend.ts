@@ -27,7 +27,7 @@ export class TestBackend extends FetchBackend {
   constructor(app: Server | RequestListener, options?: OpraTestClient.Options) {
     super(
       options?.basePath
-        ? path.join('http://tempuri.org', options.basePath)
+        ? path.posix.join('http://tempuri.org', options.basePath)
         : 'http://tempuri.org',
       options,
     );
