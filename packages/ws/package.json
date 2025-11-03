@@ -1,6 +1,6 @@
 {
   "name": "@opra/ws",
-  "version": "1.19.6",
+  "version": "1.19.7",
   "description": "Opra WS adapter",
   "author": "Panates",
   "license": "MIT",
@@ -33,8 +33,8 @@
     "valgen": "^5.18.2"
   },
   "peerDependencies": {
-    "@opra/common": "^1.19.6",
-    "@opra/core": "^1.19.6",
+    "@opra/common": "^1.19.7",
+    "@opra/core": "^1.19.7",
     "socket.io": ">=4.0.0"
   },
   "devDependencies": {
