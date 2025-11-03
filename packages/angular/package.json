@@ -1,6 +1,6 @@
 {
   "name": "@opra/angular",
-  "version": "1.19.6",
+  "version": "1.19.7",
   "description": "Opra internationalization package",
   "author": "Panates",
   "license": "MIT",
@@ -27,7 +27,7 @@
     "@angular/common": ">=18.0.0",
     "@angular/core": ">=18.0.0",
     "@browsery/type-is": "^2.0.1",
-    "@opra/client": "^1.19.6",
+    "@opra/client": "^1.19.7",
     "rxjs": ">=7.8.0 <8",
     "ts-gems": "^3.11.3"
   },
@@ -38,7 +38,7 @@
     "@angular/compiler-cli": "19.2.14",
     "@angular/platform-browser": "19.2.14",
     "@angular/platform-browser-dynamic": "19.2.14",
-    "@opra/client": "^1.19.6",
+    "@opra/client": "^1.19.7",
     "rxjs": "^7.8.2",
     "core-js": "^3.46.0",
     "cross-fetch": "^4.1.0",
