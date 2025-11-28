@@ -12,6 +12,7 @@ import {
   WSOperationDecorator,
   WSOperationDecoratorFactory,
 } from '../decorators/ws-operation.decorator.js';
+import { parseRegExp } from '../utils/parse-regexp.util.js';
 import { WSController } from './ws-controller.js';
 
 /**
@@ -19,15 +20,13 @@ import { WSController } from './ws-controller.js';
  */
 export namespace WSOperation {
   export interface Metadata
-    extends Pick<OpraSchema.WSOperation, 'description' | 'channel'> {
-    payloadType: TypeThunkAsync | string;
-    keyType?: TypeThunkAsync | string;
+    extends Pick<OpraSchema.WSOperation, 'description' | 'event'> {
+    arguments?: (TypeThunkAsync | string)[];
     types?: ThunkAsync<Type | EnumType.EnumObject | EnumType.EnumArray>[];
   }
 
-  export interface Options
-    extends Partial<Pick<Metadata, 'description' | 'keyType'>> {
-    channel?: (string | RegExp) | (string | RegExp)[];
+  export interface Options extends Partial<Pick<Metadata, 'description'>> {
+    event?: string | RegExp;
   }
 
   export interface InitArguments
@@ -35,11 +34,12 @@ export namespace WSOperation {
       {
         name: string;
         types?: DataType[];
-        payloadType?: DataType | string | Type;
-        keyType?: DataType | string | Type;
+        arguments?: (DataType | string | Type)[];
       },
-      Pick<Metadata, 'description' | 'channel'>
-    > {}
+      Pick<Metadata, 'description'>
+    > {
+    event?: string | RegExp;
+  }
 }
 
 /**
@@ -56,12 +56,8 @@ export interface WSOperationStatic {
 
   /**
    * Property decorator
-   * @param payloadType
    * @param options
-   */ <T extends WSOperation.Options>(
-    payloadType: ThunkAsync<Type> | string,
-    options?: T,
-  ): WSOperationDecorator;
+   */ <T extends WSOperation.Options>(options?: T): WSOperationDecorator;
 
   prototype: WSOperation;
 }
@@ -102,18 +98,18 @@ export const WSOperation = function (this: WSOperation, ...args: any[]) {
   _this.types = _this.node[kDataTypeMap] = new DataTypeMap();
   _this.name = initArgs.name;
   _this.description = initArgs.description;
-  _this.channel = initArgs.channel;
-  if (initArgs?.payloadType) {
-    _this.payloadType =
-      initArgs?.payloadType instanceof DataType
-        ? initArgs.payloadType
-        : _this.owner.node.getDataType(initArgs.payloadType);
-  }
-  if (initArgs?.keyType) {
-    _this.keyType =
-      initArgs?.keyType instanceof DataType
-        ? initArgs.keyType
-        : _this.owner.node.getDataType(initArgs.keyType);
+  if (initArgs.event)
+    this.event =
+      initArgs.event instanceof RegExp
+        ? initArgs.event
+        : initArgs.event.startsWith('/')
+          ? parseRegExp(initArgs.event)
+          : initArgs.event;
+  else _this.event = this.name;
+  if (initArgs?.arguments) {
+    _this.arguments = initArgs.arguments.map(arg =>
+      arg instanceof DataType ? arg : _this.owner.node.getDataType(arg),
+    );
   }
 } as WSOperationStatic;
 
@@ -123,22 +119,20 @@ export const WSOperation = function (this: WSOperation, ...args: any[]) {
 class WSOperationClass extends DocumentElement {
   declare readonly owner: WSController;
   declare readonly name: string;
-  declare channel: string | RegExp | (string | RegExp)[];
   declare description?: string;
-  declare payloadType: DataType;
-  declare keyType?: DataType;
+  declare event: string | RegExp;
+  declare arguments?: DataType[];
   declare types: DataTypeMap;
 
   toJSON(): OpraSchema.WSOperation {
-    const out = omitUndefined<OpraSchema.WSOperation>({
+    return omitUndefined<OpraSchema.WSOperation>({
       kind: OpraSchema.WSOperation.Kind,
       description: this.description,
-      channel: this.channel,
-      payloadType: this.payloadType.name
-        ? this.payloadType.name
-        : this.payloadType.toJSON(),
+      event: this.event,
+      arguments: this.arguments?.map(arg =>
+        arg.name ? arg.name : arg.toJSON(),
+      ),
     });
-    return out;
   }
 }
 

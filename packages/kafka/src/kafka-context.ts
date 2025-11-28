@@ -12,13 +12,11 @@ export class KafkaContext
   extends ExecutionContext
   implements AsyncEventEmitter
 {
-  readonly protocol: OpraSchema.Transport;
-  readonly platform: string;
-  readonly adapter: KafkaAdapter;
-  readonly controller?: MQController;
-  readonly controllerInstance?: any;
-  readonly operation?: MQOperation;
-  readonly operationHandler?: Function;
+  declare readonly __contDef: MQController;
+  declare readonly __oprDef: MQOperation;
+  declare readonly __controller: any;
+  declare readonly __handler?: Function;
+  declare readonly __adapter: KafkaAdapter;
   readonly topic: string;
   readonly key: any;
   readonly payload: any;
@@ -35,18 +33,17 @@ export class KafkaContext
   constructor(init: KafkaContext.Initiator) {
     super({
       ...init,
-      document: init.adapter.document,
-      documentNode: init.controller?.node,
-      protocol: 'mq',
+      __docNode:
+        init.__oprDef?.node ||
+        init.__contDef?.node ||
+        init.__adapter.document.node,
+      transport: 'mq',
+      platform: 'kafka',
     });
-    this.adapter = init.adapter;
-    this.platform = init.adapter.platform;
-    this.protocol = 'mq';
-    if (init.controller) this.controller = init.controller;
-    if (init.controllerInstance)
-      this.controllerInstance = init.controllerInstance;
-    if (init.operation) this.operation = init.operation;
-    if (init.operationHandler) this.operationHandler = init.operationHandler;
+    if (init.__contDef) this.__contDef = init.__contDef;
+    if (init.__oprDef) this.__oprDef = init.__oprDef;
+    if (init.__controller) this.__controller = init.__controller;
+    if (init.__handler) this.__handler = init.__handler;
     this.partition = init.partition;
     this.headers = init.headers || {};
     this.topic = init.topic;
@@ -59,16 +56,15 @@ export class KafkaContext
 }
 
 export namespace KafkaContext {
-  export interface Initiator
-    extends Omit<
-      ExecutionContext.Initiator,
-      'document' | 'protocol' | 'documentNode'
-    > {
-    adapter: KafkaAdapter;
-    controller?: MQController;
-    controllerInstance?: any;
-    operation?: MQOperation;
-    operationHandler?: Function;
+  export interface Initiator extends Omit<
+    ExecutionContext.Initiator,
+    '__adapter' | 'transport' | 'platform' | '__docNode'
+  > {
+    __adapter: KafkaAdapter;
+    __contDef?: MQController;
+    __controller?: any;
+    __oprDef?: MQOperation;
+    __handler?: Function;
     topic: string;
     partition: number;
     key: any;

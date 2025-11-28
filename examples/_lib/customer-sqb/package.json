@@ -7,9 +7,9 @@
   "dependencies": {
     "@opra/common": "^1.19.7",
     "@opra/sqb": "^1.19.7",
-    "@sqb/builder": "^4.20.2",
-    "@sqb/connect": "^4.20.2",
-    "@sqb/postgres": "^4.20.2",
+    "@sqb/builder": "^4.20.3",
+    "@sqb/connect": "^4.20.3",
+    "@sqb/postgres": "^4.20.3",
     "postgrejs": "^2.22.7",
     "ts-gems": "^3.11.3"
   },

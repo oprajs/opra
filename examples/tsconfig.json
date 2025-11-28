@@ -18,7 +18,7 @@
       "@opra/nestjs": ["../packages/nestjs/src"],
       "example-customer-elastic": ["./_lib/customer-elastic"],
       "example-customer-mongo": ["./_lib/customer-mongo"],
-      "example-customer-sqb": ["./_lib/customer-sqb"]
+      "example-customer-sqb": ["./_lib/customer-sqb"],
     },
     "emitDecoratorMetadata": true
   }

@@ -125,10 +125,10 @@ export class OpraHttpNestjsAdapter extends HttpAdapter {
               });
             }
             /** Configure the HttpContext */
-            context.operation = operation;
-            context.controller = operation.owner;
-            context.controllerInstance = this;
-            context.operationHandler = operationHandler;
+            context.__oprDef = operation;
+            context.__contDef = operation.owner;
+            context.__controller = this;
+            context.__handler = operationHandler;
             /** Handle request */
             await adapter.handler.handleRequest(context);
           },

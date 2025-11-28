@@ -340,7 +340,7 @@ export class MongoService<
     if (this._dataType && this._dataTypeScope !== this.scope)
       this._dataType = undefined;
     if (!this._dataType)
-      this._dataType = this.context.documentNode.getComplexType(
+      this._dataType = this.context.__docNode.getComplexType(
         this._dataType_,
       );
     this._dataTypeScope = this.scope;

@@ -14,6 +14,7 @@ import {
   colorReset,
   nodeInspectCustom,
 } from '../utils/inspect.util.js';
+import { parseRegExp } from '../utils/parse-regexp.util.js';
 import type { WSApi } from './ws-api.js';
 import type { WSOperation } from './ws-operation.js';
 
@@ -106,7 +107,6 @@ class WSControllerClass extends DocumentElement {
   declare readonly kind: OpraSchema.WSController.Kind;
   declare readonly name: string;
   declare description?: string;
-  declare path: string;
   declare instance?: any;
   declare ctor?: Type;
   declare operations: ResponsiveMap<WSOperation>;

@@ -1,7 +1,7 @@
 {
   "name": "@opra/ws",
   "version": "1.19.7",
-  "description": "Opra WS adapter",
+  "description": "Opra Socket.IO adapter",
   "author": "Panates",
   "license": "MIT",
   "scripts": {
@@ -79,6 +79,7 @@
   ],
   "keywords": [
     "opra",
+    "socketio",
     "websocket",
     "ws"
   ]

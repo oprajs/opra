@@ -76,14 +76,14 @@ export class ExpressAdapter extends HttpAdapter {
       const request = HttpIncoming.from(_req);
       const response = HttpOutgoing.from(_res);
       const ctx = new HttpContext({
-        adapter: this,
+        __adapter: this,
         platform: this.platform,
         request,
         response,
-        controller: args?.controller,
-        controllerInstance: args?.controllerInstance,
-        operation: args?.operation,
-        operationHandler: args?.operationHandler,
+        __contDef: args?.controller,
+        __controller: args?.controllerInstance,
+        __oprDef: args?.operation,
+        __handler: args?.operationHandler,
       });
       await this.emitAsync('createContext', ctx);
       return ctx;

@@ -38,24 +38,24 @@ export namespace SQBAdapter {
   export async function parseRequest(
     context: ExecutionContext,
   ): Promise<TransformedRequest> {
-    if (context.protocol !== 'http') {
+    if (context.transport !== 'http') {
       throw new TypeError('SQBAdapter can parse only HttpContext');
     }
     const ctx = context as HttpContext;
-    const { operation } = ctx;
+    const { __oprDef } = ctx;
 
     if (
-      operation?.composition?.startsWith('Entity.') &&
-      operation.compositionOptions?.type
+      __oprDef?.composition?.startsWith('Entity.') &&
+      __oprDef.compositionOptions?.type
     ) {
-      const dataType = ctx.document.node.getComplexType(
-        operation.compositionOptions?.type,
+      const dataType = ctx.__docNode.getComplexType(
+        __oprDef.compositionOptions?.type,
       );
       const entityMetadata = EntityMetadata.get(dataType.ctor!);
       if (!entityMetadata)
         throw new Error(`Type class "${dataType.ctor}" is not an SQB entity`);
-      const controller = operation.owner;
-      switch (operation.composition) {
+      const controller = __oprDef.owner;
+      switch (__oprDef.composition) {
         case 'Entity.Create': {
           const data = await ctx.getBody<any>();
           const options = {
@@ -69,7 +69,7 @@ export namespace SQBAdapter {
         }
         case 'Entity.Delete': {
           const keyParam =
-            operation.parameters.find(p => p.keyParam) ||
+            __oprDef.parameters.find(p => p.keyParam) ||
             controller.parameters.find(p => p.keyParam);
           const key = keyParam && ctx.pathParams[String(keyParam.name)];
           const options = {
@@ -93,19 +93,18 @@ export namespace SQBAdapter {
             filter: parseFilter(ctx.queryParams.filter),
             projection:
               ctx.queryParams.projection ||
-              operation.compositionOptions.defaultProjection,
+              __oprDef.compositionOptions.defaultProjection,
             limit:
-              ctx.queryParams.limit ||
-              operation.compositionOptions.defaultLimit,
+              ctx.queryParams.limit || __oprDef.compositionOptions.defaultLimit,
             skip: ctx.queryParams.skip,
             sort:
-              ctx.queryParams.sort || operation.compositionOptions.defaultSort,
+              ctx.queryParams.sort || __oprDef.compositionOptions.defaultSort,
           };
           return { method: 'findMany', options } satisfies TransformedRequest;
         }
         case 'Entity.Get': {
           const keyParam =
-            operation.parameters.find(p => p.keyParam) ||
+            __oprDef.parameters.find(p => p.keyParam) ||
             controller.parameters.find(p => p.keyParam);
           const key = keyParam && ctx.pathParams[String(keyParam.name)];
           const options = {
@@ -117,7 +116,7 @@ export namespace SQBAdapter {
         case 'Entity.Replace': {
           const data = await ctx.getBody<any>();
           const keyParam =
-            operation.parameters.find(p => p.keyParam) ||
+            __oprDef.parameters.find(p => p.keyParam) ||
             controller.parameters.find(p => p.keyParam);
           const key = keyParam && ctx.pathParams[String(keyParam.name)];
           const options = {
@@ -134,7 +133,7 @@ export namespace SQBAdapter {
         case 'Entity.Update': {
           const data = await ctx.getBody<any>();
           const keyParam =
-            operation.parameters.find(p => p.keyParam) ||
+            __oprDef.parameters.find(p => p.keyParam) ||
             controller.parameters.find(p => p.keyParam);
           const key = keyParam && ctx.pathParams[String(keyParam.name)];
           const options = {

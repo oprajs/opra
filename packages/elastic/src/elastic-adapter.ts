@@ -37,17 +37,17 @@ export namespace ElasticAdapter {
   export async function parseRequest(
     context: ExecutionContext,
   ): Promise<TransformedRequest> {
-    if (context.protocol !== 'http') {
+    if (context.transport !== 'http') {
       throw new TypeError('ElasticAdapter can parse only HttpContext');
     }
     const ctx = context as HttpContext;
-    const { operation } = ctx;
+    const { __oprDef } = ctx;
     if (
-      operation?.composition?.startsWith('Entity.') &&
-      operation.compositionOptions?.type
+      __oprDef?.composition?.startsWith('Entity.') &&
+      __oprDef.compositionOptions?.type
     ) {
-      const controller = operation.owner;
-      switch (operation.composition) {
+      const controller = __oprDef.owner;
+      switch (__oprDef.composition) {
         case 'Entity.Create': {
           const data = await ctx.getBody<any>();
           const options = {
@@ -61,7 +61,7 @@ export namespace ElasticAdapter {
         }
         case 'Entity.Delete': {
           const keyParam =
-            operation.parameters.find(p => p.keyParam) ||
+            __oprDef.parameters.find(p => p.keyParam) ||
             controller.parameters.find(p => p.keyParam);
           const key = keyParam && ctx.pathParams[String(keyParam.name)];
           const options = {
@@ -92,7 +92,7 @@ export namespace ElasticAdapter {
         }
         case 'Entity.Get': {
           const keyParam =
-            operation.parameters.find(p => p.keyParam) ||
+            __oprDef.parameters.find(p => p.keyParam) ||
             controller.parameters.find(p => p.keyParam);
           const key = keyParam && ctx.pathParams[String(keyParam.name)];
           const options = {
@@ -104,7 +104,7 @@ export namespace ElasticAdapter {
         case 'Entity.Replace': {
           const data = await ctx.getBody<any>();
           const keyParam =
-            operation.parameters.find(p => p.keyParam) ||
+            __oprDef.parameters.find(p => p.keyParam) ||
             controller.parameters.find(p => p.keyParam);
           const key = keyParam && ctx.pathParams[String(keyParam.name)];
           const options = {
@@ -121,7 +121,7 @@ export namespace ElasticAdapter {
         case 'Entity.Update': {
           const data = await ctx.getBody<any>();
           const keyParam =
-            operation.parameters.find(p => p.keyParam) ||
+            __oprDef.parameters.find(p => p.keyParam) ||
             controller.parameters.find(p => p.keyParam);
           const key = keyParam && ctx.pathParams[String(keyParam.name)];
           const options = {

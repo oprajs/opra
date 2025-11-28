@@ -41,6 +41,7 @@ export type { MQControllerDecorator } from './decorators/mq-controller.decorator
 export type { MQOperationDecorator } from './decorators/mq-operation.decorator.js';
 export type { WSControllerDecorator } from './decorators/ws-controller.decorator.js';
 export type { WSOperationDecorator } from './decorators/ws-operation.decorator.js';
+export * from './decorators/ws-param.decorator.js';
 export * from './factory/api-document.factory.js';
 export * from './http/http-api.js';
 export * from './http/http-controller.js';

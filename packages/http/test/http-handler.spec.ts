@@ -19,9 +19,9 @@ describe('http:HttpHandler', () => {
   function createContext(operation: HttpOperation, request: HttpIncoming) {
     const response = HttpOutgoing.from({ req: request });
     return new HttpContext({
-      adapter,
-      operation,
-      controller: operation.owner,
+      __adapter: adapter,
+      __oprDef: operation,
+      __contDef: operation.owner,
       platform: 'express',
       request,
       response,

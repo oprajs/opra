@@ -7,8 +7,8 @@ import type { DataTypeContainer } from '../data-type-container.interface.js';
 export interface WSOperation extends DataTypeContainer {
   kind: WSOperation.Kind;
   description?: string;
-  channel: string | RegExp | (string | RegExp)[];
-  payloadType: string | DataType;
+  event: string | RegExp;
+  arguments?: (string | DataType)[];
 }
 
 export namespace WSOperation {

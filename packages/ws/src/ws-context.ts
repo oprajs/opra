@@ -1,56 +1,51 @@
-// import { OpraSchema, WSController, WSOperation } from '@opra/common';
-// import { ExecutionContext } from '@opra/core';
-// import type { AsyncEventEmitter } from 'node-events-async';
-// import type { WsAdapter } from './ws-adapter.js';
-//
-// /**
-//  * Provides the context for handling messages.
-//  * It extends the ExecutionContext and implements the AsyncEventEmitter.
-//  */
-// export class WsContext extends ExecutionContext implements AsyncEventEmitter {
-//   readonly protocol: OpraSchema.Transport;
-//   readonly platform: string;
-//   readonly adapter: WsAdapter;
-//   readonly controller?: WSController;
-//   readonly controllerInstance?: any;
-//   readonly operation?: WSOperation;
-//   readonly operationHandler?: Function;
-//   readonly content: any;
-//
-//   /**
-//    * Constructor
-//    * @param init the context options
-//    */
-//   constructor(init: WsContext.Initiator) {
-//     super({
-//       ...init,
-//       document: init.adapter.document,
-//       documentNode: init.controller?.node,
-//       protocol: 'ws',
-//     });
-//     this.adapter = init.adapter;
-//     this.platform = init.adapter.platform;
-//     this.protocol = 'ws';
-//     if (init.controller) this.controller = init.controller;
-//     if (init.controllerInstance)
-//       this.controllerInstance = init.controllerInstance;
-//     if (init.operation) this.operation = init.operation;
-//     if (init.operationHandler) this.operationHandler = init.operationHandler;
-//     this.content = init.content;
-//   }
-// }
-//
-// export namespace WsContext {
-//   export interface Initiator
-//     extends Omit<
-//       ExecutionContext.Initiator,
-//       'document' | 'protocol' | 'documentNode'
-//     > {
-//     adapter: WsAdapter;
-//     controller?: WSController;
-//     controllerInstance?: any;
-//     operation?: WSOperation;
-//     operationHandler?: Function;
-//     content: any;
-//   }
-// }
+import { WSController, WSOperation } from '@opra/common';
+import { ExecutionContext } from '@opra/core';
+import type { AsyncEventEmitter } from 'node-events-async';
+import type { WsAdapter } from './ws-adapter.js';
+
+/**
+ * Provides the context for handling messages.
+ * It extends the ExecutionContext and implements the AsyncEventEmitter.
+ */
+export class WsContext extends ExecutionContext implements AsyncEventEmitter {
+  declare readonly __contDef: WSController;
+  declare readonly __oprDef: WSOperation;
+  declare readonly __controller: any;
+  declare readonly __handler?: Function;
+  declare readonly __adapter: WsAdapter;
+  readonly parameters: any[] = [];
+
+  /**
+   * Constructor
+   * @param init the context options
+   */
+  constructor(init: WsContext.Initiator) {
+    super({
+      ...init,
+      __docNode:
+        init.__oprDef?.node ||
+        init.__contDef?.node ||
+        init.__adapter.document.node,
+      transport: 'ws',
+      platform: 'socketio',
+    });
+    if (init.__contDef) this.__contDef = init.__contDef;
+    if (init.__controller) this.__controller = init.__controller;
+    if (init.__oprDef) this.__oprDef = init.__oprDef;
+    if (init.__handler) this.__handler = init.__handler;
+  }
+}
+
+export namespace WsContext {
+  export interface Initiator extends Omit<
+    ExecutionContext.Initiator,
+    'document' | 'transport' | 'platform' | '__docNode'
+  > {
+    __adapter: WsAdapter;
+    __contDef?: WSController;
+    __oprDef?: WSOperation;
+    __controller?: any;
+    __handler?: Function;
+    content: any;
+  }
+}
