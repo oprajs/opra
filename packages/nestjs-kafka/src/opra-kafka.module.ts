@@ -11,11 +11,10 @@ export namespace OpraKafkaModule {
     useFactory?: (...args: any[]) => Promise<ApiConfig> | ApiConfig;
   }
 
-  interface BaseModuleOptions
-    extends Pick<
-      DynamicModule,
-      'imports' | 'providers' | 'exports' | 'controllers' | 'global'
-    > {
+  interface BaseModuleOptions extends Pick<
+    DynamicModule,
+    'imports' | 'providers' | 'exports' | 'controllers' | 'global'
+  > {
     id?: any;
     interceptors?: (
       | KafkaAdapter.InterceptorFunction
@@ -25,10 +24,8 @@ export namespace OpraKafkaModule {
   }
 
   export interface ApiConfig
-    extends Pick<
-        ApiDocumentFactory.InitArguments,
-        'types' | 'references' | 'info'
-      >,
+    extends
+      Pick<ApiDocumentFactory.InitArguments, 'types' | 'references' | 'info'>,
       Pick<
         KafkaAdapter.Config,
         'client' | 'consumers' | 'logExtra' | 'defaults'

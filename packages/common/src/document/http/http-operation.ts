@@ -23,16 +23,15 @@ import type { HttpRequestBody } from './http-request-body.js';
  * @namespace HttpOperation
  */
 export namespace HttpOperation {
-  export interface Metadata
-    extends Pick<
-      OpraSchema.HttpOperation,
-      | 'description'
-      | 'method'
-      | 'path'
-      | 'mergePath'
-      | 'composition'
-      | 'compositionOptions'
-    > {
+  export interface Metadata extends Pick<
+    OpraSchema.HttpOperation,
+    | 'description'
+    | 'method'
+    | 'path'
+    | 'mergePath'
+    | 'composition'
+    | 'compositionOptions'
+  > {
     types?: ThunkAsync<Type | EnumType.EnumObject | EnumType.EnumArray>[];
     parameters?: HttpParameter.Metadata[];
     responses?: HttpOperationResponse.Metadata[];
@@ -41,39 +40,37 @@ export namespace HttpOperation {
     allowPatchOperators?: boolean;
   }
 
-  export interface Options
-    extends Partial<
-      Pick<
-        Metadata,
-        | 'path'
-        | 'mergePath'
-        | 'description'
-        | 'method'
-        | 'immediateFetch'
-        | 'allowPatchOperators'
-      >
-    > {
+  export interface Options extends Partial<
+    Pick<
+      Metadata,
+      | 'path'
+      | 'mergePath'
+      | 'description'
+      | 'method'
+      | 'immediateFetch'
+      | 'allowPatchOperators'
+    >
+  > {
     requestBody?: HttpRequestBody.Options;
   }
 
-  export interface InitArguments
-    extends Combine<
-      {
-        name: string;
-        types?: DataType[];
-      },
-      Pick<
-        Metadata,
-        | 'description'
-        | 'method'
-        | 'path'
-        | 'mergePath'
-        | 'composition'
-        | 'compositionOptions'
-        | 'immediateFetch'
-        | 'allowPatchOperators'
-      >
-    > {}
+  export interface InitArguments extends Combine<
+    {
+      name: string;
+      types?: DataType[];
+    },
+    Pick<
+      Metadata,
+      | 'description'
+      | 'method'
+      | 'path'
+      | 'mergePath'
+      | 'composition'
+      | 'compositionOptions'
+      | 'immediateFetch'
+      | 'allowPatchOperators'
+    >
+  > {}
 }
 
 /**

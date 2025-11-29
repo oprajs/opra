@@ -26,8 +26,9 @@ export namespace DataType {
     scopePattern?: (string | RegExp) | (string | RegExp)[];
   }
 
-  export interface Options
-    extends Partial<StrictOmit<Metadata, 'kind' | 'examples'>> {
+  export interface Options extends Partial<
+    StrictOmit<Metadata, 'kind' | 'examples'>
+  > {
     embedded?: boolean;
   }
 

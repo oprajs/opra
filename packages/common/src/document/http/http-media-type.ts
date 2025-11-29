@@ -13,28 +13,25 @@ import type { HttpMultipartField } from './http-multipart-field.js';
  * @namespace HttpMediaType
  */
 export namespace HttpMediaType {
-  export interface Metadata
-    extends Partial<
-      StrictOmit<OpraSchema.HttpMediaType, 'type' | 'multipartFields'>
-    > {
+  export interface Metadata extends Partial<
+    StrictOmit<OpraSchema.HttpMediaType, 'type' | 'multipartFields'>
+  > {
     type?: Type | string;
     multipartFields?: HttpMultipartField.Metadata[];
   }
 
-  export interface Options
-    extends Partial<
-      StrictOmit<OpraSchema.HttpMediaType, 'type' | 'multipartFields'>
-    > {
+  export interface Options extends Partial<
+    StrictOmit<OpraSchema.HttpMediaType, 'type' | 'multipartFields'>
+  > {
     type?: Type | string;
   }
 
-  export interface InitArguments
-    extends Combine<
-      {
-        type?: DataType | string | Type;
-      },
-      StrictOmit<Metadata, 'multipartFields'>
-    > {}
+  export interface InitArguments extends Combine<
+    {
+      type?: DataType | string | Type;
+    },
+    StrictOmit<Metadata, 'multipartFields'>
+  > {}
 }
 
 /**

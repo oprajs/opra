@@ -12,7 +12,7 @@ export abstract class HttpAdapter<
   T extends HttpAdapter.Events = HttpAdapter.Events,
 > extends PlatformAdapter<EventMap<T>> {
   readonly handler: HttpHandler;
-  readonly protocol: OpraSchema.Transport = 'http';
+  readonly transform: OpraSchema.Transport = 'http';
   readonly basePath: string;
   scope?: string;
   interceptors: (

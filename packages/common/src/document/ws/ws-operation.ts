@@ -1,7 +1,6 @@
 import { omitUndefined } from '@jsopen/objects';
 import type { Combine, ThunkAsync, Type } from 'ts-gems';
 import { asMutable } from 'ts-gems';
-import { TypeThunkAsync } from 'ts-gems/lib/types';
 import { OpraSchema } from '../../schema/index.js';
 import { DataTypeMap } from '../common/data-type-map.js';
 import { DocumentElement } from '../common/document-element.js';
@@ -19,26 +18,35 @@ import { WSController } from './ws-controller.js';
  * @namespace WSOperation
  */
 export namespace WSOperation {
-  export interface Metadata
-    extends Pick<OpraSchema.WSOperation, 'description' | 'event'> {
-    arguments?: (TypeThunkAsync | string)[];
+  export interface Metadata extends Pick<
+    OpraSchema.WSOperation,
+    'description' | 'event'
+  > {
+    arguments?: (
+      | ThunkAsync<Type | EnumType.EnumObject | EnumType.EnumArray>
+      | string
+    )[];
     types?: ThunkAsync<Type | EnumType.EnumObject | EnumType.EnumArray>[];
+    response?: ThunkAsync<Type | EnumType.EnumObject | EnumType.EnumArray>[];
   }
 
   export interface Options extends Partial<Pick<Metadata, 'description'>> {
     event?: string | RegExp;
+    response?:
+      | string
+      | ThunkAsync<Type | EnumType.EnumObject | EnumType.EnumArray>;
   }
 
-  export interface InitArguments
-    extends Combine<
-      {
-        name: string;
-        types?: DataType[];
-        arguments?: (DataType | string | Type)[];
-      },
-      Pick<Metadata, 'description'>
-    > {
+  export interface InitArguments extends Combine<
+    {
+      name: string;
+      types?: DataType[];
+      arguments?: (DataType | string | Type)[];
+    },
+    Pick<Metadata, 'description'>
+  > {
     event?: string | RegExp;
+    response?: DataType | string | Type;
   }
 }
 
@@ -111,6 +119,11 @@ export const WSOperation = function (this: WSOperation, ...args: any[]) {
       arg instanceof DataType ? arg : _this.owner.node.getDataType(arg),
     );
   }
+  if (initArgs?.response)
+    _this.response =
+      initArgs.response instanceof DataType
+        ? initArgs.response
+        : _this.owner.node.getDataType(initArgs.response);
 } as WSOperationStatic;
 
 /**
@@ -123,6 +136,7 @@ class WSOperationClass extends DocumentElement {
   declare event: string | RegExp;
   declare arguments?: DataType[];
   declare types: DataTypeMap;
+  declare response?: DataType;
 
   toJSON(): OpraSchema.WSOperation {
     return omitUndefined<OpraSchema.WSOperation>({

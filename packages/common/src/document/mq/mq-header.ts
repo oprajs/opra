@@ -30,13 +30,12 @@ export namespace MQHeader {
     type?: string | TypeThunkAsync | object;
   }
 
-  export interface InitArguments
-    extends Combine<
-      {
-        type?: DataType;
-      },
-      Metadata
-    > {}
+  export interface InitArguments extends Combine<
+    {
+      type?: DataType;
+    },
+    Metadata
+  > {}
 }
 
 /**

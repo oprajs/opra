@@ -262,30 +262,28 @@ export namespace FetchBackend {
     defaults?: RequestDefaults;
   }
 
-  export interface RequestInit
-    extends Combine<
-      StrictOmit<HttpBackend.RequestInit, 'body'>,
-      DomRequestInit
-    > {
+  export interface RequestInit extends Combine<
+    StrictOmit<HttpBackend.RequestInit, 'body'>,
+    DomRequestInit
+  > {
     duplex?: string;
     reportProgress?: boolean;
   }
 
-  export interface RequestOptions
-    extends Partial<
-      Pick<
-        RequestInit,
-        | 'cache'
-        | 'credentials'
-        | 'integrity'
-        | 'keepalive'
-        | 'mode'
-        | 'redirect'
-        | 'referrer'
-        | 'referrerPolicy'
-        | 'reportProgress'
-      >
-    > {}
+  export interface RequestOptions extends Partial<
+    Pick<
+      RequestInit,
+      | 'cache'
+      | 'credentials'
+      | 'integrity'
+      | 'keepalive'
+      | 'mode'
+      | 'redirect'
+      | 'referrer'
+      | 'referrerPolicy'
+      | 'reportProgress'
+    >
+  > {}
 
   export type RequestDefaults = RequestOptions & {
     headers: Headers;

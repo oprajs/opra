@@ -13,7 +13,8 @@ import { concatReadable } from '../utils/concat-readable.js';
  * @interface NodeIncomingMessage
  */
 export interface NodeIncomingMessage
-  extends Readable,
+  extends
+    Readable,
     Pick<
       http.IncomingMessage,
       | 'httpVersion'

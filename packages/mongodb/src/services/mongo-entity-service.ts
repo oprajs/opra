@@ -29,8 +29,9 @@ export namespace MongoEntityService {
 
   export interface DeleteOptions<T> extends MongoService.DeleteOptions<T> {}
 
-  export interface DeleteManyOptions<T>
-    extends MongoService.DeleteManyOptions<T> {}
+  export interface DeleteManyOptions<
+    T,
+  > extends MongoService.DeleteManyOptions<T> {}
 
   export interface DistinctOptions<T> extends MongoService.DistinctOptions<T> {}
 
@@ -44,78 +45,100 @@ export namespace MongoEntityService {
 
   export interface ReplaceOptions<T> extends MongoService.ReplaceOptions<T> {}
 
-  export interface UpdateOneOptions<T>
-    extends MongoService.UpdateOneOptions<T> {
+  export interface UpdateOneOptions<
+    T,
+  > extends MongoService.UpdateOneOptions<T> {
     initArrayFields?: string[];
   }
 
-  export interface UpdateManyOptions<T>
-    extends MongoService.UpdateManyOptions<T> {
+  export interface UpdateManyOptions<
+    T,
+  > extends MongoService.UpdateManyOptions<T> {
     initArrayFields?: string[];
   }
 
-  export interface CreateCommand<T>
-    extends StrictOmit<CommandInfo, 'documentId' | 'nestedId' | 'input'> {
+  export interface CreateCommand<T> extends StrictOmit<
+    CommandInfo,
+    'documentId' | 'nestedId' | 'input'
+  > {
     crud: 'create';
     input: PartialDTO<T>;
     options?: CreateOptions;
   }
 
-  export interface CountCommand<T>
-    extends StrictOmit<CommandInfo, 'documentId' | 'nestedId' | 'input'> {
+  export interface CountCommand<T> extends StrictOmit<
+    CommandInfo,
+    'documentId' | 'nestedId' | 'input'
+  > {
     crud: 'read';
     options?: CountOptions<T>;
   }
 
-  export interface DeleteCommand<T>
-    extends StrictOmit<CommandInfo, 'nestedId' | 'input'> {
+  export interface DeleteCommand<T> extends StrictOmit<
+    CommandInfo,
+    'nestedId' | 'input'
+  > {
     crud: 'delete';
     options?: DeleteOptions<T>;
   }
 
-  export interface DistinctCommand<T>
-    extends StrictOmit<CommandInfo, 'documentId' | 'nestedId' | 'input'> {
+  export interface DistinctCommand<T> extends StrictOmit<
+    CommandInfo,
+    'documentId' | 'nestedId' | 'input'
+  > {
     crud: 'read';
     field: string;
     options?: DistinctOptions<T>;
   }
 
-  export interface ExistsCommand<T>
-    extends StrictOmit<CommandInfo, 'nestedId' | 'input'> {
+  export interface ExistsCommand<T> extends StrictOmit<
+    CommandInfo,
+    'nestedId' | 'input'
+  > {
     crud: 'read';
     options?: ExistsOptions<T>;
   }
 
-  export interface FindOneCommand<T>
-    extends StrictOmit<CommandInfo, 'nestedId' | 'input'> {
+  export interface FindOneCommand<T> extends StrictOmit<
+    CommandInfo,
+    'nestedId' | 'input'
+  > {
     crud: 'read';
     options?: FindOneOptions<T>;
   }
 
-  export interface FindManyCommand<T>
-    extends StrictOmit<CommandInfo, 'nestedId' | 'input'> {
+  export interface FindManyCommand<T> extends StrictOmit<
+    CommandInfo,
+    'nestedId' | 'input'
+  > {
     crud: 'read';
     options?: FindManyOptions<T>;
   }
 
-  export interface UpdateOneCommand<T>
-    extends StrictOmit<CommandInfo, 'nestedId'> {
+  export interface UpdateOneCommand<T> extends StrictOmit<
+    CommandInfo,
+    'nestedId'
+  > {
     crud: 'update';
     input?: MongoPatchDTO<T>;
     inputRaw?: mongodb.UpdateFilter<T>;
     options?: UpdateOneOptions<T>;
   }
 
-  export interface UpdateManyCommand<T>
-    extends StrictOmit<CommandInfo, 'nestedId'> {
+  export interface UpdateManyCommand<T> extends StrictOmit<
+    CommandInfo,
+    'nestedId'
+  > {
     crud: 'update';
     input?: MongoPatchDTO<T>;
     inputRaw?: mongodb.UpdateFilter<T>;
     options?: UpdateManyOptions<T>;
   }
 
-  export interface ReplaceCommand<T>
-    extends StrictOmit<CommandInfo, 'nestedId'> {
+  export interface ReplaceCommand<T> extends StrictOmit<
+    CommandInfo,
+    'nestedId'
+  > {
     crud: 'replace';
     input: PartialDTO<T>;
     options?: ReplaceOptions<T>;

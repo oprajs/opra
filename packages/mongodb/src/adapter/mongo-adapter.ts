@@ -88,8 +88,7 @@ export namespace MongoAdapter {
               __oprDef.compositionOptions.defaultProjection,
             count: ctx.queryParams.count,
             limit:
-              ctx.queryParams.limit ||
-              __oprDef.compositionOptions.defaultLimit,
+              ctx.queryParams.limit || __oprDef.compositionOptions.defaultLimit,
             skip: ctx.queryParams.skip,
             sort:
               ctx.queryParams.sort || __oprDef.compositionOptions.defaultSort,

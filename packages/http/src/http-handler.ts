@@ -502,19 +502,19 @@ export class HttpHandler {
   }
 
   protected async _sendErrorResponse(context: HttpContext): Promise<void> {
-    context.errors = this._wrapExceptions(context.errors);
+    let errors = (context.errors = this._wrapExceptions(context.errors));
     try {
       if (context.listenerCount('error')) {
-        await context.emitAsync('error', context.errors[0], context);
-        context.errors = this._wrapExceptions(context.errors);
+        await context.emitAsync('error', errors[0], context);
+        errors = context.errors = this._wrapExceptions(context.errors);
       }
       if (this.adapter.listenerCount('error')) {
-        await this.adapter.emitAsync('error', context.errors[0], context);
-        context.errors = this._wrapExceptions(context.errors);
+        await this.adapter.emitAsync('error', errors[0], context);
+        errors = context.errors = this._wrapExceptions(errors);
       }
       if (this.adapter.logger?.error) {
         const logger = this.adapter.logger;
-        context.errors.forEach(e => {
+        errors.forEach(e => {
           if (e.status >= 500 && e.status < 600) logger.error(e);
         });
       }
@@ -522,7 +522,7 @@ export class HttpHandler {
       context.errors = this._wrapExceptions([e, ...context.errors]);
     }
 
-    const { response, errors } = context;
+    const { response } = context;
     if (response.headersSent) {
       response.end();
       return;

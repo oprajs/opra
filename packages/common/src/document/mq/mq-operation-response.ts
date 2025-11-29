@@ -11,32 +11,29 @@ import type { MQOperation } from './mq-operation.js';
  * @namespace MQOperationResponse
  */
 export namespace MQOperationResponse {
-  export interface Metadata
-    extends Combine<
-      {
-        payloadType?: TypeThunkAsync | string;
-        keyType?: TypeThunkAsync | string;
-        headers?: MQHeader.Metadata[];
-      },
-      OpraSchema.MQOperationResponse
-    > {}
+  export interface Metadata extends Combine<
+    {
+      payloadType?: TypeThunkAsync | string;
+      keyType?: TypeThunkAsync | string;
+      headers?: MQHeader.Metadata[];
+    },
+    OpraSchema.MQOperationResponse
+  > {}
 
-  export interface Options
-    extends Combine<
-      {
-        keyType?: Type | string;
-      },
-      Pick<Metadata, 'channel' | 'description'>
-    > {}
+  export interface Options extends Combine<
+    {
+      keyType?: Type | string;
+    },
+    Pick<Metadata, 'channel' | 'description'>
+  > {}
 
-  export interface InitArguments
-    extends Combine<
-      {
-        payloadType?: DataType | string | Type;
-        keyType?: DataType | string | Type;
-      },
-      Pick<Metadata, 'channel' | 'description'>
-    > {}
+  export interface InitArguments extends Combine<
+    {
+      payloadType?: DataType | string | Type;
+      keyType?: DataType | string | Type;
+    },
+    Pick<Metadata, 'channel' | 'description'>
+  > {}
 }
 
 /**

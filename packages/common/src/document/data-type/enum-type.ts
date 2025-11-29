@@ -17,16 +17,15 @@ export namespace EnumType {
   export type EnumObject = Record<string, string | number>;
   export type EnumArray = readonly string[];
 
-  export interface Metadata
-    extends Combine<
-      {
-        kind: OpraSchema.EnumType.Kind;
-        base?: EnumObject | EnumArray | string;
-        name: string;
-      },
-      DataType.Metadata,
-      OpraSchema.EnumType
-    > {}
+  export interface Metadata extends Combine<
+    {
+      kind: OpraSchema.EnumType.Kind;
+      base?: EnumObject | EnumArray | string;
+      name: string;
+    },
+    DataType.Metadata,
+    OpraSchema.EnumType
+  > {}
 
   export interface Options<
     T,
@@ -34,23 +33,22 @@ export namespace EnumType {
       ? T[number]
       : keyof T,
   > extends Combine<
-      {
-        base?: EnumObject | EnumArray | string;
-        meanings?: Record<Keys, string>;
-      },
-      DataType.Options
-    > {}
+    {
+      base?: EnumObject | EnumArray | string;
+      meanings?: Record<Keys, string>;
+    },
+    DataType.Options
+  > {}
 
-  export interface InitArguments
-    extends Combine<
-      {
-        kind: OpraSchema.EnumType.Kind;
-        base?: EnumType;
-        instance?: object;
-      },
-      DataType.InitArguments,
-      EnumType.Metadata
-    > {}
+  export interface InitArguments extends Combine<
+    {
+      kind: OpraSchema.EnumType.Kind;
+      base?: EnumType;
+      instance?: object;
+    },
+    DataType.InitArguments,
+    EnumType.Metadata
+  > {}
 }
 
 /**

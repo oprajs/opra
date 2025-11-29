@@ -7,7 +7,8 @@
   "dependencies": {
     "@opra/common": "^1.19.7",
     "@opra/core": "^1.19.7",
-    "@opra/ws": "^1.19.7",
+    "@opra/socketio": "^1.19.7",
+    "socket.io": "^4.8.1",
     "ts-gems": "^3.11.3"
   },
   "scripts": {

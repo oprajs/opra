@@ -19,35 +19,32 @@ import { DataType } from './data-type.js';
  * @namespace SimpleType
  */
 export namespace SimpleType {
-  export interface Metadata
-    extends Combine<
-      {
-        kind: OpraSchema.SimpleType.Kind;
-      },
-      DataType.Metadata,
-      OpraSchema.SimpleType
-    > {}
+  export interface Metadata extends Combine<
+    {
+      kind: OpraSchema.SimpleType.Kind;
+    },
+    DataType.Metadata,
+    OpraSchema.SimpleType
+  > {}
 
-  export interface Options
-    extends Combine<
-      Pick<OpraSchema.SimpleType, 'nameMappings'>,
-      DataType.Options
-    > {}
+  export interface Options extends Combine<
+    Pick<OpraSchema.SimpleType, 'nameMappings'>,
+    DataType.Options
+  > {}
 
-  export interface InitArguments
-    extends Combine<
-      {
-        kind: OpraSchema.SimpleType.Kind;
-        base?: SimpleType;
-        ctor?: Type;
-        properties?: object;
-        convertToNative?: boolean;
-        generateDecoder?: SimpleType.ValidatorGenerator;
-        generateEncoder?: SimpleType.ValidatorGenerator;
-      },
-      DataType.InitArguments,
-      SimpleType.Metadata
-    > {}
+  export interface InitArguments extends Combine<
+    {
+      kind: OpraSchema.SimpleType.Kind;
+      base?: SimpleType;
+      ctor?: Type;
+      properties?: object;
+      convertToNative?: boolean;
+      generateDecoder?: SimpleType.ValidatorGenerator;
+      generateEncoder?: SimpleType.ValidatorGenerator;
+    },
+    DataType.InitArguments,
+    SimpleType.Metadata
+  > {}
 
   export interface Attribute extends OpraSchema.Attribute {}
 

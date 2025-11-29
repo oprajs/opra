@@ -60,7 +60,7 @@ export class KafkaAdapter extends PlatformAdapter<KafkaAdapter.Events> {
   protected _handlerArgs: HandlerArguments[] = [];
   declare protected _kafka: Kafka;
   protected _status: KafkaAdapter.Status = 'idle';
-  readonly protocol: OpraSchema.Transport = 'mq';
+  readonly transform: OpraSchema.Transport = 'mq';
   readonly platform = KafkaAdapter.PlatformName;
   readonly interceptors: (
     | KafkaAdapter.InterceptorFunction
@@ -371,12 +371,12 @@ export class KafkaAdapter extends PlatformAdapter<KafkaAdapter.Events> {
     const decodeKey =
       operation.keyType?.generateCodec('decode', {
         scope: this.scope,
-        ignoreWriteonlyFields: true,
+        ignoreReadonlyFields: true,
       }) || vg.isAny();
     const decodePayload =
       operation.payloadType?.generateCodec('decode', {
         scope: this.scope,
-        ignoreWriteonlyFields: true,
+        ignoreReadonlyFields: true,
       }) || vg.isAny();
     operation.headers.forEach(header => {
       let decode = this[kAssetCache].get<Validator>(header, 'decode');
@@ -421,8 +421,7 @@ export class KafkaAdapter extends PlatformAdapter<KafkaAdapter.Events> {
       }
       /** Create context */
       const context = new KafkaContext({
-        adapter: this,
-        platform: this.platform,
+        __adapter: this,
         __contDef: controller,
         __controller: instance,
         __oprDef: operation,

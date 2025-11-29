@@ -59,8 +59,10 @@ export namespace SqbEntityService {
    *
    * @interface
    */
-  export interface CountOptions
-    extends StrictOmit<Repository.CountOptions, 'filter'> {
+  export interface CountOptions extends StrictOmit<
+    Repository.CountOptions,
+    'filter'
+  > {
     filter?: Repository.CountOptions['filter'] | string;
   }
 
@@ -69,8 +71,10 @@ export namespace SqbEntityService {
    *
    * @interface
    */
-  export interface DeleteOptions
-    extends StrictOmit<Repository.DeleteOptions, 'filter'> {
+  export interface DeleteOptions extends StrictOmit<
+    Repository.DeleteOptions,
+    'filter'
+  > {
     filter?: Repository.DeleteOptions['filter'] | string;
   }
 
@@ -79,8 +83,10 @@ export namespace SqbEntityService {
    *
    * @interface
    */
-  export interface DeleteManyOptions
-    extends StrictOmit<Repository.DeleteManyOptions, 'filter'> {
+  export interface DeleteManyOptions extends StrictOmit<
+    Repository.DeleteManyOptions,
+    'filter'
+  > {
     filter?: Repository.DeleteManyOptions['filter'] | string;
   }
 
@@ -89,8 +95,10 @@ export namespace SqbEntityService {
    *
    * @interface
    */
-  export interface ExistsOptions
-    extends StrictOmit<Repository.ExistsOptions, 'filter'> {
+  export interface ExistsOptions extends StrictOmit<
+    Repository.ExistsOptions,
+    'filter'
+  > {
     filter?: Repository.ExistsOptions['filter'] | string;
   }
 
@@ -99,8 +107,10 @@ export namespace SqbEntityService {
    *
    * @interface
    */
-  export interface FindOneOptions
-    extends StrictOmit<Repository.FindOneOptions, 'filter' | 'offset'> {
+  export interface FindOneOptions extends StrictOmit<
+    Repository.FindOneOptions,
+    'filter' | 'offset'
+  > {
     filter?: Repository.FindOneOptions['filter'] | string;
     skip?: number;
   }
@@ -110,8 +120,10 @@ export namespace SqbEntityService {
    *
    * @interface
    */
-  export interface FindManyOptions
-    extends StrictOmit<Repository.FindManyOptions, 'filter' | 'offset'> {
+  export interface FindManyOptions extends StrictOmit<
+    Repository.FindManyOptions,
+    'filter' | 'offset'
+  > {
     filter?: Repository.FindManyOptions['filter'] | string;
     skip?: number;
   }
@@ -121,8 +133,10 @@ export namespace SqbEntityService {
    *
    * @interface
    */
-  export interface UpdateOneOptions
-    extends StrictOmit<Repository.UpdateOptions, 'filter'> {
+  export interface UpdateOneOptions extends StrictOmit<
+    Repository.UpdateOptions,
+    'filter'
+  > {
     filter?: Repository.UpdateOptions['filter'] | string;
   }
 
@@ -131,20 +145,26 @@ export namespace SqbEntityService {
    *
    * @interface
    */
-  export interface UpdateManyOptions
-    extends StrictOmit<Repository.UpdateManyOptions, 'filter'> {
+  export interface UpdateManyOptions extends StrictOmit<
+    Repository.UpdateManyOptions,
+    'filter'
+  > {
     filter?: Repository.UpdateManyOptions['filter'] | string;
   }
 
-  export interface CreateCommand<T>
-    extends StrictOmit<RequiredSome<CommandInfo, 'input'>, 'documentId'> {
+  export interface CreateCommand<T> extends StrictOmit<
+    RequiredSome<CommandInfo, 'input'>,
+    'documentId'
+  > {
     crud: 'create';
     input: PatchDTO<T>;
     options?: CreateOptions;
   }
 
-  export interface CountCommand
-    extends StrictOmit<CommandInfo, 'documentId' | 'input'> {
+  export interface CountCommand extends StrictOmit<
+    CommandInfo,
+    'documentId' | 'input'
+  > {
     crud: 'read';
     options?: CountOptions;
   }
@@ -270,9 +290,7 @@ export class SqbEntityService<
     if (this._dataType && this._dataTypeScope !== this.scope)
       this._dataType = undefined;
     if (!this._dataType)
-      this._dataType = this.context.__docNode.getComplexType(
-        this._dataType_,
-      );
+      this._dataType = this.context.__docNode.getComplexType(this._dataType_);
     this._dataTypeScope = this.scope;
     return this._dataType;
   }

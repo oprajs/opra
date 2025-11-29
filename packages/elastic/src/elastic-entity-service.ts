@@ -90,8 +90,10 @@ export namespace ElasticEntityService {
    * @interface
    * @template T - The type of the document.
    */
-  export interface FindOneOptions
-    extends StrictOmit<FindManyOptions, 'limit'> {}
+  export interface FindOneOptions extends StrictOmit<
+    FindManyOptions,
+    'limit'
+  > {}
 
   /**
    * Represents options for "findMany" operation
@@ -147,14 +149,18 @@ export namespace ElasticEntityService {
     transport?: TransportRequestOptions;
   }
 
-  export interface CreateCommand
-    extends StrictOmit<RequiredSome<CommandInfo, 'input'>, 'documentId'> {
+  export interface CreateCommand extends StrictOmit<
+    RequiredSome<CommandInfo, 'input'>,
+    'documentId'
+  > {
     crud: 'create';
     options?: CreateOptions;
   }
 
-  export interface CountCommand
-    extends StrictOmit<CommandInfo, 'documentId' | 'input'> {
+  export interface CountCommand extends StrictOmit<
+    CommandInfo,
+    'documentId' | 'input'
+  > {
     crud: 'read';
     options?: CountOptions;
   }
@@ -299,9 +305,7 @@ export class ElasticEntityService<
     if (this._dataType && this._dataTypeScope !== this.scope)
       this._dataType = undefined;
     if (!this._dataType)
-      this._dataType = this.context.__docNode.getComplexType(
-        this._dataType_,
-      );
+      this._dataType = this.context.__docNode.getComplexType(this._dataType_);
     this._dataTypeScope = this.scope;
     return this._dataType;
   }

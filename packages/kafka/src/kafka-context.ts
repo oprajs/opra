@@ -1,4 +1,4 @@
-import { MQController, MQOperation, OpraSchema } from '@opra/common';
+import { MQController, MQOperation } from '@opra/common';
 import { ExecutionContext } from '@opra/core';
 import type { KafkaMessage } from 'kafkajs';
 import type { AsyncEventEmitter } from 'node-events-async';

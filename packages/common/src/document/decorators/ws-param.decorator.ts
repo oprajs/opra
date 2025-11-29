@@ -1,12 +1,37 @@
 import { TypeThunkAsync } from 'ts-gems';
-import { WS_CONTROLLER_METADATA } from '../constants.js';
-import type { WSController } from '../ws/ws-controller.js';
+import { WS_PARAM_METADATA } from '../constants.js';
 
 export function WsParam(type?: TypeThunkAsync | string): ParameterDecorator {
-  return (target, propertyKey, parameterIndex) => {
-    const controllerMetadata: WSController.Metadata | undefined =
-      Reflect.getOwnMetadata(WS_CONTROLLER_METADATA, target.constructor);
-    if (!controllerMetadata)
-      throw new TypeError('This class is not decorated with @WsController');
+  return (
+    target,
+    propertyKey: string | symbol | undefined,
+    parameterIndex: number,
+  ) => {
+    if (typeof propertyKey !== 'string')
+      throw new TypeError(`Un-named properties can not be decorated`);
+    if (!type) {
+      const designTypes = Reflect.getMetadata(
+        'design:paramtypes',
+        target,
+        propertyKey,
+      );
+      type = designTypes[parameterIndex];
+      if (!type) throw new TypeError(`Missing parameter type`);
+    }
+    let paramMetadata: (TypeThunkAsync | string)[] = Reflect.getOwnMetadata(
+      WS_PARAM_METADATA,
+      target,
+      propertyKey,
+    );
+    if (!paramMetadata) {
+      paramMetadata = [];
+      Reflect.defineMetadata(
+        WS_PARAM_METADATA,
+        paramMetadata,
+        target,
+        propertyKey,
+      );
+    }
+    paramMetadata[parameterIndex] = type;
   };
 }

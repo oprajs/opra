@@ -17,8 +17,10 @@ import { parseRegExp } from '../utils/parse-regexp.util.js';
  * @namespace HttpParameter
  */
 export namespace HttpParameter {
-  export interface Metadata
-    extends StrictOmit<OpraSchema.HttpParameter, 'type'> {
+  export interface Metadata extends StrictOmit<
+    OpraSchema.HttpParameter,
+    'type'
+  > {
     name: string | RegExp;
     type?:
       | string
@@ -34,13 +36,12 @@ export namespace HttpParameter {
     parser?: (v: any) => any;
   }
 
-  export interface InitArguments
-    extends Combine<
-      {
-        type?: DataType;
-      },
-      Metadata
-    > {
+  export interface InitArguments extends Combine<
+    {
+      type?: DataType;
+    },
+    Metadata
+  > {
     parser?: (v: any) => any;
   }
 }

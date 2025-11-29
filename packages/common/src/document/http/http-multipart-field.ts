@@ -9,32 +9,20 @@ import { HttpMediaType } from './http-media-type.js';
  * @namespace HttpMultipartField
  */
 export namespace HttpMultipartField {
-  export interface Metadata
-    extends Combine<
-      Pick<
-        OpraSchema.HttpMultipartField,
-        'fieldName' | 'fieldType' | 'required'
-      >,
-      HttpMediaType.Metadata
-    > {}
+  export interface Metadata extends Combine<
+    Pick<OpraSchema.HttpMultipartField, 'fieldName' | 'fieldType' | 'required'>,
+    HttpMediaType.Metadata
+  > {}
 
-  export interface Options
-    extends Combine<
-      Pick<
-        OpraSchema.HttpMultipartField,
-        'fieldName' | 'fieldType' | 'required'
-      >,
-      HttpMediaType.Options
-    > {}
+  export interface Options extends Combine<
+    Pick<OpraSchema.HttpMultipartField, 'fieldName' | 'fieldType' | 'required'>,
+    HttpMediaType.Options
+  > {}
 
-  export interface InitArguments
-    extends Combine<
-      Pick<
-        OpraSchema.HttpMultipartField,
-        'fieldName' | 'fieldType' | 'required'
-      >,
-      HttpMediaType.InitArguments
-    > {}
+  export interface InitArguments extends Combine<
+    Pick<OpraSchema.HttpMultipartField, 'fieldName' | 'fieldType' | 'required'>,
+    HttpMediaType.InitArguments
+  > {}
 }
 
 /**

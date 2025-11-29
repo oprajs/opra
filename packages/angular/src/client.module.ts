@@ -1,4 +1,5 @@
 /* eslint-disable import-x/extensions */
+// @ts-ignore
 import { HttpClient } from '@angular/common/http';
 import {
   type ModuleWithProviders,

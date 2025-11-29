@@ -1,5 +1,5 @@
 {
-  "name": "@opra/ws",
+  "name": "@opra/socketio",
   "version": "1.19.7",
   "description": "Opra Socket.IO adapter",
   "author": "Panates",
@@ -21,7 +21,7 @@
     "clean:src": "ts-cleanup -s src --all",
     "clean:test": "ts-cleanup -s test --all",
     "clean:dist": "rimraf ./build",
-    "clean:cover": "rimraf ../../coverage/ws"
+    "clean:cover": "rimraf ../../coverage/socketio"
   },
   "dependencies": {
     "@jsopen/objects": "^2.0.2",
@@ -64,7 +64,7 @@
   "repository": {
     "type": "git",
     "url": "git+https://github.com/panates/opra.git",
-    "directory": "packages/ws"
+    "directory": "packages/socketio"
   },
   "engines": {
     "node": ">=16.0",

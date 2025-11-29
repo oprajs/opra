@@ -188,7 +188,7 @@ export class FilterRules {
               decoder = comp.left.field.type.generateCodec('decode', {
                 scope,
                 projection: '*',
-                ignoreWriteonlyFields: true,
+                ignoreReadonlyFields: true,
                 coerce: true,
               });
               this._decoderCache.set(comp.left.field, decoder);

@@ -180,19 +180,18 @@ ApiField[DECORATOR] = ApiFieldDecoratorFactory;
  * @namespace ApiField
  */
 export namespace ApiField {
-  export interface Metadata
-    extends Combine<
-      {
-        type?:
-          | string
-          | OpraSchema.DataType
-          | TypeThunkAsync
-          | EnumType.EnumObject
-          | EnumType.EnumArray
-          | object;
-      },
-      OpraSchema.Field
-    > {
+  export interface Metadata extends Combine<
+    {
+      type?:
+        | string
+        | OpraSchema.DataType
+        | TypeThunkAsync
+        | EnumType.EnumObject
+        | EnumType.EnumArray
+        | object;
+    },
+    OpraSchema.Field
+  > {
     scopePattern?: (string | RegExp) | (string | RegExp)[];
     convertToNative?: boolean;
     override?: StrictOmit<
@@ -202,8 +201,9 @@ export namespace ApiField {
     designType?: Function;
   }
 
-  export interface Options
-    extends Partial<StrictOmit<Metadata, 'override' | 'scopePattern'>> {
+  export interface Options extends Partial<
+    StrictOmit<Metadata, 'override' | 'scopePattern'>
+  > {
     /**
      * A variable that defines the pattern or patterns used to determine scope.
      * This can either be a single string or regular expression, or an array containing multiple strings or regular expressions.
@@ -219,13 +219,12 @@ export namespace ApiField {
     convertToNative?: boolean;
   }
 
-  export interface InitArguments
-    extends Combine<
-      {
-        name: string;
-        origin?: ComplexType | MappedType | MixinType;
-        type?: DataType;
-      },
-      Metadata
-    > {}
+  export interface InitArguments extends Combine<
+    {
+      name: string;
+      origin?: ComplexType | MappedType | MixinType;
+      type?: DataType;
+    },
+    Metadata
+  > {}
 }

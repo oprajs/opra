@@ -9,6 +9,7 @@ export interface WSOperation extends DataTypeContainer {
   description?: string;
   event: string | RegExp;
   arguments?: (string | DataType)[];
+  response?: string | DataType;
 }
 
 export namespace WSOperation {

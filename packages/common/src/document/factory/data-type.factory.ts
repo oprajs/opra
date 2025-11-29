@@ -40,74 +40,67 @@ export namespace DataTypeFactory {
     | EnumType.EnumArray
     | object;
 
-  export interface ComplexTypeInit
-    extends Combine<
-      {
-        _instance?: ComplexType;
-        base?: string | ComplexTypeInit | MappedTypeInit | MixinTypeInit;
-        fields?: Record<string, ApiFieldInit>;
-        additionalFields?:
-          | boolean
-          | string
-          | DataTypeFactory.DataTypeInitArguments
-          | ['error']
-          | ['error', string];
-      },
-      ComplexType.InitArguments
-    > {}
+  export interface ComplexTypeInit extends Combine<
+    {
+      _instance?: ComplexType;
+      base?: string | ComplexTypeInit | MappedTypeInit | MixinTypeInit;
+      fields?: Record<string, ApiFieldInit>;
+      additionalFields?:
+        | boolean
+        | string
+        | DataTypeFactory.DataTypeInitArguments
+        | ['error']
+        | ['error', string];
+    },
+    ComplexType.InitArguments
+  > {}
 
-  export interface EnumTypeInit
-    extends Combine<
-      {
-        _instance?: MappedType;
-        base?: string | EnumTypeInit;
-      },
-      EnumType.InitArguments
-    > {}
+  export interface EnumTypeInit extends Combine<
+    {
+      _instance?: MappedType;
+      base?: string | EnumTypeInit;
+    },
+    EnumType.InitArguments
+  > {}
 
-  export interface MappedTypeInit
-    extends Combine<
-      {
-        _instance?: MappedType;
-        base: string | ComplexTypeInit | MappedTypeInit | MixinTypeInit;
-      },
-      MappedType.InitArguments
-    > {}
+  export interface MappedTypeInit extends Combine<
+    {
+      _instance?: MappedType;
+      base: string | ComplexTypeInit | MappedTypeInit | MixinTypeInit;
+    },
+    MappedType.InitArguments
+  > {}
 
-  export interface MixinTypeInit
-    extends Combine<
-      {
-        _instance?: MixinType;
-        types: (string | ComplexTypeInit | MappedTypeInit | MixinTypeInit)[];
-      },
-      MixinType.InitArguments
-    > {}
+  export interface MixinTypeInit extends Combine<
+    {
+      _instance?: MixinType;
+      types: (string | ComplexTypeInit | MappedTypeInit | MixinTypeInit)[];
+    },
+    MixinType.InitArguments
+  > {}
 
-  export interface SimpleTypeInit
-    extends Combine<
-      {
-        _instance?: SimpleType;
-        base?: string | SimpleTypeInit;
-      },
-      SimpleType.InitArguments
-    > {}
+  export interface SimpleTypeInit extends Combine<
+    {
+      _instance?: SimpleType;
+      base?: string | SimpleTypeInit;
+    },
+    SimpleType.InitArguments
+  > {}
 
-  export interface UnionTypeInit
-    extends Combine<
-      {
-        _instance?: MixinType;
-        types: (string | ComplexTypeInit | MappedTypeInit | MixinTypeInit)[];
-      },
-      UnionType.InitArguments
-    > {}
+  export interface UnionTypeInit extends Combine<
+    {
+      _instance?: MixinType;
+      types: (string | ComplexTypeInit | MappedTypeInit | MixinTypeInit)[];
+    },
+    UnionType.InitArguments
+  > {}
 
-  export interface ApiFieldInit
-    extends Combine<
-      {
-        type: string | DataTypeInitArguments;
-      },
-      ApiField.InitArguments
-    > {}
+  export interface ApiFieldInit extends Combine<
+    {
+      type: string | DataTypeInitArguments;
+    },
+    ApiField.InitArguments
+  > {}
 
   export type DataTypeInitArguments =
     | ComplexTypeInit

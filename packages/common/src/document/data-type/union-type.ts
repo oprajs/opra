@@ -18,33 +18,30 @@ import type { SimpleType } from './simple-type.js';
  * @namespace UnionType
  */
 export namespace UnionType {
-  export interface Metadata
-    extends Combine<
-      {
-        kind: OpraSchema.UnionType.Kind;
-        name?: string;
-        types: Type[];
-      },
-      DataType.Metadata,
-      OpraSchema.UnionType
-    > {}
+  export interface Metadata extends Combine<
+    {
+      kind: OpraSchema.UnionType.Kind;
+      name?: string;
+      types: Type[];
+    },
+    DataType.Metadata,
+    OpraSchema.UnionType
+  > {}
 
-  export interface InitArguments
-    extends Combine<
-      {
-        kind: OpraSchema.UnionType.Kind;
-        types: (ComplexType | MappedType | MixinType | SimpleType)[];
-        ctor?: Type;
-      },
-      DataType.InitArguments,
-      UnionType.Metadata
-    > {}
+  export interface InitArguments extends Combine<
+    {
+      kind: OpraSchema.UnionType.Kind;
+      types: (ComplexType | MappedType | MixinType | SimpleType)[];
+      ctor?: Type;
+    },
+    DataType.InitArguments,
+    UnionType.Metadata
+  > {}
 
-  export interface Options
-    extends Combine<
-      Pick<OpraSchema.UnionType, 'discriminator'>,
-      DataType.Options
-    > {}
+  export interface Options extends Combine<
+    Pick<OpraSchema.UnionType, 'discriminator'>,
+    DataType.Options
+  > {}
 }
 
 /**

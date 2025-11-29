@@ -8,7 +8,8 @@ import { WSOperation } from './ws-operation.js';
 
 export namespace WSApi {
   export interface InitArguments
-    extends ApiBase.InitArguments,
+    extends
+      ApiBase.InitArguments,
       StrictOmit<OpraSchema.WSApi, 'controllers'> {}
 }
 

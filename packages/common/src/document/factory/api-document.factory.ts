@@ -15,11 +15,10 @@ import { WSApiFactory } from './ws-api.factory.js';
 const OPRA_SPEC_URL = 'https://oprajs.com/spec/v' + OpraSchema.SpecVersion;
 
 export namespace ApiDocumentFactory {
-  export interface InitArguments
-    extends PartialSome<
-      StrictOmit<OpraSchema.ApiDocument, 'id' | 'references' | 'types' | 'api'>,
-      'spec'
-    > {
+  export interface InitArguments extends PartialSome<
+    StrictOmit<OpraSchema.ApiDocument, 'id' | 'references' | 'types' | 'api'>,
+    'spec'
+  > {
     references?: Record<string, ReferenceThunk>;
     types?: DataTypeInitSources;
     api?:
@@ -162,6 +161,12 @@ export class ApiDocumentFactory {
           if (api) document.api = api;
         } else if (init.api && init.api.transport === 'mq') {
           const api = await MQApiFactory.createApi(context, {
+            ...init.api,
+            owner: document,
+          });
+          if (api) document.api = api;
+        } else if (init.api && init.api.transport === 'ws') {
+          const api = await WSApiFactory.createApi(context, {
             ...init.api,
             owner: document,
           });

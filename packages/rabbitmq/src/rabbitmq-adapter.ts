@@ -37,7 +37,7 @@ export class RabbitmqAdapter extends PlatformAdapter<RabbitmqAdapter.Events> {
   protected _connection?: rabbit.Connection;
   protected _consumers: rabbit.Consumer[] = [];
   protected _status: RabbitmqAdapter.Status = 'idle';
-  readonly protocol: OpraSchema.Transport = 'mq';
+  readonly transform: OpraSchema.Transport = 'mq';
   readonly platform = RabbitmqAdapter.PlatformName;
   readonly interceptors: (
     | RabbitmqAdapter.InterceptorFunction
@@ -187,7 +187,7 @@ export class RabbitmqAdapter extends PlatformAdapter<RabbitmqAdapter.Events> {
     /** Prepare parsers */
     const decodePayload = operation.payloadType?.generateCodec('decode', {
       scope: this.scope,
-      ignoreWriteonlyFields: true,
+      ignoreReadonlyFields: true,
     });
     operation.headers.forEach(header => {
       let decode = this[kAssetCache].get<Validator>(header, 'decode');
@@ -221,8 +221,7 @@ export class RabbitmqAdapter extends PlatformAdapter<RabbitmqAdapter.Events> {
       const headers: any = {};
       /** Create context */
       const context = new RabbitmqContext({
-        adapter: this,
-        platform: this.platform,
+        __adapter: this,
         __contDef: controller,
         __controller: instance,
         __oprDef: operation,
@@ -356,37 +355,35 @@ export namespace RabbitmqAdapter {
 
   export type Status = 'idle' | 'starting' | 'started';
 
-  export interface ConnectionOptions
-    extends Pick<
-      rabbit.ConnectionOptions,
-      | 'username'
-      | 'password'
-      | 'acquireTimeout'
-      | 'connectionName'
-      | 'connectionTimeout'
-      | 'frameMax'
-      | 'heartbeat'
-      | 'maxChannels'
-      | 'retryHigh'
-      | 'retryLow'
-      | 'noDelay'
-      | 'tls'
-      | 'socket'
-    > {
+  export interface ConnectionOptions extends Pick<
+    rabbit.ConnectionOptions,
+    | 'username'
+    | 'password'
+    | 'acquireTimeout'
+    | 'connectionName'
+    | 'connectionTimeout'
+    | 'frameMax'
+    | 'heartbeat'
+    | 'maxChannels'
+    | 'retryHigh'
+    | 'retryLow'
+    | 'noDelay'
+    | 'tls'
+    | 'socket'
+  > {
     urls?: string[];
   }
 
-  export interface ConsumerConfig
-    extends Pick<
-      rabbit.ConsumerProps,
-      | 'concurrency'
-      | 'requeue'
-      | 'qos'
-      | 'queueOptions'
-      | 'exchanges'
-      | 'exchangeBindings'
-      | 'exclusive'
-    > {}
+  export interface ConsumerConfig extends Pick<
+    rabbit.ConsumerProps,
+    | 'concurrency'
+    | 'requeue'
+    | 'qos'
+    | 'queueOptions'
+    | 'exchanges'
+    | 'exchangeBindings'
+    | 'exclusive'
+  > {}
 
   export interface Config extends PlatformAdapter.Options {
     connection?: string | string[] | ConnectionOptions;

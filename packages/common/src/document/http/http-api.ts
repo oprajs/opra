@@ -8,7 +8,8 @@ import type { HttpOperation } from './http-operation.js';
 
 export namespace HttpApi {
   export interface InitArguments
-    extends ApiBase.InitArguments,
+    extends
+      ApiBase.InitArguments,
       StrictOmit<OpraSchema.HttpApi, 'controllers'> {
     transport: 'http';
   }

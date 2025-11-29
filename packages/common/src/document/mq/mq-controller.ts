@@ -22,27 +22,29 @@ import type { MQOperation } from './mq-operation.js';
  * @namespace MQController
  */
 export namespace MQController {
-  export interface Metadata
-    extends Pick<OpraSchema.MQController, 'description'> {
+  export interface Metadata extends Pick<
+    OpraSchema.MQController,
+    'description'
+  > {
     name: string;
     types?: ThunkAsync<Type | EnumType.EnumObject | EnumType.EnumArray>[];
     operations?: Record<string, MQOperation.Metadata>;
     headers?: MQHeader.Metadata[];
   }
 
-  export interface Options
-    extends Partial<Pick<OpraSchema.MQController, 'description'>> {
+  export interface Options extends Partial<
+    Pick<OpraSchema.MQController, 'description'>
+  > {
     name?: string;
   }
 
-  export interface InitArguments
-    extends Combine<
-      {
-        instance?: object;
-        ctor?: Type;
-      },
-      Pick<Metadata, 'name' | 'description'>
-    > {}
+  export interface InitArguments extends Combine<
+    {
+      instance?: object;
+      ctor?: Type;
+    },
+    Pick<Metadata, 'name' | 'description'>
+  > {}
 }
 
 /**

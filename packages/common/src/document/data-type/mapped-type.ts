@@ -17,16 +17,15 @@ import { getIsInheritedPredicateFn } from './utils/get-is-inherited-predicate-fn
  * @namespace MappedType
  */
 export namespace MappedType {
-  export interface Metadata
-    extends Combine<
-      {
-        kind: OpraSchema.MappedType.Kind;
-        base: Type | string;
-      },
-      DataType.Metadata,
-      Pick<ComplexType.Metadata, 'additionalFields'>,
-      OpraSchema.MappedType
-    > {}
+  export interface Metadata extends Combine<
+    {
+      kind: OpraSchema.MappedType.Kind;
+      base: Type | string;
+    },
+    DataType.Metadata,
+    Pick<ComplexType.Metadata, 'additionalFields'>,
+    OpraSchema.MappedType
+  > {}
 
   export interface Options<T, K = keyof T> {
     pick?: readonly K[];
@@ -34,16 +33,15 @@ export namespace MappedType {
     partial?: readonly K[] | boolean;
   }
 
-  export interface InitArguments
-    extends Combine<
-      {
-        kind: OpraSchema.MappedType.Kind;
-        base: ComplexType | MappedType | MixinType;
-        ctor?: Type;
-      },
-      DataType.InitArguments,
-      MappedType.Metadata
-    > {}
+  export interface InitArguments extends Combine<
+    {
+      kind: OpraSchema.MappedType.Kind;
+      base: ComplexType | MappedType | MixinType;
+      ctor?: Type;
+    },
+    DataType.InitArguments,
+    MappedType.Metadata
+  > {}
 }
 
 /**

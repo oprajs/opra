@@ -11,11 +11,10 @@ export namespace OpraRabbitmqModule {
     useFactory?: (...args: any[]) => Promise<ApiConfig> | ApiConfig;
   }
 
-  interface BaseModuleOptions
-    extends Pick<
-      DynamicModule,
-      'imports' | 'providers' | 'exports' | 'controllers' | 'global'
-    > {
+  interface BaseModuleOptions extends Pick<
+    DynamicModule,
+    'imports' | 'providers' | 'exports' | 'controllers' | 'global'
+  > {
     id?: any;
     interceptors?: (
       | RabbitmqAdapter.InterceptorFunction
@@ -24,11 +23,10 @@ export namespace OpraRabbitmqModule {
     )[];
   }
 
-  export interface ApiConfig
-    extends Pick<
-      ApiDocumentFactory.InitArguments,
-      'types' | 'references' | 'info'
-    > {
+  export interface ApiConfig extends Pick<
+    ApiDocumentFactory.InitArguments,
+    'types' | 'references' | 'info'
+  > {
     connection?: RabbitmqAdapter.Config['connection'];
     logExtra?: RabbitmqAdapter.Config['logExtra'];
     defaults?: RabbitmqAdapter.Config['defaults'];

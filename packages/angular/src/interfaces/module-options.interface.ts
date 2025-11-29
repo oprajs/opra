@@ -1,6 +1,6 @@
 import { InjectionToken, NgModule, Type } from '@angular/core';
 import type { StrictOmit } from 'ts-gems';
-import { AngularBackend } from '../angular-backend.js';
+import type { AngularBackend } from '../angular-backend';
 
 export type OpraClientModuleOptions = AngularBackend.Options & {
   serviceUrl: string;
@@ -13,8 +13,10 @@ export interface OpraModuleOptionsFactory {
   createOptions(): Promise<_OpraClientModuleOptions> | _OpraClientModuleOptions;
 }
 
-export interface OpraClientModuleAsyncOptions
-  extends Pick<NgModule, 'imports' | 'providers'> {
+export interface OpraClientModuleAsyncOptions extends Pick<
+  NgModule,
+  'imports' | 'providers'
+> {
   token?: string | InjectionToken<any>;
   useExisting?: Type<OpraModuleOptionsFactory>;
   useClass?: Type<any>;

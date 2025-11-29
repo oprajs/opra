@@ -3,7 +3,7 @@ import type { Type } from 'ts-gems';
 import { resolveThunk } from '../../helpers/index.js';
 import { OpraSchema } from '../../schema/index.js';
 import { DocumentInitContext } from '../common/document-init-context.js';
-import { WS_CONTROLLER_METADATA } from '../constants.js';
+import { WS_CONTROLLER_METADATA, WS_PARAM_METADATA } from '../constants.js';
 import { WSApi } from '../ws/ws-api.js';
 import { WSController } from '../ws/ws-controller.js';
 import { WSOperation } from '../ws/ws-operation.js';
@@ -112,19 +112,33 @@ export class WSApiFactory {
 
     if (metadata.operations) {
       await context.enterAsync('.operations', async () => {
-        for (const [operationName, operationMeta] of Object.entries<any>(
+        for (const [operationName, _operationMeta] of Object.entries<any>(
           metadata.operations!,
         )) {
           await context.enterAsync(`[${operationName}]`, async () => {
+            const argumentsMetadata = Reflect.getMetadata(
+              WS_PARAM_METADATA,
+              ctor.prototype,
+              operationName,
+            );
+            let operationMeta = _operationMeta;
+            if (argumentsMetadata) {
+              operationMeta = {
+                ...operationMeta,
+                arguments: argumentsMetadata,
+              };
+            }
+
             const operation = new WSOperation(controller, {
               ...operationMeta,
               name: operationName,
               types: undefined,
               payloadType: undefined,
               keyType: undefined,
+              arguments: undefined,
             });
             await this._initWSOperation(context, operation, operationMeta);
-            controller.operations.set(operation.name, operation);
+            controller.operations.set(operationName, operation);
           });
         }
       });
@@ -150,11 +164,27 @@ export class WSApiFactory {
         await DataTypeFactory.addDataTypes(context, operation, metadata.types!);
       });
     }
-
-    (operation as any).payloadType = await DataTypeFactory.resolveDataType(
-      context,
-      operation,
-      metadata.payloadType,
-    );
+    if (metadata.arguments?.length) {
+      await context.enterAsync('.arguments', async () => {
+        operation.arguments = [];
+        for (const x of metadata.arguments!) {
+          const t = await DataTypeFactory.resolveDataType(
+            context,
+            operation,
+            x,
+          );
+          operation.arguments?.push(t);
+        }
+      });
+    }
+    if (metadata.response) {
+      await context.enterAsync('.response', async () => {
+        operation.response = await DataTypeFactory.resolveDataType(
+          context,
+          operation,
+          metadata.response!,
+        );
+      });
+    }
   }
 }

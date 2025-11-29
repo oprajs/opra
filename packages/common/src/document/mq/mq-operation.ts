@@ -20,8 +20,10 @@ import type { MQOperationResponse } from './mq-operation-response.js';
  * @namespace MQOperation
  */
 export namespace MQOperation {
-  export interface Metadata
-    extends Pick<OpraSchema.MQOperation, 'description' | 'channel'> {
+  export interface Metadata extends Pick<
+    OpraSchema.MQOperation,
+    'description' | 'channel'
+  > {
     payloadType: TypeThunkAsync | string;
     keyType?: TypeThunkAsync | string;
     types?: ThunkAsync<Type | EnumType.EnumObject | EnumType.EnumArray>[];
@@ -29,21 +31,21 @@ export namespace MQOperation {
     response?: MQOperationResponse.Metadata;
   }
 
-  export interface Options
-    extends Partial<Pick<Metadata, 'description' | 'keyType'>> {
+  export interface Options extends Partial<
+    Pick<Metadata, 'description' | 'keyType'>
+  > {
     channel?: (string | RegExp) | (string | RegExp)[];
   }
 
-  export interface InitArguments
-    extends Combine<
-      {
-        name: string;
-        types?: DataType[];
-        payloadType?: DataType | string | Type;
-        keyType?: DataType | string | Type;
-      },
-      Pick<Metadata, 'description' | 'channel'>
-    > {}
+  export interface InitArguments extends Combine<
+    {
+      name: string;
+      types?: DataType[];
+      payloadType?: DataType | string | Type;
+      keyType?: DataType | string | Type;
+    },
+    Pick<Metadata, 'description' | 'channel'>
+  > {}
 }
 
 /**

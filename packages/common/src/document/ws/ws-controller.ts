@@ -14,7 +14,6 @@ import {
   colorReset,
   nodeInspectCustom,
 } from '../utils/inspect.util.js';
-import { parseRegExp } from '../utils/parse-regexp.util.js';
 import type { WSApi } from './ws-api.js';
 import type { WSOperation } from './ws-operation.js';
 
@@ -22,26 +21,28 @@ import type { WSOperation } from './ws-operation.js';
  * @namespace WSController
  */
 export namespace WSController {
-  export interface Metadata
-    extends Pick<OpraSchema.WSController, 'description'> {
+  export interface Metadata extends Pick<
+    OpraSchema.WSController,
+    'description'
+  > {
     name: string;
     types?: ThunkAsync<Type | EnumType.EnumObject | EnumType.EnumArray>[];
     operations?: Record<string, WSOperation.Metadata>;
   }
 
-  export interface Options
-    extends Partial<Pick<OpraSchema.WSController, 'description'>> {
+  export interface Options extends Partial<
+    Pick<OpraSchema.WSController, 'description'>
+  > {
     name?: string;
   }
 
-  export interface InitArguments
-    extends Combine<
-      {
-        instance?: object;
-        ctor?: Type;
-      },
-      Pick<Metadata, 'name' | 'description'>
-    > {}
+  export interface InitArguments extends Combine<
+    {
+      instance?: object;
+      ctor?: Type;
+    },
+    Pick<Metadata, 'name' | 'description'>
+  > {}
 }
 
 /**
