@@ -12,6 +12,7 @@ export interface Value {
 
   /**
    * Indicates if the value is an array
+   * @deprecated
    */
   isArray?: boolean;
 

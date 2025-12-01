@@ -3,6 +3,7 @@
   "compilerOptions": {
     "types": ["node"],
     "module": "ES2020",
-    "moduleResolution": "Node"
+    "moduleResolution": "Node",
+    "sourceMap": true
   }
 }

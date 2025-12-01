@@ -157,6 +157,7 @@ describe('common:ComplexType', () => {
         notes: 'isUndefined',
         phoneNumbers: 'isUndefined',
         country: 'isUndefined',
+        hasBranch: 'optional',
         tags: 'optional',
         dbField: 'isUndefined',
       });
@@ -191,6 +192,7 @@ describe('common:ComplexType', () => {
         country: 'isUndefined',
         tags: 'optional',
         dbField: 'optional',
+        hasBranch: 'optional',
       });
     });
 

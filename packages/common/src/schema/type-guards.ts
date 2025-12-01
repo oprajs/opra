@@ -1,3 +1,4 @@
+import { ArrayType } from './data-type/array-type.interface.js';
 import { ComplexType } from './data-type/complex-type.interface.js';
 import type { DataType } from './data-type/data-type.interface.js';
 import { EnumType } from './data-type/enum-type.interface.js';
@@ -11,7 +12,8 @@ export function isDataType(obj: any): obj is DataType {
   return (
     obj &&
     typeof obj === 'object' &&
-    (obj.kind === ComplexType.Kind ||
+    (obj.kind === ArrayType.Kind ||
+      obj.kind === ComplexType.Kind ||
       obj.kind === EnumType.Kind ||
       obj.kind === MappedType.Kind ||
       obj.kind === SimpleType.Kind ||
@@ -42,6 +44,10 @@ export function isEnumType(obj: any): obj is EnumType {
 
 export function isUnionType(obj: any): obj is UnionType {
   return obj && typeof obj === 'object' && obj.kind === UnionType.Kind;
+}
+
+export function isArrayType(obj: any): obj is ArrayType {
+  return obj && typeof obj === 'object' && obj.kind === ArrayType.Kind;
 }
 
 export function isHttpController(obj: any): obj is HttpController {

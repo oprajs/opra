@@ -9,12 +9,14 @@ import type { IFileWriter } from '../interfaces/file-writer.interface.js';
 import type { ILogger } from '../interfaces/logger.interface.js';
 import { cleanDirectory } from './generators/clean-directory.js';
 import {
+  _generateArrayTypeCode,
   _generateComplexTypeCode,
   _generateEnumTypeCode,
   _generateMappedTypeCode,
   _generateMixinTypeCode,
   _generateSimpleTypeCode,
   _generateTypeCode,
+  _generateUnionTypeCode,
   generateDataType,
 } from './generators/generate-data-type.js';
 import { generateDocument } from './generators/generate-document.js';
@@ -46,11 +48,13 @@ export class TsGenerator extends EventEmitter {
   declare protected generateDocument: typeof generateDocument;
   declare protected generateDataType: typeof generateDataType;
   declare protected _generateTypeCode: typeof _generateTypeCode;
-  declare protected _generateEnumTypeCode: typeof _generateEnumTypeCode;
+  declare protected _generateArrayTypeCode: typeof _generateArrayTypeCode;
   declare protected _generateComplexTypeCode: typeof _generateComplexTypeCode;
-  declare protected _generateSimpleTypeCode: typeof _generateSimpleTypeCode;
+  declare protected _generateEnumTypeCode: typeof _generateEnumTypeCode;
   declare protected _generateMappedTypeCode: typeof _generateMappedTypeCode;
   declare protected _generateMixinTypeCode: typeof _generateMixinTypeCode;
+  declare protected _generateSimpleTypeCode: typeof _generateSimpleTypeCode;
+  declare protected _generateUnionTypeCode: typeof _generateUnionTypeCode;
   declare protected generateHttpApi: typeof generateHttpApi;
   declare protected generateHttpController: typeof generateHttpController;
   declare protected _documentRoot: string;
@@ -173,11 +177,13 @@ export class TsGenerator extends EventEmitter {
     TsGenerator.prototype.generateDocument = generateDocument;
     TsGenerator.prototype.generateDataType = generateDataType;
     TsGenerator.prototype._generateTypeCode = _generateTypeCode;
-    TsGenerator.prototype._generateEnumTypeCode = _generateEnumTypeCode;
+    TsGenerator.prototype._generateArrayTypeCode = _generateArrayTypeCode;
     TsGenerator.prototype._generateComplexTypeCode = _generateComplexTypeCode;
-    TsGenerator.prototype._generateSimpleTypeCode = _generateSimpleTypeCode;
+    TsGenerator.prototype._generateEnumTypeCode = _generateEnumTypeCode;
     TsGenerator.prototype._generateMappedTypeCode = _generateMappedTypeCode;
     TsGenerator.prototype._generateMixinTypeCode = _generateMixinTypeCode;
+    TsGenerator.prototype._generateSimpleTypeCode = _generateSimpleTypeCode;
+    TsGenerator.prototype._generateUnionTypeCode = _generateUnionTypeCode;
     TsGenerator.prototype.generateHttpApi = generateHttpApi;
     TsGenerator.prototype.generateHttpController = generateHttpController;
   }

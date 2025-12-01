@@ -16,6 +16,7 @@ import {
   kDataTypeMap,
 } from '../constants.js';
 import { ApiField } from '../data-type/api-field.js';
+import { ArrayType } from '../data-type/array-type.js';
 import { ComplexType } from '../data-type/complex-type.js';
 import { ComplexTypeBase } from '../data-type/complex-type-base.js';
 import { DataType } from '../data-type/data-type.js';
@@ -39,6 +40,22 @@ export namespace DataTypeFactory {
     | EnumType.EnumObject
     | EnumType.EnumArray
     | object;
+
+  export interface ArrayTypeInit extends Combine<
+    {
+      _instance?: ArrayType;
+      type: (
+        | string
+        | SimpleTypeInit
+        | ComplexTypeInit
+        | MappedTypeInit
+        | MixinTypeInit
+        | UnionTypeInit
+        | ArrayTypeInit
+      )[];
+    },
+    ArrayType.InitArguments
+  > {}
 
   export interface ComplexTypeInit extends Combine<
     {
@@ -108,7 +125,8 @@ export namespace DataTypeFactory {
     | MappedTypeInit
     | MixinTypeInit
     | SimpleTypeInit
-    | UnionTypeInit;
+    | UnionTypeInit
+    | ArrayTypeInit;
 
   export interface Context extends DocumentInitContext {
     importQueue?: ResponsiveMap<any>;
@@ -398,6 +416,9 @@ export class DataTypeFactory {
           }
 
           switch (out.kind) {
+            case OpraSchema.ArrayType.Kind:
+              await this._prepareArrayTypeArgs(context, owner, out, metadata);
+              break;
             case OpraSchema.ComplexType.Kind:
               out.ctor = ctor;
               await this._prepareComplexTypeArgs(context, owner, out, metadata);
@@ -443,6 +464,24 @@ export class DataTypeFactory {
     initArgs.abstract = metadata.abstract;
     initArgs.examples = metadata.examples;
     initArgs.scopePattern = (metadata as DataType.Metadata).scopePattern;
+  }
+
+  protected static async _prepareArrayTypeArgs(
+    context: DataTypeFactory.Context,
+    owner: DocumentElement,
+    initArgs: DataTypeFactory.ArrayTypeInit,
+    metadata: (ArrayType.Metadata | OpraSchema.ArrayType) & { ctor?: Type },
+  ): Promise<void> {
+    await this._prepareDataTypeArgs(context, initArgs, metadata);
+    await context.enterAsync('.type', async () => {
+      const baseArgs = await this._importDataTypeArgs(
+        context,
+        owner,
+        metadata.type as any,
+      );
+      if (!baseArgs) return;
+      initArgs.type = preferName(baseArgs) as any;
+    });
   }
 
   protected static async _prepareComplexTypeArgs(
@@ -685,6 +724,7 @@ export class DataTypeFactory {
     owner: DocumentElement,
     args: DataTypeFactory.DataTypeInitArguments | string,
   ):
+    | ArrayType
     | ComplexType
     | EnumType
     | MappedType
@@ -707,6 +747,8 @@ export class DataTypeFactory {
       }
 
       switch (initArgs?.kind) {
+        case OpraSchema.ArrayType.Kind:
+          return this._createArrayType(context, owner, initArgs);
         case OpraSchema.ComplexType.Kind:
           return this._createComplexType(context, owner, initArgs);
         case OpraSchema.EnumType.Kind:
@@ -724,6 +766,24 @@ export class DataTypeFactory {
       }
     }
     context.addError(`Unknown data type (${String(args)})`);
+  }
+
+  protected static _createArrayType(
+    context: DocumentInitContext,
+    owner: DocumentElement,
+    args: DataTypeFactory.ArrayTypeInit,
+  ): ArrayType {
+    const dataType = args._instance || ({} as any);
+    Object.setPrototypeOf(dataType, ArrayType.prototype);
+
+    const initArgs = cloneObject(args) as unknown as ArrayType.InitArguments;
+    if (args.type) {
+      context.enter('.type', () => {
+        initArgs.type = this._createDataType(context, owner, args.type as any)!;
+      });
+    }
+    ArrayType.apply(dataType, [owner, initArgs] as any);
+    return dataType;
   }
 
   protected static _createComplexType(

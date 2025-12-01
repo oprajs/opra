@@ -24,6 +24,7 @@ export * from './common/document-node.js';
 export * from './common/opra-document-error.js';
 export * from './constants.js';
 export * from './data-type/api-field.js';
+export * from './data-type/array-type.js';
 export * from './data-type/complex-type.js';
 export * from './data-type/data-type.js';
 export * from './data-type/enum-type.js';

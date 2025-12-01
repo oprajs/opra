@@ -1,7 +1,9 @@
 import type { Type } from 'ts-gems';
 import { OpraSchema } from '../../schema/index.js';
+import { isArrayType } from '../../schema/type-guards.js';
 import type { ApiDocument } from '../api-document.js';
 import { DATATYPE_METADATA, kDataTypeMap, kTypeNSMap } from '../constants.js';
+import { ArrayType } from '../data-type/array-type.js';
 import type { ComplexType } from '../data-type/complex-type.js';
 import type { DataType } from '../data-type/data-type.js';
 import type { EnumType } from '../data-type/enum-type.js';
@@ -87,6 +89,20 @@ export class DocumentNode {
   }
 
   /**
+   * Returns EnumType instance by name or Constructor.
+   * Returns undefined if not found
+   * Throws error if data type is not a UnionType
+   */
+  getArrayType(
+    nameOrCtor: string | object | any[],
+    scope?: string | '*',
+  ): ArrayType {
+    const t = this.getDataType(nameOrCtor, scope);
+    if (t.kind === OpraSchema.ArrayType.Kind) return t as ArrayType;
+    throw new TypeError(`Data type "${t.name || t}" is not a MixinType`);
+  }
+
+  /**
    * Returns ComplexType instance by name or Constructor.
    * Returns undefined if not found
    * Throws error if data type is not a ComplexType
@@ -164,6 +180,6 @@ export class DocumentNode {
   ): UnionType {
     const t = this.getDataType(nameOrCtor, scope);
     if (t.kind === OpraSchema.UnionType.Kind) return t as UnionType;
-    throw new TypeError(`Data type "${t.name || t}" is not a MixinType`);
+    throw new TypeError(`Data type "${t.name || t}" is not a UnionType`);
   }
 }

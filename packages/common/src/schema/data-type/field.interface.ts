@@ -54,6 +54,7 @@ export interface Field {
    * If true, the value is recognized as an array.
    * If false, the value is not an array.
    * This property is optional and may be undefined.
+   * @deprecated
    */
   isArray?: boolean;
 

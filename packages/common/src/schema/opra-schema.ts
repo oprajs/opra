@@ -1,6 +1,7 @@
 export * from './api.interface.js';
 export * from './api-document.interface.js';
 export * from './constants.js';
+export * from './data-type/array-type.interface.js';
 export * from './data-type/complex-type.interface.js';
 export * from './data-type/data-type.interface.js';
 export * from './data-type/enum-type.interface.js';

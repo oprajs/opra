@@ -1,5 +1,6 @@
 import {
   ApiField,
+  ArrayType,
   ComplexType,
   HttpController,
   HttpOperation,
@@ -11,7 +12,7 @@ import { HttpContext, MultipartReader } from '@opra/http';
 class AvatarMetadata {
   @ApiField({ required: true })
   declare name: string;
-  @ApiField({ type: String, isArray: true })
+  @ApiField({ type: ArrayType(String) })
   tags?: string[];
 }
 

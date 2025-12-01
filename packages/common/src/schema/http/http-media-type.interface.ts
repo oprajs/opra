@@ -29,6 +29,7 @@ export interface HttpMediaType {
 
   /**
    * Determines if content is array
+   * @deprecated
    */
   isArray?: boolean;
 
