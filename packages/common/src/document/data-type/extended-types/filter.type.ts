@@ -35,7 +35,7 @@ export class FilterType {
 
   protected [DECODER](
     properties: Partial<this>,
-    element: DocumentElement,
+    { element }: { element: DocumentElement },
   ): Validator {
     const dataType = properties.dataType
       ? element.node.getComplexType(properties.dataType)

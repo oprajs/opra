@@ -50,8 +50,11 @@ export namespace SimpleType {
 
   export type ValidatorGenerator = (
     properties: Record<string, any>,
-    element: DocumentElement,
-    scope?: string,
+    args: {
+      dataType: SimpleType;
+      element: DocumentElement;
+      scope?: string;
+    },
   ) => Validator;
 }
 
@@ -170,11 +173,11 @@ abstract class SimpleTypeClass extends DataType {
       let t: SimpleType | undefined = this;
       while (t) {
         if (t._generateDecoder)
-          return t._generateDecoder(
-            prop,
-            options?.documentElement || this.owner,
-            options?.scope,
-          );
+          return t._generateDecoder(prop, {
+            dataType: this,
+            element: options?.documentElement || this.owner,
+            scope: options?.scope,
+          });
         t = this.base;
       }
       return isAny;
@@ -182,11 +185,11 @@ abstract class SimpleTypeClass extends DataType {
     let t: SimpleType | undefined = this;
     while (t) {
       if (t._generateEncoder)
-        return t._generateEncoder(
-          prop,
-          options?.documentElement || this.owner,
-          options?.scope,
-        );
+        return t._generateEncoder(prop, {
+          dataType: this,
+          element: options?.documentElement || this.owner,
+          scope: options?.scope,
+        });
       t = this.base;
     }
     return isAny;

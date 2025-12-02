@@ -34,8 +34,13 @@ export class FieldPathType {
 
   [DECODER](
     properties: Partial<this>,
-    element: DocumentElement,
-    scope?: string,
+    {
+      element,
+      scope,
+    }: {
+      element: DocumentElement;
+      scope?: string;
+    },
   ): Validator {
     const dataType = properties.dataType
       ? element.node.getComplexType(properties.dataType)
@@ -47,12 +52,8 @@ export class FieldPathType {
     return vg.pipe([toString, decodeFieldPath]);
   }
 
-  [ENCODER](
-    properties: Partial<this>,
-    element: DocumentElement,
-    scope?: string,
-  ): Validator {
-    return this[DECODER](properties, element, scope);
+  [ENCODER](properties: Partial<this>, args): Validator {
+    return this[DECODER](properties, args);
   }
 
   toJSON(
