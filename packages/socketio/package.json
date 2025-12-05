@@ -82,5 +82,8 @@
     "socketio",
     "websocket",
     "ws"
-  ]
+  ],
+  "publishConfig": {
+    "access": "public"
+  }
 }
