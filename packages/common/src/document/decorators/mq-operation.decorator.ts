@@ -97,10 +97,10 @@ export function MQOperationDecoratorFactory(
   /**
    *
    */
-  decorator.UseType = (...type: Type[]): any => {
+  decorator.UseType = (...types: Type[]): any => {
     decoratorChain.push((meta: MQOperation.Metadata): void => {
       meta.types = meta.types || [];
-      meta.types.push(...type);
+      meta.types.push(...types);
     });
     return decorator;
   };

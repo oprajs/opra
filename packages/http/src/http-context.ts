@@ -7,7 +7,7 @@ import {
   NotAcceptableError,
 } from '@opra/common';
 import { ExecutionContext, kAssetCache } from '@opra/core';
-import { type Validator, vg } from 'valgen';
+import { type Validator } from 'valgen';
 import type { HttpAdapter } from './http-adapter';
 import { MultipartReader } from './impl/multipart-reader.js';
 import type { HttpIncoming } from './interfaces/http-incoming.interface.js';
