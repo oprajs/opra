@@ -1,6 +1,7 @@
 import { WSController, WSOperation } from '@opra/common';
 import { ExecutionContext } from '@opra/core';
 import type { AsyncEventEmitter } from 'node-events-async';
+import * as socketio from 'socket.io';
 import type { SocketioAdapter } from './socketio-adapter.js';
 
 /**
@@ -16,6 +17,7 @@ export class SocketioContext
   declare readonly __controller: any;
   declare readonly __handler?: Function;
   declare readonly __adapter: SocketioAdapter;
+  readonly socket: socketio.Socket;
   readonly event: string;
   readonly parameters: any[] = [];
 
@@ -33,12 +35,17 @@ export class SocketioContext
       transport: 'ws',
       platform: 'socketio',
     });
+    this.socket = init.socket;
+    this.event = init.event;
+    this.parameters = init.parameters || [];
     if (init.__contDef) this.__contDef = init.__contDef;
     if (init.__controller) this.__controller = init.__controller;
     if (init.__oprDef) this.__oprDef = init.__oprDef;
     if (init.__handler) this.__handler = init.__handler;
-    this.event = init.event;
-    this.parameters = init.parameters || [];
+  }
+
+  get server(): socketio.Server {
+    return this.__adapter.server;
   }
 }
 
@@ -52,6 +59,7 @@ export namespace SocketioContext {
     __oprDef?: WSOperation;
     __controller?: any;
     __handler?: Function;
+    socket: socketio.Socket;
     event: string;
     parameters?: any[];
   }

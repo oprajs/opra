@@ -38,7 +38,7 @@ export namespace SimpleType {
       base?: SimpleType;
       ctor?: Type;
       properties?: object;
-      convertToNative?: boolean;
+      designType?: boolean;
       generateDecoder?: SimpleType.ValidatorGenerator;
       generateEncoder?: SimpleType.ValidatorGenerator;
     },

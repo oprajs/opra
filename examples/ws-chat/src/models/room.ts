@@ -1,4 +1,4 @@
-import { ApiField, ComplexType } from '@opra/common';
+import { ApiField, ArrayType, ComplexType } from '@opra/common';
 import { RoomOptions } from './room-options.js';
 
 @ComplexType()
@@ -9,6 +9,8 @@ export class Room {
   @ApiField()
   declare options: RoomOptions;
 
-  @ApiField()
-  declare users: number;
+  @ApiField({
+    type: ArrayType(String),
+  })
+  declare users: string[];
 }

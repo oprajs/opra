@@ -135,8 +135,9 @@ class ArrayTypeClass extends DataType {
   generateCodec(
     codec: 'encode' | 'decode',
     options?: DataType.GenerateCodecOptions,
+    properties?: object,
   ): Validator {
-    let fn = this.type.generateCodec(codec, options);
+    let fn = this.type.generateCodec(codec, options, properties);
     fn = vg.isArray(fn);
     const fns: any[] = [];
     if (this.minOccurs) fns.push(vg.lengthMin(this.minOccurs));

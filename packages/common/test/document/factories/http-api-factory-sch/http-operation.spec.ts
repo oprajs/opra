@@ -25,7 +25,7 @@ describe('common:HttpApiFactory - HttpOperation (Schema)', () => {
     });
     expect(doc).toBeDefined();
     expect(doc.api).toBeDefined();
-    const r = doc.httpApi!.findController('countries');
+    const r = doc.getHttpApi().findController('countries');
     expect(r).toBeDefined();
     assert(r);
     expect(r).toBeDefined();
@@ -63,7 +63,7 @@ describe('common:HttpApiFactory - HttpOperation (Schema)', () => {
     });
     expect(doc).toBeDefined();
     expect(doc.api).toBeDefined();
-    const r = doc.httpApi!.findController('countries');
+    const r = doc.getHttpApi().findController('countries');
     expect(r).toBeDefined();
     assert(r);
     const opr = r!.operations.get('findOne');

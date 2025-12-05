@@ -13,12 +13,15 @@ import type { MQOperation } from './mq-operation.js';
 export namespace MQOperationResponse {
   export interface Metadata extends Combine<
     {
-      payloadType?: TypeThunkAsync | string;
+      type?: TypeThunkAsync | string;
       keyType?: TypeThunkAsync | string;
       headers?: MQHeader.Metadata[];
     },
     OpraSchema.MQOperationResponse
-  > {}
+  > {
+    designType?: Type;
+    keyDesignType?: Type;
+  }
 
   export interface Options extends Combine<
     {
@@ -29,10 +32,10 @@ export namespace MQOperationResponse {
 
   export interface InitArguments extends Combine<
     {
-      payloadType?: DataType | string | Type;
+      type?: DataType | string | Type;
       keyType?: DataType | string | Type;
     },
-    Pick<Metadata, 'channel' | 'description'>
+    Pick<Metadata, 'channel' | 'description' | 'designType' | 'keyDesignType'>
   > {}
 }
 
@@ -43,9 +46,11 @@ export class MQOperationResponse extends DocumentElement {
   declare readonly owner: MQOperation;
   channel?: string | RegExp | (string | RegExp)[];
   description?: string;
-  payloadType: DataType;
+  type: DataType;
   keyType?: DataType;
   headers: MQHeader[] = [];
+  designType?: Type;
+  keyDesignType?: Type;
 
   constructor(
     owner: MQOperation,
@@ -54,18 +59,20 @@ export class MQOperationResponse extends DocumentElement {
     super(owner);
     this.channel = initArgs?.channel;
     this.description = initArgs?.description;
-    if (initArgs?.payloadType) {
-      this.payloadType =
-        initArgs?.payloadType instanceof DataType
-          ? initArgs.payloadType
-          : this.owner.node.getDataType(initArgs.payloadType);
-    } else this.payloadType = this.owner.node.getDataType('any');
+    if (initArgs?.type) {
+      this.type =
+        initArgs?.type instanceof DataType
+          ? initArgs.type
+          : this.owner.node.getDataType(initArgs.type);
+    } else this.type = this.owner.node.getDataType('any');
     if (initArgs?.keyType) {
       this.keyType =
         initArgs?.keyType instanceof DataType
           ? initArgs.keyType
           : this.owner.node.getDataType(initArgs.keyType);
     }
+    this.designType = initArgs?.designType;
+    this.keyDesignType = initArgs?.keyDesignType;
   }
 
   findHeader(paramName: string): MQHeader | undefined {
@@ -84,9 +91,7 @@ export class MQOperationResponse extends DocumentElement {
     const out = omitUndefined<OpraSchema.MQOperationResponse>({
       description: this.description,
       channel: this.channel,
-      payloadType: this.payloadType.name
-        ? this.payloadType.name
-        : this.payloadType.toJSON(),
+      type: this.type.name ? this.type.name : this.type.toJSON(),
       keyType: this.keyType
         ? this.keyType.name
           ? this.keyType.name

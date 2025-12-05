@@ -20,7 +20,7 @@ describe('common:HttpApiFactory - HttpResource (Schema)', () => {
     });
     expect(doc).toBeDefined();
     expect(doc.api).toBeDefined();
-    const r = doc.api!.findController('countries');
+    const r = doc.getHttpApi().findController('countries');
     expect(r).toBeDefined();
     assert(r);
     expect(r).toBeDefined();
@@ -50,7 +50,7 @@ describe('common:HttpApiFactory - HttpResource (Schema)', () => {
     });
     expect(doc).toBeDefined();
     expect(doc.api).toBeDefined();
-    const r = doc.httpApi!.findController('countries');
+    const r = doc.getHttpApi().findController('countries');
     expect(r).toBeDefined();
     assert(r);
     expect(r).toBeDefined();
@@ -77,7 +77,7 @@ describe('common:HttpApiFactory - HttpResource (Schema)', () => {
     });
     expect(doc).toBeDefined();
     expect(doc.api).toBeDefined();
-    const r = doc.httpApi!.findController('countries');
+    const r = doc.getHttpApi().findController('countries');
     expect(r).toBeDefined();
     assert(r);
     expect(r).toBeDefined();

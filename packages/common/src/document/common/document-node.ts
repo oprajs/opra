@@ -1,9 +1,8 @@
 import type { Type } from 'ts-gems';
 import { OpraSchema } from '../../schema/index.js';
-import { isArrayType } from '../../schema/type-guards.js';
 import type { ApiDocument } from '../api-document.js';
 import { DATATYPE_METADATA, kDataTypeMap, kTypeNSMap } from '../constants.js';
-import { ArrayType } from '../data-type/array-type.js';
+import type { ArrayType } from '../data-type/array-type.js';
 import type { ComplexType } from '../data-type/complex-type.js';
 import type { DataType } from '../data-type/data-type.js';
 import type { EnumType } from '../data-type/enum-type.js';

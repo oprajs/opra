@@ -81,7 +81,7 @@ export interface WSOperation extends WSOperationClass {}
 export const WSOperation = function (this: WSOperation, ...args: any[]) {
   // Decorator
   if (!this) {
-    const [payloadType, options] = args as [
+    const [type, options] = args as [
       type: ThunkAsync<Type> | string,
       options: WSOperation.Options,
     ];
@@ -89,7 +89,7 @@ export const WSOperation = function (this: WSOperation, ...args: any[]) {
     return (WSOperation[DECORATOR] as WSOperationDecoratorFactory).call(
       undefined,
       decoratorChain,
-      payloadType,
+      type,
       options,
     );
   }

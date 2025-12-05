@@ -18,11 +18,11 @@ export interface WSOperationDecoratorFactory {
   /**
    * Property decorator
    * @param decoratorChain
-   * @param payloadType
+   * @param type
    * @param options
    */ <T extends WSOperation.Options>(
     decoratorChain: Function[],
-    payloadType: ThunkAsync<Type> | string,
+    type: ThunkAsync<Type> | string,
     options?: T,
   ): WSOperationDecorator;
 }

@@ -141,7 +141,7 @@ export class OpraRabbitmqCoreModule
   onModuleInit(): any {
     /** NestJS initialize controller instances on init stage.
      * So we should update instance properties */
-    const mqApi = this.adapter.document.mqApi;
+    const mqApi = this.adapter.document.getMqApi();
     const controllers = Array.from(mqApi.controllers.values());
     for (const { wrapper } of this.controllerFactory
       .exploreControllers()

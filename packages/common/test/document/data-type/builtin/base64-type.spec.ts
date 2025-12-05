@@ -17,13 +17,23 @@ describe('common:Builtin type: base64', () => {
     );
   });
 
-  it('Should decode to Buffer string when convertToNative=true', async () => {
+  it('Should decode to Buffer string when designType=Buffer', async () => {
     const dt = doc.node.getSimpleType('base64');
     const decode = dt.generateCodec('decode', null, {
-      convertToNative: true,
+      designType: Buffer,
     });
     const x = decode('dGhpcyBpcyBhIHRlc3Qgc3RyaW5n');
     expect(Buffer.isBuffer(x)).toBeTruthy();
+  });
+
+  it('Should decode to Uint8Array string when designType=Uint8Array', async () => {
+    const dt = doc.node.getSimpleType('base64');
+    const decode = dt.generateCodec('decode', null, {
+      designType: Uint8Array,
+    });
+    const x = decode('dGhpcyBpcyBhIHRlc3Qgc3RyaW5n');
+    expect(ArrayBuffer.isView(x)).toBeTruthy();
+    expect(x.constructor).toEqual(Uint8Array);
   });
 
   it('Should encode base64 string', async () => {

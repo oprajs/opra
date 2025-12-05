@@ -75,7 +75,7 @@ export class RabbitmqAdapter extends PlatformAdapter<RabbitmqAdapter.Events> {
   }
 
   get api(): MQApi {
-    return this.document.mqApi;
+    return this.document.getMqApi();
   }
 
   get connection(): rabbit.Connection | undefined {
@@ -185,18 +185,17 @@ export class RabbitmqAdapter extends PlatformAdapter<RabbitmqAdapter.Events> {
   protected _createHandler(args: ConfigBuilder.OperationArguments) {
     const { controller, instance, operation } = args;
     /** Prepare parsers */
-    const decodePayload = operation.payloadType?.generateCodec('decode', {
+    const decodePayload = operation.generateCodec('decode', {
       scope: this.scope,
       ignoreReadonlyFields: true,
     });
     operation.headers.forEach(header => {
       let decode = this[kAssetCache].get<Validator>(header, 'decode');
       if (!decode) {
-        decode =
-          header.type?.generateCodec('decode', {
-            scope: this.scope,
-            ignoreReadonlyFields: true,
-          }) || vg.isAny();
+        decode = header.generateCodec('decode', {
+          scope: this.scope,
+          ignoreReadonlyFields: true,
+        });
         this[kAssetCache].set(header, 'decode', decode);
       }
     });

@@ -99,7 +99,7 @@ export class KafkaAdapter extends PlatformAdapter<KafkaAdapter.Events> {
   }
 
   get api(): MQApi {
-    return this.document.mqApi;
+    return this.document.getMqApi();
   }
 
   get kafka(): Kafka {
@@ -301,7 +301,7 @@ export class KafkaAdapter extends PlatformAdapter<KafkaAdapter.Events> {
    * @protected
    */
   protected async _createAllConsumers() {
-    for (const controller of this.document.mqApi.controllers.values()) {
+    for (const controller of this.document.getMqApi().controllers.values()) {
       let instance = controller.instance;
       if (!instance && controller.ctor) instance = new controller.ctor();
       if (!instance) continue;
@@ -368,24 +368,21 @@ export class KafkaAdapter extends PlatformAdapter<KafkaAdapter.Events> {
     const parseKey = RequestParser.STRING;
     const parsePayload = RequestParser.STRING;
     /** Prepare decoders */
-    const decodeKey =
-      operation.keyType?.generateCodec('decode', {
-        scope: this.scope,
-        ignoreReadonlyFields: true,
-      }) || vg.isAny();
-    const decodePayload =
-      operation.payloadType?.generateCodec('decode', {
-        scope: this.scope,
-        ignoreReadonlyFields: true,
-      }) || vg.isAny();
+    const decodeKey = operation.generateKeyCodec('decode', {
+      scope: this.scope,
+      ignoreReadonlyFields: true,
+    });
+    const decodePayload = operation.generateCodec('decode', {
+      scope: this.scope,
+      ignoreReadonlyFields: true,
+    });
     operation.headers.forEach(header => {
       let decode = this[kAssetCache].get<Validator>(header, 'decode');
       if (!decode) {
-        decode =
-          header.type?.generateCodec('decode', {
-            scope: this.scope,
-            ignoreReadonlyFields: true,
-          }) || vg.isAny();
+        decode = header.generateCodec('decode', {
+          scope: this.scope,
+          ignoreReadonlyFields: true,
+        });
         this[kAssetCache].set(header, 'decode', decode);
       }
     });

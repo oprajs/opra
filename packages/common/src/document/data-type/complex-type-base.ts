@@ -10,6 +10,7 @@ import { OpraSchema } from '../../schema/index.js';
 import type { DocumentElement } from '../common/document-element.js';
 import { DocumentInitContext } from '../common/document-init-context.js';
 import type { ApiField } from './api-field.js';
+import { ArrayType } from './array-type.js';
 import type { ComplexType } from './complex-type.js';
 import { DataType } from './data-type.js';
 
@@ -427,18 +428,13 @@ abstract class ComplexTypeBaseClass extends DataType {
     field: ApiField,
     context: GenerateCodecContext,
   ): Validator {
-    let fn = field.type.generateCodec(
-      codec,
-      {
-        ...context,
-        level: context.level! + 1,
-      } as GenerateCodecContext,
-      {
-        convertToNative: field.convertToNative,
-      },
-    );
+    let fn = field.generateCodec(codec, {
+      ...context,
+      level: context.level! + 1,
+    } as GenerateCodecContext);
     if (field.fixed) fn = vg.isEqual(field.fixed);
-    if (field.isArray) fn = vg.isArray(fn);
+    if (field.isArray && !(field.type instanceof ArrayType))
+      fn = vg.isArray(fn);
     return fn;
   }
 }

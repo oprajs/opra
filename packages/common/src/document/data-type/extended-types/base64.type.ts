@@ -1,3 +1,4 @@
+import { Type } from 'ts-gems';
 import { isBase64, type Validator, validator, vg } from 'valgen';
 import { DECODER, ENCODER } from '../../constants.js';
 import { SimpleType } from '../simple-type.js';
@@ -11,7 +12,7 @@ import { SimpleType } from '../simple-type.js';
   },
 })
 export class Base64Type {
-  convertToNative?: boolean;
+  designType?: Type;
 
   constructor(attributes?: Partial<Base64Type>) {
     if (attributes) Object.assign(this, attributes);
@@ -19,8 +20,10 @@ export class Base64Type {
 
   protected [DECODER](properties: Partial<this>): Validator {
     const fn = vg.isBase64({ coerce: true });
-    if (properties.convertToNative)
+    if (properties.designType === Buffer)
       return vg.pipe([fn, toBuffer], { coerce: true });
+    if (properties.designType === Uint8Array)
+      return vg.pipe([fn, toUint8Array], { coerce: true });
     return fn;
   }
 
@@ -31,6 +34,10 @@ export class Base64Type {
 
 const toBuffer = validator((base64String: string) => {
   return Buffer.from(base64String, 'base64');
+});
+
+const toUint8Array = validator((base64String: string) => {
+  return new Uint8Array(Buffer.from(base64String, 'base64'));
 });
 
 const fromBuffer = validator((input: string | Buffer) => {

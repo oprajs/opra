@@ -30,7 +30,7 @@ export abstract class HttpAdapter<
   }
 
   get api(): HttpApi {
-    return this.document.httpApi;
+    return this.document.getHttpApi();
   }
 }
 

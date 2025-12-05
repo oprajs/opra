@@ -9,7 +9,7 @@ export interface MQOperation extends DataTypeContainer {
   kind: MQOperation.Kind;
   description?: string;
   channel: string | RegExp | (string | RegExp)[];
-  payloadType: string | DataType;
+  type: string | DataType;
   keyType?: string | DataType;
   headers?: MQHeader[];
   response?: MQOperationResponse;
@@ -18,7 +18,7 @@ export interface MQOperation extends DataTypeContainer {
 export interface MQOperationResponse {
   description?: string;
   channel?: string | RegExp | (string | RegExp)[];
-  payloadType: string | DataType;
+  type: string | DataType;
   keyType?: string | DataType;
   headers?: MQHeader[];
 }

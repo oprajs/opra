@@ -1,3 +1,4 @@
+import { Type } from 'ts-gems';
 import { type Validator, vg } from 'valgen';
 import { DECODER, ENCODER } from '../../constants.js';
 import { SimpleType } from '../simple-type.js';
@@ -23,7 +24,7 @@ const _isDate = vg.isDate({
   .Example('2021-04-18 22:30:15')
   .Example('2021-04-18 22:30'))
 export class DateTimeType {
-  convertToNative?: boolean;
+  designType?: Type;
 
   constructor(attributes?: Partial<DateTimeType>) {
     if (attributes) Object.assign(this, attributes);
@@ -31,7 +32,7 @@ export class DateTimeType {
 
   protected [DECODER](properties: Partial<this>): Validator {
     let fn: Validator;
-    if (properties.convertToNative) {
+    if (properties.designType === Date) {
       fn = _isDate;
     } else {
       fn = _isDateString;

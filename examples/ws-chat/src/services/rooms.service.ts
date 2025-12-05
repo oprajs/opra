@@ -14,7 +14,7 @@ export class RoomsService {
     const room: Room = {
       name,
       options,
-      users: 0,
+      users: [],
     };
     this.rooms.set(name, room);
     return room;

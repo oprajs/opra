@@ -31,6 +31,17 @@ export class ChatApp {
     this.adapter = new SocketioAdapter(this.document, {
       scope: 'api',
     } as SocketioAdapter.Options);
+    this.adapter.server.use((socket, next) => {
+      const user = socket.handshake.auth.token;
+      if (user) {
+        socket.data = {
+          user,
+        };
+        next();
+      } else {
+        next(new Error('Unauthorized'));
+      }
+    });
     this.adapter.listen(6001);
   }
 }

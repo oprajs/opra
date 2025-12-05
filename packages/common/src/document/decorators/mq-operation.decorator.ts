@@ -1,4 +1,4 @@
-import { omit } from '@jsopen/objects';
+import { isConstructor, omit } from '@jsopen/objects';
 import type { ThunkAsync, Type, TypeThunkAsync } from 'ts-gems';
 import { OpraSchema } from '../../schema/index.js';
 import { MQ_CONTROLLER_METADATA } from '../constants.js';
@@ -16,7 +16,7 @@ export interface MQOperationDecorator {
   ): this;
 
   Response(
-    payloadType: TypeThunkAsync | string,
+    type: TypeThunkAsync | string,
     options?: MQOperationResponse.Options,
   ): MQOperationResponseDecorator;
 
@@ -39,11 +39,11 @@ export interface MQOperationDecoratorFactory {
   /**
    * Property decorator
    * @param decoratorChain
-   * @param payloadType
+   * @param type
    * @param options
    */ <T extends MQOperation.Options>(
     decoratorChain: Function[],
-    payloadType: ThunkAsync<Type> | string,
+    type: ThunkAsync<Type> | string,
     options?: T,
   ): MQOperationDecorator;
 }
@@ -52,7 +52,7 @@ export namespace MQOperationDecoratorFactory {
   export type AugmentationFunction = (
     decorator: MQOperationDecorator,
     decoratorChain: Function[],
-    payloadType: ThunkAsync<Type> | string,
+    type: ThunkAsync<Type> | string,
     options?: MQOperation.Options,
   ) => void;
 }
@@ -62,7 +62,7 @@ const augmentationRegistry: MQOperationDecoratorFactory.AugmentationFunction[] =
 
 export function MQOperationDecoratorFactory(
   decoratorChain: Function[],
-  payloadType: ThunkAsync<Type> | string | TypeThunkAsync,
+  type: ThunkAsync<Type> | string | TypeThunkAsync,
   options?: MQOperation.Options,
 ): MQOperationDecorator {
   let inResponse = false;
@@ -76,8 +76,8 @@ export function MQOperationDecoratorFactory(
     const operationMetadata = {
       kind: OpraSchema.MQOperation.Kind,
       channel: propertyKey,
-      payloadType,
-      ...omit(options as any, ['kind', 'payloadType']),
+      type,
+      ...omit(options as any, ['kind', 'type']),
     } as MQOperation.Metadata;
 
     const controllerMetadata = (Reflect.getOwnMetadata(
@@ -120,6 +120,8 @@ export function MQOperationDecoratorFactory(
               type: arg1,
             }
           : { ...arg1, name };
+      if (isConstructor(headerMetadata.type))
+        headerMetadata.designType = headerMetadata.type;
       const subMeta = inResponse ? meta.response! : meta;
       if (subMeta.headers) {
         subMeta.headers = subMeta.headers.filter(
@@ -135,21 +137,22 @@ export function MQOperationDecoratorFactory(
    *
    */
   decorator.Response = (
-    _payloadType: TypeThunkAsync | string,
+    _type: TypeThunkAsync | string,
     _options?: MQOperationResponse.Options,
   ) => {
     decoratorChain.push((meta: MQOperation.Metadata): void => {
       inResponse = true;
       meta.response = {
         ..._options,
-        payloadType: _payloadType,
+        type: _type,
       };
+      if (isConstructor(_type)) meta.response.designType = _type;
     });
     return decorator;
   };
 
   augmentationRegistry.forEach(fn =>
-    fn(decorator, decoratorChain, payloadType, options),
+    fn(decorator, decoratorChain, type, options),
   );
 
   return decorator;

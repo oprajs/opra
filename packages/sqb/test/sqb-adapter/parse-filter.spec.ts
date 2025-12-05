@@ -29,10 +29,10 @@ describe('sqb:SQBAdapter.prepareFilter', () => {
 
   before(async () => {
     document = (await CustomerApplication.create()).document;
-    customers = document.httpApi!.findController('customers')!;
+    customers = document.getHttpApi().findController('customers')!;
     const findMany = customers.operations.get('findMany');
     const filterParam = findMany!.findParameter('filter');
-    filterDecoder = filterParam!.type!.generateCodec('decode');
+    filterDecoder = filterParam!.generateCodec('decode');
   });
 
   it('Should parse from string', async () => {

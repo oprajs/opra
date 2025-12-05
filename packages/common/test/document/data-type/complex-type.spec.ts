@@ -143,7 +143,6 @@ describe('common:ComplexType', () => {
         deleted: 'optional',
         createdAt: 'optional',
         date2: 'optional',
-        date3: 'optional',
         updatedAt: 'optional',
         givenName: 'optional',
         familyName: 'optional',
@@ -177,7 +176,6 @@ describe('common:ComplexType', () => {
         createdAt: 'optional',
         updatedAt: 'optional',
         date2: 'optional',
-        date3: 'optional',
         givenName: 'optional',
         familyName: 'optional',
         gender: 'optional',
@@ -253,7 +251,6 @@ describe('common:ComplexType', () => {
         gender: 'M',
         birthDate: '1980-03-22',
         date2: '1980-03-22 09:21:48',
-        date3: '1980-03-22',
         uid: '1234567890',
         active: true,
         countryCode: 'US',
@@ -266,7 +263,6 @@ describe('common:ComplexType', () => {
       expect(x.givenName).toStrictEqual('John');
       expect(x.birthDate).toStrictEqual(new Date('1980-03-22T00:00:00'));
       expect(x.date2).toStrictEqual('1980-03-22 09:21:48');
-      expect(x.date3).toStrictEqual(new Date('1980-03-22T00:00:00'));
       expect(x.rate).toStrictEqual(100);
       expect(x.address).toEqual({ street: '123 Main St' });
     });

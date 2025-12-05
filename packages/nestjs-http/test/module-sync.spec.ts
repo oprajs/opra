@@ -77,10 +77,9 @@ describe('nestjs-http:OpraModule - sync', () => {
     expect(adapter.nestControllers.length).toBeGreaterThan(0);
     expect(adapter.document).toBeDefined();
     expect(adapter.document.api).toBeDefined();
-    expect(Array.from(adapter.document.httpApi.controllers.keys())).toEqual([
-      'Cats',
-      'Dogs',
-    ]);
+    expect(
+      Array.from(adapter.document.getHttpApi().controllers.keys()),
+    ).toEqual(['Cats', 'Dogs']);
   });
 
   it('Should call DEFAULT scoped api', async () => {

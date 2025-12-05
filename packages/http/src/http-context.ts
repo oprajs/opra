@@ -132,15 +132,14 @@ export class HttpContext extends ExecutionContext {
           'decode',
         )!;
         if (!decode) {
-          decode =
-            mediaType.type?.generateCodec('decode', {
-              scope: this.__adapter.scope,
-              partial: __oprDef?.requestBody?.partial,
-              projection: '*',
-              ignoreReadonlyFields: true,
-              allowPatchOperators: __oprDef?.requestBody?.allowPatchOperators,
-              keepKeyFields: __oprDef?.requestBody?.keepKeyFields,
-            }) || vg.isAny();
+          decode = mediaType.generateCodec('decode', {
+            scope: this.__adapter.scope,
+            partial: __oprDef?.requestBody?.partial,
+            projection: '*',
+            ignoreReadonlyFields: true,
+            allowPatchOperators: __oprDef?.requestBody?.allowPatchOperators,
+            keepKeyFields: __oprDef?.requestBody?.keepKeyFields,
+          });
           this.__adapter[kAssetCache].set(mediaType, 'decode', decode);
         }
         this._body = decode(this._body);

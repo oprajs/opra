@@ -182,11 +182,10 @@ export class HttpHandler {
       const getDecoder = (prm: HttpParameter): Validator => {
         let decode = this[kAssetCache].get<Validator>(prm, 'decode');
         if (!decode) {
-          decode =
-            prm.type?.generateCodec('decode', {
-              scope: this.adapter.scope,
-              ignoreReadonlyFields: true,
-            }) || vg.isAny();
+          decode = prm.generateCodec('decode', {
+            scope: this.adapter.scope,
+            ignoreReadonlyFields: true,
+          });
           this[kAssetCache].set(prm, 'decode', decode);
         }
         return decode;

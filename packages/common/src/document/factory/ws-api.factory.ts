@@ -133,7 +133,7 @@ export class WSApiFactory {
               ...operationMeta,
               name: operationName,
               types: undefined,
-              payloadType: undefined,
+              type: undefined,
               keyType: undefined,
               arguments: undefined,
             });

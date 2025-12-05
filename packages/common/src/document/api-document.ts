@@ -65,21 +65,33 @@ export class ApiDocument extends DocumentElement {
     }
   }
 
-  get httpApi(): HttpApi {
+  get httpApi(): HttpApi | undefined {
+    if (this.api && this.api instanceof HttpApi) return this.api as HttpApi;
+  }
+
+  get mqApi(): MQApi | undefined {
+    if (this.api && this.api instanceof MQApi) return this.api as MQApi;
+  }
+
+  get wsApi(): WSApi | undefined {
+    if (this.api && this.api instanceof WSApi) return this.api as WSApi;
+  }
+
+  getHttpApi(): HttpApi {
     if (!(this.api && this.api instanceof HttpApi)) {
       throw new TypeError('The document do not contains HttpApi instance');
     }
     return this.api as HttpApi;
   }
 
-  get mqApi(): MQApi {
+  getMqApi(): MQApi {
     if (!(this.api && this.api instanceof MQApi)) {
       throw new TypeError('The document do not contains MQApi instance');
     }
     return this.api as MQApi;
   }
 
-  get wsApi(): WSApi {
+  getWsApi(): WSApi {
     if (!(this.api && this.api instanceof WSApi)) {
       throw new TypeError('The document do not contains WSApi instance');
     }

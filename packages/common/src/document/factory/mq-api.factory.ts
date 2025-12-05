@@ -147,7 +147,7 @@ export class MQApiFactory {
               ...operationMeta,
               name: operationName,
               types: undefined,
-              payloadType: undefined,
+              type: undefined,
               keyType: undefined,
             });
             await this._initMQOperation(context, operation, operationMeta);
@@ -178,10 +178,10 @@ export class MQApiFactory {
       });
     }
 
-    (operation as any).payloadType = await DataTypeFactory.resolveDataType(
+    (operation as any).type = await DataTypeFactory.resolveDataType(
       context,
       operation,
-      metadata.payloadType,
+      metadata.type,
     );
     if (metadata.keyType) {
       (operation as any).keyType = await DataTypeFactory.resolveDataType(
@@ -215,7 +215,7 @@ export class MQApiFactory {
       await context.enterAsync('.response', async () => {
         const response = new MQOperationResponse(operation, {
           ...metadata.response!,
-          payloadType: undefined,
+          type: undefined,
           keyType: undefined,
         });
         await this._initMQOperationResponse(
@@ -240,10 +240,10 @@ export class MQApiFactory {
     response: MQOperationResponse,
     metadata: MQOperationResponse.Metadata | OpraSchema.MQOperationResponse,
   ): Promise<void> {
-    (response as any).payloadType = await DataTypeFactory.resolveDataType(
+    (response as any).type = await DataTypeFactory.resolveDataType(
       context,
       response,
-      metadata.payloadType,
+      metadata.type,
     );
     if (metadata.keyType) {
       (response as any).keyType = await DataTypeFactory.resolveDataType(

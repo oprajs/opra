@@ -185,7 +185,7 @@ export class FilterRules {
               decoder = isString;
             } else decoder = this._decoderCache.get(comp.left.field);
             if (!decoder) {
-              decoder = comp.left.field.type.generateCodec('decode', {
+              decoder = comp.left.field.generateCodec('decode', {
                 scope,
                 projection: '*',
                 ignoreReadonlyFields: true,

@@ -96,7 +96,7 @@ export class SocketioAdapter extends PlatformAdapter<SocketioAdapter.Events> {
   }
 
   get api(): WSApi {
-    return this.document.wsApi;
+    return this.document.getWsApi();
   }
 
   get scope(): string | undefined {
@@ -149,6 +149,7 @@ export class SocketioAdapter extends PlatformAdapter<SocketioAdapter.Events> {
           __oprDef: reg.oprDef,
           __controller: reg.contDef.instance,
           __handler: reg.handler,
+          socket,
           event,
           parameters,
         });

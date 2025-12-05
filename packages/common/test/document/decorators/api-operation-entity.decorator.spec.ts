@@ -32,6 +32,7 @@ describe('common:HttpOperation.Entity.* decorators', () => {
       name: 'count',
       description: expect.any(String),
       type: Boolean,
+      designType: Boolean,
     },
     projection: {
       location: 'query',
@@ -111,6 +112,7 @@ describe('common:HttpOperation.Entity.* decorators', () => {
             contentType: 'application/json',
             contentEncoding: 'utf-8',
             type: Customer,
+            designType: Customer,
           },
         ],
         maxContentSize: 1000,
@@ -124,6 +126,7 @@ describe('common:HttpOperation.Entity.* decorators', () => {
           contentType: 'application/opra.response+json',
           contentEncoding: 'utf-8',
           type: expect.any(Function),
+          designType: Customer,
           partial: 'deep',
         },
         {
@@ -340,6 +343,7 @@ describe('common:HttpOperation.Entity.* decorators', () => {
           contentEncoding: 'utf-8',
           statusCode: 200,
           type: expect.any(Function),
+          designType: Customer,
           partial: 'deep',
           isArray: true,
         },
@@ -400,6 +404,7 @@ describe('common:HttpOperation.Entity.* decorators', () => {
           type: expect.any(Function),
           partial: 'deep',
           isArray: true,
+          designType: Customer,
         },
         {
           statusCode: 422,
@@ -445,6 +450,7 @@ describe('common:HttpOperation.Entity.* decorators', () => {
           contentType: 'application/opra.response+json',
           contentEncoding: 'utf-8',
           type: expect.any(Function),
+          designType: Customer,
           partial: 'deep',
           isArray: true,
         },
@@ -488,6 +494,7 @@ describe('common:HttpOperation.Entity.* decorators', () => {
           contentType: 'application/opra.response+json',
           contentEncoding: 'utf-8',
           type: expect.any(Function),
+          designType: Customer,
           partial: 'deep',
           isArray: true,
         },
@@ -529,6 +536,8 @@ describe('common:HttpOperation.Entity.* decorators', () => {
           type: 'Customer',
         },
         type: Customer,
+        parameters: undefined,
+        responses: undefined,
       });
       expect(opr.parameters.map(prm => prm.name)).toStrictEqual([
         'projection',
@@ -554,6 +563,7 @@ describe('common:HttpOperation.Entity.* decorators', () => {
           contentType: 'application/opra.response+json',
           contentEncoding: 'utf-8',
           type: expect.any(Function),
+          designType: Customer,
           partial: 'deep',
         },
         {
@@ -598,6 +608,8 @@ describe('common:HttpOperation.Entity.* decorators', () => {
           type: 'Customer',
         },
         type: Customer,
+        parameters: undefined,
+        responses: undefined,
       });
       expect(opr.parameters.map(prm => prm.name)).toStrictEqual([
         'projection',
@@ -624,6 +636,7 @@ describe('common:HttpOperation.Entity.* decorators', () => {
           contentEncoding: 'utf-8',
           type: expect.any(Function),
           partial: 'deep',
+          designType: Customer,
         },
         {
           statusCode: 204,
@@ -680,6 +693,7 @@ describe('common:HttpOperation.Entity.* decorators', () => {
             contentType: 'application/json',
             contentEncoding: 'utf-8',
             type: Customer,
+            designType: Customer,
           },
         ],
         maxContentSize: 1000,
@@ -813,6 +827,7 @@ describe('common:HttpOperation.Entity.* decorators', () => {
             contentType: 'application/json',
             contentEncoding: 'utf-8',
             type: Customer,
+            designType: Customer,
           },
         ],
         maxContentSize: 1000,
@@ -829,6 +844,7 @@ describe('common:HttpOperation.Entity.* decorators', () => {
           contentType: 'application/opra.response+json',
           contentEncoding: 'utf-8',
           type: expect.any(Function),
+          designType: Customer,
           partial: 'deep',
         },
         {
