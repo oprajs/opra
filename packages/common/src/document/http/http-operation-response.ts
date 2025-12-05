@@ -11,33 +11,31 @@ import { HttpStatusRange } from './http-status-range.js';
  * @namespace HttpOperationResponse
  */
 export namespace HttpOperationResponse {
-  export interface Metadata
-    extends Combine<
-      {
-        statusCode: number | string | (number | string)[];
-        parameters?: HttpParameter.Metadata[];
-        partial?: boolean | 'deep';
-      },
-      HttpMediaType.Metadata
-    > {}
+  export interface Metadata extends Combine<
+    {
+      statusCode: number | string | (number | string)[];
+      parameters?: HttpParameter.Metadata[];
+      partial?: boolean | 'deep';
+    },
+    HttpMediaType.Metadata
+  > {}
 
   export interface Options extends HttpMediaType.Options {
     partial?: boolean | 'deep';
   }
 
-  export interface InitArguments
-    extends Combine<
-      {
-        statusCode:
-          | number
-          | string
-          | HttpStatusRange
-          | OpraSchema.HttpStatusRange
-          | (number | string | HttpStatusRange | OpraSchema.HttpStatusRange)[];
-      },
-      HttpMediaType.InitArguments,
-      StrictOmit<Metadata, 'multipartFields'>
-    > {}
+  export interface InitArguments extends Combine<
+    {
+      statusCode:
+        | number
+        | string
+        | HttpStatusRange
+        | OpraSchema.HttpStatusRange
+        | (number | string | HttpStatusRange | OpraSchema.HttpStatusRange)[];
+    },
+    HttpMediaType.InitArguments,
+    StrictOmit<Metadata, 'multipartFields'>
+  > {}
 }
 
 /**

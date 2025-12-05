@@ -110,7 +110,7 @@ export class RpcControllerFactory {
           contextId,
           wrapper.id,
           options,
-          opraContext.protocol,
+          opraContext.transport,
         );
         return contextCallback(opraContext);
       };

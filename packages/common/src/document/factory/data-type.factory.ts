@@ -16,6 +16,7 @@ import {
   kDataTypeMap,
 } from '../constants.js';
 import { ApiField } from '../data-type/api-field.js';
+import { ArrayType } from '../data-type/array-type.js';
 import { ComplexType } from '../data-type/complex-type.js';
 import { ComplexTypeBase } from '../data-type/complex-type-base.js';
 import { DataType } from '../data-type/data-type.js';
@@ -40,74 +41,83 @@ export namespace DataTypeFactory {
     | EnumType.EnumArray
     | object;
 
-  export interface ComplexTypeInit
-    extends Combine<
-      {
-        _instance?: ComplexType;
-        base?: string | ComplexTypeInit | MappedTypeInit | MixinTypeInit;
-        fields?: Record<string, ApiFieldInit>;
-        additionalFields?:
-          | boolean
-          | string
-          | DataTypeFactory.DataTypeInitArguments
-          | ['error']
-          | ['error', string];
-      },
-      ComplexType.InitArguments
-    > {}
+  export interface ArrayTypeInit extends Combine<
+    {
+      _instance?: ArrayType;
+      type: (
+        | string
+        | SimpleTypeInit
+        | ComplexTypeInit
+        | MappedTypeInit
+        | MixinTypeInit
+        | UnionTypeInit
+        | ArrayTypeInit
+      )[];
+    },
+    ArrayType.InitArguments
+  > {}
 
-  export interface EnumTypeInit
-    extends Combine<
-      {
-        _instance?: MappedType;
-        base?: string | EnumTypeInit;
-      },
-      EnumType.InitArguments
-    > {}
+  export interface ComplexTypeInit extends Combine<
+    {
+      _instance?: ComplexType;
+      base?: string | ComplexTypeInit | MappedTypeInit | MixinTypeInit;
+      fields?: Record<string, ApiFieldInit>;
+      additionalFields?:
+        | boolean
+        | string
+        | DataTypeFactory.DataTypeInitArguments
+        | ['error']
+        | ['error', string];
+    },
+    ComplexType.InitArguments
+  > {}
 
-  export interface MappedTypeInit
-    extends Combine<
-      {
-        _instance?: MappedType;
-        base: string | ComplexTypeInit | MappedTypeInit | MixinTypeInit;
-      },
-      MappedType.InitArguments
-    > {}
+  export interface EnumTypeInit extends Combine<
+    {
+      _instance?: MappedType;
+      base?: string | EnumTypeInit;
+    },
+    EnumType.InitArguments
+  > {}
 
-  export interface MixinTypeInit
-    extends Combine<
-      {
-        _instance?: MixinType;
-        types: (string | ComplexTypeInit | MappedTypeInit | MixinTypeInit)[];
-      },
-      MixinType.InitArguments
-    > {}
+  export interface MappedTypeInit extends Combine<
+    {
+      _instance?: MappedType;
+      base: string | ComplexTypeInit | MappedTypeInit | MixinTypeInit;
+    },
+    MappedType.InitArguments
+  > {}
 
-  export interface SimpleTypeInit
-    extends Combine<
-      {
-        _instance?: SimpleType;
-        base?: string | SimpleTypeInit;
-      },
-      SimpleType.InitArguments
-    > {}
+  export interface MixinTypeInit extends Combine<
+    {
+      _instance?: MixinType;
+      types: (string | ComplexTypeInit | MappedTypeInit | MixinTypeInit)[];
+    },
+    MixinType.InitArguments
+  > {}
 
-  export interface UnionTypeInit
-    extends Combine<
-      {
-        _instance?: MixinType;
-        types: (string | ComplexTypeInit | MappedTypeInit | MixinTypeInit)[];
-      },
-      UnionType.InitArguments
-    > {}
+  export interface SimpleTypeInit extends Combine<
+    {
+      _instance?: SimpleType;
+      base?: string | SimpleTypeInit;
+    },
+    SimpleType.InitArguments
+  > {}
 
-  export interface ApiFieldInit
-    extends Combine<
-      {
-        type: string | DataTypeInitArguments;
-      },
-      ApiField.InitArguments
-    > {}
+  export interface UnionTypeInit extends Combine<
+    {
+      _instance?: MixinType;
+      types: (string | ComplexTypeInit | MappedTypeInit | MixinTypeInit)[];
+    },
+    UnionType.InitArguments
+  > {}
+
+  export interface ApiFieldInit extends Combine<
+    {
+      type: string | DataTypeInitArguments;
+    },
+    ApiField.InitArguments
+  > {}
 
   export type DataTypeInitArguments =
     | ComplexTypeInit
@@ -115,7 +125,8 @@ export namespace DataTypeFactory {
     | MappedTypeInit
     | MixinTypeInit
     | SimpleTypeInit
-    | UnionTypeInit;
+    | UnionTypeInit
+    | ArrayTypeInit;
 
   export interface Context extends DocumentInitContext {
     importQueue?: ResponsiveMap<any>;
@@ -405,6 +416,9 @@ export class DataTypeFactory {
           }
 
           switch (out.kind) {
+            case OpraSchema.ArrayType.Kind:
+              await this._prepareArrayTypeArgs(context, owner, out, metadata);
+              break;
             case OpraSchema.ComplexType.Kind:
               out.ctor = ctor;
               await this._prepareComplexTypeArgs(context, owner, out, metadata);
@@ -450,6 +464,24 @@ export class DataTypeFactory {
     initArgs.abstract = metadata.abstract;
     initArgs.examples = metadata.examples;
     initArgs.scopePattern = (metadata as DataType.Metadata).scopePattern;
+  }
+
+  protected static async _prepareArrayTypeArgs(
+    context: DataTypeFactory.Context,
+    owner: DocumentElement,
+    initArgs: DataTypeFactory.ArrayTypeInit,
+    metadata: (ArrayType.Metadata | OpraSchema.ArrayType) & { ctor?: Type },
+  ): Promise<void> {
+    await this._prepareDataTypeArgs(context, initArgs, metadata);
+    await context.enterAsync('.type', async () => {
+      const baseArgs = await this._importDataTypeArgs(
+        context,
+        owner,
+        metadata.type as any,
+      );
+      if (!baseArgs) return;
+      initArgs.type = preferName(baseArgs) as any;
+    });
   }
 
   protected static async _prepareComplexTypeArgs(
@@ -692,6 +724,7 @@ export class DataTypeFactory {
     owner: DocumentElement,
     args: DataTypeFactory.DataTypeInitArguments | string,
   ):
+    | ArrayType
     | ComplexType
     | EnumType
     | MappedType
@@ -714,6 +747,8 @@ export class DataTypeFactory {
       }
 
       switch (initArgs?.kind) {
+        case OpraSchema.ArrayType.Kind:
+          return this._createArrayType(context, owner, initArgs);
         case OpraSchema.ComplexType.Kind:
           return this._createComplexType(context, owner, initArgs);
         case OpraSchema.EnumType.Kind:
@@ -731,6 +766,24 @@ export class DataTypeFactory {
       }
     }
     context.addError(`Unknown data type (${String(args)})`);
+  }
+
+  protected static _createArrayType(
+    context: DocumentInitContext,
+    owner: DocumentElement,
+    args: DataTypeFactory.ArrayTypeInit,
+  ): ArrayType {
+    const dataType = args._instance || ({} as any);
+    Object.setPrototypeOf(dataType, ArrayType.prototype);
+
+    const initArgs = cloneObject(args) as unknown as ArrayType.InitArguments;
+    if (args.type) {
+      context.enter('.type', () => {
+        initArgs.type = this._createDataType(context, owner, args.type as any)!;
+      });
+    }
+    ArrayType.apply(dataType, [owner, initArgs] as any);
+    return dataType;
   }
 
   protected static _createComplexType(

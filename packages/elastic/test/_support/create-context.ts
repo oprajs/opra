@@ -14,9 +14,9 @@ export function createContext(
   request = request || HttpIncoming.from({ method: 'GET', url: '/' });
   const response = HttpOutgoing.from({ req: request });
   return new HttpContext({
-    adapter,
-    operation,
-    controller: operation?.owner,
+    __adapter: adapter,
+    __oprDef: operation,
+    __contDef: operation?.owner,
     platform: 'express',
     request,
     response,

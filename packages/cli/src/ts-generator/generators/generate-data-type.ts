@@ -1,11 +1,13 @@
 import path from 'node:path';
 import {
+  ArrayType,
   ComplexType,
   DataType,
   EnumType,
   MappedType,
   MixinType,
   SimpleType,
+  UnionType,
 } from '@opra/common';
 import { CodeBlock } from '../../code-block.js';
 import { TsFile } from '../ts-file.js';
@@ -130,20 +132,26 @@ export async function _generateTypeCode(
       `Name required to generate data type code to root intent`,
     );
   }
-  if (dataType instanceof EnumType) {
-    return await this._generateEnumTypeCode(currentFile, dataType, intent);
+  if (dataType instanceof ArrayType) {
+    return await this._generateArrayTypeCode(currentFile, dataType, intent);
   }
   if (dataType instanceof ComplexType) {
     return await this._generateComplexTypeCode(currentFile, dataType, intent);
   }
-  if (dataType instanceof SimpleType) {
-    return await this._generateSimpleTypeCode(currentFile, dataType, intent);
+  if (dataType instanceof EnumType) {
+    return await this._generateEnumTypeCode(currentFile, dataType, intent);
   }
   if (dataType instanceof MappedType) {
     return await this._generateMappedTypeCode(currentFile, dataType, intent);
   }
   if (dataType instanceof MixinType) {
     return await this._generateMixinTypeCode(currentFile, dataType, intent);
+  }
+  if (dataType instanceof SimpleType) {
+    return await this._generateSimpleTypeCode(currentFile, dataType, intent);
+  }
+  if (dataType instanceof UnionType) {
+    return await this._generateUnionTypeCode(currentFile, dataType, intent);
   }
   /* istanbul ignore next */
   throw new TypeError(
@@ -154,39 +162,25 @@ export async function _generateTypeCode(
 /**
  *
  */
-export async function _generateEnumTypeCode(
+export async function _generateArrayTypeCode(
   this: TsGenerator,
   currentFile: TsFile,
-  dataType: EnumType,
+  dataType: ArrayType,
   intent?: Intent,
 ): Promise<string> {
-  if (intent === 'root') {
-    let out = `enum ${dataType.name} {\n\t`;
-    for (const [value, info] of Object.entries(dataType.attributes)) {
-      // Print JSDoc
-      let jsDoc = '';
-      if (dataType.attributes[value].description)
-        jsDoc += ` * ${dataType.attributes[value].description}\n`;
+  if (intent === 'extends')
+    throw new TypeError('Array types can not be extended');
+  let out = '';
+  const x = await this.generateDataType(dataType.type, 'typeDef', currentFile);
+  if (x.kind === 'embedded') {
+    out =
+      x.code.includes('|') || x.code.includes('&')
+        ? '(' + x.code + ')'
+        : x.code;
+  } else out = x.typeName;
 
-      if (jsDoc) out += `/**\n${jsDoc} */\n`;
-
-      out +=
-        `${info.alias || value} = ` +
-        (typeof value === 'number'
-          ? value
-          : "'" + String(value).replace("'", "\\'") + "'");
-      out += ',\n\n';
-    }
-    return out + '\b}';
-  }
-
-  return (
-    '(' +
-    Object.keys(dataType.attributes)
-      .map(t => `'${t}'`)
-      .join(' | ') +
-    ')'
-  );
+  if (intent === 'root') return `type ${dataType.name} = ${out}[]`;
+  return `${out}[]`;
 }
 
 /**
@@ -258,7 +252,7 @@ export async function _generateComplexTypeCode(
       const x = await this.generateDataType(field.type, 'typeDef', currentFile);
       typ = x.kind === 'embedded' ? x.code : x.typeName;
     }
-    if (field.isArray) {
+    if (field.isArray && !(field.type instanceof ArrayType)) {
       out += /[a-zA-Z]\w*/.test(typ) ? typ + '[];\n' : '(' + typ + ')[];\n';
     } else out += typ + ';\n';
   }
@@ -269,38 +263,39 @@ export async function _generateComplexTypeCode(
 /**
  *
  */
-export async function _generateSimpleTypeCode(
+export async function _generateEnumTypeCode(
   this: TsGenerator,
   currentFile: TsFile,
-  dataType: SimpleType,
+  dataType: EnumType,
   intent?: Intent,
 ): Promise<string> {
-  let out = intent === 'root' ? `type ${dataType.name} = ` : '';
-  const nameMapping = dataType.nameMappings.js || 'any';
-  out += nameMapping === 'Date' ? 'string' : nameMapping;
-  return intent === 'root' ? out + ';' : out;
-}
+  if (intent === 'root') {
+    let out = `enum ${dataType.name} {\n\t`;
+    for (const [value, info] of Object.entries(dataType.attributes)) {
+      // Print JSDoc
+      let jsDoc = '';
+      if (dataType.attributes[value].description)
+        jsDoc += ` * ${dataType.attributes[value].description}\n`;
 
-/**
- *
- */
-export async function _generateMixinTypeCode(
-  this: TsGenerator,
-  currentFile: TsFile,
-  dataType: MixinType,
-  intent?: Intent,
-): Promise<string> {
-  const outArray: string[] = [];
-  for (const t of dataType.types) {
-    const x = await this.generateDataType(t, 'typeDef', currentFile);
-    if (x.kind === 'embedded') {
-      outArray.push(x.code.includes('|') ? '(' + x.code + ')' : x.code);
-    } else outArray.push(x.typeName);
+      if (jsDoc) out += `/**\n${jsDoc} */\n`;
+
+      out +=
+        `${info.alias || value} = ` +
+        (typeof value === 'number'
+          ? value
+          : "'" + String(value).replace("'", "\\'") + "'");
+      out += ',\n\n';
+    }
+    return out + '\b}';
   }
-  if (intent === 'root')
-    return `type ${dataType.name} = ${outArray.join(' & ')}`;
-  if (intent === 'extends') return outArray.join(', ');
-  return outArray.join(' & ');
+
+  return (
+    '(' +
+    Object.keys(dataType.attributes)
+      .map(t => `'${t}'`)
+      .join(' | ') +
+    ')'
+  );
 }
 
 /**
@@ -368,4 +363,72 @@ export async function _generateMappedTypeCode(
     out += '>';
   }
   return out;
+}
+
+/**
+ *
+ */
+export async function _generateMixinTypeCode(
+  this: TsGenerator,
+  currentFile: TsFile,
+  dataType: MixinType,
+  intent?: Intent,
+): Promise<string> {
+  const outArray: string[] = [];
+  for (const t of dataType.types) {
+    const x = await this.generateDataType(t, 'typeDef', currentFile);
+    if (x.kind === 'embedded') {
+      outArray.push(
+        x.code.includes('|') || x.code.includes('&')
+          ? '(' + x.code + ')'
+          : x.code,
+      );
+    } else outArray.push(x.typeName);
+  }
+  if (intent === 'root')
+    return `type ${dataType.name} = ${outArray.join(' & ')}`;
+  if (intent === 'extends') return outArray.join(', ');
+  return outArray.join(' & ');
+}
+
+/**
+ *
+ */
+export async function _generateSimpleTypeCode(
+  this: TsGenerator,
+  currentFile: TsFile,
+  dataType: SimpleType,
+  intent?: Intent,
+): Promise<string> {
+  let out = intent === 'root' ? `type ${dataType.name} = ` : '';
+  const nameMapping = dataType.nameMappings.js || 'any';
+  out += nameMapping === 'Date' ? 'string' : nameMapping;
+  return intent === 'root' ? out + ';' : out;
+}
+
+/**
+ *
+ */
+export async function _generateUnionTypeCode(
+  this: TsGenerator,
+  currentFile: TsFile,
+  dataType: UnionType,
+  intent?: Intent,
+): Promise<string> {
+  if (intent === 'extends')
+    throw new TypeError('Union types can not be extended');
+  const outArray: string[] = [];
+  for (const t of dataType.types) {
+    const x = await this.generateDataType(t, 'typeDef', currentFile);
+    if (x.kind === 'embedded') {
+      outArray.push(
+        x.code.includes('|') || x.code.includes('&')
+          ? '(' + x.code + ')'
+          : x.code,
+      );
+    } else outArray.push(x.typeName);
+  }
+  if (intent === 'root')
+    return `type ${dataType.name} = ${outArray.join(' | ')}`;
+  return outArray.join(' | ');
 }

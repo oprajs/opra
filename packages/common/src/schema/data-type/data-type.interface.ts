@@ -1,3 +1,4 @@
+import { ArrayType } from './array-type.interface.js';
 import type { ComplexType } from './complex-type.interface.js';
 import type { EnumType } from './enum-type.interface.js';
 import type { MappedType } from './mapped-type.interface.js';
@@ -11,7 +12,8 @@ export type DataType =
   | ComplexType
   | MappedType
   | MixinType
-  | UnionType;
+  | UnionType
+  | ArrayType;
 
 export namespace DataType {
   export type Name = string;
@@ -21,7 +23,8 @@ export namespace DataType {
     | MappedType.Kind
     | SimpleType.Kind
     | MixinType.Kind
-    | UnionType.Kind;
+    | UnionType.Kind
+    | ArrayType.Kind;
 }
 
 export interface DataTypeBase {

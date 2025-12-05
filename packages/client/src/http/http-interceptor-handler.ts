@@ -9,9 +9,9 @@ type InterceptorChain<TRequest extends HttpBackend.RequestInit> = (
   nextFn: HttpHandlerFn<TRequest>,
 ) => Observable<HttpEvent>;
 
-export class HttpInterceptorHandler<TRequest extends HttpBackend.RequestInit>
-  implements HttpHandler<TRequest>
-{
+export class HttpInterceptorHandler<
+  TRequest extends HttpBackend.RequestInit,
+> implements HttpHandler<TRequest> {
   private readonly chain: InterceptorChain<TRequest>;
   private readonly finalHandler: HttpHandler;
 

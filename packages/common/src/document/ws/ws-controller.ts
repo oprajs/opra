@@ -21,26 +21,28 @@ import type { WSOperation } from './ws-operation.js';
  * @namespace WSController
  */
 export namespace WSController {
-  export interface Metadata
-    extends Pick<OpraSchema.WSController, 'description'> {
+  export interface Metadata extends Pick<
+    OpraSchema.WSController,
+    'description'
+  > {
     name: string;
     types?: ThunkAsync<Type | EnumType.EnumObject | EnumType.EnumArray>[];
     operations?: Record<string, WSOperation.Metadata>;
   }
 
-  export interface Options
-    extends Partial<Pick<OpraSchema.WSController, 'description'>> {
+  export interface Options extends Partial<
+    Pick<OpraSchema.WSController, 'description'>
+  > {
     name?: string;
   }
 
-  export interface InitArguments
-    extends Combine<
-      {
-        instance?: object;
-        ctor?: Type;
-      },
-      Pick<Metadata, 'name' | 'description'>
-    > {}
+  export interface InitArguments extends Combine<
+    {
+      instance?: object;
+      ctor?: Type;
+    },
+    Pick<Metadata, 'name' | 'description'>
+  > {}
 }
 
 /**
@@ -106,7 +108,6 @@ class WSControllerClass extends DocumentElement {
   declare readonly kind: OpraSchema.WSController.Kind;
   declare readonly name: string;
   declare description?: string;
-  declare path: string;
   declare instance?: any;
   declare ctor?: Type;
   declare operations: ResponsiveMap<WSOperation>;

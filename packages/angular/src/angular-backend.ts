@@ -1,4 +1,6 @@
+// @ts-ignore
 import { HttpContext, HttpHeaders, HttpParams } from '@angular/common/http';
+// @ts-ignore
 import * as Angular from '@angular/common/http';
 import typeIs from '@browsery/type-is';
 import {
@@ -232,11 +234,10 @@ export namespace AngularBackend {
     withCredentials?: boolean;
   }
 
-  export interface RequestOptions
-    extends Pick<
-      RequestInit,
-      'context' | 'reportProgress' | 'withCredentials'
-    > {}
+  export interface RequestOptions extends Pick<
+    RequestInit,
+    'context' | 'reportProgress' | 'withCredentials'
+  > {}
 
   export type RequestDefaults = StrictOmit<RequestOptions, 'context'> & {
     headers: Headers;

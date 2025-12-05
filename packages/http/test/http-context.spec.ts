@@ -19,9 +19,9 @@ describe('http:HttpContext', () => {
   function createContext(operation: HttpOperation, request: HttpIncoming) {
     const response = HttpOutgoing.from({ req: request });
     return new HttpContext({
-      adapter,
-      operation,
-      controller: operation.owner,
+      __adapter: adapter,
+      __oprDef: operation,
+      __contDef: operation.owner,
       platform: 'express',
       request,
       response,
@@ -38,7 +38,7 @@ describe('http:HttpContext', () => {
   after(async () => adapter.close());
 
   it('Should getBody() retrieve body content', async () => {
-    const controller = document.httpApi?.findController('Customer');
+    const controller = document.getHttpApi().findController('Customer');
     const operation = controller!.operations.get('update')!;
     const context = createContext(
       operation,
@@ -64,7 +64,7 @@ describe('http:HttpContext', () => {
   });
 
   it('Should validate body content', async () => {
-    const controller = document.httpApi?.findController('Customer');
+    const controller = document.getHttpApi().findController('Customer');
     const operation = controller!.operations.get('update')!;
     const context = createContext(
       operation,
@@ -89,7 +89,7 @@ describe('http:HttpContext', () => {
   });
 
   it('Should return MultipartReader if content is multipart', async () => {
-    const controller = document.httpApi?.findController('Files');
+    const controller = document.getHttpApi().findController('Files');
     const operation = controller!.operations.get('post')!;
     const s = [
       '--AaB03x',

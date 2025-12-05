@@ -24,8 +24,10 @@ import { HttpParameter } from './http-parameter.js';
  * @namespace HttpController
  */
 export namespace HttpController {
-  export interface Metadata
-    extends Pick<OpraSchema.HttpController, 'description' | 'path'> {
+  export interface Metadata extends Pick<
+    OpraSchema.HttpController,
+    'description' | 'path'
+  > {
     name: string;
     controllers?: (Type | ((parent: any) => any))[];
     types?: ThunkAsync<Type | EnumType.EnumObject | EnumType.EnumArray>[];
@@ -33,20 +35,20 @@ export namespace HttpController {
     parameters?: HttpParameter.Metadata[];
   }
 
-  export interface Options
-    extends Partial<Pick<OpraSchema.HttpController, 'description' | 'path'>> {
+  export interface Options extends Partial<
+    Pick<OpraSchema.HttpController, 'description' | 'path'>
+  > {
     name?: string;
     controllers?: (Type | ((parent: any) => any))[];
   }
 
-  export interface InitArguments
-    extends Combine<
-      {
-        instance?: object;
-        ctor?: Type;
-      },
-      Pick<Metadata, 'name' | 'description' | 'path'>
-    > {}
+  export interface InitArguments extends Combine<
+    {
+      instance?: object;
+      ctor?: Type;
+    },
+    Pick<Metadata, 'name' | 'description' | 'path'>
+  > {}
 }
 
 /**

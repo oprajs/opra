@@ -97,8 +97,9 @@ export interface HttpUploadProgressEvent extends HttpProgressEvent {
  *
  * @interface HttpResponseHeaderEvent
  */
-export interface HttpResponseHeaderEvent<TResponseExt = {}>
-  extends HttpEventBase {
+export interface HttpResponseHeaderEvent<
+  TResponseExt = {},
+> extends HttpEventBase {
   type: HttpEventType.ResponseHeader;
   /**
    * Response object
@@ -110,8 +111,10 @@ export interface HttpResponseHeaderEvent<TResponseExt = {}>
  *
  * @interface HttpResponseEvent
  */
-export interface HttpResponseEvent<T = any, TResponseExt = {}>
-  extends HttpEventBase {
+export interface HttpResponseEvent<
+  T = any,
+  TResponseExt = {},
+> extends HttpEventBase {
   type: HttpEventType.Response;
   /**
    * Response object

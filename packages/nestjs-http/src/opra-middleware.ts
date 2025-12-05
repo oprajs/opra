@@ -12,7 +12,7 @@ export class OpraMiddleware implements NestMiddleware {
     const response = HttpOutgoing.from(res);
     /** Create the HttpContext */
     const context = new HttpContext({
-      adapter: this.opraAdapter,
+      __adapter: this.opraAdapter,
       platform: req.route ? 'express' : 'fastify',
       request,
       response,

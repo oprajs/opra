@@ -99,7 +99,7 @@ describe('nestjs-rabbitmq:OpraRabbitmqModule - async', () => {
     expect(adapter).toBeDefined();
     expect(adapter.document).toBeDefined();
     expect(adapter.document.api).toBeDefined();
-    expect(Array.from(adapter.document.mqApi.controllers.keys())).toEqual([
+    expect(Array.from(adapter.document.getMqApi().controllers.keys())).toEqual([
       'Cats',
       'Dogs',
     ]);

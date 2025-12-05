@@ -1,7 +1,7 @@
 import { omit } from '@jsopen/objects';
-import type { ThunkAsync, Type, TypeThunkAsync } from 'ts-gems';
+import type { ThunkAsync, Type } from 'ts-gems';
 import { OpraSchema } from '../../schema/index.js';
-import { MQ_CONTROLLER_METADATA } from '../constants.js';
+import { WS_CONTROLLER_METADATA } from '../constants.js';
 import type { WSController } from '../ws/ws-controller.js';
 import type { WSOperation } from '../ws/ws-operation.js';
 
@@ -18,11 +18,11 @@ export interface WSOperationDecoratorFactory {
   /**
    * Property decorator
    * @param decoratorChain
-   * @param payloadType
+   * @param type
    * @param options
    */ <T extends WSOperation.Options>(
     decoratorChain: Function[],
-    payloadType: ThunkAsync<Type> | string,
+    type: ThunkAsync<Type> | string,
     options?: T,
   ): WSOperationDecorator;
 }
@@ -31,7 +31,6 @@ export namespace WSOperationDecoratorFactory {
   export type AugmentationFunction = (
     decorator: WSOperationDecorator,
     decoratorChain: Function[],
-    payloadType: ThunkAsync<Type> | string,
     options?: WSOperation.Options,
   ) => void;
 }
@@ -41,7 +40,6 @@ const augmentationRegistry: WSOperationDecoratorFactory.AugmentationFunction[] =
 
 export function WSOperationDecoratorFactory(
   decoratorChain: Function[],
-  payloadType: ThunkAsync<Type> | string | TypeThunkAsync,
   options?: WSOperation.Options,
 ): WSOperationDecorator {
   /**
@@ -53,20 +51,19 @@ export function WSOperationDecoratorFactory(
 
     const operationMetadata = {
       kind: OpraSchema.WSOperation.Kind,
-      channel: propertyKey,
-      payloadType,
-      ...omit(options as any, ['kind', 'payloadType']),
+      event: propertyKey,
+      ...omit(options as any, ['kind']),
     } as WSOperation.Metadata;
 
     const controllerMetadata = (Reflect.getOwnMetadata(
-      MQ_CONTROLLER_METADATA,
+      WS_CONTROLLER_METADATA,
       target.constructor,
     ) || {}) as WSController.Metadata;
     controllerMetadata.operations = controllerMetadata.operations || {};
     controllerMetadata.operations[propertyKey] = operationMetadata;
     for (const fn of decoratorChain) fn(operationMetadata, target, propertyKey);
     Reflect.defineMetadata(
-      MQ_CONTROLLER_METADATA,
+      WS_CONTROLLER_METADATA,
       controllerMetadata,
       target.constructor,
     );
@@ -83,9 +80,7 @@ export function WSOperationDecoratorFactory(
     return decorator;
   };
 
-  augmentationRegistry.forEach(fn =>
-    fn(decorator, decoratorChain, payloadType, options),
-  );
+  augmentationRegistry.forEach(fn => fn(decorator, decoratorChain, options));
 
   return decorator;
 }

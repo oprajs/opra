@@ -3,8 +3,10 @@ import {
   asMutable,
   type Combine,
   type StrictOmit,
+  Type,
   type TypeThunkAsync,
 } from 'ts-gems';
+import { Validator, vg } from 'valgen';
 import type { OpraSchema } from '../../schema/index.js';
 import type { ApiDocument } from '../api-document';
 import { DocumentElement } from '../common/document-element.js';
@@ -17,8 +19,10 @@ import { parseRegExp } from '../utils/parse-regexp.util.js';
  * @namespace HttpParameter
  */
 export namespace HttpParameter {
-  export interface Metadata
-    extends StrictOmit<OpraSchema.HttpParameter, 'type'> {
+  export interface Metadata extends StrictOmit<
+    OpraSchema.HttpParameter,
+    'type'
+  > {
     name: string | RegExp;
     type?:
       | string
@@ -27,6 +31,7 @@ export namespace HttpParameter {
       | EnumType.EnumArray
       | object;
     keyParam?: boolean;
+    designType?: Type;
   }
 
   export interface Options extends Partial<StrictOmit<Metadata, 'type'>> {
@@ -34,13 +39,12 @@ export namespace HttpParameter {
     parser?: (v: any) => any;
   }
 
-  export interface InitArguments
-    extends Combine<
-      {
-        type?: DataType;
-      },
-      Metadata
-    > {
+  export interface InitArguments extends Combine<
+    {
+      type?: DataType;
+    },
+    Metadata
+  > {
     parser?: (v: any) => any;
   }
 }
@@ -92,6 +96,7 @@ export const HttpParameter = function (
   _this.arraySeparator = initArgs.arraySeparator;
   _this.keyParam = initArgs.keyParam;
   _this.parser = initArgs.parser;
+  _this.designType = initArgs.designType;
 } as Function as HttpParameterStatic;
 
 /**
@@ -105,6 +110,7 @@ class HttpParameterClass extends Value {
   declare required?: boolean;
   declare arraySeparator?: string;
   declare parser?: (v: any) => any;
+  declare designType?: Type;
 
   toJSON(options?: ApiDocument.ExportOptions): OpraSchema.HttpParameter {
     return omitUndefined<OpraSchema.HttpParameter>({
@@ -116,6 +122,19 @@ class HttpParameterClass extends Value {
       required: this.required,
       deprecated: this.deprecated,
     });
+  }
+
+  generateCodec(
+    codec: 'encode' | 'decode',
+    options?: DataType.GenerateCodecOptions,
+    properties?: any,
+  ): Validator {
+    return (
+      this.type?.generateCodec(codec, options, {
+        ...properties,
+        designType: this.designType,
+      }) || vg.isAny()
+    );
   }
 }
 

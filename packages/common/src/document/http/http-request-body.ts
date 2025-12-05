@@ -10,16 +10,18 @@ import type { HttpOperation } from './http-operation';
  * @namespace HttpRequestBody
  */
 export namespace HttpRequestBody {
-  export interface Metadata
-    extends Partial<StrictOmit<OpraSchema.HttpRequestBody, 'content'>> {
+  export interface Metadata extends Partial<
+    StrictOmit<OpraSchema.HttpRequestBody, 'content'>
+  > {
     content: HttpMediaType.Metadata[];
     immediateFetch?: boolean;
     allowPatchOperators?: boolean;
     keepKeyFields?: boolean;
   }
 
-  export interface Options
-    extends Partial<StrictOmit<OpraSchema.HttpRequestBody, 'content'>> {
+  export interface Options extends Partial<
+    StrictOmit<OpraSchema.HttpRequestBody, 'content'>
+  > {
     immediateFetch?: boolean;
     allowPatchOperators?: boolean;
     keepKeyFields?: boolean;

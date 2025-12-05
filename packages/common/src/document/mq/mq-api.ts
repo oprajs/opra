@@ -8,7 +8,8 @@ import { MQOperation } from './mq-operation.js';
 
 export namespace MQApi {
   export interface InitArguments
-    extends ApiBase.InitArguments,
+    extends
+      ApiBase.InitArguments,
       StrictOmit<OpraSchema.MQApi, 'controllers'> {}
 }
 

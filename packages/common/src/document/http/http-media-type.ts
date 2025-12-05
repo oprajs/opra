@@ -6,6 +6,7 @@ import { isAny, type Validator, vg } from 'valgen';
 import { OpraSchema } from '../../schema/index.js';
 import type { ApiDocument } from '../api-document.js';
 import { DocumentElement } from '../common/document-element.js';
+import { ArrayType } from '../data-type/array-type.js';
 import { DataType } from '../data-type/data-type.js';
 import type { HttpMultipartField } from './http-multipart-field.js';
 
@@ -13,28 +14,26 @@ import type { HttpMultipartField } from './http-multipart-field.js';
  * @namespace HttpMediaType
  */
 export namespace HttpMediaType {
-  export interface Metadata
-    extends Partial<
-      StrictOmit<OpraSchema.HttpMediaType, 'type' | 'multipartFields'>
-    > {
+  export interface Metadata extends Partial<
+    StrictOmit<OpraSchema.HttpMediaType, 'type' | 'multipartFields'>
+  > {
     type?: Type | string;
     multipartFields?: HttpMultipartField.Metadata[];
+    designType?: Type;
   }
 
-  export interface Options
-    extends Partial<
-      StrictOmit<OpraSchema.HttpMediaType, 'type' | 'multipartFields'>
-    > {
+  export interface Options extends Partial<
+    StrictOmit<OpraSchema.HttpMediaType, 'type' | 'multipartFields'>
+  > {
     type?: Type | string;
   }
 
-  export interface InitArguments
-    extends Combine<
-      {
-        type?: DataType | string | Type;
-      },
-      StrictOmit<Metadata, 'multipartFields'>
-    > {}
+  export interface InitArguments extends Combine<
+    {
+      type?: DataType | string | Type;
+    },
+    StrictOmit<Metadata, 'multipartFields'>
+  > {}
 }
 
 /**
@@ -89,6 +88,7 @@ export const HttpMediaType = function (
         : _this.owner.node.getDataType(initArgs.type);
   }
   _this.isArray = initArgs.isArray;
+  _this.designType = initArgs.designType;
 } as Function as HttpMediaTypeStatic;
 
 /**
@@ -109,6 +109,7 @@ class HttpMediaTypeClass extends DocumentElement {
   declare maxFiles?: number;
   declare maxFileSize?: number;
   declare maxTotalFileSize?: number;
+  declare designType?: Type;
 
   findMultipartField(
     fieldName: string,
@@ -153,20 +154,28 @@ class HttpMediaTypeClass extends DocumentElement {
   generateCodec(
     codec: 'encode' | 'decode',
     options?: DataType.GenerateCodecOptions,
+    properties?: object,
   ): Validator {
     let fn: Validator | undefined;
     if (this.type) {
-      fn = this.type.generateCodec(codec, options);
+      fn = this.type.generateCodec(codec, options, {
+        designType: this.designType,
+      });
     } else if (this.contentType) {
       const arr = Array.isArray(this.contentType)
         ? this.contentType
         : [this.contentType];
       if (arr.find(ct => typeIs.is(ct, ['json']))) {
-        fn = this.node.findDataType('object')!.generateCodec(codec);
+        fn = this.node.findDataType('object')!.generateCodec(codec, options, {
+          ...properties,
+          designType: this.designType,
+        });
       }
     }
     fn = fn || isAny;
-    return this.isArray ? vg.isArray(fn) : fn;
+    return this.isArray && !(this.type instanceof ArrayType)
+      ? vg.isArray(fn)
+      : fn;
   }
 }
 

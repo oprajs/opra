@@ -1,8 +1,7 @@
 import { merge } from '@jsopen/objects';
 import type { Type, TypeThunkAsync } from 'ts-gems';
 import { OpraSchema } from '../../schema/index.js';
-import { MQ_CONTROLLER_METADATA } from '../constants.js';
-import type { MQHeader } from '../mq/mq-header';
+import { WS_CONTROLLER_METADATA } from '../constants.js';
 import type { WSController } from '../ws/ws-controller.js';
 
 const CLASS_NAME_PATTERN = /^(.*)(Controller)$/;
@@ -10,11 +9,6 @@ const CLASS_NAME_PATTERN = /^(.*)(Controller)$/;
 export interface WSControllerDecorator<
   T extends WSControllerDecorator<any> = WSControllerDecorator<any>,
 > extends ClassDecorator {
-  Header(
-    name: string | RegExp,
-    optionsOrType?: MQHeader.Options | string | TypeThunkAsync | false,
-  ): T;
-
   UseType(...type: TypeThunkAsync[]): T;
 }
 
@@ -49,11 +43,11 @@ export function WSControllerDecoratorFactory<O extends WSController.Options>(
 
     const metadata = {} as WSController.Metadata;
     const baseMetadata = Reflect.getOwnMetadata(
-      MQ_CONTROLLER_METADATA,
+      WS_CONTROLLER_METADATA,
       Object.getPrototypeOf(target),
     );
     if (baseMetadata) merge(metadata, baseMetadata, { deep: true });
-    const oldMetadata = Reflect.getOwnMetadata(MQ_CONTROLLER_METADATA, target);
+    const oldMetadata = Reflect.getOwnMetadata(WS_CONTROLLER_METADATA, target);
     if (oldMetadata) merge(metadata, oldMetadata, { deep: true });
     merge(
       metadata,
@@ -65,9 +59,9 @@ export function WSControllerDecoratorFactory<O extends WSController.Options>(
       },
       { deep: true },
     );
-    Reflect.defineMetadata(MQ_CONTROLLER_METADATA, metadata, target);
+    Reflect.defineMetadata(WS_CONTROLLER_METADATA, metadata, target);
     for (const fn of decoratorChain) fn(metadata, target);
-    Reflect.defineMetadata(MQ_CONTROLLER_METADATA, metadata, target);
+    Reflect.defineMetadata(WS_CONTROLLER_METADATA, metadata, target);
   } as WSControllerDecorator;
 
   /**

@@ -20,7 +20,7 @@ describe('common:Builtin type: date', () => {
   it('Should generate decoder with convertToNative=true', async () => {
     const dt = doc.node.getSimpleType('date');
     const decode = dt.generateCodec('decode', null, {
-      convertToNative: true,
+      designType: Date,
     });
     expect(decode('2020-01-02T10:30:00', { coerce: true })).toStrictEqual(
       new Date('2020-01-02T00:00:00'),

@@ -252,6 +252,7 @@ describe('common:HttpApiFactory - HttpOperation (Class)', () => {
       contentType: 'application/json',
       contentEncoding: 'utf-8',
       type: expect.any(ComplexType),
+      designType: Country,
       multipartFields: [],
     });
   });

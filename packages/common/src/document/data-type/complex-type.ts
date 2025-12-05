@@ -18,46 +18,43 @@ import type { MixinType } from './mixin-type.js';
  * @namespace ComplexType
  */
 export namespace ComplexType {
-  export interface Metadata
-    extends Combine<
-      {
-        kind: OpraSchema.ComplexType.Kind;
-        fields?: Record<string, ApiField.Metadata>;
-        additionalFields?:
-          | boolean
-          | string
-          | TypeThunkAsync
-          | ['error']
-          | ['error', string];
-      },
-      DataType.Metadata,
-      OpraSchema.ComplexType
-    > {}
+  export interface Metadata extends Combine<
+    {
+      kind: OpraSchema.ComplexType.Kind;
+      fields?: Record<string, ApiField.Metadata>;
+      additionalFields?:
+        | boolean
+        | string
+        | TypeThunkAsync
+        | ['error']
+        | ['error', string];
+    },
+    DataType.Metadata,
+    OpraSchema.ComplexType
+  > {}
 
-  export interface Options
-    extends Combine<
-      Pick<
-        Metadata,
-        | 'additionalFields'
-        | 'keyField'
-        | 'discriminatorField'
-        | 'discriminatorValue'
-      >,
-      DataType.Options,
-      Pick<OpraSchema.ComplexType, 'abstract'>
-    > {}
+  export interface Options extends Combine<
+    Pick<
+      Metadata,
+      | 'additionalFields'
+      | 'keyField'
+      | 'discriminatorField'
+      | 'discriminatorValue'
+    >,
+    DataType.Options,
+    Pick<OpraSchema.ComplexType, 'abstract'>
+  > {}
 
-  export interface InitArguments
-    extends Combine<
-      {
-        kind: OpraSchema.ComplexType.Kind;
-        base?: ComplexType | MappedType | MixinType;
-        fields?: Record<string, ApiField.InitArguments | ApiField>;
-        additionalFields?: boolean | DataType | ['error'] | ['error', string];
-      },
-      DataType.InitArguments,
-      ComplexType.Metadata
-    > {}
+  export interface InitArguments extends Combine<
+    {
+      kind: OpraSchema.ComplexType.Kind;
+      base?: ComplexType | MappedType | MixinType;
+      fields?: Record<string, ApiField.InitArguments | ApiField>;
+      additionalFields?: boolean | DataType | ['error'] | ['error', string];
+    },
+    DataType.InitArguments,
+    ComplexType.Metadata
+  > {}
 
   export interface ParsedFieldPath {
     fieldName: string;

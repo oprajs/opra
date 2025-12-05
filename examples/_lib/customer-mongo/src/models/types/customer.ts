@@ -1,4 +1,10 @@
-import { ApiField, ComplexType, MixinType } from '@opra/common';
+import {
+  ApiField,
+  ArrayType,
+  ComplexType,
+  MixinType,
+  UnionType,
+} from '@opra/common';
 import { type PartialDTO } from 'ts-gems';
 import { Address } from './address.js';
 import { Country } from './country.js';
@@ -40,8 +46,7 @@ export class Customer extends MixinType([Record, Person]) {
   declare readonly country?: Country;
 
   @ApiField({
-    type: String,
-    isArray: true,
+    type: ArrayType(String),
   })
   declare tags?: string[];
 
@@ -49,4 +54,9 @@ export class Customer extends MixinType([Record, Person]) {
     scopePattern: 'db',
   })
   dbField?: string;
+
+  @ApiField({
+    type: UnionType([Boolean, Number]),
+  })
+  declare hasBranch: boolean | number;
 }

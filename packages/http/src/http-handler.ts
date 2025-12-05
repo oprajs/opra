@@ -149,10 +149,10 @@ export class HttpHandler {
   async parseRequest(context: HttpContext): Promise<void> {
     await this._parseParameters(context);
     await this._parseContentType(context);
-    if (context.operation?.requestBody?.immediateFetch) await context.getBody();
+    if (context.__oprDef?.requestBody?.immediateFetch) await context.getBody();
     /** Set default status code as the first status code between 200 and 299 */
-    if (context.operation) {
-      for (const r of context.operation.responses) {
+    if (context.__oprDef) {
+      for (const r of context.__oprDef.responses) {
         const st = r.statusCode.find(sc => sc.start <= 299 && sc.end >= 200);
         if (st) {
           context.response.status(st.start);
@@ -168,8 +168,8 @@ export class HttpHandler {
    * @protected
    */
   protected async _parseParameters(context: HttpContext) {
-    const { operation, request } = context;
-    if (!operation) return;
+    const { __oprDef, request } = context;
+    if (!__oprDef) return;
 
     let key: string = '';
     try {
@@ -182,26 +182,25 @@ export class HttpHandler {
       const getDecoder = (prm: HttpParameter): Validator => {
         let decode = this[kAssetCache].get<Validator>(prm, 'decode');
         if (!decode) {
-          decode =
-            prm.type?.generateCodec('decode', {
-              scope: this.adapter.scope,
-              ignoreReadonlyFields: true,
-            }) || vg.isAny();
+          decode = prm.generateCodec('decode', {
+            scope: this.adapter.scope,
+            ignoreReadonlyFields: true,
+          });
           this[kAssetCache].set(prm, 'decode', decode);
         }
         return decode;
       };
 
       const paramsLeft = new Set([
-        ...operation.parameters,
-        ...operation.owner.parameters,
+        ...__oprDef.parameters,
+        ...__oprDef.owner.parameters,
       ]);
 
       /** parse cookie parameters */
       if (request.cookies) {
         for (key of Object.keys(request.cookies)) {
-          const oprPrm = operation.findParameter(key, 'cookie');
-          const cntPrm = operation.owner.findParameter(key, 'cookie');
+          const oprPrm = __oprDef.findParameter(key, 'cookie');
+          const cntPrm = __oprDef.owner.findParameter(key, 'cookie');
           const prm = oprPrm || cntPrm;
           if (!prm) continue;
           if (oprPrm) paramsLeft.delete(oprPrm);
@@ -220,8 +219,8 @@ export class HttpHandler {
       /** parse headers */
       if (request.headers) {
         for (key of Object.keys(request.headers)) {
-          const oprPrm = operation.findParameter(key, 'header');
-          const cntPrm = operation.owner.findParameter(key, 'header');
+          const oprPrm = __oprDef.findParameter(key, 'header');
+          const cntPrm = __oprDef.owner.findParameter(key, 'header');
           const prm = oprPrm || cntPrm;
           if (!prm) continue;
           if (oprPrm) paramsLeft.delete(oprPrm);
@@ -240,8 +239,8 @@ export class HttpHandler {
       /** parse path parameters */
       if (request.params) {
         for (key of Object.keys(request.params)) {
-          const oprPrm = operation.findParameter(key, 'path');
-          const cntPrm = operation.owner.findParameter(key, 'path');
+          const oprPrm = __oprDef.findParameter(key, 'path');
+          const cntPrm = __oprDef.owner.findParameter(key, 'path');
           const prm = oprPrm || cntPrm;
           if (!prm) continue;
           if (oprPrm) paramsLeft.delete(oprPrm);
@@ -263,8 +262,8 @@ export class HttpHandler {
       );
       const { searchParams } = url;
       for (key of searchParams.keys()) {
-        const oprPrm = operation.findParameter(key, 'query');
-        const cntPrm = operation.owner.findParameter(key, 'query');
+        const oprPrm = __oprDef.findParameter(key, 'query');
+        const cntPrm = __oprDef.owner.findParameter(key, 'query');
         const prm = oprPrm || cntPrm;
         if (!prm) continue;
         if (oprPrm) paramsLeft.delete(oprPrm);
@@ -322,14 +321,14 @@ export class HttpHandler {
    * @protected
    */
   protected async _parseContentType(context: HttpContext) {
-    const { request, operation } = context;
-    if (!operation) return;
-    if (operation.requestBody?.content.length) {
+    const { request, __oprDef } = context;
+    if (!__oprDef) return;
+    if (__oprDef.requestBody?.content.length) {
       let mediaType: HttpMediaType | undefined;
       let contentType = request.header('content-type');
       if (contentType) {
         contentType = parseContentType(contentType).type;
-        mediaType = operation.requestBody.content.find(
+        mediaType = __oprDef.requestBody.content.find(
           mc =>
             mc.contentType &&
             typeIs.is(
@@ -339,7 +338,7 @@ export class HttpHandler {
         );
       }
       if (!mediaType) {
-        const contentTypes = operation.requestBody.content
+        const contentTypes = __oprDef.requestBody.content
           .map(mc => mc.contentType)
           .flat();
         throw new BadRequestError(
@@ -356,9 +355,9 @@ export class HttpHandler {
    * @protected
    */
   protected async _executeRequest(context: HttpContext): Promise<any> {
-    if (!context.operationHandler) throw new MethodNotAllowedError();
-    const responseValue = await context.operationHandler.call(
-      context.controllerInstance,
+    if (!context.__handler) throw new MethodNotAllowedError();
+    const responseValue = await context.__handler.call(
+      context.__controller,
       context,
     );
     const { response } = context;
@@ -502,19 +501,19 @@ export class HttpHandler {
   }
 
   protected async _sendErrorResponse(context: HttpContext): Promise<void> {
-    context.errors = this._wrapExceptions(context.errors);
+    let errors = (context.errors = this._wrapExceptions(context.errors));
     try {
       if (context.listenerCount('error')) {
-        await context.emitAsync('error', context.errors[0], context);
-        context.errors = this._wrapExceptions(context.errors);
+        await context.emitAsync('error', errors[0], context);
+        errors = context.errors = this._wrapExceptions(context.errors);
       }
       if (this.adapter.listenerCount('error')) {
-        await this.adapter.emitAsync('error', context.errors[0], context);
-        context.errors = this._wrapExceptions(context.errors);
+        await this.adapter.emitAsync('error', errors[0], context);
+        errors = context.errors = this._wrapExceptions(errors);
       }
       if (this.adapter.logger?.error) {
         const logger = this.adapter.logger;
-        context.errors.forEach(e => {
+        errors.forEach(e => {
           if (e.status >= 500 && e.status < 600) logger.error(e);
         });
       }
@@ -522,7 +521,7 @@ export class HttpHandler {
       context.errors = this._wrapExceptions([e, ...context.errors]);
     }
 
-    const { response, errors } = context;
+    const { response } = context;
     if (response.headersSent) {
       response.end();
       return;
@@ -616,7 +615,7 @@ export class HttpHandler {
     context: HttpContext,
     body: any,
   ): HttpHandler.ResponseArgs {
-    const { response, operation } = context;
+    const { response, __oprDef } = context;
 
     const hasBody = body != null;
     const statusCode =
@@ -645,9 +644,9 @@ export class HttpHandler {
     if (!responseArgs) {
       responseArgs = { statusCode, contentType } as HttpHandler.ResponseArgs;
 
-      if (operation?.responses.length) {
+      if (__oprDef?.responses.length) {
         /** Filter available HttpOperationResponse instances according to status code. */
-        const filteredResponses = operation.responses.filter(r =>
+        const filteredResponses = __oprDef.responses.filter(r =>
           r.statusCode.find(
             sc => sc.start <= statusCode && sc.end >= statusCode,
           ),
@@ -656,7 +655,7 @@ export class HttpHandler {
         /** Throw InternalServerError if controller returns non-configured status code */
         if (!filteredResponses.length && statusCode < 400) {
           throw new InternalServerError(
-            `No responses defined for status code ${statusCode} in operation "${operation.name}"`,
+            `No responses defined for status code ${statusCode} in operation "${__oprDef.name}"`,
           );
         }
 
@@ -707,7 +706,7 @@ export class HttpHandler {
         }
       }
       if (!hasBody) delete responseArgs.contentType;
-      if (operation?.composition?.startsWith('Entity.')) {
+      if (__oprDef?.composition?.startsWith('Entity.')) {
         if (context.queryParams.projection)
           responseArgs.projection = context.queryParams.projection;
       }

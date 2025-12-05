@@ -11,28 +11,30 @@ describe('common:HttpController', () => {
   });
 
   it('Should findController(name) return undefined if controller not a found', async () => {
-    expect(doc.httpApi.findController('unknownResource')).not.toBeDefined();
+    expect(
+      doc.getHttpApi().findController('unknownResource'),
+    ).not.toBeDefined();
   });
 
   it('Should findController(name) return HttpController instance', async () => {
-    const res = doc.httpApi.findController('auth/MyProfile');
+    const res = doc.getHttpApi().findController('auth/MyProfile');
     expect(res).toBeDefined();
     expect(res!.name).toStrictEqual('MyProfile');
   });
 
   it('Should findController(Type) return HttpController instance', async () => {
-    const res = doc.httpApi.findController(MyProfileController);
+    const res = doc.getHttpApi().findController(MyProfileController);
     expect(res).toBeDefined();
     expect(res!.name).toStrictEqual('MyProfile');
   });
 
   it('Should toString() return string enumeration', async () => {
-    const res = doc.httpApi.findController('auth/MyProfile');
+    const res = doc.getHttpApi().findController('auth/MyProfile');
     expect(res!.toString()).toStrictEqual('[HttpController MyProfile]');
   });
 
   it('Should toJSON() return Controller schema', async () => {
-    const res = doc.httpApi.findController('Customer')!;
+    const res = doc.getHttpApi().findController('Customer')!;
     const sch = res.toJSON();
     expect(sch).toEqual({
       kind: OpraSchema.HttpController.Kind,

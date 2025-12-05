@@ -1,16 +1,16 @@
 {
   "name": "example-customer-sqb",
   "private": true,
-  "version": "1.19.7",
+  "version": "1.20.0",
   "type": "module",
   "module": "./index.js",
   "dependencies": {
-    "@opra/common": "^1.19.7",
-    "@opra/sqb": "^1.19.7",
-    "@sqb/builder": "^4.20.2",
-    "@sqb/connect": "^4.20.2",
-    "@sqb/postgres": "^4.20.2",
-    "postgrejs": "^2.22.7",
+    "@opra/common": "^1.20.0",
+    "@opra/sqb": "^1.20.0",
+    "@sqb/builder": "^4.20.4",
+    "@sqb/connect": "^4.20.4",
+    "@sqb/postgres": "^4.20.4",
+    "postgrejs": "^2.22.9",
     "ts-gems": "^3.11.3"
   },
   "scripts": {

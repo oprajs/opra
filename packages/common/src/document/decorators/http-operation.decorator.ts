@@ -1,3 +1,4 @@
+import { isConstructor } from '@jsopen/objects';
 import type { StrictOmit, Type, TypeThunkAsync } from 'ts-gems';
 import { MimeTypes } from '../../enums/index.js';
 import { OpraSchema } from '../../schema/index.js';
@@ -131,6 +132,7 @@ export function HttpOperationDecoratorFactory(
               type: arg1,
             }
           : { ...arg1, name, location: 'cookie' };
+      if (isConstructor(paramMeta.type)) paramMeta.designType = paramMeta.type;
       if (meta.parameters) {
         meta.parameters = meta.parameters.filter(
           p => !(p.location === 'cookie' && String(p.name) === String(name)),
@@ -157,6 +159,7 @@ export function HttpOperationDecoratorFactory(
               type: arg1,
             }
           : { ...arg1, name, location: 'header' };
+      if (isConstructor(paramMeta.type)) paramMeta.designType = paramMeta.type;
       if (meta.parameters) {
         meta.parameters = meta.parameters.filter(
           p => !(p.location === 'header' && String(p.name) === String(name)),
@@ -183,6 +186,7 @@ export function HttpOperationDecoratorFactory(
               type: arg1,
             }
           : { ...arg1, name, location: 'query' };
+      if (isConstructor(paramMeta.type)) paramMeta.designType = paramMeta.type;
       if (meta.parameters) {
         meta.parameters = meta.parameters.filter(
           p => !(p.location === 'query' && String(p.name) === String(name)),
@@ -209,6 +213,7 @@ export function HttpOperationDecoratorFactory(
               type: arg1,
             }
           : { ...arg1, name, location: 'path' };
+      if (isConstructor(paramMeta.type)) paramMeta.designType = paramMeta.type;
       if (meta.parameters) {
         meta.parameters = meta.parameters.filter(
           p => !(p.location === 'path' && String(p.name) === String(name)),
@@ -238,6 +243,8 @@ export function HttpOperationDecoratorFactory(
     if (responseMeta.contentType === MimeTypes.opra_response_json) {
       responseMeta.contentEncoding = responseMeta.contentEncoding || 'utf-8';
     }
+    if (isConstructor(responseMeta.type))
+      responseMeta.designType = responseMeta.type;
     decoratorChain.push((meta: HttpOperation.Metadata): void => {
       meta.responses = meta.responses || [];
       meta.responses.push(responseMeta);
@@ -251,6 +258,8 @@ export function HttpOperationDecoratorFactory(
     if (contentMeta.type) {
       contentMeta.contentType = contentMeta.contentType || MimeTypes.json;
       contentMeta.contentEncoding = contentMeta.contentEncoding || 'utf-8';
+      if (isConstructor(contentMeta.type))
+        contentMeta.designType = contentMeta.type;
     }
     decoratorChain.push((operationMetadata: HttpOperation.Metadata) => {
       operationMetadata.requestBody = operationMetadata.requestBody || {

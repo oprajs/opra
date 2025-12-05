@@ -2,6 +2,7 @@ import { omitUndefined } from '@jsopen/objects';
 import type { Combine, ThunkAsync, Type } from 'ts-gems';
 import { asMutable } from 'ts-gems';
 import { TypeThunkAsync } from 'ts-gems/lib/types';
+import { Validator, vg } from 'valgen';
 import { OpraSchema } from '../../schema/index.js';
 import { DataTypeMap } from '../common/data-type-map.js';
 import { DocumentElement } from '../common/document-element.js';
@@ -20,30 +21,34 @@ import type { MQOperationResponse } from './mq-operation-response.js';
  * @namespace MQOperation
  */
 export namespace MQOperation {
-  export interface Metadata
-    extends Pick<OpraSchema.MQOperation, 'description' | 'channel'> {
-    payloadType: TypeThunkAsync | string;
+  export interface Metadata extends Pick<
+    OpraSchema.MQOperation,
+    'description' | 'channel'
+  > {
+    type: TypeThunkAsync | string;
     keyType?: TypeThunkAsync | string;
     types?: ThunkAsync<Type | EnumType.EnumObject | EnumType.EnumArray>[];
     headers?: MQHeader.Metadata[];
     response?: MQOperationResponse.Metadata;
+    designType?: Type;
+    keyDesignType?: Type;
   }
 
-  export interface Options
-    extends Partial<Pick<Metadata, 'description' | 'keyType'>> {
+  export interface Options extends Partial<
+    Pick<Metadata, 'description' | 'keyType'>
+  > {
     channel?: (string | RegExp) | (string | RegExp)[];
   }
 
-  export interface InitArguments
-    extends Combine<
-      {
-        name: string;
-        types?: DataType[];
-        payloadType?: DataType | string | Type;
-        keyType?: DataType | string | Type;
-      },
-      Pick<Metadata, 'description' | 'channel'>
-    > {}
+  export interface InitArguments extends Combine<
+    {
+      name: string;
+      types?: DataType[];
+      type?: DataType | string | Type;
+      keyType?: DataType | string | Type;
+    },
+    Pick<Metadata, 'description' | 'channel' | 'designType' | 'keyDesignType'>
+  > {}
 }
 
 /**
@@ -60,10 +65,10 @@ export interface MQOperationStatic {
 
   /**
    * Property decorator
-   * @param payloadType
+   * @param type
    * @param options
    */ <T extends MQOperation.Options>(
-    payloadType: ThunkAsync<Type> | string,
+    type: ThunkAsync<Type> | string,
     options?: T,
   ): MQOperationDecorator;
 
@@ -81,7 +86,7 @@ export interface MQOperation extends MQOperationClass {}
 export const MQOperation = function (this: MQOperation, ...args: any[]) {
   // Decorator
   if (!this) {
-    const [payloadType, options] = args as [
+    const [type, options] = args as [
       type: ThunkAsync<Type> | string,
       options: MQOperation.Options,
     ];
@@ -89,7 +94,7 @@ export const MQOperation = function (this: MQOperation, ...args: any[]) {
     return (MQOperation[DECORATOR] as MQOperationDecoratorFactory).call(
       undefined,
       decoratorChain,
-      payloadType,
+      type,
       options,
     );
   }
@@ -108,11 +113,11 @@ export const MQOperation = function (this: MQOperation, ...args: any[]) {
   _this.name = initArgs.name;
   _this.description = initArgs.description;
   _this.channel = initArgs.channel;
-  if (initArgs?.payloadType) {
-    _this.payloadType =
-      initArgs?.payloadType instanceof DataType
-        ? initArgs.payloadType
-        : _this.owner.node.getDataType(initArgs.payloadType);
+  if (initArgs?.type) {
+    _this.type =
+      initArgs?.type instanceof DataType
+        ? initArgs.type
+        : _this.owner.node.getDataType(initArgs.type);
   }
   if (initArgs?.keyType) {
     _this.keyType =
@@ -120,6 +125,8 @@ export const MQOperation = function (this: MQOperation, ...args: any[]) {
         ? initArgs.keyType
         : _this.owner.node.getDataType(initArgs.keyType);
   }
+  _this.designType = initArgs.designType;
+  _this.keyDesignType = initArgs.keyDesignType;
 } as MQOperationStatic;
 
 /**
@@ -130,11 +137,13 @@ class MQOperationClass extends DocumentElement {
   declare readonly name: string;
   declare channel: string | RegExp | (string | RegExp)[];
   declare description?: string;
-  declare payloadType: DataType;
+  declare type: DataType;
   declare keyType?: DataType;
   declare types: DataTypeMap;
   declare headers: MQHeader[];
   declare response: MQOperationResponse;
+  declare designType?: Type;
+  declare keyDesignType?: Type;
 
   findHeader(paramName: string): MQHeader | undefined {
     const paramNameLower = paramName.toLowerCase();
@@ -153,9 +162,7 @@ class MQOperationClass extends DocumentElement {
       kind: OpraSchema.MQOperation.Kind,
       description: this.description,
       channel: this.channel,
-      payloadType: this.payloadType.name
-        ? this.payloadType.name
-        : this.payloadType.toJSON(),
+      type: this.type.name ? this.type.name : this.type.toJSON(),
       keyType: this.keyType
         ? this.keyType.name
           ? this.keyType.name
@@ -170,6 +177,32 @@ class MQOperationClass extends DocumentElement {
       }
     }
     return out;
+  }
+
+  generateCodec(
+    codec: 'encode' | 'decode',
+    options?: DataType.GenerateCodecOptions,
+    properties?: any,
+  ): Validator {
+    return (
+      this.type?.generateCodec(codec, options, {
+        ...properties,
+        designType: this.designType,
+      }) || vg.isAny()
+    );
+  }
+
+  generateKeyCodec(
+    codec: 'encode' | 'decode',
+    options?: DataType.GenerateCodecOptions,
+    properties?: any,
+  ): Validator {
+    return (
+      this.keyType?.generateCodec(codec, options, {
+        ...properties,
+        designType: this.keyDesignType,
+      }) || vg.isAny()
+    );
   }
 }
 

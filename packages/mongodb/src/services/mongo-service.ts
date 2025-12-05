@@ -107,8 +107,10 @@ export namespace MongoService {
    *
    * @interface
    */
-  export interface ExistsOptions<T>
-    extends Omit<mongodb.CommandOperationOptions, 'writeConcern'> {
+  export interface ExistsOptions<T> extends Omit<
+    mongodb.CommandOperationOptions,
+    'writeConcern'
+  > {
     filter?: MongoAdapter.FilterInput<T>;
   }
 
@@ -118,8 +120,10 @@ export namespace MongoService {
    * @interface
    * @template T - The type of the document.
    */
-  export interface FindOneOptions<T>
-    extends StrictOmit<FindManyOptions<T>, 'limit'> {}
+  export interface FindOneOptions<T> extends StrictOmit<
+    FindManyOptions<T>,
+    'limit'
+  > {}
 
   /**
    * Represents options for "findMany" operation
@@ -142,8 +146,10 @@ export namespace MongoService {
    *
    * @interface
    */
-  export interface ReplaceOptions<T>
-    extends StrictOmit<mongodb.FindOneAndReplaceOptions, 'projection'> {
+  export interface ReplaceOptions<T> extends StrictOmit<
+    mongodb.FindOneAndReplaceOptions,
+    'projection'
+  > {
     projection?: string | string[] | Document | '*';
     filter?: MongoAdapter.FilterInput<T>;
   }
@@ -154,11 +160,10 @@ export namespace MongoService {
    * @interface
    * @template T - The type of the document.
    */
-  export interface UpdateOneOptions<T>
-    extends StrictOmit<
-      mongodb.FindOneAndUpdateOptions,
-      'projection' | 'returnDocument' | 'includeResultMetadata'
-    > {
+  export interface UpdateOneOptions<T> extends StrictOmit<
+    mongodb.FindOneAndUpdateOptions,
+    'projection' | 'returnDocument' | 'includeResultMetadata'
+  > {
     projection?: string | string[] | Document | '*';
     filter?: MongoAdapter.FilterInput<T>;
   }
@@ -169,8 +174,10 @@ export namespace MongoService {
    * @interface
    * @template T - The type of the document.
    */
-  export interface UpdateManyOptions<T>
-    extends StrictOmit<mongodb.UpdateOptions, 'upsert'> {
+  export interface UpdateManyOptions<T> extends StrictOmit<
+    mongodb.UpdateOptions,
+    'upsert'
+  > {
     filter?: MongoAdapter.FilterInput<T>;
   }
 }
@@ -340,9 +347,7 @@ export class MongoService<
     if (this._dataType && this._dataTypeScope !== this.scope)
       this._dataType = undefined;
     if (!this._dataType)
-      this._dataType = this.context.documentNode.getComplexType(
-        this._dataType_,
-      );
+      this._dataType = this.context.__docNode.getComplexType(this._dataType_);
     this._dataTypeScope = this.scope;
     return this._dataType;
   }

@@ -28,7 +28,7 @@ export class ConfigBuilder {
     this._prepareConnectionOptions();
 
     /** Initialize consumers */
-    for (const controller of this.document.mqApi.controllers.values()) {
+    for (const controller of this.document.getMqApi().controllers.values()) {
       let instance = controller.instance;
       if (!instance && controller.ctor) instance = new controller.ctor();
       if (!instance) continue;

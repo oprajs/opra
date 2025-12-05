@@ -1,6 +1,7 @@
 import { omitUndefined } from '@jsopen/objects';
-import type { Combine, StrictOmit, TypeThunkAsync } from 'ts-gems';
+import type { Combine, StrictOmit, Type, TypeThunkAsync } from 'ts-gems';
 import { asMutable } from 'ts-gems';
+import type { Validator } from 'valgen';
 import { OpraSchema } from '../../schema/index.js';
 import type { ApiDocument } from '../api-document.js';
 import { DocumentElement } from '../common/document-element.js';
@@ -78,12 +79,7 @@ export const ApiField = function (this: ApiField | void, ...args: any[]) {
       ? initArgs.scopePattern
       : [initArgs.scopePattern]
     : undefined;
-  _this.convertToNative =
-    initArgs.convertToNative ??
-    (_this.type.kind === 'SimpleType' &&
-      initArgs.designType !== String &&
-      typeof initArgs.designType === 'function' &&
-      initArgs.designType !== Object);
+  _this.designType = initArgs.designType;
   _this.override = initArgs.override;
 } as ApiFieldConstructor;
 
@@ -97,10 +93,11 @@ class ApiFieldClass extends DocumentElement {
   declare readonly owner: ComplexType | MappedType | MixinType;
   readonly origin?: ComplexType | MappedType | MixinType;
   declare readonly scopePattern?: (string | RegExp)[];
-  declare readonly convertToNative?: boolean;
+  declare readonly designType?: Type;
   declare readonly name: string;
   declare readonly type: DataType;
   declare readonly description?: string;
+  /** @deprecated */
   declare readonly isArray?: boolean;
   declare readonly isNestedEntity?: boolean;
   declare readonly default?: any;
@@ -170,6 +167,17 @@ class ApiFieldClass extends DocumentElement {
       examples: this.examples,
     }) as OpraSchema.Field;
   }
+
+  generateCodec(
+    codec: 'encode' | 'decode',
+    options?: DataType.GenerateCodecOptions,
+    properties?: any,
+  ): Validator {
+    return this.type.generateCodec(codec, options, {
+      ...properties,
+      designType: this.designType,
+    });
+  }
 }
 
 ApiField.prototype = ApiFieldClass.prototype;
@@ -180,30 +188,29 @@ ApiField[DECORATOR] = ApiFieldDecoratorFactory;
  * @namespace ApiField
  */
 export namespace ApiField {
-  export interface Metadata
-    extends Combine<
-      {
-        type?:
-          | string
-          | OpraSchema.DataType
-          | TypeThunkAsync
-          | EnumType.EnumObject
-          | EnumType.EnumArray
-          | object;
-      },
-      OpraSchema.Field
-    > {
+  export interface Metadata extends Combine<
+    {
+      type?:
+        | string
+        | OpraSchema.DataType
+        | TypeThunkAsync
+        | EnumType.EnumObject
+        | EnumType.EnumArray
+        | object;
+    },
+    OpraSchema.Field
+  > {
     scopePattern?: (string | RegExp) | (string | RegExp)[];
-    convertToNative?: boolean;
     override?: StrictOmit<
       Metadata,
       'override' | 'type' | 'isArray' | 'isNestedEntity'
     >[];
-    designType?: Function;
+    designType?: Type;
   }
 
-  export interface Options
-    extends Partial<StrictOmit<Metadata, 'override' | 'scopePattern'>> {
+  export interface Options extends Partial<
+    StrictOmit<Metadata, 'override' | 'scopePattern'>
+  > {
     /**
      * A variable that defines the pattern or patterns used to determine scope.
      * This can either be a single string or regular expression, or an array containing multiple strings or regular expressions.
@@ -212,20 +219,14 @@ export namespace ApiField {
      * - If an array is provided, each element within the array is used as a valid scope pattern.
      */
     scopePattern?: (string | RegExp) | (string | RegExp)[];
-    /**
-     * Convert values to native objects. If enabled, some simple types
-     * like "date" will be decoded as Date instances
-     */
-    convertToNative?: boolean;
   }
 
-  export interface InitArguments
-    extends Combine<
-      {
-        name: string;
-        origin?: ComplexType | MappedType | MixinType;
-        type?: DataType;
-      },
-      Metadata
-    > {}
+  export interface InitArguments extends Combine<
+    {
+      name: string;
+      origin?: ComplexType | MappedType | MixinType;
+      type?: DataType;
+    },
+    Metadata
+  > {}
 }

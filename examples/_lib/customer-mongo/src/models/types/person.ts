@@ -21,10 +21,4 @@ export class Person {
 
   @ApiField()
   declare date2?: string;
-
-  @ApiField({
-    type: 'date',
-    convertToNative: true,
-  })
-  declare date3?: any;
 }

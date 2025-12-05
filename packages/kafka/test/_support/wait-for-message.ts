@@ -11,7 +11,7 @@ export async function waitForMessage(
     const waitKey = oprname + ':' + key;
     waitList.add(waitKey);
     const onMessage = async (_ctx: KafkaContext) => {
-      if (_ctx.operation?.name === oprname) {
+      if (_ctx.__oprDef?.name === oprname) {
         if (_ctx.key === key) {
           adapter.removeListener('error', onError);
           adapter.removeListener('finish', onMessage);
@@ -28,7 +28,7 @@ export async function waitForMessage(
         if (waitList.has(waitKey)) return;
 
         console.log(
-          `Warning: Waiting message for "${oprname}" operation but god message for "${_ctx.operation?.name}"`,
+          `Warning: Waiting message for "${oprname}" operation but god message for "${_ctx.__oprDef?.name}"`,
         );
       }
     };

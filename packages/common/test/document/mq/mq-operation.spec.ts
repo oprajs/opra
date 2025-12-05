@@ -11,18 +11,18 @@ describe('common:MQOperation', () => {
   });
 
   it('Should findController(Type) return MQController instance', async () => {
-    const opr = doc.mqApi.findOperation(MailConsumer, 'sendMail');
+    const opr = doc.getMqApi().findOperation(MailConsumer, 'sendMail');
     expect(opr).toBeDefined();
   });
 
   it('Should toJSON() return operation schema', async () => {
-    const opr = doc.mqApi.findOperation(MailConsumer, 'sendMail3')!;
+    const opr = doc.getMqApi().findOperation(MailConsumer, 'sendMail3')!;
     expect(opr).toBeDefined();
     const sch = opr.toJSON();
     expect(sch).toEqual({
       kind: 'MQOperation',
       channel: 'send-email',
-      payloadType: 'SendMailDto',
+      type: 'SendMailDto',
       keyType: 'uuid',
       headers: [
         {
@@ -32,7 +32,7 @@ describe('common:MQOperation', () => {
       ],
       response: {
         channel: 'send-email-response',
-        payloadType: 'string',
+        type: 'string',
         headers: [
           {
             name: 'access-token',

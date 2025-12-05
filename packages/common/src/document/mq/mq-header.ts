@@ -3,8 +3,10 @@ import {
   asMutable,
   type Combine,
   type StrictOmit,
+  Type,
   type TypeThunkAsync,
 } from 'ts-gems';
+import { Validator, vg } from 'valgen';
 import type { OpraSchema } from '../../schema/index.js';
 import { DocumentElement } from '../common/document-element.js';
 import { Value } from '../common/value.js';
@@ -24,19 +26,19 @@ export namespace MQHeader {
       | EnumType.EnumObject
       | EnumType.EnumArray
       | object;
+    designType?: Type;
   }
 
   export interface Options extends Partial<StrictOmit<Metadata, 'type'>> {
     type?: string | TypeThunkAsync | object;
   }
 
-  export interface InitArguments
-    extends Combine<
-      {
-        type?: DataType;
-      },
-      Metadata
-    > {}
+  export interface InitArguments extends Combine<
+    {
+      type?: DataType;
+    },
+    Metadata
+  > {}
 }
 
 /**
@@ -77,6 +79,7 @@ export const MQHeader = function (
   }
   _this.deprecated = initArgs.deprecated;
   _this.required = initArgs.required;
+  _this.designType = initArgs.designType;
 } as Function as MQHeaderStatic;
 
 /**
@@ -86,6 +89,7 @@ class MQHeaderClass extends Value {
   declare readonly owner: DocumentElement;
   declare deprecated?: boolean | string;
   declare required?: boolean;
+  declare designType?: Type;
 
   toJSON(): OpraSchema.MQHeader {
     return omitUndefined<OpraSchema.MQHeader>({
@@ -94,6 +98,19 @@ class MQHeaderClass extends Value {
       required: this.required,
       deprecated: this.deprecated,
     });
+  }
+
+  generateCodec(
+    codec: 'encode' | 'decode',
+    options?: DataType.GenerateCodecOptions,
+    properties?: any,
+  ): Validator {
+    return (
+      this.type?.generateCodec(codec, options, {
+        ...properties,
+        designType: this.designType,
+      }) || vg.isAny()
+    );
   }
 }
 

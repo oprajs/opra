@@ -39,7 +39,7 @@ describe('common:UnionType', () => {
     expect(dt.types[2].name).toEqual('string');
   });
 
-  it('Should _generateSchema() return ValGen schema', async () => {
+  it('Should generateCodec() return ValGen validator', async () => {
     const dt = doc.node.getUnionType('UnionType2');
     const decode = dt.generateCodec('decode', {});
     let v = decode({ kind: 'dog', name: 'Daisy' });

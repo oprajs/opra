@@ -47,8 +47,9 @@ export namespace MongoNestedService {
     documentFilter?: MongoAdapter.FilterInput;
   }
 
-  export interface DeleteManyOptions<T>
-    extends MongoService.DeleteManyOptions<T> {
+  export interface DeleteManyOptions<
+    T,
+  > extends MongoService.DeleteManyOptions<T> {
     documentFilter?: MongoAdapter.FilterInput;
   }
 
@@ -63,65 +64,80 @@ export namespace MongoNestedService {
     nestedFilter?: MongoAdapter.FilterInput;
   }
 
-  export interface UpdateOneOptions<T>
-    extends MongoService.UpdateOneOptions<T> {
+  export interface UpdateOneOptions<
+    T,
+  > extends MongoService.UpdateOneOptions<T> {
     documentFilter?: MongoAdapter.FilterInput;
   }
 
-  export interface UpdateManyOptions<T>
-    extends MongoService.UpdateManyOptions<T> {
+  export interface UpdateManyOptions<
+    T,
+  > extends MongoService.UpdateManyOptions<T> {
     documentFilter?: MongoAdapter.FilterInput;
   }
 
-  export interface CreateCommand<T>
-    extends RequiredSome<CommandInfo, 'documentId' | 'input'> {
+  export interface CreateCommand<T> extends RequiredSome<
+    CommandInfo,
+    'documentId' | 'input'
+  > {
     crud: 'create';
     input: DTO<T>;
     options?: CreateOptions;
   }
 
-  export interface CountCommand<T>
-    extends StrictOmit<
-      RequiredSome<CommandInfo, 'documentId'>,
-      'nestedId' | 'input'
-    > {
+  export interface CountCommand<T> extends StrictOmit<
+    RequiredSome<CommandInfo, 'documentId'>,
+    'nestedId' | 'input'
+  > {
     crud: 'read';
     options?: CountOptions<T>;
   }
 
-  export interface DeleteCommand<T>
-    extends StrictOmit<RequiredSome<CommandInfo, 'documentId'>, 'input'> {
+  export interface DeleteCommand<T> extends StrictOmit<
+    RequiredSome<CommandInfo, 'documentId'>,
+    'input'
+  > {
     crud: 'delete';
     options?: DeleteOptions<T>;
   }
 
-  export interface ExistsCommand<T>
-    extends StrictOmit<RequiredSome<CommandInfo, 'documentId'>, 'input'> {
+  export interface ExistsCommand<T> extends StrictOmit<
+    RequiredSome<CommandInfo, 'documentId'>,
+    'input'
+  > {
     crud: 'read';
     options?: ExistsOptions<T>;
   }
 
-  export interface FindOneCommand<T>
-    extends StrictOmit<RequiredSome<CommandInfo, 'documentId'>, 'input'> {
+  export interface FindOneCommand<T> extends StrictOmit<
+    RequiredSome<CommandInfo, 'documentId'>,
+    'input'
+  > {
     crud: 'read';
     options?: FindOneOptions<T>;
   }
 
-  export interface FindManyCommand<T>
-    extends StrictOmit<RequiredSome<CommandInfo, 'documentId'>, 'input'> {
+  export interface FindManyCommand<T> extends StrictOmit<
+    RequiredSome<CommandInfo, 'documentId'>,
+    'input'
+  > {
     crud: 'read';
     options?: FindManyOptions<T>;
   }
 
-  export interface UpdateOneCommand<T>
-    extends RequiredSome<CommandInfo, 'documentId'> {
+  export interface UpdateOneCommand<T> extends RequiredSome<
+    CommandInfo,
+    'documentId'
+  > {
     crud: 'update';
     input: MongoPatchDTO<T> | mongodb.UpdateFilter<T>;
     options?: MongoNestedService.UpdateOneOptions<T>;
   }
 
-  export interface UpdateManyCommand<T>
-    extends RequiredSome<CommandInfo, 'documentId'> {
+  export interface UpdateManyCommand<T> extends RequiredSome<
+    CommandInfo,
+    'documentId'
+  > {
     crud: 'update';
     input: MongoPatchDTO<T> | mongodb.UpdateFilter<T>;
     options?: MongoNestedService.UpdateManyOptions<T>;

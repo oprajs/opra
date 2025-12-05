@@ -98,8 +98,10 @@ declare module '../http/http-operation.js' {
       /** Create */
       export interface CreateDecorator extends HttpOperationDecorator {}
 
-      export interface CreateArgs
-        extends StrictOmit<HttpOperation.Options, 'method' | 'requestBody'> {
+      export interface CreateArgs extends StrictOmit<
+        HttpOperation.Options,
+        'method' | 'requestBody'
+      > {
         type: Type | string;
         requestBody?: Pick<
           HttpRequestBody.Options,
@@ -121,8 +123,10 @@ declare module '../http/http-operation.js' {
         ): this;
       }
 
-      export interface DeleteArgs
-        extends StrictOmit<HttpOperation.Options, 'method' | 'requestBody'> {
+      export interface DeleteArgs extends StrictOmit<
+        HttpOperation.Options,
+        'method' | 'requestBody'
+      > {
         type: Type | string;
       }
 
@@ -143,8 +147,10 @@ declare module '../http/http-operation.js' {
         Filter(field: string, options?: FilterOptions): this;
       }
 
-      export interface DeleteManyArgs
-        extends StrictOmit<HttpOperation.Options, 'method' | 'requestBody'> {
+      export interface DeleteManyArgs extends StrictOmit<
+        HttpOperation.Options,
+        'method' | 'requestBody'
+      > {
         type: Type | string;
       }
 
@@ -173,8 +179,10 @@ declare module '../http/http-operation.js' {
         Filter(field: string, options?: FilterOptions): this;
       }
 
-      export interface FindManyArgs
-        extends StrictOmit<HttpOperation.Options, 'method' | 'requestBody'> {
+      export interface FindManyArgs extends StrictOmit<
+        HttpOperation.Options,
+        'method' | 'requestBody'
+      > {
         type: Type | string;
         defaultLimit?: number;
         defaultProjection?: string[];
@@ -192,8 +200,10 @@ declare module '../http/http-operation.js' {
         ): this;
       }
 
-      export interface GetArgs
-        extends StrictOmit<HttpOperation.Options, 'method' | 'requestBody'> {
+      export interface GetArgs extends StrictOmit<
+        HttpOperation.Options,
+        'method' | 'requestBody'
+      > {
         type: Type | string;
       }
 
@@ -208,8 +218,10 @@ declare module '../http/http-operation.js' {
         ): this;
       }
 
-      export interface ReplaceArgs
-        extends StrictOmit<HttpOperation.Options, 'method' | 'requestBody'> {
+      export interface ReplaceArgs extends StrictOmit<
+        HttpOperation.Options,
+        'method' | 'requestBody'
+      > {
         type: Type | string;
       }
 
@@ -231,8 +243,10 @@ declare module '../http/http-operation.js' {
         Filter(field: string, options?: FilterOptions): this;
       }
 
-      export interface UpdateArgs
-        extends StrictOmit<HttpOperation.Options, 'method' | 'requestBody'> {
+      export interface UpdateArgs extends StrictOmit<
+        HttpOperation.Options,
+        'method' | 'requestBody'
+      > {
         type: Type | string;
         requestBody?: Pick<
           HttpRequestBody.Options,
@@ -254,8 +268,10 @@ declare module '../http/http-operation.js' {
         Filter(field: string, options?: FilterOptions): this;
       }
 
-      export interface UpdateManyArgs
-        extends StrictOmit<HttpOperation.Options, 'method' | 'requestBody'> {
+      export interface UpdateManyArgs extends StrictOmit<
+        HttpOperation.Options,
+        'method' | 'requestBody'
+      > {
         type: Type | string;
         requestBody?: Pick<
           HttpRequestBody.Options,

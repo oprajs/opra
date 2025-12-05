@@ -4,7 +4,8 @@ import { NodeOutgoingMessageHost } from '../impl/node-outgoing-message.host.js';
 import { NodeIncomingMessage } from './node-incoming-message.interface.js';
 
 export interface NodeOutgoingMessage
-  extends Writable,
+  extends
+    Writable,
     Pick<
       http.ServerResponse,
       | 'addTrailers'

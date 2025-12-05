@@ -6,8 +6,10 @@ import { DocumentElement } from './document-element.js';
 import type { DocumentInitContext } from './document-init-context';
 
 export namespace ApiBase {
-  export interface InitArguments
-    extends Pick<OpraSchema.Api, 'description' | 'name'> {
+  export interface InitArguments extends Pick<
+    OpraSchema.Api,
+    'description' | 'name'
+  > {
     owner: ApiDocument | ApiBase;
   }
 }

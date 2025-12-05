@@ -17,7 +17,7 @@ type _MongoPatchDTO<T> = {
       IfNoDeepValue<NonNullable<T[K]>> extends true
       ? T[K] | null
       : // Deep process objects
-        (_MongoPatchDTO<NonNullable<T[K]>> & PatchOperators<T>) | null;
+          (_MongoPatchDTO<NonNullable<T[K]>> & PatchOperators<T>) | null;
 };
 
 /**

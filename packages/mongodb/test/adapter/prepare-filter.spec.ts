@@ -11,10 +11,10 @@ describe('mongodb:MongoAdapter.prepareFilter', () => {
 
   before(async () => {
     document = (await CustomerApplication.create()).document;
-    customers = document.httpApi!.findController('customers')!;
+    customers = document.getHttpApi().findController('customers')!;
     const findMany = customers.operations.get('findMany');
     const filterParam = findMany!.findParameter('filter');
-    filterDecoder = filterParam!.type!.generateCodec('decode');
+    filterDecoder = filterParam!.generateCodec('decode');
   });
 
   describe('mongodb:Convert Ast to mongo filter', () => {
@@ -30,7 +30,7 @@ describe('mongodb:MongoAdapter.prepareFilter', () => {
       out = MongoAdapter.prepareFilter(
         filterDecoder('birthDate="2020-06-11T12:30:15"')!,
       );
-      expect(out).toStrictEqual({ birthDate: '2020-06-11' });
+      expect(out).toStrictEqual({ birthDate: new Date('2020-06-11T00:00:00') });
       out = MongoAdapter.prepareFilter(filterDecoder('deleted=null')!);
       expect(out).toStrictEqual({
         $or: [{ deleted: null }, { deleted: { $exists: false } }],

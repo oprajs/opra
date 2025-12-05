@@ -11,11 +11,10 @@ export namespace OpraHttpModule {
     useFactory?: (...args: any[]) => Promise<ApiConfig> | ApiConfig;
   }
 
-  interface BaseModuleOptions
-    extends Pick<
-      DynamicModule,
-      'imports' | 'providers' | 'exports' | 'controllers' | 'global'
-    > {
+  interface BaseModuleOptions extends Pick<
+    DynamicModule,
+    'imports' | 'providers' | 'exports' | 'controllers' | 'global'
+  > {
     token?: any;
     basePath?: string;
     schemaIsPublic?: boolean;
@@ -26,11 +25,10 @@ export namespace OpraHttpModule {
     )[];
   }
 
-  export interface ApiConfig
-    extends Pick<
-      ApiDocumentFactory.InitArguments,
-      'types' | 'references' | 'info'
-    > {
+  export interface ApiConfig extends Pick<
+    ApiDocumentFactory.InitArguments,
+    'types' | 'references' | 'info'
+  > {
     name: string;
     description?: string;
     scope?: string;

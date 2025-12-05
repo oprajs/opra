@@ -21,28 +21,26 @@ import type { MappedType } from './mapped-type.js';
  * @namespace MixinType
  */
 export namespace MixinType {
-  export interface Metadata
-    extends Combine<
-      {
-        kind: OpraSchema.MixinType.Kind;
-        name?: string;
-        types: Type[];
-      },
-      DataType.Metadata,
-      Pick<ComplexType.Metadata, 'additionalFields'>,
-      OpraSchema.MixinType
-    > {}
+  export interface Metadata extends Combine<
+    {
+      kind: OpraSchema.MixinType.Kind;
+      name?: string;
+      types: Type[];
+    },
+    DataType.Metadata,
+    Pick<ComplexType.Metadata, 'additionalFields'>,
+    OpraSchema.MixinType
+  > {}
 
-  export interface InitArguments
-    extends Combine<
-      {
-        kind: OpraSchema.MixinType.Kind;
-        types: (ComplexType | MappedType | MixinType)[];
-        ctor?: Type;
-      },
-      DataType.InitArguments,
-      MixinType.Metadata
-    > {}
+  export interface InitArguments extends Combine<
+    {
+      kind: OpraSchema.MixinType.Kind;
+      types: (ComplexType | MappedType | MixinType)[];
+      ctor?: Type;
+    },
+    DataType.InitArguments,
+    MixinType.Metadata
+  > {}
 }
 
 /**
