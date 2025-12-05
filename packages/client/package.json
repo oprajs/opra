@@ -36,7 +36,7 @@
     "@browsery/type-is": "^2.0.1",
     "body-parser": "^2.2.1",
     "expect": "^30.2.0",
-    "express": "^5.1.0",
+    "express": "^5.2.1",
     "ts-gems": "^3.11.3"
   },
   "type": "module",

@@ -73,7 +73,7 @@
     "@types/cookie-parser": "^1.4.10",
     "@types/cookie-signature": "^1.1.2",
     "@types/encodeurl": "^1.0.3",
-    "@types/express": "^5.0.5",
+    "@types/express": "^5.0.6",
     "@types/fresh": "^0.5.3",
     "@types/mime-types": "^3.0.1",
     "@types/range-parser": "^1.2.7",
