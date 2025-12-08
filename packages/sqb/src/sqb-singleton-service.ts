@@ -62,7 +62,7 @@ export namespace SqbSingletonService {
  */
 export class SqbSingletonService<
   T extends object = object,
-> extends SqbEntityService {
+> extends SqbEntityService<T> {
   /**
    * Represents a unique identifier for singleton record
    * @property {SQBAdapter.IdOrIds}
