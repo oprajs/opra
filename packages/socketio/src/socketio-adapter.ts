@@ -59,40 +59,6 @@ export class SocketioAdapter extends PlatformAdapter<SocketioAdapter.Events> {
       this._initSocket(socket);
       this.emit('connection', socket, this);
     });
-    for (const contDef of this.api.controllers.values()) {
-      for (const oprDef of contDef.operations.values()) {
-        const fn: Function = contDef.instance[oprDef.name];
-        if (typeof fn !== 'function') continue;
-        const reg: MessageHandlerReg = {
-          event: oprDef.event,
-          contDef,
-          oprDef,
-          handler: fn,
-          decoders: [],
-        };
-        if (typeof reg.event === 'string')
-          this._eventsRegByName.set(reg.event, reg);
-        else this._eventsRegByPattern.push(reg);
-        /** Generate decoders */
-        if (oprDef.arguments?.length) {
-          for (const dt of oprDef.arguments) {
-            reg.decoders.push(
-              dt.generateCodec('decode', {
-                scope: this.scope,
-                ignoreReadonlyFields: true,
-              }),
-            );
-          }
-        }
-        /** Generate response encoder */
-        if (oprDef.response) {
-          reg.encoder = oprDef.response.generateCodec('encode', {
-            scope: this.scope,
-            ignoreWriteonlyFields: true,
-          });
-        }
-      }
-    }
   }
 
   get api(): WSApi {
@@ -103,8 +69,12 @@ export class SocketioAdapter extends PlatformAdapter<SocketioAdapter.Events> {
     return this._scope;
   }
 
-  close(): Promise<void> {
-    return this.server.close();
+  async close(): Promise<void> {
+    return this.server.close().finally(() => {
+      this._controllerInstances.clear();
+      this._eventsRegByName.clear();
+      this._eventsRegByPattern = [];
+    });
   }
 
   /**
@@ -121,6 +91,42 @@ export class SocketioAdapter extends PlatformAdapter<SocketioAdapter.Events> {
     if (this.server.httpServer?.listening)
       throw new Error('Server is already listening');
     if (opts?.path) this.server.path(opts?.path);
+
+    for (const contDef of this.api.controllers.values()) {
+      for (const oprDef of contDef.operations.values()) {
+        const fn: Function = contDef.instance[oprDef.name];
+        if (typeof fn !== 'function') continue;
+        const reg: MessageHandlerReg = {
+          event: oprDef.event,
+          contDef,
+          oprDef,
+          handler: fn,
+          decoders: [],
+        };
+        if (typeof reg.event === 'string')
+          this._eventsRegByName.set(reg.event, reg);
+        else this._eventsRegByPattern.push(reg);
+        /** Generate decoders */
+        if (oprDef.arguments?.length) {
+          for (const arg of oprDef.arguments) {
+            reg.decoders.push(
+              arg.type.generateCodec('decode', {
+                scope: this.scope,
+                ignoreReadonlyFields: true,
+              }),
+            );
+          }
+        }
+        /** Generate response encoder */
+        if (oprDef.response) {
+          reg.encoder = oprDef.response.generateCodec('encode', {
+            scope: this.scope,
+            ignoreWriteonlyFields: true,
+          });
+        }
+      }
+    }
+
     this.server.listen(srv, opts);
     return this;
   }
@@ -138,32 +144,44 @@ export class SocketioAdapter extends PlatformAdapter<SocketioAdapter.Events> {
         this._eventsRegByName.get(event) ||
         this._eventsRegByPattern.find(r => (r.event as RegExp).test(event));
       if (!reg) {
-        if (callback) callback(new Error(`Unknown event "${event}"`));
+        if (callback) callback(new OpraException(`Unknown event "${event}"`));
         return;
       }
-      const parameters = callback ? args.slice(0, -1) : args;
       Promise.resolve().then(async () => {
-        const ctx = new SocketioContext({
-          __adapter: this,
-          __contDef: reg.contDef,
-          __oprDef: reg.oprDef,
-          __controller: reg.contDef.instance,
-          __handler: reg.handler,
-          socket,
-          event,
-          parameters,
-        });
         try {
-          let x = await reg.handler.apply(reg.contDef.instance, [
-            ctx,
-            ...parameters,
-          ]);
+          const inputParameters = callback ? args.slice(0, -1) : args;
+          const ctx = new SocketioContext({
+            __adapter: this,
+            __contDef: reg.contDef,
+            __oprDef: reg.oprDef,
+            __controller: reg.contDef.instance,
+            __handler: reg.handler,
+            socket,
+            event,
+          });
+          const callArgs: any[] = [ctx];
+          let i = 0;
+          for (const prm of inputParameters) {
+            try {
+              const v = reg.decoders[i](prm);
+              const arg = reg.oprDef.arguments[i];
+              ctx.parameters.push(v);
+              if (arg.parameterIndex != null) callArgs[arg.parameterIndex] = v;
+              else callArgs.push(v);
+            } catch (err: any) {
+              err.message = `Failed to decode parameter ${i} of event "${event}": ${err.message}`;
+              throw err;
+            }
+            i++;
+          }
+          let x = await reg.handler.apply(reg.contDef.instance, callArgs);
           if (reg.encoder) x = reg.encoder(x);
           if (x != null && typeof x !== 'string') x = JSON.stringify(x);
           callback(x);
         } catch (err: any) {
-          const error = new OpraException(err);
-          callback(error);
+          const error =
+            err instanceof OpraException ? err : new OpraException(err);
+          callback({ error });
         }
       });
     });

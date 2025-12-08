@@ -18,7 +18,7 @@ export function WsParam(type?: TypeThunkAsync | string): ParameterDecorator {
       type = designTypes[parameterIndex];
       if (!type) throw new TypeError(`Missing parameter type`);
     }
-    let paramMetadata: (TypeThunkAsync | string)[] = Reflect.getOwnMetadata(
+    let paramMetadata: any[] = Reflect.getOwnMetadata(
       WS_PARAM_METADATA,
       target,
       propertyKey,
@@ -32,6 +32,6 @@ export function WsParam(type?: TypeThunkAsync | string): ParameterDecorator {
         propertyKey,
       );
     }
-    paramMetadata[parameterIndex] = type;
+    paramMetadata.push({ type, parameterIndex });
   };
 }

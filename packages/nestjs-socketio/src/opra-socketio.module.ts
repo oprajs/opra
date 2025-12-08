@@ -1,9 +1,10 @@
 import { type DynamicModule, Logger, Module, type Type } from '@nestjs/common';
 import type { ApiDocumentFactory } from '@opra/common';
-import type { RabbitmqAdapter } from '@opra/rabbitmq';
-import { OpraRabbitmqCoreModule } from './opra-rabbitmq-core.module.js';
+import type { SocketioAdapter } from '@opra/socketio';
+import * as socketio from 'socket.io';
+import { OpraSocketioCoreModule } from './opra-socketio-core.module.js';
 
-export namespace OpraRabbitmqModule {
+export namespace OpraSocketioModule {
   export interface ModuleOptions extends BaseModuleOptions, ApiConfig {}
 
   export interface AsyncModuleOptions extends BaseModuleOptions {
@@ -15,11 +16,14 @@ export namespace OpraRabbitmqModule {
     DynamicModule,
     'imports' | 'providers' | 'exports' | 'controllers' | 'global'
   > {
-    id?: any;
+    token?: any;
+    port?: number;
+    serverOptions?: Partial<socketio.ServerOptions>;
+    // schemaIsPublic?: boolean;
     interceptors?: (
-      | RabbitmqAdapter.InterceptorFunction
-      | RabbitmqAdapter.IRabbitmqInterceptor
-      | Type<RabbitmqAdapter.IRabbitmqInterceptor>
+      | SocketioAdapter.InterceptorFunction
+      | SocketioAdapter.IWSInterceptor
+      | Type<SocketioAdapter.IWSInterceptor>
     )[];
   }
 
@@ -27,9 +31,6 @@ export namespace OpraRabbitmqModule {
     ApiDocumentFactory.InitArguments,
     'types' | 'references' | 'info'
   > {
-    connection?: RabbitmqAdapter.Config['connection'];
-    logExtra?: RabbitmqAdapter.Config['logExtra'];
-    defaults?: RabbitmqAdapter.Config['defaults'];
     name: string;
     description?: string;
     scope?: string;
@@ -38,15 +39,15 @@ export namespace OpraRabbitmqModule {
 }
 
 @Module({})
-export class OpraRabbitmqModule {
+export class OpraSocketioModule {
   /**
    *
-   * @param options
+   * @param init
    */
-  static forRoot(options: OpraRabbitmqModule.ModuleOptions): DynamicModule {
+  static forRoot(init: OpraSocketioModule.ModuleOptions): DynamicModule {
     return {
-      module: OpraRabbitmqModule,
-      imports: [OpraRabbitmqCoreModule.forRoot(options)],
+      module: OpraSocketioModule,
+      imports: [OpraSocketioCoreModule.forRoot(init)],
     };
   }
 
@@ -55,11 +56,11 @@ export class OpraRabbitmqModule {
    * @param options
    */
   static forRootAsync(
-    options: OpraRabbitmqModule.AsyncModuleOptions,
+    options: OpraSocketioModule.AsyncModuleOptions,
   ): DynamicModule {
     return {
-      module: OpraRabbitmqModule,
-      imports: [OpraRabbitmqCoreModule.forRootAsync(options)],
+      module: OpraSocketioModule,
+      imports: [OpraSocketioCoreModule.forRootAsync(options)],
     };
   }
 }

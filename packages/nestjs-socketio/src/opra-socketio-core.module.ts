@@ -1,3 +1,4 @@
+import * as http from 'node:http';
 import { isConstructor } from '@jsopen/objects';
 import {
   type DynamicModule,
@@ -9,37 +10,39 @@ import {
   OnApplicationShutdown,
   OnModuleInit,
 } from '@nestjs/common';
-import { ModuleRef } from '@nestjs/core';
+import { HttpAdapterHost, ModuleRef } from '@nestjs/core';
 import { ApiDocumentFactory } from '@opra/common';
-import { MQControllerFactory } from '@opra/nestjs';
-import { RabbitmqAdapter, type RabbitmqContext } from '@opra/rabbitmq';
-import { OPRA_RMQ_MODULE_OPTIONS } from './constants.js';
-import type { OpraRabbitmqModule } from './opra-rabbitmq.module.js';
+import { WSControllerFactory } from '@opra/nestjs';
+import { SocketioAdapter, type SocketioContext } from '@opra/socketio';
+import { OPRA_SOCKETIO_MODULE_OPTIONS } from './constants.js';
+import type { OpraSocketioModule } from './opra-socketio.module.js';
 
-const opraRabbitmqNestjsAdapterToken = Symbol('OpraRabbitmqNestjsAdapter');
+const opraSocketioNestjsAdapterToken = Symbol('OpraSocketioNestjsAdapter');
 
 @Module({})
 @Global()
-export class OpraRabbitmqCoreModule
+export class OpraSocketioCoreModule
   implements OnModuleInit, OnApplicationBootstrap, OnApplicationShutdown
 {
   constructor(
-    private controllerFactory: MQControllerFactory,
-    @Inject(opraRabbitmqNestjsAdapterToken)
-    protected adapter: RabbitmqAdapter,
-    @Inject(OPRA_RMQ_MODULE_OPTIONS)
-    protected config: OpraRabbitmqModule.ModuleOptions,
+    private controllerFactory: WSControllerFactory,
+    @Inject(opraSocketioNestjsAdapterToken)
+    protected adapter: SocketioAdapter,
+    @Inject(OPRA_SOCKETIO_MODULE_OPTIONS)
+    protected config: OpraSocketioModule.ModuleOptions,
+
+    private httpAdapterHost: HttpAdapterHost,
   ) {}
 
   static forRoot(
-    moduleOptions: OpraRabbitmqModule.ModuleOptions,
+    moduleOptions: OpraSocketioModule.ModuleOptions,
   ): DynamicModule {
     return this._getDynamicModule({
       ...moduleOptions,
       providers: [
         ...(moduleOptions?.providers || []),
         {
-          provide: OPRA_RMQ_MODULE_OPTIONS,
+          provide: OPRA_SOCKETIO_MODULE_OPTIONS,
           useValue: {
             ...moduleOptions,
             logger: moduleOptions.logger || new Logger(moduleOptions.name),
@@ -50,7 +53,7 @@ export class OpraRabbitmqCoreModule
   }
 
   static forRootAsync(
-    moduleOptions: OpraRabbitmqModule.AsyncModuleOptions,
+    moduleOptions: OpraSocketioModule.AsyncModuleOptions,
   ): DynamicModule {
     if (!moduleOptions.useFactory)
       throw new Error('Invalid configuration. Must provide "useFactory"');
@@ -60,7 +63,7 @@ export class OpraRabbitmqCoreModule
       providers: [
         ...(moduleOptions?.providers || []),
         {
-          provide: OPRA_RMQ_MODULE_OPTIONS,
+          provide: OPRA_SOCKETIO_MODULE_OPTIONS,
           inject: moduleOptions.inject,
           useFactory: async (...args: any[]) => {
             const result = await moduleOptions.useFactory!(...args);
@@ -74,17 +77,17 @@ export class OpraRabbitmqCoreModule
 
   protected static _getDynamicModule(
     moduleOptions:
-      | OpraRabbitmqModule.ModuleOptions
-      | OpraRabbitmqModule.AsyncModuleOptions,
+      | OpraSocketioModule.ModuleOptions
+      | OpraSocketioModule.AsyncModuleOptions,
   ): DynamicModule {
-    const token = moduleOptions.id || RabbitmqAdapter;
+    const token = moduleOptions.token || SocketioAdapter;
     const adapterProvider = {
       provide: token,
-      inject: [MQControllerFactory, ModuleRef, OPRA_RMQ_MODULE_OPTIONS],
+      inject: [WSControllerFactory, ModuleRef, OPRA_SOCKETIO_MODULE_OPTIONS],
       useFactory: async (
-        controllerFactory: MQControllerFactory,
+        controllerFactory: WSControllerFactory,
         moduleRef: ModuleRef,
-        config: OpraRabbitmqModule.ApiConfig,
+        config: OpraSocketioModule.ApiConfig,
       ) => {
         const controllers = controllerFactory
           .exploreControllers()
@@ -96,8 +99,8 @@ export class OpraRabbitmqCoreModule
           api: {
             name: config.name,
             description: config.description,
-            transport: 'mq',
-            platform: RabbitmqAdapter.PlatformName,
+            transport: 'ws',
+            platform: SocketioAdapter.PlatformName,
             controllers,
           },
         });
@@ -106,8 +109,8 @@ export class OpraRabbitmqCoreModule
           ? moduleOptions.interceptors.map(x => {
               if (isConstructor(x)) {
                 return async (
-                  ctx: RabbitmqContext,
-                  next: RabbitmqAdapter.NextCallback,
+                  ctx: SocketioContext,
+                  next: SocketioAdapter.NextCallback,
                 ) => {
                   const interceptor = moduleRef.get(x);
                   if (typeof interceptor.intercept === 'function')
@@ -117,19 +120,19 @@ export class OpraRabbitmqCoreModule
               return x;
             })
           : undefined;
-        return new RabbitmqAdapter(document, { ...config, interceptors });
+        return new SocketioAdapter(document, { ...config, interceptors });
       },
     };
     return {
       global: moduleOptions.global,
-      module: OpraRabbitmqCoreModule,
+      module: OpraSocketioCoreModule,
       controllers: moduleOptions.controllers,
       providers: [
         ...(moduleOptions?.providers || []),
-        MQControllerFactory,
+        WSControllerFactory,
         adapterProvider,
         {
-          provide: opraRabbitmqNestjsAdapterToken,
+          provide: opraSocketioNestjsAdapterToken,
           useExisting: token,
         },
       ],
@@ -141,8 +144,8 @@ export class OpraRabbitmqCoreModule
   onModuleInit(): any {
     /** NestJS initialize controller instances on init stage.
      * So we should update instance properties */
-    const mqApi = this.adapter.document.getMqApi();
-    const controllers = Array.from(mqApi.controllers.values());
+    const wsApi = this.adapter.document.getWsApi();
+    const controllers = Array.from(wsApi.controllers.values());
     for (const { wrapper } of this.controllerFactory
       .exploreControllers()
       .values()) {
@@ -155,7 +158,17 @@ export class OpraRabbitmqCoreModule
   }
 
   async onApplicationBootstrap() {
-    await this.adapter.start();
+    const httpServer: http.Server =
+      this.httpAdapterHost.httpAdapter.getHttpServer();
+    if (this.config.port) {
+      const addr = httpServer.address();
+      const httpPort = addr && typeof addr === 'object' ? addr.port : 0;
+      if (httpPort !== this.config.port) {
+        this.adapter.listen(this.config.port, this.config.serverOptions);
+        return;
+      }
+    }
+    this.adapter.listen(httpServer, this.config.serverOptions);
   }
 
   async onApplicationShutdown() {

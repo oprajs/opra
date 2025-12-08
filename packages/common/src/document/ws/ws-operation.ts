@@ -22,10 +22,12 @@ export namespace WSOperation {
     OpraSchema.WSOperation,
     'description' | 'event'
   > {
-    arguments?: (
-      | ThunkAsync<Type | EnumType.EnumObject | EnumType.EnumArray>
-      | string
-    )[];
+    arguments?: {
+      type:
+        | ThunkAsync<Type | EnumType.EnumObject | EnumType.EnumArray>
+        | string;
+      parameterIndex: number;
+    }[];
     types?: ThunkAsync<Type | EnumType.EnumObject | EnumType.EnumArray>[];
     response?: ThunkAsync<Type | EnumType.EnumObject | EnumType.EnumArray>[];
   }
@@ -41,7 +43,10 @@ export namespace WSOperation {
     {
       name: string;
       types?: DataType[];
-      arguments?: (DataType | string | Type)[];
+      arguments?: {
+        type: DataType | string | Type;
+        parameterIndex: number;
+      }[];
     },
     Pick<Metadata, 'description'>
   > {
@@ -104,6 +109,7 @@ export const WSOperation = function (this: WSOperation, ...args: any[]) {
     throw new TypeError(`Invalid operation name (${initArgs.name})`);
   const _this = asMutable(this);
   _this.types = _this.node[kDataTypeMap] = new DataTypeMap();
+  // noinspection JSConstantReassignment
   _this.name = initArgs.name;
   _this.description = initArgs.description;
   if (initArgs.event)
@@ -115,10 +121,14 @@ export const WSOperation = function (this: WSOperation, ...args: any[]) {
           : initArgs.event;
   else _this.event = this.name;
   if (initArgs?.arguments) {
-    _this.arguments = initArgs.arguments.map(arg =>
-      arg instanceof DataType ? arg : _this.owner.node.getDataType(arg),
-    );
-  }
+    _this.arguments = initArgs.arguments.map(arg => {
+      const type =
+        arg.type instanceof DataType
+          ? arg.type
+          : _this.owner.node.getDataType(arg.type);
+      return { type, parameterIndex: arg.parameterIndex };
+    });
+  } else _this.arguments = [];
   if (initArgs?.response)
     _this.response =
       initArgs.response instanceof DataType
@@ -134,7 +144,7 @@ class WSOperationClass extends DocumentElement {
   declare readonly name: string;
   declare description?: string;
   declare event: string | RegExp;
-  declare arguments?: DataType[];
+  declare arguments: { type: DataType; parameterIndex: number }[];
   declare types: DataTypeMap;
   declare response?: DataType;
 
@@ -144,7 +154,7 @@ class WSOperationClass extends DocumentElement {
       description: this.description,
       event: this.event,
       arguments: this.arguments?.map(arg =>
-        arg.name ? arg.name : arg.toJSON(),
+        arg.type.name ? arg.type.name : arg.type.toJSON(),
       ),
     });
   }

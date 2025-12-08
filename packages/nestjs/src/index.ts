@@ -7,3 +7,4 @@ export * from './mq-controller.factory.js';
 export * from './opra-nest-utils.js';
 export * from './rpc-controller.factory.js';
 export * from './rpc-params.factory.js';
+export * from './ws-controller.factory.js';

@@ -136,6 +136,7 @@ export class WSApiFactory {
               type: undefined,
               keyType: undefined,
               arguments: undefined,
+              response: undefined,
             });
             await this._initWSOperation(context, operation, operationMeta);
             controller.operations.set(operationName, operation);
@@ -167,13 +168,21 @@ export class WSApiFactory {
     if (metadata.arguments?.length) {
       await context.enterAsync('.arguments', async () => {
         operation.arguments = [];
-        for (const x of metadata.arguments!) {
+        let x: any;
+        for (x of metadata.arguments!) {
+          const xx: any = {};
+          if (typeof x === 'object' && x.type && x.parameterIndex !== null) {
+            Object.assign(xx, x);
+          } else xx.type = x;
           const t = await DataTypeFactory.resolveDataType(
             context,
             operation,
-            x,
+            xx.type,
           );
-          operation.arguments?.push(t);
+          operation.arguments?.push({
+            type: t,
+            parameterIndex: xx.parameterIndex,
+          });
         }
       });
     }
