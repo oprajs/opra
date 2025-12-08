@@ -1,6 +1,11 @@
 import { type ArgumentsHost, Controller } from '@nestjs/common';
 import { ExternalExceptionFilter } from '@nestjs/core/exceptions/external-exception-filter.js';
-import { classes, type MQControllerDecorator } from '@opra/common';
+import {
+  classes,
+  type MQControllerDecorator,
+  WSControllerDecorator,
+} from '@opra/common';
+import WSControllerDecoratorFactory = classes.WSControllerDecoratorFactory;
 
 const { MQControllerDecoratorFactory } = classes;
 
@@ -18,6 +23,14 @@ ExternalExceptionFilter.prototype.catch = function (
 
 MQControllerDecoratorFactory.augment(
   (decorator: MQControllerDecorator, decoratorChain: Function[]) => {
+    decoratorChain.push((_: any, target: Function) => {
+      Controller()(target);
+    });
+  },
+);
+
+WSControllerDecoratorFactory.augment(
+  (decorator: WSControllerDecorator, decoratorChain: Function[]) => {
     decoratorChain.push((_: any, target: Function) => {
       Controller()(target);
     });

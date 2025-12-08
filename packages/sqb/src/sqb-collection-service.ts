@@ -99,7 +99,7 @@ export namespace SqbCollectionService {
  */
 export class SqbCollectionService<
   T extends object = object,
-> extends SqbEntityService {
+> extends SqbEntityService<T> {
   /**
    * Represents default limit for findMany operation
    */

@@ -13,7 +13,7 @@ import { ModuleRef } from '@nestjs/core';
 import { ApiDocumentFactory } from '@opra/common';
 import { MQControllerFactory } from '@opra/nestjs';
 import { RabbitmqAdapter, type RabbitmqContext } from '@opra/rabbitmq';
-import { OPRA_RMQ_MODULE_CONFIG } from './constants.js';
+import { OPRA_RMQ_MODULE_OPTIONS } from './constants.js';
 import type { OpraRabbitmqModule } from './opra-rabbitmq.module.js';
 
 const opraRabbitmqNestjsAdapterToken = Symbol('OpraRabbitmqNestjsAdapter');
@@ -27,8 +27,8 @@ export class OpraRabbitmqCoreModule
     private controllerFactory: MQControllerFactory,
     @Inject(opraRabbitmqNestjsAdapterToken)
     protected adapter: RabbitmqAdapter,
-    @Inject(OPRA_RMQ_MODULE_CONFIG)
-    protected config: OpraRabbitmqModule.ApiConfig,
+    @Inject(OPRA_RMQ_MODULE_OPTIONS)
+    protected config: OpraRabbitmqModule.ModuleOptions,
   ) {}
 
   static forRoot(
@@ -39,7 +39,7 @@ export class OpraRabbitmqCoreModule
       providers: [
         ...(moduleOptions?.providers || []),
         {
-          provide: OPRA_RMQ_MODULE_CONFIG,
+          provide: OPRA_RMQ_MODULE_OPTIONS,
           useValue: {
             ...moduleOptions,
             logger: moduleOptions.logger || new Logger(moduleOptions.name),
@@ -60,7 +60,7 @@ export class OpraRabbitmqCoreModule
       providers: [
         ...(moduleOptions?.providers || []),
         {
-          provide: OPRA_RMQ_MODULE_CONFIG,
+          provide: OPRA_RMQ_MODULE_OPTIONS,
           inject: moduleOptions.inject,
           useFactory: async (...args: any[]) => {
             const result = await moduleOptions.useFactory!(...args);
@@ -80,7 +80,7 @@ export class OpraRabbitmqCoreModule
     const token = moduleOptions.id || RabbitmqAdapter;
     const adapterProvider = {
       provide: token,
-      inject: [MQControllerFactory, ModuleRef, OPRA_RMQ_MODULE_CONFIG],
+      inject: [MQControllerFactory, ModuleRef, OPRA_RMQ_MODULE_OPTIONS],
       useFactory: async (
         controllerFactory: MQControllerFactory,
         moduleRef: ModuleRef,
@@ -88,7 +88,7 @@ export class OpraRabbitmqCoreModule
       ) => {
         const controllers = controllerFactory
           .exploreControllers()
-          .map(x => x.wrapper.instance.constructor);
+          .map(x => x.wrapper.instance);
         const document = await ApiDocumentFactory.createDocument({
           info: config.info,
           types: config.types,

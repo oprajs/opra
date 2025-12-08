@@ -86,7 +86,7 @@ export class OpraKafkaCoreModule
       ) => {
         const controllers = controllerFactory
           .exploreControllers()
-          .map(x => x.wrapper.instance.constructor);
+          .map(x => x.wrapper.instance);
         const document = await ApiDocumentFactory.createDocument({
           info: config.info,
           types: config.types,

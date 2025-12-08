@@ -1,5 +1,5 @@
 import { type DynamicModule, Logger, Module, type Type } from '@nestjs/common';
-import { ApiDocumentFactory } from '@opra/common';
+import type { ApiDocumentFactory } from '@opra/common';
 import type { RabbitmqAdapter } from '@opra/rabbitmq';
 import { OpraRabbitmqCoreModule } from './opra-rabbitmq-core.module.js';
 
