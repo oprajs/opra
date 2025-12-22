@@ -1,10 +1,6 @@
 import './augmentation/18n.augmentation.js';
 import { ApiDocument, I18n, OpraSchema } from '@opra/common';
-import {
-  AsyncEventEmitter,
-  DefaultEventMap,
-  EventMap,
-} from 'node-events-async';
+import { AsyncEventEmitter, EventMap } from 'node-events-async';
 import { AssetCache } from './asset-cache.js';
 import { kAssetCache } from './constants.js';
 import { ILogger } from './interfaces/logger.interface.js';
@@ -13,7 +9,7 @@ import { ILogger } from './interfaces/logger.interface.js';
  * @class PlatformAdapter
  */
 export abstract class PlatformAdapter<
-  T extends EventMap<T> = DefaultEventMap,
+  T extends EventMap<T> = never,
 > extends AsyncEventEmitter<T> {
   protected [kAssetCache]: AssetCache;
   declare protected _document: ApiDocument;
