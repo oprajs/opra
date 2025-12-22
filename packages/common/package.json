@@ -7,20 +7,17 @@
   "scripts": {
     "compile": "tsc --noEmit",
     "prebuild": "npm run check && npm run lint && npm run clean",
-    "build": "npm run build:cjs && npm run build:esm && npm run build:browser",
-    "build:cjs": "tsc -b tsconfig-build-cjs.json && cp ../../support/package.cjs.json ./build/cjs/package.json",
-    "build:esm": "tsc -b tsconfig-build-esm.json && cp ../../support/package.esm.json ./build/esm/package.json",
-    "build:browser": "node esbuild.mjs",
-    "postbuild": "cp package.json ../../LICENSE ./build && node ../../support/postbuild.cjs",
+    "build": "tsc -b tsconfig-build.json && node esbuild.mjs",
+    "postbuild": "node ../../support/postbuild.cjs",
     "lint": "eslint . --max-warnings=0",
     "lint:fix": "eslint . --max-warnings=0 --fix",
     "format": "prettier . --write --log-level=warn",
     "check": "madge --circular src/**",
     "test": "mocha",
-    "clean": "npm run clean:src && npm run clean:test && npm run clean:dist && npm run clean:cover",
+    "clean": "npm run clean:src && npm run clean:test && npm run clean:build && npm run clean:cover",
     "clean:src": "ts-cleanup -s src --all",
     "clean:test": "ts-cleanup -s test --all",
-    "clean:dist": "rimraf ./build",
+    "clean:build": "rimraf build *.tsbuildinfo",
     "clean:cover": "rimraf ../../coverage/common",
     "antlr4": "java -jar ./tools/antlr-4.13.2-complete.jar -Dlanguage=TypeScript ./src/filter/antlr/OpraFilter.g4 -visitor"
   },
@@ -53,51 +50,31 @@
     "ts-gems": "^3.11.3"
   },
   "type": "module",
+  "module": "./index.js",
+  "browser": "./browser.js",
+  "types": "./index.d.ts",
   "exports": {
     ".": {
-      "browser": {
-        "import": {
-          "types": "./types/index.d.ts",
-          "default": "./browser/index.mjs"
-        },
-        "require": {
-          "types": "./types/index.d.cts",
-          "default": "./browser/index.cjs"
-        },
-        "default": "./browser/index.mjs"
-      },
-      "import": {
-        "types": "./types/index.d.ts",
-        "default": "./esm/index.js"
-      },
       "require": {
-        "types": "./types/index.d.cts",
-        "default": "./cjs/index.js"
+        "types": "./index.d.ts",
+        "default": "./index.js"
       },
-      "default": "./esm/index.js"
+      "browser": {
+        "types": "./index.d.ts",
+        "default": "./browser.js"
+      },
+      "default": "./index.js"
     },
     "./package.json": "./package.json"
   },
-  "main": "./cjs/index.js",
-  "module": "./esm/index.js",
-  "types": "./types/index.d.ts",
+  "engines": {
+    "node": ">=20.0"
+  },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/panates/opra.git",
     "directory": "packages/common"
   },
-  "engines": {
-    "node": ">=16.0",
-    "npm": ">=7.0.0"
-  },
-  "files": [
-    "cjs/",
-    "esm/",
-    "browser/",
-    "types/",
-    "LICENSE",
-    "README.md"
-  ],
   "keywords": [
     "opra",
     "common"

@@ -2,8 +2,11 @@
   "extends": "@panates/tsconfig/node.json",
   "compilerOptions": {
     "types": ["node"],
-    "module": "ES2020",
-    "moduleResolution": "Node",
-    "sourceMap": true
+    "sourceMap": true,
+    "moduleResolution": "nodenext",
+    "experimentalDecorators": true,
+    "emitDecoratorMetadata": true,
+    "module": "NodeNext",
+    "target": "ESNext"
   }
 }
