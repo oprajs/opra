@@ -27,6 +27,7 @@ export namespace WSOperation {
         | ThunkAsync<Type | EnumType.EnumObject | EnumType.EnumArray>
         | string;
       parameterIndex: number;
+      required?: boolean;
     }[];
     types?: ThunkAsync<Type | EnumType.EnumObject | EnumType.EnumArray>[];
     response?: ThunkAsync<Type | EnumType.EnumObject | EnumType.EnumArray>[];
@@ -46,6 +47,7 @@ export namespace WSOperation {
       arguments?: {
         type: DataType | string | Type;
         parameterIndex: number;
+        required?: boolean;
       }[];
     },
     Pick<Metadata, 'description'>
@@ -144,7 +146,11 @@ class WSOperationClass extends DocumentElement {
   declare readonly name: string;
   declare description?: string;
   declare event: string | RegExp;
-  declare arguments: { type: DataType; parameterIndex: number }[];
+  declare arguments: {
+    type: DataType;
+    parameterIndex: number;
+    required?: boolean;
+  }[];
   declare types: DataTypeMap;
   declare response?: DataType;
 

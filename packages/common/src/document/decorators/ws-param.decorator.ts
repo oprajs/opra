@@ -1,7 +1,10 @@
 import { TypeThunkAsync } from 'ts-gems';
 import { WS_PARAM_METADATA } from '../constants.js';
 
-export function WsParam(type?: TypeThunkAsync | string): ParameterDecorator {
+export function WsParam(
+  type?: TypeThunkAsync | string,
+  options?: WsParam.Options,
+): ParameterDecorator {
   return (
     target,
     propertyKey: string | symbol | undefined,
@@ -32,6 +35,12 @@ export function WsParam(type?: TypeThunkAsync | string): ParameterDecorator {
         propertyKey,
       );
     }
-    paramMetadata.push({ type, parameterIndex });
+    paramMetadata.push({ ...options, type, parameterIndex });
   };
+}
+
+export namespace WsParam {
+  export interface Options {
+    required?: boolean;
+  }
 }

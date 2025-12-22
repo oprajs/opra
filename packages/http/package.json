@@ -1,27 +1,23 @@
 {
   "name": "@opra/http",
-  "version": "1.21.0",
+  "version": "1.22.0",
   "description": "Opra Http Server Adapter",
   "author": "Panates",
   "license": "MIT",
   "scripts": {
     "compile": "tsc --noEmit",
-    "prebuild": "npm run lint && npm run clean",
-    "build": "npm run build:cjs && npm run build:esm",
-    "build:cjs": "tsc -b tsconfig-build-cjs.json && cp ../../support/package.cjs.json ./build/cjs/package.json",
-    "build:esm": "tsc -b tsconfig-build-esm.json && cp ../../support/package.esm.json ./build/esm/package.json",
-    "postbuild": "npm run postbuild:copy_1 && npm run postbuild:copy_2 && node ../../support/postbuild.cjs",
-    "postbuild:copy_1": "cp README.md package.json ../../LICENSE ./build",
-    "postbuild:copy_2": "cp -R i18n ./build/i18n",
+    "prebuild": "npm run check && npm run lint && npm run clean",
+    "build": "tsc -b tsconfig-build.json",
+    "postbuild": "node ../../support/postbuild.cjs && cp -R i18n ./build/i18n",
     "lint": "eslint . --max-warnings=0",
     "lint:fix": "eslint . --max-warnings=0 --fix",
     "format": "prettier . --write --log-level=warn",
     "check": "madge --circular src/**",
     "test": "mocha",
-    "clean": "npm run clean:src && npm run clean:test && npm run clean:dist && npm run clean:cover",
+    "clean": "npm run clean:src && npm run clean:test && npm run clean:build && npm run clean:cover",
     "clean:src": "ts-cleanup -s src --all",
     "clean:test": "ts-cleanup -s test --all",
-    "clean:dist": "rimraf ./build",
+    "clean:build": "rimraf build *.tsbuildinfo",
     "clean:cover": "rimraf ../../coverage/http"
   },
   "dependencies": {
@@ -39,11 +35,11 @@
     "cookie-signature": "^1.2.2",
     "encodeurl": "^2.0.0",
     "expect": "^30.2.0",
-    "fast-tokenizer": "^1.7.0",
+    "fast-tokenizer": "^1.8.0",
     "fresh": "^0.5.2",
-    "iconv-lite": "^0.7.0",
+    "iconv-lite": "^0.7.1",
     "mime-types": "^3.0.2",
-    "node-events-async": "^1.2.0",
+    "node-events-async": "^1.4.0",
     "power-tasks": "^1.11.1",
     "putil-varhelpers": "^1.6.5",
     "range-parser": "^1.2.1",
@@ -55,8 +51,8 @@
     "vary": "^1.1.2"
   },
   "peerDependencies": {
-    "@opra/common": "^1.21.0",
-    "@opra/core": "^1.21.0"
+    "@opra/common": "^1.22.0",
+    "@opra/core": "^1.22.0"
   },
   "optionalDependencies": {
     "express": "^4.0.0 || ^5.0.0",
@@ -86,41 +82,24 @@
     "supertest": "^7.1.4",
     "ts-gems": "^3.11.3"
   },
-  "type": "module",
   "exports": {
     ".": {
-      "import": {
-        "types": "./types/index.d.ts",
-        "default": "./esm/index.js"
-      },
-      "require": {
-        "types": "./types/index.d.cts",
-        "default": "./cjs/index.js"
-      },
-      "default": "./esm/index.js"
+      "types": "./index.d.ts",
+      "default": "./index.js"
     },
     "./package.json": "./package.json"
   },
-  "main": "./cjs/index.js",
-  "module": "./esm/index.js",
-  "types": "./types/index.d.ts",
+  "type": "module",
+  "module": "./index.js",
+  "types": "./index.d.ts",
+  "engines": {
+    "node": ">=20.0"
+  },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/panates/opra.git",
     "directory": "packages/http"
   },
-  "engines": {
-    "node": ">=16.0",
-    "npm": ">=7.0.0"
-  },
-  "files": [
-    "cjs/",
-    "esm/",
-    "i18n/",
-    "types/",
-    "LICENSE",
-    "README.md"
-  ],
   "keywords": [
     "opra",
     "rest",

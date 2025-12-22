@@ -18,8 +18,11 @@ const external = [
   'mime-db',
 ].filter(x => !noExternal.includes(x));
 
-const defaultConfig = {
-  entryPoints: [path.resolve(targetPath, 'esm/index.js')],
+await esbuild.build({
+  entryPoints: [path.resolve(targetPath, 'index.js')],
+  outfile: path.join(targetPath, './browser.js'),
+  format: 'esm',
+  tsconfig: './tsconfig-build.json',
   bundle: true,
   logLevel: 'info',
   minify: true,
@@ -46,18 +49,4 @@ const defaultConfig = {
 *****************************************/
 `,
   },
-};
-
-await esbuild.build({
-  ...defaultConfig,
-  outfile: path.join(targetPath, './browser/index.cjs'),
-  format: 'cjs',
-  tsconfig: './tsconfig-build-cjs.json',
-});
-
-await esbuild.build({
-  ...defaultConfig,
-  outfile: path.join(targetPath, './browser/index.mjs'),
-  format: 'esm',
-  tsconfig: './tsconfig-build-esm.json',
 });

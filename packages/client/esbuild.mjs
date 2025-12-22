@@ -11,23 +11,22 @@ const pkgJson = require('./package.json');
 
 const dirname = path.dirname(fileURLToPath(import.meta.url));
 const targetPath = path.resolve(dirname, 'build');
-const entryPoint = path.resolve(targetPath, 'esm/index.js');
+const entryPoint = path.resolve(targetPath, 'index.js');
 const external = [
   ...Object.keys(pkgJson.dependencies || {}),
   ...Object.keys(pkgJson.peerDependencies || {}),
   ...Object.keys(pkgJson.devDependencies || {}),
 ];
 
-/**
- * @type BuildOptions
- */
-const defaultConfig = {
+await esbuild.build({
+  format: 'esm',
+  outfile: path.join(targetPath, './browser.js'),
+  tsconfig: './tsconfig-build.json',
   entryPoints: [entryPoint],
   bundle: true,
   platform: 'browser',
-  target: ['es2020', 'chrome80'],
+  target: ['es2020', 'chrome110'],
   logLevel: 'info',
-  format: 'esm',
   minify: true,
   keepNames: true,
   alias: {
@@ -58,8 +57,6 @@ const defaultConfig = {
             const contents =
               `import { Buffer } from 'buffer';\nglobalThis.Buffer = Buffer;\n` +
               fs.readFileSync(entryPoint, 'utf-8');
-
-            console.log(contents);
             return {
               contents,
             };
@@ -68,18 +65,4 @@ const defaultConfig = {
       },
     },
   ],
-};
-
-await esbuild.build({
-  ...defaultConfig,
-  format: 'esm',
-  outfile: path.join(targetPath, './browser/index.mjs'),
-  tsconfig: './tsconfig-build-esm.json',
-});
-
-await esbuild.build({
-  ...defaultConfig,
-  outfile: path.join(targetPath, './browser/index.cjs'),
-  format: 'cjs',
-  tsconfig: './tsconfig-build-cjs.json',
 });

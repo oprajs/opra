@@ -1,13 +1,16 @@
 # compiled output
 /node_modules
 **/node_modules
-*.cache.json
-.angular
-junit.xml
-/reports
 packages/*/dist
 packages/*/build
 /support/docker/data
+/reports
+/debug
+*.cache.json
+*.tsbuildinfo
+junit.xml
+*.log
+*audit.json
 
 # environment variables
 .env

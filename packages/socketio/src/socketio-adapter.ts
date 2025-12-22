@@ -11,6 +11,7 @@ import type * as http from 'http';
 import type * as http2 from 'http2';
 import type * as https from 'https';
 import * as socketio from 'socket.io';
+import { vg } from 'valgen';
 import { SocketioContext } from './socketio-context.js';
 
 // const noOp = () => undefined;
@@ -109,12 +110,13 @@ export class SocketioAdapter extends PlatformAdapter<SocketioAdapter.Events> {
         /** Generate decoders */
         if (oprDef.arguments?.length) {
           for (const arg of oprDef.arguments) {
-            reg.decoders.push(
-              arg.type.generateCodec('decode', {
-                scope: this.scope,
-                ignoreReadonlyFields: true,
-              }),
-            );
+            let fn2 = arg.type.generateCodec('decode', {
+              scope: this.scope,
+              ignoreReadonlyFields: true,
+            });
+            if (arg.required) fn2 = vg.required(fn2);
+            else fn2 = vg.optional(fn2);
+            reg.decoders.push(fn2);
           }
         }
         /** Generate response encoder */

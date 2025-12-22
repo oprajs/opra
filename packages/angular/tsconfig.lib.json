@@ -24,7 +24,7 @@
     "lib": ["dom", "es2018"]
   },
   "include": ["src"],
-  "exclude": ["node_modules", "dist", "**/*.shim.ts", "**/*.spec.ts"],
+  "exclude": ["node_modules", "build", "**/*.shim.ts", "**/*.spec.ts"],
   "angularCompilerOptions": {
     "compilationMode": "partial",
     "strictTemplates": true,
