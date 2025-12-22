@@ -70,7 +70,10 @@ export interface ArrayTypeStatic {
   /**
    * Create a new mixin type from the given data type
    */
-  (type: string | Type, options?: ArrayType.Options): Type;
+  (
+    type: string | Type | EnumType.EnumObject,
+    options?: ArrayType.Options,
+  ): Type;
 
   prototype: ArrayType;
 }

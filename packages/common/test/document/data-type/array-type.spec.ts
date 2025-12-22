@@ -5,7 +5,9 @@ import {
   ApiField,
   ArrayType,
   ComplexType,
+  EnumType,
   OpraSchema,
+  SimpleType,
 } from '@opra/common';
 import { expect } from 'expect';
 import { TestHttpApiDocument } from '../../_support/test-http-api/index.js';
@@ -22,19 +24,48 @@ describe('common:ArrayType', () => {
       },
       types: [
         Cat,
+        Color,
         ArrayType(String, { name: 'ArrayType1' }),
         ArrayType(Cat, { name: 'ArrayType2' }),
-        ArrayType(ArrayType(Number), { name: 'ArrayType3' }),
+        ArrayType(Color, { name: 'ArrayType3' }),
+        ArrayType(ArrayType(Number), { name: 'ArrayType4' }),
       ],
     });
   });
 
-  it('Should create ArrayType', async () => {
+  it('Should create ArrayType for SimpleType', async () => {
     const dt = doc.node.getArrayType('ArrayType1');
     expect(dt).toBeDefined();
     expect(dt.name).toEqual('ArrayType1');
     expect(dt.type).toBeDefined();
+    expect(dt.type).toBeInstanceOf(SimpleType);
     expect(dt.type.name).toEqual('string');
+  });
+
+  it('Should create ArrayType for ComplexType', async () => {
+    const dt = doc.node.getArrayType('ArrayType2');
+    expect(dt).toBeDefined();
+    expect(dt.name).toEqual('ArrayType2');
+    expect(dt.type).toBeDefined();
+    expect(dt.type).toBeInstanceOf(ComplexType);
+    expect(dt.type.name).toEqual('Cat');
+  });
+
+  it('Should create ArrayType for EnumType', async () => {
+    const dt = doc.node.getArrayType('ArrayType3');
+    expect(dt).toBeDefined();
+    expect(dt.name).toEqual('ArrayType3');
+    expect(dt.type).toBeDefined();
+    expect(dt.type).toBeInstanceOf(EnumType);
+    expect(dt.type.name).toEqual('Color');
+  });
+
+  it('Should create ArrayType for ArrayType', async () => {
+    const dt = doc.node.getArrayType('ArrayType4');
+    expect(dt).toBeDefined();
+    expect(dt.type).toBeDefined();
+    expect(dt.type).toBeInstanceOf(ArrayType);
+    expect(dt.name).toEqual('ArrayType4');
   });
 
   it('Should generateCodec() return ValGen validator', async () => {
@@ -63,3 +94,12 @@ class Cat {
   @ApiField()
   declare name: string;
 }
+
+enum Color {
+  black = 'black',
+  white = 'white',
+  gray = 'gray',
+  brown = 'brown',
+}
+
+EnumType(Color, { name: 'Color' });
