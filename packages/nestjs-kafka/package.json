@@ -38,8 +38,8 @@
   },
   "devDependencies": {
     "@faker-js/faker": "^10.1.0",
-    "@nestjs/platform-express": "^11.1.10",
-    "@nestjs/testing": "^11.1.10",
+    "@nestjs/platform-express": "^11.1.11",
+    "@nestjs/testing": "^11.1.11",
     "@types/amqplib": "^0.10.8",
     "expect": "^30.2.0",
     "express": "^5.2.1",
@@ -65,14 +65,6 @@
     "url": "git+https://github.com/panates/opra.git",
     "directory": "packages/nestjs-kafka"
   },
-  "files": [
-    "bin/",
-    "cjs/",
-    "esm/",
-    "types/",
-    "LICENSE",
-    "README.md"
-  ],
   "keywords": [
     "opra",
     "nestjs",

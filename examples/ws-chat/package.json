@@ -8,7 +8,7 @@
     "@opra/common": "^1.22.0",
     "@opra/core": "^1.22.0",
     "@opra/socketio": "^1.22.0",
-    "socket.io": "^4.8.1",
+    "socket.io": "^4.8.3",
     "ts-gems": "^3.11.3"
   },
   "scripts": {
