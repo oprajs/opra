@@ -1,6 +1,6 @@
 {
   "name": "@opra/http",
-  "version": "1.22.0",
+  "version": "1.22.1",
   "description": "Opra Http Server Adapter",
   "author": "Panates",
   "license": "MIT",
@@ -39,7 +39,7 @@
     "fresh": "^0.5.2",
     "iconv-lite": "^0.7.1",
     "mime-types": "^3.0.2",
-    "node-events-async": "^1.4.0",
+    "node-events-async": "^1.5.0",
     "power-tasks": "^1.11.1",
     "putil-varhelpers": "^1.6.5",
     "range-parser": "^1.2.1",
@@ -51,8 +51,8 @@
     "vary": "^1.1.2"
   },
   "peerDependencies": {
-    "@opra/common": "^1.22.0",
-    "@opra/core": "^1.22.0"
+    "@opra/common": "^1.22.1",
+    "@opra/core": "^1.22.1"
   },
   "optionalDependencies": {
     "express": "^4.0.0 || ^5.0.0",
