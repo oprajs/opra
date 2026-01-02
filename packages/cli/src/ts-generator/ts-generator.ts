@@ -57,7 +57,6 @@ export class TsGenerator extends EventEmitter {
   declare protected _generateUnionTypeCode: typeof _generateUnionTypeCode;
   declare protected generateHttpApi: typeof generateHttpApi;
   declare protected generateHttpController: typeof generateHttpController;
-  declare protected _documentRoot: string;
   declare protected _typesRoot: string;
   declare protected _typesNamespace: string;
   declare protected _apiPath: string;

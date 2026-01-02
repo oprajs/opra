@@ -37,7 +37,7 @@ export interface Attribute {
   description?: string;
 
   /**
-   * Defines the description of the attribute
+   * Defines the default value of the attribute
    */
   default?: any;
 

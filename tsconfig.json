@@ -1,4 +1,11 @@
 {
-  "include": ["./packages", "./support", "./examples", "./"],
-  "exclude": ["node_modules", "build", "coverage", "docs"]
+  "references": [
+    { "path": "./packages/*" },
+    { "path": "./examples/*" },
+    { "path": "./support/*" }
+  ],
+  "compilerOptions": {
+    "noEmit": true
+  },
+  "exclude": ["node_modules", "coverage"]
 }
