@@ -93,9 +93,7 @@ describe('nestjs-socketio:OpraSocketioModule - sync', () => {
       name: faker.animal.cat(),
       age: 20,
     };
-    const ack = JSON.parse(
-      await client.emitWithAck('game1-add-player', payload),
-    );
+    const ack = await client.emitWithAck('game1-add-player', payload);
     expect(ack).toBeDefined();
     expect(ack).toEqual(payload);
     expect(Game1Service.counters).toEqual({

@@ -178,7 +178,6 @@ export class SocketioAdapter extends PlatformAdapter<SocketioAdapter.Events> {
           }
           let x = await reg.handler.apply(reg.contDef.instance, callArgs);
           if (reg.encoder) x = reg.encoder(x);
-          if (x != null && typeof x !== 'string') x = JSON.stringify(x);
           callback(x);
         } catch (err: any) {
           const error =
