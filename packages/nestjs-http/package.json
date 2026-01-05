@@ -31,7 +31,7 @@
     "@nestjs/core": "^10.0.0 || ^11.0.0"
   },
   "devDependencies": {
-    "@faker-js/faker": "^10.1.0",
+    "@faker-js/faker": "^10.2.0",
     "@nestjs/platform-express": "^11.1.11",
     "@nestjs/microservices": "^11.1.11",
     "@nestjs/testing": "^11.1.11",

@@ -284,11 +284,9 @@ export async function _generateComplexTypeCode(
     fieldCode.header_end = ' */\n';
 
     if (field.type instanceof SimpleType && field.type.properties) {
-      let s = '';
       for (const [k, v] of Object.entries(field.type.properties)) {
-        if (v != null) s += ` *   ${k}: ${v}\n`;
+        if (v != null) fieldCode.header += ` * @attribute ${k} ${v}\n`;
       }
-      if (s) fieldCode.header += ' * Attributes:\n' + s;
     }
 
     // Print field name
@@ -463,12 +461,10 @@ export async function _generateSimpleTypeCode(
   codeBlock: CodeBlock,
   intent?: Intent,
 ): Promise<void> {
-  let s = '';
-  if (dataType.properties) {
+  if (intent !== 'typeDef' && dataType.properties) {
     for (const [k, v] of Object.entries(dataType.properties)) {
-      if (v != null) s += ` *   ${k}: ${v}\n`;
+      if (v != null) codeBlock.header += ` * @attribute ${k} ${v}\n`;
     }
-    if (s) codeBlock.header += ' * Attributes:\n' + s;
   }
 
   let out = intent === 'root' ? `type ${dataType.name} = ` : '';

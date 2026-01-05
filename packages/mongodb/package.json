@@ -32,7 +32,7 @@
     "mongodb": "^7.0.0"
   },
   "devDependencies": {
-    "@faker-js/faker": "^10.1.0",
+    "@faker-js/faker": "^10.2.0",
     "mongodb": "^6.0.0 || ^7.0.0",
     "expect": "^30.2.0",
     "sinon": "^21.0.1",
