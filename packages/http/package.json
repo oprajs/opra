@@ -1,6 +1,6 @@
 {
   "name": "@opra/http",
-  "version": "1.22.3",
+  "version": "1.22.4",
   "description": "Opra Http Server Adapter",
   "author": "Panates",
   "license": "MIT",
@@ -51,15 +51,15 @@
     "vary": "^1.1.2"
   },
   "peerDependencies": {
-    "@opra/common": "^1.22.3",
-    "@opra/core": "^1.22.3"
+    "@opra/common": "^1.22.4",
+    "@opra/core": "^1.22.4"
   },
   "optionalDependencies": {
     "express": "^4.0.0 || ^5.0.0",
     "fastify": "^4.0.0 || ^5.0.0"
   },
   "devDependencies": {
-    "@faker-js/faker": "^10.1.0",
+    "@faker-js/faker": "^10.2.0",
     "@types/accepts": "^1.3.7",
     "@types/base64-stream": "^1.0.5",
     "@types/busboy": "^1.5.4",
