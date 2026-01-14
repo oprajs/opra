@@ -1,6 +1,6 @@
 {
   "name": "@opra/rabbitmq",
-  "version": "1.22.4",
+  "version": "1.22.5",
   "description": "Opra RabbitMQ adapter",
   "author": "Panates",
   "license": "MIT",
@@ -30,8 +30,8 @@
     "valgen": "^5.18.2"
   },
   "peerDependencies": {
-    "@opra/common": "^1.22.4",
-    "@opra/core": "^1.22.4",
+    "@opra/common": "^1.22.5",
+    "@opra/core": "^1.22.5",
     "rabbitmq-client": ">=5.0.0 <6"
   },
   "devDependencies": {
