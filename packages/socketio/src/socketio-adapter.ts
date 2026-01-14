@@ -182,7 +182,7 @@ export class SocketioAdapter extends PlatformAdapter<SocketioAdapter.Events> {
         } catch (err: any) {
           const error =
             err instanceof OpraException ? err : new OpraException(err);
-          callback({ error });
+          callback({ errors: [error] });
         }
       });
     });
