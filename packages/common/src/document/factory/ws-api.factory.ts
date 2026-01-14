@@ -185,6 +185,7 @@ export class WSApiFactory {
           });
         }
       });
+      operation.arguments.sort((a, b) => a.parameterIndex - b.parameterIndex);
     }
     if (metadata.response) {
       await context.enterAsync('.response', async () => {
