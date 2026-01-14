@@ -24,7 +24,7 @@
     "@jsopen/objects": "^2.0.2",
     "@browsery/type-is": "^2.0.1",
     "content-type": "^1.0.5",
-    "iconv-lite": "^0.7.1",
+    "iconv-lite": "^0.7.2",
     "node-events-async": "^1.5.0",
     "tslib": "^2.8.1",
     "valgen": "^5.18.2"
