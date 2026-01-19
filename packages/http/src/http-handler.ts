@@ -1,6 +1,7 @@
 import * as process from 'node:process';
 import typeIs from '@browsery/type-is';
 import {
+  ArrayType,
   BadRequestError,
   HttpHeaderCodes,
   HttpMediaType,
@@ -271,7 +272,7 @@ export class HttpHandler {
         const decode = getDecoder(prm);
         let values: any[] = searchParams?.getAll(key);
         const prmName = typeof prm.name === 'string' ? prm.name : key;
-        if (values?.length && prm.isArray) {
+        if (values?.length && (prm.type instanceof ArrayType || prm.isArray)) {
           values = values
             .map(v =>
               splitString(v, {
@@ -280,9 +281,12 @@ export class HttpHandler {
               }),
             )
             .flat();
-          values = values.map(v =>
-            decode(v, { coerce: true, label: key, onFail }),
-          );
+          if (prm.type instanceof ArrayType)
+            values = decode(values, { coerce: true, label: key, onFail });
+          else
+            values = values.map(v =>
+              decode(v, { coerce: true, label: key, onFail }),
+            );
           if (prm.parser) values = prm.parser(values);
           if (values.length) context.queryParams[prmName] = values;
         } else {

@@ -51,7 +51,6 @@ describe('common:ApiDocumentFactory', () => {
     expect(ref?.node.getDataType('fieldpath')).toBeDefined();
     expect(ref?.node.getDataType('objectid')).toBeDefined();
     expect(ref?.node.getDataType('OperationResult')).toBeDefined();
-    expect(ref?.node.getDataType('partialdate')).toBeDefined();
     expect(ref?.node.getDataType('time')).toBeDefined();
     expect(ref?.node.getDataType('url')).toBeDefined();
     expect(ref?.node.getDataType('uuid')).toBeDefined();

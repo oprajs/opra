@@ -1,7 +1,8 @@
 import { omit } from '@jsopen/objects';
 import { ResourceNotAvailableError } from '@opra/common';
+import { ExecutionContext, ServiceBase } from '@opra/core';
 import mongodb, { ObjectId, type UpdateFilter } from 'mongodb';
-import type { PartialDTO, RequiredSome, Type } from 'ts-gems';
+import type { Nullish, PartialDTO, RequiredSome, Type } from 'ts-gems';
 import { MongoAdapter } from '../adapter/mongo-adapter.js';
 import type { MongoPatchDTO } from '../types.js';
 import { MongoEntityService } from './mongo-entity-service.js';
@@ -50,6 +51,25 @@ export class MongoSingletonService<
   ) {
     super(dataType, options);
     this._id = options?._id || new ObjectId('655608925cad472b75fc6485');
+  }
+
+  /**
+   * Create a copy of this instance with given properties and context applied.
+   *
+   * @param {C | ServiceBase} context - The execution context or service base to associate with this instance.
+   * @param {Nullish<P>} [overwriteProperties] - An optional object containing properties to overwrite in the current instance.
+   * @param {Partial<C>} [overwriteContext] - An optional partial context to apply and potentially overwrite parts of the provided execution context.
+   * @return {this & Required<P>} The current instance with the specified properties and context applied.
+   * @template P
+   * @template C
+   */
+  for<C extends ExecutionContext, P extends Partial<this>>(
+    context: C | ServiceBase,
+    overwriteProperties?: Nullish<P>,
+    overwriteContext?: Partial<C>,
+  ): this & Required<P> {
+    return super.for(context, overwriteProperties, overwriteContext) as this &
+      Required<P>;
   }
 
   /**

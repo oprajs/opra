@@ -5,7 +5,8 @@ import { SimpleType } from '../simple-type.js';
 
 const _isDateString = vg.isDateString({
   precisionMin: 'day',
-  trim: 'day',
+  precisionMax: 'day',
+  trim: true,
   coerce: true,
 });
 const _isDate = vg.isDate({

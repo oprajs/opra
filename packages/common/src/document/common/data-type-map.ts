@@ -45,8 +45,15 @@ export class DataTypeMap {
     if (!name) return;
     const out = this[kMap].get(name);
     if (!out) return;
-    if (typeof nameOrCtor === 'function' && out.kind === 'ComplexType')
-      return (out as ComplexType).ctor === nameOrCtor ? out : undefined;
+    if (
+      typeof nameOrCtor === 'function' &&
+      out.kind === 'ComplexType' &&
+      (out as ComplexType).ctor !== nameOrCtor
+    ) {
+      throw new TypeError(
+        `An other data type with same class (${nameOrCtor.name}) already exists.`,
+      );
+    }
     return out;
   }
 

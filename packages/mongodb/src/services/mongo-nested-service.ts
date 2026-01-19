@@ -4,8 +4,16 @@ import {
   NotAcceptableError,
   ResourceNotAvailableError,
 } from '@opra/common';
+import { ExecutionContext, ServiceBase } from '@opra/core';
 import mongodb from 'mongodb';
-import type { DTO, PartialDTO, RequiredSome, StrictOmit, Type } from 'ts-gems';
+import type {
+  DTO,
+  Nullish,
+  PartialDTO,
+  RequiredSome,
+  StrictOmit,
+  Type,
+} from 'ts-gems';
 import { isNotNullish } from 'valgen';
 import { MongoAdapter } from '../adapter/mongo-adapter.js';
 import { MongoPatchGenerator } from '../adapter/mongo-patch-generator.js';
@@ -221,6 +229,25 @@ export class MongoNestedService<
         `Data type "${t.name}" is not a ComplexType`,
       );
     return t;
+  }
+
+  /**
+   * Create a copy of this instance with given properties and context applied.
+   *
+   * @param {C | ServiceBase} context - The execution context or service base to associate with this instance.
+   * @param {Nullish<P>} [overwriteProperties] - An optional object containing properties to overwrite in the current instance.
+   * @param {Partial<C>} [overwriteContext] - An optional partial context to apply and potentially overwrite parts of the provided execution context.
+   * @return {this & Required<P>} The current instance with the specified properties and context applied.
+   * @template P
+   * @template C
+   */
+  for<C extends ExecutionContext, P extends Partial<this>>(
+    context: C | ServiceBase,
+    overwriteProperties?: Nullish<P>,
+    overwriteContext?: Partial<C>,
+  ): this & Required<P> {
+    return super.for(context, overwriteProperties, overwriteContext) as this &
+      Required<P>;
   }
 
   /**
