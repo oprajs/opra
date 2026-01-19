@@ -1,18 +1,9 @@
 import { Type } from 'ts-gems';
-import { type Validator, vg } from 'valgen';
+import { type DatePrecision, type Validator, vg } from 'valgen';
 import { DECODER, ENCODER } from '../../constants.js';
 import { SimpleType } from '../simple-type.js';
 
-const _isDateString = vg.isDateString({
-  precisionMin: 'day',
-  trim: 'tz',
-  coerce: true,
-});
-const _isDate = vg.isDate({
-  coerce: true,
-});
-
-@(SimpleType({
+@SimpleType({
   name: 'datetime',
   description: 'A full datetime value',
   nameMappings: {
@@ -20,9 +11,6 @@ const _isDate = vg.isDate({
     json: 'string',
   },
 })
-  .Example('2021-04-18T22:30:15')
-  .Example('2021-04-18 22:30:15')
-  .Example('2021-04-18 22:30'))
 export class DateTimeType {
   designType?: Type;
 
@@ -30,12 +18,29 @@ export class DateTimeType {
     if (attributes) Object.assign(this, attributes);
   }
 
+  @SimpleType.Attribute({
+    description:
+      'Determines the minimum precision, e.g. "year", "month", "hours", "minutes", "seconds" etc. Defaults to "day".',
+  })
+  precisionMin?: DatePrecision;
+
+  @SimpleType.Attribute({
+    description:
+      'Determines the minimum precision, e.g. "year", "month", "hours", "minutes", "seconds" etc. Defaults to "ms".',
+  })
+  precisionMax?: DatePrecision;
+
   protected [DECODER](properties: Partial<this>): Validator {
     let fn: Validator;
     if (properties.designType === Date) {
-      fn = _isDate;
+      fn = vg.isDate({ coerce: true });
     } else {
-      fn = _isDateString;
+      fn = vg.isDateString({
+        precisionMin: properties.precisionMin || 'day',
+        precisionMax: properties.precisionMax || 'ms',
+        trim: true,
+        coerce: true,
+      });
     }
     const x: Validator[] = [fn];
     if (properties.minValue != null) {
@@ -48,7 +53,12 @@ export class DateTimeType {
   }
 
   protected [ENCODER](properties: Partial<this>): Validator {
-    const fn: Validator = _isDateString;
+    const fn: Validator = vg.isDateString({
+      precisionMin: properties.precisionMin || 'day',
+      precisionMax: properties.precisionMax || 'ms',
+      trim: true,
+      coerce: true,
+    });
     const x: Validator[] = [fn];
     if (properties.minValue != null) {
       x.push(vg.isGte(fn(properties.minValue)));

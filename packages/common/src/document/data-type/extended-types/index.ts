@@ -7,7 +7,6 @@ export * from './field-path.type.js';
 export * from './filter.type.js';
 export * from './object-id.type.js';
 export * from './operation-result.type.js';
-export * from './partial-date.type.js';
 export * from './time.type.js';
 export * from './url.type.js';
 export * from './uuid.type.js';
