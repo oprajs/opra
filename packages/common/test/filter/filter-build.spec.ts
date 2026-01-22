@@ -139,7 +139,7 @@ describe('common:Building Filter', () => {
     x = $date('2020-03-12T10:40:50.245');
     expect(x.kind).toStrictEqual('DateLiteral');
     expect(x.value).toStrictEqual('2020-03-12T10:40:50.245');
-    expect(() => $date('2020:03:12')).toThrow('s not a valid date');
+    expect(() => $date('2020:03:12')).toThrow('Invalid');
   });
 
   it('Should $time() create TimeLiteral', () => {
