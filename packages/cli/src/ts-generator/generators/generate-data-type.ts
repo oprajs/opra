@@ -6,6 +6,7 @@ import {
   EnumType,
   MappedType,
   MixinType,
+  OperationResult,
   SimpleType,
   UnionType,
 } from '@opra/common';
@@ -55,6 +56,13 @@ export async function generateDataType(
   try {
     const typeName = dataType.name;
     if (typeName) {
+      if (
+        dataType instanceof ComplexType &&
+        dataType.ctor === OperationResult
+      ) {
+        if (currentFile) currentFile.addImport('@opra/common', [typeName]);
+        return { kind: 'internal', typeName: dataType.name };
+      }
       if (internalTypeNames.includes(typeName))
         return { kind: 'internal', typeName: dataType.name };
       let file = this._filesMap.get(dataType);
