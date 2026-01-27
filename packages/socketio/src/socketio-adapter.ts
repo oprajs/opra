@@ -142,7 +142,10 @@ export class SocketioAdapter extends PlatformAdapter<SocketioAdapter.Events> {
       this.emit('error', error, socket, this);
     });
     socket.onAny((event, ...args: any[]) => {
-      const callback = args.length > 0 ? args[args.length - 1] : null;
+      const callback =
+        args.length > 0 && typeof args[args.length - 1] === 'function'
+          ? args[args.length - 1]
+          : null;
       const reg =
         this._eventsRegByName.get(event) ||
         this._eventsRegByPattern.find(r => (r.event as RegExp).test(event));
