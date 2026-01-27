@@ -1,6 +1,6 @@
 {
   "name": "@opra/testing",
-  "version": "1.22.8",
+  "version": "1.22.9",
   "description": "Opra testing package",
   "author": "Panates",
   "license": "MIT",
@@ -28,8 +28,8 @@
     "tslib": "^2.8.1"
   },
   "peerDependencies": {
-    "@opra/client": "^1.22.8",
-    "@opra/common": "^1.22.8",
+    "@opra/client": "^1.22.9",
+    "@opra/common": "^1.22.9",
     "expect": "^29.0.0 || ^30.0.0",
     "jest-matcher-utils": "^29.0.0 || ^30.0.0"
   },
