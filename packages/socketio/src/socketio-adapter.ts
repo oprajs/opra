@@ -71,6 +71,7 @@ export class SocketioAdapter extends PlatformAdapter<SocketioAdapter.Events> {
   }
 
   async close(): Promise<void> {
+    if (!this.server.engine) return;
     return this.server.close().finally(() => {
       this._controllerInstances.clear();
       this._eventsRegByName.clear();
@@ -146,7 +147,7 @@ export class SocketioAdapter extends PlatformAdapter<SocketioAdapter.Events> {
         this._eventsRegByName.get(event) ||
         this._eventsRegByPattern.find(r => (r.event as RegExp).test(event));
       if (!reg) {
-        if (callback) callback(new OpraException(`Unknown event "${event}"`));
+        callback?.(new OpraException(`Unknown event "${event}"`));
         return;
       }
       Promise.resolve().then(async () => {
@@ -177,12 +178,16 @@ export class SocketioAdapter extends PlatformAdapter<SocketioAdapter.Events> {
             i++;
           }
           let x = await reg.handler.apply(reg.contDef.instance, callArgs);
-          if (reg.encoder) x = reg.encoder(x);
-          callback(x);
+          if (callback) {
+            if (reg.encoder) x = reg.encoder(x);
+            callback(x);
+          }
         } catch (err: any) {
-          const error =
-            err instanceof OpraException ? err : new OpraException(err);
-          callback({ errors: [error] });
+          if (callback) {
+            const error =
+              err instanceof OpraException ? err : new OpraException(err);
+            callback({ errors: [error] });
+          }
         }
       });
     });
