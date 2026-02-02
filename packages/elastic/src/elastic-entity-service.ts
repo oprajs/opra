@@ -370,9 +370,9 @@ export class ElasticEntityService<
     ]);
     let query: ElasticEntityService.QueryDslQueryContainer | undefined = {
       ...options?.request?.query,
-      ...filterQuery,
+      ...(filterQuery as any),
     };
-    if (!Object.keys(query).length) query = undefined;
+    if (!Object.keys(query!).length) query = undefined;
     const request: ElasticEntityService.CountRequest = {
       index: this.getIndexName(),
       ...options?.request,
@@ -407,9 +407,9 @@ export class ElasticEntityService<
     ]);
     let query: ElasticEntityService.QueryDslQueryContainer | undefined = {
       ...options?.request?.query,
-      ...filterQuery,
+      ...(filterQuery as any),
     };
-    if (!Object.keys(query).length) query = { match_all: {} };
+    if (!Object.keys(query!).length) query = { match_all: {} };
     const request: ElasticEntityService.DeleteByQueryRequest = {
       index: this.getIndexName(),
       ...options?.request,
@@ -434,9 +434,9 @@ export class ElasticEntityService<
     ]);
     let query: ElasticEntityService.QueryDslQueryContainer | undefined = {
       ...options?.request?.query,
-      ...filterQuery,
+      ...(filterQuery as any),
     };
-    if (!Object.keys(query).length) query = { match_all: {} };
+    if (!Object.keys(query!).length) query = { match_all: {} };
     const request: ElasticEntityService.DeleteByQueryRequest = {
       ...options?.request,
       index: this.getIndexName(),
@@ -588,9 +588,9 @@ export class ElasticEntityService<
     ]);
     let query: ElasticEntityService.QueryDslQueryContainer | undefined = {
       ...options?.request?.query,
-      ...filterQuery,
+      ...(filterQuery as any),
     };
-    if (!Object.keys(query).length) query = { match_all: {} };
+    if (!Object.keys(query!).length) query = { match_all: {} };
     const request: ElasticEntityService.UpdateByQueryRequest = {
       ...options?.request,
       index: this.getIndexName(),

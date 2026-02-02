@@ -214,7 +214,7 @@ describe('common:HttpApiFactory - HttpOperation (Class)', () => {
     expect(opr?.responses[2].toJSON()).toEqual({
       statusCode: [new HttpStatusRange(400, 401)],
       contentEncoding: 'utf-8',
-      contentType: 'application/opra.response+json',
+      contentType: 'application/json',
       type: 'object',
     });
   });

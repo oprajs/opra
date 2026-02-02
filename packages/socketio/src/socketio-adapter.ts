@@ -1,5 +1,6 @@
 import {
   ApiDocument,
+  OperationResult,
   OpraException,
   OpraSchema,
   WSApi,
@@ -11,7 +12,7 @@ import type * as http from 'http';
 import type * as http2 from 'http2';
 import type * as https from 'https';
 import * as socketio from 'socket.io';
-import { vg } from 'valgen';
+import { type Validator, vg } from 'valgen';
 import { SocketioContext } from './socketio-context.js';
 
 // const noOp = () => undefined;
@@ -27,6 +28,7 @@ type TServerInstance =
  */
 export class SocketioAdapter extends PlatformAdapter<SocketioAdapter.Events> {
   static readonly PlatformName = 'socketio';
+  protected _operationResultEncoder: Validator;
   protected _controllerInstances = new Map<WSController, any>();
   protected _eventsRegByName = new Map<string, MessageHandlerReg>();
   protected _eventsRegByPattern: MessageHandlerReg[] = [];
@@ -59,6 +61,11 @@ export class SocketioAdapter extends PlatformAdapter<SocketioAdapter.Events> {
     this.server.on('connection', (socket: socketio.Socket) => {
       this._initSocket(socket);
       this.emit('connection', socket, this);
+    });
+    const operationResultType = document.node.getDataType(OperationResult);
+    this._operationResultEncoder = operationResultType.generateCodec('encode', {
+      scope: this.scope,
+      ignoreWriteonlyFields: true,
     });
   }
 
@@ -179,16 +186,24 @@ export class SocketioAdapter extends PlatformAdapter<SocketioAdapter.Events> {
             }
             i++;
           }
-          let x = await reg.handler.apply(reg.contDef.instance, callArgs);
+          const resp = await reg.handler.apply(reg.contDef.instance, callArgs);
           if (callback) {
-            if (reg.encoder) x = reg.encoder(x);
-            callback(x);
+            let out: any;
+            if (reg.encoder) out = reg.encoder(resp);
+            if (!(resp instanceof OperationResult))
+              out = this._operationResultEncoder({
+                payload: out,
+              });
+            callback(out);
           }
         } catch (err: any) {
           if (callback) {
             const error =
               err instanceof OpraException ? err : new OpraException(err);
-            callback({ errors: [error] });
+            const out = this._operationResultEncoder({
+              errors: [error],
+            });
+            callback(out);
           }
         }
       });

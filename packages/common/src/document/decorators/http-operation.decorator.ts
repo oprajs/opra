@@ -1,3 +1,4 @@
+import typeIs from '@browsery/type-is';
 import { isConstructor } from '@jsopen/objects';
 import type { StrictOmit, Type, TypeThunkAsync } from 'ts-gems';
 import { MimeTypes } from '../../enums/index.js';
@@ -236,12 +237,22 @@ export function HttpOperationDecoratorFactory(
       statusCode,
     };
     if (responseMeta.type) {
-      responseMeta.contentType =
-        responseMeta.contentType || MimeTypes.opra_response_json;
-      responseMeta.contentEncoding = responseMeta.contentEncoding || 'utf-8';
+      responseMeta.contentType = responseMeta.contentType ?? MimeTypes.json;
     }
-    if (responseMeta.contentType === MimeTypes.opra_response_json) {
-      responseMeta.contentEncoding = responseMeta.contentEncoding || 'utf-8';
+    const contentTypes = responseMeta.contentType
+      ? Array.isArray(responseMeta.contentType)
+        ? responseMeta.contentType
+        : [responseMeta.contentType]
+      : [];
+    if (
+      contentTypes.find(
+        type =>
+          type.endsWith('+json') ||
+          type.endsWith('+xml') ||
+          typeIs.is(type, 'json', 'html', 'text', 'xml'),
+      )
+    ) {
+      responseMeta.contentEncoding = responseMeta.contentEncoding ?? 'utf-8';
     }
     if (isConstructor(responseMeta.type))
       responseMeta.designType = responseMeta.type;

@@ -54,10 +54,7 @@ describe('client:OpraClient', () => {
     expect(app.lastRequest).toBeDefined();
     expect(app.lastRequest.method).toStrictEqual('GET');
     expect(app.lastRequest.url).toStrictEqual('/auth/login?user=john');
-    expect(body).toEqual({
-      type: 'LoginResult',
-      payload: { user: 'john', token: '123456' },
-    });
+    expect(body).toEqual({ user: 'john', token: '123456' });
   });
 
   it('Should return Response object if observe=response or undefined', async () => {
@@ -68,10 +65,7 @@ describe('client:OpraClient', () => {
     expect(app.lastRequest.method).toStrictEqual('GET');
     expect(app.lastRequest.url).toStrictEqual('/auth/login?user=john');
     expect(resp).toBeInstanceOf(HttpResponse);
-    expect(resp.body).toEqual({
-      type: 'LoginResult',
-      payload: { user: 'john', token: '123456' },
-    });
+    expect(resp.body).toEqual({ user: 'john', token: '123456' });
   });
 
   it('Should run interceptor chain', async () => {
