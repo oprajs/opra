@@ -45,12 +45,10 @@ describe('http:e2e:Storage', () => {
     expect(Array.isArray(FilesController.lastPost)).toBeTruthy();
     expect(FilesController.lastPost[0].field).toStrictEqual('notes');
     expect(FilesController.lastPost[1].field).toStrictEqual('file1');
-    expect(resp.type).toStrictEqual('application/opra.response+json');
+    expect(resp.type).toStrictEqual('application/json');
     expect(resp.body).toBeDefined();
-    expect(resp.body.errors).not.toBeDefined();
     expect(resp.statusCode).toStrictEqual(200);
-    expect(resp.body.payload).toBeDefined();
-    expect(resp.body.payload.title).toStrictEqual('title');
-    expect(resp.body.payload.text).toStrictEqual('notes');
+    expect(resp.body.title).toStrictEqual('title');
+    expect(resp.body.text).toStrictEqual('notes');
   });
 });

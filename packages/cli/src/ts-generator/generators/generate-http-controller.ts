@@ -6,6 +6,7 @@ import {
   HttpController,
   HttpParameter,
   MimeTypes,
+  OperationResult,
 } from '@opra/common';
 import { camelCase, pascalCase } from 'putil-varhelpers';
 import { CodeBlock } from '../../code-block.js';
@@ -306,7 +307,11 @@ constructor(client: OpraHttpClient) {`;
       if (typeDef && resp.isArray) typeDef += '[]';
       if (
         resp.contentType &&
-        typeIs.is(String(resp.contentType), [MimeTypes.opra_response_json])
+        typeIs.is(String(resp.contentType), [MimeTypes.opra_response_json]) &&
+        !(
+          resp.type instanceof ComplexType &&
+          resp.type.base?.ctor === OperationResult
+        )
       ) {
         file.addImport('@opra/common', ['OperationResult']);
         typeDef = typeDef ? `OperationResult<${typeDef}>` : 'OperationResult';

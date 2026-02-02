@@ -6,17 +6,18 @@ import { ComplexType } from '../complex-type.js';
 @ComplexType({
   name: 'OperationResult',
   description: 'Operation result',
+  additionalFields: true,
 })
 export class OperationResult<TPayload = any> {
   constructor(init?: DeepPartial<OperationResult>) {
     if (init) Object.assign(this, init);
   }
 
-  @ApiField()
-  declare affected?: number;
-
-  @ApiField()
-  declare totalMatches?: number;
+  // @ApiField()
+  // declare affected?: number;
+  //
+  // @ApiField()
+  // declare totalMatches?: number;
 
   @ApiField()
   declare context?: string;
@@ -32,6 +33,8 @@ export class OperationResult<TPayload = any> {
 
   @ApiField({ type: 'object' })
   declare errors?: ErrorIssue[];
+
+  [index: string]: any;
 }
 
 export namespace OperationResult {
