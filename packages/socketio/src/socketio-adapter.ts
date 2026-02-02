@@ -146,15 +146,14 @@ export class SocketioAdapter extends PlatformAdapter<SocketioAdapter.Events> {
         args.length > 0 && typeof args[args.length - 1] === 'function'
           ? args[args.length - 1]
           : null;
-      const reg =
-        this._eventsRegByName.get(event) ||
-        this._eventsRegByPattern.find(r => (r.event as RegExp).test(event));
-      if (!reg) {
-        callback?.(new OpraException(`Unknown event "${event}"`));
-        return;
-      }
       Promise.resolve().then(async () => {
         try {
+          const reg =
+            this._eventsRegByName.get(event) ||
+            this._eventsRegByPattern.find(r => (r.event as RegExp).test(event));
+          if (!reg) {
+            throw new OpraException(`Unknown event "${event}"`);
+          }
           const inputParameters = callback ? args.slice(0, -1) : args;
           const ctx = new SocketioContext({
             __adapter: this,
