@@ -1,4 +1,5 @@
 import '../expect-extend/index.js';
+import { updateErrorMessage } from '@jsopen/objects';
 import { ApiExpectBase } from './api-expect-base.js';
 
 export class ApiExpectOperationResult extends ApiExpectBase {
@@ -15,7 +16,9 @@ export class ApiExpectOperationResult extends ApiExpectBase {
       if (max) this._expect(l).toBeLessThanOrEqual(max);
     } catch (e: any) {
       if (msg) e.message = msg + '\n\n' + e.message;
-      Error.captureStackTrace(e, this.toBeAffected);
+      if (typeof Error.captureStackTrace === 'function')
+        Error.captureStackTrace(e, this.toBeAffected);
+      else updateErrorMessage(e, e.message);
       throw e;
     }
     return this;

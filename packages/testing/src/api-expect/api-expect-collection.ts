@@ -1,5 +1,5 @@
 import typeIs from '@browsery/type-is';
-import { omitNullish } from '@jsopen/objects';
+import { omitNullish, updateErrorMessage } from '@jsopen/objects';
 import { MimeTypes, OpraFilter } from '@opra/common';
 import { expect } from 'expect';
 import ruleJudgmentLib from 'rule-judgment';
@@ -36,7 +36,9 @@ export class ApiExpectCollection extends ApiExpectBase {
       if (max) this._expect(l).toBeLessThanOrEqual(max);
     } catch (e: any) {
       if (msg) e.message = msg + '\n\n' + e.message;
-      Error.captureStackTrace(e, this.toReturnItems);
+      if (typeof Error.captureStackTrace === 'function')
+        Error.captureStackTrace(e, this.toReturnItems);
+      else updateErrorMessage(e, e.message);
       throw e;
     }
     return this;
@@ -51,7 +53,9 @@ export class ApiExpectCollection extends ApiExpectBase {
       if (max) this._expect(l).toBeLessThanOrEqual(max);
     } catch (e: any) {
       if (msg) e.message = msg + '\n\n' + e.message;
-      Error.captureStackTrace(e, this.toReturnItems);
+      if (typeof Error.captureStackTrace === 'function')
+        Error.captureStackTrace(e, this.toReturnItems);
+      else updateErrorMessage(e, e.message);
       throw e;
     }
     return this;

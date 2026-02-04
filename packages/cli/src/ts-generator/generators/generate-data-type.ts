@@ -1,3 +1,4 @@
+import { updateErrorMessage } from '@jsopen/objects';
 import path from 'node:path';
 import {
   ArrayType,
@@ -121,7 +122,7 @@ export async function generateDataType(
     await this._generateTypeCode(currentFile, dataType, codeBlock, intent);
     return { kind: 'embedded', code: codeBlock.toString() };
   } catch (e: any) {
-    e.message = `(${dataType.name}) ` + e.message;
+    updateErrorMessage(e, `(${dataType.name}) ` + e.message);
     throw e;
   }
 }

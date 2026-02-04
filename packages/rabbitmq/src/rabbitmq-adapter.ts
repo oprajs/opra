@@ -1,3 +1,4 @@
+import { updateErrorMessage } from '@jsopen/objects';
 import zlib from 'node:zlib';
 import typeIs from '@browsery/type-is';
 import {
@@ -103,7 +104,7 @@ export class RabbitmqAdapter extends PlatformAdapter<RabbitmqAdapter.Events> {
     try {
       /** Establish connection */
       await this._connection.onConnect().catch(e => {
-        e.message = `RabbitMQ connection error. ${e.message}`;
+        updateErrorMessage(e, `RabbitMQ connection error. ${e.message}`);
         throw e;
       });
       this.logger?.info?.(
@@ -141,7 +142,10 @@ export class RabbitmqAdapter extends PlatformAdapter<RabbitmqAdapter.Events> {
                 resolve();
               });
               consumer.on('error', (err: any) => {
-                err.message = `Consumer error (${queue})". ${err.message}`;
+                updateErrorMessage(
+                  err,
+                  `Consumer error (${queue})". ${err.message}`,
+                );
                 err.queue = queue;
                 reject(err);
               });

@@ -1,3 +1,4 @@
+import { updateErrorMessage } from '@jsopen/objects';
 import type { PartialSome, StrictOmit, ThunkAsync } from 'ts-gems';
 import { resolveThunk } from '../../helpers/index.js';
 import { OpraSchema } from '../../schema/index.js';
@@ -75,14 +76,15 @@ export class ApiDocumentFactory {
       }
       if (!context.error.message) {
         const l = context.error.details.length;
-        context.error.message = `(${l}) error${l > 1 ? 's' : ''} found in document schema.`;
+        let message = `(${l}) error${l > 1 ? 's' : ''} found in document schema.`;
         if (context.showErrorDetails) {
-          context.error.message += context.error.details
+          message += context.error.details
             .map(
               d => `\n\n  - ${d.message}` + (d.path ? `\n    @${d.path}` : ''),
             )
             .join('');
         }
+        updateErrorMessage(context.error, message);
       }
       throw context.error;
     }
