@@ -1,3 +1,4 @@
+import { updateErrorMessage } from '@jsopen/objects';
 import {
   ApiDocument,
   OperationResult,
@@ -181,7 +182,10 @@ export class SocketioAdapter extends PlatformAdapter<SocketioAdapter.Events> {
               if (arg.parameterIndex != null) callArgs[arg.parameterIndex] = v;
               else callArgs.push(v);
             } catch (err: any) {
-              err.message = `Failed to decode parameter ${i} of event "${event}": ${err.message}`;
+              updateErrorMessage(
+                err,
+                `Failed to decode parameter ${i} of event "${event}": ${err.message}`,
+              );
               throw err;
             }
             i++;

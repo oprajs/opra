@@ -1,4 +1,5 @@
 import '../expect-extend/index.js';
+import { updateErrorMessage } from '@jsopen/objects';
 import { type ErrorIssue, MimeTypes } from '@opra/common';
 import colors from 'ansi-colors';
 import { expect } from 'expect';
@@ -43,7 +44,9 @@ export class ApiExpect extends ApiExpectBase {
               : '');
         });
       }
-      Error.captureStackTrace(e, this.toSuccess);
+      if (typeof Error.captureStackTrace === 'function')
+        Error.captureStackTrace(e, this.toSuccess);
+      else updateErrorMessage(e, e.message);
       throw e;
     }
     return this;
@@ -82,7 +85,9 @@ export class ApiExpect extends ApiExpectBase {
               : '');
         });
       }
-      Error.captureStackTrace(e, this.toSuccess);
+      if (typeof Error.captureStackTrace === 'function')
+        Error.captureStackTrace(e, this.toFail);
+      else updateErrorMessage(e, e.message);
       throw e;
     }
     return new ApiExpectError(this.response);
@@ -111,7 +116,9 @@ export class ApiExpect extends ApiExpectBase {
       e.message =
         "Api didn't returned a Collection. " + msg + '\n\n' + e.message;
       if (msg) e.message = msg + '\n\n' + e.message;
-      Error.captureStackTrace(e, this.toReturnCollection);
+      if (typeof Error.captureStackTrace === 'function')
+        Error.captureStackTrace(e, this.toReturnCollection);
+      else updateErrorMessage(e, e.message);
       throw e;
     }
     return new ApiExpectCollection(this.response);
@@ -137,7 +144,9 @@ export class ApiExpect extends ApiExpectBase {
     } catch (e: any) {
       e.message = "Api didn't returned an Object. " + msg + '\n\n' + e.message;
       if (msg) e.message = msg + '\n\n' + e.message;
-      Error.captureStackTrace(e, this.toReturnCollection);
+      if (typeof Error.captureStackTrace === 'function')
+        Error.captureStackTrace(e, this.toReturnObject);
+      else updateErrorMessage(e, e.message);
       throw e;
     }
     return new ApiExpectObject(this.response);
@@ -162,7 +171,9 @@ export class ApiExpect extends ApiExpectBase {
       e.message =
         "Api didn't returned a OperationResult. " + msg + '\n\n' + e.message;
       if (msg) e.message = msg + '\n\n' + e.message;
-      Error.captureStackTrace(e, this.toReturnCollection);
+      if (typeof Error.captureStackTrace === 'function')
+        Error.captureStackTrace(e, this.toReturnOperationResult);
+      else updateErrorMessage(e, e.message);
       throw e;
     }
     return new ApiExpectOperationResult(this.response);

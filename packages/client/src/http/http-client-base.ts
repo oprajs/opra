@@ -1,3 +1,4 @@
+import { updateErrorMessage } from '@jsopen/objects';
 import {
   ApiDocument,
   ApiDocumentFactory,
@@ -54,11 +55,13 @@ export abstract class HttpClientBase<TRequestOptions = {}, TResponseExt = {}> {
       });
       if (documentId) req.param('id', documentId);
       const body = await req.getBody().catch(e => {
-        e.message =
+        updateErrorMessage(
+          e,
           'Error fetching api schema from url (' +
-          this.serviceUrl +
-          ').\n' +
-          e.message;
+            this.serviceUrl +
+            ').\n' +
+            e.message,
+        );
         throw e;
       });
       if (body.references) {
@@ -79,7 +82,7 @@ export abstract class HttpClientBase<TRequestOptions = {}, TResponseExt = {}> {
 
     const body = await getDocument(options?.documentId);
     return await ApiDocumentFactory.createDocument(body).catch(e => {
-      e.message = 'Error loading api document.\n' + e.message;
+      updateErrorMessage(e, 'Error loading api document.\n' + e.message);
       throw e;
     });
   }

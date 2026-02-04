@@ -1,3 +1,4 @@
+import { updateErrorMessage } from '@jsopen/objects';
 import { Global, Module, OnApplicationShutdown } from '@nestjs/common';
 import type { OnApplicationBootstrap } from '@nestjs/common/interfaces/hooks/on-application-bootstrap.interface.js';
 import { Db, MongoClient } from 'mongodb';
@@ -17,7 +18,10 @@ import { Db, MongoClient } from 'mongodb';
           await client.connect();
           return client;
         } catch (e: any) {
-          e.message = 'Unable to connect to MongoDB database. ' + e.message;
+          updateErrorMessage(
+            e,
+            'Unable to connect to MongoDB database. ' + e.message,
+          );
           throw e;
         }
       },
