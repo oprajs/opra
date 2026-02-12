@@ -1,6 +1,6 @@
-import { updateErrorMessage } from '@jsopen/objects';
 import zlib from 'node:zlib';
 import typeIs from '@browsery/type-is';
+import { updateErrorMessage } from '@jsopen/objects';
 import {
   ApiDocument,
   MQApi,

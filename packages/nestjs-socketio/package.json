@@ -20,7 +20,7 @@
     "clean:cover": "rimraf ../../coverage/nestjs-socketio"
   },
   "dependencies": {
-    "@jsopen/objects": "^2.1.0",
+    "@jsopen/objects": "^2.1.1",
     "tslib": "^2.8.1"
   },
   "peerDependencies": {
@@ -33,7 +33,7 @@
     "socket.io": "^4.8.3"
   },
   "devDependencies": {
-    "@faker-js/faker": "^10.2.0",
+    "@faker-js/faker": "^10.3.0",
     "@nestjs/platform-express": "^11.1.13",
     "@nestjs/microservices": "^11.1.13",
     "@nestjs/testing": "^11.1.13",

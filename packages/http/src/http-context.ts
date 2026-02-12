@@ -152,7 +152,7 @@ export class HttpContext extends ExecutionContext {
 export namespace HttpContext {
   export interface Initiator extends Omit<
     ExecutionContext.Initiator,
-    '__adapter' | 'transport'
+    '__adapter' | '__docNode' | 'transport'
   > {
     __adapter: HttpAdapter;
     __contDef?: HttpController;

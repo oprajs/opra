@@ -8,15 +8,15 @@ import { PlatformAdapter } from './platform-adapter.js';
 export class ExecutionContext extends AsyncEventEmitter {
   readonly __docNode: DocumentNode;
   readonly __adapter: PlatformAdapter;
-  readonly transport: OpraSchema.Transport;
-  readonly platform: string;
+  readonly transport?: OpraSchema.Transport;
+  readonly platform: string = '';
   errors: Error[] = [];
 
   constructor(init: ExecutionContext.Initiator) {
     super();
     this.__adapter = init.__adapter;
-    this.__docNode = init.__docNode || init.__adapter.document.node;
-    this.transport = init.transport || 'custom';
+    this.__docNode = init.__docNode;
+    this.transport = init.transport;
     this.platform = init.platform || '';
   }
 }
@@ -27,7 +27,7 @@ export class ExecutionContext extends AsyncEventEmitter {
 export namespace ExecutionContext {
   export interface Initiator {
     __adapter: PlatformAdapter;
-    __docNode?: DocumentNode;
+    __docNode: DocumentNode;
     transport?: OpraSchema.Transport;
     platform?: string;
   }
