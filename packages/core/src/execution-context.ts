@@ -1,6 +1,6 @@
 import { DocumentNode, OpraSchema } from '@opra/common';
 import { AsyncEventEmitter } from 'node-events-async';
-import { PlatformAdapter } from './platform-adapter.js';
+import type { PlatformAdapter } from './platform-adapter.js';
 
 /**
  * @class ExecutionContext

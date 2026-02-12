@@ -1,5 +1,8 @@
 <component name="ProjectRunConfigurationManager">
-  <configuration default="false" name="example:express-sqb" type="NodeJSConfigurationType" node-parameters="--loader &quot;../../support/esloader.mjs&quot; --experimental-specifier-resolution=node --import=./logerror.js" path-to-js-file="src/start.ts" working-dir="$PROJECT_DIR$/examples/express-sqb">
+  <configuration default="false" name="example:express-sqb" type="NodeJSConfigurationType" node-parameters="--import @swc-node/register/esm-register" path-to-js-file="src/start.ts" working-dir="$PROJECT_DIR$/examples/express-sqb">
+    <EXTENSION ID="com.intellij.javascript.debugger.execution.StartBrowserRunConfigurationExtension">
+      <browser with-js-debugger="true" />
+    </EXTENSION>
     <method v="2" />
   </configuration>
 </component>

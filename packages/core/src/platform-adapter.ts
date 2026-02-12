@@ -3,6 +3,7 @@ import { ApiDocument, I18n, OpraSchema } from '@opra/common';
 import { AsyncEventEmitter, EventMap } from 'node-events-async';
 import { AssetCache } from './asset-cache.js';
 import { kAssetCache } from './constants.js';
+import { ExecutionContext } from './execution-context.js';
 import { ILogger } from './interfaces/logger.interface.js';
 
 /**
@@ -14,6 +15,7 @@ export abstract class PlatformAdapter<
   protected [kAssetCache]: AssetCache;
   declare protected _document: ApiDocument;
   abstract readonly transform: OpraSchema.Transport;
+  abstract readonly platform: string;
   i18n: I18n;
   logger?: ILogger;
 
@@ -29,6 +31,15 @@ export abstract class PlatformAdapter<
   }
 
   abstract close(): Promise<void>;
+
+  createRootContext(): ExecutionContext {
+    return new ExecutionContext({
+      __adapter: this,
+      __docNode: this.document.node,
+      transport: this.transform,
+      platform: this.platform,
+    });
+  }
 }
 
 /**

@@ -11,6 +11,7 @@
     "@opra/common": "^1.23.1",
     "@opra/core": "^1.23.1",
     "@opra/mongodb": "^1.23.1",
+    "@opra/nestjs-http": "^1.23.1",
     "mongodb": "^7.1.0",
     "ts-gems": "^3.11.3"
   },
