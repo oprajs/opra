@@ -295,6 +295,8 @@ constructor(client: OpraHttpClient) {`;
       }
       if (typeDef) {
         if (typeDef !== 'OperationResult') {
+          const isArray = typeDef.endsWith('[]');
+          if (isArray) typeDef = typeDef.substring(0, typeDef.length - 2);
           if (resp.partial) {
             file.addImport('ts-gems', ['PartialDTO']);
             typeDef = `PartialDTO<${typeDef}>`;
@@ -302,6 +304,7 @@ constructor(client: OpraHttpClient) {`;
             file.addImport('ts-gems', ['DTO']);
             typeDef = `DTO<${typeDef}>`;
           }
+          if (isArray) typeDef += '[]';
         }
       }
       if (typeDef && resp.isArray) typeDef += '[]';

@@ -17,6 +17,7 @@
       "@opra/mongodb": ["../packages/mongodb/src"],
       "@opra/sqb": ["../packages/sqb/src"],
       "@opra/nestjs": ["../packages/nestjs/src"],
+      "@opra/nestjs-http": ["../packages/nestjs-http/src"],
       "example-customer-elastic": ["./_lib/customer-elastic"],
       "example-customer-mongo": ["./_lib/customer-mongo"],
       "example-customer-sqb": ["./_lib/customer-sqb"]

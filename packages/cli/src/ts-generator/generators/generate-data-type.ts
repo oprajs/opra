@@ -1,5 +1,5 @@
-import { updateErrorMessage } from '@jsopen/objects';
 import path from 'node:path';
+import { updateErrorMessage } from '@jsopen/objects';
 import {
   ArrayType,
   ComplexType,

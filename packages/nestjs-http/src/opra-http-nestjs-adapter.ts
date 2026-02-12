@@ -27,6 +27,7 @@ import { asMutable } from 'ts-gems';
 
 export class OpraHttpNestjsAdapter extends HttpAdapter {
   readonly nestControllers: Type[] = [];
+  readonly platform = 'nestjs';
 
   constructor(
     options: HttpAdapter.Options & {

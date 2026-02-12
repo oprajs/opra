@@ -1,6 +1,6 @@
 import * as process from 'node:process';
 import { Logger, Module } from '@nestjs/common';
-import { OpraHttpModule, OpraHttpNestjsAdapter } from '@opra/nestjs';
+import { OpraHttpModule, OpraHttpNestjsAdapter } from '@opra/nestjs-http';
 import { CustomerModelsDocument } from 'example-customer-mongo';
 import { AuthController } from '../api/auth.controller.js';
 import { CustomerController } from '../api/customer.controller.js';
