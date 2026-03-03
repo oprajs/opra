@@ -21,7 +21,7 @@ export interface ErrorIssue {
   diagnostics?: string | string[];
 
   // Additional information for debugging issues. This property only available in debug mode
-  stack?: string[];
+  stack?: string;
 
   [index: string]: JsonType | undefined;
 }
