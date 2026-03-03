@@ -33,7 +33,6 @@ export class OpraException extends Error {
   }
 
   toJSON(): ErrorIssue {
-    const env = process.env.NODE_ENV;
     return omitUndefined<ErrorIssue>(
       {
         message: this.message,
@@ -41,10 +40,7 @@ export class OpraException extends Error {
         system: this.system,
         code: this.code,
         details: this.details,
-        stack:
-          env === 'dev' || env === 'development' || env === 'test'
-            ? this.stack?.split('\n')
-            : undefined,
+        stack: this.stack,
       },
       true,
     );
@@ -69,10 +65,15 @@ export class OpraException extends Error {
   }
 
   protected initError(issue: Error) {
+    const env = process.env.NODE_ENV;
     this.init({
       message: issue.message,
       severity: (issue as any).severity || 'error',
       code: (issue as any).code || issue.constructor.name,
+      stack:
+        env === 'dev' || env === 'development' || env === 'test'
+          ? issue.stack
+          : undefined,
     });
   }
 }
