@@ -15,8 +15,6 @@ import { MultipartReader } from './impl/multipart-reader.js';
 import type { HttpIncoming } from './interfaces/http-incoming.interface.js';
 import type { HttpOutgoing } from './interfaces/http-outgoing.interface.js';
 
-const ENCODING_PATTERN = /encoding=([^;]+)/;
-
 export class HttpContext extends ExecutionContext {
   protected _body?: any;
   protected _multipartReader?: MultipartReader;
@@ -43,9 +41,9 @@ export class HttpContext extends ExecutionContext {
         init.__adapter.document.node,
       transport: 'http',
     });
-    if (init.__contDef) this.__contDef = init.__contDef;
     if (init.__controller) this.__controller = init.__controller;
-    if (init.__oprDef) this.__oprDef = init.__oprDef;
+    if (init.__contDef) this.__contDef = Object.create(init.__contDef);
+    if (init.__oprDef) this.__oprDef = Object.create(init.__oprDef);
     if (init.__handler) this.__handler = init.__handler;
     this.request = init.request;
     this.response = init.response;
@@ -115,8 +113,7 @@ export class HttpContext extends ExecutionContext {
       limit: __oprDef?.requestBody?.maxContentSize,
     });
     if (this._body != null) {
-      const contentType = request.header('content-type');
-      const encoding = ENCODING_PATTERN.exec(contentType || '');
+      const encoding = request.characterEncoding();
       if (encoding) this._body = this._body.toString(encoding);
       if (
         Buffer.isBuffer(this._body) &&

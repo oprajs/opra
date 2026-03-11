@@ -109,7 +109,7 @@ describe('common:HttpOperation.Entity.* decorators', () => {
       expect(opr.requestBody).toEqual({
         content: [
           {
-            contentType: 'application/json',
+            contentType: ['application/json', 'text/yaml', 'text/toml'],
             contentEncoding: 'utf-8',
             type: Customer,
             designType: Customer,
@@ -690,7 +690,7 @@ describe('common:HttpOperation.Entity.* decorators', () => {
       expect(opr.requestBody).toEqual({
         content: [
           {
-            contentType: 'application/json',
+            contentType: ['application/json', 'text/yaml', 'text/toml'],
             contentEncoding: 'utf-8',
             type: Customer,
             designType: Customer,
@@ -824,7 +824,7 @@ describe('common:HttpOperation.Entity.* decorators', () => {
       expect(opr.requestBody).toEqual({
         content: [
           {
-            contentType: 'application/json',
+            contentType: ['application/json', 'text/yaml', 'text/toml'],
             contentEncoding: 'utf-8',
             type: Customer,
             designType: Customer,

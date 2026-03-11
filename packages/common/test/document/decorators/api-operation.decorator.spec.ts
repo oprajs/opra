@@ -257,7 +257,7 @@ describe('common:HttpOperation decorator', () => {
             content: [
               {
                 contentEncoding: 'utf-8',
-                contentType: 'application/json',
+                contentType: ['application/json', 'text/yaml', 'text/toml'],
                 type: Customer,
                 designType: Customer,
               },

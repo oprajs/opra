@@ -331,7 +331,8 @@ export class HttpHandler {
       let mediaType: HttpMediaType | undefined;
       let contentType = request.header('content-type');
       if (contentType) {
-        contentType = parseContentType(contentType).type;
+        const ct = parseContentType(contentType);
+        contentType = ct.type;
         mediaType = __oprDef.requestBody.content.find(
           mc =>
             mc.contentType &&
@@ -340,6 +341,12 @@ export class HttpHandler {
               Array.isArray(mc.contentType) ? mc.contentType : [mc.contentType],
             ),
         );
+        if (mediaType) mediaType = Object.create(mediaType);
+        if (ct && mediaType) {
+          mediaType.contentType = contentType;
+          mediaType.contentEncoding =
+            ct.parameters?.['charset'] || mediaType.contentEncoding;
+        }
       }
       if (!mediaType) {
         const contentTypes = __oprDef.requestBody.content
@@ -449,11 +456,7 @@ export class HttpHandler {
             if (
               body instanceof OperationResult &&
               contentType &&
-              typeIs.is(contentType, [
-                MimeTypes.opra_response_json,
-                MimeTypes.opra_response_yaml,
-                MimeTypes.opra_response_toml,
-              ])
+              typeIs.is(contentType, [MimeTypes.opra_response_json])
             ) {
               body.payload = encode(body.payload);
               body = operationResultEncoder(body);
