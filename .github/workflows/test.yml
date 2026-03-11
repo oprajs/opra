@@ -14,13 +14,9 @@ on:
     branches:
       - dev
     paths:
-      - 'packages/*/src/**'
-      - 'packages/*/test/**'
-      - 'packages/*/*.{json,js,mjs,cjs}'
-      - 'support/test/**'
-      - '.mocharc.cjs'
-      - 'package.json'
-      - 'tsconfig*.json'
+      - '**/*.{ts,js,mjs,cjs}'
+      - '**/package.json'
+      - '**/tsconfig*.json'
 
 # Only one run per branch at a time
 concurrency:

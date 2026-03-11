@@ -4,12 +4,11 @@ import {
   HttpMediaType,
   HttpOperation,
   InternalServerError,
-  MimeTypes,
   NotAcceptableError,
 } from '@opra/common';
 import { ExecutionContext, kAssetCache } from '@opra/core';
-import { type Validator } from 'valgen';
 import toml from 'toml';
+import { type Validator } from 'valgen';
 import yaml from 'yaml';
 import type { HttpAdapter } from './http-adapter';
 import { MultipartReader } from './impl/multipart-reader.js';
