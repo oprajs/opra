@@ -6,16 +6,15 @@
 
 export enum MimeTypes {
   json = 'application/json',
-
-  opra_response_json = 'application/opra.response+json',
-
-  xml = 'application/XML',
-
+  xml = 'application/xml',
+  yaml = 'text/yaml',
+  toml = 'text/toml',
   text = 'text/plain',
-
   html = 'text/html',
-
   markdown = 'text/markdown',
-
   binary = 'binary/octet-stream',
+  opra_response_json = 'application/opra.response+json',
+  opra_response_xml = 'application/opra.response+xml',
+  opra_response_yaml = 'text/opra.response+yaml',
+  opra_response_toml = 'text/opra.response+toml',
 }

@@ -20,7 +20,7 @@
     "clean:cover": "rimraf ../../coverage/nestjs-rabbitmq"
   },
   "dependencies": {
-    "@jsopen/objects": "^2.1.1",
+    "@jsopen/objects": "^2.2.0",
     "tslib": "^2.8.1"
   },
   "peerDependencies": {
@@ -35,9 +35,9 @@
   },
   "devDependencies": {
     "@faker-js/faker": "^10.3.0",
-    "@nestjs/platform-express": "^11.1.14",
-    "@nestjs/testing": "^11.1.14",
-    "expect": "^30.2.0",
+    "@nestjs/platform-express": "^11.1.16",
+    "@nestjs/testing": "^11.1.16",
+    "expect": "^30.3.0",
     "express": "^5.2.1",
     "kafkajs": "^2.2.4",
     "rxjs": "^7.8.2",

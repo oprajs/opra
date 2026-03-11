@@ -449,7 +449,11 @@ export class HttpHandler {
             if (
               body instanceof OperationResult &&
               contentType &&
-              typeIs.is(contentType, [MimeTypes.opra_response_json])
+              typeIs.is(contentType, [
+                MimeTypes.opra_response_json,
+                MimeTypes.opra_response_yaml,
+                MimeTypes.opra_response_toml,
+              ])
             ) {
               body.payload = encode(body.payload);
               body = operationResultEncoder(body);

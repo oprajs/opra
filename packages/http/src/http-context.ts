@@ -4,14 +4,19 @@ import {
   HttpMediaType,
   HttpOperation,
   InternalServerError,
+  MimeTypes,
   NotAcceptableError,
 } from '@opra/common';
 import { ExecutionContext, kAssetCache } from '@opra/core';
 import { type Validator } from 'valgen';
+import toml from 'toml';
+import yaml from 'yaml';
 import type { HttpAdapter } from './http-adapter';
 import { MultipartReader } from './impl/multipart-reader.js';
 import type { HttpIncoming } from './interfaces/http-incoming.interface.js';
 import type { HttpOutgoing } from './interfaces/http-outgoing.interface.js';
+
+const ENCODING_PATTERN = /encoding=([^;]+)/;
 
 export class HttpContext extends ExecutionContext {
   protected _body?: any;
@@ -111,10 +116,12 @@ export class HttpContext extends ExecutionContext {
       limit: __oprDef?.requestBody?.maxContentSize,
     });
     if (this._body != null) {
-      // Convert Buffer to string if media is text
+      const contentType = request.header('content-type');
+      const encoding = ENCODING_PATTERN.exec(contentType || '');
+      if (encoding) this._body = this._body.toString(encoding);
       if (
         Buffer.isBuffer(this._body) &&
-        request.is(['json', 'xml', 'txt', 'text'])
+        request.is(['json', 'xml', 'txt', 'text', 'yaml', 'toml'])
       ) {
         this._body = this._body.toString('utf-8');
       }
@@ -122,6 +129,12 @@ export class HttpContext extends ExecutionContext {
       // Transform text to Object if media is JSON
       if (typeof this._body === 'string' && request.is(['json']))
         this._body = JSON.parse(this._body);
+      // Transform text to Object if media is YAML
+      if (typeof this._body === 'string' && request.is(['yaml']))
+        this._body = yaml.parse(this._body);
+      // Transform text to Object if media is YAML
+      if (typeof this._body === 'string' && request.is(['toml']))
+        this._body = toml.parse(this._body);
     }
 
     if (mediaType) {

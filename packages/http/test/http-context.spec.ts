@@ -37,7 +37,7 @@ describe('http:HttpContext', () => {
 
   after(async () => adapter.close());
 
-  it('Should getBody() retrieve body content', async () => {
+  it('Should getBody() retrieve json body content', async () => {
     const controller = document.getHttpApi().findController('Customer');
     const operation = controller!.operations.get('update')!;
     const context = createContext(
@@ -51,6 +51,32 @@ describe('http:HttpContext', () => {
             '',
             'F',
             '{"active":true}',
+            '0',
+            '',
+          ].join('\r\n'),
+        ),
+      ),
+    );
+    context.request.params.customerId = 1;
+    await adapter.handler.parseRequest(context);
+    const body = await context.getBody();
+    expect(body).toEqual({ active: true });
+  });
+
+  it('Should getBody() retrieve yaml body content', async () => {
+    const controller = document.getHttpApi().findController('Customer');
+    const operation = controller!.operations.get('update')!;
+    const context = createContext(
+      operation,
+      HttpIncoming.from(
+        await NodeIncomingMessage.fromAsync(
+          [
+            'PATCH /Customer@1 HTTP/1.1',
+            'Content-Type: text/yaml',
+            'Transfer-Encoding: chunked',
+            '',
+            'C',
+            'active: true',
             '0',
             '',
           ].join('\r\n'),
