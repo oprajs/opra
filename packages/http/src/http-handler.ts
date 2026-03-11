@@ -331,7 +331,8 @@ export class HttpHandler {
       let mediaType: HttpMediaType | undefined;
       let contentType = request.header('content-type');
       if (contentType) {
-        contentType = parseContentType(contentType).type;
+        const ct = parseContentType(contentType);
+        contentType = ct.type;
         mediaType = __oprDef.requestBody.content.find(
           mc =>
             mc.contentType &&
@@ -340,6 +341,12 @@ export class HttpHandler {
               Array.isArray(mc.contentType) ? mc.contentType : [mc.contentType],
             ),
         );
+        if (mediaType) mediaType = Object.create(mediaType);
+        if (ct && mediaType) {
+          mediaType.contentType = contentType;
+          mediaType.contentEncoding =
+            ct.parameters?.['charset'] || mediaType.contentEncoding;
+        }
       }
       if (!mediaType) {
         const contentTypes = __oprDef.requestBody.content

@@ -10,6 +10,7 @@ import type { HttpIncoming } from '../interfaces/http-incoming.interface.js';
 import { BodyReader } from '../utils/body-reader.js';
 
 export interface HttpIncomingHost extends HttpIncoming {}
+const ENCODING_PATTERN = /encoding=([^;]+)/;
 
 export class HttpIncomingHost implements HttpIncoming {
   body?: any;
@@ -100,6 +101,11 @@ export class HttpIncomingHost implements HttpIncoming {
     const accept = accepts(this as any);
     // eslint-disable-next-line prefer-spread
     return accept.languages.apply(accept, lang);
+  }
+
+  characterEncoding(): string | undefined {
+    const contentType = this.header('content-type');
+    return contentType ? ENCODING_PATTERN.exec(contentType)?.[1] : undefined;
   }
 
   is(type: string | string[], ...otherTypes: string[]): string | false | null {

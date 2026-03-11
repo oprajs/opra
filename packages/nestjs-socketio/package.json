@@ -1,6 +1,6 @@
 {
   "name": "@opra/nestjs-socketio",
-  "version": "1.23.3",
+  "version": "1.24.0",
   "description": "Opra NestJS Socket.io Module",
   "author": "Panates",
   "license": "MIT",
@@ -20,24 +20,24 @@
     "clean:cover": "rimraf ../../coverage/nestjs-socketio"
   },
   "dependencies": {
-    "@jsopen/objects": "^2.1.1",
+    "@jsopen/objects": "^2.2.0",
     "tslib": "^2.8.1"
   },
   "peerDependencies": {
-    "@opra/common": "^1.23.3",
-    "@opra/core": "^1.23.3",
-    "@opra/nestjs": "^1.23.3",
-    "@opra/socketio": "^1.23.3",
+    "@opra/common": "^1.24.0",
+    "@opra/core": "^1.24.0",
+    "@opra/nestjs": "^1.24.0",
+    "@opra/socketio": "^1.24.0",
     "@nestjs/common": "^10.0.0 || ^11.0.0",
     "@nestjs/core": "^10.0.0 || ^11.0.0",
     "socket.io": "^4.8.3"
   },
   "devDependencies": {
     "@faker-js/faker": "^10.3.0",
-    "@nestjs/platform-express": "^11.1.14",
-    "@nestjs/microservices": "^11.1.14",
-    "@nestjs/testing": "^11.1.14",
-    "expect": "^30.2.0",
+    "@nestjs/platform-express": "^11.1.16",
+    "@nestjs/microservices": "^11.1.16",
+    "@nestjs/testing": "^11.1.16",
+    "expect": "^30.3.0",
     "express": "^5.2.1",
     "rxjs": "^7.8.2",
     "socket.io-client": "^4.8.3",

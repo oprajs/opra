@@ -131,7 +131,7 @@ describe('http:HttpHandler', () => {
     await adapter.handler.parseRequest(context);
     expect(context.mediaType).toBeDefined();
     expect(context.mediaType?.contentType).toEqual('application/json');
-    expect(context.mediaType?.contentEncoding).toEqual('utf-8');
+    expect(context.mediaType?.contentEncoding).toEqual('UTF-8');
   });
 
   it('Should throw if content-type does not matches', async () => {

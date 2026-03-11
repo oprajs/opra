@@ -249,6 +249,8 @@ export function HttpOperationDecoratorFactory(
         type =>
           type.endsWith('+json') ||
           type.endsWith('+xml') ||
+          type.endsWith('+yaml') ||
+          type.endsWith('+toml') ||
           typeIs.is(type, 'json', 'html', 'text', 'xml'),
       )
     ) {
@@ -267,7 +269,11 @@ export function HttpOperationDecoratorFactory(
     const contentMeta: HttpMediaType.Metadata =
       typeof arg0 === 'object' ? arg0 : { type: arg0 };
     if (contentMeta.type) {
-      contentMeta.contentType = contentMeta.contentType || MimeTypes.json;
+      contentMeta.contentType = contentMeta.contentType || [
+        MimeTypes.json,
+        MimeTypes.yaml,
+        MimeTypes.toml,
+      ];
       contentMeta.contentEncoding = contentMeta.contentEncoding || 'utf-8';
       if (isConstructor(contentMeta.type))
         contentMeta.designType = contentMeta.type;

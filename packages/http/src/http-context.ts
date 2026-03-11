@@ -7,7 +7,9 @@ import {
   NotAcceptableError,
 } from '@opra/common';
 import { ExecutionContext, kAssetCache } from '@opra/core';
+import toml from 'toml';
 import { type Validator } from 'valgen';
+import yaml from 'yaml';
 import type { HttpAdapter } from './http-adapter';
 import { MultipartReader } from './impl/multipart-reader.js';
 import type { HttpIncoming } from './interfaces/http-incoming.interface.js';
@@ -39,9 +41,9 @@ export class HttpContext extends ExecutionContext {
         init.__adapter.document.node,
       transport: 'http',
     });
-    if (init.__contDef) this.__contDef = init.__contDef;
     if (init.__controller) this.__controller = init.__controller;
-    if (init.__oprDef) this.__oprDef = init.__oprDef;
+    if (init.__contDef) this.__contDef = Object.create(init.__contDef);
+    if (init.__oprDef) this.__oprDef = Object.create(init.__oprDef);
     if (init.__handler) this.__handler = init.__handler;
     this.request = init.request;
     this.response = init.response;
@@ -111,10 +113,11 @@ export class HttpContext extends ExecutionContext {
       limit: __oprDef?.requestBody?.maxContentSize,
     });
     if (this._body != null) {
-      // Convert Buffer to string if media is text
+      const encoding = request.characterEncoding();
+      if (encoding) this._body = this._body.toString(encoding);
       if (
         Buffer.isBuffer(this._body) &&
-        request.is(['json', 'xml', 'txt', 'text'])
+        request.is(['json', 'xml', 'txt', 'text', 'yaml', 'toml'])
       ) {
         this._body = this._body.toString('utf-8');
       }
@@ -122,6 +125,12 @@ export class HttpContext extends ExecutionContext {
       // Transform text to Object if media is JSON
       if (typeof this._body === 'string' && request.is(['json']))
         this._body = JSON.parse(this._body);
+      // Transform text to Object if media is YAML
+      if (typeof this._body === 'string' && request.is(['yaml']))
+        this._body = yaml.parse(this._body);
+      // Transform text to Object if media is YAML
+      if (typeof this._body === 'string' && request.is(['toml']))
+        this._body = toml.parse(this._body);
     }
 
     if (mediaType) {

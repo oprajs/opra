@@ -190,6 +190,8 @@ export interface HttpIncoming extends NodeIncomingMessage {
 
   acceptsLanguages(...lang: string[]): string | false;
 
+  characterEncoding(): string | undefined;
+
   /**
    * Check if the incoming request contains the "Content-Type"
    * header field, and it contains the give mime `type`.
