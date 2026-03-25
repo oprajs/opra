@@ -1,4 +1,3 @@
-import { randomFillSync } from 'node:crypto';
 import fs from 'node:fs';
 import os from 'node:os';
 import nodePath from 'node:path';
@@ -8,6 +7,7 @@ import busboy from 'busboy';
 import { EventEmitter } from 'events';
 import fsPromise from 'fs/promises';
 import type { StrictOmit } from 'ts-gems';
+import { uid } from 'uid';
 import { isNotNullish, ValidationError } from 'valgen';
 import type { HttpContext } from '../http-context.js';
 
@@ -82,10 +82,7 @@ export class MultipartReader extends EventEmitter {
       this.emit('item', item);
     });
     form.on('file', (field: string, file, info: busboy.FileInfo) => {
-      const saveTo = nodePath.posix.join(
-        this.tempDirectory,
-        `opra-${generateFileName()}`,
-      );
+      const saveTo = generateFileName(info, this.tempDirectory);
       file.pipe(fs.createWriteStream(saveTo));
       file.once('end', () => {
         const item: MultipartReader.FileInfo = {
@@ -233,16 +230,21 @@ export class MultipartReader extends EventEmitter {
     const promises: Promise<any>[] = [];
     this._items.forEach(item => {
       if (item.kind !== 'file') return;
-      promises.push(fsPromise.unlink(item.storedPath));
+      promises.push(fsPromise.unlink(item.storedPath).catch(() => {}));
     });
     return Promise.allSettled(promises);
   }
 }
 
-function generateFileName() {
-  const buf = Buffer.alloc(10);
-  return (
-    new Date().toISOString().substring(0, 10).replace(/-/g, '') +
-    randomFillSync(buf).toString('hex')
-  );
+function generateFileName(info: busboy.FileInfo, tempDirectory: string) {
+  let filename: string;
+  let prefix = '';
+  while (true) {
+    filename = nodePath.posix.join(
+      tempDirectory,
+      info.filename ? prefix + info.filename : 'opra-' + uid(12),
+    );
+    if (!fs.existsSync(filename)) return filename;
+    prefix = uid(6) + '-';
+  }
 }
