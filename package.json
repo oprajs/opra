@@ -30,10 +30,10 @@
     "prepare": "husky"
   },
   "devDependencies": {
-    "@panates/eslint-config": "^2.0.7",
-    "@panates/eslint-config-ts": "^2.0.7",
-    "@panates/tsconfig": "^2.0.7",
-    "@swc/core": "^1.15.18",
+    "@panates/eslint-config": "^2.0.10",
+    "@panates/eslint-config-ts": "^2.0.10",
+    "@panates/tsconfig": "^2.0.10",
+    "@swc/core": "^1.15.21",
     "@swc/helpers": "^0.5.19",
     "@swc-node/register": "^1.11.1",
     "@types/mocha": "^10.0.10",
@@ -47,7 +47,7 @@
     "husky": "^9.1.7",
     "madge": "^8.0.0",
     "mocha": "^11.7.5",
-    "npm-check-updates": "^19.6.3",
+    "npm-check-updates": "^19.6.5",
     "prettier": "^3.8.1",
     "putil-varhelpers": "^1.7.0",
     "rimraf": "^6.1.3",

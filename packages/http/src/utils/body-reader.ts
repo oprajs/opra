@@ -147,7 +147,7 @@ export class BodyReader extends EventEmitter {
                 413,
               ),
             );
-          }
+          } else callback();
         },
       });
       this.req.pipe(sizeStream);

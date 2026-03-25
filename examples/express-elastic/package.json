@@ -1,17 +1,17 @@
 {
   "name": "example-express-elastic",
   "private": true,
-  "version": "1.24.2",
+  "version": "1.24.3",
   "type": "module",
   "module": "./start.js",
   "dependencies": {
     "@elastic/elasticsearch": "^9.3.4",
-    "@opra/common": "^1.24.2",
-    "@opra/core": "^1.24.2",
-    "@opra/http": "^1.24.2",
-    "@opra/mongodb": "^1.24.2",
+    "@opra/common": "^1.24.3",
+    "@opra/core": "^1.24.3",
+    "@opra/http": "^1.24.3",
+    "@opra/mongodb": "^1.24.3",
     "express": "^5.2.1",
-    "mongodb": "^7.1.0",
+    "mongodb": "^7.1.1",
     "ts-gems": "^3.11.3"
   },
   "scripts": {
