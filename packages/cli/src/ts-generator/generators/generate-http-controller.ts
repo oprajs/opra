@@ -266,6 +266,7 @@ constructor(client: OpraHttpClient) {`;
 
     /** process header params */
     if (headerParams.length) {
+      // eslint-disable-next-line no-useless-assignment
       if (argIndex++ > 0) operationBlock.head += ', \n';
       operationBlock.head +=
         '\t$headers' + (isHeadersRequired ? '' : '?') + ': {\n\t';
@@ -285,7 +286,7 @@ constructor(client: OpraHttpClient) {`;
 
     /* Determine return type */
     const returnTypes: string[] = [];
-    let typeDef = '';
+    let typeDef: string;
     for (const resp of operation.responses) {
       if (!resp.statusCode.find(r => r.intersects(200, 299))) continue;
       typeDef = '';
