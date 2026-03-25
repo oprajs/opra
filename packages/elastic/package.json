@@ -31,9 +31,9 @@
     "@opra/core": "^1.24.2"
   },
   "devDependencies": {
-    "@faker-js/faker": "^10.3.0",
+    "@faker-js/faker": "^10.4.0",
     "expect": "^30.3.0",
-    "sinon": "^21.0.2",
+    "sinon": "^21.0.3",
     "ts-gems": "^3.11.3"
   },
   "type": "module",
