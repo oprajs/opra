@@ -164,7 +164,7 @@ export class HttpOutgoingHost {
     }
 
     // populate Content-Length
-    let len = 0;
+    let len: number;
     if (chunk !== undefined) {
       if (Buffer.isBuffer(chunk)) {
         // get length of Buffer

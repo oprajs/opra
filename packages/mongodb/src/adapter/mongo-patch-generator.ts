@@ -67,7 +67,7 @@ export class MongoPatchGenerator {
     let keyField: string | undefined;
     let keyValue: any;
     let arrayIndex = 0;
-    let arrayFilterName = '';
+    let arrayFilterName: string;
     for (key of keys) {
       const m = FIELD_NAME_PATTERN.exec(key);
       if (!m) continue;

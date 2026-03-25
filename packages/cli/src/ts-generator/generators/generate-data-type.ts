@@ -213,7 +213,7 @@ export async function _generateArrayTypeCode(
 ): Promise<void> {
   if (intent === 'extends')
     throw new TypeError('Array types can not be extended');
-  let out = '';
+  let out: string;
   const x = await this.generateDataType(dataType.type, 'typeDef', currentFile);
   if (x.kind === 'embedded') {
     out =
@@ -303,7 +303,7 @@ export async function _generateComplexTypeCode(
     if (field.readonly) fieldCode.def += 'readonly ';
     fieldCode.def += `${field.name}${field.required ? '' : '?'}: `;
 
-    let typ = '';
+    let typ: string;
     if (field.fixed) {
       const t = typeof field.fixed;
       typ = `${t === 'number' || t === 'boolean' || t === 'bigint' ? field.fixed : "'" + field.fixed + "'"}\n`;
