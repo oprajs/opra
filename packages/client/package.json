@@ -34,7 +34,7 @@
     "body-parser": "^2.2.2",
     "expect": "^30.3.0",
     "express": "^5.2.1",
-    "ts-gems": "^3.11.3"
+    "ts-gems": "^3.11.6"
   },
   "type": "module",
   "module": "./index.js",

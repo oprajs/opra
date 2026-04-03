@@ -29,7 +29,7 @@
     "@opra/common": "^1.24.4"
   },
   "devDependencies": {
-    "ts-gems": "^3.11.3"
+    "ts-gems": "^3.11.6"
   },
   "type": "module",
   "module": "./index.js",

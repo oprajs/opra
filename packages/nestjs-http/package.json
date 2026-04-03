@@ -32,14 +32,14 @@
   },
   "devDependencies": {
     "@faker-js/faker": "^10.4.0",
-    "@nestjs/platform-express": "^11.1.17",
-    "@nestjs/microservices": "^11.1.17",
-    "@nestjs/testing": "^11.1.17",
+    "@nestjs/platform-express": "^11.1.18",
+    "@nestjs/microservices": "^11.1.18",
+    "@nestjs/testing": "^11.1.18",
     "expect": "^30.3.0",
     "express": "^5.2.1",
     "rxjs": "^7.8.2",
     "supertest": "^7.2.2",
-    "ts-gems": "^3.11.3"
+    "ts-gems": "^3.11.6"
   },
   "exports": {
     ".": {
