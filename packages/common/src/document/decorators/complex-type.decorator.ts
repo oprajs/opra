@@ -1,7 +1,7 @@
 import { omit } from '@jsopen/objects';
 import { OpraSchema } from '../../schema/index.js';
 import { CLASS_NAME_PATTERN, DATATYPE_METADATA } from '../constants.js';
-import type { ComplexType } from '../data-type/complex-type';
+import type { ComplexType } from '../data-type/complex-type.js';
 
 export function ComplexTypeDecorator(options?: ComplexType.Options) {
   return function (target: Function) {

@@ -1,6 +1,6 @@
 import { OpraSchema } from '../../schema/index.js';
 import { CLASS_NAME_PATTERN, DATATYPE_METADATA } from '../constants.js';
-import type { SimpleType } from '../data-type/simple-type';
+import type { SimpleType } from '../data-type/simple-type.js';
 
 export interface SimpleTypeDecorator extends ClassDecorator {
   /**

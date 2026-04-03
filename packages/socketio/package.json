@@ -22,7 +22,7 @@
   },
   "dependencies": {
     "@jsopen/objects": "^2.2.0",
-    "@browsery/type-is": "^2.0.1",
+    "@browsery/type-is": "^2.0.2-r1",
     "content-type": "^1.0.5",
     "iconv-lite": "^0.7.2",
     "node-events-async": "^1.5.2",

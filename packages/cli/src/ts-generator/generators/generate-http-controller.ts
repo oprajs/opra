@@ -10,7 +10,7 @@ import {
 } from '@opra/common';
 import { camelCase, pascalCase } from 'putil-varhelpers';
 import { CodeBlock } from '../../code-block.js';
-import type { TsGenerator } from '../ts-generator';
+import type { TsGenerator } from '../ts-generator.js';
 import { locateNamedType } from '../utils/locate-named-type.js';
 import { wrapJSDocString } from '../utils/string-utils.js';
 

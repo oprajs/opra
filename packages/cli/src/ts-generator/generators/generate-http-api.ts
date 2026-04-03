@@ -3,7 +3,7 @@ import { HttpApi } from '@opra/common';
 import { camelCase, pascalCase } from 'putil-varhelpers';
 import { CodeBlock } from '../../code-block.js';
 import { httpControllerNodeScript } from '../http-controller-node.js';
-import type { TsGenerator } from '../ts-generator';
+import type { TsGenerator } from '../ts-generator.js';
 import { wrapJSDocString } from '../utils/string-utils.js';
 
 export async function generateHttpApi(this: TsGenerator, api: HttpApi) {

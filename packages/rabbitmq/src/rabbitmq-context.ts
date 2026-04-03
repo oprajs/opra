@@ -2,7 +2,7 @@ import { MQController, MQOperation } from '@opra/common';
 import { ExecutionContext } from '@opra/core';
 import type { AsyncEventEmitter } from 'node-events-async';
 import * as rabbit from 'rabbitmq-client';
-import type { RabbitmqAdapter } from './rabbitmq-adapter';
+import type { RabbitmqAdapter } from './rabbitmq-adapter.js';
 
 /**
  * RabbitmqContext class provides the context for handling RabbitMQ messages.

@@ -1,7 +1,7 @@
 import type { StrictOmit, Type } from 'ts-gems';
 import { ResponsiveMap } from '../../helpers/index.js';
 import { OpraSchema } from '../../schema/index.js';
-import type { ApiDocument } from '../api-document';
+import type { ApiDocument } from '../api-document.js';
 import { ApiBase } from '../common/api-base.js';
 import { MQController } from './mq-controller.js';
 import { MQOperation } from './mq-operation.js';

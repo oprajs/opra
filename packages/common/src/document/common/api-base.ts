@@ -3,7 +3,7 @@ import { OpraSchema } from '../../schema/index.js';
 import type { ApiDocument } from '../api-document.js';
 import { CLASS_NAME_PATTERN } from '../constants.js';
 import { DocumentElement } from './document-element.js';
-import type { DocumentInitContext } from './document-init-context';
+import type { DocumentInitContext } from './document-init-context.js';
 
 export namespace ApiBase {
   export interface InitArguments extends Pick<

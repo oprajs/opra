@@ -1,7 +1,7 @@
 import { omitUndefined } from '@jsopen/objects';
 import type { Combine } from 'ts-gems';
 import { OpraSchema } from '../../schema/index.js';
-import type { ApiDocument } from '../api-document';
+import type { ApiDocument } from '../api-document.js';
 import { parseRegExp } from '../utils/parse-regexp.util.js';
 import { HttpMediaType } from './http-media-type.js';
 

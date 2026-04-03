@@ -10,7 +10,7 @@ import { ExecutionContext, kAssetCache } from '@opra/core';
 import toml from 'toml';
 import { type Validator } from 'valgen';
 import yaml from 'yaml';
-import type { HttpAdapter } from './http-adapter';
+import type { HttpAdapter } from './http-adapter.js';
 import { MultipartReader } from './impl/multipart-reader.js';
 import type { HttpIncoming } from './interfaces/http-incoming.interface.js';
 import type { HttpOutgoing } from './interfaces/http-outgoing.interface.js';

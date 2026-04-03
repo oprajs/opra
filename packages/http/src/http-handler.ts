@@ -32,7 +32,7 @@ import {
   type Validator,
   vg,
 } from 'valgen';
-import type { HttpAdapter } from './http-adapter';
+import type { HttpAdapter } from './http-adapter.js';
 import { HttpContext } from './http-context.js';
 import { wrapException } from './utils/wrap-exception.js';
 

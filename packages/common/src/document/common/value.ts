@@ -2,7 +2,7 @@ import { omitUndefined } from '@jsopen/objects';
 import type { Combine, StrictOmit, TypeThunkAsync } from 'ts-gems';
 import { asMutable } from 'ts-gems';
 import type { OpraSchema } from '../../schema/index.js';
-import type { ApiDocument } from '../api-document';
+import type { ApiDocument } from '../api-document.js';
 import { DataType } from '../data-type/data-type.js';
 import type { EnumType } from '../data-type/enum-type.js';
 import { DocumentElement } from './document-element.js';

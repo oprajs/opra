@@ -4,7 +4,7 @@ import type { Combine, StrictOmit, ThunkAsync, Type } from 'ts-gems';
 import { asMutable } from 'ts-gems';
 import { cloneObject } from '../../helpers/index.js';
 import { OpraSchema } from '../../schema/index.js';
-import type { ApiDocument } from '../api-document';
+import type { ApiDocument } from '../api-document.js';
 import { DataTypeMap } from '../common/data-type-map.js';
 import { DocumentElement } from '../common/document-element.js';
 import { CLASS_NAME_PATTERN, DECORATOR, kDataTypeMap } from '../constants.js';

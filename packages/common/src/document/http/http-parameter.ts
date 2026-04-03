@@ -8,7 +8,7 @@ import {
 } from 'ts-gems';
 import { Validator, vg } from 'valgen';
 import type { OpraSchema } from '../../schema/index.js';
-import type { ApiDocument } from '../api-document';
+import type { ApiDocument } from '../api-document.js';
 import { DocumentElement } from '../common/document-element.js';
 import { Value } from '../common/value.js';
 import { DataType } from '../data-type/data-type.js';

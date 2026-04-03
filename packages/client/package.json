@@ -30,7 +30,7 @@
     "rxjs": "^7.0.0 || ^8.0.0"
   },
   "devDependencies": {
-    "@browsery/type-is": "^2.0.1",
+    "@browsery/type-is": "^2.0.2-r1",
     "body-parser": "^2.2.2",
     "expect": "^30.3.0",
     "express": "^5.2.1",

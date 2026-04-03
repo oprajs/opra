@@ -17,7 +17,7 @@ import {
   nodeInspectCustom,
 } from '../utils/inspect.util.js';
 import type { HttpApi } from './http-api.js';
-import type { HttpOperation } from './http-operation';
+import type { HttpOperation } from './http-operation.js';
 import { HttpParameter } from './http-parameter.js';
 
 /**
