@@ -4,6 +4,7 @@ import {
   HttpMediaType,
   HttpOperation,
   InternalServerError,
+  MimeTypes,
   NotAcceptableError,
 } from '@opra/common';
 import { ExecutionContext, kAssetCache } from '@opra/core';
@@ -117,7 +118,16 @@ export class HttpContext extends ExecutionContext {
       if (encoding) this._body = this._body.toString(encoding);
       if (
         Buffer.isBuffer(this._body) &&
-        request.is(['json', 'xml', 'txt', 'text', 'yaml', 'toml'])
+        request.is([
+          'json',
+          'xml',
+          'txt',
+          'text',
+          'yaml',
+          'toml',
+          MimeTypes.yaml2,
+          MimeTypes.toml2,
+        ])
       ) {
         this._body = this._body.toString('utf-8');
       }
@@ -126,10 +136,16 @@ export class HttpContext extends ExecutionContext {
       if (typeof this._body === 'string' && request.is(['json']))
         this._body = JSON.parse(this._body);
       // Transform text to Object if media is YAML
-      if (typeof this._body === 'string' && request.is(['yaml']))
+      if (
+        typeof this._body === 'string' &&
+        request.is(['yaml', MimeTypes.yaml2])
+      )
         this._body = yaml.parse(this._body);
       // Transform text to Object if media is YAML
-      if (typeof this._body === 'string' && request.is(['toml']))
+      if (
+        typeof this._body === 'string' &&
+        request.is(['toml', MimeTypes.toml2])
+      )
         this._body = toml.parse(this._body);
     }
 
