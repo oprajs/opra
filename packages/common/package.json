@@ -1,6 +1,6 @@
 {
   "name": "@opra/common",
-  "version": "1.25.0",
+  "version": "1.25.1",
   "description": "Opra common package",
   "author": "Panates",
   "license": "MIT",
@@ -22,11 +22,11 @@
     "antlr4": "java -jar ./tools/antlr-4.13.2-complete.jar -Dlanguage=TypeScript ./src/filter/antlr/OpraFilter.g4 -visitor"
   },
   "dependencies": {
-    "@browsery/antlr4": "^4.13.3-r4",
-    "@browsery/highland": "^2.13.6-r4",
-    "@browsery/http-parser": "^0.5.10-r2",
+    "@browsery/antlr4": "^4.13.3-r5",
+    "@browsery/highland": "^2.13.6-r5",
+    "@browsery/http-parser": "^0.5.10-r3",
     "@browsery/i18next": "^25.6.0",
-    "@browsery/type-is": "^2.0.1",
+    "@browsery/type-is": "^2.0.2-r1",
     "@jsopen/objects": "^2.2.0",
     "fast-tokenizer": "^1.9.0",
     "object-hash": "^3.0.0",
@@ -39,9 +39,9 @@
     "valgen": "^5.19.5"
   },
   "devDependencies": {
-    "@browsery/fs": "^0.5.1-r1",
-    "@browsery/stream": "^4.7.0-r1",
-    "@browsery/util": "^0.12.6-r2",
+    "@browsery/fs": "^0.5.1-r2",
+    "@browsery/stream": "^4.7.0-r2",
+    "@browsery/util": "^0.12.6-r3",
     "@types/encodeurl": "^1.0.3",
     "@types/object-hash": "^3.0.6",
     "@types/validator": "^13.15.10",

@@ -1,6 +1,6 @@
 {
   "name": "@opra/sqb",
-  "version": "1.25.0",
+  "version": "1.25.1",
   "description": "Opra SQB adapter package",
   "author": "Panates",
   "license": "MIT",
@@ -26,8 +26,8 @@
     "valgen": "^5.19.5"
   },
   "peerDependencies": {
-    "@opra/core": "^1.25.0",
-    "@opra/http": "^1.25.0",
+    "@opra/core": "^1.25.1",
+    "@opra/http": "^1.25.1",
     "@sqb/builder": ">4.0.0 <5",
     "@sqb/connect": ">4.0.0 <5"
   },

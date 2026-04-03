@@ -1,7 +1,6 @@
 import { omitUndefined } from '@jsopen/objects';
 import type { Combine, ThunkAsync, Type } from 'ts-gems';
-import { asMutable } from 'ts-gems';
-import { TypeThunkAsync } from 'ts-gems/lib/types';
+import { asMutable, TypeThunkAsync } from 'ts-gems';
 import { Validator, vg } from 'valgen';
 import { OpraSchema } from '../../schema/index.js';
 import { DataTypeMap } from '../common/data-type-map.js';
@@ -14,7 +13,7 @@ import {
   MQOperationDecoratorFactory,
 } from '../decorators/mq-operation.decorator.js';
 import type { MQController } from './mq-controller.js';
-import type { MQHeader } from './mq-header';
+import type { MQHeader } from './mq-header.js';
 import type { MQOperationResponse } from './mq-operation-response.js';
 
 /**

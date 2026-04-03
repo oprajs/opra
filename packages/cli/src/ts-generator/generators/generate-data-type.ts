@@ -13,7 +13,7 @@ import {
 } from '@opra/common';
 import { CodeBlock } from '../../code-block.js';
 import { TsFile } from '../ts-file.js';
-import type { TsGenerator } from '../ts-generator';
+import type { TsGenerator } from '../ts-generator.js';
 import { wrapJSDocString } from '../utils/string-utils.js';
 
 const internalTypeNames = [

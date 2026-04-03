@@ -1,4 +1,4 @@
-import type { HttpResponse } from '../http-response';
+import type { HttpResponse } from '../http-response.js';
 
 export type HttpEvent<T = any, TResponseExt = {}> =
   | HttpSentEvent

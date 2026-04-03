@@ -12,7 +12,7 @@ import { kAssetCache, PlatformAdapter } from '@opra/core';
 import { parse as parseContentType } from 'content-type';
 import iconv from 'iconv-lite';
 import * as rabbit from 'rabbitmq-client';
-import type { Envelope, MessageBody } from 'rabbitmq-client/lib/codec';
+import type { Envelope, MessageBody } from 'rabbitmq-client/lib/codec.js';
 import { promisify } from 'util';
 import { Validator, vg } from 'valgen';
 import { ConfigBuilder } from './config-builder.js';

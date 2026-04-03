@@ -1,7 +1,7 @@
 import type { estypes } from '@elastic/elasticsearch';
 import { OpraFilter } from '@opra/common';
 import type { ExecutionContext } from '@opra/core';
-import { HttpContext } from '@opra/http/src/index';
+import type { HttpContext } from '@opra/http';
 import _prepareFilter from './adapter-utils/prepare-filter.js';
 import _preparePatch from './adapter-utils/prepare-patch.js';
 import _prepareProjection from './adapter-utils/prepare-projection.js';

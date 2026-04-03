@@ -1,7 +1,7 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import colors from 'ansi-colors';
-import type { TsGenerator } from '../ts-generator';
+import type { TsGenerator } from '../ts-generator.js';
 
 export function cleanDirectory(this: TsGenerator, dirname: string) {
   const rootDir = dirname;

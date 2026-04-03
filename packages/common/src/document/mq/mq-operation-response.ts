@@ -1,10 +1,9 @@
 import { omitUndefined } from '@jsopen/objects';
-import type { Combine, Type } from 'ts-gems';
-import { TypeThunkAsync } from 'ts-gems/lib/types';
+import type { Combine, Type, TypeThunkAsync } from 'ts-gems';
 import { OpraSchema } from '../../schema/index.js';
 import { DocumentElement } from '../common/document-element.js';
 import { DataType } from '../data-type/data-type.js';
-import type { MQHeader } from './mq-header';
+import type { MQHeader } from './mq-header.js';
 import type { MQOperation } from './mq-operation.js';
 
 /**

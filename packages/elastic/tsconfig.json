@@ -5,18 +5,17 @@
   "compilerOptions": {
     "composite": true,
     "incremental": true,
-    "module": "ES2020",
-    "moduleResolution": "Node",
     "rootDir": "src",
     "outDir": "./build",
-    "baseUrl": "./",
     "paths": {
-      "@opra/common": ["../common/src"],
-      "@opra/core": ["../core/src"]
+      "@opra/common": ["../common/src/index.js"],
+      "@opra/core": ["../core/src/index.js"],
+      "@opra/http": ["../http/src/index.js"]
     }
   },
   "references": [
     { "path": "../common" },
-    { "path": "../core" }
+    { "path": "../core" },
+    { "path": "../http" }
   ]
 }

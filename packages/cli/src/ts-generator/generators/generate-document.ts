@@ -3,7 +3,7 @@ import { OpraHttpClient } from '@opra/client';
 import { ApiDocument, BUILTIN, HttpApi } from '@opra/common';
 import colors from 'ansi-colors';
 import { pascalCase } from 'putil-varhelpers';
-import type { TsGenerator } from '../ts-generator';
+import type { TsGenerator } from '../ts-generator.js';
 
 export async function generateDocument(
   this: TsGenerator,

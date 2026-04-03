@@ -5,8 +5,6 @@
   "compilerOptions": {
     "composite": true,
     "incremental": true,
-    "module": "ES2020",
-    "moduleResolution": "Node",
     "rootDir": "src",
     "outDir": "./build"
   }

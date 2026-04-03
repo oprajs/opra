@@ -2,25 +2,21 @@
   "extends": "../tsconfig-base.json",
   "include": ["**/*.ts"],
   "compilerOptions": {
-    "target": "ES2022",
-    "module": "ESNEXT",
-    "moduleResolution": "node",
     "esModuleInterop": true,
     "forceConsistentCasingInFileNames": true,
     "sourceMap": true,
-    "baseUrl": ".",
     "paths": {
-      "@opra/common": ["../packages/common/src"],
-      "@opra/core": ["../packages/core/src"],
-      "@opra/http": ["../packages/http/src"],
-      "@opra/socketio": ["../packages/socketio/src"],
-      "@opra/mongodb": ["../packages/mongodb/src"],
-      "@opra/sqb": ["../packages/sqb/src"],
-      "@opra/nestjs": ["../packages/nestjs/src"],
-      "@opra/nestjs-http": ["../packages/nestjs-http/src"],
-      "example-customer-elastic": ["./_lib/customer-elastic"],
-      "example-customer-mongo": ["./_lib/customer-mongo"],
-      "example-customer-sqb": ["./_lib/customer-sqb"]
+      "@opra/common": ["../packages/common/src/index.js"],
+      "@opra/core": ["../packages/core/src/index.js"],
+      "@opra/http": ["../packages/http/src/index.js"],
+      "@opra/socketio": ["../packages/socketio/src/index.js"],
+      "@opra/mongodb": ["../packages/mongodb/src/index.js"],
+      "@opra/sqb": ["../packages/sqb/src/index.js"],
+      "@opra/nestjs": ["../packages/nestjs/src/index.js"],
+      "@opra/nestjs-http": ["../packages/nestjs-http/src/index.js"],
+      "example-customer-elastic": ["./_lib/customer-elastic/index.js"],
+      "example-customer-mongo": ["./_lib/customer-mongo/index.js"],
+      "example-customer-sqb": ["./_lib/customer-sqb/index.js"]
     },
     "emitDecoratorMetadata": true
   }

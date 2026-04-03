@@ -3,7 +3,7 @@ import type { ThunkAsync, Type, TypeThunkAsync } from 'ts-gems';
 import { OpraSchema } from '../../schema/index.js';
 import { MQ_CONTROLLER_METADATA } from '../constants.js';
 import type { MQController } from '../mq/mq-controller.js';
-import type { MQHeader } from '../mq/mq-header';
+import type { MQHeader } from '../mq/mq-header.js';
 import type { MQOperation } from '../mq/mq-operation.js';
 import type { MQOperationResponse } from '../mq/mq-operation-response.js';
 

@@ -1,4 +1,4 @@
-import { Script } from '@elastic/elasticsearch/lib/api/types.js';
+import type { Script } from '@elastic/elasticsearch/api/types';
 
 export default function preparePatch(doc: any): Script {
   const script: string[] = [];

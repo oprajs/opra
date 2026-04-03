@@ -15,7 +15,7 @@ import {
   nodeInspectCustom,
 } from '../utils/inspect.util.js';
 import type { MQApi } from './mq-api.js';
-import type { MQHeader } from './mq-header';
+import type { MQHeader } from './mq-header.js';
 import type { MQOperation } from './mq-operation.js';
 
 /**
