@@ -1,6 +1,6 @@
 {
   "name": "@opra/core",
-  "version": "1.24.4",
+  "version": "1.25.0",
   "description": "Opra schema package",
   "author": "Panates",
   "license": "MIT",
@@ -12,7 +12,7 @@
     "lint": "eslint . --max-warnings=0",
     "lint:fix": "eslint . --max-warnings=0 --fix",
     "format": "prettier . --write --log-level=warn",
-    "check": "madge --circular src/**",
+    "check": "dpdm -T --no-warning --no-tree ./src/index.ts",
     "test": "mocha",
     "clean": "npm run clean:src && npm run clean:test && npm run clean:build && npm run clean:cover",
     "clean:src": "ts-cleanup -s src --all",
@@ -26,10 +26,10 @@
     "tslib": "^2.8.1"
   },
   "peerDependencies": {
-    "@opra/common": "^1.24.4"
+    "@opra/common": "^1.25.0"
   },
   "devDependencies": {
-    "ts-gems": "^3.11.3"
+    "ts-gems": "^3.11.6"
   },
   "type": "module",
   "module": "./index.js",

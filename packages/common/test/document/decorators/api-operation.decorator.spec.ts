@@ -5,6 +5,7 @@ import {
   HTTP_CONTROLLER_METADATA,
   HttpOperation,
   HttpStatusCode,
+  MimeTypes,
 } from '@opra/common';
 import { Customer } from 'example-customer-mongo/models';
 import { expect } from 'expect';
@@ -257,7 +258,13 @@ describe('common:HttpOperation decorator', () => {
             content: [
               {
                 contentEncoding: 'utf-8',
-                contentType: ['application/json', 'text/yaml', 'text/toml'],
+                contentType: [
+                  MimeTypes.json,
+                  MimeTypes.yaml,
+                  MimeTypes.yaml2,
+                  MimeTypes.toml,
+                  MimeTypes.toml2,
+                ],
                 type: Customer,
                 designType: Customer,
               },

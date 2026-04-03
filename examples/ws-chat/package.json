@@ -1,20 +1,20 @@
 {
   "name": "example-websocket",
   "private": true,
-  "version": "1.24.4",
+  "version": "1.25.0",
   "type": "module",
   "module": "./start.js",
   "dependencies": {
-    "@opra/common": "^1.24.4",
-    "@opra/core": "^1.24.4",
-    "@opra/socketio": "^1.24.4",
+    "@opra/common": "^1.25.0",
+    "@opra/core": "^1.25.0",
+    "@opra/socketio": "^1.25.0",
     "socket.io": "^4.8.3",
-    "ts-gems": "^3.11.3"
+    "ts-gems": "^3.11.6"
   },
   "scripts": {
     "_build": "tsc && npm run check && npm run lint && npm run format",
     "lint": "eslint . --max-warnings=0",
-    "check": "madge --circular src/**",
+    "check": "dpdm -T --no-warning --no-tree ./index.ts",
     "format": "prettier . --write --log-level=warn",
     "start": "node --loader ../../support/esloader.mjs --experimental-specifier-resolution=node --import=./logerror.js src/start.ts"
   }

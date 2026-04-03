@@ -1,6 +1,6 @@
 {
   "name": "@opra/client",
-  "version": "1.24.4",
+  "version": "1.25.0",
   "description": "Opra Client package",
   "author": "Panates",
   "license": "MIT",
@@ -12,7 +12,7 @@
     "lint": "eslint . --max-warnings=0",
     "lint:fix": "eslint . --max-warnings=0 --fix",
     "format": "prettier . --write --log-level=warn",
-    "check": "madge --circular src/**",
+    "check": "dpdm -T --no-warning --no-tree ./src/index.ts",
     "test": "mocha",
     "clean": "npm run clean:src && npm run clean:test && npm run clean:build && npm run clean:cover",
     "clean:src": "ts-cleanup -s src --all",
@@ -26,7 +26,7 @@
     "tslib": "^2.8.1"
   },
   "peerDependencies": {
-    "@opra/common": "^1.24.4",
+    "@opra/common": "^1.25.0",
     "rxjs": "^7.0.0 || ^8.0.0"
   },
   "devDependencies": {
@@ -34,7 +34,7 @@
     "body-parser": "^2.2.2",
     "expect": "^30.3.0",
     "express": "^5.2.1",
-    "ts-gems": "^3.11.3"
+    "ts-gems": "^3.11.6"
   },
   "type": "module",
   "module": "./index.js",

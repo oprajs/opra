@@ -5,6 +5,7 @@ import {
   HttpController,
   HttpOperation,
   HttpStatusRange,
+  MimeTypes,
 } from '@opra/common';
 import { Country } from 'example-customer-mongo/models';
 import { expect } from 'expect';
@@ -249,7 +250,13 @@ describe('common:HttpApiFactory - HttpOperation (Class)', () => {
     expect(opr?.requestBody?.content.length).toEqual(1);
     expect(opr?.requestBody?.content[0]).toEqual({
       id: expect.any(String),
-      contentType: ['application/json', 'text/yaml', 'text/toml'],
+      contentType: [
+        MimeTypes.json,
+        MimeTypes.yaml,
+        MimeTypes.yaml2,
+        MimeTypes.toml,
+        MimeTypes.toml2,
+      ],
       contentEncoding: 'utf-8',
       type: expect.any(ComplexType),
       designType: Country,
