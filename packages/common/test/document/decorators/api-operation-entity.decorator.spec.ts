@@ -5,6 +5,7 @@ import {
   HTTP_CONTROLLER_METADATA,
   HttpOperation,
   IntegerType,
+  MimeTypes,
 } from '@opra/common';
 import { Customer } from 'example-customer-mongo/models';
 import { expect } from 'expect';
@@ -109,7 +110,13 @@ describe('common:HttpOperation.Entity.* decorators', () => {
       expect(opr.requestBody).toEqual({
         content: [
           {
-            contentType: ['application/json', 'text/yaml', 'text/toml'],
+            contentType: [
+              MimeTypes.json,
+              MimeTypes.yaml,
+              MimeTypes.yaml2,
+              MimeTypes.toml,
+              MimeTypes.toml2,
+            ],
             contentEncoding: 'utf-8',
             type: Customer,
             designType: Customer,
@@ -690,7 +697,13 @@ describe('common:HttpOperation.Entity.* decorators', () => {
       expect(opr.requestBody).toEqual({
         content: [
           {
-            contentType: ['application/json', 'text/yaml', 'text/toml'],
+            contentType: [
+              MimeTypes.json,
+              MimeTypes.yaml,
+              MimeTypes.yaml2,
+              MimeTypes.toml,
+              MimeTypes.toml2,
+            ],
             contentEncoding: 'utf-8',
             type: Customer,
             designType: Customer,
@@ -824,7 +837,13 @@ describe('common:HttpOperation.Entity.* decorators', () => {
       expect(opr.requestBody).toEqual({
         content: [
           {
-            contentType: ['application/json', 'text/yaml', 'text/toml'],
+            contentType: [
+              MimeTypes.json,
+              MimeTypes.yaml,
+              MimeTypes.yaml2,
+              MimeTypes.toml,
+              MimeTypes.toml2,
+            ],
             contentEncoding: 'utf-8',
             type: Customer,
             designType: Customer,

@@ -272,7 +272,9 @@ export function HttpOperationDecoratorFactory(
       contentMeta.contentType = contentMeta.contentType || [
         MimeTypes.json,
         MimeTypes.yaml,
+        MimeTypes.yaml2,
         MimeTypes.toml,
+        MimeTypes.toml2,
       ];
       contentMeta.contentEncoding = contentMeta.contentEncoding || 'utf-8';
       if (isConstructor(contentMeta.type))
