@@ -78,7 +78,7 @@ export class I18n extends BaseI18n {
 
   deep(input: any, options?: I18n.DeepTranslateOptions): any {
     if (input == null) return input;
-    const objectStack = new WeakMap();
+    const objectStack = new WeakMap<object, any>();
     return this._deepTranslate(input, objectStack, options);
   }
 

@@ -1,5 +1,5 @@
 import { Type } from 'ts-gems';
-import { type DatePrecision, type Validator, vg } from 'valgen';
+import { type Validator, vg } from 'valgen';
 import { DECODER, ENCODER } from '../../constants.js';
 import { SimpleType } from '../simple-type.js';
 
@@ -22,13 +22,13 @@ export class DateTimeType {
     description:
       'Determines the minimum precision, e.g. "year", "month", "hours", "minutes", "seconds" etc. Defaults to "day".',
   })
-  precisionMin?: DatePrecision;
+  precisionMin?: vg.isDateString.Precision;
 
   @SimpleType.Attribute({
     description:
       'Determines the minimum precision, e.g. "year", "month", "hours", "minutes", "seconds" etc. Defaults to "ms".',
   })
-  precisionMax?: DatePrecision;
+  precisionMax?: vg.isDateString.Precision;
 
   protected [DECODER](properties: Partial<this>): Validator {
     let fn: Validator;
