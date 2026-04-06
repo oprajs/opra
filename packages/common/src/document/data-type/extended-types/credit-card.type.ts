@@ -3,28 +3,28 @@ import { DECODER, ENCODER } from '../../constants.js';
 import { SimpleType } from '../simple-type.js';
 
 @SimpleType({
-  name: 'uuid',
-  description: 'A Universal Unique Identifier (UUID) value',
+  name: 'creditcard',
+  description: 'A Credit Card value',
   nameMappings: {
     js: 'string',
     json: 'string',
   },
 })
-export class UuidType {
-  constructor(attributes?: Partial<UuidType>) {
+export class CreditCardType {
+  constructor(attributes?: Partial<CreditCardType>) {
     if (attributes) Object.assign(this, attributes);
   }
 
   @SimpleType.Attribute({
-    description: 'Version of the UUID',
+    description: 'Locale to use for validation',
   })
-  version?: vg.isUUID.UUIDVersion;
+  provider?: vg.isCreditCard.Provider;
 
   protected [DECODER](properties?: Partial<this>): Validator {
-    return vg.isUUID(properties?.version, { coerce: true });
+    return vg.isCreditCard({ coerce: true, provider: properties?.provider });
   }
 
   protected [ENCODER](properties?: Partial<this>): Validator {
-    return vg.isUUID(properties?.version, { coerce: true });
+    return vg.isCreditCard({ coerce: true, provider: properties?.provider });
   }
 }

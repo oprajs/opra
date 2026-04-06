@@ -3,28 +3,32 @@ import { DECODER, ENCODER } from '../../constants.js';
 import { SimpleType } from '../simple-type.js';
 
 @SimpleType({
-  name: 'uuid',
-  description: 'A Universal Unique Identifier (UUID) value',
+  name: 'passportnumber',
+  description: 'A Passport Number',
   nameMappings: {
     js: 'string',
     json: 'string',
   },
 })
-export class UuidType {
-  constructor(attributes?: Partial<UuidType>) {
+export class PassportNumberType {
+  constructor(attributes?: Partial<PassportNumberType>) {
     if (attributes) Object.assign(this, attributes);
   }
 
   @SimpleType.Attribute({
-    description: 'Version of the UUID',
+    description: 'Country code',
   })
-  version?: vg.isUUID.UUIDVersion;
+  countryCode?: string;
 
   protected [DECODER](properties?: Partial<this>): Validator {
-    return vg.isUUID(properties?.version, { coerce: true });
+    return vg.isPassportNumber(properties?.countryCode || 'TR', {
+      coerce: true,
+    });
   }
 
   protected [ENCODER](properties?: Partial<this>): Validator {
-    return vg.isUUID(properties?.version, { coerce: true });
+    return vg.isPassportNumber(properties?.countryCode || 'TR', {
+      coerce: true,
+    });
   }
 }

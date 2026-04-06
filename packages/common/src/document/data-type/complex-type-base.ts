@@ -1,6 +1,6 @@
 import hashObject from 'object-hash';
 import { asMutable, type StrictOmit, type Type } from 'ts-gems';
-import { type IsObject, type Validator, validator, vg } from 'valgen';
+import { type Validator, validator, vg } from 'valgen';
 import {
   FieldsProjection,
   parseFieldsProjection,
@@ -328,11 +328,11 @@ abstract class ComplexTypeBaseClass extends DataType {
   protected _generateSchema(
     codec: 'encode' | 'decode',
     context: GenerateCodecContext,
-  ): IsObject.Schema {
+  ): vg.isObject.Schema {
     context.fieldCache = context.fieldCache || new Map();
     context.level = context.level || 0;
     context.forwardCallbacks = context.forwardCallbacks || new Set();
-    const schema: IsObject.Schema = {};
+    const schema: vg.isObject.Schema = {};
     const { currentPath, projection } = context;
     const pickList = !!(
       projection && Object.values(projection).find(p => !p.sign)

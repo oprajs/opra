@@ -10,7 +10,7 @@ import type {
   StrictOmit,
   Type,
 } from 'ts-gems';
-import { isNotNullish, type IsObject } from 'valgen';
+import { isNotNullish, type vg } from 'valgen';
 import { SQBAdapter } from './sqb-adapter.js';
 import { SqbServiceBase } from './sqb-service-base.js';
 
@@ -235,11 +235,11 @@ export class SqbEntityService<
   protected _dataType?: ComplexType;
   protected _dataTypeClass?: Type;
   protected _entityMetadata?: EntityMetadata;
-  protected _inputCodecs: Record<string, IsObject.Validator<T>> = {};
-  protected _outputCodecs: Record<string, IsObject.Validator<T>> = {};
+  protected _inputCodecs: Record<string, vg.isObject.Validator<T>> = {};
+  protected _outputCodecs: Record<string, vg.isObject.Validator<T>> = {};
 
   /**
-   * Defines comma delimited scopes for api document
+   * Defines comma-delimited scopes for the api document
    */
   scope?: string;
 
@@ -361,7 +361,7 @@ export class SqbEntityService<
    *
    * @param operation - The operation to retrieve the encoder for. Valid values are 'create' and 'update'.
    */
-  getInputCodec(operation: string): IsObject.Validator<T> {
+  getInputCodec(operation: string): vg.isObject.Validator<T> {
     const cacheKey =
       operation + (this._dataTypeScope ? ':' + this._dataTypeScope : '');
     let validator = this._inputCodecs[cacheKey];
@@ -375,7 +375,7 @@ export class SqbEntityService<
     validator = dataType.generateCodec(
       'decode',
       options,
-    ) as IsObject.Validator<T>;
+    ) as vg.isObject.Validator<T>;
     this._inputCodecs[cacheKey] = validator;
     return validator;
   }
@@ -383,7 +383,7 @@ export class SqbEntityService<
   /**
    * Retrieves the codec.
    */
-  getOutputCodec(operation: string): IsObject.Validator<T> {
+  getOutputCodec(operation: string): vg.isObject.Validator<T> {
     const cacheKey =
       operation + (this._dataTypeScope ? ':' + this._dataTypeScope : '');
     let validator = this._outputCodecs[cacheKey];
@@ -397,7 +397,7 @@ export class SqbEntityService<
     validator = dataType.generateCodec(
       'decode',
       options,
-    ) as IsObject.Validator<T>;
+    ) as vg.isObject.Validator<T>;
     this._outputCodecs[cacheKey] = validator;
     return validator;
   }
