@@ -23,14 +23,14 @@ export class MobilePhoneType {
   protected [DECODER](properties?: Partial<this>): Validator {
     return vg.isMobilePhone({
       coerce: true,
-      locale: properties?.locale || 'tr-TR',
+      locale: properties?.locale || 'any',
     });
   }
 
   protected [ENCODER](properties?: Partial<this>): Validator {
     return vg.isMobilePhone({
       coerce: true,
-      locale: properties?.locale || 'tr-TR',
+      locale: properties?.locale || 'any',
     });
   }
 }
