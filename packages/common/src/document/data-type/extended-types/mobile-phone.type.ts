@@ -20,10 +20,17 @@ export class MobilePhoneType {
   })
   locale?: vg.isMobilePhone.MobilePhoneLocale;
 
+  @SimpleType.Attribute({
+    description:
+      'If this is set to true, the mobile phone number must be supplied with the country code and therefore must start with +. Locale number',
+  })
+  strictMode?: boolean;
+
   protected [DECODER](properties?: Partial<this>): Validator {
     return vg.isMobilePhone({
       coerce: true,
       locale: properties?.locale || 'any',
+      strictMode: properties?.strictMode ?? true,
     });
   }
 
@@ -31,6 +38,7 @@ export class MobilePhoneType {
     return vg.isMobilePhone({
       coerce: true,
       locale: properties?.locale || 'any',
+      strictMode: properties?.strictMode ?? true,
     });
   }
 }
