@@ -1,5 +1,6 @@
 import typeIs from '@browsery/type-is';
 import {
+  BadRequestError,
   HttpController,
   HttpMediaType,
   HttpOperation,
@@ -99,78 +100,82 @@ export class HttpContext extends ExecutionContext {
 
   async getBody<T>(): Promise<T> {
     if (this._body !== undefined) return this._body;
-    const { request, __oprDef, mediaType } = this;
+    try {
+      const { request, __oprDef, mediaType } = this;
 
-    if (this.isMultipart) {
-      const reader = await this.getMultipartReader();
-      /** Retrieve all fields */
-      const parts = await reader.getAll();
-      /** Filter fields according to configuration */
-      this._body = [...parts];
-      return this._body;
-    }
-
-    this._body = await this.request.readBody({
-      limit: __oprDef?.requestBody?.maxContentSize,
-    });
-    if (this._body != null) {
-      const encoding = request.characterEncoding();
-      if (encoding) this._body = this._body.toString(encoding);
-      if (
-        Buffer.isBuffer(this._body) &&
-        request.is([
-          'json',
-          'xml',
-          'txt',
-          'text',
-          'yaml',
-          'toml',
-          MimeTypes.yaml2,
-          MimeTypes.toml2,
-        ])
-      ) {
-        this._body = this._body.toString('utf-8');
+      if (this.isMultipart) {
+        const reader = await this.getMultipartReader();
+        /** Retrieve all fields */
+        const parts = await reader.getAll();
+        /** Filter fields according to configuration */
+        this._body = [...parts];
+        return this._body;
       }
 
-      // Transform text to Object if media is JSON
-      if (typeof this._body === 'string' && request.is(['json']))
-        this._body = JSON.parse(this._body);
-      // Transform text to Object if media is YAML
-      if (
-        typeof this._body === 'string' &&
-        request.is(['yaml', MimeTypes.yaml2])
-      )
-        this._body = yaml.parse(this._body);
-      // Transform text to Object if media is YAML
-      if (
-        typeof this._body === 'string' &&
-        request.is(['toml', MimeTypes.toml2])
-      )
-        this._body = toml.parse(this._body);
-    }
-
-    if (mediaType) {
-      // Decode/Validate the data object according to data model
-      if (this._body && mediaType.type) {
-        let decode = this.__adapter[kAssetCache].get<Validator>(
-          mediaType,
-          'decode',
-        )!;
-        if (!decode) {
-          decode = mediaType.generateCodec('decode', {
-            scope: this.__adapter.scope,
-            partial: __oprDef?.requestBody?.partial,
-            projection: '*',
-            ignoreReadonlyFields: true,
-            allowPatchOperators: __oprDef?.requestBody?.allowPatchOperators,
-            keepKeyFields: __oprDef?.requestBody?.keepKeyFields,
-          });
-          this.__adapter[kAssetCache].set(mediaType, 'decode', decode);
+      this._body = await this.request.readBody({
+        limit: __oprDef?.requestBody?.maxContentSize,
+      });
+      if (this._body != null) {
+        const encoding = request.characterEncoding();
+        if (encoding) this._body = this._body.toString(encoding);
+        if (
+          Buffer.isBuffer(this._body) &&
+          request.is([
+            'json',
+            'xml',
+            'txt',
+            'text',
+            'yaml',
+            'toml',
+            MimeTypes.yaml2,
+            MimeTypes.toml2,
+          ])
+        ) {
+          this._body = this._body.toString('utf-8');
         }
-        this._body = decode(this._body);
+
+        // Transform text to Object if media is JSON
+        if (typeof this._body === 'string' && request.is(['json']))
+          this._body = JSON.parse(this._body);
+        // Transform text to Object if media is YAML
+        if (
+          typeof this._body === 'string' &&
+          request.is(['yaml', MimeTypes.yaml2])
+        )
+          this._body = yaml.parse(this._body);
+        // Transform text to Object if media is YAML
+        if (
+          typeof this._body === 'string' &&
+          request.is(['toml', MimeTypes.toml2])
+        )
+          this._body = toml.parse(this._body);
       }
+
+      if (mediaType) {
+        // Decode/Validate the data object according to data model
+        if (this._body && mediaType.type) {
+          let decode = this.__adapter[kAssetCache].get<Validator>(
+            mediaType,
+            'decode',
+          )!;
+          if (!decode) {
+            decode = mediaType.generateCodec('decode', {
+              scope: this.__adapter.scope,
+              partial: __oprDef?.requestBody?.partial,
+              projection: '*',
+              ignoreReadonlyFields: true,
+              allowPatchOperators: __oprDef?.requestBody?.allowPatchOperators,
+              keepKeyFields: __oprDef?.requestBody?.keepKeyFields,
+            });
+            this.__adapter[kAssetCache].set(mediaType, 'decode', decode);
+          }
+          this._body = decode(this._body);
+        }
+      }
+      return this._body;
+    } catch (error: any) {
+      throw new BadRequestError(error);
     }
-    return this._body;
   }
 }
 
