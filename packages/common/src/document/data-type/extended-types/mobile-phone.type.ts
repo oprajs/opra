@@ -30,7 +30,7 @@ export class MobilePhoneType {
     return vg.isMobilePhone({
       coerce: true,
       locale: properties?.locale || 'any',
-      strictMode: properties?.strictMode,
+      strictMode: properties?.strictMode ?? true,
     });
   }
 
@@ -38,6 +38,7 @@ export class MobilePhoneType {
     return vg.isMobilePhone({
       coerce: true,
       locale: properties?.locale || 'any',
+      strictMode: properties?.strictMode ?? true,
     });
   }
 }
