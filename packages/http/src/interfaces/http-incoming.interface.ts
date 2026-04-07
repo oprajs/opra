@@ -228,7 +228,7 @@ export interface HttpIncoming extends NodeIncomingMessage {
    * Receives the body
    * @param options
    */
-  readBody(options: BodyReader.Options): Promise<string | Buffer | undefined>;
+  readBody(options?: BodyReader.Options): Promise<string | Buffer | undefined>;
 }
 
 /**
