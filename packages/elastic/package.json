@@ -34,7 +34,7 @@
     "@faker-js/faker": "^10.4.0",
     "@opra/http": "^1.25.6",
     "expect": "^30.3.0",
-    "sinon": "^21.0.3",
+    "sinon": "^21.1.0",
     "ts-gems": "^3.11.6"
   },
   "type": "module",
