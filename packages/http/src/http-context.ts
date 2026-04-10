@@ -98,7 +98,7 @@ export class HttpContext extends ExecutionContext {
     return reader;
   }
 
-  async getBody<T>(): Promise<T> {
+  async getBody<T>(args: { toFile: boolean | string }): Promise<T> {
     if (this._body !== undefined) return this._body;
     try {
       const { request, __oprDef, mediaType } = this;
@@ -114,6 +114,7 @@ export class HttpContext extends ExecutionContext {
 
       this._body = await this.request.readBody({
         limit: __oprDef?.requestBody?.maxContentSize,
+        toFile: args.toFile,
       });
       if (this._body != null) {
         const encoding = request.characterEncoding();
