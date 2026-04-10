@@ -1,41 +1,14 @@
 import fs from 'node:fs';
 import os from 'node:os';
-import nodePath from 'node:path';
 import typeIs from '@browsery/type-is';
 import { BadRequestError, HttpMediaType } from '@opra/common';
 import busboy from 'busboy';
 import { EventEmitter } from 'events';
 import fsPromise from 'fs/promises';
 import type { StrictOmit } from 'ts-gems';
-import { uid } from 'uid';
 import { isNotNullish, ValidationError } from 'valgen';
 import type { HttpContext } from '../http-context.js';
-
-export namespace MultipartReader {
-  export interface Options extends StrictOmit<busboy.BusboyConfig, 'headers'> {
-    tempDirectory?: string;
-    scope?: string;
-  }
-
-  export interface FieldInfo {
-    kind: 'field';
-    field: string;
-    value?: any;
-    mimeType?: string;
-    encoding?: string;
-  }
-
-  export interface FileInfo {
-    kind: 'file';
-    field: string;
-    filename: string;
-    storedPath: string;
-    mimeType?: string;
-    encoding?: string;
-  }
-
-  export type Item = FieldInfo | FileInfo;
-}
+import { LocalFile } from './local-file.js';
 
 export class MultipartReader extends EventEmitter {
   protected _started = false;
@@ -69,7 +42,7 @@ export class MultipartReader extends EventEmitter {
       this._finished = true;
     });
     form.on('field', (field: string, value: string, info: busboy.Info) => {
-      const item: MultipartReader.FieldInfo = {
+      const item: MultipartReader.Field = {
         kind: 'field',
         field,
         value,
@@ -82,17 +55,15 @@ export class MultipartReader extends EventEmitter {
       this.emit('item', item);
     });
     form.on('file', (field: string, file, info: busboy.FileInfo) => {
-      const saveTo = generateFileName(info, this.tempDirectory);
+      const saveTo = LocalFile.tempFilename(info.filename, this.tempDirectory);
       file.pipe(fs.createWriteStream(saveTo));
       file.once('end', () => {
-        const item: MultipartReader.FileInfo = {
-          kind: 'file',
-          field,
-          storedPath: saveTo,
+        const item = new MultipartFile(field, saveTo, {
           filename: info.filename,
-          mimeType: info.mimeType,
-          encoding: info.encoding,
-        };
+          type: info.mimeType,
+          encoding: info.encoding as BufferEncoding,
+          autoDelete: true,
+        });
         this._items.push(item);
         this._stack.push(item);
         this.emit('file', item);
@@ -147,9 +118,7 @@ export class MultipartReader extends EventEmitter {
           const arr = Array.isArray(field.contentType)
             ? field.contentType
             : [field.contentType];
-          if (
-            !(item.mimeType && arr.find(ct => typeIs.is(item.mimeType!, [ct])))
-          ) {
+          if (!(item.type && arr.find(ct => typeIs.is(item.type!, [ct])))) {
             throw new BadRequestError(
               `Multipart field (${item.field}) do not accept this content type`,
             );
@@ -236,15 +205,36 @@ export class MultipartReader extends EventEmitter {
   }
 }
 
-function generateFileName(info: busboy.FileInfo, tempDirectory: string) {
-  let filename: string;
-  let prefix = '';
-  while (true) {
-    filename = nodePath.posix.join(
-      tempDirectory,
-      info.filename ? prefix + info.filename : 'opra-' + uid(12),
-    );
-    if (!fs.existsSync(filename)) return filename;
-    prefix = uid(6) + '-';
+export class MultipartFile extends LocalFile {
+  readonly kind = 'file';
+  readonly field: string;
+  constructor(
+    field: string,
+    storedPath: string,
+    options: LocalFile.Options = {
+      autoDelete: true,
+    },
+  ) {
+    super(storedPath, options);
+    this.field = field;
   }
+}
+
+export namespace MultipartReader {
+  export interface Options extends StrictOmit<busboy.BusboyConfig, 'headers'> {
+    tempDirectory?: string;
+    scope?: string;
+  }
+
+  export interface Field {
+    kind: 'field';
+    field: string;
+    value?: any;
+    mimeType?: string;
+    encoding?: string;
+  }
+
+  export type File = MultipartFile;
+
+  export type Item = Field | File;
 }

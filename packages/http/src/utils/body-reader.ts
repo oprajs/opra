@@ -1,3 +1,5 @@
+import fs from 'node:fs';
+import path from 'node:path';
 import nodeStream from 'node:stream';
 import typeIs from '@browsery/type-is';
 import {
@@ -12,6 +14,7 @@ import { EventEmitter } from 'events';
 import iconv from 'iconv-lite';
 import { Writable } from 'stream';
 import * as zlib from 'zlib';
+import { LocalFile } from '../impl/local-file.js';
 import type { HttpIncoming } from '../interfaces/http-incoming.interface.js';
 
 /**
@@ -21,6 +24,7 @@ import type { HttpIncoming } from '../interfaces/http-incoming.interface.js';
 export namespace BodyReader {
   export interface Options {
     limit?: number | string;
+    toFile?: boolean | string;
   }
 }
 
@@ -36,6 +40,8 @@ export class BodyReader extends EventEmitter {
   protected _buffer?: string | Buffer[];
   protected _completed? = false;
   protected _receivedSize = 0;
+  protected _file?: LocalFile;
+  protected _fileStream?: fs.WriteStream;
   protected cleanup: Callback;
   protected onAborted: Callback;
   protected onData: Callback;
@@ -55,6 +61,16 @@ export class BodyReader extends EventEmitter {
         ? options.limit
         : byteParser(options.limit) || undefined
       : undefined;
+    if (options?.toFile === true) {
+      this._file = new LocalFile(LocalFile.tempFilename());
+    } else if (typeof options?.toFile === 'string') {
+      if (path.isAbsolute(options?.toFile)) {
+        this._file = new LocalFile(options?.toFile);
+      } else {
+        this._file = new LocalFile(LocalFile.tempFilename(options?.toFile));
+      }
+    }
+    if (this._file) this._file.autoDelete = true;
   }
 
   async read() {
@@ -165,6 +181,11 @@ export class BodyReader extends EventEmitter {
         stream = newStream;
       }
       this._stream = stream;
+      if (this._file) {
+        this._fileStream = fs.createWriteStream(this._file.storedPath);
+        stream.pipe(this._fileStream);
+      }
+
       // attach listeners
       stream.on('aborted', this.onAborted);
       stream.on('close', this.cleanup);
@@ -180,9 +201,19 @@ export class BodyReader extends EventEmitter {
     if (error) {
       this._stream?.unpipe();
       this._stream?.pause();
+      this._fileStream?.close(() => {
+        this._file?.delete();
+      });
     }
-    if (error) this.emit('finish', error);
-    else if (Array.isArray(this._buffer))
+    if (error) {
+      this.emit('finish', error);
+    } else if (this._file) {
+      if (this._fileStream) {
+        this._fileStream.once('finish', () => {
+          this.emit('finish', undefined, this._file);
+        });
+      } else this.emit('finish', error, undefined);
+    } else if (Array.isArray(this._buffer))
       this.emit('finish', error, Buffer.concat(this._buffer));
     else this.emit('finish', error, this._buffer);
     this._cleanup();
@@ -212,7 +243,7 @@ export class BodyReader extends EventEmitter {
   }
 
   protected _onData(chunk: Buffer | string) {
-    if (this._completed) return;
+    if (this._completed || this._file) return;
     if (typeof chunk === 'string') {
       this._buffer = this._buffer || '';
       this._buffer += chunk;

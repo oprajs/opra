@@ -33,7 +33,7 @@ export class AvatarController {
     const parts = await reader.getAll();
     const part = parts.find(
       x => x.field === 'metadata',
-    ) as MultipartReader.FieldInfo;
+    ) as MultipartReader.Field;
     return part.value;
   }
 }
