@@ -28,7 +28,7 @@ export interface HttpMediaType {
   type?: DataType.Name | DataType;
 
   /**
-   * Determines if content is array
+   * Determines if the content is an array
    * @deprecated
    */
   isArray?: boolean;

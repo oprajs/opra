@@ -8,6 +8,7 @@ export * from './express-adapter.js';
 export * from './http-adapter.js';
 export * from './http-context.js';
 export * from './http-handler.js';
+export * from './impl/local-file.js';
 export * from './impl/multipart-reader.js';
 export * from './interfaces/http-incoming.interface.js';
 export * from './interfaces/http-outgoing.interface.js';
