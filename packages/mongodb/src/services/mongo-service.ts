@@ -19,7 +19,7 @@ const transactionKey = Symbol.for('transaction');
  * @namespace MongoService
  */
 export namespace MongoService {
-  export interface Options {
+  export interface Options extends ServiceBase.Options {
     db?: MongoService<any>['db'];
     session?: MongoService<any>['session'];
     collectionName?: MongoService<any>['collectionName'];

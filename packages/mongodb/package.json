@@ -1,6 +1,6 @@
 {
   "name": "@opra/mongodb",
-  "version": "1.26.1",
+  "version": "1.26.2",
   "description": "Opra MongoDB adapter package",
   "author": "Panates",
   "license": "MIT",
@@ -21,21 +21,21 @@
     "clean:cover": "rimraf ../../coverage/mongodb"
   },
   "dependencies": {
-    "@jsopen/objects": "^2.2.0",
+    "@jsopen/objects": "^2.2.1",
     "tslib": "^2.8.1",
     "valgen": "^6.0.3"
   },
   "peerDependencies": {
-    "@opra/common": "^1.26.1",
-    "@opra/core": "^1.26.1",
-    "@opra/http": "^1.26.1",
+    "@opra/common": "^1.26.2",
+    "@opra/core": "^1.26.2",
+    "@opra/http": "^1.26.2",
     "mongodb": "^7.0.0"
   },
   "devDependencies": {
     "@faker-js/faker": "^10.4.0",
     "mongodb": "^6.0.0 || ^7.0.0",
     "expect": "^30.3.0",
-    "sinon": "^21.1.0",
+    "sinon": "^21.1.2",
     "ts-gems": "^3.11.6"
   },
   "exports": {

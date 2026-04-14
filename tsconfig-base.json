@@ -1,7 +1,6 @@
 {
   "extends": "@panates/tsconfig/node.json",
   "compilerOptions": {
-    "types": ["node"],
     "sourceMap": true,
     "experimentalDecorators": true,
     "emitDecoratorMetadata": true,

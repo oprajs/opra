@@ -1,30 +1,6 @@
 import { Client } from '@elastic/elasticsearch';
 import { ServiceBase } from '@opra/core';
 
-/**
- * The namespace for the ElasticService.
- *
- * @namespace ElasticService
- */
-export namespace ElasticService {
-  export interface Options {
-    client?: ElasticService['client'];
-    interceptor?: ElasticService['interceptor'];
-    onError?: ElasticService['onError'];
-  }
-
-  export type CrudOp = 'create' | 'read' | 'update' | 'delete';
-
-  export interface CommandInfo {
-    crud: CrudOp;
-    method: string;
-    byId: boolean;
-    documentId?: any;
-    input?: any;
-    options?: any;
-  }
-}
-
 export interface ElasticService {
   /**
    * Interceptor function for handling callback execution with provided arguments.
@@ -116,5 +92,29 @@ export class ElasticService extends ServiceBase {
       await this.onError?.(e, this);
       throw e;
     }
+  }
+}
+
+/**
+ * The namespace for the ElasticService.
+ *
+ * @namespace ElasticService
+ */
+export namespace ElasticService {
+  export interface Options extends ServiceBase.Options {
+    client?: ElasticService['client'];
+    interceptor?: ElasticService['interceptor'];
+    onError?: ElasticService['onError'];
+  }
+
+  export type CrudOp = 'create' | 'read' | 'update' | 'delete';
+
+  export interface CommandInfo {
+    crud: CrudOp;
+    method: string;
+    byId: boolean;
+    documentId?: any;
+    input?: any;
+    options?: any;
   }
 }
