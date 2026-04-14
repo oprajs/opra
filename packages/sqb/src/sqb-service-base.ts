@@ -7,7 +7,7 @@ const transactionKey = Symbol.for('transaction');
  * @namespace SqbServiceBase
  */
 export namespace SqbServiceBase {
-  export interface Options {
+  export interface Options extends ServiceBase.Options {
     db?: SqbServiceBase['db'];
   }
 }
@@ -18,7 +18,7 @@ export namespace SqbServiceBase {
  */
 export class SqbServiceBase extends ServiceBase {
   /**
-   * Represents a SqbClient or SqbConnection object
+   * Represents an SqbClient or SqbConnection object
    */
   db?:
     | (SqbClient | SqbConnection)
