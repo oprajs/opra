@@ -20,7 +20,7 @@
     "clean:cover": "rimraf ../../coverage/nestjs-kafka"
   },
   "dependencies": {
-    "@jsopen/objects": "^2.2.0",
+    "@jsopen/objects": "^2.2.1",
     "fast-tokenizer": "^1.9.0",
     "putil-promisify": "^1.10.1",
     "reflect-metadata": "^0.2.2",
@@ -38,8 +38,8 @@
   },
   "devDependencies": {
     "@faker-js/faker": "^10.4.0",
-    "@nestjs/platform-express": "^11.1.18",
-    "@nestjs/testing": "^11.1.18",
+    "@nestjs/platform-express": "^11.1.19",
+    "@nestjs/testing": "^11.1.19",
     "@types/amqplib": "^0.10.8",
     "expect": "^30.3.0",
     "express": "^5.2.1",

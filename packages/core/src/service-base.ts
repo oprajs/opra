@@ -2,11 +2,15 @@ import type { Nullish } from 'ts-gems';
 import type { ExecutionContext } from './execution-context.js';
 
 export abstract class ServiceBase {
-  declare protected _context: ExecutionContext;
+  declare protected _context?: ExecutionContext;
+
+  constructor(options?: ServiceBase.Options) {
+    this._context = options?.context;
+  }
 
   get context(): ExecutionContext {
     this._assertContext();
-    return this._context;
+    return this._context!;
   }
 
   for<C extends ExecutionContext, P extends Partial<this>>(
@@ -38,4 +42,7 @@ export abstract class ServiceBase {
 
 export namespace ServiceBase {
   export const extendSymbol = Symbol('extend');
+  export interface Options {
+    context?: ExecutionContext;
+  }
 }
