@@ -200,7 +200,7 @@ export class ApiDocumentFactory {
         version: OpraSchema.SpecVersion,
         title: 'Opra built-in types',
         license: {
-          url: 'https://github.com/oprajs/opra/blob/main/LICENSE',
+          url: 'https://github.com/panates/opra/blob/main/LICENSE',
           name: 'MIT',
         },
       },
