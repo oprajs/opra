@@ -31,7 +31,7 @@ export class SqbServiceBase extends ServiceBase {
    * @constructor
    */
   constructor(options?: SqbServiceBase.Options) {
-    super();
+    super(options);
     this.db = options?.db;
   }
 
