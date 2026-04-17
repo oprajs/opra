@@ -5,11 +5,10 @@ import { vg } from 'valgen';
 import type { SQBAdapter } from '../sqb-adapter.js';
 
 /**
- * Prepare the SQB filter based on the provided filters and options.
+ * Prepares the SQB filter based on the provided filters and options.
  *
- * @param {SQBAdapter.FilterInput|SQBAdapter.FilterInput[]} filters - The filter(s) to be applied.
- *
- * @returns {Expression} - The prepared SQB Expression.
+ * @param filters - The filter(s) to be applied. Can be a single filter or an array of filters.
+ * @returns The prepared SQB Expression, or `undefined` if no filters are provided.
  */
 export default function prepareFilter(
   filters: SQBAdapter.FilterInput | SQBAdapter.FilterInput[],

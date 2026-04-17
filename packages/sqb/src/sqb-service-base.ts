@@ -4,31 +4,35 @@ import { SqbClient, SqbConnection } from '@sqb/connect';
 const transactionKey = Symbol.for('transaction');
 
 /**
- * @namespace SqbServiceBase
+ * Namespace for SqbServiceBase types and options.
  */
 export namespace SqbServiceBase {
+  /**
+   * Options for initializing SqbServiceBase.
+   */
   export interface Options extends ServiceBase.Options {
+    /**
+     * The SQB client or connection used by this service.
+     */
     db?: SqbServiceBase['db'];
   }
 }
 
 /**
- * @class SqbServiceBase
- * @template T - The data type class type of the resource
+ * Base class for services using SQB (SQL Builder) for database operations.
  */
 export class SqbServiceBase extends ServiceBase {
   /**
-   * Represents an SqbClient or SqbConnection object
+   * The SQB client or connection used by this service.
    */
   db?:
     | (SqbClient | SqbConnection)
     | ((_this: this) => SqbClient | SqbConnection);
 
   /**
-   * Constructs a new instance
+   * Constructs a new instance.
    *
-   * @param [options] - The options for the service.
-   * @constructor
+   * @param options - Options for the service.
    */
   constructor(options?: SqbServiceBase.Options) {
     super(options);
@@ -36,9 +40,11 @@ export class SqbServiceBase extends ServiceBase {
   }
 
   /**
-   * Executes the provided function within a transaction.
+   * Executes the provided callback within a database transaction.
+   * If a transaction is already active in the current context, the callback
+   * joins it rather than starting a new one.
    *
-   * @param callback - The function to be executed within the transaction.
+   * @param callback - The function to execute within the transaction.
    */
   async withTransaction(
     callback: (connection: SqbConnection, _this: this) => any,
@@ -83,11 +89,9 @@ export class SqbServiceBase extends ServiceBase {
   }
 
   /**
-   * Retrieves the database connection.
+   * Returns the active database connection for the current context.
    *
-   * @protected
-   *
-   * @throws {Error} If the context or database is not set.
+   * @throws If no database connection is configured.
    */
   getConnection():
     | SqbConnection

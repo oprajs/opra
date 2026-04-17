@@ -4,10 +4,24 @@ import type { HttpContext } from '@opra/http';
 import { EntityMetadata, type Repository } from '@sqb/connect';
 import _prepareFilter from './adapter-utils/prepare-filter.js';
 
+/**
+ * SQBAdapter namespace provides types and utility functions for integrating SQB with Opra.
+ */
 export namespace SQBAdapter {
+  /**
+   * Represents a single identifier type.
+   */
   export type Id = string | number | boolean | Date;
+
+  /**
+   * Represents a single identifier or a composite key.
+   */
   export type IdOrIds = Id | Record<string, Id>;
 
+  /**
+   * Represents the input for a filter, which can be an Opra filter expression,
+   * a SQB filter object, a string, or undefined.
+   */
   export type FilterInput =
     | OpraFilter.Expression
     | Repository.FindManyOptions['filter']
@@ -15,12 +29,23 @@ export namespace SQBAdapter {
     | undefined;
 
   /**
-   * @deprecated Use prepareFilter instead
+   * Parses the given filter input into a SQB filter expression.
+   * @deprecated Use {@link prepareFilter} instead.
    */
   export const parseFilter = _prepareFilter;
+
+  /**
+   * Prepares the given filter input into a SQB filter expression.
+   */
   export const prepareFilter = _prepareFilter;
 
+  /**
+   * Represents a request that has been transformed for SQB operations.
+   */
   export interface TransformedRequest {
+    /**
+     * The operation method name.
+     */
     method:
       | 'create'
       | 'delete'
@@ -30,11 +55,28 @@ export namespace SQBAdapter {
       | 'findMany'
       | 'update'
       | 'updateMany';
+    /**
+     * The primary key for the operation, if applicable.
+     */
     key?: any;
+    /**
+     * The data object for create or update operations.
+     */
     data?: any;
+    /**
+     * Additional options for the SQB operation.
+     */
     options: any;
   }
 
+  /**
+   * Parses an execution context and transforms it into a SQB-compatible request.
+   *
+   * @param context - The execution context to parse.
+   * @returns A promise that resolves to the transformed request.
+   * @throws {TypeError} If the context transport is not 'http'.
+   * @throws {Error} If the operation is not compatible with SQB Adapter.
+   */
   export async function parseRequest(
     context: ExecutionContext,
   ): Promise<TransformedRequest> {
@@ -73,7 +115,7 @@ export namespace SQBAdapter {
             controller.parameters.find(p => p.keyParam);
           const key = keyParam && ctx.pathParams[String(keyParam.name)];
           const options = {
-            filter: parseFilter(ctx.queryParams.filter),
+            filter: prepareFilter(ctx.queryParams.filter),
           };
           return {
             method: 'delete',
@@ -83,14 +125,14 @@ export namespace SQBAdapter {
         }
         case 'Entity.DeleteMany': {
           const options = {
-            filter: parseFilter(ctx.queryParams.filter),
+            filter: prepareFilter(ctx.queryParams.filter),
           };
           return { method: 'deleteMany', options } satisfies TransformedRequest;
         }
         case 'Entity.FindMany': {
           const options = {
             count: ctx.queryParams.count,
-            filter: parseFilter(ctx.queryParams.filter),
+            filter: prepareFilter(ctx.queryParams.filter),
             projection:
               ctx.queryParams.projection ||
               __oprDef.compositionOptions.defaultProjection,
@@ -138,7 +180,7 @@ export namespace SQBAdapter {
           const key = keyParam && ctx.pathParams[String(keyParam.name)];
           const options = {
             projection: ctx.queryParams.projection,
-            filter: parseFilter(ctx.queryParams.filter),
+            filter: prepareFilter(ctx.queryParams.filter),
           };
           return {
             method: 'update',
@@ -150,7 +192,7 @@ export namespace SQBAdapter {
         case 'Entity.UpdateMany': {
           const data = await ctx.getBody<any>();
           const options = {
-            filter: parseFilter(ctx.queryParams.filter),
+            filter: prepareFilter(ctx.queryParams.filter),
           };
           return {
             method: 'updateMany',

@@ -15,28 +15,61 @@ import { SQBAdapter } from './sqb-adapter.js';
 import { SqbServiceBase } from './sqb-service-base.js';
 
 /**
- * @namespace SqbEntityService
+ * Namespace containing types and options for SqbEntityService.
  */
 export namespace SqbEntityService {
+  /**
+   * Configuration options for SqbEntityService.
+   */
   export interface Options extends SqbServiceBase.Options {
+    /**
+     * The name of the resource managed by this service.
+     */
     resourceName?: SqbEntityService<any>['resourceName'];
+    /**
+     * Optional error handler.
+     */
     onError?: SqbEntityService<any>['onError'];
+    /**
+     * Optional common filter applied to all read/write operations.
+     */
     commonFilter?: SqbEntityService<any>['commonFilter'];
+    /**
+     * Optional interceptor for the service operations.
+     */
     interceptor?: SqbEntityService<any>['interceptor'];
+    /**
+     * Optional scope for the service.
+     */
     scope?: SqbEntityService<any>['scope'];
   }
 
+  /**
+   * Represents the CRUD operation types.
+   */
   export type CrudOp = 'create' | 'read' | 'update' | 'delete';
 
+  /**
+   * Information about the command being executed.
+   */
   export interface CommandInfo {
+    /** The CRUD operation type. */
     crud: SqbEntityService.CrudOp;
+    /** The method name being called. */
     method: string;
+    /** Whether the operation is targeting a specific record by ID. */
     byId: boolean;
+    /** The identifier of the record, if applicable. */
     documentId?: SQBAdapter.IdOrIds;
+    /** The input data for the operation, if applicable. */
     input?: Record<string, any>;
+    /** The options for the operation, if applicable. */
     options?: Record<string, any>;
   }
 
+  /**
+   * Type definition for a common filter.
+   */
   export type CommonFilter =
     | SQBAdapter.FilterInput
     | ((
@@ -47,111 +80,86 @@ export namespace SqbEntityService {
         | Promise<SQBAdapter.FilterInput>
         | undefined);
 
-  /**
-   * Represents options for "create" operation
-   *
-   * @interface
-   */
+  /** Options for the `create` operation. */
   export interface CreateOptions extends Repository.CreateOptions {}
 
-  /**
-   * Represents options for "count" operation
-   *
-   * @interface
-   */
+  /** Options for the `count` operation. */
   export interface CountOptions extends StrictOmit<
     Repository.CountOptions,
     'filter'
   > {
+    /** Filter criteria for the count operation. */
     filter?: Repository.CountOptions['filter'] | string;
   }
 
-  /**
-   * Represents options for "delete" operation
-   *
-   * @interface
-   */
+  /** Options for the `delete` operation. */
   export interface DeleteOptions extends StrictOmit<
     Repository.DeleteOptions,
     'filter'
   > {
+    /** Filter criteria for the delete operation. */
     filter?: Repository.DeleteOptions['filter'] | string;
   }
 
-  /**
-   * Represents options for "deleteMany" operation
-   *
-   * @interface
-   */
+  /** Options for the `deleteMany` operation. */
   export interface DeleteManyOptions extends StrictOmit<
     Repository.DeleteManyOptions,
     'filter'
   > {
+    /** Filter criteria for the delete many operation. */
     filter?: Repository.DeleteManyOptions['filter'] | string;
   }
 
-  /**
-   * Represents options for "exists" operation
-   *
-   * @interface
-   */
+  /** Options for `exists` / `existsOne` operations. */
   export interface ExistsOptions extends StrictOmit<
     Repository.ExistsOptions,
     'filter'
   > {
+    /** Filter criteria for the existence check. */
     filter?: Repository.ExistsOptions['filter'] | string;
   }
 
-  /**
-   * Represents options for "findOne" operation
-   *
-   * @interface
-   */
+  /** Options for the `findOne` / `findById` operations. */
   export interface FindOneOptions extends StrictOmit<
     Repository.FindOneOptions,
     'filter' | 'offset'
   > {
+    /** Filter criteria for the query. */
     filter?: Repository.FindOneOptions['filter'] | string;
+    /** Number of records to skip. */
     skip?: number;
   }
 
-  /**
-   * Represents options for "findMany" operation
-   *
-   * @interface
-   */
+  /** Options for the `findMany` operation. */
   export interface FindManyOptions extends StrictOmit<
     Repository.FindManyOptions,
     'filter' | 'offset'
   > {
+    /** Filter criteria for the query. */
     filter?: Repository.FindManyOptions['filter'] | string;
+    /** Number of records to skip. */
     skip?: number;
   }
 
-  /**
-   * Represents options for "update" operation
-   *
-   * @interface
-   */
+  /** Options for the `update` / `updateOnly` operations. */
   export interface UpdateOneOptions extends StrictOmit<
     Repository.UpdateOptions,
     'filter'
   > {
+    /** Filter criteria for the update operation. */
     filter?: Repository.UpdateOptions['filter'] | string;
   }
 
-  /**
-   * Represents options for "updateMany" operation
-   *
-   * @interface
-   */
+  /** Options for the `updateMany` operation. */
   export interface UpdateManyOptions extends StrictOmit<
     Repository.UpdateManyOptions,
     'filter'
   > {
+    /** Filter criteria for the update many operation. */
     filter?: Repository.UpdateManyOptions['filter'] | string;
   }
 
+  /** Command interface for the `create` operation. */
   export interface CreateCommand<T> extends StrictOmit<
     RequiredSome<CommandInfo, 'input'>,
     'documentId'
@@ -161,6 +169,7 @@ export namespace SqbEntityService {
     options?: CreateOptions;
   }
 
+  /** Command interface for the `count` operation. */
   export interface CountCommand extends StrictOmit<
     CommandInfo,
     'documentId' | 'input'
@@ -209,12 +218,12 @@ export namespace SqbEntityService {
 
 export interface SqbEntityService {
   /**
-   * Interceptor function for handling callback execution with provided arguments.
-   * @type Function
-   * @param next - The callback function to be intercepted.
-   * @param {SqbEntityService.CommandInfo} command - The arguments object containing the following properties:
-   * @param _this - The reference to the current object.
-   * @returns - The promise that resolves to the result of the callback execution.
+   * Optional interceptor that wraps every command execution.
+   *
+   * @param next - Calls the next interceptor or the actual command handler.
+   * @param command - Metadata describing the current operation.
+   * @param _this - Reference to the service instance.
+   * @returns The result of the command execution.
    */
   interceptor?(
     next: () => any,
@@ -224,8 +233,9 @@ export interface SqbEntityService {
 }
 
 /**
- * @class SqbEntityService
- * @template T - The data type class type of the resource
+ * Base service providing CRUD operations over an SQB entity.
+ *
+ * @typeParam T - The entity type managed by this service
  */
 export class SqbEntityService<
   T extends object = object,
@@ -239,39 +249,37 @@ export class SqbEntityService<
   protected _outputCodecs: Record<string, vg.isObject.Validator<T>> = {};
 
   /**
-   * Defines comma-delimited scopes for the api document
+   * Comma-delimited scopes used to filter the API document.
    */
   scope?: string;
 
   /**
-   * Represents the name of a resource.
-   * @type {string}
+   * Override for the resource name exposed in error messages and API metadata.
+   * Accepts a static string or a function that returns one.
    */
   resourceName?: string | ((_this: this) => string);
 
   /**
-   * Represents a common filter function for a service.
-   *
-   * @type {SqbEntityService.Filter | Function}
+   * Filter(s) automatically applied to every query for this service.
+   * Useful for multi-tenant isolation or other cross-cutting constraints.
    */
   commonFilter?:
     | SqbEntityService.CommonFilter
     | SqbEntityService.CommonFilter[];
 
   /**
-   * Callback function for handling errors.
+   * Called whenever a command throws. Useful for logging or transforming errors.
    *
-   * @param {unknown} error - The error object.
-   * @param {SqbEntityService} _this - The context object.
+   * @param error - The thrown error.
+   * @param _this - The service instance.
    */
   onError?: (error: unknown, _this: any) => void | Promise<void>;
 
   /**
-   * Constructs a new instance
+   * Constructs a new instance.
    *
-   * @param dataType - The data type of the returning results
-   * @param [options] - The options for the service.
-   * @constructor
+   * @param dataType - The entity class or its registered name.
+   * @param options - Options for the service.
    */
   constructor(dataType: Type<T> | string, options?: SqbEntityService.Options) {
     super(options);
@@ -282,9 +290,9 @@ export class SqbEntityService<
   }
 
   /**
-   * Retrieves the OPRA data type
+   * Returns the resolved OPRA `ComplexType` for this service's entity.
    *
-   * @throws {NotAcceptableError} If the data type is not a ComplexType.
+   * @throws If the data type is not registered as a `ComplexType`.
    */
   get dataType(): ComplexType {
     if (this._dataType && this._dataTypeScope !== this.scope)
@@ -296,9 +304,9 @@ export class SqbEntityService<
   }
 
   /**
-   * Retrieves the Class of the data type
+   * Returns the constructor class of the entity data type.
    *
-   * @throws {NotAcceptableError} If the data type is not a ComplexType.
+   * @throws If the data type is not registered as a `ComplexType`.
    */
   get dataTypeClass(): Type {
     if (!this._dataTypeClass) this._dataTypeClass = this.entityMetadata.ctor;
@@ -306,9 +314,9 @@ export class SqbEntityService<
   }
 
   /**
-   * Retrieves the SQB entity metadata object
+   * Returns the SQB `EntityMetadata` for the entity class.
    *
-   * @throws {TypeError} If metadata is not available
+   * @throws If the class is not decorated with `@Entity()`.
    */
   get entityMetadata(): EntityMetadata {
     if (!this._entityMetadata) {
@@ -342,10 +350,9 @@ export class SqbEntityService<
   }
 
   /**
-   * Retrieves the resource name.
+   * Returns the resource name used in error messages and API metadata.
    *
-   * @returns {string} The resource name.
-   * @throws {Error} If the collection name is not defined.
+   * @throws If neither `resourceName` nor the data type name is available.
    */
   getResourceName(): string {
     const out =
@@ -357,9 +364,9 @@ export class SqbEntityService<
   }
 
   /**
-   * Retrieves the codec for the specified operation.
+   * Returns the input codec for the given operation (e.g. `'create'`, `'update'`).
    *
-   * @param operation - The operation to retrieve the encoder for. Valid values are 'create' and 'update'.
+   * @param operation - The operation name.
    */
   getInputCodec(operation: string): vg.isObject.Validator<T> {
     const cacheKey =
@@ -381,7 +388,9 @@ export class SqbEntityService<
   }
 
   /**
-   * Retrieves the codec.
+   * Returns the output codec for the given operation.
+   *
+   * @param operation - The operation name.
    */
   getOutputCodec(operation: string): vg.isObject.Validator<T> {
     const cacheKey =
@@ -403,10 +412,10 @@ export class SqbEntityService<
   }
 
   /**
-   * Insert a new record into database
+   * Inserts a new record into the database and returns the created document.
    *
-   * @param command
-   * @returns - A promise that resolves to the created resource
+   * @param command - The create command.
+   * @returns The created document.
    * @protected
    */
   protected async _create(
@@ -427,10 +436,9 @@ export class SqbEntityService<
   }
 
   /**
-   * Insert a new record into database
+   * Inserts a new record into the database without returning it.
    *
-   * @param command
-   * @returns - A promise that resolves to the created resource
+   * @param command - The create command.
    * @protected
    */
   protected async _createOnly(
@@ -446,26 +454,25 @@ export class SqbEntityService<
   }
 
   /**
-   * Returns the count of records based on the provided options
+   * Returns the count of records matching the command options.
    *
-   * @param command
-   * @return - A promise that resolves to the count of records
+   * @param command - The count command.
    * @protected
    */
   protected async _count(
     command: SqbEntityService.CountCommand,
   ): Promise<number> {
     const filter = command.options?.filter
-      ? SQBAdapter.parseFilter(command.options.filter)
+      ? SQBAdapter.prepareFilter(command.options.filter)
       : undefined;
     return this._dbCount({ ...command.options, filter });
   }
 
   /**
-   * Deletes a record from the collection.
+   * Deletes the record identified by `command.documentId`.
    *
-   * @param command
-   * @return - A Promise that resolves to the number of documents deleted.
+   * @param command - The delete command.
+   * @returns The number of records deleted.
    * @protected
    */
   protected async _delete(
@@ -473,31 +480,31 @@ export class SqbEntityService<
   ): Promise<number> {
     isNotNullish(command.documentId, { label: 'documentId' });
     const filter = command.options?.filter
-      ? SQBAdapter.parseFilter(command.options.filter)
+      ? SQBAdapter.prepareFilter(command.options.filter)
       : undefined;
     return this._dbDelete(command.documentId!, { ...command.options, filter });
   }
 
   /**
-   * Deletes multiple documents from the collection that meet the specified filter criteria.
+   * Deletes all records matching the command filter.
    *
-   * @param command
-   * @return - A promise that resolves to the number of documents deleted.
+   * @param command - The deleteMany command.
+   * @returns The number of records deleted.
    * @protected
    */
   protected async _deleteMany(
     command: SqbEntityService.DeleteManyCommand,
   ): Promise<number> {
     const filter = command.options?.filter
-      ? SQBAdapter.parseFilter(command.options.filter)
+      ? SQBAdapter.prepareFilter(command.options.filter)
       : undefined;
     return await this._dbDeleteMany({ ...command.options, filter });
   }
 
   /**
-   * Checks if a record with the given id exists.
+   * Checks whether the record identified by `command.documentId` exists.
    *
-   * @param command
+   * @param command - The exists command.
    * @protected
    */
   protected async _exists(
@@ -505,7 +512,7 @@ export class SqbEntityService<
   ): Promise<boolean> {
     isNotNullish(command.documentId, { label: 'documentId' });
     const filter = command.options?.filter
-      ? SQBAdapter.parseFilter(command.options.filter)
+      ? SQBAdapter.prepareFilter(command.options.filter)
       : undefined;
     return await this._dbExists(command.documentId!, {
       ...command.options,
@@ -514,26 +521,25 @@ export class SqbEntityService<
   }
 
   /**
-   * Checks if a record with the given arguments exists.
+   * Checks whether any record matching the command filter exists.
    *
-   * @param command
-   * @return - A Promise that resolves to a boolean indicating whether the record exists or not.
+   * @param command - The existsOne command.
    * @protected
    */
   protected async _existsOne(
     command: SqbEntityService.ExistsCommand,
   ): Promise<boolean> {
     const filter = command.options?.filter
-      ? SQBAdapter.parseFilter(command.options.filter)
+      ? SQBAdapter.prepareFilter(command.options.filter)
       : undefined;
     return await this._dbExistsOne({ ...command.options, filter });
   }
 
   /**
-   * Finds a record by ID.
+   * Finds the record identified by `command.documentId`.
    *
-   * @param command
-   * @return - A promise resolving to the found document, or undefined if not found.
+   * @param command - The findById command.
+   * @returns The found record, or `undefined` if not found.
    * @protected
    */
   protected async _findById(
@@ -542,7 +548,7 @@ export class SqbEntityService<
     isNotNullish(command.documentId, { label: 'documentId' });
     const decode = this.getOutputCodec('find');
     const filter = command.options?.filter
-      ? SQBAdapter.parseFilter(command.options.filter)
+      ? SQBAdapter.prepareFilter(command.options.filter)
       : undefined;
     const out = await this._dbFindById(command.documentId!, {
       ...command.options,
@@ -552,10 +558,10 @@ export class SqbEntityService<
   }
 
   /**
-   * Finds a record in the collection that matches the specified options.
+   * Finds the first record matching the command filter.
    *
-   * @param command
-   * @return - A promise that resolves with the found document or undefined if no document is found.
+   * @param command - The findOne command.
+   * @returns The found record, or `undefined` if not found.
    * @protected
    */
   protected async _findOne(
@@ -563,17 +569,17 @@ export class SqbEntityService<
   ): Promise<PartialDTO<T> | undefined> {
     const decode = this.getOutputCodec('find');
     const filter = command.options?.filter
-      ? SQBAdapter.parseFilter(command.options.filter)
+      ? SQBAdapter.prepareFilter(command.options.filter)
       : undefined;
     const out = await this._dbFindOne({ ...command.options, filter });
     return out ? (decode(out) as PartialDTO<T>) : undefined;
   }
 
   /**
-   * Finds multiple records in collection.
+   * Finds all records matching the command filter.
    *
-   * @param command
-   * @return - A Promise that resolves to an array of partial outputs of type T.
+   * @param command - The findMany command.
+   * @returns An array of matching records.
    * @protected
    */
   protected async _findMany(
@@ -581,7 +587,7 @@ export class SqbEntityService<
   ): Promise<PartialDTO<T>[]> {
     const decode = this.getOutputCodec('find');
     const filter = command.options?.filter
-      ? SQBAdapter.parseFilter(command.options.filter)
+      ? SQBAdapter.prepareFilter(command.options.filter)
       : undefined;
     const out: any[] = await this._dbFindMany({ ...command.options, filter });
     if (out?.length) {
@@ -591,10 +597,10 @@ export class SqbEntityService<
   }
 
   /**
-   * Updates a record with the given id in the collection.
+   * Updates the record identified by `command.documentId` and returns it.
    *
-   * @param command
-   * @returns  A promise that resolves to the updated document or undefined if the document was not found.
+   * @param command - The update command.
+   * @returns The updated record, or `undefined` if not found.
    * @protected
    */
   protected async _update(
@@ -606,7 +612,7 @@ export class SqbEntityService<
     const inputCodec = this.getInputCodec('update');
     const data: any = inputCodec(input);
     const filter = command.options?.filter
-      ? SQBAdapter.parseFilter(command.options.filter)
+      ? SQBAdapter.prepareFilter(command.options.filter)
       : undefined;
     const out = await this._dbUpdate(documentId!, data, { ...options, filter });
     const outputCodec = this.getOutputCodec('update');
@@ -614,10 +620,10 @@ export class SqbEntityService<
   }
 
   /**
-   * Updates a record in the collection with the specified ID and returns updated record count
+   * Updates the record identified by `command.documentId` without returning it.
    *
-   * @param command
-   * @returns - A promise that resolves to the number of documents modified.
+   * @param command - The updateOnly command.
+   * @returns The number of records modified.
    * @protected
    */
   protected async _updateOnly(
@@ -629,16 +635,16 @@ export class SqbEntityService<
     const inputCodec = this.getInputCodec('update');
     const data: any = inputCodec(input);
     const filter = command.options?.filter
-      ? SQBAdapter.parseFilter(command.options.filter)
+      ? SQBAdapter.prepareFilter(command.options.filter)
       : undefined;
     return await this._dbUpdateOnly(documentId!, data, { ...options, filter });
   }
 
   /**
-   * Updates multiple records in the collection based on the specified input and options.
+   * Updates all records matching the command filter.
    *
-   * @param command
-   * @return - A promise that resolves to the number of documents matched and modified.
+   * @param command - The updateMany command.
+   * @returns The number of records modified.
    * @protected
    */
   protected async _updateMany(
@@ -648,16 +654,16 @@ export class SqbEntityService<
     const inputCodec = this.getInputCodec('update');
     const data: any = inputCodec(command.input);
     const filter = command.options?.filter
-      ? SQBAdapter.parseFilter(command.options.filter)
+      ? SQBAdapter.prepareFilter(command.options.filter)
       : undefined;
     return await this._dbUpdateMany(data, { ...command.options, filter });
   }
 
   /**
-   * Acquires a connection and performs Repository.create operation
+   * Acquires a connection and performs `Repository.create`.
    *
-   * @param input - The document to insert
-   * @param options - Optional settings for the command
+   * @param input - The document to insert.
+   * @param options - Optional settings.
    * @protected
    */
   protected async _dbCreate(
@@ -670,24 +676,24 @@ export class SqbEntityService<
   }
 
   /**
-   * Acquires a connection and performs Repository.count operation
+   * Acquires a connection and performs `Repository.count`.
    *
-   * @param options - The options for counting documents.
+   * @param options - Optional settings.
    * @protected
    */
   protected async _dbCount(options?: Repository.CountOptions): Promise<number> {
     const conn = await this.getConnection();
     const repo = conn.getRepository(this.dataTypeClass);
     if (options?.filter)
-      options.filter = SQBAdapter.parseFilter(options.filter);
+      options.filter = SQBAdapter.prepareFilter(options.filter);
     return await repo.count(options);
   }
 
   /**
-   * Acquires a connection and performs Repository.delete operation
+   * Acquires a connection and performs `Repository.delete`.
    *
-   * @param id - Value of the key field used to select the record
-   * @param options - Optional settings for the command
+   * @param id - The key field value identifying the record.
+   * @param options - Optional settings.
    * @protected
    */
   protected async _dbDelete(
@@ -697,14 +703,14 @@ export class SqbEntityService<
     const conn = await this.getConnection();
     const repo = conn.getRepository(this.dataTypeClass);
     if (options?.filter)
-      options.filter = SQBAdapter.parseFilter(options.filter);
+      options.filter = SQBAdapter.prepareFilter(options.filter);
     return (await repo.delete(id, options)) ? 1 : 0;
   }
 
   /**
-   * Acquires a connection and performs Repository.deleteMany operation
+   * Acquires a connection and performs `Repository.deleteMany`.
    *
-   * @param options - Optional settings for the command
+   * @param options - Optional settings.
    * @protected
    */
   protected async _dbDeleteMany(
@@ -713,15 +719,15 @@ export class SqbEntityService<
     const conn = await this.getConnection();
     const repo = conn.getRepository(this.dataTypeClass);
     if (options?.filter)
-      options.filter = SQBAdapter.parseFilter(options.filter);
+      options.filter = SQBAdapter.prepareFilter(options.filter);
     return await repo.deleteMany(options);
   }
 
   /**
-   * Acquires a connection and performs Repository.exists operation
+   * Acquires a connection and performs `Repository.exists`.
    *
-   * @param id - Value of the key field used to select the record
-   * @param options - Optional settings for the command
+   * @param id - The key field value identifying the record.
+   * @param options - Optional settings.
    * @protected
    */
   protected async _dbExists(
@@ -731,14 +737,14 @@ export class SqbEntityService<
     const conn = await this.getConnection();
     const repo = conn.getRepository(this.dataTypeClass);
     if (options?.filter)
-      options.filter = SQBAdapter.parseFilter(options.filter);
+      options.filter = SQBAdapter.prepareFilter(options.filter);
     return await repo.exists(id, options);
   }
 
   /**
-   * Acquires a connection and performs Repository.existsOne operation
+   * Acquires a connection and performs `Repository.existsOne`.
    *
-   * @param options - Optional settings for the command
+   * @param options - Optional settings.
    * @protected
    */
   protected async _dbExistsOne(
@@ -747,15 +753,15 @@ export class SqbEntityService<
     const conn = await this.getConnection();
     const repo = conn.getRepository(this.dataTypeClass);
     if (options?.filter)
-      options.filter = SQBAdapter.parseFilter(options.filter);
+      options.filter = SQBAdapter.prepareFilter(options.filter);
     return await repo.existsOne(options);
   }
 
   /**
-   * Acquires a connection and performs Repository.findById operation
+   * Acquires a connection and performs `Repository.findById`.
    *
-   * @param id - Value of the key field used to select the record
-   * @param options - Optional settings for the command
+   * @param id - The key field value identifying the record.
+   * @param options - Optional settings.
    * @protected
    */
   protected async _dbFindById(
@@ -765,14 +771,14 @@ export class SqbEntityService<
     const conn = await this.getConnection();
     const repo = conn.getRepository(this.dataTypeClass);
     if (options?.filter)
-      options.filter = SQBAdapter.parseFilter(options.filter);
+      options.filter = SQBAdapter.prepareFilter(options.filter);
     return await repo.findById(id, options);
   }
 
   /**
-   * Acquires a connection and performs Repository.findOne operation
+   * Acquires a connection and performs `Repository.findOne`.
    *
-   * @param options - Optional settings for the command
+   * @param options - Optional settings.
    * @protected
    */
   protected async _dbFindOne(
@@ -783,14 +789,14 @@ export class SqbEntityService<
     const conn = await this.getConnection();
     const repo = conn.getRepository(this.dataTypeClass);
     if (options?.filter)
-      options.filter = SQBAdapter.parseFilter(options.filter);
+      options.filter = SQBAdapter.prepareFilter(options.filter);
     return await repo.findOne({ ...options, offset: options?.skip });
   }
 
   /**
-   * Acquires a connection and performs Repository.findMany operation
+   * Acquires a connection and performs `Repository.findMany`.
    *
-   * @param options - Optional settings for the command
+   * @param options - Optional settings.
    * @protected
    */
   protected async _dbFindMany(
@@ -801,16 +807,16 @@ export class SqbEntityService<
     const conn = await this.getConnection();
     const repo = conn.getRepository(this.dataTypeClass);
     if (options?.filter)
-      options.filter = SQBAdapter.parseFilter(options.filter);
+      options.filter = SQBAdapter.prepareFilter(options.filter);
     return await repo.findMany({ ...options, offset: options?.skip });
   }
 
   /**
-   * Acquires a connection and performs Repository.update operation
+   * Acquires a connection and performs `Repository.update`.
    *
-   * @param id - Value of the key field used to select the record
-   * @param data - The update values to be applied to the document
-   * @param options - Optional settings for the command
+   * @param id - The key field value identifying the record.
+   * @param data - The update values.
+   * @param options - Optional settings.
    * @protected
    */
   protected async _dbUpdate(
@@ -821,16 +827,16 @@ export class SqbEntityService<
     const conn = await this.getConnection();
     const repo = conn.getRepository(this.dataTypeClass);
     if (options?.filter)
-      options.filter = SQBAdapter.parseFilter(options.filter);
+      options.filter = SQBAdapter.prepareFilter(options.filter);
     return await repo.update(id, data, options);
   }
 
   /**
-   * Acquires a connection and performs Repository.updateOnly operation
+   * Acquires a connection and performs `Repository.updateOnly`.
    *
-   * @param id - Value of the key field used to select the record
-   * @param data - The update values to be applied to the document
-   * @param options - Optional settings for the command
+   * @param id - The key field value identifying the record.
+   * @param data - The update values.
+   * @param options - Optional settings.
    * @protected
    */
   protected async _dbUpdateOnly(
@@ -841,15 +847,15 @@ export class SqbEntityService<
     const conn = await this.getConnection();
     const repo = conn.getRepository(this.dataTypeClass);
     if (options?.filter)
-      options.filter = SQBAdapter.parseFilter(options.filter);
+      options.filter = SQBAdapter.prepareFilter(options.filter);
     return (await repo.updateOnly(id, data, options)) ? 1 : 0;
   }
 
   /**
-   * Acquires a connection and performs Repository.updateMany operation
+   * Acquires a connection and performs `Repository.updateMany`.
    *
-   * @param data - The update values to be applied to the document
-   * @param options - Optional settings for the command
+   * @param data - The update values.
+   * @param options - Optional settings.
    * @protected
    */
   protected async _dbUpdateMany(
@@ -859,17 +865,16 @@ export class SqbEntityService<
     const conn = await this.getConnection();
     const repo = conn.getRepository(this.dataTypeClass);
     if (options?.filter)
-      options.filter = SQBAdapter.parseFilter(options.filter);
+      options.filter = SQBAdapter.prepareFilter(options.filter);
     return await repo.updateMany(data as any, options);
   }
 
   /**
-   * Retrieves the common filter used for querying documents.
-   * This method is mostly used for security issues like securing multi-tenant applications.
+   * Builds the common filter for the given command.
+   * Used primarily for multi-tenant isolation and similar cross-cutting concerns.
    *
    * @protected
-   * @returns {FilterInput | Promise<FilterInput> | undefined} The common filter or a Promise
-   * that resolves to the common filter, or undefined if not available.
+   * @returns The resolved filter input, or `undefined` if none is configured.
    */
   protected _getCommonFilter(
     command: SqbEntityService.CommandInfo,

@@ -10,10 +10,12 @@
     "paths": {
       "@opra/common": ["../common/src/index.js"],
       "@opra/core": ["../core/src/index.js"],
+      "@opra/http": ["../http/src/index.js"]
     }
   },
   "references": [
     { "path": "../common" },
     { "path": "../core" },
+    { "path": "../http" }
   ]
 }
