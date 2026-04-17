@@ -124,7 +124,7 @@ export class ApiDocumentFactory {
     document.url = init.url;
     if (init.info) document.info = { ...init.info };
 
-    /** Add references  */
+    /* Add references  */
     if (init.references) {
       await context.enterAsync('.references', async () => {
         let ns: string;
@@ -180,7 +180,7 @@ export class ApiDocumentFactory {
       });
     }
     document.invalidate();
-    /** Add document to global registry */
+    /* Add document to global registry */
     if (!this._allDocuments[document.id])
       this._allDocuments[document.id] = document;
   }
@@ -200,7 +200,7 @@ export class ApiDocumentFactory {
         version: OpraSchema.SpecVersion,
         title: 'Opra built-in types',
         license: {
-          url: 'https://github.com/oprajs/opra/blob/main/LICENSE',
+          url: 'https://github.com/panates/opra/blob/main/LICENSE',
           name: 'MIT',
         },
       },

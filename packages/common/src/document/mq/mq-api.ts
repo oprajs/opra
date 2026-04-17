@@ -34,10 +34,10 @@ export class MQApi extends ApiBase {
   findController(name: string): MQController | undefined;
   findController(arg0: string | Type): MQController | undefined {
     if (typeof arg0 === 'function') {
-      /** Check for cached mapping */
+      /* Check for cached mapping */
       const controller = this._controllerReverseMap.get(arg0);
       if (controller != null) return controller;
-      /** Lookup for ctor in all controllers */
+      /* Lookup for ctor in all controllers */
       for (const c of this.controllers.values()) {
         if (c.ctor === arg0) {
           this._controllerReverseMap.set(arg0, c);

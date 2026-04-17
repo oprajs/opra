@@ -8,6 +8,12 @@ import { KafkaAdapter } from '../kafka-adapter.js';
 
 declare module '@opra/common' {
   interface MQOperationDecorator {
+    /**
+     * Decorator for configuring Kafka-specific options for an MQ operation.
+     *
+     * @param config - The Kafka operation options or a resolver function.
+     * @returns The decorator instance.
+     */
     Kafka(
       config:
         | KafkaAdapter.OperationOptions
@@ -18,7 +24,7 @@ declare module '@opra/common' {
   }
 }
 
-/** Implementation **/
+/* Implementation **/
 
 classes.MQOperationDecoratorFactory.augment(
   (decorator: any, decoratorChain) => {

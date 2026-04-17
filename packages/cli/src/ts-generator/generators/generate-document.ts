@@ -5,6 +5,13 @@ import colors from 'ansi-colors';
 import { pascalCase } from 'putil-varhelpers';
 import type { TsGenerator } from '../ts-generator.js';
 
+/**
+ * Generates the document and its references.
+ *
+ * @param document - The document to generate.
+ * @param options - Generation options.
+ * @returns An object containing the generated document and its generator.
+ */
 export async function generateDocument(
   this: TsGenerator,
   document?: string | ApiDocument,

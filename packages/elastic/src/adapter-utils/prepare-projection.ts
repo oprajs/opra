@@ -10,6 +10,14 @@ export interface ElasticProjection {
   excludes?: string[];
 }
 
+/**
+ * Prepares an Elasticsearch projection object from the provided fields projection.
+ *
+ * @param dataType - The complex type defining the structure of the data.
+ * @param projection - The fields projection to transform.
+ * @param scope - The scope to use for field selection.
+ * @returns An `ElasticProjection` object containing include and exclude rules, or undefined.
+ */
 export default function prepareProjection(
   dataType: ComplexType,
   projection?: string | string[],
@@ -47,7 +55,7 @@ export function prepare(
   let fieldPath: string;
   let field: ApiField;
   let k: string;
-  /** Add fields from data type */
+  /* Add fields from data type */
   for (field of dataType.fields(scope)) {
     fieldName = field.name;
     fieldPath = curPath + (curPath ? '.' : '') + fieldName;
@@ -55,9 +63,9 @@ export function prepare(
     projectionKeysSet.delete(k);
     const p = projection?.[k];
     if (
-      /** if field is omitted */
+      /* if field is omitted */
       p?.sign === '-' ||
-      /** if no projection defined for this field and includeDefaultFields is true and the field is exclusive */
+      /* if no projection defined for this field and includeDefaultFields is true and the field is exclusive */
       (!p && field.exclusive)
     ) {
       if (!needIncludes) excludes.push(fieldPath);

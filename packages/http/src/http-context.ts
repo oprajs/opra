@@ -61,10 +61,20 @@ export class HttpContext extends ExecutionContext {
     });
   }
 
+  /**
+   * Checks if the request is a multipart request.
+   */
   get isMultipart(): boolean {
     return !!this.request.is('multipart');
   }
 
+  /**
+   * Retrieves the multipart reader for the current context.
+   *
+   * @returns A promise that resolves to the multipart reader.
+   * @throws {@link InternalServerError} If the request content is not multipart.
+   * @throws {@link NotAcceptableError} If the endpoint does not accept multipart requests.
+   */
   async getMultipartReader(): Promise<MultipartReader> {
     if (!this.isMultipart)
       throw new InternalServerError(
@@ -98,6 +108,14 @@ export class HttpContext extends ExecutionContext {
     return reader;
   }
 
+  /**
+   * Retrieves and parses the request body.
+   *
+   * @param args - Optional arguments for body retrieval.
+   * @param args.toFile - Whether to save the body to a file.
+   * @returns A promise that resolves to the parsed body.
+   * @throws {@link BadRequestError} If the body cannot be parsed or validated.
+   */
   async getBody<T>(args?: { toFile: boolean | string }): Promise<T> {
     if (this._body !== undefined) return this._body;
     try {
@@ -105,9 +123,9 @@ export class HttpContext extends ExecutionContext {
 
       if (this.isMultipart) {
         const reader = await this.getMultipartReader();
-        /** Retrieve all fields */
+        /* Retrieve all fields */
         const parts = await reader.getAll();
-        /** Filter fields according to configuration */
+        /* Filter fields according to configuration */
         this._body = [...parts];
         return this._body;
       }

@@ -6,6 +6,12 @@ import { httpControllerNodeScript } from '../http-controller-node.js';
 import type { TsGenerator } from '../ts-generator.js';
 import { wrapJSDocString } from '../utils/string-utils.js';
 
+/**
+ * Generates TypeScript code for an HTTP API.
+ *
+ * @param api - The HTTP API to generate code for.
+ * @returns A promise that resolves to the generated TsFile.
+ */
 export async function generateHttpApi(this: TsGenerator, api: HttpApi) {
   let file = this._filesMap.get(api);
   if (file) return file;

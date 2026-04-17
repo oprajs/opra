@@ -27,8 +27,9 @@ export class KafkaContext
   readonly pause: () => void;
 
   /**
-   * Constructor
-   * @param init the context options
+   * Initializes a new instance of the KafkaContext.
+   *
+   * @param init - The initialization options for the context.
    */
   constructor(init: KafkaContext.Initiator) {
     super({

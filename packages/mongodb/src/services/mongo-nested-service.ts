@@ -22,16 +22,24 @@ import type { MongoEntityService } from './mongo-entity-service.js';
 import { MongoService } from './mongo-service.js';
 
 /**
- *
- * @namespace MongoNestedService
+ * Options for MongoNestedService.
  */
 export namespace MongoNestedService {
   /**
-   * The constructor options of MongoArrayService.
+   * Configuration options for MongoNestedService.
    */
   export interface Options extends MongoService.Options {
+    /**
+     * Default maximum number of records returned by `findMany`.
+     */
     defaultLimit?: number;
+    /**
+     * The field name of the primary key in the nested collection.
+     */
     nestedKey?: string;
+    /**
+     * Optional filter for nested operations.
+     */
     nestedFilter?:
       | MongoAdapter.FilterInput
       | ((
@@ -43,47 +51,99 @@ export namespace MongoNestedService {
           | undefined);
   }
 
+  /**
+   * Information about the command being executed.
+   */
   export interface CommandInfo extends MongoService.CommandInfo {}
 
+  /* Options for the `create` operation. */
   export interface CreateOptions extends MongoService.CreateOptions {}
 
+  /**
+   * Options for the `count` operation.
+   * @template T - The type of the document.
+   */
   export interface CountOptions<T> extends MongoService.CountOptions<T> {
+    /* Filter for the parent document. */
     documentFilter?: MongoAdapter.FilterInput;
   }
 
+  /**
+   * Options for the `delete` operation.
+   * @template T - The type of the document.
+   */
   export interface DeleteOptions<T> extends MongoService.DeleteOptions<T> {
+    /* Filter for the parent document. */
     documentFilter?: MongoAdapter.FilterInput;
   }
 
+  /**
+   * Options for the `deleteMany` operation.
+   * @template T - The type of the document.
+   */
   export interface DeleteManyOptions<
     T,
   > extends MongoService.DeleteManyOptions<T> {
+    /* Filter for the parent document. */
     documentFilter?: MongoAdapter.FilterInput;
   }
 
+  /**
+   * Options for the `exists` operation.
+   * @template T - The type of the document.
+   */
   export interface ExistsOptions<T> extends MongoService.ExistsOptions<T> {}
 
+  /**
+   * Options for the `findOne` / `findById` operations.
+   * @template T - The type of the document.
+   */
   export interface FindOneOptions<T> extends MongoService.FindOneOptions<T> {
+    /* Filter for the parent document. */
     documentFilter?: MongoAdapter.FilterInput;
   }
 
+  /**
+   * Options for the `findMany` operation.
+   *
+   * @template T - The type of the document.
+   */
   export interface FindManyOptions<T> extends MongoService.FindManyOptions<T> {
+    /* Filter for the parent document. */
     documentFilter?: MongoAdapter.FilterInput;
+    /* Filter for the nested documents. */
     nestedFilter?: MongoAdapter.FilterInput;
   }
 
+  /**
+   * Options for the `update` / `updateOnly` operations.
+   *
+   * @template T - The type of the document.
+   */
   export interface UpdateOneOptions<
     T,
   > extends MongoService.UpdateOneOptions<T> {
+    /* Filter for the parent document. */
     documentFilter?: MongoAdapter.FilterInput;
+    /* Array fields to initialize if they don't exist. */
+    initArrayFields?: string[];
   }
 
+  /**
+   * Options for the `updateMany` operation.
+   *
+   * @template T - The type of the document.
+   */
   export interface UpdateManyOptions<
     T,
   > extends MongoService.UpdateManyOptions<T> {
+    /* Filter for the parent document. */
     documentFilter?: MongoAdapter.FilterInput;
+    /* Array fields to initialize if they don't exist. */
+    initArrayFields?: string[];
   }
 
+  /* Command interface for the `create` operation. */
   export interface CreateCommand<T> extends RequiredSome<
     CommandInfo,
     'documentId' | 'input'
@@ -93,6 +153,7 @@ export namespace MongoNestedService {
     options?: CreateOptions;
   }
 
+  /* Command interface for the `count` operation. */
   export interface CountCommand<T> extends StrictOmit<
     RequiredSome<CommandInfo, 'documentId'>,
     'nestedId' | 'input'
@@ -162,29 +223,21 @@ export class MongoNestedService<
 > extends MongoService<T> {
   /**
    * Represents the name of the array field in parent document
-   *
-   * @type {string}
    */
   fieldName: string;
 
   /**
    * Represents the value of a nested array key field
-   *
-   * @type {string}
    */
   nestedKey: string;
 
   /**
    * Represents the default limit value for a certain operation.
-   *
-   * @type {number}
    */
   defaultLimit: number;
 
   /**
    * Represents a common array filter function
-   *
-   * @type {FilterInput | Function}
    */
   nestedFilter?:
     | MongoAdapter.FilterInput
@@ -199,9 +252,9 @@ export class MongoNestedService<
   /**
    * Constructs a new instance
    *
-   * @param {Type | string} dataType - The data type of the array elements.
-   * @param {string} fieldName - The name of the field in the document representing the array.
-   * @param {MongoNestedService.Options} [options] - The options for the array service.
+   * @param dataType - The data type of the array elements.
+   * @param fieldName - The name of the field in the document representing the array.
+   * @param [options] - The options for the array service.
    * @constructor
    */
   constructor(
@@ -217,10 +270,10 @@ export class MongoNestedService<
   }
 
   /**
-   * Retrieves the data type of the array field
+   * Retrieves the data type of the array field.
    *
-   * @returns {ComplexType} The complex data type of the field.
-   * @throws {NotAcceptableError} If the data type is not a ComplexType.
+   * @returns The complex data type of the field.
+   * @throws {@link NotAcceptableError} If the data type is not a ComplexType.
    */
   override get dataType(): ComplexType {
     const t = super.dataType.getField(this.fieldName, this.scope).type;
@@ -234,10 +287,10 @@ export class MongoNestedService<
   /**
    * Create a copy of this instance with given properties and context applied.
    *
-   * @param {C | ServiceBase} context - The execution context or service base to associate with this instance.
-   * @param {Nullish<P>} [overwriteProperties] - An optional object containing properties to overwrite in the current instance.
-   * @param {Partial<C>} [overwriteContext] - An optional partial context to apply and potentially overwrite parts of the provided execution context.
-   * @return {this & Required<P>} The current instance with the specified properties and context applied.
+   * @param context - The execution context or service base to associate with this instance.
+   * @param [overwriteProperties] - An optional object containing properties to overwrite in the current instance.
+   * @param [overwriteContext] - An optional partial context to apply and potentially overwrite parts of the provided execution context.
+   * @returns The current instance with the specified properties and context applied.
    * @template P
    * @template C
    */
@@ -254,11 +307,11 @@ export class MongoNestedService<
    * Asserts whether a resource with the specified parentId and id exists.
    * Throws a ResourceNotFoundError if the resource does not exist.
    *
-   * @param {MongoAdapter.AnyId} documentId - The ID of the parent document.
-   * @param {MongoAdapter.AnyId} id - The ID of the resource.
-   * @param {MongoNestedService.ExistsOptions<T>} [options] - Optional parameters for checking resource existence.
-   * @return {Promise<void>} - A promise that resolves with no value upon success.
-   * @throws {ResourceNotAvailableError} - If the resource does not exist.
+   * @param documentId - The ID of the parent document.
+   * @param id - The ID of the resource.
+   * @param options - Optional parameters for checking resource existence.
+   * @returns A promise that resolves with no value upon success.
+   * @throws {@link ResourceNotAvailableError} - If the resource does not exist.
    */
   async assert(
     documentId: MongoAdapter.AnyId,
@@ -276,11 +329,11 @@ export class MongoNestedService<
   /**
    * Adds a single item into the array field.
    *
-   * @param {MongoAdapter.AnyId} documentId - The ID of the parent document.
-   * @param {PartialDTO<T>} input - The item to be added to the array field.
-   * @param {MongoNestedService.CreateOptions<T>} [options] - Optional options for the create operation.
-   * @return {Promise<PartialDTO<T>>} - A promise that resolves with the partial output of the created item.
-   * @throws {ResourceNotAvailableError} - If the parent document is not found.
+   * @param documentId - The ID of the parent document.
+   * @param input - The item to be added to the array field.
+   * @param options - Optional options for the create operation.
+   * @returns A promise that resolves with the partial output of the created item.
+   * @throws {@link ResourceNotAvailableError} - If the parent document is not found.
    */
   async create(
     documentId: MongoAdapter.AnyId,
@@ -333,11 +386,11 @@ export class MongoNestedService<
   /**
    * Adds a single item into the array field.
    *
-   * @param {MongoAdapter.AnyId} documentId - The ID of the parent document.
-   * @param {DTO<T>} input - The item to be added to the array field.
-   * @param {MongoNestedService.CreateOptions} [options] - Optional options for the create operation.
-   * @return {Promise<PartialDTO<T>>} - A promise that resolves create operation result
-   * @throws {ResourceNotAvailableError} - If the parent document is not found.
+   * @param documentId - The ID of the parent document.
+   * @param input - The item to be added to the array field.
+   * @param [options] - Optional options for the create operation.
+   * @returns A promise that resolves create operation result
+   * @throws {@link ResourceNotAvailableError} - If the parent document is not found.
    */
   async createOnly(
     documentId: MongoAdapter.AnyId,
@@ -390,9 +443,9 @@ export class MongoNestedService<
   /**
    * Counts the number of documents in the collection that match the specified parentId and options.
    *
-   * @param {MongoAdapter.AnyId} documentId - The ID of the parent document.
-   * @param {MongoNestedService.CountOptions<T>} [options] - Optional parameters for counting.
-   * @returns {Promise<number>} - A promise that resolves to the count of documents.
+   * @param documentId - The ID of the parent document.
+   * @param [options] - Optional parameters for counting.
+   * @returns A promise that resolves to the count of documents.
    */
   async count(
     documentId: MongoAdapter.AnyId,
@@ -453,10 +506,10 @@ export class MongoNestedService<
   /**
    * Deletes an element from an array within a document in the MongoDB collection.
    *
-   * @param {MongoAdapter.AnyId} documentId - The ID of the parent document.
-   * @param {MongoAdapter.AnyId} nestedId - The ID of the element to delete from the nested array.
-   * @param {MongoNestedService.DeleteOptions<T>} [options] - Additional options for the delete operation.
-   * @return {Promise<number>} - A Promise that resolves to the number of elements deleted (1 if successful, 0 if not).
+   * @param documentId - The ID of the parent document.
+   * @param nestedId - The ID of the element to delete from the nested array.
+   * @param [options] - Additional options for the delete operation.
+   * @returns A Promise that resolves to the number of elements deleted (1 if successful, 0 if not).
    */
   async delete(
     documentId: MongoAdapter.AnyId,
@@ -515,9 +568,9 @@ export class MongoNestedService<
   /**
    * Deletes multiple items from a collection based on the parent ID and optional filter.
    *
-   * @param {MongoAdapter.AnyId} documentId - The ID of the parent document.
-   * @param {MongoNestedService.DeleteManyOptions<T>} [options] - Optional options to specify a filter.
-   * @returns {Promise<number>} - A Promise that resolves to the number of items deleted.
+   * @param documentId - The ID of the parent document.
+   * @param [options] - Optional options to specify a filter.
+   * @returns A Promise that resolves to the number of items deleted.
    */
   async deleteMany(
     documentId: MongoAdapter.AnyId,
@@ -577,10 +630,10 @@ export class MongoNestedService<
   /**
    * Checks if an array element with the given parentId and id exists.
    *
-   * @param {MongoAdapter.AnyId} documentId - The ID of the parent document.
-   * @param {MongoAdapter.AnyId} nestedId - The id of the record.
-   * @param {MongoNestedService.ExistsOptions<T>} [options] - The options for the exists method.
-   * @returns {Promise<boolean>} - A promise that resolves to a boolean indicating if the record exists or not.
+   * @param documentId - The ID of the parent document.
+   * @param nestedId - The id of the record.
+   * @param [options] - The options for the exists method.
+   * @returns A promise that resolves to a boolean indicating if the record exists or not.
    */
   async exists(
     documentId: MongoAdapter.AnyId,
@@ -612,9 +665,9 @@ export class MongoNestedService<
   /**
    * Checks if an object with the given arguments exists.
    *
-   * @param {MongoAdapter.AnyId} documentId - The ID of the parent document.
-   * @param {MongoNestedService.ExistsOptions} [options] - The options for the query (optional).
-   * @return {Promise<boolean>} - A Promise that resolves to a boolean indicating whether the object exists or not.
+   * @param documentId - The ID of the parent document.
+   * @param [options] - The options for the query (optional).
+   * @returns A Promise that resolves to a boolean indicating whether the object exists or not.
    */
   async existsOne(
     documentId: MongoAdapter.AnyId,
@@ -647,10 +700,10 @@ export class MongoNestedService<
   /**
    * Finds an element in array field by its parent ID and ID.
    *
-   * @param {MongoAdapter.AnyId} documentId - The ID of the document.
-   * @param {MongoAdapter.AnyId} nestedId - The ID of the document.
-   * @param {MongoNestedService.FindOneOptions<T>} [options] - The optional options for the operation.
-   * @returns {Promise<PartialDTO<T> | undefined>} - A promise that resolves to the found document or undefined if not found.
+   * @param documentId - The ID of the document.
+   * @param nestedId - The ID of the document.
+   * @param [options] - The optional options for the operation.
+   * @returns A promise that resolves to the found document or undefined if not found.
    */
   async findById(
     documentId: MongoAdapter.AnyId,
@@ -715,9 +768,9 @@ export class MongoNestedService<
   /**
    * Finds the first array element that matches the given parentId.
    *
-   * @param {MongoAdapter.AnyId} documentId - The ID of the document.
-   * @param {MongoNestedService.FindOneOptions<T>} [options] - Optional options to customize the query.
-   * @returns {Promise<PartialDTO<T> | undefined>} A promise that resolves to the first matching document, or `undefined` if no match is found.
+   * @param documentId - The ID of the document.
+   * @param [options] - Optional options to customize the query.
+   * @returns A promise that resolves to the first matching document, or `undefined` if no match is found.
    */
   async findOne(
     documentId: MongoAdapter.AnyId,
@@ -770,9 +823,9 @@ export class MongoNestedService<
   /**
    * Finds multiple elements in an array field.
    *
-   * @param {MongoAdapter.AnyId} documentId - The ID of the parent document.
-   * @param {MongoNestedService.FindManyOptions<T>} [options] - The options for finding the documents.
-   * @returns {Promise<PartialDTO<T>[]>} - The found documents.
+   * @param documentId - The ID of the parent document.
+   * @param [options] - The options for finding the documents.
+   * @returns The found documents.
    */
   async findMany(
     documentId: MongoAdapter.AnyId,
@@ -821,9 +874,9 @@ export class MongoNestedService<
       { $unwind: { path: '$' + this.fieldName } },
       { $replaceRoot: { newRoot: '$' + this.fieldName } },
     ];
-    /** Pre-Stages */
+    /* Pre-Stages */
     if (options?.preStages) stages.push(...options.preStages);
-    /** Filter */
+    /* Filter */
     if (options?.filter || options?.nestedFilter) {
       const optionsFilter = MongoAdapter.prepareFilter([
         options?.filter,
@@ -831,14 +884,14 @@ export class MongoNestedService<
       ]);
       stages.push({ $match: optionsFilter });
     }
-    /** Sort */
+    /* Sort */
     if (options?.sort) {
       const sort = MongoAdapter.prepareSort(options.sort);
       if (sort) stages.push({ $sort: sort });
     }
-    /** Skip */
+    /* Skip */
     if (options?.skip) stages.push({ $skip: options.skip });
-    /** Limit */
+    /* Limit */
     stages.push({ $limit: limit });
 
     const dataType = this.dataType;
@@ -848,7 +901,7 @@ export class MongoNestedService<
       this._dataTypeScope,
     );
     if (projection) stages.push({ $project: projection });
-    /** Post-Stages */
+    /* Post-Stages */
     if (options?.postStages) stages.push(...options.postStages);
 
     const db = this.getDatabase();
@@ -876,9 +929,9 @@ export class MongoNestedService<
   /**
    * Finds multiple elements in an array field.
    *
-   * @param {MongoAdapter.AnyId} documentId - The ID of the parent document.
-   * @param {MongoNestedService.FindManyOptions<T>} [options] - The options for finding the documents.
-   * @returns {Promise<PartialDTO<T>[]>} - The found documents.
+   * @param documentId - The ID of the parent document.
+   * @param [options] - The options for finding the documents.
+   * @returns The found documents.
    */
   async findManyWithCount(
     documentId: MongoAdapter.AnyId,
@@ -947,9 +1000,9 @@ export class MongoNestedService<
       },
     ];
 
-    /** Pre-Stages */
+    /* Pre-Stages */
     if (options?.preStages) dataStages.push(...options.preStages);
-    /** Filter */
+    /* Filter */
     if (options?.filter || options?.nestedFilter) {
       const optionsFilter = MongoAdapter.prepareFilter([
         options?.filter,
@@ -957,16 +1010,16 @@ export class MongoNestedService<
       ]);
       dataStages.push({ $match: optionsFilter });
     }
-    /** Sort */
+    /* Sort */
     if (options?.sort) {
       const sort = MongoAdapter.prepareSort(options.sort);
       if (sort) dataStages.push({ $sort: sort });
     }
-    /** Skip */
+    /* Skip */
     if (options?.skip) dataStages.push({ $skip: options.skip });
-    /** Limit */
+    /* Limit */
     dataStages.push({ $limit: limit });
-    /** Post-Stages */
+    /* Post-Stages */
     if (options?.postStages) dataStages.push(...options.postStages);
 
     const dataType = this.dataType;
@@ -1005,17 +1058,26 @@ export class MongoNestedService<
   /**
    * Retrieves a specific item from the array of a document.
    *
-   * @param {MongoAdapter.AnyId} documentId - The ID of the document.
-   * @param {MongoAdapter.AnyId} nestedId - The ID of the item.
-   * @param {MongoNestedService.FindOneOptions<T>} [options] - The options for finding the item.
-   * @returns {Promise<PartialDTO<T>>} - The item found.
-   * @throws {ResourceNotAvailableError} - If the item is not found.
+   * @param documentId - The ID of the document.
+   * @param nestedId - The ID of the item.
+   * @param options - Options including a required `projection`.
+   * @returns A promise that resolves to the retrieved document as a partial DTO.
+   * @throws {@link ResourceNotAvailableError} - If the item is not found.
    */
   async get(
     documentId: MongoAdapter.AnyId,
     nestedId: MongoAdapter.AnyId,
     options: RequiredSome<MongoNestedService.FindOneOptions<T>, 'projection'>,
   ): Promise<PartialDTO<T>>;
+  /**
+   * Retrieves a specific item from the array of a document and returns it as a full DTO.
+   *
+   * @param documentId - The ID of the document.
+   * @param nestedId - The ID of the item.
+   * @param options - Optional query options.
+   * @returns A promise that resolves to the retrieved document as a full DTO.
+   * @throws {@link ResourceNotAvailableError} - If the item is not found.
+   */
   async get(
     documentId: MongoAdapter.AnyId,
     nestedId: MongoAdapter.AnyId,
@@ -1039,12 +1101,12 @@ export class MongoNestedService<
   /**
    * Updates an array element with new data and returns the updated element
    *
-   * @param {AnyId} documentId - The ID of the document to update.
-   * @param {AnyId} nestedId - The ID of the item to update within the document.
-   * @param {MongoPatchDTO<T>} input - The new data to update the item with.
-   * @param {MongoNestedService.UpdateOneOptions<T>} [options] - Additional update options.
-   * @returns {Promise<PartialDTO<T> | undefined>} The updated item or undefined if it does not exist.
-   * @throws {Error} If an error occurs while updating the item.
+   * @param documentId - The ID of the document to update.
+   * @param nestedId - The ID of the item to update within the document.
+   * @param input - The new data to update the item with.
+   * @param [options] - Additional update options.
+   * @returns The updated item or undefined if it does not exist.
+   * @throws {@link Error} If an error occurs while updating the item.
    */
   async update(
     documentId: MongoAdapter.AnyId,
@@ -1109,11 +1171,11 @@ export class MongoNestedService<
   /**
    * Update an array element with new data. Returns 1 if document updated 0 otherwise.
    *
-   * @param {MongoAdapter.AnyId} documentId - The ID of the parent document.
-   * @param {MongoAdapter.AnyId} nestedId - The ID of the document to update.
-   * @param {MongoPatchDTO<T>} input - The partial input object containing the fields to update.
-   * @param {MongoNestedService.UpdateOneOptions<T>} [options] - Optional update options.
-   * @returns {Promise<number>} - A promise that resolves to the number of elements updated.
+   * @param documentId - The ID of the parent document.
+   * @param nestedId - The ID of the document to update.
+   * @param input - The partial input object containing the fields to update.
+   * @param [options] - Optional update options.
+   * @returns A promise that resolves to the number of elements updated.
    */
   async updateOnly(
     documentId: MongoAdapter.AnyId,
@@ -1169,10 +1231,10 @@ export class MongoNestedService<
   /**
    * Updates multiple array elements in document
    *
-   * @param {MongoAdapter.AnyId} documentId - The ID of the document to update.
-   * @param {MongoPatchDTO<T>} input - The updated data for the document(s).
-   * @param {MongoNestedService.UpdateManyOptions<T>} [options] - Additional options for the update operation.
-   * @returns {Promise<number>} - A promise that resolves to the number of documents updated.
+   * @param documentId - The ID of the document to update.
+   * @param input - The updated data for the document(s).
+   * @param [options] - Additional options for the update operation.
+   * @returns A promise that resolves to the number of documents updated.
    */
   async updateMany(
     documentId: MongoAdapter.AnyId,
@@ -1256,7 +1318,7 @@ export class MongoNestedService<
    * This method is mostly used for security issues like securing multi-tenant applications.
    *
    * @protected
-   * @returns {MongoAdapter.FilterInput | Promise<MongoAdapter.FilterInput> | undefined} The common filter or a Promise
+   * @returns The common filter or a Promise
    * that resolves to the common filter, or undefined if not available.
    */
   protected _getNestedFilter(
@@ -1273,7 +1335,7 @@ export class MongoNestedService<
   ): Promise<any> {
     try {
       const result = await super._executeCommand(command, async () => {
-        /** Call before[X] hooks */
+        /* Call before[X] hooks */
         if (command.crud === 'create')
           await this._beforeCreate(
             command as MongoNestedService.CreateCommand<T>,
@@ -1295,10 +1357,10 @@ export class MongoNestedService<
             command as MongoNestedService.DeleteCommand<T>,
           );
         }
-        /** Call command function */
+        /* Call command function */
         return commandFn();
       });
-      /** Call after[X] hooks */
+      /* Call after[X] hooks */
       if (command.crud === 'create')
         await this._afterCreate(
           command as MongoNestedService.CreateCommand<T>,

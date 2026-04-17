@@ -3,6 +3,11 @@ import path from 'node:path';
 import colors from 'ansi-colors';
 import type { TsGenerator } from '../ts-generator.js';
 
+/**
+ * Cleans the output directory.
+ *
+ * @param dirname - The directory to clean.
+ */
 export function cleanDirectory(this: TsGenerator, dirname: string) {
   const rootDir = dirname;
   const _cleanDirectory = (targetDir: string) => {

@@ -68,6 +68,10 @@ export class DocumentNode {
       name = metadata.name;
     } else if (typeof nameOrCtor === 'object') {
       const metadata = nameOrCtor[DATATYPE_METADATA];
+      if (!metadata)
+        throw new TypeError(
+          `OPRA Metadata not found for data type (${nameOrCtor})`,
+        );
       name = metadata?.name;
     }
     if (!name) {

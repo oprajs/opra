@@ -13,13 +13,13 @@ export type HttpParameterLocation = 'cookie' | 'header' | 'query' | 'path';
 export type HttpMultipartFieldType = 'field' | 'file';
 
 export type Transport =
-  /** Custom **/
+  /* Custom **/
   | 'custom'
-  /** HTTP **/
+  /* HTTP **/
   | 'http'
-  /** WebSocket*/
+  /* WebSocket*/
   | 'ws'
-  /** Message Queue (Kafka, RabbitMQ, MQTT etc) */
+  /* Message Queue (Kafka, RabbitMQ, MQTT etc) */
   | 'mq'
-  /** Remote Procedure Call (gRPC etc) */
+  /* Remote Procedure Call (gRPC etc) */
   | 'rpc';

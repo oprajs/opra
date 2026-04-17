@@ -10,6 +10,10 @@ import { isNotNullish, ValidationError } from 'valgen';
 import type { HttpContext } from '../http-context.js';
 import { LocalFile } from './local-file.js';
 
+/**
+ * MultipartReader is responsible for parsing multipart/form-data requests.
+ * It uses busboy to stream incoming parts and can handle both fields and files.
+ */
 export class MultipartReader extends EventEmitter {
   protected _started = false;
   protected _finished = false;
@@ -76,6 +80,12 @@ export class MultipartReader extends EventEmitter {
     return this._items;
   }
 
+  /**
+   * Retrieves the next item (field or file) from the multipart stream.
+   *
+   * @returns A promise that resolves to the next item, or undefined if no more items are available.
+   * @throws {@link BadRequestError} If a field is unknown or validation fails.
+   */
   async getNext(): Promise<MultipartReader.Item | undefined> {
     let item = this._stack.shift();
     if (!item && !this._finished) {
@@ -127,7 +137,7 @@ export class MultipartReader extends EventEmitter {
       }
     }
 
-    /** if all items received we check for required items */
+    /* if all items received we check for required items */
     if (
       this._finished &&
       this.mediaType &&
@@ -158,6 +168,11 @@ export class MultipartReader extends EventEmitter {
     return item;
   }
 
+  /**
+   * Retrieves all items from the multipart stream.
+   *
+   * @returns A promise that resolves to an array of all items.
+   */
   async getAll(): Promise<MultipartReader.Item[]> {
     const items: MultipartReader.Item[] = [...this._items];
     let item: MultipartReader.Item | undefined;
@@ -195,6 +210,11 @@ export class MultipartReader extends EventEmitter {
     this.context.request.pause();
   }
 
+  /**
+   * Purges all temporary files created by the reader.
+   *
+   * @returns A promise that resolves when all files are purged.
+   */
   async purge() {
     const promises: Promise<any>[] = [];
     this._items.forEach(item => {

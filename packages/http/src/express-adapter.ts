@@ -18,6 +18,10 @@ import { HttpContext } from './http-context.js';
 import { HttpIncoming } from './interfaces/http-incoming.interface.js';
 import { HttpOutgoing } from './interfaces/http-outgoing.interface.js';
 
+/**
+ * ExpressAdapter is a platform adapter for the Express.js framework.
+ * It integrates Opra with Express applications and routers.
+ */
 export class ExpressAdapter extends HttpAdapter {
   readonly app: Application;
   protected _controllerInstances = new Map<HttpController, any>();
@@ -40,6 +44,11 @@ export class ExpressAdapter extends HttpAdapter {
     return 'express';
   }
 
+  /**
+   * Closes the adapter and performs cleanup.
+   *
+   * @returns A promise that resolves when the adapter is closed.
+   */
   async close() {
     const processInstance = async (controller: HttpController) => {
       if (controller.controllers.size) {
@@ -54,6 +63,12 @@ export class ExpressAdapter extends HttpAdapter {
     this._controllerInstances.clear();
   }
 
+  /**
+   * Retrieves a controller instance by its path.
+   *
+   * @param controllerPath - The path of the controller.
+   * @returns The controller instance, or undefined if not found.
+   */
   getControllerInstance<T>(controllerPath: string): T | undefined {
     const controller = this.api.findController(controllerPath);
     return controller && this._controllerInstances.get(controller);
@@ -89,14 +104,14 @@ export class ExpressAdapter extends HttpAdapter {
       return ctx;
     };
 
-    /** Add an endpoint that returns document schema */
+    /* Add an endpoint that returns document schema */
     router.get('/\\$schema', (_req, _res, next) => {
       createContext(_req, _res)
         .then(ctx => this.handler.sendDocumentSchema(ctx).catch(next))
         .catch(next);
     });
 
-    /** Add operation endpoints */
+    /* Add operation endpoints */
     if (this.api.controllers.size) {
       const processResource = (
         controller: HttpController,
@@ -108,7 +123,7 @@ export class ExpressAdapter extends HttpAdapter {
           const controllerInstance = this._controllerInstances.get(controller);
           const operationHandler = controllerInstance[operation.name];
           if (!operationHandler) continue;
-          /** Define router callback */
+          /* Define router callback */
           router[operation.method.toLowerCase()](
             routePath,
             (_req: Request, _res: Response, _next: NextFunction) => {
@@ -134,7 +149,7 @@ export class ExpressAdapter extends HttpAdapter {
       for (const c of this.api.controllers.values()) processResource(c, '/');
     }
 
-    /** Add an endpoint that returns 404 error at last */
+    /* Add an endpoint that returns 404 error at last */
     router.use(
       '/{*splat}',
       (_req: Request, _res: Response, next: NextFunction) => {

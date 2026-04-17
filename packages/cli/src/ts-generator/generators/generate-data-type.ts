@@ -43,6 +43,15 @@ export type generateDataTypeResult =
       code: string;
     };
 
+/**
+ * Generates TypeScript code for a given data type.
+ *
+ * @param dataType - The data type to generate code for.
+ * @param intent - The generation intent (root, extends, typeDef).
+ * @param currentFile - The current file being generated.
+ * @returns A promise that resolves to the generation result.
+ * @throws {@link TypeError} If currentFile is not provided for embedded generation.
+ */
 export async function generateDataType(
   this: TsGenerator,
   dataType: DataType,
@@ -61,14 +70,15 @@ export async function generateDataType(
         dataType instanceof ComplexType &&
         dataType.ctor === OperationResult
       ) {
-        if (currentFile) currentFile.addImport('@opra/common', [typeName]);
+        if (currentFile)
+          currentFile.addImport('@opra/common', [typeName], true);
         return { kind: 'internal', typeName: dataType.name };
       }
       if (internalTypeNames.includes(typeName))
         return { kind: 'internal', typeName: dataType.name };
       let file = this._filesMap.get(dataType);
       if (file) {
-        if (currentFile) currentFile.addImport(file.filename, [typeName]);
+        if (currentFile) currentFile.addImport(file.filename, [typeName], true);
         return { kind: 'named', file, typeName: dataType.name };
       }
 
@@ -90,7 +100,7 @@ export async function generateDataType(
       this._filesMap.set(dataType, file);
 
       if (file.exportTypes.includes(typeName)) {
-        if (currentFile) currentFile.addImport(file.filename, [typeName]);
+        if (currentFile) currentFile.addImport(file.filename, [typeName], true);
         return { kind: 'named', file, typeName: dataType.name };
       }
       file.exportTypes.push(typeName);
@@ -112,7 +122,7 @@ export async function generateDataType(
       codeBlock.type_end = '\n\n';
       typesIndexTs.addExport(file.filename);
 
-      if (currentFile) currentFile.addImport(file.filename, [typeName]);
+      if (currentFile) currentFile.addImport(file.filename, [typeName], true);
       return { kind: 'named', file, typeName };
     }
 
@@ -128,7 +138,13 @@ export async function generateDataType(
 }
 
 /**
+ * Generates the TypeScript type definition for a data type.
  *
+ * @param currentFile - The current file being generated.
+ * @param dataType - The data type to generate code for.
+ * @param codeBlock - The code block to add the generated code to.
+ * @param intent - The generation intent.
+ * @throws {@link TypeError} If name is required but not provided.
  */
 export async function _generateTypeCode(
   this: TsGenerator,
@@ -202,7 +218,13 @@ export async function _generateTypeCode(
 }
 
 /**
+ * Generates code for an array type.
  *
+ * @param currentFile - The current file being generated.
+ * @param dataType - The array data type.
+ * @param codeBlock - The code block to add the generated code to.
+ * @param intent - The generation intent.
+ * @throws {@link TypeError} If array type is attempted to be extended.
  */
 export async function _generateArrayTypeCode(
   this: TsGenerator,
@@ -226,7 +248,12 @@ export async function _generateArrayTypeCode(
 }
 
 /**
+ * Generates code for a complex type.
  *
+ * @param currentFile - The current file being generated.
+ * @param dataType - The complex data type.
+ * @param codeBlock - The code block to add the generated code to.
+ * @param intent - The generation intent.
  */
 export async function _generateComplexTypeCode(
   this: TsGenerator,
@@ -323,7 +350,12 @@ export async function _generateComplexTypeCode(
 }
 
 /**
+ * Generates code for an enum type.
  *
+ * @param currentFile - The current file being generated.
+ * @param dataType - The enum data type.
+ * @param codeBlock - The code block to add the generated code to.
+ * @param intent - The generation intent.
  */
 export async function _generateEnumTypeCode(
   this: TsGenerator,
@@ -362,7 +394,12 @@ export async function _generateEnumTypeCode(
 }
 
 /**
+ * Generates code for a mapped type.
  *
+ * @param currentFile - The current file being generated.
+ * @param dataType - The mapped data type.
+ * @param codeBlock - The code block to add the generated code to.
+ * @param intent - The generation intent.
  */
 export async function _generateMappedTypeCode(
   this: TsGenerator,
@@ -433,7 +470,12 @@ export async function _generateMappedTypeCode(
 }
 
 /**
+ * Generates code for a mixin type.
  *
+ * @param currentFile - The current file being generated.
+ * @param dataType - The mixin data type.
+ * @param codeBlock - The code block to add the generated code to.
+ * @param intent - The generation intent.
  */
 export async function _generateMixinTypeCode(
   this: TsGenerator,
@@ -461,7 +503,12 @@ export async function _generateMixinTypeCode(
 }
 
 /**
+ * Generates code for a simple type.
  *
+ * @param currentFile - The current file being generated.
+ * @param dataType - The simple data type.
+ * @param codeBlock - The code block to add the generated code to.
+ * @param intent - The generation intent.
  */
 export async function _generateSimpleTypeCode(
   this: TsGenerator,
@@ -483,7 +530,13 @@ export async function _generateSimpleTypeCode(
 }
 
 /**
+ * Generates code for a union type.
  *
+ * @param currentFile - The current file being generated.
+ * @param dataType - The union data type.
+ * @param codeBlock - The code block to add the generated code to.
+ * @param intent - The generation intent.
+ * @throws {@link TypeError} If union type is attempted to be extended.
  */
 export async function _generateUnionTypeCode(
   this: TsGenerator,

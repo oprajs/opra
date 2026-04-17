@@ -5,6 +5,10 @@ import { isHttpOutgoing, isNodeOutgoingMessage } from '../type-guards.js';
 import type { HttpIncoming } from './http-incoming.interface.js';
 import { NodeOutgoingMessage } from './node-outgoing-message.interface.js';
 
+/**
+ * HttpOutgoing represents an outgoing HTTP response.
+ * It extends NodeOutgoingMessage with additional functionality for handling HTTP responses.
+ */
 export interface HttpOutgoing extends StrictOmit<
   NodeOutgoingMessage,
   'req' | 'appendHeader' | 'setHeader'
@@ -22,7 +26,7 @@ export interface HttpOutgoing extends StrictOmit<
    */
   attachment(filename?: string): this;
 
-  /** Clear cookie `name`. */
+  /* Clear cookie `name`. */
   clearCookie(name: string, options?: CookieOptions): this;
 
   /**
@@ -128,7 +132,7 @@ export interface HttpOutgoing extends StrictOmit<
   status(code: number): this;
 
   /**
-   * Send given HTTP status code.
+   * Send the given HTTP status code.
    *
    * Sets the response status to `statusCode` and the body of the
    * response to the standard description from node's http.STATUS_CODES
@@ -162,9 +166,15 @@ export interface CookieOptions {
 }
 
 /**
- * @namespace HttpIncoming
+ * Utility functions for HttpOutgoing.
  */
 export namespace HttpOutgoing {
+  /**
+   * Creates an HttpOutgoing instance from various sources.
+   *
+   * @param instance - The source instance.
+   * @returns The HttpOutgoing instance.
+   */
   export function from(
     instance: HttpOutgoing | NodeOutgoingMessage.Initiator,
   ): HttpOutgoing {

@@ -3,6 +3,12 @@ import type { estypes } from '@elastic/elasticsearch';
 import { OpraFilter } from '@opra/common';
 import { type ElasticAdapter } from '../elastic-adapter.js';
 
+/**
+ * Prepares an Elasticsearch filter query from the provided input.
+ *
+ * @param filters - The filter input or an array of filter inputs to prepare.
+ * @returns The prepared Elasticsearch query container, or undefined if no filters are provided.
+ */
 export default function prepareFilter(
   filters: ElasticAdapter.FilterInput | ElasticAdapter.FilterInput[],
 ): estypes.QueryDslQueryContainer | undefined {
@@ -48,7 +54,7 @@ function prepareFilterAst(
   if (ast instanceof OpraFilter.LogicalExpression) {
     const items = ast.items
       .map(x => prepareFilterAst(x))
-      /** Filter nullish items */
+      /* Filter nullish items */
       .filter(x => x != null);
     const k = (ast.op === 'or' ? 'should' : 'must') + (negative ? '_not' : '');
     return { bool: { [k]: items } };

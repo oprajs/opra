@@ -58,7 +58,7 @@ export class FilterType {
     const dataType = properties.dataType
       ? element.node.getComplexType(properties.dataType)
       : element.node.getComplexType('object');
-    /** Test scope */
+    /* Test scope */
     DataType.prototype.toJSON.call(dataType, options);
     const typeName = dataType
       ? element.node.getDataTypeNameWithNs(dataType)

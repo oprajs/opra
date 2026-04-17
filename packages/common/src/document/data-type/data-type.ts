@@ -127,7 +127,7 @@ abstract class DataTypeClass extends DocumentElement {
   }
 
   toJSON(options?: ApiDocument.ExportOptions): OpraSchema.DataType {
-    /** Locate base model which is not available for given scope */
+    /* Locate base model which is not available for given scope */
     const outOfScope = this._locateBase(dt => !dt.inScope(options?.scope));
     if (outOfScope) {
       const baseName = this.node.getDataTypeNameWithNs(outOfScope);

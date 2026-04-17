@@ -28,8 +28,10 @@ const signalTraps = ['SIGTERM', 'SIGINT', 'SIGUSR2'];
 const noOp = () => undefined;
 
 /**
+ * RabbitMQ platform adapter for Opra.
  *
- * @class RabbitmqAdapter
+ * This adapter handles communication with RabbitMQ, including connection management,
+ * queue subscription, message parsing, and operation execution.
  */
 export class RabbitmqAdapter extends PlatformAdapter<RabbitmqAdapter.Events> {
   static readonly PlatformName = 'rabbitmq';
@@ -46,10 +48,11 @@ export class RabbitmqAdapter extends PlatformAdapter<RabbitmqAdapter.Events> {
   )[];
 
   /**
+   * Initializes a new instance of the RabbitmqAdapter.
    *
-   * @param document
-   * @param config
-   * @constructor
+   * @param document - The API document instance.
+   * @param config - Configuration options for the RabbitMQ adapter.
+   * @throws {@link TypeError} Throws if the document does not expose a RabbitMQ API.
    */
   constructor(document: ApiDocument, config: RabbitmqAdapter.Config) {
     super(config);
@@ -75,24 +78,39 @@ export class RabbitmqAdapter extends PlatformAdapter<RabbitmqAdapter.Events> {
     });
   }
 
+  /**
+   * Gets the MQ API instance associated with this adapter.
+   */
   get api(): MQApi {
     return this.document.getMqApi();
   }
 
+  /**
+   * Gets the active RabbitMQ connection, if any.
+   */
   get connection(): rabbit.Connection | undefined {
     return this._connection;
   }
 
+  /**
+   * Gets the optional scope for this adapter.
+   */
   get scope(): string | undefined {
     return this._config.scope;
   }
 
+  /**
+   * Gets the current status of the adapter.
+   */
   get status(): RabbitmqAdapter.Status {
     return this._status;
   }
 
   /**
-   * Starts the service
+   * Starts the RabbitMQ service by establishing a connection and subscribing to queues.
+   *
+   * @returns A promise that resolves when the service has started.
+   * @throws {@link Error} Throws if the connection or subscription fails.
    */
   async start() {
     if (this.status !== 'idle') return;
@@ -102,7 +120,7 @@ export class RabbitmqAdapter extends PlatformAdapter<RabbitmqAdapter.Events> {
     await configBuilder.build();
     this._connection = new rabbit.Connection(configBuilder.connectionOptions);
     try {
-      /** Establish connection */
+      /* Establish connection */
       await this._connection.onConnect().catch(e => {
         updateErrorMessage(e, `RabbitMQ connection error. ${e.message}`);
         throw e;
@@ -111,7 +129,7 @@ export class RabbitmqAdapter extends PlatformAdapter<RabbitmqAdapter.Events> {
         `Connected RabbitMQ at ${configBuilder.connectionOptions.urls}`,
       );
 
-      /** Subscribe to queues */
+      /* Subscribe to queues */
       const promises: Promise<void>[] = [];
       for (const args of configBuilder.handlerArgs) {
         for (const queue of args.topics) {
@@ -162,7 +180,9 @@ export class RabbitmqAdapter extends PlatformAdapter<RabbitmqAdapter.Events> {
   }
 
   /**
-   * Closes all connections and stops the service
+   * Closes all connections and stops the service.
+   *
+   * @returns A promise that resolves when all connections are closed.
    */
   async close() {
     if (this._consumers.length)
@@ -176,19 +196,27 @@ export class RabbitmqAdapter extends PlatformAdapter<RabbitmqAdapter.Events> {
     this._status = 'idle';
   }
 
+  /**
+   * Retrieves the controller instance for a given path.
+   *
+   * @param controllerPath - The path of the controller.
+   * @returns The controller instance, or undefined if not found.
+   */
   getControllerInstance<T>(controllerPath: string): T | undefined {
     const controller = this.api.findController(controllerPath);
     return controller && this._controllerInstances.get(controller);
   }
 
   /**
+   * Creates a message handler for a specific operation.
    *
-   * @param args
+   * @param args - Arguments required to create the handler.
+   * @returns A function that processes incoming RabbitMQ messages.
    * @protected
    */
   protected _createHandler(args: ConfigBuilder.OperationArguments) {
     const { controller, instance, operation } = args;
-    /** Prepare parsers */
+    /* Prepare parsers */
     const decodePayload = operation.generateCodec('decode', {
       scope: this.scope,
       ignoreReadonlyFields: true,
@@ -222,7 +250,7 @@ export class RabbitmqAdapter extends PlatformAdapter<RabbitmqAdapter.Events> {
         return _reply(body, envelope);
       };
       const headers: any = {};
-      /** Create context */
+      /* Create context */
       const context = new RabbitmqContext({
         __adapter: this,
         __contDef: controller,
@@ -237,14 +265,14 @@ export class RabbitmqAdapter extends PlatformAdapter<RabbitmqAdapter.Events> {
         reply,
       });
       try {
-        /** Parse and decode `payload` */
+        /* Parse and decode `payload` */
         let content = await this._parseContent(message);
         if (content && decodePayload) {
           if (Buffer.isBuffer(content)) content = content.toString('utf-8');
           content = decodePayload(content);
         }
         // message.properties.
-        /** Parse and decode `headers` */
+        /* Parse and decode `headers` */
         if (message.headers) {
           for (const [k, v] of Object.entries(message.headers)) {
             const header = operation.findHeader(k);
@@ -261,7 +289,7 @@ export class RabbitmqAdapter extends PlatformAdapter<RabbitmqAdapter.Events> {
 
       await this.emitAsync('execute', context).catch(noOp);
       try {
-        /** Call operation handler */
+        /* Call operation handler */
         const result = await operationHandler.call(instance, context);
         if (result !== undefined) await reply(result);
         await this.emitAsync('finish', context, result).catch(noOp);
@@ -271,6 +299,13 @@ export class RabbitmqAdapter extends PlatformAdapter<RabbitmqAdapter.Events> {
     };
   }
 
+  /**
+   * Parses the content of a RabbitMQ message, handling encodings like gzip, deflate, and brotli.
+   *
+   * @param msg - The message to parse.
+   * @returns The parsed content, which may be a string, buffer, or object.
+   * @protected
+   */
   protected async _parseContent(msg: rabbit.AsyncMessage) {
     if (!Buffer.isBuffer(msg.body)) return msg.body;
     if (!msg.body?.length) return;
@@ -314,6 +349,13 @@ export class RabbitmqAdapter extends PlatformAdapter<RabbitmqAdapter.Events> {
     return content;
   }
 
+  /**
+   * Emits an error event and logs the error.
+   *
+   * @param error - The error to emit.
+   * @param context - The RabbitMQ context associated with the error.
+   * @protected
+   */
   protected _emitError(error: any, context?: RabbitmqContext) {
     Promise.resolve()
       .then(async () => {
@@ -335,6 +377,13 @@ export class RabbitmqAdapter extends PlatformAdapter<RabbitmqAdapter.Events> {
       .catch(noOp);
   }
 
+  /**
+   * Wraps exceptions into OpraException instances.
+   *
+   * @param exceptions - An array of exceptions to wrap.
+   * @returns An array of OpraException instances.
+   * @protected
+   */
   protected _wrapExceptions(exceptions: any[]): OpraException[] {
     const wrappedErrors = exceptions.map(e =>
       e instanceof OpraException ? e : new OpraException(e),

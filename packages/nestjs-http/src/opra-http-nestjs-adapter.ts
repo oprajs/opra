@@ -25,13 +25,29 @@ import { HttpAdapter, HttpContext } from '@opra/http';
 import { OpraNestUtils, Public } from '@opra/nestjs';
 import { asMutable } from 'ts-gems';
 
+/**
+ * OpraHttpNestjsAdapter
+ *
+ * HTTP adapter used to integrate OPRA APIs with the NestJS framework.
+ * This adapter converts OPRA controllers into NestJS controllers and
+ * exports the OPRA documentation ($schema).
+ */
 export class OpraHttpNestjsAdapter extends HttpAdapter {
+  /** List of controller classes to be registered with NestJS */
   readonly nestControllers: Type[] = [];
+  /** Platform identifier */
   readonly platform = 'nestjs';
 
+  /**
+   * Creates a new instance of OpraHttpNestjsAdapter.
+   *
+   * @param options - Adapter configuration options.
+   */
   constructor(
     options: HttpAdapter.Options & {
+      /** Indicates whether the schema is public */
       schemaIsPublic?: boolean;
+      /** Manually added NestJS controllers */
       controllers?: Type[];
     },
   ) {
@@ -44,10 +60,20 @@ export class OpraHttpNestjsAdapter extends HttpAdapter {
     }
   }
 
+  /**
+   * Closes the adapter.
+   * @returns {Promise<void>}
+   */
   async close() {
     //
   }
 
+  /**
+   * Adds the root controller that serves the OPRA schema.
+   *
+   * @param isPublic - Whether the schema is accessible without authentication.
+   * @protected
+   */
   protected _addRootController(isPublic?: boolean) {
     const _this = this;
 
@@ -72,6 +98,16 @@ export class OpraHttpNestjsAdapter extends HttpAdapter {
     this.nestControllers.push(RootController);
   }
 
+  /**
+   * Adds the specified class and its sub-controllers to the NestJS controller list.
+   *
+   * @param sourceClass - Source OPRA controller class.
+   * @param currentPath - Current URL path.
+   * @param parentTree - List of parent controller classes.
+   * @protected
+   * @throws {@link NotFoundError} Thrown when no suitable endpoint is found for the operation.
+   * @throws {@link TypeError} Thrown when the controller is not a class.
+   */
   protected _addToNestControllers(
     sourceClass: Type,
     currentPath: string,
@@ -82,11 +118,11 @@ export class OpraHttpNestjsAdapter extends HttpAdapter {
       sourceClass,
     );
     if (!metadata) return;
-    /** Create a new controller class */
+    /* Create a new controller class */
     const newClass = {
       [sourceClass.name]: class extends sourceClass {},
     }[sourceClass.name];
-    /** Copy metadata keys from source class to new one */
+    /* Copy metadata keys from source class to new one */
     OpraNestUtils.copyDecoratorMetadata(newClass, ...parentTree);
     Controller()(newClass);
 
@@ -95,7 +131,7 @@ export class OpraHttpNestjsAdapter extends HttpAdapter {
       : currentPath;
     const adapter = this;
     // adapter.logger =
-    /** Disable default error handler. Errors will be handled by OpraExceptionFilter */
+    /* Disable default error handler. Errors will be handled by OpraExceptionFilter */
     adapter.handler.onError = (context, error) => {
       throw error;
     };
@@ -107,7 +143,7 @@ export class OpraHttpNestjsAdapter extends HttpAdapter {
         const operationHandler = sourceClass.prototype[k];
         Object.defineProperty(newClass.prototype, k, {
           writable: true,
-          /** NestJS handler method */
+          /* NestJS handler method */
           async value(this: any, _req: any, _res) {
             _res.statusCode = 200;
             const api = adapter.document.api as HttpApi;
@@ -125,18 +161,18 @@ export class OpraHttpNestjsAdapter extends HttpAdapter {
                 },
               });
             }
-            /** Configure the HttpContext */
+            /* Configure the HttpContext */
             context.__docNode = operation.node;
             context.__oprDef = operation;
             context.__contDef = operation.owner;
             context.__controller = this;
             context.__handler = operationHandler;
-            /** Handle request */
+            /* Handle request */
             await adapter.handler.handleRequest(context);
           },
         });
 
-        /** Copy metadata keys from source function to new one */
+        /* Copy metadata keys from source function to new one */
         metadataKeys = Reflect.getOwnMetadataKeys(operationHandler);
         const newFn = newClass.prototype[k];
         for (const key of metadataKeys) {
@@ -156,35 +192,35 @@ export class OpraHttpNestjsAdapter extends HttpAdapter {
           : nodePath.posix.join(newPath, v.path || '');
         switch (v.method || 'GET') {
           case 'DELETE':
-            /** Call @Delete decorator over new property */
+            /* Call @Delete decorator over new property */
             Delete(operationPath)(newClass.prototype, k, descriptor);
             break;
           case 'GET':
-            /** Call @Get decorator over new property */
+            /* Call @Get decorator over new property */
             Get(operationPath)(newClass.prototype, k, descriptor);
             break;
           case 'HEAD':
-            /** Call @Head decorator over new property */
+            /* Call @Head decorator over new property */
             Head(operationPath)(newClass.prototype, k, descriptor);
             break;
           case 'OPTIONS':
-            /** Call @Options decorator over new property */
+            /* Call @Options decorator over new property */
             Options(operationPath)(newClass.prototype, k, descriptor);
             break;
           case 'PATCH':
-            /** Call @Patch decorator over new property */
+            /* Call @Patch decorator over new property */
             Patch(operationPath)(newClass.prototype, k, descriptor);
             break;
           case 'POST':
-            /** Call @Post decorator over new property */
+            /* Call @Post decorator over new property */
             Post(operationPath)(newClass.prototype, k, descriptor);
             break;
           case 'PUT':
-            /** Call @Put decorator over new property */
+            /* Call @Put decorator over new property */
             Put(operationPath)(newClass.prototype, k, descriptor);
             break;
           case 'SEARCH':
-            /** Call @Search decorator over new property */
+            /* Call @Search decorator over new property */
             Search(operationPath)(newClass.prototype, k, descriptor);
             break;
           default:

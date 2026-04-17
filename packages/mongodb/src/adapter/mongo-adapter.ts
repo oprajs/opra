@@ -7,20 +7,52 @@ import _prepareKeyValues from './prepare-key-values.js';
 import _prepareProjection from './prepare-projection.js';
 import _prepareSort from './prepare-sort.js';
 
+/**
+ * MongoAdapter namespace provides types and utility functions for integrating MongoDB with Opra.
+ */
 export namespace MongoAdapter {
+  /**
+   * Represents any type of identifier that can be used in MongoDB.
+   */
   export type AnyId = string | number | ObjectId;
+
+  /**
+   * Represents the input for a filter, which can be an Opra filter expression,
+   * a MongoDB filter object, a string, or undefined.
+   */
   export type FilterInput<T = any> =
     | OpraFilter.Expression
     | mongodb.Filter<T>
     | string
     | undefined;
 
+  /**
+   * Prepares the given filter input into a MongoDB filter expression.
+   */
   export const prepareFilter = _prepareFilter;
+
+  /**
+   * Prepares the given key values into a MongoDB compatible format.
+   */
   export const prepareKeyValues = _prepareKeyValues;
+
+  /**
+   * Prepares the given projection into a MongoDB compatible format.
+   */
   export const prepareProjection = _prepareProjection;
+
+  /**
+   * Prepares the given sort into a MongoDB compatible format.
+   */
   export const prepareSort = _prepareSort;
 
+  /**
+   * Represents a request that has been transformed for MongoDB operations.
+   */
   export interface TransformedRequest {
+    /**
+     * The operation method name.
+     */
     method:
       | 'create'
       | 'delete'
@@ -30,11 +62,28 @@ export namespace MongoAdapter {
       | 'replace'
       | 'update'
       | 'updateMany';
+    /**
+     * The primary key for the operation, if applicable.
+     */
     key?: any;
+    /**
+     * The data object for create or update operations.
+     */
     data?: any;
+    /**
+     * Additional options for the MongoDB operation.
+     */
     options: any;
   }
 
+  /**
+   * Parses an execution context and transforms it into a MongoDB-compatible request.
+   *
+   * @param context - The execution context to parse.
+   * @returns A promise that resolves to the transformed request.
+   * @throws {@link TypeError} If the context transport is not 'http'.
+   * @throws {@link Error} If the operation is not compatible with MongoDB Adapter.
+   */
   export async function parseRequest(
     context: ExecutionContext,
   ): Promise<TransformedRequest> {

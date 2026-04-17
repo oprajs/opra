@@ -9,54 +9,108 @@ import type { MongoPatchDTO } from '../types.js';
 import { MongoService } from './mongo-service.js';
 
 /**
- *
- * @namespace MongoEntityService
+ * Options for MongoEntityService.
  */
 export namespace MongoEntityService {
   /**
-   * The constructor options of MongoEntityService.
-   *
-   * @interface Options
-   * @extends MongoService.Options
+   * Configuration options for MongoEntityService.
    */
   export interface Options extends MongoService.Options {}
 
+  /**
+   * Information about the command being executed.
+   */
   export interface CommandInfo extends MongoService.CommandInfo {}
 
+  /* Options for the `create` operation. */
   export interface CreateOptions extends MongoService.CreateOptions {}
 
+  /**
+   * Options for the `count` operation.
+   *
+   * @template T - The type of the document.
+   */
   export interface CountOptions<T> extends MongoService.CountOptions<T> {}
 
+  /**
+   * Options for the `delete` operation.
+   *
+   * @template T - The type of the document.
+   */
   export interface DeleteOptions<T> extends MongoService.DeleteOptions<T> {}
 
+  /**
+   * Options for the `deleteMany` operation.
+   *
+   * @template T - The type of the document.
+   */
   export interface DeleteManyOptions<
     T,
   > extends MongoService.DeleteManyOptions<T> {}
 
+  /**
+   * Options for the `distinct` operation.
+   *
+   * @template T - The type of the document.
+   */
   export interface DistinctOptions<T> extends MongoService.DistinctOptions<T> {}
 
+  /**
+   * Options for the `exists` operation.
+   *
+   * @template T - The type of the document.
+   */
   export interface ExistsOptions<T> extends MongoService.ExistsOptions<T> {}
 
+  /**
+   * Options for the `findOne` / `findById` operations.
+   *
+   * @template T - The type of the document.
+   */
   export interface FindOneOptions<T> extends MongoService.FindOneOptions<T> {}
 
+  /**
+   * Options for the `findMany` operation.
+   *
+   * @template T - The type of the document.
+   */
   export interface FindManyOptions<T> extends MongoService.FindManyOptions<T> {
+    /* Whether to skip decoding of the result items. */
     noDecode?: boolean;
   }
 
+  /**
+   * Options for the `replace` operation.
+   *
+   * @template T - The type of the document.
+   */
   export interface ReplaceOptions<T> extends MongoService.ReplaceOptions<T> {}
 
+  /**
+   * Options for the `update` / `updateOnly` operations.
+   *
+   * @template T - The type of the document.
+   */
   export interface UpdateOneOptions<
     T,
   > extends MongoService.UpdateOneOptions<T> {
+    /* Array fields to initialize if they don't exist. */
     initArrayFields?: string[];
   }
 
+  /**
+   * Options for the `updateMany` operation.
+   *
+   * @template T - The type of the document.
+   */
   export interface UpdateManyOptions<
     T,
   > extends MongoService.UpdateManyOptions<T> {
+    /* Array fields to initialize if they don't exist. */
     initArrayFields?: string[];
   }
 
+  /* Command interface for the `create` operation. */
   export interface CreateCommand<T> extends StrictOmit<
     CommandInfo,
     'documentId' | 'nestedId' | 'input'
@@ -66,6 +120,7 @@ export namespace MongoEntityService {
     options?: CreateOptions;
   }
 
+  /* Command interface for the `count` operation. */
   export interface CountCommand<T> extends StrictOmit<
     CommandInfo,
     'documentId' | 'nestedId' | 'input'
@@ -153,11 +208,10 @@ export class MongoEntityService<
   T extends mongodb.Document,
 > extends MongoService<T> {
   /**
-   * Constructs a new instance
+   * Constructs a new instance.
    *
-   * @param {Type | string} dataType - The data type of the array elements.
-   * @param {MongoEntityService.Options} [options] - The options for the array service.
-   * @constructor
+   * @param dataType - The data type of the managed entities.
+   * @param options - The options for the entity service.
    */
   constructor(dataType: Type | string, options?: MongoEntityService.Options) {
     super(dataType, options);
@@ -166,7 +220,7 @@ export class MongoEntityService<
   /**
    * Creates a new document in the MongoDB collection
    *
-   * @param {MongoEntityService.CreateCommand} command
+   * @param command - The command information.
    * @protected
    */
   protected async _create(
@@ -196,7 +250,7 @@ export class MongoEntityService<
   /**
    * Returns the count of documents in the collection based on the provided options.
    *
-   * @param {MongoEntityService.CountCommand<T>} command
+   * @param command - The command information.
    * @protected
    */
   protected async _count(
@@ -218,7 +272,7 @@ export class MongoEntityService<
   /**
    * Deletes a document from the collection
    *
-   * @param {MongoEntityService.DeleteCommand<T>} command
+   * @param command - The command information.
    * @protected
    */
   protected async _delete(
@@ -244,7 +298,7 @@ export class MongoEntityService<
   /**
    * Deletes multiple documents from the collection that meet the specified filter criteria.
    *
-   * @param {MongoEntityService.DeleteCommand<T>} command
+   * @param command - The command information.
    * @protected
    */
   protected async _deleteMany(
@@ -265,7 +319,7 @@ export class MongoEntityService<
   /**
    * The distinct command returns a list of distinct values for the given key across a collection
    *
-   * @param {MongoEntityService.DistinctCommand<T>} command
+   * @param command - The command information.
    * @protected
    */
   protected async _distinct(
@@ -284,7 +338,7 @@ export class MongoEntityService<
   /**
    * Finds a document by its ID.
    *
-   * @param { MongoEntityService.FindOneCommand<T>} command
+   * @param command - The command information.
    */
   protected async _findById(
     command: MongoEntityService.FindOneCommand<T>,
@@ -311,7 +365,7 @@ export class MongoEntityService<
   /**
    * Finds a document in the collection that matches the specified options.
    *
-   * @param {MongoEntityService.FindOneCommand<T>} command
+   * @param command - The command information.
    */
   protected async _findOne(
     command: MongoEntityService.FindOneCommand<T>,
@@ -331,30 +385,30 @@ export class MongoEntityService<
   /**
    * Finds multiple documents in the MongoDB collection
    *
-   * @param {MongoEntityService.FindManyCommand<T>} command
+   * @param command - The command information.
    */
   protected async _findMany(
     command: MongoEntityService.FindManyCommand<T>,
   ): Promise<PartialDTO<T>[]> {
     const { options } = command;
     const stages: mongodb.Document[] = [];
-    /** Pre-Stages */
+    /* Pre-Stages */
     if (options?.preStages) stages.push(...options.preStages);
-    /** "Filter" stage */
+    /* "Filter" stage */
     let filter: mongodb.Filter<T> | undefined;
     if (options?.filter)
       filter = MongoAdapter.prepareFilter<T>(options?.filter);
     if (filter) stages.push({ $match: filter });
-    /** "Skip" stage */
+    /* "Skip" stage */
     if (options?.skip) stages.push({ $skip: options.skip });
-    /** "Sort" stage */
+    /* "Sort" stage */
     if (options?.sort) {
       const sort = MongoAdapter.prepareSort(options.sort);
       if (sort) stages.push({ $sort: sort });
     }
-    /** "Limit" stage */
+    /* "Limit" stage */
     stages.push({ $limit: options?.limit || 10 });
-    /** Post-Stages */
+    /* Post-Stages */
     if (options?.postStages) stages.push(...options.postStages);
 
     const dataType = this.dataType;
@@ -370,11 +424,11 @@ export class MongoEntityService<
       ...omit(options!, ['projection', 'sort', 'skip', 'limit', 'filter']),
       session: options?.session ?? this.getSession(),
     });
-    /** Execute db command */
+    /* Execute db command */
     try {
-      /** Fetch the cursor */
+      /* Fetch the cursor */
       if (options?.noDecode) return cursor.toArray();
-      /** Decode result objects */
+      /* Decode result objects */
       const outputCodec = this._getOutputCodec('find');
       return (await cursor.toArray()).map((r: any) => outputCodec(r));
     } finally {
@@ -386,7 +440,7 @@ export class MongoEntityService<
    * Finds multiple documents in the collection and returns both records (max limit)
    * and total count that matched the given criteria
    *
-   * @param {MongoEntityService.FindManyCommand<T>} command
+   * @param command - The command information.
    */
   protected async _findManyWithCount(
     command: MongoEntityService.FindManyCommand<T>,
@@ -411,24 +465,24 @@ export class MongoEntityService<
       },
     ];
 
-    /** Pre-Stages */
+    /* Pre-Stages */
     if (options?.preStages) dataStages.push(...options.preStages);
 
-    /** Filter */
+    /* Filter */
     if (filter) {
       countStages.push({ $match: filter });
       dataStages.push({ $match: filter });
     }
     countStages.push({ $count: 'totalMatches' });
 
-    /** Sort */
+    /* Sort */
     if (options?.sort) {
       const sort = MongoAdapter.prepareSort(options.sort);
       if (sort) dataStages.push({ $sort: sort });
     }
-    /** Skip */
+    /* Skip */
     if (options?.skip) dataStages.push({ $skip: options.skip });
-    /** Limit */
+    /* Limit */
     dataStages.push({ $limit: limit });
 
     const dataType = this.dataType;
@@ -439,14 +493,14 @@ export class MongoEntityService<
     );
     if (projection) dataStages.push({ $project: projection });
     const outputCodec = this._getOutputCodec('find');
-    /** Execute db command */
+    /* Execute db command */
     const db = this.getDatabase();
     const collection = await this.getCollection(db);
     const cursor = collection.aggregate<T>(stages, {
       ...omit(options!, ['projection', 'sort', 'skip', 'limit', 'filter']),
       session: options?.session ?? this.getSession(),
     });
-    /** Fetch the cursor and decode the result objects */
+    /* Fetch the cursor and decode the result objects */
     try {
       const facetResult = await cursor.toArray();
       return {
@@ -463,7 +517,7 @@ export class MongoEntityService<
   /**
    * Updates a document with the given id in the collection
    *
-   * @param {MongoEntityService.UpdateOneCommand<T>} command
+   * @param command - The command information.
    */
   protected async _update(
     command: MongoEntityService.UpdateOneCommand<T>,
@@ -503,7 +557,7 @@ export class MongoEntityService<
   /**
    * Updates a document in the collection with the specified ID.
    *
-   * @param {MongoEntityService.UpdateOneCommand<T>} command
+   * @param command - The command information.
    */
   protected async _updateOnly(
     command: MongoEntityService.UpdateOneCommand<T>,
@@ -524,7 +578,7 @@ export class MongoEntityService<
     ]);
     const db = this.getDatabase();
     const collection = await this.getCollection(db);
-    /** Create array fields if not exists */
+    /* Create array fields if not exists */
     if (options?.initArrayFields) {
       const $set = options.initArrayFields.reduce((a, k) => {
         a[k] = { $ifNull: ['$' + k, []] };
@@ -538,7 +592,7 @@ export class MongoEntityService<
       });
       delete options.initArrayFields;
     }
-    /** Execute update operation */
+    /* Execute update operation */
     return (
       await collection.updateOne(filter || {}, update, {
         ...options,
@@ -551,7 +605,7 @@ export class MongoEntityService<
   /**
    * Updates multiple documents in the collection based on the specified input and options.
    *
-   * @param {MongoEntityService.UpdateManyCommand<T>} command
+   * @param command - The command information.
    */
   protected async _updateMany(
     command: MongoEntityService.UpdateManyCommand<T>,
@@ -569,7 +623,7 @@ export class MongoEntityService<
     const filter = MongoAdapter.prepareFilter(options?.filter);
     const db = this.getDatabase();
     const collection = await this.getCollection(db);
-    /** Create array fields if not exists */
+    /* Create array fields if not exists */
     if (options?.initArrayFields) {
       const $set = options.initArrayFields.reduce((a, k) => {
         a[k] = { $ifNull: ['$' + k, []] };
@@ -583,7 +637,7 @@ export class MongoEntityService<
       });
       delete options.initArrayFields;
     }
-    /** Execute update operation */
+    /* Execute update operation */
     return (
       await collection.updateMany(filter || {}, update, {
         ...omit(options!, ['filter']),
@@ -596,7 +650,7 @@ export class MongoEntityService<
   /**
    * Replaces a document with the given id in the collection
    *
-   * @param {MongoEntityService.ReplaceCommand<T>} command
+   * @param command - The command information.
    */
   protected async _replace(
     command: MongoEntityService.ReplaceCommand<T>,
@@ -678,7 +732,7 @@ export class MongoEntityService<
   ): Promise<any> {
     try {
       const result = await super._executeCommand(command, async () => {
-        /** Call before[X] hooks */
+        /* Call before[X] hooks */
         if (command.crud === 'create')
           await this._beforeCreate(
             command as MongoEntityService.CreateCommand<T>,
@@ -704,10 +758,10 @@ export class MongoEntityService<
             command as MongoEntityService.UpdateManyCommand<T>,
           );
         }
-        /** Call command function */
+        /* Call command function */
         return commandFn();
       });
-      /** Call after[X] hooks */
+      /* Call after[X] hooks */
       if (command.crud === 'create')
         await this._afterCreate(
           command as MongoEntityService.CreateCommand<T>,

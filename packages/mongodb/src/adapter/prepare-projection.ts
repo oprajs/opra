@@ -6,6 +6,14 @@ import {
 } from '@opra/common';
 import mongodb, { type Document } from 'mongodb';
 
+/**
+ * Prepares the MongoDB projection object based on the data type and requested projection.
+ *
+ * @param dataType - The data type of the entity.
+ * @param projection - The requested projection (string, array of strings, Document, or '*').
+ * @param scope - Optional scope for field visibility.
+ * @returns The prepared MongoDB projection document, or `undefined`.
+ */
 export default function prepareProjection(
   dataType: ComplexType,
   projection?: string | string[] | Document | '*',
@@ -40,18 +48,18 @@ export function prepare(
   let fieldName: string;
   let field: ApiField;
   let k: string;
-  /** Add fields from data type */
+  /* Add fields from data type */
   for (field of dataType.fields(scope)) {
     fieldName = field.name;
     k = fieldName.toLowerCase();
     projectionKeysSet.delete(k);
     const p = projection?.[k];
     if (
-      /** Ignore if field is omitted */
+      /* Ignore if field is omitted */
       p?.sign === '-' ||
-      /** Ignore if defaultFields is false and field is not in projection */
+      /* Ignore if defaultFields is false and field is not in projection */
       (!defaultFields && !p) ||
-      /** Ignore if defaultFields is true and fields is exclusive */
+      /* Ignore if defaultFields is true and fields is exclusive */
       (defaultFields && field.exclusive && !p)
     ) {
       continue;
@@ -67,7 +75,7 @@ export function prepare(
     }
     target[fieldName] = 1;
   }
-  /** Add additional fields */
+  /* Add additional fields */
   if (dataType.additionalFields) {
     for (k of projectionKeysSet.values()) {
       const n = projection?.[k];

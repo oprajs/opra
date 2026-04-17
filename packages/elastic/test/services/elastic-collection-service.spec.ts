@@ -16,7 +16,7 @@ describe('elastic:ElasticCollectionService', () => {
 
   before(async () => {
     app = await CustomerApplication.create();
-    /** Recreate index to be use in tests */
+    /* Recreate index to be use in tests */
     const client = app.dbClient;
     service = new ElasticCollectionService<any>(Customer, {
       client,

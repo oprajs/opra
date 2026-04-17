@@ -14,13 +14,11 @@ const opMap = {
 };
 
 /**
- * Prepare the MongoDB filter based on the provided filters and options.
+ * Prepares the MongoDB filter based on the provided filters and options.
  *
- * @param {FilterInput|FilterInput[]} filters - The filter(s) to be applied.
- * @param {Object} [options] - Additional options.
- * @param {string} [options.fieldPrefix] - The prefix to be added to field names.
- *
- * @returns {mongodb.Filter<any>} - The prepared MongoDB filter.
+ * @param filters - The filter(s) to be applied. Can be a single filter or an array of filters.
+ * @param options - Additional options.
+ * @returns The prepared MongoDB filter, or `undefined` if no filters are provided.
  */
 export default function prepareFilter<T = any>(
   filters: MongoAdapter.FilterInput<T> | MongoAdapter.FilterInput<T>[],

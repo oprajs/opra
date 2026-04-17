@@ -14,6 +14,12 @@ import type { TsGenerator } from '../ts-generator.js';
 import { locateNamedType } from '../utils/locate-named-type.js';
 import { wrapJSDocString } from '../utils/string-utils.js';
 
+/**
+ * Generates TypeScript code for an HTTP controller.
+ *
+ * @param controller - The HTTP controller to generate code for.
+ * @returns A promise that resolves to the generated TsFile.
+ */
 export async function generateHttpController(
   this: TsGenerator,
   controller: HttpController,
@@ -21,6 +27,14 @@ export async function generateHttpController(
   let file = this._filesMap.get(controller);
   if (file) return file;
 
+  /**
+   * Generates parameter documentation for JSDoc.
+   *
+   * @param name - The name of the parameter.
+   * @param type - The data type of the parameter.
+   * @param options - Additional options for the parameter.
+   * @returns A promise that resolves to the documentation string.
+   */
   const generateParamDoc = async (
     name: string,
     type?: DataType,
@@ -30,14 +44,7 @@ export async function generateHttpController(
       description?: string;
     },
   ): Promise<string> => {
-    let typeDef: string;
-    if (type) {
-      const xt = await this.generateDataType(type, 'typeDef', file);
-      typeDef = xt.kind === 'embedded' ? 'object' : xt.typeName;
-    } else typeDef = 'any';
-    if (options?.isArray) typeDef += '[]';
-    let out =
-      `\n * @param {${typeDef}} ` + (options?.required ? name : `[${name}]`);
+    let out = `\n * @param - ` + (options?.required ? name : `[${name}]`);
     if (options?.description)
       out += `  - ${wrapJSDocString(options?.description)}`;
     if (type instanceof ComplexType && type.embedded) {
@@ -71,8 +78,7 @@ export async function generateHttpController(
 
   const classConstBlock = (classBlock.classConstBlock = new CodeBlock());
   classConstBlock.head = `\n/**
- * @param {OpraHttpClient} client - OpraHttpClient instance to operate
- * @constructor
+ * @param client - OpraHttpClient instance to operate
  */  
 constructor(client: OpraHttpClient) {`;
   classConstBlock.body = `\n\tsuper(client);`;
@@ -94,7 +100,7 @@ constructor(client: OpraHttpClient) {`;
     }
   }
 
-  /** Process operations */
+  /* Process operations */
   const mergedControllerParams = [...controller.parameters];
   let _base: HttpController | undefined = controller;
   while (_base.owner instanceof HttpController) {
@@ -137,7 +143,7 @@ constructor(client: OpraHttpClient) {`;
 
     operationBlock.head = `${operation.name}(`;
 
-    /** Process operation parameters */
+    /* Process operation parameters */
     const pathParams: HttpParameter[] = [];
     const queryParams: HttpParameter[] = [];
     const headerParams: HttpParameter[] = [];
@@ -156,7 +162,7 @@ constructor(client: OpraHttpClient) {`;
       headerParams.push(...Object.values(headerParamsMap));
     }
 
-    /** Process path parameters and add as function arguments */
+    /* Process path parameters and add as function arguments */
     let argIndex = 0;
     for (const prm of pathParams) {
       let typeDef: string;
@@ -168,19 +174,19 @@ constructor(client: OpraHttpClient) {`;
       if (argIndex++ > 0) operationBlock.head += ', ';
       operationBlock.head += `${prm.name}: ${typeDef}`;
       operationBlock.doc.parameters +=
-        `\n * @param {${typeDef}} ` +
+        `\n * @param ` +
         (prm.required ? prm.name : `[${prm.name}]`) +
         (prm.description ? ' - ' + wrapJSDocString(prm.description || '') : '');
     }
 
-    /** Process requestBody and add as function argument ($body) */
+    /* Process requestBody and add as function argument ($body) */
     let hasBody = false;
     if (operation.requestBody?.content.length) {
       if (argIndex++ > 0) operationBlock.head += ', ';
       let typeArr: string[] = [];
       for (const content of operation.requestBody.content) {
         if (content.type) {
-          /** Generate JSDoc for parameter */
+          /* Generate JSDoc for parameter */
           operationBlock.doc.parameters += await generateParamDoc(
             '$body',
             content.type,
@@ -189,7 +195,7 @@ constructor(client: OpraHttpClient) {`;
               description: content.description || content.type.description,
             },
           );
-          /**  */
+
           const xt = await this.generateDataType(content.type, 'typeDef', file);
           let typeDef = xt.kind === 'embedded' ? xt.code : xt.typeName;
           if (typeDef === 'any') {
@@ -198,10 +204,10 @@ constructor(client: OpraHttpClient) {`;
           }
           if (xt.kind === 'named') {
             if (operation.requestBody.partial) {
-              file.addImport('ts-gems', ['PartialDTO']);
+              file.addImport('ts-gems', ['PartialDTO'], true);
               typeDef = `PartialDTO<${typeDef}>`;
             } else {
-              file.addImport('ts-gems', ['DTO']);
+              file.addImport('ts-gems', ['DTO'], true);
               typeDef = `DTO<${typeDef}>`;
             }
           }
@@ -226,7 +232,7 @@ constructor(client: OpraHttpClient) {`;
       hasBody = true;
     }
 
-    /** process query params */
+    /* process query params */
     const isQueryRequired = queryParams.find(p => p.required);
     const isHeadersRequired = queryParams.find(p => p.required);
 
@@ -237,7 +243,7 @@ constructor(client: OpraHttpClient) {`;
         (isHeadersRequired || isQueryRequired ? '' : '?') +
         ': {\n\t';
       operationBlock.doc.parameters +=
-        '\n * @param {object} $params - Available parameters for the operation';
+        '\n * @param $params - Available parameters for the operation';
 
       let hasAdditionalFields = false;
       for (const prm of queryParams) {
@@ -264,7 +270,7 @@ constructor(client: OpraHttpClient) {`;
       operationBlock.head += '\b}\b';
     }
 
-    /** process header params */
+    /* process header params */
     if (headerParams.length) {
       // eslint-disable-next-line no-useless-assignment
       if (argIndex++ > 0) operationBlock.head += ', \n';
@@ -299,10 +305,10 @@ constructor(client: OpraHttpClient) {`;
           const isArray = typeDef.endsWith('[]');
           if (isArray) typeDef = typeDef.substring(0, typeDef.length - 2);
           if (resp.partial) {
-            file.addImport('ts-gems', ['PartialDTO']);
+            file.addImport('ts-gems', ['PartialDTO'], true);
             typeDef = `PartialDTO<${typeDef}>`;
           } else {
-            file.addImport('ts-gems', ['DTO']);
+            file.addImport('ts-gems', ['DTO'], true);
             typeDef = `DTO<${typeDef}>`;
           }
           if (isArray) typeDef += '[]';
@@ -317,7 +323,7 @@ constructor(client: OpraHttpClient) {`;
           resp.type.base?.ctor === OperationResult
         )
       ) {
-        file.addImport('@opra/common', ['OperationResult']);
+        file.addImport('@opra/common', ['OperationResult'], true);
         typeDef = typeDef ? `OperationResult<${typeDef}>` : 'OperationResult';
       }
       typeDef = typeDef || 'undefined';

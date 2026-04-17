@@ -20,12 +20,21 @@ import { isReadableStreamLike } from 'rxjs/internal/util/isReadableStreamLike';
 import type { StrictOmit } from 'ts-gems';
 
 /**
+ * Angular specific implementation of {@link HttpBackend} using Angular's HttpClient.
  *
  * @class AngularBackend
  */
 export class AngularBackend extends HttpBackend {
+  /** Default request options */
   defaults: AngularBackend.RequestDefaults;
 
+  /**
+   * Creates a new instance of AngularBackend.
+   *
+   * @param httpClient The Angular HttpClient instance.
+   * @param serviceUrl The base URL of the service.
+   * @param options Configuration options.
+   */
   constructor(
     readonly httpClient: Angular.HttpClient,
     serviceUrl: string,
@@ -45,6 +54,12 @@ export class AngularBackend extends HttpBackend {
     };
   }
 
+  /**
+   * Handles the HTTP request using Angular's HttpClient.
+   *
+   * @param init The request initialization parameters.
+   * @returns An observable of {@link HttpEvent}.
+   */
   handle(init: AngularBackend.RequestInit): Observable<HttpEvent> {
     const requestInit = this.prepareRequest(init);
     const request = new Angular.HttpRequest(
@@ -140,10 +155,23 @@ export class AngularBackend extends HttpBackend {
     });
   }
 
+  /**
+   * Sends the actual HTTP request.
+   *
+   * @param request The Angular HttpRequest instance.
+   * @protected
+   */
   protected send(request: Angular.HttpRequest<any>) {
     return this.httpClient.request(request);
   }
 
+  /**
+   * Prepares the request by applying defaults and handling body content.
+   *
+   * @param init The initial request parameters.
+   * @returns The prepared request initialization parameters.
+   * @protected
+   */
   protected prepareRequest(
     init: AngularBackend.RequestInit,
   ): AngularBackend.RequestInit {
@@ -196,10 +224,24 @@ export class AngularBackend extends HttpBackend {
     return requestInit;
   }
 
+  /**
+   * Creates a {@link HttpResponse} instance.
+   *
+   * @param init The response initiator parameters.
+   * @returns A new HttpResponse instance.
+   * @protected
+   */
   protected createResponse(init: HttpResponse.Initiator): HttpResponse {
     return new HttpResponse(init);
   }
 
+  /**
+   * Parses the response body based on Content-Type.
+   *
+   * @param fetchResponse The response to parse.
+   * @returns The parsed body.
+   * @protected
+   */
   protected async parseBody(fetchResponse: Response): Promise<any> {
     let body: any;
     const contentType = fetchResponse.headers.get('Content-Type') || '';
@@ -219,28 +261,42 @@ export class AngularBackend extends HttpBackend {
 }
 
 /**
+ * Namespace for {@link AngularBackend} related types and interfaces.
+ *
  * @namespace AngularBackend
  */
 export namespace AngularBackend {
+  /** Configuration options for AngularBackend */
   export interface Options extends HttpBackend.Options {
+    /** Default request options */
     defaults?: RequestDefaults;
   }
 
+  /** Request initialization parameters for AngularBackend */
   export interface RequestInit extends HttpBackend.RequestInit {
+    /** Angular HttpContext */
     context?: HttpContext;
+    /** Whether to report progress events */
     reportProgress?: boolean;
+    /** Angular HttpParams */
     params?: HttpParams;
+    /** The expected response type */
     responseType?: 'arraybuffer' | 'blob' | 'json' | 'text';
+    /** Whether to send credentials with the request */
     withCredentials?: boolean;
   }
 
+  /** Request options subset for AngularBackend */
   export interface RequestOptions extends Pick<
     RequestInit,
     'context' | 'reportProgress' | 'withCredentials'
   > {}
 
+  /** Default request options for AngularBackend */
   export type RequestDefaults = StrictOmit<RequestOptions, 'context'> & {
+    /** Default headers */
     headers: Headers;
+    /** Default URL parameters */
     params: URLSearchParams;
   };
 }

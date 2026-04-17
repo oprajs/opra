@@ -46,34 +46,30 @@ export namespace ElasticCollectionService {
 }
 
 /**
- * @class ElasticCollectionService
+ * Class representing an Elasticsearch collection service for interacting with an Elasticsearch index.
+ *
  * @template T - The type of the documents in the collection.
  */
 export class ElasticCollectionService<
   T extends object = any,
 > extends ElasticEntityService<T> {
   /**
-   * Represents a common filter function for a ElasticService.
-   *
-   * @type {FilterInput | Function}
+   * Represents a common filter for the service.
    */
   documentFilter?:
     | ElasticCollectionService.DocumentFilter
     | ElasticCollectionService.DocumentFilter[];
 
   /**
-   * Represents the default limit value for a certain operation.
-   *
-   * @type {number}
+   * Represents the default limit value for find operations.
    */
   defaultLimit: number;
 
   /**
-   * Constructs a new instance
+   * Constructs a new instance.
    *
-   * @param {Type | string} dataType - The data type of the array elements.
-   * @param {ElasticCollectionService.Options} [options] - The options for the array service.
-   * @constructor
+   * @param dataType - The data type of the documents.
+   * @param options - The options for the collection service.
    */
   constructor(
     dataType: Type | string,
@@ -104,12 +100,11 @@ export class ElasticCollectionService<
 
   /**
    * Asserts the existence of a resource with the given ID.
-   * Throws a ResourceNotFoundError if the resource does not exist.
    *
-   * @param {string} id - The ID of the resource to assert.
-   * @param {ElasticEntityService.FindOneOptions} [options] - Optional options for checking the existence.
-   * @returns {Promise<void>} - A Promise that resolves when the resource exists.
-   * @throws {ResourceNotAvailableError} - If the resource does not exist.
+   * @param id - The ID of the resource to assert.
+   * @param options - Optional options for checking the existence.
+   * @returns A promise that resolves when the resource exists.
+   * @throws {@link ResourceNotAvailableError} if the resource does not exist.
    */
   async assert(
     id: string,
@@ -120,12 +115,12 @@ export class ElasticCollectionService<
   }
 
   /**
-   * Adds a document to the specified index
+   * Adds a document to the specified index.
    *
-   * @param {PartialDTO<T>} input - The input data for creating the document.
-   * @param {ElasticEntityService.CreateOptions} [options] - The options for creating the document.
-   * @returns {Promise<PartialDTO<T>>} A promise that resolves to the created document.
-   * @throws {Error} if an unknown error occurs while creating the document.
+   * @param input - The input data for creating the document.
+   * @param options - The options for creating the document.
+   * @returns A promise that resolves to the created response.
+   * @throws {@link Error} if an unknown error occurs while creating the document.
    */
   async create(
     input: PartialDTO<T>,
@@ -148,8 +143,8 @@ export class ElasticCollectionService<
   /**
    * Returns the count of documents in the collection based on the provided options.
    *
-   * @param {ElasticEntityService.CountOptions<T>} options - The options for the count operation.
-   * @return {Promise<number>} - A promise that resolves to the count of documents in the collection.
+   * @param options - The options for the count operation.
+   * @returns A promise that resolves to the count of documents.
    */
   async count(options?: ElasticEntityService.CountOptions): Promise<number> {
     const command: ElasticEntityService.CountCommand = {
@@ -170,11 +165,11 @@ export class ElasticCollectionService<
   }
 
   /**
-   * Deletes a document from the collection.
+   * Deletes a document from the collection by its ID.
    *
-   * @param {string} id - The ID of the document to delete.
-   * @param {ElasticEntityService.DeleteOptions} [options] - Optional delete options.
-   * @return {Promise<number>} - A Promise that resolves to the number of documents deleted.
+   * @param id - The ID of the document to delete.
+   * @param options - Optional delete options.
+   * @returns A promise that resolves to the delete response.
    */
   async delete(
     id: string,
@@ -200,8 +195,8 @@ export class ElasticCollectionService<
   /**
    * Deletes multiple documents from the collection that meet the specified filter criteria.
    *
-   * @param {ElasticEntityService.DeleteManyOptions} options - The options for the delete operation.
-   * @return {Promise<number>} - A promise that resolves to the number of documents deleted.
+   * @param options - The options for the delete operation.
+   * @returns A promise that resolves to the delete response.
    */
   async deleteMany(
     options?: ElasticEntityService.DeleteManyOptions,
@@ -223,11 +218,11 @@ export class ElasticCollectionService<
   }
 
   /**
-   * Checks if an object with the given id exists.
+   * Checks if an object with the given ID exists.
    *
-   * @param {string} id - The id of the object to check.
-   * @param {ElasticEntityService.FindOneOptions} [options] - The options for the query (optional).
-   * @return {Promise<boolean>} - A Promise that resolves to a boolean indicating whether the object exists or not.
+   * @param id - The ID of the object to check.
+   * @param options - The options for the query.
+   * @returns A promise that resolves to a boolean indicating whether the object exists.
    */
   async exists(
     id: string,
@@ -259,10 +254,10 @@ export class ElasticCollectionService<
   }
 
   /**
-   * Checks if an object with the given arguments exists.
+   * Checks if at least one document exists matching the specified criteria.
    *
-   * @param {ElasticEntityService.FindOneOptions} [options] - The options for the query (optional).
-   * @return {Promise<boolean>} - A Promise that resolves to a boolean indicating whether the object exists or not.
+   * @param options - The options for the query.
+   * @returns A promise that resolves to a boolean indicating whether the object exists.
    */
   async existsOne(
     options?: ElasticEntityService.FindOneOptions,
@@ -290,9 +285,9 @@ export class ElasticCollectionService<
   /**
    * Finds a document by its ID.
    *
-   * @param {string} id - The ID of the document.
-   * @param {ElasticEntityService.FindOneOptions} [options] - The options for the find query.
-   * @return {Promise<PartialDTO<T | undefined>>} - A promise resolving to the found document, or undefined if not found.
+   * @param id - The ID of the document.
+   * @param options - The options for the find operation.
+   * @returns A promise resolving to the found document, or undefined if not found.
    */
   async findById(
     id: string,
@@ -301,16 +296,20 @@ export class ElasticCollectionService<
   /**
    * Finds a document by its ID.
    *
-   * @param {string} id - The ID of the document.
-   * @param {ElasticEntityService.FindOneOptions} [options] - The options for the find query.
-   * @return {Promise<T | undefined>} - A promise resolving to the found document, or undefined if not found.
+   * @param id - The ID of the document.
+   * @param options - The options for the find operation.
+   * @returns A promise resolving to the found document, or undefined if not found.
    */
   async findById(
     id: string,
     options?: ElasticEntityService.FindOneOptions,
   ): Promise<T | undefined>;
   /**
+   * Finds a document by its ID.
    *
+   * @param id - The ID of the document.
+   * @param options - The options for the find operation.
+   * @returns A promise resolving to the found document, or undefined if not found.
    */
   async findById(
     id: string,
@@ -346,25 +345,28 @@ export class ElasticCollectionService<
   }
 
   /**
-   * Finds a document in the collection that matches the specified options.
+   * Finds a document in the collection that matches the specified criteria.
    *
-   * @param {ElasticEntityService.FindOneOptions} [options] - The options for the query.
-   * @return {Promise<PartialDTO<T> | undefined>} A promise that resolves with the found document or undefined if no document is found.
+   * @param options - The options for the find operation.
+   * @returns A promise that resolves with the found document or undefined if no document is found.
    */
   async findOne(
     options: RequiredSome<ElasticEntityService.FindOneOptions, 'projection'>,
   ): Promise<PartialDTO<T> | undefined>;
   /**
-   * Finds a document in the collection that matches the specified options.
+   * Finds a document in the collection that matches the specified criteria.
    *
-   * @param {ElasticEntityService.FindOneOptions} [options] - The options for the query.
-   * @return {Promise<T | undefined>} A promise that resolves with the found document or undefined if no document is found.
+   * @param options - The options for the find operation.
+   * @returns A promise that resolves with the found document or undefined if no document is found.
    */
   async findOne(
     options?: ElasticEntityService.FindOneOptions,
   ): Promise<T | undefined>;
   /**
+   * Finds a document in the collection that matches the specified criteria.
    *
+   * @param options - The options for the find operation.
+   * @returns A promise that resolves with the found document or undefined if no document is found.
    */
   async findOne(
     options?: ElasticEntityService.FindOneOptions,
@@ -397,23 +399,26 @@ export class ElasticCollectionService<
   }
 
   /**
-   * Finds multiple documents in the ElasticDB collection.
+   * Finds multiple documents in the Elasticsearch collection.
    *
-   * @param {ElasticEntityService.FindManyOptions} options - The options for the find operation.
-   * @return {Promise<PartialDTO<T> | undefined>} A Promise that resolves to an array of partial outputs of type T.
+   * @param options - The options for the find operation.
+   * @returns A promise that resolves to an array of partial documents.
    */
   async findMany(
     options: RequiredSome<ElasticEntityService.FindManyOptions, 'projection'>,
   ): Promise<PartialDTO<T>[]>;
   /**
-   * Finds multiple documents in the ElasticDB collection.
+   * Finds multiple documents in the Elasticsearch collection.
    *
-   * @param {ElasticEntityService.FindManyOptions} options - The options for the find operation.
-   * @return {Promise<T | undefined>} A Promise that resolves to an array of partial outputs of type T.
+   * @param options - The options for the find operation.
+   * @returns A promise that resolves to an array of documents.
    */
   async findMany(options?: ElasticEntityService.FindManyOptions): Promise<T[]>;
   /**
+   * Finds multiple documents in the Elasticsearch collection.
    *
+   * @param options - The options for the find operation.
+   * @returns A promise that resolves to an array of documents.
    */
   async findMany(
     options?: ElasticEntityService.FindManyOptions,
@@ -451,27 +456,28 @@ export class ElasticCollectionService<
   }
 
   /**
-   * Finds multiple documents in the collection and returns both records (max limit)
-   * and total count that matched the given criteria
+   * Finds multiple documents and returns both records and total count.
    *
-   * @param {ElasticEntityService.FindManyOptions} [options] - The options for the find operation.
-   * @return {ElasticCollectionService.FindManyWithCountResult<PartialDTO<T>>} A Promise that resolves to an array of partial outputs of type T.
+   * @param options - The options for the find operation.
+   * @returns A promise that resolves to an object containing items and count.
    */
   async findManyWithCount(
     options: RequiredSome<ElasticEntityService.FindManyOptions, 'projection'>,
   ): Promise<ElasticCollectionService.FindManyWithCountResult<PartialDTO<T>>>;
   /**
-   * Finds multiple documents in the collection and returns both records (max limit)
-   * and total count that matched the given criteria
+   * Finds multiple documents and returns both records and total count.
    *
-   * @param {ElasticEntityService.FindManyOptions} [options] - The options for the find operation.
-   * @return {ElasticCollectionService.FindManyWithCountResult<T>} A Promise that resolves to an array of partial outputs of type T.
+   * @param options - The options for the find operation.
+   * @returns A promise that resolves to an object containing items and count.
    */
   async findManyWithCount(
     options?: ElasticEntityService.FindManyOptions,
   ): Promise<ElasticCollectionService.FindManyWithCountResult<T>>;
   /**
+   * Finds multiple documents and returns both records and total count.
    *
+   * @param options - The options for the find operation.
+   * @returns A promise that resolves to an object containing items and count.
    */
   async findManyWithCount(
     options?: ElasticEntityService.FindManyOptions,
@@ -517,11 +523,10 @@ export class ElasticCollectionService<
   /**
    * Retrieves a document from the collection by its ID. Throws error if not found.
    *
-   * @param {string} id - The ID of the document to retrieve.
-   * @param {ElasticEntityService.FindOneOptions<T>} [options] - Optional options for the findOne operation.
-   * @returns {Promise<PartialDTO<T>>} - A promise that resolves to the retrieved document,
-   *    or rejects with a ResourceNotFoundError if the document does not exist.
-   * @throws {ResourceNotAvailableError} - If the document with the specified ID does not exist.
+   * @param id - The ID of the document to retrieve.
+   * @param options - Optional options for the operation.
+   * @returns A promise that resolves to the retrieved document.
+   * @throws {@link ResourceNotAvailableError} if the document with the specified ID does not exist.
    */
   async get(
     id: string,
@@ -530,18 +535,22 @@ export class ElasticCollectionService<
   /**
    * Retrieves a document from the collection by its ID. Throws error if not found.
    *
-   * @param {string} id - The ID of the document to retrieve.
-   * @param {ElasticEntityService.FindOneOptions<T>} [options] - Optional options for the findOne operation.
-   * @returns {Promise<T>} - A promise that resolves to the retrieved document,
-   *    or rejects with a ResourceNotFoundError if the document does not exist.
-   * @throws {ResourceNotAvailableError} - If the document with the specified ID does not exist.
+   * @param id - The ID of the document to retrieve.
+   * @param options - Optional options for the operation.
+   * @returns A promise that resolves to the retrieved document.
+   * @throws {@link ResourceNotAvailableError} if the document with the specified ID does not exist.
    */
   async get(
     id: string,
     options?: ElasticEntityService.FindOneOptions,
   ): Promise<T>;
   /**
+   * Retrieves a document from the collection by its ID. Throws error if not found.
    *
+   * @param id - The ID of the document to retrieve.
+   * @param options - Optional options for the operation.
+   * @returns A promise that resolves to the retrieved document.
+   * @throws {@link ResourceNotAvailableError} if the document with the specified ID does not exist.
    */
   async get(
     id: string,
@@ -555,10 +564,10 @@ export class ElasticCollectionService<
   /**
    * Updates a document in the collection with the specified ID.
    *
-   * @param {string} id - The ID of the document to update.
-   * @param {PatchDTO<T>} input - The partial input data to update the document with.
-   * @param {ElasticEntityService.UpdateOneOptions} [options] - The options for updating the document.
-   * @returns {Promise<estypes.UpdateResponse>} - A promise that resolves to the number of documents modified.
+   * @param id - The ID of the document to update.
+   * @param input - The partial input data to update the document with.
+   * @param options - The options for updating the document.
+   * @returns A promise that resolves to the update response.
    */
   async update(
     id: string,
@@ -586,9 +595,9 @@ export class ElasticCollectionService<
   /**
    * Updates multiple documents in the collection based on the specified input and options.
    *
-   * @param {PatchDTO<T>} input - The partial input to update the documents with.
-   * @param {ElasticEntityService.UpdateManyOptions} options - The options for updating the documents.
-   * @return {Promise<number>} - A promise that resolves to the number of documents matched and modified.
+   * @param input - The partial input to update the documents with.
+   * @param options - The options for updating the documents.
+   * @returns A promise that resolves to the update response.
    */
   async updateMany(
     input: PatchDTO<T>,
@@ -613,11 +622,10 @@ export class ElasticCollectionService<
 
   /**
    * Retrieves the common filter used for querying documents.
-   * This method is mostly used for security issues like securing multi-tenant applications.
    *
+   * @param command - The command information.
    * @protected
-   * @returns {FilterInput | Promise<FilterInput> | undefined} The common filter or a Promise
-   * that resolves to the common filter, or undefined if not available.
+   * @returns The common filter or a promise that resolves to the common filter.
    */
   protected _getDocumentFilter(
     command: ElasticService.CommandInfo,

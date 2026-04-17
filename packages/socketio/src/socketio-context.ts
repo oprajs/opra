@@ -22,8 +22,9 @@ export class SocketioContext
   readonly parameters: any[] = [];
 
   /**
-   * Constructor
-   * @param init the context options
+   * Initializes a new instance of the SocketioContext.
+   *
+   * @param init - The initialization options for the context.
    */
   constructor(init: SocketioContext.Initiator) {
     super({
@@ -44,12 +45,21 @@ export class SocketioContext
     if (init.__handler) this.__handler = init.__handler;
   }
 
+  /**
+   * Gets the Socket.io server instance from the adapter.
+   */
   get server(): socketio.Server {
     return this.__adapter.server;
   }
 }
 
+/**
+ * Namespace for SocketioContext types and interfaces.
+ */
 export namespace SocketioContext {
+  /**
+   * Interface for SocketioContext initialization.
+   */
   export interface Initiator extends Omit<
     ExecutionContext.Initiator,
     'document' | 'transport' | 'platform' | '__docNode'

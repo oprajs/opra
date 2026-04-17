@@ -49,8 +49,9 @@ interface HandlerArguments {
 }
 
 /**
- *
- * @class KafkaAdapter
+ * Adapter for integrating Kafka into the Opra platform.
+ * It manages Kafka consumers, handles message routing to controllers,
+ * and provides integration with the Opra execution context.
  */
 export class KafkaAdapter extends PlatformAdapter<KafkaAdapter.Events> {
   static readonly PlatformName = 'kafka';
@@ -68,10 +69,11 @@ export class KafkaAdapter extends PlatformAdapter<KafkaAdapter.Events> {
   )[];
 
   /**
+   * Initializes a new instance of the KafkaAdapter.
    *
-   * @param document
-   * @param config
-   * @constructor
+   * @param document - The API document that defines the Kafka services and controllers.
+   * @param config - The configuration options for the Kafka adapter.
+   * @throws {@link TypeError} Throws if the document does not expose a Kafka API.
    */
   constructor(document: ApiDocument, config: KafkaAdapter.Config) {
     super(config);
@@ -98,22 +100,38 @@ export class KafkaAdapter extends PlatformAdapter<KafkaAdapter.Events> {
     });
   }
 
+  /**
+   * Gets the MQ API defined in the document.
+   */
   get api(): MQApi {
     return this.document.getMqApi();
   }
 
+  /**
+   * Gets the Kafka client instance.
+   */
   get kafka(): Kafka {
     return this._kafka;
   }
 
+  /**
+   * Gets the configuration scope for the adapter.
+   */
   get scope(): string | undefined {
     return this._config.scope;
   }
 
+  /**
+   * Gets the current status of the adapter.
+   */
   get status(): KafkaAdapter.Status {
     return this._status;
   }
 
+  /**
+   * Initializes the Kafka client and all defined consumers.
+   * This method is called automatically by {@link start} if not already initialized.
+   */
   async initialize() {
     if (this._kafka) return;
     this._kafka = new Kafka({
@@ -126,7 +144,9 @@ export class KafkaAdapter extends PlatformAdapter<KafkaAdapter.Events> {
   }
 
   /**
-   * Starts the service
+   * Starts the Kafka adapter, connecting all consumers and subscribing to topics.
+   *
+   * @throws {@link Error} Throws if a consumer fails to connect or subscribe.
    */
   async start() {
     if (this.status !== 'idle') return;
@@ -134,7 +154,7 @@ export class KafkaAdapter extends PlatformAdapter<KafkaAdapter.Events> {
     this._status = 'starting';
 
     try {
-      /** Connect all consumers */
+      /* Connect all consumers */
       for (const consumer of this._consumers.values()) {
         await consumer.connect().catch(e => {
           this._emitError(e);
@@ -142,7 +162,7 @@ export class KafkaAdapter extends PlatformAdapter<KafkaAdapter.Events> {
         });
       }
 
-      /** Subscribe to channels */
+      /* Subscribe to channels */
       for (const args of this._handlerArgs) {
         const { consumer, operation, operationConfig } = args;
         args.topics = Array.isArray(operation.channel)
@@ -162,7 +182,7 @@ export class KafkaAdapter extends PlatformAdapter<KafkaAdapter.Events> {
         );
       }
 
-      /** Start consumer listeners */
+      /* Start consumer listeners */
       const topicMap = new Map<string, HandlerArguments[]>();
       for (const consumer of this._consumers.values()) {
         const groupId: string = consumer[kGroupId];
@@ -188,7 +208,7 @@ export class KafkaAdapter extends PlatformAdapter<KafkaAdapter.Events> {
                 }
                 topicMap.set(topicCacheKey, handlerArgsArray);
               }
-              /** Iterate and call all matching handlers */
+              /* Iterate and call all matching handlers */
               for (const args of handlerArgsArray) {
                 try {
                   await args.handler(payload);
@@ -211,7 +231,8 @@ export class KafkaAdapter extends PlatformAdapter<KafkaAdapter.Events> {
   }
 
   /**
-   * Closes all connections and stops the service
+   * Closes all active Kafka consumers and clears internal caches.
+   * This effectively stops the service and returns it to the idle state.
    */
   async close() {
     await Promise.allSettled(
@@ -222,16 +243,24 @@ export class KafkaAdapter extends PlatformAdapter<KafkaAdapter.Events> {
     this._status = 'idle';
   }
 
+  /**
+   * Retrieves a controller instance by its path.
+   *
+   * @param controllerPath - The unique path of the controller.
+   * @returns The controller instance or undefined if not found.
+   */
   getControllerInstance<T>(controllerPath: string): T | undefined {
     const controller = this.api.findController(controllerPath);
     return controller && this._controllerInstances.get(controller);
   }
 
   /**
+   * Resolves the configuration for a specific MQ operation.
    *
-   * @param controller
-   * @param instance
-   * @param operation
+   * @param controller - The MQ controller containing the operation.
+   * @param instance - The actual instance of the controller class.
+   * @param operation - The MQ operation being configured.
+   * @returns A promise that resolves to the operation configuration or undefined if not applicable.
    * @protected
    */
   protected async _getOperationConfig(
@@ -297,7 +326,7 @@ export class KafkaAdapter extends PlatformAdapter<KafkaAdapter.Events> {
   }
 
   /**
-   *
+   * Creates and prepares all consumers defined in the API document.
    * @protected
    */
   protected async _createAllConsumers() {
@@ -307,7 +336,7 @@ export class KafkaAdapter extends PlatformAdapter<KafkaAdapter.Events> {
       if (!instance) continue;
       this._controllerInstances.set(controller, instance);
 
-      /** Build HandlerData array */
+      /* Build HandlerData array */
       for (const operation of controller.operations.values()) {
         const operationConfig = await this._getOperationConfig(
           controller,
@@ -329,15 +358,17 @@ export class KafkaAdapter extends PlatformAdapter<KafkaAdapter.Events> {
       }
     }
 
-    /** Initialize consumers */
+    /* Initialize consumers */
     for (const args of this._handlerArgs) {
       await this._createConsumer(args);
     }
   }
 
   /**
+   * Creates a Rabbitmq consumer for the given handler arguments if it doesn't already exist.
    *
-   * @param args
+   * @param args - The handler arguments containing configuration and state.
+   * @throws {@link Error} Throws if a self-consumer for the group ID already exists.
    * @protected
    */
   protected async _createConsumer(args: HandlerArguments) {
@@ -348,7 +379,7 @@ export class KafkaAdapter extends PlatformAdapter<KafkaAdapter.Events> {
         `Operation consumer for groupId (${operationConfig.consumer.groupId}) already exists`,
       );
     }
-    /** Create consumers */
+    /* Create consumers */
     if (!consumer) {
       consumer = this.kafka.consumer(operationConfig.consumer);
       consumer[kGroupId] = operationConfig.consumer.groupId;
@@ -358,16 +389,18 @@ export class KafkaAdapter extends PlatformAdapter<KafkaAdapter.Events> {
   }
 
   /**
+   * Creates a message handler for a specific MQ operation.
+   * This handler processes incoming Kafka messages, decodes them, and executes the operation.
    *
-   * @param args
+   * @param args - The handler arguments for the operation.
    * @protected
    */
   protected _createHandler(args: HandlerArguments) {
     const { controller, instance, operation } = args;
-    /** Prepare parsers */
+    /* Prepare parsers */
     const parseKey = RequestParser.STRING;
     const parsePayload = RequestParser.STRING;
-    /** Prepare decoders */
+    /* Prepare decoders */
     const decodeKey = operation.generateKeyCodec('decode', {
       scope: this.scope,
       ignoreReadonlyFields: true,
@@ -393,17 +426,17 @@ export class KafkaAdapter extends PlatformAdapter<KafkaAdapter.Events> {
       let payload: any;
       const headers: any = {};
       try {
-        /** Parse and decode `key` */
+        /* Parse and decode `key` */
         if (message.key) {
           const s = parseKey(message.key);
           key = decodeKey(s);
         }
-        /** Parse and decode `payload` */
+        /* Parse and decode `payload` */
         if (message.value != null) {
           const s = parsePayload(message.value);
           payload = decodePayload(s);
         }
-        /** Parse and decode `headers` */
+        /* Parse and decode `headers` */
         if (message.headers) {
           for (const [k, v] of Object.entries(message.headers)) {
             const header = operation.findHeader(k);
@@ -416,7 +449,7 @@ export class KafkaAdapter extends PlatformAdapter<KafkaAdapter.Events> {
         this._emitError(e);
         return;
       }
-      /** Create context */
+      /* Create context */
       const context = new KafkaContext({
         __adapter: this,
         __contDef: controller,
@@ -435,7 +468,7 @@ export class KafkaAdapter extends PlatformAdapter<KafkaAdapter.Events> {
 
       await this.emitAsync('execute', context);
       try {
-        /** Call operation handler */
+        /* Call operation handler */
         const result = await operationHandler.call(instance, context);
         await this.emitAsync('finish', context, result);
       } catch (e: any) {
@@ -444,6 +477,13 @@ export class KafkaAdapter extends PlatformAdapter<KafkaAdapter.Events> {
     };
   }
 
+  /**
+   * Emits an error event and logs the error.
+   *
+   * @param error - The error that occurred.
+   * @param context - The optional Kafka execution context.
+   * @protected
+   */
   protected _emitError(error: any, context?: KafkaContext) {
     Promise.resolve()
       .then(async () => {
@@ -465,6 +505,13 @@ export class KafkaAdapter extends PlatformAdapter<KafkaAdapter.Events> {
       .catch(noOp);
   }
 
+  /**
+   * Wraps multiple exceptions into an array of {@link OpraException}.
+   *
+   * @param exceptions - The array of exceptions to wrap.
+   * @returns An array of wrapped exceptions.
+   * @protected
+   */
   protected _wrapExceptions(exceptions: any[]): OpraException[] {
     const wrappedErrors = exceptions.map(e =>
       e instanceof OpraException ? e : new OpraException(e),
@@ -474,6 +521,14 @@ export class KafkaAdapter extends PlatformAdapter<KafkaAdapter.Events> {
     return wrappedErrors;
   }
 
+  /**
+   * Creates a KafkaJS log creator that redirects logs to the provided logger.
+   *
+   * @param logger - The logger instance to use.
+   * @param logExtra - Whether to include additional metadata in the logs.
+   * @returns A log creator function for KafkaJS.
+   * @protected
+   */
   protected _createLogCreator(logger: ILogger, logExtra?: boolean) {
     return ({ namespace, level, log }) => {
       const { message, error, ...extra } = log;
@@ -508,53 +563,88 @@ export class KafkaAdapter extends PlatformAdapter<KafkaAdapter.Events> {
 }
 
 /**
- * @namespace KafkaAdapter
+ * Namespace for KafkaAdapter related types and interfaces.
  */
 export namespace KafkaAdapter {
+  /**
+   * Callback function for the next middleware in the interceptor chain.
+   */
   export type NextCallback = () => Promise<any>;
 
+  /**
+   * Represents the operational status of the Kafka adapter.
+   */
   export type Status = 'idle' | 'starting' | 'started';
 
+  /**
+   * Configuration options for the Kafka adapter.
+   */
   export interface Config extends PlatformAdapter.Options {
+    /* Kafka client configuration */
     client: StrictOmit<KafkaConfig, 'logCreator' | 'logLevel'>;
+    /* Map of consumer group IDs to their configurations */
     consumers?: Record<string, StrictOmit<ConsumerConfig, 'groupId'>>;
+    /* Default configurations for consumers and subscriptions */
     defaults?: {
       consumer?: ConsumerConfig;
       subscribe?: {
         fromBeginning?: boolean;
       };
     };
+    /* Scope for decoding and encoding */
     scope?: string;
+    /* Interceptors to wrap the execution of operations */
     interceptors?: (InterceptorFunction | IKafkaInterceptor)[];
+    /* Whether to log additional information from KafkaJS */
     logExtra?: boolean;
   }
 
+  /**
+   * Options for a specific Kafka operation.
+   */
   export interface OperationOptions {
     /**
-     * groupId or ConsumerConfig
+     * Group ID or consumer configuration.
      */
     consumer?: string | ConsumerConfig;
+    /**
+     * Subscription options for the topic.
+     */
     subscribe?: {
       fromBeginning?: boolean;
     };
   }
 
   /**
-   * @type InterceptorFunction
+   * Type definition for a Kafka interceptor function.
    */
   export type InterceptorFunction = IKafkaInterceptor['intercept'];
 
   /**
-   * @interface IKafkaInterceptor
+   * Interface for a Kafka interceptor class.
    */
-  export type IKafkaInterceptor = {
+  export interface IKafkaInterceptor {
+    /**
+     * Intercepts the execution of a Kafka operation.
+     *
+     * @param context - The Kafka execution context.
+     * @param next - The next function in the chain.
+     * @returns A promise that resolves to the result of the operation.
+     */
     intercept(context: KafkaContext, next: NextCallback): Promise<any>;
-  };
+  }
 
+  /**
+   * Event definitions for the Kafka adapter.
+   */
   export interface Events {
+    /* Emitted when an error occurs */
     error: [error: Error, context: KafkaContext | undefined];
+    /* Emitted when an operation finishes successfully */
     finish: [context: KafkaContext, result: any];
+    /* Emitted when an operation starts execution */
     execute: [context: KafkaContext];
+    /* Emitted when a message is received from Kafka */
     message: [content: EachMessagePayload];
   }
 }

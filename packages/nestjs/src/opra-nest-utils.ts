@@ -4,7 +4,17 @@ const GUARDS_METADATA = '__guards__';
 const INTERCEPTORS_METADATA = '__interceptors__';
 const EXCEPTION_FILTERS_METADATA = '__exceptionFilters__';
 
+/**
+ * Utility class for Opra-NestJS integration.
+ */
 export class OpraNestUtils {
+  /**
+   * Copies Opra-related decorator metadata from source classes to a target class.
+   * Also merges NestJS guards, interceptors, and exception filters.
+   *
+   * @param target - The target class to receive the metadata.
+   * @param source - The source classes to copy metadata from.
+   */
   static copyDecoratorMetadata(target: Type, ...source: Type[]) {
     for (const parent of source) {
       const metadataKeys = Reflect.getOwnMetadataKeys(parent);

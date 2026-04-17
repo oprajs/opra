@@ -24,8 +24,10 @@ type TServerInstance =
   | http2.Http2Server;
 
 /**
+ * SocketioAdapter is a platform adapter for Socket.io.
+ * It integrates Socket.io with the Opra framework to handle WebSocket operations.
  *
- * @class SocketioAdapter
+ * @extends PlatformAdapter
  */
 export class SocketioAdapter extends PlatformAdapter<SocketioAdapter.Events> {
   static readonly PlatformName = 'socketio';
@@ -43,8 +45,11 @@ export class SocketioAdapter extends PlatformAdapter<SocketioAdapter.Events> {
   readonly server: socketio.Server;
 
   /**
+   * Initializes a new instance of the SocketioAdapter.
    *
-   * @constructor
+   * @param document - The API document that defines the services and operations.
+   * @param options - Optional configuration settings for the adapter.
+   * @throws {@link TypeError} Throws if the document doesn't expose a Web Socket API.
    */
   constructor(document: ApiDocument, options?: SocketioAdapter.Options);
   constructor(document: ApiDocument, options?: SocketioAdapter.Options) {
@@ -70,14 +75,25 @@ export class SocketioAdapter extends PlatformAdapter<SocketioAdapter.Events> {
     });
   }
 
+  /**
+   * Returns the Web Socket API exposed by the document.
+   */
   get api(): WSApi {
     return this.document.getWsApi();
   }
 
+  /**
+   * Gets the scope of the adapter.
+   */
   get scope(): string | undefined {
     return this._scope;
   }
 
+  /**
+   * Closes the Socket.io server and clears all internal states.
+   *
+   * @returns A promise that resolves when the server is closed.
+   */
   async close(): Promise<void> {
     if (!this.server.engine) return;
     return this.server.close().finally(() => {
@@ -88,11 +104,12 @@ export class SocketioAdapter extends PlatformAdapter<SocketioAdapter.Events> {
   }
 
   /**
-   * Attaches socket.io to a server or port.
+   * Attaches Socket.io to a server or port and initializes message handlers.
    *
-   * @param srv - server or port
-   * @param opts - options passed to engine.io
-   * @return self
+   * @param srv - The HTTP server instance or a port number to listen on.
+   * @param opts - Options passed to the underlying Socket.io server.
+   * @returns The current instance of SocketioAdapter.
+   * @throws {@link Error} Throws if the server is already listening.
    */
   listen(
     srv: TServerInstance | number,
@@ -116,7 +133,7 @@ export class SocketioAdapter extends PlatformAdapter<SocketioAdapter.Events> {
         if (typeof reg.event === 'string')
           this._eventsRegByName.set(reg.event, reg);
         else this._eventsRegByPattern.push(reg);
-        /** Generate decoders */
+        /* Generate decoders */
         if (oprDef.arguments?.length) {
           for (const arg of oprDef.arguments) {
             let fn2 = arg.type.generateCodec('decode', {
@@ -128,7 +145,7 @@ export class SocketioAdapter extends PlatformAdapter<SocketioAdapter.Events> {
             reg.decoders.push(fn2);
           }
         }
-        /** Generate response encoder */
+        /* Generate response encoder */
         if (oprDef.response) {
           reg.encoder = oprDef.response.generateCodec('encode', {
             scope: this.scope,
@@ -142,6 +159,12 @@ export class SocketioAdapter extends PlatformAdapter<SocketioAdapter.Events> {
     return this;
   }
 
+  /**
+   * Initializes a socket connection, setting up event listeners.
+   *
+   * @param socket - The Socket.io socket instance.
+   * @protected
+   */
   protected _initSocket(socket: socketio.Socket) {
     socket.on('close', () => {
       this.emit('close', socket, this);
@@ -214,6 +237,12 @@ export class SocketioAdapter extends PlatformAdapter<SocketioAdapter.Events> {
     });
   }
 
+  /**
+   * Retrieves the controller instance for a given path.
+   *
+   * @param controllerPath - The path of the controller.
+   * @returns The controller instance, or undefined if not found.
+   */
   getControllerInstance<T>(controllerPath: string): T | undefined {
     const controller = this.api.findController(controllerPath);
     return controller && this._controllerInstances.get(controller);
@@ -221,42 +250,64 @@ export class SocketioAdapter extends PlatformAdapter<SocketioAdapter.Events> {
 }
 
 /**
- * @namespace SocketioAdapter
+ * Namespace for SocketioAdapter types and interfaces.
  */
 export namespace SocketioAdapter {
+  /**
+   * Represents a callback for the next interceptor in the chain.
+   */
   export type NextCallback = () => Promise<any>;
 
+  /**
+   * Configuration options for the SocketioAdapter.
+   */
   export interface Options extends PlatformAdapter.Options {
+    /** Interceptors to be executed for incoming messages. */
     interceptors?: (InterceptorFunction | IWSInterceptor)[];
+    /** The scope to be used for encoding/decoding. */
     scope?: string;
   }
 
   /**
-   * @type InterceptorFunction
+   * Function signature for a WebSocket interceptor.
    */
   export type InterceptorFunction = IWSInterceptor['intercept'];
 
   /**
-   * @interface IWSInterceptor
+   * Interface for a WebSocket interceptor.
    */
   export type IWSInterceptor = {
+    /**
+     * Intercepts an incoming WebSocket message.
+     *
+     * @param context - The Socketio context for the message.
+     * @param next - The callback to invoke the next interceptor or handler.
+     * @returns The result of the next interceptor or handler.
+     */
     intercept(context: SocketioContext, next: NextCallback): Promise<any>;
   };
 
+  /**
+   * Event definitions for the SocketioAdapter.
+   */
   export interface Events {
+    /** Emitted when an error occurs. */
     error: [
       error: Error,
       socket: socketio.Socket | undefined,
       _this: SocketioAdapter,
     ];
+    /** Emitted when a new socket connection is established. */
     connection: [socket: socketio.Socket, _this: SocketioAdapter];
+    /** Emitted when a socket connection is closed. */
     close: [socket: socketio.Socket, _this: SocketioAdapter];
+    /** Emitted when an operation is executed. */
     execute: [context: SocketioContext];
   }
 }
 
 /**
- * @interface
+ * Internal interface for registering message handlers.
  */
 interface MessageHandlerReg {
   event: string | RegExp;

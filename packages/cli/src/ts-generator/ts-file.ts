@@ -2,16 +2,31 @@ import path from 'node:path';
 import flattenText from 'putil-flattentext';
 import { CodeBlock } from '../code-block.js';
 
+/**
+ * TsFile
+ *
+ * A class representing a TypeScript source file, managing its imports, exports, and content.
+ */
 export class TsFile {
+  /** The directory name of the file. */
   readonly dirname: string;
+  /** Map of imports where key is the module path. */
   imports: Record<string, { items: string[]; typeImport?: boolean }> = {};
+  /** Map of exports where key is the module path. */
   exportFiles: Record<
     string,
     { filename: string; items: string[]; namespace?: string }
   > = {};
+  /** List of types to be exported. */
   exportTypes: string[] = [];
+  /** The code block representing the file's content. */
   code = new CodeBlock();
 
+  /**
+   * Initializes a new TsFile instance.
+   *
+   * @param filename - The name of the file.
+   */
   constructor(readonly filename: string) {
     this.dirname = path.dirname(filename);
     this.code.header = '';
@@ -19,6 +34,13 @@ export class TsFile {
     this.code.exports = '';
   }
 
+  /**
+   * Adds an import statement to the file.
+   *
+   * @param filename - The module to import from.
+   * @param items - The specific items to import.
+   * @param typeImport - Whether it is a type-only import.
+   */
   addImport(filename: string, items?: string[], typeImport?: boolean) {
     if (isLocalFile(filename)) {
       filename = path.relative(
@@ -41,6 +63,13 @@ export class TsFile {
     });
   }
 
+  /**
+   * Adds an export statement to the file.
+   *
+   * @param filename - The module to export from.
+   * @param types - The specific items to export.
+   * @param namespace - The namespace to export as.
+   */
   addExport(filename: string, types?: string[], namespace?: string) {
     if (isLocalFile(filename)) {
       filename = path.relative(
@@ -65,6 +94,12 @@ export class TsFile {
     });
   }
 
+  /**
+   * Generates the file content as a string.
+   *
+   * @param options - Generation options.
+   * @returns The generated TypeScript code.
+   */
   generate(options?: { importExt?: boolean }): string {
     this.code.imports = Object.keys(this.imports)
       .sort((a, b) => {

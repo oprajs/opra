@@ -5,76 +5,38 @@ import { SQBAdapter } from './sqb-adapter.js';
 import { SqbEntityService } from './sqb-entity-service.js';
 
 /**
- * @namespace SqbSingletonService
+ * Options for SqbSingletonService.
  */
 export namespace SqbSingletonService {
+  /**
+   * Configuration options for SqbSingletonService.
+   */
   export interface Options extends SqbEntityService.Options {
+    /**
+     * The identifier used to locate the singleton record.
+     */
     id?: SqbSingletonService<any>['id'];
   }
-
-  /**
-   * Represents options for "create" operation
-   *
-   * @interface
-   */
-  export interface CreateOptions extends SqbEntityService.CreateOptions {}
-
-  /**
-   * Represents options for "delete" operation
-   *
-   * @interface
-   */
-  export interface DeleteOptions extends SqbEntityService.DeleteOptions {}
-
-  /**
-   * Represents options for "exists" operation
-   *
-   * @interface
-   */
-  export interface ExistsOptions extends SqbEntityService.ExistsOptions {}
-
-  /**
-   * Represents options for "find" operation
-   *
-   * @interface
-   */
-  export interface FindOptions extends SqbEntityService.FindOneOptions {}
-
-  /**
-   * Represents options for "update" operation
-   *
-   * @interface
-   */
-  export interface UpdateOptions extends SqbEntityService.UpdateOneOptions {}
-
-  /**
-   * Represents options for "updateOnly" operation
-   *
-   * @interface
-   */
-  export interface UpdateOnlyOptions
-    extends SqbEntityService.UpdateOneOptions {}
 }
 
 /**
- * @class SqbSingletonService
- * @template T - The data type class type of the resource
+ * Service for managing a single entity record backed by an SQB data source.
+ *
+ * @typeParam T - The entity type managed by this service
  */
 export class SqbSingletonService<
   T extends object = object,
 > extends SqbEntityService<T> {
   /**
-   * Represents a unique identifier for singleton record
-   * @property {SQBAdapter.IdOrIds}
+   * The identifier used to locate the singleton record.
    */
   id: SQBAdapter.IdOrIds;
 
   /**
-   * Constructs a new instance
+   * Constructs a new instance.
    *
-   * @param {Type | string} dataType - The data type of the array elements.
-   * @param {SqbSingletonService.Options} [options] - The options for the array service.
-   * @constructor
+   * @param dataType - The entity class or its registered name.
+   * @param options - Options for the singleton service.
    */
   constructor(
     dataType: Type<T> | string,
@@ -85,35 +47,42 @@ export class SqbSingletonService<
   }
 
   /**
-   * Asserts the existence of a resource based on the given options.
+   * Asserts that the singleton record exists.
+   * Throws {@link ResourceNotAvailableError} if it does not.
    *
-   * @returns {Promise<void>} A Promise that resolves when the resource exists.
-   * @throws {ResourceNotAvailableError} If the resource does not exist.
+   * @param options - Optional existence check options.
+   * @throws {@link ResourceNotAvailableError} If the record does not exist.
    */
-  async assert(options?: SqbSingletonService.ExistsOptions): Promise<void> {
+  async assert(options?: SqbEntityService.ExistsOptions): Promise<void> {
     if (!(await this.exists(options)))
       throw new ResourceNotAvailableError(this.getResourceName());
   }
 
   /**
-   * Inserts a single record into the database.
+   * Creates the singleton record and returns it with the requested projection.
    *
-   * @param {PartialDTO<T>} input - The input data
-   * @param {SqbSingletonService.CreateOptions} [options] - The options object
-   * @returns {Promise<PartialDTO<T>>} A promise that resolves to the created resource
-   * @throws {Error} if an unknown error occurs while creating the resource
+   * @param input - The input data for the new record.
+   * @param options - Options including a required `projection`.
+   * @returns The created record as a partial DTO.
    */
   async create(
     input: PartialDTO<T>,
-    options: RequiredSome<SqbSingletonService.CreateOptions, 'projection'>,
+    options: RequiredSome<SqbEntityService.CreateOptions, 'projection'>,
   ): Promise<PartialDTO<T>>;
+  /**
+   * Creates the singleton record and returns the full DTO.
+   *
+   * @param input - The input data for the new record.
+   * @param options - Optional create options.
+   * @returns The created record as a full DTO.
+   */
   async create(
     input: PartialDTO<T>,
-    options?: SqbSingletonService.CreateOptions,
+    options?: SqbEntityService.CreateOptions,
   ): Promise<T>;
   async create(
     input: PartialDTO<T>,
-    options?: SqbSingletonService.CreateOptions,
+    options?: SqbEntityService.CreateOptions,
   ): Promise<PartialDTO<T>> {
     const command: SqbEntityService.CreateCommand<T> = {
       crud: 'create',
@@ -143,12 +112,12 @@ export class SqbSingletonService<
   }
 
   /**
-   * Deletes the singleton record
+   * Deletes the singleton record.
    *
-   * @param {SqbSingletonService.DeleteOptions} [options] - The options object
-   * @return {Promise<number>} - A Promise that resolves to the number of records deleted
+   * @param options - Optional delete options.
+   * @returns The number of records deleted.
    */
-  async delete(options?: SqbSingletonService.DeleteOptions): Promise<number> {
+  async delete(options?: SqbEntityService.DeleteOptions): Promise<number> {
     const command: SqbEntityService.DeleteOneCommand = {
       crud: 'delete',
       method: 'delete',
@@ -157,7 +126,7 @@ export class SqbSingletonService<
       options,
     };
     return this._executeCommand(command, async () => {
-      const filter = SQBAdapter.parseFilter([
+      const filter = SQBAdapter.prepareFilter([
         await this._getCommonFilter(command),
         command.options?.filter,
       ]);
@@ -167,12 +136,12 @@ export class SqbSingletonService<
   }
 
   /**
-   * Checks if the singleton record exists.
+   * Checks whether the singleton record exists.
    *
-   * @param {SqbSingletonService.ExistsOptions} [options] - The options for the query (optional).
-   * @return {Promise<boolean>} - A Promise that resolves to a boolean indicating whether the record exists or not.
+   * @param options - Optional query options.
+   * @returns `true` if the record exists, `false` otherwise.
    */
-  async exists(options?: SqbSingletonService.ExistsOptions): Promise<boolean> {
+  async exists(options?: SqbEntityService.ExistsOptions): Promise<boolean> {
     const command: SqbEntityService.ExistsCommand = {
       crud: 'read',
       method: 'exists',
@@ -181,7 +150,7 @@ export class SqbSingletonService<
       options,
     };
     return this._executeCommand(command, async () => {
-      const filter = SQBAdapter.parseFilter([
+      const filter = SQBAdapter.prepareFilter([
         await this._getCommonFilter(command),
         command.options?.filter,
       ]);
@@ -191,17 +160,24 @@ export class SqbSingletonService<
   }
 
   /**
-   * Finds the singleton record. Returns `undefined` if not found
+   * Finds the singleton record with the requested projection.
+   * Returns `undefined` if it does not exist.
    *
-   * @param {SqbSingletonService.FindOneOptions} options - The options for the query.
-   * @return {Promise<PartialDTO<T> | undefined>} A promise that resolves with the found document or undefined if no document is found.
+   * @param options - Options including a required `projection`.
+   * @returns The record as a partial DTO, or `undefined`.
    */
   async find(
-    options: RequiredSome<SqbSingletonService.FindOptions, 'projection'>,
+    options: RequiredSome<SqbEntityService.FindOneOptions, 'projection'>,
   ): Promise<PartialDTO<T> | undefined>;
-  async find(options?: SqbSingletonService.FindOptions): Promise<T | undefined>;
+  /**
+   * Finds the singleton record. Returns `undefined` if it does not exist.
+   *
+   * @param options - Optional query options.
+   * @returns The record as a full DTO, or `undefined`.
+   */
+  async find(options?: SqbEntityService.FindOneOptions): Promise<T | undefined>;
   async find(
-    options?: SqbSingletonService.FindOptions,
+    options?: SqbEntityService.FindOneOptions,
   ): Promise<PartialDTO<T> | T | undefined> {
     const command: SqbEntityService.FindOneCommand = {
       crud: 'read',
@@ -211,7 +187,7 @@ export class SqbSingletonService<
       options,
     };
     return this._executeCommand(command, async () => {
-      const filter = SQBAdapter.parseFilter([
+      const filter = SQBAdapter.prepareFilter([
         await this._getCommonFilter(command),
         command.options?.filter,
       ]);
@@ -221,19 +197,26 @@ export class SqbSingletonService<
   }
 
   /**
-   * Retrieves the singleton record. Throws error if not found.
+   * Retrieves the singleton record with the requested projection.
+   * Throws if the record does not exist.
    *
-   * @param {SqbSingletonService.FindOptions} [options] - Optional options for the `find` operation.
-   * @returns {Promise<PartialDTO<T>>} - A promise that resolves to the retrieved document,
-   *    or rejects with a ResourceNotFoundError if the document does not exist.
-   * @throws {ResourceNotAvailableError} - If the document does not exist.
+   * @param options - Options including a required `projection`.
+   * @returns The record as a partial DTO.
+   * @throws {@link ResourceNotAvailableError} If the record does not exist.
    */
   async get(
-    options: RequiredSome<SqbSingletonService.FindOptions, 'projection'>,
+    options: RequiredSome<SqbEntityService.FindOneOptions, 'projection'>,
   ): Promise<PartialDTO<T>>;
-  async get(options?: SqbSingletonService.FindOptions): Promise<T>;
+  /**
+   * Retrieves the singleton record. Throws if it does not exist.
+   *
+   * @param options - Optional query options.
+   * @returns The record as a full DTO.
+   * @throws {@link ResourceNotAvailableError} If the record does not exist.
+   */
+  async get(options?: SqbEntityService.FindOneOptions): Promise<T>;
   async get(
-    options?: SqbSingletonService.FindOptions,
+    options?: SqbEntityService.FindOneOptions,
   ): Promise<PartialDTO<T> | T> {
     const out = await this.find(options);
     if (!out) throw new ResourceNotAvailableError(this.getResourceName());
@@ -241,24 +224,30 @@ export class SqbSingletonService<
   }
 
   /**
-   * Updates the singleton.
+   * Updates the singleton record and returns it with the requested projection.
    *
-   * @param {PatchDTO<T>} input - The partial input object containing the fields to update.
-   * @param {SqbSingletonService.UpdateOptions} [options] - The options for the update operation.
-   * @returns {Promise<PartialDTO<T> | undefined>} A promise that resolves to the updated document or
-   * undefined if the document was not found.
+   * @param input - The fields to update.
+   * @param options - Options including a required `projection`.
+   * @returns The updated record as a partial DTO, or `undefined` if not found.
    */
   async update(
     input: PatchDTO<T>,
-    options: RequiredSome<SqbSingletonService.UpdateOptions, 'projection'>,
+    options: RequiredSome<SqbEntityService.UpdateOneOptions, 'projection'>,
   ): Promise<PartialDTO<T> | undefined>;
+  /**
+   * Updates the singleton record and returns the full DTO.
+   *
+   * @param input - The fields to update.
+   * @param options - Optional update options.
+   * @returns The updated record as a full DTO, or `undefined` if not found.
+   */
   async update(
     input: PatchDTO<T>,
-    options?: SqbSingletonService.UpdateOptions,
+    options?: SqbEntityService.UpdateOneOptions,
   ): Promise<T | undefined>;
   async update(
     input: PatchDTO<T>,
-    options?: SqbSingletonService.UpdateOptions,
+    options?: SqbEntityService.UpdateOneOptions,
   ): Promise<PartialDTO<T> | T | undefined> {
     const command: SqbEntityService.UpdateOneCommand<T> = {
       crud: 'update',
@@ -269,7 +258,7 @@ export class SqbSingletonService<
       options,
     };
     return this._executeCommand(command, async () => {
-      const filter = SQBAdapter.parseFilter([
+      const filter = SQBAdapter.prepareFilter([
         await this._getCommonFilter(command),
         command.options?.filter,
       ]);
@@ -279,15 +268,15 @@ export class SqbSingletonService<
   }
 
   /**
-   * Updates the singleton and  returns updated record count
+   * Updates the singleton record without returning it.
    *
-   * @param {PatchDTO<T>} input - The partial input data to update the document with.
-   * @param {SqbSingletonService.UpdateOptions} options - The options for updating the document.
-   * @returns {Promise<number>} - A promise that resolves to the number of documents modified.
+   * @param input - The fields to update.
+   * @param options - Optional update options.
+   * @returns The number of records modified.
    */
   async updateOnly(
     input: PatchDTO<T>,
-    options?: SqbSingletonService.UpdateOnlyOptions,
+    options?: SqbEntityService.UpdateOneOptions,
   ): Promise<number> {
     const command: SqbEntityService.UpdateOneCommand<T> = {
       crud: 'update',
@@ -298,7 +287,7 @@ export class SqbSingletonService<
       options,
     };
     return this._executeCommand(command, async () => {
-      const filter = SQBAdapter.parseFilter([
+      const filter = SQBAdapter.prepareFilter([
         await this._getCommonFilter(command),
         command.options?.filter,
       ]);

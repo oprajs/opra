@@ -33,7 +33,7 @@ const _prepareComplexTypeArgs = (DataTypeFactory as any)
     for (const [fieldName, fieldSchema] of Object.entries(metadata.fields!)) {
       const sqbField = sqbMeta && EntityMetadata.getField(sqbMeta, fieldName);
       if (!sqbField) continue;
-      /** Copy type information from sqb metadata to opra */
+      /* Copy type information from sqb metadata to opra */
       if (!fieldSchema.type || fieldSchema.type === Object) {
         if (isAssociationField(sqbField)) {
           if (!fieldSchema.type) {

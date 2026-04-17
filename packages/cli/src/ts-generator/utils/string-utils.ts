@@ -1,5 +1,13 @@
 import jsStringEscape from 'js-string-escape';
 
+/**
+ * Wraps a string for use in JSDoc comments.
+ *
+ * @param s - The string to wrap.
+ * @param indent - The number of spaces for indentation.
+ * @param currentColumn - The current column position.
+ * @returns The wrapped JSDoc string.
+ */
 export function wrapJSDocString(
   s: string,
   indent?: number,
@@ -18,6 +26,14 @@ export function wrapJSDocString(
   });
 }
 
+/**
+ * Wraps a string as a quoted string, potentially splitting it across multiple lines.
+ *
+ * @param s - The string to wrap.
+ * @param indent - The number of spaces for indentation.
+ * @param currentColumn - The current column position.
+ * @returns The wrapped quoted string.
+ */
 export function wrapQuotedString(
   s: string,
   indent?: number,
@@ -40,6 +56,14 @@ export function wrapQuotedString(
   );
 }
 
+/**
+ * Wraps an array of strings as a TypeScript array representation.
+ *
+ * @param arr - The array of strings.
+ * @param indent - The number of spaces for indentation.
+ * @param currentColumn - The current column position.
+ * @returns The string representation of the array.
+ */
 export function wrapStringArray(
   arr: string[],
   indent?: number,
@@ -52,6 +76,14 @@ export function wrapStringArray(
   return '[' + _printLines(ar1, { indent, currentColumn }) + ']';
 }
 
+/**
+ * Wraps an array of types as a TypeScript union type representation.
+ *
+ * @param arr - The array of type names.
+ * @param indent - The number of spaces for indentation.
+ * @param currentColumn - The current column position.
+ * @returns The string representation of the union type.
+ */
 export function wrapTypeArray(
   arr: string[],
   indent?: number,

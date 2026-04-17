@@ -7,11 +7,11 @@ const tokenRegExp = /^[\^_`a-zA-Z\-0-9!#$%&'*+.|~]+$/;
 const nodeInternalPrefix = '__node_internal_';
 
 /**
- * Verifies that the given val is a valid HTTP token
- * per the rules defined in RFC 7230
- * See https://tools.ietf.org/html/rfc7230#section-3.2.6
+ * Verifies that the given val is a valid HTTP token per the rules defined in RFC 7230.
+ * See {@link https://tools.ietf.org/html/rfc7230#section-3.2.6}
  *
- * https://github.com/nodejs/node/blob/main/lib/_http_common.js
+ * @param val - The value to check.
+ * @returns True if the value is a valid HTTP token, false otherwise.
  */
 export function checkIsHttpToken(val: any) {
   return typeof val === 'string' && tokenRegExp.exec(val) !== null;
@@ -33,9 +33,10 @@ function checkInvalidHeaderChar(val: string) {
 }
 
 /**
- * This function removes unnecessary frames from Node.js core errors.
+ * Hides internal Node.js stack frames for a given function.
  *
- * https://github.com/nodejs/node/blob/main/lib/internal/errors.js
+ * @param fn - The function to hide stack frames for.
+ * @returns The function with hidden stack frames.
  */
 export function hideStackFrames(fn: Function) {
   // We rename the functions that will be hidden to cut off the stacktrace
@@ -66,6 +67,13 @@ export const validateHeaderValue = hideStackFrames((name, value) => {
   }
 });
 
+/**
+ * Validates if the given value is a string.
+ *
+ * @param value - The value to validate.
+ * @param name - The name of the argument being validated.
+ * @throws {@link TypeError} If the value is not a string.
+ */
 export function validateString(value: any, name?: string) {
   if (typeof value !== 'string') {
     throw new TypeError(
