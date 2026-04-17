@@ -38,9 +38,7 @@ export namespace ElasticEntityService {
   export interface CommandInfo extends ElasticService.CommandInfo {}
 
   /**
-   * Represents options for "create" operation
-   *
-   * @interface
+   * Represents options for the "create" operation.
    */
   export interface CreateOptions {
     request?: StrictOmit<CreateRequest, 'id' | 'index' | 'document'>;
@@ -49,9 +47,8 @@ export namespace ElasticEntityService {
   }
 
   /**
-   * Represents options for "count" operation
+   * Represents options for the "count" operation.
    *
-   * @interface
    * @template T - The type of the document.
    */
   export interface CountOptions {
@@ -61,9 +58,8 @@ export namespace ElasticEntityService {
   }
 
   /**
-   * Represents options for "delete" operation
+   * Represents options for the "delete" operation.
    *
-   * @interface
    * @template T - The type of the document.
    */
   export interface DeleteOptions {
@@ -73,9 +69,8 @@ export namespace ElasticEntityService {
   }
 
   /**
-   * Represents options for "deleteMany" operation
+   * Represents options for the "deleteMany" operation.
    *
-   * @interface
    * @template T - The type of the document.
    */
   export interface DeleteManyOptions {
@@ -85,9 +80,8 @@ export namespace ElasticEntityService {
   }
 
   /**
-   * Represents options for "findOne" operation
+   * Represents options for the "findOne" operation.
    *
-   * @interface
    * @template T - The type of the document.
    */
   export interface FindOneOptions extends StrictOmit<
@@ -96,9 +90,8 @@ export namespace ElasticEntityService {
   > {}
 
   /**
-   * Represents options for "findMany" operation
+   * Represents options for the "findMany" operation.
    *
-   * @interface
    * @template T - The type of the document.
    */
   export interface FindManyOptions {
@@ -116,9 +109,7 @@ export namespace ElasticEntityService {
   }
 
   /**
-   * Represents options for "search" operation
-   *
-   * @interface
+   * Represents options for the "search" operation.
    */
   export interface SearchOptions {
     transport?: TransportRequestOptions;
@@ -126,9 +117,8 @@ export namespace ElasticEntityService {
   }
 
   /**
-   * Represents options for "update" operation
+   * Represents options for the "update" operation.
    *
-   * @interface
    * @template T - The type of the document.
    */
   export interface UpdateOneOptions {
@@ -138,9 +128,8 @@ export namespace ElasticEntityService {
   }
 
   /**
-   * Represents options for "updateMany" operation
+   * Represents options for the "updateMany" operation.
    *
-   * @interface
    * @template T - The type of the document.
    */
   export interface UpdateManyOptions {
@@ -208,7 +197,8 @@ export namespace ElasticEntityService {
 }
 
 /**
- * @class ElasticEntityService
+ * Class representing an Elasticsearch entity service for interacting with an Elasticsearch index.
+ *
  * @template T - The type of the documents in the collection.
  */
 export class ElasticEntityService<
@@ -221,33 +211,30 @@ export class ElasticEntityService<
   protected _outputCodecs: Record<string, vg.isObject.Validator<T>> = {};
 
   /**
-   * Defines comma delimited scopes for api document
+   * Defines comma-delimited scopes for API document.
    */
   scope?: string;
 
   /**
-   * Represents the name of a index in ElasticDB
+   * Represents the name of an index in Elasticsearch.
    */
   indexName?: string | ((_this: any) => string);
 
   /**
    * Represents the name of a resource.
-   * @type {string}
    */
   resourceName?: string | ((_this: any) => string);
 
   /**
-   * Generates a new id for new inserting Document.
-   *
+   * Generates a new ID for a new document.
    */
   idGenerator?: (command: ElasticEntityService.CommandInfo, _this: any) => any;
 
   /**
-   * Constructs a new instance
+   * Constructs a new instance.
    *
-   * @param {Type | string} dataType - The data type of the array elements.
-   * @param {ElasticEntityService.Options} [options] - The options for the array service.
-   * @constructor
+   * @param dataType - The data type of the documents.
+   * @param options - The options for the entity service.
    */
   constructor(dataType: Type | string, options?: ElasticEntityService.Options) {
     super(options);
@@ -269,7 +256,7 @@ export class ElasticEntityService<
    *
    * @protected
    * @returns The index name.
-   * @throws {Error} If the index name is not defined.
+   * @throws {@link Error} if the index name is not defined.
    */
   getIndexName(): string {
     const out =
@@ -284,8 +271,8 @@ export class ElasticEntityService<
    * Retrieves the resource name.
    *
    * @protected
-   * @returns {string} The resource name.
-   * @throws {Error} If the resource name is not defined.
+   * @returns The resource name.
+   * @throws {@link Error} if the resource name is not defined.
    */
   getResourceName(): string {
     const out =
@@ -297,9 +284,9 @@ export class ElasticEntityService<
   }
 
   /**
-   * Retrieves the OPRA data type
+   * Retrieves the OPRA data type.
    *
-   * @throws {NotAcceptableError} If the data type is not a ComplexType.
+   * @throws {@link NotAcceptableError} if the data type is not a `ComplexType`.
    */
   get dataType(): ComplexType {
     if (this._dataType && this._dataTypeScope !== this.scope)
@@ -315,8 +302,9 @@ export class ElasticEntityService<
    * If the target is an index and the document already exists,
    * the request updates the document and increments its version.
    *
-   * @param {ElasticEntityService.CreateCommand} command
+   * @param command - The create command.
    * @protected
+   * @throws {@link InternalServerError} if an unknown error occurs while creating the document.
    */
   protected async _create(
     command: ElasticEntityService.CreateCommand,
@@ -357,8 +345,9 @@ export class ElasticEntityService<
   /**
    * Returns the count of documents in the collection based on the provided options.
    *
-   * @param {ElasticEntityService.CountCommand} command
+   * @param command - The count command.
    * @protected
+   * @returns A promise that resolves to the count response.
    */
   protected async _count(
     command: ElasticEntityService.CountCommand,
@@ -392,8 +381,9 @@ export class ElasticEntityService<
   /**
    * Deletes a document from the collection.
    *
-   * @param {ElasticEntityService.DeleteCommand} command
+   * @param command - The delete command.
    * @protected
+   * @returns A promise that resolves to the delete response.
    */
   protected async _delete(
     command: ElasticEntityService.DeleteCommand,
@@ -421,8 +411,9 @@ export class ElasticEntityService<
   /**
    * Deletes multiple documents from the collection that meet the specified filter criteria.
    *
-   * @param {ElasticEntityService.DeleteManyCommand} command
+   * @param command - The deleteMany command.
    * @protected
+   * @returns A promise that resolves to the delete response.
    */
   protected async _deleteMany(
     command: ElasticEntityService.DeleteManyCommand,
@@ -454,9 +445,10 @@ export class ElasticEntityService<
   }
 
   /**
-   * Returns search hits that match the query defined in the request
+   * Returns search hits that match the query defined in the request.
    *
-   * @param {ElasticEntityService.FindManyCommand} command
+   * @param command - The findMany command.
+   * @returns A promise that resolves to the search response.
    */
   protected async _findMany(
     command: ElasticEntityService.FindManyCommand,
@@ -514,8 +506,8 @@ export class ElasticEntityService<
   /**
    * Executes a search operation on the Elasticsearch index using the provided search command.
    *
-   * @param {ElasticEntityService.SearchCommand} command - The search command containing the request configuration and optional transport settings.
-   * @return {Promise<ElasticEntityService.SearchResponse>} A promise resolving to the search response from Elasticsearch.
+   * @param command - The search command containing the request configuration and optional transport settings.
+   * @returns A promise resolving to the search response from Elasticsearch.
    */
   protected async _searchRaw(
     command: ElasticEntityService.SearchCommand,
@@ -543,7 +535,9 @@ export class ElasticEntityService<
   /**
    * Updates multiple documents in the collection based on the specified input and options.
    *
-   * @param {ElasticEntityService.UpdateCommand<T>} command
+   * @param command - The update command.
+   * @returns A promise that resolves to the update response.
+   * @throws {@link TypeError} if both 'input' and 'script' are provided and the script language is not 'painless'.
    */
   protected async _updateMany(
     command: ElasticEntityService.UpdateCommand<T>,

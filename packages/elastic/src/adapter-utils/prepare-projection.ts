@@ -10,6 +10,14 @@ export interface ElasticProjection {
   excludes?: string[];
 }
 
+/**
+ * Prepares an Elasticsearch projection object from the provided fields projection.
+ *
+ * @param dataType - The complex type defining the structure of the data.
+ * @param projection - The fields projection to transform.
+ * @param scope - The scope to use for field selection.
+ * @returns An `ElasticProjection` object containing include and exclude rules, or undefined.
+ */
 export default function prepareProjection(
   dataType: ComplexType,
   projection?: string | string[],

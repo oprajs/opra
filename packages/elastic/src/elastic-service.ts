@@ -4,11 +4,11 @@ import { ServiceBase } from '@opra/core';
 export interface ElasticService {
   /**
    * Interceptor function for handling callback execution with provided arguments.
-   * @type Function
+   *
    * @param next - The callback function to be intercepted.
-   * @param {ElasticService.CommandInfo} command - The arguments object containing the following properties:
+   * @param command - The command information.
    * @param _this - The reference to the current object.
-   * @returns - The promise that resolves to the result of the callback execution.
+   * @returns The promise that resolves to the result of the callback execution.
    */
   interceptor?(
     next: () => any,
@@ -18,29 +18,28 @@ export interface ElasticService {
 }
 
 /**
- * Class representing a ElasticSearch service for interacting with a collection.
- * @extends ServiceBase
+ * Class representing a Elasticsearch service for interacting with a collection.
+ *
  * @template T - The type of the documents in the collection.
  */
 export class ElasticService extends ServiceBase {
   /**
-   * Represents a ElasticDB database object.
+   * Represents an Elasticsearch client instance or a function that returns one.
    */
   client?: Client | ((_this: any) => Client);
 
   /**
    * Callback function for handling errors.
    *
-   * @param {unknown} error - The error object.
+   * @param error - The error object.
    * @param _this - The context object.
    */
   onError?: (error: unknown, _this: any) => void | Promise<void>;
 
   /**
-   * Constructs a new instance
+   * Constructs a new instance.
    *
-   * @param [options] - The options for the service
-   * @constructor
+   * @param options - The options for the service.
    */
   constructor(options?: ElasticService.Options) {
     super();
@@ -50,11 +49,11 @@ export class ElasticService extends ServiceBase {
   }
 
   /**
-   * Retrieves the ElasticSearch client.
+   * Retrieves the Elasticsearch client.
    *
    * @protected
-   *
-   * @throws {Error} If the context or client is not set.
+   * @returns The Elasticsearch client.
+   * @throws {@link Error} if the client is not set.
    */
   getClient(): Client {
     // @ts-ignore

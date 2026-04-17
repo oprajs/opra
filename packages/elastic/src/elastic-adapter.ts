@@ -34,6 +34,14 @@ export namespace ElasticAdapter {
     options: any;
   }
 
+  /**
+   * Parses the execution context and transforms it into an `ElasticAdapter.TransformedRequest`.
+   *
+   * @param context - The execution context to parse.
+   * @returns A promise that resolves to the transformed request.
+   * @throws {@link TypeError} if the context is not an `HttpContext`.
+   * @throws {@link Error} if the operation is not compatible with the Elastic adapter.
+   */
   export async function parseRequest(
     context: ExecutionContext,
   ): Promise<TransformedRequest> {

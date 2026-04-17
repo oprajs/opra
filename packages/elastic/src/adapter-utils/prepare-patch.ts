@@ -1,5 +1,11 @@
 import type { Script } from '@elastic/elasticsearch/api/types';
 
+/**
+ * Prepares an Elasticsearch script for a patch operation from the provided document.
+ *
+ * @param doc - The document containing the changes to prepare as a script.
+ * @returns An Elasticsearch script object.
+ */
 export default function preparePatch(doc: any): Script {
   const script: string[] = [];
   const params: Record<string, any> = {};
