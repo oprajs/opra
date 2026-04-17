@@ -18,12 +18,19 @@ declare type RequestListener = (
 export type ResponseExt = { expect: ApiExpect };
 
 /**
+ * Test specific implementation of {@link FetchBackend} for API testing.
  *
  * @class TestBackend
  */
 export class TestBackend extends FetchBackend {
   protected _server: Server;
 
+  /**
+   * Creates a new instance of TestBackend.
+   *
+   * @param app The server or request listener to test.
+   * @param options Configuration options.
+   */
   constructor(app: Server | RequestListener, options?: OpraTestClient.Options) {
     super(
       options?.basePath
@@ -34,6 +41,13 @@ export class TestBackend extends FetchBackend {
     this._server = app instanceof Server ? app : createServer(app);
   }
 
+  /**
+   * Sends the actual HTTP request by starting the server if necessary.
+   *
+   * @param req The request to send.
+   * @returns A promise that resolves to the response.
+   * @protected
+   */
   protected send(req: Request): Promise<Response> {
     return new Promise<Response>((resolve, reject) => {
       const url = new URL(req.url);
@@ -70,6 +84,13 @@ export class TestBackend extends FetchBackend {
     });
   }
 
+  /**
+   * Creates a {@link HttpResponse} instance with an added `expect` property.
+   *
+   * @param init The response initiator parameters.
+   * @returns A new HttpResponse instance with ApiExpect.
+   * @protected
+   */
   protected createResponse(init: HttpResponse.Initiator) {
     const response = new HttpResponse(init) as HttpResponse & ResponseExt;
     response.expect = new ApiExpect(response);
@@ -78,8 +99,11 @@ export class TestBackend extends FetchBackend {
 }
 
 /**
+ * Namespace for {@link TestBackend} related types and interfaces.
+ *
  * @namespace TestBackend
  */
 export namespace TestBackend {
+  /** Configuration options for TestBackend */
   export interface Options extends FetchBackend.Options {}
 }

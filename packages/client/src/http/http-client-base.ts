@@ -13,22 +13,28 @@ import { HttpRequestObservable } from './http-request-observable.js';
 const SPLIT_BACKSLASH_PATTERN = /^(\/*)(.+)/;
 
 /**
+ * Namespace for {@link OpraClientBase} related types and interfaces.
  *
  * @namespace OpraClientBase
  */
 export namespace OpraClientBase {
+  /** Configuration options for OpraClientBase */
   export interface Options {
+    /** The API document associated with this client */
     document?: ApiDocument;
   }
 
+  /** Generic request options for OPRA client */
   export type RequestOptions = Partial<
     StrictOmit<HttpBackend.RequestInit, 'url'>
   > & {
+    /** URL parameters */
     params?: URLSearchParamsInit;
   };
 }
 
 /**
+ * Base class for OPRA HTTP clients.
  *
  * @class OpraClientBase
  * @abstract
@@ -36,6 +42,12 @@ export namespace OpraClientBase {
 export abstract class HttpClientBase<TRequestOptions = {}, TResponseExt = {}> {
   declare protected [kBackend]: HttpBackend;
 
+  /**
+   * Creates a new instance of HttpClientBase.
+   *
+   * @param backend The backend instance to use for requests.
+   * @protected
+   */
   protected constructor(backend: HttpBackend) {
     Object.defineProperty(this, kBackend, {
       enumerable: false,
@@ -43,10 +55,20 @@ export abstract class HttpClientBase<TRequestOptions = {}, TResponseExt = {}> {
     });
   }
 
+  /**
+   * Gets the base service URL.
+   */
   get serviceUrl(): string {
     return this[kBackend].serviceUrl;
   }
 
+  /**
+   * Fetches the API document from the service.
+   *
+   * @param options Fetch options.
+   * @returns A promise that resolves to an ApiDocument.
+   * @throws {@link Error} if there is an issue fetching or parsing the document.
+   */
   async fetchDocument(options?: { documentId?: string }): Promise<ApiDocument> {
     const documentMap: Record<string, any> = {};
     const getDocument = async (documentId?: string) => {
@@ -87,6 +109,13 @@ export abstract class HttpClientBase<TRequestOptions = {}, TResponseExt = {}> {
     });
   }
 
+  /**
+   * Creates a new {@link HttpRequestObservable} for a specific path.
+   *
+   * @param path The path of the request.
+   * @param options Request options.
+   * @returns A new HttpRequestObservable instance.
+   */
   request<TBody = any>(path: string, options?: OpraClientBase.RequestOptions) {
     /* Remove leading backslashes */
     path = SPLIT_BACKSLASH_PATTERN.exec(path)?.[2] || '';
@@ -104,6 +133,13 @@ export abstract class HttpClientBase<TRequestOptions = {}, TResponseExt = {}> {
     return observable;
   }
 
+  /**
+   * Sends a DELETE request.
+   *
+   * @param path The path of the request.
+   * @param options Request options.
+   * @returns A new HttpRequestObservable instance.
+   */
   delete<TBody = any>(
     path: string,
     options?: StrictOmit<OpraClientBase.RequestOptions, 'method' | 'body'>,
@@ -114,6 +150,13 @@ export abstract class HttpClientBase<TRequestOptions = {}, TResponseExt = {}> {
     });
   }
 
+  /**
+   * Sends a GET request.
+   *
+   * @param path The path of the request.
+   * @param options Request options.
+   * @returns A new HttpRequestObservable instance.
+   */
   get<TBody = any>(
     path: string,
     options?: StrictOmit<OpraClientBase.RequestOptions, 'method' | 'body'>,
@@ -124,6 +167,14 @@ export abstract class HttpClientBase<TRequestOptions = {}, TResponseExt = {}> {
     });
   }
 
+  /**
+   * Sends a PATCH request.
+   *
+   * @param path The path of the request.
+   * @param requestBody The request body.
+   * @param options Request options.
+   * @returns A new HttpRequestObservable instance.
+   */
   patch<TBody = any>(
     path: string,
     requestBody: any,
@@ -136,6 +187,14 @@ export abstract class HttpClientBase<TRequestOptions = {}, TResponseExt = {}> {
     });
   }
 
+  /**
+   * Sends a POST request.
+   *
+   * @param path The path of the request.
+   * @param requestBody The request body.
+   * @param options Request options.
+   * @returns A new HttpRequestObservable instance.
+   */
   post<TBody = any>(
     path: string,
     requestBody: any,
@@ -148,6 +207,14 @@ export abstract class HttpClientBase<TRequestOptions = {}, TResponseExt = {}> {
     });
   }
 
+  /**
+   * Sends a PUT request.
+   *
+   * @param path The path of the request.
+   * @param requestBody The request body.
+   * @param options Request options.
+   * @returns A new HttpRequestObservable instance.
+   */
   put<TBody = any>(
     path: string,
     requestBody: any,

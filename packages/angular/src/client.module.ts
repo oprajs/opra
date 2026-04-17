@@ -15,8 +15,17 @@ import type {
   OpraClientModuleOptions,
 } from './interfaces/module-options.interface';
 
+/**
+ * Angular module for OPRA client.
+ */
 @NgModule({})
 export class OpraClientModule {
+  /**
+   * Registers a client provider.
+   *
+   * @param options Configuration options for the client.
+   * @returns A ModuleWithProviders instance.
+   */
   public static registerClient(
     options: OpraClientModuleOptions,
   ): ModuleWithProviders<OpraClientModule> {
@@ -34,6 +43,13 @@ export class OpraClientModule {
     };
   }
 
+  /**
+   * Registers a service provider.
+   *
+   * @param serviceClass The service class to register.
+   * @param options Configuration options for the service.
+   * @returns A ModuleWithProviders instance.
+   */
   public static registerService<T>(
     serviceClass: Type<T>,
     options: OpraClientModuleOptions,
@@ -60,6 +76,12 @@ export class OpraClientModule {
     };
   }
 
+  /**
+   * Registers a client provider asynchronously.
+   *
+   * @param options Asynchronous configuration options for the client.
+   * @returns A ModuleWithProviders instance.
+   */
   public static registerClientAsync(
     options: OpraClientModuleAsyncOptions,
   ): ModuleWithProviders<OpraClientModule> {
@@ -79,6 +101,13 @@ export class OpraClientModule {
     };
   }
 
+  /**
+   * Registers a service provider asynchronously.
+   *
+   * @param serviceClass The service class to register.
+   * @param options Asynchronous configuration options for the service.
+   * @returns A ModuleWithProviders instance.
+   */
   public static registerServiceAsync<T>(
     serviceClass: Type<T>,
     options: OpraClientModuleAsyncOptions,

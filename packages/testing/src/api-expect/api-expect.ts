@@ -9,10 +9,18 @@ import { ApiExpectError } from './api-expect-error.js';
 import { ApiExpectObject } from './api-expect-object.js';
 import { ApiExpectOperationResult } from './api-expect-operation-result.js';
 
+/**
+ * Main entry point for API assertions.
+ *
+ * @class ApiExpect
+ */
 export class ApiExpect extends ApiExpectBase {
   /**
-   * Tests if request succeeded
-   * @param status Status code number between 200-299
+   * Asserts that the request was successful (status code 200-399).
+   *
+   * @param status Optional expected status code.
+   * @returns The current ApiExpect instance.
+   * @throws {@link Error} if the assertion fails.
    */
   toSuccess(status?: number): this {
     let msg = '';
@@ -53,8 +61,11 @@ export class ApiExpect extends ApiExpectBase {
   }
 
   /**
-   * Tests if request failed
-   * @param status Status code number between 400-599
+   * Asserts that the request failed (status code 400-599).
+   *
+   * @param status Optional expected status code.
+   * @returns An {@link ApiExpectError} instance.
+   * @throws {@link Error} if the assertion fails.
    */
   toFail(status?: number): ApiExpectError {
     let msg = '';
@@ -94,7 +105,10 @@ export class ApiExpect extends ApiExpectBase {
   }
 
   /**
-   * Tests if API returns a Collection
+   * Asserts that the API returned a Collection.
+   *
+   * @returns An {@link ApiExpectCollection} instance.
+   * @throws {@link Error} if the assertion fails.
    */
   toReturnCollection(): ApiExpectCollection {
     let msg = '';
@@ -125,7 +139,11 @@ export class ApiExpect extends ApiExpectBase {
   }
 
   /**
-   * Tests if API returns an Object
+   * Asserts that the API returned an Object.
+   *
+   * @param contentType Optional expected Content-Type header value.
+   * @returns An {@link ApiExpectObject} instance.
+   * @throws {@link Error} if the assertion fails.
    */
   toReturnObject(contentType?: string): ApiExpectObject {
     let msg = '';
@@ -153,7 +171,10 @@ export class ApiExpect extends ApiExpectBase {
   }
 
   /**
-   * Tests if API returns an OperationResult
+   * Asserts that the API returned an OperationResult.
+   *
+   * @returns An {@link ApiExpectOperationResult} instance.
+   * @throws {@link Error} if the assertion fails.
    */
   toReturnOperationResult(): ApiExpectOperationResult {
     let msg = '';

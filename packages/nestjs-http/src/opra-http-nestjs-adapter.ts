@@ -25,13 +25,29 @@ import { HttpAdapter, HttpContext } from '@opra/http';
 import { OpraNestUtils, Public } from '@opra/nestjs';
 import { asMutable } from 'ts-gems';
 
+/**
+ * OpraHttpNestjsAdapter
+ *
+ * HTTP adapter used to integrate OPRA APIs with the NestJS framework.
+ * This adapter converts OPRA controllers into NestJS controllers and
+ * exports the OPRA documentation ($schema).
+ */
 export class OpraHttpNestjsAdapter extends HttpAdapter {
+  /** List of controller classes to be registered with NestJS */
   readonly nestControllers: Type[] = [];
+  /** Platform identifier */
   readonly platform = 'nestjs';
 
+  /**
+   * Creates a new instance of OpraHttpNestjsAdapter.
+   *
+   * @param options - Adapter configuration options.
+   */
   constructor(
     options: HttpAdapter.Options & {
+      /** Indicates whether the schema is public */
       schemaIsPublic?: boolean;
+      /** Manually added NestJS controllers */
       controllers?: Type[];
     },
   ) {
@@ -44,10 +60,20 @@ export class OpraHttpNestjsAdapter extends HttpAdapter {
     }
   }
 
+  /**
+   * Closes the adapter.
+   * @returns {Promise<void>}
+   */
   async close() {
     //
   }
 
+  /**
+   * Adds the root controller that serves the OPRA schema.
+   *
+   * @param isPublic - Whether the schema is accessible without authentication.
+   * @protected
+   */
   protected _addRootController(isPublic?: boolean) {
     const _this = this;
 
@@ -72,6 +98,16 @@ export class OpraHttpNestjsAdapter extends HttpAdapter {
     this.nestControllers.push(RootController);
   }
 
+  /**
+   * Adds the specified class and its sub-controllers to the NestJS controller list.
+   *
+   * @param sourceClass - Source OPRA controller class.
+   * @param currentPath - Current URL path.
+   * @param parentTree - List of parent controller classes.
+   * @protected
+   * @throws {@link NotFoundError} Thrown when no suitable endpoint is found for the operation.
+   * @throws {@link TypeError} Thrown when the controller is not a class.
+   */
   protected _addToNestControllers(
     sourceClass: Type,
     currentPath: string,
