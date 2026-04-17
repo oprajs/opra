@@ -198,10 +198,10 @@ constructor(client: OpraHttpClient) {`;
           }
           if (xt.kind === 'named') {
             if (operation.requestBody.partial) {
-              file.addImport('ts-gems', ['PartialDTO']);
+              file.addImport('ts-gems', ['PartialDTO'], this.options.useTypeImports);
               typeDef = `PartialDTO<${typeDef}>`;
             } else {
-              file.addImport('ts-gems', ['DTO']);
+              file.addImport('ts-gems', ['DTO'], this.options.useTypeImports);
               typeDef = `DTO<${typeDef}>`;
             }
           }
@@ -299,10 +299,10 @@ constructor(client: OpraHttpClient) {`;
           const isArray = typeDef.endsWith('[]');
           if (isArray) typeDef = typeDef.substring(0, typeDef.length - 2);
           if (resp.partial) {
-            file.addImport('ts-gems', ['PartialDTO']);
+            file.addImport('ts-gems', ['PartialDTO'], this.options.useTypeImports);
             typeDef = `PartialDTO<${typeDef}>`;
           } else {
-            file.addImport('ts-gems', ['DTO']);
+            file.addImport('ts-gems', ['DTO'], this.options.useTypeImports);
             typeDef = `DTO<${typeDef}>`;
           }
           if (isArray) typeDef += '[]';
@@ -317,7 +317,11 @@ constructor(client: OpraHttpClient) {`;
           resp.type.base?.ctor === OperationResult
         )
       ) {
-        file.addImport('@opra/common', ['OperationResult']);
+        file.addImport(
+          '@opra/common',
+          ['OperationResult'],
+          this.options.useTypeImports,
+        );
         typeDef = typeDef ? `OperationResult<${typeDef}>` : 'OperationResult';
       }
       typeDef = typeDef || 'undefined';
