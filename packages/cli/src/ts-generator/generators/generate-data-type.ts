@@ -61,14 +61,15 @@ export async function generateDataType(
         dataType instanceof ComplexType &&
         dataType.ctor === OperationResult
       ) {
-        if (currentFile) currentFile.addImport('@opra/common', [typeName], this.options.useTypeImports,);
+        if (currentFile)
+          currentFile.addImport('@opra/common', [typeName], true);
         return { kind: 'internal', typeName: dataType.name };
       }
       if (internalTypeNames.includes(typeName))
         return { kind: 'internal', typeName: dataType.name };
       let file = this._filesMap.get(dataType);
       if (file) {
-        if (currentFile) currentFile.addImport(file.filename, [typeName], this.options.useTypeImports,);
+        if (currentFile) currentFile.addImport(file.filename, [typeName], true);
         return { kind: 'named', file, typeName: dataType.name };
       }
 
@@ -90,7 +91,7 @@ export async function generateDataType(
       this._filesMap.set(dataType, file);
 
       if (file.exportTypes.includes(typeName)) {
-        if (currentFile) currentFile.addImport(file.filename, [typeName], this.options.useTypeImports,);
+        if (currentFile) currentFile.addImport(file.filename, [typeName], true);
         return { kind: 'named', file, typeName: dataType.name };
       }
       file.exportTypes.push(typeName);
@@ -112,7 +113,7 @@ export async function generateDataType(
       codeBlock.type_end = '\n\n';
       typesIndexTs.addExport(file.filename);
 
-      if (currentFile) currentFile.addImport(file.filename, [typeName], this.options.useTypeImports,);
+      if (currentFile) currentFile.addImport(file.filename, [typeName], true);
       return { kind: 'named', file, typeName };
     }
 

@@ -37,7 +37,6 @@ export namespace TsGenerator {
     fileHeader?: string;
     importExt?: boolean;
     referenceNamespaces?: boolean;
-    useTypeImports?: boolean;
   }
 }
 
@@ -81,7 +80,6 @@ export class TsGenerator extends EventEmitter {
   readonly options: {
     importExt: boolean;
     referenceNamespaces?: boolean;
-    useTypeImports?: boolean;
   };
   fileHeader: string;
 
@@ -99,7 +97,6 @@ export class TsGenerator extends EventEmitter {
     this.options = {
       importExt: !!init.importExt,
       referenceNamespaces: init.referenceNamespaces,
-      useTypeImports: !!init.useTypeImports,
     };
     this._documentsMap = new Map();
     this._documentRoot = './';
