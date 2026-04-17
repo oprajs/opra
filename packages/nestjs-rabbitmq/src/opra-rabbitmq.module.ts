@@ -22,11 +22,10 @@ export namespace OpraRabbitmqModule {
   /**
    * Base configuration options for the module.
    */
-  interface BaseModuleOptions
-    extends Pick<
-      DynamicModule,
-      'imports' | 'providers' | 'exports' | 'controllers' | 'global'
-    > {
+  interface BaseModuleOptions extends Pick<
+    DynamicModule,
+    'imports' | 'providers' | 'exports' | 'controllers' | 'global'
+  > {
     /** Module ID */
     id?: any;
     /** Interceptor list for the RabbitMQ adapter */
@@ -40,11 +39,10 @@ export namespace OpraRabbitmqModule {
   /**
    * OPRA RabbitMQ API configuration details.
    */
-  export interface ApiConfig
-    extends Pick<
-      ApiDocumentFactory.InitArguments,
-      'types' | 'references' | 'info'
-    > {
+  export interface ApiConfig extends Pick<
+    ApiDocumentFactory.InitArguments,
+    'types' | 'references' | 'info'
+  > {
     /** RabbitMQ connection configuration */
     connection?: RabbitmqAdapter.Config['connection'];
     /** Extra logging configuration */

@@ -25,23 +25,38 @@ import { generateHttpController } from './generators/generate-http-controller.js
 import { TsFile } from './ts-file.js';
 
 /**
- * @namespace TsGenerator
+ * TsGenerator
+ *
+ * A class responsible for generating TypeScript code from an OPRA API document.
  */
 export namespace TsGenerator {
+  /**
+   * Configuration options for TsGenerator.
+   */
   export interface Options {
+    /** The URL of the OPRA service. */
     serviceUrl: string;
+    /** The output directory for the generated files. */
     outDir: string;
+    /** The current working directory. Defaults to process.cwd(). */
     cwd?: string;
+    /** Logger instance for outputting information. */
     logger?: ILogger;
+    /** File writer instance. Defaults to FileWriter. */
     writer?: IFileWriter;
+    /** Optional header to add to each generated file. */
     fileHeader?: string;
+    /** Whether to add .js extension to imports. */
     importExt?: boolean;
+    /** Whether to export references with namespaces. */
     referenceNamespaces?: boolean;
   }
 }
 
 /**
- * @class TsGenerator
+ * TsGenerator
+ *
+ * Main class for managing the TypeScript code generation process.
  */
 export class TsGenerator extends EventEmitter {
   declare protected cleanDirectory: typeof cleanDirectory;
@@ -84,8 +99,9 @@ export class TsGenerator extends EventEmitter {
   fileHeader: string;
 
   /**
+   * Initializes a new TsGenerator instance.
    *
-   * @constructor
+   * @param init - Configuration options.
    */
   constructor(init: TsGenerator.Options) {
     super();
@@ -118,6 +134,11 @@ export class TsGenerator extends EventEmitter {
     );
   }
 
+  /**
+   * Starts the code generation process.
+   *
+   * @throws {@link Error} If generation fails.
+   */
   async generate() {
     if (this._started) return;
     this.emit('start');
@@ -144,10 +165,24 @@ export class TsGenerator extends EventEmitter {
     }
   }
 
+  /**
+   * Retrieves a file from the internal cache by its path.
+   *
+   * @param filePath - The path of the file to retrieve.
+   * @returns The TsFile instance or undefined if not found.
+   */
   protected getFile(filePath: string): TsFile {
     return this._files[filePath];
   }
 
+  /**
+   * Adds a new file to the generator or returns an existing one.
+   *
+   * @param filePath - The path of the file to add.
+   * @param returnExists - Whether to return the file if it already exists instead of throwing.
+   * @returns The newly created or existing TsFile instance.
+   * @throws {@link Error} If the file already exists and returnExists is false.
+   */
   protected addFile(filePath: string, returnExists?: boolean): TsFile {
     if (!(filePath.startsWith('.') || filePath.startsWith('/')))
       filePath = './' + filePath;

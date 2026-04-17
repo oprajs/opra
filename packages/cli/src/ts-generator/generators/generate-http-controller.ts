@@ -14,6 +14,12 @@ import type { TsGenerator } from '../ts-generator.js';
 import { locateNamedType } from '../utils/locate-named-type.js';
 import { wrapJSDocString } from '../utils/string-utils.js';
 
+/**
+ * Generates TypeScript code for an HTTP controller.
+ *
+ * @param controller - The HTTP controller to generate code for.
+ * @returns A promise that resolves to the generated TsFile.
+ */
 export async function generateHttpController(
   this: TsGenerator,
   controller: HttpController,
@@ -21,6 +27,14 @@ export async function generateHttpController(
   let file = this._filesMap.get(controller);
   if (file) return file;
 
+  /**
+   * Generates parameter documentation for JSDoc.
+   *
+   * @param name - The name of the parameter.
+   * @param type - The data type of the parameter.
+   * @param options - Additional options for the parameter.
+   * @returns A promise that resolves to the documentation string.
+   */
   const generateParamDoc = async (
     name: string,
     type?: DataType,
@@ -30,14 +44,7 @@ export async function generateHttpController(
       description?: string;
     },
   ): Promise<string> => {
-    let typeDef: string;
-    if (type) {
-      const xt = await this.generateDataType(type, 'typeDef', file);
-      typeDef = xt.kind === 'embedded' ? 'object' : xt.typeName;
-    } else typeDef = 'any';
-    if (options?.isArray) typeDef += '[]';
-    let out =
-      `\n * @param {${typeDef}} ` + (options?.required ? name : `[${name}]`);
+    let out = `\n * @param - ` + (options?.required ? name : `[${name}]`);
     if (options?.description)
       out += `  - ${wrapJSDocString(options?.description)}`;
     if (type instanceof ComplexType && type.embedded) {
@@ -71,8 +78,7 @@ export async function generateHttpController(
 
   const classConstBlock = (classBlock.classConstBlock = new CodeBlock());
   classConstBlock.head = `\n/**
- * @param {OpraHttpClient} client - OpraHttpClient instance to operate
- * @constructor
+ * @param client - OpraHttpClient instance to operate
  */  
 constructor(client: OpraHttpClient) {`;
   classConstBlock.body = `\n\tsuper(client);`;
@@ -168,7 +174,7 @@ constructor(client: OpraHttpClient) {`;
       if (argIndex++ > 0) operationBlock.head += ', ';
       operationBlock.head += `${prm.name}: ${typeDef}`;
       operationBlock.doc.parameters +=
-        `\n * @param {${typeDef}} ` +
+        `\n * @param ` +
         (prm.required ? prm.name : `[${prm.name}]`) +
         (prm.description ? ' - ' + wrapJSDocString(prm.description || '') : '');
     }
@@ -237,7 +243,7 @@ constructor(client: OpraHttpClient) {`;
         (isHeadersRequired || isQueryRequired ? '' : '?') +
         ': {\n\t';
       operationBlock.doc.parameters +=
-        '\n * @param {object} $params - Available parameters for the operation';
+        '\n * @param $params - Available parameters for the operation';
 
       let hasAdditionalFields = false;
       for (const prm of queryParams) {

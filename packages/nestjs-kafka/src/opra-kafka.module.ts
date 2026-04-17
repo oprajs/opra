@@ -22,11 +22,10 @@ export namespace OpraKafkaModule {
   /**
    * Base configuration options for the module.
    */
-  interface BaseModuleOptions
-    extends Pick<
-      DynamicModule,
-      'imports' | 'providers' | 'exports' | 'controllers' | 'global'
-    > {
+  interface BaseModuleOptions extends Pick<
+    DynamicModule,
+    'imports' | 'providers' | 'exports' | 'controllers' | 'global'
+  > {
     /** Module ID */
     id?: any;
     /** Interceptor list for the Kafka adapter */
@@ -41,8 +40,12 @@ export namespace OpraKafkaModule {
    * OPRA Kafka API configuration details.
    */
   export interface ApiConfig
-    extends Pick<ApiDocumentFactory.InitArguments, 'types' | 'references' | 'info'>,
-      Pick<KafkaAdapter.Config, 'client' | 'consumers' | 'logExtra' | 'defaults'> {
+    extends
+      Pick<ApiDocumentFactory.InitArguments, 'types' | 'references' | 'info'>,
+      Pick<
+        KafkaAdapter.Config,
+        'client' | 'consumers' | 'logExtra' | 'defaults'
+      > {
     /** API name */
     name: string;
     /** API description */

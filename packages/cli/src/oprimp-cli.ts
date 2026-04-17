@@ -21,7 +21,7 @@ program
   .argument('<serviceUrl>', 'OPRA service url')
   .argument('<outDir>', 'Output directory')
   .option('--ext', 'Adds js extension to imports')
-  .option('--refns', 'Exports references with namespaces')
+  .option('--refns', 'Exports referenced API documentation with namespaces')
   .option('--no-color', 'Disables colors in logs messages')
   .action(async (serviceUrl, outDir, options) => {
     if (!options.color) colors.enabled = false;

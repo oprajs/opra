@@ -22,11 +22,10 @@ export namespace OpraHttpModule {
   /**
    * Base configuration options for the module.
    */
-  interface BaseModuleOptions
-    extends Pick<
-      DynamicModule,
-      'imports' | 'providers' | 'exports' | 'controllers' | 'global'
-    > {
+  interface BaseModuleOptions extends Pick<
+    DynamicModule,
+    'imports' | 'providers' | 'exports' | 'controllers' | 'global'
+  > {
     /** Custom token for the module */
     token?: any;
     /** Base path for the API */
@@ -44,11 +43,10 @@ export namespace OpraHttpModule {
   /**
    * OPRA API configuration details.
    */
-  export interface ApiConfig
-    extends Pick<
-      ApiDocumentFactory.InitArguments,
-      'types' | 'references' | 'info'
-    > {
+  export interface ApiConfig extends Pick<
+    ApiDocumentFactory.InitArguments,
+    'types' | 'references' | 'info'
+  > {
     /** API name */
     name: string;
     /** API description */
