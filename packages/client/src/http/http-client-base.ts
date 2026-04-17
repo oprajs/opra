@@ -88,7 +88,7 @@ export abstract class HttpClientBase<TRequestOptions = {}, TResponseExt = {}> {
   }
 
   request<TBody = any>(path: string, options?: OpraClientBase.RequestOptions) {
-    /** Remove leading backslashes */
+    /* Remove leading backslashes */
     path = SPLIT_BACKSLASH_PATTERN.exec(path)?.[2] || '';
     const observable = new HttpRequestObservable<
       TBody,
