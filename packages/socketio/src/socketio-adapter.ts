@@ -116,7 +116,7 @@ export class SocketioAdapter extends PlatformAdapter<SocketioAdapter.Events> {
         if (typeof reg.event === 'string')
           this._eventsRegByName.set(reg.event, reg);
         else this._eventsRegByPattern.push(reg);
-        /** Generate decoders */
+        /* Generate decoders */
         if (oprDef.arguments?.length) {
           for (const arg of oprDef.arguments) {
             let fn2 = arg.type.generateCodec('decode', {
@@ -128,7 +128,7 @@ export class SocketioAdapter extends PlatformAdapter<SocketioAdapter.Events> {
             reg.decoders.push(fn2);
           }
         }
-        /** Generate response encoder */
+        /* Generate response encoder */
         if (oprDef.response) {
           reg.encoder = oprDef.response.generateCodec('encode', {
             scope: this.scope,
