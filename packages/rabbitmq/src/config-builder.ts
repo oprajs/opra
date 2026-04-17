@@ -12,16 +12,30 @@ import {
 } from './constants.js';
 import type { RabbitmqAdapter } from './rabbitmq-adapter.js';
 
+/**
+ * Helper class for building RabbitMQ adapter configuration and operation handlers.
+ */
 export class ConfigBuilder {
   declare connectionOptions: RabbitmqAdapter.ConnectionOptions;
   declare controllerInstances: Map<MQController, any>;
   declare handlerArgs: ConfigBuilder.OperationArguments[];
 
+  /**
+   * Initializes a new instance of the ConfigBuilder.
+   *
+   * @param document - The API document.
+   * @param config - The adapter configuration.
+   */
   constructor(
     readonly document: ApiDocument,
     readonly config: RabbitmqAdapter.Config,
   ) {}
 
+  /**
+   * Builds the configuration, identifying controller instances and operation handlers.
+   *
+   * @returns A promise that resolves when the build is complete.
+   */
   async build() {
     this.controllerInstances = new Map();
     this.handlerArgs = [];
@@ -59,6 +73,11 @@ export class ConfigBuilder {
     }
   }
 
+  /**
+   * Prepares the RabbitMQ connection options from the provided configuration.
+   *
+   * @protected
+   */
   protected _prepareConnectionOptions() {
     this.connectionOptions = {};
     if (Array.isArray(this.config.connection))
@@ -72,10 +91,12 @@ export class ConfigBuilder {
   }
 
   /**
+   * Resolves the consumer configuration for a specific operation.
    *
-   * @param controller
-   * @param instance
-   * @param operation
+   * @param controller - The MQ controller definition.
+   * @param instance - The controller instance.
+   * @param operation - The MQ operation definition.
+   * @returns A promise that resolves to the consumer configuration or undefined.
    * @protected
    */
   protected async _getConsumerConfig(

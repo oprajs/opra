@@ -25,8 +25,9 @@ export class RabbitmqContext
   readonly reply: RabbitmqAdapter.ReplyFunction;
 
   /**
-   * Constructor
-   * @param init the context options
+   * Initializes a new instance of the RabbitmqContext.
+   *
+   * @param init - The initialization options for the context.
    */
   constructor(init: RabbitmqContext.Initiator) {
     super({

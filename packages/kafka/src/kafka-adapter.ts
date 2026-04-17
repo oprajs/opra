@@ -365,7 +365,7 @@ export class KafkaAdapter extends PlatformAdapter<KafkaAdapter.Events> {
   }
 
   /**
-   * Creates a Kafka consumer for the given handler arguments if it doesn't already exist.
+   * Creates a Rabbitmq consumer for the given handler arguments if it doesn't already exist.
    *
    * @param args - The handler arguments containing configuration and state.
    * @throws {@link Error} Throws if a self-consumer for the group ID already exists.
