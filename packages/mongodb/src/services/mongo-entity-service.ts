@@ -399,16 +399,16 @@ export class MongoEntityService<
     if (options?.filter)
       filter = MongoAdapter.prepareFilter<T>(options?.filter);
     if (filter) stages.push({ $match: filter });
-    /** "Skip" stage */
+    /* "Skip" stage */
     if (options?.skip) stages.push({ $skip: options.skip });
     /** "Sort" stage */
     if (options?.sort) {
       const sort = MongoAdapter.prepareSort(options.sort);
       if (sort) stages.push({ $sort: sort });
     }
-    /** "Limit" stage */
+    /* "Limit" stage */
     stages.push({ $limit: options?.limit || 10 });
-    /** Post-Stages */
+    /* Post-Stages */
     if (options?.postStages) stages.push(...options.postStages);
 
     const dataType = this.dataType;
@@ -480,9 +480,9 @@ export class MongoEntityService<
       const sort = MongoAdapter.prepareSort(options.sort);
       if (sort) dataStages.push({ $sort: sort });
     }
-    /** Skip */
+    /* Skip */
     if (options?.skip) dataStages.push({ $skip: options.skip });
-    /** Limit */
+    /* Limit */
     dataStages.push({ $limit: limit });
 
     const dataType = this.dataType;

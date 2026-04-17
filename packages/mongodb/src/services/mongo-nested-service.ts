@@ -889,9 +889,9 @@ export class MongoNestedService<
       const sort = MongoAdapter.prepareSort(options.sort);
       if (sort) stages.push({ $sort: sort });
     }
-    /** Skip */
+    /* Skip */
     if (options?.skip) stages.push({ $skip: options.skip });
-    /** Limit */
+    /* Limit */
     stages.push({ $limit: limit });
 
     const dataType = this.dataType;
@@ -901,7 +901,7 @@ export class MongoNestedService<
       this._dataTypeScope,
     );
     if (projection) stages.push({ $project: projection });
-    /** Post-Stages */
+    /* Post-Stages */
     if (options?.postStages) stages.push(...options.postStages);
 
     const db = this.getDatabase();
@@ -1015,11 +1015,11 @@ export class MongoNestedService<
       const sort = MongoAdapter.prepareSort(options.sort);
       if (sort) dataStages.push({ $sort: sort });
     }
-    /** Skip */
+    /* Skip */
     if (options?.skip) dataStages.push({ $skip: options.skip });
-    /** Limit */
+    /* Limit */
     dataStages.push({ $limit: limit });
-    /** Post-Stages */
+    /* Post-Stages */
     if (options?.postStages) dataStages.push(...options.postStages);
 
     const dataType = this.dataType;
