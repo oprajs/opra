@@ -669,7 +669,7 @@ export class ElasticEntityService<
   ): Promise<any> {
     try {
       const result = await super._executeCommand(command, async () => {
-        /** Call before[X] hooks */
+        /* Call before[X] hooks */
         if (command.crud === 'create')
           await this._beforeCreate(
             command as ElasticEntityService.CreateCommand,
@@ -691,10 +691,10 @@ export class ElasticEntityService<
             command as ElasticEntityService.DeleteCommand,
           );
         }
-        /** Call command function */
+        /* Call command function */
         return commandFn();
       });
-      /** Call after[X] hooks */
+      /* Call after[X] hooks */
       if (command.crud === 'create')
         await this._afterCreate(
           command as ElasticEntityService.CreateCommand,

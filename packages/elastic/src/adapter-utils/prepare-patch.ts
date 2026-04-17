@@ -37,7 +37,7 @@ function _preparePatch(
       v &&
       typeof v === 'object' &&
       !Array.isArray(v) &&
-      /** If field name starts with "*", do "replace" operation except "merge" */
+      /* If field name starts with "*", do "replace" operation except "merge" */
       !k.startsWith('*')
     ) {
       _preparePatch(v, script, params, field);

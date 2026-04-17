@@ -54,7 +54,7 @@ function prepareFilterAst(
   if (ast instanceof OpraFilter.LogicalExpression) {
     const items = ast.items
       .map(x => prepareFilterAst(x))
-      /** Filter nullish items */
+      /* Filter nullish items */
       .filter(x => x != null);
     const k = (ast.op === 'or' ? 'should' : 'must') + (negative ? '_not' : '');
     return { bool: { [k]: items } };

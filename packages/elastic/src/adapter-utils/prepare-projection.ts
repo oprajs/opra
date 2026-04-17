@@ -55,7 +55,7 @@ export function prepare(
   let fieldPath: string;
   let field: ApiField;
   let k: string;
-  /** Add fields from data type */
+  /* Add fields from data type */
   for (field of dataType.fields(scope)) {
     fieldName = field.name;
     fieldPath = curPath + (curPath ? '.' : '') + fieldName;
@@ -63,9 +63,9 @@ export function prepare(
     projectionKeysSet.delete(k);
     const p = projection?.[k];
     if (
-      /** if field is omitted */
+      /* if field is omitted */
       p?.sign === '-' ||
-      /** if no projection defined for this field and includeDefaultFields is true and the field is exclusive */
+      /* if no projection defined for this field and includeDefaultFields is true and the field is exclusive */
       (!p && field.exclusive)
     ) {
       if (!needIncludes) excludes.push(fieldPath);
