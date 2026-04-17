@@ -41,14 +41,14 @@ export class ConfigBuilder {
     this.handlerArgs = [];
     this._prepareConnectionOptions();
 
-    /** Initialize consumers */
+    /* Initialize consumers */
     for (const controller of this.document.getMqApi().controllers.values()) {
       let instance = controller.instance;
       if (!instance && controller.ctor) instance = new controller.ctor();
       if (!instance) continue;
       this.controllerInstances.set(controller, instance);
 
-      /** Build HandlerData array */
+      /* Build HandlerData array */
       for (const operation of controller.operations.values()) {
         const consumerConfig = await this._getConsumerConfig(
           controller,

@@ -120,7 +120,7 @@ export class RabbitmqAdapter extends PlatformAdapter<RabbitmqAdapter.Events> {
     await configBuilder.build();
     this._connection = new rabbit.Connection(configBuilder.connectionOptions);
     try {
-      /** Establish connection */
+      /* Establish connection */
       await this._connection.onConnect().catch(e => {
         updateErrorMessage(e, `RabbitMQ connection error. ${e.message}`);
         throw e;
@@ -129,7 +129,7 @@ export class RabbitmqAdapter extends PlatformAdapter<RabbitmqAdapter.Events> {
         `Connected RabbitMQ at ${configBuilder.connectionOptions.urls}`,
       );
 
-      /** Subscribe to queues */
+      /* Subscribe to queues */
       const promises: Promise<void>[] = [];
       for (const args of configBuilder.handlerArgs) {
         for (const queue of args.topics) {
@@ -216,7 +216,7 @@ export class RabbitmqAdapter extends PlatformAdapter<RabbitmqAdapter.Events> {
    */
   protected _createHandler(args: ConfigBuilder.OperationArguments) {
     const { controller, instance, operation } = args;
-    /** Prepare parsers */
+    /* Prepare parsers */
     const decodePayload = operation.generateCodec('decode', {
       scope: this.scope,
       ignoreReadonlyFields: true,
@@ -250,7 +250,7 @@ export class RabbitmqAdapter extends PlatformAdapter<RabbitmqAdapter.Events> {
         return _reply(body, envelope);
       };
       const headers: any = {};
-      /** Create context */
+      /* Create context */
       const context = new RabbitmqContext({
         __adapter: this,
         __contDef: controller,
@@ -265,14 +265,14 @@ export class RabbitmqAdapter extends PlatformAdapter<RabbitmqAdapter.Events> {
         reply,
       });
       try {
-        /** Parse and decode `payload` */
+        /* Parse and decode `payload` */
         let content = await this._parseContent(message);
         if (content && decodePayload) {
           if (Buffer.isBuffer(content)) content = content.toString('utf-8');
           content = decodePayload(content);
         }
         // message.properties.
-        /** Parse and decode `headers` */
+        /* Parse and decode `headers` */
         if (message.headers) {
           for (const [k, v] of Object.entries(message.headers)) {
             const header = operation.findHeader(k);
@@ -289,7 +289,7 @@ export class RabbitmqAdapter extends PlatformAdapter<RabbitmqAdapter.Events> {
 
       await this.emitAsync('execute', context).catch(noOp);
       try {
-        /** Call operation handler */
+        /* Call operation handler */
         const result = await operationHandler.call(instance, context);
         if (result !== undefined) await reply(result);
         await this.emitAsync('finish', context, result).catch(noOp);

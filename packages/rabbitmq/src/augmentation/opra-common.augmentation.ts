@@ -18,7 +18,7 @@ declare module '@opra/common' {
   }
 }
 
-/** Implementation **/
+/* Implementation **/
 
 classes.MQOperationDecoratorFactory.augment(
   (decorator: any, decoratorChain) => {
