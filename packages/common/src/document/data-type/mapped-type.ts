@@ -114,7 +114,7 @@ export const MappedType = function (this: MappedType, ...args: any[]) {
         : initArgs.required;
     }
 
-    /** Copy fields from base */
+    /* Copy fields from base */
     const isInheritedPredicate = getIsInheritedPredicateFn(
       _this.pick,
       _this.omit,

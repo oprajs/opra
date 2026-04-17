@@ -11,7 +11,7 @@ import type { HttpParameter } from '../http/http-parameter.js';
 import { HttpRequestBody } from '../http/http-request-body.js';
 import { type HttpOperationDecorator } from './http-operation.decorator.js';
 
-/** Augmentation **/
+/* Augmentation **/
 declare module '../http/http-operation.js' {
   /**
    * HttpOperationStatic
@@ -95,7 +95,7 @@ declare module '../http/http-operation.js' {
   // eslint-disable-next-line @typescript-eslint/no-shadow
   namespace HttpOperation {
     namespace Entity {
-      /** Create */
+      /* Create */
       export interface CreateDecorator extends HttpOperationDecorator {}
 
       export interface CreateArgs extends StrictOmit<
@@ -112,7 +112,7 @@ declare module '../http/http-operation.js' {
         };
       }
 
-      /** Delete */
+      /* Delete */
       export interface DeleteDecorator extends HttpOperationDecorator {
         KeyParam(
           name: string,
@@ -130,7 +130,7 @@ declare module '../http/http-operation.js' {
         type: Type | string;
       }
 
-      /** DeleteMany */
+      /* DeleteMany */
       export interface FilterOptions {
         mappedField?: string;
         operators?: OpraFilter.ComparisonOperator[];
@@ -154,7 +154,7 @@ declare module '../http/http-operation.js' {
         type: Type | string;
       }
 
-      /** FindMany */
+      /* FindMany */
       export interface FindManyDecorator extends HttpOperationDecorator {
         SortFields(
           ...fields: OpraSchema.Field.QualifiedName[]
@@ -189,7 +189,7 @@ declare module '../http/http-operation.js' {
         maxLimit?: number;
       }
 
-      /** Get */
+      /* Get */
       export interface GetDecorator extends HttpOperationDecorator {
         KeyParam(
           name: string,
@@ -207,7 +207,7 @@ declare module '../http/http-operation.js' {
         type: Type | string;
       }
 
-      /** Replace */
+      /* Replace */
       export interface ReplaceDecorator extends HttpOperationDecorator {
         KeyParam(
           name: string,
@@ -225,7 +225,7 @@ declare module '../http/http-operation.js' {
         type: Type | string;
       }
 
-      /** Update */
+      /* Update */
       export interface UpdateDecorator extends HttpOperationDecorator {
         KeyParam(
           name: string,
@@ -258,7 +258,7 @@ declare module '../http/http-operation.js' {
         };
       }
 
-      /** UpdateMany */
+      /* UpdateMany */
       export interface UpdateManyDecorator extends HttpOperationDecorator {
         Filter(
           field: OpraSchema.Field.QualifiedName,
@@ -286,7 +286,7 @@ declare module '../http/http-operation.js' {
   }
 }
 
-/** Implementation **/
+/* Implementation **/
 
 HttpOperation.Entity = {} as any;
 

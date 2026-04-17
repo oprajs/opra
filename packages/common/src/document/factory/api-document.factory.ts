@@ -124,7 +124,7 @@ export class ApiDocumentFactory {
     document.url = init.url;
     if (init.info) document.info = { ...init.info };
 
-    /** Add references  */
+    /* Add references  */
     if (init.references) {
       await context.enterAsync('.references', async () => {
         let ns: string;
@@ -180,7 +180,7 @@ export class ApiDocumentFactory {
       });
     }
     document.invalidate();
-    /** Add document to global registry */
+    /* Add document to global registry */
     if (!this._allDocuments[document.id])
       this._allDocuments[document.id] = document;
   }

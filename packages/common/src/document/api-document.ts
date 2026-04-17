@@ -138,11 +138,11 @@ export class ApiDocument extends DocumentElement {
   }
 
   invalidate(): void {
-    /** Generate id */
+    /* Generate id */
     const x = this.export({});
     delete (x as any).id;
     (this as Mutable<ApiDocument>).id = md5(JSON.stringify(x));
-    /** Clear [kTypeNSMap] */
+    /* Clear [kTypeNSMap] */
     this[kTypeNSMap] = new WeakMap<DataType, string>();
   }
 
@@ -181,7 +181,7 @@ export class ApiDocument extends DocumentElement {
     visitedRefs = visitedRefs || new WeakMap<ApiDocument, boolean>();
     visitedRefs.set(this, true);
     const references = Array.from(this.references.keys()).reverse();
-    /** First step, lookup for own types */
+    /* First step, lookup for own types */
     for (const refNs of references) {
       const ref = this.references.get(refNs);
       result = ref?.types.get(nameOrCtor);
@@ -190,7 +190,7 @@ export class ApiDocument extends DocumentElement {
         return result;
       }
     }
-    /** If not found lookup for child references */
+    /* If not found lookup for child references */
     for (const refNs of references) {
       const ref = this.references.get(refNs);
       visitedRefs.set(ref!, true);

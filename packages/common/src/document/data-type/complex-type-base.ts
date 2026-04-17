@@ -341,12 +341,12 @@ abstract class ComplexTypeBaseClass extends DataType {
     let fieldName: string;
     for (const field of this.fields('*')) {
       if (
-        /** Ignore field if required scope(s) do not match field scopes */
+        /* Ignore field if required scope(s) do not match field scopes */
         !field.inScope(context.scope) ||
         (!(context.keepKeyFields && this.keyField) &&
-          /** Ignore field if readonly and ignoreReadonlyFields option true */
+          /* Ignore field if readonly and ignoreReadonlyFields option true */
           ((context.ignoreReadonlyFields && field.readonly) ||
-            /** Ignore field if writeonly and ignoreWriteonlyFields option true */
+            /* Ignore field if writeonly and ignoreWriteonlyFields option true */
             (context.ignoreWriteonlyFields && field.writeonly)))
       ) {
         schema[field.name] = vg.isUndefined({ coerce: true });
@@ -357,11 +357,11 @@ abstract class ComplexTypeBaseClass extends DataType {
       if (projection !== '*') {
         p = projection?.[fieldName.toLowerCase()];
         if (
-          /** Ignore if field is omitted */
+          /* Ignore if field is omitted */
           p?.sign === '-' ||
-          /** Ignore if default fields ignored and field is not in projection */
+          /* Ignore if default fields ignored and field is not in projection */
           (pickList && !p) ||
-          /** Ignore if default fields enabled and fields is exclusive */
+          /* Ignore if default fields enabled and fields is exclusive */
           (!pickList && field.exclusive && !p)
         ) {
           schema[field.name] = vg.isUndefined({ coerce: true });
@@ -382,7 +382,7 @@ abstract class ComplexTypeBaseClass extends DataType {
         context.fieldCache.set(field, cacheItem);
       }
       let fn = cacheItem[cacheKey];
-      /** If in progress (circular) */
+      /* If in progress (circular) */
       if (fn === null) {
         // Temporary set any
         fn = vg.isAny();

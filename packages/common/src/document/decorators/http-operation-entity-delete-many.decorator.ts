@@ -19,7 +19,7 @@ HttpOperation.Entity.DeleteMany = function (
     args = arg0;
   } else args = { ...arg1, type: arg0 };
 
-  /** Initialize the decorator and the chain */
+  /* Initialize the decorator and the chain */
   const decoratorChain: Function[] = [];
   const decorator = HttpOperationDecoratorFactory(decoratorChain, {
     method: 'DELETE',

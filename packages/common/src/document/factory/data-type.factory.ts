@@ -168,9 +168,9 @@ export class DataTypeFactory {
       if (dt) return dt;
     }
     if (v) {
-      /** To throw not found error */
+      /* To throw not found error */
       const dt = owner.node.getDataType(v);
-      /** istanbul ignore next */
+      /* istanbul ignore next */
       if (dt) return dt;
     }
     return owner.node.getDataType('any');
@@ -386,7 +386,7 @@ export class DataTypeFactory {
     return context.enterAsync(
       metadata.name ? `[${metadata.name}]` : '',
       async () => {
-        /** Check for circular dependencies */
+        /* Check for circular dependencies */
         if (metadata.name) {
           const curr = initArgsMap?.get(metadata.name);
           if (curr) {
@@ -400,7 +400,7 @@ export class DataTypeFactory {
           kind: metadata.kind,
           name: metadata.name,
         } as DataTypeFactory.DataTypeInitArguments;
-        /** Mark "out" object as initializing. This will help us to detect circular dependencies */
+        /* Mark "out" object as initializing. This will help us to detect circular dependencies */
         out[initializingSymbol] = true;
         try {
           if (out.name) {
@@ -441,7 +441,7 @@ export class DataTypeFactory {
               await this._prepareUnionTypeArgs(context, owner, out, metadata);
               break;
             default:
-              /** istanbul ignore next */
+              /* istanbul ignore next */
               return context.addError(
                 `Invalid data type kind ${metadata.kind}`,
               );
@@ -800,7 +800,7 @@ export class DataTypeFactory {
         initArgs.base = this._createDataType(context, owner, args.base!) as any;
       });
     }
-    /** Set additionalFields */
+    /* Set additionalFields */
     if (args.additionalFields) {
       context.enter('.additionalFields', () => {
         if (
@@ -817,7 +817,7 @@ export class DataTypeFactory {
         }
       });
     }
-    /** Add own fields */
+    /* Add own fields */
     initArgs.fields = {};
     if (args.fields) {
       context.enter('.fields', () => {

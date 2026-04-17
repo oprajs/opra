@@ -130,7 +130,7 @@ export const ComplexType = function (this: ComplexType | void, ...args: any[]) {
       _this.additionalFields = _this.base.additionalFields;
       _this.keyField = _this.base.keyField;
 
-      /** Copy fields from base */
+      /* Copy fields from base */
       for (const v of _this.base.fields('*')) {
         (_this as any)._fields.set(v.name, new ApiField(this, v));
       }
@@ -141,7 +141,7 @@ export const ComplexType = function (this: ComplexType | void, ...args: any[]) {
   if (initArgs.keyField !== undefined) _this.keyField = initArgs.keyField;
   _this.ctor = initArgs.ctor || _this.base?.ctor;
 
-  /** Add own fields */
+  /* Add own fields */
   if (initArgs.fields) {
     context.enter('.fields', () => {
       for (const [k, v] of Object.entries(initArgs.fields!)) {

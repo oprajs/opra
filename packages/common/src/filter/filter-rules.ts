@@ -159,15 +159,15 @@ export class FilterRules {
       return ast;
     }
     if (ast instanceof Literal) {
-      /** Check if comparison expression has in stack */
+      /* Check if comparison expression has in stack */
       const compIdx = stack.findLastIndex(
         x => x instanceof ComparisonExpression,
       );
       if (compIdx >= 0) {
         const comp = stack[compIdx] as ComparisonExpression;
-        /** If calling for right side of comparison */
+        /* If calling for right side of comparison */
         if (ast === comp.right || stack[compIdx + 1] === comp.right) {
-          /** Check if comparison expression left side is a field */
+          /* Check if comparison expression left side is a field */
           if (
             comp &&
             comp.left instanceof QualifiedIdentifier &&

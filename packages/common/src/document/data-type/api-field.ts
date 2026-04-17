@@ -97,7 +97,7 @@ class ApiFieldClass extends DocumentElement {
   declare readonly name: string;
   declare readonly type: DataType;
   declare readonly description?: string;
-  /** @deprecated */
+  /* @deprecated */
   declare readonly isArray?: boolean;
   declare readonly isNestedEntity?: boolean;
   declare readonly default?: any;
