@@ -1,7 +1,7 @@
 import { ResourceNotAvailableError } from '@opra/common';
 import { ExecutionContext, ServiceBase } from '@opra/core';
 import mongodb, { type UpdateFilter } from 'mongodb';
-import type { Nullish, PartialDTO, RequiredSome, Type } from 'ts-gems';
+import type { DTO, Nullish, PartialDTO, RequiredSome, Type } from 'ts-gems';
 import { MongoAdapter } from '../adapter/mongo-adapter.js';
 import type { MongoPatchDTO } from '../types.js';
 import { MongoEntityService } from './mongo-entity-service.js';
@@ -378,10 +378,12 @@ export class MongoCollectionService<
   async findMany(
     options: RequiredSome<MongoEntityService.FindManyOptions<T>, 'projection'>,
   ): Promise<PartialDTO<T>[]>;
-  async findMany(options?: MongoEntityService.FindManyOptions<T>): Promise<T[]>;
   async findMany(
     options?: MongoEntityService.FindManyOptions<T>,
-  ): Promise<(PartialDTO<T> | T)[]> {
+  ): Promise<DTO<T>[]>;
+  async findMany(
+    options?: MongoEntityService.FindManyOptions<T>,
+  ): Promise<(PartialDTO<T> | DTO<T>)[]> {
     const command: MongoEntityService.FindManyCommand<T> = {
       crud: 'read',
       method: 'findMany',
