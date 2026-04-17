@@ -51,10 +51,10 @@ export class MongoCollectionService<
   /**
    * Create a copy of this instance with given properties and context applied.
    *
-   * @param {C | ServiceBase} context - The execution context or service base to associate with this instance.
-   * @param {Nullish<P>} [overwriteProperties] - An optional object containing properties to overwrite in the current instance.
-   * @param {Partial<C>} [overwriteContext] - An optional partial context to apply and potentially overwrite parts of the provided execution context.
-   * @return {this & Required<P>} The current instance with the specified properties and context applied.
+   * @param context - The execution context or service base to associate with this instance.
+   * @param [overwriteProperties] - An optional object containing properties to overwrite in the current instance.
+   * @param [overwriteContext] - An optional partial context to apply and potentially overwrite parts of the provided execution context.
+   * @returns The current instance with the specified properties and context applied.
    * @template P
    * @template C
    */
@@ -71,10 +71,10 @@ export class MongoCollectionService<
    * Asserts the existence of a resource with the given ID.
    * Throws a ResourceNotFoundError if the resource does not exist.
    *
-   * @param {MongoAdapter.AnyId} id - The ID of the resource to assert.
-   * @param {MongoEntityService.ExistsOptions<T>} [options] - Optional options for checking the existence.
-   * @returns {Promise<void>} - A Promise that resolves when the resource exists.
-   * @throws {ResourceNotAvailableError} - If the resource does not exist.
+   * @param id - The ID of the resource to assert.
+   * @param options - Optional options for checking the existence.
+   * @returns A Promise that resolves when the resource exists.
+   * @throws {@link ResourceNotAvailableError} - If the resource does not exist.
    */
   async assert(
     id: MongoAdapter.AnyId,
@@ -86,12 +86,12 @@ export class MongoCollectionService<
 
   /**
    * Creates a new document in the MongoDB collection.
-   * Interceptors will be called before performing db operation
+   * Interceptors will be called before performing db operation.
    *
-   * @param {PartialDTO<T>} input - The input data for creating the document.
-   * @param {MongoEntityService.CreateOptions} [options] - The options for creating the document.
-   * @returns {Promise<PartialDTO<T>>} A promise that resolves to the created document.
-   * @throws {Error} if an unknown error occurs while creating the document.
+   * @param input - The input data for creating the document.
+   * @param options - The options for creating the document.
+   * @returns A promise that resolves to the created document.
+   * @throws {@link Error} if an unknown error occurs while creating the document.
    */
   async create(
     input: PartialDTO<T> | T,
@@ -133,8 +133,8 @@ export class MongoCollectionService<
   /**
    * Returns the count of documents in the collection based on the provided options.
    *
-   * @param {MongoEntityService.CountOptions<T>} options - The options for the count operation.
-   * @return {Promise<number>} - A promise that resolves to the count of documents in the collection.
+   * @param options - The options for the count operation.
+   * @returns A promise that resolves to the count of documents in the collection.
    */
   async count(options?: MongoEntityService.CountOptions<T>): Promise<number> {
     const command: MongoEntityService.CountCommand<T> = {
@@ -159,9 +159,9 @@ export class MongoCollectionService<
   /**
    * Deletes a document from the collection.
    *
-   * @param {MongoAdapter.AnyId} id - The ID of the document to delete.
-   * @param {MongoEntityService.DeleteOptions<T>} [options] - Optional delete options.
-   * @return {Promise<number>} - A Promise that resolves to the number of documents deleted.
+   * @param id - The ID of the document to delete.
+   * @param [options] - Optional delete options.
+   * @returns A Promise that resolves to the number of documents deleted.
    */
   async delete(
     id: MongoAdapter.AnyId,
@@ -190,8 +190,8 @@ export class MongoCollectionService<
   /**
    * Deletes multiple documents from the collection that meet the specified filter criteria.
    *
-   * @param {MongoEntityService.DeleteManyOptions<T>} options - The options for the delete operation.
-   * @return {Promise<number>} - A promise that resolves to the number of documents deleted.
+   * @param options - The options for the delete operation.
+   * @returns A promise that resolves to the number of documents deleted.
    */
   async deleteMany(
     options?: MongoEntityService.DeleteManyOptions<T>,
@@ -217,8 +217,8 @@ export class MongoCollectionService<
 
   /**
    * The distinct command returns a list of distinct values for the given key across a collection.
-   * @param {string} field
-   * @param {MongoEntityService.DistinctOptions<T>} [options]
+   * @param field - The field to get distinct values for.
+   * @param [options] - The options for the distinct operation.
    * @protected
    */
   async distinct(
@@ -248,9 +248,9 @@ export class MongoCollectionService<
   /**
    * Checks if an object with the given id exists.
    *
-   * @param {MongoAdapter.AnyId} id - The id of the object to check.
-   * @param {MongoEntityService.ExistsOptions<T>} [options] - The options for the query (optional).
-   * @return {Promise<boolean>} - A Promise that resolves to a boolean indicating whether the object exists or not.
+   * @param id - The id of the object to check.
+   * @param [options] - The options for the query (optional).
+   * @returns A Promise that resolves to a boolean indicating whether the object exists or not.
    */
   async exists(
     id: MongoAdapter.AnyId,
@@ -284,8 +284,8 @@ export class MongoCollectionService<
   /**
    * Checks if an object with the given arguments exists.
    *
-   * @param {MongoEntityService.ExistsOptions} [options] - The options for the query (optional).
-   * @return {Promise<boolean>} - A Promise that resolves to a boolean indicating whether the object exists or not.
+   * @param [options] - The options for the query (optional).
+   * @returns A Promise that resolves to a boolean indicating whether the object exists or not.
    */
   async existsOne(
     options?: MongoEntityService.ExistsOptions<T>,
@@ -342,8 +342,8 @@ export class MongoCollectionService<
   /**
    * Finds a document in the collection that matches the specified options.
    *
-   * @param {MongoEntityService.FindOneOptions<T>} [options] - The options for the query.
-   * @return {Promise<PartialDTO<T> | undefined>} A promise that resolves with the found document or undefined if no document is found.
+   * @param [options] - The options for the query.
+   * @returns A promise that resolves with the found document or undefined if no document is found.
    */
   /**
    * Finds the first record matching the given options and returns it with the requested projection.
@@ -485,7 +485,7 @@ export class MongoCollectionService<
    * @param id - The ID of the document to retrieve.
    * @param options - Options including a required `projection`.
    * @returns A promise that resolves to the retrieved document as a partial DTO.
-   * @throws {ResourceNotAvailableError} If the document does not exist.
+   * @throws {@link ResourceNotAvailableError} If the document does not exist.
    */
   async get(
     id: MongoAdapter.AnyId,
@@ -498,7 +498,7 @@ export class MongoCollectionService<
    * @param id - The ID of the document to retrieve.
    * @param options - Optional query options.
    * @returns A promise that resolves to the retrieved document as a full DTO.
-   * @throws {ResourceNotAvailableError} If the document does not exist.
+   * @throws {@link ResourceNotAvailableError} If the document does not exist.
    */
   async get(
     id: MongoAdapter.AnyId,
@@ -624,10 +624,10 @@ export class MongoCollectionService<
   /**
    * Updates a document in the collection with the specified ID.
    *
-   * @param {MongoAdapter.AnyId} id - The ID of the document to update.
-   * @param {MongoPatchDTO<T>|UpdateFilter<T>} input - The partial input data to update the document with.
-   * @param {MongoEntityService.UpdateOneOptions<T>} [options] - The options for updating the document.
-   * @returns {Promise<number>} - A promise that resolves to the number of documents modified.
+   * @param id - The ID of the document to update.
+   * @param input - The partial input data to update the document with.
+   * @param [options] - The options for updating the document.
+   * @returns A promise that resolves to the number of documents modified.
    */
   async updateOnly(
     id: MongoAdapter.AnyId,
@@ -661,9 +661,9 @@ export class MongoCollectionService<
   /**
    * Updates multiple documents in the collection based on the specified input and options.
    *
-   * @param {MongoPatchDTO<T>|UpdateFilter<T>} input - The partial input to update the documents with.
-   * @param {MongoEntityService.UpdateManyOptions<T>} options - The options for updating the documents.
-   * @return {Promise<number>} - A promise that resolves to the number of documents matched and modified.
+   * @param input - The partial input to update the documents with.
+   * @param [options] - The options for updating the documents.
+   * @returns A promise that resolves to the number of documents matched and modified.
    */
   async updateMany(
     input: MongoPatchDTO<T> | UpdateFilter<T>,

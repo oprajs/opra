@@ -81,8 +81,8 @@ export namespace MongoAdapter {
    *
    * @param context - The execution context to parse.
    * @returns A promise that resolves to the transformed request.
-   * @throws {TypeError} If the context transport is not 'http'.
-   * @throws {Error} If the operation is not compatible with MongoDB Adapter.
+   * @throws {@link TypeError} If the context transport is not 'http'.
+   * @throws {@link Error} If the operation is not compatible with MongoDB Adapter.
    */
   export async function parseRequest(
     context: ExecutionContext,

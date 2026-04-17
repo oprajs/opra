@@ -52,10 +52,10 @@ export class MongoSingletonService<
   /**
    * Create a copy of this instance with given properties and context applied.
    *
-   * @param {C | ServiceBase} context - The execution context or service base to associate with this instance.
-   * @param {Nullish<P>} [overwriteProperties] - An optional object containing properties to overwrite in the current instance.
-   * @param {Partial<C>} [overwriteContext] - An optional partial context to apply and potentially overwrite parts of the provided execution context.
-   * @return {this & Required<P>} The current instance with the specified properties and context applied.
+   * @param context - The execution context or service base to associate with this instance.
+   * @param [overwriteProperties] - An optional object containing properties to overwrite in the current instance.
+   * @param [overwriteContext] - An optional partial context to apply and potentially overwrite parts of the provided execution context.
+   * @returns The current instance with the specified properties and context applied.
    * @template P
    * @template C
    */
@@ -71,9 +71,9 @@ export class MongoSingletonService<
   /**
    * Asserts the existence of a resource based on the given options.
    *
-   * @param {MongoEntityService.ExistsOptions<T>} [options]
-   * @returns {Promise<void>} A Promise that resolves when the resource exists.
-   * @throws {ResourceNotAvailableError} If the resource does not exist.
+   * @param options - Optional options for checking the existence.
+   * @returns A Promise that resolves when the resource exists.
+   * @throws {@link ResourceNotAvailableError} If the resource does not exist.
    */
   async assert(options?: MongoEntityService.ExistsOptions<T>): Promise<void> {
     if (!(await this.exists(options)))
@@ -83,10 +83,10 @@ export class MongoSingletonService<
   /**
    * Creates the document in the database.
    *
-   * @param {PartialDTO<T>} input - The partial input to create the document with.
-   * @param {MongoEntityService.CreateOptions} [options] - The options for creating the document.
-   * @return {Promise<PartialDTO<T>>} A promise that resolves to the partial output of the created document.
-   * @throws {Error} Throws an error if an unknown error occurs while creating the document.
+   * @param input - The partial input to create the document with.
+   * @param options - The options for creating the document.
+   * @returns A promise that resolves to the partial output of the created document.
+   * @throws {@link Error} Throws an error if an unknown error occurs while creating the document.
    */
   async create(
     input: PartialDTO<T>,
@@ -126,10 +126,10 @@ export class MongoSingletonService<
   /**
    * Creates the document in the database.
    *
-   * @param {PartialDTO<T>} input - The partial input to create the document with.
-   * @param {MongoEntityService.CreateOptions} [options] - The options for creating the document.
-   * @returns {Promise<T>} A promise that resolves create operation result
-   * @throws {Error} Throws an error if an unknown error occurs while creating the document.
+   * @param input - The partial input to create the document with.
+   * @param options - The options for creating the document.
+   * @returns A promise that resolves to the created document.
+   * @throws {@link Error} Throws an error if an unknown error occurs while creating the document.
    */
   async createOnly(
     input: PartialDTO<T>,
@@ -149,8 +149,8 @@ export class MongoSingletonService<
   /**
    * Deletes a record from the database
    *
-   * @param {MongoEntityService.DeleteOptions<T>} options - The options for deleting the record
-   * @returns {Promise<number>} The number of records deleted
+   * @param options - The options for deleting the record
+   * @returns The number of records deleted
    */
   async delete(options?: MongoEntityService.DeleteOptions<T>): Promise<number> {
     const command: MongoEntityService.DeleteCommand<T> = {
@@ -173,8 +173,8 @@ export class MongoSingletonService<
   /**
    * Checks if the document exists in the database.
    *
-   * @param {MongoEntityService.FindOneOptions<T>} [options] - The options for finding the document.
-   * @return {Promise<boolean>} - A promise that resolves to a boolean value indicating if the document exists.
+   * @param [options] - The options for finding the document.
+   * @returns A promise that resolves to a boolean value indicating if the document exists.
    */
   async exists(
     options?: MongoEntityService.ExistsOptions<T>,
@@ -201,8 +201,8 @@ export class MongoSingletonService<
   /**
    * Fetches the document if it exists. Returns undefined if not found.
    *
-   * @param {MongoEntityService.FindOneOptions<T>} [options] - The options for finding the document.
-   * @returns {Promise<PartialDTO<T> | undefined>} - A promise that resolves to the found document or undefined if not found.
+   * @param [options] - The options for finding the document.
+   * @returns A promise that resolves to the found document or undefined if not found.
    */
   async find(
     options: RequiredSome<MongoEntityService.FindOneOptions<T>, 'projection'>,
@@ -234,13 +234,20 @@ export class MongoSingletonService<
   /**
    * Fetches the document from the Mongo collection service. Throws error if not found.
    *
-   * @param {MongoEntityService.FindOneOptions<T>} options - The options to customize the query.
-   * @return {Promise<PartialDTO<T>>} - A promise that resolves to the fetched document.
-   * @throws {ResourceNotAvailableError} - If the document is not found in the collection
+   * @param options - The options to customize the query.
+   * @returns A promise that resolves to the fetched document.
+   * @throws {@link ResourceNotAvailableError} If the document is not found in the collection.
    */
   async get(
     options: RequiredSome<MongoEntityService.FindOneOptions<T>, 'projection'>,
   ): Promise<PartialDTO<T>>;
+  /**
+   * Fetches the document from the Mongo collection service. Throws error if not found.
+   *
+   * @param options - The options to customize the query.
+   * @returns A promise that resolves to the fetched document.
+   * @throws {@link ResourceNotAvailableError} If the document is not found in the collection.
+   */
   async get(options?: MongoEntityService.FindOneOptions<T>): Promise<T>;
   async get(
     options?: MongoEntityService.FindOneOptions<T>,
@@ -253,10 +260,10 @@ export class MongoSingletonService<
   /**
    * Updates a document in the MongoDB collection
    *
-   * @param {MongoPatchDTO<T>} input - The partial input to update the document.
-   * @param {MongoEntityService.UpdateOneOptions<T>} [options] - The update options.
+   * @param input - The partial input to update the document.
+   * @param [options] - The update options.
    *
-   * @return {Promise<PartialDTO<T> | undefined>} - A promise that resolves to the updated document or undefined if not found.
+   * @returns A promise that resolves to the updated document or undefined if not found.
    */
   async update(
     input: MongoPatchDTO<T> | UpdateFilter<T>,
@@ -305,10 +312,10 @@ export class MongoSingletonService<
   /**
    * Updates a document in the MongoDB collection
    *
-   * @param {MongoPatchDTO<T>} input - The partial input to update the document.
-   * @param {MongoEntityService.UpdateOneOptions<T>} [options] - The update options.
+   * @param input - The partial input to update the document.
+   * @param [options] - The update options.
    *
-   * @return {Promise<number>} - A promise that resolves to the updated document or undefined if not found.
+   * @returns A promise that resolves to the updated document or undefined if not found.
    */
   async updateOnly(
     input: MongoPatchDTO<T> | UpdateFilter<T>,

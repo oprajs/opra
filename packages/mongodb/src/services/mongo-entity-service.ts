@@ -27,44 +27,50 @@ export namespace MongoEntityService {
 
   /**
    * Options for the `count` operation.
+   *
    * @template T - The type of the document.
    */
   export interface CountOptions<T> extends MongoService.CountOptions<T> {}
 
   /**
    * Options for the `delete` operation.
+   *
    * @template T - The type of the document.
    */
   export interface DeleteOptions<T> extends MongoService.DeleteOptions<T> {}
 
   /**
    * Options for the `deleteMany` operation.
+   *
    * @template T - The type of the document.
    */
-  export interface DeleteManyOptions<
-    T,
-  > extends MongoService.DeleteManyOptions<T> {}
+  export interface DeleteManyOptions<T>
+    extends MongoService.DeleteManyOptions<T> {}
 
   /**
    * Options for the `distinct` operation.
+   *
    * @template T - The type of the document.
    */
   export interface DistinctOptions<T> extends MongoService.DistinctOptions<T> {}
 
   /**
    * Options for the `exists` operation.
+   *
    * @template T - The type of the document.
    */
   export interface ExistsOptions<T> extends MongoService.ExistsOptions<T> {}
 
   /**
    * Options for the `findOne` / `findById` operations.
+   *
    * @template T - The type of the document.
    */
   export interface FindOneOptions<T> extends MongoService.FindOneOptions<T> {}
 
   /**
    * Options for the `findMany` operation.
+   *
    * @template T - The type of the document.
    */
   export interface FindManyOptions<T> extends MongoService.FindManyOptions<T> {
@@ -74,28 +80,29 @@ export namespace MongoEntityService {
 
   /**
    * Options for the `replace` operation.
+   *
    * @template T - The type of the document.
    */
   export interface ReplaceOptions<T> extends MongoService.ReplaceOptions<T> {}
 
   /**
    * Options for the `update` / `updateOnly` operations.
+   *
    * @template T - The type of the document.
    */
-  export interface UpdateOneOptions<
-    T,
-  > extends MongoService.UpdateOneOptions<T> {
+  export interface UpdateOneOptions<T>
+    extends MongoService.UpdateOneOptions<T> {
     /** Array fields to initialize if they don't exist. */
     initArrayFields?: string[];
   }
 
   /**
    * Options for the `updateMany` operation.
+   *
    * @template T - The type of the document.
    */
-  export interface UpdateManyOptions<
-    T,
-  > extends MongoService.UpdateManyOptions<T> {
+  export interface UpdateManyOptions<T>
+    extends MongoService.UpdateManyOptions<T> {
     /** Array fields to initialize if they don't exist. */
     initArrayFields?: string[];
   }
@@ -198,11 +205,10 @@ export class MongoEntityService<
   T extends mongodb.Document,
 > extends MongoService<T> {
   /**
-   * Constructs a new instance
+   * Constructs a new instance.
    *
-   * @param {Type | string} dataType - The data type of the array elements.
-   * @param {MongoEntityService.Options} [options] - The options for the array service.
-   * @constructor
+   * @param dataType - The data type of the managed entities.
+   * @param options - The options for the entity service.
    */
   constructor(dataType: Type | string, options?: MongoEntityService.Options) {
     super(dataType, options);
@@ -211,7 +217,7 @@ export class MongoEntityService<
   /**
    * Creates a new document in the MongoDB collection
    *
-   * @param {MongoEntityService.CreateCommand} command
+   * @param command - The command information.
    * @protected
    */
   protected async _create(
@@ -241,7 +247,7 @@ export class MongoEntityService<
   /**
    * Returns the count of documents in the collection based on the provided options.
    *
-   * @param {MongoEntityService.CountCommand<T>} command
+   * @param command - The command information.
    * @protected
    */
   protected async _count(
@@ -263,7 +269,7 @@ export class MongoEntityService<
   /**
    * Deletes a document from the collection
    *
-   * @param {MongoEntityService.DeleteCommand<T>} command
+   * @param command - The command information.
    * @protected
    */
   protected async _delete(
@@ -289,7 +295,7 @@ export class MongoEntityService<
   /**
    * Deletes multiple documents from the collection that meet the specified filter criteria.
    *
-   * @param {MongoEntityService.DeleteCommand<T>} command
+   * @param command - The command information.
    * @protected
    */
   protected async _deleteMany(
@@ -310,7 +316,7 @@ export class MongoEntityService<
   /**
    * The distinct command returns a list of distinct values for the given key across a collection
    *
-   * @param {MongoEntityService.DistinctCommand<T>} command
+   * @param command - The command information.
    * @protected
    */
   protected async _distinct(
@@ -329,7 +335,7 @@ export class MongoEntityService<
   /**
    * Finds a document by its ID.
    *
-   * @param { MongoEntityService.FindOneCommand<T>} command
+   * @param command - The command information.
    */
   protected async _findById(
     command: MongoEntityService.FindOneCommand<T>,
@@ -356,7 +362,7 @@ export class MongoEntityService<
   /**
    * Finds a document in the collection that matches the specified options.
    *
-   * @param {MongoEntityService.FindOneCommand<T>} command
+   * @param command - The command information.
    */
   protected async _findOne(
     command: MongoEntityService.FindOneCommand<T>,
@@ -376,7 +382,7 @@ export class MongoEntityService<
   /**
    * Finds multiple documents in the MongoDB collection
    *
-   * @param {MongoEntityService.FindManyCommand<T>} command
+   * @param command - The command information.
    */
   protected async _findMany(
     command: MongoEntityService.FindManyCommand<T>,
@@ -431,7 +437,7 @@ export class MongoEntityService<
    * Finds multiple documents in the collection and returns both records (max limit)
    * and total count that matched the given criteria
    *
-   * @param {MongoEntityService.FindManyCommand<T>} command
+   * @param command - The command information.
    */
   protected async _findManyWithCount(
     command: MongoEntityService.FindManyCommand<T>,
@@ -508,7 +514,7 @@ export class MongoEntityService<
   /**
    * Updates a document with the given id in the collection
    *
-   * @param {MongoEntityService.UpdateOneCommand<T>} command
+   * @param command - The command information.
    */
   protected async _update(
     command: MongoEntityService.UpdateOneCommand<T>,
@@ -548,7 +554,7 @@ export class MongoEntityService<
   /**
    * Updates a document in the collection with the specified ID.
    *
-   * @param {MongoEntityService.UpdateOneCommand<T>} command
+   * @param command - The command information.
    */
   protected async _updateOnly(
     command: MongoEntityService.UpdateOneCommand<T>,
@@ -596,7 +602,7 @@ export class MongoEntityService<
   /**
    * Updates multiple documents in the collection based on the specified input and options.
    *
-   * @param {MongoEntityService.UpdateManyCommand<T>} command
+   * @param command - The command information.
    */
   protected async _updateMany(
     command: MongoEntityService.UpdateManyCommand<T>,
@@ -641,7 +647,7 @@ export class MongoEntityService<
   /**
    * Replaces a document with the given id in the collection
    *
-   * @param {MongoEntityService.ReplaceCommand<T>} command
+   * @param command - The command information.
    */
   protected async _replace(
     command: MongoEntityService.ReplaceCommand<T>,

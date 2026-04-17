@@ -231,9 +231,9 @@ export interface MongoService {
    * Interceptor function for handling callback execution with provided arguments.
    * @type Function
    * @param next - The callback function to be intercepted.
-   * @param {MongoService.CommandInfo} command - The arguments object containing the following properties:
+   * @param command - The arguments object containing the following properties:
    * @param _this - The reference to the current object.
-   * @returns - The promise that resolves to the result of the callback execution.
+   * @returns The promise that resolves to the result of the callback execution.
    */
   interceptor?(
     next: () => any,
@@ -268,7 +268,6 @@ export class MongoService<
 
   /**
    * Represents the name of a resource.
-   * @type {string}
    */
   resourceName?: string | ((_this: any) => string);
 
@@ -294,15 +293,13 @@ export class MongoService<
   /**
    * Callback function for handling errors.
    *
-   * @param {unknown} error - The error object.
+   * @param error - The error object.
    * @param _this - The context object.
    */
   onError?: (error: unknown, _this: any) => void | Promise<void>;
 
   /**
    * Represents a common filter function for a MongoService.
-   *
-   * @type {FilterInput | Function}
    */
   documentFilter?: MongoService.DocumentFilter | MongoService.DocumentFilter[];
 
@@ -355,7 +352,7 @@ export class MongoService<
    *
    * @protected
    * @returns The collection name.
-   * @throws {Error} If the collection name is not defined.
+   * @throws {@link Error} If the collection name is not defined.
    */
   getCollectionName(): string {
     const out =
@@ -370,8 +367,8 @@ export class MongoService<
    * Retrieves the resource name.
    *
    * @protected
-   * @returns {string} The resource name.
-   * @throws {Error} If the resource name is not defined.
+   * @returns The resource name.
+   * @throws {@link Error} If the resource name is not defined.
    */
   getResourceName(): string {
     const out =
@@ -383,9 +380,9 @@ export class MongoService<
   }
 
   /**
-   * Retrieves the OPRA data type
+   * Retrieves the OPRA data type.
    *
-   * @throws {NotAcceptableError} If the data type is not a ComplexType.
+   * @throws {@link NotAcceptableError} If the data type is not a ComplexType.
    */
   get dataType(): ComplexType {
     if (this._dataType && this._dataTypeScope !== this.scope)
@@ -449,8 +446,7 @@ export class MongoService<
    * Retrieves the database connection.
    *
    * @protected
-   *
-   * @throws {Error} If the context or database is not set.
+   * @throws {@link Error} If the context or database is not set.
    */
   protected getDatabase(): mongodb.Db {
     const ctx = this.context;
@@ -465,8 +461,7 @@ export class MongoService<
    * Retrieves the database session.
    *
    * @protected
-   *
-   * @throws {Error} If the context or database is not set.
+   * @throws {@link Error} If the context or database is not set.
    */
   protected getSession(): mongodb.ClientSession | undefined {
     const ctx = this.context;
@@ -493,7 +488,7 @@ export class MongoService<
    * Generates an ID.
    *
    * @protected
-   * @returns {MongoAdapter.AnyId} The generated ID.
+   * @returns The generated ID.
    */
   protected _generateId(command: MongoService.CommandInfo): MongoAdapter.AnyId {
     return typeof this.idGenerator === 'function'
@@ -506,7 +501,7 @@ export class MongoService<
    * This method is mostly used for security issues like securing multi-tenant applications.
    *
    * @protected
-   * @returns {FilterInput | Promise<FilterInput> | undefined} The common filter or a Promise
+   * @returns The common filter or a Promise
    * that resolves to the common filter, or undefined if not available.
    */
   protected _getDocumentFilter(
