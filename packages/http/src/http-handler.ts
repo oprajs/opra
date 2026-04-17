@@ -53,7 +53,8 @@ export namespace HttpHandler {
 }
 
 /**
- * @class HttpHandler
+ * HttpHandler is responsible for processing incoming HTTP requests.
+ * It handles request parsing, interceptor execution, and response generation.
  */
 export class HttpHandler {
   protected [kAssetCache]: AssetCache;
@@ -67,8 +68,10 @@ export class HttpHandler {
   }
 
   /**
-   * Main http request handler
-   * @param context
+   * Main HTTP request handler.
+   *
+   * @param context - The HTTP execution context.
+   * @returns A promise that resolves when the request is handled.
    * @protected
    */
   async handleRequest(context: HttpContext): Promise<void> {
@@ -144,14 +147,16 @@ export class HttpHandler {
   }
 
   /**
+   * Parses the HTTP request, including parameters and content type.
    *
-   * @param context
+   * @param context - The HTTP execution context.
+   * @returns A promise that resolves when the request is parsed.
    */
   async parseRequest(context: HttpContext): Promise<void> {
     await this._parseParameters(context);
     await this._parseContentType(context);
     if (context.__oprDef?.requestBody?.immediateFetch) await context.getBody();
-    /** Set default status code as the first status code between 200 and 299 */
+    /* Set default status code as the first status code between 200 and 299 */
     if (context.__oprDef) {
       for (const r of context.__oprDef.responses) {
         const st = r.statusCode.find(sc => sc.start <= 299 && sc.end >= 200);
@@ -164,8 +169,11 @@ export class HttpHandler {
   }
 
   /**
+   * Parses various HTTP parameters (cookies, headers, path, query).
    *
-   * @param context
+   * @param context - The HTTP execution context.
+   * @returns A promise that resolves when parameters are parsed.
+   * @throws {@link BadRequestError} If parameter validation fails.
    * @protected
    */
   protected async _parseParameters(context: HttpContext) {
@@ -178,7 +186,7 @@ export class HttpHandler {
         issue.location = key;
         return issue;
       };
-      /** prepare decoders */
+      /* prepare decoders */
 
       const getDecoder = (prm: HttpParameter): Validator => {
         let decode = this[kAssetCache].get<Validator>(prm, 'decode');
@@ -197,7 +205,7 @@ export class HttpHandler {
         ...__oprDef.owner.parameters,
       ]);
 
-      /** parse cookie parameters */
+      /* parse cookie parameters */
       if (request.cookies) {
         for (key of Object.keys(request.cookies)) {
           const oprPrm = __oprDef.findParameter(key, 'cookie');
@@ -217,7 +225,7 @@ export class HttpHandler {
         }
       }
 
-      /** parse headers */
+      /* parse headers */
       if (request.headers) {
         for (key of Object.keys(request.headers)) {
           const oprPrm = __oprDef.findParameter(key, 'header');
@@ -237,7 +245,7 @@ export class HttpHandler {
         }
       }
 
-      /** parse path parameters */
+      /* parse path parameters */
       if (request.params) {
         for (key of Object.keys(request.params)) {
           const oprPrm = __oprDef.findParameter(key, 'path');
@@ -256,7 +264,7 @@ export class HttpHandler {
         }
       }
 
-      /** parse query parameters */
+      /* parse query parameters */
       const url = new URL(
         request.originalUrl || request.url || '/',
         'http://tempuri.org',
@@ -320,8 +328,11 @@ export class HttpHandler {
   }
 
   /**
+   * Parses and validates the request content type.
    *
-   * @param context
+   * @param context - The HTTP execution context.
+   * @returns A promise that resolves when content type is parsed.
+   * @throws {@link BadRequestError} If the content type is invalid or missing.
    * @protected
    */
   protected async _parseContentType(context: HttpContext) {
@@ -380,10 +391,11 @@ export class HttpHandler {
   }
 
   /**
+   * Sends an HTTP response back to the client.
    *
-   * @param context
-   * @param responseValue
-   * @protected
+   * @param context - The HTTP execution context.
+   * @param responseValue - The value to be sent in the response body.
+   * @returns A promise that resolves when the response is sent.
    */
   async sendResponse(context: HttpContext, responseValue?: any): Promise<void> {
     if (context.errors.length) return this._sendErrorResponse(context);
@@ -412,7 +424,7 @@ export class HttpHandler {
         );
       }
 
-      /** Validate response */
+      /* Validate response */
       if (operationResponse?.type) {
         if (
           !(
@@ -420,7 +432,7 @@ export class HttpHandler {
             (statusCode as HttpStatusCode) === HttpStatusCode.NO_CONTENT
           )
         ) {
-          /** Generate encoder */
+          /* Generate encoder */
           const projection = responseArgs.projection || '*';
           const assetKey = md5(String(projection));
           let encode = this[kAssetCache].get<Validator>(
@@ -445,7 +457,7 @@ export class HttpHandler {
               );
             }
           }
-          /** Encode body */
+          /* Encode body */
           if (operationResponse.type.extendsFrom(operationResultType)) {
             if (body instanceof OperationResult) body = encode(body);
             else {
@@ -489,7 +501,7 @@ export class HttpHandler {
           body = String(body);
         }
       }
-      /** Set content-type header value if not set */
+      /* Set content-type header value if not set */
       if (contentType && contentType !== responseArgs.contentType)
         response.setHeader('content-type', contentType);
 
@@ -584,6 +596,12 @@ export class HttpHandler {
     response.end();
   }
 
+  /**
+   * Sends the document schema as a JSON response.
+   *
+   * @param context - The HTTP execution context.
+   * @returns A promise that resolves when the schema is sent.
+   */
   async sendDocumentSchema(context: HttpContext): Promise<void> {
     const { request, response } = context;
     const { document } = this.adapter;
@@ -603,9 +621,9 @@ export class HttpHandler {
       );
       return this.sendResponse(context);
     }
-    /** Check if response cache exists */
+    /* Check if response cache exists */
     let responseBody = this[kAssetCache].get(doc, `$schema`);
-    /** Create response if response cache does not exists */
+    /* Create response if response cache does not exists */
     if (!responseBody) {
       const schema = doc.export({
         scope: this.adapter.scope,
@@ -617,9 +635,12 @@ export class HttpHandler {
   }
 
   /**
+   * Determines the response arguments (status code, content type, etc.) for a given response value.
    *
-   * @param context
-   * @param body
+   * @param context - The HTTP execution context.
+   * @param body - The response body.
+   * @returns The determined response arguments.
+   * @throws {@link InternalServerError} If response configuration is missing or invalid.
    * @protected
    */
   protected _determineResponseArgs(
@@ -633,13 +654,13 @@ export class HttpHandler {
       !hasBody && (response.statusCode as any) === HttpStatusCode.OK
         ? HttpStatusCode.NO_CONTENT
         : response.statusCode;
-    /** Parse content-type header */
+    /* Parse content-type header */
     const parsedContentType =
       hasBody && response.hasHeader('content-type')
         ? parseContentType(response)
         : undefined;
     let contentType = parsedContentType?.type;
-    /** Estimate content type if not defined */
+    /* Estimate content type if not defined */
     if (hasBody && !contentType) {
       if (body instanceof OperationResult)
         contentType = MimeTypes.opra_response_json;
@@ -656,30 +677,30 @@ export class HttpHandler {
       responseArgs = { statusCode, contentType } as HttpHandler.ResponseArgs;
 
       if (__oprDef?.responses.length) {
-        /** Filter available HttpOperationResponse instances according to status code. */
+        /* Filter available HttpOperationResponse instances according to status code. */
         const filteredResponses = __oprDef.responses.filter(r =>
           r.statusCode.find(
             sc => sc.start <= statusCode && sc.end >= statusCode,
           ),
         );
 
-        /** Throw InternalServerError if controller returns non-configured status code */
+        /* Throw InternalServerError if controller returns non-configured status code */
         if (!filteredResponses.length && statusCode < 400) {
           throw new InternalServerError(
             `No responses defined for status code ${statusCode} in operation "${__oprDef.name}"`,
           );
         }
 
-        /** We search for content-type in filtered HttpOperationResponse array */
+        /* We search for content-type in filtered HttpOperationResponse array */
         if (filteredResponses.length) {
-          /** If no response returned, and content-type has not been set (No response wants to be returned by operation) */
+          /* If no response returned, and content-type has not been set (No response wants to be returned by operation) */
           if (!hasBody) {
-            /** Find HttpOperationResponse with no content-type */
+            /* Find HttpOperationResponse with no content-type */
             operationResponse = filteredResponses.find(r => !r.contentType);
           }
 
           if (!operationResponse) {
-            /** Find HttpOperationResponse according to content-type */
+            /* Find HttpOperationResponse according to content-type */
             if (contentType) {
               // Find HttpEndpointResponse instance according to content-type header
               operationResponse = filteredResponses.find(r =>
@@ -691,7 +712,7 @@ export class HttpHandler {
                 );
               }
             } else {
-              /** Select first HttpOperationResponse if content-type header has not been set */
+              /* Select first HttpOperationResponse if content-type header has not been set */
               operationResponse = filteredResponses[0];
               if (operationResponse.contentType) {
                 const ct = typeIs.normalize(
@@ -724,7 +745,7 @@ export class HttpHandler {
       this[kAssetCache].set(response, cacheKey, { ...responseArgs });
     }
 
-    /** Fix response value according to composition */
+    /* Fix response value according to composition */
     const composition = operationResponse?.owner.composition;
     if (composition && body != null) {
       switch (composition) {

@@ -11,6 +11,12 @@ import {
   UnprocessableEntityError,
 } from '@opra/common';
 
+/**
+ * Wraps an error into an OpraHttpError.
+ *
+ * @param error - The error to wrap.
+ * @returns The wrapped OpraHttpError.
+ */
 export function wrapException(error: any): OpraHttpError {
   if (error instanceof OpraHttpError) return error;
   let status: number = 500;

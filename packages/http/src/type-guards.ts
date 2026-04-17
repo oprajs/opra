@@ -4,6 +4,12 @@ import type { HttpOutgoing } from './interfaces/http-outgoing.interface.js';
 import type { NodeIncomingMessage } from './interfaces/node-incoming-message.interface.js';
 import type { NodeOutgoingMessage } from './interfaces/node-outgoing-message.interface.js';
 
+/**
+ * Checks if the given value is a NodeIncomingMessage.
+ *
+ * @param v - The value to check.
+ * @returns True if the value is a NodeIncomingMessage, false otherwise.
+ */
 export function isNodeIncomingMessage(v: any): v is NodeIncomingMessage {
   return (
     v &&
@@ -13,6 +19,12 @@ export function isNodeIncomingMessage(v: any): v is NodeIncomingMessage {
   );
 }
 
+/**
+ * Checks if the given value is an HttpIncoming instance.
+ *
+ * @param v - The value to check.
+ * @returns True if the value is an HttpIncoming instance, false otherwise.
+ */
 export function isHttpIncoming(v: any): v is HttpIncoming {
   return (
     (isNodeIncomingMessage(v) as any) &&
@@ -22,10 +34,22 @@ export function isHttpIncoming(v: any): v is HttpIncoming {
   );
 }
 
+/**
+ * Checks if the given value is a NodeOutgoingMessage.
+ *
+ * @param v - The value to check.
+ * @returns True if the value is a NodeOutgoingMessage, false otherwise.
+ */
 export function isNodeOutgoingMessage(v: any): v is NodeOutgoingMessage {
   return v && typeof v.getHeaders === 'function' && isStream(v);
 }
 
+/**
+ * Checks if the given value is an HttpOutgoing instance.
+ *
+ * @param v - The value to check.
+ * @returns True if the value is an HttpOutgoing instance, false otherwise.
+ */
 export function isHttpOutgoing(v: any): v is HttpOutgoing {
   return (
     (isNodeOutgoingMessage(v) as any) &&

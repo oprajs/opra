@@ -8,6 +8,10 @@ const registry = new FinalizationRegistry((storedPath: string) => {
   fs.unlink(storedPath, () => undefined);
 });
 
+/**
+ * LocalFile represents a file stored on the local file system.
+ * It provides utility methods for reading the file content and managing its lifecycle.
+ */
 export class LocalFile {
   private _autoDelete: boolean = false;
   readonly storedPath: string;
@@ -30,6 +34,11 @@ export class LocalFile {
     return fsAsync.readFile(this.storedPath);
   }
 
+  /**
+   * Deletes the local file.
+   *
+   * @returns A promise that resolves when the file is deleted.
+   */
   async delete(): Promise<void> {
     if (fs.existsSync(this.storedPath)) {
       try {

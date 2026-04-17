@@ -31,8 +31,8 @@ export namespace BodyReader {
 type Callback = (...args: any[]) => any;
 
 /**
- *
- * @class BodyReader
+ * BodyReader is responsible for reading and parsing the request body.
+ * It supports various content encodings and can save the body to a file.
  */
 export class BodyReader extends EventEmitter {
   limit?: number;
@@ -73,6 +73,13 @@ export class BodyReader extends EventEmitter {
     if (this._file) this._file.autoDelete = true;
   }
 
+  /**
+   * Reads the request body.
+   *
+   * @returns A promise that resolves to the body content (string, Buffer, or LocalFile).
+   * @throws {@link InternalServerError} If the stream is already read or not readable.
+   * @throws {@link OpraHttpError} If the content size exceeds the limit.
+   */
   async read() {
     /* istanbul ignore next */
     if (this._completed) {
@@ -253,6 +260,13 @@ export class BodyReader extends EventEmitter {
     }
   }
 
+  /**
+   * Static method to read the request body.
+   *
+   * @param req - The incoming HTTP request.
+   * @param options - Optional reader settings.
+   * @returns A promise that resolves to the body content.
+   */
   static async read(
     req: HttpIncoming,
     options?: BodyReader.Options,

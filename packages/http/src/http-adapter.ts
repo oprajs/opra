@@ -5,8 +5,10 @@ import { HttpContext } from './http-context.js';
 import { HttpHandler } from './http-handler.js';
 
 /**
+ * HttpAdapter is the base class for all HTTP platform adapters.
+ * It provides core functionality for handling HTTP requests and managing interceptors.
  *
- * @class HttpAdapter
+ * @abstract
  */
 export abstract class HttpAdapter<
   T extends HttpAdapter.Events = HttpAdapter.Events,
@@ -38,12 +40,12 @@ export namespace HttpAdapter {
   export type NextCallback = () => Promise<void>;
 
   /**
-   * @type InterceptorFunction
+   * The interceptor function signature.
    */
   export type InterceptorFunction = IHttpInterceptor['intercept'];
 
   /**
-   * @interface IHttpInterceptor
+   * Interface for HTTP interceptors.
    */
   export type IHttpInterceptor = {
     intercept(context: HttpContext, next: NextCallback): Promise<void>;

@@ -11,7 +11,8 @@ import type { HttpOutgoing } from './http-outgoing.interface.js';
 import { NodeIncomingMessage } from './node-incoming-message.interface.js';
 
 /**
- * @interface HttpIncoming
+ * HttpIncoming represents an incoming HTTP request.
+ * It extends NodeIncomingMessage with additional functionality for handling HTTP requests.
  */
 export interface HttpIncoming extends NodeIncomingMessage {
   res: HttpOutgoing;
@@ -225,16 +226,24 @@ export interface HttpIncoming extends NodeIncomingMessage {
   ): RangeParserRanges | RangeParserResult | undefined;
 
   /**
-   * Receives the body
-   * @param options
+   * Receives and parses the request body.
+   *
+   * @param options - Optional reader settings.
+   * @returns A promise that resolves to the body content.
    */
   readBody(options?: BodyReader.Options): Promise<string | Buffer | undefined>;
 }
 
 /**
- * @namespace HttpIncoming
+ * Utility functions for HttpIncoming.
  */
 export namespace HttpIncoming {
+  /**
+   * Creates an HttpIncoming instance from various sources.
+   *
+   * @param instance - The source instance.
+   * @returns The HttpIncoming instance.
+   */
   export function from(
     instance:
       | HttpIncoming
