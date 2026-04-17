@@ -54,16 +54,16 @@ export class SqbServiceBase extends ServiceBase {
 
     let connection: SqbConnection | undefined = ctx[transactionKey];
     if (!connection) {
-      /** Determine the SqbClient or SqbConnection instance */
+      /* Determine the SqbClient or SqbConnection instance */
       const db = await this.getConnection();
       if (db instanceof SqbConnection) {
         connection = db;
       } else {
-        /** Acquire a connection. New connection should be at the end */
+        /* Acquire a connection. New connection should be at the end */
         connection = await db.acquire({ autoCommit: false });
         closeSessionOnFinish = true;
       }
-      /** Store transaction connection in current context */
+      /* Store transaction connection in current context */
       ctx[transactionKey] = connection;
     }
 
@@ -81,7 +81,7 @@ export class SqbServiceBase extends ServiceBase {
       throw e;
     } finally {
       delete ctx[transactionKey];
-      /** Release connection */
+      /* Release connection */
       if (closeSessionOnFinish) {
         await connection.close();
       } else connection.release();

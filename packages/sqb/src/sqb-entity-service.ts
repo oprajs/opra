@@ -53,17 +53,17 @@ export namespace SqbEntityService {
    * Information about the command being executed.
    */
   export interface CommandInfo {
-    /** The CRUD operation type. */
+    /* The CRUD operation type. */
     crud: SqbEntityService.CrudOp;
-    /** The method name being called. */
+    /* The method name being called. */
     method: string;
-    /** Whether the operation is targeting a specific record by ID. */
+    /* Whether the operation is targeting a specific record by ID. */
     byId: boolean;
-    /** The identifier of the record, if applicable. */
+    /* The identifier of the record, if applicable. */
     documentId?: SQBAdapter.IdOrIds;
-    /** The input data for the operation, if applicable. */
+    /* The input data for the operation, if applicable. */
     input?: Record<string, any>;
-    /** The options for the operation, if applicable. */
+    /* The options for the operation, if applicable. */
     options?: Record<string, any>;
   }
 
@@ -80,86 +80,86 @@ export namespace SqbEntityService {
         | Promise<SQBAdapter.FilterInput>
         | undefined);
 
-  /** Options for the `create` operation. */
+  /* Options for the `create` operation. */
   export interface CreateOptions extends Repository.CreateOptions {}
 
-  /** Options for the `count` operation. */
+  /* Options for the `count` operation. */
   export interface CountOptions extends StrictOmit<
     Repository.CountOptions,
     'filter'
   > {
-    /** Filter criteria for the count operation. */
+    /* Filter criteria for the count operation. */
     filter?: Repository.CountOptions['filter'] | string;
   }
 
-  /** Options for the `delete` operation. */
+  /* Options for the `delete` operation. */
   export interface DeleteOptions extends StrictOmit<
     Repository.DeleteOptions,
     'filter'
   > {
-    /** Filter criteria for the delete operation. */
+    /* Filter criteria for the delete operation. */
     filter?: Repository.DeleteOptions['filter'] | string;
   }
 
-  /** Options for the `deleteMany` operation. */
+  /* Options for the `deleteMany` operation. */
   export interface DeleteManyOptions extends StrictOmit<
     Repository.DeleteManyOptions,
     'filter'
   > {
-    /** Filter criteria for the delete many operation. */
+    /* Filter criteria for the delete many operation. */
     filter?: Repository.DeleteManyOptions['filter'] | string;
   }
 
-  /** Options for `exists` / `existsOne` operations. */
+  /* Options for `exists` / `existsOne` operations. */
   export interface ExistsOptions extends StrictOmit<
     Repository.ExistsOptions,
     'filter'
   > {
-    /** Filter criteria for the existence check. */
+    /* Filter criteria for the existence check. */
     filter?: Repository.ExistsOptions['filter'] | string;
   }
 
-  /** Options for the `findOne` / `findById` operations. */
+  /* Options for the `findOne` / `findById` operations. */
   export interface FindOneOptions extends StrictOmit<
     Repository.FindOneOptions,
     'filter' | 'offset'
   > {
-    /** Filter criteria for the query. */
+    /* Filter criteria for the query. */
     filter?: Repository.FindOneOptions['filter'] | string;
-    /** Number of records to skip. */
+    /* Number of records to skip. */
     skip?: number;
   }
 
-  /** Options for the `findMany` operation. */
+  /* Options for the `findMany` operation. */
   export interface FindManyOptions extends StrictOmit<
     Repository.FindManyOptions,
     'filter' | 'offset'
   > {
-    /** Filter criteria for the query. */
+    /* Filter criteria for the query. */
     filter?: Repository.FindManyOptions['filter'] | string;
-    /** Number of records to skip. */
+    /* Number of records to skip. */
     skip?: number;
   }
 
-  /** Options for the `update` / `updateOnly` operations. */
+  /* Options for the `update` / `updateOnly` operations. */
   export interface UpdateOneOptions extends StrictOmit<
     Repository.UpdateOptions,
     'filter'
   > {
-    /** Filter criteria for the update operation. */
+    /* Filter criteria for the update operation. */
     filter?: Repository.UpdateOptions['filter'] | string;
   }
 
-  /** Options for the `updateMany` operation. */
+  /* Options for the `updateMany` operation. */
   export interface UpdateManyOptions extends StrictOmit<
     Repository.UpdateManyOptions,
     'filter'
   > {
-    /** Filter criteria for the update many operation. */
+    /* Filter criteria for the update many operation. */
     filter?: Repository.UpdateManyOptions['filter'] | string;
   }
 
-  /** Command interface for the `create` operation. */
+  /* Command interface for the `create` operation. */
   export interface CreateCommand<T> extends StrictOmit<
     RequiredSome<CommandInfo, 'input'>,
     'documentId'
@@ -169,7 +169,7 @@ export namespace SqbEntityService {
     options?: CreateOptions;
   }
 
-  /** Command interface for the `count` operation. */
+  /* Command interface for the `count` operation. */
   export interface CountCommand extends StrictOmit<
     CommandInfo,
     'documentId' | 'input'
@@ -905,7 +905,7 @@ export class SqbEntityService<
         proto = Object.getPrototypeOf(proto);
         if (!(proto instanceof SqbEntityService)) break;
       }
-      /** Call before[X] hooks */
+      /* Call before[X] hooks */
       if (command.crud === 'create')
         await this._beforeCreate(command as SqbEntityService.CreateCommand<T>);
       else if (command.crud === 'update' && command.byId) {
@@ -923,12 +923,12 @@ export class SqbEntityService<
           command as SqbEntityService.DeleteManyCommand,
         );
       }
-      /** Call command function */
+      /* Call command function */
       return commandFn();
     };
     try {
       const result = await next();
-      /** Call after[X] hooks */
+      /* Call after[X] hooks */
       if (command.crud === 'create')
         await this._afterCreate(
           command as SqbEntityService.CreateCommand<T>,
