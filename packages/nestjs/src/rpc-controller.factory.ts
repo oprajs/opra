@@ -19,6 +19,9 @@ import type { ExecutionContext as OpraExecutionContext } from '@opra/core';
 import { OpraNestUtils } from './opra-nest-utils.js';
 import { RpcParamsFactory } from './rpc-params.factory.js';
 
+/**
+ * Factory class that wraps Opra controllers into NestJS controllers.
+ */
 @Injectable()
 export class RpcControllerFactory {
   protected _metadataKey = RPC_CONTROLLER_METADATA;
@@ -31,6 +34,11 @@ export class RpcControllerFactory {
     private readonly externalContextCreator: ExternalContextCreator,
   ) {}
 
+  /**
+   * Wraps and returns the controllers as NestJS compatible classes.
+   *
+   * @returns An array of NestJS compatible controller classes.
+   */
   wrapControllers(): Type[] {
     const out: Type[] = [];
     for (const { module, wrapper } of this.exploreControllers()) {
@@ -74,6 +82,18 @@ export class RpcControllerFactory {
     return out;
   }
 
+  /**
+   * Creates a context callback for a controller method.
+   *
+   * @param instance - The controller instance.
+   * @param wrapper - The instance wrapper.
+   * @param moduleRef - The module reference.
+   * @param methodName - The name of the method to wrap.
+   * @param isRequestScoped - Whether the controller is request-scoped.
+   * @param contextType - The NestJS context type.
+   * @param options - Optional external context options.
+   * @returns A callback function that handles the execution context.
+   */
   private _createContextCallback(
     instance: object,
     wrapper: InstanceWrapper,
@@ -132,6 +152,12 @@ export class RpcControllerFactory {
     );
   }
 
+  /**
+   * Registers a context provider for the given request and context ID.
+   *
+   * @param request - The request object (Opra execution context).
+   * @param contextId - The NestJS context ID.
+   */
   private registerContextProvider<T = any>(request: T, contextId: ContextId) {
     if (!this._coreModuleRef) {
       const coreModuleArray = [...this.modulesContainer.entries()]
@@ -155,6 +181,11 @@ export class RpcControllerFactory {
     });
   }
 
+  /**
+   * Explores and returns all Opra controllers within the NestJS application.
+   *
+   * @returns An array of objects containing the module and instance wrapper for each controller.
+   */
   exploreControllers(): { module: Module; wrapper: InstanceWrapper }[] {
     const scannedModules = new Set<Module>();
     const controllers = new Set<any>();

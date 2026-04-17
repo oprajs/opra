@@ -9,6 +9,7 @@ import WSControllerDecoratorFactory = classes.WSControllerDecoratorFactory;
 
 const { MQControllerDecoratorFactory } = classes;
 
+/* Augment ExternalExceptionFilter to prevent error logging for Opra controllers */
 const oldCatchMethod = ExternalExceptionFilter.prototype.catch;
 ExternalExceptionFilter.prototype.catch = function (
   exception: any,
@@ -21,6 +22,7 @@ ExternalExceptionFilter.prototype.catch = function (
   oldCatchMethod(exception, host);
 };
 
+/* Augment MQControllerDecoratorFactory to automatically apply @Controller() decorator */
 MQControllerDecoratorFactory.augment(
   (decorator: MQControllerDecorator, decoratorChain: Function[]) => {
     decoratorChain.push((_: any, target: Function) => {
@@ -29,6 +31,7 @@ MQControllerDecoratorFactory.augment(
   },
 );
 
+/* Augment WSControllerDecoratorFactory to automatically apply @Controller() decorator */
 WSControllerDecoratorFactory.augment(
   (decorator: WSControllerDecorator, decoratorChain: Function[]) => {
     decoratorChain.push((_: any, target: Function) => {
