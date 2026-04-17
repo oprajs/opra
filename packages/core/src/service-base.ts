@@ -19,11 +19,11 @@ export abstract class ServiceBase {
     overwriteContext?: Partial<C>,
   ): this & Required<P> {
     if (context instanceof ServiceBase) context = context.context as C;
-    /** Create a new context instance */
+    /* Create a new context instance */
     const ctx = {} as ExecutionContext;
     Object.setPrototypeOf(ctx, context);
     if (overwriteContext) Object.assign(ctx, overwriteContext);
-    /** Create a new service instance */
+    /* Create a new service instance */
     const instance = { _context: ctx } as unknown as ServiceBase;
     Object.setPrototypeOf(instance, this);
     if (overwriteProperties) Object.assign(instance, overwriteProperties);
