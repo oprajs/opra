@@ -44,8 +44,9 @@ export namespace MongoEntityService {
    *
    * @template T - The type of the document.
    */
-  export interface DeleteManyOptions<T>
-    extends MongoService.DeleteManyOptions<T> {}
+  export interface DeleteManyOptions<
+    T,
+  > extends MongoService.DeleteManyOptions<T> {}
 
   /**
    * Options for the `distinct` operation.
@@ -90,8 +91,9 @@ export namespace MongoEntityService {
    *
    * @template T - The type of the document.
    */
-  export interface UpdateOneOptions<T>
-    extends MongoService.UpdateOneOptions<T> {
+  export interface UpdateOneOptions<
+    T,
+  > extends MongoService.UpdateOneOptions<T> {
     /** Array fields to initialize if they don't exist. */
     initArrayFields?: string[];
   }
@@ -101,8 +103,9 @@ export namespace MongoEntityService {
    *
    * @template T - The type of the document.
    */
-  export interface UpdateManyOptions<T>
-    extends MongoService.UpdateManyOptions<T> {
+  export interface UpdateManyOptions<
+    T,
+  > extends MongoService.UpdateManyOptions<T> {
     /** Array fields to initialize if they don't exist. */
     initArrayFields?: string[];
   }

@@ -120,8 +120,9 @@ export namespace MongoNestedService {
    *
    * @template T - The type of the document.
    */
-  export interface UpdateOneOptions<T>
-    extends MongoService.UpdateOneOptions<T> {
+  export interface UpdateOneOptions<
+    T,
+  > extends MongoService.UpdateOneOptions<T> {
     /** Filter for the parent document. */
     documentFilter?: MongoAdapter.FilterInput;
     /** Array fields to initialize if they don't exist. */
@@ -133,8 +134,9 @@ export namespace MongoNestedService {
    *
    * @template T - The type of the document.
    */
-  export interface UpdateManyOptions<T>
-    extends MongoService.UpdateManyOptions<T> {
+  export interface UpdateManyOptions<
+    T,
+  > extends MongoService.UpdateManyOptions<T> {
     /** Filter for the parent document. */
     documentFilter?: MongoAdapter.FilterInput;
     /** Array fields to initialize if they don't exist. */
