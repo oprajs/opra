@@ -22,7 +22,7 @@ export namespace MongoEntityService {
    */
   export interface CommandInfo extends MongoService.CommandInfo {}
 
-  /** Options for the `create` operation. */
+  /* Options for the `create` operation. */
   export interface CreateOptions extends MongoService.CreateOptions {}
 
   /**
@@ -75,7 +75,7 @@ export namespace MongoEntityService {
    * @template T - The type of the document.
    */
   export interface FindManyOptions<T> extends MongoService.FindManyOptions<T> {
-    /** Whether to skip decoding of the result items. */
+    /* Whether to skip decoding of the result items. */
     noDecode?: boolean;
   }
 
@@ -94,7 +94,7 @@ export namespace MongoEntityService {
   export interface UpdateOneOptions<
     T,
   > extends MongoService.UpdateOneOptions<T> {
-    /** Array fields to initialize if they don't exist. */
+    /* Array fields to initialize if they don't exist. */
     initArrayFields?: string[];
   }
 
@@ -106,11 +106,11 @@ export namespace MongoEntityService {
   export interface UpdateManyOptions<
     T,
   > extends MongoService.UpdateManyOptions<T> {
-    /** Array fields to initialize if they don't exist. */
+    /* Array fields to initialize if they don't exist. */
     initArrayFields?: string[];
   }
 
-  /** Command interface for the `create` operation. */
+  /* Command interface for the `create` operation. */
   export interface CreateCommand<T> extends StrictOmit<
     CommandInfo,
     'documentId' | 'nestedId' | 'input'
@@ -120,7 +120,7 @@ export namespace MongoEntityService {
     options?: CreateOptions;
   }
 
-  /** Command interface for the `count` operation. */
+  /* Command interface for the `count` operation. */
   export interface CountCommand<T> extends StrictOmit<
     CommandInfo,
     'documentId' | 'nestedId' | 'input'
@@ -392,16 +392,16 @@ export class MongoEntityService<
   ): Promise<PartialDTO<T>[]> {
     const { options } = command;
     const stages: mongodb.Document[] = [];
-    /** Pre-Stages */
+    /* Pre-Stages */
     if (options?.preStages) stages.push(...options.preStages);
-    /** "Filter" stage */
+    /* "Filter" stage */
     let filter: mongodb.Filter<T> | undefined;
     if (options?.filter)
       filter = MongoAdapter.prepareFilter<T>(options?.filter);
     if (filter) stages.push({ $match: filter });
     /* "Skip" stage */
     if (options?.skip) stages.push({ $skip: options.skip });
-    /** "Sort" stage */
+    /* "Sort" stage */
     if (options?.sort) {
       const sort = MongoAdapter.prepareSort(options.sort);
       if (sort) stages.push({ $sort: sort });
@@ -424,11 +424,11 @@ export class MongoEntityService<
       ...omit(options!, ['projection', 'sort', 'skip', 'limit', 'filter']),
       session: options?.session ?? this.getSession(),
     });
-    /** Execute db command */
+    /* Execute db command */
     try {
-      /** Fetch the cursor */
+      /* Fetch the cursor */
       if (options?.noDecode) return cursor.toArray();
-      /** Decode result objects */
+      /* Decode result objects */
       const outputCodec = this._getOutputCodec('find');
       return (await cursor.toArray()).map((r: any) => outputCodec(r));
     } finally {
@@ -465,17 +465,17 @@ export class MongoEntityService<
       },
     ];
 
-    /** Pre-Stages */
+    /* Pre-Stages */
     if (options?.preStages) dataStages.push(...options.preStages);
 
-    /** Filter */
+    /* Filter */
     if (filter) {
       countStages.push({ $match: filter });
       dataStages.push({ $match: filter });
     }
     countStages.push({ $count: 'totalMatches' });
 
-    /** Sort */
+    /* Sort */
     if (options?.sort) {
       const sort = MongoAdapter.prepareSort(options.sort);
       if (sort) dataStages.push({ $sort: sort });
@@ -493,14 +493,14 @@ export class MongoEntityService<
     );
     if (projection) dataStages.push({ $project: projection });
     const outputCodec = this._getOutputCodec('find');
-    /** Execute db command */
+    /* Execute db command */
     const db = this.getDatabase();
     const collection = await this.getCollection(db);
     const cursor = collection.aggregate<T>(stages, {
       ...omit(options!, ['projection', 'sort', 'skip', 'limit', 'filter']),
       session: options?.session ?? this.getSession(),
     });
-    /** Fetch the cursor and decode the result objects */
+    /* Fetch the cursor and decode the result objects */
     try {
       const facetResult = await cursor.toArray();
       return {
@@ -578,7 +578,7 @@ export class MongoEntityService<
     ]);
     const db = this.getDatabase();
     const collection = await this.getCollection(db);
-    /** Create array fields if not exists */
+    /* Create array fields if not exists */
     if (options?.initArrayFields) {
       const $set = options.initArrayFields.reduce((a, k) => {
         a[k] = { $ifNull: ['$' + k, []] };
@@ -592,7 +592,7 @@ export class MongoEntityService<
       });
       delete options.initArrayFields;
     }
-    /** Execute update operation */
+    /* Execute update operation */
     return (
       await collection.updateOne(filter || {}, update, {
         ...options,
@@ -623,7 +623,7 @@ export class MongoEntityService<
     const filter = MongoAdapter.prepareFilter(options?.filter);
     const db = this.getDatabase();
     const collection = await this.getCollection(db);
-    /** Create array fields if not exists */
+    /* Create array fields if not exists */
     if (options?.initArrayFields) {
       const $set = options.initArrayFields.reduce((a, k) => {
         a[k] = { $ifNull: ['$' + k, []] };
@@ -637,7 +637,7 @@ export class MongoEntityService<
       });
       delete options.initArrayFields;
     }
-    /** Execute update operation */
+    /* Execute update operation */
     return (
       await collection.updateMany(filter || {}, update, {
         ...omit(options!, ['filter']),
@@ -732,7 +732,7 @@ export class MongoEntityService<
   ): Promise<any> {
     try {
       const result = await super._executeCommand(command, async () => {
-        /** Call before[X] hooks */
+        /* Call before[X] hooks */
         if (command.crud === 'create')
           await this._beforeCreate(
             command as MongoEntityService.CreateCommand<T>,
@@ -758,10 +758,10 @@ export class MongoEntityService<
             command as MongoEntityService.UpdateManyCommand<T>,
           );
         }
-        /** Call command function */
+        /* Call command function */
         return commandFn();
       });
-      /** Call after[X] hooks */
+      /* Call after[X] hooks */
       if (command.crud === 'create')
         await this._afterCreate(
           command as MongoEntityService.CreateCommand<T>,

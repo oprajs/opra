@@ -89,9 +89,9 @@ export class MongoPatchGenerator {
       field = dataType.findField(key, scope);
       if (field && !field.inScope(scope)) continue;
 
-      /** Field not found */
+      /* Field not found */
       if (!field) {
-        /** Additional fields will be updated */
+        /* Additional fields will be updated */
         if (dataType.additionalFields) {
           if (value === null) {
             ctx.$unset = ctx.$unset || {};
@@ -100,7 +100,7 @@ export class MongoPatchGenerator {
           } else {
             ctx.$set = ctx.$set || {};
             if (dataType.additionalFields instanceof ComplexType) {
-              /** Process nested object */
+              /* Process nested object */
               if (
                 this._processComplexType(
                   ctx,
@@ -121,7 +121,7 @@ export class MongoPatchGenerator {
         continue;
       }
 
-      /** Unset field value if null */
+      /* Unset field value if null */
       if (value === null) {
         ctx.$unset = ctx.$unset || {};
         ctx.$unset[pathDot + field.name] = 1;
@@ -139,15 +139,15 @@ export class MongoPatchGenerator {
             keyField = field.keyField || field.type.keyField;
             if (keyField) {
               for (let v of value) {
-                /** Increase arrayIndex and determine a new name for array filter  */
+                /* Increase arrayIndex and determine a new name for array filter  */
                 arrayFilterName = 'f' + String(++arrayIndex);
-                /** Extract key value from object */
+                /* Extract key value from object */
                 keyValue = v[keyField];
                 if (keyValue == null) continue;
                 v = { ...v };
-                /** Remove key field from object */
+                /* Remove key field from object */
                 delete v[keyField];
-                /** Process each object in array */
+                /* Process each object in array */
                 if (
                   this._processComplexType(
                     ctx,
@@ -158,7 +158,7 @@ export class MongoPatchGenerator {
                   )
                 ) {
                   result = true;
-                  /** Add array filter */
+                  /* Add array filter */
                   ctx.arrayFilters = ctx.arrayFilters || [];
                   ctx.arrayFilters.unshift({
                     [`${arrayFilterName}.${keyField}`]: keyValue,
@@ -170,7 +170,7 @@ export class MongoPatchGenerator {
           }
         } else {
           if (!(typeof value === 'object')) continue;
-          /** Process nested object */
+          /* Process nested object */
           if (
             this._processComplexType(
               ctx,

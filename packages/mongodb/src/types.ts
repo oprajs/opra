@@ -34,9 +34,9 @@ type PickArrays<T> = {
  * MongoDB-specific patch operators.
  */
 type PatchOperators<T> = {
-  /** MongoDB $push operator. */
+  /* MongoDB $push operator. */
   _$push?: PickArrays<Partial<T>>;
-  /** MongoDB $pull operator. */
+  /* MongoDB $pull operator. */
   _$pull?: {
     [K in keyof PickArrays<T>]?: (string | number | boolean)[];
   };

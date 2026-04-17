@@ -68,19 +68,19 @@ export namespace MongoService {
    * Information about the command being executed.
    */
   export interface CommandInfo {
-    /** The CRUD operation type. */
+    /* The CRUD operation type. */
     crud: CrudOp;
-    /** The method name being called. */
+    /* The method name being called. */
     method: string;
-    /** Whether the operation is targeting a specific record by ID. */
+    /* Whether the operation is targeting a specific record by ID. */
     byId: boolean;
-    /** The identifier of the document, if applicable. */
+    /* The identifier of the document, if applicable. */
     documentId?: MongoAdapter.AnyId;
-    /** The identifier of the nested document, if applicable. */
+    /* The identifier of the nested document, if applicable. */
     nestedId?: MongoAdapter.AnyId;
-    /** The input data for the operation, if applicable. */
+    /* The input data for the operation, if applicable. */
     input?: any;
-    /** The options for the operation, if applicable. */
+    /* The options for the operation, if applicable. */
     options?: any;
   }
 
@@ -101,7 +101,7 @@ export namespace MongoService {
    * Represents options for "create" operation.
    */
   export interface CreateOptions extends mongodb.InsertOneOptions {
-    /** The projection to return after creation. */
+    /* The projection to return after creation. */
     projection?: string | string[] | Document | '*';
   }
 
@@ -111,7 +111,7 @@ export namespace MongoService {
    * @template T - The type of the document.
    */
   export interface CountOptions<T> extends mongodb.CountOptions {
-    /** Filter criteria for the count operation. */
+    /* Filter criteria for the count operation. */
     filter?: MongoAdapter.FilterInput<T>;
   }
 
@@ -121,7 +121,7 @@ export namespace MongoService {
    * @template T - The type of the document.
    */
   export interface DeleteOptions<T> extends mongodb.DeleteOptions {
-    /** Filter criteria for the delete operation. */
+    /* Filter criteria for the delete operation. */
     filter?: MongoAdapter.FilterInput<T>;
   }
 
@@ -131,7 +131,7 @@ export namespace MongoService {
    * @template T - The type of the document.
    */
   export interface DeleteManyOptions<T> extends mongodb.DeleteOptions {
-    /** Filter criteria for the delete many operation. */
+    /* Filter criteria for the delete many operation. */
     filter?: MongoAdapter.FilterInput<T>;
   }
 
@@ -141,7 +141,7 @@ export namespace MongoService {
    * @template T - The type of the document.
    */
   export interface DistinctOptions<T> extends mongodb.DistinctOptions {
-    /** Filter criteria for the distinct operation. */
+    /* Filter criteria for the distinct operation. */
     filter?: MongoAdapter.FilterInput<T>;
   }
 
@@ -154,7 +154,7 @@ export namespace MongoService {
     mongodb.CommandOperationOptions,
     'session'
   > {
-    /** Filter criteria for the existence check. */
+    /* Filter criteria for the existence check. */
     filter?: MongoAdapter.FilterInput<T>;
   }
 

@@ -56,7 +56,7 @@ export namespace MongoNestedService {
    */
   export interface CommandInfo extends MongoService.CommandInfo {}
 
-  /** Options for the `create` operation. */
+  /* Options for the `create` operation. */
   export interface CreateOptions extends MongoService.CreateOptions {}
 
   /**
@@ -64,7 +64,7 @@ export namespace MongoNestedService {
    * @template T - The type of the document.
    */
   export interface CountOptions<T> extends MongoService.CountOptions<T> {
-    /** Filter for the parent document. */
+    /* Filter for the parent document. */
     documentFilter?: MongoAdapter.FilterInput;
   }
 
@@ -73,7 +73,7 @@ export namespace MongoNestedService {
    * @template T - The type of the document.
    */
   export interface DeleteOptions<T> extends MongoService.DeleteOptions<T> {
-    /** Filter for the parent document. */
+    /* Filter for the parent document. */
     documentFilter?: MongoAdapter.FilterInput;
   }
 
@@ -84,7 +84,7 @@ export namespace MongoNestedService {
   export interface DeleteManyOptions<
     T,
   > extends MongoService.DeleteManyOptions<T> {
-    /** Filter for the parent document. */
+    /* Filter for the parent document. */
     documentFilter?: MongoAdapter.FilterInput;
   }
 
@@ -99,7 +99,7 @@ export namespace MongoNestedService {
    * @template T - The type of the document.
    */
   export interface FindOneOptions<T> extends MongoService.FindOneOptions<T> {
-    /** Filter for the parent document. */
+    /* Filter for the parent document. */
     documentFilter?: MongoAdapter.FilterInput;
   }
 
@@ -109,9 +109,9 @@ export namespace MongoNestedService {
    * @template T - The type of the document.
    */
   export interface FindManyOptions<T> extends MongoService.FindManyOptions<T> {
-    /** Filter for the parent document. */
+    /* Filter for the parent document. */
     documentFilter?: MongoAdapter.FilterInput;
-    /** Filter for the nested documents. */
+    /* Filter for the nested documents. */
     nestedFilter?: MongoAdapter.FilterInput;
   }
 
@@ -123,9 +123,9 @@ export namespace MongoNestedService {
   export interface UpdateOneOptions<
     T,
   > extends MongoService.UpdateOneOptions<T> {
-    /** Filter for the parent document. */
+    /* Filter for the parent document. */
     documentFilter?: MongoAdapter.FilterInput;
-    /** Array fields to initialize if they don't exist. */
+    /* Array fields to initialize if they don't exist. */
     initArrayFields?: string[];
   }
 
@@ -137,13 +137,13 @@ export namespace MongoNestedService {
   export interface UpdateManyOptions<
     T,
   > extends MongoService.UpdateManyOptions<T> {
-    /** Filter for the parent document. */
+    /* Filter for the parent document. */
     documentFilter?: MongoAdapter.FilterInput;
-    /** Array fields to initialize if they don't exist. */
+    /* Array fields to initialize if they don't exist. */
     initArrayFields?: string[];
   }
 
-  /** Command interface for the `create` operation. */
+  /* Command interface for the `create` operation. */
   export interface CreateCommand<T> extends RequiredSome<
     CommandInfo,
     'documentId' | 'input'
@@ -153,7 +153,7 @@ export namespace MongoNestedService {
     options?: CreateOptions;
   }
 
-  /** Command interface for the `count` operation. */
+  /* Command interface for the `count` operation. */
   export interface CountCommand<T> extends StrictOmit<
     RequiredSome<CommandInfo, 'documentId'>,
     'nestedId' | 'input'
@@ -874,9 +874,9 @@ export class MongoNestedService<
       { $unwind: { path: '$' + this.fieldName } },
       { $replaceRoot: { newRoot: '$' + this.fieldName } },
     ];
-    /** Pre-Stages */
+    /* Pre-Stages */
     if (options?.preStages) stages.push(...options.preStages);
-    /** Filter */
+    /* Filter */
     if (options?.filter || options?.nestedFilter) {
       const optionsFilter = MongoAdapter.prepareFilter([
         options?.filter,
@@ -884,7 +884,7 @@ export class MongoNestedService<
       ]);
       stages.push({ $match: optionsFilter });
     }
-    /** Sort */
+    /* Sort */
     if (options?.sort) {
       const sort = MongoAdapter.prepareSort(options.sort);
       if (sort) stages.push({ $sort: sort });
@@ -1000,9 +1000,9 @@ export class MongoNestedService<
       },
     ];
 
-    /** Pre-Stages */
+    /* Pre-Stages */
     if (options?.preStages) dataStages.push(...options.preStages);
-    /** Filter */
+    /* Filter */
     if (options?.filter || options?.nestedFilter) {
       const optionsFilter = MongoAdapter.prepareFilter([
         options?.filter,
@@ -1010,7 +1010,7 @@ export class MongoNestedService<
       ]);
       dataStages.push({ $match: optionsFilter });
     }
-    /** Sort */
+    /* Sort */
     if (options?.sort) {
       const sort = MongoAdapter.prepareSort(options.sort);
       if (sort) dataStages.push({ $sort: sort });
@@ -1335,7 +1335,7 @@ export class MongoNestedService<
   ): Promise<any> {
     try {
       const result = await super._executeCommand(command, async () => {
-        /** Call before[X] hooks */
+        /* Call before[X] hooks */
         if (command.crud === 'create')
           await this._beforeCreate(
             command as MongoNestedService.CreateCommand<T>,
@@ -1357,10 +1357,10 @@ export class MongoNestedService<
             command as MongoNestedService.DeleteCommand<T>,
           );
         }
-        /** Call command function */
+        /* Call command function */
         return commandFn();
       });
-      /** Call after[X] hooks */
+      /* Call after[X] hooks */
       if (command.crud === 'create')
         await this._afterCreate(
           command as MongoNestedService.CreateCommand<T>,
