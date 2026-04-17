@@ -94,7 +94,7 @@ constructor(client: OpraHttpClient) {`;
     }
   }
 
-  /** Process operations */
+  /* Process operations */
   const mergedControllerParams = [...controller.parameters];
   let _base: HttpController | undefined = controller;
   while (_base.owner instanceof HttpController) {
@@ -137,7 +137,7 @@ constructor(client: OpraHttpClient) {`;
 
     operationBlock.head = `${operation.name}(`;
 
-    /** Process operation parameters */
+    /* Process operation parameters */
     const pathParams: HttpParameter[] = [];
     const queryParams: HttpParameter[] = [];
     const headerParams: HttpParameter[] = [];
@@ -156,7 +156,7 @@ constructor(client: OpraHttpClient) {`;
       headerParams.push(...Object.values(headerParamsMap));
     }
 
-    /** Process path parameters and add as function arguments */
+    /* Process path parameters and add as function arguments */
     let argIndex = 0;
     for (const prm of pathParams) {
       let typeDef: string;
@@ -173,14 +173,14 @@ constructor(client: OpraHttpClient) {`;
         (prm.description ? ' - ' + wrapJSDocString(prm.description || '') : '');
     }
 
-    /** Process requestBody and add as function argument ($body) */
+    /* Process requestBody and add as function argument ($body) */
     let hasBody = false;
     if (operation.requestBody?.content.length) {
       if (argIndex++ > 0) operationBlock.head += ', ';
       let typeArr: string[] = [];
       for (const content of operation.requestBody.content) {
         if (content.type) {
-          /** Generate JSDoc for parameter */
+          /* Generate JSDoc for parameter */
           operationBlock.doc.parameters += await generateParamDoc(
             '$body',
             content.type,
@@ -189,7 +189,7 @@ constructor(client: OpraHttpClient) {`;
               description: content.description || content.type.description,
             },
           );
-          /**  */
+
           const xt = await this.generateDataType(content.type, 'typeDef', file);
           let typeDef = xt.kind === 'embedded' ? xt.code : xt.typeName;
           if (typeDef === 'any') {
@@ -226,7 +226,7 @@ constructor(client: OpraHttpClient) {`;
       hasBody = true;
     }
 
-    /** process query params */
+    /* process query params */
     const isQueryRequired = queryParams.find(p => p.required);
     const isHeadersRequired = queryParams.find(p => p.required);
 
@@ -264,7 +264,7 @@ constructor(client: OpraHttpClient) {`;
       operationBlock.head += '\b}\b';
     }
 
-    /** process header params */
+    /* process header params */
     if (headerParams.length) {
       // eslint-disable-next-line no-useless-assignment
       if (argIndex++ > 0) operationBlock.head += ', \n';

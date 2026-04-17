@@ -42,11 +42,11 @@ export class RpcControllerFactory {
       );
       const isRequestScoped = !wrapper.isDependencyTreeStatic();
 
-      /** Create a new controller class */
+      /* Create a new controller class */
       const newClass: Type = {
         [sourceClass.name]: class extends sourceClass {},
       }[sourceClass.name];
-      /** Copy metadata keys from source class to new one */
+      /* Copy metadata keys from source class to new one */
       OpraNestUtils.copyDecoratorMetadata(newClass, sourceClass);
       Controller()(newClass);
       out.push(newClass);
