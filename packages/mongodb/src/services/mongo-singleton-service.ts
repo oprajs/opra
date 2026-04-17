@@ -8,42 +8,38 @@ import type { MongoPatchDTO } from '../types.js';
 import { MongoEntityService } from './mongo-entity-service.js';
 
 /**
- *
- * @namespace MongoSingletonService
+ * Options for MongoSingletonService.
  */
 export namespace MongoSingletonService {
   /**
-   * The constructor options of MongoSingletonService.
-   *
-   * @interface Options
-   * @extends MongoService.Options
+   * Configuration options for MongoSingletonService.
    */
   export interface Options extends MongoEntityService.Options {
+    /**
+     * The unique identifier for the singleton record.
+     */
     _id?: MongoAdapter.AnyId;
   }
 }
 
 /**
- * A class that provides access to a MongoDB collection, with support for singleton document operations.
- * @class MongoSingletonService
- * @extends MongoService
- * @template T - The type of document stored in the collection
+ * Service for managing a single entity record backed by a MongoDB data source.
+ *
+ * @template T - The entity type managed by this service.
  */
 export class MongoSingletonService<
   T extends mongodb.Document,
 > extends MongoEntityService<T> {
   /**
-   * Represents a unique identifier for singleton record
-   * @type {MongoAdapter.AnyId} _id
+   * The unique identifier for the singleton record.
    */
   _id: MongoAdapter.AnyId;
 
   /**
-   * Constructs a new instance
+   * Constructs a new instance.
    *
-   * @param {Type | string} dataType - The data type of the array elements.
-   * @param {MongoSingletonService.Options} [options] - The options for the array service.
-   * @constructor
+   * @param dataType - The entity class or its registered name.
+   * @param options - Options for the singleton service.
    */
   constructor(
     dataType: Type | string,

@@ -9,54 +9,98 @@ import type { MongoPatchDTO } from '../types.js';
 import { MongoService } from './mongo-service.js';
 
 /**
- *
- * @namespace MongoEntityService
+ * Options for MongoEntityService.
  */
 export namespace MongoEntityService {
   /**
-   * The constructor options of MongoEntityService.
-   *
-   * @interface Options
-   * @extends MongoService.Options
+   * Configuration options for MongoEntityService.
    */
   export interface Options extends MongoService.Options {}
 
+  /**
+   * Information about the command being executed.
+   */
   export interface CommandInfo extends MongoService.CommandInfo {}
 
+  /** Options for the `create` operation. */
   export interface CreateOptions extends MongoService.CreateOptions {}
 
+  /**
+   * Options for the `count` operation.
+   * @template T - The type of the document.
+   */
   export interface CountOptions<T> extends MongoService.CountOptions<T> {}
 
+  /**
+   * Options for the `delete` operation.
+   * @template T - The type of the document.
+   */
   export interface DeleteOptions<T> extends MongoService.DeleteOptions<T> {}
 
+  /**
+   * Options for the `deleteMany` operation.
+   * @template T - The type of the document.
+   */
   export interface DeleteManyOptions<
     T,
   > extends MongoService.DeleteManyOptions<T> {}
 
+  /**
+   * Options for the `distinct` operation.
+   * @template T - The type of the document.
+   */
   export interface DistinctOptions<T> extends MongoService.DistinctOptions<T> {}
 
+  /**
+   * Options for the `exists` operation.
+   * @template T - The type of the document.
+   */
   export interface ExistsOptions<T> extends MongoService.ExistsOptions<T> {}
 
+  /**
+   * Options for the `findOne` / `findById` operations.
+   * @template T - The type of the document.
+   */
   export interface FindOneOptions<T> extends MongoService.FindOneOptions<T> {}
 
+  /**
+   * Options for the `findMany` operation.
+   * @template T - The type of the document.
+   */
   export interface FindManyOptions<T> extends MongoService.FindManyOptions<T> {
+    /** Whether to skip decoding of the result items. */
     noDecode?: boolean;
   }
 
+  /**
+   * Options for the `replace` operation.
+   * @template T - The type of the document.
+   */
   export interface ReplaceOptions<T> extends MongoService.ReplaceOptions<T> {}
 
+  /**
+   * Options for the `update` / `updateOnly` operations.
+   * @template T - The type of the document.
+   */
   export interface UpdateOneOptions<
     T,
   > extends MongoService.UpdateOneOptions<T> {
+    /** Array fields to initialize if they don't exist. */
     initArrayFields?: string[];
   }
 
+  /**
+   * Options for the `updateMany` operation.
+   * @template T - The type of the document.
+   */
   export interface UpdateManyOptions<
     T,
   > extends MongoService.UpdateManyOptions<T> {
+    /** Array fields to initialize if they don't exist. */
     initArrayFields?: string[];
   }
 
+  /** Command interface for the `create` operation. */
   export interface CreateCommand<T> extends StrictOmit<
     CommandInfo,
     'documentId' | 'nestedId' | 'input'
@@ -66,6 +110,7 @@ export namespace MongoEntityService {
     options?: CreateOptions;
   }
 
+  /** Command interface for the `count` operation. */
   export interface CountCommand<T> extends StrictOmit<
     CommandInfo,
     'documentId' | 'nestedId' | 'input'

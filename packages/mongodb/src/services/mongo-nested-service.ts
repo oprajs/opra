@@ -22,16 +22,24 @@ import type { MongoEntityService } from './mongo-entity-service.js';
 import { MongoService } from './mongo-service.js';
 
 /**
- *
- * @namespace MongoNestedService
+ * Options for MongoNestedService.
  */
 export namespace MongoNestedService {
   /**
-   * The constructor options of MongoArrayService.
+   * Configuration options for MongoNestedService.
    */
   export interface Options extends MongoService.Options {
+    /**
+     * Default maximum number of records returned by `findMany`.
+     */
     defaultLimit?: number;
+    /**
+     * The field name of the primary key in the nested collection.
+     */
     nestedKey?: string;
+    /**
+     * Optional filter for nested operations.
+     */
     nestedFilter?:
       | MongoAdapter.FilterInput
       | ((
@@ -43,47 +51,92 @@ export namespace MongoNestedService {
           | undefined);
   }
 
+  /**
+   * Information about the command being executed.
+   */
   export interface CommandInfo extends MongoService.CommandInfo {}
 
+  /** Options for the `create` operation. */
   export interface CreateOptions extends MongoService.CreateOptions {}
 
+  /**
+   * Options for the `count` operation.
+   * @template T - The type of the document.
+   */
   export interface CountOptions<T> extends MongoService.CountOptions<T> {
+    /** Filter for the parent document. */
     documentFilter?: MongoAdapter.FilterInput;
   }
 
+  /**
+   * Options for the `delete` operation.
+   * @template T - The type of the document.
+   */
   export interface DeleteOptions<T> extends MongoService.DeleteOptions<T> {
+    /** Filter for the parent document. */
     documentFilter?: MongoAdapter.FilterInput;
   }
 
+  /**
+   * Options for the `deleteMany` operation.
+   * @template T - The type of the document.
+   */
   export interface DeleteManyOptions<
     T,
   > extends MongoService.DeleteManyOptions<T> {
+    /** Filter for the parent document. */
     documentFilter?: MongoAdapter.FilterInput;
   }
 
+  /**
+   * Options for the `exists` operation.
+   * @template T - The type of the document.
+   */
   export interface ExistsOptions<T> extends MongoService.ExistsOptions<T> {}
 
+  /**
+   * Options for the `findOne` / `findById` operations.
+   * @template T - The type of the document.
+   */
   export interface FindOneOptions<T> extends MongoService.FindOneOptions<T> {
+    /** Filter for the parent document. */
     documentFilter?: MongoAdapter.FilterInput;
   }
 
+  /**
+   * Options for the `findMany` operation.
+   * @template T - The type of the document.
+   */
   export interface FindManyOptions<T> extends MongoService.FindManyOptions<T> {
+    /** Filter for the parent document. */
     documentFilter?: MongoAdapter.FilterInput;
+    /** Filter for the nested documents. */
     nestedFilter?: MongoAdapter.FilterInput;
   }
 
+  /**
+   * Options for the `update` / `updateOnly` operations.
+   * @template T - The type of the document.
+   */
   export interface UpdateOneOptions<
     T,
   > extends MongoService.UpdateOneOptions<T> {
+    /** Filter for the parent document. */
     documentFilter?: MongoAdapter.FilterInput;
   }
 
+  /**
+   * Options for the `updateMany` operation.
+   * @template T - The type of the document.
+   */
   export interface UpdateManyOptions<
     T,
   > extends MongoService.UpdateManyOptions<T> {
+    /** Filter for the parent document. */
     documentFilter?: MongoAdapter.FilterInput;
   }
 
+  /** Command interface for the `create` operation. */
   export interface CreateCommand<T> extends RequiredSome<
     CommandInfo,
     'documentId' | 'input'
@@ -93,6 +146,7 @@ export namespace MongoNestedService {
     options?: CreateOptions;
   }
 
+  /** Command interface for the `count` operation. */
   export interface CountCommand<T> extends StrictOmit<
     RequiredSome<CommandInfo, 'documentId'>,
     'nestedId' | 'input'

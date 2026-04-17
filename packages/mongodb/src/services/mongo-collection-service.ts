@@ -7,41 +7,38 @@ import type { MongoPatchDTO } from '../types.js';
 import { MongoEntityService } from './mongo-entity-service.js';
 
 /**
- *
- * @namespace MongoCollectionService
+ * Options for MongoCollectionService.
  */
 export namespace MongoCollectionService {
   /**
-   * The constructor options of MongoCollectionService.
-   *
-   * @interface Options
-   * @extends MongoService.Options
+   * Configuration options for MongoCollectionService.
    */
   export interface Options extends MongoEntityService.Options {
+    /**
+     * Default maximum number of records returned by `findMany`.
+     */
     defaultLimit?: number;
   }
 }
 
 /**
- * @class MongoCollectionService
- * @template T - The type of the documents in the collection.
+ * Service for managing a collection of entities backed by a MongoDB data source.
+ *
+ * @template T - The entity type managed by this service.
  */
 export class MongoCollectionService<
   T extends mongodb.Document,
 > extends MongoEntityService<T> {
   /**
-   * Represents the default limit value for a certain operation.
-   *
-   * @type {number}
+   * Default maximum number of records returned by `findMany`.
    */
   defaultLimit: number;
 
   /**
-   * Constructs a new instance
+   * Constructs a new instance.
    *
-   * @param {Type | string} dataType - The data type of the array elements.
-   * @param {MongoCollectionService.Options} [options] - The options for the array service.
-   * @constructor
+   * @param dataType - The entity class or its registered name.
+   * @param options - Options for the collection service.
    */
   constructor(
     dataType: Type | string,
@@ -297,16 +294,23 @@ export class MongoCollectionService<
   }
 
   /**
-   * Finds a document by its ID.
+   * Finds a document by its ID and returns it with the requested projection.
    *
-   * @param {MongoAdapter.AnyId} id - The ID of the document.
-   * @param {MongoEntityService.FindOneOptions<T>} [options] - The options for the find query.
-   * @return {Promise<PartialDTO<T | undefined>>} - A promise resolving to the found document, or undefined if not found.
+   * @param id - The ID of the document to find.
+   * @param options - Options including a required `projection`.
+   * @returns A promise that resolves to the found document as a partial DTO, or `undefined` if not found.
    */
   async findById(
     id: MongoAdapter.AnyId,
     options: RequiredSome<MongoEntityService.FindOneOptions<T>, 'projection'>,
   ): Promise<PartialDTO<T> | undefined>;
+  /**
+   * Finds a document by its ID and returns the whole DTO.
+   *
+   * @param id - The ID of the document to find.
+   * @param options - Optional query options.
+   * @returns A promise that resolves to the found document as a full DTO, or `undefined` if not found.
+   */
   async findById(
     id: MongoAdapter.AnyId,
     options?: MongoEntityService.FindOneOptions<T>,
@@ -341,9 +345,21 @@ export class MongoCollectionService<
    * @param {MongoEntityService.FindOneOptions<T>} [options] - The options for the query.
    * @return {Promise<PartialDTO<T> | undefined>} A promise that resolves with the found document or undefined if no document is found.
    */
+  /**
+   * Finds the first record matching the given options and returns it with the requested projection.
+   *
+   * @param options - Options including a required `projection`.
+   * @returns A promise that resolves to the found record as a partial DTO, or `undefined` if not found.
+   */
   async findOne(
     options: RequiredSome<MongoEntityService.FindOneOptions<T>, 'projection'>,
   ): Promise<PartialDTO<T> | undefined>;
+  /**
+   * Finds the first record matching the given options and returns the whole DTO.
+   *
+   * @param options - Optional query options.
+   * @returns A promise that resolves to the found record, or `undefined` if not found.
+   */
   async findOne(
     options?: MongoEntityService.FindOneOptions<T>,
   ): Promise<T | undefined>;
@@ -370,14 +386,20 @@ export class MongoCollectionService<
   }
 
   /**
-   * Finds multiple documents in the MongoDB collection.
+   * Finds multiple documents matching the given options and returns them with the requested projection.
    *
-   * @param {MongoEntityService.FindManyOptions<T>} options - The options for the find operation.
-   * @return A Promise that resolves to an array of partial outputs of type T.
+   * @param options - Options including a required `projection`.
+   * @returns A promise that resolves to an array of matching documents as partial DTOs.
    */
   async findMany(
     options: RequiredSome<MongoEntityService.FindManyOptions<T>, 'projection'>,
   ): Promise<PartialDTO<T>[]>;
+  /**
+   * Finds multiple documents matching the given options and returns them as whole DTOs.
+   *
+   * @param options - Optional query options.
+   * @returns A promise that resolves to an array of matching documents as whole DTOs.
+   */
   async findMany(
     options?: MongoEntityService.FindManyOptions<T>,
   ): Promise<DTO<T>[]>;
@@ -406,11 +428,10 @@ export class MongoCollectionService<
   }
 
   /**
-   * Finds multiple documents in the collection and returns both records (max limit)
-   * and total count that matched the given criteria
+   * Finds multiple documents matching the given options and returns them with the total count.
    *
-   * @param {MongoEntityService.FindManyOptions<T>} [options] - The options for the find operation.
-   * @return A Promise that resolves to an array of partial outputs of type T.
+   * @param options - Options including a required `projection`.
+   * @returns An object containing the items (as partial DTOs) and the total count.
    */
   async findManyWithCount(
     options: RequiredSome<MongoEntityService.FindManyOptions<T>, 'projection'>,
@@ -418,17 +439,23 @@ export class MongoCollectionService<
     count: number;
     items: PartialDTO<T>[];
   }>;
+  /**
+   * Finds multiple documents matching the given options and returns them with the total count.
+   *
+   * @param options - Optional query options.
+   * @returns An object containing the items (as full DTOs) and the total count.
+   */
   async findManyWithCount(
     options?: MongoEntityService.FindManyOptions<T>,
   ): Promise<{
     count: number;
-    items: T[];
+    items: DTO<T>[];
   }>;
   async findManyWithCount(
     options?: MongoEntityService.FindManyOptions<T>,
   ): Promise<{
     count: number;
-    items: (PartialDTO<T> | T)[];
+    items: (PartialDTO<T> | DTO<T>)[];
   }> {
     const command: MongoEntityService.FindManyCommand<T> = {
       crud: 'read',
@@ -452,18 +479,27 @@ export class MongoCollectionService<
   }
 
   /**
-   * Retrieves a document from the collection by its ID. Throws error if not found.
+   * Retrieves a document by its ID and returns it with the requested projection.
+   * Throws a ResourceNotAvailableError if the document does not exist.
    *
-   * @param {MongoAdapter.AnyId} id - The ID of the document to retrieve.
-   * @param {MongoEntityService.FindOneOptions<T>} [options] - Optional options for the findOne operation.
-   * @returns {Promise<PartialDTO<T>>} - A promise that resolves to the retrieved document,
-   *    or rejects with a ResourceNotFoundError if the document does not exist.
-   * @throws {ResourceNotAvailableError} - If the document with the specified ID does not exist.
+   * @param id - The ID of the document to retrieve.
+   * @param options - Options including a required `projection`.
+   * @returns A promise that resolves to the retrieved document as a partial DTO.
+   * @throws {ResourceNotAvailableError} If the document does not exist.
    */
   async get(
     id: MongoAdapter.AnyId,
     options: RequiredSome<MongoEntityService.FindOneOptions<T>, 'projection'>,
   ): Promise<PartialDTO<T>>;
+  /**
+   * Retrieves a document by its ID and returns the whole DTO.
+   * Throws a ResourceNotAvailableError if the document does not exist.
+   *
+   * @param id - The ID of the document to retrieve.
+   * @param options - Optional query options.
+   * @returns A promise that resolves to the retrieved document as a full DTO.
+   * @throws {ResourceNotAvailableError} If the document does not exist.
+   */
   async get(
     id: MongoAdapter.AnyId,
     options?: MongoEntityService.FindOneOptions<T>,
@@ -478,20 +514,26 @@ export class MongoCollectionService<
   }
 
   /**
-   * Replace a document in the MongoDB collection.
-   * Interceptors will be called before performing db operation
+   * Replaces a document by its ID and returns it with the requested projection.
    *
-   * @param {MongoAdapter.AnyId} id - The id of the document to replace.
-   * @param {PartialDTO<T>} input - The input data
-   * @param {MongoEntityService.ReplaceOptions} [options] - The options for replacing the document.
-   * @returns {Promise<PartialDTO<T>>} A promise that resolves to the replaced document.
-   * @throws {Error} if an unknown error occurs while replacing the document.
+   * @param id - The ID of the document to replace.
+   * @param input - The replacement document data.
+   * @param options - Options including a required `projection`.
+   * @returns A promise that resolves to the replaced document as a partial DTO, or `undefined` if not found.
    */
   async replace(
     id: MongoAdapter.AnyId,
     input: PartialDTO<T>,
     options: RequiredSome<MongoEntityService.ReplaceOptions<T>, 'projection'>,
   ): Promise<PartialDTO<T>>;
+  /**
+   * Replaces a document by its ID and returns the whole replaced DTO.
+   *
+   * @param id - The ID of the document to replace.
+   * @param input - The replacement document data.
+   * @param options - Optional replace options.
+   * @returns A promise that resolves to the replaced document as a full DTO, or `undefined` if not found.
+   */
   async replace(
     id: MongoAdapter.AnyId,
     input: PartialDTO<T>,
@@ -525,19 +567,26 @@ export class MongoCollectionService<
   }
 
   /**
-   * Updates a document with the given id in the collection.
+   * Updates a document by its ID and returns it with the requested projection.
    *
-   * @param {MongoAdapter.AnyId} id - The id of the document to update.
-   * @param {MongoPatchDTO<T>|UpdateFilter<T>} input - The partial input object containing the fields to update.
-   * @param {MongoEntityService.UpdateOneOptions<T>} [options] - The options for the update operation.
-   * @returns {Promise<PartialDTO<T> | undefined>} A promise that resolves to the updated document or
-   * undefined if the document was not found.
+   * @param id - The ID of the document to update.
+   * @param input - The fields to update.
+   * @param options - Options including a required `projection`.
+   * @returns A promise that resolves to the updated document as a partial DTO, or `undefined` if not found.
    */
   async update(
     id: MongoAdapter.AnyId,
     input: MongoPatchDTO<T> | UpdateFilter<T>,
     options: RequiredSome<MongoEntityService.UpdateOneOptions<T>, 'projection'>,
   ): Promise<PartialDTO<T> | undefined>;
+  /**
+   * Updates a document by its ID and returns the whole updated DTO.
+   *
+   * @param id - The ID of the document to update.
+   * @param input - The fields to update.
+   * @param options - Optional update options.
+   * @returns A promise that resolves to the updated document as a full DTO, or `undefined` if not found.
+   */
   async update(
     id: MongoAdapter.AnyId,
     input: MongoPatchDTO<T> | UpdateFilter<T>,

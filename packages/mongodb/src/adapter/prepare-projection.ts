@@ -6,6 +6,14 @@ import {
 } from '@opra/common';
 import mongodb, { type Document } from 'mongodb';
 
+/**
+ * Prepares the MongoDB projection object based on the data type and requested projection.
+ *
+ * @param dataType - The data type of the entity.
+ * @param projection - The requested projection (string, array of strings, Document, or '*').
+ * @param scope - Optional scope for field visibility.
+ * @returns The prepared MongoDB projection document, or `undefined`.
+ */
 export default function prepareProjection(
   dataType: ComplexType,
   projection?: string | string[] | Document | '*',

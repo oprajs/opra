@@ -13,7 +13,19 @@ interface Context {
 
 const FIELD_NAME_PATTERN = /^([-><*:])?(.+)$/;
 
+/**
+ * MongoPatchGenerator is responsible for generating MongoDB update patches from DTO objects.
+ * It handles nested objects, array operations ($push, $pull), and field unsetting.
+ */
 export class MongoPatchGenerator {
+  /**
+   * Generates a MongoDB update patch for the given data type and document.
+   *
+   * @param dataType - The data type of the entity being updated.
+   * @param doc - The patch DTO containing the updates.
+   * @param options - Optional configuration for patch generation.
+   * @returns An object containing the MongoDB update filter, array filters, and any array fields to initialize.
+   */
   generatePatch<T extends object>(
     dataType: ComplexType,
     doc: PatchDTO<T>,

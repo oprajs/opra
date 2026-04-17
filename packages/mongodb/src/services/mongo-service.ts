@@ -14,35 +14,79 @@ import { MongoAdapter } from '../adapter/mongo-adapter.js';
 const transactionKey = Symbol.for('transaction');
 
 /**
- * The namespace for the MongoService.
- *
- * @namespace MongoService
+ * The namespace for the MongoService, containing types and options.
  */
 export namespace MongoService {
+  /**
+   * Options for initializing MongoService.
+   */
   export interface Options extends ServiceBase.Options {
+    /**
+     * The MongoDB client or database instance.
+     */
     db?: MongoService<any>['db'];
+    /**
+     * Optional MongoDB client session for transactions.
+     */
     session?: MongoService<any>['session'];
+    /**
+     * The name of the collection.
+     */
     collectionName?: MongoService<any>['collectionName'];
+    /**
+     * The name of the resource managed by this service.
+     */
     resourceName?: MongoService<any>['resourceName'];
+    /**
+     * Optional common filter applied to all read/write operations.
+     */
     documentFilter?: MongoService<any>['documentFilter'];
+    /**
+     * Optional interceptor for the service operations.
+     */
     interceptor?: MongoService<any>['interceptor'];
+    /**
+     * Optional function to generate IDs for new documents.
+     */
     idGenerator?: MongoService<any>['idGenerator'];
+    /**
+     * Optional scope for the service.
+     */
     scope?: MongoService<any>['scope'];
+    /**
+     * Optional error handler.
+     */
     onError?: MongoService<any>['onError'];
   }
 
+  /**
+   * Represents the CRUD operation types.
+   */
   export type CrudOp = 'create' | 'read' | 'replace' | 'update' | 'delete';
 
+  /**
+   * Information about the command being executed.
+   */
   export interface CommandInfo {
+    /** The CRUD operation type. */
     crud: CrudOp;
+    /** The method name being called. */
     method: string;
+    /** Whether the operation is targeting a specific record by ID. */
     byId: boolean;
+    /** The identifier of the document, if applicable. */
     documentId?: MongoAdapter.AnyId;
+    /** The identifier of the nested document, if applicable. */
     nestedId?: MongoAdapter.AnyId;
+    /** The input data for the operation, if applicable. */
     input?: any;
+    /** The options for the operation, if applicable. */
     options?: any;
   }
 
+  /**
+   * Type definition for a document filter.
+   */
   export type DocumentFilter =
     | MongoAdapter.FilterInput
     | ((
@@ -54,63 +98,63 @@ export namespace MongoService {
         | undefined);
 
   /**
-   * Represents options for "create" operation
-   *
-   * @interface
+   * Represents options for "create" operation.
    */
   export interface CreateOptions extends mongodb.InsertOneOptions {
+    /** The projection to return after creation. */
     projection?: string | string[] | Document | '*';
   }
 
   /**
-   * Represents options for "count" operation
+   * Represents options for "count" operation.
    *
-   * @interface
    * @template T - The type of the document.
    */
   export interface CountOptions<T> extends mongodb.CountOptions {
+    /** Filter criteria for the count operation. */
     filter?: MongoAdapter.FilterInput<T>;
   }
 
   /**
-   * Represents options for "delete" operation
+   * Represents options for "delete" operation.
    *
-   * @interface
    * @template T - The type of the document.
    */
   export interface DeleteOptions<T> extends mongodb.DeleteOptions {
+    /** Filter criteria for the delete operation. */
     filter?: MongoAdapter.FilterInput<T>;
   }
 
   /**
-   * Represents options for "deleteMany" operation
+   * Represents options for "deleteMany" operation.
    *
-   * @interface
    * @template T - The type of the document.
    */
   export interface DeleteManyOptions<T> extends mongodb.DeleteOptions {
+    /** Filter criteria for the delete many operation. */
     filter?: MongoAdapter.FilterInput<T>;
   }
 
   /**
-   * Represents options for "distinct" operation
+   * Represents options for "distinct" operation.
    *
-   * @interface
    * @template T - The type of the document.
    */
   export interface DistinctOptions<T> extends mongodb.DistinctOptions {
+    /** Filter criteria for the distinct operation. */
     filter?: MongoAdapter.FilterInput<T>;
   }
 
   /**
-   * Represents options for "exists" operation
+   * Represents options for "exists" operation.
    *
-   * @interface
+   * @template T - The type of the document.
    */
   export interface ExistsOptions<T> extends Omit<
     mongodb.CommandOperationOptions,
-    'writeConcern'
+    'session'
   > {
+    /** Filter criteria for the existence check. */
     filter?: MongoAdapter.FilterInput<T>;
   }
 
