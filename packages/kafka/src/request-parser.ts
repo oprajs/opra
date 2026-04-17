@@ -13,8 +13,8 @@ export type RequestParseFunction = (buffer: Buffer) => any;
  * A registry of pre-defined request parsing functions.
  */
 export const RequestParser: Record<string, RequestParseFunction> = {
-  /** Parses the buffer as raw binary data (returns the buffer as-is). */
+  /* Parses the buffer as raw binary data (returns the buffer as-is). */
   BINARY: binaryParser,
-  /** Parses the buffer as a UTF-8 string. */
+  /* Parses the buffer as a UTF-8 string. */
   STRING: stringParser,
 };

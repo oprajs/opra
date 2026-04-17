@@ -154,7 +154,7 @@ export class KafkaAdapter extends PlatformAdapter<KafkaAdapter.Events> {
     this._status = 'starting';
 
     try {
-      /** Connect all consumers */
+      /* Connect all consumers */
       for (const consumer of this._consumers.values()) {
         await consumer.connect().catch(e => {
           this._emitError(e);
@@ -162,7 +162,7 @@ export class KafkaAdapter extends PlatformAdapter<KafkaAdapter.Events> {
         });
       }
 
-      /** Subscribe to channels */
+      /* Subscribe to channels */
       for (const args of this._handlerArgs) {
         const { consumer, operation, operationConfig } = args;
         args.topics = Array.isArray(operation.channel)
@@ -182,7 +182,7 @@ export class KafkaAdapter extends PlatformAdapter<KafkaAdapter.Events> {
         );
       }
 
-      /** Start consumer listeners */
+      /* Start consumer listeners */
       const topicMap = new Map<string, HandlerArguments[]>();
       for (const consumer of this._consumers.values()) {
         const groupId: string = consumer[kGroupId];
@@ -208,7 +208,7 @@ export class KafkaAdapter extends PlatformAdapter<KafkaAdapter.Events> {
                 }
                 topicMap.set(topicCacheKey, handlerArgsArray);
               }
-              /** Iterate and call all matching handlers */
+              /* Iterate and call all matching handlers */
               for (const args of handlerArgsArray) {
                 try {
                   await args.handler(payload);
@@ -336,7 +336,7 @@ export class KafkaAdapter extends PlatformAdapter<KafkaAdapter.Events> {
       if (!instance) continue;
       this._controllerInstances.set(controller, instance);
 
-      /** Build HandlerData array */
+      /* Build HandlerData array */
       for (const operation of controller.operations.values()) {
         const operationConfig = await this._getOperationConfig(
           controller,
@@ -358,7 +358,7 @@ export class KafkaAdapter extends PlatformAdapter<KafkaAdapter.Events> {
       }
     }
 
-    /** Initialize consumers */
+    /* Initialize consumers */
     for (const args of this._handlerArgs) {
       await this._createConsumer(args);
     }
@@ -379,7 +379,7 @@ export class KafkaAdapter extends PlatformAdapter<KafkaAdapter.Events> {
         `Operation consumer for groupId (${operationConfig.consumer.groupId}) already exists`,
       );
     }
-    /** Create consumers */
+    /* Create consumers */
     if (!consumer) {
       consumer = this.kafka.consumer(operationConfig.consumer);
       consumer[kGroupId] = operationConfig.consumer.groupId;
@@ -397,10 +397,10 @@ export class KafkaAdapter extends PlatformAdapter<KafkaAdapter.Events> {
    */
   protected _createHandler(args: HandlerArguments) {
     const { controller, instance, operation } = args;
-    /** Prepare parsers */
+    /* Prepare parsers */
     const parseKey = RequestParser.STRING;
     const parsePayload = RequestParser.STRING;
-    /** Prepare decoders */
+    /* Prepare decoders */
     const decodeKey = operation.generateKeyCodec('decode', {
       scope: this.scope,
       ignoreReadonlyFields: true,
@@ -426,17 +426,17 @@ export class KafkaAdapter extends PlatformAdapter<KafkaAdapter.Events> {
       let payload: any;
       const headers: any = {};
       try {
-        /** Parse and decode `key` */
+        /* Parse and decode `key` */
         if (message.key) {
           const s = parseKey(message.key);
           key = decodeKey(s);
         }
-        /** Parse and decode `payload` */
+        /* Parse and decode `payload` */
         if (message.value != null) {
           const s = parsePayload(message.value);
           payload = decodePayload(s);
         }
-        /** Parse and decode `headers` */
+        /* Parse and decode `headers` */
         if (message.headers) {
           for (const [k, v] of Object.entries(message.headers)) {
             const header = operation.findHeader(k);
@@ -449,7 +449,7 @@ export class KafkaAdapter extends PlatformAdapter<KafkaAdapter.Events> {
         this._emitError(e);
         return;
       }
-      /** Create context */
+      /* Create context */
       const context = new KafkaContext({
         __adapter: this,
         __contDef: controller,
@@ -468,7 +468,7 @@ export class KafkaAdapter extends PlatformAdapter<KafkaAdapter.Events> {
 
       await this.emitAsync('execute', context);
       try {
-        /** Call operation handler */
+        /* Call operation handler */
         const result = await operationHandler.call(instance, context);
         await this.emitAsync('finish', context, result);
       } catch (e: any) {
@@ -580,22 +580,22 @@ export namespace KafkaAdapter {
    * Configuration options for the Kafka adapter.
    */
   export interface Config extends PlatformAdapter.Options {
-    /** Kafka client configuration */
+    /* Kafka client configuration */
     client: StrictOmit<KafkaConfig, 'logCreator' | 'logLevel'>;
-    /** Map of consumer group IDs to their configurations */
+    /* Map of consumer group IDs to their configurations */
     consumers?: Record<string, StrictOmit<ConsumerConfig, 'groupId'>>;
-    /** Default configurations for consumers and subscriptions */
+    /* Default configurations for consumers and subscriptions */
     defaults?: {
       consumer?: ConsumerConfig;
       subscribe?: {
         fromBeginning?: boolean;
       };
     };
-    /** Scope for decoding and encoding */
+    /* Scope for decoding and encoding */
     scope?: string;
-    /** Interceptors to wrap the execution of operations */
+    /* Interceptors to wrap the execution of operations */
     interceptors?: (InterceptorFunction | IKafkaInterceptor)[];
-    /** Whether to log additional information from KafkaJS */
+    /* Whether to log additional information from KafkaJS */
     logExtra?: boolean;
   }
 
@@ -638,13 +638,13 @@ export namespace KafkaAdapter {
    * Event definitions for the Kafka adapter.
    */
   export interface Events {
-    /** Emitted when an error occurs */
+    /* Emitted when an error occurs */
     error: [error: Error, context: KafkaContext | undefined];
-    /** Emitted when an operation finishes successfully */
+    /* Emitted when an operation finishes successfully */
     finish: [context: KafkaContext, result: any];
-    /** Emitted when an operation starts execution */
+    /* Emitted when an operation starts execution */
     execute: [context: KafkaContext];
-    /** Emitted when a message is received from Kafka */
+    /* Emitted when a message is received from Kafka */
     message: [content: EachMessagePayload];
   }
 }
