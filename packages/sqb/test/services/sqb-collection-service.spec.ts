@@ -1,6 +1,6 @@
 import { faker } from '@faker-js/faker';
 import { ResourceNotAvailableError } from '@opra/common';
-import { SqbCollectionService, SqbEntityService } from '@opra/sqb';
+import { SqbCollectionService } from '@opra/sqb';
 import { TempCustomer } from 'example-customer-sqb';
 import { CustomerApplication } from 'example-express-sqb';
 import { expect } from 'expect';
