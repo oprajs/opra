@@ -271,9 +271,14 @@ export class SqbEntityService<
    * Called whenever a command throws. Useful for logging or transforming errors.
    *
    * @param error - The thrown error.
+   * @param command - The service command during which the error was thrown.
    * @param _this - The service instance.
    */
-  onError?: (error: unknown, _this: any) => void | Promise<void>;
+  onError?: (
+    error: unknown,
+    command: SqbEntityService.CommandInfo,
+    _this: any,
+  ) => void | Promise<void>;
 
   /**
    * Constructs a new instance.
@@ -958,7 +963,7 @@ export class SqbEntityService<
       return result;
     } catch (e: any) {
       Error.captureStackTrace(e, this._executeCommand);
-      await this.onError?.(e, this);
+      await this.onError?.(e, command, this);
       throw e;
     }
   }

@@ -1,6 +1,6 @@
 import { faker } from '@faker-js/faker';
 import { ResourceNotAvailableError } from '@opra/common';
-import { SqbCollectionService } from '@opra/sqb';
+import { SqbCollectionService, SqbEntityService } from '@opra/sqb';
 import { TempCustomer } from 'example-customer-sqb';
 import { CustomerApplication } from 'example-express-sqb';
 import { expect } from 'expect';
@@ -680,6 +680,20 @@ describe('sqb:SqbCollectionService', () => {
       const r = await service1.for(ctx, { interceptor: mockFn }).deleteMany();
       expect(r).toBeGreaterThanOrEqual(0);
       expect(mockFn.callCount).toEqual(1);
+    });
+
+    it('Should call onError when operation fails', async () => {
+      const ctx = createContext(app.adapter);
+      const onErrorSpy = sinon.spy();
+
+      await expect(
+        service1.for(ctx, { onError: onErrorSpy }).create({}),
+      ).rejects.toThrow();
+
+      expect(onErrorSpy.callCount).toEqual(1);
+      const [error, command] = onErrorSpy.firstCall.args;
+      expect(error).toBeInstanceOf(Error);
+      expect(command.crud).toBe('create');
     });
   });
 });
