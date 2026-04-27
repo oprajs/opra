@@ -1,13 +1,22 @@
 {
   "extends": "./tsconfig-base.json",
+  "include": [
+    "./packages/*/test/**/*.*",
+    "./packages/*/src/**/*.*"
+  ],
   "compilerOptions": {
-    "types": ["node", "mocha"],
+    "types": [
+      "node",
+      "mocha"
+    ],
     "sourceMap": true,
     "paths": {
-      "@opra/*": ["./packages/*/src/index.js"],
+      "@opra/*": [
+        "./packages/*/src/index.js"
+      ],
       "example-customer-mongo/models": [
         "./examples/_lib/customer-mongo/src/models/index.js"
-      ],
+      ]
     }
   }
 }
