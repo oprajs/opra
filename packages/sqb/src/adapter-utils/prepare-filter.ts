@@ -1,6 +1,6 @@
 import '@opra/core';
 import { OpraFilter } from '@opra/common';
-import * as sqb from '@sqb/builder';
+import { Operators, sql } from '@sqb/builder';
 import { vg } from 'valgen';
 import type { SQBAdapter } from '../sqb-adapter.js';
 
@@ -28,7 +28,7 @@ export default function prepareFilter(
     else ast = filter;
     if (ast) arr.push(ast);
   }
-  return arr.length > 1 ? sqb.And(...arr) : arr[0];
+  return arr.length > 1 ? sql.And(...arr) : arr[0];
 }
 
 const _isDate = vg.isDate({ trim: 'day' });
@@ -50,12 +50,12 @@ function prepareFilterAst(ast?: OpraFilter.Expression): any {
   }
 
   if (ast instanceof OpraFilter.NegativeExpression) {
-    return sqb.Not(prepareFilterAst(ast.expression));
+    return sql.Not(prepareFilterAst(ast.expression));
   }
 
   if (ast instanceof OpraFilter.LogicalExpression) {
-    if (ast.op === 'or') return sqb.Or(...ast.items.map(prepareFilterAst));
-    return sqb.And(...ast.items.map(prepareFilterAst));
+    if (ast.op === 'or') return sql.Or(...ast.items.map(prepareFilterAst));
+    return sql.And(...ast.items.map(prepareFilterAst));
   }
 
   if (ast instanceof OpraFilter.ParenthesizedExpression) {
@@ -75,35 +75,20 @@ function prepareFilterAst(ast?: OpraFilter.Expression): any {
       if (x) return x;
     }
     switch (ast.op) {
-      case '=':
-        return sqb.Eq(left, right);
-      case '!=':
-        return sqb.Ne(left, right);
-      case '>':
-        return sqb.Gt(left, right);
-      case '>=':
-        return sqb.Gte(left, right);
-      case '<':
-        return sqb.Lt(left, right);
-      case '<=':
-        return sqb.Lte(left, right);
-      case 'in':
-        return sqb.In(left, right);
-      case '!in':
-        return sqb.Nin(left, right);
       case 'like':
-        return sqb.Like(left, String(right).replace(/\*/g, '%'));
+        return sql.Like(left, String(right).replace(/\*/g, '%'));
       case 'ilike':
-        return sqb.Ilike(left, String(right).replace(/\*/g, '%'));
+        return sql.ILike(left, String(right).replace(/\*/g, '%'));
       case '!like':
-        return sqb.NotLike(left, String(right).replace(/\*/g, '%'));
+        return sql.NotLike(left, String(right).replace(/\*/g, '%'));
       case '!ilike':
-        return sqb.NotILike(left, String(right).replace(/\*/g, '%'));
-      default:
-        throw new Error(
-          `ComparisonExpression operator (${ast.op}) not implemented yet`,
-        );
+        return sql.NotILike(left, String(right).replace(/\*/g, '%'));
     }
+    const fn: Function | undefined = Operators[ast.op];
+    if (fn) return fn(left, right);
+    throw new Error(
+      `ComparisonExpression operator (${ast.op}) not implemented yet`,
+    );
   }
 
   if (

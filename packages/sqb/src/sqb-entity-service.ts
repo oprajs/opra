@@ -1,6 +1,6 @@
 import { ComplexType, DataType, InternalServerError } from '@opra/common';
 import { ExecutionContext, ServiceBase } from '@opra/core';
-import { op } from '@sqb/builder';
+import { sql } from '@sqb/builder';
 import { EntityMetadata, Repository } from '@sqb/connect';
 import type {
   Nullish,
@@ -374,6 +374,7 @@ export class SqbEntityService<
    * @param operation - The operation name.
    */
   getInputCodec(operation: string): vg.isObject.Validator<T> {
+    const dataType = this.dataType;
     const cacheKey =
       operation + (this._dataTypeScope ? ':' + this._dataTypeScope : '');
     let validator = this._inputCodecs[cacheKey];
@@ -383,7 +384,6 @@ export class SqbEntityService<
       scope: this._dataTypeScope,
     };
     if (operation === 'update') options.partial = 'deep';
-    const dataType = this.dataType;
     validator = dataType.generateCodec(
       'decode',
       options,
@@ -398,6 +398,7 @@ export class SqbEntityService<
    * @param operation - The operation name.
    */
   getOutputCodec(operation: string): vg.isObject.Validator<T> {
+    const dataType = this.dataType;
     const cacheKey =
       operation + (this._dataTypeScope ? ':' + this._dataTypeScope : '');
     let validator = this._outputCodecs[cacheKey];
@@ -407,7 +408,6 @@ export class SqbEntityService<
       partial: 'deep',
       scope: this._dataTypeScope,
     };
-    const dataType = this.dataType;
     validator = dataType.generateCodec(
       'decode',
       options,
@@ -890,7 +890,7 @@ export class SqbEntityService<
     const mapped = commonFilter.map(f =>
       typeof f === 'function' ? f(command, this) : f,
     );
-    return mapped.length > 1 ? op.and(...mapped) : mapped[0];
+    return mapped.length > 1 ? sql.And(...mapped) : mapped[0];
   }
 
   protected async _executeCommand(

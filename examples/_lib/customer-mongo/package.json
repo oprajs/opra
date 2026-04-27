@@ -7,7 +7,7 @@
   "dependencies": {
     "@opra/common": "^1.26.4",
     "@opra/mongodb": "^1.26.4",
-    "mongodb": "^7.1.1",
+    "mongodb": "^7.2.0",
     "ts-gems": "^3.11.6"
   },
   "scripts": {

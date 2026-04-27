@@ -1,7 +1,7 @@
 import { ApiDocument } from '@opra/common';
 import { HttpIncoming, NodeIncomingMessage } from '@opra/http';
 import { SQBAdapter } from '@opra/sqb';
-import { op } from '@sqb/builder';
+import { sql } from '@sqb/builder';
 import { CustomerApplication } from 'example-express-sqb';
 import { expect } from 'expect';
 import { createContext } from '../_support/create-context.js';
@@ -71,7 +71,7 @@ describe('sqb:SQBAdapter.parseRequest', () => {
     const o = await SQBAdapter.parseRequest(context);
     expect(o.method).toStrictEqual('deleteMany');
     expect(o.options).toEqual({
-      filter: op.gt('_id', 5),
+      filter: sql.Gt('_id', 5),
     });
   });
 
@@ -107,7 +107,7 @@ describe('sqb:SQBAdapter.parseRequest', () => {
     expect(o.method).toStrictEqual('findMany');
     expect(o.options).toEqual({
       projection: 'givenName,gender',
-      filter: op.gt('_id', 5),
+      filter: sql.Gt('_id', 5),
       limit: 10,
       skip: 1,
       count: true,
@@ -181,7 +181,7 @@ describe('sqb:SQBAdapter.parseRequest', () => {
     expect(o.method).toStrictEqual('updateMany');
     expect(o.data).toEqual(data);
     expect(o.options).toEqual({
-      filter: op.gt('_id', 5),
+      filter: sql.Gt('_id', 5),
     });
   });
 });

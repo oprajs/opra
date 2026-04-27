@@ -3,8 +3,6 @@
   "include": ["src"],
   "exclude": ["build"],
   "compilerOptions": {
-    "composite": true,
-    "incremental": true,
     "rootDir": "src",
     "outDir": "./build"
   }
