@@ -28,8 +28,8 @@
   "peerDependencies": {
     "@opra/core": "^1.27.0",
     "@opra/http": "^1.27.0",
-    "@sqb/builder": ">4.0.0 <5",
-    "@sqb/connect": ">4.0.0 <5"
+    "@sqb/builder": ">4.0.0 <6",
+    "@sqb/connect": ">4.0.0 <6"
   },
   "devDependencies": {
     "@faker-js/faker": "^10.4.0",
