@@ -1,4 +1,4 @@
-import { JsonType } from 'ts-gems';
+import type { JsonType } from 'ts-gems';
 import { IssueSeverity } from './issue-severity.enum.js';
 
 export interface ErrorIssue {

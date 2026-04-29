@@ -1,5 +1,3 @@
-/* eslint-disable import-x/extensions */
-// @ts-ignore
 import { HttpClient } from '@angular/common/http';
 import {
   type ModuleWithProviders,
@@ -8,12 +6,12 @@ import {
   Type,
 } from '@angular/core';
 import { kClient } from '@opra/client';
-import { OpraAngularClient } from './angular-client';
-import { OPRA_CLIENT_MODULE_OPTIONS } from './constants';
+import { OpraAngularClient } from './angular-client.js';
+import { OPRA_CLIENT_MODULE_OPTIONS } from './constants.js';
 import type {
   OpraClientModuleAsyncOptions,
   OpraClientModuleOptions,
-} from './interfaces/module-options.interface';
+} from './interfaces/module-options.interface.js';
 
 /**
  * Angular module for OPRA client.

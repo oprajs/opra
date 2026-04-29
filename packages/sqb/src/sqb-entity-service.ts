@@ -1,6 +1,6 @@
 import { ComplexType, DataType, InternalServerError } from '@opra/common';
 import { ExecutionContext, ServiceBase } from '@opra/core';
-import { sql } from '@sqb/builder';
+import { sql, type SqlElement } from '@sqb/builder';
 import { EntityMetadata, Repository } from '@sqb/connect';
 import type {
   Nullish,
@@ -205,13 +205,13 @@ export namespace SqbEntityService {
 
   export interface UpdateOneCommand<T> extends CommandInfo {
     crud: 'update';
-    input: PatchDTO<T>;
+    input: PatchDTO<T, SqlElement>;
     options?: UpdateOneOptions;
   }
 
   export interface UpdateManyCommand<T> extends CommandInfo {
     crud: 'update';
-    input: PatchDTO<T>;
+    input: PatchDTO<T, SqlElement>;
     options?: UpdateManyOptions;
   }
 }

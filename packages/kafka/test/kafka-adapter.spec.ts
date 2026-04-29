@@ -1,5 +1,5 @@
 import { ApiDocument } from '@opra/common';
-import { ILogger } from '@opra/core';
+import type { ILogger } from '@opra/core';
 import { KafkaAdapter } from '@opra/kafka';
 import { expect } from 'expect';
 import { Kafka } from 'kafkajs';

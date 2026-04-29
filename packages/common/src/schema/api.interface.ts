@@ -1,5 +1,5 @@
-import { DataTypeContainer } from './data-type-container.interface.js';
-import { Transport } from './types.js';
+import type { DataTypeContainer } from './data-type-container.interface.js';
+import type { Transport } from './types.js';
 
 /**
  * @interface Api

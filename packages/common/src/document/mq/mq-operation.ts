@@ -1,7 +1,7 @@
 import { omitUndefined } from '@jsopen/objects';
-import type { Combine, ThunkAsync, Type } from 'ts-gems';
-import { asMutable, TypeThunkAsync } from 'ts-gems';
-import { Validator, vg } from 'valgen';
+import type { Combine, ThunkAsync, Type, TypeThunkAsync } from 'ts-gems';
+import { asMutable } from 'ts-gems';
+import { type Validator, vg } from 'valgen';
 import { OpraSchema } from '../../schema/index.js';
 import { DataTypeMap } from '../common/data-type-map.js';
 import { DocumentElement } from '../common/document-element.js';
@@ -9,7 +9,7 @@ import { CLASS_NAME_PATTERN, DECORATOR, kDataTypeMap } from '../constants.js';
 import { DataType } from '../data-type/data-type.js';
 import type { EnumType } from '../data-type/enum-type.js';
 import {
-  MQOperationDecorator,
+  type MQOperationDecorator,
   MQOperationDecoratorFactory,
 } from '../decorators/mq-operation.decorator.js';
 import type { MQController } from './mq-controller.js';

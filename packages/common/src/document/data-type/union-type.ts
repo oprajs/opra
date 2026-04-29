@@ -2,7 +2,7 @@ import 'reflect-metadata';
 import { omitUndefined } from '@jsopen/objects';
 import type { Combine, Type } from 'ts-gems';
 import { asMutable } from 'ts-gems';
-import { Validator, vg } from 'valgen';
+import { type Validator, vg } from 'valgen';
 import { OpraSchema } from '../../schema/index.js';
 import type { ApiDocument } from '../api-document.js';
 import type { DocumentElement } from '../common/document-element.js';

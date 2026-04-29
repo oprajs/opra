@@ -1,7 +1,7 @@
 import '../polifils/array-find-last.js';
 import { omitUndefined } from '@jsopen/objects';
 import type { StrictOmit } from 'ts-gems';
-import { isString, Validator } from 'valgen';
+import { isString, type Validator } from 'valgen';
 import type { ComplexType } from '../document/index.js';
 import { OpraException } from '../exception/index.js';
 import { ResponsiveMap } from '../helpers/index.js';

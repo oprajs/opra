@@ -3,10 +3,10 @@ import {
   asMutable,
   type Combine,
   type StrictOmit,
-  Type,
+  type Type,
   type TypeThunkAsync,
 } from 'ts-gems';
-import { Validator, vg } from 'valgen';
+import { type Validator, vg } from 'valgen';
 import type { OpraSchema } from '../../schema/index.js';
 import { DocumentElement } from '../common/document-element.js';
 import { Value } from '../common/value.js';

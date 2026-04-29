@@ -1,4 +1,5 @@
 import { ResourceNotAvailableError } from '@opra/common';
+import type { SqlElement } from '@sqb/builder';
 import type { DTO, PartialDTO, PatchDTO, RequiredSome, Type } from 'ts-gems';
 import { SQBAdapter } from './sqb-adapter.js';
 import { SqbEntityService } from './sqb-entity-service.js';
@@ -441,7 +442,7 @@ export class SqbCollectionService<
    */
   async update(
     id: SQBAdapter.IdOrIds,
-    input: PatchDTO<T>,
+    input: PatchDTO<T, SqlElement>,
     options?: RequiredSome<SqbEntityService.UpdateOneOptions, 'projection'>,
   ): Promise<PartialDTO<T> | undefined>;
   /**
@@ -454,12 +455,12 @@ export class SqbCollectionService<
    */
   async update(
     id: SQBAdapter.IdOrIds,
-    input: PatchDTO<T>,
+    input: PatchDTO<T, SqlElement>,
     options?: SqbEntityService.UpdateOneOptions,
   ): Promise<DTO<T> | undefined>;
   async update(
     id: SQBAdapter.IdOrIds,
-    input: PatchDTO<T>,
+    input: PatchDTO<T, SqlElement>,
     options?: SqbEntityService.UpdateOneOptions,
   ): Promise<PartialDTO<T> | DTO<T> | undefined> {
     const command: SqbEntityService.UpdateOneCommand<T> = {
@@ -490,7 +491,7 @@ export class SqbCollectionService<
    */
   async updateOnly(
     id: SQBAdapter.IdOrIds,
-    input: PatchDTO<T>,
+    input: PatchDTO<T, SqlElement>,
     options?: SqbEntityService.UpdateOneOptions,
   ): Promise<number> {
     const command: SqbEntityService.UpdateOneCommand<T> = {
@@ -519,7 +520,7 @@ export class SqbCollectionService<
    * @returns The number of records modified.
    */
   async updateMany(
-    input: PatchDTO<T>,
+    input: PatchDTO<T, SqlElement>,
     options?: SqbEntityService.UpdateManyOptions,
   ): Promise<number> {
     const command: SqbEntityService.UpdateManyCommand<T> = {

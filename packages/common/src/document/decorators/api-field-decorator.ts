@@ -1,5 +1,5 @@
 import { omitUndefined } from '@jsopen/objects';
-import { StrictOmit } from 'ts-gems';
+import type { StrictOmit } from 'ts-gems';
 import { OpraSchema } from '../../schema/index.js';
 import { DATATYPE_METADATA } from '../constants.js';
 import type { ApiField } from '../data-type/api-field.js';

@@ -1,4 +1,4 @@
-import { TypeThunkAsync } from 'ts-gems';
+import type { TypeThunkAsync } from 'ts-gems';
 import { WS_PARAM_METADATA } from '../constants.js';
 
 export function WsParam(

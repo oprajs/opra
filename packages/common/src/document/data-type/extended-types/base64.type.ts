@@ -1,4 +1,4 @@
-import { Type } from 'ts-gems';
+import type { Type } from 'ts-gems';
 import { isBase64, type Validator, validator, vg } from 'valgen';
 import { DECODER, ENCODER } from '../../constants.js';
 import { SimpleType } from '../simple-type.js';
