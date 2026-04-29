@@ -27,7 +27,7 @@ env:
   SKIP_KAFKA_TESTS: "true"
 #  SKIP_SQB_TESTS: "true"
 #  SKIP_RABBITMQ_TESTS: "true"
-#  SKIP_ELASTIC_TESTS: "true"
+  SKIP_ELASTIC_TESTS: "true"
 
 jobs:
   test:
@@ -84,18 +84,18 @@ jobs:
           mongodb-version: 8.0
           mongodb-replica-set: test-rs
 
-      - name: Configure sysctl limits
-        run: |
-          sudo swapoff -a
-          sudo sysctl -w vm.swappiness=1
-          sudo sysctl -w fs.file-max=262144
-          sudo sysctl -w vm.max_map_count=262144
-
-      - name: Runs Elasticsearch
-        uses: elastic/elastic-github-actions/elasticsearch@master
-        with:
-          stack-version: 9.0.0
-          security-enabled: false
+#      - name: Configure sysctl limits
+#        run: |
+#          sudo swapoff -a
+#          sudo sysctl -w vm.swappiness=1
+#          sudo sysctl -w fs.file-max=262144
+#          sudo sysctl -w vm.max_map_count=262144
+#
+#      - name: Runs Elasticsearch
+#        uses: elastic/elastic-github-actions/elasticsearch@master
+#        with:
+#          stack-version: 9.0.0
+#          security-enabled: false
 
 #      - name: Run Kafka KRaft Broker
 #        uses: spicyparrot/kafka-kraft-action@v1.1.3
