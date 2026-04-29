@@ -7,7 +7,10 @@ import { expect } from 'expect';
 import * as sinon from 'sinon';
 import { createContext } from '../_support/create-context.js';
 
-describe('sqb:SqbSingletonService', () => {
+const describeOrSkip =
+  process.env.SKIP_SQB_TESTS === 'true' ? describe.skip : describe;
+
+describeOrSkip('sqb:SqbSingletonService', () => {
   let app: CustomerApplication;
   let service: SqbSingletonService<any>;
   let tempRecord: any;
