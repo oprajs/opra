@@ -6,7 +6,10 @@ import { expect } from 'expect';
 import * as sinon from 'sinon';
 import { createContext } from '../_support/create-context.js';
 
-describe('mongodb:MongoSingletonService', () => {
+const describeOrSkip =
+  process.env.SKIP_MONGO_TESTS === 'true' ? describe.skip : describe;
+
+describeOrSkip('mongodb:MongoSingletonService', () => {
   let app: CustomerApplication;
   let service: MongoSingletonService<any>;
   let tempRecord: any;

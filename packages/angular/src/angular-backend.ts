@@ -1,7 +1,7 @@
 // @ts-ignore
-import { HttpContext, HttpHeaders, HttpParams } from '@angular/common/http';
 // @ts-ignore
 import * as Angular from '@angular/common/http';
+import { HttpContext, HttpHeaders, HttpParams } from '@angular/common/http';
 import typeIs from '@browsery/type-is';
 import {
   HttpBackend,

@@ -7,7 +7,10 @@ import { expect } from 'expect';
 import * as sinon from 'sinon';
 import { createContext } from '../_support/create-context.js';
 
-describe('sqb:SqbCollectionService', () => {
+const describeOrSkip =
+  process.env.SKIP_SQB_TESTS === 'true' ? describe.skip : describe;
+
+describeOrSkip('sqb:SqbCollectionService', () => {
   let app: CustomerApplication;
   let service1: SqbCollectionService<any>;
   let service2: SqbCollectionService<any>;

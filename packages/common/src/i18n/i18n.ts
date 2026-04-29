@@ -7,8 +7,8 @@ import type {
   TFunction as I18nextTFunction,
   TOptions,
 } from '@browsery/i18next';
-import i18next from '@browsery/i18next';
 import * as I18next from '@browsery/i18next';
+import i18next from '@browsery/i18next';
 import { splitString, tokenize } from 'fast-tokenizer';
 import type { Type } from 'ts-gems';
 import { unescapeString } from './string-utils.js';

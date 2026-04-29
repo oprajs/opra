@@ -1,11 +1,11 @@
 {
   "name": "@opra/rabbitmq",
-  "version": "1.27.2",
+  "version": "1.27.4",
   "description": "Opra RabbitMQ adapter",
   "author": "Panates",
   "license": "MIT",
   "scripts": {
-    "compile": "tsc --noEmit",
+    "compile": "tsc --noEmit && tsc --noEmit -p test/tsconfig.json",
     "prebuild": "npm run check && npm run lint && npm run clean",
     "build": "tsc -b tsconfig-build.json",
     "postbuild": "node ../../support/postbuild.cjs",
@@ -30,8 +30,8 @@
     "valgen": "^6.0.3"
   },
   "peerDependencies": {
-    "@opra/common": "^1.27.2",
-    "@opra/core": "^1.27.2",
+    "@opra/common": "^1.27.4",
+    "@opra/core": "^1.27.4",
     "rabbitmq-client": ">=5.0.0 <6"
   },
   "devDependencies": {

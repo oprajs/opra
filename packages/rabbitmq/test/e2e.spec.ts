@@ -1,6 +1,6 @@
 import { faker } from '@faker-js/faker';
 import { ApiDocument } from '@opra/common';
-import { ILogger } from '@opra/core';
+import type { ILogger } from '@opra/core';
 import { RabbitmqAdapter } from '@opra/rabbitmq';
 import { expect } from 'expect';
 import * as rabbit from 'rabbitmq-client';
@@ -8,7 +8,10 @@ import { TestController } from './_support/test-api/api/test-controller.js';
 import { TestMQApiDocument } from './_support/test-api/index.js';
 import { waitForMessage } from './_support/wait-for-message.js';
 
-describe('rabbitmq:RabbitmqAdapter:e2e', () => {
+const describeOrSkip =
+  process.env.SKIP_RABBITMQ_TESTS === 'true' ? describe.skip : describe;
+
+describeOrSkip('rabbitmq:RabbitmqAdapter:e2e', () => {
   let document: ApiDocument;
   let adapter: RabbitmqAdapter;
   let connection: rabbit.Connection;

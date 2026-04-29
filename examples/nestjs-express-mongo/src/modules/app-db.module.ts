@@ -1,5 +1,5 @@
 import { updateErrorMessage } from '@jsopen/objects';
-import { Global, Module, OnApplicationShutdown } from '@nestjs/common';
+import { Global, Module, type OnApplicationShutdown } from '@nestjs/common';
 import type { OnApplicationBootstrap } from '@nestjs/common/interfaces/hooks/on-application-bootstrap.interface.js';
 import { Db, MongoClient } from 'mongodb';
 

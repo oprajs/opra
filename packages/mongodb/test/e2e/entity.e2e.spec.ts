@@ -3,7 +3,10 @@ import { OpraTestClient } from '@opra/testing';
 import { CustomerApplication } from 'example-express-mongo';
 import { entityTests } from '../../../http/test/e2e/tests/index.js';
 
-describe('mongodb:e2e', function () {
+const describeOrSkip =
+  process.env.SKIP_MONGO_TESTS === 'true' ? describe.skip : describe;
+
+describeOrSkip('mongodb:e2e', function () {
   let app: CustomerApplication;
   let client: OpraTestClient;
   const testArgs: any = {};

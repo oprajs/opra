@@ -1,5 +1,5 @@
 import { faker } from '@faker-js/faker';
-import { INestApplication } from '@nestjs/common';
+import type { INestApplication } from '@nestjs/common';
 import { APP_GUARD, ModuleRef } from '@nestjs/core';
 import { APP_INTERCEPTOR } from '@nestjs/core/constants.js';
 import type { Producer } from '@nestjs/microservices/external/kafka.interface.js';
@@ -22,7 +22,10 @@ import {
 
 const kafkaBrokerHost = process.env.KAFKA_BROKER || 'localhost:9092';
 
-describe('nestjs-kafka:OpraKafkaModule - sync', () => {
+const describeOrSkip =
+  process.env.SKIP_KAFKA_TESTS === 'true' ? describe.skip : describe;
+
+describeOrSkip('nestjs-kafka:OpraKafkaModule - sync', () => {
   let nestApplication: INestApplication;
   let moduleRef: ModuleRef;
   let adapter: KafkaAdapter;

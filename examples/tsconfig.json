@@ -1,6 +1,6 @@
 {
   "extends": "../tsconfig-base.json",
-  "include": ["**/*.ts"],
+  "include": ["**/*.ts", "../packages/*/src/**/*.ts"],
   "compilerOptions": {
     "esModuleInterop": true,
     "forceConsistentCasingInFileNames": true,

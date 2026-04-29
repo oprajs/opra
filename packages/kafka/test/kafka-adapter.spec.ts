@@ -6,7 +6,10 @@ import { Kafka } from 'kafkajs';
 import * as sinon from 'sinon';
 import { TestMQApiDocument } from './_support/test-api/index.js';
 
-describe('kafka:KafkaAdapter', () => {
+const describeOrSkip =
+  process.env.SKIP_KAFKA_TESTS === 'true' ? describe.skip : describe;
+
+describeOrSkip('kafka:KafkaAdapter', () => {
   let document: ApiDocument;
   let adapter: KafkaAdapter;
   const logger: ILogger = {

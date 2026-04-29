@@ -7,7 +7,10 @@ import * as sinon from 'sinon';
 import { ElasticCollectionService } from '../../src/index.js';
 import { createContext } from '../_support/create-context.js';
 
-describe('elastic:ElasticCollectionService', () => {
+const describeOrSkip =
+  process.env.SKIP_ELASTIC_TESTS === 'true' ? describe.skip : describe;
+
+describeOrSkip('elastic:ElasticCollectionService', () => {
   let app: CustomerApplication;
   let service: ElasticCollectionService<any>;
   const indexName = 'collection-test';

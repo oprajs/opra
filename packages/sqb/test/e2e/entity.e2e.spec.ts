@@ -3,7 +3,10 @@ import { OpraTestClient } from '@opra/testing';
 import { CustomerApplication } from 'example-express-sqb';
 import { entityTests } from '../../../http/test/e2e/tests/index.js';
 
-describe('sqb:e2e tests', function () {
+const describeOrSkip =
+  process.env.SKIP_SQB_TESTS === 'true' ? describe.skip : describe;
+
+describeOrSkip('sqb:e2e tests', function () {
   let app: CustomerApplication;
   let client: OpraTestClient;
   const testArgs: any = {};

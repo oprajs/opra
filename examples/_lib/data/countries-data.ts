@@ -1,4 +1,4 @@
-import type { Country } from '../customer-mongo/src/models/index';
+import type { Country } from '../customer-mongo/src/models/index.js';
 
 export const countriesData: Country[] = [
   { code: 'AD', name: 'Andorra' },

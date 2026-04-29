@@ -1,11 +1,11 @@
 {
   "name": "@opra/common",
-  "version": "1.27.2",
+  "version": "1.27.4",
   "description": "Opra common package",
   "author": "Panates",
   "license": "MIT",
   "scripts": {
-    "compile": "tsc --noEmit",
+    "compile": "tsc --noEmit && tsc --noEmit -p test/tsconfig.json",
     "prebuild": "npm run check && npm run lint && npm run clean",
     "build": "tsc -b tsconfig-build.json && node esbuild.mjs",
     "postbuild": "node ../../support/postbuild.cjs",
@@ -22,7 +22,7 @@
     "antlr4": "java -jar ./tools/antlr-4.13.2-complete.jar -Dlanguage=TypeScript ./src/filter/antlr/OpraFilter.g4 -visitor"
   },
   "dependencies": {
-    "@browsery/antlr4": "^4.13.3-r5",
+    "@browsery/antlr4": "^4.13.3-r7",
     "@browsery/highland": "^2.13.6-r5",
     "@browsery/http-parser": "^0.5.10-r3",
     "@browsery/i18next": "^25.6.0",

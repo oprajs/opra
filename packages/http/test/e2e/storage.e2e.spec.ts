@@ -2,7 +2,7 @@ import { ApiDocument } from '@opra/common';
 import { ExpressAdapter } from '@opra/http';
 import { OpraTestClient } from '@opra/testing';
 import { expect } from 'expect';
-import express, { Express } from 'express';
+import express, { type Express } from 'express';
 import supertest from 'supertest';
 import { FilesController } from '../_support/test-api/api/files.controller.js';
 import { createTestApi } from '../_support/test-api/index.js';

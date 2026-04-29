@@ -1,16 +1,16 @@
 import { ApiDocument, HttpHeaderCodes, OpraSchema } from '@opra/common';
 import { expect } from 'expect';
-import { finalize, Observable } from 'rxjs';
-import {
+import type { Observable } from 'rxjs';
+import { finalize } from 'rxjs';
+import type {
   FetchBackend,
   HttpEvent,
   HttpEventType,
   HttpHandler,
-  HttpObserveType,
-  HttpResponse,
-  OpraHttpClient,
 } from '../src/index.js';
-import { createMockServer, MockServer } from './_support/create-mock-server.js';
+import { HttpObserveType, HttpResponse, OpraHttpClient } from '../src/index.js';
+import type { MockServer } from './_support/create-mock-server.js';
+import { createMockServer } from './_support/create-mock-server.js';
 
 describe('client:OpraClient', () => {
   let app: MockServer;
