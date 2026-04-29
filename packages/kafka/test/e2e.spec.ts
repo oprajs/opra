@@ -9,8 +9,10 @@ import { TestMQApiDocument } from './_support/test-api/index.js';
 import { waitForMessage } from './_support/wait-for-message.js';
 
 const kafkaBrokerHost = process.env.KAFKA_BROKER || 'localhost:9092';
+const describeOrSkip =
+  process.env.SKIP_KAFKA_TESTS === 'true' ? describe.skip : describe;
 
-describe('kafka:e2e', () => {
+describeOrSkip('kafka:e2e', () => {
   let document: ApiDocument;
   let adapter: KafkaAdapter;
   let producer: Producer;

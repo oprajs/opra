@@ -22,7 +22,10 @@ import {
 
 const kafkaBrokerHost = process.env.KAFKA_BROKER || 'localhost:9092';
 
-describe('nestjs-kafka:OpraKafkaModule - async', () => {
+const describeOrSkip =
+  process.env.SKIP_KAFKA_TESTS === 'true' ? describe.skip : describe;
+
+describeOrSkip('nestjs-kafka:OpraKafkaModule - async', () => {
   let nestApplication: INestApplication;
   let moduleRef: ModuleRef;
   let adapter: KafkaAdapter;
