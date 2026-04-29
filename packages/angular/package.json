@@ -5,7 +5,7 @@
   "author": "Panates",
   "license": "MIT",
   "scripts": {
-    "compile": "tsc --noEmit",
+    "compile": "tsc --noEmit && tsc --noEmit -p test/tsconfig.json",
     "prebuild": "npm run check && npm run lint && npm run clean",
     "build": "ng build",
     "postbuild": "cp ../../LICENSE ./build",
@@ -32,8 +32,8 @@
     "ts-gems": "^3.12.0"
   },
   "devDependencies": {
-    "@angular-devkit/build-angular": "^21.2.8",
-    "@angular/cli": "^21.2.8",
+    "@angular-devkit/build-angular": "^21.2.9",
+    "@angular/cli": "^21.2.9",
     "@angular/compiler": "^21.2.10",
     "@angular/compiler-cli": "^21.2.10",
     "@angular/platform-browser": "^21.2.10",

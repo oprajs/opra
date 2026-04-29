@@ -8,7 +8,7 @@ import {
 } from '@opra/http';
 import cookieParser from 'cookie-parser';
 import { expect } from 'expect';
-import express, { Express } from 'express';
+import express, { type Express } from 'express';
 import { createTestApi } from './_support/test-api/index.js';
 
 describe('http:HttpContext', () => {

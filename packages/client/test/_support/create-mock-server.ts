@@ -3,7 +3,7 @@ import { ExpressAdapter } from '@opra/http';
 import bodyParser from 'body-parser';
 import express from 'express';
 import http from 'http';
-import { AddressInfo } from 'net';
+import type { AddressInfo } from 'net';
 import { createTestApi } from '../../../http/test/_support/test-api/index.js';
 
 export interface MockServer extends express.Express {

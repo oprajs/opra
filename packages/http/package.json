@@ -5,7 +5,7 @@
   "author": "Panates",
   "license": "MIT",
   "scripts": {
-    "compile": "tsc --noEmit",
+    "compile": "tsc --noEmit && tsc --noEmit -p test/tsconfig.json",
     "prebuild": "npm run check && npm run lint && npm run clean",
     "build": "tsc -b tsconfig-build.json",
     "postbuild": "node ../../support/postbuild.cjs && cp -R i18n ./build/i18n",
@@ -21,7 +21,7 @@
     "clean:cover": "rimraf ../../coverage/http"
   },
   "dependencies": {
-    "@browsery/antlr4": "^4.13.3-r5",
+    "@browsery/antlr4": "^4.13.3-r7",
     "@browsery/http-parser": "^0.5.10-r3",
     "@browsery/type-is": "^2.0.2-r1",
     "@jsopen/objects": "^2.2.1",

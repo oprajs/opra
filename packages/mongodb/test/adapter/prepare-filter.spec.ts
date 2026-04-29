@@ -2,7 +2,7 @@ import { ApiDocument, HttpController } from '@opra/common';
 import { MongoAdapter } from '@opra/mongodb';
 import { CustomerApplication } from 'example-express-mongo';
 import { expect } from 'expect';
-import { Validator } from 'valgen';
+import type { Validator } from 'valgen';
 
 describe('mongodb:MongoAdapter.prepareFilter', () => {
   let document: ApiDocument;

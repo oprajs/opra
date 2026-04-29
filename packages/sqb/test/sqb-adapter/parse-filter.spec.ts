@@ -4,7 +4,7 @@ import { SQBAdapter } from '@opra/sqb';
 import { sql } from '@sqb/builder';
 import { CustomerApplication } from 'example-express-sqb';
 import { expect } from 'expect';
-import { Validator } from 'valgen';
+import type { Validator } from 'valgen';
 
 describe('sqb:SQBAdapter.prepareFilter', () => {
   let document: ApiDocument;

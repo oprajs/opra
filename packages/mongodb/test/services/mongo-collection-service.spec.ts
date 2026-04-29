@@ -1,6 +1,6 @@
 import { faker } from '@faker-js/faker';
 import { ResourceNotAvailableError } from '@opra/common';
-import { MongoCollectionService, MongoPatchDTO } from '@opra/mongodb';
+import { MongoCollectionService, type MongoPatchDTO } from '@opra/mongodb';
 import type { Customer } from 'example-customer-mongo';
 import { CustomerApplication } from 'example-express-mongo';
 import { expect } from 'expect';

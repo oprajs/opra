@@ -1,6 +1,6 @@
 import { faker } from '@faker-js/faker';
 import { ApiDocument } from '@opra/common';
-import { ILogger } from '@opra/core';
+import type { ILogger } from '@opra/core';
 import { RabbitmqAdapter } from '@opra/rabbitmq';
 import { expect } from 'expect';
 import * as rabbit from 'rabbitmq-client';
