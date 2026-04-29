@@ -1,6 +1,6 @@
 import '../expect-extend/index.js';
 import { updateErrorMessage } from '@jsopen/objects';
-import { type ErrorIssue, MimeTypes } from '@opra/common';
+import { MimeTypes } from '@opra/common';
 import colors from 'ansi-colors';
 import { expect } from 'expect';
 import { ApiExpectBase } from './api-expect-base.js';
@@ -35,23 +35,9 @@ export class ApiExpect extends ApiExpectBase {
     } catch (e: any) {
       e.message =
         "Request didn't succeeded as expected. " + msg + '\n\n' + e.message;
-
-      const issues: ErrorIssue[] = this.response.body?.errors;
-      if (issues) {
-        e.message += '\n\n';
-        issues.forEach((issue, i) => {
-          const stack = Array.isArray(issue.stack)
-            ? issue.stack.join('\n')
-            : issue.stack;
-          e.message +=
-            colors.yellow(issues.length > 1 ? `Error [${i}]: ` : 'Error: ') +
-            issue.message +
-            '\n' +
-            (stack
-              ? '    ' + stack.substring(stack.indexOf('at ')) + '\n'
-              : '');
-        });
-      }
+      const issues = this._parseBodyErrors(this.response.body?.errors);
+      if (issues) e.message += '\n\n' + issues;
+      else e.message += '\n\nbody: ' + this.response.body;
       if (typeof Error.captureStackTrace === 'function')
         Error.captureStackTrace(e, this.toSuccess);
       else updateErrorMessage(e, e.message);
@@ -79,23 +65,12 @@ export class ApiExpect extends ApiExpectBase {
       }
     } catch (e: any) {
       e.message =
-        "Request didn't failed as expected. " + msg + '\n\n' + e.message;
-      const issues = this.response.body?.errors;
-      if (issues) {
-        e.message += '\n\n';
-        issues.forEach((issue, i) => {
-          const stack = Array.isArray(issue.stack)
-            ? issue.stack.join('\n')
-            : issue.stack;
-          e.message +=
-            colors.yellow(issues.length > 1 ? `Error [${i}]: ` : 'Error: ') +
-            issue.message +
-            '\n' +
-            (stack
-              ? '    ' + stack.substring(stack.indexOf('at ')) + '\n'
-              : '');
-        });
-      }
+        "Request didn't failed as expected. " +
+        msg +
+        '\n\n' +
+        e.message +
+        '\n\nbody: ' +
+        this.response.body;
       if (typeof Error.captureStackTrace === 'function')
         Error.captureStackTrace(e, this.toFail);
       else updateErrorMessage(e, e.message);
@@ -128,8 +103,14 @@ export class ApiExpect extends ApiExpectBase {
       );
     } catch (e: any) {
       e.message =
-        "Api didn't returned a Collection. " + msg + '\n\n' + e.message;
-      if (msg) e.message = msg + '\n\n' + e.message;
+        "Api didn't returned a Collection. " +
+        msg +
+        '\n\n' +
+        e.message +
+        '\n\nbody: ' +
+        this.response.body;
+      const issues = this._parseBodyErrors(this.response.body?.errors);
+      if (issues) e.message += '\n\n' + issues;
       if (typeof Error.captureStackTrace === 'function')
         Error.captureStackTrace(e, this.toReturnCollection);
       else updateErrorMessage(e, e.message);
@@ -160,8 +141,13 @@ export class ApiExpect extends ApiExpectBase {
       const payload = this.response.body.payload;
       expect(typeof payload).toEqual('object');
     } catch (e: any) {
-      e.message = "Api didn't returned an Object. " + msg + '\n\n' + e.message;
-      if (msg) e.message = msg + '\n\n' + e.message;
+      e.message =
+        "Api didn't returned an Object. " +
+        msg +
+        '\n\n' +
+        e.message +
+        '\n\nbody: ' +
+        this.response.body;
       if (typeof Error.captureStackTrace === 'function')
         Error.captureStackTrace(e, this.toReturnObject);
       else updateErrorMessage(e, e.message);
@@ -190,13 +176,37 @@ export class ApiExpect extends ApiExpectBase {
       expect(typeof payload).toEqual('undefined');
     } catch (e: any) {
       e.message =
-        "Api didn't returned a OperationResult. " + msg + '\n\n' + e.message;
+        "Api didn't returned a OperationResult. " +
+        msg +
+        '\n\n' +
+        e.message +
+        '\n\nbody: ' +
+        this.response.body;
       if (msg) e.message = msg + '\n\n' + e.message;
+      const issues = this._parseBodyErrors(this.response.body?.errors);
+      if (issues) e.message += '\n\n' + issues;
       if (typeof Error.captureStackTrace === 'function')
         Error.captureStackTrace(e, this.toReturnOperationResult);
       else updateErrorMessage(e, e.message);
       throw e;
     }
     return new ApiExpectOperationResult(this.response);
+  }
+
+  protected _parseBodyErrors(errors: any[]): string | undefined {
+    if (Array.isArray(errors)) {
+      let out = '';
+      errors.forEach((issue, i) => {
+        const stack = Array.isArray(issue.stack)
+          ? issue.stack.join('\n')
+          : issue.stack;
+        out +=
+          colors.yellow(errors.length > 1 ? `Error [${i}]: ` : 'Error: ') +
+          issue.message +
+          '\n' +
+          (stack ? '    ' + stack.substring(stack.indexOf('at ')) + '\n' : '');
+      });
+      return out;
+    }
   }
 }

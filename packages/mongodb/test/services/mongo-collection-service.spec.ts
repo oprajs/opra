@@ -7,7 +7,10 @@ import { expect } from 'expect';
 import * as sinon from 'sinon';
 import { createContext } from '../_support/create-context.js';
 
-describe('mongodb:MongoCollectionService', () => {
+const describeOrSkip =
+  process.env.SKIP_MONGO_TESTS === 'true' ? describe.skip : describe;
+
+describeOrSkip('mongodb:MongoCollectionService', () => {
   let app: CustomerApplication;
   let service1: MongoCollectionService<Customer>;
   let service2: MongoCollectionService<Customer>;

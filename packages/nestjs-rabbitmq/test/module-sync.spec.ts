@@ -19,7 +19,10 @@ import {
   TestGlobalGuard,
 } from './_support/test-app/index.js';
 
-describe('nestjs-rabbitmq:OpraRabbitmqModule - sync', () => {
+const describeOrSkip =
+  process.env.SKIP_RABBITMQ_TESTS === 'true' ? describe.skip : describe;
+
+describeOrSkip('nestjs-rabbitmq:OpraRabbitmqModule - sync', () => {
   let nestApplication: INestApplication;
   let moduleRef: ModuleRef;
   let adapter: RabbitmqAdapter;

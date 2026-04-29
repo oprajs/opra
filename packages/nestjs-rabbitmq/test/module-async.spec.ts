@@ -21,7 +21,10 @@ import {
 
 const rabbitHost = process.env.RABBITMQ_HOST || 'amqp://localhost:5672';
 
-describe('nestjs-rabbitmq:OpraRabbitmqModule - async', () => {
+const describeOrSkip =
+  process.env.SKIP_RABBITMQ_TESTS === 'true' ? describe.skip : describe;
+
+describeOrSkip('nestjs-rabbitmq:OpraRabbitmqModule - async', () => {
   let nestApplication: INestApplication;
   let moduleRef: ModuleRef;
   let adapter: RabbitmqAdapter;
