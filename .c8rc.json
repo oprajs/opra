@@ -1,5 +1,6 @@
 {
   "include": ["packages/*/src/**/*.ts"],
+  "exclude": ["packages/angular/*"],
   "reporter": ["text", "html", "lcov"],
   "all": true
 }
