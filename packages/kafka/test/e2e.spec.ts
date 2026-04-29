@@ -1,9 +1,9 @@
 import { faker } from '@faker-js/faker';
 import { ApiDocument } from '@opra/common';
-import { ILogger } from '@opra/core';
+import type { ILogger } from '@opra/core';
 import { KafkaAdapter } from '@opra/kafka';
 import { expect } from 'expect';
-import { Kafka, logLevel, Producer } from 'kafkajs';
+import { Kafka, logLevel, type Producer } from 'kafkajs';
 import { TestController } from './_support/test-api/api/test-controller.js';
 import { TestMQApiDocument } from './_support/test-api/index.js';
 import { waitForMessage } from './_support/wait-for-message.js';
