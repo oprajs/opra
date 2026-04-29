@@ -3,7 +3,7 @@ import { ExternalExceptionFilter } from '@nestjs/core/exceptions/external-except
 import {
   classes,
   type MQControllerDecorator,
-  WSControllerDecorator,
+  type WSControllerDecorator,
 } from '@opra/common';
 import WSControllerDecoratorFactory = classes.WSControllerDecoratorFactory;
 

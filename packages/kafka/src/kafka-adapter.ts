@@ -12,13 +12,13 @@ import {
   type Consumer,
   type ConsumerConfig,
   type EachMessageHandler,
-  EachMessagePayload,
+  type EachMessagePayload,
   Kafka,
   type KafkaConfig,
   logLevel,
 } from 'kafkajs';
 import type { StrictOmit } from 'ts-gems';
-import { Validator, vg } from 'valgen';
+import { type Validator, vg } from 'valgen';
 import {
   KAFKA_DEFAULT_GROUP,
   KAFKA_OPERATION_METADATA,

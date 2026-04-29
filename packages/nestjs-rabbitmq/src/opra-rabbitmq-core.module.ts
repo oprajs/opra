@@ -5,9 +5,9 @@ import {
   Inject,
   Logger,
   Module,
-  OnApplicationBootstrap,
-  OnApplicationShutdown,
-  OnModuleInit,
+  type OnApplicationBootstrap,
+  type OnApplicationShutdown,
+  type OnModuleInit,
 } from '@nestjs/common';
 import { ModuleRef } from '@nestjs/core';
 import { ApiDocumentFactory } from '@opra/common';

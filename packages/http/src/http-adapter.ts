@@ -1,6 +1,6 @@
 import { HttpApi, OpraSchema } from '@opra/common';
 import { PlatformAdapter } from '@opra/core';
-import { EventMap } from 'node-events-async';
+import type { EventMap } from 'node-events-async';
 import { HttpContext } from './http-context.js';
 import { HttpHandler } from './http-handler.js';
 

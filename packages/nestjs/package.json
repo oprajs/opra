@@ -37,7 +37,7 @@
     "express": "^5.2.1",
     "rxjs": "^7.8.2",
     "supertest": "^7.2.2",
-    "ts-gems": "^3.11.6"
+    "ts-gems": "^3.12.0"
   },
   "exports": {
     ".": {

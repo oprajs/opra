@@ -8,7 +8,7 @@ import { CLASS_NAME_PATTERN, DECORATOR, kDataTypeMap } from '../constants.js';
 import { DataType } from '../data-type/data-type.js';
 import type { EnumType } from '../data-type/enum-type.js';
 import {
-  WSOperationDecorator,
+  type WSOperationDecorator,
   WSOperationDecoratorFactory,
 } from '../decorators/ws-operation.decorator.js';
 import { parseRegExp } from '../utils/parse-regexp.util.js';

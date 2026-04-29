@@ -29,7 +29,7 @@
     "@browsery/type-is": "^2.0.2-r1",
     "@opra/client": "^1.27.1",
     "rxjs": ">=7.8.0 <8",
-    "ts-gems": "^3.11.6"
+    "ts-gems": "^3.12.0"
   },
   "devDependencies": {
     "@angular-devkit/build-angular": "^21.2.8",

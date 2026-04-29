@@ -14,7 +14,7 @@ import iconv from 'iconv-lite';
 import * as rabbit from 'rabbitmq-client';
 import type { Envelope, MessageBody } from 'rabbitmq-client/lib/codec.js';
 import { promisify } from 'util';
-import { Validator, vg } from 'valgen';
+import { type Validator, vg } from 'valgen';
 import { ConfigBuilder } from './config-builder.js';
 import { RabbitmqContext } from './rabbitmq-context.js';
 

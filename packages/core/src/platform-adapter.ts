@@ -1,10 +1,10 @@
 import './augmentation/18n.augmentation.js';
 import { ApiDocument, I18n, OpraSchema } from '@opra/common';
-import { AsyncEventEmitter, EventMap } from 'node-events-async';
+import { AsyncEventEmitter, type EventMap } from 'node-events-async';
 import { AssetCache } from './asset-cache.js';
 import { kAssetCache } from './constants.js';
 import { ExecutionContext } from './execution-context.js';
-import { ILogger } from './interfaces/logger.interface.js';
+import type { ILogger } from './interfaces/logger.interface.js';
 
 /**
  * Base class for all platform adapters in the OPRA framework.

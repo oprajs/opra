@@ -9,7 +9,7 @@
     "@opra/core": "^1.27.1",
     "@opra/socketio": "^1.27.1",
     "socket.io": "^4.8.3",
-    "ts-gems": "^3.11.6"
+    "ts-gems": "^3.12.0"
   },
   "scripts": {
     "_build": "tsc && npm run check && npm run lint && npm run format",

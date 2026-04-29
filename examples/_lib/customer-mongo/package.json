@@ -8,7 +8,7 @@
     "@opra/common": "^1.27.1",
     "@opra/mongodb": "^1.27.1",
     "mongodb": "^7.2.0",
-    "ts-gems": "^3.11.6"
+    "ts-gems": "^3.12.0"
   },
   "scripts": {
     "_build": "tsc && npm run check && npm run lint && npm run format",
