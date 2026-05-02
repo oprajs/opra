@@ -69,7 +69,7 @@ jobs:
           - 5672:5672
 
       kafka:
-        image: 'bitnami/kafka:3.7'
+        image: 'bitnami/kafka:latest'
         env:
           KAFKA_CFG_NODE_ID: '1'
           KAFKA_CFG_PROCESS_ROLES: 'broker,controller'
