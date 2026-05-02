@@ -51,7 +51,7 @@
     "uid": "^2.0.2",
     "valgen": "^6.1.0",
     "vary": "^1.1.2",
-    "yaml": "^2.8.3"
+    "yaml": "^2.8.4"
   },
   "peerDependencies": {
     "@opra/common": "^1.27.5",
