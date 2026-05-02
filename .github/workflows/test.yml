@@ -78,12 +78,12 @@ jobs:
           node-version: '24'
           token: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
 
-#      - name: Configure sysctl limits
-#        run: |
-#          sudo swapoff -a
-#          sudo sysctl -w vm.swappiness=1
-#          sudo sysctl -w fs.file-max=262144
-#          sudo sysctl -w vm.max_map_count=262144
+      - name: Configure sysctl limits
+        run: |
+          sudo swapoff -a
+          sudo sysctl -w vm.swappiness=1
+          sudo sysctl -w fs.file-max=262144
+          sudo sysctl -w vm.max_map_count=262144
 
       - name: Start MongoDB
         uses: supercharge/mongodb-github-action@1.11.0
