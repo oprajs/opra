@@ -26,7 +26,7 @@ concurrency:
 env:
   SKIP_KAFKA_TESTS: "true"
 #  SKIP_SQB_TESTS: "true"
-  SKIP_RABBITMQ_TESTS: "true"
+#  SKIP_RABBITMQ_TESTS: "true"
 #  SKIP_ELASTIC_TESTS: "true"
 
 jobs:
