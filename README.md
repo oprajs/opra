@@ -1,5 +1,5 @@
 # @OPRA
-Open Protocol for Restfull APIs
+Open Platform for Richful APIs
 
 [![NPM Version][npm-image]][npm-url]
 [![NPM Downloads][downloads-image]][downloads-url]

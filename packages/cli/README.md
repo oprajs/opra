@@ -5,7 +5,7 @@
 [![CI Tests][ci-test-image]][ci-test-url]
 [![Test Coverage][coveralls-image]][coveralls-url]
 
-`@opra/cli` is a command-line tool for OPRA (Open Protocol for Restfull APIs). It currently features `oprimp`, a
+`@opra/cli` is a command-line tool for OPRA (Open Platform for Richful APIs). It currently features `oprimp`, a
 TypeScript code generator that creates client-side models and API services from an OPRA service.
 
 ## Installation
