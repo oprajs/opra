@@ -2,6 +2,8 @@
 
 <img src="https://oprajs.com/img/logo.svg" width="200" alt="OPRA Logo" />
 
+<br/>
+
 <img src="https://oprajs.com/img/opra-title.svg" width="240" alt="OPRA" />
 
 ### Open Platform for Rich APIs
