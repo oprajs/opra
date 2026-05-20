@@ -1,6 +1,6 @@
 {
   "name": "opra",
-  "description": "Open Protocol for Restful Api",
+  "description": "Open Platform for Richful APIs",
   "private": true,
   "version": "0.1.0",
   "license": "MIT",
@@ -38,7 +38,7 @@
     "@swc/helpers": "^0.5.21",
     "@swc-node/register": "^1.11.1",
     "@types/mocha": "^10.0.10",
-    "@types/node": "^25.8.0",
+    "@types/node": "^25.9.1",
     "@types/sinon": "^21.0.1",
     "@types/supertest": "^7.2.0",
     "c8": "^11.0.0",

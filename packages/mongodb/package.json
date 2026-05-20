@@ -1,9 +1,10 @@
 {
   "name": "@opra/mongodb",
-  "version": "1.28.4",
+  "version": "1.28.5",
   "description": "Opra MongoDB adapter package",
   "author": "Panates",
   "license": "MIT",
+  "homepage": "https://www.oprajs.com",
   "scripts": {
     "compile": "tsc",
     "prebuild": "npm run check && npm run lint && npm run clean",
@@ -26,9 +27,9 @@
     "valgen": "^6.2.0"
   },
   "peerDependencies": {
-    "@opra/common": "^1.28.4",
-    "@opra/core": "^1.28.4",
-    "@opra/http": "^1.28.4",
+    "@opra/common": "^1.28.5",
+    "@opra/core": "^1.28.5",
+    "@opra/http": "^1.28.5",
     "mongodb": "^7.0.0"
   },
   "devDependencies": {

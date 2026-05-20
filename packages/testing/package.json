@@ -1,9 +1,10 @@
 {
   "name": "@opra/testing",
-  "version": "1.28.4",
+  "version": "1.28.5",
   "description": "Opra testing package",
   "author": "Panates",
   "license": "MIT",
+  "homepage": "https://www.oprajs.com",
   "scripts": {
     "compile": "tsc",
     "prebuild": "npm run check && npm run lint && npm run clean",
@@ -28,8 +29,8 @@
     "tslib": "^2.8.1"
   },
   "peerDependencies": {
-    "@opra/client": "^1.28.4",
-    "@opra/common": "^1.28.4",
+    "@opra/client": "^1.28.5",
+    "@opra/common": "^1.28.5",
     "expect": "^29.0.0 || ^30.0.0",
     "jest-matcher-utils": "^29.0.0 || ^30.0.0"
   },

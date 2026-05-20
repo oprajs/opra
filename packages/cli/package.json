@@ -1,9 +1,10 @@
 {
   "name": "@opra/cli",
-  "version": "1.28.4",
+  "version": "1.28.5",
   "description": "Opra CLI tools",
   "author": "Panates",
   "license": "MIT",
+  "homepage": "https://www.oprajs.com",
   "scripts": {
     "compile": "tsc",
     "prebuild": "npm run check && npm run lint && npm run clean",
@@ -31,8 +32,8 @@
     "tslib": "^2.8.1"
   },
   "peerDependencies": {
-    "@opra/client": "^1.28.4",
-    "@opra/common": "^1.28.4"
+    "@opra/client": "^1.28.5",
+    "@opra/common": "^1.28.5"
   },
   "type": "module",
   "module": "./index.js",

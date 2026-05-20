@@ -35,7 +35,7 @@ export type OperationArguments = {
   consumer: KafkaAdapter.ConsumerOptions;
   selfConsumer?: boolean;
 } & Required<{
-  subscribe: KafkaAdapter.OperationOptions['subscribe'];
+  subscribe: ConsumeOptions<any, any, any, any>;
 }>;
 
 interface HandlerArguments {
@@ -526,7 +526,10 @@ export namespace KafkaAdapter {
 
   export type ConsumerOptions = _ConsumerOptions<any, any, any, any>;
 
-  export type SubscribeOptions = ConsumeOptions<any, any, any, any>;
+  export type SubscribeOptions = StrictOmit<
+    ConsumeOptions<any, any, any, any>,
+    'topics'
+  >;
 
   export type Message = _Message<any, any, any, any>;
 
