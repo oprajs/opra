@@ -1,9 +1,21 @@
+<div align="center">
+
+<img src="https://oprajs.com/img/logo.svg" width="160" alt="OPRA" />
+
 # @opra/cli
+
+CLI tools for the OPRA framework — generate typed clients with `oprimp`
 
 [![NPM Version][npm-image]][npm-url]
 [![NPM Downloads][downloads-image]][downloads-url]
 [![CI Tests][ci-test-image]][ci-test-url]
 [![Test Coverage][coveralls-image]][coveralls-url]
+
+[Documentation](https://oprajs.com) · [Getting Started](https://oprajs.com/docs/introduction) · [Issues](https://github.com/panates/opra/issues)
+
+</div>
+
+---
 
 `@opra/cli` is a command-line tool for OPRA (Open Platform for Richful APIs). It currently features `oprimp`, a
 TypeScript code generator that creates client-side models and API services from an OPRA service.
@@ -121,6 +133,6 @@ Available under [MIT](LICENSE) license.
 
 [ci-test-url]: https://github.com/panates/opra/actions/workflows/test.yml
 
-[coveralls-image]: https://coveralls.io/repos/github/panates/opra/badge.svg?branch=main
+[coveralls-image]: https://coveralls.io/repos/github/panates/opra/badge.svg?branch=dev
 
 [coveralls-url]: https://coveralls.io/github/panates/opra?branch=main

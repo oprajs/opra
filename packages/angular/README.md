@@ -1,19 +1,59 @@
+<div align="center">
+
+<img src="https://oprajs.com/img/logo.svg" width="160" alt="OPRA" />
+
 # @opra/angular
+
+Angular client integration for the OPRA framework
 
 [![NPM Version][npm-image]][npm-url]
 [![NPM Downloads][downloads-image]][downloads-url]
 [![CI Tests][ci-test-image]][ci-test-url]
 [![Test Coverage][coveralls-image]][coveralls-url]
 
+[Documentation](https://oprajs.com) · [Getting Started](https://oprajs.com/docs/introduction) · [Issues](https://github.com/panates/opra/issues)
 
-## Support
-You can report bugs and discuss features on the [GitHub issues](https://github.com/panates/opra/issues) page.
+</div>
+
+---
+
+Angular client integration for the [OPRA](https://oprajs.com) framework. Use Angular's native HttpClient under the hood while keeping all of OPRA's type-safety and interceptor support.
+
+## Features
+
+- **`OpraAngularClient`** — Angular-specific HTTP client extending `HttpClientBase`
+- **`AngularBackend`** — Backend implementation wrapping Angular's `HttpClient`
+- Compatible with Angular's dependency injection and `HttpClientModule`
+- Supports OPRA interceptors alongside Angular's own HTTP interceptors
+- Works with `@opra/client` typings — same API, Angular-native transport
+
+## Installation
+
+```bash
+npm install @opra/angular
+```
+
+## Usage
+
+```typescript
+import { OpraAngularClient } from '@opra/angular';
+import { HttpClient } from '@angular/common/http';
+import { Injectable } from '@angular/core';
+
+@Injectable({ providedIn: 'root' })
+export class ApiClient extends OpraAngularClient {
+  constructor(http: HttpClient) {
+    super(http, 'https://api.example.com', { document: apiDocument });
+  }
+}
+```
 
 ## Node Compatibility
+
 - node >= 20.x
 
-
 ## License
+
 Available under [MIT](LICENSE) license.
 
 [npm-image]: https://img.shields.io/npm/v/@opra/angular

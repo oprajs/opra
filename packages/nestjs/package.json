@@ -4,6 +4,7 @@
   "description": "Opra NestJS module",
   "author": "Panates",
   "license": "MIT",
+  "homepage": "https://www.oprajs.com",
   "scripts": {
     "compile": "tsc",
     "build": "tsc -b tsconfig-build.json",

@@ -1,19 +1,47 @@
+<div align="center">
+
+<img src="https://oprajs.com/img/logo.svg" width="160" alt="OPRA" />
+
 # @opra/nestjs
+
+Core NestJS integration for the OPRA framework
 
 [![NPM Version][npm-image]][npm-url]
 [![NPM Downloads][downloads-image]][downloads-url]
 [![CI Tests][ci-test-image]][ci-test-url]
 [![Test Coverage][coveralls-image]][coveralls-url]
 
+[Documentation](https://oprajs.com) · [Getting Started](https://oprajs.com/docs/introduction) · [Issues](https://github.com/panates/opra/issues)
 
-## Support
-You can report bugs and discuss features on the [GitHub issues](https://github.com/panates/opra/issues) page.
+</div>
+
+---
+
+Core NestJS integration for the [OPRA](https://oprajs.com) framework. Bridges OPRA controllers and NestJS's dependency injection and module system.
+
+## Features
+
+- **`RpcControllerFactory`** — Wraps OPRA RPC controllers as NestJS-compatible classes
+- **`MQControllerFactory`** — NestJS wrapper for OPRA message queue controllers
+- **`WsControllerFactory`** — NestJS wrapper for OPRA WebSocket controllers
+- **`RpcParamsFactory`** — Parameter extraction and validation from NestJS execution context
+- **`@Public()`** — Decorator to mark endpoints as publicly accessible
+- **`OpraNestUtils`** — Shared utilities for NestJS adapter packages
+
+## Installation
+
+```bash
+npm install @opra/nestjs
+```
+
+> This package is a shared foundation. For transport-specific modules use [`@opra/nestjs-http`](../nestjs-http), [`@opra/nestjs-kafka`](../nestjs-kafka), [`@opra/nestjs-rabbitmq`](../nestjs-rabbitmq), or [`@opra/nestjs-socketio`](../nestjs-socketio).
 
 ## Node Compatibility
+
 - node >= 20.x
 
-
 ## License
+
 Available under [MIT](LICENSE) license.
 
 [npm-image]: https://img.shields.io/npm/v/@opra/nestjs
