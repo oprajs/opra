@@ -9,7 +9,7 @@
 [![CI Tests][ci-test-image]][ci-test-url]
 [![Test Coverage][coveralls-image]][coveralls-url]
 
-[Documentation](https://oprajs.com) · [Getting Started](https://oprajs.com/docs/introduction) · [Packages](#packages) · [Issues](https://github.com/panates/opra/issues)
+[🌐 Documentation](https://oprajs.com) · [🚀 Getting Started](https://oprajs.com/docs/introduction) · [📦 Packages](#packages) · [💬 Issues](https://github.com/panates/opra/issues)
 
 </div>
 

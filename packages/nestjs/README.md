@@ -1,6 +1,8 @@
 <div align="center">
 
-<img src="https://oprajs.com/img/logo.svg" width="160" alt="OPRA" />
+<a href="https://oprajs.com">
+  <img src="https://oprajs.com/img/opra-header-block.webp" width="880" alt="OPRA — Open Platform for Rich APIs" />
+</a>
 
 # @opra/nestjs
 
@@ -11,7 +13,7 @@ Core NestJS integration for the OPRA framework
 [![CI Tests][ci-test-image]][ci-test-url]
 [![Test Coverage][coveralls-image]][coveralls-url]
 
-[Documentation](https://oprajs.com) · [Getting Started](https://oprajs.com/docs/introduction) · [Issues](https://github.com/panates/opra/issues)
+[🌐 Documentation](https://oprajs.com) · [🚀 Getting Started](https://oprajs.com/docs/introduction) · [📦 Packages](https://github.com/panates/opra#packages) · [💬 Issues](https://github.com/panates/opra/issues)
 
 </div>
 
