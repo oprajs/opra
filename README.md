@@ -1,14 +1,8 @@
 <div align="center">
 
-<img src="https://oprajs.com/img/logo.svg" width="200" alt="OPRA Logo" />
-
-<br/>
-
-<img src="https://oprajs.com/img/opra-title.svg" width="240" alt="OPRA" />
-
-### Open Platform for Rich APIs
-
-**Schema-first. Multi-transport. Type-safe end to end.**
+<a href="https://oprajs.com">
+  <img src="https://oprajs.com/img/opra-header-block.webp" width="880" alt="OPRA — Open Platform for Rich APIs" />
+</a>
 
 [![NPM Version][npm-image]][npm-url]
 [![NPM Downloads][downloads-image]][downloads-url]
