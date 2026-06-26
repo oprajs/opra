@@ -3,7 +3,7 @@
   https://github.com/expressjs
  */
 
-import type { CipherKey } from 'node:crypto';
+import type { KeyLike } from 'node:crypto';
 import path from 'node:path';
 import { HttpStatusCode } from '@opra/common';
 import contentDisposition from 'content-disposition';
@@ -78,14 +78,14 @@ export class HttpOutgoingHost {
   }
 
   cookie(name: string, value: any, options?: CookieOptions): this {
-    const opts = { ...options };
-    let val =
+    const opts = { ...options, name, value } satisfies cookie.SetCookie;
+    opts.value =
       typeof value === 'object' ? 'j:' + JSON.stringify(value) : String(value);
 
-    if (opts.signed) {
-      const secret: CipherKey | undefined = opts.secret || this.req?.secret;
+    if (options?.signed) {
+      const secret: KeyLike | undefined = options?.secret || this.req?.secret;
       if (!secret) throw new Error('"secret" required for signed cookies');
-      val = 's:' + cookieSignature.sign(val, secret);
+      opts.value = 's:' + cookieSignature.sign(opts.value, secret);
     }
 
     if (opts.maxAge != null) {
@@ -98,7 +98,7 @@ export class HttpOutgoingHost {
 
     if (opts.path == null) opts.path = '/';
 
-    this.appendHeader('Set-Cookie', cookie.serialize(name, String(val), opts));
+    this.appendHeader('Set-Cookie', cookie.stringifySetCookie(opts));
 
     return this;
   }
